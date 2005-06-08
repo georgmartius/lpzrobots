@@ -2,8 +2,8 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-FILES = main
-CFILES = $(addsuffix .cc, $(FILES))
+FILES = main roboter
+CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = start
