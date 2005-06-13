@@ -11,7 +11,11 @@
 
 #define PI M_PI // (3.14159265358979323846)
 
+#include <ode/common.h>
 #include "configurable.h"
+
+
+void mkVector(dVector3& v, dReal x, dReal y, dReal z);
 
 void showParams(Configurable** configs, int len);
 void changeParams(Configurable** configs, int len);

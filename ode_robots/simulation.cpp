@@ -4,6 +4,14 @@
 using namespace std;
 #include "simulation.h"
 
+void mkVector(dVector3& v, dReal x, dReal y, dReal z){
+  v[0]=x;
+  v[1]=y;
+  v[2]=z;
+  v[3]=0;  
+}
+
+
 void showParams(Configurable** configs, int len){
   paramkey* keys;
   paramval* vals;
