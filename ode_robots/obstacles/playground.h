@@ -1,5 +1,5 @@
-#ifndef __OPLAYGROUND_H
-#define __OPLAYGROUND_H
+#ifndef __PLAYGROUND_H
+#define __PLAYGROUND_H
 
 
 #include <stdio.h>
@@ -8,7 +8,7 @@
 
 #include "abstractobstacle.h"
 
-class OPlayground : public AbstractObstacle{
+class Playground : public AbstractObstacle{
 
   double length, width, height;
   double base_x, base_y, base_z;
@@ -22,7 +22,7 @@ class OPlayground : public AbstractObstacle{
 
  public:
   
-  OPlayground(dWorldID *w, dSpaceID *s):
+  Playground(dWorldID *w, dSpaceID *s):
     AbstractObstacle::AbstractObstacle(w, s){
 
     base_x=0.0;
