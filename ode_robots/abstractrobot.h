@@ -3,8 +3,25 @@
 
 #include <ode/common.h>
 
+#include <vector>
+using namespace std;
+
 typedef double sensor;
 typedef double motor;
+
+typedef struct
+{
+	double r;
+	double g;
+	double b;
+} Color;
+
+typedef struct
+{
+  dBodyID body;
+  dGeomID geom;
+} Object;
+
 
 /**
  * Abstract class (interface) for robot 
@@ -14,7 +31,16 @@ typedef double motor;
 class AbstractRobot{
 public:
 
-  AbstractRobot(){}
+
+  /**
+   * Constructor
+   * @param w world in which robot should be created
+   * @param s space in which robot should be created
+   */
+  AbstractRobot(dWorldID *w, dSpaceID *s){
+    world=w;
+    space=s;
+  };
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
@@ -51,8 +77,15 @@ public:
   /** returns a list with the positionvectors of all segments of the robot
       @param poslist vector with positionvectors (of all robot segments) as elements
   */
-  virtual void getSegmentsPosition(&vector<dVector3> poslist)=0;
-  
+  //  virtual void getSegmentsPosition(&vector<dVector3> poslist)=0;
+  //remove commentar !!
+ protected:
+
+  dSpaceID *space;
+  dWorldID *world;
+
+  Color color;
+
 };
 
 #endif
