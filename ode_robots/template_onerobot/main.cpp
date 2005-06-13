@@ -6,7 +6,6 @@
 #include <math.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
-#include <signal.h>
 
 #include "simulation.h"
 
@@ -40,25 +39,26 @@ Playground playground(&welt, &raum);
 Vehicle vehicle(&welt, &raum);
 
 
+
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
 {
   double x[2];
   double y[2];
 
-  vehicle.getSensors(x);
-  for (int i=0; i<2; i++){
-    x[i]*=0.05;
-  }
+  vehicle.getSensors(x,2);
+//   for (int i=0; i<2; i++){
+//     x[i]*=0.05;
+//   }
   // uniformly distributed noise -> using min=-noise, max=noise
   noise_gen.addColoredUniformlyDistributedNoise(x, -config.noise, config.noise);   
    
   controller->step(x,2,y,2)   ;
 
-  for (int i=0; i<2; i++){
-    y[i]*=20.0;
-  }
-  vehicle.setMotors(y);
+//   for (int i=0; i<2; i++){
+//     y[i]*=20.0;
+//   }
+  vehicle.setMotors(y,2);
 
   return( 1 );
 }
@@ -78,11 +78,12 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
       {
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-        if ((o1=vehicle.box[0]) || (o2=vehicle.box[0]) ){
-	  contact[i].surface.mu = 0.2;//0.8; //normale Reibung von Reifen auf Asphalt
-	}else{
-	  contact[i].surface.mu = 2.0;//0.8; //normale Reibung von Reifen auf Asphalt
-	}
+//         if ((o1=vehicle.box[0]) || (o2=vehicle.box[0]) ){
+// 	  contact[i].surface.mu = 0.2;//0.8; //normale Reibung von Reifen auf Asphalt
+// 	}else{
+// 	  contact[i].surface.mu = 2.0;//0.8; //normale Reibung von Reifen auf Asphalt
+// 	}
+	contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
 	contact[i].surface.slip1 = 0.005;
 	contact[i].surface.slip2 = 0.005;
 	contact[i].surface.soft_erp = 1;
@@ -190,7 +191,9 @@ int main (int argc, char **argv)
   playground.setGeometry(7.0, 0.2, 1.5);
   playground.setPosition(0,0,0); // playground positionieren und generieren
 
-  vehicle.setInitialPosition(-1,0,0);
+  dVector3 v;
+  mkVector(v,-1,0,0);
+  vehicle.setPosition(v);
   vehicle.create();
 
   //********************Simmulationsstart*****************
