@@ -2,14 +2,14 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-FILES = main
+FILES = main ../simulation
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = start
 
 # -pg for profiling
-CFLAGS = -Wall -I. -g
+CFLAGS = -Wall -I. -g -I/usr/local/include
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DNDEBUG
 
@@ -28,11 +28,14 @@ CXX = g++ $(CFLAGS) $(INC)  -c
 CC = g++ $(CFLAGS) 
 #CC = g++ -g3 -pg  
 
-$(EXEC): $(OFILES)
+$(EXEC): Makefile.depend $(OFILES)
 	$(CC) $(OFILES) $(LIBS) $(INC) -o $(EXEC)
 
+Makefile.depend: 
+	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) 2>/dev/null
+	makedepend $(CFLAGS) $(INC) $(CFILES)  -f- > Makefile.depend 2>/dev/null
 
 tags: 
 	etags `find -name "*.[ch]"` 
@@ -40,4 +43,4 @@ tags:
 clean:
 	rm -f $(EXEC) *.o Makefile.depend
 
-# DO NOT DELETE
+include Makefile.depend
