@@ -1,3 +1,7 @@
+
+// TODO
+// textures directory needed
+
 #include <stdio.h>
 #include <math.h>
 #include <drawstuff/drawstuff.h>
@@ -24,6 +28,9 @@ int sim_step = 0;
 #include "invertnchannelcontroller.h"
 AbstractController *controller;
 
+#include <noisegenerator.h>
+NoiseGenerator<2> noise_gen;
+
 OdeConfig config;
 const int configs_len=2; // number of configurable objects
 Configurable* configs[configs_len];
@@ -35,8 +42,8 @@ static dJointGroupID contactgroup;
 dGeomID untergrund; //Untergundfläche
 
 
-#include "oplayground.h"
-OPlayground playground(&welt, &raum);
+#include "playground.h"
+Playground playground(&welt, &raum);
 
 #include "vehicle_2wheels.h"
 Vehicle vehicle(&welt, &raum);
@@ -48,13 +55,13 @@ bool StepRobot()
 {
   double x[2];
   double y[2];
-  
+
   vehicle.getSensors(x);
   for (int i=0; i<2; i++){
     x[i]*=0.05;
   }
   // uniformly distributed noise -> using min=-noise, max=noise
-  // noise_gen.addColoredUniformlyDistributedNoise(x, -noise, noise);   
+  noise_gen.addColoredUniformlyDistributedNoise(x, -config.noise, config.noise);   
    
   controller->step(x,2,y,2)   ;
 
@@ -218,7 +225,7 @@ int main (int argc, char **argv)
 {
 
   controller=getController(2,10);
-
+  
 
   /**************************Grafikabschnitt**********************/
   dsFunctions fn;
@@ -227,7 +234,7 @@ int main (int argc, char **argv)
   fn.step = &simLoop;
   fn.command = 0;
   fn.stop = &end;
-  fn.path_to_textures = "../../textures";
+  fn.path_to_textures = 0;
 
   /***************************ODE-Abschnitt***********************/
 
