@@ -2,10 +2,7 @@
 #define __ABSTRACTROBOT_H
 
 #include <ode/common.h>
-
-#include <vector>
-using namespace std;
-
+ 
 typedef double sensor;
 typedef double motor;
 
@@ -75,10 +72,10 @@ public:
 
 
   /** returns a list with the positionvectors of all segments of the robot
-      @param poslist vector with positionvectors (of all robot segments) as elements
+      @param poslist list with positionvectors (of all robot segments) (free after use!)
+      @return length of the list
   */
-  //  virtual void getSegmentsPosition(&vector<dVector3> poslist)=0;
-  //remove commentar !!
+  virtual int getSegmentsPosition(dVector3*& poslist) = 0;  
  protected:
 
   dSpaceID *space;
