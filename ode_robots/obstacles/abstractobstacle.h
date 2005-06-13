@@ -1,17 +1,8 @@
 #ifndef __ABSTRACTOBSTACLE_H
 #define __ABSTRACTOBSTACLE_H
 
+#include <abstractrobot.h>
 #include <ode/ode.h>
-
-
-
-typedef struct
-{
-	double r;
-	double g;
-	double b;
-} color;
-
 
 
 /**
@@ -57,7 +48,7 @@ class AbstractObstacle{
   dSpaceID *space;
   dWorldID *world;
 
-  color obst_color;
+  Color color;
 
 };
 

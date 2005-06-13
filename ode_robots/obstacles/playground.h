@@ -45,7 +45,7 @@ class Playground : public AbstractObstacle{
   virtual void draw(){
     double box[3];
     //dsSetTexture (DS_WOOD);    
-    dsSetColor (obst_color.r, obst_color.g, obst_color.b);
+    dsSetColor (color.r, color.g, color.b);
 
     box[0] = width; box[1] = length; box[2] = height;
     dsDrawBox ( dGeomGetPosition ( obst1 ) , dGeomGetRotation ( obst1 ) , box );
@@ -79,9 +79,9 @@ class Playground : public AbstractObstacle{
   };
 
   virtual void setColor(double r, double g, double b){
-    obst_color.r=r;
-    obst_color.g=g;
-    obst_color.b=b;
+    color.r=r;
+    color.g=g;
+    color.b=b;
   };
 
  protected:
