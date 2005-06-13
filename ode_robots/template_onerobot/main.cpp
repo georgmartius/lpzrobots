@@ -8,18 +8,9 @@
 #include <ode/ode.h>
 #include <signal.h>
 
+#include "simulation.h"
+
 #include "odeconfig.h"
-
-//dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
-#ifdef dDOUBLE
-#define dsDrawBox dsDrawBoxD
-#define dsDrawSphere dsDrawSphereD
-#define dsDrawCylinder dsDrawCylinderD
-#define dsDrawCappedCylinder dsDrawCappedCylinderD
-#endif
-
-#define PI (3.14159265358979323846)
-
 
 //Steuerungsvariablen
 double SimulationTime = 0;
@@ -49,7 +40,6 @@ Playground playground(&welt, &raum);
 Vehicle vehicle(&welt, &raum);
 
 
-
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
 {
@@ -76,7 +66,7 @@ bool StepRobot()
 
 //Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
 //Hier wird die Kollission näher untersucht
-void nearCallback (void *data, dGeomID o1, dGeomID o2)
+void nearCallback(void *data, dGeomID o1, dGeomID o2)
 {
   int i,n;
 
@@ -105,56 +95,6 @@ void nearCallback (void *data, dGeomID o1, dGeomID o2)
 }
 
 
-void showParams(Configurable** configs, int len){
-  paramkey* keys;
-  paramval* vals;
-  for(int i=0; i < len; i++){
-    int pnum = configs[i]->getParamList(keys,vals);
-    printf("Parameters of %s\n", configs[i]->getName());
-    for(int j=0; j < pnum; j++) {
-      printf(" %s=%f\n", keys[j], vals[j]);
-    }
-    free(keys);
-    free(vals);
-  }
-}
-
-void changeParams(Configurable** configs, int len){
-  char buffer[1024];
-  fgets( buffer, 1024, stdin);
-  if ( strchr(buffer,'?')!=0){
-    showParams(configs, len);
-    return;
-  }
-
-  char *p = strchr(buffer,'=');
-  if (p){
-    *p=0; // terminate key string 
-    double v=strtod(p+1,0);
-    for(int i=0; i < len; i++){
-      if (configs[i]->setParam(buffer,v))
-	printf(" %s=%f \n", buffer, configs[i]->getParam(buffer));
-    }
-  }
-}
-
-
-int Control_C;
-
-void control_c(int i){
-  Control_C++ ;
-  if (Control_C>100)exit(0);
-}
-
-void my_exit(void){
-  signal(SIGINT,SIG_DFL);
-}
-
-void my_init(){
-  signal(SIGINT,control_c);
-  atexit(my_exit);
-}
-
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start() 
@@ -168,12 +108,11 @@ void start()
   // initialization
   config.noise=0.1;
 
-  my_init();
+  cmd_handler_init();
 
   dsPrint ( "\n\nWillkommen beim virtuellen Roboterarmsimulator:\n" );
   dsPrint ( "---------------------------------------------------------------------------------------\n" );
   dsPrint ( "Druecken sie h fuer die Hilfe.\nCtrl-C fuer Aenderung von Parametern\n\n" );
-
 
   configs[0]=&config;
   configs[1]=controller;
@@ -181,20 +120,17 @@ void start()
 }
 
 void end(){
-  my_exit();
 }
+
 
 //Schleife der Simulation
 void simLoop ( int pause )
 {
-  // Parametereingabe
-  if (Control_C!=0){
-    Control_C=0;
-    my_exit();
-    std::cout << "Type: Parameter=Value\n";
+  // Parametereingabe  
+  if (control_c_pressed()){
+    cmd_begin_input();
     changeParams(configs, configs_len);
-
-    my_init();
+    cmd_end_input();
   }
 
   //die Simulation wird nur weitergeführt wenn keine Pause aktiviert wurde
@@ -220,13 +156,11 @@ void simLoop ( int pause )
 
 }
 
-
 int main (int argc, char **argv)
 {
 
   controller=getController(2,10);
   
-
   /**************************Grafikabschnitt**********************/
   dsFunctions fn;
   fn.version = DS_VERSION;
@@ -237,7 +171,6 @@ int main (int argc, char **argv)
   fn.path_to_textures = 0;
 
   /***************************ODE-Abschnitt***********************/
-
 
   //****************Weltdefinitionsabschnitt**************
   //Anlegen der Welt an sich
@@ -257,11 +190,8 @@ int main (int argc, char **argv)
   playground.setGeometry(7.0, 0.2, 1.5);
   playground.setPosition(0,0,0); // playground positionieren und generieren
 
-
   vehicle.setInitialPosition(-1,0,0);
   vehicle.create();
-
-
 
   //********************Simmulationsstart*****************
   dsSimulationLoop ( argc , argv , 500 , 500 , &fn );
@@ -271,6 +201,5 @@ int main (int argc, char **argv)
   dWorldDestroy ( welt );
   dSpaceDestroy ( raum );
   dCloseODE ();
-
   return 0;
 }
