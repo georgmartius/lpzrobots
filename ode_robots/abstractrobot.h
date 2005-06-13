@@ -39,6 +39,19 @@ public:
     space=s;
   };
 
+  /// draws the robot
+  virtual void draw() = 0;
+
+  /// creates the robot at the given position and with the given color.
+  virtual void create(double& x, double& y, double& z, Color& color) = 0;
+
+  /** checks for internal collisions and treats them. In case of a treatment return true else false.
+  */
+  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){
+    return false;
+  }
+  
+
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
       @param sensornumber length of the sensor array
