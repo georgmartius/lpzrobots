@@ -2,7 +2,7 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-FILES = main ../simulation
+FILES = main ../simulation ../robots/vehicle_2wheels
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
@@ -23,9 +23,11 @@ INC   = -I$(LIBHOME)/matrixlib/ -I$(LIBHOME)/controller -I$(LIBHOME)/gnuplot -I$
 
 cc = g++ $(CFLAGS) $(INC) -c
 #cc = g++ $(CFLAGS) -c -O -g3 -pg
-CXX = g++ $(CFLAGS) $(INC)  -c
+# used for single file compilation
+CXX = g++ $(CFLAGS) $(INC)
 
-CC = g++ $(CFLAGS) 
+# used for binary compilation (linking)
+CC = g++ $(CFLAGS)
 #CC = g++ -g3 -pg  
 
 $(EXEC): Makefile.depend $(OFILES)
