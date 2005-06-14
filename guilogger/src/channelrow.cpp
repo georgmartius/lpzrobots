@@ -19,12 +19,6 @@
  ***************************************************************************/
 #include "channelrow.h"
 
-/*ChannelRow::ChannelRow(guilogger *parent, const char *name)
-    : QFrame(parent, name)
-{
-
-}*/
-
 ChannelRow::ChannelRow(const Tag& channelName, int buttons, guilogger *parent, const char *name)
     : QFrame(parent, name)
 {

@@ -19,7 +19,7 @@
  ***************************************************************************/
 #include "qdatasource.h"
 
-/** \brief Class for reading blocks/lines from a pipe (stdin)
+/** \brief Class for reading blocks/lines from a pipe (e.g. stdin)
   * \author Dominic Schneider
   */
 class QPipeReader : public QDataSource

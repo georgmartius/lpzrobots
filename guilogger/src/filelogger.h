@@ -22,6 +22,9 @@
 #include <qobject.h>
 #include <qstring.h>
 
+/** \brief Short class for logging char* strings to file named with date and time.
+  * \author Dominic Schneider
+  */
 class FileLogger : public QObject
 {
     Q_OBJECT
@@ -35,7 +38,7 @@ private:
     QString filename;
 
 private slots:
-    void writeChannelNames(char *);  // deprecated
-    void writeChannelData(char *);
+    void writeChannelNames(char *);  // removes #C from the front of the input string      deprecated
+    void writeChannelData(char *);   // writes the block as it gets it to file
 
 };

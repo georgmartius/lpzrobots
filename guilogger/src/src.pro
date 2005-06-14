@@ -9,7 +9,6 @@ HEADERS += guilogger.h \
            filelogger.h \
            qdatasource.h \
            qserialreader.h \
-           qparsedata.h \
            qpipereader.h 
 SOURCES += guilogger.cpp \
            main.cpp \
@@ -17,7 +16,6 @@ SOURCES += guilogger.cpp \
            channelrow.cpp \
            filelogger.cpp \
            qserialreader.cpp \
-           qparsedata.cpp \
            qpipereader.cpp 
 TEMPLATE = app
 CONFIG += debug \

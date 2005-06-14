@@ -29,8 +29,7 @@
 
 
 QSerialReader::QSerialReader( char bt)
-{    //port="/dev/ttyS1";
-     port="/dev/ttyS0";
+{    port="/dev/ttyS1";
      printf("Default port %s\n", port.latin1());
      baudrate=19200;
      blockterminator = bt;
@@ -39,7 +38,6 @@ QSerialReader::QSerialReader( char bt)
 
 void QSerialReader::run()
 {
-//    printf("Start serial Thread.\n");
     int fd=-1; // file handle
     int baud;
     struct termios newtio;
@@ -55,9 +53,8 @@ void QSerialReader::run()
             return;
     }
 
-    // open port
-    fd = open(port, O_RDWR |O_SYNC);//|O_NONBLOCK);
-//    pthread_testcancel();
+    fd = open(port, O_RDWR |O_SYNC);//|O_NONBLOCK);  // open port
+
     if (fd <0) 
     {   printf("Cannot open serial port %s\n", port.latin1()); 
         return;
@@ -69,35 +66,23 @@ void QSerialReader::run()
     newtio.c_lflag = 0;
     newtio.c_cc[VMIN]=1;
     newtio.c_cc[VTIME]=0;
- 
+
     tcsetattr(fd,TCSANOW,&newtio);
-//    pthread_testcancel();
     tcflush(fd, TCIFLUSH);
-//    pthread_testcancel();
-	
-//    printf("Enter main loop.\n");
+
     char *s = NULL;
-    char *tmp = NULL;
     int size = 0;
-    // main loop
-    while(1){
+
+    while(1){    // main loop
 
         char c;
         int i;
 
-//        pthread_testcancel();
-	// get one character
-//        printf("Now entering com port reading loop... \n");
         do{
-//            printf("try to read\n");
-            i=read( fd, &c, 1);        // 1 Zeichen vom Port fd in c lesen
-//            printf("read %i\n", i);
-//            pthread_testcancel();
+            i=read( fd, &c, 1);        //  get one character from port fd
         } while(i!=1);
 
-//        s+=c;
         if(size > 0 && c=='#') size=0;  // neue Channel Zeile fängt mitten drinne irgendwie an
-
 
         size++;
         s = (char*) realloc( s, size);
@@ -105,34 +90,23 @@ void QSerialReader::run()
 
 
         if(c==blockterminator || c==13 || c==10)  // check if we got a line ending
-        {   // s now contains a complet line readed from serial port
-	    // process comand
-            s[size-1] = '\0';       // make s a Zero terminated string (ZTS)
-//            ReceivedCommand(s);
-//            printf("Blocksize %i  ", size);
+        {   // now s contains a complet line readed from serial port
+            s[size-1] = '\0';       // makes s a Zero terminated string (ZTS)
+
             if(size > 3)
-            {   printf("Readed: %s\n", s);
-//                tmp = (char*) malloc(sizeof(char)*size);
-//                memcpy(tmp, s, size);               // copy data from s to tmp
+            {
+                #ifdef DEBUG
+                   printf("Readed: %s\n", s);
+                #endif
                 emit newData(s);
             }
-//            parseDataBlock( s);  // parst die Zeile vom com port
-//            sendAnswer(s);          // manipuliert s -> neues s
-
-//            pthread_testcancel();
-	    // send answer
-	    // write(fd,s,s.GetLength());  // sendet die Antwort s an den com Port
-	    // pthread_testcancel();
 
             free(s);
             s = NULL;
             size=0;
         }
 
-    }//  end of while loop
+    }   //  end of while loop
     close(fd);
     fd=-1;
-
-//    return true;
-
 }

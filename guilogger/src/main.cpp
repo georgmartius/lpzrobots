@@ -17,13 +17,12 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
+#define DEBUG
 
 #include <qapplication.h>
 #include "guilogger.h"
 #include "filelogger.h"
 #include "qserialreader.h"
-//#include "qparsedata.h"
 #include "qpipereader.h"
 
 /**
@@ -36,6 +35,10 @@ int main( int argc, char ** argv ) {
     QString mode;
     QDataSource *qsource;
     FileLogger fl;
+
+    #ifdef DEBUG
+       printf("DEBUG mode on!\n");
+    #endif
     
     if(argc > 1) mode = argv[1];
     else printf("No mode selected.\n");
@@ -48,20 +51,16 @@ int main( int argc, char ** argv ) {
     else
     {    printf("Using default source: serial port\n");
          qsource = new QSerialReader();
-//         ((QSerialReader*) qsource)->setComport("/dev/ttyS0");
+         //((QSerialReader*) qsource)->setComport("/dev/ttyS1");
     }
 
     guilogger gl;
 
     a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
-    a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));
-    
-//    a.connect(&qparse, SIGNAL(sendGNUPlotChannels(QStringList&)), &gl, SLOT(receiveGNUPlotChannels(QStringList&)));
-//    a.connect(&qparse, SIGNAL(sendGNUPlotData(QStringList&)),     &gl, SLOT(receiveGNUPlotData(QStringList&)));
+    a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
     qsource->start();
 
     gl.setCaption( "GUI Logger" );
-
     gl.show();
 
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );

@@ -57,8 +57,6 @@ public:
 
 private slots:
     void taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on);
-    void receiveGNUPlotChannels(QStringList &names);  // deprecated
-    void receiveGNUPlotData(QStringList &data);       // deprecated
     void receiveRawData(char *);
     void update();
     void GNUPlotUpdate();

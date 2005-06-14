@@ -25,9 +25,7 @@
 #include <qapplication.h>
 
 
-guilogger::guilogger()
-//    : QMainWindow( 0, "guilogger", WDestructiveClose )
-    : QDialog( 0, "guilogger")
+guilogger::guilogger() : QDialog( 0, "guilogger")
 {
     plotwindows = 3;
     updaterate_pwwindow = 20;
@@ -62,6 +60,7 @@ guilogger::~guilogger()
 }
 
 
+// what happens if one of the checkboxs is toggled
 void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
 {
 //    printf("%s toggled, %i ", tag.latin1(), gpwindow);
@@ -80,9 +79,12 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
 }
 
 
+// adds the channel to GNUPlot and refuses adding the channel if it already exists
 void guilogger::addChannel(const QString &name, const std::string &title, const std::string &style)
 {
-    printf("Trying to add Channel: %s\n", name.latin1());
+    #ifdef DEBUG
+       printf("Trying to add Channel: %s\n", name.latin1());
+    #endif
     int status=0;
     listtype::iterator i;
 
@@ -103,28 +105,34 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
         layout->addWidget(newrow);
         newrow->show();
         channellist.append(newrow);
-        printf("   Channel added\n");
+        #ifdef DEBUG
+           printf("   Channel added\n");
+        #endif
     }
-    else printf("   Channel already inserted.\n");
-
+    #ifdef DEBUG
+       else printf("   Channel already inserted.\n");
+    #endif
 }
 
+
+// enqueue the raw and unparsed data
 void guilogger::receiveRawData(char *data)
 {   QMutex mutex;
     mutex.lock();
-    inputbuffer.enqueue(new QString(data));
+       inputbuffer.enqueue(new QString(data));
     mutex.unlock();
-
-//    free(data);
 }
 
 
+// put the data in every window available
 void guilogger::putData(const QString &name, double data)
 {
-    for(int i=0; i<plotwindows; i++) gp[i].putData(name, data);  // in jedes Fenster Daten putten
+    for(int i=0; i<plotwindows; i++) gp[i].putData(name, data);
 }
 
 
+// emties the buffer queue and parses the data then putting it to GNUPlot
+// updates the GNUPlot data queues with fresh data
 void guilogger::update()
 {   QString *data;
     QStringList parsedString;
@@ -139,12 +147,11 @@ void guilogger::update()
 
        parsedString = QStringList::split(' ', *data);
 
-       if(*(parsedString.begin()) == "#C")   //Channels einfügen
+       if(*(parsedString.begin()) == "#C")   //Channels einlesen
        {   parsedString.remove(parsedString.begin());  // remove #C preambel
-           for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel(*i);
+           for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel(*i);  //transmit channels to GNUPlot
 
-           //framecounter++;
-           for(int i=0; i<plotwindows; i++) if(gpWindowVisibility[i]) gp[i].plot();
+           for(int i=0; i<plotwindows; i++) if(gpWindowVisibility[i]) gp[i].plot();  // show channels imediatly
        }
        else   // Daten einlesen
        {
@@ -152,58 +159,25 @@ void guilogger::update()
            i = parsedString.begin();
 
            while((i != parsedString.end()) && (inames != nameslists[0].end()))
-           {   putData(*inames, (*i).toFloat());
+           {   putData(*inames, (*i).toFloat());  // send data and correlated channel name to GNUPlot
                i++;
                inames++;
            }
-           
-//           framecounter++;
+
 //           if((framecounter % 20) == 0) for(int i=0; i<plotwindows; i++) if(gpWindowVisibility[i]) gp[i].plot();
        }
 
-       printf("Parse: %s\n", data->latin1());
+       #ifdef DEBUG
+          printf("Parse: %s\n", data->latin1());
+       #endif
     }
-
-//    framecounter++;
-//    if((framecounter % 10) == 0)
-//      for(int i=0; i<plotwindows; i++) if(gpWindowVisibility[i]) gp[i].plot();
 
 }
 
+
+// updates every n milliseconds one of the GNUPlot windows
 void guilogger::GNUPlotUpdate()
-{    //if((framecounter % 20) == 0) for(int i=0; i<plotwindows; i++) if(gpWindowVisibility[i]) gp[i].plot();
-    framecounter++; 
+{   framecounter++; 
     int i = framecounter % plotwindows;
     gp[i].plot();
-    //     if(i < plotwindows ) gp[i].plot();
 }
-
-// deprecated
-void guilogger::receiveGNUPlotChannels(QStringList &names)
-{
-    QStringList::iterator i = names.begin();
-
-    while(i != names.end())
-    {   addChannel(*i);
-        i++;
-    }
-
-    // damit die dynamisch erzeugten Zeilenelemente angezeigt werden
-    QThread::postEvent(this, new QShowEvent()); // Hack !!?? 
-}
-
-// deprecated
-void guilogger::receiveGNUPlotData(QStringList &data)
-{
-    QStringList::iterator idata = data.begin();
-    listtype::iterator inames = nameslists[0].begin();
-
-    while((idata != data.end()) && (inames != nameslists[0].end()))
-    {   putData(*inames, (*idata).toFloat());
-        idata++;
-        inames++;
-    }
-
-    update();
-}
-
