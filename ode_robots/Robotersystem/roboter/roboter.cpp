@@ -18,123 +18,205 @@
 
 #define SCHLANGENGLIEDLAENGE 0.6
 #define SCHLANGENGLIEDDICKE 0.3
-#define MOTOR_WINKELGESCHWINDIGKEITSFAKTOR 5
-#define DIFFERENZVERSTAERKUNGSFAKTOR 1
-
-
 
 
 #define MAX_CONTROLERANZAHL 8
 
-/******************************************Typendeklarationen*****************************************/
-typedef struct
+
+/**
+ *Stanndartkonstruktor
+ *@author Marcel Kretschmann
+ *@version alpha 1.0
+ **/
+virtual Roboter::Roboter ()
 {
-	double x;
-	double y;
-	double z;
-} raumvektor;
 
-typedef struct
+}
+
+/**
+ *Konstruktor
+ *@param int Roboterkennummer
+ *@param dWorldID Referenz auf die ODE-Simulationswelt, in der der Roboter angelegt werden soll
+ *@author Marcel Kretschmann
+ *@version alpha 1.0
+ **/
+virtual Roboter::Roboter ( int startRoboterID , dWorldID welt , dSpaceID raum )
 {
-   	double istwinkel; //aktueller Winkelwert, im Bogenmass
-	double istwinkel_alt;
-	double sollwinkel;
-	//double winkelgeschwindigkeit; //Geschwindigkeit und Richtung des winkels
+	roboterID = startRoboterID;
+	
+	//**********************Controler-Abschnitt********************
+	for (int i=0; i<MAX_CONTROLERANZAHL;i++)
+	{
+		y[i]=0.0;
+	}
+	
+	noise=0.1;
+	
+	epsilon=roboter_controller.getEps();
+	rho=roboter_controller.getRho();
+	Delta=roboter_controller.getDelta();
+	NumberStepsForAveraging=roboter_controller.getNumberStepsForAveraging();
+	NumberStepsOfDelay=roboter_controller.getNumberStepsOfDelay();
+	m=roboter_controller.getM();
 
-        double x;
-        double y;
-        double z;
-} Sensor;
+}
+
+/**
+ *Destruktor
+ *@author Marcel Kretschmann
+ *@version alpha 1.0
+ **/
+virtual ~Roboter::Roboter()
+{
+}
 
 
-/***********************************Hilfsfunktionendefinitionen***************************************/
+
+
+/*************************************************************/
+	
+	/**
+	 *Zeichnet die Koerper-GeometrieObjekte.
+	 *@author Marcel Kretschmann
+	 *@version alpha 1.0
+	 **/
+	virtual void draw()
+	{
+	
+	}
+	
+	/// creates the robot at the given position and with the given color.
+	virtual void create(double& x, double& y, double& z, Color& color)
+	{
+	}
+	
+	/**
+	*Hier wird die zu setzende Winkeldifferenz zum aktuellen Winkel des Motors hinzugegeben.
+	*Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam.
+	*Hier wird die Kollission untersucht.
+	*@param void*
+	*@param dGeomID erstes GeometrieObject das an der Kollission beteiligt ist
+	*@param dGeomID zweites GeometrieObject das an der Kollission beteiligt ist
+	*@author Marcel Kretschmann
+	*@version development
+	**/
+	virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2)
+	{
+		//Ueberpruefung ob  die Kollision mit dem Roboter zusammenhing
+		bool tmp_kollisionsbeteiligung = false;
+		for ( int n = 0; n < getObjektAnzahl (); n++ )
+		{
+			if ( getObjektAt ( n ).geom == o1 || getObjektAt ( n ).geom == o2 )
+			{
+				tmp_kollisionsbeteiligung = true;
+				break;
+			}
+		}
+		//wenn eine Beteiligung des Roboters der Fall ist, erfolgt die Kollisionsbehandlung 
+		if ( tmp_kollisionsbeteiligung == true )		
+		{
+			int i,n;
+			const int N = 10;
+			dContact contact[N];
+			bool kollission = false;
+		
+			//Test ob einige der Roboterkollisionen eventuell nicht behandelt werden sollen
+			if ( (*robotersammlung.back ()).kollisionsermittlung ( o1 , o2 ) == true )
+				kollission = true;
+		
+			if ( kollission == false )
+			{
+				n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+				if (n > 0)
+					for (i=0; i<n; i++)
+					{
+						contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+						dContactSoftERP | dContactSoftCFM | dContactApprox1;
+						contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
+						contact[i].surface.slip1 = 0.005;
+						contact[i].surface.slip2 = 0.005;
+						contact[i].surface.soft_erp = 1;
+						contact[i].surface.soft_cfm = 0.00001;
+						dJointID c = dJointCreateContact (welt,contactgroup,&contact[i]);
+						dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
+					}
+			}
+			return true; //wenn die Kollision durch diesen Roboter beahndelt wurde
+		}
+		else return false; //wenn die Kollision nicht durch diesen Roboter beahndelt wurde
+	}
+	
+	/** returns actual sensorvalues
+	@param sensors sensors scaled to [-1,1] 
+	@param sensornumber length of the sensor array
+	@return number of actually written sensors
+	*/
+	virtual int getSensors(sensor* sensors, int sensornumber)
+	{
+		for ( int n = 0; n < sensornumber; n++ )
+			getWinkelDifferenz ( sensornumber , sensors++ );
+
+		return getSensorfelGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
+	}
+	
+	/** sets actual motorcommands
+	@param motors motors scaled to [-1,1] 
+	@param motornumber length of the motor array
+	*/
+	virtual void setMotors(motor* motors, int motornumber)
+	{
+		for ( int n = 0; n < motornumber; n ++ )
+			setMotorWinkel ( motornumber , *(motors++) );
+	}
+	
+	
+	/** returns number of sensors
+	*/
+	virtual int getSensorNumber()
+	{
+		return getSensorfeldGroesse ();
+	}
+	
+	/** returns number of motors
+	*/
+	virtual int getMotorNumber()
+	{
+		return getMotorAnzahl ();
+	}
+	
+	/** sets the position of robot to pos
+	@param pos vector of desired position (x,y,z)
+	*/
+	virtual void setPosition(const dVector3& pos);
+	
+	/** returns position of robot 
+	@param pos vector of desired position (x,y,z)
+	*/
+	virtual void getPosition(dVector3& pos);
+	
+	
+	/** returns a list with the positionvectors of all segments of the robot
+	@param poslist list with positionvectors (of all robot segments) (free after use!)
+	@return length of the list
+	*/
+	virtual int getSegmentsPosition(dVector3*& poslist);
+	
+	
+	
+	/***********************************************************/
+
+
+
+
 
 
 /**
- *Dies ist eine universelle Basisklasse, welche die Grundfunktionalitaet eines Roboters.
+ *Gibt die Anzahl der Objekte aus denen der Roboter aufgebaut ist.
+ *@return int Anzahl der Objekte aus denen der Roboter besteht
  *@author Marcel Kretschmann
- *@version development
+ *@version alpha 1.0
  **/
-class Roboter : public AbstractRobot
-{
-
-public:
-	//Sensoren sind allgemein zugänglich, da ein eventuelles schreiben oder loeschen sowieso nur eine Runde bestehen bleibt
-	vector <Sensor> sensorfeld;
-
-protected:
-	//Eigenschaften
-	int roboterID;
-	
-	vector <objekt> objektliste;
-	vector <dJointID> jointliste;
-	vector <dJointID> motorliste;
-	
-	//Controlervariablen
-	RobotLearnControl_Gnu<MAX_CONTROLERANZAHL,10>  roboter_controller;
-	NoiseGenerator<MAX_CONTROLERANZAHL> noise_gen;
-	
-	double epsilon;
-	double noise;
-	double rho;
-	double Delta;
-	double a_faktor;
-	double mue;
-	int NumberStepsForAveraging;
-	int NumberStepsOfDelay;
-	double m;
-	
-	double  y[MAX_CONTROLERANZAHL-1];
-	int t;
-
-public:
-
-	/**
-	 *Stanndartkonstruktor
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-	Roboter ()
-	{
-	
-	}
-
-	/**
-	 *Konstruktor
-	 *@param int Roboterkennummer
-	 *@param dWorldID Referenz auf die ODE-Simulationswelt, in der der Roboter angelegt werden soll
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-	Roboter ( int startRoboterID , dWorldID welt , dSpaceID raum )
-	{
-		roboterID = startRoboterID;
-		
-		//**********************Controler-Abschnitt********************
-		for (int i=0; i<MAX_CONTROLERANZAHL;i++)
-		{
-			y[i]=0.0;
-		}
-		
-		noise=0.1;
-		
-		epsilon=roboter_controller.getEps();
-		rho=roboter_controller.getRho();
-		Delta=roboter_controller.getDelta();
-		NumberStepsForAveraging=roboter_controller.getNumberStepsForAveraging();
-		NumberStepsOfDelay=roboter_controller.getNumberStepsOfDelay();
-		m=roboter_controller.getM();
-
-
-	}
-	
-	/**
-	 *Gibt die Anzahl der Objekte aus denen der Roboter aufgebaut ist.
-	 *@return int Anzahl der Objekte aus denen der Roboter besteht
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-	virtual int getObjektAnzahl ()
+virtual int Roboter::getObjektAnzahl ()
 	{
 		return objektliste.size ();
 	}
@@ -218,7 +300,7 @@ public:
 	 **/
 	void setMotorWinkel ( int motornummer , double winkelgeschwindigkeit )
 	{
-		dJointSetAMotorParam ( motorliste[motornummer] , dParamVel , winkelgeschwindigkeit*MOTOR_WINKELGESCHWINDIGKEITSFAKTOR );
+		dJointSetAMotorParam ( motorliste[motornummer] , dParamVel , winkelgeschwindigkeit );
 	}
 	
 	/**
@@ -296,60 +378,7 @@ public:
 			sensorfeld[n].istwinkel = dJointGetAMotorAngle ( getMotorAt ( n ) , 0 );
 		}
 	}
-	
-	/**
-	 *Setzt bei allen dem Roboter zugeordneten Motoren die neue Winkelgeschwindigkeit
-	 *auf den Ausgabewert des Controlers
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-	void motorAktualisierung ()
-	{	
-		for ( int n = 0; n < getSensorfeldGroesse (); n++ )
-		{
-			setMotorWinkel ( n , ((y[n])/DIFFERENZVERSTAERKUNGSFAKTOR) );
-		}
-	}
 
-	/**
-	 *Dies führt einen Controlerberechnungsschritt durch, bei dem das zugrundeliegende neuronale Netz
-	 *eine Takt weiter geführt wird.
-	 *@return bool
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-	bool StepRobot()
-	{
-		double X[MAX_CONTROLERANZAHL];
-
-		// Sensordaten auslesen
-		//_________________________
-	
-		//Auslesen aller existenten Sensoren
-		for ( int n = 0; n < getSensorfeldGroesse (); n++ )
-			getWinkelDifferenz ( n , &X[n] );
-		//alle anderen Controlereingabedaten werden direkt aus den vorhergehenden Ausgabedaten bestimmt
-		for ( int n = getSensorfeldGroesse (); n < MAX_CONTROLERANZAHL; n++ )
-			X[n] = y[n];
-		
-	
-		noise_gen.addColoredNormallyDistributedNoise(X, noise*0.5); //normally distributed noise -> noise=0.1 soll variance 0.05 sein, dehalb mit 0.5 multiplizieren
-	
-		noise_gen.addColoredUniformlyDistributedNoise(X, -noise, noise);   // uniformly distributed noise -> using min=-noise, max=noise
-	
-		roboter_controller.makeStep(X,y);
-	
-		// Motorkommando setzen
-		//_____________________
-	
-		motorAktualisierung ( );
-		
-		t+=1   ;
-		//pas++  ;
-	
-		return( 1 );
-	}
-	
 	/**
 	 *Diese Funktion ermittelt ob es zwischen bestimmten Elementen des Roboters eine kollision gibt,
 	 *und verhindert, dass diese Kollision in die globale Kollisionsbehandlung mit einfließt.
@@ -365,16 +394,6 @@ public:
 	}
 	
 	/**
-	 *Zeichnet die Koerper-Geometrieobjekte.
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-	void zeichneRoboter ()
-	{
-		
-	}
-	
-	/**
 	 *Gibt die aktuellen Controler-Steuerungsparameter als Text aus.
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
@@ -387,45 +406,5 @@ public:
 	
 };
 
-/**
- *Hier wird die zu setzende Winkeldifferenz zum aktuellen Winkel des Motors hinzugegeben.
- *Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam.
- *Hier wird die Kollission untersucht.
- *@param void*
- *@param dGeomID erstes Geometrieobjekt das an der Kollission beteiligt ist
- *@param dGeomID zweites Geometrieobjekt das an der Kollission beteiligt ist
- *@author Marcel Kretschmann
- *@version development
- **/
-void nearCallback (void *data, dGeomID o1, dGeomID o2)
-{
- 	int i,n;
- 	const int N = 10;
- 	dContact contact[N];
- 	bool kollission = false;
- 	
-		for ( unsigned int n = 0; n < robotersammlung.size (); n++ )
-			if ( (*robotersammlung.back ()).kollisionsermittlung ( o1 , o2 ) == true )
-				kollission = true;
-	
-		if ( kollission == false )
-		{
-			n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-			if (n > 0) {
-			for (i=0; i<n; i++)
-			{
-				contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-				dContactSoftERP | dContactSoftCFM | dContactApprox1;
-				contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
-				contact[i].surface.slip1 = 0.005;
-				contact[i].surface.slip2 = 0.005;
-				contact[i].surface.soft_erp = 1;
-				contact[i].surface.soft_cfm = 0.00001;
-				dJointID c = dJointCreateContact (welt,contactgroup,&contact[i]);
-				dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
-			}
-		}
- 	
-	}
-}
+
 
