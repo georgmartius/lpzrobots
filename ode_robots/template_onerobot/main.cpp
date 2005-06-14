@@ -1,7 +1,3 @@
-
-// TODO
-// textures directory needed
-
 #include <stdio.h>
 #include <math.h>
 #include <drawstuff/drawstuff.h>
@@ -37,7 +33,6 @@ Playground playground(&welt, &raum);
 
 #include "vehicle_2wheels.h"
 Vehicle vehicle(&welt, &raum);
-
 
 
 // Funktion die die Steuerung des Roboters uebernimmt
@@ -154,8 +149,22 @@ void simLoop ( int pause )
       vehicle.draw();
     }
   }
+  else{
+    playground.draw(); // box zeichnen
+    vehicle.draw();
+  }
 
 }
+
+Position mkPosition(double x, double y, double z){
+  Position pos={x, y, z};
+  return pos;
+};
+Color mkColor(double r, double g, double b){
+  Color color={r, g, b};
+  return color;
+};
+
 
 int main (int argc, char **argv)
 {
@@ -182,7 +191,7 @@ int main (int argc, char **argv)
   raum = dHashSpaceCreate (0);
 
   contactgroup = dJointGroupCreate ( 1000000 );
-
+ 
   //Weltgravitataet
   dWorldSetGravity ( welt , 0 , 0 , -9.81 );
   dWorldSetERP ( welt , 1 );
@@ -190,11 +199,12 @@ int main (int argc, char **argv)
 		
   playground.setGeometry(7.0, 0.2, 1.5);
   playground.setPosition(0,0,0); // playground positionieren und generieren
+   
+  vehicle.place(mkPosition(0,1,0));
 
-  dVector3 v;
-  mkVector(v,-1,0,0);
-  vehicle.setPosition(v);
-  vehicle.create();
+  vector<Position> pl;
+  int n=vehicle.getSegmentsPosition(pl);
+  std::cout<<"n="<<n<<"  x="<<pl[0].x<<"  y="<<pl[0].y<<"  z="<<pl[0].z<<std::endl;  
 
   //********************Simmulationsstart*****************
   dsSimulationLoop ( argc , argv , 500 , 500 , &fn );
@@ -206,3 +216,4 @@ int main (int argc, char **argv)
   dCloseODE ();
   return 0;
 }
+ 
