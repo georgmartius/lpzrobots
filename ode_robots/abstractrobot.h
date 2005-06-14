@@ -15,6 +15,13 @@ typedef struct
 
 typedef struct
 {
+	double x;
+	double y;
+	double z;
+} Position;
+
+typedef struct
+{
   dBodyID body;
   dGeomID geom;
 } Object;
@@ -76,19 +83,19 @@ public:
   /** sets the position of robot to pos
       @param pos vector of desired position (x,y,z)
    */
-  virtual void setPosition(const dVector3& pos)=0;
+  virtual void setPosition(const Position pos)=0;
  
   /** returns position of robot 
       @param pos vector of desired position (x,y,z)
    */
-  virtual void getPosition(dVector3& pos)=0;
+  virtual Position getPosition()=0;
 
 
   /** returns a list with the positionvectors of all segments of the robot
       @param poslist list with positionvectors (of all robot segments) (free after use!)
       @return length of the list
   */
-  virtual int getSegmentsPosition(dVector3*& poslist) = 0;  
+  virtual int getSegmentsPosition(Position*& poslist) = 0;  
  protected:
 
   dSpaceID *space;
@@ -96,7 +103,7 @@ public:
 
   Color color;
 
-};
+} ;
 
-#endif
+ #endif
  
