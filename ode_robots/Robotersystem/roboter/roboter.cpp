@@ -133,7 +133,7 @@ void Roboter::place (Position pos, Color *c)
 					contact[i].surface.soft_erp = 1;
 					contact[i].surface.soft_cfm = 0.00001;
 /*>>>>>>>>>>>>>>>>>>>>>(*world) zu world*/
-					dJointID c = dJointCreateContact ( (*world) , contactgroup , &contact[i] );
+					dJointID c = dJointCreateContact ( (*world) , (*contactgroup) , &contact[i] );
 					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
 				}
 		}
@@ -181,15 +181,6 @@ void Roboter::place (Position pos, Color *c)
 {
 	return getMotorAnzahl ();
 }
-
-/** returns position of robot 
-@param pos vector of desired position (x,y,z)
-*/
-Position Roboter::getPosition ()
-{
- 
-}
-
 
 /** returns a list with the positionvectors of all segments of the robot
 @param poslist list with positionvectors (of all robot segments) (free after use!)

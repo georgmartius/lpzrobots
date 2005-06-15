@@ -1,6 +1,7 @@
-##File:     Makefile for Matrix libary
+#File:     Makefile for Matrix libary
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
+
 
 FILES = schlange
 CFILES = $(addsuffix .cpp, $(FILES))
@@ -13,19 +14,24 @@ CFLAGS = -Wall -I. -g -I/usr/local/include
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DNDEBUG
 
-LIBHOME=../../
-ODEHOME=../
+LIBHOME=../..
+ODEHOME=$(LIBHOME)/ode_robots
 MATRIX=matrix
 #MATRIX=matrix_debug
+SIMPATHS = . obstacles robots agents
+
 
 LIBS   = -lm -L$(LIBHOME)/matrixlib/  -l$(MATRIX) -lode -ldrawstuff -lGL -lGLU -lglut
-INC   = -I$(LIBHOME)/matrixlib/ -I$(LIBHOME)/controller -I$(LIBHOME)/gnuplot -I$(LIBHOME)/ode_robots -I$(ODEHOME)/obstacles -I$(ODEHOME)/robots 
+INC   = -I$(LIBHOME)/matrixlib/ -I$(LIBHOME)/controller -I$(LIBHOME)/gnuplot \
+	$(addprefix -I$(ODEHOME)/, $(SIMPATHS)) 
 
 cc = g++ $(CFLAGS) $(INC) -c
 #cc = g++ $(CFLAGS) -c -O -g3 -pg
-CXX = g++ $(CFLAGS) $(INC)  -c
+# used for single file compilation
+CXX = g++ $(CFLAGS) $(INC)
 
-CC = g++ $(CFLAGS) 
+# used for binary compilation (linking)
+CC = g++ $(CFLAGS)
 #CC = g++ -g3 -pg  
 
 $(EXEC): Makefile.depend $(OFILES)

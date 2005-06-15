@@ -13,7 +13,7 @@
 
 using namespace std;
 
-#include "../../abstractrobot.h"
+#include "../abstractrobot.h"
 
 /****************************************************/
 

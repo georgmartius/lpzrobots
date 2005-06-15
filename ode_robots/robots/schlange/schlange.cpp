@@ -248,7 +248,7 @@ void Schlange::place (Position pos, Color *c)
 					contact[i].surface.soft_erp = 1;
 					contact[i].surface.soft_cfm = 0.00001;
 /*>>>>>>>>>>>>>>>>>>>>>(*world) zu world*/
-					dJointID c = dJointCreateContact ( (*world) , contactgroup , &contact[i] );
+					dJointID c = dJointCreateContact ( (*world) , (*contactgroup) , &contact[i] );
 					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
 				}
 		}
