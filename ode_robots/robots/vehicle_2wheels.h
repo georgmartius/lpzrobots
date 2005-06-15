@@ -7,7 +7,7 @@ class Vehicle : public AbstractRobot{
 
 public:
   
-  Vehicle(dWorldID *w, dSpaceID *s);
+  Vehicle(dWorldID *w, dSpaceID *s, dJointGroupID *c);
 
   virtual ~Vehicle(){};
 
@@ -20,7 +20,7 @@ public:
       @params pos desired position of the robot in struct Position
       @param c desired color for the robot in struct Color
   */
-  virtual void place(Position pos =default_pos, Color *c = 0);
+  virtual void place(Position pos , Color *c /*= 0*/);
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
@@ -70,7 +70,6 @@ protected:
   virtual void destroy();
 
 
-  static const Position default_pos; // default position (0,0,0)
   double length;  // chassis length
   double width;  // chassis width
   double height;   // chassis height

@@ -6,10 +6,8 @@
 #include "vehicle_2wheels.h"
 
 
-const Position Vehicle::default_pos = {0,0,0};
-
-Vehicle::Vehicle(dWorldID *w, dSpaceID *s):
-  AbstractRobot::AbstractRobot(w,s){
+Vehicle::Vehicle(dWorldID *w, dSpaceID *s, dJointGroupID *c):
+  AbstractRobot::AbstractRobot(w, s, c){
 
   initial_pos.x=0.0;
   initial_pos.y=0.0;
@@ -65,7 +63,7 @@ int Vehicle::getSensors(sensor* sensors, int sensornumber){
     @params pos desired position of the robot in struct Position
     @param c desired color for the robot in struct Color
 */
-void Vehicle::place(Position pos /*=default_pos*/, Color *c /*= 0*/){
+void Vehicle::place(Position pos, Color *c /*= 0*/){
   if (!c==0) {
     color=*c;
   }
@@ -80,7 +78,6 @@ void Vehicle::place(Position pos /*=default_pos*/, Color *c /*= 0*/){
   }
 };
 
- 
 /** returns position of robot 
     @return position robot position in struct Position  
 */
