@@ -31,6 +31,8 @@ using namespace std;
 class Schlange : public Roboter
 {
 private:
+	vector<dGeomID> schlangenhuellenliste;
+
 	int schlangenarmanzahl;
 	double gliederdurchmesser;
 	double gliederlaenge;

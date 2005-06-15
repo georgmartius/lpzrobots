@@ -58,7 +58,8 @@ Roboter::Roboter ( startRoboterID , world , space , start_contactgroup , start_S
 	for ( int n = 0; n < armanzahl; n++ )
 	{
 		tmp_body.body = dBodyCreate ( *world );
-		objektliste.push_back ( tmp_body );	
+		objektliste.push_back ( tmp_body );
+		
 	
 		dBodySetPosition ( (objektliste.back ()).body , start_x + (n + 0.5 )*glieder_laenge + n * glieder_abstand, start_y ,  start_z );
 
@@ -68,12 +69,14 @@ Roboter::Roboter ( startRoboterID , world , space , start_contactgroup , start_S
 		dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
 
 		//Die zweite Geometriehuelle wird hier verwendet um eine aeussere Schlangenhuelle zu erzeugen
-		objektliste.back ().geom2 = dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
-		dGeomSetBody ( objektliste.back ().geom2 , objektliste.back ().body );	
+		dGeomID tmp_geom;
+		tmp_geom = dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
+		schlangenhuellenliste.push_back ( tmp_geom );
+		dGeomSetBody ( schlangenhuellenliste.back () , objektliste.back ().body );	
 		
 		//dBodySetRotation ( (objektliste.back ()).body , R );
 		dGeomSetRotation ( (objektliste.back ()).geom , R );
-		dGeomSetRotation ( (objektliste.back ()).geom2 , R );
+		dGeomSetRotation ( schlangenhuellenliste.back () , R );
 	}
 
 	//*****************Join-Generierungsabschnitt***********
@@ -149,7 +152,7 @@ void Schlange::draw()
 	for ( int n = 0; n < schlangenarmanzahl; n++ )
 	{
 			dsDrawBox ( dGeomGetPosition ( getObjektAt ( n ).geom ) , dGeomGetRotation ( getObjektAt ( n ).geom ) , box );
-			dsDrawCappedCylinder ( dGeomGetPosition ( getObjektAt ( n ).geom2 ) , dGeomGetRotation ( getObjektAt ( n ).geom2 ) , gliederlaenge , gliederdurchmesser );
+			dsDrawCappedCylinder ( dGeomGetPosition ( schlangenhuellenliste[n] ) , dGeomGetRotation ( schlangenhuellenliste[n] ) , gliederlaenge , gliederdurchmesser );
 	}
 }
 	
@@ -170,11 +173,11 @@ bool Schlange::kollisionsermittlung ( dGeomID o1 , dGeomID o2 )
 	{
 		if 
 		(
-		( getObjektAt ( n ).geom2 == o1 && getObjektAt ( n + 1 ).geom2 == o2 ) || ( getObjektAt ( n ).geom2 == o2 && getObjektAt ( n + 1 ).geom2 == o1 )
-		|| ( getObjektAt ( n ).geom2 == o1 && getObjektAt ( n + 1 ).geom == o2 ) || ( getObjektAt ( n ).geom2 == o2 && getObjektAt ( n + 1 ).geom == o1 )
-		|| ( getObjektAt ( n ).geom == o1 && getObjektAt ( n + 1 ).geom2 == o2 ) || ( getObjektAt ( n ).geom == o2 && getObjektAt ( n + 1 ).geom2 == o1 )
+		( schlangenhuellenliste[n] == o1 && schlangenhuellenliste[n+1] == o2 ) || ( schlangenhuellenliste[n] == o2 && schlangenhuellenliste[n+1] == o1 )
+		|| ( schlangenhuellenliste[n] == o1 && schlangenhuellenliste[n+1] == o2 ) || ( schlangenhuellenliste[n] == o2 && schlangenhuellenliste[n+1] == o1 )
+		|| ( schlangenhuellenliste[n] == o1 && schlangenhuellenliste[n+1] == o2 ) || ( schlangenhuellenliste[n] == o2 && schlangenhuellenliste[n+1] == o1 )
 		)
-			if ( ( getObjektAt ( n ).geom2 == o1 ) || ( getObjektAt ( n ).geom2 == o2 ) )
+			if ( ( schlangenhuellenliste[n] == o1 ) || ( schlangenhuellenliste[n] == o2 ) )
 				return true;	
 	}
 	return false;
