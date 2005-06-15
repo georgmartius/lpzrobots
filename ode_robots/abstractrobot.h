@@ -43,10 +43,12 @@ public:
    * Constructor
    * @param w world in which robot should be created
    * @param s space in which robot should be created
+   * @param c contactgroup for collision treatment
    */
-  AbstractRobot(dWorldID *w, dSpaceID *s){
+  AbstractRobot(dWorldID *w, dSpaceID *s, dJointGroupID *c){
     world=w;
     space=s;
+    contactgroup=c;
   };
 
   /// draws the robot
@@ -56,10 +58,12 @@ public:
     @params pos desired position of the robot in struct Position
     @param c desired color for the robot in struct Color
 */
-  virtual void place(Position pos, Color *c) = 0;
+  virtual void place(Position pos , Color *c = 0) = 0;
 
-  /** checks for internal collisions and treats them. In case of a treatment return true else false.
-  */
+  /** checks for internal collisions and treats them. 
+   *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
+   *  else false (collision is passed to other objects and (if not treated) to the default routine).
+   */
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){
     return false;
   }
@@ -103,9 +107,13 @@ public:
   dSpaceID *space;
   dWorldID *world;
 
+  dJointGroupID *contactgroup;
+
   Color color;
 
 } ;
+
+
 
  #endif
  
