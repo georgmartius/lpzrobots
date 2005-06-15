@@ -1,4 +1,5 @@
 /************************************************************************/
+/*roboter.h								*/
 /*Robotergrundkonstrukt fuer das eigene ODE-Robotersystem des Authors	*/
 /*@author Marcel Kretschmann						*/
 /*@version alpha 0.3							*/
@@ -9,6 +10,8 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 #include <vector>
+
+using namespace std;
 
 #include "../../abstractrobot.h"
 
@@ -61,7 +64,7 @@ protected:
 	//Eigenschaften
 	int roboterID;
 	
-	vector <Object> Objektliste;
+	vector <Object> objektliste;
 	vector <dJointID> jointliste;
 	vector <dJointID> motorliste;
 	
@@ -85,7 +88,7 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	virtual Roboter ();
+	Roboter ();
 
 	/**
 	 *Konstruktor
@@ -94,14 +97,14 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	virtual Roboter ( int startRoboterID , dWorldID welt , dSpaceID raum );
+	Roboter ( int startRoboterID , dWorldID welt , dSpaceID raum , int startSensoranzahl );
 	
 	/**
 	 *Destruktor
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	virtual ~Roboter::Roboter();
+	virtual Roboter::~Roboter();
 	/*************************************************************/
 	
 	/**
@@ -111,8 +114,11 @@ public:
 	 **/
 	virtual void draw();
 	
-	/// creates the robot at the given position and with the given color.
-	virtual void create(double& x, double& y, double& z, Color& color);
+	/** sets the vehicle to position pos, sets color to c, and creates robot if necessary
+  	@param pos desired position of the robot in struct Position
+    	@param c desired color for the robot in struct Color
+	*/
+	virtual void place(Position pos, Color *c);
 	
 	/**
 	*Hier wird die zu setzende Winkeldifferenz zum aktuellen Winkel des Motors hinzugegeben.
@@ -126,17 +132,17 @@ public:
 	**/
 	virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 	
-	/** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
-	*/
+	/**Gibt die Sensorwerte aus dem Roboterinternensensorfeld an einen uebergebenen Speicherort aus.
+	 *@param sensor* sensors Zeiger auf den Zielort der Sensordaten
+	 *@param int sensornumber Laenge des Sensorenarrays in das gespeichert werden soll
+	 *@return int Anzahl der Sensoren in die schon ein aktueller Wert geschrieben wurde
+	 **/
 	virtual int getSensors(sensor* sensors, int sensornumber);
 	
-	/** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
-	*/
+	/**Setzt die Motorwerte auf die Werte im uebergebenen Werte-Array
+	 *@param motor* motors motors scaled to [-1,1] 
+	 *@param motornumber length of the motor array
+	 **/
 	virtual void setMotors(motor* motors, int motornumber);	
 	
 	
@@ -148,15 +154,11 @@ public:
 	*/
 	virtual int getMotorNumber();
 	
-	/** sets the position of robot to pos
-	@param pos vector of desired position (x,y,z)
-	*/
-	virtual void setPosition(const dVector3& pos);
 	
 	/** returns position of robot 
 	@param pos vector of desired position (x,y,z)
 	*/
-	virtual void getPosition(dVector3& pos);
+	virtual void getPosition(dVector3& pos) = 0;
 	
 	
 	/** returns a list with the positionvectors of all segments of the robot
@@ -190,7 +192,7 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	virtual int getMotorenAnnzahl ();
+	virtual int getMotorAnzahl ();
 	
 	/**
 	 *Gibt ein Objekt zurueck, welches sowohl einen Verweis auf ODE-Body- als auch ODE-Geom-Objekte enthaellt.
@@ -260,14 +262,25 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 
 	 **/
-	virtual int getSensorfeldGroesse ();
+	virtual int getSensorfeldGroesse () = 0;
 	
 	/**
 	 *Ließt die aktuellen Sensordaten erneut in die Sensorspeicherfelder.
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	virtual void sensoraktualisierung ( );	
+	virtual void sensoraktualisierung ( ) = 0;
+	
+	/**
+	 *Diese Funktion ermittelt ob es zwischen bestimmten Elementen des Roboters eine kollision gibt,
+	 *und verhindert, dass diese Kollision in die globale Kollisionsbehandlung mit einfließt.
+	 *@param dGeomID Geometrieobjekt 1, dass an der Kollision beteiligt ist
+	 *@param dGeomID Geometrieobjekt 2, dass an der Kollision beteiligt ist
+	 *@return bool true, wenn keine Kollision zwischen den beiden Geometrieobjekten erfolgt, false sonst
+	 *@author Marcel Kretschmann
+	 *@version alpha 1.0
+	 **/
+	virtual bool kollisionsermittlung ( dGeomID o1 , dGeomID o2 );
 	
 	/**
 	 *Gibt die aktuellen Controler-Steuerungsparameter als Text aus.
