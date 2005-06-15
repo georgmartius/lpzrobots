@@ -101,6 +101,12 @@ public:
   */
   virtual int getSegmentsPosition(vector<Position> &poslist) = 0;
 
+  /** sets color of the robot
+      @param col Color struct with desired Color
+   */
+  virtual void setColor(Color col){
+    color=col;
+  };
 
  protected:
 
