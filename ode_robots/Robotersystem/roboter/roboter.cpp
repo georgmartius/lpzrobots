@@ -2,7 +2,7 @@
 /*roboter.cpp								*/
 /*Robotergrundkonstrukt fuer das eigene ODE-Robotersystem des Authors	*/
 /*@author Marcel Kretschmann						*/
-/*@version alpha 0.3							*/
+/*@version alpha 0.9							*/
 /*									*/
 /************************************************************************/
 
@@ -16,6 +16,25 @@
 
 
 #define MAX_CONTROLERANZAHL 8
+/***************************Hilfsfunktionen******************************/
+double dBodyGetPositionAll ( dBodyID basis , int para )
+{
+    const dReal* pos;
+
+    pos = dBodyGetPosition ( basis );
+
+    switch (para)
+    {
+        case 1: return pos[0]; break; //X
+        case 2: return pos[1]; break; //Y
+        case 3: return pos[2]; break; //Z
+    }
+	return 0;
+}
+/***********************************************************************/
+
+
+
 
 
 /**
@@ -25,12 +44,12 @@
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
- Roboter::Roboter ( int startRoboterID , dWorldID world , dSpaceID space , int startSensoranzahl ) :
-    AbstractRobot::AbstractRobot ( &world , &space )
+ Roboter::Roboter ( int startRoboterID , dWorldID* world , dSpaceID* space , dJointGroupID* start_contactgroup , int start_Sensoranzahl ) :
+    AbstractRobot::AbstractRobot ( world , space , start_contactgroup )
 {
 	roboterID = startRoboterID;
-	Sensor tmpSensor[startSensoranzahl];
-	for ( int n = 0; n++ < startSensoranzahl; sensorfeld.push_back ( tmpSensor[n] ) );
+	Sensor tmpSensor[start_Sensoranzahl];
+	for ( int n = 0; n++ < start_Sensoranzahl; sensorfeld.push_back ( tmpSensor[n] ) );
 }
 
 /**
@@ -178,10 +197,15 @@ Position Roboter::getPosition ()
 */
 int Roboter::getSegmentsPosition ( vector<Position> &poslist )
 {
-	//Ist die Liste der Vektorenzeiger ein Array? oder kann das auch eine verkettete Liste sein?
-	/*for ( int n = 0; n < getObjektAnzahl (); n++ )
-		poslist = dBodyGetPosition ( getObjektAt ( n ).body );
-	return ;*/
+	const dReal* tmp;
+	for ( int n = 0; n < getObjektAnzahl (); n++ )
+	{
+		 tmp = dBodyGetPosition ( getObjektAt ( n ).body );
+		 poslist[n].x = tmp[0];
+		 poslist[n].y = tmp[1];
+		 poslist[n].z = tmp[2];
+	}
+	return getObjektAnzahl ();
 }
 
 

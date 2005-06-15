@@ -2,7 +2,7 @@
 /*roboter.h								*/
 /*Robotergrundkonstrukt fuer das eigene ODE-Robotersystem des Authors	*/
 /*@author Marcel Kretschmann						*/
-/*@version alpha 0.3							*/
+/*@version alpha 0.9							*/
 /*									*/
 /************************************************************************/
 
@@ -16,11 +16,6 @@ using namespace std;
 #include "../../abstractrobot.h"
 
 /****************************************************/
-
-
-#define SCHLANGENGLIEDLAENGE 0.6
-#define SCHLANGENGLIEDDICKE 0.3
-
 
 #define MAX_CONTROLERANZAHL 8
 
@@ -45,7 +40,9 @@ typedef struct
 } Sensor;
 
 
-/***********************************Hilfsfunktionendefinitionen***************************************/
+/****************************Hilfsfunktionen********************************/
+double dBodyGetPositionAll ( dBodyID basis , int para );
+
 
 
 /**
@@ -77,14 +74,14 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	Roboter ( int startRoboterID , dWorldID welt , dSpaceID raum , int startSensoranzahl );
+	Roboter ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl );
 	
 	/**
 	 *Destruktor
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	virtual Roboter::~Roboter();
+	virtual ~Roboter();
 	/*************************************************************/
 	
 	/**
