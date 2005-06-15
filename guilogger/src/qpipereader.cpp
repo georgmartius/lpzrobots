@@ -19,10 +19,11 @@
  ***************************************************************************/
 #include "qpipereader.h"
 #include <stdio.h>
+#include <unistd.h>
 
 QPipeReader::QPipeReader(char bt)
 {   blockterminator = bt;
-    delay = 1;
+    delay = 10;
 //    setbuf(stdin, NULL);  // nützt auch nix
 }
 
@@ -54,7 +55,7 @@ void QPipeReader::run()
             free(s);
             s=NULL;
             size=0;
-            sleep(delay);     // wenn Line gelesen, mal ein bissel warten, damit nicht alles gleich durchpfeift
+            usleep(delay);     // wenn Line gelesen, mal ein bissel warten, damit nicht alles gleich durchpfeift
         }
     }
 
