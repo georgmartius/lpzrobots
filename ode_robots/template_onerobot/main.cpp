@@ -41,7 +41,7 @@ void start()
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
 
-  Vehicle* vehicle = new Vehicle(&world, &space);
+  Vehicle* vehicle = new Vehicle(&world, &space, &contactgroup);
   Position p = {0,0,0};
   vehicle->place(p);
   AbstractController *controller = getController(2,10);  
