@@ -23,10 +23,8 @@
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
- Roboter::Roboter ()
-{
-
-}
+// Roboter::Roboter ()
+//{}
 
 /**
  *Konstruktor
@@ -36,7 +34,7 @@
  *@version alpha 1.0
  **/
  Roboter::Roboter ( int startRoboterID , dWorldID world , dSpaceID space , int startSensoranzahl ) :
-    AbstractRobot::AbstractRobot ( &world , &space )
+    AbstractRobot ( &world , &space )
 {
 	roboterID = startRoboterID;
 	Sensor tmpSensor[startSensoranzahl];

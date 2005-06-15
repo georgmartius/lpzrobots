@@ -88,7 +88,7 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	Roboter ();
+//	Roboter ();
 
 	/**
 	 *Konstruktor
