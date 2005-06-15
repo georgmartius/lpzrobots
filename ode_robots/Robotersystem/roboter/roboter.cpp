@@ -19,14 +19,6 @@
 
 
 /**
- *Stanndartkonstruktor
- *@author Marcel Kretschmann
- *@version alpha 1.0
- **/
-// Roboter::Roboter ()
-//{}
-
-/**
  *Konstruktor
  *@param int Roboterkennummer
  *@param dWorldID Referenz auf die ODE-Simulationsworld, in der der Roboter angelegt werden soll
@@ -34,7 +26,7 @@
  *@version alpha 1.0
  **/
  Roboter::Roboter ( int startRoboterID , dWorldID world , dSpaceID space , int startSensoranzahl ) :
-    AbstractRobot ( &world , &space )
+    AbstractRobot::AbstractRobot ( &world , &space )
 {
 	roboterID = startRoboterID;
 	Sensor tmpSensor[startSensoranzahl];
@@ -63,15 +55,15 @@ Roboter::~Roboter()
 
 }
 
-/// creates the robot at the given position and with the given color.
-
 /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
 @param pos desired position of the robot in struct Position
 @param c desired color for the robot in struct Color
 */
-void place(Position pos, Color *c)
+void Roboter::place (Position pos, Color *c)
 {
-
+	color.r = (*c).r;
+	color.g = (*c).g;
+	color.b = (*c).b;
 }
 
 /**
@@ -174,17 +166,17 @@ void place(Position pos, Color *c)
 /** returns position of robot 
 @param pos vector of desired position (x,y,z)
 */
- /*void Roboter::getPosition(dVector3& pos)
- {
+Position Roboter::getPosition ()
+{
  
- }*/
+}
 
 
 /** returns a list with the positionvectors of all segments of the robot
 @param poslist list with positionvectors (of all robot segments) (free after use!)
 @return length of the list
 */
- int Roboter::getSegmentsPosition(dVector3*& poslist)
+int Roboter::getSegmentsPosition ( vector<Position> &poslist )
 {
 	//Ist die Liste der Vektorenzeiger ein Array? oder kann das auch eine verkettete Liste sein?
 	/*for ( int n = 0; n < getObjektAnzahl (); n++ )

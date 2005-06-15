@@ -68,27 +68,7 @@ protected:
 	vector <dJointID> jointliste;
 	vector <dJointID> motorliste;
 	
-	//Controlervariablen	
-	double epsilon;
-	double noise;
-	double rho;
-	double Delta;
-	double a_faktor;
-	double mue;
-	int NumberStepsForAveraging;
-	int NumberStepsOfDelay;
-	double m;
-
-	int t;
-
 public:
-
-	/**
-	 *Stanndartkonstruktor
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-//	Roboter ();
 
 	/**
 	 *Konstruktor
@@ -143,7 +123,7 @@ public:
 	 *@param motor* motors motors scaled to [-1,1] 
 	 *@param motornumber length of the motor array
 	 **/
-	virtual void setMotors(motor* motors, int motornumber);	
+	virtual void setMotors ( motor* motors, int motornumber );
 	
 	
 	/** returns number of sensors
@@ -158,14 +138,14 @@ public:
 	/** returns position of robot 
 	@param pos vector of desired position (x,y,z)
 	*/
-	virtual void getPosition(dVector3& pos) = 0;
+	virtual Position getPosition ( ) = 0;
 	
 	
 	/** returns a list with the positionvectors of all segments of the robot
 	@param poslist list with positionvectors (of all robot segments) (free after use!)
 	@return length of the list
 	*/
-	virtual int getSegmentsPosition(dVector3*& poslist);
+	virtual int getSegmentsPosition ( vector<Position> &poslist );
 	
 	
 	
