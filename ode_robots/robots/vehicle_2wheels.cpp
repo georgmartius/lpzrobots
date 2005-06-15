@@ -9,6 +9,8 @@
 Vehicle::Vehicle(dWorldID *w, dSpaceID *s, dJointGroupID *c):
   AbstractRobot::AbstractRobot(w, s, c){
 
+  created=false;
+
   initial_pos.x=0.0;
   initial_pos.y=0.0;
   initial_pos.z=0.0;
@@ -34,13 +36,12 @@ Vehicle::Vehicle(dWorldID *w, dSpaceID *s, dJointGroupID *c):
     @param motors motors scaled to [-1,1] 
     @param motornumber length of the motor array
 */
-void Vehicle::setMotors(motor* motors, int motornumber){
+void Vehicle::setMotors(const motor* motors, int motornumber){
   double tmp;
   int len = (motornumber < motorno)? motornumber : motorno;
   for (int i=0; i<len; i++){ 
-    motors[i]*=20.0;  // scaling
     tmp=dJointGetHinge2Param(joint[i],dParamVel2);
-    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]-tmp) );
+    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*20.0-tmp) );
     dJointSetHinge2Param (joint[i],dParamFMax2,max_force);
   }
 };

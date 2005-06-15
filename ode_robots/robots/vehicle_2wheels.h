@@ -1,3 +1,29 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *    martius@informatik.uni-leipzig.de                                    *
+ *    fhesse@informatik.uni-leipzig.de                                     *
+ *    der@informatik.uni-leipzig.de                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ *   $Log$
+ *   Revision 1.5  2005-06-15 14:22:26  martius
+ *   GPL included and const setMotors
+ *                                                                 *
+ ***************************************************************************/
 #ifndef __VEHICLE_H
 #define __VEHICLE_H
 
@@ -20,7 +46,7 @@ public:
       @params pos desired position of the robot in struct Position
       @param c desired color for the robot in struct Color
   */
-  virtual void place(Position pos , Color *c /*= 0*/);
+  virtual void place(Position pos , Color *c = 0);
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
@@ -33,7 +59,7 @@ public:
       @param motors motors scaled to [-1,1] 
       @param motornumber length of the motor array
   */
-  virtual void setMotors(motor* motors, int motornumber);
+  virtual void setMotors(const motor* motors, int motornumber);
 
   /** returns number of sensors
    */
