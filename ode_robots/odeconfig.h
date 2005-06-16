@@ -13,7 +13,7 @@ public:
   }
 
   virtual paramkey getName() const {
-    return "Sim: $Id$";
+    return "Sim: $RCSfile$-$Revision$";
   }
 
   virtual int getParamList(paramkey*& keylist,paramval*& vallist) const {
