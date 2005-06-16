@@ -10,10 +10,13 @@ public:
     drawInterval=1;
     controlInterval=5;
     noise=0.1;
+    // prepare name;
+    strcpy(name,"Simulation Environment: ");
+    Configurable::insertCVSInfo(name + strlen(name), "$RCSfile$", "$Revision$");
   }
 
-  virtual paramkey getName() const {
-    return "Sim: $RCSfile$-$Revision$";
+  virtual constparamkey getName() const {
+    return name;
   }
 
   virtual int getParamList(paramkey*& keylist,paramval*& vallist) const {
@@ -55,6 +58,7 @@ public:
   int drawInterval;
   int controlInterval;
   double noise;
+  char name[100];
 };
 
 #endif
