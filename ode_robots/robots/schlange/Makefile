@@ -3,7 +3,7 @@
 #Date:     Mai 2005
 
 
-FILES = schlange
+FILES = schlange ../roboter/roboter
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
@@ -14,7 +14,7 @@ CFLAGS = -Wall -I. -g -I/usr/local/include
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DNDEBUG
 
-LIBHOME=../..
+LIBHOME=../../..
 ODEHOME=$(LIBHOME)/ode_robots
 MATRIX=matrix
 #MATRIX=matrix_debug
@@ -22,7 +22,7 @@ SIMPATHS = . obstacles robots agents
 
 
 LIBS   = -lm -L$(LIBHOME)/matrixlib/  -l$(MATRIX) -lode -ldrawstuff -lGL -lGLU -lglut
-INC   = -I$(LIBHOME)/matrixlib/ -I$(LIBHOME)/controller -I$(LIBHOME)/gnuplot \
+INC   = -I$(LIBHOME)/matrixlib/ -I$(LIBHOME)/controller -I$(LIBHOME)/gnuplot -I$(ODEHOME)/robots/roboter\
 	$(addprefix -I$(ODEHOME)/, $(SIMPATHS)) 
 
 cc = g++ $(CFLAGS) $(INC) -c

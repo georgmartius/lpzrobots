@@ -112,7 +112,7 @@ public:
 	/**Gibt die Sensorwerte aus dem Roboterinternensensorfeld an einen uebergebenen Speicherort aus.
 	 *@param sensor* sensors Zeiger auf den Zielort der Sensordaten
 	 *@param int sensornumber Laenge des Sensorenarrays in das gespeichert werden soll
-	 *@return int Anzahl der Sensoren in die schon ein aktueller Wert geschrieben wurde
+	 *@return int Anzahl der Sensoren
 	 **/
 	virtual int getSensors(sensor* sensors, int sensornumber);
 	
@@ -120,7 +120,7 @@ public:
 	 *@param motor* motors motors scaled to [-1,1] 
 	 *@param motornumber length of the motor array
 	 **/
-	virtual void setMotors ( motor* motors, int motornumber );
+	virtual void setMotors ( const motor* motors, int motornumber );
 	
 	
 	/** returns number of sensors
@@ -199,14 +199,6 @@ public:
 	 **/
 	virtual dJointID getMotorAt ( int n );
 	
-	/**
-	 *Setzt den Winkelgeschwindigkeisparameter eines Motor-Joints auf einen bestimmten Wert.
-	 *@param int Nummer des Motors in der Motorliste
-	 *@param double neue Winkelgeschwindigkeit des Motors
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-	virtual void setMotorWinkel ( int motornummer , double winkelgeschwindigkeit );
 	
 	/**
 	 *Ermittelt die Differenz von zwei Sensormesswerten eines Motor-Joints
@@ -239,14 +231,14 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 
 	 **/
-	virtual int getSensorfeldGroesse () = 0;
+	virtual int getSensorfeldGroesse ();
 	
 	/**
 	 *Ließt die aktuellen Sensordaten erneut in die Sensorspeicherfelder.
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	virtual void sensoraktualisierung ( ) = 0;
+	virtual void sensoraktualisierung ();
 	
 	/**
 	 *Diese Funktion ermittelt ob es zwischen bestimmten Elementen des Roboters eine kollision gibt,

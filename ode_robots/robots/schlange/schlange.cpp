@@ -36,7 +36,7 @@
  *@version alpha 1.0
  **/
 Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double maxMotorKraft ) :
-Roboter::Roboter ( startRoboterID , world , space , start_contactgroup , start_Sensoranzahl )
+Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sensoranzahl )
 {
 	Object tmp_body;
 	

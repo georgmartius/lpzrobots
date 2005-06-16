@@ -14,7 +14,7 @@ CFLAGS = -Wall -I. -g -I/usr/local/include
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DNDEBUG
 
-LIBHOME=../..
+LIBHOME=../../..
 ODEHOME=$(LIBHOME)/ode_robots
 MATRIX=matrix
 #MATRIX=matrix_debug

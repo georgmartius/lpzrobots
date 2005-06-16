@@ -44,12 +44,11 @@ double dBodyGetPositionAll ( dBodyID basis , int para )
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
- Roboter::Roboter ( int startRoboterID , dWorldID* world , dSpaceID* space , dJointGroupID* start_contactgroup , int start_Sensoranzahl ) :
-    AbstractRobot::AbstractRobot ( world , space , start_contactgroup )
+ Roboter::Roboter ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl ) :
+    AbstractRobot::AbstractRobot ( welt , raum , start_contactgroup )
 {
 	roboterID = startRoboterID;
-	Sensor tmpSensor[start_Sensoranzahl];
-	for ( int n = 0; n++ < start_Sensoranzahl; sensorfeld.push_back ( tmpSensor[n] ) );
+	for ( int n = 0; n++ < start_Sensoranzahl; addSensor() );
 }
 
 /**
@@ -149,6 +148,7 @@ void Roboter::place (Position pos, Color *c)
  **/
  int Roboter::getSensors ( sensor* sensors, int sensornumber )
 {
+	Roboter::sensoraktualisierung ();
 	for ( int n = 0; n < sensornumber; n++ )
 		getWinkelDifferenz ( sensornumber , sensors++ );
 		return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
@@ -161,7 +161,7 @@ void Roboter::place (Position pos, Color *c)
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
- void Roboter::setMotors ( motor* motors, int motornumber )
+ void Roboter::setMotors ( const motor* motors, int motornumber )
 {
 	for ( int n = 0; n < motornumber; n ++ )
 		dJointSetAMotorParam ( motorliste[n] , dParamVel , *(motors++) );
