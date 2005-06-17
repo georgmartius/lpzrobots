@@ -23,8 +23,8 @@ bool StepRobot()
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start() 
 {
-  dsPrint ( "\n\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-  dsPrint ( "--------------------------------------------------------------------------------\n" );
+  dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
+  dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
@@ -46,7 +46,7 @@ void start()
   vehicle->place(p);
   AbstractController *controller = getController(2,10);  
   
-  One2OneAgent* agent = new One2OneAgent(true);
+  One2OneAgent* agent = new One2OneAgent(GuiLogger);
   agent->init(controller, vehicle);
   agents.push_back(agent);
   
@@ -69,6 +69,7 @@ void end(){
 }
 
 
+// this function is called if the user pressed Ctrl-C
 void config(){
   changeParams(configs);
 }
@@ -76,9 +77,11 @@ void config(){
 
 int main (int argc, char **argv)
 {  
+  // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
+  // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
-  simulation_close();  
+  simulation_close();  // tidy up.
   return 0;
 }
  
