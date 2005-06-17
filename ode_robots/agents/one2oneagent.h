@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-06-15 14:02:47  martius
+ *   Revision 1.3  2005-06-17 10:47:34  martius
+ *   Logging mode as enum (GuiLogger, NoPlot)
+ *
+ *   Revision 1.2  2005/06/15 14:02:47  martius
  *   revised and basicly tested
  *                                                                 *
  ***************************************************************************/
@@ -33,7 +36,7 @@ class NoiseGenerator;
 /// Glue-object between controller and robot which implements a 1 to 1 mapping 
 class One2OneAgent : public PlotAgent {
 public:
-  One2OneAgent(bool plotEnabled=true) : PlotAgent(plotEnabled) {
+  One2OneAgent(PlotMode plotmode=GuiLogger) : PlotAgent(plotmode) {
     sensors=0; motors=0; 
   }
   

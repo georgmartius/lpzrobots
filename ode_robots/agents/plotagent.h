@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-06-15 14:02:47  martius
+ *   Revision 1.3  2005-06-17 10:47:34  martius
+ *   Logging mode as enum (GuiLogger, NoPlot)
+ *
+ *   Revision 1.2  2005/06/15 14:02:47  martius
  *   revised and basicly tested
  *                                                                 *
  ***************************************************************************/
@@ -29,11 +32,15 @@
 
 #include "agent.h"
 
+/// Plot mode for plot agent.
+enum PlotMode {NoPlot, GuiLogger};
+
 /// Abstract glue-object between controller and robot. 
 //   Adds gnuplot functionality 
 class PlotAgent : public Agent {
 public:
-  PlotAgent(bool plotEnabled=true);
+
+  PlotAgent(PlotMode plotmode=GuiLogger);
 
   virtual ~PlotAgent() { 
     CloseGui();
@@ -55,7 +62,7 @@ protected:
 private:
   FILE* pipe;
   int numberInternalParameters;
-  bool plotEnabled;
+  PlotMode plotmode;
 };
 
 
