@@ -20,27 +20,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-06-15 14:02:47  martius
+ *   Revision 1.3  2005-06-17 10:48:58  martius
+ *   Catched Signal SIGPIPE (in case Logger dies)
+ *   Logging mode as enum (GuiLogger, NoPlot)
+ *
+ *   Revision 1.2  2005/06/15 14:02:47  martius
  *   revised and basicly tested
  *                                                                 *
  ***************************************************************************/
 #include "plotagent.h"
+#include <signal.h>
 
-PlotAgent::PlotAgent(bool plotEnabled/*=true*/)
-  : Agent(), plotEnabled(plotEnabled) 
+PlotAgent::PlotAgent(PlotMode plotmode/*=GuiLogger*/)
+  : Agent(), plotmode(plotmode) 
 { 
   pipe=0;
   numberInternalParameters=0;
 }
 
 bool PlotAgent::OpenGui(){
-  pipe=popen("guilogger pipe > /dev/null 2>/dev/null","w");
-  //pipe=fopen("output.txt  pipe=popen("guilogger pipe > /dev/null 2>/dev/null","w");","w");
+  // this prevents the simulation to terminate if the child (guilogger) closes
+  // or if we fail to open it.
+  signal(SIGPIPE,SIG_IGN); 
+  // TODO: get the guilogger call from some  config
+  pipe=popen("guilogger pipe > /dev/null","w");
+  //pipe=popen("guilogger pipe > /dev/null 2>/dev/null","w");
   if(pipe==0){
     fprintf(stderr, "%s:%i: could not open guilogger!\n", __FILE__, __LINE__);    
     return false;
   }else return true;
-
 }
 
 void PlotAgent::CloseGui(){
@@ -50,7 +58,7 @@ void PlotAgent::CloseGui(){
 
 bool PlotAgent::init(AbstractController* controller, AbstractRobot* robot){
   if(!Agent::init(controller, robot)) return false;  
-  if(plotEnabled){
+  if(plotmode == GuiLogger){
     if(!OpenGui()) return false;
     ///// send channel names to GUI
     // first the sensor and motor channels
@@ -76,7 +84,7 @@ bool PlotAgent::init(AbstractController* controller, AbstractRobot* robot){
 }
 
 void PlotAgent::plot(const sensor* x, int sensornumber, const motor* y, int motornumber){
-  if(!controller || !x || !y || !plotEnabled || !pipe) return;
+  if(!controller || !x || !y || plotmode==NoPlot || !pipe) return;
   if(sensornumber!=robot->getSensorNumber()) {
     fprintf(stderr, "%s:%i: Given sensor number does not match the one from robot!\n", 
 	    __FILE__, __LINE__);
