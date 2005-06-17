@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-06-15 14:01:31  martius
+ *   Revision 1.4  2005-06-17 09:33:53  martius
+ *   aligned values on showParams
+ *
+ *   Revision 1.3  2005/06/15 14:01:31  martius
  *   moved all general code from main to simulation
  *                                                                 *
  ***************************************************************************/
@@ -196,11 +199,16 @@ void showParams(const ConfigList& configs)
 {
   paramkey* keys;
   paramval* vals;
+  const short spacelength=20;
+  char spacer[spacelength];
+  memset(spacer, ' ', spacelength);  spacer[spacelength-1]=0;
+
   for(ConfigList::const_iterator i=configs.begin(); i != configs.end(); i++){
     int pnum = (*i)->getParamList(keys,vals);
     printf("Parameters of %s\n", (*i)->getName());
     for(int j=0; j < pnum; j++) {
-      printf(" %s=\t%f\n", keys[j], vals[j]);
+      printf(" %s=%s%f\n", keys[j], 
+	     spacer+(strlen(keys[j]) > spacelength  ? spacelength : strlen(keys[j])),vals[j]);
     }
     free(keys);
     free(vals);
@@ -256,5 +264,7 @@ void cmd_begin_input(){
 void cmd_end_input(){
   cmd_handler_init();  
 }
+
+
 
 
