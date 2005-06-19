@@ -2,4 +2,10 @@ This is the a collection of algorithms, simulations, and tools
 developed by the robot group of the University Leipzig.
  http://robot.informatik.uni-leipzig.de
 
+You need the following software and libraries installed (Tested on Linux x86 machines)
+* ODE (with drawstuff lib (included)) see www.ode.org
+* avr-gcc and avr-binutils. 
+    SuSE packages under:
+    Debian includes them in Sarge
+
 Please see the subfolders for further detail.
