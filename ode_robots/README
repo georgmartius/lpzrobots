@@ -1,0 +1,10 @@
+To start a new project copy one of the "template" directories and 
+ adjust them as needed.
+ 
+If you insert a new file to the simulation framework, 
+ such as a new obstacle, robot or similar you need to do NOTHING. 
+Every *.cpp file in the directories specified in Makefile.conf is
+ compiled and included in the library libode_robots.a. 
+In case you add a new directory with source files, 
+ which should be included in the lib,
+ then add it to Makefile.conf.
