@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-06-17 09:33:53  martius
+ *   Revision 1.5  2005-06-20 10:03:26  fhesse
+ *   collision treatment by agents included
+ *
+ *   Revision 1.4  2005/06/17 09:33:53  martius
  *   aligned values on showParams
  *
  *   Revision 1.3  2005/06/15 14:01:31  martius
@@ -155,6 +158,13 @@ void simLoop ( int pause )
 // TODO call robots collisionCallback
 void nearCallback(void *data, dGeomID o1, dGeomID o2)
 {
+  bool collision_treated=false;
+  for(AgentList::iterator i=agents.begin(); i != agents.end() && !collision_treated; i++){
+    collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
+  }
+  
+  if (collision_treated) return;
+
   int i,n;
 
   const int N = 10;
@@ -165,11 +175,6 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
       {
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-//         if ((o1=vehicle.box[0]) || (o2=vehicle.box[0]) ){
-// 	  contact[i].surface.mu = 0.2;//0.8; //normale Reibung von Reifen auf Asphalt
-// 	}else{
-// 	  contact[i].surface.mu = 2.0;//0.8; //normale Reibung von Reifen auf Asphalt
-// 	}
 	contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
 	contact[i].surface.slip1 = 0.005;
 	contact[i].surface.slip2 = 0.005;
@@ -181,6 +186,9 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
       }
   }
 }
+
+
+
 
 
 // Helper
@@ -199,7 +207,7 @@ void showParams(const ConfigList& configs)
 {
   paramkey* keys;
   paramval* vals;
-  const short spacelength=20;
+  const unsigned short spacelength=20;
   char spacer[spacelength];
   memset(spacer, ' ', spacelength);  spacer[spacelength-1]=0;
 
