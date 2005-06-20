@@ -44,7 +44,7 @@ void start()
   Vehicle* vehicle = new Vehicle(&world, &space, &contactgroup);
   Position p = {0,0,0};
   vehicle->place(p);
-  AbstractController *controller = getController(2,10);  
+  AbstractController *controller = new InvertNChannelController(10);  
   
   One2OneAgent* agent = new One2OneAgent(GuiLogger);
   agent->init(controller, vehicle);
