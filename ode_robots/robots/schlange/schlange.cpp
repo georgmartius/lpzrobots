@@ -40,6 +40,8 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 {
 	Object tmp_body;
 	
+	//int sensfeldgr = getSensorfeldGroesse ();
+	
 	dMass masse;
 	dMatrix3 R;//Matrix fuer Koerper-Rotationen
 
@@ -47,6 +49,8 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 	gliederdurchmesser = glieder_durchmesser;
 	gliederlaenge = glieder_laenge;
 	schlangenarmanzahl = armanzahl;
+	dsPrint ( "Sensoranzahl:%i\n" , getSensorfeldGroesse () );
+	dsPrint ( "Armanzahl:%i\n" , armanzahl );
 
 	//*************Koerperdefinitionsabschnitt**************
 	
@@ -143,7 +147,6 @@ Schlange::~Schlange()
 **/
 void Schlange::draw()
 {
-	schlangenarmanzahl = 5;
 	double box [3];
 	//dsSetTexture (DS_WOOD);
 	dsSetColor (1,0,0);

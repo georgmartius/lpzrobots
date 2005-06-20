@@ -35,8 +35,6 @@ double dBodyGetPositionAll ( dBodyID basis , int para )
 
 
 
-
-
 /**
  *Konstruktor
  *@param int Roboterkennummer
