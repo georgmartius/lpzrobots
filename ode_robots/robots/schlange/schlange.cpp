@@ -8,14 +8,6 @@
 
 #include "schlange.h"
 
-/****************************************************/
-
-
-#define SCHLANGENGLIEDLAENGE 0.6
-#define SCHLANGENGLIEDDICKE 0.3
-
-
-#define MAX_CONTROLERANZAHL 8
 
 
 /**
@@ -48,9 +40,8 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 
 	gliederdurchmesser = glieder_durchmesser;
 	gliederlaenge = glieder_laenge;
-	schlangenarmanzahl = armanzahl;
-	dsPrint ( "Sensoranzahl:%i\n" , getSensorfeldGroesse () );
-	dsPrint ( "Armanzahl:%i\n" , armanzahl );
+	schlangenarmanzahl = armanzahl;	
+	
 
 	//*************Koerperdefinitionsabschnitt**************
 	
@@ -120,9 +111,9 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 			dJointSetAMotorAxis ( motorliste.back () , 2 , 2 , 1 , 0 , 0 );
 			dJointSetAMotorParam ( motorliste.back () , dParamFMax , maxMotorKraft );
 		}
-		addSensor ();
+		//addSensor (); entfaellt, da dies nun im Konstruktor des allgemeinen Roboters erledigt wird
 	}
-		
+
 	//Anfangsbelegung der sensorfelder
  	for ( int n = 0; n < 2*(armanzahl-1); n++ )
 	{

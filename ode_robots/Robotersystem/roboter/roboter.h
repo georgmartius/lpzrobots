@@ -15,10 +15,6 @@ using namespace std;
 
 #include "../abstractrobot.h"
 
-/****************************************************/
-
-#define MAX_CONTROLERANZAHL 8
-
 /******************************************Typendeklarationen*****************************************/
 typedef struct
 {

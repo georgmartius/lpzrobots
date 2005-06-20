@@ -8,14 +8,7 @@
 
 #include "roboter.h"
 
-/****************************************************/
 
-
-#define SCHLANGENGLIEDLAENGE 0.6
-#define SCHLANGENGLIEDDICKE 0.3
-
-
-#define MAX_CONTROLERANZAHL 8
 /***************************Hilfsfunktionen******************************/
 double dBodyGetPositionAll ( dBodyID basis , int para )
 {
@@ -162,7 +155,7 @@ void Roboter::place (Position pos, Color *c)
  void Roboter::setMotors ( const motor* motors, int motornumber )
 {
 	for ( int n = 0; n < motornumber; n ++ )
-		dJointSetAMotorParam ( motorliste[n] , dParamVel , *(motors++) );
+		dJointSetAMotorParam ( motorliste[n] , dParamVel , (*(motors++))*10 );
 }
 
 

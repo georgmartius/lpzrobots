@@ -19,14 +19,6 @@ using namespace std;
 #define dsDrawCappedCylinder dsDrawCappedCylinderD
 #endif
 
-/****************************************************/
-
-
-#define SCHLANGENGLIEDLAENGE 0.6
-#define SCHLANGENGLIEDDICKE 0.3
-
-
-#define MAX_CONTROLERANZAHL 8
 
 class Schlange : public Roboter
 {
