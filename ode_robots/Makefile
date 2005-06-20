@@ -2,8 +2,8 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     June 2005
 
-LPZROBOT=..
-ODEHOME=.
+LPZROBOTS=..
+ODEROBOTS=.
 
 include Makefile.conf
 
@@ -29,7 +29,7 @@ AR = ar -rs
 
 $(LIB): Makefile.depend $(OFILES)
 	echo "$(OFILES)";
-	$(AR) -o $(LIB) $(OFILES)
+	$(AR) $(LIB) $(OFILES)
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
