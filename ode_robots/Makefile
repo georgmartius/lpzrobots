@@ -14,9 +14,9 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 LIB=libode_robots.a
 
 # -pg for profiling
-CFLAGS = -Wall -I. -g
-## Optimisation
-OPTIM_CFLAGS = -Wall -I. -O3 -DNDEBUG
+# CFLAGS = -Wall -I. -g
+## Optimisation #DNDEBUG
+CFLAGS = -Wall -g -I. -O3 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
 
