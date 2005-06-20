@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-06-15 14:02:47  martius
+ *   Revision 1.3  2005-06-20 10:01:33  fhesse
+ *   controller initialized
+ *
+ *   Revision 1.2  2005/06/15 14:02:47  martius
  *   revised and basicly tested
  *                                                                 *
  ***************************************************************************/
@@ -35,9 +38,11 @@ One2OneAgent::~One2OneAgent(){
 
 
 bool One2OneAgent::init(AbstractController* controller, AbstractRobot* robot){
-  if(!PlotAgent::init(controller, robot)) return false;  
   sensornumber = robot->getSensorNumber();
   motornumber  = robot->getMotorNumber();
+  controller->init(sensornumber, motornumber);
+
+  if(!PlotAgent::init(controller, robot)) return false;  
   sensors      = (sensor*) malloc(sizeof(sensor) * sensornumber);
   motors       = (motor*)  malloc(sizeof(motor) * motornumber);
   noise_gen    = new NoiseGenerator(sensornumber);
