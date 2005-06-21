@@ -60,24 +60,25 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 
 		dBodySetMass ( (objektliste.back ()).body , &masse );
 	
-		(objektliste.back ()).geom = dCreateBox ( *space , glieder_laenge/10 , glieder_durchmesser/10 , glieder_durchmesser/10 );
+		(objektliste.back ()).geom = dCreateBox ( *space , glieder_laenge/2 , glieder_durchmesser/2 , glieder_durchmesser/2 );
 		dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
 
 		//Die zweite Geometriehuelle wird hier verwendet um eine aeussere Schlangenhuelle zu erzeugen
-		dGeomID tmp_geom;
-		tmp_geom = dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
-		schlangenhuellenliste.push_back ( tmp_geom );
-		dGeomSetBody ( schlangenhuellenliste.back () , objektliste.back ().body );	
+		//dGeomID tmp_geom;
+		//tmp_geom = dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
+		//schlangenhuellenliste.push_back ( tmp_geom );
+		//dGeomSetBody ( schlangenhuellenliste.back () , objektliste.back ().body );	
 		
 		//dBodySetRotation ( (objektliste.back ()).body , R );
-		dGeomSetRotation ( (objektliste.back ()).geom , R );
-		dGeomSetRotation ( schlangenhuellenliste.back () , R );
+		//dGeomSetRotation ( (objektliste.back ()).geom , R );
+		//dGeomSetRotation ( schlangenhuellenliste.back () , R );
 	}
 
 	//*****************Join-Generierungsabschnitt***********
 	for ( int n = 0; n < armanzahl-1; n++ )
 	{
 		jointliste.push_back ( dJointCreateUniversal ( *world , 0 ) );
+		//jointliste.push_back ( dJointCreateBall ( *world , 0 ) );
 		dJointAttach ( jointliste.back () , objektliste[n].body , objektliste[n+1].body );
 			
 		dJointSetUniversalAnchor ( jointliste.back () , dBodyGetPositionAll ( objektliste[n].body , 1 ) + ( dBodyGetPositionAll ( objektliste[n+1].body , 1 ) - dBodyGetPositionAll ( objektliste[n].body , 1 ) )/2 , dBodyGetPositionAll ( objektliste[n].body , 2 ) + ( dBodyGetPositionAll ( objektliste[n+1].body , 2 ) - dBodyGetPositionAll ( objektliste[n].body , 2 ) )/2 , dBodyGetPositionAll ( objektliste[n].body , 3 ) );
@@ -142,11 +143,11 @@ void Schlange::draw()
 	//dsSetTexture (DS_WOOD);
 	dsSetColor (1,0,0);
 
-	box[2] = gliederlaenge/10; box[1] = gliederdurchmesser/10; box[0] = gliederdurchmesser/10;
+	box[0] = gliederlaenge/2; box[1] = gliederdurchmesser/2; box[2] = gliederdurchmesser/2;
 	for ( int n = 0; n < schlangenarmanzahl; n++ )
 	{
 			dsDrawBox ( dGeomGetPosition ( getObjektAt ( n ).geom ) , dGeomGetRotation ( getObjektAt ( n ).geom ) , box );
-			dsDrawCappedCylinder ( dGeomGetPosition ( schlangenhuellenliste[n] ) , dGeomGetRotation ( schlangenhuellenliste[n] ) , gliederlaenge , gliederdurchmesser );
+			//dsDrawCappedCylinder ( dGeomGetPosition ( schlangenhuellenliste[n] ) , dGeomGetRotation ( schlangenhuellenliste[n] ) , gliederlaenge , gliederdurchmesser );
 	}
 }
 	
@@ -163,7 +164,7 @@ void Schlange::draw()
  **/
 bool Schlange::kollisionsermittlung ( dGeomID o1 , dGeomID o2 )
 {
-	for ( int n = 0; n < schlangenarmanzahl; n++ )
+	/*for ( int n = 0; n < schlangenarmanzahl; n++ )
 	{
 		if 
 		(
@@ -173,7 +174,7 @@ bool Schlange::kollisionsermittlung ( dGeomID o1 , dGeomID o2 )
 		)
 			if ( ( schlangenhuellenliste[n] == o1 ) || ( schlangenhuellenliste[n] == o2 ) )
 				return true;	
-	}
+	}*/
 	return false;
 }
 	

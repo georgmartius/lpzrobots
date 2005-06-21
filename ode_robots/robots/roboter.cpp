@@ -141,8 +141,9 @@ void Roboter::place (Position pos, Color *c)
 {
 	Roboter::sensoraktualisierung ();
 	for ( int n = 0; n < sensornumber; n++ )
-		getWinkelDifferenz ( sensornumber , sensors++ );
-		return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
+		getWinkelDifferenz ( n , sensors++ );
+	
+	return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
 }
 
 /**
@@ -155,7 +156,7 @@ void Roboter::place (Position pos, Color *c)
  void Roboter::setMotors ( const motor* motors, int motornumber )
 {
 	for ( int n = 0; n < motornumber; n ++ )
-		dJointSetAMotorParam ( motorliste[n] , dParamVel , (*(motors++))*10 );
+		dJointSetAMotorParam ( motorliste[n] , dParamVel , *(motors++)*5 );
 }
 
 
@@ -189,7 +190,6 @@ int Roboter::getSegmentsPosition ( vector<Position> &poslist )
 	}
 	return getObjektAnzahl ();
 }
-
 
 
 /***********************************************************/
@@ -281,18 +281,30 @@ void Roboter::getWinkelDifferenz ( int motor , double* X )
 	//Eingangsdaten sind die Winkeldifferenzen eines Roboterberechnungsschrittes
 	//Abfangen des Winkeldifferenzsprunges bei ueberschreiten er 2PI-Marke
 	//tritt auf wenn die -PI- oder die PI-Marke ueberschritten wird
-	if ( ( sensorfeld[motor].istwinkel - sensorfeld[motor].istwinkel_alt < -M_PI )
-	|| ( sensorfeld[motor].istwinkel - sensorfeld[motor].istwinkel_alt >  M_PI ) )
+	
+	double w = sensorfeld[motor].istwinkel - sensorfeld[motor].istwinkel_alt;
+	
+	if ( ( w < -M_PI )
+	|| ( w >  M_PI ) )
 	{
 		//1. Fall(PI-Marke wird ueberschritten, also annaeherung vom Positiven) -> es ergibt sich eine negative Winkeldifferenz
-		if ( sensorfeld[motor].istwinkel-sensorfeld[motor].istwinkel_alt > M_PI )
-			*X = (( M_PI - sensorfeld[motor].istwinkel_alt ) + ( -M_PI - sensorfeld[motor].istwinkel ));
+		if ( w > M_PI )
+		{
+			*X = -(2*M_PI - w);
+			dsPrint ( "%lf  %lf => %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , -(2*M_PI-w) );
+		}
 		//2. Fall(-PI-Marke wird ueberschritten, also Annaeherung vom Negativen) -> es ergibt sich eine positive Winkeldifferenz
-		if ( sensorfeld[motor].istwinkel-sensorfeld[motor].istwinkel_alt < -M_PI )
-			*X = -(( -M_PI - sensorfeld[motor].istwinkel_alt ) + ( M_PI - sensorfeld[motor].istwinkel ));
+		if ( w < -M_PI )
+		{
+			*X = (2*M_PI + w);
+			dsPrint ( "%lf  %lf => %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , (2*M_PI+w) );
+		}
 	}
 	else
-		*X=(sensorfeld[motor].istwinkel-sensorfeld[motor].istwinkel_alt);
+	{
+		*X = w;
+		dsPrint ( "%lf  %lf = %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , w );
+	}
 }
 
 /**

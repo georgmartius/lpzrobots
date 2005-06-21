@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#include "../roboter/roboter.h"
+#include "roboter.h"
 
 
 //dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
