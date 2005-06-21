@@ -33,7 +33,7 @@ CXX = g++ $(CFLAGS) $(INC)
 CC = g++ $(CFLAGS)
 #CC = g++ -g3 -pg  
 
-$(EXEC): libode_robots ../libode_robots.a Makefile Makefile.depend $(OFILES)
+$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a Makefile Makefile.depend $(OFILES)
 	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
 
 libode_robots:	
