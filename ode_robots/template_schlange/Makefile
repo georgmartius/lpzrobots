@@ -2,31 +2,30 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-
-FILES = main ../simulation ../robots/vehicle_2wheels ../agents/plotagent ../agents/one2oneagent  ../robots/schlange/schlange ../robots/roboter/roboter
+FILES = main
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = start
 
 # -pg for profiling
-CFLAGS = -Wall -I. -g -I/usr/local/include
+CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DNDEBUG
 
-LIBHOME=../..
-ODEHOME=$(LIBHOME)/ode_robots
-MATRIX=matrix
-#MATRIX=matrix_debug
-SIMPATHS = . obstacles robots agents
+LPZROBOTS  = ../..
+ODEROBOTS  = $(LPZROBOTS)/ode_robots
+CONTROLLER = $(LPZROBOTS)/controller
+MATRIXLIB  = $(LPZROBOTS)/matrixlib
+#MATRIX     = matrix
+MATRIX     = matrix_debug
 
+include $(ODEROBOTS)/Makefile.conf
 
-LIBS   = -lm -L$(LIBHOME)/matrixlib/  -l$(MATRIX) -lode -ldrawstuff -lGL -lGLU -lglut
-INC   = -I$(LIBHOME)/matrixlib/ -I$(LIBHOME)/controller -I$(LIBHOME)/gnuplot -I$(ODEHOME)/robots/roboter -I$(ODEHOME)/robots/schlange\
-	$(addprefix -I$(ODEHOME)/, $(SIMPATHS)) 
+LIBS   = -lm -lode -ldrawstuff -lGL -lGLU -lglut \
+	 -L$(ODEROBOTS) -lode_robots\
+	 -L$(MATRIXLIB)  -l$(MATRIX)
 
-cc = g++ $(CFLAGS) $(INC) -c
-#cc = g++ $(CFLAGS) -c -O -g3 -pg
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
 
@@ -34,8 +33,11 @@ CXX = g++ $(CFLAGS) $(INC)
 CC = g++ $(CFLAGS)
 #CC = g++ -g3 -pg  
 
-$(EXEC): Makefile.depend $(OFILES)
-	$(CC) $(OFILES) $(LIBS) $(INC) -o $(EXEC)
+$(EXEC): libode_robots ../libode_robots.a Makefile Makefile.depend $(OFILES)
+	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
+
+libode_robots:	
+	cd $(ODEROBOTS) && make libode_robots.a		
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
