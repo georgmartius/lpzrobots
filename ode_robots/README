@@ -1,8 +1,13 @@
 To start a new project copy one of the "template" directories and 
- adjust them as needed.
+ adjust them as needed. 
+Please note that you have to delete the CVS dirctory inside your copy 
+ before you add it to the cvs repository.
+A simple make in the simulation directory should be enough. 
+In case your simulation code consists of other files than main.cpp, 
+ please add them to FILES in the Makefile in the simulation directory.
  
 If you insert a new file to the simulation framework, 
- such as a new obstacle, robot or similar you need to do NOTHING. 
+ such as a new obstacle, robot or similar you DON'T need to do anything. 
 Every *.cpp file in the directories specified in Makefile.conf is
  compiled and included in the library libode_robots.a. 
 In case you add a new directory with source files, 

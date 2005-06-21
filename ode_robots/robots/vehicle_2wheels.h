@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-06-15 14:22:26  martius
+ *   Revision 1.6  2005-06-21 10:57:01  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2005/06/15 14:22:26  martius
  *   GPL included and const setMotors
  *                                                                 *
  ***************************************************************************/
@@ -30,7 +33,6 @@
 #include "abstractrobot.h"
 
 class Vehicle : public AbstractRobot{
-
 public:
   
   Vehicle(dWorldID *w, dSpaceID *s, dJointGroupID *c);
@@ -95,7 +97,6 @@ protected:
    */
   virtual void destroy();
 
-
   double length;  // chassis length
   double width;  // chassis width
   double height;   // chassis height
@@ -115,8 +116,6 @@ protected:
   dJointID joint[2]; // joints between cylinder and each wheel
 
   dSpaceID car_space;
-
 };
-
 
 #endif
