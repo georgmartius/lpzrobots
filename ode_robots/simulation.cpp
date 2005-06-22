@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-06-20 10:03:26  fhesse
+ *   Revision 1.6  2005-06-22 15:39:49  fhesse
+ *   path to textures
+ *
+ *   Revision 1.5  2005/06/20 10:03:26  fhesse
  *   collision treatment by agents included
  *
  *   Revision 1.4  2005/06/17 09:33:53  martius
@@ -74,7 +77,7 @@ void simulation_init(void (*start)(), void (*end)(), void (*config)() ){
   fn.step = &simLoop;
   fn.command = 0;
   fn.stop = end;
-  fn.path_to_textures = 0;
+  fn.path_to_textures = "../../textures";
 
   /***************************ODE-Abschnitt***********************/
   //****************Weltdefinitionsabschnitt**************
