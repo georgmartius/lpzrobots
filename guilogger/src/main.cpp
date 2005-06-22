@@ -19,23 +19,43 @@
  ***************************************************************************/
 #define DEBUG
 
+#include <signal.h>
+
 #include <qapplication.h>
 #include "guilogger.h"
 #include "filelogger.h"
 #include "qserialreader.h"
 #include "qpipereader.h"
 
+int Control_C;
+void signal_handler_exit(void){
+  signal(SIGINT,SIG_DFL);
+}
+
+void control_c(int i){
+  Control_C++ ;
+  if (Control_C > 100) exit(0);
+}
+
+void signal_handler_init(){
+  signal(SIGINT,control_c);
+  atexit(signal_handler_exit);
+  Control_C=0;  
+}
+
 /**
   * \brief Main Programm
   * \author Dominic Schneider
   */
 int main( int argc, char ** argv ) {
-    QApplication a( argc, argv );
-
-    QString mode;
-    QDataSource *qsource;
-//    FileLogger fl;
-
+  signal_handler_init();
+  
+  QApplication a( argc, argv );
+  
+  QString mode;
+  QDataSource *qsource;
+  FileLogger fl;
+    
     #ifdef DEBUG
        printf("DEBUG mode on!\n");
     #endif
@@ -45,19 +65,19 @@ int main( int argc, char ** argv ) {
 
     if(mode=="serial")    
     {   printf("Using serial port as source.\n"); 
-        qsource = new QSerialReader();
+    qsource = new QSerialReader();
     }
-    else if(mode=="pipe") qsource = new QPipeReader();
-    else
+  else if(mode=="pipe") qsource = new QPipeReader();
+  else
     {    printf("Using default source: serial port\n");
-         qsource = new QSerialReader();
-         //((QSerialReader*) qsource)->setComport("/dev/ttyS1");
+    qsource = new QSerialReader();
+    //((QSerialReader*) qsource)->setComport("/dev/ttyS1");
     }
 
     guilogger gl;
 
     a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
-//    a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
+    a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
     qsource->start();
 
     gl.setCaption( "GUI Logger" );
