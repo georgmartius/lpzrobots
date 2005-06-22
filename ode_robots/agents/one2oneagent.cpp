@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-06-20 10:01:33  fhesse
+ *   Revision 1.4  2005-06-22 15:34:06  fhesse
+ *   fprintf in step() changed
+ *
+ *   Revision 1.3  2005/06/20 10:01:33  fhesse
  *   controller initialized
  *
  *   Revision 1.2  2005/06/15 14:02:47  martius
@@ -54,7 +57,8 @@ bool One2OneAgent::init(AbstractController* controller, AbstractRobot* robot){
 void One2OneAgent::step(double noise){
   if(!controller || !robot || !sensors || !motors) {
     fprintf(stderr, "%s:%i: something is null: cont %x rob %x sens %x mots %x!\n", 
-	    __FILE__, __LINE__, controller, robot, sensors, motors);
+	    __FILE__, __LINE__, (unsigned int)controller, (unsigned int)robot, 
+	    (unsigned int)sensors, (unsigned int)motors);
   }
 
   int len =  robot->getSensors(sensors, sensornumber);
