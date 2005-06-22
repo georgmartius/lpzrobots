@@ -34,7 +34,7 @@ int main( int argc, char ** argv ) {
 
     QString mode;
     QDataSource *qsource;
-    FileLogger fl;
+//    FileLogger fl;
 
     #ifdef DEBUG
        printf("DEBUG mode on!\n");
@@ -57,7 +57,7 @@ int main( int argc, char ** argv ) {
     guilogger gl;
 
     a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
-    a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
+//    a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
     qsource->start();
 
     gl.setCaption( "GUI Logger" );

@@ -25,13 +25,13 @@
 typedef QString Tag;
 
 /**
-Checkbox which carries a tag. Useful for identification. Overwrites checkbox  signals in order to include the tag.
-
-@author Dominic Schneider
-*/
+  * \brief Checkbox which carries a tag. Useful for identification. Overwrites checkbox  signals in order to include the tag.
+  * \author Dominic Schneider
+  */
 class TaggedCheckBox : public QCheckBox
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
     TaggedCheckBox(QWidget* parent, const char* name = 0);
     TaggedCheckBox(const Tag& tag, int gpwindow, QWidget* parent, const char* name = 0 );
@@ -40,11 +40,14 @@ public:
 
     void setTag(const Tag& tag);
     void setGPWindow(int i);
+    int  getGPWindow();
     
 private:
     void init();
+
 private slots:
     void parenttoggled ( bool on );
+
 signals:
     void taggedToggled(const Tag& tag, int gpwindow, bool on);
 

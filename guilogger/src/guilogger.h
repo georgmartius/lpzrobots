@@ -23,14 +23,20 @@
 #define GUILOGGER_H
 
 #include <qmainwindow.h>
+#include <qpopupmenu.h>
 #include <qstringlist.h>
 #include <qlabel.h>
 #include <qdialog.h>
 #include <qptrlist.h>
 #include <qlayout.h>
 #include <qstringlist.h>
-#include <qtimer.h>
+//#include <qtimer.h>
 #include <qptrqueue.h>
+#include <qmutex.h>
+#include <qmap.h>
+#include <qvaluelist.h>
+#include <qscrollview.h>
+#include <qvbox.h>
 
 #include <string>
 #include <list>
@@ -39,11 +45,12 @@
 //#include <queue.h>
 
 class ChannelRow;
+class QTimer;
 
 /** \brief Base class for layout and all the visualisation stuff
   * \author Dominic Schneider
   */
-class guilogger: public QDialog
+class guilogger: public QMainWindow
 {
     Q_OBJECT
 
@@ -60,25 +67,35 @@ private slots:
     void receiveRawData(char *);
     void update();
     void GNUPlotUpdate();
+    void save();
+    void load();
     
 private:
-    typedef std::list<QString> listtype;
-
-    QPtrList<ChannelRow> channellist; // für Grafikelemente
+//    typedef std::list<QString> listtype;
+    typedef QMap<QString, QValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
+    
+    QPtrList<ChannelRow> ChannelRowPtrList; // für Grafikelemente
     QPtrQueue<QString> inputbuffer;
     QBoxLayout* layout;
-
+    QScrollView* sv;
+//    QVBox* layout;
+    
+    QPopupMenu *filemenu;
+    
     Gnuplot<QString> *gp;
-    listtype *nameslists;
+//    listtype *nameslists;
     std::list<bool*> *buttonArray;
     bool *gpWindowVisibility;
-
+    ChannelToWindowMap KnownChannels;  // Channels from the ConfigFile
+    QValueList<QString> ChannelList;
+    
     int plotwindows;
-    int updaterate_pwwindow;
     int framecounter;
-
+    
     QTimer *timer;
     QTimer *plottimer;
+
+    QMutex queuemutex;
 };
 
 

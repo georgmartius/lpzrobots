@@ -21,29 +21,43 @@
 #define CHANNELROW_H
 
 #include <qframe.h>
-#include "guilogger.h"
+#include <qlabel.h>
+#include <qlayout.h>
+
 #include "taggedcheckbox.h"
 
 /**
-Container for widgets associated with one gnuplot channel.
-
-@author Dominic Schneider
+  * \brief Container for widgets associated with one gnuplot channel.
+  * \author Dominic Schneider
 */
 class ChannelRow : public QFrame
 {
-Q_OBJECT
+    Q_OBJECT
+            
 public:
-    ChannelRow(const Tag& tag, int buttons, guilogger* parent = 0, const char *name = 0);
-
+    ChannelRow(const Tag& tag, int buttons, QWidget* parent = 0, const char *name = 0);
     ~ChannelRow();
+    bool isChecked(int );
+    void setChecked(int, bool);
+    QString getChannelName();
+
+signals:
+    void sendtaggedCheckBoxToggled(const Tag&, int, bool);
+
+private slots:
+    void receiveCheckedBox(const Tag&, int, bool);
+
 private:
-    void init( guilogger *parent, int buttons);
+    void init( QWidget *parent, int buttons);
+
 private:
-    QLabel* channelLabel; 
+    QLabel* channelLabel;
     TaggedCheckBox* CheckBox;
+    TaggedCheckBox** CheckBoxList;
+    int buttons;
     
     Tag channelName;
-    
+
     QBoxLayout* layout;
 };
 

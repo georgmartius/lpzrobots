@@ -49,3 +49,7 @@ void TaggedCheckBox::setTag(const Tag& tag){
 void TaggedCheckBox::parenttoggled ( bool on ){
     emit taggedToggled(tag, gpwindow, on);
 }
+
+int TaggedCheckBox::getGPWindow()
+{   return gpwindow;
+}

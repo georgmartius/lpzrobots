@@ -156,7 +156,14 @@ public:
 	if(i!=datasets.end())
 	    i->second->show=on;
     }; 
-
+/*
+    // gibt zurück, ob der channel gerade geplottet wird 
+    bool isVisible(const T& channel)
+    {   typename dataset_map::iterator i = datasets.find(channel);
+        if(i!=datasets.end())
+            return i->second->show;
+    }
+*/
     /** switch showing of this channel off */
     void hide(const T& channel){ 
 	show(channel, false);

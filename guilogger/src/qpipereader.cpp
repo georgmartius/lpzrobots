@@ -19,7 +19,7 @@
  ***************************************************************************/
 #include "qpipereader.h"
 #include <stdio.h>
-#include <unistd.h>
+#include <unistd.h>  //für usleep
 #include <stdlib.h>
 
 QPipeReader::QPipeReader(char bt)
@@ -41,6 +41,7 @@ void QPipeReader::run()
         do{
 //            i = fscanf(stdin, "%c", &c);
             i = fread(&c, 1, 1, stdin);
+            if(i==0) usleep(delay);  // mal ein bissel schlafen wenn nix da ist um die Last zu senken
         } while(i!=1);
 
         size++;
