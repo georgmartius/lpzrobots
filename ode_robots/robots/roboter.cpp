@@ -288,19 +288,19 @@ void Roboter::getWinkelDifferenz ( int motor , double* X )
 		//1. Fall(PI-Marke wird ueberschritten, also annaeherung vom Positiven) -> es ergibt sich eine negative Winkeldifferenz
 		if ( w > M_PI )
 		{
-			*X = -(2*M_PI - w)/M_PI;
+			*X = -(2*M_PI - w);
 			//dsPrint ( "%lf  %lf => %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , -(2*M_PI-w)/M_PI );
 		}
 		//2. Fall(-PI-Marke wird ueberschritten, also Annaeherung vom Negativen) -> es ergibt sich eine positive Winkeldifferenz
 		if ( w < -M_PI )
 		{
-			*X = (2*M_PI + w)/M_PI;
+			*X = (2*M_PI + w);
 			//dsPrint ( "%lf  %lf => %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , (2*M_PI+w)/M_PI );
 		}
 	}
 	else
 	{
-		*X = w/M_PI;
+		*X = w;
 		//dsPrint ( "%lf  %lf = %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , w/M_PI );
 	}
 }
