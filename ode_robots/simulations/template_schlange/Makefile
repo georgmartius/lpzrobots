@@ -13,7 +13,7 @@ CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DNDEBUG
 
-LPZROBOTS  = ../..
+LPZROBOTS  = ../../..
 ODEROBOTS  = $(LPZROBOTS)/ode_robots
 CONTROLLER = $(LPZROBOTS)/controller
 MATRIXLIB  = $(LPZROBOTS)/matrixlib
