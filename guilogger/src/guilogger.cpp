@@ -28,24 +28,61 @@
 #include <qregexp.h>
 
 
-guilogger::guilogger() : QMainWindow( 0, "guilogger")
+guilogger::guilogger(int datadelayrate, int plotwindows) : QMainWindow( 0, "guilogger")
 {
-    plotwindows = 3;
+    this->plotwindows   = plotwindows;    // per default parameter  3
+    this->datadelayrate = datadelayrate;  // per default parameter 10
     framecounter = 0;
+    datacounter  = 0;
+
+    setCentralWidget(new QWidget(this, "Central_Widget"));
+    layout        = new QHBoxLayout(centralWidget());
+
+    channelWidget = new QWidget(centralWidget());
+    channelWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
+    commWidget = new QWidget(centralWidget()); 
+    commWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,1,0, FALSE));
+
     
-    layout = new QBoxLayout(this, QBoxLayout::TopToBottom);
-//    sv = new QScrollView(this);
-//    layout->addWidget(sv);
-    //    layout = new QBoxLayout(sv->viewport(), QBoxLayout::TopToBottom);
-         
+    layout-> addWidget(channelWidget);
+    layout-> addWidget(commWidget);
+
+    channellayout = new QVBoxLayout(channelWidget);
+    commlayout    = new QVBoxLayout(commWidget);
+
+    parameterlistbox    = new QListBox(commWidget);
+    paramvaluelineedit = new QLineEdit(commWidget);
+    sendbutton         = new QPushButton("Send",commWidget);
+
+    commlayout->addWidget(parameterlistbox);
+    commlayout->addWidget(paramvaluelineedit);
+    commlayout->addWidget(sendbutton);
+
+//    sv = new QScrollView(channelWidget);
+//    channellayout->addWidget(sv);
+    //    channellayout = new QBoxLayout(sv->viewport(), QBoxLayout::TopToBottom);
+    
+//    channellayout = new QVBoxLayout(centralWidget());
+//    commlayout    = new QVBoxLayout(centralWidget());
+
+//    layout->addLayout(channellayout);
+//    layout->addLayout(commlayout);
+
+    
+    
+    
+    
+    
+    
+    
     filemenu = new QPopupMenu(this);
     menuBar()->insertItem("&File", filemenu);
     filemenu->insertItem("&Save", this, SLOT(save()));
     filemenu->insertItem("&Load", this, SLOT(load()));
 //    filemenu->insertItem("&Exit", this, SLOT(quit()));
 
-    ChannelRow* row = new ChannelRow("Channels", plotwindows, this);
-    layout->addWidget(row);
+    ChannelRow* row = new ChannelRow("Channels", plotwindows, channelWidget);
+    channellayout->addWidget(row);
     
 //    ChannelRow* row = new ChannelRow("Channel", plotwindows, sv->viewport());
 //    sv->enableClipper(TRUE);
@@ -56,6 +93,10 @@ guilogger::guilogger() : QMainWindow( 0, "guilogger")
 
     gp = new Gnuplot<QString>[plotwindows];
 
+    for(int k=0; k<plotwindows; k++)
+    {
+    }
+    
     gpWindowVisibility = new bool[plotwindows];
     for(int i=0; i<plotwindows; i++) gpWindowVisibility[i]=true;  // am Anfang alle Fenster sichtbar
 
@@ -91,7 +132,7 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
     if( on) gp[gpwindow].show(tag);  // einzelnen Kanal abschalten
     else gp[gpwindow].hide(tag);
 
-//    update();
+    for(int i=0; i<plotwindows; i++) gp[i].plot();
 }
 
 
@@ -99,21 +140,34 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
 void guilogger::save()
 {   ChannelRow *cr;
     FILE *outstream;
-
+    QString secname, nr;
+    
+    cfgFile.setFilename("guilogger.cfg");
+    
     outstream = fopen("guilogger.config", "w+");
     if(outstream == NULL) {printf("Cannot open file."); return;}
 
     for(int i=0; i<plotwindows; i++)
     {   cr = ChannelRowPtrList.first();
         fprintf(outstream,"Window %i\n", i);
+        
+//        nr.IntToStr(i);
+        secname = "Window";
+//        secname += nr;
+        IniSection *sec = cfgFile.addSection(secname);
+        
         while(cr != 0)
         {   if(cr->isChecked(i)) fprintf(outstream,"%s\n", (cr->getChannelName()).latin1());
             cr = ChannelRowPtrList.next();
+        
+//            sec->addValue("Super", cr->getChannelName());
+            
         }
 //        fprintf(outstream, "\n");
     }
     
     fclose(outstream);
+    cfgFile.Save();
 }
 
 
@@ -177,12 +231,13 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
             gp[k].hide(name);                       //    und per default nicht sichtbar machen
         }
 
-        ChannelRow* newrow = new ChannelRow(name, plotwindows, this);           // neues Grafikelement für Channel erzeugen
+        ChannelRow* newrow = new ChannelRow(name, plotwindows, channelWidget);           // neues Grafikelement für Channel erzeugen
 //        ChannelRow* newrow = new ChannelRow(name, plotwindows, sv->viewport());           // neues Grafikelement für Channel erzeugen
         connect(newrow, SIGNAL(sendtaggedCheckBoxToggled(const Tag&, int, bool)),
                   this,   SLOT(taggedCheckBoxToggled( const Tag&, int, bool)));
-        layout->addWidget(newrow);
-//        sv->addChild(newrow);
+        channellayout->addWidget(newrow);
+//        framecounter++;
+//        sv->addChild( newrow, 0, 30*framecounter);
                 
         newrow->show();
         ChannelRowPtrList.append(newrow);
@@ -190,27 +245,27 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
         QRegExp re;
         re.setWildcard(TRUE);
 
-        ChannelToWindowMap::iterator it = KnownChannels.begin();  // durch die Map iterieren
+        ChannelToWindowMap::iterator it = KnownChannels.begin();  // durch die Map der bekannten Channels (aus config File) iterieren
         if(it != KnownChannels.end()) re.setPattern(it.key()); 
 
-//        printf("Send %s.\n", name.latin1());
+//        printf("Send %s.\n", name.latin1());  // DEBUG
         while(it != KnownChannels.end())  // guggen ob neuer Channel auf einen der Ausdrücke aus dem config file matcht
-        {   printf("  %s ", it.key().latin1());
+        {   //printf("  %s ", it.key().latin1());  // DEBUG
 
-        if(name == it.key() || re.exactMatch(name))
-        {    //printf("Match\n");
-            QValueList<int>::iterator lit = (*it).begin();  // wenn Ausdruck matcht, Plotwindows rausbekommen
-            while(lit != (*it).end())
-            {   int b = *lit;
-            newrow->setChecked(b, TRUE);
-            gp[b].show(name);
-            lit++;
+            if(name == it.key() || re.exactMatch(name))
+            {    //printf("Match\n");   // DEBUG
+                QValueList<int>::iterator lit = (*it).begin();  // wenn Ausdruck matcht, Plotwindows rausbekommen
+                while(lit != (*it).end())
+                {   int b = *lit;
+                    newrow->setChecked(b, TRUE);
+                    gp[b].show(name);
+                    lit++;
+                }
             }
-        }
-        else printf("\n");
+//            else printf("\n");   // DEBUG
 
-        it++;
-        re.setPattern(it.key());
+            it++;
+            re.setPattern(it.key());
         }
     }
 
@@ -233,7 +288,7 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
     
     if(status==plotwindows)
     {   ChannelRow* newrow = new ChannelRow(name, plotwindows, this);  // neues Grafikelement für Channel erzeugen
-        layout->addWidget(newrow);
+    channellayout->addWidget(newrow);
         newrow->show();
         ChannelRowPtrList.append(newrow);
         #ifdef DEBUG
@@ -328,7 +383,7 @@ void guilogger::update()
                i++;
                channelname++;
            }
-
+           datacounter++;
        }
 
        #ifdef DEBUG
@@ -341,8 +396,10 @@ void guilogger::update()
 
 // updates every n milliseconds one of the GNUPlot windows
 void guilogger::GNUPlotUpdate()
-{   framecounter++; 
-    int i = framecounter % plotwindows;
-    gp[i].plot();
-
+{   //framecounter++; 
+    //int i = framecounter % plotwindows;
+    if(datacounter > datadelayrate)
+    {   for(int i=0; i<plotwindows; i++) gp[i].plot();
+        datacounter=0;
+    }
 }

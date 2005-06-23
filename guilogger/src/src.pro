@@ -9,14 +9,16 @@ HEADERS += guilogger.h \
            filelogger.h \
            qdatasource.h \
            qserialreader.h \
-           qpipereader.h 
+           qpipereader.h \
+           inifile.h 
 SOURCES += guilogger.cpp \
            main.cpp \
            taggedcheckbox.cpp \
            channelrow.cpp \
            filelogger.cpp \
            qserialreader.cpp \
-           qpipereader.cpp 
+           qpipereader.cpp \
+           inifile.cpp 
 TEMPLATE = app
 CONFIG += debug \
 warn_on \

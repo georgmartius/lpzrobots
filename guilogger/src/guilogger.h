@@ -37,12 +37,16 @@
 #include <qvaluelist.h>
 #include <qscrollview.h>
 #include <qvbox.h>
+#include <qlistbox.h>
+#include <qlineedit.h>
+#include <qpushbutton.h>
 
 #include <string>
 #include <list>
 #include "taggedcheckbox.h"
 #include "gnuplot.h"
 //#include <queue.h>
+#include "inifile.h"
 
 class ChannelRow;
 class QTimer;
@@ -55,7 +59,7 @@ class guilogger: public QMainWindow
     Q_OBJECT
 
 public:
-    guilogger();
+    guilogger(int datadelayrate = 10, int plotwindows=3);
     ~guilogger();
     void setChannels(QStringList &clist);
     void setChannels(const char &clist);
@@ -76,9 +80,18 @@ private:
     
     QPtrList<ChannelRow> ChannelRowPtrList; // für Grafikelemente
     QPtrQueue<QString> inputbuffer;
+    QBoxLayout* channellayout;
+    QBoxLayout* commlayout;
     QBoxLayout* layout;
     QScrollView* sv;
 //    QVBox* layout;
+    QWidget* channelWidget;
+    QWidget* commWidget; 
+    
+    
+    QListBox*  parameterlistbox;
+    QLineEdit* paramvaluelineedit;
+    QPushButton*   sendbutton;
     
     QPopupMenu *filemenu;
     
@@ -90,12 +103,16 @@ private:
     QValueList<QString> ChannelList;
     
     int plotwindows;
-    int framecounter;
+    int framecounter;  //deprecated
+    int datacounter;
+    int datadelayrate;  // how much data traffic is neccessary to replot
     
     QTimer *timer;
     QTimer *plottimer;
 
     QMutex queuemutex;
+
+    IniFile cfgFile;
 };
 
 
