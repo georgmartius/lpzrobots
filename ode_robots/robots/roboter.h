@@ -2,7 +2,7 @@
 /*roboter.h								*/
 /*Robotergrundkonstrukt fuer das eigene ODE-Robotersystem des Authors	*/
 /*@author Marcel Kretschmann						*/
-/*@version alpha 0.9							*/
+/*@version beta								*/
 /*									*/
 /************************************************************************/
 
@@ -37,14 +37,23 @@ typedef struct
 
 
 /****************************Hilfsfunktionen********************************/
+
+/**
+ *Diese Funktion ermoeglicht es direkt auf einzelne Koordinatenwerte von ODE-body zuzugreifen
+ *@param basis ODE-interne Roboterkennung
+ *@param para 0 = x-Koordinate, 1 = y-Koordinate, 2 = z-Koordinate
+ *@author Marcel Kretschmann
+ *@version final
+ **/
 double dBodyGetPositionAll ( dBodyID basis , int para );
 
-
+/***************************************************************************/
 
 /**
  *Dies ist eine universelle Basisklasse, welche die Grundfunktionalitaet eines Roboters beinhaltet.
+ *Allerdings werden die Vorgaben des Interfaces AbstraktRobot eingehalten.
  *@author Marcel Kretschmann
- *@version development
+ *@version beta
  **/
 class Roboter : public AbstractRobot
 {
@@ -65,8 +74,10 @@ public:
 
 	/**
 	 *Konstruktor
-	 *@param int Roboterkennummer
-	 *@param dWorldID Referenz auf die ODE-Simulationswelt, in der der Roboter angelegt werden soll
+	 *@param startRoboterID Roboterkennummer, sollte innerhalb der Simulation eindeutig vergeben werden
+	 *@param welt Referenz auf die ODE-Simulationswelt, in der der Roboter angelegt werden soll
+	 *@param raum Referenz auf den ODE-Simulationsraum, in der der Roboter funktionieren soll
+	 *@param start_contactgroup Referenz auf Joint-Gruppe in der die Contact-joints fuer die kollisionen gespeichert werden sollen
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
@@ -123,8 +134,12 @@ public:
 	*/
 	virtual int getSensorNumber();
 	
-	/** returns number of motors
-	*/
+	/**
+	 *Gibt die Anzahl der Motoren an, die zu einem Roboter gehören.
+	 *@return Anzahl der Motoren
+	 *@author Marcel Kretschmann
+	 *@version alpha 1.0
+	 **/
 	virtual int getMotorNumber();
 	
 	
@@ -159,13 +174,6 @@ public:
 	 **/
 	virtual int getJointAnzahl ();
 	
-	/**
-	 *Gibt die Anzahl der Motoren an, die zu einem Roboter gehören.
-	 *@return Anzahl der Motoren
-	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
-	 **/
-	virtual int getMotorAnzahl ();
 	
 	/**
 	 *Gibt ein Objekt zurueck, welches sowohl einen Verweis auf ODE-Body- als auch ODE-Geom-Objekte enthaellt.
@@ -252,7 +260,7 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	virtual void getParameterStatus ();
+	virtual void getStatus ();
 	
 };
 

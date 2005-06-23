@@ -2,7 +2,7 @@
 /*roboter.cpp								*/
 /*Robotergrundkonstrukt fuer das eigene ODE-Robotersystem des Authors	*/
 /*@author Marcel Kretschmann						*/
-/*@version alpha 0.9							*/
+/*@version beta								*/
 /*									*/
 /************************************************************************/
 
@@ -10,23 +10,28 @@
 
 
 /***************************Hilfsfunktionen******************************/
+
+/**
+ *Diese Funktion ermoeglicht es direkt auf einzelne Koordinatenwerte von ODE-body zuzugreifen
+ *@param basis ODE-interne Roboterkennung
+ *@param para 0 = x-Koordinate, 1 = y-Koordinate, 2 = z-Koordinate
+ *@author Marcel Kretschmann
+ *@version final
+ **/
 double dBodyGetPositionAll ( dBodyID basis , int para )
 {
-    const dReal* pos;
-
-    pos = dBodyGetPosition ( basis );
-
-    switch (para)
-    {
-        case 1: return pos[0]; break; //X
-        case 2: return pos[1]; break; //Y
-        case 3: return pos[2]; break; //Z
-    }
+	const dReal* pos;
+	pos = dBodyGetPosition ( basis );
+	switch (para)
+	{
+		case 1: return pos[0]; break; //X
+		case 2: return pos[1]; break; //Y
+		case 3: return pos[2]; break; //Z
+	}
 	return 0;
 }
+
 /***********************************************************************/
-
-
 
 /**
  *Konstruktor
@@ -156,7 +161,7 @@ void Roboter::place (Position pos, Color *c)
  void Roboter::setMotors ( const motor* motors, int motornumber )
 {
 	for ( int n = 0; n < motornumber; n ++ )
-		dJointSetAMotorParam ( motorliste[n] , dParamVel , *(motors++)*5 );
+		dJointSetAMotorParam ( motorliste[n] , dParamVel , *(motors++) );
 }
 
 
@@ -167,11 +172,15 @@ void Roboter::place (Position pos, Color *c)
 	return getSensorfeldGroesse ();
 }
 
-/** returns number of motors
-*/
+/**
+ *Gibt die Anzahl der Motoren an, die zu einem Roboter gehören.
+ *@return Anzahl der Motoren
+ *@author Marcel Kretschmann
+ *@version alpha 1.0
+ **/
  int Roboter::getMotorNumber()
 {
-	return getMotorAnzahl ();
+	return motorliste.size ();
 }
 
 /** returns a list with the positionvectors of all segments of the robot
@@ -220,17 +229,6 @@ int Roboter::getJointAnzahl ()
 }
 
 /**
- *Gibt die Anzahl der Motoren an, die zu einem Roboter gehören.
- *@return Anzahl der Motoren
- *@author Marcel Kretschmann
- *@version alpha 1.0
- **/
-int Roboter::getMotorAnzahl ()
-{
-	return motorliste.size ();
-}
-
-/**
  *Gibt ein Objekt zurueck, welches sowohl einen Verweis auf ODE-Body- als auch ODE-Geom-Objekte enthaellt.
  *@param int Die Position in der Liste der Objekte ueber die ein Roboter verfuegt.
  *@return objekt
@@ -272,7 +270,7 @@ dJointID Roboter::getMotorAt ( int n )
  *zwischen zwei Berechnungszeitschritten.
  *Diese Differenz wird an eine uebergebene Stelle im Speicher gespeichert.
  *@param int Position des anzupassenden Motor-Joints in der Liste der Motor-Joints.
- *@param double* Speicherort fuer den ermittelten Sensorwert.
+ *@param double* Speicherort fuer den ermittelten Sensorwert. Die Sensorwerte werden auf den Bereich [-1,1] normiert
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
@@ -290,20 +288,20 @@ void Roboter::getWinkelDifferenz ( int motor , double* X )
 		//1. Fall(PI-Marke wird ueberschritten, also annaeherung vom Positiven) -> es ergibt sich eine negative Winkeldifferenz
 		if ( w > M_PI )
 		{
-			*X = -(2*M_PI - w);
-			dsPrint ( "%lf  %lf => %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , -(2*M_PI-w) );
+			*X = -(2*M_PI - w)/M_PI;
+			//dsPrint ( "%lf  %lf => %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , -(2*M_PI-w)/M_PI );
 		}
 		//2. Fall(-PI-Marke wird ueberschritten, also Annaeherung vom Negativen) -> es ergibt sich eine positive Winkeldifferenz
 		if ( w < -M_PI )
 		{
-			*X = (2*M_PI + w);
-			dsPrint ( "%lf  %lf => %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , (2*M_PI+w) );
+			*X = (2*M_PI + w)/M_PI;
+			//dsPrint ( "%lf  %lf => %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , (2*M_PI+w)/M_PI );
 		}
 	}
 	else
 	{
-		*X = w;
-		dsPrint ( "%lf  %lf = %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , w );
+		*X = w/M_PI;
+		//dsPrint ( "%lf  %lf = %lf \n" , sensorfeld[motor].istwinkel ,  sensorfeld[motor].istwinkel_alt , w/M_PI );
 	}
 }
 
@@ -373,7 +371,7 @@ bool Roboter::kollisionsermittlung ( dGeomID o1 , dGeomID o2 )
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
-void Roboter::getParameterStatus ()
+void Roboter::getStatus ()
 {
 
 }

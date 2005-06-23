@@ -23,11 +23,13 @@ using namespace std;
 class Schlange : public Roboter
 {
 private:
-	vector<dGeomID> schlangenhuellenliste;
 
 	int schlangenarmanzahl;
 	double gliederdurchmesser;
 	double gliederlaenge;
+	
+	double geschwindigkeitsfaktor;
+	double maxmotorkraft;
 
 public:
 	
@@ -48,7 +50,7 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version alpha 1.0
 	 **/
-	Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double maxMotorKraft );
+	Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor );
 	
 	/**
 	*Destruktor
@@ -95,15 +97,51 @@ public:
 	**/
 	virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
-	/** returns position of robot 
+	/**Gibt die Sensorwerte aus dem Roboterinternensensorfeld an einen uebergebenen Speicherort aus.
+	*@param sensor* sensors Zeiger auf den Zielort der Sensordaten
+	*@param int sensornumber Laenge des Sensorenarrays in das gespeichert werden soll
+	*@return int Anzahl der Sensoren in die schon ein aktueller Wert geschrieben wurde
+	**/
+	virtual int getSensors ( sensor* sensors, int sensornumber );
+	
+	/**
+	*Setzt den Winkelgeschwindigkeisparameter eines Motor-Joints auf einen bestimmten Wert.
+	*@param motors Zeiger auf das Array mit Werten zwischen [-1,1] 
+	*@param motornumber Laenge des Arrays aus dem die neuen Motorwerte gelesen werden.
+	*@author Marcel Kretschmann
+	*@version alpha 1.0
+	**/
+	virtual void Schlange::setMotors ( const motor* motors, int motornumber );
+	
+	/** returns number of motors
+	*/
+	virtual int Schlange::getMotorNumber();
+	
+	/**
+	*Ließt die aktuellen Sensordaten erneut in die Sensorspeicherfelder.
+	*@author Marcel Kretschmann
+	*@version alpha 1.0
+	**/
+	void sensoraktualisierung ( );
+	
+	/**Gibt die Position des Roboters zurueck.
 	Die Position der Schlange wird durch die Position des ersten Schlangengliedes bestimmt.
-	@param pos vector of desired position (x,y,z)
+	@return Position des Roboters
 	*/
 	virtual Position getPosition ();
 	
-	/** returns position of robot 
-	Die Position der Schlange wird durch die Position des ersten Schlangengliedes bestimmt.
-	@param pos vector of desired position (x,y,z)
+	/** Gibt die Position eines bestimmten Schlangengliedes zurueck
+	@param n Nummer des Schlangengliedes, dessen Position man sucht
+	@return Position des Schlangengliedes
 	*/
-	virtual Position Schlange::getPosition ( int n );
+	virtual Position getPosition ( int n );
+	
+	/**
+	*Gibt die aktuellen Controler-Steuerungsparameter als Text aus.
+	*@author Marcel Kretschmann
+	*@version alpha 1.0
+	**/
+	virtual void Schlange::getStatus ();
+
 };
+

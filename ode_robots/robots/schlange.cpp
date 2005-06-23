@@ -27,12 +27,10 @@
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
-Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double maxMotorKraft ) :
+Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor ) :
 Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sensoranzahl )
 {
 	Object tmp_body;
-	
-	//int sensfeldgr = getSensorfeldGroesse ();
 	
 	dMass masse;
 	dMatrix3 R;//Matrix fuer Koerper-Rotationen
@@ -40,13 +38,15 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 
 	gliederdurchmesser = glieder_durchmesser;
 	gliederlaenge = glieder_laenge;
-	schlangenarmanzahl = armanzahl;	
+	schlangenarmanzahl = armanzahl;
+	geschwindigkeitsfaktor = start_geschwindigkeitsfaktor;
+	maxmotorkraft = start_maxmotorkraft;
 	
 
 	//*************Koerperdefinitionsabschnitt**************
 	
-	//Aufbau der Massenverteilungsmatrix (hier fuer eine Box)
-	dMassSetBox ( &masse , glieder_masse , glieder_laenge , glieder_durchmesser , glieder_durchmesser );
+	//Aufbau der Massenverteilungsmatrix fuer die einzelnen Schlangenglieder
+	dMassSetCappedCylinderTotal ( &masse , glieder_masse , 2 , glieder_laenge , glieder_durchmesser );
 	//zuordnung der Rotationsmatizenwerte zur Rotationsmatrix R
 	dRFromAxisAndAngle ( R , 0 , 1 , 0 , M_PI/2 );//hier drehung um 90° um die y-Achse
 
@@ -60,25 +60,18 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 
 		dBodySetMass ( (objektliste.back ()).body , &masse );
 	
-		(objektliste.back ()).geom = dCreateBox ( *space , glieder_laenge/2 , glieder_durchmesser/2 , glieder_durchmesser/2 );
+		(objektliste.back ()).geom = dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
 		dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
 
-		//Die zweite Geometriehuelle wird hier verwendet um eine aeussere Schlangenhuelle zu erzeugen
-		//dGeomID tmp_geom;
-		//tmp_geom = dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
-		//schlangenhuellenliste.push_back ( tmp_geom );
-		//dGeomSetBody ( schlangenhuellenliste.back () , objektliste.back ().body );	
-		
 		//dBodySetRotation ( (objektliste.back ()).body , R );
-		//dGeomSetRotation ( (objektliste.back ()).geom , R );
-		//dGeomSetRotation ( schlangenhuellenliste.back () , R );
+		dGeomSetRotation ( (objektliste.back ()).geom , R );
 	}
 
 	//*****************Join-Generierungsabschnitt***********
 	for ( int n = 0; n < armanzahl-1; n++ )
 	{
 		jointliste.push_back ( dJointCreateUniversal ( *world , 0 ) );
-		//jointliste.push_back ( dJointCreateBall ( *world , 0 ) );
+		
 		dJointAttach ( jointliste.back () , objektliste[n].body , objektliste[n+1].body );
 			
 		dJointSetUniversalAnchor ( jointliste.back () , dBodyGetPositionAll ( objektliste[n].body , 1 ) + ( dBodyGetPositionAll ( objektliste[n+1].body , 1 ) - dBodyGetPositionAll ( objektliste[n].body , 1 ) )/2 , dBodyGetPositionAll ( objektliste[n].body , 2 ) + ( dBodyGetPositionAll ( objektliste[n+1].body , 2 ) - dBodyGetPositionAll ( objektliste[n].body , 2 ) )/2 , dBodyGetPositionAll ( objektliste[n].body , 3 ) );
@@ -86,34 +79,6 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 		dJointSetUniversalAxis1 ( jointliste.back () , 0 , 1 , 0 );
 		dJointSetUniversalAxis2 ( jointliste.back () , 0 , 0 , 1 );
 	}	
-
-	//***************Motordefinitionsabschnitt**************
-
-	for ( int n = 0; n < 2*(armanzahl-1); n++ )
-	{
-		//alle zwei Motoren wird eine andere Axe verwendet
-		if ( n%2==0 )
-		{
-			motorliste.push_back ( dJointCreateAMotor ( *world , 0 ) );
-			dJointAttach ( motorliste.back () , objektliste[n/2].body , objektliste[(n/2)+1].body );
-			dJointSetAMotorMode ( motorliste.back () , dAMotorEuler );
-			//Dies sind die beiden festen Axen
-			dJointSetAMotorAxis ( motorliste.back () , 0 , 1 , 0 , 1 , 0 );
-			dJointSetAMotorAxis ( motorliste.back () , 2 , 2 , 0 , 0 , 1 );
-			dJointSetAMotorParam ( motorliste.back () , dParamFMax , maxMotorKraft );
-		}
-		else
-		{
-			motorliste.push_back ( dJointCreateAMotor ( *world , 0 ) );
-			dJointAttach ( motorliste.back () , objektliste[n/2].body , objektliste[(n/2)+1].body );
-			dJointSetAMotorMode ( motorliste.back () , dAMotorEuler );
-			//Dies sind die beiden festen Axen
-			dJointSetAMotorAxis ( motorliste.back () , 0 , 1 , 0 , 0 , 1 );
-			dJointSetAMotorAxis ( motorliste.back () , 2 , 2 , 1 , 0 , 0 );
-			dJointSetAMotorParam ( motorliste.back () , dParamFMax , maxMotorKraft );
-		}
-		//addSensor (); entfaellt, da dies nun im Konstruktor des allgemeinen Roboters erledigt wird
-	}
 
 	//Anfangsbelegung der sensorfelder
  	for ( int n = 0; n < 2*(armanzahl-1); n++ )
@@ -140,14 +105,13 @@ Schlange::~Schlange()
 void Schlange::draw()
 {
 	double box [3];
-	//dsSetTexture (DS_WOOD);
-	dsSetColor (1,0,0);
+	dsSetTexture (DS_WOOD);
+	dsSetColor ( color.r , color.g , color.b );
 
-	box[0] = gliederlaenge/2; box[1] = gliederdurchmesser/2; box[2] = gliederdurchmesser/2;
+	box[0] = gliederlaenge/10; box[1] = gliederdurchmesser/10; box[2] = gliederdurchmesser/10;
 	for ( int n = 0; n < schlangenarmanzahl; n++ )
 	{
-			dsDrawBox ( dGeomGetPosition ( getObjektAt ( n ).geom ) , dGeomGetRotation ( getObjektAt ( n ).geom ) , box );
-			//dsDrawCappedCylinder ( dGeomGetPosition ( schlangenhuellenliste[n] ) , dGeomGetRotation ( schlangenhuellenliste[n] ) , gliederlaenge , gliederdurchmesser );
+			dsDrawCappedCylinder ( dGeomGetPosition ( getObjektAt ( n ).geom ) , dGeomGetRotation ( getObjektAt ( n ).geom ) , gliederlaenge , gliederdurchmesser );
 	}
 }
 	
@@ -164,17 +128,16 @@ void Schlange::draw()
  **/
 bool Schlange::kollisionsermittlung ( dGeomID o1 , dGeomID o2 )
 {
-	/*for ( int n = 0; n < schlangenarmanzahl; n++ )
+	for ( unsigned int n = 0; n < objektliste.size (); n++ )
 	{
 		if 
 		(
-		( schlangenhuellenliste[n] == o1 && schlangenhuellenliste[n+1] == o2 ) || ( schlangenhuellenliste[n] == o2 && schlangenhuellenliste[n+1] == o1 )
-		|| ( schlangenhuellenliste[n] == o1 && schlangenhuellenliste[n+1] == o2 ) || ( schlangenhuellenliste[n] == o2 && schlangenhuellenliste[n+1] == o1 )
-		|| ( schlangenhuellenliste[n] == o1 && schlangenhuellenliste[n+1] == o2 ) || ( schlangenhuellenliste[n] == o2 && schlangenhuellenliste[n+1] == o1 )
+		( getObjektAt ( n ).geom == o1 && getObjektAt ( n + 1 ).geom == o2 ) || ( getObjektAt ( n ).geom == o2 && getObjektAt ( n + 1 ).geom == o1 )		
 		)
-			if ( ( schlangenhuellenliste[n] == o1 ) || ( schlangenhuellenliste[n] == o2 ) )
-				return true;	
-	}*/
+			//if ( ( schlangenhuellenliste[n] == o1 ) || ( schlangenhuellenliste[n] == o2 ) )
+			return true;
+	}
+	
 	return false;
 }
 	
@@ -217,8 +180,10 @@ void Schlange::place (Position pos, Color *c)
 		if ( getObjektAt ( n ).geom == o1 || getObjektAt ( n ).geom == o2 )
 		{
 			tmp_kollisionsbeteiligung = true;
+			//dsPrint ( "X\n" );
 			break;
 		}
+		//else dsPrint ( "_\n" );
 	}
 	//wenn eine Beteiligung des Roboters der Fall ist, erfolgt die Kollisionsbehandlung 
 	if ( tmp_kollisionsbeteiligung == true )		
@@ -255,13 +220,78 @@ void Schlange::place (Position pos, Color *c)
 	else return false; //wenn die Kollision nicht durch diesen Roboter beahndelt wurde
 }
 
+/**Gibt die Sensorwerte aus dem Roboterinternensensorfeld an einen uebergebenen Speicherort aus.
+ *@param sensor* sensors Zeiger auf den Zielort der Sensordaten
+ *@param int sensornumber Laenge des Sensorenarrays in das gespeichert werden soll
+ *@return int Anzahl der Sensoren in die schon ein aktueller Wert geschrieben wurde
+ **/
+ int Schlange::getSensors ( sensor* sensors, int sensornumber )
+{
+	sensoraktualisierung ();
+	for ( int n = 0; n < sensornumber; n++ )
+		getWinkelDifferenz ( n , sensors++ );
+	
+	return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
+}
+
+/**
+ *Setzt den Winkelgeschwindigkeisparameter eines Motor-Joints auf einen bestimmten Wert.
+ *@param motors Zeiger auf das Array mit Werten zwischen [-1,1] 
+ *@param motornumber Laenge des Arrays aus dem die neuen Motorwerte gelesen werden.
+ *@author Marcel Kretschmann
+ *@version alpha 1.0
+ **/
+void Schlange::setMotors ( const motor* motors, int motornumber )
+{
+	for ( int n = 0; n < motornumber; n ++ )
+		if ( n % 2 == 0 )
+		{
+			dJointSetUniversalParam ( getJointAt(n/2) , dParamVel , *(motors++)*geschwindigkeitsfaktor );
+			dJointSetUniversalParam ( jointliste[n/2] , dParamFMax , maxmotorkraft );
+		}
+		else
+		{
+			dJointSetUniversalParam ( jointliste[n/2] , dParamVel2 , *(motors++)*geschwindigkeitsfaktor );
+			dJointSetUniversalParam ( jointliste[n/2] , dParamFMax2 , maxmotorkraft );
+		}
+}	
+
+/**
+ *Gibt die Anzahl der Motoren an, die zu einem Roboter gehören.
+ *@return Anzahl der Motoren
+ *@author Marcel Kretschmann
+ *@version alpha 1.0
+ **/
+ int Schlange::getMotorNumber()
+{
+	return 2*getJointAnzahl ();
+}
+	
+/**
+ *Ließt die aktuellen Sensordaten erneut in die Sensorspeicherfelder.
+ *@author Marcel Kretschmann
+ *@version alpha 1.0
+ **/
+void Schlange::sensoraktualisierung ( )
+{
+	for ( int n = 0; n < getSensorfeldGroesse (); n++ )
+	{
+		sensorfeld[n].istwinkel_alt = sensorfeld[n].istwinkel;
+		
+		if ( n % 2 == 0 )
+			sensorfeld[n].istwinkel = dJointGetUniversalAngle1 ( getJointAt (n/2) );
+		else
+			sensorfeld[n].istwinkel = dJointGetUniversalAngle2 ( getJointAt (n/2) );
+	}
+}
+
 /** returns position of robot 
 Die Position der Schlange wird durch die Position des ersten Schlangengliedes bestimmt.
 @param pos vector of desired position (x,y,z)
 */
 Position Schlange::getPosition ()
 {
-		const dReal* tmpPos;
+	const dReal* tmpPos;
 	Position returnPos;
 	tmpPos = dBodyGetPosition ( getObjektAt(0).body );
 	returnPos.x = tmpPos[0];
@@ -277,7 +307,7 @@ Die Position der Schlange wird durch die Position des ersten Schlangengliedes be
 */
 Position Schlange::getPosition ( int n )
 {
-		const dReal* tmpPos;
+	const dReal* tmpPos;
 	Position returnPos;
 	tmpPos = dBodyGetPosition ( getObjektAt (n).body );
 	returnPos.x = tmpPos[0];
@@ -286,4 +316,13 @@ Position Schlange::getPosition ( int n )
 
 	return returnPos;
 }
-	
+
+/**
+ *Gibt die aktuellen Controler-Steuerungsparameter als Text aus.
+ *@author Marcel Kretschmann
+ *@version alpha 1.0
+ **/
+void Schlange::getStatus ()
+{
+	for ( int n = 0; n < getSensorfeldGroesse (); dsPrint ( "Sensor %i: %lf\n" , n , sensorfeld[n++].istwinkel ) );
+}
