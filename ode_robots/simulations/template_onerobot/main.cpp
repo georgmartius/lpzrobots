@@ -4,7 +4,7 @@
 
 #include "simulation.h"
 #include "one2oneagent.h"
-#include "vehicle_2wheels.h"
+#include "nimm2.h"
 #include "playground.h"
 
 #include "invertnchannelcontroller.h"
@@ -41,7 +41,7 @@ void start()
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
 
-  Vehicle* vehicle = new Vehicle(&world, &space, &contactgroup);
+  Nimm2* vehicle = new Nimm2(&world, &space, &contactgroup);
   Position p = {0,0,0};
   vehicle->place(p);
   AbstractController *controller = new InvertNChannelController(10);  

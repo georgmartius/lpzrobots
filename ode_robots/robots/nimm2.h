@@ -20,24 +20,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-06-21 10:57:01  martius
- *   *** empty log message ***
+ *   Revision 1.1  2005-06-23 13:27:56  fhesse
+ *   Vehicle changed to Nimm2
  *
- *   Revision 1.5  2005/06/15 14:22:26  martius
- *   GPL included and const setMotors
  *                                                                 *
  ***************************************************************************/
-#ifndef __VEHICLE_H
-#define __VEHICLE_H
+#ifndef __NIMM2_H
+#define __NIMM2_H
 
 #include "abstractrobot.h"
 
-class Vehicle : public AbstractRobot{
+class Nimm2 : public AbstractRobot{
 public:
   
-  Vehicle(dWorldID *w, dSpaceID *s, dJointGroupID *c);
+  Nimm2(dWorldID *w, dSpaceID *s, dJointGroupID *c);
 
-  virtual ~Vehicle(){};
+  virtual ~Nimm2(){};
 
   /**
    * draws the vehicle
