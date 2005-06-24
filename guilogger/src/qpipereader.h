@@ -31,8 +31,8 @@ private:
     int delay;
 
 public:
-    QPipeReader(char bt = '\n');
+    QPipeReader(char bt = '\n', int delay = 100);
     virtual void run();
-
-
+    void setDelay(int delay) {this->delay = delay;}
+    int  getDelay()  {return delay;}
 };

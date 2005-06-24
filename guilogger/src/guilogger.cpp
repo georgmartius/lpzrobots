@@ -151,36 +151,41 @@ void guilogger::save()
     {   cr = ChannelRowPtrList.first();
         fprintf(outstream,"Window %i\n", i);
         
-//        nr.IntToStr(i);
+        nr = QString::number(i, 10);
         secname = "Window";
 //        secname += nr;
+        
+//        nr += '\n';
+        
         IniSection *sec = cfgFile.addSection(secname);
-        
+        sec->addValue("Number", nr);
+
         while(cr != 0)
-        {   if(cr->isChecked(i)) fprintf(outstream,"%s\n", (cr->getChannelName()).latin1());
+        {   if(cr->isChecked(i)) 
+            {   fprintf(outstream,"%s\n", (cr->getChannelName()).latin1());
+                sec->addValue("Channel", cr->getChannelName());
+            }
             cr = ChannelRowPtrList.next();
-        
-//            sec->addValue("Super", cr->getChannelName());
-            
         }
 //        fprintf(outstream, "\n");
     }
     
     fclose(outstream);
     cfgFile.Save();
+    cfgFile.Clear();
 }
 
 
 /// loads the channel configuration from file
 void guilogger::load()
 {   ChannelRow *cr;
-    FILE *outstream;
-    char *data;
+//    FILE *outstream;
+//    char *data;
     int pwin;
-    QString qs;
+    QString qv;
     QRegExp re;
 //    re.setWildcard(TRUE);
-    
+/*
     outstream = fopen("guilogger.config", "r");
     if(outstream == NULL) {printf("Cannot open config file.\n");return;}
 
@@ -204,7 +209,7 @@ void guilogger::load()
             cr = ChannelRowPtrList.first();  // Liste mit Channels die gesendet wurden
             while(cr != 0)
             {   //printf("Vgl. %s - %s\n", qs.latin1(), (cr->getChannelName()).latin1());
-                if(re.exactMatch(cr->getChannelName()))
+                if(qs==cr->getChannelName() || re.exactMatch(cr->getChannelName()))
                 {   gp[pwin].show(qs);
                     cr->setChecked(pwin, TRUE);
                 }
@@ -215,6 +220,44 @@ void guilogger::load()
 
     free(data);
     fclose(outstream);
+*/
+    IniSection* section;
+    IniVar* var;
+    
+    KnownChannels.clear();
+    pwin = -1;
+
+    cfgFile.setFilename("guilogger.cfg");
+    cfgFile.Load();
+
+    for(section = cfgFile.sections.first(); section != 0; section = cfgFile.sections.next())
+    {   if(section->getName() == "Window")
+           for(var = section->vars.first(); var!=0; var = section->vars.next())
+           {   qv = var->getValue();
+               
+               if(var->getName() == "Number") 
+               {   pwin = qv.toInt();
+//                   printf("WinNo = %i\n", pwin);
+               }
+               else if(var->getName() == "Channel")
+               {        re.setPattern(qv);
+//                        printf("  %s", qv.latin1());
+                        KnownChannels[qv].append(pwin);
+
+                        cr = ChannelRowPtrList.first();  // Liste mit Channels die gesendet wurden
+                        while(cr != 0)
+                        {   //printf("Vgl. %s - %s\n", qs.latin1(), (cr->getChannelName()).latin1());
+                            if(qv==(cr->getChannelName()+"\n") || re.exactMatch(cr->getChannelName()))
+                            {   gp[pwin].show(qv);
+                                cr->setChecked(pwin, TRUE);
+                            }
+                            cr = ChannelRowPtrList.next();
+                        }
+               }
+           }
+        
+    }
+    
     printf("Config file loaded.\n");
 }
 
@@ -238,7 +281,7 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
         channellayout->addWidget(newrow);
 //        framecounter++;
 //        sv->addChild( newrow, 0, 30*framecounter);
-                
+
         newrow->show();
         ChannelRowPtrList.append(newrow);
 

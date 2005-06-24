@@ -76,10 +76,10 @@ public:
         IniSection(QString _name);
 	~IniSection();
 	
-	void setName(QString _name);
+	void    setName(QString _name);
 	QString getName();
-	void setComment(QString _comment);
-	void addComment(QString _addcomment);
+	void    setComment(QString _comment);
+	void    addComment(QString _addcomment);
 	QString getComment();
 	
 
@@ -106,11 +106,11 @@ public:
 	IniVar(QString _name,QString _value,QString _comment);
 	~IniVar();
 	
-	void setName(QString _name);
+	void    setName(QString _name);
 	QString getName();
-	void setValue(QString _value);
-  QString getValue();
-	void setComment(QString _comment);
+	void    setValue(QString _value);
+        QString getValue();
+	void    setComment(QString _comment);
 	QString getComment();
 	
 	 bool operator== (IniVar& _var); // Vergleicht nur Namen!

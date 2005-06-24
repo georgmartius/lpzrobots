@@ -37,7 +37,8 @@ public:
     QSerialReader(char bt = '\n');
     virtual void run();
 
-    void setComport(char *port){ this->port = port; };   /// set com port
+    void setComPort(QString port){ this->port = port.latin1(); };   /// set com port
+    QString getComPort() {return port;};
     void setBaudrate(int baud){ baudrate = baud; };      /// set baud rate
 
 };

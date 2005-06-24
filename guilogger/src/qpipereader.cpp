@@ -22,9 +22,9 @@
 #include <unistd.h>  //für usleep
 #include <stdlib.h>
 
-QPipeReader::QPipeReader(char bt)
-{   blockterminator = bt;
-    delay = 10;
+QPipeReader::QPipeReader(char bt, int delay)
+{   blockterminator = bt;    // default parameter = 100
+    this->delay = delay;
 //    setbuf(stdin, NULL);  // nützt auch nix
 }
 

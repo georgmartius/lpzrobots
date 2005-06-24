@@ -185,7 +185,7 @@ bool IniFile::Save(){
         line.append("=");
         line.append(var->getValue());
         line.append(var->getComment());
-      }else{
+//      }else{
         line.append("\n");
       }
       file.writeBlock(line.latin1(),line.length());
@@ -295,7 +295,7 @@ bool IniSection::getVar(IniVar& _var,QString _name){
   return false;
 }
 
-void IniSection::addValue(QString value, QString name)
+void IniSection::addValue(QString name, QString value)
 {   IniVar* tmpvar = new IniVar(name, value, "");
     vars.append(tmpvar);
 }
