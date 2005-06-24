@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-06-22 15:37:45  fhesse
+ *   Revision 1.2  2005-06-24 13:33:40  fhesse
+ *   a lot tested and added
+ *
+ *   Revision 1.1  2005/06/22 15:37:45  fhesse
  *   sensor and motor values are wheel velocities
  *
  *                                                                 *
@@ -109,17 +112,33 @@ protected:
    **/
   virtual double dBodyGetPositionAll ( dBodyID basis , int para );
 
+  /** fix snake in the sky
+   */
+  void fixInSky();
+
+  /** use Universal Joints for the snake
+   */
+  void useUniversalJoints();
+
+  /** use Hinge2 Joints for the snake
+   */
+  void useHinge2Joints();
+
+
+  void setMotorsHinge2Velocity(const motor* motors);
+  void setMotorsUniversalVelocity(const motor* motors);
+
   double glieder_masse;
   double glieder_durchmesser;
   double glieder_laenge;
-  const static  int armanzahl=2;
-  Object segments[armanzahl];
-  dJointID joints[armanzahl+1];
+
+  vector<Object> segments;
+  vector<dJointID> joints;
 
 
-  int sensorno;      //number of sensors
+  int sensorno;      // number of sensors
   int motorno;       // number of motors
-  int segmentsno;    // number of motorsrobot segments
+  int segmentsno;    // number of robot segments
   
   Position initial_pos;    // initial position of robot
   double max_force;        // maximal force for motors
@@ -128,6 +147,8 @@ protected:
 
   int t;
   bool positiv;
+
+  vector <double> old_sensorvalues;
 
 };
 

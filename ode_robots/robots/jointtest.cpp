@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-06-22 15:38:05  fhesse
+ *   Revision 1.2  2005-06-24 13:33:40  fhesse
+ *   a lot tested and added
+ *
+ *   Revision 1.1  2005/06/22 15:38:05  fhesse
  *   sensors and motor values are wheel velocities
  *
  *                                                                 *
@@ -54,12 +57,23 @@ JointTest::JointTest(dWorldID *w, dSpaceID *s, dJointGroupID *c):
   glieder_durchmesser=0.2;
   glieder_laenge=1.0;
 
-  sensorno=2; 
-  motorno=2;  
-  segmentsno=2;
+  segmentsno=3;
+  sensorno=2*(segmentsno-1); 
+  motorno=sensorno;  
+
 
   t=0;
   positiv=false;
+
+  segments.resize(segmentsno);
+  joints.resize( 2*(segmentsno-1)  + 2); // +2 for attaching to sky
+  std::cout<<"joint-init:  "<< 2*(segmentsno-1)  + 2<<"\n";
+  old_sensorvalues.resize( sensorno );
+
+  for (int i=0; i<sensorno; i++){
+    old_sensorvalues[i]=0.0;
+  }
+
 };
 
 /** sets actual motorcommands
@@ -68,67 +82,35 @@ JointTest::JointTest(dWorldID *w, dSpaceID *s, dJointGroupID *c):
 */
 void JointTest::setMotors(const motor* motors, int motornumber){
 
-  double tmp;
+
   t++;
+  motor m[sensorno];
+  for (int i=0; i<sensorno; i++){
+    m[i]=motors[i];
+  }
 
-  /*    tmp=dJointGetHinge2Param(joints[1],dParamVel);
-    dJointSetHinge2Param(joints[1],dParamVel,tmp + 0.1*(motors[0]*20.0-tmp) );
-    dJointSetHinge2Param (joints[1],dParamFMax,1);
-
-    tmp=dJointGetHinge2Param(joints[1],dParamVel2);
-    dJointSetHinge2Param(joints[1],dParamVel2,tmp + 0.1*(motors[1]*20.0-tmp) );
-    dJointSetHinge2Param (joints[1],dParamFMax2,1);
-  */
-
+  // sin as motorcommand
+  //m[0]=sin((double)t/40.0);
+  //m[1]=cos((double)t/40.0);
   
-  dJointSetUniversalParam(joints[1], dParamVel,  0.5*motors[0] );
-  dJointSetUniversalParam(joints[1], dParamFMax, 1);
 
-  dJointSetUniversalParam(joints[1], dParamVel2,  0.5*motors[1] );
-  dJointSetUniversalParam(joints[1], dParamFMax2, 1);
-  
-  
-  /*
-  dJointSetUniversalParam(joints[1],dParamVel,0.5*sin((double)t/40.0) );
-  dJointSetUniversalParam (joints[1],dParamFMax,10);
+  //setMotorsHinge2Velocity(m);
+  setMotorsUniversalVelocity(m);
 
-  dJointSetUniversalParam(joints[1],dParamVel2,0.5*cos((double)t/40.0) );
-  dJointSetUniversalParam (joints[1],dParamFMax2,10);
+
+  /*// controller output as torques 
+  //dJointAddUniversalTorques(joints[0], 0.5*m[0],0.5*m[1]);
+  for (int i=0; i<sensorno/2; i++){
+    dJointAddUniversalTorques(joints[i], 0.5*m[2*i],0.5*m[2*i +1]);
+  }
   */
 
 
-  //  dJointSetHinge2Param(joints[1],dParamVel,-0.5*sin((double)t/40.0));
-  //  dJointSetHinge2Param (joints[1],dParamFMax,1);
-
-  //dJointSetHinge2Param(joints[1],dParamVel2,0.5*sin((double)t/40.0) );
-  //dJointSetHinge2Param (joints[1],dParamFMax2,1);
 
 
-    //dJointAddUniversalTorques(joints[1], sin((double)t/40.0), sin((double)t/40.0));
 
   //dBodyAddTorque(segments[0].body, 0.05*sin((double)t/40), 0, 0);
 
-    /*
-    if (t%10==0){
-      if (positiv) {
-	dJointAddUniversalTorques(joints[1], 0, 5);
-	positiv=false;
-      }else{
-	dJointAddUniversalTorques(joints[1], 0, -5);      
-	positiv=true;
-      }
-    }
-    */
-
-  /*
-  double tmp;
-  int len = (motornumber < motorno)? motornumber : motorno;
-  for (int i=0; i<len; i++){ 
-    tmp=dJointGetHinge2Param(joint[i],dParamVel2);
-    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*20.0-tmp) );
-    dJointSetHinge2Param (joint[i],dParamFMax2,max_force);
-  }
-  */
 };
 
 /** returns actual sensorvalues
@@ -138,22 +120,53 @@ void JointTest::setMotors(const motor* motors, int motornumber){
 */
 int JointTest::getSensors(sensor* sensors, int sensornumber){
   int len = (sensornumber < sensorno)? sensornumber : sensorno;
-  sensors[0]=dJointGetUniversalAngle1Rate(joints[1]);
-  sensors[1]=dJointGetUniversalAngle2Rate(joints[1]);
 
-
-  // sensors[0]=dJointGetHinge2Angle1Rate(joints[1]);
-  //sensors[1]=dJointGetHinge2Angle2Rate(joints[1]);
-
-  return len;
-  /*
-  int len = (sensornumber < sensorno)? sensornumber : sensorno;
-  for (int i=0; i<len; i++){
-    sensors[i]=dJointGetHinge2Angle2Rate(joint[i]);
-    sensors[i]*=0.05;  //scaling
-  }
-  return len;
+  /*  // universal joint angle 
+  sensors[0]=dJointGetUniversalAngle1(joints[0]);
+  sensors[1]=dJointGetUniversalAngle2(joints[0]);
   */
+
+  
+  // universal joint angle rate
+  //  sensors[0]=dJointGetUniversalAngle1Rate(joints[0]);
+  //  sensors[1]=dJointGetUniversalAngle2Rate(joints[0]);
+  for (int i=0; i<sensorno; i++){
+    if ((i%2)==0){
+      sensors[i]=dJointGetUniversalAngle1Rate(joints[i/2]);
+    }
+    else{
+      sensors[i]=dJointGetUniversalAngle2Rate(joints[i/2]);
+    }
+  }
+  
+
+
+  
+
+  /*// universal joint angle acceleration 
+  //sensors[0]=dJointGetUniversalAngle1(joints[0])-old_sensorvalues[0];
+  //sensors[1]=dJointGetUniversalAngle2(joints[0])-old_sensorvalues[1];
+  //old_sensorvalues[0]=dJointGetUniversalAngle1Rate(joints[0]);
+  //old_sensorvalues[1]=dJointGetUniversalAngle2Rate(joints[0]);
+  for (int i=0; i<sensorno; i++){
+    if ((i%2)==0){
+      sensors[i] =          dJointGetUniversalAngle1Rate(joints[i/2])-old_sensorvalues[i];
+      old_sensorvalues[i] = dJointGetUniversalAngle1Rate(joints[i/2]);
+    }
+    else{
+      sensors[i] =          dJointGetUniversalAngle2Rate(joints[i/2])-old_sensorvalues[i];
+      old_sensorvalues[i] = dJointGetUniversalAngle2Rate(joints[i/2]);
+    }
+  }
+  */
+
+
+  /*//hinge2 angelrate
+  sensors[0]=dJointGetHinge2Angle1Rate(joints[0]);
+  sensors[1]=dJointGetHinge2Angle2Rate(joints[0]);
+  */
+
+  return len;
 };
 
 /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
@@ -169,11 +182,9 @@ void JointTest::place(Position pos, Color *c /*= 0*/){
     create(pos);
   }
   else{
-    /*
-    dBodySetPosition (object[1].body,pos.x ,pos.y +width*0.5,pos.z);
-    dBodySetPosition (object[2].body,pos.x ,pos.y -width*0.5,pos.z);
-    dBodySetPosition (object[0].body,pos.x ,pos.y           ,pos.z);    
-    */
+    for (int i=0; i<segmentsno; i++){
+      dGeomSetPosition(segments[i].geom,pos.x +i*(glieder_laenge+glieder_laenge/10), pos.y, pos.z);
+    }
   }
 };
 
@@ -183,7 +194,7 @@ void JointTest::place(Position pos, Color *c /*= 0*/){
    */
 bool JointTest::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 
-    for ( int n = 0; n < (armanzahl-1); n++ )
+    for ( int n = 0; n < (segmentsno-1); n++ )
       {
 	if( ( segments[n].geom == o1 && segments[n + 1].geom == o2 ) 
 	    || ( segments[n].geom == o2 && segments[n + 1].geom == o1 ) ){
@@ -204,15 +215,6 @@ Position JointTest::getPosition(){
   pos.y=act_pos[1];
   pos.z=act_pos[2]-glieder_durchmesser; // substract wheel radius, because vehicle stands on the ground
   return pos;
-
-  /*
-  Position pos;
-  const dReal* act_pos=dBodyGetPosition(object[0].body);
-  pos.x=act_pos[0];
-  pos.y=act_pos[1];
-  pos.z=act_pos[2]-radius; // substract wheel radius, because vehicle stands on the ground
-  return pos;
-  */
 };
 
 /** returns a vector with the positions of all segments of the robot
@@ -220,18 +222,16 @@ Position JointTest::getPosition(){
     @return length of the list
 */
 int JointTest::getSegmentsPosition(vector<Position> &poslist){
-  return segmentsno;
-  /*
   Position pos;
   for (int i=0; i<segmentsno; i++){
-    const dReal* act_pos = dBodyGetPosition(object[i].body);
+    const dReal* act_pos = dBodyGetPosition(segments[i].body);
     pos.x=act_pos[0];
     pos.y=act_pos[1];
     pos.z=act_pos[2];
     poslist.push_back(pos);
   }   
+
   return segmentsno;
-  */
 };  
 
 
@@ -240,22 +240,13 @@ int JointTest::getSegmentsPosition(vector<Position> &poslist){
  * draws the vehicle
  */
 void JointTest::draw(){
-  dsSetColor (color.r,color.g,color.b); 
-  dsDrawCappedCylinder(  dGeomGetPosition ( segments[0].geom ) , dGeomGetRotation ( segments[0].geom ) , 
-			 glieder_laenge , glieder_durchmesser );
-  dsDrawCappedCylinder(  dGeomGetPosition ( segments[1].geom ) , dGeomGetRotation ( segments[1].geom ) , 
-			 glieder_laenge , glieder_durchmesser );
 
-  /*
-  dsSetColor (color.r,color.g,color.b); // set color for cylinder
+  dsSetColor (color.r,color.g,color.b); 
   dsSetTexture (DS_WOOD);
-  dsDrawCappedCylinder(dBodyGetPosition(object[0].body),dBodyGetRotation(object[0].body),length, width/2 );
-  dsSetColor (1,1,1); // set color for wheels
-  // draw wheels
-  for (int i=1; i<3; i++) { 
-    dsDrawCylinder (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),0.02f,radius);
+  for (int i=0; i<segmentsno; i++){
+    dsDrawCappedCylinder(  dGeomGetPosition ( segments[i].geom ) , dGeomGetRotation ( segments[i].geom ) , 
+			   glieder_laenge , glieder_durchmesser );
   }
-  */
 };
 
 
@@ -273,7 +264,7 @@ void JointTest::create(Position pos){
   dMatrix3 R;//Matrix fuer Koerper-Rotationen
   dRFromAxisAndAngle ( R , 0 , 1 , 0 , PI/2 );//hier drehung um 90Â° um die y-Achse
 
-  for (int i=0; i<armanzahl; i++){
+  for (int i=0; i<segmentsno; i++){
     segments[i].body=dBodyCreate ( *world);
     dBodySetMass ( segments[i].body , &masse );
     segments[i].geom=dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
@@ -282,92 +273,12 @@ void JointTest::create(Position pos){
     dGeomSetRotation ( segments[i].geom, R );
   }
 
-  /*  segments[0].body=dBodyCreate ( welt );
-  dBodySetMass ( segments[0].body , &masse );
-  segments[0].geom=dCreateCCylinder ( raum , glieder_durchmesser , glieder_laenge );
-  dGeomSetBody ( segments[0].geom , segments[0].body );
-  dGeomSetPosition(segments[0].geom, 5,0,1+glieder_durchmesser);
-  dGeomSetRotation ( segments[0].geom, R );
 
-  segments[1].body=dBodyCreate ( welt );
-  dBodySetMass ( segments[1].body , &masse );
-  segments[1].geom=dCreateCCylinder ( raum , glieder_durchmesser , glieder_laenge );
-  dGeomSetBody ( segments[1].geom , segments[1].body );
-  dGeomSetPosition(segments[1].geom, 5+glieder_laenge+glieder_laenge/10,0,1+glieder_durchmesser);
-  dGeomSetRotation ( segments[1].geom, R );
-  */
-  /*
-  joints[0]= ( dJointCreateHinge ( *world , 0 ) );
-  dJointAttach ( joints[0] , segments[0].body , 0 );
-  dJointSetUniversalAnchor ( joints[0] , 
-			     dBodyGetPositionAll ( segments[0].body , 1 ) , 
-			     dBodyGetPositionAll ( segments[0].body , 2 ) , 
-			     dBodyGetPositionAll ( segments[0].body , 3 ) ); 
-  dJointSetHingeAxis(joints[0],1,0,0);
-  dJointSetFixed(joints[0]);
+  useUniversalJoints();
 
-  joints[2]= ( dJointCreateHinge ( *world , 0 ) );
-  dJointAttach ( joints[2] , segments[0].body , 0 );
-  dJointSetUniversalAnchor ( joints[2] , 
-			     dBodyGetPositionAll ( segments[0].body , 1 ) , 
-			     dBodyGetPositionAll ( segments[0].body , 2 ) , 
-			     dBodyGetPositionAll ( segments[0].body , 3 ) ); 
-  dJointSetHingeAxis(joints[2],0,1,0);
-  dJointSetFixed(joints[2]);
-  */
+  // useHinge2Joints();
 
-
-  // UniversalJoint
-  joints[1]= ( dJointCreateUniversal ( *world , 0 ) );
-  dJointAttach ( joints[1] , segments[0].body , segments[1].body );
-			
-  dJointSetUniversalAnchor ( joints[1] , 
-			     dBodyGetPositionAll ( segments[0].body , 1 ) 
-			     + ( dBodyGetPositionAll ( segments[1].body , 1 ) 
-				 - dBodyGetPositionAll ( segments[0].body , 1 ) )/2 , 
-			     dBodyGetPositionAll ( segments[0].body , 2 )  
-			     /*+ ( dBodyGetPositionAll ( segments[1].body , 2 ) 
-			       - dBodyGetPositionAll ( segments[0].body , 2 )  )/2*/ , 
-			     dBodyGetPositionAll ( segments[0].body , 3 ) ); 
-  dJointSetUniversalAxis1 ( joints[1] , 0 , 1 , 0 ); 
-  dJointSetUniversalAxis2 ( joints[1] , 0 , 0 , 1 ); 
-
-  dJointSetUniversalParam (joints[1], dParamFudgeFactor, 0.1);
-  dJointSetUniversalParam (joints[1], dParamBounce, 0.5);
-
-  dJointSetUniversalParam (joints[1], dParamLoStop, -M_PI/4); 
-  dJointSetUniversalParam (joints[1], dParamHiStop,  M_PI/4); 
-
-  dJointSetUniversalParam (joints[1], dParamLoStop2, -M_PI/4); 
-  dJointSetUniversalParam (joints[1], dParamHiStop2,  M_PI/4); 
-  
-
-
-  /*
-  // Hinge2Joint
-  joints[1]= ( dJointCreateHinge2 ( *world , 0 ) );
-  dJointAttach ( joints[1] , segments[0].body , segments[1].body );
-			
-  dJointSetHinge2Anchor ( joints[1] , 
-			  dBodyGetPositionAll ( segments[0].body , 1 ) 
-			  + ( dBodyGetPositionAll ( segments[1].body , 1 ) 
-			      - dBodyGetPositionAll ( segments[0].body , 1 ) )/2 , 
-			  dBodyGetPositionAll ( segments[0].body , 2 ) 
-			  /*+ ( dBodyGetPositionAll ( segments[1].body , 2 ) 
-			    - dBodyGetPositionAll ( segments[0].body , 2 )  )/2* / , 
-			  dBodyGetPositionAll ( segments[0].body , 3 ) );
-  dJointSetHinge2Axis1 ( joints[1] , 0 , 1 , 0 );
-  dJointSetHinge2Axis2 ( joints[1] , 0 , 0 , 1 );
-
-
-
-  dJointSetHinge2Param (joints[1], dParamLoStop, -M_PI/8);
-  dJointSetHinge2Param (joints[1], dParamHiStop,  M_PI/8);
-
-  // Hi and Low stop nur an erster Achse möglich!
-  //dJointSetHinge2Param (joints[1], dParamLoStop2, -M_PI/8);
-  //dJointSetHinge2Param (joints[1], dParamHiStop2,  M_PI/8);
-  */
+  //fixInSky();  // fix segment 0 in the sky
 
   created=true;
 }; 
@@ -383,17 +294,6 @@ void JointTest::destroy(){
     }
   }
   created=false;
-
-  /*
-  if (created){
-    dSpaceDestroy(car_space);
-    for (int i=0; i<segmentsno; i++){
-      dBodyDestroy(object[i].body);
-      dGeomDestroy(object[i].geom);
-    }
-  }
-  created=false;
-  */
 }
 
 
@@ -419,7 +319,106 @@ double JointTest::dBodyGetPositionAll ( dBodyID basis , int para )
   return 0;
 }
 
+/** fix segment 0 in the sky
+ */
+void JointTest::fixInSky(){
+  joints[ 2*(segmentsno-1) ]= ( dJointCreateHinge ( *world , 0 ) );
+  dJointAttach ( joints[ 2*(segmentsno-1) ] , segments[0].body , 0 );
+  dJointSetUniversalAnchor ( joints[ 2*(segmentsno-1) ] , 
+			     dBodyGetPositionAll ( segments[0].body , 1 ) , 
+			     dBodyGetPositionAll ( segments[0].body , 2 ) , 
+			     dBodyGetPositionAll ( segments[0].body , 3 ) ); 
+  dJointSetHingeAxis(joints[ 2*(segmentsno-1) ],1,0,0);
+  dJointSetFixed(joints[ 2*(segmentsno-1) ]);
+  joints[ 2*(segmentsno-1) +1]= ( dJointCreateHinge ( *world , 0 ) );
+  dJointAttach ( joints[2*(segmentsno-1) +1] , segments[0].body , 0 );
+  dJointSetUniversalAnchor ( joints[2*(segmentsno-1) +1] , 
+			     dBodyGetPositionAll ( segments[0].body , 1 ) , 
+			     dBodyGetPositionAll ( segments[0].body , 2 ) , 
+			     dBodyGetPositionAll ( segments[0].body , 3 ) ); 
+  dJointSetHingeAxis(joints[2*(segmentsno-1) +1],0,1,0);
+  dJointSetFixed(joints[2*(segmentsno-1) +1]);
+};
 
 
 
+void JointTest::useUniversalJoints(){
+  
+  for (int i=0; i<segmentsno-1; i++){
+    joints[i]= ( dJointCreateUniversal ( *world , 0 ) );
+    dJointAttach ( joints[i] , segments[i].body , segments[i+1].body );
+			
+    dJointSetUniversalAnchor ( joints[i] , 
+			       dBodyGetPositionAll ( segments[i].body , 1 ) 
+			       + ( dBodyGetPositionAll ( segments[i+1].body , 1 ) 
+				   - dBodyGetPositionAll ( segments[i].body , 1 ) )/2 , 
+			       dBodyGetPositionAll ( segments[i].body , 2 ), 
+			       dBodyGetPositionAll ( segments[i].body , 3 ) ); 
+    dJointSetUniversalAxis1 ( joints[i] , 0 , 1 , 0 ); 
+    dJointSetUniversalAxis2 ( joints[i] , 0 , 0 , 1 ); 
+    
+    dJointSetUniversalParam (joints[i], dParamFudgeFactor, 0.1);
+    dJointSetUniversalParam (joints[i], dParamBounce, 0.1);
 
+    dJointSetUniversalParam (joints[i], dParamLoStop, -M_PI/4); 
+    dJointSetUniversalParam (joints[i], dParamHiStop,  M_PI/4); 
+
+    dJointSetUniversalParam (joints[i], dParamLoStop2, -M_PI/4); 
+    dJointSetUniversalParam (joints[i], dParamHiStop2,  M_PI/4); 
+
+  }
+};
+
+
+void JointTest::useHinge2Joints(){
+  joints[0]= ( dJointCreateHinge2 ( *world , 0 ) );
+  dJointAttach ( joints[0] , segments[0].body , segments[1].body );
+			
+  dJointSetHinge2Anchor ( joints[0] , 
+			  dBodyGetPositionAll ( segments[0].body , 1 ) 
+			  + ( dBodyGetPositionAll ( segments[1].body , 1 ) 
+			      - dBodyGetPositionAll ( segments[0].body , 1 ) )/2 , 
+			  dBodyGetPositionAll ( segments[0].body , 2 ) 
+			  /* + ( dBodyGetPositionAll ( segments[1].body , 2 ) 
+			    - dBodyGetPositionAll ( segments[0].body , 2 )  )/2 */ , 
+			  dBodyGetPositionAll ( segments[0].body , 3 ) );
+  dJointSetHinge2Axis1 ( joints[0] , 0 , 1 , 0 );
+  dJointSetHinge2Axis2 ( joints[0] , 0 , 0 , 1 );
+
+
+
+  dJointSetHinge2Param (joints[0], dParamLoStop, -M_PI/8);
+  dJointSetHinge2Param (joints[0], dParamHiStop,  M_PI/8);
+
+  // Hi and Low stop nur an erster Achse möglich!
+  //dJointSetHinge2Param (joints[0], dParamLoStop2, -M_PI/8);
+  //dJointSetHinge2Param (joints[0], dParamHiStop2,  M_PI/8);
+}
+
+
+
+void JointTest::setMotorsHinge2Velocity(const motor*motors){
+  double tmp;
+  tmp=dJointGetHinge2Param(joints[0],dParamVel);
+  dJointSetHinge2Param(joints[0],dParamVel,tmp + 0.1*(motors[0]*20.0-tmp) );
+  dJointSetHinge2Param (joints[0],dParamFMax,1);
+
+  tmp=dJointGetHinge2Param(joints[0],dParamVel2);
+  dJointSetHinge2Param(joints[0],dParamVel2,tmp + 0.1*(motors[1]*20.0-tmp) );
+  dJointSetHinge2Param (joints[0],dParamFMax2,1);
+}
+
+
+                                           
+void JointTest::setMotorsUniversalVelocity(const motor* motors){
+  for (int i=0; i<sensorno; i++){
+    if ((i%2)==0){
+      dJointSetUniversalParam(joints[i/2], dParamVel,  0.5*motors[i] );
+      dJointSetUniversalParam(joints[i/2], dParamFMax, 2);
+    }
+    else{
+      dJointSetUniversalParam(joints[i/2], dParamVel2,  0.5*motors[i] );
+      dJointSetUniversalParam(joints[i/2], dParamFMax2, 2);
+    }
+  }
+};
