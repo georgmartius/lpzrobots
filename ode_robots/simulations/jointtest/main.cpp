@@ -4,7 +4,7 @@
 
 #include "simulation.h"
 #include "one2oneagent.h"
-#include "vehicle_2wheels.h"
+#include "nimm2.h"
 #include "jointtest.h"
 #include "playground.h"
 
@@ -36,23 +36,24 @@ void start()
 
   // initialization
   simulationConfig.noise=0.1;
+  configs.push_back(&simulationConfig);
   
   Playground* playground = new Playground(&world, &space);
-  playground->setGeometry(7.0, 0.2, 1.5);
+  playground->setGeometry(20.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
-
-  Vehicle* vehicle = new Vehicle(&world, &space, &contactgroup);
+  
+  /*
+  Nimm2* vehicle = new Nimm2(&world, &space, &contactgroup);
   Position p = {5,0,0};
   vehicle->place(p);
   AbstractController *controller = new InvertNChannelController(10);  
+  configs.push_back(controller);
 
   One2OneAgent* agent = new One2OneAgent(NoPlot); 
   agent->init(controller, vehicle);
   agents.push_back(agent);
-  
-  configs.push_back(&simulationConfig);
-  configs.push_back(controller);
+  */
 
   JointTest* testjoints = new JointTest(&world, &space, &contactgroup);
   Position p2 = {0,0,0};
@@ -60,7 +61,7 @@ void start()
   AbstractController *controller2 = new InvertNChannelController(10);  
   configs.push_back(controller2);
   
-  One2OneAgent* agent2 = new One2OneAgent(GuiLogger);
+  One2OneAgent* agent2 = new One2OneAgent(/*NoPlot*/GuiLogger);
   agent2->init(controller2, testjoints);
   agents.push_back(agent2);
   
