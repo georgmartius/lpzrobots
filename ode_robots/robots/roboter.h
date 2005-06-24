@@ -1,10 +1,10 @@
-/************************************************************************/
-/*roboter.h								*/
-/*Robotergrundkonstrukt fuer das eigene ODE-Robotersystem des Authors	*/
-/*@author Marcel Kretschmann						*/
-/*@version beta								*/
-/*									*/
-/************************************************************************/
+/********************************************************************************/
+/*roboter.h									*/
+/*Basic robot-Class, designed for the robot system, designed by the author	*/
+/*@author Marcel Kretschmann							*/
+/*@version beta									*/
+/*										*/
+/********************************************************************************/
 
 #include <stdio.h>
 #include <drawstuff/drawstuff.h>
@@ -15,7 +15,7 @@ using namespace std;
 
 #include "abstractrobot.h"
 
-/******************************************Typendeklarationen*****************************************/
+/******************************************type declaration*****************************************/
 typedef struct
 {
 	double x;
@@ -25,10 +25,9 @@ typedef struct
 
 typedef struct
 {
-   	double istwinkel; //aktueller Winkelwert, im Bogenmass
+   	double istwinkel;
 	double istwinkel_alt;
 	double sollwinkel;
-	//double winkelgeschwindigkeit; //Geschwindigkeit und Richtung des winkels
 
         double x;
         double y;
@@ -39,9 +38,9 @@ typedef struct
 /****************************Hilfsfunktionen********************************/
 
 /**
- *Diese Funktion ermoeglicht es direkt auf einzelne Koordinatenwerte von ODE-body zuzugreifen
- *@param basis ODE-interne Roboterkennung
- *@param para 0 = x-Koordinate, 1 = y-Koordinate, 2 = z-Koordinate
+ *This funktion enables the posibility to directly access the values of a body position.
+ *@param basis ODE internal robot-ID
+ *@param para 0 = x, 1 = y, 2 = z
  *@author Marcel Kretschmann
  *@version final
  **/
@@ -50,8 +49,8 @@ double dBodyGetPositionAll ( dBodyID basis , int para );
 /***************************************************************************/
 
 /**
- *Dies ist eine universelle Basisklasse, welche die Grundfunktionalitaet eines Roboters beinhaltet.
- *Allerdings werden die Vorgaben des Interfaces AbstraktRobot eingehalten.
+ *This is the universal base class, which provides the basic funktions, each robot should have.
+ *But there are the restrictions, the abstract class AbstractRobot defines, which is used as an interface here.
  *@author Marcel Kretschmann
  *@version beta
  **/
@@ -59,7 +58,6 @@ class Roboter : public AbstractRobot
 {
 
 public:
-	//Sensoren sind allgemein zugänglich, da ein eventuelles schreiben oder loeschen sowieso nur eine Runde bestehen bleibt
 	vector <Sensor> sensorfeld;
 
 protected:
@@ -73,192 +71,203 @@ protected:
 public:
 
 	/**
-	 *Konstruktor
-	 *@param startRoboterID Roboterkennummer, sollte innerhalb der Simulation eindeutig vergeben werden
-	 *@param welt Referenz auf die ODE-Simulationswelt, in der der Roboter angelegt werden soll
-	 *@param raum Referenz auf den ODE-Simulationsraum, in der der Roboter funktionieren soll
-	 *@param start_contactgroup Referenz auf Joint-Gruppe in der die Contact-joints fuer die kollisionen gespeichert werden sollen
+	 *constructor
+	 *@param startRoboterID ID, which should be managed clearly
+	 *@param welt pointer to the ODE-simulation world, which contains the whole simulation
+	 *@param raum pointer to the ODE-simulation space, which contains all geometrical objects
+	 *@param start_contactgroup pointer to the JointGroup, which is used for collision management
+	 *@param start_Sensorzahl number of sensors of the robot
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version beta
 	 **/
 	Roboter ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl );
 	
 	/**
-	 *Destruktor
+	 *destructor
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version beta
 	 **/
 	virtual ~Roboter();
-	/*************************************************************/
 	
 	/**
-	 *Zeichnet die Koerper-GeometrieObjekte.
+	 *draws all geometrical objects
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version beta
 	 **/
 	virtual void draw();
 	
-	/** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-  	@param pos desired position of the robot in struct Position
-    	@param c desired color for the robot in struct Color
-	*/
+	/**sets the vehicle to position pos, sets color to c, and creates robot if necessary
+	 *@param pos new position of the robot
+	 *@param c desired color for the robot in struct Color
+ 	 *@author Marcel Kretschmann
+	 *@version beta
+	 **/
 	virtual void place(Position pos, Color *c);
 	
 	/**
-	*Hier wird die zu setzende Winkeldifferenz zum aktuellen Winkel des Motors hinzugegeben.
-	*Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam.
-	*Hier wird die Kollission untersucht.
-	*@param void*
-	*@param dGeomID erstes GeometrieObject das an der Kollission beteiligt ist
-	*@param dGeomID zweites GeometrieObject das an der Kollission beteiligt ist
-	*@author Marcel Kretschmann
-	*@version development
-	**/
+	 *This is the universal collision handling function of all robots. Each robot handles ist own collisions. There is also the posibility that the robot cancels the collision handling, but then it also returns the same value, as if it has handled the collision. So it is possible that there are special parts of the Robot, which could act whithout being influenced by other parts or geometrical objects of the simulation environment.
+	 *@param data
+	 *@param o1 first geometrical object, which has taken part in the collision
+	 *@param o2 second geometrical object, which has taken part in the collision
+	 *@return true if the collision was threated  by the robot, false if not
+	 *@author Marcel Kretschmann
+	 *@version beta
+	 **/
 	virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 	
-	/**Gibt die Sensorwerte aus dem Roboterinternensensorfeld an einen uebergebenen Speicherort aus.
-	 *@param sensor* sensors Zeiger auf den Zielort der Sensordaten
-	 *@param int sensornumber Laenge des Sensorenarrays in das gespeichert werden soll
-	 *@return int Anzahl der Sensoren
+	/**
+	 *Writes the sensor values to an array in the memory.
+	 *@param sensor* pointer to the array
+	 *@param sensornumber length of the sensor array
+	 *@return number of actually written sensors
+ 	 *@author Marcel Kretschmann
+	 *@version beta
 	 **/
 	virtual int getSensors(sensor* sensors, int sensornumber);
 	
-	/**Setzt die Motorwerte auf die Werte im uebergebenen Werte-Array
-	 *@param motor* motors motors scaled to [-1,1] 
+	/**
+	 *Reads the actual motor commands from an array, an sets all motors of the robot to this values.
+	 *It is an linear allocation.
+	 *@param motors pointer to the array, motor values are scaled to [-1,1] 
 	 *@param motornumber length of the motor array
+	 *@author Marcel Kretschmann
+	 *@version beta
 	 **/
 	virtual void setMotors ( const motor* motors, int motornumber );
 	
 	
-	/** returns number of sensors
-	*/
+	/**
+	 *Returns the number of sensors used by the robot.
+	 *@return number of sensors
+	 *@author Marcel Kretschmann
+	 *@version final
+	 **/
 	virtual int getSensorNumber();
 	
 	/**
-	 *Gibt die Anzahl der Motoren an, die zu einem Roboter gehören.
-	 *@return Anzahl der Motoren
+	 *Returns the number of motors used by the robot.
+	 *@return number of motors
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual int getMotorNumber();
 	
 	
-	/** returns position of robot 
-	@param pos vector of desired position (x,y,z)
-	*/
+	/**
+	 *Returns the position of the robot.
+	 *@return Position (x,y,z)
+	 *@author Marcel Kretschmann
+	 *@version final
+	 **/
 	virtual Position getPosition ( ) = 0;
 	
 	
-	/** returns a list with the positionvectors of all segments of the robot
-	@param poslist list with positionvectors (of all robot segments) (free after use!)
-	@return length of the list
-	*/
+	/**
+	 *Returns a list with the positionvectors of all segments of the robot
+	 *@param poslist list with positionvectors (of all robot segments) (free after use!)
+	 *@return length of the list
+	 *@author Marcel Kretschmann
+	 *@version final
+	 **/
 	virtual int getSegmentsPosition ( vector<Position> &poslist );
 	
-	
-	
-	/***********************************************************/
 	/**
-	 *Gibt die Anzahl der Objekte aus denen der Roboter aufgebaut ist.
-	 *@return int Anzahl der Objekte aus denen der Roboter besteht
+	 *Returns the number of Objects, the robot consists of
+	 *@return int number of Objects
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual int getObjektAnzahl ();
 	
 	/**
-	 *Gibt die Anzahl der Joints aus denen der Roboter aufgebaut ist an.
-	 *@return int Anzahl der Joints
+	 *Returns the number of joints, linking the robot parts
+	 *@return int number of joints
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual int getJointAnzahl ();
 	
 	
 	/**
-	 *Gibt ein Objekt zurueck, welches sowohl einen Verweis auf ODE-Body- als auch ODE-Geom-Objekte enthaellt.
-	 *@param int Die Position in der Liste der Objekte ueber die ein Roboter verfuegt.
+	 *Returns a special Object from the list of all Objects, the robot consits off
+	 *@param n The position of the Object in the list ob all Objects
 	 *@return Object
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual Object getObjektAt ( int n );
 	
 	/**
-	 *Gibt einen Joint zurueck, welcher zur Roboterkonstruktion gehoert.
-	 *@param int Die Position in der Liste der Joints die zum Roboterkonstrukt gehoeren.
+	 *Returns one special joint from the list of all joints, which link the robots parts
+	 *@param n The position of the joint in the list ob all joints belonging to the robot
 	 *@return dJointID
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual dJointID getJointAt ( int n );
 	
 	/**
-	 *Gibt einen Motor-Joint zurueck, welcher zwischen zwei Objekten des Roboters anliegt,
-	 *die mit einem Joint verbunden sind.
-	 *@param int Die Position in er Liste der Motor-Joints an.
+	 *Returns one special motor joint from the list of all motors
+	 *@param n The position of the motor in the list ob all motors belonging to the robot
 	 *@return dJointID
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual dJointID getMotorAt ( int n );
 	
 	
 	/**
-	 *Ermittelt die Differenz von zwei Sensormesswerten eines Motor-Joints
-	 *zwischen zwei Berechnungszeitschritten.
-	 *Diese Differenz wird an eine uebergebene Stelle im Speicher gespeichert.
-	 *@param int Position des anzupassenden Motor-Joints in der Liste der Motor-Joints.
-	 *@param double* Speicherort fuer den ermittelten Sensorwert.
+	 *Calculates the difference off the actual angle and the last calculated angle of a sensor..
+	 *@param motor number of the motor in the motor-list
+	 *@param X pointer to a variable, to save the calculated difference
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual void getWinkelDifferenz ( int motor , double* X );
 	
 	/**
-	 *Fuegt einen leeren Sensor zum Sensor-Array hinzu.
+	 *Adds an empy sensor to the sensorlist.
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual void addSensor ();
 	
 	/**
-	 *Entfernt einen bestehenden Sensor aus dem Sensor-Array, dies ist immer der letzte Sensor
+	 *Removes the last sensor of the sensorlist
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version final
 	 **/
 	virtual void delSensor ();
 	
 	/**
-	 *Gibt die Anzahl der Sensorbloecke die existieren zurueck.
-	 *@return int Anzahl der Sensorfeldelemente
+	 *Returns the number of active sensors.
+	 *@return number of sensors
 	 *@author Marcel Kretschmann
-	 *@version alpha 
+	 *@version final
 	 **/
 	virtual int getSensorfeldGroesse ();
 	
 	/**
-	 *Ließt die aktuellen Sensordaten erneut in die Sensorspeicherfelder.
+	 *Updates the sensorarray.
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version beta
 	 **/
 	virtual void sensoraktualisierung ();
 	
 	/**
-	 *Diese Funktion ermittelt ob es zwischen bestimmten Elementen des Roboters eine kollision gibt,
-	 *und verhindert, dass diese Kollision in die globale Kollisionsbehandlung mit einfließt.
-	 *@param dGeomID Geometrieobjekt 1, dass an der Kollision beteiligt ist
-	 *@param dGeomID Geometrieobjekt 2, dass an der Kollision beteiligt ist
-	 *@return bool true, wenn keine Kollision zwischen den beiden Geometrieobjekten erfolgt, false sonst
+	 *Decides if some collisions of the robot should not be threated by by the collision management.
+	 *@param o1 Geometrieobjekt 1, dass an der Kollision beteiligt ist
+	 *@param o2 Geometrieobjekt 2, dass an der Kollision beteiligt ist
+	 *@return true, if the collision should not be threated, false else
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version beta
 	 **/
 	virtual bool kollisionsermittlung ( dGeomID o1 , dGeomID o2 );
 	
 	/**
-	 *Gibt die aktuellen Controler-Steuerungsparameter als Text aus.
+	 *Prints some internal robot parameters. This only works in some subclasses.
 	 *@author Marcel Kretschmann
-	 *@version alpha 1.0
+	 *@version beta
 	 **/
 	virtual void getStatus ();
 	

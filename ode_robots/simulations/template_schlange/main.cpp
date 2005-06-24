@@ -44,9 +44,9 @@ void start()
   obstacles.push_back(playground);
   
   //****************
-  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup , 4 , 0 , 0 , 0.25 , 3 , 0.5 , 0.2 , 0 , 1 , 5 , 30 );
+  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup , 6 , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 );
   Position p = {0,0,0};
-  Color col = {0.5,0.5,0};
+  Color col = {0,0.5,0.8};
   schlange1->place(p,&col);
   AbstractController *controller = new InvertNChannelController(10);  
   

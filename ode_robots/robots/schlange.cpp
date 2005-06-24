@@ -180,10 +180,8 @@ void Schlange::place (Position pos, Color *c)
 		if ( getObjektAt ( n ).geom == o1 || getObjektAt ( n ).geom == o2 )
 		{
 			tmp_kollisionsbeteiligung = true;
-			//dsPrint ( "X\n" );
 			break;
 		}
-		//else dsPrint ( "_\n" );
 	}
 	//wenn eine Beteiligung des Roboters der Fall ist, erfolgt die Kollisionsbehandlung 
 	if ( tmp_kollisionsbeteiligung == true )		
@@ -243,7 +241,7 @@ void Schlange::place (Position pos, Color *c)
  **/
 void Schlange::setMotors ( const motor* motors, int motornumber )
 {
-	for ( int n = 0; n < motornumber; n ++ )
+	for ( int n = 0; n < motornumber; n++ )
 		if ( n % 2 == 0 )
 		{
 			dJointSetUniversalParam ( getJointAt(n/2) , dParamVel , *(motors++)*geschwindigkeitsfaktor );
