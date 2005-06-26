@@ -72,7 +72,8 @@ Roboter::~Roboter()
 
 }
 
-/**sets the vehicle to position pos, sets color to c, and creates robot if necessary
+/**sets the robot to position pos, sets color to c, and creates robot if necessary
+ *Only sets the color, there is no special place operation for this unspecified robot.
  *@param pos new position of the robot
  *@param c desired color for the robot in struct Color
  *@author Marcel Kretschmann
@@ -96,7 +97,7 @@ void Roboter::place (Position pos, Color *c)
  **/
  bool Roboter::collisionCallback(void *data, dGeomID o1, dGeomID o2)
 {
-	//Ueberpruefung ob  die Kollision mit dem Roboter zusammenhing
+	//checks if one of the collision objects is part of the robot
 	bool tmp_kollisionsbeteiligung = false;
 	for ( int n = 0; n < getObjektAnzahl (); n++ )
 	{
@@ -106,7 +107,7 @@ void Roboter::place (Position pos, Color *c)
 			break;
 		}
 	}
-	//wenn eine Beteiligung des Roboters der Fall ist, erfolgt die Kollisionsbehandlung 
+
 	if ( tmp_kollisionsbeteiligung == true )		
 	{
 		int i,n;
@@ -114,7 +115,7 @@ void Roboter::place (Position pos, Color *c)
 		dContact contact[N];
 		bool kollission = false;
 
-		//Test ob einige der Roboterkollisionen eventuell nicht behandelt werden sollen
+		//tests, if a special collision should not be threated
 		if ( Roboter::kollisionsermittlung ( o1 , o2 ) == true )
 			kollission = true;
 
@@ -126,19 +127,19 @@ void Roboter::place (Position pos, Color *c)
 				{
 					contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 					dContactSoftERP | dContactSoftCFM | dContactApprox1;
-					contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
+					contact[i].surface.mu = 0.8;
 					contact[i].surface.slip1 = 0.005;
 					contact[i].surface.slip2 = 0.005;
 					contact[i].surface.soft_erp = 1;
 					contact[i].surface.soft_cfm = 0.00001;
-/*>>>>>>>>>>>>>>>>>>>>>(*world) zu world*/
+
 					dJointID c = dJointCreateContact ( (*world) , (*contactgroup) , &contact[i] );
 					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
 				}
 		}
-		return true; //wenn die Kollision durch diesen Roboter beahndelt wurde
+		return true; //if collision was threated by this robot
 	}
-	else return false; //wenn die Kollision nicht durch diesen Roboter beahndelt wurde
+	else return false; //if collision was not threated by this robot
 }
 
 /**
@@ -151,7 +152,7 @@ void Roboter::place (Position pos, Color *c)
  **/
  int Roboter::getSensors ( sensor* sensors, int sensornumber )
 {
-	Roboter::sensoraktualisierung ();
+	sensoraktualisierung ();
 	for ( int n = 0; n < sensornumber; n++ )
 		getWinkelDifferenz ( n , sensors++ );
 	

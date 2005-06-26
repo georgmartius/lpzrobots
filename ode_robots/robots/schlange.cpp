@@ -11,21 +11,24 @@
 
 
 /**
- *Konstruktor
- *@param int RoboterID
- *@param dWorldID Referenz auf die ODE-Simulationswelt in der der Roboter angelegt werden soll
- *@param dSpaceID Referenz auf die den ODE-Simualtions-Kolissionsraum, in dem der Roboter arbeiten soll.
- *@param double anfaengliche X-Koordinatenposition
- *@param double anfaengliche Y-Koordinatenposition
- *@param double anfaengliche Z-Koordinatenposition
- *@param int Anzahl der Schlangenglieder
- *@param double Schlangengliedlaenge
- *@param double Schlangenglieddurchmesser
- *@param double Schlanngengliedabstand zwischen zwei benachbarten Schlangengliedern
- *@param double Masse eines Schlangengliedes
- *@param double Maximale Kraft der Motor-Joints in den Schlangengelenken
+ *constructor
+ *@param startRoboterID ID, which should be managed clearly
+ *@param welt pointer to the ODE-simulation world, which contains the whole simulation
+ *@param raum pointer to the ODE-simulation space, which contains all geometrical objects
+ *@param start_contactgroup pointer to the JointGroup, which is used for collision management
+ *@param start_Sensorzahl number of sensors of the robot
+ *@param start_x x coordinate at the begin of the simulation
+ *@param start_y y coordinate at the begin of the simulation
+ *@param start_z z coordinate at the begin of the simulation
+ *@param armanzahl number of snake elements
+ *@param start_laenge length of one snake element
+ *@param start_durchmesser diameter of a snake element
+ *@param start_abstand distance between two snake elements; 0 means there is a distance of the length of one snake element between each snake element an its successor
+ *@param start_masse mass of one snake element
+ *@param start_maxmotorkraft maximal force used by the motors of the snake
+ *@param start_geschwindigkeitsfaktor factor for the speed, which the motors of the snake use
  *@author Marcel Kretschmann
- *@version alpha 1.0
+ *@version beta
  **/
 Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor ) :
 Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sensoranzahl )
@@ -33,7 +36,7 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 	Object tmp_body;
 	
 	dMass masse;
-	dMatrix3 R;//Matrix fuer Koerper-Rotationen
+	dMatrix3 R;
 
 
 	gliederdurchmesser = glieder_durchmesser;
@@ -42,13 +45,16 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 	geschwindigkeitsfaktor = start_geschwindigkeitsfaktor;
 	maxmotorkraft = start_maxmotorkraft;
 	
+	//standard color of all snakes is green, if no other value is set by calling the function place
+	color.r = 0;
+	color.g = 1;
+	color.b = 0;	
 
-	//*************Koerperdefinitionsabschnitt**************
+	//*************body definition**************
 	
-	//Aufbau der Massenverteilungsmatrix fuer die einzelnen Schlangenglieder
 	dMassSetCappedCylinderTotal ( &masse , glieder_masse , 2 , glieder_laenge , glieder_durchmesser );
-	//zuordnung der Rotationsmatizenwerte zur Rotationsmatrix R
-	dRFromAxisAndAngle ( R , 0 , 1 , 0 , M_PI/2 );//hier drehung um 90° um die y-Achse
+	
+	dRFromAxisAndAngle ( R , 0 , 1 , 0 , M_PI/2 );//rotation of the matrix R by 90°
 
 	for ( int n = 0; n < armanzahl; n++ )
 	{
@@ -63,11 +69,10 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 		(objektliste.back ()).geom = dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
 		dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
 
-		//dBodySetRotation ( (objektliste.back ()).body , R );
-		dGeomSetRotation ( (objektliste.back ()).geom , R );
+		dGeomSetRotation ( (objektliste.back ()).geom , R );//includes rotation of the body
 	}
 
-	//*****************Join-Generierungsabschnitt***********
+	//*****************joint definition***********
 	for ( int n = 0; n < armanzahl-1; n++ )
 	{
 		jointliste.push_back ( dJointCreateUniversal ( *world , 0 ) );
@@ -80,7 +85,7 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 		dJointSetUniversalAxis2 ( jointliste.back () , 0 , 0 , 1 );
 	}	
 
-	//Anfangsbelegung der sensorfelder
+	//starting sensor values
  	for ( int n = 0; n < 2*(armanzahl-1); n++ )
 	{
 		sensorfeld[n].sollwinkel = 0;
@@ -89,19 +94,19 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 }
 	
 /**
-*Destruktor
-*@author Marcel Kretschmann
-*@version alpha 1.0
-**/
+ *Destruktor
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
 Schlange::~Schlange()
 {
 }
 	
 /**
-*Zeichnet die Koerper-GeometrieObjekte.
-*@author Marcel Kretschmann
-*@version alpha 1.0
-**/
+ *Zeichnet die Koerper-GeometrieObjekte.
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
 void Schlange::draw()
 {
 	double box [3];
@@ -116,15 +121,14 @@ void Schlange::draw()
 }
 	
 /**
- *Diese Funktion ermittelt ob es zwischen bestimmten Elementen des Roboters eine kollision gibt,
- *und verhindert, dass diese Kollision in die globale Kollisionsbehandlung mit einfließt.
- *In diesem Konkreten Fall wird verhindert, dass die außenhuelle von zwei benachbarten Schlangengliedern
- *miteinader kollidieren, und dass auch die inneren Schlangenhuelle nicht mit den benachbarten Schlangenhuellen kollidieren.
- *@param dGeomID Geometrieobjekt 1, dass an der Kollision beteiligt ist
- *@param dGeomID Geometrieobjekt 2, dass an der Kollision beteiligt ist
- *@return bool true, wenn keine Kollision zwischen den beiden Geometrieobjekten erfolgt, false sonst
+ *Decides if some collisions of the robot should not be threated by by the collision management.
+ *This overwrides the function in the roboter class.
+ *Here it makes the simulation ignore collisions between neighbouring snake elements, so that the snake can move, an does not explode.
+ *@param o1 Geometrieobjekt 1, dass an der Kollision beteiligt ist
+ *@param o2 Geometrieobjekt 2, dass an der Kollision beteiligt ist
+ *@return true, if the collision should not be threated, false else
  *@author Marcel Kretschmann
- *@version alpha 1.0
+ *@version beta
  **/
 bool Schlange::kollisionsermittlung ( dGeomID o1 , dGeomID o2 )
 {
@@ -134,21 +138,23 @@ bool Schlange::kollisionsermittlung ( dGeomID o1 , dGeomID o2 )
 		(
 		( getObjektAt ( n ).geom == o1 && getObjektAt ( n + 1 ).geom == o2 ) || ( getObjektAt ( n ).geom == o2 && getObjektAt ( n + 1 ).geom == o1 )		
 		)
-			//if ( ( schlangenhuellenliste[n] == o1 ) || ( schlangenhuellenliste[n] == o2 ) )
 			return true;
 	}
 	
 	return false;
 }
 	
-/** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-@param pos desired position of the robot in struct Position
-@param c desired color for the robot in struct Color
-*/
+/**Sets the snake to position pos, sets color to c, and creates snake if necessary.
+ *This overwrides the function place of the class robot.
+ *@param pos desired position of the snake in struct Position
+ *@param c desired color for the snake in struct Color
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
 void Schlange::place (Position pos, Color *c)
 {
 	double dx , dy , dz;
-	
+
 	dx = pos.x - getPosition ().x;
 	dy = pos.y - getPosition ().y;
 	dz = pos.z - getPosition ().z;
@@ -162,18 +168,18 @@ void Schlange::place (Position pos, Color *c)
 }
 
 /**
-*Hier wird die zu setzende Winkeldifferenz zum aktuellen Winkel des Motors hinzugegeben.
-*Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam.
-*Hier wird die Kollission untersucht.
-*@param void*
-*@param dGeomID erstes GeometrieObject das an der Kollission beteiligt ist
-*@param dGeomID zweites GeometrieObject das an der Kollission beteiligt ist
-*@author Marcel Kretschmann
-*@version development
-**/
+ *This is the collision handling function for snake robots.
+ *This overwrides the function collisionCallback of the class robot.
+ *@param data
+ *@param o1 first geometrical object, which has taken part in the collision
+ *@param o2 second geometrical object, which has taken part in the collision
+ *@return true if the collision was threated  by the robot, false if not
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
  bool Schlange::collisionCallback(void *data, dGeomID o1, dGeomID o2)
 {
-	//Ueberpruefung ob  die Kollision mit dem Roboter zusammenhing
+	//checks if one of the collision objects is part of the robot
 	bool tmp_kollisionsbeteiligung = false;
 	for ( int n = 0; n < getObjektAnzahl (); n++ )
 	{
@@ -183,7 +189,7 @@ void Schlange::place (Position pos, Color *c)
 			break;
 		}
 	}
-	//wenn eine Beteiligung des Roboters der Fall ist, erfolgt die Kollisionsbehandlung 
+
 	if ( tmp_kollisionsbeteiligung == true )		
 	{
 		int i,n;
@@ -191,7 +197,7 @@ void Schlange::place (Position pos, Color *c)
 		dContact contact[N];
 		bool kollission = false;
 
-		//Test ob einige der Roboterkollisionen eventuell nicht behandelt werden sollen
+		//tests, if a special collision should not be threated
 		if ( Schlange::kollisionsermittlung ( o1 , o2 ) == true )
 			kollission = true;
 
@@ -203,41 +209,30 @@ void Schlange::place (Position pos, Color *c)
 				{
 					contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 					dContactSoftERP | dContactSoftCFM | dContactApprox1;
-					contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
+					contact[i].surface.mu = 0.8;
 					contact[i].surface.slip1 = 0.005;
 					contact[i].surface.slip2 = 0.005;
 					contact[i].surface.soft_erp = 1;
 					contact[i].surface.soft_cfm = 0.00001;
-/*>>>>>>>>>>>>>>>>>>>>>(*world) zu world*/
+
 					dJointID c = dJointCreateContact ( (*world) , (*contactgroup) , &contact[i] );
 					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
 				}
 		}
-		return true; //wenn die Kollision durch diesen Roboter beahndelt wurde
+		return true; //if collision was threated by this robot
 	}
-	else return false; //wenn die Kollision nicht durch diesen Roboter beahndelt wurde
+	else return false; //if collision was not threated by this robot
 }
 
-/**Gibt die Sensorwerte aus dem Roboterinternensensorfeld an einen uebergebenen Speicherort aus.
- *@param sensor* sensors Zeiger auf den Zielort der Sensordaten
- *@param int sensornumber Laenge des Sensorenarrays in das gespeichert werden soll
- *@return int Anzahl der Sensoren in die schon ein aktueller Wert geschrieben wurde
- **/
- int Schlange::getSensors ( sensor* sensors, int sensornumber )
-{
-	sensoraktualisierung ();
-	for ( int n = 0; n < sensornumber; n++ )
-		getWinkelDifferenz ( n , sensors++ );
-	
-	return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
-}
+
 
 /**
- *Setzt den Winkelgeschwindigkeisparameter eines Motor-Joints auf einen bestimmten Wert.
- *@param motors Zeiger auf das Array mit Werten zwischen [-1,1] 
- *@param motornumber Laenge des Arrays aus dem die neuen Motorwerte gelesen werden.
+ *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
+ *It is an linear allocation.
+ *@param motors pointer to the array, motor values are scaled to [-1,1] 
+ *@param motornumber length of the motor array
  *@author Marcel Kretschmann
- *@version alpha 1.0
+ *@version beta
  **/
 void Schlange::setMotors ( const motor* motors, int motornumber )
 {
@@ -255,10 +250,10 @@ void Schlange::setMotors ( const motor* motors, int motornumber )
 }	
 
 /**
- *Gibt die Anzahl der Motoren an, die zu einem Roboter gehören.
- *@return Anzahl der Motoren
+ *Returns the number of motors used by the snake.
+ *@return number of motors
  *@author Marcel Kretschmann
- *@version alpha 1.0
+ *@version final
  **/
  int Schlange::getMotorNumber()
 {
@@ -266,9 +261,10 @@ void Schlange::setMotors ( const motor* motors, int motornumber )
 }
 	
 /**
- *Ließt die aktuellen Sensordaten erneut in die Sensorspeicherfelder.
+ *Updates the sensorarray.
+ *This overwrides the function sensoraktualisierung of the class robot
  *@author Marcel Kretschmann
- *@version alpha 1.0
+ *@version beta
  **/
 void Schlange::sensoraktualisierung ( )
 {
@@ -283,10 +279,12 @@ void Schlange::sensoraktualisierung ( )
 	}
 }
 
-/** returns position of robot 
-Die Position der Schlange wird durch die Position des ersten Schlangengliedes bestimmt.
-@param pos vector of desired position (x,y,z)
-*/
+/**
+ *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
+ *@return Position (x,y,z)
+ *@author Marcel Kretschmann
+ *@version final
+ **/
 Position Schlange::getPosition ()
 {
 	const dReal* tmpPos;
@@ -299,10 +297,13 @@ Position Schlange::getPosition ()
 	return returnPos;
 }
 
-/** returns position of robot 
-Die Position der Schlange wird durch die Position des ersten Schlangengliedes bestimmt.
-@param pos vector of desired position (x,y,z)
-*/
+/**
+ *Returns the position of one element of the snake.
+ @param n number of the snake element
+ *@return Position (x,y,z)
+ *@author Marcel Kretschmann
+ *@version final
+ **/
 Position Schlange::getPosition ( int n )
 {
 	const dReal* tmpPos;
@@ -316,9 +317,9 @@ Position Schlange::getPosition ( int n )
 }
 
 /**
- *Gibt die aktuellen Controler-Steuerungsparameter als Text aus.
+ *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.
  *@author Marcel Kretschmann
- *@version alpha 1.0
+ *@version beta
  **/
 void Schlange::getStatus ()
 {

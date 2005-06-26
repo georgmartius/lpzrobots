@@ -35,7 +35,7 @@ typedef struct
 } Sensor;
 
 
-/****************************Hilfsfunktionen********************************/
+/****************************tool functions********************************/
 
 /**
  *This funktion enables the posibility to directly access the values of a body position.
@@ -96,7 +96,8 @@ public:
 	 **/
 	virtual void draw();
 	
-	/**sets the vehicle to position pos, sets color to c, and creates robot if necessary
+	/**sets the robot to position pos, sets color to c, and creates robot if necessary
+	 *Only sets the color, there is no special place operation for this unspecified robot.
 	 *@param pos new position of the robot
 	 *@param c desired color for the robot in struct Color
  	 *@author Marcel Kretschmann
