@@ -4,7 +4,6 @@
 
 #include "simulation.h"
 #include "one2oneagent.h"
-#include "vehicle_2wheels.h"
 #include "playground.h"
 
 #include "invertnchannelcontroller.h"
