@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-06-24 13:33:40  fhesse
+ *   Revision 1.3  2005-06-27 09:31:26  fhesse
+ *   few things tested, velocity as sensor- and motorvalues still works fine
+ *
+ *   Revision 1.2  2005/06/24 13:33:40  fhesse
  *   a lot tested and added
  *
  *   Revision 1.1  2005/06/22 15:38:05  fhesse
@@ -67,11 +70,12 @@ JointTest::JointTest(dWorldID *w, dSpaceID *s, dJointGroupID *c):
 
   segments.resize(segmentsno);
   joints.resize( 2*(segmentsno-1)  + 2); // +2 for attaching to sky
-  std::cout<<"joint-init:  "<< 2*(segmentsno-1)  + 2<<"\n";
   old_sensorvalues.resize( sensorno );
+  mean_sensorvalues.resize( sensorno );
 
   for (int i=0; i<sensorno; i++){
     old_sensorvalues[i]=0.0;
+    mean_sensorvalues[i]=0.0;
   }
 
 };
@@ -89,17 +93,20 @@ void JointTest::setMotors(const motor* motors, int motornumber){
     m[i]=motors[i];
   }
 
-  // sin as motorcommand
-  //m[0]=sin((double)t/40.0);
-  //m[1]=cos((double)t/40.0);
+  /*// sin as motorcommand
+  m[0]=sin((double)t/40.0);
+  m[1]=cos((double)t/40.0);
+  m[2]=-sin((double)t/40.0);
+  m[3]=-cos((double)t/40.0);
+  */
+
+  //setMotorsHinge2Velocity(m); //-> use hinge2 angelrate in getSensors
+
+  setMotorsUniversalVelocity(m);  // -> use universal joint angle rate in getSensors
   
 
-  //setMotorsHinge2Velocity(m);
-  setMotorsUniversalVelocity(m);
-
-
-  /*// controller output as torques 
-  //dJointAddUniversalTorques(joints[0], 0.5*m[0],0.5*m[1]);
+  /*// controller output as torques -> use universal joint angle acceleration in getSensors
+    //dJointAddUniversalTorques(joints[0], 0.5*m[0],0.5*m[1]);
   for (int i=0; i<sensorno/2; i++){
     dJointAddUniversalTorques(joints[i], 0.5*m[2*i],0.5*m[2*i +1]);
   }
@@ -128,8 +135,6 @@ int JointTest::getSensors(sensor* sensors, int sensornumber){
 
   
   // universal joint angle rate
-  //  sensors[0]=dJointGetUniversalAngle1Rate(joints[0]);
-  //  sensors[1]=dJointGetUniversalAngle2Rate(joints[0]);
   for (int i=0; i<sensorno; i++){
     if ((i%2)==0){
       sensors[i]=dJointGetUniversalAngle1Rate(joints[i/2]);
@@ -144,17 +149,19 @@ int JointTest::getSensors(sensor* sensors, int sensornumber){
   
 
   /*// universal joint angle acceleration 
-  //sensors[0]=dJointGetUniversalAngle1(joints[0])-old_sensorvalues[0];
-  //sensors[1]=dJointGetUniversalAngle2(joints[0])-old_sensorvalues[1];
-  //old_sensorvalues[0]=dJointGetUniversalAngle1Rate(joints[0]);
-  //old_sensorvalues[1]=dJointGetUniversalAngle2Rate(joints[0]);
+    //sensors[0]=dJointGetUniversalAngle1(joints[0])-old_sensorvalues[0];
+    //sensors[1]=dJointGetUniversalAngle2(joints[0])-old_sensorvalues[1];
+    //old_sensorvalues[0]=dJointGetUniversalAngle1Rate(joints[0]);
+    //old_sensorvalues[1]=dJointGetUniversalAngle2Rate(joints[0]);
   for (int i=0; i<sensorno; i++){
     if ((i%2)==0){
-      sensors[i] =          dJointGetUniversalAngle1Rate(joints[i/2])-old_sensorvalues[i];
+      mean_sensorvalues[i] = 0.2*( (dJointGetUniversalAngle1Rate(joints[i/2])-old_sensorvalues[i]) -mean_sensorvalues[i] );
+      sensors[i] = mean_sensorvalues[i];
       old_sensorvalues[i] = dJointGetUniversalAngle1Rate(joints[i/2]);
     }
     else{
-      sensors[i] =          dJointGetUniversalAngle2Rate(joints[i/2])-old_sensorvalues[i];
+      mean_sensorvalues[i] = 0.2*( (dJointGetUniversalAngle2Rate(joints[i/2])-old_sensorvalues[i]) -mean_sensorvalues[i]);
+      sensors[i] = mean_sensorvalues[i];
       old_sensorvalues[i] = dJointGetUniversalAngle2Rate(joints[i/2]);
     }
   }
@@ -269,7 +276,8 @@ void JointTest::create(Position pos){
     dBodySetMass ( segments[i].body , &masse );
     segments[i].geom=dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
     dGeomSetBody ( segments[i].geom , segments[i].body );
-    dGeomSetPosition(segments[i].geom,pos.x +i*(glieder_laenge+glieder_laenge/10), pos.y, pos.z+2.0*glieder_laenge);
+    dGeomSetPosition(segments[i].geom,pos.x +i*(glieder_laenge+glieder_laenge/10), pos.y, 
+		     pos.z+glieder_durchmesser/*+2.0*glieder_laenge*/);
     dGeomSetRotation ( segments[i].geom, R );
   }
 
@@ -370,7 +378,7 @@ void JointTest::useUniversalJoints(){
 };
 
 
-void JointTest::useHinge2Joints(){
+void JointTest::useHinge2Joints(){  // TODO: adapt to mot then to segments
   joints[0]= ( dJointCreateHinge2 ( *world , 0 ) );
   dJointAttach ( joints[0] , segments[0].body , segments[1].body );
 			
@@ -397,7 +405,7 @@ void JointTest::useHinge2Joints(){
 
 
 
-void JointTest::setMotorsHinge2Velocity(const motor*motors){
+void JointTest::setMotorsHinge2Velocity(const motor*motors){// TODO: adapt to mot then to segments
   double tmp;
   tmp=dJointGetHinge2Param(joints[0],dParamVel);
   dJointSetHinge2Param(joints[0],dParamVel,tmp + 0.1*(motors[0]*20.0-tmp) );

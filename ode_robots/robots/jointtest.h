@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-06-24 13:33:40  fhesse
+ *   Revision 1.3  2005-06-27 09:31:26  fhesse
+ *   few things tested, velocity as sensor- and motorvalues still works fine
+ *
+ *   Revision 1.2  2005/06/24 13:33:40  fhesse
  *   a lot tested and added
  *
  *   Revision 1.1  2005/06/22 15:37:45  fhesse
@@ -149,6 +152,7 @@ protected:
   bool positiv;
 
   vector <double> old_sensorvalues;
+  vector <double> mean_sensorvalues;
 
 };
 
