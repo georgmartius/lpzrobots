@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-06-27 09:31:26  fhesse
+ *   Revision 1.4  2005-06-28 10:12:15  fhesse
+ *   friction_factor gamma and tanh in getSensors added
+ *
+ *   Revision 1.3  2005/06/27 09:31:26  fhesse
  *   few things tested, velocity as sensor- and motorvalues still works fine
  *
  *   Revision 1.2  2005/06/24 13:33:40  fhesse
@@ -153,6 +156,8 @@ protected:
 
   vector <double> old_sensorvalues;
   vector <double> mean_sensorvalues;
+
+  double gamma;
 
 };
 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-06-27 09:31:26  fhesse
+ *   Revision 1.4  2005-06-28 10:12:14  fhesse
+ *   friction_factor gamma and tanh in getSensors added
+ *
+ *   Revision 1.3  2005/06/27 09:31:26  fhesse
  *   few things tested, velocity as sensor- and motorvalues still works fine
  *
  *   Revision 1.2  2005/06/24 13:33:40  fhesse
@@ -56,11 +59,11 @@ JointTest::JointTest(dWorldID *w, dSpaceID *s, dJointGroupID *c):
     
   max_force=0.5;
 
-  glieder_masse=0.4;
+  glieder_masse=0.1;
   glieder_durchmesser=0.2;
   glieder_laenge=1.0;
 
-  segmentsno=3;
+  segmentsno=2;
   sensorno=2*(segmentsno-1); 
   motorno=sensorno;  
 
@@ -77,6 +80,8 @@ JointTest::JointTest(dWorldID *w, dSpaceID *s, dJointGroupID *c):
     old_sensorvalues[i]=0.0;
     mean_sensorvalues[i]=0.0;
   }
+
+  gamma=0.35;
 
 };
 
@@ -102,15 +107,17 @@ void JointTest::setMotors(const motor* motors, int motornumber){
 
   //setMotorsHinge2Velocity(m); //-> use hinge2 angelrate in getSensors
 
-  setMotorsUniversalVelocity(m);  // -> use universal joint angle rate in getSensors
+  //setMotorsUniversalVelocity(m);  // -> use universal joint angle rate in getSensors
   
 
-  /*// controller output as torques -> use universal joint angle acceleration in getSensors
+  // controller output as torques -> use universal joint angle acceleration in getSensors
     //dJointAddUniversalTorques(joints[0], 0.5*m[0],0.5*m[1]);
   for (int i=0; i<sensorno/2; i++){
-    dJointAddUniversalTorques(joints[i], 0.5*m[2*i],0.5*m[2*i +1]);
+    dJointAddUniversalTorques( joints[i], 1.0*m[2*i],1.0*m[2*i +1]);  // motorcommand
+    dJointAddUniversalTorques( joints[i], -(2.0*gamma)*dJointGetUniversalAngle1Rate(joints[i]),
+			       -(2.0*gamma)*dJointGetUniversalAngle2Rate(joints[i]) );  // friction
   }
-  */
+  
 
 
 
@@ -135,17 +142,17 @@ int JointTest::getSensors(sensor* sensors, int sensornumber){
 
   
   // universal joint angle rate
-  for (int i=0; i<sensorno; i++){
+  // tanh keeps the controller from being corrupted by to large sensorvalues, e.g. when the snake drops down
+  for (int i=0; i<sensorno; i++){    
     if ((i%2)==0){
-      sensors[i]=dJointGetUniversalAngle1Rate(joints[i/2]);
+      sensors[i]=tanh( dJointGetUniversalAngle1Rate(joints[i/2]) );
     }
     else{
-      sensors[i]=dJointGetUniversalAngle2Rate(joints[i/2]);
+      sensors[i]=tanh( dJointGetUniversalAngle2Rate(joints[i/2]) );
     }
   }
+
   
-
-
   
 
   /*// universal joint angle acceleration 
@@ -286,7 +293,7 @@ void JointTest::create(Position pos){
 
   // useHinge2Joints();
 
-  //fixInSky();  // fix segment 0 in the sky
+  fixInSky();  // fix segment 0 in the sky (in initial Position)
 
   created=true;
 }; 
