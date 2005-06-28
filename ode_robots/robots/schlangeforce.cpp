@@ -7,7 +7,7 @@
 /************************************************************************/
 
 #include "schlangeforce.h"
-
+#include "abstractcontroller.h"
 
 
 /**
@@ -33,6 +33,11 @@
 SchlangeForce::SchlangeForce ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor ) :
 Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sensoranzahl )
 {
+        // prepare name;
+        Configurable::insertCVSInfo(name, "$RCSfile$", 
+		           	            "$Revision$");
+
+
 	Object tmp_body;
 	
 	dMass masse;
@@ -44,6 +49,10 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 	schlangenarmanzahl = armanzahl;
 	geschwindigkeitsfaktor = start_geschwindigkeitsfaktor;
 	maxmotorkraft = start_maxmotorkraft;
+
+	gamma=0.4;
+	friction_ground=0.1;
+	factor_force=4.0;
 	
 	//standard color of all snakes is green, if no other value is set by calling the function place
 	color.r = 0;
@@ -91,6 +100,7 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 		sensorfeld[n].sollwinkel = 0;
 		sensorfeld[n].istwinkel_alt = sensorfeld[n].istwinkel;
 	}
+
 }
 	
 /**
@@ -209,7 +219,7 @@ void SchlangeForce::place (Position pos, Color *c)
 				{
 					contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 					dContactSoftERP | dContactSoftCFM | dContactApprox1;
-					contact[i].surface.mu = 0.1;//0.8;
+					contact[i].surface.mu = friction_ground;
 					contact[i].surface.slip1 = 0.005;
 					contact[i].surface.slip2 = 0.005;
 					contact[i].surface.soft_erp = 1;
@@ -239,9 +249,10 @@ void SchlangeForce::setMotors ( const motor* motors, int motornumber )
 
   // controller output as torques 
   for (int i=0; i<motornumber/2; i++){
-    dJointAddUniversalTorques( jointliste[i],4.0* motors[2*i],4.0*motors[2*i +1]);  // motorcommand
-  dJointAddUniversalTorques( jointliste[i], -(0.4/*gamma*/)*dJointGetUniversalAngle1Rate(jointliste[i]),
-			       -(0.4/*gamma*/) *dJointGetUniversalAngle2Rate(jointliste[i]) ); // friction
+    dJointAddUniversalTorques( jointliste[i],factor_force* motors[2*i],
+			       factor_force*motors[2*i +1]);  // motorcommand
+  dJointAddUniversalTorques( jointliste[i], -(gamma)*dJointGetUniversalAngle1Rate(jointliste[i]),
+			       -(gamma) *dJointGetUniversalAngle2Rate(jointliste[i]) ); // friction
   }
 
   /*  // controller outputs as wheel velocity
@@ -334,4 +345,44 @@ Position SchlangeForce::getPosition ( int n )
 void SchlangeForce::getStatus ()
 {
 	for ( int n = 0; n < getSensorfeldGroesse (); dsPrint ( "Sensor %i: %lf\n" , n , sensorfeld[n++].istwinkel ) );
+}
+
+
+/** The list of all parameters with there value as allocated lists.
+    @param keylist,vallist will be allocated with malloc (free it after use!)
+    @return length of the lists
+*/
+int SchlangeForce::getParamList(paramkey*& keylist,paramval*& vallist) const{
+  int number_params=3; // don't forget to adapt number params!
+  keylist=(paramkey*)malloc(sizeof(paramkey)*number_params);
+  vallist=(paramval*)malloc(sizeof(paramval)*number_params);
+  keylist[0]="gamma";
+  keylist[1]="friction_ground";  
+  keylist[2]="factor_force";  
+
+  vallist[0]=gamma;
+  vallist[1]=friction_ground;
+  vallist[2]=factor_force;
+  return number_params;
+}
+
+
+paramval SchlangeForce::getParam(paramkey key) const{
+  if(!key) return 0.0;
+  if(strcmp(key, "gamma")==0) return gamma; 
+  else if(strcmp(key, "friction_ground")==0) return friction_ground; 
+  else if(strcmp(key, "factor_force")==0)    return factor_force;  	
+  else  return Configurable::getParam(key) ;
+}
+
+bool SchlangeForce::setParam(paramkey key, paramval val){
+  if(!key) {
+    fprintf(stderr, "%s: empty Key!\n", __FILE__);
+    return false;
+  }
+  if(strcmp(key, "gamma")==0) gamma=val;
+  else if(strcmp(key, "friction_ground")==0) friction_ground=val; 
+  else if(strcmp(key, "factor_force")==0)    factor_force=val;
+  else return Configurable::setParam(key, val);
+  return true;
 }

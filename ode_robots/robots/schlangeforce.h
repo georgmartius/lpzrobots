@@ -1,5 +1,5 @@
 /************************************************************************/
-/*schlangeforce.h								*/
+/*schlangeforce.h							*/
 /*Schlangenkonstrukt fuer das ODE-Robotersystem des Authors		*/
 /*@author Marcel Kretschmann						*/
 /*@version alpha 0.1							*/
@@ -9,7 +9,7 @@
 using namespace std;
 
 #include "roboter.h"
-
+#include "configurable.h"
 
 //dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
 #ifdef dDOUBLE
@@ -25,7 +25,7 @@ using namespace std;
  *@author Marcel Kretschmann
  *@version beta
  **/
-class SchlangeForce : public Roboter
+class SchlangeForce : public Roboter, public Configurable
 {
 private:
 
@@ -35,6 +35,11 @@ private:
 	
 	double geschwindigkeitsfaktor;
 	double maxmotorkraft;
+
+	char name[50];
+	paramval gamma;
+	paramval friction_ground;
+	paramval factor_force;
 
 public:
 
@@ -157,6 +162,21 @@ public:
 	 *@version beta
 	 **/
 	virtual void getStatus ();
+
+
+	/// returns the name of the object (with version number)
+	virtual constparamkey getName() const {return name; } 
+
+	/** The list of all parameters with there value as allocated lists.
+	    @param keylist,vallist will be allocated with malloc (free it after use!)
+	    @return length of the lists
+	*/
+	virtual int getParamList(paramkey*& keylist,paramval*& vallist) const;
+
+	virtual paramval getParam(paramkey key) const;
+
+	virtual bool setParam(paramkey key, paramval val);
+	
 
 };
 
