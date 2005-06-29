@@ -73,9 +73,8 @@ void QSerialReader::run()
     char *s = NULL;
     int size = 0;
 
-    while(1){    // main loop
-
-        char c;
+    while(1)    // main loop
+    {   char c;
         int i;
 
         do{
@@ -88,16 +87,12 @@ void QSerialReader::run()
         s = (char*) realloc( s, size);
         s[size-1] = c;
 
-
         if(c==blockterminator || c==13 || c==10)  // check if we got a line ending
-        {   // now s contains a complet line readed from serial port
+        {   // now s contains a complete line readed from serial port
             s[size-1] = '\0';       // makes s a Zero terminated string (ZTS)
 
             if(size > 3)
-            {
-                #ifdef DEBUG
-                   printf("Readed: %s\n", s);
-                #endif
+            {   // printf("Readed: %s\n", s);
                 emit newData(s);
             }
 

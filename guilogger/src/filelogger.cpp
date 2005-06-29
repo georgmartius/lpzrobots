@@ -23,6 +23,7 @@
 
 FileLogger::FileLogger(QString pf)
 {   prefix = pf;
+    log= FALSE;
 }
 
 
@@ -41,9 +42,10 @@ void FileLogger::writeChannelNames(char *datablock)
 
 
 void FileLogger::writeChannelData(char *datablock)
-{   FILE *instream;
+{
+    if(log && (datablock == NULL)) return;
 
-    if(datablock == NULL) return;
+    FILE *instream;
 
     if(datablock[0]=='#' && datablock[1] == 'C')
     {   filename = prefix + (QDateTime::currentDateTime()).toString("yyyy-MMMM-ddd hh-mm-ss") + ".log";

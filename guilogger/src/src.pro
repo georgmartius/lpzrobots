@@ -10,7 +10,8 @@ HEADERS += guilogger.h \
            qdatasource.h \
            qserialreader.h \
            qpipereader.h \
-           inifile.h 
+           inifile.h \
+           commlineparser.h 
 SOURCES += guilogger.cpp \
            main.cpp \
            taggedcheckbox.cpp \

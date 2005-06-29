@@ -26,51 +26,7 @@
 #include "filelogger.h"
 #include "qserialreader.h"
 #include "qpipereader.h"
-
-class CommLineParser
-{
-private:
-    QString mode;    // input streaming mode = serial | pipe | file
-    QString port;    // serial port to read from
-    QString file;    // input file for visualisation 
-    bool    logg;    // Logging on/off
-    bool    help;    // display help or not
-    int     delay;   // delay for pipe
-    
-public:
-    
-    CommLineParser()
-    {   logg = FALSE;
-        help = FALSE;
-        delay = 100;
-    }
-/*
-    void setMode(QString mode) {this->mode = mode;}
-    void setPort(QString port) {this->port = port;}
-    void setFile(QString file) {this->file = file;}
-    void setLogg(QString logg) {this->logg = logg;}
-*/
-    QString getMode()  {return mode;}
-    QString getPort()  {return port;}
-    QString getFile()  {return file;}
-    bool    getLogg()  {return logg;}
-    bool    getHelp()  {return help;}
-    int     getDelay() {return delay;}
-    
-    void parseCommandLine(int argc, char **argv)
-    {   QValueList<QString> ComLineParams;
-        for(int i=1; i<argc; i++) ComLineParams.push_back(argv[i]);
-    
-        QValueList<QString>::iterator it;
-        if((it=ComLineParams.find("-m")) != ComLineParams.end()) mode = *(++it);
-        if((it=ComLineParams.find("-p")) != ComLineParams.end()) port = *(++it);
-        if((it=ComLineParams.find("-f")) != ComLineParams.end()) file = *(++it);
-        if((it=ComLineParams.find("-d")) != ComLineParams.end()) delay = (*(++it)).toInt();
-        if(    ComLineParams.find("-l")  != ComLineParams.end()) logg = TRUE;
-        if(    ComLineParams.find("--help")  != ComLineParams.end()) help = TRUE;
-
-    }
-};
+#include "commlineparser.h"
 
 
 int Control_C;
@@ -78,60 +34,67 @@ void signal_handler_exit(void){
   signal(SIGINT,SIG_DFL);
 }
 
-void control_c(int i){
+void control_c(int ){
   Control_C++ ;
   if (Control_C > 100) exit(0);
 }
 
+
+/**
+ * We need to catch Ctrl-C (SIGINT) because if we are called from another program (like ode simulation) that reacts on Ctrl-C we are killed. 
+ * SIGPIPE is emitted if the stdin or stdout breaks. 
+ * We need to terminate if the stdin breaks to get closed with the calling application (in  pipe mode).
+*/
 void signal_handler_init(){
   signal(SIGINT,control_c);
   atexit(signal_handler_exit);
-  Control_C=0;  
+  Control_C=0;
+  signal(SIGPIPE, SIG_DFL);
 }
 
 /**
   * \brief Main Programm
   * \author Dominic Schneider
   */
-int main( int argc, char ** argv ) {
-   signal_handler_init();
-  
-   CommLineParser config;
-   config.parseCommandLine(argc, argv);
-  
-   QApplication a( argc, argv );
-    
-   QString mode;
-   QDataSource *qsource;
-   
-    
-  
+int main( int argc, char ** argv ) {   
+    signal_handler_init();
+
+   CommLineParser params;
+   params.parseCommandLine(argc, argv);
+
+   if(params.getHelp())
+   {   printf("guilogger parameter listing\n");
+       printf("   -m [mode]  mode = serial | pipe | file\n");
+       printf("   -p [port]  port = serial port to read from\n");
+       printf("   -f [file]  input file\n");
+       printf("      only viwewing, no streaming\n");
+       printf("   -l turns logging on\n");
+       printf("   -d [delay] delay should be a natural number\n");
+       printf("   --help Displays this message.\n");
+       return 0;
+   }
+
+    QApplication a( argc, argv );
+
+    QString mode;
+    QDataSource *qsource;
+
     guilogger gl;
-/*
-    printf("Mode %s\n", config.getMode().latin1());
-    printf("Port %s\n", config.getPort().latin1());
-    printf("File %s\n", config.getFile().latin1());
-    if(config.getLogg()) printf("Logging\n");
-    if(config.getHelp()) printf("Help\n");
-*/
-        
-    
-    
-    
-    
-    if(config.getMode()=="serial")    
+    gl.setParams(params);
+
+    if(params.getMode()=="serial")    
     {   QSerialReader *qserial = new QSerialReader();
-        if(config.getPort() != "") qserial->setComPort(config.getPort());
-        printf("Using serial port %s as source.", qserial->getComPort().latin1());
+        if(params.getPort() != "") qserial->setComPort(params.getPort());
+        printf("Using serial port %s as source.\n", qserial->getComPort().latin1());
         qsource = qserial;
     }
-    else if(config.getMode()=="pipe") 
+    else if(params.getMode()=="pipe") 
     {   QPipeReader *qpipe = new QPipeReader();
-        if(config.getDelay() >= 0) qpipe->setDelay(config.getDelay());
+        if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
         printf("Using pipe input with delay %i.\n", qpipe->getDelay());
         qsource = qpipe;
     }
-    else if(config.getMode()=="file") 
+    else if(params.getMode()=="file") 
     {   printf("Sorry, not yet implemented.\n");
         printf("Hope you are lucky with a segfault.\n");
         printf("To produce more segfaults just try again\n");
@@ -139,31 +102,21 @@ int main( int argc, char ** argv ) {
     }
     else
     {    QSerialReader *qserial = new QSerialReader();
-         if(config.getPort() != "") qserial->setComPort(config.getPort());
+         if(params.getPort() != "") qserial->setComPort(params.getPort());
          printf("Using serial communication as default on port %s\n", qserial->getComPort().latin1());
          qsource = qserial;
     }
 
-    if(config.getLogg())
-    {   FileLogger fl;
+    FileLogger fl;
+    if(params.getLogg()) 
+    {   fl.setLogging(TRUE);
+        printf("Logging on.\n");
         a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
     }
 
     a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
 
-    if(config.getHelp())
-    {   printf("guilogger parameter listing\n");
-        printf("   -m [mode]  mode = serial | pipe | file\n");
-        printf("   -p [port]  port = serial port to read from\n");
-        printf("   -f [file]  input file\n");
-        printf("      only viwewing, no streaming\n");
-        printf("   -l turns logging on\n");
-        printf("   -d [delay] delay should be a natural number\n");
-        printf("   --help Displays this message.\n");
-    }
-    
-    
-    qsource->start();
+    if(params.getMode() != "file") qsource->start();
 
     gl.setCaption( "GUI Logger" );
     gl.show();

@@ -34,14 +34,15 @@ guilogger::guilogger(int datadelayrate, int plotwindows) : QMainWindow( 0, "guil
     this->datadelayrate = datadelayrate;  // per default parameter 10
     framecounter = 0;
     datacounter  = 0;
-
+    
+    
     setCentralWidget(new QWidget(this, "Central_Widget"));
     layout        = new QHBoxLayout(centralWidget());
 
     channelWidget = new QWidget(centralWidget());
     channelWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
     commWidget = new QWidget(centralWidget()); 
-    commWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,1,0, FALSE));
+    commWidget   ->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,1,0, FALSE));
 
     
     layout-> addWidget(channelWidget);
@@ -117,6 +118,39 @@ guilogger::~guilogger()
 //    delete []nameslists;
 }
 
+void guilogger::setParams(CommLineParser configobj)
+{   char *s=NULL;
+    char c;
+    int size=1, i=1;
+    
+    mode = configobj.getMode();
+
+    // wenn filemode, dann erste Zeile des Files einlesen, Channels rausparsen und an GNUPlot schicken
+    if(mode == "file")
+    {    FILE *instream;
+         instream = fopen(configobj.getFile().latin1(), "r");
+         if(instream == NULL) return;
+
+             while(c!= 10 && c != 13) 
+             {
+                 i = fscanf(instream,"%c", &c);
+                 if(i==1)
+                 {   size++; 
+                     s = (char*)realloc(s, size);
+                     s[size-2] = c;
+                 }
+                 else break;
+             }
+             s[size-1]='\0';
+             printf("%s\n", s);
+
+             if(s != NULL) free(s);
+
+         fclose(instream);
+    }
+    receiveRawData(s);
+}
+
 
 /// what happens if one of the checkboxes is toggled
 void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
@@ -144,33 +178,29 @@ void guilogger::save()
     
     cfgFile.setFilename("guilogger.cfg");
     
-    outstream = fopen("guilogger.config", "w+");
-    if(outstream == NULL) {printf("Cannot open file."); return;}
+//    outstream = fopen("guilogger.config", "w+");
+//    if(outstream == NULL) {printf("Cannot open file."); return;}
 
     for(int i=0; i<plotwindows; i++)
     {   cr = ChannelRowPtrList.first();
-        fprintf(outstream,"Window %i\n", i);
-        
+//        fprintf(outstream,"Window %i\n", i);
+
         nr = QString::number(i, 10);
         secname = "Window";
-//        secname += nr;
-        
-//        nr += '\n';
-        
+
         IniSection *sec = cfgFile.addSection(secname);
         sec->addValue("Number", nr);
 
         while(cr != 0)
         {   if(cr->isChecked(i)) 
-            {   fprintf(outstream,"%s\n", (cr->getChannelName()).latin1());
+            {   //fprintf(outstream,"%s\n", (cr->getChannelName()).latin1());
                 sec->addValue("Channel", cr->getChannelName());
             }
             cr = ChannelRowPtrList.next();
         }
-//        fprintf(outstream, "\n");
     }
-    
-    fclose(outstream);
+
+//    fclose(outstream);
     cfgFile.Save();
     cfgFile.Clear();
 }
@@ -234,20 +264,16 @@ void guilogger::load()
     {   if(section->getName() == "Window")
            for(var = section->vars.first(); var!=0; var = section->vars.next())
            {   qv = var->getValue();
-               
-               if(var->getName() == "Number") 
-               {   pwin = qv.toInt();
-//                   printf("WinNo = %i\n", pwin);
-               }
+
+               if(var->getName() == "Number") pwin = qv.toInt();
                else if(var->getName() == "Channel")
                {        re.setPattern(qv);
-//                        printf("  %s", qv.latin1());
                         KnownChannels[qv].append(pwin);
 
                         cr = ChannelRowPtrList.first();  // Liste mit Channels die gesendet wurden
                         while(cr != 0)
                         {   //printf("Vgl. %s - %s\n", qs.latin1(), (cr->getChannelName()).latin1());
-                            if(qv==(cr->getChannelName()+"\n") || re.exactMatch(cr->getChannelName()))
+                            if(qv==(cr->getChannelName()) || re.exactMatch(cr->getChannelName()))
                             {   gp[pwin].show(qv);
                                 cr->setChecked(pwin, TRUE);
                             }
@@ -255,9 +281,8 @@ void guilogger::load()
                         }
                }
            }
-        
     }
-    
+
     printf("Config file loaded.\n");
 }
 
@@ -295,8 +320,8 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
         while(it != KnownChannels.end())  // guggen ob neuer Channel auf einen der Ausdrücke aus dem config file matcht
         {   //printf("  %s ", it.key().latin1());  // DEBUG
 
-            if(name == it.key() || re.exactMatch(name))
-            {    //printf("Match\n");   // DEBUG
+            if(name == it.key() || re.exactMatch(name))  // irgendwas klappt mit dem exactMatch nicht so ganz
+            {   //printf("Match\n");   // DEBUG
                 QValueList<int>::iterator lit = (*it).begin();  // wenn Ausdruck matcht, Plotwindows rausbekommen
                 while(lit != (*it).end())
                 {   int b = *lit;
@@ -305,97 +330,33 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
                     lit++;
                 }
             }
-//            else printf("\n");   // DEBUG
 
             it++;
             re.setPattern(it.key());
         }
     }
-
-
-/*
-    for(int i=0; i<plotwindows; i++) nameslists[i] = gp[i].getNames();  // Namenslisten aus dem GNUPlot holen
-
-    for(int k=0; k<plotwindows; k++)        // in jedem Plotwindow schauen ob Channel schon vorhanden ist
-    {   for (i=nameslists[k].begin(); i != nameslists[k].end(); i++)
-            if(*i == name) break;         // 1. Element mit Eintrag "name" finden...
-        if(i == nameslists[k].end()) 
-        {   gp[k].addChannel(name, title, style);   //Channel noch nicht vorhanden, dann eintragen
-            status++;
-            gp[k].hide(name);
-        }
-    }
-
-    QRegExp re;
-    re.setWildcard(TRUE);
-    
-    if(status==plotwindows)
-    {   ChannelRow* newrow = new ChannelRow(name, plotwindows, this);  // neues Grafikelement für Channel erzeugen
-    channellayout->addWidget(newrow);
-        newrow->show();
-        ChannelRowPtrList.append(newrow);
-        #ifdef DEBUG
-           printf("   Channel added\n");
-        #endif
-        
-        ChannelToWindowMap::iterator it = KnownChannels.begin();  // durch die Map iterieren
-        if(it != KnownChannels.end()) re.setPattern(it.key()); 
-
-//        printf("Send %s.\n", name.latin1());
-        while(it != KnownChannels.end())  // guggen ob neuer Channel auf einen der Ausdrücke aus dem config file matcht
-        {   printf("  %s ", it.key().latin1());
-
-            if(name == it.key() || re.exactMatch(name))
-            {    //printf("Match\n");
-                 QValueList<int>::iterator lit = (*it).begin();  // wenn Ausdruck matcht, Plotwindows rausbekommen
-                 while(lit != (*it).end())
-                 {   int b = *lit;
-                     newrow->setChecked(b, TRUE);
-                     gp[b].show(name);
-                     lit++;
-                 }
-            }
-            else printf("\n");
-            
-            it++;
-            re.setPattern(it.key());
-        }
-*/
-        /*
-        ChannelToWindowMap::iterator it = KnownChannels.find(name);    // ist eingefügter Channel in der Liste ???
-        if(it != KnownChannels.end())     // aktuell eingefügter Channel ist in Liste vorhanden !!!
-        {   //printf("%s.\n", it.data().latin1());
-            QValueList<int>::iterator lit = (*it).begin();
-            while(lit != (*it).end())
-            {   int b = *lit;
-                newrow->setChecked(b, TRUE);
-                gp[b].show(name);
-                lit++;
-            }
-        }
-        */
-
 }
 
 
 /// enqueue the raw and unparsed data
 void guilogger::receiveRawData(char *data)
-{   
+{
     queuemutex.lock();
        inputbuffer.enqueue(new QString(data));
     queuemutex.unlock();
 }
 
 
-/// put the data in every window available
+///  put the data in every window available
 void guilogger::putData(const QString &name, double data)
 {
     for(int i=0; i<plotwindows; i++) gp[i].putData(name, data);
 }
 
 
-// emties the buffer queue and parses the data then putting it to GNUPlot
-// updates the GNUPlot data queues with fresh data
+/**  emties the buffer queue and parses the data then putting it to GNUPlot
+  *  updates the GNUPlot data queues with fresh data
+  */
 void guilogger::update()
 {   QString *data;
     QStringList parsedString;
@@ -405,8 +366,9 @@ void guilogger::update()
     {  queuemutex.lock();
           data = inputbuffer.dequeue();
        queuemutex.unlock();
+//       printf("update\n");
        if (data==0) break;
-       
+//       printf("data dequeued\n");
        parsedString = QStringList::split(' ', *data);  //parse data string with Space as separator
 
        if(*(parsedString.begin()) == "#C")   //Channels einlesen
@@ -414,7 +376,8 @@ void guilogger::update()
            parsedString.remove(parsedString.begin());  // remove #C preambel
            for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel(*i);  //transmit channels to GNUPlot
 
-           for(int i=0; i<plotwindows; i++) if(gpWindowVisibility[i]) gp[i].plot();  // show channels imediatly
+//           for(int i=0; i<plotwindows; i++) if(gpWindowVisibility[i]) gp[i].plot();  // show channels imidiatly
+           for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
        }
        else if( (*(parsedString.begin()))[0] != '#')  // Daten einlesen
        {

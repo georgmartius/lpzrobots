@@ -16,7 +16,8 @@
  ***************************************************************************/
 
 #include "inifile.h"
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 #include <qregexp.h>
 
 
@@ -111,7 +112,7 @@ bool IniFile::Load(){
 }
 
 
-int IniFile::getLineType(QString _line,QString &str1,QString &str2, QString &str3){
+int IniFile::getLineType( QString _line, QString &str1, QString &str2, QString &str3){
   QRegExp regexp;
   int start,len;
 
@@ -135,19 +136,21 @@ int IniFile::getLineType(QString _line,QString &str1,QString &str2, QString &str
     str1=_line.left(len-1);
     int start2=len;
 
+    
     regexp.setPattern(".+[;#]");
-    start=regexp.match(_line,start2,&len);
-    if (start>=0){
+    start=regexp.match( _line, start2, &len);
+    if (start>=0){ // is there a comment at the end of the line?
       str2=_line.mid(start2,len-1);
       str3=_line.mid(start2+len-1);
-    }else{
-      str2=_line.mid(start2);
+    }else{  // no comment
+      str2=_line.mid(start2, _line.length()-start2-1);
     }
     return VAR;
   }
 
   // kann sich nur um eine alleinstehende Variable handeln
   str1=_line;
+  
   return VAR;
 }
 

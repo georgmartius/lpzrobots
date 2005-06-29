@@ -47,6 +47,7 @@
 #include "gnuplot.h"
 //#include <queue.h>
 #include "inifile.h"
+#include "commlineparser.h"
 
 class ChannelRow;
 class QTimer;
@@ -65,7 +66,8 @@ public:
     void setChannels(const char &clist);
     void addChannel(const QString &name, const std::string &title="", const std::string &style="lines");
     void putData(const QString &name, double data);
-
+    void setParams(CommLineParser configobj);
+    
 private slots:
     void taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on);
     void receiveRawData(char *);
@@ -106,6 +108,7 @@ private:
     int framecounter;  //deprecated
     int datacounter;
     int datadelayrate;  // how much data traffic is neccessary to replot
+    QString mode;
     
     QTimer *timer;
     QTimer *plottimer;
