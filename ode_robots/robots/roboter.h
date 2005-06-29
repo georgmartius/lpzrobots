@@ -34,6 +34,7 @@ typedef struct
         double z;
 } Sensor;
 
+enum ausgabemodus { angle , anglerate };
 
 /****************************tool functions********************************/
 

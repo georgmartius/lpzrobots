@@ -35,6 +35,8 @@ private:
 	
 	double geschwindigkeitsfaktor;
 	double maxmotorkraft;
+	
+	ausgabemodus ausgabeart;
 
 public:
 
@@ -55,10 +57,11 @@ public:
 	 *@param start_masse mass of one snake element
 	 *@param start_maxmotorkraft maximal force used by the motors of the snake
 	 *@param start_geschwindigkeitsfaktor factor for the speed, which the motors of the snake use
+	 *@param start_ausgabeart angle: sensor values are the angle of the joints; anglerate: sensor values are the angle rates of the joints
 	 *@author Marcel Kretschmann
 	 *@version beta
 	 **/ 
-	Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor );
+	Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart );
 	
 	/**
 	*Destruktor
@@ -107,6 +110,16 @@ public:
 	 **/
 	virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
+	
+	/**
+	 *Writes the sensor values to an array in the memory.
+	 *@param sensor* pointer to the array
+	 *@param sensornumber length of the sensor array
+	 *@return number of actually written sensors
+	 *@author Marcel Kretschmann
+	 *@version beta
+	 **/
+	virtual int getSensors ( sensor* sensors, int sensornumber );
 	
 	/**
 	*Reads the actual motor commands from an array, an sets all motors of the snake to this values.

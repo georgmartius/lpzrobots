@@ -27,10 +27,11 @@
  *@param start_masse mass of one snake element
  *@param start_maxmotorkraft maximal force used by the motors of the snake
  *@param start_geschwindigkeitsfaktor factor for the speed, which the motors of the snake use
+ *@param start_ausgabeart angle: sensor values are the angle of the joints; anglerate: sensor values are the angle rates of the joints
  *@author Marcel Kretschmann
  *@version beta
  **/
-Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor ) :
+Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart ) :
 Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sensoranzahl )
 {
 	Object tmp_body;
@@ -44,6 +45,8 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sen
 	schlangenarmanzahl = armanzahl;
 	geschwindigkeitsfaktor = start_geschwindigkeitsfaktor;
 	maxmotorkraft = start_maxmotorkraft;
+	
+	ausgabeart = start_ausgabeart;
 	
 	//standard color of all snakes is green, if no other value is set by calling the function place
 	color.r = 0;
@@ -103,7 +106,7 @@ Schlange::~Schlange()
 }
 	
 /**
- *Zeichnet die Koerper-GeometrieObjekte.
+ *Draws all elements of the snake.
  *@author Marcel Kretschmann
  *@version beta
  **/
@@ -224,6 +227,27 @@ void Schlange::place (Position pos, Color *c)
 	else return false; //if collision was not threated by this robot
 }
 
+/**
+ *Writes the sensor values to an array in the memory.
+ *@param sensor* pointer to the array
+ *@param sensornumber length of the sensor array
+ *@return number of actually written sensors
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
+int Schlange::getSensors ( sensor* sensors, int sensornumber )
+{
+	sensoraktualisierung ();
+	for ( int n = 0; n < sensornumber; n++ )
+	{
+		if ( ausgabeart == angle )
+			(*sensors++) = sensorfeld[n].istwinkel;
+		if ( ausgabeart == anglerate )
+			getWinkelDifferenz ( n , sensors++ );
+	}
+	
+	return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
+}
 
 
 /**
