@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-06-29 09:25:17  martius
+ *   Revision 1.8  2005-06-29 09:27:03  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.7  2005/06/29 09:25:17  martius
  *   customized callback for collision
  *
  *   Revision 1.6  2005/06/22 15:39:49  fhesse
@@ -57,7 +60,7 @@ enum SimulationState { none, initialised, running, closed };
 SimulationState state = none;
 
 void (*configfunction)() = 0; // pointer to the config function of the user
-void (*collisionCallback) = 0;  // pointer to the user defined nearcallback function
+void (*collisionCallback)() = 0;  // pointer to the user defined nearcallback function
 
 // Object lists
 ObstacleList obstacles;
@@ -73,7 +76,8 @@ void cmd_end_input();
 void simLoop ( int pause );
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
 
-void simulation_init(void (*start)(), void (*end)(), void (*config)(), void (*collCallback) = 0 ){
+void simulation_init(void (*start)(), void (*end)(), 
+		     void (*config)(), void (*collCallback)()/* = 0 */ ){
   configfunction=config; // store config function for simLoop
   collisionCallback=collCallback; // store config function for simLoop
   /**************************Grafikabschnitt**********************/

@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-06-29 09:25:06  martius
+ *   Revision 1.6  2005-06-29 09:27:11  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2005/06/29 09:25:06  martius
  *   customized callback for collision
  *
  *   Revision 1.4  2005/06/17 08:42:01  martius
@@ -80,7 +83,8 @@ extern AgentList agents;                        ///
     @param collCallback() if defined it is called instead of the default collision handling.
       However it is called after the robots collision handling.       
  */
-void simulation_init(void (*start)(), void (*end)(), void (*config)(), void (*collCallback) = 0 );
+void simulation_init(void (*start)(), void (*end)(), 
+		     void (*config)(), void (*collCallback)() = 0 );
 /// starts the simulation.
 void simulation_start(int argc, char** argv);
 /// call this after the @simulation_start()@ has returned to tidy up.
