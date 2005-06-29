@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-06-22 15:39:49  fhesse
+ *   Revision 1.7  2005-06-29 09:25:17  martius
+ *   customized callback for collision
+ *
+ *   Revision 1.6  2005/06/22 15:39:49  fhesse
  *   path to textures
  *
  *   Revision 1.5  2005/06/20 10:03:26  fhesse
@@ -54,6 +57,7 @@ enum SimulationState { none, initialised, running, closed };
 SimulationState state = none;
 
 void (*configfunction)() = 0; // pointer to the config function of the user
+void (*collisionCallback) = 0;  // pointer to the user defined nearcallback function
 
 // Object lists
 ObstacleList obstacles;
@@ -69,9 +73,10 @@ void cmd_end_input();
 void simLoop ( int pause );
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
 
-void simulation_init(void (*start)(), void (*end)(), void (*config)() ){
+void simulation_init(void (*start)(), void (*end)(), void (*config)(), void (*collCallback) = 0 ){
   configfunction=config; // store config function for simLoop
- /**************************Grafikabschnitt**********************/
+  collisionCallback=collCallback; // store config function for simLoop
+  /**************************Grafikabschnitt**********************/
   fn.version = DS_VERSION;
   fn.start = start;
   fn.step = &simLoop;
@@ -100,7 +105,7 @@ void simulation_init(void (*start)(), void (*end)(), void (*config)() ){
 
 void simulation_start(int argc, char** argv){
   if(state!=initialised) return;
- //********************Simmulationsstart*****************
+  //********************Simmulationsstart*****************
   state=running;
   dsSimulationLoop ( argc , argv , 500 , 500 , &fn );  
 }
@@ -167,26 +172,29 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
   }
   
   if (collision_treated) return;
+  
+  if(collisionCallback) {
+    collisionCallback();
+  }else{
 
-  int i,n;
-
-  const int N = 10;
-  dContact contact[N];
-  n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-  if (n > 0) {
-    for (i=0; i<n; i++)
-      {
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
-	contact[i].surface.slip1 = 0.005;
-	contact[i].surface.slip2 = 0.005;
-	contact[i].surface.soft_erp = 1;
-	contact[i].surface.soft_cfm = 0.00001;
-	dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
-	
-      }
+    int i,n;  
+    const int N = 10;
+    dContact contact[N];
+    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+    if (n > 0) {
+      for (i=0; i<n; i++)
+	{
+	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+	    dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	  contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
+	  contact[i].surface.slip1 = 0.005;
+	  contact[i].surface.slip2 = 0.005;
+	  contact[i].surface.soft_erp = 1;
+	  contact[i].surface.soft_cfm = 0.00001;
+	  dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
+	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
+	}
+    }
   }
 }
 

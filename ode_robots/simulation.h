@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-06-17 08:42:01  martius
+ *   Revision 1.5  2005-06-29 09:25:06  martius
+ *   customized callback for collision
+ *
+ *   Revision 1.4  2005/06/17 08:42:01  martius
  *   documentation
  *
  *   Revision 1.3  2005/06/15 14:01:31  martius
@@ -74,8 +77,10 @@ extern AgentList agents;                        ///
     @param start() is called at the start and should create all the object (obstacles, agents...).
     @param end() is called at the end and should tidy up
     @param config() is called when the user presses Ctrl-C. Calls usually @changeParams()@
+    @param collCallback() if defined it is called instead of the default collision handling.
+      However it is called after the robots collision handling.       
  */
-void simulation_init(void (*start)(), void (*end)(), void (*config)() );
+void simulation_init(void (*start)(), void (*end)(), void (*config)(), void (*collCallback) = 0 );
 /// starts the simulation.
 void simulation_start(int argc, char** argv);
 /// call this after the @simulation_start()@ has returned to tidy up.
