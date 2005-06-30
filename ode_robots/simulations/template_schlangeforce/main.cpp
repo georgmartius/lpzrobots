@@ -36,18 +36,18 @@ void start()
 
   // initialization
   simulationConfig.noise=0.1;
-  
+
   Playground* playground = new Playground(&world, &space);
-  playground->setGeometry(7.0, 0.2, 1.5);
+  playground->setGeometry(70.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
-  
+
   //****************
-  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 6 , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate);
+  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate);
   Position p = {0,0,0};
   Color col = {0,0.5,0.8};
   schlange1->place(p,&col);
-  AbstractController *controller = new InvertNChannelController(10);  
+  AbstractController *controller = new InvertNChannelController(10,true);  
   
   One2OneAgent* agent = new One2OneAgent(/*NoPlot*/GuiLogger);
   agent->init(controller, schlange1);
