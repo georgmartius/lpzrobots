@@ -16,7 +16,6 @@
  *@param welt pointer to the ODE-simulation world, which contains the whole simulation
  *@param raum pointer to the ODE-simulation space, which contains all geometrical objects
  *@param start_contactgroup pointer to the JointGroup, which is used for collision management
- *@param start_Sensorzahl number of sensors of the robot
  *@param start_x x coordinate at the begin of the simulation
  *@param start_y y coordinate at the begin of the simulation
  *@param start_z z coordinate at the begin of the simulation
@@ -31,8 +30,8 @@
  *@author Marcel Kretschmann
  *@version beta
  **/
-Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart ) :
-Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , start_Sensoranzahl )
+Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart ) :
+Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanzahl-1) )
 {
 	Object tmp_body;
 	
