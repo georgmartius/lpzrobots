@@ -43,7 +43,7 @@ void start()
   obstacles.push_back(playground);
   
   //****************
-  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , angle );
+  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate );
   Position p = {0,0,0};
   Color col = {0,0.5,0.8};
   schlange1->place(p,&col);
@@ -54,7 +54,7 @@ void start()
   agents.push_back(agent);
   
   
-  /*Schlange* schlange2 = new Schlange ( 2 , &world , &space , &contactgroup , 10 , 0 , 0 , 0.25 , 6 , 0.5 , 0.2 , 0 , 1 , 5 , 30 );
+  /*Schlange* schlange2 = new Schlange ( 2 , &world , &space , &contactgroup , 10 , 0 , 0 , 0.25 , 0.5 , 0.2 , 0 , 1 , 5 , 30 , angle );
   Position p2 = {0,2,0};
   Color col2 = {0.5,0,0.5};
   schlange2->place(p2,&col2);
