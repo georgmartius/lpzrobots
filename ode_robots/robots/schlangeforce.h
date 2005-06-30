@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#include "roboter.h"
+#include "schlange.h"
 #include "configurable.h"
 
 //dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
@@ -25,16 +25,9 @@ using namespace std;
  *@author Marcel Kretschmann
  *@version beta
  **/
-class SchlangeForce : public Roboter, public Configurable
+class SchlangeForce : public Schlange, public Configurable
 {
 private:
-
-	int schlangenarmanzahl;
-	double gliederdurchmesser;
-	double gliederlaenge;
-	
-	double geschwindigkeitsfaktor;
-	double maxmotorkraft;
 
 	char name[50];
 	paramval gamma;
@@ -63,7 +56,7 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version beta
 	 **/ 
-	SchlangeForce ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor );
+	SchlangeForce ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart );
 	
 	/**
 	*Destruktor
@@ -72,45 +65,7 @@ public:
 	**/
 	virtual ~SchlangeForce();
 	
-	/**
-	*Zeichnet die Koerper-GeometrieObjekte.
-	*@author Marcel Kretschmann
-	*@version beta
-	**/
-	virtual void draw();
 	
-	/**
-	 *Decides if some collisions of the robot should not be threated by by the collision management.
-	 *This overwrides the function in the roboter class.
-	 *Here it makes the simulation ignore collisions between neighbouring snake elements, so that the snake can move, an does not explode.
-	 *@param o1 Geometrieobjekt 1, dass an der Kollision beteiligt ist
-	 *@param o2 Geometrieobjekt 2, dass an der Kollision beteiligt ist
-	 *@return true, if the collision should not be threated, false else
-	 *@author Marcel Kretschmann
-	 *@version beta
-	 **/
-	bool kollisionsermittlung ( dGeomID o1 , dGeomID o2 );
-	
-	/**Sets the snake to position pos, sets color to c, and creates snake if necessary.
-	 *This overwrides the function place of the class robot.
-	 *@param pos desired position of the snake in struct Position
-	 *@param c desired color for the snake in struct Color
-	 *@author Marcel Kretschmann
-	 *@version beta
-	**/
-	virtual void place (Position pos, Color *c);
-	
-	/**
-	 *This is the collision handling function for snake robots.
-	 *This overwrides the function collisionCallback of the class robot.
-	 *@param data
-	 *@param o1 first geometrical object, which has taken part in the collision
-	 *@param o2 second geometrical object, which has taken part in the collision
-	 *@return true if the collision was threated  by the robot, false if not
-	 *@author Marcel Kretschmann
-	 *@version beta
-	 **/
-	virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
 	
 	/**
@@ -123,46 +78,6 @@ public:
 	**/
 	virtual void setMotors ( const motor* motors, int motornumber );
 	
-	/**
-	 *Returns the number of motors used by the snake.
-	 *@return number of motors
-	 *@author Marcel Kretschmann
-	 *@version final
-	 **/
-	virtual int getMotorNumber();
-	
-	/**
-	 *Updates the sensorarray.
-	 *This overwrides the function sensoraktualisierung of the class robot
-	 *@author Marcel Kretschmann
-	 *@version beta
-	 **/
-	void sensoraktualisierung ( );
-	
-	/**
-	 *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
-	 *@return Position (x,y,z)
-	 *@author Marcel Kretschmann
-	 *@version final
-	 **/
-	virtual Position getPosition ();
-	
-	/**
-	 *Returns the position of one element of the snake.
-	 @param n number of the snake element
-	 *@return Position (x,y,z)
-	 *@author Marcel Kretschmann
-	 *@version final
-	 **/
-	virtual Position getPosition ( int n );
-	
-	/**
-	 *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.
-	 *@author Marcel Kretschmann
-	 *@version beta
-	 **/
-	virtual void getStatus ();
-
 
 	/// returns the name of the object (with version number)
 	virtual constparamkey getName() const {return name; } 
