@@ -43,7 +43,7 @@ void start()
   obstacles.push_back(playground);
   
   //****************
-  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 6 , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 );
+  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 6 , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate);
   Position p = {0,0,0};
   Color col = {0,0.5,0.8};
   schlange1->place(p,&col);
