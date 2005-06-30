@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-06-29 09:27:03  martius
+ *   Revision 1.9  2005-06-30 13:23:38  robot8
+ *   completing the call of the dynamic collisionCallback-function for  standard collisions
+ *
+ *   Revision 1.8  2005/06/29 09:27:03  martius
  *   *** empty log message ***
  *
  *   Revision 1.7  2005/06/29 09:25:17  martius
@@ -60,7 +63,7 @@ enum SimulationState { none, initialised, running, closed };
 SimulationState state = none;
 
 void (*configfunction)() = 0; // pointer to the config function of the user
-void (*collisionCallback)() = 0;  // pointer to the user defined nearcallback function
+void (*collisionCallback)(void* data, dGeomID o1, dGeomID o2) = 0;  // pointer to the user defined nearcallback function
 
 // Object lists
 ObstacleList obstacles;
@@ -77,7 +80,7 @@ void simLoop ( int pause );
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
 
 void simulation_init(void (*start)(), void (*end)(), 
-		     void (*config)(), void (*collCallback)()/* = 0 */ ){
+		     void (*config)(), void (*collCallback)(void* data,dGeomID o1, dGeomID o2)/* = 0 */ ){
   configfunction=config; // store config function for simLoop
   collisionCallback=collCallback; // store config function for simLoop
   /**************************Grafikabschnitt**********************/
@@ -135,7 +138,7 @@ void simLoop ( int pause )
     cmd_end_input();
   }
 
-  //die Simulation wird nur weitergeführt wenn keine Pause aktiviert wurde
+  //die Simulation wird nur weitergefhrt wenn keine Pause aktiviert wurde
   if (!pause) {
     //**************************Steuerungsabschnitt ************************
     simulationTime += simulationConfig.simStepSize;
@@ -166,7 +169,7 @@ void simLoop ( int pause )
 }
 
 //Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
-//Hier wird die Kollission näher untersucht
+//Hier wird die Kollission nï¿½er untersucht
 // TODO call robots collisionCallback
 void nearCallback(void *data, dGeomID o1, dGeomID o2)
 {
@@ -178,7 +181,7 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
   if (collision_treated) return;
   
   if(collisionCallback) {
-    collisionCallback();
+    collisionCallback(data,o1,o2);
   }else{
 
     int i,n;  
