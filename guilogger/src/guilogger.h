@@ -40,6 +40,7 @@
 #include <qlistbox.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
+#include <qslider.h>
 
 #include <string>
 #include <list>
@@ -60,7 +61,7 @@ class guilogger: public QMainWindow
     Q_OBJECT
 
 public:
-    guilogger(int datadelayrate = 10, int plotwindows=3);
+    guilogger(int datadelayrate = 10);
     ~guilogger();
     void setChannels(QStringList &clist);
     void setChannels(const char &clist);
@@ -75,9 +76,9 @@ private slots:
     void GNUPlotUpdate();
     void save();
     void load();
+    void sliderValueChanged(int value);
     
 private:
-//    typedef std::list<QString> listtype;
     typedef QMap<QString, QValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
     
     QPtrList<ChannelRow> ChannelRowPtrList; // für Grafikelemente
@@ -91,14 +92,14 @@ private:
     QWidget* commWidget; 
     
     
-    QListBox*  parameterlistbox;
-    QLineEdit* paramvaluelineedit;
-    QPushButton*   sendbutton;
+    QListBox    *parameterlistbox;
+    QLineEdit   *paramvaluelineedit;
+    QPushButton *sendbutton;
+    QSlider     *dataslider;
     
-    QPopupMenu *filemenu;
+    QPopupMenu  *filemenu;
     
     Gnuplot<QString> *gp;
-//    listtype *nameslists;
     std::list<bool*> *buttonArray;
     bool *gpWindowVisibility;
     ChannelToWindowMap KnownChannels;  // Channels from the ConfigFile
@@ -109,6 +110,7 @@ private:
     int datacounter;
     int datadelayrate;  // how much data traffic is neccessary to replot
     QString mode;
+    QString filename;
     
     QTimer *timer;
     QTimer *plottimer;

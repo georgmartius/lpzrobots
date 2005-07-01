@@ -87,36 +87,40 @@ int main( int argc, char ** argv ) {
         if(params.getPort() != "") qserial->setComPort(params.getPort());
         printf("Using serial port %s as source.\n", qserial->getComPort().latin1());
         qsource = qserial;
+        a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
+        qsource->start();
     }
     else if(params.getMode()=="pipe") 
     {   QPipeReader *qpipe = new QPipeReader();
         if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
         printf("Using pipe input with delay %i.\n", qpipe->getDelay());
         qsource = qpipe;
+        a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
+        qsource->start();
     }
     else if(params.getMode()=="file") 
-    {   printf("Sorry, not yet implemented.\n");
-        printf("Hope you are lucky with a segfault.\n");
-        printf("To produce more segfaults just try again\n");
-        printf("Have a nice day.\n");
+    {   printf("Sorry, not yet implemented, and there are no native segfaults any more.\n");
+        printf("But nevertheless I further provide segfaults for convenience by using free(0)\n");
+        printf("Just kidding! Have a nice day.\n");
     }
     else
     {    QSerialReader *qserial = new QSerialReader();
          if(params.getPort() != "") qserial->setComPort(params.getPort());
          printf("Using serial communication as default on port %s\n", qserial->getComPort().latin1());
          qsource = qserial;
+         a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
+         qsource->start();
     }
 
     FileLogger fl;
     if(params.getLogg()) 
     {   fl.setLogging(TRUE);
-        printf("Logging on.\n");
+        printf("Logging on\n");
         a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
     }
+    else printf("Logging off\n");
 
-    a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
-
-    if(params.getMode() != "file") qsource->start();
+//    if(params.getMode() != "file") qsource->start();
 
     gl.setCaption( "GUI Logger" );
     gl.show();
