@@ -99,9 +99,9 @@ int main( int argc, char ** argv ) {
         qsource->start();
     }
     else if(params.getMode()=="file") 
-    {   printf("Sorry, not yet implemented, and there are no native segfaults any more.\n");
-        printf("But nevertheless I further provide segfaults for convenience by using free(0)\n");
-        printf("Just kidding! Have a nice day.\n");
+    {  // printf("Sorry, there are no native segfaults any more.\n");
+//        printf("But nevertheless I further provide segfaults for convenience by using free(0)\n");
+//        printf("Just kidding! Have a nice day.\n");
     }
     else
     {    QSerialReader *qserial = new QSerialReader();

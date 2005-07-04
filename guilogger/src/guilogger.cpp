@@ -46,14 +46,19 @@ guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
     sv->addChild(channelWidget);
 
 //    channelWidget = new QWidget(centralWidget());
-    channelWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
+//    channelWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
+    sv->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
     commWidget = new QWidget(centralWidget()); 
     commWidget   ->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,1,0, FALSE));
-    dataslider = new QSlider(Qt::Vertical, centralWidget());
+    horizonslider = new QSlider(Qt::Vertical, centralWidget());
+    horizonslider->setMaxValue(1000);
+    dataslider    = new QSlider(Qt::Vertical, centralWidget());
     connect(dataslider, SIGNAL(valueChanged(int )), this, SLOT(sliderValueChanged(int )));
+    connect(dataslider, SIGNAL(sliderReleased()),   this, SLOT(onSliderReleased()));
     
 //    layout->addWidget(channelWidget);
     layout->addWidget(commWidget);
+    layout->addWidget(horizonslider);
     layout->addWidget(dataslider);
 
     channellayout = new QVBoxLayout(channelWidget);
@@ -110,6 +115,8 @@ guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
     plottimer = new QTimer( this);
     connect(plottimer, SIGNAL(timeout()), SLOT(GNUPlotUpdate()));
     plottimer->start(100, FALSE);
+
+    filegraphtimer = NULL;
 }
 
 
@@ -121,6 +128,7 @@ void guilogger::sliderValueChanged(int value)
 {  //printf("ValueChanged %i\n", value);
 //    QString minv;
 //    QString maxv;
+ /*
     QString cmd="plot [" + QString::number(value, 10) + ":" + QString::number(value+gp[0].getBuffersize())+"] \"" + filename + "\" ";
 //    printf("  %s\n", cmd.latin1());
     
@@ -142,12 +150,65 @@ void guilogger::sliderValueChanged(int value)
         printf("%s\n", cmd.latin1());
         gp[i].command(cmd.latin1());
     }
- /*
+*/
+    /*
     for(int i=0; i<plotwindows; i++)
     {   gp[i].command("set style data lines");
         gp[i].command(cmd.latin1());
     }
  */
+    /*
+    if(filegraphtimer == NULL)
+    {  filegraphtimer = new QTimer( this);
+       connect(filegraphtimer, SIGNAL(timeout()), SLOT(updateSliderPlot()));
+       filegraphtimer->start(1000, FALSE); // milliseconds
+       printf("New Timer\n");
+    }
+    */
+}
+
+
+void guilogger::onSliderReleased()
+{   
+    if(filegraphtimer != NULL) 
+    {   delete filegraphtimer;
+        filegraphtimer = NULL;
+    }
+    
+    updateSliderPlot();
+}
+
+void guilogger::updateSliderPlot()
+{
+    int value = dataslider->value();
+    
+    QString cmd="plot [" + QString::number(value, 10) + ":" + QString::number(value+gp[0].getBuffersize())+"] \"" + filename + "\" ";
+//    printf("  %s\n", cmd.latin1());
+    
+//    for(int i=0; i<plotwindows; i++) gp[i].command("set style data lines");
+    ChannelRow *cr;
+    int channel;
+    for(int i=0; i<plotwindows; i++)
+    {   cr = ChannelRowPtrList.first();
+        channel=0;
+        while(cr != 0)
+        {   channel++;
+            if(cr->isChecked(i))
+            {   if(channel > 1) cmd += ", ";
+                cmd += "\""+filename + "\" u " + QString::number(channel, 10)+" ";
+            }
+            cr = ChannelRowPtrList.next();
+        }
+        gp[i].command("set style data lines");
+//       printf("%s\n", cmd.latin1());
+        gp[i].command(cmd.latin1());
+    }
+
+    for(int i=0; i<plotwindows; i++)
+    {   gp[i].command("set style data lines");
+        gp[i].command(cmd.latin1());
+    }
+
 }
 
 void guilogger::setParams(CommLineParser configobj)

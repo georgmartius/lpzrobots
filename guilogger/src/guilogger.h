@@ -77,6 +77,8 @@ private slots:
     void save();
     void load();
     void sliderValueChanged(int value);
+    void onSliderReleased();
+    void updateSliderPlot();
     
 private:
     typedef QMap<QString, QValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
@@ -96,6 +98,7 @@ private:
     QLineEdit   *paramvaluelineedit;
     QPushButton *sendbutton;
     QSlider     *dataslider;
+    QSlider     *horizonslider;
     
     QPopupMenu  *filemenu;
     
@@ -114,7 +117,8 @@ private:
     
     QTimer *timer;
     QTimer *plottimer;
-
+    QTimer *filegraphtimer;
+    
     QMutex queuemutex;
 
     IniFile cfgFile;
