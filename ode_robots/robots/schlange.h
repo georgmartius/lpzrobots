@@ -35,6 +35,8 @@ private:
 	
 	double geschwindigkeitsfaktor;
 	double maxmotorkraft;
+
+protected:
 	
 	ausgabemodus ausgabeart;
 
