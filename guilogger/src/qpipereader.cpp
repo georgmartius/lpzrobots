@@ -52,7 +52,7 @@ void QPipeReader::run()
         {   // s now contains a complete line readed from serial port
             s[size-1] = '\0';       // make s a zero terminated string (ZTS)
             emit newData(s);
-            printf("Readed: %s\n", s);
+//            printf("Readed: %s\n", s);
             
             free(s);
             s=NULL;

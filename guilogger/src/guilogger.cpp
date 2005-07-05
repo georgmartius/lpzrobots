@@ -34,7 +34,8 @@ guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
     this->datadelayrate = datadelayrate;  // per default parameter 10
     framecounter = 0;
     datacounter  = 0;
-
+    buffersize   = 250;
+    
     load();  // load Config File
 
     setCentralWidget(new QWidget(this, "Central_Widget"));
@@ -45,18 +46,17 @@ guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
     channelWidget = new QWidget(sv->viewport());
     sv->addChild(channelWidget);
 
-//    channelWidget = new QWidget(centralWidget());
-//    channelWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
     sv->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
     commWidget = new QWidget(centralWidget()); 
     commWidget   ->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,1,0, FALSE));
     horizonslider = new QSlider(Qt::Vertical, centralWidget());
     horizonslider->setMaxValue(1000);
+    horizonslider->setValue(buffersize);
     dataslider    = new QSlider(Qt::Vertical, centralWidget());
     connect(dataslider, SIGNAL(valueChanged(int )), this, SLOT(sliderValueChanged(int )));
     connect(dataslider, SIGNAL(sliderReleased()),   this, SLOT(onSliderReleased()));
+    connect(horizonslider, SIGNAL(valueChanged(int )), this, SLOT(horizonSliderChanged(int )));
     
-//    layout->addWidget(channelWidget);
     layout->addWidget(commWidget);
     layout->addWidget(horizonslider);
     layout->addWidget(dataslider);
@@ -71,17 +71,6 @@ guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
     commlayout->addWidget(parameterlistbox);
     commlayout->addWidget(paramvaluelineedit);
     commlayout->addWidget(sendbutton);
-
-    
-//    channellayout->addWidget(sv);
-    //    channellayout = new QBoxLayout(sv->viewport(), QBoxLayout::TopToBottom);
-    
-//    channellayout = new QVBoxLayout(centralWidget());
-//    commlayout    = new QVBoxLayout(centralWidget());
-
-//    layout->addLayout(channellayout);
-//    layout->addLayout(commlayout);
-
     
     filemenu = new QPopupMenu(this);
     menuBar()->insertItem("&File", filemenu);
@@ -92,19 +81,11 @@ guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
     ChannelRow* row = new ChannelRow("Channels", plotwindows, channelWidget);
     channellayout->addWidget(row);
     
-//    ChannelRow* row = new ChannelRow("Channel", plotwindows, sv->viewport());
-//    sv->enableClipper(TRUE);
-//    sv->addChild(row);
-        
     ChannelRowPtrList.append(row);
     resize( 450, 600 );
 
     gp = new Gnuplot<QString>[plotwindows];
 
-    for(int k=0; k<plotwindows; k++)
-    {
-    }
-    
     gpWindowVisibility = new bool[plotwindows];
     for(int i=0; i<plotwindows; i++) gpWindowVisibility[i]=true;  // am Anfang alle Fenster sichtbar
 
@@ -122,6 +103,12 @@ guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
 
 guilogger::~guilogger()
 {   delete []gp;
+}
+
+void guilogger::horizonSliderChanged(int value)
+{   buffersize = value;
+//    for(int i=0; i<plotwindows; i++) gp[i].command("set xrange data lines");
+
 }
 
 void guilogger::sliderValueChanged(int value)
@@ -182,7 +169,7 @@ void guilogger::updateSliderPlot()
 {
     int value = dataslider->value();
     
-    QString cmd="plot [" + QString::number(value, 10) + ":" + QString::number(value+gp[0].getBuffersize())+"] \"" + filename + "\" ";
+    QString cmd="plot [" + QString::number(value, 10) + ":" + QString::number(value + buffersize)+"] \"" + filename + "\" ";
 //    printf("  %s\n", cmd.latin1());
     
 //    for(int i=0; i<plotwindows; i++) gp[i].command("set style data lines");
@@ -205,7 +192,7 @@ void guilogger::updateSliderPlot()
     }
 
     for(int i=0; i<plotwindows; i++)
-    {   gp[i].command("set style data lines");
+    {  // gp[i].command("set style data lines");
         gp[i].command(cmd.latin1());
     }
 
@@ -252,7 +239,8 @@ void guilogger::setParams(CommLineParser configobj)
 
          fclose(instream);
     }
-    printf("Line: %i\n", linecount);
+    for(int i=0; i<plotwindows; i++) gp[i].command("set style data lines");
+
     dataslider->setMinValue(0);
     linecount = (linecount-250 > 0)?linecount:0;
     dataslider->setMaxValue(linecount);
@@ -432,7 +420,7 @@ void guilogger::putData(const QString &name, double data)
   *  updates the GNUPlot data queues with fresh data
   */
 void guilogger::update()
-{   QString *data;
+{   QString *data = NULL;
     QStringList parsedString;
     QStringList::iterator i;
 
@@ -441,7 +429,7 @@ void guilogger::update()
           data = inputbuffer.dequeue();
        queuemutex.unlock();
 
-       if (data==0) break;
+       if (data==NULL) break;
 
        parsedString = QStringList::split(' ', *data);  //parse data string with Space as separator
 
@@ -466,6 +454,9 @@ void guilogger::update()
            datacounter++;
        }
 
+       delete data;
+       data = NULL;
+       
        #ifdef DEBUG
           printf("Parse: %s\n", data->latin1());
        #endif

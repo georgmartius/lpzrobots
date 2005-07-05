@@ -79,7 +79,8 @@ private slots:
     void sliderValueChanged(int value);
     void onSliderReleased();
     void updateSliderPlot();
-    
+    void horizonSliderChanged(int value);
+        
 private:
     typedef QMap<QString, QValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
     
@@ -112,6 +113,7 @@ private:
     int framecounter;  //deprecated
     int datacounter;
     int datadelayrate;  // how much data traffic is neccessary to replot
+    int buffersize;
     QString mode;
     QString filename;
     
