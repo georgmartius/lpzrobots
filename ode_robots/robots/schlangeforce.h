@@ -65,6 +65,18 @@ public:
 	**/
 	virtual ~SchlangeForce();
 	
+
+	/**
+	 *This is the collision handling function for snake robots.
+	 *This overwrides the function collisionCallback of the class robot.
+	 *@param data
+	 *@param o1 first geometrical object, which has taken part in the collision
+	 *@param o2 second geometrical object, which has taken part in the collision
+	 *@return true if the collision was threated  by the robot, false if not
+	 *@author Marcel Kretschmann
+	 *@version beta
+	 **/
+	virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 	
 
 	
@@ -77,6 +89,16 @@ public:
 	*@version beta
 	**/
 	virtual void setMotors ( const motor* motors, int motornumber );
+
+	/**
+	 *Writes the sensor values to an array in the memory.
+	 *@param sensor* pointer to the array
+	 *@param sensornumber length of the sensor array
+	 *@return number of actually written sensors
+	 *@author Marcel Kretschmann
+	 *@version beta
+	 **/
+	virtual int getSensors ( sensor* sensors, int sensornumber );
 	
 
 	/// returns the name of the object (with version number)

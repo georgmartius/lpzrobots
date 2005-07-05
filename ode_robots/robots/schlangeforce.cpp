@@ -52,6 +52,69 @@ SchlangeForce::~SchlangeForce()
 {
 }
 	
+
+
+
+/**
+ *This is the collision handling function for snake robots.
+ *This overwrides the function collisionCallback of the class robot.
+ *@param data
+ *@param o1 first geometrical object, which has taken part in the collision
+ *@param o2 second geometrical object, which has taken part in the collision
+ *@return true if the collision was threated  by the robot, false if not
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
+ bool SchlangeForce::collisionCallback(void *data, dGeomID o1, dGeomID o2)
+{
+	//checks if one of the collision objects is part of the robot
+	bool tmp_kollisionsbeteiligung = false;
+	for ( int n = 0; n < getObjektAnzahl (); n++ )
+	{
+		if ( getObjektAt ( n ).geom == o1 || getObjektAt ( n ).geom == o2 )
+		{
+			tmp_kollisionsbeteiligung = true;
+			break;
+		}
+	}
+ 
+	if ( tmp_kollisionsbeteiligung == true )		
+	{
+		int i,n;
+		const int N = 10;
+		dContact contact[N];
+		bool kollission = false;
+
+		//tests, if a special collision should not be threated
+		if ( SchlangeForce::kollisionsermittlung ( o1 , o2 ) == true )
+			kollission = true;
+
+		if ( kollission == false )
+		{
+			n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+			if (n > 0)
+				for (i=0; i<n; i++)
+				{
+					contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+					dContactSoftERP | dContactSoftCFM | dContactApprox1;
+					contact[i].surface.mu = friction_ground;
+					contact[i].surface.slip1 = 0.005;
+					contact[i].surface.slip2 = 0.005;
+					contact[i].surface.soft_erp = 1;
+					contact[i].surface.soft_cfm = 0.00001;
+
+					dJointID c = dJointCreateContact ( (*world) , (*contactgroup) , &contact[i] );
+					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
+				}
+		}
+		return true; //if collision was threated by this robot
+	}
+	else return false; //if collision was not threated by this robot
+}
+
+
+
+
 /**
  *Reads the actual motor commands from an array, an sets all motors (forces) of the snake to this values.
  *It is an linear allocation.
@@ -70,7 +133,6 @@ void SchlangeForce::setMotors ( const motor* motors, int motornumber )
   }
 
 
-
   /*  // controller outputs as wheel velocity
   for ( int n = 0; n < motornumber; n++ )
     if ( n % 2 == 0 )
@@ -85,6 +147,32 @@ void SchlangeForce::setMotors ( const motor* motors, int motornumber )
       }
   */
 }	
+
+/**
+ *Writes the sensor values to an array in the memory.
+ *@param sensor* pointer to the arrays
+
+ *@param sensornumber length of the sensor array
+ *@return number of actually written sensors
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
+int SchlangeForce::getSensors ( sensor* sensors, int sensornumber )
+{
+	sensoraktualisierung ();
+	for ( int n = 0; n < sensornumber; n++ )
+	{
+		if ( ausgabeart == angle )
+			*sensors = sensorfeld[n].istwinkel;
+		if ( ausgabeart == anglerate )
+			getWinkelDifferenz ( n , sensors );
+		*sensors *= 5;
+		sensors++;
+	}
+	
+	return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
+}
+
 
 
 /** The list of all parameters with there value as allocated lists.
