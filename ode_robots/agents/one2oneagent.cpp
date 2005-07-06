@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-06-22 15:34:06  fhesse
+ *   Revision 1.5  2005-07-06 16:05:54  martius
+ *   changed to noisegenerator
+ *
+ *   Revision 1.4  2005/06/22 15:34:06  fhesse
  *   fprintf in step() changed
  *
  *   Revision 1.3  2005/06/20 10:01:33  fhesse
@@ -36,7 +39,7 @@
 One2OneAgent::~One2OneAgent(){
   if(sensors) free(sensors);
   if(motors) free(motors);
-  if(noise_gen) delete noise_gen;
+  if(noiseGenerator) delete noiseGenerator;
 }
 
 
@@ -48,10 +51,10 @@ bool One2OneAgent::init(AbstractController* controller, AbstractRobot* robot){
   if(!PlotAgent::init(controller, robot)) return false;  
   sensors      = (sensor*) malloc(sizeof(sensor) * sensornumber);
   motors       = (motor*)  malloc(sizeof(motor) * motornumber);
-  noise_gen    = new NoiseGenerator(sensornumber);
+  if(!noiseGenerator) return false;
+  noiseGenerator->init(sensornumber);
   return true;
 }
-
 
  
 void One2OneAgent::step(double noise){
@@ -66,7 +69,7 @@ void One2OneAgent::step(double noise){
     fprintf(stderr, "%s:%i: Got not enough sensors!\n", __FILE__, __LINE__);
   }
   // add noise
-  noise_gen->addColoredUniformlyDistributedNoise(sensors, -noise, noise);   
+  noiseGenerator->add(sensors, -noise, noise);   
 
   controller->step(sensors, sensornumber, motors, motornumber);
   robot->setMotors(motors, motornumber);

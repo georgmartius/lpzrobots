@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-06-27 16:04:58  fhesse
+ *   Revision 1.6  2005-07-06 16:05:54  martius
+ *   changed to noisegenerator
+ *
+ *   Revision 1.5  2005/06/27 16:04:58  fhesse
  *   -m added to guilogger call (required by new guilogger version)
  *
  *   Revision 1.4  2005/06/21 15:30:33  martius
@@ -51,7 +54,7 @@ bool PlotAgent::OpenGui(){
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN); 
   // TODO: get the guilogger call from some  config
-  pipe=popen("guilogger -m pipe > /dev/null","w");
+  pipe=popen("guilogger -m pipe -l > /dev/null","w");
   //pipe=popen("guilogger pipe > /dev/null 2>/dev/null","w");
   if(pipe==0){
     fprintf(stderr, "%s:%i: could not open guilogger!\n", __FILE__, __LINE__);    
