@@ -5,6 +5,8 @@
 /*@version alpha 0.1							*/
 /*									*/
 /************************************************************************/
+#ifndef __SCHLANGEFORCE_H
+#define __SCHLANGEFORCE_H
 
 using namespace std;
 
@@ -31,8 +33,9 @@ private:
 
 	char name[50];
 	paramval gamma;
-	paramval friction_ground;
-	paramval factor_force;
+	paramval frictionGround;
+	paramval factorForce;
+	paramval factorSensors;
 
 public:
 
@@ -117,3 +120,4 @@ public:
 
 };
 
+#endif
