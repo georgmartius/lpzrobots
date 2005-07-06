@@ -5,6 +5,8 @@
 /*@version beta									*/
 /*										*/
 /********************************************************************************/
+#ifndef __ROBOTER_H
+#define __ROBOTER_H
 
 #include <stdio.h>
 #include <drawstuff/drawstuff.h>
@@ -275,4 +277,4 @@ public:
 	
 };
 
-
+#endif
