@@ -7,6 +7,7 @@
 /************************************************************************/
 
 #include "schlange.h"
+#include <iostream>
 
 
 
@@ -243,6 +244,7 @@ int Schlange::getSensors ( sensor* sensors, int sensornumber )
 			(*sensors++) = sensorfeld[n].istwinkel;
 		if ( ausgabeart == anglerate )
 			getWinkelDifferenz ( n , sensors++ );
+			
 	}
 	
 	return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden

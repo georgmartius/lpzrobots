@@ -285,7 +285,7 @@ void Roboter::getWinkelDifferenz ( int motor , double* X )
 {
 	//Eingangsdaten sind die Winkeldifferenzen eines Roboterberechnungsschrittes
 	//Abfangen des Winkeldifferenzsprunges bei ueberschreiten er 2PI-Marke
-	//tritt auf wenn die -PI- oder die PI-Marke ueberschritten wird
+	//tritt auf wenn die -PI- oder die PI-Marke ueberschritten wird	
 	
 	double w = sensorfeld[motor].istwinkel - sensorfeld[motor].istwinkel_alt;
 	
@@ -319,7 +319,9 @@ void Roboter::getWinkelDifferenz ( int motor , double* X )
  **/
 void Roboter::addSensor ()
 {
-	Sensor tmpSensor;	
+	Sensor tmpSensor;
+	tmpSensor.istwinkel = 0;
+	tmpSensor.istwinkel_alt = 0;
 	sensorfeld.push_back ( tmpSensor );
 }
 	
