@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-06-23 13:31:15  fhesse
+ *   Revision 1.4  2005-07-06 16:04:39  martius
+ *   added collisioncallback to robot to perform smoother collisions of wheels with ground
+ *
+ *   Revision 1.3  2005/06/23 13:31:15  fhesse
  *   Vehicle changed to Nimm2
  *
  *                                                                 *
@@ -83,6 +86,8 @@ public:
       @return length of the list
   */
   virtual int getSegmentsPosition(vector<Position> &poslist);
+
+  bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
 protected:
 

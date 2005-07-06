@@ -126,6 +126,40 @@ void Nimm2::draw(){
 };
 
 
+bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
+  //checks if one of the collision objects is part of the robot
+  bool colwithme = false;
+  for ( int n = 1; n < 3; n++ ){
+    if ( object[n].geom == o1 || object[n].geom == o2 ){
+      colwithme = true; 
+      break;
+    }
+  }
+  if ( colwithme == true ) {
+    int i,n;  
+    const int N = 10;
+    dContact contact[N];
+    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+    if (n > 0) {
+      for (i=0; i<n; i++)
+	{
+	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+	    dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	  contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
+	  contact[i].surface.slip1 = 0.005;
+	  contact[i].surface.slip2 = 0.005;
+	  contact[i].surface.soft_erp = 1; // error reduction parameter (1 -> full; < 1 -> could get released)
+	  contact[i].surface.soft_cfm = 0.00001; // elasticity (the higher the ?)z
+	  dJointID c = dJointCreateContact (*world, *contactgroup, &contact[i]);
+	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
+	}
+    }
+  }
+  return colwithme;
+  return 0;
+}
+
+
 /** creates vehicle at desired position 
     @param pos struct Position with desired position
 */
