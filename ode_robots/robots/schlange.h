@@ -5,6 +5,9 @@
 /*@version alpha 0.1							*/
 /*									*/
 /************************************************************************/
+#ifndef __SCHLANGE_H
+#define __SCHLANGE_H
+
 
 using namespace std;
 
@@ -174,3 +177,4 @@ public:
 
 };
 
+#endif
