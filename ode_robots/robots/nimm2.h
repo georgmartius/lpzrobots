@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-07-06 16:04:39  martius
+ *   Revision 1.5  2005-07-07 09:27:40  martius
+ *   proper collision detection in car_space
+ *
+ *   Revision 1.4  2005/07/06 16:04:39  martius
  *   added collisioncallback to robot to perform smoother collisions of wheels with ground
  *
  *   Revision 1.3  2005/06/23 13:31:15  fhesse
@@ -87,7 +90,7 @@ public:
   */
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
-  bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
 protected:
 
@@ -99,6 +102,7 @@ protected:
   /** destroys vehicle and space
    */
   virtual void destroy();
+  static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
   double length;  // chassis length
   double width;  // chassis width
@@ -109,7 +113,8 @@ protected:
   int sensorno;      //number of sensors
   int motorno;       // number of motors
   int segmentsno;    // number of motorsvehicle segments
-  
+  double speed;    // 
+
   Position initial_pos;    // initial position of robot
   double max_force;        // maximal force for motors
 

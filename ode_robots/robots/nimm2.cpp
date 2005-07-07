@@ -21,14 +21,15 @@ Nimm2::Nimm2(dWorldID *w, dSpaceID *s, dJointGroupID *c):
   color.b=0.5;
   
 
-  max_force=0.05;
+  max_force=0.005;
+  speed = 10;
 
   length=0.07; 
   width=0.125; 
   height=0.2;  
   radius=0.064;
-  cmass=1.0;  
-  wmass=0.2;  
+  cmass=0.5;  
+  wmass=0.1;  
   sensorno=2; 
   motorno=2;  
   segmentsno=3;
@@ -43,7 +44,7 @@ void Nimm2::setMotors(const motor* motors, int motornumber){
   int len = (motornumber < motorno)? motornumber : motorno;
   for (int i=0; i<len; i++){ 
     tmp=dJointGetHinge2Param(joint[i],dParamVel2);
-    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*20.0-tmp) );
+    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*speed-tmp) );       
     dJointSetHinge2Param (joint[i],dParamFMax2,max_force);
   }
 };
@@ -57,7 +58,7 @@ int Nimm2::getSensors(sensor* sensors, int sensornumber){
   int len = (sensornumber < sensorno)? sensornumber : sensorno;
   for (int i=0; i<len; i++){
     sensors[i]=dJointGetHinge2Angle2Rate(joint[i]);
-    sensors[i]*=0.05;  //scaling
+    sensors[i]/=speed;  //scaling
   }
   return len;
 };
@@ -125,38 +126,52 @@ void Nimm2::draw(){
   }
 };
 
+void Nimm2::mycallback(void *data, dGeomID o1, dGeomID o2){
+  Nimm2* me = (Nimm2*)data;  
+  if(isGeomInObjectList(me->object, me->segmentsno, o1) && isGeomInObjectList(me->object, me->segmentsno, o2)){
+    return;
+  }
+}
 
 bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   //checks if one of the collision objects is part of the robot
-  bool colwithme = false;
-  for ( int n = 1; n < 3; n++ ){
-    if ( object[n].geom == o1 || object[n].geom == o2 ){
-      colwithme = true; 
-      break;
-    }
-  }
-  if ( colwithme == true ) {
+  if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space){
+    dSpaceCollide(car_space, this, mycallback);
+    bool colwithme = false;  
+    bool colwithbody = false;  
     int i,n;  
     const int N = 10;
     dContact contact[N];
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-    if (n > 0) {
-      for (i=0; i<n; i++)
-	{
-	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	    dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	  contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
-	  contact[i].surface.slip1 = 0.005;
-	  contact[i].surface.slip2 = 0.005;
-	  contact[i].surface.soft_erp = 1; // error reduction parameter (1 -> full; < 1 -> could get released)
-	  contact[i].surface.soft_cfm = 0.00001; // elasticity (the higher the ?)z
-	  dJointID c = dJointCreateContact (*world, *contactgroup, &contact[i]);
-	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
-	}
+    for (i=0; i<n; i++){
+      if( contact[i].geom.g1 == object[0].geom || contact[i].geom.g2 == object[0].geom){
+	colwithbody = true;
+	colwithme = true;
+	// fprintf(stderr,"col with body\n");
+      }
+      if( contact[i].geom.g1 == object[1].geom || contact[i].geom.g2 == object[1].geom || 
+	  contact[i].geom.g1 == object[2].geom || contact[i].geom.g2 == object[2].geom ){
+	colwithme = true;
+	// fprintf(stderr,"col with wheels\n");
+      }
+      if( colwithme){
+	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	if(colwithbody)
+	  contact[i].surface.mu = 0.1; // small friction od smooth body
+	else 
+	  contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt	
+	contact[i].surface.slip1 = 0.005;
+	contact[i].surface.slip2 = 0.005;
+	contact[i].surface.soft_erp = 0.5;
+	contact[i].surface.soft_cfm = 0.01;
+	dJointID c = dJointCreateContact( *(world), *(contactgroup), &contact[i]);
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
+      }
     }
+    return true;
   }
-  return colwithme;
-  return 0;
+  return false;
 }
 
 
