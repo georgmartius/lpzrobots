@@ -31,7 +31,7 @@ void start()
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
-  dWorldSetGravity ( world , 0 , 0 ,-9.81 );
+  //  dWorldSetGravity ( world , 0 , 0 ,-9.81 );
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
@@ -47,8 +47,8 @@ void start()
   // playground->setPosition(0,0,0); // playground positionieren und generieren 
   // obstacles.push_back(playground);
 
-  Nimm2* vehicle = new Nimm2(&world, &space, &contactgroup);
-  Position p = {0,0,5};
+  AbstractRobot* vehicle = new Nimm2(&world, &space, &contactgroup);
+  Position p = {0,0,0.1};
   vehicle->place(p);
   //  AbstractController *controller = new InvertMotorSpace(10);  
   //controller->setParam("factorB",0);

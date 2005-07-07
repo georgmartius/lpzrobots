@@ -22,8 +22,8 @@ MATRIX     = matrix_debug
 
 include $(ODEROBOTS)/Makefile.conf
 
-LIBS   = -lm -lode -ldrawstuff -lGL -lGLU -lglut \
-	 -L$(ODEROBOTS) -lode_robots\
+LIBS   = -lm -L$(ODEROBOTS) -lode_robots\
+	-lode -ldrawstuff -lGL -lGLU -lglut \
 	 -L$(MATRIXLIB)  -l$(MATRIX)
 
 # used for single file compilation

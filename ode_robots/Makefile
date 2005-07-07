@@ -28,7 +28,7 @@ CXX = g++ $(CFLAGS) $(INC)
 AR = ar -rs
 
 $(LIB): Makefile.depend $(OFILES)
-	echo "$(OFILES)";
+	@echo "$(OFILES)";
 	$(AR) $(LIB) $(OFILES)
 
 Makefile.depend: 
