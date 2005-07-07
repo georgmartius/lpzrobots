@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-06-30 13:23:38  robot8
+ *   Revision 1.10  2005-07-07 10:23:36  martius
+ *   added user draw callback
+ *
+ *   Revision 1.9  2005/06/30 13:23:38  robot8
  *   completing the call of the dynamic collisionCallback-function for  standard collisions
  *
  *   Revision 1.8  2005/06/29 09:27:03  martius
@@ -64,6 +67,7 @@ SimulationState state = none;
 
 void (*configfunction)() = 0; // pointer to the config function of the user
 void (*collisionCallback)(void* data, dGeomID o1, dGeomID o2) = 0;  // pointer to the user defined nearcallback function
+void (*additionalDrawCallback)() = 0;  // pointer to the user defined additional draw function
 
 // Object lists
 ObstacleList obstacles;
@@ -80,7 +84,8 @@ void simLoop ( int pause );
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
 
 void simulation_init(void (*start)(), void (*end)(), 
-		     void (*config)(), void (*collCallback)(void* data,dGeomID o1, dGeomID o2)/* = 0 */ ){
+		     void (*config)(), void (*collCallback)(void* data,dGeomID o1, dGeomID o2)/* = 0 */,
+		     void (*drawCallback)()/* = 0 */){
   configfunction=config; // store config function for simLoop
   collisionCallback=collCallback; // store config function for simLoop
   /**************************Grafikabschnitt**********************/
@@ -155,8 +160,9 @@ void simLoop ( int pause )
     dWorldStep ( world , simulationConfig.simStepSize ); //ODE-Engine geht einen Schritt weiter
     dJointGroupEmpty (contactgroup);
     
-  }
+  }  
   if(sim_step % simulationConfig.drawInterval == 0 || pause){
+    if(additionalDrawCallback) additionalDrawCallback();
     /**************************Zeichenabschnitt***********************/
     for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
       (*i)->draw();
@@ -165,7 +171,6 @@ void simLoop ( int pause )
       (*i)->getRobot()->draw();
     }
   }
-
 }
 
 //Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam

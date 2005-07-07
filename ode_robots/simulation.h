@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-06-30 13:23:38  robot8
+ *   Revision 1.8  2005-07-07 10:23:44  martius
+ *   added user draw callback
+ *
+ *   Revision 1.7  2005/06/30 13:23:38  robot8
  *   completing the call of the dynamic collisionCallback-function for  standard collisions
  *
  *   Revision 1.6  2005/06/29 09:27:11  martius
@@ -85,9 +88,11 @@ extern AgentList agents;                        ///
     @param config() is called when the user presses Ctrl-C. Calls usually @changeParams()@
     @param collCallback() if defined it is called instead of the default collision handling.
       However it is called after the robots collision handling.       
+    @param drawCallback optional additional draw function
  */
 void simulation_init(void (*start)(), void (*end)(), 
-		     void (*config)(), void (*collCallback)(void* data, dGeomID o1, dGeomID o2) = 0 );
+		     void (*config)(), void (*collCallback)(void* data, dGeomID o1, dGeomID o2) = 0 ,
+		     void (*drawCallback)() = 0);
 /// starts the simulation.
 void simulation_start(int argc, char** argv);
 /// call this after the @simulation_start()@ has returned to tidy up.
