@@ -6,10 +6,12 @@
 #include "simulation.h"
 #include "one2oneagent.h"
 #include "derivativeagent.h"
+
 #include "nimm2.h"
 #include "playground.h"
 
 #include "invertmotorspace.h"
+#include "sinecontroller.h"
 
 ConfigList configs;
 
@@ -29,6 +31,8 @@ void start()
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
+  dWorldSetGravity ( world , 0 , 0 ,-9.81 );
+
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
   float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
@@ -37,18 +41,20 @@ void start()
 
   // initialization
   simulationConfig.noise=0.15;
-  
-  Playground* playground = new Playground(&world, &space);
-  playground->setGeometry(7.0, 0.2, 1.5);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+
+  // Playground* playground = new Playground(&world, &space);
+  // playground->setGeometry(7.0, 0.2, 1.5);
+  // playground->setPosition(0,0,0); // playground positionieren und generieren 
+  // obstacles.push_back(playground);
 
   Nimm2* vehicle = new Nimm2(&world, &space, &contactgroup);
-  Position p = {0,0,0};
+  Position p = {0,0,5};
   vehicle->place(p);
-  AbstractController *controller = new InvertMotorSpace(10);  
-  controller->setParam("factorB",0);
-  controller->setParam("eps",0.5);
+  //  AbstractController *controller = new InvertMotorSpace(10);  
+  //controller->setParam("factorB",0);
+  //  controller->setParam("eps",0.5);
+  AbstractController *controller = new SineController();  
+  controller->setParam("phaseShift",0);
   
   //  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.1), GuiLogger);
   DerivativeAgent* agent = new DerivativeAgent(true, false, false, 0.05, new ColorUniformNoise(0.1), GuiLogger,5);
@@ -58,6 +64,7 @@ void start()
   configs.push_back(&simulationConfig);
   configs.push_back(controller);
   showParams(configs);
+
 }
 
 void end(){

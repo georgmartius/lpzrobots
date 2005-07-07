@@ -22,9 +22,9 @@ MATRIX     = matrix_debug
 
 include $(ODEROBOTS)/Makefile.conf
 
-LIBS   = -lm -lode -ldrawstuff -lGL -lGLU -lglut \
-	 -L$(ODEROBOTS) -lode_robots\
-	 -L$(MATRIXLIB)  -l$(MATRIX)
+LIBS   = -L$(ODEROBOTS) -lode_robots\
+	-lm -lode -ldrawstuff -lGL -lGLU -lglut \
+	-L$(MATRIXLIB)  -l$(MATRIX)
 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
