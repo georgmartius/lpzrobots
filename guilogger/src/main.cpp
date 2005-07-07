@@ -77,7 +77,7 @@ int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
 
     QString mode;
-    QDataSource *qsource;
+    QDataSource *qsource=0;
 
     guilogger gl;
     gl.setParams(params);

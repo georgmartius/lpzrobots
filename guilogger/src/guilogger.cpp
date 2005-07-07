@@ -187,7 +187,8 @@ void guilogger::updateSliderPlot()
             cr = ChannelRowPtrList.next();
         }
         gp[i].command("set style data lines");
-//       printf("%s\n", cmd.latin1());
+        gp[i].command("set zeroaxis");
+       printf("%s\n", cmd.latin1());
         gp[i].command(cmd.latin1());
     }
 
@@ -457,9 +458,6 @@ void guilogger::update()
        delete data;
        data = NULL;
        
-       #ifdef DEBUG
-          printf("Parse: %s\n", data->latin1());
-       #endif
     }
 
 }
