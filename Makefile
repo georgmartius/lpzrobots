@@ -13,6 +13,11 @@ matrixlib:
 guilogger:
 	cd guilogger && qmake guilogger.pro && make
 
+
+install:
+	@cp guilogger/bin/guilogger $(HOME)/bin/ || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
+	@echo "copied guilogger to $(HOME)/bin/";
+
 tags: 
 	etags `find -name "*.[ch]*"` 
 
