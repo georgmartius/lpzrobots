@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-06-15 14:20:04  martius
+ *   Revision 1.2  2005-07-07 09:27:11  martius
+ *   isGeomInObjectList added
+ *
+ *   Revision 1.1  2005/06/15 14:20:04  martius
  *   moved into robots
  *                                                                 *
  ***************************************************************************/
@@ -133,6 +136,14 @@ public:
   virtual void setColor(Color col){
     color=col;
   };
+
+ protected:
+  static bool isGeomInObjectList(Object* os, int len, dGeomID geom){  
+    for(int i=0; i < len; i++){
+      if(geom == os[i].geom) return true;
+    }
+    return false;
+  }
 
  protected:
 
