@@ -7,6 +7,7 @@
 #include "playground.h"
 
 #include "invertnchannelcontroller.h"
+#include "noisegenerator.h"
 
 #include "schlange.h"
 
@@ -43,13 +44,13 @@ void start()
   obstacles.push_back(playground);
   
   //****************
-  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate );
+  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 6 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate );
   Position p = {0,0,0};
   Color col = {0,0.5,0.8};
   schlange1->place(p,&col);
   AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneAgent* agent = new One2OneAgent(NoPlot/*GuiLogger*/);
+  One2OneAgent* agent = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
   agent->init(controller, schlange1);
   agents.push_back(agent);
   
