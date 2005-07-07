@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-06-15 14:22:11  martius
+ *   Revision 1.5  2005-07-07 10:24:23  martius
+ *   avoid internal collisions
+ *
+ *   Revision 1.4  2005/06/15 14:22:11  martius
  *   GPL included
  *                                                                 *
  ***************************************************************************/
@@ -30,11 +33,13 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <drawstuff/drawstuff.h>
 
 #include "abstractobstacle.h"
+#include <drawstuff/drawstuff.h>
 
-class Playground : public AbstractObstacle{
+
+//Fixme: playground creates collisions with ground and itself
+class Playground : public AbstractObstacle {
 
   double length, width, height;
   double base_x, base_y, base_z;
@@ -112,19 +117,20 @@ class Playground : public AbstractObstacle{
 
  protected:
   virtual void create(){
-    obst1 = dCreateBox ( *space, width , length , height );
-    dGeomSetPosition ( obst1, base_x-(length/2 + width/2), base_y, height/2 +base_z);
+    obst1 = dCreateBox ( *space, width , length-0.01 , height);
+    dGeomSetPosition ( obst1, base_x - (length/2 + width/2), base_y, height/2 +base_z);
 	
-    obst2 = dCreateBox ( *space, width, length, height );
-    dGeomSetPosition ( obst2, base_x+(length/2 +width/2), base_y, height/2 +base_z);
+    obst2 = dCreateBox ( *space, width, length-0.01, height );
+    dGeomSetPosition ( obst2, base_x + (length/2 +width/2), base_y, height/2 +base_z);
 	
-    obst3 = dCreateBox ( *space, length, width, height );
+    obst3 = dCreateBox ( *space, length-0.01, width, height );
     dGeomSetPosition ( obst3, base_x, base_y-(length/2 +width/2), height/2 +base_z);
 	
-    obst4 = dCreateBox ( *space, length, width, height );
+    obst4 = dCreateBox ( *space, length-0.01, width, height );
     dGeomSetPosition ( obst4, base_x, base_y+(length/2 +width/2), height/2 +base_z);
 
     obstacle_exists=true;
+    // printf("Obst: %i,%i,%i,%i\n",obst1,obst2,obst3,obst4);
   };
 
 
