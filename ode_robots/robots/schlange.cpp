@@ -86,14 +86,17 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanz
 
 		dJointSetUniversalAxis1 ( jointliste.back () , 0 , 1 , 0 );
 		dJointSetUniversalAxis2 ( jointliste.back () , 0 , 0 , 1 );
-	}	
 
-	//starting sensor values
- 	for ( int n = 0; n < 2*(armanzahl-1); n++ )
-	{
-		sensorfeld[n].sollwinkel = 0;
-		sensorfeld[n].istwinkel_alt = sensorfeld[n].istwinkel;
-	}
+		// setting stops at universal joints		
+		dJointSetUniversalParam ( jointliste.back () , dParamLoStop, -M_PI/4 );
+		dJointSetUniversalParam ( jointliste.back () , dParamHiStop,  M_PI/4 );
+		dJointSetUniversalParam ( jointliste.back () , dParamLoStop2, -M_PI/4); 
+		dJointSetUniversalParam ( jointliste.back () , dParamHiStop2,  M_PI/4); 
+
+		// making stops bouncy
+		dJointSetUniversalParam ( jointliste.back () , dParamBounce, 0.9 );
+		dJointSetUniversalParam ( jointliste.back () , dParamBounce2, 0.9 );
+	}	
 }
 	
 /**
