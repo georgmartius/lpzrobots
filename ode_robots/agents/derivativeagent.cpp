@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-06 16:06:28  martius
+ *   Revision 1.2  2005-07-08 10:14:51  martius
+ *   derivative agent works fine
+ *   guilogger logmode controlable
+ *
+ *   Revision 1.1  2005/07/06 16:06:28  martius
  *   first attempt to provide pseudosensors. here first and second derivative
  *
  ***************************************************************************/
@@ -68,7 +72,9 @@ bool DerivativeAgent::init(AbstractController* controller, AbstractRobot* robot)
   
   for(int i=0; i<buffersize; i++){
     sensorbuffer[i]      = (sensor*) malloc(sizeof(sensor) * robotsensornumber);
-    memset(sensorbuffer[i],0, sizeof(sensor) * robotsensornumber);
+    for(int k=0; k < robotsensornumber; k++){
+      sensorbuffer[i][k]=0;
+    }
   }
   robotsensors      = (sensor*) malloc(sizeof(sensor) * robotsensornumber);
   first             = (sensor*) malloc(sizeof(sensor) * robotsensornumber);
@@ -93,16 +99,17 @@ void DerivativeAgent::step(double noise){
     fprintf(stderr, "%s:%i: Got not enough sensors!\n", __FILE__, __LINE__);
   }
   int index = (time) % buffersize;  
+  int lastIndex = (time-1) % buffersize;  
   // calc smoothed sensor values
   for(int i=0; i < robotsensornumber; i++ ){ 
-      sensorbuffer[index][i] = (1-eps)*sensorbuffer[index][i] + eps*robotsensors[i]; 
+      sensorbuffer[index][i] = (1-eps)*sensorbuffer[lastIndex][i] + eps*robotsensors[i]; 
   }
  
   noiseGenerator->add(robotsensors, -noise, noise);   
  
   int offset=0;
   if(useId) {
-    //    memcpy(controllersensors+offset, sensorbuffer[index], sizeof(sensor) * robotsensornumber);
+    //memcpy(controllersensors+offset, sensorbuffer[index], sizeof(sensor) * robotsensornumber);
     memcpy(controllersensors+offset, robotsensors, sizeof(sensor) * robotsensornumber);
     offset+=robotsensornumber;	   
   }

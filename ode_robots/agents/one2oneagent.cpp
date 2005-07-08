@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-07-06 16:05:54  martius
+ *   Revision 1.6  2005-07-08 10:14:51  martius
+ *   derivative agent works fine
+ *   guilogger logmode controlable
+ *
+ *   Revision 1.5  2005/07/06 16:05:54  martius
  *   changed to noisegenerator
  *
  *   Revision 1.4  2005/06/22 15:34:06  fhesse
@@ -69,6 +73,7 @@ void One2OneAgent::step(double noise){
     fprintf(stderr, "%s:%i: Got not enough sensors!\n", __FILE__, __LINE__);
   }
   // add noise
+  //  memset(sensors, 0, sizeof(sensor)*sensornumber);
   noiseGenerator->add(sensors, -noise, noise);   
 
   controller->step(sensors, sensornumber, motors, motornumber);

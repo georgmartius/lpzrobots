@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-07-06 16:05:54  martius
+ *   Revision 1.7  2005-07-08 10:14:51  martius
+ *   derivative agent works fine
+ *   guilogger logmode controlable
+ *
+ *   Revision 1.6  2005/07/06 16:05:54  martius
  *   changed to noisegenerator
  *
  *   Revision 1.5  2005/06/27 16:04:58  fhesse
@@ -54,8 +58,11 @@ bool PlotAgent::OpenGui(){
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN); 
   // TODO: get the guilogger call from some  config
-  pipe=popen("guilogger -m pipe -l > /dev/null","w");
-  //pipe=popen("guilogger pipe > /dev/null 2>/dev/null","w");
+  if(plotmode == GuiLogger_File){
+    pipe=popen("guilogger -m pipe -l > /dev/null","w");
+  }else{
+    pipe=popen("guilogger -m pipe > /dev/null","w");
+  }
   if(pipe==0){
     fprintf(stderr, "%s:%i: could not open guilogger!\n", __FILE__, __LINE__);    
     return false;
@@ -69,7 +76,7 @@ void PlotAgent::CloseGui(){
 
 bool PlotAgent::init(AbstractController* controller, AbstractRobot* robot){
   if(!Agent::init(controller, robot)) return false;  
-  if(plotmode == GuiLogger){
+  if(plotmode != NoPlot){
     if(!OpenGui()) return false;
     int s = controller->getSensorNumber();
     int m = robot->getMotorNumber();

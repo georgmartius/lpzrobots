@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-06-17 10:47:34  martius
+ *   Revision 1.4  2005-07-08 10:14:51  martius
+ *   derivative agent works fine
+ *   guilogger logmode controlable
+ *
+ *   Revision 1.3  2005/06/17 10:47:34  martius
  *   Logging mode as enum (GuiLogger, NoPlot)
  *
  *   Revision 1.2  2005/06/15 14:02:47  martius
@@ -33,7 +37,7 @@
 #include "agent.h"
 
 /// Plot mode for plot agent.
-enum PlotMode {NoPlot, GuiLogger};
+enum PlotMode {NoPlot, GuiLogger, GuiLogger_File};
 
 /// Abstract glue-object between controller and robot. 
 //   Adds gnuplot functionality 
