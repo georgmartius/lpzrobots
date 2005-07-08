@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-07-07 10:23:44  martius
+ *   Revision 1.9  2005-07-08 10:14:05  martius
+ *   added contains (helper for stringlist search)
+ *
+ *   Revision 1.8  2005/07/07 10:23:44  martius
  *   added user draw callback
  *
  *   Revision 1.7  2005/06/30 13:23:38  robot8
@@ -61,7 +64,7 @@ using namespace std;
 extern dWorldID world;             ///
 extern dSpaceID space;             ///
 extern dJointGroupID contactgroup; ///
-extern dGeomID ground; /// Untergrundfl�he
+extern dGeomID ground; 
 
 // Simulation control variables
 #include "odeconfig.h"
@@ -99,6 +102,9 @@ void simulation_start(int argc, char** argv);
 void simulation_close();
 
 // Helper
+/// returns true if the list contains the given string
+bool contains(char **list, int len,  const char *str);
+
 Position mkPosition(double x, double y, double z); ///
 Color mkColor(double r, double g, double b);       ///
 

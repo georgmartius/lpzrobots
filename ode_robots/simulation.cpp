@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-07-07 10:23:36  martius
+ *   Revision 1.11  2005-07-08 10:14:05  martius
+ *   added contains (helper for stringlist search)
+ *
+ *   Revision 1.10  2005/07/07 10:23:36  martius
  *   added user draw callback
  *
  *   Revision 1.9  2005/06/30 13:23:38  robot8
@@ -210,11 +213,15 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
   }
 }
 
-
-
-
-
 // Helper
+bool contains(char **list, int len,  const char *str){
+  for(int i=0; i<len; i++){
+    if(strcmp(list[i],str) == 0) return true;
+  }
+  return false;
+}
+
+
 Position mkPosition(double x, double y, double z){
   Position pos={x, y, z};
   return pos;
