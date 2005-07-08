@@ -12,6 +12,7 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
+#include "noisegenerator.h"
 #include "simulation.h"
 #include "one2oneagent.h"
 #include "nimm2.h"
@@ -71,7 +72,7 @@ void start()
   AbstractController *controller2 = new InvertNChannelController(10);  
   configs.push_back(controller2);
   
-  One2OneAgent* agent2 = new One2OneAgent(/*NoPlot*/GuiLogger);
+  One2OneAgent* agent2 = new One2OneAgent(new ColorUniformNoise(), /*NoPlot*/GuiLogger);
   agent2->init(controller2, testjoints);
   agents.push_back(agent2);
   
