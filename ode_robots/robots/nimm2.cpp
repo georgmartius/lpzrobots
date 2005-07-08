@@ -6,8 +6,8 @@
 #include "nimm2.h"
 
 
-Nimm2::Nimm2(dWorldID *w, dSpaceID *s, dJointGroupID *c):
-  AbstractRobot::AbstractRobot(w, s, c){
+Nimm2::Nimm2(dWorldID *w, dSpaceID *s, dJointGroupID *c, double force /*=0.005*/, double speed/*=10*/):
+  AbstractRobot::AbstractRobot(w, s, c){ 
 
   created=false;
 
@@ -21,8 +21,8 @@ Nimm2::Nimm2(dWorldID *w, dSpaceID *s, dJointGroupID *c):
   color.b=0.5;
   
 
-  max_force=0.005;
-  speed = 10;
+  max_force   = force;
+  this->speed = speed;
 
   length=0.07; 
   width=0.125; 
@@ -40,11 +40,12 @@ Nimm2::Nimm2(dWorldID *w, dSpaceID *s, dJointGroupID *c):
     @param motornumber length of the motor array
 */
 void Nimm2::setMotors(const motor* motors, int motornumber){
-  double tmp;
+  //  double tmp;
   int len = (motornumber < motorno)? motornumber : motorno;
   for (int i=0; i<len; i++){ 
-    tmp=dJointGetHinge2Param(joint[i],dParamVel2);
-    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*speed-tmp) );       
+    //    tmp=dJointGetHinge2Param(joint[i],dParamVel2);
+    //    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*speed-tmp) );       
+    dJointSetHinge2Param(joint[i],dParamVel2, motors[i]*speed);       
     dJointSetHinge2Param (joint[i],dParamFMax2,max_force);
   }
 };
