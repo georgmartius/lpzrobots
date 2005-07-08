@@ -14,6 +14,7 @@
 #include "sinecontroller.h"
 
 ConfigList configs;
+PlotMode plotMode = NoPlot;
 
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
@@ -42,22 +43,22 @@ void start()
   // initialization
   simulationConfig.noise=0.15;
 
-  // Playground* playground = new Playground(&world, &space);
-  // playground->setGeometry(7.0, 0.2, 1.5);
-  // playground->setPosition(0,0,0); // playground positionieren und generieren 
-  // obstacles.push_back(playground);
+  Playground* playground = new Playground(&world, &space);
+  playground->setGeometry(7.0, 0.2, 1.5);
+  playground->setPosition(0,0,0); // playground positionieren und generieren 
+  obstacles.push_back(playground);
 
-  AbstractRobot* vehicle = new Nimm2(&world, &space, &contactgroup);
-  Position p = {0,0,0.1};
+  AbstractRobot* vehicle = new Nimm2(&world, &space, &contactgroup,0.01);
+  Position p = {0,0,0};
   vehicle->place(p);
-  //  AbstractController *controller = new InvertMotorSpace(10);  
-  //controller->setParam("factorB",0);
-  //  controller->setParam("eps",0.5);
-  AbstractController *controller = new SineController();  
-  controller->setParam("phaseShift",0);
+  AbstractController *controller = new InvertMotorSpace(10);  
+  controller->setParam("factorB",0);
+  controller->setParam("eps",0.5);
+  // AbstractController *controller = new SineController();  
+  //   controller->setParam("phaseShift",1);
   
-  //  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.1), GuiLogger);
-  DerivativeAgent* agent = new DerivativeAgent(true, false, false, 0.05, new ColorUniformNoise(0.1), GuiLogger,5);
+  //  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.1), plotMode);
+  DerivativeAgent* agent = new DerivativeAgent(true, true, false, 0.05, new ColorUniformNoise(0.2), plotMode, 5);
   agent->init(controller, vehicle);
   agents.push_back(agent);
   
@@ -86,9 +87,17 @@ void config(){
   changeParams(configs);
 }
 
+void printUsage(const char* progname){
+  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
+  exit(0);
+}
 
 int main (int argc, char **argv)
-{  
+{    
+  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
+  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-h")) printUsage(argv[0]);
+  
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
   // start the simulation (returns, if the user closes the simulation)

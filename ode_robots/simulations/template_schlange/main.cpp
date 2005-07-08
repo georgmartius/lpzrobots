@@ -3,6 +3,7 @@
 #include <ode/ode.h>
 
 #include "simulation.h"
+#include "noisegenerator.h"
 #include "one2oneagent.h"
 #include "playground.h"
 
@@ -12,6 +13,7 @@
 #include "schlange.h"
 
 ConfigList configs;
+PlotMode plotMode = NoPlot;
 
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
@@ -44,13 +46,14 @@ void start()
   obstacles.push_back(playground);
   
   //****************
-  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 6 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate );
+  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup, 
+				       0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate );
   Position p = {0,0,0};
   Color col = {0,0.5,0.8};
   schlange1->place(p,&col);
   AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneAgent* agent = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
+  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(), plotMode);
   agent->init(controller, schlange1);
   agents.push_back(agent);
   
@@ -96,9 +99,17 @@ void config(){
   changeParams(configs);
 }
 
+void printUsage(const char* progname){
+  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
+  exit(0);
+}
 
 int main (int argc, char **argv)
 {  
+  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
+  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-h")) printUsage(argv[0]);
+
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
   // start the simulation (returns, if the user closes the simulation)

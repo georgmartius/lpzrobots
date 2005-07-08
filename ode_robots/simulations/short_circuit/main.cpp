@@ -12,6 +12,7 @@
 #include "invertnchannelcontroller.h"
 
 ConfigList configs;
+PlotMode plotMode=NoPlot;
 int channels;
 
 // Funktion die die Steuerung des Roboters uebernimmt
@@ -48,7 +49,7 @@ void start()
   AbstractController *controller = new InvertMotorSpace(10);  
   //AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.05), GuiLogger);
+  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.3), plotMode);
   agent->init(controller, robot);
   agents.push_back(agent);
   
@@ -76,14 +77,20 @@ void config(){
   changeParams(configs);
 }
 
+void printUsage(const char* progname){
+  printf("Usage: %s numchannels [-g] [-l]\n\tnumchannels\tnumber of channels\n\
+\t-g\t\tuse guilogger\n\t-l\t\tuse guilogger with logfile", progname);
+  exit(0);
+}
 
 int main (int argc, char **argv)
 {  
-  if(argc>1){
-    channels = atoi(argv[1]);
-  }else{
-    channels = 2;
-  }
+  if(argc<=1) printUsage(argv[0]);  
+  channels = atoi(argv[1]);  
+  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
+  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-h")) printUsage(argv[0]);
+
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
   // start the simulation (returns, if the user closes the simulation)

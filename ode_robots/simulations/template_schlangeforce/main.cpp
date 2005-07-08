@@ -2,6 +2,7 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
+#include "noisegenerator.h"
 #include "simulation.h"
 #include "one2oneagent.h"
 #include "playground.h"
@@ -14,6 +15,7 @@
 #include "nimm2.h"
 
 ConfigList configs;
+PlotMode plotMode = NoPlot;
 
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
@@ -65,7 +67,7 @@ void start()
   schlange1->place(p,&col);
   AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
   
-  One2OneAgent* agent = new One2OneAgent(/*NoPlot*/GuiLogger);
+  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.1), plotMode);
   agent->init(controller, schlange1);
   agents.push_back(agent);
   configs.push_back(controller);
@@ -135,9 +137,17 @@ void config(){
   changeParams(configs);
 }
 
+void printUsage(const char* progname){
+  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
+  exit(0);
+}
 
 int main (int argc, char **argv)
-{  
+{    
+  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
+  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-h")) printUsage(argv[0]);
+
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
   // start the simulation (returns, if the user closes the simulation)
