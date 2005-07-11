@@ -8,10 +8,25 @@
 #include "playground.h"
 
 #include "invertnchannelcontroller.h"
+#include "noisegenerator.h"
 
 #include "schlange.h"
 
+#include "atomsimRobot.h"
+
+//*****************************************************
+vector<atomsimAtom*> atomsammlung;
+vector<atomsimRobot*> robotersammlung;
+
+int atomIDzaehler = 1;
+int roboterIDzaehler = 1;
+
+
+//*****************************************************
+
 ConfigList configs;
+
+
 
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
@@ -42,38 +57,32 @@ void start()
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
+    
+  robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , &world , &space , &contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler - 1 , &atomIDzaehler , &world , &space , 0.0 , 0.0 , 1.0 , 0.3 , 0.5 , 1 , 1 , 150 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 2.0/*Maxmotorkraft*/ , 5.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
   
-  //****************
-  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup , 
-				       0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10, anglerate );
-
-  Position p = {0,0,0};
-  Color col = {0,0.5,0.8};
-  schlange1->place(p,&col);
-  AbstractController *controller = new InvertNChannelController(10);  
+  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 0.2 , 0 , 4 , 0.3 , 0.5 , 1 , 1 , 150 , 4 , 20 , 2.0 , 5.0 , 0.0 , 1.0 , 0.0 ) );
+	/*atomsammlung.push_back ( new atomsimAtom ( 0 , 1 , 0 , 8 , 0.3 , 0.5 , 1 , 1 , 15 , 0 , 0 , 1 ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , 2.4 , 0 , 13 , 0.3 , 0.5 , 1 , 1 , 15 , 1 , 0 , 1 ) );
+	
+	atomsammlung.push_back ( new atomsimAtom ( 0 , 2 , -10 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 0.2 , 0.2 , 0.2 ) );*/
   
-  One2OneAgent* agent = new One2OneAgent(new WhiteUniformNoise(), NoPlot/*GuiLogger*/);
-  agent->init(controller, schlange1);
+  
+  AbstractController *controller = new InvertNChannelController(10);
+  
+  One2OneAgent* agent = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
+  agent->init(controller, robotersammlung[0] );
+  
   agents.push_back(agent);
   
   
-  /*Schlange* schlange2 = new Schlange ( 2 , &world , &space , &contactgroup , 10 , 0 , 0 , 0.25 , 6 , 0.5 , 0.2 , 0 , 1 , 5 , 30 );
-  Position p2 = {0,2,0};
-  Color col2 = {0.5,0,0.5};
-  schlange2->place(p2,&col2);
-  AbstractController *controller2 = new InvertNChannelController(10);  
   
-  One2OneAgent* agent2 = new One2OneAgent(NoPlot);
-  agent2->init(controller2, schlange2);
-  agents.push_back(agent2);*/
-  
-  
+    
   //****************  
   configs.push_back(&simulationConfig);
   //****************  
   
   configs.push_back(controller);
-  //configs.push_back(controller2);
+
   //************
   
   showParams(configs);
@@ -98,11 +107,82 @@ void config(){
   changeParams(configs);
 }
 
+//Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
+//Hier wird die Kollission n�er untersucht
+void atomCallback (void *data, dGeomID o1, dGeomID o2)
+{
+	int collision;
+	unsigned int n , m;
+	bool huellenkollision = false;
+
+	const int N = 10;
+	dContact contact[N];
+	collision = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+	
+	for ( n = 0; n < atomsammlung.size (); n++ )
+	{
+		for ( m = 0; m < atomsammlung.size (); m++ )
+		{
+			//testet ob zwei Atomhuellen collidiert sind
+			if ( (o1 == (*(atomsammlung.operator[](n)) ).getAtomhuelleGeom () )
+			&&
+			( o2 == (*(atomsammlung.operator[](m)) ).getAtomhuelleGeom () ) )
+				huellenkollision = true;
+			if ( huellenkollision == true ) break;	
+		}
+		if ( huellenkollision == true ) break;
+	}
+	if ( ( huellenkollision == true )
+	&& ( (*(atomsammlung.operator[](n))).getRoboterID () == (*(atomsammlung.operator[](m))).getRoboterID () ) )
+	{
+		//dann erfolgt gar nichts, als wie wenn die Huelle nicht existent waere, so koenen Atome des selben Roboters nicht miteinander verschmelzen oder abspalten, es kommt nur zur den normalen Atomkollisionen, bei denen aber nur eine normale Kollision erfolgt, da es keine Huellenkollision ist
+	}	
+	else	
+		if (collision > 0)
+		{
+			if ( huellenkollision == false )
+				for ( int i=0; i<collision; i++)
+				{
+					contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+					dContactSoftERP | dContactSoftCFM | dContactApprox1;
+					contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt = 0.8
+					contact[i].surface.slip1 = 0.0051;
+					contact[i].surface.slip2 = 0.0051;
+					contact[i].surface.soft_erp = 1;
+					contact[i].surface.soft_cfm = 0.00001; //Elastizität der Stoesse: klein keine 							Elastizität, groß viel Elsatizität
+					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
+					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+					
+				}
+		
+			if ( huellenkollision == true )
+			{
+				//wenn bis hierher alle Bedingungen erfüllt sind, dann sind zwei Atome kollisiert, die in der Atomsammlung vorhanden sind
+				//nur Kollision wenn beide Atome verschiedene RoboterIDs haben und eines nicht 0 und das andere 0 ist
+				if (
+					( ( (*atomsammlung.operator[](n)).getRoboterID () != 0) && ( (*atomsammlung.operator[](m)).getRoboterID () == 0 ) )
+					||
+					( ( (*atomsammlung.operator[](n)).getRoboterID () == 0) && ( (*atomsammlung.operator[](m)).getRoboterID () != 0 ) )
+				   )
+				{
+					//Kollisionsaufruffe duerfen nur fuer die Roboteratome aufgerufen werden
+					//Test von o1-> o1 ist einzelnes Atom
+					if ( (*atomsammlung.operator[](n)).getRoboterID () == 0 )
+						(*atomsammlung.operator[](m)).kollision ( atomsammlung.operator[]( n ) );
+					// automatisch -> o2 ist einzelnes Atom
+					else
+						(*atomsammlung.operator[](n)).kollision ( atomsammlung.operator[]( m ) );
+				}
+			}
+		
+		}
+}
+
 
 int main (int argc, char **argv)
 {  
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config);
+  simulation_init(&start, &end, &config, &atomCallback);
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.

@@ -1,11 +1,8 @@
-//
-// C++ Implementation: %{MODULE}
-//
-// Description:
-//
-//
-// Author: %{AUTHOR} <%{EMAIL}>, (C) %{YEAR}
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
+/************************************************************************/
+/*atomsimRobot.cpp							*/
+/*molecular robot, which controls a group auf connected atoms		*/
+/*@author Marcel Kretschmann						*/
+/*@version alpha 0.1							*/
+/*									*/
+/************************************************************************/
+
