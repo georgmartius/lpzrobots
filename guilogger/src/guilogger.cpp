@@ -28,45 +28,94 @@
 #include <qregexp.h>
 
 
-guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
+guilogger::guilogger(CommLineParser configobj) : QMainWindow( 0, "guilogger")
 {
     plotwindows   = 3;    // per default parameter  3
-    this->datadelayrate = datadelayrate;  // per default parameter 10
-    framecounter = 0;
-    datacounter  = 0;
-    buffersize   = 250;
+    datadelayrate = 10;  // per default 10
+    framecounter  = 0;
+    datacounter   = 0;
+    buffersize    = 250;
+    int linecount = 0;
     
+    mode     = configobj.getMode();
+    filename = configobj.getFile();
+    
+    gp = new Gnuplot<QString>[plotwindows];  // GNUPlots erzeugen
+    
+    for(int k=0; k<plotwindows; k++)
+    {   gp[k].command("set style data lines");
+        gp[k].command("set zero axis");
+    }
+
     load();  // load Config File
+
+    if(mode == "file") linecount = analyzeFile();
 
     setCentralWidget(new QWidget(this, "Central_Widget"));
     layout        = new QHBoxLayout(centralWidget());
 
     sv = new QScrollView(centralWidget());
     layout->addWidget(sv);
+    sv->setResizePolicy(QScrollView::AutoOneFit);
+    
     channelWidget = new QWidget(sv->viewport());
     sv->addChild(channelWidget);
-
     sv->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
+    channelWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,0,0, FALSE));
+
     commWidget = new QWidget(centralWidget()); 
     commWidget   ->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,1,0, FALSE));
-    horizonslider = new QSlider(Qt::Vertical, centralWidget());
-    horizonslider->setMaxValue(1000);
-    horizonslider->setValue(buffersize);
-    dataslider    = new QSlider(Qt::Vertical, centralWidget());
-    connect(dataslider, SIGNAL(valueChanged(int )), this, SLOT(sliderValueChanged(int )));
-    connect(dataslider, SIGNAL(sliderReleased()),   this, SLOT(onSliderReleased()));
-    connect(horizonslider, SIGNAL(valueChanged(int )), this, SLOT(horizonSliderChanged(int )));
-    
+
+
+    QWidget *datasliderwidget    = new QWidget(centralWidget());
+    QWidget *horizonsliderwidget = new QWidget(centralWidget());
+
     layout->addWidget(commWidget);
-    layout->addWidget(horizonslider);
-    layout->addWidget(dataslider);
+    layout->addWidget(horizonsliderwidget);
+    layout->addWidget(datasliderwidget);
 
     channellayout = new QVBoxLayout(channelWidget);
     commlayout    = new QVBoxLayout(commWidget);
 
-    parameterlistbox   = new QListBox(commWidget);
+
+    QBoxLayout *horizonsliderlayout = new QVBoxLayout(horizonsliderwidget);
+    horizonslider = new QSlider(Qt::Vertical, horizonsliderwidget);
+    horizonslidervalue = new QLabel(horizonsliderwidget);
+    if(mode == "file") 
+    {   horizonslider->setMaxValue(linecount);
+        horizonslider->setValue(buffersize);
+        horizonsliderlayout->addWidget(new QLabel("Win", horizonsliderwidget));
+        horizonslidervalue->setText(QString::number(buffersize, 10));
+    }
+    else 
+    {   horizonslider->setMinValue(1);
+        horizonslider->setMaxValue(3000);   // MaxTimer für Plottimer
+        horizonslider->setValue(100);       // actual Value for Plottimer
+        horizonsliderlayout->addWidget(new QLabel("Timer", horizonsliderwidget));
+        horizonslidervalue->setText(QString::number(100, 10));
+    }
+    horizonsliderlayout->addWidget(horizonslider);
+    horizonsliderlayout->addWidget(horizonslidervalue);
+    connect(horizonslider, SIGNAL(valueChanged(int )), this, SLOT(horizonSliderValueChanged(int )));
+    connect(horizonslider, SIGNAL(sliderReleased())  , this, SLOT(horizonSliderReleased()));
+    
+    QBoxLayout *datasliderlayout = new QVBoxLayout(datasliderwidget);
+    dataslider    = new QSlider(Qt::Vertical, datasliderwidget);
+    dataslidervalue = new QLabel(datasliderwidget);
+    dataslidervalue->setText(QString::number(0, 10));
+    dataslider->setMaxValue(0);
+    if(mode == "file") dataslider->setMaxValue(linecount);
+    datasliderlayout->addWidget(new QLabel("Data", datasliderwidget));
+    datasliderlayout->addWidget(dataslider);
+    datasliderlayout->addWidget(dataslidervalue);
+    connect(dataslider, SIGNAL(valueChanged(int )), this, SLOT(dataSliderValueChanged(int )));
+    connect(dataslider, SIGNAL(sliderReleased())  , this, SLOT(dataSliderReleased()));
+
+    parameterlistbox   = new QTextEdit(commWidget);
     paramvaluelineedit = new QLineEdit(commWidget);
     sendbutton         = new QPushButton("Send",commWidget);
+    
+    parameterlistbox->setTextFormat(Qt::LogText);
     
     commlayout->addWidget(parameterlistbox);
     commlayout->addWidget(paramvaluelineedit);
@@ -78,14 +127,12 @@ guilogger::guilogger(int datadelayrate) : QMainWindow( 0, "guilogger")
     filemenu->insertItem("&Load", this, SLOT(load()));
 //    filemenu->insertItem("&Exit", this, SLOT(quit()));
 
-    ChannelRow* row = new ChannelRow("Channels", plotwindows, channelWidget);
+    ChannelRow* row = new ChannelRow("Channels", plotwindows, channelWidget);    
     channellayout->addWidget(row);
     
     ChannelRowPtrList.append(row);
     resize( 450, 600 );
-
-    gp = new Gnuplot<QString>[plotwindows];
-
+    
     gpWindowVisibility = new bool[plotwindows];
     for(int i=0; i<plotwindows; i++) gpWindowVisibility[i]=true;  // am Anfang alle Fenster sichtbar
 
@@ -105,150 +152,112 @@ guilogger::~guilogger()
 {   delete []gp;
 }
 
-void guilogger::horizonSliderChanged(int value)
-{   buffersize = value;
-//    for(int i=0; i<plotwindows; i++) gp[i].command("set xrange data lines");
-
+void guilogger::horizonSliderReleased()
+{    updateSliderPlot();
+     if(mode != "file") plottimer->changeInterval(buffersize);  // change Plotintervall
 }
 
-void guilogger::sliderValueChanged(int value)
-{  //printf("ValueChanged %i\n", value);
-//    QString minv;
-//    QString maxv;
- /*
-    QString cmd="plot [" + QString::number(value, 10) + ":" + QString::number(value+gp[0].getBuffersize())+"] \"" + filename + "\" ";
-//    printf("  %s\n", cmd.latin1());
-    
-//    for(int i=0; i<plotwindows; i++) gp[i].command("set style data lines");
-    ChannelRow *cr;
-    int channel;
-    for(int i=0; i<plotwindows; i++)
-    {   cr = ChannelRowPtrList.first();
-        channel=0;
-        while(cr != 0)
-        {   channel++;
-            if(cr->isChecked(i))
-            {   if(channel > 1) cmd += ", ";
-                cmd += "\""+filename + "\" u " + QString::number(channel, 10)+" ";
-            }
-            cr = ChannelRowPtrList.next();
-        }
-        gp[i].command("set style data lines");
-        printf("%s\n", cmd.latin1());
-        gp[i].command(cmd.latin1());
-    }
-*/
-    /*
-    for(int i=0; i<plotwindows; i++)
-    {   gp[i].command("set style data lines");
-        gp[i].command(cmd.latin1());
-    }
- */
-    /*
-    if(filegraphtimer == NULL)
-    {  filegraphtimer = new QTimer( this);
-       connect(filegraphtimer, SIGNAL(timeout()), SLOT(updateSliderPlot()));
-       filegraphtimer->start(1000, FALSE); // milliseconds
-       printf("New Timer\n");
-    }
-    */
+void guilogger::dataSliderValueChanged(int value)
+{    dataslidervalue->setText(QString::number(value, 10));
 }
 
-
-void guilogger::onSliderReleased()
-{   
-    if(filegraphtimer != NULL) 
-    {   delete filegraphtimer;
-        filegraphtimer = NULL;
-    }
-    
-    updateSliderPlot();
+void guilogger::horizonSliderValueChanged(int value)
+{    horizonslidervalue->setText(QString::number(value, 10));
+     buffersize = value;
 }
+
+void guilogger::dataSliderReleased()
+{    updateSliderPlot();
+}
+
 
 void guilogger::updateSliderPlot()
-{
+{   bool status;
     int value = dataslider->value();
+    QString cmd;
     
-    QString cmd="plot [" + QString::number(value, 10) + ":" + QString::number(value + buffersize)+"] \"" + filename + "\" ";
-//    printf("  %s\n", cmd.latin1());
-    
-//    for(int i=0; i<plotwindows; i++) gp[i].command("set style data lines");
     ChannelRow *cr;
     int channel;
+    parameterlistbox->clear();
     for(int i=0; i<plotwindows; i++)
-    {   cr = ChannelRowPtrList.first();
-        channel=0;
-        while(cr != 0)
+    {   cmd = "plot [" + QString::number(value, 10) + ":" + QString::number(value + buffersize)+"] \"" + filename + "\" ";
+        cr = ChannelRowPtrList.first();
+        channel=-1;  // weil 0 "Channel" Dummy Window ist
+        status = FALSE;
+
+        while(cr!= 0)
         {   channel++;
-            if(cr->isChecked(i))
-            {   if(channel > 1) cmd += ", ";
-                cmd += "\""+filename + "\" u " + QString::number(channel, 10)+" ";
+            if(cr->isChecked(i)) 
+            {   cmd += " u " + QString::number(channel, 10)+ " t \""+ cr->getChannelName() + "\" ";
+                cr = ChannelRowPtrList.next();
+                status = TRUE;
+                break;
             }
             cr = ChannelRowPtrList.next();
         }
-        gp[i].command("set style data lines");
-        gp[i].command("set zeroaxis");
-       printf("%s\n", cmd.latin1());
-        gp[i].command(cmd.latin1());
-    }
 
-    for(int i=0; i<plotwindows; i++)
-    {  // gp[i].command("set style data lines");
-        gp[i].command(cmd.latin1());
-    }
+        while(cr != 0)
+        {   channel++;
+            if(cr->isChecked(i)) cmd += ", \"\" u " + QString::number(channel, 10) + " t \""+ cr->getChannelName() + "\" ";
+            cr = ChannelRowPtrList.next();
+        }
+//        gp[i].command("set style data lines");
+//        gp[i].command("set zeroaxis");
 
+        if(status) 
+        {   gp[i].command(cmd.latin1());
+            parameterlistbox->append(cmd);
+        }
+    }
 }
 
-void guilogger::setParams(CommLineParser configobj)
+
+/// analyzes the file, send channels and return number of lines with data
+int guilogger::analyzeFile()
 {   char *s=NULL;
     char c;
     int size=1, i=1;
     int linecount=0;
     int ptrdata;
-    
-    mode = configobj.getMode();
-    filename = configobj.getFile();
 
-    // wenn filemode, dann erste Zeile des Files einlesen, Channels rausparsen und an GNUPlot schicken
-    if(mode == "file")
-    {    FILE *instream;
-         instream = fopen(configobj.getFile().latin1(), "r");
-         if(instream == NULL) 
-         {   printf("Cannot open input file.\n"); 
-             return;
-         }
-             while(c!= 10 && c != 13) 
-             {
-                 i = fread(&c, 1, 1, instream);
-                 if(i==1)
-                 {   size++; 
-                     s = (char*)realloc(s, size);
-                     s[size-2] = c;
-                 }
-                 else break;
-             }
-             s[size-1]='\0';
-             ptrdata = size;    // position where data starts
+    FILE *instream;
+//         printf("Counting Lines...   ");
 
-             receiveRawData(s);
-
-             do
-             {   i = fread(&c, 1, 1, instream);
-                 if(i!=1) break;
-                 if(c == 10 || c == 13) linecount++;  // count only lines with data
-             } while(i==1);
-
-         fclose(instream);
+    instream = fopen(filename, "r");
+    if(instream == NULL) 
+    {   printf("Cannot open input file.\n"); 
+        return 0;
     }
-    for(int i=0; i<plotwindows; i++) gp[i].command("set style data lines");
+    while(c!= 10 && c != 13) 
+    {
+        i = fread(&c, 1, 1, instream);
+        if(i==1)
+        {   size++; 
+        s = (char*)realloc(s, size);
+        s[size-2] = c;
+        }
+        else break;
+    }
+    s[size-1]='\0';
+    ptrdata = size;    // position where data starts
 
-    dataslider->setMinValue(0);
-    linecount = (linecount-250 > 0)?linecount:0;
-    dataslider->setMaxValue(linecount);
+    receiveRawData(s);
 
+    do
+    {   i = fread(&c, 1, 1, instream);
+        if(i!=1) break;
+        if(c == 10 || c == 13) linecount++;  // count only lines with data
+    } while(i==1);
+
+    fclose(instream);
+
+//    linecount = (linecount-250 > 0)?linecount:0;  // um in einem Datensatz < Buffersize nicht scrollen zu können
+
+//         printf("%i\n", linecount);
+         
     if(s != NULL) free(s);
+    return linecount;
 }
-
 
 /// what happens if one of the checkboxes is toggled
 void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
@@ -258,10 +267,15 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
         //else gpWindowVisibility[gpwindow]=false;
     }
 
-    if( on) gp[gpwindow].show(tag);  // einzelnen Kanal abschalten
-    else gp[gpwindow].hide(tag);
+    if(mode == "file")
+    {    //updateSliderPlot();
+    }
+    else
+    {   if( on) gp[gpwindow].show(tag);  // einzelnen Kanal abschalten
+        else gp[gpwindow].hide(tag);
 
-    for(int i=0; i<plotwindows; i++) gp[i].plot();
+        for(int i=0; i<plotwindows; i++) gp[i].plot();
+    }
 }
 
 

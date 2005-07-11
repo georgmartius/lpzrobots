@@ -69,8 +69,8 @@ int main( int argc, char ** argv ) {
        printf("   -f [file]  input file\n");
        printf("      only viwewing, no streaming\n");
        printf("   -l turns logging on\n");
-       printf("   -d [delay] delay should be a natural number\n");
-       printf("   --help Displays this message.\n");
+       printf("   -d [delay] delay for piped input, should be a natural number\n");
+       printf("   --help displays this message.\n");
        return 0;
    }
 
@@ -79,15 +79,14 @@ int main( int argc, char ** argv ) {
     QString mode;
     QDataSource *qsource=0;
 
-    guilogger gl;
-    gl.setParams(params);
+    guilogger *gl = new guilogger(params);
 
     if(params.getMode()=="serial")    
     {   QSerialReader *qserial = new QSerialReader();
         if(params.getPort() != "") qserial->setComPort(params.getPort());
         printf("Using serial port %s as source.\n", qserial->getComPort().latin1());
         qsource = qserial;
-        a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
+        a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
         qsource->start();
     }
     else if(params.getMode()=="pipe") 
@@ -95,7 +94,7 @@ int main( int argc, char ** argv ) {
         if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
         printf("Using pipe input with delay %i.\n", qpipe->getDelay());
         qsource = qpipe;
-        a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
+        a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
         qsource->start();
     }
     else if(params.getMode()=="file") 
@@ -106,24 +105,24 @@ int main( int argc, char ** argv ) {
     else
     {    QSerialReader *qserial = new QSerialReader();
          if(params.getPort() != "") qserial->setComPort(params.getPort());
-         printf("Using serial communication as default on port %s\n", qserial->getComPort().latin1());
+         printf("Using as default serial communication on port %s\n", qserial->getComPort().latin1());
          qsource = qserial;
-         a.connect(qsource, SIGNAL(newData(char *)), &gl, SLOT(receiveRawData(char *)));
+         a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
          qsource->start();
     }
 
     FileLogger fl;
     if(params.getLogg()) 
     {   fl.setLogging(TRUE);
-        printf("Logging on\n");
+        printf("Logging is on\n");
         a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
     }
-    else printf("Logging off\n");
+    else printf("Logging is off\n");
 
 //    if(params.getMode() != "file") qsource->start();
 
-    gl.setCaption( "GUI Logger" );
-    gl.show();
+    gl->setCaption( "GUI Logger" );
+    gl->show();
 
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     return a.exec();

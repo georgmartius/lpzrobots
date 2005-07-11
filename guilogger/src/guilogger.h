@@ -41,6 +41,8 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qslider.h>
+#include <qlistview.h>
+#include <qtextedit.h>
 
 #include <string>
 #include <list>
@@ -61,14 +63,13 @@ class guilogger: public QMainWindow
     Q_OBJECT
 
 public:
-    guilogger(int datadelayrate = 10);
+    guilogger(CommLineParser configobj);
     ~guilogger();
     void setChannels(QStringList &clist);
     void setChannels(const char &clist);
     void addChannel(const QString &name, const std::string &title="", const std::string &style="lines");
     void putData(const QString &name, double data);
-    void setParams(CommLineParser configobj);
-    
+
 private slots:
     void taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on);
     void receiveRawData(char *);
@@ -76,11 +77,15 @@ private slots:
     void GNUPlotUpdate();
     void save();
     void load();
-    void sliderValueChanged(int value);
-    void onSliderReleased();
+    void dataSliderValueChanged(int value);
+    void dataSliderReleased();
+    void horizonSliderValueChanged(int value);
+    void horizonSliderReleased();
+
+private:
     void updateSliderPlot();
-    void horizonSliderChanged(int value);
-        
+    int  analyzeFile();
+
 private:
     typedef QMap<QString, QValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
     
@@ -90,16 +95,17 @@ private:
     QBoxLayout* commlayout;
     QBoxLayout* layout;
     QScrollView* sv;
-//    QVBox* layout;
     QWidget* channelWidget;
     QWidget* commWidget; 
     
     
-    QListBox    *parameterlistbox;
+    QTextEdit   *parameterlistbox;
     QLineEdit   *paramvaluelineedit;
     QPushButton *sendbutton;
     QSlider     *dataslider;
     QSlider     *horizonslider;
+    QLabel      *dataslidervalue;
+    QLabel      *horizonslidervalue;
     
     QPopupMenu  *filemenu;
     

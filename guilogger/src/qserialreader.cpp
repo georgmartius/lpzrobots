@@ -31,7 +31,6 @@
 
 QSerialReader::QSerialReader( char bt)
 {    port="/dev/ttyS0";
-     printf("Default port %s\n", port.latin1());
      baudrate=19200;
      blockterminator = bt;
 }
