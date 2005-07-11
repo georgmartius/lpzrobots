@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-07-08 10:14:05  martius
+ *   Revision 1.12  2005-07-11 11:19:38  robot8
+ *   adding the line, where the pointer to the additional draw function is set to the value of the parameter drawCallback
+ *
+ *   Revision 1.11  2005/07/08 10:14:05  martius
  *   added contains (helper for stringlist search)
  *
  *   Revision 1.10  2005/07/07 10:23:36  martius
@@ -116,6 +119,7 @@ void simulation_init(void (*start)(), void (*end)(),
   ground = dCreatePlane ( space , 0 , 0 , 1 , 0 );
   cmd_handler_init();
   state=initialised;
+  additionalDrawCallback = drawCallback;
 }
 
 void simulation_start(int argc, char** argv){
