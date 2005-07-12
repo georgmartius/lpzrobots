@@ -610,7 +610,7 @@ void atomsimAtom::atomInfo ()
 	dsPrint ( "Atom-Liste: %i\n" , atomliste.size () );
 	dsPrint ( "Joint-Liste: %i\n" , jointliste.size () );
 	dsPrint ( "Motor-Liste: %i\n" , motorliste.size () );		
-	dsPrint ( "reale Jointanzahl: %i\n" , dBodyGetNumJoints ( getBody () ) );
+	dsPrint ( "reale Jointanzahl(=Gelenke+Motoren): %i\n" , dBodyGetNumJoints ( getBody () ) );
 	dsPrint ( ">>>>>>>>AtomInfoEnde<<<<<<<<\n" );
 }
 
