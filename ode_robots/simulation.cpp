@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-07-11 11:19:38  robot8
+ *   Revision 1.13  2005-07-13 08:39:21  robot8
+ *   added the possibility to use an additional command function, which handels special Inputs if the ODE simulation window has the focus
+ *
+ *   Revision 1.12  2005/07/11 11:19:38  robot8
  *   adding the line, where the pointer to the additional draw function is set to the value of the parameter drawCallback
  *
  *   Revision 1.11  2005/07/08 10:14:05  martius
@@ -90,7 +93,7 @@ void simLoop ( int pause );
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
 
 void simulation_init(void (*start)(), void (*end)(), 
-		     void (*config)(), void (*collCallback)(void* data,dGeomID o1, dGeomID o2)/* = 0 */,
+		     void (*config)(), void (*command)(int n)/* = 0 */ , void (*collCallback)(void* data,dGeomID o1, dGeomID o2)/* = 0 */,
 		     void (*drawCallback)()/* = 0 */){
   configfunction=config; // store config function for simLoop
   collisionCallback=collCallback; // store config function for simLoop
@@ -98,7 +101,7 @@ void simulation_init(void (*start)(), void (*end)(),
   fn.version = DS_VERSION;
   fn.start = start;
   fn.step = &simLoop;
-  fn.command = 0;
+  fn.command = command;
   fn.stop = end;
   fn.path_to_textures = "../../textures";
 

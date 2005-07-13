@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-07-08 10:14:05  martius
+ *   Revision 1.10  2005-07-13 08:39:21  robot8
+ *   added the possibility to use an additional command function, which handels special Inputs if the ODE simulation window has the focus
+ *
+ *   Revision 1.9  2005/07/08 10:14:05  martius
  *   added contains (helper for stringlist search)
  *
  *   Revision 1.8  2005/07/07 10:23:44  martius
@@ -94,7 +97,7 @@ extern AgentList agents;                        ///
     @param drawCallback optional additional draw function
  */
 void simulation_init(void (*start)(), void (*end)(), 
-		     void (*config)(), void (*collCallback)(void* data, dGeomID o1, dGeomID o2) = 0 ,
+		     void (*config)(), void (*command)(int n) = 0 , void (*collCallback)(void* data, dGeomID o1, dGeomID o2) = 0 ,
 		     void (*drawCallback)() = 0);
 /// starts the simulation.
 void simulation_start(int argc, char** argv);
