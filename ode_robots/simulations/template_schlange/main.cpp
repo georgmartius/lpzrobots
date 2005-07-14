@@ -4,7 +4,8 @@
 
 #include "simulation.h"
 #include "noisegenerator.h"
-#include "one2oneagent.h"
+#include "agent.h"
+#include "one2onewiring.h"
 #include "playground.h"
 
 #include "invertnchannelcontroller.h"
@@ -39,6 +40,7 @@ void start()
 
   // initialization
   simulationConfig.noise=0.1;
+  configs.push_back(&simulationConfig);
   
   Playground* playground = new Playground(&world, &space);
   playground->setGeometry(7.0, 0.2, 1.5);
@@ -53,29 +55,33 @@ void start()
   schlange1->place(p,&col);
   AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(), plotMode);
-  agent->init(controller, schlange1);
+  One2OneWiring* wiring = new One2OneWiring();
+  Agent* agent = new Agent(new ColorUniformNoise(), plotMode);
+  agent->init(controller, schlange1, wiring);
   agents.push_back(agent);
+  configs.push_back(controller);
   
-  
-  /*Schlange* schlange2 = new Schlange ( 2 , &world , &space , &contactgroup , 10 , 0 , 0 , 0.25 , 0.5 , 0.2 , 0 , 1 , 5 , 30 , angle );
+  /*
+  Schlange* schlange2 = new Schlange ( 2 , &world , &space , &contactgroup,  
+				       0 , 0 , 0.25 , 4, 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , angle );
   Position p2 = {0,2,0};
   Color col2 = {0.5,0,0.5};
   schlange2->place(p2,&col2);
   AbstractController *controller2 = new InvertNChannelController(10);  
   
-  One2OneAgent* agent2 = new One2OneAgent(NoPlot);
-  agent2->init(controller2, schlange2);
-  agents.push_back(agent2);*/
+  One2OneWiring* wiring2 = new One2OneWiring();
+  Agent* agent2 = new Agent(new ColorUniformNoise(),NoPlot);
+  agent2->init(controller2, schlange2, wiring2);
+  agents.push_back(agent2);
+  configs.push_back(controller2);
+  */
   
+
+
+
   
-  //****************  
-  configs.push_back(&simulationConfig);
-  //****************  
+
   
-  configs.push_back(controller);
-  //configs.push_back(controller2);
-  //************
   
   showParams(configs);
 }

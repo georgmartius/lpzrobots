@@ -5,7 +5,8 @@
 #include "noisegenerator.h"
 
 #include "simulation.h"
-#include "one2oneagent.h"
+#include "agent.h"
+#include "one2onewiring.h"
 #include "playground.h"
 #include "sphere.h"
 
@@ -65,7 +66,7 @@ void start()
     obstacles.push_back(sphere[i]);
   }
 
-  //****************
+  //****************/
   SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , /*4*/8 , 0.8/*0.5*/ , 0.2 , 0 , 0.4/*0.04*/ , 2 , 10 , anglerate);
   Position p = {0,0,10};
   Color col = {0,0.5,0.8};
@@ -75,8 +76,9 @@ void start()
   //AbstractController *controller = new SineController();  
   //AbstractController *controller = new SineControllerWP();  
   
-  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.1), plotMode);
-  agent->init(controller, schlange1);
+  One2OneWiring* wiring = new One2OneWiring();
+  Agent* agent = new Agent(new ColorUniformNoise(0.1), plotMode);
+  agent->init(controller, schlange1, wiring);
   agents.push_back(agent);
   configs.push_back(controller);
   configs.push_back(schlange1);
@@ -109,8 +111,9 @@ void start()
   schlange1->place(p3,&col3);
   AbstractController *controller3 = new InvertNChannelController(10,true);  
   
-  One2OneAgent* agent3 = new One2OneAgent(NoPlot/*GuiLogger* /);
-  agent3->init(controller3, schlange3);
+  One2OneWiring* wiring3 = new One2OneWiring();
+  Agent* agent3 = new Agent(new ColorUniformNoise(0.1), NoPlot/*GuiLogger* /);
+  agent3->init(controller3, schlange3, wiring3);
   agents.push_back(agent3);
   configs.push_back(controller3);
   configs.push_back(schlange3);
@@ -122,8 +125,9 @@ void start()
   vehicle->place(p2);
   AbstractController *controller2 = new InvertNChannelController(10,true);  
   
-  One2OneAgent* agent2 = new One2OneAgent(NoPlot/*GuiLogger* /);
-  agent2->init(controller2, vehicle);
+  One2OneWiring* wiring2 = new One2OneWiring();
+  Agent* agent2 = new Agent(new ColorUniformNoise(0.1), NoPlot/*GuiLogger* /);
+  agent2->init(controller2, vehicle, wiring2);
   agents.push_back(agent2);
   //  configs.push_back(controller2);
   */

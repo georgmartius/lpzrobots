@@ -4,7 +4,8 @@
 
 #include "noisegenerator.h"
 #include "simulation.h"
-#include "one2oneagent.h"
+#include "agent.h"
+#include "one2onewiring.h"
 #include "nimm2.h"
 #include "playground.h"
 
@@ -48,10 +49,11 @@ void start()
   vehicle->place(p);
   AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.1),plotMode);
-  agent->init(controller, vehicle);
+  One2OneWiring* wiring = new One2OneWiring();
+  Agent* agent = new Agent(new ColorUniformNoise(0.1),plotMode);
+  agent->init(controller, vehicle, wiring);
   agents.push_back(agent);
-  
+
   configs.push_back(&simulationConfig);
   configs.push_back(controller);
   showParams(configs);

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-06-15 14:02:47  martius
+ *   Revision 1.3  2005-07-14 15:57:53  fhesse
+ *   now agent contains controller, robot and wiring, plotting ability included, therefore plotagent can be removed; ono2onewiring replaces one2oneagent
+ *
+ *   Revision 1.2  2005/06/15 14:02:47  martius
  *   revised and basicly tested
  *                                                                 *
  ***************************************************************************/
@@ -29,41 +32,80 @@
 
 #include "abstractrobot.h"
 #include "abstractcontroller.h"
+#include "abstractwiring.h"
+#include "noisegenerator.h"
 
-/// Abstract glue-object between controller and robot. 
-//   Implements wireing of sensors from robot to inputs of the controller and
-//   controller outputs to motors. 
+
+/// Plot mode for plot agent.
+enum PlotMode {NoPlot, GuiLogger, GuiLogger_File};
+
+/// Abstract object containing controller, robot and wiring between them. 
 class Agent {
 public:
-  /// default constructor
-  Agent(){
-    controller = 0;
-    robot      = 0;
-  }
+  /// constructor
+  Agent(NoiseGenerator* noise, PlotMode plotmode=GuiLogger);
 
-  /// initializes the object with the given controller and robot
-  // should be called from overloaded classes!
-  virtual bool init(AbstractController* controller, AbstractRobot* robot){
-    this->controller = controller;
-    this->robot      = robot;
-    if(!controller || !robot) return false;
-    else return true;
-  }
+  ///destructor
+  virtual ~Agent();  
 
-  /// Performs an step of the agent. 
-  //   Must be overloaded in order to implement the appropriate mapping 
-  //   of the robot sensors to the controller inputs and so on.
-  // @param noise Noise strength.
-  virtual void step(double noise) = 0;
+  /// initializes the object with the given controller, robot and wiring
+  //  and initializes pipe to guilogger
+  virtual bool init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring);
 
-  ///
+
+  /// Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
+  //  controller step, pushing controller steps back through wiring and sent resulting motorcommands to robot.
+  //  @param noise Noise strength.
+  virtual void step(double noise);
+
+  /// Returns a pointer to the controller.
   AbstractController* getController() { return controller;}
-  ///
+
+  /// Returns a pointer to the robot.
   AbstractRobot* getRobot() { return robot;}
 
+  /// Returns a pointer to the wiring.
+  AbstractWiring* getWiring() { return wiring;}
+
+
 protected:
+
+  /**
+   * Plots controller sensor- and motorvalues and internal controller parameters.
+   * @param x actual sensorvalues (used for generation of motorcommand in actual timestep)
+   * @param y actual motorcommand (generated in the actual timestep)
+   */
+  virtual void plot(const sensor* x, int sensornumber, const motor* y, int motornumber);
+  
+  bool OpenGui();
+  void CloseGui();
+
+
   AbstractController* controller;
   AbstractRobot* robot;
+  AbstractWiring* wiring;
+
+
+  int rsensornumber;
+  int rmotornumber;
+  int csensornumber;
+  int cmotornumber;
+
+  sensor *rsensors;
+  motor  *rmotors;
+  sensor *csensors;
+  motor  *cmotors;
+
+  NoiseGenerator* noiseGenerator;
+
+
+private:
+  FILE* pipe;
+  int numberInternalParameters;
+  PlotMode plotmode;
+
+
+
 };
 
 #endif
