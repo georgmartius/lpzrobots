@@ -3,6 +3,7 @@
 #include <ode/ode.h>
 
 #include "noisegenerator.h"
+
 #include "simulation.h"
 #include "one2oneagent.h"
 #include "playground.h"
@@ -10,8 +11,11 @@
 
 #include "invertnchannelcontroller.h"
 #include "invertmotorspace.h"
+#include "sinecontroller.h"
+#include "sinecontrollerWP.h"
 
 #include "schlangeforce.h"
+#include "schlange.h"
 #include "nimm2.h"
 
 ConfigList configs;
@@ -37,14 +41,15 @@ void start()
   
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
-  float KameraXYZ[3]= {0.276f,7.12f,1.78f};
-  float KameraViewXYZ[3] = {-88.0f,-5.5f,0.0000f};;
+  //float KameraXYZ[3]= {0.276f,7.12f,1.78f};
+  //float KameraViewXYZ[3] = {-88.0f,-5.5f,0.0000f};
+  float KameraXYZ[3]= {2.4f,7.2f,10.47f};
+  float KameraViewXYZ[3] = {-88.0f,-5.5f,0.0000f};
+
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
-  simulationConfig.setParam("simstepsize",0.005);
   configs.push_back(&simulationConfig);
 
 
@@ -61,11 +66,14 @@ void start()
   }
 
   //****************
-  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 8 , 0.8/*0.5*/ , 0.2 , 0 , 0.4 , 2 , 10 , anglerate);
+  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , /*4*/8 , 0.8/*0.5*/ , 0.2 , 0 , 0.4/*0.04*/ , 2 , 10 , anglerate);
   Position p = {0,0,10};
   Color col = {0,0.5,0.8};
-  schlange1->place(p,&col);
+  schlange1->place(p,&col); 
+  //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
   AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
+  //AbstractController *controller = new SineController();  
+  //AbstractController *controller = new SineControllerWP();  
   
   One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.1), plotMode);
   agent->init(controller, schlange1);
@@ -73,18 +81,25 @@ void start()
   configs.push_back(controller);
   configs.push_back(schlange1);
 
-  simulationConfig.setParam("controlinterval",5);
+ 
+  simulationConfig.setParam("noise",0.1);
+  simulationConfig.setParam("simstepsize",0.005);
+  simulationConfig.setParam("drawinterval",1);
+  simulationConfig.setParam("controlinterval",1);
 
-  controller->setParam("eps",0.5);
-  controller->setParam("factorA",0.3);
-  controller->setParam("factorB",0.0);
-  controller->setParam("zetaupdate",0.0);
-  controller->setParam("s4avg",40.0);
+   controller->setParam("epsC",0.01);
+//   // controller->setParam("desens",0.0);
+//   controller->setParam("s4delay",1.0);
+//   controller->setParam("s4avg",1.0);
+   controller->setParam("epsA",0.01);
+//   controller->setParam("factorB",0.0);
+//   controller->setParam("zetaupdate",0.1);
 
-  schlange1->setParam("gamma", 1.0);
-  schlange1->setParam("friction_ground",0.3);
-  schlange1->setParam("factor_force", 10);
-
+  schlange1->setParam("gamma",/*0.0000*/ 0.0);
+  schlange1->setParam("frictionGround",0.1);
+  schlange1->setParam("factorForce", /*0.0005*/3);
+  schlange1->setParam("factorSensors", /*20.0 */5);
+  
 
 
   /*
@@ -143,7 +158,7 @@ void printUsage(const char* progname){
 }
 
 int main (int argc, char **argv)
-{    
+{  
   if(contains(argv, argc, "-g")) plotMode = GuiLogger;
   if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
