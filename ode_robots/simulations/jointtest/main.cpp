@@ -4,7 +4,8 @@
 
 #include "noisegenerator.h"
 #include "simulation.h"
-#include "one2oneagent.h"
+#include "agent.h"
+#include "one2onewiring.h"
 #include "nimm2.h"
 #include "jointtest.h"
 #include "playground.h"
@@ -51,8 +52,9 @@ void start()
   AbstractController *controller = new InvertNChannelController(10);  
   configs.push_back(controller);
 
-  One2OneAgent* agent = new One2OneAgent(NoPlot); 
-  agent->init(controller, vehicle);
+  One2OneWiring* wiring = new One2OneWiring(); 
+  Agent* agent = new Agent(new WhiteUniformNoise(), NoPlot); 
+  agent->init(controller, vehicle, wiring);
   agents.push_back(agent);
   */
 
@@ -62,8 +64,9 @@ void start()
   AbstractController *controller2 = new InvertNChannelController(10);  
   configs.push_back(controller2);
   
-  One2OneAgent* agent2 = new One2OneAgent(new WhiteUniformNoise(),/*NoPlot*/GuiLogger);
-  agent2->init(controller2, testjoints);
+  One2OneWiring* wiring2 = new One2OneWiring();
+  Agent* agent2 = new Agent(new WhiteUniformNoise(), /*NoPlot*/GuiLogger);
+  agent2->init(controller2, testjoints, wiring2);
   agents.push_back(agent2);
   
   showParams(configs);
