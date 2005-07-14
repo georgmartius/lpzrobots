@@ -20,14 +20,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-06 16:06:28  martius
+ *   Revision 1.2  2005-07-14 16:08:01  fhesse
+ *   disabled because agent changed
+ *
+ *   Revision 1.1  2005/07/06 16:06:28  martius
  *   first attempt to provide pseudosensors. here first and second derivative
  *
  *                                                                 *
  ***************************************************************************/
 #ifndef __DERIVATIVEAGENT_H
 #define __DERIVATIVEAGENT_H
-
+/*
 #include "plotagent.h"
 class NoiseGenerator;
 
@@ -74,5 +77,5 @@ private:
   NoiseGenerator* noiseGenerator; 
 };
 
-
+*/
 #endif

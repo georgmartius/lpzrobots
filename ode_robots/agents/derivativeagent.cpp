@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-08 10:14:51  martius
+ *   Revision 1.3  2005-07-14 16:08:01  fhesse
+ *   disabled because agent changed
+ *
+ *   Revision 1.2  2005/07/08 10:14:51  martius
  *   derivative agent works fine
  *   guilogger logmode controlable
  *
@@ -30,10 +33,10 @@
  ***************************************************************************/
 #include "derivativeagent.h"
 #include "noisegenerator.h"
-
+/*
 DerivativeAgent::DerivativeAgent(bool useId, bool useFirstD, bool useSecondD, double _eps,
 				 NoiseGenerator* noise,
-				 PlotMode plotmode /* = GuiLogger*/, double _derivativeScale/*=5*/) 
+				 PlotMode plotmode /* = GuiLogger* /, double _derivativeScale/*=5* /) 
   : PlotAgent(plotmode), useId(useId), useFirst(useFirstD), useSecond(useSecondD)
 {
   noiseGenerator = noise;
@@ -158,3 +161,4 @@ void DerivativeAgent::calcSecondDerivative(){
   }
 }
 
+*/
