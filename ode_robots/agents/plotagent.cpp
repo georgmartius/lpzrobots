@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-07-08 10:14:51  martius
+ *   Revision 1.8  2005-07-14 13:34:33  fhesse
+ *   added parameter for delay in guilogger init
+ *   -d 15 (not to long, but long enough to allow the gnuplot windows to be drawn)
+ *
+ *   Revision 1.7  2005/07/08 10:14:51  martius
  *   derivative agent works fine
  *   guilogger logmode controlable
  *
@@ -59,9 +63,9 @@ bool PlotAgent::OpenGui(){
   signal(SIGPIPE,SIG_IGN); 
   // TODO: get the guilogger call from some  config
   if(plotmode == GuiLogger_File){
-    pipe=popen("guilogger -m pipe -l > /dev/null","w");
+    pipe=popen("guilogger -m pipe -l -d 15 > /dev/null","w");
   }else{
-    pipe=popen("guilogger -m pipe > /dev/null","w");
+    pipe=popen("guilogger -m pipe -d 15 -l > /dev/null","w");
   }
   if(pipe==0){
     fprintf(stderr, "%s:%i: could not open guilogger!\n", __FILE__, __LINE__);    
@@ -96,7 +100,7 @@ void PlotAgent::plot(const sensor* x, int sensornumber, const motor* y, int moto
 	    __FILE__, __LINE__);
   }
 
-  printInternalParameters(pipe, x, sensornumber, y, motornumber, 
-			  numberInternalParameters, controller);
-
+   printInternalParameters(pipe, x, sensornumber, y, motornumber, 
+ 			  numberInternalParameters, controller);
+ 
 };
