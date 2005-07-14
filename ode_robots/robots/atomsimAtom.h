@@ -159,6 +159,13 @@ public:
  	 *@author Marcel Kretschmann
  	 *@version
  	 **/
+	virtual atomsimAtom* getUrsprung ( );
+	
+	/**
+ 	 *
+ 	 *@author Marcel Kretschmann
+ 	 *@version
+ 	 **/
 	virtual void setUrsprung ( atomsimAtom* neuer_ursprung );
 	
 	/**
@@ -166,28 +173,28 @@ public:
  	 *@author Marcel Kretschmann
  	 *@version
  	 **/
-	virtual dJointID getUrspungJoint ( );
+	virtual dJointID getUrsprungJoint ( );
 	
 	/**
  	 *
  	 *@author Marcel Kretschmann
  	 *@version
  	 **/
-	virtual void setUrspungJoint ( dJointID neuer_ursprungjoint );
+	virtual void setUrsprungJoint ( dJointID neuer_ursprungjoint );
 	
 	/**
  	 *
  	 *@author Marcel Kretschmann
  	 *@version
  	 **/
-	virtual dJointID getUrspungMotor ( );
+	virtual dJointID getUrsprungMotor ( );
 	
 	/**
  	 *
  	 *@author Marcel Kretschmann
  	 *@version
  	 **/
-	virtual void setUrspungMotor ( dJointID neuer_ursprungmotor );
+	virtual void setUrsprungMotor ( dJointID neuer_ursprungmotor );
 	
 	/**
  	 *

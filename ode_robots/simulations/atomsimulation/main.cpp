@@ -54,33 +54,47 @@ void start()
   simulationConfig.noise=0.1;
   
   Playground* playground = new Playground(&world, &space);
-  playground->setGeometry(7.0, 0.2, 1.5);
+  playground->setGeometry(10.0, 0.2, 2.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
-    
-  robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , &world , &space , &contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , &world , &space , 0.0 , 0.0 , 1.0 , 0.3 , 0.5 , 1 , 1 , 20 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
   
+  //*******robots and their atoms******
+  robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , &world , &space , &contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , &world , &space , 0.0 , 0.0 , 1.0 , 0.3 , 0.5 , 1 , 1 , 20 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
   atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 0.2 , 0 , 4 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
   atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  ,  1 , 0 , 8 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
   atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2.4 , 0 , 13 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2 , -2 , 1 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0.2 , 0.2 , 0.2 ) );
-	
   
   AbstractController *controller = new InvertNChannelController(10);
-  
-  One2OneAgent* agent = new One2OneAgent( new ColorUniformNoise () , /*NoPlot*/GuiLogger);
-  agent->init(controller, robotersammlung[0] );
-  
+  One2OneAgent* agent = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/ );
+  agent->init(controller, robotersammlung.back () );
   agents.push_back(agent);
+  configs.push_back(controller);
+  
+  
+  robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , &world , &space , &contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , &world , &space , 0.0 , 2.0 , 1.0 , 0.3 , 0.5 , 1 , 1 , 20 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
+  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 0.2 , 2.0 , 3.0 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
+  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  ,  1 , 2.0 , 6 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
+  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 1.8 , 2.0 , 9 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
+  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2.2 , 2.0 , 12 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0.0 , 1 , 1.0 ) );
+  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2.4 , 2.0 , 15 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 1 , 0.0 , 1.0 ) );
+  
+  AbstractController *controller2 = new InvertNChannelController(10);
+  One2OneAgent* agent2 = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/ );
+  agent2->init(controller2, robotersammlung.back () );
+  agents.push_back(agent2);
+  configs.push_back(controller2);  
   
   
   
-    
+  
+  //******free atoms*********
+  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2 , -2 , 1 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0.2 , 0.2 , 0.2 ) );	
+  
   //****************  
   configs.push_back(&simulationConfig);
   //****************  
   
-  configs.push_back(controller);
+  
 
   //************
   
@@ -104,6 +118,103 @@ void end(){
 // this function is called if the user pressed Ctrl-C
 void config(){
   changeParams(configs);
+}
+
+//Funktion die eingegebene Befehle/kommandos verarbeitet
+void command (int cmd)
+{
+	//dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
+	switch ( (char) cmd )
+	{
+		case 'h' :	dsPrint ( "\n\n-------------------------------------------Help---------------------------------------\n" );
+				dsPrint ( "y= Adding a konstant force to the black atom, so that it will collide\n" );
+			break;
+		case 'y' : dBodyAddForce ( (*atomsammlung.back()).getBody() , 0 , 100 , 0 ); break;
+		case 'v' : Position newpos;
+			   newpos.x = -10;
+			   newpos.y = 0;
+			   newpos.z = robotersammlung.back ()->getUrsprungsatom ()->getZ ();
+			   
+			   Color newcolor;
+			   newcolor.r = robotersammlung.back ()->getUrsprungsatom ()->getColorR ();
+			   newcolor.g = robotersammlung.back ()->getUrsprungsatom ()->getColorG ();;
+			   newcolor.b = robotersammlung.back ()->getUrsprungsatom ()->getColorB ();;
+			
+			   robotersammlung.back ()->place ( newpos , &newcolor);
+		break;
+		
+		case 'k' : robotersammlung.push_back ( robotersammlung.back ()->rekursivKopieren ( robotersammlung.back ()->getUrsprungsatom () , true ) );
+		
+			   Position newpos2;
+			   newpos2.x = -10;
+			   newpos2.y = 0;
+			   newpos2.z = robotersammlung.back ()->getUrsprungsatom ()->getZ ();
+			   
+			   Color newcolor2;
+			   newcolor2.r = robotersammlung.back ()->getUrsprungsatom ()->getColorR ();
+			   newcolor2.g = robotersammlung.back ()->getUrsprungsatom ()->getColorG ();;
+			   newcolor2.b = robotersammlung.back ()->getUrsprungsatom ()->getColorB ();;
+			
+			   robotersammlung.back ()->place ( newpos2 , &newcolor2);
+			   
+			   
+			   
+			   AbstractController* controller;
+			   controller = new InvertNChannelController(10);
+			   One2OneAgent* agent;
+			   agent = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
+			   agent->init(controller, robotersammlung.back () );
+  
+			   agents.push_back(agent);
+			   configs.push_back(controller);
+		break;
+		
+		case 't' : robotersammlung.back()->roboterAuftrennen (); 
+		
+		break;
+		
+		case 'r' : 
+			   atomsimRobot* neuerRob1;
+			   atomsimRobot* neuerRob2;
+			   Position posA;
+			   posA.x = 0;
+			   posA.y = 20;
+			   posA.z = 10;
+			   Position posB;
+			   posB.x = 0;
+			   posB.y = -20;
+			   posB.z = 10;
+			   robotersammlung[0]->roboterRekombination ( 0 , 1.0/2 , robotersammlung [1] , &neuerRob1 , &neuerRob2 , posA , posB );
+			   
+			   
+			   robotersammlung.push_back ( neuerRob1 );
+			   
+			   AbstractController* controller3;
+			   controller3 = new InvertNChannelController(10);
+			   One2OneAgent* agent3;
+			   agent3 = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
+			   agent3->init(controller3, robotersammlung.back () );
+  
+			   agents.push_back(agent3);
+			   configs.push_back(controller3);
+			   
+			   
+			   robotersammlung.push_back ( neuerRob2 );
+			   
+			   AbstractController* controller4;
+			   controller4 = new InvertNChannelController(10);
+			   One2OneAgent* agent4;
+			   agent4 = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
+			   agent4->init(controller4, robotersammlung.back () );
+  
+			   agents.push_back(agent4);
+			   configs.push_back(controller4);
+		break;
+		
+		case 'n' : atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , -12 , 0 , 1 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0.5 , 0.2 , 0.8 ) );
+		break;
+		
+	}
 }
 
 //Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
@@ -188,7 +299,7 @@ void atomDraw ()
 int main (int argc, char **argv)
 {  
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config, &atomCallback , &atomDraw );
+  simulation_init(&start, &end, &config, &command , &atomCallback , &atomDraw );
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.

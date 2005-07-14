@@ -43,7 +43,20 @@ public:
  	 **/
 	atomsimRobot ( int* start_roboterIDzaehler , dWorldID* start_welt , dSpaceID* start_raum , dJointGroupID* start_contactgroup , vector<atomsimAtom*>* start_atomsammlung , atomsimAtom* start_ursprungsatom , int start_maxatomanzahl , double start_rekombinationstrennverhaeltniss );
 	
+	/**
+ 	 *Destructor
+ 	 *@author
+ 	 *@version
+ 	 **/
 	virtual ~atomsimRobot ();
+	
+	
+	/**
+ 	 *Recursive deletation function for all atoms, connected to the robot
+ 	 *@author
+ 	 *@version
+ 	 **/
+	//virtual void rekursiveAtomDeletation ( atomsimAtom* a );
 	
 	/**
 	 *Calls the function drawRobot-function
@@ -245,20 +258,20 @@ public:
  	 *@version
  	 **/
 	//rekursives Kopieren eines atomsimRobots ab dem Atom  a
-	virtual atomsimRobot* rekursivKopieren ( atomsimAtom* a , int status );
+	virtual atomsimRobot* rekursivKopieren ( atomsimAtom* a , bool firstcall );
 	
 	/**
  	 *
  	 *@author
  	 *@version
  	 **/
-	virtual bool roboterAuftrennen ( atomsimAtom* a );
+	virtual bool roboterAuftrennen ( atomsimAtom* a = 0 , atomsimAtom** newrobotpart = 0 , atomsimAtom** endofpieceone = 0 , double trennverhaeltniss = 0 );
 	
 	/**
  	 *
  	 *@author
  	 *@version
  	 **/
-	virtual void roboterRekombination ( int vermehrungsart , atomsimRobot* partner , atomsimRobot** speicherort1 , atomsimRobot** speicherort2 );
+	virtual void roboterRekombination ( int vermehrungsart , double trennverhaeltniss , atomsimRobot* partner , atomsimRobot** speicherort1 , atomsimRobot** speicherort2 , Position newpos1 , Position newpos2 );
 	
 };

@@ -37,7 +37,18 @@ atomsimRobot::atomsimRobot ( int* start_roboterIDzaehler , dWorldID* start_welt 
 
 atomsimRobot::~atomsimRobot ()
 {
+	//deletion of all atoms, connected to the robot
+	//rekursiveAtomDeletation ( getUrsprungsatom () );
 }
+
+/*void atomsimRobot::rekursiveAtomDeletation ( atomsimAtom* a )
+{
+	for ( int n = 0; n < a->getAnzahlAtome (); n++ )
+	{
+		rekursiveAtomDeletation ( a->getAtomAt ( n ) );
+	}
+	a->~atomsimAtom ();
+}*/
 
 /**
  *Calls the function drawRobot-function
@@ -427,6 +438,7 @@ int atomsimRobot::rekursionszaehler ( atomsimAtom* a , int z )
 }
 	
 /**
+ *Sets a new Position for an atom an all atom, which are connected as substructure to that atom.
  *no optimal performance, but so it is an easy way
  *@author
  *@version
@@ -474,24 +486,30 @@ double atomsimRobot::getFitness ()
  *@version
  **/
 //rekursives Kopieren eines atomsimRobots ab dem Atom  a
-atomsimRobot* atomsimRobot::rekursivKopieren ( atomsimAtom* a , int status )
+atomsimRobot* atomsimRobot::rekursivKopieren ( atomsimAtom* a , bool firstcall )
 {
 	atomsimRobot* neueratomsimRobot;
 	neueratomsimRobot = NULL;
-	if ( status == 0 )
+	if ( firstcall == true )
 	{
-		neueratomsimRobot = new atomsimRobot ( roboterIDzaehler , welt , raum , contactgroup , atomsammlung , new atomsimAtom ( (--(*roboterIDzaehler))++ , (*a).getAtomIDzaehler () , welt , raum , (*a).getX () ,(*a).getY () , (*a).getZ () , (*a).getRadius () , (*a).getHuellenradius () , (*a).getMasse (), (*a).getBindungsstaerke () , (*a).getAbspaltstaerke () ,  (*a).getMaxatombindungszahl () , (*a).getBindungsblockdauer () , (*a).getMaxmotorkraft () , (*a).getMotorgeschwindigkeitsfaktor () , (*a).getColorR (), (*a).getColorG () , (*a).getColorB () ) ,
-		maxatomanzahl , getRekombinationsTrennverhaeltniss () );
+		neueratomsimRobot = new atomsimRobot ( roboterIDzaehler , welt , raum , contactgroup , atomsammlung , new atomsimAtom ( (--(*roboterIDzaehler))++ , a->getAtomIDzaehler () , welt , raum , a->getX () ,a->getY () , a->getZ () , a->getRadius () , a->getHuellenradius () , a->getMasse (), a->getBindungsstaerke () , a->getAbspaltstaerke () ,  a->getMaxatombindungszahl () , a->getBindungsblockdauer () , a->getMaxmotorkraft () , a->getMotorgeschwindigkeitsfaktor () , a->getColorR (), a->getColorG () , a->getColorB () ) , maxatomanzahl , getRekombinationsTrennverhaeltniss () );
+		
 	}
 	
-	for ( int n = 0; n < (*a).getAnzahlAtome (); n++ )
+	for ( int n = 0; n < a->getAnzahlAtome (); n++ )
 	{
 		//Kopiert ein Atom welches an der Stelle n an a haengt
-		atomsammlung->push_back ( new atomsimAtom (  0 , (*(*a).getAtomAt (n)).getAtomIDzaehler () , welt , raum , (*(*a).getAtomAt (n)).getX () ,(*(*a).getAtomAt (n)).getY () , (*(*a).getAtomAt (n)).getZ () , (*(*a).getAtomAt (n)).getRadius () , (*(*a).getAtomAt (n)).getHuellenradius () , (*(*a).getAtomAt (n)).getMasse (), (*(*a).getAtomAt (n)).getBindungsstaerke () , (*(*a).getAtomAt (n)).getAbspaltstaerke (), (*(*a).getAtomAt (n)).getMaxatombindungszahl () , (*(*a).getAtomAt (n)).getBindungsblockdauer () , (*(*a).getAtomAt (n)).getMaxmotorkraft () , (*(*a).getAtomAt (n)).getMotorgeschwindigkeitsfaktor () , (*(*a).getAtomAt (n)).getColorR (), (*(*a).getAtomAt (n)).getColorG () , (*(*a).getAtomAt (n)).getColorB () ) );
+		atomsammlung->push_back ( new atomsimAtom (  0 , (*a->getAtomAt (n)).getAtomIDzaehler () , welt , raum , (*a->getAtomAt (n)).getX () ,(*a->getAtomAt (n)).getY () , (*a->getAtomAt (n)).getZ () , (*a->getAtomAt (n)).getRadius () , (*a->getAtomAt (n)).getHuellenradius () , (*a->getAtomAt (n)).getMasse (), (*a->getAtomAt (n)).getBindungsstaerke () , (*a->getAtomAt (n)).getAbspaltstaerke (), (*a->getAtomAt (n)).getMaxatombindungszahl () , (*a->getAtomAt (n)).getBindungsblockdauer () , (*a->getAtomAt (n)).getMaxmotorkraft () , (*a->getAtomAt (n)).getMotorgeschwindigkeitsfaktor () , (*a->getAtomAt (n)).getColorR (), (*a->getAtomAt (n)).getColorG () , (*a->getAtomAt (n)).getColorB () ) );
 
-		(*a).atombindung ( (*a).getAtomAt ( n ) , (*a).getKollisionsvektor1 () , (*a).getKollisionsvektor2 () );
-		rekursivKopieren ( (*a).getAtomAt ( n ) , 1 );
+		(*atomsammlung)[ atomsammlung->size () - 2]->atombindung ( atomsammlung->back () , a->getAtomAt (n)->getKollisionsvektor1 () , a->getAtomAt (n)->getKollisionsvektor2 () );
+		rekursivKopieren ( a->getAtomAt ( n ) , false );
 
+	}
+	
+	//if it is the first recursive step, then the number of atoms of the new robot is calculated
+	if ( firstcall == true )
+	{
+		neueratomsimRobot->atomanzahl = rekursionszaehler ( neueratomsimRobot->getUrsprungsatom () , 1 );
 	}
 	return neueratomsimRobot;
 }
@@ -501,29 +519,38 @@ atomsimRobot* atomsimRobot::rekursivKopieren ( atomsimAtom* a , int status )
  *@author
  *@version
  **/
-bool atomsimRobot::roboterAuftrennen ( atomsimAtom* a )
+bool atomsimRobot::roboterAuftrennen ( atomsimAtom* a/*=0*/ , atomsimAtom** newrobotpart /*=0*/ , atomsimAtom** endofpieceone /*0*/ , double trennverhaeltniss /*= 0*/ )
 {
-	int z;
-
+	if ( a == 0 )
+		a = getUrsprungsatom ();
+	if ( trennverhaeltniss == 0 )
+		trennverhaeltniss = getRekombinationsTrennverhaeltniss ();
+		
 	for ( int n = 0; n < (*a).getAnzahlAtome (); n++ )
 	{
-		if ( roboterAuftrennen ( (*a).getAtomAt ( n ) ) == false )
+		//does not count the atom a here
+		if ( fabs ( ( ((double) rekursionszaehler ( a->getAtomAt (n) , 1 ) ) / getAtomAnzahl ()) - trennverhaeltniss ) < (1.0/getAtomAnzahl ()) )
 		{
-			z = getAtomAnzahl () - rekursionszaehler ( a , 1 );
-			if ( (z / getAtomAnzahl ()) == getRekombinationsTrennverhaeltniss () )
-			{
+			//Abspalten des Ursprungs-Joints
+			
+			if ( endofpieceone != 0 )
+				*endofpieceone = a;
+			if ( endofpieceone != 0 )
+				*newrobotpart = a->getAtomAt ( n );
+			
+			dJointDestroy ( a->getAtomAt (n)->getUrsprungJoint () );
+			dJointDestroy ( a->getAtomAt (n)->getUrsprungMotor () );
 
-				//Abspalten des Ursprungs-Joints
+			//loeschen der einzellinks des Atoms und des Joints in den jewailigen Listen des Ursprungsatoms
+			a->delAtomAt ( n );
+			a->delJointAt ( n );
+			a->delMotorAt ( n );
 
-				dJointDestroy ( (*(*a).getAtomAt ( n )).getUrspungJoint () );
-				//loeschen der einzellinks des Atoms und des Joints in den jewailigen Listen des Ursprungsatoms
-				(*a).delAtomAt ( n );
-				(*a).delJointAt ( n );
-				(*a).delMotorAt ( n );
-
-			}
+			a->getAtomAt (n)->setUrsprung ( NULL );
+			return true;
 		}
-		else return true;
+		else
+			return roboterAuftrennen ( (*a).getAtomAt ( n ) , newrobotpart , endofpieceone , trennverhaeltniss );
 	}
 	return false;
 }
@@ -533,22 +560,76 @@ bool atomsimRobot::roboterAuftrennen ( atomsimAtom* a )
  *@author
  *@version
  **/
-void atomsimRobot::roboterRekombination ( int vermehrungsart , atomsimRobot* partner , atomsimRobot** speicherort1 , atomsimRobot** speicherort2 )
+void atomsimRobot::roboterRekombination ( int vermehrungsart , double trennverhaeltniss , atomsimRobot* partner , atomsimRobot** speicherort1 , atomsimRobot** speicherort2 , Position newpos1 , Position newpos2 )
 {
 	atomsimRobot* neueratomsimRobot1;
 	atomsimRobot* neueratomsimRobot2;
 	//Erzeugung von Kopien der bereits bestehenden atomsimRobotn
-	neueratomsimRobot1 = rekursivKopieren ( getUrsprungsatom () , 0 );
-	neueratomsimRobot2 = rekursivKopieren ( (*partner).getUrsprungsatom () , 0 );
-	//Auftrennen der Kopien und erzeugen von 4 atomsimRobot-Schnipseln, hierbei muess sich die Atome gemerkt werden, die spaeter als neue Bindungsorte dienen sollen
-	roboterAuftrennen ( getUrsprungsatom () );
-	(*partner).roboterAuftrennen ( getUrsprungsatom () );
-	
-	//verschieben der Schnipsel, so dass ein Binden einen korrekten atomsimRobot erzeugt, also die Bindungsatome nicht zu weit auseinander liegen
-	//Bindung der atomsimRoboteinzelteile; dies erfolgt im Bindungsraum, einem speziellen Gebiet der Simulationswelt, den gewoehnliche Atome nicht betreten koennen
+	neueratomsimRobot1 = rekursivKopieren ( getUrsprungsatom () , true );
+	neueratomsimRobot2 = rekursivKopieren ( (*partner).getUrsprungsatom () , true );
 
-	*speicherort1 = neueratomsimRobot1;
-	*speicherort2 = neueratomsimRobot2;
+	//Auftrennen der Kopien und erzeugen von 4 atomsimRobot-Schnipseln, hierbei muess sich die Atome gemerkt werden, die spaeter als neue Bindungsorte dienen sollen
+	atomsimAtom* schnipsel1;
+	atomsimAtom* schnipsel2;
+	atomsimAtom* schnipsel3;
+	atomsimAtom* schnipsel4;
+	atomsimAtom* bindungsatom1;
+	atomsimAtom* bindungsatom2;
 	
+		if ( neueratomsimRobot1->roboterAuftrennen ( 0 , &schnipsel2 , &bindungsatom1 , trennverhaeltniss ) == true )
+		{
+			dsPrint ( "TRENNUNG VON ROBOTER 1 ERFOLGREICH!\n"  );
+			schnipsel1 = neueratomsimRobot1->getUrsprungsatom ();
+				
+				if ( neueratomsimRobot2->roboterAuftrennen ( 0 , &schnipsel4 , &bindungsatom2 , trennverhaeltniss ) == true )
+				{
+					dsPrint ( "TRENNUNG VON ROBOTER 2 ERFOLGREICH!\n" );
+					schnipsel3 = neueratomsimRobot2->getUrsprungsatom ();
+					
+					//verschieben der Schnipsel, so dass ein Binden einen korrekten atomsimRobot erzeugt, also die Bindungsatome nicht zu weit auseinander liegen
+					rekursivVerschieben ( schnipsel1 , newpos1 );
+					Position newpos1_2;
+					newpos1_2.x = bindungsatom1->getX () + 2*bindungsatom1->getHuellenradius ();
+					newpos1_2.y = bindungsatom1->getY ();// + 2*bindungsatom1->getHuellenradius ();
+					newpos1_2.z = bindungsatom1->getZ ();// + 2*bindungsatom1->getHuellenradius ();
+					rekursivVerschieben ( schnipsel4 , newpos1_2 );
+					
+					rekursivVerschieben ( schnipsel3 , newpos2 );
+					Position newpos2_1;
+					newpos2_1.x = bindungsatom2->getX () + 2*bindungsatom2->getHuellenradius ();
+					newpos2_1.y = bindungsatom2->getY ();// + 2*bindungsatom2->getHuellenradius ();
+					newpos2_1.z = bindungsatom2->getZ ();// + 2*bindungsatom2->getHuellenradius ();
+					rekursivVerschieben ( schnipsel2 , newpos2_1 );
+					
+					
+					//Bindung der atomsimRoboteinzelteile; dies erfolgt im Bindungsraum, einem speziellen Gebiet der Simulationswelt, den gewoehnliche Atome nicht betreten koennen
+					raumvektor kraftraumvektor1 , kraftraumvektor2;
+					//bisher feste Axen, alternative gesucht
+					kraftraumvektor1.x = 2;
+					kraftraumvektor1.y = 0;
+					kraftraumvektor1.z = 0;
+					kraftraumvektor2.x = 0;
+					kraftraumvektor2.y = 0;
+					kraftraumvektor2.z = 2;
+					
+					
+					bindungsatom1->atombindung ( schnipsel4 , kraftraumvektor1 , kraftraumvektor2 );
+					
+					bindungsatom2->atombindung ( schnipsel2 , kraftraumvektor1 , kraftraumvektor2 );
+					
+				
+					*speicherort1 = neueratomsimRobot1;
+					*speicherort2 = neueratomsimRobot2;
+					return;
+				}
+				else
+				{
+					dsPrint ( "Keine Rekombination: keine Trennung von Roboter 2 möglich!\n" );
+				}
+		}
+		else
+		{
+			dsPrint ( "Keine Rekombination: keine Trennung von Roboter 1 möglich!\n" );
+		}	
 }
 

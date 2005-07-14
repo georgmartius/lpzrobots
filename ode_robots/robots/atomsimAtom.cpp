@@ -81,7 +81,11 @@ atomsimAtom::atomsimAtom ( int start_roboterID , int* start_atomIDzaehler , dWor
  **/
 atomsimAtom::~atomsimAtom ()
 {
-	//löschen aller vom Atom ausgehenden Bindungsobjekte	
+	/*dBodyDestroy ( body );
+	dJointDestroy ( ursprungjoint );
+	dJointDestroy ( ursprungmotor );
+	dGeomDestroy ( atom_geom );
+	dGeomDestroy ( atomhuelle_geom );*/
 }
 
 /**
@@ -163,6 +167,16 @@ void atomsimAtom::setXYZ ( double neuesX , double neuesY , double neuesZ )
 {
 	dBodySetPosition ( body , neuesX , neuesY , neuesZ );
 }
+
+/**
+ *
+ *@author Marcel Kretschmann
+ *@version
+ **/
+atomsimAtom* atomsimAtom::getUrsprung ( )
+{
+	return ursprung;
+}
 	
 /**
  *
@@ -179,7 +193,7 @@ void atomsimAtom::setUrsprung ( atomsimAtom* neuer_ursprung )
  *@author Marcel Kretschmann
  *@version
  **/
-dJointID atomsimAtom::getUrspungJoint ( )
+dJointID atomsimAtom::getUrsprungJoint ( )
 {
 	return ursprungjoint;
 }
@@ -189,7 +203,7 @@ dJointID atomsimAtom::getUrspungJoint ( )
  *@author Marcel Kretschmann
  *@version
  **/
-void atomsimAtom::setUrspungJoint ( dJointID neuer_ursprungjoint )
+void atomsimAtom::setUrsprungJoint ( dJointID neuer_ursprungjoint )
 {
 	ursprungjoint = neuer_ursprungjoint;
 }
@@ -199,7 +213,7 @@ void atomsimAtom::setUrspungJoint ( dJointID neuer_ursprungjoint )
  *@author Marcel Kretschmann
  *@version
  **/
-dJointID atomsimAtom::getUrspungMotor ( )
+dJointID atomsimAtom::getUrsprungMotor ( )
 {
 	return ursprungmotor;
 }
@@ -209,7 +223,7 @@ dJointID atomsimAtom::getUrspungMotor ( )
  *@author Marcel Kretschmann
  *@version
  **/
-void atomsimAtom::setUrspungMotor ( dJointID neuer_ursprungmotor )
+void atomsimAtom::setUrsprungMotor ( dJointID neuer_ursprungmotor )
 {
 	ursprungmotor = neuer_ursprungmotor;
 }
@@ -671,12 +685,12 @@ bool atomsimAtom::atombindung ( atomsimAtom* a2 , raumvektor kraftraumvektor1 , 
 		dJointSetHingeAxis ( tmp , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
 
 		jointliste.push_back ( tmp );
-		(*a2).setUrspungJoint ( tmp );
+		(*a2).setUrsprungJoint ( tmp );
 
 
 		//Anlegen des Motors
 		motorliste.push_back ( dJointCreateAMotor ( *welt , 0 ) );
-		(*a2).setUrspungMotor ( motorliste.back () );
+		(*a2).setUrsprungMotor ( motorliste.back () );
 		dJointAttach ( motorliste.back () , (*this).getBody () , (*a2).getBody () );
 		dJointSetAMotorMode ( motorliste.back () , dAMotorEuler );
 		dJointSetAMotorAxis ( motorliste.back () , 0 , 1 , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
