@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-07-13 08:39:21  robot8
+ *   Revision 1.14  2005-07-15 11:35:52  fhesse
+ *   added parameter gravity
+ *
+ *   Revision 1.13  2005/07/13 08:39:21  robot8
  *   added the possibility to use an additional command function, which handels special Inputs if the ODE simulation window has the focus
  *
  *   Revision 1.12  2005/07/11 11:19:38  robot8
@@ -117,7 +120,7 @@ void simulation_init(void (*start)(), void (*end)(),
   contactgroup = dJointGroupCreate ( 1000000 );
  
   //Gravitation zu Erdgravitation
-  dWorldSetGravity ( world , 0 , 0 , -9.81 );
+  dWorldSetGravity ( world , 0 , 0 , simulationConfig.gravity );
   dWorldSetERP ( world , 1 );
   ground = dCreatePlane ( space , 0 , 0 , 1 , 0 );
   cmd_handler_init();

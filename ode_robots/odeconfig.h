@@ -10,6 +10,7 @@ public:
     drawInterval=1;
     controlInterval=5;
     noise=0.1;
+    gravity=-9.81;
     // prepare name;
     strcpy(name,"Simulation Environment: ");
     Configurable::insertCVSInfo(name + strlen(name), "$RCSfile$", "$Revision$");
@@ -20,18 +21,21 @@ public:
   }
 
   virtual int getParamList(paramkey*& keylist,paramval*& vallist) const {
-    keylist=(paramkey*)malloc(sizeof(paramkey)*4);
-    vallist=(paramval*)malloc(sizeof(paramval)*4);
+    int number_params=5;
+    keylist=(paramkey*)malloc(sizeof(paramkey)*number_params);
+    vallist=(paramval*)malloc(sizeof(paramval)*number_params);
     keylist[0]="noise";
     keylist[1]="simstepsize";
     keylist[2]="drawinterval";
     keylist[3]="controlinterval";
+    keylist[4]="gravity";
                     
     vallist[0]=noise;
     vallist[1]=simStepSize;
     vallist[2]=drawInterval;
     vallist[3]=controlInterval;
-    return 4;
+    vallist[4]=gravity;
+    return number_params;
   }
 
   paramval getParam(const paramkey key) const {
@@ -40,6 +44,7 @@ public:
     else if(strcmp(key, "simstepsize")==0) return simStepSize; 
     else if(strcmp(key, "drawinterval")==0) return drawInterval; 
     else if(strcmp(key, "controlinterval")==0) return controlInterval; 
+    else if(strcmp(key, "gravity")==0) return gravity; 
     else  return 0.0;
   }
         
@@ -49,6 +54,10 @@ public:
     else if(strcmp(key, "simstepsize")==0) simStepSize=val; 
     else if(strcmp(key, "drawinterval")==0) drawInterval=(int)val; 
     else if(strcmp(key, "controlinterval")==0) controlInterval=(int)val; 
+    else if(strcmp(key, "gravity")==0) {
+      gravity=val; 
+      dWorldSetGravity ( world , 0 , 0 , gravity );
+    }
     else  return false;
     return true;
   }
@@ -58,6 +67,7 @@ public:
   int drawInterval;
   int controlInterval;
   double noise;
+  double gravity;
   char name[100];
 };
 
