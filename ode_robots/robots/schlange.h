@@ -39,6 +39,8 @@ private:
 	double geschwindigkeitsfaktor;
 	double maxmotorkraft;
 
+	std::vector<dJointID> skyJoints; // for fixing segment 0 in the sky
+
 protected:
 	
 	ausgabemodus ausgabeart;
@@ -81,6 +83,10 @@ public:
 	**/
 	virtual void draw();
 	
+	/** fix segment 0 in the sky
+	 */
+	virtual void fixInSky();
+
 	/**
 	 *Decides if some collisions of the robot should not be threated by by the collision management.
 	 *This overwrides the function in the roboter class.

@@ -88,16 +88,18 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanz
 		dJointSetUniversalAxis2 ( jointliste.back () , 0 , 0 , 1 );
 
 		// setting stops at universal joints		
-		dJointSetUniversalParam ( jointliste.back () , dParamLoStop, -M_PI/4 );
-		dJointSetUniversalParam ( jointliste.back () , dParamHiStop,  M_PI/4 );
-		dJointSetUniversalParam ( jointliste.back () , dParamLoStop2, -M_PI/4); 
-		dJointSetUniversalParam ( jointliste.back () , dParamHiStop2,  M_PI/4); 
+		dJointSetUniversalParam ( jointliste.back () , dParamLoStop, -M_PI/2 );
+		dJointSetUniversalParam ( jointliste.back () , dParamHiStop,  M_PI/2 );
+		dJointSetUniversalParam ( jointliste.back () , dParamLoStop2, -M_PI/2); 
+		dJointSetUniversalParam ( jointliste.back () , dParamHiStop2,  M_PI/2); 
 
 		// making stops bouncy
 		dJointSetUniversalParam ( jointliste.back () , dParamBounce, 0.9 );
 		dJointSetUniversalParam ( jointliste.back () , dParamBounce2, 0.9 );
 	}	
 }
+
+
 	
 /**
  *Destruktor
@@ -107,6 +109,33 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanz
 Schlange::~Schlange()
 {
 }
+
+/** fix segment 0 in the sky
+ */
+void Schlange::fixInSky(){
+  for (int i=0; i<2; i++){
+  skyJoints.push_back( dJointCreateHinge ( *world , 0 ) );
+  dJointAttach ( skyJoints.back(), objektliste[0].body , 0 );
+  dJointSetUniversalAnchor ( skyJoints.back(), 
+			     dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
+			     dBodyGetPositionAll ( objektliste[0].body , 2 ) , 
+			     dBodyGetPositionAll ( objektliste[0].body , 3 ) ); 
+  if (i==0) dJointSetHingeAxis(skyJoints.back(),1,0,0);
+  if (i==1) dJointSetHingeAxis(skyJoints.back(),0,1,0);
+  dJointSetFixed(skyJoints.back());
+  }
+  /*
+  jointliste.push_back( dJointCreateHinge ( *world , 0 ) );
+  dJointAttach ( jointliste.back() , objektliste[0].body , 0 );
+  dJointSetUniversalAnchor ( jointliste.back() , 
+			     dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
+			     dBodyGetPositionAll ( objektliste[0].body , 2 ) , 
+			     dBodyGetPositionAll ( objektliste[0].body , 3 ) ); 
+  dJointSetHingeAxis(jointliste.back(),0,1,0);
+  dJointSetFixed(jointliste.back());
+  */
+};
+
 	
 /**
  *Draws all elements of the snake.
