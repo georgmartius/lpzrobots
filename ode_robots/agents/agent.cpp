@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-14 15:57:53  fhesse
+ *   Revision 1.2  2005-07-18 10:14:04  martius
+ *   noise moved to wiring
+ *
+ *   Revision 1.1  2005/07/14 15:57:53  fhesse
  *   now agent contains controller, robot and wiring, plotting ability included, therefore plotagent can be removed; ono2onewiring replaces one2oneagent
  *
  *                                                                 *
@@ -34,14 +37,13 @@
 
 
   /// constructor
-Agent::Agent(NoiseGenerator* noise, PlotMode plotmode/*=GuiLogger*/){
+Agent::Agent(PlotMode plotmode/*=GuiLogger*/){
   controller = 0;
   robot      = 0;
   wiring     = 0;
     
   rsensors=0; rmotors=0; 
   csensors=0; cmotors=0; 
-  noiseGenerator=noise;
   this->plotmode=plotmode;
 
   pipe=0;
@@ -54,7 +56,6 @@ Agent::~Agent(){
   if(rmotors)  free(rmotors);
   if(csensors) free(csensors);
   if(cmotors)  free(cmotors);
-  if(noiseGenerator) delete noiseGenerator;
 }
 
 
@@ -77,9 +78,7 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
     rmotors       = (motor*)  malloc(sizeof(motor)  * rmotornumber);
     csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
     cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
-    if(!noiseGenerator) return false;
-    noiseGenerator->init(rsensornumber);
-
+    
     if(plotmode != NoPlot){
       if(!OpenGui()) return false;
       numberInternalParameters = printInternalParameterNames(pipe, csensornumber, cmotornumber, controller);
@@ -145,16 +144,10 @@ void Agent::step(double noise){
   if(len != rsensornumber){
     fprintf(stderr, "%s:%i: Got not enough sensors!\n", __FILE__, __LINE__);
   }
-  noiseGenerator->add(rsensors, -noise, noise);   
   
-  wiring->wireSensors(rsensors, rsensornumber, csensors, csensornumber);
+  wiring->wireSensors(rsensors, rsensornumber, csensors, csensornumber, noise);
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
   robot->setMotors(rmotors, rmotornumber);
   plot(csensors, csensornumber, cmotors, cmotornumber);
 }
-
-
-
-
-

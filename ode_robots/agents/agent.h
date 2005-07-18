@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-14 15:57:53  fhesse
+ *   Revision 1.4  2005-07-18 10:13:46  martius
+ *   noise moved to wiring
+ *
+ *   Revision 1.3  2005/07/14 15:57:53  fhesse
  *   now agent contains controller, robot and wiring, plotting ability included, therefore plotagent can be removed; ono2onewiring replaces one2oneagent
  *
  *   Revision 1.2  2005/06/15 14:02:47  martius
@@ -33,8 +36,6 @@
 #include "abstractrobot.h"
 #include "abstractcontroller.h"
 #include "abstractwiring.h"
-#include "noisegenerator.h"
-
 
 /// Plot mode for plot agent.
 enum PlotMode {NoPlot, GuiLogger, GuiLogger_File};
@@ -43,7 +44,7 @@ enum PlotMode {NoPlot, GuiLogger, GuiLogger_File};
 class Agent {
 public:
   /// constructor
-  Agent(NoiseGenerator* noise, PlotMode plotmode=GuiLogger);
+  Agent(PlotMode plotmode=GuiLogger);
 
   ///destructor
   virtual ~Agent();  
@@ -95,8 +96,6 @@ protected:
   motor  *rmotors;
   sensor *csensors;
   motor  *cmotors;
-
-  NoiseGenerator* noiseGenerator;
 
 
 private:
