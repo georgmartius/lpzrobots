@@ -38,8 +38,10 @@ void start()
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
-  dWorldSetGravity ( world , 0 , 0 , 0 );
-  
+  //simulationConfig.setParam("gravity",0.0); // do not use 'simulationConfig.gravity=0.0;', 
+                                            // because world is already initialized and 
+                                            // dWorldSetGravity will not be called when 
+                                            // you only set the value  
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {0.276f,7.12f,1.78f};
@@ -59,18 +61,19 @@ void start()
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
 
-  Sphere* sphere[1];
-  for (int i=0; i<1; i++){
-    sphere[i]= new Sphere(&world, &space);
-    sphere[i]->setPosition(0,0,3+i); //positionieren und generieren
-    obstacles.push_back(sphere[i]);
+  Sphere* sphere;
+  for (int i=-3; i<3; i++){
+    sphere = new Sphere(&world, &space);
+    sphere->setPosition(i*0.5,i*0.5,1.0); //positionieren und generieren
+    obstacles.push_back(sphere);
   }
 
   //****************/
-  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , /*4*/8 , 0.8/*0.5*/ , 0.2 , 0 , 0.4/*0.04*/ , 2 , 10 , anglerate);
-  Position p = {0,0,10};
+  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , /*4*/6 , 0.8/*0.5*/ , 0.2 , 0 , 0.4/*0.04*/ , 2 , 10 , anglerate);
+  Position p = {0,0,3.5};
   Color col = {0,0.5,0.8};
   schlange1->place(p,&col); 
+  schlange1->fixInSky();
   //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
   AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
   //AbstractController *controller = new SineController();  
@@ -82,7 +85,7 @@ void start()
   agents.push_back(agent);
   configs.push_back(controller);
   configs.push_back(schlange1);
-
+  
  
   simulationConfig.setParam("noise",0.1);
   simulationConfig.setParam("simstepsize",0.005);
@@ -104,20 +107,20 @@ void start()
   
 
 
-  /*
-  SchlangeForce* schlange3 = new SchlangeForce ( 2 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.4 , 2 , 10 , anglerate);
+  
+  SchlangeForce* schlange3 = new SchlangeForce ( 2 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.4 , 2 , 10 , anglerate); 
   Position p3 = {1,1,0};
   Color col3 = {1,1,0};
   schlange1->place(p3,&col3);
   AbstractController *controller3 = new InvertNChannelController(10,true);  
   
-  One2OneWiring* wiring3 = new One2OneWiring();
-  Agent* agent3 = new Agent(new ColorUniformNoise(0.1), NoPlot/ *GuiLogger* /);
+  One2OneWiring* wiring3 = new One2OneWiring(new ColorUniformNoise(0.1));
+  Agent* agent3 = new Agent(NoPlot/*GuiLogger*/);
   agent3->init(controller3, schlange3, wiring3);
   agents.push_back(agent3);
   configs.push_back(controller3);
   configs.push_back(schlange3);
-  */
+  
 
   /*
   Nimm2* vehicle = new Nimm2 ( &world , &space , &contactgroup);
