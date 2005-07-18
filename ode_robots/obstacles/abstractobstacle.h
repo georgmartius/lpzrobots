@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-06-15 14:22:11  martius
+ *   Revision 1.4  2005-07-18 14:52:33  martius
+ *   world and space are not pointers anymore.
+ *
+ *   Revision 1.3  2005/06/15 14:22:11  martius
  *   GPL included
  *                                                                 *
  ***************************************************************************/
@@ -42,7 +45,7 @@ class AbstractObstacle{
    * @param w world in which obstacle should be created
    * @param s space in which obstacle should be created
    */
-  AbstractObstacle(dWorldID *w, dSpaceID *s){
+  AbstractObstacle(dWorldID w, dSpaceID s){
     world=w;
     space=s;
   };
@@ -71,8 +74,8 @@ class AbstractObstacle{
 
  protected:
 
-  dSpaceID *space;
-  dWorldID *world;
+  dSpaceID space;
+  dWorldID world;
 
   Color color;
 

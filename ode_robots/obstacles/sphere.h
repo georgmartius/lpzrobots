@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-08 10:00:33  fhesse
+ *   Revision 1.2  2005-07-18 14:52:33  martius
+ *   world and space are not pointers anymore.
+ *
+ *   Revision 1.1  2005/07/08 10:00:33  fhesse
  *   initial version
  *                                                    *
  *                                                                         *
@@ -48,7 +51,7 @@ class Sphere : public AbstractObstacle{
 
  public:
   
-  Sphere(dWorldID *w, dSpaceID *s):
+  Sphere(dWorldID w, dSpaceID s):
     AbstractObstacle::AbstractObstacle(w, s){
 
     base_x=0.0;
@@ -106,13 +109,13 @@ class Sphere : public AbstractObstacle{
     dMass m;
 
 
-    body= dBodyCreate(*world);
+    body= dBodyCreate(world);
     dMassSetSphere(&m,1,radius);
     dMassAdjust (&m,masse);
     dBodySetMass (body,&m);
     dBodySetPosition ( body, base_x, base_y, base_z + radius);
     printf("z-position=%f\n",base_z);
-    geom = dCreateSphere ( *space, radius );
+    geom = dCreateSphere ( space, radius );
     dGeomSetBody (geom, body);
 
     obstacle_exists=true;
