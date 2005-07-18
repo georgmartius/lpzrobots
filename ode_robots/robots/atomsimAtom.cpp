@@ -27,7 +27,7 @@ using namespace std;
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
-atomsimAtom::atomsimAtom ( int start_roboterID , int* start_atomIDzaehler , dWorldID* start_welt , dSpaceID* start_raum , double x ,double y , double z , double start_radius , double start_huelleradius , double start_masse , double start_bindungsstaerke , double start_abspaltstaerke , unsigned int start_maxatombindungszahl , unsigned int start_bindungsblockdauer , double start_maxmotorkraft , double start_motorgeschwindigkeitsfaktor , double r , double g , double b )
+atomsimAtom::atomsimAtom ( int start_roboterID , int* start_atomIDzaehler , dWorldID start_welt , dSpaceID start_raum , double x ,double y , double z , double start_radius , double start_huelleradius , double start_masse , double start_bindungsstaerke , double start_abspaltstaerke , unsigned int start_maxatombindungszahl , unsigned int start_bindungsblockdauer , double start_maxmotorkraft , double start_motorgeschwindigkeitsfaktor , double r , double g , double b )
 {
 	atomIDzaehler = start_atomIDzaehler;
 	atomID = *atomIDzaehler;
@@ -59,18 +59,18 @@ atomsimAtom::atomsimAtom ( int start_roboterID , int* start_atomIDzaehler , dWor
 	dMassSetSphereTotal ( &mass , masse , atomradius );
 	
 	//Anlegen des Atoms
-	body = dBodyCreate ( *welt );
+	body = dBodyCreate ( welt );
 	dBodySetPosition ( body , x , y , z );
 	
 	//Massenzuweisung
 	dBodySetMass ( body , &mass );
 	
 	//Anlegen und zuweisen der Atomoberflaeche
-	atom_geom = dCreateSphere ( *raum , atomradius );
+	atom_geom = dCreateSphere ( raum , atomradius );
 	dGeomSetBody ( atom_geom , body );
 	
 	//Anlegen und zuweisen der Atomoberflaeche
-	atomhuelle_geom = dCreateSphere ( *raum , atomhuelleradius );
+	atomhuelle_geom = dCreateSphere ( raum , atomhuelleradius );
 	dGeomSetBody ( atomhuelle_geom , body );
 }
 	
@@ -678,7 +678,7 @@ bool atomsimAtom::atombindung ( atomsimAtom* a2 , raumvektor kraftraumvektor1 , 
 		(*a2).setRoboterID ( (*this).getRoboterID () ); //das anstoßende Atom erhällt die Kennung des Roboters zu dem es nun gehört
 
 		//Anlegen des Joints
-		tmp = dJointCreateHinge ( *welt , 0 ); //diese Joints duerfen in keiner Gruppe liegen, damit sie einzeln zerstört werden koennen
+		tmp = dJointCreateHinge ( welt , 0 ); //diese Joints duerfen in keiner Gruppe liegen, damit sie einzeln zerstört werden koennen
 		dJointAttach ( tmp , (*this).getBody () , (*a2).getBody () );
 		dJointSetHingeAnchor ( tmp , (*this).getX () , (*this).getY () , (*this).getZ () );
 
@@ -689,7 +689,7 @@ bool atomsimAtom::atombindung ( atomsimAtom* a2 , raumvektor kraftraumvektor1 , 
 
 
 		//Anlegen des Motors
-		motorliste.push_back ( dJointCreateAMotor ( *welt , 0 ) );
+		motorliste.push_back ( dJointCreateAMotor ( welt , 0 ) );
 		(*a2).setUrsprungMotor ( motorliste.back () );
 		dJointAttach ( motorliste.back () , (*this).getBody () , (*a2).getBody () );
 		dJointSetAMotorMode ( motorliste.back () , dAMotorEuler );

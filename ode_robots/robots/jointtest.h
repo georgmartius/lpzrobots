@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-06-28 10:12:15  fhesse
+ *   Revision 1.5  2005-07-18 14:47:41  martius
+ *   world, space, contactgroup are not pointers anymore.
+ *
+ *   Revision 1.4  2005/06/28 10:12:15  fhesse
  *   friction_factor gamma and tanh in getSensors added
  *
  *   Revision 1.3  2005/06/27 09:31:26  fhesse
@@ -43,7 +46,7 @@ class JointTest : public AbstractRobot{
 
 public:
   
-  JointTest(dWorldID *w, dSpaceID *s, dJointGroupID *c);
+  JointTest(dWorldID w, dSpaceID s, dJointGroupID c);
 
   virtual ~JointTest(){};
 

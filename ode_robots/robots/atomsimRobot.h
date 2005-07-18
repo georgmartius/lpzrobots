@@ -23,8 +23,8 @@ private:
 	int roboterID;
 	int* roboterIDzaehler;
 	
-	dWorldID* welt;
-	dSpaceID* raum;
+	dWorldID welt;
+	dSpaceID raum;
 	
 	int atomanzahl;
 	int maxatomanzahl;
@@ -41,7 +41,7 @@ public:
  	 *@author
  	 *@version
  	 **/
-	atomsimRobot ( int* start_roboterIDzaehler , dWorldID* start_welt , dSpaceID* start_raum , dJointGroupID* start_contactgroup , vector<atomsimAtom*>* start_atomsammlung , atomsimAtom* start_ursprungsatom , int start_maxatomanzahl , double start_rekombinationstrennverhaeltniss );
+	atomsimRobot ( int* start_roboterIDzaehler , dWorldID start_welt , dSpaceID start_raum , dJointGroupID start_contactgroup , vector<atomsimAtom*>* start_atomsammlung , atomsimAtom* start_ursprungsatom , int start_maxatomanzahl , double start_rekombinationstrennverhaeltniss );
 	
 	/**
  	 *Destructor

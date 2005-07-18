@@ -32,7 +32,7 @@
  **/
 
 
-SchlangeForce::SchlangeForce ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart ) :
+SchlangeForce::SchlangeForce ( int startRoboterID , dWorldID welt , dSpaceID raum , dJointGroupID start_contactgroup , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart ) :
 Schlange::Schlange ( startRoboterID , welt , raum , start_contactgroup , start_x , start_y , start_z , armanzahl , glieder_laenge , glieder_durchmesser , glieder_abstand , glieder_masse , start_maxmotorkraft , start_geschwindigkeitsfaktor , start_ausgabeart ) 
 {
         // prepare name;
@@ -105,7 +105,7 @@ SchlangeForce::~SchlangeForce()
 					contact[i].surface.soft_erp = 1;
 					contact[i].surface.soft_cfm = 0.00001;
 
-					dJointID c = dJointCreateContact ( (*world) , (*contactgroup) , &contact[i] );
+					dJointID c = dJointCreateContact ( world , contactgroup , &contact[i] );
 					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
 				}
 		}

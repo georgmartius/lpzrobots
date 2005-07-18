@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-06-27 13:15:58  fhesse
+ *   Revision 1.2  2005-07-18 14:47:32  martius
+ *   world, space, contactgroup are not pointers anymore.
+ *
+ *   Revision 1.1  2005/06/27 13:15:58  fhesse
  *   from JointTest, for usage in simulation running_through_limit_cycles
  *
  *   Revision 1.3  2005/06/27 09:31:26  fhesse
@@ -44,7 +47,7 @@
 #include "fixedsnake2elements.h"
 #include <iostream>
 
-FixedSnake2Elements::FixedSnake2Elements(dWorldID *w, dSpaceID *s, dJointGroupID *c):
+FixedSnake2Elements::FixedSnake2Elements(dWorldID w, dSpaceID s, dJointGroupID c):
   AbstractRobot::AbstractRobot(w, s, c){
 
   created=false;
@@ -279,9 +282,9 @@ void FixedSnake2Elements::create(Position pos){
   dRFromAxisAndAngle ( R , 0 , 1 , 0 , PI/2 );//hier drehung um 90° um die y-Achse
 
   for (int i=0; i<segmentsno; i++){
-    segments[i].body=dBodyCreate ( *world);
+    segments[i].body=dBodyCreate ( world);
     dBodySetMass ( segments[i].body , &masse );
-    segments[i].geom=dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
+    segments[i].geom=dCreateCCylinder ( space , glieder_durchmesser , glieder_laenge );
     dGeomSetBody ( segments[i].geom , segments[i].body );
     dGeomSetPosition(segments[i].geom,pos.x +i*(glieder_laenge+glieder_laenge/10), pos.y, 
 		     pos.z+glieder_durchmesser/*+2.0*glieder_laenge*/);
@@ -337,7 +340,7 @@ double FixedSnake2Elements::dBodyGetPositionAll ( dBodyID basis , int para )
 /** fix segment 0 in the sky
  */
 void FixedSnake2Elements::fixInSky(){
-  joints[ 2*(segmentsno-1) ]= ( dJointCreateHinge ( *world , 0 ) );
+  joints[ 2*(segmentsno-1) ]= ( dJointCreateHinge ( world , 0 ) );
   dJointAttach ( joints[ 2*(segmentsno-1) ] , segments[0].body , 0 );
   dJointSetUniversalAnchor ( joints[ 2*(segmentsno-1) ] , 
 			     dBodyGetPositionAll ( segments[0].body , 1 ) , 
@@ -345,7 +348,7 @@ void FixedSnake2Elements::fixInSky(){
 			     dBodyGetPositionAll ( segments[0].body , 3 ) ); 
   dJointSetHingeAxis(joints[ 2*(segmentsno-1) ],1,0,0);
   dJointSetFixed(joints[ 2*(segmentsno-1) ]);
-  joints[ 2*(segmentsno-1) +1]= ( dJointCreateHinge ( *world , 0 ) );
+  joints[ 2*(segmentsno-1) +1]= ( dJointCreateHinge ( world , 0 ) );
   dJointAttach ( joints[2*(segmentsno-1) +1] , segments[0].body , 0 );
   dJointSetUniversalAnchor ( joints[2*(segmentsno-1) +1] , 
 			     dBodyGetPositionAll ( segments[0].body , 1 ) , 
@@ -360,7 +363,7 @@ void FixedSnake2Elements::fixInSky(){
 void FixedSnake2Elements::useUniversalJoints(){
   
   for (int i=0; i<segmentsno-1; i++){
-    joints[i]= ( dJointCreateUniversal ( *world , 0 ) );
+    joints[i]= ( dJointCreateUniversal ( world , 0 ) );
     dJointAttach ( joints[i] , segments[i].body , segments[i+1].body );
 			
     dJointSetUniversalAnchor ( joints[i] , 
@@ -386,7 +389,7 @@ void FixedSnake2Elements::useUniversalJoints(){
 
 
 void FixedSnake2Elements::useHinge2Joints(){  // TODO: adapt to mot then to segments
-  joints[0]= ( dJointCreateHinge2 ( *world , 0 ) );
+  joints[0]= ( dJointCreateHinge2 ( world , 0 ) );
   dJointAttach ( joints[0] , segments[0].body , segments[1].body );
 			
   dJointSetHinge2Anchor ( joints[0] , 

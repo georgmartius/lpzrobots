@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-06-27 13:15:58  fhesse
+ *   Revision 1.2  2005-07-18 14:47:41  martius
+ *   world, space, contactgroup are not pointers anymore.
+ *
+ *   Revision 1.1  2005/06/27 13:15:58  fhesse
  *   from JointTest, for usage in simulation running_through_limit_cycles
  *
  *   Revision 1.3  2005/06/27 09:31:26  fhesse
@@ -43,7 +46,7 @@ class FixedSnake2Elements : public AbstractRobot{
 
 public:
   
-  FixedSnake2Elements(dWorldID *w, dSpaceID *s, dJointGroupID *c);
+  FixedSnake2Elements(dWorldID w, dSpaceID s, dJointGroupID c);
 
   virtual ~FixedSnake2Elements(){};
 

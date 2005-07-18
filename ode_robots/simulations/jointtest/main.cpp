@@ -40,13 +40,13 @@ void start()
   simulationConfig.noise=0.1;
   configs.push_back(&simulationConfig);
   
-  Playground* playground = new Playground(&world, &space);
+  Playground* playground = new Playground(world, space);
   playground->setGeometry(20.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
   
   /*
-  Nimm2* vehicle = new Nimm2(&world, &space, &contactgroup);
+  Nimm2* vehicle = new Nimm2(world, space, contactgroup);
   Position p = {5,0,0};
   vehicle->place(p);
   AbstractController *controller = new InvertNChannelController(10);  
@@ -58,7 +58,7 @@ void start()
   agents.push_back(agent);
   */
 
-  JointTest* testjoints = new JointTest(&world, &space, &contactgroup);
+  JointTest* testjoints = new JointTest(world, space, contactgroup);
   Position p2 = {0,0,0};
   testjoints->place(p2);
   AbstractController *controller2 = new InvertNChannelController(10);  

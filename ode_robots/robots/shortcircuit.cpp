@@ -7,7 +7,7 @@
 #include "shortcircuit.h"
 
 
-ShortCircuit::ShortCircuit(dWorldID *w, dSpaceID *s, dJointGroupID *c, int sensornumber, int motornumber)
+ShortCircuit::ShortCircuit(dWorldID w, dSpaceID s, dJointGroupID c, int sensornumber, int motornumber)
   : AbstractRobot::AbstractRobot(w, s, c){
 
   sensorno = sensornumber; 

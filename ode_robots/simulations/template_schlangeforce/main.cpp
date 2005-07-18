@@ -56,20 +56,20 @@ void start()
   configs.push_back(&simulationConfig);
 
 
-  Playground* playground = new Playground(&world, &space);
+  Playground* playground = new Playground(world, space);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
 
   Sphere* sphere;
   for (int i=-3; i<3; i++){
-    sphere = new Sphere(&world, &space);
+    sphere = new Sphere(world, space);
     sphere->setPosition(i*0.5,i*0.5,1.0); //positionieren und generieren
     obstacles.push_back(sphere);
   }
 
   //****************/
-  SchlangeForce* schlange1 = new SchlangeForce ( 1 , &world , &space , &contactgroup , 0 , 0 , 0.25 , /*4*/6 , 0.8/*0.5*/ , 0.2 , 0 , 0.4/*0.04*/ , 2 , 10 , anglerate);
+  SchlangeForce* schlange1 = new SchlangeForce ( 1 , world , space , contactgroup , 0 , 0 , 0.25 , /*4*/6 , 0.8/*0.5*/ , 0.2 , 0 , 0.4/*0.04*/ , 2 , 10 , anglerate);
   Position p = {0,0,3.5};
   Color col = {0,0.5,0.8};
   schlange1->place(p,&col); 
@@ -108,7 +108,7 @@ void start()
 
 
   
-  SchlangeForce* schlange3 = new SchlangeForce ( 2 , &world , &space , &contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.4 , 2 , 10 , anglerate); 
+  SchlangeForce* schlange3 = new SchlangeForce ( 2 , world , space , contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.4 , 2 , 10 , anglerate);
   Position p3 = {1,1,0};
   Color col3 = {1,1,0};
   schlange1->place(p3,&col3);
@@ -123,7 +123,7 @@ void start()
   
 
   /*
-  Nimm2* vehicle = new Nimm2 ( &world , &space , &contactgroup);
+  Nimm2* vehicle = new Nimm2 ( world , space , contactgroup);
   Position p2 = {0,0,3};
   vehicle->place(p2);
   AbstractController *controller2 = new InvertNChannelController(10,true);  

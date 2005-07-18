@@ -16,8 +16,8 @@ using namespace std;
  *@author
  *@version
  **/
-atomsimRobot::atomsimRobot ( int* start_roboterIDzaehler , dWorldID* start_welt , dSpaceID* start_raum , dJointGroupID* start_contactgroup , vector<atomsimAtom*>* start_atomsammlung , atomsimAtom* start_ursprungsatom , int start_maxatomanzahl , double start_rekombinationstrennverhaeltniss )
-:Roboter::Roboter ( (*start_roboterIDzaehler) , welt , raum , start_contactgroup , 0 )
+atomsimRobot::atomsimRobot ( int* start_roboterIDzaehler , dWorldID start_welt , dSpaceID start_raum , dJointGroupID start_contactgroup , vector<atomsimAtom*>* start_atomsammlung , atomsimAtom* start_ursprungsatom , int start_maxatomanzahl , double start_rekombinationstrennverhaeltniss )
+: Roboter::Roboter ( (*start_roboterIDzaehler) , start_welt , start_raum , start_contactgroup , 0 )
 {
 	roboterIDzaehler = start_roboterIDzaehler;
 	roboterID = (*roboterIDzaehler)++;

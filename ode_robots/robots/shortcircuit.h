@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-06 16:03:37  martius
+ *   Revision 1.2  2005-07-18 14:47:41  martius
+ *   world, space, contactgroup are not pointers anymore.
+ *
+ *   Revision 1.1  2005/07/06 16:03:37  martius
  *   dummy robot that connects motors with sensors
  *
  ***************************************************************************/
@@ -44,7 +47,7 @@ public:
    * @param s space in which robot should be created
    * @param c contactgroup for collision treatment
    */
-  ShortCircuit(dWorldID *w, dSpaceID *s, dJointGroupID *c,int sensornumber, int motornumber);
+  ShortCircuit(dWorldID w, dSpaceID s, dJointGroupID c,int sensornumber, int motornumber);
 
   /// draws the robot
   virtual void draw();

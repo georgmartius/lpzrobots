@@ -31,7 +31,7 @@
  *@author Marcel Kretschmann
  *@version beta
  **/
-Schlange::Schlange ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart ) :
+Schlange::Schlange ( int startRoboterID , dWorldID welt , dSpaceID raum , dJointGroupID start_contactgroup , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart ) :
 Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanzahl-1) )
 {
 	Object tmp_body;
@@ -61,7 +61,7 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanz
 
 	for ( int n = 0; n < armanzahl; n++ )
 	{
-		tmp_body.body = dBodyCreate ( *world );
+		tmp_body.body = dBodyCreate ( world );
 		objektliste.push_back ( tmp_body );
 		
 	
@@ -69,7 +69,7 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanz
 
 		dBodySetMass ( (objektliste.back ()).body , &masse );
 	
-		(objektliste.back ()).geom = dCreateCCylinder ( *space , glieder_durchmesser , glieder_laenge );
+		(objektliste.back ()).geom = dCreateCCylinder ( space , glieder_durchmesser , glieder_laenge );
 		dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
 
 		dGeomSetRotation ( (objektliste.back ()).geom , R );//includes rotation of the body
@@ -78,7 +78,7 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanz
 	//*****************joint definition***********
 	for ( int n = 0; n < armanzahl-1; n++ )
 	{
-		jointliste.push_back ( dJointCreateUniversal ( *world , 0 ) );
+		jointliste.push_back ( dJointCreateUniversal ( world , 0 ) );
 		
 		dJointAttach ( jointliste.back () , objektliste[n].body , objektliste[n+1].body );
 			
@@ -114,7 +114,7 @@ Schlange::~Schlange()
  */
 void Schlange::fixInSky(){
   for (int i=0; i<2; i++){
-  skyJoints.push_back( dJointCreateHinge ( *world , 0 ) );
+  skyJoints.push_back( dJointCreateHinge ( world , 0 ) );
   dJointAttach ( skyJoints.back(), objektliste[0].body , 0 );
   dJointSetUniversalAnchor ( skyJoints.back(), 
 			     dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
@@ -125,7 +125,7 @@ void Schlange::fixInSky(){
   dJointSetFixed(skyJoints.back());
   }
   /*
-  jointliste.push_back( dJointCreateHinge ( *world , 0 ) );
+  jointliste.push_back( dJointCreateHinge ( world , 0 ) );
   dJointAttach ( jointliste.back() , objektliste[0].body , 0 );
   dJointSetUniversalAnchor ( jointliste.back() , 
 			     dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
@@ -250,7 +250,7 @@ void Schlange::place (Position pos, Color *c)
 					contact[i].surface.soft_erp = 1;
 					contact[i].surface.soft_cfm = 0.00001;
 
-					dJointID c = dJointCreateContact ( (*world) , (*contactgroup) , &contact[i] );
+					dJointID c = dJointCreateContact ( world , contactgroup , &contact[i] );
 					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
 				}
 		}

@@ -39,12 +39,12 @@ void start()
   // initialization
   simulationConfig.noise=0.1;
   
-  Playground* playground = new Playground(&world, &space);
+  Playground* playground = new Playground(world, space);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
 
-  Nimm2* vehicle = new Nimm2(&world, &space, &contactgroup);
+  Nimm2* vehicle = new Nimm2(world, space, contactgroup);
   Position p = {0,0,0};
   vehicle->place(p);
   AbstractController *controller = new InvertNChannelController(10);  

@@ -6,6 +6,7 @@
 #include "simulation.h"
 #include "agent.h"
 #include "one2onewiring.h"
+#include "derivativewiring.h"
 
 #include "nimm2.h"
 #include "playground.h"
@@ -43,23 +44,23 @@ void start()
   // initialization
   simulationConfig.noise=0.15;
 
-  Playground* playground = new Playground(&world, &space);
+  Playground* playground = new Playground(world, space);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren 
   obstacles.push_back(playground);
 
-  AbstractRobot* vehicle = new Nimm2(&world, &space, &contactgroup,0.01);
+  AbstractRobot* vehicle = new Nimm2(world, space, contactgroup,0.01);
   Position p = {0,0,0};
   vehicle->place(p);
-  AbstractController *controller = new InvertMotorSpace(10);  
-  controller->setParam("factorB",0);
-  controller->setParam("eps",0.5);
-  // AbstractController *controller = new SineController();  
-  //   controller->setParam("phaseShift",1);
+  //AbstractController *controller = new InvertMotorSpace(10);  
+  //  controller->setParam("factorB",0);
+  //  controller->setParam("eps",0.5);
+  AbstractController *controller = new SineController();  
+  controller->setParam("phaseShift",1);
   
-  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+  AbstractWiring* wiring = new DerivativeWiring(true, false, false, 0.05, new ColorUniformNoise(0.1));
+  //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   Agent* agent = new Agent(plotMode);
-  //DerivativeAgent* agent = new DerivativeAgent(true, true, false, 0.05, new ColorUniformNoise(0.2), plotMode, 5);
   agent->init(controller, vehicle, wiring);
   agents.push_back(agent);
   

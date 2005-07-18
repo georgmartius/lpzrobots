@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-07-08 09:33:28  martius
+ *   Revision 1.7  2005-07-18 14:47:41  martius
+ *   world, space, contactgroup are not pointers anymore.
+ *
+ *   Revision 1.6  2005/07/08 09:33:28  martius
  *   speed and force as optional constuctor parameter
  *
  *   Revision 1.5  2005/07/07 09:27:40  martius
@@ -42,7 +45,7 @@
 class Nimm2 : public AbstractRobot{
 public:
   
-  Nimm2(dWorldID *w, dSpaceID *s, dJointGroupID *c, double force=0.005, double speed=10);
+  Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double force=0.005, double speed=10);
 
   virtual ~Nimm2(){};
 

@@ -41,12 +41,12 @@ void start()
   // initialization
   simulationConfig.noise=0.1;
   
-  Playground* playground = new Playground(&world, &space);
+  Playground* playground = new Playground(world, space);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
 
-  AbstractRobot* robot = new ShortCircuit(&world, &space, &contactgroup,channels,channels);  
+  AbstractRobot* robot = new ShortCircuit(world, space, contactgroup,channels,channels);  
   AbstractController *controller = new InvertMotorSpace(10);  
   //AbstractController *controller = new InvertNChannelController(10);  
   

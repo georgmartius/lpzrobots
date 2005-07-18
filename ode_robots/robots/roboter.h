@@ -83,7 +83,7 @@ public:
 	 *@author Marcel Kretschmann
 	 *@version beta
 	 **/
-	Roboter ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl );
+	Roboter ( int startRoboterID , dWorldID welt , dSpaceID raum , dJointGroupID start_contactgroup , int start_Sensoranzahl );
 	
 	/**
 	 *destructor

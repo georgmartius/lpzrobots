@@ -6,7 +6,7 @@
 #include "nimm2.h"
 
 
-Nimm2::Nimm2(dWorldID *w, dSpaceID *s, dJointGroupID *c, double force /*=0.005*/, double speed/*=10*/):
+Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double force /*=0.005*/, double speed/*=10*/):
   AbstractRobot::AbstractRobot(w, s, c){ 
 
   created=false;
@@ -166,7 +166,7 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 	contact[i].surface.slip2 = 0.005;
 	contact[i].surface.soft_erp = 0.5;
 	contact[i].surface.soft_cfm = 0.01;
-	dJointID c = dJointCreateContact( *(world), *(contactgroup), &contact[i]);
+	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
       }
     }
@@ -185,7 +185,7 @@ void Nimm2::create(Position pos){
   }
   dMass m;
   // cylinder
-  object[0].body = dBodyCreate (*world);
+  object[0].body = dBodyCreate (world);
   dBodySetPosition (object[0].body,pos.x,pos.y,pos.z);
   dQuaternion q;
   dQFromAxisAndAngle (q,0,1,0,M_PI*0.5);
@@ -199,7 +199,7 @@ void Nimm2::create(Position pos){
 
   // wheel bodies
   for (int i=1; i<3; i++) {
-    object[i].body = dBodyCreate (*world);
+    object[i].body = dBodyCreate (world);
     dQuaternion q;
     dQFromAxisAndAngle (q,1,0,0,M_PI*0.5);
     dBodySetQuaternion (object[i].body,q);
@@ -214,7 +214,7 @@ void Nimm2::create(Position pos){
 
 
   for (int i=0; i<2; i++) {
-    joint[i] = dJointCreateHinge2 (*world,0);
+    joint[i] = dJointCreateHinge2 (world,0);
     dJointAttach (joint[i],object[0].body,object[i+1].body);
     const dReal *a = dBodyGetPosition (object[i+1].body);
     dJointSetHinge2Anchor(joint[i],a[0],a[1],a[2]);
@@ -227,7 +227,7 @@ void Nimm2::create(Position pos){
     dJointSetHinge2Param (joint[i],dParamHiStop,0);
   }
   // create car space and add it to the top level space
-  car_space = dSimpleSpaceCreate (*space);
+  car_space = dSimpleSpaceCreate (space);
   dSpaceSetCleanup (car_space,0);
   for (int i=0; i<3; i++){
     dSpaceAdd (car_space,object[i].geom);

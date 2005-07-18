@@ -42,13 +42,13 @@ void start()
   simulationConfig.noise=0.1;
   configs.push_back(&simulationConfig);
   
-  Playground* playground = new Playground(&world, &space);
+  Playground* playground = new Playground(world, space);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
   
   //****************
-  Schlange* schlange1 = new Schlange ( 1 , &world , &space , &contactgroup, 
+  Schlange* schlange1 = new Schlange ( 1 , world , space , contactgroup, 
 				       0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , anglerate );
   Position p = {0,0,0};
   Color col = {0,0.5,0.8};
@@ -62,7 +62,7 @@ void start()
   configs.push_back(controller);
   
   /*
-  Schlange* schlange2 = new Schlange ( 2 , &world , &space , &contactgroup,  
+  Schlange* schlange2 = new Schlange ( 2 , world , space , contactgroup,  
 				       0 , 0 , 0.25 , 4, 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , angle );
   Position p2 = {0,2,0};
   Color col2 = {0.5,0,0.5};

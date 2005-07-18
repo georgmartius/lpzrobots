@@ -43,7 +43,7 @@ double dBodyGetPositionAll ( dBodyID basis , int para )
  *@author Marcel Kretschmann
  *@version beta
  **/
- Roboter::Roboter ( int startRoboterID , dWorldID* welt , dSpaceID* raum , dJointGroupID* start_contactgroup , int start_Sensoranzahl ) :
+ Roboter::Roboter ( int startRoboterID , dWorldID welt , dSpaceID raum , dJointGroupID start_contactgroup , int start_Sensoranzahl ) :
     AbstractRobot::AbstractRobot ( welt , raum , start_contactgroup )
 {
 	roboterID = startRoboterID;
@@ -133,7 +133,7 @@ void Roboter::place (Position pos, Color *c)
 					contact[i].surface.soft_erp = 1;
 					contact[i].surface.soft_cfm = 0.00001;
 
-					dJointID c = dJointCreateContact ( (*world) , (*contactgroup) , &contact[i] );
+					dJointID c = dJointCreateContact ( (world) , contactgroup , &contact[i] );
 					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
 				}
 		}

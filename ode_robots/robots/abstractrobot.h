@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-07 09:27:11  martius
+ *   Revision 1.3  2005-07-18 14:47:41  martius
+ *   world, space, contactgroup are not pointers anymore.
+ *
+ *   Revision 1.2  2005/07/07 09:27:11  martius
  *   isGeomInObjectList added
  *
  *   Revision 1.1  2005/06/15 14:20:04  martius
@@ -74,7 +77,7 @@ public:
    * @param s space in which robot should be created
    * @param c contactgroup for collision treatment
    */
-  AbstractRobot(dWorldID *w, dSpaceID *s, dJointGroupID *c){
+  AbstractRobot(dWorldID w, dSpaceID s, dJointGroupID c){
     world=w;
     space=s;
     contactgroup=c;
@@ -147,10 +150,10 @@ public:
 
  protected:
 
-  dSpaceID *space;
-  dWorldID *world;
+  dSpaceID space;
+  dWorldID world;
 
-  dJointGroupID *contactgroup;
+  dJointGroupID contactgroup;
 
   Color color;
 
