@@ -14,7 +14,8 @@
 
 #include "noisegenerator.h"
 #include "simulation.h"
-#include "one2oneagent.h"
+#include "one2onewiring.h"
+#include "agent.h"
 #include "nimm2.h"
 #include "fixedsnake2elements.h"
 #include "playground.h"
@@ -72,8 +73,9 @@ void start()
   AbstractController *controller2 = new InvertNChannelController(10);  
   configs.push_back(controller2);
   
-  One2OneAgent* agent2 = new One2OneAgent(new ColorUniformNoise(), /*NoPlot*/GuiLogger);
-  agent2->init(controller2, testjoints);
+  One2OneWiring* wiring2 = new One2OneWiring(new ColorUniformNoise());
+  Agent* agent2 = new Agent(/*NoPlot*/GuiLogger);
+  agent2->init(controller2, testjoints, wiring2);
   agents.push_back(agent2);
   
   showParams(configs);

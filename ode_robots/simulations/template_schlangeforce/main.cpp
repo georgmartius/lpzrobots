@@ -13,7 +13,7 @@
 #include "invertnchannelcontroller.h"
 #include "invertmotorspace.h"
 #include "sinecontroller.h"
-#include "sinecontrollerWP.h"
+//#include "sinecontrollerWP.h"
 
 #include "schlangeforce.h"
 #include "schlange.h"
@@ -76,8 +76,8 @@ void start()
   //AbstractController *controller = new SineController();  
   //AbstractController *controller = new SineControllerWP();  
   
-  One2OneWiring* wiring = new One2OneWiring();
-  Agent* agent = new Agent(new ColorUniformNoise(0.1), plotMode);
+  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+  Agent* agent = new Agent(plotMode);
   agent->init(controller, schlange1, wiring);
   agents.push_back(agent);
   configs.push_back(controller);
@@ -112,7 +112,7 @@ void start()
   AbstractController *controller3 = new InvertNChannelController(10,true);  
   
   One2OneWiring* wiring3 = new One2OneWiring();
-  Agent* agent3 = new Agent(new ColorUniformNoise(0.1), NoPlot/*GuiLogger* /);
+  Agent* agent3 = new Agent(new ColorUniformNoise(0.1), NoPlot/ *GuiLogger* /);
   agent3->init(controller3, schlange3, wiring3);
   agents.push_back(agent3);
   configs.push_back(controller3);
@@ -126,7 +126,7 @@ void start()
   AbstractController *controller2 = new InvertNChannelController(10,true);  
   
   One2OneWiring* wiring2 = new One2OneWiring();
-  Agent* agent2 = new Agent(new ColorUniformNoise(0.1), NoPlot/*GuiLogger* /);
+  Agent* agent2 = new Agent(new ColorUniformNoise(0.1), NoPlot/ *GuiLogger* /);
   agent2->init(controller2, vehicle, wiring2);
   agents.push_back(agent2);
   //  configs.push_back(controller2);

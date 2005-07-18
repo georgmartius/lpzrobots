@@ -4,7 +4,8 @@
 
 #include "simulation.h"
 #include "noisegenerator.h"
-#include "one2oneagent.h"
+#include "agent.h"
+#include "one2onewiring.h"
 #include "shortcircuit.h"
 #include "playground.h"
 
@@ -49,8 +50,9 @@ void start()
   AbstractController *controller = new InvertMotorSpace(10);  
   //AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.3), plotMode);
-  agent->init(controller, robot);
+  Agent* agent = new Agent(plotMode);
+  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.3));
+  agent->init(controller, robot, wiring);
   agents.push_back(agent);
   
   configs.push_back(&simulationConfig);

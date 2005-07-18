@@ -64,8 +64,8 @@ void start()
   AbstractController *controller2 = new InvertNChannelController(10);  
   configs.push_back(controller2);
   
-  One2OneWiring* wiring2 = new One2OneWiring();
-  Agent* agent2 = new Agent(new WhiteUniformNoise(), /*NoPlot*/GuiLogger);
+  One2OneWiring* wiring2 = new One2OneWiring(new WhiteUniformNoise());
+  Agent* agent2 = new Agent(/*NoPlot*/GuiLogger);
   agent2->init(controller2, testjoints, wiring2);
   agents.push_back(agent2);
   

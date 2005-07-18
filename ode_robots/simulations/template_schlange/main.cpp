@@ -55,8 +55,8 @@ void start()
   schlange1->place(p,&col);
   AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneWiring* wiring = new One2OneWiring();
-  Agent* agent = new Agent(new ColorUniformNoise(), plotMode);
+  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
+  Agent* agent = new Agent(plotMode);
   agent->init(controller, schlange1, wiring);
   agents.push_back(agent);
   configs.push_back(controller);

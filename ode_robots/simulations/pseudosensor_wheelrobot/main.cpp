@@ -4,8 +4,8 @@
 
 #include "noisegenerator.h"
 #include "simulation.h"
-#include "one2oneagent.h"
-#include "derivativeagent.h"
+#include "agent.h"
+#include "one2onewiring.h"
 
 #include "nimm2.h"
 #include "playground.h"
@@ -57,9 +57,10 @@ void start()
   // AbstractController *controller = new SineController();  
   //   controller->setParam("phaseShift",1);
   
-  //  One2OneAgent* agent = new One2OneAgent(new ColorUniformNoise(0.1), plotMode);
-  DerivativeAgent* agent = new DerivativeAgent(true, true, false, 0.05, new ColorUniformNoise(0.2), plotMode, 5);
-  agent->init(controller, vehicle);
+  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+  Agent* agent = new Agent(plotMode);
+  //DerivativeAgent* agent = new DerivativeAgent(true, true, false, 0.05, new ColorUniformNoise(0.2), plotMode, 5);
+  agent->init(controller, vehicle, wiring);
   agents.push_back(agent);
   
   configs.push_back(&simulationConfig);

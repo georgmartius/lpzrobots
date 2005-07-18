@@ -49,8 +49,8 @@ void start()
   vehicle->place(p);
   AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneWiring* wiring = new One2OneWiring();
-  Agent* agent = new Agent(new ColorUniformNoise(0.1),plotMode);
+  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+  Agent* agent = new Agent(plotMode);
   agent->init(controller, vehicle, wiring);
   agents.push_back(agent);
 
