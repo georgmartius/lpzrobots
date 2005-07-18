@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-18 10:14:04  martius
+ *   Revision 1.3  2005-07-18 14:44:27  martius
+ *   noise moved into wiring
+ *
+ *   Revision 1.2  2005/07/18 10:14:04  martius
  *   noise moved to wiring
  *
  *   Revision 1.1  2005/07/14 15:57:53  fhesse
@@ -124,6 +127,7 @@ void Agent::plot(const sensor* x, int sensornumber, const motor* y, int motornum
   
   printInternalParameters(pipe, x, sensornumber, y, motornumber, 
 			  numberInternalParameters, controller);
+  fflush(pipe);
 };
 
 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-18 10:15:03  martius
+ *   Revision 1.3  2005-07-18 14:44:27  martius
+ *   noise moved into wiring
+ *
+ *   Revision 1.2  2005/07/18 10:15:03  martius
  *   noise is added here
  *
  *   Revision 1.1  2005/07/14 15:57:54  fhesse
@@ -52,7 +55,7 @@ public:
   //   @param csensors pointer to array of sensorvalues for controller  
   //   @param csensornumber number of sensors to controller
   //   @param noise size of the noise added to the sensors
-  virtual int wireSensors(sensor* rsensors, int rsensornumber, 
+  virtual bool wireSensors(sensor* rsensors, int rsensornumber, 
 			  sensor* csensors, int csensornumber,
 			  double noise);
 
@@ -61,7 +64,7 @@ public:
   //   @param rmotornumber number of robot motors 
   //   @param cmotors pointer to array of motorvalues from controller  
   //   @param cmotornumber number of motorvalues from controller
-  virtual int wireMotors(motor* rmotors, int rmotornumber,
+  virtual bool wireMotors(motor* rmotors, int rmotornumber,
 			 motor* cmotors, int cmotornumber);
 
 };
