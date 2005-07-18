@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2005-07-15 11:35:52  fhesse
+ *   Revision 1.15  2005-07-18 08:35:21  martius
+ *   drawcallback is additionalcallback now
+ *
+ *   Revision 1.14  2005/07/15 11:35:52  fhesse
  *   added parameter gravity
  *
  *   Revision 1.13  2005/07/13 08:39:21  robot8
@@ -79,7 +82,7 @@ SimulationState state = none;
 
 void (*configfunction)() = 0; // pointer to the config function of the user
 void (*collisionCallback)(void* data, dGeomID o1, dGeomID o2) = 0;  // pointer to the user defined nearcallback function
-void (*additionalDrawCallback)() = 0;  // pointer to the user defined additional draw function
+void (*additionalCallback)(bool draw, bool pause) = 0;  // pointer to the user defined additional function
 
 // Object lists
 ObstacleList obstacles;
@@ -96,10 +99,12 @@ void simLoop ( int pause );
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
 
 void simulation_init(void (*start)(), void (*end)(), 
-		     void (*config)(), void (*command)(int n)/* = 0 */ , void (*collCallback)(void* data,dGeomID o1, dGeomID o2)/* = 0 */,
-		     void (*drawCallback)()/* = 0 */){
+		     void (*config)(), void (*command)(int n)/* = 0 */,
+		     void (*collCallback)(void* data,dGeomID o1, dGeomID o2)/* = 0 */,
+		     void (*addCallback)(bool draw, bool pause)/* = 0 */){
   configfunction=config; // store config function for simLoop
   collisionCallback=collCallback; // store config function for simLoop
+  additionalCallback = addCallback;
   /**************************Grafikabschnitt**********************/
   fn.version = DS_VERSION;
   fn.start = start;
@@ -125,7 +130,6 @@ void simulation_init(void (*start)(), void (*end)(),
   ground = dCreatePlane ( space , 0 , 0 , 1 , 0 );
   cmd_handler_init();
   state=initialised;
-  additionalDrawCallback = drawCallback;
 }
 
 void simulation_start(int argc, char** argv){
@@ -174,8 +178,9 @@ void simLoop ( int pause )
     dJointGroupEmpty (contactgroup);
     
   }  
+  if(additionalCallback) additionalCallback(sim_step % simulationConfig.drawInterval, pause);
   if(sim_step % simulationConfig.drawInterval == 0 || pause){
-    if(additionalDrawCallback) additionalDrawCallback();
+
     /**************************Zeichenabschnitt***********************/
     for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
       (*i)->draw();
