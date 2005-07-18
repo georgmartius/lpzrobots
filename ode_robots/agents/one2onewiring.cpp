@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-14 15:57:54  fhesse
+ *   Revision 1.2  2005-07-18 10:15:13  martius
+ *   noise is added here
+ *
+ *   Revision 1.1  2005/07/14 15:57:54  fhesse
  *   now agent contains controller, robot and wiring, plotting ability included, therefore plotagent can be removed; ono2onewiring replaces one2oneagent
  *                                            *
  *                                                                         *
@@ -30,8 +33,8 @@
 
 
 /// constructor
-One2OneWiring::One2OneWiring()
-  :AbstractWiring::AbstractWiring(){
+One2OneWiring::One2OneWiring(NoiseGenerator* noise)
+  :AbstractWiring::AbstractWiring(noise){
 }
 
 
@@ -42,6 +45,8 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
   rmotornumber  = robotmotornumber;
   csensornumber = rsensornumber;
   cmotornumber  = rmotornumber;
+  if(!noiseGenerator) return false;
+  noiseGenerator->init(rsensornumber);
   return true;
 }
 
@@ -50,11 +55,14 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
 //   @param rsensornumber number of sensors from robot
 //   @param csensors pointer to array of sensorvalues for controller  
 //   @param csensornumber number of sensors to controller
+//   @param noise size of the noise added to the sensors
 int One2OneWiring::wireSensors(sensor* rsensors, int rsensornumber, 
-			       sensor* csensors, int csensornumber ){
+			       sensor* csensors, int csensornumber, 
+			       double noise){
   if (rsensornumber!=csensornumber)
     return false;
   else{
+    noiseGenerator->add(rsensors, -noise, noise);
     memcpy(csensors, rsensors, sizeof(sensor)*rsensornumber);
     return true;
   }

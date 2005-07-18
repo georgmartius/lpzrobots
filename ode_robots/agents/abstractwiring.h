@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-14 15:57:53  fhesse
+ *   Revision 1.2  2005-07-18 10:14:45  martius
+ *   noise is added here
+ *
+ *   Revision 1.1  2005/07/14 15:57:53  fhesse
  *   now agent contains controller, robot and wiring, plotting ability included, therefore plotagent can be removed; ono2onewiring replaces one2oneagent
  *                                            *
  *                                                                         *
@@ -29,6 +32,7 @@
 #define __ABSTRACTWIRING_H
 
 #include "abstractrobot.h"
+#include "noisegenerator.h"
 
 /// Abstract wiring-object between controller and robot. 
 //   Implements wiring of robot sensors to inputs of the controller and
@@ -36,13 +40,18 @@
 class AbstractWiring {
 public:
   /// constructor
-  AbstractWiring(){
+  // @param noise NoiseGenerator that is used for adding noise to sensor values
+  AbstractWiring(NoiseGenerator* noise){
     rsensornumber = 0;
     rmotornumber  = 0;
     csensornumber = 0;
     cmotornumber  = 0;
+    noiseGenerator = noise;
   }
 
+  virtual ~AbstractWiring(){
+    if(noiseGenerator) delete noiseGenerator;
+  }
 
   /// Initializes the number of sensors and motors from robot, calculate
   //  number of sensors and motors on controller side.
@@ -57,9 +66,11 @@ public:
   //   @param rsensornumber number of sensors from robot
   //   @param csensors pointer to array of sensorvalues for controller  
   //   @param csensornumber number of sensors to controller
+  //   @param noise size of the noise added to the sensors
   //   @return returns false if error, else true; maybe future need can be included
   virtual int wireSensors(sensor* rsensors, int rsensornumber, 
-			  sensor* csensors, int csensornumber ) = 0;
+			  sensor* csensors, int csensornumber,
+			  double noise) = 0;
 
   /// Realizes wiring from controller motor outputs to robot motors. 
   //   Must be overloaded in order to implement the appropriate mapping. 
@@ -88,6 +99,8 @@ protected:
   int rmotornumber;   // number of robot motors
   int csensornumber;  // number of controller sensors
   int cmotornumber;   // number of controller motors
+
+  NoiseGenerator* noiseGenerator;
 
 };
 

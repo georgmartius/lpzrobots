@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-14 15:57:54  fhesse
+ *   Revision 1.2  2005-07-18 10:15:03  martius
+ *   noise is added here
+ *
+ *   Revision 1.1  2005/07/14 15:57:54  fhesse
  *   now agent contains controller, robot and wiring, plotting ability included, therefore plotagent can be removed; ono2onewiring replaces one2oneagent
  *                                            *
  *                                                                         *
@@ -36,7 +39,8 @@
 class One2OneWiring :public AbstractWiring{
 public:
   /// constructor
-  One2OneWiring();
+  // @param noise NoiseGenerator that is used for adding noise to sensor values  
+  One2OneWiring(NoiseGenerator* noise);
 
   /// initializes the number of sensors and motors from robot, calculate
   //  number of sensors and motors on controller side
@@ -47,8 +51,10 @@ public:
   //   @param rsensornumber number of sensors from robot
   //   @param csensors pointer to array of sensorvalues for controller  
   //   @param csensornumber number of sensors to controller
+  //   @param noise size of the noise added to the sensors
   virtual int wireSensors(sensor* rsensors, int rsensornumber, 
-			  sensor* csensors, int csensornumber );
+			  sensor* csensors, int csensornumber,
+			  double noise);
 
   /// Realizes one to one wiring from controller motor outputs to robot motors. 
   //   @param rmotors pointer to array of motorvalues for robot 
