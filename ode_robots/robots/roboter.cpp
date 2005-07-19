@@ -61,6 +61,15 @@ Roboter::~Roboter()
 
 
 /*************************************************************/
+/**
+ *Returns the ID of the robot
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
+ int Roboter::getRoboterID ()
+ {
+ 	return roboterID;
+ }
 
 /**
  *draws all geometrical objects

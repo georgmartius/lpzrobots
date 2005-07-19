@@ -91,6 +91,12 @@ public:
 	 *@version beta
 	 **/
 	virtual ~Roboter();
+	/**
+	 *Returns the ID of the robot
+	 *@author Marcel Kretschmann
+	 *@version beta
+	 **/
+	 virtual int getRoboterID ();
 	
 	/**
 	 *draws all geometrical objects
