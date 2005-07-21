@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-18 14:44:55  martius
+ *   Revision 1.2  2005-07-21 11:30:59  fhesse
+ *   started with blind motors
+ *
+ *   Revision 1.1  2005/07/18 14:44:55  martius
  *   wiring that supports derivatives
  *
  *                                                                         *
@@ -30,6 +33,21 @@
 
 #include "abstractwiring.h"
 
+/**  Configuration Object for DerivativeWiring.
+     If all boolean parametes are false, id is set to true (equivalent to One2OneWiring)
+
+*/
+typedef struct __DerivativeWiringConf {
+  bool useId;      /// include zeroth derivative
+  bool useFirstD; /// include first derivative
+  bool useSecondD; /// second include second derivative
+  /// @param eps update rate for floating average (0 -> no sensor variation, 1 -> no smoothing)
+  double eps;     
+  double derivativeScale; /// factor for the derivatives
+  int blindMotorSets;     /// number of complete motor sets that are blind (not given to robot)
+} DerivativeWiringConf;
+
+
 /// Abstract wiring-object between controller and robot. 
 //   Implements a wiring (between controller and robot) 
 //   which includes the first and second derivative 
@@ -37,15 +55,10 @@
 class DerivativeWiring : public AbstractWiring{
 public:
   /// constructor
-  //  @param id include zeroth derivative
-  //  @param first include first derivative
-  //  @param second include second derivative
-  //  if all boolean parametes are false, id is set to true (equivalent to One2OneWiring)
-  //  @param eps update rate for floating average (0 -> no sensor variation, 1 -> no smoothing)
   //  @param noise NoiseGenerator that is used for adding noise to sensor values  
   //  @param derivativeScale factor for the derivatives (because they are usually small)
-  DerivativeWiring(bool id, bool first, bool second, double eps, 
-		   NoiseGenerator* noise, double derivativeScale=5);
+  DerivativeWiring(const DerivativeWiringConf& conf, 
+		   NoiseGenerator* noise);
 
   virtual ~DerivativeWiring();
 
@@ -71,13 +84,23 @@ public:
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
 			 motor* cmotors, int cmotornumber);
 
+  static DerivativeWiringConf getDefaultConf(){
+    DerivativeWiringConf c;
+    c.useId = true;
+    c.useFirstD = false;
+    c.useSecondD = false;
+    c.eps = 0.2;
+    c.derivativeScale=20;
+    c.blindMotorSets=0;
+    return c;
+  };
+
 protected:
 
   void calcFirstDerivative();
   void calcSecondDerivative();
 
-  double eps;
-  double derivativeScale;
+  DerivativeWiringConf conf;
   static const int buffersize=5;
   int time;
 
@@ -85,7 +108,6 @@ protected:
   sensor* first;               // current first derivative
   sensor* second;              // current second derivative
   motor *motors;               
-  bool useId, useFirst, useSecond;
 
 };
 

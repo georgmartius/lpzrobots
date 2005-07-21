@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-18 14:44:55  martius
+ *   Revision 1.2  2005-07-21 11:30:59  fhesse
+ *   started with blind motors
+ *
+ *   Revision 1.1  2005/07/18 14:44:55  martius
  *   wiring that supports derivatives
  *
  *                                                                         *
@@ -30,15 +33,14 @@
 
 
 /// constructor
-DerivativeWiring::DerivativeWiring(bool useId, bool useFirstD, bool useSecondD, double _eps, 
-				   NoiseGenerator* noise, double _derivativeScale /* = 5*/)
-  : AbstractWiring::AbstractWiring(noise), 
-    useId(useId), useFirst(useFirstD), useSecond(useSecondD) {
+DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf, 
+				   NoiseGenerator* noise)
+  : AbstractWiring::AbstractWiring(noise) {
 
-  derivativeScale = _derivativeScale;
-  eps      = _eps;
+  this->conf=conf;
   time     = buffersize;
-  if (!useFirstD && !useSecond) useId=true; // make sure that at least id is on.
+  // make sure that at least id is on.
+  if (!conf.useFirstD && !conf.useSecondD) this->conf.useId=true; 
 }
 
 DerivativeWiring::~DerivativeWiring(){
@@ -54,8 +56,9 @@ bool DerivativeWiring::init(int rsensornumber, int rmotornumber){
   this->rsensornumber = rsensornumber;
   this->rmotornumber  = rmotornumber;
 
-  this->csensornumber = this->rsensornumber*((int)useId+(int)useFirst+(int)useSecond);
-  this->cmotornumber  = this->rsensornumber;
+  this->csensornumber = 
+    this->rsensornumber*( (int)conf.useId+(int)conf.useFirstD+(int)conf.useSecondD );
+  this->cmotornumber  = this->rmotornumber * (1 + conf.blindMotorSets);
     
   for(int i=0; i<buffersize; i++){
     sensorbuffer[i]      = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
@@ -91,25 +94,25 @@ bool DerivativeWiring::wireSensors(sensor* rsensors, int rsensornumber,
   int lastIndex = (time-1) % buffersize;  
   // calc smoothed sensor values
   for(int i=0; i < this->rsensornumber; i++ ){ 
-      sensorbuffer[index][i] = (1-eps)*sensorbuffer[lastIndex][i] + eps*rsensors[i]; 
+      sensorbuffer[index][i] = (1-conf.eps)*sensorbuffer[lastIndex][i] + conf.eps*rsensors[i]; 
   }
  
   noiseGenerator->add(rsensors, -noise, noise);   
  
   int offset=0;
-  if(useId) {
-    memcpy(csensors+offset, sensorbuffer[index], sizeof(sensor) * this->rsensornumber);
+  if(conf.useId) {
+    //  memcpy(csensors+offset, sensorbuffer[index], sizeof(sensor) * this->rsensornumber);
     // or use noised values...
-    //  memcpy(csensors+offset, rsensors, sizeof(sensor) * this->rsensornumber);
+    memcpy(csensors+offset, rsensors, sizeof(sensor) * this->rsensornumber); 
     offset+=this->rsensornumber;	   
-  }
+  }   
   
-  if(useFirst) {
+  if(conf.useFirstD) {
     calcFirstDerivative();
     memcpy(csensors+offset, first, sizeof(sensor) * this->rsensornumber);
     offset+=this->rsensornumber;	   
   }
-  if(useSecond) {
+  if(conf.useSecondD) {
     calcSecondDerivative();
     memcpy(csensors+offset, second, sizeof(sensor) * this->rsensornumber);
     offset+=this->rsensornumber;	   
@@ -131,7 +134,7 @@ bool DerivativeWiring::wireSensors(sensor* rsensors, int rsensornumber,
 bool DerivativeWiring::wireMotors(motor* rmotors, int rmotornumber,
 			      motor* cmotors, int cmotornumber){
 
-  if (rmotornumber!=cmotornumber) 
+  if (this->cmotornumber!=cmotornumber && rmotornumber <= cmotornumber) 
     return false;
   else{
     memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
@@ -145,7 +148,7 @@ void DerivativeWiring::calcFirstDerivative(){
   sensor* t   = sensorbuffer[time%buffersize];
   sensor* tm2 = sensorbuffer[(time-2)%buffersize];
   for(int i=0; i < rsensornumber; i++){
-    first[i] = derivativeScale*(t[i] - tm2[i]);
+    first[i] = conf.derivativeScale*(t[i] - tm2[i]);
   }
 }
 
@@ -155,7 +158,7 @@ void DerivativeWiring::calcSecondDerivative(){
   sensor* tm1 = sensorbuffer[(time-1)%buffersize];
   sensor* tm2 = sensorbuffer[(time-2)%buffersize];
   for(int i=0; i < rsensornumber; i++){
-    second[i] = (t[i] - 2*tm1[i] + tm2[i])*derivativeScale;
+    second[i] = (t[i] - 2*tm1[i] + tm2[i])*conf.derivativeScale;
   }
 }
 

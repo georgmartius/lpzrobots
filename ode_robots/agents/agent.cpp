@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-18 14:44:27  martius
+ *   Revision 1.4  2005-07-21 11:30:59  fhesse
+ *   started with blind motors
+ *
+ *   Revision 1.3  2005/07/18 14:44:27  martius
  *   noise moved into wiring
  *
  *   Revision 1.2  2005/07/18 10:14:04  martius
@@ -100,7 +103,7 @@ bool Agent::OpenGui(){
   if(plotmode == GuiLogger_File){
     pipe=popen("guilogger -l -m pipe -d 15  > /dev/null","w");
   }else{
-    pipe=popen("guilogger -m pipe -d 15 > /dev/null","w");
+    pipe=popen("guilogger -m pipe -d 3 > /dev/null","w");
   }
   if(pipe==0){
     fprintf(stderr, "%s:%i: could not open guilogger!\n", __FILE__, __LINE__);    
@@ -117,11 +120,11 @@ void Agent::CloseGui(){
 void Agent::plot(const sensor* x, int sensornumber, const motor* y, int motornumber){
   if(!controller || !x || !y || plotmode==NoPlot || !pipe) return;
   if(sensornumber!=controller->getSensorNumber()) {
-    fprintf(stderr, "%s:%i: Given sensor number does not match the one from robot!\n", 
+    fprintf(stderr, "%s:%i: Given sensor number does not match the one from controller!\n", 
 	    __FILE__, __LINE__);
   }
-  if(motornumber!=robot->getMotorNumber()) {
-    fprintf(stderr, "%s:%i: Given motor number does not match the one from robot!\n", 
+  if(motornumber!=controller->getMotorNumber()) { 
+    fprintf(stderr, "%s:%i: Given motor number does not match the one from controller!\n", 
 	    __FILE__, __LINE__);
   }
   
