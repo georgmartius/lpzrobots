@@ -21,6 +21,10 @@ install:
 tags: 
 	etags `find -name "*.[ch]*"` 
 
+.PHONY: doc
+doc:
+	doxygen Doxyfile	
+
 clean:
 	cd matrixlib && make clean
 	cd guilogger && make clean
