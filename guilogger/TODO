@@ -1,0 +1,3 @@
+Bugs:
+  - save config file ignores user defined stuff in Misc and GNUPlot section
+  - save config does not remove channels
