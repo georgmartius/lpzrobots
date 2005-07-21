@@ -39,15 +39,15 @@ guilogger::guilogger(CommLineParser configobj) : QMainWindow( 0, "guilogger")
     
     mode     = configobj.getMode();
     filename = configobj.getFile();
+
+    load();  // load Config File
     
     gp = new Gnuplot<QString>[plotwindows];  // GNUPlots erzeugen
     
     for(int k=0; k<plotwindows; k++)
     {   gp[k].command("set style data lines");
-        gp[k].command("set zero axis");
+        gp[k].command("set zeroaxis");
     }
-
-    load();  // load Config File
 
     if(mode == "file") linecount = analyzeFile();
 
