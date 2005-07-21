@@ -6,9 +6,11 @@
 #include "noisegenerator.h"
 #include "agent.h"
 #include "one2onewiring.h"
+#include "derivativewiring.h"
 #include "shortcircuit.h"
 #include "playground.h"
 
+#include "invertmotornstep.h"
 #include "invertmotorspace.h"
 #include "invertnchannelcontroller.h"
 
@@ -47,11 +49,19 @@ void start()
   obstacles.push_back(playground);
 
   AbstractRobot* robot = new ShortCircuit(world, space, contactgroup,channels,channels);  
-  AbstractController *controller = new InvertMotorSpace(10);  
+  AbstractController *controller = new InvertMotorNStep(10);  
+  //AbstractController *controller = new InvertMotorSpace(10);  
   //AbstractController *controller = new InvertNChannelController(10);  
   
   Agent* agent = new Agent(plotMode);
-  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.3));
+  //One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.3));
+  //  One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
+  DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+  c.useId=true;
+  c.useFirstD=false;
+  c.derivativeScale=20;
+  c.blindMotorSets=1;
+  AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   agent->init(controller, robot, wiring);
   agents.push_back(agent);
   

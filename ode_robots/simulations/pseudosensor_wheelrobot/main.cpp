@@ -12,6 +12,7 @@
 #include "playground.h"
 
 #include "invertmotorspace.h"
+#include "invertmotornstep.h"
 #include "sinecontroller.h"
 
 ConfigList configs;
@@ -52,13 +53,18 @@ void start()
   AbstractRobot* vehicle = new Nimm2(world, space, contactgroup,0.01);
   Position p = {0,0,0};
   vehicle->place(p);
+  AbstractController *controller = new InvertMotorNStep(10);  
   //AbstractController *controller = new InvertMotorSpace(10);  
   //  controller->setParam("factorB",0);
   //  controller->setParam("eps",0.5);
-  AbstractController *controller = new SineController();  
-  controller->setParam("phaseShift",1);
-  
-  AbstractWiring* wiring = new DerivativeWiring(true, false, false, 0.05, new ColorUniformNoise(0.1));
+  //AbstractController *controller = new SineController();  
+  //  controller->setParam("phaseShift",1);
+  DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+  c.useId=true;
+  c.useFirstD=false;
+  c.derivativeScale=20;
+  c.blindMotorSets=1;
+  AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   Agent* agent = new Agent(plotMode);
   agent->init(controller, vehicle, wiring);
