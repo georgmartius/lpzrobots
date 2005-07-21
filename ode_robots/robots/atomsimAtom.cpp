@@ -81,11 +81,16 @@ atomsimAtom::atomsimAtom ( int start_roboterID , int* start_atomIDzaehler , dWor
  **/
 atomsimAtom::~atomsimAtom ()
 {
-	/*dBodyDestroy ( body );
-	dJointDestroy ( ursprungjoint );
-	dJointDestroy ( ursprungmotor );
+	//order of deletaton could be important
+	if ( ursprung != NULL )
+	{
+		dJointDestroy ( ursprungjoint );
+		dJointDestroy ( ursprungmotor );
+	}
+	dGeomDestroy ( atomhuelle_geom );
 	dGeomDestroy ( atom_geom );
-	dGeomDestroy ( atomhuelle_geom );*/
+	dBodyDestroy ( body );
+	dsPrint ( "ATOMDESTRUCTOR CALLED\n" );
 }
 
 /**
@@ -774,7 +779,7 @@ bool atomsimAtom::atomabspaltung ( atomsimAtom* a2 , int rekursionsZaehler )
 		setBindungsblock ( bindungsblockdauer ); 
 		
 		atomInfo ();
-		(*a2).atomInfo ();
+		if ( a2 != NULL ) (*a2).atomInfo ();
 		
 		ursprung = NULL;
 		

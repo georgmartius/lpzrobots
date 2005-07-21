@@ -5,6 +5,8 @@
 /*@version alpha 0.1							*/
 /*									*/
 /************************************************************************/
+#ifndef __ATOMSIMROBOT_H
+#define __ATOMSIMROBOT_H
 
 using namespace std;
 
@@ -20,7 +22,7 @@ class atomsimRobot : public Roboter
 {
 private:
 	//Eigenschaften
-	int roboterID;
+	
 	int* roboterIDzaehler;
 	
 	dWorldID welt;
@@ -33,6 +35,8 @@ private:
 	atomsimAtom* ursprungsatom;
 	
 	vector<atomsimAtom*>* atomsammlung;
+	
+	double fitness;
 
 public:
 
@@ -56,7 +60,7 @@ public:
  	 *@author
  	 *@version
  	 **/
-	//virtual void rekursiveAtomDeletation ( atomsimAtom* a );
+	virtual void rekursiveAtomDeletation ( atomsimAtom* a );
 	
 	/**
 	 *Calls the function drawRobot-function
@@ -242,11 +246,32 @@ public:
 
 //*************************************Selektion**************************************
 	/**
- 	 *
- 	 *@author
- 	 *@version
- 	 **/
+	 *
+	 *@author
+	 *@version
+	 **/
 	virtual double getFitness ();
+	
+	/**
+	 *
+	 *@author
+	 *@version
+	 **/
+	virtual void setFitness ( double neue_fitness );
+	
+	/**
+	 *
+	 *@author
+	 *@version
+	 **/
+	virtual void addFitness ( double fitnessplus );
+
+	/**
+	*Fitenss Strafe
+	*@author
+	*@version
+	**/
+	virtual void delFitness ( double fitnessminus );
 
 //************************************Rekombination***********************************
 
@@ -275,3 +300,6 @@ public:
 	virtual void roboterRekombination ( int vermehrungsart , double trennverhaeltniss , atomsimRobot* partner , atomsimRobot** speicherort1 , atomsimRobot** speicherort2 , Position newpos1 , Position newpos2 );
 	
 };
+
+#endif
+

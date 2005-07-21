@@ -17,7 +17,7 @@ using namespace std;
  *@version
  **/
 atomsimRobot::atomsimRobot ( int* start_roboterIDzaehler , dWorldID start_welt , dSpaceID start_raum , dJointGroupID start_contactgroup , vector<atomsimAtom*>* start_atomsammlung , atomsimAtom* start_ursprungsatom , int start_maxatomanzahl , double start_rekombinationstrennverhaeltniss )
-: Roboter::Roboter ( (*start_roboterIDzaehler) , start_welt , start_raum , start_contactgroup , 0 )
+:Roboter::Roboter ( (*start_roboterIDzaehler) , start_welt , start_raum , start_contactgroup , 0 )
 {
 	roboterIDzaehler = start_roboterIDzaehler;
 	roboterID = (*roboterIDzaehler)++;
@@ -33,22 +33,45 @@ atomsimRobot::atomsimRobot ( int* start_roboterIDzaehler , dWorldID start_welt ,
 	rekombinationstrennverhaeltniss = start_rekombinationstrennverhaeltniss;
 	
 	atomsammlung->push_back ( start_ursprungsatom );
+	
+	fitness = 0;
 }
 
 atomsimRobot::~atomsimRobot ()
 {
+	/*for ( int n = 0; n < getUrsprungsatom ()->getAnzahlAtome (); n++ )
+		getUrsprungsatom ()->getAtomAt ( n )->atomabspaltung ( NULL , 1 );
+	
+	getUrsprungsatom ()->setRoboterID ( 0 );*/
+	
 	//deletion of all atoms, connected to the robot
-	//rekursiveAtomDeletation ( getUrsprungsatom () );
+	rekursiveAtomDeletation ( getUrsprungsatom () );
+	dsPrint ( "ENDE Del!\n" );
 }
 
-/*void atomsimRobot::rekursiveAtomDeletation ( atomsimAtom* a )
+void atomsimRobot::rekursiveAtomDeletation ( atomsimAtom* a )
 {
 	for ( int n = 0; n < a->getAnzahlAtome (); n++ )
 	{
 		rekursiveAtomDeletation ( a->getAtomAt ( n ) );
 	}
 	a->~atomsimAtom ();
-}*/
+	
+	vector<atomsimAtom*>::iterator i = atomsammlung->begin();
+	dsPrint ( "CHECKPOINT: size: %i\n" , atomsammlung->size () );
+	for ( unsigned int n = 0; n < atomsammlung->size(); n++ )
+	{
+		
+		if ( (*atomsammlung)[n]->getAtomID () == a->getAtomID () )
+		{
+			atomsammlung->erase ( i );
+			break;
+		}
+		i++;
+	}
+	
+	
+}
 
 /**
  *Calls the function drawRobot-function
@@ -236,7 +259,7 @@ int atomsimRobot::getMotorNumber()
 //rekursive Funktion, welches das lineare Sensorfeld mittels Tiefensuche aktualisiert
 int atomsimRobot::sensoraktualisierung ( atomsimAtom* atom , int i , bool steuerung )
 {
-	//can happen after a collision and binding or fission of a atom
+	//can happen after a collision and binding or fussion of a atom
 	if ( steuerung == true )
 	{
 		if ( rekursionszaehler ( atom , 1 ) - 1 > getSensorfeldGroesse () )
@@ -475,7 +498,37 @@ void atomsimRobot::rekursivVerschieben ( atomsimAtom* a , Position pos )
  **/
 double atomsimRobot::getFitness ()
 {
-	return 0.0;
+	return fitness;
+}
+
+/**
+ *
+ *@author
+ *@version
+ **/
+void atomsimRobot::setFitness ( double neue_fitness)
+{
+	fitness = neue_fitness;
+}
+
+/**
+ *Fitenss Belohnung
+ *@author
+ *@version
+ **/
+void atomsimRobot::addFitness ( double fitnessplus )
+{
+	fitness += fitnessplus;
+}
+
+/**
+ *Fitenss Strafe
+ *@author
+ *@version
+ **/
+void atomsimRobot::delFitness ( double fitnessminus )
+{
+	fitness -= fitnessminus;
 }
 
 //************************************Rekombination***********************************
@@ -519,39 +572,39 @@ atomsimRobot* atomsimRobot::rekursivKopieren ( atomsimAtom* a , bool firstcall )
  *@author
  *@version
  **/
-bool atomsimRobot::roboterAuftrennen ( atomsimAtom* a/*=0*/ , atomsimAtom** newrobotpart /*=0*/ , atomsimAtom** endofpieceone /*0*/ , double trennverhaeltniss /*= 0*/ )
+bool atomsimRobot::roboterAuftrennen ( atomsimAtom* a/*=0*/ , atomsimAtom** newrobotpart /*=0*/ , atomsimAtom** endofpieceone /*=0*/ , double trennverhaeltniss /*= 0*/ )
 {
 	if ( a == 0 )
 		a = getUrsprungsatom ();
 	if ( trennverhaeltniss == 0 )
 		trennverhaeltniss = getRekombinationsTrennverhaeltniss ();
-		
-	for ( int n = 0; n < (*a).getAnzahlAtome (); n++ )
-	{
-		//does not count the atom a here
-		if ( fabs ( ( ((double) rekursionszaehler ( a->getAtomAt (n) , 1 ) ) / getAtomAnzahl ()) - trennverhaeltniss ) < (1.0/getAtomAnzahl ()) )
+	for ( int faktor = 1; faktor < getAtomAnzahl (); faktor++ )
+		for ( int n = 0; n < (*a).getAnzahlAtome (); n++ )
 		{
-			//Abspalten des Ursprungs-Joints
-			
-			if ( endofpieceone != 0 )
-				*endofpieceone = a;
-			if ( endofpieceone != 0 )
-				*newrobotpart = a->getAtomAt ( n );
-			
-			dJointDestroy ( a->getAtomAt (n)->getUrsprungJoint () );
-			dJointDestroy ( a->getAtomAt (n)->getUrsprungMotor () );
-
-			//loeschen der einzellinks des Atoms und des Joints in den jewailigen Listen des Ursprungsatoms
-			a->delAtomAt ( n );
-			a->delJointAt ( n );
-			a->delMotorAt ( n );
-
-			a->getAtomAt (n)->setUrsprung ( NULL );
-			return true;
+			//does not count the atom a here
+			if ( fabs ( ( ((double) rekursionszaehler ( a->getAtomAt (n) , 1 ) ) / getAtomAnzahl ()) - trennverhaeltniss ) < ( (1.0*faktor)/getAtomAnzahl ()) )
+			{
+				//Abspalten des Ursprungs-Joints
+				
+				if ( endofpieceone != 0 )
+					*endofpieceone = a;
+				if ( endofpieceone != 0 )
+					*newrobotpart = a->getAtomAt ( n );
+				
+				dJointDestroy ( a->getAtomAt (n)->getUrsprungJoint () );
+				dJointDestroy ( a->getAtomAt (n)->getUrsprungMotor () );
+	
+				//loeschen der einzellinks des Atoms und des Joints in den jewailigen Listen des Ursprungsatoms
+				a->delAtomAt ( n );
+				a->delJointAt ( n );
+				a->delMotorAt ( n );
+	
+				a->getAtomAt (n)->setUrsprung ( NULL );
+				return true;
+			}
+			else
+				return roboterAuftrennen ( (*a).getAtomAt ( n ) , newrobotpart , endofpieceone , trennverhaeltniss );
 		}
-		else
-			return roboterAuftrennen ( (*a).getAtomAt ( n ) , newrobotpart , endofpieceone , trennverhaeltniss );
-	}
 	return false;
 }
 	

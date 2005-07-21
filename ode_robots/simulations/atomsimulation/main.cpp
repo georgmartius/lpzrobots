@@ -31,7 +31,7 @@ int roboterIDzaehler = 1;
 //world parameters
 double playgroundx = 20;
 double playgroundthickness = 0.2;
-double playgroundheight = 20;
+double playgroundheight = 10;
 
 //*****************************************************
 //evolutionary parameters
@@ -400,11 +400,11 @@ void additionalLoopfunction ( bool draw , bool pause )
 					//positions for the old robots
 					posA.x = ( 0 - 0.5 * playgroundx ) + ( n % anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
 					posA.y = ( 0 - 0.5 * playgroundx ) + ( n / anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
-					posA.z = 5;
+					posA.z = playgroundheight/2;
 					
 					posB.x = ( 0 - 0.5 * playgroundx ) + ( (n+1) % anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
 					posB.y = ( 0 - 0.5 * playgroundx ) + ( (n+1) / anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
-					posB.z = 5;
+					posB.z = playgroundheight/2;
 					//placing of the old robots
 					robotersammlung[n]->rekursivVerschieben ( robotersammlung[n]->getUrsprungsatom () , posA );
 					robotersammlung[n+1]->rekursivVerschieben ( robotersammlung[n+1]->getUrsprungsatom () , posB );
@@ -413,11 +413,11 @@ void additionalLoopfunction ( bool draw , bool pause )
 					//positions for the new robots
 					posC.x = ( 0 - 0.5 * playgroundx ) + ( (n+2) % anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
 					posC.y = ( 0 - 0.5 * playgroundx ) + ( (n+2) / anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
-					posC.z = 5;
+					posC.z = playgroundheight/2;
 					
 					posD.x = ( 0 - 0.5 * playgroundx ) + ( (n+3) % anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
 					posD.y = ( 0 - 0.5 * playgroundx ) + ( (n+3) / anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
-					posD.z = 5;
+					posD.z = playgroundheight/2;
 					
 					robotersammlung[n]->roboterRekombination ( 0 , 1.0/2 , robotersammlung [n+1] , &neuerRob1 , &neuerRob2 , posC , posD );
 						

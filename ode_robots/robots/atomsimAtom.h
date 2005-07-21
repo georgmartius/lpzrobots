@@ -5,6 +5,9 @@
 /*@version alpha 0.1							*/
 /*									*/
 /************************************************************************/
+#ifndef __ATOMSIMATOM_H
+#define __ATOMSIMATOM_H
+
 
 using namespace std;
 
@@ -486,3 +489,6 @@ public:
 	virtual void setMotorWinkel ( int motornummer , double winkelgeschwindigkeit );
 
 };
+
+#endif
+
