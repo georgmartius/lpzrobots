@@ -4,10 +4,16 @@
 
 #include "noisegenerator.h"
 #include "simulation.h"
-#include "one2oneagent.h"
+#include "agent.h"
+#include "one2onewiring.h"
+
 #include "playground.h"
+#include "closedplayground.h"
 
 #include "invertnchannelcontroller.h"
+#include "invertmotorspace.h"
+#include "sinecontroller.h"
+
 #include "noisegenerator.h"
 
 #include "schlange.h"
@@ -20,6 +26,20 @@ vector<atomsimRobot*> robotersammlung;
 
 int atomIDzaehler = 1;
 int roboterIDzaehler = 1;
+
+//*****************************************************
+//world parameters
+double playgroundx = 20;
+double playgroundthickness = 0.2;
+double playgroundheight = 20;
+
+//*****************************************************
+//evolutionary parameters
+
+int lifecycle = 200; //this is the intervall of one lifecyle of an robot
+int startingpopulationsize = 2; //it have to be at least two robots
+int maxpopulationsize = 16;
+int selektionsanzahl = 2; //this parameter says how many robots are selected form the former generation
 
 
 //*****************************************************
@@ -53,42 +73,53 @@ void start()
   // initialization
   simulationConfig.noise=0.1;
   
-  Playground* playground = new Playground(&world, &space);
-  playground->setGeometry(10.0, 0.2, 2.5);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  ClosedPlayground* playground = new ClosedPlayground ( world, space );
+  playground->setGeometry ( playgroundx , playgroundthickness , playgroundheight );
+  playground->setPosition ( 0 , 0 , 0 ); // playground positionieren und generieren
+  obstacles.push_back ( playground );
   
   //*******robots and their atoms******
-  robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , &world , &space , &contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , &world , &space , 0.0 , 0.0 , 1.0 , 0.3 , 0.5 , 1 , 1 , 20 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 0.2 , 0 , 4 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  ,  1 , 0 , 8 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2.4 , 0 , 13 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
   
-  AbstractController *controller = new InvertNChannelController(10);
-  One2OneAgent* agent = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/ );
-  agent->init(controller, robotersammlung.back () );
-  agents.push_back(agent);
-  configs.push_back(controller);
+	int anzprozeile = (int) ( sqrt ( (double) maxpopulationsize ) );
+	if ( anzprozeile < sqrt ( (double) maxpopulationsize ) )
+		anzprozeile += 1;
+	Position posA;
+	
+  for ( int n = 0; n < startingpopulationsize; n++)
+  {
+  	posA.x = ( 0 - 0.5 * playgroundx ) + ( n % anzprozeile + 0.5 ) * ( playgroundx / (maxpopulationsize / anzprozeile));
+	posA.y = ( 0 - 0.5 * playgroundx ) + ( n / anzprozeile + 0.5 ) * ( playgroundx / (maxpopulationsize / anzprozeile));
+	posA.z = 0;
+  	dsPrint ( "x=%lf y=%lf z=%lf\n" , posA.x , posA.y ,posA.z );
   
+	robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , world , space , contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , world , space , posA.x + 0.0 , posA.y + 2.0 , posA.z + 1.0 , 0.3 , 0.5 , 1 , 1 , 15 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 0.2 , posA.y + 2, posA.z + 4 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  ,  posA.x + 1 , posA.y + 2 , posA.z + 8 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 2.4 , posA.y + 2 , posA.z + 13 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
+	
+	AbstractController *controller = new InvertMotorSpace ( 10 );
+	One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise () );
+	Agent* agent = new Agent( NoPlot/*GuiLogger*/ );
+	agent->init(controller, robotersammlung.back () , wiring);
+	agents.push_back(agent);
+	configs.push_back(controller);
   
-  robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , &world , &space , &contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , &world , &space , 0.0 , 2.0 , 1.0 , 0.3 , 0.5 , 1 , 1 , 20 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 0.2 , 2.0 , 3.0 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  ,  1 , 2.0 , 6 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 1.8 , 2.0 , 9 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2.2 , 2.0 , 12 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0.0 , 1 , 1.0 ) );
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2.4 , 2.0 , 15 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 1 , 0.0 , 1.0 ) );
-  
-  AbstractController *controller2 = new InvertNChannelController(10);
-  One2OneAgent* agent2 = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/ );
-  agent2->init(controller2, robotersammlung.back () );
-  agents.push_back(agent2);
-  configs.push_back(controller2);  
-  
-  
+  } 
   
   
   //******free atoms*********
-  atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , 2 , -2 , 1 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0.2 , 0.2 , 0.2 ) );	
+  for ( int x = 0; x < anzprozeile; x ++ )
+  {
+  	for ( int y = 0; y < anzprozeile; y ++ )
+  	{
+		atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.1 , y-0.2 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.2*x , 0.2*y , 0.2 ) );
+		atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x+0.1 , y + 0.3 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.3*x , 0.3*y , 0.3 ) );
+		atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.2 , y + 0.5 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
+		atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x+0.2 , y + 0.0 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
+		//atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.2 , y - 0.1 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
+		//atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.2 , y + 0.4 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
+	}
+  }
   
   //****************  
   configs.push_back(&simulationConfig);
@@ -109,6 +140,7 @@ void end(){
   for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
+    delete (*i)->getWiring ();
     delete (*i);
   }
   agents.clear();
@@ -160,10 +192,13 @@ void command (int cmd)
 			   
 			   
 			   AbstractController* controller;
-			   controller = new InvertNChannelController(10);
-			   One2OneAgent* agent;
-			   agent = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
-			   agent->init(controller, robotersammlung.back () );
+			   controller = new InvertMotorSpace ( 10 );
+			   One2OneWiring* wiring;
+			   wiring = new One2OneWiring( new ColorUniformNoise () );
+			   Agent* agent;
+			   agent = new Agent( NoPlot/*GuiLogger*/ );
+			   
+			   agent->init(controller, robotersammlung.back () , wiring );
   
 			   agents.push_back(agent);
 			   configs.push_back(controller);
@@ -190,10 +225,12 @@ void command (int cmd)
 			   robotersammlung.push_back ( neuerRob1 );
 			   
 			   AbstractController* controller3;
-			   controller3 = new InvertNChannelController(10);
-			   One2OneAgent* agent3;
-			   agent3 = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
-			   agent3->init(controller3, robotersammlung.back () );
+			   controller3 = new InvertMotorSpace ( 10 );
+			   One2OneWiring* wiring3;
+			   wiring3 = new One2OneWiring ( new ColorUniformNoise () );
+			   Agent* agent3;
+			   agent3 = new Agent( NoPlot/*GuiLogger*/ );	   
+			   agent3->init(controller3, robotersammlung.back () , wiring3 );
   
 			   agents.push_back(agent3);
 			   configs.push_back(controller3);
@@ -202,16 +239,18 @@ void command (int cmd)
 			   robotersammlung.push_back ( neuerRob2 );
 			   
 			   AbstractController* controller4;
-			   controller4 = new InvertNChannelController(10);
-			   One2OneAgent* agent4;
-			   agent4 = new One2OneAgent( new ColorUniformNoise () , NoPlot/*GuiLogger*/);
-			   agent4->init(controller4, robotersammlung.back () );
+			   controller4 = new InvertMotorSpace ( 10 );
+			   One2OneWiring* wiring4;
+			   wiring4 = new One2OneWiring( new ColorUniformNoise () );
+			   Agent* agent4;
+			   agent4 = new Agent( NoPlot/*GuiLogger*/);
+			   agent4->init(controller4, robotersammlung.back () , wiring4 );
   
 			   agents.push_back(agent4);
 			   configs.push_back(controller4);
 		break;
 		
-		case 'n' : atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , &world , &space  , -12 , 0 , 1 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0.5 , 0.2 , 0.8 ) );
+		case 'n' : atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , -12 , 0 , 1 , 0.3 , 0.5 , 1 , 1 , 20 , 4 , 20 , 20.0 , 40.0 , 0.5 , 0.2 , 0.8 ) );
 		break;
 		
 	}
@@ -289,17 +328,184 @@ void atomCallback (void *data, dGeomID o1, dGeomID o2)
 		}
 }
 
-void atomDraw ()
+void additionalLoopfunction ( bool draw , bool pause )
 {
-	for ( unsigned int n = 0; n < atomsammlung.size (); n++ )
-		atomsammlung[n]->drawAtom ();
+	
+	//additional draw section
+	if ( draw == 0 )
+		for ( unsigned int n = 0; n < atomsammlung.size (); n++ )
+			atomsammlung[n]->drawAtom ();
+
+	//evolutionary section
+	if ( pause == false )
+	{
+		//the simulationTime now is handled like an integer value
+		if ( ( (int) ( simulationTime * ( 1 / simulationConfig.simStepSize ) ) ) % lifecycle == 0 )
+		{
+			//the pairs of the two fittest robots is recombined with each other
+			
+			//sorting: best robots first
+			vector<atomsimRobot*> tmprobotersammlung;
+			tmprobotersammlung.clear ();
+			int tmprss = robotersammlung.size () / selektionsanzahl;
+			while ( tmprss > maxpopulationsize/2 )
+				tmprss--;
+			if ( tmprss % 2 != 0 ) tmprss++;
+			
+			for ( int m = 0; m < tmprss; m++ )
+			{
+				vector<atomsimRobot*>::iterator it;
+				vector<atomsimRobot*>::iterator it2;
+				it = robotersammlung.begin ();
+				it2 = robotersammlung.begin ();
+				//for ( unsigned int i = 0; i < robotersammlung.size (); i++ )
+				for ( it = robotersammlung.begin (); it != robotersammlung.end(); it++ )
+				{
+					
+					if ( (*it)->getFitness () > (*it2)->getFitness () )
+					{
+						it2 = it;
+					}
+				}
+				
+				tmprobotersammlung.push_back ( (*it2) );
+				
+				robotersammlung.erase ( it2 );
+			}
+			//deletation of the bad (non fit) robots
+				
+			for ( unsigned int n = 0; n < robotersammlung.size (); robotersammlung[n++]->~atomsimRobot () );
+				
+			robotersammlung.clear ();
+			
+			robotersammlung = tmprobotersammlung;
+			
+			if ( robotersammlung.size () % 2 != 0 )
+				dsPrint ( "Pupulation size is wrong->the half of it has to be an even number!\n" );
+			else
+			{	
+				
+				//recombination
+				int tmprobotersammlungsize = robotersammlung.size ();
+				for ( int n = 0; ( n + 1 ) < tmprobotersammlungsize; n = n + 2 )
+				{
+					
+					atomsimRobot* neuerRob1;
+					atomsimRobot* neuerRob2;
+					Position posA , posB , posC , posD;
+					int anzprozeile = (int) ( sqrt ( (double) maxpopulationsize ) );
+					if ( anzprozeile < sqrt ( (double) maxpopulationsize ) )
+						anzprozeile += 1;
+								
+					//positions for the old robots
+					posA.x = ( 0 - 0.5 * playgroundx ) + ( n % anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
+					posA.y = ( 0 - 0.5 * playgroundx ) + ( n / anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
+					posA.z = 5;
+					
+					posB.x = ( 0 - 0.5 * playgroundx ) + ( (n+1) % anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
+					posB.y = ( 0 - 0.5 * playgroundx ) + ( (n+1) / anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
+					posB.z = 5;
+					//placing of the old robots
+					robotersammlung[n]->rekursivVerschieben ( robotersammlung[n]->getUrsprungsatom () , posA );
+					robotersammlung[n+1]->rekursivVerschieben ( robotersammlung[n+1]->getUrsprungsatom () , posB );
+					
+					
+					//positions for the new robots
+					posC.x = ( 0 - 0.5 * playgroundx ) + ( (n+2) % anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
+					posC.y = ( 0 - 0.5 * playgroundx ) + ( (n+2) / anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
+					posC.z = 5;
+					
+					posD.x = ( 0 - 0.5 * playgroundx ) + ( (n+3) % anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
+					posD.y = ( 0 - 0.5 * playgroundx ) + ( (n+3) / anzprozeile + 0.5 ) * (playgroundx / (maxpopulationsize / anzprozeile));
+					posD.z = 5;
+					
+					robotersammlung[n]->roboterRekombination ( 0 , 1.0/2 , robotersammlung [n+1] , &neuerRob1 , &neuerRob2 , posC , posD );
+						
+					robotersammlung.push_back ( neuerRob1 );
+					robotersammlung.push_back ( neuerRob2 );
+				}
+				
+				//deletes all agents, controllers and wirings, which are not linked to an robot from robotersammlung
+				vector<Agent*>::iterator agentit = agents.begin ();
+				//for ( unsigned int m = 0; m < agents.size (); m++ )
+				for ( vector<Agent*>::iterator agentit = agents.begin (); agentit != agents.end (); agentit++ )
+				{
+					bool del = true;
+					for ( vector<atomsimRobot*>::iterator robotit = robotersammlung.begin (); robotit != robotersammlung.end (); robotit++ )
+					{
+					
+						if ( (*agentit)->getRobot () == (*robotit) )
+						{
+							dsPrint ( "Agent nicht gelöscht.\n" );
+							del = false;
+							break;
+						}	
+					}
+					if ( del )
+					{
+						dsPrint ( "Agent wird gelöscht.\n" );
+						
+						
+						dsPrint ( "Agents:%i Robots:%i\n" , agents.size (), robotersammlung.size () );
+						delete (*agentit)->getController();
+						delete (*agentit)->getWiring ();
+						delete (*agentit);
+						
+						agents.erase ( agentit );
+						//because the loop now is repeated fewer
+						agentit--;
+					}
+				}
+				//creates new agents, controllers and wirings if a robot is not linked to an agent
+				
+				for ( unsigned int n = 0; n < robotersammlung.size (); n++ )
+				{
+					bool create = true;
+					for ( unsigned int m = 0; m < agents.size (); m++ )
+					{
+						if ( agents[m]->getRobot () == robotersammlung[n] )
+						{
+							create = false;
+							break;
+						}
+					}
+					if ( create )
+					{
+						dsPrint ( "ANLEGEN EINES AGENTS!\n" );
+						AbstractController* controller;
+						controller = new InvertMotorSpace ( 10 );
+						One2OneWiring* wiring;
+						wiring = new One2OneWiring ( new ColorUniformNoise () );
+						Agent* agent;
+						agent = new Agent( NoPlot/*GuiLogger*/ );
+					
+						agent->init(controller, robotersammlung[n] , wiring );
+						agents.push_back(agent);
+						configs.push_back(controller);
+					}
+				}
+				
+				dsPrint ("Eine neue Generation entsteht!\n");
+			}
+			
+		}
+		//adaptation of the fitness value of the robots
+		else
+		{
+			for ( unsigned int n = 0; n < robotersammlung.size (); n ++ )
+			{
+				robotersammlung[n]->setFitness ( 1.0/(robotersammlung[n]->getAtomAnzahl ()) );
+			}
+		}
+	dsPrint ("Weltzeit: %lf\n" , simulationTime );
+	}
 }
 
 
 int main (int argc, char **argv)
 {  
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config, &command , &atomCallback , &atomDraw );
+  simulation_init(&start, &end, &config, &command , &atomCallback , &additionalLoopfunction );
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.
