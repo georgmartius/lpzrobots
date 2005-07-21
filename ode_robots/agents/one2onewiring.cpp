@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-18 14:44:27  martius
+ *   Revision 1.4  2005-07-21 15:14:47  martius
+ *   wireSensors and wireMotors get constant fields
+ *
+ *   Revision 1.3  2005/07/18 14:44:27  martius
  *   noise moved into wiring
  *
  *   Revision 1.2  2005/07/18 10:15:13  martius
@@ -40,6 +43,10 @@ One2OneWiring::One2OneWiring(NoiseGenerator* noise)
   :AbstractWiring::AbstractWiring(noise){
 }
 
+One2OneWiring::~One2OneWiring(){
+  if(sensors) delete (sensors);
+}
+
 
 /// initializes the number of sensors and motors from robot, calculate
 //  number of sensors and motors on controller side
@@ -48,6 +55,9 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
   rmotornumber  = robotmotornumber;
   csensornumber = rsensornumber;
   cmotornumber  = rmotornumber;
+
+  sensors       = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
+
   if(!noiseGenerator) return false;
   noiseGenerator->init(rsensornumber);
   return true;
@@ -59,14 +69,15 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
 //   @param csensors pointer to array of sensorvalues for controller  
 //   @param csensornumber number of sensors to controller
 //   @param noise size of the noise added to the sensors
-bool One2OneWiring::wireSensors(sensor* rsensors, int rsensornumber, 
-			       sensor* csensors, int csensornumber, 
-			       double noise){
+bool One2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
+				sensor* csensors, int csensornumber, 
+				double noise){
   if (rsensornumber!=csensornumber)
     return false;
   else{
-    noiseGenerator->add(rsensors, -noise, noise);
-    memcpy(csensors, rsensors, sizeof(sensor)*rsensornumber);
+    memcpy(sensors, rsensors, sizeof(sensor) * this->rsensornumber);
+    noiseGenerator->add(sensors, -noise, noise);   
+    memcpy(csensors, sensors, sizeof(sensor)*rsensornumber);
     return true;
   }
 }
@@ -78,7 +89,7 @@ bool One2OneWiring::wireSensors(sensor* rsensors, int rsensornumber,
 //   @param cmotors pointer to array of motorvalues from controller  
 //   @param cmotornumber number of motorvalues from controller
 bool One2OneWiring::wireMotors(motor* rmotors, int rmotornumber,
-			      motor* cmotors, int cmotornumber){
+			       const motor* cmotors, int cmotornumber){
   if (rmotornumber!=cmotornumber) 
     return false;
   else{

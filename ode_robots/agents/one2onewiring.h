@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-18 14:44:27  martius
+ *   Revision 1.4  2005-07-21 15:14:47  martius
+ *   wireSensors and wireMotors get constant fields
+ *
+ *   Revision 1.3  2005/07/18 14:44:27  martius
  *   noise moved into wiring
  *
  *   Revision 1.2  2005/07/18 10:15:03  martius
@@ -44,6 +47,7 @@ public:
   /// constructor
   // @param noise NoiseGenerator that is used for adding noise to sensor values  
   One2OneWiring(NoiseGenerator* noise);
+  virtual ~One2OneWiring();
 
   /// initializes the number of sensors and motors from robot, calculate
   //  number of sensors and motors on controller side
@@ -55,9 +59,9 @@ public:
   //   @param csensors pointer to array of sensorvalues for controller  
   //   @param csensornumber number of sensors to controller
   //   @param noise size of the noise added to the sensors
-  virtual bool wireSensors(sensor* rsensors, int rsensornumber, 
-			  sensor* csensors, int csensornumber,
-			  double noise);
+  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
+			   sensor* csensors, int csensornumber,
+			   double noise);
 
   /// Realizes one to one wiring from controller motor outputs to robot motors. 
   //   @param rmotors pointer to array of motorvalues for robot 
@@ -65,7 +69,10 @@ public:
   //   @param cmotors pointer to array of motorvalues from controller  
   //   @param cmotornumber number of motorvalues from controller
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
-			 motor* cmotors, int cmotornumber);
+			  const motor* cmotors, int cmotornumber);
+
+protected:
+  sensor* sensors;
 
 };
 

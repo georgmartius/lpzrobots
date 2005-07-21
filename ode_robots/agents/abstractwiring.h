@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-18 14:44:27  martius
+ *   Revision 1.4  2005-07-21 15:14:47  martius
+ *   wireSensors and wireMotors get constant fields
+ *
+ *   Revision 1.3  2005/07/18 14:44:27  martius
  *   noise moved into wiring
  *
  *   Revision 1.2  2005/07/18 10:14:45  martius
@@ -71,9 +74,9 @@ public:
   //   @param csensornumber number of sensors to controller
   //   @param noise size of the noise added to the sensors
   //   @return returns false if error, else true
-  virtual bool wireSensors(sensor* rsensors, int rsensornumber, 
-			  sensor* csensors, int csensornumber,
-			  double noise) = 0;
+  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
+			   sensor* csensors, int csensornumber,
+			   double noise) = 0;
 
   /// Realizes wiring from controller motor outputs to robot motors. 
   //   Must be overloaded in order to implement the appropriate mapping. 
@@ -83,7 +86,7 @@ public:
   //   @param cmotornumber number of motorvalues from controller
   //   @return returns false if error, else true
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
-			 motor* cmotors, int cmotornumber)  = 0;
+			  const motor* cmotors, int cmotornumber)  = 0;
 
   /// Returns the number of sensors on robot side.
   virtual int getRobotSensornumber(){return rsensornumber;}
