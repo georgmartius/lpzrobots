@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2005-07-18 08:35:21  martius
+ *   Revision 1.16  2005-07-21 12:18:43  fhesse
+ *   window size 640x480
+ *
+ *   Revision 1.15  2005/07/18 08:35:21  martius
  *   drawcallback is additionalcallback now
  *
  *   Revision 1.14  2005/07/15 11:35:52  fhesse
@@ -136,7 +139,8 @@ void simulation_start(int argc, char** argv){
   if(state!=initialised) return;
   //********************Simmulationsstart*****************
   state=running;
-  dsSimulationLoop ( argc , argv , 500 , 500 , &fn );  
+  //dsSimulationLoop ( argc , argv , 500 , 500 , &fn );  
+  dsSimulationLoop ( argc , argv , 640 , 480 , &fn );  
 }
 
 void simulation_close(){
@@ -197,15 +201,16 @@ void simLoop ( int pause )
 void nearCallback(void *data, dGeomID o1, dGeomID o2)
 {
   bool collision_treated=false;
+  // call robots collision treatments
   for(AgentList::iterator i=agents.begin(); i != agents.end() && !collision_treated; i++){
     collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
   }
   
-  if (collision_treated) return;
+  if (collision_treated) return; // exit if collision was treated by a robot
   
-  if(collisionCallback) {
+  if(collisionCallback) { // calling user defined collision callback if it exists
     collisionCallback(data,o1,o2);
-  }else{
+  }else{                  // using standard collision treatment
 
     int i,n;  
     const int N = 10;
