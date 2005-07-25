@@ -215,6 +215,7 @@ void guilogger::updateSliderPlot()
 /// analyzes the file, send channels and return number of lines with data
 int guilogger::analyzeFile()
 {   char *s=NULL;
+    int buffersize=0; 
     char c;
     int size=1, i=1;
     int linecount=0;
@@ -233,7 +234,10 @@ int guilogger::analyzeFile()
         i = fread(&c, 1, 1, instream);
         if(i==1)
         {   size++; 
-        s = (char*)realloc(s, size);
+	if(size>=buffersize){
+	  buffersize=buffersize*2+1;
+	  s=(char*)realloc(s, buffersize);
+	}
         s[size-2] = c;
         }
         else break;
@@ -431,7 +435,7 @@ void guilogger::putData(const QString &name, double data)
 }
 
 
-/**  emties the buffer queue and parses the data then putting it to GNUPlot
+/**  empties the buffer queue and parses the data then putting it to GNUPlot
   *  updates the GNUPlot data queues with fresh data
   */
 void guilogger::update()
@@ -470,8 +474,7 @@ void guilogger::update()
        }
 
        delete data;
-       data = NULL;
-       
+       data = NULL;       
     }
 
 }

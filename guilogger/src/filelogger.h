@@ -31,6 +31,7 @@ class FileLogger : public QObject
 
 public:
     FileLogger(QString pf="");
+    ~FileLogger();
     void setPrefix(QString pf) {prefix = pf;};
     void setLogging(bool log)  {this->log = log;}
     
@@ -38,6 +39,7 @@ private:
     QString prefix;
     QString filename;
     bool log;
+    FILE *instream;
 
 private slots:
     void writeChannelNames(char *);  // removes #C from the front of the input string      deprecated

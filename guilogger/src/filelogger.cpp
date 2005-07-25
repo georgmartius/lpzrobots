@@ -24,6 +24,13 @@
 FileLogger::FileLogger(QString pf)
 {   prefix = pf;
     log= FALSE;
+    instream=0;
+}
+
+FileLogger::~FileLogger(){
+  if(instream) {
+    fclose(instream);
+  }  
 }
 
 
@@ -32,29 +39,24 @@ void FileLogger::writeChannelNames(char *datablock)
     filename = prefix + (QDateTime::currentDateTime()).toString("yyyy-MMMM-ddd hh-mm-ss") + ".log";
 
     if(datablock == NULL) return;
-    FILE *instream;
+    if(instream) {
+      fclose(instream);
+    }
     instream = fopen(filename.latin1(),"w+");
-        while(datablock[++i] != '\0') fprintf(instream, "%c", datablock[i]);  //um das #C am Anfang der Zeile nich in Datei zu schreiben
-        fprintf(instream, "\n");
-    fclose(instream);
-
+    while(datablock[++i] != '\0') 
+      fprintf(instream, "%c", datablock[i]);  //um das #C am Anfang der Zeile nich in Datei zu schreiben
+    fprintf(instream, "\n");
 }
 
 
 void FileLogger::writeChannelData(char *datablock)
 {
-    if(log && (datablock == NULL)) return;
-
-    FILE *instream;
+    if(!log || !datablock || !instream) return;
 
     if(datablock[0]=='#' && datablock[1] == 'C')
-    {   filename = prefix + (QDateTime::currentDateTime()).toString("yyyy-MMMM-ddd hh-mm-ss") + ".log";
-        instream = fopen(filename.latin1(),"w+");  //bei channels neue Datei aufruppen
+    {   
+      writeChannelNames(datablock);
+      return;
     }
-    else instream = fopen(filename.latin1(),"a");
-
-    if(instream==NULL) return;
     fprintf(instream, "%s\n", datablock);
-    fclose(instream);
-
 }
