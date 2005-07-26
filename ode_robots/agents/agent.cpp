@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-07-26 08:36:53  fhesse
+ *   Revision 1.6  2005-07-26 17:01:47  martius
+ *   flushing every 10
+ *   guilogger is opened with nice -2
+ *
+ *   Revision 1.5  2005/07/26 08:36:53  fhesse
  *   delay for logging in file changed from 15 to 3
  *
  *   Revision 1.4  2005/07/21 11:30:59  fhesse
@@ -57,6 +61,7 @@ Agent::Agent(PlotMode plotmode/*=GuiLogger*/){
 
   pipe=0;
   numberInternalParameters=0;
+  t=0;
 }
   
 Agent::~Agent(){
@@ -104,9 +109,9 @@ bool Agent::OpenGui(){
   signal(SIGPIPE,SIG_IGN); 
   // TODO: get the guilogger call from some  config
   if(plotmode == GuiLogger_File){
-    pipe=popen("guilogger -l -m pipe -d 3 > /dev/null","w");
+    pipe=popen("nice -2 guilogger -l -m pipe -d 5  > /dev/null","w");
   }else{
-    pipe=popen("guilogger -m pipe -d 3 > /dev/null","w");
+    pipe=popen("nice -2 guilogger -m pipe -d 5 > /dev/null","w");
   }
   if(pipe==0){
     fprintf(stderr, "%s:%i: could not open guilogger!\n", __FILE__, __LINE__);    
@@ -133,7 +138,7 @@ void Agent::plot(const sensor* x, int sensornumber, const motor* y, int motornum
   
   printInternalParameters(pipe, x, sensornumber, y, motornumber, 
 			  numberInternalParameters, controller);
-  fflush(pipe);
+  if(t%10==0) fflush(pipe);
 };
 
 
@@ -160,4 +165,5 @@ void Agent::step(double noise){
   wiring->wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
   robot->setMotors(rmotors, rmotornumber);
   plot(csensors, csensornumber, cmotors, cmotornumber);
+  t++;
 }

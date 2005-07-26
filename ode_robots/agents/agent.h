@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-07-18 10:13:46  martius
+ *   Revision 1.5  2005-07-26 17:01:47  martius
+ *   flushing every 10
+ *   guilogger is opened with nice -2
+ *
+ *   Revision 1.4  2005/07/18 10:13:46  martius
  *   noise moved to wiring
  *
  *   Revision 1.3  2005/07/14 15:57:53  fhesse
@@ -103,7 +107,7 @@ private:
   int numberInternalParameters;
   PlotMode plotmode;
 
-
+  int t;
 
 };
 
