@@ -292,11 +292,8 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
 /// saves the channel configuration to file
 void guilogger::save()
 {   ChannelRow *cr;
-    QString secname, nr;
+    QString nr;
     IniSection *section;
-    IniVar *var;
-    QString qv;
-    int pwin;
 
     cfgFile.setFilename("guilogger.cfg");
 
@@ -317,9 +314,8 @@ void guilogger::save()
     {   cr = ChannelRowPtrList.first();
 
         nr = QString::number(i, 10);
-        secname = "Window";
 
-        IniSection *sec = cfgFile.addSection(secname);
+        IniSection *sec = cfgFile.addSection("Window");
         sec->addValue("Number", nr);
 
         while(cr != 0)
@@ -328,9 +324,7 @@ void guilogger::save()
         }
     }
 
-
     cfgFile.Save();
-    cfgFile.Clear();
 }
 
 
