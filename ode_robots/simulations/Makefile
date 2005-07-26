@@ -11,7 +11,8 @@ SIMULATIONS= \
 	template_onerobot \
 	template_schlange \
 	template_schlangeforce \
-	atomsimulation
+	atomsimulation \
+	hurling_snake
 
 all: $(SIMULATIONS)
 
