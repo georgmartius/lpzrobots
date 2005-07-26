@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-21 12:17:04  fhesse
+ *   Revision 1.2  2005-07-26 17:04:21  martius
+ *   lives in its own space now
+ *
+ *   Revision 1.1  2005/07/21 12:17:04  fhesse
  *   new hurling snake, todo: add collision space, clean up, comment
  *
  *         
@@ -58,9 +61,6 @@ public:
 */
   virtual void place(Position pos , Color *c = 0);
 
-
-
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
   /** checks for internal collisions and treats them. 
    *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
    *  else false (collision is passed to other objects and (if not treated) to the default routine).
@@ -126,6 +126,7 @@ public:
    */
   virtual void destroy();
 
+  static void mycallback(void *data, dGeomID o1, dGeomID o2);
        
   bool created;      // true if robot was created
 
