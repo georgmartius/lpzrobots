@@ -165,7 +165,7 @@ int SchlangeForce::getSensors ( sensor* sensors, int sensornumber )
 	for ( int n = 0; n < sensornumber; n++ )
 	{
 		if ( ausgabeart == angle )
-			*sensors = sensorfeld[n].istwinkel;
+			*sensors = sensorfeld[n].istwinkel/(2*M_PI);
 		if ( ausgabeart == anglerate )
 			getWinkelDifferenz ( n , sensors );
 		*sensors *= factorSensors;

@@ -13,6 +13,7 @@
 
 #include "invertmotorspace.h"
 #include "invertmotornstep.h"
+#include "invertmotornstepwiths.h"
 #include "sinecontroller.h"
 
 ConfigList configs;
@@ -43,27 +44,29 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.15;
+  simulationConfig.noise=0.1;
 
   Playground* playground = new Playground(world, space);
-  playground->setGeometry(7.0, 0.2, 1.5);
+  playground->setGeometry(20.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren 
   obstacles.push_back(playground);
 
-  AbstractRobot* vehicle = new Nimm2(world, space, contactgroup,0.01);
+  AbstractRobot* vehicle = new Nimm2(world, space, contactgroup,1.5,1.5,6);
   Position p = {0,0,0};
   vehicle->place(p);
-  AbstractController *controller = new InvertMotorNStep(10);  
-  //AbstractController *controller = new InvertMotorSpace(10);  
+  AbstractController *controller = new InvertMotorNStep(10);   
+  // AbstractController *controller = new InvertMotorNStep(10);  
+  // AbstractController *controller = new InvertMotorSpace(10);  
   //  controller->setParam("factorB",0);
   //  controller->setParam("eps",0.5);
-  //AbstractController *controller = new SineController();  
+  // AbstractController *controller = new SineController();  
   //  controller->setParam("phaseShift",1);
   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
   c.useId=true;
   c.useFirstD=false;
-  c.derivativeScale=20;
-  c.blindMotorSets=1;
+  c.derivativeScale=10;
+  c.eps=0.1;
+  // c.blindMotorSets=1;
   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   Agent* agent = new Agent(plotMode);

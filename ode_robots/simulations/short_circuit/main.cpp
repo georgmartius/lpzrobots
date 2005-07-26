@@ -58,9 +58,9 @@ void start()
   //  One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
   c.useId=true;
-  c.useFirstD=false;
+  c.useFirstD=true;
   c.derivativeScale=20;
-  c.blindMotorSets=1;
+  c.blindMotorSets=0;
   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   agent->init(controller, robot, wiring);
   agents.push_back(agent);

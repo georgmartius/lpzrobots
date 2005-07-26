@@ -88,10 +88,10 @@ Roboter::Roboter ( startRoboterID , welt , raum , start_contactgroup , 2*(armanz
 		dJointSetUniversalAxis2 ( jointliste.back () , 0 , 0 , 1 );
 
 		// setting stops at universal joints		
-		dJointSetUniversalParam ( jointliste.back () , dParamLoStop, -M_PI/2 );
-		dJointSetUniversalParam ( jointliste.back () , dParamHiStop,  M_PI/2 );
-		dJointSetUniversalParam ( jointliste.back () , dParamLoStop2, -M_PI/2); 
-		dJointSetUniversalParam ( jointliste.back () , dParamHiStop2,  M_PI/2); 
+		dJointSetUniversalParam ( jointliste.back () , dParamLoStop, -M_PI/4 );
+		dJointSetUniversalParam ( jointliste.back () , dParamHiStop,  M_PI/4 );
+		dJointSetUniversalParam ( jointliste.back () , dParamLoStop2, -M_PI/4); 
+		dJointSetUniversalParam ( jointliste.back () , dParamHiStop2,  M_PI/4); 
 
 		// making stops bouncy
 		dJointSetUniversalParam ( jointliste.back () , dParamBounce, 0.9 );
@@ -273,7 +273,7 @@ int Schlange::getSensors ( sensor* sensors, int sensornumber )
 	for ( int n = 0; n < sensornumber; n++ )
 	{
 		if ( ausgabeart == angle )
-			(*sensors++) = sensorfeld[n].istwinkel;
+			(*sensors++) = sensorfeld[n].istwinkel/(2*M_PI);
 		if ( ausgabeart == anglerate )
 			getWinkelDifferenz ( n , sensors++ );
 			
