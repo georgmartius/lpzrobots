@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-21 15:09:13  martius
+ *   Revision 1.4  2005-07-26 17:02:37  martius
+ *   2.derivative scaled correctly
+ *
+ *   Revision 1.3  2005/07/21 15:09:13  martius
  *   blind motors
  *
  *   Revision 1.2  2005/07/21 11:30:59  fhesse
@@ -127,6 +130,11 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
   if(conf.useSecondD) { // second derivative
     calcSecondDerivative();
     memcpy(csensors+offset, second, sizeof(sensor) * this->rsensornumber);
+    // test  ( if angle near bounce point than set derivative to 0;
+    // for(int i=0; i<this->rsensornumber; i++){
+    //       if(fabs(*(csensors+i)) > 0.8)
+    // 	*(csensors+offset+i) = 0;
+    //     }
     offset+=this->rsensornumber;	   
   }      
 
@@ -135,7 +143,7 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
     offset+=blindMotorNumber;	   
   }      
   
-  if(offset!=this->csensornumber){
+  if(offset!=this->csensornumber){ 
     fprintf(stderr, "%s:%i: Something strange happend!\n", __FILE__, __LINE__);  
     return false;
   } 
@@ -179,7 +187,7 @@ void DerivativeWiring::calcSecondDerivative(){
   sensor* tm1 = sensorbuffer[(time-1)%buffersize];
   sensor* tm2 = sensorbuffer[(time-2)%buffersize];
   for(int i=0; i < rsensornumber; i++){
-    second[i] = (t[i] - 2*tm1[i] + tm2[i])*conf.derivativeScale;
+    second[i] = (t[i] - 2*tm1[i] + tm2[i])*conf.derivativeScale*conf.derivativeScale; 
   }
 }
 
