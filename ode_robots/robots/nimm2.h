@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-07-18 14:47:41  martius
+ *   Revision 1.8  2005-07-26 17:03:25  martius
+ *   resizeable
+ *   forces and collisions fixed
+ *
+ *   Revision 1.7  2005/07/18 14:47:41  martius
  *   world, space, contactgroup are not pointers anymore.
  *
  *   Revision 1.6  2005/07/08 09:33:28  martius
@@ -45,7 +49,7 @@
 class Nimm2 : public AbstractRobot{
 public:
   
-  Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double force=0.005, double speed=10);
+  Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size=1, double force=2, double speed=6);
 
   virtual ~Nimm2(){};
 
@@ -114,6 +118,7 @@ protected:
   double width;  // chassis width
   double height;   // chassis height
   double radius;  // wheel radius
+  double wheelthickness; // thickness of the wheels  
   double cmass;    // chassis mass
   double wmass;    // wheel mass
   int sensorno;      //number of sensors

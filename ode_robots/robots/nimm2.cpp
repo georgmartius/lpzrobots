@@ -6,7 +6,7 @@
 #include "nimm2.h"
 
 
-Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double force /*=0.005*/, double speed/*=10*/):
+Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, double force /*=0.1*/, double speed/*=10*/):
   AbstractRobot::AbstractRobot(w, s, c){ 
 
   created=false;
@@ -21,15 +21,17 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double force /*=0.005*/, d
   color.b=0.5;
   
 
-  max_force   = force;
+  max_force   = force*size*size;
   this->speed = speed;
 
-  length=0.07; 
-  width=0.125; 
-  height=0.2;  
-  radius=0.064;
-  cmass=0.5;  
-  wmass=0.1;  
+  height=size;  
+
+  length=size/3; 
+  width=size/2; 
+  radius=size/4+size/200;
+  wheelthickness=size/20;
+  cmass=8*size;  
+  wmass=size;  
   sensorno=2; 
   motorno=2;  
   segmentsno=3;
@@ -123,7 +125,7 @@ void Nimm2::draw(){
   dsSetColor (1,1,1); // set color for wheels
   // draw wheels
   for (int i=1; i<3; i++) { 
-    dsDrawCylinder (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),0.02f,radius);
+    dsDrawCylinder (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),wheelthickness,radius);
   }
 };
 
@@ -138,13 +140,15 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   //checks if one of the collision objects is part of the robot
   if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space){
     dSpaceCollide(car_space, this, mycallback);
-    bool colwithme = false;  
-    bool colwithbody = false;  
+    bool colwithme;  
+    bool colwithbody;  
     int i,n;  
     const int N = 10;
     dContact contact[N];
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     for (i=0; i<n; i++){
+      colwithbody = false;
+      colwithme = false;  
       if( contact[i].geom.g1 == object[0].geom || contact[i].geom.g2 == object[0].geom){
 	colwithbody = true;
 	colwithme = true;
@@ -158,14 +162,17 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
       if( colwithme){
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	if(colwithbody)
-	  contact[i].surface.mu = 0.1; // small friction od smooth body
-	else 
-	  contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt	
 	contact[i].surface.slip1 = 0.005;
 	contact[i].surface.slip2 = 0.005;
-	contact[i].surface.soft_erp = 0.5;
-	contact[i].surface.soft_cfm = 0.01;
+	if(colwithbody){
+	  contact[i].surface.mu = 0.1; // small friction of smooth body
+	  contact[i].surface.soft_erp = 0.5;
+	  contact[i].surface.soft_cfm = 0.001;
+	}else{
+	  contact[i].surface.mu = 1.1; //large friction
+	  contact[i].surface.soft_erp = 0.9;
+	  contact[i].surface.soft_cfm = 0.001;
+	}
 	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
       }
@@ -183,6 +190,10 @@ void Nimm2::create(Position pos){
   if (created) {
     destroy();
   }
+  // create car space and add it to the top level space
+  car_space = dSimpleSpaceCreate (space);
+  dSpaceSetCleanup (car_space,0);
+
   dMass m;
   // cylinder
   object[0].body = dBodyCreate (world);
@@ -194,7 +205,7 @@ void Nimm2::create(Position pos){
   dMassSetCappedCylinder(&m,1,1,width/2,length);
   dMassAdjust (&m,cmass);
   dBodySetMass (object[0].body,&m);
-  object[0].geom = dCreateCCylinder (0,width/2,length);
+  object[0].geom = dCreateCCylinder (car_space, width/2,length);
   dGeomSetBody (object[0].geom, object[0].body);
 
   // wheel bodies
@@ -206,11 +217,11 @@ void Nimm2::create(Position pos){
     dMassSetSphere (&m,1,radius);
     dMassAdjust (&m,wmass);
     dBodySetMass (object[i].body,&m);
-    object[i].geom = dCreateSphere (0,radius);
+    object[i].geom = dCreateSphere (car_space, radius);
     dGeomSetBody (object[i].geom,object[i].body);
   }
-  dBodySetPosition (object[1].body, pos.x, pos.y+ width*0.5, pos.z );
-  dBodySetPosition (object[2].body, pos.x, pos.y -width*0.5, pos.z );
+  dBodySetPosition (object[1].body, pos.x, pos.y+ width*0.5+wheelthickness, pos.z );
+  dBodySetPosition (object[2].body, pos.x, pos.y -width*0.5-wheelthickness, pos.z );
 
 
   for (int i=0; i<2; i++) {
@@ -226,12 +237,12 @@ void Nimm2::create(Position pos){
     dJointSetHinge2Param (joint[i],dParamLoStop,0);
     dJointSetHinge2Param (joint[i],dParamHiStop,0);
   }
-  // create car space and add it to the top level space
-  car_space = dSimpleSpaceCreate (space);
-  dSpaceSetCleanup (car_space,0);
-  for (int i=0; i<3; i++){
-    dSpaceAdd (car_space,object[i].geom);
-  }
+//   // create car space and add it to the top level space
+//   car_space = dSimpleSpaceCreate (space);
+//   dSpaceSetCleanup (car_space,0);
+//   for (int i=0; i<3; i++){
+//     dSpaceAdd (car_space,object[i].geom);
+//   }
 
   created=true;
 }; 
