@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-07-21 11:30:59  fhesse
+ *   Revision 1.5  2005-07-26 08:36:53  fhesse
+ *   delay for logging in file changed from 15 to 3
+ *
+ *   Revision 1.4  2005/07/21 11:30:59  fhesse
  *   started with blind motors
  *
  *   Revision 1.3  2005/07/18 14:44:27  martius
@@ -101,7 +104,7 @@ bool Agent::OpenGui(){
   signal(SIGPIPE,SIG_IGN); 
   // TODO: get the guilogger call from some  config
   if(plotmode == GuiLogger_File){
-    pipe=popen("guilogger -l -m pipe -d 15  > /dev/null","w");
+    pipe=popen("guilogger -l -m pipe -d 3 > /dev/null","w");
   }else{
     pipe=popen("guilogger -m pipe -d 3 > /dev/null","w");
   }
