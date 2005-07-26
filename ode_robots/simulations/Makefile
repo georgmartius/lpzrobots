@@ -4,6 +4,7 @@
 
 # subdirectories which contain libraries or binaries needed some of the other project in this tree 
 SIMULATIONS= \
+	zoo \
 	jointtest \
 	pseudosensor_wheelrobot \
 	running_through_limit_cycles \
