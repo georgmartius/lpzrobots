@@ -53,7 +53,8 @@ public:
 	// return: false wenn keine Section mit dem Namen (mehr bei _next)
 	bool getSection(IniSection& _section,QString _name,bool _next);
         IniSection *addSection(QString name);
-	
+        void delSection(IniSection* _section);
+        
 	QList <IniSection> sections;	
 	
 private:
@@ -87,7 +88,8 @@ public:
 	// return: false wenn keine Var mit dem Namen
 	bool getVar( IniVar& _var, QString _name);
         void addValue(QString value, QString name);
- 
+        void delVar(IniVar* _var);
+        
   QList <IniVar> vars;
 
   bool operator== (IniSection& _section); // Vergleicht nur Namen!

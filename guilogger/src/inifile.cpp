@@ -231,11 +231,19 @@ bool IniFile::getSection(IniSection& _section,QString _name,bool _next){
   return false;
 }
 
+
 IniSection *IniFile::addSection(QString name)
 {   IniSection* sec = new IniSection(name);
     sections.append(sec);
     return sec;
 }
+
+
+void IniFile::delSection(IniSection* _section)
+{   sections.remove(_section);
+    _section = NULL;
+}
+
 
 
 
@@ -287,7 +295,7 @@ void IniSection::copy (IniSection& _section){
 }
 
 
-bool IniSection::getVar(IniVar& _var,QString _name){
+bool IniSection::getVar( IniVar& _var, QString _name){
   IniVar* tempvar;
   for(tempvar=vars.first();tempvar;tempvar=vars.next()){
     if (tempvar->getName()==_name){
@@ -297,6 +305,13 @@ bool IniSection::getVar(IniVar& _var,QString _name){
   }
   return false;
 }
+
+
+void IniSection::delVar(IniVar* _var)
+{    vars.remove(_var);  // automatic deletion
+     _var = NULL;
+}
+
 
 void IniSection::addValue(QString name, QString value)
 {   IniVar* tmpvar = new IniVar(name, value, "");
@@ -309,7 +324,7 @@ void IniSection::addValue(QString name, QString value)
 IniVar::IniVar(){
 }
 
-IniVar::IniVar(QString _name,QString _value,QString _comment){
+IniVar::IniVar( QString _name, QString _value, QString _comment){
   setName(_name);
   setValue(_value);
   setComment(_comment);

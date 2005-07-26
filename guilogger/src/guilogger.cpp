@@ -275,10 +275,16 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
     {    //updateSliderPlot();
     }
     else
-    {   if( on) gp[gpwindow].show(tag);  // einzelnen Kanal abschalten
-        else gp[gpwindow].hide(tag);
-
-        for(int i=0; i<plotwindows; i++) gp[i].plot();
+    {
+        if( on) 
+        {   gp[gpwindow].show(tag);  // einzelnen Kanal abschalten
+            
+        }
+        else 
+        {    gp[gpwindow].hide(tag);
+        }
+        
+        for(int i=0; i<plotwindows; i++) gp[i].plot();  // sofort aktualisieren
     }
 }
 
@@ -287,8 +293,25 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
 void guilogger::save()
 {   ChannelRow *cr;
     QString secname, nr;
+    IniSection *section;
+    IniVar *var;
+    QString qv;
+    int pwin;
 
     cfgFile.setFilename("guilogger.cfg");
+
+    section = cfgFile.sections.first();  // delete all "window" sections, because they will be rewritten in the next "for loop".
+    while(1)
+    {   if(section == 0) break;
+        if(section->getName() != "Window")
+        {   section = cfgFile.sections.next();
+            continue;
+        }
+
+        cfgFile.sections.remove();  // remove current item, iterator++ 
+        section = cfgFile.sections.current();
+    }
+
 
     for(int i=0; i<plotwindows; i++)
     {   cr = ChannelRowPtrList.first();
@@ -304,6 +327,7 @@ void guilogger::save()
             cr = ChannelRowPtrList.next();
         }
     }
+
 
     cfgFile.Save();
     cfgFile.Clear();
