@@ -17,8 +17,8 @@ LPZROBOTS  = ../../..
 ODEROBOTS  = $(LPZROBOTS)/ode_robots
 CONTROLLER = $(LPZROBOTS)/controller
 MATRIXLIB  = $(LPZROBOTS)/matrixlib
-#MATRIX     = matrix
-MATRIX     = matrix_debug
+MATRIX     = matrix
+#MATRIX     = matrix_debug
 
 include $(ODEROBOTS)/Makefile.conf
 

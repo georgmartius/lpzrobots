@@ -7,16 +7,16 @@
 #include "agent.h"
 #include "one2onewiring.h"
 
-#include "playground.h"
+//#include "playground.h"
 #include "closedplayground.h"
 
-#include "invertnchannelcontroller.h"
+//#include "invertnchannelcontroller.h"
 #include "invertmotorspace.h"
-#include "sinecontroller.h"
+//#include "sinecontroller.h"
 
 #include "noisegenerator.h"
 
-#include "schlange.h"
+//#include "schlange.h"
 
 #include "atomsimRobot.h"
 
@@ -30,16 +30,20 @@ int roboterIDzaehler = 1;
 //*****************************************************
 //world parameters
 double playgroundx = 20;
-double playgroundthickness = 0.2;
-double playgroundheight = 10;
+double playgroundthickness = 1;
+double playgroundheight =5;
+
 
 //*****************************************************
 //evolutionary parameters
 
-int lifecycle = 200; //this is the intervall of one lifecyle of an robot
-int startingpopulationsize = 2; //it have to be at least two robots
+int lifecycle = 500; //this is the intervall of one lifecyle of an robot
+int startingpopulationsize = 4; //it have to be at least two robots
 int maxpopulationsize = 16;
 int selektionsanzahl = 2; //this parameter says how many robots are selected form the former generation
+
+//variables for special fitness functions
+Position evoarray[16];
 
 
 //*****************************************************
@@ -92,10 +96,10 @@ void start()
 	posA.z = 0;
   	dsPrint ( "x=%lf y=%lf z=%lf\n" , posA.x , posA.y ,posA.z );
   
-	robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , world , space , contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , world , space , posA.x + 0.0 , posA.y + 2.0 , posA.z + 1.0 , 0.3 , 0.5 , 1 , 1 , 15 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
-	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 0.2 , posA.y + 2, posA.z + 4 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
-	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  ,  posA.x + 1 , posA.y + 2 , posA.z + 8 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
-	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 2.4 , posA.y + 2 , posA.z + 13 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
+	robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , world , space , contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , world , space , posA.x + 0.0 , posA.y + 2.0 , posA.z + 1.0 , 0.3 , 0.5 , 1 , 1 , 10 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 0.2 , posA.y + 2, posA.z + 4 , 0.3 , 0.5 , 1 , 1 , 10 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  ,  posA.x + 1 , posA.y + 2 , posA.z + 8 , 0.3 , 0.5 , 1 , 1 , 10 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 2.4 , posA.y + 2 , posA.z + 13 , 0.3 , 0.5 , 1 , 1 , 10 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
 	
 	AbstractController *controller = new InvertMotorSpace ( 10 );
 	One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise () );
@@ -114,8 +118,8 @@ void start()
   	{
 		atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.1 , y-0.2 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.2*x , 0.2*y , 0.2 ) );
 		atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x+0.1 , y + 0.3 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.3*x , 0.3*y , 0.3 ) );
-		atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.2 , y + 0.5 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
-		atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x+0.2 , y + 0.0 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
+		//atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.2 , y + 0.5 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
+		//atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x+0.2 , y + 0.0 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
 		//atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.2 , y - 0.1 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
 		//atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , x-0.2 , y + 0.4 , 1 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0.4*x , 0.4*y , 0.4 ) );
 	}
@@ -257,7 +261,7 @@ void command (int cmd)
 }
 
 //Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
-//Hier wird die Kollission n�er untersucht
+//Hier wird die Kollission untersucht
 void atomCallback (void *data, dGeomID o1, dGeomID o2)
 {
 	int collision;
@@ -294,11 +298,11 @@ void atomCallback (void *data, dGeomID o1, dGeomID o2)
 				
 					contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 					dContactSoftERP | dContactSoftCFM | dContactApprox1;
-					contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt = 0.8
-					contact[i].surface.slip1 = 0.0051;
-					contact[i].surface.slip2 = 0.0051;
+					contact[i].surface.mu = 0.0; //normale Reibung von Reifen auf Asphalt = 0.8
+					//contact[i].surface.slip1 = 0.0051;
+					//contact[i].surface.slip2 = 0.0051;
 					contact[i].surface.soft_erp = 1;
-					contact[i].surface.soft_cfm = 0.00001; //Elastizität der Stoesse: klein keine 							Elastizität, groß viel Elsatizität
+					contact[i].surface.soft_cfm = 0.0001; //Elastizität der Stoesse: klein keine 							Elastizität, groß viel Elsatizität
 					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
 					dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
 					
@@ -447,6 +451,13 @@ void additionalLoopfunction ( bool draw , bool pause )
 						
 						
 						dsPrint ( "Agents:%i Robots:%i\n" , agents.size (), robotersammlung.size () );
+						for ( vector<Configurable*>::iterator configit = configs.begin(); configit != configs.end (); configit++ )
+							if ( (*configit) == (*agentit)->getController () )
+							{
+								configs.erase ( configit );
+								break;
+							}
+						
 						delete (*agentit)->getController();
 						delete (*agentit)->getWiring ();
 						delete (*agentit);
@@ -486,16 +497,35 @@ void additionalLoopfunction ( bool draw , bool pause )
 				}
 				
 				dsPrint ("Eine neue Generation entsteht!\n");
+				for ( unsigned int n = 0; n < robotersammlung.size (); n ++ )
+				{
+					robotersammlung[n]->setFitness ( 0 );
+					
+				}
 			}
 			
 		}
 		//adaptation of the fitness value of the robots
 		else
 		{
+			//this is a simple evolution, where small robots are the fitesst
+			/*for ( unsigned int n = 0; n < robotersammlung.size (); n ++ )
+			{
+				if ( robotersammlung[n]->getAtomAnzahl () == 1 )
+					robotersammlung[n]->setFitness ( 0 ); //robots with only one atom could not replicate
+				else
+					robotersammlung[n]->setFitness ( 1.0/(robotersammlung[n]->getAtomAnzahl ()) );
+			}*/
+			
+			
 			for ( unsigned int n = 0; n < robotersammlung.size (); n ++ )
 			{
-				robotersammlung[n]->setFitness ( 1.0/(robotersammlung[n]->getAtomAnzahl ()) );
+				robotersammlung[n]->addFitness ( fabs ( robotersammlung[n]->getPosition ().x - evoarray[n].x ) );
+				robotersammlung[n]->addFitness ( fabs ( robotersammlung[n]->getPosition ().y - evoarray[n].y ) );
+				robotersammlung[n]->addFitness ( fabs ( robotersammlung[n]->getPosition ().z - evoarray[n].z ) );
+				evoarray[n] = robotersammlung[n]->getPosition ();
 			}
+			
 		}
 	dsPrint ("Weltzeit: %lf\n" , simulationTime );
 	}

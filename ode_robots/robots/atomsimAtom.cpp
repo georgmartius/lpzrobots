@@ -132,6 +132,21 @@ dGeomID atomsimAtom::getAtomhuelleGeom ()
 {
 	return atomhuelle_geom;
 }
+
+/**
+ *
+ *@author Marcel Kretschmann
+ *@version
+ **/
+void atomsimAtom::setSpace ( dSpaceID neuer_raum )
+{
+	dSpaceRemove ( raum , atom_geom );
+	dSpaceRemove ( raum , atomhuelle_geom );
+	
+	raum = neuer_raum;
+	dSpaceAdd ( raum , atom_geom );
+	dSpaceAdd ( raum , atomhuelle_geom );
+}
 	
 /**
  *
@@ -663,19 +678,27 @@ bool atomsimAtom::atombindung ( atomsimAtom* a2 , raumvektor kraftraumvektor1 , 
 
 		achse_rechtwinklig_zur_Kollision.z =
 		kraftraumvektor1.x * kraftraumvektor2.y - kraftraumvektor1.y * kraftraumvektor2.x;
+		
+		raumvektor achse_zwischen_beiden_atomen;
+		achse_zwischen_beiden_atomen.x = this->getX () - a2->getX ();
+		achse_zwischen_beiden_atomen.y = this->getY () - a2->getY ();
+		achse_zwischen_beiden_atomen.z = this->getZ () - a2->getZ ();
+		
 		//Um das Problem zu umgehen, das keine Ebene existiert, wenn einer der Vektoren den Betrag 0 hat, wird in diesem Fall einfach ein passender Wert angenommen, dies sollte aber eher selten auftreten
-		if ( ( achse_rechtwinklig_zur_Kollision.x == 0 ) && ( achse_rechtwinklig_zur_Kollision.y == 0 )
+		/*if ( ( achse_rechtwinklig_zur_Kollision.x == 0 ) && ( achse_rechtwinklig_zur_Kollision.y == 0 )
 		&& ( achse_rechtwinklig_zur_Kollision.z == 0 ) )
 		{
 			//es wird in diesen Fällen immer die Ache 1-0-0 verwendet
 			achse_rechtwinklig_zur_Kollision.x = 0;
 			achse_rechtwinklig_zur_Kollision.y = 1;
 			achse_rechtwinklig_zur_Kollision.z = 0;
-		}
+		}*/
 	
 		dsPrint ( "Bindung von %i an Roboter %i\n" , (*a2).getRoboterID () , getRoboterID ());
-		dsPrint ( "mit Achse: ( %.30lf , %.30lf , %.30lf )\n" , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
-	
+		//dsPrint ( "mit Achse: ( %.30lf , %.30lf , %.30lf )\n" , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
+		dsPrint ( "mit Achse: ( %.30lf , %.30lf , %.30lf )\n" , achse_zwischen_beiden_atomen.x , achse_zwischen_beiden_atomen.y , achse_zwischen_beiden_atomen.z );
+		
+		
 		atomliste.push_back ( a2 );
 	
 		(*a2).setUrsprung ( this ); //das Atom an dem die kollision erfolgte wird zum Ursprung für das welches angestossen ist
@@ -687,7 +710,9 @@ bool atomsimAtom::atombindung ( atomsimAtom* a2 , raumvektor kraftraumvektor1 , 
 		dJointAttach ( tmp , (*this).getBody () , (*a2).getBody () );
 		dJointSetHingeAnchor ( tmp , (*this).getX () , (*this).getY () , (*this).getZ () );
 
-		dJointSetHingeAxis ( tmp , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
+		//dJointSetHingeAxis ( tmp , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
+		
+		dJointSetHingeAxis ( tmp , achse_zwischen_beiden_atomen.x , achse_zwischen_beiden_atomen.y , achse_zwischen_beiden_atomen.z );
 
 		jointliste.push_back ( tmp );
 		(*a2).setUrsprungJoint ( tmp );
@@ -698,7 +723,9 @@ bool atomsimAtom::atombindung ( atomsimAtom* a2 , raumvektor kraftraumvektor1 , 
 		(*a2).setUrsprungMotor ( motorliste.back () );
 		dJointAttach ( motorliste.back () , (*this).getBody () , (*a2).getBody () );
 		dJointSetAMotorMode ( motorliste.back () , dAMotorEuler );
-		dJointSetAMotorAxis ( motorliste.back () , 0 , 1 , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
+		
+		//dJointSetAMotorAxis ( motorliste.back () , 0 , 1 , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
+		dJointSetAMotorAxis ( motorliste.back () , 0 , 1 , achse_zwischen_beiden_atomen.x , achse_zwischen_beiden_atomen.y , achse_zwischen_beiden_atomen.z );
 			
 		dJointSetAMotorAxis ( motorliste.back () , 2 , 2 , kraftraumvektor1.x , kraftraumvektor1.y , kraftraumvektor1.z );
 
@@ -840,7 +867,7 @@ int atomsimAtom::kollision ( atomsimAtom* a2 )
  **/
 void atomsimAtom::drawAtom ()
 {
-	//dsSetTexture (DS_WOOD);
+dsSetTexture (DS_WOOD);
 	dsSetColor ( farbe.x , farbe.y , farbe.z );
 	dsDrawSphere ( dBodyGetPosition ( body ) , dBodyGetRotation ( body ) , atomradius );
 }

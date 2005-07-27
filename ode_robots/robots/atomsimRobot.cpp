@@ -269,8 +269,11 @@ int atomsimRobot::sensoraktualisierung ( atomsimAtom* atom , int i , bool steuer
 				delSensor ();
 	}
 
+	//update of the sensor values
 	for ( int n = 0; n < (*atom).getAnzahlAtome (); n++ )
 	{
+		//atom->setSpace ( raum ); //this is a call, that has nothing to do with the sensors, but this updates the membership of the atoms of a Robot to the robots dSpaces
+		
 		if ( i < getSensorfeldGroesse () )
 		{
 			sensorfeld[i].istwinkel_alt = sensorfeld[i].istwinkel;
@@ -502,7 +505,7 @@ double atomsimRobot::getFitness ()
 }
 
 /**
- *
+ *This is the standart addfitness-function, not specialized to an evolution.
  *@author
  *@version
  **/
@@ -605,6 +608,18 @@ bool atomsimRobot::roboterAuftrennen ( atomsimAtom* a/*=0*/ , atomsimAtom** newr
 			else
 				return roboterAuftrennen ( (*a).getAtomAt ( n ) , newrobotpart , endofpieceone , trennverhaeltniss );
 		}
+	//if there it is not possible to make a clean cut between the robots (mostly if the robot only consists of one atom)
+	
+	atomsammlung->push_back ( new atomsimAtom ( 0 , a->getAtomIDzaehler() , world , space  , a->getX () + 2*a->getRadius () , a->getY () , a->getZ () , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 1 ) );
+	
+	if ( endofpieceone != 0 )
+	{
+		*endofpieceone = getUrsprungsatom ();
+		*newrobotpart = atomsammlung->back ();
+		return true;
+	}
+	
+		
 	return false;
 }
 	
@@ -678,11 +693,13 @@ void atomsimRobot::roboterRekombination ( int vermehrungsart , double trennverha
 				else
 				{
 					dsPrint ( "Keine Rekombination: keine Trennung von Roboter 2 möglich!\n" );
+					dsPrint ( "AtomAnzahl=%i\n" , neueratomsimRobot2->getAtomAnzahl () );
 				}
 		}
 		else
 		{
 			dsPrint ( "Keine Rekombination: keine Trennung von Roboter 1 möglich!\n" );
+			dsPrint ( "AtomAnzahl=%i\n" , neueratomsimRobot1->getAtomAnzahl () );
 		}	
 }
 

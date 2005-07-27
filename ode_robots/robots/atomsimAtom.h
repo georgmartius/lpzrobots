@@ -134,6 +134,13 @@ public:
  	 *@author Marcel Kretschmann
  	 *@version
  	 **/
+	virtual void setSpace ( dSpaceID neuer_raum );
+	
+	/**
+ 	 *
+ 	 *@author Marcel Kretschmann
+ 	 *@version
+ 	 **/
 	virtual double getX ();
 	
 	/**
