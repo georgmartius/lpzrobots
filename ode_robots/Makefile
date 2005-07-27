@@ -42,5 +42,8 @@ tags:
 
 clean:
 	rm -f $(LIB) *.o Makefile.depend
+	for dir in $(dirs); do \
+		rm -f $$dir/*.o; \
+	done
 
 include Makefile.depend
