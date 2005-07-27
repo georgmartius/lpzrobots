@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-18 14:47:41  martius
+ *   Revision 1.4  2005-07-27 13:22:16  martius
+ *   position and color have constructors
+ *   ODEHandle
+ *
+ *   Revision 1.3  2005/07/18 14:47:41  martius
  *   world, space, contactgroup are not pointers anymore.
  *
  *   Revision 1.2  2005/07/07 09:27:11  martius
@@ -41,18 +45,22 @@ using namespace std;
 typedef double sensor;
 typedef double motor;
 
-typedef struct
+typedef struct Color
 {
-	double r;
-	double g;
-	double b;
+  Color() {r=g=b=0;};
+  Color(double _r, double _g, double _b){ r=_r; g=_g; b=_b; }
+  double r;
+  double g;
+  double b;
 } Color;
 
-typedef struct
+typedef struct Position
 {
-	double x;
-	double y;
-	double z;
+  Position(){x=y=z=0;}
+  Position(double _x, double _y, double _z){ x=_x; y=_y; z=_z; }
+  double x;
+  double y;
+  double z;
 } Position;
 
 typedef struct
@@ -61,6 +69,16 @@ typedef struct
   dGeomID geom;
 } Object;
 
+/** Data structure for accessing the ODE */
+typedef struct ODEHandle
+{
+  ODEHandle(  dWorldID _world, dSpaceID _space, dJointGroupID _jointGroup){
+    world = _world; space = _space; jointGroup= _jointGroup;
+  }
+  dWorldID world;
+  dSpaceID space;
+  dJointGroupID jointGroup;
+} ODEHandle;
 
 /**
  * Abstract class (interface) for robot 
@@ -69,7 +87,6 @@ typedef struct
  */
 class AbstractRobot{
 public:
-
 
   /**
    * Constructor
@@ -88,7 +105,7 @@ public:
 
 /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
     @params pos desired position of the robot in struct Position
-    @param c desired color for the robot in struct Color
+    @param c desired color for the robot in struct Color. Might be NULL!
 */
   virtual void place(Position pos , Color *c = 0) = 0;
 
