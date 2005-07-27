@@ -59,7 +59,7 @@ void start()
   */
 
   JointTest* testjoints = new JointTest(world, space, contactgroup);
-  Position p2 = {0,0,0};
+  Position p2(0,0,0);
   testjoints->place(p2);
   AbstractController *controller2 = new InvertNChannelController(10);  
   configs.push_back(controller2);

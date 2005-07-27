@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-26 17:04:21  martius
+ *   Revision 1.3  2005-07-27 13:23:09  martius
+ *   new color and position construction
+ *
+ *   Revision 1.2  2005/07/26 17:04:21  martius
  *   lives in its own space now
  *
  *   Revision 1.1  2005/07/21 12:17:04  fhesse
@@ -333,7 +336,7 @@ bool HurlingSnake::setParam(paramkey key, paramval val){
   if(strcmp(key, "factorForce")==0) factorForce=val;
   else if(strcmp(key, "frictionGround")==0) frictionGround=val; 
   else if(strcmp(key, "place")==0) {
-    Position p = {0,0,3};
+    Position p(0,0,3);
     place(p) ; 
     std::cout<<"place"<<std::endl;
   }

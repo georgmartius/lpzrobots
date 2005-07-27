@@ -68,8 +68,7 @@ void start()
   */
 
   FixedSnake2Elements* testjoints = new FixedSnake2Elements(world, space, contactgroup);
-  Position p2 = {0,0,0};
-  testjoints->place(p2);
+  testjoints->place(Position(0,0,0));
   AbstractController *controller2 = new InvertNChannelController(10);  
   configs.push_back(controller2);
   

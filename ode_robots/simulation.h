@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-07-18 08:35:27  martius
+ *   Revision 1.12  2005-07-27 13:23:16  martius
+ *   new color and position construction
+ *
+ *   Revision 1.11  2005/07/18 08:35:27  martius
  *   drawcallback is additionalcallback now
  *
  *   Revision 1.10  2005/07/13 08:39:21  robot8
@@ -111,9 +114,6 @@ void simulation_close();
 // Helper
 /// returns true if the list contains the given string
 bool contains(char **list, int len,  const char *str);
-
-Position mkPosition(double x, double y, double z); ///
-Color mkColor(double r, double g, double b);       ///
 
 // Commandline interface stuff
 /// shows all parameters of all given configurable objects

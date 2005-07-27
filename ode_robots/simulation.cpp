@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2005-07-21 12:18:43  fhesse
+ *   Revision 1.17  2005-07-27 13:23:16  martius
+ *   new color and position construction
+ *
+ *   Revision 1.16  2005/07/21 12:18:43  fhesse
  *   window size 640x480
  *
  *   Revision 1.15  2005/07/18 08:35:21  martius
@@ -241,16 +244,6 @@ bool contains(char **list, int len,  const char *str){
   return false;
 }
 
-
-Position mkPosition(double x, double y, double z){
-  Position pos={x, y, z};
-  return pos;
-};
-
-Color mkColor(double r, double g, double b){
-  Color color={r, g, b};
-  return color;
-};
 
 // Commandline interface stuff
 void showParams(const ConfigList& configs)

@@ -14,6 +14,7 @@
 
 #include "invertnchannelcontroller.h"
 #include "invertmotorspace.h"
+#include "invertmotornstep.h"
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
@@ -41,7 +42,7 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.3;
+  simulationConfig.noise=0.05;
   simulationConfig.setParam("controlinterval",1);
 
   
@@ -74,17 +75,21 @@ void start()
 
   for (int i=0; i<3; i++){
     hs = new HurlingSnake(world, space, contactgroup);
-    if (i==0) hs->place(mkPosition(i-1,-7,0.3), &mkColor(2,2,0));
-    if (i==1) hs->place(mkPosition(i-1,-7,0.3), &mkColor(0,2,0));
-    if (i==2) hs->place(mkPosition(i-1,-7,0.3), &mkColor(0,2,2));
-    controller = new InvertMotorSpace(10);  
+    Color col;
+    if (i==0) col=mkColor(2,2,0);
+    if (i==1) col=mkColor(0,2,0);
+    if (i==2) col=mkColor(0,2,2);
+    hs->place(mkPosition((i-1)*3,-7,0.0), &col);
+    //controller = new InvertMotorSpace(10);  
+    //controller = new InvertMotorNStep(10);  
+    controller = new SineController();
     //    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
     c.blindMotorSets=0;
     c.useId = true;
-    c.useFirstD = true;
+    //    c.useFirstD = true;
     c.derivativeScale = 50;
-    wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
+    wiring = new DerivativeWiring(c, new ColorUniformNoise(0.001));
     if (i==0) agent = new Agent(plotMode);
     else  agent = new Agent(NoPlot);
     agent->init(controller, hs, wiring);
@@ -92,8 +97,9 @@ void start()
     
     hs->setParam("factorForce",5);
     hs->setParam("frictionGround",0.3);
-    controller->setParam("epsA", 0.15);
-    controller->setParam("epsC", 0.04);
+    // controller->setParam("epsA", 0.15);
+    // controller->setParam("epsC", 0.04);
+    controller->setParam("adaptrate", 0.01);
     
     configs.push_back(controller);
     configs.push_back(hs);

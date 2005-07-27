@@ -45,8 +45,7 @@ void start()
   obstacles.push_back(playground);
 
   Nimm2* vehicle = new Nimm2(world, space, contactgroup);
-  Position p = {0,0,0};
-  vehicle->place(p);
+  vehicle->place(Position(0,0,0));
   AbstractController *controller = new InvertNChannelController(10);  
   
   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
