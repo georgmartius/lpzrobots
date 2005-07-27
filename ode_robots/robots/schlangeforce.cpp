@@ -9,40 +9,20 @@
 #include "schlangeforce.h"
 //#include "configurable.h"
 
-
 /**
  *constructor
  *@param startRoboterID ID, which should be managed clearly
- *@param welt pointer to the ODE-simulation world, which contains the whole simulation
- *@param raum pointer to the ODE-simulation space, which contains all geometrical objects
- *@param start_contactgroup pointer to the JointGroup, which is used for collision management
- *@param start_x x coordinate at the begin of the simulation
- *@param start_y y coordinate at the begin of the simulation
- *@param start_z z coordinate at the begin of the simulation
- *@param armanzahl number of snake elements
- *@param start_laenge length of one snake element
- *@param start_durchmesser diameter of a snake element
- *@param start_abstand distance between two snake elements; 0 means there is a distance of the length of one snake element between each snake element an its successor
- *@param start_masse mass of one snake element
- *@param start_maxmotorkraft maximal force used by the motors of the snake
- *@param start_geschwindigkeitsfaktor factor for the speed, which the motors of the snake use
- *@param start_ausgabeart angle: sensor values are the angle of the joints; anglerate: sensor values are the angle rates of the joints
  *@author Marcel Kretschmann
  *@version beta
  **/
-
-
-SchlangeForce::SchlangeForce ( int startRoboterID , dWorldID welt , dSpaceID raum , dJointGroupID start_contactgroup , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart ) :
-Schlange::Schlange ( startRoboterID , welt , raum , start_contactgroup , start_x , start_y , start_z , armanzahl , glieder_laenge , glieder_durchmesser , glieder_abstand , glieder_masse , start_maxmotorkraft , start_geschwindigkeitsfaktor , start_ausgabeart ) 
+SchlangeForce::SchlangeForce ( int startRoboterID , const ODEHandle& odeHandle, 
+			       const SchlangenConf& conf ) 
+  :Schlange ( startRoboterID , odeHandle, conf ) 
 {
         // prepare name;
         Configurable::insertCVSInfo(name, "$RCSfile$", 
 		           	            "$Revision$");
 	gamma=0.4;
-	frictionGround=0.1;
-	factorForce=4.0;
-	factorSensors=5.0;
-
 }
 	
 /**
@@ -99,7 +79,7 @@ SchlangeForce::~SchlangeForce()
 				{
 					contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 					dContactSoftERP | dContactSoftCFM | dContactApprox1;
-					contact[i].surface.mu = frictionGround;
+					contact[i].surface.mu = conf.frictionGround;
 					contact[i].surface.slip1 = 0.005;
 					contact[i].surface.slip2 = 0.005;
 					contact[i].surface.soft_erp = 1;
@@ -128,8 +108,8 @@ void SchlangeForce::setMotors ( const motor* motors, int motornumber )
 
   // controller output as torques 
   for (int i=0; i<motornumber/2; i++){
-    dJointAddUniversalTorques( jointliste[i],factorForce* motors[2*i],
-			       factorForce*motors[2*i +1]);  // motorcommand
+    dJointAddUniversalTorques( jointliste[i],conf.factorForce* motors[2*i],
+			       conf.factorForce*motors[2*i +1]);  // motorcommand
   dJointAddUniversalTorques( jointliste[i], -(gamma)*dJointGetUniversalAngle1Rate(jointliste[i]),
 			       -(gamma) *dJointGetUniversalAngle2Rate(jointliste[i]) ); // friction
   }
@@ -164,11 +144,11 @@ int SchlangeForce::getSensors ( sensor* sensors, int sensornumber )
 	sensoraktualisierung ();
 	for ( int n = 0; n < sensornumber; n++ )
 	{
-		if ( ausgabeart == angle )
+		if ( conf.ausgabeArt == angle )
 			*sensors = sensorfeld[n].istwinkel/(2*M_PI);
-		if ( ausgabeart == anglerate )
+		if ( conf.ausgabeArt == anglerate )
 			getWinkelDifferenz ( n , sensors );
-		*sensors *= factorSensors;
+		*sensors *= conf.factorSensors;
 		//		*sensors = 3*tanh((1/3) * (*sensors));  // keep sensorvalues in the range [-3,3]
 		sensors++;
 	}
@@ -192,9 +172,9 @@ int SchlangeForce::getParamList(paramkey*& keylist,paramval*& vallist) const{
   keylist[3]="factorSensors";  
 
   vallist[0]=gamma;
-  vallist[1]=frictionGround;
-  vallist[2]=factorForce;
-  vallist[3]=factorSensors;
+  vallist[1]=conf.frictionGround;
+  vallist[2]=conf.factorForce;
+  vallist[3]=conf.factorSensors;
   return number_params;
 }
 
@@ -202,9 +182,9 @@ int SchlangeForce::getParamList(paramkey*& keylist,paramval*& vallist) const{
 paramval SchlangeForce::getParam(paramkey key) const{
   if(!key) return 0.0;
   if(strcmp(key, "gamma")==0) return gamma; 
-  else if(strcmp(key, "frictionGround")==0) return frictionGround; 
-  else if(strcmp(key, "factorForce")==0)    return factorForce;  	
-  else if(strcmp(key, "factorSensors")==0)    return factorSensors;  	
+  else if(strcmp(key, "frictionGround")==0) return conf.frictionGround; 
+  else if(strcmp(key, "factorForce")==0)    return conf.factorForce;  	
+  else if(strcmp(key, "factorSensors")==0)  return conf.factorSensors;  	
   else  return Configurable::getParam(key) ;
 }
 
@@ -214,9 +194,9 @@ bool SchlangeForce::setParam(paramkey key, paramval val){
     return false;
   }
   if(strcmp(key, "gamma")==0) gamma=val;
-  else if(strcmp(key, "frictionGround")==0) frictionGround=val; 
-  else if(strcmp(key, "factorForce")==0)    factorForce=val;
-  else if(strcmp(key, "factorSensors")==0)    factorSensors=val;
+  else if(strcmp(key, "frictionGround")==0) conf.frictionGround = val; 
+  else if(strcmp(key, "factorForce")==0)    conf.factorForce    = val;
+  else if(strcmp(key, "factorSensors")==0)  conf.factorSensors  = val;
   else return Configurable::setParam(key, val);
   return true;
 }

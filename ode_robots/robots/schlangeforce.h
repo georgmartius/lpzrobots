@@ -42,24 +42,15 @@ public:
 	/**
 	 *constructor
 	 *@param startRoboterID ID, which should be managed clearly
-	 *@param welt pointer to the ODE-simulation world, which contains the whole simulation
-	 *@param raum pointer to the ODE-simulation space, which contains all geometrical objects
-	 *@param start_contactgroup pointer to the JointGroup, which is used for collision management
-	 *@param start_x x coordinate at the begin of the simulation
-	 *@param start_y y coordinate at the begin of the simulation
-	 *@param start_z z coordinate at the begin of the simulation
-	 *@param armanzahl number of snake elements
-	 *@param start_laenge length of one snake element
-	 *@param start_durchmesser diameter of a snake element
-	 *@param start_abstand distance between two snake elements; 0 means there is a distance of the length of one snake element between each snake element an its successor
-	 *@param start_masse mass of one snake element
-	 *@param start_maxmotorkraft maximal force used by the motors of the snake
-	 *@param start_geschwindigkeitsfaktor factor for the speed, which the motors of the snake use
 	 *@author Marcel Kretschmann
 	 *@version beta
 	 **/ 
-	SchlangeForce ( int startRoboterID , dWorldID welt , dSpaceID raum , dJointGroupID start_contactgroup , double start_x , double start_y , double start_z , int armanzahl , double glieder_laenge , double glieder_durchmesser , double glieder_abstand , double glieder_masse , double start_maxmotorkraft , double start_geschwindigkeitsfaktor , ausgabemodus start_ausgabeart );
-	
+	SchlangeForce ( int startRoboterID , const ODEHandle& odeHandle, 
+			const SchlangenConf& conf );
+
+	static SchlangenConf getDefaultConf(){
+	  return Schlange::getStandartConf();
+	}
 
 	/**
 	*Destruktor
