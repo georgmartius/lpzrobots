@@ -52,8 +52,8 @@ void start()
   obstacles.push_back(playground);
 
   AbstractRobot* vehicle = new Nimm2(world, space, contactgroup,1.5,1.5,6);
-  Position p = {0,0,0};
-  vehicle->place(p);
+
+  vehicle->place(Position(0,0,0));
   AbstractController *controller = new InvertMotorNStep(10);   
   // AbstractController *controller = new InvertMotorNStep(10);  
   // AbstractController *controller = new InvertMotorSpace(10);  
