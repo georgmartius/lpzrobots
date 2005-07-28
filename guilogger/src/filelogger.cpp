@@ -35,7 +35,7 @@ FileLogger::~FileLogger(){
 
 
 void FileLogger::writeChannelNames(char *datablock)
-{   int i=2;
+{  
     filename = prefix + (QDateTime::currentDateTime()).toString("yyyy-MMMM-ddd hh-mm-ss") + ".log";
 
     if(datablock == NULL) return;
@@ -44,9 +44,7 @@ void FileLogger::writeChannelNames(char *datablock)
     }
     instream = fopen(filename.latin1(),"w+");
     printf("Open Logfile: %s\n",filename.latin1());
-    while(datablock[++i] != '\0') 
-      fprintf(instream, "%c", datablock[i]);  //um das #C am Anfang der Zeile nich in Datei zu schreiben
-    fprintf(instream, "\n");
+    fprintf(instream, "%s\n", datablock);
 }
 
 
