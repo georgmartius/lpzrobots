@@ -43,6 +43,7 @@ void FileLogger::writeChannelNames(char *datablock)
       fclose(instream);
     }
     instream = fopen(filename.latin1(),"w+");
+    printf("Open Logfile: %s\n",filename.latin1());
     while(datablock[++i] != '\0') 
       fprintf(instream, "%c", datablock[i]);  //um das #C am Anfang der Zeile nich in Datei zu schreiben
     fprintf(instream, "\n");
@@ -51,12 +52,13 @@ void FileLogger::writeChannelNames(char *datablock)
 
 void FileLogger::writeChannelData(char *datablock)
 {
-    if(!log || !datablock || !instream) return;
+    if(!log || !datablock) return;
 
     if(datablock[0]=='#' && datablock[1] == 'C')
     {   
       writeChannelNames(datablock);
       return;
     }
-    fprintf(instream, "%s\n", datablock);
+    if(instream)
+      fprintf(instream, "%s\n", datablock);
 }
