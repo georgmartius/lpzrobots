@@ -47,8 +47,8 @@ void start()
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {0.276f,7.12f,1.78f};
   //float KameraViewXYZ[3] = {-88.0f,-5.5f,0.0000f};
-  float KameraXYZ[3]= {2.4f,7.2f,10.47f};
-  float KameraViewXYZ[3] = {-88.0f,-5.5f,0.0000f};
+  float KameraXYZ[3]= {2.4f,7.2f, 7.0f};
+  float KameraViewXYZ[3] = {-1.0f,0.0f,0.0000f};
 
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
@@ -71,11 +71,13 @@ void start()
 
   //****************/
   SchlangenConf conf = SchlangeForce::getDefaultConf();
-  conf.armAnzahl=4;
+  conf.armAnzahl = 10;
+  conf.maxWinkel = M_PI/2;
+  conf.ausgabeArt = angle;
   SchlangeForce* schlange1 = new SchlangeForce ( 1 , ODEHandle(world , space , contactgroup), conf);
   Color col(0,0.5,0.8);
-  schlange1->place(Position(0,0,3.5),&col); 
-  //  schlange1->fixInSky();
+  schlange1->place(Position(2,0,6),&col); 
+  //schlange1->fixInSky();
   //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
   //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
   AbstractController *controller = new InvertMotorNStep(50);  
@@ -85,7 +87,7 @@ void start()
   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
   c.useId=true;
   c.useFirstD=true;
-  c.useSecondD=true;
+  // c.useSecondD=true;
   c.derivativeScale=10;
   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   Agent* agent = new Agent(plotMode);
