@@ -6,7 +6,8 @@
 #include "nimm2.h"
 
 
-Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, double force /*=0.1*/, double speed/*=10*/):
+Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, 
+	     double force /*=2*/, double speed/*=6*/, bool sphereWheels /*=true*/):
   AbstractRobot::AbstractRobot(w, s, c){ 
 
   created=false;
@@ -16,13 +17,14 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, doubl
   initial_pos.z=0.0;
   
   //Nimm2 color ;-)
-  color.r=4;
-  color.g=0.9;
-  color.b=0.5;
+  color.r=2;
+  color.g=156/255.0;
+  color.b=0/255.0;
   
 
   max_force   = force*size*size;
   this->speed = speed;
+  this->sphereWheels = sphereWheels;
 
   height=size;  
 
@@ -125,7 +127,10 @@ void Nimm2::draw(){
   dsSetColor (1,1,1); // set color for wheels
   // draw wheels
   for (int i=1; i<3; i++) { 
-    dsDrawCylinder (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),wheelthickness,radius);
+    if(sphereWheels)
+      dsDrawSphere (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),radius);
+    else
+      dsDrawCylinder (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),wheelthickness,radius);
   }
 };
 

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-07-26 17:03:25  martius
+ *   Revision 1.9  2005-07-29 15:12:51  martius
+ *   color modified
+ *   spherical wheels are standart but adjustable
+ *
+ *   Revision 1.8  2005/07/26 17:03:25  martius
  *   resizeable
  *   forces and collisions fixed
  *
@@ -46,10 +50,13 @@
 
 #include "abstractrobot.h"
 
+/** Robot that looks like a Nimm 2 Bonbon :-)
+    2 wheels and a cylinder like body   
+*/
 class Nimm2 : public AbstractRobot{
 public:
   
-  Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size=1, double force=2, double speed=6);
+  Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size=1, double force=2, double speed=6, bool sphereWheels=true);
 
   virtual ~Nimm2(){};
 
@@ -119,6 +126,7 @@ protected:
   double height;   // chassis height
   double radius;  // wheel radius
   double wheelthickness; // thickness of the wheels  
+  bool sphereWheels; // draw spherical wheels?
   double cmass;    // chassis mass
   double wmass;    // wheel mass
   int sensorno;      //number of sensors
