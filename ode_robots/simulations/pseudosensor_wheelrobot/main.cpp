@@ -8,7 +8,7 @@
 #include "one2onewiring.h"
 #include "derivativewiring.h"
 
-#include "nimm2.h"
+#include "nimm4.h"
 #include "playground.h"
 
 #include "invertmotorspace.h"
@@ -38,8 +38,8 @@ void start()
   //  dWorldSetGravity ( world , 0 , 0 ,-9.81 );
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
-  float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
+  float KameraXYZ[3]= {5.8f,-6.1f,4.0f};
+  float KameraViewXYZ[3] = {125.5000f,-22.0000f,0.0000f};;
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
@@ -51,7 +51,7 @@ void start()
   playground->setPosition(0,0,0); // playground positionieren und generieren 
   obstacles.push_back(playground);
 
-  AbstractRobot* vehicle = new Nimm2(world, space, contactgroup,1.5,1.5,6);
+  AbstractRobot* vehicle = new Nimm4(world, space, contactgroup,1,3,15);
 
   vehicle->place(Position(0,0,0));
   AbstractController *controller = new InvertMotorNStep(10);   
@@ -59,9 +59,10 @@ void start()
   // AbstractController *controller = new InvertMotorSpace(10);  
   //  controller->setParam("factorB",0);
   //  controller->setParam("eps",0.5);
-  // AbstractController *controller = new SineController();  
-  //  controller->setParam("phaseShift",1);
+  //AbstractController *controller = new SineController();  
+  //controller->setParam("phaseShift",2);
   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+  controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
   c.useId=true;
   c.useFirstD=false;
   c.derivativeScale=10;
