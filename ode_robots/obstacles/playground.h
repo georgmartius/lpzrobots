@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-07-18 14:52:33  martius
+ *   Revision 1.7  2005-07-29 14:27:59  martius
+ *   color set to some red
+ *
+ *   Revision 1.6  2005/07/18 14:52:33  martius
  *   world and space are not pointers anymore.
  *
  *   Revision 1.5  2005/07/07 10:24:23  martius
@@ -69,8 +72,7 @@ class Playground : public AbstractObstacle {
 
     obstacle_exists=false;
     
-    setColor(0,1,0);
-
+    setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
   };
 
   /**
