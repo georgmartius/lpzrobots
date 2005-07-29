@@ -19,17 +19,12 @@
 #include "schlangeforce.h"
 #include "nimm2.h"
 
+// for video capturing use:
+// realtimefactor=0.5
+// drawinterval=5
+
 ConfigList configs;
 PlotMode plotMode = NoPlot;
-
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start() 
@@ -46,8 +41,8 @@ void start()
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {0.276f,7.12f,1.78f};
   //float KameraViewXYZ[3] = {-88.0f,-5.5f,0.0000f};
-  float KameraXYZ[3]= {2.4f,7.2f,5.47f};
-  float KameraViewXYZ[3] = {-88.0f,-20.5f,-0.0000f};
+  float KameraXYZ[3]= {-0.0f, 10.4f, 6.8f};
+  float KameraViewXYZ[3] = {-90.0f,-40.0f,0.0000f};
 
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
@@ -64,8 +59,9 @@ void start()
   obstacles.push_back(playground);
 
   Sphere* sphere;
-  for (int i=-1; i<1; i++){
+  for (int i=-3; i<3; i++){
     sphere = new Sphere(world, space);
+    sphere->setColor(184 / 255.0, 233 / 255.0, 237 / 255.0);
     sphere->setPosition(i*0.5,i*0.5,1.0); //positionieren und generieren
     obstacles.push_back(sphere);
   }
@@ -82,11 +78,13 @@ void start()
   //****************/
   snakeConf.armAnzahl=4;
   snakeConf.maxWinkel=M_PI/3;
+  snakeConf.frictionGround=0.1;
+  snakeConf.factorForce=1;
+  snakeConf.factorSensors=5;
   snake = new SchlangeForce ( 1 , odeHandle, snakeConf );
   {
-    Position p(-5,-5,0);
     Color col(0,0.5,0.8);
-    snake->place(p,&col); 
+    snake->place(Position(-5,-5,0),&col); 
   }
   controller = new InvertMotorNStep(10);  
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -96,21 +94,20 @@ void start()
   configs.push_back(controller);
   configs.push_back(snake);   
   snake->setParam("gamma",/*0.0000*/ 0.0);
-  snake->setParam("frictionGround",0.1);
-  snake->setParam("factorForce", /*0.0005*/3);
-  snake->setParam("factorSensors", /*20.0 */5);
   
   showParams(configs);
 
-  //****************/
+  //******* S C H L A N G E *********/
+  snakeConf = SchlangeForce::getDefaultConf();
   snakeConf.armAnzahl   = 8;
   snakeConf.maxWinkel   = M_PI/4;
-  snakeConf.factorForce = 3;
+  snakeConf.frictionGround=0.1;
+  snakeConf.factorForce=3;
+  snakeConf.factorSensors=5;
   snake = new SchlangeForce ( 1 , odeHandle, snakeConf );
   {
-    Position p(0,0,0);
     Color col(0,0.5,0.8);
-    snake->place(p,&col); 
+    snake->place(Position(0,0,0),&col); 
   }
   controller = new InvertMotorNStep(10);  
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -129,6 +126,7 @@ void start()
     Position p((r-1)*5,5,0);
     robot->place(p);
     controller = new InvertMotorNStep(10);   
+    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new Agent( NoPlot );
     agent->init(controller, robot, wiring);
@@ -137,11 +135,14 @@ void start()
 
   //****** H U R L I N G **********/
   for(int r=0; r < 2; r++) {
-    robot = new HurlingSnake(world, space, contactgroup);
+    HurlingSnake* snake;
+    snake = new HurlingSnake(world, space, contactgroup);
     Color c;    
-    if (r==0) c=Color(2,2,0);
-    if (r==1) c=Color(0,2,0);
-    robot->place(Position(r*5,-7,0.3), &c);
+    if (r==0) c=Color(0.8, 0.8, 0);
+    if (r==1) c=Color(0,   0.8, 0);
+    snake->place(Position(r*5,-7,0.3), &c);
+    snake->setParam("factorForce",8);
+
     controller = new InvertMotorNStep(10);   
     // deriveconf = DerivativeWiring::getDefaultConf();
 //     deriveconf.blindMotorSets=0;
@@ -151,11 +152,10 @@ void start()
 //     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
     wiring = new One2OneWiring(new ColorUniformNoise(0.05));
     agent = new Agent( NoPlot );
-    agent->init(controller, robot, wiring);
+    agent->init(controller, snake, wiring);
     configs.push_back(controller);
     agents.push_back(agent);     
   }
-
 
 }
 
