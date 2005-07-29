@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2005-07-27 13:23:16  martius
+ *   Revision 1.18  2005-07-29 10:22:47  martius
+ *   drawInterval honored
+ *   real time syncronisation
+ *
+ *   Revision 1.17  2005/07/27 13:23:16  martius
  *   new color and position construction
  *
  *   Revision 1.16  2005/07/21 12:18:43  fhesse
@@ -69,6 +73,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <iostream>
+#include <sys/time.h>
 #include <drawstuff/drawstuff.h>
 using namespace std;
 #include "simulation.h"
@@ -80,6 +85,10 @@ dJointGroupID contactgroup;
 dGeomID ground;
 
 double simulationTime = 0;
+struct timeval realTime;
+int nextLeakAnnounce=20;
+int leakAnnCounter=0;
+
 OdeConfig simulationConfig;
 int sim_step = 0;
 dsFunctions fn;
@@ -142,6 +151,7 @@ void simulation_start(int argc, char** argv){
   if(state!=initialised) return;
   //********************Simmulationsstart*****************
   state=running;
+  gettimeofday(&realTime, 0);
   //dsSimulationLoop ( argc , argv , 500 , 500 , &fn );  
   dsSimulationLoop ( argc , argv , 640 , 480 , &fn );  
 }
@@ -158,42 +168,67 @@ void simulation_close(){
 }
 
 //Schleife der Simulation
-void simLoop ( int pause )
-{
-  // Parametereingabe  
-  if (control_c_pressed()){
-    cmd_begin_input();
-    if(configfunction) configfunction();
-    cmd_end_input();
-  }
+void simLoop ( int pause ){
+  // we run the physical simulation as often the drawinterval,
+  //  because "drawstuff" will draw the world before this function is called
+  //  the drawing of all object should occur if t==0
+  for(int t = 0; t < simulationConfig.drawInterval; t++){
+    // Parametereingabe  
+    if (control_c_pressed()){
+      cmd_begin_input();
+      if(configfunction) configfunction();
+      cmd_end_input();
+      gettimeofday(&realTime, 0);
+    }
 
-  //die Simulation wird nur weitergefhrt wenn keine Pause aktiviert wurde
-  if (!pause) {
-    //**************************Steuerungsabschnitt ************************
-    simulationTime += simulationConfig.simStepSize;
+    // the simulation is just run if pause is not enabled
+    if (!pause) {
+      //**************************Steuerungsabschnitt ************************
+      simulationTime += simulationConfig.simStepSize;
     
-    sim_step = sim_step + 1;
-    if ( (sim_step % simulationConfig.controlInterval ) == 0 ){
+      sim_step++;
+      if ( (sim_step % simulationConfig.controlInterval ) == 0 ){
+	for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+	  (*i)->step(simulationConfig.noise);
+	}
+      }
+  
+      /**********************Simulationsschritt an sich**********************/
+      dSpaceCollide ( space , 0 , &nearCallback );
+      dWorldStep ( world , simulationConfig.simStepSize ); //ODE-Engine geht einen Schritt weiter
+      dJointGroupEmpty (contactgroup);    
+    }  
+    if(additionalCallback) additionalCallback(t==0, pause);
+
+    if(t==0 || pause){
+      /**************************Zeichenabschnitt***********************/
+      for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+	(*i)->draw();
+      }
       for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-	(*i)->step(simulationConfig.noise);
+	(*i)->getRobot()->draw();
       }
     }
-  
-    /**********************Simulationsschritt an sich**********************/
-    dSpaceCollide ( space , 0 , &nearCallback );
-    dWorldStep ( world , simulationConfig.simStepSize ); //ODE-Engine geht einen Schritt weiter
-    dJointGroupEmpty (contactgroup);
-    
-  }  
-  if(additionalCallback) additionalCallback(sim_step % simulationConfig.drawInterval, pause);
-  if(sim_step % simulationConfig.drawInterval == 0 || pause){
 
-    /**************************Zeichenabschnitt***********************/
-    for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
-      (*i)->draw();
-    }
-    for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-      (*i)->getRobot()->draw();
+    // Time syncronisation of real time and simulations time
+    if(simulationConfig.realTimeFactor!=0){
+      struct timeval currentTime;
+      gettimeofday(&currentTime, 0);
+      // difference in milliseconds
+      long diff = (currentTime.tv_sec-realTime.tv_sec)*1000 + (currentTime.tv_usec-realTime.tv_usec)/1000;
+      diff -= long(simulationConfig.simStepSize*1000.0/simulationConfig.realTimeFactor); 
+      if(diff < -3){ // if less the 3 milliseconds we don't call usleep since it needs time
+	usleep(min(100l,-diff-2)*1000);
+	nextLeakAnnounce=max(20,nextLeakAnnounce/2);
+      }else if (diff > 0){
+	if(leakAnnCounter%nextLeakAnnounce==0){ // we do not bother the user all the time
+	  printf("Time leak of %li ms (Please increase realTimeFactor)\n", diff);
+	  nextLeakAnnounce*=2;
+	  leakAnnCounter=0;
+	}
+	leakAnnCounter++;
+      }
+      gettimeofday(&realTime, 0);
     }
   }
 }
