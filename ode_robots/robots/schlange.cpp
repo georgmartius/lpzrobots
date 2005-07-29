@@ -123,7 +123,9 @@ void Schlange::draw()
   box[0] = conf.gliederLaenge/10; box[1] = conf.gliederDurchmesser/10; box[2] = conf.gliederDurchmesser/10;
   for ( int n = 0; n < conf.armAnzahl; n++ )
     {
-      dsDrawCappedCylinder ( dGeomGetPosition ( getObjektAt ( n ).geom ) , dGeomGetRotation ( getObjektAt ( n ).geom ) , conf.gliederLaenge , conf.gliederDurchmesser );
+      dsDrawCappedCylinder ( dGeomGetPosition ( getObjektAt ( n ).geom ) , 
+			     dGeomGetRotation ( getObjektAt ( n ).geom ) , 
+			     conf.gliederLaenge , conf.gliederDurchmesser );
     }
 }
 	
