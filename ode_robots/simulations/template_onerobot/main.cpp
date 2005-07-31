@@ -38,6 +38,8 @@ void start()
 
   // initialization
   simulationConfig.noise=0.1;
+  int chessTexture = dsRegisterTexture("chess.ppm");
+  printf("Chess: %i", chessTexture);
   
   Playground* playground = new Playground(world, space);
   playground->setGeometry(7.0, 0.2, 1.5);
@@ -45,6 +47,7 @@ void start()
   obstacles.push_back(playground);
 
   Nimm2* vehicle = new Nimm2(world, space, contactgroup);
+  vehicle->setTextures(DS_WOOD, chessTexture); 
   vehicle->place(Position(0,0,0));
   AbstractController *controller = new InvertNChannelController(10);  
   

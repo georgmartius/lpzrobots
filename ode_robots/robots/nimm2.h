@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-07-29 15:12:51  martius
+ *   Revision 1.10  2005-07-31 22:31:15  martius
+ *   textures
+ *
+ *   Revision 1.9  2005/07/29 15:12:51  martius
  *   color modified
  *   spherical wheels are standart but adjustable
  *
@@ -109,6 +112,10 @@ public:
 
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
+  /** sets the textures used for body and wheels
+  */
+  virtual void setTextures(int body, int wheels);
+
 protected:
 
   /** creates vehicle at desired position 
@@ -136,6 +143,9 @@ protected:
 
   Position initial_pos;    // initial position of robot
   double max_force;        // maximal force for motors
+
+  int bodyTexture;
+  int wheelTexture;
 
   bool created;      // true if robot was created
 

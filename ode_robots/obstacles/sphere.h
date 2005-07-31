@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-18 14:52:33  martius
+ *   Revision 1.3  2005-07-31 22:30:56  martius
+ *   textures
+ *
+ *   Revision 1.2  2005/07/18 14:52:33  martius
  *   world and space are not pointers anymore.
  *
  *   Revision 1.1  2005/07/08 10:00:33  fhesse
@@ -43,6 +46,7 @@ class Sphere : public AbstractObstacle{
   double radius;
   double masse;
   double base_x, base_y, base_z;
+  int texture;
 
   dGeomID geom;
   dBodyID body;
@@ -65,6 +69,7 @@ class Sphere : public AbstractObstacle{
     obstacle_exists=false;
     
     setColor(0,0,1);
+    texture = DS_NONE;
 
   };
 
@@ -72,7 +77,7 @@ class Sphere : public AbstractObstacle{
    * draws the obstacle 
    */
   virtual void draw(){
-    //dsSetTexture (DS_WOOD);    
+    dsSetTexture (texture);    
     dsSetColor (color.r, color.g, color.b);
     dsDrawSphere(dBodyGetPosition(body),dBodyGetRotation(body),radius );
   };
@@ -103,6 +108,10 @@ class Sphere : public AbstractObstacle{
     color.g=g;
     color.b=b;
   };
+
+  virtual void setTexture(int texture){
+    this->texture = texture;
+  }
 
  protected:
   virtual void create(){

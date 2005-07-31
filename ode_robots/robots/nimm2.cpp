@@ -21,6 +21,8 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   color.g=156/255.0;
   color.b=0/255.0;
   
+  bodyTexture  = DS_WOOD;
+  wheelTexture = DS_WOOD;
 
   max_force   = force*size*size;
   this->speed = speed;
@@ -38,6 +40,15 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   motorno=2;  
   segmentsno=3;
 };
+
+
+/** sets the textures used for body and wheels
+ */
+void Nimm2::setTextures(int body, int wheels){
+  bodyTexture = body;
+  wheelTexture = wheels;
+}
+
 
 /** sets actual motorcommands
     @param motors motors scaled to [-1,1] 
@@ -122,10 +133,11 @@ int Nimm2::getSegmentsPosition(vector<Position> &poslist){
  */
 void Nimm2::draw(){
   dsSetColor (color.r,color.g,color.b); // set color for cylinder
-  dsSetTexture (DS_WOOD);
+  dsSetTexture (bodyTexture);
   dsDrawCappedCylinder(dBodyGetPosition(object[0].body),dBodyGetRotation(object[0].body),length, width/2 );
   dsSetColor (1,1,1); // set color for wheels
   // draw wheels
+  dsSetTexture (wheelTexture);
   for (int i=1; i<3; i++) { 
     if(sphereWheels)
       dsDrawSphere (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),radius);
