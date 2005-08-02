@@ -20,9 +20,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-02 13:20:10  fhesse
- *   head added
- *                                                                 *
+ *   Revision 1.3  2005-08-02 13:26:35  fhesse
+ *   unused int i removed
+ *                                                *
+ *   Revision 1.2  2005/08/02 13:20:10  fhesse                             *
+ *   head added                                                            *
+ *                                                                         *
+ *   Revision 1.1  2005/08/02 13:18:33  fhesse                             *
+ *   function for drawing geoms                                            *
+ *                                                                         *
  *                                                                         *
  ***************************************************************************/
 
@@ -33,8 +39,6 @@
 
 void drawGeom (dGeomID g, const dReal *pos, const dReal *R)
 {
-  int i;
-	
   if (!g) return;
   if (!pos) pos = dGeomGetPosition (g);
   if (!R) R = dGeomGetRotation (g);
