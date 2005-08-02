@@ -1,0 +1,10 @@
+Patches for ODE and drawstuff from the Leipzig Robot Group
+
+How to apply the patches:
+    - go into the ode-0.x root directory
+    - make sure the patch is for ought to be this version
+    - call $> patch -Np1 < path/to/patch.patch
+
+01.08.2005 (Georg Martius <martius@informatik.uni-leipzig.de>
+    * drawstuff texture patch for ode-0.5
+	provides dsRegisterTexture to allow the use of user defined textures

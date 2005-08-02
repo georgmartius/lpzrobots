@@ -1,0 +1,230 @@
+diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/drawstuff.cpp
+--- ode-0.5/drawstuff/src/drawstuff.cpp	2004-04-18 22:19:21.000000000 +0000
++++ ode-0.5_georg/drawstuff/src/drawstuff.cpp	2005-08-01 07:40:41.000000000 +0000
+@@ -80,6 +80,7 @@
+ const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
+ const float sky_height = 1.0f;		// sky height above viewpoint
+ 
++
+ //***************************************************************************
+ // misc mathematics stuff
+ 
+@@ -805,30 +806,35 @@
+ // textures and shadows
+ static int use_textures=1;		// 1 if textures to be drawn
+ static int use_shadows=1;		// 1 if shadows to be drawn
+-static Texture *sky_texture = 0;
+-static Texture *ground_texture = 0;
+-static Texture *wood_texture = 0;
++// textures
++static Texture* texture[DS_MAXTEXTURES];
++static int texture_number = 0;
++static char* texture_prefix = 0;
+ 
+ 
+ #ifndef macintosh
+ 
+ void dsStartGraphics (int width, int height, dsFunctions *fn)
+ {
+-  char *prefix = DEFAULT_PATH_TO_TEXTURES;
+-  if (fn->version >= 2 && fn->path_to_textures) prefix = fn->path_to_textures;
+-  char *s = (char*) alloca (strlen(prefix) + 20);
+-
+-  strcpy (s,prefix);
++  texture_prefix = DEFAULT_PATH_TO_TEXTURES;
++  if (fn->version >= 2 && fn->path_to_textures) 
++    texture_prefix = fn->path_to_textures;
++  char *s = (char*) alloca (strlen(texture_prefix) + 20);
++  
++  memset(texture,0,sizeof(Texture*) * DS_MAXTEXTURES);
++  
++  strcpy (s,texture_prefix);
+   strcat (s,"/sky.ppm");
+-  sky_texture = new Texture (s);
++  texture[DS_SKY] = new Texture (s);
+ 
+-  strcpy (s,prefix);
++  strcpy (s,texture_prefix);
+   strcat (s,"/ground.ppm");
+-  ground_texture = new Texture (s);
++  texture[DS_GROUND] = new Texture (s);
+ 
+-  strcpy (s,prefix);
++  strcpy (s,texture_prefix);
+   strcat (s,"/wood.ppm");
+-  wood_texture = new Texture (s);
++  texture[DS_WOOD] = new Texture (s);
++  texture_number = DS_WOOD+1;
+ }
+ 
+ #else // macintosh
+@@ -841,15 +847,16 @@
+ 
+    strcpy (s,prefix);
+    strcat (s,":sky.ppm");
+-   sky_texture = new Texture (s);
++   texture[DS_SKY] = new Texture (s);
+ 
+    strcpy (s,prefix);
+    strcat (s,":ground.ppm");
+-   ground_texture = new Texture (s);
++   texture[DS_GROUND] = new Texture (s);
+ 
+    strcpy (s,prefix);
+    strcat (s,":wood.ppm");
+-   wood_texture = new Texture (s);
++   texture[DS_WOOD] =  = new Texture (s);
++   texture_number = DS_WOOD+1;
+ }
+ 
+ #endif
+@@ -857,12 +864,11 @@
+ 
+ void dsStopGraphics()
+ {
+-  delete sky_texture;
+-  delete ground_texture;
+-  delete wood_texture;
+-  sky_texture = 0;
+-  ground_texture = 0;
+-  wood_texture = 0;
++  for(int i=0; i < texture_number; i++){
++    if(texture[i]) delete texture[i];
++    texture[i]=0;
++  }
++  texture_number=0;
+ }
+ 
+ 
+@@ -871,7 +877,7 @@
+   glDisable (GL_LIGHTING);
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    sky_texture->bind (0);
++    texture[DS_SKY]->bind (0);
+   }
+   else {
+     glDisable (GL_TEXTURE_2D);
+@@ -920,7 +926,7 @@
+ 
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    ground_texture->bind (0);
++    texture[DS_GROUND]->bind (0);
+   }
+   else {
+     glDisable (GL_TEXTURE_2D);
+@@ -1119,10 +1125,10 @@
+ static void setupDrawingMode()
+ {
+   glEnable (GL_LIGHTING);
+-  if (tnum) {
++  if (tnum > 0 && tnum < texture_number ) {
+     if (use_textures) {
+       glEnable (GL_TEXTURE_2D);
+-      wood_texture->bind (1);
++      texture[tnum]->bind (1);
+       glEnable (GL_TEXTURE_GEN_S);
+       glEnable (GL_TEXTURE_GEN_T);
+       glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+@@ -1156,7 +1162,7 @@
+   glDisable (GL_LIGHTING);
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    ground_texture->bind (1);
++    texture[DS_GROUND]->bind(1);
+     glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);
+     glEnable (GL_TEXTURE_2D);
+     glEnable (GL_TEXTURE_GEN_S);
+@@ -1236,10 +1242,32 @@
+ }
+ 
+ 
+-extern "C" void dsSetTexture (int texture_number)
++extern "C" void dsSetTexture (int texture_index)
+ {
+   if (current_state != 2) dsError ("drawing function called outside simulation loop");
+-  tnum = texture_number;
++  if(texture_index < texture_number && texture_index >= 0)
++    tnum = texture_index;
++  else
++    tnum = 0;
++}
++
++extern "C" int dsRegisterTexture (const char* filename)
++{
++  if (!texture_prefix) dsError ("No texture prefix defined");
++  if(texture_number == DS_MAXTEXTURES) 
++    dsError ("try to register too many textures");
++  char *s = (char*) alloca (strlen(texture_prefix) + strlen(filename) + 3);
++  
++  strcpy (s, texture_prefix);
++#ifndef macintosh
++  strcat (s, "/");
++#else
++  strcat (s, ":");
++#endif
++  strcat (s, filename);
++  texture[texture_number] = new Texture (s);
++  texture_number++;
++  return (texture_number-1);
+ }
+ 
+ 
+@@ -1303,7 +1331,7 @@
+   if (use_shadows) {
+     glDisable (GL_LIGHTING);
+     if (use_textures) {
+-      ground_texture->bind (1);
++      texture[DS_GROUND]->bind(1);
+       glEnable (GL_TEXTURE_2D);
+       glDisable (GL_TEXTURE_GEN_S);
+       glDisable (GL_TEXTURE_GEN_T);
+diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_georg/include/drawstuff/drawstuff.h
+--- ode-0.5/include/drawstuff/drawstuff.h	2003-08-29 21:26:11.000000000 +0000
++++ ode-0.5_georg/include/drawstuff/drawstuff.h	2005-08-01 07:40:55.000000000 +0000
+@@ -53,7 +53,10 @@
+ 
+ /* texture numbers */
+ #define DS_NONE   0	/* uses the current color instead of a texture */
+-#define DS_WOOD   1
++#define DS_SKY    1
++#define DS_GROUND 2
++#define DS_WOOD   3
++#define DS_MAXTEXTURES 128
+ 
+ 
+ typedef struct dsFunctions {
+@@ -102,12 +105,18 @@
+  */
+ void dsStop();
+ 
++/* Registers a user defined texture and returns its number. This can be used 
++ * as parameter to dsSetTexture()   
++ */
++int dsRegisterTexture (const char* filename);
++
+ /* change the way objects are drawn. these changes will apply to all further
+- * dsDrawXXX() functions. the texture number must be a DS_xxx texture
+- * constant. the red, green, and blue number are between 0 and 1.
+- * alpha is between 0 and 1 - if alpha is not specified it's assubed to be 1.
+- * the current texture is colored according to the current color.
+- * at the start of each frame, the texture is reset to none and the color is
++ * dsDrawXXX() functions. The texture number must be either a DS_xxx texture
++ * constant or an integer returned by dsRegisterTexture(). 
++ * The red, green, and blue number are between 0 and 1.
++ * alpha is between 0 and 1 - if alpha is not specified it's assumed to be 1.
++ * The current texture is colored according to the current color.
++ * At the start of each frame, the texture is reset to none and the color is
+  * reset to white.
+  */
+ void dsSetTexture (int texture_number);
+diff -Naur ode-0.5/install.sh ode-0.5_georg/install.sh
+--- ode-0.5/install.sh	1970-01-01 00:00:00.000000000 +0000
++++ ode-0.5_georg/install.sh	2005-08-01 07:43:28.000000000 +0000
+@@ -0,0 +1,4 @@
++#!/bin/bash
++
++cp lib/* /usr/local/lib/
++cp -r include /usr/local/
+\ No newline at end of file
