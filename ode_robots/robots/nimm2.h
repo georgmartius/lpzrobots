@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-08-02 13:17:10  fhesse
+ *   Revision 1.12  2005-08-02 13:35:53  fhesse
+ *   cigarMode added
+ *
+ *   Revision 1.11  2005/08/02 13:17:10  fhesse
  *   bumper added
  *
  *   Revision 1.10  2005/07/31 22:31:15  martius
@@ -72,7 +75,7 @@ class Nimm2 : public AbstractRobot{
 public:
   
   Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size=1, double force=2, double speed=6, 
-	bool sphereWheels=true, bool numper=false);
+	bool sphereWheels=true, bool bumper=false, bool cigarMode=false);
 
   virtual ~Nimm2(){};
 
@@ -164,6 +167,7 @@ protected:
 
   Object object[3];  // 1 cylinder, 2 wheels
   bool addBumper;    // add bumper tpo body ?
+  bool cigarMode;    // long or short body?
   Bumper bumper[2]; 
   dJointID joint[2]; // joints between cylinder and each wheel
 

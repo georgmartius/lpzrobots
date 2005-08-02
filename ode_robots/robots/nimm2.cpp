@@ -8,7 +8,8 @@
 
 
 Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, 
-	     double force /*=2*/, double speed/*=6*/, bool sphereWheels /*=true*/, bool bumper /*=false*/):
+	     double force /*=2*/, double speed/*=6*/, bool sphereWheels /*=true*/, 
+	     bool bumper /*=false*/, bool cigarMode /*=false*/):
   AbstractRobot::AbstractRobot(w, s, c){ 
 
   created=false;
@@ -33,9 +34,13 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
 
   height=size;  
 
-  length=size/3; 
-//  length=size*2.0; // for cigarr
 
+  if (cigarMode){
+    length=size*2.0; // long body
+  }
+  else{
+    length=size/3;  // short body 
+  }
 
   width=size/2; 
   radius=size/4+size/200;
