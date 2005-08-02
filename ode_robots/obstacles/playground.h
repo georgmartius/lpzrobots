@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-07-29 14:27:59  martius
+ *   Revision 1.8  2005-08-02 14:09:06  fhesse
+ *   factor between length in x and y direction
+ *   added to constructor
+ *
+ *   Revision 1.7  2005/07/29 14:27:59  martius
  *   color set to some red
  *
  *   Revision 1.6  2005/07/18 14:52:33  martius
@@ -49,6 +53,7 @@ class Playground : public AbstractObstacle {
 
   double length, width, height;
   double base_x, base_y, base_z;
+  double factorlength2;
 
   dGeomID obst1; //Obstacle1
   dGeomID obst2; //Obstacle2
@@ -59,7 +64,7 @@ class Playground : public AbstractObstacle {
 
  public:
   
-  Playground(dWorldID w, dSpaceID s):
+  Playground(dWorldID w, dSpaceID s, double factorxy = 1):
     AbstractObstacle::AbstractObstacle(w, s){
 
     base_x=0.0;
@@ -69,6 +74,8 @@ class Playground : public AbstractObstacle {
     length=7.0;
     width=0.2;
     height=0.5;
+
+    factorlength2=factorxy;
 
     obstacle_exists=false;
     
@@ -83,7 +90,7 @@ class Playground : public AbstractObstacle {
     //dsSetTexture (DS_WOOD);    
     dsSetColor (color.r, color.g, color.b);
 
-    box[0] = width; box[1] = length; box[2] = height;
+    box[0] = width; box[1] = length*factorlength2; box[2] = height;
     dsDrawBox ( dGeomGetPosition ( obst1 ) , dGeomGetRotation ( obst1 ) , box );
     dsDrawBox ( dGeomGetPosition ( obst2 ) , dGeomGetRotation ( obst2 ) , box );
     box[0] = length; box[1] = width; box[2] = height;
@@ -114,6 +121,13 @@ class Playground : public AbstractObstacle {
     height =height_;
   };
 
+  //  virtual void setGeometry(double length_, double width_, double height_, double factorlength2_){
+  //    length=length_;
+  //    width=width_;
+  //    height =height_;
+  //    factorlength2=factorlength2_;
+  //  };
+
   virtual void setColor(double r, double g, double b){
     color.r=r;
     color.g=g;
@@ -122,17 +136,17 @@ class Playground : public AbstractObstacle {
 
  protected:
   virtual void create(){
-    obst1 = dCreateBox ( space, width , length-0.01 , height);
+    obst1 = dCreateBox ( space, width , (length * factorlength2)-0.01 , height);
     dGeomSetPosition ( obst1, base_x - (length/2 + width/2), base_y, height/2 +base_z);
 	
-    obst2 = dCreateBox ( space, width, length-0.01, height );
+    obst2 = dCreateBox ( space, width, (length * factorlength2)-0.01, height );
     dGeomSetPosition ( obst2, base_x + (length/2 +width/2), base_y, height/2 +base_z);
 	
     obst3 = dCreateBox ( space, length-0.01, width, height );
-    dGeomSetPosition ( obst3, base_x, base_y-(length/2 +width/2), height/2 +base_z);
+    dGeomSetPosition ( obst3, base_x, base_y-( (length*factorlength2)/2 +width/2), height/2 +base_z);
 	
     obst4 = dCreateBox ( space, length-0.01, width, height );
-    dGeomSetPosition ( obst4, base_x, base_y+(length/2 +width/2), height/2 +base_z);
+    dGeomSetPosition ( obst4, base_x, base_y+( (length*factorlength2)/2 +width/2), height/2 +base_z);
 
     obstacle_exists=true;
     // printf("Obst: %i,%i,%i,%i\n",obst1,obst2,obst3,obst4);
