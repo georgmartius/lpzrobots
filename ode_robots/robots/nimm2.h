@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-07-31 22:31:15  martius
+ *   Revision 1.11  2005-08-02 13:17:10  fhesse
+ *   bumper added
+ *
+ *   Revision 1.10  2005/07/31 22:31:15  martius
  *   textures
  *
  *   Revision 1.9  2005/07/29 15:12:51  martius
@@ -53,13 +56,23 @@
 
 #include "abstractrobot.h"
 
+
+typedef struct
+{
+  dGeomID transform;
+  dGeomID geom;
+} Bumper;
+
+
+
 /** Robot that looks like a Nimm 2 Bonbon :-)
     2 wheels and a cylinder like body   
 */
 class Nimm2 : public AbstractRobot{
 public:
   
-  Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size=1, double force=2, double speed=6, bool sphereWheels=true);
+  Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size=1, double force=2, double speed=6, 
+	bool sphereWheels=true, bool numper=false);
 
   virtual ~Nimm2(){};
 
@@ -150,6 +163,8 @@ protected:
   bool created;      // true if robot was created
 
   Object object[3];  // 1 cylinder, 2 wheels
+  bool addBumper;    // add bumper tpo body ?
+  Bumper bumper[2]; 
   dJointID joint[2]; // joints between cylinder and each wheel
 
   dSpaceID car_space;

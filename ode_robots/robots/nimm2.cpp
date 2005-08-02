@@ -2,12 +2,13 @@
 #include <ode/ode.h>
 
 #include "simulation.h"
+#include "drawgeom.h"
 
 #include "nimm2.h"
 
 
 Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, 
-	     double force /*=2*/, double speed/*=6*/, bool sphereWheels /*=true*/):
+	     double force /*=2*/, double speed/*=6*/, bool sphereWheels /*=true*/, bool bumper /*=false*/):
   AbstractRobot::AbstractRobot(w, s, c){ 
 
   created=false;
@@ -15,6 +16,7 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   initial_pos.x=0.0;
   initial_pos.y=0.0;
   initial_pos.z=0.0;
+
   
   //Nimm2 color ;-)
   color.r=2;
@@ -27,10 +29,14 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   max_force   = force*size*size;
   this->speed = speed;
   this->sphereWheels = sphereWheels;
+  addBumper = bumper;
 
   height=size;  
 
   length=size/3; 
+//  length=size*2.0; // for cigarr
+
+
   width=size/2; 
   radius=size/4+size/200;
   wheelthickness=size/20;
@@ -84,6 +90,7 @@ int Nimm2::getSensors(sensor* sensors, int sensornumber){
     @param c desired color for the robot in struct Color
 */
 void Nimm2::place(Position pos, Color *c /*= 0*/){
+
   if (!c==0) {
     color=*c;
   }
@@ -131,16 +138,25 @@ int Nimm2::getSegmentsPosition(vector<Position> &poslist){
 /**
  * draws the vehicle
  */
+
 void Nimm2::draw(){
-  dsSetColor (color.r,color.g,color.b); // set color for cylinder
+  // draw body
+  dsSetColor (color.r,color.g,color.b); // set color for body and bumper
   dsSetTexture (bodyTexture);
-  dsDrawCappedCylinder(dBodyGetPosition(object[0].body),dBodyGetRotation(object[0].body),length, width/2 );
-  dsSetColor (1,1,1); // set color for wheels
+  drawGeom(object[0].geom,0,0);
+
+  // draw bumper
+  if (addBumper){
+    drawGeom(bumper[0].transform,0,0);
+    drawGeom(bumper[1].transform,0,0);
+  }
+
   // draw wheels
+  dsSetColor (1,1,1); // set color for wheels
   dsSetTexture (wheelTexture);
   for (int i=1; i<3; i++) { 
     if(sphereWheels)
-      dsDrawSphere (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),radius);
+      drawGeom(object[i].geom,0,0);
     else
       dsDrawCylinder (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),wheelthickness,radius);
   }
@@ -166,10 +182,13 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
     for (i=0; i<n; i++){
       colwithbody = false;
       colwithme = false;  
-      if( contact[i].geom.g1 == object[0].geom || contact[i].geom.g2 == object[0].geom){
+      if( contact[i].geom.g1 == object[0].geom || contact[i].geom.g2 == object[0].geom ||
+ 	  contact[i].geom.g1 == bumper[0].transform || contact[i].geom.g2 == bumper[0].transform ||
+ 	  contact[i].geom.g1 == bumper[1].transform || contact[i].geom.g2 == bumper[1].transform ){
+
 	colwithbody = true;
 	colwithme = true;
-	// fprintf(stderr,"col with body\n");
+	//fprintf(stderr,"col with body\n");
       }
       if( contact[i].geom.g1 == object[1].geom || contact[i].geom.g2 == object[1].geom || 
 	  contact[i].geom.g1 == object[2].geom || contact[i].geom.g2 == object[2].geom ){
@@ -214,10 +233,10 @@ void Nimm2::create(Position pos){
   dMass m;
   // cylinder
   object[0].body = dBodyCreate (world);
-  dBodySetPosition (object[0].body,pos.x,pos.y,pos.z);
   dQuaternion q;
   dQFromAxisAndAngle (q,0,1,0,M_PI*0.5);
   dBodySetQuaternion (object[0].body,q);
+  dBodySetPosition (object[0].body,pos.x,pos.y,pos.z);
     
   dMassSetCappedCylinder(&m,1,1,width/2,length);
   dMassAdjust (&m,cmass);
@@ -225,6 +244,22 @@ void Nimm2::create(Position pos){
   object[0].geom = dCreateCCylinder (car_space, width/2,length);
   dGeomSetBody (object[0].geom, object[0].body);
 
+  // bumper
+  if (addBumper){
+    dMatrix3 R;
+    for (int i=0; i<2; i++){
+      bumper[i].transform = dCreateGeomTransform(car_space);
+      dGeomTransformSetInfo(bumper[i].transform, 1);
+      dGeomTransformSetCleanup(bumper[i].transform, 1);
+      bumper[i].geom = dCreateCCylinder (0, width/4,2*radius+width/2);
+      dGeomTransformSetGeom (bumper[i].transform, bumper[i].geom);
+
+      dRFromEulerAngles(R, M_PI/2,0,0);
+      dGeomSetRotation (bumper[i].geom, R);
+      dGeomSetPosition (bumper[i].geom, 0, 0, + pow(-1.0,i)*(length/2) );
+      dGeomSetBody (bumper[i].transform, object[0].body);
+    }
+  }
   // wheel bodies
   for (int i=1; i<3; i++) {
     object[i].body = dBodyCreate (world);
