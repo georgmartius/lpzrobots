@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-07-21 15:14:47  martius
+ *   Revision 1.5  2005-08-03 20:34:58  martius
+ *   use if Inspectable interface
+ *
+ *   Revision 1.4  2005/07/21 15:14:47  martius
  *   wireSensors and wireMotors get constant fields
  *
  *   Revision 1.3  2005/07/18 14:44:27  martius
@@ -39,11 +42,12 @@
 
 #include "abstractrobot.h"
 #include "noisegenerator.h"
+#include "inspectable.h"
 
 /// Abstract wiring-object between controller and robot. 
 //   Implements wiring of robot sensors to inputs of the controller and
 //   controller outputs to robot motors. 
-class AbstractWiring {
+class AbstractWiring : public Inspectable {
 public:
   /// constructor
   // @param noise NoiseGenerator that is used for adding noise to sensor values
@@ -88,6 +92,8 @@ public:
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
 			  const motor* cmotors, int cmotornumber)  = 0;
 
+  
+
   /// Returns the number of sensors on robot side.
   virtual int getRobotSensornumber(){return rsensornumber;}
 
@@ -99,6 +105,21 @@ public:
 
   /// Returns the number of motors on controller side.
   virtual int getControllerMotornumber() {return cmotornumber;}
+
+
+  /** The list of the names of all internal parameters given by getInternalParams().
+      @param: keylist (do NOT free it! It is a pointer to an internal structure)
+      @return: length of the lists
+   */
+  virtual int getInternalParamNames(paramkey*& keylist) { return 0; };
+  /** The list of the names of all internal parameters given by getInternalParams().
+      @param vallist stores the values of all internal parameters 
+      (in the order given by getInternalParamNames())
+      @param length length of vallist array
+      @return: number of parameters actually written
+   */
+  virtual int getInternalParams(paramval* vallist, int length) { return 0; };
+
 
 protected:
   int rsensornumber;  // number of robot sensors

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-07-21 15:14:47  martius
+ *   Revision 1.5  2005-08-03 20:34:58  martius
+ *   use if Inspectable interface
+ *
+ *   Revision 1.4  2005/07/21 15:14:47  martius
  *   wireSensors and wireMotors get constant fields
  *
  *   Revision 1.3  2005/07/18 14:44:27  martius
@@ -39,12 +42,18 @@
 
 
 /// constructor
-One2OneWiring::One2OneWiring(NoiseGenerator* noise)
-  :AbstractWiring::AbstractWiring(noise){
+One2OneWiring::One2OneWiring(NoiseGenerator* noise, bool plotNoise)
+  : AbstractWiring(noise), plotNoise(plotNoise){
+  keylist=0;
 }
 
 One2OneWiring::~One2OneWiring(){
-  if(sensors) delete (sensors);
+  if(noise) delete (noise);
+  if(keylist) {
+    for(int i = 0; i < rsensornumber; i++)
+      free(keylist[i]);
+    free(keylist);
+  }
 }
 
 
@@ -56,7 +65,7 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
   csensornumber = rsensornumber;
   cmotornumber  = rmotornumber;
 
-  sensors       = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
+  noise         = (sensor*) malloc(sizeof(noise)  * this->rsensornumber);
 
   if(!noiseGenerator) return false;
   noiseGenerator->init(rsensornumber);
@@ -71,13 +80,15 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
 //   @param noise size of the noise added to the sensors
 bool One2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
 				sensor* csensors, int csensornumber, 
-				double noise){
+				double noiseStrength){
   if (rsensornumber!=csensornumber)
     return false;
   else{
-    memcpy(sensors, rsensors, sizeof(sensor) * this->rsensornumber);
-    noiseGenerator->add(sensors, -noise, noise);   
-    memcpy(csensors, sensors, sizeof(sensor)*rsensornumber);
+    memset(noise, 0 , sizeof(sensor) * this->rsensornumber);
+    noiseGenerator->add(noise, -noiseStrength, noiseStrength);   
+    for(int i=0; i< rsensornumber; i++){
+      csensors[i] = rsensors[i] + noise[i];
+    }
     return true;
   }
 }
@@ -96,6 +107,38 @@ bool One2OneWiring::wireMotors(motor* rmotors, int rmotornumber,
     memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
     return true;
   }
+}
+
+/** The list of the names of all internal parameters given by getInternalParams().
+    @param: keylist (do NOT free it! It is a pointer to an internal structure)
+    @return: length of the lists
+*/
+int One2OneWiring::getInternalParamNames(paramkey*& _keylist){
+  if(plotNoise) {
+    if (keylist==0){
+      keylist=(paramkey*)malloc(sizeof(paramkey)*rsensornumber);
+      for(int i = 0; i < rsensornumber; i++){
+	keylist[i] = (paramkey) malloc(8);
+	sprintf(keylist[i],"n[%d]", i);
+      }
+    }
+    _keylist=keylist;
+    return rsensornumber;
+  } else return 0;
+}
+
+/** The list of the names of all internal parameters given by getInternalParams().
+    @param vallist stores the values of all internal parameters 
+    (in the order given by getInternalParamNames())
+    @param length length of vallist array
+    @return: number of parameters actually written
+*/
+int One2OneWiring::getInternalParams(paramval* vallist, int length){
+  int mini = min(length, rsensornumber);
+  for(int i=0; i < mini; i++){
+    vallist[i] = noise[i];
+  }
+  return mini;
 }
 
 

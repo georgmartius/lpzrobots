@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-07-26 17:01:47  martius
+ *   Revision 1.7  2005-08-03 20:34:58  martius
+ *   use if Inspectable interface
+ *
+ *   Revision 1.6  2005/07/26 17:01:47  martius
  *   flushing every 10
  *   guilogger is opened with nice -2
  *
@@ -50,7 +53,7 @@
 
 
   /// constructor
-Agent::Agent(PlotMode plotmode/*=GuiLogger*/){
+Agent::Agent(PlotMode plotmode/*=GuiLogger*/, PlotSensors plotsensors /*= Controller*/){
   controller = 0;
   robot      = 0;
   wiring     = 0;
@@ -58,6 +61,7 @@ Agent::Agent(PlotMode plotmode/*=GuiLogger*/){
   rsensors=0; rmotors=0; 
   csensors=0; cmotors=0; 
   this->plotmode=plotmode;
+  this->plotsensors=plotsensors;
 
   pipe=0;
   numberInternalParameters=0;
@@ -83,7 +87,7 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
   else{
     rsensornumber = robot->getSensorNumber();
     rmotornumber  = robot->getMotorNumber();
-    wiring->init(rmotornumber, rsensornumber);
+    wiring->init(rsensornumber, rmotornumber);
     csensornumber = wiring->getControllerSensornumber();
     cmotornumber  = wiring->getControllerMotornumber();
     controller->init(csensornumber, cmotornumber);
@@ -95,7 +99,9 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
     
     if(plotmode != NoPlot){
       if(!OpenGui()) return false;
-      numberInternalParameters = printInternalParameterNames(pipe, csensornumber, cmotornumber, controller);
+      unsigned int snum = plotsensors == Robot ? rsensornumber : csensornumber;
+      Inspectable* inspectables[2] = {controller, wiring};
+      numberInternalParameters = printInternalParameterNames(pipe, snum, cmotornumber, inspectables, 2);
     }
     
     return true;
@@ -109,9 +115,9 @@ bool Agent::OpenGui(){
   signal(SIGPIPE,SIG_IGN); 
   // TODO: get the guilogger call from some  config
   if(plotmode == GuiLogger_File){
-    pipe=popen("nice -2 guilogger -l -m pipe -d 5  > /dev/null","w");
+    pipe=popen("guilogger -l -m pipe -d 5","w");
   }else{
-    pipe=popen("nice -2 guilogger -m pipe -d 5 > /dev/null","w");
+    pipe=popen("guilogger -m pipe -d 5","w");
   }
   if(pipe==0){
     fprintf(stderr, "%s:%i: could not open guilogger!\n", __FILE__, __LINE__);    
@@ -127,17 +133,17 @@ void Agent::CloseGui(){
 // Plots controller sensor- and motorvalues and internal controller parameters.
 void Agent::plot(const sensor* x, int sensornumber, const motor* y, int motornumber){
   if(!controller || !x || !y || plotmode==NoPlot || !pipe) return;
-  if(sensornumber!=controller->getSensorNumber()) {
-    fprintf(stderr, "%s:%i: Given sensor number does not match the one from controller!\n", 
-	    __FILE__, __LINE__);
-  }
-  if(motornumber!=controller->getMotorNumber()) { 
-    fprintf(stderr, "%s:%i: Given motor number does not match the one from controller!\n", 
-	    __FILE__, __LINE__);
-  }
-  
+//   if(sensornumber!=controller->getSensorNumber()) {
+//     fprintf(stderr, "%s:%i: Given sensor number does not match the one from controller!\n", 
+// 	    __FILE__, __LINE__);
+//   }
+//   if(motornumber!=controller->getMotorNumber()) { 
+//     fprintf(stderr, "%s:%i: Given motor number does not match the one from controller!\n", 
+// 	    __FILE__, __LINE__);
+//   }
+  Inspectable* inspectables[2] = {controller, wiring};
   printInternalParameters(pipe, x, sensornumber, y, motornumber, 
-			  numberInternalParameters, controller);
+			  numberInternalParameters, inspectables , 2);
   if(t%10==0) fflush(pipe);
 };
 
@@ -164,6 +170,10 @@ void Agent::step(double noise){
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
   robot->setMotors(rmotors, rmotornumber);
-  plot(csensors, csensornumber, cmotors, cmotornumber);
+  if(plotsensors == Robot){
+    plot(rsensors, rsensornumber, cmotors, cmotornumber);
+  }else{
+    plot(csensors, csensornumber, cmotors, cmotornumber);
+  }
   t++;
 }

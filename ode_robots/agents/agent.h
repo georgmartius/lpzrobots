@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-07-26 17:01:47  martius
+ *   Revision 1.6  2005-08-03 20:34:58  martius
+ *   use if Inspectable interface
+ *
+ *   Revision 1.5  2005/07/26 17:01:47  martius
  *   flushing every 10
  *   guilogger is opened with nice -2
  *
@@ -44,11 +47,14 @@
 /// Plot mode for plot agent.
 enum PlotMode {NoPlot, GuiLogger, GuiLogger_File};
 
+/// Plot mode for plot agent.
+enum PlotSensors {Robot, Controller};
+
 /// Abstract object containing controller, robot and wiring between them. 
 class Agent {
 public:
   /// constructor
-  Agent(PlotMode plotmode=GuiLogger);
+  Agent(PlotMode plotmode = GuiLogger, PlotSensors plotsensors = Controller);
 
   ///destructor
   virtual ~Agent();  
@@ -106,6 +112,7 @@ private:
   FILE* pipe;
   int numberInternalParameters;
   PlotMode plotmode;
+  PlotSensors plotsensors;
 
   int t;
 
