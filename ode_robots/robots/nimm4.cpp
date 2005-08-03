@@ -20,6 +20,8 @@ Nimm4::Nimm4(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   color.r=2;
   color.g=156/255.0;
   color.b=0/255.0;
+  bodyTexture  = DS_WOOD;
+  wheelTexture = DS_WOOD;
   
   max_force   = force*size*size;
   this->speed = speed;
@@ -37,6 +39,14 @@ Nimm4::Nimm4(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   motorno=4;  
   segmentsno=5;
 };
+
+/** sets the textures used for body and wheels
+ */
+void Nimm4::setTextures(int body, int wheels){
+  bodyTexture = body;
+  wheelTexture = wheels;
+}
+
 
 /** sets actual motorcommands
     @param motors motors scaled to [-1,1] 
@@ -80,10 +90,12 @@ void Nimm4::place(Position pos, Color *c /*= 0*/){
     create(pos);
   } else{
     dBodySetPosition (object[0].body,pos.x ,pos.y           ,pos.z);    
-    dBodySetPosition (object[1].body,pos.x+length/2.0 ,pos.y +width*0.5,pos.z);
-    dBodySetPosition (object[2].body,pos.x+length/2.0 ,pos.y -width*0.5,pos.z);
-    dBodySetPosition (object[3].body,pos.x ,pos.y +width*0.5,pos.z);
-    dBodySetPosition (object[4].body,pos.x ,pos.y -width*0.5,pos.z);
+    for(int i=1; i<5; i++){
+      dBodySetPosition (object[i].body, 
+			pos.x + ((i-1)/2==0?-1:1)*length/2.0, 
+			pos.y + ((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
+			pos.z-width*0.6+radius);
+    }
   }
 };
 
@@ -122,9 +134,10 @@ int Nimm4::getSegmentsPosition(vector<Position> &poslist){
  */
 void Nimm4::draw(){
   dsSetColor (color.r,color.g,color.b); // set color for cylinder
-  dsSetTexture (DS_WOOD);
+  dsSetTexture (bodyTexture);
   dsDrawCappedCylinder(dBodyGetPosition(object[0].body),dBodyGetRotation(object[0].body),length, width/2 );
   dsSetColor (1,1,1); // set color for wheels
+  dsSetTexture (wheelTexture);
   // draw wheels
   for (int i=1; i<5; i++) { 
     if(sphereWheels)

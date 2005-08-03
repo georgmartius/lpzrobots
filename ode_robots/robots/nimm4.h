@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-29 15:13:11  martius
+ *   Revision 1.2  2005-08-03 20:38:56  martius
+ *   added textures and correct placement
+ *
+ *   Revision 1.1  2005/07/29 15:13:11  martius
  *   a robot with 4 independent wheels
  *
  *                                                                 *
@@ -89,6 +92,10 @@ public:
 
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
+  /** sets the textures used for body and wheels
+  */
+  virtual void setTextures(int body, int wheels);
+
 protected:
 
   /** creates vehicle at desired position 
@@ -116,6 +123,9 @@ protected:
 
   Position initial_pos;    // initial position of robot
   double max_force;        // maximal force for motors
+
+  int bodyTexture;
+  int wheelTexture;
 
   bool created;      // true if robot was created
 
