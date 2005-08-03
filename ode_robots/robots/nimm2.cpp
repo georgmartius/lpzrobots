@@ -176,16 +176,17 @@ void Nimm2::draw(){
 };
 
 void Nimm2::mycallback(void *data, dGeomID o1, dGeomID o2){
-  Nimm2* me = (Nimm2*)data;  
-  if(isGeomInObjectList(me->object, me->segmentsno, o1) && isGeomInObjectList(me->object, me->segmentsno, o2)){
-    return;
-  }
+  // Nimm2* me = (Nimm2*)data;  
+  // o1 and o2 are member of the space
+
+  // we ignore the collisions
 }
 
 bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   //checks if one of the collision objects is part of the robot
-  if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space){
-    dSpaceCollide(car_space, this, mycallback);
+  if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space ){
+    // dSpaceCollide(car_space, this, mycallback); // checks collisions in the car_space only (not needed)
+
     bool colwithme;  
     bool colwithbody;  
     int i,n;  
