@@ -77,7 +77,7 @@ private:
   /// calculates the draw interval with simStepSize and realTimeFactor so that we have 25 frames/sec
   int calcDrawInterval(){
     if(realTimeFactor>0 && simStepSize>0){
-      return int(1/(25.0*simStepSize/realTimeFactor));
+      return int(ceil(1/(25.0*simStepSize/realTimeFactor)));
     }else return 50;
   }
 

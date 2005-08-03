@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-27 13:23:09  martius
+ *   Revision 1.4  2005-08-03 20:35:28  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2005/07/27 13:23:09  martius
  *   new color and position construction
  *
  *   Revision 1.2  2005/07/26 17:04:21  martius
@@ -92,7 +95,6 @@ void HurlingSnake::draw(){
     @param c desired color for the robot in struct Color
 */
 void HurlingSnake::place(Position pos , Color *c /*= 0*/){
-  std::cout<<"place"<<std::endl;
   if (!c==0) {
     color=*c;
   }
@@ -258,7 +260,6 @@ Position HurlingSnake::getPosition(){
 
 
   void HurlingSnake::create(Position pos){   
-  std::cout<<"create"<<std::endl;
     if (created){
       destroy();
     }
@@ -338,7 +339,6 @@ bool HurlingSnake::setParam(paramkey key, paramval val){
   else if(strcmp(key, "place")==0) {
     Position p(0,0,3);
     place(p) ; 
-    std::cout<<"place"<<std::endl;
   }
   else return Configurable::setParam(key, val);
   return true;
