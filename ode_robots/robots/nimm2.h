@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-08-02 13:35:53  fhesse
+ *   Revision 1.13  2005-08-03 11:43:03  fhesse
+ *   wheels moved out of center in cigarMode
+ *
+ *   Revision 1.12  2005/08/02 13:35:53  fhesse
  *   cigarMode added
  *
  *   Revision 1.11  2005/08/02 13:17:10  fhesse
@@ -167,6 +170,8 @@ protected:
 
   Object object[3];  // 1 cylinder, 2 wheels
   bool addBumper;    // add bumper tpo body ?
+  double  wheeloffset; // offset from center when in cigarMode
+  int number_bumpers;  // number of bumpers (1 -> bumpers at one side, 2 -> bumpers at 2 sides)
   bool cigarMode;    // long or short body?
   Bumper bumper[2]; 
   dJointID joint[2]; // joints between cylinder and each wheel

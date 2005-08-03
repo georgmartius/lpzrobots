@@ -35,13 +35,6 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   height=size;  
 
 
-  if (cigarMode){
-    length=size*2.0; // long body
-  }
-  else{
-    length=size/3;  // short body 
-  }
-
   width=size/2; 
   radius=size/4+size/200;
   wheelthickness=size/20;
@@ -50,6 +43,20 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   sensorno=2; 
   motorno=2;  
   segmentsno=3;
+
+  if (cigarMode){
+    length=size*2.0;         // long body
+    wheeloffset= -length/4;  // wheels at the end of the cylinder, and the opposite endas the bumper
+    number_bumpers=2;        // if wheels not at center only one bumper
+    cmass=4*size;
+    max_force   = 2*force*size*size;
+  }
+  else{
+    length=size/3;    // short body 
+    wheeloffset=0.0;  // wheels at center of body
+    number_bumpers=2; // if wheels at center 2 bumpers (one at each end)
+  }
+
 };
 
 
@@ -152,8 +159,9 @@ void Nimm2::draw(){
 
   // draw bumper
   if (addBumper){
-    drawGeom(bumper[0].transform,0,0);
-    drawGeom(bumper[1].transform,0,0);
+    for (int i=0; i<number_bumpers; i++){
+      drawGeom(bumper[i].transform,0,0);
+    }
   }
 
   // draw wheels
@@ -197,6 +205,7 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
       }
       if( contact[i].geom.g1 == object[1].geom || contact[i].geom.g2 == object[1].geom || 
 	  contact[i].geom.g1 == object[2].geom || contact[i].geom.g2 == object[2].geom ){
+
 	colwithme = true;
 	// fprintf(stderr,"col with wheels\n");
       }
@@ -252,7 +261,7 @@ void Nimm2::create(Position pos){
   // bumper
   if (addBumper){
     dMatrix3 R;
-    for (int i=0; i<2; i++){
+    for (int i=0; i<number_bumpers; i++){
       bumper[i].transform = dCreateGeomTransform(car_space);
       dGeomTransformSetInfo(bumper[i].transform, 1);
       dGeomTransformSetCleanup(bumper[i].transform, 1);
@@ -277,8 +286,8 @@ void Nimm2::create(Position pos){
     object[i].geom = dCreateSphere (car_space, radius);
     dGeomSetBody (object[i].geom,object[i].body);
   }
-  dBodySetPosition (object[1].body, pos.x, pos.y+ width*0.5+wheelthickness, pos.z );
-  dBodySetPosition (object[2].body, pos.x, pos.y -width*0.5-wheelthickness, pos.z );
+  dBodySetPosition (object[1].body, pos.x+wheeloffset, pos.y + width*0.5+wheelthickness, pos.z);
+  dBodySetPosition (object[2].body, pos.x+wheeloffset, pos.y - width*0.5-wheelthickness, pos.z);
 
 
   for (int i=0; i<2; i++) {
