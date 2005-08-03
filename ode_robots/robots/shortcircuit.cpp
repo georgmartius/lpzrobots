@@ -35,8 +35,12 @@ void ShortCircuit::setMotors(const motor* _motors, int motornumber){
 */
 int ShortCircuit::getSensors(sensor* sensors, int sensornumber){
   assert(sensornumber == sensorno);  
-  for (int i=0; i<sensorno; i++){
-    sensors[i]=motors[i%motorno];
+  int mini = min(sensorno,motorno); 
+  for (int i=0; i< mini; i++){
+    sensors[i]=motors[i]; // %motorno
+  }
+  for (int i=mini; i< sensorno; i++){
+    sensors[i]=0;
   }
   return sensorno;
 };
