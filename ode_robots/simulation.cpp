@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2005-07-29 10:22:47  martius
+ *   Revision 1.19  2005-08-03 20:34:39  martius
+ *   basic random number initialisation
+ *   contains returns index instead of bool
+ *
+ *   Revision 1.18  2005/07/29 10:22:47  martius
  *   drawInterval honored
  *   real time syncronisation
  *
@@ -87,7 +91,7 @@ dGeomID ground;
 double simulationTime = 0;
 struct timeval realTime;
 int nextLeakAnnounce=20;
-int leakAnnCounter=0;
+int leakAnnCounter=1;
 
 OdeConfig simulationConfig;
 int sim_step = 0;
@@ -148,8 +152,9 @@ void simulation_init(void (*start)(), void (*end)(),
 }
 
 void simulation_start(int argc, char** argv){
-  if(state!=initialised) return;
+  if(state!=initialised) return;  
   //********************Simmulationsstart*****************
+  srand(time(0));
   state=running;
   gettimeofday(&realTime, 0);
   //dsSimulationLoop ( argc , argv , 500 , 500 , &fn );  
@@ -211,7 +216,7 @@ void simLoop ( int pause ){
     }
 
     // Time syncronisation of real time and simulations time
-    if(simulationConfig.realTimeFactor!=0){
+    if(simulationConfig.realTimeFactor!=0.0){
       struct timeval currentTime;
       gettimeofday(&currentTime, 0);
       // difference in milliseconds
@@ -272,11 +277,11 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
 }
 
 // Helper
-bool contains(char **list, int len,  const char *str){
+int contains(char **list, int len,  const char *str){
   for(int i=0; i<len; i++){
-    if(strcmp(list[i],str) == 0) return true;
+    if(strcmp(list[i],str) == 0) return i+1;
   }
-  return false;
+  return 0;
 }
 
 
