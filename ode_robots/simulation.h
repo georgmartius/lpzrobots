@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-07-27 13:23:16  martius
+ *   Revision 1.13  2005-08-03 20:33:30  martius
+ *   changed signature of contains (but it stays compatible)
+ *
+ *   Revision 1.12  2005/07/27 13:23:16  martius
  *   new color and position construction
  *
  *   Revision 1.11  2005/07/18 08:35:27  martius
@@ -112,8 +115,8 @@ void simulation_start(int argc, char** argv);
 void simulation_close();
 
 // Helper
-/// returns true if the list contains the given string
-bool contains(char **list, int len,  const char *str);
+/// returns the index+1 if the list contains the given string or 0 if not
+int contains(char **list, int len,  const char *str);
 
 // Commandline interface stuff
 /// shows all parameters of all given configurable objects
