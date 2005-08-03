@@ -382,8 +382,10 @@ double Arm2Segm::dBodyGetPositionAll ( dBodyID basis , int para ){
     {
         case 1: return pos[0]; break;
         case 2: return pos[1]; break;
-        case 3: return pos[2]; break;
+        case 3: return pos[2]; break;	  
     }
+    return 0;
+    
 }
 
 
