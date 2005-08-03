@@ -6,10 +6,12 @@
 #include "noisegenerator.h"
 #include "agent.h"
 #include "one2onewiring.h"
+#include "selectiveone2onewiring.h"
 #include "derivativewiring.h"
 #include "shortcircuit.h"
 #include "playground.h"
 
+#include "sinecontroller.h"
 #include "invertmotornstep.h"
 #include "invertmotorspace.h"
 #include "invertnchannelcontroller.h"
@@ -17,6 +19,10 @@
 ConfigList configs;
 PlotMode plotMode=NoPlot;
 int channels;
+int t=0;
+double omega = 0.05;
+
+SineWhiteNoise* sineNoise;
 
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
@@ -41,27 +47,32 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
+  simulationConfig.setParam("noise",0.01);
+  simulationConfig.setParam("realtimefactor",0);
+  simulationConfig.setParam("drawinterval", 2000);
   
-  Playground* playground = new Playground(world, space);
-  playground->setGeometry(7.0, 0.2, 1.5);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
-
-  AbstractRobot* robot = new ShortCircuit(world, space, contactgroup,channels,channels);  
-  AbstractController *controller = new InvertMotorNStep(10);  
-  //AbstractController *controller = new InvertMotorSpace(10);  
-  //AbstractController *controller = new InvertNChannelController(10);  
+  AbstractRobot* robot = new ShortCircuit(world, space, contactgroup, channels, channels);  
+  //AbstractController *controller = new InvertMotorNStep(10);  
+  AbstractController *controller = new InvertMotorSpace(10);  
+  //  controller->setParam("adaptrate",0.0);
+  controller->setParam("epsA",0.0);
+  controller->setParam("epsC",0.05);
+  //  AbstractController *controller = new InvertNChannelController(10);  
+  //AbstractController *controller = new SineController();
   
-  Agent* agent = new Agent(plotMode);
-  //One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.3));
-  //  One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-  DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-  c.useId=true;
-  c.useFirstD=true;
-  c.derivativeScale=20;
-  c.blindMotorSets=0;
-  AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
+  Agent* agent = new Agent(plotMode, Robot);
+  
+  sineNoise = new SineWhiteNoise(omega,2);
+  One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
+  //One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
+ 
+  //AbstractWiring* wiring = new SelectiveOne2OneWiring(sineNoise, &select_firsthalf);
+  // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+//   c.useId=true;
+//   c.useFirstD=true;
+//   c.derivativeScale=20;
+//   c.blindMotorSets=0;
+//   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   agent->init(controller, robot, wiring);
   agents.push_back(agent);
   
@@ -69,6 +80,11 @@ void start()
   configs.push_back(controller);
   showParams(configs);
 }
+
+// void addcallback (bool, bool){
+//   t++;
+//   sineNoise->setOmega(0.1*cos(t/100000.0));
+// }
 
 void end(){
   for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
@@ -89,6 +105,25 @@ void config(){
   changeParams(configs);
 }
 
+void command(int key){
+  switch (key){
+  case '>': omega+=0.05;
+    break;
+  case '<': omega-=0.05;
+    break;
+  case '.': omega+=0.005;
+    break;
+  case ',': omega-=0.005;
+    break;
+  case 'r': omega=0.05;
+    break;
+  case 'n': omega=0;
+    break;
+  }
+  fprintf(stderr, "Omega: %g\n", omega);
+  sineNoise->setOmega(omega);
+}
+
 void printUsage(const char* progname){
   printf("Usage: %s numchannels [-g] [-l]\n\tnumchannels\tnumber of channels\n\
 \t-g\t\tuse guilogger\n\t-l\t\tuse guilogger with logfile", progname);
@@ -98,13 +133,13 @@ void printUsage(const char* progname){
 int main (int argc, char **argv)
 {  
   if(argc<=1) printUsage(argv[0]);  
-  channels = atoi(argv[1]);  
+  channels = max(1,atoi(argv[1]));
   if(contains(argv, argc, "-g")) plotMode = GuiLogger;
   if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config);
+  simulation_init(&start, &end, &config, &command);
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.
