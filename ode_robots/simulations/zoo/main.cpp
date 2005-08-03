@@ -18,6 +18,7 @@
 #include "hurlingsnake.h"
 #include "schlangeforce.h"
 #include "nimm2.h"
+#include "nimm4.h"
 
 // for video capturing use:
 // realtimefactor=0.5
@@ -37,6 +38,11 @@ void start()
                                             // because world is already initialized and 
                                             // dWorldSetGravity will not be called when 
                                             // you only set the value  
+  int chessTexture = dsRegisterTexture("chess.ppm");
+  printf("Chess: %i", chessTexture);
+  int dust = dsRegisterTexture("dusty.ppm");
+  printf("Chess: %i", chessTexture);
+
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {0.276f,7.12f,1.78f};
@@ -62,7 +68,9 @@ void start()
   for (int i=-3; i<3; i++){
     sphere = new Sphere(world, space);
     sphere->setColor(184 / 255.0, 233 / 255.0, 237 / 255.0);
-    sphere->setPosition(i*0.5,i*0.5,1.0); //positionieren und generieren
+    sphere->setTexture(dust);
+    sphere->setPosition(i*0.5-2,i*0.5,1.0); //positionieren und generieren
+
     obstacles.push_back(sphere);
   }
 
@@ -75,11 +83,11 @@ void start()
 
   SchlangeForce* snake;
   SchlangenConf snakeConf = SchlangeForce::getDefaultConf();
-  //****************/
+  //******* S C H L A N G E  (Short) *********/
   snakeConf.armAnzahl=4;
   snakeConf.maxWinkel=M_PI/3;
   snakeConf.frictionGround=0.1;
-  snakeConf.factorForce=1;
+  snakeConf.factorForce=3;
   snakeConf.factorSensors=5;
   snake = new SchlangeForce ( 1 , odeHandle, snakeConf );
   {
@@ -97,12 +105,12 @@ void start()
   
   showParams(configs);
 
-  //******* S C H L A N G E *********/
+  //******* S C H L A N G E  (Long)  *********/
   snakeConf = SchlangeForce::getDefaultConf();
   snakeConf.armAnzahl   = 8;
-  snakeConf.maxWinkel   = M_PI/4;
+  snakeConf.maxWinkel   = M_PI/3;
   snakeConf.frictionGround=0.1;
-  snakeConf.factorForce=3;
+  snakeConf.factorForce=3.5;
   snakeConf.factorSensors=5;
   snake = new SchlangeForce ( 1 , odeHandle, snakeConf );
   {
@@ -125,7 +133,23 @@ void start()
     robot = new Nimm2(world, space, contactgroup,1.6);
     Position p((r-1)*5,5,0);
     robot->place(p);
-    controller = new InvertMotorNStep(10);   
+    ((Nimm2*)robot)->setTextures(DS_WOOD, chessTexture);
+    controller = new InvertMotorSpace(10);   
+    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
+    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    agent = new Agent( NoPlot );
+    agent->init(controller, robot, wiring);
+    agents.push_back(agent);        
+  }
+
+  //******* N I M M  4 *********/
+  for(int r=0; r < 1; r++) {
+    robot = new Nimm4(world, space, contactgroup);
+    Position p((r-1)*5,-3,0);
+    robot->place(p);
+    ((Nimm4*)robot)->setTextures(DS_WOOD, chessTexture);
+    controller = new InvertMotorSpace(20);
+    controller->setParam("s4avg",10); 
     controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new Agent( NoPlot );
@@ -140,7 +164,7 @@ void start()
     Color c;    
     if (r==0) c=Color(0.8, 0.8, 0);
     if (r==1) c=Color(0,   0.8, 0);
-    snake->place(Position(r*5,-7,0.3), &c);
+    snake->place(Position(r*5,-6,0.3), &c);
     snake->setParam("factorForce",8);
 
     controller = new InvertMotorNStep(10);   
@@ -179,7 +203,7 @@ void config(){
 }
 
 void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
+  printf("Usage: %s [-g] [-l] [-r seed]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n\t-r seed\trandom number seed ", progname);
   exit(0);
 }
 
@@ -188,6 +212,16 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-g")) plotMode = GuiLogger;
   if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
+  int seedIndex = contains(argv, argc, "-r");
+  long seed;
+  // initialize random number generator
+  if(seedIndex && argc > seedIndex) {
+    seed=atoi(argv[seedIndex]);
+  }else{
+    time(0);
+  }
+  printf("Use random number seed: %i\n", seed);
+  srand(seed);    
 
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
