@@ -13,7 +13,8 @@ SIMULATIONS= \
 	template_schlange \
 	template_schlangeforce \
 	atomsimulation \
-	hurling_snake
+	hurling_snake \
+	formel1
 
 all: $(SIMULATIONS)
 
