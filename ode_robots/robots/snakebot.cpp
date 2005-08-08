@@ -1,3 +1,5 @@
+#ifdef FUCKTHECODE
+
 #include "snakebot.h"
 
 
@@ -166,3 +168,5 @@ int SnakeBot::getSegmentsPosition(vector<Position> &poslist)
 
 }
 }
+
+#endif

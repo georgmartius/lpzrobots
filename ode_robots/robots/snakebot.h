@@ -1,7 +1,7 @@
+#ifdef FUCKTHECODE
 #include "abstractrobot.h"
 #include "component.h"
 #include "world.h"
-
 
 namespace university_of_leipzig {
 namespace robot {
@@ -52,3 +52,5 @@ class SnakeBot : public AbstractRobot {
 
 }
 }
+
+#endif

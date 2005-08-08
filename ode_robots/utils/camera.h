@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-08-08 11:06:47  martius
+ *   Revision 1.2  2005-08-08 14:11:28  robot1
+ *   FUCKTHECODE for 2 weeks
+ *
+ *   Revision 1.1  2005/08/08 11:06:47  martius
  *   camera is a module for camera movements
  *   includes cleaned
  *
@@ -29,7 +32,7 @@
 #ifndef __CAMERA_H
 #define __CAMERA_H
 
-#include "abstactrobot.h"
+#include "abstractrobot.h"
 
 typedef enum CameraType { Static, TV, Following };
 
