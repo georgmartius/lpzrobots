@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-08-02 13:26:35  fhesse
+ *   Revision 1.4  2005-08-08 11:06:47  martius
+ *   camera is a module for camera movements
+ *   includes cleaned
+ *
+ *   Revision 1.3  2005/08/02 13:26:35  fhesse
  *   unused int i removed
  *                                                *
  *   Revision 1.2  2005/08/02 13:20:10  fhesse                             *
@@ -33,6 +37,9 @@
  ***************************************************************************/
 
 #include "drawgeom.h" 
+
+#include <drawstuff/drawstuff.h>
+#include "simulation.h" 
 
 
 // draws a geom

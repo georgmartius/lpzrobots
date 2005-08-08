@@ -1,4 +1,3 @@
-
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -21,22 +20,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-08 11:06:47  martius
+ *   Revision 1.1  2005-08-08 11:06:47  martius
  *   camera is a module for camera movements
  *   includes cleaned
  *
- *   Revision 1.1  2005/08/02 13:18:33  fhesse
- *   function for drawing geoms
- *                                                                 *
  *                                                                         *
  ***************************************************************************/
-#ifndef __DRAWGEOM_H
-#define __DRAWGEOM_H
+#ifndef __CAMERA_H
+#define __CAMERA_H
 
-#include <ode/ode.h>
+#include "abstactrobot.h"
 
-// draws a geom
-void drawGeom (dGeomID g, const dReal *pos, const dReal *R);
+typedef enum CameraType { Static, TV, Following };
 
+void moveCamera( CameraType camType, const AbstractRobot& robot);
 
 #endif
