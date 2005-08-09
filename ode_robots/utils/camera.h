@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-08 14:11:28  robot1
+ *   Revision 1.3  2005-08-09 11:08:49  robot1
+ *   following mode included
+ *
+ *   Revision 1.2  2005/08/08 14:11:28  robot1
  *   FUCKTHECODE for 2 weeks
  *
  *   Revision 1.1  2005/08/08 11:06:47  martius
@@ -36,6 +40,6 @@
 
 typedef enum CameraType { Static, TV, Following };
 
-void moveCamera( CameraType camType, const AbstractRobot& robot);
+void moveCamera( CameraType camType, AbstractRobot& robot);
 
 #endif

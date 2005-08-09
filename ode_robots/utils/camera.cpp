@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-08 14:11:28  robot1
+ *   Revision 1.3  2005-08-09 11:08:49  robot1
+ *   following mode included
+ *
+ *   Revision 1.2  2005/08/08 14:11:28  robot1
  *   FUCKTHECODE for 2 weeks
  *
  *   Revision 1.1  2005/08/08 11:06:46  martius
@@ -36,8 +40,8 @@
 #include <drawstuff/drawstuff.h>
 #include "ode/ode.h" 
 
-CameraType oldcamType;
-AbstractRobot& oldRobot;
+CameraType oldCamType;
+const AbstractRobot* oldRobot;
 
 // camera points, first is position, second the point to view
 // double KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
@@ -47,7 +51,7 @@ float camView[3];
 // the position of robot
 double robotPos[3];
 // the view of robot
-double RobotView[3];
+double robotView[3];
  
 // the new positions and view of the camera and the robot
 float newCamPos[3];
@@ -55,34 +59,34 @@ float newCamView[3];
 double newRobotPos[3];
 double newRobotView[3];
 
-void getRobotPosAndView(double *robotPos, double *robotView,AbstractRobot& robot) {
-	Position pos=vehicle->getPosition();
-	RobotPos[0]=pos.x;
-	RobotPos[1]=pos.y;
-	RobotPos[2]=pos.z;
-	// robotView not yet included
+void getRobotPosAndView(double *pos, double *view,AbstractRobot& robot) {
+	Position position=robot.getPosition();
+	pos[0]=position.x;
+	pos[1]=position.y;
+	pos[2]=position.z;
+	// view not yet included
 }
 
 // has to be called if CameraType or the Robot has changed.
-void initCamera(CameraType camType, const AbstractRobot& robot) {
+void initCamera(CameraType camType,AbstractRobot& robot) {
 	// getting first the position and view of robot
 	getRobotPosAndView(robotPos, robotView, robot);
 	// now getting the current angle of the camera
-	dsGetViewpoint(CamPos,CamView);
+	dsGetViewpoint(camPos,camView);
 	// setting the new Values
-	oldcamType=camType;
-	oldRobot=robot;
+	oldCamType=camType;
+	oldRobot=&robot;
 }
 
 
-void moveCamera( CameraType camType, const AbstractRobot& robot) {
+void moveCamera( CameraType camType,AbstractRobot& robot) {
 	// first look if someone is changed
 	// only otherwise change the camera position and/or view.
-	if (oldcamType!=camType || robot!=oldRobot)
+	if (oldCamType!=camType || &robot!=oldRobot)
 		initCamera(camType,robot);
 	else {
 		// first get all needed values
-		if (CameraType!=Static) {
+		if (camType!=Static) {
 			// getting first the position and view of robot
 			getRobotPosAndView(newRobotPos,newRobotView,robot);
 			// now getting the current angle of the camera
@@ -91,7 +95,7 @@ void moveCamera( CameraType camType, const AbstractRobot& robot) {
 		// now compute
 		// to compute is the new camPos and the new camView.
 		// in addition the new robotPos and robotView have to be stored.
-		switch (CameraType) {
+		switch (camType) {
 			case Static:
 				break; // do nothing
 			case TV:
@@ -108,7 +112,7 @@ void moveCamera( CameraType camType, const AbstractRobot& robot) {
 				break;
 		}
 		// now execute :)
-		if (CameraType!=Static) {
+		if (camType!=Static) {
 			dsSetViewpoint(camPos,camView);
 		}
 	}
