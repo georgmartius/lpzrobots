@@ -53,6 +53,7 @@ class Schlange : public Roboter
 private:
   
   std::vector<dJointID> skyJoints; // for fixing segment 0 in the sky
+  dSpaceID snake_space;
 
 protected:
   SchlangenConf conf;
@@ -102,18 +103,6 @@ public:
   /** fix segment 0 in the sky
    */
   virtual void fixInSky();
-
-  /**
-   *Decides if some collisions of the robot should not be threated by by the collision management.
-   *This overwrides the function in the roboter class.
-   *Here it makes the simulation ignore collisions between neighbouring snake elements, so that the snake can move, an does not explode.
-   *@param o1 Geometrieobjekt 1, dass an der Kollision beteiligt ist
-   *@param o2 Geometrieobjekt 2, dass an der Kollision beteiligt ist
-   *@return true, if the collision should not be threated, false else
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  bool kollisionsermittlung ( dGeomID o1 , dGeomID o2 );
 	
   /**Sets the snake to position pos, sets color to c, and creates snake if necessary.
    *This overwrides the function place of the class robot.
@@ -124,6 +113,8 @@ public:
    **/
   virtual void place (Position pos, Color *c = 0);
 	
+  static void mycallback(void *data, dGeomID o1, dGeomID o2);
+  
   /**
    *This is the collision handling function for snake robots.
    *This overwrides the function collisionCallback of the class robot.

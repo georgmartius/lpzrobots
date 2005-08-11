@@ -20,6 +20,9 @@ Schlange::Schlange ( int startRoboterID , const ODEHandle& odeHandle,
 		     const SchlangenConf& conf ) 
   : Roboter ( startRoboterID , odeHandle.world , odeHandle.space , odeHandle.jointGroup , 2*(conf.armAnzahl-1) )
 {
+  snake_space = dSimpleSpaceCreate (space);
+  dSpaceSetCleanup ( snake_space , 0 );
+  
   Object tmp_body;
   this->conf = conf;
 	
@@ -80,6 +83,7 @@ Schlange::Schlange ( int startRoboterID , const ODEHandle& odeHandle,
  **/
 Schlange::~Schlange()
 {
+	dSpaceDestroy( snake_space );
 }
 
 /** fix segment 0 in the sky
@@ -128,31 +132,7 @@ void Schlange::draw()
 			     conf.gliederLaenge , conf.gliederDurchmesser );
     }
 }
-	
-/**
- *Decides if some collisions of the robot should not be threated by by the collision management.
- *This overwrides the function in the roboter class.
- *Here it makes the simulation ignore collisions between neighbouring snake elements, so that the snake can move, an does not explode.
- *@param o1 Geometrieobjekt 1, dass an der Kollision beteiligt ist
- *@param o2 Geometrieobjekt 2, dass an der Kollision beteiligt ist
- *@return true, if the collision should not be threated, false else
- *@author Marcel Kretschmann
- *@version beta
- **/
-bool Schlange::kollisionsermittlung ( dGeomID o1 , dGeomID o2 )
-{
-  for ( unsigned int n = 0; n < objektliste.size (); n++ )
-    {
-      if 
-	(
-	 ( getObjektAt ( n ).geom == o1 && getObjektAt ( n + 1 ).geom == o2 ) || ( getObjektAt ( n ).geom == o2 && getObjektAt ( n + 1 ).geom == o1 )		
-	 )
-	return true;
-    }
-	
-  return false;
-}
-	
+
 /**Sets the snake to position pos, sets color to c, and creates snake if necessary.
  *This overwrides the function place of the class robot.
  *@param pos desired position of the snake in struct Position
@@ -175,6 +155,41 @@ void Schlange::place (Position pos, Color *c)
     color = (*c);
 }
 
+void Schlange::mycallback(void *data, dGeomID o1, dGeomID o2)
+{
+  Schlange* me = (Schlange*) data;
+  for ( unsigned int n = 0; n < me->objektliste.size (); n++ )
+  {
+	if 
+	( ( me->getObjektAt ( n ).geom == o1 && me->getObjektAt ( n + 1 ).geom == o2 ) || ( me->getObjektAt ( n ).geom == o2 && me->getObjektAt ( n + 1 ).geom == o1 ) )
+	{}
+	else
+	{
+		// internal collisions
+		Schlange* me = (Schlange*)data;  
+		int i,n;  
+		const int N = 10;
+		dContact contact[N];  
+		n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+		for (i=0; i<n; i++)
+		{
+			contact[i].surface.mode = 0;
+			contact[i].surface.mu = 0;
+			contact[i].surface.mu2 = 0;
+			//     contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+			//       dContactSoftERP | dContactSoftCFM | dContactApprox1;
+			//     contact[i].surface.mu = 0.0;
+			//     contact[i].surface.slip1 = 0.005;
+			//     contact[i].surface.slip2 = 0.005;
+			//     contact[i].surface.soft_erp = 1;
+			//     contact[i].surface.soft_cfm = 0.00001;
+			dJointID c = dJointCreateContact( me->world, me->contactgroup, &contact[i]);
+			dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;     
+  		}
+	}
+    } 
+}
+
 /**
  *This is the collision handling function for snake robots.
  *This overwrides the function collisionCallback of the class robot.
@@ -188,48 +203,33 @@ void Schlange::place (Position pos, Color *c)
 bool Schlange::collisionCallback(void *data, dGeomID o1, dGeomID o2)
 {
   //checks if one of the collision objects is part of the robot
-  bool tmp_kollisionsbeteiligung = false;
-  for ( int n = 0; n < getObjektAnzahl (); n++ )
-    {
-      if ( getObjektAt ( n ).geom == o1 || getObjektAt ( n ).geom == o2 )
-	{
-	  tmp_kollisionsbeteiligung = true;
-	  break;
-	}
+  if( o1 == (dGeomID)snake_space || o2 == (dGeomID)snake_space){
+    // mycallback is called for internal collisions!
+    dSpaceCollide(snake_space, this, mycallback);
+
+    // the rest is for collisions of some snake elements with the rest of the world
+    int i,n;  
+    const int N = 10;
+    dContact contact[N];
+
+    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+    for (i=0; i<n; i++){
+           contact[i].surface.mode = 0;
+           contact[i].surface.mu = 0.2;
+           contact[i].surface.mu2 = 0;
+// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// 	contact[i].surface.mu = frictionGround;
+// 	contact[i].surface.slip1 = 0.005;
+// 	contact[i].surface.slip2 = 0.005;
+// 	contact[i].surface.soft_erp = 1;
+// 	contact[i].surface.soft_cfm = 0.00001;
+	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
     }
-
-  if ( tmp_kollisionsbeteiligung == true )		
-    {
-      int i,n;
-      const int N = 10;
-      dContact contact[N];
-      bool kollission = false;
-
-      //tests, if a special collision should not be threated
-      if ( Schlange::kollisionsermittlung ( o1 , o2 ) == true )
-	kollission = true;
-
-      if ( kollission == false )
-	{
-	  n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-	  if (n > 0)
-	    for (i=0; i<n; i++)
-	      {
-		contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-		  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-		contact[i].surface.mu = 0.8;
-		contact[i].surface.slip1 = 0.005;
-		contact[i].surface.slip2 = 0.005;
-		contact[i].surface.soft_erp = 1;
-		contact[i].surface.soft_cfm = 0.00001;
-
-		dJointID c = dJointCreateContact ( world , contactgroup , &contact[i] );
-		dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
-	      }
-	}
-      return true; //if collision was threated by this robot
-    }
-  else return false; //if collision was not threated by this robot
+    return true;
+  }
+  return false;
 }
 
 /**
