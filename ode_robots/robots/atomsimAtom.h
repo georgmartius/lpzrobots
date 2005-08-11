@@ -51,12 +51,10 @@ private:
 	vector <atomsimAtom*> atomliste; //Liste aller von diesem Atom ausgehenden Atome
 	
 	dJointID ursprungjoint;
-	dJointID ursprungmotor;
-	
+		
 public:
 	vector <dJointID> jointliste; //Liste aller Joints zwischen allen diesem Atom und allen von diesem Atom ausgehenden Atome
 
-	vector <dJointID> motorliste; //Liste aller Motor-Joints zwischen diesem und allen verbundenen Atomen
 private:	
 	//*****chemische Kennwerte
 	raumvektor farbe; //um verschiedene Atome darzustellen
@@ -191,21 +189,7 @@ public:
  	 *@version
  	 **/
 	virtual void setUrsprungJoint ( dJointID neuer_ursprungjoint );
-	
-	/**
- 	 *
- 	 *@author Marcel Kretschmann
- 	 *@version
- 	 **/
-	virtual dJointID getUrsprungMotor ( );
-	
-	/**
- 	 *
- 	 *@author Marcel Kretschmann
- 	 *@version
- 	 **/
-	virtual void setUrsprungMotor ( dJointID neuer_ursprungmotor );
-	
+		
 	/**
  	 *
  	 *@author Marcel Kretschmann
@@ -379,13 +363,6 @@ public:
  	 *@author Marcel Kretschmann
  	 *@version
  	 **/
-	virtual int getAnzahlMotoren ();
-	
-	/**
- 	 *
- 	 *@author Marcel Kretschmann
- 	 *@version
- 	 **/
 	virtual atomsimAtom* getAtomAt ( int n );
 	
 	/**
@@ -400,13 +377,6 @@ public:
  	 *@author Marcel Kretschmann
  	 *@version
  	 **/
-	virtual dJointID getMotorAt ( int n );
-	
-	/**
- 	 *
- 	 *@author Marcel Kretschmann
- 	 *@version
- 	 **/
 	virtual void delAtomAt ( int n );
 	
 	/**
@@ -415,13 +385,6 @@ public:
  	 *@version
  	 **/
 	virtual void delJointAt ( int n );
-	
-	/**
- 	 *
- 	 *@author Marcel Kretschmann
- 	 *@version
- 	 **/
-	virtual void delMotorAt ( int n );
 	
 	/**
  	 *
@@ -487,6 +450,14 @@ public:
  	 *@version
  	 **/
 	virtual void drawAtom ();
+	
+	/**
+	 *
+	 *@author Marcel Kretschmann
+	 *@version
+	 **/
+	void atomsimAtom::drawBindung ();
+
 	
 	/**
  	 *

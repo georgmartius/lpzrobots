@@ -278,7 +278,8 @@ int atomsimRobot::sensoraktualisierung ( atomsimAtom* atom , int i , bool steuer
 		{
 			sensorfeld[i].istwinkel_alt = sensorfeld[i].istwinkel;
 	
-			sensorfeld[i].istwinkel = dJointGetAMotorAngle ( (*atom).getMotorAt ( n ) , 0 );
+			//sensorfeld[i].istwinkel = dJointGetAMotorAngle ( (*atom).getMotorAt ( n ) , 0 );
+			sensorfeld[i].istwinkel = dJointGetHingeAngle ( (*atom).getJointAt ( n ) );
 			i++;
 	
 			if ( (*(*atom).getAtomAt ( n )).getAnzahlAtome () > 0 )
@@ -595,12 +596,10 @@ bool atomsimRobot::roboterAuftrennen ( atomsimAtom* a/*=0*/ , atomsimAtom** newr
 					*newrobotpart = a->getAtomAt ( n );
 				
 				dJointDestroy ( a->getAtomAt (n)->getUrsprungJoint () );
-				dJointDestroy ( a->getAtomAt (n)->getUrsprungMotor () );
 	
 				//loeschen der einzellinks des Atoms und des Joints in den jewailigen Listen des Ursprungsatoms
 				a->delAtomAt ( n );
 				a->delJointAt ( n );
-				a->delMotorAt ( n );
 	
 				a->getAtomAt (n)->setUrsprung ( NULL );
 				return true;

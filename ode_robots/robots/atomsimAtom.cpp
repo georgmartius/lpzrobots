@@ -85,7 +85,6 @@ atomsimAtom::~atomsimAtom ()
 	if ( ursprung != NULL )
 	{
 		dJointDestroy ( ursprungjoint );
-		dJointDestroy ( ursprungmotor );
 	}
 	dGeomDestroy ( atomhuelle_geom );
 	dGeomDestroy ( atom_geom );
@@ -226,26 +225,6 @@ dJointID atomsimAtom::getUrsprungJoint ( )
 void atomsimAtom::setUrsprungJoint ( dJointID neuer_ursprungjoint )
 {
 	ursprungjoint = neuer_ursprungjoint;
-}
-
-/**
- *
- *@author Marcel Kretschmann
- *@version
- **/
-dJointID atomsimAtom::getUrsprungMotor ( )
-{
-	return ursprungmotor;
-}
-
-/**
- *
- *@author Marcel Kretschmann
- *@version
- **/
-void atomsimAtom::setUrsprungMotor ( dJointID neuer_ursprungmotor )
-{
-	ursprungmotor = neuer_ursprungmotor;
 }
 
 /**
@@ -493,16 +472,6 @@ int atomsimAtom::getAnzahlJoints ()
  *@author Marcel Kretschmann
  *@version
  **/
-int atomsimAtom::getAnzahlMotoren ()
-{
-	return motorliste.size ();
-}
-
-/**
- *
- *@author Marcel Kretschmann
- *@version
- **/
 atomsimAtom* atomsimAtom::getAtomAt ( int n )
 {
 	return atomliste[n];
@@ -516,16 +485,6 @@ atomsimAtom* atomsimAtom::getAtomAt ( int n )
 dJointID atomsimAtom::getJointAt ( int n )
 {
 	return jointliste[n];
-}
-
-/**
- *
- *@author Marcel Kretschmann
- *@version
- **/
-dJointID atomsimAtom::getMotorAt ( int n )
-{
-	return motorliste[n];
 }
 
 /**
@@ -559,24 +518,6 @@ void atomsimAtom::delJointAt ( int n )
 		if ( *it == getJointAt ( n )  )
 		{
 			jointliste.erase ( it );
-			break;
-		}
-	}
-}
-
-/**
- *
- *@author Marcel Kretschmann
- *@version
- **/
-void atomsimAtom::delMotorAt ( int n )
-{
-	vector<dJointID>::iterator it;
-	for ( it = motorliste.begin (); it <= motorliste.end (); it++ )
-	{
-		if ( *it == getMotorAt ( n )  )
-		{
-			motorliste.erase ( it );
 			break;
 		}
 	}
@@ -643,8 +584,7 @@ void atomsimAtom::atomInfo ()
 	dsPrint ( "RoboterID: %i\n" , getRoboterID () );
 	dsPrint ( "Atom-Liste: %i\n" , atomliste.size () );
 	dsPrint ( "Joint-Liste: %i\n" , jointliste.size () );
-	dsPrint ( "Motor-Liste: %i\n" , motorliste.size () );		
-	dsPrint ( "reale Jointanzahl(=Gelenke+Motoren): %i\n" , dBodyGetNumJoints ( getBody () ) );
+	dsPrint ( "reale Jointanzahl(=Gelenke -> real): %i\n" , dBodyGetNumJoints ( getBody () ) );
 	dsPrint ( ">>>>>>>>AtomInfoEnde<<<<<<<<\n" );
 }
 
@@ -663,7 +603,7 @@ bool atomsimAtom::atombindung ( atomsimAtom* a2 , raumvektor kraftraumvektor1 , 
 	(*a2).kollisionsvektor2 = kraftraumvektor2;
 		
 	if ( (*a2).getBindungsblock () > 0 ) dsPrint ( ">Bindungsblock aktiv = %i\n" , (*a2).getBindungsblock () );	
-	
+
 	//Wenn die maximal erlaubte Anzahl an Bindungen pro Atom noch nicht erreicht ist
 	if ( ( atomliste.size () < maxatombindungszahl ) && ( (*a2).getBindungsblock () <= 0 ) )
 	{
@@ -717,19 +657,7 @@ bool atomsimAtom::atombindung ( atomsimAtom* a2 , raumvektor kraftraumvektor1 , 
 		jointliste.push_back ( tmp );
 		(*a2).setUrsprungJoint ( tmp );
 
-
-		//Anlegen des Motors
-		motorliste.push_back ( dJointCreateAMotor ( welt , 0 ) );
-		(*a2).setUrsprungMotor ( motorliste.back () );
-		dJointAttach ( motorliste.back () , (*this).getBody () , (*a2).getBody () );
-		dJointSetAMotorMode ( motorliste.back () , dAMotorEuler );
-		
-		//dJointSetAMotorAxis ( motorliste.back () , 0 , 1 , achse_rechtwinklig_zur_Kollision.x , achse_rechtwinklig_zur_Kollision.y , achse_rechtwinklig_zur_Kollision.z );
-		dJointSetAMotorAxis ( motorliste.back () , 0 , 1 , achse_zwischen_beiden_atomen.x , achse_zwischen_beiden_atomen.y , achse_zwischen_beiden_atomen.z );
-			
-		dJointSetAMotorAxis ( motorliste.back () , 2 , 2 , kraftraumvektor1.x , kraftraumvektor1.y , kraftraumvektor1.z );
-
-		dJointSetAMotorParam ( motorliste.back () , dParamFMax , maxmotorkraft );
+		dJointSetHingeParam ( jointliste.back () , dParamFMax , maxmotorkraft );
 		
 		atomInfo ();
 		(*a2).atomInfo ();
@@ -762,16 +690,11 @@ bool atomsimAtom::atomabspaltung ( atomsimAtom* a2 , int rekursionsZaehler )
 		//zerstören des Joints jedes Jointlistenelements
 		for ( unsigned int n = 0; n < jointliste.size(); n++ )
 			dJointDestroy ( jointliste.operator[](n) );
-			
-		//zerstören des Motors jedes Motorlistenelements
-		for ( unsigned int n = 0; n < motorliste.size(); n++ )
-			dJointDestroy ( motorliste.operator[](n) );
 
 		//ACHTUNG!!!!!!!!!!! Kann eventuell aufgrund Doppelloeschung noch zu Problemen fuehren -> behoben
 		if ( rekursionsZaehler == 1 )
 		{
 			dJointDestroy ( ursprungjoint );
-			dJointDestroy ( ursprungmotor );
 			//loeschen der einzellinks des Atoms und des Joints in den jewailigen Listen des Ursprungsatoms
 			vector<atomsimAtom*>::iterator it1;
 			for ( it1 = (*ursprung).atomliste.begin (); it1 <= (*ursprung).atomliste.end (); it1++ )
@@ -783,19 +706,11 @@ bool atomsimAtom::atomabspaltung ( atomsimAtom* a2 , int rekursionsZaehler )
 				{
 					(*ursprung).jointliste.erase ( it2 );
 				}
-
-			vector<dJointID>::iterator it3;
-			for ( it3 = (*ursprung).motorliste.begin (); it3 <= (*ursprung).motorliste.end (); it3++ )
-				if ( *it3 == ursprungmotor  )
-				{
-					(*ursprung).motorliste.erase ( it3 );
-				}
 			
 		}
 
-		//NULL setzen jedes Joint- und Motorlistenelementes
+		//NULL setzen jedes Jointlistenelementes
 		jointliste.clear ();
-		motorliste.clear ();
 
 		//NULL setzen jedes Atomlistenelementes
 		atomliste.clear ();
@@ -870,6 +785,35 @@ void atomsimAtom::drawAtom ()
 dsSetTexture (DS_WOOD);
 	dsSetColor ( farbe.x , farbe.y , farbe.z );
 	dsDrawSphere ( dBodyGetPosition ( body ) , dBodyGetRotation ( body ) , atomradius );
+	
+	//drawBindung ();
+}
+
+/**
+ *
+ *@author Marcel Kretschmann
+ *@version
+ **/
+void atomsimAtom::drawBindung ()
+{
+	//dsSetTexture (DS_WOOD);
+	/*dsSetColor ( 1 , 1 , 1 );
+	double pos[3];
+	dReal* rot;*/
+	//dMatrix3 rot;
+	
+	
+	/*for ( int n = 0; n < this->getAnzahlAtome (); n++ )
+	{
+		pos[0] = this->getX () + ( this->getAtomAt(n)->getX () - this->getX () )/2;
+ 		pos[1] = this->getY () + ( this->getAtomAt(n)->getY () - this->getY () )/2;
+ 		pos[2] = this->getZ () + ( this->getAtomAt(n)->getZ () - this->getZ () )/2;
+		
+		rot = dBodyGetRotation ( this->getAtomAt(n)->body );
+		dRFromAxisAndAngle ( rot , 0 , 1 , 0 , M_PI/2 );
+		
+		dsDrawCylinder ( pos , rot , atomhuelleradius , atomradius/5 );
+	}*/
 }
 
 /**
@@ -879,5 +823,6 @@ dsSetTexture (DS_WOOD);
  **/
 void atomsimAtom::setMotorWinkel ( int motornummer , double winkelgeschwindigkeit )
 {
-	dJointSetAMotorParam ( motorliste[motornummer] , dParamVel , winkelgeschwindigkeit*motorgeschwindigkeitsfaktor );
+	//dJointSetAMotorParam ( motorliste[motornummer] , dParamVel , winkelgeschwindigkeit*motorgeschwindigkeitsfaktor );
+	dJointSetHingeParam ( jointliste[motornummer] , dParamVel , winkelgeschwindigkeit*motorgeschwindigkeitsfaktor );
 }
