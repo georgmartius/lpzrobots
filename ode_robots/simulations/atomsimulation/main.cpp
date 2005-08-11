@@ -31,7 +31,7 @@ int roboterIDzaehler = 1;
 //world parameters
 double playgroundx = 20;
 double playgroundthickness = 1;
-double playgroundheight =5;
+double playgroundheight =15;
 
 
 //*****************************************************
@@ -96,10 +96,10 @@ void start()
 	posA.z = 0;
   	dsPrint ( "x=%lf y=%lf z=%lf\n" , posA.x , posA.y ,posA.z );
   
-	robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , world , space , contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , world , space , posA.x + 0.0 , posA.y + 2.0 , posA.z + 1.0 , 0.3 , 0.5 , 1 , 1 , 10 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
-	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 0.2 , posA.y + 2, posA.z + 4 , 0.3 , 0.5 , 1 , 1 , 10 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
-	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  ,  posA.x + 1 , posA.y + 2 , posA.z + 8 , 0.3 , 0.5 , 1 , 1 , 10 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
-	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 2.4 , posA.y + 2 , posA.z + 13 , 0.3 , 0.5 , 1 , 1 , 10 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
+	robotersammlung.push_back ( new atomsimRobot ( &roboterIDzaehler , world , space , contactgroup , &atomsammlung , new atomsimAtom ( roboterIDzaehler , &atomIDzaehler , world , space , posA.x + 0.0 , posA.y + 2.0 , posA.z + 1.0 , 0.3 , 0.5 , 1 , 1 , 15 ,  4/*Maxatombindungszahl*/ , 20/*getBindungsblockdauer*/ , 20.0/*Maxmotorkraft*/ , 40.0/*Motorgeschwindigkeitsfaktor*/ , 1.0 , 0.0 , 0.0 ) , 10 , 1.0/2  ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 0.2 , posA.y + 2, posA.z + 4 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0 , 1 , 0 ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  ,  posA.x + 1 , posA.y + 2 , posA.z + 8 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 0 , 0 , 1 ) );
+	atomsammlung.push_back ( new atomsimAtom ( 0 , &atomIDzaehler , world , space  , posA.x + 2.4 , posA.y + 2 , posA.z + 13 , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 0.0 ) );
 	
 	AbstractController *controller = new InvertMotorSpace ( 10 );
 	One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise () );
@@ -166,32 +166,18 @@ void command (int cmd)
 				dsPrint ( "y= Adding a konstant force to the black atom, so that it will collide\n" );
 			break;
 		case 'y' : dBodyAddForce ( (*atomsammlung.back()).getBody() , 0 , 100 , 0 ); break;
-		case 'v' : Position newpos;
-			   newpos.x = -10;
-			   newpos.y = 0;
-			   newpos.z = robotersammlung.back ()->getUrsprungsatom ()->getZ ();
-			   
-			   Color newcolor;
-			   newcolor.r = robotersammlung.back ()->getUrsprungsatom ()->getColorR ();
-			   newcolor.g = robotersammlung.back ()->getUrsprungsatom ()->getColorG ();;
-			   newcolor.b = robotersammlung.back ()->getUrsprungsatom ()->getColorB ();;
-			
-			   robotersammlung.back ()->place ( newpos , &newcolor);
+		case 'v' : 
+			   robotersammlung.back ()->place ( Position ( -10 , 0 , robotersammlung.back ()->getUrsprungsatom ()->getZ () ) , &Color ( robotersammlung.back ()->getUrsprungsatom ()->getColorR () ,
+			   robotersammlung.back ()->getUrsprungsatom ()->getColorG () , 
+			   robotersammlung.back ()->getUrsprungsatom ()->getColorB () ) );
 		break;
 		
 		case 'k' : robotersammlung.push_back ( robotersammlung.back ()->rekursivKopieren ( robotersammlung.back ()->getUrsprungsatom () , true ) );
 		
-			   Position newpos2;
-			   newpos2.x = -10;
-			   newpos2.y = 0;
-			   newpos2.z = robotersammlung.back ()->getUrsprungsatom ()->getZ ();
-			   
-			   Color newcolor2;
-			   newcolor2.r = robotersammlung.back ()->getUrsprungsatom ()->getColorR ();
-			   newcolor2.g = robotersammlung.back ()->getUrsprungsatom ()->getColorG ();;
-			   newcolor2.b = robotersammlung.back ()->getUrsprungsatom ()->getColorB ();;
-			
-			   robotersammlung.back ()->place ( newpos2 , &newcolor2);
+			   robotersammlung.back ()->place ( 
+			   Position ( -10 , 0 , robotersammlung.back ()->getUrsprungsatom ()->getZ () ) , &Color ( robotersammlung.back ()->getUrsprungsatom ()->getColorR () , 
+			   robotersammlung.back ()->getUrsprungsatom ()->getColorG () ,
+			   robotersammlung.back ()->getUrsprungsatom ()->getColorB () ) );
 			   
 			   
 			   
@@ -215,15 +201,8 @@ void command (int cmd)
 		case 'r' : 
 			   atomsimRobot* neuerRob1;
 			   atomsimRobot* neuerRob2;
-			   Position posA;
-			   posA.x = 0;
-			   posA.y = 20;
-			   posA.z = 10;
-			   Position posB;
-			   posB.x = 0;
-			   posB.y = -20;
-			   posB.z = 10;
-			   robotersammlung[0]->roboterRekombination ( 0 , 1.0/2 , robotersammlung [1] , &neuerRob1 , &neuerRob2 , posA , posB );
+			  
+			   robotersammlung[0]->roboterRekombination ( 0 , 1.0/2 , robotersammlung [1] , &neuerRob1 , &neuerRob2 , Position ( 0 , 20 , 10 ) , Position ( 0 , -20 , 10 ) );
 			   
 			   
 			   robotersammlung.push_back ( neuerRob1 );
