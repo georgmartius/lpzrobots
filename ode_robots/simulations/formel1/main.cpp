@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-09 11:06:30  robot1
+ *   Revision 1.3  2005-08-12 11:56:08  robot1
+ *   camera module deactivated (now in simulation.cpp integrated)
+ *
+ *   Revision 1.2  2005/08/09 11:06:30  robot1
  *   camera module included
  *
  *                                                                         *
@@ -124,7 +127,7 @@ void start()
   // initialization
   simulationConfig.noise=0.1;
   int chessTexture = dsRegisterTexture("chess.ppm");
-  printf("Chess: %i", chessTexture);
+  printf("Chess: %i\n", chessTexture);
   Playground* playground = new Playground(world, space);
   playground->setGeometry(100.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
@@ -180,7 +183,7 @@ void command(int key){
     double val;
 //     double velocityStep=0.05;
     double maxShift=0.5;
-    double maxVelocity=5;
+    double maxVelocity=2;
     double shiftStep=0.167;
     switch (key){
     case 'w': // forward
@@ -215,7 +218,7 @@ void printUsage(const char* progname){
 }
 
  void addCallback (bool draw, bool pause) {
-	 if (draw) moveCamera(Following,*vehicle);
+	 //if (draw) moveCamera(Following,*vehicle);
  }
 
 
