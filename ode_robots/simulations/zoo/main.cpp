@@ -60,7 +60,7 @@ void start()
   configs.push_back(&simulationConfig);
 
   Playground* playground = new Playground(world, space);
-  playground->setGeometry(15.0, 0.2, 1.5);
+  playground->setGeometry(25.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
 

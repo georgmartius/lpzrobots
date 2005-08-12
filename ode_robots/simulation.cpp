@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2005-08-12 11:55:01  robot1
+ *   Revision 1.21  2005-08-12 12:43:57  robot1
+ *   command for switching between agents implemented
+ *
+ *   Revision 1.20  2005/08/12 11:55:01  robot1
  *   camera module integrated
  *
  *   Revision 1.19  2005/08/03 20:34:39  martius
@@ -398,6 +402,18 @@ void usercommand_handler(int key) {
 	// the stuff for handling internal commands
 	switch (key) {
 		case 32: // key 32 (space) is for switching between the robots, not included yet
+			for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+				if (viewedRobot==(*i)->getRobot()) { // our current agent is found
+					if (i!=agents.end()-1) {
+						viewedRobot=(*(i+1))->getRobot(); // take the next robot
+					}
+					else {
+						AgentList::iterator j=agents.begin();
+						viewedRobot=(*j)->getRobot();
+					}
+					break;
+				}
+			}
 			break;
 		case 118: // key 118 (v) is for switching between the camera modes
 			switch (camType) {
