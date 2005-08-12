@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2005-08-03 20:34:39  martius
+ *   Revision 1.20  2005-08-12 11:55:01  robot1
+ *   camera module integrated
+ *
+ *   Revision 1.19  2005/08/03 20:34:39  martius
  *   basic random number initialisation
  *   contains returns index instead of bool
  *
@@ -79,8 +82,10 @@
 #include <iostream>
 #include <sys/time.h>
 #include <drawstuff/drawstuff.h>
+#include "camera.h" // including camera module now
 using namespace std;
 #include "simulation.h"
+
 
 // ODE globals
 dWorldID world;
@@ -102,6 +107,7 @@ SimulationState state = none;
 void (*configfunction)() = 0; // pointer to the config function of the user
 void (*collisionCallback)(void* data, dGeomID o1, dGeomID o2) = 0;  // pointer to the user defined nearcallback function
 void (*additionalCallback)(bool draw, bool pause) = 0;  // pointer to the user defined additional function
+void (*commandFunction)(int key) =0;  // command function, set by user
 
 // Object lists
 ObstacleList obstacles;
@@ -112,10 +118,15 @@ void cmd_handler_init();
 bool control_c_pressed();
 void cmd_begin_input();
 void cmd_end_input();
+void usercommand_handler(int key);  // handles the &command (int key) from simulation_init
 
 // simulation stuff
 void simLoop ( int pause );
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
+
+// drawing stuff for camera handling
+CameraType camType = Static; // default is a non-moving and non-rotating camera
+AbstractRobot* viewedRobot; // the robot who is viewed from the camera
 
 void simulation_init(void (*start)(), void (*end)(), 
 		     void (*config)(), void (*command)(int n)/* = 0 */,
@@ -128,7 +139,8 @@ void simulation_init(void (*start)(), void (*end)(),
   fn.version = DS_VERSION;
   fn.start = start;
   fn.step = &simLoop;
-  fn.command = command;
+  commandFunction = command; //  userfunction is stored to be executed if needed, see usercommand_handler()
+  fn.command = usercommand_handler; // controlled by usercommand_handler now
   fn.stop = end;
   fn.path_to_textures = "../../textures";
 
@@ -149,16 +161,32 @@ void simulation_init(void (*start)(), void (*end)(),
   ground = dCreatePlane ( space , 0 , 0 , 1 , 0 );
   cmd_handler_init();
   state=initialised;
+  
 }
+
+void camera_init(CameraType type,AbstractRobot* robot) {
+	// setting only the parameters
+	camType=type;
+	viewedRobot=robot;
+}
+
 
 void simulation_start(int argc, char** argv){
   if(state!=initialised) return;  
+  
+  // information on terminal, can be removed if the printout is undesired
+  dsPrint("\nControl commands for the camera module:\n");
+  dsPrint("---------------------------------------\n");
+  dsPrint("   v     : switches between the camera modes (Static, TV, Following)\n");
+  dsPrint("   Space : switches between the agents for view\n\n");
+
   //********************Simmulationsstart*****************
+  
   srand(time(0));
   state=running;
   gettimeofday(&realTime, 0);
-  //dsSimulationLoop ( argc , argv , 500 , 500 , &fn );  
-  dsSimulationLoop ( argc , argv , 640 , 480 , &fn );  
+  //dsSimulationLoop ( argc , argv , 500 , 500 , &fn );
+  dsSimulationLoop ( argc , argv , 640 , 480 , &fn );
 }
 
 void simulation_close(){
@@ -207,6 +235,8 @@ void simLoop ( int pause ){
 
     if(t==0 || pause){
       /**************************Zeichenabschnitt***********************/
+      // first repositionize the camera if needed
+      moveCamera(camType, *viewedRobot);
       for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
 	(*i)->draw();
       }
@@ -354,6 +384,39 @@ void cmd_begin_input(){
 
 void cmd_end_input(){
   cmd_handler_init();  
+}
+
+void initViewedRobot() {
+	// setting the robot for view
+	if (!viewedRobot) {
+   		AgentList::iterator i=agents.begin();
+   		viewedRobot=(*i)->getRobot();
+	}
+}
+
+void usercommand_handler(int key) {
+	// the stuff for handling internal commands
+	switch (key) {
+		case 32: // key 32 (space) is for switching between the robots, not included yet
+			break;
+		case 118: // key 118 (v) is for switching between the camera modes
+			switch (camType) {
+				case Static: // now has to be TV, but first it is Following
+					// initializes the robot to view
+					initViewedRobot();
+					camType = Following;
+					break;
+				case TV: // now has to be Following, not included yet
+					break;
+				case Following: // now has to be Static
+					camType = Static;
+					break;
+			}
+			break;
+		default: // now call the user command
+		if (commandFunction) commandFunction(key);
+		break;
+	}
 }
 
 

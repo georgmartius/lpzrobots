@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-08-03 20:33:30  martius
+ *   Revision 1.14  2005-08-12 11:55:01  robot1
+ *   camera module integrated
+ *
+ *   Revision 1.13  2005/08/03 20:33:30  martius
  *   changed signature of contains (but it stays compatible)
  *
  *   Revision 1.12  2005/07/27 13:23:16  martius
@@ -109,6 +112,11 @@ void simulation_init(void (*start)(), void (*end)(),
 		     void (*config)(), void (*command)(int n) = 0, 
 		     void (*collCallback)(void* data, dGeomID o1, dGeomID o2) = 0,
 		     void (*addCallback)(bool draw, bool pause) = 0);
+
+#include "camera.h"
+/// initializes or resets the camera per user, if wanted
+void camera_init(CameraType type,AbstractRobot* robot);
+
 /// starts the simulation.
 void simulation_start(int argc, char** argv);
 /// call this after the @simulation_start()@ has returned to tidy up.
