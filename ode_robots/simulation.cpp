@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2005-08-12 12:43:57  robot1
+ *   Revision 1.22  2005-08-16 10:09:07  robot1
+ *   tiny bugfixing
+ *
+ *   Revision 1.21  2005/08/12 12:43:57  robot1
  *   command for switching between agents implemented
  *
  *   Revision 1.20  2005/08/12 11:55:01  robot1
@@ -401,7 +404,7 @@ void initViewedRobot() {
 void usercommand_handler(int key) {
 	// the stuff for handling internal commands
 	switch (key) {
-		case 32: // key 32 (space) is for switching between the robots, not included yet
+		case 32: // key 32 (space) is for switching between the robots
 			for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
 				if (viewedRobot==(*i)->getRobot()) { // our current agent is found
 					if (i!=agents.end()-1) {
@@ -417,12 +420,13 @@ void usercommand_handler(int key) {
 			break;
 		case 118: // key 118 (v) is for switching between the camera modes
 			switch (camType) {
-				case Static: // now has to be TV, but first it is Following
+				case Static: // now has to be TV
 					// initializes the robot to view
 					initViewedRobot();
-					camType = Following;
+					camType = TV;
 					break;
-				case TV: // now has to be Following, not included yet
+				case TV: // now has to be Following
+					camType = Following;
 					break;
 				case Following: // now has to be Static
 					camType = Static;
