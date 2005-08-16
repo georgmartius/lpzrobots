@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-08-12 11:56:46  robot1
+ *   Revision 1.5  2005-08-16 10:06:48  robot1
+ *   TV mode with horizontal centering implemented.
+ *
+ *   Revision 1.4  2005/08/12 11:56:46  robot1
  *   tiny bugfixing
  *
  *   Revision 1.3  2005/08/09 11:08:49  robot1
@@ -37,6 +40,7 @@
  ***************************************************************************/
 
 #include "camera.h" 
+#include <stdio.h>
 
 #include <drawstuff/drawstuff.h>
 #include "ode/ode.h" 
@@ -100,6 +104,19 @@ void moveCamera( CameraType camType,AbstractRobot& robot) {
 			case Static:
 				break; // do nothing
 			case TV:
+				// now adjusting the original position of the camera
+				// new values must be stored as old too
+				for (int i=0;i<=2;i++) {
+					camPos[i]=newCamPos[i]; // no change
+					camView[i]=newCamView[i]; // no change for y and z
+					robotPos[i]=newRobotPos[i];
+					// robotView[i]=newRobotView[i]; // not used yet
+				}
+				// calculate the angle
+				camView[0]=-atan((newRobotPos[0]-newCamPos[0])/(newRobotPos[1]-newCamPos[1]))
+						/3.14159265f*180.0f+270.0f;
+				if (newCamPos[1]-newRobotPos[1]<0)
+					camView[0]+=180.0f; // we must switch
 				break;
 			case Following:
 				// now adjusting the original position of the camera
