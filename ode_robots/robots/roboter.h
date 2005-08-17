@@ -197,6 +197,14 @@ public:
 	 **/
 	virtual int getJointAnzahl ();
 	
+	/**
+	 *Returns the number of motor-joints, linking the robot parts
+	 *@return int number of motor-joints
+	 *@author Marcel Kretschmann
+	 *@version final
+	 **/
+	virtual int getMotorAnzahl ();
+	
 	
 	/**
 	 *Returns a special Object from the list of all Objects, the robot consits off

@@ -248,6 +248,17 @@ int Roboter::getJointAnzahl ()
 }
 
 /**
+ *Returns the number of motor-joints, linking the robot parts
+ *@return int number of motor-joints
+ *@author Marcel Kretschmann
+ *@version final
+ **/
+int Roboter::getMotorAnzahl ()
+{
+	return motorliste.size ();
+}
+
+/**
  *Returns a special Object from the list of all Objects, the robot consits off
  *@param n The position of the Object in the list ob all Objects
  *@return Object
