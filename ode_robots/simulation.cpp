@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2005-08-16 10:09:07  robot1
+ *   Revision 1.23  2005-08-22 12:41:05  robot1
+ *   advancedTV mode integrated (for switching)
+ *
+ *   Revision 1.22  2005/08/16 10:09:07  robot1
  *   tiny bugfixing
  *
  *   Revision 1.21  2005/08/12 12:43:57  robot1
@@ -425,7 +428,10 @@ void usercommand_handler(int key) {
 					initViewedRobot();
 					camType = TV;
 					break;
-				case TV: // now has to be Following
+				case TV: // now has to be advancedTV
+					camType = advancedTV;
+					break;
+				case advancedTV: // now has to be Following
 					camType = Following;
 					break;
 				case Following: // now has to be Static
