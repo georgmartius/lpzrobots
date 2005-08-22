@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-08-12 11:56:08  robot1
+ *   Revision 1.4  2005-08-22 12:42:17  robot1
+ *   advancedTV mode tested
+ *
+ *   Revision 1.3  2005/08/12 11:56:08  robot1
  *   camera module deactivated (now in simulation.cpp integrated)
  *
  *   Revision 1.2  2005/08/09 11:06:30  robot1
@@ -48,7 +51,7 @@ ConfigList configs;
 PlotMode plotMode = NoPlot;
 SimpleController *controller;
 
-float camPoint[3] = {5.0f,0.0f,1.0f};
+float camPoint[3] = {5.0f,0.0f,1.5f};
 float camAngle[3] = {180.0f,0.0f,0.0f};
  // the robot to follow
  Formel1* vehicle;
@@ -56,53 +59,7 @@ float camAngle[3] = {180.0f,0.0f,0.0f};
  double robotPoint[3]= {0.0f,0.0f,0.0f};
 
 
- /*
- 
- // camera points, first is position, second the point to view 
-//  double KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float camPos[3]= {5.0f,-0.0f,1.100f};
-//  double KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};
-  float camView[3] = {180.0f,0.0f,0.0f};
- // the position of robot
- double robotPos[3]= {0.0f,0.0f,0.0f};
- // the view of robot
- double RobotView[3] = {180.0f,0.0f,0.0f};
-// the new positions and view of the camera and the robot
- float newCamPos[3];
- float newCamView[3];
- double newRobotPos[3];
- double newRobotView[3];
- 
 
- 
- // follows the robot while the camera holds its position,
- // only the angle will be adjusted
-void followRobotWhileStanding() {
-}
-
- // follows the robot while the camera moves its position,
- // only the position will be adjusted, the angle stays constant
-void followRobotWhileMoving() {
-	// getting first the position of robot
-	Position pos=vehicle->getPosition();
-	newRobotPos[0]=pos.x;
-	newRobotPos[1]=pos.y;
-	newRobotPos[2]=pos.z;
-	// now getting the current angle of the camera	
-	dsGetViewpoint(newCamPos,newCamView);
-	
-	// now adjusting the original position of the camera
-	// new values must be stored as old too
-	for (int i=0;i<=2;i++) {
-		camPos[i]=newCamPos[i]+newRobotPos[i]-robotPos[i];
-		camView[i]=newCamView[i]; // no change
-		robotPos[i]=newRobotPos[i];
-// 		robotView[i]=newRobotView[i]; // not used yet
-	}
-	dsSetViewpoint(camPos,camView);
-}
- */
- 
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
 {
@@ -183,7 +140,7 @@ void command(int key){
     double val;
 //     double velocityStep=0.05;
     double maxShift=0.5;
-    double maxVelocity=2;
+    double maxVelocity=1.5;
     double shiftStep=0.167;
     switch (key){
     case 'w': // forward
