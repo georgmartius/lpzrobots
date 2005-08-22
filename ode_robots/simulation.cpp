@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2005-08-22 12:41:05  robot1
+ *   Revision 1.24  2005-08-22 20:34:22  martius
+ *   Display robot name when looking at it.
+ *   Init robot view always
+ *
+ *   Revision 1.23  2005/08/22 12:41:05  robot1
  *   advancedTV mode integrated (for switching)
  *
  *   Revision 1.22  2005/08/16 10:09:07  robot1
@@ -174,10 +178,10 @@ void simulation_init(void (*start)(), void (*end)(),
   
 }
 
-void camera_init(CameraType type,AbstractRobot* robot) {
-	// setting only the parameters
-	camType=type;
-	viewedRobot=robot;
+void camera_init(CameraType type, AbstractRobot* robot) {
+  // setting only the parameters
+  camType=type;
+  viewedRobot=robot;
 }
 
 
@@ -397,54 +401,52 @@ void cmd_end_input(){
 }
 
 void initViewedRobot() {
-	// setting the robot for view
-	if (!viewedRobot) {
-   		AgentList::iterator i=agents.begin();
-   		viewedRobot=(*i)->getRobot();
-	}
+  // setting the robot for view
+  if (!viewedRobot) {
+    AgentList::iterator i=agents.begin();
+    viewedRobot=(*i)->getRobot();
+  }
 }
 
 void usercommand_handler(int key) {
-	// the stuff for handling internal commands
-	switch (key) {
-		case 32: // key 32 (space) is for switching between the robots
-			for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-				if (viewedRobot==(*i)->getRobot()) { // our current agent is found
-					if (i!=agents.end()-1) {
-						viewedRobot=(*(i+1))->getRobot(); // take the next robot
-					}
-					else {
-						AgentList::iterator j=agents.begin();
-						viewedRobot=(*j)->getRobot();
-					}
-					break;
-				}
-			}
-			break;
-		case 118: // key 118 (v) is for switching between the camera modes
-			switch (camType) {
-				case Static: // now has to be TV
-					// initializes the robot to view
-					initViewedRobot();
-					camType = TV;
-					break;
-				case TV: // now has to be advancedTV
-					camType = advancedTV;
-					break;
-				case advancedTV: // now has to be Following
-					camType = Following;
-					break;
-				case Following: // now has to be Static
-					camType = Static;
-					break;
-			}
-			break;
-		default: // now call the user command
-		if (commandFunction) commandFunction(key);
-		break;
+  // the stuff for handling internal commands
+  initViewedRobot();
+  switch (key) {
+  case 32: // key 32 (space) is for switching between the robots
+    for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+      if (viewedRobot==(*i)->getRobot()) { // our current agent is found
+	if (i!=agents.end()-1) {
+	  viewedRobot=(*(i+1))->getRobot(); // take the next robot
 	}
+	else {
+	  AgentList::iterator j=agents.begin();
+	  viewedRobot=(*j)->getRobot();
+	}
+	break;
+      }
+    }
+    printf("View at robot: %s\n", viewedRobot->getName());
+    break;
+  case 118: // key 118 (v) is for switching between the camera modes
+    switch (camType) {
+    case Static: // now has to be TV
+      // initializes the robot to view
+      camType = TV;
+      break;
+    case TV: // now has to be advancedTV
+      camType = advancedTV;
+      break;
+    case advancedTV: // now has to be Following
+      camType = Following;
+      break;
+    case Following: // now has to be Static
+      camType = Static;
+      break;
+    }
+    break;
+  default: // now call the user command
+    if (commandFunction) commandFunction(key);
+    break;
+  }
 }
-
-
-
 
