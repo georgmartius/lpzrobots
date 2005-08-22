@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-07-27 13:22:16  martius
+ *   Revision 1.5  2005-08-22 20:32:45  martius
+ *   robot has a name
+ *
+ *   Revision 1.4  2005/07/27 13:22:16  martius
  *   position and color have constructors
  *   ODEHandle
  *
@@ -94,11 +97,16 @@ public:
    * @param s space in which robot should be created
    * @param c contactgroup for collision treatment
    */
-  AbstractRobot(dWorldID w, dSpaceID s, dJointGroupID c){
+  AbstractRobot(dWorldID w, dSpaceID s, dJointGroupID c, const char* name="abstractRobot")
+    : name(name) {
     world=w;
     space=s;
     contactgroup=c;
   };
+
+
+  /// returns the name of the robot
+  const char* getName() const { return name;}
 
   /// draws the robot
   virtual void draw() = 0;
@@ -157,6 +165,10 @@ public:
     color=col;
   };
 
+protected:
+  /// returns the name of the robot
+  void setName(const char* name) { this->name = name; }
+
  protected:
   static bool isGeomInObjectList(Object* os, int len, dGeomID geom){  
     for(int i=0; i < len; i++){
@@ -169,8 +181,9 @@ public:
 
   dSpaceID space;
   dWorldID world;
-
   dJointGroupID contactgroup;
+  const char* name;
+  
 
   Color color;
 
