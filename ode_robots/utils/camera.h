@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-08-12 11:56:46  robot1
+ *   Revision 1.5  2005-08-22 12:38:32  robot1
+ *   -advancedTV mode implemented, early version
+ *   -internal code optimized
+ *   -printMode prints now the current camera mode on stdout
+ *
+ *   Revision 1.4  2005/08/12 11:56:46  robot1
  *   tiny bugfixing
  *
  *   Revision 1.3  2005/08/09 11:08:49  robot1
@@ -39,8 +44,10 @@
 
 #include "abstractrobot.h"
 
-typedef enum CameraType { Static, TV, Following };
+typedef enum CameraType { Static, TV, advancedTV, Following };
 
 void moveCamera( CameraType camType, AbstractRobot& robot);
+
+void printMode(CameraType camType);
 
 #endif
