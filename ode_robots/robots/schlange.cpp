@@ -20,6 +20,10 @@ Schlange::Schlange ( int startRoboterID , const ODEHandle& odeHandle,
 		     const SchlangenConf& conf ) 
   : Roboter ( startRoboterID , odeHandle.world , odeHandle.space , odeHandle.jointGroup , 2*(conf.armAnzahl-1) )
 {
+  name = (char *) malloc(20*sizeof(char));
+  sprintf(name, "Schlange_%i", startRoboterID);
+  setName(name);
+
   snake_space = dSimpleSpaceCreate (space);
   dSpaceSetCleanup ( snake_space , 0 );
   
@@ -82,8 +86,9 @@ Schlange::Schlange ( int startRoboterID , const ODEHandle& odeHandle,
  *@version beta
  **/
 Schlange::~Schlange()
-{
-	dSpaceDestroy( snake_space );
+{  
+  free(name);
+  dSpaceDestroy( snake_space );
 }
 
 /** fix segment 0 in the sky

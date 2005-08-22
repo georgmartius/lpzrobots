@@ -8,7 +8,7 @@
 
 Nimm4::Nimm4(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, 
 	     double force /*=3*/, double speed/*=15*/, bool sphereWheels /*=true*/):
-  AbstractRobot::AbstractRobot(w, s, c){ 
+  AbstractRobot::AbstractRobot(w, s, c, "Nimm4"){ 
 
   created=false;
 

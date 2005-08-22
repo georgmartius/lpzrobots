@@ -10,7 +10,7 @@
 Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, 
 	     double force /*=2*/, double speed/*=6*/, bool sphereWheels /*=true*/, 
 	     bool bumper /*=false*/, bool cigarMode /*=false*/):
-  AbstractRobot::AbstractRobot(w, s, c){ 
+  AbstractRobot::AbstractRobot(w, s, c, "Nimm2"){ 
 
   created=false;
 
