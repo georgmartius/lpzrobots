@@ -87,7 +87,7 @@ void start()
   snakeConf.armAnzahl=4;
   snakeConf.maxWinkel=M_PI/3;
   snakeConf.frictionGround=0.1;
-  snakeConf.factorForce=3;
+  snakeConf.factorForce=0.6; //3;
   snakeConf.factorSensors=5;
   snake = new SchlangeForce ( 1 , odeHandle, snakeConf );
   {
@@ -110,9 +110,9 @@ void start()
   snakeConf.armAnzahl   = 8;
   snakeConf.maxWinkel   = M_PI/3;
   snakeConf.frictionGround=0.1;
-  snakeConf.factorForce=3.5;
+  snakeConf.factorForce=1 ;//3.5;
   snakeConf.factorSensors=5;
-  snake = new SchlangeForce ( 1 , odeHandle, snakeConf );
+  snake = new SchlangeForce ( 2 , odeHandle, snakeConf );
   {
     Color col(0,0.5,0.8);
     snake->place(Position(0,0,0),&col); 
@@ -213,14 +213,14 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
   int seedIndex = contains(argv, argc, "-r");
-  long seed;
+  long seed=0;
   // initialize random number generator
   if(seedIndex && argc > seedIndex) {
     seed=atoi(argv[seedIndex]);
   }else{
     time(0);
   }
-  printf("Use random number seed: %i\n", seed);
+  printf("Use random number seed: %li\n", seed);
   srand(seed);    
 
   // initialise the simulation and provide the start, end, and config-function

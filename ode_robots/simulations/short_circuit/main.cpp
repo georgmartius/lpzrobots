@@ -38,7 +38,9 @@ void start()
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
-  dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
+  dsPrint ( "Noise frequency modification with  < > , . r n\n" );
+  dsPrint ( "Press Ctrl-C (on the console) for an basic commandline interface.\n\n" );
+
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
@@ -47,22 +49,23 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.setParam("noise",0.01);
+  simulationConfig.setParam("noise",0.03);
   simulationConfig.setParam("realtimefactor",0);
-  simulationConfig.setParam("drawinterval", 2000);
+  simulationConfig.setParam("drawinterval", 500);
   
   AbstractRobot* robot = new ShortCircuit(world, space, contactgroup, channels, channels);  
   //AbstractController *controller = new InvertMotorNStep(10);  
-  AbstractController *controller = new InvertMotorSpace(10);  
+  AbstractController *controller = new InvertMotorSpace(10,1.2);  
   //  controller->setParam("adaptrate",0.0);
-  controller->setParam("epsA",0.0);
+  controller->setParam("epsA",0.01);
   controller->setParam("epsC",0.05);
+  controller->setParam("factorB",0);
   //  AbstractController *controller = new InvertNChannelController(10);  
   //AbstractController *controller = new SineController();
   
   Agent* agent = new Agent(plotMode, Robot);
   
-  sineNoise = new SineWhiteNoise(omega,2);
+  sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
   One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
   //One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
  
