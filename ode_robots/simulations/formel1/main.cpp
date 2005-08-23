@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-08-22 12:42:17  robot1
+ *   Revision 1.5  2005-08-23 11:40:16  robot1
+ *   advancedTV mode tested
+ *
+ *   Revision 1.4  2005/08/22 12:42:17  robot1
  *   advancedTV mode tested
  *
  *   Revision 1.3  2005/08/12 11:56:08  robot1
@@ -140,7 +143,7 @@ void command(int key){
     double val;
 //     double velocityStep=0.05;
     double maxShift=0.5;
-    double maxVelocity=1.5;
+    double maxVelocity=2.5f;
     double shiftStep=0.167;
     switch (key){
     case 'w': // forward
@@ -165,8 +168,7 @@ void command(int key){
 		    val=maxShift;
 	    controller->setParam("leftRightShift", val);
 	    break;
-  }
-  
+    }
 }
 
 void printUsage(const char* progname){
