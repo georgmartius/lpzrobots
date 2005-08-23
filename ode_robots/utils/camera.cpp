@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-08-22 12:38:32  robot1
+ *   Revision 1.7  2005-08-23 11:41:20  robot1
+ *   advancedFollowing mode included
+ *
+ *   Revision 1.6  2005/08/22 12:38:32  robot1
  *   -advancedTV mode implemented, early version
  *   -internal code optimized
  *   -printMode prints now the current camera mode on stdout
@@ -107,6 +110,9 @@ void printMode(CameraType camType) {
 		case Following:
 			type="Following";
 			break;
+		case advancedFollowing:
+			type="advancedFollowing";
+			break;
 		default:
 			type="unknown";
 	}
@@ -178,12 +184,12 @@ void advancedTVMode(AbstractRobot& robot) {
 		for (int i=0;i<=1;i++) {
 			robotView[i]=newRobotPos[i]-robotPos[i];
 		}
-		// now normalize robotView, only x and y is needed
+		// now get normalizing scalar of robotView, only x and y is needed
 		n=sqrt(SQUARE(robotView[0])+SQUARE(robotView[1]));
 		if (n>0.0001) { // else no calculation can be made, then do not change the camPos
 			for (int i=0;i<=1;i++) {
 				robotView[i]*=1/n; // normalizing every dimension
-				// now shift the camView by robCamDistance*1,5*robotView
+				// now shift the camPos by robCamDistance*1,5*robotView
 				// this is an approximation, normally a rotation is needed
 				camPos[i]=newCamPos[i]+1.5f*robotView[i]*robCamDistance;
 			}
@@ -216,13 +222,49 @@ void FollowingMode(AbstractRobot& robot) {
 	// now adjusting the original position of the camera
 	// new values must be stored as old too
 	for (int i=0;i<=2;i++) {
+		robotView[i]=newRobotPos[i]-robotPos[i];
 		camPos[i]=newCamPos[i]+newRobotPos[i]-robotPos[i];
 		camView[i]=newCamView[i]; // no change
 		robotPos[i]=newRobotPos[i];
-		// robotView[i]=newRobotView[i]; // not used yet
 	}
 }
 
+void print3DimFloat(float vec[3]) {
+	for (int i=0;i<=2;i++) {
+		printf("\t%f",vec[i]);
+	}
+}
+
+
+void advancedFollowingMode(AbstractRobot& robot) {
+	float n;
+	robCamDistance= (sqrt(
+			SQUARE(newCamPos[0]-newRobotPos[0]) +
+			SQUARE(newCamPos[1]-newRobotPos[1])));
+//    	robCamDistance=2.5;
+ 	printf("distance: %f\n",robCamDistance);
+	// get the direction of the robot
+	for (int i=0;i<=1;i++) {
+		robotView[i]=newRobotPos[i]-robotPos[i];
+	}
+	// now get normalizing scalar of robotView, only x and y is needed
+	n=sqrt(SQUARE(robotView[0])+SQUARE(robotView[1]));
+	if (n>0.0001) { // else no calculation can be made, then do not change the camPos
+		for (int i=0;i<=1;i++) {
+			// now set the camPos to robotPos-robCamDistance*robotView
+			// this is an approximation, normally a rotation is needed
+			// store it in newCamPos, so TV mode can be called unmodified
+			camPos[i]=newRobotPos[i]-robotView[i]*robCamDistance/n+robotView[i];
+		}
+		camPos[2]=newCamPos[2];
+	} else { // else do not change the camPos here
+		for (int i=0;i<=2;i++) {
+			camPos[i]=newCamPos[i];
+		}
+	}
+	// now do centering on robot, using TV mode
+	TVMode(robot);
+}
 
 void moveCamera( CameraType camType,AbstractRobot& robot) {
 	// first look if someone is changed
@@ -252,6 +294,9 @@ void moveCamera( CameraType camType,AbstractRobot& robot) {
 				break;
 			case Following:
 				FollowingMode(robot);
+				break;
+			case advancedFollowing:
+				advancedFollowingMode(robot);
 				break;
 		}
 		// now execute :)
