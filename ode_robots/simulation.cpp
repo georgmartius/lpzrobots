@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2005-08-22 20:34:22  martius
+ *   Revision 1.25  2005-08-23 11:39:31  robot1
+ *   advancedFollowing mode integrated (for switching)
+ *
+ *   Revision 1.24  2005/08/22 20:34:22  martius
  *   Display robot name when looking at it.
  *   Init robot view always
  *
@@ -439,9 +442,12 @@ void usercommand_handler(int key) {
     case advancedTV: // now has to be Following
       camType = Following;
       break;
-    case Following: // now has to be Static
-      camType = Static;
-      break;
+      case Following: // now has to be advancedFollowing
+	      camType = advancedFollowing;
+	      break;
+	case advancedFollowing: // now has to be Static
+	      camType = Static;
+	      break;
     }
     break;
   default: // now call the user command
