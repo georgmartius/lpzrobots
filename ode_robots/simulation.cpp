@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2005-08-23 11:39:31  robot1
+ *   Revision 1.26  2005-08-25 07:36:16  fhesse
+ *   unistd.h included to be able to use usleep
+ *
+ *   Revision 1.25  2005/08/23 11:39:31  robot1
  *   advancedFollowing mode integrated (for switching)
  *
  *   Revision 1.24  2005/08/22 20:34:22  martius
@@ -102,6 +105,7 @@
 #include "camera.h" // including camera module now
 using namespace std;
 #include "simulation.h"
+#include <unistd.h>
 
 
 // ODE globals
