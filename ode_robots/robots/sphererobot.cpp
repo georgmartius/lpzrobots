@@ -49,7 +49,9 @@ Sphererobot::Sphererobot ( int startRoboterID , const ODEHandle& odeHandle,
   dMassSetSphereTotal ( &mass2 , conf.pendularmass , conf.pendulardiameter/2 );
   dBodySetMass ( (objektliste.back ()).body , &mass2 );
 	
+  
   (objektliste.back ()).geom = dCreateSphere ( sphererobot_space , conf.pendulardiameter/2 );
+  //(objektliste.back ()).geom = dCreateBox ( sphererobot_space , 0.8,0.8,0.8);
   dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
   
   
@@ -76,16 +78,16 @@ Sphererobot::Sphererobot ( int startRoboterID , const ODEHandle& odeHandle,
 	dJointID tmp = dJointCreateHinge ( world , 0 );
 	dJointAttach ( tmp , getObjektAt ( 1 ).body , getObjektAt ( 2*alpha+1 ).body );
 	
-	dJointSetHingeAnchor ( tmp , dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 1 ) , dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 2 ) , dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 3 ) );
+	dJointSetHingeAnchor ( tmp , dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 1 ) , dBodyGetPositionAll ( getObjektAt ( 1/*2*alpha+1*/ ).body , 2 ) , dBodyGetPositionAll ( getObjektAt ( 1/*2*alpha+1*/ ).body , 3 ) );
 	
 	
 		dJointSetHingeAxis ( tmp , dBodyGetPositionAll ( getObjektAt ( 1 ).body , 2 ) - dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 2 ) , -(dBodyGetPositionAll ( getObjektAt ( 1 ).body , 1 ) - dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 1 )) , 0 );
 	
 	//fixing  of the joints to one angle number: zero
- 	dJointSetHingeParam ( tmp , dParamLoStop , -M_PI/conf.difference_angle_factor );
+/* 	dJointSetHingeParam ( tmp , dParamLoStop , -M_PI/conf.difference_angle_factor );
  	dJointSetHingeParam ( tmp , dParamHiStop , M_PI/conf.difference_angle_factor );
-// 	dJointSetHingeParam ( tmp , dParamLoStop , 0 );
-// 	dJointSetHingeParam ( tmp , dParamHiStop , 0 );
+ 	dJointSetHingeParam ( tmp , dParamLoStop , 0 );
+ 	dJointSetHingeParam ( tmp , dParamHiStop , 0 );*/
   }
 
   //*****************joint definition***********
@@ -108,20 +110,20 @@ Sphererobot::Sphererobot ( int startRoboterID , const ODEHandle& odeHandle,
   jointliste.push_back ( dJointCreateSlider ( world , 0 ) );
   dJointAttach ( jointliste.back () , getObjektAt ( 3 ).body , getObjektAt ( 2 ).body );
   dJointSetSliderAxis ( jointliste.back() , 0 , 0 , 1 );
-  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0 );
-  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.5 );  
+  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0.2 );
+  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.45 );  
   
   jointliste.push_back ( dJointCreateSlider ( world , 0 ) );
   dJointAttach ( jointliste.back () , getObjektAt ( 5 ).body , getObjektAt ( 4 ).body );
   dJointSetSliderAxis ( jointliste.back() , 0 , 0 , 1 );
-  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0 );
-  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.5 );
+  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0.2 );
+  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.45 );
   
   jointliste.push_back ( dJointCreateSlider ( world , 0 ) );
   dJointAttach ( jointliste.back () , getObjektAt ( 7 ).body , getObjektAt ( 6 ).body );
   dJointSetSliderAxis ( jointliste.back() , 0 , 0 , 1 );
-  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0 );
-  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.5 );
+  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0.2 );
+  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.45 );
     
   for ( int n = 0; n < 3; n++ )
   {
@@ -156,6 +158,8 @@ void Sphererobot::draw()
   dsSetColor ( color.r , color.g , color.b );
   
   dsDrawSphere ( dGeomGetPosition ( getObjektAt ( 0 ).geom ) , dGeomGetRotation ( getObjektAt ( 0 ).geom ) , conf.diameter/2 );
+  //const double box[3]={0.8,0.8,0.8};
+  //dsDrawBox ( dGeomGetPosition ( getObjektAt ( 0 ).geom ) , dGeomGetRotation ( getObjektAt ( 0 ).geom ) , box );
   dsDrawSphere ( dGeomGetPosition ( getObjektAt ( 1 ).geom ) , dGeomGetRotation ( getObjektAt ( 1 ).geom ) , conf.pendulardiameter/2 );
   
   dsSetColor ( 1 , 0 , 0 );
