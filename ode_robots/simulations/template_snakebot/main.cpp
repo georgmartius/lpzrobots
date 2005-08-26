@@ -1,141 +1,47 @@
-#define dDouble
-
 #include <stdio.h>
-#include <math.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
+#include <vector>
 
-
-#include "world.h"
-//#include "simulation.h"
-
-#include "component.h"
-#include "matrices.h"
-#include "cubic_spline.h"
-
-
-#include "snakebot.h"
-
+#include "noisegenerator.h"
+#include "simulation.h"
 #include "agent.h"
 #include "one2onewiring.h"
+#include "snakebot.h"
+#include "world.h"
+#include "playground.h"
+
 #include "invertnchannelcontroller.h"
-
-
-//dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
+#include "sinecontroller.h"
 
 using namespace university_of_leipzig::robot;
 
-#ifdef dDOUBLE
-//#define dsSetViewPoint dsSetViewPointD
-#define dsDrawBox dsDrawBoxD
-#define dsDrawSphere dsDrawSphereD
-#define dsDrawCylinder dsDrawCylinderD
-#define dsDrawCappedCylinder dsDrawCappedCylinderD
-#endif
-
-
-// these are the only global variables needed
-// (since the simulation functions do not support passing
-// user values as arguments... grrr)
-World *p_world;
-
-AbstractWiring     *p_wiring;
-Agent              *p_agent;
-AbstractController *p_controller;
-
-/*
 ConfigList configs;
 PlotMode plotMode = NoPlot;
-*/
+World* worldcont;
 
-
-void simulation_init()
+//Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
+void start() 
 {
+  dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
+  dsPrint ( "------------------------------------------------------------------------\n" );
+  dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
-}
+  //Anfangskameraposition und Punkt auf den die Kamera blickt
+  float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
+  float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
+  dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
+  dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
-
-/**
- * simulation_start
- *
- *
- */
-void simulation_start()
-{
-  // oops, dsSetViewpoint requires a float vector
-  // note that the vector classes support implicit conversion to
-  // a pointer to their data
-  float a[] = {0.0, 0.0, 10.0};
-  float b[] = {0.0, 0.0, 0.0};
-  dsSetViewpoint(a, b);
-
-  dsSetSphereQuality(2);
-
-  dsPrint("Welcome to the virtual robot arm simulator\n");
-  //Print("Press 'h' for help\n");
-  dsPrint("Unfinished version - no commands available\n");
-  dsPrint("so currently you can just watch and have fun! ;-)\n");
-
-  //showParams(configs);
-}
-
-/*
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
-    delete (*i);
-  }
-  obstacles.clear();
-  for(Agentist::iterator i=agents.begin(); i != agents.end(); i++){
-    delete (*i)->getRobot();
-    delete (*i)->getController();
-    delete (*i);
-  }
-  agents.clear();
-}
-*/
-
-
-/**
- * simulation_loop
- *
- *
- */
-void simulation_loop(int pause)
-{
-  // draw the scene
-  p_world->draw();
-
-  if(pause)
-    return;
-
-  p_agent->step(0.1);
-  p_world->step(0.01);
-
-
-}
-
-
-// this function is called if the user pressed Ctrl-C
-/*
-void config(){
-  changeParams(configs);
-}
-
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
-}
-*/
-
-int main(int argc, char *argv[])
-{
-  std::cout << "here\n";
-
+  // initialization
+  simulationConfig.noise=0.1;
+    
+  //Playground* playground = new Playground(world, space);
+  //playground->setGeometry(7.0, 0.2, 1.5);
+  //playground->setPosition(0,0,0); // playground positionieren und generieren
+   
   WorldDescription ewd;
-  World world(ewd);
-
-
-  p_world = &world;
+  worldcont = new World(ewd);
 
   // set up the vertex list for the knot 
   VertexList vl;
@@ -218,7 +124,7 @@ int main(int argc, char *argv[])
  
   // set up a robot arm description
   RobotArmDescription desc;
-  desc.p_world = &world;
+  desc.p_world = worldcont;
   desc.segment_radius   = 0.05;
   desc.segment_mass   = 1.0;
   desc.p_vertex_list = &vl;
@@ -228,60 +134,64 @@ int main(int argc, char *argv[])
   // description)
   // note that a component removes itself from a world when it gets destroyed
   //  CCURobotArmComponent rac(desc);
-  SnakeBot snake_bot(desc);
-
-  PlaneComponentDescription pcd;
-  pcd.p_world   = &world;
-  pcd.v3_normal = Vector3<dReal>(0.0, 0.0, 1.0);
-  pcd.d         = 0.0;
-
-  PlaneComponent pc(pcd);
-  //world.register_component(pc);
-
+  SnakeBot *snake_bot = new SnakeBot(desc);
 
   // initialization
   //  simulationConfig.noise=0.1;
   //  configs.push_back(&simulationConfig);
 
+  //  AbstractController *controller = new InvertNChannelController(10);
+  AbstractController *controller = new SineController();
+  AbstractWiring* wiring     = new One2OneWiring(new ColorUniformNoise());
+  Agent* agent              = new Agent();
 
-  dsFunctions fn;
-  memset(&fn, 0, sizeof(fn));
-  fn.version          = DS_VERSION;
-  fn.start            = &simulation_start;
-  fn.step             = &simulation_loop;
-  fn.command          = NULL;
-  fn.stop             = NULL;
-  fn.path_to_textures = "../../textures";
-
-
-
-  p_controller = new InvertNChannelController(10);
-  p_wiring     = new One2OneWiring(new ColorUniformNoise());
-  p_agent      = new Agent();
-
-  p_agent->init(p_controller, &snake_bot, p_wiring);
-
-  /*
-    agents.push_back(p_agent);
-    configs.push_back(p_controller);
-  */
-
-
-  //simulation_init(&start, &end, &config);
-  // start the simulation (returns, if the user closes the simulation)
-  //  simulation_start(argc, argv);
-  //  simulation_close();  // tidy up.
-
-
-  dsSimulationLoop(argc, argv, 500, 500, &fn);
-
-  /*
-  delete p_agent;
-  delete p_wiring;
-  delete p_controller;
-  */
-  dCloseODE ();
-
-  return 0;
+  agent->init(controller, snake_bot, wiring);  
+  agents.push_back(agent);
+  
+  configs.push_back(&simulationConfig);
+  configs.push_back(controller);
+  showParams(configs);
 }
 
+void end(){
+   for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+     delete (*i);
+   }
+   obstacles.clear();
+   
+   for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+     delete (*i)->getRobot();
+     delete (*i)->getController(); 
+     delete (*i);
+   }
+   agents.clear();
+   
+}
+
+
+// this function is called if the user pressed Ctrl-C
+void config(){
+  changeParams(configs);
+}
+
+void printUsage(const char* progname){
+  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
+  exit(0);
+}
+
+
+
+int main (int argc, char **argv)
+{  
+  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
+  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-h")) printUsage(argv[0]);
+
+  // initialise the simulation and provide the start, end, and config-function
+  simulation_init(&start, &end, &config);
+  // start the simulation (returns, if the user closes the simulation)
+  simulation_start(argc, argv);
+  simulation_close();  // tidy up.
+  return 0;
+}
+ 

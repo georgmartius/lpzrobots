@@ -1,37 +1,55 @@
-CC          = g++
-O_FILES     = world.o snakebot.o main.o component.o matrix.o one2onewiring.o agent.o
+#File:     Makefile for Matrix libary
+#Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
+#Date:     Mai 2005
 
-EXEC        = start
+FILES = main
+CFILES = $(addsuffix .cpp, $(FILES))
+OFILES = $(addsuffix .o, $(FILES))
 
+EXEC = start
 
-LIBS        = -ldrawstuff -lode -lopengl32 -lglut32 -lglu32 /lib/resources.RES
+# -pg for profiling
+CFLAGS = -Wall -I. -g
+## Optimisation
+#CFLAGS = -Wall -I. -O3 -DNDEBUG
 
-INCLUDES    = -I ../../../utils -I ../../agents -I ../../../controller -I ../../robots -I ../../components -I ../.. -I ../../../matrixlib
+LPZROBOTS  = ../../..
+ODEROBOTS  = $(LPZROBOTS)/ode_robots
+CONTROLLER = $(LPZROBOTS)/controller
+MATRIXLIB  = $(LPZROBOTS)/matrixlib
+#MATRIX     = matrix
+MATRIX     = matrix_debug
 
+include $(ODEROBOTS)/Makefile.conf
 
-start: $(O_FILES)
-	$(CC) $(O_FILES) $(LIBS) -o $(EXEC)
+LIBS   = -lm -L$(ODEROBOTS) -lode_robots\
+	-lode -ldrawstuff -lGL -lGLU -lglut \
+	-L$(MATRIXLIB)  -l$(MATRIX)
 
-agent.o: ../../agents/agent.cpp ../../agents/agent.h
-	$(CC) $(INCLUDES) -c ../../agents/agent.cpp
+# used for single file compilation
+CXX = g++ $(CFLAGS) $(INC)
 
-matrix.o: ../../../matrixlib/matrix.cpp ../../../matrixlib/matrix.h
-	$(CC) $(INCLUDES) -c ../../../matrixlib/matrix.cpp
+# used for binary compilation (linking)
+CC = g++ $(CFLAGS)
+#CC = g++ -g3 -pg  
 
-world.o: ../../components/world.cpp ../../components/world.h
-	$(CC) $(INCLUDES) -c ../../components/world.cpp
+$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a Makefile Makefile.depend $(OFILES)
+	cd $(ODEROBOTS) && make libode_robots.a
+	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
 
-component.o: ../../components/component.cpp  ../../components/component.h 
-	$(CC) $(INCLUDES) -c ../../components/component.cpp
+libode_robots:	
+	cd $(ODEROBOTS) && make libode_robots.a		
 
-snakebot.o: ../../robots/snakebot.cpp ../../robots/snakebot.h
-	$(CC) $(INCLUDES) -c ../../robots/snakebot.cpp
+Makefile.depend: 
+	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
 
-main.o: main.cpp
-	$(CC) $(INCLUDES) -c main.cpp
+depend: 
+	makedepend $(CFLAGS) $(INC) $(CFILES)  -f- > Makefile.depend 2>/dev/null
 
-one2onewiring.o: ../../agents/one2onewiring.cpp ../../agents/one2onewiring.h
-	$(CC) $(INCLUDES) -c ../../agents/one2onewiring.cpp
+tags: 
+	etags `find -name "*.[ch]"` 
 
 clean:
-	rm -f $(O_FILES) $(EXEC)
+	rm -f $(EXEC) *.o Makefile.depend
+
+include Makefile.depend
