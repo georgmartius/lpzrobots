@@ -11,12 +11,10 @@
 #include "invertnchannelcontroller.h"
 #include "noisegenerator.h"
 
-#include "sphererobot.h"
+#include "schlange.h"
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
-
-Sphererobot* sphere1;
 
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
@@ -38,7 +36,7 @@ void start()
   float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
   float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
-  dsSetSphereQuality (3); //Qualitaet in der Sphaeren gezeichnet werden
+  dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
   simulationConfig.noise=0.1;
@@ -50,18 +48,33 @@ void start()
   obstacles.push_back(playground);
     
   //****************
-  SphererobotConf conf = Sphererobot::getStandartConf();  
-  sphere1 = new Sphererobot ( 1 , ODEHandle(world , space , contactgroup), conf);
+  SchlangenConf conf = Schlange::getStandartConf();  
+  Schlange* schlange1 = new Schlange ( 1 , ODEHandle(world , space , contactgroup), conf);
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 0 , 0 , 0 ) , &col );
+  schlange1->place(Position(0,0,0),&col);
   AbstractController *controller = new InvertNChannelController(10);  
   
-  One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
-  Agent* agent = new Agent ( plotMode );
-  agent->init ( controller , sphere1 , wiring );
-  agents.push_back ( agent );
-  configs.push_back ( controller );
-      
+  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
+  Agent* agent = new Agent(plotMode);
+  agent->init(controller, schlange1, wiring);
+  agents.push_back(agent);
+  configs.push_back(controller);
+  
+  /*
+  Schlange* schlange2 = new Schlange ( 2 , world , space , contactgroup,  
+				       0 , 0 , 0.25 , 4, 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , angle );
+  Position p2 = {0,2,0};
+  Color col2 = {0.5,0,0.5};
+  schlange2->place(p2,&col2);
+  AbstractController *controller2 = new InvertNChannelController(10);  
+  
+  One2OneWiring* wiring2 = new One2OneWiring();
+  Agent* agent2 = new Agent(new ColorUniformNoise(),NoPlot);
+  agent2->init(controller2, schlange2, wiring2);
+  agents.push_back(agent2);
+  configs.push_back(controller2);
+  */
+    
   showParams(configs);
 }
 
@@ -96,7 +109,7 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config, 0 , 0 , 0 );
+  simulation_init(&start, &end, &config);
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.
