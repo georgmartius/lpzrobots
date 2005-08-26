@@ -1,4 +1,4 @@
-#include "./component.h"
+#include "component.h"
 #include "world.h"
 
 namespace university_of_leipzig {
@@ -321,10 +321,10 @@ double atan_ex(double x, double y)
     if(0.0 <= y)
       return atan(x / y);
     else
-      return 2 * PI + atan(x / y);
+      return 2 * M_PI + atan(x / y);
   }
   else
-    return PI + atan(x / y);
+    return M_PI + atan(x / y);
 }
 
 
@@ -448,7 +448,7 @@ CCURobotArmComponent::CCURobotArmComponent(const RobotArmDescription &r_desc)
 		       v3_rotation_axis.x,
 		       v3_rotation_axis.y,
 		       v3_rotation_axis.z,
-		       PI);
+		       M_PI);
     
     dGeomSetQuaternion(geom_id_current, *p_q_rotation_current);
     
