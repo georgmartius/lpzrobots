@@ -9,6 +9,18 @@ How to make a patch:
     - assume the original stuff is in ode-0.5 and you modified one is in ode-0.5_my
     - LC_ALL=C TZ=UTC0 diff -Naur ode-0.5/ ode-0.5_my/ >  ode-0.5_whatmypatchdoes.patch               
 
-01.08.2005 (Georg Martius <martius@informatik.uni-leipzig.de>
+01.08.2005 ode-0.5_drawstuff_textures (Georg Martius <martius@informatik.uni-leipzig.de>
     * drawstuff texture patch for ode-0.5
 	provides dsRegisterTexture to allow the use of user defined textures
+	
+11.08.2005 ode_0.5_lmotor (Marcel Kretschmann <Marcel_Kretschmann@web.de>)
+    * lmotor patch for ode-0.5
+    	provides a linear motor for slider joints
+
+26.08.2005 ode_0.5_terrain (Dominic Schneider <dominic.schneider@gmx.net>)
+    * terrain patch for ode-0.5
+	Based on contrib/TerrainAndCone
+    	provides two terrains. One with Y normal? and one with Z normal?. 
+	Uses display lists for drawing.
+	Collision works with all standart ode objects
+	

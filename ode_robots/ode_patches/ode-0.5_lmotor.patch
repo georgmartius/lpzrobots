@@ -1,16 +1,3 @@
-diff -Naur ode-0.5/Makefile ode-0.5_lmotor/Makefile
---- ode-0.5/Makefile	2004-05-18 18:07:45.000000000 +0000
-+++ ode-0.5_lmotor/Makefile	2005-08-11 09:09:12.000000000 +0000
-@@ -116,7 +116,8 @@
- 	ode/test/test_I.cpp \
- 	ode/test/test_step.cpp \
- 	ode/test/test_friction.cpp \
--	ode/test/test_space_stress.cpp
-+	ode/test/test_space_stress.cpp \
-+	ode/test/test_motor.cpp
- ifdef OPCODE_DIRECTORY
- ODE_TEST_SRC_CPP += \
- 	ode/test/test_trimesh.cpp \
 diff -Naur ode-0.5/include/ode/common.h ode-0.5_lmotor/include/ode/common.h
 --- ode-0.5/include/ode/common.h	2004-05-06 21:02:22.000000000 +0000
 +++ ode-0.5_lmotor/include/ode/common.h	2005-08-11 09:09:33.000000000 +0000
