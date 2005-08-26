@@ -27,6 +27,11 @@ public:
   double spheremass;
   double pendulardiameter;
   double pendularmass;
+  double slidermass;
+  
+  double factorVelocity;
+  double maxMotorKraft;
+  int difference_angle_factor; //the dividing facotr for the angle between the seperate axes of the sliders and the connection joints to the pendular: small -> the pendular has more variable positions, but it could be very instable; big (like 200) all slider axes should have nearly the same position values and the pendular could be moved relative stable, but less flexible
   
   /** angle: sensor values are the angle of the joints; 
       anglerate: sensor values are the angle rates of the joints*/
@@ -76,6 +81,11 @@ public:
     c.spheremass = 1;
     c.pendulardiameter = 0.2;
     c.pendularmass = 0.2;
+	c.slidermass = 0.03;
+	c.factorVelocity = 1;
+	c.maxMotorKraft = 2;
+	c.ausgabeArt = angle;
+	c.difference_angle_factor = 200;
     return c;
   }
 
@@ -136,6 +146,14 @@ public:
    *@version final
    **/
   virtual int getMotorNumber();
+  
+  /**
+   *Returns the number of sensors used by the robot.
+   *@return number of sensors
+   *@author Marcel Kretschmann
+   *@version final
+   **/
+  virtual int getSensorNumber();
 	
   /**
    *Updates the sensorarray.

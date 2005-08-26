@@ -49,6 +49,8 @@ void start()
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
     
+  
+  dWorldSetERP ( world , 1 );
   //****************
   SphererobotConf conf = Sphererobot::getStandartConf();  
   sphere1 = new Sphererobot ( 1 , ODEHandle(world , space , contactgroup), conf);
@@ -89,6 +91,19 @@ void printUsage(const char* progname){
   exit(0);
 }
 
+//Funktion die eingegebene Befehle/kommandos verarbeitet
+void command (int cmd)
+{
+	//dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
+	switch ( (char) cmd )
+	{
+		case 'y' : dBodyAddForce ( sphere1->getObjektAt ( 3 ).body , 0 , 0 , 10 ); break;
+		case 'a' : dBodyAddForce ( sphere1->getObjektAt ( 3 ).body , 0 , 0 , -10 ); break;
+		case 'x' : dBodyAddForce ( sphere1->getObjektAt ( 5 ).body , 0 , 0 , 10 ); break;
+		case 'c' : dBodyAddForce ( sphere1->getObjektAt ( 7 ).body , 0 , 0 , 10 ); break;
+	}
+}
+
 int main (int argc, char **argv)
 {  
   if(contains(argv, argc, "-g")) plotMode = GuiLogger;
@@ -96,7 +111,7 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config, 0 , 0 , 0 );
+  simulation_init(&start, &end, &config, &command , 0 , 0 );
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.
