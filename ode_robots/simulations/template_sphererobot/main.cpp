@@ -13,20 +13,12 @@
 #include "noisegenerator.h"
 
 #include "sphererobot.h"
+#include "sphererobotTest.h"
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
 
 Sphererobot* sphere1;
-
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start() 
@@ -42,24 +34,31 @@ void start()
   dsSetSphereQuality (3); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
+  simulationConfig.setParam("noise",0.1);
+  simulationConfig.setParam("gravity",0);
+
   configs.push_back(&simulationConfig);
   
   Playground* playground = new Playground(world, space);
-  playground->setGeometry(7, 0.2, 1.5);
+  playground->setGeometry(7, 0.2, 1);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
     
   
-  dWorldSetERP ( world , 1 );
   //****************
   SphererobotConf conf = Sphererobot::getStandartConf();  
+  conf.maxforce=0.00;
+  conf.spheremass=1;
+  conf.slidermass=0.00001;
+  conf.sliderrange=0.001;
   sphere1 = new Sphererobot ( 1 , ODEHandle(world , space , contactgroup), conf);
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 0 , 0 , 0 ) , &col );
+  sphere1->place ( Position ( 0 , 0 , 2 ) , &col );
   //AbstractController *controller = new InvertNChannelController(10);  
   AbstractController *controller = new SineController();  
-  
+  controller->setParam("sineRate", 12);  
+  controller->setParam("phaseShift", 0.8);
+
   One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
   Agent* agent = new Agent ( plotMode );
   agent->init ( controller , sphere1 , wiring );
@@ -96,15 +95,16 @@ void printUsage(const char* progname){
 //Funktion die eingegebene Befehle/kommandos verarbeitet
 void command (int cmd)
 {
-	//dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
-	switch ( (char) cmd )
-	{
-		case 'y' : dBodyAddForce ( sphere1->getObjektAt ( 3 ).body , 0 , 0 , 10 ); break;
-		case 'a' : dBodyAddForce ( sphere1->getObjektAt ( 3 ).body , 0 , 0 , -10 ); break;
-		case 'x' : dBodyAddForce ( sphere1->getObjektAt ( 5 ).body , 0 , 0 , 10 ); break;
-		case 'c' : dBodyAddForce ( sphere1->getObjektAt ( 7 ).body , 0 , 0 , 10 ); break;
-	}
+  //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
+  switch ( (char) cmd )
+    {
+    case 'y' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Base ).body , 1 ,1 , 0 ); break;
+    case 'a' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Base ).body , -1 , -1 , 0 ); break;
+    case 'x' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , 30 ); break;
+    case 'c' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , -30 ); break;
+    }
 }
+
 
 int main (int argc, char **argv)
 {  
