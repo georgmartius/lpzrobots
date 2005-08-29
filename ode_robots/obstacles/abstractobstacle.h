@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-07-18 14:52:33  martius
+ *   Revision 1.5  2005-08-29 06:32:25  martius
+ *   added virtual destructor
+ *
+ *   Revision 1.4  2005/07/18 14:52:33  martius
  *   world and space are not pointers anymore.
  *
  *   Revision 1.3  2005/06/15 14:22:11  martius
@@ -49,6 +52,8 @@ class AbstractObstacle{
     world=w;
     space=s;
   };
+
+  virtual ~AbstractObstacle(){}
   
   /**
    * draws the obstacle
