@@ -13,14 +13,6 @@ using namespace std;
 
 #include "roboter.h"
 
-//dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
-#ifdef dDOUBLE
-#define dsDrawBox dsDrawBoxD
-#define dsDrawSphere dsDrawSphereD
-#define dsDrawCylinder dsDrawCylinderD
-#define dsDrawCappedCylinder dsDrawCappedCylinderD
-#endif
-
 typedef struct {
 public:
   double diameter;
@@ -28,14 +20,13 @@ public:
   double pendulardiameter;
   double pendularmass;
   double slidermass;
+  double sliderrange;
   
-  double factorVelocity;
-  double maxMotorKraft;
-  int difference_angle_factor; //the dividing facotr for the angle between the seperate axes of the sliders and the connection joints to the pendular: small -> the pendular has more variable positions, but it could be very instable; big (like 200) all slider axes should have nearly the same position values and the pendular could be moved relative stable, but less flexible
-  
+  double maxforce;
+  double hingeRange; //the angle (in rad) of the hinges that connect pendular with poles
   /** angle: sensor values are the angle of the joints; 
       anglerate: sensor values are the angle rates of the joints*/
-  ausgabemodus ausgabeArt; 
+  ausgabemodus outputtype; 
 } SphererobotConf;
 
 
@@ -47,6 +38,10 @@ public:
  **/
 class Sphererobot : public Roboter
 {
+ public:
+  typedef enum objects { Base, Pendular, Pole1Bot, Pole2Bot, Pole3Bot, 
+			 Pole1Top , Pole2Top, Pole3Top};
+
 private:
   
   //std::vector<dJointID> skyJoints; // for fixing segment 0 in the sky
@@ -57,7 +52,7 @@ protected:
 
 public:
 
-//Sphererobot ();
+  //Sphererobot ();
 
   /**
    *constructor
@@ -66,7 +61,7 @@ public:
    *@version beta
    **/ 
   Sphererobot ( int startRoboterID , const ODEHandle& odeHandle, 
-	     const SphererobotConf& conf );
+		const SphererobotConf& conf );
 	
   /**
    *Destruktor
@@ -77,15 +72,15 @@ public:
 	
   static SphererobotConf getStandartConf(){
     SphererobotConf c;
-    c.diameter = 1;
-    c.spheremass = 1;
+    c.diameter     = 1;
+    c.spheremass   = 0.2;
     c.pendulardiameter = 0.2;
-    c.pendularmass = 0.2;
-	c.slidermass = 0.03;
-	c.factorVelocity = 1;
-	c.maxMotorKraft = 2;
-	c.ausgabeArt = angle;
-	c.difference_angle_factor = 200;
+    c.pendularmass = 0.3;
+    c.slidermass   = 0.001;
+    c.sliderrange  = 0.1; // range of the slider from center in multiple of diameter [-range,range]
+    c.maxforce     = 5;
+    c.outputtype   = angle;
+    c.hingeRange   = M_PI/180*45;
     return c;
   }
 

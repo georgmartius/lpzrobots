@@ -7,7 +7,9 @@
 /************************************************************************/
 
 #include "sphererobot.h"
+#include "simulation.h"
 #include <iostream>
+#include <assert.h>
 
 /**
  *constructor
@@ -17,124 +19,124 @@
  *@version beta
  **/
 Sphererobot::Sphererobot ( int startRoboterID , const ODEHandle& odeHandle, 
-		     const SphererobotConf& conf )
-	: Roboter ( startRoboterID , odeHandle.world , odeHandle.space , odeHandle.jointGroup , 3 )
+			   const SphererobotConf& conf )
+  : Roboter ( startRoboterID , odeHandle.world , odeHandle.space , odeHandle.jointGroup , 3 )
 {
   sphererobot_space = dSimpleSpaceCreate ( space );
   dSpaceSetCleanup ( sphererobot_space , 0 );
-  
-  Object tmp_body , tmp_body2 , tmp_body3;
+
   this->conf = conf;
 	
   dMass mass, mass2, mass3, mass4, mass5;
+  Position pos(0 , 0 , conf.diameter/2);
 
   //*************body definition**************
-	
+  Object base;
+  Object pendular;
+  Object bottom[3];
+  Object top[3];       
   //sphere base body
-  tmp_body.body = dBodyCreate ( world );
-  objektliste.push_back ( tmp_body );	
 
-  dBodySetPosition ( (objektliste.back ()).body , 0 , 0 , conf.diameter/2 );
+  base.body = dBodyCreate ( world );
+
+  dBodySetPosition ( base.body , pos.x , pos.y , pos.z );
   dMassSetSphereTotal ( &mass , conf.spheremass , conf.diameter/2 );
-  dBodySetMass ( (objektliste.back ()).body , &mass );
+  dBodySetMass ( base.body , &mass );
 
-  (objektliste.back ()).geom = dCreateSphere ( sphererobot_space , conf.diameter/2 );
-  dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
-      
+  base.geom = dCreateSphere ( sphererobot_space , conf.diameter/2 );
+  //base.geom = dCreateBox ( sphererobot_space , conf.diameter,conf.diameter,conf.diameter );
+  dGeomSetBody ( base.geom , base.body );
+
   //pendular body
-  tmp_body2.body = dBodyCreate ( world );
-  objektliste.push_back ( tmp_body2 );
+  pendular.body = dBodyCreate ( world );
 
-  dBodySetPosition ( (objektliste.back ()).body , getPosition ().x , getPosition ().y , getPosition ().z - conf.diameter/4 );
+  dBodySetPosition ( pendular.body , pos.x , pos.y , pos.z);
   dMassSetSphereTotal ( &mass2 , conf.pendularmass , conf.pendulardiameter/2 );
-  dBodySetMass ( (objektliste.back ()).body , &mass2 );
-	
+  dBodySetMass ( pendular.body , &mass2 );
   
-  (objektliste.back ()).geom = dCreateSphere ( sphererobot_space , conf.pendulardiameter/2 );
-  //(objektliste.back ()).geom = dCreateBox ( sphererobot_space , 0.8,0.8,0.8);
-  dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
-  
-  
+  pendular.geom = dCreateSphere ( sphererobot_space , conf.pendulardiameter/2 );
+  //obj.geom = dCreateBox ( sphererobot_space , 0.8,0.8,0.8);
+  dGeomSetBody ( pendular.geom , pendular.body );
+    
   //first and second 3 conection bodies between the pendular an the sphere
   double x , y;
-  for ( int alpha = 1; alpha < 4; alpha++ )
-  {
-  	x=sin ( (float) alpha*2*M_PI/3 )*conf.diameter/4; //testing values
-  	y=cos ( (float) alpha*2*M_PI/3 )*conf.diameter/4;
-  	
-  	tmp_body3.body = dBodyCreate ( world );
-  	objektliste.push_back ( tmp_body3 );
-  	dBodySetPosition ( (objektliste.back ()).body , getPosition ().x + x , getPosition ().y + y , getPosition ().z - conf.diameter/3 );
-  	dMassSetBoxTotal ( &mass3 , conf.slidermass*2/3 , 0.2 , 0.2 , 1 );
-  	dBodySetMass ( (objektliste.back ()).body , &mass3 );
-	
-	tmp_body3.body = dBodyCreate ( world );
-  	objektliste.push_back ( tmp_body3 );
-	dBodySetPosition ( (objektliste.back ()).body , getPosition ().x + x , getPosition ().y + y , dBodyGetPositionAll ( objektliste[1].body , 3 ) );
-  	dMassSetBoxTotal ( &mass3 , conf.slidermass*1/3 , 0.2 , 0.2 , 0.2 );
-  	dBodySetMass ( (objektliste.back ()).body , &mass3 );
-	
-	//combines the 3 upper connection bodies with the pendular
-	dJointID tmp = dJointCreateHinge ( world , 0 );
-	dJointAttach ( tmp , getObjektAt ( 1 ).body , getObjektAt ( 2*alpha+1 ).body );
-	
-	dJointSetHingeAnchor ( tmp , dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 1 ) , dBodyGetPositionAll ( getObjektAt ( 1/*2*alpha+1*/ ).body , 2 ) , dBodyGetPositionAll ( getObjektAt ( 1/*2*alpha+1*/ ).body , 3 ) );
-	
-	
-		dJointSetHingeAxis ( tmp , dBodyGetPositionAll ( getObjektAt ( 1 ).body , 2 ) - dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 2 ) , -(dBodyGetPositionAll ( getObjektAt ( 1 ).body , 1 ) - dBodyGetPositionAll ( getObjektAt ( 2*alpha+1 ).body , 1 )) , 0 );
-	
-	//fixing  of the joints to one angle number: zero
-/* 	dJointSetHingeParam ( tmp , dParamLoStop , -M_PI/conf.difference_angle_factor );
- 	dJointSetHingeParam ( tmp , dParamHiStop , M_PI/conf.difference_angle_factor );
- 	dJointSetHingeParam ( tmp , dParamLoStop , 0 );
- 	dJointSetHingeParam ( tmp , dParamHiStop , 0 );*/
-  }
+  Position pendularPos (dBodyGetPosition(pendular.body));
+  for ( unsigned int alpha = 0; alpha < 3; alpha++ ) {
+    x=sin ( (float) alpha*2*M_PI/3 )*conf.diameter/4; //testing values
+    y=cos ( (float) alpha*2*M_PI/3 )*conf.diameter/4;
 
-  //*****************joint definition***********
-  dJointID tmpj1 , tmpj2 , tmpj3;
-  //definition of the 3 ground Ball-Joints, which connect the main sphere and the inner parts  
-  tmpj1 = dJointCreateBall ( world , 0 );
-  dJointAttach ( tmpj1 , getObjektAt ( 0 ).body , getObjektAt ( 2 ).body );
-  dJointSetBallAnchor ( tmpj1 , dBodyGetPositionAll ( getObjektAt ( 2 ).body , 1 ) , dBodyGetPositionAll ( getObjektAt ( 2 ).body , 2 ) , dBodyGetPositionAll ( getObjektAt ( 2 ).body , 3 ) );
+    Position bottomPos (pendularPos.x + x , pendularPos.y + y , 
+			pos.z - conf.diameter/2 + conf.diameter/5 );
+    bottom[alpha].body = dBodyCreate ( world );
+    dBodySetPosition ( bottom[alpha].body , bottomPos.x , bottomPos.y , bottomPos.z );
+    dMassSetBoxTotal ( &mass3 , conf.slidermass , 0.2 , 0.2 , 1 );
+   
+    dBodySetMass ( bottom[alpha].body , &mass3 );
+    bottom[alpha].geom=0;
+
+    Position topPos (pendularPos.x + x, pendularPos.y + y, pendularPos.z);
+    top[alpha].body = dBodyCreate ( world );
+    dBodySetPosition( top[alpha].body, topPos.x, topPos.y, topPos.z);
+    dMassSetBoxTotal( &mass3 , conf.slidermass , 0.2 , 0.2 , 0.2 );
+    dBodySetMass ( top[alpha].body , &mass3 );
+    top[alpha].geom=0;
+
+    //combines the 3 upper connection bodies with the pendular
+    dJointID hinge = dJointCreateHinge ( world , 0 );
+    dJointAttach ( hinge , pendular.body , top[alpha].body );
+	      
+    dJointSetHingeAnchor ( hinge , topPos.x, topPos.y, pendularPos.z);	
+	
+    dJointSetHingeAxis ( hinge, (pendularPos.y - topPos.y) , -(pendularPos.x - topPos.x), 0 );
+    //    dJointSetHingeParam ( hinge, dParamLoStop, -conf.hingeRange);
+    //    dJointSetHingeParam ( hinge, dParamHiStop,  conf.hingeRange);
+    dJointSetHingeParam  ( hinge, dParamCFM, 0.01);
+	
+      
+    //***************** ball joint definition***********
+    dJointID balljoint;
+    //definition of the ground Ball-Joint, which connects the main sphere and the inner parts  
+    balljoint = dJointCreateBall ( world , 0 );
+    dJointAttach ( balljoint, base.body , bottom[alpha].body );
+    dJointSetBallAnchor ( balljoint , bottomPos.x , bottomPos.y , bottomPos.z );
   
-  tmpj2 = dJointCreateBall ( world , 0 );
-  dJointAttach ( tmpj2 , getObjektAt ( 0 ).body , getObjektAt ( 4 ).body );
-  dJointSetBallAnchor ( tmpj2 , dBodyGetPositionAll ( getObjektAt ( 4 ).body , 1 ) , dBodyGetPositionAll ( getObjektAt ( 4 ).body , 2 ) , dBodyGetPositionAll ( getObjektAt ( 4 ).body , 3 ) );
-  
-  tmpj3 = dJointCreateBall ( world , 0 );
-  dJointAttach ( tmpj3 , getObjektAt ( 0 ).body , getObjektAt ( 6 ).body );
-  dJointSetBallAnchor ( tmpj3 , dBodyGetPositionAll ( getObjektAt ( 6 ).body , 1 ) , dBodyGetPositionAll ( getObjektAt ( 6 ).body , 2 ) , dBodyGetPositionAll ( getObjektAt ( 6 ).body , 3 ) );
-  
-  
-  //definition of the 3 Slider-Joints, which are the controled by the robot-controler
-  jointliste.push_back ( dJointCreateSlider ( world , 0 ) );
-  dJointAttach ( jointliste.back () , getObjektAt ( 3 ).body , getObjektAt ( 2 ).body );
-  dJointSetSliderAxis ( jointliste.back() , 0 , 0 , 1 );
-  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0.2 );
-  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.45 );  
-  
-  jointliste.push_back ( dJointCreateSlider ( world , 0 ) );
-  dJointAttach ( jointliste.back () , getObjektAt ( 5 ).body , getObjektAt ( 4 ).body );
-  dJointSetSliderAxis ( jointliste.back() , 0 , 0 , 1 );
-  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0.2 );
-  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.45 );
-  
-  jointliste.push_back ( dJointCreateSlider ( world , 0 ) );
-  dJointAttach ( jointliste.back () , getObjektAt ( 7 ).body , getObjektAt ( 6 ).body );
-  dJointSetSliderAxis ( jointliste.back() , 0 , 0 , 1 );
-  dJointSetSliderParam ( jointliste.back() , dParamLoStop , 0.2 );
-  dJointSetSliderParam ( jointliste.back() , dParamHiStop , 0.45 );
+    //definition of the 3 Slider-Joints, which are the controled by the robot-controler
+    dJointID slider = dJointCreateSlider ( world , 0 );
+    dJointAttach ( slider , top[alpha].body, bottom[alpha].body );
+    dJointSetSliderAxis ( slider, 0, 0, 1 );
+    // the Stop parameters are messured from the initial position!
+    dJointSetSliderParam ( slider, dParamLoStop, -conf.diameter*conf.sliderrange );
+    dJointSetSliderParam ( slider, dParamHiStop, conf.diameter*conf.sliderrange );
+//     dJointSetSliderParam ( slider, dParamBounce, 0.0 );
+//     double s  = 200; // spring constant;
+//     double kd =  50; // damping parameter;
+//     dJointSetHingeParam  ( slider, dParamStopERP, s / (s + kd));
+//     dJointSetHingeParam  ( slider, dParamStopCFM, 1 / (s + kd));
+//     dJointSetHingeParam  ( slider, dParamCFM, 1 / (s + kd));
+
     
-  for ( int n = 0; n < 3; n++ )
-  {
-	motorliste.push_back ( dJointCreateLMotor ( world , 0 ) );
-	dJointAttach ( motorliste.back () , getObjektAt ( 2*n+2 ).body , getObjektAt ( 2*n+3 ).body );
-	dJointSetLMotorNumAxes ( motorliste.back () , 3 );
-
-	dJointSetLMotorAxis ( motorliste.back () , 0 , 1 , 0 , 0 , 1 );
-	dJointSetLMotorAxis ( motorliste.back () , 2 , 2 , 1 , 0 , 0 );
-	//dJointSetLMotorParam ( motorliste.back () , parameter, dReal value);
+     jointliste.push_back ( slider );
+     motorliste.push_back ( slider);
+  
+//     dJointID lmotor;
+//     lmotor = dJointCreateLMotor (world,0);
+//     dJointAttach ( lmotor, bottom[alpha].body , top[alpha].body );
+//     dJointSetLMotorNumAxes ( lmotor , 1 );
+//     dJointSetLMotorAxis ( lmotor, 0 , 1 , 0 , 0 , 1 );
+//     dJointSetSliderParam ( lmotor, dParamLoStop, 0.0 );
+//     dJointSetSliderParam ( lmotor, dParamHiStop, 0.5 );
+//     //    dJointSetLMotorAxis ( lmotor, 2 , 2 , 1 , 0 , 0 );
+//     //dJointSetLMotorParam ( lmotor , parameter, dReal value);
+//     motorliste.push_back ( lmotor);
   }
+  objektliste.push_back(base); assert(objektliste.size() == Base + 1);
+  objektliste.push_back(pendular); assert(objektliste.size() == Pendular + 1);
+  objektliste.push_back(bottom[0]); assert(objektliste.size() == Pole1Bot + 1);
+  objektliste.push_back(bottom[1]); assert(objektliste.size() == Pole2Bot + 1);
+  objektliste.push_back(bottom[2]); assert(objektliste.size() == Pole3Bot + 1);
+  objektliste.push_back(top[0]); assert(objektliste.size() == Pole1Top + 1);
+  objektliste.push_back(top[1]); assert(objektliste.size() == Pole2Top + 1);
+  objektliste.push_back(top[2]); assert(objektliste.size() == Pole3Top + 1);
 }
 	
 /**
@@ -144,7 +146,7 @@ Sphererobot::Sphererobot ( int startRoboterID , const ODEHandle& odeHandle,
  **/
 Sphererobot::~Sphererobot()
 {
-	dSpaceDestroy ( sphererobot_space );
+  dSpaceDestroy ( sphererobot_space );
 }
 
 /**
@@ -157,26 +159,74 @@ void Sphererobot::draw()
   dsSetTexture (DS_WOOD);
   dsSetColor ( color.r , color.g , color.b );
   
-  dsDrawSphere ( dGeomGetPosition ( getObjektAt ( 0 ).geom ) , dGeomGetRotation ( getObjektAt ( 0 ).geom ) , conf.diameter/2 );
-  //const double box[3]={0.8,0.8,0.8};
-  //dsDrawBox ( dGeomGetPosition ( getObjektAt ( 0 ).geom ) , dGeomGetRotation ( getObjektAt ( 0 ).geom ) , box );
-  dsDrawSphere ( dGeomGetPosition ( getObjektAt ( 1 ).geom ) , dGeomGetRotation ( getObjektAt ( 1 ).geom ) , conf.pendulardiameter/2 );
-  
-  dsSetColor ( 1 , 0 , 0 );
-  dsDrawCylinder ( dBodyGetPosition ( getObjektAt ( 2 ).body ) , dBodyGetRotation ( getObjektAt ( 2 ).body ) , 0.1 , 0.05 );
-  dsSetColor ( 0 , 1 , 0 );
-  dsDrawCylinder ( dBodyGetPosition ( getObjektAt ( 4 ).body ) , dBodyGetRotation ( getObjektAt ( 4 ).body ) , 0.1 , 0.05 );
-  dsSetColor ( 0 , 0 , 1 );
-  dsDrawCylinder ( dBodyGetPosition ( getObjektAt ( 6 ).body ) , dBodyGetRotation ( getObjektAt ( 6 ).body ) , 0.1 , 0.05 );
- 
-  dsSetColor ( 1 , 0 , 0 );
-  dsDrawCylinder ( dBodyGetPosition ( getObjektAt ( 3 ).body ) , dBodyGetRotation ( getObjektAt ( 3 ).body ) , 0.05 , 0.05 );
-  dsSetColor ( 0 , 1 , 0 );
-  dsDrawCylinder ( dBodyGetPosition ( getObjektAt ( 5 ).body ) , dBodyGetRotation ( getObjektAt ( 5 ).body ) , 0.05 , 0.05 );
-  dsSetColor ( 0 , 0 , 1 );
-  dsDrawCylinder ( dBodyGetPosition ( getObjektAt ( 7 ).body ) , dBodyGetRotation ( getObjektAt ( 7 ).body ) , 0.05 , 0.05 );
+  dsDrawSphere ( dGeomGetPosition ( getObjektAt ( Base ).geom ) , 
+  		 dGeomGetRotation ( getObjektAt ( Base ).geom ) , conf.diameter/2 );
+  //   const double box[3]={0.8,0.8,0.8};
+  //   dsDrawBox ( dGeomGetPosition ( getObjektAt ( Base ).geom ) , 
+  // 	      dGeomGetRotation ( getObjektAt ( Base ).geom ) , box );
 
+  dsSetColor ( 1 , 1 , 0 );
+  dsDrawSphere ( dGeomGetPosition ( getObjektAt ( Pendular ).geom ), 
+  		 dGeomGetRotation ( getObjektAt ( Pendular ).geom ) , conf.pendulardiameter/2 );
+  
+  for(unsigned int n = 0; n < 3; n++){
+    dsSetColor ( n==0 , n==1 , n==2 );
+    const dReal* pos1 = dBodyGetPosition ( getObjektAt ( Pole1Bot + n ).body);
+    const dReal* pos2 = dBodyGetPosition ( getObjektAt ( Pole1Top + n ).body);
+    dReal pos[3];
+    double len=0;
+    for(int i=0; i<3; i++){
+      len+= (pos1[i] - pos2[i])*(pos1[i] - pos2[i]);
+      pos[i] = (pos1[i] + pos2[i])/2;
+    }    
+    dsDrawCylinder ( pos , dBodyGetRotation ( getObjektAt ( Pole1Bot + n ).body ) , 
+		     sqrt(len) , 0.05 );    
+  }
 }
+
+/**
+ *Writes the sensor values to an array in the memory.
+ *@param sensor* pointer to the array
+ *@param sensornumber length of the sensor array
+ *@return number of actually written sensors
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
+int Sphererobot::getSensors ( sensor* sensors, int sensornumber )
+{
+  //if ( sensornumber > 3 ) sensornumber = 3;
+  //sensoraktualisierung ();
+  for ( int n = 0; n < sensornumber; n++ )
+    {
+      if ( conf.outputtype == angle )
+	(*sensors++) = dJointGetSliderPosition ( getJointAt ( n ) ) / (conf.sliderrange) ;
+      if ( conf.outputtype == anglerate )
+	(*sensors++) = dJointGetSliderPositionRate ( getJointAt ( n ) );
+	
+      //      dsPrint ( "n= %i Angle= %lf\n" , n , (*sensors++) = dJointGetSliderPosition ( getJointAt ( n ) ) );
+      //      dsPrint ( "n= %i Anglerate= %lf\n" , n , (*sensors++) = dJointGetSliderPositionRate ( getJointAt ( n ) ) );
+    }
+  return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
+}
+
+
+/**
+ *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
+ *It is an linear allocation.
+ *@param motors pointer to the array, motor values are scaled to [-1,1] 
+ *@param motornumber length of the motor array
+ *@author Marcel Kretschmann
+ *@version beta
+ **/
+void Sphererobot::setMotors ( const motor* motors, int motornumber ) {
+  for ( int n = 0; n < motornumber; n++ ) {
+    dJointAddSliderForce( getMotorAt ( n ), motors[n]*conf.maxforce);
+    
+    //       dJointSetLMotorParam ( getMotorAt ( n ) , dParamVel , *(motors++)*conf.factorVelocity );
+    //       dJointSetLMotorParam ( getMotorAt ( n ) , dParamFMax , conf.maxMotorKraft );
+  }
+}	
+
 
 /**Sets the snake to position pos, sets color to c, and creates snake if necessary.
  *This overwrides the function place of the class robot.
@@ -187,47 +237,28 @@ void Sphererobot::draw()
  **/
 void Sphererobot::place (Position pos, Color *c)
 {
-  pos.z = max ( conf.diameter/2 , pos.z );
+  pos.z += conf.diameter/2;
   
   double dx , dy , dz;
-  dx = pos.x - dBodyGetPositionAll ( getObjektAt ( 0 ).body , 1 );
-  dy = pos.y - dBodyGetPositionAll ( getObjektAt ( 0 ).body , 2 );
-  dz = pos.z - dBodyGetPositionAll ( getObjektAt ( 0 ).body , 3 );
+  dx = pos.x - dBodyGetPositionAll ( getObjektAt ( Base ).body , 1 );
+  dy = pos.y - dBodyGetPositionAll ( getObjektAt ( Base ).body , 2 );
+  dz = pos.z - dBodyGetPositionAll ( getObjektAt ( Base ).body , 3 );
   
-  dBodySetPosition ( getObjektAt ( 0 ).body , pos.x , pos.y , pos.z );
+  dBodySetPosition ( getObjektAt ( Base ).body , pos.x , pos.y , pos.z );
     
   for ( int n = 1; n < getObjektAnzahl (); n++ )
-  	dBodySetPosition ( getObjektAt ( n ).body , dBodyGetPositionAll ( getObjektAt ( n ).body , 1 ) + dx , dBodyGetPositionAll ( getObjektAt ( n ).body , 2 ) + dy , dBodyGetPositionAll ( getObjektAt ( n ).body , 3 ) + dz );
-  
-  	
+    dBodySetPosition ( getObjektAt ( n ).body , 
+		       dBodyGetPositionAll ( getObjektAt ( n ).body , 1 ) + dx, 
+		       dBodyGetPositionAll ( getObjektAt ( n ).body , 2 ) + dy, 
+		       dBodyGetPositionAll ( getObjektAt ( n ).body , 3 ) + dz );
+    	
   if(c)
     color = (*c);
 }
 /**
  *
  */
-void Sphererobot::mycallback(void *data, dGeomID o1, dGeomID o2)
-{
-  // internal collisions
-  /*Sphererobot* me = (Sphererobot*)data;  
-  int i,n;  
-  const int N = 10;
-  dContact contact[N];  
-  n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-  for (i=0; i<n; i++){
-    contact[i].surface.mode = 0;
-    contact[i].surface.mu = 0;
-    contact[i].surface.mu2 = 0;
-//     contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-//       dContactSoftERP | dContactSoftCFM | dContactApprox1;
-//     contact[i].surface.mu = 0.0;
-//     contact[i].surface.slip1 = 0.005;
-//     contact[i].surface.slip2 = 0.005;
-//     contact[i].surface.soft_erp = 1;
-//     contact[i].surface.soft_cfm = 0.00001;
-    dJointID c = dJointCreateContact( me->world, me->contactgroup, &contact[i]);
-    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
-  }*/
+void Sphererobot::mycallback(void *data, dGeomID o1, dGeomID o2) {
 }
 
 /**
@@ -244,82 +275,40 @@ bool Sphererobot::collisionCallback(void *data, dGeomID o1, dGeomID o2)
 {
   //checks if one of the collision objects is part of the robot
   if( o1 == (dGeomID)sphererobot_space && o2 == (dGeomID)sphererobot_space)
-  {
-    // mycallback is called for internal collisions!
-    dSpaceCollide(sphererobot_space, this, mycallback);
-    return true;
-  }
-  else
-  {
-	// the rest is for collisions of some sphere elements with the rest of the world
-	int i,n;  
-	const int N = 10;
-	dContact contact[N];
-	
-	n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-	for (i=0; i<n; i++)
-	{
-		contact[i].surface.mode = 0;
-		contact[i].surface.mu = 0.7;
-		contact[i].surface.mu2 = 0;
-	// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	// 	contact[i].surface.mu = frictionGround;
-	// 	contact[i].surface.slip1 = 0.005;
-	// 	contact[i].surface.slip2 = 0.005;
-	// 	contact[i].surface.soft_erp = 1;
-	// 	contact[i].surface.soft_cfm = 0.00001;
-		dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
-		dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
-	}
-	return true;
+    {
+      // mycallback is called for internal collisions!
+      dSpaceCollide(sphererobot_space, this, mycallback);
+      return true;
     }
-    return false;
+  else
+    {
+      // the rest is for collisions of some sphere elements with the rest of the world
+      int i,n;  
+      const int N = 10;
+      dContact contact[N];
+	
+      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+      for (i=0; i<n; i++)
+	{
+	  contact[i].surface.mode = 0;
+	  contact[i].surface.mu = 1.0;
+	  contact[i].surface.mu2 = 0;
+	  contact[i].surface.soft_erp = 1;
+	  contact[i].surface.soft_cfm = 0.001;
+	  // 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+	  // 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	  // 	contact[i].surface.mu = frictionGround;
+	  // 	contact[i].surface.slip1 = 0.005;
+	  // 	contact[i].surface.slip2 = 0.005;
+	  // 	contact[i].surface.soft_erp = 1;
+	  // 	contact[i].surface.soft_cfm = 0.00001;
+	  dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
+	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
+	}
+      return true;
+    }
 }
 
-/**
- *Writes the sensor values to an array in the memory.
- *@param sensor* pointer to the array
- *@param sensornumber length of the sensor array
- *@return number of actually written sensors
- *@author Marcel Kretschmann
- *@version beta
- **/
-int Sphererobot::getSensors ( sensor* sensors, int sensornumber )
-{
-  //if ( sensornumber > 3 ) sensornumber = 3;
-  //sensoraktualisierung ();
-  for ( int n = 0; n < sensornumber; n++ )
-  {
-  	if ( conf.ausgabeArt == angle )
-  		(*sensors++) = dJointGetSliderPosition ( getJointAt ( n ) );
-  	if ( conf.ausgabeArt == anglerate )
-  		(*sensors++) = dJointGetSliderPositionRate ( getJointAt ( n ) );
-	
-	dsPrint ( "n= %i Angle= %lf\n" , n , (*sensors++) = dJointGetSliderPosition ( getJointAt ( n ) ) );
-	dsPrint ( "n= %i Anglerate= %lf\n" , n , (*sensors++) = dJointGetSliderPositionRate ( getJointAt ( n ) ) );
-  }
-	
-  return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
-}
-
-
-/**
- *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
- *It is an linear allocation.
- *@param motors pointer to the array, motor values are scaled to [-1,1] 
- *@param motornumber length of the motor array
- *@author Marcel Kretschmann
- *@version beta
- **/
-void Sphererobot::setMotors ( const motor* motors, int motornumber )
-{
-  for ( int n = 0; n < motornumber; n++ )
-  {
- 	dJointSetLMotorParam ( getMotorAt ( n ) , dParamVel , *(motors++)*conf.factorVelocity );
- 	dJointSetLMotorParam ( getMotorAt ( n ) , dParamFMax , conf.maxMotorKraft );
-  }
-}	
 
 /**
  *Returns the number of motors used by the snake.
@@ -340,7 +329,7 @@ int Sphererobot::getMotorNumber()
  **/
 int Sphererobot::getSensorNumber()
 {
-	return getMotorNumber ();
+  return getMotorNumber ();
 }
 	
 /**
@@ -352,9 +341,9 @@ int Sphererobot::getSensorNumber()
 void Sphererobot::sensoraktualisierung ( )
 {
   /*for ( int n = 0; n < getSensorfeldGroesse (); n++ )
-  {
-  	sensorfeld[n].istwinkel_alt = sensorfeld[n].istwinkel;	
-  	sensorfeld[n].istwinkel = dJointGetLMotorAnglerate ( getMotorAt ( n ) );*/
+    {
+    sensorfeld[n].istwinkel_alt = sensorfeld[n].istwinkel;	
+    sensorfeld[n].istwinkel = dJointGetLMotorAnglerate ( getMotorAt ( n ) );*/
 }
 
 /**
@@ -365,14 +354,7 @@ void Sphererobot::sensoraktualisierung ( )
  **/
 Position Sphererobot::getPosition ()
 {
-  const dReal* tmpPos;
-  Position returnPos;
-  tmpPos = dBodyGetPosition ( getObjektAt(0).body );
-  returnPos.x = tmpPos[0];
-  returnPos.y = tmpPos[1];
-  returnPos.z = tmpPos[2];
-
-  return returnPos;
+  return Position(dBodyGetPosition ( getObjektAt(Base).body ));
 }
 
 /**
@@ -382,5 +364,24 @@ Position Sphererobot::getPosition ()
  **/
 void Sphererobot::getStatus ()
 {
-  for ( int n = 0; n < getSensorfeldGroesse (); dsPrint ( "Sensor %i: %lf\n" , n , sensorfeld[n++].istwinkel ) );
+  for ( int n = 0; n < getSensorfeldGroesse (); n++){
+    dsPrint ( "Sensor %i: %lf\n" , n , sensorfeld[n].istwinkel );
+  }
 }
+
+
+/*
+pid control
+ double measure = dJointGetSliderPosition(getJointAt(n));
+    double setpoint = 0;
+    double p = 1000;
+    double KP = p;
+    double KI = p/4;
+    double KD = p;
+    double P  = (setpoint - measure) * KP;
+    double I  = -measure * KI;
+    double D  = (lastJointPos[n]- measure) * KD ;
+    lastJointPos[n]=measure;
+    double force = P + I + D;
+    dJointAddSliderForce( getMotorAt ( n ), force);
+*/
