@@ -358,5 +358,7 @@ Position Schlange::getPosition ( int n )
  **/
 void Schlange::getStatus ()
 {
-  for ( int n = 0; n < getSensorfeldGroesse (); dsPrint ( "Sensor %i: %lf\n" , n , sensorfeld[n++].istwinkel ) );
+  for ( int n = 0; n < getSensorfeldGroesse (); n++){ 
+    dsPrint ( "Sensor %i: %lf\n" , n , sensorfeld[n].istwinkel );
+  }
 }

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-08-03 20:35:28  martius
+ *   Revision 1.5  2005-08-29 06:41:22  martius
+ *   kosmetik
+ *
+ *   Revision 1.4  2005/08/03 20:35:28  martius
  *   *** empty log message ***
  *
  *   Revision 1.3  2005/07/27 13:23:09  martius
@@ -194,8 +197,7 @@ bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 int HurlingSnake::getSensors(sensor* sensors, int sensornumber){
   int len = (sensornumber < sensorno)? sensornumber : sensorno;
   
-  const dReal* pos = pos;
-  pos = dBodyGetPosition ( object[NUM-1].body );      //read actual position
+  const dReal* pos = dBodyGetPosition ( object[NUM-1].body );      //read actual position
   sensors[0]=(pos[0]-old_position[0])*3.0;     // calculate change of position during timestep	
   sensors[1]=(pos[1]-old_position[1])*3.0;
   //  sensors[2]=(pos[2]-old_position[2])*3.0;
