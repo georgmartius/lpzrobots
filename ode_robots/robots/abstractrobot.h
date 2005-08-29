@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-08-22 20:32:45  martius
+ *   Revision 1.6  2005-08-29 06:40:35  martius
+ *   added virtual destructor
+ *
+ *   Revision 1.5  2005/08/22 20:32:45  martius
  *   robot has a name
  *
  *   Revision 1.4  2005/07/27 13:22:16  martius
@@ -61,6 +64,8 @@ typedef struct Position
 {
   Position(){x=y=z=0;}
   Position(double _x, double _y, double _z){ x=_x; y=_y; z=_z; }
+  ///  p MUST have a size of at least 3 
+  Position(const double* p){ x=p[0]; y=p[1]; z=p[2]; } 
   double x;
   double y;
   double z;
@@ -103,6 +108,8 @@ public:
     space=s;
     contactgroup=c;
   };
+
+  virtual ~AbstractRobot(){}
 
 
   /// returns the name of the robot
