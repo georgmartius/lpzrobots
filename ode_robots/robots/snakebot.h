@@ -1,4 +1,3 @@
-#ifdef FUCKTHECODE
 #include "abstractrobot.h"
 #include "component.h"
 #include "world.h"
@@ -52,5 +51,3 @@ class SnakeBot : public AbstractRobot {
 
 }
 }
-
-#endif
