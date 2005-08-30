@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-08-29 06:40:35  martius
+ *   Revision 1.7  2005-08-30 16:53:53  martius
+ *   Position struct has toArray and operators
+ *
+ *   Revision 1.6  2005/08/29 06:40:35  martius
  *   added virtual destructor
  *
  *   Revision 1.5  2005/08/22 20:32:45  martius
@@ -66,9 +69,15 @@ typedef struct Position
   Position(double _x, double _y, double _z){ x=_x; y=_y; z=_z; }
   ///  p MUST have a size of at least 3 
   Position(const double* p){ x=p[0]; y=p[1]; z=p[2]; } 
+  const double* toArray(){ array[0]=x;array[1]=y; array[2]=z; return array; } 
+  Position operator+(const Position& sum) { Position rv(x+sum.x, y+sum.y, z+sum.z); return rv; }
+  Position operator-(const Position& sum) { Position rv(x-sum.x, y-sum.y, z-sum.z); return rv; }
+  Position operator*(double f) { Position rv(x*f, y*f, z*f); return rv; }
+
   double x;
   double y;
   double z;
+  double array[3];
 } Position;
 
 typedef struct
@@ -107,6 +116,13 @@ public:
     world=w;
     space=s;
     contactgroup=c;
+  };
+
+  AbstractRobot(const ODEHandle& odehandle, const char* name="abstractRobot")
+    : name(name) {
+    world=odehandle.world;
+    space=odehandle.space;
+    contactgroup=odehandle.jointGroup;
   };
 
   virtual ~AbstractRobot(){}
