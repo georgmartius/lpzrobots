@@ -8,38 +8,38 @@
 
 class PID
 {
-//*********************attributes***************
-	//private:
-	public:
+  //*********************attributes***************
+  //private:
+public:
 		
-		double position;
-		double lastposition;
-		double last2position;
+  double position;
+  double lastposition;
+  double last2position;
 		
-		double error;
-		double lasterror;
+  double error;
+  double lasterror;
 		
-		double targetposition;
+  double targetposition;
 		
-		double KP;
-		double KD;
-		double KI;
+  double KP;
+  double KD;
+  double KI;
 		
-		double alpha;
+  double alpha;
 	
-		double P;
-		double D;
-		double I;
+  double P;
+  double D;
+  double I;
 	
-		double force;
+  double force;
 
-//*********************methods******************
-	public :
-		PID ( double start_KP , double start_KI , double start_KD );
+  //*********************methods******************
+public :
+  PID ( double start_KP , double start_KI , double start_KD );
 
-		void setTargetPosition ( double newpos );
+  void setTargetPosition ( double newpos );
 		
-		double getTargetPosition ();
+  double getTargetPosition ();
 		
-		double Step ( double newsensorval );
+  double step ( double newsensorval );
 };

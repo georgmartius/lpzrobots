@@ -30,7 +30,7 @@ double PID::getTargetPosition ( )
 	return targetposition;
 }
 
-double PID::Step ( double newsensorval )
+double PID::step ( double newsensorval )
 {
 	last2position = lastposition;
 	lastposition = position;
