@@ -13,7 +13,6 @@
 #include "noisegenerator.h"
 
 #include "sphererobot.h"
-#include "sphererobotTest.h"
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
@@ -47,11 +46,7 @@ void start()
   
   //****************
   SphererobotConf conf = Sphererobot::getStandartConf();  
-  conf.maxforce=0.00;
-  conf.spheremass=1;
-  conf.slidermass=0.00001;
-  conf.sliderrange=0.001;
-  sphere1 = new Sphererobot ( 1 , ODEHandle(world , space , contactgroup), conf);
+  sphere1 = new Sphererobot ( ODEHandle(world , space , contactgroup), conf);
   Color col(0,0.5,0.8);
   sphere1->place ( Position ( 0 , 0 , 2 ) , &col );
   //AbstractController *controller = new InvertNChannelController(10);  
@@ -98,10 +93,10 @@ void command (int cmd)
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )
     {
-    case 'y' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Base ).body , 1 ,1 , 0 ); break;
-    case 'a' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Base ).body , -1 , -1 , 0 ); break;
-    case 'x' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , 30 ); break;
-    case 'c' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , -30 ); break;
+    case 'y' : dBodyAddTorque ( sphere1->object[Sphererobot::Base].body , 1 ,1 , 0 ); break;
+    case 'a' : dBodyAddTorque ( sphere1->object[Sphererobot::Base].body , -1 , -1 , 0 ); break;
+    case 'x' : dBodyAddTorque ( sphere1->object[Sphererobot::Pendular].body , 0 , 0 , 3 ); break;
+    case 'c' : dBodyAddTorque ( sphere1->object[Sphererobot::Pendular].body , 0 , 0 , -3 ); break;
     }
 }
 
