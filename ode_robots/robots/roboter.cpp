@@ -47,7 +47,8 @@ double dBodyGetPositionAll ( dBodyID basis , int para )
     AbstractRobot::AbstractRobot ( welt , raum , start_contactgroup, "Roboter")
 {
 	roboterID = startRoboterID;
-	for ( int n = 0; n++ < start_Sensoranzahl; addSensor() );
+	for ( int n = 0; n < start_Sensoranzahl; n++) 
+	  addSensor();
 }
 
 /**
