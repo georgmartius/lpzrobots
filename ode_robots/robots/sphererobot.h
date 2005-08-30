@@ -11,7 +11,8 @@
 
 using namespace std;
 
-#include "roboter.h"
+#include "abstractrobot.h"
+#include "sliderservo.h"
 
 typedef struct {
 public:
@@ -24,9 +25,6 @@ public:
   
   double maxforce;
   double hingeRange; //the angle (in rad) of the hinges that connect pendular with poles
-  /** angle: sensor values are the angle of the joints; 
-      anglerate: sensor values are the angle rates of the joints*/
-  ausgabemodus outputtype; 
 } SphererobotConf;
 
 
@@ -36,23 +34,25 @@ public:
  *@author Marcel Kretschmann
  *@version beta
  **/
-class Sphererobot : public Roboter
+class Sphererobot : public AbstractRobot
 {
- public:
+public:
   typedef enum objects { Base, Pendular, Pole1Bot, Pole2Bot, Pole3Bot, 
-			 Pole1Top , Pole2Top, Pole3Top};
+			 Pole1Top , Pole2Top, Pole3Top, Last};
 
 private:
+  const static int servono  = 3;
+  const static int sensorno = 3;
   
-  //std::vector<dJointID> skyJoints; // for fixing segment 0 in the sky
   dSpaceID sphererobot_space;
+  SliderServo* servo[servono];
+  char* name;
 
 protected:
   SphererobotConf conf;
 
 public:
-
-  //Sphererobot ();
+  Object object[Last];
 
   /**
    *constructor
@@ -60,7 +60,7 @@ public:
    *@author Marcel Kretschmann
    *@version beta
    **/ 
-  Sphererobot ( int startRoboterID , const ODEHandle& odeHandle, 
+  Sphererobot ( const ODEHandle& odeHandle, 
 		const SphererobotConf& conf );
 	
   /**
@@ -75,11 +75,10 @@ public:
     c.diameter     = 1;
     c.spheremass   = 0.2;
     c.pendulardiameter = 0.2;
-    c.pendularmass = 0.3;
+    c.pendularmass = 0.2;
     c.slidermass   = 0.001;
     c.sliderrange  = 0.1; // range of the slider from center in multiple of diameter [-range,range]
     c.maxforce     = 5;
-    c.outputtype   = angle;
     c.hingeRange   = M_PI/180*45;
     return c;
   }
@@ -99,8 +98,6 @@ public:
    *@version beta
    **/
   virtual void place (Position pos, Color *c = 0);
-	
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
   
   /**
    *This is the collision handling function for snake robots.
@@ -151,28 +148,18 @@ public:
   virtual int getSensorNumber();
 	
   /**
-   *Updates the sensorarray.
-   *This overwrides the function sensoraktualisierung of the class robot
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual void sensoraktualisierung ( );
-	
-  /**
    *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
    *@return Position (x,y,z)
    *@author Marcel Kretschmann
    *@version final
    **/
   virtual Position getPosition ();
-	
-  /**
-   *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual void getStatus ();
 
+  /** returns a vector with the positions of all segments of the robot
+      @param vector of positions (of all robot segments) 
+      @return length of the list
+  */
+  virtual int getSegmentsPosition(vector<Position> &poslist);	
 };
 
 #endif
