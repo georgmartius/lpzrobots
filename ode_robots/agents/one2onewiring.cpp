@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-08-03 20:34:58  martius
+ *   Revision 1.6  2005-08-31 11:10:36  martius
+ *   removed bug that causes segfault, it was in malloc of noise(vals)
+ *
+ *   Revision 1.5  2005/08/03 20:34:58  martius
  *   use if Inspectable interface
  *
  *   Revision 1.4  2005/07/21 15:14:47  martius
@@ -45,10 +48,11 @@
 One2OneWiring::One2OneWiring(NoiseGenerator* noise, bool plotNoise)
   : AbstractWiring(noise), plotNoise(plotNoise){
   keylist=0;
+  noisevals=0;
 }
 
 One2OneWiring::~One2OneWiring(){
-  if(noise) delete (noise);
+  if(noisevals) delete (noisevals);
   if(keylist) {
     for(int i = 0; i < rsensornumber; i++)
       free(keylist[i]);
@@ -65,7 +69,7 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
   csensornumber = rsensornumber;
   cmotornumber  = rmotornumber;
 
-  noise         = (sensor*) malloc(sizeof(noise)  * this->rsensornumber);
+  noisevals     = (sensor*) malloc(sizeof(sensor)  * this->rsensornumber);
 
   if(!noiseGenerator) return false;
   noiseGenerator->init(rsensornumber);
@@ -84,10 +88,10 @@ bool One2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber,
   if (rsensornumber!=csensornumber)
     return false;
   else{
-    memset(noise, 0 , sizeof(sensor) * this->rsensornumber);
-    noiseGenerator->add(noise, -noiseStrength, noiseStrength);   
+    memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
+    noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);   
     for(int i=0; i< rsensornumber; i++){
-      csensors[i] = rsensors[i] + noise[i];
+      csensors[i] = rsensors[i] + noisevals[i];
     }
     return true;
   }
@@ -118,7 +122,7 @@ int One2OneWiring::getInternalParamNames(paramkey*& _keylist){
     if (keylist==0){
       keylist=(paramkey*)malloc(sizeof(paramkey)*rsensornumber);
       for(int i = 0; i < rsensornumber; i++){
-	keylist[i] = (paramkey) malloc(8);
+	keylist[i] = (paramkey) malloc(9*sizeof(char));
 	sprintf(keylist[i],"n[%d]", i);
       }
     }
@@ -136,7 +140,7 @@ int One2OneWiring::getInternalParamNames(paramkey*& _keylist){
 int One2OneWiring::getInternalParams(paramval* vallist, int length){
   int mini = min(length, rsensornumber);
   for(int i=0; i < mini; i++){
-    vallist[i] = noise[i];
+    vallist[i] = noisevals[i];
   }
   return mini;
 }
