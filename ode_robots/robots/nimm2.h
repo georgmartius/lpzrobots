@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-08-03 11:43:03  fhesse
+ *   Revision 1.14  2005-08-31 11:12:46  martius
+ *   removed unused vars
+ *
+ *   Revision 1.13  2005/08/03 11:43:03  fhesse
  *   wheels moved out of center in cigarMode
  *
  *   Revision 1.12  2005/08/02 13:35:53  fhesse
@@ -160,7 +163,6 @@ protected:
   int segmentsno;    // number of motorsvehicle segments
   double speed;    // 
 
-  Position initial_pos;    // initial position of robot
   double max_force;        // maximal force for motors
 
   int bodyTexture;

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-03 20:38:56  martius
+ *   Revision 1.3  2005-08-31 11:14:06  martius
+ *   removed unused vars
+ *
+ *   Revision 1.2  2005/08/03 20:38:56  martius
  *   added textures and correct placement
  *
  *   Revision 1.1  2005/07/29 15:13:11  martius
@@ -121,7 +124,6 @@ protected:
   int segmentsno;    // number of motorsvehicle segments
   double speed;    // 
 
-  Position initial_pos;    // initial position of robot
   double max_force;        // maximal force for motors
 
   int bodyTexture;
