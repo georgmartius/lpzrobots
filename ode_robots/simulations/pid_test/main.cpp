@@ -17,6 +17,7 @@
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
+AbstractController *controller;
 
 SphererobotTest* sphere1;
 
@@ -52,13 +53,14 @@ void start()
   conf.maxforce=0;
   conf.slidermass=0.0001;
   conf.sliderrange=0.1;
+  conf.spheremass=0.1; 
   //sphere1 = new Sphererobot ( 1 , ODEHandle(world , space , contactgroup), conf);
   sphere1 = new SphererobotTest ( 1 , ODEHandle(world , space , contactgroup), conf);
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 0 , 0 , 2 ) , &col );
+  sphere1->place ( Position ( 0 , 0 , 0 ) , &col );
   //AbstractController *controller = new InvertNChannelController(10);  
-  AbstractController *controller = new SineController();  
-  controller->setParam("sineRate", 40);  
+  controller = new SineController();  
+  controller->setParam("sineRate", 4);  
   controller->setParam("phaseShift", 0.8);
 
   One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
@@ -100,10 +102,12 @@ void command (int cmd)
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )
     {
-    case 'y' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Base ).body , 1 ,1 , 0 ); break;
-    case 'a' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Base ).body , -1 , -1 , 0 ); break;
-    case 'x' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , 1 ); break;
-    case 'c' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , -1 ); break;
+    case 'y' : dBodyAddForce ( sphere1->getObjektAt (Sphererobot::Pendular).body , 0 ,0 , 10 ); break;
+    case 'a' : dBodyAddForce ( sphere1->getObjektAt (Sphererobot::Pendular).body , 0 , 0 , 10 ); break;
+    case 'x' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , 2 ); break;
+    case 'c' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , -2 ); break;
+    case 'i' : controller->setParam("sineRate", controller->getParam("sineRate")-0.5); break;
+    case 'o' : controller->setParam("sineRate", controller->getParam("sineRate")+0.5); break;
     }
 }
 

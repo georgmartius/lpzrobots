@@ -10,7 +10,8 @@
 
 
 #include "sphererobot.h"
-#include "pid.h"
+#include "sliderservo.h"
+#include "roboter.h"
 
 /**
  *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 
@@ -30,7 +31,8 @@ private:
   dSpaceID sphererobot_space;
   
   vector<PID*> motorliste2;
-
+  
+  SliderServo* servo;
 protected:
   SphererobotConf conf;
   double lastJointPos[3];
@@ -63,8 +65,6 @@ public:
     c.pendularmass = 0.3;
     c.slidermass   = 0.0001;
     c.sliderrange  = 0.1; // range of the slider from center in multiple of diameter [-range,range]
-    c.maxforce     = 5;
-    c.outputtype   = angle;
     c.hingeRange   = M_PI/180*45;
     return c;
   }

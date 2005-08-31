@@ -41,17 +41,17 @@ SphererobotTest::SphererobotTest ( int startRoboterID , const ODEHandle& odeHand
   base.body = dBodyCreate ( world );
 
   dBodySetPosition ( base.body , pos.x , pos.y , pos.z );
-  dMassSetSphereTotal ( &mass , conf.spheremass , conf.diameter/2 );
+  dMassSetSphereTotal ( &mass , conf.spheremass * 1000 , conf.diameter/2 );
   dBodySetMass ( base.body , &mass );
 
-  base.geom = dCreateSphere ( sphererobot_space , conf.diameter/2 );
+  base.geom = dCreateBox ( sphererobot_space , conf.diameter,conf.diameter,conf.diameter );
   //base.geom = dCreateBox ( sphererobot_space , conf.diameter,conf.diameter,conf.diameter );
   dGeomSetBody ( base.geom , base.body );
       
   //pendular body
   pendular.body = dBodyCreate ( world );
 
-  dBodySetPosition ( pendular.body , pos.x+1 , pos.y , pos.z );
+  dBodySetPosition ( pendular.body , pos.x , pos.y , pos.z + 1 );
   dMassSetSphereTotal ( &mass2 , conf.spheremass , conf.diameter/2 );
   dBodySetMass ( pendular.body , &mass2 );
   
@@ -63,12 +63,13 @@ SphererobotTest::SphererobotTest ( int startRoboterID , const ODEHandle& odeHand
   //definition of the 3 Slider-Joints, which are the controled by the robot-controler
   dJointID slider = dJointCreateSlider ( world , 0 );
   dJointAttach ( slider , pendular.body , base.body );
-  dJointSetSliderAxis ( slider, 1, 0, 0 );
+  dJointSetSliderAxis ( slider, 0, 0, 1 );
   //  dJointSetSliderParam ( slider, dParamLoStop, -0.1 );
   //  dJointSetSliderParam ( slider, dParamHiStop, 0.1 );
   jointliste.push_back ( slider );
   motorliste.push_back ( slider );
-  motorliste2.push_back ( new PID ( 500 , 0 , 20 ) );
+  servo=new SliderServo(slider, -conf.sliderrange, conf.sliderrange, conf.spheremass*2);
+  //  motorliste2.push_back ( new PID ( 500 , 0 , 20 ) );
   
   
     
@@ -170,11 +171,11 @@ void SphererobotTest::draw()
   dsSetTexture (DS_WOOD);
   dsSetColor ( color.r , color.g , color.b );
   
-  dsDrawSphere ( dGeomGetPosition ( getObjektAt ( Base ).geom ) , 
-  		 dGeomGetRotation ( getObjektAt ( Base ).geom ) , conf.diameter/2 );
-  //   const double box[3]={0.8,0.8,0.8};
-  //   dsDrawBox ( dGeomGetPosition ( getObjektAt ( Base ).geom ) , 
-  // 	      dGeomGetRotation ( getObjektAt ( Base ).geom ) , box );
+  //  dsDrawSphere ( dGeomGetPosition ( getObjektAt ( Base ).geom ) , 
+  //  		 dGeomGetRotation ( getObjektAt ( Base ).geom ) , conf.diameter/2 );
+  const double box[3]={0.8,0.8,0.8};
+  dsDrawBox ( dGeomGetPosition ( getObjektAt ( Base ).geom ) , 
+   	      dGeomGetRotation ( getObjektAt ( Base ).geom ) , box );
 
   dsSetColor ( 1 , 1 , 0 );
   dsDrawSphere ( dGeomGetPosition ( getObjektAt ( Pendular ).geom ), 
@@ -214,10 +215,11 @@ int SphererobotTest::getSensors ( sensor* sensors, int sensornumber )
       //      dsPrint ( "n= %i Anglerate= %lf\n" , n , (*sensors++) = dJointGetSliderPositionRate ( getJointAt ( n ) ) );
     }
 	
-	(*sensors++) = motorliste2[0]->position;
-	(*sensors++) = motorliste2[0]->targetposition;
-	(*sensors++) = motorliste2[0]->D;
-  return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
+  (*sensors++) = servo->get();
+  (*sensors++) = servo->error;
+  (*sensors++) = servo->force;
+  (*sensors++) = servo->I;
+  return 4; //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
 }
 
 
@@ -230,14 +232,17 @@ int SphererobotTest::getSensors ( sensor* sensors, int sensornumber )
  *@version beta
  **/
 void SphererobotTest::setMotors ( const motor* motors, int motornumber ) {
-  double force;
   for ( int n = 0; n < motornumber; n++ )	
   {
-  motorliste2[n]->setTargetPosition ( motors[n] );
-  force = motorliste2[n]->Step ( dJointGetSliderPosition ( getJointAt ( n ) ) );
-	dJointAddSliderForce( getJointAt ( n ) , force );
-	cout<<"Force: "<<force<<"\n";
-	}
+    //  double force;
+    //motorliste2[n]->setTargetPosition ( motors[n] );
+    //   force = motorliste2[n]->Step ( dJointGetSliderPosition ( getJointAt ( n ) ) );
+    // 	dJointAddSliderForce( getJointAt ( n ) , force );
+    // 	cout<<"Force: "<<force<<"\n";
+  }
+  servo->set(motors[0]);
+  
+
 }	
 
 
@@ -365,7 +370,7 @@ int SphererobotTest::getMotorNumber()
  **/
 int SphererobotTest::getSensorNumber()
 {
-  return /*getMotorNumber ()*/3;
+  return /*getMotorNumber ()*/4;
 }
 	
 /**
