@@ -92,9 +92,12 @@ Sphererobot::Sphererobot ( const ODEHandle& odeHandle,
     dJointSetHingeAnchor ( hinge , topPos.x, topPos.y, pendularPos.z);	
 	
     dJointSetHingeAxis ( hinge, (pendularPos.y - topPos.y) , -(pendularPos.x - topPos.x), 0 );
-    //    dJointSetHingeParam ( hinge, dParamLoStop, -conf.hingeRange);
-    //    dJointSetHingeParam ( hinge, dParamHiStop,  conf.hingeRange);
-    dJointSetHingeParam  ( hinge, dParamCFM, 0.01);
+    dJointSetHingeParam ( hinge, dParamLoStop, -conf.hingeRange);
+    dJointSetHingeParam ( hinge, dParamHiStop,  conf.hingeRange);
+    dJointSetHingeParam  ( hinge, dParamCFM, 0.1);
+    dJointSetHingeParam ( hinge, dParamStopCFM, 0.1);
+    dJointSetHingeParam ( hinge, dParamStopERP, 0.9);
+
 	
       
     //***************** ball joint definition***********
@@ -109,10 +112,14 @@ Sphererobot::Sphererobot ( const ODEHandle& odeHandle,
     dJointAttach ( slider , top[alpha].body, bottom[alpha].body );
     dJointSetSliderAxis ( slider, 0, 0, 1 );
     // the Stop parameters are messured from the initial position!
-    dJointSetSliderParam ( slider, dParamLoStop, -1.5*conf.diameter*conf.sliderrange );
-    dJointSetSliderParam ( slider, dParamHiStop, -1.5*conf.diameter*conf.sliderrange );
+    dJointSetSliderParam ( slider, dParamLoStop, -2*conf.diameter*conf.sliderrange );
+    dJointSetSliderParam ( slider, dParamHiStop, 2*conf.diameter*conf.sliderrange );
+    dJointSetSliderParam ( slider, dParamCFM, 0.1);
+    dJointSetSliderParam ( slider, dParamStopCFM, 0.1);
+    dJointSetSliderParam ( slider, dParamStopERP, 0.9);
     servo[alpha] = new SliderServo(slider, -conf.diameter*conf.sliderrange, 
-				   conf.diameter*conf.sliderrange);        
+				   conf.diameter*conf.sliderrange, 
+				   conf.pendularmass); 
   
 //     dJointID lmotor;
 //     lmotor = dJointCreateLMotor (world,0);
@@ -143,7 +150,6 @@ Sphererobot::Sphererobot ( const ODEHandle& odeHandle,
 Sphererobot::~Sphererobot()
 {
   dSpaceDestroy ( sphererobot_space );
-  if(name) free(name);
   //todo  delete object and motors
 }
 
@@ -193,7 +199,7 @@ void Sphererobot::draw()
 int Sphererobot::getSensors ( sensor* sensors, int sensornumber )
 {  
   int len = min(sensornumber, servono);
-  for ( int n = 0; n < min(sensornumber, servono); n++ ) {
+  for ( int n = 0; n < len; n++ ) {
     sensors[n] = servo[n]->get();
   }
   return len;
@@ -267,11 +273,10 @@ bool Sphererobot::collisionCallback(void *data, dGeomID o1, dGeomID o2)
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       for (i=0; i<n; i++)
 	{
-	  contact[i].surface.mode = 0;
+	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
 	  contact[i].surface.mu = 1.0;
-	  contact[i].surface.mu2 = 0;
-	  contact[i].surface.soft_erp = 1;
-	  contact[i].surface.soft_cfm = 0.001;
+	  contact[i].surface.soft_erp = 0.5;
+	  contact[i].surface.soft_cfm = 0.1;
 	  // 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	  // 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
 	  // 	contact[i].surface.mu = frictionGround;

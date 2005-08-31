@@ -73,13 +73,13 @@ public:
   static SphererobotConf getStandartConf(){
     SphererobotConf c;
     c.diameter     = 1;
-    c.spheremass   = 0.2;
+    c.spheremass   = 0.5;
     c.pendulardiameter = 0.2;
     c.pendularmass = 0.2;
     c.slidermass   = 0.001;
-    c.sliderrange  = 0.1; // range of the slider from center in multiple of diameter [-range,range]
+    c.sliderrange  = 0.05; // range of the slider from center in multiple of diameter [-range,range]
     c.maxforce     = 5;
-    c.hingeRange   = M_PI/180*45;
+    c.hingeRange   = M_PI/180*30;
     return c;
   }
 
