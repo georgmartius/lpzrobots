@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-26 17:04:21  martius
+ *   Revision 1.3  2005-08-31 17:18:15  fhesse
+ *   setTextures added, Mass is now sphere (not box anymore)
+ *
+ *   Revision 1.2  2005/07/26 17:04:21  martius
  *   lives in its own space now
  *
  *   Revision 1.1  2005/07/21 12:17:04  fhesse
@@ -51,6 +54,11 @@ public:
    * @param c contactgroup for collision treatment
    */
   HurlingSnake(dWorldID w, dSpaceID s, dJointGroupID c);
+
+  /** sets the textures used for body and wheels
+   */
+  virtual void setTextures(int body);
+
 
   /// draws the robot
   virtual void draw();
@@ -150,6 +158,8 @@ public:
   paramval frictionGround;
 
   dSpaceID snake_space;
+
+  int bodyTexture;
 
 } ;
 

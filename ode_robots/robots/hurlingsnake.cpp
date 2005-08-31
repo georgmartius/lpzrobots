@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-08-29 06:41:22  martius
+ *   Revision 1.6  2005-08-31 17:18:15  fhesse
+ *   setTextures added, Mass is now sphere (not box anymore)
+ *
+ *   Revision 1.5  2005/08/29 06:41:22  martius
  *   kosmetik
  *
  *   Revision 1.4  2005/08/03 20:35:28  martius
@@ -68,10 +71,12 @@ HurlingSnake::HurlingSnake(dWorldID w, dSpaceID s, dJointGroupID c):
   color.r=1;
   color.g=1;
   color.b=0.0;
+  
+  bodyTexture  = DS_WOOD;
 
-  NUM= 10;		/* number of boxes */
+  NUM= 10;		/* number of spheres */
   SIDE= 0.2;		/* side length of a box */
-  MASS= 1.0;		/* mass of a box */
+  MASS= 1.0;		/* mass of a sphere*/
   RADIUS= 0.1732f;	/* sphere radius */
 
   sensorno = 2;
@@ -81,10 +86,17 @@ HurlingSnake::HurlingSnake(dWorldID w, dSpaceID s, dJointGroupID c):
     old_position[i]=0.0;
   }
 };
+
+/** sets the textures used for body and wheels
+ */
+void HurlingSnake::setTextures(int body){
+  bodyTexture = body;
+}
+
  
 /// draws the robot
 void HurlingSnake::draw(){
-  dsSetTexture (DS_WOOD);
+  dsSetTexture (bodyTexture);
   for (int i=0; i<NUM; i++) {
     dsSetColor (color.r, color.g, color.b);
     if (i==NUM-1)  dsSetColor (1, 0, 0);
@@ -106,7 +118,9 @@ void HurlingSnake::place(Position pos , Color *c /*= 0*/){
   }
   else{
     for (int i=0; i<NUM; i++) {
-      double k = 1.3*i*SIDE;
+      double k = 1.3*i*SIDE;  // SIDE larger then RADIUS
+                              // 1.3*SIDE added in x and y direction
+                              // -> difference between spheres centers larger then 2*RADIUS
       dBodySetPosition (object[i].body,pos.x+k,pos.y+k,pos.z+/*k+*/RADIUS);
     }
   };
@@ -273,8 +287,9 @@ Position HurlingSnake::getPosition(){
     for (int i=0; i<NUM; i++) {
       object[i].body = dBodyCreate (world);
       double k = 1.3*i*SIDE;
+      //double k = 2*i*RADIUS+0.1;
       dBodySetPosition (object[i].body,pos.x+k,pos.y+k,pos.z+/*k+*/RADIUS);
-      dMassSetBox (&m,1,SIDE,SIDE,SIDE);
+      dMassSetSphere (&m,1,SIDE);
       dMassAdjust (&m,MASS);
       dBodySetMass (object[i].body,&m);
       object[i].geom = dCreateSphere (snake_space,RADIUS);
