@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-08-03 20:34:58  martius
+ *   Revision 1.6  2005-08-31 11:10:52  martius
+ *   noise -> noisevals
+ *
+ *   Revision 1.5  2005/08/03 20:34:58  martius
  *   use if Inspectable interface
  *
  *   Revision 1.4  2005/07/21 15:14:47  martius
@@ -89,7 +92,7 @@ public:
 
 protected:
   bool plotNoise;
-  sensor* noise;
+  sensor* noisevals;
   paramkey* keylist;
 
 };
