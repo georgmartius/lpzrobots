@@ -31,10 +31,11 @@ void start()
   float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (3); //Qualitaet in der Sphaeren gezeichnet werden
+  dWorldSetERP(world, 0.9);
 
   // initialization
   simulationConfig.setParam("noise",0.1);
-  simulationConfig.setParam("gravity",0);
+  simulationConfig.setParam("gravity",-10);
 
   configs.push_back(&simulationConfig);
   
@@ -43,12 +44,16 @@ void start()
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
     
-  
   //****************
   SphererobotConf conf = Sphererobot::getStandartConf();  
   sphere1 = new Sphererobot ( ODEHandle(world , space , contactgroup), conf);
+  conf.spheremass=0.8;
+  conf.slidermass=0.005;
+  conf.pendularmass=0.3;
+  conf.sliderrange=0.05;
+
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 0 , 0 , 2 ) , &col );
+  sphere1->place ( Position ( 0 , 0 , 5.5 ) , &col );
   //AbstractController *controller = new InvertNChannelController(10);  
   AbstractController *controller = new SineController();  
   controller->setParam("sineRate", 12);  
