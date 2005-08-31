@@ -1,5 +1,6 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
+#include <assert.h>
 
 #include "simulation.h"
 #include "drawgeom.h"
@@ -13,11 +14,6 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   AbstractRobot::AbstractRobot(w, s, c, "Nimm2"){ 
 
   created=false;
-
-  initial_pos.x=0.0;
-  initial_pos.y=0.0;
-  initial_pos.z=0.0;
-
   
   //Nimm2 color ;-)
   color.r=2;
@@ -32,8 +28,7 @@ Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
   this->sphereWheels = sphereWheels;
   addBumper = bumper;
 
-  height=size;  
-
+  height=size;
 
   width=size/2; 
   radius=size/4+size/200;
@@ -73,12 +68,13 @@ void Nimm2::setTextures(int body, int wheels){
     @param motornumber length of the motor array
 */
 void Nimm2::setMotors(const motor* motors, int motornumber){
+  assert(created);
   //  double tmp;
   int len = (motornumber < motorno)? motornumber : motorno;
   for (int i=0; i<len; i++){ 
     //    tmp=dJointGetHinge2Param(joint[i],dParamVel2);
     //    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*speed-tmp) );       
-    dJointSetHinge2Param(joint[i],dParamVel2, motors[i]*speed);       
+    dJointSetHinge2Param (joint[i],dParamVel2, motors[i]*speed);       
     dJointSetHinge2Param (joint[i],dParamFMax2,max_force);
   }
 };
@@ -89,6 +85,7 @@ void Nimm2::setMotors(const motor* motors, int motornumber){
     @return number of actually written sensors
 */
 int Nimm2::getSensors(sensor* sensors, int sensornumber){
+  assert(created);
   int len = (sensornumber < sensorno)? sensornumber : sensorno;
   for (int i=0; i<len; i++){
     sensors[i]=dJointGetHinge2Angle2Rate(joint[i]);
@@ -121,6 +118,7 @@ void Nimm2::place(Position pos, Color *c /*= 0*/){
     @return position robot position in struct Position  
 */
 Position Nimm2::getPosition(){
+  assert(created);
   Position pos;
   const dReal* act_pos=dBodyGetPosition(object[0].body);
   pos.x=act_pos[0];
@@ -134,6 +132,7 @@ Position Nimm2::getPosition(){
     @return length of the list
 */
 int Nimm2::getSegmentsPosition(vector<Position> &poslist){
+  assert(created);
   Position pos;
   for (int i=0; i<segmentsno; i++){
     const dReal* act_pos = dBodyGetPosition(object[i].body);
@@ -152,6 +151,7 @@ int Nimm2::getSegmentsPosition(vector<Position> &poslist){
  */
 
 void Nimm2::draw(){
+  assert(created);
   // draw body
   dsSetColor (color.r,color.g,color.b); // set color for body and bumper
   dsSetTexture (bodyTexture);
@@ -192,6 +192,7 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
     int i,n;  
     const int N = 10;
     dContact contact[N];
+    //    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     for (i=0; i<n; i++){
       colwithbody = false;
@@ -225,14 +226,13 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 	  contact[i].surface.soft_cfm = 0.001;
 	}
 	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
       }
     }
     return true;
   }
   return false;
 }
-
 
 /** creates vehicle at desired position 
     @param pos struct Position with desired position
@@ -251,7 +251,7 @@ void Nimm2::create(Position pos){
   dQuaternion q;
   dQFromAxisAndAngle (q,0,1,0,M_PI*0.5);
   dBodySetQuaternion (object[0].body,q);
-  dBodySetPosition (object[0].body,pos.x,pos.y,pos.z);
+  dBodySetPosition (object[0].body, pos.x, pos.y, pos.z);
     
   dMassSetCappedCylinder(&m,1,1,width/2,length);
   dMassAdjust (&m,cmass);
@@ -319,11 +319,12 @@ void Nimm2::create(Position pos){
  */
 void Nimm2::destroy(){
   if (created){
-    dSpaceDestroy(car_space);
     for (int i=0; i<segmentsno; i++){
       dBodyDestroy(object[i].body);
-      dGeomDestroy(object[i].geom);
+      dGeomDestroy(object[i].geom);     
     }
+    // Todo: delete bumpers
+    dSpaceDestroy(car_space);
   }
   created=false;
 }

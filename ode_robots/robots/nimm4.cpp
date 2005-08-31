@@ -1,5 +1,6 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
+#include <assert.h>
 
 #include "simulation.h"
 
@@ -12,10 +13,6 @@ Nimm4::Nimm4(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/,
 
   created=false;
 
-  initial_pos.x=0.0;
-  initial_pos.y=0.0;
-  initial_pos.z=0.0;
-  
   // Nimm Zwei color ;-)
   color.r=2;
   color.g=156/255.0;
@@ -53,6 +50,7 @@ void Nimm4::setTextures(int body, int wheels){
     @param motornumber length of the motor array
 */
 void Nimm4::setMotors(const motor* motors, int motornumber){
+  assert(created);
   //  double tmp;
   int len = (motornumber < motorno)? motornumber : motorno;
   for (int i=0; i<len; i++){ 
@@ -69,6 +67,7 @@ void Nimm4::setMotors(const motor* motors, int motornumber){
     @return number of actually written sensors
 */
 int Nimm4::getSensors(sensor* sensors, int sensornumber){
+  assert(created);
   int len = (sensornumber < sensorno)? sensornumber : sensorno;
   for (int i=0; i<len; i++){
     sensors[i]=dJointGetHinge2Angle2Rate(joint[i]);
@@ -103,6 +102,7 @@ void Nimm4::place(Position pos, Color *c /*= 0*/){
     @return position robot position in struct Position  
 */
 Position Nimm4::getPosition(){
+  assert(created);
   Position pos;
   const dReal* act_pos=dBodyGetPosition(object[0].body);
   pos.x=act_pos[0];
@@ -116,6 +116,7 @@ Position Nimm4::getPosition(){
     @return length of the list
 */
 int Nimm4::getSegmentsPosition(vector<Position> &poslist){
+  assert(created);
   Position pos;
   for (int i=0; i<segmentsno; i++){
     const dReal* act_pos = dBodyGetPosition(object[i].body);
@@ -133,6 +134,7 @@ int Nimm4::getSegmentsPosition(vector<Position> &poslist){
  * draws the vehicle
  */
 void Nimm4::draw(){
+  assert(created);
   dsSetColor (color.r,color.g,color.b); // set color for cylinder
   dsSetTexture (bodyTexture);
   dsDrawCappedCylinder(dBodyGetPosition(object[0].body),dBodyGetRotation(object[0].body),length, width/2 );
@@ -155,6 +157,7 @@ void Nimm4::mycallback(void *data, dGeomID o1, dGeomID o2){
 }
 
 bool Nimm4::collisionCallback(void *data, dGeomID o1, dGeomID o2){
+  assert(created);
   //checks if one of the collision objects is part of the robot
   if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space){
     dSpaceCollide(car_space, this, mycallback);
