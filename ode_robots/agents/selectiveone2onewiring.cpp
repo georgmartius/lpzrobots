@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-08-22 17:28:12  martius
+ *   Revision 1.2  2005-08-31 11:11:37  martius
+ *   noise->noisevals
+ *
+ *   Revision 1.1  2005/08/22 17:28:12  martius
  *   a 1 to 1 wiring that supports the selection of some sensors only
  *
  *                                                                         *
@@ -71,12 +74,12 @@ bool SelectiveOne2OneWiring::init(int robotsensornumber, int robotmotornumber){
 bool SelectiveOne2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
 				sensor* csensors, int csensornumber, 
 				double noiseStrength){
-  memset(noise, 0 , sizeof(sensor) * this->rsensornumber);
-  noiseGenerator->add(noise, -noiseStrength, noiseStrength);   
+  memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
+  noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);   
   int num=0;
   for(int i=0; i< rsensornumber; i++){
     if(sel_sensor(i,rsensornumber)){
-      csensors[num] = rsensors[i] + noise[i];
+      csensors[num] = rsensors[i] + noisevals[i];
       num++;
     }
   }
