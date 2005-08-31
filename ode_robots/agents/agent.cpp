@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-08-03 20:34:58  martius
+ *   Revision 1.8  2005-08-31 11:15:59  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.7  2005/08/03 20:34:58  martius
  *   use if Inspectable interface
  *
  *   Revision 1.6  2005/07/26 17:01:47  martius
@@ -101,9 +104,9 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
       if(!OpenGui()) return false;
       unsigned int snum = plotsensors == Robot ? rsensornumber : csensornumber;
       Inspectable* inspectables[2] = {controller, wiring};
-      numberInternalParameters = printInternalParameterNames(pipe, snum, cmotornumber, inspectables, 2);
-    }
-    
+      numberInternalParameters = 
+	printInternalParameterNames(pipe, snum, cmotornumber, inspectables, 2);
+    }    
     return true;
   }
 }
@@ -133,13 +136,13 @@ void Agent::CloseGui(){
 // Plots controller sensor- and motorvalues and internal controller parameters.
 void Agent::plot(const sensor* x, int sensornumber, const motor* y, int motornumber){
   if(!controller || !x || !y || plotmode==NoPlot || !pipe) return;
-//   if(sensornumber!=controller->getSensorNumber()) {
+//   if(sensornumber!=wiring->getControllerSensornumber()) {
 //     fprintf(stderr, "%s:%i: Given sensor number does not match the one from controller!\n", 
-// 	    __FILE__, __LINE__);
+//  	    __FILE__, __LINE__);
 //   }
 //   if(motornumber!=controller->getMotorNumber()) { 
 //     fprintf(stderr, "%s:%i: Given motor number does not match the one from controller!\n", 
-// 	    __FILE__, __LINE__);
+//  	    __FILE__, __LINE__);
 //   }
   Inspectable* inspectables[2] = {controller, wiring};
   printInternalParameters(pipe, x, sensornumber, y, motornumber, 
@@ -163,7 +166,8 @@ void Agent::step(double noise){
   
   int len =  robot->getSensors(rsensors, rsensornumber);
   if(len != rsensornumber){
-    fprintf(stderr, "%s:%i: Got not enough sensors!\n", __FILE__, __LINE__);
+    fprintf(stderr, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__, 
+	    rsensornumber, len);
   }
   
   wiring->wireSensors(rsensors, rsensornumber, csensors, csensornumber, noise);
