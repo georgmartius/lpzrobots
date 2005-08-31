@@ -8,6 +8,8 @@
 #include "one2onewiring.h"
 #include "selectiveone2onewiring.h"
 #include "derivativewiring.h"
+
+#include "nimm2.h"
 #include "shortcircuit.h"
 #include "playground.h"
 
@@ -50,10 +52,11 @@ void start()
 
   // initialization
   simulationConfig.setParam("noise",0.03);
-  simulationConfig.setParam("realtimefactor",0);
-  simulationConfig.setParam("drawinterval", 500);
+  //  simulationConfig.setParam("realtimefactor",0);
+  //  simulationConfig.setParam("drawinterval", 500);
   
-  AbstractRobot* robot = new ShortCircuit(world, space, contactgroup, channels, channels);  
+  //  AbstractRobot* robot = new ShortCircuit(world, space, contactgroup, channels, channels);  
+  AbstractRobot* robot = new Nimm2(world, space, contactgroup);  
   //AbstractController *controller = new InvertMotorNStep(10);  
   AbstractController *controller = new InvertMotorSpace(10,1.2);  
   //  controller->setParam("adaptrate",0.0);
