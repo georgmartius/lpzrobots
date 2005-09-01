@@ -177,18 +177,13 @@ Sphererobot::~Sphererobot()
 void Sphererobot::draw()
 {
   dsSetTexture (DS_WOOD);
-  dsSetColor ( color.r , color.g , color.b );
-  
-  dsDrawSphere ( dGeomGetPosition ( object[ Base ].geom ) , 
-  		 dGeomGetRotation ( object[ Base ].geom ) , conf.diameter/2 );
-  //   const double box[3]={0.8,0.8,0.8};
-  //   dsDrawBox ( dGeomGetPosition ( object[ Base ].geom ) , 
-  // 	      dGeomGetRotation ( object[ Base ].geom ) , box );
-
-  dsSetColor ( 1 , 1 , 0 );
+ 
+  // draw pendular 	
+  dsSetColorAlpha (1, 1, 0, 1); // transparency= 1  
   dsDrawSphere ( dGeomGetPosition ( object[ Pendular ].geom ), 
   		 dGeomGetRotation ( object[ Pendular ].geom ) , conf.pendulardiameter/2 );
   
+  // draw poles
   for(unsigned int n = 0; n < 3; n++){
     dsSetColor ( n==0 , n==1 , n==2 );
     const dReal* pos1 = dBodyGetPosition ( object[ Pole1Bot + n ].body);
@@ -202,6 +197,16 @@ void Sphererobot::draw()
     dsDrawCylinder ( pos , dBodyGetRotation ( object[ Pole1Bot + n ].body ) , 
 		     sqrt(len) , 0.05 );    
   }
+  
+  // draw sphere
+  dsSetTexture (0);
+  dsSetColorAlpha (color.r, color.g, color.b, 0.5); // transparency= 0.5
+  
+  dsDrawSphere ( dGeomGetPosition ( object[ Base ].geom ) , 
+  		 dGeomGetRotation ( object[ Base ].geom ) , conf.diameter/2 );
+  //   const double box[3]={0.8,0.8,0.8};
+  //   dsDrawBox ( dGeomGetPosition ( object[ Base ].geom ) , 
+  // 	      dGeomGetRotation ( object[ Base ].geom ) , box );
 }
 
 /**
