@@ -18,15 +18,14 @@ public:
 		
   double error;
   double lasterror;
-		
+
   double targetposition;
 		
   double KP;
   double KD;
   double KI;
-		
   double alpha;
-	
+	       	
   double P;
   double D;
   double I;

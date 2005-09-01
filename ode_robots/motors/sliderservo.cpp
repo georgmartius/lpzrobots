@@ -20,39 +20,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-08-30 16:55:48  martius
+ *   Revision 1.2  2005-09-01 14:22:00  martius
+ *   parameters adjusted
+ *
+ *   Revision 1.1  2005/08/30 16:55:48  martius
  *   servo motor for sliders
  *
  *                                                                 *
  ***************************************************************************/
 #include "sliderservo.h"
+#include <assert.h>
 
-SliderServo::SliderServo(dJointID joint, double min, double max)
-  : PID(500, 0, 20) // TODO make force adjustable
+SliderServo::SliderServo(dJointID joint, double min, double max, double mass)
+  : PID(mass * 400.0, mass * 50.0, mass * 400.0 ) 
 {
+  assert(min <= 0);
   this->joint = joint;
-  this->min = min > 0 ? 0 : min;
+  this->min = min;
   this->max = max;
+  this->maxforce = KP/10;
 }
 
-void SliderServo::set(double position){
-  if(position > 0){
-    position *= max; 
+void SliderServo::set(double pos){
+  if(pos > 0){
+    pos *= max; 
   }else{
-    position *= -min;
+    pos *= -min;
   }
-  setTargetPosition(position);
-  double force = step(get());
+  setTargetPosition(pos);  
+  double force = step(dJointGetSliderPosition (joint));
   dJointAddSliderForce( joint , force );  
 }
 
 double SliderServo::get(){
-  double position =  dJointGetSliderPosition (joint);    
-  if(position > 0){
-    position /= max; 
+  double pos =  dJointGetSliderPosition (joint);    
+  if(pos > 0){
+    pos /= max; 
   }else{
-    position /= -min;
+    pos /= -min;
   }
-  return position;
+  return pos;
 }
   

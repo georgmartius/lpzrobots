@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-08-30 16:55:48  martius
+ *   Revision 1.2  2005-09-01 14:22:00  martius
+ *   parameters adjusted
+ *
+ *   Revision 1.1  2005/08/30 16:55:48  martius
  *   servo motor for sliders
  *
  *                                                                 *
@@ -35,7 +38,7 @@
 class SliderServo : public PID{
 public:
   /** min and max values are understood as travel bounds. Min should be less than 0.*/
-  SliderServo(dJointID joint, double min, double max);
+  SliderServo(dJointID joint, double min, double max, double force = 400);
   /** sets the set point of the servo. 
       Position must be between -1 and 1. It is scaled to fit into min, max
   */
@@ -47,6 +50,7 @@ private:
   double min;
   double max;
   dJointID joint;
+  double maxforce;
 };
 
 #endif
