@@ -7,13 +7,13 @@
 #include "agent.h"
 #include "one2onewiring.h"
 #include "forcedsphere.h"
-#include "forcedsphere2.h"
 #include "nimm4.h"
 #include "sphererobot.h"
 #include "playground.h"
 #include "terrainground.h"
 
-#include "invertnchannelcontroller.h"
+#include "invertmotorspace.h"
+#include "invertmotornstep.h"
 #include "sinecontroller.h"
 
 
@@ -37,6 +37,8 @@ void start()
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
+  
+  dWorldSetERP(world, 0.9);
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
@@ -49,16 +51,15 @@ void start()
   // initialization
   simulationConfig.noise=0.1;
     
-  Playground* playground = new Playground(world, space);
-  playground->setGeometry(20.0, 0.2, 1.5);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  // Playground* playground = new Playground(world, space);
+//   playground->setGeometry(40.0, 0.2, 1.5);
+//   playground->setPosition(0,0,0); // playground positionieren und generieren
+//   obstacles.push_back(playground);
   
-//   Terrainground *terrainground = new Terrainground(world, space, 50.0, 7.0, "terrains/terrain_bumpInDip128.ppm");
-//   terrainground->setPosition(-10,-10,0);
-//   obstacles.push_back(terrainground);
- 
-  
+  Terrainground *terrainground = new Terrainground(world, space, 50.0, 7.0, "terrains/terrain_bumpInDip128.ppm");
+  terrainground->setPosition(-10,-10,1);
+  obstacles.push_back(terrainground);
+   
 //   Nimm4* vehicle = new Nimm4(world, space, contactgroup);
 //   vehicle->place(Position( 0, 0, 7.0));
 //   AbstractController *controller = new InvertNChannelController(10);  
@@ -71,38 +72,32 @@ void start()
    configs.push_back(&simulationConfig);
 //   configs.push_back(controller);
 
-
-//   SphererobotConf conf = Sphererobot::getStandartConf();  
-//   conf.
-//   Sphererobot* sphere1 = new Sphererobot ( 1 , ODEHandle(world , space , contactgroup), conf);
-//   Color col(0,0.5,0.8);
-//   sphere1->place ( Position ( 2 , 0 , 7 ) , &col );
-//   //AbstractController *controller = new InvertNChannelController(10);  
-//   controller = new SineController();  
+  SphererobotConf conf = Sphererobot::getStandartConf();  
+  conf.diameter=3;
+  conf.spheremass=0.2;
+  conf.sliderrange  = 0.07;
+  Sphererobot* sphere1 = new Sphererobot ( ODEHandle(world , space , contactgroup), conf);
   
-//   wiring = new One2OneWiring ( new ColorUniformNoise() );
-//   agent = new Agent ( plotMode );
-//   agent->init ( controller , sphere1 , wiring );
-//   agents.push_back ( agent );
-//   configs.push_back ( controller );
-
-
-  Forcedsphere* sphere = new Forcedsphere(world, space, contactgroup,1.0, 10);
-  sphere->place(Position( 0, 1, 6));
-  AbstractController *controller = new SineController();
-  One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise() );
+  Color col(0,0.5,0.8);
+  sphere1->place ( Position ( 2 , 0 , 7 ) , &col );
+  //AbstractController *controller = new InvertNChannelController(10);  
+  AbstractController *controller = new InvertMotorNStep(10);
+  controller->setParam("factorB", 0);
+  
+  AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
   Agent* agent = new Agent ( plotMode );
-  agent->init ( controller , sphere , wiring );
+  agent->init ( controller , sphere1 , wiring );
   agents.push_back ( agent );
   configs.push_back ( controller );
 
-//   Forcedsphere2* sphere2 = new Forcedsphere2(world, space, contactgroup);
-//   Color col(10,20,4);
-//   sphere2->place(Position( 0, 5, 6), &col);
-//   controller = new SineController();
-//   wiring = new One2OneWiring( new ColorUniformNoise() );
-//   agent = new Agent( plotMode );
-//   agent->init ( controller, sphere2, wiring );
+
+//   Forcedsphere* sphere = new Forcedsphere(world, space, contactgroup,1.0, 10);
+//   sphere->place(Position( 0, 1, 6));
+//   //  AbstractController *controller = new SineController();
+//   AbstractController *controller = new InvertMotorSpace(10);
+//   One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise() );
+//   Agent* agent = new Agent ( plotMode );
+//   agent->init ( controller , sphere , wiring );
 //   agents.push_back ( agent );
 //   configs.push_back ( controller );
 
