@@ -42,7 +42,7 @@ public:
 
 private:
   const static int servono  = 3;
-  const static int sensorno = 3;
+  const static int sensorno = 6;
   
   dSpaceID sphererobot_space;
   SliderServo* servo[servono];

@@ -14,6 +14,22 @@
 const int Sphererobot::servono;
 const int Sphererobot::sensorno;
 
+#include "matrix.h"
+using namespace matrix;
+
+Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
+  Matrix matrix(3,3);
+  matrix.val(0,0)=R[0];
+  matrix.val(0,1)=R[4];
+  matrix.val(0,2)=R[8];
+  matrix.val(1,0)=R[1];
+  matrix.val(1,1)=R[5];
+  matrix.val(1,2)=R[9];
+  matrix.val(2,0)=R[2];
+  matrix.val(2,1)=R[6];
+  matrix.val(2,2)=R[10];
+  return matrix;
+}
 
 /**
  *constructor
@@ -198,11 +214,21 @@ void Sphererobot::draw()
  **/
 int Sphererobot::getSensors ( sensor* sensors, int sensornumber )
 {  
-  int len = min(sensornumber, servono);
-  for ( int n = 0; n < len; n++ ) {
-    sensors[n] = servo[n]->get();
-  }
-  return len;
+//   int len = min(sensornumber, servono);
+//   for ( int n = 0; n < len; n++ ) {
+//     sensors[n] = servo[n]->get();
+//   }
+//   return len;
+
+  double data[3] = {1,0,0};
+  Matrix v(3,1,data);
+  Matrix A = odeRto3x3RotationMatrix(dBodyGetRotation(object[Base].body));
+  Matrix v2 = A*v;
+  v.val(0,0)=0;
+  v.val(1,0)=1;
+  Matrix v3 = A * v;
+  int l= v2.convertToBuffer(sensors, sensornumber);
+  return v3.convertToBuffer(sensors + l , sensornumber - l) + l;
 }
 
 /**
@@ -331,3 +357,5 @@ int Sphererobot::getSegmentsPosition(vector<Position> &poslist){
   poslist.push_back(Position(dBodyGetPosition ( object[Pendular].body )));
   return 2;
 }
+
+

@@ -5,6 +5,23 @@
 #include "drawgeom.h"
 
 #include "forcedsphere.h"
+#include "matrix.h"
+using namespace matrix;
+
+Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
+  Matrix matrix(3,3);
+  matrix.val(0,0)=R[0];
+  matrix.val(0,1)=R[4];
+  matrix.val(0,2)=R[8];
+  matrix.val(1,0)=R[1];
+  matrix.val(1,1)=R[5];
+  matrix.val(1,2)=R[9];
+  matrix.val(2,0)=R[2];
+  matrix.val(2,1)=R[6];
+  matrix.val(2,2)=R[10];
+  return matrix;
+}
+
 
 Forcedsphere::Forcedsphere(dWorldID w, dSpaceID s, dJointGroupID c, double radius /*=1*/, double max_force /*=1*/,
 			   double max_linSpeed /*=5*/, double max_angSpeed /*=5*/):
@@ -29,7 +46,7 @@ Forcedsphere::Forcedsphere(dWorldID w, dSpaceID s, dJointGroupID c, double radiu
 
   texture = DS_WOOD;
 
-  sensorno=4; 
+  sensorno=3; 
   motorno=2;  
 
 };
@@ -53,7 +70,6 @@ void Forcedsphere::setMotors(const motor* motors, int motornumber){
     dBodyAddForce(body, 0, motors[1]*max_force, 0);
  }
 
-
 };
 
 /** returns actual sensorvalues
@@ -63,25 +79,27 @@ void Forcedsphere::setMotors(const motor* motors, int motornumber){
 */
 int Forcedsphere::getSensors(sensor* sensors, int sensornumber){
   
-  const dReal * linVel;
-  const dReal * angVel;
+//   const dReal * linVel;
+//   const dReal * angVel;
 
-  if (sensornumber==sensorno){
-    linVel=dBodyGetLinearVel(body);
-    angVel=dBodyGetAngularVel(body);
-    for(int i=0; i<2; i++){
-      sensors[2*i]=linVel[i];
-      sensors[2*i]/=max_linSpeed;
-    }
-    for(int i=0; i<2; i++){
-      sensors[2*i+1]=angVel[i];
-      sensors[2*i+1]/=max_angSpeed;
-    }
-    return sensornumber;
-  }
-
-  return 0;
-
+//   if (sensornumber==sensorno){
+//     linVel=dBodyGetLinearVel(body);
+//     angVel=dBodyGetAngularVel(body);
+//     for(int i=0; i<2; i++){
+//       sensors[2*i]=linVel[i];
+//       sensors[2*i]/=max_linSpeed;
+//     }
+//     for(int i=0; i<2; i++){
+//       sensors[2*i+1]=angVel[i];
+//       sensors[2*i+1]/=max_angSpeed;
+//     }
+//     return sensornumber;
+//   }
+  double data[3] = {1,1,1};
+  Matrix v(3,1,data);
+  Matrix A = odeRto3x3RotationMatrix(dBodyGetRotation(body));
+  Matrix v2 = A*v;
+  return v2.convertToBuffer(sensors, sensornumber);
 };
 
 /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
