@@ -7,7 +7,7 @@
 #include "agent.h"
 #include "one2onewiring.h"
 #include "forcedsphere.h"
-#include "sphererobot.h"
+#include "sphererobotarms.h"
 #include "playground.h"
 #include "terrainground.h"
 
@@ -37,8 +37,6 @@ void start()
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
   
-  dWorldSetERP(world, 0.8);
-
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
   float KameraXYZ[3]= {-14.1362f,7.5110f,17.3500f};
@@ -51,11 +49,11 @@ void start()
   simulationConfig.noise=0.1;
     
   Playground* playground = new Playground(world, space);
-  playground->setGeometry(20.0, 0.2, 8.0);
+  playground->setGeometry(20.0, 0.2, 5.0);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
   
-  Terrainground *terrainground = new Terrainground(world, space, 20.0, 4.0, "terrains/dip3_128.ppm");
+  Terrainground *terrainground = new Terrainground(world, space, 20.0, 1.3, "terrains/dip3_128.ppm");
   //terrain_bumpInDip128.ppm
   terrainground->setPosition(-10,-10,1);
   obstacles.push_back(terrainground);
@@ -63,17 +61,17 @@ void start()
   configs.push_back(&simulationConfig);
 
 
-  SphererobotConf conf = Sphererobot::getStandartConf();  
-  conf.diameter=3;
-  conf.spheremass=0.15;
-  conf.sliderrange  = 0.05;
-  Sphererobot* sphere1 = new Sphererobot ( ODEHandle(world , space , contactgroup), conf);
+  SphererobotConf conf = SphererobotArms::getStandartConf();  
+  conf.diameter=2;
+  conf.spheremass=1;
+  SphererobotArms* sphere1 = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
   
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( -5 , -5 , 5 ) , &col ); // 5
+  sphere1->place ( Position ( 2 , 0 , 5 ) , &col );
   //AbstractController *controller = new InvertNChannelController(10);  
   AbstractController *controller = new InvertMotorNStep(10);
-  controller->setParam("factorB", 0);
+  controller->setParam("factorB", 0.1);
+  controller->setParam("steps", 3);
   
   AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
   Agent* agent = new Agent ( plotMode );
