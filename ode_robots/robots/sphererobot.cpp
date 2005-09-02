@@ -70,7 +70,7 @@ Sphererobot::Sphererobot ( const ODEHandle& odeHandle,
   //pendular body
   pendular.body = dBodyCreate ( world );
 
-  dBodySetPosition ( pendular.body , pos.x , pos.y , pos.z);
+  dBodySetPosition ( pendular.body , pos.x , pos.y , pos.z + conf.diameter/5);
   dMassSetSphereTotal ( &mass , conf.pendularmass , conf.pendulardiameter/2 );
   dBodySetMass ( pendular.body , &mass );
   
@@ -82,23 +82,28 @@ Sphererobot::Sphererobot ( const ODEHandle& odeHandle,
   double x , y;
   Position pendularPos (dBodyGetPosition(pendular.body));
   for ( unsigned int alpha = 0; alpha < 3; alpha++ ) {
-    x=sin ( (float) alpha*2*M_PI/3 )*conf.diameter/4; //testing values
-    y=cos ( (float) alpha*2*M_PI/3 )*conf.diameter/4;
+    dMass mass2;
+    x=sin ( (float) alpha*2*M_PI/3 )*conf.diameter/3.5; //testing values 
+    y=cos ( (float) alpha*2*M_PI/3 )*conf.diameter/3.5;
 
     Position bottomPos (pendularPos.x + x , pendularPos.y + y , 
 			pos.z - conf.diameter/2 + conf.diameter/5 );
     bottom[alpha].body = dBodyCreate ( world );
     dBodySetPosition ( bottom[alpha].body , bottomPos.x , bottomPos.y , bottomPos.z );
-    dMassSetBoxTotal ( &mass , conf.slidermass , 0.2 , 0.2 , 1 );
-   
-    dBodySetMass ( bottom[alpha].body , &mass );
+    dMassSetZero(&mass2);
+    dMassSetBoxTotal ( &mass2 , conf.slidermass , 0.01 , 0.01 , 0.01 );
+    dMassAdjust( &mass2 , conf.slidermass);
+    printf("conf.sl : %g\n", conf.slidermass);
+    //    dBodySetMass ( bottom[alpha].body , &mass2 );
     bottom[alpha].geom=0;
 
     Position topPos (pendularPos.x + x, pendularPos.y + y, pendularPos.z);
     top[alpha].body = dBodyCreate ( world );
     dBodySetPosition( top[alpha].body, topPos.x, topPos.y, topPos.z);
-    dMassSetBoxTotal( &mass , conf.slidermass , 0.2 , 0.2 , 0.2 );
-    dBodySetMass ( top[alpha].body , &mass );
+    dMassSetZero(&mass2);
+    dMassSetBoxTotal( &mass2 , conf.slidermass , 0.01 , 0.01 , 0.01 );
+    //    dMassAdjust( &mass2 , conf.slidermass);
+    dBodySetMass ( top[alpha].body , &mass2 );
     top[alpha].geom=0;
 
     //combines the 3 upper connection bodies with the pendular
@@ -108,11 +113,11 @@ Sphererobot::Sphererobot ( const ODEHandle& odeHandle,
     dJointSetHingeAnchor ( hinge , topPos.x, topPos.y, pendularPos.z);	
 	
     dJointSetHingeAxis ( hinge, (pendularPos.y - topPos.y) , -(pendularPos.x - topPos.x), 0 );
-    dJointSetHingeParam ( hinge, dParamLoStop, -conf.hingeRange);
-    dJointSetHingeParam ( hinge, dParamHiStop,  conf.hingeRange);
-    dJointSetHingeParam  ( hinge, dParamCFM, 0.1);
-    dJointSetHingeParam ( hinge, dParamStopCFM, 0.1);
-    dJointSetHingeParam ( hinge, dParamStopERP, 0.9);
+   //  dJointSetHingeParam ( hinge, dParamLoStop, -conf.hingeRange);
+//     dJointSetHingeParam ( hinge, dParamHiStop,  conf.hingeRange);
+//     dJointSetHingeParam  ( hinge, dParamCFM, 0.1);
+//     dJointSetHingeParam ( hinge, dParamStopCFM, 0.1);
+//     dJointSetHingeParam ( hinge, dParamStopERP, 0.9);
 
 	
       
@@ -135,7 +140,7 @@ Sphererobot::Sphererobot ( const ODEHandle& odeHandle,
     dJointSetSliderParam ( slider, dParamStopERP, 0.9);
     servo[alpha] = new SliderServo(slider, -conf.diameter*conf.sliderrange, 
 				   conf.diameter*conf.sliderrange, 
-				   conf.pendularmass); 
+				   conf.pendularmass*0.8); 
   
 //     dJointID lmotor;
 //     lmotor = dJointCreateLMotor (world,0);
@@ -219,11 +224,10 @@ void Sphererobot::draw()
  **/
 int Sphererobot::getSensors ( sensor* sensors, int sensornumber )
 {  
-//   int len = min(sensornumber, servono);
-//   for ( int n = 0; n < len; n++ ) {
-//     sensors[n] = servo[n]->get();
-//   }
-//   return len;
+   int len = min(sensornumber, servono);
+   for ( int n = 0; n < len; n++ ) {
+     sensors[n] = servo[n]->get();
+   }
 
   double data[3] = {1,0,0};
   Matrix v(3,1,data);
@@ -232,8 +236,8 @@ int Sphererobot::getSensors ( sensor* sensors, int sensornumber )
   v.val(0,0)=0;
   v.val(1,0)=1;
   Matrix v3 = A * v;
-  int l= v2.convertToBuffer(sensors, sensornumber);
-  return v3.convertToBuffer(sensors + l , sensornumber - l) + l;
+  int l= v2.convertToBuffer(sensors+3, sensornumber -3);
+  return v3.convertToBuffer(sensors + l + 3 , sensornumber - l -3) + l + 3;
 }
 
 /**
@@ -287,39 +291,39 @@ void Sphererobot::place (Position pos, Color *c)
  *@author Marcel Kretschmann
  *@version beta
  **/
-bool Sphererobot::collisionCallback(void *data, dGeomID o1, dGeomID o2)
-{
-  //checks if one of the collision objects is part of the robot
-  if( o1 == (dGeomID)sphererobot_space && o2 == (dGeomID)sphererobot_space)
-    {            
-      return true;
+bool Sphererobot::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
+  //checks if both of the collision objects are part of the robot
+  if( o1 == (dGeomID)sphererobot_space || o2 == (dGeomID)sphererobot_space) {
+
+    // inner space collisions are not treated!
+
+    int i,n;  
+    const int N = 10;
+    dContact contact[N];
+    
+    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+    for (i=0; i<n; i++) {
+      if( contact[i].geom.g1 == object[Base].geom || contact[i].geom.g2 == object[Base].geom ){ 
+	// only treat collisions with envelop
+	contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	contact[i].surface.mu = 1.0;
+	contact[i].surface.soft_erp = 0.5;
+	contact[i].surface.soft_cfm = 0.1;
+	// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+	// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	// 	contact[i].surface.mu = frictionGround;
+	// 	contact[i].surface.slip1 = 0.005;
+	// 	contact[i].surface.slip2 = 0.005;
+	// 	contact[i].surface.soft_erp = 1;
+	// 	contact[i].surface.soft_cfm = 0.00001;
+	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+      } 
     }
-  else
-    {
-      // the rest is for collisions of some sphere elements with the rest of the world
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];
-	
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++)
-	{
-	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	  contact[i].surface.mu = 1.0;
-	  contact[i].surface.soft_erp = 0.5;
-	  contact[i].surface.soft_cfm = 0.1;
-	  // 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	  // 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	  // 	contact[i].surface.mu = frictionGround;
-	  // 	contact[i].surface.slip1 = 0.005;
-	  // 	contact[i].surface.slip2 = 0.005;
-	  // 	contact[i].surface.soft_erp = 1;
-	  // 	contact[i].surface.soft_cfm = 0.00001;
-	  dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
-	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
-	}
-      return true;
-    }
+    return true;
+  } else {
+    return false;
+  }
 }
 
 
