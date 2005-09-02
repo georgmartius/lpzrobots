@@ -53,7 +53,7 @@ void start()
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
   
-  Terrainground *terrainground = new Terrainground(world, space, 20.0, 1.3, "terrains/dip3_128.ppm");
+  Terrainground *terrainground = new Terrainground(world, space, 20.0, 1.3, "terrains/dip2_128.ppm");
   //terrain_bumpInDip128.ppm
   terrainground->setPosition(-10,-10,1);
   obstacles.push_back(terrainground);
