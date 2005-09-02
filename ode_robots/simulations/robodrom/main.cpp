@@ -7,7 +7,6 @@
 #include "agent.h"
 #include "one2onewiring.h"
 #include "forcedsphere.h"
-#include "nimm4.h"
 #include "sphererobot.h"
 #include "playground.h"
 #include "terrainground.h"
@@ -38,48 +37,40 @@ void start()
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
   
-  dWorldSetERP(world, 0.9);
+  dWorldSetERP(world, 0.8);
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraXYZ[3]= {-9.6217f,9.1440f,12.9600f};
+  float KameraXYZ[3]= {-14.1362f,7.5110f,17.3500f};
   //float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};
-  float KameraViewXYZ[3] = {10.5000f,-22.0000f,0.0000f};
+  float KameraViewXYZ[3] = {-36.0000f,-50.0000f,0.0000f};
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
   simulationConfig.noise=0.1;
     
-  // Playground* playground = new Playground(world, space);
-//   playground->setGeometry(40.0, 0.2, 1.5);
-//   playground->setPosition(0,0,0); // playground positionieren und generieren
-//   obstacles.push_back(playground);
+  Playground* playground = new Playground(world, space);
+  playground->setGeometry(20.0, 0.2, 8.0);
+  playground->setPosition(0,0,0); // playground positionieren und generieren
+  obstacles.push_back(playground);
   
-  Terrainground *terrainground = new Terrainground(world, space, 50.0, 7.0, "terrains/terrain_bumpInDip128.ppm");
+  Terrainground *terrainground = new Terrainground(world, space, 20.0, 4.0, "terrains/dip3_128.ppm");
+  //terrain_bumpInDip128.ppm
   terrainground->setPosition(-10,-10,1);
   obstacles.push_back(terrainground);
-   
-//   Nimm4* vehicle = new Nimm4(world, space, contactgroup);
-//   vehicle->place(Position( 0, 0, 7.0));
-//   AbstractController *controller = new InvertNChannelController(10);  
   
-//   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-//   Agent* agent = new Agent(plotMode);
-//   agent->init(controller, vehicle, wiring);
-//   agents.push_back(agent);
-  
-   configs.push_back(&simulationConfig);
-//   configs.push_back(controller);
+  configs.push_back(&simulationConfig);
+
 
   SphererobotConf conf = Sphererobot::getStandartConf();  
   conf.diameter=3;
-  conf.spheremass=0.2;
-  conf.sliderrange  = 0.07;
+  conf.spheremass=0.15;
+  conf.sliderrange  = 0.05;
   Sphererobot* sphere1 = new Sphererobot ( ODEHandle(world , space , contactgroup), conf);
   
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 2 , 0 , 7 ) , &col );
+  sphere1->place ( Position ( -5 , -5 , 5 ) , &col ); // 5
   //AbstractController *controller = new InvertNChannelController(10);  
   AbstractController *controller = new InvertMotorNStep(10);
   controller->setParam("factorB", 0);
