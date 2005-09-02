@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-01 14:22:00  martius
+ *   Revision 1.3  2005-09-02 13:20:14  martius
+ *   adjusted parameters and usage of derivative of slider from ode
+ *
+ *   Revision 1.2  2005/09/01 14:22:00  martius
  *   parameters adjusted
  *
  *   Revision 1.1  2005/08/30 16:55:48  martius
@@ -32,7 +35,7 @@
 #include <assert.h>
 
 SliderServo::SliderServo(dJointID joint, double min, double max, double mass)
-  : PID(mass * 400.0, mass * 50.0, mass * 400.0 ) 
+  : PID(mass * 10.0, mass * 35.0, mass * 60.0 ) 
 {
   assert(min <= 0);
   this->joint = joint;
@@ -48,7 +51,7 @@ void SliderServo::set(double pos){
     pos *= -min;
   }
   setTargetPosition(pos);  
-  double force = step(dJointGetSliderPosition (joint));
+  double force = stepWithD(dJointGetSliderPosition (joint), dJointGetSliderPositionRate (joint));
   dJointAddSliderForce( joint , force );  
 }
 
