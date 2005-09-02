@@ -41,4 +41,5 @@ public :
   double getTargetPosition ();
 		
   double step ( double newsensorval );
+  double stepWithD ( double newsensorval, double derivative );
 };
