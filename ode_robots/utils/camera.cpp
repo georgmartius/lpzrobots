@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-08-23 11:41:20  robot1
+ *   Revision 1.8  2005-09-02 17:20:18  martius
+ *   advancedTV disabled
+ *
+ *   Revision 1.7  2005/08/23 11:41:20  robot1
  *   advancedFollowing mode included
  *
  *   Revision 1.6  2005/08/22 12:38:32  robot1
@@ -75,7 +78,7 @@ double newRobotPos[3]; // special angle coordinates
 double newRobotView[3]; // simple direction vector, should be normalized
 
 // for advanced TV mode
-float maxAllowedDistance=10.0f;
+float maxAllowedDistance=10000.0f; // Disabled advanvedTV
 float robCamDistance;
 
 // this is a bit faster than the compiler definition (x is only calculated once, not twice)
