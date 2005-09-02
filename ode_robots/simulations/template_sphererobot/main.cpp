@@ -12,12 +12,12 @@
 #include "sinecontroller.h"
 #include "noisegenerator.h"
 
-#include "sphererobot.h"
+#include "sphererobotArms.h"
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
-
-Sphererobot* sphere1;
+AbstractController *controller;
+SphererobotArms* sphere1;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start() 
@@ -36,6 +36,7 @@ void start()
   // initialization
   simulationConfig.setParam("noise",0.1);
   simulationConfig.setParam("gravity",-10);
+  simulationConfig.setParam("controlinterval",1);
 
   configs.push_back(&simulationConfig);
   
@@ -45,19 +46,19 @@ void start()
   obstacles.push_back(playground);
     
   //****************
-  SphererobotConf conf = Sphererobot::getStandartConf();  
-  sphere1 = new Sphererobot ( ODEHandle(world , space , contactgroup), conf);
-  conf.spheremass=0.8;
-  conf.slidermass=0.005;
-  conf.pendularmass=0.3;
-  conf.sliderrange=0.05;
+  SphererobotConf conf = SphererobotArms::getStandartConf();  
+  conf.spheremass=0.2;
+  conf.slidermass=0.0001;
+  conf.pendularmass=1.0;
+  conf.sliderrange=0.1;
+  sphere1 = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
 
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 0 , 0 , 5.5 ) , &col );
+  sphere1->place ( Position ( 0 , 0 , 1 ), &col );
   //AbstractController *controller = new InvertNChannelController(10);  
-  AbstractController *controller = new SineController();  
-  controller->setParam("sineRate", 12);  
-  controller->setParam("phaseShift", 0.8);
+  controller = new SineController();  
+  controller->setParam("sineRate", 50);  
+  controller->setParam("phaseShift", 0.0);
 
   One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
   Agent* agent = new Agent ( plotMode );
@@ -80,7 +81,7 @@ void end(){
   }
   agents.clear();
 }
-
+ 
 
 // this function is called if the user pressed Ctrl-C
 void config(){
@@ -99,9 +100,27 @@ void command (int cmd)
   switch ( (char) cmd )
     {
     case 'y' : dBodyAddTorque ( sphere1->object[Sphererobot::Base].body , 1 ,1 , 0 ); break;
-    case 'a' : dBodyAddTorque ( sphere1->object[Sphererobot::Base].body , -1 , -1 , 0 ); break;
+      //    case 'a' : dBodyAddTorque ( sphere1->object[Sphererobot::Base].body , -1 , -1 , 0 ); break;
     case 'x' : dBodyAddTorque ( sphere1->object[Sphererobot::Pendular].body , 0 , 0 , 3 ); break;
     case 'c' : dBodyAddTorque ( sphere1->object[Sphererobot::Pendular].body , 0 , 0 , -3 ); break;
+    case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")-0.5); break;
+    case 's' : controller->setParam("sineRate", controller->getParam("sineRate")+0.5); break;
+    case 'P' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP+=1; 
+      printf("KP : %g\n", sphere1->servo[0]->KP); break;
+    case 'p' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP-=1; 
+      printf("KP : %g\n", sphere1->servo[0]->KP); break;
+    case 'D' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KD+=0.01; 
+      printf("KD : %g\n", sphere1->servo[0]->KD); break;
+    case 'd' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KD-=0.01; 
+      printf("KD : %g\n", sphere1->servo[0]->KD); break;
+    case 'I' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KI+=0.01; 
+      printf("KI : %g\n", sphere1->servo[0]->KI); break;
+    case 'i' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KI-=0.01; 
+      printf("KI : %g\n", sphere1->servo[0]->KI); break;
+    case 'A' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->alpha*=1.01; 
+      printf("KI : %g\n", sphere1->servo[0]->alpha); break;
+    case 'a' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->alpha*=0.99; 
+      printf("KI : %g\n", sphere1->servo[0]->alpha); break;
     }
 }
 

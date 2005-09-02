@@ -63,7 +63,8 @@ void start()
 
   SphererobotConf conf = SphererobotArms::getStandartConf();  
   conf.diameter=2;
-  conf.spheremass=1;
+  conf.spheremass=0.5;
+  conf.sliderrange=0.2;
   SphererobotArms* sphere1 = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
   
   Color col(0,0.5,0.8);

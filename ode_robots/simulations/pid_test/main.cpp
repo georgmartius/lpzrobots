@@ -53,7 +53,7 @@ void start()
   conf.maxforce=0;
   conf.slidermass=0.0001;
   conf.sliderrange=0.1;
-  conf.spheremass=0.1; 
+  conf.spheremass=1; 
   //sphere1 = new Sphererobot ( 1 , ODEHandle(world , space , contactgroup), conf);
   sphere1 = new SphererobotTest ( 1 , ODEHandle(world , space , contactgroup), conf);
   Color col(0,0.5,0.8);
@@ -106,11 +106,17 @@ void command (int cmd)
     case 'a' : dBodyAddForce ( sphere1->getObjektAt (Sphererobot::Pendular).body , 0 , 0 , 10 ); break;
     case 'x' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , 2 ); break;
     case 'c' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , -2 ); break;
-    case 'i' : controller->setParam("sineRate", controller->getParam("sineRate")-0.5); break;
-    case 'o' : controller->setParam("sineRate", controller->getParam("sineRate")+0.5); break;
+    case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")-0.5); break;
+    case 's' : controller->setParam("sineRate", controller->getParam("sineRate")+0.5); break;
+    case 'P' : sphere1->servo->KP+=5; printf("KP : %g\n", sphere1->servo->KP); break;
+    case 'p' : sphere1->servo->KP-=5; printf("KP : %g\n", sphere1->servo->KP); break;
+    case 'D' : sphere1->servo->KD+=5; printf("KD : %g\n", sphere1->servo->KD); break;
+    case 'd' : sphere1->servo->KD-=5; printf("KD : %g\n", sphere1->servo->KD); break;
+    case 'I' : sphere1->servo->KI+=5; printf("KI : %g\n", sphere1->servo->KI); break;
+    case 'i' : sphere1->servo->KI-=5; printf("KI : %g\n", sphere1->servo->KI); break;
     }
 }
-
+ 
 
 int main (int argc, char **argv)
 {  

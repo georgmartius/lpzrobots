@@ -32,6 +32,7 @@ private:
   
   vector<PID*> motorliste2;
   
+public:
   SliderServo* servo;
 protected:
   SphererobotConf conf;
