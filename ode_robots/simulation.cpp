@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2005-08-25 07:36:16  fhesse
+ *   Revision 1.27  2005-09-02 17:18:15  martius
+ *   camera modes changed
+ *
+ *   Revision 1.26  2005/08/25 07:36:16  fhesse
  *   unistd.h included to be able to use usleep
  *
  *   Revision 1.25  2005/08/23 11:39:31  robot1
@@ -441,17 +444,17 @@ void usercommand_handler(int key) {
       camType = TV;
       break;
     case TV: // now has to be advancedTV
-      camType = advancedTV;
-      break;
-    case advancedTV: // now has to be Following
       camType = Following;
       break;
-      case Following: // now has to be advancedFollowing
-	      camType = advancedFollowing;
-	      break;
-	case advancedFollowing: // now has to be Static
-	      camType = Static;
-	      break;
+    case Following: // now has to be Following
+      camType = advancedTV;
+      break;
+    case advancedTV:
+      camType = advancedFollowing;
+      break;
+    case advancedFollowing: // now has to be Static
+      camType = Static;
+      break;
     }
     break;
   default: // now call the user command
