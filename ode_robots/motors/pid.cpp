@@ -17,7 +17,7 @@ PID::PID ( double start_KP = 500 , double start_KI = 0 , double start_KD = 20 )
 	position = 0;
 	lastposition = 0;
 	error = 0;
-	alpha = 0.95;
+	alpha = 0.98;
 }
 
 void PID::setTargetPosition ( double newpos )
@@ -45,14 +45,14 @@ double PID::stepWithD ( double newsensorval, double derivative ){
 	lasterror = error;
 	error = targetposition - position;
 	
-	P = error * KP;
-	I = error * KI + I * alpha;
+	P = error;
+	I += (1-alpha) * (error * KI - I);
 	D = -derivative * KD;
-	//D = -( 3*position - 4 * lastposition + last2position ) * KD;
-	double maxforce = KP/10;
-	P = P > maxforce ? maxforce : (force < -maxforce ? -maxforce : P);
+	// D = -( 3*position - 4 * lastposition + last2position ) * KD;
+	//double maxforce = KP/10;
+	//P = P > maxforce ? maxforce : (force < -maxforce ? -maxforce : P);
 
-	force = P + I + D;
+	force = KP*(P + I + D);
 	return force;
 
 }
