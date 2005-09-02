@@ -42,9 +42,10 @@ public:
 
 private:
   const static int servono  = 3;
-  const static int sensorno = 6;
+  const static int sensorno = 9;
   
   dSpaceID sphererobot_space;
+ public:
   SliderServo* servo[servono];
   char* name;
 
@@ -73,10 +74,10 @@ public:
   static SphererobotConf getStandartConf(){
     SphererobotConf c;
     c.diameter     = 1;
-    c.spheremass   = 0.5;
+    c.spheremass   = 0.2;
     c.pendulardiameter = 0.2;
-    c.pendularmass = 0.2;
-    c.slidermass   = 0.001;
+    c.pendularmass = 1.0;
+    c.slidermass   = 0.005;
     c.sliderrange  = 0.05; // range of the slider from center in multiple of diameter [-range,range]
     c.maxforce     = 5;
     c.hingeRange   = M_PI/180*30;
