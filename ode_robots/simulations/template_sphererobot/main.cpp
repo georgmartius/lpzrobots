@@ -12,7 +12,7 @@
 #include "sinecontroller.h"
 #include "noisegenerator.h"
 
-#include "sphererobotArms.h"
+#include "sphererobotarms.h"
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
