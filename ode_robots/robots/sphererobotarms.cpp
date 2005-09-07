@@ -31,6 +31,50 @@ Matrix odeRto3x3RotationMatrix ( const double R[12] ) {
   return matrix;
 }
 
+// pi/2-rotation round x-axis of rotation R
+void xrot ( double rotR[12], const double R[12])
+{
+  
+  rotR[0]=R[0];
+  rotR[4]=R[4];
+  rotR[8]=R[8];
+  
+  rotR[1]= -R[2];
+  rotR[5]= -R[6];
+  rotR[9]= -R[10];
+  
+  rotR[2]=R[1];
+  rotR[6]=R[5];
+  rotR[10]=R[9];
+  
+  // whatever
+  rotR[3]=R[3];
+  rotR[7]=R[7];
+  rotR[11]=R[11];
+}
+
+// pi/2-rotation round y-axis of rotation R
+void yrot ( double rotR[12], const double R[12])
+{
+  rotR[0]=R[2];
+  rotR[4]=R[6];
+  rotR[8]=R[10];
+
+  rotR[1]=R[1];
+  rotR[5]=R[5];
+  rotR[9]=R[9];
+  
+  rotR[2]= -R[0];
+  rotR[6]= -R[4];
+  rotR[10]= -R[8];
+  
+  // whatever
+  rotR[3]=R[3];
+  rotR[7]=R[7];
+  rotR[11]=R[11];
+}
+
+
 /**
  *constructor
  *@param startRoboterID ID, which should be managed clearly
@@ -142,10 +186,22 @@ void SphererobotArms::draw()
 // 		     sqrt(len) , 0.05 );    
 //   }
 
-  dsDrawCylinder ( dGeomGetPosition ( object[ Base ].geom), 
-		   dBodyGetRotation ( object[ Base ].body ) , 
-		   conf.diameter , conf.diameter/100 );    
-  
+  // draw blue axis
+  const dReal *R = dBodyGetRotation ( object[ Base ].body);
+  const dReal *pos = dGeomGetPosition ( object[ Base ].geom);
+  dsDrawCylinder ( pos , R, conf.diameter , conf.diameter/100 );    
+
+  // draw green axis
+  double rotR[12];
+  xrot ( rotR, R );
+  dsSetColorAlpha(0,1,0,1);
+  dsDrawCylinder ( pos ,rotR ,conf.diameter , conf.diameter/100 );
+
+  // draw red axis
+  yrot ( rotR, R );
+  dsSetColorAlpha(1,0,0,1);
+  dsDrawCylinder ( pos , rotR , conf.diameter , conf.diameter/100 );
+    
   // draw sphere
   dsSetTexture (0);
   dsSetColorAlpha (color.r, color.g, color.b, 0.5); // transparency= 0.5
