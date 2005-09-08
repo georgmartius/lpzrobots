@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-08-26 09:22:23  robot2
+ *   Revision 1.2  2005-09-08 14:28:25  robot2
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2005/08/26 09:22:23  robot2
  *   terrain
  *
  *   Revision 1.8  2005/08/02 14:09:06  fhesse
@@ -68,6 +71,7 @@ class Terrainground : public AbstractObstacle {
   double height;
   dSpaceID space;
   int DisplayListNumber;
+  int texture;
 
 public:
   
@@ -96,8 +100,8 @@ public:
      base_z=0.0;
 	
      obstacle_exists=false;
-    
-     setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
+     texture = 0;
+
   };
 
   virtual ~Terrainground()  
@@ -105,14 +109,18 @@ public:
       delete []pTerrainHeights;
   }
 
+  void setTextureID(int t)
+  {   texture = t;
+  }
 
-  /**
-   * draws the obstacle (terrain)
-   */
+  
+  // draws the obstacle (terrain)   
   virtual void draw()
   {
-     dsSetColor (color.r, color.g, color.b);
+     dsSetColor (color.r, color.g, color.b);  // color settings have no effect on object if textured
 //     dsDrawTerrainZD( (int)base_x, (int)base_z, size, size/ (double)TERRAINNODES, TERRAINNODES, pTerrainHeights, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
+     dsBindTexture(texture);
+     dsSetTextureCoating(1);
      dsCallList(DisplayListNumber, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
   };
   
