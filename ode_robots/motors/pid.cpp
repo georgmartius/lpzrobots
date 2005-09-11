@@ -17,7 +17,7 @@ PID::PID ( double start_KP = 500 , double start_KI = 0 , double start_KD = 20 )
 	position = 0;
 	lastposition = 0;
 	error = 0;
-	alpha = 0.98;
+	alpha = 0.95;
 }
 
 void PID::setTargetPosition ( double newpos )
