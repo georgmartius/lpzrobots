@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-09-02 17:23:52  martius
+ *   Revision 1.5  2005-09-11 18:52:46  martius
+ *   new constants
+ *
+ *   Revision 1.4  2005/09/02 17:23:52  martius
  *   parameters adjusted
  *
  *   Revision 1.3  2005/09/02 13:20:14  martius
@@ -38,7 +41,7 @@
 #include <assert.h>
 
 SliderServo::SliderServo(dJointID joint, double min, double max, double mass)
-  : PID(mass * 100.0, 1.12, 0.12 ) 
+  : PID(mass * 200.0, 2.0, 0.3 ) 
 {
   assert(min <= 0);
   this->joint = joint;
