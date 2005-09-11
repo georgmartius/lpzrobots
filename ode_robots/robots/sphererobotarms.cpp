@@ -122,16 +122,15 @@ SphererobotArms::SphererobotArms ( const ODEHandle& odeHandle,
     dBodySetMass ( pendular[n].body , &mass );
     
     pendular[n].geom = dCreateSphere ( sphererobot_space , conf.pendulardiameter/2 );
-    //obj.geom = dCreateBox ( sphererobot_space , 0.8,0.8,0.8);
+    // obj.geom = dCreateBox ( sphererobot_space , 0.8,0.8,0.8);
     dGeomSetBody ( pendular[n].geom , pendular[n].body );
   
     dJointID slider = dJointCreateSlider ( world , 0 );
     dJointAttach ( slider , base.body, pendular[n].body );
     dJointSetSliderAxis ( slider, (n==0), (n==1), (n==2) );
     // the Stop parameters are messured from the initial position!
-    dJointSetSliderParam ( slider, dParamLoStop, -2*conf.diameter*conf.sliderrange );
-    dJointSetSliderParam ( slider, dParamHiStop, 2*conf.diameter*conf.sliderrange );
-    dJointSetSliderParam ( slider, dParamCFM, 0.1);
+    dJointSetSliderParam ( slider, dParamLoStop, -1.1*conf.diameter*conf.sliderrange );
+    dJointSetSliderParam ( slider, dParamHiStop, 1.1*conf.diameter*conf.sliderrange );
     dJointSetSliderParam ( slider, dParamStopCFM, 0.1);
     dJointSetSliderParam ( slider, dParamStopERP, 0.9);
     servo[n] = new SliderServo(slider, -conf.diameter*conf.sliderrange, 
@@ -231,6 +230,7 @@ int SphererobotArms::getSensors ( sensor* sensors, int sensornumber )
 
    Matrix A = odeRto3x3RotationMatrix(dBodyGetRotation(object[Base].body));
    return A.convertToBuffer(sensors + len , sensornumber -len) + len;
+   //return len;
 }
 
 /**
