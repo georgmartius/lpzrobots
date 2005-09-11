@@ -38,6 +38,7 @@ void start()
   // initialization
   simulationConfig.setParam("noise",0);
   simulationConfig.setParam("gravity", -9.81 );
+  simulationConfig.setParam("controlinterval", 1 );
   
 
   configs.push_back(&simulationConfig);
@@ -60,13 +61,13 @@ void start()
   sphere1->place ( Position ( 0 , 0 , 0 ) , &col );
   //AbstractController *controller = new InvertNChannelController(10);  
   controller = new SineController();  
-  controller->setParam("sineRate", 4);  
+  controller->setParam("sineRate", 20);  
   controller->setParam("phaseShift", 0.8);
 
   One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
   Agent* agent = new Agent ( plotMode );
   agent->init ( controller , sphere1 , wiring );
-  agents.push_back ( agent );
+  agents.push_back ( agent ); 
   configs.push_back ( controller );
       
   showParams(configs);
@@ -102,18 +103,22 @@ void command (int cmd)
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )
     {
-    case 'y' : dBodyAddForce ( sphere1->getObjektAt (Sphererobot::Pendular).body , 0 ,0 , 10 ); break;
-    case 'a' : dBodyAddForce ( sphere1->getObjektAt (Sphererobot::Pendular).body , 0 , 0 , 10 ); break;
+    case 'y' : dBodyAddForce ( sphere1->getObjektAt (Sphererobot::Pendular).body , 0 ,0 , 100 ); break;
+    case 'a' : dBodyAddForce ( sphere1->getObjektAt (Sphererobot::Pendular).body , 0 , 0 , 100 ); break;
     case 'x' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , 2 ); break;
     case 'c' : dBodyAddTorque ( sphere1->getObjektAt ( Sphererobot::Pendular ).body , 0 , 0 , -2 ); break;
-    case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")-0.5); break;
-    case 's' : controller->setParam("sineRate", controller->getParam("sineRate")+0.5); break;
+    case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")-0.5); 
+      printf("sineRate : %g\n", controller->getParam("sineRate"));
+      break;
+    case 's' : controller->setParam("sineRate", controller->getParam("sineRate")+0.5); 
+      printf("sineRate : %g\n", controller->getParam("sineRate"));
+      break;
     case 'P' : sphere1->servo->KP+=5; printf("KP : %g\n", sphere1->servo->KP); break;
     case 'p' : sphere1->servo->KP-=5; printf("KP : %g\n", sphere1->servo->KP); break;
-    case 'D' : sphere1->servo->KD+=5; printf("KD : %g\n", sphere1->servo->KD); break;
-    case 'd' : sphere1->servo->KD-=5; printf("KD : %g\n", sphere1->servo->KD); break;
-    case 'I' : sphere1->servo->KI+=5; printf("KI : %g\n", sphere1->servo->KI); break;
-    case 'i' : sphere1->servo->KI-=5; printf("KI : %g\n", sphere1->servo->KI); break;
+    case 'D' : sphere1->servo->KD*=1.01; printf("KD : %g\n", sphere1->servo->KD); break;
+    case 'd' : sphere1->servo->KD*=0.99; printf("KD : %g\n", sphere1->servo->KD); break;
+    case 'I' : sphere1->servo->KI*=1.01; printf("KI : %g\n", sphere1->servo->KI); break;
+    case 'i' : sphere1->servo->KI*=0.99; printf("KI : %g\n", sphere1->servo->KI); break;
     }
 }
  

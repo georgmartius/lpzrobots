@@ -64,11 +64,11 @@ SphererobotTest::SphererobotTest ( int startRoboterID , const ODEHandle& odeHand
   dJointID slider = dJointCreateSlider ( world , 0 );
   dJointAttach ( slider , pendular.body , base.body );
   dJointSetSliderAxis ( slider, 0, 0, 1 );
-  //  dJointSetSliderParam ( slider, dParamLoStop, -0.1 );
-  //  dJointSetSliderParam ( slider, dParamHiStop, 0.1 );
+  dJointSetSliderParam ( slider, dParamLoStop, -0.1 );
+  dJointSetSliderParam ( slider, dParamHiStop, 0.1 );
   jointliste.push_back ( slider );
   motorliste.push_back ( slider );
-  servo=new SliderServo(slider, -conf.sliderrange, conf.sliderrange, conf.spheremass*2);
+  servo=new SliderServo(slider, -conf.sliderrange, conf.sliderrange, conf.spheremass);
   //  motorliste2.push_back ( new PID ( 500 , 0 , 20 ) );
   
   

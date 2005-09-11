@@ -190,9 +190,9 @@ template<class T> class Vector3 {
 
   template <class U> Vector3& operator = (const Vector3<U> &r_rhs)
   {
-    x = static_cast<T>(r_lhs.x);
-    y = static_cast<T>(r_lhs.y);
-    z = static_cast<T>(r_lhs.z);
+    x = static_cast<T>(r_rhs.x);
+    y = static_cast<T>(r_rhs.y);
+    z = static_cast<T>(r_rhs.z);
 
     return *this;
   }
