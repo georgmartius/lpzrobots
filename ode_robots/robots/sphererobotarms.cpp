@@ -83,7 +83,7 @@ void yrot ( double rotR[12], const double R[12])
  *@version beta
  **/
 SphererobotArms::SphererobotArms ( const ODEHandle& odeHandle, 
-			   const SphererobotConf& conf )
+				   const SphererobotArmsConf& conf )
   : AbstractRobot ( odeHandle, "Sphere_Robot_Arms" )
 {
   sphererobot_space = dSimpleSpaceCreate ( space );
@@ -129,12 +129,13 @@ SphererobotArms::SphererobotArms ( const ODEHandle& odeHandle,
     dJointAttach ( slider , base.body, pendular[n].body );
     dJointSetSliderAxis ( slider, (n==0), (n==1), (n==2) );
     // the Stop parameters are messured from the initial position!
-    dJointSetSliderParam ( slider, dParamLoStop, -1.1*conf.diameter*conf.sliderrange );
-    dJointSetSliderParam ( slider, dParamHiStop, 1.1*conf.diameter*conf.sliderrange );
+    dJointSetSliderParam ( slider, dParamLoStop, -1.1*conf.diameter*conf.pendularrange );
+    dJointSetSliderParam ( slider, dParamHiStop, 1.1*conf.diameter*conf.pendularrange );
     dJointSetSliderParam ( slider, dParamStopCFM, 0.1);
     dJointSetSliderParam ( slider, dParamStopERP, 0.9);
-    servo[n] = new SliderServo(slider, -conf.diameter*conf.sliderrange, 
-			       conf.diameter*conf.sliderrange, 
+    servo[n] = new SliderServo(slider, 
+			       -conf.diameter*conf.pendularrange, 
+			       conf.diameter*conf.pendularrange, 
 			       conf.pendularmass); 
   }
   object[Base]     = base;

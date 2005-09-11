@@ -11,8 +11,18 @@
 
 using namespace std;
 
-#include "sphererobot.h"
 #include "sliderservo.h"
+#include "abstractrobot.h"
+
+typedef struct {
+public:
+  double diameter;
+  double spheremass;
+  double pendulardiameter; // automatically set
+  double pendularmass;
+  double pendularrange;  
+} SphererobotArmsConf;
+
 
 /**
  *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 
@@ -36,7 +46,7 @@ private:
   char* name;
 
 protected:
-  SphererobotConf conf;
+  SphererobotArmsConf conf;
 
 public:
   Object object[Last];
@@ -48,7 +58,7 @@ public:
    *@version beta
    **/ 
   SphererobotArms ( const ODEHandle& odeHandle, 
-		const SphererobotConf& conf );
+		const SphererobotArmsConf& conf );
 	
   /**
    *Destruktor
@@ -57,16 +67,12 @@ public:
    **/
   virtual ~SphererobotArms();
 	
-  static SphererobotConf getStandartConf(){
-    SphererobotConf c;
+  static SphererobotArmsConf getStandartConf(){
+    SphererobotArmsConf c;
     c.diameter     = 1;
     c.spheremass   = 0.2;
-    c.pendulardiameter = 0.2;
-    c.pendularmass = 1.0;
-    c.slidermass   = 0.005;
-    c.sliderrange  = 0.1; // range of the slider from center in multiple of diameter [-range,range]
-    c.maxforce     = 5;
-    c.hingeRange   = M_PI/180*30;
+    c.pendularmass  = 1.0;
+    c.pendularrange  = 0.2; // range of the slider from center in multiple of diameter [-range,range]
     return c;
   }
 
