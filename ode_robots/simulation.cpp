@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2005-09-02 17:18:15  martius
+ *   Revision 1.28  2005-09-11 15:16:41  martius
+ *   fast frame capturing enabled
+ *
+ *   Revision 1.27  2005/09/02 17:18:15  martius
  *   camera modes changed
  *
  *   Revision 1.26  2005/08/25 07:36:16  fhesse
@@ -104,11 +107,12 @@
 #include <signal.h>
 #include <iostream>
 #include <sys/time.h>
+#include <unistd.h>
 #include <drawstuff/drawstuff.h>
-#include "camera.h" // including camera module now
+#include "camera.h"
+#include "grabframe.h"
 using namespace std;
 #include "simulation.h"
-#include <unistd.h>
 
 
 // ODE globals
@@ -121,6 +125,8 @@ double simulationTime = 0;
 struct timeval realTime;
 int nextLeakAnnounce=20;
 int leakAnnCounter=1;
+
+VideoStream videostream;
 
 OdeConfig simulationConfig;
 int sim_step = 0;
@@ -185,7 +191,6 @@ void simulation_init(void (*start)(), void (*end)(),
   ground = dCreatePlane ( space , 0 , 0 , 1 , 0 );
   cmd_handler_init();
   state=initialised;
-  
 }
 
 void camera_init(CameraType type, AbstractRobot* robot) {
@@ -258,7 +263,7 @@ void simLoop ( int pause ){
     if(additionalCallback) additionalCallback(t==0, pause);
 
     if(t==0 || pause){
-      /**************************Zeichenabschnitt***********************/
+      /**************************Draw the scene ***********************/
       // first repositionize the camera if needed
       moveCamera(camType, *viewedRobot);
       for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
@@ -267,10 +272,14 @@ void simLoop ( int pause ){
       for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
 	(*i)->getRobot()->draw();
       }
+      // grab frame if in captureing mode
+      if(videostream.file && !pause){
+	grabAndWriteFrame(videostream);
+      }
     }
 
-    // Time syncronisation of real time and simulations time
-    if(simulationConfig.realTimeFactor!=0.0){
+    // Time syncronisation of real time and simulations time (not if on capture mode)
+    if(simulationConfig.realTimeFactor!=0.0 && videostream.file==0){
       struct timeval currentTime;
       gettimeofday(&currentTime, 0);
       // difference in milliseconds
@@ -420,9 +429,9 @@ void initViewedRobot() {
 
 void usercommand_handler(int key) {
   // the stuff for handling internal commands
-  initViewedRobot();
   switch (key) {
-  case 32: // key 32 (space) is for switching between the robots
+  case ' ': // key 32 (space) is for switching between the robots
+    initViewedRobot();
     for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
       if (viewedRobot==(*i)->getRobot()) { // our current agent is found
 	if (i!=agents.end()-1) {
@@ -437,7 +446,8 @@ void usercommand_handler(int key) {
     }
     printf("View at robot: %s\n", viewedRobot->getName());
     break;
-  case 118: // key 118 (v) is for switching between the camera modes
+  case 'v': // is for switching between the camera modes
+    initViewedRobot();    
     switch (camType) {
     case Static: // now has to be TV
       // initializes the robot to view
@@ -457,6 +467,19 @@ void usercommand_handler(int key) {
       break;
     }
     break;
+  case 'c': // toggle video capture mode
+    if (videostream.file){
+      printf("Stop capturing mode\n");
+      closeVideoStream(videostream);
+    }else{
+      time_t t = time(NULL);
+      struct tm* tm = gmtime(&t);
+      char name[129];
+      sprintf(name,"frames/frame_%02i_%02i_%02i", tm->tm_hour,tm->tm_min,tm->tm_sec);
+      printf("Start capturing to %s\n",name);
+      system("mkdir -p frames");
+      videostream = openVideoStream(name);
+    }
   default: // now call the user command
     if (commandFunction) commandFunction(key);
     break;
