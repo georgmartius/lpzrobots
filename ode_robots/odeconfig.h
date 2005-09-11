@@ -17,6 +17,8 @@ public:
     Configurable::insertCVSInfo(name + strlen(name), "$RCSfile$", "$Revision$");
   }
 
+  virtual ~OdeConfig(){}
+
   virtual constparamkey getName() const {
     return name;
   }
