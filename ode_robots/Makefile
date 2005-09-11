@@ -13,6 +13,8 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 
 LIB=libode_robots.a
 
+UTILS = utils/splitvideo
+
 # -pg for profiling
 # CFLAGS = -Wall -I. -g
 ## Optimisation #DNDEBUG
@@ -27,9 +29,13 @@ CXX = g++ $(CFLAGS) $(INC)
 # used for lib-packing 
 AR = ar -rs
 
-$(LIB): Makefile.depend $(OFILES)
+$(LIB): Makefile.depend $(OFILES) $(UTILS)
 	@echo "$(OFILES)";
 	$(AR) $(LIB) $(OFILES)
+
+utils/splitvideo: utils/splitvideo.c
+	$(CXX) -o utils/splitvideo utils/splitvideo.c
+
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
