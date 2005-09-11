@@ -1,0 +1,75 @@
+diff -Naur ode-0.5/ode/src/joint.cpp ode-0.5_slider/ode/src/joint.cpp
+--- ode-0.5/ode/src/joint.cpp	2004-05-18 20:08:04.000000000 +0200
++++ ode-0.5_slider/ode/src/joint.cpp	2005-09-11 19:46:50.000000000 +0200
+@@ -496,13 +496,15 @@
+     // halfway between the body centers. there is no penalty (other than an
+     // extra tiny bit of computation) in doing this adjustment. note that we
+     // only need to do this if the constraint connects two bodies.
+-
+-    dVector3 ltd;	// Linear Torque Decoupling vector (a torque)
++    
++    dVector3 ltd; // Linear Torque Decoupling vector (a torque)
+     if (!rotational && joint->node[1].body) {
+       dVector3 c;
+-      c[0]=REAL(0.5)*(joint->node[1].body->pos[0]-joint->node[0].body->pos[0]);
+-      c[1]=REAL(0.5)*(joint->node[1].body->pos[1]-joint->node[0].body->pos[1]);
+-      c[2]=REAL(0.5)*(joint->node[1].body->pos[2]-joint->node[0].body->pos[2]);
++      // factor 0.25 since halfway between the body centers 
++      //  and we apply the torques twice (for both bodies)
++      c[0]=REAL(0.25)*(joint->node[1].body->pos[0]-joint->node[0].body->pos[0]);
++      c[1]=REAL(0.25)*(joint->node[1].body->pos[1]-joint->node[0].body->pos[1]);
++      c[2]=REAL(0.25)*(joint->node[1].body->pos[2]-joint->node[0].body->pos[2]);
+       dCROSS (ltd,=,c,ax1);
+       info->J1a[srow+0] = ltd[0];
+       info->J1a[srow+1] = ltd[1];
+@@ -1154,15 +1156,47 @@
+   if (joint->flags & dJOINT_REVERSE)
+     force -= force;
+ 
+-  getAxis (joint,axis,joint->axis1);
++  getAxis (joint,axis,joint->axis1);  
++
++  // linear limot torque decoupling step:
++  //
++  // if this is a linear limot (e.g. from a slider), we have to be careful
++  // that the linear constraint forces (+/- ax1) applied to the two bodies
++  // do not create a torque couple. in other words, the points that the
++  // constraint force is applied at must lie along the same ax1 axis.
++  // a torque couple will result in powered or limited slider-jointed free
++  // bodies from gaining angular momentum.
++  // the solution used here is to apply the constraint forces at the point
++  // halfway between the body centers. there is no penalty (other than an
++  // extra tiny bit of computation) in doing this adjustment. note that we
++  // only need to do this if the constraint connects two bodies.
++  
++  dVector3 ltd; // Linear Torque Decoupling vector (a torque)
++  
++  dVector3 c;  
++  // factor 0.25 since halfway between the body centers 
++  //  and we apply the torques twice (for both bodies)
++  c[0]=REAL(0.25)*(joint->node[1].body->pos[0]-joint->node[0].body->pos[0]);
++  c[1]=REAL(0.25)*(joint->node[1].body->pos[1]-joint->node[0].body->pos[1]);
++  c[2]=REAL(0.25)*(joint->node[1].body->pos[2]-joint->node[0].body->pos[2]);
++  dCROSS (ltd,=,c,axis);
++  ltd[0] *= force;
++  ltd[1] *= force;
++  ltd[2] *= force;  
++
+   axis[0] *= force;
+   axis[1] *= force;
+   axis[2] *= force;
+ 
+-  if (joint->node[0].body != 0)
++  if (joint->node[0].body != 0){
+     dBodyAddForce (joint->node[0].body,axis[0],axis[1],axis[2]);
+-  if (joint->node[1].body != 0)
++    // linear limot torque decoupling step: refer to above discussion
++    dBodyAddTorque (joint->node[0].body,ltd[0],ltd[1], ltd[2]);
++  }
++  if (joint->node[1].body != 0){
+     dBodyAddForce(joint->node[1].body, -axis[0], -axis[1], -axis[2]);
++    dBodyAddTorque (joint->node[1].body,ltd[0],ltd[1], ltd[2]);
++  }
+ }
+ 
+ 
