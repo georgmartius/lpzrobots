@@ -1,6 +1,6 @@
-diff -Naur ode-0.5.test/Makefile ode-0.5_terrain/Makefile
---- ode-0.5.test/Makefile	2005-09-12 12:01:17.127968000 +0200
-+++ ode-0.5_terrain/Makefile	2005-09-12 11:45:30.697259000 +0200
+diff -Naur ode-0.5_drawstuff/Makefile ode-0.5_terrain/Makefile
+--- ode-0.5_drawstuff/Makefile	2005-09-12 13:41:44.000000000 +0200
++++ ode-0.5_terrain/Makefile	2005-09-12 14:01:10.000000000 +0200
 @@ -71,6 +71,9 @@
  	ode/src/collision_std.cpp \
  	ode/src/collision_space.cpp \
@@ -21,9 +21,9 @@ diff -Naur ode-0.5.test/Makefile ode-0.5_terrain/Makefile
  ifdef OPCODE_DIRECTORY
  ODE_TEST_SRC_CPP += \
  	ode/test/test_trimesh.cpp \
-diff -Naur ode-0.5.test/contrib/TerrainAndCone/dTerrainY.cpp ode-0.5_terrain/contrib/TerrainAndCone/dTerrainY.cpp
---- ode-0.5.test/contrib/TerrainAndCone/dTerrainY.cpp	2005-09-12 12:01:18.504205000 +0200
-+++ ode-0.5_terrain/contrib/TerrainAndCone/dTerrainY.cpp	2005-09-12 11:45:32.020753000 +0200
+diff -Naur ode-0.5_drawstuff/contrib/TerrainAndCone/dTerrainY.cpp ode-0.5_terrain/contrib/TerrainAndCone/dTerrainY.cpp
+--- ode-0.5_drawstuff/contrib/TerrainAndCone/dTerrainY.cpp	2005-09-12 13:41:44.000000000 +0200
++++ ode-0.5_terrain/contrib/TerrainAndCone/dTerrainY.cpp	2005-09-12 14:01:10.000000000 +0200
 @@ -10,8 +10,8 @@
  #include "collision_std_internal.h"
  #include "collision_util.h"
@@ -35,19 +35,21 @@ diff -Naur ode-0.5.test/contrib/TerrainAndCone/dTerrainY.cpp ode-0.5_terrain/con
  
  #define CONTACT(p,skip) ((dContactGeom*) (((char*)p) + (skip)))
  #define MAXCONTACT 10
-diff -Naur ode-0.5.test/drawstuff/src/drawstuff.cpp ode-0.5_terrain/drawstuff/src/drawstuff.cpp
---- ode-0.5.test/drawstuff/src/drawstuff.cpp	2005-09-12 12:02:27.593084000 +0200
-+++ ode-0.5_terrain/drawstuff/src/drawstuff.cpp	2005-09-12 12:07:59.333556000 +0200
-@@ -1286,7 +1286,7 @@
+diff -Naur ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp ode-0.5_terrain/drawstuff/src/drawstuff.cpp
+--- ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp	2005-09-12 13:56:50.000000000 +0200
++++ ode-0.5_terrain/drawstuff/src/drawstuff.cpp	2005-09-12 15:03:32.000000000 +0200
+@@ -274,8 +274,8 @@
+ void Texture::bind (int modulate)
  {
-   if (current_state != 2) dsError ("drawing function called outside simulation loop");
-   if(texture_index < texture_number && texture_index >= 0)
--    tnum = texture_index;  
-+     tnum = texture_index;  
-   else
-     tnum = 0;
+   glBindTexture (GL_TEXTURE_2D, name);
+-  glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
+-  // glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
++  //glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
++  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
  }
-@@ -1542,3 +1542,538 @@
+ 
+ 
+@@ -1534,3 +1534,535 @@
  {
    capped_cylinder_quality = n;
  }
@@ -262,32 +264,31 @@ diff -Naur ode-0.5.test/drawstuff/src/drawstuff.cpp ode-0.5_terrain/drawstuff/sr
 +// calls the display list and execute it, that means drawing the model
 +void dsCallList(int ListNumber, const double *pR, const double *ppos)
 +{    
-+	double R[12];
-+	double pos[3];
-+        int i;
-+
-+	if (pR)  memcpy(R,pR,sizeof(R));
-+	else
-+	{   memset( R, 0, sizeof(R));
-+	    R[0] = 1.f;
-+	    R[5] = 1.f;
-+	    R[10] = 1.f;
-+	}
-+	
-+	if (ppos) memcpy(pos,ppos,sizeof(pos));
-+	else      memset(pos,0,sizeof(pos));
-+
-+
-+    float pos2[3], R2[12];     // let's do some annoying conversation work
-+    for (i=0; i<3;  i++) pos2[i]=(float)pos[i];
-+    for (i=0; i<12; i++)   R2[i]=(float)  R[i];
-+
-+    glShadeModel (GL_SMOOTH);
-+    setTransform (pos2, R2);  // apply transfomrations to the model called below
-+    glCallList(ListNumber);
-+    glPopMatrix();           // leave a virgin matrix stack
-+
-+
++  double R[12];
++  double pos[3];
++  int i;
++  
++  if (pR)  memcpy(R,pR,sizeof(R));
++  else{ 
++    memset( R, 0, sizeof(R));
++    R[0] = 1.f;
++    R[5] = 1.f;
++    R[10] = 1.f;
++  }
++  
++  if (ppos) memcpy(pos,ppos,sizeof(pos));
++  else      memset(pos,0,sizeof(pos));
++    
++  float pos2[3], R2[12];     // let's do some annoying conversation work
++  for (i=0; i<3;  i++) pos2[i]=(float)pos[i];
++  for (i=0; i<12; i++)   R2[i]=(float)  R[i];
++  
++  setupDrawingMode(false);
++  glShadeModel (GL_SMOOTH);
++  setTransform (pos2, R2);  // apply transfomrations to the model called below
++  glCallList(ListNumber);
++  glPopMatrix();           // leave a virgin matrix stack
++  
 +}
 +
 +
@@ -368,11 +369,11 @@ diff -Naur ode-0.5.test/drawstuff/src/drawstuff.cpp ode-0.5_terrain/drawstuff/sr
 +
 +       u[0] = 1.0;
 +       u[1] = 0.0;
-+       u[2] = (GetHeightD( x+1, y, nNumNodesPerSide, pHeights) - GetHeightD( x, y, nNumNodesPerSide, pHeights));
++       u[2] = (GetHeightD( x+1, y, nNumNodesPerSide, pHeights) - GetHeightD( x, y, nNumNodesPerSide, pHeights))*2;
 +
 +       v[0] = 0.0;
 +       v[1] = 1.0;
-+       v[2] = (GetHeightD( x, y+1, nNumNodesPerSide, pHeights) - GetHeightD( x, y, nNumNodesPerSide, pHeights));
++       v[2] = (GetHeightD( x, y+1, nNumNodesPerSide, pHeights) - GetHeightD( x, y, nNumNodesPerSide, pHeights))*2;
 +
 +       dCROSS (normal,=,u,v);
 +
@@ -392,8 +393,6 @@ diff -Naur ode-0.5.test/drawstuff/src/drawstuff.cpp ode-0.5_terrain/drawstuff/sr
 +
 +     int i,j;
 +     float normal[3];
-+
-+
 +
 +     int dlist = glGenLists(1); 
 +     if(dlist == 0) {printf("Error: display list handler is zero.\n"); return 0;}
@@ -452,30 +451,30 @@ diff -Naur ode-0.5.test/drawstuff/src/drawstuff.cpp ode-0.5_terrain/drawstuff/sr
 +
 +   glEnd();
 +
-+/* 
-+   // show normals only
-+   float u[3], v[3], n[3];
++ 
++//    // show normals only
++//    float u[3], v[3], n[3];
 +   
-+   glBegin(GL_LINES);
-+	for (i=0;i<nNumNodesPerSide;i+=5)
-+	   for (j=0;j<nNumNodesPerSide;j+=5)
-+	   {   n[0]=0; n[1]=0; n[2]=1.0;
++//    glBegin(GL_LINES);
++// 	for (i=0;i<nNumNodesPerSide;i+=5)
++// 	   for (j=0;j<nNumNodesPerSide;j+=5)
++// 	   {   n[0]=0; n[1]=0; n[2]=1.0;
 +	   
-+               claculateSmoothNormal( j, i, pHeights, nNumNodesPerSide, vNodeLength, n);
++//                claculateSmoothNormal( j, i, pHeights, nNumNodesPerSide, vNodeLength, n);
 +
-+	       normal[0] = (i * vNodeLength) ;
-+	       normal[1] = (j * vNodeLength) ;
-+	       normal[2] = GetHeightD( i, j, nNumNodesPerSide, pHeights);
-+	       glVertex3fv(normal);
++// 	       normal[0] = (i * vNodeLength) ;
++// 	       normal[1] = (j * vNodeLength) ;
++// 	       normal[2] = GetHeightD( i, j, nNumNodesPerSide, pHeights);
++// 	       glVertex3fv(normal);
 +	       
-+	       normal[0] += n[0];
-+	       normal[1] += n[1];
-+	       normal[2] += n[2];
-+	       glVertex3fv(normal);	       
-+	   }   
++// 	       normal[0] += n[0];
++// 	       normal[1] += n[1];
++// 	       normal[2] += n[2];
++// 	       glVertex3fv(normal);	       
++// 	   }   
 +   
-+   glEnd();
-+*/
++//    glEnd();
++
 +   glEndList();
 +   return dlist; // returns Handler to display list
 +}
@@ -512,7 +511,7 @@ diff -Naur ode-0.5.test/drawstuff/src/drawstuff.cpp ode-0.5_terrain/drawstuff/sr
 +        for (i=0; i<12; i++)   R2[i]=(float)  R[i];
 +
 +
-+        setupDrawingMode();
++        setupDrawingMode(false);
 +        glShadeModel (GL_FLAT);
 +        setTransform (pos2, R2);  // execute translation and rotation 
 +        glBegin(GL_TRIANGLES);
@@ -586,10 +585,20 @@ diff -Naur ode-0.5.test/drawstuff/src/drawstuff.cpp ode-0.5_terrain/drawstuff/sr
 +  glEnd();
 +  glPopMatrix();
 +}
-diff -Naur ode-0.5.test/include/drawstuff/drawstuff.h ode-0.5_terrain/include/drawstuff/drawstuff.h
---- ode-0.5.test/include/drawstuff/drawstuff.h	2005-09-12 12:02:27.621103000 +0200
-+++ ode-0.5_terrain/include/drawstuff/drawstuff.h	2005-09-12 11:45:32.651935000 +0200
-@@ -165,6 +165,16 @@
+diff -Naur ode-0.5_drawstuff/include/drawstuff/drawstuff.h ode-0.5_terrain/include/drawstuff/drawstuff.h
+--- ode-0.5_drawstuff/include/drawstuff/drawstuff.h	2005-09-12 13:59:02.000000000 +0200
++++ ode-0.5_terrain/include/drawstuff/drawstuff.h	2005-09-12 14:12:02.000000000 +0200
+@@ -120,6 +120,9 @@
+  * reset to white.
+  */
+ void dsSetTexture (int texture_number, int _coating = 1);
++
++  /* if side = 0 then BackFace else FrontFace*/
++void dsSetCulling(int side);
+ void dsSetColor (float red, float green, float blue);
+ void dsSetColorAlpha (float red, float green, float blue, float alpha);
+ 
+@@ -157,6 +160,16 @@
  			    float length, float radius);
  void dsDrawLineD (const double pos1[3], const double pos2[3]);
  
@@ -606,9 +615,9 @@ diff -Naur ode-0.5.test/include/drawstuff/drawstuff.h ode-0.5_terrain/include/dr
  /* Set the drawn quality of the objects. Higher numbers are higher quality,
   * but slower to draw. This must be set before the first objects are drawn to
   * be effective.
-diff -Naur ode-0.5.test/include/ode/collision.h ode-0.5_terrain/include/ode/collision.h
---- ode-0.5.test/include/ode/collision.h	2005-09-12 12:01:19.169943000 +0200
-+++ ode-0.5_terrain/include/ode/collision.h	2005-09-12 11:45:32.676591000 +0200
+diff -Naur ode-0.5_drawstuff/include/ode/collision.h ode-0.5_terrain/include/ode/collision.h
+--- ode-0.5_drawstuff/include/ode/collision.h	2005-09-12 13:41:44.000000000 +0200
++++ ode-0.5_terrain/include/ode/collision.h	2005-09-12 14:01:10.000000000 +0200
 @@ -85,6 +85,10 @@
    dGeomTransformClass,
    dTriMeshClass,
@@ -639,9 +648,9 @@ diff -Naur ode-0.5.test/include/ode/collision.h ode-0.5_terrain/include/ode/coll
  
  dGeomID dCreateSphere (dSpaceID space, dReal radius);
  void dGeomSphereSetRadius (dGeomID sphere, dReal radius);
-diff -Naur ode-0.5.test/include/ode/odemath.h ode-0.5_terrain/include/ode/odemath.h
---- ode-0.5.test/include/ode/odemath.h	2005-09-12 12:01:19.331014000 +0200
-+++ ode-0.5_terrain/include/ode/odemath.h	2005-09-12 11:45:32.834668000 +0200
+diff -Naur ode-0.5_drawstuff/include/ode/odemath.h ode-0.5_terrain/include/ode/odemath.h
+--- ode-0.5_drawstuff/include/ode/odemath.h	2005-09-12 13:41:44.000000000 +0200
++++ ode-0.5_terrain/include/ode/odemath.h	2005-09-12 14:01:10.000000000 +0200
 @@ -211,6 +211,28 @@
  
  #endif
@@ -671,18 +680,9 @@ diff -Naur ode-0.5.test/include/ode/odemath.h ode-0.5_terrain/include/ode/odemat
  
  #ifdef __cplusplus
  extern "C" {
-diff -Naur ode-0.5.test/install.sh ode-0.5_terrain/install.sh
---- ode-0.5.test/install.sh	1970-01-01 01:00:00.000000000 +0100
-+++ ode-0.5_terrain/install.sh	2005-09-12 11:45:34.145438000 +0200
-@@ -0,0 +1,4 @@
-+#!/bin/bash
-+
-+cp lib/* /usr/local/lib/
-+cp -r include /usr/local/
-\ Kein Zeilenumbruch am Dateiende.
-diff -Naur ode-0.5.test/ode/src/collision_kernel.cpp ode-0.5_terrain/ode/src/collision_kernel.cpp
---- ode-0.5.test/ode/src/collision_kernel.cpp	2005-09-12 12:01:19.798797000 +0200
-+++ ode-0.5_terrain/ode/src/collision_kernel.cpp	2005-09-12 11:45:33.303121000 +0200
+diff -Naur ode-0.5_drawstuff/ode/src/collision_kernel.cpp ode-0.5_terrain/ode/src/collision_kernel.cpp
+--- ode-0.5_drawstuff/ode/src/collision_kernel.cpp	2005-09-12 13:41:44.000000000 +0200
++++ ode-0.5_terrain/ode/src/collision_kernel.cpp	2005-09-12 14:01:25.000000000 +0200
 @@ -139,6 +139,29 @@
    setCollider (dRayClass,dBoxClass,&dCollideRayBox);
    setCollider (dRayClass,dCCylinderClass,&dCollideRayCCylinder);
@@ -713,9 +713,9 @@ diff -Naur ode-0.5.test/ode/src/collision_kernel.cpp ode-0.5_terrain/ode/src/col
  #ifdef dTRIMESH_ENABLED
    setCollider (dTriMeshClass,dSphereClass,&dCollideSTL);
    setCollider (dTriMeshClass,dBoxClass,&dCollideBTL);
-diff -Naur ode-0.5.test/ode/src/collision_std.h ode-0.5_terrain/ode/src/collision_std.h
---- ode-0.5.test/ode/src/collision_std.h	2005-09-12 12:01:19.863440000 +0200
-+++ ode-0.5_terrain/ode/src/collision_std.h	2005-09-12 11:45:33.367863000 +0200
+diff -Naur ode-0.5_drawstuff/ode/src/collision_std.h ode-0.5_terrain/ode/src/collision_std.h
+--- ode-0.5_drawstuff/ode/src/collision_std.h	2005-09-12 13:41:44.000000000 +0200
++++ ode-0.5_terrain/ode/src/collision_std.h	2005-09-12 14:01:25.000000000 +0200
 @@ -64,5 +64,15 @@
  int dCollideRayPlane (dxGeom *o1, dxGeom *o2, int flags,
  		      dContactGeom *contact, int skip);
@@ -732,9 +732,9 @@ diff -Naur ode-0.5.test/ode/src/collision_std.h ode-0.5_terrain/ode/src/collisio
 +
  
  #endif
-diff -Naur ode-0.5.test/ode/src/collision_std_internal.h ode-0.5_terrain/ode/src/collision_std_internal.h
---- ode-0.5.test/ode/src/collision_std_internal.h	1970-01-01 01:00:00.000000000 +0100
-+++ ode-0.5_terrain/ode/src/collision_std_internal.h	2005-09-12 11:45:33.858965000 +0200
+diff -Naur ode-0.5_drawstuff/ode/src/collision_std_internal.h ode-0.5_terrain/ode/src/collision_std_internal.h
+--- ode-0.5_drawstuff/ode/src/collision_std_internal.h	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_terrain/ode/src/collision_std_internal.h	2005-09-12 14:01:25.000000000 +0200
 @@ -0,0 +1,100 @@
 +//Benoit CHAPEROT 2003-2004 www.jstarlab.com
 +#ifndef _ODE_COLLISION_STD_INTERNAL_H_
@@ -837,9 +837,9 @@ diff -Naur ode-0.5.test/ode/src/collision_std_internal.h ode-0.5_terrain/ode/src
 +
 +#endif //_ODE_COLLISION_STD_INTERNAL_H_
 \ Kein Zeilenumbruch am Dateiende.
-diff -Naur ode-0.5.test/ode/src/dCone.cpp ode-0.5_terrain/ode/src/dCone.cpp
---- ode-0.5.test/ode/src/dCone.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ ode-0.5_terrain/ode/src/dCone.cpp	2005-09-12 11:45:33.868086000 +0200
+diff -Naur ode-0.5_drawstuff/ode/src/dCone.cpp ode-0.5_terrain/ode/src/dCone.cpp
+--- ode-0.5_drawstuff/ode/src/dCone.cpp	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_terrain/ode/src/dCone.cpp	2005-09-12 14:01:25.000000000 +0200
 @@ -0,0 +1,497 @@
 +//Benoit CHAPEROT 2003-2004 www.jstarlab.com
 +//some code inspired by Magic Software
@@ -1338,9 +1338,9 @@ diff -Naur ode-0.5.test/ode/src/dCone.cpp ode-0.5_terrain/ode/src/dCone.cpp
 +	
 +
 +
-diff -Naur ode-0.5.test/ode/src/dTerrainY.cpp ode-0.5_terrain/ode/src/dTerrainY.cpp
---- ode-0.5.test/ode/src/dTerrainY.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ ode-0.5_terrain/ode/src/dTerrainY.cpp	2005-09-12 11:45:33.878592000 +0200
+diff -Naur ode-0.5_drawstuff/ode/src/dTerrainY.cpp ode-0.5_terrain/ode/src/dTerrainY.cpp
+--- ode-0.5_drawstuff/ode/src/dTerrainY.cpp	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_terrain/ode/src/dTerrainY.cpp	2005-09-12 14:01:25.000000000 +0200
 @@ -0,0 +1,641 @@
 +//Benoit CHAPEROT 2003-2004 www.jstarlab.com
 +//some code inspired by Magic Software
@@ -1984,9 +1984,9 @@ diff -Naur ode-0.5.test/ode/src/dTerrainY.cpp ode-0.5_terrain/ode/src/dTerrainY.
 +}
 +*/
 \ Kein Zeilenumbruch am Dateiende.
-diff -Naur ode-0.5.test/ode/src/dTerrainZ.cpp ode-0.5_terrain/ode/src/dTerrainZ.cpp
---- ode-0.5.test/ode/src/dTerrainZ.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ ode-0.5_terrain/ode/src/dTerrainZ.cpp	2005-09-12 11:45:33.889410000 +0200
+diff -Naur ode-0.5_drawstuff/ode/src/dTerrainZ.cpp ode-0.5_terrain/ode/src/dTerrainZ.cpp
+--- ode-0.5_drawstuff/ode/src/dTerrainZ.cpp	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_terrain/ode/src/dTerrainZ.cpp	2005-09-12 14:01:25.000000000 +0200
 @@ -0,0 +1,641 @@
 +//Benoit CHAPEROT 2003-2004 www.jstarlab.com
 +//some code inspired by Magic Software
@@ -2630,9 +2630,9 @@ diff -Naur ode-0.5.test/ode/src/dTerrainZ.cpp ode-0.5_terrain/ode/src/dTerrainZ.
 +}
 +*/
 \ Kein Zeilenumbruch am Dateiende.
-diff -Naur ode-0.5.test/ode/test/test_boxstack.cpp ode-0.5_terrain/ode/test/test_boxstack.cpp
---- ode-0.5.test/ode/test/test_boxstack.cpp	2005-09-12 12:01:20.375142000 +0200
-+++ ode-0.5_terrain/ode/test/test_boxstack.cpp	2005-09-12 11:45:33.915970000 +0200
+diff -Naur ode-0.5_drawstuff/ode/test/test_boxstack.cpp ode-0.5_terrain/ode/test/test_boxstack.cpp
+--- ode-0.5_drawstuff/ode/test/test_boxstack.cpp	2005-09-12 13:41:44.000000000 +0200
++++ ode-0.5_terrain/ode/test/test_boxstack.cpp	2005-09-12 14:01:25.000000000 +0200
 @@ -19,7 +19,8 @@
   * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
   *                                                                       *
@@ -2643,9 +2643,9 @@ diff -Naur ode-0.5.test/ode/test/test_boxstack.cpp ode-0.5_terrain/ode/test/test
  #include <ode/ode.h>
  #include <drawstuff/drawstuff.h>
  
-diff -Naur ode-0.5.test/ode/test/test_boxstackb.cpp ode-0.5_terrain/ode/test/test_boxstackb.cpp
---- ode-0.5.test/ode/test/test_boxstackb.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ ode-0.5_terrain/ode/test/test_boxstackb.cpp	2005-09-12 11:45:34.080782000 +0200
+diff -Naur ode-0.5_drawstuff/ode/test/test_boxstackb.cpp ode-0.5_terrain/ode/test/test_boxstackb.cpp
+--- ode-0.5_drawstuff/ode/test/test_boxstackb.cpp	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_terrain/ode/test/test_boxstackb.cpp	2005-09-12 14:01:25.000000000 +0200
 @@ -0,0 +1,457 @@
 +/*************************************************************************
 +*																		 *

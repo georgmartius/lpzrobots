@@ -1,6 +1,6 @@
-diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/drawstuff.cpp
+diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp
 --- ode-0.5/drawstuff/src/drawstuff.cpp	2004-04-19 00:19:21.000000000 +0200
-+++ ode-0.5_working/drawstuff/src/drawstuff.cpp	2005-09-12 11:48:50.907499000 +0200
++++ ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp	2005-09-12 13:56:50.000000000 +0200
 @@ -80,6 +80,7 @@
  const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
  const float sky_height = 1.0f;		// sky height above viewpoint
@@ -9,14 +9,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
  //***************************************************************************
  // misc mathematics stuff
  
-@@ -229,14 +230,15 @@
-   Texture (char *filename);
-   ~Texture();
-   void bind (int modulate);
-+  void bind ();
- };
- 
- 
+@@ -235,8 +236,8 @@
  Texture::Texture (char *filename)
  {
    image = new Image (filename);
@@ -27,7 +20,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
  
    // set pixel unpacking mode
    glPixelStorei (GL_UNPACK_SWAP_BYTES, 0);
-@@ -247,35 +249,41 @@
+@@ -247,40 +248,58 @@
  
    // glTexImage2D (GL_TEXTURE_2D, 0, 3, image->width(), image->height(), 0,
    //		   GL_RGB, GL_UNSIGNED_BYTE, image->data());
@@ -67,30 +60,52 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
 -	     modulate ? GL_MODULATE : GL_DECAL);
 +  glBindTexture (GL_TEXTURE_2D, name);
 +  glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
-+}
-+
-+void Texture::bind()
-+{
-+  glBindTexture (GL_TEXTURE_2D, name);
++  // glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
  }
  
 +
  //***************************************************************************
  // the current drawing state (for when the user's step function is drawing)
  
-@@ -805,30 +813,35 @@
- // textures and shadows
- static int use_textures=1;		// 1 if textures to be drawn
- static int use_shadows=1;		// 1 if shadows to be drawn
--static Texture *sky_texture = 0;
--static Texture *ground_texture = 0;
--static Texture *wood_texture = 0;
+ static float color[4] = {0,0,0,0};	// current r,g,b,alpha color
+ static int tnum = 0;			// current texture number
++static int coating = 1;			// current coating mode
++
++// the current state:
++//    0 = uninitialized
++//    1 = dsSimulationLoop() called
++//    2 = dsDrawFrame() called
++static int current_state = 0;
++
++// textures and shadows
++static int use_textures=1;		// 1 if textures to be drawn
++static int use_shadows=1;		// 1 if shadows to be drawn
 +// textures
 +static Texture* texture[DS_MAXTEXTURES];
 +static int texture_number = 0;
 +static char* texture_prefix = 0;
++
  
+ //***************************************************************************
+ // OpenGL utility stuff
+@@ -796,39 +815,29 @@
+ //***************************************************************************
+ // drawing loop stuff
  
+-// the current state:
+-//    0 = uninitialized
+-//    1 = dsSimulationLoop() called
+-//    2 = dsDrawFrame() called
+-static int current_state = 0;
+-
+-// textures and shadows
+-static int use_textures=1;		// 1 if textures to be drawn
+-static int use_shadows=1;		// 1 if shadows to be drawn
+-static Texture *sky_texture = 0;
+-static Texture *ground_texture = 0;
+-static Texture *wood_texture = 0;
+-
+-
  #ifndef macintosh
  
  void dsStartGraphics (int width, int height, dsFunctions *fn)
@@ -127,7 +142,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
  }
  
  #else // macintosh
-@@ -841,15 +854,16 @@
+@@ -841,15 +850,16 @@
  
     strcpy (s,prefix);
     strcat (s,":sky.ppm");
@@ -147,7 +162,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
  }
  
  #endif
-@@ -857,12 +871,11 @@
+@@ -857,12 +867,11 @@
  
  void dsStopGraphics()
  {
@@ -165,7 +180,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
  }
  
  
-@@ -871,7 +884,7 @@
+@@ -871,7 +880,7 @@
    glDisable (GL_LIGHTING);
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
@@ -174,7 +189,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
    }
    else {
      glDisable (GL_TEXTURE_2D);
-@@ -920,7 +933,7 @@
+@@ -920,7 +929,7 @@
  
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
@@ -183,7 +198,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
    }
    else {
      glDisable (GL_TEXTURE_2D);
-@@ -1094,7 +1107,7 @@
+@@ -1094,7 +1103,7 @@
    return use_shadows;
  }
  
@@ -192,7 +207,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
  void dsSetShadows (int a)
  {
    use_shadows = (a != 0);
-@@ -1106,12 +1119,45 @@
+@@ -1106,31 +1115,54 @@
    return use_textures;
  }
  
@@ -203,13 +218,6 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
    use_textures = (a != 0);
  }
  
-+// This method requires a texture bind call, previously !!!
-+// coat = GL_DECAL | GL_MODULATE
-+void dsSetTextureCoating(int coating)
-+{
-+  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, coating ? GL_MODULATE : GL_DECAL);
-+}
-+
 +// This method requires a texture bind call, previously !!!
 +// Due to the fact that texture koords are provided by OpenGL
 +// they will not be in the range between 0 and 1.0.
@@ -228,19 +236,12 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
 +
 +}
 +
-+// Is neccessary because somebody calls "dsSetTexture"
-+// somewhere in the code before the texture is registered.
-+// Otherwise one could put that into the "dsSetTexture" method.
-+void dsBindTexture(int index)
-+{   glEnable(GL_TEXTURE_2D);  
-+    texture[index]->bind();
-+}
-+
  //***************************************************************************
  // C interface
  
-@@ -1119,10 +1165,10 @@
- static void setupDrawingMode()
+ // sets lighting and texture modes, sets current color
+-static void setupDrawingMode()
++static void setupDrawingMode(bool genTextureCoords = true) 
  {
    glEnable (GL_LIGHTING);
 -  if (tnum) {
@@ -248,32 +249,86 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
      if (use_textures) {
        glEnable (GL_TEXTURE_2D);
 -      wood_texture->bind (1);
-+      texture[tnum]->bind (1);
-       glEnable (GL_TEXTURE_GEN_S);
-       glEnable (GL_TEXTURE_GEN_T);
-       glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
-@@ -1156,7 +1202,7 @@
+-      glEnable (GL_TEXTURE_GEN_S);
+-      glEnable (GL_TEXTURE_GEN_T);
+-      glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+-      glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+-      static GLfloat s_params[4] = {1.0f,1.0f,0.0f,1};
+-      static GLfloat t_params[4] = {0.817f,-0.817f,0.817f,1};
+-      glTexGenfv (GL_S,GL_OBJECT_PLANE,s_params);
+-      glTexGenfv (GL_T,GL_OBJECT_PLANE,t_params);
++      texture[tnum]->bind (coating);
++      if(genTextureCoords){
++	glEnable (GL_TEXTURE_GEN_S);
++	glEnable (GL_TEXTURE_GEN_T);
++	glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
++	glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
++	static GLfloat s_params[4] = {1.0f,1.0f,0.0f,1};
++	static GLfloat t_params[4] = {0.817f,-0.817f,0.817f,1};
++	glTexGenfv (GL_S,GL_OBJECT_PLANE,s_params);
++	glTexGenfv (GL_T,GL_OBJECT_PLANE,t_params);
++      }else{
++	glDisable (GL_TEXTURE_GEN_S);
++	glDisable (GL_TEXTURE_GEN_T);
++      }
+     }
+     else {
+       glDisable (GL_TEXTURE_2D);
+@@ -1150,23 +1182,27 @@
+   }
+ }
+ 
+-
+-static void setShadowDrawingMode()
++static void setShadowDrawingMode(bool genTextureCoords = true)
+ {
    glDisable (GL_LIGHTING);
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
 -    ground_texture->bind (1);
+-    glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);
 +    texture[DS_GROUND]->bind(1);
-     glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);
++    glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);    
      glEnable (GL_TEXTURE_2D);
-     glEnable (GL_TEXTURE_GEN_S);
-@@ -1236,10 +1282,32 @@
+-    glEnable (GL_TEXTURE_GEN_S);
+-    glEnable (GL_TEXTURE_GEN_T);
+-    glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
+-    glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
+-    static GLfloat s_params[4] = {ground_scale,0,0,ground_ofsx};
+-    static GLfloat t_params[4] = {0,ground_scale,0,ground_ofsy};
+-    glTexGenfv (GL_S,GL_EYE_PLANE,s_params);
+-    glTexGenfv (GL_T,GL_EYE_PLANE,t_params);
++    if(genTextureCoords){
++      glEnable (GL_TEXTURE_GEN_S);
++      glEnable (GL_TEXTURE_GEN_T);
++      glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
++      glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
++      static GLfloat s_params[4] = {ground_scale,0,0,ground_ofsx};
++      static GLfloat t_params[4] = {0,ground_scale,0,ground_ofsy};
++      glTexGenfv (GL_S,GL_EYE_PLANE,s_params);
++      glTexGenfv (GL_T,GL_EYE_PLANE,t_params);
++    } else {
++      glDisable (GL_TEXTURE_GEN_S);
++      glDisable (GL_TEXTURE_GEN_T);
++    }
+   }
+   else {
+     glDisable (GL_TEXTURE_2D);
+@@ -1236,10 +1272,34 @@
  }
  
  
 -extern "C" void dsSetTexture (int texture_number)
-+extern "C" void dsSetTexture (int texture_index)
++extern "C" void dsSetTexture (int texture_index, int _coating)
  {
    if (current_state != 2) dsError ("drawing function called outside simulation loop");
 -  tnum = texture_number;
-+  if(texture_index < texture_number && texture_index >= 0)
++  if(texture_index < texture_number && texture_index >= 0 && texture[texture_index]){
 +    tnum = texture_index;  
-+  else
++    coating = _coating;
++  } else {
 +    tnum = 0;
++  }
 +}
 +
 +extern "C" int dsRegisterTexture (const char* filename)
@@ -296,7 +351,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
  }
  
  
-@@ -1303,7 +1371,7 @@
+@@ -1303,7 +1363,7 @@
    if (use_shadows) {
      glDisable (GL_LIGHTING);
      if (use_textures) {
@@ -305,9 +360,9 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/dra
        glEnable (GL_TEXTURE_2D);
        glDisable (GL_TEXTURE_GEN_S);
        glDisable (GL_TEXTURE_GEN_T);
-diff -Naur ode-0.5/drawstuff/src/imageppm.h ode-0.5_working/drawstuff/src/imageppm.h
+diff -Naur ode-0.5/drawstuff/src/imageppm.h ode-0.5_drawstuff/drawstuff/src/imageppm.h
 --- ode-0.5/drawstuff/src/imageppm.h	1970-01-01 01:00:00.000000000 +0100
-+++ ode-0.5_working/drawstuff/src/imageppm.h	2005-09-02 18:11:01.044955000 +0200
++++ ode-0.5_drawstuff/drawstuff/src/imageppm.h	2005-09-12 13:42:30.000000000 +0200
 @@ -0,0 +1,112 @@
 +#include "stdio.h"
 +
@@ -421,9 +476,9 @@ diff -Naur ode-0.5/drawstuff/src/imageppm.h ode-0.5_working/drawstuff/src/imagep
 +
 +
 +};
-diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_working/include/drawstuff/drawstuff.h
+diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_drawstuff/include/drawstuff/drawstuff.h
 --- ode-0.5/include/drawstuff/drawstuff.h	2003-08-29 23:26:11.000000000 +0200
-+++ ode-0.5_working/include/drawstuff/drawstuff.h	2005-09-12 11:57:52.817957000 +0200
++++ ode-0.5_drawstuff/include/drawstuff/drawstuff.h	2005-09-12 13:59:02.000000000 +0200
 @@ -53,7 +53,10 @@
  
  /* texture numbers */
@@ -436,7 +491,7 @@ diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_working/include/drawstu
  
  
  typedef struct dsFunctions {
-@@ -102,18 +105,32 @@
+@@ -102,15 +105,21 @@
   */
  void dsStop();
  
@@ -459,18 +514,17 @@ diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_working/include/drawstu
 + * At the start of each frame, the texture is reset to none and the color is
   * reset to white.
   */
- void dsSetTexture (int texture_number);
+-void dsSetTexture (int texture_number);
++void dsSetTexture (int texture_number, int _coating = 1);
  void dsSetColor (float red, float green, float blue);
  void dsSetColorAlpha (float red, float green, float blue, float alpha);
  
-+// new by Dominic
-+void dsSetTextureCoating(int coating);
-+void dsSetTextureCoordGen(float scale_s, float scale_t, float offs_s, float offs_t);
-+void dsSetCulling(int side);
-+void dsBindTexture(int index);
-+// end new
+diff -Naur ode-0.5/install.sh ode-0.5_drawstuff/install.sh
+--- ode-0.5/install.sh	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_drawstuff/install.sh	2005-08-01 09:43:28.000000000 +0200
+@@ -0,0 +1,4 @@
++#!/bin/bash
 +
-+
- /* draw objects.
-  *   - pos[] is the x,y,z of the center of the object.
-  *   - R[] is a 3x3 rotation matrix for the object, stored by row like this:
++cp lib/* /usr/local/lib/
++cp -r include /usr/local/
+\ Kein Zeilenumbruch am Dateiende.
