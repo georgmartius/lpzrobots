@@ -13,14 +13,6 @@ using namespace std;
 #include "schlange.h"
 #include "configurable.h"
 
-//dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
-#ifdef dDOUBLE
-#define dsDrawBox dsDrawBoxD
-#define dsDrawSphere dsDrawSphereD
-#define dsDrawCylinder dsDrawCylinderD
-#define dsDrawCappedCylinder dsDrawCappedCylinderD
-#endif
-
 /**
  *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 
  *by a joint. This class is based upon the class roboter by the same author.
