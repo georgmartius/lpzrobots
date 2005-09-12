@@ -10,6 +10,7 @@
 #include "simulation.h"
 #include <iostream>
 #include <assert.h>
+#include <stdio.h>
 
 const int SphererobotArms::servono;
 const int SphererobotArms::sensorno;
@@ -92,6 +93,9 @@ SphererobotArms::SphererobotArms ( const ODEHandle& odeHandle,
   this->conf = conf;
 
   this->conf.pendulardiameter = conf.diameter/15;
+  this->conf.pendularmass = 0.8;
+  //this->conf.sliderrange = 0.4;
+  this->conf.spheremass = 0.1;
 	
   Position pos(0 , 0 , conf.diameter/2);
 
@@ -224,14 +228,31 @@ void SphererobotArms::draw()
  **/
 int SphererobotArms::getSensors ( sensor* sensors, int sensornumber )
 {  
-   int len = min(sensornumber, servono);
-   for ( int n = 0; n < len; n++ ) {
-     sensors[n] = servo[n]->get();
-   }
+  // servo position - 3
+  int len = min(sensornumber, servono);
+  for ( int n = 0; n < len; n++ ) {
+    sensors[n] = servo[n]->get();
+  }
 
-   Matrix A = odeRto3x3RotationMatrix(dBodyGetRotation(object[Base].body));
-   return A.convertToBuffer(sensors + len , sensornumber -len) + len;
-   //return len;
+  Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base].body ) );
+  
+  // angular velocities (local coord.) - 3
+  Matrix angVelOut(3, 1, dBodyGetAngularVel( object[ Base ].body ));
+  Matrix angVelIn = A*angVelOut;
+//   double angVelIn[3] = {0.0, 0.0, 0.0};
+//   // transform ang. vel. from global to local coord. using rotation matrix
+//   for (int i=0; i<3; i++)
+//     for (int j=0; j<3; j++)
+//       angVelIn[i] += A.val(i,j)*angVelOut[j];
+//   for (int i=0; i<3; i++){
+//     sensors[len]=angVelIn[i];
+//     len++;
+//   }
+  return angVelIn.convertToBuffer(sensors+len,  sensornumber -len) + len;
+//   // rotation matrix - 9
+//   return A.convertToBuffer(sensors + len , sensornumber -len) + len;
+  // return len;
+
 }
 
 /**
