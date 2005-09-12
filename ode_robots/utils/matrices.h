@@ -1,12 +1,12 @@
-#ifndef matrix_h
-#define matrix_h
+#ifndef MATRICES_H
+#define MATRICES_H
 
 #include <vector>
 #include "vector.h"
-#include "exception.h"
+#include "exceptions.h"
 
 namespace university_of_leipzig {
-namespace robot {
+namespace robots {
 
 
 template <typename T> class TriDiagonalMatrix;
@@ -122,7 +122,7 @@ template <typename T>
 T& Matrix<T>::operator() (unsigned i, unsigned j)
 {
   if(i >= n || j >= m)
-    exception::IndexOutOfBounds().raise();
+    IndexOutOfBoundsException().raise();
 
   return data[i * m + j];
 }
@@ -132,7 +132,7 @@ template <typename T>
 const T& Matrix<T>::operator() (unsigned i, unsigned j) const
 {
   if(i >= n || j >= m)
-    exception::IndexOutOfBounds().raise();
+    IndexOutOfBoundsException().raise();
 
   return data[i * m + j];
 }
@@ -180,7 +180,7 @@ T& TriDiagonalMatrix<T>::operator() (unsigned i, unsigned j)
 
   // make sure i and j are in bounds
   if(i >= data.size() || j >= data.size())
-    exception::IndexOutOfBounds().raise();
+    IndexOutOfBoundsException().raise();
 
   // check if a zero element is addressed
   if((i > j) && ((i - j) > 1) ||
@@ -201,7 +201,7 @@ const T& TriDiagonalMatrix<T>::operator() (unsigned i, unsigned j) const
 
   // make sure i and j are in bounds
   if(i >= data.size() || j >= data.size())
-    exception::IndexOutOfBounds().raise();
+    IndexOutOfBoundsException().raise();
 
   // check if a zero element is addressed
   if((i > j) && ((i - j) > 1) ||
@@ -261,7 +261,7 @@ Vector<T> solve(const TriDiagonalMatrix<T> &r_mat, const Vector<T> &r_vector)
 {
   // check that the dimensions match
   if(r_mat.get_dimension() != r_vector.get_dimension())
-    exception::DimensionMismatch().raise();
+    DimensionMismatchException().raise();
 
   unsigned n = r_vector.get_dimension();
 
@@ -282,7 +282,7 @@ Vector<T> solve(const TriDiagonalMatrix<T> &r_mat, const Vector<T> &r_vector)
   Vector<T> x(n);
 
   x(n - 1) = y(n - 1) / r_mat_u(n - 1, n - 1);
-  for(unsigned i = n - 2; i != ~0; --i)
+  for(unsigned i = n - 2; i != static_cast<unsigned>(~0); --i)
     x(i) = (y(i) - r_mat_u(i, i + 1) * x(i + 1)) / r_mat_u(i, i);
     
   return x;
