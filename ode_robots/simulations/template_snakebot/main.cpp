@@ -3,22 +3,21 @@
 #include <ode/ode.h>
 #include <vector>
 
+#include "component_to_robot.h"
 #include "noisegenerator.h"
 #include "simulation.h"
 #include "agent.h"
 #include "one2onewiring.h"
-#include "snakebot.h"
-#include "world.h"
 #include "playground.h"
 
-#include "invertnchannelcontroller.h"
-#include "sinecontroller.h"
 
-using namespace university_of_leipzig::robot;
+#include "sinecontroller.h"
+#include "invertnchannelcontroller.h"
+
+using namespace university_of_leipzig::robots;
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
-World* worldcont;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start() 
@@ -35,17 +34,15 @@ void start()
 
   // initialization
   simulationConfig.noise=0.1;
-    
-  //Playground* playground = new Playground(world, space);
-  //playground->setGeometry(7.0, 0.2, 1.5);
-  //playground->setPosition(0,0,0); // playground positionieren und generieren
-   
-  WorldDescription ewd;
-  worldcont = new World(ewd);
+  /*  
+  Playground* playground = new Playground(world, space);
+  playground->setGeometry(7.0, 0.2, 1.5);
+  playground->setPosition(0,0,0); // playground positionieren und generieren
+  */
 
   // set up the vertex list for the knot 
   VertexList vl;
-  university_of_leipzig::robot::Matrix<double> mat(4, 9);
+  university_of_leipzig::robots::Matrix<double> mat(4, 9);
 
   for(unsigned i = 0; i < 9; ++i)
     mat(0, i) = i;
@@ -90,7 +87,6 @@ void start()
   }
 
 
-
   CubicSpline<dReal> cs;
   cs.create(mat);
 
@@ -100,52 +96,56 @@ void start()
 
 
     Vector3<dReal> v3(v(0), v(1), v(2));
-    vl.insert(vl.end(), v3);
+    //vl.insert(vl.end(), v3);
    
 
     p = cs.get_distant_point_parameter(p, 0.9);
   }
+  
+  // create a spiral/circle snake (or something)
   /*
-    // create a spiral snake (or something)
-    for(unsigned i = 0; i < 5; ++i) {
-    vl.insert(vl.end(), Vector3<double>(i / 3 * cos(PI / 180 * i * 5),
-                                        i / 3 * sin(PI / 180 * i * 5),
-                                        i));
-  }
+    for(unsigned i = 0; i < 15; ++i) {
+    // vl.insert(vl.end(), Vector3<double>(i / 3 * cos(M_PI / 180 * i * 5), i / 3 * sin(M_PI / 180 * i * 5), i));
+    //vl.insert(vl.end(), Vector3<double>(3 * cos(M_PI / 180 * i * 25), 3 * sin(M_PI / 180 * i * 25), 0.5));
+    }
   */
-    // create a streched snake
-    /*
-    for(unsigned i = 0; i < 3; ++i) {
-    vl.insert(vl.end(), Vector3<double>(i * 0.7,
-					0.0,
-					0.1));
-					}
-    */
- 
+  
+  // create a streched snake  
+  
+  for(unsigned i = 0; i < 5 ; ++i) {
+    vl.insert(vl.end(), Vector3<double>(0.0, i * 0.7, 0.1));
+    // vl.insert(vl.end(), Vector3<double>(i * 0.7, 0.0, 0.1));
+  }
+    
+
+
+  ODEHandle ode_handle(world , space , contactgroup);
+
   // set up a robot arm description
   RobotArmDescription desc;
-  desc.p_world = worldcont;
-  desc.segment_radius   = 0.05;
+  desc.p_ode_handle   = &ode_handle;
+  desc.segment_radius = 0.05;
   desc.segment_mass   = 1.0;
-  desc.p_vertex_list = &vl;
+  desc.p_vertex_list  = &vl;
 
-
-  // creates a snakebot in the specified world (the p_world attribute of the
-  // description)
-  // note that a component removes itself from a world when it gets destroyed
   //  CCURobotArmComponent rac(desc);
-  SnakeBot *snake_bot = new SnakeBot(desc);
+  // IComponent *p_component = new Test();
+  IComponent    *p_component = new CCURobotArmComponent(desc);
+  AbstractRobot *p_robot     = new ComponentToRobot(p_component, ode_handle);
+
 
   // initialization
   //  simulationConfig.noise=0.1;
   //  configs.push_back(&simulationConfig);
 
-  //  AbstractController *controller = new InvertNChannelController(10);
-  AbstractController *controller = new SineController();
-  AbstractWiring* wiring     = new One2OneWiring(new ColorUniformNoise());
-  Agent* agent              = new Agent();
+  AbstractController *controller = new InvertNChannelController(10);
 
-  agent->init(controller, snake_bot, wiring);  
+  // AbstractController *controller = new SineController();
+  AbstractWiring* wiring     = new One2OneWiring(new ColorUniformNoise());
+  Agent* agent               = new Agent();
+
+
+  agent->init(controller, p_robot, wiring);  
   agents.push_back(agent);
   
   configs.push_back(&simulationConfig);
@@ -189,6 +189,7 @@ int main (int argc, char **argv)
 
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
+
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.
