@@ -49,10 +49,7 @@ void start()
   obstacles.push_back(playground);
     
   //****************
-  SphererobotConf conf = SphererobotArms::getStandartConf();  
-  conf.spheremass=0.2;
-  conf.pendularmass=1.0;
-  conf.sliderrange=0.2;
+  SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
   sphere1 = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
 
   Color col(0,0.5,0.8);
@@ -102,10 +99,10 @@ void command (int cmd)
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )
     {
-    case 'y' : dBodyAddForce ( sphere1->object[Sphererobot::Base].body , 10 ,0 , 0 ); break;
-    case 'Y' : dBodyAddForce ( sphere1->object[Sphererobot::Base].body , -10 , 0 , 0 ); break;
-    case 'x' : dBodyAddTorque ( sphere1->object[Sphererobot::Pendular].body , 0 , 0 , 3 ); break;
-    case 'X' : dBodyAddTorque ( sphere1->object[Sphererobot::Pendular].body , 0 , 0 , -3 ); break;
+    case 'y' : dBodyAddForce ( sphere1->object[SphererobotArms::Base].body , 10 ,0 , 0 ); break;
+    case 'Y' : dBodyAddForce ( sphere1->object[SphererobotArms::Base].body , -10 , 0 , 0 ); break;
+    case 'x' : dBodyAddTorque ( sphere1->object[SphererobotArms::Base].body , 0 , 0 , 3 ); break;
+    case 'X' : dBodyAddTorque ( sphere1->object[SphererobotArms::Base].body , 0 , 0 , -3 ); break;
     case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2); 
       printf("sineRate : %g\n", controller->getParam("sineRate"));
       break;
