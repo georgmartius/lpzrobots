@@ -22,9 +22,9 @@
 #include <list>
 
 #include "vector.h"
-#include "exception.h"
+#include "exceptions.h"
 #include "cubic_spline.h"
-
+#include "abstractrobot.h"
 
 
 #ifdef dDOUBLE
@@ -38,18 +38,11 @@
 #ifndef component_h
 #define component_h
 
-//#include "./robotlearncontrol.h"
-
-
-// #define PI 3.141592
-
-
 
 
 namespace university_of_leipzig {
-namespace robot {
+namespace robots {
 
-class World;
 class IWire;
 class IComponent;
 class AbstractMotorComponent;
@@ -123,7 +116,7 @@ class IComponent
   virtual const IComponent* does_contain_geom(const dGeomID geom_id,
 			        	      bool b_recursive) const = 0;
 
-  virtual bool collision_callback(World *p_world, 
+  virtual bool collision_callback(ODEHandle *p_ode_handle, 
 			          dGeomID geom_id_0, 
 				  dGeomID geom_id_1) const = 0;
 };
@@ -158,7 +151,7 @@ class SimplePhysicalComponent : public IComponent {
   const IComponent* does_contain_geom(const dGeomID _geom_id, 
 				      bool b_recursive) const;
 
-  bool collision_callback(World *p_world, 
+  bool collision_callback(ODEHandle *p_ode_handle, 
 			  dGeomID geom_id_0, dGeomID geom_id_1) const;
 
 
@@ -230,7 +223,7 @@ class UniversalMotorComponent : public AbstractMotorComponent {
 
   void draw() const;
 
-  bool collision_callback(World *p_world, 
+  bool collision_callback(ODEHandle *p_ode_handle, 
 			  dGeomID geom_id_0, dGeomID geom_id_1) const;
 
   const IComponent* does_contain_geom(const dGeomID geom_id, 
@@ -246,7 +239,7 @@ class UniversalMotorComponent : public AbstractMotorComponent {
 
 class RobotArmDescription {
  public:
-  World *p_world;
+  ODEHandle *p_ode_handle;
 
   dReal segment_radius;
   dReal segment_mass;
@@ -269,22 +262,17 @@ class RobotArmDescription {
  *
  * CCU = Capped Cyliner Universal (joint)
  */
-class CCURobotArmComponent : public IComponent {
-
-
+class CCURobotArmComponent : public IComponent
+{
  protected:
-  // following two lists are probably unneccessairy - since they just duplicate the component list
-  /*  SegmentList   segment_list;
-      JointIdList   joint_id_list;*/
-
   ComponentContainer component_container;
-  World *p_world;
-  //  dWorldID world_id;
+  ODEHandle ode_handle;
+
   dJointGroupID joint_group_id;
 
  public:
   CCURobotArmComponent(const RobotArmDescription &r_desc);
-  ~CCURobotArmComponent();
+  virtual ~CCURobotArmComponent();
 
 
   // functions specific for this class
@@ -312,7 +300,7 @@ class CCURobotArmComponent : public IComponent {
 				      bool b_recursive) const;
 
   void draw() const;
-  bool collision_callback(World *p_world, 
+  bool collision_callback(ODEHandle *p_ode_handle, 
 			  dGeomID geom_id_0, 
 			  dGeomID geom_id_1) const;
 
@@ -328,7 +316,7 @@ class PlaneComponentDescription {
  public:
   PlaneComponentDescription();
 
-  World          *p_world;
+  ODEHandle      *p_ode_handle;
   Vector3<dReal> v3_normal;
   dReal          d;
 };
@@ -337,7 +325,7 @@ class PlaneComponentDescription {
 class PlaneComponent : public SimplePhysicalComponent {
  public:
   PlaneComponent(const PlaneComponentDescription &r_desc);
-  ~PlaneComponent();
+  virtual ~PlaneComponent();
 };
 
 

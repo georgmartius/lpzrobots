@@ -1,16 +1,16 @@
-#ifndef cube_spline_h
-#define cube_spline_h
+#ifndef CUBIC_SPLINE_H
+#define CUBIC_SPLINE_H
 
 
 #include <vector>
 
-
+#include "exceptions.h"
 #include "vector.h"
 #include "matrices.h"
 
 
 namespace university_of_leipzig {
-namespace robot {
+namespace robots {
 
 
 template<typename T>
@@ -159,15 +159,11 @@ void CubicSpline<T>::create(const Matrix<T> &r_matrix)
 template<class T>
 Vector<T> CubicSpline<T>::get_point(T parameter)
 {
-  if(parameter < parameter_vector(0)) {
-    std::cerr << "parameter out of bounds\n";
-    throw "parameter out of bounds\n";
-  }
+  if(parameter < parameter_vector(0))
+    IndexOutOfBoundsException().raise();
   
-  if(parameter > parameter_vector( parameter_vector.get_dimension() - 1 )) {
-    std::cerr << "parameter out of bounds\n";
-    throw "parameter out of bounds\n";
-  }
+  if(parameter > parameter_vector( parameter_vector.get_dimension() - 1 ))
+    IndexOutOfBoundsException().raise();
 
   unsigned index = 0;
   while(parameter >= parameter_vector(index))
