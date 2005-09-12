@@ -1,6 +1,6 @@
 diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp
 --- ode-0.5/drawstuff/src/drawstuff.cpp	2004-04-19 00:19:21.000000000 +0200
-+++ ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp	2005-09-12 13:56:50.000000000 +0200
++++ ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp	2005-09-12 16:06:27.000000000 +0200
 @@ -80,6 +80,7 @@
  const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
  const float sky_height = 1.0f;		// sky height above viewpoint
@@ -314,7 +314,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_drawstuff/drawstuff/src/d
    }
    else {
      glDisable (GL_TEXTURE_2D);
-@@ -1236,10 +1272,34 @@
+@@ -1236,10 +1272,38 @@
  }
  
  
@@ -331,27 +331,31 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_drawstuff/drawstuff/src/d
 +  }
 +}
 +
-+extern "C" int dsRegisterTexture (const char* filename)
++extern "C" int dsRegisterTexture (const char* filename, bool uselocalpath)
 +{
 +  if (!texture_prefix) dsError ("No texture prefix defined");
 +  if(texture_number == DS_MAXTEXTURES) 
 +    dsError ("try to register too many textures");
-+  char *s = (char*) alloca (strlen(texture_prefix) + strlen(filename) + 3);
++  if(uselocalpath) {
++    char *s = (char*) alloca (strlen(texture_prefix) + strlen(filename) + 3);
 +  
-+  strcpy (s, texture_prefix);
++    strcpy (s, texture_prefix);
 +#ifndef macintosh
-+  strcat (s, "/");
++    strcat (s, "/");
 +#else
-+  strcat (s, ":");
++    strcat (s, ":");
 +#endif
-+  strcat (s, filename);
-+  texture[texture_number] = new Texture (s);
++    strcat (s, filename);
++    texture[texture_number] = new Texture (s);
++  }else{
++    texture[texture_number] = new Texture (filename);
++  }
 +  texture_number++;
 +  return (texture_number-1);
  }
  
  
-@@ -1303,7 +1363,7 @@
+@@ -1303,7 +1367,7 @@
    if (use_shadows) {
      glDisable (GL_LIGHTING);
      if (use_textures) {
@@ -478,7 +482,7 @@ diff -Naur ode-0.5/drawstuff/src/imageppm.h ode-0.5_drawstuff/drawstuff/src/imag
 +};
 diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_drawstuff/include/drawstuff/drawstuff.h
 --- ode-0.5/include/drawstuff/drawstuff.h	2003-08-29 23:26:11.000000000 +0200
-+++ ode-0.5_drawstuff/include/drawstuff/drawstuff.h	2005-09-12 13:59:02.000000000 +0200
++++ ode-0.5_drawstuff/include/drawstuff/drawstuff.h	2005-09-12 16:04:10.000000000 +0200
 @@ -53,7 +53,10 @@
  
  /* texture numbers */
@@ -491,14 +495,15 @@ diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_drawstuff/include/draws
  
  
  typedef struct dsFunctions {
-@@ -102,15 +105,21 @@
+@@ -102,15 +105,22 @@
   */
  void dsStop();
  
 +/* Registers a user defined texture and returns its number. This can be used 
 + * as parameter to dsSetTexture()   
++ * @param uselocalpath use local path or add prefix texture path
 + */
-+int dsRegisterTexture (const char* filename);
++int dsRegisterTexture (const char* filename, bool uselocalpath = false);
 +
  /* change the way objects are drawn. these changes will apply to all further
 - * dsDrawXXX() functions. the texture number must be a DS_xxx texture
