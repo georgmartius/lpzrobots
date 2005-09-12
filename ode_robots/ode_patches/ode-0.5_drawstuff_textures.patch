@@ -1,6 +1,6 @@
 diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp
 --- ode-0.5/drawstuff/src/drawstuff.cpp	2004-04-19 00:19:21.000000000 +0200
-+++ ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp	2005-09-12 16:06:27.000000000 +0200
++++ ode-0.5_drawstuff/drawstuff/src/drawstuff.cpp	2005-09-12 16:12:01.000000000 +0200
 @@ -80,6 +80,7 @@
  const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
  const float sky_height = 1.0f;		// sky height above viewpoint
@@ -9,8 +9,55 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_drawstuff/drawstuff/src/d
  //***************************************************************************
  // misc mathematics stuff
  
-@@ -235,8 +236,8 @@
- Texture::Texture (char *filename)
+@@ -118,7 +119,7 @@
+   int image_width,image_height;
+   byte *image_data;
+ public:
+-  Image (char *filename);
++  Image (const char *filename);
+   // load from PPM file
+   ~Image();
+   int width() { return image_width; }
+@@ -129,7 +130,7 @@
+ 
+ // skip over whitespace and comments in a stream.
+ 
+-static void skipWhiteSpace (char *filename, FILE *f)
++static void skipWhiteSpace (const char *filename, FILE *f)
+ {
+   int c,d;
+   for(;;) {
+@@ -156,7 +157,7 @@
+ // read a number from a stream, this return 0 if there is none (that's okay
+ // because 0 is a bad value for all PPM numbers anyway).
+ 
+-static int readNumber (char *filename, FILE *f)
++static int readNumber (const char *filename, FILE *f)
+ {
+   int c,n=0;
+   for(;;) {
+@@ -171,7 +172,7 @@
+ }
+ 
+ 
+-Image::Image (char *filename)
++Image::Image (const char *filename)
+ {
+   FILE *f = fopen (filename,"rb");
+   if (!f) dsError ("Can't open image file `%s'",filename);
+@@ -226,17 +227,17 @@
+   Image *image;
+   GLuint name;
+ public:
+-  Texture (char *filename);
++  Texture (const char *filename);
+   ~Texture();
+   void bind (int modulate);
+ };
+ 
+ 
+-Texture::Texture (char *filename)
++Texture::Texture (const char *filename)
  {
    image = new Image (filename);
 -  glGenTextures (1,&name);
