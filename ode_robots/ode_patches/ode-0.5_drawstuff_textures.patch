@@ -383,7 +383,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_drawstuff/drawstuff/src/d
 +  if (!texture_prefix) dsError ("No texture prefix defined");
 +  if(texture_number == DS_MAXTEXTURES) 
 +    dsError ("try to register too many textures");
-+  if(uselocalpath) {
++  if(!uselocalpath) {
 +    char *s = (char*) alloca (strlen(texture_prefix) + strlen(filename) + 3);
 +  
 +    strcpy (s, texture_prefix);
