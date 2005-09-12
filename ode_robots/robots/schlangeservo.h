@@ -9,6 +9,7 @@
 #define __SCHLANGEFORCE_H
 
 #include<vector>
+#include<assert.h>
 using namespace std;
 
 #include "abstractrobot.h"
