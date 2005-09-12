@@ -39,7 +39,7 @@ void start()
   
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraXYZ[3]= {-14.1362f,7.5110f,17.3500f};
+  float KameraXYZ[3]= {-14.1362f,7.5110f,10.3500f};
   //float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};
   float KameraViewXYZ[3] = {-36.0000f,-50.0000f,0.0000f};
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
@@ -48,17 +48,22 @@ void start()
   // initialization
   simulationConfig.noise=0.1;
     
-  Playground* playground = new Playground(world, space);
-  playground->setGeometry(20.0, 0.2, 5.0);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+
+//  Playground* playground = new Playground(world, space);
+//  playground->setGeometry(20.0, 0.2, 8.0);
+//  playground->setPosition(0,0,0); // playground positionieren und generieren
+//  obstacles.push_back(playground);
   
-  Terrainground *terrainground = new Terrainground(world, space, 20.0, 1.3, "terrains/dip2_128.ppm");
-  //terrain_bumpInDip128.ppm
+  Terrainground *terrainground = new Terrainground(world, space, 20.0, 4.0, "terrains/terrain_bumpInDip128.ppm");
+
+  int texname = dsRegisterTexture("terrain_bumpInDip128.ppm");
+  terrainground->setTextureID(texname);
+
   terrainground->setPosition(-10,-10,1);
   obstacles.push_back(terrainground);
   
   configs.push_back(&simulationConfig);
+
 
 
   SphererobotConf conf = SphererobotArms::getStandartConf();  
@@ -67,6 +72,7 @@ void start()
   conf.sliderrange=0.2;
   SphererobotArms* sphere1 = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
   
+
   Color col(0,0.5,0.8);
   sphere1->place ( Position ( 2 , 0 , 5 ) , &col );
   //AbstractController *controller = new InvertNChannelController(10);  
