@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-08 14:28:25  robot2
+ *   Revision 1.3  2005-09-12 14:32:08  martius
+ *   use new texture interface
+ *
+ *   Revision 1.2  2005/09/08 14:28:25  robot2
  *   *** empty log message ***
  *
  *   Revision 1.1  2005/08/26 09:22:23  robot2
@@ -76,7 +79,8 @@ class Terrainground : public AbstractObstacle {
 public:
   
   // Konstruktor
-  Terrainground(dWorldID w, dSpaceID s, double size, double height, char *filename) : AbstractObstacle::AbstractObstacle(w, s)
+  Terrainground(dWorldID w, dSpaceID s, double size, double height, char *filename) 
+    : AbstractObstacle::AbstractObstacle(w, s)
   {
      this->height = height;
      this->size   = size;
@@ -110,7 +114,9 @@ public:
   }
 
   void setTextureID(int t)
-  {   texture = t;
+  {   
+    texture = t;
+    setColor(1,1,1);
   }
 
   
@@ -119,8 +125,7 @@ public:
   {
      dsSetColor (color.r, color.g, color.b);  // color settings have no effect on object if textured
 //     dsDrawTerrainZD( (int)base_x, (int)base_z, size, size/ (double)TERRAINNODES, TERRAINNODES, pTerrainHeights, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
-     dsBindTexture(texture);
-     dsSetTextureCoating(1);
+     dsSetTexture (texture,1);    
      dsCallList(DisplayListNumber, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
   };
   
