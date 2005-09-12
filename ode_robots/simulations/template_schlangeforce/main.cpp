@@ -16,8 +16,7 @@
 #include "invertmotornstep.h"
 #include "sinecontroller.h"
 
-#include "schlangeforce.h"
-#include "schlange.h"
+#include "schlangeservo.h"
 #include "nimm2.h"
 
 ConfigList configs;
@@ -39,7 +38,7 @@ void start()
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
-  simulationConfig.setParam("gravity",0.0); // do not use 'simulationConfig.gravity=0.0;', 
+  simulationConfig.setParam("gravity",-9.0); // do not use 'simulationConfig.gravity=0.0;', 
                                             // because world is already initialized and 
                                             // dWorldSetGravity will not be called when 
                                             // you only set the value  
@@ -47,8 +46,8 @@ void start()
   //Anfangskameraposition und Punkt auf den die Kamera blickt
   //float KameraXYZ[3]= {0.276f,7.12f,1.78f};
   //float KameraViewXYZ[3] = {-88.0f,-5.5f,0.0000f};
-  float KameraXYZ[3]= {2.4f,7.2f, 7.0f};
-  float KameraViewXYZ[3] = {-1.0f,0.0f,0.0000f};
+  float KameraXYZ[3]= {5.0f, 7.0f, 7.0f};
+  float KameraViewXYZ[3] = {-85.0f,-12.0f,0.0000f};
 
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
@@ -70,18 +69,17 @@ void start()
   }
 
   //****************/
-  SchlangenConf conf = SchlangeForce::getDefaultConf();
-  conf.armAnzahl = 10;
-  conf.maxWinkel = M_PI/2;
-  conf.ausgabeArt = angle;
-  SchlangeForce* schlange1 = new SchlangeForce ( 1 , ODEHandle(world , space , contactgroup), conf);
+  SchlangeServoConf conf = SchlangeServo::getDefaultConf();
+  conf.servoPower=30;
+  SchlangeServo* schlange1 = 
+    new SchlangeServo ( ODEHandle(world , space , contactgroup), conf, "S1");
   Color col(0,0.5,0.8);
   schlange1->place(Position(2,0,6),&col); 
   //schlange1->fixInSky();
   //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
   //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
-  AbstractController *controller = new InvertMotorNStep(50);  
-  //  AbstractController *controller = new SineController();  
+  //AbstractController *controller = new InvertMotorNStep(50);  
+  AbstractController *controller = new SineController();  
   
   // AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
