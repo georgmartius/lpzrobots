@@ -1,6 +1,6 @@
-diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/drawstuff.cpp
---- ode-0.5/drawstuff/src/drawstuff.cpp	2004-04-18 22:19:21.000000000 +0000
-+++ ode-0.5_georg/drawstuff/src/drawstuff.cpp	2005-08-01 07:40:41.000000000 +0000
+diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_working/drawstuff/src/drawstuff.cpp
+--- ode-0.5/drawstuff/src/drawstuff.cpp	2004-04-19 00:19:21.000000000 +0200
++++ ode-0.5_working/drawstuff/src/drawstuff.cpp	2005-09-12 11:48:50.907499000 +0200
 @@ -80,6 +80,7 @@
  const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
  const float sky_height = 1.0f;		// sky height above viewpoint
@@ -9,7 +9,76 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
  //***************************************************************************
  // misc mathematics stuff
  
-@@ -805,30 +806,35 @@
+@@ -229,14 +230,15 @@
+   Texture (char *filename);
+   ~Texture();
+   void bind (int modulate);
++  void bind ();
+ };
+ 
+ 
+ Texture::Texture (char *filename)
+ {
+   image = new Image (filename);
+-  glGenTextures (1,&name);
+-  glBindTexture (GL_TEXTURE_2D,name);
++  glGenTextures (1, &name);
++  glBindTexture (GL_TEXTURE_2D, name);
+ 
+   // set pixel unpacking mode
+   glPixelStorei (GL_UNPACK_SWAP_BYTES, 0);
+@@ -247,35 +249,41 @@
+ 
+   // glTexImage2D (GL_TEXTURE_2D, 0, 3, image->width(), image->height(), 0,
+   //		   GL_RGB, GL_UNSIGNED_BYTE, image->data());
++  // It's not a good idea to move this out of the constructor. OpenGL programmers know why.
+   gluBuild2DMipmaps (GL_TEXTURE_2D, 3, image->width(), image->height(),
+ 		     GL_RGB, GL_UNSIGNED_BYTE, image->data());
+ 
+-  // set texture parameters - will these also be bound to the texture???
++  // set texture parameters - will these also be bound to the texture???  Who knows......         who cares.
+   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+ 
+   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+-  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+-		   GL_LINEAR_MIPMAP_LINEAR);
++  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+ 
+-  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
++  // It's more reasonable to use GL_MODULATE instead of GL_DECAL.
++  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
+ }
+ 
+ 
+ Texture::~Texture()
+ {
+   delete image;
+-  glDeleteTextures (1,&name);
++  glDeleteTextures (1, &name);
+ }
+ 
+-
++// just to be compatible with older sources
+ void Texture::bind (int modulate)
+ {
+-  glBindTexture (GL_TEXTURE_2D,name);
+-  glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+-	     modulate ? GL_MODULATE : GL_DECAL);
++  glBindTexture (GL_TEXTURE_2D, name);
++  glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
++}
++
++void Texture::bind()
++{
++  glBindTexture (GL_TEXTURE_2D, name);
+ }
+ 
++
+ //***************************************************************************
+ // the current drawing state (for when the user's step function is drawing)
+ 
+@@ -805,30 +813,35 @@
  // textures and shadows
  static int use_textures=1;		// 1 if textures to be drawn
  static int use_shadows=1;		// 1 if shadows to be drawn
@@ -58,7 +127,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
  }
  
  #else // macintosh
-@@ -841,15 +847,16 @@
+@@ -841,15 +854,16 @@
  
     strcpy (s,prefix);
     strcat (s,":sky.ppm");
@@ -78,7 +147,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
  }
  
  #endif
-@@ -857,12 +864,11 @@
+@@ -857,12 +871,11 @@
  
  void dsStopGraphics()
  {
@@ -96,7 +165,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
  }
  
  
-@@ -871,7 +877,7 @@
+@@ -871,7 +884,7 @@
    glDisable (GL_LIGHTING);
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
@@ -105,7 +174,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
    }
    else {
      glDisable (GL_TEXTURE_2D);
-@@ -920,7 +926,7 @@
+@@ -920,7 +933,7 @@
  
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
@@ -114,7 +183,63 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
    }
    else {
      glDisable (GL_TEXTURE_2D);
-@@ -1119,10 +1125,10 @@
+@@ -1094,7 +1107,7 @@
+   return use_shadows;
+ }
+ 
+-
++// Enables usage of shadows
+ void dsSetShadows (int a)
+ {
+   use_shadows = (a != 0);
+@@ -1106,12 +1119,45 @@
+   return use_textures;
+ }
+ 
+-
++// enables usage of textures
+ void dsSetTextures (int a)
+ {
+   use_textures = (a != 0);
+ }
+ 
++// This method requires a texture bind call, previously !!!
++// coat = GL_DECAL | GL_MODULATE
++void dsSetTextureCoating(int coating)
++{
++  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, coating ? GL_MODULATE : GL_DECAL);
++}
++
++// This method requires a texture bind call, previously !!!
++// Due to the fact that texture koords are provided by OpenGL
++// they will not be in the range between 0 and 1.0.
++// So the texture will repeat itself or other funny effects will happen.
++// So handle this with care and I still hope you know what you are doing.  
++void dsSetTextureCoordGen(float scale_s, float scale_t, float offs_s, float offs_t)
++{
++      glEnable (GL_TEXTURE_GEN_S);
++      glEnable (GL_TEXTURE_GEN_T);
++      glTexGeni (GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
++      glTexGeni (GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
++      static GLfloat s_params[4] = { scale_s,   0    , 0, offs_s};
++      static GLfloat t_params[4] = {   0    , scale_t, 0, offs_t};
++      glTexGenfv (GL_S, GL_OBJECT_PLANE, s_params);
++      glTexGenfv (GL_T, GL_OBJECT_PLANE, t_params);
++
++}
++
++// Is neccessary because somebody calls "dsSetTexture"
++// somewhere in the code before the texture is registered.
++// Otherwise one could put that into the "dsSetTexture" method.
++void dsBindTexture(int index)
++{   glEnable(GL_TEXTURE_2D);  
++    texture[index]->bind();
++}
++
+ //***************************************************************************
+ // C interface
+ 
+@@ -1119,10 +1165,10 @@
  static void setupDrawingMode()
  {
    glEnable (GL_LIGHTING);
@@ -127,7 +252,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
        glEnable (GL_TEXTURE_GEN_S);
        glEnable (GL_TEXTURE_GEN_T);
        glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
-@@ -1156,7 +1162,7 @@
+@@ -1156,7 +1202,7 @@
    glDisable (GL_LIGHTING);
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
@@ -136,7 +261,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
      glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);
      glEnable (GL_TEXTURE_2D);
      glEnable (GL_TEXTURE_GEN_S);
-@@ -1236,10 +1242,32 @@
+@@ -1236,10 +1282,32 @@
  }
  
  
@@ -146,7 +271,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
    if (current_state != 2) dsError ("drawing function called outside simulation loop");
 -  tnum = texture_number;
 +  if(texture_index < texture_number && texture_index >= 0)
-+    tnum = texture_index;
++    tnum = texture_index;  
 +  else
 +    tnum = 0;
 +}
@@ -171,7 +296,7 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
  }
  
  
-@@ -1303,7 +1331,7 @@
+@@ -1303,7 +1371,7 @@
    if (use_shadows) {
      glDisable (GL_LIGHTING);
      if (use_textures) {
@@ -180,9 +305,125 @@ diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_georg/drawstuff/src/draws
        glEnable (GL_TEXTURE_2D);
        glDisable (GL_TEXTURE_GEN_S);
        glDisable (GL_TEXTURE_GEN_T);
-diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_georg/include/drawstuff/drawstuff.h
---- ode-0.5/include/drawstuff/drawstuff.h	2003-08-29 21:26:11.000000000 +0000
-+++ ode-0.5_georg/include/drawstuff/drawstuff.h	2005-08-01 07:40:55.000000000 +0000
+diff -Naur ode-0.5/drawstuff/src/imageppm.h ode-0.5_working/drawstuff/src/imageppm.h
+--- ode-0.5/drawstuff/src/imageppm.h	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_working/drawstuff/src/imageppm.h	2005-09-02 18:11:01.044955000 +0200
+@@ -0,0 +1,112 @@
++#include "stdio.h"
++
++class ImagePPM
++{
++
++private:
++  int image_width, image_height;
++  unsigned char *image_data;
++
++
++static int readNumber (char *filename, FILE *f)
++{
++  int c,n=0;
++  for(;;) {
++    c = fgetc(f);
++    if (c==EOF) printf ("unexpected end of file in \"%s\"",filename);
++    if (c >= '0' && c <= '9') n = n*10 + (c - '0');
++    else {
++      ungetc (c,f);
++      return n;
++    }
++  }
++}
++
++
++static void skipWhiteSpace (char *filename, FILE *f)
++{
++  int c,d;
++  for(;;) {
++    c = fgetc(f);
++    if (c==EOF) printf ("unexpected end of file in \"%s\"",filename);
++
++    // skip comments
++    if (c == '#') {
++      do {
++	d = fgetc(f);
++	if (d==EOF) printf ("unexpected end of file in \"%s\"",filename);
++      } while (d != '\n');
++      continue;
++    }
++
++    if (c > ' ') {
++      ungetc (c,f);
++      return;
++    }
++  }
++}
++
++public:
++
++ImagePPM () 
++{   image_data = 0;
++}
++
++int loadImage(char*filename)
++{
++  FILE *f = fopen (filename,"rb");
++  if (!f) 
++  {  printf ("Can't open image file `%s'", filename);
++     return 1;
++  }
++
++  // read in header
++  if (fgetc(f) != 'P' || fgetc(f) != '6')
++    printf ("image file \"%s\" is not a binary PPM (no P6 header)",filename);
++  skipWhiteSpace (filename,f);
++
++  // read in image parameters
++  image_width = readNumber (filename,f);
++  skipWhiteSpace (filename,f);
++  image_height = readNumber (filename,f);
++  skipWhiteSpace (filename,f);
++  int max_value = readNumber (filename,f);
++
++  // check values
++  if (image_width < 1 || image_height < 1)
++    printf ("bad image file \"%s\"",filename);
++  if (max_value != 255)
++    printf ("image file \"%s\" must have color range of 255",filename);
++
++  // read either nothing, LF (10), or CR,LF (13,10)
++  int c = fgetc(f);
++  if (c == 10) {
++    // LF
++  }
++  else if (c == 13) {
++    // CR
++    c = fgetc(f);
++    if (c != 10) ungetc (c,f);
++  }
++  else ungetc (c,f);
++
++  // read in rest of data
++  image_data = new unsigned char [image_width*image_height*3];
++  if (fread( image_data, image_width*image_height*3, 1, f) != 1)
++    printf ("Can not read data from image file `%s'",filename);
++  fclose (f);
++  return 0;
++}
++
++
++~ImagePPM()
++{
++  if(image_data) delete[] image_data;
++}
++
++  int width()           { return image_width;  }
++  int height()          { return image_height; }
++  unsigned char *data() { return image_data;   }
++
++
++};
+diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_working/include/drawstuff/drawstuff.h
+--- ode-0.5/include/drawstuff/drawstuff.h	2003-08-29 23:26:11.000000000 +0200
++++ ode-0.5_working/include/drawstuff/drawstuff.h	2005-09-12 11:57:52.817957000 +0200
 @@ -53,7 +53,10 @@
  
  /* texture numbers */
@@ -195,7 +436,7 @@ diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_georg/include/drawstuff
  
  
  typedef struct dsFunctions {
-@@ -102,12 +105,18 @@
+@@ -102,18 +105,32 @@
   */
  void dsStop();
  
@@ -219,12 +460,17 @@ diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_georg/include/drawstuff
   * reset to white.
   */
  void dsSetTexture (int texture_number);
-diff -Naur ode-0.5/install.sh ode-0.5_georg/install.sh
---- ode-0.5/install.sh	1970-01-01 00:00:00.000000000 +0000
-+++ ode-0.5_georg/install.sh	2005-08-01 07:43:28.000000000 +0000
-@@ -0,0 +1,4 @@
-+#!/bin/bash
+ void dsSetColor (float red, float green, float blue);
+ void dsSetColorAlpha (float red, float green, float blue, float alpha);
+ 
++// new by Dominic
++void dsSetTextureCoating(int coating);
++void dsSetTextureCoordGen(float scale_s, float scale_t, float offs_s, float offs_t);
++void dsSetCulling(int side);
++void dsBindTexture(int index);
++// end new
 +
-+cp lib/* /usr/local/lib/
-+cp -r include /usr/local/
-\ No newline at end of file
++
+ /* draw objects.
+  *   - pos[] is the x,y,z of the center of the object.
+  *   - R[] is a 3x3 rotation matrix for the object, stored by row like this:
