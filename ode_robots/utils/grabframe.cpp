@@ -12,36 +12,52 @@ VideoStream openVideoStream(const char* filename){
   VideoStream stream;
   stream.w    = vals[2];
   stream.h    = vals[3];
-  stream.file = 0;
-  stream.buf  = new unsigned char[stream.w*stream.h*3];
-  stream.revbuf = new unsigned char[stream.w*stream.h*3];
-
   assert (filename);
-  stream.file=fopen(filename, "wb");
-  if(!stream.file){
-    fprintf(stderr,"Cannot open file %s for writing",filename);    
-  }
+  stream.filename = new char[strlen(filename) + 1];
+  strcpy(stream.filename, filename);
+  stream.buf      = new unsigned char[stream.w*stream.h*3];
+  stream.revbuf   = new unsigned char[stream.w*stream.h*3];
+  stream.counter  = 0;
+  stream.opened = true;
+
+//   assert (filename);
+//   stream.file=fopen(filename, "wb");
+//   if(!stream.file){
+//     fprintf(stderr,"Cannot open file %s for writing",filename);    
+//   }
   return stream;
 }
 
 void closeVideoStream(VideoStream& stream){
-  if(stream.file) fclose(stream.file);
-  if(stream.buf) delete stream.buf;
-  if(stream.revbuf) delete stream.revbuf;
-  stream.file   = 0;
+  if(stream.buf) delete[] stream.buf;
+  if(stream.revbuf) delete[] stream.revbuf;
+  if(stream.filename) delete[] stream.filename;
+  stream.filename = 0;
   stream.buf    = 0;
   stream.revbuf = 0;
+  stream.opened = false;
 }
 
-bool grabAndWriteFrame(VideoStream stream){
-  if(!stream.file) return false;
+bool grabAndWriteFrame(VideoStream& stream){
+  if(!stream.opened) return false;
+  char name[128];
+  FILE *file;
   bool ok = getGLFrameBuffer(stream.buf, stream.w, stream.h);
   if (ok) {
     for (int y=0; y<stream.h; y++) {
       int chunk = 3 * stream.w;
       memcpy(stream.revbuf + y*chunk, stream.buf + (stream.h - 1 - y)*chunk, chunk);
     }
-    fwrite(stream.revbuf, stream.w*stream.h*3, 1, stream.file);
+    sprintf(name,"%s_%06ld.ppm", stream.filename, stream.counter);
+    stream.counter++;
+    file=fopen(name, "wb");
+    if(!file){
+      fprintf(stderr,"Cannot open file %s for writing",stream.filename);    
+    }else{
+      fprintf(file,"P6 %d %d 255\n", stream.w, stream.h);
+      fwrite(stream.revbuf, stream.w*stream.h*3, 1, file);
+      fclose(file);
+    }
   }
   return true;
 }
