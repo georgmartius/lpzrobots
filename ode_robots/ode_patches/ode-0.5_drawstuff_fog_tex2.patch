@@ -1,0 +1,112 @@
+diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp
+--- ode-0.5.1/drawstuff/src/drawstuff.cpp	2005-09-13 15:27:20.000000000 +0200
++++ ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp	2005-09-13 14:59:02.000000000 +0200
+@@ -74,6 +74,9 @@
+ #define GROUND_G (0.5f)
+ #define GROUND_B (0.3f)
+ 
++int groundTexture = DS_GROUND;
++int skyTexture = DS_SKY;
++
+ const float ground_scale = 1.0f/1.0f;	// ground texture scale (1/size)
+ const float ground_ofsx = 0.5;		// offset of ground texture
+ const float ground_ofsy = 0.5;
+@@ -880,7 +883,7 @@
+   glDisable (GL_LIGHTING);
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    texture[DS_SKY]->bind (0);
++    texture[skyTexture]->bind (0);
+   }
+   else {
+     glDisable (GL_TEXTURE_2D);
+@@ -929,7 +932,7 @@
+ 
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    texture[DS_GROUND]->bind (0);
++    texture[groundTexture]->bind (0);
+   }
+   else {
+     glDisable (GL_TEXTURE_2D);
+@@ -937,18 +940,18 @@
+   }
+ 
+   // ground fog seems to cause problems with TNT2 under windows
+-  /*
++  
+   GLfloat fogColor[4] = {0.5, 0.5, 0.5, 1};
+   glEnable (GL_FOG);
+   glFogi (GL_FOG_MODE, GL_EXP2);
+   glFogfv (GL_FOG_COLOR, fogColor);
+-  glFogf (GL_FOG_DENSITY, 0.05f);
++  glFogf (GL_FOG_DENSITY, 0.02f);
+   glHint (GL_FOG_HINT, GL_NICEST); // GL_DONT_CARE);
+   glFogf (GL_FOG_START, 1.0);
+   glFogf (GL_FOG_END, 5.0);
+-  */
++  
+ 
+-  const float gsize = 100.0f;
++  const float gsize = 300.0f;
+   const float offset = 0; // -0.001f; ... polygon offsetting doesn't work well
+ 
+   glBegin (GL_QUADS);
+@@ -1187,7 +1190,7 @@
+   glDisable (GL_LIGHTING);
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    texture[DS_GROUND]->bind(1);
++    texture[groundTexture]->bind(1);
+     glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);    
+     glEnable (GL_TEXTURE_2D);
+     if(genTextureCoords){
+@@ -1283,6 +1286,17 @@
+   }
+ }
+ 
++extern "C" void dsSetGroundTexture(int _texture){
++  if(_texture >0 && _texture < DS_MAXTEXTURES && texture[_texture])
++    groundTexture = _texture;
++}
++
++extern "C" void dsSetSkyTexture(int _texture){
++  if(_texture >0 && _texture < DS_MAXTEXTURES && texture[_texture])
++    skyTexture = _texture;
++}
++
++
+ extern "C" int dsRegisterTexture (const char* filename, bool uselocalpath)
+ {
+   if (!texture_prefix) dsError ("No texture prefix defined");
+@@ -1367,7 +1381,7 @@
+   if (use_shadows) {
+     glDisable (GL_LIGHTING);
+     if (use_textures) {
+-      texture[DS_GROUND]->bind(1);
++      texture[groundTexture]->bind(1);
+       glEnable (GL_TEXTURE_2D);
+       glDisable (GL_TEXTURE_GEN_S);
+       glDisable (GL_TEXTURE_GEN_T);
+diff -Naur ode-0.5.1/include/drawstuff/drawstuff.h ode-0.5_lpzrobots/include/drawstuff/drawstuff.h
+--- ode-0.5.1/include/drawstuff/drawstuff.h	2005-09-13 15:27:20.000000000 +0200
++++ ode-0.5_lpzrobots/include/drawstuff/drawstuff.h	2005-09-13 14:55:30.000000000 +0200
+@@ -58,7 +58,6 @@
+ #define DS_WOOD   3
+ #define DS_MAXTEXTURES 128
+ 
+-
+ typedef struct dsFunctions {
+   int version;			/* put DS_VERSION here */
+   /* version 1 data */
+@@ -122,6 +121,10 @@
+  */
+ void dsSetTexture (int texture_number, int _coating = 1);
+ 
++/* set the textures for ground and sky. texture is a value returned by dsRegisterTexture*/ 
++void dsSetGroundTexture(int texture);
++void dsSetSkyTexture(int texture);
++
+   /* if side = 0 then BackFace else FrontFace*/
+ void dsSetCulling(int side);
+ void dsSetColor (float red, float green, float blue);
