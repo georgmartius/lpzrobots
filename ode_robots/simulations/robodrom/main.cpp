@@ -19,6 +19,8 @@
 ConfigList configs;
 PlotMode plotMode = NoPlot;
 
+SphererobotArms* sphere ;
+
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
 {
@@ -38,64 +40,65 @@ void start()
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
   
   //Anfangskameraposition und Punkt auf den die Kamera blickt
-  //float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraXYZ[3]= {-14.1362f,7.5110f,10.3500f};
-  //float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};
-  float KameraViewXYZ[3] = {-36.0000f,-50.0000f,0.0000f};
+  float KameraXYZ[3]= {12.4f,-12.0f,13.5f};
+  float KameraViewXYZ[3] = {139.0000f,-25.0000f,0.0000f};
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
+  
+  dsSetGroundTexture(dsRegisterTexture("greenground.ppm"));
 
   // initialization
-  simulationConfig.noise=0.1;
-    
-
-//  Playground* playground = new Playground(world, space);
-//  playground->setGeometry(20.0, 0.2, 8.0);
-//  playground->setPosition(0,0,0); // playground positionieren und generieren
-//  obstacles.push_back(playground);
+  simulationConfig.noise=0.05;
+  double height=5;
+  Playground* playground = new Playground(world, space);
+  playground->setGeometry(20.0, 0.2, 0.3+height);
+  playground->setColor(34/255.0, 97/255.0, 32/255.0);
+  playground->setPosition(0,0,0); // playground positionieren und generieren
+  obstacles.push_back(playground);
   
-  Terrainground *terrainground = new Terrainground(world, space, 20.0, 4.0, "terrains/terrain_bumpInDip128.ppm");
+  Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/dip128_flat.ppm");
+  int tex = dsRegisterTexture("terrains/dip128_flat_texture.ppm", true);
+  //  Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/3potential.ppm");
+  //  int tex = dsRegisterTexture("terrains/3potential_texture.ppm", true);
+  terrainground->setTextureID(tex);
 
-  int texname = dsRegisterTexture("terrain_bumpInDip128.ppm");
-  terrainground->setTextureID(texname);
-
-  terrainground->setPosition(-10,-10,1);
+  terrainground->setPosition(-10,-10,0.3);
   obstacles.push_back(terrainground);
   
   configs.push_back(&simulationConfig);
+  Color col;
+  for(int i=0; i<1; i++){
+    SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
+    conf.diameter=2;
+    conf.spheremass=0.01;
+    conf.pendularrange=0.35; 
+    //SphererobotArms* sphere = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
+    sphere = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf, 0.4);
+    sphere->setTexture(DS_WOOD);  
+    if(i==0){
+      col.r=0;
+      col.g=0.5;
+      col.b=1;
+    }
+    if(i==1){
+      col.r=1;
+      col.g=0.4;
+      col.b=0;
+    }
 
+    sphere->place ( Position ( (i*4)-2 , (i*4)-2 , 6 ) , &col );
+    //AbstractController *controller = new InvertNChannelController(10);  
+    AbstractController *controller = new InvertMotorNStep(50);
+    controller->setParam("factorB", 0.0);
+    controller->setParam("steps", i+1);
+    
+    AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
+    Agent* agent = new Agent ( i==0 ? plotMode : NoPlot );
+    agent->init ( controller , sphere , wiring );
+    agents.push_back ( agent );
+    configs.push_back ( controller );
+  }
 
-
-  SphererobotConf conf = SphererobotArms::getStandartConf();  
-  conf.diameter=2;
-  conf.spheremass=0.5;
-  conf.sliderrange=0.2;
-  SphererobotArms* sphere1 = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
-  
-
-  Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 2 , 0 , 5 ) , &col );
-  //AbstractController *controller = new InvertNChannelController(10);  
-  AbstractController *controller = new InvertMotorNStep(10);
-  controller->setParam("factorB", 0.1);
-  controller->setParam("steps", 3);
-  
-  AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
-  Agent* agent = new Agent ( plotMode );
-  agent->init ( controller , sphere1 , wiring );
-  agents.push_back ( agent );
-  configs.push_back ( controller );
-
-
-//   Forcedsphere* sphere = new Forcedsphere(world, space, contactgroup,1.0, 10);
-//   sphere->place(Position( 0, 1, 6));
-//   //  AbstractController *controller = new SineController();
-//   AbstractController *controller = new InvertMotorSpace(10);
-//   One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise() );
-//   Agent* agent = new Agent ( plotMode );
-//   agent->init ( controller , sphere , wiring );
-//   agents.push_back ( agent );
-//   configs.push_back ( controller );
 
   showParams(configs);
 }
@@ -115,6 +118,18 @@ void end(){
    
 }
 
+//Funktion die eingegebene Befehle/kommandos verarbeitet
+void command (int cmd) 
+{
+  //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
+  switch ( (char) cmd )
+    {
+    case 'a' : dBodyAddForce ( sphere->object[SphererobotArms::Base].body , 50 ,0 , 0 ); break;
+    case 's' : dBodyAddForce ( sphere->object[SphererobotArms::Base].body , 0 , 50 , 0); break;
+    case 'q' : dBodyAddTorque( sphere->object[SphererobotArms::Base].body , 0 , 0 , 10 ); break;
+    case 'w' : dBodyAddTorque( sphere->object[SphererobotArms::Base].body , 0 , 0 , -10 ); break;
+    }
+}
 
 // this function is called if the user pressed Ctrl-C
 void config(){
@@ -122,8 +137,7 @@ void config(){
 }
 
 void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
+  printf("Custom: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
 }
 
 
@@ -135,7 +149,7 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config);
+  simulation_init(&start, &end, &config, &command);
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.

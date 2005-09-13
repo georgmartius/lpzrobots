@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-08-26 09:34:35  robot2
+ *   Revision 1.2  2005-09-13 13:22:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2005/08/26 09:34:35  robot2
  *   ppm image lib
  *
  *   Revision 1.1  2005/08/02 13:18:33  fhesse
@@ -41,7 +44,7 @@ private:
 public:
   ImagePPM ();  
   ~ImagePPM();
-  int loadImage(char *filename); // load from PPM file
+  int loadImage(char *filename); // load from PPM file (returns 0 if error)
   int width()           { return image_width;  }
   int height()          { return image_height; }
   unsigned char *data() { return image_data;   }
