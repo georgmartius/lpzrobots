@@ -34,16 +34,16 @@ class SphererobotArms : public AbstractRobot
 {
 public:
   typedef enum objects { Base, Pendular1, Pendular2, Pendular3, Last } ;
-  //Pole1Bot, Pole2Bot, Pole3Bot, Pole1Top , Pole2Top, Pole3Top, Last};
 
 private:
   const static int servono  = 3;
-  const static int sensorno = 9;
+  const static int sensorno = 3;
   
   dSpaceID sphererobot_space;
- public:
   SliderServo* servo[servono];
   char* name;
+  int texture;
+  double transparency;
 
 protected:
   SphererobotArmsConf conf;
@@ -54,33 +54,25 @@ public:
   /**
    *constructor
    *@param startRoboterID ID, which should be managed clearly
-   *@author Marcel Kretschmann
-   *@version beta
    **/ 
   SphererobotArms ( const ODEHandle& odeHandle, 
-		const SphererobotArmsConf& conf );
-	
-  /**
-   *Destruktor
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
+		const SphererobotArmsConf& conf, double transparency=0.5 );
+  
   virtual ~SphererobotArms();
 	
   static SphererobotArmsConf getStandartConf(){
     SphererobotArmsConf c;
     c.diameter     = 1;
-    c.spheremass   = 0.2;
+    c.spheremass   = 0.1;
     c.pendularmass  = 1.0;
-    c.pendularrange  = 0.2; // range of the slider from center in multiple of diameter [-range,range]
+    c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
     return c;
   }
 
+  void setTexture(int tex) { texture = tex; }
 
   /**
    *Draws the geometrical objects of the robot.
-   *@author Marcel Kretschmann
-   *@version beta
    **/
   virtual void draw();
 	
@@ -88,8 +80,6 @@ public:
    *This overwrides the function place of the class robot.
    *@param pos desired position of the snake in struct Position
    *@param c desired color for the snake in struct Color
-   *@author Marcel Kretschmann
-   *@version beta
    **/
   virtual void place (Position pos, Color *c = 0);
   
@@ -100,8 +90,6 @@ public:
    *@param o1 first geometrical object, which has taken part in the collision
    *@param o2 second geometrical object, which has taken part in the collision
    *@return true if the collision was threated  by the robot, false if not
-   *@author Marcel Kretschmann
-   *@version beta
    **/
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 	
@@ -110,8 +98,6 @@ public:
    *@param sensor* pointer to the array
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
-   *@author Marcel Kretschmann
-   *@version beta
    **/
   virtual int getSensors ( sensor* sensors, int sensornumber );
 	
@@ -120,32 +106,24 @@ public:
    *It is an linear allocation.
    *@param motors pointer to the array, motor values are scaled to [-1,1] 
    *@param motornumber length of the motor array
-   *@author Marcel Kretschmann
-   *@version beta
    **/
   virtual void setMotors ( const motor* motors, int motornumber );
 	
   /**
    *Returns the number of motors used by the snake.
    *@return number of motors
-   *@author Marcel Kretschmann
-   *@version final
    **/
   virtual int getMotorNumber();
   
   /**
    *Returns the number of sensors used by the robot.
    *@return number of sensors
-   *@author Marcel Kretschmann
-   *@version final
    **/
   virtual int getSensorNumber();
 	
   /**
    *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
    *@return Position (x,y,z)
-   *@author Marcel Kretschmann
-   *@version final
    **/
   virtual Position getPosition ();
 
