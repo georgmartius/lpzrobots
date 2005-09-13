@@ -13,7 +13,8 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 
 LIB=libode_robots.a
 
-UTILS = utils/splitvideo
+UTILS = 
+# utils/splitvideo
 
 # -pg for profiling
 # CFLAGS = -Wall -I. -g
