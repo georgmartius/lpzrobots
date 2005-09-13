@@ -169,7 +169,6 @@ void config(){
 
 void printUsage(const char* progname){
   printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
 }
 
 int main (int argc, char **argv)
