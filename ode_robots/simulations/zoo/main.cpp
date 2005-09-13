@@ -212,16 +212,6 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-g")) plotMode = GuiLogger;
   if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
-  int seedIndex = contains(argv, argc, "-r");
-  long seed=0;
-  // initialize random number generator
-  if(seedIndex && argc > seedIndex) {
-    seed=atoi(argv[seedIndex]);
-  }else{
-    time(0);
-  }
-  printf("Use random number seed: %li\n", seed);
-  srand(seed);    
 
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
