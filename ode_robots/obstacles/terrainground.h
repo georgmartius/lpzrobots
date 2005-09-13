@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-09-12 14:32:08  martius
+ *   Revision 1.4  2005-09-13 13:19:32  martius
+ *   if image not found handled graciously
+ *
+ *   Revision 1.3  2005/09/12 14:32:08  martius
  *   use new texture interface
  *
  *   Revision 1.2  2005/09/08 14:28:25  robot2
@@ -51,6 +54,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
 
 #include "abstractobstacle.h"
 #include <drawstuff/drawstuff.h>
@@ -73,7 +77,7 @@ class Terrainground : public AbstractObstacle {
   double size;  // for both directions
   double height;
   dSpaceID space;
-  int DisplayListNumber;
+  int displayListNumber;
   int texture;
 
 public:
@@ -82,35 +86,43 @@ public:
   Terrainground(dWorldID w, dSpaceID s, double size, double height, char *filename) 
     : AbstractObstacle::AbstractObstacle(w, s)
   {
-     this->height = height;
-     this->size   = size;
-     space = s;
+    this->height = height;
+    this->size   = size;
+    space = s;
+    obstacle_exists=false;
+    texture = 0;
+    base_x=0.0;
+    base_y=0.0;
+    base_z=0.0;
+    displayListNumber=-1;
+    pTerrainHeights=0;
 
-     // image width and image height MUST be the same AND A POWER OF 2 !!!!!!!!!******************
 
-     heightmap.loadImage(filename);
-     TERRAINNODES = heightmap.width();
+    if(!heightmap.loadImage(filename)) return;
+    // image width and image height MUST be the same AND A POWER OF 2 ******************
+    TERRAINNODES = heightmap.width();
+    assert(heightmap.height() == TERRAINNODES);
+    int bitcounter = 0;
+    for(unsigned int i=0; i < sizeof(TERRAINNODES)*8; i++){
+      bitcounter += (TERRAINNODES & (1<<i)) != 0;
+    }
+    assert(bitcounter==1);
 
-     pTerrainHeights = new double[TERRAINNODES*TERRAINNODES];
+    pTerrainHeights = new double[TERRAINNODES*TERRAINNODES];
 
-     // copy and convert the heightmap from RGB chars to double
-     for(int i=0; i< TERRAINNODES*TERRAINNODES; i++)     
-        pTerrainHeights[i] = (heightmap.data()[i*3] / 255.0)*height;  // select only the RED channel of the picture and scale the height
+    // copy and convert the heightmap from RGB chars to double
+    for(int i=0; i< TERRAINNODES*TERRAINNODES; i++)     
+      pTerrainHeights[i] = (heightmap.data()[i*3] / 255.0)*height;  // select only the RED channel of the picture and scale the height
 
-     DisplayListNumber = dsCreateDisplayListTerrainZD(size, TERRAINNODES, pTerrainHeights);
+    displayListNumber = dsCreateDisplayListTerrainZD(size, TERRAINNODES, pTerrainHeights);
 
-     base_x=0.0;
-     base_y=0.0;
-     base_z=0.0;
 	
-     obstacle_exists=false;
-     texture = 0;
-
   };
 
   virtual ~Terrainground()  
-  {   destroy();
-      delete []pTerrainHeights;
+  {   
+    destroy();
+    if(pTerrainHeights) delete[] pTerrainHeights;
   }
 
   void setTextureID(int t)
@@ -123,10 +135,12 @@ public:
   // draws the obstacle (terrain)   
   virtual void draw()
   {
-     dsSetColor (color.r, color.g, color.b);  // color settings have no effect on object if textured
-//     dsDrawTerrainZD( (int)base_x, (int)base_z, size, size/ (double)TERRAINNODES, TERRAINNODES, pTerrainHeights, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
-     dsSetTexture (texture,1);    
-     dsCallList(DisplayListNumber, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
+    if(pTerrainHeights && displayListNumber >= 0) {
+      dsSetColor (color.r, color.g, color.b);  // color settings have no effect on object if textured
+      //     dsDrawTerrainZD( (int)base_x, (int)base_z, size, size/ (double)TERRAINNODES, TERRAINNODES, pTerrainHeights, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
+      dsSetTexture (texture,1);    
+      dsCallList(displayListNumber, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
+    }
   };
   
   
@@ -162,26 +176,26 @@ public:
     color.b=b;
   };
 
- protected:
+protected:
   virtual void create(){
+    if(!pTerrainHeights) return;
+    //     pTerrainHeights = new double[TERRAINNODES*TERRAINNODES];
 
-//     pTerrainHeights = new double[TERRAINNODES*TERRAINNODES];
-
-     // copy and convert the heightmap from RGB chars to double
-//     for(int i=0; i< TERRAINNODES*TERRAINNODES; i++)     
-//        pTerrainHeights[i] = (heightmap.data()[i*3] / 255.0)*height;  // select only the RED channel of the picture
+    // copy and convert the heightmap from RGB chars to double
+    //     for(int i=0; i< TERRAINNODES*TERRAINNODES; i++)     
+    //        pTerrainHeights[i] = (heightmap.data()[i*3] / 255.0)*height;  // select only the RED channel of the picture
      
-     terrainZ = dCreateTerrainZ( space, pTerrainHeights, size, TERRAINNODES, 1, 1);
-     dGeomSetPosition ( terrainZ, base_x, base_y, base_z);
+    terrainZ = dCreateTerrainZ( space, pTerrainHeights, size, TERRAINNODES, 1, 1);
+    dGeomSetPosition ( terrainZ, base_x, base_y, base_z);
 	
-     obstacle_exists=true;
+    obstacle_exists=true;
   };
 
 
   virtual void destroy(){
-     dGeomDestroy( terrainZ );
-     obstacle_exists=false;
-//     delete []pTerrainHeights;
+    if(pTerrainHeights)
+      dGeomDestroy( terrainZ );
+    obstacle_exists=false;
   };
 
 };
