@@ -6,7 +6,7 @@ static int readNumber (char *filename, FILE *f)
   int c,n=0;
   for(;;) {
     c = fgetc(f);
-    if (c==EOF) printf ("unexpected end of file in \"%s\"",filename);
+    if (c==EOF) fprintf (stderr,"unexpected end of file in \"%s\"\n",filename);
     if (c >= '0' && c <= '9') n = n*10 + (c - '0');
     else {
       ungetc (c,f);
@@ -21,13 +21,13 @@ static void skipWhiteSpace (char *filename, FILE *f)
   int c,d;
   for(;;) {
     c = fgetc(f);
-    if (c==EOF) printf ("unexpected end of file in \"%s\"",filename);
+    if (c==EOF) fprintf (stderr, "unexpected end of file in \"%s\"\n",filename);
 
     // skip comments
     if (c == '#') {
       do {
 	d = fgetc(f);
-	if (d==EOF) printf ("unexpected end of file in \"%s\"",filename);
+	if (d==EOF) fprintf (stderr, "unexpected end of file in \"%s\"\n",filename);
       } while (d != '\n');
       continue;
     }
@@ -48,13 +48,13 @@ int ImagePPM::loadImage(char*filename)
 {
   FILE *f = fopen (filename,"rb");
   if (!f) 
-  {  printf ("Can't open image file `%s'", filename);
-     return 1;
+  {  fprintf (stderr, "Can't open image file `%s'\n", filename);
+     return 0;
   }
 
   // read in header
   if (fgetc(f) != 'P' || fgetc(f) != '6')
-    printf ("image file \"%s\" is not a binary PPM (no P6 header)",filename);
+    fprintf (stderr, "image file \"%s\" is not a binary PPM (no P6 header)\n",filename);
   skipWhiteSpace (filename,f);
 
   // read in image parameters
@@ -66,9 +66,9 @@ int ImagePPM::loadImage(char*filename)
 
   // check values
   if (image_width < 1 || image_height < 1)
-    printf ("bad image file \"%s\"",filename);
+    fprintf (stderr, "bad image file \"%s\"\n",filename);
   if (max_value != 255)
-    printf ("image file \"%s\" must have color range of 255",filename);
+    fprintf (stderr, "image file \"%s\" must have color range of 255\n",filename);
 
   // read either nothing, LF (10), or CR,LF (13,10)
   int c = fgetc(f);
@@ -85,9 +85,9 @@ int ImagePPM::loadImage(char*filename)
   // read in rest of data
   image_data = new unsigned char [image_width*image_height*3];
   if (fread( image_data, image_width*image_height*3, 1, f) != 1)
-    printf ("Can not read data from image file `%s'",filename);
+    fprintf (stderr, "Can not read data from image file `%s'\n",filename);
   fclose (f);
-  return 0;
+  return 1;
 }
 
 
