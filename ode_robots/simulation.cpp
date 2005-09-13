@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2005-09-13 13:26:00  martius
+ *   Revision 1.30  2005-09-13 15:36:38  martius
+ *   disabled advanced modes
+ *   new grabframe interface used
+ *
+ *   Revision 1.29  2005/09/13 13:26:00  martius
  *   random seed adjustable
  *   usage with -h
  *
@@ -279,13 +283,13 @@ void simLoop ( int pause ){
 	(*i)->getRobot()->draw();
       }
       // grab frame if in captureing mode
-      if(videostream.file && !pause){
+      if(videostream.opened && !pause){
 	grabAndWriteFrame(videostream);
       }
     }
 
     // Time syncronisation of real time and simulations time (not if on capture mode)
-    if(simulationConfig.realTimeFactor!=0.0 && videostream.file==0){
+    if(simulationConfig.realTimeFactor!=0.0 && !videostream.opened){
       struct timeval currentTime;
       gettimeofday(&currentTime, 0);
       // difference in milliseconds
@@ -489,18 +493,18 @@ void usercommand_handler(int key) {
       camType = Following;
       break;
     case Following: // now has to be Following
-      camType = advancedTV;
-      break;
-    case advancedTV:
-      camType = advancedFollowing;
-      break;
-    case advancedFollowing: // now has to be Static
+//       camType = advancedTV;
+//       break;
+//     case advancedTV:
+//       camType = advancedFollowing;
+//       break;
+//     case advancedFollowing: // now has to be Static
       camType = Static;
       break;
     }
     break;
   case 'c': // toggle video capture mode
-    if (videostream.file){
+    if (videostream.opened){
       printf("Stop capturing mode\n");
       closeVideoStream(videostream);
     }else{
