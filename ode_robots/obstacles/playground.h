@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-08-02 14:09:06  fhesse
+ *   Revision 1.9  2005-09-13 13:19:57  martius
+ *   no texture
+ *
+ *   Revision 1.8  2005/08/02 14:09:06  fhesse
  *   factor between length in x and y direction
  *   added to constructor
  *
@@ -87,7 +90,7 @@ class Playground : public AbstractObstacle {
    */
   virtual void draw(){
     double box[3];
-    //dsSetTexture (DS_WOOD);    
+    dsSetTexture (DS_NONE);    
     dsSetColor (color.r, color.g, color.b);
 
     box[0] = width; box[1] = length*factorlength2; box[2] = height;
