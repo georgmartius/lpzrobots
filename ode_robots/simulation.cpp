@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2005-09-11 15:16:41  martius
+ *   Revision 1.29  2005-09-13 13:26:00  martius
+ *   random seed adjustable
+ *   usage with -h
+ *
+ *   Revision 1.28  2005/09/11 15:16:41  martius
  *   fast frame capturing enabled
  *
  *   Revision 1.27  2005/09/02 17:18:15  martius
@@ -150,6 +154,8 @@ void cmd_begin_input();
 void cmd_end_input();
 void usercommand_handler(int key);  // handles the &command (int key) from simulation_init
 
+void  processCmdLine(int argc, char** argv);
+
 // simulation stuff
 void simLoop ( int pause );
 void nearCallback(void *data, dGeomID o1, dGeomID o2);
@@ -202,6 +208,7 @@ void camera_init(CameraType type, AbstractRobot* robot) {
 
 void simulation_start(int argc, char** argv){
   if(state!=initialised) return;  
+  processCmdLine(argc , argv);
   
   // information on terminal, can be removed if the printout is undesired
   dsPrint("\nControl commands for the camera module:\n");
@@ -210,8 +217,7 @@ void simulation_start(int argc, char** argv){
   dsPrint("   Space : switches between the agents for view\n\n");
 
   //********************Simmulationsstart*****************
-  
-  srand(time(0));
+
   state=running;
   gettimeofday(&realTime, 0);
   //dsSimulationLoop ( argc , argv , 500 , 500 , &fn );
@@ -319,7 +325,7 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
   }else{                  // using standard collision treatment
 
     int i,n;  
-    const int N = 10;
+    const int N = 40;
     dContact contact[N];
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     if (n > 0) {
@@ -387,6 +393,32 @@ void changeParams(ConfigList& configs){
 	printf(" %s=\t%f \n", buffer, (*i)->getParam(buffer));
     }
   }
+}
+
+void usage(const char* progname){
+  printf("Parameter: %s [-r SEED] [-pause] [-notex] [-noshadow]\n", progname);
+  printf("\t-r SEED\t\tuse SEED as random number seed\n");
+  printf("\t-pause \t\tstart in pause mode\n");
+  printf("\t-notex \t\tdo not display textures\n");
+  printf("\t-noshadow\tdo not display shadows\n");
+  exit(0);
+}
+
+
+void  processCmdLine(int argc, char** argv){
+  if(contains(argv, argc, "-h")) usage(argv[0]);
+
+  int seedIndex = contains(argv, argc, "-r");
+  long seed=0;
+  // initialize random number generator
+  if(seedIndex && argc > seedIndex) {
+    seed=atoi(argv[seedIndex]);
+  }else{
+    seed=time(0);
+  }
+  printf("Use random number seed: %li\n", seed);
+  srand(seed);
+
 }
 
 /// internals
