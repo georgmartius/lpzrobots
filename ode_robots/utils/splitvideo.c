@@ -13,16 +13,18 @@ void mencoder(const char* filename, int w, int h){
   switch(k) {
   case '2':
     sprintf(cmd,"for F in %s*.ppm; do echo \"convert $F\"; convert \"$F\" \"${F%%ppm}sgi\"; rm \"$F\"; done", filename); 
+    printf("%s\n", cmd);
     system(cmd);    
     sprintf(cmd,"mencoder mf://%s*.sgi -mf w=%i:h=%i:fps=%i:type=sgi -ovc lavc -lavcopts vcodec=mpeg2video -oac copy -o %s.mpg", filename, w, h, 25, filename);
-    printf("Call:\n\t%s\n", cmd);
+    printf("%s\n", cmd);
     system(cmd);
     break;
   case '4':
     sprintf(cmd,"for F in %s*.ppm; do echo \"convert $F\"; convert \"$F\" \"${F%%ppm}sgi\"; rm \"$F\"; done", filename); 
+    printf("%s\n", cmd);
     system(cmd);    
     sprintf(cmd,"mencoder mf://%s*.sgi -mf w=%i:h=%i:fps=%i:type=sgi -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -o %s.avi -ffourcc DX50", filename, w, h, 25, filename);
-    printf("Call:\n\t%s\n", cmd);
+    printf("%s\n", cmd);
     system(cmd);
     break;
   default: 
