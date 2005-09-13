@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-08-29 06:32:25  martius
+ *   Revision 1.6  2005-09-13 13:20:12  martius
+ *   initialised color
+ *
+ *   Revision 1.5  2005/08/29 06:32:25  martius
  *   added virtual destructor
  *
  *   Revision 1.4  2005/07/18 14:52:33  martius
@@ -48,7 +51,7 @@ class AbstractObstacle{
    * @param w world in which obstacle should be created
    * @param s space in which obstacle should be created
    */
-  AbstractObstacle(dWorldID w, dSpaceID s){
+  AbstractObstacle(dWorldID w, dSpaceID s): color(0.5,0.5,0.5) {
     world=w;
     space=s;
   };
