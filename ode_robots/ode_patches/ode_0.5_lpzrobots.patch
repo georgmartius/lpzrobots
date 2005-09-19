@@ -1,0 +1,5521 @@
+diff -Naur ode-0.5/Makefile ode-0.5_lpzrobots/Makefile
+--- ode-0.5/Makefile	2004-05-18 20:07:45.000000000 +0200
++++ ode-0.5_lpzrobots/Makefile	2005-09-19 16:25:37.000000000 +0200
+@@ -71,6 +71,9 @@
+ 	ode/src/collision_std.cpp \
+ 	ode/src/collision_space.cpp \
+ 	ode/src/collision_transform.cpp \
++	ode/src/dTerrainY.cpp \
++	ode/src/dTerrainZ.cpp \
++	ode/src/dCone.cpp \
+ 	ode/src/collision_quadtreespace.cpp
+ 
+ ifdef OPCODE_DIRECTORY
+@@ -116,7 +119,9 @@
+ 	ode/test/test_I.cpp \
+ 	ode/test/test_step.cpp \
+ 	ode/test/test_friction.cpp \
++	ode/test/test_boxstackb.cpp \
+ 	ode/test/test_space_stress.cpp
++
+ ifdef OPCODE_DIRECTORY
+ ODE_TEST_SRC_CPP += \
+ 	ode/test/test_trimesh.cpp \
+diff -Naur ode-0.5/contrib/TerrainAndCone/dTerrainY.cpp ode-0.5_lpzrobots/contrib/TerrainAndCone/dTerrainY.cpp
+--- ode-0.5/contrib/TerrainAndCone/dTerrainY.cpp	2004-03-21 20:16:34.000000000 +0100
++++ ode-0.5_lpzrobots/contrib/TerrainAndCone/dTerrainY.cpp	2005-09-19 16:25:37.000000000 +0200
+@@ -10,8 +10,8 @@
+ #include "collision_std_internal.h"
+ #include "collision_util.h"
+ //#include <drawstuff/drawstuff.h>
+-#include "windows.h"
+-#include "ode\ode.h"
++//#include "windows.h"
++#include "ode/ode.h"
+ 
+ #define CONTACT(p,skip) ((dContactGeom*) (((char*)p) + (skip)))
+ #define MAXCONTACT 10
+diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp
+--- ode-0.5/drawstuff/src/drawstuff.cpp	2004-04-19 00:19:21.000000000 +0200
++++ ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp	2005-09-19 16:25:42.000000000 +0200
+@@ -74,11 +74,17 @@
+ #define GROUND_G (0.5f)
+ #define GROUND_B (0.3f)
+ 
++int groundTexture = DS_GROUND;
++int skyTexture = DS_SKY;
++
+ const float ground_scale = 1.0f/1.0f;	// ground texture scale (1/size)
+ const float ground_ofsx = 0.5;		// offset of ground texture
+ const float ground_ofsy = 0.5;
+ const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
+ const float sky_height = 1.0f;		// sky height above viewpoint
++float sky_offset = 2.0f;                // offset of the sky texture. If 2.0 then use internal offset counter
++
++
+ 
+ //***************************************************************************
+ // misc mathematics stuff
+@@ -118,7 +124,7 @@
+   int image_width,image_height;
+   byte *image_data;
+ public:
+-  Image (char *filename);
++  Image (const char *filename);
+   // load from PPM file
+   ~Image();
+   int width() { return image_width; }
+@@ -129,7 +135,7 @@
+ 
+ // skip over whitespace and comments in a stream.
+ 
+-static void skipWhiteSpace (char *filename, FILE *f)
++static void skipWhiteSpace (const char *filename, FILE *f)
+ {
+   int c,d;
+   for(;;) {
+@@ -156,7 +162,7 @@
+ // read a number from a stream, this return 0 if there is none (that's okay
+ // because 0 is a bad value for all PPM numbers anyway).
+ 
+-static int readNumber (char *filename, FILE *f)
++static int readNumber (const char *filename, FILE *f)
+ {
+   int c,n=0;
+   for(;;) {
+@@ -171,7 +177,7 @@
+ }
+ 
+ 
+-Image::Image (char *filename)
++Image::Image (const char *filename)
+ {
+   FILE *f = fopen (filename,"rb");
+   if (!f) dsError ("Can't open image file `%s'",filename);
+@@ -226,17 +232,17 @@
+   Image *image;
+   GLuint name;
+ public:
+-  Texture (char *filename);
++  Texture (const char *filename);
+   ~Texture();
+   void bind (int modulate);
+ };
+ 
+ 
+-Texture::Texture (char *filename)
++Texture::Texture (const char *filename)
+ {
+   image = new Image (filename);
+-  glGenTextures (1,&name);
+-  glBindTexture (GL_TEXTURE_2D,name);
++  glGenTextures (1, &name);
++  glBindTexture (GL_TEXTURE_2D, name);
+ 
+   // set pixel unpacking mode
+   glPixelStorei (GL_UNPACK_SWAP_BYTES, 0);
+@@ -247,40 +253,58 @@
+ 
+   // glTexImage2D (GL_TEXTURE_2D, 0, 3, image->width(), image->height(), 0,
+   //		   GL_RGB, GL_UNSIGNED_BYTE, image->data());
++  // It's not a good idea to move this out of the constructor. OpenGL programmers know why.
+   gluBuild2DMipmaps (GL_TEXTURE_2D, 3, image->width(), image->height(),
+ 		     GL_RGB, GL_UNSIGNED_BYTE, image->data());
+ 
+-  // set texture parameters - will these also be bound to the texture???
++  // set texture parameters - will these also be bound to the texture???  Who knows......         who cares.
+   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+ 
+   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+-  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+-		   GL_LINEAR_MIPMAP_LINEAR);
++  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+ 
+-  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
++  // It's more reasonable to use GL_MODULATE instead of GL_DECAL.
++  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
+ }
+ 
+ 
+ Texture::~Texture()
+ {
+   delete image;
+-  glDeleteTextures (1,&name);
++  glDeleteTextures (1, &name);
+ }
+ 
+-
++// just to be compatible with older sources
+ void Texture::bind (int modulate)
+ {
+-  glBindTexture (GL_TEXTURE_2D,name);
+-  glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+-	     modulate ? GL_MODULATE : GL_DECAL);
++  glBindTexture (GL_TEXTURE_2D, name);
++  //glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
++  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
+ }
+ 
++
+ //***************************************************************************
+ // the current drawing state (for when the user's step function is drawing)
+ 
+ static float color[4] = {0,0,0,0};	// current r,g,b,alpha color
+ static int tnum = 0;			// current texture number
++static int coating = 1;			// current coating mode
++
++// the current state:
++//    0 = uninitialized
++//    1 = dsSimulationLoop() called
++//    2 = dsDrawFrame() called
++static int current_state = 0;
++
++// textures and shadows
++static int use_textures=1;		// 1 if textures to be drawn
++static int use_shadows=1;		// 1 if shadows to be drawn
++// textures
++static Texture* texture[DS_MAXTEXTURES];
++static int texture_number = 0;
++static char* texture_prefix = 0;
++
+ 
+ //***************************************************************************
+ // OpenGL utility stuff
+@@ -796,39 +820,29 @@
+ //***************************************************************************
+ // drawing loop stuff
+ 
+-// the current state:
+-//    0 = uninitialized
+-//    1 = dsSimulationLoop() called
+-//    2 = dsDrawFrame() called
+-static int current_state = 0;
+-
+-// textures and shadows
+-static int use_textures=1;		// 1 if textures to be drawn
+-static int use_shadows=1;		// 1 if shadows to be drawn
+-static Texture *sky_texture = 0;
+-static Texture *ground_texture = 0;
+-static Texture *wood_texture = 0;
+-
+-
+ #ifndef macintosh
+ 
+ void dsStartGraphics (int width, int height, dsFunctions *fn)
+ {
+-  char *prefix = DEFAULT_PATH_TO_TEXTURES;
+-  if (fn->version >= 2 && fn->path_to_textures) prefix = fn->path_to_textures;
+-  char *s = (char*) alloca (strlen(prefix) + 20);
+-
+-  strcpy (s,prefix);
++  texture_prefix = DEFAULT_PATH_TO_TEXTURES;
++  if (fn->version >= 2 && fn->path_to_textures) 
++    texture_prefix = fn->path_to_textures;
++  char *s = (char*) alloca (strlen(texture_prefix) + 20);
++  
++  memset(texture,0,sizeof(Texture*) * DS_MAXTEXTURES);
++  
++  strcpy (s,texture_prefix);
+   strcat (s,"/sky.ppm");
+-  sky_texture = new Texture (s);
++  texture[DS_SKY] = new Texture (s);
+ 
+-  strcpy (s,prefix);
++  strcpy (s,texture_prefix);
+   strcat (s,"/ground.ppm");
+-  ground_texture = new Texture (s);
++  texture[DS_GROUND] = new Texture (s);
+ 
+-  strcpy (s,prefix);
++  strcpy (s,texture_prefix);
+   strcat (s,"/wood.ppm");
+-  wood_texture = new Texture (s);
++  texture[DS_WOOD] = new Texture (s);
++  texture_number = DS_WOOD+1;
+ }
+ 
+ #else // macintosh
+@@ -841,15 +855,16 @@
+ 
+    strcpy (s,prefix);
+    strcat (s,":sky.ppm");
+-   sky_texture = new Texture (s);
++   texture[DS_SKY] = new Texture (s);
+ 
+    strcpy (s,prefix);
+    strcat (s,":ground.ppm");
+-   ground_texture = new Texture (s);
++   texture[DS_GROUND] = new Texture (s);
+ 
+    strcpy (s,prefix);
+    strcat (s,":wood.ppm");
+-   wood_texture = new Texture (s);
++   texture[DS_WOOD] =  = new Texture (s);
++   texture_number = DS_WOOD+1;
+ }
+ 
+ #endif
+@@ -857,12 +872,11 @@
+ 
+ void dsStopGraphics()
+ {
+-  delete sky_texture;
+-  delete ground_texture;
+-  delete wood_texture;
+-  sky_texture = 0;
+-  ground_texture = 0;
+-  wood_texture = 0;
++  for(int i=0; i < texture_number; i++){
++    if(texture[i]) delete texture[i];
++    texture[i]=0;
++  }
++  texture_number=0;
+ }
+ 
+ 
+@@ -871,7 +885,7 @@
+   glDisable (GL_LIGHTING);
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    sky_texture->bind (0);
++    texture[skyTexture]->bind (0);
+   }
+   else {
+     glDisable (GL_TEXTURE_2D);
+@@ -890,6 +904,15 @@
+   float x = ssize*sky_scale;
+   float z = view_xyz[2] + sky_height;
+ 
++  GLfloat fogColor[4] = {0.5, 0.5, 0.5, 1};
++  glEnable (GL_FOG);
++  glFogi (GL_FOG_MODE, GL_EXP2);
++  glFogfv (GL_FOG_COLOR, fogColor);
++  glFogf (GL_FOG_DENSITY, 0.02f);
++  glHint (GL_FOG_HINT, GL_NICEST); // GL_DONT_CARE);
++  glFogf (GL_FOG_START, 1.0);
++  glFogf (GL_FOG_END, 5.0);
++
+   glBegin (GL_QUADS);
+   glNormal3f (0,0,-1);
+   glTexCoord2f (-x+offset,-x+offset);
+@@ -902,8 +925,14 @@
+   glVertex3f (ssize+view_xyz[0],-ssize+view_xyz[1],z);
+   glEnd();
+ 
+-  offset = offset + 0.002f;
+-  if (offset > 1) offset -= 1;
++  if(sky_offset == 2.0f){
++    offset = offset + 0.002f;
++    if (offset > 1) offset -= 1;
++  }else{
++    offset=sky_offset;
++  }
++
++  glDisable (GL_FOG);
+ 
+   glDepthFunc (GL_LESS);
+   glDepthRange (0,1);
+@@ -920,7 +949,7 @@
+ 
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    ground_texture->bind (0);
++    texture[groundTexture]->bind (0);
+   }
+   else {
+     glDisable (GL_TEXTURE_2D);
+@@ -928,18 +957,18 @@
+   }
+ 
+   // ground fog seems to cause problems with TNT2 under windows
+-  /*
++  
+   GLfloat fogColor[4] = {0.5, 0.5, 0.5, 1};
+   glEnable (GL_FOG);
+   glFogi (GL_FOG_MODE, GL_EXP2);
+   glFogfv (GL_FOG_COLOR, fogColor);
+-  glFogf (GL_FOG_DENSITY, 0.05f);
++  glFogf (GL_FOG_DENSITY, 0.02f);
+   glHint (GL_FOG_HINT, GL_NICEST); // GL_DONT_CARE);
+   glFogf (GL_FOG_START, 1.0);
+   glFogf (GL_FOG_END, 5.0);
+-  */
++  
+ 
+-  const float gsize = 100.0f;
++  const float gsize = 300.0f;
+   const float offset = 0; // -0.001f; ... polygon offsetting doesn't work well
+ 
+   glBegin (GL_QUADS);
+@@ -1094,7 +1123,7 @@
+   return use_shadows;
+ }
+ 
+-
++// Enables usage of shadows
+ void dsSetShadows (int a)
+ {
+   use_shadows = (a != 0);
+@@ -1106,31 +1135,54 @@
+   return use_textures;
+ }
+ 
+-
++// enables usage of textures
+ void dsSetTextures (int a)
+ {
+   use_textures = (a != 0);
+ }
+ 
++// This method requires a texture bind call, previously !!!
++// Due to the fact that texture koords are provided by OpenGL
++// they will not be in the range between 0 and 1.0.
++// So the texture will repeat itself or other funny effects will happen.
++// So handle this with care and I still hope you know what you are doing.  
++void dsSetTextureCoordGen(float scale_s, float scale_t, float offs_s, float offs_t)
++{
++      glEnable (GL_TEXTURE_GEN_S);
++      glEnable (GL_TEXTURE_GEN_T);
++      glTexGeni (GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
++      glTexGeni (GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
++      static GLfloat s_params[4] = { scale_s,   0    , 0, offs_s};
++      static GLfloat t_params[4] = {   0    , scale_t, 0, offs_t};
++      glTexGenfv (GL_S, GL_OBJECT_PLANE, s_params);
++      glTexGenfv (GL_T, GL_OBJECT_PLANE, t_params);
++
++}
++
+ //***************************************************************************
+ // C interface
+ 
+ // sets lighting and texture modes, sets current color
+-static void setupDrawingMode()
++static void setupDrawingMode(bool genTextureCoords = true) 
+ {
+   glEnable (GL_LIGHTING);
+-  if (tnum) {
++  if (tnum > 0 && tnum < texture_number ) {
+     if (use_textures) {
+       glEnable (GL_TEXTURE_2D);
+-      wood_texture->bind (1);
+-      glEnable (GL_TEXTURE_GEN_S);
+-      glEnable (GL_TEXTURE_GEN_T);
+-      glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+-      glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+-      static GLfloat s_params[4] = {1.0f,1.0f,0.0f,1};
+-      static GLfloat t_params[4] = {0.817f,-0.817f,0.817f,1};
+-      glTexGenfv (GL_S,GL_OBJECT_PLANE,s_params);
+-      glTexGenfv (GL_T,GL_OBJECT_PLANE,t_params);
++      texture[tnum]->bind (coating);
++      if(genTextureCoords){
++	glEnable (GL_TEXTURE_GEN_S);
++	glEnable (GL_TEXTURE_GEN_T);
++	glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
++	glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
++	static GLfloat s_params[4] = {1.0f,1.0f,0.0f,1};
++	static GLfloat t_params[4] = {0.817f,-0.817f,0.817f,1};
++	glTexGenfv (GL_S,GL_OBJECT_PLANE,s_params);
++	glTexGenfv (GL_T,GL_OBJECT_PLANE,t_params);
++      }else{
++	glDisable (GL_TEXTURE_GEN_S);
++	glDisable (GL_TEXTURE_GEN_T);
++      }
+     }
+     else {
+       glDisable (GL_TEXTURE_2D);
+@@ -1150,23 +1202,27 @@
+   }
+ }
+ 
+-
+-static void setShadowDrawingMode()
++static void setShadowDrawingMode(bool genTextureCoords = true)
+ {
+   glDisable (GL_LIGHTING);
+   if (use_textures) {
+     glEnable (GL_TEXTURE_2D);
+-    ground_texture->bind (1);
+-    glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);
++    texture[groundTexture]->bind(1);
++    glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);    
+     glEnable (GL_TEXTURE_2D);
+-    glEnable (GL_TEXTURE_GEN_S);
+-    glEnable (GL_TEXTURE_GEN_T);
+-    glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
+-    glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
+-    static GLfloat s_params[4] = {ground_scale,0,0,ground_ofsx};
+-    static GLfloat t_params[4] = {0,ground_scale,0,ground_ofsy};
+-    glTexGenfv (GL_S,GL_EYE_PLANE,s_params);
+-    glTexGenfv (GL_T,GL_EYE_PLANE,t_params);
++    if(genTextureCoords){
++      glEnable (GL_TEXTURE_GEN_S);
++      glEnable (GL_TEXTURE_GEN_T);
++      glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
++      glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
++      static GLfloat s_params[4] = {ground_scale,0,0,ground_ofsx};
++      static GLfloat t_params[4] = {0,ground_scale,0,ground_ofsy};
++      glTexGenfv (GL_S,GL_EYE_PLANE,s_params);
++      glTexGenfv (GL_T,GL_EYE_PLANE,t_params);
++    } else {
++      glDisable (GL_TEXTURE_GEN_S);
++      glDisable (GL_TEXTURE_GEN_T);
++    }
+   }
+   else {
+     glDisable (GL_TEXTURE_2D);
+@@ -1236,12 +1292,56 @@
+ }
+ 
+ 
+-extern "C" void dsSetTexture (int texture_number)
++extern "C" void dsSetTexture (int texture_index, int _coating)
+ {
+   if (current_state != 2) dsError ("drawing function called outside simulation loop");
+-  tnum = texture_number;
++  if(texture_index < texture_number && texture_index >= 0 && texture[texture_index]){
++    tnum = texture_index;  
++    coating = _coating;
++  } else {
++    tnum = 0;
++  }
++}
++
++extern "C" void dsSetGroundTexture(int _texture){
++  if(_texture >0 && _texture < DS_MAXTEXTURES && texture[_texture])
++    groundTexture = _texture;
++}
++
++extern "C" void dsSetSkyTexture(int _texture){
++  if(_texture >0 && _texture < DS_MAXTEXTURES && texture[_texture])
++    skyTexture = _texture;
++}
++
++
++extern "C" int dsRegisterTexture (const char* filename, bool uselocalpath)
++{
++  if (!texture_prefix) dsError ("No texture prefix defined");
++  if(texture_number == DS_MAXTEXTURES) 
++    dsError ("try to register too many textures");
++  if(!uselocalpath) {
++    char *s = (char*) alloca (strlen(texture_prefix) + strlen(filename) + 3);
++  
++    strcpy (s, texture_prefix);
++#ifndef macintosh
++    strcat (s, "/");
++#else
++    strcat (s, ":");
++#endif
++    strcat (s, filename);
++    texture[texture_number] = new Texture (s);
++  }else{
++    texture[texture_number] = new Texture (filename);
++  }
++  texture_number++;
++  return (texture_number-1);
+ }
+ 
++/* set the sky_offset */
++extern "C" void dsSetSimulationTime(double time){
++  double t = time/10.0;
++  sky_offset=(t - long(t))*2.0-1.0; // sky_offset is between -1 and 1. (this is basically time modulo 10 scaled to -1:1)
++}
+ 
+ extern "C" void dsSetColor (float red, float green, float blue)
+ {
+@@ -1303,7 +1403,7 @@
+   if (use_shadows) {
+     glDisable (GL_LIGHTING);
+     if (use_textures) {
+-      ground_texture->bind (1);
++      texture[groundTexture]->bind(1);
+       glEnable (GL_TEXTURE_2D);
+       glDisable (GL_TEXTURE_GEN_S);
+       glDisable (GL_TEXTURE_GEN_T);
+@@ -1474,3 +1574,535 @@
+ {
+   capped_cylinder_quality = n;
+ }
++
++static void drawCone(float l, float r)
++{
++  int i;
++  float tmp,ny,nz,a,ca,sa;
++  const int n = 24;	// number of sides to the cone (divisible by 4)
++
++  a = float(M_PI*2.0)/float(n);
++  sa = (float) sin(a);
++  ca = (float) cos(a);
++
++  // draw top
++  glShadeModel (GL_FLAT);
++  ny=1; nz=0;		  // normal vector = (0,ny,nz)
++  glBegin (GL_TRIANGLE_FAN);
++  glNormal3d (0,0,1);
++  glVertex3d (0,0,l);
++  for (i=0; i<=n; i++) {
++    if (i==1 || i==n/2+1)
++      setColor (color[0]*0.75f,color[1]*0.75f,color[2]*0.75f,color[3]);
++    glNormal3d (ny*r,nz*r,0);
++    glVertex3d (ny*r,nz*r,0);
++    if (i==1 || i==n/2+1)
++      setColor (color[0],color[1],color[2],color[3]);
++
++    // rotate ny,nz
++    tmp = ca*ny - sa*nz;
++    nz = sa*ny + ca*nz;
++    ny = tmp;
++  }
++  glEnd();
++
++  // draw bottom
++  ny=1; nz=0;		  // normal vector = (0,ny,nz)
++  glBegin (GL_TRIANGLE_FAN);
++  glNormal3d (0,0,-1);
++  glVertex3d (0,0,0);
++  for (i=0; i<=n; i++) {
++    if (i==1 || i==n/2+1)
++      setColor (color[0]*0.75f,color[1]*0.75f,color[2]*0.75f,color[3]);
++    glNormal3d (0,0,-1);
++    glVertex3d (ny*r,nz*r,0);
++    if (i==1 || i==n/2+1)
++      setColor (color[0],color[1],color[2],color[3]);
++
++    // rotate ny,nz
++    tmp = ca*ny + sa*nz;
++    nz = -sa*ny + ca*nz;
++    ny = tmp;
++  }
++  glEnd();
++}
++
++
++void dsDrawCone (const float pos[3], const float R[12], float length, float radius)
++{
++	if (current_state != 2) dsError ("drawing function called outside simulation loop");
++	setupDrawingMode();
++	glShadeModel (GL_SMOOTH);
++	setTransform (pos,R);
++	drawCone (length,radius);
++	glPopMatrix();
++	
++	if (use_shadows) {
++		setShadowDrawingMode();
++		setShadowTransform();
++		setTransform (pos,R);
++		drawCone (length,radius);
++		glPopMatrix();
++		glPopMatrix();
++		glDepthRange (0,1);
++	}
++}
++
++void dsDrawConeD (const double pos[3], const double R[12], float length, float radius)
++{
++  int i;
++  float pos2[3],R2[12];
++  for (i=0; i<3; i++) pos2[i]=(float)pos[i];
++  for (i=0; i<12; i++) R2[i]=(float)R[i];
++  dsDrawCone(pos2,R2,length,radius);
++}
++
++// I guess nNumNodesPerSide MUST be a power of 2
++static float GetHeight(int x,int y,int nNumNodesPerSide,float *pHeights)
++{
++	int nNumNodesPerSideMask = nNumNodesPerSide - 1;
++	return pHeights[	(((unsigned int)(y) & nNumNodesPerSideMask) * nNumNodesPerSide)
++					+	 ((unsigned int)(x) & nNumNodesPerSideMask)];
++}
++
++// I guess nNumNodesPerSide MUST be a power of 2
++static float GetHeightD(int x,int y,int nNumNodesPerSide,double *pHeights)
++{
++	int nNumNodesPerSideMask = nNumNodesPerSide - 1;
++	return pHeights[	(((unsigned int)(y) & nNumNodesPerSideMask) * nNumNodesPerSide)
++					+	 ((unsigned int)(x) & nNumNodesPerSideMask)];
++}
++
++
++
++void dsDrawTerrainY(int x,int z,float vLength,float vNodeLength,int nNumNodesPerSide,float *pHeights,const float *pR,const float *ppos)
++{
++	float A[3],B[3],C[3],D[3];
++	float R[12];
++	float pos[3];
++	if (pR)
++		memcpy(R,pR,sizeof(R));
++	else
++	{
++		memset(R,0,sizeof(R));
++		R[0] = 1.f;
++		R[5] = 1.f;
++		R[10] = 1.f;
++	}
++	
++	if (ppos)
++		memcpy(pos,ppos,sizeof(pos));
++	else
++		memset(pos,0,sizeof(pos));
++	
++	float vx,vz;
++	vx = vLength * x;
++	vz = vLength * z;
++	
++	int i;
++	for (i=0;i<nNumNodesPerSide;i++)
++	{
++		for (int j=0;j<nNumNodesPerSide;j++)
++		{
++			A[0] = i * vNodeLength + vx;
++			A[2] = j * vNodeLength + vz;
++			A[1] = GetHeight(i,j,nNumNodesPerSide,pHeights);
++			B[0] = (i+1) * vNodeLength + vx;
++			B[2] = j * vNodeLength + vz;
++			B[1] = GetHeight(i+1,j,nNumNodesPerSide,pHeights);
++			C[0] = i * vNodeLength + vx;
++			C[2] = (j+1) * vNodeLength + vz;
++			C[1] = GetHeight(i,j+1,nNumNodesPerSide,pHeights);
++			D[0] = (i+1) * vNodeLength + vx;
++			D[2] = (j+1) * vNodeLength + vz;
++			D[1] = GetHeight(i+1,j+1,nNumNodesPerSide,pHeights);
++			dsDrawTriangle(pos,R,C,B,A,1);
++			dsDrawTriangle(pos,R,D,B,C,1);
++		}
++	}
++}
++
++void dsDrawTerrainYD(int x, int z, double vLength, double vNodeLength, int nNumNodesPerSide, double *pHeights, const double *pR, const double *ppos)
++{
++	double A[3],B[3],C[3],D[3];
++	double R[12];
++	double pos[3];
++	if (pR)
++		memcpy(R,pR,sizeof(R));
++	else
++	{
++		memset(R,0,sizeof(R));
++		R[0] = 1.f;
++		R[5] = 1.f;
++		R[10] = 1.f;
++	}
++	
++	if (ppos)
++		memcpy(pos,ppos,sizeof(pos));
++	else
++		memset(pos,0,sizeof(pos));
++	
++	double vx,vz;
++	vx = vLength * x;
++	vz = vLength * z;
++	
++	int i;
++	for (i=0;i<nNumNodesPerSide;i++)
++	{
++		for (int j=0;j<nNumNodesPerSide;j++)
++		{
++			A[0] = i * vNodeLength + vx;
++			A[2] = j * vNodeLength + vz;
++			A[1] = GetHeightD(i,j,nNumNodesPerSide,pHeights);
++			B[0] = (i+1) * vNodeLength + vx;
++			B[2] = j * vNodeLength + vz;
++			B[1] = GetHeightD(i+1,j,nNumNodesPerSide,pHeights);
++			C[0] = i * vNodeLength + vx;
++			C[2] = (j+1) * vNodeLength + vz;
++			C[1] = GetHeightD(i,j+1,nNumNodesPerSide,pHeights);
++			D[0] = (i+1) * vNodeLength + vx;
++			D[2] = (j+1) * vNodeLength + vz;
++			D[1] = GetHeightD(i+1,j+1,nNumNodesPerSide,pHeights);
++			dsDrawTriangleD(pos,R,C,B,A,1);
++			dsDrawTriangleD(pos,R,D,B,C,1);
++		}
++	}
++}
++
++
++
++void dsDrawTerrainZ( int x, int z, float vLength, float vNodeLength, int nNumNodesPerSide, float *pHeights, const float *pR, const float *ppos)
++{
++
++}
++
++void dsSetCulling(int side)
++{
++  glEnable(GL_CULL_FACE);
++  (side==0) ? glCullFace(GL_BACK) : glCullFace(GL_FRONT);
++}
++
++// calls the display list and execute it, that means drawing the model
++void dsCallList(int ListNumber, const double *pR, const double *ppos)
++{    
++  double R[12];
++  double pos[3];
++  int i;
++  
++  if (pR)  memcpy(R,pR,sizeof(R));
++  else{ 
++    memset( R, 0, sizeof(R));
++    R[0] = 1.f;
++    R[5] = 1.f;
++    R[10] = 1.f;
++  }
++  
++  if (ppos) memcpy(pos,ppos,sizeof(pos));
++  else      memset(pos,0,sizeof(pos));
++    
++  float pos2[3], R2[12];     // let's do some annoying conversation work
++  for (i=0; i<3;  i++) pos2[i]=(float)pos[i];
++  for (i=0; i<12; i++)   R2[i]=(float)  R[i];
++  
++  setupDrawingMode(false);
++  glShadeModel (GL_SMOOTH);
++  setTransform (pos2, R2);  // apply transfomrations to the model called below
++  glCallList(ListNumber);
++  glPopMatrix();           // leave a virgin matrix stack
++  
++}
++
++
++// create the display list for the terrainZ
++// FLAT SHADING !!!!
++/*
++int dsCreateDisplayListTerrainZD(double size, int nNumNodesPerSide, double *pHeights)
++{
++     double A[3],B[3],C[3],D[3];
++     double vNodeLength = size / (double) nNumNodesPerSide;  // calculate distance between Nodes
++
++     int dlist = glGenLists(1); 
++     if(dlist == 0) {printf("Error: display list handler is zero.\n"); return 0;}
++     glNewList(dlist, GL_COMPILE);
++     glBegin(GL_TRIANGLES);
++
++	int i;
++        float u[3], v[3], normal[3];
++
++	for (i=0;i<nNumNodesPerSide;i++)
++	{
++		for (int j=0;j<nNumNodesPerSide;j++)
++		{
++			A[0] = i * vNodeLength;
++			A[1] = j * vNodeLength;
++			A[2] = GetHeightD(i,j,nNumNodesPerSide,pHeights);
++			B[0] = (i+1) * vNodeLength;
++			B[1] = j * vNodeLength;
++			B[2] = GetHeightD(i+1,j,nNumNodesPerSide,pHeights);
++			C[0] = i * vNodeLength;
++			C[1] = (j+1) * vNodeLength;
++			C[2] = GetHeightD(i,j+1,nNumNodesPerSide,pHeights);
++			D[0] = (i+1) * vNodeLength;
++			D[1] = (j+1) * vNodeLength;
++			D[2] = GetHeightD(i+1,j+1,nNumNodesPerSide,pHeights);
++  
++                        // claculating the vectors spanning the plane space of the current triangle
++                        u[0] = float( A[0] - C[0] );
++                        u[1] = float( A[1] - C[1] );
++                        u[2] = float( A[2] - C[2] );
++                        v[0] = float( B[0] - C[0] );
++                        v[1] = float( B[1] - C[1] );
++                        v[2] = float( B[2] - C[2] );
++                        dCROSS (normal,=,u,v);    // cross product between plane vectors to get the normal of the plane
++                        normalizeVector3 (normal);
++                        
++                        glNormal3fv (normal);
++                        glVertex3dv (C);
++                        glVertex3dv (A);
++                        glVertex3dv (B);
++
++
++                        u[0] = float( C[0] - D[0] );
++                        u[1] = float( C[1] - D[1] );
++                        u[2] = float( C[2] - D[2] );
++                        v[0] = float( B[0] - D[0] );
++                        v[1] = float( B[1] - D[1] );
++                        v[2] = float( B[2] - D[2] );
++                        dCROSS (normal,=,u,v);
++                        normalizeVector3 (normal);
++
++                        glNormal3fv (normal);
++                        glVertex3dv (D);
++                        glVertex3dv (C);
++                        glVertex3dv (B);
++		}
++	}
++
++   glEnd();
++   glEndList();
++   return dlist; // returns Handler to display list
++}
++*/
++
++void claculateSmoothNormal(int y, int x, double *pHeights, int nNumNodesPerSide, float vNodeLength, float *normal)
++{
++       float u[3], v[3], length;
++
++       u[0] = 1.0;
++       u[1] = 0.0;
++       u[2] = (GetHeightD( x+1, y, nNumNodesPerSide, pHeights) - GetHeightD( x, y, nNumNodesPerSide, pHeights))*2;
++
++       v[0] = 0.0;
++       v[1] = 1.0;
++       v[2] = (GetHeightD( x, y+1, nNumNodesPerSide, pHeights) - GetHeightD( x, y, nNumNodesPerSide, pHeights))*2;
++
++       dCROSS (normal,=,u,v);
++
++       length = sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
++
++       normal[0] /= length;  // normalize
++       normal[1] /= length;
++       normal[2] /= length;
++
++}
++
++// create gouraud (smooth) shaded terrain
++int dsCreateDisplayListTerrainZD(double size, int nNumNodesPerSide, double *pHeights)
++{
++     double A[3],B[3],C[3],D[3];
++     double vNodeLength = size / (double) nNumNodesPerSide;  // calculate distance between Nodes
++
++     int i,j;
++     float normal[3];
++
++     int dlist = glGenLists(1); 
++     if(dlist == 0) {printf("Error: display list handler is zero.\n"); return 0;}
++     glNewList(dlist, GL_COMPILE);
++
++     glBegin(GL_TRIANGLES);
++
++	for (i=0;i<nNumNodesPerSide;i++)
++		for (j=0;j<nNumNodesPerSide;j++)
++		{      
++			A[0] = i * vNodeLength;
++			A[1] = j * vNodeLength;
++			A[2] = GetHeightD(i,j,nNumNodesPerSide,pHeights);
++			B[0] = (i+1) * vNodeLength;
++			B[1] = j * vNodeLength;
++			B[2] = GetHeightD(i+1,j,nNumNodesPerSide,pHeights);
++			C[0] = i * vNodeLength;
++			C[1] = (j+1) * vNodeLength;
++			C[2] = GetHeightD(i,j+1,nNumNodesPerSide,pHeights);
++			D[0] = (i+1) * vNodeLength;
++			D[1] = (j+1) * vNodeLength;
++			D[2] = GetHeightD(i+1,j+1,nNumNodesPerSide,pHeights);
++
++                        claculateSmoothNormal( j+1, i, pHeights, nNumNodesPerSide, vNodeLength, normal);
++                        glNormal3fv (normal);
++                        glTexCoord2f(i / (float)nNumNodesPerSide ,(j+1) / (float)nNumNodesPerSide );
++                        glVertex3dv (C);
++
++                        claculateSmoothNormal( j, i, pHeights, nNumNodesPerSide, vNodeLength, normal);
++                        glNormal3fv (normal);
++                        glTexCoord2f(i / (float)nNumNodesPerSide ,j / (float)nNumNodesPerSide );
++                        glVertex3dv (A);
++
++                        claculateSmoothNormal( j, i+1, pHeights, nNumNodesPerSide, vNodeLength, normal);
++                        glNormal3fv (normal);
++                        glTexCoord2f((i+1) / (float)nNumNodesPerSide ,j / (float)nNumNodesPerSide );
++			glVertex3dv (B);
++
++
++                        claculateSmoothNormal( j+1, i+1, pHeights, nNumNodesPerSide, vNodeLength, normal);
++                        glNormal3fv (normal);
++                        glTexCoord2f((i+1) / (float)nNumNodesPerSide ,(j+1) / (float)nNumNodesPerSide );
++                        glVertex3dv (D);
++
++                        claculateSmoothNormal( j+1, i, pHeights, nNumNodesPerSide, vNodeLength, normal);
++                        glNormal3fv (normal);
++                        glTexCoord2f(i / (float)nNumNodesPerSide ,(j+1) / (float)nNumNodesPerSide );
++                        glVertex3dv (C);
++
++                        claculateSmoothNormal( j, i+1, pHeights, nNumNodesPerSide, vNodeLength, normal);
++                        glNormal3fv (normal);
++                        glTexCoord2f((i+1) / (float)nNumNodesPerSide ,j / (float)nNumNodesPerSide );
++                        glVertex3dv (B);
++		}
++	
++
++   glEnd();
++
++ 
++//    // show normals only
++//    float u[3], v[3], n[3];
++   
++//    glBegin(GL_LINES);
++// 	for (i=0;i<nNumNodesPerSide;i+=5)
++// 	   for (j=0;j<nNumNodesPerSide;j+=5)
++// 	   {   n[0]=0; n[1]=0; n[2]=1.0;
++	   
++//                claculateSmoothNormal( j, i, pHeights, nNumNodesPerSide, vNodeLength, n);
++
++// 	       normal[0] = (i * vNodeLength) ;
++// 	       normal[1] = (j * vNodeLength) ;
++// 	       normal[2] = GetHeightD( i, j, nNumNodesPerSide, pHeights);
++// 	       glVertex3fv(normal);
++	       
++// 	       normal[0] += n[0];
++// 	       normal[1] += n[1];
++// 	       normal[2] += n[2];
++// 	       glVertex3fv(normal);	       
++// 	   }   
++   
++//    glEnd();
++
++   glEndList();
++   return dlist; // returns Handler to display list
++}
++
++
++
++void dsDrawTerrainZD(int x, int y, double vLength, double vNodeLength, int nNumNodesPerSide, double *pHeights, const double *pR, const double *ppos)
++{  
++	double A[3],B[3],C[3],D[3];
++	double R[12];
++	double pos[3];
++	if (pR)
++		memcpy(R,pR,sizeof(R));
++	else
++	{
++		memset(R,0,sizeof(R));
++		R[0] = 1.f;
++		R[5] = 1.f;
++		R[10] = 1.f;
++	}
++	
++	if (ppos) memcpy(pos,ppos,sizeof(pos));
++	else      memset(pos,0,sizeof(pos));
++	
++	double vx,vz;
++	vx = 0; //vLength * x;
++	vz = 0; //vLength * z;
++	
++	int i;
++
++//new
++        float pos2[3], R2[12];
++        for (i=0; i<3;  i++) pos2[i]=(float)pos[i];
++        for (i=0; i<12; i++)   R2[i]=(float)  R[i];
++
++
++        setupDrawingMode(false);
++        glShadeModel (GL_FLAT);
++        setTransform (pos2, R2);  // execute translation and rotation 
++        glBegin(GL_TRIANGLES);
++//end new
++
++
++	for (i=0;i<nNumNodesPerSide;i++)
++	{
++		for (int j=0;j<nNumNodesPerSide;j++)
++		{
++			A[0] = i * vNodeLength; // + vx;
++			A[1] = j * vNodeLength;// + vz;
++			A[2] = GetHeightD(i,j,nNumNodesPerSide,pHeights);
++			B[0] = (i+1) * vNodeLength; // + vx;
++			B[1] = j * vNodeLength; // + vz;
++			B[2] = GetHeightD(i+1,j,nNumNodesPerSide,pHeights);
++			C[0] = i * vNodeLength; // + vx;
++			C[1] = (j+1) * vNodeLength; // + vz;
++			C[2] = GetHeightD(i,j+1,nNumNodesPerSide,pHeights);
++			D[0] = (i+1) * vNodeLength; // + vx;
++			D[1] = (j+1) * vNodeLength; // + vz;
++			D[2] = GetHeightD(i+1,j+1,nNumNodesPerSide,pHeights);
++
++
++                        float u[3], v[3], normal[3];
++                        u[0] = float( A[0] - C[0] );
++                        u[1] = float( A[1] - C[1] );
++                        u[2] = float( A[2] - C[2] );
++                        v[0] = float( B[0] - C[0] );
++                        v[1] = float( B[1] - C[1] );
++                        v[2] = float( B[2] - C[2] );
++                        dCROSS (normal,=,u,v);
++                        normalizeVector3 (normal);
++
++                        //  glBegin(solid ? GL_TRIANGLES : GL_LINE_STRIP);
++                        glNormal3fv (normal);
++                        glVertex3dv (C);
++                        glVertex3dv (A);
++                        glVertex3dv (B);
++                        //  glEnd();
++
++                        //  float u[3],v[3],normal[3];
++                        u[0] = float( C[0] - D[0] );
++                        u[1] = float( C[1] - D[1] );
++                        u[2] = float( C[2] - D[2] );
++                        v[0] = float( B[0] - D[0] );
++                        v[1] = float( B[1] - D[1] );
++                        v[2] = float( B[2] - D[2] );
++                        dCROSS (normal,=,u,v);
++                        normalizeVector3 (normal);
++
++                        //  glBegin(solid ? GL_TRIANGLES : GL_LINE_STRIP);
++                        glNormal3fv (normal);
++                        glVertex3dv (D);
++                        glVertex3dv (C);
++                        glVertex3dv (B);
++                        //  glEnd();
++
++                        //    setTransform (pos2, R2);
++//                        drawTriangleD (C, A, B, solid);
++                        //    glPopMatrix();
++
++                        //    setTransform (pos2, R2);
++//                        drawTriangleD (D, C, B, solid);
++                        //    glPopMatrix();
++
++//			dsDrawTriangleD(pos,R,C,A,B,1);
++//			dsDrawTriangleD(pos,R,D,C,B,1);
++		}
++	}
++  glEnd();
++  glPopMatrix();
++}
+diff -Naur ode-0.5/drawstuff/src/drawstuff.cpp.orig ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp.orig
+--- ode-0.5/drawstuff/src/drawstuff.cpp.orig	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp.orig	2005-09-19 16:25:33.000000000 +0200
+@@ -0,0 +1,1540 @@
++/*************************************************************************
++ *                                                                       *
++ * Open Dynamics Engine, Copyright (C) 2001-2003 Russell L. Smith.       *
++ * All rights reserved.  Email: russ@q12.org   Web: www.q12.org          *
++ *                                                                       *
++ * This library is free software; you can redistribute it and/or         *
++ * modify it under the terms of EITHER:                                  *
++ *   (1) The GNU Lesser General Public License as published by the Free  *
++ *       Software Foundation; either version 2.1 of the License, or (at  *
++ *       your option) any later version. The text of the GNU Lesser      *
++ *       General Public License is included with this library in the     *
++ *       file LICENSE.TXT.                                               *
++ *   (2) The BSD-style license that is included with this library in     *
++ *       the file LICENSE-BSD.TXT.                                       *
++ *                                                                       *
++ * This library is distributed in the hope that it will be useful,       *
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the files    *
++ * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
++ *                                                                       *
++ *************************************************************************/
++
++/*
++
++simple graphics.
++
++the following command line flags can be used (typically under unix)
++	-notex		Do not use any textures
++	-noshadow[s]	Do not draw any shadows
++	-pause		Start the simulation paused
++
++TODO
++----
++
++manage openGL state changes better
++
++*/
++
++#ifdef WIN32
++#include <windows.h>
++#endif
++
++#include <ode/config.h>
++#include <GL/gl.h>
++#include <GL/glu.h>
++
++#include "drawstuff/drawstuff.h"
++#include "internal.h"
++
++//***************************************************************************
++// misc
++
++#ifdef WIN32
++#define DEFAULT_PATH_TO_TEXTURES "..\\textures\\"
++#else
++#define DEFAULT_PATH_TO_TEXTURES "../textures/"
++#endif
++
++#ifndef M_PI
++#define M_PI (3.14159265358979323846)
++#endif
++
++// constants to convert degrees to radians and the reverse
++#define RAD_TO_DEG (180.0/M_PI)
++#define DEG_TO_RAD (M_PI/180.0)
++
++// light vector. LIGHTZ is implicitly 1
++#define LIGHTX (1.0f)
++#define LIGHTY (0.4f)
++
++// ground and sky
++#define SHADOW_INTENSITY (0.65f)
++#define GROUND_R (0.5f) 	// ground color for when there's no texture
++#define GROUND_G (0.5f)
++#define GROUND_B (0.3f)
++
++const float ground_scale = 1.0f/1.0f;	// ground texture scale (1/size)
++const float ground_ofsx = 0.5;		// offset of ground texture
++const float ground_ofsy = 0.5;
++const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
++const float sky_height = 1.0f;		// sky height above viewpoint
++
++
++//***************************************************************************
++// misc mathematics stuff
++
++#define dCROSS(a,op,b,c) \
++  (a)[0] op ((b)[1]*(c)[2] - (b)[2]*(c)[1]); \
++  (a)[1] op ((b)[2]*(c)[0] - (b)[0]*(c)[2]); \
++  (a)[2] op ((b)[0]*(c)[1] - (b)[1]*(c)[0]);
++
++
++inline float dDOT (const float *a, const float *b)
++  { return ((a)[0]*(b)[0] + (a)[1]*(b)[1] + (a)[2]*(b)[2]); }
++
++
++static void normalizeVector3 (float v[3])
++{
++  float len = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
++  if (len <= 0.0f) {
++    v[0] = 1;
++    v[1] = 0;
++    v[2] = 0;
++  }
++  else {
++    len = 1.0f / (float)sqrt(len);
++    v[0] *= len;
++    v[1] *= len;
++    v[2] *= len;
++  }
++}
++
++//***************************************************************************
++// PPM image object
++
++typedef unsigned char byte;
++
++class Image {
++  int image_width,image_height;
++  byte *image_data;
++public:
++  Image (const char *filename);
++  // load from PPM file
++  ~Image();
++  int width() { return image_width; }
++  int height() { return image_height; }
++  byte *data() { return image_data; }
++};
++
++
++// skip over whitespace and comments in a stream.
++
++static void skipWhiteSpace (const char *filename, FILE *f)
++{
++  int c,d;
++  for(;;) {
++    c = fgetc(f);
++    if (c==EOF) dsError ("unexpected end of file in \"%s\"",filename);
++
++    // skip comments
++    if (c == '#') {
++      do {
++	d = fgetc(f);
++	if (d==EOF) dsError ("unexpected end of file in \"%s\"",filename);
++      } while (d != '\n');
++      continue;
++    }
++
++    if (c > ' ') {
++      ungetc (c,f);
++      return;
++    }
++  }
++}
++
++
++// read a number from a stream, this return 0 if there is none (that's okay
++// because 0 is a bad value for all PPM numbers anyway).
++
++static int readNumber (const char *filename, FILE *f)
++{
++  int c,n=0;
++  for(;;) {
++    c = fgetc(f);
++    if (c==EOF) dsError ("unexpected end of file in \"%s\"",filename);
++    if (c >= '0' && c <= '9') n = n*10 + (c - '0');
++    else {
++      ungetc (c,f);
++      return n;
++    }
++  }
++}
++
++
++Image::Image (const char *filename)
++{
++  FILE *f = fopen (filename,"rb");
++  if (!f) dsError ("Can't open image file `%s'",filename);
++
++  // read in header
++  if (fgetc(f) != 'P' || fgetc(f) != '6')
++    dsError ("image file \"%s\" is not a binary PPM (no P6 header)",filename);
++  skipWhiteSpace (filename,f);
++
++  // read in image parameters
++  image_width = readNumber (filename,f);
++  skipWhiteSpace (filename,f);
++  image_height = readNumber (filename,f);
++  skipWhiteSpace (filename,f);
++  int max_value = readNumber (filename,f);
++
++  // check values
++  if (image_width < 1 || image_height < 1)
++    dsError ("bad image file \"%s\"",filename);
++  if (max_value != 255)
++    dsError ("image file \"%s\" must have color range of 255",filename);
++
++  // read either nothing, LF (10), or CR,LF (13,10)
++  int c = fgetc(f);
++  if (c == 10) {
++    // LF
++  }
++  else if (c == 13) {
++    // CR
++    c = fgetc(f);
++    if (c != 10) ungetc (c,f);
++  }
++  else ungetc (c,f);
++
++  // read in rest of data
++  image_data = new byte [image_width*image_height*3];
++  if (fread (image_data,image_width*image_height*3,1,f) != 1)
++    dsError ("Can not read data from image file `%s'",filename);
++  fclose (f);
++}
++
++
++Image::~Image()
++{
++  delete[] image_data;
++}
++
++//***************************************************************************
++// Texture object.
++
++class Texture {
++  Image *image;
++  GLuint name;
++public:
++  Texture (const char *filename);
++  ~Texture();
++  void bind (int modulate);
++};
++
++
++Texture::Texture (const char *filename)
++{
++  image = new Image (filename);
++  glGenTextures (1, &name);
++  glBindTexture (GL_TEXTURE_2D, name);
++
++  // set pixel unpacking mode
++  glPixelStorei (GL_UNPACK_SWAP_BYTES, 0);
++  glPixelStorei (GL_UNPACK_ROW_LENGTH, 0);
++  glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
++  glPixelStorei (GL_UNPACK_SKIP_ROWS, 0);
++  glPixelStorei (GL_UNPACK_SKIP_PIXELS, 0);
++
++  // glTexImage2D (GL_TEXTURE_2D, 0, 3, image->width(), image->height(), 0,
++  //		   GL_RGB, GL_UNSIGNED_BYTE, image->data());
++  // It's not a good idea to move this out of the constructor. OpenGL programmers know why.
++  gluBuild2DMipmaps (GL_TEXTURE_2D, 3, image->width(), image->height(),
++		     GL_RGB, GL_UNSIGNED_BYTE, image->data());
++
++  // set texture parameters - will these also be bound to the texture???  Who knows......         who cares.
++  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
++  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
++
++  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
++
++  // It's more reasonable to use GL_MODULATE instead of GL_DECAL.
++  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
++}
++
++
++Texture::~Texture()
++{
++  delete image;
++  glDeleteTextures (1, &name);
++}
++
++// just to be compatible with older sources
++void Texture::bind (int modulate)
++{
++  glBindTexture (GL_TEXTURE_2D, name);
++  glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
++  // glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, modulate ? GL_MODULATE : GL_DECAL);
++}
++
++
++//***************************************************************************
++// the current drawing state (for when the user's step function is drawing)
++
++static float color[4] = {0,0,0,0};	// current r,g,b,alpha color
++static int tnum = 0;			// current texture number
++static int coating = 1;			// current coating mode
++
++// the current state:
++//    0 = uninitialized
++//    1 = dsSimulationLoop() called
++//    2 = dsDrawFrame() called
++static int current_state = 0;
++
++// textures and shadows
++static int use_textures=1;		// 1 if textures to be drawn
++static int use_shadows=1;		// 1 if shadows to be drawn
++// textures
++static Texture* texture[DS_MAXTEXTURES];
++static int texture_number = 0;
++static char* texture_prefix = 0;
++
++
++//***************************************************************************
++// OpenGL utility stuff
++
++static void setCamera (float x, float y, float z, float h, float p, float r)
++{
++  glMatrixMode (GL_MODELVIEW);
++  glLoadIdentity();
++  glRotatef (90, 0,0,1);
++  glRotatef (90, 0,1,0);
++  glRotatef (r, 1,0,0);
++  glRotatef (p, 0,1,0);
++  glRotatef (-h, 0,0,1);
++  glTranslatef (-x,-y,-z);
++}
++
++
++// sets the material color, not the light color
++
++static void setColor (float r, float g, float b, float alpha)
++{
++  GLfloat light_ambient[4],light_diffuse[4],light_specular[4];
++  light_ambient[0] = r*0.3f;
++  light_ambient[1] = g*0.3f;
++  light_ambient[2] = b*0.3f;
++  light_ambient[3] = alpha;
++  light_diffuse[0] = r*0.7f;
++  light_diffuse[1] = g*0.7f;
++  light_diffuse[2] = b*0.7f;
++  light_diffuse[3] = alpha;
++  light_specular[0] = r*0.2f;
++  light_specular[1] = g*0.2f;
++  light_specular[2] = b*0.2f;
++  light_specular[3] = alpha;
++  glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT, light_ambient);
++  glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, light_diffuse);
++  glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, light_specular);
++  glMaterialf (GL_FRONT_AND_BACK, GL_SHININESS, 5.0f);
++}
++
++
++static void setTransform (const float pos[3], const float R[12])
++{
++  GLfloat matrix[16];
++  matrix[0]=R[0];
++  matrix[1]=R[4];
++  matrix[2]=R[8];
++  matrix[3]=0;
++  matrix[4]=R[1];
++  matrix[5]=R[5];
++  matrix[6]=R[9];
++  matrix[7]=0;
++  matrix[8]=R[2];
++  matrix[9]=R[6];
++  matrix[10]=R[10];
++  matrix[11]=0;
++  matrix[12]=pos[0];
++  matrix[13]=pos[1];
++  matrix[14]=pos[2];
++  matrix[15]=1;
++  glPushMatrix();
++  glMultMatrixf (matrix);
++}
++
++
++// set shadow projection transform
++
++static void setShadowTransform()
++{
++  GLfloat matrix[16];
++  for (int i=0; i<16; i++) matrix[i] = 0;
++  matrix[0]=1;
++  matrix[5]=1;
++  matrix[8]=-LIGHTX;
++  matrix[9]=-LIGHTY;
++  matrix[15]=1;
++  glPushMatrix();
++  glMultMatrixf (matrix);
++}
++
++
++static void drawBox (const float sides[3])
++{
++  float lx = sides[0]*0.5f;
++  float ly = sides[1]*0.5f;
++  float lz = sides[2]*0.5f;
++
++  // sides
++  glBegin (GL_TRIANGLE_STRIP);
++  glNormal3f (-1,0,0);
++  glVertex3f (-lx,-ly,-lz);
++  glVertex3f (-lx,-ly,lz);
++  glVertex3f (-lx,ly,-lz);
++  glVertex3f (-lx,ly,lz);
++  glNormal3f (0,1,0);
++  glVertex3f (lx,ly,-lz);
++  glVertex3f (lx,ly,lz);
++  glNormal3f (1,0,0);
++  glVertex3f (lx,-ly,-lz);
++  glVertex3f (lx,-ly,lz);
++  glNormal3f (0,-1,0);
++  glVertex3f (-lx,-ly,-lz);
++  glVertex3f (-lx,-ly,lz);
++  glEnd();
++
++  // top face
++  glBegin (GL_TRIANGLE_FAN);
++  glNormal3f (0,0,1);
++  glVertex3f (-lx,-ly,lz);
++  glVertex3f (lx,-ly,lz);
++  glVertex3f (lx,ly,lz);
++  glVertex3f (-lx,ly,lz);
++  glEnd();
++
++  // bottom face
++  glBegin (GL_TRIANGLE_FAN);
++  glNormal3f (0,0,-1);
++  glVertex3f (-lx,-ly,-lz);
++  glVertex3f (-lx,ly,-lz);
++  glVertex3f (lx,ly,-lz);
++  glVertex3f (lx,-ly,-lz);
++  glEnd();
++}
++
++
++// This is recursively subdivides a triangular area (vertices p1,p2,p3) into
++// smaller triangles, and then draws the triangles. All triangle vertices are
++// normalized to a distance of 1.0 from the origin (p1,p2,p3 are assumed
++// to be already normalized). Note this is not super-fast because it draws
++// triangles rather than triangle strips.
++
++static void drawPatch (float p1[3], float p2[3], float p3[3], int level)
++{
++  int i;
++  if (level > 0) {
++    float q1[3],q2[3],q3[3];		 // sub-vertices
++    for (i=0; i<3; i++) {
++      q1[i] = 0.5f*(p1[i]+p2[i]);
++      q2[i] = 0.5f*(p2[i]+p3[i]);
++      q3[i] = 0.5f*(p3[i]+p1[i]);
++    }
++    float length1 = (float)(1.0/sqrt(q1[0]*q1[0]+q1[1]*q1[1]+q1[2]*q1[2]));
++    float length2 = (float)(1.0/sqrt(q2[0]*q2[0]+q2[1]*q2[1]+q2[2]*q2[2]));
++    float length3 = (float)(1.0/sqrt(q3[0]*q3[0]+q3[1]*q3[1]+q3[2]*q3[2]));
++    for (i=0; i<3; i++) {
++      q1[i] *= length1;
++      q2[i] *= length2;
++      q3[i] *= length3;
++    }
++    drawPatch (p1,q1,q3,level-1);
++    drawPatch (q1,p2,q2,level-1);
++    drawPatch (q1,q2,q3,level-1);
++    drawPatch (q3,q2,p3,level-1);
++  }
++  else {
++    glNormal3f (p1[0],p1[1],p1[2]);
++    glVertex3f (p1[0],p1[1],p1[2]);
++    glNormal3f (p2[0],p2[1],p2[2]);
++    glVertex3f (p2[0],p2[1],p2[2]);
++    glNormal3f (p3[0],p3[1],p3[2]);
++    glVertex3f (p3[0],p3[1],p3[2]);
++  }
++}
++
++
++// draw a sphere of radius 1
++
++static int sphere_quality = 1;
++
++static void drawSphere()
++{
++  // icosahedron data for an icosahedron of radius 1.0
++# define ICX 0.525731112119133606f
++# define ICZ 0.850650808352039932f
++  static GLfloat idata[12][3] = {
++    {-ICX, 0, ICZ},
++    {ICX, 0, ICZ},
++    {-ICX, 0, -ICZ},
++    {ICX, 0, -ICZ},
++    {0, ICZ, ICX},
++    {0, ICZ, -ICX},
++    {0, -ICZ, ICX},
++    {0, -ICZ, -ICX},
++    {ICZ, ICX, 0},
++    {-ICZ, ICX, 0},
++    {ICZ, -ICX, 0},
++    {-ICZ, -ICX, 0}
++  };
++
++  static int index[20][3] = {
++    {0, 4, 1},	  {0, 9, 4},
++    {9, 5, 4},	  {4, 5, 8},
++    {4, 8, 1},	  {8, 10, 1},
++    {8, 3, 10},   {5, 3, 8},
++    {5, 2, 3},	  {2, 7, 3},
++    {7, 10, 3},   {7, 6, 10},
++    {7, 11, 6},   {11, 0, 6},
++    {0, 1, 6},	  {6, 1, 10},
++    {9, 0, 11},   {9, 11, 2},
++    {9, 2, 5},	  {7, 2, 11},
++  };
++
++  static GLuint listnum = 0;
++  if (listnum==0) {
++    listnum = glGenLists (1);
++    glNewList (listnum,GL_COMPILE);
++    glBegin (GL_TRIANGLES);
++    for (int i=0; i<20; i++) {
++      drawPatch (&idata[index[i][2]][0],&idata[index[i][1]][0],
++		 &idata[index[i][0]][0],sphere_quality);
++    }
++    glEnd();
++    glEndList();
++  }
++  glCallList (listnum);
++}
++
++
++static void drawSphereShadow (float px, float py, float pz, float radius)
++{
++  // calculate shadow constants based on light vector
++  static int init=0;
++  static float len2,len1,scale;
++  if (!init) {
++    len2 = LIGHTX*LIGHTX + LIGHTY*LIGHTY;
++    len1 = 1.0f/(float)sqrt(len2);
++    scale = (float) sqrt(len2 + 1);
++    init = 1;
++  }
++
++  // map sphere center to ground plane based on light vector
++  px -= LIGHTX*pz;
++  py -= LIGHTY*pz;
++
++  const float kx = 0.96592582628907f;
++  const float ky = 0.25881904510252f;
++  float x=radius, y=0;
++
++  glBegin (GL_TRIANGLE_FAN);
++  for (int i=0; i<24; i++) {
++    // for all points on circle, scale to elongated rotated shadow and draw
++    float x2 = (LIGHTX*x*scale - LIGHTY*y)*len1 + px;
++    float y2 = (LIGHTY*x*scale + LIGHTX*y)*len1 + py;
++    glTexCoord2f (x2*ground_scale+ground_ofsx,y2*ground_scale+ground_ofsy);
++    glVertex3f (x2,y2,0);
++
++    // rotate [x,y] vector
++    float xtmp = kx*x - ky*y;
++    y = ky*x + kx*y;
++    x = xtmp;
++  }
++  glEnd();
++}
++
++
++static void drawTriangle (const float *v0, const float *v1, const float *v2, int solid)
++{
++  float u[3],v[3],normal[3];
++  u[0] = v1[0] - v0[0];
++  u[1] = v1[1] - v0[1];
++  u[2] = v1[2] - v0[2];
++  v[0] = v2[0] - v0[0];
++  v[1] = v2[1] - v0[1];
++  v[2] = v2[2] - v0[2];
++  dCROSS (normal,=,u,v);
++  normalizeVector3 (normal);
++
++  glBegin(solid ? GL_TRIANGLES : GL_LINE_STRIP);
++  glNormal3fv (normal);
++  glVertex3fv (v0);
++  glVertex3fv (v1);
++  glVertex3fv (v2);
++  glEnd();
++}
++
++static void drawTriangleD (const double *v0, const double *v1, const double *v2, int solid)
++{
++  float u[3],v[3],normal[3];
++  u[0] = float( v1[0] - v0[0] );
++  u[1] = float( v1[1] - v0[1] );
++  u[2] = float( v1[2] - v0[2] );
++  v[0] = float( v2[0] - v0[0] );
++  v[1] = float( v2[1] - v0[1] );
++  v[2] = float( v2[2] - v0[2] );
++  dCROSS (normal,=,u,v);
++  normalizeVector3 (normal);
++
++  glBegin(solid ? GL_TRIANGLES : GL_LINE_STRIP);
++  glNormal3fv (normal);
++  glVertex3dv (v0);
++  glVertex3dv (v1);
++  glVertex3dv (v2);
++  glEnd();
++}
++
++
++// draw a capped cylinder of length l and radius r, aligned along the x axis
++
++static int capped_cylinder_quality = 3;
++
++static void drawCappedCylinder (float l, float r)
++{
++  int i,j;
++  float tmp,nx,ny,nz,start_nx,start_ny,a,ca,sa;
++  // number of sides to the cylinder (divisible by 4):
++  const int n = capped_cylinder_quality*4;
++
++  l *= 0.5;
++  a = float(M_PI*2.0)/float(n);
++  sa = (float) sin(a);
++  ca = (float) cos(a);
++
++  // draw cylinder body
++  ny=1; nz=0;		  // normal vector = (0,ny,nz)
++  glBegin (GL_TRIANGLE_STRIP);
++  for (i=0; i<=n; i++) {
++    glNormal3d (ny,nz,0);
++    glVertex3d (ny*r,nz*r,l);
++    glNormal3d (ny,nz,0);
++    glVertex3d (ny*r,nz*r,-l);
++    // rotate ny,nz
++    tmp = ca*ny - sa*nz;
++    nz = sa*ny + ca*nz;
++    ny = tmp;
++  }
++  glEnd();
++
++  // draw first cylinder cap
++  start_nx = 0;
++  start_ny = 1;
++  for (j=0; j<(n/4); j++) {
++    // get start_n2 = rotated start_n
++    float start_nx2 =  ca*start_nx + sa*start_ny;
++    float start_ny2 = -sa*start_nx + ca*start_ny;
++    // get n=start_n and n2=start_n2
++    nx = start_nx; ny = start_ny; nz = 0;
++    float nx2 = start_nx2, ny2 = start_ny2, nz2 = 0;
++    glBegin (GL_TRIANGLE_STRIP);
++    for (i=0; i<=n; i++) {
++      glNormal3d (ny2,nz2,nx2);
++      glVertex3d (ny2*r,nz2*r,l+nx2*r);
++      glNormal3d (ny,nz,nx);
++      glVertex3d (ny*r,nz*r,l+nx*r);
++      // rotate n,n2
++      tmp = ca*ny - sa*nz;
++      nz = sa*ny + ca*nz;
++      ny = tmp;
++      tmp = ca*ny2- sa*nz2;
++      nz2 = sa*ny2 + ca*nz2;
++      ny2 = tmp;
++    }
++    glEnd();
++    start_nx = start_nx2;
++    start_ny = start_ny2;
++  }
++
++  // draw second cylinder cap
++  start_nx = 0;
++  start_ny = 1;
++  for (j=0; j<(n/4); j++) {
++    // get start_n2 = rotated start_n
++    float start_nx2 = ca*start_nx - sa*start_ny;
++    float start_ny2 = sa*start_nx + ca*start_ny;
++    // get n=start_n and n2=start_n2
++    nx = start_nx; ny = start_ny; nz = 0;
++    float nx2 = start_nx2, ny2 = start_ny2, nz2 = 0;
++    glBegin (GL_TRIANGLE_STRIP);
++    for (i=0; i<=n; i++) {
++      glNormal3d (ny,nz,nx);
++      glVertex3d (ny*r,nz*r,-l+nx*r);
++      glNormal3d (ny2,nz2,nx2);
++      glVertex3d (ny2*r,nz2*r,-l+nx2*r);
++      // rotate n,n2
++      tmp = ca*ny - sa*nz;
++      nz = sa*ny + ca*nz;
++      ny = tmp;
++      tmp = ca*ny2- sa*nz2;
++      nz2 = sa*ny2 + ca*nz2;
++      ny2 = tmp;
++    }
++    glEnd();
++    start_nx = start_nx2;
++    start_ny = start_ny2;
++  }
++
++  glPopMatrix();
++}
++
++
++// draw a cylinder of length l and radius r, aligned along the z axis
++
++static void drawCylinder (float l, float r, float zoffset)
++{
++  int i;
++  float tmp,ny,nz,a,ca,sa;
++  const int n = 24;	// number of sides to the cylinder (divisible by 4)
++
++  l *= 0.5;
++  a = float(M_PI*2.0)/float(n);
++  sa = (float) sin(a);
++  ca = (float) cos(a);
++
++  // draw cylinder body
++  ny=1; nz=0;		  // normal vector = (0,ny,nz)
++  glBegin (GL_TRIANGLE_STRIP);
++  for (i=0; i<=n; i++) {
++    glNormal3d (ny,nz,0);
++    glVertex3d (ny*r,nz*r,l+zoffset);
++    glNormal3d (ny,nz,0);
++    glVertex3d (ny*r,nz*r,-l+zoffset);
++    // rotate ny,nz
++    tmp = ca*ny - sa*nz;
++    nz = sa*ny + ca*nz;
++    ny = tmp;
++  }
++  glEnd();
++
++  // draw top cap
++  glShadeModel (GL_FLAT);
++  ny=1; nz=0;		  // normal vector = (0,ny,nz)
++  glBegin (GL_TRIANGLE_FAN);
++  glNormal3d (0,0,1);
++  glVertex3d (0,0,l+zoffset);
++  for (i=0; i<=n; i++) {
++    if (i==1 || i==n/2+1)
++      setColor (color[0]*0.75f,color[1]*0.75f,color[2]*0.75f,color[3]);
++    glNormal3d (0,0,1);
++    glVertex3d (ny*r,nz*r,l+zoffset);
++    if (i==1 || i==n/2+1)
++      setColor (color[0],color[1],color[2],color[3]);
++
++    // rotate ny,nz
++    tmp = ca*ny - sa*nz;
++    nz = sa*ny + ca*nz;
++    ny = tmp;
++  }
++  glEnd();
++
++  // draw bottom cap
++  ny=1; nz=0;		  // normal vector = (0,ny,nz)
++  glBegin (GL_TRIANGLE_FAN);
++  glNormal3d (0,0,-1);
++  glVertex3d (0,0,-l+zoffset);
++  for (i=0; i<=n; i++) {
++    if (i==1 || i==n/2+1)
++      setColor (color[0]*0.75f,color[1]*0.75f,color[2]*0.75f,color[3]);
++    glNormal3d (0,0,-1);
++    glVertex3d (ny*r,nz*r,-l+zoffset);
++    if (i==1 || i==n/2+1)
++      setColor (color[0],color[1],color[2],color[3]);
++
++    // rotate ny,nz
++    tmp = ca*ny + sa*nz;
++    nz = -sa*ny + ca*nz;
++    ny = tmp;
++  }
++  glEnd();
++}
++
++//***************************************************************************
++// motion model
++
++// current camera position and orientation
++static float view_xyz[3];	// position x,y,z
++static float view_hpr[3];	// heading, pitch, roll (degrees)
++
++
++// initialize the above variables
++
++static void initMotionModel()
++{
++  view_xyz[0] = 2;
++  view_xyz[1] = 0;
++  view_xyz[2] = 1;
++  view_hpr[0] = 180;
++  view_hpr[1] = 0;
++  view_hpr[2] = 0;
++}
++
++
++static void wrapCameraAngles()
++{
++  for (int i=0; i<3; i++) {
++    while (view_hpr[i] > 180) view_hpr[i] -= 360;
++    while (view_hpr[i] < -180) view_hpr[i] += 360;
++  }
++}
++
++
++// call this to update the current camera position. the bits in `mode' say
++// if the left (1), middle (2) or right (4) mouse button is pressed, and
++// (deltax,deltay) is the amount by which the mouse pointer has moved.
++
++void dsMotion (int mode, int deltax, int deltay)
++{
++  float side = 0.01f * float(deltax);
++  float fwd = (mode==4) ? (0.01f * float(deltay)) : 0.0f;
++  float s = (float) sin (view_hpr[0]*DEG_TO_RAD);
++  float c = (float) cos (view_hpr[0]*DEG_TO_RAD);
++
++  if (mode==1) {
++    view_hpr[0] += float (deltax) * 0.5f;
++    view_hpr[1] += float (deltay) * 0.5f;
++  }
++  else {
++    view_xyz[0] += -s*side + c*fwd;
++    view_xyz[1] += c*side + s*fwd;
++    if (mode==2 || mode==5) view_xyz[2] += 0.01f * float(deltay);
++  }
++  wrapCameraAngles();
++}
++
++//***************************************************************************
++// drawing loop stuff
++
++#ifndef macintosh
++
++void dsStartGraphics (int width, int height, dsFunctions *fn)
++{
++  texture_prefix = DEFAULT_PATH_TO_TEXTURES;
++  if (fn->version >= 2 && fn->path_to_textures) 
++    texture_prefix = fn->path_to_textures;
++  char *s = (char*) alloca (strlen(texture_prefix) + 20);
++  
++  memset(texture,0,sizeof(Texture*) * DS_MAXTEXTURES);
++  
++  strcpy (s,texture_prefix);
++  strcat (s,"/sky.ppm");
++  texture[DS_SKY] = new Texture (s);
++
++  strcpy (s,texture_prefix);
++  strcat (s,"/ground.ppm");
++  texture[DS_GROUND] = new Texture (s);
++
++  strcpy (s,texture_prefix);
++  strcat (s,"/wood.ppm");
++  texture[DS_WOOD] = new Texture (s);
++  texture_number = DS_WOOD+1;
++}
++
++#else // macintosh
++
++void dsStartGraphics (int width, int height, dsFunctions *fn)
++{
++   // All examples build into the same dir
++   char *prefix = "::::drawstuff:textures";
++   char *s = (char*) alloca (strlen(prefix) + 20);
++
++   strcpy (s,prefix);
++   strcat (s,":sky.ppm");
++   texture[DS_SKY] = new Texture (s);
++
++   strcpy (s,prefix);
++   strcat (s,":ground.ppm");
++   texture[DS_GROUND] = new Texture (s);
++
++   strcpy (s,prefix);
++   strcat (s,":wood.ppm");
++   texture[DS_WOOD] =  = new Texture (s);
++   texture_number = DS_WOOD+1;
++}
++
++#endif
++
++
++void dsStopGraphics()
++{
++  for(int i=0; i < texture_number; i++){
++    if(texture[i]) delete texture[i];
++    texture[i]=0;
++  }
++  texture_number=0;
++}
++
++
++static void drawSky (float view_xyz[3])
++{
++  glDisable (GL_LIGHTING);
++  if (use_textures) {
++    glEnable (GL_TEXTURE_2D);
++    texture[DS_SKY]->bind (0);
++  }
++  else {
++    glDisable (GL_TEXTURE_2D);
++    glColor3f (0,0.5,1.0);
++  }
++
++  // make sure sky depth is as far back as possible
++  glShadeModel (GL_FLAT);
++  glEnable (GL_DEPTH_TEST);
++  glDepthFunc (GL_LEQUAL);
++  glDepthRange (1,1);
++
++  const float ssize = 1000.0f;
++  static float offset = 0.0f;
++
++  float x = ssize*sky_scale;
++  float z = view_xyz[2] + sky_height;
++
++  glBegin (GL_QUADS);
++  glNormal3f (0,0,-1);
++  glTexCoord2f (-x+offset,-x+offset);
++  glVertex3f (-ssize+view_xyz[0],-ssize+view_xyz[1],z);
++  glTexCoord2f (-x+offset,x+offset);
++  glVertex3f (-ssize+view_xyz[0],ssize+view_xyz[1],z);
++  glTexCoord2f (x+offset,x+offset);
++  glVertex3f (ssize+view_xyz[0],ssize+view_xyz[1],z);
++  glTexCoord2f (x+offset,-x+offset);
++  glVertex3f (ssize+view_xyz[0],-ssize+view_xyz[1],z);
++  glEnd();
++
++  offset = offset + 0.002f;
++  if (offset > 1) offset -= 1;
++
++  glDepthFunc (GL_LESS);
++  glDepthRange (0,1);
++}
++
++
++static void drawGround()
++{
++  glDisable (GL_LIGHTING);
++  glShadeModel (GL_FLAT);
++  glEnable (GL_DEPTH_TEST);
++  glDepthFunc (GL_LESS);
++  // glDepthRange (1,1);
++
++  if (use_textures) {
++    glEnable (GL_TEXTURE_2D);
++    texture[DS_GROUND]->bind (0);
++  }
++  else {
++    glDisable (GL_TEXTURE_2D);
++    glColor3f (GROUND_R,GROUND_G,GROUND_B);
++  }
++
++  // ground fog seems to cause problems with TNT2 under windows
++  /*
++  GLfloat fogColor[4] = {0.5, 0.5, 0.5, 1};
++  glEnable (GL_FOG);
++  glFogi (GL_FOG_MODE, GL_EXP2);
++  glFogfv (GL_FOG_COLOR, fogColor);
++  glFogf (GL_FOG_DENSITY, 0.05f);
++  glHint (GL_FOG_HINT, GL_NICEST); // GL_DONT_CARE);
++  glFogf (GL_FOG_START, 1.0);
++  glFogf (GL_FOG_END, 5.0);
++  */
++
++  const float gsize = 100.0f;
++  const float offset = 0; // -0.001f; ... polygon offsetting doesn't work well
++
++  glBegin (GL_QUADS);
++  glNormal3f (0,0,1);
++  glTexCoord2f (-gsize*ground_scale + ground_ofsx,
++		-gsize*ground_scale + ground_ofsy);
++  glVertex3f (-gsize,-gsize,offset);
++  glTexCoord2f (gsize*ground_scale + ground_ofsx,
++		-gsize*ground_scale + ground_ofsy);
++  glVertex3f (gsize,-gsize,offset);
++  glTexCoord2f (gsize*ground_scale + ground_ofsx,
++		gsize*ground_scale + ground_ofsy);
++  glVertex3f (gsize,gsize,offset);
++  glTexCoord2f (-gsize*ground_scale + ground_ofsx,
++		gsize*ground_scale + ground_ofsy);
++  glVertex3f (-gsize,gsize,offset);
++  glEnd();
++
++  glDisable (GL_FOG);
++}
++
++
++static void drawPyramidGrid()
++{
++  // setup stuff
++  glEnable (GL_LIGHTING);
++  glDisable (GL_TEXTURE_2D);
++  glShadeModel (GL_FLAT);
++  glEnable (GL_DEPTH_TEST);
++  glDepthFunc (GL_LESS);
++
++  // draw the pyramid grid
++  for (int i=-1; i<=1; i++) {
++    for (int j=-1; j<=1; j++) {
++      glPushMatrix();
++      glTranslatef ((float)i,(float)j,(float)0);
++      if (i==1 && j==0) setColor (1,0,0,1);
++      else if (i==0 && j==1) setColor (0,0,1,1);
++      else setColor (1,1,0,1);
++      const float k = 0.03f;
++      glBegin (GL_TRIANGLE_FAN);
++      glNormal3f (0,-1,1);
++      glVertex3f (0,0,k);
++      glVertex3f (-k,-k,0);
++      glVertex3f ( k,-k,0);
++      glNormal3f (1,0,1);
++      glVertex3f ( k, k,0);
++      glNormal3f (0,1,1);
++      glVertex3f (-k, k,0);
++      glNormal3f (-1,0,1);
++      glVertex3f (-k,-k,0);
++      glEnd();
++      glPopMatrix();
++    }
++  }
++}
++
++
++void dsDrawFrame (int width, int height, dsFunctions *fn, int pause)
++{
++  if (current_state < 1) dsDebug ("internal error");
++  current_state = 2;
++
++  // setup stuff
++  glEnable (GL_LIGHTING);
++  glEnable (GL_LIGHT0);
++  glDisable (GL_TEXTURE_2D);
++  glDisable (GL_TEXTURE_GEN_S);
++  glDisable (GL_TEXTURE_GEN_T);
++  glShadeModel (GL_FLAT);
++  glEnable (GL_DEPTH_TEST);
++  glDepthFunc (GL_LESS);
++  glEnable (GL_CULL_FACE);
++  glCullFace (GL_BACK);
++  glFrontFace (GL_CCW);
++
++  // setup viewport
++  glViewport (0,0,width,height);
++  glMatrixMode (GL_PROJECTION);
++  glLoadIdentity();
++  const float vnear = 0.1f;
++  const float vfar = 100.0f;
++  const float k = 0.8f;     // view scale, 1 = +/- 45 degrees
++  if (width >= height) {
++    float k2 = float(height)/float(width);
++    glFrustum (-vnear*k,vnear*k,-vnear*k*k2,vnear*k*k2,vnear,vfar);
++  }
++  else {
++    float k2 = float(width)/float(height);
++    glFrustum (-vnear*k*k2,vnear*k*k2,-vnear*k,vnear*k,vnear,vfar);
++  }
++
++  // setup lights. it makes a difference whether this is done in the
++  // GL_PROJECTION matrix mode (lights are scene relative) or the
++  // GL_MODELVIEW matrix mode (lights are camera relative, bad!).
++  static GLfloat light_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
++  static GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
++  static GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
++  glLightfv (GL_LIGHT0, GL_AMBIENT, light_ambient);
++  glLightfv (GL_LIGHT0, GL_DIFFUSE, light_diffuse);
++  glLightfv (GL_LIGHT0, GL_SPECULAR, light_specular);
++  glColor3f (1.0, 1.0, 1.0);
++
++  // clear the window
++  glClearColor (0.5,0.5,0.5,0);
++  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
++
++  // snapshot camera position (in MS Windows it is changed by the GUI thread)
++  float view2_xyz[3];
++  float view2_hpr[3];
++  memcpy (view2_xyz,view_xyz,sizeof(float)*3);
++  memcpy (view2_hpr,view_hpr,sizeof(float)*3);
++
++  // go to GL_MODELVIEW matrix mode and set the camera
++  glMatrixMode (GL_MODELVIEW);
++  glLoadIdentity();
++  setCamera (view2_xyz[0],view2_xyz[1],view2_xyz[2],
++	     view2_hpr[0],view2_hpr[1],view2_hpr[2]);
++
++  // set the light position (for some reason we have to do this in model view.
++  static GLfloat light_position[] = { LIGHTX, LIGHTY, 1.0, 0.0 };
++  glLightfv (GL_LIGHT0, GL_POSITION, light_position);
++
++  // draw the background (ground, sky etc)
++  drawSky (view2_xyz);
++  drawGround();
++
++  // draw the little markers on the ground
++  drawPyramidGrid();
++
++  // leave openGL in a known state - flat shaded white, no textures
++  glEnable (GL_LIGHTING);
++  glDisable (GL_TEXTURE_2D);
++  glShadeModel (GL_FLAT);
++  glEnable (GL_DEPTH_TEST);
++  glDepthFunc (GL_LESS);
++  glColor3f (1,1,1);
++  setColor (1,1,1,1);
++
++  // draw the rest of the objects. set drawing state first.
++  color[0] = 1;
++  color[1] = 1;
++  color[2] = 1;
++  color[3] = 1;
++  tnum = 0;
++  if (fn->step) fn->step (pause);
++}
++
++
++int dsGetShadows()
++{
++  return use_shadows;
++}
++
++// Enables usage of shadows
++void dsSetShadows (int a)
++{
++  use_shadows = (a != 0);
++}
++
++
++int dsGetTextures()
++{
++  return use_textures;
++}
++
++// enables usage of textures
++void dsSetTextures (int a)
++{
++  use_textures = (a != 0);
++}
++
++// This method requires a texture bind call, previously !!!
++// Due to the fact that texture koords are provided by OpenGL
++// they will not be in the range between 0 and 1.0.
++// So the texture will repeat itself or other funny effects will happen.
++// So handle this with care and I still hope you know what you are doing.  
++void dsSetTextureCoordGen(float scale_s, float scale_t, float offs_s, float offs_t)
++{
++      glEnable (GL_TEXTURE_GEN_S);
++      glEnable (GL_TEXTURE_GEN_T);
++      glTexGeni (GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
++      glTexGeni (GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
++      static GLfloat s_params[4] = { scale_s,   0    , 0, offs_s};
++      static GLfloat t_params[4] = {   0    , scale_t, 0, offs_t};
++      glTexGenfv (GL_S, GL_OBJECT_PLANE, s_params);
++      glTexGenfv (GL_T, GL_OBJECT_PLANE, t_params);
++
++}
++
++//***************************************************************************
++// C interface
++
++// sets lighting and texture modes, sets current color
++static void setupDrawingMode(bool genTextureCoords = true) 
++{
++  glEnable (GL_LIGHTING);
++  if (tnum > 0 && tnum < texture_number ) {
++    if (use_textures) {
++      glEnable (GL_TEXTURE_2D);
++      texture[tnum]->bind (coating);
++      if(genTextureCoords){
++	glEnable (GL_TEXTURE_GEN_S);
++	glEnable (GL_TEXTURE_GEN_T);
++	glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
++	glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
++	static GLfloat s_params[4] = {1.0f,1.0f,0.0f,1};
++	static GLfloat t_params[4] = {0.817f,-0.817f,0.817f,1};
++	glTexGenfv (GL_S,GL_OBJECT_PLANE,s_params);
++	glTexGenfv (GL_T,GL_OBJECT_PLANE,t_params);
++      }else{
++	glDisable (GL_TEXTURE_GEN_S);
++	glDisable (GL_TEXTURE_GEN_T);
++      }
++    }
++    else {
++      glDisable (GL_TEXTURE_2D);
++    }
++  }
++  else {
++    glDisable (GL_TEXTURE_2D);
++  }
++  setColor (color[0],color[1],color[2],color[3]);
++
++  if (color[3] < 1) {
++    glEnable (GL_BLEND);
++    glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
++  }
++  else {
++    glDisable (GL_BLEND);
++  }
++}
++
++static void setShadowDrawingMode(bool genTextureCoords = true)
++{
++  glDisable (GL_LIGHTING);
++  if (use_textures) {
++    glEnable (GL_TEXTURE_2D);
++    texture[DS_GROUND]->bind(1);
++    glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);    
++    glEnable (GL_TEXTURE_2D);
++    if(genTextureCoords){
++      glEnable (GL_TEXTURE_GEN_S);
++      glEnable (GL_TEXTURE_GEN_T);
++      glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
++      glTexGeni (GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
++      static GLfloat s_params[4] = {ground_scale,0,0,ground_ofsx};
++      static GLfloat t_params[4] = {0,ground_scale,0,ground_ofsy};
++      glTexGenfv (GL_S,GL_EYE_PLANE,s_params);
++      glTexGenfv (GL_T,GL_EYE_PLANE,t_params);
++    } else {
++      glDisable (GL_TEXTURE_GEN_S);
++      glDisable (GL_TEXTURE_GEN_T);
++    }
++  }
++  else {
++    glDisable (GL_TEXTURE_2D);
++    glColor3f (GROUND_R*SHADOW_INTENSITY,GROUND_G*SHADOW_INTENSITY,
++	       GROUND_B*SHADOW_INTENSITY);
++  }
++  glDepthRange (0,0.9999);
++}
++
++
++extern "C" void dsSimulationLoop (int argc, char **argv,
++				  int window_width, int window_height,
++				  dsFunctions *fn)
++{
++  if (current_state != 0) dsError ("dsSimulationLoop() called more than once");
++  current_state = 1;
++
++  // look for flags that apply to us
++  int initial_pause = 0;
++  for (int i=1; i<argc; i++) {
++    if (strcmp(argv[i],"-notex")==0) use_textures = 0;
++    if (strcmp(argv[i],"-noshadow")==0) use_shadows = 0;
++    if (strcmp(argv[i],"-noshadows")==0) use_shadows = 0;
++    if (strcmp(argv[i],"-pause")==0) initial_pause = 1;
++  }
++
++  if (fn->version > DS_VERSION)
++    dsDebug ("bad version number in dsFunctions structure");
++
++  initMotionModel();
++  dsPlatformSimLoop (window_width,window_height,fn,initial_pause);
++
++  current_state = 0;
++}
++
++
++extern "C" void dsSetViewpoint (float xyz[3], float hpr[3])
++{
++  if (current_state < 1) dsError ("dsSetViewpoint() called before simulation started");
++  if (xyz) {
++    view_xyz[0] = xyz[0];
++    view_xyz[1] = xyz[1];
++    view_xyz[2] = xyz[2];
++  }
++  if (hpr) {
++    view_hpr[0] = hpr[0];
++    view_hpr[1] = hpr[1];
++    view_hpr[2] = hpr[2];
++    wrapCameraAngles();
++  }
++}
++
++
++extern "C" void dsGetViewpoint (float xyz[3], float hpr[3])
++{
++  if (current_state < 1) dsError ("dsGetViewpoint() called before simulation started");
++  if (xyz) {
++    xyz[0] = view_xyz[0];
++    xyz[1] = view_xyz[1];
++    xyz[2] = view_xyz[2];
++  }
++  if (hpr) {
++    hpr[0] = view_hpr[0];
++    hpr[1] = view_hpr[1];
++    hpr[2] = view_hpr[2];
++  }
++}
++
++
++extern "C" void dsSetTexture (int texture_index, int _coating)
++{
++  if (current_state != 2) dsError ("drawing function called outside simulation loop");
++  if(texture_index < texture_number && texture_index >= 0 && texture[texture_index]){
++    tnum = texture_index;  
++    coating = _coating;
++  } else {
++    tnum = 0;
++  }
++}
++
++extern "C" int dsRegisterTexture (const char* filename, bool uselocalpath)
++{
++  if (!texture_prefix) dsError ("No texture prefix defined");
++  if(texture_number == DS_MAXTEXTURES) 
++    dsError ("try to register too many textures");
++  if(!uselocalpath) {
++    char *s = (char*) alloca (strlen(texture_prefix) + strlen(filename) + 3);
++  
++    strcpy (s, texture_prefix);
++#ifndef macintosh
++    strcat (s, "/");
++#else
++    strcat (s, ":");
++#endif
++    strcat (s, filename);
++    texture[texture_number] = new Texture (s);
++  }else{
++    texture[texture_number] = new Texture (filename);
++  }
++  texture_number++;
++  return (texture_number-1);
++}
++
++
++extern "C" void dsSetColor (float red, float green, float blue)
++{
++  if (current_state != 2) dsError ("drawing function called outside simulation loop");
++  color[0] = red;
++  color[1] = green;
++  color[2] = blue;
++  color[3] = 1;
++}
++
++
++extern "C" void dsSetColorAlpha (float red, float green, float blue,
++				 float alpha)
++{
++  if (current_state != 2) dsError ("drawing function called outside simulation loop");
++  color[0] = red;
++  color[1] = green;
++  color[2] = blue;
++  color[3] = alpha;
++}
++
++
++extern "C" void dsDrawBox (const float pos[3], const float R[12],
++			   const float sides[3])
++{
++  if (current_state != 2) dsError ("drawing function called outside simulation loop");
++  setupDrawingMode();
++  glShadeModel (GL_FLAT);
++  setTransform (pos,R);
++  drawBox (sides);
++  glPopMatrix();
++
++  if (use_shadows) {
++    setShadowDrawingMode();
++    setShadowTransform();
++    setTransform (pos,R);
++    drawBox (sides);
++    glPopMatrix();
++    glPopMatrix();
++    glDepthRange (0,1);
++  }
++}
++
++
++extern "C" void dsDrawSphere (const float pos[3], const float R[12],
++			      float radius)
++{
++  if (current_state != 2) dsError ("drawing function called outside simulation loop");
++  setupDrawingMode();
++  glEnable (GL_NORMALIZE);
++  glShadeModel (GL_SMOOTH);
++  setTransform (pos,R);
++  glScaled (radius,radius,radius);
++  drawSphere();
++  glPopMatrix();
++  glDisable (GL_NORMALIZE);
++
++  // draw shadows
++  if (use_shadows) {
++    glDisable (GL_LIGHTING);
++    if (use_textures) {
++      texture[DS_GROUND]->bind(1);
++      glEnable (GL_TEXTURE_2D);
++      glDisable (GL_TEXTURE_GEN_S);
++      glDisable (GL_TEXTURE_GEN_T);
++      glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);
++    }
++    else {
++      glDisable (GL_TEXTURE_2D);
++      glColor3f (GROUND_R*SHADOW_INTENSITY,GROUND_G*SHADOW_INTENSITY,
++		 GROUND_B*SHADOW_INTENSITY);
++    }
++    glShadeModel (GL_FLAT);
++    glDepthRange (0,0.9999);
++    drawSphereShadow (pos[0],pos[1],pos[2],radius);
++    glDepthRange (0,1);
++  }
++}
++
++
++extern "C" void dsDrawTriangle (const float pos[3], const float R[12],
++				const float *v0, const float *v1,
++				const float *v2, int solid)
++{
++  if (current_state != 2) dsError ("drawing function called outside simulation loop");
++  setupDrawingMode();
++  glShadeModel (GL_FLAT);
++  setTransform (pos,R);
++  drawTriangle (v0, v1, v2, solid);
++  glPopMatrix();
++}
++
++
++extern "C" void dsDrawCylinder (const float pos[3], const float R[12],
++				float length, float radius)
++{
++  if (current_state != 2) dsError ("drawing function called outside simulation loop");
++  setupDrawingMode();
++  glShadeModel (GL_SMOOTH);
++  setTransform (pos,R);
++  drawCylinder (length,radius,0);
++  glPopMatrix();
++
++  if (use_shadows) {
++    setShadowDrawingMode();
++    setShadowTransform();
++    setTransform (pos,R);
++    drawCylinder (length,radius,0);
++    glPopMatrix();
++    glPopMatrix();
++    glDepthRange (0,1);
++  }
++}
++
++
++extern "C" void dsDrawCappedCylinder (const float pos[3], const float R[12],
++				      float length, float radius)
++{
++  if (current_state != 2) dsError ("drawing function called outside simulation loop");
++  setupDrawingMode();
++  glShadeModel (GL_SMOOTH);
++  setTransform (pos,R);
++  drawCappedCylinder (length,radius);
++  glPopMatrix();
++
++  if (use_shadows) {
++    setShadowDrawingMode();
++    setShadowTransform();
++    setTransform (pos,R);
++    drawCappedCylinder (length,radius);
++    glPopMatrix();
++    glPopMatrix();
++    glDepthRange (0,1);
++  }
++}
++
++
++void dsDrawLine (const float pos1[3], const float pos2[3])
++{
++  setupDrawingMode();
++  glColor3f (color[0],color[1],color[2]);
++  glDisable (GL_LIGHTING);
++  glLineWidth (2);
++  glShadeModel (GL_FLAT);
++  glBegin (GL_LINES);
++  glVertex3f (pos1[0],pos1[1],pos1[2]);
++  glVertex3f (pos2[0],pos2[1],pos2[2]);
++  glEnd();
++}
++
++
++void dsDrawBoxD (const double pos[3], const double R[12],
++		 const double sides[3])
++{
++  int i;
++  float pos2[3],R2[12],fsides[3];
++  for (i=0; i<3; i++) pos2[i]=(float)pos[i];
++  for (i=0; i<12; i++) R2[i]=(float)R[i];
++  for (i=0; i<3; i++) fsides[i]=(float)sides[i];
++  dsDrawBox (pos2,R2,fsides);
++}
++
++
++void dsDrawSphereD (const double pos[3], const double R[12], float radius)
++{
++  int i;
++  float pos2[3],R2[12];
++  for (i=0; i<3; i++) pos2[i]=(float)pos[i];
++  for (i=0; i<12; i++) R2[i]=(float)R[i];
++  dsDrawSphere (pos2,R2,radius);
++}
++
++
++void dsDrawTriangleD (const double pos[3], const double R[12],
++				 const double *v0, const double *v1,
++				 const double *v2, int solid)
++{
++  int i;
++  float pos2[3],R2[12];
++  for (i=0; i<3; i++) pos2[i]=(float)pos[i];
++  for (i=0; i<12; i++) R2[i]=(float)R[i];
++
++  setupDrawingMode();
++  glShadeModel (GL_FLAT);
++  setTransform (pos2,R2);
++  drawTriangleD (v0, v1, v2, solid);
++  glPopMatrix();
++}
++
++
++void dsDrawCylinderD (const double pos[3], const double R[12],
++		      float length, float radius)
++{
++  int i;
++  float pos2[3],R2[12];
++  for (i=0; i<3; i++) pos2[i]=(float)pos[i];
++  for (i=0; i<12; i++) R2[i]=(float)R[i];
++  dsDrawCylinder (pos2,R2,length,radius);
++}
++
++
++void dsDrawCappedCylinderD (const double pos[3], const double R[12],
++			    float length, float radius)
++{
++  int i;
++  float pos2[3],R2[12];
++  for (i=0; i<3; i++) pos2[i]=(float)pos[i];
++  for (i=0; i<12; i++) R2[i]=(float)R[i];
++  dsDrawCappedCylinder (pos2,R2,length,radius);
++}
++
++
++void dsDrawLineD (const double _pos1[3], const double _pos2[3])
++{
++  int i;
++  float pos1[3],pos2[3];
++  for (i=0; i<3; i++) pos1[i]=(float)_pos1[i];
++  for (i=0; i<3; i++) pos2[i]=(float)_pos2[i];
++  dsDrawLine (pos1,pos2);
++}
++
++
++void dsSetSphereQuality (int n)
++{
++  sphere_quality = n;
++}
++
++
++void dsSetCappedCylinderQuality (int n)
++{
++  capped_cylinder_quality = n;
++}
+diff -Naur ode-0.5/drawstuff/src/imageppm.h ode-0.5_lpzrobots/drawstuff/src/imageppm.h
+--- ode-0.5/drawstuff/src/imageppm.h	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/drawstuff/src/imageppm.h	2005-09-19 16:25:33.000000000 +0200
+@@ -0,0 +1,112 @@
++#include "stdio.h"
++
++class ImagePPM
++{
++
++private:
++  int image_width, image_height;
++  unsigned char *image_data;
++
++
++static int readNumber (char *filename, FILE *f)
++{
++  int c,n=0;
++  for(;;) {
++    c = fgetc(f);
++    if (c==EOF) printf ("unexpected end of file in \"%s\"",filename);
++    if (c >= '0' && c <= '9') n = n*10 + (c - '0');
++    else {
++      ungetc (c,f);
++      return n;
++    }
++  }
++}
++
++
++static void skipWhiteSpace (char *filename, FILE *f)
++{
++  int c,d;
++  for(;;) {
++    c = fgetc(f);
++    if (c==EOF) printf ("unexpected end of file in \"%s\"",filename);
++
++    // skip comments
++    if (c == '#') {
++      do {
++	d = fgetc(f);
++	if (d==EOF) printf ("unexpected end of file in \"%s\"",filename);
++      } while (d != '\n');
++      continue;
++    }
++
++    if (c > ' ') {
++      ungetc (c,f);
++      return;
++    }
++  }
++}
++
++public:
++
++ImagePPM () 
++{   image_data = 0;
++}
++
++int loadImage(char*filename)
++{
++  FILE *f = fopen (filename,"rb");
++  if (!f) 
++  {  printf ("Can't open image file `%s'", filename);
++     return 1;
++  }
++
++  // read in header
++  if (fgetc(f) != 'P' || fgetc(f) != '6')
++    printf ("image file \"%s\" is not a binary PPM (no P6 header)",filename);
++  skipWhiteSpace (filename,f);
++
++  // read in image parameters
++  image_width = readNumber (filename,f);
++  skipWhiteSpace (filename,f);
++  image_height = readNumber (filename,f);
++  skipWhiteSpace (filename,f);
++  int max_value = readNumber (filename,f);
++
++  // check values
++  if (image_width < 1 || image_height < 1)
++    printf ("bad image file \"%s\"",filename);
++  if (max_value != 255)
++    printf ("image file \"%s\" must have color range of 255",filename);
++
++  // read either nothing, LF (10), or CR,LF (13,10)
++  int c = fgetc(f);
++  if (c == 10) {
++    // LF
++  }
++  else if (c == 13) {
++    // CR
++    c = fgetc(f);
++    if (c != 10) ungetc (c,f);
++  }
++  else ungetc (c,f);
++
++  // read in rest of data
++  image_data = new unsigned char [image_width*image_height*3];
++  if (fread( image_data, image_width*image_height*3, 1, f) != 1)
++    printf ("Can not read data from image file `%s'",filename);
++  fclose (f);
++  return 0;
++}
++
++
++~ImagePPM()
++{
++  if(image_data) delete[] image_data;
++}
++
++  int width()           { return image_width;  }
++  int height()          { return image_height; }
++  unsigned char *data() { return image_data;   }
++
++
++};
+diff -Naur ode-0.5/include/drawstuff/drawstuff.h ode-0.5_lpzrobots/include/drawstuff/drawstuff.h
+--- ode-0.5/include/drawstuff/drawstuff.h	2003-08-29 23:26:11.000000000 +0200
++++ ode-0.5_lpzrobots/include/drawstuff/drawstuff.h	2005-09-19 16:25:42.000000000 +0200
+@@ -53,8 +53,10 @@
+ 
+ /* texture numbers */
+ #define DS_NONE   0	/* uses the current color instead of a texture */
+-#define DS_WOOD   1
+-
++#define DS_SKY    1
++#define DS_GROUND 2
++#define DS_WOOD   3
++#define DS_MAXTEXTURES 128
+ 
+ typedef struct dsFunctions {
+   int version;			/* put DS_VERSION here */
+@@ -102,15 +104,35 @@
+  */
+ void dsStop();
+ 
++
++/* Registers a user defined texture and returns its number. This can be used 
++ * as parameter to dsSetTexture()   
++ * @param uselocalpath use local path or add prefix texture path
++ */
++int dsRegisterTexture (const char* filename, bool uselocalpath = false);
++
+ /* change the way objects are drawn. these changes will apply to all further
+- * dsDrawXXX() functions. the texture number must be a DS_xxx texture
+- * constant. the red, green, and blue number are between 0 and 1.
+- * alpha is between 0 and 1 - if alpha is not specified it's assubed to be 1.
+- * the current texture is colored according to the current color.
+- * at the start of each frame, the texture is reset to none and the color is
++ * dsDrawXXX() functions. The texture number must be either a DS_xxx texture
++ * constant or an integer returned by dsRegisterTexture(). 
++ * The red, green, and blue number are between 0 and 1.
++ * alpha is between 0 and 1 - if alpha is not specified it's assumed to be 1.
++ * The current texture is colored according to the current color.
++ * At the start of each frame, the texture is reset to none and the color is
+  * reset to white.
+  */
+-void dsSetTexture (int texture_number);
++void dsSetTexture (int texture_number, int _coating = 1);
++
++/* set the textures for ground and sky. texture is a value returned by dsRegisterTexture*/ 
++void dsSetGroundTexture(int texture);
++void dsSetSkyTexture(int texture);
++
++/* sets the offset for the sky image. This makes it possible to let the cloud speed to reflect the true time 
++   If you don't use it then the offset modified in each draw step
++*/  
++void dsSetSimulationTime(double time);
++
++  /* if side = 0 then BackFace else FrontFace*/
++void dsSetCulling(int side);
+ void dsSetColor (float red, float green, float blue);
+ void dsSetColorAlpha (float red, float green, float blue, float alpha);
+ 
+@@ -148,6 +170,16 @@
+ 			    float length, float radius);
+ void dsDrawLineD (const double pos1[3], const double pos2[3]);
+ 
++void dsDrawCone (const float pos[3], const float R[12],	float length, float radius);
++void dsDrawConeD (const double pos[3], const double R[12], float length, float radius);
++void dsDrawTerrainY( int x, int y, float vLength, float vNodeLength, int nNumNodesPerSide, float *pHeights, const float *pR, const float *ppos);
++void dsDrawTerrainYD(int x, int z, double vLength, double vNodeLength, int nNumNodesPerSide, double *pHeights, const double *pR, const double *ppos);
++void dsDrawTerrainZ( int x, int y, float vLength, float vNodeLength, int nNumNodesPerSide, float *pHeights, const float *pR, const float *ppos);
++void dsDrawTerrainZD(int x, int z, double vLength, double vNodeLength, int nNumNodesPerSide, double *pHeights, const double *pR, const double *ppos);
++
++int  dsCreateDisplayListTerrainZD(double size, int nNumNodesPerSide, double *pHeights);
++void dsCallList(int ListNumber, const double *pR, const double *ppos);
++
+ /* Set the drawn quality of the objects. Higher numbers are higher quality,
+  * but slower to draw. This must be set before the first objects are drawn to
+  * be effective.
+diff -Naur ode-0.5/include/drawstuff/drawstuff.h.orig ode-0.5_lpzrobots/include/drawstuff/drawstuff.h.orig
+--- ode-0.5/include/drawstuff/drawstuff.h.orig	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/include/drawstuff/drawstuff.h.orig	2005-09-19 16:25:33.000000000 +0200
+@@ -0,0 +1,174 @@
++/*************************************************************************
++ *                                                                       *
++ * Open Dynamics Engine, Copyright (C) 2001-2003 Russell L. Smith.       *
++ * All rights reserved.  Email: russ@q12.org   Web: www.q12.org          *
++ *                                                                       *
++ * This library is free software; you can redistribute it and/or         *
++ * modify it under the terms of EITHER:                                  *
++ *   (1) The GNU Lesser General Public License as published by the Free  *
++ *       Software Foundation; either version 2.1 of the License, or (at  *
++ *       your option) any later version. The text of the GNU Lesser      *
++ *       General Public License is included with this library in the     *
++ *       file LICENSE.TXT.                                               *
++ *   (2) The BSD-style license that is included with this library in     *
++ *       the file LICENSE-BSD.TXT.                                       *
++ *                                                                       *
++ * This library is distributed in the hope that it will be useful,       *
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the files    *
++ * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
++ *                                                                       *
++ *************************************************************************/
++
++/*
++
++Draw Stuff
++----------
++
++this is a library for rendering simple 3D objects in a virtual environment.
++
++NOTES
++-----
++
++in the virtual world, the z axis is "up" and z=0 is the floor.
++
++the user is able to click+drag in the main window to move the camera:
++  * left button - pan and tilt.
++  * right button - forward and sideways.
++  * left + right button (or middle button) - sideways and up.
++
++*/
++
++
++#ifndef __DRAWSTUFF_H__
++#define __DRAWSTUFF_H__
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++
++#include <drawstuff/version.h>
++
++
++/* texture numbers */
++#define DS_NONE   0	/* uses the current color instead of a texture */
++#define DS_SKY    1
++#define DS_GROUND 2
++#define DS_WOOD   3
++#define DS_MAXTEXTURES 128
++
++
++typedef struct dsFunctions {
++  int version;			/* put DS_VERSION here */
++  /* version 1 data */
++  void (*start)();		/* called before sim loop starts */
++  void (*step) (int pause);	/* called before every frame */
++  void (*command) (int cmd);	/* called if a command key is pressed */
++  void (*stop)();		/* called after sim loop exits */
++  /* version 2 data */
++  char *path_to_textures;	/* if nonzero, path to texture files */
++} dsFunctions;
++
++
++/* the main() function should fill in the dsFunctions structure then
++ * call this.
++ */
++void dsSimulationLoop (int argc, char **argv,
++		       int window_width, int window_height,
++		       struct dsFunctions *fn);
++
++/* these functions display an error message then exit. they take arguments
++ * in the same way as printf(), except you do not have to add a terminating
++ * '\n'. Debug() tries to dump core or start the debugger.
++ */
++void dsError (char *msg, ...);
++void dsDebug (char *msg, ...);
++
++/* dsPrint() prints out a message. it takes arguments in the same way as
++ * printf() (i.e. you must add a '\n' at the end of every line).
++ */
++void dsPrint (char *msg, ...);
++
++/* set and get the camera position. xyz is the cameria position (x,y,z).
++ * hpr contains heading, pitch and roll numbers in degrees. heading=0
++ * points along the x axis, pitch=0 is looking towards the horizon, and
++ * roll 0 is "unrotated".
++ */
++void dsSetViewpoint (float xyz[3], float hpr[3]);
++void dsGetViewpoint (float xyz[3], float hpr[3]);
++
++/* stop the simulation loop. calling this from within dsSimulationLoop()
++ * will cause it to exit and return to the caller. it is the same as if the
++ * user used the exit command. using this outside the loop will have no
++ * effect.
++ */
++void dsStop();
++
++/* Registers a user defined texture and returns its number. This can be used 
++ * as parameter to dsSetTexture()   
++ * @param uselocalpath use local path or add prefix texture path
++ */
++int dsRegisterTexture (const char* filename, bool uselocalpath = false);
++
++/* change the way objects are drawn. these changes will apply to all further
++ * dsDrawXXX() functions. The texture number must be either a DS_xxx texture
++ * constant or an integer returned by dsRegisterTexture(). 
++ * The red, green, and blue number are between 0 and 1.
++ * alpha is between 0 and 1 - if alpha is not specified it's assumed to be 1.
++ * The current texture is colored according to the current color.
++ * At the start of each frame, the texture is reset to none and the color is
++ * reset to white.
++ */
++void dsSetTexture (int texture_number, int _coating = 1);
++void dsSetColor (float red, float green, float blue);
++void dsSetColorAlpha (float red, float green, float blue, float alpha);
++
++/* draw objects.
++ *   - pos[] is the x,y,z of the center of the object.
++ *   - R[] is a 3x3 rotation matrix for the object, stored by row like this:
++ *        [ R11 R12 R13 0 ]
++ *        [ R21 R22 R23 0 ]
++ *        [ R31 R32 R33 0 ]
++ *   - sides[] is an array of x,y,z side lengths.
++ *   - all cylinders are aligned along the z axis.
++ */
++void dsDrawBox (const float pos[3], const float R[12], const float sides[3]);
++void dsDrawSphere (const float pos[3], const float R[12], float radius);
++void dsDrawTriangle (const float pos[3], const float R[12],
++		     const float *v0, const float *v1, const float *v2, int solid);
++void dsDrawCylinder (const float pos[3], const float R[12],
++		     float length, float radius);
++void dsDrawCappedCylinder (const float pos[3], const float R[12],
++			   float length, float radius);
++void dsDrawLine (const float pos1[3], const float pos2[3]);
++
++/* these drawing functions are identical to the ones above, except they take
++ * double arrays for `pos' and `R'.
++ */
++void dsDrawBoxD (const double pos[3], const double R[12],
++		 const double sides[3]);
++void dsDrawSphereD (const double pos[3], const double R[12],
++		    const float radius);
++void dsDrawTriangleD (const double pos[3], const double R[12],
++		      const double *v0, const double *v1, const double *v2, int solid);
++void dsDrawCylinderD (const double pos[3], const double R[12],
++		      float length, float radius);
++void dsDrawCappedCylinderD (const double pos[3], const double R[12],
++			    float length, float radius);
++void dsDrawLineD (const double pos1[3], const double pos2[3]);
++
++/* Set the drawn quality of the objects. Higher numbers are higher quality,
++ * but slower to draw. This must be set before the first objects are drawn to
++ * be effective.
++ */
++void dsSetSphereQuality (int n);		/* default = 1 */
++void dsSetCappedCylinderQuality (int n);	/* default = 3 */
++
++
++/* closing bracket for extern "C" */
++#ifdef __cplusplus
++}
++#endif
++
++#endif
+diff -Naur ode-0.5/include/ode/collision.h ode-0.5_lpzrobots/include/ode/collision.h
+--- ode-0.5/include/ode/collision.h	2004-04-19 04:50:37.000000000 +0200
++++ ode-0.5_lpzrobots/include/ode/collision.h	2005-09-19 16:25:37.000000000 +0200
+@@ -85,6 +85,10 @@
+   dGeomTransformClass,
+   dTriMeshClass,
+ 
++  dTerrainYClass,	//here
++  dTerrainZClass,	//here
++  dConeClass,		//here
++
+   dFirstSpaceClass,
+   dSimpleSpaceClass = dFirstSpaceClass,
+   dHashSpaceClass,
+@@ -96,6 +100,18 @@
+   dGeomNumClasses
+ };
+ 
++//new
++dGeomID dCreateTerrainY (dSpaceID space, dReal *pHeights,dReal vLength,int nNumNodesPerSide, int bFinite, int bPlaceable);
++dReal dGeomTerrainYPointDepth (dGeomID g, dReal x, dReal y, dReal z);
++dGeomID dCreateTerrainZ (dSpaceID space, dReal *pHeights,dReal vLength,int nNumNodesPerSide, int bFinite, int bPlaceable);
++dReal dGeomTerrainZPointDepth (dGeomID g, dReal x, dReal y, dReal z);
++
++dGeomID dCreateCone(dSpaceID space, dReal radius, dReal length);
++void dGeomConeSetParams (dGeomID cone, dReal radius, dReal length);
++void dGeomConeGetParams (dGeomID cone, dReal *radius, dReal *length);
++dReal dGeomConePointDepth(dGeomID g, dReal x, dReal y, dReal z);
++
++// \new
+ 
+ dGeomID dCreateSphere (dSpaceID space, dReal radius);
+ void dGeomSphereSetRadius (dGeomID sphere, dReal radius);
+diff -Naur ode-0.5/include/ode/odemath.h ode-0.5_lpzrobots/include/ode/odemath.h
+--- ode-0.5/include/ode/odemath.h	2004-05-25 19:53:22.000000000 +0200
++++ ode-0.5_lpzrobots/include/ode/odemath.h	2005-09-19 16:25:37.000000000 +0200
+@@ -211,6 +211,28 @@
+ 
+ #endif
+ 
++#define dOP(a,op,b,c) \
++  (a)[0] = ((b)[0]) op ((c)[0]); \
++  (a)[1] = ((b)[1]) op ((c)[1]); \
++  (a)[2] = ((b)[2]) op ((c)[2]);
++#define dOPC(a,op,b,c) \
++  (a)[0] = ((b)[0]) op (c); \
++  (a)[1] = ((b)[1]) op (c); \
++  (a)[2] = ((b)[2]) op (c);
++#define dOPE(a,op,b) \
++  (a)[0] op ((b)[0]); \
++  (a)[1] op ((b)[1]); \
++  (a)[2] op ((b)[2]);
++#define dOPEC(a,op,c) \
++  (a)[0] op (c); \
++  (a)[1] op (c); \
++  (a)[2] op (c);
++#define dLENGTH(a) \
++	(dSqrt( ((a)[0])*((a)[0]) + ((a)[1])*((a)[1]) + ((a)[2])*((a)[2]) ));
++#define dLENGTHSQUARED(a) \
++	(((a)[0])*((a)[0]) + ((a)[1])*((a)[1]) + ((a)[2])*((a)[2]));
++
++
+ 
+ #ifdef __cplusplus
+ extern "C" {
+diff -Naur ode-0.5/install.sh ode-0.5_lpzrobots/install.sh
+--- ode-0.5/install.sh	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/install.sh	2005-09-19 16:25:33.000000000 +0200
+@@ -0,0 +1,4 @@
++#!/bin/bash
++
++cp lib/* /usr/local/lib/
++cp -r include /usr/local/
+\ Kein Zeilenumbruch am Dateiende.
+diff -Naur ode-0.5/ode/src/collision_kernel.cpp ode-0.5_lpzrobots/ode/src/collision_kernel.cpp
+--- ode-0.5/ode/src/collision_kernel.cpp	2004-04-19 20:27:56.000000000 +0200
++++ ode-0.5_lpzrobots/ode/src/collision_kernel.cpp	2005-09-19 16:25:37.000000000 +0200
+@@ -139,6 +139,29 @@
+   setCollider (dRayClass,dBoxClass,&dCollideRayBox);
+   setCollider (dRayClass,dCCylinderClass,&dCollideRayCCylinder);
+   setCollider (dRayClass,dPlaneClass,&dCollideRayPlane);
++  
++
++  
++// new
++  setCollider (dTerrainYClass,dSphereClass,&dCollideTerrainY);
++  setCollider (dTerrainYClass,dBoxClass,&dCollideTerrainY);
++  setCollider (dTerrainYClass,dCCylinderClass,&dCollideTerrainY);
++  setCollider (dTerrainYClass,dRayClass,&dCollideTerrainY);
++  setCollider (dTerrainYClass,dConeClass,&dCollideTerrainY);
++
++  setCollider (dTerrainZClass,dSphereClass,&dCollideTerrainZ);
++  setCollider (dTerrainZClass,dBoxClass,&dCollideTerrainZ);
++  setCollider (dTerrainZClass,dCCylinderClass,&dCollideTerrainZ);
++  setCollider (dTerrainZClass,dRayClass,&dCollideTerrainZ);
++  setCollider (dTerrainZClass,dConeClass,&dCollideTerrainZ);
++
++  setCollider (dRayClass,dConeClass,&dCollideRayCone);
++  setCollider (dConeClass,dPlaneClass,&dCollideConePlane);
++  setCollider (dConeClass,dSphereClass,&dCollideConeSphere);
++  setCollider (dConeClass,dBoxClass,&dCollideConeBox);
++  setCollider (dCCylinderClass,dConeClass,&dCollideCCylinderCone);
++// \new
++
+ #ifdef dTRIMESH_ENABLED
+   setCollider (dTriMeshClass,dSphereClass,&dCollideSTL);
+   setCollider (dTriMeshClass,dBoxClass,&dCollideBTL);
+diff -Naur ode-0.5/ode/src/collision_std.h ode-0.5_lpzrobots/ode/src/collision_std.h
+--- ode-0.5/ode/src/collision_std.h	2002-12-01 07:13:42.000000000 +0100
++++ ode-0.5_lpzrobots/ode/src/collision_std.h	2005-09-19 16:25:37.000000000 +0200
+@@ -64,5 +64,15 @@
+ int dCollideRayPlane (dxGeom *o1, dxGeom *o2, int flags,
+ 		      dContactGeom *contact, int skip);
+ 
++// new
++int dCollideTerrainY(dxGeom *o1, dxGeom *o2, int flags,dContactGeom *contact, int skip);
++int dCollideTerrainZ(dxGeom *o1, dxGeom *o2, int flags,dContactGeom *contact, int skip);
++
++int dCollideConePlane (dxGeom *o1, dxGeom *o2, int flags,dContactGeom *contact, int skip);
++int dCollideRayCone (dxGeom *o1, dxGeom *o2, int flags,dContactGeom *contact, int skip);
++int dCollideConeSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip);
++int dCollideConeBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip);
++int dCollideCCylinderCone(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip);
++
+ 
+ #endif
+diff -Naur ode-0.5/ode/src/collision_std_internal.h ode-0.5_lpzrobots/ode/src/collision_std_internal.h
+--- ode-0.5/ode/src/collision_std_internal.h	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/ode/src/collision_std_internal.h	2005-09-19 16:25:37.000000000 +0200
+@@ -0,0 +1,100 @@
++//Benoit CHAPEROT 2003-2004 www.jstarlab.com
++#ifndef _ODE_COLLISION_STD_INTERNAL_H_
++#define _ODE_COLLISION_STD_INTERNAL_H_
++
++#include <ode/common.h>
++#include "collision_kernel.h"
++
++struct dxSphere : public dxGeom {
++  dReal radius;		// sphere radius
++  dxSphere (dSpaceID space, dReal _radius);
++  void computeAABB();
++};
++
++
++struct dxBox : public dxGeom {
++  dVector3 side;	// side lengths (x,y,z)
++  dxBox (dSpaceID space, dReal lx, dReal ly, dReal lz);
++  void computeAABB();
++};
++
++
++struct dxCCylinder : public dxGeom {
++  dReal radius,lz;	// radius, length along z axis
++  dxCCylinder (dSpaceID space, dReal _radius, dReal _length);
++  void computeAABB();
++};
++
++
++struct dxPlane : public dxGeom {
++  dReal p[4];
++  dxPlane (dSpaceID space, dReal a, dReal b, dReal c, dReal d);
++  void computeAABB();
++};
++
++struct dxCylinder : public dxGeom {
++  dReal radius,lz;	// radius, length along z axis
++  dxCylinder (dSpaceID space, dReal _radius, dReal _length);
++  void computeAABB();
++};
++
++struct dxCone : public dxGeom {
++  dReal radius,lz;
++  dxCone(dSpaceID space, dReal _radius,dReal _length);
++  ~dxCone();
++  void computeAABB();
++};
++
++struct dxRay : public dxGeom {
++  dReal length;
++  dxRay (dSpaceID space, dReal _length);
++  void computeAABB();
++};
++
++struct dxTerrainY : public dxGeom {
++  dReal m_vLength;
++  dReal *m_pHeights;
++  dReal m_vMinHeight;
++  dReal m_vMaxHeight;
++  dReal m_vNodeLength;
++  int	m_nNumNodesPerSide;
++  int	m_nNumNodesPerSideShift;
++  int	m_nNumNodesPerSideMask;
++  int	m_bFinite;
++  dxTerrainY(dSpaceID space, dReal *pHeights,dReal vLength,int nNumNodesPerSide, int bFinite, int bPlaceable);
++  ~dxTerrainY();
++  void computeAABB();
++  dReal GetHeight(dReal x,dReal z);
++  dReal GetHeight(int x,int z);
++  int dCollideTerrainUnit(int x,int z,dxGeom *o2,int numMaxContacts,int flags,dContactGeom *contact, int skip);
++  bool IsOnTerrain(int nx,int nz,int w,dReal *pos);
++};
++
++struct dxTerrainZ : public dxGeom {
++  dReal m_vLength;
++  dReal *m_pHeights;
++  dReal m_vMinHeight;
++  dReal m_vMaxHeight;
++  dReal m_vNodeLength;
++  int	m_nNumNodesPerSide;
++  int	m_nNumNodesPerSideShift;
++  int	m_nNumNodesPerSideMask;
++  int	m_bFinite;
++  dxTerrainZ(dSpaceID space, dReal *pHeights,dReal vLength,int nNumNodesPerSide, int bFinite, int bPlaceable);
++  ~dxTerrainZ();
++  void computeAABB();
++  dReal GetHeight(dReal x,dReal y);
++  dReal GetHeight(int x,int y);
++  int dCollideTerrainUnit(int x,int y,dxGeom *o2,int numMaxContacts,int flags,dContactGeom *contact, int skip);
++  bool IsOnTerrain(int nx,int ny,int w,dReal *pos);
++};
++
++#ifndef MIN
++#define MIN(a,b)	((a<b)?a:b)
++#endif
++
++#ifndef MAX
++#define MAX(a,b)	((a>b)?a:b)
++#endif
++
++#endif //_ODE_COLLISION_STD_INTERNAL_H_
+\ Kein Zeilenumbruch am Dateiende.
+diff -Naur ode-0.5/ode/src/dCone.cpp ode-0.5_lpzrobots/ode/src/dCone.cpp
+--- ode-0.5/ode/src/dCone.cpp	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/ode/src/dCone.cpp	2005-09-19 16:25:37.000000000 +0200
+@@ -0,0 +1,497 @@
++//Benoit CHAPEROT 2003-2004 www.jstarlab.com
++//some code inspired by Magic Software
++#include <ode/common.h>
++#include <ode/collision.h>
++#include <ode/matrix.h>
++#include <ode/rotation.h>
++#include <ode/odemath.h>
++#include "collision_kernel.h"
++#include "collision_std.h"
++#include "collision_std_internal.h"
++#include "collision_util.h"
++#include <drawstuff/drawstuff.h>
++//#include "windows.h"
++#include "ode/ode.h"
++
++#define CONTACT(p,skip) ((dContactGeom*) (((char*)p) + (skip)))
++const dReal fEPSILON = 1e-9f;
++
++dxCone::dxCone (dSpaceID space, dReal _radius,dReal _length) :
++dxGeom (space,1)
++{
++	dAASSERT(_radius > 0.f);
++	dAASSERT(_length > 0.f);
++	type = dConeClass;
++	radius = _radius;
++	lz = _length;
++}
++
++dxCone::~dxCone()
++{
++}
++
++void dxCone::computeAABB()
++{
++	dReal xrange = dFabs(R[2]  * lz) + radius;
++	dReal yrange = dFabs(R[6]  * lz) + radius;
++	dReal zrange = dFabs(R[10] * lz) + radius;
++	aabb[0] = pos[0] - xrange;
++	aabb[1] = pos[0] + xrange;
++	aabb[2] = pos[1] - yrange;
++	aabb[3] = pos[1] + yrange;
++	aabb[4] = pos[2] - zrange;
++	aabb[5] = pos[2] + zrange;
++}
++
++dGeomID dCreateCone(dSpaceID space, dReal _radius,dReal _length)
++{
++	return new dxCone(space,_radius,_length);
++}
++
++void dGeomConeSetParams (dGeomID g, dReal _radius, dReal _length)
++{
++	dUASSERT (g && g->type == dConeClass,"argument not a cone");
++	dAASSERT (_radius > 0.f);
++	dAASSERT (_length > 0.f);
++	dxCone *c = (dxCone*) g;
++	c->radius = _radius;
++	c->lz = _length;
++	dGeomMoved (g);
++}
++
++
++void dGeomConeGetParams (dGeomID g, dReal *_radius, dReal *_length)
++{
++	dUASSERT (g && g->type == dConeClass,"argument not a cone");
++	dxCone *c = (dxCone*) g;
++	*_radius = c->radius;
++	*_length = c->lz;
++}
++
++//positive inside
++dReal dGeomConePointDepth(dGeomID g, dReal x, dReal y, dReal z)
++{
++	dUASSERT (g && g->type == dConeClass,"argument not a cone");
++	dxCone *cone = (dxCone*) g;
++	dVector3 tmp,q;
++	tmp[0] = x - cone->pos[0];
++	tmp[1] = y - cone->pos[1];
++	tmp[2] = z - cone->pos[2];
++	dMULTIPLY1_331 (q,cone->R,tmp);
++
++	dReal r = cone->radius;
++	dReal h = cone->lz;
++
++	dReal d0 = (r - r*q[2]/h) - dSqrt(q[0]*q[0]+q[1]*q[1]);
++	dReal d1 = q[2];
++	dReal d2 = h-q[2];
++	
++	if (d0 < d1) {
++    if (d0 < d2) return d0; else return d2;
++	}
++	else {
++	if (d1 < d2) return d1; else return d2;
++	}
++}
++
++//plane plane
++bool FindIntersectionPlanePlane(const dReal Plane0[4], const dReal Plane1[4],
++	dVector3 LinePos,dVector3 LineDir)
++{
++    // If Cross(N0,N1) is zero, then either planes are parallel and separated
++    // or the same plane.  In both cases, 'false' is returned.  Otherwise,
++    // the intersection line is
++    //
++    //   L(t) = t*Cross(N0,N1) + c0*N0 + c1*N1
++    //
++    // for some coefficients c0 and c1 and for t any real number (the line
++    // parameter).  Taking dot products with the normals,
++    //
++    //   d0 = Dot(N0,L) = c0*Dot(N0,N0) + c1*Dot(N0,N1)
++    //   d1 = Dot(N1,L) = c0*Dot(N0,N1) + c1*Dot(N1,N1)
++    //
++    // which are two equations in two unknowns.  The solution is
++    //
++    //   c0 = (Dot(N1,N1)*d0 - Dot(N0,N1)*d1)/det
++    //   c1 = (Dot(N0,N0)*d1 - Dot(N0,N1)*d0)/det
++    //
++    // where det = Dot(N0,N0)*Dot(N1,N1)-Dot(N0,N1)^2.
++/*
++    Real fN00 = rkPlane0.Normal().SquaredLength();
++    Real fN01 = rkPlane0.Normal().Dot(rkPlane1.Normal());
++    Real fN11 = rkPlane1.Normal().SquaredLength();
++    Real fDet = fN00*fN11 - fN01*fN01;
++
++    if ( Math::FAbs(fDet) < gs_fEpsilon )
++        return false;
++
++    Real fInvDet = 1.0f/fDet;
++    Real fC0 = (fN11*rkPlane0.Constant() - fN01*rkPlane1.Constant())*fInvDet;
++    Real fC1 = (fN00*rkPlane1.Constant() - fN01*rkPlane0.Constant())*fInvDet;
++
++    rkLine.Direction() = rkPlane0.Normal().Cross(rkPlane1.Normal());
++    rkLine.Origin() = fC0*rkPlane0.Normal() + fC1*rkPlane1.Normal();
++    return true;
++*/
++	dReal fN00 = dLENGTHSQUARED(Plane0);
++    dReal fN01 = dDOT(Plane0,Plane1);
++    dReal fN11 = dLENGTHSQUARED(Plane1);
++    dReal fDet = fN00*fN11 - fN01*fN01;
++
++    if ( fabs(fDet) < fEPSILON)
++        return false;
++
++    dReal fInvDet = 1.0f/fDet;
++    dReal fC0 = (fN11*Plane0[3] - fN01*Plane1[3])*fInvDet;
++    dReal fC1 = (fN00*Plane1[3] - fN01*Plane0[3])*fInvDet;
++
++    dCROSS(LineDir,=,Plane0,Plane1);
++	dNormalize3(LineDir);
++
++	dVector3 Temp0,Temp1;
++	dOPC(Temp0,*,Plane0,fC0);
++	dOPC(Temp1,*,Plane1,fC1);
++	dOP(LinePos,+,Temp0,Temp1);
++
++    return true;
++}
++
++//plane ray
++bool FindIntersectionPlaneRay(const dReal Plane[4],
++					  const dVector3 &LinePos,const dVector3 &LineDir,
++					  dReal &u,dVector3 &Pos)
++{
++/*
++	u = (A*X1 + B*Y1 + C*Z1 + D) / (A*(X1-X2) + B*(Y1-Y2)+C*(Z1-Z2))	
++*/	
++	dReal fDet = -dDot(Plane,LineDir,3);
++
++	if ( fabs(fDet) < fEPSILON)
++        return false;
++
++	u = (dDot(Plane,LinePos,3) - Plane[3]) / fDet;
++	dOPC(Pos,*,LineDir,u);
++	dOPE(Pos,+=,LinePos);
++
++	return true;
++}
++
++int SolveQuadraticPolynomial(dReal a,dReal b,dReal c,dReal &x0,dReal &x1)
++{
++	dReal d = b*b - 4*a*c;
++	int NumRoots = 0;
++	dReal dr;
++
++	if (d < 0.f)
++		return NumRoots;
++
++	if (d == 0.f)
++	{
++		NumRoots = 1;
++		dr = 0.f;
++	}
++	else
++	{
++		NumRoots = 2;
++		dr = sqrtf(d);
++	}
++
++	x0 = (-b -dr) / (2.f * a);
++	x1 = (-b +dr) / (2.f * a);
++
++	return NumRoots;
++}
++/*
++const int VALID_INTERSECTION	= 1<<0;
++const int POS_TEST_FAILEDT0		= 1<<0;
++const int POS_TEST_FAILEDT1		= 1<<1;
++*/
++int ProcessConeRayIntersectionPoint(	dReal r,dReal h,
++										const dVector3 &q,const dVector3 &v,dReal t,
++										dVector3 &p,
++										dVector3 &n,
++										int &f)
++{
++	dOPC(p,*,v,t);
++	dOPE(p,+=,q);
++	n[0] = 2*p[0];
++	n[1] = 2*p[1];
++	n[2] = -2*p[2]*r*r/(h*h);
++
++	f = 0;
++	if (p[2] > h)	return 0;
++	if (p[2] < 0)	return 0;
++	if (t > 1)		return 0;
++	if (t < 0)		return 0;
++
++	return 1;
++}
++
++//cone ray
++//line in cone space (position,direction)
++//distance from line position (direction normalized)(if any)
++//return the number of intersection
++int FindIntersectionConeRay(dReal r,dReal h,	
++					 const dVector3 &q,const dVector3 &v,dContactGeom *pContact)
++{
++	dVector3 qp,vp;
++	dOPE(qp,=,q);
++	dOPE(vp,=,v);
++	qp[2] = h-q[2];
++	vp[2] = -v[2];
++	dReal ts = (r/h);
++	ts *= ts;
++	dReal a = vp[0]*vp[0] + vp[1]*vp[1] - ts*vp[2]*vp[2];
++	dReal b = 2.f*qp[0]*vp[0] + 2.f*qp[1]*vp[1] - 2.f*ts*qp[2]*vp[2];
++	dReal c = qp[0]*qp[0] + qp[1]*qp[1] - ts*qp[2]*qp[2];
++
++/*
++	dReal a = v[0]*v[0] + v[1]*v[1] - (v[2]*v[2]*r*r) / (h*h);
++	dReal b = 2.f*q[0]*v[0] + 2.f*q[1]*v[1] + 2.f*r*r*v[2]/h - 2*r*r*q[0]*v[0]/(h*h);
++	dReal c = q[0]*q[0] + q[1]*q[1] + 2*r*r*q[2]/h - r*r*q[2]/(h*h) - r*r;
++*/
++	int nNumRoots=SolveQuadraticPolynomial(a,b,c,pContact[0].depth,pContact[1].depth);
++	int flag = 0;
++
++	dContactGeom ValidContact[2];
++
++	int nNumValidContacts = 0;
++	for (int i=0;i<nNumRoots;i++)
++	{
++		if (ProcessConeRayIntersectionPoint(r,h,q,v,pContact[i].depth,pContact[i].pos,
++			pContact[i].normal,flag))
++		{
++			ValidContact[nNumValidContacts] = pContact[i];
++			nNumValidContacts++;
++		}
++	}
++
++	dOP(qp,+,q,v);
++
++	if ((nNumValidContacts < 2) && (v[2] != 0.f))
++	{
++		dReal d = (0.f-q[2]) / (v[2]); 
++		if ((d>=0) && (d<=1))
++		{
++			dOPC(vp,*,v,d);
++			dOP(qp,+,q,vp);
++
++			if (qp[0]*qp[0]+qp[1]*qp[1] < r*r)
++			{
++				dOPE(ValidContact[nNumValidContacts].pos,=,qp);
++				ValidContact[nNumValidContacts].normal[0] = 0.f;
++				ValidContact[nNumValidContacts].normal[1] = 0.f;
++				ValidContact[nNumValidContacts].normal[2] = -1.f;
++				ValidContact[nNumValidContacts].depth = d;
++				nNumValidContacts++;
++			}
++		}
++	}
++
++	if (nNumValidContacts == 2)
++	{
++		if (ValidContact[0].depth > ValidContact[1].depth)
++		{
++			pContact[0] = ValidContact[1];
++			pContact[1] = ValidContact[0];
++		}
++		else
++		{
++			pContact[0] = ValidContact[0];
++			pContact[1] = ValidContact[1];
++		}
++	}
++	else if (nNumValidContacts == 1)
++	{
++		pContact[0] = ValidContact[0];
++	}
++
++	return nNumValidContacts;
++}
++
++int dCollideConePlane (dxGeom *o1, dxGeom *o2, int flags,
++						 dContactGeom *contact, int skip)
++{
++	dIASSERT (skip >= (int)sizeof(dContactGeom));
++	dIASSERT (o1->type == dConeClass);
++	dIASSERT (o2->type == dPlaneClass);
++	dxCone *cone = (dxCone*) o1;
++	dxPlane *plane = (dxPlane*) o2;
++
++	contact->g1 = o1;
++	contact->g2 = o2;
++
++	dVector3 p0,p1,pp0,pp1;
++	dOPE(p0,=,cone->pos);
++	p1[0] = cone->R[0*4+2] * cone->lz + p0[0];
++	p1[1] = cone->R[1*4+2] * cone->lz + p0[1];
++	p1[2] = cone->R[2*4+2] * cone->lz + p0[2];
++
++	dReal u;
++	FindIntersectionPlaneRay(plane->p,p0,plane->p,u,pp0);
++	FindIntersectionPlaneRay(plane->p,p1,plane->p,u,pp1);
++
++	if (dDISTANCE(pp0,pp1) < fEPSILON)
++	{
++		p1[0] = cone->R[0*4+0] * cone->lz + p0[0];
++		p1[1] = cone->R[1*4+0] * cone->lz + p0[1];
++		p1[2] = cone->R[2*4+0] * cone->lz + p0[2];
++		FindIntersectionPlaneRay(plane->p,p1,plane->p,u,pp1);
++		dIASSERT(dDISTANCE(pp0,pp1) >= fEPSILON);
++	}
++	dVector3 h,r0,r1;
++	h[0] = cone->R[0*4+2];
++	h[1] = cone->R[1*4+2];
++	h[2] = cone->R[2*4+2];
++	
++	dOP(r0,-,pp0,pp1);
++	dCROSS(r1,=,h,r0);
++	dCROSS(r0,=,r1,h);
++	dNormalize3(r0);
++	dOPEC(h,*=,cone->lz);
++	dOPEC(r0,*=,cone->radius);
++
++	dVector3 p[3];
++	dOP(p[0],+,cone->pos,h);
++	dOP(p[1],+,cone->pos,r0);
++	dOP(p[2],-,cone->pos,r0);
++	
++	int numMaxContacts = flags & 0xffff;
++	if (numMaxContacts == 0) 
++		numMaxContacts = 1;
++
++	int n=0;
++	for (int i=0;i<3;i++)
++	{
++		dReal d = dGeomPlanePointDepth(o2, p[i][0], p[i][1], p[i][2]);
++
++		if (d>0.f)
++		{
++			CONTACT(contact,n*skip)->g1 = o1;
++			CONTACT(contact,n*skip)->g2 = o2;
++			dOPE(CONTACT(contact,n*skip)->normal,=,plane->p); 
++			dOPE(CONTACT(contact,n*skip)->pos,=,p[i]); 
++			CONTACT(contact,n*skip)->depth = d;
++			n++;
++
++			if (n == numMaxContacts)
++				return n;
++		}
++	}
++	
++	return n;
++}
++
++int dCollideRayCone (dxGeom *o1, dxGeom *o2, int flags,
++						 dContactGeom *contact, int skip)
++{
++	dIASSERT (skip >= (int)sizeof(dContactGeom));
++	dIASSERT (o1->type == dRayClass);
++	dIASSERT (o2->type == dConeClass);
++	dxRay *ray = (dxRay*) o1;
++	dxCone *cone = (dxCone*) o2;
++
++	contact->g1 = o1;
++	contact->g2 = o2;
++
++	dVector3 tmp,q,v;
++	tmp[0] = ray->pos[0] - cone->pos[0];
++	tmp[1] = ray->pos[1] - cone->pos[1];
++	tmp[2] = ray->pos[2] - cone->pos[2];
++	dMULTIPLY1_331 (q,cone->R,tmp);
++	tmp[0] = ray->R[0*4+2] * ray->length;
++	tmp[1] = ray->R[1*4+2] * ray->length;
++	tmp[2] = ray->R[2*4+2] * ray->length;
++	dMULTIPLY1_331 (v,cone->R,tmp);
++
++	dReal r = cone->radius;
++	dReal h = cone->lz;
++
++	dContactGeom Contact[2];
++
++	if (FindIntersectionConeRay(r,h,q,v,Contact))
++	{
++		dMULTIPLY0_331(contact->normal,cone->R,Contact[0].normal);
++		dMULTIPLY0_331(contact->pos,cone->R,Contact[0].pos);
++		dOPE(contact->pos,+=,cone->pos);
++		contact->depth = Contact[0].depth * dLENGTH(v);
++/*
++		dMatrix3 RI;
++		dRSetIdentity (RI);
++		dVector3 ss;
++		ss[0] = 0.01f;
++		ss[1] = 0.01f;
++		ss[2] = 0.01f;
++
++		dsSetColorAlpha (1,0,0,0.8f);
++		dsDrawBox(contact->pos,RI,ss);
++*/		
++		return 1;
++	}
++
++	return 0;
++}
++
++int dCollideConeSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
++{
++	dIASSERT (skip >= (int)sizeof(dContactGeom));
++	dIASSERT (o1->type == dConeClass);
++	dIASSERT (o2->type == dSphereClass);
++	dxCone		*cone = (dxCone*) o1;
++	
++	dxSphere ASphere(0,cone->radius);
++	dGeomSetRotation(&ASphere,cone->R);
++	dGeomSetPosition(&ASphere,cone->pos[0],cone->pos[1],cone->pos[2]);
++
++	return dCollideSphereSphere(&ASphere, o2, flags, contact, skip);
++}
++
++int dCollideConeBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
++{
++	dIASSERT (skip >= (int)sizeof(dContactGeom));
++	dIASSERT (o1->type == dConeClass);
++	dIASSERT (o2->type == dBoxClass);
++	dxCone		*cone = (dxCone*) o1;
++	
++	dxSphere ASphere(0,cone->radius);
++	dGeomSetRotation(&ASphere,cone->R);
++	dGeomSetPosition(&ASphere,cone->pos[0],cone->pos[1],cone->pos[2]);
++
++	return dCollideSphereBox(&ASphere, o2, flags, contact, skip);
++}
++
++int dCollideCCylinderCone(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
++{
++	dIASSERT (skip >= (int)sizeof(dContactGeom));
++	dIASSERT (o1->type == dCCylinderClass);
++	dIASSERT (o2->type == dConeClass);
++	dxCone		*cone = (dxCone*) o2;
++	
++	dxSphere ASphere(0,cone->radius);
++	dGeomSetRotation(&ASphere,cone->R);
++	dGeomSetPosition(&ASphere,cone->pos[0],cone->pos[1],cone->pos[2]);
++
++	return dCollideCCylinderSphere(o1, &ASphere, flags, contact, skip);
++}
++
++/* extern int dCollideSTL(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip);
++
++int dCollideTriMeshCone(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
++{
++	dIASSERT (skip >= (int)sizeof(dContactGeom));
++	dIASSERT (o1->type == dTriMeshClass);
++	dIASSERT (o2->type == dConeClass);
++	dxCone		*cone = (dxCone*) o2;
++
++	dxSphere ASphere(0,cone->radius);
++	dGeomSetRotation(&ASphere,cone->R);
++	dGeomSetPosition(&ASphere,cone->pos[0],cone->pos[1],cone->pos[2]);
++
++	return dCollideSTL(o1, &ASphere, flags, contact, skip);
++}
++
++*/
++
++	
++
++
+diff -Naur ode-0.5/ode/src/dTerrainY.cpp ode-0.5_lpzrobots/ode/src/dTerrainY.cpp
+--- ode-0.5/ode/src/dTerrainY.cpp	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/ode/src/dTerrainY.cpp	2005-09-19 16:25:37.000000000 +0200
+@@ -0,0 +1,641 @@
++//Benoit CHAPEROT 2003-2004 www.jstarlab.com
++//some code inspired by Magic Software
++#include <ode/common.h>
++#include <ode/collision.h>
++#include <ode/matrix.h>
++#include <ode/rotation.h>
++#include <ode/odemath.h>
++#include "collision_kernel.h"
++#include "collision_std.h"
++#include "collision_std_internal.h"
++#include "collision_util.h"
++//#include <drawstuff/drawstuff.h>
++//#include "windows.h"
++#include "ode/ode.h"
++
++#define CONTACT(p,skip) ((dContactGeom*) (((char*)p) + (skip)))
++#define MAXCONTACT 10
++#define TERRAINTOL 0.0f
++
++static bool IsAPowerOfTwo(int f)
++{
++	dAASSERT(f!=0);
++	while ((f&1) != 1)	
++		f >>= 1;
++
++	return (f == 1);
++}
++
++static int GetPowerOfTwo(int f)
++{
++	dAASSERT(f!=0);
++	int n = 0;
++	while ((f&1) != 1)
++	{
++		n++;
++		f >>= 1;
++	}
++	
++	return n;
++}
++
++dxTerrainY::dxTerrainY (dSpaceID space, dReal *pHeights,dReal vLength,int nNumNodesPerSide, int bFinite, int bPlaceable) :
++dxGeom (space,bPlaceable)
++{
++	dIASSERT(IsAPowerOfTwo(nNumNodesPerSide));
++	dIASSERT(pHeights);
++	dIASSERT(vLength > 0.f);
++	dIASSERT(nNumNodesPerSide > 0);
++	type = dTerrainYClass;
++	m_vLength = vLength;
++	m_pHeights = new dReal[nNumNodesPerSide * nNumNodesPerSide];
++	dIASSERT(m_pHeights);
++	m_nNumNodesPerSide = nNumNodesPerSide;
++	m_vNodeLength = m_vLength / m_nNumNodesPerSide;
++	m_nNumNodesPerSideShift = GetPowerOfTwo(m_nNumNodesPerSide);
++	m_nNumNodesPerSideMask  = m_nNumNodesPerSide - 1;
++	m_vMinHeight = dInfinity;
++	m_vMaxHeight = -dInfinity;
++	m_bFinite = bFinite;
++
++	for (int i=0;i<nNumNodesPerSide * nNumNodesPerSide;i++)
++	{
++		m_pHeights[i] = pHeights[i];
++		if (m_pHeights[i] < m_vMinHeight)	m_vMinHeight = m_pHeights[i];
++		if (m_pHeights[i] > m_vMaxHeight)	m_vMaxHeight = m_pHeights[i];
++	}
++}
++
++dxTerrainY::~dxTerrainY()
++{
++	dIASSERT(m_pHeights);
++	delete [] m_pHeights;
++}
++
++void dxTerrainY::computeAABB()
++{
++	if (m_bFinite)
++	{
++		if (gflags & GEOM_PLACEABLE)
++		{
++			dReal dx[6],dy[6],dz[6];
++			dx[0] = 0;
++			dx[1] = R[0] * m_vLength;
++			dx[2] = R[1] * m_vMinHeight;
++			dx[3] = R[1] * m_vMaxHeight;
++			dx[4] = 0;
++			dx[5] = R[2] * m_vLength;
++
++			dy[0] = 0;
++			dy[1] = R[4] * m_vLength;
++			dy[2] = R[5] * m_vMinHeight;
++			dy[3] = R[5] * m_vMaxHeight;
++			dy[4] = 0;
++			dy[5] = R[6] * m_vLength;
++
++			dz[0]  = 0;
++			dz[1]  = R[8] * m_vLength;
++			dz[2]  = R[9] * m_vMinHeight;
++			dz[3]  = R[9] * m_vMaxHeight;
++			dz[4]  = 0;
++			dz[5]  = R[10] * m_vLength;
++
++			aabb[0] = pos[0] + MIN(dx[0],dx[1]) + MIN(dx[2],dx[3]) + MIN(dx[4],dx[5]);
++			aabb[1] = pos[0] + MAX(dx[0],dx[1]) + MAX(dx[2],dx[3]) + MAX(dx[4],dx[5]);
++			aabb[2] = pos[1] + MIN(dy[0],dy[1]) + MIN(dy[2],dy[3]) + MIN(dy[4],dy[5]);
++			aabb[3] = pos[1] + MAX(dy[0],dy[1]) + MAX(dy[2],dy[3]) + MAX(dy[4],dy[5]);
++			aabb[4] = pos[2] + MIN(dz[0],dz[1]) + MIN(dz[2],dz[3]) + MIN(dz[4],dz[5]);
++			aabb[5] = pos[2] + MAX(dz[0],dz[1]) + MAX(dz[2],dz[3]) + MAX(dz[4],dz[5]);
++		}
++		else
++		{
++			aabb[0] = 0;
++			aabb[1] = m_vLength;
++			aabb[2] = m_vMinHeight;
++			aabb[3] = m_vMaxHeight;
++			aabb[4] = 0;
++			aabb[5] = m_vLength;
++		}
++	}
++	else
++	{
++		if (gflags & GEOM_PLACEABLE)
++		{
++			aabb[0] = -dInfinity;
++			aabb[1] = dInfinity;
++			aabb[2] = -dInfinity;
++			aabb[3] = dInfinity;
++			aabb[4] = -dInfinity;
++			aabb[5] = dInfinity;
++		}
++		else
++		{
++			aabb[0] = -dInfinity;
++			aabb[1] = dInfinity;
++			aabb[2] = m_vMinHeight;
++			aabb[3] = m_vMaxHeight;
++			aabb[4] = -dInfinity;
++			aabb[5] = dInfinity;
++		}
++	}
++}
++
++dReal dxTerrainY::GetHeight(int x,int z)
++{
++	return m_pHeights[	(((unsigned int)(z) & m_nNumNodesPerSideMask) << m_nNumNodesPerSideShift)
++					+	 ((unsigned int)(x) & m_nNumNodesPerSideMask)];
++}
++
++dReal dxTerrainY::GetHeight(dReal x,dReal z)
++{
++	int nX		= int(floor(x / m_vNodeLength));
++	int nZ		= int(floor(z / m_vNodeLength));
++	dReal dx	= (x - (dReal(nX) * m_vNodeLength)) / m_vNodeLength;
++	dReal dz	= (z - (dReal(nZ) * m_vNodeLength)) / m_vNodeLength;
++	dIASSERT((dx >= 0.f) && (dx <= 1.f));
++	dIASSERT((dz >= 0.f) && (dz <= 1.f));
++
++	dReal y,y0;
++	
++	if (dx + dz < 1.f)
++	{
++		y0	= GetHeight(nX,nZ);
++		y	= y0	
++			+ (GetHeight(nX+1,nZ) - y0) * dx
++			+ (GetHeight(nX,nZ+1) - y0) * dz;
++	}
++	else
++	{
++		y0	= GetHeight(nX+1,nZ+1);
++		y	= y0	
++			+ (GetHeight(nX+1,nZ) - y0) * (1.f - dz)
++			+ (GetHeight(nX,nZ+1) - y0) * (1.f - dx);
++	}
++
++	return y;	
++}
++
++bool dxTerrainY::IsOnTerrain(int nx,int nz,int w,dReal *pos)
++{
++	dVector3 Min,Max;
++	Min[0] = nx * m_vNodeLength;
++	Min[2] = nz * m_vNodeLength;
++	Max[0] = (nx+1) * m_vNodeLength;
++	Max[2] = (nz+1) * m_vNodeLength;
++	dReal Tol = m_vNodeLength * TERRAINTOL;
++	
++	if ((pos[0]<Min[0]-Tol) || (pos[0]>Max[0]+Tol))
++		return false;
++
++	if ((pos[2]<Min[2]-Tol) || (pos[2]>Max[2]+Tol))
++		return false;
++
++	dReal dx	= (pos[0] - (dReal(nx) * m_vNodeLength)) / m_vNodeLength;
++	dReal dz	= (pos[2] - (dReal(nz) * m_vNodeLength)) / m_vNodeLength;
++
++	if ((w == 0) && (dx + dz > 1.f+TERRAINTOL))
++		return false;
++
++	if ((w == 1) && (dx + dz < 1.f-TERRAINTOL))
++		return false;
++
++	return true;
++}
++
++dGeomID dCreateTerrainY(dSpaceID space, dReal *pHeights,dReal vLength,int nNumNodesPerSide, int bFinite, int bPlaceable)
++{
++	return new dxTerrainY(space, pHeights,vLength,nNumNodesPerSide,bFinite,bPlaceable);
++}
++
++dReal dGeomTerrainYPointDepth (dGeomID g, dReal x, dReal y, dReal z)
++{
++	dUASSERT (g && g->type == dTerrainYClass,"argument not a terrain");
++	dxTerrainY *t = (dxTerrainY*) g;
++	return t->GetHeight(x,z) - y;
++}
++
++typedef dReal dGetDepthFn(dGeomID g, dReal x, dReal y, dReal z);
++#define RECOMPUTE_RAYNORMAL
++//#define DO_RAYDEPTH
++
++#define DMESS(A)	\
++			dMessage(0,"Contact Plane (%d %d %d) %.5e %.5e (%.5e %.5e %.5e)(%.5e %.5e %.5e)).",	\
++					x,z,A,	\
++					pContact->depth,	\
++					dGeomSphereGetRadius(o2),		\
++					pContact->pos[0],	\
++					pContact->pos[1],	\
++					pContact->pos[2],	\
++					pContact->normal[0],	\
++					pContact->normal[1],	\
++					pContact->normal[2]);
++/*
++(y is up)
++
++A-B-E.x
++|/|
++C-D
++|
++F
++.
++z
++*/
++int dxTerrainY::dCollideTerrainUnit(
++	int x,int z,dxGeom *o2,int numMaxContacts,
++	int flags,dContactGeom *contact, int skip)
++{
++	dColliderFn *CollideRayN;
++	dColliderFn *CollideNPlane;
++	dGetDepthFn *GetDepth;
++	int numContacts = 0;
++	int numPlaneContacts = 0;
++	int i;
++	
++	if (numContacts == numMaxContacts)
++		return numContacts;
++
++	dContactGeom PlaneContact[MAXCONTACT];
++	flags = (flags & 0xffff0000) | MAXCONTACT;
++	
++	switch (o2->type)
++	{
++	case dSphereClass:
++		CollideRayN		= dCollideRaySphere;
++		CollideNPlane	= dCollideSpherePlane;
++		GetDepth		= dGeomSpherePointDepth;
++		break;
++	case dBoxClass:
++		CollideRayN		= dCollideRayBox;
++		CollideNPlane	= dCollideBoxPlane;
++		GetDepth		= dGeomBoxPointDepth;
++		break;
++	case dCCylinderClass:
++		CollideRayN		= dCollideRayCCylinder;
++		CollideNPlane	= dCollideCCylinderPlane;
++		GetDepth		= dGeomCCylinderPointDepth;
++		break;
++	case dRayClass:
++		CollideRayN		= NULL;
++		CollideNPlane	= dCollideRayPlane;
++		GetDepth		= NULL;
++		break;
++	case dConeClass:
++		CollideRayN		= dCollideRayCone;
++		CollideNPlane	= dCollideConePlane;
++		GetDepth		= dGeomConePointDepth;
++		break;
++	default:
++		dIASSERT(0);
++	}
++
++	dReal Plane[4],lBD,lCD,lBC;
++	dVector3 A,B,C,D,BD,CD,BC,AB,AC;
++	A[0] = x * m_vNodeLength;
++	A[2] = z* m_vNodeLength;
++	A[1] = GetHeight(x,z);
++	B[0] = (x+1) * m_vNodeLength;
++	B[2] = z * m_vNodeLength;
++	B[1] = GetHeight(x+1,z);
++	C[0] = x * m_vNodeLength;
++	C[2] = (z+1) * m_vNodeLength;
++	C[1] = GetHeight(x,z+1);
++	D[0] = (x+1) * m_vNodeLength;
++	D[2] = (z+1) * m_vNodeLength;
++	D[1] = GetHeight(x+1,z+1);
++
++	dOP(BC,-,C,B);
++	lBC = dLENGTH(BC);
++	dOPEC(BC,/=,lBC);
++
++	dOP(BD,-,D,B);
++	lBD = dLENGTH(BD);
++	dOPEC(BD,/=,lBD);
++
++	dOP(CD,-,D,C);
++	lCD = dLENGTH(CD);
++	dOPEC(CD,/=,lCD);
++
++	dOP(AB,-,B,A);
++	dNormalize3(AB);
++
++	dOP(AC,-,C,A);
++	dNormalize3(AC);
++
++	if (CollideRayN)
++	{
++#ifdef RECOMPUTE_RAYNORMAL
++		dVector3 E,F;
++		dVector3 CE,FB,AD;
++		dVector3 Normal[3];
++		E[0] = (x+2) * m_vNodeLength;
++		E[2] = z * m_vNodeLength;
++		E[1] = GetHeight(x+2,z);
++		F[0] = x * m_vNodeLength;
++		F[2] = (z+2) * m_vNodeLength;
++		F[1] = GetHeight(x,z+2);
++		dOP(AD,-,D,A);
++		dNormalize3(AD);
++		dOP(CE,-,E,C);
++		dNormalize3(CE);
++		dOP(FB,-,B,F);
++		dNormalize3(FB);
++
++		//BC
++		dCROSS(Normal[0],=,BC,AD);
++		dNormalize3(Normal[0]);
++
++		//BD
++		dCROSS(Normal[1],=,BD,CE);
++		dNormalize3(Normal[1]);
++
++		//CD
++		dCROSS(Normal[2],=,CD,FB);
++		dNormalize3(Normal[2]);
++#endif		
++		int nA[3],nB[3];
++		dContactGeom ContactA[3],ContactB[3];
++		dxRay rayBC(0,lBC);	
++		dGeomRaySet(&rayBC, B[0], B[1], B[2], BC[0], BC[1], BC[2]);
++		nA[0] = CollideRayN(&rayBC,o2,flags,&ContactA[0],sizeof(dContactGeom));
++		dGeomRaySet(&rayBC, C[0], C[1], C[2], -BC[0], -BC[1], -BC[2]);
++		nB[0] = CollideRayN(&rayBC,o2,flags,&ContactB[0],sizeof(dContactGeom));
++		
++		dxRay rayBD(0,lBD);	
++		dGeomRaySet(&rayBD, B[0], B[1], B[2], BD[0], BD[1], BD[2]);
++		nA[1] = CollideRayN(&rayBD,o2,flags,&ContactA[1],sizeof(dContactGeom));
++		dGeomRaySet(&rayBD, D[0], D[1], D[2], -BD[0], -BD[1], -BD[2]);
++		nB[1] = CollideRayN(&rayBD,o2,flags,&ContactB[1],sizeof(dContactGeom));
++	
++		dxRay rayCD(0,lCD);	
++		dGeomRaySet(&rayCD, C[0], C[1], C[2], CD[0], CD[1], CD[2]);
++		nA[2] = CollideRayN(&rayCD,o2,flags,&ContactA[2],sizeof(dContactGeom));
++		dGeomRaySet(&rayCD, D[0], D[1], D[2], -CD[0], -CD[1], -CD[2]);
++		nB[2] = CollideRayN(&rayCD,o2,flags,&ContactB[2],sizeof(dContactGeom));
++	
++		for (i=0;i<3;i++)
++		{
++			if (nA[i] & nB[i])
++			{
++				dContactGeom *pContact = CONTACT(contact,numContacts*skip);
++				pContact->pos[0] = (ContactA[i].pos[0] + ContactB[i].pos[0])/2;
++				pContact->pos[1] = (ContactA[i].pos[1] + ContactB[i].pos[1])/2;
++				pContact->pos[2] = (ContactA[i].pos[2] + ContactB[i].pos[2])/2;
++#ifdef RECOMPUTE_RAYNORMAL
++				pContact->normal[0] = -Normal[i][0];
++				pContact->normal[1] = -Normal[i][1];
++				pContact->normal[2] = -Normal[i][2];
++#else
++				pContact->normal[0] = (ContactA[i].normal[0] + ContactB[i].normal[0])/2;	//0.f;
++				pContact->normal[1] = (ContactA[i].normal[1] + ContactB[i].normal[1])/2;	//0.f;
++				pContact->normal[2] = (ContactA[i].normal[2] + ContactB[i].normal[2])/2;	//-1.f;
++				dNormalize3(pContact->normal);
++#endif
++#ifdef DO_RAYDEPTH
++				dxRay rayV(0,1000.f);
++				dGeomRaySet(&rayV,	pContact->pos[0],
++									pContact->pos[1],
++									pContact->pos[2],
++									-pContact->normal[0],
++									-pContact->normal[1],
++									-pContact->normal[2]);
++		
++				dContactGeom ContactV;
++				if (CollideRayN(&rayV,o2,flags,&ContactV,sizeof(dContactGeom)))
++				{
++					pContact->depth = ContactV.depth;
++					numContacts++;	
++				}
++#else
++				pContact->depth =  GetDepth(o2,
++				pContact->pos[0],
++				pContact->pos[1],
++				pContact->pos[2]);
++				numContacts++;
++#endif
++				if (numContacts == numMaxContacts)
++					return numContacts;
++
++			}
++		}
++	}
++
++	dCROSS(Plane,=,AC,AB);
++	dNormalize3(Plane);
++	Plane[3] = Plane[0] * A[0] + Plane[1] * A[1] + Plane[2] * A[2];
++	dxPlane planeABC(0,Plane[0],Plane[1],Plane[2],Plane[3]);
++	numPlaneContacts = CollideNPlane(o2,&planeABC,flags,PlaneContact,sizeof(dContactGeom));
++
++	for (i=0;i<numPlaneContacts;i++)
++	{
++		if (IsOnTerrain(x,z,0,PlaneContact[i].pos))
++		{
++			dContactGeom *pContact = CONTACT(contact,numContacts*skip);
++			pContact->pos[0] = PlaneContact[i].pos[0];
++			pContact->pos[1] = PlaneContact[i].pos[1];
++			pContact->pos[2] = PlaneContact[i].pos[2];
++			pContact->normal[0] = -PlaneContact[i].normal[0];
++			pContact->normal[1] = -PlaneContact[i].normal[1];
++			pContact->normal[2] = -PlaneContact[i].normal[2];
++			pContact->depth = PlaneContact[i].depth;
++
++			//DMESS(0);
++			numContacts++;
++
++			if (numContacts == numMaxContacts)
++					return numContacts;
++		}
++	}
++
++	dCROSS(Plane,=,BD,CD);
++	dNormalize3(Plane);
++	Plane[3] = Plane[0] * D[0] + Plane[1] * D[1] + Plane[2] * D[2];
++	dxPlane planeDCB(0,Plane[0],Plane[1],Plane[2],Plane[3]);
++	numPlaneContacts = CollideNPlane(o2,&planeDCB,flags,PlaneContact,sizeof(dContactGeom));
++
++	for (i=0;i<numPlaneContacts;i++)
++	{
++		if (IsOnTerrain(x,z,1,PlaneContact[i].pos))
++		{
++			dContactGeom *pContact = CONTACT(contact,numContacts*skip);
++			pContact->pos[0] = PlaneContact[i].pos[0];
++			pContact->pos[1] = PlaneContact[i].pos[1];
++			pContact->pos[2] = PlaneContact[i].pos[2];
++			pContact->normal[0] = -PlaneContact[i].normal[0];
++			pContact->normal[1] = -PlaneContact[i].normal[1];
++			pContact->normal[2] = -PlaneContact[i].normal[2];
++			pContact->depth = PlaneContact[i].depth;
++			//DMESS(1);
++			numContacts++;
++
++			if (numContacts == numMaxContacts)
++					return numContacts;
++		}
++	}
++
++	return numContacts;
++}
++
++int dCollideTerrainY(dxGeom *o1, dxGeom *o2, int flags,dContactGeom *contact, int skip)
++{
++	dIASSERT (skip >= (int)sizeof(dContactGeom));
++	dIASSERT (o1->type == dTerrainYClass);
++	int i,j;
++
++	if ((flags & 0xffff) == 0)
++		flags = (flags & 0xffff0000) | 1;
++
++	int numMaxTerrainContacts = (flags & 0xffff);
++	dxTerrainY *terrain = (dxTerrainY*) o1;
++
++	dReal *posbak;
++	dReal *Rbak;
++	dReal aabbbak[6];
++	int gflagsbak;
++
++	dVector3 pos0,pos1;
++	dMatrix4 R1;
++	int numTerrainContacts = 0;
++	
++	if (terrain->gflags & GEOM_PLACEABLE)
++	{
++		dOP(pos0,-,o2->pos,terrain->pos);
++		dMULTIPLY1_331(pos1,terrain->R,pos0);
++		dMULTIPLY1_333(R1,terrain->R,o2->R);
++		posbak = o2->pos;
++		Rbak = o2->R;
++		o2->pos = pos1;
++		o2->R = R1;
++		memcpy(aabbbak,o2->aabb,sizeof(dReal)*6);
++		gflagsbak = o2->gflags;
++		o2->computeAABB();
++	}
++
++	int nMinX	= int(floor(o2->aabb[0] / terrain->m_vNodeLength));
++	int nMaxX	= int(floor(o2->aabb[1] / terrain->m_vNodeLength)) + 1;
++	int nMinZ	= int(floor(o2->aabb[4] / terrain->m_vNodeLength));
++	int nMaxZ	= int(floor(o2->aabb[5] / terrain->m_vNodeLength)) + 1;
++
++	if (terrain->m_bFinite)
++	{
++		nMinX = MAX(nMinX,0);
++		nMaxX = MIN(nMaxX,terrain->m_nNumNodesPerSide);
++		nMinZ = MAX(nMinZ,0);
++		nMaxZ = MIN(nMaxZ,terrain->m_nNumNodesPerSide);
++
++		if ((nMinX >= nMaxX) || (nMinZ >= nMaxZ))
++			goto dCollideTerrainYExit;
++	}
++	
++	dVector3 AabbTop;
++	AabbTop[0] = (o2->aabb[0]+o2->aabb[1]) / 2;
++	AabbTop[2] = (o2->aabb[4]+o2->aabb[5]) / 2;
++	AabbTop[1] = o2->aabb[3];
++	if (o2->type != dRayClass)
++	{
++		dReal AabbTopDepth = terrain->GetHeight(AabbTop[0],AabbTop[2]) - AabbTop[1];
++		if (AabbTopDepth > 0.f)
++		{
++			contact->depth = AabbTopDepth;
++			dReal MaxDepth = (o2->aabb[3]-o2->aabb[2]) / 2;
++			if (contact->depth > MaxDepth)
++				contact->depth = MaxDepth;
++			contact->g1 = o1;
++			contact->g2 = o2;
++			dOPE(contact->pos,=,AabbTop);
++			contact->normal[0] = 0.f;
++			contact->normal[1] = -1.f;
++			contact->normal[2] = 0.f;
++
++			numTerrainContacts = 1;
++			goto dCollideTerrainYExit;
++		}
++	}
++		
++	for (i=nMinX;i<nMaxX;i++)
++	{
++		for (j=nMinZ;j<nMaxZ;j++)
++		{
++			numTerrainContacts += terrain->dCollideTerrainUnit(
++				i,j,o2,numMaxTerrainContacts - numTerrainContacts,
++				flags,CONTACT(contact,numTerrainContacts*skip),skip	);
++		}
++	}
++
++	dIASSERT(numTerrainContacts <= numMaxTerrainContacts);
++
++	for (i=0; i<numTerrainContacts; i++) 
++	{
++		CONTACT(contact,i*skip)->g1 = o1;
++		CONTACT(contact,i*skip)->g2 = o2;
++	}
++
++dCollideTerrainYExit:
++
++	if (terrain->gflags & GEOM_PLACEABLE)
++	{
++		o2->pos = posbak;
++		o2->R = Rbak;
++		memcpy(o2->aabb,aabbbak,sizeof(dReal)*6);
++		o2->gflags = gflagsbak;
++
++		for (i=0; i<numTerrainContacts; i++) 
++		{
++			dOPE(pos0,=,CONTACT(contact,i*skip)->pos);
++			dMULTIPLY0_331(CONTACT(contact,i*skip)->pos,terrain->R,pos0);
++			dOP(CONTACT(contact,i*skip)->pos,+,CONTACT(contact,i*skip)->pos,terrain->pos);
++
++			dOPE(pos0,=,CONTACT(contact,i*skip)->normal);
++			dMULTIPLY0_331(CONTACT(contact,i*skip)->normal,terrain->R,pos0);
++		}
++	}
++
++	return numTerrainContacts;
++}
++/*
++void dsDrawTerrainY(int x,int z,float vLength,float vNodeLength,int nNumNodesPerSide,float *pHeights,const float *pR,const float *ppos)
++{
++	float A[3],B[3],C[3],D[3];
++	float R[12];
++	float pos[3];
++	if (pR)
++		memcpy(R,pR,sizeof(R));
++	else
++	{
++		memset(R,0,sizeof(R));
++		R[0] = 1.f;
++		R[5] = 1.f;
++		R[10] = 1.f;
++	}
++	
++	if (ppos)
++		memcpy(pos,ppos,sizeof(pos));
++	else
++		memset(pos,0,sizeof(pos));
++	
++	float vx,vz;
++	vx = vLength * x;
++	vz = vLength * z;
++	
++	int i;
++	for (i=0;i<nNumNodesPerSide;i++)
++	{
++		for (int j=0;j<nNumNodesPerSide;j++)
++		{
++			A[0] = i * vNodeLength + vx;
++			A[2] = j * vNodeLength + vz;
++			A[1] = GetHeight(i,j,nNumNodesPerSide,pHeights);
++			B[0] = (i+1) * vNodeLength + vx;
++			B[2] = j * vNodeLength + vz;
++			B[1] = GetHeight(i+1,j,nNumNodesPerSide,pHeights);
++			C[0] = i * vNodeLength + vx;
++			C[2] = (j+1) * vNodeLength + vz;
++			C[1] = GetHeight(i,j+1,nNumNodesPerSide,pHeights);
++			D[0] = (i+1) * vNodeLength + vx;
++			D[2] = (j+1) * vNodeLength + vz;
++			D[1] = GetHeight(i+1,j+1,nNumNodesPerSide,pHeights);
++			dsDrawTriangle(pos,R,C,B,A,1);
++			dsDrawTriangle(pos,R,D,B,C,1);
++		}
++	}
++}
++*/
+\ Kein Zeilenumbruch am Dateiende.
+diff -Naur ode-0.5/ode/src/dTerrainZ.cpp ode-0.5_lpzrobots/ode/src/dTerrainZ.cpp
+--- ode-0.5/ode/src/dTerrainZ.cpp	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/ode/src/dTerrainZ.cpp	2005-09-19 16:25:37.000000000 +0200
+@@ -0,0 +1,641 @@
++//Benoit CHAPEROT 2003-2004 www.jstarlab.com
++//some code inspired by Magic Software
++#include <ode/common.h>
++#include <ode/collision.h>
++#include <ode/matrix.h>
++#include <ode/rotation.h>
++#include <ode/odemath.h>
++#include "collision_kernel.h"
++#include "collision_std.h"
++#include "collision_std_internal.h"
++#include "collision_util.h"
++//#include <drawstuff/drawstuff.h>
++//#include "windows.h"
++#include "ode/ode.h"
++
++#define CONTACT(p,skip) ((dContactGeom*) (((char*)p) + (skip)))
++#define MAXCONTACT 10
++#define TERRAINTOL 0.0f
++
++static bool IsAPowerOfTwo(int f)
++{
++	dAASSERT(f!=0);
++	while ((f&1) != 1)	
++		f >>= 1;
++
++	return (f == 1);
++}
++
++static int GetPowerOfTwo(int f)
++{
++	dAASSERT(f!=0);
++	int n = 0;
++	while ((f&1) != 1)
++	{
++		n++;
++		f >>= 1;
++	}
++	
++	return n;
++}
++
++dxTerrainZ::dxTerrainZ (dSpaceID space, dReal *pHeights,dReal vLength,int nNumNodesPerSide, int bFinite, int bPlaceable) :
++dxGeom (space,bPlaceable)
++{
++	dIASSERT(IsAPowerOfTwo(nNumNodesPerSide));
++	dIASSERT(pHeights);
++	dIASSERT(vLength > 0.f);
++	dIASSERT(nNumNodesPerSide > 0);
++	type = dTerrainZClass;
++	m_vLength = vLength;
++	m_pHeights = new dReal[nNumNodesPerSide * nNumNodesPerSide];
++	dIASSERT(m_pHeights);
++	m_nNumNodesPerSide = nNumNodesPerSide;
++	m_vNodeLength = m_vLength / m_nNumNodesPerSide;
++	m_nNumNodesPerSideShift = GetPowerOfTwo(m_nNumNodesPerSide);
++	m_nNumNodesPerSideMask  = m_nNumNodesPerSide - 1;
++	m_vMinHeight = dInfinity;
++	m_vMaxHeight = -dInfinity;
++	m_bFinite = bFinite;
++
++	for (int i=0;i<nNumNodesPerSide * nNumNodesPerSide;i++)
++	{
++		m_pHeights[i] = pHeights[i];
++		if (m_pHeights[i] < m_vMinHeight)	m_vMinHeight = m_pHeights[i];
++		if (m_pHeights[i] > m_vMaxHeight)	m_vMaxHeight = m_pHeights[i];
++	}
++}
++
++dxTerrainZ::~dxTerrainZ()
++{
++	dIASSERT(m_pHeights);
++	delete [] m_pHeights;
++}
++
++void dxTerrainZ::computeAABB()
++{
++	if (m_bFinite)
++	{
++		if (gflags & GEOM_PLACEABLE)
++		{
++			dReal dx[6],dy[6],dz[6];
++			dx[0] = 0;
++			dx[1] = R[0] * m_vLength;
++			dx[2] = 0;
++			dx[3] = R[1] * m_vLength;
++			dx[4] = R[2] * m_vMinHeight;
++			dx[5] = R[2] * m_vMaxHeight;
++			
++			dy[0] = 0;
++			dy[1] = R[4] * m_vLength;
++			dy[2] = 0;
++			dy[3] = R[5] * m_vLength;
++			dy[4] = R[6] * m_vMinHeight;
++			dy[5] = R[6] * m_vMaxHeight;
++			
++			dz[0]  = 0;
++			dz[1]  = R[8] * m_vLength;
++			dz[2]  = 0;
++			dz[3]  = R[9] * m_vLength;
++			dz[4]  = R[10] * m_vMinHeight;
++			dz[5]  = R[10] * m_vMaxHeight;
++
++			aabb[0] = pos[0] + MIN(dx[0],dx[1]) + MIN(dx[2],dx[3]) + MIN(dx[4],dx[5]);
++			aabb[1] = pos[0] + MAX(dx[0],dx[1]) + MAX(dx[2],dx[3]) + MAX(dx[4],dx[5]);
++			aabb[2] = pos[1] + MIN(dy[0],dy[1]) + MIN(dy[2],dy[3]) + MIN(dy[4],dy[5]);
++			aabb[3] = pos[1] + MAX(dy[0],dy[1]) + MAX(dy[2],dy[3]) + MAX(dy[4],dy[5]);
++			aabb[4] = pos[2] + MIN(dz[0],dz[1]) + MIN(dz[2],dz[3]) + MIN(dz[4],dz[5]);
++			aabb[5] = pos[2] + MAX(dz[0],dz[1]) + MAX(dz[2],dz[3]) + MAX(dz[4],dz[5]);
++		}
++		else
++		{
++			aabb[0] = 0;
++			aabb[1] = m_vLength;
++			aabb[2] = 0;
++			aabb[3] = m_vLength;
++			aabb[4] = m_vMinHeight;
++			aabb[5] = m_vMaxHeight;
++		}
++	}
++	else
++	{
++		if (gflags & GEOM_PLACEABLE)
++		{
++			aabb[0] = -dInfinity;
++			aabb[1] = dInfinity;
++			aabb[2] = -dInfinity;
++			aabb[3] = dInfinity;
++			aabb[4] = -dInfinity;
++			aabb[5] = dInfinity;
++		}
++		else
++		{
++			aabb[0] = -dInfinity;
++			aabb[1] = dInfinity;
++			aabb[2] = -dInfinity;
++			aabb[3] = dInfinity;
++			aabb[4] = m_vMinHeight;
++			aabb[5] = m_vMaxHeight;
++		}
++	}
++}
++
++dReal dxTerrainZ::GetHeight(int x,int y)
++{
++	return m_pHeights[	(((unsigned int)(y) & m_nNumNodesPerSideMask) << m_nNumNodesPerSideShift)
++					+	 ((unsigned int)(x) & m_nNumNodesPerSideMask)];
++}
++
++dReal dxTerrainZ::GetHeight(dReal x,dReal y)
++{
++	int nX		= int(floor(x / m_vNodeLength));
++	int nY		= int(floor(y / m_vNodeLength));
++	dReal dx	= (x - (dReal(nX) * m_vNodeLength)) / m_vNodeLength;
++	dReal dy	= (y - (dReal(nY) * m_vNodeLength)) / m_vNodeLength;
++	dIASSERT((dx >= 0.f) && (dx <= 1.f));
++	dIASSERT((dy >= 0.f) && (dy <= 1.f));
++
++	dReal z,z0;
++	
++	if (dx + dy < 1.f)
++	{
++		z0	= GetHeight(nX,nY);
++		z	= z0	
++			+ (GetHeight(nX+1,nY) - z0) * dx
++			+ (GetHeight(nX,nY+1) - z0) * dy;
++	}
++	else
++	{
++		z0	= GetHeight(nX+1,nY+1);
++		z	= z0	
++			+ (GetHeight(nX+1,nY) - z0) * (1.f - dy)
++			+ (GetHeight(nX,nY+1) - z0) * (1.f - dx);
++	}
++
++	return z;	
++}
++
++bool dxTerrainZ::IsOnTerrain(int nx,int ny,int w,dReal *pos)
++{
++	dVector3 Min,Max;
++	Min[0] = nx * m_vNodeLength;
++	Min[1] = ny * m_vNodeLength;
++	Max[0] = (nx+1) * m_vNodeLength;
++	Max[1] = (ny+1) * m_vNodeLength;
++	dReal Tol = m_vNodeLength * TERRAINTOL;
++	
++	if ((pos[0]<Min[0]-Tol) || (pos[0]>Max[0]+Tol))
++		return false;
++
++	if ((pos[1]<Min[1]-Tol) || (pos[1]>Max[1]+Tol))
++		return false;
++
++	dReal dx	= (pos[0] - (dReal(nx) * m_vNodeLength)) / m_vNodeLength;
++	dReal dy	= (pos[1] - (dReal(ny) * m_vNodeLength)) / m_vNodeLength;
++
++	if ((w == 0) && (dx + dy > 1.f+TERRAINTOL))
++		return false;
++
++	if ((w == 1) && (dx + dy < 1.f-TERRAINTOL))
++		return false;
++
++	return true;
++}
++
++dGeomID dCreateTerrainZ(dSpaceID space, dReal *pHeights,dReal vLength,int nNumNodesPerSide, int bFinite, int bPlaceable)
++{
++	return new dxTerrainZ(space, pHeights,vLength,nNumNodesPerSide, bFinite, bPlaceable);
++}
++
++dReal dGeomTerrainZPointDepth (dGeomID g, dReal x, dReal y, dReal z)
++{
++	dUASSERT (g && g->type == dTerrainZClass,"argument not a terrain");
++	dxTerrainZ *t = (dxTerrainZ*) g;
++	return t->GetHeight(x,y) - z;
++}
++
++typedef dReal dGetDepthFn(dGeomID g, dReal x, dReal y, dReal z);
++#define RECOMPUTE_RAYNORMAL
++//#define DO_RAYDEPTH
++
++#define DMESS(A)	\
++			dMessage(0,"Contact Plane (%d %d %d) %.5e %.5e (%.5e %.5e %.5e)(%.5e %.5e %.5e)).",	\
++					x,y,A,	\
++					pContact->depth,	\
++					dGeomSphereGetRadius(o2),		\
++					pContact->pos[0],	\
++					pContact->pos[1],	\
++					pContact->pos[2],	\
++					pContact->normal[0],	\
++					pContact->normal[1],	\
++					pContact->normal[2]);
++/*
++(z is up)
++
++y
++.
++F
++|
++C-D
++|\|
++A-B-E.x
++*/
++int dxTerrainZ::dCollideTerrainUnit(
++	int x,int y,dxGeom *o2,int numMaxContacts,
++	int flags,dContactGeom *contact, int skip)
++{
++	dColliderFn *CollideRayN;
++	dColliderFn *CollideNPlane;
++	dGetDepthFn *GetDepth;
++	int numContacts = 0;
++	int numPlaneContacts = 0;
++	int i;
++	
++	if (numContacts == numMaxContacts)
++		return numContacts;
++
++	dContactGeom PlaneContact[MAXCONTACT];
++	flags = (flags & 0xffff0000) | MAXCONTACT;
++	
++	switch (o2->type)
++	{
++	case dSphereClass:
++		CollideRayN		= dCollideRaySphere;
++		CollideNPlane	= dCollideSpherePlane;
++		GetDepth		= dGeomSpherePointDepth;
++		break;
++	case dBoxClass:
++		CollideRayN		= dCollideRayBox;
++		CollideNPlane	= dCollideBoxPlane;
++		GetDepth		= dGeomBoxPointDepth;
++		break;
++	case dCCylinderClass:
++		CollideRayN		= dCollideRayCCylinder;
++		CollideNPlane	= dCollideCCylinderPlane;
++		GetDepth		= dGeomCCylinderPointDepth;
++		break;
++	case dRayClass:
++		CollideRayN		= NULL;
++		CollideNPlane	= dCollideRayPlane;
++		GetDepth		= NULL;
++		break;
++	case dConeClass:
++		CollideRayN		= dCollideRayCone;
++		CollideNPlane	= dCollideConePlane;
++		GetDepth		= dGeomConePointDepth;
++		break;
++	default:
++		dIASSERT(0);
++	}
++
++	dReal Plane[4],lBD,lCD,lBC;
++	dVector3 A,B,C,D,BD,CD,BC,AB,AC;
++	A[0] = x * m_vNodeLength;
++	A[1] = y * m_vNodeLength;
++	A[2] = GetHeight(x,y);
++	B[0] = (x+1) * m_vNodeLength;
++	B[1] = y * m_vNodeLength;
++	B[2] = GetHeight(x+1,y);
++	C[0] = x * m_vNodeLength;
++	C[1] = (y+1) * m_vNodeLength;
++	C[2] = GetHeight(x,y+1);
++	D[0] = (x+1) * m_vNodeLength;
++	D[1] = (y+1) * m_vNodeLength;
++	D[2] = GetHeight(x+1,y+1);
++
++	dOP(BC,-,C,B);
++	lBC = dLENGTH(BC);
++	dOPEC(BC,/=,lBC);
++
++	dOP(BD,-,D,B);
++	lBD = dLENGTH(BD);
++	dOPEC(BD,/=,lBD);
++
++	dOP(CD,-,D,C);
++	lCD = dLENGTH(CD);
++	dOPEC(CD,/=,lCD);
++
++	dOP(AB,-,B,A);
++	dNormalize3(AB);
++
++	dOP(AC,-,C,A);
++	dNormalize3(AC);
++
++	if (CollideRayN)
++	{
++#ifdef RECOMPUTE_RAYNORMAL
++		dVector3 E,F;
++		dVector3 CE,FB,AD;
++		dVector3 Normal[3];
++		E[0] = (x+2) * m_vNodeLength;
++		E[1] = y * m_vNodeLength;
++		E[2] = GetHeight(x+2,y);
++		F[0] = x * m_vNodeLength;
++		F[1] = (y+2) * m_vNodeLength;
++		F[2] = GetHeight(x,y+2);
++		dOP(AD,-,D,A);
++		dNormalize3(AD);
++		dOP(CE,-,E,C);
++		dNormalize3(CE);
++		dOP(FB,-,B,F);
++		dNormalize3(FB);
++
++		//BC
++		dCROSS(Normal[0],=,AD,BC);
++		dNormalize3(Normal[0]);
++
++		//BD
++		dCROSS(Normal[1],=,CE,BD);
++		dNormalize3(Normal[1]);
++
++		//CD
++		dCROSS(Normal[2],=,FB,CD);
++		dNormalize3(Normal[2]);
++#endif		
++		int nA[3],nB[3];
++		dContactGeom ContactA[3],ContactB[3];
++		dxRay rayBC(0,lBC);	
++		dGeomRaySet(&rayBC, B[0], B[1], B[2], BC[0], BC[1], BC[2]);
++		nA[0] = CollideRayN(&rayBC,o2,flags,&ContactA[0],sizeof(dContactGeom));
++		dGeomRaySet(&rayBC, C[0], C[1], C[2], -BC[0], -BC[1], -BC[2]);
++		nB[0] = CollideRayN(&rayBC,o2,flags,&ContactB[0],sizeof(dContactGeom));
++		
++		dxRay rayBD(0,lBD);	
++		dGeomRaySet(&rayBD, B[0], B[1], B[2], BD[0], BD[1], BD[2]);
++		nA[1] = CollideRayN(&rayBD,o2,flags,&ContactA[1],sizeof(dContactGeom));
++		dGeomRaySet(&rayBD, D[0], D[1], D[2], -BD[0], -BD[1], -BD[2]);
++		nB[1] = CollideRayN(&rayBD,o2,flags,&ContactB[1],sizeof(dContactGeom));
++	
++		dxRay rayCD(0,lCD);	
++		dGeomRaySet(&rayCD, C[0], C[1], C[2], CD[0], CD[1], CD[2]);
++		nA[2] = CollideRayN(&rayCD,o2,flags,&ContactA[2],sizeof(dContactGeom));
++		dGeomRaySet(&rayCD, D[0], D[1], D[2], -CD[0], -CD[1], -CD[2]);
++		nB[2] = CollideRayN(&rayCD,o2,flags,&ContactB[2],sizeof(dContactGeom));
++	
++		for (i=0;i<3;i++)
++		{
++			if (nA[i] & nB[i])
++			{
++				dContactGeom *pContact = CONTACT(contact,numContacts*skip);
++				pContact->pos[0] = (ContactA[i].pos[0] + ContactB[i].pos[0])/2;
++				pContact->pos[1] = (ContactA[i].pos[1] + ContactB[i].pos[1])/2;
++				pContact->pos[2] = (ContactA[i].pos[2] + ContactB[i].pos[2])/2;
++#ifdef RECOMPUTE_RAYNORMAL
++				pContact->normal[0] = -Normal[i][0];
++				pContact->normal[1] = -Normal[i][1];
++				pContact->normal[2] = -Normal[i][2];
++#else
++				pContact->normal[0] = (ContactA[i].normal[0] + ContactB[i].normal[0])/2;	//0.f;
++				pContact->normal[1] = (ContactA[i].normal[1] + ContactB[i].normal[1])/2;	//0.f;
++				pContact->normal[2] = (ContactA[i].normal[2] + ContactB[i].normal[2])/2;	//-1.f;
++				dNormalize3(pContact->normal);
++#endif
++#ifdef DO_RAYDEPTH
++				dxRay rayV(0,1000.f);
++				dGeomRaySet(&rayV,	pContact->pos[0],
++									pContact->pos[1],
++									pContact->pos[2],
++									-pContact->normal[0],
++									-pContact->normal[1],
++									-pContact->normal[2]);
++		
++				dContactGeom ContactV;
++				if (CollideRayN(&rayV,o2,flags,&ContactV,sizeof(dContactGeom)))
++				{
++					pContact->depth = ContactV.depth;
++					numContacts++;	
++				}
++#else
++				pContact->depth =  GetDepth(o2,
++				pContact->pos[0],
++				pContact->pos[1],
++				pContact->pos[2]);
++				numContacts++;
++#endif
++				if (numContacts == numMaxContacts)
++					return numContacts;
++
++			}
++		}
++	}
++
++	dCROSS(Plane,=,AB,AC);
++	dNormalize3(Plane);
++	Plane[3] = Plane[0] * A[0] + Plane[1] * A[1] + Plane[2] * A[2];
++	dxPlane planeABC(0,Plane[0],Plane[1],Plane[2],Plane[3]);
++	numPlaneContacts = CollideNPlane(o2,&planeABC,flags,PlaneContact,sizeof(dContactGeom));
++
++	for (i=0;i<numPlaneContacts;i++)
++	{
++		if (IsOnTerrain(x,y,0,PlaneContact[i].pos))
++		{
++			dContactGeom *pContact = CONTACT(contact,numContacts*skip);
++			pContact->pos[0] = PlaneContact[i].pos[0];
++			pContact->pos[1] = PlaneContact[i].pos[1];
++			pContact->pos[2] = PlaneContact[i].pos[2];
++			pContact->normal[0] = -PlaneContact[i].normal[0];
++			pContact->normal[1] = -PlaneContact[i].normal[1];
++			pContact->normal[2] = -PlaneContact[i].normal[2];
++			pContact->depth = PlaneContact[i].depth;
++
++			//DMESS(0);
++			numContacts++;
++
++			if (numContacts == numMaxContacts)
++					return numContacts;
++		}
++	}
++
++	dCROSS(Plane,=,CD,BD);
++	dNormalize3(Plane);
++	Plane[3] = Plane[0] * D[0] + Plane[1] * D[1] + Plane[2] * D[2];
++	dxPlane planeDCB(0,Plane[0],Plane[1],Plane[2],Plane[3]);
++	numPlaneContacts = CollideNPlane(o2,&planeDCB,flags,PlaneContact,sizeof(dContactGeom));
++
++	for (i=0;i<numPlaneContacts;i++)
++	{
++		if (IsOnTerrain(x,y,1,PlaneContact[i].pos))
++		{
++			dContactGeom *pContact = CONTACT(contact,numContacts*skip);
++			pContact->pos[0] = PlaneContact[i].pos[0];
++			pContact->pos[1] = PlaneContact[i].pos[1];
++			pContact->pos[2] = PlaneContact[i].pos[2];
++			pContact->normal[0] = -PlaneContact[i].normal[0];
++			pContact->normal[1] = -PlaneContact[i].normal[1];
++			pContact->normal[2] = -PlaneContact[i].normal[2];
++			pContact->depth = PlaneContact[i].depth;
++			//DMESS(1);
++			numContacts++;
++
++			if (numContacts == numMaxContacts)
++					return numContacts;
++		}
++	}
++
++	return numContacts;
++}
++
++int dCollideTerrainZ(dxGeom *o1, dxGeom *o2, int flags,dContactGeom *contact, int skip)
++{
++	dIASSERT (skip >= (int)sizeof(dContactGeom));
++	dIASSERT (o1->type == dTerrainZClass);
++	int i,j;
++
++	if ((flags & 0xffff) == 0)
++		flags = (flags & 0xffff0000) | 1;
++
++	int numMaxTerrainContacts = (flags & 0xffff);
++	dxTerrainZ *terrain = (dxTerrainZ*) o1;
++
++	dReal *posbak;
++	dReal *Rbak;
++	dReal aabbbak[6];
++	int gflagsbak;
++
++	dVector3 pos0,pos1;
++	dMatrix4 R1;
++	int numTerrainContacts = 0;
++
++	if (terrain->gflags & GEOM_PLACEABLE)
++	{
++		dOP(pos0,-,o2->pos,terrain->pos);
++		dMULTIPLY1_331(pos1,terrain->R,pos0);
++		dMULTIPLY1_333(R1,terrain->R,o2->R);
++		posbak = o2->pos;
++		Rbak = o2->R;
++		o2->pos = pos1;
++		o2->R = R1;
++		memcpy(aabbbak,o2->aabb,sizeof(dReal)*6);
++		gflagsbak = o2->gflags;
++		o2->computeAABB();
++	}
++
++	int nMinX	= int(floor(o2->aabb[0] / terrain->m_vNodeLength));
++	int nMaxX	= int(floor(o2->aabb[1] / terrain->m_vNodeLength)) + 1;
++	int nMinY	= int(floor(o2->aabb[2] / terrain->m_vNodeLength));
++	int nMaxY	= int(floor(o2->aabb[3] / terrain->m_vNodeLength)) + 1;
++
++	if (terrain->m_bFinite)
++	{
++		nMinX = MAX(nMinX,0);
++		nMaxX = MIN(nMaxX,terrain->m_nNumNodesPerSide);
++		nMinY = MAX(nMinY,0);
++		nMaxY = MIN(nMaxY,terrain->m_nNumNodesPerSide);
++
++		if ((nMinX >= nMaxX) || (nMinY >= nMaxY))
++			goto dCollideTerrainZExit;
++	}
++
++	dVector3 AabbTop;
++	AabbTop[0] = (o2->aabb[0]+o2->aabb[1]) / 2;
++	AabbTop[1] = (o2->aabb[2]+o2->aabb[3]) / 2;
++	AabbTop[2] = o2->aabb[5];
++	if (o2->type != dRayClass)
++	{
++		dReal AabbTopDepth = terrain->GetHeight(AabbTop[0],AabbTop[1]) - AabbTop[2];
++		if (AabbTopDepth > 0.f)
++		{
++			contact->depth = AabbTopDepth;
++			dReal MaxDepth = (o2->aabb[5]-o2->aabb[4]) / 2;
++			if (contact->depth > MaxDepth)
++				contact->depth = MaxDepth;
++			contact->g1 = o1;
++			contact->g2 = o2;
++			dOPE(contact->pos,=,AabbTop);
++			contact->normal[0] = 0.f;
++			contact->normal[1] = 0.f;
++			contact->normal[2] = -1.f;
++
++			numTerrainContacts = 1;
++			goto dCollideTerrainZExit;
++		}
++	}
++	
++	for (i=nMinX;i<nMaxX;i++)
++	{
++		for (j=nMinY;j<nMaxY;j++)
++		{
++			numTerrainContacts += terrain->dCollideTerrainUnit(
++				i,j,o2,numMaxTerrainContacts - numTerrainContacts,
++				flags,CONTACT(contact,numTerrainContacts*skip),skip	);
++		}
++	}
++
++	dIASSERT(numTerrainContacts <= numMaxTerrainContacts);
++
++	for (i=0; i<numTerrainContacts; i++) 
++	{
++		CONTACT(contact,i*skip)->g1 = o1;
++		CONTACT(contact,i*skip)->g2 = o2;
++	}
++
++dCollideTerrainZExit:
++
++	if (terrain->gflags & GEOM_PLACEABLE)
++	{
++		o2->pos = posbak;
++		o2->R = Rbak;
++		memcpy(o2->aabb,aabbbak,sizeof(dReal)*6);
++		o2->gflags = gflagsbak;
++
++		for (i=0; i<numTerrainContacts; i++) 
++		{
++			dOPE(pos0,=,CONTACT(contact,i*skip)->pos);
++			dMULTIPLY0_331(CONTACT(contact,i*skip)->pos,terrain->R,pos0);
++			dOP(CONTACT(contact,i*skip)->pos,+,CONTACT(contact,i*skip)->pos,terrain->pos);
++
++			dOPE(pos0,=,CONTACT(contact,i*skip)->normal);
++			dMULTIPLY0_331(CONTACT(contact,i*skip)->normal,terrain->R,pos0);
++		}
++	}
++
++	return numTerrainContacts;
++}
++/*
++void dsDrawTerrainZ(int x,int z,float vLength,float vNodeLength,int nNumNodesPerSide,float *pHeights,const float *pR,const float *ppos)
++{
++	float A[3],B[3],C[3],D[3];
++	float R[12];
++	float pos[3];
++	if (pR)
++		memcpy(R,pR,sizeof(R));
++	else
++	{
++		memset(R,0,sizeof(R));
++		R[0] = 1.f;
++		R[5] = 1.f;
++		R[10] = 1.f;
++	}
++	
++	if (ppos)
++		memcpy(pos,ppos,sizeof(pos));
++	else
++		memset(pos,0,sizeof(pos));
++	
++	float vx,vz;
++	vx = vLength * x;
++	vz = vLength * z;
++	
++	int i;
++	for (i=0;i<nNumNodesPerSide;i++)
++	{
++		for (int j=0;j<nNumNodesPerSide;j++)
++		{
++			A[0] = i * vNodeLength + vx;
++			A[1] = j * vNodeLength + vz;
++			A[2] = GetHeight(i,j,nNumNodesPerSide,pHeights);
++			B[0] = (i+1) * vNodeLength + vx;
++			B[1] = j * vNodeLength + vz;
++			B[2] = GetHeight(i+1,j,nNumNodesPerSide,pHeights);
++			C[0] = i * vNodeLength + vx;
++			C[1] = (j+1) * vNodeLength + vz;
++			C[2] = GetHeight(i,j+1,nNumNodesPerSide,pHeights);
++			D[0] = (i+1) * vNodeLength + vx;
++			D[1] = (j+1) * vNodeLength + vz;
++			D[2] = GetHeight(i+1,j+1,nNumNodesPerSide,pHeights);
++			dsDrawTriangle(pos,R,C,A,B,1);
++			dsDrawTriangle(pos,R,D,C,B,1);
++		}
++	}
++}
++*/
+\ Kein Zeilenumbruch am Dateiende.
+diff -Naur ode-0.5/ode/src/joint.cpp ode-0.5_lpzrobots/ode/src/joint.cpp
+--- ode-0.5/ode/src/joint.cpp	2004-05-18 20:08:04.000000000 +0200
++++ ode-0.5_lpzrobots/ode/src/joint.cpp	2005-09-19 16:25:56.000000000 +0200
+@@ -1060,10 +1060,10 @@
+   if (joint->node[1].body) {
+     dVector3 tmp;
+     dCROSS (tmp, = REAL(0.5) * ,c,p);
+-    for (i=0; i<3; i++) info->J2a[s3+i] = tmp[i];
++    for (i=0; i<3; i++) info->J1a[s3+i] = tmp[i];
+     for (i=0; i<3; i++) info->J2a[s3+i] = tmp[i];
+     dCROSS (tmp, = REAL(0.5) * ,c,q);
+-    for (i=0; i<3; i++) info->J2a[s4+i] = tmp[i];
++    for (i=0; i<3; i++) info->J1a[s4+i] = tmp[i];
+     for (i=0; i<3; i++) info->J2a[s4+i] = tmp[i];
+     for (i=0; i<3; i++) info->J2l[s3+i] = -p[i];
+     for (i=0; i<3; i++) info->J2l[s4+i] = -q[i];
+@@ -1163,6 +1163,23 @@
+     dBodyAddForce (joint->node[0].body,axis[0],axis[1],axis[2]);
+   if (joint->node[1].body != 0)
+     dBodyAddForce(joint->node[1].body, -axis[0], -axis[1], -axis[2]);
++
++  if (joint->node[0].body != 0 && joint->node[1].body != 0) {
++    // linear torque decoupling:
++    // we have to compensate the torque, that his slider force may generate
++	// if body centers are not aligned along the slider axis
++  
++    dVector3 ltd; // Linear Torque Decoupling vector (a torque)
++  
++    dVector3 c;  
++    c[0]=REAL(0.5)*(joint->node[1].body->pos[0]-joint->node[0].body->pos[0]);
++    c[1]=REAL(0.5)*(joint->node[1].body->pos[1]-joint->node[0].body->pos[1]);
++    c[2]=REAL(0.5)*(joint->node[1].body->pos[2]-joint->node[0].body->pos[2]);
++    dCROSS (ltd,=,c,axis);
++
++    dBodyAddTorque (joint->node[0].body,ltd[0],ltd[1], ltd[2]);
++    dBodyAddTorque (joint->node[1].body,ltd[0],ltd[1], ltd[2]);
++  }
+ }
+ 
+ 
+diff -Naur ode-0.5/ode/test/test_boxstack.cpp ode-0.5_lpzrobots/ode/test/test_boxstack.cpp
+--- ode-0.5/ode/test/test_boxstack.cpp	2004-05-18 20:08:05.000000000 +0200
++++ ode-0.5_lpzrobots/ode/test/test_boxstack.cpp	2005-09-19 16:25:37.000000000 +0200
+@@ -19,7 +19,8 @@
+  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
+  *                                                                       *
+  *************************************************************************/
+-
++ 
++ 
+ #include <ode/ode.h>
+ #include <drawstuff/drawstuff.h>
+ 
+diff -Naur ode-0.5/ode/test/test_boxstackb.cpp ode-0.5_lpzrobots/ode/test/test_boxstackb.cpp
+--- ode-0.5/ode/test/test_boxstackb.cpp	1970-01-01 01:00:00.000000000 +0100
++++ ode-0.5_lpzrobots/ode/test/test_boxstackb.cpp	2005-09-19 16:25:37.000000000 +0200
+@@ -0,0 +1,457 @@
++/*************************************************************************
++*																		 *
++* Open Dynamics Engine, Copyright (C) 2001,2002 Russell L. Smith.		 *
++* All rights reserved.  Email: russ@q12.org   Web: www.q12.org 		 *
++*																		 *
++* This library is free software; you can redistribute it and/or		 *
++* modify it under the terms of EITHER: 								 *
++*	 (1) The GNU Lesser General Public License as published by the Free  *
++*		 Software Foundation; either version 2.1 of the License, or (at  *
++*		 your option) any later version. The text of the GNU Lesser 	 *
++*		 General Public License is included with this library in the	 *
++*		 file LICENSE.TXT.												 *
++*	 (2) The BSD-style license that is included with this library in	 *
++*		 the file LICENSE-BSD.TXT.										 *
++*																		 *
++* This library is distributed in the hope that it will be useful,		 *
++* but WITHOUT ANY WARRANTY; without even the implied warranty of		 *
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the files	 *
++* LICENSE.TXT and LICENSE-BSD.TXT for more details.					 *
++*																		 *
++*************************************************************************/
++
++#include <ode/ode.h>
++#include <drawstuff/drawstuff.h>
++
++#ifdef _MSC_VER
++#pragma warning(disable:4244 4305)	// for VC++, no precision loss complaints
++#endif
++
++// select correct drawing functions
++
++#ifdef dDOUBLE
++#define dsDrawBox dsDrawBoxD
++#define dsDrawSphere dsDrawSphereD
++#define dsDrawCylinder dsDrawCylinderD
++#define dsDrawCappedCylinder dsDrawCappedCylinderD
++#endif
++
++
++// some constants
++
++const float vTerrainLength = 2.f;
++const float vTerrainHeight = 0.5f;
++const int TERRAINNODES = 4;
++dReal pTerrainHeights[TERRAINNODES*TERRAINNODES];
++
++dGeomID terrainZ = NULL;
++dGeomID terrainY = NULL;
++
++#define NUM 20			// max number of objects
++#define DENSITY (5.0)		// density of all objects
++#define GPB 3			// maximum number of geometries per body
++#define MAX_CONTACTS 4		// maximum number of contact points per body
++
++
++// dynamics and collision objects
++
++struct MyObject {
++	dBodyID body; 		// the body
++	dGeomID geom[GPB];		// geometries representing this body
++};
++
++static int num=0;		// number of objects in simulation
++static int nextobj=0;		// next object to recycle if num==NUM
++static dWorldID world;
++static dSpaceID space;
++static MyObject obj[NUM];
++static dJointGroupID contactgroup;
++static int selected = -1;	// selected object
++static int show_aabb = 0;	// show geom AABBs?
++static int show_contacts = 0;	// show contact points?
++static int random_pos = 1;	// drop objects from random position?
++
++
++// this is called by dSpaceCollide when two objects in space are
++// potentially colliding.
++
++static void nearCallback (void *data, dGeomID o1, dGeomID o2)
++{
++	int i;
++	// if (o1->body && o2->body) return;
++	
++	// exit without doing anything if the two bodies are connected by a joint
++	dBodyID b1 = dGeomGetBody(o1);
++	dBodyID b2 = dGeomGetBody(o2);
++	if (b1 && b2 && dAreConnectedExcluding (b1,b2,dJointTypeContact)) return;
++	
++	dContact contact[MAX_CONTACTS];	// up to MAX_CONTACTS contacts per box-box
++	for (i=0; i<MAX_CONTACTS; i++) {
++		contact[i].surface.mode = dContactBounce | dContactApprox1;	//dContactSoftCFM;
++		contact[i].surface.mu = dInfinity;
++		contact[i].surface.mu2 = 0;
++		contact[i].surface.bounce = 0.1;
++		contact[i].surface.bounce_vel = 0.1;
++		contact[i].surface.soft_cfm = 0.01;
++	}
++	if (int numc = dCollide (o1,o2,MAX_CONTACTS,&contact[0].geom,
++		sizeof(dContact))) {
++		dMatrix3 RI;
++		dRSetIdentity (RI);
++		const dReal ss[3] = {0.02,0.02,0.02};
++		for (i=0; i<numc; i++) {
++			dJointID c = dJointCreateContact (world,contactgroup,contact+i);
++			dJointAttach (c,b1,b2);
++			if (show_contacts) dsDrawBox (contact[i].geom.pos,RI,ss);
++		}
++	}
++}
++
++
++// start simulation - set viewpoint
++
++static void start()
++{
++	static float xyz[3] = {2.1640f,-1.3079f,1.7600f};
++	static float hpr[3] = {125.5000f,-17.0000f,0.0000f};
++	dsSetViewpoint (xyz,hpr);
++	printf ("To drop another object, press:\n");
++	printf ("   b for box.\n");
++	printf ("   s for sphere.\n");
++	printf ("   c for cylinder.\n");
++	printf ("   x for a composite object.\n");
++	printf ("To select an object, press space.\n");
++	printf ("To disable the selected object, press d.\n");
++	printf ("To enable the selected object, press e.\n");
++	printf ("To toggle showing the geom AABBs, press a.\n");
++	printf ("To toggle showing the contact points, press t.\n");
++	printf ("To toggle dropping from random position/orientation, press r.\n");
++}
++
++
++char locase (char c)
++{
++	if (c >= 'A' && c <= 'Z') return c - ('a'-'A');
++	else return c;
++}
++
++
++// called when a key pressed
++
++static void command (int cmd)
++{
++	int i,j,k;
++	dReal sides[3];
++	dMass m;
++	
++	cmd = locase (cmd);
++	if (cmd == 'b' || cmd == 's' || cmd == 'c' || cmd == 'x'
++		/* || cmd == 'l' */) {
++		if (num < NUM) {
++			i = num;
++			num++;
++		}
++		else {
++			i = nextobj;
++			nextobj++;
++			if (nextobj >= num) nextobj = 0;
++			
++			// destroy the body and geoms for slot i
++			dBodyDestroy (obj[i].body);
++			for (k=0; k < GPB; k++) {
++				if (obj[i].geom[k]) dGeomDestroy (obj[i].geom[k]);
++			}
++			memset (&obj[i],0,sizeof(obj[i]));
++		}
++		
++		obj[i].body = dBodyCreate (world);
++		for (k=0; k<3; k++) sides[k] = dRandReal()*0.5+0.1;
++		
++		dMatrix3 R;
++		if (random_pos) {
++			dBodySetPosition (obj[i].body,
++				dRandReal()*2-1,dRandReal()*2+1,dRandReal()+3);
++			dRFromAxisAndAngle (R,dRandReal()*2.0-1.0,dRandReal()*2.0-1.0,
++				dRandReal()*2.0-1.0,dRandReal()*10.0-5.0);
++		}
++		else {
++			dReal maxheight = 0;
++			for (k=0; k<num; k++) {
++				const dReal *pos = dBodyGetPosition (obj[k].body);
++				if (pos[2] > maxheight) maxheight = pos[2];
++			}
++			dBodySetPosition (obj[i].body, 0,maxheight+1,maxheight+3);
++			dRFromAxisAndAngle (R,0,0,1,dRandReal()*10.0-5.0);
++		}
++		dBodySetRotation (obj[i].body,R);
++		dBodySetData (obj[i].body,(void*) i);
++		
++		if (cmd == 'b') {
++			dMassSetBox (&m,DENSITY,sides[0],sides[1],sides[2]);
++			obj[i].geom[0] = dCreateBox (space,sides[0],sides[1],sides[2]);
++		}
++		else if (cmd == 'c') {
++			sides[0] *= 0.5;
++			dMassSetCappedCylinder (&m,DENSITY,3,sides[0],sides[1]);
++			obj[i].geom[0] = dCreateCCylinder (space,sides[0],sides[1]);
++		}
++		/*
++		// cylinder option not yet implemented
++		else if (cmd == 'l') {
++		sides[1] *= 0.5;
++		dMassSetCappedCylinder (&m,DENSITY,3,sides[0],sides[1]);
++		obj[i].geom[0] = dCreateCylinder (space,sides[0],sides[1]);
++		}
++		*/
++		else if (cmd == 's') {
++			sides[0] *= 0.5;
++			dMassSetSphere (&m,DENSITY,sides[0]);
++			obj[i].geom[0] = dCreateSphere (space,sides[0]);
++		}
++		else if (cmd == 'x') {
++			dGeomID g2[GPB];		// encapsulated geometries
++			dReal dpos[GPB][3];	// delta-positions for encapsulated geometries
++			
++			// start accumulating masses for the encapsulated geometries
++			dMass m2;
++			dMassSetZero (&m);
++			
++			// set random delta positions
++			for (j=0; j<GPB; j++) {
++				for (k=0; k<3; k++) dpos[j][k] = dRandReal()*0.3-0.15;
++			}
++			
++			for (k=0; k<GPB; k++) {
++				obj[i].geom[k] = dCreateGeomTransform (space);
++				dGeomTransformSetCleanup (obj[i].geom[k],1);
++				if (k==0) {
++					dReal radius = dRandReal()*0.25+0.05;
++					g2[k] = dCreateSphere (0,radius);
++					dMassSetSphere (&m2,DENSITY,radius);
++				}
++				else if (k==1) {
++					g2[k] = dCreateBox (0,sides[0],sides[1],sides[2]);
++					dMassSetBox (&m2,DENSITY,sides[0],sides[1],sides[2]);
++				}
++				else {
++					dReal radius = dRandReal()*0.1+0.05;
++					dReal length = dRandReal()*1.0+0.1;
++					g2[k] = dCreateCCylinder (0,radius,length);
++					dMassSetCappedCylinder (&m2,DENSITY,3,radius,length);
++				}
++				dGeomTransformSetGeom (obj[i].geom[k],g2[k]);
++				
++				// set the transformation (adjust the mass too)
++				dGeomSetPosition (g2[k],dpos[k][0],dpos[k][1],dpos[k][2]);
++				dMassTranslate (&m2,dpos[k][0],dpos[k][1],dpos[k][2]);
++				dMatrix3 Rtx;
++				dRFromAxisAndAngle (Rtx,dRandReal()*2.0-1.0,dRandReal()*2.0-1.0,
++					dRandReal()*2.0-1.0,dRandReal()*10.0-5.0);
++				dGeomSetRotation (g2[k],Rtx);
++				dMassRotate (&m2,Rtx);
++				
++				// add to the total mass
++				dMassAdd (&m,&m2);
++			}
++			
++			// move all encapsulated objects so that the center of mass is (0,0,0)
++			for (k=0; k<2; k++) {
++				dGeomSetPosition (g2[k],
++					dpos[k][0]-m.c[0],
++					dpos[k][1]-m.c[1],
++					dpos[k][2]-m.c[2]);
++			}
++			dMassTranslate (&m,-m.c[0],-m.c[1],-m.c[2]);
++		}
++		
++		for (k=0; k < GPB; k++) {
++			if (obj[i].geom[k]) dGeomSetBody (obj[i].geom[k],obj[i].body);
++		}
++		
++		dBodySetMass (obj[i].body,&m);
++  }
++  
++  if (cmd == ' ') {
++	  selected++;
++	  if (selected >= num) selected = 0;
++	  if (selected < 0) selected = 0;
++  }
++  else if (cmd == 'd' && selected >= 0 && selected < num) {
++	  dBodyDisable (obj[selected].body);
++  }
++  else if (cmd == 'e' && selected >= 0 && selected < num) {
++	  dBodyEnable (obj[selected].body);
++  }
++  else if (cmd == 'a') {
++	  show_aabb ^= 1;
++  }
++  else if (cmd == 't') {
++	  show_contacts ^= 1;
++  }
++  else if (cmd == 'r') {
++	  random_pos ^= 1;
++  }
++}
++
++
++// draw a geom
++
++void drawGeom (dGeomID g, const dReal *pos, const dReal *R, int show_aabb)
++{
++	int i;
++	
++	if (!g) return;
++	if (!pos) pos = dGeomGetPosition (g);
++	if (!R) R = dGeomGetRotation (g);
++	
++	int type = dGeomGetClass (g);
++	if (type == dBoxClass) {
++		dVector3 sides;
++		dGeomBoxGetLengths (g,sides);
++		dsDrawBox (pos,R,sides);
++	}
++	else if (type == dSphereClass) {
++		dsDrawSphere (pos,R,dGeomSphereGetRadius (g));
++	}
++	else if (type == dCCylinderClass) {
++		dReal radius,length;
++		dGeomCCylinderGetParams (g,&radius,&length);
++		dsDrawCappedCylinder (pos,R,length,radius);
++	}
++	/*
++	// cylinder option not yet implemented
++	else if (type == dCylinderClass) {
++	dReal radius,length;
++	dGeomCylinderGetParams (g,&radius,&length);
++	dsDrawCylinder (pos,R,length,radius);
++	}
++	*/
++	else if (type == dGeomTransformClass) {
++		dGeomID g2 = dGeomTransformGetGeom (g);
++		const dReal *pos2 = dGeomGetPosition (g2);
++		const dReal *R2 = dGeomGetRotation (g2);
++		dVector3 actual_pos;
++		dMatrix3 actual_R;
++		dMULTIPLY0_331 (actual_pos,R,pos2);
++		actual_pos[0] += pos[0];
++		actual_pos[1] += pos[1];
++		actual_pos[2] += pos[2];
++		dMULTIPLY0_333 (actual_R,R,R2);
++		drawGeom (g2,actual_pos,actual_R,0);
++	}
++	
++	if (show_aabb) {
++		// draw the bounding box for this geom
++		dReal aabb[6];
++		dGeomGetAABB (g,aabb);
++		dVector3 bbpos;
++		for (i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
++		dVector3 bbsides;
++		for (i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
++		dMatrix3 RI;
++		dRSetIdentity (RI);
++		dsSetColorAlpha (1,0,0,0.5);
++		dsDrawBox (bbpos,RI,bbsides);
++	}
++}
++
++
++// simulation loop
++
++static void simLoop (int pause)
++{
++	dsSetColor (0,0,2);
++	dSpaceCollide (space,0,&nearCallback);
++	if (!pause) dWorldStep (world,0.05);
++
++	dAASSERT(terrainY);
++	dAASSERT(terrainZ);
++	dsSetColor (0,1,0);
++	dsDrawTerrainYD( 0, 0, vTerrainLength, vTerrainLength/TERRAINNODES, TERRAINNODES, pTerrainHeights, dGeomGetRotation(terrainY), dGeomGetPosition(terrainY));
++	dsDrawTerrainZD( 0, 0, vTerrainLength, vTerrainLength/TERRAINNODES, TERRAINNODES, pTerrainHeights, dGeomGetRotation(terrainZ), dGeomGetPosition(terrainZ));
++
++	if (show_aabb) 
++	{
++		dReal aabb[6];
++		dGeomGetAABB (terrainY,aabb);
++		dVector3 bbpos;
++		int i;
++		for (i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
++		dVector3 bbsides;
++		for (i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
++		dMatrix3 RI;
++		dRSetIdentity (RI);
++		dsSetColorAlpha (1,0,0,0.5);
++		dsDrawBox (bbpos,RI,bbsides);
++
++		dGeomGetAABB (terrainZ,aabb);
++		for (i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
++		for (i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
++		dsDrawBox (bbpos,RI,bbsides);
++	}
++
++	dsSetColor (1,1,0);
++	
++	// remove all contact joints
++	dJointGroupEmpty (contactgroup);
++	
++	dsSetColor (1,1,0);
++	dsSetTexture (DS_WOOD);
++	for (int i=0; i<num; i++) {
++		for (int j=0; j < GPB; j++) {
++			if (i==selected) {
++				dsSetColor (0,0.7,1);
++			}
++			else if (! dBodyIsEnabled (obj[i].body)) {
++				dsSetColor (1,0,0);
++			}
++			else {
++				dsSetColor (1,1,0);
++			}
++			drawGeom (obj[i].geom[j],0,0,show_aabb);
++		}
++	}
++}
++
++
++int main (int argc, char **argv)
++{
++	// setup pointers to drawstuff callback functions
++	dsFunctions fn;
++	fn.version = DS_VERSION;
++	fn.start = &start;
++	fn.step = &simLoop;
++	fn.command = &command;
++	fn.stop = 0;
++	fn.path_to_textures = "../../drawstuff/textures";
++	
++	// create world
++	
++	world = dWorldCreate();
++	space = dHashSpaceCreate (0);
++	contactgroup = dJointGroupCreate (0);
++	dWorldSetGravity (world,0,0,-0.5); //-0.5
++	dWorldSetCFM (world,1e-5);
++	dCreatePlane (space,0,0,1,0);
++	memset (obj,0,sizeof(obj));
++
++	for (int i=0;i<TERRAINNODES*TERRAINNODES;i++)	pTerrainHeights[i] = vTerrainHeight * dRandReal();
++	terrainY = dCreateTerrainY( space, pTerrainHeights,vTerrainLength,TERRAINNODES,1,1);
++	terrainZ = dCreateTerrainZ( space, pTerrainHeights,vTerrainLength,TERRAINNODES,1,1);
++
++//	dMatrix3 R;
++//	dRFromZAxis(R, 0.2f, 0.2f, 0.2f);
++	dGeomSetPosition(terrainY,3.f,0.f,0.5f);
++//	dGeomSetRotation(terrainY,R);
++	dGeomSetPosition(terrainZ,-3.f,0.f,0.5f);
++//	dGeomSetRotation(terrainZ,R);
++
++	// run simulation
++	dsSimulationLoop (argc,argv,352,288,&fn);
++	
++	dJointGroupDestroy (contactgroup);
++	dSpaceDestroy (space);
++	dWorldDestroy (world);
++	
++	return 0;
++}
