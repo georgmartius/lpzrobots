@@ -1,7 +1,7 @@
 diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp
 --- ode-0.5.1/drawstuff/src/drawstuff.cpp	2005-09-13 15:27:20.000000000 +0200
-+++ ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp	2005-09-13 14:59:02.000000000 +0200
-@@ -74,6 +74,9 @@
++++ ode-0.5_lpzrobots/drawstuff/src/drawstuff.cpp	2005-09-19 16:01:44.000000000 +0200
+@@ -74,11 +74,16 @@
  #define GROUND_G (0.5f)
  #define GROUND_B (0.3f)
  
@@ -11,7 +11,14 @@ diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src
  const float ground_scale = 1.0f/1.0f;	// ground texture scale (1/size)
  const float ground_ofsx = 0.5;		// offset of ground texture
  const float ground_ofsy = 0.5;
-@@ -880,7 +883,7 @@
+ const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
+ const float sky_height = 1.0f;		// sky height above viewpoint
++float sky_offset = 2.0f;                // offset of the sky texture. If 2.0 then use internal offset counter
++
+ 
+ 
+ //***************************************************************************
+@@ -880,7 +885,7 @@
    glDisable (GL_LIGHTING);
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
@@ -20,7 +27,40 @@ diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src
    }
    else {
      glDisable (GL_TEXTURE_2D);
-@@ -929,7 +932,7 @@
+@@ -899,6 +904,15 @@
+   float x = ssize*sky_scale;
+   float z = view_xyz[2] + sky_height;
+ 
++  GLfloat fogColor[4] = {0.5, 0.5, 0.5, 1};
++  glEnable (GL_FOG);
++  glFogi (GL_FOG_MODE, GL_EXP2);
++  glFogfv (GL_FOG_COLOR, fogColor);
++  glFogf (GL_FOG_DENSITY, 0.02f);
++  glHint (GL_FOG_HINT, GL_NICEST); // GL_DONT_CARE);
++  glFogf (GL_FOG_START, 1.0);
++  glFogf (GL_FOG_END, 5.0);
++
+   glBegin (GL_QUADS);
+   glNormal3f (0,0,-1);
+   glTexCoord2f (-x+offset,-x+offset);
+@@ -911,8 +925,14 @@
+   glVertex3f (ssize+view_xyz[0],-ssize+view_xyz[1],z);
+   glEnd();
+ 
+-  offset = offset + 0.002f;
+-  if (offset > 1) offset -= 1;
++  if(sky_offset == 2.0f){
++    offset = offset + 0.002f;
++    if (offset > 1) offset -= 1;
++  }else{
++    offset=sky_offset;
++  }
++
++  glDisable (GL_FOG);
+ 
+   glDepthFunc (GL_LESS);
+   glDepthRange (0,1);
+@@ -929,7 +949,7 @@
  
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
@@ -29,7 +69,7 @@ diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src
    }
    else {
      glDisable (GL_TEXTURE_2D);
-@@ -937,18 +940,18 @@
+@@ -937,18 +957,18 @@
    }
  
    // ground fog seems to cause problems with TNT2 under windows
@@ -52,7 +92,7 @@ diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src
    const float offset = 0; // -0.001f; ... polygon offsetting doesn't work well
  
    glBegin (GL_QUADS);
-@@ -1187,7 +1190,7 @@
+@@ -1187,7 +1207,7 @@
    glDisable (GL_LIGHTING);
    if (use_textures) {
      glEnable (GL_TEXTURE_2D);
@@ -61,7 +101,7 @@ diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src
      glColor3f (SHADOW_INTENSITY,SHADOW_INTENSITY,SHADOW_INTENSITY);    
      glEnable (GL_TEXTURE_2D);
      if(genTextureCoords){
-@@ -1283,6 +1286,17 @@
+@@ -1283,6 +1303,17 @@
    }
  }
  
@@ -79,7 +119,19 @@ diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src
  extern "C" int dsRegisterTexture (const char* filename, bool uselocalpath)
  {
    if (!texture_prefix) dsError ("No texture prefix defined");
-@@ -1367,7 +1381,7 @@
+@@ -1306,6 +1337,11 @@
+   return (texture_number-1);
+ }
+ 
++/* set the sky_offset */
++extern "C" void dsSetSimulationTime(double time){
++  double t = time/10.0;
++  sky_offset=(t - long(t))*2.0-1.0; // sky_offset is between -1 and 1. (this is basically time modulo 10 scaled to -1:1)
++}
+ 
+ extern "C" void dsSetColor (float red, float green, float blue)
+ {
+@@ -1367,7 +1403,7 @@
    if (use_shadows) {
      glDisable (GL_LIGHTING);
      if (use_textures) {
@@ -90,7 +142,7 @@ diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src
        glDisable (GL_TEXTURE_GEN_T);
 diff -Naur ode-0.5.1/include/drawstuff/drawstuff.h ode-0.5_lpzrobots/include/drawstuff/drawstuff.h
 --- ode-0.5.1/include/drawstuff/drawstuff.h	2005-09-13 15:27:20.000000000 +0200
-+++ ode-0.5_lpzrobots/include/drawstuff/drawstuff.h	2005-09-13 14:55:30.000000000 +0200
++++ ode-0.5_lpzrobots/include/drawstuff/drawstuff.h	2005-09-19 15:54:20.000000000 +0200
 @@ -58,7 +58,6 @@
  #define DS_WOOD   3
  #define DS_MAXTEXTURES 128
@@ -99,14 +151,21 @@ diff -Naur ode-0.5.1/include/drawstuff/drawstuff.h ode-0.5_lpzrobots/include/dra
  typedef struct dsFunctions {
    int version;			/* put DS_VERSION here */
    /* version 1 data */
-@@ -122,6 +121,10 @@
+@@ -122,7 +121,16 @@
   */
  void dsSetTexture (int texture_number, int _coating = 1);
  
+-  /* if side = 0 then BackFace else FrontFace*/
 +/* set the textures for ground and sky. texture is a value returned by dsRegisterTexture*/ 
 +void dsSetGroundTexture(int texture);
 +void dsSetSkyTexture(int texture);
 +
-   /* if side = 0 then BackFace else FrontFace*/
++/* sets the offset for the sky image. This makes it possible to let the cloud speed to reflect the true time 
++   If you don't use it then the offset modified in each draw step
++*/  
++void dsSetSimulationTime(double time);
++
++/* if side = 0 then BackFace else FrontFace*/
  void dsSetCulling(int side);
  void dsSetColor (float red, float green, float blue);
+ void dsSetColorAlpha (float red, float green, float blue, float alpha);
