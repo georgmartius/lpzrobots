@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2005-09-13 15:36:38  martius
+ *   Revision 1.31  2005-09-19 16:01:58  martius
+ *   use dsSetSimulationTime
+ *
+ *   Revision 1.30  2005/09/13 15:36:38  martius
  *   disabled advanced modes
  *   new grabframe interface used
  *
@@ -129,6 +132,10 @@ dSpaceID space;
 dJointGroupID contactgroup;
 dGeomID ground;
 
+int windowWidth=640;
+int windowHeight=480;
+
+
 double simulationTime = 0;
 struct timeval realTime;
 int nextLeakAnnounce=20;
@@ -224,8 +231,7 @@ void simulation_start(int argc, char** argv){
 
   state=running;
   gettimeofday(&realTime, 0);
-  //dsSimulationLoop ( argc , argv , 500 , 500 , &fn );
-  dsSimulationLoop ( argc , argv , 640 , 480 , &fn );
+  dsSimulationLoop ( argc , argv , windowWidth , windowHeight , &fn );
 }
 
 void simulation_close(){
@@ -276,6 +282,7 @@ void simLoop ( int pause ){
       /**************************Draw the scene ***********************/
       // first repositionize the camera if needed
       moveCamera(camType, *viewedRobot);
+      dsSetSimulationTime(simulationTime);
       for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
 	(*i)->draw();
       }
@@ -311,9 +318,8 @@ void simLoop ( int pause ){
   }
 }
 
-//Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
-//Hier wird die Kollission n�er untersucht
-// TODO call robots collisionCallback
+// Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
+// 
 void nearCallback(void *data, dGeomID o1, dGeomID o2)
 {
   bool collision_treated=false;
@@ -400,8 +406,9 @@ void changeParams(ConfigList& configs){
 }
 
 void usage(const char* progname){
-  printf("Parameter: %s [-r SEED] [-pause] [-notex] [-noshadow]\n", progname);
+  printf("Parameter: %s [-r SEED] [-x WxH] [-pause] [-notex] [-noshadow]\n", progname);
   printf("\t-r SEED\t\tuse SEED as random number seed\n");
+  printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (640x480 default)\n");
   printf("\t-pause \t\tstart in pause mode\n");
   printf("\t-notex \t\tdo not display textures\n");
   printf("\t-noshadow\tdo not display shadows\n");
@@ -423,6 +430,17 @@ void  processCmdLine(int argc, char** argv){
   printf("Use random number seed: %li\n", seed);
   srand(seed);
 
+  int resolindex = contains(argv, argc, "-x");
+  int w,h;
+  // initialize random number generator
+  if(resolindex && argc > resolindex) {
+    if(sscanf(argv[resolindex],"%ix%i", &w,&h) ==2){
+      if(w>64 && h>64){
+	windowWidth = w;
+	windowHeight = h;	
+      }
+    }
+  }
 }
 
 /// internals
