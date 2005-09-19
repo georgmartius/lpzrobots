@@ -55,10 +55,10 @@ void start()
   //  simulationConfig.setParam("realtimefactor",0);
   //  simulationConfig.setParam("drawinterval", 500);
   
-  //  AbstractRobot* robot = new ShortCircuit(world, space, contactgroup, channels, channels);  
-  AbstractRobot* robot = new Nimm2(world, space, contactgroup);  
-  //AbstractController *controller = new InvertMotorNStep(10);  
-  AbstractController *controller = new InvertMotorSpace(10,1.2);  
+  AbstractRobot* robot = new ShortCircuit(world, space, contactgroup, channels, channels);  
+  //  AbstractRobot* robot = new Nimm2(world, space, contactgroup);  
+  AbstractController *controller = new InvertMotorNStep(10);  
+  //AbstractController *controller = new InvertMotorSpace(10,1.2);  
   //  controller->setParam("adaptrate",0.0);
   controller->setParam("epsA",0.01);
   controller->setParam("epsC",0.05);
@@ -68,9 +68,9 @@ void start()
   
   Agent* agent = new Agent(plotMode, Robot);
   
-  sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
-  One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
-  //One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
+  //sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
+  //One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
+  One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
  
   //AbstractWiring* wiring = new SelectiveOne2OneWiring(sineNoise, &select_firsthalf);
   // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
