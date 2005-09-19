@@ -40,8 +40,8 @@ void start()
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
   
   //Anfangskameraposition und Punkt auf den die Kamera blickt
-  float KameraXYZ[3]= {12.4f,-12.0f,13.5f};
-  float KameraViewXYZ[3] = {139.0000f,-25.0000f,0.0000f};
+  float KameraXYZ[3]= {12.4f,-13.0f,10.5f};
+  float KameraViewXYZ[3] = {132.0000f,-25.0000f,0.0000f};
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
   
@@ -49,27 +49,27 @@ void start()
 
   // initialization
   simulationConfig.noise=0.05;
-  double height=5;
+  double height=2.2;
   Playground* playground = new Playground(world, space);
-  playground->setGeometry(20.0, 0.2, 0.3+height);
+  playground->setGeometry(20.0, 0.2, 0.5+height);
   playground->setColor(34/255.0, 97/255.0, 32/255.0);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   obstacles.push_back(playground);
   
-  Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/dip128_flat.ppm");
-  int tex = dsRegisterTexture("terrains/dip128_flat_texture.ppm", true);
-  //  Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/3potential.ppm");
-  //  int tex = dsRegisterTexture("terrains/3potential_texture.ppm", true);
+  //Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/dip128_flat.ppm");
+  //  int tex = dsRegisterTexture("terrains/dip128_flat_texture.ppm", true);
+  Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/3potential.ppm");
+  int tex = dsRegisterTexture("terrains/3potential_texture.ppm", true);
   terrainground->setTextureID(tex);
 
-  terrainground->setPosition(-10,-10,0.3);
+  terrainground->setPosition(-10,-10,0.5);
   obstacles.push_back(terrainground);
   
   configs.push_back(&simulationConfig);
   Color col;
-  for(int i=0; i<1; i++){
+  for(int i=0; i<3; i++){
     SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
-    conf.diameter=2;
+    conf.diameter=1.5;
     conf.spheremass=0.01;
     conf.pendularrange=0.35; 
     //SphererobotArms* sphere = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
@@ -85,8 +85,16 @@ void start()
       col.g=0.4;
       col.b=0;
     }
-
-    sphere->place ( Position ( (i*4)-2 , (i*4)-2 , 6 ) , &col );
+    if(i==2){
+      col.r=0;
+      col.g=1;
+      col.b=0.4;
+    }
+    if(i==1){
+      sphere->place ( Position ( 2 , -2 , 6 ) , &col );
+    } else 
+      sphere->place ( Position ( (i*4)-2 , (i*4)-2 , 6 ) , &col );
+    
     //AbstractController *controller = new InvertNChannelController(10);  
     AbstractController *controller = new InvertMotorNStep(50);
     controller->setParam("factorB", 0.0);
@@ -156,3 +164,19 @@ int main (int argc, char **argv)
   return 0;
 }
  
+// dip128_flat
+//     height=5
+//     conf.diameter=2;
+//     conf.spheremass=0.01;
+//     conf.pendularrange=0.33; 
+
+// random seed 1126621396
+// random seed 1126688945
+
+//3potential
+//     height=2
+//     conf.diameter=1.5;
+//     conf.spheremass=0.01;
+//     conf.pendularrange=0.35; 
+
+// 1126702048
