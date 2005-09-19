@@ -32,6 +32,10 @@ How to make a patch:
     * drawstuff fog and texture2 patch for ode-0.5 + drawstuff_textures
 	enables fog for sky and ground
 	textures for ground and sky are adjustable
+
+
+19.09.2005 ode_0.5_lpzrobots
+    * all in one patch
 	
 	
 
