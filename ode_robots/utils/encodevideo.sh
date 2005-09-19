@@ -11,10 +11,10 @@ for F in $NAME*.ppm; do echo "convert $F"; convert "$F" "${F%ppm}sgi"; rm "$F"; 
 
 echo -e "*********************** mjpeg encoding **************************";
 mencoder mf://$NAME*.sgi -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o $NAME.mjpeg
-echo -e "*********************** mpeg2 encoding **************************";
-mencoder mf://$NAME*.sgi -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mpeg2video -oac copy -o $NAME.mpg
-echo -e "*********************** mpeg4 DIVX encoding **************************";
-mencoder mf://$NAME*.sgi -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -ffourcc DX50 -o $NAME.avi
+echo -e "*********************** to mpeg2 **************************";
+transcode -i $NAME.mjpeg -o $NAME.mpg -y mpeg2enc 
+echo -e "*********************** to mpeg4 xvid 4 **************************";
+transcode -i $NAME.mjpeg -o $NAME.avi -y xvid4 
 
 
 
