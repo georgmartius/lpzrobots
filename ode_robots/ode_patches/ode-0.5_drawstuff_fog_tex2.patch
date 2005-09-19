@@ -142,7 +142,7 @@ diff -Naur ode-0.5.1/drawstuff/src/drawstuff.cpp ode-0.5_lpzrobots/drawstuff/src
        glDisable (GL_TEXTURE_GEN_T);
 diff -Naur ode-0.5.1/include/drawstuff/drawstuff.h ode-0.5_lpzrobots/include/drawstuff/drawstuff.h
 --- ode-0.5.1/include/drawstuff/drawstuff.h	2005-09-13 15:27:20.000000000 +0200
-+++ ode-0.5_lpzrobots/include/drawstuff/drawstuff.h	2005-09-19 15:54:20.000000000 +0200
++++ ode-0.5_lpzrobots/include/drawstuff/drawstuff.h	2005-09-19 16:23:25.000000000 +0200
 @@ -58,7 +58,6 @@
  #define DS_WOOD   3
  #define DS_MAXTEXTURES 128
@@ -151,11 +151,18 @@ diff -Naur ode-0.5.1/include/drawstuff/drawstuff.h ode-0.5_lpzrobots/include/dra
  typedef struct dsFunctions {
    int version;			/* put DS_VERSION here */
    /* version 1 data */
-@@ -122,7 +121,16 @@
+@@ -105,6 +104,7 @@
+  */
+ void dsStop();
+ 
++
+ /* Registers a user defined texture and returns its number. This can be used 
+  * as parameter to dsSetTexture()   
+  * @param uselocalpath use local path or add prefix texture path
+@@ -122,6 +122,15 @@
   */
  void dsSetTexture (int texture_number, int _coating = 1);
  
--  /* if side = 0 then BackFace else FrontFace*/
 +/* set the textures for ground and sky. texture is a value returned by dsRegisterTexture*/ 
 +void dsSetGroundTexture(int texture);
 +void dsSetSkyTexture(int texture);
@@ -165,7 +172,6 @@ diff -Naur ode-0.5.1/include/drawstuff/drawstuff.h ode-0.5_lpzrobots/include/dra
 +*/  
 +void dsSetSimulationTime(double time);
 +
-+/* if side = 0 then BackFace else FrontFace*/
+   /* if side = 0 then BackFace else FrontFace*/
  void dsSetCulling(int side);
  void dsSetColor (float red, float green, float blue);
- void dsSetColorAlpha (float red, float green, float blue, float alpha);
