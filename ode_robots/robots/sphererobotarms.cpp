@@ -297,7 +297,7 @@ bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
 	contact[i].surface.mu = 2;
 	contact[i].surface.slip1 = 0.005;
 	contact[i].surface.slip2 = 0.005;
-	contact[i].surface.soft_erp = 0.95;
+	contact[i].surface.soft_erp = 1; // 0.95;
 	contact[i].surface.soft_cfm = 0.01;
 	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
