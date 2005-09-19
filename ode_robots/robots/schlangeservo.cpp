@@ -76,12 +76,13 @@ bool SchlangeServo::collisionCallback(void *data, dGeomID o1, dGeomID o2)
     dContact contact[N];
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     for (i=0; i<n; i++){
-      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
-	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-      contact[i].surface.slip1 = 0.1;
-      contact[i].surface.slip2 = 0.1;
-      contact[i].surface.mu = conf.frictionGround*10;
-      contact[i].surface.mu2 = conf.frictionGround;
+      //      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
+      //	dContactSoftERP | dContactSoftCFM | dContactApprox1;
+      contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	dContactSoftERP | dContactSoftCFM | dContactApprox1;
+      contact[i].surface.slip1 = 0.001;
+      contact[i].surface.slip2 = 0.001;
+      contact[i].surface.mu = conf.frictionGround; //*10;
+      //      contact[i].surface.mu2 = conf.frictionGround;
       contact[i].surface.soft_erp = 0.9;
       contact[i].surface.soft_cfm = 0.001;
 
