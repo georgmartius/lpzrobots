@@ -13,6 +13,8 @@ echo -e "*********************** mjpeg encoding **************************";
 mencoder mf://$NAME*.sgi -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o $NAME.mjpeg
 echo -e "*********************** to mpeg2 **************************";
 transcode -i $NAME.mjpeg -o $NAME.mpg -y mpeg2enc 
+mv -f $NAME.mpg.m1v $NAME.mpg 
+
 echo -e "*********************** to mpeg4 xvid 4 **************************";
 transcode -i $NAME.mjpeg -o $NAME.avi -y xvid4 
 
