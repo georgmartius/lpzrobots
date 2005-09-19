@@ -13,9 +13,9 @@ How to make a patch:
     * drawstuff texture patch for ode-0.5
 	provides dsRegisterTexture to allow the use of user defined textures
 	
-11.08.2005 ode_0.5_lmotor (Marcel Kretschmann <Marcel_Kretschmann@web.de>)
+11.08.2005 ode_0.5_lmotor (Marcel Kretschmann <Marcel_Kretschmann@web.de>) (not needed)
     * lmotor patch for ode-0.5
-    	provides a linear motor for slider joints
+    	provides a linear motor for slider joints 
 
 26.08.2005 ode_0.5_terrain (Dominic Schneider <dominic.schneider@gmx.net>)
     * terrain patch for ode-0.5
@@ -30,7 +30,8 @@ How to make a patch:
 
 13.09.2005 ode_0.5_drawstuff_fog_tex2
     * drawstuff fog and texture2 patch for ode-0.5 + drawstuff_textures
-	enables fog
+	enables fog for sky and ground
 	textures for ground and sky are adjustable
+	
 	
 
