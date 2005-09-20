@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-09-02 17:19:24  martius
+ *   Revision 1.8  2005-09-20 10:55:15  robot3
+ *   camera module:
+ *   -pressing key c now centers on focused robot
+ *   -pressing key b now moves 5.0f behind the robot
+ *   -fixed a few bugs (nullpointer crashes etc.)
+ *
+ *   Revision 1.7  2005/09/02 17:19:24  martius
  *   camera modes changed
  *
  *   Revision 1.6  2005/08/23 11:41:20  robot1
@@ -52,8 +58,17 @@
 
 typedef enum CameraType { Static, TV, Following, advancedTV, advancedFollowing};
 
+// moves the camera so that the robot is the watching object
+// cameraType decides which type of camera movement is used
 void moveCamera( CameraType camType, AbstractRobot& robot);
 
+// moves camera behind the robot
+void moveBehindRobot(AbstractRobot& robot);
+
+// moves camera to robot position
+void moveOnRobot(AbstractRobot& robot);
+
+// prints the last used camera mode
 void printMode(CameraType camType);
 
 #endif
