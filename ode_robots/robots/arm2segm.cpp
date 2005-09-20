@@ -22,10 +22,7 @@ Arm2Segm::Arm2Segm(dWorldID w, dSpaceID s, dJointGroupID c):
   maxMotorKraft=1;
 
 
-  BASIS_START_X = 0;
-  BASIS_START_Y = 0;
-  BASIS_BODENABSTAND= 1.7;
-  GELENKABSTAND =0.2;
+  gelenkabstand =0.2;
   SOCKEL_LAENGE= 0.4;
   SOCKEL_BREITE= 0.1;
   SOCKEL_HOEHE =0.4;
@@ -47,9 +44,9 @@ Arm2Segm::Arm2Segm(dWorldID w, dSpaceID s, dJointGroupID c):
   initial_pos.z=0.0;
   */
 
-  sensorno=3; 
-  motorno=3;  
-  segmentsno=3;
+  sensorno=armanzahl+1; 
+  motorno=armanzahl+1;  
+  segmentsno=armanzahl+1;
 
   for (int i=0; i<segmentsno; i++){
     old_angle[i]=0.0;
@@ -199,11 +196,16 @@ bool Arm2Segm::collisionCallback(void *data, dGeomID o1, dGeomID o2){
     for (i=0; i<n; i++){
 
       colwithme = false;  
-      if( contact[i].geom.g1 == object[0].geom || contact[i].geom.g2 == object[0].geom ||
-	  contact[i].geom.g1 == object[1].geom || contact[i].geom.g2 == object[1].geom || 
-	  contact[i].geom.g1 == object[2].geom || contact[i].geom.g2 == object[2].geom ){
-	colwithme = true;
+      for (int j=0; j< segmentsno; j++){
+	if( contact[i].geom.g1 == object[j].geom || contact[i].geom.g2 == object[j].geom){
+	  colwithme = true;
+	}
       }
+//       if( contact[i].geom.g1 == object[0].geom || contact[i].geom.g2 == object[0].geom ||
+// 	  contact[i].geom.g1 == object[1].geom || contact[i].geom.g2 == object[1].geom || 
+// 	  contact[i].geom.g1 == object[2].geom || contact[i].geom.g2 == object[2].geom ){
+// 	colwithme = true;
+//       }
       if( colwithme){
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
@@ -239,12 +241,12 @@ void Arm2Segm::create(Position pos){
   object[0].body = dBodyCreate ( world );
   dBodySetPosition ( object[0].body , 
 		     pos.x + 0.5*SOCKEL_LAENGE , 
-		     pos.y + BASIS_START_Y + 0.001 ,  
+		     pos.y + 0.001 ,  
 		     pos.z + SOCKEL_HOEHE* 0.5+ 0.01 );
   object[1].body = dBodyCreate ( world );
   dBodySetPosition ( object[1].body , 
-		     pos.x + 0.5*ARMLAENGE + GELENKABSTAND , 
-		     pos.y + BASIS_START_Y + ARMABSTAND + ARMDICKE , 
+		     pos.x + 0.5*ARMLAENGE + gelenkabstand , 
+		     pos.y + ARMABSTAND + ARMDICKE , 
 		     pos.z + SOCKEL_HOEHE*0.5 + 0.01 );
 
   //Arme
@@ -252,7 +254,7 @@ void Arm2Segm::create(Position pos){
     {
       object[n].body = dBodyCreate ( world );
       dBodySetPosition ( object[n].body , 
-			 dBodyGetPositionAll ( object[n-1].body , 1 ) + ARMLAENGE - GELENKABSTAND, 
+			 dBodyGetPositionAll ( object[n-1].body , 1 ) + ARMLAENGE - gelenkabstand, 
 			 dBodyGetPositionAll ( object[n-1].body , 2 ) + ARMDICKE + ARMABSTAND,  
 			 dBodyGetPositionAll ( object[n-1].body , 3 ) );
       

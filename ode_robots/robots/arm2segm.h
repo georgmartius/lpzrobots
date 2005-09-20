@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-28 10:22:55  fhesse
+ *   Revision 1.2  2005-09-20 11:17:29  fhesse
+ *   smaller changes, needs clean up and comments
+ *
+ *   Revision 1.1  2005/07/28 10:22:55  fhesse
  *   initial version,
  *   known bugs: when calling show params an
  *   "pure virtual function called" error  happens
@@ -33,6 +36,24 @@
 
 #include "abstractrobot.h"
 #include "configurable.h"
+
+
+typedef struct {
+public:
+  int armAnzahl; ///  number of snake elements
+  double gliederLaenge; /// length of one snake element
+  double gliederDurchmesser; ///  diameter of a snake element
+  /**  distance between two snake elements; 
+       0 means there is a distance of the length of one snake element 
+       between each snake element an its successor */
+  double gliederAbstand; 
+  double gliederMasse; ///  mass of one snake element
+  double maxMotorKraft; ///  maximal force used by the motors of the snake
+  double factorForce; ///  factor for the speed, which the motors of the snake use
+  double factorSensors; /// sensors values are multiplied with this value
+} arm2SegmConf;
+
+
 
 class Arm2Segm : public AbstractRobot, public Configurable{
 public:
@@ -120,15 +141,15 @@ protected:
 
 
 
-  static const int  armanzahl= 2;
+  static const int  armanzahl= 3;
   //Object km[armanzahl-1]; //Armglieder
 
   //  dJointID j[armanzahl+1];
     dJointID jm[armanzahl+1];
 
-    double old_angle[3];
-    Object object[3];  
-    dJointID joint[3]; 
+    double old_angle[armanzahl+1];
+    Object object[armanzahl+1];  
+    dJointID joint[armanzahl+1]; 
 
     char name[50];    
     paramval factorMotors;
@@ -141,10 +162,7 @@ protected:
 
 
 
-  double BASIS_START_X;
-  double BASIS_START_Y;
-  double BASIS_BODENABSTAND;
-  double GELENKABSTAND;
+  double gelenkabstand;
   double SOCKEL_LAENGE;
   double SOCKEL_BREITE;
   double SOCKEL_HOEHE; 
