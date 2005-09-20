@@ -1,0 +1,31 @@
+# DO NOT DELETE
+
+main.o: /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h
+main.o: /usr/include/gnu/stubs.h
+main.o: /usr/lib/gcc-lib/i486-suse-linux/3.2.2/include/stddef.h
+main.o: /usr/include/bits/types.h /usr/include/libio.h
+main.o: /usr/include/_G_config.h /usr/include/wchar.h
+main.o: /usr/include/bits/wchar.h /usr/include/gconv.h
+main.o: /usr/lib/gcc-lib/i486-suse-linux/3.2.2/include/stdarg.h
+main.o: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
+main.o: ../../../controller/noisegenerator.h /usr/include/stdlib.h
+main.o: /usr/include/time.h /usr/include/bits/time.h
+main.o: ../../../ode_robots/./simulation.h /usr/include/math.h
+main.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
+main.o: /usr/include/bits/mathcalls.h ../../../ode_robots/./odeconfig.h
+main.o: ../../../controller/configurable.h /usr/include/string.h
+main.o: ../../../ode_robots/obstacles/abstractobstacle.h
+main.o: ../../../ode_robots/robots/abstractrobot.h
+main.o: ../../../ode_robots/agents/agent.h
+main.o: ../../../controller/abstractcontroller.h
+main.o: ../../../controller/inspectable.h
+main.o: ../../../ode_robots/agents/abstractwiring.h
+main.o: ../../../ode_robots/utils/camera.h
+main.o: ../../../ode_robots/agents/one2onewiring.h
+main.o: ../../../ode_robots/robots/nimm2.h
+main.o: ../../../ode_robots/obstacles/playground.h
+main.o: ../../../ode_robots/robots/arm2segm.h
+main.o: ../../../controller/invertnchannelcontroller.h
+main.o: ../../../controller/invertcontroller.h /usr/include/assert.h
+main.o: ../../../matrixlib/matrix.h
+main.o: ../../../controller/invertnchannelcontroller.hpp
