@@ -14,14 +14,6 @@
 ConfigList configs;
 PlotMode plotMode = NoPlot;
 
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start() 
@@ -82,7 +74,6 @@ void config(){
 
 void printUsage(const char* progname){
   printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
 }
 
 int main (int argc, char **argv)
