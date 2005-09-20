@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.31  2005-09-19 16:01:58  martius
+ *   Revision 1.32  2005-09-20 10:54:34  robot3
+ *   camera module:
+ *   -pressing key c now centers on focused robot
+ *   -pressing key b now moves 5.0f behind the robot
+ *   -tiny bugfixing (nullpointer crashes etc.)
+ *
+ *   Revision 1.31  2005/09/19 16:01:58  martius
  *   use dsSetSimulationTime
  *
  *   Revision 1.30  2005/09/13 15:36:38  martius
@@ -281,7 +287,8 @@ void simLoop ( int pause ){
     if(t==0 || pause){
       /**************************Draw the scene ***********************/
       // first repositionize the camera if needed
-      moveCamera(camType, *viewedRobot);
+      if (viewedRobot)
+      	moveCamera(camType, *viewedRobot);
       dsSetSimulationTime(simulationTime);
       for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
 	(*i)->draw();
@@ -521,7 +528,7 @@ void usercommand_handler(int key) {
       break;
     }
     break;
-  case 'c': // toggle video capture mode
+  case 'g': // toggle video capture mode
     if (videostream.opened){
       printf("Stop capturing mode\n");
       closeVideoStream(videostream);
@@ -534,6 +541,17 @@ void usercommand_handler(int key) {
       system("mkdir -p frames");
       videostream = openVideoStream(name);
     }
+    break;
+  case 'c': // move camera to robot position
+    if (viewedRobot) {
+      moveOnRobot(*viewedRobot);
+    }
+    break;
+  case 'b': // move camera behind robot movement
+    if (viewedRobot) {
+      moveBehindRobot(*viewedRobot);
+    }
+    break;
   default: // now call the user command
     if (commandFunction) commandFunction(key);
     break;
