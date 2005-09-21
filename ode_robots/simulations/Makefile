@@ -15,7 +15,8 @@ SIMULATIONS= \
 	atomsimulation \
 	hurling_snake \
 	formel1 \
-	arm2segm
+	arm2segm \
+	schlangeservo
 
 all: $(SIMULATIONS)
 
