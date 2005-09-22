@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-09-22 12:24:38  martius
+ *   Revision 1.7  2005-09-22 13:17:12  martius
+ *   OdeHandle and GlobalData finished
+ *   doInternalStuff included
+ *
+ *   Revision 1.6  2005/09/22 12:24:38  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -65,18 +69,6 @@ float camAngle[3] = {180.0f,0.0f,0.0f};
  Formel1* vehicle;
  // the position of robot
  double robotPoint[3]= {0.0f,0.0f,0.0f};
-
-
-
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-    (*i)->step(global.odeConfig.noise);
-  }
-
-  return true;
-}
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -143,7 +135,7 @@ void config(GlobalData& global){
 }
 
 // gets key from keyboard input, provided by ode
-void command(int key){
+void command(const OdeHandle& odeHandle, GlobalData& global, int key){
     double val;
 //     double velocityStep=0.05;
     double maxShift=0.5;
@@ -180,10 +172,6 @@ void printUsage(const char* progname){
   exit(0);
 }
 
- void addCallback (bool draw, bool pause) {
-	 //if (draw) moveCamera(Following,*vehicle);
- }
-
 
 int main (int argc, char **argv)
 {  
@@ -192,7 +180,7 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config,&command,0,&addCallback);
+  simulation_init(&start, &end, &config,&command);
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   simulation_close();  // tidy up.

@@ -546,14 +546,14 @@ atomsimRobot* atomsimRobot::rekursivKopieren ( atomsimAtom* a , bool firstcall )
 	neueratomsimRobot = NULL;
 	if ( firstcall == true )
 	{
-		neueratomsimRobot = new atomsimRobot ( roboterIDzaehler , odeHandle , atomsammlung , new atomsimAtom ( (--(*roboterIDzaehler))++ , a->getAtomIDzaehler () , world , space , a->getX () ,a->getY () , a->getZ () , a->getRadius () , a->getHuellenradius () , a->getMasse (), a->getBindungsstaerke () , a->getAbspaltstaerke () ,  a->getMaxatombindungszahl () , a->getBindungsblockdauer () , a->getMaxmotorkraft () , a->getMotorgeschwindigkeitsfaktor () , a->getColorR (), a->getColorG () , a->getColorB () ) , maxatomanzahl , getRekombinationsTrennverhaeltniss () );
+		neueratomsimRobot = new atomsimRobot ( roboterIDzaehler , odeHandle , atomsammlung , new atomsimAtom ( (--(*roboterIDzaehler))++ , a->getAtomIDzaehler () , odeHandle , a->getX () ,a->getY () , a->getZ () , a->getRadius () , a->getHuellenradius () , a->getMasse (), a->getBindungsstaerke () , a->getAbspaltstaerke () ,  a->getMaxatombindungszahl () , a->getBindungsblockdauer () , a->getMaxmotorkraft () , a->getMotorgeschwindigkeitsfaktor () , a->getColorR (), a->getColorG () , a->getColorB () ) , maxatomanzahl , getRekombinationsTrennverhaeltniss () );
 		
 	}
 	
 	for ( int n = 0; n < a->getAnzahlAtome (); n++ )
 	{
 		//Kopiert ein Atom welches an der Stelle n an a haengt
-		atomsammlung->push_back ( new atomsimAtom (  0 , (*a->getAtomAt (n)).getAtomIDzaehler () , world , space , (*a->getAtomAt (n)).getX () ,(*a->getAtomAt (n)).getY () , (*a->getAtomAt (n)).getZ () , (*a->getAtomAt (n)).getRadius () , (*a->getAtomAt (n)).getHuellenradius () , (*a->getAtomAt (n)).getMasse (), (*a->getAtomAt (n)).getBindungsstaerke () , (*a->getAtomAt (n)).getAbspaltstaerke (), (*a->getAtomAt (n)).getMaxatombindungszahl () , (*a->getAtomAt (n)).getBindungsblockdauer () , (*a->getAtomAt (n)).getMaxmotorkraft () , (*a->getAtomAt (n)).getMotorgeschwindigkeitsfaktor () , (*a->getAtomAt (n)).getColorR (), (*a->getAtomAt (n)).getColorG () , (*a->getAtomAt (n)).getColorB () ) );
+		atomsammlung->push_back ( new atomsimAtom (  0 , (*a->getAtomAt (n)).getAtomIDzaehler () , odeHandle , (*a->getAtomAt (n)).getX () ,(*a->getAtomAt (n)).getY () , (*a->getAtomAt (n)).getZ () , (*a->getAtomAt (n)).getRadius () , (*a->getAtomAt (n)).getHuellenradius () , (*a->getAtomAt (n)).getMasse (), (*a->getAtomAt (n)).getBindungsstaerke () , (*a->getAtomAt (n)).getAbspaltstaerke (), (*a->getAtomAt (n)).getMaxatombindungszahl () , (*a->getAtomAt (n)).getBindungsblockdauer () , (*a->getAtomAt (n)).getMaxmotorkraft () , (*a->getAtomAt (n)).getMotorgeschwindigkeitsfaktor () , (*a->getAtomAt (n)).getColorR (), (*a->getAtomAt (n)).getColorG () , (*a->getAtomAt (n)).getColorB () ) );
 
 		(*atomsammlung)[ atomsammlung->size () - 2]->atombindung ( atomsammlung->back () , a->getAtomAt (n)->getKollisionsvektor1 () , a->getAtomAt (n)->getKollisionsvektor2 () );
 		rekursivKopieren ( a->getAtomAt ( n ) , false );
@@ -606,7 +606,7 @@ bool atomsimRobot::roboterAuftrennen ( atomsimAtom* a/*=0*/ , atomsimAtom** newr
 		}
 	//if there it is not possible to make a clean cut between the robots (mostly if the robot only consists of one atom)
 	
-	atomsammlung->push_back ( new atomsimAtom ( 0 , a->getAtomIDzaehler() , world , space  , a->getX () + 2*a->getRadius () , a->getY () , a->getZ () , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 1 ) );
+	atomsammlung->push_back ( new atomsimAtom ( 0 , a->getAtomIDzaehler() , odeHandle  , a->getX () + 2*a->getRadius () , a->getY () , a->getZ () , 0.3 , 0.5 , 1 , 1 , 15 , 4 , 20 , 20.0 , 40.0 , 1 , 1 , 1 ) );
 	
 	if ( endofpieceone != 0 )
 	{

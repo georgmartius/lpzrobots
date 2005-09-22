@@ -18,9 +18,9 @@
  *@author Marcel Kretschmann
  *@version beta
  **/
-SphererobotTest::SphererobotTest ( int startRoboterID , const ODEHandle& odeHandle, 
+SphererobotTest::SphererobotTest ( int startRoboterID , const OdeHandle& odeHandle, 
 			   const SphererobotConf& conf )
-  : Roboter ( startRoboterID , odeHandle.world , odeHandle.space , odeHandle.jointGroup , 1 )
+  : Roboter ( startRoboterID , odeHandle , 1 )
 {
   sphererobot_space = dSimpleSpaceCreate ( space );
   dSpaceSetCleanup ( sphererobot_space , 0 );

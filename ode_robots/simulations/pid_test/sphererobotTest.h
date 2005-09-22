@@ -48,7 +48,7 @@ public:
    *@author Marcel Kretschmann
    *@version beta
    **/ 
-  SphererobotTest ( int startRoboterID , const ODEHandle& odeHandle, 
+  SphererobotTest ( int startRoboterID , const OdeHandle& odeHandle, 
 		const SphererobotConf& conf );
 	
   /**

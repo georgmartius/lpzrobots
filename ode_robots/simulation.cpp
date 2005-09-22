@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.33  2005-09-22 11:21:57  martius
+ *   Revision 1.34  2005-09-22 13:17:11  martius
+ *   OdeHandle and GlobalData finished
+ *   doInternalStuff included
+ *
+ *   Revision 1.33  2005/09/22 11:21:57  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -166,7 +170,7 @@ void (*endFunction)(GlobalData& globalData) =0;
 /// pointer to the config function of the user
 void (*configFunction)(GlobalData& globalData) = 0 ;
 // command function, set by user
-void (*commandFunction)(GlobalData& globalData, int key) = 0 ; 
+void (*commandFunction)(const OdeHandle&, GlobalData& globalData, int key) = 0 ; 
 /// pointer to the user defined additional function
 void (*collisionCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) = 0;
 /// pointer to the user defined additional function
@@ -195,7 +199,7 @@ AbstractRobot* viewedRobot; // the robot who is viewed from the camera
 void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData), 
 		     void (*end)(GlobalData& globalData), 
 		     void (*config)(GlobalData& globalData), 
-		     void (*command)(GlobalData& globalData, int key) /* = 0*/, 
+		     void (*command)(const OdeHandle&, GlobalData& globalData, int key) /* = 0*/, 
 		     void (*collCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) /*= 0*/,
 		     void (*addCallback)(GlobalData& globalData, bool draw, bool pause) /*= 0*/) {
 
@@ -547,12 +551,12 @@ void usercommand_handler(int key) {
       camType = Following;
       break;
     case Following: // now has to be Following
-//       camType = advancedTV;
-//       break;
-//     case advancedTV:
-//       camType = advancedFollowing;
-//       break;
-//     case advancedFollowing: // now has to be Static
+      camType = advancedTV;
+      break;
+    case advancedTV:
+      camType = advancedFollowing;
+      break;
+    case advancedFollowing: // now has to be Static
       camType = Static;
       break;
     }
@@ -582,7 +586,7 @@ void usercommand_handler(int key) {
     }
     break;
   default: // now call the user command
-    if (commandFunction) commandFunction(globalData, key);
+    if (commandFunction) commandFunction(odeHandle, globalData, key);
     break;
   }
 }

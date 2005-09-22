@@ -119,12 +119,9 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   }
   */
 
-
-  ODEHandle ode_handle(world , space , contactgroup);
-
   // set up a robot arm description
   RobotArmDescription desc;
-  desc.p_ode_handle   = &ode_handle;
+  desc.p_ode_handle   = new OdeHandle(odeHandle);
   desc.segment_radius = 0.05;
   desc.segment_mass   = 1.0;
   desc.p_vertex_list  = &vl;
@@ -132,7 +129,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //  CCURobotArmComponent rac(desc);
   // IComponent *p_component = new Test();
   IComponent    *p_component = new CCURobotArmComponent(desc);
-  AbstractRobot *p_robot     = new ComponentToRobot(p_component, ode_handle);
+  AbstractRobot *p_robot     = new ComponentToRobot(p_component, odeHandle);
 
 
   // initialization
@@ -175,7 +172,6 @@ void config(GlobalData& global){
 
 void printUsage(const char* progname){
   printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
 }
 
 

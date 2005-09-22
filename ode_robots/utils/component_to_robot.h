@@ -25,6 +25,7 @@ class ComponentToRobot : public AbstractRobot
   virtual void     draw               ();
   virtual void     place              (Position pos , Color *c = NULL);
   virtual bool     collisionCallback  (void *data, dGeomID o1, dGeomID o2);
+  virtual void     doInternalStuff    (const GlobalData& globalData);
   virtual int      getSensors         (sensor* sensors, int sensornumber);
   virtual void     setMotors          (const motor* motors, int motornumber);
   virtual int      getSensorNumber    ();
@@ -32,6 +33,7 @@ class ComponentToRobot : public AbstractRobot
   virtual Position getPosition        ();
   virtual int      getSegmentsPosition(vector<Position> &poslist);
   virtual void     setColor           (Color col);
+
 };
 
 

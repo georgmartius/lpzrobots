@@ -27,14 +27,14 @@ using namespace std;
  *@author Marcel Kretschmann
  *@version alpha 1.0
  **/
-atomsimAtom::atomsimAtom ( int start_roboterID , int* start_atomIDzaehler , dWorldID start_welt , dSpaceID start_raum , double x ,double y , double z , double start_radius , double start_huelleradius , double start_masse , double start_bindungsstaerke , double start_abspaltstaerke , unsigned int start_maxatombindungszahl , unsigned int start_bindungsblockdauer , double start_maxmotorkraft , double start_motorgeschwindigkeitsfaktor , double r , double g , double b )
+atomsimAtom::atomsimAtom ( int start_roboterID , int* start_atomIDzaehler , const OdeHandle& odeHandle , double x ,double y , double z , double start_radius , double start_huelleradius , double start_masse , double start_bindungsstaerke , double start_abspaltstaerke , unsigned int start_maxatombindungszahl , unsigned int start_bindungsblockdauer , double start_maxmotorkraft , double start_motorgeschwindigkeitsfaktor , double r , double g , double b )
 {
 	atomIDzaehler = start_atomIDzaehler;
 	atomID = *atomIDzaehler;
 	(*atomIDzaehler)++;
 	
-	welt = start_welt;
-	raum = start_raum;
+	welt = odeHandle.world;
+	raum = odeHandle.space;
 	
 	masse = start_masse;
 	atomradius = start_radius;

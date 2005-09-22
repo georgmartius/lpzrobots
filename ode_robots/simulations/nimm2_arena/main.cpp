@@ -16,15 +16,6 @@
 ConfigList configs;
 PlotMode plotMode = NoPlot;
 
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-    (*i)->step(global.odeConfig.noise);
-  }
-  return true;
-}
-
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
@@ -41,13 +32,13 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   // initialization
   global.odeConfig.noise=0.1;
     
-  Playground* playground = new Playground(world, space, /*factorxy=1*/ -4);
+  Playground* playground = new Playground(odeHandle, /*factorxy=1*/ -4);
   playground->setGeometry(8.0, 0.09, 0.25);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(playground);
   
 
-//   OctaPlayground* octaplayground = new OctaPlayground(world, space, 330);
+//   OctaPlayground* octaplayground = new OctaPlayground(odeHandle, 330);
 //   octaplayground->setGeometry(6.5, 0.09, 0.25);
 //   octaplayground->setPosition(0,0,0); // playground positionieren und generieren
 //   global.obstacles.push_back(octaplayground);

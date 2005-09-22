@@ -101,7 +101,7 @@ void config(GlobalData& global){
   changeParams(configs);
 }
 
-void command(GlobalData& global, int key){
+void command(const OdeHandle& odeHandle, GlobalData& global, int key){
   switch (key){
   case '>': omega+=0.05;
     break;

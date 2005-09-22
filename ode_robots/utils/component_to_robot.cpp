@@ -45,6 +45,10 @@ bool ComponentToRobot::collisionCallback(void *data, dGeomID o1, dGeomID o2)
   return p_component->collision_callback(NULL, o1, o2);
 }
 
+void ComponentToRobot::doInternalStuff(const GlobalData& globalData){
+  // todo reset sensors
+}
+
 
 int ComponentToRobot::getSensors(sensor* sensors, int sensornumber)
 {

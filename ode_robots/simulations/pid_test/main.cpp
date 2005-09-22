@@ -55,7 +55,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   conf.sliderrange=0.1;
   conf.spheremass=1; 
   //sphere1 = new Sphererobot ( 1 , ODEHandle(world , space , contactgroup), conf);
-  sphere1 = new SphererobotTest ( 1 , ODEHandle(world , space , contactgroup), conf);
+  sphere1 = new SphererobotTest ( 1 , odeHandle, conf);
   Color col(0,0.5,0.8);
   sphere1->place ( Position ( 0 , 0 , 0 ) , &col );
   //AbstractController *controller = new InvertNChannelController(10);  
@@ -97,7 +97,7 @@ void printUsage(const char* progname){
 }
 
 //Funktion die eingegebene Befehle/kommandos verarbeitet
-void command (int cmd)
+void command (const OdeHandle&, GlobalData& globalData, int cmd)
 {
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )

@@ -12,11 +12,15 @@ SIMULATIONS= \
 	template_onerobot \
 	template_schlange \
 	template_schlangeforce \
+	template_snakebot \
+	template_sphererobot \
 	atomsimulation \
 	hurling_snake \
 	formel1 \
-	arm2segm \
-	schlangeservo
+	nimm2_arena \
+	pid_test \
+	robodrom
+
 
 all: $(SIMULATIONS)
 

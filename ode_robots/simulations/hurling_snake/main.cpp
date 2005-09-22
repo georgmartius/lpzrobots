@@ -15,18 +15,10 @@
 #include "invertnchannelcontroller.h"
 #include "invertmotorspace.h"
 #include "invertmotornstep.h"
+#include "sinecontroller.h"
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
-
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-    (*i)->step(global.odeConfig.noise);
-  }
-  return true;
-}
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -63,10 +55,6 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 //   configs.push_back(controller);
 
 
-  
-
-
-
   HurlingSnake* hs;
   AbstractController *controller; 
   AbstractWiring* wiring;
@@ -75,10 +63,10 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   for (int i=0; i<3; i++){
     hs = new HurlingSnake(odeHandle);
     Color col;
-    if (i==0) col=mkColor(2,2,0);
-    if (i==1) col=mkColor(0,2,0);
-    if (i==2) col=mkColor(0,2,2);
-    hs->place(mkPosition((i-1)*3,-7,0.0), &col);
+    if (i==0) col=Color(2,2,0);
+    if (i==1) col=Color(0,2,0);
+    if (i==2) col=Color(0,2,2);
+    hs->place(Position((i-1)*3,-7,0.0), &col);
     //controller = new InvertMotorSpace(10);  
     //controller = new InvertMotorNStep(10);  
     controller = new SineController();

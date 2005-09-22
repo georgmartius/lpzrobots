@@ -21,17 +21,6 @@ PlotMode plotMode = NoPlot;
 
 SphererobotArms* sphere ;
 
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-    (*i)->step(global.odeConfig.noise);
-  }
-
-  return true;
-}
-
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
@@ -56,9 +45,9 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   playground->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(playground);
   
-  //Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/dip128_flat.ppm");
+  //Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/dip128_flat.ppm");
   //  int tex = dsRegisterTexture("terrains/dip128_flat_texture.ppm", true);
-  Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/3potential.ppm");
+  Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/3potential.ppm");
   int tex = dsRegisterTexture("terrains/3potential_texture.ppm", true);
   terrainground->setTextureID(tex);
 
@@ -71,8 +60,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     conf.diameter=1.5;
     conf.spheremass=0.01;
     conf.pendularrange=0.35; 
-    //SphererobotArms* sphere = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
-    sphere = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf, 0.4);
+    //SphererobotArms* sphere = new SphererobotArms ( odeHandle, conf);
+    sphere = new SphererobotArms ( odeHandle, conf, 0.4);
     sphere->setTexture(DS_WOOD);  
     if(i==0){
       col.r=0;
@@ -126,7 +115,7 @@ void end(GlobalData& global){
 }
 
 //Funktion die eingegebene Befehle/kommandos verarbeitet
-void command (int cmd) 
+void command (const OdeHandle&, GlobalData& globalData, int cmd) 
 {
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )

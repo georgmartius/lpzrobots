@@ -27,7 +27,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2005-09-22 11:21:57  martius
+ *   Revision 1.16  2005-09-22 13:17:11  martius
+ *   OdeHandle and GlobalData finished
+ *   doInternalStuff included
+ *
+ *   Revision 1.15  2005/09/22 11:21:57  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -98,7 +102,7 @@ using namespace std;
 void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData), 
 		     void (*end)(GlobalData& globalData), 
 		     void (*config)(GlobalData& globalData), 
-		     void (*command)(GlobalData& globalData, int key) = 0, 
+		     void (*command)(const OdeHandle&, GlobalData& globalData, int key) = 0, 
 		     void (*collCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) = 0,
 		     void (*addCallback)(GlobalData& globalData, bool draw, bool pause) = 0);
 

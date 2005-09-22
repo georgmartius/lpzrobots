@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-09-22 12:24:36  martius
+ *   Revision 1.6  2005-09-22 13:17:11  martius
+ *   OdeHandle and GlobalData finished
+ *   doInternalStuff included
+ *
+ *   Revision 1.5  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -81,7 +85,6 @@ class Terrainground : public AbstractObstacle {
 
   double size;  // for both directions
   double height;
-  dSpaceID space;
   int displayListNumber;
   int texture;
 
@@ -93,7 +96,6 @@ public:
   {
     this->height = height;
     this->size   = size;
-    space = s;
     obstacle_exists=false;
     texture = 0;
     base_x=0.0;

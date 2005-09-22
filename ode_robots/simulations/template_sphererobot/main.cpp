@@ -22,7 +22,6 @@ PlotMode plotMode = NoPlot;
 AbstractController *controller;
 SphererobotArms* sphere1;
 
-//Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
@@ -34,7 +33,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (3); //Qualitaet in der Sphaeren gezeichnet werden
-  dWorldSetERP(world, 0.9);
+  dWorldSetERP(odeHandle.world, 0.9);
 
   // initialization
   global.odeConfig.setParam("noise",0.1);
@@ -49,7 +48,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     
   //****************
   SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
-  sphere1 = new SphererobotArms ( ODEHandle(world , space , contactgroup), conf);
+  sphere1 = new SphererobotArms ( odeHandle, conf);
 
   Color col(0,0.5,0.8);
   sphere1->place ( Position ( 0 , 0 , 1 ), &col );
@@ -93,7 +92,7 @@ void printUsage(const char* progname){
 
 
 //Funktion die eingegebene Befehle/kommandos verarbeitet
-void command (int cmd)
+void command (const OdeHandle&, GlobalData& globalData, int cmd)
 {
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )
@@ -108,22 +107,22 @@ void command (int cmd)
     case 's' : controller->setParam("sineRate", controller->getParam("sineRate")/1.2); 
       printf("sineRate : %g\n", controller->getParam("sineRate"));
       break;
-    case 'P' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP+=1; 
-      printf("KP : %g\n", sphere1->servo[0]->KP); break;
-    case 'p' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP-=1; 
-      printf("KP : %g\n", sphere1->servo[0]->KP); break;
-    case 'D' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KD+=0.01; 
-      printf("KD : %g\n", sphere1->servo[0]->KD); break;
-    case 'd' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KD-=0.01; 
-      printf("KD : %g\n", sphere1->servo[0]->KD); break;
-    case 'I' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KI+=0.01; 
-      printf("KI : %g\n", sphere1->servo[0]->KI); break;
-    case 'i' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KI-=0.01; 
-      printf("KI : %g\n", sphere1->servo[0]->KI); break;
-    case 'A' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->alpha*=1.01; 
-      printf("KI : %g\n", sphere1->servo[0]->alpha); break;
-    case 'a' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->alpha*=0.99; 
-      printf("KI : %g\n", sphere1->servo[0]->alpha); break;
+//     case 'P' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP+=1; 
+//       printf("KP : %g\n", sphere1->servo[0]->KP); break;
+//     case 'p' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP-=1; 
+//       printf("KP : %g\n", sphere1->servo[0]->KP); break;
+//     case 'D' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KD+=0.01; 
+//       printf("KD : %g\n", sphere1->servo[0]->KD); break;
+//     case 'd' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KD-=0.01; 
+//       printf("KD : %g\n", sphere1->servo[0]->KD); break;
+//     case 'I' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KI+=0.01; 
+//       printf("KI : %g\n", sphere1->servo[0]->KI); break;
+//     case 'i' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KI-=0.01; 
+//       printf("KI : %g\n", sphere1->servo[0]->KI); break;
+//     case 'A' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->alpha*=1.01; 
+//       printf("KI : %g\n", sphere1->servo[0]->alpha); break;
+//     case 'a' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->alpha*=0.99; 
+//       printf("KI : %g\n", sphere1->servo[0]->alpha); break;
     }
 }
 
