@@ -1,11 +1,14 @@
 #ifndef __ODECONFIG_H
 #define __ODECONFIG_H
 
-#include <configurable.h>
+#include <ode/ode.h>
+#include "configurable.h"
+#include "odehandle.h"
 
 class OdeConfig : public Configurable {
 public:
-  OdeConfig(){
+  OdeConfig(const OdeHandle& odehandle)
+    : odeHandle(odehandle) {
     simStepSize=0.01;
     controlInterval=5;
     realTimeFactor=1.0;
@@ -69,7 +72,7 @@ public:
     else if(strcmp(key, "controlinterval")==0) controlInterval=(int)val; 
     else if(strcmp(key, "gravity")==0) {
       gravity=val; 
-      dWorldSetGravity ( world , 0 , 0 , gravity );
+      dWorldSetGravity ( odeHandle.world , 0 , 0 , gravity );
     }
     else  return false;
     return true;
@@ -92,6 +95,7 @@ public:
   double noise;
   double gravity;
   char name[100];
+  OdeHandle odeHandle;
 };
 
 #endif

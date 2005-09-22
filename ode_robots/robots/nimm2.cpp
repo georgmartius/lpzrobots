@@ -8,10 +8,10 @@
 #include "nimm2.h"
 
 
-Nimm2::Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, 
+Nimm2::Nimm2(const OdeHandle& odehandle, double size/*=1.0*/, 
 	     double force /*=2*/, double speed/*=6*/, bool sphereWheels /*=true*/, 
 	     bool bumper /*=false*/, bool cigarMode /*=false*/):
-  AbstractRobot::AbstractRobot(w, s, c, "Nimm2"){ 
+  AbstractRobot::AbstractRobot(odehandle, "Nimm2"){ 
 
   created=false;
   
@@ -185,8 +185,8 @@ void Nimm2::mycallback(void *data, dGeomID o1, dGeomID o2){
 bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   //checks if one of the collision objects is part of the robot
   if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space ){
-    // dSpaceCollide(car_space, this, mycallback); // checks collisions in the car_space only (not needed)
 
+    // TODO remove needless check for collwithme
     bool colwithme;  
     bool colwithbody;  
     int i,n;  
@@ -232,6 +232,10 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
     return true;
   }
   return false;
+}
+
+void Nimm2::doInternalStuff(const GlobalData& globalData){
+  // dSpaceCollide(car_space, this, mycallback); // checks collisions in the car_space only (not needed)
 }
 
 /** creates vehicle at desired position 

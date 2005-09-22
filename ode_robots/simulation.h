@@ -27,7 +27,12 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2005-08-12 11:55:01  robot1
+ *   Revision 1.15  2005-09-22 11:21:57  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.14  2005/08/12 11:55:01  robot1
  *   camera module integrated
  *
  *   Revision 1.13  2005/08/03 20:33:30  martius
@@ -75,29 +80,11 @@
 #include <iterator>
 using namespace std;
 
-// ODE globals
-extern dWorldID world;             ///
-extern dSpaceID space;             ///
-extern dJointGroupID contactgroup; ///
-extern dGeomID ground; 
-
-// Simulation control variables
+#include "odehandle.h"
 #include "odeconfig.h"
-extern double simulationTime;      ///
-extern OdeConfig simulationConfig; ///
+#include "camera.h"
 
-// Object lists
-#include "configurable.h"
-#include "abstractobstacle.h"
-#include "agent.h"
-
-typedef vector<AbstractObstacle*> ObstacleList; ///
-extern ObstacleList obstacles;                  ///
-
-typedef vector<Configurable*> ConfigList;       ///
-
-typedef vector<Agent*> AgentList;               ///
-extern AgentList agents;                        ///
+#include "globaldata.h"
 
 // simulation stuff
 /** Initialises the simulation and registers the given callback functions.
@@ -108,12 +95,13 @@ extern AgentList agents;                        ///
       However it is called after the robots collision handling.       
     @param drawCallback optional additional draw function
  */
-void simulation_init(void (*start)(), void (*end)(), 
-		     void (*config)(), void (*command)(int n) = 0, 
-		     void (*collCallback)(void* data, dGeomID o1, dGeomID o2) = 0,
-		     void (*addCallback)(bool draw, bool pause) = 0);
+void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData), 
+		     void (*end)(GlobalData& globalData), 
+		     void (*config)(GlobalData& globalData), 
+		     void (*command)(GlobalData& globalData, int key) = 0, 
+		     void (*collCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) = 0,
+		     void (*addCallback)(GlobalData& globalData, bool draw, bool pause) = 0);
 
-#include "camera.h"
 /// initializes or resets the camera per user, if wanted
 void camera_init(CameraType type,AbstractRobot* robot);
 

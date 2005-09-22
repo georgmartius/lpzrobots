@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2005-08-31 11:12:46  martius
+ *   Revision 1.15  2005-09-22 11:22:15  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.14  2005/08/31 11:12:46  martius
  *   removed unused vars
  *
  *   Revision 1.13  2005/08/03 11:43:03  fhesse
@@ -80,7 +85,7 @@ typedef struct
 class Nimm2 : public AbstractRobot{
 public:
   
-  Nimm2(dWorldID w, dSpaceID s, dJointGroupID c, double size=1, double force=2, double speed=6, 
+  Nimm2(const OdeHandle& odehandle, double size=1, double force=2, double speed=6, 
 	bool sphereWheels=true, bool bumper=false, bool cigarMode=false);
 
   virtual ~Nimm2(){};
@@ -133,6 +138,12 @@ public:
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData);
 
   /** sets the textures used for body and wheels
   */

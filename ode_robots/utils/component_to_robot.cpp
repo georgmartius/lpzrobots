@@ -5,7 +5,7 @@ namespace robots {
 
 
 ComponentToRobot::ComponentToRobot(IComponent *_p_component,
-				   const ODEHandle &odehandle) :
+				   const OdeHandle &odehandle) :
   AbstractRobot(odehandle),
   p_component(_p_component)
 {

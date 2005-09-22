@@ -17,7 +17,7 @@ class ComponentToRobot : public AbstractRobot
   WireContainer wire_container;
 
  public:
-  ComponentToRobot(IComponent *_p_component, const ODEHandle& odehandle);
+  ComponentToRobot(IComponent *_p_component, const OdeHandle& odehandle);
   virtual ~ComponentToRobot();
 
   const char*     getName() const;

@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.32  2005-09-20 10:54:34  robot3
+ *   Revision 1.33  2005-09-22 11:21:57  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.32  2005/09/20 10:54:34  robot3
  *   camera module:
  *   -pressing key c now centers on focused robot
  *   -pressing key b now moves 5.0f behind the robot
@@ -131,38 +136,44 @@
 using namespace std;
 #include "simulation.h"
 
+#include "configurable.h"
+#include "abstractobstacle.h"
+#include "agent.h"
 
 // ODE globals
-dWorldID world;
-dSpaceID space;
-dJointGroupID contactgroup;
+OdeHandle odeHandle;
 dGeomID ground;
+
+GlobalData globalData(odeHandle);
+VideoStream videostream;
 
 int windowWidth=640;
 int windowHeight=480;
 
-
-double simulationTime = 0;
 struct timeval realTime;
 int nextLeakAnnounce=20;
 int leakAnnCounter=1;
 
-VideoStream videostream;
-
-OdeConfig simulationConfig;
 int sim_step = 0;
 dsFunctions fn;
 enum SimulationState { none, initialised, running, closed };
 SimulationState state = none;
 
-void (*configfunction)() = 0; // pointer to the config function of the user
-void (*collisionCallback)(void* data, dGeomID o1, dGeomID o2) = 0;  // pointer to the user defined nearcallback function
-void (*additionalCallback)(bool draw, bool pause) = 0;  // pointer to the user defined additional function
-void (*commandFunction)(int key) =0;  // command function, set by user
+/// user defined start function (called at the beginning of the simulation)
+void (*startFunction)(const OdeHandle&, GlobalData& globalData) = 0;
+/// user defined end function (called after the simulation)
+void (*endFunction)(GlobalData& globalData) =0; 
+/// pointer to the config function of the user
+void (*configFunction)(GlobalData& globalData) = 0 ;
+// command function, set by user
+void (*commandFunction)(GlobalData& globalData, int key) = 0 ; 
+/// pointer to the user defined additional function
+void (*collisionCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) = 0;
+/// pointer to the user defined additional function
+void (*additionalCallback)(GlobalData& globalData, bool draw, bool pause) = 0;
 
-// Object lists
-ObstacleList obstacles;
-AgentList agents;
+void _start();
+void _end();
 
 // commandline functions see below
 void cmd_handler_init();
@@ -181,38 +192,47 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2);
 CameraType camType = Static; // default is a non-moving and non-rotating camera
 AbstractRobot* viewedRobot; // the robot who is viewed from the camera
 
-void simulation_init(void (*start)(), void (*end)(), 
-		     void (*config)(), void (*command)(int n)/* = 0 */,
-		     void (*collCallback)(void* data,dGeomID o1, dGeomID o2)/* = 0 */,
-		     void (*addCallback)(bool draw, bool pause)/* = 0 */){
-  configfunction=config; // store config function for simLoop
+void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData), 
+		     void (*end)(GlobalData& globalData), 
+		     void (*config)(GlobalData& globalData), 
+		     void (*command)(GlobalData& globalData, int key) /* = 0*/, 
+		     void (*collCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) /*= 0*/,
+		     void (*addCallback)(GlobalData& globalData, bool draw, bool pause) /*= 0*/) {
+
+  startFunction=start;    // store start function for simLoop
+  endFunction=end;       // store end function for simLoop
+  configFunction=config; // store config function for simLoop
   collisionCallback=collCallback; // store config function for simLoop
   additionalCallback = addCallback;
   /**************************Grafikabschnitt**********************/
   fn.version = DS_VERSION;
-  fn.start = start;
+  fn.start = _start;
   fn.step = &simLoop;
   commandFunction = command; //  userfunction is stored to be executed if needed, see usercommand_handler()
   fn.command = usercommand_handler; // controlled by usercommand_handler now
-  fn.stop = end;
+  fn.stop = _end;
   fn.path_to_textures = "../../textures";
 
   /***************************ODE-Abschnitt***********************/
   //****************Weltdefinitionsabschnitt**************
   //Anlegen der Welt an sich
-  world = dWorldCreate ();
+  odeHandle.world = dWorldCreate ();
 
   //Anlegen eines Raumes der Welt in der Sichtbare Koerper 
   // eine raeumliche Ausdehnung annehmen koennen
   // ist fuer die Kollissionserkennung wichtig
-  space = dHashSpaceCreate (0);
-  contactgroup = dJointGroupCreate ( 1000000 );
+  odeHandle.space = dHashSpaceCreate (0);
+  odeHandle.jointGroup = dJointGroupCreate ( 1000000 );
  
   //Gravitation zu Erdgravitation
-  dWorldSetGravity ( world , 0 , 0 , simulationConfig.gravity );
-  dWorldSetERP ( world , 1 );
-  ground = dCreatePlane ( space , 0 , 0 , 1 , 0 );
+  dWorldSetGravity ( odeHandle.world , 0 , 0 , globalData.odeConfig.gravity );
+  dWorldSetERP ( odeHandle.world , 1 );
+  ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
   cmd_handler_init();
+
+  // add ode config to config list
+  globalData.configs.push_back(&(globalData.odeConfig));
+
   state=initialised;
 }
 
@@ -243,12 +263,19 @@ void simulation_start(int argc, char** argv){
 void simulation_close(){
   if(state!=running) return;
   //******Speicherfreigabe, Welt- und Raumzerstoerung*****
-  dJointGroupDestroy ( contactgroup );
-  dWorldDestroy ( world );
-  dSpaceDestroy ( space );
+  dJointGroupDestroy ( odeHandle.jointGroup );
+  dWorldDestroy ( odeHandle.world );
+  dSpaceDestroy ( odeHandle.space );
   dCloseODE ();
 
-  state=closed;
+state=closed;
+}
+
+void _start(){
+  if(startFunction) startFunction(odeHandle, globalData);
+}
+void _end(){
+  if(endFunction) endFunction(globalData);
 }
 
 //Schleife der Simulation
@@ -256,11 +283,11 @@ void simLoop ( int pause ){
   // we run the physical simulation as often the drawinterval,
   //  because "drawstuff" will draw the world before this function is called
   //  the drawing of all object should occur if t==0
-  for(int t = 0; t < simulationConfig.drawInterval; t++){
+  for(int t = 0; t < globalData.odeConfig.drawInterval; t++){
     // Parametereingabe  
     if (control_c_pressed()){
       cmd_begin_input();
-      if(configfunction) configfunction();
+      if(configFunction) configFunction(globalData);
       cmd_end_input();
       gettimeofday(&realTime, 0);
     }
@@ -268,32 +295,34 @@ void simLoop ( int pause ){
     // the simulation is just run if pause is not enabled
     if (!pause) {
       //**************************Steuerungsabschnitt ************************
-      simulationTime += simulationConfig.simStepSize;
-    
+      globalData.time += globalData.odeConfig.simStepSize;
+
       sim_step++;
-      if ( (sim_step % simulationConfig.controlInterval ) == 0 ){
-	for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-	  (*i)->step(simulationConfig.noise);
+      // for all agents: robots internal stuff and control step if at controlInterval
+      for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
+	(*i)->getRobot()->doInternalStuff(globalData);
+	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ){
+	  (*i)->step(globalData.odeConfig.noise); 
 	}
       }
   
       /**********************Simulationsschritt an sich**********************/
-      dSpaceCollide ( space , 0 , &nearCallback );
-      dWorldStep ( world , simulationConfig.simStepSize ); //ODE-Engine geht einen Schritt weiter
-      dJointGroupEmpty (contactgroup);    
+      dSpaceCollide ( odeHandle.space , 0 , &nearCallback );
+      dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize ); //ODE-Engine geht einen Schritt weiter
+      dJointGroupEmpty (odeHandle.jointGroup);    
     }  
-    if(additionalCallback) additionalCallback(t==0, pause);
+    if(additionalCallback) additionalCallback(globalData, t==0, pause);
 
     if(t==0 || pause){
       /**************************Draw the scene ***********************/
       // first repositionize the camera if needed
       if (viewedRobot)
       	moveCamera(camType, *viewedRobot);
-      dsSetSimulationTime(simulationTime);
-      for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+      dsSetSimulationTime(globalData.time);
+      for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++){
 	(*i)->draw();
       }
-      for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+      for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	(*i)->getRobot()->draw();
       }
       // grab frame if in captureing mode
@@ -303,12 +332,12 @@ void simLoop ( int pause ){
     }
 
     // Time syncronisation of real time and simulations time (not if on capture mode)
-    if(simulationConfig.realTimeFactor!=0.0 && !videostream.opened){
+    if(globalData.odeConfig.realTimeFactor!=0.0 && !videostream.opened){
       struct timeval currentTime;
       gettimeofday(&currentTime, 0);
       // difference in milliseconds
       long diff = (currentTime.tv_sec-realTime.tv_sec)*1000 + (currentTime.tv_usec-realTime.tv_usec)/1000;
-      diff -= long(simulationConfig.simStepSize*1000.0/simulationConfig.realTimeFactor); 
+      diff -= long(globalData.odeConfig.simStepSize*1000.0/globalData.odeConfig.realTimeFactor); 
       if(diff < -3){ // if less the 3 milliseconds we don't call usleep since it needs time
 	usleep(min(100l,-diff-2)*1000);
 	nextLeakAnnounce=max(20,nextLeakAnnounce/2);
@@ -331,14 +360,14 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
 {
   bool collision_treated=false;
   // call robots collision treatments
-  for(AgentList::iterator i=agents.begin(); i != agents.end() && !collision_treated; i++){
+  for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end() && !collision_treated; i++){
     collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
   }
   
   if (collision_treated) return; // exit if collision was treated by a robot
   
   if(collisionCallback) { // calling user defined collision callback if it exists
-    collisionCallback(data,o1,o2);
+    collisionCallback(odeHandle, data,o1,o2);
   }else{                  // using standard collision treatment
 
     int i,n;  
@@ -355,7 +384,7 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
 	  contact[i].surface.slip2 = 0.005;
 	  contact[i].surface.soft_erp = 1;
 	  contact[i].surface.soft_cfm = 0.00001;
-	  dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
+	  dJointID c = dJointCreateContact (odeHandle.world,odeHandle.jointGroup,&contact[i]);
 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
 	}
     }
@@ -483,7 +512,7 @@ void cmd_end_input(){
 void initViewedRobot() {
   // setting the robot for view
   if (!viewedRobot) {
-    AgentList::iterator i=agents.begin();
+    AgentList::iterator i=globalData.agents.begin();
     viewedRobot=(*i)->getRobot();
   }
 }
@@ -493,13 +522,13 @@ void usercommand_handler(int key) {
   switch (key) {
   case ' ': // key 32 (space) is for switching between the robots
     initViewedRobot();
-    for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+    for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
       if (viewedRobot==(*i)->getRobot()) { // our current agent is found
-	if (i!=agents.end()-1) {
+	if (i!=globalData.agents.end()-1) {
 	  viewedRobot=(*(i+1))->getRobot(); // take the next robot
 	}
 	else {
-	  AgentList::iterator j=agents.begin();
+	  AgentList::iterator j=globalData.agents.begin();
 	  viewedRobot=(*j)->getRobot();
 	}
 	break;
@@ -553,7 +582,7 @@ void usercommand_handler(int key) {
     }
     break;
   default: // now call the user command
-    if (commandFunction) commandFunction(key);
+    if (commandFunction) commandFunction(globalData, key);
     break;
   }
 }
