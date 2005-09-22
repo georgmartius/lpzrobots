@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-09-13 13:19:57  martius
+ *   Revision 1.10  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.9  2005/09/13 13:19:57  martius
  *   no texture
  *
  *   Revision 1.8  2005/08/02 14:09:06  fhesse
@@ -67,8 +72,8 @@ class Playground : public AbstractObstacle {
 
  public:
   
-  Playground(dWorldID w, dSpaceID s, double factorxy = 1):
-    AbstractObstacle::AbstractObstacle(w, s){
+  Playground(const OdeHandle& odehandle, double factorxy = 1):
+    AbstractObstacle::AbstractObstacle(odehandle){
 
     base_x=0.0;
     base_y=0.0;

@@ -61,7 +61,7 @@ public:
    *@author Marcel Kretschmann
    *@version beta
    **/ 
-  Sphererobot ( const ODEHandle& odeHandle, 
+  Sphererobot ( const OdeHandle& odeHandle, 
 		const SphererobotConf& conf );
 	
   /**
@@ -111,6 +111,11 @@ public:
    *@version beta
    **/
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData);
 	
   /**
    *Writes the sensor values to an array in the memory.

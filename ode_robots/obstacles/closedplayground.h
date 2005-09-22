@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-07-21 12:01:54  robot8
+ *   Revision 1.2  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.1  2005/07/21 12:01:54  robot8
  *   adding a new obstacle, which is similar to playground, but closed to all directions
  *
  *   Revision 1.6  2005/07/18 14:52:33  martius
@@ -60,8 +65,8 @@ class ClosedPlayground : public AbstractObstacle {
 
  public:
   
-  ClosedPlayground(dWorldID w, dSpaceID s):
-    AbstractObstacle::AbstractObstacle(w, s){
+  ClosedPlayground(const OdeHandle& odehandle):
+    AbstractObstacle::AbstractObstacle(odehandle){
 
     base_x=0.0;
     base_y=0.0;

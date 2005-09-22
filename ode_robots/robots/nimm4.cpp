@@ -7,9 +7,9 @@
 #include "nimm4.h"
 
 
-Nimm4::Nimm4(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, 
+Nimm4::Nimm4(const OdeHandle& odeHandle, double size/*=1.0*/, 
 	     double force /*=3*/, double speed/*=15*/, bool sphereWheels /*=true*/):
-  AbstractRobot::AbstractRobot(w, s, c, "Nimm4"){ 
+  AbstractRobot::AbstractRobot(odeHandle, "Nimm4"){ 
 
   created=false;
 
@@ -156,6 +156,7 @@ void Nimm4::mycallback(void *data, dGeomID o1, dGeomID o2){
   }
 }
 
+void Nimm4::doInternalStuff(const GlobalData& global){}
 bool Nimm4::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   assert(created);
   //checks if one of the collision objects is part of the robot

@@ -6,9 +6,9 @@
 #include "formel1.h"
 
 
-Formel1::Formel1(dWorldID w, dSpaceID s, dJointGroupID c, double size/*=1.0*/, 
+Formel1::Formel1(const OdeHandle& odeHandle, double size/*=1.0*/, 
 	     double force /*=3*/, double speed/*=15*/, bool sphereWheels /*=true*/):
-  AbstractRobot::AbstractRobot(w, s, c){ 
+  AbstractRobot::AbstractRobot(odeHandle){ 
 
   created=false;
 
@@ -141,6 +141,7 @@ void Formel1::mycallback(void *data, dGeomID o1, dGeomID o2){
   }
 }
 
+void Formel1::doInternalStuff(const GlobalData& global){}
 bool Formel1::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   //checks if one of the collision objects is part of the robot
   if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space){

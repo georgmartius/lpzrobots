@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-09-13 13:19:32  martius
+ *   Revision 1.5  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.4  2005/09/13 13:19:32  martius
  *   if image not found handled graciously
  *
  *   Revision 1.3  2005/09/12 14:32:08  martius
@@ -83,8 +88,8 @@ class Terrainground : public AbstractObstacle {
 public:
   
   // Konstruktor
-  Terrainground(dWorldID w, dSpaceID s, double size, double height, char *filename) 
-    : AbstractObstacle::AbstractObstacle(w, s)
+  Terrainground(const OdeHandle& odehandle, double size, double height, char *filename) 
+    : AbstractObstacle::AbstractObstacle(odehandle)
   {
     this->height = height;
     this->size   = size;

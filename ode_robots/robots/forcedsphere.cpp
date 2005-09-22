@@ -23,9 +23,9 @@ Matrix odeRto3x3RotationMatrix ( const double R[12] ) {
 }
 
 
-Forcedsphere::Forcedsphere(dWorldID w, dSpaceID s, dJointGroupID c, double radius /*=1*/, double max_force /*=1*/,
+Forcedsphere::Forcedsphere(const OdeHandle& odeHandle, double radius /*=1*/, double max_force /*=1*/,
 			   double max_linSpeed /*=5*/, double max_angSpeed /*=5*/):
- AbstractRobot::AbstractRobot(w, s, c, "Forcedsphere"){ 
+ AbstractRobot::AbstractRobot(odeHandle, "Forcedsphere"){ 
 
   created=false;
 
@@ -142,6 +142,7 @@ void Forcedsphere::draw(){
  };
 
 
+void Forcedsphere::doInternalStuff(const GlobalData& global){}
 bool Forcedsphere::collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; /* ? */ }
 int Forcedsphere::getSegmentsPosition(vector<Position> &poslist){return 0; }
 

@@ -25,15 +25,15 @@ SphererobotArms* sphere ;
 bool StepRobot()
 {
 
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+    (*i)->step(global.odeConfig.noise);
   }
 
   return true;
 }
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -48,13 +48,13 @@ void start()
   dsSetGroundTexture(dsRegisterTexture("greenground.ppm"));
 
   // initialization
-  simulationConfig.noise=0.05;
+  global.odeConfig.noise=0.05;
   double height=2.2;
-  Playground* playground = new Playground(world, space);
+  Playground* playground = new Playground(odeHandle);
   playground->setGeometry(20.0, 0.2, 0.5+height);
   playground->setColor(34/255.0, 97/255.0, 32/255.0);
   playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  global.obstacles.push_back(playground);
   
   //Terrainground *terrainground = new Terrainground(world, space, 20.0, height, "terrains/dip128_flat.ppm");
   //  int tex = dsRegisterTexture("terrains/dip128_flat_texture.ppm", true);
@@ -63,10 +63,9 @@ void start()
   terrainground->setTextureID(tex);
 
   terrainground->setPosition(-10,-10,0.5);
-  obstacles.push_back(terrainground);
+  global.obstacles.push_back(terrainground);
   
-  configs.push_back(&simulationConfig);
-  Color col;
+    Color col;
   for(int i=0; i<3; i++){
     SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
     conf.diameter=1.5;
@@ -103,7 +102,7 @@ void start()
     AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
     Agent* agent = new Agent ( i==0 ? plotMode : NoPlot );
     agent->init ( controller , sphere , wiring );
-    agents.push_back ( agent );
+    global.agents.push_back ( agent );
     configs.push_back ( controller );
   }
 
@@ -111,18 +110,18 @@ void start()
   showParams(configs);
 }
 
-void end(){
-   for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+   for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
      delete (*i);
    }
-   obstacles.clear();
+   global.obstacles.clear();
    
-   for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+   for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
      delete (*i)->getRobot();
      delete (*i)->getController(); 
      delete (*i);
    }
-   agents.clear();
+   global.agents.clear();
    
 }
 
@@ -140,7 +139,7 @@ void command (int cmd)
 }
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 

@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-08-23 11:40:16  robot1
+ *   Revision 1.6  2005-09-22 12:24:38  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.5  2005/08/23 11:40:16  robot1
  *   advancedTV mode tested
  *
  *   Revision 1.4  2005/08/22 12:42:17  robot1
@@ -66,15 +71,15 @@ float camAngle[3] = {180.0f,0.0f,0.0f};
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
 {
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+    (*i)->step(global.odeConfig.noise);
   }
 
   return true;
 }
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -85,15 +90,15 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
+  global.odeConfig.noise=0.1;
   int chessTexture = dsRegisterTexture("chess.ppm");
   printf("Chess: %i\n", chessTexture);
-  Playground* playground = new Playground(world, space);
+  Playground* playground = new Playground(odeHandle);
   playground->setGeometry(100.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  global.obstacles.push_back(playground);
 
-  vehicle = new Formel1(world, space, contactgroup);
+  vehicle = new Formel1(odeHandle);
  // vehicle->setTextures(DS_WOOD, chessTexture); 
   vehicle->place(Position(robotPoint[0],robotPoint[1],robotPoint[2]));
   
@@ -107,33 +112,32 @@ void start()
   // Agent for connecting Controller, Robot and Wiring
   Agent* agent = new Agent(plotMode);
   agent->init(controller, vehicle, wiring);
-  agents.push_back(agent);
+  global.agents.push_back(agent);
 
   // Simulation-Configuration
-  configs.push_back(&simulationConfig);
-  configs.push_back(controller);
+    configs.push_back(controller);
   showParams(configs);
   
   
 }
 
 
-void end(){
-	for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+	for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
 
   changeParams(configs);
 }

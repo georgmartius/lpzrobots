@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-18 14:47:41  martius
+ *   Revision 1.3  2005-09-22 12:24:37  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.2  2005/07/18 14:47:41  martius
  *   world, space, contactgroup are not pointers anymore.
  *
  *   Revision 1.1  2005/07/06 16:03:37  martius
@@ -47,7 +52,7 @@ public:
    * @param s space in which robot should be created
    * @param c contactgroup for collision treatment
    */
-  ShortCircuit(dWorldID w, dSpaceID s, dJointGroupID c,int sensornumber, int motornumber);
+  ShortCircuit(const OdeHandle& odeHandle,int sensornumber, int motornumber);
 
   /// draws the robot
   virtual void draw();
@@ -83,6 +88,13 @@ public:
       @param pos vector of desired position (x,y,z)
    */
   virtual Position getPosition();
+
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+  */
+  virtual void doInternalStuff(const GlobalData& globalData) {}
+
 
   /** returns a vector with the positions of all segments of the robot
       @param vector of positions (of all robot segments) 

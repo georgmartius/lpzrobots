@@ -22,14 +22,14 @@ PlotMode plotMode = NoPlot;
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
 {
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+    (*i)->step(global.odeConfig.noise);
   }
   return true;
 }
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -42,16 +42,16 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.05;
-  simulationConfig.setParam("controlinterval",1);
+  global.odeConfig.noise=0.05;
+  global.odeConfig.setParam("controlinterval",1);
 
   
-   Playground* playground = new Playground(world, space);
+   Playground* playground = new Playground(odeHandle);
    playground->setGeometry(20.0, 0.2, 2.5);
    playground->setPosition(0,0,0); // playground positionieren und generieren
-   obstacles.push_back(playground);
+   global.obstacles.push_back(playground);
 
-//   Nimm2* vehicle = new Nimm2(world, space, contactgroup);
+//   Nimm2* vehicle = new Nimm2(odeHandle);
 //   Position p = {3,3,0};
 //   vehicle->place(p);
 //   AbstractController *controller = new InvertNChannelController(10);  
@@ -59,12 +59,11 @@ void start()
 //   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 //   Agent* agent = new Agent(NoPlot/*plotMode*/);
 //   agent->init(controller, vehicle, wiring);
-//   agents.push_back(agent);
+//   global.agents.push_back(agent);
 //   configs.push_back(controller);
 
 
-  configs.push_back(&simulationConfig);
-
+  
 
 
 
@@ -74,7 +73,7 @@ void start()
   Agent* agent;
 
   for (int i=0; i<3; i++){
-    hs = new HurlingSnake(world, space, contactgroup);
+    hs = new HurlingSnake(odeHandle);
     Color col;
     if (i==0) col=mkColor(2,2,0);
     if (i==1) col=mkColor(0,2,0);
@@ -93,7 +92,7 @@ void start()
     if (i==0) agent = new Agent(plotMode);
     else  agent = new Agent(NoPlot);
     agent->init(controller, hs, wiring);
-    agents.push_back(agent);
+    global.agents.push_back(agent);
     
     hs->setParam("factorForce",5);
     hs->setParam("frictionGround",0.3);
@@ -108,7 +107,7 @@ void start()
   }
   
 //   ///////////////////////
-//   hs = new HurlingSnake(world, space, contactgroup);
+//   hs = new HurlingSnake(odeHandle);
 //   Position p4 = {1,1,0.3};
 //   hs->place(p4);
 //   //AbstractController *controller2 = new InvertNChannelController(10);  
@@ -117,7 +116,7 @@ void start()
 //   wiring2 = new One2OneWiring(new ColorUniformNoise(0.1));
 //   agent2 = new Agent(plotMode);
 //   agent2->init(controller2, hs, wiring2);
-//   agents.push_back(agent2);
+//   global.agents.push_back(agent2);
 
 //   configs.push_back(controller2);
 //   configs.push_back(hs);
@@ -128,23 +127,23 @@ void start()
   showParams(configs);
 }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i)->getWiring();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 

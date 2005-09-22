@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-08-09 10:44:54  robot1
+ *   Revision 1.2  2005-09-22 12:24:37  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.1  2005/08/09 10:44:54  robot1
  *   first vehicle for formel1 simulation
  *
  *
@@ -37,7 +42,7 @@
 class Formel1 : public AbstractRobot{
 public:
   
-  Formel1(dWorldID w, dSpaceID s, dJointGroupID c, double size=1, double force=3, double speed=15, bool sphereWheels=true);
+  Formel1(const OdeHandle& odeHandle, double size=1, double force=3, double speed=15, bool sphereWheels=true);
 
   virtual ~Formel1(){};
 
@@ -89,6 +94,11 @@ public:
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData);
 
 protected:
 

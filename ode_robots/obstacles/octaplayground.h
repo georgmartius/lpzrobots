@@ -50,8 +50,8 @@ class OctaPlayground : public AbstractObstacle {
 
  public:
   
-  OctaPlayground(dWorldID w, dSpaceID s, int numberCorners=8):
-    AbstractObstacle::AbstractObstacle(w, s){
+  OctaPlayground(const OdeHandle& odehandle, int numberCorners=8):
+    AbstractObstacle::AbstractObstacle(odehandle){
 
     base_x=0.0;
     base_y=0.0;

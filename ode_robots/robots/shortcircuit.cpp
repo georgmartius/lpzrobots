@@ -7,8 +7,8 @@
 #include "shortcircuit.h"
 
 
-ShortCircuit::ShortCircuit(dWorldID w, dSpaceID s, dJointGroupID c, int sensornumber, int motornumber)
-  : AbstractRobot::AbstractRobot(w, s, c){
+ShortCircuit::ShortCircuit(const OdeHandle& odeHandle, int sensornumber, int motornumber)
+  : AbstractRobot::AbstractRobot(odeHandle){
 
   sensorno = sensornumber; 
   motorno  = motornumber;  

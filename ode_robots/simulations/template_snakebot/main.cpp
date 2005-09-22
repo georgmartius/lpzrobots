@@ -12,7 +12,8 @@
 
 
 #include "sinecontroller.h"
-#include "invertnchannelcontroller.h"
+//#include "invertnchannelcontroller.h"
+#include "invertmotornstep.h"
 
 using namespace university_of_leipzig::robots;
 
@@ -20,7 +21,7 @@ ConfigList configs;
 PlotMode plotMode = NoPlot;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -33,9 +34,9 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
+  global.odeConfig.noise=0.1;
   /*  
-  Playground* playground = new Playground(world, space);
+  Playground* playground = new Playground(odeHandle);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   */
@@ -96,27 +97,27 @@ void start()
 
 
     Vector3<dReal> v3(v(0), v(1), v(2));
-    //vl.insert(vl.end(), v3);
+    vl.insert(vl.end(), v3);
    
 
     p = cs.get_distant_point_parameter(p, 0.9);
   }
   
   // create a spiral/circle snake (or something)
-  /*
+  
     for(unsigned i = 0; i < 15; ++i) {
-    // vl.insert(vl.end(), Vector3<double>(i / 3 * cos(M_PI / 180 * i * 5), i / 3 * sin(M_PI / 180 * i * 5), i));
+     vl.insert(vl.end(), Vector3<double>(i / 3 * cos(M_PI / 180 * i * 5), i / 3 * sin(M_PI / 180 * i * 5), i));
     //vl.insert(vl.end(), Vector3<double>(3 * cos(M_PI / 180 * i * 25), 3 * sin(M_PI / 180 * i * 25), 0.5));
     }
-  */
+  
   
   // create a streched snake  
-  
+  /*
   for(unsigned i = 0; i < 5 ; ++i) {
     vl.insert(vl.end(), Vector3<double>(0.0, i * 0.7, 0.1));
     // vl.insert(vl.end(), Vector3<double>(i * 0.7, 0.0, 0.1));
   }
-    
+  */
 
 
   ODEHandle ode_handle(world , space , contactgroup);
@@ -135,10 +136,9 @@ void start()
 
 
   // initialization
-  //  simulationConfig.noise=0.1;
-  //  configs.push_back(&simulationConfig);
-
-  AbstractController *controller = new InvertNChannelController(10);
+  //  global.odeConfig.noise=0.1;
+  //  
+  AbstractController *controller = new InvertMotorNStep(10);
 
   // AbstractController *controller = new SineController();
   AbstractWiring* wiring     = new One2OneWiring(new ColorUniformNoise());
@@ -146,31 +146,30 @@ void start()
 
 
   agent->init(controller, p_robot, wiring);  
-  agents.push_back(agent);
+  global.agents.push_back(agent);
   
-  configs.push_back(&simulationConfig);
-  configs.push_back(controller);
+    configs.push_back(controller);
   showParams(configs);
 }
 
-void end(){
-   for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+   for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
      delete (*i);
    }
-   obstacles.clear();
+   global.obstacles.clear();
    
-   for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+   for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
      delete (*i)->getRobot();
      delete (*i)->getController(); 
      delete (*i);
    }
-   agents.clear();
+   global.agents.clear();
    
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 

@@ -16,9 +16,9 @@
  *@author Marcel Kretschmann
  *@version beta
  **/
-Schlange::Schlange ( int startRoboterID , const ODEHandle& odeHandle, 
+Schlange::Schlange ( int startRoboterID , const OdeHandle& odeHandle, 
 		     const SchlangenConf& conf ) 
-  : Roboter ( startRoboterID , odeHandle.world , odeHandle.space , odeHandle.jointGroup , 2*(conf.armAnzahl-1) )
+  : Roboter ( startRoboterID , odeHandle , 2*(conf.armAnzahl-1) )
 {
   name = (char *) malloc(20*sizeof(char));
   sprintf(name, "Schlange_%i", startRoboterID);
@@ -205,6 +205,7 @@ void Schlange::mycallback(void *data, dGeomID o1, dGeomID o2)
  *@author Marcel Kretschmann
  *@version beta
  **/
+void Schlange::doInternalStuff(const GlobalData& global){}
 bool Schlange::collisionCallback(void *data, dGeomID o1, dGeomID o2)
 {
   //checks if one of the collision objects is part of the robot

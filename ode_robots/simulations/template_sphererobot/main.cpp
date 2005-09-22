@@ -23,7 +23,7 @@ AbstractController *controller;
 SphererobotArms* sphere1;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -37,16 +37,15 @@ void start()
   dWorldSetERP(world, 0.9);
 
   // initialization
-  simulationConfig.setParam("noise",0.1);
-  simulationConfig.setParam("gravity",-10);
-  simulationConfig.setParam("controlinterval",1);
+  global.odeConfig.setParam("noise",0.1);
+  global.odeConfig.setParam("gravity",-10);
+  global.odeConfig.setParam("controlinterval",1);
 
-  configs.push_back(&simulationConfig);
-  
-  Playground* playground = new Playground(world, space);
+    
+  Playground* playground = new Playground(odeHandle);
   playground->setGeometry(40, 0.2, 1);
   playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  global.obstacles.push_back(playground);
     
   //****************
   SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
@@ -62,28 +61,28 @@ void start()
   One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
   Agent* agent = new Agent ( plotMode );
   agent->init ( controller , sphere1 , wiring );
-  agents.push_back ( agent );
+  global.agents.push_back ( agent );
   configs.push_back ( controller );
       
   showParams(configs);
 }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
  
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 

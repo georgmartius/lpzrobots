@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-09-01 09:45:56  robot4
+ *   Revision 1.2  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.1  2005/09/01 09:45:56  robot4
  *   sphere with external force control
  *
  ***************************************************************************/
@@ -36,7 +41,7 @@
 class Forcedsphere : public AbstractRobot{
 public:
   
-  Forcedsphere(dWorldID w, dSpaceID s, dJointGroupID c, double radius=1, double max_force=1, 
+  Forcedsphere(const OdeHandle& odeHandle, double radius=1, double max_force=1, 
 	       double max_linSpeed=10, double max_angSpeed=10);
 
   virtual ~Forcedsphere(){};
@@ -89,6 +94,11 @@ public:
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData);
 
   /** sets the textures used for body and wheels
   */

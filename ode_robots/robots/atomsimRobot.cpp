@@ -16,15 +16,12 @@ using namespace std;
  *@author
  *@version
  **/
-atomsimRobot::atomsimRobot ( int* start_roboterIDzaehler , dWorldID start_welt , dSpaceID start_raum , dJointGroupID start_contactgroup , vector<atomsimAtom*>* start_atomsammlung , atomsimAtom* start_ursprungsatom , int start_maxatomanzahl , double start_rekombinationstrennverhaeltniss )
-:Roboter::Roboter ( (*start_roboterIDzaehler) , start_welt , start_raum , start_contactgroup , 0 )
+atomsimRobot::atomsimRobot ( int* start_roboterIDzaehler , const OdeHandle& odeHandle , vector<atomsimAtom*>* start_atomsammlung , atomsimAtom* start_ursprungsatom , int start_maxatomanzahl , double start_rekombinationstrennverhaeltniss )
+  : Roboter ( (*start_roboterIDzaehler) , odeHandle , 0 ) , odeHandle(odeHandle)
 {
 	roboterIDzaehler = start_roboterIDzaehler;
 	roboterID = (*roboterIDzaehler)++;
-	
-	welt = start_welt;
-	raum = start_raum;
-	
+		
 	atomsammlung = start_atomsammlung;
 	
 	atomanzahl = 1;
@@ -549,14 +546,14 @@ atomsimRobot* atomsimRobot::rekursivKopieren ( atomsimAtom* a , bool firstcall )
 	neueratomsimRobot = NULL;
 	if ( firstcall == true )
 	{
-		neueratomsimRobot = new atomsimRobot ( roboterIDzaehler , welt , raum , contactgroup , atomsammlung , new atomsimAtom ( (--(*roboterIDzaehler))++ , a->getAtomIDzaehler () , welt , raum , a->getX () ,a->getY () , a->getZ () , a->getRadius () , a->getHuellenradius () , a->getMasse (), a->getBindungsstaerke () , a->getAbspaltstaerke () ,  a->getMaxatombindungszahl () , a->getBindungsblockdauer () , a->getMaxmotorkraft () , a->getMotorgeschwindigkeitsfaktor () , a->getColorR (), a->getColorG () , a->getColorB () ) , maxatomanzahl , getRekombinationsTrennverhaeltniss () );
+		neueratomsimRobot = new atomsimRobot ( roboterIDzaehler , odeHandle , atomsammlung , new atomsimAtom ( (--(*roboterIDzaehler))++ , a->getAtomIDzaehler () , world , space , a->getX () ,a->getY () , a->getZ () , a->getRadius () , a->getHuellenradius () , a->getMasse (), a->getBindungsstaerke () , a->getAbspaltstaerke () ,  a->getMaxatombindungszahl () , a->getBindungsblockdauer () , a->getMaxmotorkraft () , a->getMotorgeschwindigkeitsfaktor () , a->getColorR (), a->getColorG () , a->getColorB () ) , maxatomanzahl , getRekombinationsTrennverhaeltniss () );
 		
 	}
 	
 	for ( int n = 0; n < a->getAnzahlAtome (); n++ )
 	{
 		//Kopiert ein Atom welches an der Stelle n an a haengt
-		atomsammlung->push_back ( new atomsimAtom (  0 , (*a->getAtomAt (n)).getAtomIDzaehler () , welt , raum , (*a->getAtomAt (n)).getX () ,(*a->getAtomAt (n)).getY () , (*a->getAtomAt (n)).getZ () , (*a->getAtomAt (n)).getRadius () , (*a->getAtomAt (n)).getHuellenradius () , (*a->getAtomAt (n)).getMasse (), (*a->getAtomAt (n)).getBindungsstaerke () , (*a->getAtomAt (n)).getAbspaltstaerke (), (*a->getAtomAt (n)).getMaxatombindungszahl () , (*a->getAtomAt (n)).getBindungsblockdauer () , (*a->getAtomAt (n)).getMaxmotorkraft () , (*a->getAtomAt (n)).getMotorgeschwindigkeitsfaktor () , (*a->getAtomAt (n)).getColorR (), (*a->getAtomAt (n)).getColorG () , (*a->getAtomAt (n)).getColorB () ) );
+		atomsammlung->push_back ( new atomsimAtom (  0 , (*a->getAtomAt (n)).getAtomIDzaehler () , world , space , (*a->getAtomAt (n)).getX () ,(*a->getAtomAt (n)).getY () , (*a->getAtomAt (n)).getZ () , (*a->getAtomAt (n)).getRadius () , (*a->getAtomAt (n)).getHuellenradius () , (*a->getAtomAt (n)).getMasse (), (*a->getAtomAt (n)).getBindungsstaerke () , (*a->getAtomAt (n)).getAbspaltstaerke (), (*a->getAtomAt (n)).getMaxatombindungszahl () , (*a->getAtomAt (n)).getBindungsblockdauer () , (*a->getAtomAt (n)).getMaxmotorkraft () , (*a->getAtomAt (n)).getMotorgeschwindigkeitsfaktor () , (*a->getAtomAt (n)).getColorR (), (*a->getAtomAt (n)).getColorG () , (*a->getAtomAt (n)).getColorB () ) );
 
 		(*atomsammlung)[ atomsammlung->size () - 2]->atombindung ( atomsammlung->back () , a->getAtomAt (n)->getKollisionsvektor1 () , a->getAtomAt (n)->getKollisionsvektor2 () );
 		rekursivKopieren ( a->getAtomAt ( n ) , false );

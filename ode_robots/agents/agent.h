@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-08-03 20:34:58  martius
+ *   Revision 1.7  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.6  2005/08/03 20:34:58  martius
  *   use if Inspectable interface
  *
  *   Revision 1.5  2005/07/26 17:01:47  martius
@@ -40,9 +45,13 @@
 #ifndef __AGENT_H
 #define __AGENT_H
 
-#include "abstractrobot.h"
-#include "abstractcontroller.h"
-#include "abstractwiring.h"
+#include <stdio.h>
+
+class AbstractRobot;
+class AbstractController;
+class AbstractWiring;
+
+#include "types.h"
 
 /// Plot mode for plot agent.
 enum PlotMode {NoPlot, GuiLogger, GuiLogger_File};

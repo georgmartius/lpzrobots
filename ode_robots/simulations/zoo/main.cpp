@@ -28,13 +28,13 @@ ConfigList configs;
 PlotMode plotMode = NoPlot;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
-  simulationConfig.setParam("gravity",-9.81); // do not use 'simulationConfig.gravity=0.0;', 
+  global.odeConfig.setParam("gravity",-9.81); // do not use 'global.odeConfig.gravity=0.0;', 
                                             // because world is already initialized and 
                                             // dWorldSetGravity will not be called when 
                                             // you only set the value  
@@ -53,28 +53,27 @@ void start()
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
-  simulationConfig.setParam("noise",0.1);
-  simulationConfig.setParam("drawinterval",1);
-  simulationConfig.setParam("controlinterval",1);
+  global.odeConfig.setParam("noise",0.1);
+  global.odeConfig.setParam("drawinterval",1);
+  global.odeConfig.setParam("controlinterval",1);
   // initialization
-  configs.push_back(&simulationConfig);
-
-  Playground* playground = new Playground(world, space);
+  
+  Playground* playground = new Playground(odeHandle);
   playground->setGeometry(25.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  global.obstacles.push_back(playground);
 
   Sphere* sphere;
   for (int i=-3; i<3; i++){
-    sphere = new Sphere(world, space);
+    sphere = new Sphere(odeHandle);
     sphere->setColor(184 / 255.0, 233 / 255.0, 237 / 255.0);
     sphere->setTexture(dust);
     sphere->setPosition(i*0.5-2,i*0.5,1.0); //positionieren und generieren
 
-    obstacles.push_back(sphere);
+    global.obstacles.push_back(sphere);
   }
 
-  ODEHandle odeHandle(world, space, contactgroup);
+  
 
   Agent* agent;
   AbstractWiring* wiring;
@@ -98,7 +97,7 @@ void start()
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   agent = new Agent( plotMode );
   agent->init(controller, snake, wiring);
-  agents.push_back(agent);
+  global.agents.push_back(agent);
   configs.push_back(controller);
   configs.push_back(snake);   
   snake->setParam("gamma",/*0.0000*/ 0.0);
@@ -121,7 +120,7 @@ void start()
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   agent = new Agent( NoPlot );
   agent->init(controller, snake, wiring);
-  agents.push_back(agent);
+  global.agents.push_back(agent);
   configs.push_back(controller);
   configs.push_back(snake);   
   snake->setParam("gamma",/*0.0000*/ 0.0);
@@ -130,7 +129,7 @@ void start()
 
   //******* N I M M  2 *********/
   for(int r=0; r < 3; r++) {
-    robot = new Nimm2(world, space, contactgroup,1.6);
+    robot = new Nimm2(odeHandle,1.6);
     Position p((r-1)*5,5,0);
     robot->place(p);
     ((Nimm2*)robot)->setTextures(DS_WOOD, chessTexture);
@@ -139,12 +138,12 @@ void start()
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new Agent( NoPlot );
     agent->init(controller, robot, wiring);
-    agents.push_back(agent);        
+    global.agents.push_back(agent);        
   }
 
   //******* N I M M  4 *********/
   for(int r=0; r < 1; r++) {
-    robot = new Nimm4(world, space, contactgroup);
+    robot = new Nimm4(odeHandle);
     Position p((r-1)*5,-3,0);
     robot->place(p);
     ((Nimm4*)robot)->setTextures(DS_WOOD, chessTexture);
@@ -154,13 +153,13 @@ void start()
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new Agent( NoPlot );
     agent->init(controller, robot, wiring);
-    agents.push_back(agent);        
+    global.agents.push_back(agent);        
   }
 
   //****** H U R L I N G **********/
   for(int r=0; r < 2; r++) {
     HurlingSnake* snake;
-    snake = new HurlingSnake(world, space, contactgroup);
+    snake = new HurlingSnake(odeHandle);
     Color c;    
     if (r==0) c=Color(0.8, 0.8, 0);
     if (r==1) c=Color(0,   0.8, 0);
@@ -178,27 +177,27 @@ void start()
     agent = new Agent( NoPlot );
     agent->init(controller, snake, wiring);
     configs.push_back(controller);
-    agents.push_back(agent);     
+    global.agents.push_back(agent);     
   }
 
 }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 

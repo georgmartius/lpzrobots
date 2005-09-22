@@ -14,9 +14,8 @@
 ConfigList configs;
 PlotMode plotMode = NoPlot;
 
-
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -29,16 +28,16 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
+  global.odeConfig.noise=0.1;
   int chessTexture = dsRegisterTexture("chess.ppm");
   printf("Chess: %i", chessTexture);
   
-  Playground* playground = new Playground(world, space);
+  Playground* playground = new Playground(odeHandle);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  global.obstacles.push_back(playground);
 
-  Nimm2* vehicle = new Nimm2(world, space, contactgroup);
+  Nimm2* vehicle = new Nimm2(odeHandle);
   vehicle->setTextures(DS_WOOD, chessTexture); 
   vehicle->place(Position(0,0,0));
   AbstractController *controller = new InvertNChannelController(10);  
@@ -46,30 +45,29 @@ void start()
   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   Agent* agent = new Agent(plotMode);
   agent->init(controller, vehicle, wiring);
-  agents.push_back(agent);
+  global.agents.push_back(agent);
 
-  configs.push_back(&simulationConfig);
-  configs.push_back(controller);
-  showParams(configs);
+  global.configs.push_back(controller);
+  showParams(global.configs);
 }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
-  changeParams(configs);
+void config(GlobalData& global){
+  changeParams(global.configs);
 }
 
 void printUsage(const char* progname){

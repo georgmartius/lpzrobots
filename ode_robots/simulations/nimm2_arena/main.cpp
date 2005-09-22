@@ -19,14 +19,14 @@ PlotMode plotMode = NoPlot;
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
 {
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+    (*i)->step(global.odeConfig.noise);
   }
   return true;
 }
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -39,19 +39,18 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
-  configs.push_back(&simulationConfig);
-  
+  global.odeConfig.noise=0.1;
+    
   Playground* playground = new Playground(world, space, /*factorxy=1*/ -4);
   playground->setGeometry(8.0, 0.09, 0.25);
   playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  global.obstacles.push_back(playground);
   
 
 //   OctaPlayground* octaplayground = new OctaPlayground(world, space, 330);
 //   octaplayground->setGeometry(6.5, 0.09, 0.25);
 //   octaplayground->setPosition(0,0,0); // playground positionieren und generieren
-//   obstacles.push_back(octaplayground);
+//   global.obstacles.push_back(octaplayground);
 
   Nimm2* nimm2;
   AbstractController* controller;
@@ -62,8 +61,8 @@ void start()
 
     for (int j=-1; j<2; j++){ 
       for (int i=-4; i<5; i++){
-      //      nimm2 = new Nimm2(world, space, contactgroup);
-      nimm2 = new Nimm2(world, space, contactgroup,
+      //      nimm2 = new Nimm2(odeHandle);
+      nimm2 = new Nimm2(odeHandle,
 			/*size=1.0*/  1.0, 
 			/*force=0.1*/ 0.5,
 			/*speed=10*/ 20,
@@ -86,7 +85,7 @@ void start()
 	agent = new Agent(NoPlot);
       }
       agent->init(controller, nimm2, wiring);
-      agents.push_back(agent);
+      global.agents.push_back(agent);
 
       controller->setParam("factorB",0);
     }
@@ -95,22 +94,22 @@ void start()
   showParams(configs);
 }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 

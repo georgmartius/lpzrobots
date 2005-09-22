@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-08-31 11:15:59  martius
+ *   Revision 1.9  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.8  2005/08/31 11:15:59  martius
  *   *** empty log message ***
  *
  *   Revision 1.7  2005/08/03 20:34:58  martius
@@ -53,7 +58,9 @@
 #include "printInternals.h"
 #include "printInternals.cpp" // TODO: avoid this kind of hack
 
-
+#include "abstractrobot.h"
+#include "abstractcontroller.h"
+#include "abstractwiring.h"
 
   /// constructor
 Agent::Agent(PlotMode plotmode/*=GuiLogger*/, PlotSensors plotsensors /*= Controller*/){

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-08-31 17:18:15  fhesse
+ *   Revision 1.7  2005-09-22 12:24:37  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.6  2005/08/31 17:18:15  fhesse
  *   setTextures added, Mass is now sphere (not box anymore)
  *
  *   Revision 1.5  2005/08/29 06:41:22  martius
@@ -56,8 +61,8 @@
  * @param s space in which robot should be created
  * @param c contactgroup for collision treatment
  */
-HurlingSnake::HurlingSnake(dWorldID w, dSpaceID s, dJointGroupID c):
-  AbstractRobot(w, s, c){
+HurlingSnake::HurlingSnake(const OdeHandle& odeHandle):
+  AbstractRobot(odeHandle){
 
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile$", 
@@ -127,25 +132,10 @@ void HurlingSnake::place(Position pos , Color *c /*= 0*/){
 }
 
 
-// bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-
-//   if ( isGeomInObjectList(object, NUM, o1)  ||  isGeomInObjectList(object, NUM, o1)  ){
-//     int n;
-//     dContact contact[10];
-//     n=dCollide (o1,o2,10,&contact->geom,sizeof(dContact)); 
-//     for( int i=0; i<n; i++){
-//       contact[i].surface.mode = 0;
-//       contact[i].surface.mu = frictionGround;
-//       contact[i].surface.mu2 = 0;
-      
-//       dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
-//       dJointAttach (c,dGeomGetBody(contact[i].geom.g1),dGeomGetBody(contact[i].geom.g2));
-//       //printf("contact created\n");
-//     }
-//     return true;
-//   }
-//   return false;
-// }
+void HurlingSnake::doInternalStuff(const GlobalData& global){
+  // mycallback is called for internal collisions!
+  dSpaceCollide(snake_space, this, mycallback);
+}
 
 void HurlingSnake::mycallback(void *data, dGeomID o1, dGeomID o2){
   // internal collisions
@@ -169,12 +159,9 @@ void HurlingSnake::mycallback(void *data, dGeomID o1, dGeomID o2){
     dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
   }
 }
-
 bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   //checks if one of the collision objects is part of the robot
   if( o1 == (dGeomID)snake_space || o2 == (dGeomID)snake_space){
-    // mycallback is called for internal collisions!
-    dSpaceCollide(snake_space, this, mycallback);
 
     // the rest is for collisions of some snake elements with the rest of the world
     int i,n;  

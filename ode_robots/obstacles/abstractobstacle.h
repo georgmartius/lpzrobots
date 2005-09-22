@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-09-13 13:20:12  martius
+ *   Revision 1.7  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.6  2005/09/13 13:20:12  martius
  *   initialised color
  *
  *   Revision 1.5  2005/08/29 06:32:25  martius
@@ -39,6 +44,8 @@
 #include <abstractrobot.h>
 #include <ode/ode.h>
 
+#include "odehandle.h"
+#include "color.h"
 
 /**
  *  Abstract class (interface) for obstacles
@@ -51,9 +58,9 @@ class AbstractObstacle{
    * @param w world in which obstacle should be created
    * @param s space in which obstacle should be created
    */
-  AbstractObstacle(dWorldID w, dSpaceID s): color(0.5,0.5,0.5) {
-    world=w;
-    space=s;
+  AbstractObstacle(const OdeHandle& odehandle): color(0.5,0.5,0.5) {
+    world=odehandle.world;
+    space=odehandle.space;
   };
 
   virtual ~AbstractObstacle(){}

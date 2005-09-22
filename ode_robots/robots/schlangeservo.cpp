@@ -2,7 +2,7 @@
 #include "simulation.h"
 #include "schlangeservo.h"
 
-SchlangeServo::SchlangeServo ( const ODEHandle& odeHandle, 
+SchlangeServo::SchlangeServo ( const OdeHandle& odeHandle, 
 			       const SchlangeServoConf& conf, const char* n) 
   : AbstractRobot(odeHandle, n) 
 {
@@ -58,6 +58,8 @@ void SchlangeServo::draw()
   }
 }
 
+
+void SchlangeServo::doInternalStuff(const GlobalData& global){}
 
 /**
  *This is the collision handling function for snake robots.

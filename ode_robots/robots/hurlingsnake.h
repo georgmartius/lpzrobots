@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-08-31 17:18:15  fhesse
+ *   Revision 1.4  2005-09-22 12:24:37  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.3  2005/08/31 17:18:15  fhesse
  *   setTextures added, Mass is now sphere (not box anymore)
  *
  *   Revision 1.2  2005/07/26 17:04:21  martius
@@ -53,7 +58,7 @@ public:
    * @param s space in which robot should be created
    * @param c contactgroup for collision treatment
    */
-  HurlingSnake(dWorldID w, dSpaceID s, dJointGroupID c);
+  HurlingSnake(const OdeHandle& odeHandle);
 
   /** sets the textures used for body and wheels
    */
@@ -74,6 +79,11 @@ public:
    *  else false (collision is passed to other objects and (if not treated) to the default routine).
    */
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData);
   
 
   /** returns actual sensorvalues

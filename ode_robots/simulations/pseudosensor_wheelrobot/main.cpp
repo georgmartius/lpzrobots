@@ -19,17 +19,8 @@
 ConfigList configs;
 PlotMode plotMode = NoPlot;
 
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
-
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -44,14 +35,14 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
+  global.odeConfig.noise=0.1;
 
-  Playground* playground = new Playground(world, space);
+  Playground* playground = new Playground(odeHandle);
   playground->setGeometry(20.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren 
-  obstacles.push_back(playground);
+  global.obstacles.push_back(playground);
 
-  AbstractRobot* vehicle = new Nimm4(world, space, contactgroup,1,3,15);
+  AbstractRobot* vehicle = new Nimm4(odeHandle,1,3,15);
 
   vehicle->place(Position(0,0,0));
   AbstractController *controller = new InvertMotorNStep(10);   
@@ -72,30 +63,29 @@ void start()
   //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   Agent* agent = new Agent(plotMode);
   agent->init(controller, vehicle, wiring);
-  agents.push_back(agent);
+  global.agents.push_back(agent);
   
-  configs.push_back(&simulationConfig);
-  configs.push_back(controller);
+    configs.push_back(controller);
   showParams(configs);
 
 }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 

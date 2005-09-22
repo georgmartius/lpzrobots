@@ -15,7 +15,7 @@
  *@author Marcel Kretschmann
  *@version beta
  **/
-SchlangeForce::SchlangeForce ( int startRoboterID , const ODEHandle& odeHandle, 
+SchlangeForce::SchlangeForce ( int startRoboterID , const OdeHandle& odeHandle, 
 			       const SchlangenConf& conf ) 
   :Schlange ( startRoboterID , odeHandle, conf ) 
 {
@@ -47,7 +47,8 @@ SchlangeForce::~SchlangeForce()
  *@author Marcel Kretschmann
  *@version beta
  **/
- bool SchlangeForce::collisionCallback(void *data, dGeomID o1, dGeomID o2)
+ void SchlangeForce::doInternalStuff(const GlobalData& global){}
+bool SchlangeForce::collisionCallback(void *data, dGeomID o1, dGeomID o2)
 {
 	//checks if one of the collision objects is part of the robot
 	bool tmp_kollisionsbeteiligung = false;

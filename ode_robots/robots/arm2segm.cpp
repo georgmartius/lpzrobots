@@ -6,8 +6,8 @@
 #include "arm2segm.h"
 
 
-Arm2Segm::Arm2Segm(dWorldID w, dSpaceID s, dJointGroupID c):
-  AbstractRobot::AbstractRobot(w, s, c){ 
+Arm2Segm::Arm2Segm(const OdeHandle& odeHandle):
+  AbstractRobot::AbstractRobot(odeHandle){ 
 
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile$",
@@ -183,6 +183,7 @@ void Arm2Segm::mycallback(void *data, dGeomID o1, dGeomID o2){
   }
 }
 
+void Arm2Segm::doInternalStuff(const GlobalData& globalData){}
 bool Arm2Segm::collisionCallback(void *data, dGeomID o1, dGeomID o2){
    
  //checks if one of the collision objects is part of the robot

@@ -116,7 +116,7 @@ class IComponent
   virtual const IComponent* does_contain_geom(const dGeomID geom_id,
 			        	      bool b_recursive) const = 0;
 
-  virtual bool collision_callback(ODEHandle *p_ode_handle, 
+  virtual bool collision_callback(OdeHandle *p_ode_handle, 
 			          dGeomID geom_id_0, 
 				  dGeomID geom_id_1) const = 0;
 };
@@ -151,7 +151,7 @@ class SimplePhysicalComponent : public IComponent {
   const IComponent* does_contain_geom(const dGeomID _geom_id, 
 				      bool b_recursive) const;
 
-  bool collision_callback(ODEHandle *p_ode_handle, 
+  bool collision_callback(OdeHandle *p_ode_handle, 
 			  dGeomID geom_id_0, dGeomID geom_id_1) const;
 
 
@@ -223,7 +223,7 @@ class UniversalMotorComponent : public AbstractMotorComponent {
 
   void draw() const;
 
-  bool collision_callback(ODEHandle *p_ode_handle, 
+  bool collision_callback(OdeHandle *p_ode_handle, 
 			  dGeomID geom_id_0, dGeomID geom_id_1) const;
 
   const IComponent* does_contain_geom(const dGeomID geom_id, 
@@ -239,7 +239,7 @@ class UniversalMotorComponent : public AbstractMotorComponent {
 
 class RobotArmDescription {
  public:
-  ODEHandle *p_ode_handle;
+  OdeHandle *p_ode_handle;
 
   dReal segment_radius;
   dReal segment_mass;
@@ -266,7 +266,7 @@ class CCURobotArmComponent : public IComponent
 {
  protected:
   ComponentContainer component_container;
-  ODEHandle ode_handle;
+  OdeHandle ode_handle;
 
   dJointGroupID joint_group_id;
 
@@ -300,7 +300,7 @@ class CCURobotArmComponent : public IComponent
 				      bool b_recursive) const;
 
   void draw() const;
-  bool collision_callback(ODEHandle *p_ode_handle, 
+  bool collision_callback(OdeHandle *p_ode_handle, 
 			  dGeomID geom_id_0, 
 			  dGeomID geom_id_1) const;
 
@@ -316,7 +316,7 @@ class PlaneComponentDescription {
  public:
   PlaneComponentDescription();
 
-  ODEHandle      *p_ode_handle;
+  OdeHandle      *p_ode_handle;
   Vector3<dReal> v3_normal;
   dReal          d;
 };

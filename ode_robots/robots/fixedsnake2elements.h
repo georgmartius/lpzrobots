@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-18 14:47:41  martius
+ *   Revision 1.3  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.2  2005/07/18 14:47:41  martius
  *   world, space, contactgroup are not pointers anymore.
  *
  *   Revision 1.1  2005/06/27 13:15:58  fhesse
@@ -46,7 +51,7 @@ class FixedSnake2Elements : public AbstractRobot{
 
 public:
   
-  FixedSnake2Elements(dWorldID w, dSpaceID s, dJointGroupID c);
+  FixedSnake2Elements(const OdeHandle& odeHandle);
 
   virtual ~FixedSnake2Elements(){};
 
@@ -66,6 +71,11 @@ public:
    *  else false (collision is passed to other objects and (if not treated) to the default routine).
    */
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData);
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 

@@ -48,7 +48,7 @@ private:
   int texture;
 
 public:
-  SchlangeServo ( const ODEHandle& odeHandle, 
+  SchlangeServo ( const OdeHandle& odeHandle, 
 		  const SchlangeServoConf& conf, const char* name);
 
   static SchlangeServoConf getDefaultConf(){
@@ -70,8 +70,7 @@ public:
    **/
   virtual ~SchlangeServo();
 	
-  
-
+ 
   /**sets the robot to position pos, sets color to c, and creates robot if necessary
    *Only sets the color, there is no special place operation for this unspecified robot.
    *@param pos new position of the robot
@@ -94,6 +93,7 @@ public:
    **/
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);	
 
+  virtual void doInternalStuff(const GlobalData& global);
 	
   /**
    *Reads the actual motor commands from an array, 

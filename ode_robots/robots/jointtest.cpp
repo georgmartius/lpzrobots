@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-07-18 14:47:41  martius
+ *   Revision 1.6  2005-09-22 12:24:37  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.5  2005/07/18 14:47:41  martius
  *   world, space, contactgroup are not pointers anymore.
  *
  *   Revision 1.4  2005/06/28 10:12:14  fhesse
@@ -47,8 +52,8 @@
 #include "jointtest.h"
 #include <iostream>
 
-JointTest::JointTest(dWorldID w, dSpaceID s, dJointGroupID c):
-  AbstractRobot::AbstractRobot(w, s, c){
+JointTest::JointTest(const OdeHandle& odeHandle):
+  AbstractRobot::AbstractRobot(odeHandle){
 
   created=false;
 
@@ -209,6 +214,7 @@ void JointTest::place(Position pos, Color *c /*= 0*/){
    *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
    *  else false (collision is passed to other objects and (if not treated) to the default routine).
    */
+void JointTest::doInternalStuff(const GlobalData& global){}
 bool JointTest::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 
     for ( int n = 0; n < (segmentsno-1); n++ )

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-31 22:30:56  martius
+ *   Revision 1.4  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.3  2005/07/31 22:30:56  martius
  *   textures
  *
  *   Revision 1.2  2005/07/18 14:52:33  martius
@@ -55,8 +60,8 @@ class Sphere : public AbstractObstacle{
 
  public:
   
-  Sphere(dWorldID w, dSpaceID s):
-    AbstractObstacle::AbstractObstacle(w, s){
+  Sphere(const OdeHandle& odehandle):
+    AbstractObstacle::AbstractObstacle(odehandle){
 
     base_x=0.0;
     base_y=0.0;

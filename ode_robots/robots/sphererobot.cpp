@@ -38,7 +38,7 @@ Matrix odeRto3x3RotationMatrix ( const double R[12] ) {
  *@author Marcel Kretschmann
  *@version beta
  **/
-Sphererobot::Sphererobot ( const ODEHandle& odeHandle, 
+Sphererobot::Sphererobot ( const OdeHandle& odeHandle, 
 			   const SphererobotConf& conf )
   : AbstractRobot ( odeHandle, "Sphere_Robot" )
 {
@@ -291,6 +291,7 @@ void Sphererobot::place (Position pos, Color *c)
  *@author Marcel Kretschmann
  *@version beta
  **/
+void Sphererobot::doInternalStuff(const GlobalData& global){}
 bool Sphererobot::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
   //checks if both of the collision objects are part of the robot
   if( o1 == (dGeomID)sphererobot_space || o2 == (dGeomID)sphererobot_space) {

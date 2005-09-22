@@ -16,17 +16,8 @@
 ConfigList configs;
 PlotMode plotMode = NoPlot;
 
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
-
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -39,17 +30,16 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
-  configs.push_back(&simulationConfig);
-  
-  Playground* playground = new Playground(world, space);
+  global.odeConfig.noise=0.1;
+    
+  Playground* playground = new Playground(odeHandle);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+  global.obstacles.push_back(playground);
     
   //****************
   SchlangenConf conf = Schlange::getStandartConf();  
-  Schlange* schlange1 = new Schlange ( 1 , ODEHandle(world , space , contactgroup), conf);
+  Schlange* schlange1 = new Schlange ( 1 , odeHandle, conf);
   Color col(0,0.5,0.8);
   schlange1->place(Position(0,0,0),&col);
   AbstractController *controller = new InvertNChannelController(10);  
@@ -57,7 +47,7 @@ void start()
   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
   Agent* agent = new Agent(plotMode);
   agent->init(controller, schlange1, wiring);
-  agents.push_back(agent);
+  global.agents.push_back(agent);
   configs.push_back(controller);
   
   /*
@@ -71,29 +61,29 @@ void start()
   One2OneWiring* wiring2 = new One2OneWiring();
   Agent* agent2 = new Agent(new ColorUniformNoise(),NoPlot);
   agent2->init(controller2, schlange2, wiring2);
-  agents.push_back(agent2);
+  global.agents.push_back(agent2);
   configs.push_back(controller2);
   */
     
   showParams(configs);
 }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 

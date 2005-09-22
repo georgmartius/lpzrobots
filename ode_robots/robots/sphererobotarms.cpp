@@ -79,7 +79,7 @@ void yrot ( double rotR[12], const double R[12])
  *@param startRoboterID ID, which should be managed clearly
 
  **/
-SphererobotArms::SphererobotArms ( const ODEHandle& odeHandle, 
+SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle, 
 				   const SphererobotArmsConf& conf, double transparency)
   : AbstractRobot ( odeHandle, "Sphere_Robot_Arms" )
 {
@@ -277,6 +277,7 @@ void SphererobotArms::place (Position pos, Color *c)
  *@param o2 second geometrical object, which has taken part in the collision
  *@return true if the collision was threated  by the robot, false if not
  **/
+void SphererobotArms::doInternalStuff(const GlobalData& global){}
 bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
   //checks if both of the collision objects are part of the robot
   if( o1 == (dGeomID)sphererobot_space || o2 == (dGeomID)sphererobot_space) {
@@ -285,7 +286,6 @@ bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
 
     int i,n;  
     const int N = 30;
-    int k=0;
     dContact contact[N];
     
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));

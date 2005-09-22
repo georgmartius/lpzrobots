@@ -55,7 +55,7 @@ public:
    *constructor
    *@param startRoboterID ID, which should be managed clearly
    **/ 
-  SphererobotArms ( const ODEHandle& odeHandle, 
+  SphererobotArms ( const OdeHandle& odeHandle, 
 		const SphererobotArmsConf& conf, double transparency=0.5 );
   
   virtual ~SphererobotArms();
@@ -92,6 +92,11 @@ public:
    *@return true if the collision was threated  by the robot, false if not
    **/
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData);
 	
   /**
    *Writes the sensor values to an array in the memory.

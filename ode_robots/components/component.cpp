@@ -118,7 +118,7 @@ does_contain_geom(const dGeomID geom_id, bool b_recursive) const
 }
 
 bool UniversalMotorComponent::
-collision_callback(ODEHandle *p_ode_handle, dGeomID geom_id_0, dGeomID geom_id_1) const
+collision_callback(OdeHandle *p_ode_handle, dGeomID geom_id_0, dGeomID geom_id_1) const
 {
   return false;
 }
@@ -230,7 +230,7 @@ get_sub_component(unsigned index) const
 // even though those simple components might define their own collission
 // handling routine too
 bool SimplePhysicalComponent::
-collision_callback(ODEHandle *p_ode_handle, dGeomID geom_id_0, dGeomID geom_id_1) const
+collision_callback(OdeHandle *p_ode_handle, dGeomID geom_id_0, dGeomID geom_id_1) const
 {
   return false;
 }
@@ -722,7 +722,7 @@ does_contain_geom(dGeomID geom_id, bool b_recursive) const
  * hmm.. there should be a mechanism for transferring collision handling
  * to sub components
  */
-bool CCURobotArmComponent::collision_callback(ODEHandle *p_ode_handle, 
+bool CCURobotArmComponent::collision_callback(OdeHandle *p_ode_handle, 
 					     dGeomID geom_id_0, 
 					     dGeomID geom_id_1) const
 {

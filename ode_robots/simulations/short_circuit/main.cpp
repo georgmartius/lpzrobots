@@ -26,17 +26,8 @@ double omega = 0.05;
 
 SineWhiteNoise* sineNoise;
 
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
-
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird 
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -51,12 +42,12 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.setParam("noise",0.03);
-  //  simulationConfig.setParam("realtimefactor",0);
-  //  simulationConfig.setParam("drawinterval", 500);
+  global.odeConfig.setParam("noise",0.03);
+  //  global.odeConfig.setParam("realtimefactor",0);
+  //  global.odeConfig.setParam("drawinterval", 500);
   
-  AbstractRobot* robot = new ShortCircuit(world, space, contactgroup, channels, channels);  
-  //  AbstractRobot* robot = new Nimm2(world, space, contactgroup);  
+  AbstractRobot* robot = new ShortCircuit(odeHandle, channels, channels);  
+  //  AbstractRobot* robot = new Nimm2(odeHandle);  
   AbstractController *controller = new InvertMotorNStep(10);  
   //AbstractController *controller = new InvertMotorSpace(10,1.2);  
   //  controller->setParam("adaptrate",0.0);
@@ -80,10 +71,9 @@ void start()
 //   c.blindMotorSets=0;
 //   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   agent->init(controller, robot, wiring);
-  agents.push_back(agent);
+  global.agents.push_back(agent);
   
-  configs.push_back(&simulationConfig);
-  configs.push_back(controller);
+    configs.push_back(controller);
   showParams(configs);
 }
 
@@ -92,26 +82,26 @@ void start()
 //   sineNoise->setOmega(0.1*cos(t/100000.0));
 // }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 
-void command(int key){
+void command(GlobalData& global, int key){
   switch (key){
   case '>': omega+=0.05;
     break;
@@ -133,7 +123,6 @@ void command(int key){
 void printUsage(const char* progname){
   printf("Usage: %s numchannels [-g] [-l]\n\tnumchannels\tnumber of channels\n\
 \t-g\t\tuse guilogger\n\t-l\t\tuse guilogger with logfile", progname);
-  exit(0);
 }
 
 int main (int argc, char **argv)

@@ -50,19 +50,8 @@ Position evoarray[16];
 
 ConfigList configs;
 
-
-
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
-
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
+void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -75,12 +64,12 @@ void start()
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  simulationConfig.noise=0.1;
+  global.odeConfig.noise=0.1;
   
-  ClosedPlayground* playground = new ClosedPlayground ( world, space );
+  ClosedPlayground* playground = new ClosedPlayground ( odeConfig );
   playground->setGeometry ( playgroundx , playgroundthickness , playgroundheight );
   playground->setPosition ( 0 , 0 , 0 ); // playground positionieren und generieren
-  obstacles.push_back ( playground );
+  global.obstacles.push_back ( playground );
   
   //*******robots and their atoms******
   
@@ -105,7 +94,7 @@ void start()
 	One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise () );
 	Agent* agent = new Agent( NoPlot/*GuiLogger*/ );
 	agent->init(controller, robotersammlung.back () , wiring);
-	agents.push_back(agent);
+	global.agents.push_back(agent);
 	configs.push_back(controller);
   
   } 
@@ -126,8 +115,7 @@ void start()
   }
   
   //****************  
-  configs.push_back(&simulationConfig);
-  //****************  
+    //****************  
   
   
 
@@ -136,23 +124,23 @@ void start()
   showParams(configs);
 }
 
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
+void end(GlobalData& global){
+  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  global.obstacles.clear();
+  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i)->getWiring ();
     delete (*i);
   }
-  agents.clear();
+  global.agents.clear();
 }
 
 
 // this function is called if the user pressed Ctrl-C
-void config(){
+void config(GlobalData& global){
   changeParams(configs);
 }
 
@@ -190,7 +178,7 @@ void command (int cmd)
 			   
 			   agent->init(controller, robotersammlung.back () , wiring );
   
-			   agents.push_back(agent);
+			   global.agents.push_back(agent);
 			   configs.push_back(controller);
 		break;
 		
@@ -215,7 +203,7 @@ void command (int cmd)
 			   agent3 = new Agent( NoPlot/*GuiLogger*/ );	   
 			   agent3->init(controller3, robotersammlung.back () , wiring3 );
   
-			   agents.push_back(agent3);
+			   global.agents.push_back(agent3);
 			   configs.push_back(controller3);
 			   
 			   
@@ -229,7 +217,7 @@ void command (int cmd)
 			   agent4 = new Agent( NoPlot/*GuiLogger*/);
 			   agent4->init(controller4, robotersammlung.back () , wiring4 );
   
-			   agents.push_back(agent4);
+			   global.agents.push_back(agent4);
 			   configs.push_back(controller4);
 		break;
 		
@@ -323,7 +311,7 @@ void additionalLoopfunction ( bool draw , bool pause )
 	if ( pause == false )
 	{
 		//the simulationTime now is handled like an integer value
-		if ( ( (int) ( simulationTime * ( 1 / simulationConfig.simStepSize ) ) ) % lifecycle == 0 )
+		if ( ( (int) ( simulationTime * ( 1 / global.odeConfig.simStepSize ) ) ) % lifecycle == 0 )
 		{
 			//the pairs of the two fittest robots is recombined with each other
 			
@@ -408,10 +396,10 @@ void additionalLoopfunction ( bool draw , bool pause )
 					robotersammlung.push_back ( neuerRob2 );
 				}
 				
-				//deletes all agents, controllers and wirings, which are not linked to an robot from robotersammlung
-				vector<Agent*>::iterator agentit = agents.begin ();
-				//for ( unsigned int m = 0; m < agents.size (); m++ )
-				for ( vector<Agent*>::iterator agentit = agents.begin (); agentit != agents.end (); agentit++ )
+				//deletes all global.agents, controllers and wirings, which are not linked to an robot from robotersammlung
+				vector<Agent*>::iterator agentit = global.agents.begin ();
+				//for ( unsigned int m = 0; m < global.agents.size (); m++ )
+				for ( vector<Agent*>::iterator agentit = global.agents.begin (); agentit != global.agents.end (); agentit++ )
 				{
 					bool del = true;
 					for ( vector<atomsimRobot*>::iterator robotit = robotersammlung.begin (); robotit != robotersammlung.end (); robotit++ )
@@ -429,7 +417,7 @@ void additionalLoopfunction ( bool draw , bool pause )
 						dsPrint ( "Agent wird gelöscht.\n" );
 						
 						
-						dsPrint ( "Agents:%i Robots:%i\n" , agents.size (), robotersammlung.size () );
+						dsPrint ( "Agents:%i Robots:%i\n" , global.agents.size (), robotersammlung.size () );
 						for ( vector<Configurable*>::iterator configit = configs.begin(); configit != configs.end (); configit++ )
 							if ( (*configit) == (*agentit)->getController () )
 							{
@@ -441,19 +429,19 @@ void additionalLoopfunction ( bool draw , bool pause )
 						delete (*agentit)->getWiring ();
 						delete (*agentit);
 						
-						agents.erase ( agentit );
+						global.agents.erase ( agentit );
 						//because the loop now is repeated fewer
 						agentit--;
 					}
 				}
-				//creates new agents, controllers and wirings if a robot is not linked to an agent
+				//creates new global.agents, controllers and wirings if a robot is not linked to an agent
 				
 				for ( unsigned int n = 0; n < robotersammlung.size (); n++ )
 				{
 					bool create = true;
-					for ( unsigned int m = 0; m < agents.size (); m++ )
+					for ( unsigned int m = 0; m < global.agents.size (); m++ )
 					{
-						if ( agents[m]->getRobot () == robotersammlung[n] )
+						if ( global.agents[m]->getRobot () == robotersammlung[n] )
 						{
 							create = false;
 							break;
@@ -470,7 +458,7 @@ void additionalLoopfunction ( bool draw , bool pause )
 						agent = new Agent( NoPlot/*GuiLogger*/ );
 					
 						agent->init(controller, robotersammlung[n] , wiring );
-						agents.push_back(agent);
+						global.agents.push_back(agent);
 						configs.push_back(controller);
 					}
 				}

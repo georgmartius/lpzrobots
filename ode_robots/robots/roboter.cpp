@@ -43,8 +43,8 @@ double dBodyGetPositionAll ( dBodyID basis , int para )
  *@author Marcel Kretschmann
  *@version beta
  **/
- Roboter::Roboter ( int startRoboterID , dWorldID welt , dSpaceID raum , dJointGroupID start_contactgroup , int start_Sensoranzahl ) :
-    AbstractRobot::AbstractRobot ( welt , raum , start_contactgroup, "Roboter")
+ Roboter::Roboter ( int startRoboterID , const OdeHandle& odeHandle, int start_Sensoranzahl ) :
+    AbstractRobot::AbstractRobot ( odeHandle, "Roboter")
 {
 	roboterID = startRoboterID;
 	for ( int n = 0; n < start_Sensoranzahl; n++) 
@@ -105,7 +105,8 @@ void Roboter::place (Position pos, Color *c)
  *@author Marcel Kretschmann
  *@version beta
  **/
- bool Roboter::collisionCallback(void *data, dGeomID o1, dGeomID o2)
+ void Roboter::doInternalStuff(const GlobalData& global){}
+bool Roboter::collisionCallback(void *data, dGeomID o1, dGeomID o2)
 {
 	//checks if one of the collision objects is part of the robot
 	bool tmp_kollisionsbeteiligung = false;

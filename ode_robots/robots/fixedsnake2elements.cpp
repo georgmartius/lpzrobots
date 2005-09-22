@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-07-18 14:47:32  martius
+ *   Revision 1.3  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.2  2005/07/18 14:47:32  martius
  *   world, space, contactgroup are not pointers anymore.
  *
  *   Revision 1.1  2005/06/27 13:15:58  fhesse
@@ -47,8 +52,8 @@
 #include "fixedsnake2elements.h"
 #include <iostream>
 
-FixedSnake2Elements::FixedSnake2Elements(dWorldID w, dSpaceID s, dJointGroupID c):
-  AbstractRobot::AbstractRobot(w, s, c){
+FixedSnake2Elements::FixedSnake2Elements(const OdeHandle& odeHandle)
+  : AbstractRobot::AbstractRobot(odeHandle){
 
   created=false;
 
@@ -209,6 +214,7 @@ void FixedSnake2Elements::place(Position pos, Color *c /*= 0*/){
    *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
    *  else false (collision is passed to other objects and (if not treated) to the default routine).
    */
+void FixedSnake2Elements::doInternalStuff(const GlobalData& global){}
 bool FixedSnake2Elements::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 
     for ( int n = 0; n < (segmentsno-1); n++ )

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-09-22 07:30:53  martius
+ *   Revision 1.10  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.9  2005/09/22 07:30:53  martius
  *   moved color and position into extra modules
  *
  *   Revision 1.8  2005/09/12 00:10:44  martius
@@ -52,33 +57,20 @@
 #ifndef __ABSTRACTROBOT_H
 #define __ABSTRACTROBOT_H
 
-#include <ode/common.h>
 #include <vector>
 using namespace std;
  
+#include "odehandle.h"
+#include "globaldata.h"
 #include "position.h"
 #include "color.h"
-
-typedef double sensor;
-typedef double motor;
-
+#include "types.h"
 
 typedef struct
 {
   dBodyID body;
   dGeomID geom;
 } Object;
-
-/** Data structure for accessing the ODE */
-typedef struct ODEHandle
-{
-  ODEHandle(  dWorldID _world, dSpaceID _space, dJointGroupID _jointGroup){
-    world = _world; space = _space; jointGroup= _jointGroup;
-  }
-  dWorldID world;
-  dSpaceID space;
-  dJointGroupID jointGroup;
-} ODEHandle;
 
 /**
  * Abstract class (interface) for robot 
@@ -90,18 +82,9 @@ public:
 
   /**
    * Constructor
-   * @param w world in which robot should be created
-   * @param s space in which robot should be created
-   * @param c contactgroup for collision treatment
+   * @param odehandle structure with all global ODE variables
    */
-  AbstractRobot(dWorldID w, dSpaceID s, dJointGroupID c, const char* name="abstractRobot")
-    : name(name) {
-    world=w;
-    space=s;
-    contactgroup=c;
-  };
-
-  AbstractRobot(const ODEHandle& odehandle, const char* name="abstractRobot")
+  AbstractRobot(const OdeHandle& odehandle, const char* name="abstractRobot")
     : name(name) {
     world=odehandle.world;
     space=odehandle.space;
@@ -109,7 +92,6 @@ public:
   };
 
   virtual ~AbstractRobot(){}
-
 
   /// returns the name of the robot
   const char* getName() const { return name;}
@@ -130,7 +112,12 @@ public:
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){
     return false;
   }
-  
+
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData) = 0;
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
@@ -189,13 +176,10 @@ protected:
   dWorldID world;
   dJointGroupID contactgroup;
   const char* name;
-  
 
   Color color;
 
-} ;
+};
 
-
-
- #endif
+#endif
  

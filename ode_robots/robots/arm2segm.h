@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-20 11:17:29  fhesse
+ *   Revision 1.3  2005-09-22 12:24:36  martius
+ *   removed global variables
+ *   OdeHandle and GlobalData are used instead
+ *   sensor prepared
+ *
+ *   Revision 1.2  2005/09/20 11:17:29  fhesse
  *   smaller changes, needs clean up and comments
  *
  *   Revision 1.1  2005/07/28 10:22:55  fhesse
@@ -58,7 +63,7 @@ public:
 class Arm2Segm : public AbstractRobot, public Configurable{
 public:
   
-  Arm2Segm(dWorldID w, dSpaceID s, dJointGroupID c);
+  Arm2Segm(const OdeHandle& odeHandle);
 
   virtual ~Arm2Segm(){};
 
@@ -110,6 +115,11 @@ public:
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+  /** this function is called in each timestep. It should perform robot-internal checks, 
+      like space-internal collision detection, sensor resets/update etc.
+      @param GlobalData structure that contains global data from the simulation environment
+   */
+  virtual void doInternalStuff(const GlobalData& globalData);
 
   /// returns the name of the object (with version number)
   virtual constparamkey getName() const {return name; } 
