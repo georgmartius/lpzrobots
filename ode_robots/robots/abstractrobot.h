@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-09-12 00:10:44  martius
+ *   Revision 1.9  2005-09-22 07:30:53  martius
+ *   moved color and position into extra modules
+ *
+ *   Revision 1.8  2005/09/12 00:10:44  martius
  *   position operators are const
  *
  *   Revision 1.7  2005/08/30 16:53:53  martius
@@ -50,40 +53,15 @@
 #define __ABSTRACTROBOT_H
 
 #include <ode/common.h>
-
 #include <vector>
 using namespace std;
  
+#include "position.h"
+#include "color.h"
+
 typedef double sensor;
 typedef double motor;
 
-typedef struct Color
-{
-  Color() {r=g=b=0;};
-  Color(double _r, double _g, double _b){ r=_r; g=_g; b=_b; }
-  double r;
-  double g;
-  double b;
-} Color;
-
-typedef struct Position
-{
-  Position(){x=y=z=0;}
-  Position(double _x, double _y, double _z){ x=_x; y=_y; z=_z; }
-  ///  p MUST have a size of at least 3 
-  Position(const double* p){ x=p[0]; y=p[1]; z=p[2]; } 
-  const double* toArray(){ array[0]=x;array[1]=y; array[2]=z; return array; } 
-  Position operator+(const Position& sum) const 
-           { Position rv(x+sum.x, y+sum.y, z+sum.z); return rv; }
-  Position operator-(const Position& sum) const
-           { Position rv(x-sum.x, y-sum.y, z-sum.z); return rv; }
-  Position operator*(double f) const { Position rv(x*f, y*f, z*f); return rv; }
-
-  double x;
-  double y;
-  double z;
-  double array[3];
-} Position;
 
 typedef struct
 {
