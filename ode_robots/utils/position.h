@@ -1,8 +1,9 @@
 #ifndef __POSITION_H
 #define __POSITION_H
 
-typedef struct Position
+class Position
 {
+public:
   Position(){x=y=z=0;}
   Position(double _x, double _y, double _z){ x=_x; y=_y; z=_z; }
   ///  p MUST have a size of at least 3 
@@ -17,7 +18,8 @@ typedef struct Position
   double x;
   double y;
   double z;
+private:
   double array[3];
-} Position;
+};
 
 #endif
