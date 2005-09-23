@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.34  2005-09-22 13:17:11  martius
+ *   Revision 1.35  2005-09-23 09:55:16  martius
+ *   odeConfig gets OdeHandle explicit
+ *
+ *   Revision 1.34  2005/09/22 13:17:11  martius
  *   OdeHandle and GlobalData finished
  *   doInternalStuff included
  *
@@ -148,7 +151,7 @@ using namespace std;
 OdeHandle odeHandle;
 dGeomID ground;
 
-GlobalData globalData(odeHandle);
+GlobalData globalData;
 VideoStream videostream;
 
 int windowWidth=640;
@@ -227,6 +230,7 @@ void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData),
   // ist fuer die Kollissionserkennung wichtig
   odeHandle.space = dHashSpaceCreate (0);
   odeHandle.jointGroup = dJointGroupCreate ( 1000000 );
+  globalData.odeConfig.setOdeHandle(odeHandle);
  
   //Gravitation zu Erdgravitation
   dWorldSetGravity ( odeHandle.world , 0 , 0 , globalData.odeConfig.gravity );

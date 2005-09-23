@@ -18,8 +18,7 @@ typedef vector<Agent*> AgentList;               ///
 
 typedef struct GlobalData
 {
-  GlobalData(const OdeHandle& odehandle) 
-    : odeConfig(odehandle) { 
+  GlobalData() { 
     time = 0;
   }
   OdeConfig odeConfig;

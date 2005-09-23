@@ -7,8 +7,7 @@
 
 class OdeConfig : public Configurable {
 public:
-  OdeConfig(const OdeHandle& odehandle)
-    : odeHandle(odehandle) {
+  OdeConfig() {
     simStepSize=0.01;
     controlInterval=5;
     realTimeFactor=1.0;
@@ -76,6 +75,10 @@ public:
     }
     else  return false;
     return true;
+  }
+
+  void setOdeHandle(const OdeHandle& odeHandle){
+    this->odeHandle = odeHandle;
   }
 
 private:
