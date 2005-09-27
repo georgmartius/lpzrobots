@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-09-20 10:55:14  robot3
+ *   Revision 1.10  2005-09-27 10:49:20  robot3
+ *   camera module rewritten, new features:
+ *   -everytime there is a smooth move and view
+ *   -some hacks are replaced through stable code
+ *
+ *   Revision 1.9  2005/09/20 10:55:14  robot3
  *   camera module:
  *   -pressing key c now centers on focused robot
  *   -pressing key b now moves 5.0f behind the robot
@@ -56,7 +61,7 @@
  *                                                                         *
  ***************************************************************************/
 
-// #define SQUARE(x) (x)*(x)
+
  
 #include "camera.h" 
 #include <stdio.h>
@@ -67,34 +72,75 @@
 CameraType oldCamType;
 const AbstractRobot* oldRobot;
 
-// camera points, first is position, second the point to view
-// double KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-float camPos[3];
-//  double KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};
-float camView[3]; // special angle coordinates
-// the position of robot
-double robotPos[3];
-// the view of robot
-double robotView[3]; // simple direction vector, should be normalized
- 
-// the new positions and view of the camera and the robot
-float newCamPos[3];
-float newCamView[3];
-double newRobotPos[3]; // special angle coordinates
-double newRobotView[3]; // simple direction vector, should be normalized
+// all desired values that have to be in the end state
+float desiredCamPos[3];
+float desiredCamView[3];
+
+// for camera and robot: current (read and calculated) values
+float currentCamPos[3];
+float currentCamView[3];
+double currentRobotPos[3];
+double currentRobotView[3];
+
+// for camera and robot: old values from one timestep before
+float oldCamPos[3];
+float oldCamView[3];
+double oldRobotPos[3];
+double oldRobotView[3];
+
 
 // for advanced TV mode
 float maxAllowedDistance=10.0f; // enabled advanvedTV ;)
 float robCamDistance;
 
-// threshold for division by zero avoidance
-float divThreshold=0.000000001f;
 
 
-// this is a bit faster than the compiler definition (x is only calculated once, not twice)
+// this is a bit faster than the compiler definition:
+// #define SQUARE(x) (x)*(x)
+// x is only calculated once, not twice
 double SQUARE(double x) {
 	return (x*x);
 
+}
+
+// I didn't found the math library so fast, sorry.
+float ABS(float x) {
+  if (x<0)
+    return (x*(-1));
+  else
+    return x;
+}
+
+void followRobotsMove() {
+	// now adjusting the desired position of the camera
+	for (int i=0;i<=2;i++) {
+		desiredCamPos[i]+=currentRobotPos[i]-oldRobotPos[i];
+	}
+}
+
+// changes only the desiredCamView
+void centerViewOnRobot() {
+	// no change for z
+	if ((currentRobotPos[1]-desiredCamPos[1])!=0) { // division by zero
+		// calculate the horizontal angle
+		desiredCamView[0]=-atan((currentRobotPos[0]-desiredCamPos[0])/
+					(currentRobotPos[1]-desiredCamPos[1]))
+							/M_PI*180.0f+270.0f;
+		if (desiredCamPos[1]-currentRobotPos[1]<0)
+			desiredCamView[0]+=180.0f; // we must switch
+	}
+	if ((currentRobotPos[2]-desiredCamPos[2])!=0) { // division by zero
+		// calculate the vertical angle
+		// we need dz and sqrt(dx^2+dy^2) for calculation
+		desiredCamView[1]=
+			atan(
+				(sqrt(
+				SQUARE(desiredCamPos[0]-currentRobotPos[0]) +
+				SQUARE(desiredCamPos[1]-currentRobotPos[1])))
+					/(currentCamPos[2]-currentRobotPos[2]))
+					/M_PI*180.0f+270.0f; // TODO: normalize
+	}
+	// z-angle (rotation) is not adjusted
 }
 
 
@@ -106,10 +152,17 @@ void getRobotPosAndView(double *pos, double *view,AbstractRobot& robot) {
 	pos[2]=position.z;
 	// now the view
 	for (int i=0;i<=2;i++) {
-		view[i]=pos[i]-robotPos[i];
+		view[i]=pos[i]-oldRobotPos[i];
         }
+	// if no view can be detected, use old view!
+	if (view[0]==0 && view[1]==0) {
+		for (int i=0;i<=2;i++) {
+			view[i]=oldRobotView[i];
+        	}
+	}
 }
 
+// prints the current (used) mode on stdout
 void printMode(CameraType camType) {
 	char* type;
 	printf("Current Mode is now: ");
@@ -137,12 +190,18 @@ void printMode(CameraType camType) {
 
 // has to be called if CameraType or the Robot has changed.
 void initCamera(CameraType camType,AbstractRobot& robot) {
+	// getting first the position and view of robot
+	getRobotPosAndView(oldRobotPos, oldRobotView, robot);
+	// now getting the current angle of the camera
+	dsGetViewpoint(oldCamPos,oldCamView);
 	if (oldCamType!=camType)
 		printMode(camType);
-	// getting first the position and view of robot
-	getRobotPosAndView(robotPos, robotView, robot);
-	// now getting the current angle of the camera
-	dsGetViewpoint(camPos,camView);
+	if (oldRobot!=&robot) // Robot is changed
+		// setting current cam values to desired values
+		for (int i=0;i<=2;i++) {
+			desiredCamPos[i]=oldCamPos[i];
+			desiredCamView[i]=oldCamView[i];
+		}
 	// setting the new Values
 	oldCamType=camType;
 	oldRobot=&robot;
@@ -152,103 +211,28 @@ void StaticMode(AbstractRobot& robot) {
 	// do nothing
 }
 
-
 void TVMode(AbstractRobot& robot) {
-	// now adjusting the original position of the camera
-	// new values must be stored as old too
-	for (int i=0;i<=2;i++) {
- 		if (oldCamType==TV) // because advanced mode uses this routine too
-			camPos[i]=newCamPos[i]; // no change
-		robotPos[i]=newRobotPos[i];
-		// robotView[i]=newRobotView[i]; // not used yet
-	}
-	camView[2]=newCamView[2]; // no change for z
-	if ((newRobotPos[1]-newCamPos[1])!=0) {
-					// calculate the horizontal angle
-		camView[0]=-atan((newRobotPos[0]-newCamPos[0])/(newRobotPos[1]-newCamPos[1]))
-							/M_PI*180.0f+270.0f;
-		if (newCamPos[1]-newRobotPos[1]<0)
-			camView[0]+=180.0f; // we must switch
-	} else { // do not compute because of division by zero, take old values
-		camView[0]=newCamView[0];
-		printf("TVMode: can't calculate the x-angle!\n");
-	}
-	if ((newRobotPos[2]-newCamPos[2])!=0) { // division by zero
-// 					calculate the vertical angle
-// 					we need dz and sqrt(dx^2+dy^2) for calculation
-		camView[1]=//0.9*newCamView[1]+
-				atan(
-				(sqrt(
-				SQUARE(newCamPos[0]-newRobotPos[0]) +
-				SQUARE(newCamPos[1]-newRobotPos[1])))
-							/(newCamPos[2]-newRobotPos[2]))
-							/M_PI*180.0f+270.0f;
-	} else { // do not compute because of division by zero, take old value
-		camView[1]=newCamView[1];
-		printf("TVMode: can't calculate the y-angle!\n");
-	}
+	centerViewOnRobot();
 }
 
 void advancedTVMode(AbstractRobot& robot) {
-// 	float n;
 	// check wether the camera is too far away
 	robCamDistance= (sqrt(
-			SQUARE(newCamPos[0]-newRobotPos[0]) +
-			SQUARE(newCamPos[1]-newRobotPos[1])));
+			SQUARE(currentCamPos[0]-currentRobotPos[0]) +
+			SQUARE(currentCamPos[1]-currentRobotPos[1])));
 	if (robCamDistance>maxAllowedDistance) {
 		// then the camera must get a new position, centering on position of robot
-		camPos[0]=newRobotPos[0];
-		camPos[1]=newRobotPos[1];
-		camPos[2]=newRobotPos[2]+2.0f; // must be higher than robPos...
-		printf("I am too far away from maximum distance(%f): %f\n",maxAllowedDistance,robCamDistance);
-/*		camPos[2]=newCamPos[2]; // will not be changed
-		// first get the direction of the robot
-		for (int i=0;i<=1;i++) {
-			robotView[i]=newRobotPos[i]-robotPos[i];
-		}
-		// now get normalizing scalar of robotView, only x and y is needed
-		n=sqrt(SQUARE(robotView[0])+SQUARE(robotView[1]));
-		if (n>0.0001) { // else no calculation can be made, then do not change the camPos
-			for (int i=0;i<=1;i++) {
-				robotView[i]*=1/n; // normalizing every dimension
-				// now shift the camPos by robCamDistance*1,5*robotView
-				// this is an approximation, normally a rotation is needed
-				camPos[i]=newCamPos[i]+1.5f*robotView[i]*robCamDistance;
-			}
-			if ((sqrt(SQUARE(camPos[0]-newRobotPos[0])+SQUARE(camPos[1]-newRobotPos[1])))
-						  >maxAllowedDistance) {
-				// the distance is not in range, the cam would flip away
-				// set default values
-				// then add a half of this distance so the cam is not in front of the robot
-				// this is a rotation with an angle of 90 degrees
-				camPos[0]=newRobotPos[0]-
-						(0.25f*robotView[0]+0.125f*robotView[1])*maxAllowedDistance;
-				camPos[0]=newRobotPos[0]-
-						(0.25f*robotView[1]-0.125f*robotView[0])*maxAllowedDistance;
-			}
-		} else { // do not change the camPos, take old values
-			for (int i=0;i<=1;i++) {
-				camPos[i]=newCamPos[i]; // no change
-			}
-		}*/
-	} else {
-		for (int i=0;i<=2;i++) {
-			camPos[i]=newCamPos[i]; // no change
-		}
+		desiredCamPos[0]=currentRobotPos[0];
+		desiredCamPos[1]=currentRobotPos[1];
+		desiredCamPos[2]=currentRobotPos[2]+2.0f; // must be higher than robPos...
+		//		printf("I am too far away from maximum distance(%f): %f\n",maxAllowedDistance,robCamDistance);
 	}
 	// now do the rest of TV
-	TVMode(robot);
+	centerViewOnRobot();
 }
 
 void FollowingMode(AbstractRobot& robot) {
-	// now adjusting the original position of the camera
-	// new values must be stored as old too
-	for (int i=0;i<=2;i++) {
-		robotView[i]=newRobotPos[i]-robotPos[i];
-		camPos[i]=newCamPos[i]+newRobotPos[i]-robotPos[i];
-		camView[i]=newCamView[i]; // no change
-		robotPos[i]=newRobotPos[i];
-	}
+	followRobotsMove();
 }
 
 void print3DimFloat(float vec[3]) {
@@ -260,68 +244,157 @@ void print3DimFloat(float vec[3]) {
 void moveOnRobot(AbstractRobot& robot) {
 	printf("moveOnRobot is now called!\n");
 	// now getting the current angle of the camera
-	dsGetViewpoint(newCamPos,newCamView);
-	getRobotPosAndView(newRobotPos,newRobotView, robot);
 	for (int i=0;i<=1;i++) {
-		newCamPos[i]=newRobotPos[i];
+		desiredCamPos[i]=currentRobotPos[i];
 	}
-	newCamPos[2]=newRobotPos[2]+2.0f;
-	TVMode(robot); // now center on robot
-	dsSetViewpoint(newCamPos,camView);
+	desiredCamPos[2]=currentRobotPos[2]+2.0f;
+	// center the view on the robot
+	centerViewOnRobot();
 }
 
 void moveBehindRobot(AbstractRobot& robot) {
 	printf("moveBehindRobot is now called!\n");
-	// now getting the current angle of the camera
-	dsGetViewpoint(newCamPos,newCamView);
-	getRobotPosAndView(newRobotPos,newRobotView, robot);
-	robCamDistance=5.0f; // the distance of camera position
-	// now get normalizing scalar of newRobotView, only x and y is needed
-	float n=sqrt(SQUARE(newRobotView[0])+SQUARE(newRobotView[1]));
-	if (n>divThreshold) {
-		printf("moving behind:\n");
-		printf("robCamDistance:\t%f\n", robCamDistance);
-		printf("moving behind:\n");
-		printf("moving behind:\n");
-
+	robCamDistance=4.0f; // the distance of camera position
+	// now get normalizing scalar of currentRobotView, only x and y is needed
+	float n=sqrt(SQUARE(currentRobotView[0])+SQUARE(currentRobotView[1]));
+	if (n>0) {
 		for (int i=0;i<=1;i++)
-			newCamPos[i]=newRobotPos[i]-newRobotView[i]/n*robCamDistance;
-		newCamPos[2]=newCamPos[2]; // leave old value
-		TVMode(robot); // now center on robot
-		dsSetViewpoint(newCamPos,camView);
-	} else {
-// 		moveOnRobot(robot);
+		  desiredCamPos[i]=currentRobotPos[i]-currentRobotView[i]/n*robCamDistance;
+		centerViewOnRobot();
+	} else { // we think this is the best
+ 		moveOnRobot(robot);
 	}
 }
 
 
 void advancedFollowingMode(AbstractRobot& robot) {
 	float n;
+	// first calculate current distance and set the desired position behind the robot
 	robCamDistance= (sqrt(
-			SQUARE(newCamPos[0]-newRobotPos[0]) +
-			SQUARE(newCamPos[1]-newRobotPos[1])));
-	// get the direction of the robot
-	for (int i=0;i<=1;i++) {
-		robotView[i]=newRobotPos[i]-robotPos[i];
-	}
-	// now get normalizing scalar of robotView, only x and y is needed
-	n=sqrt(SQUARE(robotView[0])+SQUARE(robotView[1]));
-	if (n>divThreshold) { // else no calculation can be made, then do not change the camPos
+			SQUARE(currentCamPos[0]-currentRobotPos[0]) +
+			SQUARE(currentCamPos[1]-currentRobotPos[1])));
+	// the direction of the robot is stored in currentRobotView!
+	// now get normalizing scalar of currentRobotView, only x and y is needed
+	n=sqrt(SQUARE(currentRobotView[0])+SQUARE(currentRobotView[1]));
+	if (n>0) { // else no calculation can be made, then do not change the camPos
 		for (int i=0;i<=1;i++) {
 			// now set the camPos to robotPos-robCamDistance*robotView
 			// this is an approximation, normally a rotation is needed
 			// store it in newCamPos, so TV mode can be called unmodified
-			camPos[i]=newRobotPos[i]-robotView[i]*robCamDistance/n+robotView[i];
-		}
-		camPos[2]=newCamPos[2];
-	} else { // else do not change the camPos here
-		for (int i=0;i<=2;i++) {
-			camPos[i]=newCamPos[i];
+			desiredCamPos[i]=currentRobotPos[i]
+			  -currentRobotView[i]*robCamDistance/n+currentRobotView[i];
 		}
 	}
-	// now do centering on robot, using TV mode
-	TVMode(robot);
+	// now do centering the view on robot
+	centerViewOnRobot();
 }
+
+
+void adjustPosByMouseMove() {
+	for (int i=0;i<=2;i++) {
+	  desiredCamPos[i]+=currentCamPos[i]-oldCamPos[i];
+	  //	  if (oldCamPos[i]-currentCamPos[i]>0) 
+	  // desiredCamPos[i]=currentCamPos[i];
+	}
+}
+
+void adjustViewByMouseMove() {
+	for (int i=0;i<=2;i++) {
+		desiredCamView[i]+=oldCamView[i]-currentCamView[i];
+	}
+}
+
+void storeOldValues(float *setCamPos, float *setCamView) {
+	for (int i=0;i<=2;i++) {
+		oldRobotPos[i]=currentRobotPos[i];
+		oldRobotView[i]=currentRobotView[i];
+		oldCamPos[i]=setCamPos[i];
+		oldCamView[i]=setCamView[i];
+	}
+}
+
+
+// wrapper function
+void doubleTofloatA(const double *doubleArray,float *floatArray) {
+  for (int i=0;i<=2;i++) {
+    floatArray[i]=doubleArray[i];
+  }
+}
+
+// wrapper function
+void floatTodoubleA(const float *floatArray,double *doubleArray) {
+  for (int i=0;i<=2;i++) {
+    doubleArray[i]=floatArray[i];
+  }
+}
+
+
+Position smoothMove() {
+	double newPos[3];
+	for (int i=0;i<=2;i++) {
+	  if (ABS(desiredCamPos[i]-currentCamPos[i])<0.1f) {
+	    newPos[i]=desiredCamPos[i];
+	  } else
+	    newPos[i]=desiredCamPos[i]*0.1f+currentCamPos[i]*0.9f;
+	}
+	return Position(newPos);
+}
+
+// normalizes the angle
+float normalize360(float angle) {
+  float result=angle;
+    while (result>=360.0f)
+      result-=360.0f;
+    while (result<0.0f)
+      result+=360.0f;
+    return result;
+}
+
+// normalizes the angle
+double normalize360(double angle) {
+  double result=angle;
+    while (result>=360.0f)
+      result-=360.0f;
+    while (result<0.0f)
+      result+=360.0f;
+    return result;
+}
+
+// normalizes the angle of all 3 components
+void normalize360vec3(float *angle) {
+  for (int i=0;i<=2;i++) {
+    angle[i]=normalize360(angle[i]);
+  }
+}
+
+// normalizes the angle of all 3 components
+void normalize360vec3(double *angle) {
+  for (int i=0;i<=2;i++) {
+    angle[i]=normalize360(angle[i]);
+  }
+}
+
+
+Position smoothView() {
+	double newView[3];
+	normalize360vec3(desiredCamView);
+	normalize360vec3(currentCamView);
+	for (int i=0;i<=2;i++) {
+	  if (ABS(desiredCamView[i]-currentCamView[i])<0.2f) {
+	    newView[i]=desiredCamView[i];
+	  } else if (ABS(desiredCamView[i]-currentCamView[i])>180.0f) {
+	    // we must first transform the angles into linear gradient space (+180 degrees)
+	    // then make a backtransformation (-180 degrees)
+	    newView[i]=normalize360(desiredCamView[i]+180.0f)*0.1f
+	      +normalize360(currentCamView[i]+180.0f)*0.9f-180.0f;
+	  normalize360(newView[i]);
+	  } else { // use normal sliding
+	    newView[i]=desiredCamView[i]*0.1f+currentCamView[i]*0.9f;
+	  }
+	}
+	return Position(newView);
+}
+
 
 void moveCamera( CameraType camType,AbstractRobot& robot) {
 	// first look if someone is changed
@@ -330,15 +403,15 @@ void moveCamera( CameraType camType,AbstractRobot& robot) {
 		initCamera(camType,robot);
 	else {
 		// first get all needed values
-// 		if (camType!=Static) {
 		// getting first the position and view of robot
-		getRobotPosAndView(newRobotPos,newRobotView,robot);
+		getRobotPosAndView(currentRobotPos,currentRobotView, robot);
 		// now getting the current position and angle of the camera
-		dsGetViewpoint(newCamPos,newCamView);
-// 		}
+		dsGetViewpoint(currentCamPos,currentCamView);
 		// now compute
-		// to compute is the new camPos and the new camView.
-		// in addition the new robotPos and robotView have to be stored.
+		// calculate the adjusted new settings from mouse movement
+		adjustPosByMouseMove();
+		//adjustViewByMouseMove();
+		// now adjust the desired values through the camera modes
 		switch (camType) {
 			case Static:
 				StaticMode(robot);
@@ -357,8 +430,13 @@ void moveCamera( CameraType camType,AbstractRobot& robot) {
 				break;
 		}
 		// now execute :)
-		if (camType!=Static) {
-			dsSetViewpoint(camPos,camView);
-		}
+		float move[3];
+		float view[3];
+		doubleTofloatA(smoothMove().toArray(),move);
+		doubleTofloatA(smoothView().toArray(),view);
+		dsSetViewpoint(move,view);
+		// now store the current (set) values to old values
+		storeOldValues(move,view);
 	}
 }
+
