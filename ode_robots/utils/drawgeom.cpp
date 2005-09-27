@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-09-27 11:04:18  fhesse
+ *   Revision 1.6  2005-09-27 12:22:52  robot3
+ *   now changing camView by mouse movement really works :)
+ *
+ *   Revision 1.5  2005/09/27 11:04:18  fhesse
  *   drawing for ray added
  *
  *   Revision 1.4  2005/08/08 11:06:47  martius
@@ -87,7 +90,7 @@ void drawGeom (dGeomID g, const dReal *pos, const dReal *R)
     end_pos[1] += pos[1];
     end_pos[2] += pos[2];
     // draw line from start(pos) to end
-    dsDrawLine(pos, end_pos);
+    //    dsDrawLine(pos, end_pos);
 
 
   }

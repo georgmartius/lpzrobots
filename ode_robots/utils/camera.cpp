@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-09-27 12:11:16  robot3
+ *   Revision 1.12  2005-09-27 12:22:52  robot3
+ *   now changing camView by mouse movement really works :)
+ *
+ *   Revision 1.11  2005/09/27 12:11:16  robot3
  *   fixed bug not be able to change the camView through mouse movement
  *
  *   Revision 1.10  2005/09/27 10:49:20  robot3
@@ -303,7 +306,8 @@ void adjustPosByMouseMove() {
 
 void adjustViewByMouseMove() {
 	for (int i=0;i<=2;i++) {
-		desiredCamView[i]+=oldCamView[i]-currentCamView[i];
+		desiredCamView[i]-=oldCamView[i]-currentCamView[i];
+		printf("adjusting!\n");
 	}
 }
 
