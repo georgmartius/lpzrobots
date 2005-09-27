@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2005-09-22 13:17:11  martius
+ *   Revision 1.17  2005-09-27 13:58:48  martius
+ *   added drawLine
+ *
+ *   Revision 1.16  2005/09/22 13:17:11  martius
  *   OdeHandle and GlobalData finished
  *   doInternalStuff included
  *
@@ -126,10 +129,12 @@ void changeParams(ConfigList& configs);
 
 //dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
 #ifdef dDOUBLE
+#define dsDrawLine dsDrawLineD
 #define dsDrawBox dsDrawBoxD
 #define dsDrawSphere dsDrawSphereD
 #define dsDrawCylinder dsDrawCylinderD
 #define dsDrawCappedCylinder dsDrawCappedCylinderD
+
 #endif
 
 #endif
