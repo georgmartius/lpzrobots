@@ -17,7 +17,6 @@
 
 using namespace university_of_leipzig::robots;
 
-ConfigList configs;
 PlotMode plotMode = NoPlot;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
@@ -136,6 +135,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //  global.odeConfig.noise=0.1;
   //  
   AbstractController *controller = new InvertMotorNStep(10);
+  controller->setParam("epsC", 0.001);
+  controller->setParam("epsA", 0.001);
 
   // AbstractController *controller = new SineController();
   AbstractWiring* wiring     = new One2OneWiring(new ColorUniformNoise());
@@ -145,8 +146,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   agent->init(controller, p_robot, wiring);  
   global.agents.push_back(agent);
   
-    configs.push_back(controller);
-  showParams(configs);
+  global.configs.push_back(controller);
+  showParams(global.configs);
 }
 
 void end(GlobalData& global){
@@ -167,7 +168,7 @@ void end(GlobalData& global){
 
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
-  changeParams(configs);
+  changeParams(global.configs);
 }
 
 void printUsage(const char* progname){
