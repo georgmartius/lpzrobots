@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-08-08 11:06:47  martius
+ *   Revision 1.5  2005-09-27 11:04:18  fhesse
+ *   drawing for ray added
+ *
+ *   Revision 1.4  2005/08/08 11:06:47  martius
  *   camera is a module for camera movements
  *   includes cleaned
  *
@@ -64,6 +67,31 @@ void drawGeom (dGeomID g, const dReal *pos, const dReal *R)
     dGeomCCylinderGetParams (g,&radius,&length);
     dsDrawCappedCylinder (pos,R,length,radius);
   }
+  else if (type == dRayClass) {
+    
+    dReal length;
+    dVector3 start, dir;
+    length=dGeomRayGetLength (g);
+    dGeomRayGet(g, start, dir);
+
+    dVector3 end_pos,end; 
+    // endposition in the local coordinate system (just length in z-direction)
+    end[0]=0;
+    end[1]=0;
+    end[2]=length;  
+
+    // rotate endposition in local coordinate system with rotation matrix R
+    dMULTIPLY0_331 (end_pos,R,end);
+    // add actual position (of transform object) to get global coordinates
+    end_pos[0] += pos[0];
+    end_pos[1] += pos[1];
+    end_pos[2] += pos[2];
+    // draw line from start(pos) to end
+    dsDrawLine(pos, end_pos);
+
+
+  }
+
 /*
   // cylinder option not yet implemented
   else if (type == dCylinderClass) {
