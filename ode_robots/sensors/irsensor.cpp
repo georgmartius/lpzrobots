@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-27 11:03:33  fhesse
+ *   Revision 1.3  2005-09-27 13:59:26  martius
+ *   ir sensors are working now
+ *
+ *   Revision 1.2  2005/09/27 11:03:33  fhesse
  *   sensorbank added
  *
  *   Revision 1.1  2005/09/22 12:56:47  martius
@@ -32,23 +35,27 @@
 #include <ode/ode.h>
 #include <math.h>
 
+#include "simulation.h"
+
 #include "position.h"
 #include "irsensor.h"
 #include "drawgeom.h"
 
 IRSensor::IRSensor(){
   value = 0;  
+  len=0;
   // TODO initialised
 }
 
 IRSensor::~IRSensor(){
-  //  dGeomDestroy(transform);     
+  dGeomDestroy(transform);     
 }
 
 void IRSensor::init(dSpaceID space, dBodyID body, const Position& pos, 
 		    const dMatrix3 rotation, double range){
   this->range = range;
   value = 0;
+  len   = range;
 
 // from sphererobotTest:
   transform = dCreateGeomTransform (space); 
@@ -66,6 +73,7 @@ void IRSensor::init(dSpaceID space, dBodyID body, const Position& pos,
 
 void IRSensor::reset(){
   value = 0;
+  len   = range;
 }  
   
 bool IRSensor::sense(dGeomID object){
@@ -73,12 +81,11 @@ bool IRSensor::sense(dGeomID object){
   dContact contact;
   n = dCollide (object, transform, 1, &contact.geom, sizeof(dContact));
   if(n) {
-//     printf("ray: %x\n",ray);
-//     printf("coll between: %x  %x\n",contact.geom.g1,contact.geom.g2);
-    double len = contact.geom.depth;
+    //     printf("ray: %x\n",ray);
+    //     printf("coll between: %x  %x\n",contact.geom.g1,contact.geom.g2);
+    len = contact.geom.depth;
     value = characteritic(len);
-    printf("len= %f, value: %f, \n",len, value);
-
+    //    printf("len= %f, value: %f, \n",len, value);
     return true;
   } else {
     return false;
@@ -90,10 +97,41 @@ double IRSensor::get(){
   return value;
 }
 
-void IRSensor::draw(){
-  drawGeom(transform,0,0);
-//   dsSetColor (0,1,0);
-//   drawGeom(transcc,0,0);
+void IRSensor::draw(rayDrawMode drawMode){
+  const dReal* pos = dGeomGetPosition (transform);
+  const dReal* R = dGeomGetRotation (transform);    
+  const dReal *pos2 = dGeomGetPosition (ray);
+  const dReal *R2 = dGeomGetRotation (ray);
+  dVector3 actual_pos;
+  dMatrix3 actual_R;
+  dMULTIPLY0_331 (actual_pos,R,pos2);
+  actual_pos[0] += pos[0];
+  actual_pos[1] += pos[1];
+  actual_pos[2] += pos[2];
+  dMULTIPLY0_333 (actual_R,R,R2);
+  dVector3 end_pos,end; 
+
+  dsSetColor(value*2,0.0,0.0);
+  dsSetTexture(DS_NONE);
+  switch(drawMode){
+  case drawAll:
+  case drawRay: 
+    // endposition in the local coordinate system (just length in z-direction)
+    end[0]=0; end[1]=0; end[2]=len;  
+    // rotate endposition in local coordinate system with rotation matrix R
+    dMULTIPLY0_331 (end_pos,actual_R,end);
+    // add actual position (of transform object) to get global coordinates
+    end_pos[0] += actual_pos[0];
+    end_pos[1] += actual_pos[1];
+    end_pos[2] += actual_pos[2];     
+    dsDrawLine(actual_pos, end_pos);  
+    if( drawMode != drawAll) break;
+  case drawSensor:
+    dsDrawCylinder(actual_pos,actual_R, 0.01, 0.05);  
+    break;
+  default:
+    break;
+  }
 }
 
 //   enum rayDrawMode {ray, sphere, no};

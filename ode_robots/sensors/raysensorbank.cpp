@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-09-27 11:03:34  fhesse
+ *   Revision 1.2  2005-09-27 13:59:26  martius
+ *   ir sensors are working now
+ *
+ *   Revision 1.1  2005/09/27 11:03:34  fhesse
  *   sensorbank added
  *
  *                                                                         *
@@ -31,16 +34,18 @@
 #include "raysensorbank.h"
 
 RaySensorBank::RaySensorBank(){
-  bank.resize(0);
   initialized=false;
+  drawMode=RaySensor::drawNothing;
 };
 
 RaySensorBank::~RaySensorBank(){
 };
 
-void RaySensorBank::init(dSpaceID parent_space, rayDrawMode drawmode){
+void RaySensorBank::init(dSpaceID parent_space, RaySensor::rayDrawMode drawMode){
   sensor_space = dSimpleSpaceCreate ( parent_space );
   initialized=true;  
+  this->drawMode = drawMode;
+
 }; 
 
 unsigned int RaySensorBank::registerSensor(RaySensor* raysensor, dBodyID body, 
@@ -71,10 +76,10 @@ double RaySensorBank::get(unsigned int index){
   return bank[index]->get();
 };
 
-int RaySensorBank::get(double* sensorarray, unsigned int start, unsigned int array_size){
+int RaySensorBank::get(double* sensorarray, unsigned int array_size){
   int counter=0;
-  for(unsigned int i=start; (i<array_size) && ((i-start)<bank.size()); i++){
-    sensorarray[i]=bank[i-start]->get();
+  for(unsigned int i=0; (i<array_size) && (i<bank.size()); i++){
+    sensorarray[i]=bank[i]->get();
     counter++;
   }
   return counter;
@@ -86,7 +91,7 @@ dSpaceID RaySensorBank::getSpaceID(){
 
 void RaySensorBank::draw(){
   for (unsigned int i=0; i<bank.size(); i++){
-    bank[i]->draw();
+    bank[i]->draw(drawMode);
   }
 };
   

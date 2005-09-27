@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-27 11:03:34  fhesse
+ *   Revision 1.3  2005-09-27 13:59:26  martius
+ *   ir sensors are working now
+ *
+ *   Revision 1.2  2005/09/27 11:03:34  fhesse
  *   sensorbank added
  *
  *   Revision 1.1  2005/09/22 12:56:47  martius
@@ -42,7 +45,10 @@
  */
 class RaySensor {
 public:  
+  enum rayDrawMode { drawNothing, drawRay, drawSensor, drawAll};
+
   RaySensor() {}
+
   
   /** providing essential information
    */
@@ -64,7 +70,7 @@ public:
 
   /** draws the sensor ray
    */
-  virtual void draw() = 0;
+  virtual void draw(rayDrawMode drawMode) = 0;
   
   /** returns the geomID of the ray geom (used for optimisation)
    */

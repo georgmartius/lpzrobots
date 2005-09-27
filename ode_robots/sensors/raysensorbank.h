@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-09-27 11:03:34  fhesse
+ *   Revision 1.2  2005-09-27 13:59:26  martius
+ *   ir sensors are working now
+ *
+ *   Revision 1.1  2005/09/27 11:03:34  fhesse
  *   sensorbank added
  *
  *                                                                         *
@@ -30,8 +33,6 @@
 
 #include <vector>
 #include "raysensor.h"
-
-enum rayDrawMode {drawRay, drawSphere, noDrawing};
 
 /** Class for a bank of ray sensors. 
     Ray sensors can be registered at the bank. Methods for resetting, 
@@ -45,7 +46,7 @@ public:
 
   /** gives the space of the parent (usually robot)
    */
-  virtual void init(dSpaceID parent_space, rayDrawMode drawmode); 
+  virtual void init(dSpaceID parent_space, RaySensor::rayDrawMode drawmode); 
 
   /** registers a new sensor at the sensor bank. The body and the pose have to be provided.
       @param range maximum sense range of the sensor
@@ -73,7 +74,7 @@ public:
       @param array_size maximal number of all elements in the sensorarray
       @return number of written sensorvalues
    */
-  virtual int get(double* sensorarray, unsigned int start, unsigned int array_size);
+  virtual int get(double* sensorarray, unsigned int array_size);
 
   /** returns the spaceID of the sensor space
    */
@@ -89,6 +90,7 @@ protected:
   std::vector<RaySensor*> bank;
   dSpaceID sensor_space;
   bool initialized;
+  RaySensor::rayDrawMode drawMode;
 };
 
 #endif

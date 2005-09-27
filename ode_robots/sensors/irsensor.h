@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-27 11:03:34  fhesse
+ *   Revision 1.3  2005-09-27 13:59:26  martius
+ *   ir sensors are working now
+ *
+ *   Revision 1.2  2005/09/27 11:03:34  fhesse
  *   sensorbank added
  *
  *   Revision 1.1  2005/09/22 12:56:47  martius
@@ -64,7 +67,7 @@ public:
 
   /** draws the sensor ray
    */
-  virtual void draw();
+  virtual void draw(rayDrawMode drawMode);
   
   /** returns the geomID of the ray geom (used for optimisation)
    */
@@ -79,8 +82,9 @@ protected:
 protected:
   dGeomID transform;
   dGeomID ray;
-  double range;
-  double value;
+  double range; // max length
+  double len;   // last measured length
+  double value; // actual sensor value
 };
 
 #endif
