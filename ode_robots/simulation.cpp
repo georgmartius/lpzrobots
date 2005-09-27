@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.35  2005-09-23 09:55:16  martius
+ *   Revision 1.36  2005-09-27 13:59:03  martius
+ *   doInternals after control
+ *
+ *   Revision 1.35  2005/09/23 09:55:16  martius
  *   odeConfig gets OdeHandle explicit
  *
  *   Revision 1.34  2005/09/22 13:17:11  martius
@@ -308,10 +311,10 @@ void simLoop ( int pause ){
       sim_step++;
       // for all agents: robots internal stuff and control step if at controlInterval
       for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
-	(*i)->getRobot()->doInternalStuff(globalData);
 	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ){
 	  (*i)->step(globalData.odeConfig.noise); 
 	}
+	(*i)->getRobot()->doInternalStuff(globalData);
       }
   
       /**********************Simulationsschritt an sich**********************/
