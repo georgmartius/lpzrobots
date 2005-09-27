@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2005-09-22 12:24:37  martius
+ *   Revision 1.17  2005-09-27 14:11:37  martius
+ *   changed to use of Nimm2Conf
+ *   IR sensors at front
+ *
+ *   Revision 1.16  2005/09/22 12:24:37  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -74,6 +78,7 @@
 #define __NIMM2_H
 
 #include "abstractrobot.h"
+#include "raysensorbank.h"
 
 
 typedef struct
@@ -82,7 +87,18 @@ typedef struct
   dGeomID geom;
 } Bumper;
 
-
+typedef struct {
+  double size;
+  double force;
+  double speed;
+  bool sphereWheels;
+  bool bumper;
+  bool cigarMode;
+  bool irFront;
+  bool irBack;
+  bool irSide;
+  bool singleMotor;
+} Nimm2Conf;
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
     2 wheels and a cylinder like body   
@@ -90,8 +106,22 @@ typedef struct
 class Nimm2 : public AbstractRobot{
 public:
   
-  Nimm2(const OdeHandle& odehandle, double size=1, double force=2, double speed=6, 
-	bool sphereWheels=true, bool bumper=false, bool cigarMode=false);
+  Nimm2(const OdeHandle& odehandle, const Nimm2Conf& conf);
+
+  static Nimm2Conf getDefaultConf(){
+    Nimm2Conf conf;
+    conf.size=1;
+    conf.force=2;
+    conf.speed=6;
+    conf.sphereWheels=true;
+    conf.bumper=false;
+    conf.cigarMode=false;
+    conf.irFront=false;
+    conf.irBack=false;
+    conf.irSide=false;
+    conf.singleMotor=false;
+    return conf;
+  }
 
   virtual ~Nimm2(){};
 
@@ -167,35 +197,33 @@ protected:
   virtual void destroy();
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
+  Nimm2Conf conf;
+  
   double length;  // chassis length
   double width;  // chassis width
   double height;   // chassis height
   double radius;  // wheel radius
   double wheelthickness; // thickness of the wheels  
-  bool sphereWheels; // draw spherical wheels?
   double cmass;    // chassis mass
   double wmass;    // wheel mass
   int sensorno;      //number of sensors
   int motorno;       // number of motors
   int segmentsno;    // number of motorsvehicle segments
-  double speed;    // 
-
-  double max_force;        // maximal force for motors
 
   int bodyTexture;
   int wheelTexture;
 
   bool created;      // true if robot was created
+  double max_force; 
 
   Object object[3];  // 1 cylinder, 2 wheels
-  bool addBumper;    // add bumper tpo body ?
   double  wheeloffset; // offset from center when in cigarMode
   int number_bumpers;  // number of bumpers (1 -> bumpers at one side, 2 -> bumpers at 2 sides)
-  bool cigarMode;    // long or short body?
   Bumper bumper[2]; 
   dJointID joint[2]; // joints between cylinder and each wheel
 
   dSpaceID car_space;
+  RaySensorBank irSensorBank; // a collection of ir sensors
 };
 
 #endif
