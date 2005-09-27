@@ -9,7 +9,7 @@
 #include "nimm2.h"
 #include "playground.h"
 
-#include "invertnchannelcontroller.h"
+#include "invertmotornstep.h"
 
 ConfigList configs;
 PlotMode plotMode = NoPlot;
@@ -37,10 +37,12 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   playground->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(playground);
 
-  Nimm2* vehicle = new Nimm2(odeHandle);
+  Nimm2Conf nimm2Conf = Nimm2::getDefaultConf();
+  nimm2Conf.irFront=true;
+  Nimm2* vehicle = new Nimm2(odeHandle, nimm2Conf);
   vehicle->setTextures(DS_WOOD, chessTexture); 
   vehicle->place(Position(0,0,0));
-  AbstractController *controller = new InvertNChannelController(10);  
+  AbstractController *controller = new InvertMotorNStep(10);  
   
   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   Agent* agent = new Agent(plotMode);
