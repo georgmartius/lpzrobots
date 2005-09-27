@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-09-27 10:49:20  robot3
+ *   Revision 1.11  2005-09-27 12:11:16  robot3
+ *   fixed bug not be able to change the camView through mouse movement
+ *
+ *   Revision 1.10  2005/09/27 10:49:20  robot3
  *   camera module rewritten, new features:
  *   -everytime there is a smooth move and view
  *   -some hacks are replaced through stable code
@@ -410,7 +413,7 @@ void moveCamera( CameraType camType,AbstractRobot& robot) {
 		// now compute
 		// calculate the adjusted new settings from mouse movement
 		adjustPosByMouseMove();
-		//adjustViewByMouseMove();
+		adjustViewByMouseMove();
 		// now adjust the desired values through the camera modes
 		switch (camType) {
 			case Static:
