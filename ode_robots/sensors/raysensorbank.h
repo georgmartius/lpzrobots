@@ -20,67 +20,75 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-27 11:03:34  fhesse
+ *   Revision 1.1  2005-09-27 11:03:34  fhesse
  *   sensorbank added
- *
- *   Revision 1.1  2005/09/22 12:56:47  martius
- *   ray based sensors
  *
  *                                                                         *
  ***************************************************************************/
-#ifndef __IRSENSOR_H
-#define __IRSENSOR_H
+#ifndef __RAYSENSORBANK_H
+#define __RAYSENSORBANK_H
 
+#include <vector>
 #include "raysensor.h"
 
-/** Class for IR sensors. 
-    IR sensors are based on distance measurements using the ODE geom class Ray. 
-    The sensor value is obtained by collisions. 
-    However of no collision is detected the sensor needs to ajust its output as well. 
-    Therefore a reset function is provided.
+enum rayDrawMode {drawRay, drawSphere, noDrawing};
+
+/** Class for a bank of ray sensors. 
+    Ray sensors can be registered at the bank. Methods for resetting, 
+    sensing and reading the sensorvalues of all sensors are provided.
  */
-class IRSensor : public RaySensor {
+class RaySensorBank {
 public:  
-  IRSensor();
+  RaySensorBank();
 
-  virtual ~IRSensor();
+  virtual ~RaySensorBank();
 
-  /** providing essential informations
+  /** gives the space of the parent (usually robot)
    */
-  virtual void init(dSpaceID space, dBodyID body, const Position& pos, const dMatrix3 rotation, double range); 
+  virtual void init(dSpaceID parent_space, rayDrawMode drawmode); 
 
-  /** used for reseting the sensor value to a value of maximal distance. 
+  /** registers a new sensor at the sensor bank. The body and the pose have to be provided.
+      @param range maximum sense range of the sensor
+      @return index of the sensor
+   */
+  virtual unsigned int registerSensor(RaySensor* raysensor, dBodyID body, 
+			     const Position& pos, const dMatrix3 rotation, double range);
+
+  /** resets all sensors (used for reseting the sensor value to a value of maximal distance) 
    */
   virtual void reset();  
   
-  /** performs sense action by checking collision with the given object
-      @return true for collision handled (sensed) and false for no interaction
+  /** performs sense action of all sensors by checking collision with the given object
+      @return true for any collision handled (sensed) and false for no interaction
    */
   virtual bool sense(dGeomID object);
 
-  /** returns the sensor value (usually in the range [-1,1] )
+  /** returns the sensor value of the given sensor (usually in the range [-1,1] )
    */
-  virtual double get();
+  virtual double get(unsigned int index);
 
-  /** draws the sensor ray
+  /** writes sensorvalues in given sensorarray
+      @param sensorarray pointer to the sensorarray in which the values should be stored
+      @param start element in the sensorarray in which the first raysensor should be stored
+      @param array_size maximal number of all elements in the sensorarray
+      @return number of written sensorvalues
+   */
+  virtual int get(double* sensorarray, unsigned int start, unsigned int array_size);
+
+  /** returns the spaceID of the sensor space
+   */
+  virtual dSpaceID getSpaceID();
+
+  /** draws all sensors
    */
   virtual void draw();
   
-  /** returns the geomID of the ray geom (used for optimisation)
-   */
-  virtual dGeomID getGeomID();
+
 
 protected:
-  /** describes the sensor characteritic 
-      linear curve used here
-  */
-  virtual double characteritic(double len);
-
-protected:
-  dGeomID transform;
-  dGeomID ray;
-  double range;
-  double value;
+  std::vector<RaySensor*> bank;
+  dSpaceID sensor_space;
+  bool initialized;
 };
 
 #endif

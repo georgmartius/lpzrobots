@@ -20,56 +20,77 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-27 11:03:34  fhesse
+ *   Revision 1.1  2005-09-27 11:03:34  fhesse
  *   sensorbank added
- *
- *   Revision 1.1  2005/09/22 12:56:47  martius
- *   ray based sensors
  *
  *                                                                         *
  ***************************************************************************/
-#ifndef __RAYSENSOR_H
-#define __RAYSENSOR_H
 
-#include <ode/common.h>
-#include "position.h"
+#include <ode/ode.h>
 
-/** Abstract class for Ray-based sensors. 
-    This are sensors which are based on distance measurements using the ODE geom class Ray. 
-    The sensor value is obtained by collisions. 
-    However of no collision is detected the sensor needs to ajust its output as well. 
-    Therefore a reset function is provided.
- */
-class RaySensor {
-public:  
-  RaySensor() {}
-  
-  /** providing essential information
-   */
-  virtual void init(dSpaceID space, dBodyID body, const Position& pos, 
-		    const dMatrix3 rotation, double range) = 0;  
+#include "raysensorbank.h"
 
-  /** used for reseting the sensor value to a value of maximal distance. 
-   */
-  virtual void reset() = 0;  
-  
-  /** performs sense action by checking collision with the given object
-      @return true for collision handled (sensed) and false for no interaction
-   */
-  virtual bool sense(dGeomID object) = 0;
-
-  /** returns the sensor value (usually in the range [-1,1] )
-   */
-  virtual double get() = 0;
-
-  /** draws the sensor ray
-   */
-  virtual void draw() = 0;
-  
-  /** returns the geomID of the ray geom (used for optimisation)
-   */
-  virtual dGeomID getGeomID() =0;
-
+RaySensorBank::RaySensorBank(){
+  bank.resize(0);
+  initialized=false;
 };
 
-#endif
+RaySensorBank::~RaySensorBank(){
+};
+
+void RaySensorBank::init(dSpaceID parent_space, rayDrawMode drawmode){
+  sensor_space = dSimpleSpaceCreate ( parent_space );
+  initialized=true;  
+}; 
+
+unsigned int RaySensorBank::registerSensor(RaySensor* raysensor, dBodyID body, 
+					   const Position& pos, const dMatrix3 rotation, double range){
+  raysensor->init(sensor_space, body, pos, rotation, range);
+  bank.push_back(raysensor);  
+  return bank.size();
+};
+
+void RaySensorBank::reset(){
+  for (unsigned int i=0; i<bank.size(); i++){
+    bank[i]->reset();
+  }
+};  
+  
+bool RaySensorBank::sense(dGeomID object){
+  bool sth_sensed=false;
+  for (unsigned int i=0; i<bank.size(); i++){
+    if (bank[i]->sense(object)){
+      sth_sensed=true;
+    }
+  }
+  return sth_sensed;
+};
+
+double RaySensorBank::get(unsigned int index){
+  //Todo: assert(index<bank.size())
+  return bank[index]->get();
+};
+
+int RaySensorBank::get(double* sensorarray, unsigned int start, unsigned int array_size){
+  int counter=0;
+  for(unsigned int i=start; (i<array_size) && ((i-start)<bank.size()); i++){
+    sensorarray[i]=bank[i-start]->get();
+    counter++;
+  }
+  return counter;
+};
+
+dSpaceID RaySensorBank::getSpaceID(){
+  return sensor_space;
+};
+
+void RaySensorBank::draw(){
+  for (unsigned int i=0; i<bank.size(); i++){
+    bank[i]->draw();
+  }
+};
+  
+
+
+
+
