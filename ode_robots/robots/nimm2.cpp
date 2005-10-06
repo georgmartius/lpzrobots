@@ -27,7 +27,7 @@ Nimm2::Nimm2(const OdeHandle& odehandle, const Nimm2Conf& conf):
   height=conf.size;
 
   width=conf.size/2; 
-  radius=conf.size/4+conf.size/200;
+  radius=conf.size/4+conf.size/600;
   wheelthickness=conf.size/20;
   cmass=8*conf.size;  
   wmass=conf.size;  
@@ -224,7 +224,7 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 	contact[i].surface.slip2 = 0.005;
 	if(colwithbody){
 	  contact[i].surface.mu = 0.1; // small friction of smooth body
-	  contact[i].surface.soft_erp = 0.5;
+	  contact[i].surface.soft_erp = 0.9;
 	  contact[i].surface.soft_cfm = 0.001;
 	}else{
 	  contact[i].surface.mu = 1.1; //large friction
