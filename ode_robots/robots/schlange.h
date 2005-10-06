@@ -57,7 +57,6 @@ private:
 
 protected:
   SchlangenConf conf;
-  char* name;
 
 public:
 

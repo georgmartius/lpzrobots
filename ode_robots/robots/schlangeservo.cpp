@@ -137,29 +137,22 @@ int SchlangeServo::getSensors ( sensor* sensors, int sensornumber )
     @param keylist,vallist will be allocated with malloc (free it after use!)
     @return length of the lists
 */
-int SchlangeServo::getParamList(paramkey*& keylist,paramval*& vallist) const{
-  int number_params=1; // don't forget to adapt number params!
-  keylist=(paramkey*)malloc(sizeof(paramkey)*number_params);
-  vallist=(paramval*)malloc(sizeof(paramval)*number_params);
-  keylist[0]="frictionGround";  
-
-  vallist[0]=conf.frictionGround;
-  return number_params;
+Configurable::paramlist SchlangeServo::getParamList() const{
+  paramlist list;
+  list += pair<paramkey, paramval> (string("frictionGround"), conf.frictionGround);
+  return list;
 }
 
 
-paramval SchlangeServo::getParam(paramkey key) const{
-  if(!key) return 0.0;
-  if(strcmp(key, "frictionGround")==0) return conf.frictionGround; 
+Configurable::paramval SchlangeServo::getParam(const paramkey& key) const{
+  
+  if(key == "frictionGround") return conf.frictionGround; 
   else  return Configurable::getParam(key) ;
 }
 
-bool SchlangeServo::setParam(paramkey key, paramval val){
-  if(!key) {
-    fprintf(stderr, "%s: empty Key!\n", __FILE__);
-    return false;
-  }
-  if(strcmp(key, "frictionGround")==0) conf.frictionGround = val; 
+bool SchlangeServo::setParam(const paramkey& key, paramval val){
+  
+  if(key == "frictionGround") conf.frictionGround = val; 
   else return Configurable::setParam(key, val);
   return true;
 }

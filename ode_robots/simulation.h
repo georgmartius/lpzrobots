@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2005-09-27 13:58:48  martius
+ *   Revision 1.18  2005-10-06 17:11:26  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.17  2005/09/27 13:58:48  martius
  *   added drawLine
  *
  *   Revision 1.16  2005/09/22 13:17:11  martius
@@ -126,6 +129,7 @@ int contains(char **list, int len,  const char *str);
 void showParams(const ConfigList& configs);
 /// offers the possibility to change parameter of all configurable objects
 void changeParams(ConfigList& configs);
+
 
 //dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
 #ifdef dDOUBLE

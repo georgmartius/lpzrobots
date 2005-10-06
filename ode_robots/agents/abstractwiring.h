@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-08-03 20:34:58  martius
+ *   Revision 1.6  2005-10-06 17:11:36  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.5  2005/08/03 20:34:58  martius
  *   use if Inspectable interface
  *
  *   Revision 1.4  2005/07/21 15:14:47  martius
@@ -111,14 +114,14 @@ public:
       @param: keylist (do NOT free it! It is a pointer to an internal structure)
       @return: length of the lists
    */
-  virtual int getInternalParamNames(paramkey*& keylist) { return 0; };
+  virtual list<iparamkey> getInternalParamNames() { return list<iparamkey>(); };
   /** The list of the names of all internal parameters given by getInternalParams().
       @param vallist stores the values of all internal parameters 
       (in the order given by getInternalParamNames())
       @param length length of vallist array
       @return: number of parameters actually written
    */
-  virtual int getInternalParams(paramval* vallist, int length) { return 0; };
+  virtual list<iparamval>  getInternalParams() { return list<iparamval>(); };
 
 
 protected:

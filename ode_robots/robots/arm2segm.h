@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-09-22 12:24:36  martius
+ *   Revision 1.4  2005-10-06 17:14:24  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.3  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -41,7 +44,6 @@
 
 #include "abstractrobot.h"
 #include "configurable.h"
-
 
 typedef struct {
 public:
@@ -122,17 +124,17 @@ public:
   virtual void doInternalStuff(const GlobalData& globalData);
 
   /// returns the name of the object (with version number)
-  virtual constparamkey getName() const {return name; } 
+  virtual paramkey getName() const {return name; } 
   
   /** The list of all parameters with there value as allocated lists.
       @param keylist,vallist will be allocated with malloc (free it after use!)
       @return length of the lists
   */
-  virtual int getParamList(paramkey*& keylist,paramval*& vallist) const;
+  paramlist getParamList() const;
   
-  virtual paramval getParam(paramkey key) const;
+  virtual paramval getParam(const paramkey& key) const;
   
-  virtual bool setParam(paramkey key, paramval val);
+  virtual bool setParam(const paramkey& key, paramval val);
 
 
 protected:
@@ -161,7 +163,7 @@ protected:
     Object object[armanzahl+1];  
     dJointID joint[armanzahl+1]; 
 
-    char name[50];    
+    string name;    
     paramval factorMotors;
     paramval factorSensors;
     paramval avgMotor;

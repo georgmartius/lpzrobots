@@ -163,41 +163,31 @@ int SchlangeForce::getSensors ( sensor* sensors, int sensornumber )
     @param keylist,vallist will be allocated with malloc (free it after use!)
     @return length of the lists
 */
-int SchlangeForce::getParamList(paramkey*& keylist,paramval*& vallist) const{
-  int number_params=4; // don't forget to adapt number params!
-  keylist=(paramkey*)malloc(sizeof(paramkey)*number_params);
-  vallist=(paramval*)malloc(sizeof(paramval)*number_params);
-  keylist[0]="gamma";
-  keylist[1]="frictionGround";  
-  keylist[2]="factorForce";  
-  keylist[3]="factorSensors";  
-
-  vallist[0]=gamma;
-  vallist[1]=conf.frictionGround;
-  vallist[2]=conf.factorForce;
-  vallist[3]=conf.factorSensors;
-  return number_params;
+Configurable::paramlist SchlangeForce::getParamList() const{
+  paramlist list;
+  list.push_back(pair<paramkey, paramval> (string("gamma"), gamma));
+  list.push_back(pair<paramkey, paramval> (string("frictionGround"), conf.frictionGround));
+  list.push_back(pair<paramkey, paramval> (string("factorForce"), conf.factorForce));
+  list.push_back(pair<paramkey, paramval> (string("factorSensors"), conf.factorSensors));
+  return list;
 }
 
 
-paramval SchlangeForce::getParam(paramkey key) const{
-  if(!key) return 0.0;
-  if(strcmp(key, "gamma")==0) return gamma; 
-  else if(strcmp(key, "frictionGround")==0) return conf.frictionGround; 
-  else if(strcmp(key, "factorForce")==0)    return conf.factorForce;  	
-  else if(strcmp(key, "factorSensors")==0)  return conf.factorSensors;  	
-  else  return Configurable::getParam(key) ;
+Configurable::paramval SchlangeForce::getParam(const paramkey& key) const{
+  
+  if(key == "gamma") return gamma; 
+  else if(key == "frictionGround") return conf.frictionGround; 
+  else if(key == "factorForce")    return conf.factorForce;  	
+  else if(key == "factorSensors")  return conf.factorSensors;  	
+  else return Configurable::getParam(key) ;
 }
 
-bool SchlangeForce::setParam(paramkey key, paramval val){
-  if(!key) {
-    fprintf(stderr, "%s: empty Key!\n", __FILE__);
-    return false;
-  }
-  if(strcmp(key, "gamma")==0) gamma=val;
-  else if(strcmp(key, "frictionGround")==0) conf.frictionGround = val; 
-  else if(strcmp(key, "factorForce")==0)    conf.factorForce    = val;
-  else if(strcmp(key, "factorSensors")==0)  conf.factorSensors  = val;
+bool SchlangeForce::setParam(const paramkey& key, paramval val){
+  
+  if(key == "gamma") gamma=val;
+  else if(key == "frictionGround") conf.frictionGround = val; 
+  else if(key == "factorForce")    conf.factorForce    = val;
+  else if(key == "factorSensors")  conf.factorSensors  = val;
   else return Configurable::setParam(key, val);
   return true;
 }

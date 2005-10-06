@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-09-22 12:24:36  martius
+ *   Revision 1.11  2005-10-06 17:14:24  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.10  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -94,7 +97,7 @@ public:
   virtual ~AbstractRobot(){}
 
   /// returns the name of the robot
-  const char* getName() const { return name;}
+  string getName() const { return name;}
 
   /// draws the robot
   virtual void draw() = 0;
@@ -175,7 +178,7 @@ protected:
   dSpaceID space;
   dWorldID world;
   dJointGroupID contactgroup;
-  const char* name;
+  string name;
 
   Color color;
 

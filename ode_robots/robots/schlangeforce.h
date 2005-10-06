@@ -22,12 +22,11 @@ using namespace std;
 class SchlangeForce : public Schlange, public Configurable
 {
 private:
-
-	char name[50];
-	paramval gamma;
-	paramval frictionGround;
-	paramval factorForce;
-	paramval factorSensors;
+  
+  paramval gamma;
+  paramval frictionGround;
+  paramval factorForce;
+  paramval factorSensors;
 
 public:
 
@@ -93,17 +92,17 @@ public:
 	
 
 	/// returns the name of the object (with version number)
-	virtual constparamkey getName() const {return name; } 
+	virtual paramkey getName() const {return name; } 
 
 	/** The list of all parameters with there value as allocated lists.
 	    @param keylist,vallist will be allocated with malloc (free it after use!)
 	    @return length of the lists
 	*/
-	virtual int getParamList(paramkey*& keylist,paramval*& vallist) const;
+	virtual paramlist getParamList() const;
 
-	virtual paramval getParam(paramkey key) const;
+	virtual paramval getParam(const paramkey& key) const;
 
-	virtual bool setParam(paramkey key, paramval val);
+	virtual bool setParam(const paramkey& key, paramval val);
 	
 
 };

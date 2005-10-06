@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-09-22 12:24:36  martius
+ *   Revision 1.10  2005-10-06 17:11:36  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.9  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -74,7 +77,6 @@ Agent::Agent(PlotMode plotmode/*=GuiLogger*/, PlotSensors plotsensors /*= Contro
   this->plotsensors=plotsensors;
 
   pipe=0;
-  numberInternalParameters=0;
   t=0;
 }
   
@@ -109,10 +111,12 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
     
     if(plotmode != NoPlot){
       if(!OpenGui()) return false;
+      // print head line with all parameter names
       unsigned int snum = plotsensors == Robot ? rsensornumber : csensornumber;
-      Inspectable* inspectables[2] = {controller, wiring};
-      numberInternalParameters = 
-	printInternalParameterNames(pipe, snum, cmotornumber, inspectables, 2);
+      Inspectable* inspectables[2] = {controller, wiring};      
+      printInternalParameterNames(pipe, snum, cmotornumber, inspectables, 2);
+      // print all parameters of the controller
+      controller->print(pipe, "# ");      
     }    
     return true;
   }
@@ -123,7 +127,7 @@ bool Agent::OpenGui(){
   // this prevents the simulation to terminate if the child (guilogger) closes
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN); 
-  // TODO: get the guilogger call from some  config
+  // TODO: get the guilogger call from some config
   if(plotmode == GuiLogger_File){
     pipe=popen("guilogger -l -m pipe -d 5","w");
   }else{
@@ -152,8 +156,7 @@ void Agent::plot(const sensor* x, int sensornumber, const motor* y, int motornum
 //  	    __FILE__, __LINE__);
 //   }
   Inspectable* inspectables[2] = {controller, wiring};
-  printInternalParameters(pipe, x, sensornumber, y, motornumber, 
-			  numberInternalParameters, inspectables , 2);
+  printInternalParameters(pipe, x, sensornumber, y, motornumber, inspectables , 2);
   if(t%10==0) fflush(pipe);
 };
 

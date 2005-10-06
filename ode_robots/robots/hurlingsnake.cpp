@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-09-22 12:24:37  martius
+ *   Revision 1.8  2005-10-06 17:14:24  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.7  2005/09/22 12:24:37  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -65,8 +68,9 @@ HurlingSnake::HurlingSnake(const OdeHandle& odeHandle):
   AbstractRobot(odeHandle){
 
   // prepare name;
+  name.clear();
   Configurable::insertCVSInfo(name, "$RCSfile$", 
-		           	            "$Revision$");
+			      "$Revision$");
 
   factorForce=5.0;
   frictionGround=0.2;
@@ -308,39 +312,26 @@ Position HurlingSnake::getPosition(){
 
 
 
-/** The list of all parameters with there value as allocated lists.
-    @param keylist,vallist will be allocated with malloc (free it after use!)
-    @return length of the lists
-*/
-int HurlingSnake::getParamList(paramkey*& keylist,paramval*& vallist) const{
-  int number_params=2; // don't forget to adapt number params!
-  keylist=(paramkey*)malloc(sizeof(paramkey)*number_params);
-  vallist=(paramval*)malloc(sizeof(paramval)*number_params);
-  keylist[0]="factorForce";
-  keylist[1]="frictionGround";  
-
-  vallist[0]=factorForce;
-  vallist[1]=frictionGround;
-  return number_params;
+Configurable::paramlist HurlingSnake::getParamList() const{
+  paramlist list;
+  list.push_back( pair<paramkey, paramval> (string("factorForce"), factorForce));
+  list.push_back( pair<paramkey, paramval> (string("frictionGround"), frictionGround));
+  list.push_back( pair<paramkey, paramval> (string("place"), 0));
+  return list;
 }
 
 
-paramval HurlingSnake::getParam(paramkey key) const{
-  if(!key) return 0.0;
-  if(strcmp(key, "factorForce")==0) return factorForce; 
-  else if(strcmp(key, "frictionGround")==0) return frictionGround; 
+Configurable::paramval HurlingSnake::getParam(const paramkey& key) const{
+  if(key == "factorForce") return factorForce; 
+  else if(key == "frictionGround") return frictionGround; 
   else  return Configurable::getParam(key) ;
 }
 
 
-bool HurlingSnake::setParam(paramkey key, paramval val){
-  if(!key) {
-    fprintf(stderr, "%s: empty Key!\n", __FILE__);
-    return false;
-  }
-  if(strcmp(key, "factorForce")==0) factorForce=val;
-  else if(strcmp(key, "frictionGround")==0) frictionGround=val; 
-  else if(strcmp(key, "place")==0) {
+bool HurlingSnake::setParam(const paramkey& key, paramval val){
+  if(key == "factorForce") factorForce=val;
+  else if(key == "frictionGround") frictionGround=val; 
+  else if(key == "place") {
     Position p(0,0,3);
     place(p) ; 
   }

@@ -20,9 +20,9 @@ Schlange::Schlange ( int startRoboterID , const OdeHandle& odeHandle,
 		     const SchlangenConf& conf ) 
   : Roboter ( startRoboterID , odeHandle , 2*(conf.armAnzahl-1) )
 {
-  name = (char *) malloc(20*sizeof(char));
-  sprintf(name, "Schlange_%i", startRoboterID);
-  setName(name);
+  char buffer[20]; 
+  sprintf(buffer, "Schlange_%i", startRoboterID);
+  name = string(buffer);
 
   snake_space = dSimpleSpaceCreate (space);
   dSpaceSetCleanup ( snake_space , 0 );
@@ -87,7 +87,6 @@ Schlange::Schlange ( int startRoboterID , const OdeHandle& odeHandle,
  **/
 Schlange::~Schlange()
 {  
-  free(name);
   dSpaceDestroy( snake_space );
 }
 

@@ -387,46 +387,31 @@ double Arm2Segm::dBodyGetPositionAll ( dBodyID basis , int para ){
         case 2: return pos[1]; break;
         case 3: return pos[2]; break;	  
     }
-    return 0;
-    
+    return 0;    
 }
 
-
-int Arm2Segm::getParamList(paramkey*& keylist,paramval*& vallist) const{
-  int number_params=4; // don't forget to adapt number params!
-  keylist=(paramkey*)malloc(sizeof(paramkey)*number_params);
-  vallist=(paramval*)malloc(sizeof(paramval)*number_params);
-  keylist[0]="factorMotors";
-  keylist[1]="factorSensors";  
-  keylist[2]="avgMotor";  
-  keylist[3]="maxMotorKraft";  
-
-  vallist[0]=factorMotors;
-  vallist[1]=factorSensors;
-  vallist[2]=avgMotor;
-  vallist[3]=maxMotorKraft;
-  return number_params;
+Configurable::paramlist Arm2Segm::getParamList() const{
+  paramlist list;
+  list.push_back(pair<paramkey, paramval> (string("factorMotors"), factorMotors));
+  list.push_back(pair<paramkey, paramval> (string("factorSensors"), factorSensors));
+  list.push_back(pair<paramkey, paramval> (string("avgMotor"), avgMotor));
+  list.push_back(pair<paramkey, paramval> (string("maxMotorKraft"), maxMotorKraft));
+  return list;
 }
 
-
-paramval Arm2Segm::getParam(paramkey key) const{
-  if(!key) return 0.0;
-  if(strcmp(key, "factorMotors")==0) return factorMotors; 
-  else if(strcmp(key, "factorSensors")==0) return factorSensors; 
-  else if(strcmp(key, "avgMotor")==0)    return avgMotor;  	
-  else if(strcmp(key, "maxMotorKraft")==0)  return maxMotorKraft;  	
+Configurable::paramval Arm2Segm::getParam(const paramkey& key) const{
+  if(key == "factorMotors") return factorMotors; 
+  else if(key == "factorSensors") return factorSensors; 
+  else if(key == "avgMotor")    return avgMotor;  	
+  else if(key == "maxMotorKraft")  return maxMotorKraft;  	
   else  return Configurable::getParam(key) ;
 }
 
-bool Arm2Segm::setParam(paramkey key, paramval val){
-  if(!key) {
-    fprintf(stderr, "%s: empty Key!\n", __FILE__);
-    return false;
-  }
-  if(strcmp(key, "factorMotors")==0) factorMotors=val;
-  else if(strcmp(key, "factorSensors")==0) factorSensors = val; 
-  else if(strcmp(key, "avgMotor")==0)    avgMotor    = val;
-  else if(strcmp(key, "maxMotorKraft")==0)  maxMotorKraft  = val;
+bool Arm2Segm::setParam(const paramkey& key, paramval val){
+  if(key == "factorMotors") factorMotors=val;
+  else if(key == "factorSensors") factorSensors = val; 
+  else if(key == "avgMotor")    avgMotor    = val;
+  else if(key == "maxMotorKraft")  maxMotorKraft  = val;
   else return Configurable::setParam(key, val);
   return true;
 }

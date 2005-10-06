@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.36  2005-09-27 13:59:03  martius
+ *   Revision 1.37  2005-10-06 17:11:26  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.36  2005/09/27 13:59:03  martius
  *   doInternals after control
  *
  *   Revision 1.35  2005/09/23 09:55:16  martius
@@ -351,9 +354,9 @@ void simLoop ( int pause ){
       diff -= long(globalData.odeConfig.simStepSize*1000.0/globalData.odeConfig.realTimeFactor); 
       if(diff < -3){ // if less the 3 milliseconds we don't call usleep since it needs time
 	usleep(min(100l,-diff-2)*1000);
-	nextLeakAnnounce=max(20,nextLeakAnnounce/2);
+	nextLeakAnnounce=max(200,nextLeakAnnounce/2);
       }else if (diff > 0){
-	if(leakAnnCounter%nextLeakAnnounce==0){ // we do not bother the user all the time
+	if(leakAnnCounter%nextLeakAnnounce==0 && diff > 10){ // we do not bother the user all the time
 	  printf("Time leak of %li ms (Please increase realTimeFactor)\n", diff);
 	  nextLeakAnnounce*=2;
 	  leakAnnCounter=0;
@@ -414,21 +417,8 @@ int contains(char **list, int len,  const char *str){
 // Commandline interface stuff
 void showParams(const ConfigList& configs)
 {
-  paramkey* keys;
-  paramval* vals;
-  const unsigned short spacelength=20;
-  char spacer[spacelength];
-  memset(spacer, ' ', spacelength);  spacer[spacelength-1]=0;
-
-  for(ConfigList::const_iterator i=configs.begin(); i != configs.end(); i++){
-    int pnum = (*i)->getParamList(keys,vals);
-    printf("Parameters of %s\n", (*i)->getName());
-    for(int j=0; j < pnum; j++) {
-      printf(" %s=%s%f\n", keys[j], 
-	     spacer+(strlen(keys[j]) > spacelength  ? spacelength : strlen(keys[j])),vals[j]);
-    }
-    free(keys);
-    free(vals);
+  for(vector<Configurable*>::const_iterator i=configs.begin(); i != configs.end(); i++){
+    (*i)->print(stdout, 0);
   }
 }
 
@@ -545,7 +535,7 @@ void usercommand_handler(int key) {
 	break;
       }
     }
-    printf("View at robot: %s\n", viewedRobot->getName());
+    cout << "View at robot: " << viewedRobot->getName() << endl;
     break;
   case 'v': // is for switching between the camera modes
     initViewedRobot();    

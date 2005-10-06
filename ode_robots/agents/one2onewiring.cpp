@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-08-31 11:10:36  martius
+ *   Revision 1.7  2005-10-06 17:11:37  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.6  2005/08/31 11:10:36  martius
  *   removed bug that causes segfault, it was in malloc of noise(vals)
  *
  *   Revision 1.5  2005/08/03 20:34:58  martius
@@ -47,17 +50,11 @@
 /// constructor
 One2OneWiring::One2OneWiring(NoiseGenerator* noise, bool plotNoise)
   : AbstractWiring(noise), plotNoise(plotNoise){
-  keylist=0;
   noisevals=0;
 }
 
 One2OneWiring::~One2OneWiring(){
   if(noisevals) delete (noisevals);
-  if(keylist) {
-    for(int i = 0; i < rsensornumber; i++)
-      free(keylist[i]);
-    free(keylist);
-  }
 }
 
 
@@ -114,35 +111,27 @@ bool One2OneWiring::wireMotors(motor* rmotors, int rmotornumber,
 }
 
 /** The list of the names of all internal parameters given by getInternalParams().
-    @param: keylist (do NOT free it! It is a pointer to an internal structure)
-    @return: length of the lists
 */
-int One2OneWiring::getInternalParamNames(paramkey*& _keylist){
-  if(plotNoise) {
-    if (keylist==0){
-      keylist=(paramkey*)malloc(sizeof(paramkey)*rsensornumber);
-      for(int i = 0; i < rsensornumber; i++){
-	keylist[i] = (paramkey) malloc(9*sizeof(char));
-	sprintf(keylist[i],"n[%d]", i);
-      }
+list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames(){
+  list<iparamkey> l;
+  char buffer[32];
+  if(plotNoise) {    
+    for(int i = 0; i < rsensornumber; i++){
+      sprintf(buffer,"n[%d]", i);
+      l += string(buffer);
     }
-    _keylist=keylist;
-    return rsensornumber;
-  } else return 0;
+  } 
+  return l;
 }
 
 /** The list of the names of all internal parameters given by getInternalParams().
-    @param vallist stores the values of all internal parameters 
-    (in the order given by getInternalParamNames())
-    @param length length of vallist array
-    @return: number of parameters actually written
 */
-int One2OneWiring::getInternalParams(paramval* vallist, int length){
-  int mini = min(length, rsensornumber);
-  for(int i=0; i < mini; i++){
-    vallist[i] = noisevals[i];
+list<Inspectable::iparamval> One2OneWiring::getInternalParams(){
+  list<iparamval> l;
+  for(int i=0; i < rsensornumber; i++){
+    l += noisevals[i];
   }
-  return mini;
+  return l;
 }
 
 
