@@ -18,7 +18,6 @@
 #include "invertmotorspace.h"
 #include "invertnchannelcontroller.h"
 
-ConfigList configs;
 PlotMode plotMode=NoPlot;
 int channels;
 int t=0;
@@ -43,13 +42,13 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   // initialization
   global.odeConfig.setParam("noise",0.03);
-  //  global.odeConfig.setParam("realtimefactor",0);
-  //  global.odeConfig.setParam("drawinterval", 500);
+  global.odeConfig.setParam("realtimefactor",0);
+  global.odeConfig.setParam("drawinterval", 500);
   
   AbstractRobot* robot = new ShortCircuit(odeHandle, channels, channels);  
   //  AbstractRobot* robot = new Nimm2(odeHandle);  
-  AbstractController *controller = new InvertMotorNStep(10);  
-  //AbstractController *controller = new InvertMotorSpace(10,1.2);  
+  //  AbstractController *controller = new InvertMotorNStep(10);  
+  AbstractController *controller = new InvertMotorSpace(10,1.2);  
   //  controller->setParam("adaptrate",0.0);
   controller->setParam("epsA",0.01);
   controller->setParam("epsC",0.05);
@@ -73,8 +72,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   agent->init(controller, robot, wiring);
   global.agents.push_back(agent);
   
-    configs.push_back(controller);
-  showParams(configs);
+  global.configs.push_back(controller);
+  showParams(global.configs);
 }
 
 // void addcallback (bool, bool){
@@ -98,7 +97,7 @@ void end(GlobalData& global){
 
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
-  changeParams(configs);
+  changeParams(global.configs);
 }
 
 void command(const OdeHandle& odeHandle, GlobalData& global, int key){
@@ -127,7 +126,10 @@ void printUsage(const char* progname){
 
 int main (int argc, char **argv)
 {  
-  if(argc<=1) printUsage(argv[0]);  
+  if(argc <= 1){
+    printUsage(argv[0]);  
+    return -1;
+  }
   channels = max(1,atoi(argv[1]));
   if(contains(argv, argc, "-g")) plotMode = GuiLogger;
   if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
