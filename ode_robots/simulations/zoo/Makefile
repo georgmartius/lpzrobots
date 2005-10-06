@@ -9,16 +9,16 @@ OFILES = $(addsuffix .o, $(FILES))
 EXEC = start
 
 # -pg for profiling
-#CFLAGS = -Wall -I. -g
+CFLAGS = -Wall -I. -g
 ## Optimisation
-CFLAGS = -Wall -I. -O3 -DNDEBUG
+#CFLAGS = -Wall -I. -O3 -DNDEBUG
 
 LPZROBOTS  = ../../..
 ODEROBOTS  = $(LPZROBOTS)/ode_robots
 CONTROLLER = $(LPZROBOTS)/controller
 MATRIXLIB  = $(LPZROBOTS)/matrixlib
-MATRIX     = matrix
-#MATRIX     = matrix_debug
+#MATRIX     = matrix
+MATRIX     = matrix_debug
 
 include $(ODEROBOTS)/Makefile.conf
 

@@ -24,7 +24,6 @@
 // realtimefactor=0.5
 // drawinterval=5
 
-ConfigList configs;
 PlotMode plotMode = NoPlot;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
@@ -98,11 +97,10 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   agent = new Agent( plotMode );
   agent->init(controller, snake, wiring);
   global.agents.push_back(agent);
-  configs.push_back(controller);
-  configs.push_back(snake);   
+  global.configs.push_back(controller);
+  global.configs.push_back(snake);   
   snake->setParam("gamma",/*0.0000*/ 0.0);
   
-  showParams(configs);
 
   //******* S C H L A N G E  (Long)  *********/
   snakeConf = SchlangeForce::getDefaultConf();
@@ -121,23 +119,24 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   agent = new Agent( NoPlot );
   agent->init(controller, snake, wiring);
   global.agents.push_back(agent);
-  configs.push_back(controller);
-  configs.push_back(snake);   
+  global.configs.push_back(controller);
+  global.configs.push_back(snake);   
   snake->setParam("gamma",/*0.0000*/ 0.0);
   
-  showParams(configs);
+  Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
+  nimm2conf.size = 1.6;
 
   //******* N I M M  2 *********/
-  for(int r=0; r < 3; r++) {
-    robot = new Nimm2(odeHandle,1.6);
-    Position p((r-1)*5,5,0);
-    robot->place(p);
+  for(int r=0; r < 3; r++) {    
+    robot = new Nimm2(odeHandle, nimm2conf);
+    robot->place(Position ((r-1)*5,5,0));
     ((Nimm2*)robot)->setTextures(DS_WOOD, chessTexture);
-    controller = new InvertMotorSpace(10);   
-    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
+    controller = new InvertMotorNStep(10);   
+    //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new Agent( NoPlot );
     agent->init(controller, robot, wiring);
+    global.configs.push_back(controller);
     global.agents.push_back(agent);        
   }
 
@@ -176,10 +175,10 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     wiring = new One2OneWiring(new ColorUniformNoise(0.05));
     agent = new Agent( NoPlot );
     agent->init(controller, snake, wiring);
-    configs.push_back(controller);
+    global.configs.push_back(controller);
     global.agents.push_back(agent);     
   }
-
+  showParams(global.configs);
 }
 
 void end(GlobalData& global){
@@ -198,12 +197,11 @@ void end(GlobalData& global){
 
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
-  changeParams(configs);
+  changeParams(global.configs);
 }
 
 void printUsage(const char* progname){
   printf("Usage: %s [-g] [-l] [-r seed]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n\t-r seed\trandom number seed ", progname);
-  exit(0);
 }
 
 int main (int argc, char **argv)
