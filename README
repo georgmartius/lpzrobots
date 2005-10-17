@@ -1,22 +1,32 @@
-/** @mainpage Leipzig Robots
- @par
- @section General
- @par
- This is the a collection of algorithms, simulations, and tools 
- developed by the robot group of the University Leipzig. 
- http://robot.informatik.uni-leipzig.de 
-
-*/
 
 
-This is the a collection of algorithms, simulations, and tools 
-developed by the robot group of the University Leipzig.
- http://robot.informatik.uni-leipzig.de
-
-You need the following software and libraries installed (Tested on Linux x86 machines)
-* ODE (with drawstuff lib (included)) see www.ode.org
-* avr-gcc and avr-binutils. 
-    SuSE packages under:
-    Debian includes them in Sarge
-
-Please see the subfolders for further detail.
+/** \mainpage Leipzig Robots
+ *
+ * \section General
+ * 
+ * This is the a collection of algorithms, simulations, and tools 
+ * developed by the robot group of the University Leipzig. \n
+ * http://robot.informatik.uni-leipzig.de 
+ *
+ * You need the following software and libraries installed (Tested on Linux x86 machines)
+ * - ODE (with drawstuff lib (included)) see www.ode.org
+ * - avr-gcc and avr-binutils. \n
+ *    SuSE packages under: ???\n
+ *    Debian includes them in Sarge
+ 
+ 
+ \section Structure
+ 
+  The collection consits of the following directories (click for details):
+  - \subpage controller 
+	<em> (controllers developed in the robotic group of Leipzig university
+	yielding at self-organized behaviour)</em>
+  - \subpage ode_robots
+	<em> (stuff needed for simulations such as robots, obstacles, utils and so on)</em>
+  - \subpage matrixlib
+	<em> (matrix library used e.g. in our controllers)</em>
+  - \subpage gnuplot
+	<em> (tool allowing you to use running gnuplot windows within your program )</em>
+  - \subpage guilogger
+	<em> (coordinates multiple gnuplot windows and switch channels on or of)</em>
+ */
