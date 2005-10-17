@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-09 11:06:30  robot1
+ *   Revision 1.3  2005-10-17 13:05:46  robot3
+ *   std lists included
+ *
+ *   Revision 1.2  2005/08/09 11:06:30  robot1
  *   camera module included
  *
  *   Revision 1.1  2005/08/08 11:14:54  robot1
@@ -139,35 +142,29 @@ void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors,
   
   
 
-paramval SimpleController::getParam(paramkey key) const{
-  if(!key) return 0.0;
-  if(strcmp(key, "velocity")==0) return velocity; 
-  else if(strcmp(key, "leftRightShift")==0) return leftRightShift; 
-  else  return AbstractController::getParam(key) ;
-};
 
-bool SimpleController::setParam(paramkey key, paramval val){
-  if(!key) {
-	  fprintf(stderr, "%s: empty Key!\n", __FILE__);
-    return false;
-  }
-  if(strcmp(key, "velocity")==0) velocity=val;
-  else if(strcmp(key, "leftRightShift")==0) leftRightShift=val; 
+
+
+Configurable::paramval SimpleController::getParam(const paramkey& key) const{
+  if(key == "velocity") return velocity; 
+  else if(key == "leftRightShift") return leftRightShift; 
+  else  return AbstractController::getParam(key) ;
+}
+
+bool SimpleController::setParam(const paramkey& key, paramval val){
+  if(key == "velocity") velocity=val;
+  else if(key == "leftRightShift") leftRightShift=val; 
   else return AbstractController::setParam(key, val);
   return true;
-};
+}
 
-int SimpleController::getParamList(paramkey*& keylist,paramval*& vallist) const{
-  int number_params=2;  
-  keylist=(paramkey*)malloc(sizeof(paramkey)*number_params);
-  vallist=(paramval*)malloc(sizeof(paramval)*number_params);
-  keylist[0]="velocity";
-  keylist[1]="leftRightShift";
-  
-  vallist[0]=velocity;
-  vallist[1]=leftRightShift;
-  return number_params;
-};
+Configurable::paramlist SimpleController::getParamList() const{
+  paramlist l;
+  l += pair<paramkey, paramval> (string("velocity"), velocity);
+  l += pair<paramkey, paramval> (string("leftRightShift"), leftRightShift);
+  return l;
+}
+
 
   /** Initialises the registers the given callback functions.
       @param handling() is called every step that the camera gets new position

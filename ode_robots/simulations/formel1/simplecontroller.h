@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-09 11:06:30  robot1
+ *   Revision 1.4  2005-10-17 13:07:57  robot3
+ *   std lists included
+ *
+ *   Revision 1.3  2005/10/17 13:05:47  robot3
+ *   std lists included
+ *
+ *   Revision 1.2  2005/08/09 11:06:30  robot1
  *   camera module included
  *
  *   Revision 1.1  2005/08/08 11:14:54  robot1
@@ -54,7 +60,8 @@ public:
   virtual void init(int sensornumber, int motornumber);
 
   /// returns the name of the object (with version number)
-  virtual constparamkey getName() const {return name; } 
+  //  virtual constparamkey getName() const {return name; } 
+  virtual paramkey getName() const {return name; } 
   
   /// @return Number of sensors the controller was initialised with or 0 if not initialised
   virtual int getSensorNumber() const {return number_sensors;}
@@ -93,10 +100,9 @@ public:
    */
   virtual int getInternalParams(paramval* vallist, int length){return 0;}
   
-
-  virtual paramval getParam(paramkey key) const;
-  virtual bool setParam(paramkey key, paramval val);
-  virtual int getParamList(paramkey*& keylist,paramval*& vallist) const ;
+  virtual paramval getParam(const paramkey& key) const;
+  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramlist getParamList() const ;
 
   /** Initialises the registers the given callback functions.
       @param handling() is called every step that the camera gets new position
