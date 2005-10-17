@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-10-17 13:05:47  robot3
+ *   Revision 1.5  2005-10-17 13:17:10  martius
+ *   converted to new list's
+ *
+ *   Revision 1.4  2005/10/17 13:07:57  robot3
+ *   std lists included
+ *
+ *   Revision 1.3  2005/10/17 13:05:47  robot3
  *   std lists included
  *
  *   Revision 1.2  2005/08/09 11:06:30  robot1
@@ -82,25 +88,19 @@ public:
   virtual void stepNoLearning(const sensor* , int number_sensors, 
 			      motor* , int number_motors);
   
-
   /** The list of the names of all internal parameters given by getInternalParams().
       @param: keylist (do NOT free it! It is a pointer to an internal structure)
       @return: length of the lists
    */
-  virtual int getInternalParamNames(paramkey*& keylist){return 0;}
+  virtual list<iparamkey> getInternalParamNames(){return list<iparamkey>();}
 
   /** The list of the names of all internal parameters given by getInternalParams().
-      @param vallist stores the values of all internal parameters 
-      (in the order given by getInternalParamNames())
-      @param length length of vallist array
-      @return: number of parameters actually written
    */
-  virtual int getInternalParams(paramval* vallist, int length){return 0;}
+  virtual list<iparamval> getInternalParams(){return list<iparamval>();}
   
-
-  virtual paramval getParam(paramkey key) const;
-  virtual bool setParam(paramkey key, paramval val);
-  virtual int getParamList(paramkey*& keylist,paramval*& vallist) const ;
+  virtual paramval getParam(const paramkey& key) const;
+  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramlist getParamList() const ;
 
   /** Initialises the registers the given callback functions.
       @param handling() is called every step that the camera gets new position
@@ -112,9 +112,8 @@ public:
 
 
 protected:
-
+  string name;
   int t;
-  char name[50];
   int number_sensors;
   int number_motors;
   int cameraHandlingDefined;
@@ -123,7 +122,6 @@ protected:
   paramval leftRightShift;
   paramval decreaseFactorVelocity;
   paramval decreaseFactorShift;
-
 
 };
 

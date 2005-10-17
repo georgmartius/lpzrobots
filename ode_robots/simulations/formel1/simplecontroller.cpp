@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-10-17 13:05:46  robot3
+ *   Revision 1.4  2005-10-17 13:17:10  martius
+ *   converted to new list's
+ *
+ *   Revision 1.3  2005/10/17 13:05:46  robot3
  *   std lists included
  *
  *   Revision 1.2  2005/08/09 11:06:30  robot1
@@ -140,10 +143,6 @@ void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors,
 	t++;
 };
   
-  
-
-
-
 
 Configurable::paramval SimpleController::getParam(const paramkey& key) const{
   if(key == "velocity") return velocity; 
