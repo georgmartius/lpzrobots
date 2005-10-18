@@ -1,0 +1,14 @@
+
+/**
+\dir ode_robots/robots
+
+The robots of our simuated worlds "live" in this directory.
+You find the class \ref AbstractRobot here, which provides the interface fulfilled
+by all the robots (which are derived from this class).
+\ref Nimm2 you maybe already know from the simulation \ref ode_robots/simulations/template_onerobot
+ "template_onerobot".
+	
+
+*/
+
+

@@ -1,0 +1,18 @@
+
+/**
+
+\dir agents
+
+The agents directory contains the class \ref Agent which is a subsumption
+of a robot, a controller and a wiring. 
+The wiring specifies the connections between the sensor values of the robot
+and the sensor values of the controller, and between the motor outputs of the controller 
+and the motor values given to the robot. In the most simple case you just
+put the values throug the wiring without changing them like in \ref One2OneWiring.
+But the controller can also have more sensor values then the robot. For example you
+can feed the derivatives of the sensorvalues in the controller as it is done in \ref DerivativeWiring.
+Furthermore you can add or multiply the sensorvalues in your wiring or whatever you would like to.
+
+
+
+ */ 

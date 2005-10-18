@@ -1,0 +1,15 @@
+
+/**
+\dir obstacles
+
+Obstacles in our simulations are different kinds of boundaries, so called arenas or playgrounds.
+\ref Playground is just a rectancular arena, \ref ClosedPlayground one with a ceiling.
+The \ref OctaPlayground can have 8 corners but even more, because the number of corners is
+adjustable, so you can even generate a circular arena.
+Furthermore there is a class \ref TerrainGround for using ppm files as ground in simulations.
+
+The \ref Sphere is at the moment the only moveable (e.g. through collisions with moving vehicles) 
+obstacle but all other bodies are also possible.
+
+*/ 
+ 

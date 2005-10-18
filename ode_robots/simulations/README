@@ -1,0 +1,16 @@
+
+/**
+\dir simulations
+
+The simulations directory contains the different simulations originated from our work
+on the selforganization issue.
+
+For convenience you should start with one of the template directories like template_onerobot.
+Just type:\n
+<tt> $> ./createNewSimulation.sh template_onerobot my_sim</tt>\n
+to create the directory \p my_sim, adapt it to your needs, run \p make and \p start and it should work.
+
+*/
+
+
+ 
