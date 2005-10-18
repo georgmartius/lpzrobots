@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.37  2005-10-06 17:11:26  martius
+ *   Revision 1.38  2005-10-18 15:31:32  fhesse
+ *   one comment improved
+ *
+ *   Revision 1.37  2005/10/06 17:11:26  martius
  *   switched to stl lists
  *
  *   Revision 1.36  2005/09/27 13:59:03  martius
@@ -182,7 +185,7 @@ void (*configFunction)(GlobalData& globalData) = 0 ;
 void (*commandFunction)(const OdeHandle&, GlobalData& globalData, int key) = 0 ; 
 /// pointer to the user defined additional function
 void (*collisionCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) = 0;
-/// pointer to the user defined additional function
+/// pointer to the user defined additional function which is executed in each simulationstep
 void (*additionalCallback)(GlobalData& globalData, bool draw, bool pause) = 0;
 
 void _start();
