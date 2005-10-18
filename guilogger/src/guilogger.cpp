@@ -219,7 +219,6 @@ int guilogger::analyzeFile()
     char c;
     int size=1, i=1;
     int linecount=0;
-    int ptrdata;
 
     FILE *instream;
 //         printf("Counting Lines...   ");
@@ -229,21 +228,29 @@ int guilogger::analyzeFile()
     {   printf("Cannot open input file.\n"); 
         return 0;
     }
-    while(c!= 10 && c != 13) 
-    {
-        i = fread(&c, 1, 1, instream);
-        if(i==1)
-        {   size++; 
-	if(size>=buffersize){
-	  buffersize=buffersize*2+1;
-	  s=(char*)realloc(s, buffersize);
+    bool channelline=false;
+    while(!channelline){
+      size=1;
+      while(c!= 10 && c != 13) 
+	{
+	  i = fread(&c, 1, 1, instream);
+	  if(i==1) { 
+	    size++; 
+	    if(size>=buffersize){
+	      buffersize=buffersize*2+1;
+	      s=(char*)realloc(s, buffersize);
+	    }
+	    s[size-2] = c;
+	  } else{
+	    channelline=true;
+	    break;
+	  }
 	}
-        s[size-2] = c;
-        }
-        else break;
+      if (s[0] == '#' && s[1] == 'C') channelline=true; 
+      c=0;	    
     }
     s[size-1]='\0';
-    ptrdata = size;    // position where data starts
+    printf(s);
 
     receiveRawData(s);
 
