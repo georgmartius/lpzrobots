@@ -1,6 +1,5 @@
 
-
-/** \mainpage Leipzig Robots
+/** \mainpage The World of Self-Organized Creatures
  *
  * \section General
  * 
@@ -9,24 +8,23 @@
  * http://robot.informatik.uni-leipzig.de 
  *
  * You need the following software and libraries installed (Tested on Linux x86 machines)
- * - ODE (with drawstuff lib (included)) see www.ode.org
+ * - ODE (with drawstuff lib (included)) see www.ode.org and augmented with our \ref ode_robots/ode_patches "patches"
+   - Qt library from http://www.trolltech.com for guilogger (version > 3.0)
  * - avr-gcc and avr-binutils. \n
- *    SuSE packages under: ???\n
+ *    SuSE packages under: http://robot.informatik.uni-leipzig.de/software/\n
  *    Debian includes them in Sarge
  
  
  \section Structure
  
-  The collection consits of the following directories (click for details):
-  - \subpage controller 
-	<em> (controllers developed in the robotic group of Leipzig university
-	yielding at self-organized behaviour)</em>
-  - \subpage ode_robots
-	<em> (stuff needed for simulations such as robots, obstacles, utils and so on)</em>
-  - \subpage matrixlib
-	<em> (matrix library used e.g. in our controllers)</em>
-  - \subpage gnuplot
-	<em> (tool allowing you to use running gnuplot windows within your program )</em>
-  - \subpage guilogger
-	<em> (coordinates multiple gnuplot windows and switch channels on or of)</em>
+  The collection consists of the following directories (click for details):
+  - \subpage controller : controllers developed in the robotic group of Leipzig university
+	yielding at self-organized behaviour for various kinds of machines
+  - \subpage ode_robots : stuff needed for our ODE-simulations (Open Dynamics Engine, see http://ode.org) such as robots, 
+ 	obstacles, utils, our patches and so on
+  - \subpage matrixlib : comfortable matrix library used for calculations e.g. in our controllers
+  - \subpage gnuplot : tool allowing you to use online gnuplot windows within your program 
+	(using pipe for data handover)
+  - \subpage guilogger : application that coordinates multiple gnuplot windows and switches 
+	channels on or of, where the data come per pipe from your program 
  */
