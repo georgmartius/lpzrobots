@@ -438,7 +438,8 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = matrixlib/unit_test.h ode_robots/simulations controller/old_stuff
+#EXCLUDE                = matrixlib/unit_test.h ode_robots/simulations controller/old_stuff
+EXCLUDE                = matrixlib/unit_test.h controller/old_stuff
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories 
 # that are symbolic links (a Unix filesystem feature) are excluded from the input.
