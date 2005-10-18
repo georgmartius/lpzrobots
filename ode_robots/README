@@ -7,42 +7,75 @@
 The \a ode_robots directory provides all the stuff necessary for
 the simulations we did with ODE (http://ode.org).
 
+\par Simulation Environment
+
 The class \ref OdeConfig holds the configurable parameters of the simulation environment
 like \ref OdeConfig::gravity "gravity", \ref OdeConfig::simStepSize "simStepSize", 
 \ref OdeConfig::drawInterval "drawInterval"  and so on.\n
-In \ref simulation.h and \ref simulation.cpp you find the start and stop routines as well as the
-collision handling etc. of the simulation environment.
+In \ref simulation.h and \ref simulation.cpp you find the \ref OdeConfig::simulation_start "start",
+\ref OdeConfig::simulation_init "init" and \ref OdeConfig::simulation_close "close" routines 
+as well as the \ref OdeConfig::nearCallback "collision handling" etc. of the simulation environment,
+which are used for all simulations.
+In the \ref OdeConfig::simulation_init "init" function you can specify user defined functions if your simulation needs this, possible are:
+- \ref OdeConfig::startFunction "startFunction"
+- \ref OdeConfig::endFunction "endFunction"
+- \ref OdeConfig::configFunction "configFunction"
+- \ref OdeConfig::commandFunction "commandFunction"
+- \ref OdeConfig::collisionCallback "collisionCallback"
+- \ref OdeConfig::additionalCallback "additionalCallback"
 
-Then you furthermore need enough stuff to put in several subdirectories
-- \ref ode_robots/agents "agents"
-	<em> structures for a "complete" agent containing a controller,
-	a robot and the wiring in between</em>
-- \ref ode_robots/obstacles "obstacles"
-- \ref ode_robots/robots "robots"
-- \ref ode_robots/components "components"
-- \ref ode_robots/motors "motors"
-- \ref ode_robots/sensors "senors"
-- \ref ode_robots/utils "utils"
-- \ref ode_robots/ode_patches "ode_patches"
+So you normally do not have to change anything in this files.
 
- 
+
+\par Simulation Objects and more
+
+The things inside the simulation environment (and some additional stuff) is inside 
+the following subdirectories
+- \ref ode_robots/simulations "simulations" :
+	ready to use simulations
+- \ref ode_robots/agents "agents":
+ 	structure to build a "complete" agent (consisting of a controller, 
+	a robot and the wiring in between), different wirings
+- \ref ode_robots/robots "robots":
+	our robots,creatures, vehicles or whatever you would like to call 
+	them are in this directory
+- \ref ode_robots/components "components":
+	create your robots by plugging together different parts (work in progress)
+- \ref ode_robots/motors "motors":
+	a few additional motors (PID servos)
+- \ref ode_robots/sensors "senors":
+	up to now an infrared-sensor and a sensorbank is available
+- \ref ode_robots/obstacles "obstacles":
+	passive obstacles like different kinds of playgrounds, a sphere and usage of terrains
+- \ref ode_robots/utils "utils":
+	all the little things that make life easier
+- \ref ode_robots/ode_patches "ode_patches":
+	our patches for ODE and drawstuff
+
+
 
 \par How to Start Your Own Simulation 
 
-To start a new project copy one of the "template" directories and 
- adjust them as needed. 
+To start a new project copy one of the "template" directories in the simulations folder.
 Please note that you have to delete the CVS dirctory inside your copy 
- before you add it to the cvs repository.
+before you add it to the cvs repository.
+Or just use the createNewSimulation.sh script in the simulations directory:\n
+<tt> $> ./createNewSimulation.sh template_dir newsimname </tt>\n
+where \p template_dir is the template directory you wish to copy and \p newsimname is the
+name of the new simulation you wish to create.
+
+Now you can adjust the simulation as needed.
 A simple make in the simulation directory should be enough. 
 In case your simulation code consists of other files than main.cpp, 
  please add them to FILES in the Makefile in the simulation directory.
  
 If you insert a new file to the simulation framework, 
- such as a new obstacle, robot or similar you DON'T need to do anything. 
+such as a new obstacle, robot or similar you DON'T need to do anything. 
 Every *.cpp file in the directories specified in Makefile.conf is
- compiled and included in the library libode_robots.a. 
+compiled and included in the library libode_robots.a. 
 In case you add a new directory with source files, 
- which should be included in the lib,
- then add it to Makefile.conf.
+which should be included in the lib, then add it to Makefile.conf.
 
 */
+
+
