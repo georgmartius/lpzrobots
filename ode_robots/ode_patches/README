@@ -1,3 +1,7 @@
+/**
+
+\dir ode_patches
+
 Patches for ODE and drawstuff from the Leipzig Robot Group
 
 How to apply the patches:
@@ -38,4 +42,4 @@ How to make a patch:
     * all in one patch
 	
 	
-
+*/
