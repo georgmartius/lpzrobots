@@ -15,8 +15,7 @@ guilogger:
 
 
 install:
-	@cp guilogger/bin/guilogger $(HOME)/bin/ || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
-	@echo "copied guilogger to $(HOME)/bin/";
+	@cp guilogger/bin/guilogger $(HOME)/bin/ && echo "copied guilogger to $(HOME)/bin/" || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
 
 tags: 
 	etags `find -name "*.[ch]*"` 
