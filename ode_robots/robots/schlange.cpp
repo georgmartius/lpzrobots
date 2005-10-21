@@ -32,6 +32,8 @@ Schlange::Schlange ( int startRoboterID , const OdeHandle& odeHandle,
 	
   dMass masse;
   dMatrix3 R;	
+  
+  color = Color(0,0.5,0.8);
 
   //*************body definition**************
 	
