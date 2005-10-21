@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.38  2005-10-18 15:31:32  fhesse
+ *   Revision 1.39  2005-10-21 11:59:58  martius
+ *   realtimefactor written small
+ *
+ *   Revision 1.38  2005/10/18 15:31:32  fhesse
  *   one comment improved
  *
  *   Revision 1.37  2005/10/06 17:11:26  martius
@@ -360,7 +363,7 @@ void simLoop ( int pause ){
 	nextLeakAnnounce=max(200,nextLeakAnnounce/2);
       }else if (diff > 0){
 	if(leakAnnCounter%nextLeakAnnounce==0 && diff > 10){ // we do not bother the user all the time
-	  printf("Time leak of %li ms (Please increase realTimeFactor)\n", diff);
+	  printf("Time leak of %li ms (Please increase realtimefvactor)\n", diff);
 	  nextLeakAnnounce*=2;
 	  leakAnnCounter=0;
 	}
