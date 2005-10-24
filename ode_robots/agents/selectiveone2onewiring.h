@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-08-22 17:28:13  martius
+ *   Revision 1.2  2005-10-24 13:32:07  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.1  2005/08/22 17:28:13  martius
  *   a 1 to 1 wiring that supports the selection of some sensors only
  *
  *                                                                         *
@@ -42,13 +45,16 @@ bool select_firsthalf(unsigned int index, unsigned int len);
  */
 class SelectiveOne2OneWiring : public One2OneWiring{
 public:
-  /// constructor
-  // @param noise NoiseGenerator that is used for adding noise to sensor values  
+  /** constructor
+      @param noise NoiseGenerator that is used for adding noise to sensor values  
+      @param sel_sensor select_predicate describung what sensors should be selected
+  */
   SelectiveOne2OneWiring(NoiseGenerator* noise, select_predicate sel_sensor);
   virtual ~SelectiveOne2OneWiring();
 
-  /// initializes the number of sensors and motors from robot, calculate
-  //  number of sensors and motors on controller side
+  /** initializes the number of sensors and motors on robot side, calculate
+      number of sensors and motors on controller side
+  */
   virtual bool init(int robotsensornumber, int robotmotornumber);
 
   /// Realizes one to one wiring from robot sensors to controller sensors. 

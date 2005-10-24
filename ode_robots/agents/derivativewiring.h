@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-10-24 11:06:33  fhesse
+ *   Revision 1.5  2005-10-24 13:32:07  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.4  2005/10/24 11:06:33  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.3  2005/07/21 15:09:00  martius
@@ -139,14 +142,19 @@ protected:
 
   /// current and old smoothed sensor values of robot
   sensor* sensorbuffer[buffersize]; 
+
   /// current sensors (with noise)
   sensor* id;
+
   /// current first derivative
   sensor* first;               
+
   /// current second derivative
   sensor* second;            
+
   /// array that stored the values of the blind motors     
   motor *blindMotors;        
+
   /// number of blind motors used
   unsigned int blindMotorNumber;
 };

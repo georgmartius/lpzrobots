@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-10-06 17:11:36  martius
+ *   Revision 1.11  2005-10-24 13:32:07  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.10  2005/10/06 17:11:36  martius
  *   switched to stl lists
  *
  *   Revision 1.9  2005/09/22 12:24:36  martius
@@ -162,8 +165,9 @@ void Agent::plot(const sensor* x, int sensornumber, const motor* y, int motornum
 
 
 
-/// Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
-//  controller step, pushing controller steps back through wiring and sent resulting motorcommands to robot.
+//  Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
+//  controller step, pushing controller steps back through wiring and sent resulting motorcommands 
+//  to robot.
 //  @param noise Noise strength.
 void Agent::step(double noise){
 

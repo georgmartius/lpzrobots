@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-31 11:11:37  martius
+ *   Revision 1.3  2005-10-24 13:32:07  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.2  2005/08/31 11:11:37  martius
  *   noise->noisevals
  *
  *   Revision 1.1  2005/08/22 17:28:12  martius
@@ -51,7 +54,7 @@ SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){
 }
 
 
-/// initializes the number of sensors and motors from robot, calculate
+/// initializes the number of sensors and motors on robot side, calculate
 //  number of sensors and motors on controller side
 bool SelectiveOne2OneWiring::init(int robotsensornumber, int robotmotornumber){
   One2OneWiring::init(robotsensornumber, robotmotornumber);
@@ -65,7 +68,7 @@ bool SelectiveOne2OneWiring::init(int robotsensornumber, int robotmotornumber){
   return true;
 }
 
-/// Realizes one to one wiring from robot sensors to controller sensors. 
+/// Realizes selective one to one wiring from robot sensors to controller sensors. 
 //   @param rsensors pointer to array of sensorvalues from robot 
 //   @param rsensornumber number of sensors from robot
 //   @param csensors pointer to array of sensorvalues for controller  

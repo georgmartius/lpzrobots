@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-10-06 17:11:37  martius
+ *   Revision 1.8  2005-10-24 13:32:07  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.7  2005/10/06 17:11:37  martius
  *   switched to stl lists
  *
  *   Revision 1.6  2005/08/31 11:10:36  martius
@@ -110,7 +113,7 @@ bool One2OneWiring::wireMotors(motor* rmotors, int rmotornumber,
   }
 }
 
-/** The list of the names of all internal parameters given by getInternalParams().
+/** Returns the list of the names of all internal parameters.
 */
 list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames(){
   list<iparamkey> l;
@@ -124,7 +127,8 @@ list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames(){
   return l;
 }
 
-/** The list of the names of all internal parameters given by getInternalParams().
+/** Returns a list of the values of all internal parameters
+    (in the order given by getInternalParamNames()).
 */
 list<Inspectable::iparamval> One2OneWiring::getInternalParams(){
   list<iparamval> l;

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-09-22 12:24:36  martius
+ *   Revision 1.8  2005-10-24 13:32:07  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.7  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -53,38 +56,57 @@ class AbstractWiring;
 
 #include "types.h"
 
-/// Plot mode for plot agent.
-enum PlotMode {NoPlot, GuiLogger, GuiLogger_File};
+/** Plot mode for plot agent.
+ */
+enum PlotMode {
+  /// no plotting to screen or logging to file
+  NoPlot, 
+  /// only plotting to screen, no logging to file
+  GuiLogger, 
+  /// plotting to screen and logging to file
+  GuiLogger_File};
 
-/// Plot mode for plot agent.
+/** Plot either sensors from robot or from controller 
+    (there can be a difference depending on the used wiring)
+ */
 enum PlotSensors {Robot, Controller};
 
-/// Abstract object containing controller, robot and wiring between them. 
+/** Object containing controller, robot and wiring between them.
+    (Corresponding to use of the word in the robotic/simulation domain.)
+ */
 class Agent {
 public:
-  /// constructor
+  /** constructor
+   */
   Agent(PlotMode plotmode = GuiLogger, PlotSensors plotsensors = Controller);
 
-  ///destructor
+  /** destructor
+   */
   virtual ~Agent();  
 
-  /// initializes the object with the given controller, robot and wiring
-  //  and initializes pipe to guilogger
+  /** initializes the object with the given controller, robot and wiring
+      and initializes pipe to guilogger
+  */
   virtual bool init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring);
 
 
-  /// Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
-  //  controller step, pushing controller steps back through wiring and sent resulting motorcommands to robot.
-  //  @param noise Noise strength.
+  /** Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
+      controller step, pushing controller outputs (= motorcommands) back through wiring and sent 
+      resulting motorcommands to robot.
+      @param noise Noise strength.
+  */
   virtual void step(double noise);
 
-  /// Returns a pointer to the controller.
+  /** Returns a pointer to the controller.
+   */
   AbstractController* getController() { return controller;}
 
-  /// Returns a pointer to the robot.
+  /** Returns a pointer to the robot.
+   */
   AbstractRobot* getRobot() { return robot;}
 
-  /// Returns a pointer to the wiring.
+  /** Returns a pointer to the wiring.
+   */
   AbstractWiring* getWiring() { return wiring;}
 
 
@@ -97,7 +119,12 @@ protected:
    */
   virtual void plot(const sensor* x, int sensornumber, const motor* y, int motornumber);
   
+  /** Open pipe and guilogger
+   */
   bool OpenGui();
+
+  /** Close pipe and guilogger
+   */
   void CloseGui();
 
 
@@ -105,10 +132,13 @@ protected:
   AbstractRobot* robot;
   AbstractWiring* wiring;
 
-
+  /// number of sensors of robot
   int rsensornumber;
+  /// number of motors of robot
   int rmotornumber;
+  /// number of sensors of comntroller
   int csensornumber;
+  /// number of motors of comntroller
   int cmotornumber;
 
   sensor *rsensors;

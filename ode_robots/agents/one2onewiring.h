@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-10-06 17:11:37  martius
+ *   Revision 1.8  2005-10-24 13:32:07  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.7  2005/10/06 17:11:37  martius
  *   switched to stl lists
  *
  *   Revision 1.6  2005/08/31 11:10:52  martius
@@ -48,53 +51,61 @@
 
 #include "abstractwiring.h"
 
-/// Abstract wiring-object between controller and robot. 
-//   Implements one to one wireing of robot sensors to inputs of the controller 
-//   and controller outputs to robot motors. 
+/** Implements one to one wireing of robot sensors to inputs of the controller 
+    and controller outputs to robot motors. 
+ */
 class One2OneWiring :public AbstractWiring{
 public:
-  /// constructor
-  // @param noise NoiseGenerator that is used for adding noise to sensor values  
+  /** constructor
+      @param noise NoiseGenerator that is used for adding noise to sensor values  
+      @param plotNoise for plotting the noise values (to observe it from outside
+      via getInternalParams() and guilogger) set it TRUE, for not plotting the noise set 
+      it to FALSE.
+   */
   One2OneWiring(NoiseGenerator* noise, bool plotNoise=false);
+
+  /** destructor
+   */
   virtual ~One2OneWiring();
 
-  /// initializes the number of sensors and motors from robot, calculate
-  //  number of sensors and motors on controller side
+  /** initializes the number of sensors and motors on robot side, calculate
+      number of sensors and motors on controller side
+   */
   virtual bool init(int robotsensornumber, int robotmotornumber);
 
-  /// Realizes one to one wiring from robot sensors to controller sensors. 
-  //   @param rsensors pointer to array of sensorvalues from robot 
-  //   @param rsensornumber number of sensors from robot
-  //   @param csensors pointer to array of sensorvalues for controller  
-  //   @param csensornumber number of sensors to controller
-  //   @param noise size of the noise added to the sensors
+  /** Realizes one to one wiring from robot sensors to controller sensors. 
+      @param rsensors pointer to array of sensorvalues from robot 
+      @param rsensornumber number of sensors from robot
+      @param csensors pointer to array of sensorvalues for controller  
+      @param csensornumber number of sensors to controller
+      @param noise size of the noise added to the sensors
+  */
   virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
 			   sensor* csensors, int csensornumber,
 			   double noise);
 
-  /// Realizes one to one wiring from controller motor outputs to robot motors. 
-  //   @param rmotors pointer to array of motorvalues for robot 
-  //   @param rmotornumber number of robot motors 
-  //   @param cmotors pointer to array of motorvalues from controller  
-  //   @param cmotornumber number of motorvalues from controller
+  /** Realizes one to one wiring from controller motor outputs to robot motors. 
+      @param rmotors pointer to array of motorvalues for robot 
+      @param rmotornumber number of robot motors 
+      @param cmotors pointer to array of motorvalues from controller  
+      @param cmotornumber number of motorvalues from controller
+  */
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
 			  const motor* cmotors, int cmotornumber);
 
-  /** The list of the names of all internal parameters given by getInternalParams().
-      @param: keylist (do NOT free it! It is a pointer to an internal structure)
-      @return: length of the lists
+  /** Returns the list of the names of all internal parameters.
   */
   virtual list<iparamkey> getInternalParamNames();
-  /** The list of the names of all internal parameters given by getInternalParams().
-      @param vallist stores the values of all internal parameters 
+
+  /** The list of the values of all internal parameters given by getInternalParams().
       (in the order given by getInternalParamNames())
-      @param length length of vallist array
-      @return: number of parameters actually written
    */
   virtual list<iparamval> getInternalParams();
 
 protected:
-  bool plotNoise;
+  /// TRUE for plotting noise values, FALSE for not plotting
+  bool plotNoise; 
+  /// for storing the noise values
   sensor* noisevals;
 
 };
