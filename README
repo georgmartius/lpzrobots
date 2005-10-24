@@ -1,3 +1,5 @@
+(* This file is used for the doxygen documentation. *)
+
 
 /** \mainpage The World of Self-Organized Creatures
  *
@@ -8,8 +10,9 @@
  * http://robot.informatik.uni-leipzig.de 
  *
  * You need the following software and libraries installed (Tested on Linux x86 machines)
- * - ODE (with drawstuff lib (included)) see www.ode.org and augmented with our \ref ode_robots/ode_patches "patches"
-   - Qt library from http://www.trolltech.com for guilogger (version > 3.0)
+ * - ODE (with drawstuff lib (included)) see www.ode.org and augmented with our 
+ * \ref ode_robots/ode_patches "patches"
+ * - Qt library from http://www.trolltech.com for guilogger (version > 3.0)
  * - avr-gcc and avr-binutils. \n
  *    SuSE packages under: http://robot.informatik.uni-leipzig.de/software/\n
  *    Debian includes them in Sarge
