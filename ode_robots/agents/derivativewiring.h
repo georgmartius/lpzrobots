@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-07-21 15:09:00  martius
+ *   Revision 1.4  2005-10-24 11:06:33  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.3  2005/07/21 15:09:00  martius
  *   blind motors
  *
  *   Revision 1.2  2005/07/21 11:30:59  fhesse
@@ -40,77 +43,111 @@
      If all boolean parametes are false, id is set to true (equivalent to One2OneWiring)
 */
 typedef struct __DerivativeWiringConf {
-  bool useId;      /// include zeroth derivative
-  bool useFirstD; /// include first derivative
-  bool useSecondD; /// second include second derivative
-  /// @param eps update rate for floating average (0 -> no sensor variation, 1 -> no smoothing)
+  /// include zeroth derivative
+  bool useId;     
+
+  /// include first derivative
+  bool useFirstD;
+
+  /// second include second derivative
+  bool useSecondD;
+
+  /// update rate for floating average (0 -> no sensor variation, 1 -> no smoothing)
   double eps;     
-  double derivativeScale; /// factor for the derivatives
-  unsigned int blindMotorSets;     /// number of complete motor sets that are blind (not given to robot)
+
+  /// factor for the derivatives
+  double derivativeScale; 
+
+  /// number of complete motor sets that are blind (not given to robot)
+  unsigned int blindMotorSets;     
 } DerivativeWiringConf;
 
 
-/// Abstract wiring-object between controller and robot. 
-//   Implements a wiring (between controller and robot) 
-//   which includes the first and second derivative 
-//   of the original robot sensor values
+
+/** Implements a wiring (between controller and robot) 
+    which includes the first and second derivative 
+    of the original robot sensor values
+*/
 class DerivativeWiring : public AbstractWiring{
 public:
-  /// constructor
-  //  @param noise NoiseGenerator that is used for adding noise to sensor values  
-  //  @param derivativeScale factor for the derivatives (because they are usually small)
+  /** constructor
+      @param conf  for giving the wished configuration of DerivativeWiring 
+      via \ref __DerivativeWiringConf "DerivativeWiringConf" 
+      @param noise NoiseGenerator that is used for adding noise to sensor values  
+  */
   DerivativeWiring(const DerivativeWiringConf& conf, 
 		   NoiseGenerator* noise);
 
+  /** destructor
+   */
   virtual ~DerivativeWiring();
 
-  /// initializes the number of sensors and motors from robot, calculate
-  //  number of sensors and motors on controller side
+  /** initializes the internal numbers of sensors and motors on robot side, calculate
+      number of sensors and motors on controller side
+  */
   virtual bool init(int robotsensornumber, int robotmotornumber);
 
-  /// Realizes one to one wiring from robot sensors to controller sensors. 
-  //   @param rsensors pointer to array of sensorvalues from robot 
-  //   @param rsensornumber number of sensors from robot
-  //   @param csensors pointer to array of sensorvalues for controller  
-  //   @param csensornumber number of sensors to controller
-  //   @param noise size of the noise added to the sensors
+  /** Realizes derivative wiring from robot sensors to controller sensors. 
+      @param rsensors pointer to array of sensorvalues from robot 
+      @param rsensornumber number of sensors from robot
+      @param csensors pointer to array of sensorvalues for controller  
+      @param csensornumber number of sensors to controller
+      @param noise size of the noise added to the sensors
+  */
   virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
 			   sensor* csensors, int csensornumber,
 			   double noise);
 
-  /// Realizes one to one wiring from controller motor outputs to robot motors. 
-  //   @param rmotors pointer to array of motorvalues for robot 
-  //   @param rmotornumber number of robot motors 
-  //   @param cmotors pointer to array of motorvalues from controller  
-  //   @param cmotornumber number of motorvalues from controller
+  /** Realizes wiring from controller motor outputs to robot motors. 
+      @param rmotors pointer to array of motorvalues for robot 
+      @param rmotornumber number of robot motors 
+      @param cmotors pointer to array of motorvalues from controller  
+      @param cmotornumber number of motorvalues from controller
+  */
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
 			  const motor* cmotors, int cmotornumber);
 
+  /** Providing default configuration for DerivativeWiring as static method
+   */
   static DerivativeWiringConf getDefaultConf(){
     DerivativeWiringConf c;
-    c.useId = true;
-    c.useFirstD = false;
-    c.useSecondD = false;
-    c.eps = 0.2;
+    c.useId = true;        // use id
+    c.useFirstD = false;   // do not use first derivative
+    c.useSecondD = false;  // do not use secound derivative
+    c.eps = 0.2;        
     c.derivativeScale=20;
-    c.blindMotorSets=0;
+    c.blindMotorSets=0;    // no blind motors used
     return c;
   };
 
 protected:
-
+  /** Calculate the first derivative of the sensorvalues given by the robot
+   *  f'(x) = (f(x+1) - f(x-1)) / 2
+   *  since we do not have f(x+1) we go one timestep in the past
+   */
   void calcFirstDerivative();
+
+  /** Calculate the secound derivative of the sensorvalues given by the robot
+   *  f'(x) = f(x) - 2f(x-1) + f(x-2)
+   */
   void calcSecondDerivative();
 
+  /// used configuration
   DerivativeWiringConf conf;
   static const int buffersize=5;
   int time;
-  
-  sensor* sensorbuffer[buffersize]; // current and old smoothed sensor values of robot
-  sensor* id;                  // current sensors (with noise)
-  sensor* first;               // current first derivative
-  sensor* second;              // current second derivative
-  motor *blindMotors;          // array that stored the values of the blind motors     
+
+  /// current and old smoothed sensor values of robot
+  sensor* sensorbuffer[buffersize]; 
+  /// current sensors (with noise)
+  sensor* id;
+  /// current first derivative
+  sensor* first;               
+  /// current second derivative
+  sensor* second;            
+  /// array that stored the values of the blind motors     
+  motor *blindMotors;        
+  /// number of blind motors used
   unsigned int blindMotorNumber;
 };
 

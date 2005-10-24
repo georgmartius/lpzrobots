@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-07-26 17:02:37  martius
+ *   Revision 1.5  2005-10-24 11:06:33  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.4  2005/07/26 17:02:37  martius
  *   2.derivative scaled correctly
  *
  *   Revision 1.3  2005/07/21 15:09:13  martius
@@ -152,7 +155,7 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 }
 
 
-/// Realizes one to one wiring from controller motor outputs to robot motors. 
+/// Realizes wiring from controller motor outputs to robot motors. 
 //   @param rmotors pointer to array of motorvalues for robot 
 //   @param rmotornumber number of robot motors 
 //   @param cmotors pointer to array of motorvalues from controller  
