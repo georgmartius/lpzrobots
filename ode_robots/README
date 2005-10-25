@@ -1,4 +1,6 @@
-
+/** \file 
+ * This file is used for the doxygen documentation. 
+ */
 
 /**
 \dir ode_robots

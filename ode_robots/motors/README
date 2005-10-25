@@ -1,8 +1,11 @@
+/** \file 
+ * This file is used for the doxygen documentation. 
+ */
 
 /**
-\dir motors
+\dir motors 
 
-Additional motors completing the offer of ODE.
+Additional motors complementing the offer of ODE.
 The \ref HingeServo "servo for hinge joints" and 
 the \ref SliderServo "servo for slider joints" 
 are derived from the class \ref PID.
