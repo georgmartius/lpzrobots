@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-09-22 12:24:36  martius
+ *   Revision 1.8  2005-10-25 19:26:56  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.7  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -47,6 +50,7 @@
 #include "odehandle.h"
 #include "color.h"
 
+
 /**
  *  Abstract class (interface) for obstacles
  */
@@ -55,8 +59,8 @@ class AbstractObstacle{
  public:
   /**
    * Constructor
-   * @param w world in which obstacle should be created
-   * @param s space in which obstacle should be created
+   * @param odehandle containing world, space and jointgroup which should 
+   * be used for creation of obstacles
    */
   AbstractObstacle(const OdeHandle& odehandle): color(0.5,0.5,0.5) {
     world=odehandle.world;
@@ -84,14 +88,28 @@ class AbstractObstacle{
    * sets geometry parameters for the obstacle
    */
   virtual void setGeometry(double length, double width, double height) = 0;
-
+  
+  /**
+   * sets the obstacle color
+   * @param r, g, b color values in RGB
+   */
   virtual void setColor(double r, double g, double b)=0;
 
  protected:
 
+  /**
+   * space in which the obstacle should be created
+   */
   dSpaceID space;
+
+  /**
+   * world in which the obstacle should be created
+   */
   dWorldID world;
 
+  /**
+   * obstacle color
+   */
   Color color;
 
 };

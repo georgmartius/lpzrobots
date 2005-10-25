@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-09-22 12:24:36  martius
+ *   Revision 1.5  2005-10-25 19:26:57  fhesse
+ *   comments adjusted and in doxygen style
+ *
+ *   Revision 1.4  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -46,10 +49,15 @@
 
 #include "abstractobstacle.h"
 
+/**
+ *  (Passive) sphere as obstacle
+ */
 class Sphere : public AbstractObstacle{
-
   double radius;
   double masse;
+  /**
+   * initial coordinates
+   */
   double base_x, base_y, base_z;
   int texture;
 
@@ -60,6 +68,10 @@ class Sphere : public AbstractObstacle{
 
  public:
   
+  /**
+   * Constructor
+   * @param odehandle containing world, space and jointgroup for sphere
+   */
   Sphere(const OdeHandle& odehandle):
     AbstractObstacle::AbstractObstacle(odehandle){
 
@@ -79,7 +91,7 @@ class Sphere : public AbstractObstacle{
   };
 
   /**
-   * draws the obstacle 
+   * draws the obstacle sphere
    */
   virtual void draw(){
     dsSetTexture (texture);    
@@ -87,7 +99,9 @@ class Sphere : public AbstractObstacle{
     dsDrawSphere(dBodyGetPosition(body),dBodyGetRotation(body),radius );
   };
   
-  
+  /**
+   * sets position of the sphere and creates/recreates it if necessary
+   */
   virtual void setPosition(double x, double y, double z){
     base_x=x;
     base_y=y;
@@ -98,6 +112,9 @@ class Sphere : public AbstractObstacle{
     create();
   };
 
+  /**
+   * gives actual position of sphere
+   */
   virtual void getPosition(double& x, double& y, double& z){
     x=base_x;
     y=base_y;
