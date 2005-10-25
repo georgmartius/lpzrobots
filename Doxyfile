@@ -417,7 +417,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = controller matrixlib ode_robots README
+#INPUT                  = controller matrixlib ode_robots README
+INPUT                  = controller matrixlib ode_robots gnuplot README guilogger/README
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
@@ -476,7 +477,8 @@ EXAMPLE_RECURSIVE      = YES
 # directories that contain image that are included in the documentation (see 
 # the \image command).
 
-IMAGE_PATH             = ./doc/images/
+IMAGE_PATH             = ./doc/images/ \
+			 guilogger
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should 
 # invoke to filter for each input file. Doxygen will invoke the filter program 
@@ -987,6 +989,7 @@ SKIP_FUNCTION_MACROS   = YES
 # If a tag file is not located in the directory in which doxygen 
 # is run, you must also specify the path to the tagfile here.
 
+# TAGFILES               = guilogger/guilogger.tag=../../guilogger/html 
 TAGFILES               = 
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create 
