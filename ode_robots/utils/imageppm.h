@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-13 13:22:08  martius
+ *   Revision 1.3  2005-10-25 22:24:05  martius
+ *   data constructor
+ *   store method
+ *
+ *   Revision 1.2  2005/09/13 13:22:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2005/08/26 09:34:35  robot2
@@ -43,8 +47,11 @@ private:
 
 public:
   ImagePPM ();  
+  /// data must contain width*height*3 (RGB) values!
+  ImagePPM (int width, int height, unsigned char* data);  
   ~ImagePPM();
   int loadImage(char *filename); // load from PPM file (returns 0 if error)
+  int storeImage(char *filename); // store to PPM file (returns 0 if error)
   int width()           { return image_width;  }
   int height()          { return image_height; }
   unsigned char *data() { return image_data;   }

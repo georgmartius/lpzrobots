@@ -40,9 +40,17 @@ static void skipWhiteSpace (char *filename, FILE *f)
 }
 
 
+
 ImagePPM::ImagePPM () 
 {   image_data = 0;
 }
+
+ImagePPM::ImagePPM (int width, int height, unsigned char* data){
+  image_width = width;
+  image_height = height;
+  image_data = data;
+}
+
 
 int ImagePPM::loadImage(char*filename)
 {
@@ -84,8 +92,34 @@ int ImagePPM::loadImage(char*filename)
 
   // read in rest of data
   image_data = new unsigned char [image_width*image_height*3];
-  if (fread( image_data, image_width*image_height*3, 1, f) != 1)
+  if (fread( image_data, image_width*image_height*3, 1, f) != 1){
     fprintf (stderr, "Can not read data from image file `%s'\n",filename);
+    return 0;
+  } 
+  fclose (f);
+  return 1;
+}
+
+
+int ImagePPM::storeImage(char*filename)
+{
+  FILE *f = fopen (filename,"wb");
+  if (!f) 
+  {  fprintf (stderr, "Can't open image file `%s'\n", filename);
+     return 0;
+  }
+
+  // write header
+  fprintf(f,"P6\n");
+  fprintf(f,"# CREATOR ImagePPM class of lpzrobots project\n");
+  fprintf(f,"%i %i\n", image_width, image_height);
+  fprintf(f,"255\n");
+
+  // write data
+  if (fwrite( image_data, image_width*image_height*3, 1, f) != 1){
+    fprintf (stderr, "Can not write data toimage file `%s'\n",filename);
+    return 0;
+  } 
   fclose (f);
   return 1;
 }
