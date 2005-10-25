@@ -1,6 +1,10 @@
+/** \file 
+ * This file is used for the doxygen documentation. 
+ */
+
 
 /**
-\dir simulations
+\dir simulations 
 
 The simulations directory contains the different simulations originated from our work
 on the selforganization issue.
