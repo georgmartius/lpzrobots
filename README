@@ -1,8 +1,21 @@
-(* This file is used for the doxygen documentation. *)
+/** \file
+ * This file is used for the doxygen documentation. 
+ */
 
 
 /** \mainpage The World of Self-Organized Creatures
- *
+
+\par Organization:
+	University Leipzig \n
+	Institute for Computer Science  \n
+	Dept. Intelligent Systems \n
+	Prof. Dr.  Ralf Der \n
+        Working Group Neuroinformatics und Robotic
+
+\par Staff:
+Ralf Der, Georg Martius, Frank Hesse, Rene Liebscher, 
+Marcel Kretschmann, Dominic Schneider, Claus Stadler
+ 
  * \section General
  * 
  * This is the a collection of algorithms, simulations, and tools 
@@ -21,13 +34,45 @@
  \section Structure
  
   The collection consists of the following directories (click for details):
-  - \subpage controller : controllers developed in the robotic group of Leipzig university
+  - \ref controller : controllers developed in the robotic group of Leipzig university
 	yielding at self-organized behaviour for various kinds of machines
-  - \subpage ode_robots : stuff needed for our ODE-simulations (Open Dynamics Engine, see http://ode.org) such as robots, 
+  - \ref ode_robots : stuff needed for our ODE-simulations 
+	(Open Dynamics Engine, see http://ode.org) such as robots, 
  	obstacles, utils, our patches and so on
-  - \subpage matrixlib : comfortable matrix library used for calculations e.g. in our controllers
-  - \subpage gnuplot : tool allowing you to use online gnuplot windows within your program 
+  - \ref matrixlib : comfortable matrix library used for calculations e.g. in our controllers
+  - \ref gnuplot : tool allowing you to use online gnuplot windows within your program 
 	(using pipe for data handover)
-  - \subpage guilogger : application that coordinates multiple gnuplot windows and switches 
-	channels on or of, where the data come per pipe from your program 
+  - \ref guilogger : application that coordinates multiple gnuplot 
+	windows and switches channels on or of, data is sent per pipe from your program 
+
+
+\section Installation
+
+- Download the_world_of_Self-Organized_Creatures.tgz from 
+  http://robot.informatik.uni-leipzig.de/software .
+- Unpack file.
+- Change into <tt> lpzrobots </tt> directory
+- Call <tt> make </tt> to compile \ref matrixlib and \ref guilogger
+- Call <tt> make install </tt> to copy <tt> guilogger/bin/guilogger </tt> into the 
+  <tt>/bin</tt> folder of your home directory. (If this does not work copy by hand.)
+- To start a simulation go into that simulation directory, call <tt>make</tt> and 
+  <tt>start</tt>.
+  For example when you want to start the template_onerobot simulation type
+  <tt>cd ode_robots/simulations/template_onerobot</tt>, then call <tt>make</tt> and after
+  successful compilation type <tt>start</tt> to start the simulation
+
+\section Documentation
+
+- This manual can be found at ????????
+- An explanation of the used self-organization algorithm can is available at  ????????
+- The manual for guilogger can be found at ????????
+- The ODE tutorial of Marcel Kretschmann can be found at ???????? \n
+  (Tar ball with pdf and example code also there available.)
+- The original ODE documentation can be found at http://www.ode.org/ode-docs.html
+
+\todo
+Add missing links.
  */
+
+
+
