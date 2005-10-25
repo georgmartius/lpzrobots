@@ -8,6 +8,11 @@ How to apply the patches:
     - go into the ode-0.x root directory
     - make sure the patch is for ought to be this version
     - call $> patch -Np1 < path/to/patch.patch
+    
+How to install ODE
+    make
+    chmod u+x install.sh
+    ./install.sh
 
 How to make a patch:
     - assume the original stuff is in ode-0.5 and you modified one is in ode-0.5_my
