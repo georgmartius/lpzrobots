@@ -80,7 +80,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = /home/dominic/programing/guilogger
+INPUT                  = .#/home/dominic/programing/guilogger
 FILE_PATTERNS          = *.c \
                          *.cc \
                          *.cxx \
