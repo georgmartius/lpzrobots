@@ -1,63 +1,109 @@
 #include <stdio.h>
+
+// include drawstuff library
 #include <drawstuff/drawstuff.h>
+
+// include ode library
 #include <ode/ode.h>
 
+// include noisegenerator (used for adding noise to sensorvalues)
 #include "noisegenerator.h"
+
+// include simulation environmet stuff
 #include "simulation.h"
+
+// include agent (class for holding a robot, a controller and a wiring)
 #include "agent.h"
+
+// used wiring
 #include "one2onewiring.h"
+
+// used robot
 #include "nimm2.h"
+
+// used arena
 #include "playground.h"
 
-#include "invertmotornstep.h"
+// used controller
+#include "invertnchannelcontroller.h"
 
-ConfigList configs;
+// plotmode is set to NoPlot at the beginning, 
+// means no online gnuplot windows and no logging to file
+// can be changed with commandline options, see main() at the bottom of this file
 PlotMode plotMode = NoPlot;
 
-//Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
+
+// starting function (executed once at the beginning of the simulation loop)
 void start(const OdeHandle& odeHandle, GlobalData& global) 
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
-  //Anfangskameraposition und Punkt auf den die Kamera blickt
+  // initial camera position and viewpoint
   float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
   float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
-  dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
+
+  // quality in which spheres are drawn
+  dsSetSphereQuality (2); 
 
   // initialization
+  // - set noise to 0.1
+  // - register file chess.ppm as a texture called chessTexture (used for the wheels)
   global.odeConfig.noise=0.1;
   int chessTexture = dsRegisterTexture("chess.ppm");
-  printf("Chess: %i", chessTexture);
-  
+
+  // use Playground as boundary:
+  // - create pointer to playground (odeHandle contains things like world and space the 
+  //   playground should be created in; odeHandle is generated in simulation.cpp)
+  // - setting geometry for each wall of playground: 
+  //   setGeometry(double length, double width, double	height)
+  // - setting initial position of the playground: setPosition(double x, double y, double z)
+  // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
   Playground* playground = new Playground(odeHandle);
   playground->setGeometry(7.0, 0.2, 1.5);
   playground->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(playground);
 
+  // use Nimm2 vehicle as robot:
+  // - create configuration and get default configuration 
+  // - create pointer to nimm2 (with ode Information and nimm2 configuration)
+  // - set textures for body and wheels
+  // - place robot
   Nimm2Conf nimm2Conf = Nimm2::getDefaultConf();
-  nimm2Conf.irFront=true;
   Nimm2* vehicle = new Nimm2(odeHandle, nimm2Conf);
   vehicle->setTextures(DS_WOOD, chessTexture); 
   vehicle->place(Position(0,0,0));
-  AbstractController *controller = new InvertMotorNStep(10);  
+
+  // create pointer to controller
+  // push controller in global list of configurables
+  AbstractController *controller = new InvertNChannelController(10);  
+  global.configs.push_back(controller);
   
+  // create pointer to one2onewiring
   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+
+  // create pointer to agent
+  // initialize pointer with controller, robot and wiring
+  // push agent in globel list of agents
   Agent* agent = new Agent(plotMode);
   agent->init(controller, vehicle, wiring);
   global.agents.push_back(agent);
 
-  global.configs.push_back(controller);
+  // show (print to console) params of all objects in configurable list 
   showParams(global.configs);
 }
 
+// executed once at the end of the simulation loop
 void end(GlobalData& global){
+  // clear obstacles list
   for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
   global.obstacles.clear();
+  
+  // clear agents list
   for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
@@ -72,21 +118,31 @@ void config(GlobalData& global){
   changeParams(global.configs);
 }
 
+// print command line options
 void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
+  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
 }
 
 int main (int argc, char **argv)
-{  
+{ 
+  // start with online windows (default: start without plotting and logging)
   if(contains(argv, argc, "-g")) plotMode = GuiLogger;
+  
+  // start with online windows and logging to file
   if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  
+  // display help
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
+
 
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
+ 
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
-  simulation_close();  // tidy up.
+  
+  // tidy up
+  simulation_close();  
   return 0;
 }
  
