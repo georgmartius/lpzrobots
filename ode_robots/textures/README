@@ -1,0 +1,14 @@
+/** \file 
+ * This file is used for the doxygen documentation. 
+ */
+
+
+/**
+\dir textures
+
+The textures directory contains the different textures used in the simulations.
+In the calcheightmaps subdirectory you can find the file calcheightmaps.cpp
+containing a program to calculate your own heightmaps for using them as a terrain.
+
+*/
+ 
