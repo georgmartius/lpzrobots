@@ -1,5 +1,5 @@
 // -*- C++ -*-
-/** 
+/* 
     \file gnuplot.h
     simple C++ interface to gnuplot
 */
@@ -35,9 +35,6 @@
 
 
 template<class T> class Gnuplot {
-/**
-    \example example.cpp
-*/
 
 /// these includes define FILE* OpenGnuplot(void) and void CloseGnuplot(FILE*) 
 #ifdef _WIN32
