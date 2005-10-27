@@ -30,12 +30,24 @@ are useless at the moment.
 
 
 
-\b Documentation \n 
+\b Usage \n 
+You start guilogger by typing \c guilogger and the right parameters.
+For working in pipe mode you type <tt> -m pipe</tt>. An additional
+\c -l enables the logging to a file. With <tt> -d value </tt> you 
+setup a delay of length \c value.\n
+One can also you can view a logfile with <tt> guilogger -m file -f filename.log</tt>
+where filename.log is the name of the logfile.
+Guilogger can also read from serial port with <tt> guilogger -m serial -p portnumber</tt>.
+This information is summarized in the parameter listing, which you can get by typing
+<tt> guilogger --help </tt>\n
 
-Guilogger comes with its own documentation, see \n
-\ref guilogger/html/index.html 
-\todo
-link to guilogger documentation
+guilogger parameter listing \n
+<tt> -m [mode] </tt> mode = serial | pipe | file \n
+<tt> -p [port] </tt> port = serial port to read from \n
+<tt> -f [file] </tt> input file; only viwewing, no streaming \n 
+<tt> -l        </tt> turns logging on \n
+<tt>-d [delay] </tt> delay for piped input, should be a natural number \n
+<tt> --help    </tt> displays this message. \n
 
 */
 
