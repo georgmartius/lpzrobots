@@ -440,7 +440,9 @@ RECURSIVE              = YES
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 #EXCLUDE                = matrixlib/unit_test.h ode_robots/simulations controller/old_stuff
-EXCLUDE                = matrixlib/unit_test.h controller/old_stuff
+EXCLUDE                = matrixlib/unit_test.h \
+		         controller/old_stuff \
+			 ode_robots/textures/calcheightmaps
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories 
 # that are symbolic links (a Unix filesystem feature) are excluded from the input.
@@ -457,7 +459,8 @@ EXCLUDE_PATTERNS       =
 # directories that contain example code fragments that are included (see 
 # the \include command).
 
-EXAMPLE_PATH           = 
+EXAMPLE_PATH           = ode_robots/simulations/template_onerobot/ \
+			 ode_robots/robots/
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the 
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
