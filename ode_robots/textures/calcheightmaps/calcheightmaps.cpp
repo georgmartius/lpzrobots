@@ -8,6 +8,9 @@ double sqr(double p) { return p*p;}
 double min(double a,double b) { return a<b ? a : b;}
 double max(double a,double b) { return a>b ? a : b;}
 
+void codeSum(double value, unsigned char* data);
+void codeEqual(double value, unsigned char* data);
+void codeLowMidHigh(double value, unsigned char* data);
 
 double calcMacroSpheres(double x, double y){  
   double s=4.4;
@@ -16,21 +19,6 @@ double calcMacroSpheres(double x, double y){
   double p3 = sqr((x-0.67)*s)+sqr((y-0.67)*s);
 
   return min(1,min(min(p1,p2),p3));
-}
-
-
-void codeSum(double value, unsigned char* data){
-  int v = int(255.0*value);
-  data[0] = v;
-  data[1] = v;
-  data[2] = v;  
-}
-
-void codeLowMidHigh(double value, unsigned char* data){
-  long v = long(65536.0*value);
-  data[0] = (v & 0xFF0000)  >> 16;
-  data[1] = (v & 0x00FF00) >> 8;
-  data[2] = (v & 0x0000FF);
 }
 
 /// function that returns an value of the height map at the position (x,y)
@@ -73,4 +61,25 @@ int main(){
   delete[] array;
 
   return 0;
+}
+
+void codeEqual(double value, unsigned char* data){
+  int v = int(255.0*value);
+  data[0] = v;
+  data[1] = v;
+  data[2] = v;  
+}
+
+void codeSum(double value, unsigned char* data){
+  int v = int(768.0*value);
+  data[0] = v/3 + v%256;
+  data[1] = v/3;
+  data[2] = v/3;  
+}
+
+void codeLowMidHigh(double value, unsigned char* data){
+  long v = long(65536.0*value);
+  data[0] = (v & 0xFF0000)  >> 16;
+  data[1] = (v & 0x00FF00) >> 8;
+  data[2] = (v & 0x0000FF);
 }
