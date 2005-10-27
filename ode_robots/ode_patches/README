@@ -11,8 +11,8 @@ How to apply the patches:
     
 How to install ODE
     make
-    chmod u+x install.sh
-    ./install.sh
+    chmod ugo+x install.sh
+    (as root) ./install.sh
 
 How to make a patch:
     - assume the original stuff is in ode-0.5 and you modified one is in ode-0.5_my
