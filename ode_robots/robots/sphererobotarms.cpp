@@ -294,7 +294,7 @@ bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
 	// only treat collisions with envelop
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.mu = 0.6;
+	contact[i].surface.mu = 2.0;
 	contact[i].surface.slip1 = 0.001;
 	contact[i].surface.slip2 = 0.001;
 	contact[i].surface.soft_erp = 1; // 0.95;
