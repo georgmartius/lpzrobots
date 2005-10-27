@@ -9,8 +9,14 @@
 The simulations directory contains the different simulations originated from our work
 on the selforganization issue.
 
+You can just go into one directory, type \p make and after successful compilation \p start
+to start a simulation. \n
 For convenience you should start with one of the template directories like template_onerobot.
-Just type:\n
+Both the simulation file \ref ode_robots/simulations/template_onerobot/main.cpp "main.cpp"
+ of the template_onerobot simulation and robot definitions in nimm4.cpp are really good 
+commented and therfore recommended as first example. You can easy find them by clicking 
+on the tab  "Examples" at the top of the page.\n
+For creating your own simulation just type:\n
 <tt> $> ./createNewSimulation.sh template_onerobot my_sim</tt>\n
 to create the directory \p my_sim, adapt it to your needs, run \p make and \p start and it should work.
 
