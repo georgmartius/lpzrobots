@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-09-22 12:24:37  martius
+ *   Revision 1.5  2005-10-27 16:10:41  fhesse
+ *   nimm4 as example
+ *
+ *   Revision 1.4  2005/09/22 12:24:37  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -98,7 +101,13 @@ public:
   */
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
+  /** checks for internal collisions and treats them. 
+   *  In case of a treatment return true (collision will be ignored by other objects 
+   *  and the default routine)  else false (collision is passed to other objects and 
+   *  (if not treated) to the default routine).
+   */
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
@@ -119,6 +128,9 @@ protected:
   /** destroys vehicle and space
    */
   virtual void destroy();
+
+  /** additional things for collision handling can be done here
+   */
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
   double length;  // chassis length

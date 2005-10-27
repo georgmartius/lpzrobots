@@ -19,7 +19,7 @@
 #include "one2onewiring.h"
 
 // used robot
-#include "nimm2.h"
+#include "nimm4.h"
 
 // used arena
 #include "playground.h"
@@ -66,13 +66,12 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   playground->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(playground);
 
-  // use Nimm2 vehicle as robot:
-  // - create configuration and get default configuration 
-  // - create pointer to nimm2 (with ode Information and nimm2 configuration)
+  // use Nimm4 vehicle as robot:
+  // - create pointer to nimm4 (with ode Information, further parameters can be set, 
+  //   here are the defaults used)
   // - set textures for body and wheels
   // - place robot
-  Nimm2Conf nimm2Conf = Nimm2::getDefaultConf();
-  Nimm2* vehicle = new Nimm2(odeHandle, nimm2Conf);
+  Nimm4* vehicle = new Nimm4(odeHandle);
   vehicle->setTextures(DS_WOOD, chessTexture); 
   vehicle->place(Position(0,0,0));
 

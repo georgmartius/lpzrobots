@@ -1,14 +1,24 @@
 
 /**
-\dir ode_robots/robots
+\dir ode_robots/robots 
 
 The robots of our simuated worlds "live" in this directory.
 You find the class \ref AbstractRobot here, which provides the interface fulfilled
 by all the robots (which are derived from this class).
-\ref Nimm2 you maybe already know from the simulation \ref ode_robots/simulations/template_onerobot
- "template_onerobot".
-	
+\ref Nimm4 you maybe already know from the simulation 
+\ref ode_robots/simulations/template_onerobot "template_onerobot".\n
+Both (the \ref ode_robots/simulations/template_onerobot/main.cpp "main.cpp"
+ of the template_onerobot simulation and nimm4.cpp) are really good 
+commented and therfore recommended as first example. You can easy find them by clicking 
+on the tab  "Examples" at the top of the page .
 
+
+*/	
+
+
+/**
+\example nimm4.cpp  
+ Simple example for the creation of a simulated robot (lpzrobots/ode_robots/robots/nimm4.cpp). 
 */
 
 
