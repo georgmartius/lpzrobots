@@ -13,7 +13,7 @@ the simulations we did with ODE (http://ode.org).
 
 The class \ref OdeConfig holds the configurable parameters of the simulation environment
 like \ref OdeConfig::gravity "gravity", \ref OdeConfig::simStepSize "simStepSize", 
-\ref OdeConfig::drawInterval "drawInterval"  and so on.\n
+\ref OdeConfig::realTimeFactor "realTimeFactor"  and so on.\n
 In \ref simulation.h and \ref simulation.cpp you find the \ref OdeConfig::simulation_start "start",
 \ref OdeConfig::simulation_init "init" and \ref OdeConfig::simulation_close "close" routines 
 as well as the \ref OdeConfig::nearCallback "collision handling" etc. of the simulation environment,
@@ -53,10 +53,12 @@ the following subdirectories
 	all the little things that make life easier
 - \ref ode_robots/ode_patches "ode_patches":
 	our patches for ODE and drawstuff
+- \ref ode_robots/textures "textures":
+	our textures used in the simulations and a program for calculating heigtmaps
 
 
 
-\par How to Start Your Own Simulation 
+\par How to Start Your Own Simulation
 
 To start a new project copy one of the "template" directories in the simulations folder.
 Please note that you have to delete the CVS dirctory inside your copy 
@@ -67,7 +69,7 @@ where \p template_dir is the template directory you wish to copy and \p newsimna
 name of the new simulation you wish to create.
 
 Now you can adjust the simulation as needed.
-A simple make in the simulation directory should be enough. 
+A simple make (and maybe a make depend before the make) in the simulation directory should be enough. 
 In case your simulation code consists of other files than main.cpp, 
  please add them to FILES in the Makefile in the simulation directory.
  
