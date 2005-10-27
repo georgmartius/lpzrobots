@@ -1,6 +1,8 @@
 #ifndef __POSITION_H
 #define __POSITION_H
 
+#include <math.h>
+
 class Position
 {
 public:
@@ -14,6 +16,8 @@ public:
   Position operator-(const Position& sum) const
            { Position rv(x-sum.x, y-sum.y, z-sum.z); return rv; }
   Position operator*(double f) const { Position rv(x*f, y*f, z*f); return rv; }
+
+  double length() { return sqrt(x*x+y*y+z*z);  }
 
   double x;
   double y;

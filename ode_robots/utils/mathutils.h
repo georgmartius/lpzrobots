@@ -21,47 +21,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-10-27 12:15:22  robot3
+ *   Revision 1.2  2005-10-27 14:16:11  martius
+ *   some bugs fixed, module now works
+ *   some functions from controller_misc.h are here now
+ *
+ *   Revision 1.1  2005/10/27 12:15:22  robot3
  *   several useful functions that provide mathematic operations
  *
  *                                                                         *
  ***************************************************************************/
-#include "controller_misc.h"
-#include <math.h>
-#include "matrix.h"
+#ifndef __MATHUTILS_H
+#define __MATHUTILS_H
 
+#include <matrix.h>
+using namespace matrix;
+#include "position.h"
+
+// ifndef min and max
+#define min(a,b) ( (a) < (b) ? a : b )
+#define max(a,b) ( (a) > (b) ? a : b )
+#define sign(x)  ( (x) < 0 ? -1 : 1 )
+#define sqr(x)   ( (x)*(x) )
+#define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
 
 /**
  * returns a rotation matrix with the given angle
  */
-Matrix getRotationMatrix(const double& angle) const=0:
+Matrix getRotationMatrix(const double& angle);
 
 
 /**
  * returns a translation matrix with the given Position
  */
-Matrix getTranslationMatrix(const Position& p) const=0;
+Matrix getTranslationMatrix(const Position& p) ;
 
 
 /**
  * removes the translation in the matrix
  */
-Matrix removeTranslationInMatrix(const Matrix& pose) const=0l
+Matrix removeTranslationInMatrix(const Matrix& pose);
 
 
 /**
  * removes the rotation in the matrix
  */
-Matrix removeRotationInMatrix(const Matrix& pose) const=0;
+Matrix removeRotationInMatrix(const Matrix& pose) ;
 
 
 /**
  * returns the angle between two vectors
  */
-double getAngle(const Position& a,const Position& b) const=0;
+double getAngle(Position a, Position b) ;
 
 
-/**
- * returns the length of a vector stored as Position
- */
-double getLength(const Position& p) const=0;
+#endif

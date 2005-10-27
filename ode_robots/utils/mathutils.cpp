@@ -21,15 +21,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-10-27 12:15:22  robot3
+ *   Revision 1.2  2005-10-27 14:16:11  martius
+ *   some bugs fixed, module now works
+ *   some functions from controller_misc.h are here now
+ *
+ *   Revision 1.1  2005/10/27 12:15:22  robot3
  *   several useful functions that provide mathematic operations
  *
  *                                                                         *
  ***************************************************************************/
-#include "controller_misc.h"
+#include "mathutils.h"
 #include <math.h>
-#include "matrix.h"
-
 
 /**
  * returns a rotation matrix with the given angle
@@ -57,7 +59,7 @@ Matrix getTranslationMatrix(const Position& p) {
  * removes the translation in the matrix
  */
 Matrix removeTranslationInMatrix(const Matrix& pose){
-  Matrix t=pose;
+  Matrix t(pose);
   // remove the three last values of the column 3
   t.val(0,3)=0.0f;
   t.val(1,3)=0.0f;
@@ -69,7 +71,7 @@ Matrix removeTranslationInMatrix(const Matrix& pose){
  * removes the rotation in the matrix
  */
 Matrix removeRotationInMatrix(const Matrix& pose){
-  Matrix t=pose;
+  Matrix t(pose);
   t.val(0,0)=1.0f; t.val(0,1)=0.0f;
   t.val(1,0)=0.0f; t.val(1,1)=1.0f;
   return t;
@@ -78,14 +80,8 @@ Matrix removeRotationInMatrix(const Matrix& pose){
 /**
  * returns the angle between two vectors
  */
-double getAngle(const Position& a,const Position& b) {
-  Matrix p = new Matrix(3,1,a.toArray()); // row wise
-  Matrix q = new Matrix(1,3,b.toArray()); // column wise
-  return arccos((p * q).val(0,0) /  (getLength(a)*getLength(b)));
-}
-/**
- * returns the length of a vector stored as Position
- */
-double getLength(const Position& p) {
-  return sqrt(sqr(p.x)+sqr(p.y)+sqr(p.z));
+double getAngle(Position a, Position b) {
+  Matrix p(3,1,a.toArray()); // row wise
+  Matrix q(1,3,b.toArray()); // column wise
+  return acos((p * q).val(0,0) / (a.length()*b.length()) );
 }
