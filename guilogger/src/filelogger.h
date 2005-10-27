@@ -42,7 +42,7 @@ private:
     FILE *instream;
 
 private slots:
-    void writeChannelNames(char *);  // removes #C from the front of the input string      deprecated
+    void openStream();  // opens the stream
     void writeChannelData(char *);   // writes the block as it gets it to file
 
 };

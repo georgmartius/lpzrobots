@@ -34,17 +34,15 @@ FileLogger::~FileLogger(){
 }
 
 
-void FileLogger::writeChannelNames(char *datablock)
+void FileLogger::openStream()
 {  
     filename = prefix + (QDateTime::currentDateTime()).toString("yyyy-MMMM-ddd hh-mm-ss") + ".log";
 
-    if(datablock == NULL) return;
     if(instream) {
       fclose(instream);
     }
     instream = fopen(filename.latin1(),"w+");
     printf("Open Logfile: %s\n",filename.latin1());
-    fprintf(instream, "%s\n", datablock);
 }
 
 
@@ -52,10 +50,9 @@ void FileLogger::writeChannelData(char *datablock)
 {
     if(!log || !datablock) return;
 
-    if(datablock[0]=='#' && datablock[1] == 'C')
+    if(!instream)
     {   
-      writeChannelNames(datablock);
-      return;
+      openStream();
     }
     if(instream)
       fprintf(instream, "%s\n", datablock);
