@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-10-24 13:32:07  fhesse
+ *   Revision 1.6  2005-10-28 12:05:27  martius
+ *   adapted time horizont for derivative
+ *    to quater of the time horizont of averaging
+ *
+ *   Revision 1.5  2005/10/24 13:32:07  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.4  2005/10/24 11:06:33  fhesse
@@ -117,8 +121,8 @@ public:
     c.useId = true;        // use id
     c.useFirstD = false;   // do not use first derivative
     c.useSecondD = false;  // do not use secound derivative
-    c.eps = 0.2;        
-    c.derivativeScale=20;
+    c.eps = 0.05;        
+    c.derivativeScale=3;
     c.blindMotorSets=0;    // no blind motors used
     return c;
   };
@@ -137,8 +141,11 @@ protected:
 
   /// used configuration
   DerivativeWiringConf conf;
-  static const int buffersize=5;
+  static const int buffersize=40;
   int time;
+  /// number timesteps the sensor values are delayed for calculation of the derivative
+  int delay;
+  
 
   /// current and old smoothed sensor values of robot
   sensor* sensorbuffer[buffersize]; 

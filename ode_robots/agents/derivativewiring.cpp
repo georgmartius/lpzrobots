@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-10-24 11:06:33  fhesse
+ *   Revision 1.6  2005-10-28 12:05:27  martius
+ *   adapted time horizont for derivative
+ *    to quater of the time horizont of averaging
+ *
+ *   Revision 1.5  2005/10/24 11:06:33  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.4  2005/07/26 17:02:37  martius
@@ -48,6 +52,7 @@ DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf,
 
   this->conf=conf;
   time     = buffersize;
+  delay    = min(buffersize/2-1, int(0.25/(conf.eps+0.01)));
   // make sure that at least id is on.
   if (!conf.useFirstD && !conf.useSecondD) this->conf.useId=true; 
 }
@@ -178,19 +183,19 @@ bool DerivativeWiring::wireMotors(motor* rmotors, int rmotornumber,
 //  since we do not have f(x+1) we go one timestep in the past
 void DerivativeWiring::calcFirstDerivative(){  
   sensor* t   = sensorbuffer[time%buffersize];
-  sensor* tm2 = sensorbuffer[(time-2)%buffersize];
+  sensor* tmdelay = sensorbuffer[(time-delay)%buffersize];
   for(int i=0; i < rsensornumber; i++){
-    first[i] = conf.derivativeScale*(t[i] - tm2[i]);
+    first[i] = conf.derivativeScale*(t[i] - tmdelay[i]);
   }
 }
 
 /// f'(x) = f(x) - 2f(x-1) + f(x-2)
 void DerivativeWiring::calcSecondDerivative(){
   sensor* t   = sensorbuffer[time%buffersize];
-  sensor* tm1 = sensorbuffer[(time-1)%buffersize];
-  sensor* tm2 = sensorbuffer[(time-2)%buffersize];
+  sensor* tmdelay = sensorbuffer[(time-delay)%buffersize];
+  sensor* tm2delay = sensorbuffer[(time-2*delay)%buffersize];
   for(int i=0; i < rsensornumber; i++){
-    second[i] = (t[i] - 2*tm1[i] + tm2[i])*conf.derivativeScale*conf.derivativeScale; 
+    second[i] = (t[i] - 2*tmdelay[i] + tm2delay[i])*conf.derivativeScale*conf.derivativeScale; 
   }
 }
 
