@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-10-24 13:32:07  fhesse
+ *   Revision 1.9  2005-10-28 12:05:54  martius
+ *   new inspectable interface
+ *
+ *   Revision 1.8  2005/10/24 13:32:07  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.7  2005/10/06 17:11:37  martius
@@ -115,7 +118,7 @@ bool One2OneWiring::wireMotors(motor* rmotors, int rmotornumber,
 
 /** Returns the list of the names of all internal parameters.
 */
-list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames(){
+list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames() const {
   list<iparamkey> l;
   char buffer[32];
   if(plotNoise) {    
@@ -130,7 +133,7 @@ list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames(){
 /** Returns a list of the values of all internal parameters
     (in the order given by getInternalParamNames()).
 */
-list<Inspectable::iparamval> One2OneWiring::getInternalParams(){
+list<Inspectable::iparamval> One2OneWiring::getInternalParams() const {
   list<iparamval> l;
   for(int i=0; i < rsensornumber; i++){
     l += noisevals[i];

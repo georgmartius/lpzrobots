@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-10-24 13:32:07  fhesse
+ *   Revision 1.9  2005-10-28 12:05:54  martius
+ *   new inspectable interface
+ *
+ *   Revision 1.8  2005/10/24 13:32:07  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.7  2005/10/06 17:11:37  martius
@@ -95,12 +98,12 @@ public:
 
   /** Returns the list of the names of all internal parameters.
   */
-  virtual list<iparamkey> getInternalParamNames();
+  virtual list<iparamkey> getInternalParamNames() const;
 
   /** The list of the values of all internal parameters given by getInternalParams().
       (in the order given by getInternalParamNames())
    */
-  virtual list<iparamval> getInternalParams();
+  virtual list<iparamval> getInternalParams() const;
 
 protected:
   /// TRUE for plotting noise values, FALSE for not plotting
