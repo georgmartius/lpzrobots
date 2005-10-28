@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-10-24 13:32:07  fhesse
+ *   Revision 1.12  2005-10-28 12:03:36  martius
+ *   network description printed
+ *
+ *   Revision 1.11  2005/10/24 13:32:07  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.10  2005/10/06 17:11:36  martius
@@ -114,6 +117,8 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
     
     if(plotmode != NoPlot){
       if(!OpenGui()) return false;
+      // print network description given by the structural information of the controller
+      printNetworkDescription(pipe, "Lpzrobots"/*controller->getName()*/, controller);
       // print head line with all parameter names
       unsigned int snum = plotsensors == Robot ? rsensornumber : csensornumber;
       Inspectable* inspectables[2] = {controller, wiring};      
@@ -133,7 +138,7 @@ bool Agent::OpenGui(){
   // TODO: get the guilogger call from some config
   if(plotmode == GuiLogger_File){
     pipe=popen("guilogger -l -m pipe -d 5","w");
-  }else{
+  }else if(plotmode == GuiLogger){
     pipe=popen("guilogger -m pipe -d 5","w");
   }
   if(pipe==0){
