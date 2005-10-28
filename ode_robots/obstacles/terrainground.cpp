@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-10-25 22:22:46  martius
+ *   Revision 1.2  2005-10-28 12:06:10  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2005/10/25 22:22:46  martius
  *   moved implementation to cpp
  *   data constructor
  *   store method
@@ -38,7 +41,6 @@
 #include "imageppm.h"
 
 double Terrainground::coding(CodingMode mode, const unsigned char* data){
-  double v;
   switch(mode){
   case Red:
     return (data[0])/256.0;
