@@ -16,7 +16,6 @@
 #include "sinecontroller.h"
 
 
-ConfigList configs;
 PlotMode plotMode = NoPlot;
 
 SphererobotArms* sphere ;
@@ -37,8 +36,11 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   dsSetGroundTexture(dsRegisterTexture("greenground.ppm"));
 
   // initialization
-  global.odeConfig.noise=0.05;
-  double height=2.2;
+  global.odeConfig.setParam("noise",0.05);
+  global.odeConfig.setParam("controlinterval",1);
+  global.odeConfig.setParam("realtimefactor",0);
+  
+  double height=5;
   Playground* playground = new Playground(odeHandle);
   playground->setGeometry(20.0, 0.2, 0.5+height);
   playground->setColor(34/255.0, 97/255.0, 32/255.0);
@@ -46,20 +48,27 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.obstacles.push_back(playground);
   
   //Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/dip128_flat.ppm");
-  //  int tex = dsRegisterTexture("terrains/dip128_flat_texture.ppm", true);
-  Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/3potential.ppm");
-  int tex = dsRegisterTexture("terrains/3potential_texture.ppm", true);
+  //int tex = dsRegisterTexture("terrains/dip128_flat_texture.ppm", true);
+  //Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/3potential.ppm");
+  //  int tex = dsRegisterTexture("terrains/3potential_texture.ppm", true);
+  //terrainground->setTextureID(tex);
+  //Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/macrospheresSum_256.ppm", 
+   // 						   Terrainground::Sum);
+  Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/macrospheresLMH_256.ppm", 
+  						   Terrainground::LowMidHigh);
+  int tex = dsRegisterTexture("terrains/macrospheresSum_256.ppm", true);
   terrainground->setTextureID(tex);
-
+  //terrainground->setColor(1,1,1);
+  
   terrainground->setPosition(-10,-10,0.5);
   global.obstacles.push_back(terrainground);
   
     Color col;
-  for(int i=0; i<3; i++){
+  for(int i=0; i<1; i++){
     SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
-    conf.diameter=1.5;
+    conf.diameter=1;
     conf.spheremass=0.01;
-    conf.pendularrange=0.35; 
+    conf.pendularrange= 0.35; // 0.15;
     //SphererobotArms* sphere = new SphererobotArms ( odeHandle, conf);
     sphere = new SphererobotArms ( odeHandle, conf, 0.4);
     sphere->setTexture(DS_WOOD);  
@@ -67,36 +76,36 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
       col.r=0;
       col.g=0.5;
       col.b=1;
+      sphere->place ( Position ( 2 , 2 , height+1 ) , &col );
     }
     if(i==1){
       col.r=1;
       col.g=0.4;
       col.b=0;
+      sphere->place ( Position ( 2 , -2 , height+1 ) , &col );
     }
     if(i==2){
       col.r=0;
       col.g=1;
       col.b=0.4;
+      sphere->place ( Position ( 7 , 7 , height+1 ) , &col );
     }
-    if(i==1){
-      sphere->place ( Position ( 2 , -2 , 6 ) , &col );
-    } else 
-      sphere->place ( Position ( (i*4)-2 , (i*4)-2 , 6 ) , &col );
     
     //AbstractController *controller = new InvertNChannelController(10);  
-    AbstractController *controller = new InvertMotorNStep(50);
-    controller->setParam("factorB", 0.0);
-    controller->setParam("steps", i+1);
+    AbstractController *controller = new InvertMotorNStep(30);
+    controller->setParam("factorB", 0.1);
+    controller->setParam("steps", 2);
+    controller->setParam("nomupdate", 0.005);
     
     AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
     Agent* agent = new Agent ( i==0 ? plotMode : NoPlot );
     agent->init ( controller , sphere , wiring );
     global.agents.push_back ( agent );
-    configs.push_back ( controller );
+    global.configs.push_back ( controller );
   }
 
 
-  showParams(configs);
+  showParams(global.configs);
 }
 
 void end(GlobalData& global){
@@ -129,7 +138,7 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
 
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
-  changeParams(configs);
+  changeParams(global.configs);
 }
 
 void printUsage(const char* progname){
