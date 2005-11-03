@@ -16,8 +16,6 @@
 
 #include "sphererobotarms.h"
 
-
-ConfigList configs;
 PlotMode plotMode = NoPlot;
 AbstractController *controller;
 SphererobotArms* sphere1;
@@ -61,9 +59,9 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   Agent* agent = new Agent ( plotMode );
   agent->init ( controller , sphere1 , wiring );
   global.agents.push_back ( agent );
-  configs.push_back ( controller );
+  global.configs.push_back ( controller );
       
-  showParams(configs);
+  showParams(global.configs);
 }
 
 void end(GlobalData& global){
@@ -82,7 +80,7 @@ void end(GlobalData& global){
 
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
-  changeParams(configs);
+  changeParams(global.configs);
 }
 
 void printUsage(const char* progname){
@@ -107,22 +105,6 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
     case 's' : controller->setParam("sineRate", controller->getParam("sineRate")/1.2); 
       printf("sineRate : %g\n", controller->getParam("sineRate"));
       break;
-//     case 'P' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP+=1; 
-//       printf("KP : %g\n", sphere1->servo[0]->KP); break;
-//     case 'p' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP-=1; 
-//       printf("KP : %g\n", sphere1->servo[0]->KP); break;
-//     case 'D' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KD+=0.01; 
-//       printf("KD : %g\n", sphere1->servo[0]->KD); break;
-//     case 'd' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KD-=0.01; 
-//       printf("KD : %g\n", sphere1->servo[0]->KD); break;
-//     case 'I' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KI+=0.01; 
-//       printf("KI : %g\n", sphere1->servo[0]->KI); break;
-//     case 'i' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KI-=0.01; 
-//       printf("KI : %g\n", sphere1->servo[0]->KI); break;
-//     case 'A' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->alpha*=1.01; 
-//       printf("KI : %g\n", sphere1->servo[0]->alpha); break;
-//     case 'a' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->alpha*=0.99; 
-//       printf("KI : %g\n", sphere1->servo[0]->alpha); break;
     }
 }
 
