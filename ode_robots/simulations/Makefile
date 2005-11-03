@@ -19,6 +19,7 @@ SIMULATIONS= \
 	formel1 \
 	nimm2_arena \
 	pid_test \
+	sphericalrobot
 	robodrom
 
 
