@@ -19,6 +19,59 @@
 PlotMode plotMode = NoPlot;
 
 SphererobotArms* sphere ;
+const double height = 6.5;
+
+void addRobot(const OdeHandle& odeHandle, GlobalData& global, int i){
+  Color col;
+  
+  SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
+  conf.diameter=1.0;
+  conf.pendularrange= 0.35; // 0.15;
+  //SphererobotArms* sphere = new SphererobotArms ( odeHandle, conf);
+  sphere = new SphererobotArms ( odeHandle, conf, 0.4);
+  sphere->setTexture(DS_WOOD);  
+  if(i==0){
+    col.r=0;
+    col.g=0.5;
+    col.b=1;
+    sphere->place ( Position ( 9.5 , 0 , height+1 ) , &col );
+  }else
+    if(i==1){
+      col.r=1;
+      col.g=0.4;
+      col.b=0;
+      sphere->place ( Position ( 2 , -2 , height+1 ) , &col );
+    } else {
+      col.r=0;
+      col.g=1;
+      col.b=0.4;
+      sphere->place ( Position ( double(rand())/RAND_MAX*10 , 0 , height+1 ) , &col );
+    }
+  
+  
+  //AbstractController *controller = new InvertNChannelController(10);  
+  AbstractController *controller = new InvertMotorNStep(30);
+  //    controller->setParam("factorB", 0.1);
+  //    controller->setParam("steps", 2);
+  //    controller->setParam("nomupdate", 0.005);
+  
+  AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
+  Agent* agent = new Agent ( i==0 ? plotMode : NoPlot );
+  agent->init ( controller , sphere , wiring );
+  global.agents.push_back ( agent );
+  global.configs.push_back ( controller );  
+}
+
+void removeRobot(GlobalData& global){
+  if(!global.agents.empty()){
+    AgentList::iterator i =  global.agents.end()-1;
+    delete (*i)->getRobot();
+    delete (*i)->getController(); 
+    delete (*i);
+    global.agents.erase(i);    
+  }
+}
+
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -28,7 +81,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
   
   //Anfangskameraposition und Punkt auf den die Kamera blickt
-  float KameraXYZ[3]= {12.4f,-13.0f,10.5f};
+  float KameraXYZ[3]= {12.4f,-13.0f,15.5f};
   float KameraViewXYZ[3] = {132.0000f,-25.0000f,0.0000f};
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
@@ -39,8 +92,6 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.odeConfig.setParam("noise",0.05);
   global.odeConfig.setParam("controlinterval",1);
   global.odeConfig.setParam("realtimefactor",0);
-  
-  double height=5;
   Playground* playground = new Playground(odeHandle);
   playground->setGeometry(20.0, 0.2, 0.5+height);
   playground->setColor(34/255.0, 97/255.0, 32/255.0);
@@ -52,57 +103,20 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/3potential.ppm");
   //  int tex = dsRegisterTexture("terrains/3potential_texture.ppm", true);
   //terrainground->setTextureID(tex);
-  //Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/macrospheresSum_256.ppm", 
-   // 						   Terrainground::Sum);
-  Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/macrospheresLMH_256.ppm", 
-  						   Terrainground::LowMidHigh);
-  int tex = dsRegisterTexture("terrains/macrospheresSum_256.ppm", true);
-  terrainground->setTextureID(tex);
-  //terrainground->setColor(1,1,1);
+  Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/potLMH_256.ppm", 
+   						   Terrainground::LowMidHigh);
+  //int tex = dsRegisterTexture("terrains/potTex_1024.ppm", true);
+  // Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/macrospheresLMH_256.ppm", 
+//   						   Terrainground::LowMidHigh);
+//   int tex = dsRegisterTexture("terrains/macrospheresTex_1024.ppm", true);
+  //terrainground->setTextureID(tex);
+  terrainground->setColor(1,1,1);
   
   terrainground->setPosition(-10,-10,0.5);
   global.obstacles.push_back(terrainground);
   
-    Color col;
-  for(int i=0; i<1; i++){
-    SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
-    conf.diameter=1;
-    conf.spheremass=0.01;
-    conf.pendularrange= 0.35; // 0.15;
-    //SphererobotArms* sphere = new SphererobotArms ( odeHandle, conf);
-    sphere = new SphererobotArms ( odeHandle, conf, 0.4);
-    sphere->setTexture(DS_WOOD);  
-    if(i==0){
-      col.r=0;
-      col.g=0.5;
-      col.b=1;
-      sphere->place ( Position ( 2 , 2 , height+1 ) , &col );
-    }
-    if(i==1){
-      col.r=1;
-      col.g=0.4;
-      col.b=0;
-      sphere->place ( Position ( 2 , -2 , height+1 ) , &col );
-    }
-    if(i==2){
-      col.r=0;
-      col.g=1;
-      col.b=0.4;
-      sphere->place ( Position ( 7 , 7 , height+1 ) , &col );
-    }
-    
-    //AbstractController *controller = new InvertNChannelController(10);  
-    AbstractController *controller = new InvertMotorNStep(30);
-    controller->setParam("factorB", 0.1);
-    controller->setParam("steps", 2);
-    controller->setParam("nomupdate", 0.005);
-    
-    AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
-    Agent* agent = new Agent ( i==0 ? plotMode : NoPlot );
-    agent->init ( controller , sphere , wiring );
-    global.agents.push_back ( agent );
-    global.configs.push_back ( controller );
-  }
+  addRobot(odeHandle, global, 0);
+  addRobot(odeHandle, global, 1);
 
 
   showParams(global.configs);
@@ -124,7 +138,7 @@ void end(GlobalData& global){
 }
 
 //Funktion die eingegebene Befehle/kommandos verarbeitet
-void command (const OdeHandle&, GlobalData& globalData, int cmd) 
+void command (const OdeHandle& odeHandle, GlobalData& globalData, int cmd) 
 {
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )
@@ -133,6 +147,8 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
     case 's' : dBodyAddForce ( sphere->object[SphererobotArms::Base].body , 0 , 50 , 0); break;
     case 'q' : dBodyAddTorque( sphere->object[SphererobotArms::Base].body , 0 , 0 , 10 ); break;
     case 'w' : dBodyAddTorque( sphere->object[SphererobotArms::Base].body , 0 , 0 , -10 ); break;
+    case 'n' : addRobot(odeHandle, globalData, 3); break;
+    case 'r' : removeRobot(globalData);            break;
     }
 }
 
