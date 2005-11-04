@@ -21,7 +21,10 @@ public:
   double spheremass;
   double pendulardiameter; // automatically set
   double pendularmass;
-  double pendularrange; 
+  double pendularrange;
+  bool axisZsensor;  
+  bool axisXYZsensor;  
+  bool motorsensor;  
   bool irAxis1;
   bool irAxis2;
   bool irAxis3;
@@ -44,7 +47,6 @@ private:
 
   dSpaceID sphererobot_space;
   SliderServo* servo[servono];
-  int sensorno;
   char* name;
   int texture;
   double transparency;
@@ -70,10 +72,13 @@ public:
     c.spheremass   = 0.1;
     c.pendularmass  = 1.0;
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
+    c.axisZsensor = true;
+    c.axisXYZsensor = false;  
+    c.motorsensor = false;  
     c.irAxis1=false;
     c.irAxis2=false;
     c.irAxis3=false;
-  return c;
+    return c;
   }
 
   void setTexture(int tex) { texture = tex; }

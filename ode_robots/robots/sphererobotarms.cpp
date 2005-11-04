@@ -38,9 +38,6 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
 
   this->conf.pendulardiameter = conf.diameter/7;
   this->transparency=transparency;
- 
-  
-  sensorno = 3;
 	
   Position pos(0 , 0 , conf.diameter/2);
 
@@ -119,7 +116,6 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
     }
   }
   texture=DS_NONE;
-  sensorno =3+ conf.irAxis1 *2 + conf.irAxis2 *2 + conf.irAxis3 *2;
  
 }
 	
@@ -192,37 +188,34 @@ void SphererobotArms::draw()
 int SphererobotArms::getSensors ( sensor* sensors, int sensornumber )
 {  
   int len=0;
-
   Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base].body ) );
 
-  
-//   for ( int n = 0; n < servono; n++ ) {
-//     sensors[n+len] = servo[n]->get() * 0.2;
-//   }
-
-
+  if(conf.motorsensor){
+    for ( int n = 0; n < servono; n++ ) {
+      sensors[len] = servo[n]->get() * 0.2;
+      len++;
+    }
+  }
+  if(conf.axisZsensor){
+    // z-coordinate of axis position in world coordinates
+    len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
+  }
+  if(conf.axisXYZsensor){
+    // rotation matrix - 9 (vectors of all axis in world coordinates
+    len += A.convertToBuffer(sensors + len , sensornumber -len);
+  }
+    
 //   // angular velocities (local coord.) - 3
 //   Matrix angVelOut(3, 1, dBodyGetAngularVel( object[ Base ].body ));
 //   Matrix angVelIn = A*angVelOut;
 //   len += angVelIn.convertToBuffer(sensors+len,  sensornumber-len );
 
-//   // rotation matrix - 9
-//   return A.convertToBuffer(sensors + len , sensornumber -len) + len;
-
   // reading ir sensorvalues
-  if (conf.irAxis1 || conf.irAxis2 || conf.irAxis3)
+  if (conf.irAxis1 || conf.irAxis2 || conf.irAxis3){
     len += irSensorBank.get(sensors+len, sensornumber-len);
+  }
   
-  //
-  //  if(csensornumber == 3){
-    // z-coordinate of axis position in world coordinates
-      len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);
-  //} else {
-    // rotation matrix - 9 (vectors of all axis in world coordinates
-  //  len += A.convertToBuffer(sensors + len , sensornumber -len);
-  // }
   return len;
-
 }
 
 /**
@@ -328,7 +321,8 @@ int SphererobotArms::getMotorNumber(){
  *@return number of sensors
  **/
 int SphererobotArms::getSensorNumber() {
-  return sensorno;
+  return conf.motorsensor * servono + conf.axisZsensor * servono + conf.axisXYZsensor * servono * 3 
+    + (conf.irAxis1 + conf.irAxis2 + conf.irAxis3) * 2;
 }
 
 /**
