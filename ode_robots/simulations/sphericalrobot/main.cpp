@@ -31,27 +31,31 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (3); //Qualitaet in der Sphaeren gezeichnet werden
-  dWorldSetERP(odeHandle.world, 0.9);
+  //  dWorldSetERP(odeHandle.world, 0.9);
 
   // initialization
-  global.odeConfig.setParam("noise",0.1);
+  global.odeConfig.setParam("noise",0.03);
   //  global.odeConfig.setParam("gravity",-10);
   global.odeConfig.setParam("controlinterval",1);
-
     
-  Playground* playground = new Playground(odeHandle);
-  playground->setGeometry(100, 0.2, 1);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  global.obstacles.push_back(playground);
-    
+  //  Playground* playground = new Playground(odeHandle);
+  //  playground->setGeometry(300, 0.2, 1);
+  //  playground->setPosition(0,0,0); // playground positionieren und generieren
+  //  global.obstacles.push_back(playground);
+  
   //****************
   SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
-
+  conf.axisZsensor=true;
+  conf.axisXYZsensor=false;
+  conf.irAxis1=true;
   sphere1 = new SphererobotArms ( odeHandle, conf);
 
   Color col(0,0.5,0.8);
   sphere1->place ( Position ( 0 , 0 , 1 ), &col );
-  controller = new InvertMotorNStep(10);  
+  controller = new InvertMotorNStep(10, 0.1, false, false);
+  controller->setParam("steps", 2);  
+  controller->setParam("factorB", 0);  
+  
   //controller = new SineController();  
   //  controller->setParam("sineRate", 50);  
   //  controller->setParam("phaseShift", 0.7);
@@ -59,6 +63,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
   Agent* agent = new Agent ( plotMode );
   agent->init ( controller , sphere1 , wiring );
+  agent->setTrackOptions(TrackRobot(true, false, false,50));
   global.agents.push_back ( agent );
   global.configs.push_back ( controller );
       
