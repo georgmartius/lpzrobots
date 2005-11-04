@@ -11,73 +11,19 @@
 #include <stdio.h>
 
 const int SphererobotArms::servono;
-const int SphererobotArms::sensorno;
 
 #include "matrix.h"
 using namespace matrix;
 
-Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
-  Matrix matrix(3,3);
-  matrix.val(0,0)=R[0];
-  matrix.val(0,1)=R[4];
-  matrix.val(0,2)=R[8];
-  matrix.val(1,0)=R[1];
-  matrix.val(1,1)=R[5];
-  matrix.val(1,2)=R[9];
-  matrix.val(2,0)=R[2];
-  matrix.val(2,1)=R[6];
-  matrix.val(2,2)=R[10];
-  return matrix;
-}
-
+// converts a ODE rotation matrix (3x4) to an 3x3 transformation matrix
+Matrix odeRto3x3RotationMatrix ( const double R[12] );
 // pi/2-rotation round x-axis of rotation R
-void xrot ( double rotR[12], const double R[12])
-{
-  
-  rotR[0]=R[0];
-  rotR[4]=R[4];
-  rotR[8]=R[8];
-  
-  rotR[1]= -R[2];
-  rotR[5]= -R[6];
-  rotR[9]= -R[10];
-  
-  rotR[2]=R[1];
-  rotR[6]=R[5];
-  rotR[10]=R[9];
-  
-  // whatever
-  rotR[3]=R[3];
-  rotR[7]=R[7];
-  rotR[11]=R[11];
-}
-
+void xrot ( double rotR[12], const double R[12]);
 // pi/2-rotation round y-axis of rotation R
-void yrot ( double rotR[12], const double R[12])
-{
-  rotR[0]=R[2];
-  rotR[4]=R[6];
-  rotR[8]=R[10];
-
-  rotR[1]=R[1];
-  rotR[5]=R[5];
-  rotR[9]=R[9];
-  
-  rotR[2]= -R[0];
-  rotR[6]= -R[4];
-  rotR[10]= -R[8];
-  
-  // whatever
-  rotR[3]=R[3];
-  rotR[7]=R[7];
-  rotR[11]=R[11];
-}
-
+void yrot ( double rotR[12], const double R[12]);
 
 /**
  *constructor
- *@param startRoboterID ID, which should be managed clearly
-
  **/
 SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle, 
 				   const SphererobotArmsConf& conf, double transparency)
@@ -90,6 +36,8 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
 
   this->conf.pendulardiameter = conf.diameter/7;
   this->transparency=transparency;
+
+  sensorno = 9; //3
 	
   Position pos(0 , 0 , conf.diameter/2);
 
@@ -211,10 +159,11 @@ void SphererobotArms::draw()
  **/
 int SphererobotArms::getSensors ( sensor* sensors, int sensornumber )
 {  
-  
-  Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base].body ) );
-  int len = A.row(2).convertToBuffer(sensors, sensornumber);
+  int len=0;
 
+  Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base].body ) );
+
+  
 //   for ( int n = 0; n < servono; n++ ) {
 //     sensors[n+len] = servo[n]->get() * 0.2;
 //   }
@@ -223,11 +172,15 @@ int SphererobotArms::getSensors ( sensor* sensors, int sensornumber )
 //   // angular velocities (local coord.) - 3
 //   Matrix angVelOut(3, 1, dBodyGetAngularVel( object[ Base ].body ));
 //   Matrix angVelIn = A*angVelOut;
-//   return angVelIn.convertToBuffer(sensors,  sensornumber );
+//   len += angVelIn.convertToBuffer(sensors+len,  sensornumber-len );
 
-//   // rotation matrix - 9
-//   return A.convertToBuffer(sensors + len , sensornumber -len) + len;
-  
+  if(sensornumber == 3){
+    // z-coordinate of axis position in world coordinates
+    len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);
+  } else {
+    // rotation matrix - 9 (vectors of all axis in world coordinates
+    len += A.convertToBuffer(sensors + len , sensornumber -len);
+  }
   return len;
 
 }
@@ -285,20 +238,20 @@ bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
     // inner space collisions are not treated!
 
     int i,n;  
-    const int N = 30;
+    const int N = 40;
     dContact contact[N];
     
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     for (i=0; i<n; i++) {
       if( contact[i].geom.g1 == object[Base].geom || contact[i].geom.g2 == object[Base].geom ){ 
 	// only treat collisions with envelop
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.mu = 2.0;
-	contact[i].surface.slip1 = 0.001;
-	contact[i].surface.slip2 = 0.001;
-	contact[i].surface.soft_erp = 1; // 0.95;
-	contact[i].surface.soft_cfm = 0.00001;
+	contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
+	//	  dContactSoftERP | dContactSoftCFM | 
+	contact[i].surface.mu = 1.0;
+	contact[i].surface.slip1 = 0.005;
+	contact[i].surface.slip2 = 0.005;
+	//	contact[i].surface.soft_erp = 1; // 0.95;
+	//	contact[i].surface.soft_cfm = 0.00001;
 	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
       }
@@ -343,6 +296,64 @@ int SphererobotArms::getSegmentsPosition(vector<Position> &poslist){
   poslist.push_back(Position(dBodyGetPosition ( object[Pendular1].body )));
   poslist.push_back(Position(dBodyGetPosition ( object[Pendular2].body )));
   return 3;
+}
+
+
+Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
+  Matrix matrix(3,3);
+  matrix.val(0,0)=R[0];
+  matrix.val(0,1)=R[4];
+  matrix.val(0,2)=R[8];
+  matrix.val(1,0)=R[1];
+  matrix.val(1,1)=R[5];
+  matrix.val(1,2)=R[9];
+  matrix.val(2,0)=R[2];
+  matrix.val(2,1)=R[6];
+  matrix.val(2,2)=R[10];
+  return matrix;
+}
+
+// pi/2-rotation round x-axis of rotation R
+void xrot ( double rotR[12], const double R[12])
+{
+  
+  rotR[0]=R[0];
+  rotR[4]=R[4];
+  rotR[8]=R[8];
+  
+  rotR[1]= -R[2];
+  rotR[5]= -R[6];
+  rotR[9]= -R[10];
+  
+  rotR[2]=R[1];
+  rotR[6]=R[5];
+  rotR[10]=R[9];
+  
+  // whatever
+  rotR[3]=R[3];
+  rotR[7]=R[7];
+  rotR[11]=R[11];
+}
+
+// pi/2-rotation round y-axis of rotation R
+void yrot ( double rotR[12], const double R[12])
+{
+  rotR[0]=R[2];
+  rotR[4]=R[6];
+  rotR[8]=R[10];
+
+  rotR[1]=R[1];
+  rotR[5]=R[5];
+  rotR[9]=R[9];
+  
+  rotR[2]= -R[0];
+  rotR[6]= -R[4];
+  rotR[10]= -R[8];
+  
+  // whatever
+  rotR[3]=R[3];
+  rotR[7]=R[7];
+  rotR[11]=R[11];
 }
 
 
