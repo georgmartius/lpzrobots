@@ -13,6 +13,7 @@ using namespace std;
 
 #include "sliderservo.h"
 #include "abstractrobot.h"
+#include "raysensorbank.h"
 
 typedef struct {
 public:
@@ -20,7 +21,10 @@ public:
   double spheremass;
   double pendulardiameter; // automatically set
   double pendularmass;
-  double pendularrange;  
+  double pendularrange; 
+  bool irAxis1;
+  bool irAxis2;
+  bool irAxis3;
 } SphererobotArmsConf;
 
 
@@ -36,9 +40,8 @@ public:
   typedef enum objects { Base, Pendular1, Pendular2, Pendular3, Last } ;
 
 private:
-
-
   static const int servono=3;
+
   dSpaceID sphererobot_space;
   SliderServo* servo[servono];
   int sensorno;
@@ -48,6 +51,7 @@ private:
 
 protected:
   SphererobotArmsConf conf;
+  RaySensorBank irSensorBank; // a collection of ir sensors
 
 public:
   Object object[Last];
@@ -66,7 +70,10 @@ public:
     c.spheremass   = 0.1;
     c.pendularmass  = 1.0;
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
-    return c;
+    c.irAxis1=false;
+    c.irAxis2=false;
+    c.irAxis3=false;
+  return c;
   }
 
   void setTexture(int tex) { texture = tex; }

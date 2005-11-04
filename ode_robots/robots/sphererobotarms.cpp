@@ -6,6 +6,7 @@
 
 #include "sphererobotarms.h"
 #include "simulation.h"
+#include "irsensor.h"
 #include <iostream>
 #include <assert.h>
 #include <stdio.h>
@@ -29,6 +30,7 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
 				   const SphererobotArmsConf& conf, double transparency)
   : AbstractRobot ( odeHandle, "Sphere_Robot_Arms" )
 {
+
   sphererobot_space = dSimpleSpaceCreate ( space );
   dSpaceSetCleanup ( sphererobot_space , 0 );
   
@@ -36,8 +38,9 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
 
   this->conf.pendulardiameter = conf.diameter/7;
   this->transparency=transparency;
-
-  sensorno = 9; //3
+ 
+  
+  sensorno = 3;
 	
   Position pos(0 , 0 , conf.diameter/2);
 
@@ -57,7 +60,6 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
   //base.geom = dCreateBox ( sphererobot_space , conf.diameter,conf.diameter,conf.diameter );
   dGeomSetBody ( base.geom , base.body );
 
-    
   //definition of the 3 Slider-Joints, which are the controled by the robot-controler
   for ( unsigned int n = 0; n < 3; n++ ) {
     //pendular body
@@ -89,7 +91,36 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
   object[Pendular2] = pendular[1]; 
   object[Pendular3] = pendular[2]; 
 
+
+  irSensorBank.init(sphererobot_space, RaySensor::drawAll);
+  if (conf.irAxis1){
+    for(int i=-1; i<2; i+=2){
+      IRSensor* sensor = new IRSensor();
+      dMatrix3 R;      
+      dRFromEulerAngles(R,i*M_PI/2,0,0);      
+      irSensorBank.registerSensor(sensor, object[0].body, Position(0,i*conf.diameter/2,0 ), R, 2);
+    }
+  }
+  if (conf.irAxis2){
+    for(int i=-1; i<2; i+=2){
+      IRSensor* sensor = new IRSensor();
+      dMatrix3 R;      
+      dRFromEulerAngles(R,i*M_PI/2,-i*M_PI/2,0);      
+      irSensorBank.registerSensor(sensor, object[0].body, Position(i*conf.diameter/2,0,0 ), R, 2);
+    }
+  }
+  if (conf.irAxis3){
+    for(int i=-1; i<2; i+=2){
+      IRSensor* sensor = new IRSensor();
+      dMatrix3 R;      
+      if (i==-1)dRFromEulerAngles(R,M_PI,0,0);      
+      if (i== 1)dRFromEulerAngles(R,   0,0,0);      
+      irSensorBank.registerSensor(sensor, object[0].body, Position(0,0,i*conf.diameter/2 ), R, 2);
+    }
+  }
   texture=DS_NONE;
+  sensorno =3+ conf.irAxis1 *2 + conf.irAxis2 *2 + conf.irAxis3 *2;
+ 
 }
 	
 SphererobotArms::~SphererobotArms()
@@ -149,6 +180,7 @@ void SphererobotArms::draw()
   dsDrawSphere ( dGeomGetPosition ( object[ Base ].geom ) , 
   		 dGeomGetRotation ( object[ Base ].geom ) , conf.diameter/2 );
 
+  irSensorBank.draw();
 }
 
 /**
@@ -174,13 +206,21 @@ int SphererobotArms::getSensors ( sensor* sensors, int sensornumber )
 //   Matrix angVelIn = A*angVelOut;
 //   len += angVelIn.convertToBuffer(sensors+len,  sensornumber-len );
 
-  if(sensornumber == 3){
+//   // rotation matrix - 9
+//   return A.convertToBuffer(sensors + len , sensornumber -len) + len;
+
+  // reading ir sensorvalues
+  if (conf.irAxis1 || conf.irAxis2 || conf.irAxis3)
+    len += irSensorBank.get(sensors+len, sensornumber-len);
+  
+  //
+  //  if(csensornumber == 3){
     // z-coordinate of axis position in world coordinates
-    len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);
-  } else {
+      len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);
+  //} else {
     // rotation matrix - 9 (vectors of all axis in world coordinates
-    len += A.convertToBuffer(sensors + len , sensornumber -len);
-  }
+  //  len += A.convertToBuffer(sensors + len , sensornumber -len);
+  // }
   return len;
 
 }
@@ -222,6 +262,13 @@ void SphererobotArms::place (Position pos, Color *c)
   if(c)
     color = (*c);
 }
+
+
+
+void SphererobotArms::doInternalStuff(const GlobalData& global){
+  irSensorBank.reset();
+}
+
 /**
  *This is the collision handling function for sphere robots.
  *This overwrides the function collisionCallback of the class robot.
@@ -230,10 +277,11 @@ void SphererobotArms::place (Position pos, Color *c)
  *@param o2 second geometrical object, which has taken part in the collision
  *@return true if the collision was threated  by the robot, false if not
  **/
-void SphererobotArms::doInternalStuff(const GlobalData& global){}
 bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
   //checks if both of the collision objects are part of the robot
   if( o1 == (dGeomID)sphererobot_space || o2 == (dGeomID)sphererobot_space) {
+    if(o1 == (dGeomID)sphererobot_space) irSensorBank.sense(o2);
+    if(o2 == (dGeomID)sphererobot_space) irSensorBank.sense(o1);
 
     // inner space collisions are not treated!
 
@@ -243,17 +291,21 @@ bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
     
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     for (i=0; i<n; i++) {
-      if( contact[i].geom.g1 == object[Base].geom || contact[i].geom.g2 == object[Base].geom ){ 
-	// only treat collisions with envelop
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
-	//	  dContactSoftERP | dContactSoftCFM | 
-	contact[i].surface.mu = 1.0;
-	contact[i].surface.slip1 = 0.005;
-	contact[i].surface.slip2 = 0.005;
-	//	contact[i].surface.soft_erp = 1; // 0.95;
-	//	contact[i].surface.soft_cfm = 0.00001;
-	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+      if(contact[i].geom.g1 != (dGeomID)irSensorBank.getSpaceID() && 
+      	 contact[i].geom.g2 != (dGeomID)irSensorBank.getSpaceID() ) { // do not treat collisions with sensors
+
+	if( contact[i].geom.g1 == object[Base].geom || contact[i].geom.g2 == object[Base].geom ){ 
+	  // only treat collisions with envelop
+	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
+	  //	  dContactSoftERP | dContactSoftCFM | 
+	  contact[i].surface.mu = 1.0;
+	  contact[i].surface.slip1 = 0.005;
+	  contact[i].surface.slip2 = 0.005;
+	  //	contact[i].surface.soft_erp = 1; // 0.95;
+	  //	contact[i].surface.soft_cfm = 0.00001;
+	  dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
+	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+	}
       }
     }
     return true;
