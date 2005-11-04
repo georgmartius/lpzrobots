@@ -36,7 +36,7 @@ FileLogger::~FileLogger(){
 
 void FileLogger::openStream()
 {  
-    filename = prefix + (QDateTime::currentDateTime()).toString("yyyy-MMMM-ddd hh-mm-ss") + ".log";
+    filename = prefix + (QDateTime::currentDateTime()).toString("yyyy-MM-dd_hh-mm-ss") + ".log";
 
     if(instream) {
       fclose(instream);
