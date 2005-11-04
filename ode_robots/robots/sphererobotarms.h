@@ -36,11 +36,12 @@ public:
   typedef enum objects { Base, Pendular1, Pendular2, Pendular3, Last } ;
 
 private:
-  const static int servono  = 3;
-  const static int sensorno = 3;
-  
+
+
+  static const int servono=3;
   dSpaceID sphererobot_space;
   SliderServo* servo[servono];
+  int sensorno;
   char* name;
   int texture;
   double transparency;
@@ -53,10 +54,9 @@ public:
 
   /**
    *constructor
-   *@param startRoboterID ID, which should be managed clearly
    **/ 
   SphererobotArms ( const OdeHandle& odeHandle, 
-		const SphererobotArmsConf& conf, double transparency=0.5 );
+		    const SphererobotArmsConf& conf, double transparency=0.5 );
   
   virtual ~SphererobotArms();
 	
