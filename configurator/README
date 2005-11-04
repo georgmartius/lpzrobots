@@ -1,0 +1,48 @@
+In this directory you will find the Configurator. 
+The Configurator is a stand-alone tool that can be used for changing the values of configurable components. 
+Configurable components have a list of key-value pairs, 
+where the key is a string literal and value is a double value.
+
+1.1. INSTALL & USE
+TODO: describe how to install and use
+
+
+1.2. FORMAT (Protocoll)
+
+To Configurator (BNF notation):
+\code
+Conf             := <Comp>*
+Comp           := <CompName> <Pair>*
+CompName := [<string>][<int>]<newline>
+Pair               := <alphanum>=<double><newline>
+\endcode
+
+the remaining tags are self explanatory
+
+Example
+\code
+[Component name which can contain spaces and digits and .,- ][ID1]
+key1 = value1
+key2 = value2
+.
+.
+[Other Component name which can contain spaces and digits and .,- ][ID2]
+key3 = value3
+\endcode
+
+Answer: (from Configurator to simulation environment)\n
+a) On change of a parameter:
+\code
+[ID] key=newvalue
+\endcode
+or
+\code
+key=newvalue
+\endcode
+the latter one means that the parameter is changed in all components.
+
+b) Request of the description as defined above.
+\code
+#Something I don\'t care about
+\endcode
+
