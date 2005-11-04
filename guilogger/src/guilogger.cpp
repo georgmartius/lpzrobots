@@ -90,9 +90,9 @@ guilogger::guilogger(CommLineParser configobj) : QMainWindow( 0, "guilogger")
     else 
     {   horizonslider->setMinValue(1);
         horizonslider->setMaxValue(3000);   // MaxTimer für Plottimer
-        horizonslider->setValue(100);       // actual Value for Plottimer
+        horizonslider->setValue(500);       // actual Value for Plottimer
         horizonsliderlayout->addWidget(new QLabel("Timer", horizonsliderwidget));
-        horizonslidervalue->setText(QString::number(100, 10));
+        horizonslidervalue->setText(QString::number(500, 10));
     }
     horizonsliderlayout->addWidget(horizonslider);
     horizonsliderlayout->addWidget(horizonslidervalue);
@@ -142,7 +142,7 @@ guilogger::guilogger(CommLineParser configobj) : QMainWindow( 0, "guilogger")
 
     plottimer = new QTimer( this);
     connect(plottimer, SIGNAL(timeout()), SLOT(GNUPlotUpdate()));
-    plottimer->start(100, FALSE);
+    plottimer->start(500, FALSE);
 
     filegraphtimer = NULL;
 }
