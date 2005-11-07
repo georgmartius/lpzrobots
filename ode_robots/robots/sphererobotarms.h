@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-11-04 14:45:18  martius
+ *   Revision 1.9  2005-11-07 17:04:56  martius
+ *   irsensorscale added
+ *
+ *   Revision 1.8  2005/11/04 14:45:18  martius
  *   GPL added
  *
  *                                                                 *
@@ -44,7 +47,7 @@ typedef struct {
 public:
   double diameter;
   double spheremass;
-  double pendulardiameter; // automatically set
+  double pendulardiameter; /// automatically set
   double pendularmass;
   double pendularrange;
   bool axisZsensor;  
@@ -53,6 +56,7 @@ public:
   bool irAxis1;
   bool irAxis2;
   bool irAxis3;
+  double irsensorscale; /// range of the ir sensors in units of diameter
 } SphererobotArmsConf;
 
 
@@ -103,6 +107,7 @@ public:
     c.irAxis1=false;
     c.irAxis2=false;
     c.irAxis3=false;
+    c.irsensorscale=2;
     return c;
   }
 

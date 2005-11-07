@@ -1,6 +1,6 @@
 /************************************************************************/
-/*shpererobot.cpp							*/
-/*Schlangenkonstrukt fuer das ODE-Robotersystem des Authors		*/
+/*sphererobotarms.cpp							*/
+/*Spherical robot with sliders inside                       		*/
 /*									*/
 /************************************************************************/
 
@@ -88,31 +88,31 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
   object[Pendular2] = pendular[1]; 
   object[Pendular3] = pendular[2]; 
 
-
+  double sensorrange = conf.irsensorscale * conf.diameter;
   irSensorBank.init(sphererobot_space, RaySensor::drawAll);
   if (conf.irAxis1){
     for(int i=-1; i<2; i+=2){
-      IRSensor* sensor = new IRSensor();
+      IRSensor* sensor = new IRSensor(1.5);
       dMatrix3 R;      
       dRFromEulerAngles(R,i*M_PI/2,0,0);      
-      irSensorBank.registerSensor(sensor, object[0].body, Position(0,i*conf.diameter/2,0 ), R, 2);
+      irSensorBank.registerSensor(sensor, object[0].body, Position(0,i*conf.diameter/2,0 ), R, sensorrange);
     }
   }
   if (conf.irAxis2){
     for(int i=-1; i<2; i+=2){
-      IRSensor* sensor = new IRSensor();
+      IRSensor* sensor = new IRSensor(1.5);
       dMatrix3 R;      
       dRFromEulerAngles(R,i*M_PI/2,-i*M_PI/2,0);      
-      irSensorBank.registerSensor(sensor, object[0].body, Position(i*conf.diameter/2,0,0 ), R, 2);
+      irSensorBank.registerSensor(sensor, object[0].body, Position(i*conf.diameter/2,0,0 ), R, sensorrange);
     }
   }
   if (conf.irAxis3){
     for(int i=-1; i<2; i+=2){
-      IRSensor* sensor = new IRSensor();
+      IRSensor* sensor = new IRSensor(1.5);
       dMatrix3 R;      
       if (i==-1)dRFromEulerAngles(R,M_PI,0,0);      
       if (i== 1)dRFromEulerAngles(R,   0,0,0);      
-      irSensorBank.registerSensor(sensor, object[0].body, Position(0,0,i*conf.diameter/2 ), R, 2);
+      irSensorBank.registerSensor(sensor, object[0].body, Position(0,0,i*conf.diameter/2 ), R, sensorrange);
     }
   }
   texture=DS_NONE;
