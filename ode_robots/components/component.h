@@ -11,7 +11,6 @@
 
 
 
-
 #include <math.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
@@ -24,6 +23,9 @@
 #include "vector.h"
 #include "exceptions.h"
 #include "cubic_spline.h"
+
+#include "odehandle.h"
+#include "configurable.h"
 #include "abstractrobot.h"
 
 
@@ -51,8 +53,12 @@ class MotorWire;
 
 
 typedef std::list<IComponent*> ComponentContainer;
+typedef Vector3<dReal>              Vertex;
+typedef std::list< Vertex > VertexList;
 
-typedef std::list< Vector3<dReal> > VertexList;
+
+typedef Vector3<dReal>      Angle;
+typedef std::list< Angle >  AngleList;
 
 typedef std::list<IWire*> WireContainer;
 //typedef std::vector<dJointID> joint_id_list;
@@ -102,7 +108,7 @@ class IBidirectionalWire : virtual public IInputWire,
  *
  *
  */
-class IComponent
+class IComponent : public Configurable
 {
  public:
   virtual unsigned get_sub_component_count() const = 0;
@@ -121,6 +127,64 @@ class IComponent
 				  dGeomID geom_id_1) const = 0;
 };
 
+ 
+/**
+ * AbstractComponent
+ *
+ *
+ */
+class AbstractComponent : public IComponent {
+ protected:
+  OdeHandle ode_handle;
+  
+ public:
+  AbstractComponent(OdeHandle &r_ode_handle);
+  virtual ~AbstractComponent();
+
+  virtual unsigned   get_sub_component_count() const;
+  virtual IComponent &get_sub_component(unsigned index) const;
+  
+  virtual unsigned   expose_wires(WireContainer &r_wire_set);
+
+  virtual const IComponent* does_contain_geom(const dGeomID geom_id,
+			        	      bool b_recursive) const;
+
+
+  paramkey getName() const;
+  virtual paramlist getParamList() const;
+  virtual paramval  getParam(const paramkey& key) const;
+  virtual bool      setParam(const paramkey& key, paramval val);
+};
+ 
+
+/**
+ * AbstractCompoundComponent
+ *
+ *
+ */
+class AbstractCompoundComponent : public AbstractComponent {
+ protected:
+  ComponentContainer component_container;
+  
+ public:
+  AbstractCompoundComponent(OdeHandle &r_ode_handle);
+  virtual ~AbstractCompoundComponent();
+
+  virtual unsigned   get_sub_component_count() const;
+  virtual IComponent &get_sub_component(unsigned index) const;
+   
+  virtual unsigned   expose_wires(WireContainer &r_wire_set);
+
+  virtual const IComponent* does_contain_geom(const dGeomID geom_id,
+			        	      bool b_recursive) const;
+
+  virtual void draw() const;
+
+  virtual paramlist getParamList() const;
+  virtual paramval  getParam(const paramkey& key) const;
+  virtual bool      setParam(const paramkey& key, paramval val);
+};
+ 
 
 
 /**
@@ -128,34 +192,38 @@ class IComponent
  *
  *
  */
-class SimplePhysicalComponent : public IComponent {
+class SimplePhysicalComponent : public AbstractComponent {
  protected:
   dBodyID body_id;
   dGeomID geom_id;
 
  public:
-  SimplePhysicalComponent(dBodyID _body_id = NULL, dGeomID _geom_id = NULL);
+  SimplePhysicalComponent(OdeHandle &r_ode_handle,
+			  dBodyID _body_id = NULL,
+			  dGeomID _geom_id = NULL);
 
 
   void    set_body_id(dBodyID _body_id);
   dBodyID get_body_id() const;
 
-  void    set_geom_id(dGeomID _geom_id);
-  dGeomID get_geom_id() const;
+  virtual void    set_geom_id(dGeomID _geom_id);
+  virtual dGeomID get_geom_id() const;
 
-  unsigned expose_wires(WireContainer &out_r_wire_container);
+  /*
+  virtual unsigned expose_wires(WireContainer &out_r_wire_container);
 
-  unsigned get_sub_component_count() const;
-  IComponent &get_sub_component(unsigned index) const;
+  virtual unsigned get_sub_component_count() const;
+  virtual IComponent &get_sub_component(unsigned index) const;
+  */
+  
+  virtual const IComponent* does_contain_geom(const dGeomID _geom_id, 
+					      bool b_recursive) const;
+  
+ 
+  virtual bool collision_callback(OdeHandle *p_ode_handle, 
+				  dGeomID geom_id_0, dGeomID geom_id_1) const;
 
-  const IComponent* does_contain_geom(const dGeomID _geom_id, 
-				      bool b_recursive) const;
-
-  bool collision_callback(OdeHandle *p_ode_handle, 
-			  dGeomID geom_id_0, dGeomID geom_id_1) const;
-
-
-  void draw() const;
+  virtual void draw() const;
 };
 
 
@@ -167,7 +235,7 @@ class SimplePhysicalComponent : public IComponent {
  * a motor has output wires (new angular velocity)
  * and input wire (current angular velocity)
  */
-class AbstractMotorComponent : public IComponent {
+class AbstractMotorComponent : public AbstractComponent {
  protected:
   dJointID joint_id; // the joint the motor is attached to
 
@@ -213,6 +281,8 @@ class UniversalMotorComponent : public AbstractMotorComponent {
 
   MotorWire wire;
 
+  bool param_show_axis;
+
  public:
   UniversalMotorComponent(dJointID _joint_id, char _axis);
 
@@ -225,12 +295,18 @@ class UniversalMotorComponent : public AbstractMotorComponent {
 
   bool collision_callback(OdeHandle *p_ode_handle, 
 			  dGeomID geom_id_0, dGeomID geom_id_1) const;
-
+  /*
   const IComponent* does_contain_geom(const dGeomID geom_id, 
 				      bool b_recursive) const;
-
+  */
+  /*
   unsigned get_sub_component_count() const;
   IComponent &get_sub_component(unsigned index) const;
+  */
+
+  virtual paramlist getParamList() const;
+  virtual paramval  getParam(const paramkey& key) const;
+  virtual bool      setParam(const paramkey& key, paramval val);
 };
 
 
@@ -262,12 +338,9 @@ class RobotArmDescription {
  *
  * CCU = Capped Cyliner Universal (joint)
  */
-class CCURobotArmComponent : public IComponent
+class CCURobotArmComponent : public AbstractCompoundComponent
 {
  protected:
-  ComponentContainer component_container;
-  OdeHandle ode_handle;
-
   dJointGroupID joint_group_id;
 
  public:
@@ -286,16 +359,16 @@ class CCURobotArmComponent : public IComponent
   unsigned get_joint_count  ();
   dJointID get_joint_id     (unsigned index);
   */
-
+  /*
   unsigned get_sub_component_count() const;
   IComponent &get_sub_component(unsigned index) const;
-
+  */
 
   // returns "wires" to the motors
   // the number of exposes wires equals the number of motors
   // that is twice the (number of segments - 1)
   // note that there are two motors between each 2 segments
-  unsigned expose_wires(WireContainer &out_r_wire_container);
+  // unsigned expose_wires(WireContainer &out_r_wire_container);
   const IComponent* does_contain_geom(const dGeomID geom_id, 
 				      bool b_recursive) const;
 
@@ -321,14 +394,48 @@ class PlaneComponentDescription {
   dReal          d;
 };
 
-
+/*
 class PlaneComponent : public SimplePhysicalComponent {
  public:
   PlaneComponent(const PlaneComponentDescription &r_desc);
   virtual ~PlaneComponent();
 };
+*/
 
 
+
+class SpiderDescription {
+ public:
+  SpiderDescription();
+
+  OdeHandle *p_ode_handle;
+
+  Vertex position;
+  double sphere_mass;
+  double sphere_radius;
+
+  dReal segment_mass;
+  dReal segment_radius;
+  dReal segment_length;
+  dReal segment_count;
+
+  AngleList *p_angle_list;
+};
+
+
+class SpiderComponent : public AbstractCompoundComponent
+{
+ protected:
+  dJointGroupID joint_group_id;
+
+ public:
+  SpiderComponent(const SpiderDescription &r_desc);
+
+  bool collision_callback(OdeHandle *p_ode_handle, 
+			  dGeomID geom_id_0, 
+			  dGeomID geom_id_1) const;
+
+};
 
 
 
