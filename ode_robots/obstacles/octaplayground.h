@@ -48,7 +48,7 @@ class OctaPlayground : public AbstractObstacle {
   double box_length;
 
 
- public:
+public:
   
   OctaPlayground(const OdeHandle& odehandle, int numberCorners=8):
     AbstractObstacle::AbstractObstacle(odehandle){
@@ -56,20 +56,18 @@ class OctaPlayground : public AbstractObstacle {
     base_x=0.0;
     base_y=0.0;
     base_z=0.0;
-	
+    
     radius=7.0;
     width=0.2;
     height=0.5;
-
+  
     obstacle_exists=false;
-    
+        
     number_elements=numberCorners;
-    obst.resize(number_elements);
-
     angle= 2*M_PI/number_elements;    
-    box_length =1.4 * sqrt( 2 * pow(radius,2) * (1 - cos(angle)) );
-
+    obst.resize(number_elements);    
     
+    calcBoxLength();
     setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
   };
   
@@ -111,6 +109,7 @@ class OctaPlayground : public AbstractObstacle {
     radius=radius_;
     width=width_;
     height =height_;
+    calcBoxLength();  
   };
 
   virtual void setColor(double r, double g, double b){
@@ -119,19 +118,22 @@ class OctaPlayground : public AbstractObstacle {
     color.b=b;
   };
 
- protected:
+protected:
   virtual void create(){
-
+    // radius for positioning is smaller than radius since we use secants. 
+    //  r is the smallest distance of the secant to the center of the circle.
+    double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;
     for (int i=0; i<number_elements; i++){
-      obst[i] = dCreateBox ( space, width , box_length-0.01 , height);
-      dGeomSetPosition ( obst[i], 
-			 base_x + cos(M_PI - i*angle) * (radius+width), 
-			 base_y + sin(M_PI - i*angle) * (radius+width), 
-			 height/2 +base_z);
-
+      obst[i] = dCreateBox ( space, width , box_length , height);
       dMatrix3 R;
       dRFromEulerAngles(R, 0,0, i*angle);
       dGeomSetRotation ( obst[i], R);
+
+      dGeomSetPosition ( obst[i], 
+       			 base_x + cos(M_PI - i*angle) * r, 
+ 			 base_y + sin(M_PI - i*angle) * r, 
+ 			 height/2 +base_z);
+
     }
   };
 
@@ -142,6 +144,12 @@ class OctaPlayground : public AbstractObstacle {
     }
     obstacle_exists=false;
   };
+
+  virtual void calcBoxLength(){
+    double r = radius+width/2; 
+    //    box_length =1.4 * sqrt( 2 * pow(radius,2) * (1 - cos(angle)) );
+    box_length =  sqrt(pow( 1 - cos(angle), 2) + pow(sin(angle),2)) * r;  
+  }
 
 };
 
