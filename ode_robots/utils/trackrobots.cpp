@@ -1,49 +1,68 @@
 #include <stdlib.h>
 #include <time.h>
+#include <sys/stat.h>
 
 #include "trackrobots.h"
 #include "abstractrobot.h"
 
 
-bool openTrackFile(const AbstractRobot* robot, TrackOptions& trackoptions){
+bool TrackRobot::open(const AbstractRobot* robot){
 
   if(!robot) return false;
-  if(trackoptions.trackPos || trackoptions.trackSpeed || trackoptions.trackOrientation){
+  if(trackPos || trackSpeed || trackOrientation){
+
+    if(file){
+      fclose(file);
+    }
 
     char filename[100];
+    char filename2[100];
     time_t t = time(0);
-    strftime(filename, 50, "%F_%H-%M-%S", localtime(&t));
-    strcat(filename,robot->getName());
-    strcat(filename,".log");
-    if(trackoptions.file){
-      fclose(trackoptions.file);
+    struct stat filestat;
+    strftime(filename, 50, "%F_%H-%M-%S_", localtime(&t));
+    strcat(filename,robot->getName().c_str());
+    sprintf(filename2, "%s.log", filename);
+    // try to stat file and if it exists then try to append a number
+    for(int i=1; i< 20; i++){
+      if(stat(filename2, &filestat) == -1){
+	break;
+      }else{
+	sprintf(filename2, "%s%i.log", filename, i );
+      }      
     }
-    trackoptions.file = fopen(filename,"w");
-    if(!trackoptions.file) return false;
-    fprintf(trackoptions.file, "# ");
-    if(trackoptions.trackPos)   fprintf(trackoptions.file, "x y z ");
-    if(trackoptions.trackSpeed) fprintf(trackoptions.file, "vx vy vz ");
-    if( trackoptions.trackOrientation) fprintf(trackoptions.file," Not Implemented");    
-    fprintf(trackoptions.file,"\n");  
+
+    file = fopen(filename2,"w");
+
+    if(!file) return false;
+    fprintf(file, "#C t ");
+    if(trackPos)   fprintf(file, "x y z ");
+    if(trackSpeed) fprintf(file, "vx vy vz ");
+    if( trackOrientation) fprintf(file," Not Implemented");    
+    fprintf(file,"\n");  
   } 
   return true;
 }
 
-void trackRobot(const AbstractRobot* robot, const TrackOptions& trackoptions){
-  if(!trackoptions.file || !robot) return;
-  if(trackoptions.trackPos){
-    Position p = robot->getPosition();
-    fprintf(trackoptions.file, "%g %g %g ", p.x, p.y, p.z);
+void TrackRobot::track(AbstractRobot* robot) {
+  if(!file || !robot) return;
+  if(cnt % interval==0){
+    fprintf(file, "%i ", cnt);
+    if(trackPos){
+      Position p = robot->getPosition();
+      fprintf(file, "%g %g %g ", p.x, p.y, p.z);
+    }
+    if(trackSpeed){
+      fprintf(stderr," SpeedTracking is not implemented yet");
+    }
+    if( trackOrientation){
+      fprintf(stderr," OrientationTracking is not implemented yet");
+    }
+    fprintf(file, "\n");
   }
-  if(trackoptions.trackSpeed){
-    fprintf(stderr," SpeedTracking is not implemented yet");
-  }
-  if( trackoptions.trackOrientation){
-    fprintf(stderr," OrientationTracking is not implemented yet");
-  }
+  cnt++;
 }
 
-void closeTrackFile(TrackOptions& trackoptions){
-  if(trackoptions.file) fclose(trackoptions.file);
-  trackoptions.file=0;
+void TrackRobot::close() {
+  if(file) fclose(file);
+  file=0;
 }
