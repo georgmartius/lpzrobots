@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-10-24 13:32:07  fhesse
+ *   Revision 1.9  2005-11-07 17:03:30  martius
+ *   class PlotOption added
+ *   agent can be constructed with a list of PlotOptions
+ *   tracking file gets controller parameters as well
+ *
+ *   Revision 1.8  2005/10/24 13:32:07  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.7  2005/09/22 12:24:36  martius
@@ -49,12 +54,17 @@
 #define __AGENT_H
 
 #include <stdio.h>
+#include <list>
+using namespace std;
 
 class AbstractRobot;
 class AbstractController;
 class AbstractWiring;
 
 #include "types.h"
+#include "trackrobots.h"
+
+class Agent;
 
 /** Plot mode for plot agent.
  */
@@ -71,6 +81,31 @@ enum PlotMode {
  */
 enum PlotSensors {Robot, Controller};
 
+/** This class contains option and internal data for the use of an external plot util
+    like guilogger or neuronviz
+ */
+class PlotOption {
+public:
+  friend class Agent;
+
+  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; }
+  PlotOption( PlotMode mode, PlotSensors whichSensors, int interval)
+    :mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0; }
+
+private:
+
+  bool open(); /// opens the connections to the plot tool 
+  void close();/// closes the connections to the plot tool
+
+  FILE* pipe;
+  long t;
+
+  PlotMode mode;
+  PlotSensors whichSensors;
+  int interval;  
+};
+
+
 /** Object containing controller, robot and wiring between them.
     (Corresponding to use of the word in the robotic/simulation domain.)
  */
@@ -79,6 +114,8 @@ public:
   /** constructor
    */
   Agent(PlotMode plotmode = GuiLogger, PlotSensors plotsensors = Controller);
+  Agent(PlotOption plotOption);
+  Agent(list<PlotOption> plotOptions);
 
   /** destructor
    */
@@ -109,24 +146,20 @@ public:
    */
   AbstractWiring* getWiring() { return wiring;}
 
+  /// sets the trackoptions which enable tracking of a robot
+  void setTrackOptions(const TrackRobot& trackrobot);
 
 protected:
 
   /**
    * Plots controller sensor- and motorvalues and internal controller parameters.
-   * @param x actual sensorvalues (used for generation of motorcommand in actual timestep)
+   * @param rx actual sensorvalues from robot (used for generation of motorcommand in actual timestep)
+   * @param cx actual sensorvalues which are passed to controller (used for generation of motorcommand in actual timestep)
    * @param y actual motorcommand (generated in the actual timestep)
    */
-  virtual void plot(const sensor* x, int sensornumber, const motor* y, int motornumber);
+  virtual void plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber, 
+		    const motor* y, int motornumber);
   
-  /** Open pipe and guilogger
-   */
-  bool OpenGui();
-
-  /** Close pipe and guilogger
-   */
-  void CloseGui();
-
 
   AbstractController* controller;
   AbstractRobot* robot;
@@ -148,13 +181,12 @@ protected:
 
 
 private:
-  FILE* pipe;
-  int numberInternalParameters;
-  PlotMode plotmode;
-  PlotSensors plotsensors;
+  void internInit();
+
+  list<PlotOption> plotOptions;
+  TrackRobot trackrobot;
 
   int t;
-
 };
 
 #endif
