@@ -13,7 +13,7 @@
 
 #include "sinecontroller.h"
 //#include "invertnchannelcontroller.h"
-#include "invertmotornstep.h"
+//#include "invertmotornstep.h"
 
 using namespace university_of_leipzig::robots;
 
@@ -42,56 +42,90 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   // set up the vertex list for the knot 
   VertexList vl;
-  university_of_leipzig::robots::Matrix<double> mat(4, 9);
+  university_of_leipzig::robots::Matrix<double> mat(4, 12);
 
-  for(unsigned i = 0; i < 9; ++i)
+  for(unsigned i = 0; i < 12; ++i)
     mat(0, i) = i;
 
-  mat(1, 0) =  2.5;
-  mat(1, 1) =  2.5;
-  mat(1, 2) =  7.5;
-  mat(1, 3) = 10.0;
-  mat(1, 4) =  5.5;
-  mat(1, 5) =  0.0;
-  mat(1, 6) =  2.5;
-  mat(1, 7) =  7.5;
-  mat(1, 8) =  7.5;
+  double r = 0.3;
+  double r2 = 0.15;
+  double d = 0.5;
+  double l = 1.0;
+  double x = 0.7;
 
-  mat(2, 0) =  -5.0;
-  mat(2, 1) =   0.0;
-  mat(2, 2) =   2.5;
-  mat(2, 3) =   0.0;
-  mat(2, 4) =  -2.5;
-  mat(2, 5) =   0.0;
-  mat(2, 6) =  1.25;
-  mat(2, 7) =   2.5;
-  mat(2, 8) =  10.0;
+  double tail = 2.5;
 
-  mat(3, 0) =  2.5;
-  mat(3, 1) =  2.5;
-  mat(3, 2) =  5.0;
-  mat(3, 3) =  2.5;
-  mat(3, 4) =  0.5;
-  mat(3, 5) =  2.5;
-  mat(3, 6) =  5.0;
-  mat(3, 7) =  2.5;
-  mat(3, 8) =  2.5;
+  mat(1,  0) = 0.0;
+  mat(1,  1) = 0.0;
 
-  double fx = 0.2;
+  mat(1,  2) = d / 2.0;
+
+  mat(1,  3) = d;
+  mat(1,  4) = d + r;
+  mat(1,  5) = d;
+  mat(1,  6) = 0.0;
+  mat(1,  7) = -r;
+  mat(1,  8) = 0.0;
+
+  mat(1,  9) = d;
+
+  mat(1, 10) = d / 2.0;
+  mat(1, 11) = d;
+
+  double u = (l - x) / 4.0;
+  double c = (l + x) / 2.0;
+  mat(2,  0) =  -tail;
+  mat(2,  1) =  0.0;
+
+  mat(2,  2) =  2.0 * u + 2.0 / 3.0 * x;
+
+  mat(2,  3) =  c;
+  mat(2,  4) =  c + u;
+  mat(2,  5) =  c;
+  mat(2,  6) =  2.0 * u;
+  mat(2,  7) =  u;
+  mat(2,  8) =  2.0 * u;
+
+  mat(2,  9) =  2.0 * u + 1.0 / 3.0 * x;
+
+  mat(2, 10) =  l;
+  mat(2, 11) =  l + tail;
+
+
+
+  mat(3,  0) =  0.0;
+  mat(3,  1) =  0.0;
+
+  mat(3,  2) =  r / 2.0;
+
+  mat(3,  3) =  r;
+  mat(3,  4) =  0.0;
+  mat(3,  5) =  -r2;
+  mat(3,  6) =  -r2;
+  mat(3,  7) =  0.0;
+  mat(3,  8) =  r;
+
+  mat(3,  9) =  r / 2.0;
+
+  mat(3, 10) =  0.0;
+  mat(3, 11) =  0.0;
+
+
+
+  double a_p[3] = {0.0, 0.0, 5.0};
+  /*  double fx = 0.2;
   double fy = 0.2;
-  double fz = 0.2;
-  for(unsigned i = 0; i < 9; ++i) {
-    mat(1, i) *= fx;
-    mat(2, i) *= fy;
-    mat(3, i) *= fz;
-  }
-
+  double fz = 0.2; */
+  for(unsigned i = 0; i < 3; ++i)
+    for(unsigned j = 0; j < 12; ++j)
+      mat(i + 1, j) += a_p[i];
+ 
 
   CubicSpline<dReal> cs;
   cs.create(mat);
 
   double p = 0.0;
-  while(p < 8.0) {
+  while(p < 11.0) {
     Vector<dReal> v = cs.get_point(p);
 
 
@@ -99,13 +133,13 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     vl.insert(vl.end(), v3);
    
 
-    p = cs.get_distant_point_parameter(p, 0.9);
+    p = cs.get_distant_point_parameter(p, 0.4);
   }
   
   // create a spiral/circle snake (or something)
   
     for(unsigned i = 0; i < 15; ++i) {
-     vl.insert(vl.end(), Vector3<double>(i / 3 * cos(M_PI / 180 * i * 5), i / 3 * sin(M_PI / 180 * i * 5), i));
+      //     vl.insert(vl.end(), Vector3<double>(i / 3 * cos(M_PI / 180 * i * 5), i / 3 * sin(M_PI / 180 * i * 5), i));
     //vl.insert(vl.end(), Vector3<double>(3 * cos(M_PI / 180 * i * 25), 3 * sin(M_PI / 180 * i * 25), 0.5));
     }
   
@@ -134,7 +168,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   // initialization
   //  global.odeConfig.noise=0.1;
   //  
-  AbstractController *controller = new InvertMotorNStep(10);
+  AbstractController *controller = new SineController(); //(10);
   controller->setParam("epsC", 0.001);
   controller->setParam("epsA", 0.001);
 
@@ -147,6 +181,9 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.agents.push_back(agent);
   
   global.configs.push_back(controller);
+
+  global.configs.push_back(p_component);
+
   showParams(global.configs);
 }
 
