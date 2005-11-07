@@ -8,7 +8,9 @@
 #include "noisegenerator.h"
 #include "agent.h"
 #include "one2onewiring.h"
+#include "derivativewiring.h"
 #include "playground.h"
+#include "octaplayground.h"
 
 #include "invertmotornstep.h"
 #include "sinecontroller.h"
@@ -27,8 +29,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
   //Anfangskameraposition und Punkt auf den die Kamera blickt
-  float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
+  float KameraXYZ[3]= {17.1640f,-5.0079f,4.600f};
+  float KameraViewXYZ[3] = {86.5000f,-30.0000f,0.0000f};;
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (3); //Qualitaet in der Sphaeren gezeichnet werden
   //  dWorldSetERP(odeHandle.world, 0.9);
@@ -42,26 +44,45 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //  playground->setGeometry(300, 0.2, 1);
   //  playground->setPosition(0,0,0); // playground positionieren und generieren
   //  global.obstacles.push_back(playground);
+
+  // Outer Ring
+  AbstractObstacle* ring1 = new OctaPlayground(odeHandle, 20);
+  ring1->setGeometry(14, 0.1, 2); 
+  ring1->setPosition(0,0,0); // playground positionieren und generieren
+  global.obstacles.push_back(ring1);
+  // Inner Ring
+  AbstractObstacle* ring2 = new OctaPlayground(odeHandle, 32);
+  ring2->setGeometry(15.5, 0.1, 2);
+  ring2->setPosition(0,0,0); // playground positionieren und generieren
+  global.obstacles.push_back(ring2);
   
   //****************
   SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
-  conf.axisZsensor=true;
+  conf.axisZsensor=false;
   conf.axisXYZsensor=false;
   conf.irAxis1=true;
+  conf.irAxis2=true;
+  conf.irAxis3=true;
   sphere1 = new SphererobotArms ( odeHandle, conf);
 
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 0 , 0 , 1 ), &col );
+  sphere1->place ( Position ( 15 , 0 , 1 ), &col );
+  //controller = new InvertMotorNStep(10, 0.1, true, false);
   controller = new InvertMotorNStep(10, 0.1, false, false);
   controller->setParam("steps", 2);  
-  controller->setParam("factorB", 0);  
+  //  controller->setParam("factorB", 0);  
   
   //controller = new SineController();  
   //  controller->setParam("sineRate", 50);  
   //  controller->setParam("phaseShift", 0.7);
 
-  One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
-  Agent* agent = new Agent ( plotMode );
+  AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
+  //DerivativeWiringConf dconf = DerivativeWiring::getDefaultConf();
+  //  dconf.useId=true;
+  //  dconf.useFirstD=true;
+  //  dconf.derivativeScale=8;
+  //  AbstractWiring* wiring = new DerivativeWiring ( dconf, new ColorUniformNoise());
+  Agent* agent = new Agent (PlotOption(plotMode, Controller, 1));
   agent->init ( controller , sphere1 , wiring );
   agent->setTrackOptions(TrackRobot(true, false, false,50));
   global.agents.push_back ( agent );
@@ -101,10 +122,10 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
   //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
   switch ( (char) cmd )
     {
-    case 'y' : dBodyAddForce ( sphere1->object[SphererobotArms::Base].body , 10 ,0 , 0 ); break;
-    case 'Y' : dBodyAddForce ( sphere1->object[SphererobotArms::Base].body , -10 , 0 , 0 ); break;
-    case 'x' : dBodyAddTorque ( sphere1->object[SphererobotArms::Base].body , 0 , 0 , 3 ); break;
-    case 'X' : dBodyAddTorque ( sphere1->object[SphererobotArms::Base].body , 0 , 0 , -3 ); break;
+    case 'y' : dBodyAddForce ( sphere1->object[SphererobotArms::Base].body , 20 ,0 , 0 ); break;
+    case 'Y' : dBodyAddForce ( sphere1->object[SphererobotArms::Base].body , -20 , 0 , 0 ); break;
+    case 'x' : dBodyAddTorque ( sphere1->object[SphererobotArms::Base].body , 0 , 0 , 10 ); break;
+    case 'X' : dBodyAddTorque ( sphere1->object[SphererobotArms::Base].body , 0 , 0 , -10 ); break;
     case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2); 
       printf("sineRate : %g\n", controller->getParam("sineRate"));
       break;
