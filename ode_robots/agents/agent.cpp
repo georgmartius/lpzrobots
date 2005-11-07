@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-10-28 12:03:36  martius
+ *   Revision 1.13  2005-11-07 17:04:20  martius
+ *   agent can be constructed using a list of PlotOptions
+ *   tracking file gets the controller parameter as well
+ *
+ *   Revision 1.12  2005/10/28 12:03:36  martius
  *   network description printed
  *
  *   Revision 1.11  2005/10/24 13:32:07  fhesse
@@ -73,21 +77,42 @@
 
   /// constructor
 Agent::Agent(PlotMode plotmode/*=GuiLogger*/, PlotSensors plotsensors /*= Controller*/){
+  internInit();
+
+  if(plotmode != NoPlot){
+    PlotOption po(plotmode, plotsensors, 1);
+    plotOptions.push_back(po);    
+  }
+
+}
+
+Agent::Agent(PlotOption plotOption){
+  internInit();
+  plotOptions.push_back(plotOption);
+}
+
+
+Agent::Agent(list<PlotOption> plotOptions)
+  : plotOptions(plotOptions){
+  internInit();
+}
+
+void Agent::internInit(){
   controller = 0;
   robot      = 0;
   wiring     = 0;
     
   rsensors=0; rmotors=0; 
   csensors=0; cmotors=0; 
-  this->plotmode=plotmode;
-  this->plotsensors=plotsensors;
-
-  pipe=0;
-  t=0;
+  
+  t=0;  
 }
   
 Agent::~Agent(){
-  CloseGui();
+  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
+    (*i).close();
+  }
+  trackrobot.close();
   if(rsensors) free(rsensors);
   if(rmotors)  free(rmotors);
   if(csensors) free(csensors);
@@ -115,57 +140,65 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
     csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
     cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
     
-    if(plotmode != NoPlot){
-      if(!OpenGui()) return false;
-      // print network description given by the structural information of the controller
-      printNetworkDescription(pipe, "Lpzrobots"/*controller->getName()*/, controller);
-      // print head line with all parameter names
-      unsigned int snum = plotsensors == Robot ? rsensornumber : csensornumber;
-      Inspectable* inspectables[2] = {controller, wiring};      
-      printInternalParameterNames(pipe, snum, cmotornumber, inspectables, 2);
-      // print all parameters of the controller
-      controller->print(pipe, "# ");      
+    for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
+      if((*i).open()){
+	// print network description given by the structural information of the controller
+	printNetworkDescription((*i).pipe, "Lpzrobots"/*controller->getName()*/, controller);
+	// print head line with all parameter names
+	unsigned int snum = (*i).whichSensors == Robot ? rsensornumber : csensornumber;
+	Inspectable* inspectables[2] = {controller, wiring};      
+	printInternalParameterNames((*i).pipe, snum, cmotornumber, inspectables, 2);
+	// print all parameters of the controller
+	controller->print((*i).pipe, "# ");            
+      }
     }    
     return true;
   }
 }
 
 
-bool Agent::OpenGui(){
-  // this prevents the simulation to terminate if the child (guilogger) closes
+bool PlotOption::open(){
+  // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN); 
   // TODO: get the guilogger call from some config
-  if(plotmode == GuiLogger_File){
+  switch(mode){
+  case GuiLogger_File:
     pipe=popen("guilogger -l -m pipe -d 5","w");
-  }else if(plotmode == GuiLogger){
+    break;
+  case GuiLogger:
     pipe=popen("guilogger -m pipe -d 5","w");
+    break;
+  default:
+    return false;
   }
   if(pipe==0){
-    fprintf(stderr, "%s:%i: could not open guilogger!\n", __FILE__, __LINE__);    
+    fprintf(stderr, "%s:%i: could not open plot tool!\n", __FILE__, __LINE__);    
     return false;
   }else return true;
 }
 
-void Agent::CloseGui(){
-    if (pipe) pclose(pipe);
-    pipe=0;
+void PlotOption::close(){
+  if (pipe) pclose(pipe);
+  pipe=0;
 }
 
 // Plots controller sensor- and motorvalues and internal controller parameters.
-void Agent::plot(const sensor* x, int sensornumber, const motor* y, int motornumber){
-  if(!controller || !x || !y || plotmode==NoPlot || !pipe) return;
-//   if(sensornumber!=wiring->getControllerSensornumber()) {
-//     fprintf(stderr, "%s:%i: Given sensor number does not match the one from controller!\n", 
-//  	    __FILE__, __LINE__);
-//   }
-//   if(motornumber!=controller->getMotorNumber()) { 
-//     fprintf(stderr, "%s:%i: Given motor number does not match the one from controller!\n", 
-//  	    __FILE__, __LINE__);
-//   }
+void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber, 
+		 const motor* y, int motornumber){
+  assert(controller && rx && cx && y);
+  
   Inspectable* inspectables[2] = {controller, wiring};
-  printInternalParameters(pipe, x, sensornumber, y, motornumber, inspectables , 2);
-  if(t%10==0) fflush(pipe);
+  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
+    if( ((*i).pipe) && (t % (*i).interval == 0) ){
+      if((*i).whichSensors == Robot){
+	printInternalParameters((*i).pipe, rx, rsensornumber, y, motornumber, inspectables , 2);
+      }else{
+	printInternalParameters((*i).pipe, cx, csensornumber, y, motornumber, inspectables , 2);
+      }
+      if(t% ((*i).interval * 10)) fflush((*i).pipe);    
+    }
+  }
 };
 
 
@@ -193,10 +226,21 @@ void Agent::step(double noise){
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
   robot->setMotors(rmotors, rmotornumber);
-  if(plotsensors == Robot){
-    plot(rsensors, rsensornumber, cmotors, cmotornumber);
-  }else{
-    plot(csensors, csensornumber, cmotors, cmotornumber);
-  }
+  plot(rsensors, rsensornumber, csensors, csensornumber, cmotors, cmotornumber);
+  
+  trackrobot.track(robot);
+
   t++;
+}
+
+
+// sets the trackoptions which enable tracking of a robot
+void Agent::setTrackOptions(const TrackRobot& trackrobot){
+  this->trackrobot = trackrobot;
+  if(!this->trackrobot.open(robot)){
+    fprintf(stderr, "could not open trackfile!\n");
+  }else{
+    // print all parameters of the controller
+    controller->print(this->trackrobot.file, "# ");                
+  }
 }
