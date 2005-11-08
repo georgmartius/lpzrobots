@@ -277,16 +277,12 @@ bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
     if(o2 == (dGeomID)sphererobot_space) irSensorBank.sense(o1);
 
     // inner space collisions are not treated!
-
     int i,n;  
     const int N = 40;
     dContact contact[N];
     
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     for (i=0; i<n; i++) {
-      if(contact[i].geom.g1 != (dGeomID)irSensorBank.getSpaceID() && 
-      	 contact[i].geom.g2 != (dGeomID)irSensorBank.getSpaceID() ) { // do not treat collisions with sensors
-
 	if( contact[i].geom.g1 == object[Base].geom || contact[i].geom.g2 == object[Base].geom ){ 
 	  // only treat collisions with envelop
 	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
@@ -299,7 +295,6 @@ bool SphererobotArms::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
 	  dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
 	}
-      }
     }
     return true;
   } else {
