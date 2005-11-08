@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2005-11-04 14:43:27  martius
+ *   Revision 1.21  2005-11-08 11:35:56  martius
+ *   removed check for sensorbank because rays are disabled now
+ *
+ *   Revision 1.20  2005/11/04 14:43:27  martius
  *   added GPL
  *
  *                                                                 *
@@ -234,35 +237,31 @@ bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
     //    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     for (i=0; i<n; i++){
-      if(contact[i].geom.g1 != (dGeomID)irSensorBank.getSpaceID() && 
-	 contact[i].geom.g2 != (dGeomID)irSensorBank.getSpaceID() ) { // do not treat collisions with sensors
-
-	colwithme = true; // there is at least one collision with some part of the robot (not sensors)
-	colwithbody = false;
-	if( contact[i].geom.g1 == object[0].geom || contact[i].geom.g2 == object[0].geom ||
-	    contact[i].geom.g1 == bumper[0].transform || contact[i].geom.g2 == bumper[0].transform ||
-	    contact[i].geom.g1 == bumper[1].transform || contact[i].geom.g2 == bumper[1].transform ){
-	  
-	  colwithbody = true;
-	  //fprintf(stderr,"col with body\n");
-	}
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.005;
-	contact[i].surface.slip2 = 0.005;
-	if(colwithbody){
-	  contact[i].surface.mu = 0.1; // small friction of smooth body
-	  contact[i].surface.soft_erp = 0.9;
-	  contact[i].surface.soft_cfm = 0.001;
-	}else{
-	  contact[i].surface.mu = 1.1; //large friction
-	  contact[i].surface.soft_erp = 0.9;
-	  contact[i].surface.soft_cfm = 0.001;
-	}
-	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-      }    
-    }
+      colwithme = true; // there is at least one collision with some part of the robot (not sensors)
+      colwithbody = false;
+      if( contact[i].geom.g1 == object[0].geom || contact[i].geom.g2 == object[0].geom ||
+	  contact[i].geom.g1 == bumper[0].transform || contact[i].geom.g2 == bumper[0].transform ||
+	  contact[i].geom.g1 == bumper[1].transform || contact[i].geom.g2 == bumper[1].transform ){
+	
+	colwithbody = true;
+	//fprintf(stderr,"col with body\n");
+      }
+      contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+	dContactSoftERP | dContactSoftCFM | dContactApprox1;
+      contact[i].surface.slip1 = 0.005;
+      contact[i].surface.slip2 = 0.005;
+      if(colwithbody){
+	contact[i].surface.mu = 0.1; // small friction of smooth body
+	contact[i].surface.soft_erp = 0.9;
+	contact[i].surface.soft_cfm = 0.001;
+      }else{
+	contact[i].surface.mu = 1.1; //large friction
+	contact[i].surface.soft_erp = 0.9;
+	contact[i].surface.soft_cfm = 0.001;
+      }
+      dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
+      dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+    }        
   }
   return colwithme;
 }
