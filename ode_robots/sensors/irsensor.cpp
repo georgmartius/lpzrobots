@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-09-27 13:59:26  martius
+ *   Revision 1.4  2005-11-08 11:34:31  martius
+ *   geom is only enabled in sense function
+ *   there is no external collision detection anymore
+ *
+ *   Revision 1.3  2005/09/27 13:59:26  martius
  *   ir sensors are working now
  *
  *   Revision 1.2  2005/09/27 11:03:33  fhesse
@@ -34,17 +38,19 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 #include <math.h>
+#include <assert.h>
 
 #include "simulation.h"
-
 #include "position.h"
 #include "irsensor.h"
 #include "drawgeom.h"
 
-IRSensor::IRSensor(){
+IRSensor::IRSensor(double exponent/* = 1*/){
   value = 0;  
   len=0;
-  // TODO initialised
+  ray=0;
+  this->exponent = exponent;
+  initialised = false;
 }
 
 IRSensor::~IRSensor(){
@@ -68,7 +74,9 @@ void IRSensor::init(dSpaceID space, dBodyID body, const Position& pos,
 
   dGeomTransformSetGeom(transform, ray);  
   dGeomSetBody ( transform, body );
+  dGeomDisable (transform); // disable transform geom, so that it is not treated by normal collision detection.
 
+  initialised = true;
 }; 
 
 void IRSensor::reset(){
@@ -77,8 +85,11 @@ void IRSensor::reset(){
 }  
   
 bool IRSensor::sense(dGeomID object){
-  int n;  
+  assert(initialised);
+  int n; 
+  bool rv = false;
   dContact contact;
+  dGeomEnable (transform); // enable transform geom of this ray
   n = dCollide (object, transform, 1, &contact.geom, sizeof(dContact));
   if(n) {
     //     printf("ray: %x\n",ray);
@@ -86,10 +97,10 @@ bool IRSensor::sense(dGeomID object){
     len = contact.geom.depth;
     value = characteritic(len);
     //    printf("len= %f, value: %f, \n",len, value);
-    return true;
-  } else {
-    return false;
-  }
+    rv = true;
+  } 
+  dGeomDisable (transform);// disable transform geom, so that it is not treated by normal collision detection.
+  return rv;  
 }
 
 
@@ -98,6 +109,7 @@ double IRSensor::get(){
 }
 
 void IRSensor::draw(rayDrawMode drawMode){
+  assert(initialised);
   const dReal* pos = dGeomGetPosition (transform);
   const dReal* R = dGeomGetRotation (transform);    
   const dReal *pos2 = dGeomGetPosition (ray);
@@ -134,62 +146,6 @@ void IRSensor::draw(rayDrawMode drawMode){
   }
 }
 
-//   enum rayDrawMode {ray, sphere, no};
-// void drawGeom (dGeomID g, const dReal *pos, const dReal *R )
-// {
-//   if (!g) return;
-//   if (!pos) pos = dGeomGetPosition (g);
-//   if (!R) R = dGeomGetRotation (g);
-
-//   int type = dGeomGetClass (g);
-//   if  (type == dRayClass) {
-    
-//     dReal length;
-//     dVector3 start, dir;
-//     length=dGeomRayGetLength (g);
-//     dGeomRayGet(g, start, dir);
-
-//     dVector3 end_pos,end; 
-//     // endposition in the local coordinate system (just length in z-direction)
-//     end[0]=0;
-//     end[1]=0;
-//     end[2]=length;  
-
-//     // rotate endposition in local coordinate system with rotation matrix R
-//     dMULTIPLY0_331 (end_pos,R,end);
-//     // add actual position (of transform object) to get global coordinates
-//     end_pos[0] += pos[0];
-//     end_pos[1] += pos[1];
-//     end_pos[2] += pos[2];
-//     // draw line from start(pos) to end
-//     dsDrawLine(pos, end_pos);
-
-
-//   }
-
-// /*
-//   // cylinder option not yet implemented
-//   else if (type == dCylinderClass) {
-//     dReal radius,length;
-//     dGeomCylinderGetParams (g,&radius,&length);
-//     dsDrawCylinder (pos,R,length,radius);
-//   }
-// */
-//   else if (type == dGeomTransformClass) {
-//     dGeomID g2 = dGeomTransformGetGeom (g);
-//     const dReal *pos2 = dGeomGetPosition (g2);
-//     const dReal *R2 = dGeomGetRotation (g2);
-//     dVector3 actual_pos;
-//     dMatrix3 actual_R;
-//     dMULTIPLY0_331 (actual_pos,R,pos2);
-//     actual_pos[0] += pos[0];
-//     actual_pos[1] += pos[1];
-//     actual_pos[2] += pos[2];
-//     dMULTIPLY0_333 (actual_R,R,R2);
-//     drawGeom (g2,actual_pos,actual_R);
-//   }
-// }
-
   
 dGeomID IRSensor::getGeomID(){
   return ray;
@@ -197,8 +153,6 @@ dGeomID IRSensor::getGeomID(){
 
 double IRSensor::characteritic(double len){
   double v = (range - len)/range;
-  return v < 0 ? 0 : v;
+  return v < 0 ? 0 : pow(v, exponent);
 }
-
-
 
