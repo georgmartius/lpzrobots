@@ -19,7 +19,10 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log $                                                                *
+ *   $Log$
+ *   Revision 1.4  2005-11-09 13:29:21  fhesse
+ *   GPL added
+ *                                                                 *
  *                                                                         *
  ***************************************************************************/
 #ifndef __OCTAPLAYGROUND_H
