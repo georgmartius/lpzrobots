@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-10-06 17:14:24  martius
+ *   Revision 1.9  2005-11-09 13:26:31  martius
+ *   added factorSensors
+ *
+ *   Revision 1.8  2005/10/06 17:14:24  martius
  *   switched to stl lists
  *
  *   Revision 1.7  2005/09/22 12:24:37  martius
@@ -72,8 +75,9 @@ HurlingSnake::HurlingSnake(const OdeHandle& odeHandle):
   Configurable::insertCVSInfo(name, "$RCSfile$", 
 			      "$Revision$");
 
-  factorForce=5.0;
-  frictionGround=0.2;
+  factorForce=3.0;
+  factorSensor=20.0;
+  frictionGround=0.3;
 
   created=false;
 
@@ -203,9 +207,9 @@ int HurlingSnake::getSensors(sensor* sensors, int sensornumber){
   int len = (sensornumber < sensorno)? sensornumber : sensorno;
   
   const dReal* pos = dBodyGetPosition ( object[NUM-1].body );      //read actual position
-  sensors[0]=(pos[0]-old_position[0])*3.0;     // calculate change of position during timestep	
-  sensors[1]=(pos[1]-old_position[1])*3.0;
-  //  sensors[2]=(pos[2]-old_position[2])*3.0;
+  sensors[0]=(pos[0]-old_position[0])*factorSensor;     // calculate change of position during timestep	
+  sensors[1]=(pos[1]-old_position[1])*factorSensor;
+  //  sensors[2]=(pos[2]-old_position[2])*factorSensor;
   for (int i=0; i<3; i++){
     old_position[i]=pos[i];
   }
@@ -315,6 +319,7 @@ Position HurlingSnake::getPosition(){
 Configurable::paramlist HurlingSnake::getParamList() const{
   paramlist list;
   list.push_back( pair<paramkey, paramval> (string("factorForce"), factorForce));
+  list.push_back( pair<paramkey, paramval> (string("factorSensor"), factorSensor));
   list.push_back( pair<paramkey, paramval> (string("frictionGround"), frictionGround));
   list.push_back( pair<paramkey, paramval> (string("place"), 0));
   return list;
@@ -323,6 +328,7 @@ Configurable::paramlist HurlingSnake::getParamList() const{
 
 Configurable::paramval HurlingSnake::getParam(const paramkey& key) const{
   if(key == "factorForce") return factorForce; 
+  else if(key == "factorSensor") return factorSensor; 
   else if(key == "frictionGround") return frictionGround; 
   else  return Configurable::getParam(key) ;
 }
@@ -330,6 +336,7 @@ Configurable::paramval HurlingSnake::getParam(const paramkey& key) const{
 
 bool HurlingSnake::setParam(const paramkey& key, paramval val){
   if(key == "factorForce") factorForce=val;
+  else if(key == "factorSensor") factorSensor=val; 
   else if(key == "frictionGround") frictionGround=val; 
   else if(key == "place") {
     Position p(0,0,3);
