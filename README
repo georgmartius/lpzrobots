@@ -26,7 +26,7 @@ It consists of the following directories (click for details):
   - \ref controller : controllers developed in the robotic group of Leipzig university
 	yielding at self-organized behaviour for various kinds of machines
   - \ref ode_robots : stuff needed for our ODE-simulations 
-	(Open Dynamics Engine, see http://ode.org) such as robots, 
+	(Open Dynamics Engine, see http://www.ode.org) such as robots, 
  	obstacles, utils, our patches and so on
   - \ref matrixlib : comfortable matrix library used for calculations e.g. in our controllers
   - \ref gnuplot : tool allowing you to use online gnuplot windows within your program 
@@ -38,7 +38,7 @@ It consists of the following directories (click for details):
 \section Requirements
  
 You need the following software and libraries installed (Tested on Linux x86 machines)
-- ODE (with drawstuff lib (included)) see www.ode.org and augmented with our 
+- ODE (with drawstuff lib (included)) see http://www.ode.org and augmented with our 
 \ref ode_robots/ode_patches "patches"
 - Qt library from http://www.trolltech.com for guilogger (version > 3.0)
 - avr-gcc and avr-binutils. \n
@@ -50,8 +50,8 @@ You need the following software and libraries installed (Tested on Linux x86 mac
 
 \section Inst Installation & Startup
 
-- Download the_world_of_Self-Organized_Creatures.tgz from 
-  http://robot.informatik.uni-leipzig.de/software (<b>not yet available</b>).
+- Download source tar ball from 
+  http://robot.informatik.uni-leipzig.de/software .
 - Unpack file.
 - Change into <tt> lpzrobots </tt> directory
 - Call <tt> make </tt> to compile \ref matrixlib and \ref guilogger (not strictly necessary,
