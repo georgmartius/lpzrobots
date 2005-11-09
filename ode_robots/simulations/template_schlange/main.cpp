@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2005-11-09 13:41:25  martius
+ *   Revision 1.16  2005-11-09 14:34:14  fhesse
+ *   snake 2 working
+ *
+ *   Revision 1.15  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -63,7 +66,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   playground->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(playground);
     
-  //****************
+  // snake1
   SchlangenConf conf = Schlange::getStandartConf();  
   Schlange* schlange1 = new Schlange ( 1 , odeHandle, conf);
   Color col(0,0.5,0.8);
@@ -76,20 +79,19 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.agents.push_back(agent);
   configs.push_back(controller);
   
-  /*
-  Schlange* schlange2 = new Schlange ( 2 , world , space , contactgroup,  
-				       0 , 0 , 0.25 , 4, 0.5 , 0.2 , 0 , 0.1 , 2 , 10 , angle );
-  Position p2 = {0,2,0};
-  Color col2 = {0.5,0,0.5};
+  //snake2
+  Schlange* schlange2 = new Schlange ( 2 , odeHandle, conf);
+  Position p2 (0,2,0);
+  Color col2 (0.5,0,0.5);
   schlange2->place(p2,&col2);
   AbstractController *controller2 = new InvertNChannelController(10);  
   
-  One2OneWiring* wiring2 = new One2OneWiring();
-  Agent* agent2 = new Agent(new ColorUniformNoise(),NoPlot);
+  One2OneWiring* wiring2 = new One2OneWiring(new ColorUniformNoise());
+  Agent* agent2 = new Agent(NoPlot);
   agent2->init(controller2, schlange2, wiring2);
   global.agents.push_back(agent2);
   configs.push_back(controller2);
-  */
+ 
     
   showParams(configs);
 }
