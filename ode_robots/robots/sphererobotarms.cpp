@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2005-11-09 13:24:42  martius
+ *   Revision 1.18  2005-11-09 13:26:57  martius
+ *   irsensorrange
+ *
+ *   Revision 1.17  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -115,7 +118,7 @@ SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle,
   object[Pendular3] = pendular[2]; 
 
   double sensorrange = conf.irsensorscale * conf.diameter;
-  irSensorBank.init(sphererobot_space, RaySensor::drawAll);
+  irSensorBank.init(sphererobot_space, conf.drawIRs ? RaySensor::drawAll : RaySensor::drawSensor );
   if (conf.irAxis1){
     for(int i=-1; i<2; i+=2){
       IRSensor* sensor = new IRSensor(1.5);
