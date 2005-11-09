@@ -1,4 +1,3 @@
-
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -21,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-08-08 11:06:47  martius
+ *   Revision 1.3  2005-11-09 13:31:51  martius
+ *   GPL'ised
+ *
+ *   Revision 1.2  2005/08/08 11:06:47  martius
  *   camera is a module for camera movements
  *   includes cleaned
  *
