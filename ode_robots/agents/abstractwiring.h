@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-10-24 09:52:36  fhesse
+ *   Revision 1.8  2005-11-09 13:55:44  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.7  2005/10/24 09:52:36  fhesse
  *   comments in doxygen
  *
  *   Revision 1.6  2005/10/06 17:11:36  martius
@@ -127,12 +130,12 @@ public:
 
   /** Returns the list of the names of all internal parameters.
    */
-  virtual list<iparamkey> getInternalParamNames() { return list<iparamkey>(); };
+  virtual list<iparamkey> getInternalParamNames() const { return list<iparamkey>(); };
 
   /** Returns a list of the values of all internal parameters
       (in the order given by getInternalParamNames()).
    */
-  virtual list<iparamval>  getInternalParams() { return list<iparamval>(); };
+  virtual list<iparamval>  getInternalParams() const { return list<iparamval>(); };
 
 
 protected:
