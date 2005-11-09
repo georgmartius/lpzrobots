@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-10-06 17:14:24  martius
+ *   Revision 1.6  2005-11-09 13:26:21  martius
+ *   added factorSensor
+ *
+ *   Revision 1.5  2005/10/06 17:14:24  martius
  *   switched to stl lists
  *
  *   Revision 1.4  2005/09/22 12:24:37  martius
@@ -47,8 +50,7 @@
 #include "configurable.h"
 
 /**
- * Abstract class (interface) for robot 
- * 
+ * Hurling snake is a string a beats.
  * 
  */
 class HurlingSnake : public AbstractRobot, public Configurable{
@@ -168,6 +170,7 @@ public:
 
   paramval factorForce;
   paramval frictionGround;
+  paramval factorSensor;
 
   dSpaceID snake_space;
 
