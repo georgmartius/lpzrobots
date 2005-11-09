@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2005-11-09 13:41:25  martius
+ *   Revision 1.18  2005-11-09 14:27:45  fhesse
+ *   schlangeforce active, schlangeservo commented out
+ *
+ *   Revision 1.17  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -38,11 +41,10 @@
 #include "sphere.h"
 
 #include "invertnchannelcontroller.h"
-#include "invertmotorspace.h"
-#include "invertmotornstep.h"
 #include "sinecontroller.h"
 
 #include "schlangeservo.h"
+#include "schlangeforce.h"
 #include "nimm2.h"
 
 ConfigList configs;
@@ -84,7 +86,27 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     global.obstacles.push_back(sphere);
   }
 
-  //****************/
+  
+
+
+  SchlangenConf con = SchlangeForce::getDefaultConf();
+  SchlangeForce*schlange3 = new SchlangeForce(0, odeHandle, con);
+  Position p3(1,1,0);
+  Color col3 (1,1,0);
+  schlange3->place(p3,&col3);
+  AbstractController *controller3 = new InvertNChannelController(10,true);  
+  
+  One2OneWiring* wiring3 = new One2OneWiring(new ColorUniformNoise(0.1));
+  Agent* agent3 = new Agent(NoPlot/*GuiLogger*/);
+  agent3->init(controller3, schlange3, wiring3);
+  global.agents.push_back(agent3);
+  configs.push_back(controller3);
+  configs.push_back(schlange3);
+
+
+
+  /* comment this in to add a SchlangeServo to the simulation*/
+  /*
   SchlangeServoConf conf = SchlangeServo::getDefaultConf();
   conf.servoPower=10;
   conf.jointLimit=M_PI/2;
@@ -95,9 +117,6 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
 
   //schlange1->fixInSky();
-  //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
-  //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
-  //AbstractController *controller = new InvertMotorNStep(50);  
   AbstractController *controller = new SineController();  
   
   // AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -120,46 +139,12 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.odeConfig.setParam("controlinterval",1);
 
    controller->setParam("epsC",0.001);
-//   // controller->setParam("desens",0.0);
-//   controller->setParam("s4delay",1.0);
-//   controller->setParam("s4avg",1.0);
    controller->setParam("epsA",0.01);
-//   controller->setParam("factorB",0.0);
-//   controller->setParam("zetaupdate",0.1);
 
-  schlange1->setParam("gamma",/*0.0000*/ 0.0);
+  schlange1->setParam("gamma", 0.0);
   schlange1->setParam("frictionGround",0.1);
-  schlange1->setParam("factorForce", /*0.0005*/3);
-  schlange1->setParam("factorSensors", /*20.0 */5);
-  
-
-
-  
-  //  SchlangeForce* schlange3 = new SchlangeForce ( 2 , world , space , contactgroup , 0 , 0 , 0.25 , 4 , 0.5 , 0.2 , 0 , 0.4 , 2 , 10 , anglerate);
-//   Position p3 = {1,1,0};
-//   Color col3 = {1,1,0};
-//   schlange1->place(p3,&col3);
-//   AbstractController *controller3 = new InvertNChannelController(10,true);  
-  
-//   One2OneWiring* wiring3 = new One2OneWiring(new ColorUniformNoise(0.1));
-//   Agent* agent3 = new Agent(NoPlot/*GuiLogger*/);
-//   agent3->init(controller3, schlange3, wiring3);
-//   global.agents.push_back(agent3);
-//   configs.push_back(controller3);
-//   configs.push_back(schlange3);
-  
-
-  /*
-  Nimm2* vehicle = new Nimm2 ( world , space , contactgroup);
-  Position p2 = {0,0,3};
-  vehicle->place(p2);
-  AbstractController *controller2 = new InvertNChannelController(10,true);  
-  
-  One2OneWiring* wiring2 = new One2OneWiring();
-  Agent* agent2 = new Agent(new ColorUniformNoise(0.1), NoPlot/ *GuiLogger* /);
-  agent2->init(controller2, vehicle, wiring2);
-  global.agents.push_back(agent2);
-  //  configs.push_back(controller2);
+  schlange1->setParam("factorForce", 3);
+  schlange1->setParam("factorSensors", 5);
   */
   
   
