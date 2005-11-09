@@ -1,3 +1,29 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *    martius@informatik.uni-leipzig.de                                    *
+ *    fhesse@informatik.uni-leipzig.de                                     *
+ *    der@informatik.uni-leipzig.de                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ *   $Log$
+ *   Revision 1.15  2005-11-09 13:41:25  martius
+ *   GPL'ised
+ *
+ ***************************************************************************/
 #include <stdio.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
@@ -19,7 +45,8 @@
 PlotMode plotMode = NoPlot;
 
 SphererobotArms* sphere ;
-const double height = 6.5;
+//const double height = 6.5;
+const double height = 3;
 
 void addRobot(const OdeHandle& odeHandle, GlobalData& global, int i){
   Color col;
@@ -100,17 +127,19 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   
   //Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/dip128_flat.ppm");
   //int tex = dsRegisterTexture("terrains/dip128_flat_texture.ppm", true);
-  //Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/3potential.ppm");
-  //  int tex = dsRegisterTexture("terrains/3potential_texture.ppm", true);
-  //terrainground->setTextureID(tex);
-  Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/potLMH_256.ppm", 
+  Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, 
+						   "terrains/macrospheresLMH_256.ppm",
    						   Terrainground::LowMidHigh);
+    int tex = dsRegisterTexture("terrains/macrospheresSum_256.ppm", true);
+  //terrainground->setTextureID(tex);
+//  Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/potLMH_256.ppm", 
+//   						   Terrainground::LowMidHigh);
   //int tex = dsRegisterTexture("terrains/potTex_1024.ppm", true);
   // Terrainground *terrainground = new Terrainground(odeHandle, 20.0, height, "terrains/macrospheresLMH_256.ppm", 
 //   						   Terrainground::LowMidHigh);
 //   int tex = dsRegisterTexture("terrains/macrospheresTex_1024.ppm", true);
-  //terrainground->setTextureID(tex);
-  terrainground->setColor(1,1,1);
+  terrainground->setTextureID(tex);
+  //terrainground->setColor(1,1,1);
   
   terrainground->setPosition(-10,-10,0.5);
   global.obstacles.push_back(terrainground);
