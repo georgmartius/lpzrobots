@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2005-11-09 13:41:25  martius
+ *   Revision 1.15  2005-11-09 14:54:46  fhesse
+ *   nchannelcontroller used
+ *
+ *   Revision 1.14  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -36,7 +39,7 @@
 #include "one2onewiring.h"
 #include "playground.h"
 
-#include "invertmotornstep.h"
+#include "invertnchannelcontroller.h"
 #include "sinecontroller.h"
 #include "noisegenerator.h"
 
@@ -76,7 +79,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   Color col(0,0.5,0.8);
   sphere1->place ( Position ( 0 , 0 , 1 ), &col );
-  controller = new InvertMotorNStep(10);  
+  controller = new InvertNChannelController(10);  
   //controller = new SineController();  
   controller->setParam("sineRate", 50);  
   controller->setParam("phaseShift", 0.7);
