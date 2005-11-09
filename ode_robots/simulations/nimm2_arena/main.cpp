@@ -20,11 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:41:10  fhesse
+ *   Revision 1.5  2005-11-09 14:08:48  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2005/11/09 13:41:10  fhesse
  *   GPL added
  *                                                                 *
  *                                                                         * 
-/***************************************************************************/
+***************************************************************************/
 #include <stdio.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
@@ -77,18 +80,18 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   int chessTexture = dsRegisterTexture("chess.ppm");
 
-    for (int j=-1; j<2; j++){ 
-      for (int i=-4; i<5; i++){
+  for (int j=-1; j<2; j++){ 
+    for (int i=-4; i<5; i++){
       //      nimm2 = new Nimm2(odeHandle);
-      nimm2 = new Nimm2(odeHandle,
-			/*size=1.0*/  1.0, 
-			/*force=0.1*/ 0.5,
-			/*speed=10*/ 20,
-			/*drawWheels=true*/ true,
-			/*bumper = false*/ true,
-			/*cigarMode = false*/ true);
+      Nimm2Conf conf = Nimm2::getDefaultConf();
+      conf.speed=20;
+      conf.force=0.5;
+      conf.bumper=true;
+      conf.cigarMode=true;
+      nimm2 = new Nimm2(odeHandle, conf);
       nimm2->setTextures(DS_WOOD, chessTexture); 
-      if ((i==0) && (j==0)) {nimm2->place(Position(j*0.26,i*0.26,0), &Color(2,2,0));}
+      Color c(2,2,0);
+      if ((i==0) && (j==0)) {nimm2->place(Position(j*0.26,i*0.26,0), &c);}
       else {
 	nimm2->place(Position(j*2.5,i*1.26,0));
       }

@@ -20,11 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-11-09 13:43:52  fhesse
+ *   Revision 1.13  2005-11-09 14:08:48  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.12  2005/11/09 13:43:52  fhesse
  *   GPL added
  *                                                                 *
  *                                                                         * 
-/***************************************************************************/
+***************************************************************************/
 #include <stdio.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
@@ -40,7 +43,6 @@
 
 #include "invertmotorspace.h"
 #include "invertmotornstep.h"
-#include "invertmotornstepwiths.h"
 #include "sinecontroller.h"
 
 ConfigList configs;
