@@ -1,5 +1,6 @@
-
-(* This file is used for the doxygen documentation. *)
+/** 
+ * This file is used for the doxygen documentation. 
+ */
 
 /**
 
