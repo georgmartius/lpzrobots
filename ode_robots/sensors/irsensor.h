@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-09-27 13:59:26  martius
+ *   Revision 1.4  2005-11-09 09:13:47  fhesse
+ *   geom is only enabled in sense function
+ *   there is no external collision detection anymore
+ *
+ *   Revision 1.3  2005/09/27 13:59:26  martius
  *   ir sensors are working now
  *
  *   Revision 1.2  2005/09/27 11:03:34  fhesse
@@ -44,7 +48,7 @@
  */
 class IRSensor : public RaySensor {
 public:  
-  IRSensor();
+  IRSensor(double exponent = 1);
 
   virtual ~IRSensor();
 
@@ -85,6 +89,10 @@ protected:
   double range; // max length
   double len;   // last measured length
   double value; // actual sensor value
+
+  double  exponent;
+  bool initialised;
+
 };
 
 #endif
