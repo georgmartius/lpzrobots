@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 09:13:47  fhesse
+ *   Revision 1.5  2005-11-09 13:24:20  martius
+ *   added exponent
+ *
+ *   Revision 1.4  2005/11/09 09:13:47  fhesse
  *   geom is only enabled in sense function
  *   there is no external collision detection anymore
  *
@@ -48,6 +51,7 @@
  */
 class IRSensor : public RaySensor {
 public:  
+  /// @param exponent exponent of the sensor characteritic (default: 1 (linear))
   IRSensor(double exponent = 1);
 
   virtual ~IRSensor();
@@ -77,6 +81,12 @@ public:
    */
   virtual dGeomID getGeomID();
 
+  /// returns the exponent of the sensor characteritic (default: 1 (linear))
+  double getExponent () const { return exponent;} 
+
+  /// sets the exponent of the sensor characteritic (default: 1 (linear))
+  void   setExponent (double exp) { exponent = exp;}
+
 protected:
   /** describes the sensor characteritic 
       linear curve used here
@@ -89,10 +99,9 @@ protected:
   double range; // max length
   double len;   // last measured length
   double value; // actual sensor value
+  double exponent; // exponent of the sensor characteritic 
 
-  double  exponent;
   bool initialised;
-
 };
 
 #endif
