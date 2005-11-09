@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-11-09 13:41:25  martius
+ *   Revision 1.9  2005-11-09 14:40:13  fhesse
+ *   contr. adapted for distr.
+ *
+ *   Revision 1.8  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -39,7 +42,7 @@
 
 #include "sinecontroller.h"
 //#include "invertnchannelcontroller.h"
-//#include "invertmotornstep.h"
+
 
 using namespace university_of_leipzig::robots;
 
