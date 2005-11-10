@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-10-27 14:16:11  martius
+ *   Revision 1.3  2005-11-10 09:09:55  martius
+ *   use defines for definitions of sqrt, min, max...
+ *
+ *   Revision 1.2  2005/10/27 14:16:11  martius
  *   some bugs fixed, module now works
  *   some functions from controller_misc.h are here now
  *
@@ -37,13 +40,14 @@
 using namespace matrix;
 #include "position.h"
 
-// ifndef min and max
+#ifndef MIN_MAX_AND_SO_ON
+#define MIN_MAX_AND_SO_ON
 #define min(a,b) ( (a) < (b) ? a : b )
 #define max(a,b) ( (a) > (b) ? a : b )
 #define sign(x)  ( (x) < 0 ? -1 : 1 )
 #define sqr(x)   ( (x)*(x) )
 #define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
-
+#endif
 /**
  * returns a rotation matrix with the given angle
  */
