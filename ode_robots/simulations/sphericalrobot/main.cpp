@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:41:25  martius
+ *   Revision 1.5  2005-11-10 09:04:23  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -73,26 +76,26 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   // Outer Ring
   AbstractObstacle* ring1 = new OctaPlayground(odeHandle, 20);
-  ring1->setGeometry(14, 0.1, 2); 
+  ring1->setGeometry(10, 0.1, 2); 
   ring1->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(ring1);
   // Inner Ring
-  AbstractObstacle* ring2 = new OctaPlayground(odeHandle, 32);
-  ring2->setGeometry(15.5, 0.1, 2);
+  AbstractObstacle* ring2 = new OctaPlayground(odeHandle, 24);
+  ring2->setGeometry(11.5, 0.1, 2);
   ring2->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(ring2);
   
   //****************
   SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
-  conf.axisZsensor=false;
+  //conf.axisZsensor=false;
   conf.axisXYZsensor=false;
-  conf.irAxis1=true;
-  conf.irAxis2=true;
-  conf.irAxis3=true;
+  //  conf.irAxis1=true;
+  //  conf.irAxis2=true;
+  //  conf.irAxis3=true;
   sphere1 = new SphererobotArms ( odeHandle, conf);
 
   Color col(0,0.5,0.8);
-  sphere1->place ( Position ( 15 , 0 , 1 ), &col );
+  sphere1->place ( Position ( 10.8 , 0 , 1 ), &col );
   //controller = new InvertMotorNStep(10, 0.1, true, false);
   controller = new InvertMotorNStep(10, 0.1, false, false);
   controller->setParam("steps", 2);  
@@ -110,8 +113,9 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //  AbstractWiring* wiring = new DerivativeWiring ( dconf, new ColorUniformNoise());
   Agent* agent = new Agent (PlotOption(plotMode, Controller, 1));
   agent->init ( controller , sphere1 , wiring );
-  agent->setTrackOptions(TrackRobot(true, false, false,50));
+  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
   global.agents.push_back ( agent );
+  global.configs.push_back ( controller );
   global.configs.push_back ( controller );
       
   showParams(global.configs);
