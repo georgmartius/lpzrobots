@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.39  2005-10-21 11:59:58  martius
+ *   Revision 1.40  2005-11-10 09:20:48  martius
+ *   10 minute notification
+ *
+ *   Revision 1.39  2005/10/21 11:59:58  martius
  *   realtimefactor written small
  *
  *   Revision 1.38  2005/10/18 15:31:32  fhesse
@@ -173,7 +176,7 @@ struct timeval realTime;
 int nextLeakAnnounce=20;
 int leakAnnCounter=1;
 
-int sim_step = 0;
+long sim_step = 0;
 dsFunctions fn;
 enum SimulationState { none, initialised, running, closed };
 SimulationState state = none;
@@ -302,7 +305,7 @@ void _end(){
 void simLoop ( int pause ){
   // we run the physical simulation as often the drawinterval,
   //  because "drawstuff" will draw the world before this function is called
-  //  the drawing of all object should occur if t==0
+  //  the drawing of all object should occur if t==0  
   for(int t = 0; t < globalData.odeConfig.drawInterval; t++){
     // Parametereingabe  
     if (control_c_pressed()){
@@ -315,9 +318,12 @@ void simLoop ( int pause ){
     // the simulation is just run if pause is not enabled
     if (!pause) {
       //**************************Steuerungsabschnitt ************************
-      globalData.time += globalData.odeConfig.simStepSize;
-
+      globalData.time += globalData.odeConfig.simStepSize;      
       sim_step++;
+      // print simulation time every 10 min.
+      if(sim_step% ( int(1/globalData.odeConfig.simStepSize) * 600) ==0) {
+	printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
+      }
       // for all agents: robots internal stuff and control step if at controlInterval
       for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ){
@@ -333,7 +339,7 @@ void simLoop ( int pause ){
     }  
     if(additionalCallback) additionalCallback(globalData, t==0, pause);
 
-    if(t==0 || pause){
+    if(t==0){
       /**************************Draw the scene ***********************/
       // first repositionize the camera if needed
       if (viewedRobot)
@@ -363,7 +369,7 @@ void simLoop ( int pause ){
 	nextLeakAnnounce=max(200,nextLeakAnnounce/2);
       }else if (diff > 0){
 	if(leakAnnCounter%nextLeakAnnounce==0 && diff > 10){ // we do not bother the user all the time
-	  printf("Time leak of %li ms (Please increase realtimefvactor)\n", diff);
+	  printf("Time leak of %li ms (Please increase realtimefactor)\n", diff);
 	  nextLeakAnnounce*=2;
 	  leakAnnCounter=0;
 	}
