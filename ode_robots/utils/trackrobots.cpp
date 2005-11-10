@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-09 13:31:51  martius
+ *   Revision 1.4  2005-11-10 09:08:16  martius
+ *   trace has a name
+ *
+ *   Revision 1.3  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -46,6 +49,10 @@ bool TrackRobot::open(const AbstractRobot* robot){
     time_t t = time(0);
     struct stat filestat;
     strftime(filename, 50, "%F_%H-%M-%S_", localtime(&t));
+    if(scene){      
+      strcat(filename,scene);
+      strcat(filename,"_");
+    }
     strcat(filename,robot->getName().c_str());
     sprintf(filename2, "%s.log", filename);
     // try to stat file and if it exists then try to append a number

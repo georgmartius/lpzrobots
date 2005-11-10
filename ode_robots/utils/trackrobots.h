@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-09 13:31:51  martius
+ *   Revision 1.4  2005-11-10 09:08:26  martius
+ *   trace has a name
+ *
+ *   Revision 1.3  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -28,6 +31,7 @@
 #define __TRACKROBOTS_H
 
 #include <stdio.h>
+#include <string.h>
 
 class AbstractRobot;
 class Agent;
@@ -44,18 +48,24 @@ public:
     interval = 1;
     file=0;
     cnt=0;
+    scene=0;
   }
   /** Set the tracking mode of the simulation environment. 
       If one of the parameters is true the tracking is enabled.
       The tracking is written into a file with the current date and time as name.
    */ 
-  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, int interval = 1){
+  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, const char* scene, int interval = 1){
     this->trackPos     = trackPos;
     this->trackSpeed   = trackSpeed;
     this->trackOrientation = trackOrientation;
     this->interval = interval;
+    this->scene = strdup(scene);
     file=0;
     cnt=0;
+  }
+
+  ~TrackRobot(){
+    if(scene) free(scene);
   }
 
   bool open(const AbstractRobot* robot);
@@ -69,6 +79,7 @@ private:
   bool trackOrientation;
   int interval;
   FILE* file;
+  char* scene;
   long cnt;
 };
 
