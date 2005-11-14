@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-11-09 13:41:25  martius
+ *   Revision 1.11  2005-11-14 13:02:39  martius
+ *   new paramters
+ *
+ *   Revision 1.10  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -78,8 +81,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
-  global.odeConfig.setParam("noise",0.1);
-  global.odeConfig.setParam("drawinterval",1);
+  global.odeConfig.setParam("noise",0.05);
   global.odeConfig.setParam("controlinterval",1);
   // initialization
   
@@ -112,13 +114,13 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   snakeConf.maxWinkel=M_PI/3;
   snakeConf.frictionGround=0.1;
   snakeConf.factorForce=0.6; //3;
-  snakeConf.factorSensors=5;
+  snakeConf.factorSensors=4;
   snake = new SchlangeForce ( 1 , odeHandle, snakeConf );
   {
     Color col(0,0.5,0.8);
     snake->place(Position(-5,-5,0),&col); 
   }
-  controller = new InvertMotorNStep(10);  
+  controller = new InvertMotorNStep(10, 2.0);    
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   agent = new Agent( plotMode );
   agent->init(controller, snake, wiring);
@@ -133,14 +135,14 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   snakeConf.armAnzahl   = 8;
   snakeConf.maxWinkel   = M_PI/3;
   snakeConf.frictionGround=0.1;
-  snakeConf.factorForce=1 ;//3.5;
-  snakeConf.factorSensors=5;
+  snakeConf.factorForce=0.7; //3.5;
+  snakeConf.factorSensors=4;
   snake = new SchlangeForce ( 2 , odeHandle, snakeConf );
   {
     Color col(0,0.5,0.8);
     snake->place(Position(0,0,0),&col); 
   }
-  controller = new InvertMotorNStep(10);  
+  controller = new InvertMotorNStep(10, 2.0);     
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   agent = new Agent( NoPlot );
   agent->init(controller, snake, wiring);
@@ -149,15 +151,17 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.configs.push_back(snake);   
   snake->setParam("gamma",/*0.0000*/ 0.0);
   
-  Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
-  nimm2conf.size = 1.6;
 
   //******* N I M M  2 *********/
+  Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
+  nimm2conf.size = 1.6;
   for(int r=0; r < 3; r++) {    
     robot = new Nimm2(odeHandle, nimm2conf);
     robot->place(Position ((r-1)*5,5,0));
     ((Nimm2*)robot)->setTextures(DS_WOOD, chessTexture);
-    controller = new InvertMotorNStep(10);   
+    //    controller = new InvertMotorNStep(10);   
+    controller = new InvertMotorSpace(15);   
+    controller->setParam("s4avg",10);
     //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new Agent( NoPlot );
@@ -189,9 +193,13 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     if (r==0) c=Color(0.8, 0.8, 0);
     if (r==1) c=Color(0,   0.8, 0);
     snake->place(Position(r*5,-6,0.3), &c);
-    snake->setParam("factorForce",8);
 
-    controller = new InvertMotorNStep(10);   
+    controller = new InvertMotorNStep(10, 1.5);
+    controller->setParam("steps", 2);
+    controller->setParam("adaptrate", 0.001);
+    controller->setParam("nomupdate", 0.001);
+    controller->setParam("factorB", 0);
+    
     // deriveconf = DerivativeWiring::getDefaultConf();
 //     deriveconf.blindMotorSets=0;
 //     deriveconf.useId = true;
