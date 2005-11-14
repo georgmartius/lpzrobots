@@ -19,7 +19,8 @@ UTILS =
 # -pg for profiling
 # CFLAGS = -Wall -I. -g
 ## Optimisation #DNDEBUG
-CFLAGS = -Wall -g -I. -O3 
+#CFLAGS = -Wall -g -I. -O3 
+CFLAGS = -Wall -g -I. 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
 
