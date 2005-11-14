@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-10 09:04:23  martius
+ *   Revision 1.6  2005-11-14 12:50:34  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2005/11/10 09:04:23  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2005/11/09 13:41:25  martius
@@ -76,7 +79,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   // Outer Ring
   AbstractObstacle* ring1 = new OctaPlayground(odeHandle, 20);
-  ring1->setGeometry(10, 0.1, 2); 
+  ring1->setGeometry(6, 0.1, 2); 
   ring1->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(ring1);
   // Inner Ring
@@ -87,16 +90,17 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   
   //****************
   SphererobotArmsConf conf = SphererobotArms::getStandartConf();  
-  //conf.axisZsensor=false;
-  conf.axisXYZsensor=false;
-  //  conf.irAxis1=true;
-  //  conf.irAxis2=true;
-  //  conf.irAxis3=true;
+  conf.axisZsensor=false;
+  //conf.axisXYZsensor=false;
+  conf.irAxis1=true;
+  conf.irAxis2=true;
+  conf.irAxis3=true;
   sphere1 = new SphererobotArms ( odeHandle, conf);
 
   Color col(0,0.5,0.8);
   sphere1->place ( Position ( 10.8 , 0 , 1 ), &col );
-  //controller = new InvertMotorNStep(10, 0.1, true, false);
+  //  controller = new SineController(2);
+  //  controller = new InvertMotorNStep(10, 0.1, true, false);
   controller = new InvertMotorNStep(10, 0.1, false, false);
   controller->setParam("steps", 2);  
   //  controller->setParam("factorB", 0);  
@@ -115,7 +119,6 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   agent->init ( controller , sphere1 , wiring );
   agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
   global.agents.push_back ( agent );
-  global.configs.push_back ( controller );
   global.configs.push_back ( controller );
       
   showParams(global.configs);
@@ -156,11 +159,11 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
     case 'Y' : dBodyAddForce ( sphere1->object[SphererobotArms::Base].body , -20 , 0 , 0 ); break;
     case 'x' : dBodyAddTorque ( sphere1->object[SphererobotArms::Base].body , 0 , 0 , 10 ); break;
     case 'X' : dBodyAddTorque ( sphere1->object[SphererobotArms::Base].body , 0 , 0 , -10 ); break;
-    case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2); 
-      printf("sineRate : %g\n", controller->getParam("sineRate"));
+    case 'S' : controller->setParam("sinerate", controller->getParam("sinerate")*1.2); 
+      printf("sinerate : %g\n", controller->getParam("sinerate"));
       break;
-    case 's' : controller->setParam("sineRate", controller->getParam("sineRate")/1.2); 
-      printf("sineRate : %g\n", controller->getParam("sineRate"));
+    case 's' : controller->setParam("sinerate", controller->getParam("sinerate")/1.2); 
+      printf("sinerate : %g\n", controller->getParam("sinerate"));
       break;
 //     case 'P' : for(int i=0; i<sphere1->getMotorNumber(); i++) sphere1->servo[i]->KP+=1; 
 //       printf("KP : %g\n", sphere1->servo[0]->KP); break;

@@ -1,6 +1,6 @@
 /************************************************************************/
 /*schlangeforce.h							*/
-/*Schlangenkonstrukt for lpzrobots
+/*Schlangenkonstrukt for lpzrobots                                      */
 /*@author Marcel Kretschmann						*/
 /*@version alpha 0.1							*/
 /*									*/
@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-11-09 13:24:42  martius
+ *   Revision 1.13  2005-11-14 12:48:43  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.12  2005/11/09 13:24:42  martius
  *   added GPL
  *
  *                                                                 *

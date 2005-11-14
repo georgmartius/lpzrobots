@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2005-11-09 13:41:25  martius
+ *   Revision 1.15  2005-11-14 12:50:21  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.14  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -67,18 +70,19 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  global.odeConfig.setParam("noise",0.03);
+  global.odeConfig.setParam("noise",0.1);
   global.odeConfig.setParam("realtimefactor",0);
   global.odeConfig.setParam("drawinterval", 500);
   
   AbstractRobot* robot = new ShortCircuit(odeHandle, channels, channels);  
   //  AbstractRobot* robot = new Nimm2(odeHandle);  
-  //  AbstractController *controller = new InvertMotorNStep(10);  
-  AbstractController *controller = new InvertMotorSpace(10,1.2);  
-  //  controller->setParam("adaptrate",0.0);
+  AbstractController *controller = new InvertMotorNStep(10);  
+  //AbstractController *controller = new InvertMotorSpace(10,1.2);  
+  //controller->setParam("nomupdate",0.001);
   controller->setParam("epsA",0.01);
-  controller->setParam("epsC",0.05);
+  controller->setParam("epsC",0.01);
   controller->setParam("factorB",0);
+  controller->setParam("steps",2);
   //  AbstractController *controller = new InvertNChannelController(10);  
   //AbstractController *controller = new SineController();
   
