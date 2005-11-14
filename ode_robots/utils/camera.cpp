@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-09-27 14:00:29  robot3
+ *   Revision 1.14  2005-11-14 12:47:36  martius
+ *   removed printfs
+ *
+ *   Revision 1.13  2005/09/27 14:00:29  robot3
  *   printf removed
  *
  *   Revision 1.12  2005/09/27 12:22:52  robot3
@@ -251,8 +254,8 @@ void print3DimFloat(float vec[3]) {
 }
 
 void moveOnRobot(AbstractRobot& robot) {
-	printf("moveOnRobot is now called!\n");
-	// now getting the current angle of the camera
+  //printf("moveOnRobot is now called!\n");
+  // now getting the current angle of the camera
 	for (int i=0;i<=1;i++) {
 		desiredCamPos[i]=currentRobotPos[i];
 	}
@@ -262,7 +265,7 @@ void moveOnRobot(AbstractRobot& robot) {
 }
 
 void moveBehindRobot(AbstractRobot& robot) {
-	printf("moveBehindRobot is now called!\n");
+  //printf("moveBehindRobot is now called!\n");
 	robCamDistance=4.0f; // the distance of camera position
 	// now get normalizing scalar of currentRobotView, only x and y is needed
 	float n=sqrt(SQUARE(currentRobotView[0])+SQUARE(currentRobotView[1]));
