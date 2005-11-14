@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-09 13:39:41  fhesse
+ *   Revision 1.6  2005-11-14 12:49:49  martius
+ *   new paramters and global config
+ *
+ *   Revision 1.5  2005/11/09 13:39:41  fhesse
  *   GPL added
  *                                                                 *
  *                                                                         * 
@@ -44,7 +47,6 @@
 #include "invertmotornstep.h"
 #include "sinecontroller.h"
 
-ConfigList configs;
 PlotMode plotMode = NoPlot;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
@@ -94,29 +96,32 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     if (i==1) col=Color(0,2,0);
     if (i==2) col=Color(0,2,2);
     hs->place(Position((i-1)*3,-7,0.0), &col);
+
     //controller = new InvertMotorSpace(10);  
-    //controller = new InvertMotorNStep(10);  
-    controller = new SineController();
+    controller = new InvertMotorNStep(40, 0.1);  
+    controller->setParam("steps", 2);
+    // controller->setParam("epsA", 0.15);
+    // controller->setParam("epsC", 0.04);
+    controller->setParam("adaptrate", 0.001);
+    controller->setParam("nomupdate", 0.001);
+
+    // controller = new SineController();
     //    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
     c.blindMotorSets=0;
     c.useId = true;
     //    c.useFirstD = true;
-    c.derivativeScale = 50;
-    wiring = new DerivativeWiring(c, new ColorUniformNoise(0.001));
+    c.derivativeScale = 20;
+    wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05));
     if (i==0) agent = new Agent(plotMode);
     else  agent = new Agent(NoPlot);
     agent->init(controller, hs, wiring);
     global.agents.push_back(agent);
     
-    hs->setParam("factorForce",5);
-    hs->setParam("frictionGround",0.3);
-    // controller->setParam("epsA", 0.15);
-    // controller->setParam("epsC", 0.04);
-    controller->setParam("adaptrate", 0.01);
+
     
-    configs.push_back(controller);
-    configs.push_back(hs);
+    global.configs.push_back(controller);
+    global.configs.push_back(hs);
     
 
   }
@@ -139,7 +144,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
 
 
-  showParams(configs);
+  showParams(global.configs);
 }
 
 void end(GlobalData& global){
@@ -159,7 +164,7 @@ void end(GlobalData& global){
 
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
-  changeParams(configs);
+  changeParams(global.configs);
 }
 
 void printUsage(const char* progname){
