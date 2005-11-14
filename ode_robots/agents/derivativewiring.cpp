@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-10-28 12:05:27  martius
+ *   Revision 1.7  2005-11-14 12:48:08  martius
+ *   optimised
+ *
+ *   Revision 1.6  2005/10/28 12:05:27  martius
  *   adapted time horizont for derivative
  *    to quater of the time horizont of averaging
  *
@@ -115,21 +118,21 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
   }
   int index = (time) % buffersize;  
   int lastIndex = (time-1) % buffersize;  
-  // calc smoothed sensor values
-  for(int i=0; i < this->rsensornumber; i++ ){ 
-      sensorbuffer[index][i] = (1-conf.eps)*sensorbuffer[lastIndex][i] + conf.eps*rsensors[i]; 
-  }
  
   int offset=0;
   if(conf.useId) { // normal sensors values
     memcpy(id, rsensors, sizeof(sensor) * this->rsensornumber);
     noiseGenerator->add(id, -noise, noise);   
-    //  memcpy(csensors+offset, sensorbuffer[index], sizeof(sensor) * this->rsensornumber);
-    // or use noised values...
     memcpy(csensors+offset, id, sizeof(sensor) * this->rsensornumber);
     offset+=this->rsensornumber;	   
   }   
   
+  if(conf.useFirstD || conf.useSecondD){ // calc smoothed sensor values
+    for(int i=0; i < this->rsensornumber; i++ ){ 
+      sensorbuffer[index][i] = (1-conf.eps)*sensorbuffer[lastIndex][i] + conf.eps*rsensors[i]; 
+    }
+  }
+
   if(conf.useFirstD) { // first derivative
     calcFirstDerivative();
     memcpy(csensors+offset, first, sizeof(sensor) * this->rsensornumber);
