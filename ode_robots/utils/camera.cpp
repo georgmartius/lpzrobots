@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2005-11-14 12:47:36  martius
+ *   Revision 1.14.4.1  2005-11-14 17:37:24  martius
+ *   moved to selforg
+ *
+ *   Revision 1.14  2005/11/14 12:47:36  martius
  *   removed printfs
  *
  *   Revision 1.13  2005/09/27 14:00:29  robot3
@@ -82,7 +85,7 @@
 #include "ode/ode.h" 
 
 CameraType oldCamType;
-const AbstractRobot* oldRobot;
+const OdeRobot* oldRobot;
 
 // all desired values that have to be in the end state
 float desiredCamPos[3];
@@ -157,7 +160,7 @@ void centerViewOnRobot() {
 
 
 
-void getRobotPosAndView(double *pos, double *view,AbstractRobot& robot) {
+void getRobotPosAndView(double *pos, double *view,OdeRobot& robot) {
 	Position position=robot.getPosition();
 	pos[0]=position.x;
 	pos[1]=position.y;
@@ -201,7 +204,7 @@ void printMode(CameraType camType) {
 }
 
 // has to be called if CameraType or the Robot has changed.
-void initCamera(CameraType camType,AbstractRobot& robot) {
+void initCamera(CameraType camType,OdeRobot& robot) {
 	// getting first the position and view of robot
 	getRobotPosAndView(oldRobotPos, oldRobotView, robot);
 	// now getting the current angle of the camera
@@ -219,15 +222,15 @@ void initCamera(CameraType camType,AbstractRobot& robot) {
 	oldRobot=&robot;
 }
 
-void StaticMode(AbstractRobot& robot) {
+void StaticMode(OdeRobot& robot) {
 	// do nothing
 }
 
-void TVMode(AbstractRobot& robot) {
+void TVMode(OdeRobot& robot) {
 	centerViewOnRobot();
 }
 
-void advancedTVMode(AbstractRobot& robot) {
+void advancedTVMode(OdeRobot& robot) {
 	// check wether the camera is too far away
 	robCamDistance= (sqrt(
 			SQUARE(currentCamPos[0]-currentRobotPos[0]) +
@@ -243,7 +246,7 @@ void advancedTVMode(AbstractRobot& robot) {
 	centerViewOnRobot();
 }
 
-void FollowingMode(AbstractRobot& robot) {
+void FollowingMode(OdeRobot& robot) {
 	followRobotsMove();
 }
 
@@ -253,7 +256,7 @@ void print3DimFloat(float vec[3]) {
 	}
 }
 
-void moveOnRobot(AbstractRobot& robot) {
+void moveOnRobot(OdeRobot& robot) {
   //printf("moveOnRobot is now called!\n");
   // now getting the current angle of the camera
 	for (int i=0;i<=1;i++) {
@@ -264,7 +267,7 @@ void moveOnRobot(AbstractRobot& robot) {
 	centerViewOnRobot();
 }
 
-void moveBehindRobot(AbstractRobot& robot) {
+void moveBehindRobot(OdeRobot& robot) {
   //printf("moveBehindRobot is now called!\n");
 	robCamDistance=4.0f; // the distance of camera position
 	// now get normalizing scalar of currentRobotView, only x and y is needed
@@ -279,7 +282,7 @@ void moveBehindRobot(AbstractRobot& robot) {
 }
 
 
-void advancedFollowingMode(AbstractRobot& robot) {
+void advancedFollowingMode(OdeRobot& robot) {
 	float n;
 	// first calculate current distance and set the desired position behind the robot
 	robCamDistance= (sqrt(
@@ -408,7 +411,7 @@ Position smoothView() {
 }
 
 
-void moveCamera( CameraType camType,AbstractRobot& robot) {
+void moveCamera( CameraType camType,OdeRobot& robot) {
 	// first look if someone is changed
 	// only otherwise change the camera position and/or view.
 	if (oldCamType!=camType || &robot!=oldRobot)

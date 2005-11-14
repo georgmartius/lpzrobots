@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-10 09:09:55  martius
+ *   Revision 1.3.4.1  2005-11-14 17:37:25  martius
+ *   moved to selforg
+ *
+ *   Revision 1.3  2005/11/10 09:09:55  martius
  *   use defines for definitions of sqrt, min, max...
  *
  *   Revision 1.2  2005/10/27 14:16:11  martius
@@ -38,7 +41,7 @@
 
 #include <matrix.h>
 using namespace matrix;
-#include "position.h"
+#include <selforg/position.h>
 
 #ifndef MIN_MAX_AND_SO_ON
 #define MIN_MAX_AND_SO_ON

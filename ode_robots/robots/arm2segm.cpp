@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-11-09 13:24:42  martius
+ *   Revision 1.6.4.1  2005-11-14 17:37:16  martius
+ *   moved to selforg
+ *
+ *   Revision 1.6  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -34,7 +37,7 @@
 
 
 Arm2Segm::Arm2Segm(const OdeHandle& odeHandle):
-  AbstractRobot::AbstractRobot(odeHandle){ 
+  OdeRobot(odeHandle){ 
 
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile$",

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-11-09 13:24:42  martius
+ *   Revision 1.7.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.7  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -41,8 +44,8 @@
 //   (wheels are only drawn, collision handling is always with spheres)
 Nimm4::Nimm4(const OdeHandle& odeHandle, double size/*=1.0*/, 
 	     double force /*=3*/, double speed/*=15*/, bool sphereWheels /*=true*/):
-  // callind AbstractRobot with name of the actual robot
-  AbstractRobot::AbstractRobot(odeHandle, "Nimm4"){ 
+  // calling OdeRobot with name of the actual robot
+  OdeRobot(odeHandle, "Nimm4"){ 
   
   // robot is not created till now
   created=false;

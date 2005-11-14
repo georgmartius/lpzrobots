@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-10-25 19:26:56  fhesse
+ *   Revision 1.8.4.1  2005-11-14 17:37:14  martius
+ *   moved to selforg
+ *
+ *   Revision 1.8  2005/10/25 19:26:56  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.7  2005/09/22 12:24:36  martius
@@ -44,7 +47,6 @@
 #ifndef __ABSTRACTOBSTACLE_H
 #define __ABSTRACTOBSTACLE_H
 
-#include <abstractrobot.h>
 #include <ode/ode.h>
 
 #include "odehandle.h"

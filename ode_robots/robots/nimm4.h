@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-10-27 16:10:41  fhesse
+ *   Revision 1.5.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.5  2005/10/27 16:10:41  fhesse
  *   nimm4 as example
  *
  *   Revision 1.4  2005/09/22 12:24:37  martius
@@ -42,12 +45,12 @@
 #ifndef __NIMM4_H
 #define __NIMM4_H
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
     2 wheels and a cylinder like body   
 */
-class Nimm4 : public AbstractRobot{
+class Nimm4 : public OdeRobot{
 public:
   
   Nimm4(const OdeHandle& odeHandle, double size=1, double force=3, double speed=15, bool sphereWheels=true);

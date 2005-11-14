@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-11-09 13:26:31  martius
+ *   Revision 1.9.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.9  2005/11/09 13:26:31  martius
  *   added factorSensors
  *
  *   Revision 1.8  2005/10/06 17:14:24  martius
@@ -67,8 +70,8 @@
  * @param s space in which robot should be created
  * @param c contactgroup for collision treatment
  */
-HurlingSnake::HurlingSnake(const OdeHandle& odeHandle):
-  AbstractRobot(odeHandle){
+HurlingSnake::HurlingSnake(const OdeHandle& odeHandle)
+  : OdeRobot(odeHandle){
 
   // prepare name;
   name.clear();

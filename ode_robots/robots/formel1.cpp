@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:24:42  martius
+ *   Revision 1.4.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.4  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -33,8 +36,8 @@
 
 
 Formel1::Formel1(const OdeHandle& odeHandle, double size/*=1.0*/, 
-	     double force /*=3*/, double speed/*=15*/, bool sphereWheels /*=true*/):
-  AbstractRobot::AbstractRobot(odeHandle){ 
+	     double force /*=3*/, double speed/*=15*/, bool sphereWheels /*=true*/)
+  : OdeRobot (odeHandle){ 
 
   created=false;
 

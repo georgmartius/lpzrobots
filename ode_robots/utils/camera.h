@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-09-20 10:55:15  robot3
+ *   Revision 1.8.4.1  2005-11-14 17:37:25  martius
+ *   moved to selforg
+ *
+ *   Revision 1.8  2005/09/20 10:55:15  robot3
  *   camera module:
  *   -pressing key c now centers on focused robot
  *   -pressing key b now moves 5.0f behind the robot
@@ -54,19 +57,19 @@
 #ifndef __CAMERA_H
 #define __CAMERA_H
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 
 typedef enum CameraType { Static, TV, Following, advancedTV, advancedFollowing};
 
 // moves the camera so that the robot is the watching object
 // cameraType decides which type of camera movement is used
-void moveCamera( CameraType camType, AbstractRobot& robot);
+void moveCamera( CameraType camType, OdeRobot& robot);
 
 // moves camera behind the robot
-void moveBehindRobot(AbstractRobot& robot);
+void moveBehindRobot(OdeRobot& robot);
 
 // moves camera to robot position
-void moveOnRobot(AbstractRobot& robot);
+void moveOnRobot(OdeRobot& robot);
 
 // prints the last used camera mode
 void printMode(CameraType camType);

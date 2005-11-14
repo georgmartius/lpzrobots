@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-11-14 12:48:43  martius
+ *   Revision 1.13.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.13  2005/11/14 12:48:43  martius
  *   *** empty log message ***
  *
  *   Revision 1.12  2005/11/09 13:24:42  martius
@@ -41,7 +44,7 @@
 using namespace std;
 
 #include "schlange.h"
-#include "configurable.h"
+#include <selforg/configurable.h>
 
 /**
  *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 

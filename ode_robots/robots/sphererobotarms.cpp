@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2005-11-09 13:26:57  martius
+ *   Revision 1.18.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.18  2005/11/09 13:26:57  martius
  *   irsensorrange
  *
  *   Revision 1.17  2005/11/09 13:24:42  martius
@@ -42,7 +45,7 @@
 
 const int SphererobotArms::servono;
 
-#include "matrix.h"
+#include <matrix.h>
 using namespace matrix;
 
 // converts a ODE rotation matrix (3x4) to an 3x3 transformation matrix
@@ -57,7 +60,7 @@ void yrot ( double rotR[12], const double R[12]);
  **/
 SphererobotArms::SphererobotArms ( const OdeHandle& odeHandle, 
 				   const SphererobotArmsConf& conf, double transparency)
-  : AbstractRobot ( odeHandle, "Sphere_Robot_Arms" )
+  : OdeRobot ( odeHandle, "Sphere_Robot_Arms" )
 {
 
   sphererobot_space = dSimpleSpaceCreate ( space );

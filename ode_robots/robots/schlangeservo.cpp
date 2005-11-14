@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-09 13:24:42  martius
+ *   Revision 1.5.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.5  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -30,7 +33,7 @@
 
 SchlangeServo::SchlangeServo ( const OdeHandle& odeHandle, 
 			       const SchlangeServoConf& conf, const char* n) 
-  : AbstractRobot(odeHandle, n) 
+  : OdeRobot(odeHandle, n) 
 {
   this->conf = conf;
   created=0;

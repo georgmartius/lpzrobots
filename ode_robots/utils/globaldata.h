@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-09 13:31:51  martius
+ *   Revision 1.3.4.1  2005-11-14 17:37:25  martius
+ *   moved to selforg
+ *
+ *   Revision 1.3  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -34,13 +37,13 @@ using namespace std;
 #include "odehandle.h"
 #include "odeconfig.h"
 
-class Agent;
+class OdeAgent;
 class AbstractObstacle;
 class Configurable;
 
 typedef vector<AbstractObstacle*> ObstacleList; ///
 typedef vector<Configurable*> ConfigList;       ///
-typedef vector<Agent*> AgentList;               ///
+typedef vector<OdeAgent*> AgentList;               ///
 
 typedef struct GlobalData
 {

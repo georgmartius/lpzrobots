@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-10-06 17:14:24  martius
+ *   Revision 1.4.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.4  2005/10/06 17:14:24  martius
  *   switched to stl lists
  *
  *   Revision 1.3  2005/09/22 12:24:36  martius
@@ -42,8 +45,8 @@
 #ifndef __ARM2SEGM_H
 #define __ARM2SEGM_H
 
-#include "abstractrobot.h"
-#include "configurable.h"
+#include "oderobot.h"
+#include <selforg/configurable.h>
 
 typedef struct {
 public:
@@ -62,7 +65,7 @@ public:
 
 
 
-class Arm2Segm : public AbstractRobot, public Configurable{
+class Arm2Segm : public OdeRobot, public Configurable{
 public:
   
   Arm2Segm(const OdeHandle& odeHandle);

@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-11-09 13:27:07  martius
+ *   Revision 1.10.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.10  2005/11/09 13:27:07  martius
  *   irsensorrange
  *
  *   Revision 1.9  2005/11/07 17:04:56  martius
@@ -43,7 +46,7 @@
 using namespace std;
 
 #include "sliderservo.h"
-#include "abstractrobot.h"
+#include "oderobot.h"
 #include "raysensorbank.h"
 
 typedef struct {
@@ -70,7 +73,7 @@ public:
  *@author Marcel Kretschmann
  *@version beta
  **/
-class SphererobotArms : public AbstractRobot
+class SphererobotArms : public OdeRobot
 {
 public:
   typedef enum objects { Base, Pendular1, Pendular2, Pendular3, Last } ;

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-11 15:37:06  fhesse
+ *   Revision 1.1.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.1  2005/11/11 15:37:06  fhesse
  *   preinitial version
  *                                                                 *
  *                                                                         *
@@ -30,8 +33,8 @@
 #ifndef __MUSCLEDARM_H
 #define __MUSCLEDARM_H
 
-#include "abstractrobot.h"
-#include "configurable.h"
+#include "oderobot.h"
+#include <selforg/configurable.h>
 
 
 
@@ -54,7 +57,7 @@ typedef struct {
 
 
 
-class MuscledArm : public AbstractRobot, public Configurable{
+class MuscledArm : public OdeRobot, public Configurable{
 public:
   
   MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf);

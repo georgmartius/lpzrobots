@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:31:51  martius
+ *   Revision 1.4.4.1  2005-11-14 17:37:25  martius
+ *   moved to selforg
+ *
+ *   Revision 1.4  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -28,14 +31,14 @@
 #define COMPONENT_TO_ROBOT_H
 
 #include "component.h"
-#include "abstractrobot.h"
+#include "oderobot.h"
 
 
 namespace university_of_leipzig {
 namespace robots {
   
 
-class ComponentToRobot : public AbstractRobot
+class ComponentToRobot : public OdeRobot
 {
  protected:
   IComponent *p_component;

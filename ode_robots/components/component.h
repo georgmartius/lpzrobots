@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-11-14 12:48:32  martius
+ *   Revision 1.7.4.1  2005-11-14 17:37:09  martius
+ *   moved to selforg
+ *
+ *   Revision 1.7  2005/11/14 12:48:32  martius
  *   *** empty log message ***
  *
  *   Revision 1.6  2005/11/09 13:27:32  fhesse
@@ -55,8 +58,8 @@
 #include "cubic_spline.h"
 
 #include "odehandle.h"
-#include "configurable.h"
-#include "abstractrobot.h"
+#include <selforg/configurable.h>
+#include "oderobot.h"
 
 
 #ifdef dDOUBLE

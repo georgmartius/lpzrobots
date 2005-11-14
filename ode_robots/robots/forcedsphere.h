@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-22 12:24:36  martius
+ *   Revision 1.2.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.2  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -33,12 +36,12 @@
 #ifndef __FORCEDSPHERE_H
 #define __FORCEDSPHERE_H
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 
 
 /** Robot that looks like sphere   
 */
-class Forcedsphere : public AbstractRobot{
+class Forcedsphere : public OdeRobot{
 public:
   
   Forcedsphere(const OdeHandle& odeHandle, double radius=1, double max_force=1, 

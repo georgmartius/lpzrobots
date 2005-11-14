@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-22 12:24:37  martius
+ *   Revision 1.2.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.2  2005/09/22 12:24:37  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -34,12 +37,12 @@
 #ifndef __FORMEL1_H
 #define __FORMEL1_H
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
     2 wheels and a cylinder like body   
 */
-class Formel1 : public AbstractRobot{
+class Formel1 : public OdeRobot{
 public:
   
   Formel1(const OdeHandle& odeHandle, double size=1, double force=3, double speed=15, bool sphereWheels=true);

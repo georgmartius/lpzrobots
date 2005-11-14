@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-11-09 13:24:42  martius
+ *   Revision 1.13.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.13  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -70,7 +73,7 @@ double dBodyGetPositionAll ( dBodyID basis , int para )
  *@version beta
  **/
  Roboter::Roboter ( int startRoboterID , const OdeHandle& odeHandle, int start_Sensoranzahl ) :
-    AbstractRobot::AbstractRobot ( odeHandle, "Roboter")
+    OdeRobot( odeHandle, "Roboter")
 {
 	roboterID = startRoboterID;
 	for ( int n = 0; n < start_Sensoranzahl; n++) 

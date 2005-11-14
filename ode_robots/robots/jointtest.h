@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-09-22 12:24:37  martius
+ *   Revision 1.6.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.6  2005/09/22 12:24:37  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -45,9 +48,9 @@
 #ifndef __JOINTTEST_H
 #define __JOINTTEST_H
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 
-class JointTest : public AbstractRobot{
+class JointTest : public OdeRobot{
 
 public:
   

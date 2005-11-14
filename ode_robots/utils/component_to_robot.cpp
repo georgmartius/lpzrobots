@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:31:51  martius
+ *   Revision 1.4.4.1  2005-11-14 17:37:25  martius
+ *   moved to selforg
+ *
+ *   Revision 1.4  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -32,7 +35,7 @@ namespace robots {
 
 ComponentToRobot::ComponentToRobot(IComponent *_p_component,
 				   const OdeHandle &odehandle) :
-  AbstractRobot(odehandle),
+  OdeRobot(odehandle),
   p_component(_p_component)
 {
   if(NULL == p_component)

@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-11-09 13:24:42  martius
+ *   Revision 1.11.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.11  2005/11/09 13:24:42  martius
  *   added GPL
  *
  *                                                                 *
@@ -42,7 +45,7 @@
 
 using namespace std;
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 
 /******************************************type declaration*****************************************/
 typedef struct
@@ -84,7 +87,7 @@ double dBodyGetPositionAll ( dBodyID basis , int para );
  *@author Marcel Kretschmann
  *@version beta
  **/
-class Roboter : public AbstractRobot
+class Roboter : public OdeRobot
 {
 
 public:
@@ -321,6 +324,14 @@ public:
 	 **/
 	virtual void getStatus ();
 	
+ protected:
+	virtual Object getMainObject(){
+	  if(!objektliste.empty()){
+	    return (*objektliste.begin());
+	  }else return Object();
+	}
+
+
 };
 
 #endif

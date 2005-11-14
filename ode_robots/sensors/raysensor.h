@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-09-27 13:59:26  martius
+ *   Revision 1.3.4.1  2005-11-14 17:37:21  martius
+ *   moved to selforg
+ *
+ *   Revision 1.3  2005/09/27 13:59:26  martius
  *   ir sensors are working now
  *
  *   Revision 1.2  2005/09/27 11:03:34  fhesse
@@ -35,7 +38,7 @@
 #define __RAYSENSOR_H
 
 #include <ode/common.h>
-#include "position.h"
+#include <selforg/position.h>
 
 /** Abstract class for Ray-based sensors. 
     This are sensors which are based on distance measurements using the ODE geom class Ray. 

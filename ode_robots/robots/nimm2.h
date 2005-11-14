@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2005-09-27 14:11:37  martius
+ *   Revision 1.17.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.17  2005/09/27 14:11:37  martius
  *   changed to use of Nimm2Conf
  *   IR sensors at front
  *
@@ -77,7 +80,7 @@
 #ifndef __NIMM2_H
 #define __NIMM2_H
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 #include "raysensorbank.h"
 
 
@@ -103,7 +106,7 @@ typedef struct {
 /** Robot that looks like a Nimm 2 Bonbon :-)
     2 wheels and a cylinder like body   
 */
-class Nimm2 : public AbstractRobot{
+class Nimm2 : public OdeRobot{
 public:
   
   Nimm2(const OdeHandle& odehandle, const Nimm2Conf& conf);

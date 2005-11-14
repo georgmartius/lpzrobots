@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-09 13:24:42  martius
+ *   Revision 1.5.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.5  2005/11/09 13:24:42  martius
  *   added GPL
  *
  *                                                                 *
@@ -38,8 +41,8 @@
 #include<assert.h>
 using namespace std;
 
-#include "abstractrobot.h"
-#include "configurable.h"
+#include "oderobot.h"
+#include <selforg/configurable.h>
 #include "hingeservo.h"
 
 typedef struct {
@@ -59,7 +62,7 @@ public:
  * It consists of a number of equal elements, each linked 
  * by a joint powered by 2 servos
  **/
-class SchlangeServo: public AbstractRobot, public Configurable
+class SchlangeServo: public OdeRobot, public Configurable
 {
 private:
 

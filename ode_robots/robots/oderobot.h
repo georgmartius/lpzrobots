@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-14 14:43:52  martius
+ *   Revision 1.1.2.2  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.1.2.1  2005/11/14 14:43:52  martius
  *   moved from abstractrobot to oderobot
  *
  *   Revision 1.11  2005/10/06 17:14:24  martius
@@ -66,13 +69,14 @@
 #include <vector>
 using namespace std;
  
-#include "abstractrobot.h"
+#include <selforg/abstractrobot.h>
 #include "odehandle.h"
 #include "globaldata.h"
 #include "color.h"
 
-typedef struct
+typedef struct Object
 {
+  Object(){body = 0; geom = 0;}
   dBodyID body;
   dGeomID geom;
 } Object;
@@ -127,15 +131,69 @@ public:
   virtual void setColor(Color col){
     color=col;
   };
-
-
+  
+  /** returns position of the object
+      @return vector of position (x,y,z)
+  */
+  virtual Position getPosition(){
+    const Object& o = getMainObject();
+    if (o.body){
+      return Position(dBodyGetPosition(o.body));
+    } else return Position(0,0,0);
+  }
+  
+  /** returns linear speed vector of the object
+      @return vector  (vx,vy,vz)
+  */
+  virtual Position getSpeed(){
+    const Object& o = getMainObject();
+    if (o.body){
+      return Position(dBodyGetLinearVel(o.body));
+    } else return Position(0,0,0);
+  }
+  
+  /** returns the orientation of the object
+      @return 3x3 rotation matrix
+  */
+  virtual Matrix getOrientation(){
+    const Object& o = getMainObject();
+    if (o.body){
+      return odeRto3x3RotationMatrix(dBodyGetRotation(o.body)); 
+    } else {
+      Matrix R(3,3); 
+      return R^0; // identity
+    }
+  }
+  
+  
 protected:
+  /** overload this in the robot implementation.
+      If there is no object for some reason then return an empty object (Object())
+      @return main object of the robot (used for tracking)
+   */
+  virtual Object getMainObject() = 0;
+
   static bool isGeomInObjectList(Object* os, int len, dGeomID geom){  
     for(int i=0; i < len; i++){
       if(geom == os[i].geom) return true;
     }
     return false;
   }
+
+  static Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
+    Matrix matrix(3,3);
+    matrix.val(0,0)=R[0];
+    matrix.val(0,1)=R[4];
+    matrix.val(0,2)=R[8];
+    matrix.val(1,0)=R[1];
+    matrix.val(1,1)=R[5];
+    matrix.val(1,2)=R[9];
+    matrix.val(2,0)=R[2];
+    matrix.val(2,1)=R[6];
+    matrix.val(2,2)=R[10];
+    return matrix;
+  }
+
 
 protected:
   

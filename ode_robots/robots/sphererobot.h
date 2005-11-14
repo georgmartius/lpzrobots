@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-11-09 13:24:42  martius
+ *   Revision 1.9.4.1  2005-11-14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.9  2005/11/09 13:24:42  martius
  *   added GPL
  *
  *                                                                 *
@@ -31,7 +34,7 @@
 
 using namespace std;
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 #include "sliderservo.h"
 
 typedef struct {
@@ -54,7 +57,7 @@ public:
  *@author Marcel Kretschmann
  *@version beta
  **/
-class Sphererobot : public AbstractRobot
+class Sphererobot : public OdeRobot
 {
 public:
   typedef enum objects { Base, Pendular, Pole1Bot, Pole2Bot, Pole3Bot, 

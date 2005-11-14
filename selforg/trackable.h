@@ -20,36 +20,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:31:51  martius
- *   GPL'ised
+ *   Revision 1.1.2.1  2005-11-14 17:37:56  martius
+ *   moved to selforg
  *
+ *                                                                 *
  ***************************************************************************/
-#ifndef __POSITION_H
-#define __POSITION_H
+#ifndef __TRACKABLE_H
+#define __TRACKABLE_H
+ 
+#include "position.h"
+#include <matrix.h>
+using namespace matrix;
 
-#include <math.h>
-
-class Position
-{
+/**
+ * Abstract class (interface) for trackable objects (used for robots)
+ * 
+ * 
+ */
+class Trackable{
 public:
-  Position(){x=y=z=0;}
-  Position(double _x, double _y, double _z){ x=_x; y=_y; z=_z; }
-  ///  p MUST have a size of at least 3 
-  Position(const double* p){ x=p[0]; y=p[1]; z=p[2]; } 
-  const double* toArray(){ array[0]=x;array[1]=y; array[2]=z; return array; } 
-  Position operator+(const Position& sum) const 
-           { Position rv(x+sum.x, y+sum.y, z+sum.z); return rv; }
-  Position operator-(const Position& sum) const
-           { Position rv(x-sum.x, y-sum.y, z-sum.z); return rv; }
-  Position operator*(double f) const { Position rv(x*f, y*f, z*f); return rv; }
 
-  double length() { return sqrt(x*x+y*y+z*z);  }
+  /**
+   * Constructor
+   * @param name name of the robot
+   */
+  Trackable(){
+  };
 
-  double x;
-  double y;
-  double z;
-private:
-  double array[3];
+  /** returns position of the object
+      @return vector of position (x,y,z)
+   */
+  virtual Position getPosition()=0;
+
+  /** returns linear speed vector of the object
+      @return vector  (vx,vy,vz)
+   */
+  virtual Position getSpeed()=0;
+
+  /** returns the orientation of the object
+      @return 3x3 rotation matrix
+   */
+  virtual Matrix getOrientation()=0;
+
 };
 
 #endif
+

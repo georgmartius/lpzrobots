@@ -32,7 +32,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-11-09 13:24:42  martius
+ *   Revision 1.8.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.8  2005/11/09 13:24:42  martius
  *   added GPL
  *
  *                                                                 *
@@ -328,6 +331,7 @@ public:
  	 *@version
  	 **/
 	virtual void roboterRekombination ( int vermehrungsart , double trennverhaeltniss , atomsimRobot* partner , atomsimRobot** speicherort1 , atomsimRobot** speicherort2 , Position newpos1 , Position newpos2 );
+
 	
 };
 

@@ -20,96 +20,106 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2005-11-14 17:37:18  martius
+ *   Revision 1.1.2.1  2005-11-14 17:37:56  martius
  *   moved to selforg
  *
- *   Revision 1.3  2005/09/22 12:24:37  martius
+ *   Revision 1.11  2005/10/06 17:14:24  martius
+ *   switched to stl lists
+ *
+ *   Revision 1.10  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
  *
- *   Revision 1.2  2005/07/18 14:47:41  martius
+ *   Revision 1.9  2005/09/22 07:30:53  martius
+ *   moved color and position into extra modules
+ *
+ *   Revision 1.8  2005/09/12 00:10:44  martius
+ *   position operators are const
+ *
+ *   Revision 1.7  2005/08/30 16:53:53  martius
+ *   Position struct has toArray and operators
+ *
+ *   Revision 1.6  2005/08/29 06:40:35  martius
+ *   added virtual destructor
+ *
+ *   Revision 1.5  2005/08/22 20:32:45  martius
+ *   robot has a name
+ *
+ *   Revision 1.4  2005/07/27 13:22:16  martius
+ *   position and color have constructors
+ *   ODEHandle
+ *
+ *   Revision 1.3  2005/07/18 14:47:41  martius
  *   world, space, contactgroup are not pointers anymore.
  *
- *   Revision 1.1  2005/07/06 16:03:37  martius
- *   dummy robot that connects motors with sensors
+ *   Revision 1.2  2005/07/07 09:27:11  martius
+ *   isGeomInObjectList added
  *
+ *   Revision 1.1  2005/06/15 14:20:04  martius
+ *   moved into robots
+ *                                                                 *
  ***************************************************************************/
-#ifndef __SHORTCIRCUIT_H
-#define __SHORTCIRCUIT_H
-
-#include <ode/common.h>
+#ifndef __ABSTRACTROBOT_H
+#define __ABSTRACTROBOT_H
 
 #include <vector>
 using namespace std;
  
+#include "trackable.h"
+#include "position.h"
+#include "types.h"
 
 /**
+ * Abstract class (interface) for robot in general
+ * 
  * 
  */
-class ShortCircuit : public OdeRobot{
+class AbstractRobot : public Trackable {
 public:
+
   /**
    * Constructor
-   * @param w world in which robot should be created
-   * @param s space in which robot should be created
-   * @param c contactgroup for collision treatment
+   * @param name name of the robot
    */
-  ShortCircuit(const OdeHandle& odeHandle,int sensornumber, int motornumber);
+  AbstractRobot(const char* name="abstractRobot")
+    : name(name) {
+  };
 
-  /// draws the robot
-  virtual void draw();
+  virtual ~AbstractRobot(){}
 
-/** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-    @params pos desired position of the robot in struct Position
-    @param c desired color for the robot in struct Color
-*/
-  virtual void place(Position pos , Color *c = 0) {}
+  /// returns the name of the robot
+  string getName() const { return name;}
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  virtual int getSensors(sensor* sensors, int sensornumber);
+  virtual int getSensors(sensor* sensors, int sensornumber)=0;
 
   /** sets actual motorcommands
       @param motors motors scaled to [-1,1] 
       @param motornumber length of the motor array
   */
-  virtual void setMotors(const motor* motors, int motornumber);
+  virtual void setMotors(const motor* motors, int motornumber)=0;
 
   /** returns number of sensors
   */
-  virtual int getSensorNumber() {return sensorno; }
+  virtual int getSensorNumber()=0;
 
   /** returns number of motors
   */
-  virtual int getMotorNumber() {return motorno; }
-
-  /** returns position of robot 
-      @param pos vector of desired position (x,y,z)
-   */
-  virtual Position getPosition();
-
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-  */
-  virtual void doInternalStuff(const GlobalData& globalData) {}
+  virtual int getMotorNumber()=0;
 
 
-  /** returns a vector with the positions of all segments of the robot
-      @param vector of positions (of all robot segments) 
-      @return length of the list
-  */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
+protected:
+  /// sets the name of the robot (only for child classes)
+  void setName(const char* name) { this->name = name; }
 
  protected:
-  int sensorno;      //number of sensors
-  int motorno;       // number of motors
-  motor* motors;
-} ;
+  string name;
+};
 
 #endif
  

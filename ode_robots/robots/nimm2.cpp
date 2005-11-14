@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2005-11-08 11:35:56  martius
+ *   Revision 1.21.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.21  2005/11/08 11:35:56  martius
  *   removed check for sensorbank because rays are disabled now
  *
  *   Revision 1.20  2005/11/04 14:43:27  martius
@@ -41,7 +44,7 @@
 
 
 Nimm2::Nimm2(const OdeHandle& odehandle, const Nimm2Conf& conf):
-  AbstractRobot::AbstractRobot(odehandle, "Nimm2"), conf(conf) { 
+  OdeRobot(odehandle, "Nimm2"), conf(conf) { 
 
   created=false;
   

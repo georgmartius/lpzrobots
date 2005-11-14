@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-11 15:37:06  fhesse
+ *   Revision 1.1.4.1  2005-11-14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.1  2005/11/11 15:37:06  fhesse
  *   preinitial version
  *                                                                 *
  *                                                                         *
@@ -35,7 +38,7 @@
 #include "muscledarm.h"
 
 MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
-  AbstractRobot::AbstractRobot(odeHandle), conf(conf){ 
+  OdeRobot(odeHandle), conf(conf){ 
 
 
   // prepare name;
