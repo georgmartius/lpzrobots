@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-11-09 13:29:19  martius
+ *   Revision 1.12.4.1  2005-11-14 17:37:00  martius
+ *   changed makefile structure to have and include directory
+ *   mode to selforg
+ *
+ *   Revision 1.12  2005/11/09 13:29:19  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -28,7 +32,7 @@
 #define __ODECONFIG_H
 
 #include <ode/ode.h>
-#include "configurable.h"
+#include <selforg/configurable.h>
 #include "odehandle.h"
 
 class OdeConfig : public Configurable {

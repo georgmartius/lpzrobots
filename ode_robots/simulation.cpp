@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40  2005-11-10 09:20:48  martius
+ *   Revision 1.40.4.1  2005-11-14 17:37:00  martius
+ *   changed makefile structure to have and include directory
+ *   mode to selforg
+ *
+ *   Revision 1.40  2005/11/10 09:20:48  martius
  *   10 minute notification
  *
  *   Revision 1.39  2005/10/21 11:59:58  martius
@@ -153,14 +157,16 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <drawstuff/drawstuff.h>
+using namespace std;
+#include <selforg/configurable.h>
+
+#include "odeagent.h"
+
 #include "camera.h"
 #include "grabframe.h"
-using namespace std;
 #include "simulation.h"
 
-#include "configurable.h"
 #include "abstractobstacle.h"
-#include "agent.h"
 
 // ODE globals
 OdeHandle odeHandle;
@@ -212,7 +218,7 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2);
 
 // drawing stuff for camera handling
 CameraType camType = Static; // default is a non-moving and non-rotating camera
-AbstractRobot* viewedRobot; // the robot who is viewed from the camera
+OdeRobot* viewedRobot; // the robot who is viewed from the camera
 
 void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData), 
 		     void (*end)(GlobalData& globalData), 
@@ -259,7 +265,7 @@ void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData),
   state=initialised;
 }
 
-void camera_init(CameraType type, AbstractRobot* robot) {
+void camera_init(CameraType type, OdeRobot* robot) {
   // setting only the parameters
   camType=type;
   viewedRobot=robot;

@@ -4,14 +4,20 @@
 
 LPZROBOTS=..
 ODEROBOTS=.
+SELFORG=../selforg
+MATRIXLIB=../matrixlib
+INCLUDEDIR=include/ode_robots
+REVINCLUDEDIR=../..
+LIB=libode_robots.a
 
 include Makefile.conf
 
 find_files = $(wildcard $(dir)/*.cpp)
 CPPFILES   := $(foreach dir,$(dirs),$(find_files))
 OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
+find_h_files = $(wildcard $(dir)/*.h)
+HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 
-LIB=libode_robots.a
 
 UTILS = 
 # utils/splitvideo
@@ -41,9 +47,14 @@ utils/splitvideo: utils/splitvideo.c
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
+	cd $(INCLUDEDIR)
+	for file in $(HFILES); do \
+		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
+	done
 
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CPPFILES)  -f- > Makefile.depend 2>/dev/null
+	rm Makefile.depend
+	make Makefile.depend
 
 tags: 
 	etags `find -name "*.[ch]"` 
@@ -53,5 +64,6 @@ clean:
 	for dir in $(dirs); do \
 		rm -f $$dir/*.o; \
 	done
+	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
 include Makefile.depend

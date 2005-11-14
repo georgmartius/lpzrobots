@@ -27,7 +27,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2005-10-06 17:11:26  martius
+ *   Revision 1.18.4.1  2005-11-14 17:37:01  martius
+ *   changed makefile structure to have and include directory
+ *   mode to selforg
+ *
+ *   Revision 1.18  2005/10/06 17:11:26  martius
  *   switched to stl lists
  *
  *   Revision 1.17  2005/09/27 13:58:48  martius
@@ -113,7 +117,7 @@ void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData),
 		     void (*addCallback)(GlobalData& globalData, bool draw, bool pause) = 0);
 
 /// initializes or resets the camera per user, if wanted
-void camera_init(CameraType type,AbstractRobot* robot);
+void camera_init(CameraType type, OdeRobot* robot);
 
 /// starts the simulation.
 void simulation_start(int argc, char** argv);
