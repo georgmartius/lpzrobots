@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-11 15:37:06  fhesse
+ *   Revision 1.2  2005-11-15 12:36:27  fhesse
+ *   muscles drawn as muscles, sphere drawn at tip of lower arm
+ *
+ *   Revision 1.1  2005/11/11 15:37:06  fhesse
  *   preinitial version
  *                                                                 *
  *                                                                         *
@@ -49,7 +52,8 @@ enum joints {fixedJoint, hingeJointFUA, hingeJointUALA, hingeJointFM1, hingeJoin
 
 typedef struct {
   bool includeMuscles; /// should muscles be included?
-  bool drawMuscles; /// should muscles be included?
+  bool drawMuscles;    /// should muscles be included?
+  bool drawSphere;     /// draw sphere at tip of lower Arm?
 } MuscledArmConf;
 
 
@@ -63,6 +67,7 @@ public:
     MuscledArmConf conf;
     conf.includeMuscles=true;
     conf.drawMuscles=true;
+    conf.drawSphere=true;
     return conf;
   }
 
@@ -72,6 +77,9 @@ public:
    * draws the vehicle
    */
   virtual void draw();
+
+  void setTextures(int texture);
+
 
   /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
       @params pos desired position of the robot in struct Position
@@ -149,6 +157,7 @@ protected:
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
   double dBodyGetPositionAll ( dBodyID basis , int para );
+  double dGeomGetPositionAll ( dGeomID basis , int para );
   
   void BodyCreate(int n, dMass m, dReal x, dReal y, dReal z, 
 			 dReal qx, dReal qy, dReal qz, dReal qangle);
@@ -176,16 +185,16 @@ protected:
 
 
 
-  double gelenkabstand;
-  double SOCKEL_LAENGE;
-  double SOCKEL_BREITE;
-  double SOCKEL_HOEHE; 
-  double SOCKEL_MASSE;
+    double gelenkabstand;
+    double SOCKEL_LAENGE;
+    double SOCKEL_BREITE;
+    double SOCKEL_HOEHE; 
+    double SOCKEL_MASSE;
 
-  double ARMDICKE;
-  double ARMLAENGE;
-  double ARMABSTAND;
-  double ARMMASSE;
+  //  double ARMDICKE;
+  //  double ARMLAENGE;
+  //  double ARMABSTAND;
+  //  double ARMMASSE;
   /*
   double length;  // chassis length
   double width;  // chassis width
@@ -205,9 +214,13 @@ protected:
   */
   bool created;      // true if robot was created
 
-
+  int mainTexture;
 
   dSpaceID arm_space;
+
+
+  double max_l;
+  double max_r, min_l, min_r;
 };
 
 #endif
