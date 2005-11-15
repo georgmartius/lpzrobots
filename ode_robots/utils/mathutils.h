@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-10 09:09:55  martius
+ *   Revision 1.5  2005-11-15 13:38:27  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2005/11/15 14:26:32  robot3
+ *   some new useful functions added
+ *
+ *   Revision 1.3  2005/11/10 09:09:55  martius
  *   use defines for definitions of sqrt, min, max...
  *
  *   Revision 1.2  2005/10/27 14:16:11  martius
@@ -48,6 +54,25 @@ using namespace matrix;
 #define sqr(x)   ( (x)*(x) )
 #define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
 #endif
+
+/*
+ * returns the difference vector of two positions as a Position
+ */
+Position getDifferencePosition(Position p, Position q);
+
+
+/**
+ * returns a translation and rotation matrix with the given Position and angle
+ */
+Matrix getTranslationRotationMatrix(const Position& p, double angle);
+
+
+
+/**
+ * returns the middle point of the two given positions
+ */
+Position getMiddlePosition(Position& p, Position& q);
+
 /**
  * returns a rotation matrix with the given angle
  */
@@ -55,10 +80,19 @@ Matrix getRotationMatrix(const double& angle);
 
 
 /**
- * returns a translation matrix with the given Position
+ * returns a translation (4x4) matrix with the given Position
  */
 Matrix getTranslationMatrix(const Position& p) ;
 
+
+/**
+ * returns a position (4x1) matrix with the given Position
+ */
+Matrix getPositionMatrix(const Position& p) ;
+
+
+
+Position getPosition4x1(const Matrix& pose);
 
 /**
  * removes the translation in the matrix
@@ -77,5 +111,20 @@ Matrix removeRotationInMatrix(const Matrix& pose) ;
  */
 double getAngle(Position a, Position b) ;
 
+/**
+ * returns the Position stored in the pose
+ */
+Position getPosition(const Matrix& pose);
+
+/**
+ * returns the angle stored in the Matrix
+ */
+double getAngle(Matrix& pose);
+
+
+/**
+ * returns the length of a vector stored as Position
+ */
+double getLength(const Position& p);
 
 #endif
