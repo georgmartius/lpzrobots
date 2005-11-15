@@ -21,10 +21,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-15 13:38:27  martius
- *   *** empty log message ***
- *
- *   Revision 1.4  2005/11/15 14:26:32  robot3
+ *   Revision 1.4  2005-11-15 14:26:32  robot3
  *   some new useful functions added
  *
  *   Revision 1.3  2005/11/10 09:09:55  martius
@@ -53,7 +50,7 @@ using namespace matrix;
 #define sign(x)  ( (x) < 0 ? -1 : 1 )
 #define sqr(x)   ( (x)*(x) )
 #define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
-#endif
+
 
 /*
  * returns the difference vector of two positions as a Position
@@ -73,7 +70,7 @@ Matrix getTranslationRotationMatrix(const Position& p, double angle);
  */
 Position getMiddlePosition(Position& p, Position& q);
 
-/**
+**
  * returns a rotation matrix with the given angle
  */
 Matrix getRotationMatrix(const double& angle);
