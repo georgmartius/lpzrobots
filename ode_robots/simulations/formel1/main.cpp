@@ -21,10 +21,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2005-11-15 13:37:49  martius
- *   *** empty log message ***
- *
- *   Revision 1.8  2005/11/15 14:23:44  robot3
+ *   Revision 1.8  2005-11-15 14:23:44  robot3
  *   raceground testet
  *
  *   Revision 1.7  2005/09/22 13:17:12  martius
@@ -95,10 +92,10 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   // Playground* playground = new Playground(odeHandle);
   Raceground* Strecke = new Raceground(odeHandle);
   list<string> segmentList;
-  segmentList+=string("straightline");
-  segmentList+=string("90degree");
-  segmentList+=string("90degree");
-  segmentList+=string("straightline");
+  segmentList+="straightline";
+  segmentList+="90degree";
+  segmentList+="90degree";
+  segmentList+="straightline";
  Strecke->addSegments(segmentList);
   Strecke->setPosition(0.0f,0.0f,0.0f);
   global.obstacles.push_back(Strecke);

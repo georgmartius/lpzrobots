@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-10-17 13:17:10  martius
+ *   Revision 1.5  2005-11-15 14:23:44  robot3
+ *   raceground testet
+ *
+ *   Revision 1.4  2005/10/17 13:17:10  martius
  *   converted to new list's
  *
  *   Revision 1.3  2005/10/17 13:05:46  robot3
@@ -174,7 +177,3 @@ Configurable::paramlist SimpleController::getParamList() const{
   	   // enable the camerahandling
 	   cameraHandlingDefined=1;
 };*/
-
-
-
-

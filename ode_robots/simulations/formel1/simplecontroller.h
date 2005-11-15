@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-10-17 13:17:10  martius
+ *   Revision 1.6  2005-11-15 14:23:44  robot3
+ *   raceground testet
+ *
+ *   Revision 1.5  2005/10/17 13:17:10  martius
  *   converted to new list's
  *
  *   Revision 1.4  2005/10/17 13:07:57  robot3
@@ -92,11 +95,11 @@ public:
       @param: keylist (do NOT free it! It is a pointer to an internal structure)
       @return: length of the lists
    */
-  virtual list<iparamkey> getInternalParamNames(){return list<iparamkey>();}
+  virtual list<iparamkey> getInternalParamNames() const {return list<iparamkey>();}
 
   /** The list of the names of all internal parameters given by getInternalParams().
    */
-  virtual list<iparamval> getInternalParams(){return list<iparamval>();}
+  virtual list<iparamval> getInternalParams() const {return list<iparamval>();}
   
   virtual paramval getParam(const paramkey& key) const;
   virtual bool setParam(const paramkey& key, paramval val);
@@ -108,6 +111,7 @@ public:
   */
 //   virtual void setCameraHandling(void (*handling)());
 //  virtual void setCameraHandling() const;
+
 
 
 
