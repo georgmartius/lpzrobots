@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-11 15:37:06  fhesse
+ *   Revision 1.2  2005-11-15 12:35:19  fhesse
+ *   muscles drawn as muscles, sphere drawn on tip of lower arm
+ *
+ *   Revision 1.1  2005/11/11 15:37:06  fhesse
  *   preinitial version
  *                                                                 *
  *                                                                         *
@@ -33,6 +36,8 @@
 #include "drawgeom.h"
 
 #include "muscledarm.h"
+
+#include <assert.h>
 
 MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
   AbstractRobot::AbstractRobot(odeHandle), conf(conf){ 
@@ -50,22 +55,16 @@ MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
   //  avgMotor=0.3;
   //  maxMotorKraft=1;
 
-
   //  gelenkabstand =0.2;
   //  SOCKEL_LAENGE= 0.4;
   //  SOCKEL_BREITE= 0.1;
   //  SOCKEL_HOEHE =0.4;
   //  SOCKEL_MASSE =1;
 
-
   //  ARMDICKE=0.2;
   //  ARMLAENGE = 1.2;
   //  ARMABSTAND= 0.03;
   //  ARMMASSE = 0.001;
-
-
-
-
 
   /*
   initial_pos.x=0.0;
@@ -73,15 +72,21 @@ MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
   initial_pos.z=0.0;
   */
 
-  sensorno=1;
+
+  sensorno=2;
   motorno=1;  
 
 
  
   color.r=1;
-  color.g=0;
+  color.g=1;
   color.b=0;
+  mainTexture=DS_WOOD;
 
+  max_l=0;
+  max_r=0;
+  min_l=10; 
+  min_r=10;
 };
 
 /** sets actual motorcommands
@@ -89,20 +94,6 @@ MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
     @param motornumber length of the motor array
 */
 void MuscledArm::setMotors(const motor* motors, int motornumber){
-//   int len = (motornumber < motorno)? motornumber : motorno;
-//   double old_vel, new_vel;
-//   for (int i=0; i<len; i++){ 
-//     old_vel = dJointGetAMotorParam( jm[i] , dParamVel);
-//     new_vel = old_vel + avgMotor*(motors[i]-old_vel);
-//     dJointSetAMotorParam ( jm[i] , dParamVel , new_vel * factorMotors );
-//     //if (i==2)
-//     //dJointSetAMotorParam ( jm[i] , dParamVel , winkelgeschwindigkeit*MOTOR_WINKELGESCHWINDIGKEITSFAKTOR*0.75 );
-//   }
-
-  // if needed for checking, additional force applied to lowerArm 
-  //dBodyAddForce (object[lowerArm].body, 2, 2, 0);
-
-
 };
 
 
@@ -112,24 +103,15 @@ void MuscledArm::setMotors(const motor* motors, int motornumber){
     @return number of actually written sensors
 */
 int MuscledArm::getSensors(sensor* sensors, int sensornumber){
-//   int len = (sensornumber < sensorno)? sensornumber : sensorno;
-//   double w;
-//   for ( int n = 0; n < len; n++ ){
-//     w=dJointGetAMotorAngle (jm[n],0)-old_angle[n];
-//     old_angle[n] = dJointGetAMotorAngle ( jm[n] , 0 );
-//     sensors[n]=w*factorSensors;      
-//     if ( ( w < -M_PI ) || ( w >  M_PI ) ){
-//       if ( w > M_PI ){
-// 	sensors[n] = -(2*M_PI - w);
-//       }
-//       if ( w < -M_PI ){
-// 	sensors[n] = (2*M_PI + w);
-//       }
-//     }
-//   }
-//  return len;
-  sensors[0]=0;
-  return 1;
+  assert(sensornumber==2);
+
+  /* hinge joint between upper arm and fixed body: hingeJointUALA (=1) */
+  /* hinge joint between 2 main arms: hingeJointUALA (=2) */
+  for (int i=hingeJointFUA; i<=hingeJointUALA; i++){
+    sensors[i]=dJointGetHingeAngleRate (joint[i]);
+  }
+  return 2;
+
 };
 
 /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
@@ -160,10 +142,24 @@ void MuscledArm::place(Position pos, Color *c /*= 0*/){
 */
 Position MuscledArm::getPosition(){
   Position pos;
-  const dReal* act_pos=dBodyGetPosition(object[0].body);
-  pos.x=act_pos[0];
-  pos.y=act_pos[1];
-  pos.z=act_pos[2];
+  
+  //difference between center of arm and tip of arm 
+  dReal s[3];
+  s[0]=0;
+  s[1]=0;
+  s[2]=-SIDE*2;
+  const double* R=dBodyGetRotation(object[lowerArm].body);
+  dReal new_pos[3];
+  //rotation of difference vector
+  pos.x=s[0]*R[0]+s[1]*R[1]+s[2]*R[2];
+  pos.y=s[0]*R[4]+s[1]*R[5]+s[2]*R[6];
+  pos.z=s[0]*R[8]+s[1]*R[9]+s[2]*R[10];
+  // adding (rotated) difference vector to actual position of arm center
+  // -> leading to actual position of the tip of the arm
+  pos.x+=dBodyGetPositionAll(object[lowerArm].body,1);
+  pos.y+=dBodyGetPositionAll(object[lowerArm].body,2);
+  pos.z+=dBodyGetPositionAll(object[lowerArm].body,3);
+
   return pos;
 };
 
@@ -176,51 +172,124 @@ int MuscledArm::getSegmentsPosition(vector<Position> &poslist){
 };  
 
 
-
 /**
  * draws the vehicle
  */
 void MuscledArm::draw(){
 
-  dsSetTexture (DS_WOOD);
-  dsSetColor (1,1,0);
+  dsSetTexture (mainTexture);
+  dsSetColor (color.r,color.g,color.b); // fixedBody
   drawGeom(object[0].geom, 0, 0);
-  dsSetColor (1,1,0);
+  dsSetColor (1,1,0); // upperArm 
   drawGeom(object[1].geom, 0, 0);
-  dsSetColor (0,1,1);
+  dsSetColor (0,1,1); // lowerArm
   drawGeom(object[2].geom, 0, 0);
+
+  if (conf.drawSphere){  
+    //difference between center of arm and center of sphere=-halbe hoehe der arm-box 
+    dReal s[3];
+    s[0]=0;
+    s[1]=0;
+    s[2]=-SIDE*2;
+    const double* R=dBodyGetRotation(object[lowerArm].body);
+    dReal new_pos[3];
+    //rotation of difference vector
+    new_pos[0]=s[0]*R[0]+s[1]*R[1]+s[2]*R[2];
+    new_pos[1]=s[0]*R[4]+s[1]*R[5]+s[2]*R[6];
+    new_pos[2]=s[0]*R[8]+s[1]*R[9]+s[2]*R[10];
+    // adding (rotated) difference vector to actual position of arm center
+    // -> leading to actual position of sphere
+    new_pos[0]+=dBodyGetPositionAll(object[lowerArm].body,1);
+    new_pos[1]+=dBodyGetPositionAll(object[lowerArm].body,2);
+    new_pos[2]+=dBodyGetPositionAll(object[lowerArm].body,3);
+    dReal sides2[3] = {SIDE*0.2f,SIDE*0.2f,SIDE*2.0f};
+    dsSetColor(1,0,0);
+    dsDrawSphere (new_pos, dBodyGetRotation(object[lowerArm].body) ,SIDE*0.2);
+  }
 
   if (conf.includeMuscles && conf.drawMuscles) {
     // displays mainMuscles
-    dsSetColor (1,1,0);
-    drawGeom(object[mainMuscle11].geom, 0, 0);
-    dsSetColor (0,1,1);
-    drawGeom(object[mainMuscle12].geom, 0, 0);
-    dsSetColor (1,0,1);
-    drawGeom(object[mainMuscle21].geom, 0, 0);
-    dsSetColor (0,1,1);
-    drawGeom(object[mainMuscle22].geom, 0, 0);
-    // displays smallMuscles
-    dsSetColor (0,1,1);
-    drawGeom(object[smallMuscle11].geom, 0, 0);
-    dsSetColor (1,0,1);
-    drawGeom(object[smallMuscle12].geom, 0, 0);
-    dsSetColor (0,1,1);
-    drawGeom(object[smallMuscle21].geom, 0, 0);
-    dsSetColor (1,1,0);
-    drawGeom(object[smallMuscle22].geom, 0, 0);
-    dsSetColor (0,1,1);
-    drawGeom(object[smallMuscle31].geom, 0, 0);
-    dsSetColor (1,1,0);
-    drawGeom(object[smallMuscle32].geom, 0, 0);
-    dsSetColor (0,1,1);
-    drawGeom(object[smallMuscle41].geom, 0, 0);
-    dsSetColor (1,1,0);
-    drawGeom(object[smallMuscle42].geom, 0, 0);
+    //dsSetColor (1,0,0);
+//     dsSetColor (1,1,0);
+//     drawGeom(object[mainMuscle11].geom, 0, 0);
+//     //dsSetColor (0,1,0);
+//     dsSetColor (0,1,1);
+//     drawGeom(object[mainMuscle12].geom, 0, 0);
+    //dsSetColor (0,0,1);
+//     dsSetColor (1,0,1);
+//     drawGeom(object[mainMuscle21].geom, 0, 0);
+//     //dsSetColor (0,1,0);
+//     dsSetColor (0,1,1);
+//     drawGeom(object[mainMuscle22].geom, 0, 0);
+//     // displays smallMuscles
+//     dsSetColor (0,1,1);
+//     drawGeom(object[smallMuscle11].geom, 0, 0);
+//     dsSetColor (1,0,1);
+//     drawGeom(object[smallMuscle12].geom, 0, 0);
+//     dsSetColor (0,1,1);
+//     drawGeom(object[smallMuscle21].geom, 0, 0);
+//     dsSetColor (1,1,0);
+//     drawGeom(object[smallMuscle22].geom, 0, 0);
+//     dsSetColor (0,1,1);
+//     drawGeom(object[smallMuscle31].geom, 0, 0);
+//     dsSetColor (1,1,0);
+//     drawGeom(object[smallMuscle32].geom, 0, 0);
+//     dsSetColor (0,1,1);
+//     drawGeom(object[smallMuscle41].geom, 0, 0);
+//     dsSetColor (1,1,0);
+//     drawGeom(object[smallMuscle42].geom, 0, 0);
+
+    for(int j=mainMuscle11; j<mainMuscle22; j+=2){
+      const dReal* pos1 = dBodyGetPosition (object[j] .body);
+      const dReal* pos2 = dBodyGetPosition (object[j+1] .body);
+      dReal pos[3];
+      double len=0;
+      for(int i=0; i<3; i++){
+	len+= (pos1[i] - pos2[i])*(pos1[i] - pos2[i]);
+	pos[i] = (pos1[i] + pos2[i])/2;
+      }    
+      if(j==mainMuscle11){
+	if (sqrt(len)<min_l) min_l=sqrt(len);
+	if (sqrt(len)>max_l) max_l=sqrt(len);
+      }
+      if(j==mainMuscle21){
+	if (sqrt(len)<min_r) min_r=sqrt(len);
+	if (sqrt(len)>max_r) max_r=sqrt(len);
+      }
+      
+      dsSetColor (0.8,0,0);
+      dsDrawCappedCylinder ( pos , dBodyGetRotation ( object[j].body ) , 
+			     sqrt(len) ,0.032*( -2.0*sqrt(len)+1) +0.02);    
+      
+      dsDrawCappedCylinder ( pos , dBodyGetRotation ( object[j].body ) , 
+			     sqrt(len) +SIDE*1.8 ,0.02 );    
+    }
+    for(int j=smallMuscle11; j<smallMuscle42; j+=2){
+      const dReal* pos1 = dBodyGetPosition (object[j] .body);
+      const dReal* pos2 = dBodyGetPosition (object[j+1] .body);
+      dReal pos[3];
+      double len=0;
+      for(int i=0; i<3; i++){
+	len+= (pos1[i] - pos2[i])*(pos1[i] - pos2[i]);
+	pos[i] = (pos1[i] + pos2[i])/2;
+      }    
+      dsSetColor (0.8,0,0);
+      dsDrawCappedCylinder ( pos , dBodyGetRotation ( object[j].body ) , 
+			     0.5*sqrt(len) ,0.05*( -sqrt(len)+0.3 ));    
+      dsDrawCappedCylinder ( pos , dBodyGetRotation ( object[j].body ) , 
+			     0.8*sqrt(len) +SIDE*0.45 ,0.005 );    
+     
+    }
+
   }
 
 
 };
+
+void MuscledArm::setTextures(int texture){
+  mainTexture = texture;
+}
+
 
 void MuscledArm::mycallback(void *data, dGeomID o1, dGeomID o2){
   MuscledArm* me = (MuscledArm*)data;  
@@ -304,8 +373,7 @@ bool MuscledArm::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   dBodyID b1 = dGeomGetBody(o1);
   dBodyID b2 = dGeomGetBody(o2);
 
-  // remove this !!!
-  return true;
+  return true; // todo: remove this and make collision things work
 
   if( o1 == (dGeomID)arm_space || o2 == (dGeomID)arm_space){
     if (b1 && b2 && dAreConnected(b1,b2)) 
@@ -408,9 +476,10 @@ void MuscledArm::create(Position pos){
 
 
   BodyCreate(upperArm, f_m, 3.2*SIDE,0.25*SIDE,1.25*SIDE, 0,1,0,M_PI*0.5);
+  //here
   BodyCreate(lowerArm, f_m, 1.5*SIDE,1.25*SIDE,1.25*SIDE, 1,0,0,M_PI*0.5);
-  
-   if (conf.includeMuscles) {
+  //BodyCreate(lowerArm, f_m, 1.5*SIDE,1.25*SIDE,1.25*SIDE, 0,0,0,M_PI*0.5);
+  if (conf.includeMuscles) {
  	  BodyCreate(mainMuscle22, f_m, 2.7*SIDE,1.0*SIDE,1.25*SIDE, 0,1,0,M_PI*0.5);
  	  BodyCreate(mainMuscle21, f_m, 3.7*SIDE,1.0*SIDE,1.25*SIDE, 0,1,0,M_PI*0.5);
  	  BodyCreate(mainMuscle12, f_m, 2.7*SIDE,-0.5*SIDE,1.25*SIDE, 0,1,0,M_PI*0.5);
@@ -574,22 +643,24 @@ void MuscledArm::BodyCreate(int n, dMass m, dReal x, dReal y, dReal z,
 
   if (qx == 0) 
   {
-      if (n == upperArm) {
-	  object[n].geom = dCreateBox (space,SIDE*0.2f,SIDE*0.2f,SIDE*3.0f);
-	  dGeomSetBody (object[n].geom, object[n].body);
-      } else
-      {
-	  object[n].geom = dCreateBox (space,SIDE*0.2f,SIDE*0.2f,SIDE*2.0f);
-	  dGeomSetBody (object[n].geom, object[n].body);
-      }
-  } else {
-      if (n == lowerArm) {
-	  object[n].geom = dCreateBox (space,SIDE*0.2f,SIDE*0.2f,SIDE*4.0f);
-	  dGeomSetBody (object[n].geom, object[n].body);
-      } else {
-	  object[n].geom = dCreateBox (space,SIDE*0.1f,SIDE*0.1f,SIDE*0.5f);
-	  dGeomSetBody (object[n].geom, object[n].body);
-      }
+    if (n == upperArm) {
+      object[n].geom = dCreateBox (space,SIDE*0.2f,SIDE*0.2f,SIDE*3.0f);
+      dGeomSetBody (object[n].geom, object[n].body);
+    } 
+    else {
+      object[n].geom = dCreateBox (space,SIDE*0.2f,SIDE*0.2f,SIDE*2.0f);
+      dGeomSetBody (object[n].geom, object[n].body);
+    }
+  } 
+  else {
+    if (n == lowerArm) {
+      object[n].geom = dCreateBox (space,SIDE*0.2f,SIDE*0.2f,SIDE*4.0f);
+      dGeomSetBody (object[n].geom, object[n].body);  
+    } 
+    else {
+      object[n].geom = dCreateBox (space,SIDE*0.1f,SIDE*0.1f,SIDE*0.5f);
+      dGeomSetBody (object[n].geom, object[n].body);
+    }
   }
 }
 
@@ -597,10 +668,44 @@ void MuscledArm::BodyCreate(int n, dMass m, dReal x, dReal y, dReal z,
 /** destroys vehicle and space
  */
 void MuscledArm::destroy(){
+  if (created){
+    for (int i=0; i<NUM; i++){
+      dBodyDestroy(object[i].body);
+      dGeomDestroy(object[i].geom);     
+    }
+    dSpaceDestroy(arm_space);
+  }
+  created=false;
 }
 
 
 double MuscledArm::dBodyGetPositionAll ( dBodyID basis , int para ){
+    dReal Dpos[3];
+    const dReal* pos = Dpos;
+
+    pos = dBodyGetPosition ( basis );
+
+    switch (para)
+    {
+        case 1: return pos[0]; break;
+        case 2: return pos[1]; break;
+        case 3: return pos[2]; break;	  
+    }
+    return 0;    
+}
+
+double MuscledArm::dGeomGetPositionAll ( dGeomID basis , int para ){
+    dReal Dpos[3];
+    const dReal* pos = Dpos;
+
+    pos = dGeomGetPosition ( basis );
+
+    switch (para)
+    {
+        case 1: return pos[0]; break;
+        case 2: return pos[1]; break;
+        case 3: return pos[2]; break;	  
+    }
     return 0;    
 }
 
