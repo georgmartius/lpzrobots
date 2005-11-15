@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.1  2005-11-14 17:37:18  martius
+ *   Revision 1.5.4.2  2005-11-15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.5.4.1  2005/11/14 17:37:18  martius
  *   moved to selforg
  *
  *   Revision 1.5  2005/10/27 16:10:41  fhesse
@@ -93,17 +96,6 @@ public:
     return motorno;
   };
 
-  /** returns position of robot 
-      @return position robot position in struct Position  
-  */
-  virtual Position getPosition();
-
-  /** returns a vector with the positions of all segments of the robot
-      @param poslist vector of positions (of all robot segments) 
-      @return length of the list
-  */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
-
   /** checks for internal collisions and treats them. 
    *  In case of a treatment return true (collision will be ignored by other objects 
    *  and the default routine)  else false (collision is passed to other objects and 
@@ -121,7 +113,14 @@ public:
   */
   virtual void setTextures(int body, int wheels);
 
+  /** returns a vector with the positions of all segments of the robot
+      @return poslist vector of positions (of all robot segments) 
+  */
+  virtual vector<Position> getSegmentsPosition();
+
 protected:
+
+  virtual Object getMainObject(){ return object[0]; }
 
   /** creates vehicle at desired position 
       @param pos struct Position with desired position

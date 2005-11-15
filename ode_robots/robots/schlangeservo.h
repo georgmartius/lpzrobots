@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.1  2005-11-14 17:37:18  martius
+ *   Revision 1.5.4.2  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.5.4.1  2005/11/14 17:37:18  martius
  *   moved to selforg
  *
  *   Revision 1.5  2005/11/09 13:24:42  martius
@@ -110,6 +113,7 @@ public:
   /**
    *draws all geometrical objects
    **/
+
   virtual void draw();
 
   /**
@@ -149,11 +153,6 @@ public:
    */
   virtual int getMotorNumber(){ assert(created); return servos.size(); }
 
-  /** returns position of robot 
-      @return position robot position in struct Position  
-  */
-  virtual Position getPosition();
-
   /** returns a vector with the positions of all segments of the robot
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
@@ -176,6 +175,14 @@ public:
 
   /** sets the texture */
   virtual void setTexture(int texture);
+
+protected:
+  virtual Object getMainObject() {
+    if(!objects.empty()){
+      return (*objects.begin());
+    }else return Object();
+  }
+
 
 private:
   void create(const Position& pos);

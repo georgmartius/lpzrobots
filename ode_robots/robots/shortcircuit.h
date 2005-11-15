@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2005-11-14 17:37:18  martius
+ *   Revision 1.3.4.2  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.3.4.1  2005/11/14 17:37:18  martius
  *   moved to selforg
  *
  *   Revision 1.3  2005/09/22 12:24:37  martius
@@ -87,11 +90,6 @@ public:
   */
   virtual int getMotorNumber() {return motorno; }
 
-  /** returns position of robot 
-      @param pos vector of desired position (x,y,z)
-   */
-  virtual Position getPosition();
-
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
@@ -104,6 +102,9 @@ public:
       @return length of the list
   */
   virtual int getSegmentsPosition(vector<Position> &poslist);
+
+protected:
+  virtual Object getMainObject() { return Object(); }
 
  protected:
   int sensorno;      //number of sensors

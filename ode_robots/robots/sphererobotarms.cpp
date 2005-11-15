@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.1  2005-11-14 17:37:18  martius
+ *   Revision 1.18.4.2  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.18.4.1  2005/11/14 17:37:18  martius
  *   moved to selforg
  *
  *   Revision 1.18  2005/11/09 13:26:57  martius
@@ -350,14 +353,6 @@ int SphererobotArms::getMotorNumber(){
 int SphererobotArms::getSensorNumber() {
   return conf.motorsensor * servono + conf.axisZsensor * servono + conf.axisXYZsensor * servono * 3 
     + (conf.irAxis1 + conf.irAxis2 + conf.irAxis3) * 2;
-}
-
-/**
- *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
- *@return Position (x,y,z)
- **/
-Position SphererobotArms::getPosition () {
-  return Position(dBodyGetPosition ( object[Base].body ));
 }
 
 /** returns a vector with the positions of all segments of the robot

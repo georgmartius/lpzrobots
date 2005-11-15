@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-11-09 13:24:42  martius
+ *   Revision 1.11.4.1  2005-11-15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.11  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -315,21 +318,6 @@ int atomsimRobot::sensoraktualisierung ( atomsimAtom* atom , int i , bool steuer
 	
 }
 	
-/**
- *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
- *@return Position (x,y,z)
- *@author Marcel Kretschmann
- *@version final
- **/
-Position atomsimRobot::getPosition ()
-{
-	Position returnPos;
-	returnPos.x = getUrsprungsatom ()->getX ();
-	returnPos.y = getUrsprungsatom ()->getY ();
-	returnPos.z = getUrsprungsatom ()->getZ ();
-
-	return returnPos;
-}
 
 /**
  *Returns a list with the positionvectors of all segments of the robot

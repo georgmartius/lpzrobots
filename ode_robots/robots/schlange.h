@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2005-11-09 13:24:42  martius
+ *   Revision 1.15.4.1  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.15  2005/11/09 13:24:42  martius
  *   added GPL
  *
  *                                                                 *
@@ -195,15 +198,7 @@ public:
    *@version beta
    **/
   void sensoraktualisierung ( );
-	
-  /**
-   *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
-   *@return Position (x,y,z)
-   *@author Marcel Kretschmann
-   *@version final
-   **/
-  virtual Position getPosition ();
-	
+		
   /**
    *Returns the position of one element of the snake.
    @param n number of the snake element
@@ -211,7 +206,7 @@ public:
    *@author Marcel Kretschmann
    *@version final
    **/
-  virtual Position getPosition ( int n );
+  virtual Position getObjektPosition ( int n );
 	
   /**
    *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.

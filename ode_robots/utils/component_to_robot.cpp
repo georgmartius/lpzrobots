@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.1  2005-11-14 17:37:25  martius
+ *   Revision 1.4.4.2  2005-11-15 12:30:24  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.4.4.1  2005/11/14 17:37:25  martius
  *   moved to selforg
  *
  *   Revision 1.4  2005/11/09 13:31:51  martius
@@ -163,13 +166,6 @@ int ComponentToRobot::getMotorNumber()
   return input_wire_count;
 }
 
-
-Position ComponentToRobot::getPosition()
-{
-  return Position();
-}
-
-
 int ComponentToRobot::getSegmentsPosition(vector<Position> &poslist)
 {
   return 0;
@@ -179,6 +175,10 @@ int ComponentToRobot::getSegmentsPosition(vector<Position> &poslist)
 void ComponentToRobot::setColor(Color col)
 {
   // not implemented
+}
+
+Object ComponentToRobot::getMainObject(){
+  return Object(); // FIXME get object from first component
 }
 
 

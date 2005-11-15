@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-11-14 13:02:39  martius
+ *   Revision 1.11.4.1  2005-11-15 12:30:22  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.11  2005/11/14 13:02:39  martius
  *   new paramters
  *
  *   Revision 1.10  2005/11/09 13:41:25  martius
@@ -32,14 +35,14 @@
 #include <ode/ode.h>
 
 #include "simulation.h"
-#include "agent.h"
-#include "noisegenerator.h"
+#include "odeagent.h"
+#include <selforg/noisegenerator.h>
 
-#include "invertnchannelcontroller.h"
-#include "invertmotorspace.h"
-#include "invertmotornstep.h"
-#include "one2onewiring.h"
-#include "derivativewiring.h"
+#include <selforg/invertnchannelcontroller.h>
+#include <selforg/invertmotorspace.h>
+#include <selforg/invertmotornstep.h>
+#include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 #include "playground.h"
 #include "sphere.h"
@@ -53,7 +56,7 @@
 // realtimefactor=0.5
 // drawinterval=5
 
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -102,9 +105,9 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   
 
-  Agent* agent;
+  OdeAgent* agent;
   AbstractWiring* wiring;
-  AbstractRobot* robot;
+  OdeRobot* robot;
   AbstractController *controller;
 
   SchlangeForce* snake;
@@ -122,7 +125,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   }
   controller = new InvertMotorNStep(10, 2.0);    
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  agent = new Agent( plotMode );
+  agent = new OdeAgent( plotoptions );
   agent->init(controller, snake, wiring);
   global.agents.push_back(agent);
   global.configs.push_back(controller);
@@ -144,7 +147,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   }
   controller = new InvertMotorNStep(10, 2.0);     
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  agent = new Agent( NoPlot );
+  agent = new OdeAgent( list<PlotOption>() );
   agent->init(controller, snake, wiring);
   global.agents.push_back(agent);
   global.configs.push_back(controller);
@@ -164,7 +167,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     controller->setParam("s4avg",10);
     //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new Agent( NoPlot );
+    agent = new OdeAgent( list<PlotOption>() );
     agent->init(controller, robot, wiring);
     global.configs.push_back(controller);
     global.agents.push_back(agent);        
@@ -180,7 +183,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     controller->setParam("s4avg",10); 
     controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new Agent( NoPlot );
+    agent = new OdeAgent( list<PlotOption>() );
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);        
   }
@@ -207,7 +210,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 //     deriveconf.derivativeScale = 50;
 //     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
     wiring = new One2OneWiring(new ColorUniformNoise(0.05));
-    agent = new Agent( NoPlot );
+    agent = new OdeAgent( list<PlotOption>() );
     agent->init(controller, snake, wiring);
     global.configs.push_back(controller);
     global.agents.push_back(agent);     
@@ -220,7 +223,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -240,8 +243,8 @@ void printUsage(const char* progname){
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function
@@ -251,4 +254,3 @@ int main (int argc, char **argv)
   simulation_close();  // tidy up.
   return 0;
 }
- 

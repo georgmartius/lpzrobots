@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-09 13:41:25  martius
+ *   Revision 1.2.4.1  2005-11-15 12:29:59  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.2  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -30,30 +33,30 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
-#include "noisegenerator.h"
+#include <selforg/noisegenerator.h>
 
 #include "simulation.h"
-#include "agent.h"
-#include "one2onewiring.h"
-#include "derivativewiring.h"
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 #include "playground.h"
 #include "sphere.h"
 
-#include "invertnchannelcontroller.h"
-#include "invertmotorspace.h"
-#include "invertmotornstep.h"
-#include "sinecontroller.h"
+#include <selforg/invertnchannelcontroller.h>
+#include <selforg/invertmotorspace.h>
+#include <selforg/invertmotornstep.h>
+#include <selforg/sinecontroller.h>
 
 #include "schlangeservo.h"
 
 
 ConfigList configs;
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 
 // Funktion die die Steuerung des Roboters uebernimmt
 bool StepRobot()
 {
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  for(OdeAgentList::iterator i=agents.begin(); i != agents.end(); i++){
     (*i)->step(simulationConfig.noise);
   }
   return true;
@@ -112,7 +115,7 @@ void start()
 //   // c.useSecondD=true;
 //   c.derivativeScale=10;
 //   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
-  Agent* agent = new Agent(plotMode);
+  OdeAgent* agent = new OdeAgent(plotoptions);
   agent->init(controller, schlange1, wiring);
   agents.push_back(agent);
   configs.push_back(controller);
@@ -151,7 +154,7 @@ void end(){
     delete (*i);
   }
   obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
+  for(OdeAgentList::iterator i=agents.begin(); i != agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -171,8 +174,8 @@ void printUsage(const char* progname){
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function

@@ -20,59 +20,41 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.2  2005-11-15 12:30:24  martius
+ *   Revision 1.1.2.1  2005-11-15 12:29:18  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
- *   Revision 1.4.4.1  2005/11/14 17:37:25  martius
- *   moved to selforg
- *
- *   Revision 1.4  2005/11/09 13:31:51  martius
- *   GPL'ised
- *
+ *                                                                 *
  ***************************************************************************/
-#ifndef COMPONENT_TO_ROBOT_H
-#define COMPONENT_TO_ROBOT_H
+#ifndef __ODEAGENT_H
+#define __ODEAGENT_H
 
-#include "component.h"
+#include <selforg/agent.h>
 #include "oderobot.h"
 
+/** Specialised agent for ode robots
+ */
+class OdeAgent : public Agent {
+public:
+  /** constructor
+   */
+  OdeAgent(const PlotOption& plotOption)  : Agent(plotOption) {}
+  OdeAgent(const list<PlotOption>& plotOptions) : Agent(plotOptions) {}
 
-namespace university_of_leipzig {
-namespace robots {
-  
+  /** destructor
+   */
+  virtual ~OdeAgent() {}
 
-class ComponentToRobot : public OdeRobot
-{
- protected:
-  IComponent *p_component;
+  /** initializes the object with the given controller, robot and wiring
+      and initializes pipe to guilogger
+  */
+  virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring){
+    return Agent::init(controller, robot, wiring);
+  }
 
-  WireContainer wire_container;
-
- public:
-  ComponentToRobot(IComponent *_p_component, const OdeHandle& odehandle);
-  virtual ~ComponentToRobot();
-
-  const char*     getName() const;
-
-  virtual void     draw               ();
-  virtual void     place              (Position pos , Color *c = NULL);
-  virtual bool     collisionCallback  (void *data, dGeomID o1, dGeomID o2);
-  virtual void     doInternalStuff    (const GlobalData& globalData);
-  virtual int      getSensors         (sensor* sensors, int sensornumber);
-  virtual void     setMotors          (const motor* motors, int motornumber);
-  virtual int      getSensorNumber    ();
-  virtual int      getMotorNumber     ();
-  virtual int      getSegmentsPosition(vector<Position> &poslist);
-  virtual void     setColor           (Color col);
-
- protected:
-  virtual Object getMainObject();
+  /** Returns a pointer to the robot.
+   */
+  virtual OdeRobot* getRobot() { return (OdeRobot*)robot;}
 
 };
-
-
-}
-}
-
 
 #endif

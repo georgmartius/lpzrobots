@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.1  2005-11-14 17:37:18  martius
+ *   Revision 1.10.4.2  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.10.4.1  2005/11/14 17:37:18  martius
  *   moved to selforg
  *
  *   Revision 1.10  2005/11/09 13:27:07  martius
@@ -176,17 +179,16 @@ public:
    **/
   virtual int getSensorNumber();
 	
-  /**
-   *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
-   *@return Position (x,y,z)
-   **/
-  virtual Position getPosition ();
-
+ 
   /** returns a vector with the positions of all segments of the robot
       @param vector of positions (of all robot segments) 
       @return length of the list
   */
   virtual int getSegmentsPosition(vector<Position> &poslist);	
+
+protected:
+  virtual Object getMainObject() { return object[Base]; }
+
 };
 
 #endif

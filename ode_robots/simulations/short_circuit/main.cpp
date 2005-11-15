@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2005-11-14 12:50:21  martius
+ *   Revision 1.15.4.1  2005-11-15 12:30:04  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.15  2005/11/14 12:50:21  martius
  *   *** empty log message ***
  *
  *   Revision 1.14  2005/11/09 13:41:25  martius
@@ -32,25 +35,26 @@
 #include <ode/ode.h>
 
 #include "simulation.h"
-#include "noisegenerator.h"
-#include "agent.h"
-#include "one2onewiring.h"
-#include "selectiveone2onewiring.h"
-#include "derivativewiring.h"
+#include <selforg/noisegenerator.h>
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
+#include <selforg/selectiveone2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 #include "nimm2.h"
 #include "shortcircuit.h"
 #include "playground.h"
 
-#include "sinecontroller.h"
-#include "invertmotornstep.h"
-#include "invertmotorspace.h"
-#include "invertnchannelcontroller.h"
+#include <selforg/sinecontroller.h>
+#include <selforg/invertmotornstep.h>
+#include <selforg/invertmotorspace.h>
+#include <selforg/invertnchannelcontroller.h>
 
-PlotMode plotMode=NoPlot;
 int channels;
 int t=0;
 double omega = 0.05;
+
+list<PlotOption> plotoptions;
 
 SineWhiteNoise* sineNoise;
 
@@ -74,8 +78,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.odeConfig.setParam("realtimefactor",0);
   global.odeConfig.setParam("drawinterval", 500);
   
-  AbstractRobot* robot = new ShortCircuit(odeHandle, channels, channels);  
-  //  AbstractRobot* robot = new Nimm2(odeHandle);  
+  OdeRobot* robot = new ShortCircuit(odeHandle, channels, channels);  
+  //  OdeRobot* robot = new Nimm2(odeHandle);  
   AbstractController *controller = new InvertMotorNStep(10);  
   //AbstractController *controller = new InvertMotorSpace(10,1.2);  
   //controller->setParam("nomupdate",0.001);
@@ -86,7 +90,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //  AbstractController *controller = new InvertNChannelController(10);  
   //AbstractController *controller = new SineController();
   
-  Agent* agent = new Agent(plotMode, Robot);
+  OdeAgent* agent = new OdeAgent(plotoptions);
   
   //sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
   //One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
@@ -116,7 +120,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -161,8 +165,8 @@ int main (int argc, char **argv)
     return -1;
   }
   channels = max(1,atoi(argv[1]));
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger, Robot));
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File, Robot));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function

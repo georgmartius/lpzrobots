@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-11-14 17:37:18  martius
+ *   Revision 1.1.2.3  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.1.2.2  2005/11/14 17:37:18  martius
  *   moved to selforg
  *
  *   Revision 1.1.2.1  2005/11/14 14:43:52  martius
@@ -77,6 +80,7 @@ using namespace std;
 typedef struct Object
 {
   Object(){body = 0; geom = 0;}
+  Object(dBodyID b, dGeomID g){ body = b; geom = g;}
   dBodyID body;
   dGeomID geom;
 } Object;

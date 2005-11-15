@@ -20,11 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-09 13:43:17  fhesse
+ *   Revision 1.5.4.1  2005-11-15 12:29:51  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.5  2005/11/09 13:43:17  fhesse
  *   GPL added
  *                                                                 *
  *                                                                         * 
-/***************************************************************************/
+ ***************************************************************************/
 /************************************************************************/
 /*shpererobot.h								*/
 /*Schlangenkonstrukt fuer das ODE-Robotersystem des Authors		*/
@@ -170,21 +173,16 @@ public:
    *@version beta
    **/
   virtual void sensoraktualisierung ( );
-	
-  /**
-   *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
-   *@return Position (x,y,z)
-   *@author Marcel Kretschmann
-   *@version final
-   **/
-  virtual Position getPosition ();
-	
+		
   /**
    *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.
    *@author Marcel Kretschmann
    *@version beta
    **/
   virtual void getStatus ();
+
+ protected:
+  virtual Object getMainObject(){ return Object();}
 
 };
 

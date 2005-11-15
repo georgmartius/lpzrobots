@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-11-14 12:50:34  martius
+ *   Revision 1.6.4.1  2005-11-15 12:30:05  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.6  2005/11/14 12:50:34  martius
  *   *** empty log message ***
  *
  *   Revision 1.5  2005/11/10 09:04:23  martius
@@ -37,20 +40,20 @@
 #include "simulation.h"
 #include "grabframe.h"
 
-#include "noisegenerator.h"
-#include "agent.h"
-#include "one2onewiring.h"
-#include "derivativewiring.h"
+#include <selforg/noisegenerator.h>
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 #include "playground.h"
 #include "octaplayground.h"
 
-#include "invertmotornstep.h"
-#include "sinecontroller.h"
-#include "noisegenerator.h"
+#include <selforg/invertmotornstep.h>
+#include <selforg/sinecontroller.h>
+#include <selforg/noisegenerator.h>
 
 #include "sphererobotarms.h"
 
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 AbstractController *controller;
 SphererobotArms* sphere1;
 
@@ -115,7 +118,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //  dconf.useFirstD=true;
   //  dconf.derivativeScale=8;
   //  AbstractWiring* wiring = new DerivativeWiring ( dconf, new ColorUniformNoise());
-  Agent* agent = new Agent (PlotOption(plotMode, Controller, 1));
+  OdeAgent* agent = new OdeAgent (plotoptions);
   agent->init ( controller , sphere1 , wiring );
   agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
   global.agents.push_back ( agent );
@@ -129,7 +132,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -187,8 +190,8 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function

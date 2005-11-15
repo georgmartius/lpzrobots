@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2005-11-09 14:34:14  fhesse
+ *   Revision 1.16.4.1  2005-11-15 12:30:09  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.16  2005/11/09 14:34:14  fhesse
  *   snake 2 working
  *
  *   Revision 1.15  2005/11/09 13:41:25  martius
@@ -32,18 +35,18 @@
 #include <ode/ode.h>
 
 #include "simulation.h"
-#include "noisegenerator.h"
-#include "agent.h"
-#include "one2onewiring.h"
+#include <selforg/noisegenerator.h>
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
 #include "playground.h"
 
-#include "invertnchannelcontroller.h"
-#include "noisegenerator.h"
+#include <selforg/invertnchannelcontroller.h>
+#include <selforg/noisegenerator.h>
 
 #include "schlange.h"
 
 ConfigList configs;
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -74,7 +77,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   AbstractController *controller = new InvertNChannelController(10);  
   
   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
-  Agent* agent = new Agent(plotMode);
+  OdeAgent* agent = new OdeAgent(plotoptions);
   agent->init(controller, schlange1, wiring);
   global.agents.push_back(agent);
   configs.push_back(controller);
@@ -87,7 +90,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   AbstractController *controller2 = new InvertNChannelController(10);  
   
   One2OneWiring* wiring2 = new One2OneWiring(new ColorUniformNoise());
-  Agent* agent2 = new Agent(NoPlot);
+  OdeAgent* agent2 = new OdeAgent(NoPlot);
   agent2->init(controller2, schlange2, wiring2);
   global.agents.push_back(agent2);
   configs.push_back(controller2);
@@ -101,7 +104,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -122,8 +125,8 @@ void printUsage(const char* progname){
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function

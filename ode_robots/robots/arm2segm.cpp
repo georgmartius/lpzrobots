@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.1  2005-11-14 17:37:16  martius
+ *   Revision 1.6.4.2  2005-11-15 12:29:25  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.6.4.1  2005/11/14 17:37:16  martius
  *   moved to selforg
  *
  *   Revision 1.6  2005/11/09 13:24:42  martius
@@ -152,17 +155,6 @@ void Arm2Segm::place(Position pos, Color *c /*= 0*/){
   */
 };
 
-/** returns position of robot 
-    @return position robot position in struct Position  
-*/
-Position Arm2Segm::getPosition(){
-  Position pos;
-  const dReal* act_pos=dBodyGetPosition(object[0].body);
-  pos.x=act_pos[0];
-  pos.y=act_pos[1];
-  pos.z=act_pos[2];
-  return pos;
-};
 
 /** returns a vector with the positions of all segments of the robot
     @param poslist vector of positions (of all robot segments) 

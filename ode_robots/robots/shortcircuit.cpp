@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.1  2005-11-14 17:37:18  martius
+ *   Revision 1.5.4.2  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.5.4.1  2005/11/14 17:37:18  martius
  *   moved to selforg
  *
  *   Revision 1.5  2005/11/09 13:24:42  martius
@@ -74,16 +77,6 @@ int ShortCircuit::getSensors(sensor* sensors, int sensornumber){
   return sensorno;
 };
 
-/** returns position of robot 
-    @return position robot position in struct Position  
-*/
-Position ShortCircuit::getPosition(){
-  Position pos;
-  pos.x=0;
-  pos.y=0;
-  pos.z=0;
-  return pos;
-};
 
 /** returns a vector with the positions of all segments of the robot
     @param poslist vector of positions (of all robot segments) 

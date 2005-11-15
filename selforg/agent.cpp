@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-14 17:37:56  martius
+ *   Revision 1.1.2.2  2005-11-15 12:30:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.1.2.1  2005/11/14 17:37:56  martius
  *   moved to selforg
  *
  *   Revision 1.13  2005/11/07 17:04:20  martius
@@ -77,13 +80,13 @@
 #include "abstractcontroller.h"
 #include "abstractwiring.h"
 
-Agent::Agent(PlotOption plotOption){
+Agent::Agent(const PlotOption& plotOption){
   internInit();
   plotOptions.push_back(plotOption);
 }
 
 
-Agent::Agent(list<PlotOption> plotOptions)
+Agent::Agent(const list<PlotOption>& plotOptions)
   : plotOptions(plotOptions){
   internInit();
 }

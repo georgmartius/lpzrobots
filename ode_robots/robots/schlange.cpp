@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2005-11-09 13:24:42  martius
+ *   Revision 1.20.4.1  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.20  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -181,7 +184,9 @@ void Schlange::place (Position pos, Color *c)
   dz = pos.z - getPosition ().z;
   
   for ( int n = 0; n < getObjektAnzahl (); n++ )
-    dBodySetPosition ( getObjektAt(n).body , getPosition ( n ).x + dx , getPosition ( n ).y + pos.y ,getPosition ( n ).z +  pos.z );
+    dBodySetPosition ( getObjektAt(n).body , getObjektPosition ( n ).x + dx , 
+		       getObjektPosition ( n ).y + pos.y,
+		       getObjektPosition ( n ).z +  pos.z );
 	
   if(c)
     color = (*c);
@@ -342,23 +347,6 @@ void Schlange::sensoraktualisierung ( )
     }
 }
 
-/**
- *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
- *@return Position (x,y,z)
- *@author Marcel Kretschmann
- *@version final
- **/
-Position Schlange::getPosition ()
-{
-  const dReal* tmpPos;
-  Position returnPos;
-  tmpPos = dBodyGetPosition ( getObjektAt(0).body );
-  returnPos.x = tmpPos[0];
-  returnPos.y = tmpPos[1];
-  returnPos.z = tmpPos[2];
-
-  return returnPos;
-}
 
 /**
  *Returns the position of one element of the snake.
@@ -367,7 +355,7 @@ Position Schlange::getPosition ()
  *@author Marcel Kretschmann
  *@version final
  **/
-Position Schlange::getPosition ( int n )
+Position Schlange::getObjektPosition ( int n )
 {
   const dReal* tmpPos;
   Position returnPos;

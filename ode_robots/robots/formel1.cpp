@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.1  2005-11-14 17:37:17  martius
+ *   Revision 1.4.4.2  2005-11-15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.4.4.1  2005/11/14 17:37:17  martius
  *   moved to selforg
  *
  *   Revision 1.4  2005/11/09 13:24:42  martius
@@ -114,18 +117,6 @@ void Formel1::place(Position pos, Color *c /*= 0*/){
     dBodySetPosition (object[3].body,pos.x ,pos.y +width*0.5,pos.z);
     dBodySetPosition (object[4].body,pos.x ,pos.y -width*0.5,pos.z);
   }
-};
-
-/** returns position of robot 
-    @return position robot position in struct Position  
-*/
-Position Formel1::getPosition(){
-  Position pos;
-  const dReal* act_pos=dBodyGetPosition(object[0].body);
-  pos.x=act_pos[0];
-  pos.y=act_pos[1];
-  pos.z=act_pos[2]-radius; // substract wheel radius, because vehicle stands on the ground
-  return pos;
 };
 
 /** returns a vector with the positions of all segments of the robot

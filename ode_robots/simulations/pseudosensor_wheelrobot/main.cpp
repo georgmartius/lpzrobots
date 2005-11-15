@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-11-09 14:08:48  martius
+ *   Revision 1.13.4.1  2005-11-15 12:29:54  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.13  2005/11/09 14:08:48  martius
  *   *** empty log message ***
  *
  *   Revision 1.12  2005/11/09 13:43:52  fhesse
@@ -32,21 +35,20 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
-#include "noisegenerator.h"
+#include <selforg/noisegenerator.h>
 #include "simulation.h"
-#include "agent.h"
-#include "one2onewiring.h"
-#include "derivativewiring.h"
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 #include "nimm4.h"
 #include "playground.h"
 
-#include "invertmotorspace.h"
-#include "invertmotornstep.h"
-#include "sinecontroller.h"
+#include <selforg/invertmotorspace.h>
+#include <selforg/invertmotornstep.h>
+#include <selforg/sinecontroller.h>
 
-ConfigList configs;
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -71,7 +73,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   playground->setPosition(0,0,0); // playground positionieren und generieren 
   global.obstacles.push_back(playground);
 
-  AbstractRobot* vehicle = new Nimm4(odeHandle,1,3,15);
+  OdeRobot* vehicle = new Nimm4(odeHandle,1,3,15);
 
   vehicle->place(Position(0,0,0));
   AbstractController *controller = new InvertMotorNStep(10);   
@@ -90,12 +92,12 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   // c.blindMotorSets=1;
   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  Agent* agent = new Agent(plotMode);
+  OdeAgent* agent = new OdeAgent(plotoptions);
   agent->init(controller, vehicle, wiring);
   global.agents.push_back(agent);
   
-    configs.push_back(controller);
-  showParams(configs);
+  global.configs.push_back(controller);
+  showParams(global.configs);
 
 }
 
@@ -104,7 +106,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -115,7 +117,7 @@ void end(GlobalData& global){
 
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
-  changeParams(configs);
+  changeParams(global.configs);
 }
 
 void printUsage(const char* progname){
@@ -125,8 +127,8 @@ void printUsage(const char* progname){
 
 int main (int argc, char **argv)
 {    
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
   
   // initialise the simulation and provide the start, end, and config-function

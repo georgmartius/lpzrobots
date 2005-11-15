@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2005-11-09 13:41:25  martius
+ *   Revision 1.14.4.1  2005-11-15 12:30:07  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.14  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -33,16 +36,16 @@
 #include <ode/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
-#include "noisegenerator.h"
+#include <selforg/noisegenerator.h>
 
 // include simulation environmet stuff
 #include "simulation.h"
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "agent.h"
+#include "odeagent.h"
 
 // used wiring
-#include "one2onewiring.h"
+#include <selforg/one2onewiring.h>
 
 // used robot
 #include "nimm4.h"
@@ -51,12 +54,12 @@
 #include "playground.h"
 
 // used controller
-#include "invertnchannelcontroller.h"
+#include <selforg/invertnchannelcontroller.h>
 
-// plotmode is set to NoPlot at the beginning, 
+// plotoptions is set to NoPlot at the beginning, 
 // means no online gnuplot windows and no logging to file
 // can be changed with commandline options, see main() at the bottom of this file
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 
 
 // starting function (executed once at the beginning of the simulation loop)
@@ -112,7 +115,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   // create pointer to agent
   // initialize pointer with controller, robot and wiring
   // push agent in globel list of agents
-  Agent* agent = new Agent(plotMode);
+  OdeAgent* agent = new OdeAgent(plotoptions);
   agent->init(controller, vehicle, wiring);
   global.agents.push_back(agent);
 
@@ -129,7 +132,7 @@ void end(GlobalData& global){
   global.obstacles.clear();
   
   // clear agents list
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -151,10 +154,10 @@ void printUsage(const char* progname){
 int main (int argc, char **argv)
 { 
   // start with online windows (default: start without plotting and logging)
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
   
   // start with online windows and logging to file
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   
   // display help
   if(contains(argv, argc, "-h")) printUsage(argv[0]);

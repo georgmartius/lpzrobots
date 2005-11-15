@@ -20,30 +20,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-11-09 13:37:23  fhesse
+ *   Revision 1.12.4.1  2005-11-15 12:29:37  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.12  2005/11/09 13:37:23  fhesse
  *   GPL added
  *
  *   Revision 1.7  2005/11/09 13:28:24  fhesse
  *   GPL added
  *                                                                * 
-/***************************************************************************/
+ ***************************************************************************/
 #include <stdio.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
-#include "noisegenerator.h"
+#include <selforg/noisegenerator.h>
 #include "simulation.h"
-#include "agent.h"
-#include "one2onewiring.h"
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
 
 //#include "playground.h"
 #include "closedplayground.h"
 
-//#include "invertnchannelcontroller.h"
-#include "invertmotorspace.h"
-//#include "sinecontroller.h"
+//#include <selforg/invertnchannelcontroller.h>
+#include <selforg/invertmotorspace.h>
+//#include <selforg/sinecontroller.h>
 
-#include "noisegenerator.h"
+#include <selforg/noisegenerator.h>
 
 //#include "schlange.h"
 
@@ -117,7 +120,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 	
       AbstractController *controller = new InvertMotorSpace ( 10 );
       One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise () );
-      Agent* agent = new Agent( NoPlot/*GuiLogger*/ );
+      OdeAgent* agent = new OdeAgent( NoPlot/*GuiLogger*/ );
       agent->init(controller, robotersammlung.back (), wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -154,7 +157,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i)->getWiring ();
@@ -198,8 +201,8 @@ void command (const OdeHandle& odeHandle, GlobalData& global, int cmd)
       controller = new InvertMotorSpace ( 10 );
       One2OneWiring* wiring;
       wiring = new One2OneWiring( new ColorUniformNoise () );
-      Agent* agent;
-      agent = new Agent( NoPlot/*GuiLogger*/ );
+      OdeAgent* agent;
+      agent = new OdeAgent( NoPlot/*GuiLogger*/ );
 			   
       agent->init(controller, robotersammlung.back (), wiring );
   
@@ -224,8 +227,8 @@ void command (const OdeHandle& odeHandle, GlobalData& global, int cmd)
       controller3 = new InvertMotorSpace ( 10 );
       One2OneWiring* wiring3;
       wiring3 = new One2OneWiring ( new ColorUniformNoise () );
-      Agent* agent3;
-      agent3 = new Agent( NoPlot/*GuiLogger*/ );	   
+      OdeAgent* agent3;
+      agent3 = new OdeAgent( NoPlot/*GuiLogger*/ );	   
       agent3->init(controller3, robotersammlung.back (), wiring3 );
   
       global.agents.push_back(agent3);
@@ -238,8 +241,8 @@ void command (const OdeHandle& odeHandle, GlobalData& global, int cmd)
       controller4 = new InvertMotorSpace ( 10 );
       One2OneWiring* wiring4;
       wiring4 = new One2OneWiring( new ColorUniformNoise () );
-      Agent* agent4;
-      agent4 = new Agent( NoPlot/*GuiLogger*/);
+      OdeAgent* agent4;
+      agent4 = new OdeAgent( NoPlot/*GuiLogger*/);
       agent4->init(controller4, robotersammlung.back (), wiring4 );
   
       global.agents.push_back(agent4);
@@ -422,9 +425,9 @@ void additionalLoopfunction ( GlobalData& global, bool draw, bool pause )
 		}
 				
 	      //deletes all global.agents, controllers and wirings, which are not linked to an robot from robotersammlung
-	      vector<Agent*>::iterator agentit = global.agents.begin ();
+	      vector<OdeAgent*>::iterator agentit = global.agents.begin ();
 	      //for ( unsigned int m = 0; m < global.agents.size (); m++ )
-	      for ( vector<Agent*>::iterator agentit = global.agents.begin (); agentit != global.agents.end (); agentit++ )
+	      for ( vector<OdeAgent*>::iterator agentit = global.agents.begin (); agentit != global.agents.end (); agentit++ )
 		{
 		  bool del = true;
 		  for ( vector<atomsimRobot*>::iterator robotit = robotersammlung.begin (); robotit != robotersammlung.end (); robotit++ )
@@ -432,17 +435,17 @@ void additionalLoopfunction ( GlobalData& global, bool draw, bool pause )
 					
 		      if ( (*agentit)->getRobot () == (*robotit) )
 			{
-			  dsPrint ( "Agent nicht gelöscht.\n" );
+			  dsPrint ( "OdeAgent nicht gelöscht.\n" );
 			  del = false;
 			  break;
 			}	
 		    }
 		  if ( del )
 		    {
-		      dsPrint ( "Agent wird gelöscht.\n" );
+		      dsPrint ( "OdeAgent wird gelöscht.\n" );
 						
 						
-		      dsPrint ( "Agents:%i Robots:%i\n", global.agents.size (), robotersammlung.size () );
+		      dsPrint ( "OdeAgents:%i Robots:%i\n", global.agents.size (), robotersammlung.size () );
 		      for ( vector<Configurable*>::iterator configit = global.configs.begin(); configit != global.configs.end (); configit++ )
 			if ( (*configit) == (*agentit)->getController () )
 			  {
@@ -479,8 +482,8 @@ void additionalLoopfunction ( GlobalData& global, bool draw, bool pause )
 		      controller = new InvertMotorSpace ( 10 );
 		      One2OneWiring* wiring;
 		      wiring = new One2OneWiring ( new ColorUniformNoise () );
-		      Agent* agent;
-		      agent = new Agent( NoPlot/*GuiLogger*/ );
+		      OdeAgent* agent;
+		      agent = new OdeAgent( NoPlot/*GuiLogger*/ );
 					
 		      agent->init(controller, robotersammlung[n], wiring );
 		      global.agents.push_back(agent);

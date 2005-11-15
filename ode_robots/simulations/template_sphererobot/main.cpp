@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2005-11-09 14:54:46  fhesse
+ *   Revision 1.15.4.1  2005-11-15 12:30:17  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.15  2005/11/09 14:54:46  fhesse
  *   nchannelcontroller used
  *
  *   Revision 1.14  2005/11/09 13:41:25  martius
@@ -34,18 +37,18 @@
 #include "simulation.h"
 #include "grabframe.h"
 
-#include "noisegenerator.h"
-#include "agent.h"
-#include "one2onewiring.h"
+#include <selforg/noisegenerator.h>
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
 #include "playground.h"
 
-#include "invertnchannelcontroller.h"
-#include "sinecontroller.h"
-#include "noisegenerator.h"
+#include <selforg/invertnchannelcontroller.h>
+#include <selforg/sinecontroller.h>
+#include <selforg/noisegenerator.h>
 
 #include "sphererobotarms.h"
 
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 AbstractController *controller;
 SphererobotArms* sphere1;
 
@@ -85,7 +88,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   controller->setParam("phaseShift", 0.7);
 
   One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
-  Agent* agent = new Agent ( plotMode );
+  OdeAgent* agent = new OdeAgent ( plotoptions );
   agent->init ( controller , sphere1 , wiring );
   global.agents.push_back ( agent );
   global.configs.push_back ( controller );
@@ -98,7 +101,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -140,8 +143,8 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function

@@ -26,7 +26,7 @@ LIBS   = -lm \
 	-L$(MATRIXLIB)  -l$(MATRIX) \
 	-lode -ldrawstuff -lGL -lGLU -lglut
 
-INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include -I$(MATRIXLIB)
+INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include -I$(MATRIXLIB)
 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)

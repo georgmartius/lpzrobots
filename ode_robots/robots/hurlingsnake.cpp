@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9.4.1  2005-11-14 17:37:17  martius
+ *   Revision 1.9.4.2  2005-11-15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.9.4.1  2005/11/14 17:37:17  martius
  *   moved to selforg
  *
  *   Revision 1.9  2005/11/09 13:26:31  martius
@@ -242,18 +245,6 @@ void HurlingSnake::setMotors(const motor* motors, int motornumber){
     return motorno;
   }
 
-  /** returns position of robot 
-      @param pos vector of desired position (x,y,z)
-  */
-Position HurlingSnake::getPosition(){
-  Position pos;
-  const dReal* act_pos= dBodyGetPosition ( object[NUM-1].body );      //read actual position
-  pos.x=act_pos[0];
-  pos.y=act_pos[1];
-  pos.z=act_pos[2]-RADIUS; 
-  return pos;
-  
-};
 
   /** returns a vector with the positions of all segments of the robot
       @param vector of positions (of all robot segments) 

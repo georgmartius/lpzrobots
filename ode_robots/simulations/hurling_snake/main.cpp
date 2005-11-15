@@ -20,34 +20,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-11-14 12:49:49  martius
+ *   Revision 1.6.4.1  2005-11-15 12:29:44  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.6  2005/11/14 12:49:49  martius
  *   new paramters and global config
  *
  *   Revision 1.5  2005/11/09 13:39:41  fhesse
  *   GPL added
  *                                                                 *
  *                                                                         * 
-/***************************************************************************/
+ ***************************************************************************/
 #include <stdio.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
-#include "noisegenerator.h"
+#include <selforg/noisegenerator.h>
 #include "simulation.h"
-#include "agent.h"
-#include "one2onewiring.h"
-#include "derivativewiring.h"
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 #include "nimm2.h"
 #include "playground.h"
 
 #include "hurlingsnake.h"
 
-#include "invertnchannelcontroller.h"
-#include "invertmotorspace.h"
-#include "invertmotornstep.h"
-#include "sinecontroller.h"
+#include <selforg/invertnchannelcontroller.h>
+#include <selforg/invertmotorspace.h>
+#include <selforg/invertmotornstep.h>
+#include <selforg/sinecontroller.h>
 
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -78,7 +81,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 //   AbstractController *controller = new InvertNChannelController(10);  
   
 //   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-//   Agent* agent = new Agent(NoPlot/*plotMode*/);
+//   OdeAgent* agent = new OdeAgent(NoPlot/*plotoptions*/);
 //   agent->init(controller, vehicle, wiring);
 //   global.agents.push_back(agent);
 //   configs.push_back(controller);
@@ -87,7 +90,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   HurlingSnake* hs;
   AbstractController *controller; 
   AbstractWiring* wiring;
-  Agent* agent;
+  OdeAgent* agent;
 
   for (int i=0; i<3; i++){
     hs = new HurlingSnake(odeHandle);
@@ -113,8 +116,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     //    c.useFirstD = true;
     c.derivativeScale = 20;
     wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05));
-    if (i==0) agent = new Agent(plotMode);
-    else  agent = new Agent(NoPlot);
+    if (i==0) agent = new OdeAgent(plotoptions);
+    else  agent = new OdeAgent(NoPlot);
     agent->init(controller, hs, wiring);
     global.agents.push_back(agent);
     
@@ -134,7 +137,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 //   controller2 = new InvertMotorSpace(10);  
   
 //   wiring2 = new One2OneWiring(new ColorUniformNoise(0.1));
-//   agent2 = new Agent(plotMode);
+//   agent2 = new OdeAgent(plotoptions);
 //   agent2->init(controller2, hs, wiring2);
 //   global.agents.push_back(agent2);
 
@@ -152,7 +155,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i)->getWiring();
@@ -174,8 +177,8 @@ void printUsage(const char* progname){
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   // initialise the simulation and provide the start, end, and config-function

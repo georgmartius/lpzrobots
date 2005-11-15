@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.1  2005-11-14 17:37:17  martius
+ *   Revision 1.7.4.2  2005-11-15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.7.4.1  2005/11/14 17:37:17  martius
  *   moved to selforg
  *
  *   Revision 1.7  2005/11/09 13:24:42  martius
@@ -175,29 +178,14 @@ void Nimm4::place(Position pos, Color *c /*= 0*/){
   }
 };
 
-/** returns position of robot 
-    @return position robot position in struct Position  
-*/
-Position Nimm4::getPosition(){
-  assert(created); // robot must exist
-  Position pos;
-  // get actual position
-  const dReal* act_pos=dBodyGetPosition(object[0].body);
-  pos.x=act_pos[0];
-  pos.y=act_pos[1];
-  // substract height of body (width*0.6) because z should be 0 if vehicle stands on the ground
-  pos.z=act_pos[2]-width*0.6; 
-  // return actual corrected position
-  return pos;
-};
 
 /** returns a vector with the positions of all segments of the robot
-    @param poslist vector of positions (of all robot segments) 
-    @return length of the list
+    @return poslist vector of positions (of all robot segments) 
 */
-int Nimm4::getSegmentsPosition(vector<Position> &poslist){
+vector<Position> Nimm4::getSegmentsPosition(){
   assert(created); // robot must exist
   Position pos;
+  vector<Position> poslist;
   // for all segments (or elements) of the body
   // get the actual position, store it in position struct
   // and push it in list
@@ -209,7 +197,7 @@ int Nimm4::getSegmentsPosition(vector<Position> &poslist){
     poslist.push_back(pos);
   }   
   // return the number of segment positions in the list
-  return segmentsno;
+  return poslist;
 };  
 
 

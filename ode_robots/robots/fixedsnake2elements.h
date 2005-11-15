@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2005-11-14 17:37:17  martius
+ *   Revision 1.3.4.2  2005-11-15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.3.4.1  2005/11/14 17:37:17  martius
  *   moved to selforg
  *
  *   Revision 1.3  2005/09/22 12:24:36  martius
@@ -105,11 +108,6 @@ public:
     return motorno;
   };
 
-  /** returns position of robot 
-      @return position robot position in struct Position  
-  */
-  virtual Position getPosition();
-
   /** returns a vector with the positions of all segments of the robot
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
@@ -117,6 +115,11 @@ public:
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
 protected:
+  virtual Object getMainObject(){
+	if(!segments.empty()){
+	  return (*segments.begin());
+	}else return Object();
+  }
 
   /** creates robot at desired position 
       @param pos struct Position with desired position

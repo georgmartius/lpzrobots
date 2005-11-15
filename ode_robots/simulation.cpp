@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.1  2005-11-14 17:37:00  martius
+ *   Revision 1.40.4.2  2005-11-15 12:29:14  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.40.4.1  2005/11/14 17:37:00  martius
  *   changed makefile structure to have and include directory
  *   mode to selforg
  *
@@ -331,7 +334,7 @@ void simLoop ( int pause ){
 	printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
       }
       // for all agents: robots internal stuff and control step if at controlInterval
-      for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
+      for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ){
 	  (*i)->step(globalData.odeConfig.noise); 
 	}
@@ -354,7 +357,7 @@ void simLoop ( int pause ){
       for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++){
 	(*i)->draw();
       }
-      for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
+      for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	(*i)->getRobot()->draw();
       }
       // grab frame if in captureing mode
@@ -392,7 +395,7 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
 {
   bool collision_treated=false;
   // call robots collision treatments
-  for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end() && !collision_treated; i++){
+  for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end() && !collision_treated; i++){
     collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
   }
   
@@ -531,7 +534,7 @@ void cmd_end_input(){
 void initViewedRobot() {
   // setting the robot for view
   if (!viewedRobot) {
-    AgentList::iterator i=globalData.agents.begin();
+    OdeAgentList::iterator i=globalData.agents.begin();
     viewedRobot=(*i)->getRobot();
   }
 }
@@ -541,13 +544,13 @@ void usercommand_handler(int key) {
   switch (key) {
   case ' ': // key 32 (space) is for switching between the robots
     initViewedRobot();
-    for(AgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
+    for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
       if (viewedRobot==(*i)->getRobot()) { // our current agent is found
 	if (i!=globalData.agents.end()-1) {
 	  viewedRobot=(*(i+1))->getRobot(); // take the next robot
 	}
 	else {
-	  AgentList::iterator j=globalData.agents.begin();
+	  OdeAgentList::iterator j=globalData.agents.begin();
 	  viewedRobot=(*j)->getRobot();
 	}
 	break;

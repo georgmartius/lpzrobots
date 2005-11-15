@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-14 17:37:56  martius
+ *   Revision 1.1.2.2  2005-11-15 12:30:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.1.2.1  2005/11/14 17:37:56  martius
  *   moved to selforg
  *
  *   Revision 1.9  2005/11/07 17:03:30  martius
@@ -92,7 +95,7 @@ public:
   friend class Agent;
 
   PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; }
-  PlotOption( PlotMode mode, PlotSensors whichSensors, int interval)
+  PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, int interval = 1)
     :mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0; }
 
 private:
@@ -116,8 +119,8 @@ class Agent {
 public:
   /** constructor
    */
-  Agent(PlotOption plotOption);
-  Agent(list<PlotOption> plotOptions);
+  Agent(const PlotOption& plotOption);
+  Agent(const list<PlotOption>& plotOptions);
 
   /** destructor
    */

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2005-11-14 17:37:17  martius
+ *   Revision 1.3.4.2  2005-11-15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.3.4.1  2005/11/14 17:37:17  martius
  *   moved to selforg
  *
  *   Revision 1.3  2005/09/22 12:24:36  martius
@@ -230,18 +233,6 @@ bool FixedSnake2Elements::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   return false;
 }
 
-
-/** returns position of robot 
-    @return position robot position in struct Position  
-*/
-Position FixedSnake2Elements::getPosition(){
-  Position pos;
-  const dReal* act_pos=dBodyGetPosition(segments[0].body);
-  pos.x=act_pos[0];
-  pos.y=act_pos[1];
-  pos.z=act_pos[2]-glieder_durchmesser; // substract wheel radius, because vehicle stands on the ground
-  return pos;
-};
 
 /** returns a vector with the positions of all segments of the robot
     @param poslist vector of positions (of all robot segments) 

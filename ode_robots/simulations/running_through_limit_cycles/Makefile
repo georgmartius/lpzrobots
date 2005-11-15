@@ -15,30 +15,34 @@ CFLAGS = -Wall -I. -g
 
 LPZROBOTS  = ../../..
 ODEROBOTS  = $(LPZROBOTS)/ode_robots
-CONTROLLER = $(LPZROBOTS)/controller
+SELFORG    = $(LPZROBOTS)/selforg
 MATRIXLIB  = $(LPZROBOTS)/matrixlib
 #MATRIX     = matrix
 MATRIX     = matrix_debug
 
-include $(ODEROBOTS)/Makefile.conf
+LIBS   = -lm \
+	-L$(ODEROBOTS) -lode_robots \
+	-L$(SELFORG)   -lselforg \
+	-L$(MATRIXLIB)  -l$(MATRIX) \
+	-lode -ldrawstuff -lGL -lGLU -lglut
 
-LIBS   = -lm -lode -ldrawstuff -lGL -lGLU -lglut \
-	 -L$(ODEROBOTS) -lode_robots\
-	 -L$(MATRIXLIB)  -l$(MATRIX)
+INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include -I$(MATRIXLIB)
 
-# used for single filecompilation
+# used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
 
 # used for binary compilation (linking)
 CC = g++ $(CFLAGS)
 #CC = g++ -g3 -pg  
 
-$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a Makefile Makefile.depend $(OFILES)
-	cd $(ODEROBOTS) && make libode_robots.a
+$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a libselforg $(SELFORG)/libselforg.a Makefile Makefile.depend $(OFILES)
 	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
 
 libode_robots:	
 	cd $(ODEROBOTS) && make libode_robots.a		
+
+libselforg:	
+	cd $(SELFORG) && make libselforg.a		
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null

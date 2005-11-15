@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.1  2005-11-14 17:37:18  martius
+ *   Revision 1.11.4.2  2005-11-15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.11.4.1  2005/11/14 17:37:18  martius
  *   moved to selforg
  *
  *   Revision 1.11  2005/11/09 13:24:42  martius
@@ -196,16 +199,7 @@ public:
 	 *@version final
 	 **/
 	virtual int getMotorNumber();
-	
-	
-	/**
-	 *Returns the position of the robot.
-	 *@return Position (x,y,z)
-	 *@author Marcel Kretschmann
-	 *@version final
-	 **/
-	virtual Position getPosition ( ) = 0;
-	
+		
 	
 	/**
 	 *Returns a list with the positionvectors of all segments of the robot
