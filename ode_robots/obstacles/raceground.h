@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-15 14:27:21  robot3
+ *   Revision 1.2  2005-11-15 14:50:52  martius
+ *   correct parsing of "degree"
+ *
+ *   Revision 1.1  2005/11/15 14:27:21  robot3
  *   first version
  *
  *                                                                         *
@@ -98,20 +101,22 @@ class Raceground : public AbstractObstacle {
       std::cout << newPose;
       AbstractTrackSection* segment = new StraightLine(newPose);
       SegmentList += segment;
-    } else if (name.compare("degree")<0) {
+    } else if (name.find("degree")==0) {
       std::cout << newPose;
       DegreeSegment* segment = new DegreeSegment(newPose);
       SegmentList+=(AbstractTrackSection*) segment;
       // now get the angle and the radius
-      char* d;
+      char* d = (char*)malloc(100*sizeof(char));
       double angle, radius;
       if (sscanf(name.c_str(),"%s %lf %lf",d,&angle,&radius)!=3)
 	std::cout << "parameter parsing invalid!: " << name << "\n";
       else {
+	std::cout << "parameters " << d << "," << angle << " " << radius << "\n";  
 	// parsing was ok
-	segment->setCurveAngle(angle);
+	segment->setCurveAngle(angle/180.0*M_PI);
 	segment->setRadius(radius);
       }
+      free(d);
     }
   }
 
