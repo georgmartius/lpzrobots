@@ -21,7 +21,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-11-15 14:23:44  robot3
+ *   Revision 1.11  2005-11-15 14:50:22  martius
+ *   quark
+ *
+ *   Revision 1.10  2005/11/15 15:37:49  robot3
+ *   test
+ *
+ *   Revision 1.9  2005/11/15 13:37:49  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.8  2005/11/15 14:23:44  robot3
  *   raceground testet
  *
  *   Revision 1.7  2005/09/22 13:17:12  martius
@@ -63,7 +72,6 @@
 #include "stl_adds.h"
 
 
-ConfigList configs; 
 PlotMode plotMode = NoPlot;
 SimpleController *controller;
 
@@ -87,16 +95,29 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   // initialization
   global.odeConfig.noise=0.1;
+  global.odeConfig.setParam("realtimefactor",1.5);
+  global.odeConfig.setParam("drawinterval",2);
+
+
   int chessTexture = dsRegisterTexture("chess.ppm");
   printf("Chess: %i\n", chessTexture);
   // Playground* playground = new Playground(odeHandle);
   Raceground* Strecke = new Raceground(odeHandle);
   list<string> segmentList;
-  segmentList+="straightline";
-  segmentList+="90degree";
-  segmentList+="90degree";
-  segmentList+="straightline";
+  segmentList+=string("straightline");
+  segmentList+=string("straightline");
+  segmentList+=string("degree 90.0 10.0");
+  segmentList+=string("degree -90.0 30.0");
+  segmentList+=string("straightline");
+  //  segmentList+=string("degree 90.0f 10");
+  //segmentList+=string("straightline");
+  //segmentList+=string("straightline");
+  //segmentList+=string("degree 90 10");
+  //segmentList+=string("straightline");
+  //segmentList+=string("degree 90 10");
+  cout << "now adding segments:\n";
  Strecke->addSegments(segmentList);
+  cout << "finished adding segments! \n";
   Strecke->setPosition(0.0f,0.0f,0.0f);
   global.obstacles.push_back(Strecke);
 
@@ -117,8 +138,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.agents.push_back(agent);
 
   // Simulation-Configuration
-   configs.push_back(controller);
-  showParams(configs);
+  global.configs.push_back(controller);
+  showParams(global.configs);
   
   
 }
@@ -141,7 +162,7 @@ void end(GlobalData& global){
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
 
-  changeParams(configs);
+  changeParams(global.configs);
 }
 
 // gets key from keyboard input, provided by ode
