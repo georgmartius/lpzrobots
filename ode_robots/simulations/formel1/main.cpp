@@ -21,10 +21,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2005-11-15 14:50:22  martius
- *   quark
- *
- *   Revision 1.10  2005/11/15 15:37:49  robot3
+ *   Revision 1.10  2005-11-15 15:37:49  robot3
  *   test
  *
  *   Revision 1.9  2005/11/15 13:37:49  martius
@@ -106,9 +103,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   list<string> segmentList;
   segmentList+=string("straightline");
   segmentList+=string("straightline");
-  segmentList+=string("degree 90.0 10.0");
-  segmentList+=string("degree -90.0 30.0");
-  segmentList+=string("straightline");
+  segmentList+=string("degree 90.0f 10.0f");
+  //  segmentList+=string("straightline");
   //  segmentList+=string("degree 90.0f 10");
   //segmentList+=string("straightline");
   //segmentList+=string("straightline");
