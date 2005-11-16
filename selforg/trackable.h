@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-14 17:37:56  martius
+ *   Revision 1.1.2.2  2005-11-16 11:23:30  martius
+ *   const
+ *
+ *   Revision 1.1.2.1  2005/11/14 17:37:56  martius
  *   moved to selforg
  *
  *                                                                 *
@@ -50,17 +53,17 @@ public:
   /** returns position of the object
       @return vector of position (x,y,z)
    */
-  virtual Position getPosition()=0;
+  virtual Position getPosition() const =0;
 
   /** returns linear speed vector of the object
       @return vector  (vx,vy,vz)
    */
-  virtual Position getSpeed()=0;
+  virtual Position getSpeed() const =0;
 
   /** returns the orientation of the object
       @return 3x3 rotation matrix
    */
-  virtual Matrix getOrientation()=0;
+  virtual Matrix getOrientation() const =0;
 
 };
 
