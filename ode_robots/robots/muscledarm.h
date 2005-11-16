@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.2  2005-11-15 12:29:26  martius
+ *   Revision 1.1.4.3  2005-11-16 11:26:52  martius
+ *   moved to selforg
+ *
+ *   Revision 1.1.4.2  2005/11/15 12:29:26  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.1.4.1  2005/11/14 17:37:17  martius
@@ -139,7 +142,7 @@ public:
 
 protected:
 
-  virtual Object getMainObject(){ return object[lowerArm]; }
+  virtual Object getMainObject() const { return object[lowerArm]; }
 
   /** creates vehicle at desired position 
       @param pos struct Position with desired position

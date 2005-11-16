@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.2  2005-11-15 12:29:26  martius
+ *   Revision 1.3.4.3  2005-11-16 11:26:52  martius
+ *   moved to selforg
+ *
+ *   Revision 1.3.4.2  2005/11/15 12:29:26  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.3.4.1  2005/11/14 17:37:17  martius
@@ -115,7 +118,7 @@ public:
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
 protected:
-  virtual Object getMainObject(){
+  virtual Object getMainObject() const {
 	if(!segments.empty()){
 	  return (*segments.begin());
 	}else return Object();

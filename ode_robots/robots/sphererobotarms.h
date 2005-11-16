@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.2  2005-11-15 12:29:27  martius
+ *   Revision 1.10.4.3  2005-11-16 11:26:53  martius
+ *   moved to selforg
+ *
+ *   Revision 1.10.4.2  2005/11/15 12:29:27  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.10.4.1  2005/11/14 17:37:18  martius
@@ -187,7 +190,7 @@ public:
   virtual int getSegmentsPosition(vector<Position> &poslist);	
 
 protected:
-  virtual Object getMainObject() { return object[Base]; }
+  virtual Object getMainObject() const  { return object[Base]; }
 
 };
 
