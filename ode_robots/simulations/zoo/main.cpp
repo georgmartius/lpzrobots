@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.1  2005-11-15 12:30:22  martius
+ *   Revision 1.11.4.2  2005-11-16 11:27:38  martius
+ *   invertmotornstep has configuration
+ *
+ *   Revision 1.11.4.1  2005/11/15 12:30:22  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.11  2005/11/14 13:02:39  martius
@@ -102,7 +105,6 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
     global.obstacles.push_back(sphere);
   }
-
   
 
   OdeAgent* agent;
@@ -122,8 +124,10 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   {
     Color col(0,0.5,0.8);
     snake->place(Position(-5,-5,0),&col); 
-  }
-  controller = new InvertMotorNStep(10, 2.0);    
+  }  
+  InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+  invertnconf.cInit=2.0;
+  controller = new InvertMotorNStep(invertnconf);    
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   agent = new OdeAgent( plotoptions );
   agent->init(controller, snake, wiring);
@@ -145,7 +149,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     Color col(0,0.5,0.8);
     snake->place(Position(0,0,0),&col); 
   }
-  controller = new InvertMotorNStep(10, 2.0);     
+  controller = new InvertMotorNStep(invertnconf);     
   wiring = new One2OneWiring(new ColorUniformNoise(0.1));
   agent = new OdeAgent( list<PlotOption>() );
   agent->init(controller, snake, wiring);
@@ -196,8 +200,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
     if (r==0) c=Color(0.8, 0.8, 0);
     if (r==1) c=Color(0,   0.8, 0);
     snake->place(Position(r*5,-6,0.3), &c);
-
-    controller = new InvertMotorNStep(10, 1.5);
+    invertnconf.cInit=1.5;
+    controller = new InvertMotorNStep(invertnconf);
     controller->setParam("steps", 2);
     controller->setParam("adaptrate", 0.001);
     controller->setParam("nomupdate", 0.001);

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.1  2005-11-15 12:29:56  martius
+ *   Revision 1.15.4.2  2005-11-16 11:27:38  martius
+ *   invertmotornstep has configuration
+ *
+ *   Revision 1.15.4.1  2005/11/15 12:29:56  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.15  2005/11/09 13:41:25  martius
@@ -80,7 +83,7 @@ void addRobot(const OdeHandle& odeHandle, GlobalData& global, int i){
   
   
   //AbstractController *controller = new InvertNChannelController(10);  
-  AbstractController *controller = new InvertMotorNStep(30);
+  AbstractController *controller = new InvertMotorNStep();
   //    controller->setParam("factorB", 0.1);
   controller->setParam("steps", 2);
   //    controller->setParam("nomupdate", 0.005);
