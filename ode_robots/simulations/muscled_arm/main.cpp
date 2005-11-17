@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-11 15:35:54  fhesse
+ *   Revision 1.2  2005-11-17 16:28:40  fhesse
+ *   initial version
+ *
+ *   Revision 1.1  2005/11/11 15:35:54  fhesse
  *   preinitial version
  *
  *   Revision 1.14  2005/11/09 13:41:25  martius
@@ -54,9 +57,12 @@
 
 // used arena
 #include "playground.h"
+#include "sphere.h"
 
 // used controller
 #include "invertnchannelcontroller.h"
+#include "invertmotornstep.h"
+#include "sinecontroller.h"
 
 // plotmode is set to NoPlot at the beginning, 
 // means no online gnuplot windows and no logging to file
@@ -72,8 +78,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
 
   // initial camera position and viewpoint
-  float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
+  float KameraXYZ[3]= {0.340f,-0.0779f,1.51f};
+  float KameraViewXYZ[3] = {179.90f,-97.69f,0.0000f};;
   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
 
   // quality in which spheres are drawn
@@ -97,17 +103,28 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   playground->setPosition(0,0,0); // playground positionieren und generieren
   global.obstacles.push_back(playground);
 
+
+  Sphere* sphere =new Sphere(odeHandle);
+  sphere->setGeometry(0.2,0,0);
+  sphere->setPosition(0,1,0); 
+  global.obstacles.push_back(sphere);
   
   MuscledArmConf  conf = MuscledArm::getDefaultConf();
-  //conf.includeMuscles=false;
-  //conf.drawMuscles=false;
+  conf.strained=false;
+  //conf.jointAngleSensors=true;
+  conf.jointAngleRateSensors=true;
+  conf.MuscleLengthSensors=true;
+
   MuscledArm* arm = new MuscledArm(odeHandle, conf);
-  //arm->setTextures(DS_WOOD, chessTexture); 
   arm->place(Position(0,0,0));
+  global.configs.push_back(arm);
 
   // create pointer to controller
   // push controller in global list of configurables
-  AbstractController *controller = new InvertNChannelController(10);  
+  //  InvertMotorNStep(int buffersize, double cInit = 0.1, bool useS = false, bool someInternalParams = true);
+
+  AbstractController *controller = new   InvertMotorNStep(30);
+  //AbstractController *controller = new   SineController();
   global.configs.push_back(controller);
   
   // create pointer to one2onewiring
@@ -118,7 +135,12 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   // push agent in globel list of agents
   Agent* agent = new Agent(plotMode);
   agent->init(controller, arm, wiring);
+  //agent->setTrackOptions(TrackRobot(true, false, false,50));
   global.agents.push_back(agent);
+
+  // switch off gravity
+  global.odeConfig.setParam("gravity",0);
+  global.odeConfig.setParam("realtimefactor",0);
 
   // show (print to console) params of all objects in configurable list 
   showParams(global.configs);
@@ -174,4 +196,49 @@ int main (int argc, char **argv)
   simulation_close();  
   return 0;
 }
- 
+
+/*
+ [Simulation Environment:  odeconfig.h,v - 1.12 ][1804289383]
+ noise=              0.100000
+ simstepsize=        0.010000
+ realtimefactor=     0.000000
+ drawinterval=       50.000000
+ controlinterval=    5.000000
+ gravity=            0.000000
+ [muscledarm.cpp,v - 1.2 ][2031419189]
+ factorMotors=       0.100000
+ factorSensors=      4.000000
+ damping=            1.000000
+ [invertmotornstep.cpp,v - 1.19 ][240828263]
+ epsA=               0.001299
+ epsC=               0.000000
+ adaptrate=          0.010000
+ nomupdate=          0.010000
+ desens=             0.000000
+ s4delay=            1.000000
+ s4avg=              5.000000
+ steps=              4.000000
+ zetaupdate=         0.000000
+ logaE=              0.000000
+ rootE=              0.000000
+ relativeE=          0.000000
+ factorB=            0.200000
+ noiseB=             0.001000
+*/
+
+/*
+[Simulation Environment:  odeconfig.h,v - 1.12 ][1804289383]
+ noise=              0.000000
+ simstepsize=        0.010000
+ realtimefactor=     0.000000
+ drawinterval=       50.000000
+ controlinterval=    5.000000
+ gravity=            0.000000
+[ muscledarm.cpp,v - 1.2 ][715246296]
+ factorMotors=       0.000000
+ factorSensors=      10.000000
+ damping=            10.000000
+[ sinecontroller.hpp,v - 1.4 ][394186711]
+ sinerate=           400.000000
+ phaseshift=         1.000000
+*/

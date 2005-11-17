@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-15 12:36:27  fhesse
+ *   Revision 1.3  2005-11-17 16:29:25  fhesse
+ *   initial version
+ *
+ *   Revision 1.2  2005/11/15 12:36:27  fhesse
  *   muscles drawn as muscles, sphere drawn at tip of lower arm
  *
  *   Revision 1.1  2005/11/11 15:37:06  fhesse
@@ -54,6 +57,10 @@ typedef struct {
   bool includeMuscles; /// should muscles be included?
   bool drawMuscles;    /// should muscles be included?
   bool drawSphere;     /// draw sphere at tip of lower Arm?
+  bool strained;     /// arm strained or in resting position?
+  bool jointAngleSensors;
+  bool jointAngleRateSensors;
+  bool MuscleLengthSensors;
 } MuscledArmConf;
 
 
@@ -68,6 +75,10 @@ public:
     conf.includeMuscles=true;
     conf.drawMuscles=true;
     conf.drawSphere=true;
+    conf.strained=false;
+    conf.jointAngleSensors=false;
+    conf.jointAngleRateSensors=true;
+    conf.MuscleLengthSensors=false;
     return conf;
   }
 
@@ -174,11 +185,14 @@ protected:
     Object object[NUM];  
     dJointID joint[25]; 
 
+    Position old_dist[NUM];
+
     string name;    
     paramval factorMotors;
     paramval factorSensors;
-    paramval avgMotor;
-    paramval maxMotorKraft;
+    paramval damping;
+    
+
 
 
   int segmentsno;    // number of motorsvehicle segments
@@ -218,6 +232,7 @@ protected:
 
   dSpaceID arm_space;
 
+  int printed;
 
   double max_l;
   double max_r, min_l, min_r;
