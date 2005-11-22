@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-15 14:50:52  martius
+ *   Revision 1.3  2005-11-22 10:22:14  martius
+ *   changed to capital G in Ground
+ *
+ *   Revision 1.2  2005/11/15 14:50:52  martius
  *   correct parsing of "degree"
  *
  *   Revision 1.1  2005/11/15 14:27:21  robot3
@@ -49,7 +52,7 @@ using namespace matrix;
 
 
 //Fixme: raceground creates collisions with ground and itself
-class Raceground : public AbstractObstacle {
+class RaceGround : public AbstractObstacle {
 
   // the list that contains all segments
   list<AbstractTrackSection*> SegmentList;
@@ -59,7 +62,7 @@ class Raceground : public AbstractObstacle {
 
  public:
   
-  Raceground(const OdeHandle& odehandle, double factorxy = 1):
+  RaceGround(const OdeHandle& odehandle, double factorxy = 1):
     AbstractObstacle(odehandle) {
     obstacle_exists=false;
     setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
