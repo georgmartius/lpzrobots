@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-15 14:29:25  robot3
+ *   Revision 1.2  2005-11-22 13:03:53  robot3
+ *   bugfixing
+ *
+ *   Revision 1.1  2005/11/15 14:29:25  robot3
  *   first version
  *
  *                                                                         *
@@ -134,7 +137,7 @@ Matrix StraightLine::getTransformedEndMatrix(){ // INTERNAL
 /**
  * returns true if the real coordinates lay inside of the segment
  */
-bool StraightLine::isInside(const Position& p) { // must be inner coordinates
+bool StraightLine::isInside(const Position& p) { // must be inner coordinates0
   // the point lays inside of the segment if two conditions are true:
   // 1. the distance between (0,0,0) and the position is between
   //    0 and length

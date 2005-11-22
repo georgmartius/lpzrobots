@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-15 14:29:25  robot3
+ *   Revision 1.2  2005-11-22 13:03:15  robot3
+ *   bugfixing
+ *
+ *   Revision 1.1  2005/11/15 14:29:25  robot3
  *   first version
  *
  *                                                                         *
@@ -35,7 +38,7 @@ void DegreeSegment::setProperties() {
   width=5.0f; // INTERNAL width
   widthWall=0.1f;
   heightWall=0.7f;
-  angle=180.0f/180.0f*M_PI;
+  angle=90.0f/180.0f*M_PI;
   left=1;
   color=Color(226 / 255.0, 103 / 255.0, 66 / 255.0);
 }
@@ -282,7 +285,7 @@ double DegreeSegment::getWidthIdValue(const Position& p) { // must be inner coor
   // now get the Position from p1
   Position pos1 = getPosition4x1(p1);
   // now get the length
-  double length = getLength(pos1)-radius;
+  double length = ::getLength(pos1)-radius;
   // now check if length is between -width/2 and width/2
   if (length>=-width/2.0f && length<=width/2.0f)
     return ((length+width/2.0f)/width)*100.0f;
@@ -330,6 +333,18 @@ double DegreeSegment::getWidthIdValue(const Position& p) { // must be inner coor
     }
  };
 
+/**
+ * returns the length of the segment,
+ * here it is the length of the arc
+ * formula is: radius * angle;
+ */
+double DegreeSegment::getLength() {
+  if (angle>0)
+    return (radius*angle);
+  else
+    return (-radius*angle);
+}
+
 
 
 
@@ -345,7 +360,7 @@ void DegreeSegment::create(dSpaceID space)
     Position p2 = getOuterCoordinates(radius+width/2.0f,angle*upperdivisor);
     // the length of the wall
     Position pdiff = getDifferencePosition(p2,p1);
-    double length = getLength(getDifferencePosition(p1,p2));
+    double length = ::getLength(getDifferencePosition(p1,p2));
     // now calculate the difference between the walls, because the length
     // of the box is in the middle and we must use the outer length
     double lengthdiff = sqrt((1-cos(angle*1.0f/numberCorners))*2.0f)*widthWall/2.0f;
@@ -378,7 +393,7 @@ void DegreeSegment::create(dSpaceID space)
     Position p2 = getOuterCoordinates(radius-width/2.0f,angle*upperdivisor);
     // the length of the wall
     Position pdiff = getDifferencePosition(p2,p1);
-   double length = getLength(getDifferencePosition(p1,p2));
+   double length = ::getLength(getDifferencePosition(p1,p2));
     // now calculate the difference between the walls, because the length
     // of the box is in the middle and we must use the outer length
     double lengthdiff = sqrt((1-cos(angle*1.0f/numberCorners))*2.0f)*widthWall/2.0f;
