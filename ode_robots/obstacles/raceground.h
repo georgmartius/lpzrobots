@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-22 13:01:41  robot3
+ *   Revision 1.5  2005-11-22 15:49:22  robot3
+ *   bugfixing
+ *
+ *   Revision 1.4  2005/11/22 13:01:41  robot3
  *   tiny improvements
  *
  *   Revision 1.3  2005/11/22 10:22:14  martius
@@ -69,7 +72,8 @@ class RaceGround : public AbstractObstacle {
     AbstractObstacle(odehandle) {
     obstacle_exists=false;
     setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
-    numberOfSegments=100;
+    numberOfSegments=256.0f;
+    trackLength=0.0;
   };
 
 
@@ -85,12 +89,54 @@ class RaceGround : public AbstractObstacle {
     numberOfSegments=number;
   }
 
+
   /**
    * returns the segment number of the given point
    * returns -1 if point is not on the track
    */
-  int getSegmentNumber(const Position& p) {
-    return 1;
+  double getWidthOfRobot(const Position& p) {
+    // todo: ask all segments if the robot is one of them and give back
+    // the width
+    for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
+	it!= SegmentList.end(); ++it) {
+      double widthID = (*it)->getWidthIdValue(p); 
+      if (widthID>=0.0f) { // segment is found
+	return widthID;
+      }
+    }
+    return -1.0f;
+  }
+
+
+
+  /**
+   * returns the segment number of the given point
+   * returns -1 if point is not on the track
+   */
+  double getSegmentNumberOfRobot(const Position& p) {
+    // todo: ask all segments if the robot is one of them and give back
+    // the segmentID
+    double passedLength=0.0f;
+    double segmentNumber=-1.0f;
+    int nr=0;
+    for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
+	it!= SegmentList.end(); ++it) {
+      double sectionLength = (*it)->getSectionIdValue(p); 
+      if (sectionLength>=0.0f) { // segment is found
+	sectionLength*=((*it)->getLength())/100.0f;
+	segmentNumber=numberOfSegments*
+	  (passedLength+sectionLength)/trackLength;
+	return segmentNumber;
+      }
+      /*      cout << segmentNumber << "=segMentNumber\n";
+      cout << passedLength << "=passedLength\n";
+      cout << sectionLength << "=sectionLength\n";
+      cout << (*it)->getLength() << "given segment length!";*/
+      passedLength+=(*it)->getLength();
+      /*      cout << passedLength << "=passedLength!!!!!!!\n";
+	      cout << nr++ << ". durchlauf\n";*/
+    }
+    return segmentNumber;
   }
 
   /**
@@ -119,18 +165,15 @@ class RaceGround : public AbstractObstacle {
     Matrix newPose = ::getTranslationRotationMatrix(Position(0.0f,0.0f,0.0f),0.0f*M_PI/6.0f);
     if (!SegmentList.empty()) {
       Matrix pos = SegmentList.back()->getPositionMatrix();
-      assert (pos.getM()==4 && pos.getN()==4);
       Matrix end = SegmentList.back()->getTransformedEndMatrix();
-      assert (end.getM()==4 && end.getN()==4);
       newPose=pos * end;
     }
     //TODO: write a parser for the parameters
     if (name=="straightline") {
-      std::cout << newPose;
       AbstractTrackSection* segment = new StraightLine(newPose);
       SegmentList += segment;
+      trackLength+=segment->getLength();
     } else if (name.find("degree")==0) {
-      std::cout << newPose;
       DegreeSegment* segment = new DegreeSegment(newPose);
       SegmentList+=(AbstractTrackSection*) segment;
       // now get the angle and the radius
@@ -143,6 +186,7 @@ class RaceGround : public AbstractObstacle {
 	// parsing was ok
 	segment->setCurveAngle(angle/180.0*M_PI);
 	segment->setRadius(radius);
+        trackLength+=segment->getLength();
       }
       free(d);
     }
@@ -204,10 +248,11 @@ class RaceGround : public AbstractObstacle {
 
  protected:
   double length;
+  double trackLength;
   double width;
   double height;
 
-  int numberOfSegments;
+  double numberOfSegments;
 
   dSpaceID raceground_space;
 
