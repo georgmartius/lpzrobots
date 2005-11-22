@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-22 10:22:14  martius
+ *   Revision 1.4  2005-11-22 13:01:41  robot3
+ *   tiny improvements
+ *
+ *   Revision 1.3  2005/11/22 10:22:14  martius
  *   changed to capital G in Ground
  *
  *   Revision 1.2  2005/11/15 14:50:52  martius
@@ -66,7 +69,29 @@ class RaceGround : public AbstractObstacle {
     AbstractObstacle(odehandle) {
     obstacle_exists=false;
     setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
+    numberOfSegments=100;
   };
+
+
+  /**
+   * Destructor
+   */
+  ~RaceGround() {}
+
+  /**
+   * you set the number of segments of the track
+   */
+  void setNumberOfSegments(int number) {
+    numberOfSegments=number;
+  }
+
+  /**
+   * returns the segment number of the given point
+   * returns -1 if point is not on the track
+   */
+  int getSegmentNumber(const Position& p) {
+    return 1;
+  }
 
   /**
    * adds the segments in the list to the SegmentList
@@ -109,7 +134,7 @@ class RaceGround : public AbstractObstacle {
       DegreeSegment* segment = new DegreeSegment(newPose);
       SegmentList+=(AbstractTrackSection*) segment;
       // now get the angle and the radius
-      char* d = (char*)malloc(100*sizeof(char));
+      char* d = (char*)malloc(name.length()*sizeof(char));
       double angle, radius;
       if (sscanf(name.c_str(),"%s %lf %lf",d,&angle,&radius)!=3)
 	std::cout << "parameter parsing invalid!: " << name << "\n";
@@ -181,6 +206,8 @@ class RaceGround : public AbstractObstacle {
   double length;
   double width;
   double height;
+
+  int numberOfSegments;
 
   dSpaceID raceground_space;
 
