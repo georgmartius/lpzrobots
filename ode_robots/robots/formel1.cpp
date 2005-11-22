@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:24:42  martius
+ *   Revision 1.5  2005-11-22 15:48:19  robot3
+ *   inserted raceground sensors
+ *
+ *   Revision 1.4  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
@@ -59,7 +62,7 @@ Formel1::Formel1(const OdeHandle& odeHandle, double size/*=1.0*/,
   wheelthickness=size/20;
   cmass=10*size;
   wmass=size;  
-  sensorno=4; 
+  sensorno=6; 
   motorno=4;  
   segmentsno=5;
 };
@@ -85,11 +88,27 @@ void Formel1::setMotors(const motor* motors, int motornumber){
     @return number of actually written sensors
 */
 int Formel1::getSensors(sensor* sensors, int sensornumber){
-  int len = (sensornumber < sensorno)? sensornumber : sensorno;
-  for (int i=0; i<len; i++){
+  int numberOfMotors=4;
+  int len=0; // no sensors are sensed yet
+  // check that the array sensors is not to small
+  numberOfMotors = 
+    (sensornumber < numberOfMotors)? sensornumber : numberOfMotors;
+  for (int i=0; i<numberOfMotors; i++){ // motor sensing
     sensors[i]=dJointGetHinge2Angle2Rate(joint[i]);
     sensors[i]/=speed;  //scaling
   }
+  len += numberOfMotors; // the motors have been sensed
+  list<double> trackSensors= trackSensor.get();
+    for(list<double>::iterator it = trackSensors.begin();
+	it!=trackSensors.end(); ++it) {
+      if  (len<sensornumber) {
+	sensors[len]=(*it);
+	//cout << "sensed: " << (*it) << "\t";
+	//sensors[len]=10+len;
+	len++; // one more sensor has been sensed
+      }
+      //cout << "\n";
+    }
   return len;
 };
 
@@ -167,7 +186,12 @@ void Formel1::mycallback(void *data, dGeomID o1, dGeomID o2){
   }
 }
 
-void Formel1::doInternalStuff(const GlobalData& global){}
+void Formel1::doInternalStuff(const GlobalData& global){
+  // call update the racegroundsensor
+  trackSensor.sense(global);
+}
+
+
 bool Formel1::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   //checks if one of the collision objects is part of the robot
   if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space){
@@ -226,7 +250,7 @@ void Formel1::create(Position pos){
   // create car space and add it to the top level space
   car_space = dSimpleSpaceCreate (space);
   dSpaceSetCleanup (car_space,0);
-
+  
   dMass m;
   // cylinder
   object[0].body = dBodyCreate (world);
@@ -272,6 +296,10 @@ void Formel1::create(Position pos){
     dJointSetHinge2Param (joint[i],dParamLoStop,0);
     dJointSetHinge2Param (joint[i],dParamHiStop,0);
   }
+
+  // initialise racegroundsensors
+  trackSensor.init(object[0].body);
+
 
   created=true;
 }; 

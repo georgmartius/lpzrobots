@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-15 14:23:44  robot3
+ *   Revision 1.6  2005-11-22 15:48:59  robot3
+ *   inserted raceground sensors
+ *
+ *   Revision 1.5  2005/11/15 14:23:44  robot3
  *   raceground testet
  *
  *   Revision 1.4  2005/10/17 13:17:10  martius
@@ -144,6 +147,9 @@ void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors,
 //  	if (cameraHandlingDefined==1)
 //  		cameraHandlingFunction();
 	t++;
+	for (int i =4; i<number_sensors;i++)
+	  cout << "sensor " << i << " = " << sensors[i] << "\t";
+	cout << "\n";
 };
   
 
