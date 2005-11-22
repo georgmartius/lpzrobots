@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-22 10:21:48  martius
+ *   Revision 1.2  2005-11-22 14:13:31  robot3
+ *   call of raceground functions inserted
+ *
+ *   Revision 1.1  2005/11/22 10:21:48  martius
  *   sensor for raceground position
  *
  *                                                                         *
@@ -50,12 +54,14 @@ int RaceGroundSensor::init(dBodyID body){
 bool RaceGroundSensor::sense(const GlobalData& global){
   if(!robot) return false;
   bool found = false;
+  Position robotPos = Position(dBodyGetPosition(body));
   for(ObstacleList::const_iterator i = global.obstacles.begin(); 
       i!= global.obstacles.end(); i++){
     RaceGround* rg = dynamic_cast<RaceGround*>(*i);
     if (rg!=0) {
       // Todo add stuff here
-      
+      segmentPosition = rg->getSegmentNumberOfRobot(robotPos);
+      widthPosition = rg->getWidthOfRobot(robotPos);
       found=true;
     }    
   }
@@ -66,7 +72,7 @@ bool RaceGroundSensor::sense(const GlobalData& global){
  */
 list<double> RaceGroundSensor::get(){
   list<double> values;
-  values += segment;
-  values += position;
+  values += segmentPosition;
+  values += widthPosition;
   return values;
 }
