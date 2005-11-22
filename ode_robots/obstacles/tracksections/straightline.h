@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-15 14:29:25  robot3
+ *   Revision 1.2  2005-11-22 15:51:23  robot3
+ *   testing
+ *
+ *   Revision 1.1  2005/11/15 14:29:25  robot3
  *   first version
  *
  *                                                                         *
@@ -121,7 +124,25 @@ double getSectionIdValue(const Position& p);
  * 100 means you are on the right
  * returns -1 if no WidthValue can be given
  */
-double getWidthIdValue(const Position& p);
+ double getWidthIdValue(const Position& p);
+
+
+/**
+ * returns the length of the segment,
+ * here it is the length of the arc
+ * formula is: radius * angle;
+ */
+ virtual double getLength();
+
+/**
+ * returns the width of the segment,
+ */
+ virtual double getWidth();
+
+/**
+ * sets the width of the segment,
+ */
+ virtual double setWidth(double w);
 
 
 /**

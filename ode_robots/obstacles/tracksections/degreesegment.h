@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-22 13:03:31  robot3
+ *   Revision 1.3  2005-11-22 15:51:23  robot3
+ *   testing
+ *
+ *   Revision 1.2  2005/11/22 13:03:31  robot3
  *   bugfixing
  *
  *   Revision 1.1  2005/11/15 14:29:25  robot3
@@ -35,7 +38,7 @@
 #include "abstracttracksection.h"
 
 /**
- *  Abstract class (interface) for obstacles
+ *  class for degree segments
  */
 class DegreeSegment : public AbstractTrackSection {
 
@@ -77,6 +80,17 @@ void setPosition(const Position& pos) ;
  */
 
 virtual double getLength();
+
+/**
+ * returns the width of the segment,
+ */
+ virtual double getWidth();
+
+/**
+ * sets the width of the segment,
+ */
+ virtual double setWidth(double w);
+
 
 virtual Position getPosition();
 

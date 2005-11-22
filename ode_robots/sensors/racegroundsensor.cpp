@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-22 14:13:31  robot3
+ *   Revision 1.3  2005-11-22 15:50:00  robot3
+ *   testing
+ *
+ *   Revision 1.2  2005/11/22 14:13:31  robot3
  *   call of raceground functions inserted
  *
  *   Revision 1.1  2005/11/22 10:21:48  martius
@@ -36,8 +39,8 @@ using namespace std;
 
 RaceGroundSensor::RaceGroundSensor() { 
   robot = 0;
-  position = 0;
-  segment  = 0;
+  segmentPosition = 0;
+  widthPosition  = 0;
 }
 
 /** initialises sensor with body of robot
@@ -54,7 +57,7 @@ int RaceGroundSensor::init(dBodyID body){
 bool RaceGroundSensor::sense(const GlobalData& global){
   if(!robot) return false;
   bool found = false;
-  Position robotPos = Position(dBodyGetPosition(body));
+  Position robotPos = Position(dBodyGetPosition(robot));
   for(ObstacleList::const_iterator i = global.obstacles.begin(); 
       i!= global.obstacles.end(); i++){
     RaceGround* rg = dynamic_cast<RaceGround*>(*i);

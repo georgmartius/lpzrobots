@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-15 14:29:25  robot3
+ *   Revision 1.2  2005-11-22 15:51:23  robot3
+ *   testing
+ *
+ *   Revision 1.1  2005/11/15 14:29:25  robot3
  *   first version
  *
  *                                                                         *
@@ -107,7 +110,45 @@ class AbstractTrackSection{
    */
   virtual bool isInside(const Position& p) = 0;
 
+  /**
+ * returns a value between 0 and 100 that tells at which section
+ * you are on the segment.
+ * 0 means you are on the beginning
+ * 100 means you are at the end
+ * returns -1 if no IdValue can be given
+ */
+  virtual double getSectionIdValue(const Position& p)=0;
 
+
+/**
+ * returns a value between 0 and 100 that tells at which width
+ * you are on the segment, more to right or more to the left.
+ * 0 means you are on the left
+ * 50 means you are in the middle
+ * 100 means you are on the right
+ * returns -1 if no WidthValue can be given
+ */
+virtual double getWidthIdValue(const Position& p)=0;
+
+
+
+/**
+ * returns the length of the segment,
+ * here it is the length of the arc
+ * formula is: radius * angle;
+ */
+ virtual double getLength()=0;
+
+
+/**
+ * returns the width of the segment,
+ */
+ virtual double getWidth()=0;
+
+/**
+ * sets the width of the segment,
+ */
+ virtual double setWidth(double w)=0;
 
  protected:
   // saves the actual position AND rotation of the segment

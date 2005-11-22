@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-22 13:03:15  robot3
+ *   Revision 1.3  2005-11-22 15:51:23  robot3
+ *   testing
+ *
+ *   Revision 1.2  2005/11/22 13:03:15  robot3
  *   bugfixing
  *
  *   Revision 1.1  2005/11/15 14:29:25  robot3
@@ -343,6 +346,20 @@ double DegreeSegment::getLength() {
     return (radius*angle);
   else
     return (-radius*angle);
+}
+
+/**
+ * returns the width of the segment,
+ */
+double DegreeSegment::getWidth() {
+  return width;
+}
+
+/**
+ * sets the width of the segment,
+ */
+double DegreeSegment::setWidth(double w) {
+  width=w;
 }
 
 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-22 13:03:53  robot3
+ *   Revision 1.3  2005-11-22 15:51:23  robot3
+ *   testing
+ *
+ *   Revision 1.2  2005/11/22 13:03:53  robot3
  *   bugfixing
  *
  *   Revision 1.1  2005/11/15 14:29:25  robot3
@@ -179,6 +182,31 @@ double StraightLine::getWidthIdValue(const Position& p) { // must be inner coord
   }
   else return -1;
 }
+
+/**
+ * returns the length of the segment,
+ * here it is the length of the arc
+ * formula is: radius * angle;
+ */
+double StraightLine::getLength() {
+  return length;
+}
+
+/**
+ * returns the width of the segment,
+ */
+double StraightLine::getWidth() {
+  return width;
+}
+
+/**
+ * sets the width of the segment,
+ */
+double StraightLine::setWidth(double w) {
+  width=w;
+}
+
+
 
 
 

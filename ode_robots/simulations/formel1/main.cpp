@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-11-15 15:37:49  robot3
+ *   Revision 1.12  2005-11-22 15:49:35  robot3
+ *   testing
+ *
+ *   Revision 1.11  2005/11/15 14:50:22  martius
+ *   quark
+ *
+ *   Revision 1.10  2005/11/15 15:37:49  robot3
  *   test
  *
  *   Revision 1.9  2005/11/15 13:37:49  martius
@@ -99,14 +105,19 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   int chessTexture = dsRegisterTexture("chess.ppm");
   printf("Chess: %i\n", chessTexture);
   // Playground* playground = new Playground(odeHandle);
-  Raceground* Strecke = new Raceground(odeHandle);
+  RaceGround* Strecke = new RaceGround(odeHandle);
   list<string> segmentList;
   segmentList+=string("straightline");
+  segmentList+=string("degree 180.0 2.5");
   segmentList+=string("straightline");
-  segmentList+=string("degree 90.0f 10.0f");
-  //  segmentList+=string("straightline");
-  //  segmentList+=string("degree 90.0f 10");
-  //segmentList+=string("straightline");
+  segmentList+=string("degree -90.0 5.0");
+  segmentList+=string("degree 90.0 5.0");
+  segmentList+=string("straightline");
+  segmentList+=string("degree 90.0 5.0");
+  segmentList+=string("degree 90.0 5.0");
+  segmentList+=string("degree -28.1 21.2");
+  segmentList+=string("degree 28.1 21.2");
+ //  segmentList+=string("degree 90.0f 10");
   //segmentList+=string("straightline");
   //segmentList+=string("degree 90 10");
   //segmentList+=string("straightline");
@@ -126,7 +137,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   controller = new SimpleController();
   
   // Wiring for Agent
-  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.001));
   
   // Agent for connecting Controller, Robot and Wiring
   Agent* agent = new Agent(plotMode);
