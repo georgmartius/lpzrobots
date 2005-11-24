@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.1  2005-11-15 12:30:07  martius
+ *   Revision 1.14.4.2  2005-11-24 16:19:12  fhesse
+ *   include corrected
+ *
+ *   Revision 1.14.4.1  2005/11/15 12:30:07  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.14  2005/11/09 13:41:25  martius
@@ -56,9 +59,9 @@
 // used controller
 #include <selforg/invertnchannelcontroller.h>
 
-// plotoptions is set to NoPlot at the beginning, 
-// means no online gnuplot windows and no logging to file
-// can be changed with commandline options, see main() at the bottom of this file
+// plotoptions is a list of possible online output, 
+// if the list is empty no online gnuplot windows and no logging to file occurs.
+// The list is modified with commandline options, see main() at the bottom of this file
 list<PlotOption> plotoptions;
 
 
