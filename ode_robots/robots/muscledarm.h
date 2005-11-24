@@ -20,14 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.3  2005-11-16 11:26:52  martius
- *   moved to selforg
+ *   Revision 1.1.4.4  2005-11-24 16:15:57  fhesse
+ *   moved from main branch, sensors improved
  *
- *   Revision 1.1.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
+ *   Revision 1.3  2005/11/17 16:29:25  fhesse
+ *   initial version
  *
- *   Revision 1.1.4.1  2005/11/14 17:37:17  martius
- *   moved to selforg
+ *   Revision 1.2  2005/11/15 12:36:27  fhesse
+ *   muscles drawn as muscles, sphere drawn at tip of lower arm
  *
  *   Revision 1.1  2005/11/11 15:37:06  fhesse
  *   preinitial version
@@ -44,21 +44,37 @@
 
 
 
-#define NUM 15
 #define SIDE (0.2)              /* side length of a box */
 #define MASS (1.0)              /* mass of a capped cylinder */
 #define includeMusclesGraphics false
 
 
 /* Enumeration of different parts and joints */
-enum parts {fixedBody, upperArm, lowerArm, mainMuscle11, mainMuscle12, mainMuscle21, mainMuscle22, smallMuscle11, smallMuscle12, smallMuscle21, smallMuscle22, smallMuscle31, smallMuscle32, smallMuscle41, smallMuscle42};
-enum joints {fixedJoint, hingeJointFUA, hingeJointUALA, hingeJointFM1, hingeJointFM2, hingeJointFS1, hingeJointFS2, hingeJointUAS1, hingeJointUAS2, hingeJointUAS3, hingeJointUAS4, hingeJointLAM1, hingeJointLAM2, hingeJointLAS3, hingeJointLAS4, sliderJointM1, sliderJointM2, sliderJointS1, sliderJointS2, sliderJointS3, sliderJointS4};
+enum parts {fixedBody, upperArm, lowerArm, mainMuscle11, mainMuscle12, mainMuscle21, mainMuscle22, 
+	    smallMuscle11, smallMuscle12, smallMuscle21, smallMuscle22, 
+	    smallMuscle31, smallMuscle32, smallMuscle41, smallMuscle42, 
+	    hand,
+	    NUMParts};
+
+enum joints {fixedJoint, hingeJointFUA, hingeJointUALA, 
+	     hingeJointFM1, hingeJointFM2, hingeJointFS1, hingeJointFS2, 
+	     hingeJointUAS1, hingeJointUAS2, hingeJointUAS3, hingeJointUAS4, 
+	     hingeJointLAM1, hingeJointLAM2, hingeJointLAS3, hingeJointLAS4, 
+	     sliderJointM1, sliderJointM2, 
+	     sliderJointS1, sliderJointS2, sliderJointS3, sliderJointS4, 
+	     fixedJointHand,
+	     NUMJoints};
 
 
 
 typedef struct {
   bool includeMuscles; /// should muscles be included?
-  bool drawMuscles; /// should muscles be included?
+  bool drawMuscles;    /// should muscles be included?
+  bool drawSphere;     /// draw sphere at tip of lower Arm?
+  bool strained;     /// arm strained or in resting position?
+  bool jointAngleSensors;
+  bool jointAngleRateSensors;
+  bool MuscleLengthSensors;
 } MuscledArmConf;
 
 
@@ -72,6 +88,11 @@ public:
     MuscledArmConf conf;
     conf.includeMuscles=true;
     conf.drawMuscles=true;
+    conf.drawSphere=true;
+    conf.strained=false;
+    conf.jointAngleSensors=false;
+    conf.jointAngleRateSensors=true;
+    conf.MuscleLengthSensors=false;
     return conf;
   }
 
@@ -81,6 +102,9 @@ public:
    * draws the vehicle
    */
   virtual void draw();
+
+  void setTextures(int texture);
+
 
   /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
       @params pos desired position of the robot in struct Position
@@ -141,8 +165,8 @@ public:
 
 
 protected:
-
-  virtual Object getMainObject() const { return object[lowerArm]; }
+  
+  virtual Object getMainObject() const;
 
   /** creates vehicle at desired position 
       @param pos struct Position with desired position
@@ -155,6 +179,7 @@ protected:
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
   double dBodyGetPositionAll ( dBodyID basis , int para );
+  double dGeomGetPositionAll ( dGeomID basis , int para );
   
   void BodyCreate(int n, dMass m, dReal x, dReal y, dReal z, 
 			 dReal qx, dReal qy, dReal qz, dReal qangle);
@@ -168,30 +193,33 @@ protected:
 
 
 
-    Object object[NUM];  
-    dJointID joint[25]; 
+    Object object[NUMParts];  
+    dJointID joint[NUMJoints]; 
+
+    Position old_dist[NUMParts]; // used for damping
 
     string name;    
     paramval factorMotors;
     paramval factorSensors;
-    paramval avgMotor;
-    paramval maxMotorKraft;
+    paramval damping;
+    
+
 
 
   int segmentsno;    // number of motorsvehicle segments
 
 
 
-  double gelenkabstand;
-  double SOCKEL_LAENGE;
-  double SOCKEL_BREITE;
-  double SOCKEL_HOEHE; 
-  double SOCKEL_MASSE;
+    double gelenkabstand;
+    double SOCKEL_LAENGE;
+    double SOCKEL_BREITE;
+    double SOCKEL_HOEHE; 
+    double SOCKEL_MASSE;
 
-  double ARMDICKE;
-  double ARMLAENGE;
-  double ARMABSTAND;
-  double ARMMASSE;
+  //  double ARMDICKE;
+  //  double ARMLAENGE;
+  //  double ARMABSTAND;
+  //  double ARMMASSE;
   /*
   double length;  // chassis length
   double width;  // chassis width
@@ -211,9 +239,14 @@ protected:
   */
   bool created;      // true if robot was created
 
-
+  int mainTexture;
 
   dSpaceID arm_space;
+
+  int printed;
+
+  double max_l;
+  double max_r, min_l, min_r;
 };
 
 #endif
