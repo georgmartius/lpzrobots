@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2005-11-14 17:37:25  martius
+ *   Revision 1.3.4.2  2005-11-24 16:21:45  fhesse
+ *   multMatrixPosition added
+ *
+ *   Revision 1.3.4.1  2005/11/14 17:37:25  martius
  *   moved to selforg
  *
  *   Revision 1.3  2005/11/10 09:09:55  martius
@@ -51,6 +54,12 @@ using namespace matrix;
 #define sqr(x)   ( (x)*(x) )
 #define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
 #endif
+
+/**
+   Multiplies 3x3 matrix with position
+*/
+Position multMatrixPosition(const Matrix& r, Position& p);
+
 /**
  * returns a rotation matrix with the given angle
  */

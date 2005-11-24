@@ -37,9 +37,13 @@ CXX = g++ $(CFLAGS) $(INC)
 # used for lib-packing 
 AR = ar -rs
 
-$(LIB): Makefile.depend $(OFILES) $(UTILS)
+$(LIB): libselforg $(SELFORG)/libselforg.a Makefile.depend $(OFILES) $(UTILS)
 	@echo "$(OFILES)";
 	$(AR) $(LIB) $(OFILES)
+
+libselforg:	
+	cd $(SELFORG) && make libselforg.a		
+
 
 utils/splitvideo: utils/splitvideo.c
 	$(CXX) -o utils/splitvideo utils/splitvideo.c

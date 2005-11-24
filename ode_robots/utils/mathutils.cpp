@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-10-27 14:16:11  martius
+ *   Revision 1.2.4.1  2005-11-24 16:21:45  fhesse
+ *   multMatrixPosition added
+ *
+ *   Revision 1.2  2005/10/27 14:16:11  martius
  *   some bugs fixed, module now works
  *   some functions from controller_misc.h are here now
  *
@@ -32,6 +35,14 @@
  ***************************************************************************/
 #include "mathutils.h"
 #include <math.h>
+
+
+Position multMatrixPosition(const Matrix& r, Position& p){
+  assert(r.getM()==3 && r.getN()==3);
+  Matrix pm(3,1,p.toArray());
+  Matrix rv = r*pm;
+  return Position(rv.val(0,0), rv.val(1,0), rv.val(2,0));
+}
 
 /**
  * returns a rotation matrix with the given angle
