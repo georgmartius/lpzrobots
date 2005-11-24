@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-11-16 11:26:52  martius
+ *   Revision 1.1.2.5  2005-11-24 16:20:54  fhesse
+ *   odeRto3x3RotationMatrix corrected
+ *
+ *   Revision 1.1.2.4  2005/11/16 11:26:52  martius
  *   moved to selforg
  *
  *   Revision 1.1.2.3  2005/11/15 12:29:27  martius
@@ -187,7 +190,7 @@ protected:
     return false;
   }
 
-  static Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
+  static Matrix odeRto3x3RotationMatrixT ( const double R[12] ) {  
     Matrix matrix(3,3);
     matrix.val(0,0)=R[0];
     matrix.val(0,1)=R[4];
@@ -197,6 +200,20 @@ protected:
     matrix.val(1,2)=R[9];
     matrix.val(2,0)=R[2];
     matrix.val(2,1)=R[6];
+    matrix.val(2,2)=R[10];
+    return matrix;
+  }
+
+  static Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
+    Matrix matrix(3,3);
+    matrix.val(0,0)=R[0];
+    matrix.val(1,0)=R[4];
+    matrix.val(2,0)=R[8];
+    matrix.val(0,1)=R[1];
+    matrix.val(1,1)=R[5];
+    matrix.val(2,1)=R[9];
+    matrix.val(0,2)=R[2];
+    matrix.val(1,2)=R[6];
     matrix.val(2,2)=R[10];
     return matrix;
   }
