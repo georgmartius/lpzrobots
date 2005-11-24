@@ -35,14 +35,11 @@ CXX = g++ $(CFLAGS) $(INC)
 CC = g++ $(CFLAGS)
 #CC = g++ -g3 -pg  
 
-$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a libselforg $(SELFORG)/libselforg.a Makefile Makefile.depend $(OFILES)
+$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a  Makefile Makefile.depend $(OFILES)
 	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
 
-libode_robots:	
-	cd $(ODEROBOTS) && make libode_robots.a		
-
-libselforg:	
-	cd $(SELFORG) && make libselforg.a		
+libode_robots:
+	cd $(ODEROBOTS) && make libode_robots.a	
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
