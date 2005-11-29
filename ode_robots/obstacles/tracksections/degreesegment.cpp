@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-22 15:51:23  robot3
+ *   Revision 1.4  2005-11-29 13:39:53  robot3
+ *   aabb drawing included for testing
+ *
+ *   Revision 1.3  2005/11/22 15:51:23  robot3
  *   testing
  *
  *   Revision 1.2  2005/11/22 13:03:15  robot3
@@ -327,12 +330,43 @@ double DegreeSegment::getWidthIdValue(const Position& p) { // must be inner coor
       // draws the wall
       dGeomBoxGetLengths ( (*it),  dimensions); // gets the length, width and height
       dsDrawBox ( dGeomGetPosition ( (*it) ) , dGeomGetRotation ( (*it) ) , dimensions );
+
+
+      //      if (show_aabb) {
+	// draw the bounding box for this geom
+	dReal aabb[6];
+	dGeomGetAABB ((*it),aabb);
+	dVector3 bbpos;
+	for (int i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
+	dVector3 bbsides;
+	for (int i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
+	dMatrix3 RI;
+	dRSetIdentity (RI);
+	dsSetColorAlpha (1,0,0,0.3);
+	dsDrawBox (bbpos,RI,bbsides);
+	//}
+      
     }
     dsSetColor (0.0f, 0.0f, 1.0f);
     for(list<dGeomID>::iterator it = outerWalls.begin(); it!= outerWalls.end(); ++it) {
       // draws the wall
       dGeomBoxGetLengths ( (*it),  dimensions); // gets the length, width and height
       dsDrawBox ( dGeomGetPosition ( (*it) ) , dGeomGetRotation ( (*it) ) , dimensions );
+
+      //      if (show_aabb) {
+	// draw the bounding box for this geom
+	dReal aabb[6];
+	dGeomGetAABB ((*it),aabb);
+	dVector3 bbpos;
+	for (int i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
+	dVector3 bbsides;
+	for (int i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
+	dMatrix3 RI;
+	dRSetIdentity (RI);
+	dsSetColorAlpha (1,0,0,0.3);
+	dsDrawBox (bbpos,RI,bbsides);
+	//  }
+
     }
  };
 
@@ -367,7 +401,7 @@ double DegreeSegment::setWidth(double w) {
 
 void DegreeSegment::create(dSpaceID space)
 {
-  int numberCorners=16;
+  int numberCorners=8;
   for (int i=0;i<numberCorners;i++) {
     double lowerdivisor = ((float) i )/ ((float)numberCorners);
     double upperdivisor = ((float) i+1 )/ ((float)numberCorners);
