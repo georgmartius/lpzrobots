@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2005-11-22 15:49:35  robot3
+ *   Revision 1.13  2005-11-29 13:38:59  robot3
+ *   raceground now placed by constructor
+ *
+ *   Revision 1.12  2005/11/22 15:49:35  robot3
  *   testing
  *
  *   Revision 1.11  2005/11/15 14:50:22  martius
@@ -98,25 +101,27 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   // initialization
   global.odeConfig.noise=0.1;
-  global.odeConfig.setParam("realtimefactor",1.5);
-  global.odeConfig.setParam("drawinterval",2);
+  // global.odeConfig.setParam("realtimefactor",1.5);
+  //  global.odeConfig.setParam("drawinterval",2);
 
 
   int chessTexture = dsRegisterTexture("chess.ppm");
   printf("Chess: %i\n", chessTexture);
   // Playground* playground = new Playground(odeHandle);
-  RaceGround* Strecke = new RaceGround(odeHandle);
+  RaceGround* Strecke = new RaceGround(odeHandle,Position(-5.0,-4.0,0.0),0.0);
   list<string> segmentList;
+
+  segmentList+=string("straightline");
   segmentList+=string("straightline");
   segmentList+=string("degree 180.0 2.5");
   segmentList+=string("straightline");
-  segmentList+=string("degree -90.0 5.0");
-  segmentList+=string("degree 90.0 5.0");
   segmentList+=string("straightline");
-  segmentList+=string("degree 90.0 5.0");
-  segmentList+=string("degree 90.0 5.0");
-  segmentList+=string("degree -28.1 21.2");
-  segmentList+=string("degree 28.1 21.2");
+ segmentList+=string("degree -90.0 5.0");
+  //  segmentList+=string("degree 90.0 5.0");
+  // segmentList+=string("degree 90.0 5.0");
+  // segmentList+=string("degree 90.0 5.0");
+  // segmentList+=string("degree -28.1 21.2");
+  //  segmentList+=string("degree 28.1 21.2");
  //  segmentList+=string("degree 90.0f 10");
   //segmentList+=string("straightline");
   //segmentList+=string("degree 90 10");
