@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-22 15:49:22  robot3
+ *   Revision 1.6  2005-11-29 13:38:28  robot3
+ *   raceground can now be placed by constructor
+ *
+ *   Revision 1.5  2005/11/22 15:49:22  robot3
  *   bugfixing
  *
  *   Revision 1.4  2005/11/22 13:01:41  robot3
@@ -67,14 +70,22 @@ class RaceGround : public AbstractObstacle {
   bool obstacle_exists;
 
  public:
-  
-  RaceGround(const OdeHandle& odehandle, double factorxy = 1):
+
+  RaceGround(const OdeHandle& odehandle):
     AbstractObstacle(odehandle) {
-    obstacle_exists=false;
-    setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
-    numberOfSegments=256.0f;
-    trackLength=0.0;
+    setParameters(pose);
   };
+
+  
+  RaceGround(const OdeHandle& odehandle,const Matrix& pose):
+    AbstractObstacle(odehandle) {
+    setParameters(pose);
+  };
+
+  RaceGround(const OdeHandle& odehandle,const Position& pos, double angle):
+    AbstractObstacle(odehandle) {
+    setParameters(getTranslationRotationMatrix(pos,angle));
+ };
 
 
   /**
@@ -118,8 +129,7 @@ class RaceGround : public AbstractObstacle {
     // the segmentID
     double passedLength=0.0f;
     double segmentNumber=-1.0f;
-    int nr=0;
-    for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
+   for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
 	it!= SegmentList.end(); ++it) {
       double sectionLength = (*it)->getSectionIdValue(p); 
       if (sectionLength>=0.0f) { // segment is found
@@ -162,13 +172,13 @@ class RaceGround : public AbstractObstacle {
    */
   void addSegment(string& name) {
     // get first pose from last stored segment
-    Matrix newPose = ::getTranslationRotationMatrix(Position(0.0f,0.0f,0.0f),0.0f*M_PI/6.0f);
+    Matrix newPose(pose); // this is the initial pose
     if (!SegmentList.empty()) {
       Matrix pos = SegmentList.back()->getPositionMatrix();
       Matrix end = SegmentList.back()->getTransformedEndMatrix();
       newPose=pos * end;
     }
-    //TODO: write a parser for the parameters
+    //TODO: write a parser for the parameters (done)
     if (name=="straightline") {
       AbstractTrackSection* segment = new StraightLine(newPose);
       SegmentList += segment;
@@ -204,7 +214,7 @@ class RaceGround : public AbstractObstacle {
     }
   }
 
-  /**
+/**
    * draws all the segments stored in SegmentList
    */
   virtual void draw(){
@@ -225,41 +235,51 @@ class RaceGround : public AbstractObstacle {
     }
     create();
   };
-
+  
   virtual void getPosition(double& x, double& y, double& z){
     x=0.0f;
     y=0.0f;
     z=0.0f;
   };
   
-
+  
   // normally we don't need this function
   virtual void setGeometry(double length_, double width_, double height_){
     length=length_;
-    width=width_;
-    height =height_;
-  };
-
+    width=width_; 
+    height =height_; 
+  }; 
+  
   virtual void setColor(double r, double g, double b){
     color.r=r;
     color.g=g;
     color.b=b;
   };
-
+  
+  
  protected:
   double length;
-  double trackLength;
-  double width;
+  double trackLength; 
+  double width; 
   double height;
-
+  Matrix pose;
   double numberOfSegments;
-
+  
   dSpaceID raceground_space;
+  
+  virtual void setParameters(Matrix initpose) {
+    pose=initpose;
+    obstacle_exists=false;
+    setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
+    numberOfSegments=256.0f;
+    trackLength=0.0;
+  }
 
   virtual void create(){
     // create raceground space and add it to the top level space
+    //    raceground_space = space;
     raceground_space = dSimpleSpaceCreate (space);
-    dSpaceSetCleanup (raceground_space,0);
+     dSpaceSetCleanup (raceground_space,0);
     // todo:
     // go through all list elements
     // draw them all by there own draw function
