@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-11-29 13:38:28  robot3
+ *   Revision 1.7  2005-12-03 16:56:28  martius
+ *   removed own space because of weird no-collision bug
+ *
+ *   Revision 1.6  2005/11/29 13:38:28  robot3
  *   raceground can now be placed by constructor
  *
  *   Revision 1.5  2005/11/22 15:49:22  robot3
@@ -277,9 +280,9 @@ class RaceGround : public AbstractObstacle {
 
   virtual void create(){
     // create raceground space and add it to the top level space
-    //    raceground_space = space;
-    raceground_space = dSimpleSpaceCreate (space);
-     dSpaceSetCleanup (raceground_space,0);
+    raceground_space = space;
+	//raceground_space = dSimpleSpaceCreate (space);
+    //     dSpaceSetCleanup (raceground_space,0);
     // todo:
     // go through all list elements
     // draw them all by there own draw function
