@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-22 15:51:23  robot3
+ *   Revision 1.4  2005-12-03 16:57:12  martius
+ *   setWidth is void
+ *
+ *   Revision 1.3  2005/11/22 15:51:23  robot3
  *   testing
  *
  *   Revision 1.2  2005/11/22 13:03:31  robot3
@@ -89,7 +92,7 @@ virtual double getLength();
 /**
  * sets the width of the segment,
  */
- virtual double setWidth(double w);
+ virtual void setWidth(double w);
 
 
 virtual Position getPosition();

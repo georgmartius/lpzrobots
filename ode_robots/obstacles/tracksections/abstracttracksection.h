@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-22 15:51:23  robot3
+ *   Revision 1.3  2005-12-03 16:57:12  martius
+ *   setWidth is void
+ *
+ *   Revision 1.2  2005/11/22 15:51:23  robot3
  *   testing
  *
  *   Revision 1.1  2005/11/15 14:29:25  robot3
@@ -148,7 +151,7 @@ virtual double getWidthIdValue(const Position& p)=0;
 /**
  * sets the width of the segment,
  */
- virtual double setWidth(double w)=0;
+ virtual void setWidth(double w)=0;
 
  protected:
   // saves the actual position AND rotation of the segment

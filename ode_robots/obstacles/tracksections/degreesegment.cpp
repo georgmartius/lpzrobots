@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-29 13:39:53  robot3
+ *   Revision 1.5  2005-12-03 16:57:12  martius
+ *   setWidth is void
+ *
+ *   Revision 1.4  2005/11/29 13:39:53  robot3
  *   aabb drawing included for testing
  *
  *   Revision 1.3  2005/11/22 15:51:23  robot3
@@ -392,7 +395,7 @@ double DegreeSegment::getWidth() {
 /**
  * sets the width of the segment,
  */
-double DegreeSegment::setWidth(double w) {
+void DegreeSegment::setWidth(double w) {
   width=w;
 }
 
