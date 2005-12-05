@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-12-03 16:57:12  martius
+ *   Revision 1.5  2005-12-05 12:35:00  robot3
+ *   showAABB is now configurable
+ *
+ *   Revision 1.4  2005/12/03 16:57:12  martius
  *   setWidth is void
  *
  *   Revision 1.3  2005/11/22 15:51:23  robot3
@@ -170,6 +173,8 @@ void create(dSpaceID space);
   // this is the width of the segment
   // normally it should be the same like alle the other segments
   double width;
+
+  bool show_aabb:
 
   // the wall to be drawed
   list<dGeomID> innerWalls;
