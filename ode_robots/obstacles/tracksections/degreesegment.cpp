@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-12-03 16:57:12  martius
+ *   Revision 1.6  2005-12-05 12:33:32  robot3
+ *   showAABB can be configured by parameter now
+ *
+ *   Revision 1.5  2005/12/03 16:57:12  martius
  *   setWidth is void
  *
  *   Revision 1.4  2005/11/29 13:39:53  robot3
@@ -50,6 +53,7 @@ void DegreeSegment::setProperties() {
   angle=90.0f/180.0f*M_PI;
   left=1;
   color=Color(226 / 255.0, 103 / 255.0, 66 / 255.0);
+  show_aabb=true;
 }
 
 void DegreeSegment::setCurveAngle(const double& alpha) {
@@ -335,7 +339,7 @@ double DegreeSegment::getWidthIdValue(const Position& p) { // must be inner coor
       dsDrawBox ( dGeomGetPosition ( (*it) ) , dGeomGetRotation ( (*it) ) , dimensions );
 
 
-      //      if (show_aabb) {
+        if (show_aabb) {
 	// draw the bounding box for this geom
 	dReal aabb[6];
 	dGeomGetAABB ((*it),aabb);
@@ -347,7 +351,7 @@ double DegreeSegment::getWidthIdValue(const Position& p) { // must be inner coor
 	dRSetIdentity (RI);
 	dsSetColorAlpha (1,0,0,0.3);
 	dsDrawBox (bbpos,RI,bbsides);
-	//}
+	}
       
     }
     dsSetColor (0.0f, 0.0f, 1.0f);
