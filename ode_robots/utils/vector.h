@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:31:51  martius
+ *   Revision 1.4.4.1  2005-12-06 10:13:26  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.4  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -33,8 +36,7 @@
 #include "exceptions.h"
 
 
-namespace university_of_leipzig {
-namespace robots {
+namespace lpzrobots {
 
 
 template<typename T>
@@ -297,7 +299,7 @@ typedef Vector3<float>  FVector3;
 
 
 }
-}
+
 
 
 #endif

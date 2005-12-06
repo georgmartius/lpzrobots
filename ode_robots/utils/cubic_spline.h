@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-09 13:31:51  martius
+ *   Revision 1.3.4.1  2005-12-06 10:13:26  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.3  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -34,9 +37,7 @@
 #include "vector.h"
 #include "matrices.h"
 
-
-namespace university_of_leipzig {
-namespace robots {
+namespace lpzrobots {
 
 
 template<typename T>
@@ -239,6 +240,6 @@ T CubicSpline<T>::get_distant_point_parameter(T parameter, T distance)
 
 
 }
-}
+
 
 #endif

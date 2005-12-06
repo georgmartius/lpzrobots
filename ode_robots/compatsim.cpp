@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,35 +21,58 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.1  2005-12-06 10:13:26  martius
+ *   Revision 1.1.2.1  2005-12-06 10:13:23  martius
  *   openscenegraph integration started
  *
- *   Revision 1.2  2005/11/09 13:31:51  martius
- *   GPL'ised
- *
+ *                                                                 *
  ***************************************************************************/
-#ifndef __ODEHANDLE_H
-#define __ODEHANDLE_H
 
-#include <ode/common.h>
+#include "compatsim.h"
 
 namespace lpzrobots {
 
-/** Data structure for accessing the ODE */
-class OdeHandle
-{
-public:
-  OdeHandle( ) { }
-  OdeHandle(  dWorldID _world, dSpaceID _space, dJointGroupID _jointGroup){
-    world = _world; 
-    space = _space; 
-    jointGroup= _jointGroup;
-  }
-  dWorldID world;
-  dSpaceID space;
-  dJointGroupID jointGroup;
-};
 
+CompatSim::CompatSim(void (*startFun)(const OdeHandle&, const OsgHandle&, GlobalData& globalData), 
+		     void (*endFun)(GlobalData& globalData), 
+		     void (*configFun)(GlobalData& globalData), 
+		     void (*commandFun)(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key), 
+		     void (*collCallbackFun)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2),
+		     void (*addCallbackFun)(GlobalData& globalData, bool draw, bool pause))
+  : startFun(startFun), endFun(endFun), configFun(configFun), commandFun(commandFun),
+    collCallbackFun(collCallbackFun), addCallbackFun(addCallbackFun) {
 }
 
-#endif
+CompatSim::~CompatSim() {}
+
+
+void CompatSim::start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& globalData){
+  if(startFun) startFun(odeHandle, osgHandle, globalData);
+}
+
+void CompatSim::end(GlobalData& globalData){
+  if(endFun) endFun(globalData);
+};
+
+void CompatSim::config(GlobalData& globalData){
+  if(configFun) configFun(globalData);
+}
+
+void CompatSim::command(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+			GlobalData& globalData, int key) {
+  if(commandFun) commandFun(odeHandle, osgHandle, globalData, key);
+}
+
+bool CompatSim::collCallback(const OdeHandle& odeHandle, void* data, dGeomID o1, dGeomID o2) { 
+  if(collCallbackFun){
+    collCallbackFun(odeHandle, data, o1, o2);
+    return true;
+  } else 
+    return false;
+}
+
+void CompatSim::addCallback(GlobalData& globalData, bool draw, bool pause) {
+  if(addCallbackFun)
+    addCallbackFun(globalData, draw, pause);
+}
+
+}

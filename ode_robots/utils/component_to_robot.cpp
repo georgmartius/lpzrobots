@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.2  2005-11-15 12:30:24  martius
+ *   Revision 1.4.4.3  2005-12-06 10:13:26  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.4.4.2  2005/11/15 12:30:24  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.4.4.1  2005/11/14 17:37:25  martius
@@ -32,13 +35,13 @@
  ***************************************************************************/
 #include "component_to_robot.h"
 
-namespace university_of_leipzig {
-namespace robots {
+namespace lpzrobots {
 
 
 ComponentToRobot::ComponentToRobot(IComponent *_p_component,
-				   const OdeHandle &odehandle) :
-  OdeRobot(odehandle),
+				   const OdeHandle &odehandle,
+				   const OsgHandle &osghandle) :
+  OdeRobot(odeHandle, osgHandle),
   p_component(_p_component)
 {
   if(NULL == p_component)
@@ -177,11 +180,10 @@ void ComponentToRobot::setColor(Color col)
   // not implemented
 }
 
-Object ComponentToRobot::getMainObject(){
-  return Object(); // FIXME get object from first component
+Primitive* ComponentToRobot::getMainPrimitive(){
+  return 0; // FIXME get object from first component
 }
 
 
 
-}
 }

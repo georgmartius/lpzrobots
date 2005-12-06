@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-09-22 12:24:36  martius
+ *   Revision 1.10.4.1  2005-12-06 10:13:23  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.10  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -52,124 +55,99 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "primitive.h"
 #include "abstractobstacle.h"
-#include <drawstuff/drawstuff.h>
-
+ 
+namespace lpzrobots {
 
 //Fixme: playground creates collisions with ground and itself
 class Playground : public AbstractObstacle {
 
   double length, width, height;
-  double base_x, base_y, base_z;
+  osg::Vec3 pos;
   double factorlength2;
 
-  dGeomID obst1; //Obstacle1
-  dGeomID obst2; //Obstacle2
-  dGeomID obst3; //Obstacle3
-  dGeomID obst4; //Obstacle4
+  Box* box[4];
 
   bool obstacle_exists;
 
- public:
+public:
   
-  Playground(const OdeHandle& odehandle, double factorxy = 1):
-    AbstractObstacle::AbstractObstacle(odehandle){
+  Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
+	     const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) , double factorxy = 1):
+    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle){
 
-    base_x=0.0;
-    base_y=0.0;
-    base_z=0.0;
-	
-    length=7.0;
-    width=0.2;
-    height=0.5;
+    length=dimension.x();
+    width=dimension.y();
+    height=dimension.z();
 
     factorlength2=factorxy;
 
     obstacle_exists=false;
     
-    setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
+    setColor(Color(226 / 255.0, 103 / 255.0, 66 / 255.0));
   };
 
   /**
-   * draws the obstacle (4 boxes for the playground)
+   * updates the position of the geoms  ( not nessary for static objects)
    */
-  virtual void draw(){
-    double box[3];
-    dsSetTexture (DS_NONE);    
-    dsSetColor (color.r, color.g, color.b);
-
-    box[0] = width; box[1] = length*factorlength2; box[2] = height;
-    dsDrawBox ( dGeomGetPosition ( obst1 ) , dGeomGetRotation ( obst1 ) , box );
-    dsDrawBox ( dGeomGetPosition ( obst2 ) , dGeomGetRotation ( obst2 ) , box );
-    box[0] = length; box[1] = width; box[2] = height;
-    dsDrawBox ( dGeomGetPosition ( obst3 ) , dGeomGetRotation ( obst3 ) , box );
-    dsDrawBox ( dGeomGetPosition ( obst4 ) , dGeomGetRotation ( obst4 ) , box );
+  virtual void update(){
+    //for(int i=0; i<4; i++){
+    //      if(box[i]) box[i]->update();
+    //    }    
   };
   
   
-  virtual void setPosition(double x, double y, double z){
-    base_x=x;
-    base_y=y;
-    base_z=z;
+  virtual void setPosition(const osg::Vec3& pos){
+    this->pos = pos;
     if (obstacle_exists){
       destroy();
     }
     create();
   };
 
-  virtual void getPosition(double& x, double& y, double& z){
-    x=base_x;
-    y=base_y;
-    z=base_z;
+  virtual osg::Vec3 getPosition(){
+    return pos;
   }
   
-  virtual void setGeometry(double length_, double width_, double height_){
-    length=length_;
-    width=width_;
-    height =height_;
-  };
-
-  //  virtual void setGeometry(double length_, double width_, double height_, double factorlength2_){
-  //    length=length_;
-  //    width=width_;
-  //    height =height_;
-  //    factorlength2=factorlength2_;
-  //  };
-
-  virtual void setColor(double r, double g, double b){
-    color.r=r;
-    color.g=g;
-    color.b=b;
-  };
 
  protected:
   virtual void create(){
-    obst1 = dCreateBox ( space, width , (length * factorlength2)-0.01 , height);
-    dGeomSetPosition ( obst1, base_x - (length/2 + width/2), base_y, height/2 +base_z);
-	
-    obst2 = dCreateBox ( space, width, (length * factorlength2)-0.01, height );
-    dGeomSetPosition ( obst2, base_x + (length/2 +width/2), base_y, height/2 +base_z);
-	
-    obst3 = dCreateBox ( space, length-0.01, width, height );
-    dGeomSetPosition ( obst3, base_x, base_y-( (length*factorlength2)/2 +width/2), height/2 +base_z);
-	
-    obst4 = dCreateBox ( space, length-0.01, width, height );
-    dGeomSetPosition ( obst4, base_x, base_y+( (length*factorlength2)/2 +width/2), height/2 +base_z);
+    osg::Vec3 offset(- (length/2 + width/2), 0, height/2);
+    box[0] = new Box( width , (length * factorlength2) + 2 * width , height);
+    box[0]->init(odeHandle, 0, osgHandle, false);
+    box[0]->setPosition(pos + offset);
 
+    offset.x() = length/2 + width/2;
+    box[1] = new Box( width , (length * factorlength2) + 2 * width , height);
+    box[1]->init(odeHandle, 0, osgHandle, false);
+    box[1]->setPosition(pos + offset);
+
+    offset.x() = 0;
+    offset.y() = -( (length*factorlength2)/2 +width/2);
+    box[2] = new Box( length, width, height);
+    box[2]->init(odeHandle, 0, osgHandle, false);
+    box[2]->setPosition(pos + offset);
+
+    offset.y() = (length*factorlength2)/2 +width/2;
+    box[3] = new Box( length, width, height);
+    box[3]->init(odeHandle, 0, osgHandle, false);
+    box[3]->setPosition(pos + offset);
+    
     obstacle_exists=true;
-    // printf("Obst: %i,%i,%i,%i\n",obst1,obst2,obst3,obst4);
   };
 
 
   virtual void destroy(){
-    dGeomDestroy( obst1 );
-    dGeomDestroy( obst2 );
-    dGeomDestroy( obst3 );
-    dGeomDestroy( obst4 );
+    for(int i=0; i<4; i++){
+      if(box[i]) delete(box[i]);
+    }
     
     obstacle_exists=false;
   };
 
 };
+
+}
 
 #endif

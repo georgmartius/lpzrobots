@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.2  2005-11-24 16:19:12  fhesse
+ *   Revision 1.14.4.3  2005-12-06 10:13:25  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.14.4.2  2005/11/24 16:19:12  fhesse
  *   include corrected
  *
  *   Revision 1.14.4.1  2005/11/15 12:30:07  martius
@@ -32,17 +35,16 @@
  ***************************************************************************/
 #include <stdio.h>
 
-// include drawstuff library
-#include <drawstuff/drawstuff.h>
-
 // include ode library
 #include <ode/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>
 
-// include simulation environmet stuff
+// include simulation environment stuff
 #include "simulation.h"
+// include compatibility simulation environmet stuff
+#include "compatsim.h"
 
 // include agent (class for holding a robot, a controller and a wiring)
 #include "odeagent.h"
@@ -51,13 +53,16 @@
 #include <selforg/one2onewiring.h>
 
 // used robot
-#include "nimm4.h"
+//#include "nimm4.h"
 
 // used arena
 #include "playground.h"
 
 // used controller
 #include <selforg/invertnchannelcontroller.h>
+
+// fetch all the stuff of lpzrobots into scope
+using namespace lpzrobots;
 
 // plotoptions is a list of possible online output, 
 // if the list is empty no online gnuplot windows and no logging to file occurs.
@@ -66,25 +71,15 @@ list<PlotOption> plotoptions;
 
 
 // starting function (executed once at the beginning of the simulation loop)
-void start(const OdeHandle& odeHandle, GlobalData& global) 
+void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
 {
-  dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-  dsPrint ( "------------------------------------------------------------------------\n" );
-  dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
-
-  // initial camera position and viewpoint
-  float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
-  dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
-
-  // quality in which spheres are drawn
-  dsSetSphereQuality (2); 
+  ///Todo: setviewpoint
 
   // initialization
   // - set noise to 0.1
   // - register file chess.ppm as a texture called chessTexture (used for the wheels)
   global.odeConfig.noise=0.1;
-  int chessTexture = dsRegisterTexture("chess.ppm");
+  //  int chessTexture = dsRegisterTexture("chess.ppm");
 
   // use Playground as boundary:
   // - create pointer to playground (odeHandle contains things like world and space the 
@@ -93,9 +88,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //   setGeometry(double length, double width, double	height)
   // - setting initial position of the playground: setPosition(double x, double y, double z)
   // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-  Playground* playground = new Playground(odeHandle);
-  playground->setGeometry(7.0, 0.2, 1.5);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
+  Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10,0.2,0.5));
+  playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
   global.obstacles.push_back(playground);
 
   // use Nimm4 vehicle as robot:
@@ -103,26 +97,25 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //   here are the defaults used)
   // - set textures for body and wheels
   // - place robot
-  Nimm4* vehicle = new Nimm4(odeHandle);
-  vehicle->setTextures(DS_WOOD, chessTexture); 
-  vehicle->place(Position(0,0,0));
+//   Nimm4* vehicle = new Nimm4(odeHandle);
+//   vehicle->setTextures(DS_WOOD, chessTexture); 
+//   vehicle->place(Position(0,0,0));
 
-  // create pointer to controller
-  // push controller in global list of configurables
-  AbstractController *controller = new InvertNChannelController(10);  
-  global.configs.push_back(controller);
+//   // create pointer to controller
+//   // push controller in global list of configurables
+//   AbstractController *controller = new InvertNChannelController(10);  
+//   global.configs.push_back(controller);
   
-  // create pointer to one2onewiring
-  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+//   // create pointer to one2onewiring
+//   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
-  // create pointer to agent
-  // initialize pointer with controller, robot and wiring
-  // push agent in globel list of agents
-  OdeAgent* agent = new OdeAgent(plotoptions);
-  agent->init(controller, vehicle, wiring);
-  global.agents.push_back(agent);
-
-  // show (print to console) params of all objects in configurable list 
+//   // create pointer to agent
+//   // initialize pointer with controller, robot and wiring
+//   // push agent in globel list of agents
+//   OdeAgent* agent = new OdeAgent(plotoptions);
+//   agent->init(controller, vehicle, wiring);
+//   global.agents.push_back(agent);
+  
   showParams(global.configs);
 }
 
@@ -165,15 +158,11 @@ int main (int argc, char **argv)
   // display help
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
+  CompatSim sim(&start, &end, &config);
+  if(sim.run(argc, argv))
+    return 0;
+  else 
+    return 1;
 
-  // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config);
- 
-  // start the simulation (returns, if the user closes the simulation)
-  simulation_start(argc, argv);
-  
-  // tidy up
-  simulation_close();  
-  return 0;
 }
  

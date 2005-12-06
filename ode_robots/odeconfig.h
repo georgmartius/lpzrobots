@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.1  2005-11-14 17:37:00  martius
+ *   Revision 1.12.4.2  2005-12-06 10:13:23  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.12.4.1  2005/11/14 17:37:00  martius
  *   changed makefile structure to have and include directory
  *   mode to selforg
  *
@@ -34,6 +37,8 @@
 #include <ode/ode.h>
 #include <selforg/configurable.h>
 #include "odehandle.h"
+
+namespace lpzrobots {
 
 class OdeConfig : public Configurable {
 public:
@@ -120,5 +125,7 @@ public:
   string name;
   OdeHandle odeHandle;
 };
+
+}
 
 #endif

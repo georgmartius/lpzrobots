@@ -19,26 +19,47 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
+ ***************************************************************************
+ *                                                                         *
+ *   This file provides the main simulation loop using open scene graph    *
+ *   It creates the world scene and call the call back functions and so on.*
+ *                                                                         *
+ *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-09 13:31:51  martius
- *   GPL'ised
+ *   Revision 1.1.2.1  2005-12-06 10:13:24  martius
+ *   openscenegraph integration started
  *
- *   Revision 1.2  2005/08/08 11:06:47  martius
- *   camera is a module for camera movements
- *   includes cleaned
- *
- *   Revision 1.1  2005/08/02 13:18:33  fhesse
- *   function for drawing geoms
  *                                                                 *
  *                                                                         *
  ***************************************************************************/
-#ifndef __DRAWGEOM_H
-#define __DRAWGEOM_H
+#ifndef __OSGMAINLOOP_H
+#define __OSGMAINLOOP_H
 
 #include <ode/ode.h>
 
-// draws a geom
-void drawGeom (dGeomID g, const dReal *pos, const dReal *R);
+#include "odehandle.h"
+#include "globaldata.h"
+
+class OSGMainLoop {
+public:
+  OSGMainLoop(){
+
+  }
+  
+protected:
+  /// user defined start function (called at the beginning of the simulation)
+  void (*startFunction)(const OdeHandle&, GlobalData& globalData);
+  /// user defined end function (called after the simulation)
+  void (*endFunction)(GlobalData& globalData); 
+  /// pointer to the config function of the user
+  void (*configFunction)(GlobalData& globalData);
+  // command function, set by user
+  void (*commandFunction)(const OdeHandle&, GlobalData& globalData, int key); 
+  /// pointer to the user defined additional function
+  void (*collisionCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2);
+  /// pointer to the user defined additional function which is executed in each simulationstep
+  void (*additionalCallback)(GlobalData& globalData, bool draw, bool pause);
+}
 
 
 #endif

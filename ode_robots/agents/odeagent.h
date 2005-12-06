@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-15 12:29:18  martius
+ *   Revision 1.1.2.2  2005-12-06 10:13:23  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.1.2.1  2005/11/15 12:29:18  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *                                                                 *
@@ -30,6 +33,8 @@
 
 #include <selforg/agent.h>
 #include "oderobot.h"
+
+namespace lpzrobots {
 
 /** Specialised agent for ode robots
  */
@@ -56,5 +61,7 @@ public:
   virtual OdeRobot* getRobot() { return (OdeRobot*)robot;}
 
 };
+
+}
 
 #endif

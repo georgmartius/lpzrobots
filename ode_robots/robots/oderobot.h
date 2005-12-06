@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2005-11-24 16:20:54  fhesse
+ *   Revision 1.1.2.6  2005-12-06 10:13:25  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.1.2.5  2005/11/24 16:20:54  fhesse
  *   odeRto3x3RotationMatrix corrected
  *
  *   Revision 1.1.2.4  2005/11/16 11:26:52  martius
@@ -76,20 +79,23 @@
 #define __ODEROBOT_H
 
 #include <vector>
-using namespace std;
  
 #include <selforg/abstractrobot.h>
 #include "odehandle.h"
+#include "osghandle.h"
 #include "globaldata.h"
 #include "color.h"
+#include "primitive.h"
 
-typedef struct Object
-{
-  Object(){body = 0; geom = 0;}
-  Object(dBodyID b, dGeomID g){ body = b; geom = g;}
-  dBodyID body;
-  dGeomID geom;
-} Object;
+namespace lpzrobots {
+
+/* class Object { */
+/* public: */
+/*   Object() { body = 0; geom = 0; } */
+/*   Object(dBodyID b, dGeomID g) { body = b; geom = g; } */
+/*   dBodyID body; */
+/*   dGeomID geom; */
+/* }; */
 
 /**
  * Abstract class  for ODE robot 
@@ -102,18 +108,15 @@ public:
    * Constructor
    * @param odehandle structure with all global ODE variables
    */
-  OdeRobot(const OdeHandle& odehandle, const char* name="OdeRobot")
-    : AbstractRobot(name) {
-    world=odehandle.world;
-    space=odehandle.space;
-    contactgroup=odehandle.jointGroup;
+  OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const char* name="OdeRobot")
+    : AbstractRobot(name), odeHandle(odeHandle), osgHandle(osgHandle) {
   };
 
   virtual ~OdeRobot(){}
 
 
-  /// draws the robot
-  virtual void draw() = 0;
+  /// update the OSG notes here
+  virtual void update() = 0;
 
 /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
     @params pos desired position of the robot in struct Position
@@ -139,16 +142,16 @@ public:
       @param col Color struct with desired Color
    */
   virtual void setColor(Color col){
-    color=col;
+    osgHandle.color = col;
   };
   
   /** returns position of the object
       @return vector of position (x,y,z)
   */
   virtual Position getPosition() const {
-    const Object& o = getMainObject();
-    if (o.body){
-      return Position(dBodyGetPosition(o.body));
+    const Primitive* o = getMainPrimitive();    
+    if (o && o->getBody()){
+      return Position(dBodyGetPosition(o->getBody()));
     } else return Position(0,0,0);
   }
   
@@ -156,21 +159,21 @@ public:
       @return vector  (vx,vy,vz)
   */
   virtual Position getSpeed() const {
-    const Object& o = getMainObject();
-    if (o.body){
-      return Position(dBodyGetLinearVel(o.body));
+    const Primitive* o = getMainPrimitive();
+    if (o && o->getBody()){
+      return Position(dBodyGetLinearVel(o->getBody()));
     } else return Position(0,0,0);
   }
   
   /** returns the orientation of the object
       @return 3x3 rotation matrix
   */
-  virtual Matrix getOrientation() const {
-    const Object& o = getMainObject();
-    if (o.body){
-      return odeRto3x3RotationMatrix(dBodyGetRotation(o.body)); 
+  virtual matrix::Matrix getOrientation() const {
+    const Primitive* o = getMainPrimitive();
+    if (o && o->getBody()){
+      return odeRto3x3RotationMatrix(dBodyGetRotation(o->getBody())); 
     } else {
-      Matrix R(3,3); 
+      matrix::Matrix R(3,3); 
       return R^0; // identity
     }
   }
@@ -181,17 +184,17 @@ protected:
       If there is no object for some reason then return an empty object (Object())
       @return main object of the robot (used for tracking)
    */
-  virtual Object getMainObject() const  = 0;
+  virtual lpzrobots::Primitive* getMainPrimitive() const  = 0;
 
-  static bool isGeomInObjectList(Object* os, int len, dGeomID geom){  
+  static bool isGeomInPrimitiveList(lpzrobots::Primitive* ps, int len, dGeomID geom){  
     for(int i=0; i < len; i++){
-      if(geom == os[i].geom) return true;
+      if(geom == ps[i].getGeom()) return true;
     }
     return false;
   }
 
-  static Matrix odeRto3x3RotationMatrixT ( const double R[12] ) {  
-    Matrix matrix(3,3);
+  static matrix::Matrix odeRto3x3RotationMatrixT ( const double R[12] ) {  
+    matrix::Matrix matrix(3,3);
     matrix.val(0,0)=R[0];
     matrix.val(0,1)=R[4];
     matrix.val(0,2)=R[8];
@@ -204,8 +207,8 @@ protected:
     return matrix;
   }
 
-  static Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
-    Matrix matrix(3,3);
+  static matrix::Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
+    matrix::Matrix matrix(3,3);
     matrix.val(0,0)=R[0];
     matrix.val(1,0)=R[4];
     matrix.val(2,0)=R[8];
@@ -220,13 +223,11 @@ protected:
 
 
 protected:
-  
-  dSpaceID space;
-  dWorldID world;
-  dJointGroupID contactgroup;
-
-  Color color;
+  OdeHandle odeHandle;
+  OsgHandle osgHandle;
 };
+
+}
 
 #endif
  

@@ -20,7 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.2  2005-12-06 10:13:23  martius
+ *   Revision 1.1.2.1  2005-12-06 10:13:24  martius
  *   openscenegraph integration started
  *
  *   Revision 1.7.4.1  2005/11/14 17:37:09  martius
@@ -56,29 +56,17 @@
 #include <vector>
 #include <list>
 
-#include "vector.h"
 #include "exceptions.h"
-#include "cubic_spline.h"
-
 #include "odehandle.h"
-#include <selforg/configurable.h>
 #include "oderobot.h"
+#include <selforg/configurable.h>
+#include <selforg/Position.h>
 
+#ifndef __component_h
+#define __component_h
 
-#ifdef dDOUBLE
-#define dsDrawBox dsDrawBoxD
-#define dsDrawSphere dsDrawSphereD
-#define dsDrawCylinder dsDrawCylinderD
-#define dsDrawCappedCylinder dsDrawCappedCylinderD
-#endif
-
-
-#ifndef component_h
-#define component_h
-
-
-namespace lpzrobots {
-
+namespace university_of_leipzig {
+namespace robots {
 
 class IWire;
 class IComponent;
@@ -86,55 +74,27 @@ class AbstractMotorComponent;
 class UniversalMotorComponent;
 class MotorWire;
 
+typedef struct {
+  double val;
+  std::string name;
+} Wire;
 
-typedef std::list<IComponent*> ComponentContainer;
-typedef Vector3<dReal>              Vertex;
-typedef std::list< Vertex > VertexList;
-
-
-typedef Vector3<dReal>      Angle;
+typedef Position Angle;
 typedef std::list< Angle >  AngleList;
 
-typedef std::list<IWire*> WireContainer;
-//typedef std::vector<dJointID> joint_id_list;
+typedef std::list<IComponent*> ComponentList;
+typedef std::list<Wire*> WireList;
 
 
+class OdeObject {
+public:
+  dGeomID getGeom();
+  dBodyID getBody();
 
-
-
-
-/**
- * Wire
- *
- *
- * a wire is always attached to a component
- */
-class IWire {
- public:
-  virtual IComponent& get_component() const = 0;
+  virtual bool collision_callback(OdeHandle *p_ode_handle, 
+			          dGeomID geom_id_0, 
+				  dGeomID geom_id_1) const = 0;
 };
-
-
-
-class IInputWire : virtual public IWire {
- public:
-  virtual void put(dReal value) = 0;
-};
-
-
-class IOutputWire : virtual public IWire {
- public:
-  virtual dReal get() const = 0;
-};
-
-class IBidirectionalWire : virtual public IInputWire,
-                           virtual public IOutputWire {
- public:
-  // no new members required
-};
-
-
-
 
 /**
  * Component
@@ -143,23 +103,13 @@ class IBidirectionalWire : virtual public IInputWire,
  *
  *
  */
-class IComponent : public Configurable
+  class IComponent : public Configurable : public OdeObject : public OSGNode
 {
- public:
-  virtual unsigned get_sub_component_count() const = 0;
-
-  virtual IComponent &get_sub_component(unsigned index) const = 0;
-
-  virtual unsigned expose_wires(WireContainer &r_wire_set) = 0;
+public:
   
-  virtual void draw() const = 0;
-
-  virtual const IComponent* does_contain_geom(const dGeomID geom_id,
-			        	      bool b_recursive) const = 0;
-
-  virtual bool collision_callback(OdeHandle *p_ode_handle, 
-			          dGeomID geom_id_0, 
-				  dGeomID geom_id_1) const = 0;
+  virtual ComponentList getChilds() const = 0;
+  virtual WireList getWires() const = 0;
+  
 };
 
  
@@ -474,6 +424,7 @@ class SpiderComponent : public AbstractCompoundComponent
 
 
 
+}
 }
 
 

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.1  2005-11-14 17:37:25  martius
+ *   Revision 1.8.4.2  2005-12-06 10:13:26  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.8.4.1  2005/11/14 17:37:25  martius
  *   moved to selforg
  *
  *   Revision 1.8  2005/09/20 10:55:15  robot3
@@ -59,6 +62,8 @@
 
 #include "oderobot.h"
 
+namespace lpzrobots {
+
 typedef enum CameraType { Static, TV, Following, advancedTV, advancedFollowing};
 
 // moves the camera so that the robot is the watching object
@@ -74,4 +79,5 @@ void moveOnRobot(OdeRobot& robot);
 // prints the last used camera mode
 void printMode(CameraType camType);
 
+}
 #endif

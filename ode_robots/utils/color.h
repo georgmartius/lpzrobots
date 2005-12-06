@@ -20,20 +20,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-09 13:31:51  martius
+ *   Revision 1.2.4.1  2005-12-06 10:13:26  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.2  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
 #ifndef __COLOR_H
 #define __COLOR_H
 
-typedef struct Color
+#include<osg/Vec4>
+
+namespace lpzrobots{
+
+class Color : public osg::Vec4
 {
-  Color() {r=g=b=0;};
-  Color(double _r, double _g, double _b){ r=_r; g=_g; b=_b; }
-  double r;
-  double g;
-  double b;
-} Color;
+public:
+  Color() {};
+  Color(double r, double g, double b)
+    : osg::Vec4(r, g, b, 1.0){} 
+  Color(double r, double g, double b, double a)
+    : osg::Vec4(r, g, b, a){} 
+};
+
+}
 
 #endif

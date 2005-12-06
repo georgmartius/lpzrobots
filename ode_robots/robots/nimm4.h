@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.3  2005-11-16 11:26:52  martius
+ *   Revision 1.5.4.4  2005-12-06 10:13:25  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.5.4.3  2005/11/16 11:26:52  martius
  *   moved to selforg
  *
  *   Revision 1.5.4.2  2005/11/15 12:29:26  martius
@@ -59,14 +62,15 @@
 class Nimm4 : public OdeRobot{
 public:
   
-  Nimm4(const OdeHandle& odeHandle, double size=1, double force=3, double speed=15, bool sphereWheels=true);
+  Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	double size=1, double force=3, double speed=15, bool sphereWheels=true);
 
   virtual ~Nimm4(){};
 
   /**
    * draws the vehicle
    */
-  virtual void draw();
+  virtual void update();
 
   /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
       @params pos desired position of the robot in struct Position
@@ -158,7 +162,7 @@ protected:
 
   bool created;      // true if robot was created
 
-  Object object[5];  // 1 cylinder, 4 wheels
+  Primitive* object[5];  // 1 cylinder, 4 wheels
   dJointID joint[4]; // joints between cylinder and each wheel
 
   dSpaceID car_space;

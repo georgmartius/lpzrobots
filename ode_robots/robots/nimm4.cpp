@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.2  2005-11-15 12:29:26  martius
+ *   Revision 1.7.4.3  2005-12-06 10:13:25  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.7.4.2  2005/11/15 12:29:26  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.7.4.1  2005/11/14 17:37:17  martius
@@ -31,10 +34,10 @@
  *
  ***************************************************************************/
 #include <assert.h>
-// include drawstuff and ode stuff
-#include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
+// include primitives (box, spheres, cylinders ...)
+#include "primitives.h"
 // include simulation environmet stuff
 #include "simulation.h"
 
@@ -203,39 +206,44 @@ vector<Position> Nimm4::getSegmentsPosition(){
 
 
 /**
- * draws the vehicle
+ * updates the osg notes
  */
-void Nimm4::draw(){
+void Nimm4::update(){
   assert(created); // robot must exist
-  dsSetColor (color.r,color.g,color.b); // set color for cylinder
-  dsSetTexture (bodyTexture); // set texture for cylinder
-
-  // draw capped cylinder (forr the body)
-  // at position of the body
-  // with rotation matrix of the body
-  // and with length and radius(=width/2) of the body
-  dsDrawCappedCylinder(dBodyGetPosition(object[0].body),
-		       dBodyGetRotation(object[0].body),length, width/2 );
-
-  dsSetColor (1,1,1); // set color for wheels
-  dsSetTexture (wheelTexture); // set texture for wheels
-  // for all wheels
+  
   for (int i=1; i<5; i++) { 
-    if(sphereWheels)
-      // if spheres as wheels draw spheres 
-      // at position of the wheels
-      // with rotation matrix of the wheel
-      // and with desired radius
-      dsDrawSphere (dBodyGetPosition(object[i].body), 
-		    dBodyGetRotation(object[i].body),radius);
-    else
-      // if wheels(cylinder slice) as wheels draw cylinders
-      // at position of the wheels
-      // with rotation matrix of the wheel
-      // and with thickness (or length of the cylinder) and desired radius
-      dsDrawCylinder (dBodyGetPosition(object[i].body), 
-		      dBodyGetRotation(object[i].body),wheelthickness,radius);
+    object[i]->update();
   }
+
+//   dsSetColor (color.r,color.g,color.b); // set color for cylinder
+//   dsSetTexture (bodyTexture); // set texture for cylinder
+
+//   // draw capped cylinder (forr the body)
+//   // at position of the body
+//   // with rotation matrix of the body
+//   // and with length and radius(=width/2) of the body
+//   dsDrawCappedCylinder(dBodyGetPosition(object[0].body),
+// 		       dBodyGetRotation(object[0].body),length, width/2 );
+
+//   dsSetColor (1,1,1); // set color for wheels
+//   dsSetTexture (wheelTexture); // set texture for wheels
+//   // for all wheels
+//   for (int i=1; i<5; i++) { 
+//     if(sphereWheels)
+//       // if spheres as wheels draw spheres 
+//       // at position of the wheels
+//       // with rotation matrix of the wheel
+//       // and with desired radius
+//       dsDrawSphere (dBodyGetPosition(object[i].body), 
+// 		    dBodyGetRotation(object[i].body),radius);
+//     else
+//       // if wheels(cylinder slice) as wheels draw cylinders
+//       // at position of the wheels
+//       // with rotation matrix of the wheel
+//       // and with thickness (or length of the cylinder) and desired radius
+//       dsDrawCylinder (dBodyGetPosition(object[i].body), 
+// 		      dBodyGetRotation(object[i].body),wheelthickness,radius);
+//   }
 };
 
 /** things for collision handling inside the space of the robot can be done here
@@ -338,6 +346,7 @@ void Nimm4::create(Position pos){
   }
   // create car space and add it to the top level space
   car_space = dSimpleSpaceCreate (space);
+  
 
   dMass m;
   // create (main) body

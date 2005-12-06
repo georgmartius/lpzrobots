@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.1  2005-11-14 17:37:01  martius
+ *   Revision 1.18.4.2  2005-12-06 10:13:23  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.18.4.1  2005/11/14 17:37:01  martius
  *   changed makefile structure to have and include directory
  *   mode to selforg
  *
@@ -94,35 +97,107 @@
 #include <iterator>
 using namespace std;
 
+#include <osgProducer/Viewer>
+#include <osg/ArgumentParser>
+
 #include "odehandle.h"
 #include "odeconfig.h"
 #include "camera.h"
+#include "grabframe.h"
+
+#include "osghandle.h"
+#include "primitive.h"
 
 #include "globaldata.h"
 
-// simulation stuff
-/** Initialises the simulation and registers the given callback functions.
-    @param start() is called at the start and should create all the object (obstacles, agents...).
-    @param end() is called at the end and should tidy up
-    @param config() is called when the user presses Ctrl-C. Calls usually @changeParams()@
-    @param collCallback() if defined it is called instead of the default collision handling.
+namespace lpzrobots {
+
+class Simulation {
+public:
+  typedef enum SimulationState { none, initialised, running, closed };
+    
+  Simulation();
+  virtual ~Simulation();
+
+  /** starts the Simulation. Do not overload it. 
+      This function returns of the simulation is terminated.
+      @return: true if closed regulary, false on error
+   */
+  bool run(int argc, char** argv);
+  
+  // the following function have to be overloaded.
+
+  /// start() is called at the start and should create all the object (obstacles, agents...).
+  virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
+  /// end() is called at the end and should tidy up
+  virtual void end(GlobalData& globalData) = 0;
+  /// config() is called when the user presses Ctrl-C. Calls usually @changeParams()@
+  virtual void config(GlobalData& globalData) = 0;
+
+  // the following functions have dummy default implementations
+
+  /// command() is called if a key was pressed
+  virtual void command(const OdeHandle&, GlobalData& globalData, int key) {};
+  /** collCallback() can be used to overload the standart collision handling.
       However it is called after the robots collision handling.       
-    @param drawCallback optional additional draw function
- */
-void simulation_init(void (*start)(const OdeHandle&, GlobalData& globalData), 
-		     void (*end)(GlobalData& globalData), 
-		     void (*config)(GlobalData& globalData), 
-		     void (*command)(const OdeHandle&, GlobalData& globalData, int key) = 0, 
-		     void (*collCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) = 0,
-		     void (*addCallback)(GlobalData& globalData, bool draw, bool pause) = 0);
+     @return true if collision is treated, false otherwise
+  */
+  virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
+  /// addCallback()  optional additional callback function.
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {};
 
-/// initializes or resets the camera per user, if wanted
-void camera_init(CameraType type, OdeRobot* robot);
+protected:
+  virtual bool init(int argc, char** argv);
 
-/// starts the simulation.
-void simulation_start(int argc, char** argv);
-/// call this after the @simulation_start()@ has returned to tidy up.
-void simulation_close();
+  static void nearCallback(void *data, dGeomID o1, dGeomID o2);
+  bool control_c_pressed();
+
+  // ODE globals
+  OdeHandle odeHandle;
+  GlobalData globalData;
+  VideoStream videostream;
+
+  OsgHandle osgHandle;
+
+  lpzrobots::Plane ground;
+
+  struct timeval realTime;
+  int nextLeakAnnounce;
+  int leakAnnCounter;
+
+  long sim_step;
+  
+  CameraType camType; // default is a non-moving and non-rotating camera
+  OdeRobot* viewedRobot; // the robot who is viewed from the camera
+
+
+private:
+  static void processCmdLine(int argc, char** argv);
+  void loop(bool pause);
+
+  static void control_c(int i);
+  static void cmd_handler_exit();
+  static void cmd_handler_init();
+  static void cmd_begin_input();
+  static void cmd_end_input();
+
+  // Commandline interface stuff
+  static void usage(const char* progname);
+
+
+  SimulationState state;
+  osg::ArgumentParser* arguments;
+  osgProducer::Viewer* viewer;
+  static int ctrl_C;
+};
+
+// /// initializes or resets the camera per user, if wanted
+// void camera_init(CameraType type, OdeRobot* robot);
+
+// /// starts the simulation.
+// void simulation_start(int argc, char** argv);
+// /// call this after the @simulation_start()@ has returned to tidy up.
+// void simulation_close();
 
 // Helper
 /// returns the index+1 if the list contains the given string or 0 if not
@@ -134,15 +209,6 @@ void showParams(const ConfigList& configs);
 /// offers the possibility to change parameter of all configurable objects
 void changeParams(ConfigList& configs);
 
-
-//dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
-#ifdef dDOUBLE
-#define dsDrawLine dsDrawLineD
-#define dsDrawBox dsDrawBoxD
-#define dsDrawSphere dsDrawSphereD
-#define dsDrawCylinder dsDrawCylinderD
-#define dsDrawCappedCylinder dsDrawCappedCylinderD
-
-#endif
+}
 
 #endif

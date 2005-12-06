@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.1  2005-11-14 17:37:14  martius
+ *   Revision 1.8.4.2  2005-12-06 10:13:23  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.8.4.1  2005/11/14 17:37:14  martius
  *   moved to selforg
  *
  *   Revision 1.8  2005/10/25 19:26:56  fhesse
@@ -50,8 +53,9 @@
 #include <ode/ode.h>
 
 #include "odehandle.h"
-#include "color.h"
+#include "osghandle.h"
 
+namespace lpzrobots {
 
 /**
  *  Abstract class (interface) for obstacles
@@ -64,56 +68,42 @@ class AbstractObstacle{
    * @param odehandle containing world, space and jointgroup which should 
    * be used for creation of obstacles
    */
-  AbstractObstacle(const OdeHandle& odehandle): color(0.5,0.5,0.5) {
-    world=odehandle.world;
-    space=odehandle.space;
+  AbstractObstacle(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
+    : odeHandle(odeHandle), osgHandle(osgHandle) {
   };
 
   virtual ~AbstractObstacle(){}
   
   /**
-   * draws the obstacle
+   * updates the position if the scenegraph nodes
    */
-  virtual void draw() = 0;
+  virtual void update() = 0;
   
   /**
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
-  virtual void setPosition(double x, double y, double z) = 0;
+  virtual void setPosition(const osg::Vec3& pos) = 0;
 
   /**
    * gives actual position of the obstacle
    */
-  virtual void getPosition(double& x, double& y, double& z) = 0;
-  
-  /**
-   * sets geometry parameters for the obstacle
-   */
-  virtual void setGeometry(double length, double width, double height) = 0;
-  
+  virtual osg::Vec3 getPosition() = 0;
+    
   /**
    * sets the obstacle color
-   * @param r, g, b color values in RGB
+   * @param Vec4 color values in RGBA
    */
-  virtual void setColor(double r, double g, double b)=0;
+  virtual void setColor(const Color& color) {
+    osgHandle.color = color;
+  };
 
  protected:
 
-  /**
-   * space in which the obstacle should be created
-   */
-  dSpaceID space;
-
-  /**
-   * world in which the obstacle should be created
-   */
-  dWorldID world;
-
-  /**
-   * obstacle color
-   */
-  Color color;
+  OdeHandle odeHandle;
+  OsgHandle osgHandle; 
 
 };
+
+}
 
 #endif

@@ -24,7 +24,7 @@ LIBS   = -lm \
 	-L$(ODEROBOTS) -lode_robots \
 	-L$(SELFORG)   -lselforg \
 	-L$(MATRIXLIB)  -l$(MATRIX) \
-	-lode -ldrawstuff -lGL -lGLU -lglut
+	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut
 
 INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include -I$(MATRIXLIB)
 
