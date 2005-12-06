@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.3  2005-11-16 11:26:52  martius
+ *   Revision 1.21.4.4  2005-12-06 17:38:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.21.4.3  2005/11/16 11:26:52  martius
  *   moved to selforg
  *
  *   Revision 1.21.4.2  2005/11/15 12:29:26  martius
@@ -138,6 +141,8 @@ int Nimm2::getSensors(sensor* sensors, int sensornumber){
     sensors[i]=dJointGetHinge2Angle2Rate(joint[i]);
     sensors[i]/=conf.speed;  //scaling
   }
+  // ask sensorbank for sensor values
+  //  sensor+len is the starting point in the sensors array
   len += irSensorBank.get(sensors+len, sensornumber-len);
   return len;
 };

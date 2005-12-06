@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.2  2005-11-16 11:27:38  martius
+ *   Revision 1.15.4.3  2005-12-06 17:38:19  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.15.4.2  2005/11/16 11:27:38  martius
  *   invertmotornstep has configuration
  *
  *   Revision 1.15.4.1  2005/11/15 12:30:04  martius
@@ -86,10 +89,11 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   AbstractController *controller = new InvertMotorNStep();  
   //AbstractController *controller = new InvertMotorSpace(10,1.2);  
   //controller->setParam("nomupdate",0.001);
+  controller->setParam("adaptrate",0.001);
   controller->setParam("epsA",0.01);
   controller->setParam("epsC",0.01);
-  controller->setParam("factorB",0);
-  controller->setParam("steps",2);
+  controller->setParam("factorB",0.1);
+  //  controller->setParam("steps",2);
   //  AbstractController *controller = new InvertNChannelController(10);  
   //AbstractController *controller = new SineController();
   

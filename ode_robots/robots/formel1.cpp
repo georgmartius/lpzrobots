@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.2  2005-11-15 12:29:26  martius
+ *   Revision 1.4.4.3  2005-12-06 17:38:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4.4.2  2005/11/15 12:29:26  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.4.4.1  2005/11/14 17:37:17  martius
@@ -87,7 +90,7 @@ void Formel1::setMotors(const motor* motors, int motornumber){
 
 /** returns actual sensorvalues
     @param sensors sensors scaled to [-1,1] (more or less)
-    @param sensornumber length of the sensor array
+    @param sensornumber length of the sensors array
     @return number of actually written sensors
 */
 int Formel1::getSensors(sensor* sensors, int sensornumber){

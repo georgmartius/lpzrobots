@@ -26,13 +26,17 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 10:13:24  martius
+ *   Revision 1.1.2.2  2005-12-06 17:38:15  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.1  2005/12/06 10:13:24  martius
  *   openscenegraph integration started
  *
  *                                                                 *
  *                                                                         *
  ***************************************************************************/
 
+#include <assert.h>
 
 #include <osg/Projection>
 #include <osg/Geometry>

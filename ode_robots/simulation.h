@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.2  2005-12-06 10:13:23  martius
+ *   Revision 1.18.4.3  2005-12-06 17:38:13  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.18.4.2  2005/12/06 10:13:23  martius
  *   openscenegraph integration started
  *
  *   Revision 1.18.4.1  2005/11/14 17:37:01  martius
@@ -109,10 +112,11 @@ using namespace std;
 #include "primitive.h"
 
 #include "globaldata.h"
+#include "base.h"
 
 namespace lpzrobots {
 
-class Simulation {
+class Simulation : public Base {
 public:
   typedef enum SimulationState { none, initialised, running, closed };
     
