@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 10:13:25  martius
+ *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   camera is woring now
+ *
+ *   Revision 1.1.2.1  2005/12/06 10:13:25  martius
  *   openscenegraph integration started
  *
  *                                                                 *
@@ -61,7 +64,10 @@ Primitive::Primitive()
   : geom(0), body(0) {
 }
 
-Primitive::~Primitive () {}
+Primitive::~Primitive () {
+  if(geom) dGeomDestroy( geom );
+  if(body) dBodyDestroy( body );
+}
 
 
 void Primitive::setPosition(const osg::Vec3& pos){

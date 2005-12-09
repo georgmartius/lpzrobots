@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 10:13:24  martius
+ *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   camera is woring now
+ *
+ *   Revision 1.1.2.1  2005/12/06 10:13:24  martius
  *   openscenegraph integration started
  *
  *                                                                 *
@@ -35,9 +38,13 @@
 #ifndef __OSGPRIMITIVE_H
 #define __OSGPRIMITIVE_H
 
-#include <osg/Geode>
-#include <osg/MatrixTransform>
-#include <osg/ShapeDrawable>
+#include <osg/ref_ptr>
+
+namespace osg{
+  class Geode;
+  class Matrix;
+  class MatrixTransform;
+}
 
 #include "osghandle.h"
 
@@ -53,8 +60,8 @@ public:
   virtual osg::Group* getGroup();
 
 protected:
-  osg::ref_ptr<osg::Geode> geode;
-  osg::ref_ptr<osg::MatrixTransform> transform;  
+  ref_ptr<osg::Geode> geode;
+  ref_ptr<osg::MatrixTransform> transform;  
 };
 
 

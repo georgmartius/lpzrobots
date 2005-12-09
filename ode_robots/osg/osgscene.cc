@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 10:13:25  martius
+ *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   camera is woring now
+ *
+ *   Revision 1.1.2.1  2005/12/06 10:13:25  martius
  *   openscenegraph integration started
  *
  *
@@ -45,6 +48,7 @@
 #include "osgprimitive.h"
 
 using namespace osg;
+using namespace lpzrobots;
 
 
 ref_ptr<Group> _create_scene()
@@ -91,20 +95,22 @@ ref_ptr<Group> _create_scene()
   shape->setColor(Vec4(1.0f, 0.3f, 0.3f, 1.0f));
   geode_2->addDrawable(shape.get());
 
+  OsgHandle osgHandle(scene.get(), hints.get(), Color(1.0f, 0.0f, 0.0f, 1.0f) );
+
   Matrix m;
 
   OSGPlane* plane = new OSGPlane();
-  plane->init(scene.get(), Vec4(1.0f, 0.0f, 0.0f, 1.0f), hints.get());
+  plane->init(osgHandle);
   m.makeTranslate(Vec3(0.0f,0.0f,-1.0f));
   plane->setPose(m);
 
   OSGBox* box = new OSGBox(2,3,4);
-  box->init(scene.get(), Vec4(1.0f, 0.0f, 0.0f, 1.0f), hints.get());
+  box->init(osgHandle);
   m.makeTranslate(Vec3(1.0f,2.0f,0.0f));
   box->setPose(m);
 
   OSGSphere* sphere= new OSGSphere(2);
-  sphere->init(scene.get(), Vec4(0.0f, 1.0f, 0.0f, 1.0f), hints.get());
+  sphere->init(osgHandle);
   m.makeTranslate(Vec3(-1.0f,1.0f,0.0f));
   
   sphere->setPose(m);

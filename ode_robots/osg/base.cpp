@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 17:40:59  martius
+ *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   camera is woring now
+ *
+ *   Revision 1.1.2.1  2005/12/06 17:40:59  martius
  *   base class for simulation
  *
  *                                                                 *
@@ -48,6 +51,7 @@
 #include <osgGA/AnimationPathManipulator>
 
 #include "base.h"
+#include "primitive.h"
 
 using namespace osg;
 
@@ -55,17 +59,15 @@ namespace lpzrobots {
 
   Group* Base::makeScene(){
     // no database loaded so automatically create Ed Levin Park..
-    Group* group = new Group;
-    
+    root = new Group;
     // the base and sky subgraphs go to set the earth sky of the
     // model and clear the color and depth buffer for us, by using
     // osg::Depth, and setting their bin numbers to less than 0,
     // to force them to draw before the rest of the scene.
     ClearNode* clearNode = new ClearNode;
-    clearNode->setRequiresClear(false); // we've got base and sky to do it.
-
+    
     // use a transform to make the sky and base around with the eye point.
-    Transform* transform = new MoveEarthySkyWithEyePointTransform;
+    Transform* transform = new MatrixTransform;//MoveEarthySkyWithEyePointTransform;
 
     // transform's value isn't knowm until in the cull traversal so its bounding
     // volume is can't be determined, therefore culling will be invalid,
@@ -82,14 +84,17 @@ namespace lpzrobots {
     clearNode->addChild(transform);
 
     // add to earth sky to the scene.
-    group->addChild(clearNode);
-    return group;
+    root->addChild(clearNode);
+
+    Group* group = new Group; // create an extra group for the normal scene
+    root->addChild(group);
+    return group; 
   }
 
   Node* Base::makeSky() {
     // taken from osghangglider example
     int i, j;
-    float lev[] = { -5, -1.0, 1.0, 15.0, 30.0, 60.0, 90.0  };
+    float lev[] = {-5.0, -1.0, 2.0, 12.0, 30.0, 60.0, 90.0  };
     float cc[][4] =
       {
         { 0.0, 0.0, 0.15 },
@@ -102,7 +107,7 @@ namespace lpzrobots {
       };
     float x, y, z;
     float alpha, theta;
-    float radius = 20.0f;
+    float radius = 1000.0f;
     int nlev = sizeof( lev )/sizeof(float);
 
     Geometry *geom = new Geometry;
@@ -196,7 +201,7 @@ namespace lpzrobots {
   Node* Base::makeGround(){
     int i, c;
     float theta;
-    float ir = 20.0f;
+    float ir = 1000.0f;
 
     Vec3Array *coords = new Vec3Array(19);
     Vec2Array *tcoords = new Vec2Array(19);
@@ -213,7 +218,7 @@ namespace lpzrobots {
         theta = osg::DegreesToRadians((float)i * 20.0);
 
         (*coords)[c].set(ir * cosf( theta ), ir * sinf( theta ), 0.0f);
-        (*tcoords)[c].set((*coords)[c][0]/36.0f,(*coords)[c][1]/36.0f);
+        (*tcoords)[c].set((*coords)[c][0],(*coords)[c][1]);
 
         c++;
       }
@@ -231,7 +236,7 @@ namespace lpzrobots {
 
     Texture2D *tex = new Texture2D;
 
-    tex->setImage(osgDB::readImageFile("Images/water.rgb"));
+    tex->setImage(osgDB::readImageFile("Images/ground.rgb"));
     tex->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
     tex->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
 
@@ -241,11 +246,11 @@ namespace lpzrobots {
 
     dstate->setTextureAttribute(0, new TexEnv );
 
-    // clear the depth to the far plane.
-    osg::Depth* depth = new osg::Depth;
-    depth->setFunction(osg::Depth::ALWAYS);
-    depth->setRange(1.0,1.0);   
-    dstate->setAttributeAndModes(depth,StateAttribute::ON );
+//     // clear the depth to the far plane.
+//     osg::Depth* depth = new osg::Depth;
+//     depth->setFunction(osg::Depth::ALWAYS);
+//     depth->setRange(1.0,1.0);   
+//     dstate->setAttributeAndModes(depth,StateAttribute::ON );
 
     dstate->setRenderBinDetails(-1,"RenderBin");
 
@@ -257,6 +262,7 @@ namespace lpzrobots {
     geode->setName( "Ground" );
 
     // add ODE Ground here
+    ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
 
     return geode;
   }

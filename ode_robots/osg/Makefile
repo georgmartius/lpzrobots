@@ -5,6 +5,7 @@ CXX = g++ -Wall $(INC)
 # INC = -I$(OPENSCENEGRAPH_INC_DIR) -I$(PRODUCER_INC_DIR) -I$(OPENTHREADS_INC_DIR)
 # LIB = -L$(OPENSCENEGRAPH_LIB_DIR) -L$(PRODUCER_LIB_DIR) -L$(OPENTHREADS_LIB_DIR)
 CPP = g++
+INC = -I../include/ode_robots
 
 OBJ = osgscene.o osgprimitive.o
 

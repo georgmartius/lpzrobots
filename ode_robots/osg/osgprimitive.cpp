@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-06 17:38:15  martius
+ *   Revision 1.1.2.3  2005-12-09 16:54:16  martius
+ *   camera is woring now
+ *
+ *   Revision 1.1.2.2  2005/12/06 17:38:15  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.1  2005/12/06 10:13:24  martius
@@ -67,6 +70,8 @@ Group* OSGPrimitive::getGroup() {
 }
 
 /******************************************************************************/
+
+/******************************************************************************/
 OSGPlane::OSGPlane() {
 }
 
@@ -83,7 +88,7 @@ void OSGPlane::init(const OsgHandle& osgHandle){
   shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
 				    50, 50, 0.01), osgHandle.tesselhints); // TODO add larger values here
   shape->setColor(osgHandle.color);
-  geode->addDrawable(shape.get());
+  geode->addDrawable(shape);
 }
 
 
@@ -104,7 +109,7 @@ void OSGBox::init(const OsgHandle& osgHandle){
   shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
 				    lengthX, lengthY, lengthZ), osgHandle.tesselhints);
   shape->setColor(osgHandle.color);
-  geode->addDrawable(shape.get());
+  geode->addDrawable(shape);
 }
 
 /******************************************************************************/
@@ -124,7 +129,7 @@ void OSGSphere::init(const OsgHandle& osgHandle){
 
   shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), osgHandle.tesselhints);
   shape->setColor(osgHandle.color);
-  geode->addDrawable(shape.get());
+  geode->addDrawable(shape);
 }
 
 /******************************************************************************/
@@ -145,7 +150,7 @@ void OSGCapsule::init(const OsgHandle& osgHandle){
   shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f), 
 				    radius, height), osgHandle.tesselhints);
   shape->setColor(osgHandle.color);
-  geode->addDrawable(shape.get());
+  geode->addDrawable(shape);
 }
 
 }

@@ -23,7 +23,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 17:40:59  martius
+ *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   camera is woring now
+ *
+ *   Revision 1.1.2.1  2005/12/06 17:40:59  martius
  *   base class for simulation
  *
  *                                                                 *
@@ -31,9 +34,15 @@
 #ifndef __BASE_H
 #define __BASE_H
 
+#include<ode/ode.h>
 #include<osg/Transform>
+
+#include "osghandle.h"
+#include "odehandle.h"
+
 class osg::Node;
-class osg::Group;
+class osg::Node;
+
 
 namespace lpzrobots {
 
@@ -51,8 +60,16 @@ namespace lpzrobots {
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
-  };
 
+  protected:
+    dGeomID ground;
+
+    osg::Group* root;
+
+    OsgHandle osgHandle;
+    // ODE globals
+    OdeHandle odeHandle;
+  };
 }
 
 #endif
