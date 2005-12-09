@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.3  2005-12-06 17:38:13  martius
+ *   Revision 1.18.4.4  2005-12-09 16:53:17  martius
+ *   camera is working now
+ *
+ *   Revision 1.18.4.3  2005/12/06 17:38:13  martius
  *   *** empty log message ***
  *
  *   Revision 1.18.4.2  2005/12/06 10:13:23  martius
@@ -100,19 +103,21 @@
 #include <iterator>
 using namespace std;
 
-#include <osgProducer/Viewer>
-#include <osg/ArgumentParser>
-
-#include "odehandle.h"
 #include "odeconfig.h"
 #include "camera.h"
 #include "grabframe.h"
 
-#include "osghandle.h"
 #include "primitive.h"
 
 #include "globaldata.h"
 #include "base.h"
+
+namespace osg{
+  class ArgumentParser;
+}
+namespace osgProducer{
+  class Viewer;
+}
 
 namespace lpzrobots {
 
@@ -156,14 +161,9 @@ protected:
   static void nearCallback(void *data, dGeomID o1, dGeomID o2);
   bool control_c_pressed();
 
-  // ODE globals
-  OdeHandle odeHandle;
   GlobalData globalData;
   VideoStream videostream;
 
-  OsgHandle osgHandle;
-
-  lpzrobots::Plane ground;
 
   struct timeval realTime;
   int nextLeakAnnounce;

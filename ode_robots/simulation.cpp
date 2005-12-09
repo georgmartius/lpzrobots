@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.4  2005-12-06 17:38:13  martius
+ *   Revision 1.40.4.5  2005-12-09 16:53:16  martius
+ *   camera is working now
+ *
+ *   Revision 1.40.4.4  2005/12/06 17:38:13  martius
  *   *** empty log message ***
  *
  *   Revision 1.40.4.3  2005/12/06 10:13:23  martius
@@ -167,6 +170,8 @@
 #include <unistd.h>
 #include <selforg/configurable.h>
 
+#include "simulation.h"
+
 #include <osgProducer/Viewer>
 #include <osg/ArgumentParser>
 
@@ -175,9 +180,8 @@
 #include "camera.h"
 #include "grabframe.h"
 
-#include "simulation.h"
 #include "abstractobstacle.h"
-
+#include "cameramanipulator.h"
 
 namespace lpzrobots {
 
@@ -207,51 +211,7 @@ namespace lpzrobots {
   }
 
   bool Simulation::init(int argc, char** argv){
-  
-    processCmdLine(argc, argv);
-    // use an ArgumentParser object to manage the program arguments.
-    arguments = new ArgumentParser(&argc, argv);
 
-    // set up the usage document, in case we need to print out how to use this program.
-    arguments->getApplicationUsage()->setDescription(arguments->getApplicationName() + 
-						     " Lpzrobots Simulator");
-    arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName());
-    arguments->getApplicationUsage()->addCommandLineOption("-h or --help", "Display this information");
-
-
-    // construct the viewer.
-    viewer = new Viewer(*arguments);
-
-    // set up the value with sensible default event handlers.
-    viewer->setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
-    
-    // get details on keyboard and mouse bindings used by the viewer.
-    viewer->getUsage(*(arguments->getApplicationUsage()));
-
-    // if user request help write it out to cout.
-    if (arguments->read("-h") || arguments->read("--help")) {
-      arguments->getApplicationUsage()->write(std::cout);
-      return false;
-    }
-
-    // any option left unread are converted into errors to write out later.
-    arguments->reportRemainingOptionsAsUnrecognized();
-
-    // report any errors if they have occured when parsing the program aguments.
-    if (arguments->errors()) {
-      arguments->writeErrorMessages(std::cout);
-      return false;
-    }
-
-    osgHandle.scene = makeScene();
-    if (!osgHandle.scene) return false;
-
-    osgHandle.tesselhints = new TessellationHints();
-    if (!osgHandle.tesselhints) return false;
-    osgHandle.tesselhints->setDetailRatio(2.0f);
-    osgHandle.color = Color(1,1,1,1);
-
-  
     /**************** ODE-Section   ***********************/
     odeHandle.world = dWorldCreate ();
 
@@ -266,11 +226,59 @@ namespace lpzrobots {
     //set Gravity to Earth level
     dWorldSetGravity ( odeHandle.world , 0 , 0 , globalData.odeConfig.gravity );
     dWorldSetERP ( odeHandle.world , 1 );
-  
+
     cmd_handler_init();
 
     // add ode config to config list
     globalData.configs.push_back(&(globalData.odeConfig));
+
+    /**************** OpenSceneGraph-Section   ***********************/
+    processCmdLine(argc, argv);
+    // use an ArgumentParser object to manage the program arguments.
+    arguments = new ArgumentParser(&argc, argv);
+
+    // set up the usage document, in case we need to print out how to use this program.
+    arguments->getApplicationUsage()->setDescription(
+                  arguments->getApplicationName() + " Lpzrobots Simulator");
+    arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName());
+    arguments->getApplicationUsage()->addCommandLineOption(
+		 "-h or --help", "Display this information");
+
+    // construct the viewer.
+    viewer = new Viewer(*arguments);
+
+    // set up the value with sensible default event handlers.
+    viewer->setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
+
+    // if user request help write it out to cout.
+    if (arguments->read("-h") || arguments->read("--help")) {
+      arguments->getApplicationUsage()->write(std::cout);
+      return false;
+    }
+    // any option left unread are converted into errors to write out later.
+    arguments->reportRemainingOptionsAsUnrecognized();
+
+    // report any errors if they have occured when parsing the program aguments.
+    if (arguments->errors()) {
+      arguments->writeErrorMessages(std::cout);
+      return false;
+    }
+
+    osgHandle.tesselhints = new TessellationHints();
+    if (!osgHandle.tesselhints) return false;
+    osgHandle.tesselhints->setDetailRatio(2.0f);
+    osgHandle.color = Color(1,1,1,1);
+
+    osgHandle.scene=makeScene();
+    if (!osgHandle.scene) return false;
+
+    CameraManipulator* cameramanipulator = new CameraManipulator(osgHandle.scene);
+    unsigned int pos = viewer->addCameraManipulator(cameramanipulator);
+    viewer->selectCameraManipulator(pos);
+    
+    // get details on keyboard and mouse bindings used by the viewer.
+    viewer->getUsage(*(arguments->getApplicationUsage()));
+
 
     state=initialised;
     return true;
@@ -289,15 +297,11 @@ namespace lpzrobots {
     //********************Simmulationsstart*****************
     state=running;
     gettimeofday(&realTime, 0);
-  
-    // TODO: real scene should be loaded!
-    ground.init(odeHandle, 0 , osgHandle, false);
-  
-
+    
     start(odeHandle, osgHandle, globalData);  
 
     // add model to viewer.
-    viewer->setSceneData(osgHandle.scene); 
+    viewer->setSceneData(root); 
 
     // create the windows and run the threads.
     viewer->realize();
@@ -356,7 +360,7 @@ namespace lpzrobots {
 	}
   
 	/**********************Simulationsschritt an sich**********************/
-	dSpaceCollide ( odeHandle.space , 0 , &nearCallback );
+	dSpaceCollide ( odeHandle.space , this , &nearCallback );
 	dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize ); 
 	//ODE-Engine geht einen Schritt weiter
 	dJointGroupEmpty (odeHandle.jointGroup);    
@@ -434,7 +438,7 @@ namespace lpzrobots {
 
   // Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
   // 
-  void Simulation::nearCallback(void *data, dGeomID o1, dGeomID o2){
+  void Simulation::nearCallback(void *data, dGeomID o1, dGeomID o2){    
     Simulation* me = (Simulation*) data;
     if (!me) return;
 

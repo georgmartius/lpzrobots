@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.3  2005-12-06 10:13:25  martius
+ *   Revision 1.14.4.4  2005-12-09 16:53:17  martius
+ *   camera is working now
+ *
+ *   Revision 1.14.4.3  2005/12/06 10:13:25  martius
  *   openscenegraph integration started
  *
  *   Revision 1.14.4.2  2005/11/24 16:19:12  fhesse
@@ -57,6 +60,8 @@
 
 // used arena
 #include "playground.h"
+// used passive spheres
+#include "passivesphere.h"
 
 // used controller
 #include <selforg/invertnchannelcontroller.h>
@@ -79,6 +84,7 @@ void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& g
   // - set noise to 0.1
   // - register file chess.ppm as a texture called chessTexture (used for the wheels)
   global.odeConfig.noise=0.1;
+  //  global.odeConfig.setParam("gravity", 0);
   //  int chessTexture = dsRegisterTexture("chess.ppm");
 
   // use Playground as boundary:
@@ -91,6 +97,12 @@ void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& g
   Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10,0.2,0.5));
   playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
   global.obstacles.push_back(playground);
+
+  for (int i=0; i<= 2; i+=2){
+    PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
+    s1->setPosition(osg::Vec3(-4.5+i*4.5,0,2));
+    global.obstacles.push_back(s1);
+  }
 
   // use Nimm4 vehicle as robot:
   // - create pointer to nimm4 (with ode Information, further parameters can be set, 
