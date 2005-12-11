@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-09 16:54:16  martius
+ *   Revision 1.1.2.4  2005-12-11 23:35:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.3  2005/12/09 16:54:16  martius
  *   camera is woring now
  *
  *   Revision 1.1.2.2  2005/12/06 17:38:15  martius
@@ -41,117 +44,133 @@
 
 #include <assert.h>
 
-#include <osg/Projection>
-#include <osg/Geometry>
-#include <osg/Texture>
-#include <osg/TexGen>
+#include <osg/Texture2D>
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
-#include <osg/PolygonOffset>
 #include <osg/MatrixTransform>
-#include <osg/Light>
-#include <osg/LightSource>
-#include <osg/Material>
+#include <osgDB/ReadFile>
+//#include <osg/Texture>
+//#include <osg/TexGen>
+//#include <osg/PolygonOffset>
+//#include <osg/Light>
+//#include <osg/LightSource>
+//#include <osg/Material>
 
 #include "osgprimitive.h"
 
 namespace lpzrobots {
-using namespace osg;
+  using namespace osg;
+
+  OSGPrimitive::OSGPrimitive(){
+  }
+
+  OSGPrimitive::~OSGPrimitive(){
+  }
 
 
-/******************************************************************************/
-void OSGPrimitive::setPose(const Matrix& m4x4){
-  assert(!transform==false);
-  transform->setMatrix(m4x4);
-}
+  /******************************************************************************/
+  void OSGPrimitive::setMatrix(const Matrix& m4x4){
+    assert(!transform==false);
+    transform->setMatrix(m4x4);
+  }
 
-Group* OSGPrimitive::getGroup() { 
-  return transform.get(); 
-}
+  Group* OSGPrimitive::getGroup() { 
+    return transform.get(); 
+  }
 
-/******************************************************************************/
+  void OSGPrimitive::setTexture(const std::string& filename){
+    osg::Group* grp = getGroup();
+    osg::Texture2D* texture = new osg::Texture2D;
+    texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
+    texture->setImage(osgDB::readImageFile(filename));
+    osg::StateSet* stateset = grp->getOrCreateStateSet();
+    stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);
+  }
 
-/******************************************************************************/
-OSGPlane::OSGPlane() {
-}
 
-void OSGPlane::init(const OsgHandle& osgHandle){
-  assert(osgHandle.scene && osgHandle.tesselhints);
-  geode = new Geode;  
-  transform = new MatrixTransform;
-  transform->addChild(geode.get());
-  osgHandle.scene->addChild(transform.get());
+  /******************************************************************************/
+
+  /******************************************************************************/
+  OSGPlane::OSGPlane() {
+  }
+
+  void OSGPlane::init(const OsgHandle& osgHandle){
+    assert(osgHandle.scene && osgHandle.tesselhints);
+    geode = new Geode;  
+    transform = new MatrixTransform;
+    transform->addChild(geode.get());
+    osgHandle.scene->addChild(transform.get());
   
-  ref_ptr<ShapeDrawable> shape;
+    ref_ptr<ShapeDrawable> shape;
 
-  //  shape = new ShapeDrawable(new InfinitePlane(), osgHandle.tesselhints);
-  shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
-				    50, 50, 0.01), osgHandle.tesselhints); // TODO add larger values here
-  shape->setColor(osgHandle.color);
-  geode->addDrawable(shape);
-}
+    //  shape = new ShapeDrawable(new InfinitePlane(), osgHandle.tesselhints);
+    shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
+				      50, 50, 0.01), osgHandle.tesselhints); // TODO add larger values here
+    shape->setColor(osgHandle.color);
+    geode->addDrawable(shape.get());
+  }
 
 
-/******************************************************************************/
-OSGBox::OSGBox(float lengthX, float lengthY, float lengthZ)
-  : lengthX(lengthX), lengthY(lengthY), lengthZ(lengthZ) {
-}
+  /******************************************************************************/
+  OSGBox::OSGBox(float lengthX, float lengthY, float lengthZ)
+    : lengthX(lengthX), lengthY(lengthY), lengthZ(lengthZ) {
+  }
 
-void OSGBox::init(const OsgHandle& osgHandle){
-  assert(osgHandle.scene && osgHandle.tesselhints);
-  geode = new Geode;  
-  transform = new MatrixTransform;
-  transform->addChild(geode.get());
-  osgHandle.scene->addChild(transform.get());
+  void OSGBox::init(const OsgHandle& osgHandle){
+    assert(osgHandle.scene && osgHandle.tesselhints);
+    geode = new Geode;  
+    transform = new MatrixTransform;
+    transform->addChild(geode.get());
+    osgHandle.scene->addChild(transform.get());
   
-  ref_ptr<ShapeDrawable> shape;
+    ref_ptr<ShapeDrawable> shape;
 
-  shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
-				    lengthX, lengthY, lengthZ), osgHandle.tesselhints);
-  shape->setColor(osgHandle.color);
-  geode->addDrawable(shape);
-}
+    shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
+				      lengthX, lengthY, lengthZ), osgHandle.tesselhints);
+    shape->setColor(osgHandle.color);
+    geode->addDrawable(shape.get());
+  }
 
-/******************************************************************************/
-OSGSphere::OSGSphere(float radius)
-  : radius(radius) {
-}
+  /******************************************************************************/
+  OSGSphere::OSGSphere(float radius)
+    : radius(radius) {
+  }
 
-void OSGSphere::init(const OsgHandle& osgHandle){
-  assert(osgHandle.scene && osgHandle.tesselhints);
+  void OSGSphere::init(const OsgHandle& osgHandle){
+    assert(osgHandle.scene && osgHandle.tesselhints);
 
-  geode = new Geode;  
-  transform = new MatrixTransform;
-  transform->addChild(geode.get());
-  osgHandle.scene->addChild(transform.get());
+    geode = new Geode;  
+    transform = new MatrixTransform;
+    transform->addChild(geode.get());
+    osgHandle.scene->addChild(transform.get());
   
-  ref_ptr<ShapeDrawable> shape;
+    ref_ptr<ShapeDrawable> shape;
 
-  shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), osgHandle.tesselhints);
-  shape->setColor(osgHandle.color);
-  geode->addDrawable(shape);
-}
+    shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), osgHandle.tesselhints);
+    shape->setColor(osgHandle.color);
+    geode->addDrawable(shape.get());
+  }
 
-/******************************************************************************/
-OSGCapsule::OSGCapsule(float radius, float height)
-  : radius(radius), height(height) {
-}
+  /******************************************************************************/
+  OSGCapsule::OSGCapsule(float radius, float height)
+    : radius(radius), height(height) {
+  }
 
-void OSGCapsule::init(const OsgHandle& osgHandle){
-  assert(osgHandle.scene && osgHandle.tesselhints);
+  void OSGCapsule::init(const OsgHandle& osgHandle){
+    assert(osgHandle.scene && osgHandle.tesselhints);
 
-  geode = new Geode;  
-  transform = new MatrixTransform;
-  transform->addChild(geode.get());
-  osgHandle.scene->addChild(transform.get());
+    geode = new Geode;  
+    transform = new MatrixTransform;
+    transform->addChild(geode.get());
+    osgHandle.scene->addChild(transform.get());
   
-  ref_ptr<ShapeDrawable> shape;
+    ref_ptr<ShapeDrawable> shape;
 
-  shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f), 
-				    radius, height), osgHandle.tesselhints);
-  shape->setColor(osgHandle.color);
-  geode->addDrawable(shape);
-}
+    shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f), 
+					  radius, height), osgHandle.tesselhints);
+    shape->setColor(osgHandle.color);
+    geode->addDrawable(shape.get());
+  }
 
 }
 

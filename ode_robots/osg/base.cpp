@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   Revision 1.1.2.3  2005-12-11 23:35:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.2  2005/12/09 16:54:16  martius
  *   camera is woring now
  *
  *   Revision 1.1.2.1  2005/12/06 17:40:59  martius
@@ -31,6 +34,9 @@
  *
  *                                                                 *
  ***************************************************************************/
+
+#include "base.h"
+#include "primitive.h"
 
 #include <iostream>
 #include <osg/Node>
@@ -50,9 +56,6 @@
 
 #include <osgGA/AnimationPathManipulator>
 
-#include "base.h"
-#include "primitive.h"
-
 using namespace osg;
 
 namespace lpzrobots {
@@ -67,7 +70,7 @@ namespace lpzrobots {
     ClearNode* clearNode = new ClearNode;
     
     // use a transform to make the sky and base around with the eye point.
-    Transform* transform = new MatrixTransform;//MoveEarthySkyWithEyePointTransform;
+    Transform* transform = new Transform;//MoveEarthySkyWithEyePointTransform;
 
     // transform's value isn't knowm until in the cull traversal so its bounding
     // volume is can't be determined, therefore culling will be invalid,

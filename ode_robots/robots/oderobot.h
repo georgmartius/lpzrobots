@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2005-12-06 10:13:25  martius
+ *   Revision 1.1.2.7  2005-12-11 23:35:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.6  2005/12/06 10:13:25  martius
  *   openscenegraph integration started
  *
  *   Revision 1.1.2.5  2005/11/24 16:20:54  fhesse
@@ -85,147 +88,92 @@
 #include "osghandle.h"
 #include "globaldata.h"
 #include "color.h"
-#include "primitive.h"
+#include "pos.h"
 
 namespace lpzrobots {
+  
+  class Primitive;
 
-/* class Object { */
-/* public: */
-/*   Object() { body = 0; geom = 0; } */
-/*   Object(dBodyID b, dGeomID g) { body = b; geom = g; } */
-/*   dBodyID body; */
-/*   dGeomID geom; */
-/* }; */
-
-/**
- * Abstract class  for ODE robot 
- * 
- */
-class OdeRobot : public AbstractRobot {
-public:
 
   /**
-   * Constructor
-   * @param odehandle structure with all global ODE variables
+   * Abstract class  for ODE robots
+   * 
    */
-  OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const char* name="OdeRobot")
-    : AbstractRobot(name), odeHandle(odeHandle), osgHandle(osgHandle) {
-  };
+  class OdeRobot : public AbstractRobot {
+  public:
 
-  virtual ~OdeRobot(){}
+    /**
+     * Constructor
+     * @param odehandle structure with all global ODE variables
+     */
+    OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const char* name="OdeRobot");
+
+    virtual ~OdeRobot(){}
 
 
-  /// update the OSG notes here
-  virtual void update() = 0;
+    /// update the OSG notes here
+    virtual void update() = 0;
 
-/** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-    @params pos desired position of the robot in struct Position
-    @param c desired color for the robot in struct Color. Might be NULL!
-*/
-  virtual void place(Position pos , Color *c = 0) = 0;
+    /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
+	@params pos desired position of the robot in struct Position
+    */
+    virtual void place(const Pos& pos) = 0;
 
-  /** checks for internal collisions and treats them. 
-   *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
-   *  else false (collision is passed to other objects and (if not treated) to the default routine).
-   */
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    return false;
-  }
-
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-   */
-  virtual void doInternalStuff(const GlobalData& globalData) = 0;
-
-  /** sets color of the robot
-      @param col Color struct with desired Color
-   */
-  virtual void setColor(Color col){
-    osgHandle.color = col;
-  };
-  
-  /** returns position of the object
-      @return vector of position (x,y,z)
-  */
-  virtual Position getPosition() const {
-    const Primitive* o = getMainPrimitive();    
-    if (o && o->getBody()){
-      return Position(dBodyGetPosition(o->getBody()));
-    } else return Position(0,0,0);
-  }
-  
-  /** returns linear speed vector of the object
-      @return vector  (vx,vy,vz)
-  */
-  virtual Position getSpeed() const {
-    const Primitive* o = getMainPrimitive();
-    if (o && o->getBody()){
-      return Position(dBodyGetLinearVel(o->getBody()));
-    } else return Position(0,0,0);
-  }
-  
-  /** returns the orientation of the object
-      @return 3x3 rotation matrix
-  */
-  virtual matrix::Matrix getOrientation() const {
-    const Primitive* o = getMainPrimitive();
-    if (o && o->getBody()){
-      return odeRto3x3RotationMatrix(dBodyGetRotation(o->getBody())); 
-    } else {
-      matrix::Matrix R(3,3); 
-      return R^0; // identity
+    /** checks for internal collisions and treats them. 
+     *  In case of a treatment return true 
+     *  (collision will be ignored by other objects and the default routine)
+     *  else false (collision is passed to other objects and (if not treated) to the default routine).
+     */
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){
+      return false;
     }
-  }
+
+    /** this function is called in each timestep. It should perform robot-internal checks, 
+	like space-internal collision detection, sensor resets/update etc.
+	@param GlobalData structure that contains global data from the simulation environment
+    */
+    virtual void doInternalStuff(const GlobalData& globalData) = 0;
+
+    /** sets color of the robot
+	@param col Color struct with desired Color
+    */
+    virtual void setColor(Color col){
+      osgHandle.color = col;
+    };
+  
+    /** returns position of the object
+	@return vector of position (x,y,z)
+    */
+    virtual Position getPosition() const; 
+  
+    /** returns linear speed vector of the object
+	@return vector  (vx,vy,vz)
+    */
+    virtual Position getSpeed() const; 
+    /** returns the orientation of the object
+	@return 3x3 rotation matrix
+    */
+    virtual matrix::Matrix getOrientation() const ;
   
   
-protected:
-  /** overload this in the robot implementation.
-      If there is no object for some reason then return an empty object (Object())
-      @return main object of the robot (used for tracking)
-   */
-  virtual lpzrobots::Primitive* getMainPrimitive() const  = 0;
+  protected:
+    /** overload this in the robot implementation.
+	If there is no object for some reason then return an empty object (Object())
+	@return main object of the robot (used for tracking)
+    */
+    virtual lpzrobots::Primitive* getMainPrimitive() const  = 0;
 
-  static bool isGeomInPrimitiveList(lpzrobots::Primitive* ps, int len, dGeomID geom){  
-    for(int i=0; i < len; i++){
-      if(geom == ps[i].getGeom()) return true;
-    }
-    return false;
-  }
+    static bool isGeomInPrimitiveList(lpzrobots::Primitive** ps, int len, dGeomID geom);
 
-  static matrix::Matrix odeRto3x3RotationMatrixT ( const double R[12] ) {  
-    matrix::Matrix matrix(3,3);
-    matrix.val(0,0)=R[0];
-    matrix.val(0,1)=R[4];
-    matrix.val(0,2)=R[8];
-    matrix.val(1,0)=R[1];
-    matrix.val(1,1)=R[5];
-    matrix.val(1,2)=R[9];
-    matrix.val(2,0)=R[2];
-    matrix.val(2,1)=R[6];
-    matrix.val(2,2)=R[10];
-    return matrix;
-  }
+    static matrix::Matrix odeRto3x3RotationMatrixT ( const double R[12] );
 
-  static matrix::Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
-    matrix::Matrix matrix(3,3);
-    matrix.val(0,0)=R[0];
-    matrix.val(1,0)=R[4];
-    matrix.val(2,0)=R[8];
-    matrix.val(0,1)=R[1];
-    matrix.val(1,1)=R[5];
-    matrix.val(2,1)=R[9];
-    matrix.val(0,2)=R[2];
-    matrix.val(1,2)=R[6];
-    matrix.val(2,2)=R[10];
-    return matrix;
-  }
+    static matrix::Matrix odeRto3x3RotationMatrix ( const double R[12] );
 
 
-protected:
-  OdeHandle odeHandle;
-  OsgHandle osgHandle;
-};
+  protected:
+    OdeHandle odeHandle;
+    OsgHandle osgHandle;
+  };
 
 }
 

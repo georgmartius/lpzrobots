@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-09 16:56:21  martius
+ *   Revision 1.1.2.2  2005-12-11 23:35:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.1  2005/12/09 16:56:21  martius
  *   camera is working now
  *
  *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
@@ -40,7 +43,7 @@ namespace lpzrobots {
   using namespace osgGA;
 
   CameraManipulator::CameraManipulator(osg::Node* node)
-    : eye(0,0,0), view(0,0,0), node(node) {
+    : node(node), eye(0,0,0), view(0,0,0) {
     if (this->node.get()) {    
       const BoundingSphere& boundingSphere=this->node->getBound();
       modelScale = boundingSphere._radius;

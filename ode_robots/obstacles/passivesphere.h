@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-09 16:53:17  martius
+ *   Revision 1.1.2.2  2005-12-11 23:35:07  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.1  2005/12/09 16:53:17  martius
  *   camera is working now
  *
  *   Revision 1.5  2005/10/25 19:26:57  fhesse
@@ -80,9 +83,12 @@ class PassiveSphere : public AbstractObstacle{
 
     mass=1;
  
-    obstacle_exists=false;
-    
+    obstacle_exists=false;    
   };
+
+  ~PassiveSphere(){
+    if(sphere) delete sphere;
+  }
 
   /**
    * update position of sphere
@@ -90,6 +96,10 @@ class PassiveSphere : public AbstractObstacle{
   virtual void update(){
     if(sphere) sphere->update();
   };
+
+  virtual void setTexture(const std::string& filename){
+    if(sphere) sphere->setTexture(filename);
+  }
   
   /**
    * sets position of the sphere and creates/recreates it if necessary
@@ -109,16 +119,12 @@ class PassiveSphere : public AbstractObstacle{
     return pos;
   }
   
-  virtual void setTexture(int texture){
-    this->texture = texture;
-  }
-
  protected:
   virtual void create(){
     sphere = new Sphere(radius);
     sphere->init(odeHandle, mass, osgHandle);
     sphere->setPosition(pos);
-    
+        
     obstacle_exists=true;
   };
 

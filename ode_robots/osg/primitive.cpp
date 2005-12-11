@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   Revision 1.1.2.3  2005-12-11 23:35:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.2  2005/12/09 16:54:16  martius
  *   camera is woring now
  *
  *   Revision 1.1.2.1  2005/12/06 10:13:25  martius
@@ -127,8 +130,8 @@ void Plane::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHa
 
 void Plane:: update(){
   if(body)
-    OSGPlane::setPose(odePose(body));
-  else if(geom) OSGPlane::setPose(odePose(geom));
+    OSGPlane::setMatrix(odePose(body));
+  else if(geom) OSGPlane::setMatrix(odePose(geom));
 }
 
 
@@ -155,8 +158,8 @@ void Box::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHand
 
 void Box:: update(){
   if(body)
-    OSGBox::setPose(odePose(body));
-  else if(geom) OSGBox::setPose(odePose(geom));
+    OSGBox::setMatrix(odePose(body));
+  else if(geom) OSGBox::setMatrix(odePose(geom));
 }
 
 /******************************************************************************/
@@ -180,8 +183,8 @@ void Sphere::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgH
 
 void Sphere::update(){
   if(body)
-    OSGSphere::setPose(odePose(body));
-  else if(geom) OSGSphere::setPose(odePose(geom));
+    OSGSphere::setMatrix(odePose(body));
+  else if(geom) OSGSphere::setMatrix(odePose(geom));
 }
 
 /******************************************************************************/
@@ -205,8 +208,8 @@ void Capsule::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osg
 
 void Capsule::update(){
   if(body)
-    OSGCapsule::setPose(odePose(body));
-  else if(geom) OSGCapsule::setPose(odePose(geom));
+    OSGCapsule::setMatrix(odePose(body));
+  else if(geom) OSGCapsule::setMatrix(odePose(geom));
 }
 
 }

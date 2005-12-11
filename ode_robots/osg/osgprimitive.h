@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   Revision 1.1.2.3  2005-12-11 23:35:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.2  2005/12/09 16:54:16  martius
  *   camera is woring now
  *
  *   Revision 1.1.2.1  2005/12/06 10:13:24  martius
@@ -42,7 +45,8 @@
 
 namespace osg{
   class Geode;
-  class Matrix;
+  class Matrixd;
+  typedef Matrixd Matrix;
   class MatrixTransform;
 }
 
@@ -53,15 +57,16 @@ namespace lpzrobots {
 /**************************************************************************/
 class OSGPrimitive {
 public:
-  OSGPrimitive () {}
-  virtual ~OSGPrimitive () {}
+  OSGPrimitive ();
+  virtual ~OSGPrimitive ();
   virtual void init(const OsgHandle& osgHandle) = 0;
-  virtual void setPose( const osg::Matrix& m4x4 );
+  virtual void setMatrix( const osg::Matrix& m4x4 );
   virtual osg::Group* getGroup();
+  virtual void setTexture(const std::string& filename);
 
 protected:
-  ref_ptr<osg::Geode> geode;
-  ref_ptr<osg::MatrixTransform> transform;  
+  osg::ref_ptr<osg::Geode> geode;
+  osg::ref_ptr<osg::MatrixTransform> transform;  
 };
 
 

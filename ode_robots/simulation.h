@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.4  2005-12-09 16:53:17  martius
+ *   Revision 1.18.4.5  2005-12-11 23:35:07  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.18.4.4  2005/12/09 16:53:17  martius
  *   camera is working now
  *
  *   Revision 1.18.4.3  2005/12/06 17:38:13  martius
@@ -106,8 +109,6 @@ using namespace std;
 #include "odeconfig.h"
 #include "camera.h"
 #include "grabframe.h"
-
-#include "primitive.h"
 
 #include "globaldata.h"
 #include "base.h"

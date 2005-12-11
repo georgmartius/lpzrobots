@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.4  2005-12-09 16:53:17  martius
+ *   Revision 1.14.4.5  2005-12-11 23:35:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.14.4.4  2005/12/09 16:53:17  martius
  *   camera is working now
  *
  *   Revision 1.14.4.3  2005/12/06 10:13:25  martius
@@ -56,7 +59,7 @@
 #include <selforg/one2onewiring.h>
 
 // used robot
-//#include "nimm4.h"
+#include "nimm4.h"
 
 // used arena
 #include "playground.h"
@@ -101,6 +104,7 @@ void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& g
   for (int i=0; i<= 2; i+=2){
     PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
     s1->setPosition(osg::Vec3(-4.5+i*4.5,0,2));
+    s1->setTexture("Images/ground.rgb");
     global.obstacles.push_back(s1);
   }
 
@@ -109,24 +113,23 @@ void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& g
   //   here are the defaults used)
   // - set textures for body and wheels
   // - place robot
-//   Nimm4* vehicle = new Nimm4(odeHandle);
-//   vehicle->setTextures(DS_WOOD, chessTexture); 
-//   vehicle->place(Position(0,0,0));
+  Nimm4* vehicle = new Nimm4(odeHandle, osgHandle);
+  vehicle->place(Pos(0,0,0));
 
-//   // create pointer to controller
-//   // push controller in global list of configurables
-//   AbstractController *controller = new InvertNChannelController(10);  
-//   global.configs.push_back(controller);
+  // create pointer to controller
+  // push controller in global list of configurables
+  AbstractController *controller = new InvertNChannelController(10);  
+  global.configs.push_back(controller);
   
-//   // create pointer to one2onewiring
-//   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+  // create pointer to one2onewiring
+  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
-//   // create pointer to agent
-//   // initialize pointer with controller, robot and wiring
-//   // push agent in globel list of agents
-//   OdeAgent* agent = new OdeAgent(plotoptions);
-//   agent->init(controller, vehicle, wiring);
-//   global.agents.push_back(agent);
+  // create pointer to agent
+  // initialize pointer with controller, robot and wiring
+  // push agent in globel list of agents
+  OdeAgent* agent = new OdeAgent(plotoptions);
+  agent->init(controller, vehicle, wiring);
+  global.agents.push_back(agent);
   
   showParams(global.configs);
 }

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.5  2005-12-09 16:53:16  martius
+ *   Revision 1.40.4.6  2005-12-11 23:35:07  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.40.4.5  2005/12/09 16:53:16  martius
  *   camera is working now
  *
  *   Revision 1.40.4.4  2005/12/06 17:38:13  martius
@@ -174,6 +177,8 @@
 
 #include <osgProducer/Viewer>
 #include <osg/ArgumentParser>
+#include <osgDB/ReaderWriter>
+#include <osgDB/FileUtils>
 
 #include "odeagent.h"
 
@@ -233,6 +238,11 @@ namespace lpzrobots {
     globalData.configs.push_back(&(globalData.odeConfig));
 
     /**************** OpenSceneGraph-Section   ***********************/
+
+    osgDB::FilePathList l = osgDB::getDataFilePathList();
+    l.push_back("../../osg/data");
+    osgDB::setDataFilePathList(l);
+
     processCmdLine(argc, argv);
     // use an ArgumentParser object to manage the program arguments.
     arguments = new ArgumentParser(&argc, argv);

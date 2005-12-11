@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.4  2005-12-06 10:13:25  martius
+ *   Revision 1.5.4.5  2005-12-11 23:35:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.5.4.4  2005/12/06 10:13:25  martius
  *   openscenegraph integration started
  *
  *   Revision 1.5.4.3  2005/11/16 11:26:52  martius
@@ -56,116 +59,112 @@
 
 #include "oderobot.h"
 
-/** Robot that looks like a Nimm 2 Bonbon :-)
-    2 wheels and a cylinder like body   
-*/
-class Nimm4 : public OdeRobot{
-public:
+namespace lpzrobots {
+
+  class Primitive;
+
+  /** Robot that looks like a Nimm 2 Bonbon :-)
+      4 wheels and a capsule like body   
+  */
+  class Nimm4 : public OdeRobot{
+  public:
   
-  Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-	double size=1, double force=3, double speed=15, bool sphereWheels=true);
+    Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	  double size=1, double force=3, double speed=15, bool sphereWheels=true);
 
-  virtual ~Nimm4(){};
+    virtual ~Nimm4(){};
 
-  /**
-   * draws the vehicle
-   */
-  virtual void update();
+    /**
+     * draws the vehicle
+     */
+    virtual void update();
 
-  /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-      @params pos desired position of the robot in struct Position
-      @param c desired color for the robot in struct Color
-  */
-  virtual void place(Position pos , Color *c = 0);
+    /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
+	@params pos desired position of the robot in struct Position
+	@param c desired color for the robot in struct Color
+    */
+    virtual void place(const Pos& pos);
 
-  /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
-      @param sensornumber length of the sensor array
-      @return number of actually written sensors
-  */
-  virtual int getSensors(sensor* sensors, int sensornumber);
+    /** returns actual sensorvalues
+	@param sensors sensors scaled to [-1,1] 
+	@param sensornumber length of the sensor array
+	@return number of actually written sensors
+    */
+    virtual int getSensors(sensor* sensors, int sensornumber);
 
-  /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
-      @param motornumber length of the motor array
-  */
-  virtual void setMotors(const motor* motors, int motornumber);
+    /** sets actual motorcommands
+	@param motors motors scaled to [-1,1] 
+	@param motornumber length of the motor array
+    */
+    virtual void setMotors(const motor* motors, int motornumber);
 
-  /** returns number of sensors
-   */
-  virtual int getSensorNumber(){
-    return sensorno;
+    /** returns number of sensors
+     */
+    virtual int getSensorNumber(){
+      return sensorno;
+    };
+
+    /** returns number of motors
+     */
+    virtual int getMotorNumber(){
+      return motorno;
+    };
+
+    /** checks for internal collisions and treats them. 
+     *  In case of a treatment return true (collision will be ignored by other objects 
+     *  and the default routine)  else false (collision is passed to other objects and 
+     *  (if not treated) to the default routine).
+     */
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+
+    /** this function is called in each timestep. It should perform robot-internal checks, 
+	like space-internal collision detection, sensor resets/update etc.
+	@param GlobalData structure that contains global data from the simulation environment
+    */
+    virtual void doInternalStuff(const GlobalData& globalData);
+
+
+  protected:
+
+    virtual Primitive* getMainPrimitive() const { return object[0]; }
+
+    /** creates vehicle at desired position 
+	@param pos struct Position with desired position
+    */
+    virtual void create(const osg::Vec3& pos); 
+
+    /** destroys vehicle and space
+     */
+    virtual void destroy();
+
+    /** additional things for collision handling can be done here
+     */
+    static void mycallback(void *data, dGeomID o1, dGeomID o2);
+
+    double length;  // chassis length
+    double width;  // chassis width
+    double height;   // chassis height
+    double radius;  // wheel radius
+    double wheelthickness; // thickness of the wheels  
+    bool sphereWheels; // draw spherical wheels?
+    double cmass;    // chassis mass
+    double wmass;    // wheel mass
+    int sensorno;      //number of sensors
+    int motorno;       // number of motors
+    int segmentsno;    // number of motorsvehicle segments
+    double speed;    // 
+
+    double max_force;        // maximal force for motors
+
+    bool created;      // true if robot was created
+
+    Primitive* object[5];  // 1 capsule, 4 wheels
+    dJointID joint[4]; // joints between cylinder and each wheel
+
+    dSpaceID parentspace;
+
   };
 
-  /** returns number of motors
-   */
-  virtual int getMotorNumber(){
-    return motorno;
-  };
-
-  /** checks for internal collisions and treats them. 
-   *  In case of a treatment return true (collision will be ignored by other objects 
-   *  and the default routine)  else false (collision is passed to other objects and 
-   *  (if not treated) to the default routine).
-   */
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-   */
-  virtual void doInternalStuff(const GlobalData& globalData);
-
-  /** sets the textures used for body and wheels
-  */
-  virtual void setTextures(int body, int wheels);
-
-  /** returns a vector with the positions of all segments of the robot
-      @return poslist vector of positions (of all robot segments) 
-  */
-  virtual vector<Position> getSegmentsPosition();
-
-protected:
-
-  virtual Object getMainObject() const { return object[0]; }
-
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
-  */
-  virtual void create(Position pos); 
-
-  /** destroys vehicle and space
-   */
-  virtual void destroy();
-
-  /** additional things for collision handling can be done here
-   */
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
-
-  double length;  // chassis length
-  double width;  // chassis width
-  double height;   // chassis height
-  double radius;  // wheel radius
-  double wheelthickness; // thickness of the wheels  
-  bool sphereWheels; // draw spherical wheels?
-  double cmass;    // chassis mass
-  double wmass;    // wheel mass
-  int sensorno;      //number of sensors
-  int motorno;       // number of motors
-  int segmentsno;    // number of motorsvehicle segments
-  double speed;    // 
-
-  double max_force;        // maximal force for motors
-
-  int bodyTexture;
-  int wheelTexture;
-
-  bool created;      // true if robot was created
-
-  Primitive* object[5];  // 1 cylinder, 4 wheels
-  dJointID joint[4]; // joints between cylinder and each wheel
-
-  dSpaceID car_space;
-};
+}
 
 #endif
