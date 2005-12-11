@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-12-05 12:33:32  robot3
+ *   Revision 1.7  2005-12-11 12:06:35  robot3
+ *   racegroundsensor testet
+ *
+ *   Revision 1.6  2005/12/05 12:33:32  robot3
  *   showAABB can be configured by parameter now
  *
  *   Revision 1.5  2005/12/03 16:57:12  martius
@@ -53,7 +56,7 @@ void DegreeSegment::setProperties() {
   angle=90.0f/180.0f*M_PI;
   left=1;
   color=Color(226 / 255.0, 103 / 255.0, 66 / 255.0);
-  show_aabb=true;
+  show_aabb=false;
 }
 
 void DegreeSegment::setCurveAngle(const double& alpha) {
@@ -360,7 +363,7 @@ double DegreeSegment::getWidthIdValue(const Position& p) { // must be inner coor
       dGeomBoxGetLengths ( (*it),  dimensions); // gets the length, width and height
       dsDrawBox ( dGeomGetPosition ( (*it) ) , dGeomGetRotation ( (*it) ) , dimensions );
 
-      //      if (show_aabb) {
+        if (show_aabb) {
 	// draw the bounding box for this geom
 	dReal aabb[6];
 	dGeomGetAABB ((*it),aabb);
@@ -372,7 +375,7 @@ double DegreeSegment::getWidthIdValue(const Position& p) { // must be inner coor
 	dRSetIdentity (RI);
 	dsSetColorAlpha (1,0,0,0.3);
 	dsDrawBox (bbpos,RI,bbsides);
-	//  }
+	}
 
     }
  };

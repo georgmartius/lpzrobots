@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-11-29 13:38:59  robot3
+ *   Revision 1.14  2005-12-11 12:06:35  robot3
+ *   racegroundsensor testet
+ *
+ *   Revision 1.13  2005/11/29 13:38:59  robot3
  *   raceground now placed by constructor
  *
  *   Revision 1.12  2005/11/22 15:49:35  robot3
@@ -108,15 +111,14 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   int chessTexture = dsRegisterTexture("chess.ppm");
   printf("Chess: %i\n", chessTexture);
   // Playground* playground = new Playground(odeHandle);
-  RaceGround* Strecke = new RaceGround(odeHandle,Position(-5.0,-4.0,0.0),0.0);
+  RaceGround* Strecke = new RaceGround(odeHandle,Position(0.0,0.0,0.0),0.0);
   list<string> segmentList;
 
   segmentList+=string("straightline");
+  segmentList+=string("degree 90.0 10.0");
   segmentList+=string("straightline");
-  segmentList+=string("degree 180.0 2.5");
+  segmentList+=string("degree -90.0 10.0");
   segmentList+=string("straightline");
-  segmentList+=string("straightline");
- segmentList+=string("degree -90.0 5.0");
   //  segmentList+=string("degree 90.0 5.0");
   // segmentList+=string("degree 90.0 5.0");
   // segmentList+=string("degree 90.0 5.0");
@@ -129,7 +131,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   //segmentList+=string("degree 90 10");
   cout << "now adding segments:\n";
  Strecke->addSegments(segmentList);
-  cout << "finished adding segments! \n";
+  cout << "finished adding segments!\n";
   Strecke->setPosition(0.0f,0.0f,0.0f);
   global.obstacles.push_back(Strecke);
 

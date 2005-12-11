@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-12-03 16:57:12  martius
+ *   Revision 1.5  2005-12-11 12:06:35  robot3
+ *   racegroundsensor testet
+ *
+ *   Revision 1.4  2005/12/03 16:57:12  martius
  *   setWidth is void
  *
  *   Revision 1.3  2005/11/22 15:51:23  robot3
@@ -178,7 +182,7 @@ double StraightLine::getSectionIdValue(const Position& p) { // must be inner coo
  * returns -1 if no WidthValue can be given
  */
 double StraightLine::getWidthIdValue(const Position& p) { // must be inner coordinates
-  double t= getPosition().x/length*100.0f;
+  double t= (p.y+width/2.0f)/width*100.0f;
   if ((t>=0.0f) && (t <=100.0f)) {
     // if check ok, return the value
     return t;
