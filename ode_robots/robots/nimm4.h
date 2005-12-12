@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.5  2005-12-11 23:35:08  martius
+ *   Revision 1.5.4.6  2005-12-12 23:41:19  martius
+ *   added Joint wrapper
+ *
+ *   Revision 1.5.4.5  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.5.4.4  2005/12/06 10:13:25  martius
@@ -62,6 +65,7 @@
 namespace lpzrobots {
 
   class Primitive;
+  class Joint;
 
   /** Robot that looks like a Nimm 2 Bonbon :-)
       4 wheels and a capsule like body   
@@ -159,7 +163,7 @@ namespace lpzrobots {
     bool created;      // true if robot was created
 
     Primitive* object[5];  // 1 capsule, 4 wheels
-    dJointID joint[4]; // joints between cylinder and each wheel
+    Joint* joint[4]; // joints between cylinder and each wheel
 
     dSpaceID parentspace;
 

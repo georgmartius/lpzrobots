@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.4  2005-12-11 23:35:08  martius
+ *   Revision 1.7.4.5  2005-12-12 23:41:30  martius
+ *   added Joint wrapper
+ *
+ *   Revision 1.7.4.4  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.7.4.3  2005/12/06 10:13:25  martius
@@ -41,6 +44,9 @@
 
 // include primitives (box, spheres, cylinders ...)
 #include "primitive.h"
+
+// include joints
+#include "joint.h"
 
 // include header file
 #include "nimm4.h"
@@ -104,8 +110,8 @@ namespace lpzrobots {
     // for each motor the motorcommand (between -1 and 1) multiplied with speed
     // is set and the maximal force to realize this command are set
     for (int i=0; i<len; i++){ 
-      dJointSetHinge2Param(joint[i],dParamVel2, motors[i]*speed);       
-      dJointSetHinge2Param (joint[i],dParamFMax2,max_force);
+      dJointSetHinge2Param(joint[i]->getJointID(),dParamVel2, motors[i]*speed);       
+      dJointSetHinge2Param (joint[i]->getJointID(),dParamFMax2,max_force);
     }
 
     // another possibility is to set half of the difference between last set speed
@@ -136,7 +142,7 @@ namespace lpzrobots {
 
     // for each sensor the anglerate of the joint is red and scaled with 1/speed 
     for (int i=0; i<len; i++){
-      sensors[i]=dJointGetHinge2Angle2Rate(joint[i]);
+      sensors[i]=dJointGetHinge2Angle2Rate(joint[i]->getJointID());
       sensors[i]/=speed;  //scaling
     }
     // the number of red sensors is returned 
@@ -147,7 +153,7 @@ namespace lpzrobots {
       @params pos desired position of the robot in struct Position
       @param c desired color for the robot in struct Color
   */
-  void Nimm4::place(const Vec3& pos){
+  void Nimm4::place(const Pos& pos){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)    
@@ -182,6 +188,9 @@ namespace lpzrobots {
   
     for (int i=0; i<segmentsno; i++) { 
       object[i]->update();
+    }
+    for (int i=0; i < 4; i++) { 
+      joint[i]->update();
     }
 
   };
@@ -311,19 +320,14 @@ namespace lpzrobots {
 
     // generate 4 joints to connect the wheels to the body
     for (int i=0; i<4; i++) {
-      // create joint in the world, but in no group(2.parameter=0)
-      joint[i] = dJointCreateHinge2 (odeHandle. world,0); 
-      // attach joint to body and wheel
-      dJointAttach (joint[i],object[0]->getBody(),object[i+1]->getBody()); 
-      const dReal *a = dBodyGetPosition (object[i+1]->getBody());    // get position of the wheel
-      dJointSetHinge2Anchor(joint[i],a[0],a[1],a[2]);          // set the joint anchor to this position
-      dJointSetHinge2Axis1 (joint[i],0,0,1);   // set the joint axis
-      dJointSetHinge2Axis2 (joint[i],0,1,0);
+      Pos anchor(dBodyGetPosition (object[i+1]->getBody()));
+      joint[i] = new Hinge2Joint(object[0], object[i+1], anchor, Vec3(0,0,1), Vec3(0,1,0));
+      joint[i]->init(odeHandle, osgHandle, true, 2);
     }
     for (int i=0; i<4; i++) {
       // set stops to make sure wheels always stay in alignment
-      dJointSetHinge2Param (joint[i],dParamLoStop,0);
-      dJointSetHinge2Param (joint[i],dParamHiStop,0);
+      dJointSetHinge2Param (joint[i]->getJointID(), dParamLoStop, 0);
+      dJointSetHinge2Param (joint[i]->getJointID(), dParamHiStop, 0);
     }
 
     created=true; // robot is created
@@ -337,6 +341,9 @@ namespace lpzrobots {
       dSpaceDestroy(odeHandle.space); // destroy space
       for (int i=0; i<segmentsno; i++){
 	if(object[i]) delete object[i]; // destroy bodies and geoms
+      }
+      for (int i=0; i<4; i++){
+	if(joint[i]) delete joint[i]; // destroy bodies and geoms
       }
     }
     created=false; // robot does not exist (anymore)
