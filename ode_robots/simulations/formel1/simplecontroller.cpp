@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-11-22 15:48:59  robot3
+ *   Revision 1.7  2005-12-12 13:44:45  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.6  2005/11/22 15:48:59  robot3
  *   inserted raceground sensors
  *
  *   Revision 1.5  2005/11/15 14:23:44  robot3
@@ -48,8 +51,8 @@
 #include <math.h>
 #include "simplecontroller.h"
 
-  // pointer to the camera handling function of the user
-  void (*cameraHandlingFunction)();
+// pointer to the camera handling function of the user
+void (*cameraHandlingFunction)();
 
 
 SimpleController::SimpleController(){
@@ -67,7 +70,7 @@ SimpleController::SimpleController(){
   
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile$", 
-			            "$Revision$");
+			      "$Revision$");
 };
 
 
@@ -87,7 +90,7 @@ void SimpleController::init(int sensornumber, int motornumber){
     @param motornumber length of the provided motor array
 */
 void SimpleController::step(const sensor* sensors, int sensornumber, 
-			  motor* motors, int motornumber) {
+			    motor* motors, int motornumber) {
   stepNoLearning(sensors, sensornumber, motors, motornumber);
 };
 
@@ -95,61 +98,71 @@ void SimpleController::step(const sensor* sensors, int sensornumber,
     @see step
 */
 void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors, 
-				    motor* motors, int number_motors) {
+				      motor* motors, int number_motors) {
 
   for (int i=0; i<number_motors; i++){
-//     if (i%2==0)    
-//       motors[i]=sin(t/velocity);
-//     else
-//       motors[i]=cos(t/velocity);
-//    motors[i]=sin(t/velocity + i*leftRightShift*M_PI/2);
+    //     if (i%2==0)    
+    //       motors[i]=sin(t/velocity);
+    //     else
+    //       motors[i]=cos(t/velocity);
+    //    motors[i]=sin(t/velocity + i*leftRightShift*M_PI/2);
 
-// 	printf("velocity: %f\n",velocity);
-// 	printf("leftRightShift: %f\n",leftRightShift);
+    // 	printf("velocity: %f\n",velocity);
+    // 	printf("leftRightShift: %f\n",leftRightShift);
     
+    if (leftRightShift!=0){
+      velocity +=0.5;
+    }
+
+
     // due to no shift all motors get equal velocity
     if (leftRightShift==0)
-	motors[i]=velocity;
+      motors[i]=velocity;
     // due to shift exists left and right motors get different values
     else if (leftRightShift<0) { // steering left
-	if (i%2==0) // left motors
-    	    motors[i]=velocity+leftRightShift*4*velocity;
-	else // right motors
-	    motors[i]=velocity;
+      if (i%2==0) // left motors
+	motors[i]=velocity+leftRightShift*4*velocity;
+      else // right motors
+	motors[i]=velocity;
     }
     else { // steering right
-	if (i%2==0) // left motors
-    	    motors[i]=velocity;
-	else // right motors
-	    motors[i]=velocity-leftRightShift*4*velocity;
+      if (i%2==0) // left motors
+	motors[i]=velocity;
+      else // right motors
+	motors[i]=velocity-leftRightShift*4*velocity;
     }
-   }
-	if (leftRightShift<0.25) {
-		// if there is a big shift, velocity must be constant, otherwise
-		// it will decrease
-		if (velocity>=0.05) // forward
-			velocity-=0.05;
-		else if (velocity<=-0.05) // backward
-			velocity+=0.05;
-		else // has to stand still
-			velocity=0;
-	}
-	// Werte wieder langsam zurueck setzen
-	if (leftRightShift>=0.05) // left
-		leftRightShift-=0.05;
-	else if (leftRightShift<=-0.05) // right
-		leftRightShift+=0.05;
-	else // straight forward
-	{
-	leftRightShift=0; // only straight forward
-	}
-	// now call cameraHandling if defined
-//  	if (cameraHandlingDefined==1)
-//  		cameraHandlingFunction();
-	t++;
-	for (int i =4; i<number_sensors;i++)
-	  cout << "sensor " << i << " = " << sensors[i] << "\t";
-	cout << "\n";
+  }
+  if (leftRightShift<0.25) {
+    // if there is a big shift, velocity must be constant, otherwise
+    // it will decrease
+    if (velocity>=0.05) // forward
+      velocity-=0.05;
+    else if (velocity<=-0.05) // backward
+      velocity+=0.05;
+    else // has to stand still
+      velocity=0;
+  }
+  // Werte wieder langsam zurueck setzen
+  if (leftRightShift>=0.05) // left
+    leftRightShift-=0.05;
+  else if (leftRightShift<=-0.05) // right
+    leftRightShift+=0.05;
+  else // straight forward
+    {
+      leftRightShift=0; // only straight forward
+    }
+  // now call cameraHandling if defined
+  //  	if (cameraHandlingDefined==1)
+  //  		cameraHandlingFunction();
+  t++;
+  for (int i =4; i<number_sensors;i++)
+    cout << "sensor " << i << " = " << sensors[i] << "\t";
+  cout << "\n";
+
+  if (leftRightShift>0.5){
+    velocity -=0.5;
+  }
+
 };
   
 
@@ -160,7 +173,10 @@ Configurable::paramval SimpleController::getParam(const paramkey& key) const{
 }
 
 bool SimpleController::setParam(const paramkey& key, paramval val){
-  if(key == "velocity") velocity=val;
+  if(key == "velocity") {
+    velocity=val;
+    if(velocity == 0) leftRightShift = 0;
+  }
   else if(key == "leftRightShift") leftRightShift=val; 
   else return AbstractController::setParam(key, val);
   return true;
@@ -174,12 +190,12 @@ Configurable::paramlist SimpleController::getParamList() const{
 }
 
 
-  /** Initialises the registers the given callback functions.
-      @param handling() is called every step that the camera gets new position
-      and view.
-   */
- /*  void SimpleController::setCameraHandling(void (*handling)()) {
-	   cameraHandlingFunction=handling;
-  	   // enable the camerahandling
-	   cameraHandlingDefined=1;
-};*/
+/** Initialises the registers the given callback functions.
+    @param handling() is called every step that the camera gets new position
+    and view.
+*/
+/*  void SimpleController::setCameraHandling(void (*handling)()) {
+    cameraHandlingFunction=handling;
+    // enable the camerahandling
+    cameraHandlingDefined=1;
+    };*/

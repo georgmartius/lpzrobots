@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-12-07 22:19:11  robot3
+ *   Revision 1.7  2005-12-12 13:44:41  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.6  2005/12/07 22:19:11  robot3
  *   one tiny mistake fixed
  *
  *   Revision 1.5  2005/12/05 12:35:00  robot3
@@ -52,10 +55,6 @@
 class DegreeSegment : public AbstractTrackSection {
 
  public:
-  /**
-   * Constructor
-   */
-  DegreeSegment();
 
   /**
    * Constructor
@@ -70,18 +69,6 @@ class DegreeSegment : public AbstractTrackSection {
 
   virtual ~DegreeSegment(){}
 
-
-  /** 
-   * sets the position and rotation(angle) of the segment
-   * in the real world.
-   */
-void setPositionMatrix(const Matrix& pose);
-
-  /** 
-   * sets the position of the segment
-   * in the real world.
-   */
-void setPosition(const Position& pos) ;
 
 /**
  * returns the length of the segment,
@@ -101,26 +88,9 @@ virtual double getLength();
  virtual void setWidth(double w);
 
 
-virtual Position getPosition();
-
-virtual void setRotation(const Matrix& m);
-
-void setRotation(const double& angle);
-
-
 virtual void setCurveAngle(const double& alpha);
 
 virtual void setRadius(const double& rad);
-
-virtual Matrix getRotation();
-
-
-  /** 
-   * gives the position and rotation(angle) of the segment
-   * in the real world.
-   * returns a matrix.
-   */
-  virtual Matrix getPositionMatrix();
 
   /**
    * gives the position and rotation(angle) of the segment at the
@@ -134,7 +104,7 @@ virtual Matrix getRotation();
 /**
  * returns true if the real coordinates lay inside of the segment
  */
-bool isInside(const Position& p);
+virtual bool isInside(const Position& p);
 
 
 /**
@@ -144,7 +114,7 @@ bool isInside(const Position& p);
  * 100 means you are at the end
  * returns -1 if no IdValue can be given
  */
-double getSectionIdValue(const Position& p);
+virtual double getSectionIdValue(const Position& p);
 
 
 /**
@@ -155,20 +125,20 @@ double getSectionIdValue(const Position& p);
  * 100 means you are on the right
  * returns -1 if no WidthValue can be given
  */
-double getWidthIdValue(const Position& p);
+virtual double getWidthIdValue(const Position& p);
 
 
 /**
  * draws the obstacle (4 boxes for the playground)
  */
- void draw();
+ virtual  void draw();
 
 
 
-void create(dSpaceID space);
+virtual void create(dSpaceID space);
 
 
- void destroy();
+virtual  void destroy();
 
  protected:
   // this is the radius of the curve
@@ -199,23 +169,19 @@ void create(dSpaceID space);
    */
   Color color;
  
-  // stores the actual position and angle in a matrix
-  Matrix posMatrix;
-
   void setProperties();
 
   /**
-   * returns the inner coordinates that are responsible for the segment of the
-   * given length and alpha. 
+   * returns the local coordinates  on the track at the given radius and angle
+   that are responsible for the segment of the
    */
-  Position getInnerCoordinates(double length, double alpha);
-
+  Position getLocalCoordinates(double radius, double alpha);
 
   /**
-   * returns the outer coordinates (world) that are responsible for the
-   * segment of the given length and alpha. 
+   * returns the global coordinates on the track at the given radius and angle
+   that are responsible for the segment of the
    */
-  Position getOuterCoordinates(double length, double alpha);
+  Position getGlobalCoordinates(double radius, double alpha);
 
 };
 

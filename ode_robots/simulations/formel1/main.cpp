@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2005-12-11 12:06:35  robot3
+ *   Revision 1.15  2005-12-12 13:44:45  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.14  2005/12/11 12:06:35  robot3
  *   racegroundsensor testet
  *
  *   Revision 1.13  2005/11/29 13:38:59  robot3
@@ -75,6 +78,7 @@
 #include "agent.h"
 #include "one2onewiring.h"
 #include "formel1.h"
+#include "nimm4.h"
 #include "raceground.h"
 #include "camera.h"
 #include "simplecontroller.h"
@@ -87,9 +91,9 @@ SimpleController *controller;
 float camPoint[3] = {-4.0f,0.0f,1.5f};
 float camAngle[3] = {0.0f,0.0f,0.0f};
  // the robot to follow
- Formel1* vehicle;
+ AbstractRobot* vehicle;
  // the position of robot
- double robotPoint[3]= {0.0f,0.0f,0.0f};
+ double robotPoint[3]= {0.1f,0.0f,0.0f};
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -103,7 +107,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
   // initialization
-  global.odeConfig.noise=0.1;
+  global.odeConfig.noise=0.0;
   // global.odeConfig.setParam("realtimefactor",1.5);
   //  global.odeConfig.setParam("drawinterval",2);
 
@@ -111,15 +115,17 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   int chessTexture = dsRegisterTexture("chess.ppm");
   printf("Chess: %i\n", chessTexture);
   // Playground* playground = new Playground(odeHandle);
-  RaceGround* Strecke = new RaceGround(odeHandle,Position(0.0,0.0,0.0),0.0);
+  RaceGround* Strecke = new RaceGround(odeHandle,Position(0.0,0.0,0.0), 0);
   list<string> segmentList;
 
+  segmentList+=string("degree -90.0 10.0");
   segmentList+=string("straightline");
   segmentList+=string("degree 90.0 10.0");
   segmentList+=string("straightline");
+  segmentList+=string("straightline");
   segmentList+=string("degree -90.0 10.0");
   segmentList+=string("straightline");
-  //  segmentList+=string("degree 90.0 5.0");
+  segmentList+=string("degree 90.0 5.0");
   // segmentList+=string("degree 90.0 5.0");
   // segmentList+=string("degree 90.0 5.0");
   // segmentList+=string("degree -28.1 21.2");
@@ -183,30 +189,33 @@ void config(GlobalData& global){
 void command(const OdeHandle& odeHandle, GlobalData& global, int key){
     double val;
 //     double velocityStep=0.05;
-    double maxShift=0.5;
+    double maxShift=2.5;
     double maxVelocity=2.0f;
     double shiftStep=0.167;
     switch (key){
     case 'w': // forward
 	controller->setParam("velocity",maxVelocity);
 	break; 
-    case 's': // backward
+    case 's': // stop
+	controller->setParam("velocity",0);
+	break; 
+    case 'x': // backward
 	controller->setParam("velocity",-maxVelocity);
 	break; 
     case 'a': // left
 	val = controller->getParam("leftRightShift");
 	if (val>(shiftStep-maxShift)) 
-		val-=shiftStep;
+		val +=shiftStep;
 	else // so it cant get anymore then -1
-		val=-maxShift;
+		val= maxShift;
 	controller->setParam("leftRightShift", val);
 	break; 
     case 'd': // right
 	    val = controller->getParam("leftRightShift");
 	    if (val<(maxShift-shiftStep)) 
-		    val+=shiftStep;
+		    val-=shiftStep;
 	    else // so it cant get anymore then 1
-		    val=maxShift;
+		    val= -maxShift;
 	    controller->setParam("leftRightShift", val);
 	    break;
     }

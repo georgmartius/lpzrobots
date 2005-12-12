@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-12-11 12:06:35  robot3
+ *   Revision 1.8  2005-12-12 13:44:41  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.7  2005/12/11 12:06:35  robot3
  *   racegroundsensor testet
  *
  *   Revision 1.6  2005/12/05 12:33:32  robot3
@@ -47,6 +50,22 @@
 #include "mathutils.h"
 #include "stl_adds.h"
 
+/**
+ * Constructor
+ */
+DegreeSegment::DegreeSegment(const Position& p,const double& angle)
+  : AbstractTrackSection(p, angle) { // GLOBAL
+  // 2 matrices are calculated, the sum is the matrix to store
+  setProperties();
+};
+
+/**
+ * Constructor
+ */
+DegreeSegment::DegreeSegment(const Matrix& pose) 
+  : AbstractTrackSection(pose) { // GOBAL
+  setProperties();
+};
 
 void DegreeSegment::setProperties() {
   radius=10.0f; // INTERNAL radius
@@ -71,25 +90,20 @@ void DegreeSegment::setRadius(const double& rad) {
   radius=rad;
 }
 
-
-/**
- * returns the inner coordinates that are responsible for the segment of the
- * given length and alpha. 
- */
-Position DegreeSegment::getInnerCoordinates(double length, double alpha) {
+Position DegreeSegment::getLocalCoordinates(double radius, double alpha) {
   Matrix l,r,t;
   if (left==1) {
-    l = ::getPositionMatrix(Position(0.0f,-length,0.0f));
+    l = ::getPositionMatrix(Position(0.0f,-radius,0.0f));
     // now rotate the l with alpha
     r = getRotationMatrix(alpha);
     // then translate it with (0,-radius,0) if right curve
-    t = getTranslationMatrix(Position(0.0f,radius,0.0f));
+    t = getTranslationMatrix(Position(0.0f, this->radius,0.0f));
   } else {
-    l = ::getPositionMatrix(Position(0.0f,length,0.0f));
+    l = ::getPositionMatrix(Position(0.0f,radius,0.0f));
     // now rotate the l with alpha
     r = getRotationMatrix(alpha);
     // then translate it with (0,-radius,0) if right curve
-    t = getTranslationMatrix(Position(0.0f,-radius,0.0f));
+    t = getTranslationMatrix(Position(0.0f,- this->radius,0.0f));
   }
   // do it all in one step
   Matrix p = t * ( r * l);
@@ -97,108 +111,8 @@ Position DegreeSegment::getInnerCoordinates(double length, double alpha) {
 }
 
 
-/**
- * returns the outer coordinates (world) that are responsible for the
- * segment of the given length and alpha. 
- */
-Position DegreeSegment::getOuterCoordinates(double length, double alpha) {
-  Matrix l,r,t;
-  if (left==1) {
-    l = ::getPositionMatrix(Position(0.0f,-length,0.0f));
-    // now rotate the l with alpha
-    r = getRotationMatrix(alpha);
-    // then translate it with (0,-radius,0) if right curve
-    t = getTranslationMatrix(Position(0.0f,radius,0.0f));
-  } else {
-    l = ::getPositionMatrix(Position(0.0f,length,0.0f));
-    // now rotate the l with alpha
-    r = getRotationMatrix(alpha);
-    // then translate it with (0,-radius,0) if right curve
-    t = getTranslationMatrix(Position(0.0f,-radius,0.0f));
-  }
-  // do it all in one step
-  Matrix p = posMatrix * (t * ( r * l));
-  return getPosition4x1(p);
-}
-
-
-/**
- * Constructor
- */
-DegreeSegment::DegreeSegment() : posMatrix(4,4) { // GLOBAL
-  // now position and rotation is all 0
-  setProperties();
-  posMatrix.toId();
-};
-
-/**
- * Constructor
- */
-DegreeSegment::DegreeSegment(const Position& p,const double& angle) { // GLOBAL
-  // 2 matrices are calculated, the sum is the matrix to store
-  setProperties();
-  posMatrix + getTranslationRotationMatrix(p,angle);
-};
-
-/**
- * Constructor
- */
-DegreeSegment::DegreeSegment(const Matrix& pose) : posMatrix(pose) { // GOBAL
-  setProperties();
-
-  assert (pose.getM()==4 && pose.getN()==4);
-  std::cout << "Pos of DEGREEseg:\t" << pose;
-};
-
-
-Position DegreeSegment::getPosition() {
-  return ::getPosition(posMatrix);
-}
-
-  /** 
-   * gives the position and rotation(angle) of the segment
-   * in the real world.
-   * returns a matrix.
-   */
-Matrix DegreeSegment::getPositionMatrix() { // GLOBAL
-  return posMatrix;
-};
-
-
-  /** 
-   * sets the position and rotation(angle) of the segment
-   * in the real world.
-   */
-void DegreeSegment::setPositionMatrix(const Matrix& pose) { // GLOBAL
-  assert (pose.getM()==4 && pose.getN()==4);
-  posMatrix=pose;
-};
-
-  /** 
-   * sets the position of the segment
-   * in the real world.
-   */
-void DegreeSegment::setPosition(const Position& pos) { // GLOBAL
-  // the new posMatrix is the old rotation plus the new translation part
-  // therefore the old translation part must be removed first
-  posMatrix=getTranslationRotationMatrix(pos,getAngle(posMatrix));
-};
-
-void DegreeSegment::setRotation(const double& angle) { // GLOBAL
-  // the new posMatrix is the old position plus the new translation part
-  // therefore the old rotation part must be removed first
-  posMatrix = getTranslationRotationMatrix(::getPosition(posMatrix),angle);
-}
-
-void DegreeSegment::setRotation(const Matrix& rot) { // GLOBAL
-  // the new posMatrix is the old position plus the new translation part
-  // therefore the old rotation part must be removed first
-  posMatrix=removeRotationInMatrix(posMatrix)*rot;
-}
-
-Matrix DegreeSegment::getRotation() { // GLOBAL
-  assert (posMatrix.getM()==4 && posMatrix.getN()==4);
-  return posMatrix;
+Position DegreeSegment::getGlobalCoordinates(double radius, double alpha) {
+  return transformToGlobalCoord(getLocalCoordinates(radius, alpha));  
 }
 
 
@@ -225,9 +139,9 @@ Matrix DegreeSegment::getTransformedEndMatrix(){ // INTERNAL
   Matrix t2 = getTranslationMatrix(Position(0.0f,radius,0.0f));
 
   Matrix t = t2 * (r * t1);*/
-  Position e= getInnerCoordinates(radius,angle);
+  Position e= getLocalCoordinates(radius,angle);
   Matrix end = getTranslationRotationMatrix(e,angle);
-  // this was all, nice homogen coordinates :)
+  // this was all, nice homogenous coordinates :)
   return end;
 }
 
@@ -245,66 +159,50 @@ bool DegreeSegment::isInside(const Position& p) { // must be inner coordinates
   else return 1;
 }
 
-/**
- * returns a value between 0 and 100 that tells at which section
- * you are on the segment.
- * 0 means you are on the beginning
- * 100 means you are at the end
- * returns -1 if no IdValue can be given
- */
-double DegreeSegment::getSectionIdValue(const Position& p) { // must be inner coordinates
-  // first get a 4x1 matrix for p
-  Matrix p0 = ::getPositionMatrix(p);
-  Matrix t;
-  // now get (0,-r,0) as a translation Matrix
+double DegreeSegment::getSectionIdValue(const Position& p) { 
+  Position local = transformToLocalCoord(p);
+  Position p1;
   if (left==1)
-    t = getTranslationMatrix(Position(0.0f,radius,0.0f));
-  else
-    t = getTranslationMatrix(Position(0.0f,-radius,0.0f));
-  // now calculate the endmatrix
-  Matrix p1 = t * p0;
-  // now get the Position from p1
-  Position pos1 = getPosition4x1(p1);
+    p1 = local + Position(0,-radius,0);
+  else  
+    p1 = local + Position(0,radius,0);
+
+  p1.z=0;
+  if(p1.x<0) return -1; // we are outside the track (assumes angles < 180)
   // now calculate the angle
   double alpha;
-  if (left==1)
-    alpha = getAngle(pos1,Position(0.0f,-radius,0.0f));
-  else
-    alpha = getAngle(pos1,Position(0.0f,radius,0.0f));
-
-  if ((alpha>=0.0f) && (alpha <=angle)) {
-    // if check ok, return the value
-    return (alpha/angle)*100.0f;
+  if (left==1){
+    alpha = getAngle(p1, Position(0.0f,-radius,0.0f));
+    if ((alpha>=0.0f) && (alpha <=angle)) {
+      return (alpha/angle)*getLength();
+    } 
+  } else {
+    alpha = getAngle(p1, Position(0.0f,radius,0.0f));
+    if ((alpha>=0.0f) && (alpha <= -angle)) {
+      return (alpha/-angle)*getLength();
+    }
   }
-  else return -1;
+  return -1;
 }
 
-/**
- * returns a value between 0 and 100 that tells at which width
- * you are on the segment, more to right or more to the left.
- * 0 means you are on the left
- * 50 means you are in the middle
- * 100 means you are on the right
- * returns -1 if no WidthValue can be given
- */
-double DegreeSegment::getWidthIdValue(const Position& p) { // must be inner coordinates
-  // first get a 4x1 matrix for p
-  Matrix p0 = ::getPositionMatrix(p);
-  // now get (0,-r,0) as a translation Matrix
-  Matrix t;
+double DegreeSegment::getWidthIdValue(const Position& p) { 
+  Position local = transformToLocalCoord(p);
+  Position p1;
   if (left==1)
-    t = getTranslationMatrix(Position(0.0f,-radius,0.0f));
-  else
-    t = getTranslationMatrix(Position(0.0f,radius,0.0f));
-  // now calculate the endmatrix
-  Matrix p1 = t * p0;
-  // now get the Position from p1
-  Position pos1 = getPosition4x1(p1);
+    p1 = local + Position(0,-radius,0);
+  else  
+    p1 = local + Position(0,radius,0);
+
+  p1.z=0;
   // now get the length
-  double length = ::getLength(pos1)-radius;
+  double length = p1.length()-radius;
   // now check if length is between -width/2 and width/2
-  if (length>=-width/2.0f && length<=width/2.0f)
-    return ((length+width/2.0f)/width)*100.0f;
+  if (length>=-width/2.0f && length<=width/2.0f){
+    if(left==1)
+      return width - (length+width/2.0f);
+    else
+      return (length+width/2.0f);
+  }
   else return -1;
 }
 
@@ -416,9 +314,9 @@ void DegreeSegment::create(dSpaceID space)
     double lowerdivisor = ((float) i )/ ((float)numberCorners);
     double upperdivisor = ((float) i+1 )/ ((float)numberCorners);
     // get the first endpoint (beginning point)
-    Position p1 = getOuterCoordinates(radius+width/2.0f,angle*lowerdivisor);
+    Position p1 = getGlobalCoordinates(radius+width/2.0f,angle*lowerdivisor);
     // get the ending point
-    Position p2 = getOuterCoordinates(radius+width/2.0f,angle*upperdivisor);
+    Position p2 = getGlobalCoordinates(radius+width/2.0f,angle*upperdivisor);
     // the length of the wall
     Position pdiff = getDifferencePosition(p2,p1);
     double length = ::getLength(getDifferencePosition(p1,p2));
@@ -449,9 +347,9 @@ void DegreeSegment::create(dSpaceID space)
     double lowerdivisor = ((float) i )/ ((float)numberCorners);
     double upperdivisor = ((float) i+1 )/ ((float)numberCorners);
     // get the first endpoint (beginning point)
-    Position p1 = getOuterCoordinates(radius-width/2.0f,angle*lowerdivisor);
+    Position p1 = getGlobalCoordinates(radius-width/2.0f,angle*lowerdivisor);
     // get the ending point
-    Position p2 = getOuterCoordinates(radius-width/2.0f,angle*upperdivisor);
+    Position p2 = getGlobalCoordinates(radius-width/2.0f,angle*upperdivisor);
     // the length of the wall
     Position pdiff = getDifferencePosition(p2,p1);
    double length = ::getLength(getDifferencePosition(p1,p2));

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-22 15:48:19  robot3
+ *   Revision 1.6  2005-12-12 13:44:43  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.5  2005/11/22 15:48:19  robot3
  *   inserted raceground sensors
  *
  *   Revision 1.4  2005/11/09 13:24:42  martius
@@ -77,7 +80,7 @@ void Formel1::setMotors(const motor* motors, int motornumber){
   for (int i=0; i<len; i++){ 
     //    tmp=dJointGetHinge2Param(joint[i],dParamVel2);
     //    dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*speed-tmp) );       
-    dJointSetHinge2Param(joint[i],dParamVel2, motors[i]*speed);       
+    dJointSetHinge2Param(joint[i],dParamVel2, -motors[i]*speed);       
     dJointSetHinge2Param (joint[i],dParamFMax2,max_force);
   }
 };

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-12-03 16:57:12  martius
+ *   Revision 1.4  2005-12-12 13:44:41  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.3  2005/12/03 16:57:12  martius
  *   setWidth is void
  *
  *   Revision 1.2  2005/11/22 15:51:23  robot3
@@ -42,57 +45,21 @@
  */
 class StraightLine : public AbstractTrackSection {
 
- public:
-  /**
-   * Constructor
-   */
-  StraightLine();
+public:
 
   /**
    * Constructor
    */
   StraightLine(const Position& p,const double& angle);
 
-
   /**
    * Constructor
    */
-  StraightLine(const Matrix& position);
+  StraightLine(const Matrix& pose);
 
   virtual ~StraightLine(){}
 
-
-  /** 
-   * sets the position and rotation(angle) of the segment
-   * in the real world.
-   */
-void setPositionMatrix(const Matrix& pose);
-
-  /** 
-   * sets the position of the segment
-   * in the real world.
-   */
-void setPosition(const Position& pos) ;
-
-
-virtual Position getPosition();
-
-virtual void setRotation(const Matrix& m);
-
-void setRotation(const double& angle);
-
- void setCurveAngle(double alpha);
-
-
-virtual Matrix getRotation();
-
-
-  /** 
-   * gives the position and rotation(angle) of the segment
-   * in the real world.
-   * returns a matrix.
-   */
-  virtual Matrix getPositionMatrix();
+  void setCurveAngle(double alpha);
 
   /**
    * gives the position and rotation(angle) of the segment at the
@@ -103,64 +70,45 @@ virtual Matrix getRotation();
   virtual Matrix getTransformedEndMatrix();
 
 
-/**
- * returns true if the real coordinates lay inside of the segment
- */
-bool isInside(const Position& p);
+  /**
+   * returns true if the real coordinates lay inside of the segment
+   */
+  virtual bool isInside(const Position& p);
 
 
-/**
- * returns a value between 0 and 100 that tells at which section
- * you are on the segment.
- * 0 means you are on the beginning
- * 100 means you are at the end
- * returns -1 if no IdValue can be given
- */
-double getSectionIdValue(const Position& p);
+  virtual double getSectionIdValue(const Position& p);
+
+  virtual double getWidthIdValue(const Position& p);
 
 
-/**
- * returns a value between 0 and 100 that tells at which width
- * you are on the segment, more to right or more to the left.
- * 0 means you are on the left
- * 50 means you are in the middle
- * 100 means you are on the right
- * returns -1 if no WidthValue can be given
- */
- double getWidthIdValue(const Position& p);
-
-
-/**
- * returns the length of the segment,
- * here it is the length of the arc
- * formula is: radius * angle;
- */
- virtual double getLength();
-
-/**
- * returns the width of the segment,
- */
- virtual double getWidth();
-
-/**
- * sets the width of the segment,
- */
- virtual void setWidth(double w);
-
-
-/**
- * draws the obstacle (4 boxes for the playground)
- */
- void draw();
-
-
-
-void create(dSpaceID space);
-
-
- void destroy();
-
- protected:
+  /**
+   * returns the length of the segment,
+   * here it is the length of the arc
+   * formula is: radius * angle;
+   */
+  virtual double getLength();
+  
+  /**
+   * returns the width of the segment,
+   */
+  virtual double getWidth();
+  
+  /**
+   * sets the width of the segment,
+   */
+  virtual void setWidth(double w);
+  
+  
+  /**
+   * draws the obstacle (4 boxes for the playground)
+   */
+  virtual void draw();  
+  
+  virtual void create(dSpaceID space);
+  
+  virtual void destroy();
+  
+protected:
   // this is the length of the segment
   double length;
   // this is the width of the segment
@@ -182,9 +130,6 @@ void create(dSpaceID space);
    */
   Color color;
  
-  // stores the actual position and angle in a matrix
-  Matrix posMatrix;
-
   void setProperties();
 };
 

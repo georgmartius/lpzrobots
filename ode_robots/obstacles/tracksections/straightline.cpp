@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-12-11 12:06:35  robot3
+ *   Revision 1.6  2005-12-12 13:44:41  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.5  2005/12/11 12:06:35  robot3
  *   racegroundsensor testet
  *
  *   Revision 1.4  2005/12/03 16:57:12  martius
@@ -51,85 +54,22 @@ void StraightLine::setProperties() {
   color=Color(226 / 255.0, 103 / 255.0, 66 / 255.0);
 }
 
-
 /**
  * Constructor
  */
-StraightLine::StraightLine() : posMatrix(4,4) { // GLOBAL
-  // now position and rotation is all 0
-  setProperties();
-  posMatrix.toId();
-};
-
-/**
- * Constructor
- */
-StraightLine::StraightLine(const Position& p,const double& angle) { // GLOBAL
+StraightLine::StraightLine(const Position& p,const double& angle)
+  : AbstractTrackSection(p,angle) {
   // 2 matrices are calculated, the sum is the matrix to store
   setProperties();
-  posMatrix = getTranslationRotationMatrix(p,angle);
 };
 
 /**
  * Constructor
  */
-StraightLine::StraightLine(const Matrix& pose) : posMatrix(pose) { // GOBAL
+StraightLine::StraightLine(const Matrix& pose)
+  : AbstractTrackSection(pose) { 
   setProperties();
-  Position p = ::getPosition(pose);
-  std::cout << "Pos of Line=(" << p.x << ", " << p.y << ", " << p.z << ")\n";
 };
-
-
-Position StraightLine::getPosition() {
-  return ::getPosition(posMatrix);
-}
-
-  /** 
-   * gives the position and rotation(angle) of the segment
-   * in the real world.
-   * returns a matrix.
-   */
-Matrix StraightLine::getPositionMatrix() { // GLOBAL
-  return posMatrix;
-};
-
-
-  /** 
-   * sets the position and rotation(angle) of the segment
-   * in the real world.
-   */
-void StraightLine::setPositionMatrix(const Matrix& pose) { // GLOBAL
-  posMatrix=pose;
-};
-
-  /** 
-   * sets the position of the segment
-   * in the real world.
-   */
-void StraightLine::setPosition(const Position& pos) { // GLOBAL
-  // the new posMatrix is the old rotation plus the new translation part
-  // therefore the old translation part must be removed first
-  posMatrix=getTranslationRotationMatrix(pos,getAngle(posMatrix));
-};
-
-void StraightLine::setRotation(const double& angle) { // GLOBAL
-  // the new posMatrix is the old position plus the new translation part
-  // therefore the old rotation part must be removed first
-  posMatrix=getTranslationRotationMatrix(::getPosition(posMatrix),angle);
-}
-
-void StraightLine::setRotation(const Matrix& rot) { // GLOBAL
-  // the new posMatrix is the old position plus the new translation part
-  // therefore the old rotation part must be removed first
-  posMatrix=removeRotationInMatrix(posMatrix)*rot;
-}
-
-Matrix StraightLine::getRotation() { // GLOBAL
-  return posMatrix;
-}
-
-
-
 
   /**
    * gives the position and rotation(angle) of the segment at the
@@ -137,11 +77,7 @@ Matrix StraightLine::getRotation() { // GLOBAL
    */
 Matrix StraightLine::getTransformedEndMatrix(){ // INTERNAL
   // this is the translation matrix, initialized with length
-  Matrix t = getTranslationMatrix(Position(length,0,0));
-  // this is the rotation matrix, initialized with angle,
-  // in straightline the angle is zero!
-  Matrix r = getRotationMatrix(angle);
-  return (r * t);
+  return  getTranslationMatrix(Position(length,0,0));
 }
 
 /**
@@ -149,43 +85,38 @@ Matrix StraightLine::getTransformedEndMatrix(){ // INTERNAL
  */
 bool StraightLine::isInside(const Position& p) { // must be inner coordinates0
   // the point lays inside of the segment if two conditions are true:
-  // 1. the distance between (0,0,0) and the position is between
-  //    0 and length
-  // 2. the width between is between -width/2 and width/2
+  // 1. the x - coordinate of the position is between 0 and length
+  // 2. the width (y) is is between -width/2 and width/2
   if (getSectionIdValue(p)==-1 || getWidthIdValue(p)==-1)
     return 0;
   else return 1;
 }
 
 /**
- * returns a value between 0 and 100 that tells at which section
+ * returns a value between 0 and length that tells at which section
  * you are on the segment.
- * 0 means you are on the beginning
- * 100 means you are at the end
  * returns -1 if no IdValue can be given
  */
 double StraightLine::getSectionIdValue(const Position& p) { // must be inner coordinates
+  Position local = transformToLocalCoord(p);
   // now the check
-  if ((p.x>=0.0f) && (p.x<=length)) {
+  if ((local.x>=0.0f) && (local.x<=length)) {
     // if check ok, return the value
-    return p.x/length*100.0f;
+    return local.x; 
   }
   else return -1;
 }
 
 /**
- * returns a value between 0 and 100 that tells at which width
+ * returns a value between 0 and width that tells at which width
  * you are on the segment, more to right or more to the left.
- * 0 means you are on the left
- * 50 means you are in the middle
- * 100 means you are on the right
  * returns -1 if no WidthValue can be given
  */
 double StraightLine::getWidthIdValue(const Position& p) { // must be inner coordinates
-  double t= (p.y+width/2.0f)/width*100.0f;
-  if ((t>=0.0f) && (t <=100.0f)) {
+  Position local = transformToLocalCoord(p);
+  if ((local.y >= - width/2.0f) && (local.y <=width/2.0f)) {
     // if check ok, return the value
-    return t;
+    return local.y + width/2.0;
   }
   else return -1;
 }
@@ -241,7 +172,7 @@ void StraightLine::create(dSpaceID space)
 
   // first calculate the points
   // wallLeft: position is:
-  Matrix p = getPositionMatrix();
+  Matrix p = getPoseMatrix();
   Matrix pl = p * ::getTranslationMatrix(Position(length/2.0f,-width/2.0f,heightWall/2.0f));
   Matrix pr = p * ::getTranslationMatrix(Position(length/2.0f,width/2.0f,heightWall/2.0f));
 

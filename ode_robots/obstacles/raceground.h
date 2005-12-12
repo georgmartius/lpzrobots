@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-12-03 16:56:28  martius
+ *   Revision 1.8  2005-12-12 13:44:37  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.7  2005/12/03 16:56:28  martius
  *   removed own space because of weird no-collision bug
  *
  *   Revision 1.6  2005/11/29 13:38:28  robot3
@@ -100,56 +103,33 @@ class RaceGround : public AbstractObstacle {
    * you set the number of segments of the track
    */
   void setNumberOfSegments(int number) {
-    numberOfSegments=number;
+    numberOfBarcodes=number;
   }
 
-
   /**
-   * returns the segment number of the given point
-   * returns -1 if point is not on the track
+   * returns the barcode number of the given point   
+   * returns (length,width) (-1,-1) if point is not on the track
    */
-  double getWidthOfRobot(const Position& p) {
-    // todo: ask all segments if the robot is one of them and give back
-    // the width
-    for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
-	it!= SegmentList.end(); ++it) {
-      double widthID = (*it)->getWidthIdValue(p); 
-      if (widthID>=0.0f) { // segment is found
-	return widthID;
-      }
-    }
-    return -1.0f;
-  }
+   pair<double, double> getPositionOnTrack(const Position& p) {
 
-
-
-  /**
-   * returns the segment number of the given point
-   * returns -1 if point is not on the track
-   */
-  double getSegmentNumberOfRobot(const Position& p) {
-    // todo: ask all segments if the robot is one of them and give back
-    // the segmentID
     double passedLength=0.0f;
     double segmentNumber=-1.0f;
-   for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
+    double width        =-1.0f;
+    for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
 	it!= SegmentList.end(); ++it) {
-      double sectionLength = (*it)->getSectionIdValue(p); 
-      if (sectionLength>=0.0f) { // segment is found
-	sectionLength*=((*it)->getLength())/100.0f;
-	segmentNumber=numberOfSegments*
+      if((*it)->isInside(p)){
+	double sectionLength = (*it)->getSectionIdValue(p); // between 0..length
+	width = (*it)->getWidthIdValue(p); 
+	if (sectionLength<0.0f ) { // weird isegment is found
+	  printf("Weird! We should be in the segment!\n");
+	}
+	segmentNumber=numberOfBarcodes*
 	  (passedLength+sectionLength)/trackLength;
-	return segmentNumber;
+	return pair<double, double> (segmentNumber, width);  
       }
-      /*      cout << segmentNumber << "=segMentNumber\n";
-      cout << passedLength << "=passedLength\n";
-      cout << sectionLength << "=sectionLength\n";
-      cout << (*it)->getLength() << "given segment length!";*/
       passedLength+=(*it)->getLength();
-      /*      cout << passedLength << "=passedLength!!!!!!!\n";
-	      cout << nr++ << ". durchlauf\n";*/
     }
-    return segmentNumber;
+    return pair<double, double> (segmentNumber, width);
   }
 
   /**
@@ -177,11 +157,11 @@ class RaceGround : public AbstractObstacle {
     // get first pose from last stored segment
     Matrix newPose(pose); // this is the initial pose
     if (!SegmentList.empty()) {
-      Matrix pos = SegmentList.back()->getPositionMatrix();
+      Matrix pos = SegmentList.back()->getPoseMatrix();
       Matrix end = SegmentList.back()->getTransformedEndMatrix();
       newPose=pos * end;
     }
-    //TODO: write a parser for the parameters (done)
+
     if (name=="straightline") {
       AbstractTrackSection* segment = new StraightLine(newPose);
       SegmentList += segment;
@@ -266,15 +246,15 @@ class RaceGround : public AbstractObstacle {
   double width; 
   double height;
   Matrix pose;
-  double numberOfSegments;
+  double numberOfBarcodes;
   
   dSpaceID raceground_space;
   
-  virtual void setParameters(Matrix initpose) {
+  virtual void setParameters(const Matrix& initpose) {
     pose=initpose;
     obstacle_exists=false;
     setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
-    numberOfSegments=256.0f;
+    numberOfBarcodes=256.0f;
     trackLength=0.0;
   }
 

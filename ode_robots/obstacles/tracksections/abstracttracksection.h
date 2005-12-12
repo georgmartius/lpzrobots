@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-12-03 16:57:12  martius
+ *   Revision 1.4  2005-12-12 13:44:41  martius
+ *   barcodesensor is working
+ *
+ *   Revision 1.3  2005/12/03 16:57:12  martius
  *   setWidth is void
  *
  *   Revision 1.2  2005/11/22 15:51:23  robot3
@@ -40,6 +43,7 @@ using namespace matrix;
 #include "position.h"
 #include <drawstuff/drawstuff.h>
 #include "simulation.h"
+#include "mathutils.h"
 
 /**
  *  Abstract class (interface) for obstacles
@@ -51,55 +55,33 @@ class AbstractTrackSection{
    * Constructor, segment is initialized with Position (0,0,0)
    * and a rotation angle=0
    */
-  AbstractTrackSection() {};
+  //  AbstractTrackSection() {};
 
   /**
    * Constructor where you can set the position and rotation by:
    @param Position& p is the position of the segment
    @param double angle is the rotation of the segment
    */
-  AbstractTrackSection(const Position& p,const double angle) {};
+  AbstractTrackSection(const Position& p,const double angle) {
+    setPoseMatrix(getTranslationRotationMatrix(p, angle));
+  };
 
   /**
    * Constructor where you can set the pos-matrix by this constructor:
    @param Matrix& position is the position AND rotation of the segment
    */
-  AbstractTrackSection(const Matrix& position)
-    : pos(position) {
+  AbstractTrackSection(const Matrix& pose){
+    setPoseMatrix(pose);
   };
 
   virtual ~AbstractTrackSection(){}
   
-  /**
-   * sets position of the obstacle and creates/recreates obstacle if necessary
-   */
-  virtual void setPosition(const Position& p) = 0;
-
-  /**
-   * gives actual position of the obstacle
-   */
-  virtual Position getPosition() = 0;
-
-  virtual Matrix getPositionMatrix()=0;
-
-
-  /**
-   * sets rotation of the abstract segment and creates/recreates abstract line if necessary
-   */
-  virtual void setRotation(const Matrix& m) = 0;
 
   virtual void create(dSpaceID space) = 0;
-
 
   virtual void destroy() = 0;
 
   virtual void draw() = 0;
-
-  /**
-   * gives actual rotation of the abstract segment
-   */
-  virtual Matrix getRotation() = 0;
-
 
   /**
    * gives the position and rotation(angle) of the segment at the
@@ -114,21 +96,16 @@ class AbstractTrackSection{
   virtual bool isInside(const Position& p) = 0;
 
   /**
- * returns a value between 0 and 100 that tells at which section
+ * returns a value between 0 and length that tells at which section
  * you are on the segment.
- * 0 means you are on the beginning
- * 100 means you are at the end
  * returns -1 if no IdValue can be given
  */
   virtual double getSectionIdValue(const Position& p)=0;
 
 
 /**
- * returns a value between 0 and 100 that tells at which width
- * you are on the segment, more to right or more to the left.
- * 0 means you are on the left
- * 50 means you are in the middle
- * 100 means you are on the right
+ * returns a value between 0 and width that tells at which width
+ * you are on the segment, 0 means right and width means left.
  * returns -1 if no WidthValue can be given
  */
 virtual double getWidthIdValue(const Position& p)=0;
@@ -153,9 +130,39 @@ virtual double getWidthIdValue(const Position& p)=0;
  */
  virtual void setWidth(double w)=0;
 
- protected:
+  Matrix getPoseMatrix(){
+    return pos;
+  }
+
+  Position transformToLocalCoord(const Position& p){
+    return getPosition4x1(invpos*getPositionMatrix(p));
+  }
+
+  Position transformToGlobalCoord(const Position& p){
+    return getPosition4x1(pos*getPositionMatrix(p));
+  }
+
+  Matrix getInversePoseMatrix(){
+    return invpos;
+  }
+
+protected:
+
+  void setPoseMatrix(const Matrix& m){
+    pos = m;
+    invpos = invert_4x4PoseMatrix(m);
+  }
+  /**
+   * gives actual position of the obstacle
+   */
+  Position getPosition(){
+    return ::getPosition(pos);
+  }
+
+private:
   // saves the actual position AND rotation of the segment
   Matrix pos;
+  Matrix invpos;
 };
 
 #endif
