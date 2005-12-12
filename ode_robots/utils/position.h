@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:31:51  martius
+ *   Revision 1.5  2005-12-12 13:45:32  martius
+ *   special inverse for 4x4 matrices in Pose form (can have diagonal zeros)
+ *
+ *   Revision 1.4  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -28,6 +31,7 @@
 #define __POSITION_H
 
 #include <math.h>
+#include <iostream>
 
 class Position
 {
@@ -44,6 +48,7 @@ public:
   Position operator*(double f) const { Position rv(x*f, y*f, z*f); return rv; }
 
   double length() { return sqrt(x*x+y*y+z*z);  }
+  void print() { std::cout << '(' << x << ',' << y << ',' << z << ')' << std::endl;};
 
   double x;
   double y;
@@ -51,5 +56,6 @@ public:
 private:
   double array[3];
 };
+
 
 #endif

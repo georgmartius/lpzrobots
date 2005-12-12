@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-15 14:26:32  robot3
+ *   Revision 1.4  2005-12-12 13:45:32  martius
+ *   special inverse for 4x4 matrices in Pose form (can have diagonal zeros)
+ *
+ *   Revision 1.3  2005/11/15 14:26:32  robot3
  *   some new useful functions added
  *
  *   Revision 1.2  2005/10/27 14:16:11  martius
@@ -45,6 +48,27 @@ Matrix getRotationMatrix(const double& angle) {
 		   sin(angle),cos(angle),0,0,
 		   0,0,1,0,
 		   0,0,0,1};
+ return Matrix(4,4,data);
+}
+
+/**
+ * returns a rotation 3x3 rotation matrix part of the 4x4 pose matrix
+ */
+Matrix get3x3RotationMatrix(const Matrix& m) {
+  double data[9]={m.val(0,0), m.val(0,1), m.val(0,2), 
+		  m.val(1,0), m.val(1,1), m.val(1,2), 
+		  m.val(2,0), m.val(2,1), m.val(2,2)};
+ return Matrix(3,3,data);
+}
+
+/**
+ * returns a rotation 4x4 pose  matrix from a 3x3 rotation matrix
+ */
+Matrix get4x4RotationMatrix(const Matrix& m) {
+  double data[16]={m.val(0,0), m.val(0,1), m.val(0,2), 0, 
+		   m.val(1,0), m.val(1,1), m.val(1,2), 0,
+		   m.val(2,0), m.val(2,1), m.val(2,2), 0,
+		   0 ,         0 ,         0 ,         1};
  return Matrix(4,4,data);
 }
 
@@ -102,8 +126,9 @@ Matrix getPositionMatrix(const Position& p) {
  */
 Matrix removeRotationInMatrix(const Matrix& pose){
   Matrix t(pose);
-  t.val(0,0)=1.0f; t.val(0,1)=0.0f;
-  t.val(1,0)=0.0f; t.val(1,1)=1.0f;
+  t.val(0,0)=1.0f; t.val(0,1)=0.0f;   t.val(0,2)=0.0f;
+  t.val(1,0)=0.0f; t.val(1,1)=1.0f;   t.val(1,2)=0.0f;
+  t.val(2,0)=0.0f; t.val(2,1)=0.0f;   t.val(2,2)=1.0f;
   return t;
 }
 
@@ -111,9 +136,9 @@ Matrix removeRotationInMatrix(const Matrix& pose){
  * returns the angle between two vectors
  */
 double getAngle(Position a, Position b) {
-  Matrix p(3,1,a.toArray()); // row wise
-  Matrix q(1,3,b.toArray()); // column wise
-  return acos((p * q).val(0,0) / (a.length()*b.length()) );
+  Matrix p(1,3,a.toArray()); // row wise
+  Matrix q(3,1,b.toArray()); // column wise
+  return  acos((p * q).val(0,0) / (a.length()*b.length()) );
 }
 
 /**
@@ -158,4 +183,14 @@ Position getPosition4x1(const Matrix& pose) {
  */
 double getLength(const Position& p) {
   return sqrt(sqr(p.x)+sqr(p.y)+sqr(p.z));
+}
+
+/**
+ * returns inverse of a 4x4 Pose Matrix, which is of the following form:
+ *
+ */
+Matrix invert_4x4PoseMatrix(const Matrix& m){
+  Matrix rot = get3x3RotationMatrix(m);
+  Matrix trans = removeRotationInMatrix(m);
+  return get4x4RotationMatrix(rot^-1) * (trans^-1);
 }

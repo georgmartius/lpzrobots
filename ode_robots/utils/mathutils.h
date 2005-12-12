@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-15 14:26:32  robot3
+ *   Revision 1.6  2005-12-12 13:45:32  martius
+ *   special inverse for 4x4 matrices in Pose form (can have diagonal zeros)
+ *
+ *   Revision 1.5  2005/11/15 13:38:27  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2005/11/15 14:26:32  robot3
  *   some new useful functions added
  *
  *   Revision 1.3  2005/11/10 09:09:55  martius
@@ -50,7 +56,7 @@ using namespace matrix;
 #define sign(x)  ( (x) < 0 ? -1 : 1 )
 #define sqr(x)   ( (x)*(x) )
 #define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
-
+#endif
 
 /*
  * returns the difference vector of two positions as a Position
@@ -70,7 +76,7 @@ Matrix getTranslationRotationMatrix(const Position& p, double angle);
  */
 Position getMiddlePosition(Position& p, Position& q);
 
-**
+/**
  * returns a rotation matrix with the given angle
  */
 Matrix getRotationMatrix(const double& angle);
@@ -85,11 +91,9 @@ Matrix getTranslationMatrix(const Position& p) ;
 /**
  * returns a position (4x1) matrix with the given Position
  */
-Matrix getPositionMatrix(const Position& p) ;
+Matrix getPositionMatrix(const Position& p);
 
-
-
-Position getPosition4x1(const Matrix& pose);
+Position getPosition4x1(const Matrix& position4x1);
 
 /**
  * removes the translation in the matrix
@@ -118,6 +122,25 @@ Position getPosition(const Matrix& pose);
  */
 double getAngle(Matrix& pose);
 
+/*  Matrix inversion technique:
+Given a matrix mat, we want to invert it.
+mat = [ r00 r01 r02 tx
+        r10 r11 r12 ty
+        r20 r21 r22 tz
+        0  0  0  d ]
+We note that this matrix can be split into two matrices.
+mat = rot * trans, where rot is rotation part, trans is translation part
+rot = [ r00 r01 r02 0
+        r10 r11 r12 0
+        r20 r21 r22 0
+        0   0   0   1 ]
+trans = [ 1 0 0 tx
+         0 1 0 ty
+         0 0 1 tz
+         0 0 0 d ]
+So the inverse is mat^-1 = (trans^-1 * rot^-1) 
+******************************************/
+Matrix invert_4x4PoseMatrix(const Matrix& m);
 
 /**
  * returns the length of a vector stored as Position
