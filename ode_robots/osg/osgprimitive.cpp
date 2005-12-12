@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-12-11 23:35:08  martius
+ *   Revision 1.1.2.5  2005-12-12 23:42:53  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.4  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.3  2005/12/09 16:54:16  martius
@@ -70,7 +73,7 @@ namespace lpzrobots {
 
   /******************************************************************************/
   void OSGPrimitive::setMatrix(const Matrix& m4x4){
-    assert(!transform==false);
+    assert(!transform == false);
     transform->setMatrix(m4x4);
   }
 
