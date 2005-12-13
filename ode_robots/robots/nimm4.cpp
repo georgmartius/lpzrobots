@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.6  2005-12-13 12:32:09  martius
+ *   Revision 1.7.4.7  2005-12-13 18:11:39  martius
+ *   still trying to port robots
+ *
+ *   Revision 1.7.4.6  2005/12/13 12:32:09  martius
  *   nonvisual joints
  *
  *   Revision 1.7.4.5  2005/12/12 23:41:30  martius
@@ -152,35 +155,15 @@ namespace lpzrobots {
     return len;
   };
 
-  /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-      @params pos desired position of the robot in struct Position
-      @param c desired color for the robot in struct Color
-  */
-  void Nimm4::place(const Pos& pos){
+
+  void Nimm4::place(const Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)    
-    Vec3 p(pos);
-    p.z()+=width*0.6; 
-
-    // if robot does not exist reate it at the given position
-    if (!created){ 
-      create(p);
-    } else{
-      // if robot exists set the position of the body 
-      object[0]->setPosition(p);
-      // and set the position of the wheels
-      for(int i=1; i<5; i++){
-	Vec3 wpos = p + Vec3(((i-1)/2==0?-1:1)*length/2.0, 
-				((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
-				// center of the wheels should be at height radius,
-				// therefore subtract height of body (width*0.6) and add radius
-				- width*0.6 + radius); 
-	object[i]->setPosition( wpos);
-      }
-    }
+    Matrix p2;
+    p2 = pose * Matrix::translate(Vec3(0, 0, width*0.6)); 
+    create(p2);    
   };
-
 
 
   /**
@@ -292,7 +275,7 @@ namespace lpzrobots {
   /** creates vehicle at desired position 
       @param pos struct Position with desired position
   */
-  void Nimm4::create( const Vec3& pos ){
+  void Nimm4::create( const Matrix& pose ){
     if (created) {  // if robot exists destroy it
       destroy();
     }
@@ -302,7 +285,7 @@ namespace lpzrobots {
     Capsule* cap = new Capsule(width/2, length);
     cap->init(odeHandle, cmass, osgHandle);    
     // rotate and place body (here by 90° around the y-axis)
-    cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * Matrix::translate(pos));
+    cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
     cap->setTexture("Images/wood.rgb");
     object[0]=cap;
     
@@ -313,10 +296,10 @@ namespace lpzrobots {
       Sphere* sph = new Sphere(radius);
       sph->init(odeHandle, wmass, osgHandle);    
       // rotate and place body (here by 90° around the x-axis)
-      Vec3 wpos = pos + Vec3( ((i-1)/2==0?-1:1)*length/2.0, 
-			      ((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
-			      -width*0.6+radius );
-      sph->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos));
+      Vec3 wpos = Vec3( ((i-1)/2==0?-1:1)*length/2.0, 
+			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
+			-width*0.6+radius );
+      sph->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos) * pose);
       sph->setTexture("Images/wood.rgb");
       object[i]=sph;
     }
@@ -341,13 +324,13 @@ namespace lpzrobots {
    */
   void Nimm4::destroy(){
     if (created){
-      dSpaceDestroy(odeHandle.space); // destroy space
       for (int i=0; i<segmentsno; i++){
 	if(object[i]) delete object[i]; // destroy bodies and geoms
       }
       for (int i=0; i<4; i++){
 	if(joint[i]) delete joint[i]; // destroy bodies and geoms
       }
+      dSpaceDestroy(odeHandle.space); // destroy space
     }
     created=false; // robot does not exist (anymore)
   }

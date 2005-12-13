@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.6  2005-12-12 23:41:19  martius
+ *   Revision 1.5.4.7  2005-12-13 18:11:40  martius
+ *   still trying to port robots
+ *
+ *   Revision 1.5.4.6  2005/12/12 23:41:19  martius
  *   added Joint wrapper
  *
  *   Revision 1.5.4.5  2005/12/11 23:35:08  martius
@@ -79,15 +82,15 @@ namespace lpzrobots {
     virtual ~Nimm4(){};
 
     /**
-     * draws the vehicle
+     * updates the OSG nodes of the vehicle
      */
     virtual void update();
 
-    /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-	@params pos desired position of the robot in struct Position
-	@param c desired color for the robot in struct Color
+
+    /** sets the pose of the vehicle
+	@params pose desired pose matrix
     */
-    virtual void place(const Pos& pos);
+    virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
 	@param sensors sensors scaled to [-1,1] 
@@ -129,13 +132,13 @@ namespace lpzrobots {
 
 
   protected:
-
+    /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return object[0]; }
 
-    /** creates vehicle at desired position 
-	@param pos struct Position with desired position
+    /** creates vehicle at desired pose
+	@param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Vec3& pos); 
+    virtual void create(const osg::Matrix& pose); 
 
     /** destroys vehicle and space
      */

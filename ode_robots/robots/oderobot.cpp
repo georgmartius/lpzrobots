@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-13 12:31:09  martius
+ *   Revision 1.1.2.2  2005-12-13 18:11:40  martius
+ *   still trying to port robots
+ *
+ *   Revision 1.1.2.1  2005/12/13 12:31:09  martius
  *   moved to cpp file
  *
  *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
@@ -51,7 +54,14 @@ namespace lpzrobots {
   void OdeRobot::setColor(const Color& col){
     osgHandle.color = col;
   };
-  
+
+  /** sets the vehicle to position pos
+      @params pos desired position of the robot
+  */
+  void OdeRobot::place(const Pos& pos){
+    place(osg::Matrix::translate(pos));
+  }
+
   /** returns position of the object
       @return vector of position (x,y,z)
   */

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2005-12-13 12:31:46  martius
+ *   Revision 1.1.2.9  2005-12-13 18:11:40  martius
+ *   still trying to port robots
+ *
+ *   Revision 1.1.2.8  2005/12/13 12:31:46  martius
  *   list version of isGeomInPrimitiveList
  *
  *   Revision 1.1.2.7  2005/12/11 23:35:08  martius
@@ -92,6 +95,7 @@
 #include "globaldata.h"
 #include "color.h"
 #include "pos.h"
+#include "osgforwarddecl.h"
 
 namespace lpzrobots {
   
@@ -116,10 +120,15 @@ namespace lpzrobots {
     /// update the OSG notes here
     virtual void update() = 0;
 
-    /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-	@params pos desired position of the robot in struct Position
+    /** sets the vehicle to position pos
+	@params pos desired position of the robot
     */
-    virtual void place(const Pos& pos) = 0;
+    virtual void place(const Pos& pos);
+
+    /** sets the pose of the vehicle
+	@params pose desired 4x4 pose matrix
+    */
+    virtual void place(const osg::Matrix& pose) = 0;
 
     /** checks for internal collisions and treats them. 
      *  In case of a treatment return true 
@@ -158,7 +167,7 @@ namespace lpzrobots {
   
   protected:
     /** overload this in the robot implementation.
-	If there is no object for some reason then return an empty object (Object())
+	If there is no object for some reason then return a null pointer
 	@return main object of the robot (used for tracking)
     */
     virtual Primitive* getMainPrimitive() const  = 0;
@@ -169,7 +178,6 @@ namespace lpzrobots {
     static matrix::Matrix odeRto3x3RotationMatrixT ( const double R[12] );
 
     static matrix::Matrix odeRto3x3RotationMatrix ( const double R[12] );
-
 
   protected:
     OdeHandle odeHandle;
