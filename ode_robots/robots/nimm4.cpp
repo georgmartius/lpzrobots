@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.5  2005-12-12 23:41:30  martius
+ *   Revision 1.7.4.6  2005-12-13 12:32:09  martius
+ *   nonvisual joints
+ *
+ *   Revision 1.7.4.5  2005/12/12 23:41:30  martius
  *   added Joint wrapper
  *
  *   Revision 1.7.4.4  2005/12/11 23:35:08  martius
@@ -322,7 +325,7 @@ namespace lpzrobots {
     for (int i=0; i<4; i++) {
       Pos anchor(dBodyGetPosition (object[i+1]->getBody()));
       joint[i] = new Hinge2Joint(object[0], object[i+1], anchor, Vec3(0,0,1), Vec3(0,1,0));
-      joint[i]->init(odeHandle, osgHandle, true, 2);
+      joint[i]->init(odeHandle, osgHandle, false, 2);
     }
     for (int i=0; i<4; i++) {
       // set stops to make sure wheels always stay in alignment
