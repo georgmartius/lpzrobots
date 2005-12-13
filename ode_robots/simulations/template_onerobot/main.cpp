@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.5  2005-12-11 23:35:08  martius
+ *   Revision 1.14.4.6  2005-12-13 18:12:09  martius
+ *   switched to nimm2
+ *
+ *   Revision 1.14.4.5  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.14.4.4  2005/12/09 16:53:17  martius
@@ -59,7 +62,7 @@
 #include <selforg/one2onewiring.h>
 
 // used robot
-#include "nimm4.h"
+#include "nimm2.h"
 
 // used arena
 #include "playground.h"
@@ -113,8 +116,8 @@ void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& g
   //   here are the defaults used)
   // - set textures for body and wheels
   // - place robot
-  Nimm4* vehicle = new Nimm4(odeHandle, osgHandle);
-  vehicle->place(Pos(0,0,0));
+  OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf());
+  vehicle->place(Pos(0,0,2));
 
   // create pointer to controller
   // push controller in global list of configurables
