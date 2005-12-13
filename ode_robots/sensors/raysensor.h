@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2005-11-14 17:37:21  martius
+ *   Revision 1.3.4.2  2005-12-13 18:11:53  martius
+ *   sensors ported, but not yet finished
+ *
+ *   Revision 1.3.4.1  2005/11/14 17:37:21  martius
  *   moved to selforg
  *
  *   Revision 1.3  2005/09/27 13:59:26  martius
@@ -38,7 +41,13 @@
 #define __RAYSENSOR_H
 
 #include <ode/common.h>
-#include <selforg/position.h>
+#include "osgforwarddecl.h"
+#include "odehandle.h"
+#include "osghandle.h"
+
+
+namespace lpzrobots {
+  class Primitive;
 
 /** Abstract class for Ray-based sensors. 
     This are sensors which are based on distance measurements using the ODE geom class Ray. 
@@ -51,12 +60,13 @@ public:
   enum rayDrawMode { drawNothing, drawRay, drawSensor, drawAll};
 
   RaySensor() {}
-
   
   /** providing essential information
    */
-  virtual void init(dSpaceID space, dBodyID body, const Position& pos, 
-		    const dMatrix3 rotation, double range) = 0;  
+  virtual void init(const OdeHandle& odeHandle,
+		    const OsgHandle& osgHandle, Primitive* body, 
+		    const osg::Matrix pose, double range,
+		    rayDrawMode drawMode = drawSensor) = 0;  
 
   /** used for reseting the sensor value to a value of maximal distance. 
    */
@@ -71,14 +81,16 @@ public:
    */
   virtual double get() = 0;
 
-  /** draws the sensor ray
+  /** updates the position of the osg nodes 
    */
-  virtual void draw(rayDrawMode drawMode) = 0;
+  virtual void update() = 0;
   
   /** returns the geomID of the ray geom (used for optimisation)
    */
   virtual dGeomID getGeomID() =0;
 
 };
+
+}
 
 #endif

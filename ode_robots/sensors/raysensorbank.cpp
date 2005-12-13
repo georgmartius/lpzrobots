@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-27 13:59:26  martius
+ *   Revision 1.2.4.1  2005-12-13 18:11:53  martius
+ *   sensors ported, but not yet finished
+ *
+ *   Revision 1.2  2005/09/27 13:59:26  martius
  *   ir sensors are working now
  *
  *   Revision 1.1  2005/09/27 11:03:34  fhesse
@@ -30,27 +33,31 @@
  ***************************************************************************/
 
 #include <ode/ode.h>
+#include <osg/Matrix>
 
 #include "raysensorbank.h"
 
+using namespace osg;
+
+namespace lpzrobots {
+
 RaySensorBank::RaySensorBank(){
   initialized=false;
-  drawMode=RaySensor::drawNothing;
 };
 
 RaySensorBank::~RaySensorBank(){
 };
 
-void RaySensorBank::init(dSpaceID parent_space, RaySensor::rayDrawMode drawMode){
-  sensor_space = dSimpleSpaceCreate ( parent_space );
-  initialized=true;  
-  this->drawMode = drawMode;
-
+void RaySensorBank::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle){
+  this->odeHandle = odeHandle;
+  this->osgHandle = osgHandle;
+  this->odeHandle.space = dSimpleSpaceCreate ( this->odeHandle.space );
+  initialized=true; 
 }; 
 
-unsigned int RaySensorBank::registerSensor(RaySensor* raysensor, dBodyID body, 
-					   const Position& pos, const dMatrix3 rotation, double range){
-  raysensor->init(sensor_space, body, pos, rotation, range);
+unsigned int RaySensorBank::registerSensor(RaySensor* raysensor, Primitive* body, 
+					   const Matrix& pose, double range){
+  raysensor->init(odeHandle, osgHandle, body, pose, range);
   bank.push_back(raysensor);  
   return bank.size();
 };
@@ -86,14 +93,16 @@ int RaySensorBank::get(double* sensorarray, unsigned int array_size){
 };
 
 dSpaceID RaySensorBank::getSpaceID(){
-  return sensor_space;
+  return odeHandle.space;
 };
 
-void RaySensorBank::draw(){
+void RaySensorBank::update(){
   for (unsigned int i=0; i<bank.size(); i++){
-    bank[i]->draw(drawMode);
+    bank[i]->update();
   }
 };
+
+}
   
 
 

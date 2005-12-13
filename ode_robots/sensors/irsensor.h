@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-09 13:24:20  martius
+ *   Revision 1.5.4.1  2005-12-13 18:11:53  martius
+ *   sensors ported, but not yet finished
+ *
+ *   Revision 1.5  2005/11/09 13:24:20  martius
  *   added exponent
  *
  *   Revision 1.4  2005/11/09 09:13:47  fhesse
@@ -43,6 +46,8 @@
 
 #include "raysensor.h"
 
+namespace lpzrobots {
+
 /** Class for IR sensors. 
     IR sensors are based on distance measurements using the ODE geom class Ray. 
     The sensor value is obtained by collisions. 
@@ -58,7 +63,11 @@ public:
 
   /** providing essential informations
    */
-  virtual void init(dSpaceID space, dBodyID body, const Position& pos, const dMatrix3 rotation, double range); 
+  virtual void init(const OdeHandle& odeHandle,
+		    const OsgHandle& osgHandle, 
+		    Primitive* body, 
+		    const osg::Matrix pose, double range,
+		    rayDrawMode drawMode = drawSensor);
 
   /** used for reseting the sensor value to a value of maximal distance. 
    */
@@ -75,7 +84,7 @@ public:
 
   /** draws the sensor ray
    */
-  virtual void draw(rayDrawMode drawMode);
+  virtual void update();
   
   /** returns the geomID of the ray geom (used for optimisation)
    */
@@ -101,7 +110,12 @@ protected:
   double value; // actual sensor value
   double exponent; // exponent of the sensor characteritic 
 
+  OSGCylinder* sensorBody;
+  OSGCylinder* sensorRay;
+  
   bool initialised;
 };
+
+}
 
 #endif
