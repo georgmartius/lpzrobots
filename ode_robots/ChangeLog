@@ -1,0 +1,13 @@
+2005-12-12 11:58 martius 
+	to version 0.2
+	* selforg agent and controller and abstract robot are moved to selforg directory
+	and are cleaned of ode related stuff.
+	Implication: - includes from selforg: #include <selforg/header.h>
+	             - robots in ode have to be inherited from OdeRobot instead of AbstractRobot		     
+	* includes are automatically copied (by link) to include directories in ode_robots and selforg.
+	This occurs on make depend.
+	* OpenSceneGraph integration!
+	* OsgHandle is a structure that is needed for create an OpenSceneGraph note.
+	* osg directory contains some osg wrappers for ODE objects and joints
+	
+	

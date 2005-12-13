@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.6  2005-12-11 23:35:07  martius
+ *   Revision 1.40.4.7  2005-12-13 18:10:33  martius
+ *   changelog
+ *
+ *   Revision 1.40.4.6  2005/12/11 23:35:07  martius
  *   *** empty log message ***
  *
  *   Revision 1.40.4.5  2005/12/09 16:53:16  martius
@@ -176,6 +179,7 @@
 #include "simulation.h"
 
 #include <osgProducer/Viewer>
+#include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
 #include <osgDB/ReaderWriter>
 #include <osgDB/FileUtils>
