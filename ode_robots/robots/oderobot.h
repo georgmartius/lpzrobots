@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2005-12-11 23:35:08  martius
+ *   Revision 1.1.2.8  2005-12-13 12:31:46  martius
+ *   list version of isGeomInPrimitiveList
+ *
+ *   Revision 1.1.2.7  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.6  2005/12/06 10:13:25  martius
@@ -94,7 +97,6 @@ namespace lpzrobots {
   
   class Primitive;
 
-
   /**
    * Abstract class  for ODE robots
    * 
@@ -108,7 +110,7 @@ namespace lpzrobots {
      */
     OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const char* name="OdeRobot");
 
-    virtual ~OdeRobot(){}
+    virtual ~OdeRobot();
 
 
     /// update the OSG notes here
@@ -137,9 +139,7 @@ namespace lpzrobots {
     /** sets color of the robot
 	@param col Color struct with desired Color
     */
-    virtual void setColor(Color col){
-      osgHandle.color = col;
-    };
+    virtual void setColor(const Color& col);
   
     /** returns position of the object
 	@return vector of position (x,y,z)
@@ -161,9 +161,10 @@ namespace lpzrobots {
 	If there is no object for some reason then return an empty object (Object())
 	@return main object of the robot (used for tracking)
     */
-    virtual lpzrobots::Primitive* getMainPrimitive() const  = 0;
+    virtual Primitive* getMainPrimitive() const  = 0;
 
-    static bool isGeomInPrimitiveList(lpzrobots::Primitive** ps, int len, dGeomID geom);
+    static bool isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom);
+    static bool isGeomInPrimitiveList(list<Primitive*> ps, dGeomID geom);
 
     static matrix::Matrix odeRto3x3RotationMatrixT ( const double R[12] );
 
