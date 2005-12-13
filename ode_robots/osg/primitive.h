@@ -25,7 +25,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 10:13:25  martius
+ *   Revision 1.1.2.2  2005-12-13 18:11:14  martius
+ *   transform primitive added, some joints stuff done, forward declaration
+ *
+ *   Revision 1.1.2.1  2005/12/06 10:13:25  martius
  *   openscenegraph integration started
  *
  *                                                                 *
@@ -36,8 +39,9 @@
 
 #include "osgprimitive.h"
 #include "odehandle.h"
+#include <osg/Matrix>
 
-#include <ode/ode.h>
+#include <ode/common.h>
 
 namespace lpzrobots {
 
@@ -55,16 +59,25 @@ class Primitive {
 public:
   Primitive ();
   virtual ~Primitive ();
-  /// To be overloaded
+  /** registers primitive in ODE and OSG. 
+      @param mass Mass of the object in ODE (if withBody = true)
+      @param withBody true if there should be a dynamic body, 
+                      false if the geom should be static
+   */
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
-		    bool withBody = true) =0 ;
+		    bool withBody = true) = 0 ;
 
-  /// should syncronise the Ode stuff and the OSG notes
+  /// should syncronise the ODE stuff and the OSG notes
   virtual void update() =0 ;
+  /// returns a osg transformation object (if any)  (it is not const because we return a pointer)
+  virtual osg::Transform* getTransform() = 0;
 
   void setPosition(const osg::Vec3& pos);
   void setPose(const osg::Matrix& pose);
+  osg::Vec3 getPosition() const;
+  osg::Matrix getPose() const;
+
   dGeomID getGeom() const;    
   dBodyID getBody() const;
 
@@ -83,6 +96,7 @@ public:
 		    bool withBody = true);
 
   virtual void update();
+  virtual osg::Transform* getTransform();
   
 };
 
@@ -96,6 +110,7 @@ public:
 		    bool withBody = true);
 
   virtual void update();
+  virtual osg::Transform* getTransform();
   
 };
 
@@ -109,6 +124,7 @@ public:
 		    bool withBody = true);
 
   virtual void update();
+  virtual osg::Transform* getTransform();
 
 };
 
@@ -121,7 +137,37 @@ public:
 		    bool withBody = true);
 
   virtual void update();
+  virtual osg::Transform* getTransform();
 };
+
+/**************************************************************************/
+
+/**
+   Primitive for transforming a geom in respect to a body. 
+   The ODE geom is a TransformGeom. 
+*/
+class Transform : public Primitive {
+public:
+  /** 
+      @param parent primitive should have a body
+      @param child  is transformed by pose in respect to parent. 
+      This Primitive must NOT have a body
+  */
+  Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose);
+  /// withBody MUST be false!
+  virtual void init(const OdeHandle& odeHandle, double mass, 
+		    const OsgHandle& osgHandle,
+		    bool withBody = true);
+
+  virtual void update();
+  // the funny thing is that we (as a Transform) don't have a transform :-)
+  virtual osg::Transform* getTransform();
+protected:
+  Primitive* parent;
+  Primitive* child;
+  osg::Matrix pose;
+};
+
 
 }
 #endif

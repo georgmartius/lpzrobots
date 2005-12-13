@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-12 23:40:42  martius
+ *   Revision 1.1.2.2  2005-12-13 18:11:13  martius
+ *   transform primitive added, some joints stuff done, forward declaration
+ *
+ *   Revision 1.1.2.1  2005/12/12 23:40:42  martius
  *   hinge2 started
  *
  *
@@ -34,6 +37,7 @@
 #include <osg/Matrix>
 
 #include "joint.h"
+#include "pos.h"
 
 
 namespace lpzrobots {
@@ -41,7 +45,11 @@ namespace lpzrobots {
   using namespace osg;
 
   Matrix Joint::anchorAxisPose(const osg::Vec3& anchor, const osg::Vec3& axis){
-    return Matrix::translate(anchor) * Matrix::rotate(Vec3(0,0,0), axis);
+    Pos p(axis);
+    p.print();
+    return Matrix::rotate(M_PI/2, Vec3(0,1,0)) // rotate Cylinder to be along x-axis
+      * // Matrix::rotate(Quat(axis.x(), axis.y(),axis.z(), 0)) * // TODO calc rotation matrix!
+      Matrix::translate(anchor);
   }
 
 

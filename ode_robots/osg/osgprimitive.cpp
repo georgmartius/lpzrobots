@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2005-12-12 23:42:53  martius
+ *   Revision 1.1.2.6  2005-12-13 18:11:13  martius
+ *   transform primitive added, some joints stuff done, forward declaration
+ *
+ *   Revision 1.1.2.5  2005/12/12 23:42:53  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.4  2005/12/11 23:35:08  martius
@@ -171,6 +174,27 @@ namespace lpzrobots {
 
     shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f), 
 					  radius, height), osgHandle.tesselhints);
+    shape->setColor(osgHandle.color);
+    geode->addDrawable(shape.get());
+  }
+
+  /******************************************************************************/
+  OSGCylinder::OSGCylinder(float radius, float height)
+    : radius(radius), height(height) {
+  }
+
+  void OSGCylinder::init(const OsgHandle& osgHandle){
+    assert(osgHandle.scene && osgHandle.tesselhints);
+
+    geode = new Geode;  
+    transform = new MatrixTransform;
+    transform->addChild(geode.get());
+    osgHandle.scene->addChild(transform.get());
+  
+    ref_ptr<ShapeDrawable> shape;
+
+    shape = new ShapeDrawable(new Cylinder(Vec3(0.0f, 0.0f, 0.0f), 
+					   radius, height), osgHandle.tesselhints);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
   }

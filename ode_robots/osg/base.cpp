@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-11 23:35:08  martius
+ *   Revision 1.1.2.4  2005-12-13 18:11:13  martius
+ *   transform primitive added, some joints stuff done, forward declaration
+ *
+ *   Revision 1.1.2.3  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.2  2005/12/09 16:54:16  martius
@@ -70,7 +73,7 @@ namespace lpzrobots {
     ClearNode* clearNode = new ClearNode;
     
     // use a transform to make the sky and base around with the eye point.
-    Transform* transform = new Transform;//MoveEarthySkyWithEyePointTransform;
+    osg::Transform* transform = new osg::Transform;//MoveEarthySkyWithEyePointTransform;
 
     // transform's value isn't knowm until in the cull traversal so its bounding
     // volume is can't be determined, therefore culling will be invalid,

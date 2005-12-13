@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-11 23:35:08  martius
+ *   Revision 1.1.2.4  2005-12-13 18:11:13  martius
+ *   transform primitive added, some joints stuff done, forward declaration
+ *
+ *   Revision 1.1.2.3  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.2  2005/12/09 16:54:16  martius
@@ -41,15 +44,9 @@
 #ifndef __OSGPRIMITIVE_H
 #define __OSGPRIMITIVE_H
 
+#include <string>
 #include <osg/ref_ptr>
-
-namespace osg{
-  class Geode;
-  class Matrixd;
-  typedef Matrixd Matrix;
-  class MatrixTransform;
-}
-
+#include "osgforwarddecl.h"
 #include "osghandle.h"
 
 namespace lpzrobots {
@@ -108,6 +105,18 @@ protected:
 class OSGCapsule : public OSGPrimitive {
 public:
   OSGCapsule(float radius, float height);
+
+  virtual void init(const OsgHandle& osgHandle);
+
+protected:
+  float radius;  
+  float height;
+};
+
+/**************************************************************************/
+class OSGCylinder : public OSGPrimitive {
+public:
+  OSGCylinder(float radius, float height);
 
   virtual void init(const OsgHandle& osgHandle);
 
