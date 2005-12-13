@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 16:18:02  martius
+ *   Revision 1.1.2.2  2005-12-13 18:12:20  martius
+ *   some utils
+ *
+ *   Revision 1.1.2.1  2005/12/06 16:18:02  martius
  *   handle class for OpenSceneGraph
  *
  *
@@ -28,10 +31,7 @@
 #ifndef __OSGHANDLE_H
 #define __OSGHANDLE_H
 
-//class osg::Group;
-//class osg::TesselHints;
-#include <osg/Group>
-#include <osg/ShapeDrawable>
+#include "osgforwarddecl.h"
 #include "color.h"
 
 namespace lpzrobots {
@@ -40,12 +40,8 @@ namespace lpzrobots {
 class OsgHandle
 {
 public:
-  OsgHandle( ) { }
-  OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints, const Color& color){
-    this->scene = scene;
-    this->tesselhints = tesselhints;
-    this->color = color;
-  }
+  OsgHandle( );
+  OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints, const Color& color);
 
   osg::Group* scene;  
   osg::TessellationHints* tesselhints;  

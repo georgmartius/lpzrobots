@@ -18,41 +18,29 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************
+ *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-13 18:12:20  martius
+ *   Revision 1.1.2.1  2005-12-13 18:12:20  martius
  *   some utils
  *
- *   Revision 1.1.2.2  2005/12/12 23:42:14  martius
- *   Pos is a class againt to have customisable Constructors
  *
- *   Revision 1.1.2.1  2005/12/11 23:35:08  martius
- *   *** empty log message ***
- *
- *
+ *                                                                 *
  ***************************************************************************/
-#ifndef __POS_H
-#define __POS_H
 
-#include <osg/Vec3>
-#include <ode/ode.h>
-#include <iostream>
-#include <selforg/position.h>
 
-namespace lpzrobots{
+#include <osg/Group>
+#include <osg/ShapeDrawable>
+#include "osghandle.h"
 
-  class Pos : public osg::Vec3 {
-  public:
-    Pos () : osg::Vec3 () {};
-    Pos (float x, float y, float z) : osg::Vec3(x, y, z) {}
-    Pos (const osg::Vec3& v) : osg::Vec3(v) {}
-    Pos (const Position& p) : osg::Vec3(p.x, p.y, p.z) {}
-    Pos (const dReal v[3]) : osg::Vec3(v[0], v[1], v[2]) {}
-    void print(){
-      std::cout << '(' << x() << ',' << y() << ',' << z() << ')' << std::endl;
-    }
-  };
+namespace lpzrobots {
+
+  OsgHandle::OsgHandle( ) {}
+  OsgHandle::OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints, const Color& color){
+    this->scene = scene;
+    this->tesselhints = tesselhints;
+    this->color = color;
+  }
 
 }
-
-#endif
