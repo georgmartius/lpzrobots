@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-13 18:11:40  martius
+ *   Revision 1.1.2.3  2005-12-14 15:37:09  martius
+ *   robots are working with osg
+ *
+ *   Revision 1.1.2.2  2005/12/13 18:11:40  martius
  *   still trying to port robots
  *
  *   Revision 1.1.2.1  2005/12/13 12:31:09  martius
@@ -44,6 +47,7 @@ namespace lpzrobots {
    */
   OdeRobot::OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const char* name)
     : AbstractRobot(name), odeHandle(odeHandle), osgHandle(osgHandle) {
+    parentspace = odeHandle.space;
   };
 
   OdeRobot::~OdeRobot(){}

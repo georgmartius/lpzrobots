@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.5  2005-12-13 18:11:39  martius
+ *   Revision 1.21.4.6  2005-12-14 15:37:09  martius
+ *   robots are working with osg
+ *
+ *   Revision 1.21.4.5  2005/12/13 18:11:39  martius
  *   still trying to port robots
  *
  *   Revision 1.21.4.4  2005/12/06 17:38:17  martius
@@ -153,10 +156,10 @@ namespace lpzrobots {
   */
   int Nimm2::getSegmentsPosition(vector<Position> &poslist){
     assert(created);
-    for (int i=0; i<segmentsno; i++){
+    for (int i=0; i<3; i++){
       poslist.push_back(Position(dBodyGetPosition(object[i]->getBody())));
     }   
-    return segmentsno;
+    return 3;
   };  
 
 
@@ -168,7 +171,7 @@ namespace lpzrobots {
   void Nimm2::update(){
     assert(created); // robot must exist
   
-    for (int i=0; i<segmentsno; i++) { 
+    for (int i=0; i<3; i++) { 
       object[i]->update();
     }
     for (int i=0; i < 2; i++) { 
@@ -187,6 +190,7 @@ namespace lpzrobots {
 
   bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
     //checks if one of the collision objects is part of the robot
+    assert(created);
     bool colwithme = false;  
     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
       if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
@@ -209,7 +213,6 @@ namespace lpzrobots {
 	    contact[i].geom.g2 == bumper[1].trans->getGeom()) ){
 	
 	  colwithbody = true;
-	  fprintf(stderr,"col with body\n");
 	}
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
@@ -275,9 +278,10 @@ namespace lpzrobots {
 	Sphere* wheel = new Sphere(radius);      
 	wheel->init(odeHandle, wmass, osgHandleWheels);
       
-	wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) * 
+	wheel->setPose(Matrix::rotate(M_PI/2.0, 0, 0, 1) * 
 		       Matrix::translate(wheeloffset, (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
 		       pose); 
+	wheel->setTexture("Images/tire.rgb");
 	object[i] = wheel;
       }else{
 	//       Cylinder* wheel = new Cylinder(radius);      
@@ -293,7 +297,7 @@ namespace lpzrobots {
     for (int i=0; i<2; i++) {
       joint[i] = new Hinge2Joint(object[0], object[i+1], object[i+1]->getPosition(), 
 				 Vec3(0, 0, 1), Vec3(0, -1, 0));
-      joint[i]->init(odeHandle, osgHandleWheels, false, 1.05*radius);
+      joint[i]->init(odeHandle, osgHandleWheels, true, 2.01 * radius);
       // set stops to make sure wheels always stay in alignment
       dJointSetHinge2Param (joint[i]->getJointID(), dParamLoStop,0);
       dJointSetHinge2Param (joint[i]->getJointID(), dParamHiStop,0);
@@ -304,11 +308,10 @@ namespace lpzrobots {
     if (conf.irFront){
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
-	dMatrix3 R;      
-	dRFromEulerAngles(R, i*M_PI/10,0,0);      
 	irSensorBank.registerSensor(sensor, object[0], 
-				    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) * 
-				    Matrix::translate(0,i*width/10,length/2 + width/2 - width/60 ), 2);
+				    Matrix::rotate(i*M_PI/10, Vec3(0,0,1)) * 
+				    Matrix::translate(0,i*width/10,length/2 + width/2 - width/60 ), 
+				    2, RaySensor::drawAll);
       }
     }
     // TODO Back , Side sensors
@@ -321,7 +324,7 @@ namespace lpzrobots {
    */
   void Nimm2::destroy(){
     if (created){
-      for (int i=0; i<segmentsno; i++){
+      for (int i=0; i<3; i++){
 	if(object[i]) delete object[i];
       }
       for (int i=0; i<2; i++){
@@ -337,8 +340,4 @@ namespace lpzrobots {
   }
 
 }
-
-
-
-
 

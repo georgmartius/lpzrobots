@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.7  2005-12-13 18:11:39  martius
+ *   Revision 1.7.4.8  2005-12-14 15:37:09  martius
+ *   robots are working with osg
+ *
+ *   Revision 1.7.4.7  2005/12/13 18:11:39  martius
  *   still trying to port robots
  *
  *   Revision 1.7.4.6  2005/12/13 12:32:09  martius
@@ -73,8 +76,6 @@ namespace lpzrobots {
   
     // robot is not created till now
     created=false;
-
-    parentspace = odeHandle.space;
 
     // choose color (here the color of the "Nimm Zwei" candy is used, 
     // where the name of the Nimm2 and Nimm4 robots comes from ;-)
@@ -299,7 +300,7 @@ namespace lpzrobots {
       Vec3 wpos = Vec3( ((i-1)/2==0?-1:1)*length/2.0, 
 			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
 			-width*0.6+radius );
-      sph->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos) * pose);
+      sph->setPose(Matrix::rotate(M_PI/2, 0, 0, 1) * Matrix::translate(wpos) * pose);
       sph->setTexture("Images/wood.rgb");
       object[i]=sph;
     }
@@ -308,7 +309,7 @@ namespace lpzrobots {
     for (int i=0; i<4; i++) {
       Pos anchor(dBodyGetPosition (object[i+1]->getBody()));
       joint[i] = new Hinge2Joint(object[0], object[i+1], anchor, Vec3(0,0,1), Vec3(0,1,0));
-      joint[i]->init(odeHandle, osgHandle, false, 2);
+      joint[i]->init(odeHandle, osgHandle, true, 2.01 * radius);
     }
     for (int i=0; i<4; i++) {
       // set stops to make sure wheels always stay in alignment

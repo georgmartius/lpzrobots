@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17.4.4  2005-12-13 18:11:39  martius
+ *   Revision 1.17.4.5  2005-12-14 15:37:09  martius
+ *   robots are working with osg
+ *
+ *   Revision 1.17.4.4  2005/12/13 18:11:39  martius
  *   still trying to port robots
  *
  *   Revision 1.17.4.3  2005/11/16 11:26:52  martius
@@ -97,7 +100,8 @@
 
 namespace lpzrobots {
 
-typedef struct {
+typedef struct Bumper{
+  Bumper() { trans = 0; bump=0;}
   Primitive* trans;
   Primitive* bump;
 } Bumper;
@@ -214,18 +218,16 @@ protected:
   double wmass;    // wheel mass
   int sensorno;      //number of sensors
   int motorno;       // number of motors
-  const static int segmentsno = 3;    // number of motorsvehicle segments
 
   bool created;      // true if robot was created
   double max_force; 
 
-  Primitive* object[segmentsno];  // 1 cylinder, 2 wheels
+  Primitive* object[3];  // 1 cylinder, 2 wheels
   double  wheeloffset; // offset from center when in cigarMode
   int number_bumpers;  // number of bumpers (1 -> bumpers at one side, 2 -> bumpers at 2 sides)
   Bumper bumper[2]; 
   Joint* joint[2]; // joints between cylinder and each wheel
 
-  dSpaceID parentspace;
   RaySensorBank irSensorBank; // a collection of ir sensors
 };
 

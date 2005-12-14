@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.7  2005-12-13 18:11:40  martius
+ *   Revision 1.5.4.8  2005-12-14 15:37:09  martius
+ *   robots are working with osg
+ *
+ *   Revision 1.5.4.7  2005/12/13 18:11:40  martius
  *   still trying to port robots
  *
  *   Revision 1.5.4.6  2005/12/12 23:41:19  martius
@@ -167,8 +170,6 @@ namespace lpzrobots {
 
     Primitive* object[5];  // 1 capsule, 4 wheels
     Joint* joint[4]; // joints between cylinder and each wheel
-
-    dSpaceID parentspace;
 
   };
 
