@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.2  2005-12-13 18:11:53  martius
+ *   Revision 1.4.4.3  2005-12-14 12:43:07  martius
+ *   moved to osg
+ *
+ *   Revision 1.4.4.2  2005/12/13 18:11:53  martius
  *   sensors ported, but not yet finished
  *
  *   Revision 1.4.4.1  2005/11/14 17:37:20  martius
@@ -74,6 +77,7 @@ void IRSensor::init(const OdeHandle& odeHandle,
 		    const osg::Matrix pose, double range,
 		    rayDrawMode drawMode){
   this->range = range;
+  this->osgHandle = osgHandle;
   value = 0;
   len   = range;
 
@@ -84,53 +88,29 @@ void IRSensor::init(const OdeHandle& odeHandle,
   ray = dCreateRay ( 0, range); 
   osg::Vec3 p = pose.getTrans();
   dGeomSetPosition (ray, p.x(), p.y(), p.z());
-  osg::Quat q;
-  pose.get(q);
-  dReal quat[4] = {q.x(), q.y(), q.z(), q.w()};
-  dGeomSetQuaternion(ray, quat);
+  dMatrix3 rot;
+  odeRotation(pose, rot);
+  dGeomSetRotation(ray, rot);
 
   dGeomTransformSetGeom(transform, ray);  
   dGeomSetBody ( transform, body->getBody() );
   dGeomDisable (transform); // disable transform geom, so that it is not treated by normal collision detection.
 
-  
-  const dReal* pos = dGeomGetPosition (transform);
-  const dReal* R = dGeomGetRotation (transform);    
-  const dReal *pos2 = dGeomGetPosition (ray);
-  const dReal *R2 = dGeomGetRotation (ray);
-  dVector3 actual_pos;
-  dMatrix3 actual_R;
-  dMULTIPLY0_331 (actual_pos,R,pos2);
-  actual_pos[0] += pos[0];
-  actual_pos[1] += pos[1];
-  actual_pos[2] += pos[2];
-  dMULTIPLY0_333 (actual_R,R,R2);
-  dVector3 end_pos,end; 
 
   switch(drawMode){
   case drawAll:
   case drawRay:     
-    // // endposition in the local coordinate system (just length in z-direction)
-//     end[0]=0; end[1]=0; end[2]=len;  
-//     // rotate endposition in local coordinate system with rotation matrix R
-//     dMULTIPLY0_331 (end_pos,actual_R,end);
-//     // add actual position (of transform object) to get global coordinates
-//     end_pos[0] += actual_pos[0];
-//     end_pos[1] += actual_pos[1];
-//     end_pos[2] += actual_pos[2];     
-//     sensorRay = new OSGCylinder(len, 0.002);
-    
-//     dsDrawLine(actual_pos, end_pos);  
+    sensorRay = new OSGBox(0.002, 0.002, len);
+    sensorRay->init(osgHandle);
     if( drawMode != drawAll) break;
   case drawSensor:
-    sensorBody = new OSGCylinder(0.01, 0.05);
+    sensorBody = new OSGCylinder(0.05, 0.01);
     sensorBody->init(osgHandle);
-    sensorBody->setMatrix(odePose(actual_pos,actual_R));
     break;
   default:
     break;
-  }  
-  
+  }    
+  update();
   initialised = true;
 }; 
 
@@ -164,8 +144,34 @@ double IRSensor::get(){
 }
 
 void IRSensor::update(){  
-  //  dsSetColor(value*2,0.0,0.0);
-  
+  const dReal* pos = dGeomGetPosition (transform);
+  const dReal* R = dGeomGetRotation (transform);
+  const dReal *pos2 = dGeomGetPosition (ray); // local position
+  const dReal *R2 = dGeomGetRotation (ray);   // local rotation
+  dVector3 actual_pos;
+  dMatrix3 actual_R;
+  dMULTIPLY0_331 (actual_pos,R,pos2);
+  actual_pos[0] += pos[0];
+  actual_pos[1] += pos[1];
+  actual_pos[2] += pos[2];
+  dMULTIPLY0_333 (actual_R,R,R2);
+
+  if(sensorRay)  {
+    sensorRay->remove(osgHandle);
+    delete sensorRay;
+    sensorRay = new OSGBox(0.002, 0.002, len);
+    sensorRay->init(osgHandle);
+    sensorRay->setMatrix(osg::Matrix::translate(osg::Vec3(0,0,len/2.0)) * osgPose(actual_pos,actual_R));
+    sensorRay->setColor(Color(value*2.0, 0.0, 0.0));
+  }
+  if(sensorBody) {
+    sensorBody->remove(osgHandle);
+    delete sensorBody;
+    sensorBody = new OSGCylinder(0.05, 0.01);
+    sensorBody->init(osgHandle);
+    sensorBody->setMatrix(osgPose(actual_pos,actual_R));
+    sensorBody->setColor(Color(value*2.0, 0.0, 0.0));
+  }
 }
 
   

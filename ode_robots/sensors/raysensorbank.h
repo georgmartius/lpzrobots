@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.1  2005-12-13 18:11:54  martius
+ *   Revision 1.2.4.2  2005-12-14 12:43:07  martius
+ *   moved to osg
+ *
+ *   Revision 1.2.4.1  2005/12/13 18:11:54  martius
  *   sensors ported, but not yet finished
  *
  *   Revision 1.2  2005/09/27 13:59:26  martius
@@ -58,7 +61,8 @@ public:
       @return index of the sensor
    */
   virtual unsigned int registerSensor(RaySensor* raysensor, Primitive* body, 
-				      const osg::Matrix& pose, double range);
+				      const osg::Matrix& pose, double range,
+				      RaySensor::rayDrawMode drawMode);
 
   /** resets all sensors (used for reseting the sensor value to a value of maximal distance) 
    */

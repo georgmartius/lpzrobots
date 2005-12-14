@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.1  2005-12-13 18:11:53  martius
+ *   Revision 1.5.4.2  2005-12-14 12:43:07  martius
+ *   moved to osg
+ *
+ *   Revision 1.5.4.1  2005/12/13 18:11:53  martius
  *   sensors ported, but not yet finished
  *
  *   Revision 1.5  2005/11/09 13:24:20  martius
@@ -111,7 +114,8 @@ protected:
   double exponent; // exponent of the sensor characteritic 
 
   OSGCylinder* sensorBody;
-  OSGCylinder* sensorRay;
+  OSGBox* sensorRay;
+  OsgHandle osgHandle;
   
   bool initialised;
 };
