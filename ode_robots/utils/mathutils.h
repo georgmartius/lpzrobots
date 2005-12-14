@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.2  2005-11-24 16:21:45  fhesse
+ *   Revision 1.3.4.3  2005-12-14 15:37:38  martius
+ *   rotation matrix for axis
+ *
+ *   Revision 1.3.4.2  2005/11/24 16:21:45  fhesse
  *   multMatrixPosition added
  *
  *   Revision 1.3.4.1  2005/11/14 17:37:25  martius
@@ -43,8 +46,10 @@
 #define __MATHUTILS_H
 
 #include <matrix.h>
-using namespace matrix;
 #include <selforg/position.h>
+#include "osgforwarddecl.h"
+
+namespace lpzrobots {
 
 #ifndef MIN_MAX_AND_SO_ON
 #define MIN_MAX_AND_SO_ON
@@ -55,39 +60,56 @@ using namespace matrix;
 #define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
 #endif
 
-/**
-   Multiplies 3x3 matrix with position
-*/
-Position multMatrixPosition(const Matrix& r, Position& p);
+  /*******************************************************************************/
 
-/**
- * returns a rotation matrix with the given angle
- */
-Matrix getRotationMatrix(const double& angle);
+  /**
+     returns a Rotation matrix that rotates the x-axis along with the given axis. 
+     The other 2 axis (y,z) are ambiguous.
+  */
+  osg::Matrix rotationMatrixFromAxisX(const osg::Vec3& axis);
 
+  /**
+     returns a Rotation matrix that rotates the z-axis along with the given axis. 
+     The other 2 axis (x,y) are ambiguous.
+  */
+  osg::Matrix rotationMatrixFromAxisZ(const osg::Vec3& axis);
 
-/**
- * returns a translation matrix with the given Position
- */
-Matrix getTranslationMatrix(const Position& p) ;
+  /*******************************************************************************/
 
+  /**
+     Multiplies 3x3 matrix with position
+  */
+  Position multMatrixPosition(const matrix::Matrix& r, Position& p);
 
-/**
- * removes the translation in the matrix
- */
-Matrix removeTranslationInMatrix(const Matrix& pose);
-
-
-/**
- * removes the rotation in the matrix
- */
-Matrix removeRotationInMatrix(const Matrix& pose) ;
+  /**
+   * returns a rotation matrix with the given angle
+   */
+  matrix::Matrix getRotationMatrix(const double& angle);
 
 
-/**
- * returns the angle between two vectors
- */
-double getAngle(Position a, Position b) ;
+  /**
+   * returns a translation matrix with the given Position
+   */
+  matrix::Matrix getTranslationMatrix(const Position& p) ;
 
+
+  /**
+   * removes the translation in the matrix
+   */
+  matrix::Matrix removeTranslationInMatrix(const matrix::Matrix& pose);
+
+
+  /**
+   * removes the rotation in the matrix
+   */
+  matrix::Matrix removeRotationInMatrix(const matrix::Matrix& pose) ;
+
+
+  /**
+   * returns the angle between two vectors
+   */
+  double getAngle(Position a, Position b) ;
+
+}
 
 #endif
