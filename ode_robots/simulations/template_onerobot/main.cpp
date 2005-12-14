@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.6  2005-12-13 18:12:09  martius
+ *   Revision 1.14.4.7  2005-12-14 15:37:25  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.14.4.6  2005/12/13 18:12:09  martius
  *   switched to nimm2
  *
  *   Revision 1.14.4.5  2005/12/11 23:35:08  martius
@@ -63,6 +66,7 @@
 
 // used robot
 #include "nimm2.h"
+#include "nimm4.h"
 
 // used arena
 #include "playground.h"
@@ -70,7 +74,8 @@
 #include "passivesphere.h"
 
 // used controller
-#include <selforg/invertnchannelcontroller.h>
+//#include <selforg/invertnchannelcontroller.h>
+#include <selforg/invertmotorspace.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -100,14 +105,14 @@ void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& g
   //   setGeometry(double length, double width, double	height)
   // - setting initial position of the playground: setPosition(double x, double y, double z)
   // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-  Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10,0.2,0.5));
+  Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(3, 0.2, 0.5));
   playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
   global.obstacles.push_back(playground);
 
   for (int i=0; i<= 2; i+=2){
     PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
     s1->setPosition(osg::Vec3(-4.5+i*4.5,0,2));
-    s1->setTexture("Images/ground.rgb");
+    s1->setTexture("Images/wood.rgb");
     global.obstacles.push_back(s1);
   }
 
@@ -116,12 +121,17 @@ void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& g
   //   here are the defaults used)
   // - set textures for body and wheels
   // - place robot
-  OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf());
-  vehicle->place(Pos(0,0,2));
+  Nimm2Conf c = Nimm2::getDefaultConf();
+  c.irFront=true;
+    
+  OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);
+  //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
+  vehicle->place(Pos(0,0,0));
 
   // create pointer to controller
   // push controller in global list of configurables
-  AbstractController *controller = new InvertNChannelController(10);  
+  //  AbstractController *controller = new InvertNChannelController(10);  
+  AbstractController *controller = new InvertMotorSpace(10);  
   global.configs.push_back(controller);
   
   // create pointer to one2onewiring
