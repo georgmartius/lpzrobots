@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.2  2005-12-14 12:43:07  martius
+ *   Revision 1.2.4.3  2005-12-14 15:37:19  martius
+ *   sensors are working with osg
+ *
+ *   Revision 1.2.4.2  2005/12/14 12:43:07  martius
  *   moved to osg
  *
  *   Revision 1.2.4.1  2005/12/13 18:11:53  martius
@@ -35,6 +38,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <assert.h>
 #include <ode/ode.h>
 #include <osg/Matrix>
 
@@ -83,7 +87,7 @@ bool RaySensorBank::sense(dGeomID object){
 };
 
 double RaySensorBank::get(unsigned int index){
-  //Todo: assert(index<bank.size())
+  assert(index<bank.size());
   return bank[index]->get();
 };
 

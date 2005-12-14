@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.3  2005-12-14 12:43:07  martius
+ *   Revision 1.4.4.4  2005-12-14 15:37:19  martius
+ *   sensors are working with osg
+ *
+ *   Revision 1.4.4.3  2005/12/14 12:43:07  martius
  *   moved to osg
  *
  *   Revision 1.4.4.2  2005/12/13 18:11:53  martius
@@ -157,7 +160,6 @@ void IRSensor::update(){
   dMULTIPLY0_333 (actual_R,R,R2);
 
   if(sensorRay)  {
-    sensorRay->remove(osgHandle);
     delete sensorRay;
     sensorRay = new OSGBox(0.002, 0.002, len);
     sensorRay->init(osgHandle);
@@ -165,7 +167,6 @@ void IRSensor::update(){
     sensorRay->setColor(Color(value*2.0, 0.0, 0.0));
   }
   if(sensorBody) {
-    sensorBody->remove(osgHandle);
     delete sensorBody;
     sensorBody = new OSGCylinder(0.05, 0.01);
     sensorBody->init(osgHandle);
