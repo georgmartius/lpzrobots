@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-13 18:11:13  martius
+ *   Revision 1.1.2.3  2005-12-14 15:36:45  martius
+ *   joints are visible now
+ *
+ *   Revision 1.1.2.2  2005/12/13 18:11:13  martius
  *   transform primitive added, some joints stuff done, forward declaration
  *
  *   Revision 1.1.2.1  2005/12/12 23:40:42  martius
@@ -38,6 +41,7 @@
 
 #include "joint.h"
 #include "pos.h"
+#include "mathutils.h"
 
 
 namespace lpzrobots {
@@ -45,14 +49,8 @@ namespace lpzrobots {
   using namespace osg;
 
   Matrix Joint::anchorAxisPose(const osg::Vec3& anchor, const osg::Vec3& axis){
-    Pos p(axis);
-    p.print();
-    return Matrix::rotate(M_PI/2, Vec3(0,1,0)) // rotate Cylinder to be along x-axis
-      * // Matrix::rotate(Quat(axis.x(), axis.y(),axis.z(), 0)) * // TODO calc rotation matrix!
-      Matrix::translate(anchor);
+    return rotationMatrixFromAxisZ(axis) * Matrix::translate(anchor);
   }
-
-
 
 /***************************************************************************/
   
@@ -64,7 +62,7 @@ namespace lpzrobots {
   Hinge2Joint::~Hinge2Joint(){
     if (visual) delete visual;
   }
-  
+
   void Hinge2Joint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			 bool withVisual, double visualSize){
     joint = dJointCreateHinge2 (odeHandle. world,0);
@@ -73,7 +71,7 @@ namespace lpzrobots {
     dJointSetHinge2Axis1 (joint,  axis1.x(), axis1.y(), axis1.z());
     dJointSetHinge2Axis2 (joint,  axis2.x(), axis2.y(), axis2.z());
     if(withVisual){
-      visual = new OSGCapsule(visualSize/8.0, visualSize);
+      visual = new OSGCylinder(visualSize/15.0, visualSize);
       visual->init(osgHandle);      
       Matrix t = anchorAxisPose(anchor, axis2);
       
@@ -95,7 +93,5 @@ namespace lpzrobots {
       visual->setMatrix(anchorAxisPose(anchor, axis2));    
     }
   }
-
-
 
 }

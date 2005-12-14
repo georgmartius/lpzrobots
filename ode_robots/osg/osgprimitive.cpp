@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2005-12-13 18:11:13  martius
+ *   Revision 1.1.2.7  2005-12-14 15:36:45  martius
+ *   joints are visible now
+ *
+ *   Revision 1.1.2.6  2005/12/13 18:11:13  martius
  *   transform primitive added, some joints stuff done, forward declaration
  *
  *   Revision 1.1.2.5  2005/12/12 23:42:53  martius
@@ -67,10 +70,13 @@
 namespace lpzrobots {
   using namespace osg;
 
-  OSGPrimitive::OSGPrimitive(){
-  }
+  OSGPrimitive::OSGPrimitive(){  }
 
-  OSGPrimitive::~OSGPrimitive(){
+  OSGPrimitive::~OSGPrimitive(){    
+    Node::ParentList l = transform->getParents();
+    for(Node::ParentList::iterator i = l.begin(); i != l.end(); i++){
+      (*i)->removeChild(transform.get());  
+    }
   }
 
 
@@ -84,6 +90,7 @@ namespace lpzrobots {
     return transform.get(); 
   }
 
+
   void OSGPrimitive::setTexture(const std::string& filename){
     osg::Group* grp = getGroup();
     osg::Texture2D* texture = new osg::Texture2D;
@@ -93,6 +100,10 @@ namespace lpzrobots {
     stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);
   }
 
+  void OSGPrimitive::setColor(const Color& color){
+    if(shape.valid())
+      shape->setColor(color);
+  }
 
   /******************************************************************************/
 
@@ -107,8 +118,6 @@ namespace lpzrobots {
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
   
-    ref_ptr<ShapeDrawable> shape;
-
     //  shape = new ShapeDrawable(new InfinitePlane(), osgHandle.tesselhints);
     shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
 				      50, 50, 0.01), osgHandle.tesselhints); // TODO add larger values here
@@ -128,8 +137,6 @@ namespace lpzrobots {
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
-  
-    ref_ptr<ShapeDrawable> shape;
 
     shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
 				      lengthX, lengthY, lengthZ), osgHandle.tesselhints);
@@ -149,8 +156,6 @@ namespace lpzrobots {
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
-  
-    ref_ptr<ShapeDrawable> shape;
 
     shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), osgHandle.tesselhints);
     shape->setColor(osgHandle.color);
@@ -169,8 +174,6 @@ namespace lpzrobots {
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
-  
-    ref_ptr<ShapeDrawable> shape;
 
     shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f), 
 					  radius, height), osgHandle.tesselhints);
@@ -190,8 +193,6 @@ namespace lpzrobots {
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
-  
-    ref_ptr<ShapeDrawable> shape;
 
     shape = new ShapeDrawable(new Cylinder(Vec3(0.0f, 0.0f, 0.0f), 
 					   radius, height), osgHandle.tesselhints);

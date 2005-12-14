@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-13 18:11:13  martius
+ *   Revision 1.1.2.4  2005-12-14 15:36:45  martius
+ *   joints are visible now
+ *
+ *   Revision 1.1.2.3  2005/12/13 18:11:13  martius
  *   transform primitive added, some joints stuff done, forward declaration
  *
  *   Revision 1.1.2.2  2005/12/12 23:40:22  martius
@@ -87,7 +90,7 @@ namespace lpzrobots {
     osg::Vec3 anchor;
     osg::Vec3 axis1;
     osg::Vec3 axis2;
-    OSGCapsule* visual;
+    OSGPrimitive* visual;
   };
 
 }

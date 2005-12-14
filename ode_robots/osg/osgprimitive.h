@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-12-13 18:11:13  martius
+ *   Revision 1.1.2.5  2005-12-14 15:36:45  martius
+ *   joints are visible now
+ *
+ *   Revision 1.1.2.4  2005/12/13 18:11:13  martius
  *   transform primitive added, some joints stuff done, forward declaration
  *
  *   Revision 1.1.2.3  2005/12/11 23:35:08  martius
@@ -56,14 +59,17 @@ class OSGPrimitive {
 public:
   OSGPrimitive ();
   virtual ~OSGPrimitive ();
+  // this function should be overloaded
   virtual void init(const OsgHandle& osgHandle) = 0;
   virtual void setMatrix( const osg::Matrix& m4x4 );
   virtual osg::Group* getGroup();
   virtual void setTexture(const std::string& filename);
+  virtual void setColor(const Color& color);
 
 protected:
   osg::ref_ptr<osg::Geode> geode;
   osg::ref_ptr<osg::MatrixTransform> transform;  
+  osg::ref_ptr<osg::ShapeDrawable> shape;
 };
 
 

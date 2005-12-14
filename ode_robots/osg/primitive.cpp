@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-12-13 18:11:13  martius
+ *   Revision 1.1.2.5  2005-12-14 15:36:45  martius
+ *   joints are visible now
+ *
+ *   Revision 1.1.2.4  2005/12/13 18:11:13  martius
  *   transform primitive added, some joints stuff done, forward declaration
  *
  *   Revision 1.1.2.3  2005/12/11 23:35:08  martius
@@ -47,21 +50,29 @@
 namespace lpzrobots{
 
   /// returns the osg (4x4) pose matrix of the ode geom
-  osg::Matrix odePose( dGeomID geom ){
-    return odePose(dGeomGetPosition(geom), dGeomGetRotation(geom));
+  osg::Matrix osgPose( dGeomID geom ){
+    return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));
   }
 
   /// returns the osg (4x4) pose matrix of the ode body
-  osg::Matrix odePose( dBodyID body ){
-    return odePose(dBodyGetPosition(body), dBodyGetRotation(body));
+  osg::Matrix osgPose( dBodyID body ){
+    return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
   }
 
   /// converts a position vector and a rotation matrix from ode to osg 4x4 matrix
-  osg::Matrix odePose( const double * V , const double * R ){
+  osg::Matrix osgPose( const double * V , const double * R ){
     return osg::Matrix( R[0], R[4], R[8],  0,
 			R[1], R[5], R[9],  0,
 			R[2], R[6], R[10], 0,
 			V[0], V[1], V[2] , 1);  
+  }
+
+  /// converts a position vector and a rotation matrix from ode to osg 4x4 matrix
+  void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix){
+    osg::Quat q;
+    pose.get(q);
+    dQuaternion quat = {q.x(), q.y(), q.z(), q.w() };
+    dQtoR(quat, odematrix);
   }
 
 
@@ -110,7 +121,7 @@ namespace lpzrobots{
   }
 
   osg::Matrix Primitive::getPose() const {
-    return odePose(dBodyGetPosition(body), dBodyGetRotation(body));    
+    return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));    
   }
 
   dGeomID Primitive::getGeom() const { 
@@ -141,8 +152,8 @@ namespace lpzrobots{
 
   void Plane:: update(){
     if(body)
-      OSGPlane::setMatrix(odePose(body));
-    else if(geom) OSGPlane::setMatrix(odePose(geom));
+      OSGPlane::setMatrix(osgPose(body));
+    else if(geom) OSGPlane::setMatrix(osgPose(geom));
   }
 
   osg::Transform* Plane::getTransform() {
@@ -170,8 +181,8 @@ namespace lpzrobots{
 
   void Box:: update(){
     if(body)
-      OSGBox::setMatrix(odePose(body));
-    else if(geom) OSGBox::setMatrix(odePose(geom));
+      OSGBox::setMatrix(osgPose(body));
+    else if(geom) OSGBox::setMatrix(osgPose(geom));
   }
 
   osg::Transform* Box::getTransform()  {
@@ -199,8 +210,8 @@ namespace lpzrobots{
 
   void Sphere::update(){
     if(body)
-      OSGSphere::setMatrix(odePose(body));
-    else if(geom) OSGSphere::setMatrix(odePose(geom));
+      OSGSphere::setMatrix(osgPose(body));
+    else if(geom) OSGSphere::setMatrix(osgPose(geom));
   }
 
   osg::Transform* Sphere::getTransform()  {
@@ -228,8 +239,8 @@ namespace lpzrobots{
 
   void Capsule::update(){
     if(body)
-      OSGCapsule::setMatrix(odePose(body));
-    else if(geom) OSGCapsule::setMatrix(odePose(geom));
+      OSGCapsule::setMatrix(osgPose(body));
+    else if(geom) OSGCapsule::setMatrix(osgPose(geom));
   }
 
   osg::Transform* Capsule::getTransform()  {

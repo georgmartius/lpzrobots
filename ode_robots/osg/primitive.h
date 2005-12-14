@@ -25,7 +25,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-13 18:11:14  martius
+ *   Revision 1.1.2.3  2005-12-14 15:36:45  martius
+ *   joints are visible now
+ *
+ *   Revision 1.1.2.2  2005/12/13 18:11:14  martius
  *   transform primitive added, some joints stuff done, forward declaration
  *
  *   Revision 1.1.2.1  2005/12/06 10:13:25  martius
@@ -47,12 +50,13 @@ namespace lpzrobots {
 
 
 /// returns the osg (4x4) pose matrix of the ode geom
-osg::Matrix odePose( dGeomID geom );
+osg::Matrix osgPose( dGeomID geom );
 /// returns the osg (4x4) pose matrix of the ode body
-osg::Matrix odePose( dBodyID body );
+osg::Matrix osgPose( dBodyID body );
 /// converts a position vector and a rotation matrix from ode to osg 4x4 matrix
-osg::Matrix odePose( const double * position , const double * rotation );
+osg::Matrix osgPose( const double * position , const double * rotation );
 
+void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix);
 
 /**************************************************************************/
 class Primitive {
