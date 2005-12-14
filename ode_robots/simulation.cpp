@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.7  2005-12-13 18:10:33  martius
+ *   Revision 1.40.4.8  2005-12-14 15:36:25  martius
+ *   do not check for unused vars
+ *
+ *   Revision 1.40.4.7  2005/12/13 18:10:33  martius
  *   changelog
  *
  *   Revision 1.40.4.6  2005/12/11 23:35:07  martius
@@ -270,7 +273,7 @@ namespace lpzrobots {
       return false;
     }
     // any option left unread are converted into errors to write out later.
-    arguments->reportRemainingOptionsAsUnrecognized();
+    //    arguments->reportRemainingOptionsAsUnrecognized();
 
     // report any errors if they have occured when parsing the program aguments.
     if (arguments->errors()) {
