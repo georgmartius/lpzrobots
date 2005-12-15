@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-11 23:35:07  martius
+ *   Revision 1.1.2.3  2005-12-15 17:02:16  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.2  2005/12/11 23:35:07  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.1  2005/12/09 16:53:17  martius
@@ -98,7 +101,7 @@ class PassiveSphere : public AbstractObstacle{
   };
 
   virtual void setTexture(const std::string& filename){
-    if(sphere) sphere->setTexture(filename);
+    if(sphere) sphere->getOSGPrimitive()->setTexture(filename);
   }
   
   /**
