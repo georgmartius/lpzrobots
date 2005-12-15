@@ -27,7 +27,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.5  2005-12-11 23:35:07  martius
+ *   Revision 1.18.4.6  2005-12-15 17:02:04  martius
+ *   light is in sky and standart cams removed
+ *   config has a default implentation now
+ *
+ *   Revision 1.18.4.5  2005/12/11 23:35:07  martius
  *   *** empty log message ***
  *
  *   Revision 1.18.4.4  2005/12/09 16:53:17  martius
@@ -141,11 +145,12 @@ public:
   virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
   /// end() is called at the end and should tidy up
   virtual void end(GlobalData& globalData) = 0;
-  /// config() is called when the user presses Ctrl-C. Calls usually @changeParams()@
-  virtual void config(GlobalData& globalData) = 0;
 
   // the following functions have dummy default implementations
 
+  /** config() is called when the user presses Ctrl-C. 
+      Default: Call @changeParams(globalData.configs)@ */
+  virtual void config(GlobalData& globalData);
   /// command() is called if a key was pressed
   virtual void command(const OdeHandle&, GlobalData& globalData, int key) {};
   /** collCallback() can be used to overload the standart collision handling.

@@ -61,7 +61,7 @@ depend:
 	make Makefile.depend
 
 tags: 
-	etags `find -name "*.[ch]"` 
+	etags `find -name "*.[ch]*"` 
 
 clean:
 	rm -f $(LIB) *.o Makefile.depend

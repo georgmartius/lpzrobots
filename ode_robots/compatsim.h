@@ -23,7 +23,11 @@
  *  compatsim is provided for compatibility to the old simulation          *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 10:13:23  martius
+ *   Revision 1.1.2.2  2005-12-15 17:02:04  martius
+ *   light is in sky and standart cams removed
+ *   config has a default implentation now
+ *
+ *   Revision 1.1.2.1  2005/12/06 10:13:23  martius
  *   openscenegraph integration started
  *
  *                                                                 *
@@ -40,7 +44,7 @@ public:
     
   CompatSim(void (*startFun)(const OdeHandle&, const OsgHandle&, GlobalData& globalData), 
 	    void (*endFun)(GlobalData& globalData), 
-	    void (*configFun)(GlobalData& globalData), 
+	    void (*configFun)(GlobalData& globalData) = 0, 
 	    void (*commandFun)(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key) = 0, 
 	    void (*collCallbackFun)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) = 0,
 	    void (*addCallbackFun)(GlobalData& globalData, bool draw, bool pause) = 0);
