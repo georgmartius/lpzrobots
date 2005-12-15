@@ -22,7 +22,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-11 23:35:08  martius
+ *   Revision 1.1.2.3  2005-12-15 17:03:42  martius
+ *   cameramanupulator setPose is working
+ *   joints have setter and getter parameters
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them
+ *
+ *   Revision 1.1.2.2  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.1  2005/12/09 16:56:21  martius
@@ -34,8 +40,10 @@
  *                                                                 *
  ***************************************************************************/
 
-#include "cameramanipulator.h"
 #include <osg/Notify>
+#include "cameramanipulator.h"
+#include "mathutils.h"
+#include "pos.h"
 
 namespace lpzrobots {
 
@@ -70,7 +78,7 @@ namespace lpzrobots {
       const BoundingSphere& boundingSphere=node->getBound();
 
       eye = boundingSphere._center+
-	Vec3(-boundingSphere._radius*0.8f,0, boundingSphere._radius*0.2f);
+	Vec3(-boundingSphere._radius*1.2f,0, boundingSphere._radius*0.2f);
 
       view = Vec3(-90,-10,0);
       computeMatrix();
@@ -147,7 +155,7 @@ namespace lpzrobots {
   }
   
   void CameraManipulator::getUsage(ApplicationUsage& usage) const{
-    usage.addKeyboardMouseBinding("Flight: Space","Reset the viewing position to home");
+    usage.addKeyboardMouseBinding("Static: Space","Reset the viewing position to home");
   }
 
   void CameraManipulator::flushMouseEventStack(){
@@ -161,6 +169,16 @@ namespace lpzrobots {
 
   void CameraManipulator::setByMatrix(const Matrixd& matrix){
     eye = matrix.getTrans();
+    Vec3 xaxis(1,0,0);    
+    Pos head = Matrix::transform3x3(xaxis, matrix);
+    view.x() = RadiansToDegrees(getAngle(xaxis, head)) *       
+      sign(head.y()); // this resolves the ambiguity of getAngle
+
+    Pos tilt = Matrix::transform3x3(Vec3(0,1,0), matrix);
+    tilt.print();
+    view.y() = RadiansToDegrees(getAngle(Vec3(0,0,1), tilt)) * 
+      -1 * sign(tilt.y()); // this resolves the ambiguity of getAngle    
+    computeMatrix();    
   }
 
   Matrixd CameraManipulator::getMatrix() const{
@@ -176,7 +194,7 @@ namespace lpzrobots {
       while (view[i] > 180) view[i] -= 360;
       while (view[i] < -180) view[i] += 360;
     }
-    osg::Matrixd rot;
+    osg::Matrix rot;
     rot.makeRotate( M_PI/2,                          osg::Vec3(1, 0, 0),
 		    osg::DegreesToRadians(view.x()), osg::Vec3(0, 0, 1), // heading
 		    osg::DegreesToRadians(view.y()), osg::Vec3(cos(osg::DegreesToRadians(view.x())), 
@@ -184,9 +202,7 @@ namespace lpzrobots {
 							       0) // pitch
 		    );
 
-    osg::Matrixd trans;
-    trans.makeTranslate( eye );
-    pose = rot * trans;
+    pose = rot * Matrix::translate(eye);
   }
 
   bool CameraManipulator::calcMovement(){

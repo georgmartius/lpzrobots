@@ -22,7 +22,13 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2005-12-14 15:36:45  martius
+ *   Revision 1.1.2.6  2005-12-15 17:03:43  martius
+ *   cameramanupulator setPose is working
+ *   joints have setter and getter parameters
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them
+ *
+ *   Revision 1.1.2.5  2005/12/14 15:36:45  martius
  *   joints are visible now
  *
  *   Revision 1.1.2.4  2005/12/13 18:11:13  martius
@@ -134,11 +140,12 @@ namespace lpzrobots{
 
   /******************************************************************************/
   Plane::Plane() {
+    osgplane = new OSGPlane();
   }
 
   void Plane::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		   bool withBody){
-    OSGPlane::init(osgHandle);
+		   bool withBody){    
+    osgplane->init(osgHandle);
     geom = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
     if (withBody){
       body = dBodyCreate (odeHandle.world);
@@ -152,27 +159,24 @@ namespace lpzrobots{
 
   void Plane:: update(){
     if(body)
-      OSGPlane::setMatrix(osgPose(body));
-    else if(geom) OSGPlane::setMatrix(osgPose(geom));
-  }
-
-  osg::Transform* Plane::getTransform() {
-    return transform.get();
+      osgplane->setMatrix(osgPose(body));
+    else if(geom) osgplane->setMatrix(osgPose(geom));
   }
 
   /******************************************************************************/
-  Box::Box(float lengthX, float lengthY, float lengthZ)
-    : OSGBox(lengthX, lengthY, lengthZ) {
+  Box::Box(float lengthX, float lengthY, float lengthZ) {
+    osgbox = new OSGBox(lengthX, lengthY, lengthZ);
   }
 
   void Box::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		 bool withBody){
-    OSGBox::init(osgHandle);
-    geom = dCreateBox ( odeHandle.space , lengthX , lengthY , lengthZ);
+    osgbox->init(osgHandle);
+    geom = dCreateBox ( odeHandle.space , osgbox->getLengthX() , osgbox->getLengthY() , osgbox->getLengthZ());
     if (withBody){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      dMassSetBox(&m, 1, lengthX, lengthY, lengthZ); // fake the mass of the plane with a thin box
+      // fake the mass of the plane with a thin box
+      dMassSetBox(&m, 1, osgbox->getLengthX() , osgbox->getLengthY() , osgbox->getLengthZ()); 
       dMassAdjust (&m, mass); 
       dBodySetMass (body,&m); //assign the mass to the body
       dGeomSetBody (geom, body); // geom is assigned to body
@@ -181,27 +185,23 @@ namespace lpzrobots{
 
   void Box:: update(){
     if(body)
-      OSGBox::setMatrix(osgPose(body));
-    else if(geom) OSGBox::setMatrix(osgPose(geom));
-  }
-
-  osg::Transform* Box::getTransform()  {
-    return transform.get();
+      osgbox->setMatrix(osgPose(body));
+    else if(geom) osgbox->setMatrix(osgPose(geom));
   }
 
   /******************************************************************************/
-  Sphere::Sphere(float radius)
-    : OSGSphere(radius) {
+  Sphere::Sphere(float radius) {
+    osgsphere = new OSGSphere(radius);
   }
 
   void Sphere::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		    bool withBody){
-    OSGSphere::init(osgHandle);
-    geom = dCreateSphere ( odeHandle.space , radius);
+    osgsphere->init(osgHandle);
+    geom = dCreateSphere ( odeHandle.space , osgsphere->getRadius());
     if (withBody){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      dMassSetSphere(&m, 1, radius); // fake the mass of the plane with a thin box
+      dMassSetSphere(&m, 1, osgsphere->getRadius());
       dMassAdjust (&m, mass); 
       dBodySetMass (body,&m); //assign the mass to the body
       dGeomSetBody (geom, body); // geom is assigned to body
@@ -210,27 +210,23 @@ namespace lpzrobots{
 
   void Sphere::update(){
     if(body)
-      OSGSphere::setMatrix(osgPose(body));
-    else if(geom) OSGSphere::setMatrix(osgPose(geom));
-  }
-
-  osg::Transform* Sphere::getTransform()  {
-    return transform.get();
+      osgsphere->setMatrix(osgPose(body));
+    else if(geom) osgsphere->setMatrix(osgPose(geom));
   }
 
   /******************************************************************************/
-  Capsule::Capsule(float radius, float height)
-    : OSGCapsule(radius, height) {
+  Capsule::Capsule(float radius, float height) {
+    osgcapsule = new OSGCapsule(radius, height);
   }
 
   void Capsule::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     bool withBody){
-    OSGCapsule::init(osgHandle);
-    geom = dCreateCCylinder ( odeHandle.space , radius, height);
+    osgcapsule->init(osgHandle);
+    geom = dCreateCCylinder ( odeHandle.space , osgcapsule->getRadius(), osgcapsule->getHeight());
     if (withBody){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      dMassSetCappedCylinder(&m, 1.0, 3 , radius, height); // fake the mass of the plane with a thin box
+      dMassSetCappedCylinder(&m, 1.0, 3 , osgcapsule->getRadius(), osgcapsule->getHeight()); 
       dMassAdjust (&m, mass); 
       dBodySetMass (body,&m); //assign the mass to the body
       dGeomSetBody (geom, body); // geom is assigned to body
@@ -239,17 +235,14 @@ namespace lpzrobots{
 
   void Capsule::update(){
     if(body)
-      OSGCapsule::setMatrix(osgPose(body));
-    else if(geom) OSGCapsule::setMatrix(osgPose(geom));
-  }
-
-  osg::Transform* Capsule::getTransform()  {
-    return transform.get();
+      osgcapsule->setMatrix(osgPose(body));
+    else if(geom) osgcapsule->setMatrix(osgPose(geom));
   }
 
   /******************************************************************************/
   Transform::Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose)
     : parent(parent), child(child), pose(pose) {
+    osgdummy = new OSGDummy;
   }
 
   void Transform::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
@@ -268,7 +261,7 @@ namespace lpzrobots{
     odeHandleChild.space = 0;
     // the root node for the child is the transform node of the parent
     OsgHandle osgHandleChild(osgHandle);
-    osgHandleChild.scene = parent->getTransform();
+    osgHandleChild.scene = parent->getOSGPrimitive()->getTransform();
     assert(osgHandleChild.scene);
     // initialise the child
     child->init(odeHandleChild, 0, osgHandleChild, false);
@@ -283,11 +276,6 @@ namespace lpzrobots{
 
   void Transform::update(){
     // we don't need to update something
-  }
-
-  osg::Transform* Transform::getTransform()  {
-    // the funny thing is that we don't have one :-)
-    return 0;
   }
 
 }

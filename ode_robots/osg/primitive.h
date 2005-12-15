@@ -25,7 +25,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-14 15:36:45  martius
+ *   Revision 1.1.2.4  2005-12-15 17:03:43  martius
+ *   cameramanupulator setPose is working
+ *   joints have setter and getter parameters
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them
+ *
+ *   Revision 1.1.2.3  2005/12/14 15:36:45  martius
  *   joints are visible now
  *
  *   Revision 1.1.2.2  2005/12/13 18:11:14  martius
@@ -74,8 +80,8 @@ public:
 
   /// should syncronise the ODE stuff and the OSG notes
   virtual void update() =0 ;
-  /// returns a osg transformation object (if any)  (it is not const because we return a pointer)
-  virtual osg::Transform* getTransform() = 0;
+
+  virtual OSGPrimitive* getOSGPrimitive() = 0;
 
   void setPosition(const osg::Vec3& pos);
   void setPose(const osg::Matrix& pose);
@@ -92,35 +98,40 @@ protected:
 
 
 /**************************************************************************/
-class Plane : public Primitive, public OSGPlane {
+class Plane : public Primitive {
 public:
   Plane();
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
 		    bool withBody = true);
 
-  virtual void update();
-  virtual osg::Transform* getTransform();
-  
+  virtual void update();  
+  virtual OSGPrimitive* getOSGPrimitive() { return osgplane; }
+
+protected:
+  OSGPlane* osgplane;
 };
 
 
 /**************************************************************************/
-class Box : public Primitive, public OSGBox {
+class Box : public Primitive {
 public:
+
   Box(float lengthX, float lengthY, float lengthZ);
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    bool withBody = true);
 
   virtual void update();
-  virtual osg::Transform* getTransform();
-  
+  virtual OSGPrimitive* getOSGPrimitive() { return osgbox; }
+
+protected:
+  OSGBox* osgbox;
 };
 
 
 /**************************************************************************/
-class Sphere : public Primitive, public OSGSphere {
+class Sphere : public Primitive {
 public:
   Sphere(float radius);
   virtual void init(const OdeHandle& odeHandle, double mass, 
@@ -128,12 +139,14 @@ public:
 		    bool withBody = true);
 
   virtual void update();
-  virtual osg::Transform* getTransform();
+  virtual OSGPrimitive* getOSGPrimitive() { return osgsphere; }
 
+protected:
+  OSGSphere* osgsphere;
 };
 
 /**************************************************************************/
-class Capsule : public Primitive, public OSGCapsule {
+class Capsule : public Primitive {
 public:
   Capsule(float radius, float height);
   virtual void init(const OdeHandle& odeHandle, double mass,
@@ -141,7 +154,10 @@ public:
 		    bool withBody = true);
 
   virtual void update();
-  virtual osg::Transform* getTransform();
+  virtual OSGPrimitive* getOSGPrimitive() { return osgcapsule; }
+
+protected:
+  OSGCapsule* osgcapsule;
 };
 
 /**************************************************************************/
@@ -164,12 +180,14 @@ public:
 		    bool withBody = true);
 
   virtual void update();
-  // the funny thing is that we (as a Transform) don't have a transform :-)
-  virtual osg::Transform* getTransform();
+  virtual OSGPrimitive* getOSGPrimitive() { return osgdummy; }
+
 protected:
   Primitive* parent;
   Primitive* child;
   osg::Matrix pose;
+
+  OSGDummy* osgdummy;
 };
 
 

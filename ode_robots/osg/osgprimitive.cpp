@@ -26,7 +26,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2005-12-14 15:36:45  martius
+ *   Revision 1.1.2.8  2005-12-15 17:03:42  martius
+ *   cameramanupulator setPose is working
+ *   joints have setter and getter parameters
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them
+ *
+ *   Revision 1.1.2.7  2005/12/14 15:36:45  martius
  *   joints are visible now
  *
  *   Revision 1.1.2.6  2005/12/13 18:11:13  martius
@@ -68,6 +74,7 @@
 #include "osgprimitive.h"
 
 namespace lpzrobots {
+
   using namespace osg;
 
   OSGPrimitive::OSGPrimitive(){  }
@@ -90,9 +97,12 @@ namespace lpzrobots {
     return transform.get(); 
   }
 
+  Transform* OSGPrimitive::getTransform() { 
+    return transform.get(); 
+  }
 
   void OSGPrimitive::setTexture(const std::string& filename){
-    osg::Group* grp = getGroup();
+    osg::Group* grp = getGroup();    
     osg::Texture2D* texture = new osg::Texture2D;
     texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
     texture->setImage(osgDB::readImageFile(filename));
@@ -106,6 +116,29 @@ namespace lpzrobots {
   }
 
   /******************************************************************************/
+  OSGDummy::OSGDummy(){}
+  
+  void OSGDummy::init(const OsgHandle& osgHandle){
+  }
+  
+  void OSGDummy::setMatrix( const osg::Matrix& m4x4 ) {
+  }
+  
+  Group* OSGDummy::getGroup() { 
+    return 0;
+  }
+
+  void OSGDummy::setTexture(const std::string& filename) {
+    
+  }
+
+  void OSGDummy::setColor(const Color& color) {
+
+  }
+  
+  Transform* OSGDummy::getTransform() {
+    return 0;
+  }
 
   /******************************************************************************/
   OSGPlane::OSGPlane() {

@@ -26,7 +26,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2005-12-14 15:36:45  martius
+ *   Revision 1.1.2.6  2005-12-15 17:03:43  martius
+ *   cameramanupulator setPose is working
+ *   joints have setter and getter parameters
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them
+ *
+ *   Revision 1.1.2.5  2005/12/14 15:36:45  martius
  *   joints are visible now
  *
  *   Revision 1.1.2.4  2005/12/13 18:11:13  martius
@@ -54,82 +60,109 @@
 
 namespace lpzrobots {
 
-/**************************************************************************/
-class OSGPrimitive {
-public:
-  OSGPrimitive ();
-  virtual ~OSGPrimitive ();
-  // this function should be overloaded
-  virtual void init(const OsgHandle& osgHandle) = 0;
-  virtual void setMatrix( const osg::Matrix& m4x4 );
-  virtual osg::Group* getGroup();
-  virtual void setTexture(const std::string& filename);
-  virtual void setColor(const Color& color);
 
-protected:
-  osg::ref_ptr<osg::Geode> geode;
-  osg::ref_ptr<osg::MatrixTransform> transform;  
-  osg::ref_ptr<osg::ShapeDrawable> shape;
-};
+  /**************************************************************************/
+  class OSGPrimitive {
+  public:
 
+    OSGPrimitive ();
+    virtual ~OSGPrimitive ();
+    // this function should be overloaded
+    virtual void init(const OsgHandle& osgHandle) = 0;
+    virtual void setMatrix( const osg::Matrix& m4x4 );
+    virtual osg::Group* getGroup();
+    virtual void setTexture(const std::string& filename);
+    virtual void setColor(const Color& color);
+    /// returns a osg transformation object;
+    virtual osg::Transform* getTransform();
 
-/**************************************************************************/
-class OSGPlane : public OSGPrimitive {
-public:
-  OSGPlane();
+  protected:
+    osg::ref_ptr<osg::Geode> geode;
+    osg::ref_ptr<osg::MatrixTransform> transform;  
+    osg::ref_ptr<osg::ShapeDrawable> shape;
+  };
 
-  virtual void init(const OsgHandle& osgHandle);
-};
+  /**************************************************************************/
+  class OSGDummy : public OSGPrimitive {
+  public:
+    OSGDummy();
 
-
-/**************************************************************************/
-class OSGBox : public OSGPrimitive {
-public:
-  OSGBox(float lengthX, float lengthY, float lengthZ);
-
-  virtual void init(const OsgHandle& osgHandle);
-
-protected:
-  float lengthX;
-  float lengthY;
-  float lengthZ;  
-};
+    virtual void init(const OsgHandle& osgHandle);
+    virtual void setMatrix( const osg::Matrix& m4x4 );
+    virtual osg::Group* getGroup();
+    virtual void setTexture(const std::string& filename);
+    virtual void setColor(const Color& color);
+    /// returns a osg transformation object;
+    virtual osg::Transform* getTransform();  
+  };
 
 
-/**************************************************************************/
-class OSGSphere : public OSGPrimitive {
-public:
-  OSGSphere(float radius);
+  /**************************************************************************/
+  class OSGPlane : public OSGPrimitive {
+  public:
+    OSGPlane();
 
-  virtual void init(const OsgHandle& osgHandle);
+    virtual void init(const OsgHandle& osgHandle);
+  };
 
-protected:
-  float radius;  
-};
 
-/**************************************************************************/
-class OSGCapsule : public OSGPrimitive {
-public:
-  OSGCapsule(float radius, float height);
+  /**************************************************************************/
+  class OSGBox : public OSGPrimitive {
+  public:
+    OSGBox(float lengthX, float lengthY, float lengthZ);
 
-  virtual void init(const OsgHandle& osgHandle);
+    virtual void init(const OsgHandle& osgHandle);
 
-protected:
-  float radius;  
-  float height;
-};
+    float getLengthX() { return lengthX; }
+    float getLengthY() { return lengthY; }
+    float getLengthZ() { return lengthZ; }
+  
+  protected:
+    float lengthX;
+    float lengthY;
+    float lengthZ;  
+  };
 
-/**************************************************************************/
-class OSGCylinder : public OSGPrimitive {
-public:
-  OSGCylinder(float radius, float height);
 
-  virtual void init(const OsgHandle& osgHandle);
+  /**************************************************************************/
+  class OSGSphere : public OSGPrimitive {
+  public:
+    OSGSphere(float radius);
 
-protected:
-  float radius;  
-  float height;
-};
+    virtual void init(const OsgHandle& osgHandle);
+
+    float getRadius() { return radius; }
+  protected:
+    float radius;  
+  };
+
+  /**************************************************************************/
+  class OSGCapsule : public OSGPrimitive {
+  public:
+    OSGCapsule(float radius, float height);
+
+    virtual void init(const OsgHandle& osgHandle);
+
+    float getRadius() { return radius; }
+    float getHeight() { return height; }
+  protected:
+    float radius;
+    float height;
+  };
+
+  /**************************************************************************/
+  class OSGCylinder : public OSGPrimitive {
+  public:
+    OSGCylinder(float radius, float height);
+
+    virtual void init(const OsgHandle& osgHandle);
+
+    float getRadius() { return radius; }
+    float getHeight() { return height; }
+  protected:
+    float radius;  
+    float height;
+  };
 
 }
 

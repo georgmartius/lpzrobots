@@ -23,7 +23,13 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-09 16:56:21  martius
+ *   Revision 1.1.2.2  2005-12-15 17:03:42  martius
+ *   cameramanupulator setPose is working
+ *   joints have setter and getter parameters
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them
+ *
+ *   Revision 1.1.2.1  2005/12/09 16:56:21  martius
  *   camera is working now
  *
  *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
@@ -34,8 +40,8 @@
 #ifndef __CAMERAMANIPULATOR_H
 #define __CAMERAMANIPULATOR_H
 
+#include "osgforwarddecl.h"
 #include <osgGA/MatrixManipulator>
-#include <osg/Quat>
 
 namespace lpzrobots {
 
