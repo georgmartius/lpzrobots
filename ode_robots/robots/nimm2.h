@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17.4.5  2005-12-14 15:37:09  martius
+ *   Revision 1.17.4.6  2005-12-15 17:04:08  martius
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them.
+ *   Joint have better getter and setter
+ *
+ *   Revision 1.17.4.5  2005/12/14 15:37:09  martius
  *   robots are working with osg
  *
  *   Revision 1.17.4.4  2005/12/13 18:11:39  martius
@@ -101,7 +106,7 @@
 namespace lpzrobots {
 
 typedef struct Bumper{
-  Bumper() { trans = 0; bump=0;}
+  Bumper() { trans = 0; bump = 0;}
   Primitive* trans;
   Primitive* bump;
 } Bumper;
@@ -226,7 +231,7 @@ protected:
   double  wheeloffset; // offset from center when in cigarMode
   int number_bumpers;  // number of bumpers (1 -> bumpers at one side, 2 -> bumpers at 2 sides)
   Bumper bumper[2]; 
-  Joint* joint[2]; // joints between cylinder and each wheel
+  Hinge2Joint* joint[2]; // joints between cylinder and each wheel
 
   RaySensorBank irSensorBank; // a collection of ir sensors
 };

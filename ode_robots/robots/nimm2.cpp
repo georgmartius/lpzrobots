@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.6  2005-12-14 15:37:09  martius
+ *   Revision 1.21.4.7  2005-12-15 17:04:08  martius
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them.
+ *   Joint have better getter and setter
+ *
+ *   Revision 1.21.4.6  2005/12/14 15:37:09  martius
  *   robots are working with osg
  *
  *   Revision 1.21.4.5  2005/12/13 18:11:39  martius
@@ -108,14 +113,14 @@ namespace lpzrobots {
     assert(created);
     assert(motornumber == motorno);
     if(conf.singleMotor){
-      dJointSetHinge2Param (joint[0]->getJointID(),dParamVel2, motors[0]*conf.speed);       
-      dJointSetHinge2Param (joint[0]->getJointID(),dParamFMax2,max_force);
-      dJointSetHinge2Param (joint[1]->getJointID(),dParamVel2, motors[0]*conf.speed);       
-      dJointSetHinge2Param (joint[1]->getJointID(),dParamFMax2,max_force);    
+      joint[0]->setParam(dParamVel2, motors[0]*conf.speed);       
+      joint[0]->setParam(dParamFMax2,max_force);
+      joint[0]->setParam(dParamVel2, motors[0]*conf.speed);       
+      joint[0]->setParam(dParamFMax2,max_force);    
     } else {
       for (int i=0; i<2; i++){ 
-	dJointSetHinge2Param (joint[i]->getJointID(),dParamVel2, motors[i]*conf.speed);       
-	dJointSetHinge2Param (joint[i]->getJointID(),dParamFMax2,max_force);
+	joint[0]->setParam(dParamVel2, motors[i]*conf.speed);       
+	joint[0]->setParam(dParamFMax2,max_force);
       }
     }
   };
@@ -130,7 +135,7 @@ namespace lpzrobots {
   
     int len = conf.singleMotor ? 1 : 2;
     for (int i=0; i<len; i++){
-      sensors[i]=dJointGetHinge2Angle2Rate(joint[i]->getJointID());
+      sensors[i]=joint[i]->getAngle2Rate();
       sensors[i]/=conf.speed;  //scaling
     }
     // ask sensorbank for sensor values
@@ -255,7 +260,7 @@ namespace lpzrobots {
     cap->init(odeHandle, cmass, osgHandle);    
     // rotate and place body (here by 90° around the y-axis)
     cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
-    cap->setTexture("Images/wood.rgb");
+    cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
     object[0]=cap;
 
     // bumper
@@ -281,7 +286,7 @@ namespace lpzrobots {
 	wheel->setPose(Matrix::rotate(M_PI/2.0, 0, 0, 1) * 
 		       Matrix::translate(wheeloffset, (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
 		       pose); 
-	wheel->setTexture("Images/tire.rgb");
+	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb");
 	object[i] = wheel;
       }else{
 	//       Cylinder* wheel = new Cylinder(radius);      
@@ -299,8 +304,8 @@ namespace lpzrobots {
 				 Vec3(0, 0, 1), Vec3(0, -1, 0));
       joint[i]->init(odeHandle, osgHandleWheels, true, 2.01 * radius);
       // set stops to make sure wheels always stay in alignment
-      dJointSetHinge2Param (joint[i]->getJointID(), dParamLoStop,0);
-      dJointSetHinge2Param (joint[i]->getJointID(), dParamHiStop,0);
+      joint[i]->setParam(dParamLoStop,0);
+      joint[i]->setParam(dParamHiStop,0);
     }
 
     irSensorBank.init(odeHandle, osgHandle);

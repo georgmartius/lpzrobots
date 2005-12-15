@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.8  2005-12-14 15:37:09  martius
+ *   Revision 1.7.4.9  2005-12-15 17:04:08  martius
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them.
+ *   Joint have better getter and setter
+ *
+ *   Revision 1.7.4.8  2005/12/14 15:37:09  martius
  *   robots are working with osg
  *
  *   Revision 1.7.4.7  2005/12/13 18:11:39  martius
@@ -117,8 +122,8 @@ namespace lpzrobots {
     // for each motor the motorcommand (between -1 and 1) multiplied with speed
     // is set and the maximal force to realize this command are set
     for (int i=0; i<len; i++){ 
-      dJointSetHinge2Param(joint[i]->getJointID(),dParamVel2, motors[i]*speed);       
-      dJointSetHinge2Param (joint[i]->getJointID(),dParamFMax2,max_force);
+      joint[i]->setParam(dParamVel2, motors[i]*speed);       
+      joint[i]->setParam(dParamFMax2, max_force);
     }
 
     // another possibility is to set half of the difference between last set speed
@@ -149,7 +154,7 @@ namespace lpzrobots {
 
     // for each sensor the anglerate of the joint is red and scaled with 1/speed 
     for (int i=0; i<len; i++){
-      sensors[i]=dJointGetHinge2Angle2Rate(joint[i]->getJointID());
+      sensors[i]=joint[i]->getAngle2Rate();
       sensors[i]/=speed;  //scaling
     }
     // the number of red sensors is returned 
@@ -287,7 +292,7 @@ namespace lpzrobots {
     cap->init(odeHandle, cmass, osgHandle);    
     // rotate and place body (here by 90° around the y-axis)
     cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
-    cap->setTexture("Images/wood.rgb");
+    cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
     object[0]=cap;
     
     // create wheel bodies
@@ -301,7 +306,7 @@ namespace lpzrobots {
 			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
 			-width*0.6+radius );
       sph->setPose(Matrix::rotate(M_PI/2, 0, 0, 1) * Matrix::translate(wpos) * pose);
-      sph->setTexture("Images/wood.rgb");
+      sph->getOSGPrimitive()->setTexture("Images/wood.rgb");
       object[i]=sph;
     }
 
@@ -313,8 +318,8 @@ namespace lpzrobots {
     }
     for (int i=0; i<4; i++) {
       // set stops to make sure wheels always stay in alignment
-      dJointSetHinge2Param (joint[i]->getJointID(), dParamLoStop, 0);
-      dJointSetHinge2Param (joint[i]->getJointID(), dParamHiStop, 0);
+      joint[i]->setParam(dParamLoStop, 0);
+      joint[i]->setParam(dParamHiStop, 0);
     }
 
     created=true; // robot is created

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.8  2005-12-14 15:37:09  martius
+ *   Revision 1.5.4.9  2005-12-15 17:04:08  martius
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them.
+ *   Joint have better getter and setter
+ *
+ *   Revision 1.5.4.8  2005/12/14 15:37:09  martius
  *   robots are working with osg
  *
  *   Revision 1.5.4.7  2005/12/13 18:11:40  martius
@@ -169,7 +174,7 @@ namespace lpzrobots {
     bool created;      // true if robot was created
 
     Primitive* object[5];  // 1 capsule, 4 wheels
-    Joint* joint[4]; // joints between cylinder and each wheel
+    Hinge2Joint* joint[4]; // joints between cylinder and each wheel
 
   };
 
