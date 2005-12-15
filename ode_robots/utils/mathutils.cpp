@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.2  2005-12-14 15:37:38  martius
+ *   Revision 1.2.4.3  2005-12-15 17:04:32  martius
+ *   getAngle
+ *   min, max and so on are template functions now
+ *
+ *   Revision 1.2.4.2  2005/12/14 15:37:38  martius
  *   rotation matrix for axis
  *
  *   Revision 1.2.4.1  2005/11/24 16:21:45  fhesse
@@ -60,6 +64,18 @@ namespace lpzrobots {
     return osg::Matrix::rotate(osg::Vec3(0,0,1), axis);
   }
 
+
+  /**
+   * returns the angle between two vectors (in rad)
+   */
+  double getAngle(const osg::Vec3& a, const osg::Vec3& b) {
+    // Cosinus Satz
+    // here a*b is the dot product (Skalarprodukt)
+    return acos(a*b / (a.length()*b.length())); 
+  }
+
+
+  /*******************************************************************************/
 
 
   Position multMatrixPosition(const Matrix& r, Position& p){

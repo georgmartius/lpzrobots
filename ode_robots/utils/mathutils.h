@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.3  2005-12-14 15:37:38  martius
+ *   Revision 1.3.4.4  2005-12-15 17:04:32  martius
+ *   getAngle
+ *   min, max and so on are template functions now
+ *
+ *   Revision 1.3.4.3  2005/12/14 15:37:38  martius
  *   rotation matrix for axis
  *
  *   Revision 1.3.4.2  2005/11/24 16:21:45  fhesse
@@ -48,17 +52,13 @@
 #include <matrix.h>
 #include <selforg/position.h>
 #include "osgforwarddecl.h"
+#include <osg/Math>
 
 namespace lpzrobots {
 
-#ifndef MIN_MAX_AND_SO_ON
-#define MIN_MAX_AND_SO_ON
-#define min(a,b) ( (a) < (b) ? a : b )
-#define max(a,b) ( (a) > (b) ? a : b )
-#define sign(x)  ( (x) < 0 ? -1 : 1 )
-#define sqr(x)   ( (x)*(x) )
-#define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
-#endif
+  template<typename T>
+  inline T clip(T v,T minimum, T maximum)
+    { return clampBelow(clampAbove(v,minimum),maximum); }
 
   /*******************************************************************************/
 
@@ -73,6 +73,12 @@ namespace lpzrobots {
      The other 2 axis (x,y) are ambiguous.
   */
   osg::Matrix rotationMatrixFromAxisZ(const osg::Vec3& axis);
+
+  /**
+   * returns the angle between two vectors (in rad)
+   */
+  double getAngle(const osg::Vec3& a, const osg::Vec3& b) ;
+
 
   /*******************************************************************************/
 
