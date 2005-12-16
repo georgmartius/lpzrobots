@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.2  2005-11-24 16:16:40  fhesse
+ *   Revision 1.1.4.3  2005-12-16 16:32:32  fhesse
+ *   command function for manual control added
+ *
+ *   Revision 1.1.4.2  2005/11/24 16:16:40  fhesse
  *   moved from main branch
  *
  *   Revision 1.2  2005/11/17 16:28:40  fhesse
@@ -34,6 +37,7 @@
  *
  ***************************************************************************/
 #include <stdio.h>
+#include <iostream>
 
 // include drawstuff library
 #include <drawstuff/drawstuff.h>
@@ -71,6 +75,7 @@
 // if the list is empty no online gnuplot windows and no logging to file occurs.
 // The list is modified with commandline options, see main() at the bottom of this file
 list<PlotOption> plotoptions;
+MuscledArm* arm;
 
 // starting function (executed once at the beginning of the simulation loop)
 void start(const OdeHandle& odeHandle, GlobalData& global) 
@@ -113,11 +118,12 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   
   MuscledArmConf  conf = MuscledArm::getDefaultConf();
   conf.drawSphere=true;
+  conf.drawMuscles=false;
   conf.strained=false;
   conf.jointAngleSensors=false;
   conf.jointAngleRateSensors=false;
   conf.MuscleLengthSensors=true;
-  MuscledArm* arm = new MuscledArm(odeHandle, conf);
+  arm = new MuscledArm(odeHandle, conf);
   arm->setParam("damping",20);
   arm->setParam("factorMotors",5);
   arm->place(Position(0,0,0));
@@ -129,8 +135,8 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
   cc.buffersize=30;
-  AbstractController *controller = new InvertMotorNStep(cc);
-  //AbstractController *controller = new   SineController();
+  //AbstractController *controller = new InvertMotorNStep(cc);
+  AbstractController *controller = new   SineController();
   global.configs.push_back(controller);
   
   // create pointer to one2onewiring
@@ -180,6 +186,56 @@ void printUsage(const char* progname){
   printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
 }
 
+//Funktion die eingegebene Befehle/kommandos verarbeitet
+void command (const OdeHandle&, GlobalData& globalData, int cmd)
+{
+  //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
+  switch ( (char) cmd )
+    {
+    case '1' : arm->force_[0]+=0.5; break;
+    case '!' : arm->force_[0]-=0.5; break;
+
+    case '2' : arm->force_[1]+=0.5; break;
+    case '@' : arm->force_[1]-=0.5; break;
+
+    case '3' : arm->force_[2]+=0.5; break;
+    case '#' : arm->force_[2]-=0.5; break;
+
+    case '4' : arm->force_[3]+=0.5; break;
+    case '$' : arm->force_[3]-=0.5; break;
+
+    case '5' : arm->force_[4]+=0.5; break;
+    case '%' : arm->force_[4]-=0.5; break;
+
+    case '6' : arm->force_[5]+=0.5; break;
+    case '^' : arm->force_[5]-=0.5; break;
+
+    case 'q' : arm->force_[0]=0; break;
+    case 'w' : arm->force_[1]=0; break;
+    case 'e' : arm->force_[2]=0; break;
+    case 'r' : arm->force_[3]=0; break;
+    case 't' : arm->force_[4]=0; break;
+    case 'y' : arm->force_[5]=0; break;
+
+    case 'a' : for (int i=0; i<6; i++) arm->force_[i]=0; break;
+
+    case 'z' : 
+      arm->force_[0]=0;
+      arm->force_[1]=0;
+      arm->force_[2]=0.5;
+      arm->force_[3]=0.5;
+      arm->force_[4]=-0.5;
+      arm->force_[5]=-0.5; 
+      break;
+    }
+  for (int i=0; i<6; i++){
+    std::cout<<arm->force_[i]<<"  ";
+  }
+  std::cout<<"\n";
+    
+}
+
+
 int main (int argc, char **argv)
 { 
   // start with online windows (default: start without plotting and logging)
@@ -193,8 +249,8 @@ int main (int argc, char **argv)
 
 
   // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config);
- 
+  simulation_init(&start, &end, &config, &command , 0 , 0 ); 
+
   // start the simulation (returns, if the user closes the simulation)
   simulation_start(argc, argv);
   
