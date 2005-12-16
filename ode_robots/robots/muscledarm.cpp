@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.3  2005-11-24 16:15:57  fhesse
+ *   Revision 1.1.4.4  2005-12-16 16:36:04  fhesse
+ *   manual control via keyboard
+ *   setMotors via dJointAddSliderForce
+ *
+ *   Revision 1.1.4.3  2005/11/24 16:15:57  fhesse
  *   moved from main branch, sensors improved
  *
  *   Revision 1.3  2005/11/17 16:29:24  fhesse
@@ -35,6 +39,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <iostream>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
@@ -49,13 +54,10 @@
 MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
   OdeRobot(odeHandle), conf(conf){ 
 
-
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile$",
 			      "$Revision$");
-
   created=false;
-
 
   factorMotors=0.1;
   factorSensors=4.0;//20.0;
@@ -76,7 +78,7 @@ MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
     sensorno+=6;
 
   motorno=6;  
-  printed=0;
+  print=0;
 
  
   color.r=1;
@@ -94,6 +96,11 @@ MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
     old_dist[i].y=0;
     old_dist[i].z=0;
   }
+
+  for (int i=0; i<6; i++){
+    force_[i]=0;
+  }
+
 };
 
 /** sets actual motorcommands
@@ -101,9 +108,10 @@ MuscledArm::MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf):
     @param motornumber length of the motor array
 */
 void MuscledArm::setMotors(const motor* motors, int motornumber){
- 
-  //mainMuscle11  =  3
-  //smallMuscle42 = 15
+  
+
+  /*
+    // old execution of motorvalues
   const dReal *p1;
   const dReal *p2;
   for (int i=mainMuscle11; i<smallMuscle42; i+=2){
@@ -122,31 +130,40 @@ void MuscledArm::setMotors(const motor* motors, int motornumber){
     
     dBodyAddForce (object[i].body, force.x, force.y, force.z);
     dBodyAddForce (object[i+1].body, -force.x, -force.y, -force.z);
+    */
+
+  
+  if (!conf.manualMode) { 
+    // mode where attached controller is used
+
+    /* 
+    // execution of motor values without slider sensors factor
+    for (int i=sliderJointM1; i<=sliderJointS4; i++){
+    // starting with motor[0]
+    dJointAddSliderForce(joint[i], dJointGetSliderPosition (joint[i]) * factorMotors * motors[i-sliderJointM1]);
+    }
+    */
+    
+    // execution of motor values with slider sensors factor
+    double force;
+    for(int i=sliderJointM1; i<= sliderJointM2; i++){
+      force=factorMotors * motors[i-sliderJointM1] * dJointGetSliderPosition (joint[i]) * 5 / (3*SIDE);
+      dJointAddSliderForce(joint[i], force);
+    }
+    for(int i=sliderJointS1; i<= sliderJointS2; i++){
+      force=factorMotors * motors[i-sliderJointM1] * dJointGetSliderPosition (joint[i]) * 4 / (SIDE);
+      dJointAddSliderForce(joint[i], force);
+    }
+    for(int i=sliderJointS3; i<= sliderJointS4; i++){
+      force=factorMotors * motors[i-sliderJointM1] * dJointGetSliderPosition (joint[i]) / (0.5*SIDE);
+      dJointAddSliderForce(joint[i], force);
+    }
+  }else{
+    // manual control (see command in main.cpp)
+    for(int i=sliderJointM1; i<= sliderJointS4; i++){
+      dJointAddSliderForce(joint[i], force_[i-sliderJointM1]);
+    }
   }
-
-//     // spring force to mainMuscle1
-//     const dReal *pM12 = dBodyGetPosition (object[mainMuscle12].body);
-//     const dReal *pM11 = dBodyGetPosition (object[mainMuscle11].body);
-//     dBodyAddForce (object[mainMuscle12].body,
-// 		   motors[0]*factorMotors*(pM11[0]-pM12[0]),
-// 		   motors[0]*factorMotors*(pM11[1]-pM12[1]),
-// 		   motors[0]*factorMotors*(pM11[2]-pM12[2]));
-//     dBodyAddForce (object[mainMuscle11].body,
-// 		   motors[0]*factorMotors*(pM12[0]-pM11[0]),
-// 		   motors[0]*factorMotors*(pM12[1]-pM11[1]),
-// 		   motors[0]*factorMotors*(pM12[2]-pM11[2]));
-
-//     // spring force to mainMuscle2
-//     const dReal *pM22 = dBodyGetPosition (object[mainMuscle22].body);
-//     const dReal *pM21 = dBodyGetPosition (object[mainMuscle21].body);
-//     dBodyAddForce (object[mainMuscle22].body,
-// 		   motors[1]*factorMotors*(pM21[0]-pM22[0]),
-// 		   motors[1]*factorMotors*(pM21[1]-pM22[1]), 
-// 		   motors[1]*factorMotors*(pM21[2]-pM22[2]));
-//     dBodyAddForce (object[mainMuscle21].body,
-// 		   motors[1]*factorMotors*(pM22[0]-pM21[0]),
-// 		   motors[1]*factorMotors*(pM22[1]-pM21[1]), 
-// 		   motors[1]*factorMotors*(pM22[2]-pM21[2]));
 };
 
 
@@ -268,7 +285,7 @@ int MuscledArm::getSegmentsPosition(vector<Position> &poslist){
 
 
 /**
- * draws the vehicle
+ * draws the arm
  */
 void MuscledArm::draw(){
 
@@ -282,11 +299,16 @@ dsSetTexture (mainTexture);
   dsSetColor (1,0,0); // hand
   drawGeom(object[hand].geom, 0, 0);
 
-//   for(int i = smallMuscle11; i<=smallMuscle42; i++){
-//     drawGeom(object[i].geom, 0, 0);    
-//   }
+  // draw existing geoms
+   for(int i = 0; i<6; i++){
+     dsSetColor (1,1,0);
+     if (force_[i]>0) dsSetColor (1,0,0);
+     if (force_[i]<0) dsSetColor (0,0,1);
+     drawGeom(object[mainMuscle11+i*2].geom, 0, 0);    
+     drawGeom(object[mainMuscle11+i*2+1].geom, 0, 0);    
+   }
 
-//   return;
+  // draw sphere/hand (only drawing no body)
   //  if (conf.drawSphere){  
 //     //difference between center of arm and center of sphere=-halbe hoehe der arm-box 
 //     dReal s[3];
@@ -308,6 +330,7 @@ dsSetTexture (mainTexture);
 //     dsDrawSphere (dBodyGetPosition(object[hand]), dBodyGetRotation(object[lowerArm].body) ,SIDE*0.2);
 //   }
 
+  // draw (nice :-) muscles
   if (conf.includeMuscles && conf.drawMuscles) {
     for(int j=mainMuscle11; j<mainMuscle22; j+=2){
       const dReal* pos1 = dBodyGetPosition (object[j] .body);
@@ -363,6 +386,7 @@ dsSetTexture (mainTexture);
   }
 
 
+   hand_follower.draw();
 };
 
 void MuscledArm::setTextures(int texture){
@@ -420,45 +444,38 @@ void MuscledArm::doInternalStuff(const GlobalData& globalData){
     }
   }
 
-  /*enum joints {
-  fixedJoint, 
-    hingeJointFUA, hingeJointUALA, hingeJointFM1, hingeJointFM2, 
-    hingeJointFS1, hingeJointFS2, 
-    hingeJointUAS1, hingeJointUAS2, hingeJointUAS3, hingeJointUAS4, 
-    hingeJointLAM1, hingeJointLAM2, hingeJointLAS3, hingeJointLAS4, 
-    sliderJointM1, sliderJointM2, sliderJointS1, sliderJointS2, sliderJointS3, sliderJointS4};
-  */
-  if(damping==0 && printed==0){
-#include <iostream>
+  if(print==1){
     dVector3 res;  
      for (int i=hingeJointFUA; i<sliderJointM1; i++){
-
-//       if (n==mainMuscle22){
-// 	pos.x=0.472827;  pos.y=0.0628416;  pos.z=0.25;
-// 	q[0]=0.699911;  q[1]=-0.100621;  q[2]=0.699911;  q[3]=0.100621;
-// 	object[n].geom = dCreateBox (arm_space,SIDE*0.2f,SIDE*0.2f,SIDE*2.0f);
-//       }
-
-       std::cout<<"if (n=="<<i<<"){ \n";
        dJointGetHingeAnchor (joint[i], res);
        //dJointSetHingeAnchor (joint[hingeJointFM2], 4.7*SIDE, 1.0*SIDE, 1.25*SIDE);
-       std::cout<<"dJointSetHingeAnchor(joint["<<i<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
+       std::cout<<"dJointSetHingeAnchor(joint["<<getJointName(i)<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
 
        dJointGetHingeAxis (joint[i], res);
        //dJointSetHingeAxis (joint[hingeJointFM2], 0, 0, 1);
-       std::cout<<"dJointSetHingeAxis(joint["<<i<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
-       std::cout<<"} \n";
+       std::cout<<"dJointSetHingeAxis(joint["<<getJointName(i)<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
+       std::cout<<" \n";
      }
      for (int i=sliderJointM1; i<sliderJointS4+1; i++){
-       std::cout<<"if (n=="<<i<<"){ \n";
        dJointGetSliderAxis (joint[i], res);
        //dJointSetSliderAxis (joint[sliderJointM2],1,0,0);
-       std::cout<<"dJointSetSliderAxis(joint["<<i<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
-       std::cout<<"} \n";
+       std::cout<<"dJointSetSliderAxis(joint["<<getJointName(i)<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
+       std::cout<<" \n";
      }
-     printed=1;
+
+     std::cout<<"dReal q[4]; \n";
+     std::cout<<"Position pos; \n";
+     for (int i=0; i<NUMParts; i++){
+       std::cout<<"// "<<getPartName(i)<<"\n";
+       const dReal* R=dBodyGetQuaternion(object[i].body);
+       std::cout<<"q[0]="<<R[0]<<";  q[1]="<<R[1]<<";  q[2]="<<R[2]<<";  q[3]="<<R[3]<<";\n";
+       const dReal* P=dBodyGetPosition(object[i].body);
+       std::cout<<"pos.x="<<P[0]<<";  pos.y="<<P[1]<<";  pos.z="<<P[2]<<"; \n";
+     }
+     print=0;
    }
 }
+
 void MuscledArm::mycallback(void *data, dGeomID o1, dGeomID o2){
   MuscledArm* me = (MuscledArm*)data;  
  
@@ -957,6 +974,7 @@ void MuscledArm::create(Position pos){
     dJointSetFixed (joint[fixedJointHand]);
         
   }
+  hand_follower.init(10, object[hand].body);
   created=true;
 }; 
 
@@ -1049,6 +1067,7 @@ Configurable::paramlist MuscledArm::getParamList() const{
   list.push_back(pair<paramkey, paramval> (string("factorMotors"), factorMotors));
   list.push_back(pair<paramkey, paramval> (string("factorSensors"), factorSensors));
   list.push_back(pair<paramkey, paramval> (string("damping"), damping));
+  list.push_back(pair<paramkey, paramval> (string("print"), print));
   return list;
 }
 
@@ -1056,6 +1075,7 @@ Configurable::paramval MuscledArm::getParam(const paramkey& key) const{
   if(key == "factorMotors") return factorMotors; 
   else if(key == "factorSensors") return factorSensors; 
   else if(key == "damping") return damping; 
+  else if(key == "print") return print; 
   else  return Configurable::getParam(key) ;
 }
 
@@ -1063,10 +1083,63 @@ bool MuscledArm::setParam(const paramkey& key, paramval val){
   if(key == "factorMotors") factorMotors=val;
   else if(key == "factorSensors") factorSensors = val; 
   else if(key == "damping") damping = val; 
+  else if(key == "print") print = val; 
   else return Configurable::setParam(key, val);
   return true;
 }
 
+std::string MuscledArm::getJointName(int j) const{
+  assert( (j>-1) && (j<=NUMJoints) );
+  std::string name;
+  switch (j)
+    {
+    case  0: return "fixedJoint"; break;
+    case  1: return "hingeJointFUA"; break; 
+    case  2: return "hingeJointUALA"; break; 
+    case  3: return "hingeJointFM1"; break;
+    case  4: return "hingeJointFM2"; break; 
+    case  5: return "hingeJointFS1"; break;
+    case  6: return "hingeJointFS2"; break;
+    case  7: return "hingeJointUAS1"; break;
+    case  8: return "hingeJointUAS2"; break;
+    case  9: return "hingeJointUAS3"; break;
+    case 10: return "hingeJointUAS4"; break;
+    case 11: return "hingeJointLAM1"; break;
+    case 12: return "hingeJointLAM2"; break;
+    case 13: return "hingeJointLAS3"; break;
+    case 14: return "hingeJointLAS4"; break;
+    case 15: return "sliderJointM1"; break;
+    case 16: return "sliderJointM2"; break;
+    case 17: return "sliderJointS1"; break; 
+    case 18: return "sliderJointS2"; break;
+    case 19: return "sliderJointS3"; break;
+    case 20: return "sliderJointS4"; break;
+    case 21: return "fixedJointHand"; break;
+    case 22: return "NUMJoints"; break;
+    }  
+}
 
-
-
+std::string MuscledArm::getPartName(int j) const{
+  assert( (j>-1) && (j<=NUMParts) );
+  std::string name;
+  switch (j)
+    {
+    case  0: return "fixedBody"; break;
+    case  1: return "upperArm"; break; 
+    case  2: return "lowerArm"; break; 
+    case  3: return "mainMuscle11"; break;
+    case  4: return "mainMuscle12"; break; 
+    case  5: return "mainMuscle21"; break;
+    case  6: return "mainMuscle22"; break;
+    case  7: return "smallMuscle11"; break;
+    case  8: return "smallMuscle12"; break;
+    case  9: return "smallMuscle21"; break;
+    case 10: return "smallMuscle22"; break;
+    case 11: return "smallMuscle31"; break;
+    case 12: return "smallMuscle32"; break;
+    case 13: return "smallMuscle41"; break;
+    case 14: return "smallMuscle42"; break;
+    case 15: return "hand"; break;
+    case 16: return "NUMParts"; break;
+    }  
+}

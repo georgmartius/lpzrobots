@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.4  2005-11-24 16:15:57  fhesse
+ *   Revision 1.1.4.5  2005-12-16 16:36:05  fhesse
+ *   manual control via keyboard
+ *   setMotors via dJointAddSliderForce
+ *
+ *   Revision 1.1.4.4  2005/11/24 16:15:57  fhesse
  *   moved from main branch, sensors improved
  *
  *   Revision 1.3  2005/11/17 16:29:25  fhesse
@@ -42,6 +46,7 @@
 #include "oderobot.h"
 #include <selforg/configurable.h>
 
+#include "bodyfollower.h"
 
 
 #define SIDE (0.2)              /* side length of a box */
@@ -71,16 +76,17 @@ typedef struct {
   bool includeMuscles; /// should muscles be included?
   bool drawMuscles;    /// should muscles be included?
   bool drawSphere;     /// draw sphere at tip of lower Arm?
-  bool strained;     /// arm strained or in resting position?
+  bool strained;       /// arm strained or in resting position?
+  bool manualMode;     /// control with with keyboard (manualMode=true) or from controller?
   bool jointAngleSensors;
   bool jointAngleRateSensors;
   bool MuscleLengthSensors;
 } MuscledArmConf;
 
-
-
 class MuscledArm : public OdeRobot, public Configurable{
 public:
+  
+  double force_[6];
   
   MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf);
 
@@ -90,6 +96,7 @@ public:
     conf.drawMuscles=true;
     conf.drawSphere=true;
     conf.strained=false;
+    conf.manualMode=false;
     conf.jointAngleSensors=false;
     conf.jointAngleRateSensors=true;
     conf.MuscleLengthSensors=false;
@@ -163,6 +170,8 @@ public:
   
   virtual bool setParam(const paramkey& key, paramval val);
 
+  std::string getJointName(int j) const;
+  std::string getPartName(int j) const;
 
 protected:
   
@@ -202,6 +211,7 @@ protected:
     paramval factorMotors;
     paramval factorSensors;
     paramval damping;
+    paramval print;
     
 
 
@@ -247,6 +257,7 @@ protected:
 
   double max_l;
   double max_r, min_l, min_r;
+  BodyFollower hand_follower;
 };
 
 #endif
