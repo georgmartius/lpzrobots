@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-12-15 17:03:42  martius
+ *   Revision 1.1.2.5  2005-12-19 16:34:12  martius
+ *   added Ball and Universal joint
+ *
+ *   Revision 1.1.2.4  2005/12/15 17:03:42  martius
  *   cameramanupulator setPose is working
  *   joints have setter and getter parameters
  *   Primitives are not longer inherited from OSGPrimitive, moreover
@@ -120,7 +123,6 @@ namespace lpzrobots {
   }
 
 
-
 /***************************************************************************/
   
   Hinge2Joint::Hinge2Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
@@ -184,7 +186,104 @@ namespace lpzrobots {
   }
 
 /***************************************************************************/
+  
+  UniversalJoint::UniversalJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
+			   const Vec3& axis1, const Vec3& axis2)
+    : Joint(part1, part2), anchor(anchor), axis1(axis1), axis2(axis2), visual1(0), visual2(0) {   
+  }
 
-//  BallJoint
+  UniversalJoint::~UniversalJoint(){
+    if (visual1) delete visual1;
+    if (visual2) delete visual2;
+  }
+
+  void UniversalJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+			 bool withVisual, double visualSize){
+    joint = dJointCreateUniversal (odeHandle. world,0);
+    dJointAttach (joint, part1->getBody(),part2->getBody()); 
+    dJointSetUniversalAnchor (joint, anchor.x(), anchor.y(), anchor.z());
+    dJointSetUniversalAxis1 (joint,  axis1.x(), axis1.y(), axis1.z());
+    dJointSetUniversalAxis2 (joint,  axis2.x(), axis2.y(), axis2.z());
+    if(withVisual){
+      visual1 = new OSGCylinder(visualSize/15.0, visualSize);
+      visual1->init(osgHandle);      
+      Matrix t = anchorAxisPose(anchor, axis1); 
+      visual1->setMatrix(t); 
+      visual2 = new OSGCylinder(visualSize/15.0, visualSize);
+      visual2->init(osgHandle);      
+      t = anchorAxisPose(anchor, axis2); 
+      visual2->setMatrix(t); 
+    }
+  }
+    
+  void UniversalJoint::update(){
+    if(visual1 && visual2){
+      dVector3 v;
+      dJointGetUniversalAnchor(joint, v);
+      anchor.x() = v[0];
+      anchor.y() = v[1];
+      anchor.z() = v[2];
+      dJointGetUniversalAxis1(joint, v);
+      axis1.x() = v[0];
+      axis1.y() = v[1];
+      axis1.z() = v[2];
+      dJointGetUniversalAxis2(joint, v);
+      axis2.x() = v[0];
+      axis2.y() = v[1];
+      axis2.z() = v[2];
+      visual1->setMatrix(anchorAxisPose(anchor, axis1)); 
+      visual2->setMatrix(anchorAxisPose(anchor, axis2));    
+    }
+  }
+
+  void UniversalJoint::setParam(int parameter, double value) {
+    dJointSetUniversalParam(joint, parameter, value);
+  }
+
+  double UniversalJoint::getParam(int parameter){
+    return dJointGetUniversalParam(joint, parameter);
+  }
+
+/***************************************************************************/
+
+  BallJoint::BallJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor)
+    : Joint(part1, part2), anchor(anchor), visual(0){
+
+  }
+
+  BallJoint::~BallJoint() {
+    if (visual) delete visual;
+  }
+
+  void BallJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		       bool withVisual, double visualSize){
+    joint = dJointCreateBall(odeHandle. world,0);
+    dJointAttach (joint, part1->getBody(),part2->getBody()); 
+    dJointSetBallAnchor (joint, anchor.x(), anchor.y(), anchor.z());
+    if(withVisual){
+      visual = new OSGSphere(visualSize);
+      visual->init(osgHandle);            
+      visual->setMatrix(osg::Matrix::translate(anchor)); 
+    }
+  }
+  
+  void BallJoint::update(){
+    if(visual){
+      dVector3 v;
+      dJointGetBallAnchor(joint, v);
+      anchor.x() = v[0];
+      anchor.y() = v[1];
+      anchor.z() = v[2];
+      visual->setMatrix(osg::Matrix::translate(anchor));    
+    }
+  }
+
+  // Ball and Socket has no parameter
+  void BallJoint::setParam(int parameter, double value) { } 
+
+  double BallJoint::getParam(int parameter){
+    return 0; // Ball and Socket has no parameter
+  }
+    
 
 }

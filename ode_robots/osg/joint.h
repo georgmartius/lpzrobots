@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2005-12-15 17:03:42  martius
+ *   Revision 1.1.2.6  2005-12-19 16:34:18  martius
+ *   added Ball and Universal joint
+ *
+ *   Revision 1.1.2.5  2005/12/15 17:03:42  martius
  *   cameramanupulator setPose is working
  *   joints have setter and getter parameters
  *   Primitives are not longer inherited from OSGPrimitive, moreover
@@ -51,6 +54,8 @@
 #include "osgforwarddecl.h"
 
 namespace lpzrobots {
+
+  /***************************************************************************/
 
   class Joint {
   public: 
@@ -80,6 +85,7 @@ namespace lpzrobots {
     Primitive* part2;    
   };
 
+  /***************************************************************************/
 
   class HingeJoint : public Joint {
   public:
@@ -88,8 +94,8 @@ namespace lpzrobots {
 
     virtual ~HingeJoint();
 
-    /** initialises (and creates) the joint. If visual is true then axis2 of the joints is
-	also drawn as a slim cylinder. visualSize is the length of the capped cylinder.
+    /** initialises (and creates) the joint. If visual is true then the axis of the joints is
+	also drawn as a slim cylinder. visualSize is the length of the cylinder.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		      bool withVisual = true, double visualSize = 0.2);
@@ -107,7 +113,8 @@ namespace lpzrobots {
     OSGPrimitive* visual;
   };
 
-
+  /***************************************************************************/
+  
   class Hinge2Joint : public Joint {
   public:
     Hinge2Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
@@ -116,7 +123,7 @@ namespace lpzrobots {
     virtual ~Hinge2Joint();
 
     /** initialises (and creates) the joint. If visual is true then axis2 of the joints is
-	also drawn as a slim cylinder. visualSize is the length of the capped cylinder.
+	also drawn as a slim cylinder. visualSize is the length of the cylinder.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		      bool withVisual = true, double visualSize = 0.2);
@@ -136,19 +143,51 @@ namespace lpzrobots {
     OSGPrimitive* visual;
   };
 
+  /***************************************************************************/
+
+  class UniversalJoint : public Joint {
+  public:
+    UniversalJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
+		const osg::Vec3& axis1, const osg::Vec3& axis2);
+
+    virtual ~UniversalJoint();
+
+    /** initialises (and creates) the joint. If visual is true then axix1 and axis2 of the joints is
+	also drawn as a slim cylinder. visualSize is the length of the cylinder.
+    */
+    virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		      bool withVisual = true, double visualSize = 0.2);
+    
+    virtual void update();    
+
+    virtual void setParam(int parameter, double value);
+    virtual double getParam(int parameter);
+    
+  protected:
+    osg::Vec3 anchor;
+    osg::Vec3 axis1;
+    osg::Vec3 axis2;
+    OSGPrimitive* visual1;
+    OSGPrimitive* visual2;
+  };
+
+  /***************************************************************************/
+
   class BallJoint : public Joint {
   public:
     BallJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor);
 
     virtual ~BallJoint();
 
-    /** initialises (and creates) the joint. If visual is true then axis2 of the joints is
-	also drawn as a slim cylinder. visualSize is the length of the capped cylinder.
+    /** initialises (and creates) the joint. 
+	If visual is true then ball is drawn as a sphere with radius of visualSize.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		      bool withVisual = true, double visualSize = 0.2);
     
     virtual void update();    
+
+    // Ball and Socket has no parameter
     virtual void setParam(int parameter, double value);
     virtual double getParam(int parameter);
     
@@ -156,6 +195,9 @@ namespace lpzrobots {
     osg::Vec3 anchor;
     OSGPrimitive* visual;
   };
+
+  /***************************************************************************/
+
 
 
 }
