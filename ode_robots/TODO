@@ -165,6 +165,8 @@ odeHandle.jointGroup
 
 Changes for Simulations:
 
+First of all use the new Makefile form template_onerobot
+
 A simulation is now a class called Simulation.
 You should derive your own one and overload the 
 start, end, config ... functions. 
@@ -180,7 +182,7 @@ Add:
 
 using namespace lpzrobots;
 
-class MySim : public Simulation {
+class ThisSim : public Simulation {
 public:
 	
 
@@ -207,6 +209,16 @@ dsPrint
 printf
 However the "Welcome Message can be ommited!
 
+
+in main:
+Version mit eigener Klasse ThisSim:
+
+ThisSim sim;
+return sim.run(argc, argv) ? 0 : 1;
+
+CompatSim version:
+CompatSim sim(&start, &end, &config);
+return sim.run(argc, argv) ? 0 : 1;
 
 
 
