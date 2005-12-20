@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-09-11 18:52:46  martius
+ *   Revision 1.5.4.1  2005-12-20 17:53:42  martius
+ *   changed to Joints from joint.h
+ *   new servos for universal and hinge2
+ *
+ *   Revision 1.5  2005/09/11 18:52:46  martius
  *   new constants
  *
  *   Revision 1.4  2005/09/02 17:23:52  martius
@@ -40,8 +44,10 @@
 #include "sliderservo.h"
 #include <assert.h>
 
-SliderServo::SliderServo(dJointID joint, double min, double max, double mass)
-  : PID(mass * 200.0, 2.0, 0.3 ) 
+namespace lpzrobots {
+
+SliderServo::SliderServo(SliderJoint* joint, double min, double max, double mass)
+  : pid(mass * 200.0, 2.0, 0.3 ), joint(joint)
 {
   assert(min <= 0);
   this->joint = joint;
@@ -55,13 +61,13 @@ void SliderServo::set(double pos){
   }else{
     pos *= -min;
   }
-  setTargetPosition(pos);  
-  double force = stepWithD(dJointGetSliderPosition (joint), dJointGetSliderPositionRate (joint));
-  dJointAddSliderForce( joint , force );  
+  pid.setTargetPosition(pos);  
+  double force = pid.stepWithD(joint->getLength(), joint->getLengthRate());
+  joint->addForce(force);  
 }
 
 double SliderServo::get(){
-  double pos =  dJointGetSliderPosition (joint);    
+  double pos =  joint->getLength();
   if(pos > 0){
     pos /= max; 
   }else{
@@ -70,3 +76,4 @@ double SliderServo::get(){
   return pos;
 }
   
+}

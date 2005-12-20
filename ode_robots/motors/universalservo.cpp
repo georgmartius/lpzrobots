@@ -20,73 +20,74 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.1  2005-12-20 17:53:42  martius
+ *   Revision 1.1.2.1  2005-12-20 17:53:42  martius
  *   changed to Joints from joint.h
  *   new servos for universal and hinge2
  *
- *   Revision 1.8  2005/11/09 14:08:48  martius
- *   *** empty log message ***
+ *   Revision 1.1  2005/09/12 00:08:45  martius
+ *   servo for hinges
  *
- *   Revision 1.7  2005/11/09 13:28:24  fhesse
- *   GPL added
- *                                                                * 
-***************************************************************************/
-
-#include "pid.h"
+ *                                                                 *
+ ***************************************************************************/
+#include "universalservo.h"
+#include <assert.h>
 
 namespace lpzrobots {
 
-PID::PID ( double KP , double KI , double KD)
+UniversalServo::UniversalServo(UniversalJoint* joint, double min1, double max1, double power1,
+			 double min2, double max2, double power2)
+  : pid1(power1, 2.0, 0.3 ), pid2(power2, 2.0, 0.3 ), joint(joint)
 {
-	this->KP = KP;
-	this->KI = KI;
-	this->KD = KD;
-
-	P=D=I=0;
-
-	targetposition = 0;
-	
-	position = 0;
-	lastposition = 0;
-	error = 0;
-	alpha = 0.95;
+  assert(min1 <= 0 && min1 <= max1);
+  assert(min2 <= 0 && min2 <= max2);
+  this->min1 = min1;
+  this->max1 = max1;
+  this->min2 = min2;
+  this->max2 = max2;
 }
 
-void PID::setTargetPosition ( double newpos )
-{
-	targetposition = newpos;
+void UniversalServo::set(double pos1, double pos2){
+  if(pos1 > 0){
+    pos1 *= max1; 
+  }else{
+    pos1 *= -min1;
+  }
+  pid1.setTargetPosition(pos1);  
+  double force1 = pid1.stepWithD(joint->getAngle1(), joint->getAngle1Rate());
+  if(pos2 > 0){
+    pos2 *= max2; 
+  }else{
+    pos2 *= -min2;
+  }
+  pid2.setTargetPosition(pos2);  
+  double force2 = pid2.stepWithD(joint->getAngle2(), joint->getAngle2Rate());
+
+  joint->addTorques(force1, force2);
 }
 
-double PID::getTargetPosition ( )
-{
-	return targetposition;
+double UniversalServo::get1(){
+  double pos = joint->getAngle1(); 
+  if(pos > 0){
+    pos /= max1; 
+  }else{
+    pos /= -min1;
+  }
+  return pos;
 }
 
-double PID::step ( double newsensorval )
-{
-	last2position = lastposition;
-	lastposition = position;
-	position = newsensorval;
-	
-	return stepWithD(newsensorval, lastposition - position);
+double UniversalServo::get2(){
+  double pos = joint->getAngle2(); 
+  if(pos > 0){
+    pos /= max2; 
+  }else{
+    pos /= -min2;
+  }
+  return pos;
 }
 
-double PID::stepWithD ( double newsensorval, double derivative ){
-	position = newsensorval;
-
-	lasterror = error;
-	error = targetposition - position;
-	
-	P = error;
-	I += (1-alpha) * (error * KI - I);
-	D = -derivative * KD;
-	// D = -( 3*position - 4 * lastposition + last2position ) * KD;
-	//double maxforce = KP/10;
-	//P = P > maxforce ? maxforce : (force < -maxforce ? -maxforce : P);
-
-	force = KP*(P + I + D);
-	return force;
-
+void UniversalServo::get(double& p1, double& p2){
+  p1 = get1();
+  p2 = get2();
 }
 
-}
+}  

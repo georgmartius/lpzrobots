@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-09-12 00:08:45  martius
+ *   Revision 1.1.4.1  2005-12-20 17:53:42  martius
+ *   changed to Joints from joint.h
+ *   new servos for universal and hinge2
+ *
+ *   Revision 1.1  2005/09/12 00:08:45  martius
  *   servo for hinges
  *
  *                                                                 *
@@ -28,11 +32,12 @@
 #include "hingeservo.h"
 #include <assert.h>
 
-HingeServo::HingeServo(dJointID joint, double min, double max, double power)
-  : PID(power, 2.0, 0.3 ) 
+namespace lpzrobots {
+
+HingeServo::HingeServo(HingeJoint* joint, double min, double max, double power)
+  : pid(power, 2.0, 0.3 ), joint(joint)
 {
-  assert(min <= 0);
-  this->joint = joint;
+  assert(min <= 0 && min <= max);
   this->min = min;
   this->max = max;
 }
@@ -43,13 +48,13 @@ void HingeServo::set(double pos){
   }else{
     pos *= -min;
   }
-  setTargetPosition(pos);  
-  double force = stepWithD(dJointGetHingeAngle(joint), dJointGetHingeAngleRate(joint));
-  dJointAddHingeTorque( joint, force);
+  pid.setTargetPosition(pos);  
+  double force = pid.stepWithD(joint->getAngle(), joint->getAngleRate());
+  joint->addTorque(force);
 }
 
 double HingeServo::get(){
-  double pos =  dJointGetHingeAngle(joint);    
+  double pos = joint->getAngle();    
   if(pos > 0){
     pos /= max; 
   }else{
@@ -58,3 +63,4 @@ double HingeServo::get(){
   return pos;
 }
   
+}

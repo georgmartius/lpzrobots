@@ -20,30 +20,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-09-12 00:08:28  martius
+ *   Revision 1.1.4.1  2005-12-20 17:53:42  martius
+ *   changed to Joints from joint.h
+ *   new servos for universal and hinge2
+ *
+ *   Revision 1.1  2005/09/12 00:08:28  martius
  *   servo for hinges
- *
- *   Revision 1.2  2005/09/01 14:22:00  martius
- *   parameters adjusted
- *
- *   Revision 1.1  2005/08/30 16:55:48  martius
- *   servo motor for sliders
- *
  *                                                                 *
  ***************************************************************************/
-#ifndef __SLIDERSERVO_H
-#define __SLIDERSERVO_H
+#ifndef __HINGESERVO_H
+#define __HINGESERVO_H
 
 #include "pid.h"
+#include "joint.h"
 
-/** PID Servo motor for slider joints.     
+namespace lpzrobots {
+
+/** PID Servo motor for hinge joints.
 */
-class HingeServo : public PID{
+class HingeServo {
 public:
   /** min and max values are understood as travel bounds.
       power is the power of the servo
       */
-  HingeServo(dJointID joint, double min, double max, double power);
+  HingeServo(HingeJoint* joint, double min, double max, double power);
 
   /** sets the set point of the servo. 
       Position must be between -1 and 1. It is scaled to fit into min, max
@@ -53,9 +53,11 @@ public:
   double get();
   
 private:
+  PID pid;
   double min;
   double max;
-  dJointID joint; // hinge
+  HingeJoint* joint;
 };
 
+}
 #endif

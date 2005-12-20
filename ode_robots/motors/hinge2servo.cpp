@@ -20,73 +20,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.1  2005-12-20 17:53:42  martius
+ *   Revision 1.1.2.1  2005-12-20 17:53:42  martius
  *   changed to Joints from joint.h
  *   new servos for universal and hinge2
  *
- *   Revision 1.8  2005/11/09 14:08:48  martius
- *   *** empty log message ***
+ *   Revision 1.1  2005/09/12 00:08:45  martius
+ *   servo for hinges
  *
- *   Revision 1.7  2005/11/09 13:28:24  fhesse
- *   GPL added
- *                                                                * 
-***************************************************************************/
-
-#include "pid.h"
+ *                                                                 *
+ ***************************************************************************/
+#include "hinge2servo.h"
+#include <assert.h>
 
 namespace lpzrobots {
 
-PID::PID ( double KP , double KI , double KD)
+Hinge2Servo::Hinge2Servo(Hinge2Joint* joint, double min, double max, double power)
+  : pid(power, 2.0, 0.3 ), joint(joint)
 {
-	this->KP = KP;
-	this->KI = KI;
-	this->KD = KD;
-
-	P=D=I=0;
-
-	targetposition = 0;
-	
-	position = 0;
-	lastposition = 0;
-	error = 0;
-	alpha = 0.95;
+  assert(min <= 0 && min <= max);
+  this->min = min;
+  this->max = max;
 }
 
-void PID::setTargetPosition ( double newpos )
-{
-	targetposition = newpos;
+void Hinge2Servo::set(double pos){
+  if(pos > 0){
+    pos *= max; 
+  }else{
+    pos *= -min;
+  }
+  pid.setTargetPosition(pos);  
+  double force = pid.stepWithD(joint->getAngle1(), joint->getAngle1Rate());
+  joint->addTorques(force, 0);
 }
 
-double PID::getTargetPosition ( )
-{
-	return targetposition;
+double Hinge2Servo::get(){
+  double pos = joint->getAngle1(); 
+  if(pos > 0){
+    pos /= max; 
+  }else{
+    pos /= -min;
+  }
+  return pos;
 }
 
-double PID::step ( double newsensorval )
-{
-	last2position = lastposition;
-	lastposition = position;
-	position = newsensorval;
-	
-	return stepWithD(newsensorval, lastposition - position);
-}
-
-double PID::stepWithD ( double newsensorval, double derivative ){
-	position = newsensorval;
-
-	lasterror = error;
-	error = targetposition - position;
-	
-	P = error;
-	I += (1-alpha) * (error * KI - I);
-	D = -derivative * KD;
-	// D = -( 3*position - 4 * lastposition + last2position ) * KD;
-	//double maxforce = KP/10;
-	//P = P > maxforce ? maxforce : (force < -maxforce ? -maxforce : P);
-
-	force = KP*(P + I + D);
-	return force;
-
-}
-
-}
+}  

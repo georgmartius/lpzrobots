@@ -20,73 +20,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.1  2005-12-20 17:53:42  martius
+ *   Revision 1.1.2.1  2005-12-20 17:53:42  martius
  *   changed to Joints from joint.h
  *   new servos for universal and hinge2
  *
- *   Revision 1.8  2005/11/09 14:08:48  martius
- *   *** empty log message ***
- *
- *   Revision 1.7  2005/11/09 13:28:24  fhesse
- *   GPL added
- *                                                                * 
-***************************************************************************/
+ *                                                                 *
+ ***************************************************************************/
+#ifndef __HINGE2SERVO_H
+#define __HINGE2SERVO_H
 
 #include "pid.h"
+#include "joint.h"
 
 namespace lpzrobots {
 
-PID::PID ( double KP , double KI , double KD)
-{
-	this->KP = KP;
-	this->KI = KI;
-	this->KD = KD;
+/** PID Servo motor for hinge2 joints at axis 1 (steering axis). 
+*/
+class Hinge2Servo {
+public:
+  /** min and max values are understood as travel bounds.
+      power is the power of the servo
+      */
+  Hinge2Servo(Hinge2Joint* joint, double min, double max, double power);
 
-	P=D=I=0;
-
-	targetposition = 0;
-	
-	position = 0;
-	lastposition = 0;
-	error = 0;
-	alpha = 0.95;
-}
-
-void PID::setTargetPosition ( double newpos )
-{
-	targetposition = newpos;
-}
-
-double PID::getTargetPosition ( )
-{
-	return targetposition;
-}
-
-double PID::step ( double newsensorval )
-{
-	last2position = lastposition;
-	lastposition = position;
-	position = newsensorval;
-	
-	return stepWithD(newsensorval, lastposition - position);
-}
-
-double PID::stepWithD ( double newsensorval, double derivative ){
-	position = newsensorval;
-
-	lasterror = error;
-	error = targetposition - position;
-	
-	P = error;
-	I += (1-alpha) * (error * KI - I);
-	D = -derivative * KD;
-	// D = -( 3*position - 4 * lastposition + last2position ) * KD;
-	//double maxforce = KP/10;
-	//P = P > maxforce ? maxforce : (force < -maxforce ? -maxforce : P);
-
-	force = KP*(P + I + D);
-	return force;
+  /** sets the set point of the servo. 
+      Position must be between -1 and 1. It is scaled to fit into min, max
+  */
+  void set(double position);
+  /** returns the position of the hinge in ranges [-1, 1] (scaled by min, max)*/
+  double get();
+  
+private:
+  PID pid;
+  double min;
+  double max;
+  Hinge2Joint* joint;
+};
 
 }
 
-}
+#endif
