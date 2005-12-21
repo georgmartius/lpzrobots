@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-22 15:48:48  robot3
+ *   Revision 1.4  2005-12-21 00:20:51  robot7
+ *   added attribute: ray_sensor_bank
+ *
+ *   Revision 1.3  2005/11/22 15:48:48  robot3
  *   inserted raceground sensors
  *
  *   Revision 1.2  2005/09/22 12:24:37  martius
@@ -39,6 +42,11 @@
 
 #include "abstractrobot.h"
 #include "racegroundsensor.h"
+
+
+#include "irsensor.h"
+#include "raysensorbank.h"
+
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
     2 wheels and a cylinder like body   
@@ -138,6 +146,8 @@ protected:
   dJointID joint[4]; // joints between cylinder and each wheel
 
   RaceGroundSensor trackSensor; // the two sensors giving width and the section
+
+  RaySensorBank ray_sensor_bank; // sensor bank for the ir sensors
 
   dSpaceID car_space;
 };
