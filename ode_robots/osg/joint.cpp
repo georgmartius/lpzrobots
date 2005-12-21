@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2005-12-19 16:34:12  martius
+ *   Revision 1.1.2.6  2005-12-21 15:39:22  martius
+ *   OneAxisJoint and TwoAxisJoint as superclasses
+ *
+ *   Revision 1.1.2.5  2005/12/19 16:34:12  martius
  *   added Ball and Universal joint
  *
  *   Revision 1.1.2.4  2005/12/15 17:03:42  martius
@@ -69,7 +72,7 @@ namespace lpzrobots {
 
   HingeJoint::HingeJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
 			 const Vec3& axis1)
-    : Joint(part1, part2), anchor(anchor), axis1(axis1), visual(0) {   
+    : OneAxisJoint(part1, part2, axis1), anchor(anchor),  visual(0) {   
   }
 
   HingeJoint::~HingeJoint(){
@@ -106,11 +109,15 @@ namespace lpzrobots {
     }
   }
 
-  double HingeJoint::getAngle(){
+  void HingeJoint::addTorque(double t){
+    dJointAddHingeTorque(joint, t);    
+  }
+
+  double HingeJoint::getPosition1(){
     return dJointGetHingeAngle(joint);
   }
   
-  double HingeJoint::getAngleRate(){
+  double HingeJoint::getPosition1Rate(){
     return dJointGetHingeAngleRate(joint);
   }
 
@@ -127,7 +134,7 @@ namespace lpzrobots {
   
   Hinge2Joint::Hinge2Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
 			   const Vec3& axis1, const Vec3& axis2)
-    : Joint(part1, part2), anchor(anchor), axis1(axis1), axis2(axis2), visual(0) {   
+    : TwoAxisJoint(part1, part2, axis1, axis2), anchor(anchor), visual(0) {   
   }
 
   Hinge2Joint::~Hinge2Joint(){
@@ -165,15 +172,25 @@ namespace lpzrobots {
     }
   }
 
-  double Hinge2Joint::getAngle1(){
-    return dJointGetHinge2Angle1(joint);
+  /// adds torques to axis 1 and 2
+  void Hinge2Joint::addTorques(double t1, double t2){
+     dJointAddHinge2Torques(joint, t1, t2); 
   }
   
-  double Hinge2Joint::getAngle1Rate(){
+  double Hinge2Joint::getPosition1(){
+    return dJointGetHinge2Angle1(joint);
+  }
+
+  double Hinge2Joint::getPosition2(){
+    fprintf(stderr, "Hinge2Joint::getPosition2() is called, but not supported!\n");
+    return 0;
+  }
+  
+  double Hinge2Joint::getPosition1Rate(){
     return dJointGetHinge2Angle1Rate(joint);
   }
   
-  double Hinge2Joint::getAngle2Rate(){
+  double Hinge2Joint::getPosition2Rate(){
     return dJointGetHinge2Angle2Rate(joint);
   }
 
@@ -189,7 +206,7 @@ namespace lpzrobots {
   
   UniversalJoint::UniversalJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
 			   const Vec3& axis1, const Vec3& axis2)
-    : Joint(part1, part2), anchor(anchor), axis1(axis1), axis2(axis2), visual1(0), visual2(0) {   
+    : TwoAxisJoint(part1, part2, axis1, axis2), anchor(anchor), visual1(0), visual2(0) {   
   }
 
   UniversalJoint::~UniversalJoint(){
@@ -234,6 +251,27 @@ namespace lpzrobots {
       visual1->setMatrix(anchorAxisPose(anchor, axis1)); 
       visual2->setMatrix(anchorAxisPose(anchor, axis2));    
     }
+  }
+
+  /// adds torques to axis 1 and 2
+  void UniversalJoint::addTorques(double t1, double t2){
+    dJointAddUniversalTorques(joint, t1,t2);    
+  }
+
+  double UniversalJoint::getPosition1(){
+    return dJointGetUniversalAngle1(joint); 
+  }
+
+  double UniversalJoint::getPosition2(){
+    return dJointGetUniversalAngle2(joint); 
+  }
+
+  double UniversalJoint::getPosition1Rate(){
+    return dJointGetUniversalAngle1Rate(joint);    
+  }
+
+  double UniversalJoint::getPosition2Rate(){
+    return dJointGetUniversalAngle2Rate(joint);    
   }
 
   void UniversalJoint::setParam(int parameter, double value) {
@@ -283,6 +321,80 @@ namespace lpzrobots {
 
   double BallJoint::getParam(int parameter){
     return 0; // Ball and Socket has no parameter
+  }
+
+
+/***************************************************************************/
+
+  SliderJoint::SliderJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
+			 const Vec3& axis1)
+    : OneAxisJoint(part1, part2, axis1), anchor(anchor), visual(0) {   
+  }
+
+  SliderJoint::~SliderJoint(){
+    if (visual) delete visual;
+  }
+
+  void SliderJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+			 bool withVisual, double visualSize){
+    this->osgHandle= osgHandle;
+    this->visualSize = visualSize;
+
+    joint = dJointCreateSlider (odeHandle. world,0);
+    dJointAttach (joint, part1->getBody(),part2->getBody()); 
+    osg::Vec3 p1 = part1->getPosition();
+    osg::Vec3 p2 = part2->getPosition();
+    anchor = (p1+p2)*0.5;
+    dJointSetSliderAxis (joint,  axis1.x(), axis1.y(), axis1.z());
+    if(withVisual){
+      double len = getPosition1();
+      visual = new OSGCylinder(visualSize/10, len+visualSize);
+      visual->init(osgHandle);      
+      Matrix t = anchorAxisPose(anchor, axis1);
+      
+      visual->setMatrix(t); 
+    }
+  }
+    
+  void SliderJoint::update(){
+    if(visual){
+      delete visual;      
+      osg::Vec3 p1 = part1->getPosition();
+      osg::Vec3 p2 = part2->getPosition();
+      anchor = (p1+p2)*0.5;
+      dVector3 v;
+      dJointGetSliderAxis(joint, v);
+      axis1.x() = v[0];
+      axis1.y() = v[1];
+      axis1.z() = v[2];
+
+      visual->setMatrix(anchorAxisPose(anchor, axis1));
+      double len = getPosition1();
+      visual = new OSGCylinder(visualSize/10, len+visualSize);
+      visual->init(osgHandle);      
+      Matrix t = anchorAxisPose(anchor, axis1);      
+      visual->setMatrix(t); 
+    }
+  }
+
+  void SliderJoint::addForce(double t){
+    dJointAddSliderForce(joint, t);    
+  }
+
+  double SliderJoint::getPosition1(){
+    return dJointGetSliderPosition(joint);
+  }
+  
+  double SliderJoint::getPosition1Rate(){
+    return dJointGetSliderPositionRate(joint);
+  }
+
+  void SliderJoint::setParam(int parameter, double value) {
+    dJointSetSliderParam(joint, parameter, value);
+  }
+
+  double SliderJoint::getParam(int parameter){
+    return dJointGetSliderParam(joint, parameter);
   }
     
 
