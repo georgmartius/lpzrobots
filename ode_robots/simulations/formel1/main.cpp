@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2005-12-12 13:44:45  martius
+ *   Revision 1.16  2005-12-21 00:13:32  robot7
+ *   added multi controller, demo controller and modified the race circuit
+ *
+ *   Revision 1.15  2005/12/12 13:44:45  martius
  *   barcodesensor is working
  *
  *   Revision 1.14  2005/12/11 12:06:35  robot3
@@ -84,9 +87,12 @@
 #include "simplecontroller.h"
 #include "stl_adds.h"
 
+#include "demo_controller.h"
+#include "multi_controller.h"
+
 
 PlotMode plotMode = NoPlot;
-SimpleController *controller;
+MultiController *controller;
 
 float camPoint[3] = {-4.0f,0.0f,1.5f};
 float camAngle[3] = {0.0f,0.0f,0.0f};
@@ -118,6 +124,29 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   RaceGround* Strecke = new RaceGround(odeHandle,Position(0.0,0.0,0.0), 0);
   list<string> segmentList;
 
+
+  segmentList+=string("straightline");
+  segmentList+=string("degree 90.0 4.5");
+  segmentList+=string("straightline");
+  segmentList+=string("degree -90.0 4.5");
+  segmentList+=string("straightline");
+  segmentList+=string("degree -90.0 4.5");
+  segmentList+=string("degree 180.0 4.5");
+  segmentList+=string("straightline");
+  segmentList+=string("straightline");
+  segmentList+=string("degree 90.0 4.5");
+  segmentList+=string("straightline");
+  segmentList+=string("straightline");
+  segmentList+=string("straightline");
+  segmentList+=string("straightline");
+  segmentList+=string("degree 90.0 4.5");
+  segmentList+=string("straightline");
+  segmentList+=string("straightline");
+  segmentList+=string("straightline");
+  segmentList+=string("degree 90.0 4.5");
+  segmentList+=string("straightline");
+
+  /*
   segmentList+=string("degree -90.0 10.0");
   segmentList+=string("straightline");
   segmentList+=string("degree 90.0 10.0");
@@ -126,6 +155,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   segmentList+=string("degree -90.0 10.0");
   segmentList+=string("straightline");
   segmentList+=string("degree 90.0 5.0");
+  */
   // segmentList+=string("degree 90.0 5.0");
   // segmentList+=string("degree 90.0 5.0");
   // segmentList+=string("degree -28.1 21.2");
@@ -146,9 +176,33 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   vehicle->place(Position(robotPoint[0],robotPoint[1],robotPoint[2]));
   
   // Controller
-//AbstractController *controller = new InvertNChannelController(10);  
-  controller = new SimpleController();
+
+  // DEMO CONTROLLER
+  AbstractController *p_demo_controller = new DemoController();
+
+  // SIMPLE CONTROLLER
+  AbstractController *p_simple_controller = new SimpleController();
+
+  // MULTI CONTROLLER
+  //AbstractController *controller = new InvertNChannelController(10);  
+  controller = new MultiController();
   
+  ControllerContainer &r_cc = controller->get_controller_container();
+  r_cc.push_back(p_simple_controller);
+  r_cc.push_back(p_demo_controller);
+  controller->set_active_controller(r_cc.begin());
+  
+  {
+    // Wiring for Agent
+    One2OneWiring* p_wiring = new One2OneWiring(new ColorUniformNoise(0.001));
+    
+    // Agent for connecting Controller, Robot and Wiring
+    Agent* p_agent = new Agent(plotMode);
+    p_agent->init(controller, vehicle, p_wiring);
+    global.agents.push_back(p_agent);
+  }
+
+ /*
   // Wiring for Agent
   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.001));
   
@@ -156,12 +210,13 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   Agent* agent = new Agent(plotMode);
   agent->init(controller, vehicle, wiring);
   global.agents.push_back(agent);
-
+ */
   // Simulation-Configuration
   global.configs.push_back(controller);
   showParams(global.configs);
   
-  
+  std::cout << "hit '1' for simple controller\n";
+  std::cout << "hit '2' for demo controller\n";
 }
 
 
@@ -193,6 +248,18 @@ void command(const OdeHandle& odeHandle, GlobalData& global, int key){
     double maxVelocity=2.0f;
     double shiftStep=0.167;
     switch (key){
+    case '1': {
+      std::cout << "SWITCHING TO CONTROLLER #1\n";
+      ControllerContainer &r_cc = controller->get_controller_container();
+      controller->set_active_controller(r_cc.begin());
+      break;
+    }
+    case '2': {
+      std::cout << "SWITCHING TO CONTROLLER #2\n";
+      ControllerContainer &r_cc = controller->get_controller_container();
+      controller->set_active_controller(++r_cc.begin());
+      break;
+    }
     case 'w': // forward
 	controller->setParam("velocity",maxVelocity);
 	break; 
