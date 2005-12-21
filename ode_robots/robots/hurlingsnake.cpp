@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9.4.2  2005-11-15 12:29:26  martius
+ *   Revision 1.9.4.3  2005-12-21 17:34:59  martius
+ *   moved to osg
+ *
+ *   Revision 1.9.4.2  2005/11/15 12:29:26  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.9.4.1  2005/11/14 17:37:17  martius
@@ -61,176 +64,144 @@
 
 #include "hurlingsnake.h"
 
-#include <drawstuff/drawstuff.h>
-#include <ode/ode.h>
-#include "simulation.h"
+namespace lpzrobots {
 
-#include <iostream>
+  /**
+   * Constructor
+   * @param w world in which robot should be created
+   * @param s space in which robot should be created
+   * @param c contactgroup for collision treatment
+   */
+  HurlingSnake::HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
+    : OdeRobot(odeHandle, osgHandle), oldp(0,0,0){
+    
+    parentspace = odeHandle.space;
+    // prepare name;
+    name.clear();
+    Configurable::insertCVSInfo(name, "$RCSfile$", 
+				"$Revision$");
 
-/**
- * Constructor
- * @param w world in which robot should be created
- * @param s space in which robot should be created
- * @param c contactgroup for collision treatment
- */
-HurlingSnake::HurlingSnake(const OdeHandle& odeHandle)
-  : OdeRobot(odeHandle){
+    factorForce=3.0;
+    factorSensor=20.0;
+    frictionGround=0.3;
 
-  // prepare name;
-  name.clear();
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			      "$Revision$");
+    created=false;
 
-  factorForce=3.0;
-  factorSensor=20.0;
-  frictionGround=0.3;
+    this->osgHandle.color=Color(1,1,0);
 
-  created=false;
+    NUM= 10;		/* number of spheres */
+    //    SIDE= 0.2;		/* side length of a box */
+    MASS= 1.0;		/* mass of a sphere*/
+    RADIUS= 0.1732f;	/* sphere radius */
 
-  color.r=1;
-  color.g=1;
-  color.b=0.0;
-  
-  bodyTexture  = DS_WOOD;
+    sensorno = 2;
+    motorno  = 2;
 
-  NUM= 10;		/* number of spheres */
-  SIDE= 0.2;		/* side length of a box */
-  MASS= 1.0;		/* mass of a sphere*/
-  RADIUS= 0.1732f;	/* sphere radius */
-
-  sensorno = 2;
-  motorno  = 2;
-
-  for (int i=0; i<3; i++){
-    old_position[i]=0.0;
-  }
-};
-
-/** sets the textures used for body and wheels
- */
-void HurlingSnake::setTextures(int body){
-  bodyTexture = body;
-}
+  };
 
  
-/// draws the robot
-void HurlingSnake::draw(){
-  dsSetTexture (bodyTexture);
-  for (int i=0; i<NUM; i++) {
-    dsSetColor (color.r, color.g, color.b);
-    if (i==NUM-1)  dsSetColor (1, 0, 0);
-    dsDrawSphere(dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),RADIUS);
-  }
-}
-
-
-/** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-    @params pos desired position of the robot in struct Position
-    @param c desired color for the robot in struct Color
-*/
-void HurlingSnake::place(Position pos , Color *c /*= 0*/){
-  if (!c==0) {
-    color=*c;
-  }
-  if (!created){ 
-    create(pos);
-  }
-  else{
-    for (int i=0; i<NUM; i++) {
-      double k = 1.3*i*SIDE;  // SIDE larger then RADIUS
-                              // 1.3*SIDE added in x and y direction
-                              // -> difference between spheres centers larger then 2*RADIUS
-      dBodySetPosition (object[i].body,pos.x+k,pos.y+k,pos.z+/*k+*/RADIUS);
+  void HurlingSnake::update(){
+    assert(created); // robot must exist
+  
+    for (int i=0; i<NUM; i++) { 
+      object[i]->update();
     }
-  };
-}
-
-
-void HurlingSnake::doInternalStuff(const GlobalData& global){
-  // mycallback is called for internal collisions!
-  dSpaceCollide(snake_space, this, mycallback);
-}
-
-void HurlingSnake::mycallback(void *data, dGeomID o1, dGeomID o2){
-  // internal collisions
-  HurlingSnake* me = (HurlingSnake*)data;  
-  int i,n;  
-  const int N = 10;
-  dContact contact[N];  
-  n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-  for (i=0; i<n; i++){
-    contact[i].surface.mode = 0;
-    contact[i].surface.mu = 0;
-    contact[i].surface.mu2 = 0;
-//     contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-//       dContactSoftERP | dContactSoftCFM | dContactApprox1;
-//     contact[i].surface.mu = 0.0;
-//     contact[i].surface.slip1 = 0.005;
-//     contact[i].surface.slip2 = 0.005;
-//     contact[i].surface.soft_erp = 1;
-//     contact[i].surface.soft_cfm = 0.00001;
-    dJointID c = dJointCreateContact( me->world, me->contactgroup, &contact[i]);
-    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
+    for (int i=0; i < NUM-1; i++) { 
+      joint[i]->update();
+    }
   }
-}
-bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-  //checks if one of the collision objects is part of the robot
-  if( o1 == (dGeomID)snake_space || o2 == (dGeomID)snake_space){
 
-    // the rest is for collisions of some snake elements with the rest of the world
+  void HurlingSnake::place(const osg::Matrix& pose){
+    // lift the snake about its radius
+    osg::Matrix p2;
+    p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, RADIUS)); 
+    create(p2);    
+  };
+
+  void HurlingSnake::doInternalStuff(const GlobalData& global){
+    // mycallback is called for internal collisions! Only once per step
+    dSpaceCollide(odeHandle.space, this, mycallback);
+  }
+
+  void HurlingSnake::mycallback(void *data, dGeomID o1, dGeomID o2){
+    // internal collisions
+    HurlingSnake* me = (HurlingSnake*)data;  
     int i,n;  
     const int N = 10;
-    dContact contact[N];
-
+    dContact contact[N];  
     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
     for (i=0; i<n; i++){
-           contact[i].surface.mode = 0;
-           contact[i].surface.mu = frictionGround;
-           contact[i].surface.mu2 = 0;
-// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-// 	contact[i].surface.mu = frictionGround;
-// 	contact[i].surface.slip1 = 0.005;
-// 	contact[i].surface.slip2 = 0.005;
-// 	contact[i].surface.soft_erp = 1;
-// 	contact[i].surface.soft_cfm = 0.00001;
-	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
+      contact[i].surface.mode = 0;
+      contact[i].surface.mu = 0;
+      contact[i].surface.mu2 = 0;
+      //     contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+      //       dContactSoftERP | dContactSoftCFM | dContactApprox1;
+      //     contact[i].surface.mu = 0.0;
+      //     contact[i].surface.slip1 = 0.005;
+      //     contact[i].surface.slip2 = 0.005;
+      //     contact[i].surface.soft_erp = 1;
+      //     contact[i].surface.soft_cfm = 0.00001;
+      dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
+      dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
     }
-    return true;
   }
-  return false;
-}
+  bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
+    //checks if one of the collision objects is part of the robot
+    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space){
+
+      // the rest is for collisions of some snake elements with the rest of the world
+      int i,n;  
+      const int N = 10;
+      dContact contact[N];
+
+      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+      for (i=0; i<n; i++){
+	contact[i].surface.mode = 0;
+	contact[i].surface.mu = frictionGround;
+	contact[i].surface.mu2 = 0;
+	// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+	// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	// 	contact[i].surface.mu = frictionGround;
+	// 	contact[i].surface.slip1 = 0.005;
+	// 	contact[i].surface.slip2 = 0.005;
+	// 	contact[i].surface.soft_erp = 1;
+	// 	contact[i].surface.soft_cfm = 0.00001;
+	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
+      }
+      return true;
+    }
+    return false;
+  }
 
   
 
-/** returns actual sensorvalues
-    @param sensors sensors scaled to [-1,1] 
-    @param sensornumber length of the sensor array
-    @return number of actually written sensors
-*/
-int HurlingSnake::getSensors(sensor* sensors, int sensornumber){
-  int len = (sensornumber < sensorno)? sensornumber : sensorno;
+  /** returns actual sensorvalues
+      @param sensors sensors scaled to [-1,1] 
+      @param sensornumber length of the sensor array
+      @return number of actually written sensors
+  */
+  int HurlingSnake::getSensors(sensor* sensors, int sensornumber){
+    int len = (sensornumber < sensorno)? sensornumber : sensorno;
   
-  const dReal* pos = dBodyGetPosition ( object[NUM-1].body );      //read actual position
-  sensors[0]=(pos[0]-old_position[0])*factorSensor;     // calculate change of position during timestep	
-  sensors[1]=(pos[1]-old_position[1])*factorSensor;
-  //  sensors[2]=(pos[2]-old_position[2])*factorSensor;
-  for (int i=0; i<3; i++){
-    old_position[i]=pos[i];
+    Pos p(object[NUM-1]->getPosition());      //read actual position
+    Pos s = (p - oldp)*factorSensor;
+    
+    sensors[0]=s.x();
+    sensors[1]=s.y();
+    oldp=p;
+    return len;
   }
-  return len;
-}
 
 
   /** sets actual motorcommands
       @param motors motors scaled to [-1,1] 
       @param motornumber length of the motor array
   */
-void HurlingSnake::setMotors(const motor* motors, int motornumber){
-  //  dBodyAddForce (object[NUM-1].body,motors[0]*factorForce,motors[1]*factorForce,motors[2]*factorForce);
-  dBodyAddForce (object[NUM-1].body,motors[0]*factorForce,motors[1]*factorForce,0);
-}
+  void HurlingSnake::setMotors(const motor* motors, int motornumber){    
+    //  dBodyAddForce (object[NUM-1].body,motors[0]*factorForce,motors[1]*factorForce,motors[2]*factorForce);
+    dBodyAddForce (object[NUM-1]->getBody(),motors[0]*factorForce,motors[1]*factorForce,0);
+  }
 
 
   /** returns number of sensors
@@ -253,42 +224,39 @@ void HurlingSnake::setMotors(const motor* motors, int motornumber){
   int HurlingSnake::getSegmentsPosition(vector<Position> &poslist){
     Position pos;
     for (int i=0; i<NUM; i++){
-      const dReal* act_pos = dBodyGetPosition(object[i].body);
-      pos.x=act_pos[0];
-      pos.y=act_pos[1];
-      pos.z=act_pos[2];
-      poslist.push_back(pos);
+      Pos p = object[i]->getPosition();
+      poslist.push_back(p.toPosition());
     }   
     return NUM;
   }
 
 
 
-  void HurlingSnake::create(Position pos){   
+  void HurlingSnake::create(const osg::Matrix& pose){   
     if (created){
       destroy();
     }
-    // create snake space and add it to the top level space
-    snake_space = dSimpleSpaceCreate (space);
-    dSpaceSetCleanup (snake_space,0);
+    // create vehicle space and add it to parentspace
+    odeHandle.space = dSimpleSpaceCreate (parentspace);
 
-    dMass m;
     for (int i=0; i<NUM; i++) {
-      object[i].body = dBodyCreate (world);
-      double k = 1.3*i*SIDE;
-      //double k = 2*i*RADIUS+0.1;
-      dBodySetPosition (object[i].body,pos.x+k,pos.y+k,pos.z+/*k+*/RADIUS);
-      dMassSetSphere (&m,1,SIDE);
-      dMassAdjust (&m,MASS);
-      dBodySetMass (object[i].body,&m);
-      object[i].geom = dCreateSphere (snake_space,RADIUS);
-      dGeomSetBody (object[i].geom,object[i].body);
+      object[i] = new Sphere(RADIUS);      
+      if (i==NUM-1){
+	OsgHandle osgHandle_head = osgHandle;
+	osgHandle_head.color = Color(1, 0, 0);
+	object[i]->init(odeHandle, MASS, osgHandle_head);
+      } else {
+	object[i]->init(odeHandle, MASS, osgHandle);
+      }
+      object[i]->setPose(osg::Matrix::translate(i*RADIUS*2*1.1, 0, 0) * pose);
+      object[i]->getOSGPrimitive()->setTexture("Images/wood.rgb");	      
     }
+    oldp = object[NUM-1]->getPosition();
     for (int i=0; i<(NUM-1); i++) {
-      joint[i] = dJointCreateBall (world,0);
-      dJointAttach (joint[i],object[i].body,object[i+1].body);
-      double k = 1.3*(i+0.5)*SIDE;
-      dJointSetBallAnchor (joint[i],pos.x+k,pos.y+k,pos.z+/*k+*/RADIUS);
+      Pos p1(object[i]->getPosition());
+      Pos p2(object[i+1]->getPosition());
+      joint[i] = new BallJoint(object[i],object[i+1], (p1+p2)/2 );
+      joint[i]->init(odeHandle, osgHandle, true, RADIUS/10);
     }
 
     created=true;
@@ -299,48 +267,47 @@ void HurlingSnake::setMotors(const motor* motors, int motornumber){
    */
   void HurlingSnake::destroy(){
     if (created){
-      dSpaceDestroy(snake_space);
       for (int i=0; i<NUM; i++){
-	dBodyDestroy(object[i].body);
-	dGeomDestroy(object[i].geom);
+	if(object[i]) delete object[i];
       }
+      for (int i=0; i<NUM-1; i++){
+	if(joint[i]) delete joint[i];
+      }
+      dSpaceDestroy(odeHandle.space);
     }
     created=false;
   }
 
 
 
-Configurable::paramlist HurlingSnake::getParamList() const{
-  paramlist list;
-  list.push_back( pair<paramkey, paramval> (string("factorForce"), factorForce));
-  list.push_back( pair<paramkey, paramval> (string("factorSensor"), factorSensor));
-  list.push_back( pair<paramkey, paramval> (string("frictionGround"), frictionGround));
-  list.push_back( pair<paramkey, paramval> (string("place"), 0));
-  return list;
-}
-
-
-Configurable::paramval HurlingSnake::getParam(const paramkey& key) const{
-  if(key == "factorForce") return factorForce; 
-  else if(key == "factorSensor") return factorSensor; 
-  else if(key == "frictionGround") return frictionGround; 
-  else  return Configurable::getParam(key) ;
-}
-
-
-bool HurlingSnake::setParam(const paramkey& key, paramval val){
-  if(key == "factorForce") factorForce=val;
-  else if(key == "factorSensor") factorSensor=val; 
-  else if(key == "frictionGround") frictionGround=val; 
-  else if(key == "place") {
-    Position p(0,0,3);
-    place(p) ; 
+  Configurable::paramlist HurlingSnake::getParamList() const{
+    paramlist list;
+    list.push_back( pair<paramkey, paramval> (string("factorForce"), factorForce));
+    list.push_back( pair<paramkey, paramval> (string("factorSensor"), factorSensor));
+    list.push_back( pair<paramkey, paramval> (string("frictionGround"), frictionGround));
+    list.push_back( pair<paramkey, paramval> (string("place"), 0));
+    return list;
   }
-  else return Configurable::setParam(key, val);
-  return true;
-}
 
 
+  Configurable::paramval HurlingSnake::getParam(const paramkey& key) const{
+    if(key == "factorForce") return factorForce; 
+    else if(key == "factorSensor") return factorSensor; 
+    else if(key == "frictionGround") return frictionGround; 
+    else  return Configurable::getParam(key) ;
+  }
 
- 
+
+  bool HurlingSnake::setParam(const paramkey& key, paramval val){
+    if(key == "factorForce") factorForce=val;
+    else if(key == "factorSensor") factorSensor=val; 
+    else if(key == "frictionGround") frictionGround=val; 
+    else if(key == "place") {
+      OdeRobot::place(Pos(0,0,3)) ; 
+    }
+    else return Configurable::setParam(key, val);
+    return true;
+  }
+
+} 
   

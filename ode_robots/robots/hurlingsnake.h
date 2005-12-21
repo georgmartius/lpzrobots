@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.3  2005-11-16 11:26:52  martius
+ *   Revision 1.6.4.4  2005-12-21 17:35:09  martius
+ *   moved to osg
+ *
+ *   Revision 1.6.4.3  2005/11/16 11:26:52  martius
  *   moved to selforg
  *
  *   Revision 1.6.4.2  2005/11/15 12:29:26  martius
@@ -57,134 +60,127 @@
 
 #include "oderobot.h"
 #include <selforg/configurable.h>
+#include "primitive.h"
+#include "joint.h"
 
-/**
- * Hurling snake is a string a beats.
- * 
- */
-class HurlingSnake : public OdeRobot, public Configurable{
-public:
-
+namespace lpzrobots {
 
   /**
-   * Constructor
-   * @param w world in which robot should be created
-   * @param s space in which robot should be created
-   * @param c contactgroup for collision treatment
+   * Hurling snake is a string a beats.
+   * 
    */
-  HurlingSnake(const OdeHandle& odeHandle);
+  class HurlingSnake : public OdeRobot, public Configurable{
+  public:
+    /**
+     * Constructor
+     * @param w world in which robot should be created
+     * @param s space in which robot should be created
+     * @param c contactgroup for collision treatment
+     */
+    HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
+  
+    /// update the subcomponents
+    virtual void update();
 
-  /** sets the textures used for body and wheels
-   */
-  virtual void setTextures(int body);
+    /** sets the pose of the vehicle
+	@params pose desired 4x4 pose matrix
+    */
+    virtual void place(const osg::Matrix& pose);
 
-
-  /// draws the robot
-  virtual void draw();
-
-/** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-    @params pos desired position of the robot in struct Position
-    @param c desired color for the robot in struct Color
-*/
-  virtual void place(Position pos , Color *c = 0);
-
-  /** checks for internal collisions and treats them. 
-   *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
-   *  else false (collision is passed to other objects and (if not treated) to the default routine).
-   */
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-   */
-  virtual void doInternalStuff(const GlobalData& globalData);
+    /** checks for internal collisions and treats them. 
+     *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
+     *  else false (collision is passed to other objects and (if not treated) to the default routine).
+     */
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+    /** this function is called in each timestep. It should perform robot-internal checks, 
+	like space-internal collision detection, sensor resets/update etc.
+	@param GlobalData structure that contains global data from the simulation environment
+    */
+    virtual void doInternalStuff(const GlobalData& globalData);
   
 
-  /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
-      @param sensornumber length of the sensor array
-      @return number of actually written sensors
-  */
-  virtual int getSensors(sensor* sensors, int sensornumber);
+    /** returns actual sensorvalues
+	@param sensors sensors scaled to [-1,1] 
+	@param sensornumber length of the sensor array
+	@return number of actually written sensors
+    */
+    virtual int getSensors(sensor* sensors, int sensornumber);
 
-  /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
-      @param motornumber length of the motor array
-  */
-  virtual void setMotors(const motor* motors, int motornumber);
+    /** sets actual motorcommands
+	@param motors motors scaled to [-1,1] 
+	@param motornumber length of the motor array
+    */
+    virtual void setMotors(const motor* motors, int motornumber);
 
-  /** returns number of sensors
-  */
-  virtual int getSensorNumber();
+    /** returns number of sensors
+     */
+    virtual int getSensorNumber();
 
-  /** returns number of motors
-  */
-  virtual int getMotorNumber();
+    /** returns number of motors
+     */
+    virtual int getMotorNumber();
 
-  /** returns a vector with the positions of all segments of the robot
-      @param vector of positions (of all robot segments) 
-      @return length of the list
-  */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
+    /** returns a vector with the positions of all segments of the robot
+	@param vector of positions (of all robot segments) 
+	@return length of the list
+    */
+    virtual int getSegmentsPosition(vector<Position> &poslist);
   
-  /// returns the name of the object (with version number)
-  virtual paramkey getName() const {return name; } 
+    /// returns the name of the object (with version number)
+    virtual paramkey getName() const {return name; } 
   
-  /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
-      @return length of the lists
-  */
-  virtual paramlist getParamList() const;
+    /** The list of all parameters with there value as allocated lists.
+	@param keylist,vallist will be allocated with malloc (free it after use!)
+	@return length of the lists
+    */
+    virtual paramlist getParamList() const;
   
-  virtual paramval getParam(const paramkey& key) const;
+    virtual paramval getParam(const paramkey& key) const;
 
-  virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val);
 
 
- private:
+  private:
+    /** the main object of the robot, which is used for position and speed tracking */
+    virtual Primitive* getMainPrimitive() const { return object[4]; }
 
-  virtual Object getMainObject() const { return object[4]; }
+    /** creates vehicle at desired pose
+	@param pose 4x4 pose matrix
+    */
+    virtual void create(const osg::Matrix& pose); 
 
-  /** creates robot at desired position 
-      @param pos struct Position with desired position
-  */
-  virtual void create(Position pos); 
+    /** destroys robot and space
+     */
+    virtual void destroy();
 
-  /** destroys robot and space
-   */
-  virtual void destroy();
-
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
+    static void mycallback(void *data, dGeomID o1, dGeomID o2);
        
-  bool created;      // true if robot was created
+    bool created;      // true if robot was created
 
 
-  Position initial_pos;    // initial position of robot
+    Position initial_pos;    // initial position of robot
 
-  int NUM;	   /* number of boxes */
-  double SIDE;     /* side length of a box */
-  double MASS;	   /* mass of a box */
-  double RADIUS;   /* sphere radius */
+    int NUM;	   /* number of beats */
+    double MASS;	   /* mass of a beats */
+    double RADIUS;   /* sphere radius */
 
-  dJointID joint[9];
-  Object object[10];
+    Joint* joint[9];
+    Primitive* object[10];
 
-  double old_position[3];
+    Pos oldp;
 
-  int sensorno;
-  int motorno;
+    int sensorno;
+    int motorno;
 
-  paramval factorForce;
-  paramval frictionGround;
-  paramval factorSensor;
+    paramval factorForce;
+    paramval frictionGround;
+    paramval factorSensor;
 
-  dSpaceID snake_space;
+    dSpaceID parentspace; 
 
-  int bodyTexture;
+  };
 
-} ;
-
-
+}
 
 #endif
  
