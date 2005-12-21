@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-12-12 13:44:45  martius
+ *   Revision 1.8  2005-12-21 00:19:24  robot7
+ *   made the pointer to the camera handling function extern
+ *   its now defined in multi_controller.cpp (i think)
+ *
+ *   Revision 1.7  2005/12/12 13:44:45  martius
  *   barcodesensor is working
  *
  *   Revision 1.6  2005/11/22 15:48:59  robot3
@@ -52,7 +56,7 @@
 #include "simplecontroller.h"
 
 // pointer to the camera handling function of the user
-void (*cameraHandlingFunction)();
+extern void (*cameraHandlingFunction)();
 
 
 SimpleController::SimpleController(){
