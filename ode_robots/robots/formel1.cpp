@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-12-12 13:44:43  martius
+ *   Revision 1.7  2005-12-21 00:21:13  robot7
+ *   added ir-sensors
+ *
+ *   Revision 1.6  2005/12/12 13:44:43  martius
  *   barcodesensor is working
  *
  *   Revision 1.5  2005/11/22 15:48:19  robot3
@@ -65,7 +68,7 @@ Formel1::Formel1(const OdeHandle& odeHandle, double size/*=1.0*/,
   wheelthickness=size/20;
   cmass=10*size;
   wmass=size;  
-  sensorno=6; 
+  sensorno=11; 
   motorno=4;  
   segmentsno=5;
 };
@@ -112,6 +115,9 @@ int Formel1::getSensors(sensor* sensors, int sensornumber){
       }
       //cout << "\n";
     }
+
+  len += ray_sensor_bank.get(sensors+len, sensornumber-len);
+
   return len;
 };
 
@@ -180,6 +186,8 @@ void Formel1::draw(){
     else
       dsDrawCylinder (dBodyGetPosition(object[i].body), dBodyGetRotation(object[i].body),wheelthickness,radius);
   }
+
+  ray_sensor_bank.draw();
 };
 
 void Formel1::mycallback(void *data, dGeomID o1, dGeomID o2){
@@ -192,12 +200,17 @@ void Formel1::mycallback(void *data, dGeomID o1, dGeomID o2){
 void Formel1::doInternalStuff(const GlobalData& global){
   // call update the racegroundsensor
   trackSensor.sense(global);
+  ray_sensor_bank.reset();
 }
 
 
 bool Formel1::collisionCallback(void *data, dGeomID o1, dGeomID o2){
   //checks if one of the collision objects is part of the robot
   if( o1 == (dGeomID)car_space || o2 == (dGeomID)car_space){
+
+    if(o1 == (dGeomID)car_space) ray_sensor_bank.sense(o2);
+    if(o2 == (dGeomID)car_space) ray_sensor_bank.sense(o1);
+
     dSpaceCollide(car_space, this, mycallback);
     bool colwithme;  
     bool colwithbody;  
@@ -303,6 +316,59 @@ void Formel1::create(Position pos){
   // initialise racegroundsensors
   trackSensor.init(object[0].body);
 
+
+  // set up ir-sensors
+  IRSensor *p_ir_sensor = NULL;
+  
+
+  dMatrix3 rot;
+  dRFromAxisAndAngle(rot, 0.0, 0.0, 1.0, 0.0);
+
+  ray_sensor_bank.init(car_space, RaySensor::drawAll);
+
+
+  dRFromAxisAndAngle(rot, 1.0, 0.0, 0.0, 0.0);
+  p_ir_sensor = new IRSensor();
+  ray_sensor_bank.registerSensor(p_ir_sensor,
+				 object[0].body,
+				 Position(0.0, 0.0, 0.5),
+				 rot,
+				 2.0);
+
+  dRFromAxisAndAngle(rot, 1.0, 0.0, 0.0, - M_PI / 8.0);
+  p_ir_sensor = new IRSensor();
+  ray_sensor_bank.registerSensor(p_ir_sensor,
+				 object[0].body,
+				 Position(0.0, 0.3, 0.5),
+				 rot,
+				 2.0);
+
+
+  dRFromAxisAndAngle(rot, 1.0, 0.0, 0.0, + M_PI / 8.0);
+  p_ir_sensor = new IRSensor();
+  ray_sensor_bank.registerSensor(p_ir_sensor,
+				 object[0].body,
+				 Position(0.0, -0.3, 0.5),
+				 rot,
+				 2.0);
+
+
+  dRFromAxisAndAngle(rot, 1.0, 0.0, 0.0, - M_PI / 2.0);
+  p_ir_sensor = new IRSensor();
+  ray_sensor_bank.registerSensor(p_ir_sensor,
+				 object[0].body,
+				 Position(0.0, 0.0, 0.5),
+				 rot,
+				 2.0);
+
+
+  dRFromAxisAndAngle(rot, 1.0, 0.0, 0.0, + M_PI / 2.0);
+  p_ir_sensor = new IRSensor();
+  ray_sensor_bank.registerSensor(p_ir_sensor,
+				 object[0].body,
+				 Position(0.0, 0.0, 0.5),
+				 rot,
+				 2.0);
 
   created=true;
 }; 
