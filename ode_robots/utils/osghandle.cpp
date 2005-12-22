@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-13 18:12:20  martius
+ *   Revision 1.1.2.2  2005-12-22 14:10:14  martius
+ *   different tesselhints
+ *
+ *   Revision 1.1.2.1  2005/12/13 18:12:20  martius
  *   some utils
  *
  *
@@ -37,9 +40,11 @@
 namespace lpzrobots {
 
   OsgHandle::OsgHandle( ) {}
-  OsgHandle::OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints, const Color& color){
+  OsgHandle::OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], const Color& color){
     this->scene = scene;
-    this->tesselhints = tesselhints;
+    for(int i=0; i<3; i++){
+      this->tesselhints[i] = tesselhints[i];
+    }
     this->color = color;
   }
 
