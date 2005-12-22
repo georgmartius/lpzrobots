@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2005-12-21 15:39:22  martius
+ *   Revision 1.1.2.7  2005-12-22 14:09:18  martius
+ *   low quality for joint axes
+ *
+ *   Revision 1.1.2.6  2005/12/21 15:39:22  martius
  *   OneAxisJoint and TwoAxisJoint as superclasses
  *
  *   Revision 1.1.2.5  2005/12/19 16:34:12  martius
@@ -87,7 +90,7 @@ namespace lpzrobots {
     dJointSetHingeAxis (joint,  axis1.x(), axis1.y(), axis1.z());
     if(withVisual){
       visual = new OSGCylinder(visualSize/15.0, visualSize);
-      visual->init(osgHandle);      
+      visual->init(osgHandle, OSGPrimitive::Low);      
       Matrix t = anchorAxisPose(anchor, axis1);
       
       visual->setMatrix(t); 
@@ -150,7 +153,7 @@ namespace lpzrobots {
     dJointSetHinge2Axis2 (joint,  axis2.x(), axis2.y(), axis2.z());
     if(withVisual){
       visual = new OSGCylinder(visualSize/15.0, visualSize);
-      visual->init(osgHandle);      
+      visual->init(osgHandle, OSGPrimitive::Low);      
       Matrix t = anchorAxisPose(anchor, axis2);
       
       visual->setMatrix(t); 
@@ -223,11 +226,11 @@ namespace lpzrobots {
     dJointSetUniversalAxis2 (joint,  axis2.x(), axis2.y(), axis2.z());
     if(withVisual){
       visual1 = new OSGCylinder(visualSize/15.0, visualSize);
-      visual1->init(osgHandle);      
+      visual1->init(osgHandle, OSGPrimitive::Low);      
       Matrix t = anchorAxisPose(anchor, axis1); 
       visual1->setMatrix(t); 
       visual2 = new OSGCylinder(visualSize/15.0, visualSize);
-      visual2->init(osgHandle);      
+      visual2->init(osgHandle, OSGPrimitive::Low);      
       t = anchorAxisPose(anchor, axis2); 
       visual2->setMatrix(t); 
     }
@@ -300,7 +303,7 @@ namespace lpzrobots {
     dJointSetBallAnchor (joint, anchor.x(), anchor.y(), anchor.z());
     if(withVisual){
       visual = new OSGSphere(visualSize);
-      visual->init(osgHandle);            
+      visual->init(osgHandle, OSGPrimitive::Low);            
       visual->setMatrix(osg::Matrix::translate(anchor)); 
     }
   }
@@ -349,7 +352,7 @@ namespace lpzrobots {
     if(withVisual){
       double len = getPosition1();
       visual = new OSGCylinder(visualSize/10, len+visualSize);
-      visual->init(osgHandle);      
+      visual->init(osgHandle, OSGPrimitive::Low);      
       Matrix t = anchorAxisPose(anchor, axis1);
       
       visual->setMatrix(t); 
@@ -371,7 +374,7 @@ namespace lpzrobots {
       visual->setMatrix(anchorAxisPose(anchor, axis1));
       double len = getPosition1();
       visual = new OSGCylinder(visualSize/10, len+visualSize);
-      visual->init(osgHandle);      
+      visual->init(osgHandle, OSGPrimitive::Low);      
       Matrix t = anchorAxisPose(anchor, axis1);      
       visual->setMatrix(t); 
     }
