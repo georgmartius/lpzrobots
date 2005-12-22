@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2005-12-15 17:03:43  martius
+ *   Revision 1.1.2.7  2005-12-22 14:14:12  martius
+ *   quality level
+ *
+ *   Revision 1.1.2.6  2005/12/15 17:03:43  martius
  *   cameramanupulator setPose is working
  *   joints have setter and getter parameters
  *   Primitives are not longer inherited from OSGPrimitive, moreover
@@ -65,10 +68,12 @@ namespace lpzrobots {
   class OSGPrimitive {
   public:
 
+    typedef enum Quality {Low, Middle, High};
+
     OSGPrimitive ();
     virtual ~OSGPrimitive ();
     // this function should be overloaded
-    virtual void init(const OsgHandle& osgHandle) = 0;
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle) = 0;
     virtual void setMatrix( const osg::Matrix& m4x4 );
     virtual osg::Group* getGroup();
     virtual void setTexture(const std::string& filename);
@@ -87,7 +92,7 @@ namespace lpzrobots {
   public:
     OSGDummy();
 
-    virtual void init(const OsgHandle& osgHandle);
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
     virtual void setMatrix( const osg::Matrix& m4x4 );
     virtual osg::Group* getGroup();
     virtual void setTexture(const std::string& filename);
@@ -102,7 +107,7 @@ namespace lpzrobots {
   public:
     OSGPlane();
 
-    virtual void init(const OsgHandle& osgHandle);
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
   };
 
 
@@ -111,7 +116,7 @@ namespace lpzrobots {
   public:
     OSGBox(float lengthX, float lengthY, float lengthZ);
 
-    virtual void init(const OsgHandle& osgHandle);
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
 
     float getLengthX() { return lengthX; }
     float getLengthY() { return lengthY; }
@@ -129,7 +134,7 @@ namespace lpzrobots {
   public:
     OSGSphere(float radius);
 
-    virtual void init(const OsgHandle& osgHandle);
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
 
     float getRadius() { return radius; }
   protected:
@@ -141,7 +146,7 @@ namespace lpzrobots {
   public:
     OSGCapsule(float radius, float height);
 
-    virtual void init(const OsgHandle& osgHandle);
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
 
     float getRadius() { return radius; }
     float getHeight() { return height; }
@@ -155,7 +160,7 @@ namespace lpzrobots {
   public:
     OSGCylinder(float radius, float height);
 
-    virtual void init(const OsgHandle& osgHandle);
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
 
     float getRadius() { return radius; }
     float getHeight() { return height; }

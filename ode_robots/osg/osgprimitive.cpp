@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2005-12-15 17:03:42  martius
+ *   Revision 1.1.2.9  2005-12-22 14:14:21  martius
+ *   quality level
+ *
+ *   Revision 1.1.2.8  2005/12/15 17:03:42  martius
  *   cameramanupulator setPose is working
  *   joints have setter and getter parameters
  *   Primitives are not longer inherited from OSGPrimitive, moreover
@@ -118,7 +121,7 @@ namespace lpzrobots {
   /******************************************************************************/
   OSGDummy::OSGDummy(){}
   
-  void OSGDummy::init(const OsgHandle& osgHandle){
+  void OSGDummy::init(const OsgHandle& osgHandle, Quality quality){
   }
   
   void OSGDummy::setMatrix( const osg::Matrix& m4x4 ) {
@@ -144,8 +147,8 @@ namespace lpzrobots {
   OSGPlane::OSGPlane() {
   }
 
-  void OSGPlane::init(const OsgHandle& osgHandle){
-    assert(osgHandle.scene && osgHandle.tesselhints);
+  void OSGPlane::init(const OsgHandle& osgHandle, Quality quality){
+    assert(osgHandle.scene);
     geode = new Geode;  
     transform = new MatrixTransform;
     transform->addChild(geode.get());
@@ -153,7 +156,7 @@ namespace lpzrobots {
   
     //  shape = new ShapeDrawable(new InfinitePlane(), osgHandle.tesselhints);
     shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
-				      50, 50, 0.01), osgHandle.tesselhints); // TODO add larger values here
+				      50, 50, 0.01), osgHandle.tesselhints[quality]); // TODO add larger values here
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
   }
@@ -164,15 +167,15 @@ namespace lpzrobots {
     : lengthX(lengthX), lengthY(lengthY), lengthZ(lengthZ) {
   }
 
-  void OSGBox::init(const OsgHandle& osgHandle){
-    assert(osgHandle.scene && osgHandle.tesselhints);
+  void OSGBox::init(const OsgHandle& osgHandle, Quality quality){
+    assert(osgHandle.scene);
     geode = new Geode;  
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
     shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
-				      lengthX, lengthY, lengthZ), osgHandle.tesselhints);
+				      lengthX, lengthY, lengthZ), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
   }
@@ -182,15 +185,15 @@ namespace lpzrobots {
     : radius(radius) {
   }
 
-  void OSGSphere::init(const OsgHandle& osgHandle){
-    assert(osgHandle.scene && osgHandle.tesselhints);
+  void OSGSphere::init(const OsgHandle& osgHandle, Quality quality){
+    assert(osgHandle.scene);
 
     geode = new Geode;  
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
-    shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), osgHandle.tesselhints);
+    shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
   }
@@ -200,8 +203,8 @@ namespace lpzrobots {
     : radius(radius), height(height) {
   }
 
-  void OSGCapsule::init(const OsgHandle& osgHandle){
-    assert(osgHandle.scene && osgHandle.tesselhints);
+  void OSGCapsule::init(const OsgHandle& osgHandle, Quality quality){
+    assert(osgHandle.scene);
 
     geode = new Geode;  
     transform = new MatrixTransform;
@@ -209,7 +212,7 @@ namespace lpzrobots {
     osgHandle.scene->addChild(transform.get());
 
     shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f), 
-					  radius, height), osgHandle.tesselhints);
+					  radius, height), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
   }
@@ -219,8 +222,8 @@ namespace lpzrobots {
     : radius(radius), height(height) {
   }
 
-  void OSGCylinder::init(const OsgHandle& osgHandle){
-    assert(osgHandle.scene && osgHandle.tesselhints);
+  void OSGCylinder::init(const OsgHandle& osgHandle, Quality quality){
+    assert(osgHandle.scene);
 
     geode = new Geode;  
     transform = new MatrixTransform;
@@ -228,7 +231,7 @@ namespace lpzrobots {
     osgHandle.scene->addChild(transform.get());
 
     shape = new ShapeDrawable(new Cylinder(Vec3(0.0f, 0.0f, 0.0f), 
-					   radius, height), osgHandle.tesselhints);
+					   radius, height), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
   }
