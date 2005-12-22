@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-13 18:12:20  martius
+ *   Revision 1.1.2.3  2005-12-22 14:09:56  martius
+ *   different tesselhints for different level of detail
+ *
+ *   Revision 1.1.2.2  2005/12/13 18:12:20  martius
  *   some utils
  *
  *   Revision 1.1.2.1  2005/12/06 16:18:02  martius
@@ -41,10 +44,10 @@ class OsgHandle
 {
 public:
   OsgHandle( );
-  OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints, const Color& color);
+  OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], const Color& color);
 
   osg::Group* scene;  
-  osg::TessellationHints* tesselhints;  
+  osg::TessellationHints* tesselhints[3];  
   Color color;
 };
 
