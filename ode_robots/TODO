@@ -21,6 +21,12 @@ virtual void place(Position pos , Color *c = 0);
 */
 virtual void place(const osg::Matrix& pose);
 
+virtual void draw();
+->
+/// update the subcomponents
+virtual void update();
+
+
 virtual Object getMainObject() const { return object[0]; }
 ->
 /** the main object of the robot, which is used for position and speed tracking */
@@ -55,6 +61,7 @@ texture variables like bodyTexture ...
 CPP
 remove 
 #include <drawstuff/drawstuff.h>
+#include <ode/ode.h>
 #include "simulation.h"
 
 add 
@@ -80,14 +87,13 @@ color.b=0/255.0;
 ->
 this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
 
-some implenation of place
--> adjust the height!
+here is an sample implenation of place (adjust the height)
 void Classname::place(const Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)    
-    Matrix p2;
-    p2 = pose * Matrix::translate(Vec3(0, 0, width*0.6)); 
+    osg::Matrix p2;
+    p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, width*0.6)); 
     create(p2);
     
 };
@@ -116,19 +122,28 @@ updatecode looks as follows:
 
 void Classname::create(Position pos)
 ->
-void Classname::create(const Matrix& pose)
-
-// create vehicle space and add it to the top level space
+void Classname::create(const osg::Matrix& pose)
+	
+// create vehicle space and add it to parentspace
 odeHandle.space = dSimpleSpaceCreate (parentspace);
 
 object[0] = new Capsule(width/2, length);
 object[0]->init(odeHandle, cmass, osgHandle);    
 // rotate and place body (here by 90° around the y-axis)
-object[0]->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
+object[0]->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
 object[0]->getOSGPrimitive()->setTexture("Images/wood.rgb");
 
 Please note that the transformations are done via
 osg::Matrix::rotate and translate
+Joints look as follows. Also note that amotor are done via AngularMotorXAxis classes
+
+    for (int i=0; i<(NUM-1); i++) {
+      Pos p1(object[i]->getPosition());
+      Pos p2(object[i+1]->getPosition());
+      joint[i] = new BallJoint(object[i],object[i+1], (p1+p2)/2 );
+      joint[i]->init(odeHandle, osgHandle, true, RADIUS/10);
+    }
+
 
 destroy:
 
@@ -146,6 +161,9 @@ destroy:
 
 
 collisionCallBack:
+
+internal space collisions should go to doInternalStuff() (see hurlingsnake.cpp)
+
 vehicle_space 
 ->
 odeHandle.space
@@ -191,17 +209,28 @@ Replace:
 void start(const OdeHandle& odeHandle, GlobalData& global) 
 ->
 /// start() is called at the start and should create all the object (obstacles, agents...).
-virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
+virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
 
 
 void end(GlobalData& global){
 ->
 /// end() is called at the end and should tidy up
-virtual void end(GlobalData& globalData) = 0;
+virtual void end(GlobalData& global){
+
+//Anfangskameraposition und Punkt auf den die Kamera blickt
+float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
+float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
+dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
+->
+setCameraHomePos(Pos(2.1640f,-1.3079f,1.7600f), Pos(125.5, -17.0, 0));
+
 
 Remove:
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
+
+dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
+
 
 Replace:
 dsPrint
@@ -209,12 +238,31 @@ dsPrint
 printf
 However the "Welcome Message can be ommited!
 
+Insert in Contructor of Obstacles and Robots
+	, osgHandle
+
+
+Obstacles have no setGeometry anymore
+example:
+   Playground* playground = new Playground(odeHandle, osgHandle);
+   playground->setGeometry(10.0,0.2,2.5)
+->	
+   Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10.0, 0.2, 2.5));
+
 
 in main:
-Version mit eigener Klasse ThisSim:
-
+Replace:
+  // initialise the simulation and provide the start, end, and config-function
+  simulation_init(&start, &end, &config);
+  // start the simulation (returns, if the user closes the simulation)
+  simulation_start(argc, argv);
+  simulation_close();  // tidy up.
+  return 0;
+->
 ThisSim sim;
 return sim.run(argc, argv) ? 0 : 1;
+
+oder
 
 CompatSim version:
 CompatSim sim(&start, &end, &config);
