@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.9  2005-12-15 17:04:08  martius
+ *   Revision 1.7.4.10  2005-12-29 16:47:40  martius
+ *   joint has getPosition
+ *
+ *   Revision 1.7.4.9  2005/12/15 17:04:08  martius
  *   Primitives are not longer inherited from OSGPrimitive, moreover
  *   they aggregate them.
  *   Joint have better getter and setter
@@ -154,7 +157,7 @@ namespace lpzrobots {
 
     // for each sensor the anglerate of the joint is red and scaled with 1/speed 
     for (int i=0; i<len; i++){
-      sensors[i]=joint[i]->getAngle2Rate();
+      sensors[i]=joint[i]->getPosition2Rate();
       sensors[i]/=speed;  //scaling
     }
     // the number of red sensors is returned 
