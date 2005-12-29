@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-15 17:03:42  martius
+ *   Revision 1.1.2.4  2005-12-29 12:55:59  martius
+ *   setHome
+ *
+ *   Revision 1.1.2.3  2005/12/15 17:03:42  martius
  *   cameramanupulator setPose is working
  *   joints have setter and getter parameters
  *   Primitives are not longer inherited from OSGPrimitive, moreover
@@ -51,7 +54,7 @@ namespace lpzrobots {
   using namespace osgGA;
 
   CameraManipulator::CameraManipulator(osg::Node* node)
-    : node(node), eye(0,0,0), view(0,0,0) {
+    : node(node), eye(0,0,0), view(0,0,0), home_externally_set(false) {
     if (this->node.get()) {    
       const BoundingSphere& boundingSphere=this->node->getBound();
       modelScale = boundingSphere._radius;
@@ -73,22 +76,36 @@ namespace lpzrobots {
     return node.get();
   }
 
+  /// set the home position of the camera. (and place it there)
+  void CameraManipulator::setHome(const osg::Vec3& _eye, const osg::Vec3& _view){
+    this->home_eye = _eye;
+    this->home_view = _view;
+    this->home_externally_set=true;
+    eye  = home_eye;
+    view = home_view;
+    computeMatrix();
+  }
+
+
   void CameraManipulator::home(const GUIEventAdapter& ea,GUIActionAdapter& us){
-    if(node.get()) {
+    if(node.get() && !home_externally_set) {
       const BoundingSphere& boundingSphere=node->getBound();
 
-      eye = boundingSphere._center+
+      home_eye = boundingSphere._center+
 	Vec3(-boundingSphere._radius*1.2f,0, boundingSphere._radius*0.2f);
 
-      view = Vec3(-90,-10,0);
-      computeMatrix();
-
-      us.requestRedraw();
-
-      us.requestWarpPointer((ea.getXmin()+ea.getXmax())/2.0f,(ea.getYmin()+ea.getYmax())/2.0f);
-
-      flushMouseEventStack();
+      home_view = Vec3(-90,-10,0);
     }
+    eye  = home_eye;
+    view = home_view;
+    computeMatrix();
+    
+    us.requestRedraw();
+    
+    us.requestWarpPointer((ea.getXmin()+ea.getXmax())/2.0f,(ea.getYmin()+ea.getYmax())/2.0f);
+    
+    flushMouseEventStack();
+    
   }
 
   void CameraManipulator::init(const GUIEventAdapter& ea,GUIActionAdapter& us){
@@ -134,10 +151,10 @@ namespace lpzrobots {
 	    us.requestContinuousUpdate(false);
 	    break;
 	  }
-	case 'v':
+	case 'p':
 	  {
-	    printf("Camera Position: (%g, %g, %g)", eye.x(), eye.y(), eye.z());
-	    printf(" Rotation: (%g, %g, %g)\n", view.x(), view.y(), view.z());
+	    printf("Camera Position/View: (Pos(%g, %g, %g), ", eye.x(), eye.y(), eye.z());
+	    printf(" Pos(%g, %g, %g));\n", view.x(), view.y(), view.z());
 	    break;
 	  }	  
 	default:
@@ -155,7 +172,8 @@ namespace lpzrobots {
   }
   
   void CameraManipulator::getUsage(ApplicationUsage& usage) const{
-    usage.addKeyboardMouseBinding("Static: Space","Reset the viewing position to home");
+    usage.addKeyboardMouseBinding("Camera: Space","Reset the viewing position to home");
+    usage.addKeyboardMouseBinding("Camera: p","Print position of the camera");
   }
 
   void CameraManipulator::flushMouseEventStack(){

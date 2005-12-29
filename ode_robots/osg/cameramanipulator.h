@@ -23,7 +23,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-15 17:03:42  martius
+ *   Revision 1.1.2.3  2005-12-29 12:56:12  martius
+ *   setHome
+ *
+ *   Revision 1.1.2.2  2005/12/15 17:03:42  martius
  *   cameramanupulator setPose is working
  *   joints have setter and getter parameters
  *   Primitives are not longer inherited from OSGPrimitive, moreover
@@ -83,6 +86,10 @@ namespace lpzrobots {
 
     virtual osg::Node* getNode();
 
+    /// set the home position of the camera. (and place it there)
+    virtual void setHome(const osg::Vec3& eye, const osg::Vec3& view);
+
+    /// place the camera at its home position
     virtual void home(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us);
 
     virtual void init(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us);
@@ -117,6 +124,9 @@ namespace lpzrobots {
         
     osg::Vec3   eye;      // position of the camera
     osg::Vec3   view;     // view angles in degree (pan, tilt, yaw)
+    osg::Vec3   home_eye;  // home position of the camera
+    osg::Vec3   home_view; // home view angles in degree (pan, tilt, yaw)
+    bool home_externally_set;
     
     osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
 
