@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.8  2005-12-29 15:47:12  martius
+ *   Revision 1.14.4.9  2005-12-29 15:55:33  martius
+ *   end is obsolete
+ *
+ *   Revision 1.14.4.8  2005/12/29 15:47:12  martius
  *   changed to real Sim class
  *
  *   Revision 1.14.4.7  2005/12/14 15:37:25  martius
@@ -149,22 +152,6 @@ public:
     showParams(global.configs);
   }
 
-  // executed once at the end of the simulation loop
-  void end(GlobalData& global){
-    // clear obstacles list
-    for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
-      delete (*i);
-    }
-    global.obstacles.clear();
-  
-    // clear agents list
-    for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-      delete (*i)->getRobot();
-      delete (*i)->getController();
-      delete (*i);
-    }
-    global.agents.clear();
-  }
 
 };
 
