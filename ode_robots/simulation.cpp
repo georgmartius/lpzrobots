@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.9  2005-12-15 17:02:04  martius
+ *   Revision 1.40.4.10  2005-12-29 12:54:19  martius
+ *   multiple tesselhints
+ *
+ *   Revision 1.40.4.9  2005/12/15 17:02:04  martius
  *   light is in sky and standart cams removed
  *   config has a default implentation now
  *
@@ -213,7 +216,6 @@ namespace lpzrobots {
     leakAnnCounter = 1;
     sim_step = 0;
     state = none;
-    camType = Static;
   }
 
   Simulation::~Simulation(){  
@@ -290,9 +292,12 @@ namespace lpzrobots {
       return false;
     }
 
-    osgHandle.tesselhints = new TessellationHints();
-    if (!osgHandle.tesselhints) return false;
-    osgHandle.tesselhints->setDetailRatio(2.0f);
+    osgHandle.tesselhints[0] = new TessellationHints();
+    osgHandle.tesselhints[1] = new TessellationHints();
+    osgHandle.tesselhints[2] = new TessellationHints();
+    osgHandle.tesselhints[0]->setDetailRatio(0.1f); // Low
+    osgHandle.tesselhints[1]->setDetailRatio(1.0f); // Middle
+    osgHandle.tesselhints[2]->setDetailRatio(3.0f); // High
     osgHandle.color = Color(1,1,1,1);
 
     osgHandle.scene=makeScene();
@@ -397,13 +402,13 @@ namespace lpzrobots {
       addCallback(globalData, t==0, pause);
 
       if(t==0){
-	/**************************Draw the scene ***********************/
-	// first repositionize the camera if needed
-	if (viewedRobot)
-	  // moveCamera(camType, *viewedRobot);
-	  for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++){
-	    (*i)->update();
-	  }
+// 	/**************************Draw the scene ***********************/
+// 	// first repositionize the camera if needed
+// 	if (viewedRobot)
+// 	  // moveCamera(camType, *viewedRobot);
+// 	  for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++){
+// 	    (*i)->update();
+// 	  }
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	  (*i)->getRobot()->update();
 	}
@@ -579,6 +584,21 @@ namespace lpzrobots {
     }
   }
 
-}
 
+  void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view){
+    std::list< std::string > nameList;
+    viewer->getCameraManipulatorNameList(nameList);
+    for (std::list< std::string >::iterator i = nameList.begin(); i!=nameList.end(); i++){
+      osgGA::MatrixManipulator* mm = viewer->getCameraManipulatorByName (*i);
+      if(mm){
+	CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);      
+	if(cameramanipulator){
+	  cameramanipulator->setHome(eye, view);
+	}	
+      }
+    }
+  }
+
+
+}
 
