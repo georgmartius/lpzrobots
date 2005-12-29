@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.3  2005-12-21 17:40:11  martius
+ *   Revision 1.6.4.4  2005-12-29 16:50:22  martius
+ *   end is obsolete
+ *
+ *   Revision 1.6.4.3  2005/12/21 17:40:11  martius
  *   moved to OSG
  *
  *   Revision 1.6.4.2  2005/11/16 11:27:38  martius
@@ -149,21 +152,6 @@ public:
 
 
     showParams(global.configs);
-  }
-
-  /// end() is called at the end and should tidy up
-  virtual void end(GlobalData& global){
-    for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
-      delete (*i);
-    }
-    global.obstacles.clear();
-    for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-      delete (*i)->getRobot();
-      delete (*i)->getController();
-      delete (*i)->getWiring();
-      delete (*i);
-    }
-    global.agents.clear();
   }
 
 };

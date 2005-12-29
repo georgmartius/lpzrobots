@@ -1,15 +1,18 @@
+**********************************************************************************
 Changes for Robots
+**********************************************************************************
 
-HEADER
+HEADER ----------------------------------------------
 remove 
 #include <drawstuff/drawstuff.h>
 #include "simulation.h"
 
 add
-namespace lpzrobots {
 
 #include "primitive.h"
 #include "joint.h"
+
+namespace lpzrobots {
 
 Constructor add 
 , const OsgHandle& osgHandle
@@ -40,6 +43,11 @@ virtual void create(Position pos);
 virtual void create(const osg::Matrix& pose); 
 
 
+virtual void draw()
+->
+/// update all primitives and joints
+virtual void update()
+
 Object object[X];
 ->
 Primitive* object[X];
@@ -58,7 +66,7 @@ virtual void setTextures(int body, int wheels);
 
 texture variables like bodyTexture ...
 
-CPP
+CPP  ----------------------------------------------
 remove 
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
@@ -180,8 +188,9 @@ contactgroup
 ->
 odeHandle.jointGroup
 
-
+**********************************************************************************
 Changes for Simulations:
+**********************************************************************************
 
 First of all use the new Makefile form template_onerobot
 
@@ -195,6 +204,10 @@ Remove
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
+Replace:
+
+#include "sphere.h"
+#include "passivesphere.h"
 
 Add:
 
@@ -212,10 +225,18 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
 
 
-void end(GlobalData& global){
-->
+The end function is not needed anymore because
+the obstactle list and the agent list is cleared by the framework. 
+So remove:
+void end(GlobalData& global);
+
+In case you want to cleanup something you can define:
 /// end() is called at the end and should tidy up
 virtual void end(GlobalData& global){
+}
+
+
+
 
 //Anfangskameraposition und Punkt auf den die Kamera blickt
 float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
@@ -236,7 +257,7 @@ Replace:
 dsPrint
 -> 
 printf
-However the "Welcome Message can be ommited!
+However the Welcome Message can be ommited!
 
 Insert in Contructor of Obstacles and Robots
 	, osgHandle
