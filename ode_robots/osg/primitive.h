@@ -25,7 +25,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-12-15 17:03:43  martius
+ *   Revision 1.1.2.5  2005-12-29 12:58:42  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.4  2005/12/15 17:03:43  martius
  *   cameramanupulator setPose is working
  *   joints have setter and getter parameters
  *   Primitives are not longer inherited from OSGPrimitive, moreover
@@ -61,7 +64,7 @@ osg::Matrix osgPose( dGeomID geom );
 osg::Matrix osgPose( dBodyID body );
 /// converts a position vector and a rotation matrix from ode to osg 4x4 matrix
 osg::Matrix osgPose( const double * position , const double * rotation );
-
+/// converts the rotation component of pose into an ode rotation matrix
 void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix);
 
 /**************************************************************************/
@@ -169,7 +172,7 @@ protected:
 class Transform : public Primitive {
 public:
   /** 
-      @param parent primitive should have a body
+      @param parent primitive should have a body and should be initialised
       @param child  is transformed by pose in respect to parent. 
       This Primitive must NOT have a body
   */
