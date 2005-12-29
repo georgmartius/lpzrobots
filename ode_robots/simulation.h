@@ -27,7 +27,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.7  2005-12-29 12:54:09  martius
+ *   Revision 1.18.4.8  2005-12-29 16:49:48  martius
+ *   end is obsolete
+ *   tidyUp is used for deletion
+ *
+ *   Revision 1.18.4.7  2005/12/29 12:54:09  martius
  *   multiple Tesselhints
  *
  *   Revision 1.18.4.6  2005/12/15 17:02:04  martius
@@ -146,11 +150,11 @@ public:
 
   /// start() is called at the start and should create all the object (obstacles, agents...).
   virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
-  /// end() is called at the end and should tidy up
-  virtual void end(GlobalData& globalData) = 0;
 
   // the following functions have dummy default implementations
 
+  /// end() is called at the end and should tidy up
+  virtual void end(GlobalData& globalData);
   /** config() is called when the user presses Ctrl-C. 
       Default: Call @changeParams(globalData.configs)@ */
   virtual void config(GlobalData& globalData);
@@ -179,6 +183,8 @@ protected:
 private:
   static void processCmdLine(int argc, char** argv);
   void loop(bool pause);
+  /// clears obstacle and agents lists and delete entries
+  void tidyUp(GlobalData& globalData);
 
   static void control_c(int i);
   static void cmd_handler_exit();

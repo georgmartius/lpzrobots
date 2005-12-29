@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.10  2005-12-29 12:54:19  martius
+ *   Revision 1.40.4.11  2005-12-29 16:49:48  martius
+ *   end is obsolete
+ *   tidyUp is used for deletion
+ *
+ *   Revision 1.40.4.10  2005/12/29 12:54:19  martius
  *   multiple tesselhints
  *
  *   Revision 1.40.4.9  2005/12/15 17:02:04  martius
@@ -185,6 +189,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <selforg/configurable.h>
+#include <selforg/abstractcontroller.h>
 
 #include "simulation.h"
 
@@ -354,7 +359,8 @@ namespace lpzrobots {
       }
     
     // wait for all cull and draw threads to complete before exit.
-    viewer->sync();
+    viewer->sync();    
+    tidyUp(globalData);
     end(globalData);
     return true;
 
@@ -402,13 +408,13 @@ namespace lpzrobots {
       addCallback(globalData, t==0, pause);
 
       if(t==0){
-// 	/**************************Draw the scene ***********************/
+// 	/************************** Update the scene ***********************/
 // 	// first repositionize the camera if needed
 // 	if (viewedRobot)
-// 	  // moveCamera(camType, *viewedRobot);
-// 	  for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++){
-// 	    (*i)->update();
-// 	  }
+//	 moveCamera(camType, *viewedRobot);
+	for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++){
+	  (*i)->update();
+	}
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	  (*i)->getRobot()->update();
 	}
@@ -441,6 +447,26 @@ namespace lpzrobots {
     }
   }
 
+  void Simulation::end(GlobalData& globalData){
+  }
+
+  /// clears obstacle and agents lists and delete entries
+  void Simulation::tidyUp(GlobalData& global){
+    // clear obstacles list
+    for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
+      delete (*i);
+    }
+    global.obstacles.clear();
+    
+    // clear agents list
+    for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+      delete (*i)->getRobot();
+      delete (*i)->getController();
+      delete (*i);
+    }
+    global.agents.clear();
+  }
+  
 
   void Simulation::processCmdLine(int argc, char** argv){
     if(contains(argv, argc, "-h")) usage(argv[0]);
