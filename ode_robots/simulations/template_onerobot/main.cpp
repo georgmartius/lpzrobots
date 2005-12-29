@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.7  2005-12-14 15:37:25  martius
+ *   Revision 1.14.4.8  2005-12-29 15:47:12  martius
+ *   changed to real Sim class
+ *
+ *   Revision 1.14.4.7  2005/12/14 15:37:25  martius
  *   *** empty log message ***
  *
  *   Revision 1.14.4.6  2005/12/13 18:12:09  martius
@@ -55,8 +58,6 @@
 
 // include simulation environment stuff
 #include "simulation.h"
-// include compatibility simulation environmet stuff
-#include "compatsim.h"
 
 // include agent (class for holding a robot, a controller and a wiring)
 #include "odeagent.h"
@@ -85,90 +86,87 @@ using namespace lpzrobots;
 // The list is modified with commandline options, see main() at the bottom of this file
 list<PlotOption> plotoptions;
 
+class ThisSim : public Simulation {
+public:
 
-// starting function (executed once at the beginning of the simulation loop)
-void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
-{
-  ///Todo: setviewpoint
+  // starting function (executed once at the beginning of the simulation loop)
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  {
+    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    // initialization
+    // - set noise to 0.1
+    // - register file chess.ppm as a texture called chessTexture (used for the wheels)
+    global.odeConfig.noise=0.1;
+    //  global.odeConfig.setParam("gravity", 0);
+    //  int chessTexture = dsRegisterTexture("chess.ppm");
 
-  // initialization
-  // - set noise to 0.1
-  // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-  global.odeConfig.noise=0.1;
-  //  global.odeConfig.setParam("gravity", 0);
-  //  int chessTexture = dsRegisterTexture("chess.ppm");
+    // use Playground as boundary:
+    // - create pointer to playground (odeHandle contains things like world and space the 
+    //   playground should be created in; odeHandle is generated in simulation.cpp)
+    // - setting geometry for each wall of playground: 
+    //   setGeometry(double length, double width, double	height)
+    // - setting initial position of the playground: setPosition(double x, double y, double z)
+    // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(3, 0.2, 0.5));
+    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    global.obstacles.push_back(playground);
 
-  // use Playground as boundary:
-  // - create pointer to playground (odeHandle contains things like world and space the 
-  //   playground should be created in; odeHandle is generated in simulation.cpp)
-  // - setting geometry for each wall of playground: 
-  //   setGeometry(double length, double width, double	height)
-  // - setting initial position of the playground: setPosition(double x, double y, double z)
-  // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-  Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(3, 0.2, 0.5));
-  playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-  global.obstacles.push_back(playground);
+    for (int i=0; i<= 2; i+=2){
+      PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
+      s1->setPosition(osg::Vec3(-4.5+i*4.5,0,2));
+      s1->setTexture("Images/wood.rgb");
+      global.obstacles.push_back(s1);
+    }
 
-  for (int i=0; i<= 2; i+=2){
-    PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-    s1->setPosition(osg::Vec3(-4.5+i*4.5,0,2));
-    s1->setTexture("Images/wood.rgb");
-    global.obstacles.push_back(s1);
-  }
-
-  // use Nimm4 vehicle as robot:
-  // - create pointer to nimm4 (with ode Information, further parameters can be set, 
-  //   here are the defaults used)
-  // - set textures for body and wheels
-  // - place robot
-  Nimm2Conf c = Nimm2::getDefaultConf();
-  c.irFront=true;
+    // use Nimm4 vehicle as robot:
+    // - create pointer to nimm4 (with ode Information, further parameters can be set, 
+    //   here are the defaults used)
+    // - set textures for body and wheels
+    // - place robot
+    Nimm2Conf c = Nimm2::getDefaultConf();
+    c.irFront=true;
     
-  OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);
-  //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
-  vehicle->place(Pos(0,0,0));
+    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);
+    //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
+    vehicle->place(Pos(0,0,0));
 
-  // create pointer to controller
-  // push controller in global list of configurables
-  //  AbstractController *controller = new InvertNChannelController(10);  
-  AbstractController *controller = new InvertMotorSpace(10);  
-  global.configs.push_back(controller);
+    // create pointer to controller
+    // push controller in global list of configurables
+    //  AbstractController *controller = new InvertNChannelController(10);  
+    AbstractController *controller = new InvertMotorSpace(10);  
+    global.configs.push_back(controller);
   
-  // create pointer to one2onewiring
-  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    // create pointer to one2onewiring
+    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
-  // create pointer to agent
-  // initialize pointer with controller, robot and wiring
-  // push agent in globel list of agents
-  OdeAgent* agent = new OdeAgent(plotoptions);
-  agent->init(controller, vehicle, wiring);
-  global.agents.push_back(agent);
+    // create pointer to agent
+    // initialize pointer with controller, robot and wiring
+    // push agent in globel list of agents
+    OdeAgent* agent = new OdeAgent(plotoptions);
+    agent->init(controller, vehicle, wiring);
+    global.agents.push_back(agent);
   
-  showParams(global.configs);
-}
-
-// executed once at the end of the simulation loop
-void end(GlobalData& global){
-  // clear obstacles list
-  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
-    delete (*i);
+    showParams(global.configs);
   }
-  global.obstacles.clear();
+
+  // executed once at the end of the simulation loop
+  void end(GlobalData& global){
+    // clear obstacles list
+    for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
+      delete (*i);
+    }
+    global.obstacles.clear();
   
-  // clear agents list
-  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-    delete (*i)->getRobot();
-    delete (*i)->getController();
-    delete (*i);
+    // clear agents list
+    for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+      delete (*i)->getRobot();
+      delete (*i)->getController();
+      delete (*i);
+    }
+    global.agents.clear();
   }
-  global.agents.clear();
-}
 
-
-// this function is called if the user pressed Ctrl-C
-void config(GlobalData& global){
-  changeParams(global.configs);
-}
+};
 
 // print command line options
 void printUsage(const char* progname){
@@ -186,11 +184,8 @@ int main (int argc, char **argv)
   // display help
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
-  CompatSim sim(&start, &end, &config);
-  if(sim.run(argc, argv))
-    return 0;
-  else 
-    return 1;
+  ThisSim sim;
+  return sim.run(argc, argv) ? 0 : 1;
 
 }
  
