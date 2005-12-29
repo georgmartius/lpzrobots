@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.6  2005-12-15 17:02:04  martius
+ *   Revision 1.18.4.7  2005-12-29 12:54:09  martius
+ *   multiple Tesselhints
+ *
+ *   Revision 1.18.4.6  2005/12/15 17:02:04  martius
  *   light is in sky and standart cams removed
  *   config has a default implentation now
  *
@@ -164,22 +167,14 @@ public:
 protected:
   virtual bool init(int argc, char** argv);
 
+  /** define the home position and view orientation of the camera.
+      view.x is the heading angle in degree. view.y is the tilt angle in degree (nick), 
+      view.z is ignored
+  */
+  void setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view);
+
   static void nearCallback(void *data, dGeomID o1, dGeomID o2);
   bool control_c_pressed();
-
-  GlobalData globalData;
-  VideoStream videostream;
-
-
-  struct timeval realTime;
-  int nextLeakAnnounce;
-  int leakAnnCounter;
-
-  long sim_step;
-  
-  CameraType camType; // default is a non-moving and non-rotating camera
-  OdeRobot* viewedRobot; // the robot who is viewed from the camera
-
 
 private:
   static void processCmdLine(int argc, char** argv);
@@ -194,7 +189,21 @@ private:
   // Commandline interface stuff
   static void usage(const char* progname);
 
+protected:
+  GlobalData globalData;
+  VideoStream videostream;
 
+
+  struct timeval realTime;
+  int nextLeakAnnounce;
+  int leakAnnCounter;
+
+  long sim_step;
+  
+  //  CameraType camType; // default is a non-moving and non-rotating camera
+  //  OdeRobot* viewedRobot; // the robot who is viewed from the camera
+
+private:
   SimulationState state;
   osg::ArgumentParser* arguments;
   osgProducer::Viewer* viewer;
