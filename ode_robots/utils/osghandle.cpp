@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-22 14:10:14  martius
+ *   Revision 1.1.2.3  2005-12-29 16:48:06  martius
+ *   changeColor
+ *
+ *   Revision 1.1.2.2  2005/12/22 14:10:14  martius
  *   different tesselhints
  *
  *   Revision 1.1.2.1  2005/12/13 18:12:20  martius
@@ -46,6 +49,12 @@ namespace lpzrobots {
       this->tesselhints[i] = tesselhints[i];
     }
     this->color = color;
+  }
+
+  OsgHandle OsgHandle::changeColor(const Color& color) const {
+    OsgHandle copy(*this);
+    copy.color = color;
+    return copy;
   }
 
 }

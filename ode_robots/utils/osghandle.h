@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-22 14:09:56  martius
+ *   Revision 1.1.2.4  2005-12-29 16:48:06  martius
+ *   changeColor
+ *
+ *   Revision 1.1.2.3  2005/12/22 14:09:56  martius
  *   different tesselhints for different level of detail
  *
  *   Revision 1.1.2.2  2005/12/13 18:12:20  martius
@@ -49,6 +52,9 @@ public:
   osg::Group* scene;  
   osg::TessellationHints* tesselhints[3];  
   Color color;
+
+  OsgHandle changeColor(const Color& color) const;
+  
 };
 
 }
