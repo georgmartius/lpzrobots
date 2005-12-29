@@ -1,8 +1,7 @@
 /************************************************************************/
-/*schlange.h								*/
-/*Schlangenkonstrukt for lpzrobots                       		*/
-/*@author Marcel Kretschmann						*/
-/*@version alpha 0.1							*/
+/* schlange.h						        	*/
+/* Abstract class for Snakes                             		*/
+/* @author Georg Martius 						*/
 /*									*/
 /************************************************************************/
 /***************************************************************************
@@ -27,124 +26,82 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.1  2005-11-15 12:29:27  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
+ *   Revision 1.15.4.2  2005-12-29 16:45:46  martius
+ *   does not inherit from Roboter
+ *   moved to osg
  *
- *   Revision 1.15  2005/11/09 13:24:42  martius
- *   added GPL
  *
  *                                                                 *
  ***************************************************************************/
 #ifndef __SCHLANGE_H
 #define __SCHLANGE_H
 
+#include<vector>
+#include<assert.h>
 
-using namespace std;
+#include"primitive.h"
+#include "joint.h"
 
-#include "roboter.h"
+#include "oderobot.h"
+#include <selforg/configurable.h>
 
-//dadurch wird mit den Double-Genauigkeitszeichenmethoden gearbeitet
-#ifdef dDOUBLE
-#define dsDrawBox dsDrawBoxD
-#define dsDrawSphere dsDrawSphereD
-#define dsDrawCylinder dsDrawCylinderD
-#define dsDrawCappedCylinder dsDrawCappedCylinderD
-#endif
+namespace lpzrobots {
 
 typedef struct {
 public:
-  int armAnzahl; ///  number of snake elements
-  double gliederLaenge; /// length of one snake element
-  double gliederDurchmesser; ///  diameter of a snake element
-  /**  distance between two snake elements; 
-       0 means there is a distance of the length of one snake element 
-       between each snake element an its successor */
-  double gliederAbstand; 
-  double gliederMasse; ///  mass of one snake element
-  double maxMotorKraft; ///  maximal force used by the motors of the snake
-  double factorForce; ///  factor for the speed, which the motors of the snake use
-  double factorSensors; /// sensors values are multiplied with this value
+  int    segmNumber;     ///  number of snake elements
+  double segmLength;  /// length of one snake element
+  double segmDia;     ///  diameter of a snake element
+  double segmMass;    ///  mass of one snake element
+  double motorPower;  ///  power of the motors / servos
   double frictionGround; /// friction with ground
-  /** angle: sensor values are the angle of the joints; 
-      anglerate: sensor values are the angle rates of the joints*/
-  ausgabemodus ausgabeArt;     
-  double maxWinkel; /// maximal angle for the joints (M_PI/2 = 90 degree)
-} SchlangenConf;
+  double jointLimit;     /// maximal angle for the joints (M_PI/2 = 90 degree)
+} SchlangeConf;
 
 
 /**
- *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 
- *by a joint. This class is based upon the class roboter by the same author.
- *@author Marcel Kretschmann
- *@version beta
+ * This is a class, which models a snake like robot. 
+ * It consists of a number of equal elements, each linked 
+ * by a joint
  **/
-class Schlange : public Roboter
+class Schlange: public OdeRobot, public Configurable
 {
-private:
-  
-  std::vector<dJointID> skyJoints; // for fixing segment 0 in the sky
-  dSpaceID snake_space;
-
 protected:
-  SchlangenConf conf;
+  
+  bool created;
+
+  vector <Primitive*> objects;
+  vector <Joint*> joints;
+  dSpaceID parentspace;
+  SchlangeConf conf;
 
 public:
+  Schlange ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+	     const SchlangeConf& conf, const char* name);
 
-  /**
-   *constructor
-   *@param startRoboterID ID, which should be managed clearly
-   *@author Marcel Kretschmann
-   *@version beta
-   **/ 
-  Schlange ( int startRoboterID , const OdeHandle& odeHandle, 
-	     const SchlangenConf& conf );
-	
-  /**
-   *Destruktor
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual ~Schlange();
-	
-  static SchlangenConf getStandartConf(){
-    SchlangenConf c;
-    c.armAnzahl=4;
-    c.gliederLaenge=0.8;
-    c.gliederDurchmesser=0.2;
-    c.gliederAbstand=0;
-    c.gliederMasse=0.4;
-    c.maxMotorKraft=2;
-    c.ausgabeArt=anglerate;    
-    c.maxWinkel=M_PI/4;
-    c.factorForce=4.0;
-    c.factorSensors=5.0;
-    c.frictionGround=0.1;
-    c.maxWinkel=M_PI/4;
-    return c;
+  static SchlangeConf getDefaultConf(){
+    SchlangeConf conf;
+    conf.segmNumber = 10;    //  number of snake elements
+    conf.segmLength = 0.8;   // length of one snake element
+    conf.segmDia    = 0.2;   //  diameter of a snake element
+    conf.segmMass   = 0.4;   //  mass of one snake element
+    conf.motorPower = 10;    //  power of the servos
+    conf.frictionGround = 1.0; // friction with ground
+    conf.jointLimit =  M_PI/4;
+    return conf;
   }
 
-  /**
-   *Zeichnet die Koerper-GeometrieObjekte.
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual void draw();
+  virtual ~Schlange();
 	
-  /** fix segment 0 in the sky
-   */
-  virtual void fixInSky();
-	
-  /**Sets the snake to position pos, sets color to c, and creates snake if necessary.
-   *This overwrides the function place of the class robot.
-   *@param pos desired position of the snake in struct Position
-   *@param c desired color for the snake in struct Color
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual void place (Position pos, Color *c = 0);
-	
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
-  
+ 
+  /** sets the pose of the vehicle
+      @params pose desired 4x4 pose matrix
+  */
+  virtual void place(const osg::Matrix& pose);
+
+  /// update all primitives and joints
+  virtual void update();
+
   /**
    *This is the collision handling function for snake robots.
    *This overwrides the function collisionCallback of the class robot.
@@ -152,69 +109,74 @@ public:
    *@param o1 first geometrical object, which has taken part in the collision
    *@param o2 second geometrical object, which has taken part in the collision
    *@return true if the collision was threated  by the robot, false if not
-   *@author Marcel Kretschmann
-   *@version beta
    **/
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-   */
-  virtual void doInternalStuff(const GlobalData& globalData);
+  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);	
 
+  static void mycallback(void *data, dGeomID o1, dGeomID o2);
+
+  virtual void doInternalStuff(const GlobalData& global);
 	
+  /**
+   *Reads the actual motor commands from an array, 
+   *an sets all motors of the snake to this values.
+   *It is an linear allocation.
+   *@param motors pointer to the array, motor values are scaled to [-1,1] 
+   *@param motornumber length of the motor array
+   **/
+  virtual void setMotors ( const motor* motors, int motornumber ) = 0;
+
   /**
    *Writes the sensor values to an array in the memory.
    *@param sensor* pointer to the array
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
-   *@author Marcel Kretschmann
-   *@version beta
    **/
-  virtual int getSensors ( sensor* sensors, int sensornumber );
+  virtual int getSensors ( sensor* sensors, int sensornumber ) = 0;
 	
-  /**
-   *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
-   *It is an linear allocation.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
-   *@param motornumber length of the motor array
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual void Schlange::setMotors ( const motor* motors, int motornumber );
-	
-  /**
-   *Returns the number of motors used by the snake.
-   *@return number of motors
-   *@author Marcel Kretschmann
-   *@version final
-   **/
-  virtual int Schlange::getMotorNumber();
-	
-  /**
-   *Updates the sensorarray.
-   *This overwrides the function sensoraktualisierung of the class robot
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  void sensoraktualisierung ( );
-		
-  /**
-   *Returns the position of one element of the snake.
-   @param n number of the snake element
-   *@return Position (x,y,z)
-   *@author Marcel Kretschmann
-   *@version final
-   **/
-  virtual Position getObjektPosition ( int n );
-	
-  /**
-   *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual void Schlange::getStatus ();
+  /** returns number of sensors
+   */
+  virtual int getSensorNumber() = 0;
 
+  /** returns number of motors
+   */
+  virtual int getMotorNumber() = 0;
+
+  /** returns a vector with the positions of all segments of the robot
+      @param poslist vector of positions (of all robot segments) 
+      @return length of the list
+  */
+  virtual int getSegmentsPosition(vector<Position> &poslist);
+
+  /// returns the name of the object (with version number)
+  virtual paramkey getName() const { return name; } 
+
+  /** The list of all parameters with there value as allocated lists.
+      @param keylist,vallist will be allocated with malloc (free it after use!)
+      @return length of the lists
+  */
+  virtual paramlist getParamList() const;
+
+  virtual paramval getParam(const paramkey& key) const;;
+
+  virtual bool setParam(const paramkey& key, paramval val);
+
+
+protected:
+  /** the main object of the robot, which is used for position and speed tracking */
+  virtual Primitive* getMainPrimitive() const {
+    if(!objects.empty()){
+      int half = objects.size()/2;
+      return (objects[half]);
+    }else return 0;
+  }
+
+  /** creates vehicle at desired pose
+      @param pose 4x4 pose matrix
+  */
+  virtual void create(const osg::Matrix& pose); 
+  virtual void destroy();
 };
+
+}
 
 #endif
