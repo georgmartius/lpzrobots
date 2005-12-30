@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2005-12-14 15:37:09  martius
+ *   Revision 1.1.2.11  2005-12-30 22:54:16  martius
+ *   collisioncallback must be implemented
+ *
+ *   Revision 1.1.2.10  2005/12/14 15:37:09  martius
  *   robots are working with osg
  *
  *   Revision 1.1.2.9  2005/12/13 18:11:40  martius
@@ -138,9 +141,7 @@ namespace lpzrobots {
      *  (collision will be ignored by other objects and the default routine)
      *  else false (collision is passed to other objects and (if not treated) to the default routine).
      */
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){
-      return false;
-    }
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) = 0;
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
