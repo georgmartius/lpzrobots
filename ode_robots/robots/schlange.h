@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.2  2005-12-29 16:45:46  martius
+ *   Revision 1.15.4.3  2005-12-30 22:53:13  martius
+ *   removed parentspace!
+ *
+ *   Revision 1.15.4.2  2005/12/29 16:45:46  martius
  *   does not inherit from Roboter
  *   moved to osg
  *
@@ -72,7 +75,6 @@ protected:
 
   vector <Primitive*> objects;
   vector <Joint*> joints;
-  dSpaceID parentspace;
   SchlangeConf conf;
 
 public:

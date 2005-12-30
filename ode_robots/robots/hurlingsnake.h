@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.4  2005-12-21 17:35:09  martius
+ *   Revision 1.6.4.5  2005-12-30 22:54:38  martius
+ *   removed parentspace!
+ *
+ *   Revision 1.6.4.4  2005/12/21 17:35:09  martius
  *   moved to osg
  *
  *   Revision 1.6.4.3  2005/11/16 11:26:52  martius
@@ -175,8 +178,6 @@ namespace lpzrobots {
     paramval factorForce;
     paramval frictionGround;
     paramval factorSensor;
-
-    dSpaceID parentspace; 
 
   };
 
