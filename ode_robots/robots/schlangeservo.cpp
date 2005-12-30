@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.3  2005-12-29 16:46:52  martius
+ *   Revision 1.5.4.4  2005-12-30 22:52:52  martius
+ *   joint axis have right size
+ *
+ *   Revision 1.5.4.3  2005/12/29 16:46:52  martius
  *   inherits from Schlange
  *   moved to osg
  *
@@ -102,7 +105,7 @@ int SchlangeServo::getSensors ( sensor* sensors, int sensornumber )
       HingeJoint* j = new HingeJoint(objects[n], objects[n+1],
 				(objects[n]->getPosition() + objects[n+1]->getPosition())/2,
 				osg::Vec3(0,0,1)* pose);
-      j->init(odeHandle, osgHandle, true);
+      j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
         
       // setting stops at universal joints		
       j->setParam(dParamLoStop, -conf.jointLimit*1.5);
