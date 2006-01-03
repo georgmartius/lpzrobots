@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-21 15:38:12  martius
+ *   Revision 1.1.2.2  2006-01-03 10:20:16  fhesse
+ *   methods of AngularMotor1Axis public now
+ *
+ *   Revision 1.1.2.1  2005/12/21 15:38:12  martius
  *   angular motors nicely wrapped
  *
  *                                                                 *
@@ -70,6 +73,7 @@ namespace lpzrobots {
 
   /// Angular motor for OneAxisJoints
   class AngularMotor1Axis : public AngularMotor {
+  public:
     /** Constuct a motor attached to a OneAxisJoint. It will its axis of course.
 	@param power The maximum force or torque that the motor will use to achieve the desired velocity. 
 	This must always be greater than or equal to zero. 
