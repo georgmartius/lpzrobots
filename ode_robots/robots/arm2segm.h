@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.4  2006-01-03 10:01:46  fhesse
+ *   Revision 1.4.4.5  2006-01-03 13:18:51  fhesse
+ *   cleaned up
+ *   TODO: in the long run robot disappears (huge sensorvalues)
+ *
+ *   Revision 1.4.4.4  2006/01/03 10:01:46  fhesse
  *   moved to osg
  *
  *   Revision 1.4.4.3  2005/11/16 11:26:52  martius
@@ -69,18 +73,15 @@ namespace lpzrobots{
     int segmentsno;    // number of segments
 
     double base_mass;  // mass of base
+    double base_length;
+    double base_width;
+
     double arm_mass;   // mass of arms
+    double arm_width;
+    double arm_length;
+    double arm_offset; // used for placing of arms
 
-    double gelenkabstand;
-    double SOCKEL_LAENGE;
-    double SOCKEL_BREITE;
-    double SOCKEL_HOEHE; 
-    double SOCKEL_MASSE;
-
-    double ARMDICKE;
-    double ARMLAENGE;
-    double ARMABSTAND;
-    double ARMMASSE;
+    double joint_offset; // used for placing of arms
   } Arm2SegmConf;
 
 
@@ -92,27 +93,20 @@ namespace lpzrobots{
 
     virtual ~Arm2Segm(){};
 
-  static Arm2SegmConf getDefaultConf(){
-    Arm2SegmConf conf;
-    conf.max_force=5;  // maximal force for motors
-    conf.segmentsno=4;    // number of segments
-
-    conf.base_mass=0.5;
-    conf.arm_mass=0.1;
-
-    conf.gelenkabstand =0.2;
-    conf.SOCKEL_LAENGE= 0.4;
-    conf.SOCKEL_BREITE= 0.1;
-    conf.SOCKEL_HOEHE =0.4;
-    conf.SOCKEL_MASSE =1;
-
-    conf.ARMDICKE=0.2;
-    conf.ARMLAENGE = 1.2;
-    conf.ARMABSTAND= 0.03;
-    conf.ARMMASSE = 0.001;
-
-    return conf;
-  }
+    static Arm2SegmConf getDefaultConf(){
+      Arm2SegmConf conf;
+      conf.max_force=5;       // maximal force for motors
+      conf.segmentsno=4;      // number of segments
+      conf.base_mass=0.5;     // mass of base segment
+      conf.base_length= 0.4;  // length of base segment
+      conf.base_width= 0.1;   // width of base segment
+      conf.arm_mass=0.1;      // mass of arm elements
+      conf.arm_width=0.2;     // width (thickness) of arms
+      conf.arm_length = 1.2;  // length of arms 
+      conf.arm_offset= 0.03;  // offset between arms (so that they do not touch)
+      conf.joint_offset=0.2;  // overlapping of arms (to have area for joints)
+      return conf;
+    }
 
     /// update the subcomponents
     virtual void update();
@@ -121,7 +115,6 @@ namespace lpzrobots{
 	@params pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose);
-
 
     /** returns actual sensorvalues
 	@param sensors sensors scaled to [-1,1] 
@@ -185,20 +178,16 @@ namespace lpzrobots{
     */
     virtual void create(const osg::Matrix& pose); 
  
-
     /** destroys vehicle and space
      */
     virtual void destroy();
 
     static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
-
-
     dSpaceID parentspace;
 
     Arm2SegmConf conf;
 
-    //    double old_angle[armanzahl+1];
     vector <Primitive*> objects;
     vector <Joint*> joints;
     vector <AngularMotor1Axis*> amotors;
@@ -211,7 +200,6 @@ namespace lpzrobots{
     int motorno;       // number of motors
     
     bool created;      // true if robot was created
-
   };
 };
 #endif
