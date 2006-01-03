@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2005-12-15 17:03:43  martius
+ *   Revision 1.1.2.7  2006-01-03 10:06:16  fhesse
+ *   primitive::getGeom and getBody return 0 if it is zero pointer
+ *
+ *   Revision 1.1.2.6  2005/12/15 17:03:43  martius
  *   cameramanupulator setPose is working
  *   joints have setter and getter parameters
  *   Primitives are not longer inherited from OSGPrimitive, moreover
@@ -131,11 +134,13 @@ namespace lpzrobots{
   }
 
   dGeomID Primitive::getGeom() const { 
-    return geom; 
+   if (this) return geom; 
+   else return 0;
   }
 
   dBodyID Primitive::getBody() const { 
-    return body; 
+   if (this) return body; 
+   else return 0;
   }
 
   /******************************************************************************/
