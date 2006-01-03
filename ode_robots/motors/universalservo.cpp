@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-20 17:53:42  martius
+ *   Revision 1.1.2.2  2006-01-03 10:42:17  fhesse
+ *   get...1() -> getPosition1()
+ *
+ *   Revision 1.1.2.1  2005/12/20 17:53:42  martius
  *   changed to Joints from joint.h
  *   new servos for universal and hinge2
  *
@@ -53,20 +56,20 @@ void UniversalServo::set(double pos1, double pos2){
     pos1 *= -min1;
   }
   pid1.setTargetPosition(pos1);  
-  double force1 = pid1.stepWithD(joint->getAngle1(), joint->getAngle1Rate());
+  double force1 = pid1.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
   if(pos2 > 0){
     pos2 *= max2; 
   }else{
     pos2 *= -min2;
   }
   pid2.setTargetPosition(pos2);  
-  double force2 = pid2.stepWithD(joint->getAngle2(), joint->getAngle2Rate());
+  double force2 = pid2.stepWithD(joint->getPosition2(), joint->getPosition2Rate());
 
   joint->addTorques(force1, force2);
 }
 
 double UniversalServo::get1(){
-  double pos = joint->getAngle1(); 
+  double pos = joint->getPosition1(); 
   if(pos > 0){
     pos /= max1; 
   }else{
@@ -76,7 +79,7 @@ double UniversalServo::get1(){
 }
 
 double UniversalServo::get2(){
-  double pos = joint->getAngle2(); 
+  double pos = joint->getPosition2(); 
   if(pos > 0){
     pos /= max2; 
   }else{

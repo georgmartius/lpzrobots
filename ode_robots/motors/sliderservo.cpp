@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.1  2005-12-20 17:53:42  martius
+ *   Revision 1.5.4.2  2006-01-03 10:42:17  fhesse
+ *   get...1() -> getPosition1()
+ *
+ *   Revision 1.5.4.1  2005/12/20 17:53:42  martius
  *   changed to Joints from joint.h
  *   new servos for universal and hinge2
  *
@@ -62,12 +65,12 @@ void SliderServo::set(double pos){
     pos *= -min;
   }
   pid.setTargetPosition(pos);  
-  double force = pid.stepWithD(joint->getLength(), joint->getLengthRate());
+  double force = pid.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
   joint->addForce(force);  
 }
 
 double SliderServo::get(){
-  double pos =  joint->getLength();
+  double pos =  joint->getPosition1();
   if(pos > 0){
     pos /= max; 
   }else{
