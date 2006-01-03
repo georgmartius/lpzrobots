@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.1  2005-11-15 12:29:35  martius
+ *   Revision 1.2.4.2  2006-01-03 10:01:05  fhesse
+ *   moved to osg
+ *
+ *   Revision 1.2.4.1  2005/11/15 12:29:35  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.2  2005/11/09 13:36:41  fhesse
@@ -29,113 +32,75 @@
  *   Revision 1.7  2005/11/09 13:28:24  fhesse
  *   GPL added
  *                                                                * 
-/***************************************************************************/
+ ***************************************************************************/
 #include <stdio.h>
-#include <drawstuff/drawstuff.h>
-#include <ode/ode.h>
 
 #include <selforg/noisegenerator.h>
 #include "simulation.h"
 #include "odeagent.h"
 #include <selforg/one2onewiring.h>
-#include "nimm2.h"
 #include "playground.h"
 
 #include "arm2segm.h"
 
 #include <selforg/invertnchannelcontroller.h>
+#include <selforg/sinecontroller.h>
 
-ConfigList configs;
+using namespace lpzrobots;
+
 list<PlotOption> plotoptions;
 
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(OdeAgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
+class ThisSim : public Simulation {
 
-//Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
-{
-  dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-  dsPrint ( "------------------------------------------------------------------------\n" );
-  dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
+public:
 
-  //Anfangskameraposition und Punkt auf den die Kamera blickt
-  float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
-  dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
-  dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
-  // initialization
-  simulationConfig.noise=0.1;
-  int chessTexture = dsRegisterTexture("chess.ppm");
-  printf("Chess: %i", chessTexture);
+  /// start() is called at the start and should create all the object (obstacles, agents...).
+  virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
+  {
+    setCameraHomePos(Pos(8.85341, -11.2614, 3.32813),  Pos(33.5111, -7.0144, 0));
+
+    // initialization
+    global.odeConfig.noise=0.1;
+
+//     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(7.0, 0.2, 1.5));
+//     playground->setPosition(Pos(0,0,0)); // playground positionieren und generieren
+//     global.obstacles.push_back(playground);
+
+    Arm2SegmConf arm_conf=Arm2Segm::getDefaultConf();
+    Arm2Segm* vehicle = new Arm2Segm(odeHandle, osgHandle, arm_conf);
+    ((OdeRobot* )vehicle)->place(Position(0,0,0));
+    AbstractController *controller = new InvertNChannelController(10);  
+    //AbstractController *controller = new SineController();  
+    global.configs.push_back(vehicle);
   
-  Playground* playground = new Playground(world, space);
-  playground->setGeometry(7.0, 0.2, 1.5);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    OdeAgent* agent = new OdeAgent(plotoptions);
+    agent->init(controller, vehicle, wiring);
+    global.agents.push_back(agent);
 
-//   Nimm2* vehicle = new Nimm2(world, space, contactgroup);
-//   vehicle->setTextures(DS_WOOD, chessTexture); 
-//   vehicle->place(Position(0,0,0));
-//   AbstractController *controller = new InvertNChannelController(10);  
-
-  Arm2Segm* vehicle = new Arm2Segm(world, space, contactgroup);
-  //vehicle->setTextures(DS_WOOD, chessTexture); 
-  vehicle->place(Position(0,0,0));
-  AbstractController *controller = new InvertNChannelController(10);  
-  configs.push_back(vehicle);
-  
-  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  OdeAgent* agent = new OdeAgent(plotoptions);
-  agent->init(controller, vehicle, wiring);
-  agents.push_back(agent);
-
-  configs.push_back(&simulationConfig);
-  configs.push_back(controller);
-  showParams(configs);
-}
-
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
-    delete (*i);
+    global.configs.push_back(controller);
+    showParams(global.configs);
   }
-  obstacles.clear();
-  for(OdeAgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    delete (*i)->getRobot();
-    delete (*i)->getController();
-    delete (*i);
-  }
-  agents.clear();
-}
+};
 
-
-// this function is called if the user pressed Ctrl-C
-void config(){
-  changeParams(configs);
-}
 
 void printUsage(const char* progname){
   printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
   exit(0);
 }
 
+
+
 int main (int argc, char **argv)
 {  
   if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
   if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
-  // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config);
-  // start the simulation (returns, if the user closes the simulation)
-  simulation_start(argc, argv);
-  simulation_close();  // tidy up.
-  return 0;
+  
+  ThisSim sim;
+  return sim.run(argc, argv) ? 0 : 1;
+  
 }
  
+
