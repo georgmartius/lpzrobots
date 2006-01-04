@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.4  2006-01-03 13:18:51  fhesse
+ *   Revision 1.6.4.5  2006-01-04 14:45:10  fhesse
+ *   hingejoint axis multiplied with pose (in hinge joiunt constructor)
+ *
+ *   Revision 1.6.4.4  2006/01/03 13:18:51  fhesse
  *   cleaned up
  *   TODO: in the long run robot disappears (huge sensorvalues)
  *
@@ -226,7 +229,7 @@ namespace lpzrobots{
     
     // hinge joint and angular motor to connect base with world
     Pos p1(objects[0]->getPosition());
-    HingeJoint* j = new HingeJoint(0, objects[0], p1, osg::Vec3(0,0,1));
+    HingeJoint* j = new HingeJoint(0, objects[0], p1, osg::Vec3(0,0,1) * pose);
     j -> init(odeHandle, osgHandle,/*withVisual*/true);
     joints.push_back(j);
     AngularMotor1Axis* a=new AngularMotor1Axis(odeHandle, (OneAxisJoint *)joints[0], conf.max_force);
@@ -235,7 +238,7 @@ namespace lpzrobots{
     // hinge joint and angular motor to connect base with first arm
     Pos p2(objects[1]->getPosition());
     p1[1]=(p1[1]+p2[1])/2;
-    j = new HingeJoint(objects[0], objects[1], p1, osg::Vec3(0,1,0));
+    j = new HingeJoint(objects[0], objects[1], p1, osg::Vec3(0,1,0) * pose);
     j -> init(odeHandle, osgHandle,/*withVisual*/true);
     joints.push_back(j);
     a=new AngularMotor1Axis(odeHandle, (OneAxisJoint *)joints[1], conf.max_force);
@@ -246,7 +249,7 @@ namespace lpzrobots{
       Pos po1(objects[i-1]->getPosition());
       Pos po2(objects[i]->getPosition());
       Pos po3( (po1+po2)/2);  
-      j = new HingeJoint(objects[i-1], objects[i], po3, osg::Vec3(0,1,0));
+      j = new HingeJoint(objects[i-1], objects[i], po3, osg::Vec3(0,1,0) * pose);
       j -> init(odeHandle, osgHandle,/*withVisual*/true);
       joints.push_back(j);
       a=new AngularMotor1Axis(odeHandle, (OneAxisJoint *)joints[i], conf.max_force);
