@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-22 15:50:00  robot3
+ *   Revision 1.4  2006-01-05 19:42:36  robot3
+ *   sensor is now compatible with new function of class RaceGround, possibly we forgot to checkin this file
+ *
+ *   Revision 1.3  2005/11/22 15:50:00  robot3
  *   testing
  *
  *   Revision 1.2  2005/11/22 14:13:31  robot3
@@ -63,8 +66,9 @@ bool RaceGroundSensor::sense(const GlobalData& global){
     RaceGround* rg = dynamic_cast<RaceGround*>(*i);
     if (rg!=0) {
       // Todo add stuff here
-      segmentPosition = rg->getSegmentNumberOfRobot(robotPos);
-      widthPosition = rg->getWidthOfRobot(robotPos);
+      pair<double, double> trackpos = rg->getPositionOnTrack(robotPos);
+      segmentPosition = trackpos.first;
+      widthPosition = trackpos.second;
       found=true;
     }    
   }
