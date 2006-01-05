@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.5  2006-01-04 14:45:10  fhesse
+ *   Revision 1.6.4.6  2006-01-05 13:50:31  fhesse
+ *   started to add tip at the end
+ *
+ *   Revision 1.6.4.5  2006/01/04 14:45:10  fhesse
  *   hingejoint axis multiplied with pose (in hinge joiunt constructor)
  *
  *   Revision 1.6.4.4  2006/01/03 13:18:51  fhesse
@@ -124,8 +127,17 @@ namespace lpzrobots{
     // to set it on the ground when the z component of the position is 0
     // base_length*0.5 is added (without this half of the base will be in the ground)    
     osg::Matrix p2;
-    p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.base_length* 0.5)); 
+    p2 = pose 
+      // TODO: create is not robust enough to endure this pose !!
+      //      * osg::Matrix::rotate(M_PI/2, 0, 0, 1) 
+      * osg::Matrix::translate(osg::Vec3(0, 0, conf.base_length* 0.5)); 
     create(p2);
+
+
+      // p->setPose(osg::Matrix::rotate(M_PI/2, 0, 0, 1) *
+// 		 osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * 
+// 		 pose);
+
   };
 
 
@@ -226,10 +238,10 @@ namespace lpzrobots{
 						    0) ) * pose);
       objects.push_back(o);
     }
-    
+
     // hinge joint and angular motor to connect base with world
     Pos p1(objects[0]->getPosition());
-    HingeJoint* j = new HingeJoint(0, objects[0], p1, osg::Vec3(0,0,1) * pose);
+    HingeJoint* j = new HingeJoint(0, objects[0], p1, osg::Vec3(0,0,1) /** pose*/);
     j -> init(odeHandle, osgHandle,/*withVisual*/true);
     joints.push_back(j);
     AngularMotor1Axis* a=new AngularMotor1Axis(odeHandle, (OneAxisJoint *)joints[0], conf.max_force);
@@ -238,7 +250,7 @@ namespace lpzrobots{
     // hinge joint and angular motor to connect base with first arm
     Pos p2(objects[1]->getPosition());
     p1[1]=(p1[1]+p2[1])/2;
-    j = new HingeJoint(objects[0], objects[1], p1, osg::Vec3(0,1,0) * pose);
+    j = new HingeJoint(objects[0], objects[1], p1, osg::Vec3(0,1,0) /** pose*/);
     j -> init(odeHandle, osgHandle,/*withVisual*/true);
     joints.push_back(j);
     a=new AngularMotor1Axis(odeHandle, (OneAxisJoint *)joints[1], conf.max_force);
@@ -249,12 +261,22 @@ namespace lpzrobots{
       Pos po1(objects[i-1]->getPosition());
       Pos po2(objects[i]->getPosition());
       Pos po3( (po1+po2)/2);  
-      j = new HingeJoint(objects[i-1], objects[i], po3, osg::Vec3(0,1,0) * pose);
+      j = new HingeJoint(objects[i-1], objects[i], po3, osg::Vec3(0,1,0) /** pose*/);
       j -> init(odeHandle, osgHandle,/*withVisual*/true);
       joints.push_back(j);
       a=new AngularMotor1Axis(odeHandle, (OneAxisJoint *)joints[i], conf.max_force);
       amotors.push_back(a);
     }
+
+// --------------
+// TODO: add tip at the end of arm for easier getPosition; temporarily positioning of transform object does not work
+    osg::Matrix ps;
+    ps.makeIdentity();
+    Primitive* o1 = new Sphere(conf.arm_width*0.8);
+    Primitive* o2 = new Transform(objects[objects.size()-1], o1, osg::Matrix::translate(0, conf.arm_length*0.5, 0) * ps);
+    o2->init(odeHandle, /*mass*/0, osgHandle, /*withBody*/ false);
+// --------------    
+
     created=true;
   }; 
 
