@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-01-10 17:15:16  martius
+ *   Revision 1.1.2.2  2006-01-10 17:15:44  martius
+ *   removed wrong comment
+ *
+ *   Revision 1.1.2.1  2006/01/10 17:15:16  martius
  *   was sphererobotarms
  *   moved to osg
  *
@@ -78,12 +81,6 @@ public:
 } Sphererobot3MassesConf;
 
 
-/**
- *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 
- *by a joint. This class is based upon the class roboter by the same author.
- *@author Marcel Kretschmann
- *@version beta
- **/
 class Sphererobot3Masses : public OdeRobot
 {
 public:
