@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.2  2005-12-06 10:13:23  martius
+ *   Revision 1.12.4.3  2006-01-10 15:08:15  martius
+ *   controlinterval is 1 by default
+ *
+ *   Revision 1.12.4.2  2005/12/06 10:13:23  martius
  *   openscenegraph integration started
  *
  *   Revision 1.12.4.1  2005/11/14 17:37:00  martius
@@ -46,7 +49,7 @@ public:
     name ("Simulation Environment: ")
   {
     simStepSize=0.01;
-    controlInterval=5;
+    controlInterval=1;
     realTimeFactor=1.0;
     noise=0.1;
     gravity=-9.81;
