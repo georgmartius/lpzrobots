@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.3  2005-11-16 11:26:53  martius
+ *   Revision 1.3.4.4  2006-01-10 20:32:58  martius
+ *   moved to osg
+ *
+ *   Revision 1.3.4.3  2005/11/16 11:26:53  martius
  *   moved to selforg
  *
  *   Revision 1.3.4.2  2005/11/15 12:29:27  martius
@@ -44,76 +47,64 @@
 #ifndef __SHORTCIRCUIT_H
 #define __SHORTCIRCUIT_H
 
-#include <ode/common.h>
 
-#include <vector>
-using namespace std;
- 
+#include "oderobot.h"
 
-/**
- * 
- */
-class ShortCircuit : public OdeRobot{
-public:
+namespace lpzrobots {
+
   /**
-   * Constructor
-   * @param w world in which robot should be created
-   * @param s space in which robot should be created
-   * @param c contactgroup for collision treatment
+   * 
    */
-  ShortCircuit(const OdeHandle& odeHandle,int sensornumber, int motornumber);
+  class ShortCircuit : public OdeRobot{
+  public:
+    ShortCircuit(const OdeHandle& odeHandle, const OsgHandle& osgHandle, int sensornumber, int motornumber);
 
-  /// draws the robot
-  virtual void draw();
+    virtual void update() {}
 
-/** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-    @params pos desired position of the robot in struct Position
-    @param c desired color for the robot in struct Color
-*/
-  virtual void place(Position pos , Color *c = 0) {}
+    /** sets the pose of the vehicle
+	@params pose desired 4x4 pose matrix
+    */
+    virtual void place(const osg::Matrix& pose) {}
 
-  /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
-      @param sensornumber length of the sensor array
-      @return number of actually written sensors
-  */
-  virtual int getSensors(sensor* sensors, int sensornumber);
+    /** returns actual sensorvalues
+	@param sensors sensors scaled to [-1,1] 
+	@param sensornumber length of the sensor array
+	@return number of actually written sensors
+    */
+    virtual int getSensors(sensor* sensors, int sensornumber);
 
-  /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
-      @param motornumber length of the motor array
-  */
-  virtual void setMotors(const motor* motors, int motornumber);
+    /** sets actual motorcommands
+	@param motors motors scaled to [-1,1] 
+	@param motornumber length of the motor array
+    */
+    virtual void setMotors(const motor* motors, int motornumber);
 
-  /** returns number of sensors
-  */
-  virtual int getSensorNumber() {return sensorno; }
+    /** returns number of sensors
+     */
+    virtual int getSensorNumber() {return sensorno; }
 
-  /** returns number of motors
-  */
-  virtual int getMotorNumber() {return motorno; }
+    /** returns number of motors
+     */
+    virtual int getMotorNumber() {return motorno; }
 
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-  */
-  virtual void doInternalStuff(const GlobalData& globalData) {}
+    /** this function is called in each timestep. It should perform robot-internal checks, 
+	like space-internal collision detection, sensor resets/update etc.
+	@param GlobalData structure that contains global data from the simulation environment
+    */
+    virtual void doInternalStuff(const GlobalData& globalData) {}
 
 
-  /** returns a vector with the positions of all segments of the robot
-      @param vector of positions (of all robot segments) 
-      @return length of the list
-  */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
+  protected:
+    /** the main object of the robot, which is used for position and speed tracking */
+    virtual Primitive* getMainPrimitive() const { return 0; }
 
-protected:
-  virtual Object getMainObject() const  { return Object(); }
+  protected:
+    int sensorno;      //number of sensors
+    int motorno;       // number of motors
+    motor* motors;
+  } ;
 
- protected:
-  int sensorno;      //number of sensors
-  int motorno;       // number of motors
-  motor* motors;
-} ;
+}
 
 #endif
  
