@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.4  2006-01-10 15:10:24  martius
+ *   Revision 1.11.4.5  2006-01-10 17:17:17  martius
+ *   new mode for primitives
+ *
+ *   Revision 1.11.4.4  2006/01/10 15:10:24  martius
  *   fine tuning, fuer controllinterval 1
  *   still not transparent
  *
@@ -214,12 +217,14 @@ namespace lpzrobots {
       y=cos ( (float) alpha*2*M_PI/3 )*conf.diameter/3.5;
 
       object[Pole1Bot+alpha] = new Box(conf.diameter/50, conf.diameter/50, conf.diameter/50);
-      object[Pole1Bot+alpha]->init(odeHandle, conf.slidermass, osgHandle_bottom, true, false);
+      object[Pole1Bot+alpha]->init(odeHandle, conf.slidermass, osgHandle_bottom, 
+				   Primitive::Body | Primitive::Draw);
       object[Pole1Bot+alpha]->setPose(osg::Matrix::translate(x,y,- conf.diameter/2 + conf.diameter/9) * 
 				      pose);
 
       object[Pole1Top+alpha] = new Box(conf.diameter/50, conf.diameter/50, conf.diameter/50);
-      object[Pole1Top+alpha]->init(odeHandle, conf.slidermass, osgHandle_pendular, true, false);
+      object[Pole1Top+alpha]->init(odeHandle, conf.slidermass, osgHandle_pendular, 
+				   Primitive::Body | Primitive::Draw);
       object[Pole1Top+alpha]->setPose(osg::Matrix::translate(x,y,0) * pose);
 
       //combines the 3 upper connection bodies with the pendular

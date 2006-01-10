@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.1  2005-12-06 10:13:23  martius
+ *   Revision 1.10.4.2  2006-01-10 17:17:33  martius
+ *   new mode for primitives
+ *
+ *   Revision 1.10.4.1  2005/12/06 10:13:23  martius
  *   openscenegraph integration started
  *
  *   Revision 1.10  2005/09/22 12:24:36  martius
@@ -115,23 +118,23 @@ public:
   virtual void create(){
     osg::Vec3 offset(- (length/2 + width/2), 0, height/2);
     box[0] = new Box( width , (length * factorlength2) + 2 * width , height);
-    box[0]->init(odeHandle, 0, osgHandle, false);
+    box[0]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box[0]->setPosition(pos + offset);
 
     offset.x() = length/2 + width/2;
     box[1] = new Box( width , (length * factorlength2) + 2 * width , height);
-    box[1]->init(odeHandle, 0, osgHandle, false);
+    box[1]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box[1]->setPosition(pos + offset);
 
     offset.x() = 0;
     offset.y() = -( (length*factorlength2)/2 +width/2);
     box[2] = new Box( length, width, height);
-    box[2]->init(odeHandle, 0, osgHandle, false);
+    box[2]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box[2]->setPosition(pos + offset);
 
     offset.y() = (length*factorlength2)/2 +width/2;
     box[3] = new Box( length, width, height);
-    box[3]->init(odeHandle, 0, osgHandle, false);
+    box[3]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box[3]->setPosition(pos + offset);
     
     obstacle_exists=true;
