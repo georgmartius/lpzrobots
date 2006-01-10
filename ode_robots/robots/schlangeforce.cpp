@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.2  2006-01-04 14:46:00  fhesse
+ *   Revision 1.12.4.3  2006-01-10 14:24:32  fhesse
+ *   second motor config
+ *
+ *   Revision 1.12.4.2  2006/01/04 14:46:00  fhesse
  *   inherits from Schlange; moved to osg
  *
  *   Revision 1.12.4.1  2005/12/12 22:36:28  martius
@@ -67,8 +70,12 @@ namespace lpzrobots {
     // controller output as torques; friction added
     for (int i = 0; i < len; i++){
       // motorcommand
-// 	((UniversalJoint*)joints[i])->addTorques(factor_motors * motors[2*i], 
-// 						 factor_motors * motors[2*i+1]);
+      // use all motors
+      /*
+      ((UniversalJoint*)joints[i])->addTorques(factor_motors * motors[2*i], 
+ 						 factor_motors * motors[2*i+1]);
+      */
+      // or use only one motor at a joint (alternating between motor 1 and motor 2)
       if (i%2==0){
 	((UniversalJoint*)joints[i])->addTorques(factor_motors * motors[2*i],0);
       }
