@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.1  2005-12-20 17:53:42  martius
+ *   Revision 1.2.4.2  2006-01-10 14:49:23  martius
+ *   maxforce not needed
+ *
+ *   Revision 1.2.4.1  2005/12/20 17:53:42  martius
  *   changed to Joints from joint.h
  *   new servos for universal and hinge2
  *
@@ -58,7 +61,6 @@ private:
   double min;
   double max;
   SliderJoint* joint;
-  double maxforce;
 };
 
 }
