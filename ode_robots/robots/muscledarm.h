@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.5  2005-12-16 16:36:05  fhesse
+ *   Revision 1.1.4.6  2006-01-10 09:38:00  fhesse
+ *   partially moved to osg
+ *
+ *   Revision 1.1.4.5  2005/12/16 16:36:05  fhesse
  *   manual control via keyboard
  *   setMotors via dJointAddSliderForce
  *
@@ -45,8 +48,11 @@
 
 #include "oderobot.h"
 #include <selforg/configurable.h>
+#include "primitive.h"
+#include "joint.h"
 
-#include "bodyfollower.h"
+namespace lpzrobots{
+
 
 
 #define SIDE (0.2)              /* side length of a box */
@@ -88,7 +94,7 @@ public:
   
   double force_[6];
   
-  MuscledArm(const OdeHandle& odeHandle, const MuscledArmConf& conf);
+  MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const MuscledArmConf& conf);
 
   static MuscledArmConf getDefaultConf(){
     MuscledArmConf conf;
@@ -105,19 +111,18 @@ public:
 
   virtual ~MuscledArm(){};
 
-  /**
-   * draws the vehicle
-   */
-  virtual void draw();
 
-  void setTextures(int texture);
+  /// update the subcomponents
+  virtual void update();
 
 
-  /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-      @params pos desired position of the robot in struct Position
-      @param c desired color for the robot in struct Color
+
+
+  /** sets the pose of the vehicle
+      @params pose desired 4x4 pose matrix
   */
-  virtual void place(Position pos , Color *c = 0);
+  virtual void place(const osg::Matrix& pose);
+
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
@@ -150,6 +155,9 @@ public:
   */
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
+  /** the main object of the robot, which is used for position and speed tracking */
+  virtual Primitive* getMainPrimitive() const { return object[0]; }
+
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
@@ -175,16 +183,17 @@ public:
 
 protected:
   
-  virtual Object getMainObject() const;
+  virtual Primitive* getMainObject() const;
 
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
+  /** creates vehicle at desired pose
+      @param pose 4x4 pose matrix
   */
-  virtual void create(Position pos); 
+  virtual void create(const osg::Matrix& pose); 
 
   /** destroys vehicle and space
    */
   virtual void destroy();
+
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
   double dBodyGetPositionAll ( dBodyID basis , int para );
@@ -202,8 +211,8 @@ protected:
 
 
 
-    Object object[NUMParts];  
-    dJointID joint[NUMJoints]; 
+    Primitive* object[NUMParts];  
+    Joint* joint[NUMJoints]; 
 
     Position old_dist[NUMParts]; // used for damping
 
@@ -249,15 +258,16 @@ protected:
   */
   bool created;      // true if robot was created
 
-  int mainTexture;
 
-  dSpaceID arm_space;
+
+  dSpaceID parentspace;
 
   int printed;
 
   double max_l;
   double max_r, min_l, min_r;
-  BodyFollower hand_follower;
+
 };
 
+}
 #endif
