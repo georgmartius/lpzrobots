@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.8  2005-12-29 16:47:40  martius
+ *   Revision 1.21.4.9  2006-01-10 17:16:22  martius
+ *   sensorbank cleared on destroy
+ *
+ *   Revision 1.21.4.8  2005/12/29 16:47:40  martius
  *   joint has getPosition
  *
  *   Revision 1.21.4.7  2005/12/15 17:04:08  martius
@@ -342,6 +345,7 @@ namespace lpzrobots {
 	if(bumper[i].bump) delete bumper[i].bump;
 	if(bumper[i].trans) delete bumper[i].trans;
       }
+      irSensorBank.clear();
       dSpaceDestroy(odeHandle.space);
     }
     created=false;
