@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.4  2006-01-10 20:32:58  martius
+ *   Revision 1.3.4.5  2006-01-10 21:46:34  martius
+ *   collcallbak
+ *
+ *   Revision 1.3.4.4  2006/01/10 20:32:58  martius
  *   moved to osg
  *
  *   Revision 1.3.4.3  2005/11/16 11:26:53  martius
@@ -93,6 +96,7 @@ namespace lpzrobots {
     */
     virtual void doInternalStuff(const GlobalData& globalData) {}
 
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) { return false;}
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
