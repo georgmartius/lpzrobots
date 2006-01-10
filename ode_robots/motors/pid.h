@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.1  2005-12-20 17:53:42  martius
+ *   Revision 1.6.4.2  2006-01-10 14:48:59  martius
+ *   indentation
+ *   #ifdef clausel
+ *
+ *   Revision 1.6.4.1  2005/12/20 17:53:42  martius
  *   changed to Joints from joint.h
  *   new servos for universal and hinge2
  *
@@ -31,14 +35,10 @@
  *   GPL added
  *                                                                * 
 ***************************************************************************/
-
-
-#include <drawstuff/drawstuff.h>
-#include <ode/ode.h>
-#include <vector>
+#ifndef __PID_H
+#define __PID_H
 
 namespace lpzrobots {
-
 
 class PID
 {
@@ -80,3 +80,5 @@ public :
 };
 
 }
+
+#endif
