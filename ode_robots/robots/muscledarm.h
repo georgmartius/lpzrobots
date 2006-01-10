@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.6  2006-01-10 09:38:00  fhesse
+ *   Revision 1.1.4.7  2006-01-10 16:45:53  fhesse
+ *   not working osg version
+ *
+ *   Revision 1.1.4.6  2006/01/10 09:38:00  fhesse
  *   partially moved to osg
  *
  *   Revision 1.1.4.5  2005/12/16 16:36:05  fhesse
@@ -266,6 +269,18 @@ protected:
 
   double max_l;
   double max_r, min_l, min_r;
+
+  double base_width;
+  double base_length;
+  double upperArm_width;
+  double upperArm_length;
+  double lowerArm_width;
+  double lowerArm_length;
+  double joint_offset;
+  double mainMuscle_width;
+  double mainMuscle_length;
+
+
 
 };
 

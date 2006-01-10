@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.5  2006-01-10 09:37:36  fhesse
+ *   Revision 1.1.4.6  2006-01-10 16:45:53  fhesse
+ *   not working osg version
+ *
+ *   Revision 1.1.4.5  2006/01/10 09:37:36  fhesse
  *   partially moved to osg
  *
  *   Revision 1.1.4.4  2005/12/16 16:36:04  fhesse
@@ -95,6 +98,17 @@ namespace lpzrobots{
     for (int i=0; i<6; i++){
       force_[i]=0;
     }
+
+    base_width=SIDE;
+    base_length=SIDE*1.7;
+    upperArm_width=SIDE*0.2;
+    upperArm_length=SIDE*3.0;
+    lowerArm_width=SIDE*0.2;
+    lowerArm_length=SIDE*4.0;
+    mainMuscle_width=SIDE*0.2;
+    mainMuscle_length=SIDE*2;
+
+    joint_offset=0.01;
 
     created=false;
   };
@@ -226,9 +240,9 @@ namespace lpzrobots{
   void MuscledArm::place(const osg::Matrix& pose){
     // the position of the robot is the center of the base
     // to set the arm on the ground when the z component of the position is 0
-    // 0.6 ??? is added 
+    // base_width/2 is added 
     osg::Matrix p2;
-    p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, 0.6)); 
+    p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, base_width/2)); 
     create(p2);
   };
 
@@ -275,13 +289,26 @@ namespace lpzrobots{
    */
   void MuscledArm::update(){
     assert(created); // robot must exist
+
+
+    object[fixedBody]->update();
+    object[upperArm]->update();
+    object[lowerArm]->update();
+    object[hand]->update();
+
+//     joint[fixedJoint]->update();
+     joint[hingeJointFUA]->update();
+     joint[hingeJointUALA]->update();
     
-    for (int i=0; i<segmentsno; i++) { 
-      object[i]->update();
-    }
-    for (int i=0; i < 4; i++) { 
-      joint[i]->update();
-    }
+     for (int i= mainMuscle11; i<smallMuscle11; i++){
+       object[i]->update();
+     }
+//     for (int i=0; i<segmentsno; i++) { 
+//       object[i]->update();
+//     }
+//     for (int i=0; i < 4; i++) { 
+//       joint[i]->update();
+//     }
   };
 
 
@@ -401,39 +428,40 @@ namespace lpzrobots{
 
   bool MuscledArm::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 
-    //checks if both of the collision objects are part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
+//     //checks if both of the collision objects are part of the robot
+//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
     
-      // treat inner collisions in mycallback  => now down with joint stops
-      //dSpaceCollide(arm_space, this, mycallback);
+//       // treat inner collisions in mycallback  => now down with joint stops
+//       //dSpaceCollide(arm_space, this, mycallback);
 
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];
+//       int i,n;  
+//       const int N = 10;
+//       dContact contact[N];
     
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++) {
-	if( contact[i].geom.g1 == object[fixedBody]->getGeom() || 
-	    contact[i].geom.g2 == object[fixedBody]->getGeom() ||
-	    contact[i].geom.g1 == object[upperArm]->getGeom()  || 
-	    contact[i].geom.g2 == object[upperArm]->getGeom()  || 
-	    contact[i].geom.g1 == object[lowerArm]->getGeom()  || 
-	    contact[i].geom.g2 == object[lowerArm]->getGeom() ){ 
-	  // only treat collisions with fixed body, upper arm or lower arm
-	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	  contact[i].surface.mu = 0.01;
-	  contact[i].surface.soft_erp = 1;
-	  contact[i].surface.soft_cfm = 0.00001;
+//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+//       for (i=0; i<n; i++) {
+// 	if( contact[i].geom.g1 == object[fixedBody]->getGeom() || 
+// 	    contact[i].geom.g2 == object[fixedBody]->getGeom() ||
+// 	    contact[i].geom.g1 == object[upperArm]->getGeom()  || 
+// 	    contact[i].geom.g2 == object[upperArm]->getGeom()  || 
+// 	    contact[i].geom.g1 == object[lowerArm]->getGeom()  || 
+// 	    contact[i].geom.g2 == object[lowerArm]->getGeom() ){ 
+// 	  // only treat collisions with fixed body, upper arm or lower arm
+// 	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// 	  contact[i].surface.mu = 0.01;
+// 	  contact[i].surface.soft_erp = 1;
+// 	  contact[i].surface.soft_cfm = 0.00001;
 
-	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-	} 
-      }
-      return true;
-    } else {
-      return false;
-    }
+// 	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+// 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+// 	} 
+//       }
+//       return true;
+//     } else {
+//       return false;
+//     }
  
+    return true;
   }
 
 
@@ -448,78 +476,142 @@ namespace lpzrobots{
     odeHandle.space = dSimpleSpaceCreate(parentspace);
 
     // create base
-    object[fixedBody] = new Box(SIDE, SIDE*1.7, SIDE);
+    //object[fixedBody] = new Box(SIDE, SIDE*1.7, SIDE);
+	object[fixedBody] = new Box(base_width, base_width, base_length);
     object[fixedBody] -> init(odeHandle, MASS, osgHandle); 
 
-    if(conf.strained){
+    //    if(conf.strained){
 
       // place base
-      object[fixedBody] -> setPose(osg::Matrix::translate(5.2*SIDE, 0.25*SIDE, 1.25*SIDE)
+      object[fixedBody] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 0, 1)
+				   //* osg::Matrix::translate(5.2*SIDE, 0.25*SIDE, 1.25*SIDE)
 				   * pose);
       // create and place upper arm
-      object[upperArm] = new Box(SIDE*0.2, SIDE*0.2, SIDE*3.0);
+      object[upperArm] = new Box(upperArm_width, upperArm_width, upperArm_length);
+      this->osgHandle.color = Color(1, 0, 0, 1.0f);
       object[upperArm] -> init(odeHandle, MASS, osgHandle); 
-      object[upperArm] -> setPose(osg::Matrix::translate(3.2*SIDE-0.01,0.25*SIDE,1.25*SIDE)
-				  * osg::Matrix::rotate(M_PI/2, 0, 1, 0)
-				  * pose);
+      object[upperArm] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0)
+ 				  //* osg::Matrix::translate(3.2*SIDE-0.01,0.25*SIDE,1.25*SIDE)
+ 				  * osg::Matrix::translate(-2*SIDE-joint_offset, 0, 0)
+ 				  * pose);
       // create and place lower arm
-      object[lowerArm] = new Box(SIDE*0.2, SIDE*0.2, SIDE*4.0);
+      object[lowerArm] = new Box(lowerArm_width, lowerArm_width, lowerArm_length);
+      this->osgHandle.color = Color(0,1,0);
       object[lowerArm] -> init(odeHandle, MASS, osgHandle); 
-      object[lowerArm] -> setPose(osg::Matrix::translate(1.5*SIDE,1.25*SIDE,1.25*SIDE)
-				  * osg::Matrix::rotate(M_PI/2, 1, 0, 0)
+      object[lowerArm] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 0, 1)
+				  //* osg::Matrix::translate(1.5*SIDE,1.25*SIDE,1.25*SIDE)
+				  * osg::Matrix::translate(-3.7*SIDE,1.0*SIDE,0)
 				  * pose);
+      osg::Vec3 pos;      
 
-      if (conf.includeMuscles) {
-	// create and place boxes for mainMuscles
-	for (int i= mainMuscle11; i<smallMuscle11; i++){
-	  object[i] = new Box(SIDE*0.2f,SIDE*0.2f,SIDE*2.0f);
-	  object[i] -> init(odeHandle, MASS, osgHandle); 
-	}
-	object[mainMuscle11] -> setPose(osg::Matrix::translate(3.7*SIDE, -0.5*SIDE, 1.25*SIDE)
-					* osg::Matrix::rotate(M_PI/2, 0, 1, 0)
-					* pose);
-	object[mainMuscle12] -> setPose(osg::Matrix::translate(2.7*SIDE, -0.5*SIDE, 1.25*SIDE)
-					* osg::Matrix::rotate(M_PI/2, 0, 1, 0)
-					* pose);
-	object[mainMuscle21] -> setPose(osg::Matrix::translate(3.7*SIDE, 1.0*SIDE, 1.25*SIDE)
-					* osg::Matrix::rotate(M_PI/2, 0, 1, 0)
-					* pose);
-	object[mainMuscle22] -> setPose(osg::Matrix::translate(2.7*SIDE, 1.0*SIDE, 1.25*SIDE)
-					* osg::Matrix::rotate(M_PI/2, 0, 1, 0)
-					* pose);
+      // create and place sphere at tip of lower arm
+      pos=object[lowerArm]->getPosition();
+      object[hand] = new Sphere(lowerArm_width*0.5);
+      this->osgHandle.color = Color(0,0,1);
+      object[hand] -> init(odeHandle, MASS/20, osgHandle);    
+      object[hand] -> setPose(//osg::Matrix::rotate(M_PI/2, 0, 0, 1)
+			      //* osg::Matrix::translate(1.5*SIDE,1.25*SIDE,1.25*SIDE)
+			      osg::Matrix::translate(pos[0], pos[1]+ lowerArm_length/2, 0)
+			      * pose);
+      // --------------
+      // TODO: change tip to transform object
+      //       temporarily positioning of transform object does not work
+      //osg::Matrix ps;
+      //ps.makeIdentity();
+      //Primitive* o1 = new Sphere(lowerArm_width);
+      //Primitive* o2 = new Transform(object[lowerArm], o1, 
+      //			    osg::Matrix::translate(0, lowerArm_length*0.5, 0) * ps);
+      //o2->init(odeHandle, /*mass*/0, osgHandle, /*withBody*/ false);
+      // --------------    
 
-	// create and place boxes for smallMuscles
-	for (int i= smallMuscle11; i<hand; i++){
-	  object[i] = new Box(SIDE*0.1f,SIDE*0.1f,SIDE*0.5f);
-	  object[i] -> init(odeHandle, MASS, osgHandle); 
-	}
-	object[smallMuscle11] -> setPose(osg::Matrix::translate(4.37*SIDE, -0.25*SIDE, 1.25*SIDE)
-					 * osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)
-					 * pose);
-	object[smallMuscle12] -> setPose(osg::Matrix::translate(4.1*SIDE, 0.0*SIDE, 1.25*SIDE)
-					 * osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)
-					 * pose);
-	object[smallMuscle21] -> setPose(osg::Matrix::translate(4.37*SIDE, 0.75*SIDE, 1.25*SIDE)
-					 * osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)
-					 * pose);
-	object[smallMuscle22] -> setPose(osg::Matrix::translate(4.1*SIDE, 0.5*SIDE, 1.25*SIDE)
-					 * osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)
-					 * pose);
-	object[smallMuscle32] -> setPose(osg::Matrix::translate(2.00*SIDE, -0.25*SIDE, 1.25*SIDE)
-					 * osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)
-					 * pose);
-	object[smallMuscle31] -> setPose(osg::Matrix::translate(2.3*SIDE, 0.0*SIDE, 1.25*SIDE)
-					 * osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)
-					 * pose);
-	object[smallMuscle42] -> setPose(osg::Matrix::translate(2.00*SIDE, 0.75*SIDE, 1.25*SIDE)
-					 * osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)
-					 * pose);
-	object[smallMuscle41] -> setPose(osg::Matrix::translate(2.3*SIDE,0.5*SIDE,1.25*SIDE)
-					 * osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)
-					 * pose);
-      } 
+
+      // hinge joint between upper arm and fixed body 
+      pos=object[fixedBody]->getPosition();
+      joint[hingeJointFUA] = new HingeJoint(object[fixedBody], object[upperArm], 
+					    osg::Vec3(pos[0]-base_width/2, pos[1], pos[2]), 
+					    osg::Vec3(0, 0, 1));
+      joint[hingeJointFUA]->init(odeHandle, osgHandle, true);
+      // set stops to make sure wheels always stay in alignment
+      //joint[hingeJointFUA]->setParam(dParamLoStop,0);
+      //joint[hingeJointFUA]->setParam(dParamHiStop,0);
+
+      // hinge joint upperArm and lowerArm
+      pos=object[upperArm]->getPosition();
+      joint[hingeJointUALA] = new HingeJoint(object[upperArm], object[lowerArm], 
+					    osg::Vec3(pos[0]-upperArm_length/2, pos[1], pos[2]), 
+					    osg::Vec3(0, 0, 1));
+      joint[hingeJointUALA]->init(odeHandle, osgHandle, true);
+      // set stops to make sure wheels always stay in alignment
+      //joint[hingeJointUALA]->setParam(dParamLoStop,0);
+      //joint[hingeJointUALA]->setParam(dParamHiStop,0);
+
+      
+
+      //       if (conf.includeMuscles) {
+ 	// create and place boxes for mainMuscles
+ 	for (int i= mainMuscle11; i<smallMuscle11; i++){
+	  object[i] = new Box(mainMuscle_width, mainMuscle_width, mainMuscle_length);
+	  //object[i] = new Box(SIDE*0.2f,SIDE*0.2f,SIDE*2.0f);
+ 	  //object[i] = new Capsule(SIDE*0.1f,SIDE*2.0f); 
+ 	  object[i] -> init(odeHandle, MASS, osgHandle); 
+	  if (i==mainMuscle11) this->osgHandle.color = Color(0.4,0.4,0);
+	  if (i==mainMuscle12) this->osgHandle.color = Color(0,1,1);
+	  if (i==mainMuscle21) this->osgHandle.color = Color(1,1,0);
+ 	}                              //* osg::Matrix::translate(5.2*SIDE, 0.25*SIDE, 1.25*SIDE)
+	pos=object[upperArm]->getPosition();
+ 	object[mainMuscle11] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
+					(pos[0]+(upperArm_length-mainMuscle_length)/2,// moved towards base
+					 pos[1]-(base_length/2-mainMuscle_width/2), // left from upper arm
+					 0)  // height is ok
+ 					* pose);
+ 	object[mainMuscle12] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
+					(pos[0]-(upperArm_length-mainMuscle_length)/2,//move away from base
+					 pos[1]-(base_length/2-mainMuscle_width/2), // left from upper arm
+					 0)  // height is ok
+ 					* pose);
+ 	object[mainMuscle21] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
+					(pos[0]+(upperArm_length-mainMuscle_length)/2, //move towards base
+					 pos[1]+(base_length/2-mainMuscle_width/2), // left from upper arm
+					 0)  // height is ok
+ 					* pose);
+ 	object[mainMuscle22] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
+					(pos[0]-(upperArm_length-mainMuscle_length)/2,//move away from base
+					 pos[1]+(base_length/2-mainMuscle_width/2), // left from upper arm
+					 0)  // height is ok
+ 					* pose);
+
+// 	// create and place boxes for smallMuscles
+// 	for (int i= smallMuscle11; i<hand; i++){
+// 	  object[i] = new Box(SIDE*0.1f,SIDE*0.1f,SIDE*0.5f);
+// 	  object[i] -> init(odeHandle, MASS, osgHandle); 
+// 	}
+// 	object[smallMuscle11] -> setPose(osg::Matrix::translate(4.37*SIDE, -0.25*SIDE, 1.25*SIDE)
+// 					 * osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)
+// 					 * pose);
+// 	object[smallMuscle12] -> setPose(osg::Matrix::translate(4.1*SIDE, 0.0*SIDE, 1.25*SIDE)
+// 					 * osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)
+// 					 * pose);
+// 	object[smallMuscle21] -> setPose(osg::Matrix::translate(4.37*SIDE, 0.75*SIDE, 1.25*SIDE)
+// 					 * osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)
+// 					 * pose);
+// 	object[smallMuscle22] -> setPose(osg::Matrix::translate(4.1*SIDE, 0.5*SIDE, 1.25*SIDE)
+// 					 * osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)
+// 					 * pose);
+// 	object[smallMuscle32] -> setPose(osg::Matrix::translate(2.00*SIDE, -0.25*SIDE, 1.25*SIDE)
+// 					 * osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)
+// 					 * pose);
+// 	object[smallMuscle31] -> setPose(osg::Matrix::translate(2.3*SIDE, 0.0*SIDE, 1.25*SIDE)
+// 					 * osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)
+// 					 * pose);
+// 	object[smallMuscle42] -> setPose(osg::Matrix::translate(2.00*SIDE, 0.75*SIDE, 1.25*SIDE)
+// 					 * osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)
+// 					 * pose);
+// 	object[smallMuscle41] -> setPose(osg::Matrix::translate(2.3*SIDE,0.5*SIDE,1.25*SIDE)
+// 					 * osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)
+// 					 * pose);
+//       } 
     
-  }
+      //  }
       //osg done up to here
 
 
