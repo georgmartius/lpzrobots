@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9.4.4  2005-12-30 22:51:45  martius
+ *   Revision 1.9.4.5  2006-01-10 15:10:24  martius
+ *   fine tuning, fuer controllinterval 1
+ *   still not transparent
+ *
+ *   Revision 1.9.4.4  2005/12/30 22:51:45  martius
  *   moved to osg
  *
  *   Revision 1.9.4.3  2005/11/16 11:26:53  martius
@@ -60,7 +64,7 @@ namespace lpzrobots {
     double slidermass;
     double sliderrange;
   
-    double maxforce;
+    double force;      // forcefactor of the servo power (1 is usual)
     double hingeRange; //the angle (in rad) of the hinges that connect pendular with poles
   } SphererobotConf;
 
@@ -104,7 +108,7 @@ namespace lpzrobots {
       c.pendularmass = 1.0;
       c.slidermass   = 0.005;
       c.sliderrange  = 0.1; // range of the slider from center in multiple of diameter [-range,range]
-      c.maxforce     = 5;
+      c.force        = 1;
       c.hingeRange   = M_PI/180*30;
       return c;
     }

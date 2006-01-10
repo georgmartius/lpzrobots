@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.3  2005-12-30 22:51:45  martius
+ *   Revision 1.11.4.4  2006-01-10 15:10:24  martius
+ *   fine tuning, fuer controllinterval 1
+ *   still not transparent
+ *
+ *   Revision 1.11.4.3  2005/12/30 22:51:45  martius
  *   moved to osg
  *
  *   Revision 1.11.4.2  2005/11/15 12:29:27  martius
@@ -250,7 +254,7 @@ namespace lpzrobots {
 
       servo[alpha] = new SliderServo(slider[alpha], -conf.diameter*conf.sliderrange, 
  				     conf.diameter*conf.sliderrange, 
- 				     conf.pendularmass*0.1);
+ 				     conf.pendularmass*0.1 * conf.force);
   
     }
 
