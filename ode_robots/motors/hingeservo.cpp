@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.2  2006-01-02 08:24:12  fhesse
+ *   Revision 1.1.4.3  2006-01-10 14:47:57  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.4.2  2006/01/02 08:24:12  fhesse
  *   getAngle() changed to getPosition1();
  *   the same with angle rate
  *
@@ -46,8 +49,8 @@ HingeServo::HingeServo(HingeJoint* joint, double min, double max, double power)
   this->max = max;
 }
 
-void HingeServo::set(double pos){
-  if(pos > 0){
+void HingeServo::set(double pos){ 
+  if(pos > 0){ 
     pos *= max; 
   }else{
     pos *= -min;
