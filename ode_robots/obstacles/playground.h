@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.2  2006-01-10 17:17:33  martius
+ *   Revision 1.10.4.3  2006-01-10 20:27:15  martius
+ *   protected members
+ *
+ *   Revision 1.10.4.2  2006/01/10 17:17:33  martius
  *   new mode for primitives
  *
  *   Revision 1.10.4.1  2005/12/06 10:13:23  martius
@@ -65,6 +68,7 @@ namespace lpzrobots {
 
 //Fixme: playground creates collisions with ground and itself
 class Playground : public AbstractObstacle {
+protected:
 
   double length, width, height;
   osg::Vec3 pos;
