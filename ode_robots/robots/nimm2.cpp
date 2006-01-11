@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.9  2006-01-10 17:16:22  martius
+ *   Revision 1.21.4.10  2006-01-11 18:21:48  martius
+ *   bumpers are moving
+ *   wheel texture is okay
+ *
+ *   Revision 1.21.4.9  2006/01/10 17:16:22  martius
  *   sensorbank cleared on destroy
  *
  *   Revision 1.21.4.8  2005/12/29 16:47:40  martius
@@ -188,6 +192,11 @@ namespace lpzrobots {
     for (int i=0; i < 2; i++) { 
       joint[i]->update();
     }
+    if (conf.bumper){    
+      for (int i=0; i<number_bumpers; i++){
+	bumper[i].trans->update();
+      }
+    }
     irSensorBank.update();  
   }
 
@@ -275,9 +284,8 @@ namespace lpzrobots {
 	bumper[i].bump = new Capsule(width/4, 2*radius+width/2);      
 	bumper[i].trans = new Transform(object[0], bumper[i].bump, 
 					Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) * 
-					Matrix::translate(0, 0, + pow(-1.0,i)*(length/2)) * 
-					pose);
-	bumper[i].trans->init(odeHandle, 0, osgHandle, false);
+					Matrix::translate(0, 0, i==0 ? -(length/2) : (length/2)));
+	bumper[i].trans->init(odeHandle, 0, osgHandle); 
       }
     }
 
@@ -289,7 +297,7 @@ namespace lpzrobots {
 	Sphere* wheel = new Sphere(radius);      
 	wheel->init(odeHandle, wmass, osgHandleWheels);
       
-	wheel->setPose(Matrix::rotate(M_PI/2.0, 0, 0, 1) * 
+	wheel->setPose(Matrix::rotate(M_PI/2.0, 1, 0, 0) * 
 		       Matrix::translate(wheeloffset, (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
 		       pose); 
 	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb");
