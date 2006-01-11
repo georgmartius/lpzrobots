@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2005-12-22 14:09:18  martius
+ *   Revision 1.1.2.8  2006-01-11 10:53:36  fhesse
+ *   delete visual; in SliderJoint::update() removed
+ *
+ *   Revision 1.1.2.7  2005/12/22 14:09:18  martius
  *   low quality for joint axes
  *
  *   Revision 1.1.2.6  2005/12/21 15:39:22  martius
@@ -361,7 +364,6 @@ namespace lpzrobots {
     
   void SliderJoint::update(){
     if(visual){
-      delete visual;      
       osg::Vec3 p1 = part1->getPosition();
       osg::Vec3 p2 = part2->getPosition();
       anchor = (p1+p2)*0.5;
