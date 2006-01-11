@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-01-10 17:15:04  martius
+ *   Revision 1.1.2.2  2006-01-11 19:30:28  martius
+ *   transparent hull
+ *
+ *   Revision 1.1.2.1  2006/01/10 17:15:04  martius
  *   was sphererobotarms
  *   moved to osg
  *
@@ -270,15 +273,18 @@ namespace lpzrobots {
 
     // create vehicle space and add it to the top level space
     odeHandle.space = dSimpleSpaceCreate (parentspace);
+    Color c(osgHandle.color);
+    c.alpha() = transparency;
+    OsgHandle osgHandle_Base = osgHandle.changeColor(c);
     OsgHandle osgHandleX[3];
     osgHandleX[0] = osgHandle.changeColor(Color(1.0, 0.0, 0.0));
     osgHandleX[1] = osgHandle.changeColor(Color(0.0, 1.0, 0.0));
     osgHandleX[2] = osgHandle.changeColor(Color(0.0, 0.0, 1.0));
 
-    object[Base] = new InvisibleSphere(conf.diameter/2);
-    //object[Base] = new Sphere(conf.diameter/2);
+    //    object[Base] = new InvisibleSphere(conf.diameter/2);
+    object[Base] = new Sphere(conf.diameter/2);
     //object[Base] = new InvisibleBox(conf.diameter, conf.diameter, conf.diameter);
-    object[Base]->init(odeHandle, conf.spheremass, osgHandle);
+    object[Base]->init(odeHandle, conf.spheremass, osgHandle_Base);
     object[Base]->setPose(pose);    
 
     Pos p(pose.getTrans());
