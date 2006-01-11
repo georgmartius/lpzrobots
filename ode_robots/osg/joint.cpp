@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-01-11 10:53:36  fhesse
+ *   Revision 1.1.2.9  2006-01-11 14:11:28  fhesse
+ *   moved anchor up into Joint and introduced getAnchor()
+ *
+ *   Revision 1.1.2.8  2006/01/11 10:53:36  fhesse
  *   delete visual; in SliderJoint::update() removed
  *
  *   Revision 1.1.2.7  2005/12/22 14:09:18  martius
@@ -78,7 +81,7 @@ namespace lpzrobots {
 
   HingeJoint::HingeJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
 			 const Vec3& axis1)
-    : OneAxisJoint(part1, part2, axis1), anchor(anchor),  visual(0) {   
+    : OneAxisJoint(part1, part2, anchor, axis1),  visual(0) {   
   }
 
   HingeJoint::~HingeJoint(){
@@ -135,12 +138,11 @@ namespace lpzrobots {
     return dJointGetHingeParam(joint, parameter);
   }
 
-
 /***************************************************************************/
   
   Hinge2Joint::Hinge2Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
 			   const Vec3& axis1, const Vec3& axis2)
-    : TwoAxisJoint(part1, part2, axis1, axis2), anchor(anchor), visual(0) {   
+    : TwoAxisJoint(part1, part2, anchor, axis1, axis2), visual(0) {   
   }
 
   Hinge2Joint::~Hinge2Joint(){
@@ -212,7 +214,7 @@ namespace lpzrobots {
   
   UniversalJoint::UniversalJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
 			   const Vec3& axis1, const Vec3& axis2)
-    : TwoAxisJoint(part1, part2, axis1, axis2), anchor(anchor), visual1(0), visual2(0) {   
+    : TwoAxisJoint(part1, part2, anchor, axis1, axis2), visual1(0), visual2(0) {   
   }
 
   UniversalJoint::~UniversalJoint(){
@@ -291,7 +293,7 @@ namespace lpzrobots {
 /***************************************************************************/
 
   BallJoint::BallJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor)
-    : Joint(part1, part2), anchor(anchor), visual(0){
+    : Joint(part1, part2, anchor), visual(0){
 
   }
 
@@ -334,7 +336,7 @@ namespace lpzrobots {
 
   SliderJoint::SliderJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
 			 const Vec3& axis1)
-    : OneAxisJoint(part1, part2, axis1), anchor(anchor), visual(0) {   
+    : OneAxisJoint(part1, part2, anchor, axis1), visual(0) {   
   }
 
   SliderJoint::~SliderJoint(){

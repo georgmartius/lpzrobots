@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2005-12-21 15:39:03  martius
+ *   Revision 1.1.2.8  2006-01-11 14:11:06  fhesse
+ *   moved anchor up into Joint and introduced getAnchor()
+ *
+ *   Revision 1.1.2.7  2005/12/21 15:39:03  martius
  *   OneAxisJoint and TwoAxisJoint as superclasses
  *
  *   Revision 1.1.2.6  2005/12/19 16:34:18  martius
@@ -62,7 +65,8 @@ namespace lpzrobots {
 
   class Joint {
   public: 
-    Joint(Primitive* part1, Primitive* part2) : joint(0), part1(part1), part2(part2) {}
+    Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor) 
+      : joint(0), part1(part1), part2(part2), anchor(anchor) {}
     virtual ~Joint();
     /** initialises (and creates) the joint. If visual is true then the joints is
 	also drawn. visualSize is the size of the visual representation.
@@ -80,19 +84,21 @@ namespace lpzrobots {
     
     dJointID getJoint() const  { return joint; }
     const Primitive* getPart1() const { return part1; }
-    const Primitive* getPart2() const { return part2; }    
-
+    const Primitive* getPart2() const { return part2; } 
+    const osg::Vec3 getAnchor() const { return anchor; }
+    
     static osg::Matrix anchorAxisPose(const osg::Vec3& anchor, const osg::Vec3& axis);
   protected:
     dJointID joint;
     Primitive* part1;
     Primitive* part2;    
+    osg::Vec3 anchor;
   };
 
   class OneAxisJoint : public Joint {
   public:
-    OneAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3 axis1) 
-      : Joint(part1, part2), axis1(axis1) {}
+    OneAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, const osg::Vec3 axis1) 
+      : Joint(part1, part2, anchor), axis1(axis1) {}
     virtual osg::Vec3 getAxis1() const { return axis1; };
     
     virtual double getPosition1() = 0;
@@ -104,8 +110,9 @@ namespace lpzrobots {
 
   class TwoAxisJoint : public OneAxisJoint {
   public:
-    TwoAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3 axis1, const osg::Vec3 axis2 ) 
-      : OneAxisJoint(part1, part2, axis1), axis2(axis2) {}
+    TwoAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, const osg::Vec3 axis1, 
+		 const osg::Vec3 axis2 ) 
+      : OneAxisJoint(part1, part2, axis1, anchor), axis2(axis2) {}
     virtual osg::Vec3 getAxis2() const { return axis2; };
 
     virtual double getPosition2() = 0;
@@ -139,7 +146,6 @@ namespace lpzrobots {
     virtual double getParam(int parameter);
     
   protected:
-    osg::Vec3 anchor;
     OSGPrimitive* visual;
   };
 
@@ -170,7 +176,6 @@ namespace lpzrobots {
     virtual double getParam(int parameter);
     
   protected:
-    osg::Vec3 anchor;
     OSGPrimitive* visual;
   };
 
@@ -202,7 +207,6 @@ namespace lpzrobots {
     virtual double getParam(int parameter);
     
   protected:
-    osg::Vec3 anchor;
     OSGPrimitive* visual1;
     OSGPrimitive* visual2;
   };
@@ -228,7 +232,6 @@ namespace lpzrobots {
     virtual double getParam(int parameter);
     
   protected:
-    osg::Vec3 anchor;
     OSGPrimitive* visual;
   };
 
@@ -257,7 +260,6 @@ namespace lpzrobots {
     virtual double getParam(int parameter);
     
   protected:
-    osg::Vec3 anchor;
     OSGPrimitive* visual;
     double visualSize;
     OsgHandle osgHandle;
