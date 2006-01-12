@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-16 16:22:57  fhesse
+ *   Revision 1.1.2.2  2006-01-12 15:11:02  martius
+ *   moved to osg, but untested
+ *
+ *   Revision 1.1.2.1  2005/12/16 16:22:57  fhesse
  *   draws a line connecting the last n positions of a body
  *
  *                                                                         *
@@ -28,35 +31,45 @@
  ***************************************************************************/
 
 #include "bodyfollower.h" 
+#include <assert.h>
 
-#include <drawstuff/drawstuff.h>
-#include "simulation.h" 
+namespace lpzrobots {
 
-void BodyFollower::init(int horizon_, dBodyID body_to_follow){
-  std::cout<<"1 \n";
-  horizon=horizon_;
-  old_pos.resize(horizon);
-  for (int i=0; i<horizon; i++)
-    old_pos[i]=new dReal[3];
-  counter=0;
-  std::cout<<"2 \n";
-  body=body_to_follow;
-  filled=0;
-}
+  void BodyFollower::init(const OsgHandle& osgHandle, int horizon, Primitive* body_to_follow)
+  {
+    this->osgHandle = osgHandle;
+    this->horizon = horizon;
+    this->body = body_to_follow;
+    //  std::cout<<"1 \n";
+    segments = (OSGPrimitive**) malloc(sizeof(OSGPrimitive*) * horizon);
+    for (int i=0; i<horizon; i++){
+      segments[i]=0;
+    }
+    counter=0;
+    initialised=true;
+  }
 
-void BodyFollower::draw(){
-   const  dReal* p = dBodyGetPosition(body);
-  memcpy(old_pos[counter%horizon], p, sizeof(dReal[3]));
-  filled++;
-  if (filled>horizon){
-    for (int i=-(horizon-1); i<0; i++){
-      dsDrawLine(old_pos[(counter+i)%horizon], old_pos[(counter+i+1)%horizon]);
+  void BodyFollower::update(){
+    assert(initialised);
+    osg::Vec3 p = body->getPosition();
+    if(counter==0 || (p - lastpos).length2() > 0.5  ) {
+      double len = (p - lastpos).length();
+      if(segments[counter%horizon]) delete segments[counter%horizon];
+      OSGPrimitive* s = new OSGCylinder(0.01, len);
+      s->init(osgHandle, OSGPrimitive::Low);
+      s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (p - lastpos)) * 
+		   osg::Matrix::translate((p - lastpos)/2));
+      segments[counter%horizon] = s;
+      
+      counter=counter+1;
+      lastpos = p;
     }
   }
-  counter=counter+1;
-}
 
-BodyFollower::~BodyFollower(){
-  for (int i=0; i<horizon; i++)
-    delete(old_pos[i]);
+  BodyFollower::~BodyFollower(){
+    for (int i=0; i<horizon; i++)
+      if(segments[i]) delete(segments[i]);
+    delete segments;
+  }
+
 }
