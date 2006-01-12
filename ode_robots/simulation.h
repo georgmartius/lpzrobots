@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.8  2005-12-29 16:49:48  martius
+ *   Revision 1.18.4.9  2006-01-12 22:33:23  martius
+ *   key eventhandler integrated
+ *
+ *   Revision 1.18.4.8  2005/12/29 16:49:48  martius
  *   end is obsolete
  *   tidyUp is used for deletion
  *
@@ -111,11 +114,11 @@
 
 #include <math.h>
 #define PI M_PI // (3.14159265358979323846)
-#include <ode/ode.h>
-#include <ode/common.h>
+#include <osgGA/GUIEventHandler>
+/* #include <ode/ode.h> */
+/* #include <ode/common.h> */
 #include <vector>
 #include <iterator>
-using namespace std;
 
 #include "odeconfig.h"
 #include "camera.h"
@@ -133,7 +136,7 @@ namespace osgProducer{
 
 namespace lpzrobots {
 
-class Simulation : public Base {
+  class Simulation : public Base, public osgGA::GUIEventHandler {
 public:
   typedef enum SimulationState { none, initialised, running, closed };
     
@@ -158,8 +161,17 @@ public:
   /** config() is called when the user presses Ctrl-C. 
       Default: Call @changeParams(globalData.configs)@ */
   virtual void config(GlobalData& globalData);
-  /// command() is called if a key was pressed
-  virtual void command(const OdeHandle&, GlobalData& globalData, int key) {};
+  /** command() is called if a key was pressed
+      keycodes see: osgGA::GUIEventAdapter
+      return true if the key was handled
+  */
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, 
+		       int key, bool down) { return false; };
+
+  /** this can be used to describe the key bindings used by command()     
+  */
+  virtual void bindingDescription(osg::ApplicationUsage & au) const {};
+
   /** collCallback() can be used to overload the standart collision handling.
       However it is called after the robots collision handling.       
      @return true if collision is treated, false otherwise
@@ -167,6 +179,11 @@ public:
   virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
   /// addCallback()  optional additional callback function.
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {};
+
+  // GUIEventHandler
+  virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&);
+  virtual void getUsage (osg::ApplicationUsage & au) const;
+  virtual void accept(osgGA::GUIEventHandlerVisitor& v);
 
 protected:
   virtual bool init(int argc, char** argv);

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.12  2006-01-12 15:16:53  martius
+ *   Revision 1.40.4.13  2006-01-12 22:32:51  martius
+ *   key eventhandler integrated
+ *
+ *   Revision 1.40.4.12  2006/01/12 15:16:53  martius
  *   transparency
  *
  *   Revision 1.40.4.11  2005/12/29 16:49:48  martius
@@ -236,7 +239,10 @@ namespace lpzrobots {
     dCloseODE ();
   
     state=closed;
+    unref_nodelete(); // tweak this, because Simulation is inherited from Referenced
   }
+
+ 
 
   bool Simulation::init(int argc, char** argv){
 
@@ -288,6 +294,8 @@ namespace lpzrobots {
       Viewer::ESCAPE_SETS_DONE;
     viewer->setUpViewer(options);
 
+    viewer->getEventHandlerList().push_front(this);
+
     // if user request help write it out to cout.
     if (arguments->read("-h") || arguments->read("--help")) {
       arguments->getApplicationUsage()->write(std::cout);
@@ -333,7 +341,6 @@ namespace lpzrobots {
     // get details on keyboard and mouse bindings used by the viewer.
     viewer->getUsage(*(arguments->getApplicationUsage()));
 
-
     state=initialised;
     return true;
   }
@@ -345,7 +352,7 @@ namespace lpzrobots {
     // information on terminal, can be removed if the printout is undesired
     printf ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
     printf ( "------------------------------------------------------------------------\n" );
-    printf ( "Press Ctrl-C for an basic commandline interface.\n\n" );
+    printf ( "Press Ctrl-C for an basic commandline interface (on the console).\n\n" );
     printf ( "Press h      for help.\n\n" );
 
     //********************Simulation start*****************
@@ -386,6 +393,9 @@ namespace lpzrobots {
 
   void Simulation::config(GlobalData& globalData){
     changeParams(globalData.configs);
+  }
+
+  void Simulation::end(GlobalData& globalData){
   }
 
   void Simulation::loop(bool pause){
@@ -465,9 +475,38 @@ namespace lpzrobots {
     }
   }
 
-  void Simulation::end(GlobalData& globalData){
+  bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {  
+    bool handled = false;
+    switch(ea.getEventType()) {
+    case(osgGA::GUIEventAdapter::KEYDOWN):
+      {	 
+	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true); 
+	if(handled) break;
+	switch(ea.getKey()){
+	case 'r': 
+	  printf("R pressed: This will be video recording, but is not implemented yet!\n");
+	  break;
+	}
+      }	  
+    case(osgGA::GUIEventAdapter::KEYUP):
+      {
+	  handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);	
+      }
+    default: 
+      break;      
+    }
+    return handled;
   }
-
+  
+  void Simulation::getUsage (osg::ApplicationUsage& au) const {
+    au.addKeyboardMouseBinding("Simulation: r","Start/Stop video recording");
+    bindingDescription(au);
+  }
+  
+  void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
+    v.visit(*this);
+  }
+ 
   /// clears obstacle and agents lists and delete entries
   void Simulation::tidyUp(GlobalData& global){
     // clear obstacles list
@@ -495,6 +534,7 @@ namespace lpzrobots {
     if(seedIndex && argc > seedIndex) {
       seed=atoi(argv[seedIndex]);
     }else{
+
       seed=time(0);
     }
     printf("Use random number seed: %li\n", seed);
@@ -552,6 +592,9 @@ namespace lpzrobots {
       }
     }
   }
+
+
+
 
   /// internals
 
