@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-01-12 14:21:00  martius
+ *   Revision 1.1.2.11  2006-01-12 22:18:31  martius
+ *   delete slider visual
+ *
+ *   Revision 1.1.2.10  2006/01/12 14:21:00  martius
  *   drawmode, material
  *
  *   Revision 1.1.2.9  2006/01/11 14:11:28  fhesse
@@ -180,6 +183,7 @@ namespace lpzrobots {
       axis2.y() = v[1];
       axis2.z() = v[2];
       visual->setMatrix(anchorAxisPose(anchor, axis2));    
+
     }
   }
 
@@ -379,6 +383,7 @@ namespace lpzrobots {
       axis1.z() = v[2];
 
       double len = getPosition1();
+      delete visual;
       visual = new OSGCylinder(visualSize/10, len+visualSize);
       visual->init(osgHandle, OSGPrimitive::Low);      
       Matrix t = anchorAxisPose(anchor, axis1);      
