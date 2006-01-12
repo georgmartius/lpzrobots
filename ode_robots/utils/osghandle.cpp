@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-29 16:48:06  martius
+ *   Revision 1.1.2.4  2006-01-12 14:39:06  martius
+ *   transparent stateset
+ *
+ *   Revision 1.1.2.3  2005/12/29 16:48:06  martius
  *   changeColor
  *
  *   Revision 1.1.2.2  2005/12/22 14:10:14  martius
@@ -43,11 +46,15 @@
 namespace lpzrobots {
 
   OsgHandle::OsgHandle( ) {}
-  OsgHandle::OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], const Color& color){
+  OsgHandle::OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
+			osg::StateSet* normalState, osg::StateSet* transparentState, 
+			const Color& color){
     this->scene = scene;
     for(int i=0; i<3; i++){
       this->tesselhints[i] = tesselhints[i];
     }
+    this->normalState = normalState;
+    this->transparentState = transparentState;
     this->color = color;
   }
 

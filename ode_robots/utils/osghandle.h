@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-12-29 16:48:06  martius
+ *   Revision 1.1.2.5  2006-01-12 14:39:06  martius
+ *   transparent stateset
+ *
+ *   Revision 1.1.2.4  2005/12/29 16:48:06  martius
  *   changeColor
  *
  *   Revision 1.1.2.3  2005/12/22 14:09:56  martius
@@ -47,10 +50,14 @@ class OsgHandle
 {
 public:
   OsgHandle( );
-  OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], const Color& color);
+  OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
+	     osg::StateSet* normalState, osg::StateSet* transparentState, 
+	     const Color& color);
 
   osg::Group* scene;  
   osg::TessellationHints* tesselhints[3];  
+  osg::StateSet* normalState;  
+  osg::StateSet* transparentState;  
   Color color;
 
   OsgHandle changeColor(const Color& color) const;
