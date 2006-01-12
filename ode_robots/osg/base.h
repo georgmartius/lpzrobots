@@ -23,7 +23,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-09 16:54:16  martius
+ *   Revision 1.1.2.3  2006-01-12 14:21:00  martius
+ *   drawmode, material
+ *
+ *   Revision 1.1.2.2  2005/12/09 16:54:16  martius
  *   camera is woring now
  *
  *   Revision 1.1.2.1  2005/12/06 17:40:59  martius
@@ -60,6 +63,7 @@ namespace lpzrobots {
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
+    virtual osg::LightSource* makeLights(osg::StateSet* stateset);  
 
   protected:
     dGeomID ground;

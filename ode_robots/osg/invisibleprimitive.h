@@ -25,7 +25,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-01-10 16:06:30  martius
+ *   Revision 1.1.2.2  2006-01-12 14:21:00  martius
+ *   drawmode, material
+ *
+ *   Revision 1.1.2.1  2006/01/10 16:06:30  martius
  *   invisible primitives
  *
  *                                                                 *
@@ -45,8 +48,7 @@ public:
   InvisibleBox(float lengthX, float lengthY, float lengthZ);
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
-		    bool withBody = true, bool withGeom = true);
-
+		    char mode = Body | Geom | Draw);
   virtual void update() {}
   virtual OSGPrimitive* getOSGPrimitive() { return 0; }
 
@@ -63,7 +65,7 @@ public:
   InvisibleSphere(float radius);
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
-		    bool withBody = true, bool withGeom = true);
+		    char mode = Body | Geom | Draw);
 
   virtual void update() {}
   virtual OSGPrimitive* getOSGPrimitive() { return 0; }
@@ -78,7 +80,7 @@ public:
   InvisibleCapsule(float radius, float height);
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
-		    bool withBody = true, bool withGeom = true);
+		    char mode = Body | Geom | Draw);
 
   virtual void update() {}
   virtual OSGPrimitive* getOSGPrimitive() { return osgcapsule; }

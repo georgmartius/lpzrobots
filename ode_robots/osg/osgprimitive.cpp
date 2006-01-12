@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2005-12-22 14:14:21  martius
+ *   Revision 1.1.2.10  2006-01-12 14:21:00  martius
+ *   drawmode, material
+ *
+ *   Revision 1.1.2.9  2005/12/22 14:14:21  martius
  *   quality level
  *
  *   Revision 1.1.2.8  2005/12/15 17:03:42  martius
@@ -72,13 +75,19 @@
 //#include <osg/PolygonOffset>
 //#include <osg/Light>
 //#include <osg/LightSource>
-//#include <osg/Material>
+#include <osg/Material>
 
 #include "osgprimitive.h"
 
 namespace lpzrobots {
 
   using namespace osg;
+
+  // returns a material with the given color
+  ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::DIFFUSE );
+
+  /******************************************************************************/
+
 
   OSGPrimitive::OSGPrimitive(){  }
 
@@ -117,6 +126,8 @@ namespace lpzrobots {
     if(shape.valid())
       shape->setColor(color);
   }
+
+
 
   /******************************************************************************/
   OSGDummy::OSGDummy(){}
@@ -159,6 +170,14 @@ namespace lpzrobots {
 				      50, 50, 0.01), osgHandle.tesselhints[quality]); // TODO add larger values here
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
+    if(osgHandle.color.alpha() < 1.0){
+      shape->setStateSet(osgHandle.transparentState);
+    }else{
+      shape->setStateSet(osgHandle.normalState);
+    }
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+						       StateAttribute::ON);
+
   }
 
 
@@ -178,6 +197,13 @@ namespace lpzrobots {
 				      lengthX, lengthY, lengthZ), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
+    if(osgHandle.color.alpha() < 1.0){
+      shape->setStateSet(osgHandle.transparentState);
+    }else{
+      shape->setStateSet(osgHandle.normalState);
+    }
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+						       StateAttribute::ON);
   }
 
   /******************************************************************************/
@@ -187,7 +213,7 @@ namespace lpzrobots {
 
   void OSGSphere::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
-
+    
     geode = new Geode;  
     transform = new MatrixTransform;
     transform->addChild(geode.get());
@@ -196,6 +222,14 @@ namespace lpzrobots {
     shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
+    if(osgHandle.color.alpha() < 1.0){
+      shape->setStateSet(osgHandle.transparentState);
+    }else{
+      shape->setStateSet(osgHandle.normalState);
+    }
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+						       StateAttribute::ON);
+
   }
 
   /******************************************************************************/
@@ -215,6 +249,13 @@ namespace lpzrobots {
 					  radius, height), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
+    if(osgHandle.color.alpha() < 1.0){
+      shape->setStateSet(osgHandle.transparentState);
+    }else{
+      shape->setStateSet(osgHandle.normalState);
+    }
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+						       StateAttribute::ON);
   }
 
   /******************************************************************************/
@@ -234,7 +275,34 @@ namespace lpzrobots {
 					   radius, height), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
+    if(osgHandle.color.alpha() < 1.0){
+      shape->setStateSet(osgHandle.transparentState);
+    }else{
+      shape->setStateSet(osgHandle.normalState);
+    }
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+						       StateAttribute::ON);
+
   }
 
-}
 
+  // returns a material with the given color
+  ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode) {
+    ref_ptr<Material> m = new Material ();
+    m->setColorMode(mode);
+    Color amb (c*0.3);
+    amb.alpha()=c.alpha();
+    Color dif(c*0.7);
+    dif.alpha()=c.alpha();
+    Color spec(c*0.2);
+    spec.alpha()=c.alpha();
+    m->setAmbient(Material::FRONT_AND_BACK, amb);
+    m->setDiffuse(Material::FRONT_AND_BACK, dif);
+    m->setSpecular(Material::FRONT_AND_BACK, spec);
+    m->setShininess(Material::FRONT_AND_BACK, 5.0f);
+    //    m->setShininess(Material::FRONT_AND_BACK, 25.0f);
+    return m;
+  }
+
+
+}

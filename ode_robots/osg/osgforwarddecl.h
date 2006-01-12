@@ -25,7 +25,10 @@
  *  instead of the real osg header files.                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-14 15:36:45  martius
+ *   Revision 1.1.2.3  2006-01-12 14:21:00  martius
+ *   drawmode, material
+ *
+ *   Revision 1.1.2.2  2005/12/14 15:36:45  martius
  *   joints are visible now
  *
  *   Revision 1.1.2.1  2005/12/13 18:11:13  martius
@@ -41,14 +44,20 @@
 
 namespace osg{
   class Geode;
-  class  Group;
+  class Group;
 
   class ShapeDrawable;
   class TessellationHints;
+  class StateSet;
+  class BlendFunc;
+  class LightSource;
+
+  class Texture2D;
+  class TexGen;
+  
 
   class Vec3f;
   typedef Vec3f Vec3;
-
 
   class Matrixd;
   typedef Matrixd Matrix;

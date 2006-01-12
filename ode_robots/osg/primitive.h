@@ -25,7 +25,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2005-12-29 12:58:42  martius
+ *   Revision 1.1.2.6  2006-01-12 14:21:00  martius
+ *   drawmode, material
+ *
+ *   Revision 1.1.2.5  2005/12/29 12:58:42  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.4  2005/12/15 17:03:43  martius
@@ -70,16 +73,21 @@ void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix);
 /**************************************************************************/
 class Primitive {
 public:
+  /** Body means that is is a dynamic object with a body.
+      Geom means it has a geometrical represenation used for collision detection.
+      Draw means the primitive is drawn
+  */
+  typedef enum Modes {Body=1, Geom=2, Draw=4};
+
   Primitive ();
   virtual ~Primitive ();
   /** registers primitive in ODE and OSG. 
       @param mass Mass of the object in ODE (if withBody = true)
-      @param withBody true if there should be a dynamic body, 
-                      false if the geom should be static
+      @param mode is a conjuction of Modes.
    */
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
-		    bool withBody = true) = 0 ;
+		    char mode = Body | Geom | Draw)  = 0 ;
 
   /// should syncronise the ODE stuff and the OSG notes
   virtual void update() =0 ;
@@ -97,6 +105,7 @@ public:
 protected:
   dGeomID geom;
   dBodyID body;
+  char mode;
 };
 
 
@@ -106,7 +115,7 @@ public:
   Plane();
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
-		    bool withBody = true);
+		    char mode = Body | Geom | Draw) ;
 
   virtual void update();  
   virtual OSGPrimitive* getOSGPrimitive() { return osgplane; }
@@ -123,7 +132,7 @@ public:
   Box(float lengthX, float lengthY, float lengthZ);
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
-		    bool withBody = true);
+		    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive() { return osgbox; }
@@ -139,7 +148,7 @@ public:
   Sphere(float radius);
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
-		    bool withBody = true);
+		    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive() { return osgsphere; }
@@ -154,7 +163,7 @@ public:
   Capsule(float radius, float height);
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
-		    bool withBody = true);
+		    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive() { return osgcapsule; }
@@ -180,17 +189,15 @@ public:
   /// withBody MUST be false!
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
-		    bool withBody = true);
+		    char mode = Body | Geom | Draw);
 
   virtual void update();
-  virtual OSGPrimitive* getOSGPrimitive() { return osgdummy; }
+  virtual OSGPrimitive* getOSGPrimitive() { return 0; }
 
 protected:
   Primitive* parent;
   Primitive* child;
   osg::Matrix pose;
-
-  OSGDummy* osgdummy;
 };
 
 

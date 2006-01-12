@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-12-13 18:11:13  martius
+ *   Revision 1.1.2.5  2006-01-12 14:21:00  martius
+ *   drawmode, material
+ *
+ *   Revision 1.1.2.4  2005/12/13 18:11:13  martius
  *   transform primitive added, some joints stuff done, forward declaration
  *
  *   Revision 1.1.2.3  2005/12/11 23:35:08  martius
@@ -38,19 +41,21 @@
  *                                                                 *
  ***************************************************************************/
 
-#include "base.h"
-#include "primitive.h"
-
 #include <iostream>
 #include <osg/Node>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Texture2D>
 #include <osg/TexEnv>
+#include <osg/TexGen>
 #include <osg/Depth>
 #include <osg/StateSet>
 #include <osg/ClearNode>
 #include <osg/Transform>
+#include <osg/MatrixTransform>
+#include <osg/Light>
+#include <osg/LightSource>
+#include <osg/ShapeDrawable>
 
 #include <osgUtil/CullVisitor>
 
@@ -59,9 +64,14 @@
 
 #include <osgGA/AnimationPathManipulator>
 
+#include "rendertotexturecallback.h"
+#include "base.h"
+#include "primitive.h"
+
 using namespace osg;
 
 namespace lpzrobots {
+
 
   Group* Base::makeScene(){
     // no database loaded so automatically create Ed Levin Park..
@@ -75,8 +85,17 @@ namespace lpzrobots {
     // use a transform to make the sky and base around with the eye point.
     osg::Transform* transform = new osg::Transform;//MoveEarthySkyWithEyePointTransform;
 
+    // add the transform to the earth sky.
+    clearNode->addChild(transform);
+
+    root->addChild(clearNode);
+
+    Group* group = new Group; // create an extra group for the normal scene
+    
+    root->addChild(group);
+
     // transform's value isn't knowm until in the cull traversal so its bounding
-    // volume is can't be determined, therefore culling will be invalid,
+    // volume can't be determined, therefore culling will be invalid,
     // so switch it off, this cause all our paresnts to switch culling
     // off as well. But don't worry culling will be back on once underneath
     // this node or any other branch above this transform.
@@ -85,15 +104,23 @@ namespace lpzrobots {
     // add the sky and base layer.
     transform->addChild(makeSky());  // bin number -2 so drawn first.
     transform->addChild(makeGround()); // bin number -1 so draw second.      
-
-    // add the transform to the earth sky.
-    clearNode->addChild(transform);
-
-    // add to earth sky to the scene.
-    root->addChild(clearNode);
-
-    Group* group = new Group; // create an extra group for the normal scene
-    root->addChild(group);
+    
+    LightSource* lightSource = makeLights(root->getOrCreateStateSet());
+    transform->addChild(lightSource);
+    
+    // This should bring real shadows, need to be fixed somehow
+    // ref_ptr<Texture2D> texture = new Texture2D;
+//     texture->setInternalFormat(GL_DEPTH_COMPONENT);
+//     texture->setShadowComparison(true);
+//     texture->setShadowTextureMode(Texture::LUMINANCE);
+    
+//     ref_ptr<TexGen> texGen = new TexGen;
+//     texGen->setMode(TexGen::EYE_LINEAR);
+//     group->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get(), StateAttribute::ON);
+//     group->getOrCreateStateSet()->setTextureAttributeAndModes(0, texGen.get(), StateAttribute::ON);
+    
+//     root->setCullCallback(new RenderToTextureCallback(group, texture.get(), lightSource, texGen.get()));
+    
     return group; 
   }
 
@@ -272,6 +299,31 @@ namespace lpzrobots {
 
     return geode;
   }
+
+
+LightSource* Base::makeLights(StateSet* stateset)
+{
+  ref_ptr<MatrixTransform> transform_0 = new MatrixTransform;
+
+  // create a spot light.
+  ref_ptr<Light> light_0 = new Light;
+  light_0->setLightNum(0);
+  light_0->setPosition(Vec4(10.0, 0, 20.0, 1.0f));
+  light_0->setDirection(Vec3(-0.5, 0, -1.0));
+  light_0->setAmbient(Vec4(0.6f, 0.6f, 0.6f, 1.0f));
+  light_0->setDiffuse(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  //light_0->setSpotCutoff(60.0f);
+  //  light_0->setSpotExponent(2.0f);
+
+  LightSource* light_source_0 = new LightSource;	
+  light_source_0->setLight(light_0.get());
+  light_source_0->setLocalStateSetModes(StateAttribute::ON);   
+  
+  light_source_0->setStateSetModes(*stateset, StateAttribute::ON);
+  
+  return light_source_0;
+}
+
 
 /********************************************************************************/
 

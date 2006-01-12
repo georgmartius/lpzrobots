@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-01-11 14:11:28  fhesse
+ *   Revision 1.1.2.10  2006-01-12 14:21:00  martius
+ *   drawmode, material
+ *
+ *   Revision 1.1.2.9  2006/01/11 14:11:28  fhesse
  *   moved anchor up into Joint and introduced getAnchor()
  *
  *   Revision 1.1.2.8  2006/01/11 10:53:36  fhesse
@@ -375,7 +378,6 @@ namespace lpzrobots {
       axis1.y() = v[1];
       axis1.z() = v[2];
 
-      visual->setMatrix(anchorAxisPose(anchor, axis1));
       double len = getPosition1();
       visual = new OSGCylinder(visualSize/10, len+visualSize);
       visual->init(osgHandle, OSGPrimitive::Low);      
