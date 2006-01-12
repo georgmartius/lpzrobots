@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.2  2005-12-14 12:43:07  martius
+ *   Revision 1.5.4.3  2006-01-12 15:14:02  martius
+ *   some fwd decl.
+ *
+ *   Revision 1.5.4.2  2005/12/14 12:43:07  martius
  *   moved to osg
  *
  *   Revision 1.5.4.1  2005/12/13 18:11:53  martius
@@ -50,6 +53,9 @@
 #include "raysensor.h"
 
 namespace lpzrobots {
+
+  class OSGCylinder;
+  class OSGBox;
 
 /** Class for IR sensors. 
     IR sensors are based on distance measurements using the ODE geom class Ray. 
