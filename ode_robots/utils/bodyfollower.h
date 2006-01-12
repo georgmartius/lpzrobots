@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-16 16:22:57  fhesse
+ *   Revision 1.1.2.2  2006-01-12 15:10:49  martius
+ *   moved to osg
+ *
+ *   Revision 1.1.2.1  2005/12/16 16:22:57  fhesse
  *   draws a line connecting the last n positions of a body
  *
  *                                                                         *
@@ -29,23 +32,28 @@
 #ifndef __BODYFOLLOWER_H
 #define __BODYFOLLOWER_H
 
-#include <ode/ode.h>
-#include <vector>
+#include "osgprimitive.h"
+#include "primitive.h"
+
+namespace lpzrobots {
 
 class BodyFollower{
  public:
-  BodyFollower(){};
+  BodyFollower(){ initialised = false; };
   virtual BodyFollower::~BodyFollower();
-  virtual void init(int horizon_, dBodyID body_to_follow);
-  virtual void draw();
+  virtual void init(const OsgHandle& osgHandle,int horizon_, Primitive* body_to_follow);
+  virtual void update();
 
  private:
-  dBodyID body;
-  std::vector < dReal* > old_pos;
+  OsgHandle osgHandle;
+  Primitive* body;
+  OSGPrimitive** segments;
+  osg::Vec3 lastpos;
   int horizon;
   int counter;
-  int filled;
+  bool initialised;
 };
 
+}
 
 #endif
