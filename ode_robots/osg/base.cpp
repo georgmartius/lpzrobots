@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-01-12 14:21:00  martius
+ *   Revision 1.1.2.6  2006-01-12 22:34:06  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.5  2006/01/12 14:21:00  martius
  *   drawmode, material
  *
  *   Revision 1.1.2.4  2005/12/13 18:11:13  martius
@@ -303,10 +306,8 @@ namespace lpzrobots {
 
 LightSource* Base::makeLights(StateSet* stateset)
 {
-  ref_ptr<MatrixTransform> transform_0 = new MatrixTransform;
-
   // create a spot light.
-  ref_ptr<Light> light_0 = new Light;
+  Light* light_0 = new Light;
   light_0->setLightNum(0);
   light_0->setPosition(Vec4(10.0, 0, 20.0, 1.0f));
   light_0->setDirection(Vec3(-0.5, 0, -1.0));
@@ -316,7 +317,7 @@ LightSource* Base::makeLights(StateSet* stateset)
   //  light_0->setSpotExponent(2.0f);
 
   LightSource* light_source_0 = new LightSource;	
-  light_source_0->setLight(light_0.get());
+  light_source_0->setLight(light_0);
   light_source_0->setLocalStateSetModes(StateAttribute::ON);   
   
   light_source_0->setStateSetModes(*stateset, StateAttribute::ON);
