@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.11  2005-12-29 16:49:48  martius
+ *   Revision 1.40.4.12  2006-01-12 15:16:53  martius
+ *   transparency
+ *
+ *   Revision 1.40.4.11  2005/12/29 16:49:48  martius
  *   end is obsolete
  *   tidyUp is used for deletion
  *
@@ -196,6 +199,8 @@
 #include <osgProducer/Viewer>
 #include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
+#include <osg/BlendFunc>
+#include <osg/AlphaFunc>
 #include <osgDB/ReaderWriter>
 #include <osgDB/FileUtils>
 
@@ -303,10 +308,23 @@ namespace lpzrobots {
     osgHandle.tesselhints[0]->setDetailRatio(0.1f); // Low
     osgHandle.tesselhints[1]->setDetailRatio(1.0f); // Middle
     osgHandle.tesselhints[2]->setDetailRatio(3.0f); // High
+
     osgHandle.color = Color(1,1,1,1);
 
     osgHandle.scene=makeScene();
     if (!osgHandle.scene) return false;
+
+    osgHandle.normalState = new StateSet();
+    
+    // set up blending for transparent stateset      
+    osg::StateSet* stateset = new StateSet();
+    osg::BlendFunc* transBlend = new osg::BlendFunc;
+    transBlend->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
+    stateset->setAttributeAndModes(transBlend, osg::StateAttribute::ON);    
+    stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+    //stateset->setRenderBinDetails(5,"RenderBin");
+    stateset->setMode(GL_CULL_FACE,osg::StateAttribute::ON); // disable backface because of problems
+    osgHandle.transparentState = stateset;
 
     CameraManipulator* cameramanipulator = new CameraManipulator(osgHandle.scene);
     unsigned int pos = viewer->addCameraManipulator(cameramanipulator);
@@ -504,7 +522,7 @@ namespace lpzrobots {
     bool collision_treated=false;
     // call robots collision treatments
     for(OdeAgentList::iterator i= me->globalData.agents.begin(); 
-	i != me->globalData.agents.end() && !collision_treated; i++){
+	(i != me->globalData.agents.end()) && !collision_treated; i++){
       collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
     }
   
