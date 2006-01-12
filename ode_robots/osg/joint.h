@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-01-11 14:11:06  fhesse
+ *   Revision 1.1.2.9  2006-01-12 22:19:08  martius
+ *   bugfix in TwoAxisJoint Constructor (axis and anchor swapped)
+ *
+ *   Revision 1.1.2.8  2006/01/11 14:11:06  fhesse
  *   moved anchor up into Joint and introduced getAnchor()
  *
  *   Revision 1.1.2.7  2005/12/21 15:39:03  martius
@@ -112,7 +115,7 @@ namespace lpzrobots {
   public:
     TwoAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, const osg::Vec3 axis1, 
 		 const osg::Vec3 axis2 ) 
-      : OneAxisJoint(part1, part2, axis1, anchor), axis2(axis2) {}
+      : OneAxisJoint(part1, part2, anchor, axis1), axis2(axis2) {}
     virtual osg::Vec3 getAxis2() const { return axis2; };
 
     virtual double getPosition2() = 0;
