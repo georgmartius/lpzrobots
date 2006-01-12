@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.2  2006-01-10 20:33:50  martius
+ *   Revision 1.15.4.3  2006-01-12 15:17:39  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.15.4.2  2006/01/10 20:33:50  martius
  *   moved to osg
  *
  *   Revision 1.15.4.1  2005/11/15 12:30:17  martius
@@ -38,6 +41,7 @@
 
 #include "odeagent.h"
 #include "octaplayground.h"
+#include "passivesphere.h"
 
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/sinecontroller.h>
@@ -82,10 +86,18 @@ public:
     OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 1), 12);
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
+
+    for(int i=0; i<5; i++){
+      PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
+      s->setPosition(osg::Vec3(5,0,i*3)); 
+      global.obstacles.push_back(s);    
+    }
+
     
     //****************
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-    sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle, conf, "Sphere1");
+    sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
+				       conf, "Sphere1", 0.2); 
     //    SphererobotConf conf = Sphererobot::getDefaultConf();  
     //    sphere1 = new Sphererobot ( odeHandle, osgHandle, conf, "Sphere1");
     

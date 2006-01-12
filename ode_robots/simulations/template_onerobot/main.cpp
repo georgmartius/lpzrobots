@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.9  2005-12-29 15:55:33  martius
+ *   Revision 1.14.4.10  2006-01-12 15:17:46  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.14.4.9  2005/12/29 15:55:33  martius
  *   end is obsolete
  *
  *   Revision 1.14.4.8  2005/12/29 15:47:12  martius
@@ -117,7 +120,7 @@ public:
     for (int i=0; i<= 2; i+=2){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
       s1->setPosition(osg::Vec3(-4.5+i*4.5,0,2));
-      s1->setTexture("Images/wood.rgb");
+      s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
 
@@ -127,7 +130,9 @@ public:
     // - set textures for body and wheels
     // - place robot
     Nimm2Conf c = Nimm2::getDefaultConf();
-    c.irFront=true;
+    c.bumper  = true;
+    c.cigarMode  = true;
+    c.irFront = true;
     
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);
     //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);

@@ -24,11 +24,6 @@ virtual void place(Position pos , Color *c = 0);
 */
 virtual void place(const osg::Matrix& pose);
 
-virtual void draw();
-->
-/// update the subcomponents
-virtual void update();
-
 
 virtual Object getMainObject() const { return object[0]; }
 ->
@@ -56,10 +51,9 @@ dJointID joint[X];
 ->
 Joint* joint[X]; 
 
-
+Remove:
 dSpaceID vehicle_space;
 -> This is for good reason, trust me :-)
-dSpaceID parentspace; 
 
 obsolete:
 virtual void setTextures(int body, int wheels);
@@ -84,9 +78,6 @@ and
 :  OdeRobot(odehandle, 
 ->
 :  OdeRobot(odehandle, osgHandle
-
-and code:
-parentspace = odeHandle.space;
 
 
 color.r=2;
@@ -132,7 +123,7 @@ void Classname::create(Position pos)
 ->
 void Classname::create(const osg::Matrix& pose)
 	
-// create vehicle space and add it to parentspace
+// create vehicle space and add it to parentspace (which is stored in OdeRobot)
 odeHandle.space = dSimpleSpaceCreate (parentspace);
 
 object[0] = new Capsule(width/2, length);

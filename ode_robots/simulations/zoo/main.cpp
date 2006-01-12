@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.2  2005-11-16 11:27:38  martius
+ *   Revision 1.11.4.3  2006-01-12 15:17:30  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.11.4.2  2005/11/16 11:27:38  martius
  *   invertmotornstep has configuration
  *
  *   Revision 1.11.4.1  2005/11/15 12:30:22  martius
@@ -33,228 +36,183 @@
  *   GPL'ised
  *
  ***************************************************************************/
-#include <stdio.h>
-#include <drawstuff/drawstuff.h>
-#include <ode/ode.h>
-
 #include "simulation.h"
+
 #include "odeagent.h"
-#include <selforg/noisegenerator.h>
+#include "playground.h"
+#include "passivesphere.h"
 
 #include <selforg/invertnchannelcontroller.h>
-#include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
+#include <selforg/invertmotorspace.h>
+#include <selforg/sinecontroller.h>
+#include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
-#include <selforg/derivativewiring.h>
-
-#include "playground.h"
-#include "sphere.h"
 
 #include "hurlingsnake.h"
 #include "schlangeforce.h"
 #include "nimm2.h"
 #include "nimm4.h"
 
-// for video capturing use:
-// realtimefactor=0.5
-// drawinterval=5
+// fetch all the stuff of lpzrobots into scope
+using namespace lpzrobots;
 
+// plotoptions is a list of possible online output, 
+// if the list is empty no online gnuplot windows and no logging to file occurs.
+// The list is modified with commandline options, see main() at the bottom of this file
 list<PlotOption> plotoptions;
 
-//Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start(const OdeHandle& odeHandle, GlobalData& global) 
-{
-  dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-  dsPrint ( "------------------------------------------------------------------------\n" );
-  dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
+class ThisSim : public Simulation {
+public:
 
-  global.odeConfig.setParam("gravity",-9.81); // do not use 'global.odeConfig.gravity=0.0;', 
-                                            // because world is already initialized and 
-                                            // dWorldSetGravity will not be called when 
-                                            // you only set the value  
-  int chessTexture = dsRegisterTexture("chess.ppm");
-  printf("Chess: %i", chessTexture);
-  int dust = dsRegisterTexture("dusty.ppm");
-  printf("Chess: %i", chessTexture);
-
-
-  //Anfangskameraposition und Punkt auf den die Kamera blickt
-  //float KameraXYZ[3]= {0.276f,7.12f,1.78f};
-  //float KameraViewXYZ[3] = {-88.0f,-5.5f,0.0000f};
-  float KameraXYZ[3]= {-0.0f, 10.4f, 6.8f};
-  float KameraViewXYZ[3] = {-90.0f,-40.0f,0.0000f};
-
-  dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
-  dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
-
-  global.odeConfig.setParam("noise",0.05);
-  global.odeConfig.setParam("controlinterval",1);
-  // initialization
-  
-  Playground* playground = new Playground(odeHandle);
-  playground->setGeometry(25.0, 0.2, 1.5);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  global.obstacles.push_back(playground);
-
-  Sphere* sphere;
-  for (int i=-3; i<3; i++){
-    sphere = new Sphere(odeHandle);
-    sphere->setColor(184 / 255.0, 233 / 255.0, 237 / 255.0);
-    sphere->setTexture(dust);
-    sphere->setPosition(i*0.5-2,i*0.5,1.0); //positionieren und generieren
-
-    global.obstacles.push_back(sphere);
-  }
-  
-
-  OdeAgent* agent;
-  AbstractWiring* wiring;
-  OdeRobot* robot;
-  AbstractController *controller;
-
-  SchlangeForce* snake;
-  SchlangenConf snakeConf = SchlangeForce::getDefaultConf();
-  //******* S C H L A N G E  (Short) *********/
-  snakeConf.armAnzahl=4;
-  snakeConf.maxWinkel=M_PI/3;
-  snakeConf.frictionGround=0.1;
-  snakeConf.factorForce=0.6; //3;
-  snakeConf.factorSensors=4;
-  snake = new SchlangeForce ( 1 , odeHandle, snakeConf );
+  // starting function (executed once at the beginning of the simulation loop)
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    Color col(0,0.5,0.8);
-    snake->place(Position(-5,-5,0),&col); 
-  }  
-  InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-  invertnconf.cInit=2.0;
-  controller = new InvertMotorNStep(invertnconf);    
-  wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  agent = new OdeAgent( plotoptions );
-  agent->init(controller, snake, wiring);
-  global.agents.push_back(agent);
-  global.configs.push_back(controller);
-  global.configs.push_back(snake);   
-  snake->setParam("gamma",/*0.0000*/ 0.0);
-  
+    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    // initialization
+    // - set noise to 0.1
+    // - register file chess.ppm as a texture called chessTexture (used for the wheels)
 
-  //******* S C H L A N G E  (Long)  *********/
-  snakeConf = SchlangeForce::getDefaultConf();
-  snakeConf.armAnzahl   = 8;
-  snakeConf.maxWinkel   = M_PI/3;
-  snakeConf.frictionGround=0.1;
-  snakeConf.factorForce=0.7; //3.5;
-  snakeConf.factorSensors=4;
-  snake = new SchlangeForce ( 2 , odeHandle, snakeConf );
-  {
-    Color col(0,0.5,0.8);
-    snake->place(Position(0,0,0),&col); 
-  }
-  controller = new InvertMotorNStep(invertnconf);     
-  wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  agent = new OdeAgent( list<PlotOption>() );
-  agent->init(controller, snake, wiring);
-  global.agents.push_back(agent);
-  global.configs.push_back(controller);
-  global.configs.push_back(snake);   
-  snake->setParam("gamma",/*0.0000*/ 0.0);
-  
-
-  //******* N I M M  2 *********/
-  Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
-  nimm2conf.size = 1.6;
-  for(int r=0; r < 3; r++) {    
-    robot = new Nimm2(odeHandle, nimm2conf);
-    robot->place(Position ((r-1)*5,5,0));
-    ((Nimm2*)robot)->setTextures(DS_WOOD, chessTexture);
-    //    controller = new InvertMotorNStep(10);   
-    controller = new InvertMotorSpace(15);   
-    controller->setParam("s4avg",10);
-    //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( list<PlotOption>() );
-    agent->init(controller, robot, wiring);
-    global.configs.push_back(controller);
-    global.agents.push_back(agent);        
-  }
-
-  //******* N I M M  4 *********/
-  for(int r=0; r < 1; r++) {
-    robot = new Nimm4(odeHandle);
-    Position p((r-1)*5,-3,0);
-    robot->place(p);
-    ((Nimm4*)robot)->setTextures(DS_WOOD, chessTexture);
-    controller = new InvertMotorSpace(20);
-    controller->setParam("s4avg",10); 
-    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( list<PlotOption>() );
-    agent->init(controller, robot, wiring);
-    global.agents.push_back(agent);        
-  }
-
-  //****** H U R L I N G **********/
-  for(int r=0; r < 2; r++) {
-    HurlingSnake* snake;
-    snake = new HurlingSnake(odeHandle);
-    Color c;    
-    if (r==0) c=Color(0.8, 0.8, 0);
-    if (r==1) c=Color(0,   0.8, 0);
-    snake->place(Position(r*5,-6,0.3), &c);
-    invertnconf.cInit=1.5;
-    controller = new InvertMotorNStep(invertnconf);
-    controller->setParam("steps", 2);
-    controller->setParam("adaptrate", 0.001);
-    controller->setParam("nomupdate", 0.001);
-    controller->setParam("factorB", 0);
+    global.odeConfig.setParam("noise",0.05);
+    global.odeConfig.setParam("controlinterval",1);
+    // initialization
     
-    // deriveconf = DerivativeWiring::getDefaultConf();
-//     deriveconf.blindMotorSets=0;
-//     deriveconf.useId = true;
-//     deriveconf.useFirstD = true;
-//     deriveconf.derivativeScale = 50;
-//     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
-    wiring = new One2OneWiring(new ColorUniformNoise(0.05));
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 1.5));
+    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    global.obstacles.push_back(playground);
+    
+    for(int i=0; i<5; i++){
+      PassiveSphere* s = 
+	new PassiveSphere(odeHandle, 
+			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
+      s->setPosition(Pos(i*0.5-2, i*0.5, 1.0)); 
+      s->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s);    
+    }
+        
+    OdeAgent* agent;
+    AbstractWiring* wiring;
+    OdeRobot* robot;
+    AbstractController *controller;
+    
+    SchlangeForce* snake;
+    SchlangeConf snakeConf = SchlangeForce::getDefaultConf();
+    //******* S C H L A N G E  (Short) *********/
+    snakeConf.segmNumber=4;
+    snakeConf.jointLimit=M_PI/3;
+    snakeConf.frictionGround=0.1;
+    snake = new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0,0.5,0.8)), snakeConf, "Schlange1");
+    ((OdeRobot*) snake)->place(Pos(-5,-5,0)); 
+    
+    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+    invertnconf.cInit=2.0;
+    controller = new InvertMotorNStep(invertnconf);    
+    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    agent = new OdeAgent( plotoptions );
+    agent->init(controller, snake, wiring);
+    global.agents.push_back(agent);
+    global.configs.push_back(controller);
+    global.configs.push_back(snake);   
+    snake->setParam("gamma",/*0.0000*/ 0.0);
+  
+
+    //******* S C H L A N G E  (Long)  *********/
+    snakeConf = SchlangeForce::getDefaultConf();
+    snakeConf.segmNumber=8;
+    snakeConf.jointLimit=M_PI/3;
+    snakeConf.frictionGround=0.1;
+    snake = new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0,0.5,0.8)), snakeConf, "Schlange2" );
+    ((OdeRobot*) snake)->place(Pos(0,0,0)); 
+    controller = new InvertMotorNStep(invertnconf);     
+    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new OdeAgent( list<PlotOption>() );
     agent->init(controller, snake, wiring);
+    global.agents.push_back(agent);
     global.configs.push_back(controller);
-    global.agents.push_back(agent);     
-  }
-  showParams(global.configs);
-}
+    global.configs.push_back(snake);   
+    snake->setParam("gamma",/*0.0000*/ 0.0);
+  
 
-void end(GlobalData& global){
-  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
-    delete (*i);
-  }
-  global.obstacles.clear();
-  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-    delete (*i)->getRobot();
-    delete (*i)->getController();
-    delete (*i);
-  }
-  global.agents.clear();
-}
+    //******* N I M M  2 *********/
+    Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
+    nimm2conf.size = 1.6;
+    for(int r=0; r < 3; r++) {    
+      robot = new Nimm2(odeHandle, osgHandle, nimm2conf);
+      robot->place(Pos ((r-1)*5,5,0));
+      //    controller = new InvertMotorNStep(10);   
+      controller = new InvertMotorSpace(15);   
+      controller->setParam("s4avg",10);
+      //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent( list<PlotOption>() );
+      agent->init(controller, robot, wiring);
+      global.configs.push_back(controller);
+      global.agents.push_back(agent);        
+    }
+    
+    //******* N I M M  4 *********/
+    for(int r=0; r < 1; r++) {
+      robot = new Nimm4(odeHandle, osgHandle);
+      robot->place(Pos((r-1)*5,-3,0));
+      controller = new InvertMotorSpace(20);
+      controller->setParam("s4avg",10); 
+      controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent( list<PlotOption>() );
+      agent->init(controller, robot, wiring);
+      global.agents.push_back(agent);        
+    }
 
+    //****** H U R L I N G **********/
+    for(int r=0; r < 2; r++) {
+      HurlingSnake* snake;
+      Color c;    
+      if (r==0) c=Color(0.8, 0.8, 0);
+      if (r==1) c=Color(0,   0.8, 0);
+      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c));
+      ((OdeRobot*) snake)->place(Pos(r*5,-6,0.3));
+      invertnconf.cInit=1.5;
+      controller = new InvertMotorNStep(invertnconf);
+      controller->setParam("steps", 2);
+      controller->setParam("adaptrate", 0.001);
+      controller->setParam("nomupdate", 0.001);
+      controller->setParam("factorB", 0);
+    
+      // deriveconf = DerivativeWiring::getDefaultConf();
+      //     deriveconf.blindMotorSets=0;
+      //     deriveconf.useId = true;
+      //     deriveconf.useFirstD = true;
+      //     deriveconf.derivativeScale = 50;
+      //     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
+      wiring = new One2OneWiring(new ColorUniformNoise(0.05));
+      agent = new OdeAgent( list<PlotOption>() );
+      agent->init(controller, snake, wiring);
+			       global.configs.push_back(controller);
+			       global.agents.push_back(agent);     
+    }
+      showParams(global.configs);
+  }
+  
+};
 
-// this function is called if the user pressed Ctrl-C
-void config(GlobalData& global){
-  changeParams(global.configs);
-}
 
 void printUsage(const char* progname){
   printf("Usage: %s [-g] [-l] [-r seed]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n\t-r seed\trandom number seed ", progname);
 }
 
 int main (int argc, char **argv)
-{  
+{ 
+  // start with online windows (default: start without plotting and logging)
   if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+  
+  // start with online windows and logging to file
   if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
+  
+  // display help
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
-  // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config);
-  // start the simulation (returns, if the user closes the simulation)
-  simulation_start(argc, argv);
-  simulation_close();  // tidy up.
-  return 0;
+  ThisSim sim;
+  return sim.run(argc, argv) ? 0 : 1;
+
 }
+ 
