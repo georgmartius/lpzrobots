@@ -71,19 +71,6 @@ public:
     showParams(global.configs);
   }
 
-  virtual void end(GlobalData& global){
-    for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
-      delete (*i);
-    }
-    global.obstacles.clear();
-    for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-      delete (*i)->getRobot();
-      delete (*i)->getController();
-      delete (*i);
-    }
-    global.agents.clear();
-  }
-
 };
   
 void printUsage(const char* progname){
@@ -97,7 +84,6 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   ProactiveSim sim;
-  sim.run(argc, argv);
-  return 0;
+  return sim.run(argc, argv) ? 0 : 1; 
 }
  
