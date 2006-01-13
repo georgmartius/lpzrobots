@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-01-13 12:24:06  martius
+ *   Revision 1.1.2.2  2006-01-13 12:33:16  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.1  2006/01/13 12:24:06  martius
  *   env for external teaching input to the controller
  *
  *
@@ -82,8 +85,13 @@ public:
     // create pointer to controller
     // push controller in global list of configurables
     //  AbstractController *controller = new InvertNChannelController(10);      
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
+    cc.cInit=0.9;
     controller = new InvertMotorNStep(cc);  
+    controller->setParam("adaptrate", 0);
+    controller->setParam("epsC", 0.2);
+    controller->setParam("epsA", 0.1);
+
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, vehicle, wiring);
