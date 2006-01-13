@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.10  2006-01-11 18:21:48  martius
+ *   Revision 1.21.4.11  2006-01-13 12:25:44  martius
+ *   typo in setmotors
+ *
+ *   Revision 1.21.4.10  2006/01/11 18:21:48  martius
  *   bumpers are moving
  *   wheel texture is okay
  *
@@ -129,8 +132,8 @@ namespace lpzrobots {
       joint[0]->setParam(dParamFMax2,max_force);    
     } else {
       for (int i=0; i<2; i++){ 
-	joint[0]->setParam(dParamVel2, motors[i]*conf.speed);       
-	joint[0]->setParam(dParamFMax2,max_force);
+	joint[i]->setParam(dParamVel2, motors[i]*conf.speed);       
+	joint[i]->setParam(dParamFMax2,max_force);
       }
     }
   };
