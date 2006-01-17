@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.9  2006-01-12 22:33:23  martius
+ *   Revision 1.18.4.10  2006-01-17 17:01:53  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.18.4.9  2006/01/12 22:33:23  martius
  *   key eventhandler integrated
  *
  *   Revision 1.18.4.8  2005/12/29 16:49:48  martius
@@ -180,12 +183,12 @@ public:
   /// addCallback()  optional additional callback function.
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {};
 
+protected:
   // GUIEventHandler
   virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&);
   virtual void getUsage (osg::ApplicationUsage & au) const;
   virtual void accept(osgGA::GUIEventHandlerVisitor& v);
 
-protected:
   virtual bool init(int argc, char** argv);
 
   /** define the home position and view orientation of the camera.

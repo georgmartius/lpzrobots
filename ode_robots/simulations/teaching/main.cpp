@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-01-13 12:33:16  martius
+ *   Revision 1.1.2.3  2006-01-17 17:02:47  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.2  2006/01/13 12:33:16  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.1  2006/01/13 12:24:06  martius
@@ -63,17 +66,16 @@ public:
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.noise=0.1;
-    global.odeConfig.setParam("gravity", 0);
-    //  int chessTexture = dsRegisterTexture("chess.ppm");
+    //    global.odeConfig.setParam("gravity", 0);
 
     // use Playground as boundary:
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 1), 12);
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground);
+    //    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(100, 0.2, 1), 2);
+    //    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    //    global.obstacles.push_back(playground);
 
     for(int i=0; i<3; i++){
       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-      s->setPosition(osg::Vec3(5,0,i*3)); 
+      s->setPosition(osg::Vec3(3,-5,i*3)); 
       global.obstacles.push_back(s);    
     }
     
@@ -86,11 +88,13 @@ public:
     // push controller in global list of configurables
     //  AbstractController *controller = new InvertNChannelController(10);      
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
-    cc.cInit=0.9;
+    cc.cInit=1.0;
     controller = new InvertMotorNStep(cc);  
-    controller->setParam("adaptrate", 0);
-    controller->setParam("epsC", 0.2);
-    controller->setParam("epsA", 0.1);
+    controller->setParam("adaptrate", 0.000);
+    //    controller->setParam("nomupdate", 0.0005);
+    controller->setParam("epsC", 0.05);
+    controller->setParam("epsA", 0.001);
+    controller->setParam("s4avg", 5);
 
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent* agent = new OdeAgent(plotoptions);
@@ -108,14 +112,14 @@ public:
     bool handled = false;
     switch ( key )
       {
-      case 'y' : 
+      case 'u' : 
 	teaching[0] = min(0.95, teaching[0]+0.1);
 	teaching[1] = min(0.95, teaching[1]+0.1);
 	controller->setMotorTeachingSignal(teaching, 2);
 	printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
 	handled = true; 
 	break;
-      case 'h' : 
+      case 'j' : 
 	teaching[0] = max(-0.95, teaching[0]-0.1);
 	teaching[1] = max(-0.95, teaching[1]-0.1);
 	controller->setMotorTeachingSignal(teaching, 2);
@@ -128,9 +132,23 @@ public:
 	teaching[0]=0.5;
 	teaching[1]=0.5;
 	handled = true; break;	
+      case 's' :
+	controller->store("test") && printf("Controller stored\n");
+	handled = true; break;	
+      case 'l' :
+	controller->restore("test") && printf("Controller loaded\n");
+	handled = true; break;	
       }
     fflush(stdout);
     return handled;
+  }
+
+  virtual void bindingDescription(osg::ApplicationUsage & au) const {
+    au.addKeyboardMouseBinding("Teachung: t","toggle mode");
+    au.addKeyboardMouseBinding("Teaching: u","forward");
+    au.addKeyboardMouseBinding("Teaching: j","backward");
+    au.addKeyboardMouseBinding("Simulation: s","store");
+    au.addKeyboardMouseBinding("Simulation: l","load");
   }
 
 };
