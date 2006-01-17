@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17.4.6  2005-12-15 17:04:08  martius
+ *   Revision 1.17.4.7  2006-01-17 17:02:19  martius
+ *   faster, stronger, more friction
+ *
+ *   Revision 1.17.4.6  2005/12/15 17:04:08  martius
  *   Primitives are not longer inherited from OSGPrimitive, moreover
  *   they aggregate them.
  *   Joint have better getter and setter
@@ -135,8 +138,8 @@ public:
   static Nimm2Conf getDefaultConf(){
     Nimm2Conf conf;
     conf.size=1;
-    conf.force=2;
-    conf.speed=6;
+    conf.force=8;
+    conf.speed=12;
     conf.sphereWheels=true;
     conf.bumper=false;
     conf.cigarMode=false;

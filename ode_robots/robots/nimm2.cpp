@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.11  2006-01-13 12:25:44  martius
+ *   Revision 1.21.4.12  2006-01-17 17:02:19  martius
+ *   faster, stronger, more friction
+ *
+ *   Revision 1.21.4.11  2006/01/13 12:25:44  martius
  *   typo in setmotors
  *
  *   Revision 1.21.4.10  2006/01/11 18:21:48  martius
@@ -246,7 +249,7 @@ namespace lpzrobots {
 	  contact[i].surface.soft_erp = 0.9;
 	  contact[i].surface.soft_cfm = 0.001;
 	}else{
-	  contact[i].surface.mu = 1.1; //large friction
+	  contact[i].surface.mu = 2.0; //large friction
 	  contact[i].surface.soft_erp = 0.9;
 	  contact[i].surface.soft_cfm = 0.001;
 	}
