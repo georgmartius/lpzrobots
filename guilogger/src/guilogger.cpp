@@ -30,7 +30,7 @@
 
 guilogger::guilogger(CommLineParser configobj) : QMainWindow( 0, "guilogger")
 {
-    plotwindows   = 3;    // per default parameter  3
+    plotwindows   = 4;    // per default parameter  3
     datadelayrate = 10;  // per default 10
     framecounter  = 0;
     datacounter   = 0;
