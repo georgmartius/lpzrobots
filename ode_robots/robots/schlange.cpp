@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20.4.3  2005-12-30 22:53:46  martius
+ *   Revision 1.20.4.4  2006-01-18 09:55:54  martius
+ *   created was uninitialised
+ *
+ *   Revision 1.20.4.3  2005/12/30 22:53:46  martius
  *   removed parentspace init because done in oderobot
  *
  *   Revision 1.20.4.2  2005/12/29 16:45:58  martius
@@ -46,6 +49,7 @@ namespace lpzrobots {
     // prepare name;
     Configurable::insertCVSInfo(this->name, "$RCSfile$", 
 				"$Revision$");    	
+    created=false;
   }
 	
   Schlange::~Schlange()
