@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-01-17 17:02:47  martius
+ *   Revision 1.1.2.4  2006-01-18 16:47:06  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.3  2006/01/17 17:02:47  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.2  2006/01/13 12:33:16  martius
@@ -69,13 +72,13 @@ public:
     //    global.odeConfig.setParam("gravity", 0);
 
     // use Playground as boundary:
-    //    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(100, 0.2, 1), 2);
-    //    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    //    global.obstacles.push_back(playground);
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(11, 0.2, 1), 2);
+    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    global.obstacles.push_back(playground);
 
-    for(int i=0; i<3; i++){
+    for(int i=0; i<50; i++){
       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-      s->setPosition(osg::Vec3(3,-5,i*3)); 
+      s->setPosition(osg::Vec3(-4+(i/10),-4+(i%10),1)); 
       global.obstacles.push_back(s);    
     }
     
@@ -92,8 +95,10 @@ public:
     controller = new InvertMotorNStep(cc);  
     controller->setParam("adaptrate", 0.000);
     //    controller->setParam("nomupdate", 0.0005);
-    controller->setParam("epsC", 0.05);
+    controller->setParam("epsC", 0.005);
     controller->setParam("epsA", 0.001);
+    controller->setParam("rootE", 0);
+    controller->setParam("steps", 2);
     controller->setParam("s4avg", 5);
 
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -155,7 +160,7 @@ public:
 
 // print command line options
 void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
+  printf("Usage: %s [-g] [-f]\n\t-g\tuse guilogger\n\t-f\tuse guilogger with logfile\n", progname);
 }
 
 int main (int argc, char **argv)
@@ -164,7 +169,7 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
   
   // start with online windows and logging to file
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
+  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File));
   
   // display help
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
