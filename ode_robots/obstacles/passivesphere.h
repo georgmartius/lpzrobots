@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-15 17:02:16  martius
+ *   Revision 1.1.2.4  2006-01-18 16:46:39  martius
+ *   mass adjustable
+ *
+ *   Revision 1.1.2.3  2005/12/15 17:02:16  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.2  2005/12/11 23:35:07  martius
@@ -81,10 +84,8 @@ class PassiveSphere : public AbstractObstacle{
    * Constructor
    * @param odehandle containing world, space and jointgroup for sphere
    */
-  PassiveSphere(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double radius = 0.3):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius) {       
-
-    mass=1;
+  PassiveSphere(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double radius = 0.3, double mass = 1.0):
+    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius), mass(mass) {       
  
     obstacle_exists=false;    
   };
@@ -108,7 +109,8 @@ class PassiveSphere : public AbstractObstacle{
    * sets position of the sphere and creates/recreates it if necessary
    */
   virtual void setPosition(const osg::Vec3& pos){
-    this->pos = pos;
+    this->pos = pos + osg::Vec3(0,0,radius);
+    
     if (obstacle_exists){
       destroy();
     }
