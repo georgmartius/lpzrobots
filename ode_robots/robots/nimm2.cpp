@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.12  2006-01-17 17:02:19  martius
+ *   Revision 1.21.4.13  2006-01-18 16:46:24  martius
+ *   enabled coloring via osgHandle
+ *
+ *   Revision 1.21.4.12  2006/01/17 17:02:19  martius
  *   faster, stronger, more friction
  *
  *   Revision 1.21.4.11  2006/01/13 12:25:44  martius
@@ -85,7 +88,7 @@ namespace lpzrobots {
     created=false;
   
     //Nimm2 color ;-)
-    this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
+    //    this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
   
     max_force   = conf.force*conf.size*conf.size;
 
@@ -246,7 +249,7 @@ namespace lpzrobots {
 	contact[i].surface.slip2 = 0.005;
 	if(colwithbody){
 	  contact[i].surface.mu = 0.1; // small friction of smooth body
-	  contact[i].surface.soft_erp = 0.9;
+	  contact[i].surface.soft_erp = 0.5;
 	  contact[i].surface.soft_cfm = 0.001;
 	}else{
 	  contact[i].surface.mu = 2.0; //large friction
