@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.7  2006-01-13 12:22:07  fhesse
+ *   Revision 1.1.4.8  2006-01-20 12:58:14  fhesse
+ *   bodies placed correctly
+ *
+ *   Revision 1.1.4.7  2006/01/13 12:22:07  fhesse
  *   partially working
  *
  *   Revision 1.1.4.6  2006/01/10 16:45:53  fhesse
@@ -130,8 +133,8 @@ namespace lpzrobots{
     const dReal *p1;
     const dReal *p2;
     for (int i=mainMuscle11; i<smallMuscle42; i+=2){
-    p1 = dBodyGetPosition (object[i].body);
-    p2 = dBodyGetPosition (object[i+1].body);
+    p1 = dBodyGetPosition (object[i]->getBody());
+    p2 = dBodyGetPosition (object[i+1]->getBody());
     
     Position dist;
     //distance between slider joint elements
@@ -143,8 +146,8 @@ namespace lpzrobots{
     //calculating motor force
     force=dist*factorMotors*motors[(int)(i*0.5)-1];
     
-    dBodyAddForce (object[i].body, force.x, force.y, force.z);
-    dBodyAddForce (object[i+1].body, -force.x, -force.y, -force.z);
+    dBodyAddForce (object[i]->getBody, force.x, force.y, force.z);
+    dBodyAddForce (object[i+1]->getBody, -force.x, -force.y, -force.z);
     */
 
   
@@ -188,7 +191,8 @@ namespace lpzrobots{
       @return number of actually written sensors
   */
   int MuscledArm::getSensors(sensor* sensors, int sensornumber){
-    //   int sens_values = (sensornumber < sensorno)? sensornumber : sensorno;
+    //    int sens_values = (sensornumber < sensorno)? sensornumber : sensorno;
+    //
     //   int written=0;
   
     //   if ((conf.jointAngleSensors) && ((sens_values-2)>-1)){
@@ -236,7 +240,12 @@ namespace lpzrobots{
     // //       written++;
     //   }
     //   return written;
-    return sensornumber;
+    //    return sensornumber;
+
+    sensors[0]= ((HingeJoint*)joint[HJ_BuA])->getPosition1Rate();
+    sensors[1]= ((HingeJoint*)joint[HJ_uAlA])->getPosition1Rate();
+    return 2;
+
   };
 
   /** sets the pose of the vehicle
@@ -527,12 +536,12 @@ namespace lpzrobots{
 
     // create base
     object[base] = new Box(base_width, base_width, base_length);
-    object[base] -> init(odeHandle, MASS, osgHandle,Primitive::Geom | Primitive::Draw); 
+    object[base] -> init(odeHandle, MASS, osgHandle,Primitive::Geom |Primitive::Body | Primitive::Draw); 
 
     //    if(conf.strained){
 
       // place base
-      object[base] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 0, 1)
+      object[base] -> setPose(osg::Matrix::rotate(M_PI/2, 1, 0, 0)
 				   * pose);
       // create and place upper arm
       object[upperArm] = new Box(upperArm_width, upperArm_width, upperArm_length);
@@ -544,7 +553,7 @@ namespace lpzrobots{
       object[lowerArm] = new Box(lowerArm_width, lowerArm_width, lowerArm_length);
       this->osgHandle.color = Color(0,1,0);
       object[lowerArm] -> init(odeHandle, MASS, osgHandle); 
-      object[lowerArm] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 0, 1) * osg::Matrix::translate
+      object[lowerArm] -> setPose(osg::Matrix::rotate(M_PI/2, 1, 0, 0) * osg::Matrix::translate
 				  (-(base_width/2+upperArm_length+lowerArm_width/2+2*joint_offset), 
 				   lowerArm_length/4,0) * pose);
       osg::Vec3 pos;      
@@ -689,7 +698,7 @@ namespace lpzrobots{
 	/* lower left small Muscle */	
 	/**************************************/
 	pos=object[mainMuscle11]->getPosition();
- 	object[smallMuscle11] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, -1)* osg::Matrix::translate
+ 	object[smallMuscle11] -> setPose(osg::Matrix::rotate(M_PI*0.5, -1,-1, 0)* osg::Matrix::translate
 					 // move center of this box to lower end of mainMuscle11
 					 (pos[0]+mainMuscle_length/2 
 					  // move box away from base to align lower edges of
@@ -699,7 +708,8 @@ namespace lpzrobots{
 					  0) // height is ok
  					 * pose);
 	pos=object[smallMuscle11]->getPosition();
- 	object[smallMuscle12] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, -1)* osg::Matrix::translate
+ 	//object[smallMuscle12] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, -1)* osg::Matrix::translate
+	object[smallMuscle12] -> setPose(osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)* osg::Matrix::translate
 					 (//calculate upper shift using sideward offset from smallMuscle11
 					  //(to align smallMuscle11 and this muscle)
 					  pos[0] -tan(M_PI/4)*(smallMuscle_length/2),
@@ -708,19 +718,19 @@ namespace lpzrobots{
 	/* lower right small Muscle */	
 	/**************************************/
 	pos=object[smallMuscle11]->getPosition();
- 	object[smallMuscle21] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, -1, -1)* osg::Matrix::translate
+ 	object[smallMuscle21] -> setPose(osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)* osg::Matrix::translate
 					 // place as smallMuscle11, accecpt that it is on the right side 
 					 // of the upperArm (-> -pos[1])
 					 (pos[0], -pos[1], 0) * pose); //height is ok
 	pos=object[smallMuscle12]->getPosition();
- 	object[smallMuscle22] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, -1, -1) * osg::Matrix::translate
+ 	object[smallMuscle22] -> setPose(osg::Matrix::rotate(M_PI*0.5, -1, 1, 0) * osg::Matrix::translate
 					 // place as smallMuscle12, accecpt that it is on the right side 
 					 // of the upperArm (-> -pos[1])
 					 (pos[0], -pos[1], 0)* pose);  // height is ok
 	/* upper left small Muscle */	
 	/**************************************/
 	pos=object[mainMuscle12]->getPosition();
- 	object[smallMuscle31] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, -1, -1) * osg::Matrix::translate
+ 	object[smallMuscle31] -> setPose(osg::Matrix::rotate(M_PI*0.5, -1, 1, 0) * osg::Matrix::translate
 					 // move center of this box to lower end of mainMuscle12 
 					 (pos[0]-mainMuscle_length/2 
 					  // move box in direction of base to align upper edges of
@@ -730,7 +740,7 @@ namespace lpzrobots{
 					  0) // height is ok
  					 * pose);
 	pos=object[smallMuscle31]->getPosition();
-  	object[smallMuscle32] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, -1, -1)* osg::Matrix::translate
+  	object[smallMuscle32] -> setPose(osg::Matrix::rotate(M_PI*0.5, -1, 1, 0)* osg::Matrix::translate
 					 //calculate shift toweards base using sideward offset from 
 					 //smallMuscle31 (to align smallMuscle11 and this muscle)
 					 (pos[0]+tan(M_PI/4)*(smallMuscle_length/2),
@@ -741,13 +751,13 @@ namespace lpzrobots{
 	/* upper right small Muscle */	
 	/**************************************/
 	pos=object[smallMuscle31]->getPosition();
- 	object[smallMuscle41] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, -1) * osg::Matrix::translate
+ 	object[smallMuscle41] -> setPose(osg::Matrix::rotate(M_PI*0.5, -1, -1, 0) * osg::Matrix::translate
 					 // place as smallMuscle31, accecpt that it is on the right side 
 					 // of the upperArm (-> -pos[1])
 					 (pos[0], -pos[1], 
 					  0)* pose); //height is ok
 	pos=object[smallMuscle32]->getPosition();
- 	object[smallMuscle42] -> setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, -1)* osg::Matrix::translate
+ 	object[smallMuscle42] -> setPose(osg::Matrix::rotate(M_PI*0.5, -1, -1, 0)* osg::Matrix::translate
 					 // place as smallMuscle32, accecpt that it is on the right side 
 					 // of the upperArm (-> -pos[1])
 					 (pos[0], -pos[1],
