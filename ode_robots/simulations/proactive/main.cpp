@@ -30,7 +30,7 @@ public:
     //   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
     // initialization
-    global.odeConfig.noise=0.1;
+    global.odeConfig.noise=0.05;
   
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(6, 0.2, 0.5));
     playground->setPosition(Pos(0,0,0)); // playground positionieren und generieren
@@ -40,26 +40,31 @@ public:
     Nimm2Conf nimm2Conf = Nimm2::getDefaultConf();
     nimm2Conf.irFront=true;
     nimm2Conf.singleMotor=true;
+    nimm2Conf.force = 4;
     //  nimm2Conf.force=nimm2Conf.force*3;  
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, nimm2Conf);
-    vehicle->place(Pos(0,0,0));
+    vehicle->place(Pos(0,0,0.2));
 
   
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.buffersize=50;
-    //cc.useS=true;
+    cc.useS=true;
     cc.cInit=1;
-    AbstractController *controller = new ProActive(1, 20, cc);  
+    cc.someInternalParams=false;
+    AbstractController *controller = new ProActive(2, 20, cc);  
     // AbstractController *controller = new InvertMotorNStep(cc);
     //   controller->setParam("steps",2);
-    //  controller->setParam("epsH",0.001);
-    controller->setParam("nomupdate",0.001);
-    //controller->setParam("adaptrate",0);
-    //  controller->setParam("epsC",0.5);
-    //  controller->setParam("epsA",0.1);
+    controller->setParam("epsH",1);
+    // controller->setParam("nomupdate",0.001);
+    controller->setParam("adaptrate",0);
+    controller->setParam("epsC",0.05);
+    controller->setParam("epsA",0.01);
+    controller->setParam("eps",0.01); // eps for delta H net
     //  global.odeConfig.setParam("realtimefactor",3);
   
     DerivativeWiringConf wconf = DerivativeWiring::getDefaultConf();
+    wconf.useFirstD = true;
+    wconf.useSecondD = false;
     //wconf.useSecondD = true;
     wconf.eps = 0.1;
     AbstractWiring* wiring = new DerivativeWiring(wconf, new ColorUniformNoise(0.1));

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.13  2006-01-18 16:46:24  martius
+ *   Revision 1.21.4.14  2006-01-26 18:37:20  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.21.4.13  2006/01/18 16:46:24  martius
  *   enabled coloring via osgHandle
  *
  *   Revision 1.21.4.12  2006/01/17 17:02:19  martius
@@ -134,8 +137,8 @@ namespace lpzrobots {
     if(conf.singleMotor){
       joint[0]->setParam(dParamVel2, motors[0]*conf.speed);       
       joint[0]->setParam(dParamFMax2,max_force);
-      joint[0]->setParam(dParamVel2, motors[0]*conf.speed);       
-      joint[0]->setParam(dParamFMax2,max_force);    
+      joint[1]->setParam(dParamVel2, motors[0]*conf.speed);       
+      joint[1]->setParam(dParamFMax2,max_force);    
     } else {
       for (int i=0; i<2; i++){ 
 	joint[i]->setParam(dParamVel2, motors[i]*conf.speed);       
@@ -252,7 +255,7 @@ namespace lpzrobots {
 	  contact[i].surface.soft_erp = 0.5;
 	  contact[i].surface.soft_cfm = 0.001;
 	}else{
-	  contact[i].surface.mu = 2.0; //large friction
+	  contact[i].surface.mu = 3.0; //large friction
 	  contact[i].surface.soft_erp = 0.9;
 	  contact[i].surface.soft_cfm = 0.001;
 	}

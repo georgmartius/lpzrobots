@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.4  2005-12-14 15:37:19  martius
+ *   Revision 1.4.4.5  2006-01-26 18:37:20  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4.4.4  2005/12/14 15:37:19  martius
  *   sensors are working with osg
  *
  *   Revision 1.4.4.3  2005/12/14 12:43:07  martius
@@ -97,8 +100,9 @@ void IRSensor::init(const OdeHandle& odeHandle,
 
   dGeomTransformSetGeom(transform, ray);  
   dGeomSetBody ( transform, body->getBody() );
-  dGeomDisable (transform); // disable transform geom, so that it is not treated by normal collision detection.
-
+  // disable transform geom, 
+  //  so that it is not treated by normal collision detection.
+  dGeomDisable (transform); 
 
   switch(drawMode){
   case drawAll:
