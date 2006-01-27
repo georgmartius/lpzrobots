@@ -59,7 +59,7 @@ public:
     controller->setParam("adaptrate",0);
     controller->setParam("epsC",0.05);
     controller->setParam("epsA",0.01);
-    controller->setParam("eps",0.01); // eps for delta H net
+    controller->setParam("eps",0.01); // eps for delta H net 
     //  global.odeConfig.setParam("realtimefactor",3);
   
     DerivativeWiringConf wconf = DerivativeWiring::getDefaultConf();
