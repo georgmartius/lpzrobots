@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-01-12 14:21:00  martius
+ *   Revision 1.1.2.9  2006-01-27 13:06:21  fhesse
+ *   getPose/getPosition return pose/Position of geom if no body exists
+ *
+ *   Revision 1.1.2.8  2006/01/12 14:21:00  martius
  *   drawmode, material
  *
  *   Revision 1.1.2.7  2006/01/03 10:06:16  fhesse
@@ -135,11 +138,13 @@ namespace lpzrobots{
   }
 
   osg::Vec3 Primitive::getPosition() const {
+    if(!body) return Pos(dGeomGetPosition(geom));
     return Pos(dBodyGetPosition(body));
   }
 
   osg::Matrix Primitive::getPose() const {
-    return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));    
+    if(!body) return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));    
+    return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
   }
 
   dGeomID Primitive::getGeom() const { 
