@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2005-12-29 12:55:59  martius
+ *   Revision 1.1.2.5  2006-01-30 13:12:45  martius
+ *   bug in setByMatrix
+ *
+ *   Revision 1.1.2.4  2005/12/29 12:55:59  martius
  *   setHome
  *
  *   Revision 1.1.2.3  2005/12/15 17:03:42  martius
@@ -186,6 +189,7 @@ namespace lpzrobots {
   }
 
   void CameraManipulator::setByMatrix(const Matrixd& matrix){
+
     eye = matrix.getTrans();
     Vec3 xaxis(1,0,0);    
     Pos head = Matrix::transform3x3(xaxis, matrix);
@@ -195,7 +199,7 @@ namespace lpzrobots {
     Pos tilt = Matrix::transform3x3(Vec3(0,1,0), matrix);
     tilt.print();
     view.y() = RadiansToDegrees(getAngle(Vec3(0,0,1), tilt)) * 
-      -1 * sign(tilt.y()); // this resolves the ambiguity of getAngle    
+      sign(tilt.y()); // this resolves the ambiguity of getAngle    
     computeMatrix();    
   }
 
