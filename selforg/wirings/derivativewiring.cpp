@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-16 11:24:27  martius
+ *   Revision 1.1.2.2  2006-01-30 14:13:56  martius
+ *   order has changed from id_1,..,id_n, first_1,...first_n, ...
+ *    to id_1,first_1, second_1, id_2, first2, .... id_n, first_n, second_n
+ *
+ *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
  *   moved to selforg
  *
  *   Revision 1.7  2005/11/14 12:48:08  martius
@@ -122,12 +126,13 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
   int index = (time) % buffersize;  
   int lastIndex = (time-1) % buffersize;  
  
-  int offset=0;
+  int blocksize = conf.useId + conf.useFirstD + conf.useSecondD;
   if(conf.useId) { // normal sensors values
     memcpy(id, rsensors, sizeof(sensor) * this->rsensornumber);
     noiseGenerator->add(id, -noise, noise);   
-    memcpy(csensors+offset, id, sizeof(sensor) * this->rsensornumber);
-    offset+=this->rsensornumber;	   
+    for(int i=0; i < this->rsensornumber; i++ ){ 
+      csensors[i*blocksize] = id[i];
+    }
   }   
   
   if(conf.useFirstD || conf.useSecondD){ // calc smoothed sensor values
@@ -138,29 +143,29 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 
   if(conf.useFirstD) { // first derivative
     calcFirstDerivative();
-    memcpy(csensors+offset, first, sizeof(sensor) * this->rsensornumber);
-    offset+=this->rsensornumber;	   
+    int offset = conf.useId;
+    for(int i=0; i < this->rsensornumber; i++ ){ 
+      csensors[i*blocksize+offset] = first[i];
+    }
   }
   if(conf.useSecondD) { // second derivative
     calcSecondDerivative();
-    memcpy(csensors+offset, second, sizeof(sensor) * this->rsensornumber);
+    int offset = conf.useId + conf.useFirstD;
+    for(int i=0; i < this->rsensornumber; i++ ){ 
+      csensors[i*blocksize+offset] = second[i];
+    }
     // test  ( if angle near bounce point than set derivative to 0;
     // for(int i=0; i<this->rsensornumber; i++){
     //       if(fabs(*(csensors+i)) > 0.8)
     // 	*(csensors+offset+i) = 0;
     //     }
-    offset+=this->rsensornumber;	   
   }      
 
   if(conf.blindMotorSets > 0) { // shortcircuit of blind motors
-    memcpy(csensors+offset, blindMotors, sizeof(sensor) * blindMotorNumber);
-    offset+=blindMotorNumber;	   
+    memcpy(csensors+blocksize*this->rsensornumber, blindMotors, 
+	   sizeof(sensor) * blindMotorNumber);
   }      
   
-  if(offset!=this->csensornumber){ 
-    fprintf(stderr, "%s:%i: Something strange happend!\n", __FILE__, __LINE__);  
-    return false;
-  } 
   time++;
   return true;
 }
