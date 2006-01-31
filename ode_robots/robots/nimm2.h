@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17.4.7  2006-01-17 17:02:19  martius
+ *   Revision 1.17.4.8  2006-01-31 15:36:14  martius
+ *   irRange in config
+ *
+ *   Revision 1.17.4.7  2006/01/17 17:02:19  martius
  *   faster, stronger, more friction
  *
  *   Revision 1.17.4.6  2005/12/15 17:04:08  martius
@@ -124,6 +127,7 @@ typedef struct {
   bool irFront;
   bool irBack;
   bool irSide;
+  double irRange;
   bool singleMotor;
 } Nimm2Conf;
 
@@ -146,6 +150,7 @@ public:
     conf.irFront=false;
     conf.irBack=false;
     conf.irSide=false;
+    conf.irRange=3;
     conf.singleMotor=false;
     return conf;
   }
