@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.8  2006-01-20 12:58:14  fhesse
+ *   Revision 1.1.4.9  2006-01-31 09:58:10  fhesse
+ *   basically working now
+ *
+ *   Revision 1.1.4.8  2006/01/20 12:58:14  fhesse
  *   bodies placed correctly
  *
  *   Revision 1.1.4.7  2006/01/13 12:22:07  fhesse
@@ -69,24 +72,23 @@ namespace lpzrobots{
  
     parentspace=odeHandle.space;
     factorMotors=0.1;
-    factorSensors=4.0;//20.0;
+    factorSensors=8.0;//20.0;
     damping=1;
-
-    /*
-      initial_pos.x=0.0;
-      initial_pos.y=0.0;
-      initial_pos.z=0.0;
-    */
 
     sensorno=0;
     if (conf.jointAngleSensors)
       sensorno+=2;
     if (conf.jointAngleRateSensors)
       sensorno+=2;
-    if (conf.MuscleLengthSensors)
+    if (conf.muscleLengthSensors)
       sensorno+=6;
 
-    motorno=6;  
+    if (conf.jointActuator){
+      motorno=2;  
+    }else{
+      motorno=6;  
+    }
+
     print=0;
 
     this->osgHandle.color = Color(1,1,0);
@@ -126,62 +128,24 @@ namespace lpzrobots{
       @param motornumber length of the motor array
   */
   void MuscledArm::setMotors(const motor* motors, int motornumber){
-  
+    if (!conf.jointActuator) { 
+      for (int i=SJ_mM1; i<=SJ_sM4; i++){
+	// just adding force to slider joint 
+	//((SliderJoint*)joint[i])->addForce(factorMotors * motors[i-SJ_mM1]);
 
-    /*
-    // old execution of motorvalues
-    const dReal *p1;
-    const dReal *p2;
-    for (int i=mainMuscle11; i<smallMuscle42; i+=2){
-    p1 = dBodyGetPosition (object[i]->getBody());
-    p2 = dBodyGetPosition (object[i+1]->getBody());
-    
-    Position dist;
-    //distance between slider joint elements
-    dist.x=p2[0]-p1[0];
-    dist.y=p2[1]-p1[1];
-    dist.z=p2[2]-p1[2];
-    
-    Position force;
-    //calculating motor force
-    force=dist*factorMotors*motors[(int)(i*0.5)-1];
-    
-    dBodyAddForce (object[i]->getBody, force.x, force.y, force.z);
-    dBodyAddForce (object[i+1]->getBody, -force.x, -force.y, -force.z);
-    */
-
-  
-    //   if (!conf.manualMode) { 
-    //     // mode where attached controller is used
-
-    //     /* 
-    //     // execution of motor values without slider sensors factor
-    //     for (int i=sliderJointM1; i<=sliderJointS4; i++){
-    //     // starting with motor[0]
-    //     dJointAddSliderForce(joint[i], dJointGetSliderPosition (joint[i]) * factorMotors * motors[i-sliderJointM1]);
-    //     }
-    //     */
-    
-    //     // execution of motor values with slider sensors factor
-    //     double force;
-    //     for(int i=sliderJointM1; i<= sliderJointM2; i++){
-    //       force=factorMotors * motors[i-sliderJointM1] * dJointGetSliderPosition (joint[i]) * 5 / (3*SIDE);
-    //       dJointAddSliderForce(joint[i], force);
-    //     }
-    //     for(int i=sliderJointS1; i<= sliderJointS2; i++){
-    //       force=factorMotors * motors[i-sliderJointM1] * dJointGetSliderPosition (joint[i]) * 4 / (SIDE);
-    //       dJointAddSliderForce(joint[i], force);
-    //     }
-    //     for(int i=sliderJointS3; i<= sliderJointS4; i++){
-    //       force=factorMotors * motors[i-sliderJointM1] * dJointGetSliderPosition (joint[i]) / (0.5*SIDE);
-    //       dJointAddSliderForce(joint[i], force);
-    //     }
-    //   }else{
-    //     // manual control (see command in main.cpp)
-    //     for(int i=sliderJointM1; i<= sliderJointS4; i++){
-    //       dJointAddSliderForce(joint[i], force_[i-sliderJointM1]);
-    //     }
-    //   }
+	// 
+	((SliderJoint*)joint[i])->
+	  addForce(factorMotors * (motors[i-SJ_mM1]- 8 * ((SliderJoint*)joint[i])->getPosition1()));
+      }
+    }else{
+      for(int i=HJ_BuA; i<= HJ_uAlA; i++){ // two hinge joints
+	//	((HingeJoint*)joint[i])->addTorque(motors[i-HJ_BuA]);
+	((HingeJoint*)joint[i])->addTorque
+	  (M_PI/3 //range of joint is -M_PI/3 .. M_PI/3, and so is the result of getPosition1()
+	   * motors[i-HJ_BuA] 
+	   - ((HingeJoint*)joint[i])->getPosition1());
+      }
+    }
   };
 
 
@@ -191,61 +155,29 @@ namespace lpzrobots{
       @return number of actually written sensors
   */
   int MuscledArm::getSensors(sensor* sensors, int sensornumber){
-    //    int sens_values = (sensornumber < sensorno)? sensornumber : sensorno;
-    //
-    //   int written=0;
-  
-    //   if ((conf.jointAngleSensors) && ((sens_values-2)>-1)){
-    //     /* hinge joint between upper arm and fixed body: hingeJointFUA (=1) */
-    //     /* hinge joint between 2 main arms: hingeJointUALA (=2) */
-    //     for (int i=hingeJointFUA; i<hingeJointUALA+1; i++){
-    //       sensors[written]=factorSensors*dJointGetHingeAngle(joint[i]);
-    //       written++;
-    //     }
-    //   }
-    //   if ((conf.jointAngleRateSensors) && ((sens_values -written -2)>-1)){
-    //     for (int i=hingeJointFUA; i<hingeJointUALA+1; i++){
-    //       sensors[written]=factorSensors*dJointGetHingeAngleRate(joint[i]);
-    //       written++;
-    //     }
-    //   }
-    //   if ((conf.MuscleLengthSensors) && ((sens_values -written -6)>-1)){
-    //     for(int i=sliderJointM1; i<= sliderJointM2; i++){
-    //       sensors[written] = dJointGetSliderPosition (joint[i]) * 5 / (3*SIDE);
-    //       written++;
-    //     }
-    //     for(int i=sliderJointS1; i<= sliderJointS2; i++){
-    //       sensors[written] = dJointGetSliderPosition (joint[i]) * 4 / (SIDE);
-    //       written++;
-    //     }
-    //     for(int i=sliderJointS3; i<= sliderJointS4; i++){
-    //       sensors[written] = dJointGetSliderPosition (joint[i]) / (0.5*SIDE);
-    //       written++;
-    //     }
+    int written=0;
+    if ((conf.jointAngleSensors) && ((written+1)<sensornumber) ){
+      
+      sensors[written]= 3/M_PI*((HingeJoint*)joint[HJ_BuA])->getPosition1();
+      written++;
+      sensors[written]= 3/M_PI*((HingeJoint*)joint[HJ_uAlA])->getPosition1();
+      written++;
+    }
 
-    // //     double mlen;
-    // //     const dReal *p1;
-    // //     const dReal *p2;
-    // //     for (int i=mainMuscle11; i<smallMuscle42; i+=2){
+    if ( (conf.jointAngleRateSensors) && ((written+1)<sensornumber) ) {
+      sensors[written]= factorSensors * ((HingeJoint*)joint[HJ_BuA])->getPosition1Rate();
+      written++;
+      sensors[written]= factorSensors * ((HingeJoint*)joint[HJ_uAlA])->getPosition1Rate();
+      written++;
+    }
 
-    // //       p1 = dBodyGetPosition (object[i].body);
-    // //       p2 = dBodyGetPosition (object[i+1].body);
-    // //       mlen=0;
-    // //       //distance between slider joint elements
-    // //       mlen+=(p2[0]-p1[0])*(p2[0]-p1[0]);
-    // //       mlen+=(p2[1]-p1[1])*(p2[1]-p1[1]);
-    // //       mlen+=(p2[2]-p1[2])*(p2[2]-p1[2]);
-    // //       mlen=pow(mlen, 1.0/3.0);
-    // //       sensors[written]=mlen;
-    // //       written++;
-    //   }
-    //   return written;
-    //    return sensornumber;
-
-    sensors[0]= ((HingeJoint*)joint[HJ_BuA])->getPosition1Rate();
-    sensors[1]= ((HingeJoint*)joint[HJ_uAlA])->getPosition1Rate();
-    return 2;
-
+    if ( (conf.muscleLengthSensors) && ((written+5)<sensornumber) ) {
+      for (int j=SJ_mM1; j<=SJ_sM4; j++, written++){
+	sensors[written]=factorSensors * ((SliderJoint*)joint[j])->getPosition1();
+      }
+    }
+    //printf("written= %i \n",written);
+    return written;
   };
 
   /** sets the pose of the vehicle
@@ -260,40 +192,23 @@ namespace lpzrobots{
     create(p2);
   };
 
-  // /** returns position of robot 
-  //     @return position robot position in struct Position  
-  // */
-  // Position MuscledArm::getPosition(){
-  //   Position pos;
-  
-  //   //difference between center of arm and tip of arm 
-  //   dReal s[3];
-  //   s[0]=0;
-  //   s[1]=0;
-  //   s[2]=-SIDE*2;
-  //   const double* R=dBodyGetRotation(object[lowerArm].body);
-
-  //   //rotation of difference vector
-  //   pos.x=s[0]*R[0]+s[1]*R[1]+s[2]*R[2];
-  //   pos.y=s[0]*R[4]+s[1]*R[5]+s[2]*R[6];
-  //   pos.z=s[0]*R[8]+s[1]*R[9]+s[2]*R[10];
-  //   // adding (rotated) difference vector to actual position of arm center
-  //   // -> leading to actual position of the tip of the arm
-  //   pos = pos + Position(dBodyGetPosition(object[lowerArm].body));
-
-  //   return pos;
-  // };
+  /** returns position of robot 
+      @return position robot position in struct Position  
+  */
+  osg::Vec3 MuscledArm::getPosition(){
+    osg::Vec3 pos(object[hand]->getPosition());
+    return pos;
+  };
 
   /** returns a vector with the positions of all segments of the robot
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
   */
   int MuscledArm::getSegmentsPosition(vector<Position> &poslist){
-    //   assert(created);
-    //   for (int i=0; i<NUMParts; i++){
-    //     Position pos (dBodyGetPosition(object[i].body));
-    //     poslist.push_back(pos);
-    //   }   
+  assert(created);
+    for (int i=0; i<NUMParts; i++){
+      poslist.push_back(Position(dBodyGetPosition(object[i]->getBody())));
+    }   
     return NUMParts;
   };  
 
@@ -303,72 +218,18 @@ namespace lpzrobots{
    */
   void MuscledArm::update(){
     assert(created); // robot must exist
-
-
-    object[base]->update();
-    object[upperArm]->update();
-    object[lowerArm]->update();
-    object[hand]->update();
-
-    object[smallMuscle11]->update();
-    object[smallMuscle12]->update();
-    object[smallMuscle21]->update();
-    object[smallMuscle22]->update();
-    object[smallMuscle31]->update();
-    object[smallMuscle32]->update();
-    object[smallMuscle41]->update();
-    object[smallMuscle42]->update();
-
-//     joint[fixedJoint]->update();
-     joint[HJ_BuA]->update();
-     joint[HJ_uAlA]->update();
-
-     joint[HJ_BmM11]->update();
-     joint[HJ_lAmM12]->update();
-     joint[HJ_BmM21]->update();
-     joint[HJ_lAmM22]->update();
-     joint[SJ_mM1]->update();
-     joint[SJ_mM2]->update();
-
-
-     joint[HJ_BsM11]->update();
-     joint[HJ_uAsM12]->update();
-
-     joint[HJ_BsM21]->update();
-     joint[HJ_uAsM22]->update();
-
-     joint[HJ_lAsM31]->update();
-     joint[HJ_uAsM32]->update();
-
-     joint[HJ_lAsM41]->update();
-     joint[HJ_uAsM42]->update();
-           
-     joint[SJ_sM1]->update();
-     joint[SJ_sM2]->update();
-     joint[SJ_sM3]->update();
-     joint[SJ_sM4]->update();
-    
-     for (int i= mainMuscle11; i<smallMuscle11; i++){
-       object[i]->update();
-     }
-//     for (int i=0; i<segmentsno; i++) { 
-//       object[i]->update();
-//     }
-//     for (int i=0; i < 4; i++) { 
-//       joint[i]->update();
-//     }
+    for (int i =0; i<NUMParts; i++){
+      object[i]->update();
+    }
+    for (int i=HJ_BuA; i<NUMJoints; i++){
+     joint[i]->update();
+    }
+  
   };
 
 
 
   void MuscledArm::doInternalStuff(const GlobalData& globalData){
-//     //   if (conf.includeMuscles){
-//     //     const dReal ksM1 = 0.5;	// spring constant between mainMuscle11 and mainMuscle12
-//     //     const dReal ksM2 = 0.2;	// spring constant between mainMuscle21 and mainMuscle22
-//     //     const dReal ksS1 = 0.5;	// spring constant between smallMuscle11 and smallMuscle12
-//     //     const dReal ksS2 = 0.2;	// spring constant between smallMuscle21 and smallMuscle22
-//     //     const dReal ksS3 = 0.5;	// spring constant between smallMuscle31 and smallMuscle32
-//     //     const dReal ksS4 = 0.2;	// spring constant between smallMuscle41 and smallMuscle42
 
          double k[6];
          k[0] = 0.5;	// spring constant between mainMuscle11 and mainMuscle12
@@ -418,39 +279,7 @@ namespace lpzrobots{
            dBodyAddForce (object[i+1]->getBody(), -force.x, -force.y, -force.z);
            old_dist[i]=dist;
          }
-//     //   }
 
-
-    //   if(print==1){
-    //     dVector3 res;  
-    //      for (int i=hingeJointFUA; i<sliderJointM1; i++){
-    //        dJointGetHingeAnchor (joint[i], res);
-    //        //dJointSetHingeAnchor (joint[hingeJointFM2], 4.7*SIDE, 1.0*SIDE, 1.25*SIDE);
-    //        std::cout<<"dJointSetHingeAnchor(joint["<<getJointName(i)<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
-
-    //        dJointGetHingeAxis (joint[i], res);
-    //        //dJointSetHingeAxis (joint[hingeJointFM2], 0, 0, 1);
-    //        std::cout<<"dJointSetHingeAxis(joint["<<getJointName(i)<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
-    //        std::cout<<" \n";
-    //      }
-    //      for (int i=sliderJointM1; i<sliderJointS4+1; i++){
-    //        dJointGetSliderAxis (joint[i], res);
-    //        //dJointSetSliderAxis (joint[sliderJointM2],1,0,0);
-    //        std::cout<<"dJointSetSliderAxis(joint["<<getJointName(i)<<"], "<<res[0]<<", "<<res[1]<<", "<<res[2]<<"); \n";
-    //        std::cout<<" \n";
-    //      }
-
-    //      std::cout<<"dReal q[4]; \n";
-    //      std::cout<<"Position pos; \n";
-    //      for (int i=0; i<NUMParts; i++){
-    //        std::cout<<"// "<<getPartName(i)<<"\n";
-    //        const dReal* R=dBodyGetQuaternion(object[i].body);
-    //        std::cout<<"q[0]="<<R[0]<<";  q[1]="<<R[1]<<";  q[2]="<<R[2]<<";  q[3]="<<R[3]<<";\n";
-    //        const dReal* P=dBodyGetPosition(object[i].body);
-    //        std::cout<<"pos.x="<<P[0]<<";  pos.y="<<P[1]<<";  pos.z="<<P[2]<<"; \n";
-    //      }
-    //      print=0;
-    //    }
   }
 
   void MuscledArm::mycallback(void *data, dGeomID o1, dGeomID o2){
@@ -487,44 +316,46 @@ namespace lpzrobots{
 
   bool MuscledArm::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 
-//     //checks if both of the collision objects are part of the robot
-//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
+     //checks if both of the collision objects are part of the robot
+     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
     
-//       // treat inner collisions in mycallback  => now down with joint stops
-//       //dSpaceCollide(arm_space, this, mycallback);
+       // treat inner collisions in mycallback  => now down with joint stops
+       //dSpaceCollide(arm_space, this, mycallback);
 
-//       int i,n;  
-//       const int N = 10;
-//       dContact contact[N];
+       int i,n;  
+       const int N = 10;
+       dContact contact[N];
     
-//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-//       for (i=0; i<n; i++) {
-// 	if( contact[i].geom.g1 == object[base]->getGeom() || 
-// 	    contact[i].geom.g2 == object[base]->getGeom() ||
-// 	    contact[i].geom.g1 == object[upperArm]->getGeom()  || 
-// 	    contact[i].geom.g2 == object[upperArm]->getGeom()  || 
-// 	    contact[i].geom.g1 == object[lowerArm]->getGeom()  || 
-// 	    contact[i].geom.g2 == object[lowerArm]->getGeom() ){ 
-// 	  // only treat collisions with fixed body, upper arm or lower arm
-// 	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
-// 	  contact[i].surface.mu = 0.01;
-// 	  contact[i].surface.soft_erp = 1;
-// 	  contact[i].surface.soft_cfm = 0.00001;
+       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+       for (i=0; i<n; i++) {
+ 	if( contact[i].geom.g1 == object[base]->getGeom() || 
+ 	    contact[i].geom.g2 == object[base]->getGeom() ||
+ 	    contact[i].geom.g1 == object[upperArm]->getGeom()  || 
+ 	    contact[i].geom.g2 == object[upperArm]->getGeom()  || 
+ 	    contact[i].geom.g1 == object[lowerArm]->getGeom()  || 
+ 	    contact[i].geom.g2 == object[lowerArm]->getGeom()  ||
+ 	    contact[i].geom.g1 == object[hand]->getGeom()  || 
+ 	    contact[i].geom.g2 == object[hand]->getGeom()  ){ 
+ 	  // only treat collisions with fixed body, upper arm ,lower arm or hand
+ 	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
+ 	  contact[i].surface.mu = 0.01;
+ 	  contact[i].surface.soft_erp = 1;
+ 	  contact[i].surface.soft_cfm = 0.00001;
 
-// 	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-// 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-// 	} 
-//       }
-//       return true;
-//     } else {
-//       return false;
-//     }
+ 	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+ 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+ 	} 
+       }
+       return true;
+     } else {
+       return false;
+     }
  
     return true;
   }
 
 
-  /** creates vehicle at desired position 
+  /** creates arm at desired position 
       @param pos struct Position with desired position
   */
   void MuscledArm::create(const osg::Matrix& pose){
@@ -536,8 +367,7 @@ namespace lpzrobots{
 
     // create base
     object[base] = new Box(base_width, base_width, base_length);
-    object[base] -> init(odeHandle, MASS, osgHandle,Primitive::Geom |Primitive::Body | Primitive::Draw); 
-
+    object[base] -> init(odeHandle, MASS, osgHandle,Primitive::Geom  | Primitive::Draw); 
     //    if(conf.strained){
 
       // place base
@@ -554,29 +384,20 @@ namespace lpzrobots{
       this->osgHandle.color = Color(0,1,0);
       object[lowerArm] -> init(odeHandle, MASS, osgHandle); 
       object[lowerArm] -> setPose(osg::Matrix::rotate(M_PI/2, 1, 0, 0) * osg::Matrix::translate
-				  (-(base_width/2+upperArm_length+lowerArm_width/2+2*joint_offset), 
-				   lowerArm_length/4,0) * pose);
-      osg::Vec3 pos;      
+ 				  (-(base_width/2+upperArm_length+lowerArm_width/2+2*joint_offset), 
+ 				   lowerArm_length/4,0) * pose);
+       
 
       // create and place sphere at tip of lower arm
-      pos=object[lowerArm]->getPosition();
-      object[hand] = new Sphere(lowerArm_width*0.5);
-      this->osgHandle.color = Color(0,0,1);
-      object[hand] -> init(odeHandle, MASS/20, osgHandle);    
-      object[hand] -> setPose(osg::Matrix::translate(pos[0], pos[1]+ lowerArm_length/2, 0)
-			      * pose);
-      // --------------
-      // TODO: change tip to transform object
-      //       temporarily positioning of transform object does not work
-      //osg::Matrix ps;
-      //ps.makeIdentity();
-      //Primitive* o1 = new Sphere(lowerArm_width);
-      //Primitive* o2 = new Transform(object[lowerArm], o1, 
-      //			    osg::Matrix::translate(0, lowerArm_length*0.5, 0) * ps);
-      //o2->init(odeHandle, /*mass*/0, osgHandle, /*withBody*/ false);
-      // --------------    
+      osg::Matrix ps;
+      ps.makeIdentity();
+      Primitive* o1 = new Sphere(lowerArm_width);
+      // move to end of arm in local coordinates
+      object[hand] = new Transform(object[lowerArm], o1, 
+				    osg::Matrix::translate(0, 0,-lowerArm_length*0.5) * ps);
+      object[hand]->init(odeHandle, /*mass*/0, osgHandle, Primitive::Geom  | Primitive::Draw);
 
-
+      osg::Vec3 pos;      
       // hinge joint between upper arm and fixed body 
       pos=object[base]->getPosition();
       joint[HJ_BuA] = new HingeJoint(object[base], object[upperArm], 
@@ -602,48 +423,48 @@ namespace lpzrobots{
 
       //       if (conf.includeMuscles) {
 
- 	// create and place boxes for mainMuscles
- 	for (int i= mainMuscle11; i<smallMuscle11; i++){
-	  object[i] = new Box(mainMuscle_width, mainMuscle_width, mainMuscle_length);
- 	  //object[i] = new Capsule(mainMuscle_width/2,mainMuscle_length); 
- 	  object[i] -> init(odeHandle, MASS, osgHandle); 
-	  if (i==mainMuscle11) this->osgHandle.color = Color(0.4,0.4,0);
-	  if (i==mainMuscle12) this->osgHandle.color = Color(0,1,1);
-	  if (i==mainMuscle21) this->osgHandle.color = Color(1,1,0);
- 	}      
-	/* left main Muscle */	
-	/**************************************/
-	pos=object[upperArm]->getPosition();
- 	object[mainMuscle11] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
-					(// moved towards base, aligned with end of upperArm
-					 pos[0]+(upperArm_length-mainMuscle_length)/2,
-					 // moved to left of upper arm, aligned with end of base
-					 pos[1]-(base_length/2-mainMuscle_width/2), 
-					 0)  // height is ok
- 					* pose);
- 	object[mainMuscle12] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
-					(// moved away from base, aligned with end of upperArm
-					 pos[0]-(upperArm_length-mainMuscle_length)/2,
-					 // moved to left of upper arm, aligned with end of base
-					 pos[1]-(base_length/2-mainMuscle_width/2), 
-					 0)  // height is ok
- 					* pose);
-	/* right main Muscle */	
-	/**************************************/
- 	object[mainMuscle21] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
-					(// moved towards base, aligned with end of upperArm
-					 pos[0]+(upperArm_length-mainMuscle_length)/2, 
-					 // moved to right of upper arm, aligned with end of base
-					 pos[1]+(base_length/2-mainMuscle_width/2), 
-					 0)  // height is ok
- 					* pose);
- 	object[mainMuscle22] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
-					(// moved away from base, aligned with end of upper
-					 pos[0]-(upperArm_length-mainMuscle_length)/2,
-					 // moved to right of upper arm, aligned with end of base
-					 pos[1]+(base_length/2-mainMuscle_width/2), 
-					 0)  // height is ok
- 					* pose);
+      // create and place boxes for mainMuscles
+      for (int i= mainMuscle11; i<smallMuscle11; i++){
+	object[i] = new Box(mainMuscle_width, mainMuscle_width, mainMuscle_length);
+	//object[i] = new Capsule(mainMuscle_width/2,mainMuscle_length); 
+	object[i] -> init(odeHandle, MASS, osgHandle); 
+	if (i==mainMuscle11) this->osgHandle.color = Color(0.4,0.4,0);
+	if (i==mainMuscle12) this->osgHandle.color = Color(0,1,1);
+	if (i==mainMuscle21) this->osgHandle.color = Color(1,1,0);
+      }      
+      /* left main Muscle */	
+      /**************************************/
+      pos=object[upperArm]->getPosition();
+      object[mainMuscle11] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
+				      (// moved towards base, aligned with end of upperArm
+				       pos[0]+(upperArm_length-mainMuscle_length)/2,
+				       // moved to left of upper arm, aligned with end of base
+				       pos[1]-(base_length/2-mainMuscle_width/2), 
+				       0)  // height is ok
+				      * pose);
+      object[mainMuscle12] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
+				      (// moved away from base, aligned with end of upperArm
+				       pos[0]-(upperArm_length-mainMuscle_length)/2,
+				       // moved to left of upper arm, aligned with end of base
+				       pos[1]-(base_length/2-mainMuscle_width/2), 
+				       0)  // height is ok
+				      * pose);
+      /* right main Muscle */	
+      /**************************************/
+      object[mainMuscle21] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
+				      (// moved towards base, aligned with end of upperArm
+				       pos[0]+(upperArm_length-mainMuscle_length)/2, 
+				       // moved to right of upper arm, aligned with end of base
+				       pos[1]+(base_length/2-mainMuscle_width/2), 
+				       0)  // height is ok
+				      * pose);
+      object[mainMuscle22] -> setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate
+				      (// moved away from base, aligned with end of upper
+				       pos[0]-(upperArm_length-mainMuscle_length)/2,
+				       // moved to right of upper arm, aligned with end of base
+				       pos[1]+(base_length/2-mainMuscle_width/2), 
+				       0)  // height is ok
+				      * pose);
 	/* joints for left main Muscle */	
 	/**************************************/
 	// hinge joint between mainMuscle11 and fixed body */
@@ -900,7 +721,7 @@ namespace lpzrobots{
       else if(key == "damping") return damping; 
       else if(key == "print") return print; 
       else  return Configurable::getParam(key) ;
-    }
+    };
 
     bool MuscledArm::setParam(const paramkey& key, paramval val){
       if(key == "factorMotors") factorMotors=val;
@@ -909,61 +730,6 @@ namespace lpzrobots{
       else if(key == "print") print = val; 
       else return Configurable::setParam(key, val);
       return true;
-    }
+    };
 
-    std::string MuscledArm::getJointName(int j) const{
-      assert( (j>-1) && (j<=NUMJoints) );
-      std::string name;
-      switch (j)
-	{
-	case  0: return "fixedJoint"; break;
-	case  1: return "hingeJointFUA"; break; 
-	case  2: return "hingeJointUALA"; break; 
-	case  3: return "hingeJointFM1"; break;
-	case  4: return "hingeJointFM2"; break; 
-	case  5: return "hingeJointFS1"; break;
-	case  6: return "hingeJointFS2"; break;
-	case  7: return "hingeJointUAS1"; break;
-	case  8: return "hingeJointUAS2"; break;
-	case  9: return "hingeJointUAS3"; break;
-	case 10: return "hingeJointUAS4"; break;
-	case 11: return "hingeJointLAM1"; break;
-	case 12: return "hingeJointLAM2"; break;
-	case 13: return "hingeJointLAS3"; break;
-	case 14: return "hingeJointLAS4"; break;
-	case 15: return "sliderJointM1"; break;
-	case 16: return "sliderJointM2"; break;
-	case 17: return "sliderJointS1"; break; 
-	case 18: return "sliderJointS2"; break;
-	case 19: return "sliderJointS3"; break;
-	case 20: return "sliderJointS4"; break;
-	case 21: return "fixedJointHand"; break;
-	case 22: return "NUMJoints"; break;
-	}  
-    }
-
-    std::string MuscledArm::getPartName(int j) const{
-      assert( (j>-1) && (j<=NUMParts) );
-      std::string name;
-      switch (j)
-	{
-	case  0: return "base"; break;
-	case  1: return "upperArm"; break; 
-	case  2: return "lowerArm"; break; 
-	case  3: return "mainMuscle11"; break;
-	case  4: return "mainMuscle12"; break; 
-	case  5: return "mainMuscle21"; break;
-	case  6: return "mainMuscle22"; break;
-	case  7: return "smallMuscle11"; break;
-	case  8: return "smallMuscle12"; break;
-	case  9: return "smallMuscle21"; break;
-	case 10: return "smallMuscle22"; break;
-	case 11: return "smallMuscle31"; break;
-	case 12: return "smallMuscle32"; break;
-	case 13: return "smallMuscle41"; break;
-	case 14: return "smallMuscle42"; break;
-	case 15: return "hand"; break;
-	case 16: return "NUMParts"; break;
-	}  
-    }
   }

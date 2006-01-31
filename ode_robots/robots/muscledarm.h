@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.8  2006-01-13 12:22:07  fhesse
+ *   Revision 1.1.4.9  2006-01-31 09:58:11  fhesse
+ *   basically working now
+ *
+ *   Revision 1.1.4.8  2006/01/13 12:22:07  fhesse
  *   partially working
  *
  *   Revision 1.1.4.7  2006/01/10 16:45:53  fhesse
@@ -84,8 +87,7 @@ enum parts {base, upperArm, lowerArm,
 	    hand,
 	    NUMParts};
 
-enum joints {fixedJoint, 
-	     HJ_BuA,    // hinge joint between base and upperArm
+enum joints {HJ_BuA,    // hinge joint between base and upperArm
 	     HJ_uAlA,   // hinge joint between upperArm and lowerArm
 
 	     HJ_BmM11,  // hinge joint between base and mainMuscle11
@@ -109,20 +111,17 @@ enum joints {fixedJoint,
 	     SJ_sM2, // slider Joint between smallMuscle21 ans smallMuscle22
 	     SJ_sM3, // slider Joint between smallMuscle31 ans smallMuscle32
 	     SJ_sM4, // slider Joint between smallMuscle41 ans smallMuscle42
-	     fixedJointHand,
 	     NUMJoints};
 
 
 
 typedef struct {
-  bool includeMuscles; /// should muscles be included?
-  bool drawMuscles;    /// should muscles be included?
-  bool drawSphere;     /// draw sphere at tip of lower Arm?
-  bool strained;       /// arm strained or in resting position?
-  bool manualMode;     /// control with with keyboard (manualMode=true) or from controller?
   bool jointAngleSensors;
   bool jointAngleRateSensors;
-  bool MuscleLengthSensors;
+  bool muscleLengthSensors;
+  bool jointActuator;  // if true, two motors at the joints are used
+                       // if false, six muscles are used
+
 } MuscledArmConf;
 
 class MuscledArm : public OdeRobot, public Configurable{
@@ -134,14 +133,10 @@ public:
 
   static MuscledArmConf getDefaultConf(){
     MuscledArmConf conf;
-    conf.includeMuscles=true;
-    conf.drawMuscles=true;
-    conf.drawSphere=true;
-    conf.strained=false;
-    conf.manualMode=false;
     conf.jointAngleSensors=false;
     conf.jointAngleRateSensors=true;
-    conf.MuscleLengthSensors=false;
+    conf.muscleLengthSensors=false;
+    conf.jointActuator=false;
     return conf;
   }
 
@@ -185,6 +180,11 @@ public:
     return motorno;
   };
 
+   /** returns position of hand (=sphere at the end of lower arm) 
+       @return position robot position in struct Position  
+   */
+  virtual osg::Vec3 MuscledArm::getPosition();
+
   /** returns a vector with the positions of all segments of the robot
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
@@ -214,8 +214,6 @@ public:
   
   virtual bool setParam(const paramkey& key, paramval val);
 
-  std::string getJointName(int j) const;
-  std::string getPartName(int j) const;
 
 protected:
   
@@ -241,15 +239,11 @@ protected:
   MuscledArmConf conf;    
 
   static const int  armanzahl= 3;
-  //Object km[armanzahl-1]; //Armglieder
-
-  //  dJointID j[armanzahl+1];
-
 
 
     Primitive* object[NUMParts];  
     Joint* joint[NUMJoints]; 
-
+    
     Position old_dist[NUMParts]; // used for damping
 
     string name;    
@@ -271,34 +265,16 @@ protected:
     double SOCKEL_HOEHE; 
     double SOCKEL_MASSE;
 
-  //  double ARMDICKE;
-  //  double ARMLAENGE;
-  //  double ARMABSTAND;
-  //  double ARMMASSE;
-  /*
-  double length;  // chassis length
-  double width;  // chassis width
-  double height;   // chassis height
-  double radius;  // wheel radius
-  double wheelthickness; // thickness of the wheels  
-  double cmass;    // chassis mass
-  double wmass;    // wheel mass
-  */
-  int sensorno;      //number of sensors
-  int motorno;       // number of motors
+    int sensorno;      //number of sensors
+    int motorno;       // number of motors
 
-  /*  double speed;    // 
-
-  Position initial_pos;    // initial position of robot
-  double max_force;        // maximal force for motors
-  */
-  bool created;      // true if robot was created
+    bool created;      // true if robot was created
 
 
 
-  dSpaceID parentspace;
-
-  int printed;
+    dSpaceID parentspace;
+    
+    int printed;
 
   double max_l;
   double max_r, min_l, min_r;

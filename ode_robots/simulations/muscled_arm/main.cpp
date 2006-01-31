@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.4  2006-01-10 09:36:38  fhesse
+ *   Revision 1.1.4.5  2006-01-31 09:58:49  fhesse
+ *   basically working now
+ *
+ *   Revision 1.1.4.4  2006/01/10 09:36:38  fhesse
  *   moved to osg
  *
  *   Revision 1.1.4.3  2005/12/16 16:32:32  fhesse
@@ -55,12 +58,12 @@
 #include <selforg/one2onewiring.h>
 
 // used robot
-//#include "nimm4.h"
+#include "nimm4.h"
 #include "arm2segm.h"
 #include "muscledarm.h"
 
 // used arena
-#include "playground.h"
+//#include "playground.h"
 #include "passivesphere.h"
 
 // used controller
@@ -86,52 +89,40 @@ public:
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     // initial camera position and viewpoint
-    setCameraHomePos(Pos(0.340f,-0.0779f,1.51f), Pos(179.9, -97.69, 0));
-
-
+    setCameraHomePos(Pos(-0.0707104, 0.092873, 3.64943),  Pos(89.9208, -85.8472, 0));
     // initialization
     // - set noise to 0.1
-    // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.noise=0.1;
 
 
-    // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
-    //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
-    // - setting initial position of the playground: setPosition(double x, double y, double z)
-    // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-//     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(7.0, 0.2, 1.5));
-//     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-//     global.obstacles.push_back(playground);
+
+    PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.1);
+    s1->setPosition(osg::Vec3(-0.7,0.9,0.1));
+    s1->setTexture("Images/dusty.rgb");
+    global.obstacles.push_back(s1);
 
 
-//     PassiveSphere* sphere =new PassiveSphere(odeHandle, osgHandle,0.2);
-//     //  sphere->setGeometry(0.2,0,0);
-//     sphere->setPosition(osg::Vec3(0,1,0)); 
-//     global.obstacles.push_back(sphere);
   
-     MuscledArmConf  conf = MuscledArm::getDefaultConf();
-     conf.drawSphere=true;
-     conf.drawMuscles=false;
-     conf.strained=false;
-     conf.jointAngleSensors=false;
-     conf.jointAngleRateSensors=false;
-     conf.MuscleLengthSensors=true;
-     arm = new MuscledArm(odeHandle, osgHandle, conf);
-     arm->setParam("damping",20);
-     arm->setParam("factorMotors",5);
+      MuscledArmConf  conf = MuscledArm::getDefaultConf();
+      conf.jointAngleSensors=false;
+      conf.jointAngleRateSensors=false;
+      conf.muscleLengthSensors=true;
+      conf.jointActuator=false;
+      arm = new MuscledArm(odeHandle, osgHandle, conf);
+//      arm->setParam("damping",20);
+//      arm->setParam("factorMotors",5);
+
+
      ((OdeRobot*)arm)->place(Position(0,0,0));
      global.configs.push_back(arm);
 
     // create pointer to controller
     // push controller in global list of configurables
     //  InvertMotorNStep(int buffersize, double cInit = 0.1, bool useS = false, bool someInternalParams = true);
-
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.buffersize=30;
     //AbstractController *controller = new InvertMotorNStep(cc);
+    //AbstractController *controller = new InvertNChannelController(30);
     AbstractController *controller = new   SineController();
     global.configs.push_back(controller);
   
@@ -164,49 +155,49 @@ public:
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   void command (const OdeHandle&, GlobalData& globalData, int cmd)
   {
-    //printp ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
-    switch ( (char) cmd )
-      {
-      case '1' : arm->force_[0]+=0.5; break;
-      case '!' : arm->force_[0]-=0.5; break;
+//     //printp ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
+//     switch ( (char) cmd )
+//       {
+//       case '1' : arm->force_[0]+=0.5; break;
+//       case '!' : arm->force_[0]-=0.5; break;
 
-      case '2' : arm->force_[1]+=0.5; break;
-      case '@' : arm->force_[1]-=0.5; break;
+//       case '2' : arm->force_[1]+=0.5; break;
+//       case '@' : arm->force_[1]-=0.5; break;
 
-      case '3' : arm->force_[2]+=0.5; break;
-      case '#' : arm->force_[2]-=0.5; break;
+//       case '3' : arm->force_[2]+=0.5; break;
+//       case '#' : arm->force_[2]-=0.5; break;
 
-      case '4' : arm->force_[3]+=0.5; break;
-      case '$' : arm->force_[3]-=0.5; break;
+//       case '4' : arm->force_[3]+=0.5; break;
+//       case '$' : arm->force_[3]-=0.5; break;
 
-      case '5' : arm->force_[4]+=0.5; break;
-      case '%' : arm->force_[4]-=0.5; break;
+//       case '5' : arm->force_[4]+=0.5; break;
+//       case '%' : arm->force_[4]-=0.5; break;
 
-      case '6' : arm->force_[5]+=0.5; break;
-      case '^' : arm->force_[5]-=0.5; break;
+//       case '6' : arm->force_[5]+=0.5; break;
+//       case '^' : arm->force_[5]-=0.5; break;
 
-      case 'q' : arm->force_[0]=0; break;
-      case 'w' : arm->force_[1]=0; break;
-      case 'e' : arm->force_[2]=0; break;
-      case 'r' : arm->force_[3]=0; break;
-      case 't' : arm->force_[4]=0; break;
-      case 'y' : arm->force_[5]=0; break;
+//       case 'q' : arm->force_[0]=0; break;
+//       case 'w' : arm->force_[1]=0; break;
+//       case 'e' : arm->force_[2]=0; break;
+//       case 'r' : arm->force_[3]=0; break;
+//       case 't' : arm->force_[4]=0; break;
+//       case 'y' : arm->force_[5]=0; break;
 
-      case 'a' : for (int i=0; i<6; i++) arm->force_[i]=0; break;
+//       case 'a' : for (int i=0; i<6; i++) arm->force_[i]=0; break;
 
-      case 'z' : 
-	arm->force_[0]=0;
-	arm->force_[1]=0;
-	arm->force_[2]=0.5;
-	arm->force_[3]=0.5;
-	arm->force_[4]=-0.5;
-	arm->force_[5]=-0.5; 
-	break;
-      }
-    for (int i=0; i<6; i++){
-      std::cout<<arm->force_[i]<<"  ";
-    }
-    std::cout<<"\n";
+//       case 'z' : 
+// 	arm->force_[0]=0;
+// 	arm->force_[1]=0;
+// 	arm->force_[2]=0.5;
+// 	arm->force_[3]=0.5;
+// 	arm->force_[4]=-0.5;
+// 	arm->force_[5]=-0.5; 
+// 	break;
+//       }
+//     for (int i=0; i<6; i++){
+//       std::cout<<arm->force_[i]<<"  ";
+//     }
+//     std::cout<<"\n";
     
   }
 
