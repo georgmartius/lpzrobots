@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-01-03 10:20:16  fhesse
+ *   Revision 1.1.2.3  2006-01-31 15:43:47  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.2  2006/01/03 10:20:16  fhesse
  *   methods of AngularMotor1Axis public now
  *
  *   Revision 1.1.2.1  2005/12/21 15:38:12  martius
@@ -42,6 +45,8 @@ namespace lpzrobots {
   public:
     /// creates a AMotor attached to the same bodies as the given joint.
     AngularMotor(const OdeHandle& odeHandle, Joint* joint);
+
+    virtual ~AngularMotor (){}
 
     /// returns the number of Axis of this Motor
     virtual int getNumberOfAxes() = 0;
@@ -80,6 +85,7 @@ namespace lpzrobots {
 	Setting this to zero (the default value) turns off the motor.      
     */
     AngularMotor1Axis(const OdeHandle& odeHandle, OneAxisJoint* joint, double power);
+    virtual ~AngularMotor1Axis() {}
     
     /// returns the number of Axis of this Motor
     virtual int getNumberOfAxes() { return 1; };
@@ -107,7 +113,8 @@ namespace lpzrobots {
 	Setting this to zero (the default value) turns off the motor.      
     */
     AngularMotor2Axis(const OdeHandle& odeHandle, TwoAxisJoint* joint, double power1, double power2);
-    
+    virtual ~AngularMotor2Axis() {}
+
     /// returns the number of Axis of this Motor
     virtual int getNumberOfAxes() { return 2; };
 
@@ -165,6 +172,8 @@ namespace lpzrobots {
     */
     AngularMotorNAxis(const OdeHandle& odeHandle, Joint* joint, 
 		      std::list<std::pair<double, osg::Vec3 > > axis);
+
+    virtual ~AngularMotorNAxis() {}
     
     /// returns the number of Axis of this Motor
     virtual int getNumberOfAxes();
