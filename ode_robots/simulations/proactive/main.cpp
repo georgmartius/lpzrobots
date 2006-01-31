@@ -16,6 +16,8 @@
 using namespace lpzrobots;
 
 list<PlotOption> plotoptions;
+Playground* playground;
+Pos plpos;
 
 class ProactiveSim : public Simulation {
 public:
@@ -32,15 +34,16 @@ public:
     // initialization
     global.odeConfig.noise=0.05;
   
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(6, 0.2, 0.5));
-    playground->setPosition(Pos(0,0,0)); // playground positionieren und generieren
+    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 0.5));
+    playground->setPosition(plpos); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
 
     Nimm2Conf nimm2Conf = Nimm2::getDefaultConf();
     nimm2Conf.irFront=true;
+    nimm2Conf.irRange=4;
     nimm2Conf.singleMotor=true;
-    nimm2Conf.force = 4;
+    nimm2Conf.force = 6;
     //  nimm2Conf.force=nimm2Conf.force*3;  
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, nimm2Conf);
     vehicle->place(Pos(0,0,0.2));
@@ -49,23 +52,25 @@ public:
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.buffersize=50;
     cc.useS=true;
-    cc.cInit=1;
+    cc.cInit=1.2;
     cc.someInternalParams=false;
-    AbstractController *controller = new ProActive(2, 20, cc);  
+    AbstractController *controller = new ProActive(2, 30, cc);  
     // AbstractController *controller = new InvertMotorNStep(cc);
     //   controller->setParam("steps",2);
     controller->setParam("epsH",1);
     // controller->setParam("nomupdate",0.001);
     controller->setParam("adaptrate",0);
     controller->setParam("epsC",0.05);
-    controller->setParam("epsA",0.01);
-    controller->setParam("eps",0.01); // eps for delta H net 
+    controller->setParam("epsA",0.05);
+    controller->setParam("eps",0.001); // eps for delta H net 
+    controller->setParam("s4avg",5); 
     //  global.odeConfig.setParam("realtimefactor",3);
   
     DerivativeWiringConf wconf = DerivativeWiring::getDefaultConf();
     wconf.useFirstD = true;
     wconf.useSecondD = false;
     //wconf.useSecondD = true;
+    wconf.derivativeScale=5;
     wconf.eps = 0.1;
     AbstractWiring* wiring = new DerivativeWiring(wconf, new ColorUniformNoise(0.1));
     OdeAgent* agent = new OdeAgent(plotoptions);
@@ -74,6 +79,48 @@ public:
 
     global.configs.push_back(controller);
     showParams(global.configs);
+  }
+
+  virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (!down) return false;    
+    bool handled = false;
+    switch ( key )
+      {
+      case 'i' : 
+	plpos = plpos + Pos(0.2,0,0);
+	playground->setPosition(plpos);
+	handled = true; 
+	break;
+      case 'k' : 
+	plpos = plpos - Pos(0.2,0,0);
+	playground->setPosition(plpos);
+	handled = true; 
+	break;	
+      case 'j' : 
+	plpos = plpos + Pos(0,0.2,0);
+	playground->setPosition(plpos);
+	handled = true; 
+	break;
+      case 'l' : 
+	plpos = plpos - Pos(0,0.2,0);
+	playground->setPosition(plpos);
+	handled = true; 
+	break;
+      }
+  
+    fflush(stdout);
+    return handled;
+  }
+
+
+  virtual void bindingDescription(osg::ApplicationUsage & au) const {
+    au.addKeyboardMouseBinding("Playground: i","shift forward");
+    au.addKeyboardMouseBinding("Playground: k","shift backward");
+    au.addKeyboardMouseBinding("Playground: j","shift left");
+    au.addKeyboardMouseBinding("Playground: l","shift right");
+    au.addKeyboardMouseBinding("Simulation: s","store");
+    au.addKeyboardMouseBinding("Simulation: l","load");
   }
 
 };
