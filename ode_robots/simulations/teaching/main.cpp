@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-01-18 16:47:06  martius
+ *   Revision 1.1.2.5  2006-01-31 16:45:50  martius
+ *   neuronviz output
+ *
+ *   Revision 1.1.2.4  2006/01/18 16:47:06  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.3  2006/01/17 17:02:47  martius
@@ -170,6 +173,9 @@ int main (int argc, char **argv)
   
   // start with online windows and logging to file
   if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File));
+
+  // 
+  if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));
   
   // display help
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
