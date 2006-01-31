@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.14  2006-01-26 18:37:20  martius
+ *   Revision 1.21.4.15  2006-01-31 15:40:23  martius
+ *   irRange configurable
+ *   even higher friction and body is allways on th ground
+ *
+ *   Revision 1.21.4.14  2006/01/26 18:37:20  martius
  *   *** empty log message ***
  *
  *   Revision 1.21.4.13  2006/01/18 16:46:24  martius
@@ -98,10 +102,10 @@ namespace lpzrobots {
     height=conf.size;
 
     width=conf.size/2; 
-    radius=conf.size/4+conf.size/600;
+    radius=conf.size/4; // +conf.size/600;
     wheelthickness=conf.size/20;
-    cmass=8*conf.size;  
-    wmass=conf.size;  
+    cmass=4*conf.size;  
+    wmass=conf.size/5.0;  
     if(conf.singleMotor){
       sensorno=1; 
       motorno=1;  
@@ -118,7 +122,7 @@ namespace lpzrobots {
       max_force   = 2*conf.force*conf.size*conf.size;
     }
     else{
-      length=conf.size/3;    // short body 
+      length=conf.size/2;    // short body 
       wheeloffset=0.0;  // wheels at center of body
       number_bumpers=2; // if wheels at center 2 bumpers (one at each end)
     }
@@ -248,15 +252,17 @@ namespace lpzrobots {
 	}
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.005;
-	contact[i].surface.slip2 = 0.005;
+	// one could try to make the body sliping along its axis by using 
+	//  sin(alpha), cos(alpha) for sliping params (only for body collisions)
+	contact[i].surface.slip1 = 0.005; // sliping in x
+	contact[i].surface.slip2 = 0.005; // sliping in y
 	if(colwithbody){
 	  contact[i].surface.mu = 0.1; // small friction of smooth body
 	  contact[i].surface.soft_erp = 0.5;
-	  contact[i].surface.soft_cfm = 0.001;
+	  contact[i].surface.soft_cfm = 0.005;
 	}else{
-	  contact[i].surface.mu = 3.0; //large friction
-	  contact[i].surface.soft_erp = 0.9;
+	  contact[i].surface.mu = 5.0; //large friction
+	  contact[i].surface.soft_erp = 0.5;
 	  contact[i].surface.soft_cfm = 0.001;
 	}
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
@@ -342,7 +348,7 @@ namespace lpzrobots {
 	irSensorBank.registerSensor(sensor, object[0], 
 				    Matrix::rotate(i*M_PI/10, Vec3(0,0,1)) * 
 				    Matrix::translate(0,i*width/10,length/2 + width/2 - width/60 ), 
-				    2, RaySensor::drawAll);
+				    conf.irRange, RaySensor::drawAll);
       }
     }
     // TODO Back , Side sensors
