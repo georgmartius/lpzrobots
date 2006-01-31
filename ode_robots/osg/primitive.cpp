@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-01-27 13:06:21  fhesse
+ *   Revision 1.1.2.10  2006-01-31 15:45:28  martius
+ *   proper destruction
+ *
+ *   Revision 1.1.2.9  2006/01/27 13:06:21  fhesse
  *   getPose/getPosition return pose/Position of geom if no body exists
  *
  *   Revision 1.1.2.8  2006/01/12 14:21:00  martius
@@ -162,6 +165,10 @@ namespace lpzrobots{
     osgplane = new OSGPlane();    
   }
 
+  Plane::~Plane(){
+    if(osgplane) delete osgplane;
+  }
+
   void Plane::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		   char mode) {
     assert(mode & Body || mode & Geom);
@@ -196,6 +203,10 @@ namespace lpzrobots{
   /******************************************************************************/
   Box::Box(float lengthX, float lengthY, float lengthZ) {
     osgbox = new OSGBox(lengthX, lengthY, lengthZ);    
+  }
+
+  Box::~Box(){
+    if(osgbox) delete osgbox; 
   }
 
   void Box::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
@@ -236,6 +247,10 @@ namespace lpzrobots{
     osgsphere = new OSGSphere(radius);
   }
 
+  Sphere::~Sphere(){
+    if(osgsphere) delete osgsphere; 
+  }
+
   void Sphere::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		    char mode) {
     assert(mode & Body || mode & Geom);
@@ -270,6 +285,10 @@ namespace lpzrobots{
   /******************************************************************************/
   Capsule::Capsule(float radius, float height) {    
     osgcapsule = new OSGCapsule(radius, height);
+  }
+
+  Capsule::~Capsule(){
+    if(osgcapsule) delete osgcapsule; 
   }
 
   void Capsule::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,

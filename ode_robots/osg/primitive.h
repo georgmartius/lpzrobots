@@ -25,7 +25,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-01-12 14:21:00  martius
+ *   Revision 1.1.2.7  2006-01-31 15:45:35  martius
+ *   proper destruction
+ *
+ *   Revision 1.1.2.6  2006/01/12 14:21:00  martius
  *   drawmode, material
  *
  *   Revision 1.1.2.5  2005/12/29 12:58:42  martius
@@ -113,6 +116,7 @@ protected:
 class Plane : public Primitive {
 public:
   Plane();
+  virtual ~Plane();
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
@@ -130,6 +134,8 @@ class Box : public Primitive {
 public:
 
   Box(float lengthX, float lengthY, float lengthZ);
+  virtual ~Box();
+
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
@@ -146,6 +152,8 @@ protected:
 class Sphere : public Primitive {
 public:
   Sphere(float radius);
+  virtual ~Sphere();
+
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
@@ -161,6 +169,7 @@ protected:
 class Capsule : public Primitive {
 public:
   Capsule(float radius, float height);
+  virtual ~Capsule();
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
