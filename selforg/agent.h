@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-11-15 12:30:26  martius
+ *   Revision 1.1.2.3  2006-01-31 16:45:18  martius
+ *   neuronviz plotoption
+ *
+ *   Revision 1.1.2.2  2005/11/15 12:30:26  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.1.2.1  2005/11/14 17:37:56  martius
@@ -80,7 +83,10 @@ enum PlotMode {
   /// only plotting to screen, no logging to file
   GuiLogger, 
   /// plotting to screen and logging to file
-  GuiLogger_File};
+  GuiLogger_File,
+  /// net visualiser
+  NeuronViz
+  };
 
 /** Plot either sensors from robot or from controller 
     (there can be a difference depending on the used wiring)

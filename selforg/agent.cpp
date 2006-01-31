@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-11-15 12:30:26  martius
+ *   Revision 1.1.2.3  2006-01-31 16:45:37  martius
+ *   neuronviz plotoption
+ *
+ *   Revision 1.1.2.2  2005/11/15 12:30:26  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.1.2.1  2005/11/14 17:37:56  martius
@@ -162,6 +165,9 @@ bool PlotOption::open(){
     break;
   case GuiLogger:
     pipe=popen("guilogger -m pipe -d 5","w");
+    break;
+  case NeuronViz:
+    pipe=popen("neuronviz ","w");
     break;
   default:
     return false;
