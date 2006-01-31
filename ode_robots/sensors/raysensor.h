@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.2  2005-12-13 18:11:53  martius
+ *   Revision 1.3.4.3  2006-01-31 15:46:16  martius
+ *   virtual destructor
+ *
+ *   Revision 1.3.4.2  2005/12/13 18:11:53  martius
  *   sensors ported, but not yet finished
  *
  *   Revision 1.3.4.1  2005/11/14 17:37:21  martius
@@ -60,6 +63,7 @@ public:
   enum rayDrawMode { drawNothing, drawRay, drawSensor, drawAll};
 
   RaySensor() {}
+  virtual ~RaySensor(){}
   
   /** providing essential information
    */

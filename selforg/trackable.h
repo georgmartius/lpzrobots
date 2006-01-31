@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-11 23:35:08  martius
+ *   Revision 1.1.2.4  2006-01-31 15:47:37  martius
+ *   virtual destructor
+ *
+ *   Revision 1.1.2.3  2005/12/11 23:35:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.2  2005/11/16 11:23:30  martius
@@ -51,6 +54,8 @@ public:
    */
   Trackable(){
   };
+  
+  virtual ~Trackable() {};
 
   /** returns position of the object
       @return vector of position (x,y,z)
