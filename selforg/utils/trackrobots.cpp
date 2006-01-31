@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-16 11:24:27  martius
+ *   Revision 1.1.2.2  2006-01-31 15:48:37  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
  *   moved to selforg
  *
  *   Revision 1.4  2005/11/10 09:08:16  martius
@@ -82,7 +85,7 @@ bool TrackRobot::open(const AbstractRobot* robot){
 void TrackRobot::track(AbstractRobot* robot) {
   if(!file || !robot) return;
   if(cnt % interval==0){
-    fprintf(file, "%i ", cnt);
+    fprintf(file, "%li ", cnt);
     if(trackPos){
       Position p = robot->getPosition();
       fprintf(file, "%g %g %g ", p.x, p.y, p.z);
