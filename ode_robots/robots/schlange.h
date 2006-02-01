@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.3  2005-12-30 22:53:13  martius
+ *   Revision 1.15.4.4  2006-02-01 18:33:40  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.15.4.3  2005/12/30 22:53:13  martius
  *   removed parentspace!
  *
  *   Revision 1.15.4.2  2005/12/29 16:45:46  martius
@@ -52,13 +55,15 @@ namespace lpzrobots {
 
 typedef struct {
 public:
-  int    segmNumber;     ///  number of snake elements
-  double segmLength;  /// length of one snake element
-  double segmDia;     ///  diameter of a snake element
-  double segmMass;    ///  mass of one snake element
-  double motorPower;  ///  power of the motors / servos
-  double frictionGround; /// friction with ground
-  double jointLimit;     /// maximal angle for the joints (M_PI/2 = 90 degree)
+  int    segmNumber;  //<  number of snake elements
+  double segmLength;  //< length of one snake element
+  double segmDia;     //<  diameter of a snake element
+  double segmMass;    //<  mass of one snake element
+  double motorPower;  //<  power of the motors / servos
+  double sensorFactor;    //<  scale for sensors
+  double frictionGround;  //< friction with ground
+  double frictionJoint;   //< friction within joint
+  double jointLimit;      //< maximal angle for the joints (M_PI/2 = 90 degree)
 } SchlangeConf;
 
 
@@ -87,8 +92,10 @@ public:
     conf.segmLength = 0.8;   // length of one snake element
     conf.segmDia    = 0.2;   //  diameter of a snake element
     conf.segmMass   = 0.4;   //  mass of one snake element
-    conf.motorPower = 10;    //  power of the servos
+    conf.motorPower = 1;    //  power of the servos
+    conf.sensorFactor = 1;    //  scale for sensors
     conf.frictionGround = 1.0; // friction with ground
+    conf.frictionJoint = 0.1; // friction within joint
     conf.jointLimit =  M_PI/4;
     return conf;
   }

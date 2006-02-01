@@ -20,32 +20,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.5  2006-02-01 18:33:40  martius
+ *   Revision 1.1.2.1  2006-02-01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
- *   Revision 1.5.4.4  2005/12/30 22:52:52  martius
- *   joint axis have right size
- *
- *   Revision 1.5.4.3  2005/12/29 16:46:52  martius
- *   inherits from Schlange
- *   moved to osg
- *
- *   Revision 1.5.4.2  2005/11/15 12:29:27  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.5.4.1  2005/11/14 17:37:18  martius
- *   moved to selforg
- *
- *   Revision 1.5  2005/11/09 13:24:42  martius
- *   added GPL
  *
  ***************************************************************************/
 
-#include "schlangeservo.h"
+#include "schlangeservo2.h"
 
 namespace lpzrobots {
 
-SchlangeServo::SchlangeServo ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+SchlangeServo2::SchlangeServo2 ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			       const SchlangeConf& conf, const char* n) 
   : Schlange(odeHandle, osgHandle, conf, n) 
 {
@@ -55,7 +40,7 @@ SchlangeServo::SchlangeServo ( const OdeHandle& odeHandle, const OsgHandle& osgH
 			      "$Revision$");
 }
 	
-SchlangeServo::~SchlangeServo() { }
+SchlangeServo2::~SchlangeServo2() { }
 	
 
 /**
@@ -64,13 +49,13 @@ SchlangeServo::~SchlangeServo() { }
  *@param motors pointer to the array, motor values are scaled to [-1,1] 
  *@param motornumber length of the motor array
  **/
-void SchlangeServo::setMotors ( const motor* motors, int motornumber )
+void SchlangeServo2::setMotors ( const motor* motors, int motornumber )
 {
   assert(created);
-  int len = min(motornumber, (int)servos.size());
+  int len = min(motornumber, getMotorNumber())/2;
   // controller output as torques 
   for (int i = 0; i < len; i++){
-    servos[i]->set(motors[i]);
+    servos[i]->set(motors[2*i], motors[2*i+1]);
   }
 }	
 
@@ -81,65 +66,68 @@ void SchlangeServo::setMotors ( const motor* motors, int motornumber )
  *@param sensornumber length of the sensor array
  *@return number of actually written sensors
  **/
-int SchlangeServo::getSensors ( sensor* sensors, int sensornumber )
+int SchlangeServo2::getSensors ( sensor* sensors, int sensornumber )
 {
   assert(created);
-  int len = min(sensornumber, getSensorNumber());
+  int len = min(sensornumber, getSensorNumber())/2;
   
   for (int n = 0; n < len; n++) {
-    sensors[n] = servos[n]->get();
+    sensors[2*n] = servos[n]->get1();
+    sensors[2*n+1] = servos[n]->get2();
   }
 	
-  return len;
+  return 2*len;
 }
 
 
-/** creates vehicle at desired position 
-    @param pos struct Position with desired position
-*/
-void SchlangeServo::create(const osg::Matrix& pose){
-  Schlange::create(pose);
-  
-  //*****************joint definition***********
-  for ( int n = 0; n < conf.segmNumber-1; n++ ) {		
+  /** creates vehicle at desired position 
+      @param pos struct Position with desired position
+  */
+  void SchlangeServo2::create(const osg::Matrix& pose){
+    Schlange::create(pose);
     
-    Pos p1(objects[n]->getPosition());
-    Pos p2(objects[n]->getPosition());
-    HingeJoint* j = new HingeJoint(objects[n], objects[n+1],
-				   (objects[n]->getPosition() + objects[n+1]->getPosition())/2,
-				   Axis(0,0,1)* pose);
-    j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
+    //*****************joint definition***********
+    for ( int n = 0; n < conf.segmNumber-1; n++ ) {		
+
+      const Pos& p1(objects[n]->getPosition());
+      const Pos& p2(objects[n+1]->getPosition());
+      UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
+					     (p1 + p2)/2,
+					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
+      j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
+        
+      // setting stops at universal joints		
+      j->setParam(dParamLoStop, -conf.jointLimit*1.5);
+      j->setParam(dParamHiStop,  conf.jointLimit*1.5);
     
-    // setting stops at universal joints		
-    j->setParam(dParamLoStop, -conf.jointLimit*1.5);
-    j->setParam(dParamHiStop,  conf.jointLimit*1.5);
-    
-    // making stops bouncy
-    //    j->setParam (dParamBounce, 0.9 );
+      // making stops bouncy
+      //    j->setParam (dParamBounce, 0.9 );
       //    j->setParam (dParamBounce2, 0.9 ); // universal
-    
-    joints.push_back(j); 
-    
-    HingeServo* servo =  new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
-    servos.push_back(servo);
-  }	  
-}
 
-bool SchlangeServo::setParam(const paramkey& key, paramval val){
-  bool rv = Schlange::setParam(key, val);
-  for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
-    if(*i) (*i)->setPower(conf.motorPower);
+      joints.push_back(j); 
+      
+      UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
+					          -conf.jointLimit, conf.jointLimit, conf.motorPower);
+      servos.push_back(servo);
+    }	  
   }
-  return rv;    
+
+
+bool SchlangeServo2::setParam(const paramkey& key, paramval val){
+  bool rv = Schlange::setParam(key, val);
+  for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+    if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
+  }
+  return rv;
 }
 
 
 /** destroys vehicle and space
  */
-void SchlangeServo::destroy(){  
+void SchlangeServo2::destroy(){  
   if (created){
     Schlange::destroy();
-    for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+    for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
       if(*i) delete *i;
     }
     servos.clear();

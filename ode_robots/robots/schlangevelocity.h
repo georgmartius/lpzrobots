@@ -25,7 +25,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-01-10 13:55:12  fhesse
+ *   Revision 1.1.2.2  2006-02-01 18:33:40  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.1.2.1  2006/01/10 13:55:12  fhesse
  *   snake powered by directly setting angular velocities
  *                                             *
  *                                                                         *
@@ -93,17 +96,6 @@ namespace lpzrobots {
       /** returns number of motors
        */
       virtual int getMotorNumber(){ assert(created); return joints.size() * 2; }
-
-      /** The list of all parameters with there value as allocated lists.
-	  @param keylist,vallist will be allocated with malloc (free it after use!)
-	  @return length of the lists
-      */
-      virtual paramlist getParamList() const;
-
-      virtual paramval getParam(const paramkey& key) const;;
-
-      virtual bool setParam(const paramkey& key, paramval val);
-
 
     private:
       virtual void create(const osg::Matrix& pose);

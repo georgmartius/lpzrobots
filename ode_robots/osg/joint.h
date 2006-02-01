@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-01-12 22:19:08  martius
+ *   Revision 1.1.2.10  2006-02-01 18:34:03  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.1.2.9  2006/01/12 22:19:08  martius
  *   bugfix in TwoAxisJoint Constructor (axis and anchor swapped)
  *
  *   Revision 1.1.2.8  2006/01/11 14:11:06  fhesse
@@ -61,6 +64,7 @@
 
 #include "primitive.h"
 #include "osgforwarddecl.h"
+#include "axis.h"
 
 namespace lpzrobots {
 
@@ -90,7 +94,7 @@ namespace lpzrobots {
     const Primitive* getPart2() const { return part2; } 
     const osg::Vec3 getAnchor() const { return anchor; }
     
-    static osg::Matrix anchorAxisPose(const osg::Vec3& anchor, const osg::Vec3& axis);
+    static osg::Matrix anchorAxisPose(const osg::Vec3& anchor, const Axis& axis);
   protected:
     dJointID joint;
     Primitive* part1;
@@ -100,29 +104,29 @@ namespace lpzrobots {
 
   class OneAxisJoint : public Joint {
   public:
-    OneAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, const osg::Vec3 axis1) 
+    OneAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, const Axis axis1) 
       : Joint(part1, part2, anchor), axis1(axis1) {}
-    virtual osg::Vec3 getAxis1() const { return axis1; };
+    virtual Axis getAxis1() const { return axis1; };
     
     virtual double getPosition1() = 0;
     virtual double getPosition1Rate() = 0;
         
   protected:
-    osg::Vec3 axis1;
+    Axis axis1;
   };
 
   class TwoAxisJoint : public OneAxisJoint {
   public:
-    TwoAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, const osg::Vec3 axis1, 
-		 const osg::Vec3 axis2 ) 
+    TwoAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, const Axis axis1, 
+		 const Axis axis2 ) 
       : OneAxisJoint(part1, part2, anchor, axis1), axis2(axis2) {}
-    virtual osg::Vec3 getAxis2() const { return axis2; };
+    virtual Axis getAxis2() const { return axis2; };
 
     virtual double getPosition2() = 0;
     virtual double getPosition2Rate() = 0;
 
   protected:
-    osg::Vec3 axis2;
+    Axis  axis2;
   };
 
   /***************************************************************************/
@@ -130,7 +134,7 @@ namespace lpzrobots {
   class HingeJoint : public OneAxisJoint {
   public:
     HingeJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
-		const osg::Vec3& axis1);
+		const Axis& axis1);
 
     virtual ~HingeJoint();
 
@@ -157,7 +161,7 @@ namespace lpzrobots {
   class Hinge2Joint : public TwoAxisJoint {
   public:
     Hinge2Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
-		const osg::Vec3& axis1, const osg::Vec3& axis2);
+		const Axis& axis1, const Axis& axis2);
 
     virtual ~Hinge2Joint();
 
@@ -187,7 +191,7 @@ namespace lpzrobots {
   class UniversalJoint : public TwoAxisJoint {
   public:
     UniversalJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
-		const osg::Vec3& axis1, const osg::Vec3& axis2);
+		const Axis& axis1, const Axis& axis2);
 
     virtual ~UniversalJoint();
 
@@ -243,7 +247,7 @@ namespace lpzrobots {
   class SliderJoint : public OneAxisJoint {
   public:
     SliderJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
-		const osg::Vec3& axis1);
+		const Axis& axis1);
 
     virtual ~SliderJoint();
 

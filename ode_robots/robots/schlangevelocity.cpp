@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-01-10 13:55:12  fhesse
+ *   Revision 1.1.2.2  2006-02-01 18:33:40  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.1.2.1  2006/01/10 13:55:12  fhesse
  *   snake powered by directly setting angular velocities
  *                                        *
  *                                                                         * 
@@ -37,10 +40,6 @@ namespace lpzrobots {
   {
     Configurable::insertCVSInfo(name, "$RCSfile$", 
 				"$Revision$");
-
-    factor_motors=1;
-    factor_sensors=1;
-    friction_joint=0.0;
   }
 
 
@@ -66,8 +65,8 @@ namespace lpzrobots {
       ((UniversalJoint*)joints[i])->setParam ( dParamFMax , conf.motorPower );
       //friction
       ((UniversalJoint*)joints[i])->addTorques
- 	(- friction_joint * ((UniversalJoint*)joints[i])->getPosition1Rate(), 
- 	 - friction_joint * ((UniversalJoint*)joints[i])->getPosition2Rate());
+ 	(- conf.frictionJoint * ((UniversalJoint*)joints[i])->getPosition1Rate(), 
+ 	 - conf.frictionJoint * ((UniversalJoint*)joints[i])->getPosition2Rate());
     }
   }	
 
@@ -92,44 +91,11 @@ namespace lpzrobots {
     */
     // or read anglerate of joints
     for (int n = 0; n < len; n++) {
-      sensors[2*n]   = factor_sensors * ((UniversalJoint*)joints[n])->getPosition1Rate();
-      sensors[2*n+1] = factor_sensors * ((UniversalJoint*)joints[n])->getPosition2Rate();
+      sensors[2*n]   = conf.sensorFactor * ((UniversalJoint*)joints[n])->getPosition1Rate();
+      sensors[2*n+1] = conf.sensorFactor * ((UniversalJoint*)joints[n])->getPosition2Rate();
     }
     return len*2;
   }
-
-  /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
-      @return length of the lists
-  */
-  Configurable::paramlist SchlangeVelocity::getParamList() const{
-    paramlist list;
-    list += Schlange::getParamList();                         
-    list += pair<paramkey, paramval> (string("factormotors"), factor_motors);
-    list += pair<paramkey, paramval> (string("factorsensors"), factor_sensors);
-    list += pair<paramkey, paramval> (string("frictionjoint"), friction_joint);
-    list += pair<paramkey, paramval> (string("motorpower"), conf.motorPower);
-    return list;
-  }
-  
-  
-  Configurable::paramval SchlangeVelocity::getParam(const paramkey& key) const{    
-    if(key == "factormotors") return factor_motors; 
-    else if(key == "factorsensors") return factor_sensors; 
-    else if(key == "frictionjoint") return friction_joint; 
-    else if(key == "motorpower") return conf.motorPower; 
-    else  return Schlange::getParam(key) ;
-  }
-  
-  bool SchlangeVelocity::setParam(const paramkey& key, paramval val){
-    if(key == "factormotors") factor_motors = val; 
-    else if(key == "factorsensors") factor_sensors = val; 
-    else if(key == "frictionjoint") friction_joint = val; 
-    else if(key == "motorpower") conf.motorPower = val; 
-    else return Schlange::setParam(key, val);
-    return true;
-  }
-
 
 
   /** creates vehicle at desired position 
@@ -145,7 +111,7 @@ namespace lpzrobots {
       Pos p2(objects[n]->getPosition());
       UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
 					     (objects[n]->getPosition() + objects[n+1]->getPosition())/2,
-					     osg::Vec3(0,0,1)* pose, osg::Vec3(0,1,0)* pose);
+					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
       j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
         
       // setting stops at universal joints		

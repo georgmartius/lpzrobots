@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20.4.4  2006-01-18 09:55:54  martius
+ *   Revision 1.20.4.5  2006-02-01 18:33:40  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.20.4.4  2006/01/18 09:55:54  martius
  *   created was uninitialised
  *
  *   Revision 1.20.4.3  2005/12/30 22:53:46  martius
@@ -156,19 +159,27 @@ namespace lpzrobots {
   */
   Configurable::paramlist Schlange::getParamList() const{
     paramlist list;
-    list += pair<paramkey, paramval> (string("frictionGround"), conf.frictionGround);
+    list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
+    list += pair<paramkey, paramval> (string("frictionjoint"), conf.frictionJoint);
+    list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
+    list += pair<paramkey, paramval> (string("sensorfactor"), conf.sensorFactor);
     return list;
   }
   
   
   Configurable::paramval Schlange::getParam(const paramkey& key) const{    
-    if(key == "frictionGround") return conf.frictionGround; 
+    if(key == "frictionground") return conf.frictionGround; 
+    else if(key == "frictionjoint") return conf.frictionJoint; 
+    else if(key == "motorpower") return conf.motorPower; 
+    else if(key == "sensorfactor") return conf.sensorFactor; 
     else  return Configurable::getParam(key) ;
   }
   
-  bool Schlange::setParam(const paramkey& key, paramval val){
-    
-    if(key == "frictionGround") conf.frictionGround = val; 
+  bool Schlange::setParam(const paramkey& key, paramval val){    
+    if(key == "frictionground") conf.frictionGround = val; 
+    else if(key == "frictionjoint") conf.frictionJoint = val; 
+    else if(key == "motorpower") conf.motorPower = val; 
+    else if(key == "sensorfactor") conf.sensorFactor = val; 
     else return Configurable::setParam(key, val);
     return true;
   }

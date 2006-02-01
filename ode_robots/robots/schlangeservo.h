@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.4  2005-12-29 16:46:24  martius
+ *   Revision 1.5.4.5  2006-02-01 18:33:40  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.5.4.4  2005/12/29 16:46:24  martius
  *   inherits from Schlange
  *   moved to osg
  *
@@ -56,7 +59,7 @@ namespace lpzrobots {
   /**
    * This is a class, which models a snake like robot. 
    * It consists of a number of equal elements, each linked 
-   * by a joint powered by 2 servos
+   * by a joint hinge powered by 1 servos
    **/
   class SchlangeServo: public Schlange
   {
@@ -95,6 +98,7 @@ namespace lpzrobots {
      */
     virtual int getMotorNumber(){ assert(created); return servos.size(); }
 
+    virtual bool setParam(const paramkey& key, paramval val);
 
   private:
     virtual void create(const osg::Matrix& pose);

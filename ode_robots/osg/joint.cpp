@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-01-12 22:18:31  martius
+ *   Revision 1.1.2.12  2006-02-01 18:34:03  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.1.2.11  2006/01/12 22:18:31  martius
  *   delete slider visual
  *
  *   Revision 1.1.2.10  2006/01/12 14:21:00  martius
@@ -75,7 +78,7 @@ namespace lpzrobots {
 
   using namespace osg;
 
-  Matrix Joint::anchorAxisPose(const osg::Vec3& anchor, const osg::Vec3& axis){
+  Matrix Joint::anchorAxisPose(const osg::Vec3& anchor, const Axis& axis){
     return rotationMatrixFromAxisZ(axis) * Matrix::translate(anchor);
   }
 
@@ -86,7 +89,7 @@ namespace lpzrobots {
 /***************************************************************************/
 
   HingeJoint::HingeJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
-			 const Vec3& axis1)
+			 const Axis& axis1)
     : OneAxisJoint(part1, part2, anchor, axis1),  visual(0) {   
   }
 
@@ -147,7 +150,7 @@ namespace lpzrobots {
 /***************************************************************************/
   
   Hinge2Joint::Hinge2Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
-			   const Vec3& axis1, const Vec3& axis2)
+			   const Axis& axis1, const Axis& axis2)
     : TwoAxisJoint(part1, part2, anchor, axis1, axis2), visual(0) {   
   }
 
@@ -220,7 +223,7 @@ namespace lpzrobots {
 /***************************************************************************/
   
   UniversalJoint::UniversalJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
-			   const Vec3& axis1, const Vec3& axis2)
+			   const Axis& axis1, const Axis& axis2)
     : TwoAxisJoint(part1, part2, anchor, axis1, axis2), visual1(0), visual2(0) {   
   }
 
@@ -342,7 +345,7 @@ namespace lpzrobots {
 /***************************************************************************/
 
   SliderJoint::SliderJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
-			 const Vec3& axis1)
+			 const Axis& axis1)
     : OneAxisJoint(part1, part2, anchor, axis1), visual(0) {   
   }
 

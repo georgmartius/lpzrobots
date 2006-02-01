@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.10  2005-12-29 16:47:40  martius
+ *   Revision 1.7.4.11  2006-02-01 18:33:40  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.7.4.10  2005/12/29 16:47:40  martius
  *   joint has getPosition
  *
  *   Revision 1.7.4.9  2005/12/15 17:04:08  martius
@@ -316,7 +319,7 @@ namespace lpzrobots {
     // generate 4 joints to connect the wheels to the body
     for (int i=0; i<4; i++) {
       Pos anchor(dBodyGetPosition (object[i+1]->getBody()));
-      joint[i] = new Hinge2Joint(object[0], object[i+1], anchor, Vec3(0,0,1), Vec3(0,1,0));
+      joint[i] = new Hinge2Joint(object[0], object[i+1], anchor, Axis(0,0,1)*pose, Axis(0,1,0)*pose);
       joint[i]->init(odeHandle, osgHandle, true, 2.01 * radius);
     }
     for (int i=0; i<4; i++) {

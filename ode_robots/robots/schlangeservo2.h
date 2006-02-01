@@ -1,6 +1,7 @@
 /************************************************************************/
-/*schlangeforce.h			                            	*/
-/*Snake with torque added to joints                     		*/
+/*schlangeservo.h							*/
+/*Snake with PID Servo motors (just motor per joint)     		*/
+/*@author Georg Martius 						*/
 /*									*/
 /************************************************************************/
 /***************************************************************************
@@ -25,76 +26,68 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13.4.4  2006-02-01 18:33:40  martius
+ *   Revision 1.1.2.1  2006-02-01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
- *
- *   Revision 1.13.4.3  2006/01/04 17:04:41  fhesse
- *   comments originating from old file removed
- *
- *   Revision 1.13.4.2  2006/01/04 14:46:00  fhesse
- *   inherits from Schlange; moved to osg
- *
- *   Revision 1.13.4.1  2005/11/14 17:37:18  martius
- *   moved to selforg
- *
- *   Revision 1.13  2005/11/14 12:48:43  martius
- *   *** empty log message ***
- *
- *   Revision 1.12  2005/11/09 13:24:42  martius
- *   added GPL
  *
  *                                                                 *
  ***************************************************************************/
-#ifndef __SCHLANGEFORCE_H
-#define __SCHLANGEFORCE_H
+#ifndef __SCHLANGESERVO2_H
+#define __SCHLANGESERVO2_H
+
 
 #include "schlange.h"
+#include "universalservo.h"
 
 namespace lpzrobots {
 
   /**
    * This is a class, which models a snake like robot. 
    * It consists of a number of equal elements, each linked 
-   * by a joint powered by torques added to joints
+   * by a joint powered by 2 servos
    **/
-  class SchlangeForce: public Schlange
-    {
-    public:
-      SchlangeForce ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const SchlangeConf& conf, const char* name);
+  class SchlangeServo2: public Schlange
+  {
+  private:
+    vector <UniversalServo*> servos;
+
+  public:
+    SchlangeServo2 ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		    const SchlangeConf& conf, const char* name);
 
     
-      virtual ~SchlangeForce();
+    virtual ~SchlangeServo2();
 	
-      /**
-       *Reads the actual motor commands from an array, 
-       *an sets all motors of the snake to this values.
-       *It is an linear allocation.
-       *@param motors pointer to the array, motor values are scaled to [-1,1] 
-       *@param motornumber length of the motor array
-       **/
-      virtual void setMotors ( const motor* motors, int motornumber );
+    /**
+     *Reads the actual motor commands from an array, 
+     *an sets all motors of the snake to this values.
+     *It is an linear allocation.
+     *@param motors pointer to the array, motor values are scaled to [-1,1] 
+     *@param motornumber length of the motor array
+     **/
+    virtual void setMotors ( const motor* motors, int motornumber );
 
-      /**
-       *Writes the sensor values to an array in the memory.
-       *@param sensor* pointer to the array
-       *@param sensornumber length of the sensor array
-       *@return number of actually written sensors
-       **/
-      virtual int getSensors ( sensor* sensors, int sensornumber );
+    /**
+     *Writes the sensor values to an array in the memory.
+     *@param sensor* pointer to the array
+     *@param sensornumber length of the sensor array
+     *@return number of actually written sensors
+     **/
+    virtual int getSensors ( sensor* sensors, int sensornumber );
 	
-      /** returns number of sensors
-       */
-      virtual int getSensorNumber() { assert(created); return joints.size() * 2; }
+    /** returns number of sensors
+     */
+    virtual int getSensorNumber() { assert(created); return 2*servos.size(); }
 
-      /** returns number of motors
-       */
-      virtual int getMotorNumber(){ assert(created); return joints.size() * 2; }
+    /** returns number of motors
+     */
+    virtual int getMotorNumber(){ assert(created); return 2*servos.size(); }
 
-    private:
-      virtual void create(const osg::Matrix& pose);
-      virtual void destroy();
-    };
+    virtual bool setParam(const paramkey& key, paramval val);
+
+  private:
+    virtual void create(const osg::Matrix& pose);
+    virtual void destroy();
+  };
 
 }
 

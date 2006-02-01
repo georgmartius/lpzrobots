@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.15  2006-01-31 15:40:23  martius
+ *   Revision 1.21.4.16  2006-02-01 18:33:39  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.21.4.15  2006/01/31 15:40:23  martius
  *   irRange configurable
  *   even higher friction and body is allways on th ground
  *
@@ -333,7 +336,7 @@ namespace lpzrobots {
   
     for (int i=0; i<2; i++) {
       joint[i] = new Hinge2Joint(object[0], object[i+1], object[i+1]->getPosition(), 
-				 Vec3(0, 0, 1), Vec3(0, -1, 0));
+				 Axis(0, 0, 1)*pose, Axis(0, -1, 0)*pose);
       joint[i]->init(odeHandle, osgHandleWheels, true, 2.01 * radius);
       // set stops to make sure wheels always stay in alignment
       joint[i]->setParam(dParamLoStop,0);
