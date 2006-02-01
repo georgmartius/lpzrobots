@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-01-30 13:12:45  martius
+ *   Revision 1.1.2.6  2006-02-01 10:24:34  robot3
+ *   new camera manipulator added
+ *
+ *   Revision 1.1.2.5  2006/01/30 13:12:45  martius
  *   bug in setByMatrix
  *
  *   Revision 1.1.2.4  2005/12/29 12:55:59  martius
@@ -56,6 +59,9 @@ namespace lpzrobots {
   using namespace osg;
   using namespace osgGA;
 
+  int isnf=0;
+
+  // globalData braucht er für alles
   CameraManipulator::CameraManipulator(osg::Node* node)
     : node(node), eye(0,0,0), view(0,0,0), home_externally_set(false) {
     if (this->node.get()) {    
@@ -86,6 +92,8 @@ namespace lpzrobots {
     this->home_externally_set=true;
     eye  = home_eye;
     view = home_view;
+    desiredEye=_eye;
+    desiredView=_view;
     computeMatrix();
   }
 
@@ -99,8 +107,10 @@ namespace lpzrobots {
 
       home_view = Vec3(-90,-10,0);
     }
-    eye  = home_eye;
-    view = home_view;
+    //    eye  = home_eye;
+    //    view = home_view;
+    desiredEye=home_eye;
+    desiredView=home_view;
     computeMatrix();
     
     us.requestRedraw();
@@ -200,14 +210,32 @@ namespace lpzrobots {
     tilt.print();
     view.y() = RadiansToDegrees(getAngle(Vec3(0,0,1), tilt)) * 
       sign(tilt.y()); // this resolves the ambiguity of getAngle    
+    desiredEye=eye;
+    desiredView=view;
     computeMatrix();    
   }
 
-  Matrixd CameraManipulator::getMatrix() const{
+
+
+  // hier reinhängen nicht, wird nur beim switch des manipulators aufgerufen
+  Matrixd CameraManipulator::getMatrix() const {
     return pose;
   }
 
-  Matrixd CameraManipulator::getInverseMatrix() const{
+
+  /**
+   * is called every time the draw is updated. computes the
+   * movement of the camera, which is a difference between
+   * the desired pos and view and the actual pos and view.
+   */
+  void CameraManipulator::computeMovement() {
+    desiredEye=eye; // a test
+    //    desiredView;
+    
+  }
+  
+  // hier reinhaengen?? is called every drawstep!!!!
+  Matrixd CameraManipulator::getInverseMatrix() const {
     return Matrixd::inverse(pose);
   }
 

@@ -21,8 +21,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.14  2006-01-31 15:43:03  martius
- *   non-fullscreen start
+ *   Revision 1.40.4.15  2006-02-01 10:24:34  robot3
+ *   new camera manipulator added
  *
  *   Revision 1.40.4.13  2006/01/12 22:32:51  martius
  *   key eventhandler integrated
@@ -212,10 +212,12 @@
 
 #include "odeagent.h"
 
+#include "camera.h"
 #include "grabframe.h"
 
 #include "abstractobstacle.h"
 #include "cameramanipulator.h"
+#include "cameramanipulatorTV.h"
 
 namespace lpzrobots {
 
@@ -338,7 +340,11 @@ namespace lpzrobots {
 
     CameraManipulator* cameramanipulator = new CameraManipulator(osgHandle.scene);
     unsigned int pos = viewer->addCameraManipulator(cameramanipulator);
-    viewer->selectCameraManipulator(pos);
+
+    CameraManipulator* cameramanipulatorTV = new CameraManipulator(osgHandle.scene);
+    viewer->addCameraManipulator(cameramanipulatorTV);
+
+    viewer->selectCameraManipulator(pos); // this is the default camera type
     
     // get details on keyboard and mouse bindings used by the viewer.
     viewer->getUsage(*(arguments->getApplicationUsage()));
@@ -366,21 +372,8 @@ namespace lpzrobots {
     // add model to viewer.
     viewer->setSceneData(root); 
 
-    Producer::CameraConfig* cfg = viewer->getCameraConfig();
-    Producer::Camera *cam = cfg->getCamera(0);
-    
-    Producer::RenderSurface* rs = cam->getRenderSurface();
-    rs->setWindowName( "LpzRobots - Selforg" );
-    
-    // the following starts the system in windowed mode
-    int x = rs->getWindowOriginX();
-    int y = rs->getWindowOriginY();
-    rs->setWindowRectangle(x,y,640,480); // TODO: use config or cmdline arg
-    rs->fullScreen(false);
-
     // create the windows and run the threads.
     viewer->realize();
-
 
     while (!viewer->done())
       {

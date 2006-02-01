@@ -23,7 +23,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-29 12:56:12  martius
+ *   Revision 1.1.2.4  2006-02-01 10:24:34  robot3
+ *   new camera manipulator added
+ *
+ *   Revision 1.1.2.3  2005/12/29 12:56:12  martius
  *   setHome
  *
  *   Revision 1.1.2.2  2005/12/15 17:03:42  martius
@@ -80,6 +83,13 @@ namespace lpzrobots {
     virtual osg::Matrixd getInverseMatrix() const;
 
 
+    /**
+     * is called every time the draw is updated. computes the
+     * movement of the camera, which is a difference between
+     * the desired pos and view and the actual pos and view.
+     */
+    virtual void computeMovement();
+
     virtual void setNode(osg::Node*);
 
     virtual const osg::Node* getNode() const;
@@ -128,6 +138,10 @@ namespace lpzrobots {
     osg::Vec3   home_view; // home view angles in degree (pan, tilt, yaw)
     bool home_externally_set;
     
+    osg::Vec3   desiredEye;      // desired position of the camera
+    osg::Vec3   desiredView;     // desired view angles in degree (pan, tilt, yaw)
+
+
     osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
 
   };
