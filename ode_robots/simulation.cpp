@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.15  2006-02-01 10:24:34  robot3
+ *   Revision 1.40.4.16  2006-02-01 14:00:32  martius
+ *   remerging of non-fullscreen start
+ *
+ *   Revision 1.40.4.15  2006/02/01 10:24:34  robot3
  *   new camera manipulator added
  *
  *   Revision 1.40.4.13  2006/01/12 22:32:51  martius
@@ -212,7 +215,6 @@
 
 #include "odeagent.h"
 
-#include "camera.h"
 #include "grabframe.h"
 
 #include "abstractobstacle.h"
@@ -371,6 +373,18 @@ namespace lpzrobots {
 
     // add model to viewer.
     viewer->setSceneData(root); 
+
+    Producer::CameraConfig* cfg = viewer->getCameraConfig();
+    Producer::Camera *cam = cfg->getCamera(0);
+    
+    Producer::RenderSurface* rs = cam->getRenderSurface();
+    rs->setWindowName( "LpzRobots - Selforg" );
+    
+    // the following starts the system in windowed mode
+    int x = rs->getWindowOriginX();
+    int y = rs->getWindowOriginY();
+    rs->setWindowRectangle(x,y,640,480); // TODO: use config or cmdline arg
+    rs->fullScreen(false);
 
     // create the windows and run the threads.
     viewer->realize();
