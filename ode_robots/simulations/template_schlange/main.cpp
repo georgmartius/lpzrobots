@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16.4.2  2006-01-05 11:41:01  fhesse
+ *   Revision 1.16.4.3  2006-02-01 18:35:16  martius
+ *   schlangeservo2
+ *
+ *   Revision 1.16.4.2  2006/01/05 11:41:01  fhesse
  *   moved to osg
  *                                                    *
  *                                                                         *
@@ -42,6 +45,7 @@
 #include <selforg/sinecontroller.h>
 
 #include "schlangeservo.h"
+#include "schlangeservo2.h"
 #include "schlangeforce.h"
 #include "schlangevelocity.h"
 
@@ -59,39 +63,50 @@ public:
 
     // conf for schlange1 and schlange2
     SchlangeConf conf = Schlange::getDefaultConf();
-    conf.motorPower=0.3;
-    conf.jointLimit=conf.jointLimit*3;
-    conf.segmDia    = 0.2;
-    conf.segmNumber = 2; 
+    conf.motorPower   = 0.1;
+    conf.jointLimit   = conf.jointLimit*1.5;
+    //conf.segmDia      = 0.2;
+    conf.segmNumber   = 7; 
 
 
-//     // SchlangeServo
-//     SchlangeServo* schlange1 = 
-//       new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-//   			  conf, "Servo");
-//     ((OdeRobot*)schlange1)->place(Pos(2,2,0)); 
-//     AbstractController *controller1 = new SineController();  
-//     AbstractWiring* wiring1 = new One2OneWiring(new ColorUniformNoise(0.1));
-//     OdeAgent* agent1 = new OdeAgent(plotoptions);
-//     agent1->init(controller1, schlange1, wiring1);
-//     global.agents.push_back(agent1);
-//     global.configs.push_back(controller1);
-//     global.configs.push_back(schlange1);
+    // SchlangeServo
+    SchlangeServo2* schlange1 = 
+      new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+			   conf, "Servo");
+    ((OdeRobot*)schlange1)->place(Pos(2,2,5)); 
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    cc.cInit=2;
+    AbstractController *controller1 = new InvertMotorNStep(cc);  
+    controller1->setParam("adaptrate",0);
+    controller1->setParam("epsC",0.01);
+    controller1->setParam("epsA",0.005);
+    controller1->setParam("rootE",1);
+    controller1->setParam("s4avg",10);
+    controller1->setParam("steps",2);
+    //    AbstractController *controller1 = new SineController();  
+    AbstractWiring* wiring1 = new One2OneWiring(new ColorUniformNoise(0.1));
+    OdeAgent* agent1 = new OdeAgent(plotoptions);
+    agent1->init(controller1, schlange1, wiring1);
+    global.agents.push_back(agent1);
+    global.configs.push_back(controller1);
+    global.configs.push_back(schlange1);
 
 
     //SchlangeForce
-     SchlangeForce* schlange2 = 
-       new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
- 			  conf, "Force");
-     ((OdeRobot*)schlange2)->place(Pos(3,3,0)); 
-     AbstractController *controller2 = new SineController();  
-     AbstractWiring* wiring2 = new One2OneWiring(new ColorUniformNoise(0.1));
-     OdeAgent* agent2 = new OdeAgent(plotoptions);
-     agent2->init(controller2, schlange2, wiring2);
-     global.agents.push_back(agent2);
-     global.configs.push_back(controller2);
-     global.configs.push_back(schlange2);
+//      SchlangeForce* schlange2 = 
+//        new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+//  			  conf, "Force");
+//      ((OdeRobot*)schlange2)->place(Pos(3,3,5)); 
+//      //     AbstractController *controller2 = new InvertMotorNStep();
+//      AbstractController *controller2 = new SineController();
+//      AbstractWiring* wiring2 = new One2OneWiring(new ColorUniformNoise(0.1));
+//      OdeAgent* agent2 = new OdeAgent(plotoptions);
+//      agent2->init(controller2, schlange2, wiring2);
+//      global.agents.push_back(agent2);
+//      global.configs.push_back(controller2);
+//      global.configs.push_back(schlange2);
 
+//      controller2->setParam("phaseshift", 0.3);
 
     //SchlangeVelocity
 //      SchlangeConf conf3 = SchlangeVelocity::getDefaultConf();
@@ -111,8 +126,10 @@ public:
 //      global.configs.push_back(schlange3);
   
  
-//     global.odeConfig.setParam("controlinterval",5);
-//     global.odeConfig.setParam("gravity", -9.81); 
+     global.odeConfig.setParam("controlinterval",1);
+     //     global.odeConfig.setParam("gravity", -9.81); 
+     global.odeConfig.setParam("gravity", 0); 
+     global.odeConfig.setParam("noise", 0.05); 
 
     showParams(global.configs);
   }
@@ -120,13 +137,13 @@ public:
 };
 
 void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
+  printf("Usage: %s [-g] [-f]\n\t-g\tuse guilogger\n\t-f\tuse guilogger with logfile", progname);
 }
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger, Controller, 10));
+  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 10));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   ThisSim sim;
