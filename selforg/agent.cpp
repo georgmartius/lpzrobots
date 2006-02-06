@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-01-31 16:45:37  martius
+ *   Revision 1.1.2.4  2006-02-06 15:24:09  robot3
+ *   avoid conversion from pointer to int
+ *
+ *   Revision 1.1.2.3  2006/01/31 16:45:37  martius
  *   neuronviz plotoption
  *
  *   Revision 1.1.2.2  2005/11/15 12:30:26  martius
@@ -210,10 +213,10 @@ void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csen
 void Agent::step(double noise){
 
   if(!controller || !robot || !wiring || !rsensors || !rmotors || !csensors || !cmotors) {
-    fprintf(stderr, "%s:%i: something is null: cont %x rob %x wiring %x rsens %x rmots %x csens %x cmots %x!\n", 
-	    __FILE__, __LINE__, (unsigned int)controller, (unsigned int)robot,  
-	    (unsigned int)wiring, (unsigned int)rsensors, (unsigned int)rmotors, 
-	    (unsigned int)csensors, (unsigned int)cmotors);
+    fprintf(stderr, "%s:%i: something is null: cont %i rob %i wiring %i rsens %i rmots %i csens %i cmots %i!\n", 
+	    __FILE__, __LINE__, controller==0, robot==0,  
+	    wiring==0, rsensors==0, rmotors==0, 
+	    csensors==0, cmotors==0);
   }
   
   int len =  robot->getSensors(rsensors, rsensornumber);
