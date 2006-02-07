@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.1  2005-12-20 17:53:42  martius
+ *   Revision 1.1.4.2  2006-02-07 15:51:56  martius
+ *   axis, setpower
+ *
+ *   Revision 1.1.4.1  2005/12/20 17:53:42  martius
  *   changed to Joints from joint.h
  *   new servos for universal and hinge2
  *
@@ -51,6 +54,9 @@ public:
   void set(double position);
   /** returns the position of the slider in ranges [-1, 1] (scaled by min, max)*/
   double get();
+  
+  /* adjusts the power of the servo*/
+  void setPower(double power);
   
 private:
   PID pid;

@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-21 15:38:32  martius
+ *   Revision 1.1.2.2  2006-02-07 15:51:56  martius
+ *   axis, setpower
+ *
+ *   Revision 1.1.2.1  2005/12/21 15:38:32  martius
  *   Angular motors nicely wrapped
  *
  *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
@@ -82,7 +85,7 @@ namespace lpzrobots {
   AngularMotor1Axis::AngularMotor1Axis(const OdeHandle& odeHandle, OneAxisJoint* joint, double power)
     : AngularMotor(odeHandle, joint), joint(joint) {
     dJointSetAMotorNumAxes(motor, 1);
-    osg::Vec3 a =joint->getAxis1();
+    const Axis& a =joint->getAxis1();
     dJointSetAMotorAxis(motor, 0, 0, a.x(), a.y(), a.z() );
     dJointSetAMotorParam(motor, dParamFMax, power); 
   }
@@ -115,9 +118,9 @@ namespace lpzrobots {
     : AngularMotor(odeHandle, joint), joint(joint) {
 
     dJointSetAMotorNumAxes(motor, 2);
-    osg::Vec3 a0 =joint->getAxis1();
+    const Axis& a0 =joint->getAxis1();
     dJointSetAMotorAxis(motor, 0, 0, a0.x(), a0.y(), a0.z() );
-    osg::Vec3 a1 =joint->getAxis2();
+    const Axis& a1 =joint->getAxis2();
     dJointSetAMotorAxis(motor, 1, 0, a1.x(), a1.y(), a1.z() );
 
 
@@ -164,16 +167,16 @@ namespace lpzrobots {
       Setting this to zero (the default value) turns off the motor.      
   */
   AngularMotorNAxis::AngularMotorNAxis(const OdeHandle& odeHandle, Joint* joint, 
-				       std::list<std::pair<double, osg::Vec3 > > axis)
+				       std::list<std::pair<double, Axis > > axis)
     : AngularMotor(odeHandle, joint), joint(joint) {
     
     int len = axis.size();
     
     dJointSetAMotorNumAxes(motor, len);
     int j=0;
-    for(std::list<std::pair<double, osg::Vec3 > >::iterator i = axis.begin(); 
+    for(std::list<std::pair<double, Axis > >::iterator i = axis.begin(); 
 	i!= axis.end(); i++, j++){
-      osg::Vec3 a = (*i).second;
+      const Axis& a = (*i).second;
       dJointSetAMotorAxis(motor, j, 0, a.x(), a.y(), a.z() );
       double pwr = (*i).first; 
       int param;
@@ -246,7 +249,7 @@ namespace lpzrobots {
 	Setting this to zero (the default value) turns off the motor.      
     */
   AngularMotor3AxisEuler::AngularMotor3AxisEuler(const OdeHandle& odeHandle, BallJoint* joint, 
-			   const osg::Vec3& axis1, const osg::Vec3& axis3, double power)
+			   const Axis& axis1, const Axis& axis3, double power)
       : AngularMotor(odeHandle, joint), joint(joint) {
           
     dJointSetAMotorNumAxes(motor, 3);

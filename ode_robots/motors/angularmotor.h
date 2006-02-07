@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-01-31 15:43:47  martius
+ *   Revision 1.1.2.4  2006-02-07 15:51:56  martius
+ *   axis, setpower
+ *
+ *   Revision 1.1.2.3  2006/01/31 15:43:47  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.2  2006/01/03 10:20:16  fhesse
@@ -143,7 +146,7 @@ namespace lpzrobots {
 	Setting this to zero (the default value) turns off the motor.      
     */
     AngularMotor3AxisEuler(const OdeHandle& odeHandle, BallJoint* joint, 
-			   const osg::Vec3& axix1, const osg::Vec3& axix3, double power);
+			   const Axis& axis1, const Axis& axis3, double power);
     
     /// returns the number of Axis of this Motor
     virtual int getNumberOfAxes() { return 3; };
@@ -171,7 +174,7 @@ namespace lpzrobots {
 	Setting this to zero (the default value) turns off the motor.      
     */
     AngularMotorNAxis(const OdeHandle& odeHandle, Joint* joint, 
-		      std::list<std::pair<double, osg::Vec3 > > axis);
+		      std::list<std::pair<double, Axis > > axis);
 
     virtual ~AngularMotorNAxis() {}
     

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.2  2006-01-10 14:48:28  martius
+ *   Revision 1.8.4.3  2006-02-07 15:51:56  martius
+ *   axis, setpower
+ *
+ *   Revision 1.8.4.2  2006/01/10 14:48:28  martius
  *   indentation
  *
  *   Revision 1.8.4.1  2005/12/20 17:53:42  martius
@@ -54,6 +57,10 @@ namespace lpzrobots {
     lastposition = 0;
     error = 0;
     alpha = 0.95;
+  }
+
+  void PID::setKP(double KP){
+    this->KP = KP;
   }
 
   void PID::setTargetPosition ( double newpos )

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-01-03 10:42:17  fhesse
+ *   Revision 1.1.2.3  2006-02-07 15:51:56  martius
+ *   axis, setpower
+ *
+ *   Revision 1.1.2.2  2006/01/03 10:42:17  fhesse
  *   get...1() -> getPosition1()
  *
  *   Revision 1.1.2.1  2005/12/20 17:53:42  martius
@@ -37,60 +40,67 @@
 
 namespace lpzrobots {
 
-UniversalServo::UniversalServo(UniversalJoint* joint, double min1, double max1, double power1,
-			 double min2, double max2, double power2)
-  : pid1(power1, 2.0, 0.3 ), pid2(power2, 2.0, 0.3 ), joint(joint)
-{
-  assert(min1 <= 0 && min1 <= max1);
-  assert(min2 <= 0 && min2 <= max2);
-  this->min1 = min1;
-  this->max1 = max1;
-  this->min2 = min2;
-  this->max2 = max2;
-}
-
-void UniversalServo::set(double pos1, double pos2){
-  if(pos1 > 0){
-    pos1 *= max1; 
-  }else{
-    pos1 *= -min1;
+  UniversalServo::UniversalServo(UniversalJoint* joint, double min1, double max1, double power1,
+				 double min2, double max2, double power2)
+    : pid1(power1, 2.0, 0.3 ), pid2(power2, 2.0, 0.3 ), joint(joint)
+  {
+    assert(min1 <= 0 && min1 <= max1);
+    assert(min2 <= 0 && min2 <= max2);
+    this->min1 = min1;
+    this->max1 = max1;
+    this->min2 = min2;
+    this->max2 = max2;
   }
-  pid1.setTargetPosition(pos1);  
-  double force1 = pid1.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
-  if(pos2 > 0){
-    pos2 *= max2; 
-  }else{
-    pos2 *= -min2;
+
+  void UniversalServo::set(double pos1, double pos2){
+    if(pos1 > 0){
+      pos1 *= max1; 
+    }else{
+      pos1 *= -min1;
+    }
+    pid1.setTargetPosition(pos1);  
+    double force1 = pid1.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
+    if(pos2 > 0){
+      pos2 *= max2; 
+    }else{
+      pos2 *= -min2;
+    }
+    pid2.setTargetPosition(pos2);  
+    double force2 = pid2.stepWithD(joint->getPosition2(), joint->getPosition2Rate());
+
+    joint->addTorques(force1, force2);
   }
-  pid2.setTargetPosition(pos2);  
-  double force2 = pid2.stepWithD(joint->getPosition2(), joint->getPosition2Rate());
 
-  joint->addTorques(force1, force2);
-}
-
-double UniversalServo::get1(){
-  double pos = joint->getPosition1(); 
-  if(pos > 0){
-    pos /= max1; 
-  }else{
-    pos /= -min1;
+  double UniversalServo::get1(){
+    double pos = joint->getPosition1(); 
+    if(pos > 0){
+      pos /= max1; 
+    }else{
+      pos /= -min1;
+    }
+    return pos;
   }
-  return pos;
-}
 
-double UniversalServo::get2(){
-  double pos = joint->getPosition2(); 
-  if(pos > 0){
-    pos /= max2; 
-  }else{
-    pos /= -min2;
+  double UniversalServo::get2(){
+    double pos = joint->getPosition2(); 
+    if(pos > 0){
+      pos /= max2; 
+    }else{
+      pos /= -min2;
+    }
+    return pos;
   }
-  return pos;
-}
 
-void UniversalServo::get(double& p1, double& p2){
-  p1 = get1();
-  p2 = get2();
-}
+  void UniversalServo::get(double& p1, double& p2){
+    p1 = get1();
+    p2 = get2();
+  }
+
+  /* adjusts the power of the two servos*/
+  void UniversalServo::setPower(double power1, double power2){
+    pid1.setKP(power1);
+    pid2.setKP(power2);    
+  }
+
 
 }  
