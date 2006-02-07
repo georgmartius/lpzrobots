@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.3  2005-12-15 17:04:32  martius
+ *   Revision 1.2.4.4  2006-02-07 15:49:03  martius
+ *   axis
+ *
+ *   Revision 1.2.4.3  2005/12/15 17:04:32  martius
  *   getAngle
  *   min, max and so on are template functions now
  *
@@ -43,6 +46,7 @@
 #include <math.h>
 #include <osg/Matrix>
 #include "mathutils.h"
+#include "axis.h"
 
 using namespace matrix;
 
@@ -52,16 +56,16 @@ namespace lpzrobots {
      returns a Rotation matrix that rotates the x-axis along with the given axis. 
      The other 2 axis (y,z) are ambiguous.
   */
-  osg::Matrix rotationMatrixFromAxisX(const osg::Vec3& axis){
-    return osg::Matrix::rotate(osg::Vec3(1,0,0), axis);
+  osg::Matrix rotationMatrixFromAxisX(const Axis& axis){
+    return osg::Matrix::rotate(osg::Vec3(1,0,0), axis.vec3());
   }
 
   /**
      returns a Rotation matrix that rotates the z-axis along with the given axis. 
      The other 2 axis (x,y) are ambiguous.
   */
-  osg::Matrix rotationMatrixFromAxisZ(const osg::Vec3& axis){
-    return osg::Matrix::rotate(osg::Vec3(0,0,1), axis);
+  osg::Matrix rotationMatrixFromAxisZ(const Axis& axis){
+    return osg::Matrix::rotate(osg::Vec3(0,0,1), axis.vec3());
   }
 
 

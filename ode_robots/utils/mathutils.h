@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.4  2005-12-15 17:04:32  martius
+ *   Revision 1.3.4.5  2006-02-07 15:48:56  martius
+ *   axis
+ *
+ *   Revision 1.3.4.4  2005/12/15 17:04:32  martius
  *   getAngle
  *   min, max and so on are template functions now
  *
@@ -56,6 +59,8 @@
 
 namespace lpzrobots {
 
+  class Axis;
+
   template<typename T>
   inline T clip(T v,T minimum, T maximum)
     { return clampBelow(clampAbove(v,minimum),maximum); }
@@ -66,13 +71,13 @@ namespace lpzrobots {
      returns a Rotation matrix that rotates the x-axis along with the given axis. 
      The other 2 axis (y,z) are ambiguous.
   */
-  osg::Matrix rotationMatrixFromAxisX(const osg::Vec3& axis);
+  osg::Matrix rotationMatrixFromAxisX(const Axis& axis);
 
   /**
      returns a Rotation matrix that rotates the z-axis along with the given axis. 
      The other 2 axis (x,y) are ambiguous.
   */
-  osg::Matrix rotationMatrixFromAxisZ(const osg::Vec3& axis);
+  osg::Matrix rotationMatrixFromAxisZ(const Axis& axis);
 
   /**
    * returns the angle between two vectors (in rad)
