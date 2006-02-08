@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.2  2006-01-12 14:37:39  martius
+ *   Revision 1.2.4.3  2006-02-08 16:16:23  martius
+ *   no namespace using
+ *
+ *   Revision 1.2.4.2  2006/01/12 14:37:39  martius
  *   access functions
  *
  *   Revision 1.2.4.1  2005/12/06 10:13:26  martius
@@ -48,14 +51,14 @@ public:
   Color(float r, float g, float b, float a)
     : osg::Vec4(r, g, b, a){} 
 
-  float r() const { return x(); }
-  float& r() { return x(); }
-  float g() const { return y(); }
-  float& g() { return y(); }
-  float b() const { return z(); }
-  float& b() { return z(); }
-  float a() const { return w(); }
-  float& a() { return w(); }
+/*   float r() const { return x(); } */
+/*   float& r() { return x(); } */
+/*   float g() const { return y(); } */
+/*   float& g() { return y(); } */
+/*   float b() const { return z(); } */
+/*   float& b() { return z(); } */
+/*   float a() const { return w(); } */
+/*   float& a() { return w(); } */
   float alpha() const { return w(); }
   float& alpha() { return w(); }
 };
