@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-01-31 16:45:50  martius
+ *   Revision 1.1.2.6  2006-02-08 16:15:27  martius
+ *   teaching via keys
+ *
+ *   Revision 1.1.2.5  2006/01/31 16:45:50  martius
  *   neuronviz output
  *
  *   Revision 1.1.2.4  2006/01/18 16:47:06  martius
@@ -67,7 +70,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    setCameraHomePos(Pos(-5.44372, 7.37141, 3.31768),  Pos(-142.211, -21.1623, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -80,7 +83,7 @@ public:
     global.obstacles.push_back(playground);
 
     for(int i=0; i<50; i++){
-      PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
+      PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5,10);
       s->setPosition(osg::Vec3(-4+(i/10),-4+(i%10),1)); 
       global.obstacles.push_back(s);    
     }
@@ -118,6 +121,8 @@ public:
   {
     if (!down) return false;    
     bool handled = false;
+    double m;
+    motor motors[2];
     switch ( key )
       {
       case 'u' : 
