@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16.4.3  2006-02-01 18:35:16  martius
+ *   Revision 1.16.4.4  2006-02-08 16:16:11  martius
+ *   parameter tuning
+ *
+ *   Revision 1.16.4.3  2006/02/01 18:35:16  martius
  *   schlangeservo2
  *
  *   Revision 1.16.4.2  2006/01/05 11:41:01  fhesse
@@ -78,8 +81,8 @@ public:
     cc.cInit=2;
     AbstractController *controller1 = new InvertMotorNStep(cc);  
     controller1->setParam("adaptrate",0);
-    controller1->setParam("epsC",0.01);
-    controller1->setParam("epsA",0.005);
+    controller1->setParam("epsC",0.001);
+    controller1->setParam("epsA",0.001);
     controller1->setParam("rootE",1);
     controller1->setParam("s4avg",10);
     controller1->setParam("steps",2);
@@ -93,18 +96,30 @@ public:
 
 
     //SchlangeForce
+//     conf.motorPower   = 0.2;
+//     conf.jointLimit   = conf.jointLimit*1.5;
+//     //conf.segmDia      = 0.2;
+//     conf.segmNumber   = 5; 
 //      SchlangeForce* schlange2 = 
 //        new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
 //  			  conf, "Force");
 //      ((OdeRobot*)schlange2)->place(Pos(3,3,5)); 
-//      //     AbstractController *controller2 = new InvertMotorNStep();
-//      AbstractController *controller2 = new SineController();
+//      InvertMotorNStepConf cc2 = InvertMotorNStep::getDefaultConf();
+//      cc2.cInit=0.01;
+//      AbstractController *controller2 = new InvertMotorNStep(cc2);
+//      //     AbstractController *controller2 = new SineController();
 //      AbstractWiring* wiring2 = new One2OneWiring(new ColorUniformNoise(0.1));
 //      OdeAgent* agent2 = new OdeAgent(plotoptions);
 //      agent2->init(controller2, schlange2, wiring2);
 //      global.agents.push_back(agent2);
 //      global.configs.push_back(controller2);
 //      global.configs.push_back(schlange2);
+//      controller2->setParam("adaptrate",0);
+//      controller2->setParam("epsC",0.005);
+//      controller2->setParam("epsA",0.001);
+//      controller2->setParam("rootE",1);
+//      controller2->setParam("s4avg",10);
+//      controller2->setParam("steps",2);
 
 //      controller2->setParam("phaseshift", 0.3);
 
