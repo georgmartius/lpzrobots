@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.4  2006-01-10 21:46:02  martius
+ *   Revision 1.15.4.5  2006-02-08 16:15:11  martius
+ *   testing with invertcontroller
+ *
+ *   Revision 1.15.4.4  2006/01/10 21:46:02  martius
  *   moved to osg
  *
  *   Revision 1.15.4.3  2005/12/06 17:38:19  martius
@@ -76,28 +79,33 @@ public:
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
 
     // initialization
-    global.odeConfig.setParam("noise",0.1);
+    global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("realtimefactor",0);
     global.odeConfig.setParam("drawinterval", 500);
 
 
     OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);  
     //  OdeRobot* robot = new Nimm2(odeHandle);  
-    AbstractController *controller = new InvertMotorNStep();  
-    //AbstractController *controller = new InvertMotorSpace(10,1.2);  
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    cc.cInit=0.1;
+    cc.cNonDiag=0.0;
+    AbstractController *controller = new InvertMotorNStep(cc);  
+    //AbstractController *controller = new InvertNChannelController(40);  
+    //AbstractController *controller = new InvertMotorSpace(10,1);  
     //controller->setParam("nomupdate",0.001);
-    controller->setParam("adaptrate",0.001);
-    controller->setParam("epsA",0.01);
-    controller->setParam("epsC",0.01);
+    controller->setParam("adaptrate",0.000);
+    controller->setParam("epsA",0.6);
+    controller->setParam("epsC",0.6);
     controller->setParam("factorB",0.1);
-    //  controller->setParam("steps",2);
+    controller->setParam("steps",1);
     //  AbstractController *controller = new InvertNChannelController(10);  
     //AbstractController *controller = new SineController();
     
     OdeAgent* agent = new OdeAgent(plotoptions);
     
-    sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
-    One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
+    // sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
+    // One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
+    One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
     
     //AbstractWiring* wiring = new SelectiveOne2OneWiring(sineNoise, &select_firsthalf);
     // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
@@ -138,8 +146,8 @@ public:
 };
 
 void printUsage(const char* progname){
-  printf("Usage: %s numchannels [-g] [-l]\n\tnumchannels\tnumber of channels\n\
-\t-g\t\tuse guilogger\n\t-l\t\tuse guilogger with logfile", progname);
+  printf("Usage: %s numchannels [-g] [-f]\n\tnumchannels\tnumber of channels\n\
+\t-g\t\tuse guilogger\n\t-f\t\tuse guilogger with logfile", progname);
 }
 
 int main (int argc, char **argv)
@@ -149,11 +157,22 @@ int main (int argc, char **argv)
     return -1;
   }
   channels = max(1,atoi(argv[1]));
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger, Robot));
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File, Robot));
+  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger, Robot,5));
+  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Robot, 5));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }
  
+/*
+Mit 
+invertmotornstep/motorspace
+  epsC=epsA=0.6
+  noise=0.05
+Es scheint wichtig zu sein, dass das Modell mitlernt.
+
+Bei mehreren steps muss epsC runtergedreht werden.
+
+*/
+
