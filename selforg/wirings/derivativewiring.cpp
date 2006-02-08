@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-01-30 14:13:56  martius
+ *   Revision 1.1.2.3  2006-02-08 16:20:21  martius
+ *   delay increased by 1
+ *
+ *   Revision 1.1.2.2  2006/01/30 14:13:56  martius
  *   order has changed from id_1,..,id_n, first_1,...first_n, ...
  *    to id_1,first_1, second_1, id_2, first2, .... id_n, first_n, second_n
  *
@@ -62,7 +65,7 @@ DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf,
 
   this->conf=conf;
   time     = buffersize;
-  delay    = min(buffersize/2-1, int(0.25/(conf.eps+0.01)));
+  delay    = min(buffersize/2-1, int(0.25/(conf.eps+0.01))+1);
   // make sure that at least id is on.
   if (!conf.useFirstD && !conf.useSecondD) this->conf.useId=true; 
 }
