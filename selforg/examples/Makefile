@@ -2,16 +2,19 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-FILES = controllertest
-CFILES = $(addsuffix .cpp, $(FILES))
-OFILES = $(addsuffix .o, $(FILES))
+FILES_CT = controllertest
+CFILES_CT = $(addsuffix .cpp, $(FILES_CT))
+OFILES_CT = $(addsuffix .o, $(FILES_CT))
 
-EXEC = controllertest
+FILES_FT = feedforwardtest
+CFILES_FT = $(addsuffix .cpp, $(FILES_FT))
+OFILES_FT = $(addsuffix .o, $(FILES_FT))
+
 
 # -pg for profiling
 CFLAGS = -Wall -I. -g
 ## Optimisation
-#CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG
+#CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
 LIBS   = -lm -L../../matrixlib/ -lmatrix_debug -L../ -lselforg 
 INC   = -I../../matrixlib/ -I../include
@@ -23,14 +26,21 @@ CXX = g++ $(CFLAGS) $(INC)  -c
 CC = g++ $(CFLAGS) 
 #CC = g++ -g3 -pg  
 
-$(EXEC): Makefile.depend $(OFILES)
-	$(CC) $(OFILES) $(LIBS)  -o $(EXEC)
+controllertest: Makefile.depend $(OFILES_CT) libselforg
+	$(CC) $(OFILES_CT) $(LIBS)  -o controllertest
+
+feedforwardtest: Makefile.depend $(OFILES_FT) libselforg
+	$(CC) $(OFILES_FT) $(LIBS)  -o feedforwardtest
+
+libselforg: 
+	cd ../ && make
+
 
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend $(CFLAGS) $(INC) $(CFILES_FT) $(CFILES_CT) -f- > Makefile.depend 2>/dev/null
 
 Makefile.depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend $(CFLAGS) $(INC) $(CFILES_FT) $(CFILES_CT) -f- > Makefile.depend 2>/dev/null
 
 search:
 	find -name "*.[ch]*" -exec grep -Hn "something" {} \;
@@ -42,6 +52,6 @@ tags:
 	etags `find -name "*.[ch]"` 
 
 clean:
-	rm -f $(EXEC) *.o Makefile.depend
+	rm -f controllertest feedforwardtest *.o Makefile.depend
 
 include Makefile.depend
