@@ -5,8 +5,9 @@
 #include <selforg/derivativewiring.h>
 
 #include <selforg/onelayerffnn.h>
-#include <selforg/proactive.h>
+#include <selforg/proactive2.h>
 #include <selforg/invertmotornstep.h>
+// #include <selforg/sinecontroller.h>
 
 #include "odeagent.h"
 #include "simulation.h"
@@ -24,12 +25,7 @@ public:
 
   //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) {
-
-    //   //Anfangskameraposition und Punkt auf den die Kamera blickt
-    //   float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-    //   float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
-    //   dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
-    //   dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
+    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
 
     // initialization
     global.odeConfig.noise=0.05;
@@ -41,9 +37,9 @@ public:
 
     Nimm2Conf nimm2Conf = Nimm2::getDefaultConf();
     nimm2Conf.irFront=true;
-    nimm2Conf.irRange=4;
+    nimm2Conf.irRange=2;
     nimm2Conf.singleMotor=true;
-    nimm2Conf.force = 6;
+    nimm2Conf.force = 5;
     //  nimm2Conf.force=nimm2Conf.force*3;  
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, nimm2Conf);
     vehicle->place(Pos(0,0,0.2));
@@ -51,27 +47,28 @@ public:
   
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.buffersize=50;
-    cc.useS=true;
-    cc.cInit=1.2;
+    // cc.useS=true;
+    cc.cInit=1.1;
     cc.someInternalParams=false;
-    AbstractController *controller = new ProActive(2, 30, cc);  
+    AbstractController *controller = new ProActive2(1,30, cc);  
+    // AbstractController *controller = new SineController();  
     // AbstractController *controller = new InvertMotorNStep(cc);
     //   controller->setParam("steps",2);
-    controller->setParam("epsH",1);
+    controller->setParam("epsH",100);
     // controller->setParam("nomupdate",0.001);
     controller->setParam("adaptrate",0);
     controller->setParam("epsC",0.05);
     controller->setParam("epsA",0.05);
-    controller->setParam("eps",0.001); // eps for delta H net 
-    controller->setParam("s4avg",5); 
+    controller->setParam("eps",0.1); // eps for delta H net 
+    controller->setParam("s4avg",1); 
     //  global.odeConfig.setParam("realtimefactor",3);
   
     DerivativeWiringConf wconf = DerivativeWiring::getDefaultConf();
-    wconf.useFirstD = true;
-    wconf.useSecondD = false;
+    //    wconf.useFirstD = true;
+    //    wconf.useSecondD = false;
     //wconf.useSecondD = true;
-    wconf.derivativeScale=5;
-    wconf.eps = 0.1;
+    wconf.derivativeScale=1;
+    wconf.eps = 0.4;
     AbstractWiring* wiring = new DerivativeWiring(wconf, new ColorUniformNoise(0.1));
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, vehicle, wiring);
