@@ -61,7 +61,7 @@ guilogger::guilogger(CommLineParser configobj) : QMainWindow( 0, "guilogger")
     channelWidget = new QWidget(sv->viewport());
     sv->addChild(channelWidget);
     sv->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
-    channelWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,0,0, FALSE));
+    channelWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,2,0, FALSE));
 
     commWidget = new QWidget(centralWidget()); 
     commWidget   ->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,1,0, FALSE));

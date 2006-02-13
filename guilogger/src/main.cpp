@@ -89,13 +89,14 @@ int main( int argc, char ** argv ) {
         a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
         qsource->start();
     }
-    else if(params.getMode()=="pipe") 
-    {   QPipeReader *qpipe = new QPipeReader();
-        if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
-        printf("Using pipe input with delay %i.\n", qpipe->getDelay());
-        qsource = qpipe;
-        a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
-        qsource->start();
+    else if(params.getMode()=="pipe") {  
+      QPipeReader *qpipe = new QPipeReader();
+      //        if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
+      //        printf("Using pipe input with delay %i.\n", qpipe->getDelay());
+      printf("Using pipe input\n");
+      qsource = qpipe;
+      a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
+      qsource->start();
     }
     else if(params.getMode()=="file") 
     {  // printf("Sorry, there are no native segfaults any more.\n");
