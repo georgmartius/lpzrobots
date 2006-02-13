@@ -32,12 +32,11 @@ void QPipeReader::run()
   int size = 65536;
   char *s = (char*)malloc(size*sizeof(char));
 
-  while(1) {
-    char* ctrl;
+  char* ctrl = s;
+  while(ctrl) {
     
     ctrl = fgets(s, size, stdin);
-        
-    emit newData(s);            
+    if(ctrl) emit newData(s);            
     //     usleep(delay);     // wenn Line gelesen, mal ein bissel warten, damit nicht alles gleich durchpfeift
   }
   free(s);  
