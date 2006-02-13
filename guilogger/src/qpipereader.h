@@ -27,11 +27,10 @@ class QPipeReader : public QDataSource
     Q_OBJECT
 
 private:
-    char blockterminator;
     int delay;
 
 public:
-    QPipeReader(char bt = '\n', int delay = 100);
+    QPipeReader(int delay = 100);
     virtual void run();
     void setDelay(int delay) {this->delay = delay;}
     int  getDelay()  {return delay;}
