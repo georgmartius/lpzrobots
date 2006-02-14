@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.17  2006-02-14 17:31:12  martius
+ *   Revision 1.40.4.18  2006-02-14 17:36:03  martius
+ *   prevent overflow in time sync
+ *
+ *   Revision 1.40.4.17  2006/02/14 17:31:12  martius
  *   much better time syncronisation
  *
  *   Revision 1.40.4.16  2006/02/01 14:00:32  martius
@@ -370,8 +373,8 @@ namespace lpzrobots {
 
     //********************Simulation start*****************
     state=running;
-    realtimeoffset = timeOfDayinMS();    
-    simtimeoffset = 0;
+    globalData.time=0;
+    resetSyncTimer();
     
     start(odeHandle, osgHandle, globalData);  
 
@@ -433,9 +436,7 @@ namespace lpzrobots {
 	cmd_begin_input();
 	config(globalData);
 	cmd_end_input();
-	realtimeoffset = timeOfDayinMS();    
-	simtimeoffset = int(globalData.time*1000);
-	printf("off1 : %li off2: %li", realtimeoffset, simtimeoffset);
+	resetSyncTimer();
       }
 
       // the simulation is just run if pause is not enabled
@@ -488,21 +489,24 @@ namespace lpzrobots {
       // difference between actual time and current time in milliseconds
       long diff = long((globalData.time*1000.0 - simtimeoffset)
 		       / globalData.odeConfig.realTimeFactor  ) - elaped;
-      if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
-	usleep((diff-2)*1000); 
-	nextLeakAnnounce=4;
-      }else if (diff < 0){	
-	// we do not bother the user all the time
-	if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100){
-	  printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
-		 -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
-	  nextLeakAnnounce=min(nextLeakAnnounce*2,512);
-	  leakAnnCounter=0;
-	  realtimeoffset = timeOfDayinMS();    
-	  simtimeoffset = int(globalData.time*1000);	    
-	}
-	leakAnnCounter++;
-      } 
+      if(diff > 10000 || diff < -10000)  // check for overflow or other weird things
+	resetSyncTimer();
+      else{
+	if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
+	  usleep((diff-2)*1000); 
+	  nextLeakAnnounce=4;
+	}else if (diff < 0){	
+	  // we do not bother the user all the time
+	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100){
+	    printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
+		   -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
+	    nextLeakAnnounce=min(nextLeakAnnounce*2,512);
+	    leakAnnCounter=0;
+	    resetSyncTimer();
+	  }
+	  leakAnnCounter++;
+	} 
+      }
     }    
   }
 
@@ -661,6 +665,12 @@ namespace lpzrobots {
     gettimeofday(&t, 0);
     return t.tv_sec*1000 + t.tv_usec/1000;	
   }
+
+  void Simulation::resetSyncTimer(){
+    realtimeoffset = timeOfDayinMS();
+    simtimeoffset = int(globalData.time*1000);
+  }
+
 
 
   // Helper
