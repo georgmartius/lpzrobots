@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.10  2006-01-17 17:01:53  martius
+ *   Revision 1.18.4.11  2006-02-14 17:36:14  martius
+ *   much better time syncronisation
+ *
+ *   Revision 1.18.4.10  2006/01/17 17:01:53  martius
  *   *** empty log message ***
  *
  *   Revision 1.18.4.9  2006/01/12 22:33:23  martius
@@ -206,6 +209,9 @@ private:
   /// clears obstacle and agents lists and delete entries
   void tidyUp(GlobalData& globalData);
 
+  void resetSyncTimer();
+  long timeOfDayinMS();
+
   static void control_c(int i);
   static void cmd_handler_exit();
   static void cmd_handler_init();
@@ -219,10 +225,10 @@ protected:
   GlobalData globalData;
   VideoStream videostream;
 
-
-  struct timeval realTime;
   int nextLeakAnnounce;
   int leakAnnCounter;
+  long realtimeoffset;
+  long simtimeoffset;
 
   long sim_step;
   
