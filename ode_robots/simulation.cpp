@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.16  2006-02-01 14:00:32  martius
+ *   Revision 1.40.4.17  2006-02-14 17:31:12  martius
+ *   much better time syncronisation
+ *
+ *   Revision 1.40.4.16  2006/02/01 14:00:32  martius
  *   remerging of non-fullscreen start
  *
  *   Revision 1.40.4.15  2006/02/01 10:24:34  robot3
@@ -367,7 +370,8 @@ namespace lpzrobots {
 
     //********************Simulation start*****************
     state=running;
-    gettimeofday(&realTime, 0);
+    realtimeoffset = timeOfDayinMS();    
+    simtimeoffset = 0;
     
     start(odeHandle, osgHandle, globalData);  
 
@@ -429,7 +433,9 @@ namespace lpzrobots {
 	cmd_begin_input();
 	config(globalData);
 	cmd_end_input();
-	gettimeofday(&realTime, 0);
+	realtimeoffset = timeOfDayinMS();    
+	simtimeoffset = int(globalData.time*1000);
+	printf("off1 : %li off2: %li", realtimeoffset, simtimeoffset);
       }
 
       // the simulation is just run if pause is not enabled
@@ -474,27 +480,30 @@ namespace lpzrobots {
 	}
       }
 
-      // Time syncronisation of real time and simulations time (not if on capture mode)
-      if(globalData.odeConfig.realTimeFactor!=0.0 && !videostream.opened){
-	struct timeval currentTime;
-	gettimeofday(&currentTime, 0);
-	// difference in milliseconds
-	long diff = (currentTime.tv_sec-realTime.tv_sec)*1000 + (currentTime.tv_usec-realTime.tv_usec)/1000;
-	diff -= long(globalData.odeConfig.simStepSize*1000.0/globalData.odeConfig.realTimeFactor); 
-	if(diff < -3){ // if less the 3 milliseconds we don't call usleep since it needs time
-	  usleep(min(100l,-diff-2)*1000);
-	  nextLeakAnnounce=max(200,nextLeakAnnounce/2);
-	}else if (diff > 0){
-	  if(leakAnnCounter%nextLeakAnnounce==0 && diff > 10){ // we do not bother the user all the time
-	    printf("Time leak of %li ms (Please increase realtimefactor)\n", diff);
-	    nextLeakAnnounce*=2;
-	    leakAnnCounter=0;
-	  }
-	  leakAnnCounter++;
+    }  
+    /************************** Time Syncronisation ***********************/
+    // Time syncronisation of real time and simulations time (not if on capture mode)
+    if(globalData.odeConfig.realTimeFactor!=0.0 && !videostream.opened){
+      long elaped = timeOfDayinMS() - realtimeoffset;
+      // difference between actual time and current time in milliseconds
+      long diff = long((globalData.time*1000.0 - simtimeoffset)
+		       / globalData.odeConfig.realTimeFactor  ) - elaped;
+      if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
+	usleep((diff-2)*1000); 
+	nextLeakAnnounce=4;
+      }else if (diff < 0){	
+	// we do not bother the user all the time
+	if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100){
+	  printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
+		 -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
+	  nextLeakAnnounce=min(nextLeakAnnounce*2,512);
+	  leakAnnCounter=0;
+	  realtimeoffset = timeOfDayinMS();    
+	  simtimeoffset = int(globalData.time*1000);	    
 	}
-	gettimeofday(&realTime, 0);
-      }
-    }
+	leakAnnCounter++;
+      } 
+    }    
   }
 
   bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {  
@@ -645,6 +654,12 @@ namespace lpzrobots {
 
   void Simulation::cmd_end_input(){
     cmd_handler_init();  
+  }
+
+  long Simulation::timeOfDayinMS(){    
+    struct timeval t;
+    gettimeofday(&t, 0);
+    return t.tv_sec*1000 + t.tv_usec/1000;	
   }
 
 
