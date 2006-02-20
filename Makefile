@@ -6,6 +6,8 @@ PREFIX=$HOME
 
 # subdirectories which contain libraries or binaries needed some of the other project in this tree 
 all: matrixlib guilogger neuronviz
+	cd selforg && make depend
+	cd ode_robots && make depend
 
 .PHONY: matrixlib
 matrixlib:
