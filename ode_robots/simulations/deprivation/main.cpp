@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-02-14 10:32:28  martius
+ *   Revision 1.1.2.2  2006-02-20 10:50:20  martius
+ *   pause, random, windowsize, Ctrl-keys
+ *
+ *   Revision 1.1.2.1  2006/02/14 10:32:28  martius
  *   test env for model deprivation
  *
  *   Revision 1.1.2.6  2006/02/08 16:15:27  martius
@@ -82,13 +85,17 @@ Matrix turnMotor(const Matrix _dont_care){
   return y;
 }
 
-Matrix sinMotor(const Matrix _dont_care){  
-  Matrix y(_dont_care.getM(),1);
-  y.val(0,0) = sin(zeit/10.0)*0.9;
-  y.val(1,0) = cos(zeit/10.0)*0.9;
-  for(int i=2; i< y.getM(); i++){
-    y.val(i,0) = sin(zeit/10.0)*0.9;
-  }
+double data[2] = {1,0};
+Matrix y(2,1, data);
+Matrix sinMotor(const Matrix y_controller){  
+  Matrix A(2,2);
+  double alpha = M_PI/((cos(zeit/1000.0)+1)*10+1); 
+  //  if(zeit%100==0) printf("Alpha: %d\n", int(alpha*180/M_PI));
+  A.val(0,0) = cos(alpha);
+  A.val(1,0) = sin(alpha);
+  A.val(0,1) = -sin(alpha);
+  A.val(1,1) = cos(alpha);
+  y = A*y;
   zeit++;
   return y;
 }
@@ -121,10 +128,11 @@ public:
     controller->setParam("adaptrate", 0.000);
     //    controller->setParam("nomupdate", 0.0005);
     controller->setParam("epsC", 0.1);
-    controller->setParam("epsA", 0.05);
+    controller->setParam("epsA", 0.01);
     controller->setParam("rootE", 1);
     controller->setParam("steps", 2);
     controller->setParam("s4avg", 1);
+    controller->setParam("s4delay", 2);
 
     //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
@@ -177,7 +185,7 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
   
   // start with online windows and logging to file
-  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 10));
+  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 1));
 
   // 
   if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.3  2006-01-12 15:17:39  martius
+ *   Revision 1.15.4.4  2006-02-20 10:50:20  martius
+ *   pause, random, windowsize, Ctrl-keys
+ *
+ *   Revision 1.15.4.3  2006/01/12 15:17:39  martius
  *   *** empty log message ***
  *
  *   Revision 1.15.4.2  2006/01/10 20:33:50  martius
@@ -110,6 +113,7 @@ public:
     One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
     OdeAgent* agent = new OdeAgent ( plotoptions );
     agent->init ( controller , sphere1 , wiring );
+    // agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
     global.agents.push_back ( agent );
     global.configs.push_back ( controller );
       

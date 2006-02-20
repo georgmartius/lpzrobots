@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.11  2006-02-14 17:36:14  martius
+ *   Revision 1.18.4.12  2006-02-20 10:50:20  martius
+ *   pause, random, windowsize, Ctrl-keys
+ *
+ *   Revision 1.18.4.11  2006/02/14 17:36:14  martius
  *   much better time syncronisation
  *
  *   Revision 1.18.4.10  2006/01/17 17:01:53  martius
@@ -204,8 +207,8 @@ protected:
   bool control_c_pressed();
 
 private:
-  static void processCmdLine(int argc, char** argv);
-  void loop(bool pause);
+  void processCmdLine(int argc, char** argv);
+  void loop();
   /// clears obstacle and agents lists and delete entries
   void tidyUp(GlobalData& globalData);
 
@@ -229,6 +232,10 @@ protected:
   int leakAnnCounter;
   long realtimeoffset;
   long simtimeoffset;
+
+  int windowWidth;
+  int windowHeight;
+  bool pause;
 
   long sim_step;
   

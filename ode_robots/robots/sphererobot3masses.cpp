@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-01-11 19:30:28  martius
+ *   Revision 1.1.2.3  2006-02-20 10:50:20  martius
+ *   pause, random, windowsize, Ctrl-keys
+ *
+ *   Revision 1.1.2.2  2006/01/11 19:30:28  martius
  *   transparent hull
  *
  *   Revision 1.1.2.1  2006/01/10 17:15:04  martius
@@ -82,52 +85,6 @@ namespace lpzrobots {
 
   void Sphererobot3Masses::update()
   {
-    //   if(transparency < 1.0){
-    //       // draw sphere back side
-    //       dsSetTexture(texture);
-    //       dsSetColorAlpha (color.r, color.g, color.b, transparency/2); 
-    //       dsSetCulling(1); // draw back side
-    //       dsDrawSphere( dGeomGetPosition ( object[ Base ].geom ) , 
-    // 		    dGeomGetRotation ( object[ Base ].geom ) , conf.diameter/2);
-    //       dsSetCulling(0);  // draw front side
-
-    //       dsSetTexture (DS_NONE);
-
-    //       for(unsigned int n = 0; n < 3; n++){
-    // 	// draw pendular 	
-    // 	dsSetColorAlpha (n==0 , n==1 , n==2, 1); // transparency= 1  
-    // 	dsDrawSphere ( dBodyGetPosition ( object[ Pendular1 + n ].body ), 
-    // 		       dBodyGetRotation ( object[ Pendular1 + n ].body ) , conf.pendulardiameter/2 );
-    //       }
-  
-    //       // draw blue axis
-    //       const dReal *R = dBodyGetRotation ( object[ Base ].body);
-    //       const dReal *pos = dGeomGetPosition ( object[ Base ].geom);
-    //       dsDrawCylinder ( pos , R, conf.diameter-conf.diameter/100 , conf.diameter/100 );    
-
-    //       // draw green axis
-    //       double rotR[12];
-    //       xrot ( rotR, R );
-    //       dsSetColorAlpha(0,1,0,1);
-    //       dsDrawCylinder ( pos ,rotR ,conf.diameter-conf.diameter/100 , conf.diameter/100 );
-
-    //       // draw red axis
-    //       yrot ( rotR, R );
-    //       dsSetColorAlpha(1,0,0,1);
-    //       dsDrawCylinder ( pos , rotR , conf.diameter-conf.diameter/100 , conf.diameter/100 );
-    
-    //       // draw sphere
-    //       dsSetTexture (texture);
-    //       dsSetColorAlpha (color.r, color.g, color.b, transparency); // transparency= 0.5
-  
-    //     }else{
-    //       // draw sphere
-    //       dsSetTexture (texture);
-    //       dsSetColorAlpha (color.r, color.g, color.b, 1);
-    //     }
-    //     dsDrawSphere ( dGeomGetPosition ( object[ Base ].geom ) , 
-    // 		   dGeomGetRotation ( object[ Base ].geom ) , conf.diameter/2 );
-
     for (int i=0; i < Last; i++) { 
       if(object[i]) object[i]->update();
     }
@@ -325,14 +282,14 @@ namespace lpzrobots {
     if (conf.irAxis1){
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor(1.5);
-	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * Matrix::translate(0,i*conf.diameter/2,0 )* pose;
+	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * Matrix::translate(0,-i*conf.diameter/2,0 );
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irAxis2){
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor(1.5);
-	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * Matrix::translate(i*conf.diameter/2,0,0 )* pose;
+	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * Matrix::translate(i*conf.diameter/2,0,0 );
 	//	dRFromEulerAngles(R,i*M_PI/2,-i*M_PI/2,0);      
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
@@ -340,9 +297,7 @@ namespace lpzrobots {
     if (conf.irAxis3){
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor(1.5);
-	Matrix R = Matrix::rotate(i*M_PI/2, 0, 0, 1) * Matrix::translate(0,0,i*conf.diameter/2)* pose;
-	//	if (i==-1)dRFromEulerAngles(R,M_PI,0,0);      
-	//	if (i== 1)dRFromEulerAngles(R,   0,0,0);      
+	Matrix R = Matrix::rotate( i==1 ? 0 : M_PI, 1, 0, 0) * Matrix::translate(0,0,i*conf.diameter/2);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }

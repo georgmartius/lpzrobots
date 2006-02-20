@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.18  2006-02-14 17:36:03  martius
+ *   Revision 1.40.4.19  2006-02-20 10:50:20  martius
+ *   pause, random, windowsize, Ctrl-keys
+ *
+ *   Revision 1.40.4.18  2006/02/14 17:36:03  martius
  *   prevent overflow in time sync
  *
  *   Revision 1.40.4.17  2006/02/14 17:31:12  martius
@@ -241,6 +244,7 @@ namespace lpzrobots {
     leakAnnCounter = 1;
     sim_step = 0;
     state = none;
+    pause = false;
   }
 
   Simulation::~Simulation(){  
@@ -390,7 +394,7 @@ namespace lpzrobots {
     // the following starts the system in windowed mode
     int x = rs->getWindowOriginX();
     int y = rs->getWindowOriginY();
-    rs->setWindowRectangle(x,y,640,480); // TODO: use config or cmdline arg
+    rs->setWindowRectangle(x,y,windowWidth, windowHeight);
     rs->fullScreen(false);
 
     // create the windows and run the threads.
@@ -401,7 +405,7 @@ namespace lpzrobots {
 	// wait for all cull and draw threads to complete.
 	viewer->sync();
            
-	loop(false);
+	loop();
 
 	// update the scene by traversing it with the the update visitor which will
 	// call all node update callbacks and animations.
@@ -427,7 +431,7 @@ namespace lpzrobots {
   void Simulation::end(GlobalData& globalData){
   }
 
-  void Simulation::loop(bool pause){
+  void Simulation::loop(){
     // we run the physical simulation as often as "drawinterval",
     //  the drawing of all object should occur if t==0  
     for(int t = 0; t < globalData.odeConfig.drawInterval; t++){
@@ -483,8 +487,8 @@ namespace lpzrobots {
 
     }  
     /************************** Time Syncronisation ***********************/
-    // Time syncronisation of real time and simulations time (not if on capture mode)
-    if(globalData.odeConfig.realTimeFactor!=0.0 && !videostream.opened){
+    // Time syncronisation of real time and simulations time (not if on capture mode, or pause)
+    if(globalData.odeConfig.realTimeFactor!=0.0 && !videostream.opened && !pause){
       long elaped = timeOfDayinMS() - realtimeoffset;
       // difference between actual time and current time in milliseconds
       long diff = long((globalData.time*1000.0 - simtimeoffset)
@@ -507,6 +511,8 @@ namespace lpzrobots {
 	  leakAnnCounter++;
 	} 
       }
+    }else if (pause) {
+      usleep(1000); 	
     }    
   }
 
@@ -517,12 +523,19 @@ namespace lpzrobots {
       {	 
 	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true); 
 	if(handled) break;
+	printf("Key: %i\n", ea.getKey());	
 	switch(ea.getKey()){
-	case 'r': 
-	  printf("R pressed: This will be video recording, but is not implemented yet!\n");
-	  break;
+	case 18:  // Ctrl - r
+	  printf("C-r pressed: This will be video recording, but is not implemented yet!\n");
+	  break;	
+	case 16: // Ctrl - p
+	  pause = !pause;
+	  printf( pause ? "Pause\n" : "Continue\n" );
+	  resetSyncTimer();
+	  handled = true;
+	  break;	 
 	}
-      }	  
+      }      	  
     case(osgGA::GUIEventAdapter::KEYUP):
       {
 	  handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);	
@@ -534,7 +547,8 @@ namespace lpzrobots {
   }
   
   void Simulation::getUsage (osg::ApplicationUsage& au) const {
-    au.addKeyboardMouseBinding("Simulation: r","Start/Stop video recording");
+    au.addKeyboardMouseBinding("Simulation: Ctrl-r","Start/Stop video recording");
+    au.addKeyboardMouseBinding("Simulation: Ctrl-p","Pause on/off");
     bindingDescription(au);
   }
   
@@ -575,17 +589,17 @@ namespace lpzrobots {
     printf("Use random number seed: %li\n", seed);
     srand(seed);
 
-    //   int resolindex = contains(argv, argc, "-x");
-    //   int w,h;
-    //   // initialize random number generator
-    //   if(resolindex && argc > resolindex) {
-    //     if(sscanf(argv[resolindex],"%ix%i", &w,&h) ==2){
-    //       if(w>64 && h>64){
-    // 	windowWidth = w;
-    // 	windowHeight = h;	
-    //       }
-    //     }
-    //   }
+    int resolindex = contains(argv, argc, "-x");
+    windowWidth = 640;
+    windowHeight = 480;	
+    if(resolindex && argc > resolindex) {
+      sscanf(argv[resolindex],"%ix%i", &windowWidth,&windowHeight);
+      windowWidth = windowWidth < 64 ? 64 : (windowWidth > 1600 ? 1600 : windowWidth);
+      windowHeight = windowHeight < 64 ? 64 : (windowHeight > 1200 ? 1200 : windowHeight);
+    }
+
+    pause = contains(argv, argc, "-pause")!=0;
+
   }
 
   // Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
@@ -682,12 +696,10 @@ namespace lpzrobots {
   }
 
   void Simulation::usage(const char* progname){
-    printf("Parameter: %s [-r SEED] [-x WxH] [-pause] [-notex] [-noshadow]\n", progname);
+    printf("Parameter: %s [-r SEED] [-x WxH] [-pause]\n", progname);
     printf("\t-r SEED\t\tuse SEED as random number seed\n");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (640x480 default)\n");
     printf("\t-pause \t\tstart in pause mode\n");
-    printf("\t-notex \t\tdo not display textures\n");
-    printf("\t-noshadow\tdo not display shadows\n");
   }
 
   // Commandline interface stuff
