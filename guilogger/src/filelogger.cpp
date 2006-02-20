@@ -55,5 +55,5 @@ void FileLogger::writeChannelData(char *datablock)
       openStream();
     }
     if(instream)
-      fprintf(instream, "%s\n", datablock);
+      fprintf(instream, "%s", datablock);
 }

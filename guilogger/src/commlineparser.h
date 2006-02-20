@@ -48,12 +48,13 @@ class CommLineParser
         }
 
 
-        QString getMode()  {return mode;}
-        QString getPort()  {return port;}
-        QString getFile()  {return file;}
-        bool    getLogg()  {return logg;}
-        bool    getHelp()  {return help;}
-        int     getDelay() {return delay;}
+        QString getMode() const  {return mode;}
+        void    setMode(const QString& m)  {mode=m;}
+        QString getPort() const  {return port;}
+        QString getFile() const  {return file;}
+        bool    getLogg() const  {return logg;}
+        bool    getHelp() const  {return help;}
+        int     getDelay() const {return delay;}
 
 
         // implementation for special use (read guilogger command line parameters)

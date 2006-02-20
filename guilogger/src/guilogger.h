@@ -63,7 +63,7 @@ class guilogger: public QMainWindow
     Q_OBJECT
 
 public:
-    guilogger(CommLineParser configobj);
+    guilogger(const CommLineParser& configobj);
     ~guilogger();
     void setChannels(QStringList &clist);
     void setChannels(const char &clist);
@@ -97,7 +97,6 @@ private:
     QScrollView* sv;
     QWidget* channelWidget;
     QWidget* commWidget; 
-    
     
     QTextEdit   *parameterlistbox;
     QLineEdit   *paramvaluelineedit;

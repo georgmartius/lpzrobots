@@ -28,7 +28,7 @@
 #include <qregexp.h>
 
 
-guilogger::guilogger(CommLineParser configobj) : QMainWindow( 0, "guilogger")
+guilogger::guilogger(const CommLineParser& configobj) : QMainWindow( 0, "guilogger")
 {
     plotwindows   = 4;    // per default parameter  3
     datadelayrate = 10;  // per default 10
@@ -49,7 +49,7 @@ guilogger::guilogger(CommLineParser configobj) : QMainWindow( 0, "guilogger")
         gp[k].command("set zeroaxis");
     }
 
-    if(mode == "file") linecount = analyzeFile();
+    if(mode == "file" && !filename.isEmpty()) linecount = analyzeFile();
 
     setCentralWidget(new QWidget(this, "Central_Widget"));
     layout        = new QHBoxLayout(centralWidget());
@@ -179,6 +179,9 @@ void guilogger::updateSliderPlot()
     ChannelRow *cr;
     int channel;
     parameterlistbox->clear();
+    parameterlistbox->append("set style data lines");
+    parameterlistbox->append("set zeroaxis");
+
     for(int i=0; i<plotwindows; i++)
     {   cmd = "plot [" + QString::number(value, 10) + ":" + QString::number(value + buffersize)+"] \"" + filename + "\" ";
         cr = ChannelRowPtrList.first();
