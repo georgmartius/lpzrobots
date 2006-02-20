@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-02-06 15:24:09  robot3
+ *   Revision 1.1.2.5  2006-02-20 17:33:15  martius
+ *   include interval in logging output
+ *
+ *   Revision 1.1.2.4  2006/02/06 15:24:09  robot3
  *   avoid conversion from pointer to int
  *
  *   Revision 1.1.2.3  2006/01/31 16:45:37  martius
@@ -144,12 +147,14 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
       if((*i).open()){
 	// print network description given by the structural information of the controller
 	printNetworkDescription((*i).pipe, "Lpzrobots"/*controller->getName()*/, controller);
+	// print interval
+	fprintf((*i).pipe, "# Recording every %d dataset\n",(*i).interval);
+	// print all parameters of the controller
+	controller->print((*i).pipe, "# ");
 	// print head line with all parameter names
 	unsigned int snum = (*i).whichSensors == Robot ? rsensornumber : csensornumber;
 	Inspectable* inspectables[2] = {controller, wiring};      
 	printInternalParameterNames((*i).pipe, snum, cmotornumber, inspectables, 2);
-	// print all parameters of the controller
-	controller->print((*i).pipe, "# ");            
       }
     }    
     return true;
