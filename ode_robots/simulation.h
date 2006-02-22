@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.12  2006-02-20 10:50:20  martius
+ *   Revision 1.18.4.13  2006-02-22 15:26:32  martius
+ *   frame grabbing with osg works again
+ *
+ *   Revision 1.18.4.12  2006/02/20 10:50:20  martius
  *   pause, random, windowsize, Ctrl-keys
  *
  *   Revision 1.18.4.11  2006/02/14 17:36:14  martius
@@ -124,8 +127,8 @@
 #include <math.h>
 #define PI M_PI // (3.14159265358979323846)
 #include <osgGA/GUIEventHandler>
-/* #include <ode/ode.h> */
-/* #include <ode/common.h> */
+#include <Producer/Camera>
+
 #include <vector>
 #include <iterator>
 
@@ -145,128 +148,134 @@ namespace osgProducer{
 
 namespace lpzrobots {
 
-  class Simulation : public Base, public osgGA::GUIEventHandler {
-public:
-  typedef enum SimulationState { none, initialised, running, closed };
+  class Simulation : public Base, public osgGA::GUIEventHandler, public Producer::Camera::Callback {
+  public:
+    typedef enum SimulationState { none, initialised, running, closed };
     
-  Simulation();
-  virtual ~Simulation();
+    Simulation();
+    virtual ~Simulation();
 
-  /** starts the Simulation. Do not overload it. 
-      This function returns of the simulation is terminated.
-      @return: true if closed regulary, false on error
-   */
-  bool run(int argc, char** argv);
+    /** starts the Simulation. Do not overload it. 
+	This function returns of the simulation is terminated.
+	@return: true if closed regulary, false on error
+    */
+    bool run(int argc, char** argv);
   
-  // the following function have to be overloaded.
+    // the following function have to be overloaded.
 
-  /// start() is called at the start and should create all the object (obstacles, agents...).
-  virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
+    /// start() is called at the start and should create all the object (obstacles, agents...).
+    virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
 
-  // the following functions have dummy default implementations
+    // the following functions have dummy default implementations
 
-  /// end() is called at the end and should tidy up
-  virtual void end(GlobalData& globalData);
-  /** config() is called when the user presses Ctrl-C. 
-      Default: Call @changeParams(globalData.configs)@ */
-  virtual void config(GlobalData& globalData);
-  /** command() is called if a key was pressed
-      keycodes see: osgGA::GUIEventAdapter
-      return true if the key was handled
-  */
-  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, 
-		       int key, bool down) { return false; };
+    /// end() is called at the end and should tidy up
+    virtual void end(GlobalData& globalData);
+    /** config() is called when the user presses Ctrl-C. 
+	Default: Call @changeParams(globalData.configs)@ */
+    virtual void config(GlobalData& globalData);
+    /** command() is called if a key was pressed
+	keycodes see: osgGA::GUIEventAdapter
+	return true if the key was handled
+    */
+    virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, 
+			 int key, bool down) { return false; };
 
-  /** this can be used to describe the key bindings used by command()     
-  */
-  virtual void bindingDescription(osg::ApplicationUsage & au) const {};
+    /** this can be used to describe the key bindings used by command()     
+     */
+    virtual void bindingDescription(osg::ApplicationUsage & au) const {};
 
-  /** collCallback() can be used to overload the standart collision handling.
-      However it is called after the robots collision handling.       
-     @return true if collision is treated, false otherwise
-  */
-  virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
-  /// addCallback()  optional additional callback function.
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {};
+    /** collCallback() can be used to overload the standart collision handling.
+	However it is called after the robots collision handling.       
+	@return true if collision is treated, false otherwise
+    */
+    virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
+    /// addCallback()  optional additional callback function.
+    virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {};
 
-protected:
-  // GUIEventHandler
-  virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&);
-  virtual void getUsage (osg::ApplicationUsage & au) const;
-  virtual void accept(osgGA::GUIEventHandlerVisitor& v);
+    ///////////////// Camera::Callback interface
+    virtual void operator() (const Producer::Camera &);
 
-  virtual bool init(int argc, char** argv);
+  protected:
+    // GUIEventHandler
+    virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&);
+    virtual void getUsage (osg::ApplicationUsage & au) const;
+    virtual void accept(osgGA::GUIEventHandlerVisitor& v);
 
-  /** define the home position and view orientation of the camera.
-      view.x is the heading angle in degree. view.y is the tilt angle in degree (nick), 
-      view.z is ignored
-  */
-  void setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view);
+    virtual bool init(int argc, char** argv);
 
-  static void nearCallback(void *data, dGeomID o1, dGeomID o2);
-  bool control_c_pressed();
+    /** define the home position and view orientation of the camera.
+	view.x is the heading angle in degree. view.y is the tilt angle in degree (nick), 
+	view.z is ignored
+    */
+    void setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view);
 
-private:
-  void processCmdLine(int argc, char** argv);
-  void loop();
-  /// clears obstacle and agents lists and delete entries
-  void tidyUp(GlobalData& globalData);
+    static void nearCallback(void *data, dGeomID o1, dGeomID o2);
+    bool control_c_pressed();
 
-  void resetSyncTimer();
-  long timeOfDayinMS();
+  private:
+    void processCmdLine(int argc, char** argv);
+    void loop();
+    /// clears obstacle and agents lists and delete entries
+    void tidyUp(GlobalData& globalData);
 
-  static void control_c(int i);
-  static void cmd_handler_exit();
-  static void cmd_handler_init();
-  static void cmd_begin_input();
-  static void cmd_end_input();
+    void resetSyncTimer();
+    long timeOfDayinMS();
+
+    static void control_c(int i);
+    static void cmd_handler_exit();
+    static void cmd_handler_init();
+    static void cmd_begin_input();
+    static void cmd_end_input();
+
+    // Commandline interface stuff
+    static void usage(const char* progname);
+
+  protected:
+    GlobalData globalData;
+    VideoStream videostream;
+
+    int nextLeakAnnounce;
+    int leakAnnCounter;
+    long realtimeoffset;
+    long simtimeoffset;
+
+    int windowWidth;
+    int windowHeight;
+    bool pause;
+
+    long sim_step;
+  
+    //  CameraType camType; // default is a non-moving and non-rotating camera
+    //  OdeRobot* viewedRobot; // the robot who is viewed from the camera
+
+  private:
+    SimulationState state;
+    osg::ArgumentParser* arguments;
+    osgProducer::Viewer* viewer;
+    Producer::Camera* cam;
+    static int ctrl_C;
+  };
+
+  // /// initializes or resets the camera per user, if wanted
+  // void camera_init(CameraType type, OdeRobot* robot);
+
+  // /// starts the simulation.
+  // void simulation_start(int argc, char** argv);
+  // /// call this after the @simulation_start()@ has returned to tidy up.
+  // void simulation_close();
+
+  // Helper
+  /// returns the index+1 if the list contains the given string or 0 if not
+  int contains(char **list, int len,  const char *str);
 
   // Commandline interface stuff
-  static void usage(const char* progname);
-
-protected:
-  GlobalData globalData;
-  VideoStream videostream;
-
-  int nextLeakAnnounce;
-  int leakAnnCounter;
-  long realtimeoffset;
-  long simtimeoffset;
-
-  int windowWidth;
-  int windowHeight;
-  bool pause;
-
-  long sim_step;
+  /// shows all parameters of all given configurable objects
+  void showParams(const ConfigList& configs);
+  /// offers the possibility to change parameter of all configurable objects
+  void changeParams(ConfigList& configs);
   
-  //  CameraType camType; // default is a non-moving and non-rotating camera
-  //  OdeRobot* viewedRobot; // the robot who is viewed from the camera
-
-private:
-  SimulationState state;
-  osg::ArgumentParser* arguments;
-  osgProducer::Viewer* viewer;
-  static int ctrl_C;
-};
-
-// /// initializes or resets the camera per user, if wanted
-// void camera_init(CameraType type, OdeRobot* robot);
-
-// /// starts the simulation.
-// void simulation_start(int argc, char** argv);
-// /// call this after the @simulation_start()@ has returned to tidy up.
-// void simulation_close();
-
-// Helper
-/// returns the index+1 if the list contains the given string or 0 if not
-int contains(char **list, int len,  const char *str);
-
-// Commandline interface stuff
-/// shows all parameters of all given configurable objects
-void showParams(const ConfigList& configs);
-/// offers the possibility to change parameter of all configurable objects
-void changeParams(ConfigList& configs);
-
+  /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
+  void createNewDir(const char* base, char *newdir);
 }
 
 #endif

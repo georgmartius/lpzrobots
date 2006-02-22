@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.19  2006-02-20 10:50:20  martius
+ *   Revision 1.40.4.20  2006-02-22 15:26:23  martius
+ *   frame grabbing with osg works again
+ *
+ *   Revision 1.40.4.19  2006/02/20 10:50:20  martius
  *   pause, random, windowsize, Ctrl-keys
  *
  *   Revision 1.40.4.18  2006/02/14 17:36:03  martius
@@ -207,6 +210,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <iostream>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <selforg/configurable.h>
@@ -243,8 +247,11 @@ namespace lpzrobots {
     nextLeakAnnounce = 20;
     leakAnnCounter = 1;
     sim_step = 0;
-    state = none;
-    pause = false;
+    state    = none;
+    pause    = false;
+    viewer   = 0;
+    cam      = 0;
+    arguments= 0;
   }
 
   Simulation::~Simulation(){  
@@ -255,7 +262,10 @@ namespace lpzrobots {
     dCloseODE ();
   
     state=closed;
-    unref_nodelete(); // tweak this, because Simulation is inherited from Referenced
+     // tweak this, because Simulation is inherited from Referenced
+    osgGA::GUIEventHandler::unref_nodelete();
+    // tweak this, because Simulation is inherited from Referenced
+    Producer::Camera::Callback::unref_nodelete(); 
   }
 
  
@@ -386,7 +396,7 @@ namespace lpzrobots {
     viewer->setSceneData(root); 
 
     Producer::CameraConfig* cfg = viewer->getCameraConfig();
-    Producer::Camera *cam = cfg->getCamera(0);
+    cam = cfg->getCamera(0);
     
     Producer::RenderSurface* rs = cam->getRenderSurface();
     rs->setWindowName( "LpzRobots - Selforg" );
@@ -396,6 +406,8 @@ namespace lpzrobots {
     int y = rs->getWindowOriginY();
     rs->setWindowRectangle(x,y,windowWidth, windowHeight);
     rs->fullScreen(false);
+
+    cam->addPostDrawCallback(this);
 
     // create the windows and run the threads.
     viewer->realize();
@@ -479,16 +491,16 @@ namespace lpzrobots {
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	  (*i)->getRobot()->update();
 	}
-	// grab frame if in captureing mode
-	if(videostream.opened && !pause){
-	  grabAndWriteFrame(videostream);
-	}
+// 	// grab frame if in captureing mode
+// 	if(videostream.opened && !pause){
+// 	  grabAndWriteFrame(videostream);
+// 	}
       }
 
     }  
     /************************** Time Syncronisation ***********************/
     // Time syncronisation of real time and simulations time (not if on capture mode, or pause)
-    if(globalData.odeConfig.realTimeFactor!=0.0 && !videostream.opened && !pause){
+    if(globalData.odeConfig.realTimeFactor!=0.0 && !pause){
       long elaped = timeOfDayinMS() - realtimeoffset;
       // difference between actual time and current time in milliseconds
       long diff = long((globalData.time*1000.0 - simtimeoffset)
@@ -501,7 +513,7 @@ namespace lpzrobots {
 	  nextLeakAnnounce=4;
 	}else if (diff < 0){	
 	  // we do not bother the user all the time
-	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100){
+	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()){
 	    printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
 		   -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
 	    nextLeakAnnounce=min(nextLeakAnnounce*2,512);
@@ -523,10 +535,20 @@ namespace lpzrobots {
       {	 
 	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true); 
 	if(handled) break;
-	printf("Key: %i\n", ea.getKey());	
+	// printf("Key: %i\n", ea.getKey());	
 	switch(ea.getKey()){
 	case 18:  // Ctrl - r
-	  printf("C-r pressed: This will be video recording, but is not implemented yet!\n");
+	  if(videostream.isOpen()){
+	    printf("Stop video recording!\n");
+	    videostream.close();
+	  }else{
+	    char dir[128];
+	    char filename[140];
+	    createNewDir("video", dir);
+	    printf("Start video recording in %s!\n", dir);	    
+	    sprintf(filename, "%s/frame", dir);
+	    videostream.open(filename);
+	  }	  
 	  break;	
 	case 16: // Ctrl - p
 	  pause = !pause;
@@ -554,6 +576,17 @@ namespace lpzrobots {
   
   void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
     v.visit(*this);
+  }
+
+  ///////////////// Camera::Callback interface
+ void Simulation::operator() (const Producer::Camera &c){
+    // grab frame if in captureing mode
+    if(videostream.isOpen() && !pause){
+      if(!videostream.grabAndWriteFrame(c)){
+	fprintf(stderr,"Stop video recording because of failture!\n");
+	videostream.close();
+      }
+    }
   }
  
   /// clears obstacle and agents lists and delete entries
@@ -730,6 +763,17 @@ namespace lpzrobots {
     }
   }
 
+  void createNewDir(const char* base, char *newdir){
+    struct stat s;
+    for(int i=0; i<1000; i++){
+      sprintf(newdir,"%s%03i", base, i);
+      if(stat(newdir,&s)!=0){ // file/dir does not exist -> take it
+	mkdir(newdir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP );
+	return;	
+      }      
+    }
+    assert(1); // should not happen
+  }
 
   void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view){
     std::list< std::string > nameList;
