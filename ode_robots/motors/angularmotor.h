@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-02-07 15:51:56  martius
+ *   Revision 1.1.2.5  2006-02-23 18:05:30  martius
+ *   setPower (on all axis the same)
+ *
+ *   Revision 1.1.2.4  2006/02/07 15:51:56  martius
  *   axis, setpower
  *
  *   Revision 1.1.2.3  2006/01/31 15:43:47  martius
@@ -60,6 +63,11 @@ namespace lpzrobots {
     virtual void set(int axisNumber, double velocity) = 0;
     /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range*/
     virtual double get(int axisNumber) = 0;
+
+    /**  sets the maximal force the motor has
+     */
+    virtual void setPower(double power) = 0;
+
 
     /** sets the desired speed of all motor.
 	@param velocities double array with desired velocities
@@ -102,6 +110,10 @@ namespace lpzrobots {
 	@param axisNumber is ignored because have only one axis
      */
     virtual double get(int axisNumber) ;    
+
+    /**  sets the maximal force the motor has
+     */
+    virtual void setPower(double power);
     
   protected:
     OneAxisJoint* joint;  
@@ -129,6 +141,10 @@ namespace lpzrobots {
     /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range*/
     virtual double get(int axisNumber) ;    
     
+    /**  sets the maximal force the motor has
+     */
+    virtual void setPower(double power);
+
   protected:
     TwoAxisJoint* joint;      
   };
@@ -159,6 +175,10 @@ namespace lpzrobots {
     /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range*/
     virtual double get(int axisNumber) ;    
     
+    /**  sets the maximal force the motor has
+     */
+    virtual void setPower(double power);
+
   protected:
     BallJoint* joint;      
   };
@@ -190,6 +210,11 @@ namespace lpzrobots {
 	So we return the last set position!.
      */
     virtual double get(int axisNumber) ;    
+
+    /**
+       sets the maximal force the motor has
+     */
+    virtual void setPower(double power);
     
   protected:
     Joint* joint; 

@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-02-07 15:51:56  martius
+ *   Revision 1.1.2.3  2006-02-23 18:05:30  martius
+ *   setPower (on all axis the same)
+ *
+ *   Revision 1.1.2.2  2006/02/07 15:51:56  martius
  *   axis, setpower
  *
  *   Revision 1.1.2.1  2005/12/21 15:38:32  martius
@@ -88,6 +91,7 @@ namespace lpzrobots {
     const Axis& a =joint->getAxis1();
     dJointSetAMotorAxis(motor, 0, 0, a.x(), a.y(), a.z() );
     dJointSetAMotorParam(motor, dParamFMax, power); 
+    dJointSetAMotorParam(motor, dParamVel, 0); 
   }
   
   
@@ -104,6 +108,12 @@ namespace lpzrobots {
    */
   double AngularMotor1Axis::get(int axisNumber){
     return joint->getPosition1Rate(); 
+  }
+
+  /**  sets the maximal force the motor has
+   */
+  void AngularMotor1Axis::setPower(double power){
+    dJointSetAMotorParam(motor, dParamFMax, power);   
   }
 
   /*******************************************************************************/
@@ -126,6 +136,9 @@ namespace lpzrobots {
 
     dJointSetAMotorParam(motor, dParamFMax, power1); 
     dJointSetAMotorParam(motor, dParamFMax2, power2); 
+
+    dJointSetAMotorParam(motor, dParamVel, 0); 
+    dJointSetAMotorParam(motor, dParamVel2, 0); 
   }
   
   /** sets the desired speed of the motor at the given axis.       
@@ -156,6 +169,14 @@ namespace lpzrobots {
       return 0;
     }
   }
+
+  /**  sets the maximal force the motor has
+   */
+  void AngularMotor2Axis::setPower(double power){
+    dJointSetAMotorParam(motor, dParamFMax, power);   
+    dJointSetAMotorParam(motor, dParamFMax2, power);   
+  }
+
 
   /*******************************************************************************/
 
@@ -191,6 +212,18 @@ namespace lpzrobots {
 	continue;
       }
       dJointSetAMotorParam(motor, param, pwr); 
+
+      switch (j) {
+      case 0: 
+	param = dParamVel; break;
+      case 1: 
+	param = dParamVel2; break;
+      case 2: 
+	param = dParamVel3; break;	
+      default:
+	continue;
+      }
+      dJointSetAMotorParam(motor, param, 0); 
     }
   }
   
@@ -236,6 +269,25 @@ namespace lpzrobots {
       break;
     }
     return dJointGetAMotorParam(motor, param);
+  }
+
+  /**  sets the maximal force the motor has
+   */
+  void AngularMotorNAxis::setPower(double power){
+    int param;
+    for(int i; i<getNumberOfAxes(); i++) {
+      switch (i) {
+      case 0: 
+	param = dParamFMax; break;
+      case 1: 
+	param = dParamFMax2; break;
+      case 2: 
+	param = dParamFMax3; break;	
+      default:
+	continue;
+      }
+      dJointSetAMotorParam(motor, param, power);   
+    }
   }
 
   /*******************************************************************************/
@@ -298,6 +350,14 @@ namespace lpzrobots {
     default:
       return 0;
     }
+  }
+
+  /**  sets the maximal force the motor has
+   */
+  void AngularMotor3AxisEuler::setPower(double power){
+    dJointSetAMotorParam(motor, dParamFMax, power);   
+    dJointSetAMotorParam(motor, dParamFMax2, power);   
+    dJointSetAMotorParam(motor, dParamFMax3, power);   
   }
 
   
