@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-02-01 18:33:40  martius
+ *   Revision 1.1.2.2  2006-02-23 18:05:05  martius
+ *   friction with angularmotor
+ *
+ *   Revision 1.1.2.1  2006/02/01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *
@@ -109,6 +112,10 @@ int SchlangeServo2::getSensors ( sensor* sensors, int sensornumber )
       UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
 					          -conf.jointLimit, conf.jointLimit, conf.motorPower);
       servos.push_back(servo);
+      
+      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, 
+						     conf.frictionJoint, conf.frictionJoint)
+			       );
     }	  
   }
 

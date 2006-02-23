@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20.4.5  2006-02-01 18:33:40  martius
+ *   Revision 1.20.4.6  2006-02-23 18:05:04  martius
+ *   friction with angularmotor
+ *
+ *   Revision 1.20.4.5  2006/02/01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *   Revision 1.20.4.4  2006/01/18 09:55:54  martius
@@ -177,10 +180,15 @@ namespace lpzrobots {
   
   bool Schlange::setParam(const paramkey& key, paramval val){    
     if(key == "frictionground") conf.frictionGround = val; 
-    else if(key == "frictionjoint") conf.frictionJoint = val; 
     else if(key == "motorpower") conf.motorPower = val; 
     else if(key == "sensorfactor") conf.sensorFactor = val; 
-    else return Configurable::setParam(key, val);
+    else if(key == "frictionjoint") { 
+      conf.frictionJoint = val; 
+      for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
+	if (*i) (*i)->setPower(conf.frictionJoint);	
+      }         
+    } else 
+      return Configurable::setParam(key, val);    
     return true;
   }
   
@@ -233,6 +241,10 @@ namespace lpzrobots {
 	if(*i) delete *i;
       }
       joints.clear();
+      for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
+	if(*i) delete *i;
+      }
+      frictionmotors.clear();
       dSpaceDestroy(odeHandle.space);
     }
     created=false;

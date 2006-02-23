@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.4  2006-02-01 18:33:40  martius
+ *   Revision 1.15.4.5  2006-02-23 18:05:04  martius
+ *   friction with angularmotor
+ *
+ *   Revision 1.15.4.4  2006/02/01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *   Revision 1.15.4.3  2005/12/30 22:53:13  martius
@@ -47,6 +50,7 @@
 
 #include"primitive.h"
 #include "joint.h"
+#include "angularmotor.h"
 
 #include "oderobot.h"
 #include <selforg/configurable.h>
@@ -80,6 +84,7 @@ protected:
 
   vector <Primitive*> objects;
   vector <Joint*> joints;
+  vector <AngularMotor*> frictionmotors;
   SchlangeConf conf;
 
 public:

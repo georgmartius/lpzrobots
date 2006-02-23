@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.4  2006-02-01 18:33:40  martius
+ *   Revision 1.12.4.5  2006-02-23 18:05:05  martius
+ *   friction with angularmotor
+ *
+ *   Revision 1.12.4.4  2006/02/01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *   Revision 1.12.4.3  2006/01/10 14:24:32  fhesse
@@ -79,10 +82,6 @@ namespace lpzrobots {
       //       else{
       // 	((UniversalJoint*)joints[i])->addTorques(0, conf.motorPower * motors[2*i+1]);
       //       }
-      //friction
-      ((UniversalJoint*)joints[i])->addTorques
-       	(- conf.frictionJoint * ((UniversalJoint*)joints[i])->getPosition1Rate(), 
-       	 - conf.frictionJoint * ((UniversalJoint*)joints[i])->getPosition2Rate()); 
     }
   }	
 
@@ -144,6 +143,10 @@ namespace lpzrobots {
       j->setParam (dParamBounce2, 0.9 ); // universal
 
       joints.push_back(j); 
+
+      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, 
+						     conf.frictionJoint, conf.frictionJoint)
+			       );
     }	  
   }
 
