@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-02-20 17:33:15  martius
+ *   Revision 1.1.2.6  2006-02-24 14:46:00  martius
+ *   recording inverval in plotoutput
+ *
+ *   Revision 1.1.2.5  2006/02/20 17:33:15  martius
  *   include interval in logging output
  *
  *   Revision 1.1.2.4  2006/02/06 15:24:09  robot3
@@ -148,7 +151,7 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
 	// print network description given by the structural information of the controller
 	printNetworkDescription((*i).pipe, "Lpzrobots"/*controller->getName()*/, controller);
 	// print interval
-	fprintf((*i).pipe, "# Recording every %d dataset\n",(*i).interval);
+	if((*i).interval > 1) fprintf((*i).pipe, "# Recording every %dth dataset\n", (*i).interval);
 	// print all parameters of the controller
 	controller->print((*i).pipe, "# ");
 	// print head line with all parameter names
