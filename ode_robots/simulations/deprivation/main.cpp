@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-02-20 10:50:20  martius
+ *   Revision 1.1.2.3  2006-02-24 14:42:39  martius
+ *   keys
+ *
+ *   Revision 1.1.2.2  2006/02/20 10:50:20  martius
  *   pause, random, windowsize, Ctrl-keys
  *
  *   Revision 1.1.2.1  2006/02/14 10:32:28  martius
@@ -130,7 +133,7 @@ public:
     controller->setParam("epsC", 0.1);
     controller->setParam("epsA", 0.01);
     controller->setParam("rootE", 1);
-    controller->setParam("steps", 2);
+    controller->setParam("steps", 1);
     controller->setParam("s4avg", 1);
     controller->setParam("s4delay", 2);
 

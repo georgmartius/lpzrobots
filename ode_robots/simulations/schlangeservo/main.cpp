@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.2  2005-12-29 16:44:54  martius
+ *   Revision 1.2.4.3  2006-02-24 14:43:51  martius
+ *   keys
+ *
+ *   Revision 1.2.4.2  2005/12/29 16:44:54  martius
  *   moved to osg
  *
  *   Revision 1.2.4.1  2005/11/15 12:29:59  martius
@@ -41,16 +44,29 @@
 #include "playground.h"
 #include "passivesphere.h"
 
+#include <selforg/deprivation.h>
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
 
-#include "schlangeservo.h"
+#include "schlangeservo2.h"
 
 list<PlotOption> plotoptions;
 
 using namespace lpzrobots;
+
+int zeit =0;
+Matrix turnMotor(const Matrix _dont_care){  
+  Matrix y(_dont_care.getM(),1);
+  for(int i=0; i< y.getM(); i++){
+    y.val(i,0) = pow(-1,i)*sin(zeit/100.0)*0.9;
+  }
+  zeit++;
+  return y;
+}
+
+Deprivation *controller;
 
 class ThisSim : public Simulation {
 public:
@@ -62,17 +78,20 @@ public:
 
     //****************/
     SchlangeConf conf = Schlange::getDefaultConf();
-    conf.motorPower=0.3;
-    conf.jointLimit=conf.jointLimit*3;
-    SchlangeServo* schlange1 = 
-      new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+    conf.motorPower=0.1;
+    conf.frictionJoint=0.1;
+    conf.segmNumber=6; 
+    //     conf.jointLimit=conf.jointLimit*3;
+    SchlangeServo2* schlange1 = 
+      new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
 			  conf, "S1");
     ((OdeRobot*)schlange1)->place(Pos(0,0,3)); 
 
     //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
     //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
-    //AbstractController *controller = new InvertMotorNStep();  
-    AbstractController *controller = new SineController();  
+    //    AbstractController *controller = new InvertMotorNStep();  
+    controller = new Deprivation(turnMotor);  
+    //     AbstractController *controller = new SineController();  
   
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     //   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
@@ -91,17 +110,51 @@ public:
     global.odeConfig.setParam("controlinterval",1);
     global.odeConfig.setParam("gravity", 0.0); 
 
+    controller->setParam("steps",2);
+    controller->setParam("epsC",0.0005);
+    controller->setParam("epsA",0.01);
+    controller->setParam("adaptrate",0);
+    //    controller->setParam("rootE",3);
 
-    //  controller->setParam("epsC",0.001);
-    //   // controller->setParam("desens",0.0);
+    // controller->setParam("desens",0.0);
     //   controller->setParam("s4delay",1.0);
     //   controller->setParam("s4avg",1.0);
-    //   controller->setParam("epsA",0.01);
+    
     //   controller->setParam("factorB",0.0);
     //   controller->setParam("zetaupdate",0.1);
 
     showParams(global.configs);
   }
+
+  //Funktion die eingegebene Befehle/kommandos verarbeitet
+  virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (!down) return false;    
+    bool handled = false;
+    switch ( key )
+      {
+      case 't' : 	
+	controller->setExternalControlMode(!controller->getExternalControlMode());
+	printf("Control Mode: %i\n", controller->getExternalControlMode());
+	handled = true; break;	
+      case 's' :
+	controller->store("test") && printf("Controller stored\n");
+	handled = true; break;	
+      case 'l' :
+	controller->restore("test") && printf("Controller loaded\n");
+	handled = true; break;	
+      }
+    fflush(stdout);
+    return handled;
+  }
+
+
+  virtual void bindingDescription(osg::ApplicationUsage & au) const {
+    au.addKeyboardMouseBinding("Deprivation: t","toggle mode (straight moving/controller)");
+    au.addKeyboardMouseBinding("Simulation: s","store");
+    au.addKeyboardMouseBinding("Simulation: l","load");
+  }
+
 
 };
 
@@ -112,7 +165,7 @@ void printUsage(const char* progname){
 int main (int argc, char **argv)
 {  
   if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
+  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 10));
   if(contains(argv, argc, "-h")) printUsage(argv[0]);
 
   ThisSim sim;
