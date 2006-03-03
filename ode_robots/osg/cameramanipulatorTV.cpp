@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-02-01 10:24:34  robot3
+ *   Revision 1.1.2.2  2006-03-03 12:08:50  robot3
+ *   preparations made for new cameramanipulators
+ *
+ *   Revision 1.1.2.1  2006/02/01 10:24:34  robot3
  *   new camera manipulator added
  *
  *                                                                         *
@@ -38,8 +41,8 @@ namespace lpzrobots {
   using namespace osg;
   using namespace osgGA;
 
-  CameraManipulatorTV::CameraManipulatorTV(osg::Node* node)
-    : CameraManipulator(node) {}
+  CameraManipulatorTV::CameraManipulatorTV(osg::Node* node, const GlobalData& global)
+    : CameraManipulator(node,global) {}
 
   CameraManipulatorTV::~CameraManipulatorTV(){}
 

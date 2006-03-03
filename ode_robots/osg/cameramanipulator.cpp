@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-02-01 10:24:34  robot3
+ *   Revision 1.1.2.7  2006-03-03 12:08:50  robot3
+ *   preparations made for new cameramanipulators
+ *
+ *   Revision 1.1.2.6  2006/02/01 10:24:34  robot3
  *   new camera manipulator added
  *
  *   Revision 1.1.2.5  2006/01/30 13:12:45  martius
@@ -62,8 +65,8 @@ namespace lpzrobots {
   int isnf=0;
 
   // globalData braucht er für alles
-  CameraManipulator::CameraManipulator(osg::Node* node)
-    : node(node), eye(0,0,0), view(0,0,0), home_externally_set(false) {
+  CameraManipulator::CameraManipulator(osg::Node* node,const GlobalData& global)
+    : node(node), eye(0,0,0), view(0,0,0), home_externally_set(false), globalData(global) {
     if (this->node.get()) {    
       const BoundingSphere& boundingSphere=this->node->getBound();
       modelScale = boundingSphere._radius;
@@ -132,6 +135,7 @@ namespace lpzrobots {
       }
   }
   bool CameraManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
+    int key=0;
     switch(ea.getEventType())
       {
       case(GUIEventAdapter::PUSH): 
@@ -155,7 +159,13 @@ namespace lpzrobots {
         }
 
       case(GUIEventAdapter::KEYDOWN):
-	switch(ea.getKey()) {
+	key=ea.getKey();
+	// F-keys (F1 to F12)
+	if ((65470<=key)&&(key<=65481)) {
+	  manageRobots(key-65469);
+	  return true; // was handled
+	}
+	switch(key) {
 	case ' ':	
 	  {
 	    flushMouseEventStack();
@@ -170,7 +180,7 @@ namespace lpzrobots {
 	    printf(" Pos(%g, %g, %g));\n", view.x(), view.y(), view.z());
 	    break;
 	  }	  
-	default:
+     	default:
 	  return false;
 	}
       case(GUIEventAdapter::RESIZE):
@@ -228,13 +238,14 @@ namespace lpzrobots {
    * movement of the camera, which is a difference between
    * the desired pos and view and the actual pos and view.
    */
-  void CameraManipulator::computeMovement() {
+  /*  void CameraManipulator::computeMovement() {
     desiredEye=eye; // a test
     //    desiredView;
     
-  }
+    }*/
   
-  // hier reinhaengen?? is called every drawstep!!!!
+  // hier reinhaengen?? is called every drawstep!!!! really? ;)
+  // should we call a CameraManipulator-routine from simulation.cpp?
   Matrixd CameraManipulator::getInverseMatrix() const {
     return Matrixd::inverse(pose);
   }
@@ -282,6 +293,23 @@ namespace lpzrobots {
     } else return false;
     computeMatrix();
     return true;
+  }
+
+
+  bool CameraManipulator::calcMovementByRobot() {
+    return true;
+  }
+
+  void CameraManipulator::manageRobots(const int& fkey) {
+    std::cout << "new robot choosed: " << fkey << "\n";
+  }
+
+  void CameraManipulator::setHomeViewByRobot() {
+
+  }
+
+  void CameraManipulator::setHomeEyeByRobot() {
+
   }
 
 }

@@ -23,7 +23,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-02-01 10:24:34  robot3
+ *   Revision 1.1.2.5  2006-03-03 12:08:50  robot3
+ *   preparations made for new cameramanipulators
+ *
+ *   Revision 1.1.2.4  2006/02/01 10:24:34  robot3
  *   new camera manipulator added
  *
  *   Revision 1.1.2.3  2005/12/29 12:56:12  martius
@@ -48,6 +51,7 @@
 
 #include "osgforwarddecl.h"
 #include <osgGA/MatrixManipulator>
+#include "oderobot.h"
 
 namespace lpzrobots {
 
@@ -63,7 +67,7 @@ namespace lpzrobots {
   {
   public:
 
-    CameraManipulator(osg::Node* node);
+    CameraManipulator(osg::Node* node, const GlobalData& global);
 
     virtual const char* className() const { return "Camera"; }
 
@@ -88,7 +92,8 @@ namespace lpzrobots {
      * movement of the camera, which is a difference between
      * the desired pos and view and the actual pos and view.
      */
-    virtual void computeMovement();
+    /*
+    virtual void computeMovement();*/
 
     virtual void setNode(osg::Node*);
 
@@ -144,9 +149,30 @@ namespace lpzrobots {
 
     osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
 
+    OdeRobot* watchingRobot; // the robot which is actually watched
+
+   const GlobalData& globalData; // the global environment variables
+
+
+  /** This handles robot movements, so that the camera movemenent is right affected.
+      should be overwritten by new cameramanipulator
+   */
+  bool calcMovementByRobot();
+
+  /** This manages the robots, switching between them and so on
+      Is normally called from handle(...)
+   */
+  void manageRobots(const int& fkey);
+
+  /** Sets the right view and eye if the robot has changed.
+      Is called from manageRobots();
+  */
+  void setHomeViewByRobot();
+  void setHomeEyeByRobot();
+
+
+  
   };
-
-
 
 }
 
