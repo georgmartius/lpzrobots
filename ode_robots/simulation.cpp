@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.20  2006-02-22 15:26:23  martius
+ *   Revision 1.40.4.21  2006-03-03 12:11:32  robot3
+ *   neccessary changes made for new cameramanipulators
+ *
+ *   Revision 1.40.4.20  2006/02/22 15:26:23  martius
  *   frame grabbing with osg works again
  *
  *   Revision 1.40.4.19  2006/02/20 10:50:20  martius
@@ -360,12 +363,11 @@ namespace lpzrobots {
     stateset->setMode(GL_CULL_FACE,osg::StateAttribute::ON); // disable backface because of problems
     osgHandle.transparentState = stateset;
 
-    CameraManipulator* cameramanipulator = new CameraManipulator(osgHandle.scene);
-    unsigned int pos = viewer->addCameraManipulator(cameramanipulator);
-
-    CameraManipulator* cameramanipulatorTV = new CameraManipulator(osgHandle.scene);
+    // setup the camera manipulators
+    CameraManipulator* defaultCameramanipulator = new CameraManipulator(osgHandle.scene, globalData);
+    CameraManipulator* cameramanipulatorTV = new CameraManipulator(osgHandle.scene, globalData);
+    unsigned int pos = viewer->addCameraManipulator(defaultCameramanipulator);
     viewer->addCameraManipulator(cameramanipulatorTV);
-
     viewer->selectCameraManipulator(pos); // this is the default camera type
     
     // get details on keyboard and mouse bindings used by the viewer.
@@ -535,7 +537,7 @@ namespace lpzrobots {
       {	 
 	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true); 
 	if(handled) break;
-	// printf("Key: %i\n", ea.getKey());	
+	//	printf("Key: %i\n", ea.getKey());	
 	switch(ea.getKey()){
 	case 18:  // Ctrl - r
 	  if(videostream.isOpen()){
