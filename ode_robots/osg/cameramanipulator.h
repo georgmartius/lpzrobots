@@ -23,7 +23,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-03-03 12:08:50  robot3
+ *   Revision 1.1.2.6  2006-03-04 15:04:33  robot3
+ *   cameramanipulator is now updated with every draw intervall
+ *
+ *   Revision 1.1.2.5  2006/03/03 12:08:50  robot3
  *   preparations made for new cameramanipulators
  *
  *   Revision 1.1.2.4  2006/02/01 10:24:34  robot3
@@ -51,7 +54,9 @@
 
 #include "osgforwarddecl.h"
 #include <osgGA/MatrixManipulator>
-#include "oderobot.h"
+#include "odeagent.h"
+#include "globaldata.h"
+
 
 namespace lpzrobots {
 
@@ -114,6 +119,11 @@ namespace lpzrobots {
     /** Get the keyboard and mouse usage of this manipulator.*/
     virtual void getUsage(osg::ApplicationUsage& usage) const;
 
+    /** updates the camera module at every drawstep
+	should be called from the simulation loop
+     */
+    virtual void update();
+
   protected:
 
     virtual ~CameraManipulator();
@@ -149,26 +159,27 @@ namespace lpzrobots {
 
     osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
 
-    OdeRobot* watchingRobot; // the robot which is actually watched
+   OdeAgent* watchingAgent; // the robot which is actually watched
 
-   const GlobalData& globalData; // the global environment variables
+   GlobalData globalData; // the global environment variables
 
 
   /** This handles robot movements, so that the camera movemenent is right affected.
       should be overwritten by new cameramanipulator
    */
-  bool calcMovementByRobot();
+  void calcMovementByAgent();
 
   /** This manages the robots, switching between them and so on
       Is normally called from handle(...)
    */
-  void manageRobots(const int& fkey);
+  void manageAgents(const int& fkey);
 
   /** Sets the right view and eye if the robot has changed.
       Is called from manageRobots();
+      should be overwritten by new cameramanipulator
   */
-  void setHomeViewByRobot();
-  void setHomeEyeByRobot();
+  void setHomeViewByAgent();
+  void setHomeEyeByAgent();
 
 
   

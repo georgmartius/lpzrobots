@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.21  2006-03-03 12:11:32  robot3
+ *   Revision 1.40.4.22  2006-03-04 15:04:33  robot3
+ *   cameramanipulator is now updated with every draw intervall
+ *
+ *   Revision 1.40.4.21  2006/03/03 12:11:32  robot3
  *   neccessary changes made for new cameramanipulators
  *
  *   Revision 1.40.4.20  2006/02/22 15:26:23  martius
@@ -483,16 +486,26 @@ namespace lpzrobots {
       addCallback(globalData, t==0, pause);
 
       if(t==0){
-// 	/************************** Update the scene ***********************/
-// 	// first repositionize the camera if needed
-// 	if (viewedRobot)
-//	 moveCamera(camType, *viewedRobot);
+ 	/************************** Update the scene ***********************/
 	for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++){
 	  (*i)->update();
 	}
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	  (*i)->getRobot()->update();
 	}
+ 	// update the camera
+	std::list< std::string > nameList;
+	viewer->getCameraManipulatorNameList(nameList);
+	for (std::list< std::string >::iterator i = nameList.begin(); i!=nameList.end(); i++){
+	  osgGA::MatrixManipulator* mm = viewer->getCameraManipulatorByName (*i);
+	  if(mm){
+	    CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);      
+	    if(cameramanipulator){
+	      cameramanipulator->update();
+	    }	
+	  }
+	}
+      
 // 	// grab frame if in captureing mode
 // 	if(videostream.opened && !pause){
 // 	  grabAndWriteFrame(videostream);
