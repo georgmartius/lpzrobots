@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.5  2006-02-07 15:48:56  martius
+ *   Revision 1.3.4.6  2006-03-04 16:57:36  robot3
+ *   added a template function for abs
+ *
+ *   Revision 1.3.4.5  2006/02/07 15:48:56  martius
  *   axis
  *
  *   Revision 1.3.4.4  2005/12/15 17:04:32  martius
@@ -64,6 +67,10 @@ namespace lpzrobots {
   template<typename T>
   inline T clip(T v,T minimum, T maximum)
     { return clampBelow(clampAbove(v,minimum),maximum); }
+
+  template<typename T>
+  inline T abs(T v)
+    { return ((v>0)?v:-v); }
 
   /*******************************************************************************/
 
