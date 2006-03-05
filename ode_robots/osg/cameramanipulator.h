@@ -23,7 +23,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-03-04 15:04:33  robot3
+ *   Revision 1.1.2.7  2006-03-05 15:02:24  robot3
+ *   camera moves now smooth
+ *
+ *   Revision 1.1.2.6  2006/03/04 15:04:33  robot3
  *   cameramanipulator is now updated with every draw intervall
  *
  *   Revision 1.1.2.5  2006/03/03 12:08:50  robot3
@@ -72,7 +75,7 @@ namespace lpzrobots {
   {
   public:
 
-    CameraManipulator(osg::Node* node, const GlobalData& global);
+    CameraManipulator(osg::Node* node, GlobalData& global);
 
     virtual const char* className() const { return "Camera"; }
 
@@ -161,25 +164,32 @@ namespace lpzrobots {
 
    OdeAgent* watchingAgent; // the robot which is actually watched
 
-   GlobalData globalData; // the global environment variables
+   GlobalData& globalData; // the global environment variables
+
+
+   double degreeSmoothness; // smoothness factor for the view
+   double lengthSmoothness; // smoothness factor for the eye
+   double degreeAccuracy; // accuracy factor for the view-smoothness 
+   double lengthAccuracy; // accuracy factor for the eye-smoothness 
+
+
+  /** This manages the robots, switching between them and so on
+      Is normally called from handle(...)
+   */
+  virtual void manageAgents(const int& fkey);
 
 
   /** This handles robot movements, so that the camera movemenent is right affected.
       should be overwritten by new cameramanipulator
    */
-  void calcMovementByAgent();
-
-  /** This manages the robots, switching between them and so on
-      Is normally called from handle(...)
-   */
-  void manageAgents(const int& fkey);
+  virtual void calcMovementByAgent();
 
   /** Sets the right view and eye if the robot has changed.
       Is called from manageRobots();
       should be overwritten by new cameramanipulator
   */
-  void setHomeViewByAgent();
-  void setHomeEyeByAgent();
+  virtual void setHomeViewByAgent();
+  virtual void setHomeEyeByAgent();
 
 
   

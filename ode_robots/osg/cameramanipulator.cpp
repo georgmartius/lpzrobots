@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-03-04 15:04:33  robot3
+ *   Revision 1.1.2.9  2006-03-05 15:01:57  robot3
+ *   camera moves now smooth
+ *
+ *   Revision 1.1.2.8  2006/03/04 15:04:33  robot3
  *   cameramanipulator is now updated with every draw intervall
  *
  *   Revision 1.1.2.7  2006/03/03 12:08:50  robot3
@@ -71,13 +74,22 @@ namespace lpzrobots {
   int isnf=0;
 
   // globalData braucht er für alles
-  CameraManipulator::CameraManipulator(osg::Node* node,const GlobalData& global)
+  CameraManipulator::CameraManipulator(osg::Node* node, GlobalData& global)
     : node(node), eye(0,0,0), view(0,0,0), home_externally_set(false), globalData(global) {
     if (this->node.get()) {    
       const BoundingSphere& boundingSphere=this->node->getBound();
       modelScale = boundingSphere._radius;
     }else 
       modelScale = 0.01f;
+    desiredEye=eye;
+    desiredView=view;
+    // default values for smoothness (function update())
+    // can be owerwritten by new cameramanipulator if needed
+    degreeSmoothness=0.025;
+    lengthSmoothness=0.025;
+    lengthAccuracy=0.02;
+    degreeAccuracy=0.03;
+
   }
 
   CameraManipulator::~CameraManipulator(){
@@ -116,7 +128,7 @@ namespace lpzrobots {
 
       home_view = Vec3(-90,-10,0);
     }
-    //    eye  = home_eye;
+    //   eye  = home_eye;
     //    view = home_view;
     desiredEye=home_eye;
     desiredView=home_view;
@@ -240,20 +252,36 @@ namespace lpzrobots {
 
   void CameraManipulator::update() {
     // the call from simulation.cpp works, but is made for ALL cameramanipulators!
-    //    std::cout << "i am updating the camera!";
+    // which is now neccessary for the smoothness for the mouse interactions
+
+    // first modify the desiredView and desiredEye by the movement of the agent
+    calcMovementByAgent();
+
+    // now do smoothness
+    float updateFactor;
+    // TODO: find a more correct updateFactor
+      updateFactor = globalData.odeConfig.drawInterval /
+			  sqrt(globalData.odeConfig.realTimeFactor);
+      //    std::cout << "drawInt: " << globalData.odeConfig.drawInterval << ", realtimefactor: "
+      //      << globalData.odeConfig.realTimeFactor << ", updateFactor: " 
+      //      << updateFactor << "\n";
+    for (int i=0;i<=2;i++) {
+      // view is in °, we must be careful for switches at the 360°-point
+      if ((desiredView[i]-view[i])>180) // desiredView is to high
+	view[i]+=360;
+      else if ((view[i]-desiredView[i])>180) // view is to high
+	desiredView[i]+=360;
+      if (abs(desiredView[i]-view[i])>degreeAccuracy)
+	view[i]= normalize360(degreeSmoothness * updateFactor * desiredView[i] + 
+			      (1.0 - degreeSmoothness * updateFactor) * view[i]);
+      if (abs(desiredEye[i]-eye[i])>lengthAccuracy)
+	eye[i]= lengthSmoothness * updateFactor * desiredEye[i]
+	  + (1.0 - lengthSmoothness * updateFactor) * eye[i];
+    }
+    computeMatrix();
   }
 
 
-  /**
-   * is called every time the draw is updated. computes the
-   * movement of the camera, which is a difference between
-   * the desired pos and view and the actual pos and view.
-   */
-  /*  void CameraManipulator::computeMovement() {
-    desiredEye=eye; // a test
-    //    desiredView;
-    
-    }*/
   
   // hier reinhaengen?? is called every drawstep!!!! really? ;)
   // should we call a CameraManipulator-routine from simulation.cpp?
@@ -291,54 +319,47 @@ namespace lpzrobots {
 
     unsigned int buttonMask = event_old->getButtonMask();
     if (buttonMask==GUIEventAdapter::LEFT_MOUSE_BUTTON) {
-      view.x() += dx*3.0f;
-      view.y() -= dy*3.0f;
-      // make changes to desired too
       desiredView.x() += dx*3.0f;
       desiredView.y() -= dy*3.0f;
     } else if (buttonMask==GUIEventAdapter::MIDDLE_MOUSE_BUTTON ||
 	       buttonMask==(GUIEventAdapter::LEFT_MOUSE_BUTTON | GUIEventAdapter::RIGHT_MOUSE_BUTTON)) { 
-      eye.z() += -dy;
-      eye.x() += - c*dx;
-      eye.y() += - s*dx;
-      // make changes to desired too
       desiredEye.z() += -dy;
       desiredEye.x() += - c*dx;
       desiredEye.y() += - s*dx;
     } else if (buttonMask==GUIEventAdapter::RIGHT_MOUSE_BUTTON) {
-      eye.x() +=  s*dy - c*dx;
-      eye.y() +=  -c*dy - s*dx;      
-      // make changes to desired too
       desiredEye.x() +=  s*dy - c*dx;
       desiredEye.y() +=  -c*dy - s*dx;      
     } else return false;
-    computeMatrix();
     return true;
   }
 
 
-  void CameraManipulator::calcMovementByAgent() {
-    if (watchingAgent) {
-      // then manipulate desired view and desired eye
-      // the default camera manipulator does not need to change the eye and view
-    }
-  }
 
   void CameraManipulator::manageAgents(const int& fkey) {
     std::cout << "new robot choosed: " << fkey << "\n";
     int i=1;
     // go through the agent list
     for(OdeAgentList::iterator it=globalData.agents.begin(); it != globalData.agents.end(); it++){
-      watchingAgent=(*it);
-      std::cout << "new robot choosed: " << i++ << "\n";
+      if (fkey==i++) {
+	watchingAgent=(*it);
+	break;
+      }
     }
-    std::cout << "number of agents: " << i << "\n";
-    if (watchingAgent)
+    if (watchingAgent==NULL)
       std::cout << "no agent was choosed!\n";
     else {
-      std::cout << "an agent was choosed!\n";
+      std::cout << "the agent was choosed: " << i-1 << "\n";
       setHomeViewByAgent();
       setHomeEyeByAgent();
+    }
+  }
+  
+  
+
+  void CameraManipulator::calcMovementByAgent() {
+    if (watchingAgent) {
+      // then manipulate desired view and desired eye
+      // the default camera manipulator does not need to change the eye and view
     }
   }
 
