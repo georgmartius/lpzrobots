@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.6  2006-03-04 16:57:36  robot3
+ *   Revision 1.3.4.7  2006-03-05 10:58:18  robot3
+ *   added a template function normalize360
+ *
+ *   Revision 1.3.4.6  2006/03/04 16:57:36  robot3
  *   added a template function for abs
  *
  *   Revision 1.3.4.5  2006/02/07 15:48:56  martius
@@ -72,6 +75,9 @@ namespace lpzrobots {
   inline T abs(T v)
     { return ((v>0)?v:-v); }
 
+  template<typename T>
+  inline T normalize360(T v)
+    { while (v>360) v-=360; while (v<360) v+=360; return v; }
   /*******************************************************************************/
 
   /**
