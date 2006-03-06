@@ -23,7 +23,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-03 12:08:51  robot3
+ *   Revision 1.1.2.3  2006-03-06 16:58:27  robot3
+ *   minor changes
+ *
+ *   Revision 1.1.2.2  2006/03/03 12:08:51  robot3
  *   preparations made for new cameramanipulators
  *
  *   Revision 1.1.2.1  2006/02/01 10:24:34  robot3
@@ -51,12 +54,30 @@ namespace lpzrobots {
 
   public:
     
-    CameraManipulatorTV(osg::Node* node, const GlobalData& global);
-      
+    CameraManipulatorTV(osg::Node* node,GlobalData& global);
+    
+    /** returns the classname of the manipulator
+	it's NECCESSARY to define this funtion, otherwise
+	the new manipulator WON'T WORK! (but ask me not why)
+     */
+    virtual const char* className() const { return "TV-Camera"; }
+  
   protected:
     
     virtual ~CameraManipulatorTV();
-      
+    
+    /** This handles robot movements, so that the camera movemenent is right affected.
+	should be overwritten by new cameramanipulator
+    */
+       virtual void calcMovementByAgent();
+    
+    /** Sets the right view and eye if the robot has changed.
+	Is called from manageRobots();
+	should be overwritten by new cameramanipulator
+    */
+        virtual void setHomeViewByAgent();
+        virtual void setHomeEyeByAgent();
+   
   };
 }
 

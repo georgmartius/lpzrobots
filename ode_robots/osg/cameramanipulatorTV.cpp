@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-03 12:08:50  robot3
+ *   Revision 1.1.2.3  2006-03-06 16:57:53  robot3
+ *   minor changes
+ *
+ *   Revision 1.1.2.2  2006/03/03 12:08:50  robot3
  *   preparations made for new cameramanipulators
  *
  *   Revision 1.1.2.1  2006/02/01 10:24:34  robot3
@@ -34,16 +37,49 @@
 #include <osg/Notify>
 #include "cameramanipulatorTV.h"
 //#include "mathutils.h"
-//#include "pos.h"
+#include "pos.h"
 
 namespace lpzrobots {
 
   using namespace osg;
   using namespace osgGA;
 
-  CameraManipulatorTV::CameraManipulatorTV(osg::Node* node, const GlobalData& global)
+  CameraManipulatorTV::CameraManipulatorTV(osg::Node* node,GlobalData& global)
     : CameraManipulator(node,global) {}
 
   CameraManipulatorTV::~CameraManipulatorTV(){}
 
+  
+  void CameraManipulatorTV::calcMovementByAgent() {
+    if (watchingAgent!=NULL) {
+      //      std::cout << "an agent is availible!" << std::endl;
+      // the actual position of the agent has to be recognized
+      // we use the Position getPosition() from OdeRobot
+
+      Position robPos = watchingAgent->getRobot()->getPosition();
+
+      // the desired view of the camera has to be changed
+      // for that the angles of "from the desired eye to robPos" are needed
+      // we use  double getAngle(const osg::Vec3& a, const osg::Vec3& b); for this
+      
+
+
+      // then manipulate desired view and desired eye
+      // the default camera manipulator does not need to change the eye and view
+    } else {
+      //      std::cout << "no agent choosed!" << std::endl;
+    }
+  }
+
+  
+    void CameraManipulatorTV::setHomeViewByAgent() {
+    // the default camera manipulator does not need to change the view
+    // normally the desired view should be changed
+  }
+
+
+  void CameraManipulatorTV::setHomeEyeByAgent() {
+    // the default camera manipulator does not need to change the eye
+    // normally the desired eye should be changed
+  }
 }
