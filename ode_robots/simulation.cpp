@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.22  2006-03-04 15:04:33  robot3
+ *   Revision 1.40.4.23  2006-03-06 16:53:49  robot3
+ *   now ExtendedViewer is used because of the new getCurrentCameraManipulator(),
+ *   code optimizations
+ *
+ *   Revision 1.40.4.22  2006/03/04 15:04:33  robot3
  *   cameramanipulator is now updated with every draw intervall
  *
  *   Revision 1.40.4.21  2006/03/03 12:11:32  robot3
@@ -224,7 +228,8 @@
 
 #include "simulation.h"
 
-#include <osgProducer/Viewer>
+//#include <osgProducer/Viewer>
+//#include "extendedViewer.h"
 #include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
 #include <osg/BlendFunc>
@@ -239,6 +244,7 @@
 #include "abstractobstacle.h"
 #include "cameramanipulator.h"
 #include "cameramanipulatorTV.h"
+#include "cameramanipulatorFollow.h"
 
 namespace lpzrobots {
 
@@ -316,7 +322,7 @@ namespace lpzrobots {
 		 "-h or --help", "Display this information");
 
     // construct the viewer.
-    viewer = new Viewer(*arguments);
+    viewer = new ExtendedViewer(*arguments);
 
     // set up the value with sensible default event handlers.
     unsigned int options =  Viewer::SKY_LIGHT_SOURCE | 
@@ -367,10 +373,15 @@ namespace lpzrobots {
     osgHandle.transparentState = stateset;
 
     // setup the camera manipulators
-    CameraManipulator* defaultCameramanipulator = new CameraManipulator(osgHandle.scene, globalData);
-    CameraManipulator* cameramanipulatorTV = new CameraManipulator(osgHandle.scene, globalData);
+    CameraManipulator* defaultCameramanipulator =
+      new CameraManipulator(osgHandle.scene, globalData);
+    CameraManipulator* cameramanipulatorTV = 
+      new CameraManipulatorTV(osgHandle.scene, globalData);
+    CameraManipulator* cameramanipulatorFollow = 
+      new CameraManipulatorFollow(osgHandle.scene, globalData);
     unsigned int pos = viewer->addCameraManipulator(defaultCameramanipulator);
     viewer->addCameraManipulator(cameramanipulatorTV);
+    viewer->addCameraManipulator(cameramanipulatorFollow);
     viewer->selectCameraManipulator(pos); // this is the default camera type
     
     // get details on keyboard and mouse bindings used by the viewer.
@@ -494,16 +505,11 @@ namespace lpzrobots {
 	  (*i)->getRobot()->update();
 	}
  	// update the camera
-	std::list< std::string > nameList;
-	viewer->getCameraManipulatorNameList(nameList);
-	for (std::list< std::string >::iterator i = nameList.begin(); i!=nameList.end(); i++){
-	  osgGA::MatrixManipulator* mm = viewer->getCameraManipulatorByName (*i);
-	  if(mm){
-	    CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);      
-	    if(cameramanipulator){
-	      cameramanipulator->update();
-	    }	
-	  }
+	osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
+	if(mm){
+	  CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);      
+	  if(cameramanipulator)
+	    cameramanipulator->update();
 	}
       
 // 	// grab frame if in captureing mode
@@ -791,16 +797,11 @@ namespace lpzrobots {
   }
 
   void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view){
-    std::list< std::string > nameList;
-    viewer->getCameraManipulatorNameList(nameList);
-    for (std::list< std::string >::iterator i = nameList.begin(); i!=nameList.end(); i++){
-      osgGA::MatrixManipulator* mm = viewer->getCameraManipulatorByName (*i);
-      if(mm){
-	CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);      
-	if(cameramanipulator){
-	  cameramanipulator->setHome(eye, view);
-	}	
-      }
+    osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
+    if(mm){
+      CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);      
+      if(cameramanipulator)
+	cameramanipulator->setHome(eye, view);
     }
   }
 

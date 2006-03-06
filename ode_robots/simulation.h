@@ -27,7 +27,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.13  2006-02-22 15:26:32  martius
+ *   Revision 1.18.4.14  2006-03-06 16:54:05  robot3
+ *   now ExtendedViewer is used because of the new getCurrentCameraManipulator(),
+ *   code optimizations
+ *
+ *   Revision 1.18.4.13  2006/02/22 15:26:32  martius
  *   frame grabbing with osg works again
  *
  *   Revision 1.18.4.12  2006/02/20 10:50:20  martius
@@ -139,12 +143,15 @@
 #include "globaldata.h"
 #include "base.h"
 
+#include "extendedViewer.h"
+
 namespace osg{
   class ArgumentParser;
 }
-namespace osgProducer{
-  class Viewer;
-}
+
+//namespace osgProducer{
+//  class Viewer;
+//}
 
 namespace lpzrobots {
 
@@ -251,7 +258,7 @@ namespace lpzrobots {
   private:
     SimulationState state;
     osg::ArgumentParser* arguments;
-    osgProducer::Viewer* viewer;
+    ExtendedViewer* viewer;
     Producer::Camera* cam;
     static int ctrl_C;
   };
