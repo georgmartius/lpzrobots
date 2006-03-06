@@ -23,7 +23,12 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-03-05 15:02:24  robot3
+ *   Revision 1.1.2.8  2006-03-06 16:57:01  robot3
+ *   -more stable version
+ *   -code optimized
+ *   -some static variables used by all cameramanipulators
+ *
+ *   Revision 1.1.2.7  2006/03/05 15:02:24  robot3
  *   camera moves now smooth
  *
  *   Revision 1.1.2.6  2006/03/04 15:04:33  robot3
@@ -77,7 +82,12 @@ namespace lpzrobots {
 
     CameraManipulator(osg::Node* node, GlobalData& global);
 
-    virtual const char* className() const { return "Camera"; }
+
+    /** returns the classname of the manipulator
+	it's NECCESSARY to define this funtion, otherwise
+	the new manipulator WON'T WORK! (but ask me not why)
+     */
+    virtual const char* className() const { return "Default Camera"; }
 
     /** set the position of the matrix manipulator using a 4x4 Matrix.*/
     virtual void setByMatrix(const osg::Matrixd& matrix);
@@ -132,15 +142,15 @@ namespace lpzrobots {
     virtual ~CameraManipulator();
 
     /** Reset the internal GUIEvent stack.*/
-    void flushMouseEventStack();
+    virtual void flushMouseEventStack();
     /** Add the current mouse GUIEvent to internal stack.*/
-    void addMouseEvent(const osgGA::GUIEventAdapter& ea);
+    virtual void addMouseEvent(const osgGA::GUIEventAdapter& ea);
 
-    void computeMatrix();
+    virtual void computeMatrix();
 
     /** For the give mouse movement calculate the movement of the camera.
 	Return true is camera has moved and a redraw is required.*/
-    bool calcMovement();
+    virtual bool calcMovement();
 
     // Internal event stack comprising last three mouse events.
     osg::ref_ptr<const osgGA::GUIEventAdapter> event_old;
@@ -150,16 +160,14 @@ namespace lpzrobots {
 
     float modelScale;
         
-    osg::Vec3   eye;      // position of the camera
-    osg::Vec3   view;     // view angles in degree (pan, tilt, yaw)
-    osg::Vec3   home_eye;  // home position of the camera
-    osg::Vec3   home_view; // home view angles in degree (pan, tilt, yaw)
-    bool home_externally_set;
+    static osg::Vec3   eye;      // position of the camera
+    static osg::Vec3   view;     // view angles in degree (pan, tilt, yaw)
+    static osg::Vec3   home_eye;  // home position of the camera
+    static osg::Vec3   home_view; // home view angles in degree (pan, tilt, yaw)
+    static bool home_externally_set;
     
-    osg::Vec3   desiredEye;      // desired position of the camera
-    osg::Vec3   desiredView;     // desired view angles in degree (pan, tilt, yaw)
-
-
+    static osg::Vec3   desiredEye;      // desired position of the camera
+    static osg::Vec3   desiredView;     // desired view angles in degree (pan, tilt, yaw)
     osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
 
    OdeAgent* watchingAgent; // the robot which is actually watched
@@ -191,6 +199,8 @@ namespace lpzrobots {
   virtual void setHomeViewByAgent();
   virtual void setHomeEyeByAgent();
 
+
+  static int i;
 
   
   };

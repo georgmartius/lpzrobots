@@ -22,7 +22,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-03-05 15:01:57  robot3
+ *   Revision 1.1.2.10  2006-03-06 16:56:44  robot3
+ *   -more stable version
+ *   -code optimized
+ *   -some static variables used by all cameramanipulators
+ *
+ *   Revision 1.1.2.9  2006/03/05 15:01:57  robot3
  *   camera moves now smooth
  *
  *   Revision 1.1.2.8  2006/03/04 15:04:33  robot3
@@ -71,11 +76,19 @@ namespace lpzrobots {
   using namespace osg;
   using namespace osgGA;
 
-  int isnf=0;
+
+    osg::Vec3 CameraManipulator::eye(0,0,0);
+    osg::Vec3 CameraManipulator::view(0,0,0);
+    osg::Vec3 CameraManipulator::home_eye;
+    osg::Vec3 CameraManipulator::home_view;
+    osg::Vec3 CameraManipulator::desiredEye;
+    osg::Vec3 CameraManipulator::desiredView;
+    bool CameraManipulator::home_externally_set=false;
+
 
   // globalData braucht er für alles
   CameraManipulator::CameraManipulator(osg::Node* node, GlobalData& global)
-    : node(node), eye(0,0,0), view(0,0,0), home_externally_set(false), globalData(global) {
+    : node(node), globalData(global) {
     if (this->node.get()) {    
       const BoundingSphere& boundingSphere=this->node->getBound();
       modelScale = boundingSphere._radius;
@@ -89,7 +102,7 @@ namespace lpzrobots {
     lengthSmoothness=0.025;
     lengthAccuracy=0.02;
     degreeAccuracy=0.03;
-
+    watchingAgent=NULL; // i don't understand why this is not the default value
   }
 
   CameraManipulator::~CameraManipulator(){
@@ -108,9 +121,9 @@ namespace lpzrobots {
 
   /// set the home position of the camera. (and place it there)
   void CameraManipulator::setHome(const osg::Vec3& _eye, const osg::Vec3& _view){
-    this->home_eye = _eye;
-    this->home_view = _view;
-    this->home_externally_set=true;
+    home_eye = _eye;
+    home_view = _view;
+    home_externally_set=true;
     eye  = home_eye;
     view = home_view;
     desiredEye=_eye;
@@ -152,6 +165,7 @@ namespace lpzrobots {
         us.requestWarpPointer((ea.getXmin()+ea.getXmax())/2.0f,(ea.getYmin()+ea.getYmax())/2.0f);
       }
   }
+
   bool CameraManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
     int key=0;
     switch(ea.getEventType())
@@ -226,6 +240,8 @@ namespace lpzrobots {
     event = &ea;
   }
 
+  /** normally called only when this manipulator is choosed
+   */
   void CameraManipulator::setByMatrix(const Matrixd& matrix){
 
     eye = matrix.getTrans();
@@ -235,12 +251,13 @@ namespace lpzrobots {
       sign(head.y()); // this resolves the ambiguity of getAngle
 
     Pos tilt = Matrix::transform3x3(Vec3(0,1,0), matrix);
-    tilt.print();
+    //    tilt.print();
+    std::cout << "Manipulator choosed: " <<  className() << std::endl;
     view.y() = RadiansToDegrees(getAngle(Vec3(0,0,1), tilt)) * 
       sign(tilt.y()); // this resolves the ambiguity of getAngle    
     desiredEye=eye;
     desiredView=view;
-    computeMatrix();    
+    computeMatrix();
   }
 
 
@@ -306,7 +323,8 @@ namespace lpzrobots {
   }
 
   bool CameraManipulator::calcMovement(){
-    // _camera->setFusionDistanceMode(Camera::PROPORTIONAL_TO_SCREEN_DISTANCE);
+    std::cout << "i calc mouse movement!" << std::endl;
+  // _camera->setFusionDistanceMode(Camera::PROPORTIONAL_TO_SCREEN_DISTANCE);
 
     // return if less then two events have been added.
     if (event.get()==NULL || event_old.get()==NULL) return false;
@@ -336,7 +354,7 @@ namespace lpzrobots {
 
 
   void CameraManipulator::manageAgents(const int& fkey) {
-    std::cout << "new robot choosed: " << fkey << "\n";
+    //    std::cout << "new robot choosed: " << fkey << "\n";
     int i=1;
     // go through the agent list
     for(OdeAgentList::iterator it=globalData.agents.begin(); it != globalData.agents.end(); it++){
@@ -348,7 +366,7 @@ namespace lpzrobots {
     if (watchingAgent==NULL)
       std::cout << "no agent was choosed!\n";
     else {
-      std::cout << "the agent was choosed: " << i-1 << "\n";
+      //  std::cout << "the agent was choosed: " << i-1 << "\n";
       setHomeViewByAgent();
       setHomeEyeByAgent();
     }
