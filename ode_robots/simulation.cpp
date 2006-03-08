@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.23  2006-03-06 16:53:49  robot3
+ *   Revision 1.40.4.24  2006-03-08 11:21:20  robot3
+ *   Following Cameramanipulator is now on key 2
+ *
+ *   Revision 1.40.4.23  2006/03/06 16:53:49  robot3
  *   now ExtendedViewer is used because of the new getCurrentCameraManipulator(),
  *   code optimizations
  *
@@ -375,13 +378,13 @@ namespace lpzrobots {
     // setup the camera manipulators
     CameraManipulator* defaultCameramanipulator =
       new CameraManipulator(osgHandle.scene, globalData);
-    CameraManipulator* cameramanipulatorTV = 
-      new CameraManipulatorTV(osgHandle.scene, globalData);
     CameraManipulator* cameramanipulatorFollow = 
       new CameraManipulatorFollow(osgHandle.scene, globalData);
+    CameraManipulator* cameramanipulatorTV = 
+      new CameraManipulatorTV(osgHandle.scene, globalData);
     unsigned int pos = viewer->addCameraManipulator(defaultCameramanipulator);
-    viewer->addCameraManipulator(cameramanipulatorTV);
     viewer->addCameraManipulator(cameramanipulatorFollow);
+    viewer->addCameraManipulator(cameramanipulatorTV);
     viewer->selectCameraManipulator(pos); // this is the default camera type
     
     // get details on keyboard and mouse bindings used by the viewer.
