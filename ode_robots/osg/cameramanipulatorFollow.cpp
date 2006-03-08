@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-03-06 17:00:44  robot3
+ *   Revision 1.1.2.2  2006-03-08 13:17:33  robot3
+ *   follow mode now works
+ *
+ *   Revision 1.1.2.1  2006/03/06 17:00:44  robot3
  *   first dummy follow version
  *
  *                                                                         *
@@ -43,4 +46,18 @@ namespace lpzrobots {
 
   CameraManipulatorFollow::~CameraManipulatorFollow(){}
 
+  void CameraManipulatorFollow::calcMovementByAgent() {
+    if (watchingAgentDefined && oldPositionOfAgentDefined) {
+      // then manipulate desired view and desired eye
+      const double* robMove = (watchingAgent->getRobot()->getPosition()-oldPositionOfAgent).toArray();
+      // attach the robSpeed to desired eye
+      for (int i=0;i<=2;i++) {
+	if (!isNaN(robMove[i])) {
+	  desiredEye[i]+=robMove[i];}
+	else 
+	  std::cout << "NAN exception!" << std::endl;
+      }
+    }
+  }
+  
 }
