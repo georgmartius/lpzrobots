@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-03-06 16:56:44  robot3
+ *   Revision 1.1.2.11  2006-03-08 13:19:13  robot3
+ *   basic modifications, follow mode now works
+ *
+ *   Revision 1.1.2.10  2006/03/06 16:56:44  robot3
  *   -more stable version
  *   -code optimized
  *   -some static variables used by all cameramanipulators
@@ -72,19 +75,22 @@
 #include <iterator>
 
 namespace lpzrobots {
-
+  
   using namespace osg;
   using namespace osgGA;
-
-
-    osg::Vec3 CameraManipulator::eye(0,0,0);
-    osg::Vec3 CameraManipulator::view(0,0,0);
-    osg::Vec3 CameraManipulator::home_eye;
-    osg::Vec3 CameraManipulator::home_view;
-    osg::Vec3 CameraManipulator::desiredEye;
-    osg::Vec3 CameraManipulator::desiredView;
-    bool CameraManipulator::home_externally_set=false;
-
+  
+  
+  osg::Vec3 CameraManipulator::eye(0,0,0);
+  osg::Vec3 CameraManipulator::view(0,0,0);
+  osg::Vec3 CameraManipulator::home_eye;
+  osg::Vec3 CameraManipulator::home_view;
+  osg::Vec3 CameraManipulator::desiredEye;
+  osg::Vec3 CameraManipulator::desiredView;
+  bool CameraManipulator::home_externally_set=false;
+  OdeAgent* CameraManipulator::watchingAgent;
+  bool CameraManipulator::watchingAgentDefined=false;
+  Position CameraManipulator::oldPositionOfAgent;
+  bool CameraManipulator::oldPositionOfAgentDefined=false;
 
   // globalData braucht er für alles
   CameraManipulator::CameraManipulator(osg::Node* node, GlobalData& global)
@@ -98,11 +104,10 @@ namespace lpzrobots {
     desiredView=view;
     // default values for smoothness (function update())
     // can be owerwritten by new cameramanipulator if needed
-    degreeSmoothness=0.025;
-    lengthSmoothness=0.025;
+    degreeSmoothness=0.03;
+    lengthSmoothness=0.03;
     lengthAccuracy=0.02;
     degreeAccuracy=0.03;
-    watchingAgent=NULL; // i don't understand why this is not the default value
   }
 
   CameraManipulator::~CameraManipulator(){
@@ -128,7 +133,7 @@ namespace lpzrobots {
     view = home_view;
     desiredEye=_eye;
     desiredView=_view;
-    computeMatrix();
+    computeMatrix(); // i think we don't need this???
   }
 
 
@@ -229,6 +234,7 @@ namespace lpzrobots {
   void CameraManipulator::getUsage(ApplicationUsage& usage) const{
     usage.addKeyboardMouseBinding("Camera: Space","Reset the viewing position to home");
     usage.addKeyboardMouseBinding("Camera: p","Print position of the camera");
+    usage.addKeyboardMouseBinding("Camera: F1-F12","switch the Agent to be watched");
   }
 
   void CameraManipulator::flushMouseEventStack(){
@@ -270,8 +276,8 @@ namespace lpzrobots {
   void CameraManipulator::update() {
     // the call from simulation.cpp works, but is made for ALL cameramanipulators!
     // which is now neccessary for the smoothness for the mouse interactions
-
-    // first modify the desiredView and desiredEye by the movement of the agent
+    
+    // modify the desiredView and desiredEye by the movement of the agent
     calcMovementByAgent();
 
     // now do smoothness
@@ -294,6 +300,12 @@ namespace lpzrobots {
       if (abs(desiredEye[i]-eye[i])>lengthAccuracy)
 	eye[i]= lengthSmoothness * updateFactor * desiredEye[i]
 	  + (1.0 - lengthSmoothness * updateFactor) * eye[i];
+    }
+
+    // now set the current robots-position
+    if (watchingAgentDefined) {
+      oldPositionOfAgent = watchingAgent->getRobot()->getPosition();
+      oldPositionOfAgentDefined=true;
     }
     computeMatrix();
   }
@@ -354,28 +366,29 @@ namespace lpzrobots {
 
 
   void CameraManipulator::manageAgents(const int& fkey) {
-    //    std::cout << "new robot choosed: " << fkey << "\n";
+    //std::cout << "new robot to choose: " << fkey << "\n";
+    watchingAgentDefined=false;
+    oldPositionOfAgentDefined=false;
     int i=1;
     // go through the agent list
     for(OdeAgentList::iterator it=globalData.agents.begin(); it != globalData.agents.end(); it++){
       if (fkey==i++) {
 	watchingAgent=(*it);
+	watchingAgentDefined=true;
 	break;
       }
     }
-    if (watchingAgent==NULL)
+    if (!watchingAgentDefined)
       std::cout << "no agent was choosed!\n";
     else {
-      //  std::cout << "the agent was choosed: " << i-1 << "\n";
+      std::cout << "the agent was choosed: " << i-1 << "\n";
       setHomeViewByAgent();
       setHomeEyeByAgent();
     }
   }
   
-  
-
   void CameraManipulator::calcMovementByAgent() {
-    if (watchingAgent) {
+    if (watchingAgentDefined && oldPositionOfAgentDefined) {
       // then manipulate desired view and desired eye
       // the default camera manipulator does not need to change the eye and view
     }

@@ -23,7 +23,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-03-06 16:57:01  robot3
+ *   Revision 1.1.2.9  2006-03-08 13:19:13  robot3
+ *   basic modifications, follow mode now works
+ *
+ *   Revision 1.1.2.8  2006/03/06 16:57:01  robot3
  *   -more stable version
  *   -code optimized
  *   -some static variables used by all cameramanipulators
@@ -77,133 +80,138 @@ namespace lpzrobots {
   */
 
   class CameraManipulator : public osgGA::MatrixManipulator
-  {
-  public:
+    {
+    public:
 
-    CameraManipulator(osg::Node* node, GlobalData& global);
-
-
-    /** returns the classname of the manipulator
-	it's NECCESSARY to define this funtion, otherwise
-	the new manipulator WON'T WORK! (but ask me not why)
-     */
-    virtual const char* className() const { return "Default Camera"; }
-
-    /** set the position of the matrix manipulator using a 4x4 Matrix.*/
-    virtual void setByMatrix(const osg::Matrixd& matrix);
-
-    /** set the position of the matrix manipulator using a 4x4 Matrix.*/
-    virtual void setByInverseMatrix(const osg::Matrixd& matrix) { 
-      setByMatrix(osg::Matrixd::inverse(matrix)); 
-    }
-
-    /** get the position of the manipulator as 4x4 Matrix.*/
-    virtual osg::Matrixd getMatrix() const;
-
-    /** get the position of the manipulator as a inverse matrix of the manipulator, 
-	typically used as a model view matrix.*/
-    virtual osg::Matrixd getInverseMatrix() const;
+      CameraManipulator(osg::Node* node, GlobalData& global);
 
 
-    /**
-     * is called every time the draw is updated. computes the
-     * movement of the camera, which is a difference between
-     * the desired pos and view and the actual pos and view.
-     */
-    /*
-    virtual void computeMovement();*/
+      /** returns the classname of the manipulator
+	  it's NECCESSARY to define this funtion, otherwise
+	  the new manipulator WON'T WORK! (but ask me not why)
+      */
+      virtual const char* className() const { return "Default Camera"; }
 
-    virtual void setNode(osg::Node*);
+      /** set the position of the matrix manipulator using a 4x4 Matrix.*/
+      virtual void setByMatrix(const osg::Matrixd& matrix);
 
-    virtual const osg::Node* getNode() const;
+      /** set the position of the matrix manipulator using a 4x4 Matrix.*/
+      virtual void setByInverseMatrix(const osg::Matrixd& matrix) { 
+	setByMatrix(osg::Matrixd::inverse(matrix)); 
+      }
 
-    virtual osg::Node* getNode();
+      /** get the position of the manipulator as 4x4 Matrix.*/
+      virtual osg::Matrixd getMatrix() const;
 
-    /// set the home position of the camera. (and place it there)
-    virtual void setHome(const osg::Vec3& eye, const osg::Vec3& view);
+      /** get the position of the manipulator as a inverse matrix of the manipulator, 
+	  typically used as a model view matrix.*/
+      virtual osg::Matrixd getInverseMatrix() const;
 
-    /// place the camera at its home position
-    virtual void home(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us);
 
-    virtual void init(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us);
+      /**
+       * is called every time the draw is updated. computes the
+       * movement of the camera, which is a difference between
+       * the desired pos and view and the actual pos and view.
+       */
+      /*
+	virtual void computeMovement();*/
 
-    virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us);
+      virtual void setNode(osg::Node*);
 
-    /** Get the keyboard and mouse usage of this manipulator.*/
-    virtual void getUsage(osg::ApplicationUsage& usage) const;
+      virtual const osg::Node* getNode() const;
 
-    /** updates the camera module at every drawstep
-	should be called from the simulation loop
-     */
-    virtual void update();
+      virtual osg::Node* getNode();
 
-  protected:
+      /// set the home position of the camera. (and place it there)
+      virtual void setHome(const osg::Vec3& eye, const osg::Vec3& view);
 
-    virtual ~CameraManipulator();
+      /// place the camera at its home position
+      virtual void home(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us);
 
-    /** Reset the internal GUIEvent stack.*/
-    virtual void flushMouseEventStack();
-    /** Add the current mouse GUIEvent to internal stack.*/
-    virtual void addMouseEvent(const osgGA::GUIEventAdapter& ea);
+      virtual void init(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us);
 
-    virtual void computeMatrix();
+      virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us);
 
-    /** For the give mouse movement calculate the movement of the camera.
-	Return true is camera has moved and a redraw is required.*/
-    virtual bool calcMovement();
+      /** Get the keyboard and mouse usage of this manipulator.*/
+      virtual void getUsage(osg::ApplicationUsage& usage) const;
 
-    // Internal event stack comprising last three mouse events.
-    osg::ref_ptr<const osgGA::GUIEventAdapter> event_old;
-    osg::ref_ptr<const osgGA::GUIEventAdapter> event;
+      /** updates the camera module at every drawstep
+	  should be called from the simulation loop
+      */
+      virtual void update();
 
-    osg::ref_ptr<osg::Node> node;
+    protected:
 
-    float modelScale;
+      virtual ~CameraManipulator();
+
+      /** Reset the internal GUIEvent stack.*/
+      virtual void flushMouseEventStack();
+      /** Add the current mouse GUIEvent to internal stack.*/
+      virtual void addMouseEvent(const osgGA::GUIEventAdapter& ea);
+
+      virtual void computeMatrix();
+
+      /** For the give mouse movement calculate the movement of the camera.
+	  Return true is camera has moved and a redraw is required.*/
+      virtual bool calcMovement();
+
+      // Internal event stack comprising last three mouse events.
+      osg::ref_ptr<const osgGA::GUIEventAdapter> event_old;
+      osg::ref_ptr<const osgGA::GUIEventAdapter> event;
+
+      osg::ref_ptr<osg::Node> node;
+
+      float modelScale;
+      osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
         
-    static osg::Vec3   eye;      // position of the camera
-    static osg::Vec3   view;     // view angles in degree (pan, tilt, yaw)
-    static osg::Vec3   home_eye;  // home position of the camera
-    static osg::Vec3   home_view; // home view angles in degree (pan, tilt, yaw)
-    static bool home_externally_set;
+      static osg::Vec3   eye;      // position of the camera
+      static osg::Vec3   view;     // view angles in degree (pan, tilt, yaw)
+      static osg::Vec3   home_eye;  // home position of the camera
+      static osg::Vec3   home_view; // home view angles in degree (pan, tilt, yaw)
+      static bool home_externally_set;
     
-    static osg::Vec3   desiredEye;      // desired position of the camera
-    static osg::Vec3   desiredView;     // desired view angles in degree (pan, tilt, yaw)
-    osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
+      static osg::Vec3   desiredEye;      // desired position of the camera
+      static osg::Vec3   desiredView;     // desired view angles in degree (pan, tilt, yaw)
 
-   OdeAgent* watchingAgent; // the robot which is actually watched
+      static OdeAgent* watchingAgent; // the robot which is actually watched
+      static bool watchingAgentDefined;
 
-   GlobalData& globalData; // the global environment variables
-
-
-   double degreeSmoothness; // smoothness factor for the view
-   double lengthSmoothness; // smoothness factor for the eye
-   double degreeAccuracy; // accuracy factor for the view-smoothness 
-   double lengthAccuracy; // accuracy factor for the eye-smoothness 
+      static Position oldPositionOfAgent; // because the return of getSpeed() seems not to be useful
+      static bool oldPositionOfAgentDefined;
+    
+      GlobalData& globalData; // the global environment variables
 
 
-  /** This manages the robots, switching between them and so on
-      Is normally called from handle(...)
-   */
-  virtual void manageAgents(const int& fkey);
+      double degreeSmoothness; // smoothness factor for the view
+      double lengthSmoothness; // smoothness factor for the eye
+      double degreeAccuracy; // accuracy factor for the view-smoothness 
+      double lengthAccuracy; // accuracy factor for the eye-smoothness 
 
 
-  /** This handles robot movements, so that the camera movemenent is right affected.
-      should be overwritten by new cameramanipulator
-   */
-  virtual void calcMovementByAgent();
-
-  /** Sets the right view and eye if the robot has changed.
-      Is called from manageRobots();
-      should be overwritten by new cameramanipulator
-  */
-  virtual void setHomeViewByAgent();
-  virtual void setHomeEyeByAgent();
+      /** This manages the robots, switching between them and so on
+	  Is normally called from handle(...)
+      */
+      virtual void manageAgents(const int& fkey);
 
 
-  static int i;
+      /** This handles robot movements, so that the camera movemenent is right affected.
+	  should be overwritten by new cameramanipulator
+      */
+      virtual void calcMovementByAgent();
+
+
+      /** Sets the right view and eye if the robot has changed.
+	  Is called from manageRobots();
+	  should be overwritten by new cameramanipulator
+      */
+      virtual void setHomeViewByAgent();
+      virtual void setHomeEyeByAgent();
+
+
+      static int i;
 
   
-  };
+    };
 
 }
 
