@@ -23,7 +23,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-03-06 16:59:18  robot3
+ *   Revision 1.1.2.2  2006-03-08 13:18:34  robot3
+ *   follow mode now works, basic modifications
+ *
+ *   Revision 1.1.2.1  2006/03/06 16:59:18  robot3
  *   first dummy follow-version
  *
  *
@@ -58,8 +61,14 @@ namespace lpzrobots {
     CameraManipulatorFollow(osg::Node* node,GlobalData& global);
       
   protected:
-    
+
     virtual ~CameraManipulatorFollow();
+
+    /** This handles robot movements, so that the camera movemenent is right affected.
+	should be overwritten by new cameramanipulator
+    */
+    virtual void calcMovementByAgent();
+    
    
   };
 }
