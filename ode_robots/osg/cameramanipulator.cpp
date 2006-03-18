@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-03-08 13:19:13  robot3
+ *   Revision 1.1.2.12  2006-03-18 12:03:25  robot3
+ *   some prints removed
+ *
+ *   Revision 1.1.2.11  2006/03/08 13:19:13  robot3
  *   basic modifications, follow mode now works
  *
  *   Revision 1.1.2.10  2006/03/06 16:56:44  robot3
@@ -335,7 +338,7 @@ namespace lpzrobots {
   }
 
   bool CameraManipulator::calcMovement(){
-    std::cout << "i calc mouse movement!" << std::endl;
+    //    std::cout << "i calc mouse movement!" << std::endl;
   // _camera->setFusionDistanceMode(Camera::PROPORTIONAL_TO_SCREEN_DISTANCE);
 
     // return if less then two events have been added.
