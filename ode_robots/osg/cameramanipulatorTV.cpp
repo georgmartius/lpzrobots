@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-03-18 13:49:05  robot3
+ *   Revision 1.1.2.5  2006-03-18 13:54:42  robot3
+ *   syntax error fix
+ *
+ *   Revision 1.1.2.4  2006/03/18 13:49:05  robot3
  *   TV mode works now, the appropiate pan and tilt are calculated
  *
  *   Revision 1.1.2.3  2006/03/06 16:57:53  robot3
@@ -80,6 +83,7 @@ namespace lpzrobots {
 	if (desiredEye[2]-robPos.z<0) // we must switch
 	  desiredView[1]+=180.0f;
       }
+    }
   }
 
   
