@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-03-06 16:57:53  robot3
+ *   Revision 1.1.2.4  2006-03-18 13:49:05  robot3
+ *   TV mode works now, the appropiate pan and tilt are calculated
+ *
+ *   Revision 1.1.2.3  2006/03/06 16:57:53  robot3
  *   minor changes
  *
  *   Revision 1.1.2.2  2006/03/03 12:08:50  robot3
@@ -36,8 +39,12 @@
 
 #include <osg/Notify>
 #include "cameramanipulatorTV.h"
-//#include "mathutils.h"
+#include "mathutils.h"
 #include "pos.h"
+#include <stdio.h>
+
+
+#define square(x) ((x)*(x))
 
 namespace lpzrobots {
 
@@ -49,26 +56,30 @@ namespace lpzrobots {
 
   CameraManipulatorTV::~CameraManipulatorTV(){}
 
-  
+
   void CameraManipulatorTV::calcMovementByAgent() {
     if (watchingAgent!=NULL) {
-      //      std::cout << "an agent is availible!" << std::endl;
       // the actual position of the agent has to be recognized
       // we use the Position getPosition() from OdeRobot
-
       Position robPos = watchingAgent->getRobot()->getPosition();
-
-      // the desired view of the camera has to be changed
-      // for that the angles of "from the desired eye to robPos" are needed
-      // we use  double getAngle(const osg::Vec3& a, const osg::Vec3& b); for this
-      
-
-
-      // then manipulate desired view and desired eye
-      // the default camera manipulator does not need to change the eye and view
-    } else {
-      //      std::cout << "no agent choosed!" << std::endl;
-    }
+      // desiredEye is the position of the camera
+      // calculate the horizontal angle, means pan (view.x)
+      if (robPos.x-desiredEye[0]!=0) { // division by zero
+	desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
+	  / PI*180.0f+180.0f;
+       	if (desiredEye[1]-robPos.y<0) // we must switch
+		  desiredView[0]+=180.0f;
+      }
+      // calculate the vertical angle
+      if (robPos.z-desiredEye[2]!=0) { // division by zero
+	// need dz and sqrt(dx^2+dy^2) for calulation
+	desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
+				  square(desiredEye[1]-robPos.y)))
+			    /(robPos.z-desiredEye[2]))
+	  / PI*180.0f-90.0f;
+	if (desiredEye[2]-robPos.z<0) // we must switch
+	  desiredView[1]+=180.0f;
+      }
   }
 
   
