@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -22,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-03-18 13:54:42  robot3
+ *   Revision 1.1.2.6  2006-03-19 13:36:52  robot3
+ *   race mode now works
+ *
+ *   Revision 1.1.2.5  2006/03/18 13:54:42  robot3
  *   syntax error fix
  *
  *   Revision 1.1.2.4  2006/03/18 13:49:05  robot3

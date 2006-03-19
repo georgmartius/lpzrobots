@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-03-08 13:19:13  robot3
+ *   Revision 1.1.2.10  2006-03-19 13:32:12  robot3
+ *   race mode now works
+ *
+ *   Revision 1.1.2.9  2006/03/08 13:19:13  robot3
  *   basic modifications, follow mode now works
  *
  *   Revision 1.1.2.8  2006/03/06 16:57:01  robot3
@@ -195,14 +199,14 @@ namespace lpzrobots {
 
 
       /** This handles robot movements, so that the camera movemenent is right affected.
-	  should be overwritten by new cameramanipulator
+	  should normally be overwritten by new cameramanipulator
       */
       virtual void calcMovementByAgent();
 
 
       /** Sets the right view and eye if the robot has changed.
 	  Is called from manageRobots();
-	  should be overwritten by new cameramanipulator
+	  should be overwritten by new cameramanipulator (if needed)
       */
       virtual void setHomeViewByAgent();
       virtual void setHomeEyeByAgent();

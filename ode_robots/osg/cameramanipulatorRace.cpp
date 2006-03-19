@@ -23,40 +23,36 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-03-19 13:37:29  robot3
+ *   Revision 1.1.2.1  2006-03-19 13:35:10  robot3
  *   race mode now works
  *
- *   Revision 1.1.2.3  2006/03/19 10:51:32  robot3
- *   follow mode now centers the view on the robot
- *   if the robot is choosed (only once)
- *
- *   Revision 1.1.2.2  2006/03/08 13:17:33  robot3
- *   follow mode now works
- *
- *   Revision 1.1.2.1  2006/03/06 17:00:44  robot3
- *   first dummy follow version
  *
  *                                                                         *
  ***************************************************************************/
 
 #include <osg/Notify>
-#include "cameramanipulatorFollow.h"
-//#include "mathutils.h"
+#include "cameramanipulatorRace.h"
+#include "mathutils.h"
 #include "pos.h"
+#include <stdio.h>
+
+
+#define square(x) ((x)*(x))
 
 namespace lpzrobots {
 
   using namespace osg;
   using namespace osgGA;
 
-  CameraManipulatorFollow::CameraManipulatorFollow(osg::Node* node,GlobalData& global)
+  CameraManipulatorRace::CameraManipulatorRace(osg::Node* node,GlobalData& global)
     : CameraManipulator(node,global) {}
 
-  CameraManipulatorFollow::~CameraManipulatorFollow(){}
+  CameraManipulatorRace::~CameraManipulatorRace(){}
 
-  void CameraManipulatorFollow::calcMovementByAgent() {
-    if (watchingAgentDefined && oldPositionOfAgentDefined) {
-      // then manipulate desired view and desired eye
+
+  void CameraManipulatorRace::calcMovementByAgent() {
+    if (watchingAgent!=NULL) {
+      // manipulate desired eye by the move of the robot
       const double* robMove = (watchingAgent->getRobot()->getPosition()-oldPositionOfAgent).toArray();
       // attach the robSpeed to desired eye
       for (int i=0;i<=2;i++) {
@@ -65,16 +61,24 @@ namespace lpzrobots {
 	else 
 	  std::cout << "NAN exception!" << std::endl;
       }
-    }
-  }
-
-
-  void CameraManipulatorFollow::setHomeViewByAgent() {
-    // ok here the camera will center on the robot
-    if (watchingAgent!=NULL) {
-      // the actual position of the agent has to be recognized
-      // we use the Position getPosition() from OdeRobot
+      // move behind the robot
+      // returns the orientation of the robot in matrix style
+      matrix::Matrix Orientation= (watchingAgent->getRobot()->getOrientation());
+      Orientation.toTranspose();
+      // first get the normalized vector of the orientation
+      double eVecX[3] = {0,1,0};
+      double eVecY[3] = {1,0,0};
+      matrix::Matrix normVecX = Orientation * matrix::Matrix(3,1,eVecX);
+      matrix::Matrix normVecY = Orientation * matrix::Matrix(3,1,eVecY);
+      // then get the distance between robot and camera
       Position robPos = watchingAgent->getRobot()->getPosition();
+      double distance = sqrt(square(desiredEye[0]-robPos.x)+
+			     square(desiredEye[1]-robPos.y));
+      // then new eye = robPos minus normalized vector * distance
+      desiredEye[0]=robPos.x + distance *normVecX.val(1,0);
+      desiredEye[1]=robPos.y - distance *normVecY.val(1,0);
+
+      // now do center on the robot (manipulate the view)
       // desiredEye is the position of the camera
       // calculate the horizontal angle, means pan (view.x)
       if (robPos.x-desiredEye[0]!=0) { // division by zero
@@ -95,5 +99,4 @@ namespace lpzrobots {
       }
     }
   }
-  
 }

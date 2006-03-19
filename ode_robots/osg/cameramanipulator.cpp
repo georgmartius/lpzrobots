@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -22,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.12  2006-03-18 12:03:25  robot3
+ *   Revision 1.1.2.13  2006-03-19 13:32:48  robot3
+ *   race mode now works
+ *
+ *   Revision 1.1.2.12  2006/03/18 12:03:25  robot3
  *   some prints removed
  *
  *   Revision 1.1.2.11  2006/03/08 13:19:13  robot3
@@ -408,3 +412,4 @@ namespace lpzrobots {
   }
 
 }
+
