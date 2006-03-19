@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.24  2006-03-08 11:21:20  robot3
+ *   Revision 1.40.4.25  2006-03-19 13:38:08  robot3
+ *   cameramanipulator for race mode included
+ *
+ *   Revision 1.40.4.24  2006/03/08 11:21:20  robot3
  *   Following Cameramanipulator is now on key 2
  *
  *   Revision 1.40.4.23  2006/03/06 16:53:49  robot3
@@ -231,8 +234,6 @@
 
 #include "simulation.h"
 
-//#include <osgProducer/Viewer>
-//#include "extendedViewer.h"
 #include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
 #include <osg/BlendFunc>
@@ -248,6 +249,7 @@
 #include "cameramanipulator.h"
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
+#include "cameramanipulatorRace.h"
 
 namespace lpzrobots {
 
@@ -382,9 +384,12 @@ namespace lpzrobots {
       new CameraManipulatorFollow(osgHandle.scene, globalData);
     CameraManipulator* cameramanipulatorTV = 
       new CameraManipulatorTV(osgHandle.scene, globalData);
+    CameraManipulator* cameramanipulatorRace =
+      new CameraManipulatorRace(osgHandle.scene, globalData);
     unsigned int pos = viewer->addCameraManipulator(defaultCameramanipulator);
     viewer->addCameraManipulator(cameramanipulatorFollow);
     viewer->addCameraManipulator(cameramanipulatorTV);
+    viewer->addCameraManipulator(cameramanipulatorRace);
     viewer->selectCameraManipulator(pos); // this is the default camera type
     
     // get details on keyboard and mouse bindings used by the viewer.
