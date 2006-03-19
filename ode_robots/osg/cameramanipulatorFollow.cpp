@@ -22,7 +22,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-08 13:17:33  robot3
+ *   Revision 1.1.2.3  2006-03-19 10:51:32  robot3
+ *   follow mode now centers the view on the robot
+ *   if the robot is choosed (only once)
+ *
+ *   Revision 1.1.2.2  2006/03/08 13:17:33  robot3
  *   follow mode now works
  *
  *   Revision 1.1.2.1  2006/03/06 17:00:44  robot3
@@ -56,6 +60,34 @@ namespace lpzrobots {
 	  desiredEye[i]+=robMove[i];}
 	else 
 	  std::cout << "NAN exception!" << std::endl;
+      }
+    }
+  }
+
+
+  void CameraManipulatorFollow::setHomeViewByAgent() {
+    // ok here the camera will center on the robot
+    if (watchingAgent!=NULL) {
+      // the actual position of the agent has to be recognized
+      // we use the Position getPosition() from OdeRobot
+      Position robPos = watchingAgent->getRobot()->getPosition();
+      // desiredEye is the position of the camera
+      // calculate the horizontal angle, means pan (view.x)
+      if (robPos.x-desiredEye[0]!=0) { // division by zero
+	desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
+	  / PI*180.0f+180.0f;
+       	if (desiredEye[1]-robPos.y<0) // we must switch
+		  desiredView[0]+=180.0f;
+      }
+      // calculate the vertical angle
+      if (robPos.z-desiredEye[2]!=0) { // division by zero
+	// need dz and sqrt(dx^2+dy^2) for calulation
+	desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
+				  square(desiredEye[1]-robPos.y)))
+			    /(robPos.z-desiredEye[2]))
+	  / PI*180.0f-90.0f;
+	if (desiredEye[2]-robPos.z<0) // we must switch
+	  desiredView[1]+=180.0f;
       }
     }
   }

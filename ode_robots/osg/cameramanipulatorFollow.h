@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +24,11 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-08 13:18:34  robot3
+ *   Revision 1.1.2.3  2006-03-19 10:52:55  robot3
+ *   follow mode now centers the view on the robot
+ *   if the robot is choosed (only once)
+ *
+ *   Revision 1.1.2.2  2006/03/08 13:18:34  robot3
  *   follow mode now works, basic modifications
  *
  *   Revision 1.1.2.1  2006/03/06 16:59:18  robot3
@@ -68,6 +73,14 @@ namespace lpzrobots {
 	should be overwritten by new cameramanipulator
     */
     virtual void calcMovementByAgent();
+
+
+    /** Sets the right view and eye if the robot has changed.
+	Is called from manageRobots();
+	should be overwritten by new cameramanipulator if needed
+    */
+        virtual void setHomeViewByAgent();
+
     
    
   };
