@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.5  2005-12-30 22:54:38  martius
+ *   Revision 1.6.4.6  2006-03-28 14:20:28  fhesse
+ *   getTracePrimitive() added
+ *
+ *   Revision 1.6.4.5  2005/12/30 22:54:38  martius
  *   removed parentspace!
  *
  *   Revision 1.6.4.4  2005/12/21 17:35:09  martius
@@ -142,10 +145,14 @@ namespace lpzrobots {
 
     virtual bool setParam(const paramkey& key, paramval val);
 
+    /** the main object of the robot, which is used for position and speed tracking */
+    virtual Primitive* getMainPrimitive() const { return object[4] /*(center)*/; }
+
+    /** the main object of the robot, which is used for position and speed tracking */
+    virtual Primitive* getTracePrimitive() const { return object[NUM-1] /*(head element)*/; }
+
 
   private:
-    /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return object[4]; }
 
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix
