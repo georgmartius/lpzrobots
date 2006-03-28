@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.4  2005-12-29 16:50:22  martius
+ *   Revision 1.6.4.5  2006-03-28 14:18:38  fhesse
+ *   head traced
+ *
+ *   Revision 1.6.4.4  2005/12/29 16:50:22  martius
  *   end is obsolete
  *
  *   Revision 1.6.4.3  2005/12/21 17:40:11  martius
@@ -96,7 +99,7 @@ public:
     AbstractWiring* wiring;
     OdeAgent* agent;
 
-    for (int i=0; i<3; i++){
+    for (int i=0; i<1; i++){
       hs = new HurlingSnake(odeHandle, osgHandle);
       Color col;
       if (i==0) col=Color(2,2,0);
@@ -123,6 +126,8 @@ public:
       if (i==0) agent = new OdeAgent(plotoptions);
       else  agent = new OdeAgent(NoPlot);
       agent->init(controller, hs, wiring);
+      // enable tracing of head element
+      agent->trace(osgHandle, hs->getTracePrimitive(),1000,0.005);
       global.agents.push_back(agent);
     
 
