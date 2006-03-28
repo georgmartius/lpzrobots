@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.5  2006-01-31 09:58:49  fhesse
+ *   Revision 1.1.4.6  2006-03-28 14:25:23  fhesse
+ *   tracing added
+ *
+ *   Revision 1.1.4.5  2006/01/31 09:58:49  fhesse
  *   basically working now
  *
  *   Revision 1.1.4.4  2006/01/10 09:36:38  fhesse
@@ -91,39 +94,39 @@ public:
     // initial camera position and viewpoint
     setCameraHomePos(Pos(-0.0707104, 0.092873, 3.64943),  Pos(89.9208, -85.8472, 0));
     // initialization
-    // - set noise to 0.1
     global.odeConfig.noise=0.1;
 
 
-
+    // passive sphere
     PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.1);
     s1->setPosition(osg::Vec3(-0.7,0.9,0.1));
     s1->setTexture("Images/dusty.rgb");
     global.obstacles.push_back(s1);
 
 
-  
-      MuscledArmConf  conf = MuscledArm::getDefaultConf();
-      conf.jointAngleSensors=false;
-      conf.jointAngleRateSensors=false;
-      conf.muscleLengthSensors=true;
-      conf.jointActuator=false;
-      arm = new MuscledArm(odeHandle, osgHandle, conf);
-//      arm->setParam("damping",20);
-//      arm->setParam("factorMotors",5);
+    // muscled arm configuration
+    MuscledArmConf  conf = MuscledArm::getDefaultConf();
+    conf.jointAngleSensors=false;
+    conf.jointAngleRateSensors=true;
+    conf.muscleLengthSensors=false;
+    conf.jointActuator=false;
+
+    arm = new MuscledArm(odeHandle, osgHandle, conf);
+    // set muscled arm parameters
+    //arm->setParam("damping",20);
+    //arm->setParam("factorMotors",5);
 
 
-     ((OdeRobot*)arm)->place(Position(0,0,0));
-     global.configs.push_back(arm);
+    ((OdeRobot*)arm)->place(Position(0,0,0));
+    global.configs.push_back(arm);
 
     // create pointer to controller
     // push controller in global list of configurables
-    //  InvertMotorNStep(int buffersize, double cInit = 0.1, bool useS = false, bool someInternalParams = true);
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.buffersize=30;
     //AbstractController *controller = new InvertMotorNStep(cc);
-    //AbstractController *controller = new InvertNChannelController(30);
-    AbstractController *controller = new   SineController();
+    AbstractController *controller = new InvertNChannelController(30);
+    //AbstractController *controller = new   SineController();
     global.configs.push_back(controller);
   
     // create pointer to one2onewiring
@@ -134,12 +137,38 @@ public:
     // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, arm, wiring);
+    agent->trace(osgHandle, arm->getMainPrimitive(),10000);
     //  agent->setTrackOptions(TrackRobot(true, false, false,50));
     global.agents.push_back(agent);
+    //-------------------------
 
+
+    //       arm = new MuscledArm(odeHandle, osgHandle, conf);
+    // //      arm->setParam("damping",20);
+    // //      arm->setParam("factorMotors",5);
+
+
+    //      ((OdeRobot*)arm)->place(Position(10,10,0));
+    //      global.configs.push_back(arm);
+
+    //      controller = new   SineController();
+    //      global.configs.push_back(controller);
+  
+    //     // create pointer to one2onewiring
+    //     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+
+    //     // create pointer to agent
+    //     // initialize pointer with controller, robot and wiring
+    //     // push agent in globel list of agents
+    //     agent = new OdeAgent(plotoptions);
+    //     agent->init(controller, arm, wiring);
+    //     //  agent->setTrackOptions(TrackRobot(true, false, false,50));
+    //     global.agents.push_back(agent);
+
+    //-----------------------
     // switch off gravity
     global.odeConfig.setParam("gravity",0);
-    global.odeConfig.setParam("realtimefactor",0);
+    //     global.odeConfig.setParam("realtimefactor",0);
 
     // show (print to console) params of all objects in configurable list 
     showParams(global.configs);
@@ -147,59 +176,59 @@ public:
 };
 
 
-  // print command line options
-  void printUsage(const char* progname){
-    printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
-  }
+// print command line options
+void printUsage(const char* progname){
+  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
+}
 
-  //Funktion die eingegebene Befehle/kommandos verarbeitet
-  void command (const OdeHandle&, GlobalData& globalData, int cmd)
-  {
-//     //printp ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
-//     switch ( (char) cmd )
-//       {
-//       case '1' : arm->force_[0]+=0.5; break;
-//       case '!' : arm->force_[0]-=0.5; break;
+//Funktion die eingegebene Befehle/kommandos verarbeitet
+void command (const OdeHandle&, GlobalData& globalData, int cmd)
+{
+  //     //printp ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
+  //     switch ( (char) cmd )
+  //       {
+  //       case '1' : arm->force_[0]+=0.5; break;
+  //       case '!' : arm->force_[0]-=0.5; break;
 
-//       case '2' : arm->force_[1]+=0.5; break;
-//       case '@' : arm->force_[1]-=0.5; break;
+  //       case '2' : arm->force_[1]+=0.5; break;
+  //       case '@' : arm->force_[1]-=0.5; break;
 
-//       case '3' : arm->force_[2]+=0.5; break;
-//       case '#' : arm->force_[2]-=0.5; break;
+  //       case '3' : arm->force_[2]+=0.5; break;
+  //       case '#' : arm->force_[2]-=0.5; break;
 
-//       case '4' : arm->force_[3]+=0.5; break;
-//       case '$' : arm->force_[3]-=0.5; break;
+  //       case '4' : arm->force_[3]+=0.5; break;
+  //       case '$' : arm->force_[3]-=0.5; break;
 
-//       case '5' : arm->force_[4]+=0.5; break;
-//       case '%' : arm->force_[4]-=0.5; break;
+  //       case '5' : arm->force_[4]+=0.5; break;
+  //       case '%' : arm->force_[4]-=0.5; break;
 
-//       case '6' : arm->force_[5]+=0.5; break;
-//       case '^' : arm->force_[5]-=0.5; break;
+  //       case '6' : arm->force_[5]+=0.5; break;
+  //       case '^' : arm->force_[5]-=0.5; break;
 
-//       case 'q' : arm->force_[0]=0; break;
-//       case 'w' : arm->force_[1]=0; break;
-//       case 'e' : arm->force_[2]=0; break;
-//       case 'r' : arm->force_[3]=0; break;
-//       case 't' : arm->force_[4]=0; break;
-//       case 'y' : arm->force_[5]=0; break;
+  //       case 'q' : arm->force_[0]=0; break;
+  //       case 'w' : arm->force_[1]=0; break;
+  //       case 'e' : arm->force_[2]=0; break;
+  //       case 'r' : arm->force_[3]=0; break;
+  //       case 't' : arm->force_[4]=0; break;
+  //       case 'y' : arm->force_[5]=0; break;
 
-//       case 'a' : for (int i=0; i<6; i++) arm->force_[i]=0; break;
+  //       case 'a' : for (int i=0; i<6; i++) arm->force_[i]=0; break;
 
-//       case 'z' : 
-// 	arm->force_[0]=0;
-// 	arm->force_[1]=0;
-// 	arm->force_[2]=0.5;
-// 	arm->force_[3]=0.5;
-// 	arm->force_[4]=-0.5;
-// 	arm->force_[5]=-0.5; 
-// 	break;
-//       }
-//     for (int i=0; i<6; i++){
-//       std::cout<<arm->force_[i]<<"  ";
-//     }
-//     std::cout<<"\n";
+  //       case 'z' : 
+  // 	arm->force_[0]=0;
+  // 	arm->force_[1]=0;
+  // 	arm->force_[2]=0.5;
+  // 	arm->force_[3]=0.5;
+  // 	arm->force_[4]=-0.5;
+  // 	arm->force_[5]=-0.5; 
+  // 	break;
+  //       }
+  //     for (int i=0; i<6; i++){
+  //       std::cout<<arm->force_[i]<<"  ";
+  //     }
+  //     std::cout<<"\n";
     
-  }
+}
 
 int main (int argc, char **argv)
 { 
