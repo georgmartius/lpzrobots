@@ -1,4 +1,4 @@
- /***************************************************************************
+/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.9  2006-01-31 09:58:11  fhesse
+ *   Revision 1.1.4.10  2006-03-28 14:24:37  fhesse
+ *   minor changes
+ *
+ *   Revision 1.1.4.9  2006/01/31 09:58:11  fhesse
  *   basically working now
  *
  *   Revision 1.1.4.8  2006/01/13 12:22:07  fhesse
@@ -69,176 +72,174 @@ namespace lpzrobots{
 #define includeMusclesGraphics false
 
 
-/* Enumeration of different parts and joints */
-// left, right up and down correspond to view from top, when base is on the bottom
-enum parts {base, upperArm, lowerArm, 
-	    mainMuscle11, //left mainMuscle bottom part
-	    mainMuscle12, //left mainMuscle top part
-	    mainMuscle21, //right mainMuscle lower part
-	    mainMuscle22, //right mainMuscle upper part
-	    smallMuscle11, 
-	    smallMuscle12, 
-	    smallMuscle21, 
-	    smallMuscle22, 
-	    smallMuscle31, 
-	    smallMuscle32, 
-	    smallMuscle41, 
-	    smallMuscle42, 
-	    hand,
-	    NUMParts};
+  /* Enumeration of different parts and joints */
+  // left, right up and down correspond to view from top, when base is on the bottom
+  enum parts {base, upperArm, lowerArm, 
+	      mainMuscle11, //left mainMuscle bottom part
+	      mainMuscle12, //left mainMuscle top part
+	      mainMuscle21, //right mainMuscle lower part
+	      mainMuscle22, //right mainMuscle upper part
+	      smallMuscle11, 
+	      smallMuscle12, 
+	      smallMuscle21, 
+	      smallMuscle22, 
+	      smallMuscle31, 
+	      smallMuscle32, 
+	      smallMuscle41, 
+	      smallMuscle42, 
+	      hand,
+	      NUMParts};
 
-enum joints {HJ_BuA,    // hinge joint between base and upperArm
-	     HJ_uAlA,   // hinge joint between upperArm and lowerArm
+  enum joints {HJ_BuA,    // hinge joint between base and upperArm
+	       HJ_uAlA,   // hinge joint between upperArm and lowerArm
 
-	     HJ_BmM11,  // hinge joint between base and mainMuscle11
-	     HJ_lAmM12, // hinge joint between lowerArm and mainMuscle12
-	     HJ_BmM21,  // hinge joint between base and mainMuscle21
-	     HJ_lAmM22, // hinge joint between lowerArm and mainMuscle22
+	       HJ_BmM11,  // hinge joint between base and mainMuscle11
+	       HJ_lAmM12, // hinge joint between lowerArm and mainMuscle12
+	       HJ_BmM21,  // hinge joint between base and mainMuscle21
+	       HJ_lAmM22, // hinge joint between lowerArm and mainMuscle22
 
-	     HJ_BsM11,  // hinge joint between base and smallMuscle11
-	     HJ_uAsM12, // hinge joint between upperArm and smallMuscle12
-	     HJ_BsM21,  // hinge joint between base and smallMuscle21
-	     HJ_uAsM22, // hinge joint between upperArm and smallMuscle22
-	     HJ_lAsM31, // hinge joint between lowerArm and smallMuscle31
-	     HJ_uAsM32, // hinge joint between upperArm and smallMuscle32
-	     HJ_lAsM41, // hinge joint between lowerArm and smallMuscle41
-	     HJ_uAsM42, // hinge joint between upperArm and smallMuscle42
+	       HJ_BsM11,  // hinge joint between base and smallMuscle11
+	       HJ_uAsM12, // hinge joint between upperArm and smallMuscle12
+	       HJ_BsM21,  // hinge joint between base and smallMuscle21
+	       HJ_uAsM22, // hinge joint between upperArm and smallMuscle22
+	       HJ_lAsM31, // hinge joint between lowerArm and smallMuscle31
+	       HJ_uAsM32, // hinge joint between upperArm and smallMuscle32
+	       HJ_lAsM41, // hinge joint between lowerArm and smallMuscle41
+	       HJ_uAsM42, // hinge joint between upperArm and smallMuscle42
      
-	     SJ_mM1, // sliderJoint between mainMuscle11 and mainMuscle12
-	     SJ_mM2, // sliderJoint between mainMuscle21 and mainMuscle22
+	       SJ_mM1, // sliderJoint between mainMuscle11 and mainMuscle12
+	       SJ_mM2, // sliderJoint between mainMuscle21 and mainMuscle22
 
-	     SJ_sM1, // slider Joint between smallMuscle11 ans smallMuscle12
-	     SJ_sM2, // slider Joint between smallMuscle21 ans smallMuscle22
-	     SJ_sM3, // slider Joint between smallMuscle31 ans smallMuscle32
-	     SJ_sM4, // slider Joint between smallMuscle41 ans smallMuscle42
-	     NUMJoints};
+	       SJ_sM1, // slider Joint between smallMuscle11 ans smallMuscle12
+	       SJ_sM2, // slider Joint between smallMuscle21 ans smallMuscle22
+	       SJ_sM3, // slider Joint between smallMuscle31 ans smallMuscle32
+	       SJ_sM4, // slider Joint between smallMuscle41 ans smallMuscle42
+	       NUMJoints};
 
 
 
-typedef struct {
-  bool jointAngleSensors;
-  bool jointAngleRateSensors;
-  bool muscleLengthSensors;
-  bool jointActuator;  // if true, two motors at the joints are used
-                       // if false, six muscles are used
+  typedef struct {
+    bool jointAngleSensors; // choose sensors, all combinations are possible
+    bool jointAngleRateSensors;
+    bool muscleLengthSensors;
+    bool jointActuator;  // if true, two motors at the joints are used
+                         // if false, six muscles are used
 
-} MuscledArmConf;
+  } MuscledArmConf;
 
-class MuscledArm : public OdeRobot, public Configurable{
-public:
+  class MuscledArm : public OdeRobot, public Configurable{
+  public:
   
-  double force_[6];
+    double force_[6];
   
-  MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const MuscledArmConf& conf);
+    MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const MuscledArmConf& conf);
 
-  static MuscledArmConf getDefaultConf(){
-    MuscledArmConf conf;
-    conf.jointAngleSensors=false;
-    conf.jointAngleRateSensors=true;
-    conf.muscleLengthSensors=false;
-    conf.jointActuator=false;
-    return conf;
-  }
+    static MuscledArmConf getDefaultConf(){
+      MuscledArmConf conf;
+      conf.jointAngleSensors=false;
+      conf.jointAngleRateSensors=true;
+      conf.muscleLengthSensors=false;
+      conf.jointActuator=false;
+      return conf;
+    }
 
-  virtual ~MuscledArm(){};
-
-
-  /// update the subcomponents
-  virtual void update();
+    virtual ~MuscledArm(){};
 
 
+    /// update the subcomponents
+    virtual void update();
 
 
-  /** sets the pose of the vehicle
-      @params pose desired 4x4 pose matrix
-  */
-  virtual void place(const osg::Matrix& pose);
+    /** sets the pose of the vehicle
+	@params pose desired 4x4 pose matrix
+    */
+    virtual void place(const osg::Matrix& pose);
 
 
-  /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
-      @param sensornumber length of the sensor array
-      @return number of actually written sensors
-  */
-  virtual int getSensors(sensor* sensors, int sensornumber);
+    /** returns actual sensorvalues
+	@param sensors sensors scaled to [-1,1] 
+	@param sensornumber length of the sensor array
+	@return number of actually written sensors
+    */
+    virtual int getSensors(sensor* sensors, int sensornumber);
 
-  /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
-      @param motornumber length of the motor array
-  */
-  virtual void setMotors(const motor* motors, int motornumber);
+    /** sets actual motorcommands
+	@param motors motors scaled to [-1,1] 
+	@param motornumber length of the motor array
+    */
+    virtual void setMotors(const motor* motors, int motornumber);
 
-  /** returns number of sensors
-   */
-  virtual int getSensorNumber(){
-    return sensorno;
-  };
+    /** returns number of sensors
+     */
+    virtual int getSensorNumber(){
+      return sensorno;
+    };
 
-  /** returns number of motors
-   */
-  virtual int getMotorNumber(){
-    return motorno;
-  };
+    /** returns number of motors
+     */
+    virtual int getMotorNumber(){
+      return motorno;
+    };
 
-   /** returns position of hand (=sphere at the end of lower arm) 
-       @return position robot position in struct Position  
-   */
-  virtual osg::Vec3 MuscledArm::getPosition();
+    /** returns position of hand (=sphere at the end of lower arm) 
+	@return position robot position in struct Position  
+    */
+    virtual osg::Vec3 MuscledArm::getPosition();
 
-  /** returns a vector with the positions of all segments of the robot
-      @param poslist vector of positions (of all robot segments) 
-      @return length of the list
-  */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
+    /** returns a vector with the positions of all segments of the robot
+	@param poslist vector of positions (of all robot segments) 
+	@return length of the list
+    */
+    virtual int getSegmentsPosition(vector<Position> &poslist);
 
-  /** the main object of the robot, which is used for position and speed tracking */
-  virtual Primitive* getMainPrimitive() const { return object[0]; }
+    /** the main object of the robot, which is used for position and speed tracking */
+    virtual Primitive* getMainPrimitive() const { return object[hand]; }
 
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-   */
-  virtual void doInternalStuff(const GlobalData& globalData);
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+    /** this function is called in each timestep. It should perform robot-internal checks, 
+	like space-internal collision detection, sensor resets/update etc.
+	@param GlobalData structure that contains global data from the simulation environment
+    */
+    virtual void doInternalStuff(const GlobalData& globalData);
 
-  /// returns the name of the object (with version number)
-  virtual paramkey getName() const {return name; } 
+    /// returns the name of the object (with version number)
+    virtual paramkey getName() const {return name; } 
   
-  /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
-      @return length of the lists
-  */
-  paramlist getParamList() const;
+    /** The list of all parameters with there value as allocated lists.
+	@param keylist,vallist will be allocated with malloc (free it after use!)
+	@return length of the lists
+    */
+    paramlist getParamList() const;
   
-  virtual paramval getParam(const paramkey& key) const;
+    virtual paramval getParam(const paramkey& key) const;
   
-  virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val);
 
 
-protected:
+  protected:
   
-  virtual Primitive* getMainObject() const;
+    virtual Primitive* getMainObject() const;
 
-  /** creates vehicle at desired pose
-      @param pose 4x4 pose matrix
-  */
-  virtual void create(const osg::Matrix& pose); 
+    /** creates vehicle at desired pose
+	@param pose 4x4 pose matrix
+    */
+    virtual void create(const osg::Matrix& pose); 
 
-  /** destroys vehicle and space
-   */
-  virtual void destroy();
+    /** destroys vehicle and space
+     */
+    virtual void destroy();
 
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
+    static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
-  double dBodyGetPositionAll ( dBodyID basis , int para );
-  double dGeomGetPositionAll ( dGeomID basis , int para );
+    double dBodyGetPositionAll ( dBodyID basis , int para );
+    double dGeomGetPositionAll ( dGeomID basis , int para );
   
-  void BodyCreate(int n, dMass m, dReal x, dReal y, dReal z, 
-			 dReal qx, dReal qy, dReal qz, dReal qangle);
+    void BodyCreate(int n, dMass m, dReal x, dReal y, dReal z, 
+		    dReal qx, dReal qy, dReal qz, dReal qangle);
 
-  MuscledArmConf conf;    
+    MuscledArmConf conf;    
 
-  static const int  armanzahl= 3;
+    static const int  armanzahl= 3;
 
 
     Primitive* object[NUMParts];  
@@ -255,7 +256,7 @@ protected:
 
 
 
-  int segmentsno;    // number of motorsvehicle segments
+    int segmentsno;    // number of motorsvehicle segments
 
 
 
@@ -276,24 +277,22 @@ protected:
     
     int printed;
 
-  double max_l;
-  double max_r, min_l, min_r;
+    double max_l;
+    double max_r, min_l, min_r;
 
-  double base_width;
-  double base_length;
-  double upperArm_width;
-  double upperArm_length;
-  double lowerArm_width;
-  double lowerArm_length;
-  double joint_offset;
-  double mainMuscle_width;
-  double mainMuscle_length;
-  double smallMuscle_width;
-  double smallMuscle_length;
+    double base_width;
+    double base_length;
+    double upperArm_width;
+    double upperArm_length;
+    double lowerArm_width;
+    double lowerArm_length;
+    double joint_offset;
+    double mainMuscle_width;
+    double mainMuscle_length;
+    double smallMuscle_width;
+    double smallMuscle_length;
 
-
-
-};
+  };
 
 }
 #endif
