@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-06 10:13:23  martius
+ *   Revision 1.1.2.3  2006-03-28 14:14:44  fhesse
+ *   tracing of a given primitive (in the osg window) added
+ *
+ *   Revision 1.1.2.2  2005/12/06 10:13:23  martius
  *   openscenegraph integration started
  *
  *   Revision 1.1.2.1  2005/11/15 12:29:18  martius
@@ -33,17 +36,19 @@
 
 #include <selforg/agent.h>
 #include "oderobot.h"
+#include "osgprimitive.h"
+#include "primitive.h"
 
 namespace lpzrobots {
 
 /** Specialised agent for ode robots
  */
-class OdeAgent : public Agent {
-public:
+  class OdeAgent : public Agent {
+  public:
   /** constructor
    */
-  OdeAgent(const PlotOption& plotOption)  : Agent(plotOption) {}
-  OdeAgent(const list<PlotOption>& plotOptions) : Agent(plotOptions) {}
+  OdeAgent(const PlotOption& plotOption)  : Agent(plotOption) {tracing_activated=false;}
+  OdeAgent(const list<PlotOption>& plotOptions) : Agent(plotOptions) {tracing_activated=false;}
 
   /** destructor
    */
@@ -56,10 +61,40 @@ public:
     return Agent::init(controller, robot, wiring);
   }
 
+  /** Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
+      controller step, pushing controller outputs (= motorcommands) back through wiring and sent 
+      resulting motorcommands to robot.
+      @param noise Noise strength.
+  */
+  virtual void step(double noise);
+
+  void internInit(){
+    Agent::internInit();
+    trace_length=0; // number of past robot positions shown in osg
+  }
+
+
   /** Returns a pointer to the robot.
    */
   virtual OdeRobot* getRobot() { return (OdeRobot*)robot;}
 
+  /// gives the number of past robot positions shown as trace in osg
+  virtual int getTraceLength(){return trace_length;}
+
+  /// sets the primitive for tracing and the number of past positions shown as trace in osg
+  virtual void trace(const OsgHandle& osgHandle, Primitive* body_to_follow, 
+		     int tracelength=10, double tracethickness=0.003);
+
+ private:
+  OsgHandle osgHandle;
+  int trace_length;
+  double trace_thickness;
+  int counter;
+  Primitive* body_to_trace;
+  bool tracing_activated;
+
+  OSGPrimitive** segments; // stores segments(cylinders) of the trace
+  osg::Vec3 lastpos;
 };
 
 }
