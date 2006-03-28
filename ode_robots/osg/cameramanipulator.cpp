@@ -23,7 +23,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.13  2006-03-19 13:32:48  robot3
+ *   Revision 1.1.2.14  2006-03-28 09:55:12  robot3
+ *   -main: fixed snake explosion bug
+ *   -odeconfig.h: inserted cameraspeed
+ *   -camermanipulator.cpp: fixed setbyMatrix,
+ *    updateFactor
+ *
+ *   Revision 1.1.2.13  2006/03/19 13:32:48  robot3
  *   race mode now works
  *
  *   Revision 1.1.2.12  2006/03/18 12:03:25  robot3
@@ -224,6 +230,8 @@ namespace lpzrobots {
 	    printf(" Pos(%g, %g, %g));\n", view.x(), view.y(), view.z());
 	    break;
 	  }	  
+	  // TODO: pos1 for center on robot
+	  // TODO: end for move behind robot
      	default:
 	  return false;
 	}
@@ -263,11 +271,11 @@ namespace lpzrobots {
     view.x() = RadiansToDegrees(getAngle(xaxis, head)) *       
       sign(head.y()); // this resolves the ambiguity of getAngle
 
-    Pos tilt = Matrix::transform3x3(Vec3(0,1,0), matrix);
-    //    tilt.print();
+    Pos tilt = Matrix::transform3x3(Vec3(0,0,1), matrix);
+    //    head.print();
+    //    tilt.print();    
     std::cout << "Manipulator choosed: " <<  className() << std::endl;
-    view.y() = RadiansToDegrees(getAngle(Vec3(0,0,1), tilt)) * 
-      sign(tilt.y()); // this resolves the ambiguity of getAngle    
+    view.y() = RadiansToDegrees(getAngle(Vec3(0,0,1), tilt)-M_PI/2);
     desiredEye=eye;
     desiredView=view;
     computeMatrix();
@@ -289,9 +297,7 @@ namespace lpzrobots {
 
     // now do smoothness
     float updateFactor;
-    // TODO: find a more correct updateFactor
-      updateFactor = globalData.odeConfig.drawInterval /
-			  sqrt(globalData.odeConfig.realTimeFactor);
+    updateFactor = globalData.odeConfig.drawInterval * globalData.odeConfig.simStepSize * globalData.odeConfig.cameraSpeed;
       //    std::cout << "drawInt: " << globalData.odeConfig.drawInterval << ", realtimefactor: "
       //      << globalData.odeConfig.realTimeFactor << ", updateFactor: " 
       //      << updateFactor << "\n";

@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.3  2006-01-12 15:17:30  martius
+ *   Revision 1.11.4.4  2006-03-28 09:55:12  robot3
+ *   -main: fixed snake explosion bug
+ *   -odeconfig.h: inserted cameraspeed
+ *   -camermanipulator.cpp: fixed setbyMatrix,
+ *    updateFactor
+ *
+ *   Revision 1.11.4.3  2006/01/12 15:17:30  martius
  *   *** empty log message ***
  *
  *   Revision 1.11.4.2  2005/11/16 11:27:38  martius
@@ -100,6 +106,7 @@ public:
     //******* S C H L A N G E  (Short) *********/
     snakeConf.segmNumber=4;
     snakeConf.jointLimit=M_PI/3;
+    snakeConf.motorPower=0.1;
     snakeConf.frictionGround=0.1;
     snake = new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0,0.5,0.8)), snakeConf, "Schlange1");
     ((OdeRobot*) snake)->place(Pos(-5,-5,0)); 
@@ -118,6 +125,7 @@ public:
 
     //******* S C H L A N G E  (Long)  *********/
     snakeConf = SchlangeForce::getDefaultConf();
+    snakeConf.motorPower=0.1;
     snakeConf.segmNumber=8;
     snakeConf.jointLimit=M_PI/3;
     snakeConf.frictionGround=0.1;

@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.4  2006-02-08 16:14:28  martius
+ *   Revision 1.12.4.5  2006-03-28 09:55:12  robot3
+ *   -main: fixed snake explosion bug
+ *   -odeconfig.h: inserted cameraspeed
+ *   -camermanipulator.cpp: fixed setbyMatrix,
+ *    updateFactor
+ *
+ *   Revision 1.12.4.4  2006/02/08 16:14:28  martius
  *   no namespace using
  *
  *   Revision 1.12.4.3  2006/01/10 15:08:15  martius
@@ -57,7 +63,8 @@ public:
     noise=0.1;
     gravity=-9.81;
     drawInterval=calcDrawInterval();
-    // prepare name;
+    cameraSpeed=100;
+      // prepare name;
     Configurable::insertCVSInfo(name, "$RCSfile$", "$Revision$");
   }
 
@@ -74,6 +81,7 @@ public:
     list.push_back(std::pair<paramkey, paramval> (std::string("realtimefactor"), realTimeFactor));
     list.push_back(std::pair<paramkey, paramval> (std::string("drawinterval"), drawInterval));
     list.push_back(std::pair<paramkey, paramval> (std::string("controlinterval"), controlInterval));
+    list.push_back(std::pair<paramkey, paramval> (std::string("cameraspeed"), cameraSpeed));
     list.push_back(std::pair<paramkey, paramval> (std::string("gravity"), gravity));
     return list;
   } 
@@ -85,6 +93,7 @@ public:
     else if(key == "realtimefactor") return realTimeFactor; 
     else if(key == "drawinterval") return drawInterval; 
     else if(key == "controlinterval") return controlInterval; 
+    else if(key == "cameraspeed") return cameraSpeed; 
     else if(key == "gravity") return gravity; 
     else  return 0.0;
   }
@@ -100,6 +109,7 @@ public:
     }
     else if(key == "drawinterval") drawInterval=(int)val; 
     else if(key == "controlinterval") controlInterval=(int)val; 
+    else if(key == "cameraspeed") cameraSpeed=(int)val; 
     else if(key == "gravity") {
       gravity=val; 
       dWorldSetGravity ( odeHandle.world , 0 , 0 , gravity );
@@ -128,6 +138,7 @@ public:
   int controlInterval;
   double noise;
   double gravity;
+  double cameraSpeed;
   std::string name;
   OdeHandle odeHandle;
 };
