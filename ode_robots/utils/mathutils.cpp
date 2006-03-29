@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.4  2006-02-07 15:49:03  martius
+ *   Revision 1.2.4.5  2006-03-29 15:10:11  martius
+ *   osgMatrix2matrixlib
+ *
+ *   Revision 1.2.4.4  2006/02/07 15:49:03  martius
  *   axis
  *
  *   Revision 1.2.4.3  2005/12/15 17:04:32  martius
@@ -51,6 +54,20 @@
 using namespace matrix;
 
 namespace lpzrobots {
+
+  /**
+     converts osg matrix to matrix of matrixlib
+   */
+  Matrix osgMatrix2Matrixlib(const osg::Matrix& m){
+    Matrix m2(4,4);
+    for(int i=0; i<4; i++){
+      for(int j=0; j<4; j++){
+	m2.val(i,j) = m(i,j);
+      }
+    }
+    return m2;
+  }
+
 
   /**
      returns a Rotation matrix that rotates the x-axis along with the given axis. 

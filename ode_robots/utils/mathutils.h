@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.7  2006-03-05 10:58:18  robot3
+ *   Revision 1.3.4.8  2006-03-29 15:10:11  martius
+ *   osgMatrix2matrixlib
+ *
+ *   Revision 1.3.4.7  2006/03/05 10:58:18  robot3
  *   added a template function normalize360
  *
  *   Revision 1.3.4.6  2006/03/04 16:57:36  robot3
@@ -79,6 +82,12 @@ namespace lpzrobots {
   inline T normalize360(T v)
     { while (v>360) v-=360; while (v<360) v+=360; return v; }
   /*******************************************************************************/
+
+  /**
+     converts osg matrix to matrix of matrixlib
+   */
+  matrix::Matrix osgMatrix2Matrixlib(const osg::Matrix& m);
+
 
   /**
      returns a Rotation matrix that rotates the x-axis along with the given axis. 
