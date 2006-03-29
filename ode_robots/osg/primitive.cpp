@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-01-31 15:45:28  martius
+ *   Revision 1.1.2.11  2006-03-29 15:06:58  martius
+ *   update on setPose
+ *
+ *   Revision 1.1.2.10  2006/01/31 15:45:28  martius
  *   proper destruction
  *
  *   Revision 1.1.2.9  2006/01/27 13:06:21  fhesse
@@ -138,6 +141,7 @@ namespace lpzrobots{
       dReal quat[4] = {q.w(), q.x(), q.y(), q.z()};
       dGeomSetQuaternion(geom, quat);
     }  
+    update(); // update the scenegraph stuff
   }
 
   osg::Vec3 Primitive::getPosition() const {
