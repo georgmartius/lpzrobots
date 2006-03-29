@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-03-29 14:51:45  martius
+ *   Revision 1.1.2.2  2006-03-29 15:03:19  martius
+ *   format documented
+ *
+ *   Revision 1.1.2.1  2006/03/29 14:51:45  martius
  *   class for reading bounding shape description files and creates the appropriate geoms
  *
  *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
@@ -38,6 +41,15 @@
 
 namespace lpzrobots {
 
+  /**
+    class for reading bounding shape description files (.bbox) and to create appropriate geoms
+    File Format: Lines wise, every line stands for one primitive. Possible lines are:
+sphere radius (x,y,z)
+cylinder radius height (x,y,z) (alpha, beta, gamma)
+capsule radius height (x,y,z) (alpha, beta, gamma)
+box length width height (x,y,z) (alpha, beta, gamma)
+   (x,y,z) is the position vector and (alpha, beta, gamma) are the rotation angles about x,y,z axis respectively        
+  */
   class BoundingShape{
   public:
     BoundingShape(const std::string& filename) : filename(filename) {}
