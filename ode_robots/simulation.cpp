@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.25  2006-03-19 13:38:08  robot3
+ *   Revision 1.40.4.26  2006-03-29 15:07:29  martius
+ *   Dummy Primitive for Environment
+ *
+ *   Revision 1.40.4.25  2006/03/19 13:38:08  robot3
  *   cameramanipulator for race mode included
  *
  *   Revision 1.40.4.24  2006/03/08 11:21:20  robot3
@@ -242,6 +245,7 @@
 #include <osgDB/FileUtils>
 
 #include "odeagent.h"
+#include "primitive.h"
 
 #include "grabframe.h"
 
@@ -305,6 +309,8 @@ namespace lpzrobots {
     dWorldSetERP ( odeHandle.world , 1 );
 
     cmd_handler_init();
+
+    globalData.environment = new DummyPrimitive();
 
     // add ode config to config list
     globalData.configs.push_back(&(globalData.odeConfig));
@@ -632,6 +638,7 @@ namespace lpzrobots {
       delete (*i)->getController();
       delete (*i);
     }
+    if(global.environment) delete global.environment;
     global.agents.clear();
   }
   

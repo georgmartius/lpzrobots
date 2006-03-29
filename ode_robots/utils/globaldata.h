@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.3  2005-12-06 10:13:26  martius
+ *   Revision 1.3.4.4  2006-03-29 15:10:00  martius
+ *   Dummy Primitive for Environment
+ *
+ *   Revision 1.3.4.3  2005/12/06 10:13:26  martius
  *   openscenegraph integration started
  *
  *   Revision 1.3.4.2  2005/11/15 12:30:24  martius
@@ -49,6 +52,7 @@ namespace lpzrobots {
 
 class OdeAgent;
 class AbstractObstacle;
+class Primitive;
 
 typedef vector<AbstractObstacle*> ObstacleList; ///
 typedef vector<Configurable*> ConfigList;       ///
@@ -61,11 +65,13 @@ typedef struct GlobalData
 {
   GlobalData() { 
     time = 0;
+    environment = 0;
   }
   OdeConfig odeConfig;
   ConfigList configs;
   ObstacleList obstacles;
   OdeAgentList agents;
+  Primitive* environment; /// < this is used to be able to attach objects to the static environment
   double time;
 } GlobalData;
 
