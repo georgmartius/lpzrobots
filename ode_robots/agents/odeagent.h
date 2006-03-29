@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-03-28 14:14:44  fhesse
+ *   Revision 1.1.2.4  2006-03-29 15:08:06  martius
+ *   Agent::interninit not necessary
+ *
+ *   Revision 1.1.2.3  2006/03/28 14:14:44  fhesse
  *   tracing of a given primitive (in the osg window) added
  *
  *   Revision 1.1.2.2  2005/12/06 10:13:23  martius
@@ -69,7 +72,6 @@ namespace lpzrobots {
   virtual void step(double noise);
 
   void internInit(){
-    Agent::internInit();
     trace_length=0; // number of past robot positions shown in osg
   }
 
