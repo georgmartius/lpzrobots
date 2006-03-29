@@ -25,7 +25,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-01-31 15:45:35  martius
+ *   Revision 1.1.2.8  2006-03-29 15:07:17  martius
+ *   Dummy Primitive
+ *
+ *   Revision 1.1.2.7  2006/01/31 15:45:35  martius
  *   proper destruction
  *
  *   Revision 1.1.2.6  2006/01/12 14:21:00  martius
@@ -207,6 +210,27 @@ protected:
   Primitive* parent;
   Primitive* child;
   osg::Matrix pose;
+};
+
+/**
+   Dummy Primitive which returns 0 for geom and body
+*/
+class DummyPrimitive : public Primitive {
+public:
+  /** 
+      @param parent primitive should have a body and should be initialised
+      @param child  is transformed by pose in respect to parent. 
+      This Primitive must NOT have a body
+  */
+  DummyPrimitive() {     
+    body=0;
+    geom=0;
+  }
+  virtual void init(const OdeHandle& odeHandle, double mass, 
+		    const OsgHandle& osgHandle, char mode = Body | Geom | Draw) {
+  }
+  virtual void update() {}
+  virtual OSGPrimitive* getOSGPrimitive() { return 0; }
 };
 
 
