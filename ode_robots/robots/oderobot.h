@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2005-12-30 22:54:16  martius
+ *   Revision 1.1.2.12  2006-03-29 15:08:42  martius
+ *   getMainPrimitive is public now
+ *
+ *   Revision 1.1.2.11  2005/12/30 22:54:16  martius
  *   collisioncallback must be implemented
  *
  *   Revision 1.1.2.10  2005/12/14 15:37:09  martius
@@ -169,12 +172,13 @@ namespace lpzrobots {
     virtual matrix::Matrix getOrientation() const ;
   
   
-  protected:
     /** overload this in the robot implementation.
 	If there is no object for some reason then return a null pointer
 	@return main object of the robot (used for tracking)
     */
     virtual Primitive* getMainPrimitive() const  = 0;
+
+  protected:
 
     static bool isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom);
     static bool isGeomInPrimitiveList(list<Primitive*> ps, dGeomID geom);

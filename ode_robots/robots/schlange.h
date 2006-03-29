@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.5  2006-02-23 18:05:04  martius
+ *   Revision 1.15.4.6  2006-03-29 15:08:54  martius
+ *   getMainPrimitive is public now
+ *
+ *   Revision 1.15.4.5  2006/02/23 18:05:04  martius
  *   friction with angularmotor
  *
  *   Revision 1.15.4.4  2006/02/01 18:33:40  martius
@@ -174,15 +177,15 @@ public:
 
   virtual bool setParam(const paramkey& key, paramval val);
 
-
-protected:
   /** the main object of the robot, which is used for position and speed tracking */
   virtual Primitive* getMainPrimitive() const {
     if(!objects.empty()){
-      int half = objects.size()/2;
-      return (objects[half]);
+      //      int half = objects.size()/2;
+      //      return (objects[half]);
+      return (objects[0]);
     }else return 0;
   }
+protected:
 
   /** creates vehicle at desired pose
       @param pose 4x4 pose matrix
