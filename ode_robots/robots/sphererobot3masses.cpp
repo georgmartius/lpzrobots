@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-02-20 10:50:20  martius
+ *   Revision 1.1.2.4  2006-03-29 15:09:27  martius
+ *   Z-Sensors have been wrong all the time :-)
+ *
+ *   Revision 1.1.2.3  2006/02/20 10:50:20  martius
  *   pause, random, windowsize, Ctrl-keys
  *
  *   Revision 1.1.2.2  2006/01/11 19:30:28  martius
@@ -116,7 +119,10 @@ namespace lpzrobots {
     }
     if(conf.axisZsensor){
       // z-coordinate of axis position in world coordinates
-      len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
+      //      len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
+
+      // world coordinates of z-axis
+      len += A.column(2).convertToBuffer(sensors+len, sensornumber-len);  
     }
     if(conf.axisXYZsensor){
       // rotation matrix - 9 (vectors of all axis in world coordinates
@@ -170,7 +176,7 @@ namespace lpzrobots {
    *@return true if the collision was threated  by the robot, false if not
    **/
   bool Sphererobot3Masses::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
-    //checks if both of the collision objects are part of the robot
+    //checks if either of both of the collision objects are part of the robot
     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
       if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
       if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
@@ -186,7 +192,7 @@ namespace lpzrobots {
 	  // only treat collisions with envelop
 	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
 	  //	  dContactSoftERP | dContactSoftCFM | 
-	  contact[i].surface.mu = 1.0;
+	  contact[i].surface.mu = 2.0;
 	  contact[i].surface.slip1 = 0.005;
 	  contact[i].surface.slip2 = 0.005;
 	  //	contact[i].surface.soft_erp = 1; // 0.95;
