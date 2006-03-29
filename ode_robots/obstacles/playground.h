@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.3  2006-01-10 20:27:15  martius
+ *   Revision 1.10.4.4  2006-03-29 15:04:39  martius
+ *   have pose now
+ *
+ *   Revision 1.10.4.3  2006/01/10 20:27:15  martius
  *   protected members
  *
  *   Revision 1.10.4.2  2006/01/10 17:17:33  martius
@@ -61,6 +64,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "mathutils.h"
 #include "primitive.h"
 #include "abstractobstacle.h"
  
@@ -71,7 +75,6 @@ class Playground : public AbstractObstacle {
 protected:
 
   double length, width, height;
-  osg::Vec3 pos;
   double factorlength2;
 
   Box* box[4];
@@ -99,22 +102,19 @@ public:
    * updates the position of the geoms  ( not nessary for static objects)
    */
   virtual void update(){
-    //for(int i=0; i<4; i++){
-    //      if(box[i]) box[i]->update();
-    //    }    
   };
   
   
-  virtual void setPosition(const osg::Vec3& pos){
-    this->pos = pos;
+  virtual void setPose(const osg::Matrix& pose){
+    this->pose = pose;
     if (obstacle_exists){
       destroy();
     }
     create();
   };
 
-  virtual osg::Vec3 getPosition(){
-    return pos;
+  virtual osg::Matrix getPose(){
+    return pose;
   }
   
 
@@ -123,23 +123,23 @@ public:
     osg::Vec3 offset(- (length/2 + width/2), 0, height/2);
     box[0] = new Box( width , (length * factorlength2) + 2 * width , height);
     box[0]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box[0]->setPosition(pos + offset);
+    box[0]->setPose(osg::Matrix::translate(offset) * pose);
 
     offset.x() = length/2 + width/2;
     box[1] = new Box( width , (length * factorlength2) + 2 * width , height);
     box[1]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box[1]->setPosition(pos + offset);
+    box[1]->setPose(osg::Matrix::translate(offset) * pose);
 
     offset.x() = 0;
     offset.y() = -( (length*factorlength2)/2 +width/2);
     box[2] = new Box( length, width, height);
     box[2]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box[2]->setPosition(pos + offset);
+    box[2]->setPose(osg::Matrix::translate(offset) * pose);
 
     offset.y() = (length*factorlength2)/2 +width/2;
     box[3] = new Box( length, width, height);
     box[3]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box[3]->setPosition(pos + offset);
+    box[3]->setPose(osg::Matrix::translate(offset) * pose);
     
     obstacle_exists=true;
   };

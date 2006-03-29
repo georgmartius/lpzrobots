@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.2  2005-12-06 10:13:23  martius
+ *   Revision 1.8.4.3  2006-03-29 15:04:38  martius
+ *   have pose now
+ *
+ *   Revision 1.8.4.2  2005/12/06 10:13:23  martius
  *   openscenegraph integration started
  *
  *   Revision 1.8.4.1  2005/11/14 17:37:14  martius
@@ -82,12 +85,27 @@ class AbstractObstacle{
   /**
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
-  virtual void setPosition(const osg::Vec3& pos) = 0;
+  void setPosition(const osg::Vec3& pos){
+    pose.setTrans(pos);
+    setPose(pose);
+  };
 
   /**
    * gives actual position of the obstacle
    */
-  virtual osg::Vec3 getPosition() = 0;
+  osg::Vec3 getPosition(){
+    return pose.getTrans();
+  }
+
+  /**
+   * sets position of the obstacle and creates/recreates obstacle if necessary
+   */
+  virtual void setPose(const osg::Matrix& pose) = 0;
+
+  /**
+   * gives actual pose of the obstacle
+   */
+  virtual osg::Matrix getPose() = 0;
     
   /**
    * sets the obstacle color
@@ -98,6 +116,7 @@ class AbstractObstacle{
   };
 
  protected:
+  osg::Matrix pose;
 
   OdeHandle odeHandle;
   OsgHandle osgHandle; 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.1  2006-01-10 20:11:12  martius
+ *   Revision 1.4.4.2  2006-03-29 15:04:39  martius
+ *   have pose now
+ *
+ *   Revision 1.4.4.1  2006/01/10 20:11:12  martius
  *   moved to osg
  *
  *   Revision 1.4  2005/11/09 13:29:21  fhesse
@@ -86,17 +89,17 @@ public:
   };
   
 
-  virtual void setPosition(const osg::Vec3& pos){
-    this->pos = pos;
+  virtual void setPose(const osg::Matrix& pose){
+    this->pose = pose;
     if (obstacle_exists){
       destroy();
     }
     create();
   };
 
-  virtual osg::Vec3 getPosition(){
-    return pos;
-  };
+  virtual osg::Matrix getPose(){
+    return pose;
+  }
 
 protected:
 
@@ -108,9 +111,9 @@ protected:
       obst[i] = new Box(width , box_length , height);
       obst[i]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       osg::Matrix R = osg::Matrix::rotate(- i*angle, 0,0,1) * 
-	osg::Matrix::translate( pos.x() + cos(M_PI - i*angle) * r, 
-				pos.y() + sin(M_PI - i*angle) * r, 
-				pos.z() + height/2);
+	osg::Matrix::translate( cos(M_PI - i*angle) * r, 
+				sin(M_PI - i*angle) * r, 
+				height/2) * pose;
       obst[i]->setPose(R);
             
     }

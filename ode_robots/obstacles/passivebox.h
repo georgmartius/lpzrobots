@@ -20,42 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-03-29 15:04:39  martius
+ *   Revision 1.1.2.1  2006-03-29 15:04:39  martius
  *   have pose now
  *
- *   Revision 1.1.2.4  2006/01/18 16:46:39  martius
- *   mass adjustable
- *
- *   Revision 1.1.2.3  2005/12/15 17:02:16  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.2  2005/12/11 23:35:07  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.1  2005/12/09 16:53:17  martius
- *   camera is working now
- *
- *   Revision 1.5  2005/10/25 19:26:57  fhesse
- *   comments adjusted and in doxygen style
- *
- *   Revision 1.4  2005/09/22 12:24:36  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.3  2005/07/31 22:30:56  martius
- *   textures
- *
- *   Revision 1.2  2005/07/18 14:52:33  martius
- *   world and space are not pointers anymore.
- *
- *   Revision 1.1  2005/07/08 10:00:33  fhesse
- *   initial version
  *                                                    *
  *                                                                         *
  ***************************************************************************/
-#ifndef __PASSIVESPHERE_H
-#define __PASSIVESPHERE_H
+#ifndef __PASSIVEBOX_H
+#define __PASSIVEBOX_H
 
 #include <stdio.h>
 #include <math.h>
@@ -66,9 +38,9 @@
 namespace lpzrobots {
 
 /**
- *  (Passive) sphere as obstacle
+ *  (Passive) box as obstacle
  */
-class PassiveSphere : public AbstractObstacle{
+class PassiveBox : public AbstractObstacle{
   double radius;
   double mass;
   /**
@@ -77,7 +49,7 @@ class PassiveSphere : public AbstractObstacle{
   osg::Vec3 pos;
   int texture;
 
-  Sphere* sphere;
+  Box* box;
 
   bool obstacle_exists;
 
@@ -85,31 +57,32 @@ class PassiveSphere : public AbstractObstacle{
   
   /**
    * Constructor
-   * @param odehandle containing world, space and jointgroup for sphere
+   * @param odehandle containing world, space and jointgroup for box
    */
-  PassiveSphere(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double radius = 0.3, double mass = 1.0):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius), mass(mass) {       
-    sphere=0;
+  PassiveBox(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	     const osg::Vec3& dimension = osg::Vec3(1.0, 1.0, 1.0), double mass = 1.0):
+    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension), mass(mass) {       
+    box=0;
     obstacle_exists=false;    
   };
 
-  ~PassiveSphere(){
-    if(sphere) delete sphere;
+  ~PassiveBox(){
+    if(box) delete box;
   }
 
   /**
-   * update position of sphere
+   * update position of box
    */
   virtual void update(){
-    if(sphere) sphere->update();
+    if(box) box->update();
   };
 
   virtual void setTexture(const std::string& filename){
-    if(sphere) sphere->getOSGPrimitive()->setTexture(filename);
+    if(box) box->getOSGPrimitive()->setTexture(filename);
   }
   
   virtual void setPose(const osg::Matrix& pose){
-    this->pose = osg::Matrix::translate(0,0,radius) * pose;
+    this->pose = osg::Matrix::transform(0,0,radius) * pose;
     if (obstacle_exists){
       destroy();
     }
@@ -119,19 +92,38 @@ class PassiveSphere : public AbstractObstacle{
   virtual osg::Matrix getPose(){
     return pose;
   }
+
+  /**
+   * sets position of the box and creates/recreates it if necessary
+   */
+  virtual void setPosition(const osg::Vec3& pos){
+    this->pos = pos + osg::Vec3(0,0,radius);
+    
+    if (obstacle_exists){
+      destroy();
+    }
+    create();
+  };
+
+  /**
+   * gives actual position of box
+   */
+  virtual osg::Vec3 getPosition(){
+    return pos;
+  }
   
  protected:
   virtual void create(){
-    sphere = new Sphere(radius);
-    sphere->init(odeHandle, mass, osgHandle);
-    sphere->setPosition(pos);
+    box = new Box(dimension.x(), dimension.y(), dimension.z());
+    box->init(odeHandle, mass, osgHandle);
+    box->setPosition(pos);
         
     obstacle_exists=true;
   };
 
 
   virtual void destroy(){
-    if(sphere) delete sphere;    
+    if(box) delete box;    
     obstacle_exists=false;
   };
 
