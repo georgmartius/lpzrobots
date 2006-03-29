@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-02-01 18:34:03  martius
+ *   Revision 1.1.2.11  2006-03-29 15:05:57  martius
+ *   fixed joint
+ *
+ *   Revision 1.1.2.10  2006/02/01 18:34:03  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *   Revision 1.1.2.9  2006/01/12 22:19:08  martius
@@ -128,6 +131,25 @@ namespace lpzrobots {
   protected:
     Axis  axis2;
   };
+
+  /***************************************************************************/
+
+  class FixedJoint : public Joint {
+  public:
+    FixedJoint(Primitive* part1, Primitive* part2);
+
+    virtual ~FixedJoint();
+
+    /** initialises (and creates) the joint. 
+    */
+    virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		      bool withVisual = true, double visualSize = 0.2);
+    
+    virtual void update();    
+    virtual void setParam(int parameter, double value);
+    virtual double getParam(int parameter);
+  };
+
 
   /***************************************************************************/
 

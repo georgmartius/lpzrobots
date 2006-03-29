@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.12  2006-02-01 18:34:03  martius
+ *   Revision 1.1.2.13  2006-03-29 15:05:57  martius
+ *   fixed joint
+ *
+ *   Revision 1.1.2.12  2006/02/01 18:34:03  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *   Revision 1.1.2.11  2006/01/12 22:18:31  martius
@@ -86,6 +89,33 @@ namespace lpzrobots {
    if (joint) dJointDestroy(joint);
  }
 
+
+/***************************************************************************/
+
+  
+  FixedJoint::FixedJoint(Primitive* part1, Primitive* part2)
+  : Joint(part1, part2, osg::Vec3(0,0,0)){
+  }
+
+  FixedJoint::~FixedJoint(){}
+
+    /** initialises (and creates) the joint. 
+    */
+  void FixedJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		      bool withVisual, double visualSize){
+    joint = dJointCreateFixed (odeHandle. world,0);
+    dJointAttach (joint, part1->getBody(),part2->getBody()); 
+  }
+ 
+  void FixedJoint::update(){}
+
+  void FixedJoint::setParam(int parameter, double value) {
+  }
+
+  double FixedJoint::getParam(int parameter){
+    return 0;
+  }
+ 
 /***************************************************************************/
 
   HingeJoint::HingeJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, 
