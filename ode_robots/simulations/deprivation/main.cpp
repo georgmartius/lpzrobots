@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-02-24 14:42:39  martius
+ *   Revision 1.1.2.4  2006-03-29 15:10:22  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.3  2006/02/24 14:42:39  martius
  *   keys
  *
  *   Revision 1.1.2.2  2006/02/20 10:50:20  martius
@@ -70,7 +73,7 @@ list<PlotOption> plotoptions;
 Deprivation* controller;
 int zeit = 0;
 
-Matrix straightMotor(const Matrix _dont_care){  
+Matrix straightMotor(const Matrix& _dont_care){  
   Matrix y(_dont_care.getM(),1);
   for(int i=0; i< y.getM(); i++){
     y.val(i,0) = sin(zeit/100.0)*0.9;
@@ -79,10 +82,27 @@ Matrix straightMotor(const Matrix _dont_care){
   return y;
 }
 
-Matrix turnMotor(const Matrix _dont_care){  
+void straightController(Matrix& C, Matrix& H ){  
+  double v = 2.4/(C.getM()*C.getN());
+  fprintf(stderr, "pla %g\n", v);
+  for(int i=0; i< C.getM(); i++){
+    for(int j=0; j< C.getN(); j++){
+      C.val(i,j) = v;
+    }
+  }
+  for(int i=0; i< min(C.getN(), C.getM()); i++){
+    C.val(i,i) += ((double)rand() / RAND_MAX)*0.01;
+  }
+  for(int i=0; i<H.getM(); i++){
+    H.val(i,0) = 0;
+  }
+  controller->setParam("epsC", 0.0005);
+}
+
+Matrix turnMotor(const Matrix& _dont_care){  
   Matrix y(_dont_care.getM(),1);
   for(int i=0; i< y.getM(); i++){
-    y.val(i,0) = pow(-1,i)*sin(zeit/100.0)*0.9;
+    y.val(i,0) = pow(-1.0,i)*sin(zeit/100.0)*0.9;
   }
   zeit++;
   return y;
@@ -90,7 +110,7 @@ Matrix turnMotor(const Matrix _dont_care){
 
 double data[2] = {1,0};
 Matrix y(2,1, data);
-Matrix sinMotor(const Matrix y_controller){  
+Matrix sinMotor(const Matrix& y_controller){  
   Matrix A(2,2);
   double alpha = M_PI/((cos(zeit/1000.0)+1)*10+1); 
   //  if(zeit%100==0) printf("Alpha: %d\n", int(alpha*180/M_PI));
@@ -126,23 +146,25 @@ public:
     //  AbstractController *controller = new InvertNChannelController(10);      
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
     cc.cInit=1.0;
-    controller = new Deprivation(sinMotor, cc);  
-    controller->setExternalControlMode(true);
-    controller->setParam("adaptrate", 0.000);
-    //    controller->setParam("nomupdate", 0.0005);
-    controller->setParam("epsC", 0.1);
+    controller = new Deprivation(straightMotor, straightController, cc);  
+    controller->setParam("adaptrate", 0.005);
+    controller->setParam("nomupdate", 0.002);
+    controller->setParam("epsC", 0.0005);
     controller->setParam("epsA", 0.01);
+    controller->setParam("dampA", 0.01);
     controller->setParam("rootE", 1);
-    controller->setParam("steps", 1);
+    controller->setParam("steps", 2);
     controller->setParam("s4avg", 1);
-    controller->setParam("s4delay", 2);
+    //    controller->setParam("s4delay", 1);
 
-    //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    // One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(controller);
+    controller->setExternalControlMode(true);
+
       
     showParams(global.configs);
   }
@@ -188,7 +210,7 @@ int main (int argc, char **argv)
   if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
   
   // start with online windows and logging to file
-  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 1));
+  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 2));
 
   // 
   if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));

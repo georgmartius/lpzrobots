@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-02-08 16:15:27  martius
+ *   Revision 1.1.2.7  2006-03-29 15:10:22  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.6  2006/02/08 16:15:27  martius
  *   teaching via keys
  *
  *   Revision 1.1.2.5  2006/01/31 16:45:50  martius
@@ -52,6 +55,7 @@
 #include <selforg/one2onewiring.h>
 
 #include "nimm2.h"
+#include "meshobstacle.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -79,12 +83,18 @@ public:
 
     // use Playground as boundary:
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(11, 0.2, 1), 2);
+    playground->setColor(Color(0,0,1,0.5)); 
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
-    for(int i=0; i<50; i++){
+    MeshObstacle* me = new MeshObstacle(odeHandle, osgHandle, "cessna.osg",0.1);
+    me->setPosition(osg::Vec3(0,0,3));
+    global.obstacles.push_back(me);
+    
+
+    for(int i=0; i<20; i++){
       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5,10);
-      s->setPosition(osg::Vec3(-4+(i/10),-4+(i%10),1)); 
+      s->setPosition(osg::Vec3(-4+2*(i/5),-4+2*(i%5),2));
       global.obstacles.push_back(s);    
     }
     
@@ -121,8 +131,8 @@ public:
   {
     if (!down) return false;    
     bool handled = false;
-    double m;
-    motor motors[2];
+    //    double m;
+    //    motor motors[2];
     switch ( key )
       {
       case 'u' : 

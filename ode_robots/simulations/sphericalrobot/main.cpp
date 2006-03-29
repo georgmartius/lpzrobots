@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.3  2006-02-17 16:47:55  martius
+ *   Revision 1.6.4.4  2006-03-29 15:10:22  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.6.4.3  2006/02/17 16:47:55  martius
  *   moved to new system
  *
  *   Revision 1.15.4.3  2006/01/12 15:17:39  martius
@@ -99,9 +102,10 @@ public:
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
     conf.axisZsensor=true;
     conf.axisXYZsensor=false;
-    conf.irAxis1=true;
-    conf.irAxis2=true;
-    conf.irAxis3=true;
+    conf.irAxis1=false;
+    conf.irAxis2=false;
+    conf.irAxis3=false;
+    conf.spheremass   = 1;
     sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
 				       conf, "Sphere1", 0.2); 
 //    sphere1 = new ForcedSphere(odeHandle, osgHandle, "FSphere");
@@ -110,10 +114,11 @@ public:
     controller = new InvertMotorNStep();
     controller->setParam("steps", 2);    
     controller->setParam("adaptrate", 0.001);    
-    controller->setParam("nomupdate", 0.01);    
+    controller->setParam("nomupdate", 0.005);    
     controller->setParam("epsC", 0.01);    
     controller->setParam("epsA", 0.005);    
     controller->setParam("rootE", 3);    
+    controller->setParam("logaE", 2);    
 //     controller = new SineController();  
 //     controller->setParam("sinerate", 40);  
 //     controller->setParam("phaseshift", 0.0);

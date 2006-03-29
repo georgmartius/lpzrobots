@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.3  2006-02-24 14:43:51  martius
+ *   Revision 1.2.4.4  2006-03-29 15:10:22  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2.4.3  2006/02/24 14:43:51  martius
  *   keys
  *
  *   Revision 1.2.4.2  2005/12/29 16:44:54  martius
@@ -57,10 +60,10 @@ list<PlotOption> plotoptions;
 using namespace lpzrobots;
 
 int zeit =0;
-Matrix turnMotor(const Matrix _dont_care){  
+Matrix turnMotor(const Matrix& _dont_care){  
   Matrix y(_dont_care.getM(),1);
   for(int i=0; i< y.getM(); i++){
-    y.val(i,0) = pow(-1,i)*sin(zeit/100.0)*0.9;
+    y.val(i,0) = pow(-1.0,i)*sin(zeit/100.0)*0.9;
   }
   zeit++;
   return y;
@@ -78,8 +81,8 @@ public:
 
     //****************/
     SchlangeConf conf = Schlange::getDefaultConf();
-    conf.motorPower=0.1;
-    conf.frictionJoint=0.1;
+    conf.motorPower=0.2;
+    conf.frictionJoint=0.01;
     conf.segmNumber=6; 
     //     conf.jointLimit=conf.jointLimit*3;
     SchlangeServo2* schlange1 = 
@@ -90,8 +93,8 @@ public:
     //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
     //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
     //    AbstractController *controller = new InvertMotorNStep();  
-    controller = new Deprivation(turnMotor);  
-    //     AbstractController *controller = new SineController();  
+    //    controller = new Deprivation(turnMotor);  
+    AbstractController *controller = new SineController();  
   
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     //   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
@@ -122,6 +125,10 @@ public:
     
     //   controller->setParam("factorB",0.0);
     //   controller->setParam("zetaupdate",0.1);
+
+    Primitive* head = schlange1->getMainPrimitive();
+    Joint* j = new BallJoint(head, global.environment, head->getPosition());
+    j->init(odeHandle, osgHandle);
 
     showParams(global.configs);
   }
