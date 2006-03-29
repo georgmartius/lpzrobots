@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2005-12-22 14:14:12  martius
+ *   Revision 1.1.2.8  2006-03-29 15:06:40  martius
+ *   OSGMesh
+ *
+ *   Revision 1.1.2.7  2005/12/22 14:14:12  martius
  *   quality level
  *
  *   Revision 1.1.2.6  2005/12/15 17:03:43  martius
@@ -60,6 +63,7 @@
 #include <osg/ref_ptr>
 #include "osgforwarddecl.h"
 #include "osghandle.h"
+#include <osgDB/ReadFile>
 
 namespace lpzrobots {
 
@@ -167,6 +171,23 @@ namespace lpzrobots {
   protected:
     float radius;  
     float height;
+  };
+
+  /**************************************************************************/
+  class OSGMesh : public OSGPrimitive {
+  public:
+    OSGMesh(const std::string& filename, float scale = 1, const osgDB::ReaderWriter::Options* options = 0);
+    ~OSGMesh();
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
+
+    float getScale() { return scale; }
+  protected:
+    std::string filename;
+    float scale;  
+    const osgDB::ReaderWriter::Options* options;        
+    osg::ref_ptr<osg::Node> mesh;
+    osg::ref_ptr<osg::MatrixTransform> scaletrans;  
+        
   };
 
 }

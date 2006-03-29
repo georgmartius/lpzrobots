@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-01-12 14:21:00  martius
+ *   Revision 1.1.2.11  2006-03-29 15:06:40  martius
+ *   OSGMesh
+ *
+ *   Revision 1.1.2.10  2006/01/12 14:21:00  martius
  *   drawmode, material
  *
  *   Revision 1.1.2.9  2005/12/22 14:14:21  martius
@@ -76,12 +79,15 @@
 //#include <osg/Light>
 //#include <osg/LightSource>
 #include <osg/Material>
+#include <osgDB/ReadFile>
+
 
 #include "osgprimitive.h"
 
 namespace lpzrobots {
 
   using namespace osg;
+  using namespace osgDB;
 
   // returns a material with the given color
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::DIFFUSE );
@@ -285,6 +291,39 @@ namespace lpzrobots {
 
   }
 
+  /******************************************************************************/
+  OSGMesh::OSGMesh(const std::string& filename, float scale, 
+		   const ReaderWriter::Options* options)
+    : filename(filename), scale(scale), options(options) 
+  {
+  }
+
+  OSGMesh::~OSGMesh(){
+  }
+
+  void OSGMesh::init(const OsgHandle& osgHandle, Quality quality){
+    assert(osgHandle.scene);
+    transform = new MatrixTransform;        
+    osgHandle.scene->addChild(transform.get());
+    scaletrans = new MatrixTransform;    
+    scaletrans->setMatrix(osg::Matrix::scale(scale,scale,scale));
+    transform->addChild(scaletrans.get());
+    mesh  = osgDB::readNodeFile(filename, options);
+    scaletrans->addChild(mesh.get());
+
+//     if(osgHandle.color.alpha() < 1.0){
+//       shape->setStateSet(osgHandle.transparentState);
+//     }else{
+//       shape->setStateSet(osgHandle.normalState);
+//     }
+//     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+// 						       StateAttribute::ON);
+
+  }
+
+
+
+  /********************* HELPER ************************************************/
 
   // returns a material with the given color
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode) {
