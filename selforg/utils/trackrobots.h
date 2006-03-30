@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-16 11:24:27  martius
+ *   Revision 1.1.2.2  2006-03-30 12:33:15  fhesse
+ *   trace via trackrobot
+ *
+ *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
  *   moved to selforg
  *
  *   Revision 1.4  2005/11/10 09:08:26  martius
@@ -43,24 +46,28 @@ class TrackRobot {
 public:
 
   friend class Agent;
+  //friend class OdeAgent;
 
   TrackRobot(){
     trackPos = false;
     trackSpeed = false;
     trackOrientation = false;
+    tracePos = false;
     interval = 1;
     file=0;
     cnt=0;
     scene=0;
   }
   /** Set the tracking mode of the simulation environment. 
-      If one of the parameters is true the tracking is enabled.
+      If one of the trackparameters is true the tracking is enabled.
       The tracking is written into a file with the current date and time as name.
+      If tracePos is ture (at least in ode simulations) the trace of the robot is shown
    */ 
-  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, const char* scene, int interval = 1){
+  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool tracePos, const char* scene, int interval = 1){
     this->trackPos     = trackPos;
     this->trackSpeed   = trackSpeed;
     this->trackOrientation = trackOrientation;
+    this->tracePos     = tracePos;
     this->interval = interval;
     this->scene = strdup(scene);
     file=0;
@@ -75,11 +82,15 @@ public:
   void track(AbstractRobot* robot);
   void close();
 
+  //todo: do this with friend class OdeAgent or the like
+  bool trace() const {return tracePos;};
 
-private:
+ private:
   bool trackPos;
   bool trackSpeed;
   bool trackOrientation;
+  bool tracePos;
+
   int interval;
   FILE* file;
   char* scene;
