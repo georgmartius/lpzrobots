@@ -7,7 +7,7 @@ fi
 
 NAME=$1;
 
-for F in $NAME*.ppm; do echo "convert $F"; convert "$F" "${F%ppm}sgi"; rm "$F"; done
+for F in $NAME*.bmp; do echo "convert $F"; convert "$F" "${F%bmp}sgi"; rm "$F"; done
 
 echo -e "*********************** mjpeg encoding **************************";
 mencoder mf://$NAME*.sgi -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o $NAME.mjpeg
