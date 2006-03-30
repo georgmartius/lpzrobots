@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-02-23 18:05:30  martius
+ *   Revision 1.1.2.6  2006-03-30 12:34:49  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.5  2006/02/23 18:05:30  martius
  *   setPower (on all axis the same)
  *
  *   Revision 1.1.2.4  2006/02/07 15:51:56  martius
@@ -188,7 +191,7 @@ namespace lpzrobots {
   public:
     /** Constuct a motor attached to any Joint (not Sliders!). 
 	The axis have to be provided by the user.	
-	@axis list of axis vector and power If empty then it motor is disabled. 
+	@param axis list of axis vector and power If empty then it motor is disabled. 
 	Power is the maximum force or torque that the motor will use to achieve the desired velocity. 
 	This must always be greater than or equal to zero. 
 	Setting this to zero (the default value) turns off the motor.      

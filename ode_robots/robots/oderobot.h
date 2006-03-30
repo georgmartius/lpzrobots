@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.14  2006-03-30 09:59:36  fhesse
+ *   Revision 1.1.2.15  2006-03-30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.14  2006/03/30 09:59:36  fhesse
  *   getOsgHandle() removed
  *   friend class OdeAgent added
  *
@@ -128,7 +131,6 @@ namespace lpzrobots {
 
     /**
      * Constructor
-     * @param odehandle structure with all global ODE variables
      */
     OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const char* name="OdeRobot");
 
@@ -139,12 +141,12 @@ namespace lpzrobots {
     virtual void update() = 0;
 
     /** sets the vehicle to position pos
-	@params pos desired position of the robot
+	@param pos desired position of the robot
     */
     virtual void place(const Pos& pos);
 
     /** sets the pose of the vehicle
-	@params pose desired 4x4 pose matrix
+	@param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose) = 0;
 
@@ -157,7 +159,7 @@ namespace lpzrobots {
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
-	@param GlobalData structure that contains global data from the simulation environment
+	@param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(const GlobalData& globalData) = 0;
 

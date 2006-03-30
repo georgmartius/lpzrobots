@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.10  2006-03-28 14:24:37  fhesse
+ *   Revision 1.1.4.11  2006-03-30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.4.10  2006/03/28 14:24:37  fhesse
  *   minor changes
  *
  *   Revision 1.1.4.9  2006/01/31 09:58:11  fhesse
@@ -151,7 +154,7 @@ namespace lpzrobots{
 
 
     /** sets the pose of the vehicle
-	@params pose desired 4x4 pose matrix
+	@param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
@@ -198,7 +201,7 @@ namespace lpzrobots{
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
-	@param GlobalData structure that contains global data from the simulation environment
+	@param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(const GlobalData& globalData);
 
@@ -206,8 +209,6 @@ namespace lpzrobots{
     virtual paramkey getName() const {return name; } 
   
     /** The list of all parameters with there value as allocated lists.
-	@param keylist,vallist will be allocated with malloc (free it after use!)
-	@return length of the lists
     */
     paramlist getParamList() const;
   

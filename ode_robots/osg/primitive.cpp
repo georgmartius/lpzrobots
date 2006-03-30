@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-03-29 15:06:58  martius
+ *   Revision 1.1.2.12  2006-03-30 12:34:53  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.11  2006/03/29 15:06:58  martius
  *   update on setPose
  *
  *   Revision 1.1.2.10  2006/01/31 15:45:28  martius
@@ -70,17 +73,17 @@
 
 namespace lpzrobots{
 
-  /// returns the osg (4x4) pose matrix of the ode geom
+  // returns the osg (4x4) pose matrix of the ode geom
   osg::Matrix osgPose( dGeomID geom ){
     return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));
   }
 
-  /// returns the osg (4x4) pose matrix of the ode body
+  // returns the osg (4x4) pose matrix of the ode body
   osg::Matrix osgPose( dBodyID body ){
     return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
   }
 
-  /// converts a position vector and a rotation matrix from ode to osg 4x4 matrix
+  // converts a position vector and a rotation matrix from ode to osg 4x4 matrix
   osg::Matrix osgPose( const double * V , const double * R ){
     return osg::Matrix( R[0], R[4], R[8],  0,
 			R[1], R[5], R[9],  0,
@@ -88,7 +91,7 @@ namespace lpzrobots{
 			V[0], V[1], V[2] , 1);  
   }
 
-  /// converts a position vector and a rotation matrix from ode to osg 4x4 matrix
+  // converts a position vector and a rotation matrix from ode to osg 4x4 matrix
   void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix){
     osg::Quat q;
     pose.get(q);

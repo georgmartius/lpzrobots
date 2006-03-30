@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.5  2006-03-29 15:10:11  martius
+ *   Revision 1.2.4.6  2006-03-30 12:35:07  martius
+ *   documentation updated
+ *
+ *   Revision 1.2.4.5  2006/03/29 15:10:11  martius
  *   osgMatrix2matrixlib
  *
  *   Revision 1.2.4.4  2006/02/07 15:49:03  martius
@@ -55,7 +58,7 @@ using namespace matrix;
 
 namespace lpzrobots {
 
-  /**
+  /*
      converts osg matrix to matrix of matrixlib
    */
   Matrix osgMatrix2Matrixlib(const osg::Matrix& m){
@@ -69,7 +72,7 @@ namespace lpzrobots {
   }
 
 
-  /**
+  /*
      returns a Rotation matrix that rotates the x-axis along with the given axis. 
      The other 2 axis (y,z) are ambiguous.
   */
@@ -77,7 +80,7 @@ namespace lpzrobots {
     return osg::Matrix::rotate(osg::Vec3(1,0,0), axis.vec3());
   }
 
-  /**
+  /*
      returns a Rotation matrix that rotates the z-axis along with the given axis. 
      The other 2 axis (x,y) are ambiguous.
   */
@@ -86,7 +89,7 @@ namespace lpzrobots {
   }
 
 
-  /**
+  /*
    * returns the angle between two vectors (in rad)
    */
   double getAngle(const osg::Vec3& a, const osg::Vec3& b) {
@@ -96,7 +99,7 @@ namespace lpzrobots {
   }
 
 
-  /*******************************************************************************/
+  /******************************************************************************/
 
 
   Position multMatrixPosition(const Matrix& r, Position& p){
@@ -106,7 +109,7 @@ namespace lpzrobots {
     return Position(rv.val(0,0), rv.val(1,0), rv.val(2,0));
   }
 
-  /**
+  /*
    * returns a rotation matrix for a rotation in x, y plane about the given angle
    */
   Matrix getRotationMatrix(const double& angle) {
@@ -117,7 +120,7 @@ namespace lpzrobots {
     return Matrix(4,4,data);
   }
 
-  /**
+  /*
    * returns a translation matrix with the given Position
    */
   Matrix getTranslationMatrix(const Position& p) {
@@ -128,7 +131,7 @@ namespace lpzrobots {
     return Matrix(4,4,data);
   }
 
-  /**
+  /*
    * removes the translation in the matrix
    */
   Matrix removeTranslationInMatrix(const Matrix& pose){
@@ -140,7 +143,7 @@ namespace lpzrobots {
     return t;
   }
 
-  /**
+  /*
    * removes the rotation in the matrix
    */
   Matrix removeRotationInMatrix(const Matrix& pose){
@@ -150,7 +153,7 @@ namespace lpzrobots {
     return t;
   }
 
-  /**
+  /*
    * returns the angle between two vectors
    */
   double getAngle(Position a, Position b) {

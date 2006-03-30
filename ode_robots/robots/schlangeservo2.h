@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-02-01 18:33:40  martius
+ *   Revision 1.1.2.2  2006-03-30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.1  2006/02/01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *                                                                 *
@@ -68,7 +71,7 @@ namespace lpzrobots {
 
     /**
      *Writes the sensor values to an array in the memory.
-     *@param sensor* pointer to the array
+     *@param sensors pointer to the array
      *@param sensornumber length of the sensor array
      *@return number of actually written sensors
      **/

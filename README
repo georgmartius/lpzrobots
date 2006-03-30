@@ -23,14 +23,15 @@ This is a collection of algorithms, simulations, and tools
 developed by the robot group of the University Leipzig \n
 (http://robot.informatik.uni-leipzig.de).
 It consists of the following directories (click for details):
-  - \ref controller : controllers developed in the robotic group of Leipzig university
-	yielding at self-organized behaviour for various kinds of machines
+  - \ref selforg : controllers together with a small framework for using them,
+	developed in the robotic group of Leipzig university
+	yielding at self-organized behaviour for various kinds of machines. 
   - \ref ode_robots : stuff needed for our ODE-simulations 
 	(Open Dynamics Engine, see http://www.ode.org) such as robots, 
  	obstacles, utils, our patches and so on
   - \ref matrixlib : comfortable matrix library used for calculations e.g. in our controllers
   - \ref gnuplot : tool allowing you to use online gnuplot windows within your program 
-	(using pipe for data handover)
+	(using pipe for data handover), however \ref guilogger is more comfortable
   - \ref guilogger : application that coordinates multiple gnuplot 
 	windows and switches channels on or of, data is sent per pipe from your program 
 
@@ -38,16 +39,15 @@ It consists of the following directories (click for details):
 \section Requirements
  
 You need the following software and libraries installed (Tested on Linux x86 machines)
-- ODE (with drawstuff lib (included)) see http://www.ode.org and augmented with our 
+- ODE see http://www.ode.org and augmented with our 
 \ref ode_robots/ode_patches "patches"
+- OpenSceneGraph http://www.openscenegraph.org (version >= 0.9.8) 
+  (Debian includes it in Etch (Testing) and higher)
 - Qt library from http://www.trolltech.com for guilogger (version > 3.0)
 - avr-gcc and avr-binutils. \n
    SuSE packages under: http://robot.informatik.uni-leipzig.de/software/\n
-   Debian includes them in Sarge
+   Debian includes them in Etch (Testing)  and higher
  
- 
-
-
 \section Inst Installation & Startup
 
 - Download source tar ball from 

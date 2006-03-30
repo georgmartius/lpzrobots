@@ -12,7 +12,7 @@ on the selforganization issue.
 You can just go into one directory, type \p make and after successful compilation \p start
 to start a simulation. \n
 For convenience you should start with one of the template directories like template_onerobot.
-Both the simulation file \ref ode_robots/simulations/template_onerobot/main.cpp "main.cpp"
+Both the simulation file \ref lpzrobots/ode_robots/simulations/template_onerobot/main.cpp "main.cpp"
  of the template_onerobot simulation and robot definitions in nimm4.cpp are really good 
 commented and therfore recommended as first example. You can easy find them by clicking 
 on the tab  "Examples" at the top of the page.\n

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-01-31 15:47:37  martius
+ *   Revision 1.1.2.5  2006-03-30 12:35:09  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.4  2006/01/31 15:47:37  martius
  *   virtual destructor
  *
  *   Revision 1.1.2.3  2005/12/11 23:35:08  martius
@@ -50,7 +53,6 @@ public:
 
   /**
    * Constructor
-   * @param name name of the robot
    */
   Trackable(){
   };

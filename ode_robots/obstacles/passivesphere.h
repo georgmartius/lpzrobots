@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-03-29 15:04:39  martius
+ *   Revision 1.1.2.6  2006-03-30 12:34:51  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.5  2006/03/29 15:04:39  martius
  *   have pose now
  *
  *   Revision 1.1.2.4  2006/01/18 16:46:39  martius
@@ -85,7 +88,6 @@ class PassiveSphere : public AbstractObstacle{
   
   /**
    * Constructor
-   * @param odehandle containing world, space and jointgroup for sphere
    */
   PassiveSphere(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double radius = 0.3, double mass = 1.0):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius), mass(mass) {       

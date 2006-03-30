@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-03-29 15:04:39  martius
+ *   Revision 1.1.2.2  2006-03-30 12:34:51  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.1  2006/03/29 15:04:39  martius
  *   have pose now
  *
  *                                                    *
@@ -57,7 +60,6 @@ class PassiveBox : public AbstractObstacle{
   
   /**
    * Constructor
-   * @param odehandle containing world, space and jointgroup for box
    */
   PassiveBox(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	     const osg::Vec3& dimension = osg::Vec3(1.0, 1.0, 1.0), double mass = 1.0):

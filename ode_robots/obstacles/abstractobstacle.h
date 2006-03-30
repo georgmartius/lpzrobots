@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.3  2006-03-29 15:04:38  martius
+ *   Revision 1.8.4.4  2006-03-30 12:34:51  martius
+ *   documentation updated
+ *
+ *   Revision 1.8.4.3  2006/03/29 15:04:38  martius
  *   have pose now
  *
  *   Revision 1.8.4.2  2005/12/06 10:13:23  martius
@@ -68,7 +71,8 @@ class AbstractObstacle{
  public:
   /**
    * Constructor
-   * @param odehandle containing world, space and jointgroup which should 
+   * @param odeHandle containing ODE stuff like world, space and jointgroup
+   * @param osgHandle containing OSG stuff like scene, color...
    * be used for creation of obstacles
    */
   AbstractObstacle(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
@@ -109,7 +113,7 @@ class AbstractObstacle{
     
   /**
    * sets the obstacle color
-   * @param Vec4 color values in RGBA
+   * @param color values in RGBA
    */
   virtual void setColor(const Color& color) {
     osgHandle.color = color;

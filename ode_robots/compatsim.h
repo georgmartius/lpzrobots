@@ -23,7 +23,10 @@
  *  compatsim is provided for compatibility to the old simulation          *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2005-12-15 17:02:04  martius
+ *   Revision 1.1.2.3  2006-03-30 12:34:47  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.2  2005/12/15 17:02:04  martius
  *   light is in sky and standart cams removed
  *   config has a default implentation now
  *
@@ -56,7 +59,7 @@ public:
   virtual void config(GlobalData& globalData);
   // the following functions have dummy default implementations
   virtual void command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key);
-  /// @return true if collision is treated, false otherwise
+  /** @return true if collision is treated, false otherwise */
   virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2);
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause);
 

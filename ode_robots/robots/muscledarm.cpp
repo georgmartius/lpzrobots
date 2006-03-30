@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.10  2006-03-28 14:24:37  fhesse
+ *   Revision 1.1.4.11  2006-03-30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.4.10  2006/03/28 14:24:37  fhesse
  *   minor changes
  *
  *   Revision 1.1.4.9  2006/01/31 09:58:10  fhesse
@@ -200,13 +203,6 @@ namespace lpzrobots{
     create(p2);
   };
 
-  /** returns position of robot 
-      @return position robot position in struct Position  
-  */
-  osg::Vec3 MuscledArm::getPosition(){
-    osg::Vec3 pos(object[hand]->getPosition());
-    return pos;
-  };
 
   /** returns a vector with the positions of all segments of the robot
       @param poslist vector of positions (of all robot segments) 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.3  2006-01-12 15:14:57  martius
+ *   Revision 1.2.4.4  2006-03-30 12:34:59  martius
+ *   documentation updated
+ *
+ *   Revision 1.2.4.3  2006/01/12 15:14:57  martius
  *   indentation and clear routine
  *
  *   Revision 1.2.4.2  2005/12/14 12:43:07  martius
@@ -60,6 +63,9 @@ public:
   virtual void init( const OdeHandle& odeHandle, const OsgHandle& osgHandle ); 
 
   /** registers a new sensor at the sensor bank. The body and the pose have to be provided.
+      @param raysensor RaySensor to add
+      @param body body to which the sensor should be connected
+      @param pose relative position/orientation
       @param range maximum sense range of the sensor
       @return index of the sensor
    */
@@ -82,7 +88,6 @@ public:
 
   /** writes sensorvalues in given sensorarray
       @param sensorarray pointer to the sensorarray in which the values should be stored
-      @param start element in the sensorarray in which the first raysensor should be stored
       @param array_size maximal number of all elements in the sensorarray
       @return number of written sensorvalues
    */

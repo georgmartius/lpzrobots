@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-01-10 17:15:44  martius
+ *   Revision 1.1.2.3  2006-03-30 12:34:57  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.2  2006/01/10 17:15:44  martius
  *   removed wrong comment
  *
  *   Revision 1.1.2.1  2006/01/10 17:15:16  martius
@@ -131,7 +134,7 @@ public:
   virtual void update();
 
   /** sets the pose of the vehicle
-      @params pose desired 4x4 pose matrix
+      @param pose desired 4x4 pose matrix
   */
   virtual void place(const osg::Matrix& pose);
   
@@ -146,13 +149,13 @@ public:
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
+      @param globalData structure that contains global data from the simulation environment
    */
   virtual void doInternalStuff(const GlobalData& globalData);
 	
   /**
    *Writes the sensor values to an array in the memory.
-   *@param sensor* pointer to the array
+   *@param sensors pointer to the array
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    **/

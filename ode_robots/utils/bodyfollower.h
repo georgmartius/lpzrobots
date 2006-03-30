@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-01-12 15:10:49  martius
+ *   Revision 1.1.2.3  2006-03-30 12:35:07  martius
+ *   documentation updated
+ *
+ *   Revision 1.1.2.2  2006/01/12 15:10:49  martius
  *   moved to osg
  *
  *   Revision 1.1.2.1  2005/12/16 16:22:57  fhesse
@@ -40,7 +43,7 @@ namespace lpzrobots {
 class BodyFollower{
  public:
   BodyFollower(){ initialised = false; };
-  virtual BodyFollower::~BodyFollower();
+  virtual ~BodyFollower();
   virtual void init(const OsgHandle& osgHandle,int horizon_, Primitive* body_to_follow);
   virtual void update();
 

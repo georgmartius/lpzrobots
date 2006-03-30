@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.14  2006-03-06 16:54:05  robot3
+ *   Revision 1.18.4.15  2006-03-30 12:34:47  martius
+ *   documentation updated
+ *
+ *   Revision 1.18.4.14  2006/03/06 16:54:05  robot3
  *   now ExtendedViewer is used because of the new getCurrentCameraManipulator(),
  *   code optimizations
  *
@@ -178,7 +181,7 @@ namespace lpzrobots {
     /// end() is called at the end and should tidy up
     virtual void end(GlobalData& globalData);
     /** config() is called when the user presses Ctrl-C. 
-	Default: Call @changeParams(globalData.configs)@ */
+	Default: Call \ref changeParams(globalData.configs) */
     virtual void config(GlobalData& globalData);
     /** command() is called if a key was pressed
 	keycodes see: osgGA::GUIEventAdapter

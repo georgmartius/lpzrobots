@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.1  2005-11-15 12:29:51  martius
+ *   Revision 1.5.4.2  2006-03-30 12:35:04  martius
+ *   documentation updated
+ *
+ *   Revision 1.5.4.1  2005/11/15 12:29:51  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.5  2005/11/09 13:43:17  fhesse
@@ -132,7 +135,7 @@ public:
 	
   /**
    *Writes the sensor values to an array in the memory.
-   *@param sensor* pointer to the array
+   *@param sensors pointer to the array
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    *@author Marcel Kretschmann

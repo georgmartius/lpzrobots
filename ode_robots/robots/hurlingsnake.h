@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.7  2006-03-30 08:43:05  fhesse
+ *   Revision 1.6.4.8  2006-03-30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.6.4.7  2006/03/30 08:43:05  fhesse
  *   getTracePrimitive removed
  *
  *   Revision 1.6.4.6  2006/03/28 14:20:28  fhesse
@@ -82,9 +85,6 @@ namespace lpzrobots {
   public:
     /**
      * Constructor
-     * @param w world in which robot should be created
-     * @param s space in which robot should be created
-     * @param c contactgroup for collision treatment
      */
     HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
   
@@ -92,7 +92,7 @@ namespace lpzrobots {
     virtual void update();
 
     /** sets the pose of the vehicle
-	@params pose desired 4x4 pose matrix
+	@param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
@@ -103,7 +103,7 @@ namespace lpzrobots {
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
-	@param GlobalData structure that contains global data from the simulation environment
+	@param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(const GlobalData& globalData);
   
@@ -130,7 +130,7 @@ namespace lpzrobots {
     virtual int getMotorNumber();
 
     /** returns a vector with the positions of all segments of the robot
-	@param vector of positions (of all robot segments) 
+	@param poslist vector of positions (of all robot segments) 
 	@return length of the list
     */
     virtual int getSegmentsPosition(vector<Position> &poslist);
@@ -138,9 +138,7 @@ namespace lpzrobots {
     /// returns the name of the object (with version number)
     virtual paramkey getName() const {return name; } 
   
-    /** The list of all parameters with there value as allocated lists.
-	@param keylist,vallist will be allocated with malloc (free it after use!)
-	@return length of the lists
+    /** The list of all parameters with there value as allocated lists.       
     */
     virtual paramlist getParamList() const;
   

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9.4.5  2006-01-10 15:10:24  martius
+ *   Revision 1.9.4.6  2006-03-30 12:34:57  martius
+ *   documentation updated
+ *
+ *   Revision 1.9.4.5  2006/01/10 15:10:24  martius
  *   fine tuning, fuer controllinterval 1
  *   still not transparent
  *
@@ -117,7 +120,7 @@ namespace lpzrobots {
     virtual void update();
 	
     /** sets the pose of the vehicle
-	@params pose desired 4x4 pose matrix
+	@param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose);
   
@@ -132,13 +135,13 @@ namespace lpzrobots {
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
-	@param GlobalData structure that contains global data from the simulation environment
+	@param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(const GlobalData& globalData);
 	
     /**
      *Writes the sensor values to an array in the memory.
-     *@param sensor* pointer to the array
+     *@param sensors pointer to the array
      *@param sensornumber length of the sensor array
      *@return number of actually written sensors
      **/
@@ -165,8 +168,6 @@ namespace lpzrobots {
     virtual int getSensorNumber();
 	
     /** returns a vector with the positions of all segments of the robot
-	@param vector of positions (of all robot segments) 
-	@return length of the list
     */
     virtual int getSegmentsPosition(vector<Position> &poslist);	
 

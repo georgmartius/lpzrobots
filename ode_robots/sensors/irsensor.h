@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.3  2006-01-12 15:14:02  martius
+ *   Revision 1.5.4.4  2006-03-30 12:34:59  martius
+ *   documentation updated
+ *
+ *   Revision 1.5.4.3  2006/01/12 15:14:02  martius
  *   some fwd decl.
  *
  *   Revision 1.5.4.2  2005/12/14 12:43:07  martius
@@ -65,7 +68,9 @@ namespace lpzrobots {
  */
 class IRSensor : public RaySensor {
 public:  
-  /// @param exponent exponent of the sensor characteritic (default: 1 (linear))
+  /**
+     @param exponent exponent of the sensor characteritic (default: 1 (linear))
+  */
   IRSensor(double exponent = 1);
 
   virtual ~IRSensor();

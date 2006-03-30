@@ -46,7 +46,7 @@ guilogger parameter listing \n
 <tt> -p [port] </tt> port = serial port to read from \n
 <tt> -f [file] </tt> input file; only viwewing, no streaming \n 
 <tt> -l        </tt> turns logging on \n
-<tt>-d [delay] </tt> delay for piped input, should be a natural number \n
+<tt> -d [delay] </tt> delay for piped input, should be a natural number \n
 <tt> --help    </tt> displays this message. \n
 
 */

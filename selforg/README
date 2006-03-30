@@ -4,7 +4,7 @@
 
 /**
 
-\dir selforg
+\dir lpzrobots/selforg
 
 The selforg directory contains the controller and a small framework to use them in different scenarios.
 The class \ref Agent is a subsumption

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17.4.8  2006-01-31 15:36:14  martius
+ *   Revision 1.17.4.9  2006-03-30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.17.4.8  2006/01/31 15:36:14  martius
  *   irRange in config
  *
  *   Revision 1.17.4.7  2006/01/17 17:02:19  martius
@@ -163,7 +166,7 @@ public:
   virtual void update();
 
   /** sets the pose of the vehicle
-      @params pose desired 4x4 pose matrix
+      @param pose desired 4x4 pose matrix
   */
   virtual void place(const osg::Matrix& pose);
 
@@ -202,7 +205,7 @@ public:
   
     /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
+      @param globalData structure that contains global data from the simulation environment
    */
   virtual void doInternalStuff(const GlobalData& globalData);
 

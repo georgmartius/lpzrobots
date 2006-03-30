@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.4  2006-01-12 14:47:47  martius
+ *   Revision 1.2.4.5  2006-03-30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.2.4.4  2006/01/12 14:47:47  martius
  *   just taken from nimm4
  *
  *   Revision 1.2.4.3  2005/11/16 11:26:52  martius
@@ -71,7 +74,7 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@params pose desired pose matrix
+	@param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
@@ -109,7 +112,7 @@ namespace lpzrobots {
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
-	@param GlobalData structure that contains global data from the simulation environment
+	@param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(const GlobalData& globalData);
 
