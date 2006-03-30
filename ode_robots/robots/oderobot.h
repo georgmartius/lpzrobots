@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.13  2006-03-30 09:37:05  fhesse
+ *   Revision 1.1.2.14  2006-03-30 09:59:36  fhesse
+ *   getOsgHandle() removed
+ *   friend class OdeAgent added
+ *
+ *   Revision 1.1.2.13  2006/03/30 09:37:05  fhesse
  *   getOsgHandle added
  *
  *   Revision 1.1.2.12  2006/03/29 15:08:42  martius
@@ -120,6 +124,8 @@ namespace lpzrobots {
   class OdeRobot : public AbstractRobot {
   public:
 
+    friend class OdeAgent;
+
     /**
      * Constructor
      * @param odehandle structure with all global ODE variables
@@ -173,10 +179,6 @@ namespace lpzrobots {
 	@return 3x3 rotation matrix
     */
     virtual matrix::Matrix getOrientation() const ;
-  
-    /** returns osgHandle of the robot
-     */
-    virtual const OsgHandle& getOsgHandle() const {return osgHandle;};  
   
     /** overload this in the robot implementation.
 	If there is no object for some reason then return a null pointer
