@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-01-31 16:45:18  martius
+ *   Revision 1.1.2.4  2006-03-30 12:33:53  fhesse
+ *   trackrobot now protected to give OdeAgent access
+ *
+ *   Revision 1.1.2.3  2006/01/31 16:45:18  martius
  *   neuronviz plotoption
  *
  *   Revision 1.1.2.2  2005/11/15 12:30:26  martius
@@ -190,12 +193,13 @@ protected:
   sensor *csensors;
   motor  *cmotors;
 
-
-private:
   void internInit();
 
-  list<PlotOption> plotOptions;
+ protected:
   TrackRobot trackrobot;
+
+ private:
+  list<PlotOption> plotOptions;
 
   int t;
 };
