@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.12  2006-03-29 15:08:42  martius
+ *   Revision 1.1.2.13  2006-03-30 09:37:05  fhesse
+ *   getOsgHandle added
+ *
+ *   Revision 1.1.2.12  2006/03/29 15:08:42  martius
  *   getMainPrimitive is public now
  *
  *   Revision 1.1.2.11  2005/12/30 22:54:16  martius
@@ -171,6 +174,9 @@ namespace lpzrobots {
     */
     virtual matrix::Matrix getOrientation() const ;
   
+    /** returns osgHandle of the robot
+     */
+    virtual const OsgHandle& getOsgHandle() const {return osgHandle;};  
   
     /** overload this in the robot implementation.
 	If there is no object for some reason then return a null pointer
