@@ -22,5 +22,9 @@ to create the directory \p my_sim, adapt it to your needs, run \p make and \p st
 
 */
 
+/**
+\example main.cpp  
+ Simple example for a simulation of one robot (lpzrobots/ode_robots/simulations/template_onerobot/main.cpp). 
+*/
 
  
