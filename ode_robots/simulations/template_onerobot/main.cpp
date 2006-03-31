@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.11  2006-03-31 11:27:53  fhesse
+ *   Revision 1.14.4.12  2006-03-31 12:14:49  fhesse
+ *   orange color for nimm robot
+ *
+ *   Revision 1.14.4.11  2006/03/31 11:27:53  fhesse
  *   documentation updated
  *   one sphere removed (todo: fix prob;em with sphere placing)
  *
@@ -134,6 +137,9 @@ public:
       global.obstacles.push_back(s1);
     }
 
+    // set color for nimm robot
+    OsgHandle osgHandle_orange = osgHandle.changeColor(Color(2, 156/255.0, 0));
+
     // use Nimm2 vehicle as robot:
     // - get default configuration for nimm2
     // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
@@ -143,7 +149,7 @@ public:
      c.bumper  = true;
      c.cigarMode  = true;
      c.irFront = true;
-     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);    
+     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c);    
      vehicle->place(Pos(2,0,0));
 
     // use Nimm4 vehicle as robot:
