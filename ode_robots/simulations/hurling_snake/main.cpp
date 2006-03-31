@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.5  2006-03-28 14:18:38  fhesse
+ *   Revision 1.6.4.6  2006-03-31 16:11:19  fhesse
+ *   tracing via trackrobot
+ *
+ *   Revision 1.6.4.5  2006/03/28 14:18:38  fhesse
  *   head traced
  *
  *   Revision 1.6.4.4  2005/12/29 16:50:22  martius
@@ -127,7 +130,10 @@ public:
       else  agent = new OdeAgent(NoPlot);
       agent->init(controller, hs, wiring);
       // enable tracing of head element
-      agent->trace(osgHandle, hs->getTracePrimitive(),1000,0.005);
+      agent->setTrackOptions(TrackRobot(false, false, false, true, "0", 1));
+      // setting trace length and trace thickness
+       agent->init_tracing(1000, 0.008);      
+
       global.agents.push_back(agent);
     
 

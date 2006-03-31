@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.6  2006-03-28 14:25:23  fhesse
+ *   Revision 1.1.4.7  2006-03-31 16:11:19  fhesse
+ *   tracing via trackrobot
+ *
+ *   Revision 1.1.4.6  2006/03/28 14:25:23  fhesse
  *   tracing added
  *
  *   Revision 1.1.4.5  2006/01/31 09:58:49  fhesse
@@ -97,11 +100,12 @@ public:
     global.odeConfig.noise=0.1;
 
 
-    // passive sphere
-    PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.1);
-    s1->setPosition(osg::Vec3(-0.7,0.9,0.1));
-    s1->setTexture("Images/dusty.rgb");
-    global.obstacles.push_back(s1);
+    // passive sphere 
+    // setPosition does not work anymore 
+//     PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.1);
+//     s1->setPosition(osg::Vec3(-0.7,0.9,0.1));
+//     s1->setTexture("Images/dusty.rgb");
+//     global.obstacles.push_back(s1);
 
 
     // muscled arm configuration
@@ -137,10 +141,11 @@ public:
     // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, arm, wiring);
-    agent->trace(osgHandle, arm->getMainPrimitive(),10000);
-    //  agent->setTrackOptions(TrackRobot(true, false, false,50));
+    agent->setTrackOptions(TrackRobot(false, false, false, true, "55" ,50));
+    agent->init_tracing(10000, 0.003);
     global.agents.push_back(agent);
     //-------------------------
+
 
 
     //       arm = new MuscledArm(odeHandle, osgHandle, conf);
