@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-30 12:33:15  fhesse
+ *   Revision 1.1.2.3  2006-03-31 16:18:32  fhesse
+ *   tracing in oderagent via trackrobots
+ *
+ *   Revision 1.1.2.2  2006/03/30 12:33:15  fhesse
  *   trace via trackrobot
  *
  *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
@@ -63,7 +66,8 @@ public:
       The tracking is written into a file with the current date and time as name.
       If tracePos is ture (at least in ode simulations) the trace of the robot is shown
    */ 
-  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool tracePos, const char* scene, int interval = 1){
+  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool tracePos, 
+	     const char* scene, int interval = 1){
     this->trackPos     = trackPos;
     this->trackSpeed   = trackSpeed;
     this->trackOrientation = trackOrientation;
