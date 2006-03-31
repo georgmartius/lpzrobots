@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.11  2006-02-01 18:33:40  martius
+ *   Revision 1.7.4.12  2006-03-31 11:11:38  fhesse
+ *   minor changes in docu
+ *
+ *   Revision 1.7.4.11  2006/02/01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *   Revision 1.7.4.10  2005/12/29 16:47:40  martius
@@ -76,11 +79,13 @@ using namespace osg;
 namespace lpzrobots {
 
   // constructor:
+  // - give handle for ODE and OSG stuff
   // - size of robot, maximal used force and speed factor are adjustable
   // - sphereWheels switches between spheres or wheels as wheels
   //   (wheels are only drawn, collision handling is always with spheres)
-  Nimm4::Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double size/*=1.0*/, 
-	       double force /*=3*/, double speed/*=15*/, bool sphereWheels /*=true*/)
+  Nimm4::Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	       double size/*=1.0*/, double force /*=3*/, double speed/*=15*/, 
+	       bool sphereWheels /*=true*/)
     : // calling OdeRobots construtor with name of the actual robot
       OdeRobot(odeHandle, osgHandle, "Nimm4")
   { 
