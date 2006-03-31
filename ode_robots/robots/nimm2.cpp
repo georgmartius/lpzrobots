@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.16  2006-02-01 18:33:39  martius
+ *   Revision 1.21.4.17  2006-03-31 12:12:41  fhesse
+ *   documentation improved
+ *
+ *   Revision 1.21.4.16  2006/02/01 18:33:39  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *   Revision 1.21.4.15  2006/01/31 15:40:23  martius
@@ -92,44 +95,52 @@ using namespace osg;
 
 namespace lpzrobots {
 
-  Nimm2::Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle, const Nimm2Conf& conf = getDefaultConf()):
+  // constructor:
+  // - give handle for ODE and OSG stuff, and default configuration
+  Nimm2::Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle, 
+	       const Nimm2Conf& conf = getDefaultConf()):
+    // calling OdeRobots construtor with name of the actual robot
     OdeRobot(odehandle, osgHandle, "Nimm2"), conf(conf) { 
 
+    // robot not created up to now
     created=false;
   
-    //Nimm2 color ;-)
-    //    this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
-  
+    // Nimm2 color ;-)
+    // this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
+    // can be set in main.cpp of simulation
+
+    // maximal used force is calculated from the force and size given in the configuration
     max_force   = conf.force*conf.size*conf.size;
 
     height=conf.size;
 
-    width=conf.size/2; 
-    radius=conf.size/4; // +conf.size/600;
-    wheelthickness=conf.size/20;
-    cmass=4*conf.size;  
-    wmass=conf.size/5.0;  
-    if(conf.singleMotor){
+    width=conf.size/2;  // radius of body
+    radius=conf.size/4; // +conf.size/600;  //radius of wheels
+    wheelthickness=conf.size/20; // thickness of the wheels (if wheels used, no spheres)
+    cmass=4*conf.size;    // mass of body
+    wmass=conf.size/5.0;  // mass of wheels
+    if(conf.singleMotor){ //-> one dimensional robot
       sensorno=1; 
       motorno=1;  
-    } else {
+    } else { // -> both wheels actuated independently
       sensorno=2; 
       motorno=2;  
     }
 
     if (conf.cigarMode){
-      length=conf.size*2.0;         // long body
+      length=conf.size*2.0;    // long body
       wheeloffset= -length/4;  // wheels at the end of the cylinder, and the opposite endas the bumper
       number_bumpers=2;        // if wheels not at center only one bumper
       cmass=4*conf.size;
       max_force   = 2*conf.force*conf.size*conf.size;
     }
     else{
-      length=conf.size/2;    // short body 
-      wheeloffset=0.0;  // wheels at center of body
-      number_bumpers=2; // if wheels at center 2 bumpers (one at each end)
+      length=conf.size/2;     // short body 
+      wheeloffset=0.0;        // wheels at center of body
+      number_bumpers=2;       // if wheels at center 2 bumpers (one at each end)
     }
-
+    
+    // increase sensornumber by 2 if front infrared sensors are used
     sensorno+= conf.irFront * 2;
   };
 
@@ -141,13 +152,13 @@ namespace lpzrobots {
   void Nimm2::setMotors(const motor* motors, int motornumber){
     assert(created);
     assert(motornumber == motorno);
-    if(conf.singleMotor){
-      joint[0]->setParam(dParamVel2, motors[0]*conf.speed);       
-      joint[0]->setParam(dParamFMax2,max_force);
+    if(conf.singleMotor){ // set the same motorcommand to both wheels
+      joint[0]->setParam(dParamVel2, motors[0]*conf.speed); // set velocity      
+      joint[0]->setParam(dParamFMax2,max_force);            // set maximal force
       joint[1]->setParam(dParamVel2, motors[0]*conf.speed);       
       joint[1]->setParam(dParamFMax2,max_force);    
     } else {
-      for (int i=0; i<2; i++){ 
+      for (int i=0; i<2; i++){ // set different motorcommands to the wheels
 	joint[i]->setParam(dParamVel2, motors[i]*conf.speed);       
 	joint[i]->setParam(dParamFMax2,max_force);
       }
@@ -162,12 +173,15 @@ namespace lpzrobots {
   int Nimm2::getSensors(sensor* sensors, int sensornumber){
     assert(created);
   
+    // choose sensornumber according to number of motors
+    // - one motorcommand -> one sensorvalue
+    // - motors indepently controlled -> two sensorvalues
     int len = conf.singleMotor ? 1 : 2;
     for (int i=0; i<len; i++){
-      sensors[i]=joint[i]->getPosition2Rate();
+      sensors[i]=joint[i]->getPosition2Rate();  // readout wheel velocity
       sensors[i]/=conf.speed;  //scaling
     }
-    // ask sensorbank for sensor values
+    // ask sensorbank for sensor values (from infrared sensors)
     //  sensor+len is the starting point in the sensors array
     len += irSensorBank.get(sensors+len, sensornumber-len);
     return len;
@@ -196,26 +210,25 @@ namespace lpzrobots {
     return 3;
   };  
 
-
-
   /**
-   * draws the vehicle
+   * updates the osg notes and sensorbank
    */
-
   void Nimm2::update(){
     assert(created); // robot must exist
   
-    for (int i=0; i<3; i++) { 
+    for (int i=0; i<3; i++) { // update objects
       object[i]->update();
     }
-    for (int i=0; i < 2; i++) { 
-      joint[i]->update();
+    for (int i=0; i < 2; i++) { // update joints
+      joint[i]->update(); 
     }
-    if (conf.bumper){    
+    if (conf.bumper){ // if bumper used update transform objects
       for (int i=0; i<number_bumpers; i++){
 	bumper[i].trans->update();
       }
     }
+
+    // update sensorbank with infrared sensors
     irSensorBank.update();  
   }
 
@@ -277,7 +290,7 @@ namespace lpzrobots {
 
   void Nimm2::doInternalStuff(const GlobalData& globalData){
     // dSpaceCollide(car_space, this, mycallback); // checks collisions in the car_space only (not needed)
-    irSensorBank.reset();
+    irSensorBank.reset(); // reset sensorbank (infrared sensors)
   }
 
   /** creates vehicle at desired position 
@@ -289,17 +302,26 @@ namespace lpzrobots {
     }
 
     // create vehicle space and add it to the top level space
+    // robot will be inserted in the vehicle space
     odeHandle.space = dSimpleSpaceCreate (parentspace);
   
     // create body
+    // - create cylinder for main body (with radius and length)
+    // - init cylinder with odehandle, mass and osghandle
+    // - rotate and place body (here by 90° around the y-axis)
+    // - set texture for cylinder
+    // - put it into object[0]
     Capsule* cap = new Capsule(width/2, length);
     cap->init(odeHandle, cmass, osgHandle);    
-    // rotate and place body (here by 90° around the y-axis)
     cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
     cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
     object[0]=cap;
 
-    // bumper
+    // create bumper if required
+    // - create cylinder with radius and length
+    // - position bumper relative to main body 
+    //  (using transform object "glues" it together without using joints, see ODE documentation)
+    // - init cylinder with odehandle, mass and osghandle
     if (conf.bumper){    
       for (int i=0; i<number_bumpers; i++){
 	bumper[i].bump = new Capsule(width/4, 2*radius+width/2);      
@@ -310,20 +332,20 @@ namespace lpzrobots {
       }
     }
 
-    // wheel bodies
-    OsgHandle osgHandleWheels(osgHandle);
-    osgHandleWheels.color = Color(1.0,1.0,1.0);
+    // create wheel bodies
+    OsgHandle osgHandleWheels(osgHandle);    // new osghandle with color for wheels
+    osgHandleWheels.color = Color(1.0,1.0,1.0); 
     for (int i=1; i<3; i++) {
-      if(conf.sphereWheels) {
-	Sphere* wheel = new Sphere(radius);      
-	wheel->init(odeHandle, wmass, osgHandleWheels);
+      if(conf.sphereWheels) { // for spherical wheels
+	Sphere* wheel = new Sphere(radius);      // create spheres
+	wheel->init(odeHandle, wmass, osgHandleWheels); // init with odehandle, mass, and osghandle
       
 	wheel->setPose(Matrix::rotate(M_PI/2.0, 1, 0, 0) * 
 		       Matrix::translate(wheeloffset, (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
-		       pose); 
-	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb");
+		       pose); // place wheels
+	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
 	object[i] = wheel;
-      }else{
+      }else{ // for "normal" wheels
 	//       Cylinder* wheel = new Cylinder(radius);      
 	//       wheel->init(odeHandle, wmass, osgHandleWheels);
       
@@ -334,6 +356,10 @@ namespace lpzrobots {
       }
     }
   
+    // set joints between wheels and body (see ODE documentation)
+    // - create joint
+    // - init joint
+    // - set stop parameters
     for (int i=0; i<2; i++) {
       joint[i] = new Hinge2Joint(object[0], object[i+1], object[i+1]->getPosition(), 
 				 Axis(0, 0, 1)*pose, Axis(0, -1, 0)*pose);
@@ -343,9 +369,10 @@ namespace lpzrobots {
       joint[i]->setParam(dParamHiStop,0);
     }
 
+    // initialize sensorbank (for use of infrared sensors)
     irSensorBank.init(odeHandle, osgHandle);
 
-    if (conf.irFront){
+    if (conf.irFront){ // add front infrared sensors to sensorbank if required
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
 	irSensorBank.registerSensor(sensor, object[0], 
