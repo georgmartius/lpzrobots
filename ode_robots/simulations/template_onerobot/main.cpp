@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.10  2006-01-12 15:17:46  martius
+ *   Revision 1.14.4.11  2006-03-31 11:27:53  fhesse
+ *   documentation updated
+ *   one sphere removed (todo: fix prob;em with sphere placing)
+ *
+ *   Revision 1.14.4.10  2006/01/12 15:17:46  martius
  *   *** empty log message ***
  *
  *   Revision 1.14.4.9  2005/12/29 15:55:33  martius
@@ -113,30 +117,40 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(3, 0.2, 0.5));
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(30, 0.2, 0.5));
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
-    for (int i=0; i<= 2; i+=2){
+    // add passive spheres as obstacles
+    // - create pointer to sphere (with odehandle, osghandle and 
+    //   optional parameters radius and mass,where the latter is not used here) )
+    // - set Pose(Position) of sphere 
+    // - set a texture for the sphere
+    // - add sphere to list of obstacles
+    for (int i=0; i<= 1/*2*/; i+=2){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-      s1->setPosition(osg::Vec3(-4.5+i*4.5,0,2));
+      s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
 
-    // use Nimm4 vehicle as robot:
-    // - create pointer to nimm4 (with ode Information, further parameters can be set, 
-    //   here are the defaults used)
-    // - set textures for body and wheels
+    // use Nimm2 vehicle as robot:
+    // - get default configuration for nimm2
+    // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
+    // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
     // - place robot
-    Nimm2Conf c = Nimm2::getDefaultConf();
-    c.bumper  = true;
-    c.cigarMode  = true;
-    c.irFront = true;
-    
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);
+     Nimm2Conf c = Nimm2::getDefaultConf();
+     c.bumper  = true;
+     c.cigarMode  = true;
+     c.irFront = true;
+     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);    
+     vehicle->place(Pos(2,0,0));
+
+    // use Nimm4 vehicle as robot:
+    // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
+    // - place robot
     //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
-    vehicle->place(Pos(0,0,0));
+    //vehicle->place(Pos(0,2,0));
 
     // create pointer to controller
     // push controller in global list of configurables
