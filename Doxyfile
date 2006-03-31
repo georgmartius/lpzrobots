@@ -418,7 +418,8 @@ WARN_LOGFILE           =
 # with spaces.
 
 #INPUT                  = controller matrixlib ode_robots README
-INPUT                  = selforg matrixlib ode_robots gnuplot README guilogger/README
+INPUT                  = selforg matrixlib ode_robots gnuplot README guilogger/README \
+
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
@@ -440,11 +441,42 @@ RECURSIVE              = YES
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 #EXCLUDE                = matrixlib/unit_test.h ode_robots/simulations controller/old_stuff
-EXCLUDE                = matrixlib/unit_test.h \
-		         controller/old_stuff \
-			 ode_robots/textures/calcheightmaps \
+EXCLUDE                = ode_robots/textures/calcheightmaps \
+			 ode_robots/simulations/arm2segm \	
+			 ode_robots/simulations/nimm2_arena \	
+			 ode_robots/simulations/sphericalrobot \	
+			 ode_robots/simulations/zoo \	
+			 ode_robots/simulations/atomsimulation \	
+			 ode_robots/simulations/pid_test \	
+			 ode_robots/simulations/teaching \	
+			 ode_robots/simulations/proactive \	
+			 ode_robots/simulations/deprivation \
+			 ode_robots/simulations/pseudosensor_wheelrobot \
+			 ode_robots/simulations/formel1 \	
+			 ode_robots/simulations/running_through_limit_cycles \
+			 ode_robots/simulations/jointtest \	
+			 ode_robots/simulations/schlangeservo \
+			 ode_robots/simulations/muscled_arm \
+			 ode_robots/simulations/short_circuit \
+			 ode_robots/simulations/template_spiderbot \
+			 ode_robots/simulations/template_snakebot \
+			 ode_robots/simulations/robodrom \
+			 ode_robots/simulations/hurling_snake \
 			 ode_robots/include \
-			 selforg/include
+			 selforg/include \
+		         selforg/controller/old_stuff \
+			 matrixlib/unit_test.h \
+ 		         selforg/controller/deprivation.h \
+ 		         selforg/controller/invertmotorcontroller.h \ 
+ 		         selforg/controller/invertmotornstep.cpp\
+ 		         selforg/controller/invertmotornstep.h\
+ 		         selforg/controller/invertmotorspace.cpp\
+ 		         selforg/controller/invertmotorspace.h \
+ 		         selforg/controller/proactive.h \
+ 		         selforg/controller/proactive2.h \
+ 		         selforg/controller/universalnetcontroller.h 
+			
+
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories 
 # that are symbolic links (a Unix filesystem feature) are excluded from the input.
