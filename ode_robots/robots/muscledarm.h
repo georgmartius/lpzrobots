@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.11  2006-03-30 12:34:56  martius
+ *   Revision 1.1.4.12  2006-03-31 16:13:59  fhesse
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.4.11  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.1.4.10  2006/03/28 14:24:37  fhesse
@@ -184,19 +187,16 @@ namespace lpzrobots{
       return motorno;
     };
 
-    /** returns position of hand (=sphere at the end of lower arm) 
-	@return position robot position in struct Position  
-    */
-    virtual osg::Vec3 MuscledArm::getPosition();
+/*     /\** returns position of hand (=sphere at the end of lower arm)  */
+/* 	@return position robot position in struct Position   */
+/*     *\/ */
+/*     virtual osg::Vec3 MuscledArm::getPosition(); */
 
     /** returns a vector with the positions of all segments of the robot
 	@param poslist vector of positions (of all robot segments) 
 	@return length of the list
     */
     virtual int getSegmentsPosition(vector<Position> &poslist);
-
-    /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return object[hand]; }
 
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
     /** this function is called in each timestep. It should perform robot-internal checks, 
@@ -216,10 +216,11 @@ namespace lpzrobots{
   
     virtual bool setParam(const paramkey& key, paramval val);
 
+    virtual Primitive* getMainObject() const;
 
   protected:
-  
-    virtual Primitive* getMainObject() const;
+    /** the main object of the robot, which is used for position and speed tracking */
+    virtual Primitive* getMainPrimitive() const { return object[lowerArm]; }
 
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix
