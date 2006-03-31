@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-03-30 12:34:51  martius
+ *   Revision 1.1.2.7  2006-03-31 09:59:23  fhesse
+ *   in create: z+=radius; added to place sphere on ground
+ *
+ *   Revision 1.1.2.6  2006/03/30 12:34:51  martius
  *   documentation updated
  *
  *   Revision 1.1.2.5  2006/03/29 15:04:39  martius
@@ -126,6 +129,7 @@ class PassiveSphere : public AbstractObstacle{
   virtual void create(){
     sphere = new Sphere(radius);
     sphere->init(odeHandle, mass, osgHandle);
+    pos[2]+=radius;
     sphere->setPosition(pos);
         
     obstacle_exists=true;
