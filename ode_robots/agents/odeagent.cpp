@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-30 12:32:46  fhesse
+ *   Revision 1.1.2.3  2006-03-31 16:16:58  fhesse
+ *   changed trace() to init_tracing()
+ *   and check for init at beginning of step
+ *
+ *   Revision 1.1.2.2  2006/03/30 12:32:46  fhesse
  *   trace via trackrobot
  *
  *   Revision 1.1.2.1  2006/03/28 14:14:44  fhesse
@@ -37,7 +41,7 @@
 namespace lpzrobots {
   
 
-  void OdeAgent::trace(int tracelength/*=10*/,double tracethickness/*=0.003*/){
+  void OdeAgent::init_tracing(int tracelength/*=10*/,double tracethickness/*=0.003*/){
     trace_length=tracelength;
     trace_thickness=tracethickness;
 
@@ -51,16 +55,19 @@ namespace lpzrobots {
 
     counter=0;
 
-    tracing_activated=true;
+    tracing_initialized=true;
   }
 
 
 
   void OdeAgent::step(double noise){
     Agent::step(noise);
-
-    //    if (tracing_activated){
+    // todo: do this (trackrobot.trace()) with friend class OdeAgent or the like
+    // to be able to directly use trackrobot.tracePos
     if (trackrobot.trace()){
+      if (!tracing_initialized) {
+	init_tracing();
+      }
       Pos pos(robot->getPosition());
      /* if construct used to draw cylinder only when length between actual 
         and last point is larger then a specific value
@@ -69,6 +76,9 @@ namespace lpzrobots {
       double len = (pos - lastpos).length();
       if(segments[counter%trace_length]) delete segments[counter%trace_length];
       OSGPrimitive* s = new OSGCylinder(trace_thickness, len);
+//       OsgHandle osgHandle_white=((OdeRobot*)robot)->osgHandle;
+//       osgHandle_white.changeColor(Color(255, 255, 255));
+//       s->init(osgHandle_white, OSGPrimitive::Low);
       s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);
       s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) * 
 		   osg::Matrix::translate(pos+(pos - lastpos)/2));

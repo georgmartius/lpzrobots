@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-03-29 15:08:06  martius
+ *   Revision 1.1.2.5  2006-03-31 16:16:58  fhesse
+ *   changed trace() to init_tracing()
+ *   and check for init at beginning of step
+ *
+ *   Revision 1.1.2.4  2006/03/29 15:08:06  martius
  *   Agent::interninit not necessary
  *
  *   Revision 1.1.2.3  2006/03/28 14:14:44  fhesse
@@ -50,9 +54,8 @@ namespace lpzrobots {
   public:
   /** constructor
    */
-  OdeAgent(const PlotOption& plotOption)  : Agent(plotOption) {tracing_activated=false;}
-  OdeAgent(const list<PlotOption>& plotOptions) : Agent(plotOptions) {tracing_activated=false;}
-
+  OdeAgent(const PlotOption& plotOption)  : Agent(plotOption) {tracing_initialized=false;}
+  OdeAgent(const list<PlotOption>& plotOptions) : Agent(plotOptions) {tracing_initialized=false;}
   /** destructor
    */
   virtual ~OdeAgent() {}
@@ -76,24 +79,27 @@ namespace lpzrobots {
   }
 
 
-  /** Returns a pointer to the robot.
+  /** 
+   * Returns a pointer to the robot.
    */
   virtual OdeRobot* getRobot() { return (OdeRobot*)robot;}
 
   /// gives the number of past robot positions shown as trace in osg
   virtual int getTraceLength(){return trace_length;}
 
-  /// sets the primitive for tracing and the number of past positions shown as trace in osg
-  virtual void trace(const OsgHandle& osgHandle, Primitive* body_to_follow, 
-		     int tracelength=10, double tracethickness=0.003);
+  /**
+   * initialize tracing in ode
+   * @param tracelength number of past positions shown as trace in osg 
+   * @param tracethickness  thickness of the trace
+   */
+  virtual void init_tracing(int tracelength=1000, double tracethickness=0.003);
+
 
  private:
-  OsgHandle osgHandle;
   int trace_length;
   double trace_thickness;
   int counter;
-  Primitive* body_to_trace;
-  bool tracing_activated;
+  bool tracing_initialized;
 
   OSGPrimitive** segments; // stores segments(cylinders) of the trace
   osg::Vec3 lastpos;
