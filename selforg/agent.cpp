@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-02-24 14:46:00  martius
+ *   Revision 1.1.2.7  2006-03-31 16:28:32  fhesse
+ *   in setTrackoptions: trackrobot.open() only when one of the track optoions is active
+ *
+ *   Revision 1.1.2.6  2006/02/24 14:46:00  martius
  *   recording inverval in plotoutput
  *
  *   Revision 1.1.2.5  2006/02/20 17:33:15  martius
@@ -111,7 +114,7 @@ void Agent::internInit(){
   rsensors=0; rmotors=0; 
   csensors=0; cmotors=0; 
   
-  t=0;  
+  t=0;
 }
   
 Agent::~Agent(){
@@ -248,10 +251,12 @@ void Agent::step(double noise){
 // sets the trackoptions which enable tracking of a robot
 void Agent::setTrackOptions(const TrackRobot& trackrobot){
   this->trackrobot = trackrobot;
-  if(!this->trackrobot.open(robot)){
-    fprintf(stderr, "could not open trackfile!\n");
-  }else{
-    // print all parameters of the controller
-    controller->print(this->trackrobot.file, "# ");                
+  if (trackrobot.trackPos || trackrobot.trackSpeed || trackrobot.trackOrientation){
+    if(!this->trackrobot.open(robot)){
+      fprintf(stderr, "could not open trackfile!\n");
+    }else{
+      // print all parameters of the controller
+      controller->print(this->trackrobot.file, "# ");                
+    }
   }
 }
