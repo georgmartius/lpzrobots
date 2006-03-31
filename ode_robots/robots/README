@@ -21,4 +21,10 @@ on the tab  "Examples" at the top of the page .
  Simple example for the creation of a simulated robot (lpzrobots/ode_robots/robots/nimm4.cpp). 
 */
 
+/**
+\example nimm2.cpp  
+ Example for the creation of a simulated robot with transform object and infrared sensors 
+ (lpzrobots/ode_robots/robots/nimm2.cpp). 
+*/
+
 
