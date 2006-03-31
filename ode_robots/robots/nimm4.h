@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.10  2006-03-30 12:34:56  martius
+ *   Revision 1.5.4.11  2006-03-31 16:20:28  fhesse
+ *   class Joint; changed to: class Hinge2Joint;
+ *
+ *   Revision 1.5.4.10  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.5.4.9  2005/12/15 17:04:08  martius
@@ -78,8 +81,8 @@
 
 namespace lpzrobots {
 
-  class Primitive;
-  class Joint;
+  class Primitive; 
+  class Hinge2Joint; 
 
   /** Robot that looks like a Nimm 2 Bonbon :-)
       4 wheels and a capsule like body   
