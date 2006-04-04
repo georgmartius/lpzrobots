@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.1
+VERSION=0.2
 NAME=lpzrobots
 BASE=../..
 
@@ -10,7 +10,7 @@ SRCDIR=$BASE/lpzrobots
 
 mkdir $DIR || exit 1;
 echo "Copy top level files";
-for F in `find $SRCDIR -type f -maxdepth 1`; do
+for F in `find $SRCDIR -maxdepth 1 -type f`; do
     cp "$F" $DIR/;
 done
 
@@ -20,11 +20,18 @@ echo "Copy guilogger";
 cp -r  $SRCDIR/guilogger $DIR/;
 echo "Copy gnuplot";
 cp -r  $SRCDIR/gnuplot $DIR/;
+echo "Copy neuronviz";
+cp -r  $SRCDIR/neuronviz $DIR/;
+echo "Copy webots projects";
+cp -r  $SRCDIR/webots $DIR/;
 
-echo "Copy controller";
-mkdir $DIR/controller || exit 1;
+echo "Copy selforg without controllers";
+cp -r  $SRCDIR/selforg $DIR/;
+rm -r  $DIR/selforg/controller;
+echo "Copy  controllers";
+mkdir $DIR/selforg/controller || exit 1;
 for F in `cat controllers`; do
-cp -r  $SRCDIR/controller/$F $DIR/controller/;
+cp -r  $SRCDIR/selforg/controller/$F $DIR/selforg/controller/;
 done 
 
 echo "Copy ode_robots";
@@ -34,7 +41,7 @@ pushd `pwd`;
 echo -en "# subdirectories which contain libraries or binaries needed some of the other project in this tree\nSIMULATIONS=" > $SIMDIR/Makefile.conf
 
 cd $SIMDIR  || exit 1;
-SIMS=`find . -type d -mindepth 1 -maxdepth 1`
+SIMS=`find . -mindepth 1 -maxdepth 1 -type d`
 popd;
 
 echo "Keeping the following simulation:";
