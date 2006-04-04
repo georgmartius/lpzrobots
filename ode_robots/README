@@ -19,14 +19,14 @@ In \ref simulation.h and \ref simulation.cpp you find the \ref lpzrobots::OdeCon
 as well as the \ref lpzrobots::OdeConfig::nearCallback "collision handling" etc. of the simulation environment,
 which are used for all simulations.
 In the \ref lpzrobots::OdeConfig::simulation_init "init" function you can specify user defined functions if your simulation needs this, possible are:
-- \ref lpzrobots::OdeConfig::startFunction "startFunction"
-- \ref lpzrobots::OdeConfig::endFunction "endFunction"
-- \ref lpzrobots::OdeConfig::configFunction "configFunction"
-- \ref lpzrobots::OdeConfig::commandFunction "commandFunction"
-- \ref lpzrobots::OdeConfig::collisionCallback "collisionCallback"
-- \ref lpzrobots::OdeConfig::additionalCallback "additionalCallback"
+- \ref lpzrobots::Simulation::start "start"
+- \ref lpzrobots::Simulation::end "end"
+- \ref lpzrobots::Simulation::config "config"
+- \ref lpzrobots::Simulation::command "command"
+- \ref lpzrobots::Simulation::collCallback "collCallback"
+- \ref lpzrobots::Simulation::addCallback "addCallback"
 
-So you normally do not have to change anything in this files.
+But you normally do not have to change anything in this files.
 
 
 \par Simulation Objects and more
