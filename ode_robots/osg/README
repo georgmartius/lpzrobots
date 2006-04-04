@@ -1,0 +1,45 @@
+/** \file 
+ * This file is used for the doxygen documentation. 
+ */
+
+/**
+\dir osg
+
+
+The \a osg directory provides the osg primitves of which robots and obstacles are assembled
+and further helpful things dealing with the visualization in OSG.
+
+OSG stands for OpenSceneGraph and is an open source high peformance 3D graphics toolkit 
+(http://www.openscenegraph.org). 
+A documentation can be found on their webpage under documentation or by klicking the link
+http://www.openscenegraph.org/osgwiki/pmwiki.php/Documentation/Documentation 
+
+For now only the primitives should be explained, which are required to build new objects for the 
+simulations:
+- \ref Plane Graphical plane (represented as a large thin box, because OSG does not draw planes)
+- \ref Box 
+- \ref Sphere
+- \ref Cylinder
+- \ref Capsule (a cylinder with round ends
+- \ref Transform (embedding a primitive in another primitive)
+
+The mentioned primitves are drivatives of \ref lpzrobots::Primitive which is an interface class 
+for primitives represented in the physical and graphical world. 
+It is intended to bring OSG and ODE together and hide most implementation details.
+
+
+For visualization the primitves use the osg primitives 
+(since this is done in the primitives you don't have to bother about this one):
+- \ref OSGPlane Graphical plane (represented as a large thin box, because OSG does not draw planes)
+- \ref OSGBox 
+- \ref OSGSphere
+- \ref OSGCylinder
+- \ref OSGCapsule (a cylinder with round ends
+- \ref OSGMesh for graphical mesh or arbitrary OSG model
+
+They are derived from \ref lpzrobots::OSGPrimitive which is an interface class 
+for graphic primitives like spheres, boxes, and meshes, which can be drawn by OSG. 
+
+*/
+
+
