@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.13  2006-04-04 14:13:24  fhesse
+ *   Revision 1.7.4.14  2006-04-04 17:03:21  fhesse
+ *   docu added
+ *
+ *   Revision 1.7.4.13  2006/04/04 14:13:24  fhesse
  *   documentation improved
  *
  *   Revision 1.7.4.12  2006/03/31 11:11:38  fhesse
@@ -302,9 +305,13 @@ namespace lpzrobots {
     // create car space and add it to the top level space
     odeHandle.space = dSimpleSpaceCreate (parentspace);
  
+    // create cylinder for main body
+    // initialize it with ode-, osghandle and mass
+    // rotate and place body (here by 90° around the y-axis)
+    // use texture 'wood' for capsule 
+    // put it into object[0]
     Capsule* cap = new Capsule(width/2, length);
     cap->init(odeHandle, cmass, osgHandle);    
-    // rotate and place body (here by 90° around the y-axis)
     cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
     cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
     object[0]=cap;
@@ -312,10 +319,13 @@ namespace lpzrobots {
     // create wheel bodies
     osgHandle.color= Color(0.8,0.8,0.8);
     for (int i=1; i<5; i++) {
-      
+      // create sphere with radius
+      // and initializ it with odehandle, osghandle and mass
+      // calculate position of wheels(must be at desired positions relative to the body)
+      // rotate and place body (here by 90° around the x-axis)
+      // set texture for wheels
       Sphere* sph = new Sphere(radius);
       sph->init(odeHandle, wmass, osgHandle);    
-      // rotate and place body (here by 90° around the x-axis)
       Vec3 wpos = Vec3( ((i-1)/2==0?-1:1)*length/2.0, 
 			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
 			-width*0.6+radius );
