@@ -1,3 +1,4 @@
+ 
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -25,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-03-29 15:07:17  martius
+ *   Revision 1.1.2.9  2006-04-04 14:13:24  fhesse
+ *   documentation improved
+ *
+ *   Revision 1.1.2.8  2006/03/29 15:07:17  martius
  *   Dummy Primitive
  *
  *   Revision 1.1.2.7  2006/01/31 15:45:35  martius
@@ -76,10 +80,13 @@ osg::Matrix osgPose( const double * position , const double * rotation );
 /// converts the rotation component of pose into an ode rotation matrix
 void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix);
 
-/**************************************************************************/
+/**
+   Interface class for primitives represented in the physical and graphical world.
+   This is intended to bring OSG and ODE together and hide most implementation details.
+*/
 class Primitive {
 public:
-  /** Body means that is is a dynamic object with a body.
+  /** Body means that it is a dynamic object with a body.
       Geom means it has a geometrical represenation used for collision detection.
       Draw means the primitive is drawn
   */
@@ -88,24 +95,35 @@ public:
   Primitive ();
   virtual ~Primitive ();
   /** registers primitive in ODE and OSG. 
+      @param osgHandle scruct with ODE variables inside (to specify space, world...)
       @param mass Mass of the object in ODE (if withBody = true)
+      @param osgHandle scruct with OSG variables inside (scene node, color ...)
       @param mode is a conjuction of Modes.
    */
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw)  = 0 ;
 
-  /// should syncronise the ODE stuff and the OSG notes
+  /** Updates the OSG nodes with ODE coordinates.
+      This function must be overloaded (usually calls setMatrix of OsgPrimitives)
+   */
   virtual void update() =0 ;
 
+  /// returns the assoziated osg primitive if there or 0
   virtual OSGPrimitive* getOSGPrimitive() = 0;
 
+  /// set the position of the primitive (orientation is preserved)
   void setPosition(const osg::Vec3& pos);
+  /// set the pose of the primitive
   void setPose(const osg::Matrix& pose);
+  /// returns the position
   osg::Vec3 getPosition() const;
+  /// returns the pose
   osg::Matrix getPose() const;
 
+  /// returns ODE geomID if there
   dGeomID getGeom() const;    
+  /// returns ODE bodyID if there
   dBodyID getBody() const;
 
 protected:
@@ -115,7 +133,7 @@ protected:
 };
 
 
-/**************************************************************************/
+/** Plane primitive */
 class Plane : public Primitive {
 public:
   Plane();
@@ -132,7 +150,7 @@ protected:
 };
 
 
-/**************************************************************************/
+/** Box primitive */
 class Box : public Primitive {
 public:
 
@@ -151,7 +169,7 @@ protected:
 };
 
 
-/**************************************************************************/
+/** Sphere primitive */
 class Sphere : public Primitive {
 public:
   Sphere(float radius);
@@ -168,7 +186,7 @@ protected:
   OSGSphere* osgsphere;
 };
 
-/**************************************************************************/
+/** Capsule primitive */
 class Capsule : public Primitive {
 public:
   Capsule(float radius, float height);
@@ -184,11 +202,11 @@ protected:
   OSGCapsule* osgcapsule;
 };
 
-/**************************************************************************/
 
 /**
-   Primitive for transforming a geom in respect to a body. 
-   The ODE geom is a TransformGeom. 
+   Primitive for transforming a geom (primitive without body) 
+    in respect to a body (primitive with body). 
+   Hides complexity of ODE TransformGeoms. 
 */
 class Transform : public Primitive {
 public:
@@ -198,7 +216,7 @@ public:
       This Primitive must NOT have a body
   */
   Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose);
-  /// withBody MUST be false!
+  /// mode is ignored
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw);
@@ -213,7 +231,8 @@ protected:
 };
 
 /**
-   Dummy Primitive which returns 0 for geom and body
+   Dummy Primitive which returns 0 for geom and body. 
+   Only useful for representing the static world in terms of primitives.
 */
 class DummyPrimitive : public Primitive {
 public:

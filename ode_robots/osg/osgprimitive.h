@@ -1,3 +1,4 @@
+ 
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -26,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-03-29 15:06:40  martius
+ *   Revision 1.1.2.9  2006-04-04 14:13:24  fhesse
+ *   documentation improved
+ *
+ *   Revision 1.1.2.8  2006/03/29 15:06:40  martius
  *   OSGMesh
  *
  *   Revision 1.1.2.7  2005/12/22 14:14:12  martius
@@ -67,8 +71,11 @@
 
 namespace lpzrobots {
 
-
-  /**************************************************************************/
+  /**
+     Interface class for graphic primitives like spheres, boxes, and meshes,
+     which can be drawn by OSG. The idea is to hide all the details of the OSG
+     implementation.
+  */
   class OSGPrimitive {
   public:
 
@@ -76,11 +83,16 @@ namespace lpzrobots {
 
     OSGPrimitive ();
     virtual ~OSGPrimitive ();
-    // this function should be overloaded
+    /** Initialisation of the primitive. Must in order to place the object into the scene.
+	This function should be overloaded */
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle) = 0;
+    /// Sets the transformation matrix of this object (position and orientation)
     virtual void setMatrix( const osg::Matrix& m4x4 );
+    /// returns the group object which is the root of all subcomponents of this primitive
     virtual osg::Group* getGroup();
+    /// assigns a texture to the primitive
     virtual void setTexture(const std::string& filename);
+    /// sets the color for painting this primitive
     virtual void setColor(const Color& color);
     /// returns a osg transformation object;
     virtual osg::Transform* getTransform();
@@ -91,7 +103,9 @@ namespace lpzrobots {
     osg::ref_ptr<osg::ShapeDrawable> shape;
   };
 
-  /**************************************************************************/
+  /**
+     A dummy graphical object, which has no representation in the graphical world.
+  */
   class OSGDummy : public OSGPrimitive {
   public:
     OSGDummy();
@@ -106,7 +120,9 @@ namespace lpzrobots {
   };
 
 
-  /**************************************************************************/
+  /**
+     Graphical plane (represented as a large thin box, because OSG does not draw planes)
+  */
   class OSGPlane : public OSGPrimitive {
   public:
     OSGPlane();
@@ -115,7 +131,9 @@ namespace lpzrobots {
   };
 
 
-  /**************************************************************************/
+  /**
+     Graphical box
+  */
   class OSGBox : public OSGPrimitive {
   public:
     OSGBox(float lengthX, float lengthY, float lengthZ);
@@ -133,7 +151,9 @@ namespace lpzrobots {
   };
 
 
-  /**************************************************************************/
+  /**
+     Graphical sphere
+  */
   class OSGSphere : public OSGPrimitive {
   public:
     OSGSphere(float radius);
@@ -145,7 +165,9 @@ namespace lpzrobots {
     float radius;  
   };
 
-  /**************************************************************************/
+  /**
+     Graphical capsule (a cylinder with round ends)
+  */
   class OSGCapsule : public OSGPrimitive {
   public:
     OSGCapsule(float radius, float height);
@@ -159,7 +181,10 @@ namespace lpzrobots {
     float height;
   };
 
-  /**************************************************************************/
+
+  /**
+     Graphical cylinder
+  */
   class OSGCylinder : public OSGPrimitive {
   public:
     OSGCylinder(float radius, float height);
@@ -173,9 +198,18 @@ namespace lpzrobots {
     float height;
   };
 
-  /**************************************************************************/
+
+  /**
+     Graphical Mesh or arbitrary OSG model.
+  */
   class OSGMesh : public OSGPrimitive {
   public:
+    /**
+       Constuctor
+       @param filename filename of the model file (search path is osg data path)
+       @param scale scale factor used for scaling the model 
+       @options options for model reader
+     */
     OSGMesh(const std::string& filename, float scale = 1, const osgDB::ReaderWriter::Options* options = 0);
     ~OSGMesh();
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);

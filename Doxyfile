@@ -445,7 +445,6 @@ EXCLUDE                = ode_robots/textures/calcheightmaps \
 			 ode_robots/simulations/arm2segm \	
 			 ode_robots/simulations/nimm2_arena \	
 			 ode_robots/simulations/sphericalrobot \	
-			 ode_robots/simulations/zoo \	
 			 ode_robots/simulations/atomsimulation \	
 			 ode_robots/simulations/pid_test \	
 			 ode_robots/simulations/teaching \	
@@ -467,11 +466,8 @@ EXCLUDE                = ode_robots/textures/calcheightmaps \
 		         selforg/controller/old_stuff \
 			 matrixlib/unit_test.h \
  		         selforg/controller/deprivation.h \
- 		         selforg/controller/invertmotorcontroller.h \ 
- 		         selforg/controller/invertmotornstep.cpp\
- 		         selforg/controller/invertmotornstep.h\
- 		         selforg/controller/invertmotorspace.cpp\
- 		         selforg/controller/invertmotorspace.h \
+ 		         selforg/controller/invertmotornstep.cpp \
+ 		         selforg/controller/invertmotornstep.h \
  		         selforg/controller/proactive.h \
  		         selforg/controller/proactive2.h \
  		         selforg/controller/universalnetcontroller.h 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.11  2006-03-31 16:20:28  fhesse
+ *   Revision 1.5.4.12  2006-04-04 14:13:24  fhesse
+ *   documentation improved
+ *
+ *   Revision 1.5.4.11  2006/03/31 16:20:28  fhesse
  *   class Joint; changed to: class Hinge2Joint;
  *
  *   Revision 1.5.4.10  2006/03/30 12:34:56  martius
@@ -90,6 +93,15 @@ namespace lpzrobots {
   class Nimm4 : public OdeRobot{
   public:
   
+    /**
+     * constructor of nimm4 robot
+     * @param odeHandle data structure for accessing ODE
+     * @param osgHandle ata structure for accessing OSG
+     * @param size scaling of robot
+     * @param force maximal used force to realize motorcommand
+     * @param speed factor for changing speed of robot
+     * @param sphereWheels switches between spheres and  'normal' wheels 
+     */
     Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	  double size=1, double force=3, double speed=15, bool sphereWheels=true);
 
@@ -162,20 +174,20 @@ namespace lpzrobots {
      */
     static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
-    double length;  // chassis length
-    double width;  // chassis width
-    double height;   // chassis height
-    double radius;  // wheel radius
+    double length;     // chassis length
+    double width;      // chassis width
+    double height;     // chassis height
+    double radius;     // wheel radius
     double wheelthickness; // thickness of the wheels  
     bool sphereWheels; // draw spherical wheels?
-    double cmass;    // chassis mass
-    double wmass;    // wheel mass
-    int sensorno;      //number of sensors
+    double cmass;      // chassis mass
+    double wmass;      // wheel mass
+    int sensorno;      // number of sensors
     int motorno;       // number of motors
     int segmentsno;    // number of motorsvehicle segments
-    double speed;    // 
+    double speed;      // factor for adjusting speed of robot
 
-    double max_force;        // maximal force for motors
+    double max_force;  // maximal force for motors
 
     bool created;      // true if robot was created
 

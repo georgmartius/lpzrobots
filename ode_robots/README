@@ -43,6 +43,8 @@ the following subdirectories
 	them are in this directory
 - \ref ode_robots/components "components":
 	create your robots by plugging together different parts (work in progress)
+- \ref ode_robots/osg "osg primitives":
+	primitives of which robots and obstacles can be assembled, and further helpful things dealing with OSG
 - \ref ode_robots/motors "motors":
 	a few additional motors (PID servos)
 - \ref ode_robots/sensors "senors":

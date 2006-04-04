@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.12  2006-03-31 11:11:38  fhesse
+ *   Revision 1.7.4.13  2006-04-04 14:13:24  fhesse
+ *   documentation improved
+ *
+ *   Revision 1.7.4.12  2006/03/31 11:11:38  fhesse
  *   minor changes in docu
  *
  *   Revision 1.7.4.11  2006/02/01 18:33:40  martius
@@ -97,7 +100,7 @@ namespace lpzrobots {
     // where the name of the Nimm2 and Nimm4 robots comes from ;-)
     this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
     
-    // maximal used force is calculated from the forece factor and size given to the constructor
+    // maximal used force is calculated from the force factor and size given to the constructor
     max_force   = force*size*size;
   
     // speed and type of wheels are set
@@ -189,10 +192,10 @@ namespace lpzrobots {
   void Nimm4::update(){
     assert(created); // robot must exist
   
-    for (int i=0; i<segmentsno; i++) { 
+    for (int i=0; i<segmentsno; i++) { // update objects
       object[i]->update();
     }
-    for (int i=0; i < 4; i++) { 
+    for (int i=0; i < 4; i++) { // update joints
       joint[i]->update();
     }
 
