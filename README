@@ -28,7 +28,8 @@ It consists of the following directories (click for details):
 	yielding at self-organized behaviour for various kinds of machines. 
   - \ref ode_robots : stuff needed for our ODE-simulations 
 	(Open Dynamics Engine, see http://www.ode.org) such as robots, 
- 	obstacles, utils, our patches and so on
+ 	obstacles, utils, our patches and stuff for visualization with OSG 
+        (OpenSceneGraph, see http://www.openscenegraph.org)
   - \ref matrixlib : comfortable matrix library used for calculations e.g. in our controllers
   - \ref gnuplot : tool allowing you to use online gnuplot windows within your program 
 	(using pipe for data handover), however \ref guilogger is more comfortable
@@ -91,7 +92,7 @@ You need the following software and libraries installed (Tested on Linux x86 mac
   http://robot.informatik.uni-leipzig.de/students \n
   (Tar ball with pdf and example code also there available.)
 - The original ODE documentation can be found at http://www.ode.org/ode-docs.html 
-
+- The OSG documentation can be found at  http://www.openscenegraph.org/osgwiki/pmwiki.php/Documentation/Documentation
 
 
 */

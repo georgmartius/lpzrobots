@@ -16,26 +16,25 @@ http://www.openscenegraph.org/osgwiki/pmwiki.php/Documentation/Documentation
 
 For now only the primitives should be explained, which are required to build new objects for the 
 simulations:
-- \ref Plane Graphical plane (represented as a large thin box, because OSG does not draw planes)
-- \ref Box 
-- \ref Sphere
-- \ref Cylinder
-- \ref Capsule (a cylinder with round ends
-- \ref Transform (embedding a primitive in another primitive)
+- \ref lpzrobots::	Plane Graphical plane (represented as a large thin box, because OSG does not draw planes)
+- \ref lpzrobots::Box 
+- \ref lpzrobots::Sphere
+- \ref lpzrobots::Capsule (a cylinder with round ends
+- \ref lpzrobots::Transform (embedding a primitive in another primitive)
 
 The mentioned primitves are drivatives of \ref lpzrobots::Primitive which is an interface class 
 for primitives represented in the physical and graphical world. 
 It is intended to bring OSG and ODE together and hide most implementation details.
 
 
-For visualization the primitves use the osg primitives 
+For visualization the primitves use the osgprimitives 
 (since this is done in the primitives you don't have to bother about this one):
-- \ref OSGPlane Graphical plane (represented as a large thin box, because OSG does not draw planes)
-- \ref OSGBox 
-- \ref OSGSphere
-- \ref OSGCylinder
-- \ref OSGCapsule (a cylinder with round ends
-- \ref OSGMesh for graphical mesh or arbitrary OSG model
+- \ref lpzrobots::OSGPlane Graphical plane (represented as a large thin box, because OSG does not draw planes)
+- \ref lpzrobots::OSGBox 
+- \ref lpzrobots::OSGSphere
+- \ref lpzrobots::OSGCylinder
+- \ref lpzrobots::OSGCapsule (a cylinder with round ends
+- \ref lpzrobots::OSGMesh for graphical mesh or arbitrary OSG model
 
 They are derived from \ref lpzrobots::OSGPrimitive which is an interface class 
 for graphic primitives like spheres, boxes, and meshes, which can be drawn by OSG. 
