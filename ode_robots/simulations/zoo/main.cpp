@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.4  2006-03-28 09:55:12  robot3
+ *   Revision 1.11.4.5  2006-04-11 13:28:18  robot3
+ *   caterpillar is now in the zoo too
+ *
+ *   Revision 1.11.4.4  2006/03/28 09:55:12  robot3
  *   -main: fixed snake explosion bug
  *   -odeconfig.h: inserted cameraspeed
  *   -camermanipulator.cpp: fixed setbyMatrix,
@@ -57,6 +60,7 @@
 
 #include "hurlingsnake.h"
 #include "schlangeforce.h"
+#include "caterpillar.h"
 #include "nimm2.h"
 #include "nimm4.h"
 
@@ -101,44 +105,46 @@ public:
     OdeRobot* robot;
     AbstractController *controller;
     
-    SchlangeForce* snake;
-    SchlangeConf snakeConf = SchlangeForce::getDefaultConf();
-    //******* S C H L A N G E  (Short) *********/
-    snakeConf.segmNumber=4;
-    snakeConf.jointLimit=M_PI/3;
-    snakeConf.motorPower=0.1;
-    snakeConf.frictionGround=0.1;
-    snake = new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0,0.5,0.8)), snakeConf, "Schlange1");
-    ((OdeRobot*) snake)->place(Pos(-5,-5,0)); 
+    CaterPillar* myCaterPillar;
+    CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
+    //******* R A U P E  *********/
+    myCaterPillarConf.segmNumber=4;
+    myCaterPillarConf.jointLimit=M_PI/3;
+    myCaterPillarConf.motorPower=0.2;
+    myCaterPillarConf.frictionGround=0.01;
+    myCaterPillar = new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), myCaterPillarConf, "Raupe1");
+    ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0)); 
     
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
     invertnconf.cInit=2.0;
     controller = new InvertMotorNStep(invertnconf);    
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new OdeAgent( plotoptions );
-    agent->init(controller, snake, wiring);
+    agent->init(controller, myCaterPillar, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(controller);
-    global.configs.push_back(snake);   
-    snake->setParam("gamma",/*0.0000*/ 0.0);
+    global.configs.push_back(myCaterPillar);   
+    myCaterPillar->setParam("gamma",/*gb");
+      global.obstacles.push_back(s)0.0000*/ 0.0);
   
 
     //******* S C H L A N G E  (Long)  *********/
-    snakeConf = SchlangeForce::getDefaultConf();
-    snakeConf.motorPower=0.1;
-    snakeConf.segmNumber=8;
-    snakeConf.jointLimit=M_PI/3;
-    snakeConf.frictionGround=0.1;
-    snake = new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0,0.5,0.8)), snakeConf, "Schlange2" );
-    ((OdeRobot*) snake)->place(Pos(0,0,0)); 
-    controller = new InvertMotorNStep(invertnconf);     
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( list<PlotOption>() );
-    agent->init(controller, snake, wiring);
-    global.agents.push_back(agent);
-    global.configs.push_back(controller);
-    global.configs.push_back(snake);   
-    snake->setParam("gamma",/*0.0000*/ 0.0);
+//     SchlangeForce* snake;
+//     SchlangeConf snakeConf = SchlangeForce::getDefaultConf();
+//     snakeConf.motorPower=0.5;
+//     snakeConf.segmNumber=8;
+//     snakeConf.jointLimit=M_PI/3;
+//     snakeConf.frictionGround=0.1;
+//     snake = new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0,0.5,0.8)), snakeConf, "Schlange2" );
+//     ((OdeRobot*) snake)->place(Pos(0,0,0)); 
+//     controller = new InvertMotorNStep(invertnconf);     
+//     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+//     agent = new OdeAgent( list<PlotOption>() );
+//     agent->init(controller, snake, wiring);
+//     global.agents.push_back(agent);
+//     global.configs.push_back(controller);
+//     global.configs.push_back(snake);   
+//     snake->setParam("gamma",0.0000 0.0);
   
 
     //******* N I M M  2 *********/
