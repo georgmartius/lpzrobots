@@ -1,13 +1,15 @@
-/************************************************************************/
-/*schlangeforce.h			                            	*/
-/*Snake with torque added to joints                     		*/
-/*									*/
-/************************************************************************/
+/**************************************************************************/
+/*schlangeservo.h							  */
+/*Snake with PID Servo motors (just motor per joint)     		  */
+/*@author Georg Martius 						  */
+/*								     	  */
+/**************************************************************************/
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-04-11 08:07:43  robot3
+ *   Revision 1.1.2.2  2006-04-11 13:27:00  robot3
+ *   caterpillar is using now methods from schlangeservo2
+ *
+ *   Revision 1.1.2.1  2006/04/11 08:07:43  robot3
  *   first version
  *
  *                                                                         *
@@ -33,53 +38,58 @@
 #ifndef __CATERPILLAR_H
 #define __CATERPILLAR_H
 
-#include "caterpillar.h"
+#include "defaultCaterpillar.h"
+#include "universalservo.h"
 
 namespace lpzrobots {
 
   /**
    * This is a class, which models a snake like robot. 
    * It consists of a number of equal elements, each linked 
-   * by a joint powered by torques added to joints
+   * by a joint powered by 2 servos
    **/
-  class CaterPillar : public Schlange
+  class CaterPillar : public DefaultCaterPillar
     {
-    public:
-      CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const SchlangeConf& conf, const char* name);
+  private:
+    vector <UniversalServo*> servos;
 
+  public:
+      CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		      const CaterPillarConf& conf, const char* name);
     
       virtual ~CaterPillar();
 	
-      /**
-       *Reads the actual motor commands from an array, 
-       *an sets all motors of the snake to this values.
-       *It is an linear allocation.
-       *@param motors pointer to the array, motor values are scaled to [-1,1] 
-       *@param motornumber length of the motor array
-       **/
-      virtual void setMotors ( const motor* motors, int motornumber );
+    /**
+     *Reads the actual motor commands from an array, 
+     *an sets all motors of the snake to this values.
+     *It is an linear allocation.
+     *@param motors pointer to the array, motor values are scaled to [-1,1] 
+     *@param motornumber length of the motor array
+     **/
+    virtual void setMotors ( const motor* motors, int motornumber );
 
-      /**
-       *Writes the sensor values to an array in the memory.
-       *@param sensors pointer to the array
-       *@param sensornumber length of the sensor array
-       *@return number of actually written sensors
-       **/
-      virtual int getSensors ( sensor* sensors, int sensornumber );
+    /**
+     *Writes the sensor values to an array in the memory.
+     *@param sensors pointer to the array
+     *@param sensornumber length of the sensor array
+     *@return number of actually written sensors
+     **/
+    virtual int getSensors ( sensor* sensors, int sensornumber );
 	
-      /** returns number of sensors
-       */
-      virtual int getSensorNumber() { assert(created); return joints.size() * 2; }
+    /** returns number of sensors
+     */
+    virtual int getSensorNumber() { assert(created); return 2*servos.size(); }
 
-      /** returns number of motors
-       */
-      virtual int getMotorNumber(){ assert(created); return joints.size() * 2; }
+    /** returns number of motors
+     */
+    virtual int getMotorNumber(){ assert(created); return 2*servos.size(); }
 
-    private:
-      virtual void create(const osg::Matrix& pose);
-      virtual void destroy();
-    };
+    virtual bool setParam(const paramkey& key, paramval val);
+
+  private:
+    virtual void create(const osg::Matrix& pose);
+    virtual void destroy();
+  };
 
 }
 

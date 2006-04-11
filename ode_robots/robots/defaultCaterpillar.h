@@ -1,14 +1,20 @@
 /************************************************************************/
+/* originally from:                                                     */
 /* schlange.h						        	*/
 /* Abstract class for Snakes                             		*/
 /* @author Georg Martius 						*/
-/*									*/
+/************************************************************************/
+/* here:                                                                */
+/* defaultCaterpillar.h 				        	*/
+/* Abstract class for Caterpillars                             		*/
+/* @author Frank Guettler 						*/
 /************************************************************************/
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,11 +32,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-04-11 08:30:46  robot3
+ *   Revision 1.1.2.2  2006-04-11 13:27:48  robot3
+ *   caterpillar is using now methods from schlangeservo2
+ *
+ *   Revision 1.1.2.1  2006/04/11 08:30:46  robot3
  *   first version
  *
  *
- *                                                                 *
+ *                                                                         *
  ***************************************************************************/
 #ifndef __DEFAULTCATERPILLAR_H
 #define __DEFAULTCATERPILLAR_H
@@ -82,7 +91,7 @@ public:
 	     const CaterPillarConf& conf, const char* name);
 
   static CaterPillarConf getDefaultConf(){
-    SchlangeConf conf;
+    CaterPillarConf conf;
     conf.segmNumber = 10;    //  number of snake elements
     conf.segmLength = 0.8;   // length of one snake element
     conf.segmDia    = 0.2;   //  diameter of a snake element

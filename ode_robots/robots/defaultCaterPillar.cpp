@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,13 +21,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-04-11 09:28:27  robot3
+ *   Revision 1.1.2.2  2006-04-11 13:27:29  robot3
+ *   caterpillar is using now methods from schlangeservo2
+ *
+ *   Revision 1.1.2.1  2006/04/11 09:28:27  robot3
  *   first version
  *
  *
  ***************************************************************************/
 
-#include "DefaultCaterPillar.h"
+#include "defaultCaterpillar.h"
 
 namespace lpzrobots {
 
