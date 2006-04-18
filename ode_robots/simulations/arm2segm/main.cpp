@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.2  2006-01-03 10:01:05  fhesse
+ *   Revision 1.2.4.3  2006-04-18 14:12:20  fhesse
+ *   minor changes
+ *
+ *   Revision 1.2.4.2  2006/01/03 10:01:05  fhesse
  *   moved to osg
  *
  *   Revision 1.2.4.1  2005/11/15 12:29:35  martius
@@ -70,8 +73,8 @@ public:
     Arm2SegmConf arm_conf=Arm2Segm::getDefaultConf();
     Arm2Segm* vehicle = new Arm2Segm(odeHandle, osgHandle, arm_conf);
     ((OdeRobot* )vehicle)->place(Position(0,0,0));
-    AbstractController *controller = new InvertNChannelController(10);  
-    //AbstractController *controller = new SineController();  
+    //AbstractController *controller = new InvertNChannelController(10);  
+    AbstractController *controller = new SineController();  
     global.configs.push_back(vehicle);
   
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));

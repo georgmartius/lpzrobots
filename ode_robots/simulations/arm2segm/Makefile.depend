@@ -2,30 +2,57 @@
 
 main.o: /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h
 main.o: /usr/include/gnu/stubs.h
-main.o: /usr/lib/gcc-lib/i486-suse-linux/3.2.2/include/stddef.h
-main.o: /usr/include/bits/types.h /usr/include/libio.h
+main.o: /usr/lib/gcc/i586-suse-linux/4.0.2/include/stddef.h
+main.o: /usr/include/bits/types.h /usr/include/bits/wordsize.h
+main.o: /usr/include/bits/typesizes.h /usr/include/libio.h
 main.o: /usr/include/_G_config.h /usr/include/wchar.h
 main.o: /usr/include/bits/wchar.h /usr/include/gconv.h
-main.o: /usr/lib/gcc-lib/i486-suse-linux/3.2.2/include/stdarg.h
+main.o: /usr/lib/gcc/i586-suse-linux/4.0.2/include/stdarg.h
 main.o: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
-main.o: ../../../controller/noisegenerator.h /usr/include/stdlib.h
-main.o: /usr/include/time.h /usr/include/bits/time.h
-main.o: ../../../ode_robots/./simulation.h /usr/include/math.h
-main.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
-main.o: /usr/include/bits/mathcalls.h ../../../ode_robots/./odeconfig.h
-main.o: ../../../controller/configurable.h /usr/include/string.h
-main.o: ../../../ode_robots/obstacles/abstractobstacle.h
-main.o: ../../../ode_robots/robots/abstractrobot.h
-main.o: ../../../ode_robots/agents/agent.h
-main.o: ../../../controller/abstractcontroller.h
-main.o: ../../../controller/inspectable.h
-main.o: ../../../ode_robots/agents/abstractwiring.h
-main.o: ../../../ode_robots/utils/camera.h
-main.o: ../../../ode_robots/agents/one2onewiring.h
-main.o: ../../../ode_robots/robots/nimm2.h
-main.o: ../../../ode_robots/obstacles/playground.h
-main.o: ../../../ode_robots/robots/arm2segm.h
-main.o: ../../../controller/invertnchannelcontroller.h
-main.o: ../../../controller/invertcontroller.h /usr/include/assert.h
-main.o: ../../../matrixlib/matrix.h
-main.o: ../../../controller/invertnchannelcontroller.hpp
+main.o: ../../../selforg/include/selforg/noisegenerator.h
+main.o: /usr/include/stdlib.h /usr/include/time.h /usr/include/bits/time.h
+main.o: /usr/include/math.h /usr/include/bits/huge_val.h
+main.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+main.o: ../../../ode_robots/include/ode_robots/simulation.h
+main.o: ../../../ode_robots/include/ode_robots/odeconfig.h
+main.o: ../../../selforg/include/selforg/configurable.h
+main.o: ../../../selforg/include/selforg/stl_adds.h
+main.o: ../../../ode_robots/include/ode_robots/odehandle.h
+main.o: ../../../ode_robots/include/ode_robots/camera.h
+main.o: ../../../ode_robots/include/ode_robots/oderobot.h
+main.o: ../../../selforg/include/selforg/abstractrobot.h
+main.o: ../../../selforg/include/selforg/trackable.h
+main.o: ../../../selforg/include/selforg/position.h
+main.o: ../../../matrixlib/matrix.h /usr/include/string.h
+main.o: /usr/include/assert.h ../../../selforg/include/selforg/types.h
+main.o: ../../../ode_robots/include/ode_robots/osghandle.h
+main.o: ../../../ode_robots/include/ode_robots/osgforwarddecl.h
+main.o: ../../../ode_robots/include/ode_robots/color.h
+main.o: ../../../ode_robots/include/ode_robots/globaldata.h
+main.o: ../../../ode_robots/include/ode_robots/pos.h
+main.o: ../../../selforg/include/selforg/position.h
+main.o: ../../../ode_robots/include/ode_robots/grabframe.h
+main.o: ../../../ode_robots/include/ode_robots/base.h
+main.o: ../../../ode_robots/include/ode_robots/extendedViewer.h
+main.o: ../../../ode_robots/include/ode_robots/odeagent.h
+main.o: ../../../selforg/include/selforg/agent.h
+main.o: ../../../selforg/include/selforg/trackrobots.h
+main.o: ../../../ode_robots/include/ode_robots/osgprimitive.h
+main.o: ../../../ode_robots/include/ode_robots/primitive.h
+main.o: ../../../selforg/include/selforg/one2onewiring.h
+main.o: ../../../selforg/include/selforg/abstractwiring.h
+main.o: ../../../selforg/include/selforg/abstractrobot.h
+main.o: ../../../selforg/include/selforg/noisegenerator.h
+main.o: ../../../selforg/include/selforg/inspectable.h
+main.o: ../../../ode_robots/include/ode_robots/playground.h
+main.o: ../../../ode_robots/include/ode_robots/mathutils.h
+main.o: ../../../ode_robots/include/ode_robots/abstractobstacle.h
+main.o: ../../../ode_robots/include/ode_robots/arm2segm.h
+main.o: ../../../ode_robots/include/ode_robots/joint.h
+main.o: ../../../ode_robots/include/ode_robots/axis.h
+main.o: ../../../ode_robots/include/ode_robots/angularmotor.h
+main.o: ../../../selforg/include/selforg/invertnchannelcontroller.h
+main.o: ../../../selforg/include/selforg/invertcontroller.h
+main.o: ../../../selforg/include/selforg/abstractcontroller.h
+main.o: ../../../selforg/include/selforg/configurable.h
+main.o: ../../../selforg/include/selforg/sinecontroller.h
