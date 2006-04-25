@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,32 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-04-25 08:05:56  robot3
+ *   Revision 1.1.2.2  2006-04-25 09:04:37  robot3
+ *   caterpillar is now represented by a box
+ *
+ *   Revision 1.1.2.1  2006/04/25 08:05:56  robot3
  *   created an own simulation for the caterpillar for testing purposes
- *
- *   Revision 1.11.4.5  2006/04/11 13:28:18  robot3
- *   caterpillar is now in the zoo too
- *
- *   Revision 1.11.4.4  2006/03/28 09:55:12  robot3
- *   -main: fixed snake explosion bug
- *   -odeconfig.h: inserted cameraspeed
- *   -camermanipulator.cpp: fixed setbyMatrix,
- *    updateFactor
- *
- *   Revision 1.11.4.3  2006/01/12 15:17:30  martius
- *   *** empty log message ***
- *
- *   Revision 1.11.4.2  2005/11/16 11:27:38  martius
- *   invertmotornstep has configuration
- *
- *   Revision 1.11.4.1  2005/11/15 12:30:22  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.11  2005/11/14 13:02:39  martius
- *   new paramters
- *
- *   Revision 1.10  2005/11/09 13:41:25  martius
- *   GPL'ised
  *
  ***************************************************************************/
 #include "simulation.h"
@@ -54,18 +34,11 @@
 #include "playground.h"
 #include "passivesphere.h"
 
-#include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotornstep.h>
-#include <selforg/invertmotorspace.h>
-#include <selforg/sinecontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
 
-#include "hurlingsnake.h"
-#include "schlangeforce.h"
 #include "caterpillar.h"
-#include "nimm2.h"
-#include "nimm4.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -88,6 +61,7 @@ public:
 
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
+    global.odeConfig.setParam("gravity:",1); // normally at -9.81
     // initialization
     
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 1.5));
@@ -111,7 +85,7 @@ public:
     CaterPillar* myCaterPillar;
     CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
     //******* R A U P E  *********/
-    myCaterPillarConf.segmNumber=8;
+    myCaterPillarConf.segmNumber=7;
     myCaterPillarConf.jointLimit=M_PI/3;
     myCaterPillarConf.motorPower=0.2;
     myCaterPillarConf.frictionGround=0.01;
@@ -129,85 +103,7 @@ public:
     global.configs.push_back(myCaterPillar);   
     myCaterPillar->setParam("gamma",/*gb");
       global.obstacles.push_back(s)0.0000*/ 0.0);
-  
 
-    //******* S C H L A N G E  (Long)  *********/
-//     SchlangeForce* snake;
-//     SchlangeConf snakeConf = SchlangeForce::getDefaultConf();
-//     snakeConf.motorPower=0.5;
-//     snakeConf.segmNumber=8;
-//     snakeConf.jointLimit=M_PI/3;
-//     snakeConf.frictionGround=0.1;
-//     snake = new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0,0.5,0.8)), snakeConf, "Schlange2" );
-//     ((OdeRobot*) snake)->place(Pos(0,0,0)); 
-//     controller = new InvertMotorNStep(invertnconf);     
-//     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-//     agent = new OdeAgent( list<PlotOption>() );
-//     agent->init(controller, snake, wiring);
-//     global.agents.push_back(agent);
-//     global.configs.push_back(controller);
-//     global.configs.push_back(snake);   
-//     snake->setParam("gamma",0.0000 0.0);
-  
-
-    //******* N I M M  2 *********/
-    Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
-    nimm2conf.size = 1.6;
-    for(int r=0; r < 3; r++) {    
-      robot = new Nimm2(odeHandle, osgHandle, nimm2conf);
-      robot->place(Pos ((r-1)*5,5,0));
-      //    controller = new InvertMotorNStep(10);   
-      controller = new InvertMotorSpace(15);   
-      controller->setParam("s4avg",10);
-      //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( list<PlotOption>() );
-      agent->init(controller, robot, wiring);
-      global.configs.push_back(controller);
-      global.agents.push_back(agent);        
-    }
-    
-    //******* N I M M  4 *********/
-    for(int r=0; r < 1; r++) {
-      robot = new Nimm4(odeHandle, osgHandle);
-      robot->place(Pos((r-1)*5,-3,0));
-      controller = new InvertMotorSpace(20);
-      controller->setParam("s4avg",10); 
-      controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( list<PlotOption>() );
-      agent->init(controller, robot, wiring);
-      global.agents.push_back(agent);        
-    }
-
-    //****** H U R L I N G **********/
-    for(int r=0; r < 2; r++) {
-      HurlingSnake* snake;
-      Color c;    
-      if (r==0) c=Color(0.8, 0.8, 0);
-      if (r==1) c=Color(0,   0.8, 0);
-      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c));
-      ((OdeRobot*) snake)->place(Pos(r*5,-6,0.3));
-      invertnconf.cInit=1.5;
-      controller = new InvertMotorNStep(invertnconf);
-      controller->setParam("steps", 2);
-      controller->setParam("adaptrate", 0.001);
-      controller->setParam("nomupdate", 0.001);
-      controller->setParam("factorB", 0);
-    
-      // deriveconf = DerivativeWiring::getDefaultConf();
-      //     deriveconf.blindMotorSets=0;
-      //     deriveconf.useId = true;
-      //     deriveconf.useFirstD = true;
-      //     deriveconf.derivativeScale = 50;
-      //     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
-      wiring = new One2OneWiring(new ColorUniformNoise(0.05));
-      agent = new OdeAgent( list<PlotOption>() );
-      agent->init(controller, snake, wiring);
-			       global.configs.push_back(controller);
-			       global.agents.push_back(agent);     
-    }
-      showParams(global.configs);
   }
   
 };

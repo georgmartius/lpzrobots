@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.5  2006-04-11 13:28:18  robot3
+ *   Revision 1.11.4.6  2006-04-25 09:05:23  robot3
+ *   caterpillar is now represented by a box
+ *
+ *   Revision 1.11.4.5  2006/04/11 13:28:18  robot3
  *   caterpillar is now in the zoo too
  *
  *   Revision 1.11.4.4  2006/03/28 09:55:12  robot3
@@ -113,7 +116,7 @@ public:
     myCaterPillarConf.motorPower=0.2;
     myCaterPillarConf.frictionGround=0.01;
     myCaterPillar = new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), myCaterPillarConf, "Raupe1");
-    ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0)); 
+    ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0.2)); 
     
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
     invertnconf.cInit=2.0;

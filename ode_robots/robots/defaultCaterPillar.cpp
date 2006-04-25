@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-04-11 13:27:29  robot3
+ *   Revision 1.1.2.3  2006-04-25 09:03:03  robot3
+ *   caterpillar is now represented by a box
+ *
+ *   Revision 1.1.2.2  2006/04/11 13:27:29  robot3
  *   caterpillar is using now methods from schlangeservo2
  *
  *   Revision 1.1.2.1  2006/04/11 09:28:27  robot3
@@ -133,7 +136,7 @@ namespace lpzrobots {
 	contact[i].surface.soft_cfm = 0.001;
 	
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
       }
       return true;
     }
@@ -201,8 +204,15 @@ namespace lpzrobots {
     odeHandle.space = dSimpleSpaceCreate (parentspace);
 	
     int half = conf.segmNumber/2;
+
     for ( int n = 0; n < conf.segmNumber; n++ ) {
-      Primitive* p = new Capsule(conf.segmDia/2 , conf.segmLength);
+      Primitive* p;
+      if (n==0) {
+	p = new Box( conf.segmDia/2, conf.segmDia*8, conf.segmLength/4);
+      } else {
+      //          Primitive* p = new Capsule(conf.segmDia/2 , conf.segmLength);
+	p = new Box( conf.segmDia/2, conf.segmDia*2, conf.segmLength);
+      }
       p->init(odeHandle, conf.segmMass, osgHandle);    
       p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
 		 osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * 

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-04-11 13:26:46  robot3
+ *   Revision 1.1.2.3  2006-04-25 09:03:52  robot3
+ *   caterpillar is now represented by a box
+ *
+ *   Revision 1.1.2.2  2006/04/11 13:26:46  robot3
  *   caterpillar is using now methods from schlangeservo2
  *
  *   Revision 1.1.2.1  2006/04/11 08:09:47  robot3
@@ -97,7 +100,7 @@ namespace lpzrobots {
       UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
 					     (p1 + p2)/2,
 					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
-      j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
+      j->init(odeHandle, osgHandle, true, conf.segmDia/2 * 1.02);
         
       // setting stops at universal joints		
       j->setParam(dParamLoStop, -conf.jointLimit*1.5);
