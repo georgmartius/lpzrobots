@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.5  2006-02-23 18:05:05  martius
+ *   Revision 1.12.4.6  2006-04-25 09:06:16  robot3
+ *   *** empty log message ***
+ *
+ *   Revision 1.12.4.5  2006/02/23 18:05:05  martius
  *   friction with angularmotor
  *
  *   Revision 1.12.4.4  2006/02/01 18:33:40  martius
@@ -76,7 +79,7 @@ namespace lpzrobots {
       					       conf.motorPower * motors[2*i+1]);
       
       // or use only one motor at a joint (alternating between motor 1 and motor 2)      
-      //       if (i%2==0){
+      // http://www.novell.com/linux/      if (i%2==0){
       // 	((UniversalJoint*)joints[i])->addTorques(conf.motorPower * motors[2*i],0);
       //       }
       //       else{

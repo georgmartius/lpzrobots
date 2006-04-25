@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.14  2006-03-28 09:55:12  robot3
+ *   Revision 1.1.2.15  2006-04-25 09:06:16  robot3
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.14  2006/03/28 09:55:12  robot3
  *   -main: fixed snake explosion bug
  *   -odeconfig.h: inserted cameraspeed
  *   -camermanipulator.cpp: fixed setbyMatrix,
@@ -115,7 +118,7 @@ namespace lpzrobots {
       modelScale = 0.01f;
     desiredEye=eye;
     desiredView=view;
-    // default values for smoothness (function update())
+    // default values for smoothness (function updte())
     // can be owerwritten by new cameramanipulator if needed
     degreeSmoothness=0.03;
     lengthSmoothness=0.03;

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.12  2006-03-31 12:14:49  fhesse
+ *   Revision 1.14.4.13  2006-04-25 09:06:16  robot3
+ *   *** empty log message ***
+ *
+ *   Revision 1.14.4.12  2006/03/31 12:14:49  fhesse
  *   orange color for nimm robot
  *
  *   Revision 1.14.4.11  2006/03/31 11:27:53  fhesse
@@ -145,7 +148,7 @@ public:
     // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
     // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
     // - place robot
-     Nimm2Conf c = Nimm2::getDefaultConf();
+     Nimm2Conf c = Nimm2::getDefaultInvertMotorSpaceConf();
      c.bumper  = true;
      c.cigarMode  = true;
      c.irFront = true;
@@ -155,7 +158,7 @@ public:
     // use Nimm4 vehicle as robot:
     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
     // - place robot
-    //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
+    //OdeRobot* vehiInvertMotorSpacecle = new Nimm4(odeHandle, osgHandle);
     //vehicle->place(Pos(0,2,0));
 
     // create pointer to controller
