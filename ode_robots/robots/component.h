@@ -73,7 +73,6 @@ class Component : public OdeRobot
     vector <componentConnection> connection;
 
  public:
-    Component ();
 
     Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle, const ComponentConf& conf);
     
@@ -98,31 +97,31 @@ static ComponentConf getDefaultConf()
  *values of component connecting joints of the first subcomponent, values of the robot of the first subcomponent, ...
  *@robot sensor values of the connecting joints of this component and all subcomponents
  **/
-int 	getSensors (sensor *sensors, int sensornumber); //returns actual sensorvalues; only for the connecting joints
+virtual int 	getSensors (sensor *sensors, int sensornumber); //returns actual sensorvalues; only for the connecting joints
 
 /**
  *Sets the motor values for the joints connecting the component with its subcomponents, an recursivly the joints of all subComponents.
  *The motors of all robots of the subcomponents is not set.
  *@param 
  **/
-void 	setMotors (const motor *motors, int motornumber); //sets actual motorcommands; only for the connecting joints
+virtual void 	setMotors (const motor *motors, int motornumber); //sets actual motorcommands; only for the connecting joints
 
-int 	getSensorNumber (); //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
+virtual int 	getSensorNumber (); //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
 
-int 	getMotorNumber (); //returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
+virtual int 	getMotorNumber (); //returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
 
-void 	update ();//update the OSG notes here; update of the underlying robot or Primitive and recursive update of all Components in the Connection-vector
+virtual void 	update ();//update the OSG notes here; update of the underlying robot or Primitive and recursive update of all Components in the Connection-vector
 
-void 	place (const Pos &pos);//sets the vehicle to position pos - desired position of the robot; the first component is seen as center of the robot, on which the position pos refers; also recursive place of all subComponents
-void 	place (const osg::Matrix &pose);//sets the pose of the vehicle; also recursive place of all subComponents; does nothing at the moment
+virtual void 	place (const Pos &pos);//sets the vehicle to position pos - desired position of the robot; the first component is seen as center of the robot, on which the position pos refers; also recursive place of all subComponents
+virtual void 	place (const osg::Matrix &pose);//sets the pose of the vehicle; also recursive place of all subComponents; does nothing at the moment
 
-bool 	collisionCallback (void *data, dGeomID o1, dGeomID o2);// checks for internal collisions and treats them.; should do nothing, because there should not be any ode-objects belonging to the component, which are not handled elsewhere....and what is with Primitives? are they automaticaly handled?
+virtual bool 	collisionCallback (void *data, dGeomID o1, dGeomID o2);// checks for internal collisions and treats them.; should do nothing, because there should not be any ode-objects belonging to the component, which are not handled elsewhere....and what is with Primitives? are they automaticaly handled?
 
-void 	doInternalStuff (const GlobalData &globalData);// this function is called in each timestep.; maybee usefull
+virtual void 	doInternalStuff (const GlobalData &globalData);// this function is called in each timestep.; maybee usefull
 
 // virtual void 	setColor (const Color &col); 	sets color of the robot; not nessecary
 
-Position getPosition () const; //returns position of the object; relates to the robot or Primitive belonging to the component
+virtual Position getPosition () const; //returns position of the object; relates to the robot or Primitive belonging to the component
 
 //virtual Position getSpeed () const;//returns linear speed vector of the object; must be computed from all sub-robots
 
@@ -132,52 +131,52 @@ Position getPosition () const; //returns position of the object; relates to the 
  *Sets the reference to the Primitive , which belongs to the component, but only if there is no robot set, belonging to the component.
  *@return true if the reference could be set; false else
  **/
-bool setSimplePrimitive ( Primitive* newprimitive );
+virtual bool setSimplePrimitive ( Primitive* newprimitive );
 
 /**
  *Sets the reference to the robot for the component, but only if there is no Primitive set belonging to the component.
  *Overwriting an existing robot reference is possible, also to set it NULL, and then set a reference to a Primitive with setSimplePrimitive ( .. ).
  *return true if the reference could be set; false else
  **/
-bool setRobot ( OdeRobot* newrobot );
+virtual bool setRobot ( OdeRobot* newrobot );
 
-OdeRobot* getRobot (); //returns a reference to the robot belonging to the component, if there is no robot it is an NULL pointer, then try getMeinPrimitive, because there is only a solid Primitive not a complex robot for this component
+virtual OdeRobot* getRobot (); //returns a reference to the robot belonging to the component, if there is no robot it is an NULL pointer, then try getMeinPrimitive, because there is only a solid Primitive not a complex robot for this component
 
-Primitive* getMainPrimitive () const;//overload this in the robot implementation.; should be the main-Primitive from the first componentConnection in the vector
+virtual Primitive* getMainPrimitive () const;//overload this in the robot implementation.; should be the main-Primitive from the first componentConnection in the vector
 
 /**
  *Gets the Number of subcomponents of this component.
  *@return Number of subcomponents
  **/
-int getNumberSubcomponents ();
+virtual int getNumberSubcomponents ();
 
     
 /**
  *Gets the Number of all Subcomponents recursivly connected.
  *@return Number of subcomponents
  **/
-int getNumberSubcomponentsAll ();
+virtual int getNumberSubcomponentsAll ();
 
 /**
  *This method adds an existing Component as a subcomponent to this component
  *@param subcomponent to add
  *@param reference to external created joint, which connects both components
  **/
-void addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint );
+virtual void addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint );
 
 /**
  *This method removes an existing Component as a subcomponent of this component. This also removes all Subcomponents of the subcomponent.
  *@param subcomponent number to remove
  *@return reference to the removed subcomponent, so that it could be used to do other things
  **/
-Component* removeSubcomponent ( int removedsubcomponentnumber );
+virtual Component* removeSubcomponent ( int removedsubcomponentnumber );
 
 /**
  *This method removes an existing Component as a subcomponent of this component. This also removes all Subcomponents of the subcomponent.
  *@param subcomponent to remove
  *@return reference to the removed subcomponent, so that it could be used to do other things
  **/
-Component* removeSubcomponent ( Component* removedsubcomponent );
+virtual Component* removeSubcomponent ( Component* removedsubcomponent );
      
 };
 
