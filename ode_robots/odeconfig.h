@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.5  2006-03-28 09:55:12  robot3
+ *   Revision 1.12.4.6  2006-04-27 16:17:38  robot3
+ *   implemented some functions for motionblurcallback
+ *
+ *   Revision 1.12.4.5  2006/03/28 09:55:12  robot3
  *   -main: fixed snake explosion bug
  *   -odeconfig.h: inserted cameraspeed
  *   -camermanipulator.cpp: fixed setbyMatrix,
@@ -49,6 +52,7 @@
 #include <ode/ode.h>
 #include <selforg/configurable.h>
 #include "odehandle.h"
+#include "mathutils.h"
 
 namespace lpzrobots {
 
@@ -62,10 +66,12 @@ public:
     realTimeFactor=1.0;
     noise=0.1;
     gravity=-9.81;
-    drawInterval=calcDrawInterval();
+    drawInterval=calcDrawInterval50();
     cameraSpeed=100;
+    motionPersistence=0.09;
       // prepare name;
     Configurable::insertCVSInfo(name, "$RCSfile$", "$Revision$");
+    videoRecordingMode=false;
   }
 
   virtual ~OdeConfig(){}
@@ -82,6 +88,7 @@ public:
     list.push_back(std::pair<paramkey, paramval> (std::string("drawinterval"), drawInterval));
     list.push_back(std::pair<paramkey, paramval> (std::string("controlinterval"), controlInterval));
     list.push_back(std::pair<paramkey, paramval> (std::string("cameraspeed"), cameraSpeed));
+    list.push_back(std::pair<paramkey, paramval> (std::string("motionpersistence"), motionPersistence));
     list.push_back(std::pair<paramkey, paramval> (std::string("gravity"), gravity));
     return list;
   } 
@@ -94,21 +101,26 @@ public:
     else if(key == "drawinterval") return drawInterval; 
     else if(key == "controlinterval") return controlInterval; 
     else if(key == "cameraspeed") return cameraSpeed; 
+    else if(key == "motionpersistence") return motionPersistence; 
     else if(key == "gravity") return gravity; 
     else  return 0.0;
-  }
+ }
         
   bool setParam(const paramkey& key, paramval val){
     if(key == "noise") noise = val; 
     else if(key == "simstepsize") {
       simStepSize=std::max(0.0000001,val); 
-      drawInterval=calcDrawInterval();
+      drawInterval=calcDrawInterval50();
     }else if(key == "realtimefactor"){
       realTimeFactor=std::max(0.0,val); 
-      drawInterval=calcDrawInterval();
+      if (videoRecordingMode)
+	drawInterval=calcDrawInterval25();
+      else
+	drawInterval=calcDrawInterval50();
     }
     else if(key == "drawinterval") drawInterval=(int)val; 
-    else if(key == "controlinterval") controlInterval=(int)val; 
+    else if(key == "controlinterval") controlInterval=(int)val;
+    else if(key == "motionpersistence") motionPersistence=abs(val);
     else if(key == "cameraspeed") cameraSpeed=(int)val; 
     else if(key == "gravity") {
       gravity=val; 
@@ -122,20 +134,38 @@ public:
     this->odeHandle = odeHandle;
   }
 
+  void setVideoRecordingMode(bool mode) {
+    if (mode)
+      drawInterval=calcDrawInterval25();
+    else
+      drawInterval=calcDrawInterval50();
+    videoRecordingMode=mode;
+  }
+
 private:
   /// calculates the draw interval with simStepSize and realTimeFactor so that we have 25 frames/sec
-  int calcDrawInterval(){
+  int calcDrawInterval25(){
     if(realTimeFactor>0 && simStepSize>0){
       return int(ceil(1/(25.0*simStepSize/realTimeFactor)));
     }else return 50;
   }
 
+  /// calculates the draw interval with simStepSize and realTimeFactor so that we have 50 frames/sec
+  /// this is much better for graphical visualization (smoother)
+  int calcDrawInterval50(){
+    if(realTimeFactor>0 && simStepSize>0){
+      return int(ceil(1/(50.0*simStepSize/realTimeFactor)));
+    }else return 50;
+  }
+
 
 public:
+  bool videoRecordingMode;
   double simStepSize;
   double realTimeFactor;
   int drawInterval;
   int controlInterval;
+  double motionPersistence;
   double noise;
   double gravity;
   double cameraSpeed;
