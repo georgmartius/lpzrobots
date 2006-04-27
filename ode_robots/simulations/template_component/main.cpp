@@ -20,7 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-04-27 10:25:56  robot8
+ *   Revision 1.1.2.3  2006-04-27 11:44:58  robot8
  *   new component system, a bit less complex
  *   easy to use, because of only one component class
  *   handling like a normal robot
@@ -182,6 +182,8 @@ public:
     Axis axis = Axis ( ( C1->getRobot ()->getPosition () - C2->getRobot ()->getPosition ()).toArray() );
 
     HingeJoint* j1 = new HingeJoint ( C1->getMainPrimitive () , C2->getMainPrimitive () , C2->getMainPrimitive ()->getPosition () , axis );
+
+    j1->init ( odeHandle , osgHandle );
 
     //connecting both components, and creating the new physical form of the robot
     C1->addSubcomponent ( C2 , j1 );
