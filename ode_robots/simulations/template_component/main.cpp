@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-04-25 13:51:01  robot8
+ *   Revision 1.1.2.2  2006-04-27 10:25:56  robot8
+ *   new component system, a bit less complex
+ *   easy to use, because of only one component class
+ *   handling like a normal robot
+ *   untested
+ *
+ *   Revision 1.1.2.1  2006/04/25 13:51:01  robot8
  *   new component system, a bit less complex
  *   easy to use, because of only one component class
  *   handling like a normal robot
@@ -165,12 +171,21 @@ public:
     global.configs.push_back ( controller );
    
    
-    Component* C1;
+    //creating compoents for the two spheres
+    Component* C1 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );C1 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );
+    Component* C2 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );    C2 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );
 
-    C1 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );
+    //setting the spheres as robots for the components
+    C1->setRobot ( global.agents[0]->getRobot () );
+    C2->setRobot ( global.agents[1]->getRobot () );
+    //externaly creating the connecting joint
+    Axis axis = Axis ( ( C1->getRobot ()->getPosition () - C2->getRobot ()->getPosition ()).toArray() );
 
+    HingeJoint* j1 = new HingeJoint ( C1->getMainPrimitive () , C2->getMainPrimitive () , C2->getMainPrimitive ()->getPosition () , axis );
 
-    
+    //connecting both components, and creating the new physical form of the robot
+    C1->addSubcomponent ( C2 , j1 );
+
       
     showParams(global.configs);
   }
