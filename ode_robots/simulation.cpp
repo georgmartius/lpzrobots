@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.26  2006-03-29 15:07:29  martius
+ *   Revision 1.40.4.27  2006-04-27 16:31:35  robot3
+ *   -motionblur inlucded
+ *   -if the simulation is not in videoRedordingMode,
+ *    50fps are now as standard used.
+ *
+ *   Revision 1.40.4.26  2006/03/29 15:07:29  martius
  *   Dummy Primitive for Environment
  *
  *   Revision 1.40.4.25  2006/03/19 13:38:08  robot3
@@ -255,6 +260,8 @@
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
 
+#include "motionblurcallback.h"
+
 namespace lpzrobots {
 
   using namespace std;
@@ -442,6 +449,14 @@ namespace lpzrobots {
     // create the windows and run the threads.
     viewer->realize();
 
+    // set our motion blur callback as the draw callback for each scene handler
+     osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
+     for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
+     {
+         (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
+     }
+
+
     while (!viewer->done())
       {
 	// wait for all cull and draw threads to complete.
@@ -576,7 +591,11 @@ namespace lpzrobots {
 	  if(videostream.isOpen()){
 	    printf("Stop video recording!\n");
 	    videostream.close();
+	    printf("Switching back to 50fps!\n");
+	    globalData.odeConfig.videoRecordingMode=false;
 	  }else{
+	    printf("For video recording the simulation now switches to 25fps!\n");
+	    globalData.odeConfig.videoRecordingMode=true;
 	    char dir[128];
 	    char filename[140];
 	    createNewDir("video", dir);
