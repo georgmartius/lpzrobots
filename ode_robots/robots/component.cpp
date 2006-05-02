@@ -105,12 +105,12 @@ namespace lpzrobots
 
     int Component::getSensorNumber ()
     {
-	int sensors = 0;
-    
-	//only if there is a robot
-	if ( robot != NULL )
-	    sensors = robot->getSensorNumber (); //Adding the number of sensors of the robot, beloning to this component.
-	else ; //there is a simplePrimitive, but it has no Sensors
+	int sensors;   
+
+	//if the sensor values should be used, and a robot is there, the robot-sensor number is added
+	    if ( conf.completesensormode == true && robot != NULL )
+		sensors = robot->getSensorNumber ();
+	    //recursive sensor-counting for all subcomponents
 	
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
@@ -127,10 +127,7 @@ namespace lpzrobots
 			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
 			    sensors = sensors + 2;
 	
-	    //if the sensor values should be used, and a robot is there, the robot-sensor number is added
-	    if ( conf.completesensormode == true && robot != NULL )
-		sensors += robot->getSensorNumber ();
-	    //recursive sensor-counting for all subcomponents
+    	    //recursive sensor-counting for all subcomponents
 	    sensors += connection[n].subcomponent->getSensorNumber ();
 	}
 
@@ -222,6 +219,16 @@ namespace lpzrobots
 	}
 	else
 	    return robot->getPosition ();;
+    }
+
+    osg::Vec3 Component::getPositionbetweenComponents ( Component* component )
+    {
+	osg::Vec3 anchor = osg::Vec3 ( getMainPrimitive ()->getPosition ()[0] + ( component->getMainPrimitive ()->getPosition ()[0] - getMainPrimitive ()->getPosition ()[0])/2 ,
+					 getMainPrimitive ()->getPosition ()[1] + ( component->getMainPrimitive ()->getPosition ()[1] - getMainPrimitive ()->getPosition ()[1])/2 ,
+					 getMainPrimitive ()->getPosition ()[2] + ( component->getMainPrimitive ()->getPosition ()[2] - getMainPrimitive ()->getPosition ()[2])/2 );
+
+
+	return anchor;
     }
 
 

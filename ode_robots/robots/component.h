@@ -127,6 +127,14 @@ virtual Position getPosition () const; //returns position of the object; relates
 
 //virtual matrix::Matrix 	getOrientation () const;//returns the orientation of the object;
 
+
+/**
+ *This is only a simple function, calculating the coordinates of the point exactly between two directly connected components.
+ *@return Vector containing the Position
+ *@param index number of the position
+ **/
+virtual osg::Vec3 getPositionbetweenComponents ( Component* component );
+
 /**
  *Sets the reference to the Primitive , which belongs to the component, but only if there is no robot set, belonging to the component.
  *@return true if the reference could be set; false else
