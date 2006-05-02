@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-04-27 11:44:58  robot8
+ *   Revision 1.1.2.4  2006-05-02 12:24:32  robot8
+ *   new component system, a bit less complex
+ *   easy to use, because of only one component class
+ *   handling like a normal robot
+ *   testet, seams functional
+ *   template with two spheres working
+ *
+ *   Revision 1.1.2.3  2006/04/27 11:44:58  robot8
  *   new component system, a bit less complex
  *   easy to use, because of only one component class
  *   handling like a normal robot
@@ -181,14 +188,33 @@ public:
     //externaly creating the connecting joint
     Axis axis = Axis ( ( C1->getRobot ()->getPosition () - C2->getRobot ()->getPosition ()).toArray() );
 
-    HingeJoint* j1 = new HingeJoint ( C1->getMainPrimitive () , C2->getMainPrimitive () , C2->getMainPrimitive ()->getPosition () , axis );
 
-    j1->init ( odeHandle , osgHandle );
+    HingeJoint* j1 = new HingeJoint ( C1->getMainPrimitive () , C2->getMainPrimitive () , C1->getPositionbetweenComponents ( C2 ) , axis );
+    j1->init ( odeHandle , osgHandle , true , 1 );
 
     //connecting both components, and creating the new physical form of the robot
     C1->addSubcomponent ( C2 , j1 );
 
-      
+    //adding the controller for the component-connections
+    controller = new InvertMotorSpace ( 10 );  
+    controller->setParam("adaptrate", 0.000);
+    controller->setParam("epsC", 0.005);
+    controller->setParam("epsA", 0.001);
+    controller->setParam("rootE", 0);
+    controller->setParam("steps", 2);
+    controller->setParam("s4avg", 5);
+    controller->setParam("factorB",0);
+
+    wiring = new One2OneWiring ( new ColorUniformNoise() );   
+
+    agent = new OdeAgent ( plotoptions );
+    agent->init ( controller , C1 , wiring );
+    global.agents.push_back ( agent );
+    global.configs.push_back ( controller );
+
+    
+
+
     showParams(global.configs);
   }
 
