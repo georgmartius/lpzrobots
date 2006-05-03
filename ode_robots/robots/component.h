@@ -41,6 +41,13 @@
 
 namespace lpzrobots
 {
+    typedef struct
+    {
+	bool completesensormode; //if true, the controler of the Component also gets the sensor values of the robot of the component
+	bool completemotormode; //if true, the controler of the component also controls the robot of the component
+	double max_force;
+	double speed;
+    } ComponentConf;
 
 /**
  * Component
@@ -55,13 +62,6 @@ class Component : public OdeRobot
 	Joint* joint;
     } componentConnection;
 
-    typedef struct
-    {
-	bool completesensormode; //if true, the controler of the Component also gets the sensor values of the robot of the component
-	bool completemotormode; //if true, the controler of the component also controls the robot of the component
-	double max_force;
-	double speed;
-    } ComponentConf;
 
  private:
     ComponentConf conf;

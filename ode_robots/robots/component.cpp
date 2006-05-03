@@ -32,6 +32,8 @@ namespace lpzrobots
     
     Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , const ComponentConf& conf = getDefaultConf () ) : OdeRobot ( odeHandle, osgHandle , "Component" ) , conf ( conf )
     {
+	robot = NULL;
+	simplePrimitive = NULL;
     
     }
 
@@ -218,7 +220,7 @@ namespace lpzrobots
 	    return Position ( simplePrimitive->getPosition()[0] , simplePrimitive->getPosition()[1] , simplePrimitive->getPosition()[2] );
 	}
 	else
-	    return robot->getPosition ();;
+	    return robot->getPosition ();
     }
 
     osg::Vec3 Component::getPositionbetweenComponents ( Component* component )
