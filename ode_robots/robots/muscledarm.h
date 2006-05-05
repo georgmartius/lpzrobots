@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.12  2006-03-31 16:13:59  fhesse
+ *   Revision 1.1.4.13  2006-05-05 16:20:27  fhesse
+ *   hand with fixed joint -> to allow tracing
+ *   (does not work with transform while only geom)
+ *
+ *   Revision 1.1.4.12  2006/03/31 16:13:59  fhesse
  *   *** empty log message ***
  *
  *   Revision 1.1.4.11  2006/03/30 12:34:56  martius
@@ -120,6 +124,8 @@ namespace lpzrobots{
 	       SJ_sM2, // slider Joint between smallMuscle21 ans smallMuscle22
 	       SJ_sM3, // slider Joint between smallMuscle31 ans smallMuscle32
 	       SJ_sM4, // slider Joint between smallMuscle41 ans smallMuscle42
+
+	       FJ_lAH, // fixed joint between lowerArm and hand
 	       NUMJoints};
 
 
@@ -220,7 +226,8 @@ namespace lpzrobots{
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return object[lowerArm]; }
+    //virtual Primitive* getMainPrimitive() const { return object[lowerArm]; }
+    virtual Primitive* getMainPrimitive() const { return object[hand]; }
 
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix

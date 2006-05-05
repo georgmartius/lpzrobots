@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.11  2006-03-30 12:34:56  martius
+ *   Revision 1.1.4.12  2006-05-05 16:20:27  fhesse
+ *   hand with fixed joint -> to allow tracing
+ *   (does not work with transform while only geom)
+ *
+ *   Revision 1.1.4.11  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.1.4.10  2006/03/28 14:24:37  fhesse
@@ -319,12 +323,11 @@ namespace lpzrobots{
 
 
   bool MuscledArm::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-
     //checks if both of the collision objects are part of the robot
     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
-    
+
       // treat inner collisions in mycallback  => now done with joint stops
-      //dSpaceCollide(arm_space, this, mycallback);
+      // dSpaceCollide(odeHandle.space, this, mycallback);
 
       int i,n;  
       const int N = 10;
@@ -332,16 +335,18 @@ namespace lpzrobots{
     
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       for (i=0; i<n; i++) {
- 	if( contact[i].geom.g1 == object[base]->getGeom() || 
- 	    contact[i].geom.g2 == object[base]->getGeom() ||
- 	    contact[i].geom.g1 == object[upperArm]->getGeom()  || 
- 	    contact[i].geom.g2 == object[upperArm]->getGeom()  || 
- 	    contact[i].geom.g1 == object[lowerArm]->getGeom()  || 
- 	    contact[i].geom.g2 == object[lowerArm]->getGeom()  ||
- 	    contact[i].geom.g1 == object[hand]->getGeom()  || 
- 	    contact[i].geom.g2 == object[hand]->getGeom()  ){ 
- 	  // only treat collisions with fixed body, upper arm ,lower arm or hand
- 	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
+
+ 	if( // only treat collisions with fixed body, upper arm ,lower arm or hand
+	   contact[i].geom.g1 == object[base]->getGeom() || 
+	   contact[i].geom.g2 == object[base]->getGeom() ||
+	   contact[i].geom.g1 == object[upperArm]->getGeom()  || 
+	   contact[i].geom.g2 == object[upperArm]->getGeom()  || 
+	   contact[i].geom.g1 == object[lowerArm]->getGeom()  || 
+	   contact[i].geom.g2 == object[lowerArm]->getGeom()  ||
+	   contact[i].geom.g1 == object[hand]->getGeom()  || 
+	   contact[i].geom.g2 == object[hand]->getGeom() ){ 
+
+	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
  	  contact[i].surface.mu = 0.01;
  	  contact[i].surface.soft_erp = 1;
  	  contact[i].surface.soft_cfm = 0.00001;
@@ -393,13 +398,26 @@ namespace lpzrobots{
        
 
     // create and place sphere at tip of lower arm
-    osg::Matrix ps;
-    ps.makeIdentity();
-    Primitive* o1 = new Sphere(lowerArm_width);
-    // move to end of arm in local coordinates
-    object[hand] = new Transform(object[lowerArm], o1, 
-				 osg::Matrix::translate(0, 0,-lowerArm_length*0.5) * ps);
-    object[hand]->init(odeHandle, /*mass*/0, osgHandle, Primitive::Geom  | Primitive::Draw);
+    // sphere as transform object
+//     osg::Matrix ps;
+//     ps.makeIdentity();
+//     Primitive* o1 = new Sphere(lowerArm_width);
+//     // move to end of arm in local coordinates
+//     object[hand] = new Transform(object[lowerArm], o1, 
+// 				 osg::Matrix::translate(0, 0,-lowerArm_length*0.5) * ps);
+//     object[hand]->init(odeHandle, /*mass*/0, osgHandle, Primitive::Geom  | Primitive::Draw);
+
+    // hand with fixed joint connected to lowerArm to allow tracing
+    // when sphere is transform object (-> only sphere) tracing does not work
+    // => do this better
+    object[hand] = new Sphere(lowerArm_width);
+    object[hand] -> init(odeHandle, /*mass*/0.01, osgHandle);
+    object[hand] -> setPose(osg::Matrix::rotate(M_PI/2, 1, 0, 0) * osg::Matrix::translate
+				(-(base_width/2+upperArm_length+lowerArm_width/2+2*joint_offset), 
+				 lowerArm_length/4 + lowerArm_length/2,0) * pose);
+    joint[FJ_lAH] = new FixedJoint(object[lowerArm], object[hand]);
+    joint[FJ_lAH]->init(odeHandle, osgHandle);
+
 
     osg::Vec3 pos;      
     // hinge joint between upper arm and fixed body 
