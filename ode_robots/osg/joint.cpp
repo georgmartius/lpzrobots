@@ -23,7 +23,11 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.13  2006-03-29 15:05:57  martius
+ *   Revision 1.1.2.14  2006-05-05 16:07:23  fhesse
+ *   dJointSetFixed(joint); added in init of FixedJoint
+ *   to remember relative positions
+ *
+ *   Revision 1.1.2.13  2006/03/29 15:05:57  martius
  *   fixed joint
  *
  *   Revision 1.1.2.12  2006/02/01 18:34:03  martius
@@ -103,8 +107,9 @@ namespace lpzrobots {
     */
   void FixedJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		      bool withVisual, double visualSize){
-    joint = dJointCreateFixed (odeHandle. world,0);
+    joint = dJointCreateFixed (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
+    dJointSetFixed (joint);
   }
  
   void FixedJoint::update(){}
