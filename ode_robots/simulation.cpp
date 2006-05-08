@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.27  2006-04-27 16:31:35  robot3
+ *   Revision 1.40.4.28  2006-05-08 12:12:20  robot3
+ *   changes from Revision 1.40.4.27 reverted
+ *
+ *   Revision 1.40.4.27  2006/04/27 16:31:35  robot3
  *   -motionblur inlucded
  *   -if the simulation is not in videoRedordingMode,
  *    50fps are now as standard used.
@@ -450,11 +453,11 @@ namespace lpzrobots {
     viewer->realize();
 
     // set our motion blur callback as the draw callback for each scene handler
-     osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
-     for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
-     {
-         (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
-     }
+//      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
+//      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
+//      {
+//          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
+//      }
 
 
     while (!viewer->done())
@@ -591,10 +594,10 @@ namespace lpzrobots {
 	  if(videostream.isOpen()){
 	    printf("Stop video recording!\n");
 	    videostream.close();
-	    printf("Switching back to 50fps!\n");
+	    //	    printf("Switching back to 50fps!\n");
 	    globalData.odeConfig.videoRecordingMode=false;
 	  }else{
-	    printf("For video recording the simulation now switches to 25fps!\n");
+	    //	    printf("For video recording the simulation now switches to 25fps!\n");
 	    globalData.odeConfig.videoRecordingMode=true;
 	    char dir[128];
 	    char filename[140];

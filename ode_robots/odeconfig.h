@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.6  2006-04-27 16:17:38  robot3
+ *   Revision 1.12.4.7  2006-05-08 12:12:36  robot3
+ *   changes from Revision 1.40.4.27 reverted
+ *
+ *   Revision 1.12.4.6  2006/04/27 16:17:38  robot3
  *   implemented some functions for motionblurcallback
  *
  *   Revision 1.12.4.5  2006/03/28 09:55:12  robot3
@@ -66,7 +69,7 @@ public:
     realTimeFactor=1.0;
     noise=0.1;
     gravity=-9.81;
-    drawInterval=calcDrawInterval50();
+    drawInterval=calcDrawInterval25();
     cameraSpeed=100;
     motionPersistence=0.09;
       // prepare name;
@@ -113,10 +116,10 @@ public:
       drawInterval=calcDrawInterval50();
     }else if(key == "realtimefactor"){
       realTimeFactor=std::max(0.0,val); 
-      if (videoRecordingMode)
+      //      if (videoRecordingMode)
 	drawInterval=calcDrawInterval25();
-      else
-	drawInterval=calcDrawInterval50();
+	//      else
+	//	drawInterval=calcDrawInterval50();
     }
     else if(key == "drawinterval") drawInterval=(int)val; 
     else if(key == "controlinterval") controlInterval=(int)val;
