@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-05-09 04:24:34  robot5
+ *   Revision 1.1.2.5  2006-05-09 08:47:00  robot3
+ *   getSensors() and getMotors() modified
+ *
+ *   Revision 1.1.2.4  2006/05/09 04:24:34  robot5
  *   *** empty log message ***
  *
  *   Revision 1.1.2.3  2006/04/25 09:03:03  robot3
@@ -209,7 +212,6 @@ namespace lpzrobots {
     int half = conf.segmNumber/2;
 
     for ( int n = 0; n < conf.segmNumber; n++ ) {
-
       Primitive* p = new Box(conf.segmDia/2, conf.segmDia*2, conf.segmLength);
 
       p->init(odeHandle, conf.segmMass, osgHandle);    

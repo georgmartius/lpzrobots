@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-04-11 13:27:00  robot3
+ *   Revision 1.1.2.3  2006-05-09 08:46:47  robot3
+ *   getSensors() and getMotors() modified
+ *
+ *   Revision 1.1.2.2  2006/04/11 13:27:00  robot3
  *   caterpillar is using now methods from schlangeservo2
  *
  *   Revision 1.1.2.1  2006/04/11 08:07:43  robot3
@@ -40,6 +43,7 @@
 
 #include "defaultCaterpillar.h"
 #include "universalservo.h"
+#include "sliderservo.h"
 
 namespace lpzrobots {
 
@@ -51,7 +55,8 @@ namespace lpzrobots {
   class CaterPillar : public DefaultCaterPillar
     {
   private:
-    vector <UniversalServo*> servos;
+    vector <UniversalServo*> universalServos;
+    vector <SliderServo*> sliderServos;
 
   public:
       CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
@@ -78,11 +83,11 @@ namespace lpzrobots {
 	
     /** returns number of sensors
      */
-    virtual int getSensorNumber() { assert(created); return 2*servos.size(); }
+    virtual int getSensorNumber() { assert(created); return 2*universalServos.size()+sliderServos.size(); }
 
     /** returns number of motors
      */
-    virtual int getMotorNumber(){ assert(created); return 2*servos.size(); }
+    virtual int getMotorNumber(){ assert(created); return 2*universalServos.size()+sliderServos.size(); }
 
     virtual bool setParam(const paramkey& key, paramval val);
 

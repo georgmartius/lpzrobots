@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-05-09 04:24:34  robot5
+ *   Revision 1.1.2.5  2006-05-09 08:46:37  robot3
+ *   getSensors() and getMotors() modified
+ *
+ *   Revision 1.1.2.4  2006/05/09 04:24:34  robot5
  *   *** empty log message ***
  *
  *   Revision 1.1.2.3  2006/04/25 09:03:52  robot3
@@ -37,7 +40,6 @@
  ***************************************************************************/
 
 #include "caterpillar.h"
-#include "sliderservo.h"
 
 namespace lpzrobots {
 
@@ -63,8 +65,11 @@ namespace lpzrobots {
     assert(created);
     int len = min(motornumber, getMotorNumber())/2;
     // controller output as torques 
-    for (int i = 0; i < len; i++){
-      servos[i]->set(motors[2*i], motors[2*i+1]);
+    for (int i = 0; (i < len) && (universalServos.size()); i++){
+      universalServos[i]->set(motors[2*i], motors[2*i+1]);
+    }
+    for (int i = 0; (i < len) && (sliderServos.size()); i++){
+      sliderServos[i]->set(motors[i+universalServos.size()*2]);
     }
   }
 
@@ -78,12 +83,16 @@ namespace lpzrobots {
   int CaterPillar::getSensors (sensor* sensors, int sensornumber)
   {
     assert(created);
-    int len = min(sensornumber, getSensorNumber())/2;
-    
-    for (int n = 0; n < len; n++) {
-      sensors[2*n] = servos[n]->get1();
-      sensors[2*n+1] = servos[n]->get2();
+    int len = min(sensornumber, getSensorNumber());
+    // first get the universalServos (2 sensors each!)
+    for (int n = 0; (n < len/2) && (n<universalServos.size()); n++) {
+      sensors[2*n] = universalServos[n]->get1();
+      sensors[2*n+1] = universalServos[n]->get2();
     }
+    for (int n = universalServos.size()*2;n< len; n++) {
+      sensors[n] = sliderServos[n-universalServos.size()*2]->get()*0.2;
+    }
+
     return 2*len;
   }
 
@@ -100,6 +109,7 @@ namespace lpzrobots {
       const Pos& p1(objects[n]->getPosition());
       const Pos& p2(objects[n+1]->getPosition());
 
+      // normal servos creating //
       UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
 					     (p1 + p2)/2,
 					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
@@ -112,12 +122,13 @@ namespace lpzrobots {
 
       UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
 					          -conf.jointLimit, conf.jointLimit, conf.motorPower);
-      servos.push_back(servo);
+      universalServos.push_back(servo);
       frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, conf.frictionJoint, conf.frictionJoint));
+      // end of normal servos //
 
-
-
-      SliderJoint *s=new SliderJoint(objects[n], objects[n+1], osg::Vec3((n==0), (n==conf.segmDia), (n==0)), Axis(1,0,0)* pose);
+    }
+      // new slider joints //
+      SliderJoint *s=new SliderJoint(objects[0], objects[conf.segmNumber-1], osg::Vec3((0), (conf.segmDia), (0)), Axis(1,0,0)* pose);
       s->init(odeHandle, osgHandle);
 
       s->setParam(dParamLoStop, -1.1*conf.segmDia);
@@ -126,14 +137,15 @@ namespace lpzrobots {
       s->setParam(dParamStopERP, 0.9);
       s->setParam(dParamCFM, 0.001);
 
-      SliderServo *ss = new SliderServo(s,-conf.segmDia,conf.segmDia,conf.segmMass);
       joints.push_back(s);
-    }
+      SliderServo *ss = new SliderServo(s,-conf.segmDia,conf.segmDia,conf.segmMass);
+      sliderServos.push_back(ss);
+      // end of new slider joints //
   }
 
   bool CaterPillar::setParam(const paramkey& key, paramval val){
     bool rv = DefaultCaterPillar::setParam(key, val);
-    for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+    for (vector<UniversalServo*>::iterator i = universalServos.begin(); i!= universalServos.end(); i++){
       if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
     }
     return rv;
@@ -144,10 +156,10 @@ namespace lpzrobots {
   void CaterPillar::destroy(){
     if (created){
       DefaultCaterPillar::destroy();  
-      for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+      for (vector<UniversalServo*>::iterator i = universalServos.begin(); i!= universalServos.end(); i++){
 	if(*i) delete *i;
       }
-      servos.clear();
+      universalServos.clear();
     }
   }
 
