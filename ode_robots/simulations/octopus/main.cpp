@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-05-03 13:11:20  robot8
+ *   Revision 1.1.2.2  2006-05-09 11:20:56  robot8
+ *   robot with n arm, simulating an octopus
+ *   functional, but not finished, snakes have to be changed, so they could rotate their position
+ *
+ *   Revision 1.1.2.1  2006/05/03 13:11:20  robot8
  *   test robot for the new component system
  *   only with a lot of spheres at the moment
  *
@@ -83,7 +87,7 @@
 
 #include "component.h"
 
-#define MAX_NUMBER_OF_ARMS 3
+#define MAX_NUMBER_OF_ARMS 8
 
 
 // fetch all the stuff of lpzrobots into scope
@@ -127,68 +131,52 @@ public:
 
     //****************
 
-    Sphererobot3Masses* sphere;
-    vector <Sphererobot3Masses*> arms;
+    Primitive* sphere;
+    vector <OdeRobot*> arms;
 
     vector <Component*> components;
     
 //sphere1 
-    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-    conf.irAxis1 = true;
-    conf.irAxis2 = false;
-    conf.irAxis3 = true;
-    conf.drawIRs = true;
+    sphere = new Sphere ( 0.2 );   
+    sphere->init ( odeHandle , 1 , osgHandle , Primitive::Body | Primitive::Geom | Primitive::Draw);
 
-    sphere = new Sphererobot3Masses ( odeHandle, osgHandle, 
-				       conf, "Sphere1", 0.2);   
-    ((OdeRobot*)sphere)->place ( Pos( 0 , 0 , 0.1 ));
+    ComponentConf cConf = Component::getDefaultConf ();
+//    cConf.completesensormode = ;
 
-    controller = new InvertMotorNStep ();  
-    controller->setParam("adaptrate", 0.000);
-    controller->setParam("epsC", 0.005);
-    controller->setParam("epsA", 0.001);
-    controller->setParam("rootE", 0);
-    controller->setParam("steps", 2);
-    controller->setParam("s4avg", 5);
-    controller->setParam("factorB",0);
+    components.push_back ( new Component ( odeHandle , osgHandle , cConf ) );
 
-    DerivativeWiringConf c = DerivativeWiring::getDefaultConf ();
-    DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );   
+    components.back ()->setSimplePrimitive ( sphere );
 
-    OdeAgent* agent = new OdeAgent ( plotoptions );
-    agent->init ( controller , sphere , wiring );
-    // agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
-    global.agents.push_back ( agent );
-    global.configs.push_back ( controller );
-
-    components.push_back ( new Component ( odeHandle , osgHandle , Component::getDefaultConf () ) );
-
-    components.back ()->setRobot ( global.agents.back()->getRobot () );
+    components.back ()->place ( Pos( 0 , 0 , 0.7 ));
    
 //arms
+    DerivativeWiringConf c;
+    DerivativeWiring* wiring;
+    OdeAgent* agent;
 
     HingeJoint* j1;
     Axis axis;
 
     for ( int n = 0; n < MAX_NUMBER_OF_ARMS; n++ )
     {
-	/*SchlangeConf sc = Schlange::getDefaultConf ();
+	SchlangeConf sc = Schlange::getDefaultConf ();
 	sc.segmNumber = 3;
 	sc.segmLength = 0.3;
-	sc.segmMass = 0.1;*/
-	//arms.push_back ( new SchlangeServo ( odeHandle , osgHandle , sc ,  "octopusarm" ) );
+	sc.segmMass = 0.1;
+	sc.motorPower = 0.5;
+	sc.frictionJoint=0.01;
 
+	arms.push_back ( new SchlangeServo ( odeHandle , osgHandle , sc ,  "octopusarm" ) );
 
-	conf.diameter = 1;
-	arms.push_back ( new Sphererobot3Masses ( odeHandle, osgHandle, conf, "armSphere", 0.2) );   
-
+	//arms.push_back ( new Sphererobot3Masses ( odeHandle, osgHandle, conf, "armSphere", 0.2) );   
 
 	 ((OdeRobot*)arms[n])->place ( Pos ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ) , cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ) , 0 ) ); 
 
 	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 	cc.cInit=2;
+
 	AbstractController *controller = new InvertMotorNStep ( cc );  
-	controller->setParam("adaptrate",0);
+	controller->setParam("adaptrate",0.2);
 	controller->setParam("epsC",0.001);
 	controller->setParam("epsA",0.001);
 	controller->setParam("rootE",1);
@@ -202,23 +190,23 @@ public:
 	agent->init(controller , arms[n] , wiring );
 	global.agents.push_back(agent);
 	global.configs.push_back(controller);
-//	global.configs.push_back ( arms[n] );
 
 
 	//Components
-	components.push_back ( new Component ( odeHandle , osgHandle , Component::getDefaultConf () ) );
-	if ( (components.back ()->setRobot ( global.agents.back()->getRobot () )) == false ) exit (1);
+	components.push_back ( new Component ( odeHandle , osgHandle , cConf ) );
+	components.back ()->setRobot ( global.agents.back()->getRobot () );
 	
 	//creating joint
 	vector <Position> positionlist;
-	//((Schlange*) (components.back ()->getRobot ()))->getSegmentsPosition ( positionlist );
+	((Schlange*) (components.back ()->getRobot ()))->getSegmentsPosition ( positionlist );
 
 	//schlange has no member getPosition, only the abilitie to give its whole object-list of Primitives, and here the first Primitive is used, to get the Position
+//	components.front ()->getRobot ()->getPosition () - positionlist.front ();//
 
-	//axis = Axis ( ( components.front ()->getRobot ()->getPosition () - positionlist.front ()).toArray() );
-	axis = Axis ( ( components.front ()->getRobot ()->getPosition () - components.back ()->getRobot()->getPosition ()).toArray() );
-	//axis = Axis ( 1 , 1 , 0 );
-
+	axis = Axis ( ( components.front ()->getPosition () - positionlist.front ()).toArray() );
+	//axis = Axis ( ( components.front ()->getRobot ()->getPosition () - components.back ()->getRobot()->getPosition ()).toArray() );
+	
+	
 	j1 = new HingeJoint ( components.front ()->getMainPrimitive () , components.back ()->getMainPrimitive () , components.front ()->getPositionbetweenComponents ( components.back () ) , axis );
 	j1->init ( odeHandle , osgHandle , true , 0.8 );
 	components.front ()->addSubcomponent ( components.back () , j1 );
@@ -228,9 +216,9 @@ public:
 
 
 //adding the controller for the component-connections
-    //controller = new InvertMotorSpace ( 10 );  
+//    controller = new InvertMotorSpace ( 10 );  
     controller = new InvertMotorNStep ();  
-    controller->setParam("adaptrate", 0.000);
+    controller->setParam("adaptrate", 0.02);
     controller->setParam("epsC", 0.005);
     controller->setParam("epsA", 0.001);
     controller->setParam("rootE", 0);
@@ -244,9 +232,6 @@ public:
     agent->init ( controller , components.front () , wiring );
     global.agents.push_back ( agent );
     global.configs.push_back ( controller );
-//    global.configs.push_back ( components.front () );
-
-    
 
 
     showParams(global.configs);
@@ -274,5 +259,3 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
- 
