@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-04-25 09:03:03  robot3
+ *   Revision 1.1.2.4  2006-05-09 04:24:34  robot5
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.3  2006/04/25 09:03:03  robot3
  *   caterpillar is now represented by a box
  *
  *   Revision 1.1.2.2  2006/04/11 13:27:29  robot3
@@ -206,18 +209,14 @@ namespace lpzrobots {
     int half = conf.segmNumber/2;
 
     for ( int n = 0; n < conf.segmNumber; n++ ) {
-      Primitive* p;
-      if (n==0) {
-	p = new Box( conf.segmDia/2, conf.segmDia*8, conf.segmLength/4);
-      } else {
-      //          Primitive* p = new Capsule(conf.segmDia/2 , conf.segmLength);
-	p = new Box( conf.segmDia/2, conf.segmDia*2, conf.segmLength);
-      }
+
+      Primitive* p = new Box(conf.segmDia/2, conf.segmDia*2, conf.segmLength);
+
       p->init(odeHandle, conf.segmMass, osgHandle);    
       p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
 		 osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * 
 		 pose);
-      p->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      p->getOSGPrimitive()->setTexture("Images/dusty.rgb");
       objects.push_back(p);
     }
     

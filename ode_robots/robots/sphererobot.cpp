@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.5  2006-01-10 17:17:17  martius
+ *   Revision 1.11.4.6  2006-05-09 04:24:34  robot5
+ *   *** empty log message ***
+ *
+ *   Revision 1.11.4.5  2006/01/10 17:17:17  martius
  *   new mode for primitives
  *
  *   Revision 1.11.4.4  2006/01/10 15:10:24  martius
@@ -107,7 +110,7 @@ namespace lpzrobots {
     for ( int n = 0; n < len; n++ ) {
       servo[n]->set(motors[n]);
     }
-  }	
+  }
 
 
   void Sphererobot::place(const osg::Matrix& pose){

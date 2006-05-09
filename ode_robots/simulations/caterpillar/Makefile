@@ -25,8 +25,10 @@ LIBS   = -lm \
 	-L$(SELFORG)   -lselforg \
 	-L$(MATRIXLIB)  -l$(MATRIX) \
 	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut
+LIBS += -L/usr/local/lib -L/usr/X11R6/lib -losgGA -losgDB
 
 INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include -I$(MATRIXLIB)
+INC += -I/usr/X11R6/include
 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)

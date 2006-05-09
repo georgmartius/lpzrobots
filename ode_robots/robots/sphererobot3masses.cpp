@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-03-29 15:09:27  martius
+ *   Revision 1.1.2.5  2006-05-09 04:24:34  robot5
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.4  2006/03/29 15:09:27  martius
  *   Z-Sensors have been wrong all the time :-)
  *
  *   Revision 1.1.2.3  2006/02/20 10:50:20  martius
@@ -143,8 +146,8 @@ namespace lpzrobots {
   }
 
   /**
-   *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
-   *It is an linear allocation.
+   *Reads the actual motor commands from an array, and sets all motors of the snake to this values.
+   *It is a linear allocation.
    *@param motors pointer to the array, motor values are scaled to [-1,1] 
    *@param motornumber length of the motor array
    **/
@@ -159,7 +162,7 @@ namespace lpzrobots {
   void Sphererobot3Masses::place(const osg::Matrix& pose){
     osg::Matrix p2;
     p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.diameter/2)); 
-    create(p2);    
+    create(p2);
   };
 
 

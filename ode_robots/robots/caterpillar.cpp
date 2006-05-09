@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-04-25 09:03:52  robot3
+ *   Revision 1.1.2.4  2006-05-09 04:24:34  robot5
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.3  2006/04/25 09:03:52  robot3
  *   caterpillar is now represented by a box
  *
  *   Revision 1.1.2.2  2006/04/11 13:26:46  robot3
@@ -34,7 +37,7 @@
  ***************************************************************************/
 
 #include "caterpillar.h"
-
+#include "sliderservo.h"
 
 namespace lpzrobots {
 
@@ -51,11 +54,11 @@ namespace lpzrobots {
 
   /**
    *Reads the actual motor commands from an array, and sets all motors (forces) of the snake to this values.
-   *It is an linear allocation.
+   *It is a linear allocation.
    *@param motors pointer to the array, motor values are scaled to [-1,1] 
    *@param motornumber length of the motor array
    **/
-  void CaterPillar::setMotors ( const motor* motors, int motornumber )
+  void CaterPillar::setMotors (const motor* motors, int motornumber)
   {
     assert(created);
     int len = min(motornumber, getMotorNumber())/2;
@@ -63,7 +66,7 @@ namespace lpzrobots {
     for (int i = 0; i < len; i++){
       servos[i]->set(motors[2*i], motors[2*i+1]);
     }
-  }	
+  }
 
   /**
    *Writes the sensor values to an array in the memory.
@@ -72,7 +75,7 @@ namespace lpzrobots {
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    **/
-  int CaterPillar::getSensors ( sensor* sensors, int sensornumber )
+  int CaterPillar::getSensors (sensor* sensors, int sensornumber)
   {
     assert(created);
     int len = min(sensornumber, getSensorNumber())/2;
@@ -81,7 +84,6 @@ namespace lpzrobots {
       sensors[2*n] = servos[n]->get1();
       sensors[2*n+1] = servos[n]->get2();
     }
-    
     return 2*len;
   }
 
@@ -93,33 +95,40 @@ namespace lpzrobots {
     DefaultCaterPillar::create(pose);
     
     //*****************joint definition***********
-    for ( int n = 0; n < conf.segmNumber-1; n++ ) {		
+    for (int n = 0; n < conf.segmNumber-1; n++) {
 
       const Pos& p1(objects[n]->getPosition());
       const Pos& p2(objects[n+1]->getPosition());
+
       UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
 					     (p1 + p2)/2,
 					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
       j->init(odeHandle, osgHandle, true, conf.segmDia/2 * 1.02);
-        
-      // setting stops at universal joints		
+
+      // setting stops at universal joints
       j->setParam(dParamLoStop, -conf.jointLimit*1.5);
       j->setParam(dParamHiStop,  conf.jointLimit*1.5);
-    
-      // making stops bouncy
-      //    j->setParam (dParamBounce, 0.9 );
-      //    j->setParam (dParamBounce2, 0.9 ); // universal
+      joints.push_back(j);
 
-      joints.push_back(j); 
-      
       UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
 					          -conf.jointLimit, conf.jointLimit, conf.motorPower);
       servos.push_back(servo);
-      
-      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, 
-						     conf.frictionJoint, conf.frictionJoint)
-			       );
-    }	  
+      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, conf.frictionJoint, conf.frictionJoint));
+
+
+
+      SliderJoint *s=new SliderJoint(objects[n], objects[n+1], osg::Vec3((n==0), (n==conf.segmDia), (n==0)), Axis(1,0,0)* pose);
+      s->init(odeHandle, osgHandle);
+
+      s->setParam(dParamLoStop, -1.1*conf.segmDia);
+      s->setParam(dParamHiStop, 1.1*conf.segmDia);
+      s->setParam(dParamStopCFM, 0.1);
+      s->setParam(dParamStopERP, 0.9);
+      s->setParam(dParamCFM, 0.001);
+
+      SliderServo *ss = new SliderServo(s,-conf.segmDia,conf.segmDia,conf.segmMass);
+      joints.push_back(s);
+    }
   }
 
   bool CaterPillar::setParam(const paramkey& key, paramval val){
@@ -132,7 +141,7 @@ namespace lpzrobots {
 
   /** destroys vehicle and space
    */
-  void CaterPillar::destroy(){  
+  void CaterPillar::destroy(){
     if (created){
       DefaultCaterPillar::destroy();  
       for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){

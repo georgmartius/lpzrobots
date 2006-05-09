@@ -54,3 +54,6 @@ clean:
 	rm -f $(EXEC) *.o Makefile.depend
 
 include Makefile.depend
+
+LIBS += -L/usr/local/lib -L/usr/X11R6/lib -losgGA -losgDB
+INC += -I/usr/X11R6/include

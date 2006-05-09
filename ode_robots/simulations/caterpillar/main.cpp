@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-04-25 09:04:37  robot3
+ *   Revision 1.1.2.3  2006-05-09 04:24:34  robot5
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.2  2006/04/25 09:04:37  robot3
  *   caterpillar is now represented by a box
  *
  *   Revision 1.1.2.1  2006/04/25 08:05:56  robot3
@@ -86,10 +89,10 @@ public:
     CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
     //******* R A U P E  *********/
     myCaterPillarConf.segmNumber=7;
-    myCaterPillarConf.jointLimit=M_PI/3;
-    myCaterPillarConf.motorPower=0.2;
-    myCaterPillarConf.frictionGround=0.01;
-    myCaterPillar = new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), myCaterPillarConf, "Raupe1");
+    myCaterPillarConf.jointLimit=M_PI/4;
+    myCaterPillarConf.motorPower=0.8; //0.2
+    myCaterPillarConf.frictionGround=0.04; //0.01
+    myCaterPillar = new CaterPillar ( odeHandle, osgHandle.changeColor(Color(0.0f,1.0f,0.0f)), myCaterPillarConf, "Raupe1");
     ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0.2)); 
     
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();

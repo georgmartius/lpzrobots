@@ -32,7 +32,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-04-11 13:27:48  robot3
+ *   Revision 1.1.2.3  2006-05-09 04:24:34  robot5
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.2  2006/04/11 13:27:48  robot3
  *   caterpillar is using now methods from schlangeservo2
  *
  *   Revision 1.1.2.1  2006/04/11 08:30:46  robot3
@@ -93,14 +96,14 @@ public:
   static CaterPillarConf getDefaultConf(){
     CaterPillarConf conf;
     conf.segmNumber = 10;    //  number of snake elements
-    conf.segmLength = 0.8;   // length of one snake element
+    conf.segmLength = 0.4;   // length of one snake element
     conf.segmDia    = 0.2;   //  diameter of a snake element
     conf.segmMass   = 0.4;   //  mass of one snake element
     conf.motorPower = 1;    //  power of the servos
     conf.sensorFactor = 1;    //  scale for sensors
     conf.frictionGround = 1.0; // friction with ground
     conf.frictionJoint = 0.1; // friction within joint
-    conf.jointLimit =  M_PI/4;
+    conf.jointLimit =  M_PI/8;
     return conf;
   }
 
