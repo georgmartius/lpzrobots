@@ -107,7 +107,7 @@ namespace lpzrobots
 
     int Component::getSensorNumber ()
     {
-	int sensors;   
+	int sensors = 0;   
 
 	//if the sensor values should be used, and a robot is there, the robot-sensor number is added
 	    if ( conf.completesensormode == true && robot != NULL )
@@ -188,8 +188,11 @@ namespace lpzrobots
 	//only if there is a robot
 	if ( robot != NULL )
 	    robot->place ( pos );
-	else //there is a simplePrimitive, and it is updated
-	    simplePrimitive->setPosition ( pos );
+	else //there is a simplePrimitive, and its position is updated
+	{
+//	    ((Pos)pos).toPosition();
+	    simplePrimitive->setPosition ( osg::Vec3 ( ((Pos)pos).toPosition().x , ((Pos)pos).toPosition().y , ((Pos)pos).toPosition().z ) );
+	}
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
@@ -217,7 +220,8 @@ namespace lpzrobots
     {
 	if ( robot == NULL && simplePrimitive != NULL )
 	{
-	    return Position ( simplePrimitive->getPosition()[0] , simplePrimitive->getPosition()[1] , simplePrimitive->getPosition()[2] );
+	    osg::Vec3 position = simplePrimitive->getPosition();
+	    return Position ( position[0], position[1] , position[2] );
 	}
 	else
 	    return robot->getPosition ();
@@ -225,10 +229,9 @@ namespace lpzrobots
 
     osg::Vec3 Component::getPositionbetweenComponents ( Component* component )
     {
-	osg::Vec3 anchor = osg::Vec3 ( getMainPrimitive ()->getPosition ()[0] + ( component->getMainPrimitive ()->getPosition ()[0] - getMainPrimitive ()->getPosition ()[0])/2 ,
-					 getMainPrimitive ()->getPosition ()[1] + ( component->getMainPrimitive ()->getPosition ()[1] - getMainPrimitive ()->getPosition ()[1])/2 ,
-					 getMainPrimitive ()->getPosition ()[2] + ( component->getMainPrimitive ()->getPosition ()[2] - getMainPrimitive ()->getPosition ()[2])/2 );
-
+	osg::Vec3 posi1 = getMainPrimitive ()->getPosition ();
+	osg::Vec3 posi2 = component->getMainPrimitive ()->getPosition ();
+	osg::Vec3 anchor = osg::Vec3 ( posi1[0] + ( posi2[0] - posi1[0])/2 , posi1[1] + ( posi2[1] - posi1[1])/2 , posi1[2] + ( posi2[2] - posi1[2])/2 );
 
 	return anchor;
     }
@@ -262,10 +265,10 @@ namespace lpzrobots
 	return robot;
     }
 
-    Primitive* Component::getMainPrimitive () const//overload this in the robot implementation.; should be the main-Primitive from the first componentConnection in the vector
+    Primitive* Component::getMainPrimitive () const
     {
 	//if there is a robot belonging to the compoent
-	if ( robot != NULL )
+	if ( robot != NULL && simplePrimitive == NULL )
 	    return robot->getMainPrimitive();
 	else //if there is only a Primitive belonging to the component
 	    return simplePrimitive;	

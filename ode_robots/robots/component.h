@@ -136,21 +136,31 @@ virtual Position getPosition () const; //returns position of the object; relates
 virtual osg::Vec3 getPositionbetweenComponents ( Component* component );
 
 /**
- *Sets the reference to the Primitive , which belongs to the component, but only if there is no robot set, belonging to the component.
+ *Sets the reference to the Primitive for the component, but only if there is no robot assigned to the component.
+ *Overwriting an existing Primitive reference is possible, also to set it NULL, and then set a reference to a Primitive with setSimplePrimitive ( .. ).
+ *But first the Primitive reference should be saved elsewhere or it won't be updated graficaly
  *@return true if the reference could be set; false else
  **/
 virtual bool setSimplePrimitive ( Primitive* newprimitive );
 
 /**
- *Sets the reference to the robot for the component, but only if there is no Primitive set belonging to the component.
+ *Sets the reference to the robot for the component, but only if there is no Primitive assigned to the component.
  *Overwriting an existing robot reference is possible, also to set it NULL, and then set a reference to a Primitive with setSimplePrimitive ( .. ).
+ *But first the robot reference should be saved elsewhere or it won't be updated graficaly
  *return true if the reference could be set; false else
  **/
 virtual bool setRobot ( OdeRobot* newrobot );
 
-virtual OdeRobot* getRobot (); //returns a reference to the robot belonging to the component, if there is no robot it is an NULL pointer, then try getMeinPrimitive, because there is only a solid Primitive not a complex robot for this component
+/**
+ *returns a reference to the robot belonging to the component, if there is no robot it is an NULL pointer, then try getMeinPrimitive, because there is only a solid Primitive not a complex robot for this component
+ *@return the robot asigned to the component
+ **/
+virtual OdeRobot* getRobot (); //
 
-virtual Primitive* getMainPrimitive () const;//overload this in the robot implementation.; should be the main-Primitive from the first componentConnection in the vector
+/**
+ *return reference to the simple Primitive, or to the main Primitive of the robot assigend to the component. If nothimng is assigned, NULL is returned.
+ **/
+virtual Primitive* getMainPrimitive () const;
 
 /**
  *Gets the Number of subcomponents of this component.
