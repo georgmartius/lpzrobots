@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-05-09 11:20:56  robot8
+ *   Revision 1.1.2.3  2006-05-09 13:07:47  robot8
+ *   new component system, a bit less complex
+ *   easy to use, because of only one component class
+ *   handling like a normal robot
+ *   testet, OK
+ *   not handling multi-joints between the components
+ *
+ *   Revision 1.1.2.2  2006/05/09 11:20:56  robot8
  *   robot with n arm, simulating an octopus
  *   functional, but not finished, snakes have to be changed, so they could rotate their position
  *
@@ -46,24 +53,6 @@
  *   easy to use, because of only one component class
  *   handling like a normal robot
  *   not functional now
- *
- *   Revision 1.15.4.4  2006/02/20 10:50:20  martius
- *   pause, random, windowsize, Ctrl-keys
- *
- *   Revision 1.15.4.3  2006/01/12 15:17:39  martius
- *   *** empty log message ***
- *
- *   Revision 1.15.4.2  2006/01/10 20:33:50  martius
- *   moved to osg
- *
- *   Revision 1.15.4.1  2005/11/15 12:30:17  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.15  2005/11/09 14:54:46  fhesse
- *   nchannelcontroller used
- *
- *   Revision 1.14  2005/11/09 13:41:25  martius
- *   GPL'ised
  *
  ***************************************************************************/
 
@@ -170,7 +159,11 @@ public:
 
 	//arms.push_back ( new Sphererobot3Masses ( odeHandle, osgHandle, conf, "armSphere", 0.2) );   
 
-	 ((OdeRobot*)arms[n])->place ( Pos ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ) , cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ) , 0 ) ); 
+	((OdeRobot*)arms[n])->place ( Pos ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ) , cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ) , 0 ) ); 
+/*	 ((OdeRobot*)arms[n])->place ( osg::Matrix ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ),0,0,0,
+						     0,cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ),0,0,
+						     0,0,0,0,
+						     0,0,0,1)); */
 
 	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 	cc.cInit=2;
@@ -208,7 +201,8 @@ public:
 	
 	
 	j1 = new HingeJoint ( components.front ()->getMainPrimitive () , components.back ()->getMainPrimitive () , components.front ()->getPositionbetweenComponents ( components.back () ) , axis );
-	j1->init ( odeHandle , osgHandle , true , 0.8 );
+	j1->init ( odeHandle , osgHandle , true , 0.7 );
+//	j1->setParam(dParamFMax,0.0001);            // set maximal force
 	components.front ()->addSubcomponent ( components.back () , j1 );
 
 	positionlist.clear ();
