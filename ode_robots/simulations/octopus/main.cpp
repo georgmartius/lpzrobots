@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-05-09 13:07:47  robot8
+ *   Revision 1.1.2.4  2006-05-10 09:36:10  robot8
+ *   okctopus system working correctly
+ *
+ *   Revision 1.1.2.3  2006/05/09 13:07:47  robot8
  *   new component system, a bit less complex
  *   easy to use, because of only one component class
  *   handling like a normal robot
@@ -77,6 +80,7 @@
 #include "component.h"
 
 #define MAX_NUMBER_OF_ARMS 8
+#define HEAD_ARM_DISTANCE 1.5
 
 
 // fetch all the stuff of lpzrobots into scope
@@ -136,7 +140,7 @@ public:
 
     components.back ()->setSimplePrimitive ( sphere );
 
-    components.back ()->place ( Pos( 0 , 0 , 0.7 ));
+    components.back ()->place ( Pos( 0 , 0 , 0.2 ));
    
 //arms
     DerivativeWiringConf c;
@@ -150,20 +154,17 @@ public:
     {
 	SchlangeConf sc = Schlange::getDefaultConf ();
 	sc.segmNumber = 3;
-	sc.segmLength = 0.3;
+	sc.segmLength = 0.4;
 	sc.segmMass = 0.1;
 	sc.motorPower = 0.5;
 	sc.frictionJoint=0.01;
 
 	arms.push_back ( new SchlangeServo ( odeHandle , osgHandle , sc ,  "octopusarm" ) );
 
-	//arms.push_back ( new Sphererobot3Masses ( odeHandle, osgHandle, conf, "armSphere", 0.2) );   
-
-	((OdeRobot*)arms[n])->place ( Pos ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ) , cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ) , 0 ) ); 
-/*	 ((OdeRobot*)arms[n])->place ( osg::Matrix ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ),0,0,0,
-						     0,cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS ),0,0,
-						     0,0,0,0,
-						     0,0,0,1)); */
+	((OdeRobot*)arms[n])->place ( osg::Matrix::rotate ( ((4*M_PI/MAX_NUMBER_OF_ARMS)+(-2*M_PI/MAX_NUMBER_OF_ARMS)*(n)), osg::Vec3 (0,0,1)) * 
+				      osg::Matrix::translate ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
+							       cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
+								0 ));
 
 	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 	cc.cInit=2;
@@ -201,7 +202,7 @@ public:
 	
 	
 	j1 = new HingeJoint ( components.front ()->getMainPrimitive () , components.back ()->getMainPrimitive () , components.front ()->getPositionbetweenComponents ( components.back () ) , axis );
-	j1->init ( odeHandle , osgHandle , true , 0.7 );
+	j1->init ( odeHandle , osgHandle , true , 1 );
 //	j1->setParam(dParamFMax,0.0001);            // set maximal force
 	components.front ()->addSubcomponent ( components.back () , j1 );
 
