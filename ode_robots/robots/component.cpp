@@ -32,184 +32,11 @@ namespace lpzrobots
     
     Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , const ComponentConf& conf = getDefaultConf () ) : OdeRobot ( odeHandle, osgHandle , "Component" ) , conf ( conf )
     {
-	robot = NULL;
-	simplePrimitive = NULL;
     
     }
 
     Component::~Component ()
     {
-    }
-
-    int Component::getSensors ( sensor *sensors , int sensornumber )
-    {
-	int sensorcounter = 0;
-	
-
-	if ( sensornumber == getSensorNumber () )
-	{
-	    //sensor values of this component, and its robot
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
-		//Fixed- and Ball-Joint-Classes do not have the getPosition-function
-		if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeBall ) )
-		{
-		    //nothing is done
-		}
-		else //now all other joints, which should be normaly used, are treated; they are all subclasses of the OneAxisJoint-class
-		{
-		    sensors[n] = ((OneAxisJoint*) connection[n].joint)->getPosition1 ();
-		    sensorcounter++;
-		}
-
-
-	    if ( conf.completesensormode == true && robot != NULL )
-	    {
-		robot->getSensors ( &sensors[sensorcounter] , sensornumber - ( sensorcounter ) );
-		sensorcounter += robot->getSensorNumber ();
-	    }
-
-	    //sensor values of all subcomponents and their robots
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
-		sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
-
-	}
-
-	return sensorcounter;
-    }
-
-    void Component::setMotors ( const motor *motors , int motornumber )
-    {
-	int motorcounter = 0;
-	motor* tmpmotors;
-
-	for ( int n = 0; ( n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
-	{
-	    connection[n].joint->setParam ( dParamVel , motors[n]*conf.speed ); // set velocity
-	    connection[n].joint->setParam ( dParamFMax ,conf.max_force );       // set maximal force
-
-/*	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
-			sensors = sensors + 2;
-		    else
-			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
-			    sensors = sensors + 2;*/
-	}
-	motorcounter += getNumberSubcomponents (); //the start of the array is shifted by the number of used array elements
-
-	//setMotors for the robot, if it exists
-	if ( conf.completemotormode == true && robot != NULL )
-	{
-	    robot->setMotors ( &motors[motorcounter] , motornumber - motorcounter );
-	    motorcounter += robot->getMotorNumber ();
-	}
-
-	for ( int n = 0; ( n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
-	{
-	    tmpmotors = (motor*) &motors[motorcounter]; //the pointer for the new array
-	    connection[n].subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
-	    motorcounter += connection[n].subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
-
-	}
-    }
-
-    int Component::getSensorNumber ()
-    {
-	int sensors = 0;   
-
-	//if the sensor values should be used, and a robot is there, the robot-sensor number is added
-	    if ( conf.completesensormode == true && robot != NULL )
-		sensors = robot->getSensorNumber ();
-	    //recursive sensor-counting for all subcomponents
-	
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{
-	    //counting the sensors by the type of the used joint, coded by ode type, because the joints are created external
-	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
-		sensors++;
-	    else
-		if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeSlider )
-		    sensors++;
-		else
-		    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
-			sensors = sensors + 2;
-		    else
-			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
-			    sensors = sensors + 2;
-	
-    	    //recursive sensor-counting for all subcomponents
-	    sensors += connection[n].subcomponent->getSensorNumber ();
-	}
-
-	return sensors;
-    }
-
-
-    int Component::getMotorNumber ()
-    {
-	int motors = 0;
-
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{//counting the motors by the type of the used joint, coded by ode type, because the joints are created external
-	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
-		motors++;
-	    else
-		if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeSlider )
-		    motors++;
-		else
-		    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
-			motors = motors + 2;
-		    else
-			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
-			    motors = motors + 2;
-	     
-
-	    //if the motor values should be used, and a robot is there, the robot-motor number is added
-	    if ( conf.completemotormode == true && robot != NULL )
-		motors += robot->getMotorNumber ();
-	    //recursive sensor-counting for all subcomponents
-	    motors += connection[n].subcomponent->getMotorNumber ();
-	}
-
-	return motors;
-    }
-
-    void Component::update ()
-    {
-	//only if there is a robot
-	if ( robot != NULL )
-	    robot->update ();
-	else //there is a simplePrimitive, and it is updated
-	    simplePrimitive->update ();
-	//all subcomponents and joints also are updated
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{
-	    connection[n].joint->update ();
-	    connection[n].subcomponent->update ();
-	}
-    }
-
-    void Component::place ( const Pos &pos )
-    {
-	Position newpos;
-
-	//only if there is a robot
-	if ( robot != NULL )
-	    robot->place ( pos );
-	else //there is a simplePrimitive, and its position is updated
-	{
-//	    ((Pos)pos).toPosition();
-	    simplePrimitive->setPosition ( osg::Vec3 ( ((Pos)pos).toPosition().x , ((Pos)pos).toPosition().y , ((Pos)pos).toPosition().z ) );
-	}
-
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{
-	    newpos = connection[n].subcomponent->getPosition () - ((Pos)pos).toPosition ();
-	    connection[n].subcomponent->place ( *(new Pos ( newpos )) );
-	}
-    }
-
-    void 	Component::place (const osg::Matrix &pose)
-    {
-
     }
 
     bool 	Component::collisionCallback (void *data, dGeomID o1, dGeomID o2)
@@ -222,17 +49,6 @@ namespace lpzrobots
 
     }
 
-    Position Component::getPosition () const
-    {
-	if ( robot == NULL && simplePrimitive != NULL )
-	{
-	    osg::Vec3 position = simplePrimitive->getPosition();
-	    return Position ( position[0], position[1] , position[2] );
-	}
-	else
-	    return robot->getPosition ();
-    }
-
     osg::Vec3 Component::getPositionbetweenComponents ( Component* component )
     {
 	osg::Vec3 posi1 = getMainPrimitive ()->getPosition ();
@@ -240,44 +56,6 @@ namespace lpzrobots
 	osg::Vec3 anchor = osg::Vec3 ( posi1[0] + ( posi2[0] - posi1[0])/2 , posi1[1] + ( posi2[1] - posi1[1])/2 , posi1[2] + ( posi2[2] - posi1[2])/2 );
 
 	return anchor;
-    }
-
-
-    bool Component::setSimplePrimitive ( Primitive* newprimitive )
-    {
-	if ( robot == NULL )
-	{
-	    simplePrimitive = newprimitive;
-	    return true;
-	}
-	else
-	    return false;
-    }
-
-
-    bool Component::setRobot ( OdeRobot* newrobot )
-    {
-	if ( simplePrimitive == NULL )
-	{
-	    robot = newrobot;
-	    return true;
-	}
-	else
-	    return false;
-    }
-
-    OdeRobot* Component::getRobot ()
-    {
-	return robot;
-    }
-
-    Primitive* Component::getMainPrimitive () const
-    {
-	//if there is a robot belonging to the compoent
-	if ( robot != NULL && simplePrimitive == NULL )
-	    return robot->getMainPrimitive();
-	else //if there is only a Primitive belonging to the component
-	    return simplePrimitive;	
     }
 
     int Component::getNumberSubcomponents ()

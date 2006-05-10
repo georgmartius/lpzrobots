@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-05-10 09:36:10  robot8
+ *   Revision 1.1.2.5  2006-05-10 13:22:29  robot8
+ *   -splitting of the component system to SimpleComponent and RobotComponent
+ *   -add ing the possibility to read and write sensors and motors form TwoAxis Joints as connecting joints between components
+ *   -octopus adopted to new splitted system
+ *
+ *   Revision 1.1.2.4  2006/05/10 09:36:10  robot8
  *   okctopus system working correctly
  *
  *   Revision 1.1.2.3  2006/05/09 13:07:47  robot8
@@ -78,6 +83,8 @@
 #include "sphererobot3masses.h"
 
 #include "component.h"
+#include "simplecomponent.h"
+#include "robotcomponent.h"
 
 #define MAX_NUMBER_OF_ARMS 8
 #define HEAD_ARM_DISTANCE 1.5
@@ -134,11 +141,11 @@ public:
     sphere->init ( odeHandle , 1 , osgHandle , Primitive::Body | Primitive::Geom | Primitive::Draw);
 
     ComponentConf cConf = Component::getDefaultConf ();
-//    cConf.completesensormode = ;
+    cConf.max_force = 1;
 
-    components.push_back ( new Component ( odeHandle , osgHandle , cConf ) );
+    components.push_back ( new SimpleComponent ( odeHandle , osgHandle , cConf ) );
 
-    components.back ()->setSimplePrimitive ( sphere );
+    ((SimpleComponent*) components.back ())->setSimplePrimitive ( sphere );
 
     components.back ()->place ( Pos( 0 , 0 , 0.2 ));
    
@@ -170,7 +177,7 @@ public:
 	cc.cInit=2;
 
 	AbstractController *controller = new InvertMotorNStep ( cc );  
-	controller->setParam("adaptrate",0.2);
+	controller->setParam("adaptrate",0.005);
 	controller->setParam("epsC",0.001);
 	controller->setParam("epsA",0.001);
 	controller->setParam("rootE",1);
@@ -187,12 +194,12 @@ public:
 
 
 	//Components
-	components.push_back ( new Component ( odeHandle , osgHandle , cConf ) );
-	components.back ()->setRobot ( global.agents.back()->getRobot () );
+	components.push_back ( new RobotComponent ( odeHandle , osgHandle , cConf ) );
+	((RobotComponent*) components.back ())->setRobot ( global.agents.back()->getRobot () );
 	
 	//creating joint
 	vector <Position> positionlist;
-	((Schlange*) (components.back ()->getRobot ()))->getSegmentsPosition ( positionlist );
+	((Schlange*) ((RobotComponent*) components.back ())->getRobot ())->getSegmentsPosition ( positionlist );
 
 	//schlange has no member getPosition, only the abilitie to give its whole object-list of Primitives, and here the first Primitive is used, to get the Position
 //	components.front ()->getRobot ()->getPosition () - positionlist.front ();//
@@ -213,7 +220,7 @@ public:
 //adding the controller for the component-connections
 //    controller = new InvertMotorSpace ( 10 );  
     controller = new InvertMotorNStep ();  
-    controller->setParam("adaptrate", 0.02);
+    controller->setParam("adaptrate", 0.005);
     controller->setParam("epsC", 0.005);
     controller->setParam("epsA", 0.001);
     controller->setParam("rootE", 0);

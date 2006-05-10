@@ -21,67 +21,31 @@
  ***************************************************************************/
 
 
-#include <math.h>
-#include <ode/ode.h>
-#include <iostream>
-#include <typeinfo>
+#include "component.h"
 
-#include <vector>
-#include <list>
-
-
-#include "oderobot.h"
-#include "joint.h"
-
-
-
-#ifndef component_h
-#define component_h
+#ifndef robotcomponent_h
+#define robotcomponent_h
 
 
 namespace lpzrobots
 {
-    typedef struct
-    {
-	bool completesensormode; //if true, the controler of the Component also gets the sensor values of the robot of the component
-	bool completemotormode; //if true, the controler of the component also controls the robot of the component
-	double max_force;
-	double speed;
-    } ComponentConf;
-
 /**
- * Component
+ * RobotComponent
  *
  *
  */
-class Component : public OdeRobot
+class RobotComponent : public Component
 {
- protected:
-    typedef struct
-    {
-	Component* subcomponent;
-	Joint* joint;
-    } componentConnection;
 
-    ComponentConf conf;
+ private:
     
-    vector <componentConnection> connection;
+    OdeRobot* robot;
 
  public:
 
-    Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle, const ComponentConf& conf);
+    RobotComponent ( const OdeHandle &odeHandle, const OsgHandle &osgHandle, const ComponentConf& conf);
     
-    ~Component ();
-
-static ComponentConf getDefaultConf()
-{
-    ComponentConf conf;
-    conf.completesensormode = true;
-    conf.completemotormode = false;
-    conf.max_force = 1;
-    conf.speed = 1;
-    return conf;
-}
+    ~RobotComponent ();
 
  public:
 
@@ -92,22 +56,23 @@ static ComponentConf getDefaultConf()
  *values of component connecting joints of the first subcomponent, values of the robot of the first subcomponent, ...
  *@robot sensor values of the connecting joints of this component and all subcomponents
  **/
-virtual int 	getSensors (sensor *sensors, int sensornumber) = 0; //returns actual sensorvalues; only for the connecting joints
+virtual int 	getSensors (sensor *sensors, int sensornumber); //returns actual sensorvalues; only for the connecting joints
 
 /**
  *Sets the motor values for the joints connecting the component with its subcomponents, an recursivly the joints of all subComponents.
  *The motors of all robots of the subcomponents is not set.
  *@param 
  **/
-virtual void 	setMotors (const motor *motors, int motornumber) = 0; //sets actual motorcommands; only for the connecting joints
+virtual void 	setMotors (const motor *motors, int motornumber); //sets actual motorcommands; only for the connecting joints
 
-virtual int 	getSensorNumber () = 0; //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
+virtual int 	getSensorNumber (); //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
 
-virtual int 	getMotorNumber () = 0; //returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
+virtual int 	getMotorNumber (); //returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
 
-virtual void 	update () = 0;//update the OSG notes here; update of the underlying robot or Primitive and recursive update of all Components in the Connection-vector
+virtual void 	update ();//update the OSG notes here; update of the underlying robot or Primitive and recursive update of all Components in the Connection-vector
 
-virtual void 	place (const Pos &pos) = 0;//sets the vehicle to position pos - desired position of the robot; the first component is seen as center of the robot, on which the position pos refers; also recursive place of all subComponents
+virtual void 	place (const Pos &pos);//sets the vehicle to position pos - desired position of the robot; the first component is seen as center of the robot, on which the position pos refers; also recursive place of all subComponents
+virtual void 	place (const osg::Matrix &pose);//sets the pose of the vehicle; also recursive place of all subComponents; does nothing at the moment
 
 virtual bool 	collisionCallback (void *data, dGeomID o1, dGeomID o2);// checks for internal collisions and treats them.; should do nothing, because there should not be any ode-objects belonging to the component, which are not handled elsewhere....and what is with Primitives? are they automaticaly handled?
 
@@ -115,7 +80,7 @@ virtual void 	doInternalStuff (const GlobalData &globalData);// this function is
 
 // virtual void 	setColor (const Color &col); 	sets color of the robot; not nessecary
 
-virtual Position getPosition () const = 0; //returns position of the object; relates to the robot or Primitive belonging to the component
+virtual Position getPosition () const; //returns position of the object; relates to the robot or Primitive belonging to the component
 
 //virtual Position getSpeed () const;//returns linear speed vector of the object; must be computed from all sub-robots
 
@@ -130,9 +95,23 @@ virtual Position getPosition () const = 0; //returns position of the object; rel
 virtual osg::Vec3 getPositionbetweenComponents ( Component* component );
 
 /**
+ *Sets the reference to the robot for the component, but only if there is no Primitive assigned to the component.
+ *Overwriting an existing robot reference is possible, also to set it NULL, and then set a reference to a Primitive with setSimplePrimitive ( .. ).
+ *But first the robot reference should be saved elsewhere or it won't be updated graficaly
+ *return true if the reference could be set; false else
+ **/
+virtual bool setRobot ( OdeRobot* newrobot );
+
+/**
+ *returns a reference to the robot belonging to the component, if there is no robot it is an NULL pointer, then try getMeinPrimitive, because there is only a solid Primitive not a complex robot for this component
+ *@return the robot asigned to the component
+ **/
+virtual OdeRobot* getRobot (); //
+
+/**
  *return reference to the simple Primitive, or to the main Primitive of the robot assigend to the component. If nothimng is assigned, NULL is returned.
  **/
-virtual Primitive* getMainPrimitive () const = 0;
+virtual Primitive* getMainPrimitive () const;
 
 /**
  *Gets the Number of subcomponents of this component.
