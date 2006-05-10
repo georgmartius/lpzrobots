@@ -84,8 +84,14 @@ namespace lpzrobots
 
 	for ( int n = 0; ( n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
 	{
-	    connection[n].joint->setParam ( dParamVel2 , motors[n]*conf.speed ); // set velocity
-	    connection[n].joint->setParam ( dParamFMax2 ,conf.max_force );       // set maximal force
+	    connection[n].joint->setParam ( dParamVel , motors[n]*conf.speed ); // set velocity
+	    connection[n].joint->setParam ( dParamFMax ,conf.max_force );       // set maximal force
+
+/*	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
+			sensors = sensors + 2;
+		    else
+			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
+			    sensors = sensors + 2;*/
 	}
 	motorcounter += getNumberSubcomponents (); //the start of the array is shifted by the number of used array elements
 
