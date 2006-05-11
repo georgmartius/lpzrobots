@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.4  2006-03-29 15:04:39  martius
+ *   Revision 1.10.4.5  2006-05-11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.10.4.4  2006/03/29 15:04:39  martius
  *   have pose now
  *
  *   Revision 1.10.4.3  2006/01/10 20:27:15  martius
@@ -113,10 +117,7 @@ public:
     create();
   };
 
-  virtual osg::Matrix getPose(){
-    return pose;
-  }
-  
+ 
 
  protected:
   virtual void create(){

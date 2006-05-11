@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-03-31 09:59:23  fhesse
+ *   Revision 1.1.2.8  2006-05-11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.1.2.7  2006/03/31 09:59:23  fhesse
  *   in create: z+=radius; added to place sphere on ground
  *
  *   Revision 1.1.2.6  2006/03/30 12:34:51  martius
@@ -77,10 +81,6 @@ namespace lpzrobots {
 class PassiveSphere : public AbstractObstacle{
   double radius;
   double mass;
-  /**
-   * initial coordinates
-   */
-  osg::Vec3 pos;
   int texture;
 
   Sphere* sphere;
@@ -121,14 +121,13 @@ class PassiveSphere : public AbstractObstacle{
     create();
   };
 
-  virtual osg::Matrix getPose(){
-    return pose;
-  }
+
   
  protected:
   virtual void create(){
     sphere = new Sphere(radius);
     sphere->init(odeHandle, mass, osgHandle);
+    osg::Vec3 pos=pose.getTrans();
     pos[2]+=radius;
     sphere->setPosition(pos);
         

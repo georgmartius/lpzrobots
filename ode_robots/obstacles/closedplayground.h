@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.1  2006-01-10 20:25:08  martius
+ *   Revision 1.2.4.2  2006-05-11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.2.4.1  2006/01/10 20:25:08  martius
  *   moved to osg
  *
  *   Revision 1.2  2005/09/22 12:24:36  martius
@@ -50,10 +54,10 @@
 namespace lpzrobots {
 
   class ClosedPlayground : public Playground {
+
   protected:
     Box* roof;
-  public:
-  
+
   public:
   
     ClosedPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 

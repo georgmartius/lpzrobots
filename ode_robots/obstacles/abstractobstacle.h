@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.4  2006-03-30 12:34:51  martius
+ *   Revision 1.8.4.5  2006-05-11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.8.4.4  2006/03/30 12:34:51  martius
  *   documentation updated
  *
  *   Revision 1.8.4.3  2006/03/29 15:04:38  martius
@@ -102,15 +106,15 @@ class AbstractObstacle{
   }
 
   /**
+   * gives actual pose of the obstacle
+   */
+osg::Matrix getPose(){ return pose; }
+
+  /**
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
   virtual void setPose(const osg::Matrix& pose) = 0;
 
-  /**
-   * gives actual pose of the obstacle
-   */
-  virtual osg::Matrix getPose() = 0;
-    
   /**
    * sets the obstacle color
    * @param color values in RGBA

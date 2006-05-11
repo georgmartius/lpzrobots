@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-03-29 15:05:32  martius
+ *   Revision 1.1.2.2  2006-05-11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.1.2.1  2006/03/29 15:05:32  martius
  *   obstacle that uses a Mesh / OSGModel for graphics and a bounding shape for ODE
  *
  *                                                                 *
@@ -77,9 +81,6 @@ public:
     create();
   };
 
-  virtual osg::Matrix getPose(){
-    return pose;
-  }  
 
  protected:
   virtual void create(){

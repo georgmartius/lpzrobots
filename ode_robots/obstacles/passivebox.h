@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-30 12:34:51  martius
+ *   Revision 1.1.2.3  2006-05-11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.1.2.2  2006/03/30 12:34:51  martius
  *   documentation updated
  *
  *   Revision 1.1.2.1  2006/03/29 15:04:39  martius
@@ -46,10 +50,6 @@ namespace lpzrobots {
 class PassiveBox : public AbstractObstacle{
   double radius;
   double mass;
-  /**
-   * initial coordinates
-   */
-  osg::Vec3 pos;
   int texture;
 
   Box* box;
@@ -91,33 +91,11 @@ class PassiveBox : public AbstractObstacle{
     create();
   };
 
-  virtual osg::Matrix getPose(){
-    return pose;
-  }
-
-  /**
-   * sets position of the box and creates/recreates it if necessary
-   */
-  virtual void setPosition(const osg::Vec3& pos){
-    this->pos = pos + osg::Vec3(0,0,radius);
-    
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
-  };
-
-  /**
-   * gives actual position of box
-   */
-  virtual osg::Vec3 getPosition(){
-    return pos;
-  }
-  
  protected:
   virtual void create(){
     box = new Box(dimension.x(), dimension.y(), dimension.z());
     box->init(odeHandle, mass, osgHandle);
+    osg::Vec3 pos=pose.getTrans();
     box->setPosition(pos);
         
     obstacle_exists=true;
