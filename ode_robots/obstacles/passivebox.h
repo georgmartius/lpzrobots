@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-05-11 08:59:15  robot3
+ *   Revision 1.1.2.4  2006-05-11 12:53:04  robot3
+ *   fixed some errors in passivebox.h
+ *
+ *   Revision 1.1.2.3  2006/05/11 08:59:15  robot3
  *   -fixed a positioning bug (e.g. for passivesphere)
  *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
  *
@@ -48,9 +51,10 @@ namespace lpzrobots {
  *  (Passive) box as obstacle
  */
 class PassiveBox : public AbstractObstacle{
-  double radius;
+  osg::Vec3 dimension;
   double mass;
   int texture;
+  
 
   Box* box;
 
@@ -84,7 +88,7 @@ class PassiveBox : public AbstractObstacle{
   }
   
   virtual void setPose(const osg::Matrix& pose){
-    this->pose = osg::Matrix::transform(0,0,radius) * pose;
+    this->pose = osg::Matrix::translate(0,0,dimension.z()/2) * pose;
     if (obstacle_exists){
       destroy();
     }
@@ -101,7 +105,6 @@ class PassiveBox : public AbstractObstacle{
     obstacle_exists=true;
   };
 
-
   virtual void destroy(){
     if(box) delete box;    
     obstacle_exists=false;
@@ -112,3 +115,4 @@ class PassiveBox : public AbstractObstacle{
 }
 
 #endif
+
