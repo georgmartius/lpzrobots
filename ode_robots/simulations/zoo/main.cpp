@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.6  2006-04-25 09:05:23  robot3
+ *   Revision 1.11.4.7  2006-05-11 12:51:25  robot3
+ *   the zoo contains now passive boxes
+ *
+ *   Revision 1.11.4.6  2006/04/25 09:05:23  robot3
  *   caterpillar is now represented by a box
  *
  *   Revision 1.11.4.5  2006/04/11 13:28:18  robot3
@@ -53,6 +56,7 @@
 #include "odeagent.h"
 #include "playground.h"
 #include "passivesphere.h"
+#include "passivebox.h"
 
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotornstep.h>
@@ -102,33 +106,42 @@ public:
       s->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s);    
     }
+
+    for(int i=0; i<5; i++){
+      PassiveBox* b = 
+	new PassiveBox(odeHandle, 
+			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), osg::Vec3(0.2+i*0.1,0.2+i*0.1,0.2+i*0.1));
+      b->setPosition(Pos(i*0.5-5, i*0.5, 1.0)); 
+      b->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(b);    
+    }
         
     OdeAgent* agent;
     AbstractWiring* wiring;
     OdeRobot* robot;
     AbstractController *controller;
     
-    CaterPillar* myCaterPillar;
-    CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
-    //******* R A U P E  *********/
-    myCaterPillarConf.segmNumber=4;
-    myCaterPillarConf.jointLimit=M_PI/3;
-    myCaterPillarConf.motorPower=0.2;
-    myCaterPillarConf.frictionGround=0.01;
-    myCaterPillar = new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), myCaterPillarConf, "Raupe1");
-    ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0.2)); 
+//     CaterPillar* myCaterPillar;
+//     CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
+//     //******* R A U P E  *********/
+//     myCaterPillarConf.segmNumber=4;
+//     myCaterPillarConf.jointLimit=M_PI/3;
+//     myCaterPillarConf.motorPower=0.2;
+//     myCaterPillarConf.frictionGround=0.01;
+//     myCaterPillar = new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), myCaterPillarConf, "Raupe1");
+//     ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0.2)); 
     
-    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-    invertnconf.cInit=2.0;
-    controller = new InvertMotorNStep(invertnconf);    
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( plotoptions );
-    agent->init(controller, myCaterPillar, wiring);
-    global.agents.push_back(agent);
-    global.configs.push_back(controller);
-    global.configs.push_back(myCaterPillar);   
-    myCaterPillar->setParam("gamma",/*gb");
-      global.obstacles.push_back(s)0.0000*/ 0.0);
+     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+     invertnconf.cInit=2.0;
+//     controller = new InvertMotorNStep(invertnconf);    
+//     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+//     agent = new OdeAgent( plotoptions );
+//     agent->init(controller, myCaterPillar, wiring);
+//     global.agents.push_back(agent);
+//     global.configs.push_back(controller);
+//     global.configs.push_back(myCaterPillar);   
+//     myCaterPillar->setParam("gamma",/*gb");
+//      global.obstacles.push_back(s)0.0000*/ 0.0);
   
 
     //******* S C H L A N G E  (Long)  *********/
