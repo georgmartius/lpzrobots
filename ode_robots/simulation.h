@@ -27,7 +27,12 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.15  2006-03-30 12:34:47  martius
+ *   Revision 1.18.4.16  2006-05-15 13:07:48  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.18.4.15  2006/03/30 12:34:47  martius
  *   documentation updated
  *
  *   Revision 1.18.4.14  2006/03/06 16:54:05  robot3
@@ -156,6 +161,9 @@ namespace osg{
 //  class Viewer;
 //}
 
+class PlotOption; // forward declaration, needed for PlotOption
+
+
 namespace lpzrobots {
 
   class Simulation : public Base, public osgGA::GUIEventHandler, public Producer::Camera::Callback {
@@ -199,11 +207,14 @@ namespace lpzrobots {
 	@return true if collision is treated, false otherwise
     */
     virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
+
     /// addCallback()  optional additional callback function.
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {};
 
     ///////////////// Camera::Callback interface
     virtual void operator() (const Producer::Camera &);
+
+  
 
   protected:
     // GUIEventHandler
@@ -221,6 +232,12 @@ namespace lpzrobots {
 
     static void nearCallback(void *data, dGeomID o1, dGeomID o2);
     bool control_c_pressed();
+
+    // plotoptions is a list of possible online output, 
+    // if the list is empty no online gnuplot windows and no logging to file occurs.
+    // The list is modified with commandline options, see run() in simulation.cpp
+    list<PlotOption> plotoptions;
+
 
   private:
     void processCmdLine(int argc, char** argv);

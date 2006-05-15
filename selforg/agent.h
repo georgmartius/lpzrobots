@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-03-30 12:33:53  fhesse
+ *   Revision 1.1.2.5  2006-05-15 13:08:34  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.1.2.4  2006/03/30 12:33:53  fhesse
  *   trackrobot now protected to give OdeAgent access
  *
  *   Revision 1.1.2.3  2006/01/31 16:45:18  martius
@@ -78,18 +83,18 @@ class AbstractWiring;
 
 class Agent;
 
-/** Plot mode for plot agent.
+/** Plot mode for plot agent. (only used by initialization)
  */
 enum PlotMode {
   /// no plotting to screen or logging to file
   NoPlot, 
-  /// only plotting to screen, no logging to file
+  /// only plotting to screen, no logging to file 
   GuiLogger, 
   /// plotting to screen and logging to file
   GuiLogger_File,
   /// net visualiser
   NeuronViz
-  };
+};
 
 /** Plot either sensors from robot or from controller 
     (there can be a difference depending on the used wiring)
@@ -103,16 +108,30 @@ class PlotOption {
 public:
   friend class Agent;
 
-  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; }
+
+  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; logfile=0; }
   PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, int interval = 1)
-    :mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0; }
+    :mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0; logfile=0;}
+
+  // switches between the plot type pause and window
+  virtual void switchPlotType();
+
+  // switches the file logging
+  virtual void switchFileLogging();
 
 private:
+
+ 
+ 
+  void openFileLogging(); /// inits the file logging
+  void closeFileLogging(); /// closes the filelog
+  
 
   bool open(); /// opens the connections to the plot tool 
   void close();/// closes the connections to the plot tool
 
   FILE* pipe;
+  FILE* logfile;
   long t;
 
   PlotMode mode;
@@ -163,6 +182,13 @@ public:
   /// sets the trackoptions which enable tracking of a robot
   virtual void setTrackOptions(const TrackRobot& trackrobot);
 
+
+  // switches between the plot type pause and window
+  virtual void switchPlotType();
+
+  // switches the file logging
+  virtual void switchFileLogging();
+  
 protected:
 
   /**
@@ -202,6 +228,15 @@ protected:
   list<PlotOption> plotOptions;
 
   int t;
+
+  // inits the plotting pipe
+  virtual void initPlottingPipe();
+
+  // inits the logfile
+  virtual void initLoggingFile();
+
+  // closes the plotting pipe
+  virtual void closePlottingPipe();
 };
 
 #endif

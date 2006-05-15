@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.28  2006-05-08 12:12:20  robot3
+ *   Revision 1.40.4.29  2006-05-15 13:07:35  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.40.4.28  2006/05/08 12:12:20  robot3
  *   changes from Revision 1.40.4.27 reverted
  *
  *   Revision 1.40.4.27  2006/04/27 16:31:35  robot3
@@ -417,6 +422,25 @@ namespace lpzrobots {
 
 
   bool Simulation::run(int argc, char** argv){
+
+    // guilogger-loading stuff here
+    // start with online windows (default: start without plotting and logging)
+    if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
+
+    // start with online windows and logging to file
+    if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 5));
+ 
+    // note: display help (-h) is handled later
+
+    // use of NeuronViz 
+    if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));
+
+
+    // set default configuration for plotting and logging
+    if (plotoptions.size()==0)
+      plotoptions.push_back(PlotOption(NoPlot, Controller, 5));
+    
+
     if(!init(argc, argv)) return false;
   
     // information on terminal, can be removed if the printout is undesired
@@ -590,6 +614,21 @@ namespace lpzrobots {
 	if(handled) break;
 	//	printf("Key: %i\n", ea.getKey());	
 	switch(ea.getKey()){
+	case 6 : // Ctrl - f
+	  for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
+	    (*i)->switchFileLogging();
+	  }
+	  return true;
+	  break;
+	case 7 : // Ctrl - g
+	  for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
+	    (*i)->switchPlotType();
+	  }
+	  return true;
+	  break;
+	default:
+	  return false;
+	  break;
 	case 18:  // Ctrl - r
 	  if(videostream.isOpen()){
 	    printf("Stop video recording!\n");
@@ -626,6 +665,8 @@ namespace lpzrobots {
   }
   
   void Simulation::getUsage (osg::ApplicationUsage& au) const {
+    au.addKeyboardMouseBinding("Simulation: Ctrl-f","File-Logging on/off");
+    au.addKeyboardMouseBinding("Simulation: Ctrl-g","Restart the Gui-Logger");
     au.addKeyboardMouseBinding("Simulation: Ctrl-r","Start/Stop video recording");
     au.addKeyboardMouseBinding("Simulation: Ctrl-p","Pause on/off");
     bindingDescription(au);
@@ -787,6 +828,7 @@ namespace lpzrobots {
   }
 
   void Simulation::usage(const char* progname){
+    printf("Usage: %s [-g] [-f] [-r seed]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n\t-r seed\trandom number seed ", progname);
     printf("Parameter: %s [-r SEED] [-x WxH] [-pause]\n", progname);
     printf("\t-r SEED\t\tuse SEED as random number seed\n");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (640x480 default)\n");
