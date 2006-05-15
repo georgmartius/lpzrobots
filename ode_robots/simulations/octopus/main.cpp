@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-10 13:22:29  robot8
+ *   Revision 1.1.2.6  2006-05-15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.1.2.5  2006/05/10 13:22:29  robot8
  *   -splitting of the component system to SimpleComponent and RobotComponent
  *   -add ing the possibility to read and write sensors and motors form TwoAxis Joints as connecting joints between components
  *   -octopus adopted to new splitted system
@@ -93,10 +99,6 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-// plotoptions is a list of possible online output, 
-// if the list is empty no online gnuplot windows and no logging to file occurs.
-// The list is modified with commandline options, see main() at the bottom of this file
-list<PlotOption> plotoptions;
 
 AbstractController* controller;
 
@@ -239,25 +241,25 @@ public:
     showParams(global.configs);
   } 
 
+  // add own key handling stuff here, just insert some case values
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (down) { // only when key is pressed, not when released
+      switch ( (char) key )
+	{
+	default:
+	  return false;
+	  break;
+	}
+    }
+    return false;
+  }
+  
 };
-
-// print command line options
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
-}
 
 int main (int argc, char **argv)
 { 
-  // start with online windows (default: start without plotting and logging)
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  
-  // start with online windows and logging to file
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
-  
-  // display help
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ThisSim sim;
+  // run simulation
   return sim.run(argc, argv) ? 0 : 1;
-
 }

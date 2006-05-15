@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-05-02 12:24:32  robot8
+ *   Revision 1.1.2.5  2006-05-15 13:11:30  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.1.2.4  2006/05/02 12:24:32  robot8
  *   new component system, a bit less complex
  *   easy to use, because of only one component class
  *   handling like a normal robot
@@ -79,10 +85,6 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-// plotoptions is a list of possible online output, 
-// if the list is empty no online gnuplot windows and no logging to file occurs.
-// The list is modified with commandline options, see main() at the bottom of this file
-list<PlotOption> plotoptions;
 
 AbstractController* controller;
 
@@ -237,25 +239,25 @@ public:
 //       }
 //   }
   
+  // add own key handling stuff here, just insert some case values
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (down) { // only when key is pressed, not when released
+      switch ( (char) key )
+	{
+	default:
+	  return false;
+	  break;
+	}
+    }
+    return false;
+  }
 
 };
 
-// print command line options
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
-}
 
 int main (int argc, char **argv)
 { 
-  // start with online windows (default: start without plotting and logging)
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  
-  // start with online windows and logging to file
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
-  
-  // display help
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 

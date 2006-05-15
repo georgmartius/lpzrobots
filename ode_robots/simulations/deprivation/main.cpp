@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-03-29 15:10:22  martius
+ *   Revision 1.1.2.5  2006-05-15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.1.2.4  2006/03/29 15:10:22  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.3  2006/02/24 14:42:39  martius
@@ -64,11 +70,6 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 using namespace matrix;
-
-// plotoptions is a list of possible online output, 
-// if the list is empty no online gnuplot windows and no logging to file occurs.
-// The list is modified with commandline options, see main() at the bottom of this file
-list<PlotOption> plotoptions;
 
 Deprivation* controller;
 int zeit = 0;
@@ -196,31 +197,13 @@ public:
     au.addKeyboardMouseBinding("Simulation: s","store");
     au.addKeyboardMouseBinding("Simulation: l","load");
   }
-
+ 
 };
-
-// print command line options
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-f]\n\t-g\tuse guilogger\n\t-f\tuse guilogger with logfile\n", progname);
-}
 
 int main (int argc, char **argv)
 { 
-  // start with online windows (default: start without plotting and logging)
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  
-  // start with online windows and logging to file
-  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 2));
-
-  // 
-  if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));
-  
-  // display help
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ThisSim sim;
-  return sim.run(argc, argv) ? 0 :  1;
+  // run simulation
+  return sim.run(argc, argv) ? 0 : 1;
 }
-
- 
  

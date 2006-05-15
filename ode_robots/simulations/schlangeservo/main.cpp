@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.4  2006-03-29 15:10:22  martius
+ *   Revision 1.2.4.5  2006-05-15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.2.4.4  2006/03/29 15:10:22  martius
  *   *** empty log message ***
  *
  *   Revision 1.2.4.3  2006/02/24 14:43:51  martius
@@ -55,7 +61,6 @@
 
 #include "schlangeservo2.h"
 
-list<PlotOption> plotoptions;
 
 using namespace lpzrobots;
 
@@ -165,16 +170,9 @@ public:
 
 };
 
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-}
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 10));
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }

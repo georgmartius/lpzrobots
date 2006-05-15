@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.5  2006-05-15 12:29:43  robot3
+ *   Revision 1.6.4.6  2006-05-15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.6.4.5  2006/05/15 12:29:43  robot3
  *   handling of starting the guilogger moved to simulation.cpp
  *   (is in internal simulation routine now)
  *
@@ -153,7 +159,7 @@ public:
 //   }
 
   // add own key handling stuff here, just insert some case values
-  bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )

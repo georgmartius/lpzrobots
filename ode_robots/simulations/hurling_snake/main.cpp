@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.6  2006-03-31 16:11:19  fhesse
+ *   Revision 1.6.4.7  2006-05-15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.6.4.6  2006/03/31 16:11:19  fhesse
  *   tracing via trackrobot
  *
  *   Revision 1.6.4.5  2006/03/28 14:18:38  fhesse
@@ -64,8 +70,6 @@
 #include <selforg/sinecontroller.h>
 
 using namespace lpzrobots;
-
-list<PlotOption> plotoptions;
 
 class ThisSim : public Simulation {
 public:
@@ -165,18 +169,26 @@ public:
     showParams(global.configs);
   }
 
+  // add own key handling stuff here, just insert some case values
+virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (down) { // only when key is pressed, not when released
+      switch ( (char) key )
+	{
+	default:
+	  return false;
+	  break;
+	}
+    }
+    return false;
+  }
+  
 };
 
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-}
-
 int main (int argc, char **argv)
-{  
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-  
+{ 
   ThisSim sim;
+  // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
+ 

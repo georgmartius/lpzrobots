@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-03-29 15:10:22  martius
+ *   Revision 1.1.2.8  2006-05-15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.1.2.7  2006/03/29 15:10:22  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.6  2006/02/08 16:15:27  martius
@@ -60,10 +66,6 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-// plotoptions is a list of possible online output, 
-// if the list is empty no online gnuplot windows and no logging to file occurs.
-// The list is modified with commandline options, see main() at the bottom of this file
-list<PlotOption> plotoptions;
 
 InvertMotorNStep*controller;
 motor teaching[2];
@@ -176,25 +178,9 @@ public:
 
 };
 
-// print command line options
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-f]\n\t-g\tuse guilogger\n\t-f\tuse guilogger with logfile\n", progname);
-}
 
 int main (int argc, char **argv)
 { 
-  // start with online windows (default: start without plotting and logging)
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  
-  // start with online windows and logging to file
-  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File));
-
-  // 
-  if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));
-  
-  // display help
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ThisSim sim;
   return sim.run(argc, argv) ? 0 :  1;
 }

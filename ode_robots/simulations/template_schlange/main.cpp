@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16.4.4  2006-02-08 16:16:11  martius
+ *   Revision 1.16.4.5  2006-05-15 13:11:30  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.16.4.4  2006/02/08 16:16:11  martius
  *   parameter tuning
  *
  *   Revision 1.16.4.3  2006/02/01 18:35:16  martius
@@ -52,7 +58,6 @@
 #include "schlangeforce.h"
 #include "schlangevelocity.h"
 
-list<PlotOption> plotoptions;
 
 using namespace lpzrobots;
 
@@ -149,18 +154,26 @@ public:
     showParams(global.configs);
   }
 
+  // add own key handling stuff here, just insert some case values
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (down) { // only when key is pressed, not when released
+      switch ( (char) key )
+	{
+	default:
+	  return false;
+	  break;
+	}
+    }
+    return false;
+  }
+
+
 };
 
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-f]\n\t-g\tuse guilogger\n\t-f\tuse guilogger with logfile", progname);
-}
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger, Controller, 10));
-  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 10));
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }

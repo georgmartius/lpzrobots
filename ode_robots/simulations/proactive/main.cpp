@@ -16,7 +16,6 @@
 
 using namespace lpzrobots;
 
-list<PlotOption> plotoptions;
 Playground* playground;
 Pos plpos;
 
@@ -122,16 +121,9 @@ public:
 
 };
   
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-}  
   
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ProactiveSim sim;
   return sim.run(argc, argv) ? 0 : 1; 
 }

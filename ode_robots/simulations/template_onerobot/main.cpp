@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.13  2006-04-25 09:06:16  robot3
+ *   Revision 1.14.4.14  2006-05-15 13:11:30  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.14.4.13  2006/04/25 09:06:16  robot3
  *   *** empty log message ***
  *
  *   Revision 1.14.4.12  2006/03/31 12:14:49  fhesse
@@ -97,10 +103,6 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-// plotoptions is a list of possible online output, 
-// if the list is empty no online gnuplot windows and no logging to file occurs.
-// The list is modified with commandline options, see main() at the bottom of this file
-list<PlotOption> plotoptions;
 
 class ThisSim : public Simulation {
 public:
@@ -148,7 +150,7 @@ public:
     // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
     // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
     // - place robot
-     Nimm2Conf c = Nimm2::getDefaultInvertMotorSpaceConf();
+     Nimm2Conf c = Nimm2::getDefaultConf();
      c.bumper  = true;
      c.cigarMode  = true;
      c.irFront = true;
@@ -180,25 +182,27 @@ public:
     showParams(global.configs);
   }
 
+  // add own key handling stuff here, just insert some case values
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (down) { // only when key is pressed, not when released
+      switch ( (char) key )
+	{
+	default:
+	  return false;
+	  break;
+	}
+    }
+    return false;
+  }
+
+
 
 };
 
-// print command line options
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n", progname);
-}
 
 int main (int argc, char **argv)
 { 
-  // start with online windows (default: start without plotting and logging)
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  
-  // start with online windows and logging to file
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
-  
-  // display help
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 

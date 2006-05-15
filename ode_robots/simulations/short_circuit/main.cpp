@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.5  2006-02-08 16:15:11  martius
+ *   Revision 1.15.4.6  2006-05-15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.15.4.5  2006/02/08 16:15:11  martius
  *   testing with invertcontroller
  *
  *   Revision 1.15.4.4  2006/01/10 21:46:02  martius
@@ -66,7 +72,6 @@ int channels;
 int t=0;
 double omega = 0.05;
 
-list<PlotOption> plotoptions;
 
 SineWhiteNoise* sineNoise;
 
@@ -142,6 +147,22 @@ public:
     fprintf(stderr, "Omega: %g\n", omega);
     sineNoise->setOmega(omega);
   }
+
+  // note: this is the normal signature (look above)
+  // add own key handling stuff here, just insert some case values
+//   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+//   {
+//     if (down) { // only when key is pressed, not when released
+//       switch ( (char) key )
+// 	{
+// 	default:
+// 	  return false;
+// 	  break;
+// 	}
+//     }
+//     return false;
+//   }
+
   
 };
 
@@ -157,10 +178,6 @@ int main (int argc, char **argv)
     return -1;
   }
   channels = max(1,atoi(argv[1]));
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger, Robot,5));
-  if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Robot, 5));
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }
