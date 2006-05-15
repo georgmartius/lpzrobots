@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-09 08:47:00  robot3
+ *   Revision 1.1.2.6  2006-05-15 21:11:12  robot5
+ *   Using slider and universal joints now (alternating)
+ *
+ *   Revision 1.1.2.5  2006/05/09 08:47:00  robot3
  *   getSensors() and getMotors() modified
  *
  *   Revision 1.1.2.4  2006/05/09 04:24:34  robot5
@@ -216,7 +219,7 @@ namespace lpzrobots {
 
       p->init(odeHandle, conf.segmMass, osgHandle);    
       p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
-		 osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * 
+		 osg::Matrix::translate((n-half)*conf.segmLength*0.7, 0 , conf.segmDia/2) *  // made boxes overlapping for not seeing any gaps (*0.7)
 		 pose);
       p->getOSGPrimitive()->setTexture("Images/dusty.rgb");
       objects.push_back(p);
