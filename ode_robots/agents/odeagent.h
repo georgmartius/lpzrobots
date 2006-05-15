@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-03-31 16:16:58  fhesse
+ *   Revision 1.1.2.6  2006-05-15 13:14:10  robot3
+ *   STRG-R now makes screenshots in jpg-format
+ *   STRG-F now toggles the file logging (controller stuff) on/off
+ *   STRG-G now restarts the GuiLogger
+ *
+ *   Revision 1.1.2.5  2006/03/31 16:16:58  fhesse
  *   changed trace() to init_tracing()
  *   and check for init at beginning of step
  *
@@ -78,7 +83,6 @@ namespace lpzrobots {
     trace_length=0; // number of past robot positions shown in osg
   }
 
-
   /** 
    * Returns a pointer to the robot.
    */
@@ -95,7 +99,7 @@ namespace lpzrobots {
   virtual void init_tracing(int tracelength=1000, double tracethickness=0.003);
 
 
- private:
+  private:
   int trace_length;
   double trace_thickness;
   int counter;
