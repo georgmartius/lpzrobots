@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-05-15 21:11:12  robot5
+ *   Revision 1.1.2.7  2006-05-16 07:57:48  robot3
+ *   fixed getSensor() and getMotor() bug
+ *
+ *   Revision 1.1.2.6  2006/05/15 21:11:12  robot5
  *   Using slider and universal joints now (alternating)
  *
  *   Revision 1.1.2.5  2006/05/09 08:46:37  robot3
@@ -68,13 +71,13 @@ namespace lpzrobots {
    assert(created);
    unsigned int len = min(motornumber, getMotorNumber())/2;
    // controller output as torques 
-   unsigned int usedSliders;
+   unsigned int usedSliders=0;
    for(unsigned int i=0; (i<len) && (i<sliderServos.size()); i++) {
     sliderServos[i]->set(motors[i]);
     usedSliders++;
    }
-   for(unsigned int i=0; (i<len) && (i<universalServos.size()); i+=2) {
-    universalServos[i]->set(motors[i+usedSliders], motors[i+usedSliders+1]);
+   for(unsigned int i=0; (i<len) && (i<universalServos.size()); i++) {
+    universalServos[i]->set(motors[usedSliders+2*i], motors[usedSliders+2*i+1]);
    }
   }
 
@@ -95,9 +98,9 @@ namespace lpzrobots {
     usedSliders++;
    }
    // get the universalServos (2 sensors each!)
-   for(unsigned int n=0; (n<len) && (n<universalServos.size()); n+=2) {
-    sensors[n+usedSliders] = universalServos[n]->get1();
-    sensors[n+usedSliders+1] = universalServos[n]->get2();
+   for(unsigned int n=0; (n<len) && (n<universalServos.size()); n++) {
+    sensors[usedSliders+2*n] = universalServos[n]->get1();
+    sensors[usedSliders+2*n+1] = universalServos[n]->get2();
    }
    return len;
   }
