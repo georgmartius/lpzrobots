@@ -74,7 +74,10 @@ namespace lpzrobots
 
 	    //sensor values of all subcomponents and their robots
 	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
-		sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
+	    {
+		if ( connection[n].softlink == false )
+		    sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
+	    }
 
 	}
 
@@ -109,9 +112,12 @@ namespace lpzrobots
 
 	for ( int n = 0; ( (unsigned int) n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
 	{
-	    tmpmotors = (motor*) &motors[motorcounter]; //the pointer for the new array
-	    connection[n].subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
-	    motorcounter += connection[n].subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
+	    if ( connection[n].softlink == false )
+	    {
+		tmpmotors = (motor*) &motors[motorcounter]; //the pointer for the new array
+		connection[n].subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
+		motorcounter += connection[n].subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
+	    }
 
 	}
     }
@@ -122,7 +128,7 @@ namespace lpzrobots
 
 	//if the sensor values should be used, and a robot is there, the robot-sensor number is added
 	    if ( conf.completesensormode == true && robot != NULL )
-		sensors = robot->getSensorNumber ();
+		sensors += robot->getSensorNumber ();
 	    //recursive sensor-counting for all subcomponents
 	
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
@@ -141,7 +147,8 @@ namespace lpzrobots
 			    sensors = sensors + 2;
 	
     	    //recursive sensor-counting for all subcomponents
-	    sensors += connection[n].subcomponent->getSensorNumber ();
+	    if ( connection[n].softlink == false )
+		sensors += connection[n].subcomponent->getSensorNumber ();
 	}
 
 	return sensors;
@@ -157,7 +164,8 @@ namespace lpzrobots
 	    motors += robot->getMotorNumber ();
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{//counting the motors by the type of the used joint, coded by ode type, because the joints are created external
+	{
+	    //counting the motors by the type of the used joint, coded by ode type, because the joints are created external
 	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
 		motors++;
 	    else
@@ -171,8 +179,9 @@ namespace lpzrobots
 			    motors = motors + 2;
 	     
 
-	    //recursive sensor-counting for all subcomponents
-	    motors += connection[n].subcomponent->getMotorNumber ();
+	    //recursive motor-counting for all subcomponents
+	    if ( connection[n].softlink == false )
+		motors += connection[n].subcomponent->getMotorNumber ();
 	}
 
 	return motors;
@@ -180,8 +189,8 @@ namespace lpzrobots
 
     void RobotComponent::update ()
     {
-	//only if there is a robot
-	if ( robot != NULL )
+	//only if there is a robot, and there is no agent which updates the robot elsewhere
+	if ( robot != NULL && conf.completemotormode == true )
 	    robot->update ();
 	//all subcomponents and joints also are updated
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
@@ -213,6 +222,18 @@ namespace lpzrobots
 
     bool RobotComponent::collisionCallback (void *data, dGeomID o1, dGeomID o2)
     {
+	if ( getRobot () != NULL && conf.completemotormode == true )
+	{
+		if ( getRobot ()->collisionCallback ( data , o1 , o2 ) )
+		    return true; // exit if collision was treated by a robot/component
+	}
+
+	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	{
+	    if ( connection[n].subcomponent->collisionCallback ( data , o1 , o2 ) )
+		return true; // exit if collision was treated by a robot/component
+	}
+
 	return false;
     }
 
@@ -262,66 +283,6 @@ namespace lpzrobots
 	    return robot->getMainPrimitive ();
 	else 
 	    return NULL;
-    }
-
-    int RobotComponent::getNumberSubcomponents ()
-    {
-	return connection.size ();
-    }
-
-    int RobotComponent::getNumberSubcomponentsAll ()
-    {
-	int size = 0;
-
-	size += getNumberSubcomponents ();
-
-	for ( unsigned int n = 0; n < connection.size (); n++ )
-	{
-	    size += connection[n].subcomponent->getNumberSubcomponentsAll ();
-	}
-	return size;
-    }
-
-
-    void RobotComponent::addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint )
-    {
-	componentConnection newconnection;
-	newconnection.subcomponent = newsubcomponent;
-	newconnection.joint = newconnectingjoint;
-
-	connection.push_back ( newconnection );
-    }
-
-    Component* RobotComponent::removeSubcomponent ( int n )
-    {
-	Component* tmpcomponent;
-
-	vector <componentConnection>::iterator eraseiterator;
-	eraseiterator = connection.begin () + n;
-	tmpcomponent = connection[n].subcomponent;
-	connection.erase ( eraseiterator );
-	return tmpcomponent;
-    }
-
-
-    Component* RobotComponent::removeSubcomponent ( Component* removedsubcomponent )
-    {
-	Component* tmpcomponent;
-
-	vector<componentConnection>::iterator it = connection.begin ();
-	for ( unsigned int n = 0; n < connection.size (); n++ )
-	{
-	    it++;
-	    if ( connection[n].subcomponent == removedsubcomponent )
-	    {
-		tmpcomponent = connection[n].subcomponent;
-		connection.erase ( it );
-		break;
-	    }
-	}
-
-	return tmpcomponent;
-
     }
 
 }

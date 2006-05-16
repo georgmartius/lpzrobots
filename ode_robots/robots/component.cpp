@@ -83,6 +83,8 @@ namespace lpzrobots
 	newconnection.subcomponent = newsubcomponent;
 	newconnection.joint = newconnectingjoint;
 
+	newconnection.softlink = false;
+
 	connection.push_back ( newconnection );
     }
 
@@ -116,6 +118,17 @@ namespace lpzrobots
 
 	return tmpcomponent;
 
+    }
+
+    bool Component::setSoftlink ( unsigned int position , bool state )
+    {
+	if ( connection.size () >= position )
+	{
+	    connection[position].softlink = state;
+	    return true;
+	}
+	else
+	    return false;
     }
 
 }

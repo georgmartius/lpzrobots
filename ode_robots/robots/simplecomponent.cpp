@@ -67,10 +67,12 @@ namespace lpzrobots
 
 	    //sensor values of all subcomponents and their robots
 	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
-		sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
+	    {
+		if ( connection[n].softlink == false )
+		    sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
+	    }
 
 	}
-
 	return sensorcounter;
     }
 
@@ -96,9 +98,12 @@ namespace lpzrobots
 
 	for ( int n = 0; ( (unsigned int) n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
 	{
-	    tmpmotors = (motor*) &motors[motorcounter]; //the pointer for the new array
-	    connection[n].subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
-	    motorcounter += connection[n].subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
+	    if ( connection[n].softlink == false )
+	    {
+		tmpmotors = (motor*) &motors[motorcounter]; //the pointer for the new array
+		connection[n].subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
+		motorcounter += connection[n].subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
+	    }
 
 	}
     }
@@ -106,7 +111,6 @@ namespace lpzrobots
     int SimpleComponent::getSensorNumber ()
     {
 	int sensors = 0;   
-
 	//recursive sensor-counting for all subcomponents
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
@@ -125,8 +129,10 @@ namespace lpzrobots
 			    sensors = sensors + 2;
 	
     	    //recursive sensor-counting for all subcomponents
-	    sensors += connection[n].subcomponent->getSensorNumber ();
+	    if ( connection[n].softlink == false )
+		sensors += connection[n].subcomponent->getSensorNumber ();
 	}
+
 
 	return sensors;
     }
@@ -151,7 +157,8 @@ namespace lpzrobots
 			    motors = motors + 2;
 	     
 	    //recursive sensor-counting for all subcomponents
-	    motors += connection[n].subcomponent->getMotorNumber ();
+	    if ( connection[n].softlink == false )
+		motors += connection[n].subcomponent->getMotorNumber ();
 	}
 
 	return motors;
@@ -193,7 +200,14 @@ namespace lpzrobots
 
     bool SimpleComponent::collisionCallback (void *data, dGeomID o1, dGeomID o2)
     {
-	return false;
+	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	{
+//		if ( dynamic_cast <RobotComponent*> ( connection[n].subcomponent )  != NULL ) //if the pointer could be casted to RobotComponent, then it is a RobotComponent
+
+	    if ( connection[n].subcomponent->collisionCallback ( data , o1 , o2 ) )
+		return true; // exit if collision was treated by a robot/component
+	}
+	return false; //a simpleComponent does never handle collisions itself, it uses the standard collisionCallback of the simulation
     }
 
     void SimpleComponent::doInternalStuff (const GlobalData &globalData)
@@ -238,66 +252,5 @@ namespace lpzrobots
 	    else
 		return NULL;
     }
-
-    int SimpleComponent::getNumberSubcomponents ()
-    {
-	return connection.size ();
-    }
-
-    int SimpleComponent::getNumberSubcomponentsAll ()
-    {
-	int size = 0;
-
-	size += getNumberSubcomponents ();
-
-	for ( unsigned int n = 0; n < connection.size (); n++ )
-	{
-	    size += connection[n].subcomponent->getNumberSubcomponentsAll ();
-	}
-	return size;
-    }
-
-
-    void SimpleComponent::addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint )
-    {
-	componentConnection newconnection;
-	newconnection.subcomponent = newsubcomponent;
-	newconnection.joint = newconnectingjoint;
-
-	connection.push_back ( newconnection );
-    }
-
-    Component* SimpleComponent::removeSubcomponent ( int n )
-    {
-	Component* tmpcomponent;
-
-	vector <componentConnection>::iterator eraseiterator;
-	eraseiterator = connection.begin () + n;
-	tmpcomponent = connection[n].subcomponent;
-	connection.erase ( eraseiterator );
-	return tmpcomponent;
-    }
-
-
-    Component* SimpleComponent::removeSubcomponent ( Component* removedsubcomponent )
-    {
-	Component* tmpcomponent;
-
-	vector<componentConnection>::iterator it = connection.begin ();
-	for ( unsigned int n = 0; n < connection.size (); n++ )
-	{
-	    it++;
-	    if ( connection[n].subcomponent == removedsubcomponent )
-	    {
-		tmpcomponent = connection[n].subcomponent;
-		connection.erase ( it );
-		break;
-	    }
-	}
-
-	return tmpcomponent;
-
-    }
-
 }
 

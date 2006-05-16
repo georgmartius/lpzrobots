@@ -106,39 +106,6 @@ virtual bool setSimplePrimitive ( Primitive* newprimitive );
  **/
 virtual Primitive* getMainPrimitive () const;
 
-/**
- *Gets the Number of subcomponents of this component.
- *@return Number of subcomponents
- **/
-virtual int getNumberSubcomponents ();
-
-    
-/**
- *Gets the Number of all Subcomponents recursivly connected.
- *@return Number of subcomponents
- **/
-virtual int getNumberSubcomponentsAll ();
-
-/**
- *This method adds an existing Component as a subcomponent to this component
- *@param subcomponent to add
- *@param reference to external created joint, which connects both components
- **/
-virtual void addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint );
-
-/**
- *This method removes an existing Component as a subcomponent of this component. This also removes all Subcomponents of the subcomponent.
- *@param subcomponent number to remove
- *@return reference to the removed subcomponent, so that it could be used to do other things
- **/
-virtual Component* removeSubcomponent ( int removedsubcomponentnumber );
-
-/**
- *This method removes an existing Component as a subcomponent of this component. This also removes all Subcomponents of the subcomponent.
- *@param subcomponent to remove
- *@return reference to the removed subcomponent, so that it could be used to do other things
- **/
-virtual Component* removeSubcomponent ( Component* removedsubcomponent );
      
 };
 

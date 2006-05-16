@@ -56,15 +56,17 @@ namespace lpzrobots
  */
 class Component : public OdeRobot
 {
+ public:
+    ComponentConf conf;
+
  protected:
     typedef struct
     {
 	Component* subcomponent;
 	Joint* joint;
+	bool softlink; //if true the connection ends the recursion, false = normal
     } componentConnection;
-
-    ComponentConf conf;
-    
+ 
     vector <componentConnection> connection;
 
  public:
@@ -167,6 +169,13 @@ virtual Component* removeSubcomponent ( int removedsubcomponentnumber );
  *@return reference to the removed subcomponent, so that it could be used to do other things
  **/
 virtual Component* removeSubcomponent ( Component* removedsubcomponent );
+
+/**
+ *Sets the connection between the component and one of its subcomponents to be a softlink. That means that the recusion for this branch stops here.
+ *@param number of the subcomponent in the subcomponent list of the component
+ *@param true = connection becomes a softlink
+ **/
+virtual bool setSoftlink ( unsigned int position , bool state );
      
 };
 

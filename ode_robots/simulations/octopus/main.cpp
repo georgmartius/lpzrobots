@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-05-15 13:11:29  robot3
+ *   Revision 1.1.2.7  2006-05-16 09:47:57  robot8
+ *   - complex robots constructed from components now could be controlled by only one controller
+ *   - the controllers do not support the function of having less sensors than motrs, so do not use the configuration option completesensormode = false with completemotormode = true
+ *   -soft links implemented -> ring structures possible
+ *
+ *   Revision 1.1.2.6  2006/05/15 13:11:29  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -92,17 +97,12 @@
 #include "simplecomponent.h"
 #include "robotcomponent.h"
 
-#define MAX_NUMBER_OF_ARMS 8
-#define HEAD_ARM_DISTANCE 1.5
+#define MAX_NUMBER_OF_ARMS 6
+#define HEAD_ARM_DISTANCE 1
 
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
-
-
-AbstractController* controller;
-
-
 
 
 
@@ -144,6 +144,8 @@ public:
 
     ComponentConf cConf = Component::getDefaultConf ();
     cConf.max_force = 1;
+    cConf.completesensormode = true;
+    cConf.completemotormode = true;
 
     components.push_back ( new SimpleComponent ( odeHandle , osgHandle , cConf ) );
 
@@ -152,7 +154,6 @@ public:
     components.back ()->place ( Pos( 0 , 0 , 0.2 ));
    
 //arms
-    DerivativeWiringConf c;
     DerivativeWiring* wiring;
     OdeAgent* agent;
 
@@ -165,17 +166,17 @@ public:
 	sc.segmNumber = 3;
 	sc.segmLength = 0.4;
 	sc.segmMass = 0.1;
-	sc.motorPower = 0.5;
+	sc.motorPower = 0.4;
 	sc.frictionJoint=0.01;
 
 	arms.push_back ( new SchlangeServo ( odeHandle , osgHandle , sc ,  "octopusarm" ) );
 
-	((OdeRobot*)arms[n])->place ( osg::Matrix::rotate ( ((4*M_PI/MAX_NUMBER_OF_ARMS)+(-2*M_PI/MAX_NUMBER_OF_ARMS)*(n)), osg::Vec3 (0,0,1)) * 
+	((OdeRobot*)arms[n])->place ( osg::Matrix::rotate ( ((MAX_NUMBER_OF_ARMS/2*M_PI/MAX_NUMBER_OF_ARMS)+(-2*M_PI/MAX_NUMBER_OF_ARMS)*(n)), osg::Vec3 (0,0,1)) * 
 				      osg::Matrix::translate ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
 							       cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
 								0 ));
 
-	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+/*	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 	cc.cInit=2;
 
 	AbstractController *controller = new InvertMotorNStep ( cc );  
@@ -186,18 +187,19 @@ public:
 	controller->setParam("s4avg",10);
 	controller->setParam("steps",2);
 
+
 	c = DerivativeWiring::getDefaultConf ();
 	wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
 
 	agent = new OdeAgent ( plotoptions );
 	agent->init(controller , arms[n] , wiring );
 	global.agents.push_back(agent);
-	global.configs.push_back(controller);
+	global.configs.push_back(controller);*/
 
 
 	//Components
 	components.push_back ( new RobotComponent ( odeHandle , osgHandle , cConf ) );
-	((RobotComponent*) components.back ())->setRobot ( global.agents.back()->getRobot () );
+	((RobotComponent*) components.back ())->setRobot ( arms[n] );
 	
 	//creating joint
 	vector <Position> positionlist;
@@ -212,16 +214,19 @@ public:
 	
 	j1 = new HingeJoint ( components.front ()->getMainPrimitive () , components.back ()->getMainPrimitive () , components.front ()->getPositionbetweenComponents ( components.back () ) , axis );
 	j1->init ( odeHandle , osgHandle , true , 1 );
-//	j1->setParam(dParamFMax,0.0001);            // set maximal force
 	components.front ()->addSubcomponent ( components.back () , j1 );
+
+//	components.front ()->setSoftlink ( n , false );
 
 	positionlist.clear ();
     }
 
 
 //adding the controller for the component-connections
-//    controller = new InvertMotorSpace ( 10 );  
-    controller = new InvertMotorNStep ();  
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    cc.cInit=2;
+
+    AbstractController* controller = new InvertMotorNStep ();//SineController ();//InvertMotorSpace ( 12 );//
     controller->setParam("adaptrate", 0.005);
     controller->setParam("epsC", 0.005);
     controller->setParam("epsA", 0.001);
@@ -230,6 +235,7 @@ public:
     controller->setParam("s4avg", 5);
     controller->setParam("factorB",0);
 
+    DerivativeWiringConf c = DerivativeWiring::getDefaultConf ();
     wiring = new DerivativeWiring ( c , new ColorUniformNoise() );   
 
     agent = new OdeAgent ( plotoptions );
