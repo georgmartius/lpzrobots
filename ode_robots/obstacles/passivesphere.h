@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-05-11 08:59:15  robot3
+ *   Revision 1.1.2.9  2006-05-18 12:54:24  robot3
+ *   -fixed not being able to change the color after positioning
+ *    the obstacle
+ *   -cleared the files up
+ *
+ *   Revision 1.1.2.8  2006/05/11 08:59:15  robot3
  *   -fixed a positioning bug (e.g. for passivesphere)
  *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
  *
@@ -85,7 +90,6 @@ class PassiveSphere : public AbstractObstacle{
 
   Sphere* sphere;
 
-  bool obstacle_exists;
 
  public:
   

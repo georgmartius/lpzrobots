@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.6  2006-05-18 12:00:57  robot3
+ *   Revision 1.4.4.7  2006-05-18 12:54:24  robot3
+ *   -fixed not being able to change the color after positioning
+ *    the obstacle
+ *   -cleared the files up
+ *
+ *   Revision 1.4.4.6  2006/05/18 12:00:57  robot3
  *   removed unused variables
  *
  *   Revision 1.4.4.5  2006/05/18 09:40:03  robot3
@@ -65,7 +70,6 @@ class OctaPlayground : public AbstractObstacle {
   vector<Primitive*> obst; //obstacles
   Box* groundPlane; // the groundplane
 
-  bool obstacle_exists;
 
   int number_elements;
   double angle;    

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.5  2006-05-11 08:59:15  robot3
+ *   Revision 1.8.4.6  2006-05-18 12:54:24  robot3
+ *   -fixed not being able to change the color after positioning
+ *    the obstacle
+ *   -cleared the files up
+ *
+ *   Revision 1.8.4.5  2006/05/11 08:59:15  robot3
  *   -fixed a positioning bug (e.g. for passivesphere)
  *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
  *
@@ -121,13 +126,24 @@ osg::Matrix getPose(){ return pose; }
    */
   virtual void setColor(const Color& color) {
     osgHandle.color = color;
+    if (obstacle_exists) {
+      destroy();
+      create();
+    }
   };
+
+
 
  protected:
   osg::Matrix pose;
+  bool obstacle_exists;
 
   OdeHandle odeHandle;
   OsgHandle osgHandle; 
+
+  virtual void destroy()=0;
+
+  virtual void create()=0;
 
 };
 

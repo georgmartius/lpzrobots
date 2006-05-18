@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.7  2006-05-18 09:43:24  robot3
+ *   Revision 1.10.4.8  2006-05-18 12:54:24  robot3
+ *   -fixed not being able to change the color after positioning
+ *    the obstacle
+ *   -cleared the files up
+ *
+ *   Revision 1.10.4.7  2006/05/18 09:43:24  robot3
  *   using existing texture image in cvs for the groundplane now
  *
  *   Revision 1.10.4.6  2006/05/18 07:42:36  robot3
@@ -110,6 +115,7 @@ public:
    */
   virtual void update(){
   };
+
   
   
   virtual void setPose(const osg::Matrix& pose){

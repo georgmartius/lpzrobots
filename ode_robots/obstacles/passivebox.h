@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-05-11 12:53:04  robot3
+ *   Revision 1.1.2.5  2006-05-18 12:54:24  robot3
+ *   -fixed not being able to change the color after positioning
+ *    the obstacle
+ *   -cleared the files up
+ *
+ *   Revision 1.1.2.4  2006/05/11 12:53:04  robot3
  *   fixed some errors in passivebox.h
  *
  *   Revision 1.1.2.3  2006/05/11 08:59:15  robot3
@@ -58,7 +63,6 @@ class PassiveBox : public AbstractObstacle{
 
   Box* box;
 
-  bool obstacle_exists;
 
  public:
   
