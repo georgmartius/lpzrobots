@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.5  2006-05-18 09:40:03  robot3
+ *   Revision 1.4.4.6  2006-05-18 12:00:57  robot3
+ *   removed unused variables
+ *
+ *   Revision 1.4.4.5  2006/05/18 09:40:03  robot3
  *   using existing texture image in cvs for the groundplane now
  *
  *   Revision 1.4.4.4  2006/05/18 07:42:36  robot3
@@ -114,7 +117,6 @@ protected:
     // radius for positioning is smaller than radius since we use secants. 
     //  r is the smallest distance of the secant to the center of the circle.
     double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;
-    double rGround = r - box_length*0.5f;
     for (int i=0; i<number_elements; i++){
       obst[i] = new Box(width , box_length , height);
       obst[i]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
