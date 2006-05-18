@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.5  2006-05-11 08:59:15  robot3
+ *   Revision 1.10.4.6  2006-05-18 07:42:36  robot3
+ *   Grounds have now a groundPlane for shadowing issues
+ *   osgprimitive.cpp contains a bug that repeating textures (wrapping)
+ *   don't work, needs to be fixed
+ *
+ *   Revision 1.10.4.5  2006/05/11 08:59:15  robot3
  *   -fixed a positioning bug (e.g. for passivesphere)
  *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
  *
@@ -80,9 +85,7 @@ protected:
 
   double length, width, height;
   double factorlength2;
-
-  Box* box[4];
-
+  vector<Box*> boxList;
   bool obstacle_exists;
 
 public:
@@ -94,11 +97,8 @@ public:
     length=dimension.x();
     width=dimension.y();
     height=dimension.z();
-
     factorlength2=factorxy;
-
     obstacle_exists=false;
-    
     setColor(Color(226 / 255.0, 103 / 255.0, 66 / 255.0));
   };
 
@@ -121,36 +121,57 @@ public:
 
  protected:
   virtual void create(){
+    Box* box;
     osg::Vec3 offset(- (length/2 + width/2), 0, height/2);
-    box[0] = new Box( width , (length * factorlength2) + 2 * width , height);
-    box[0]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box[0]->setPose(osg::Matrix::translate(offset) * pose);
+    box = new Box( width , (length * factorlength2) + 2 * width , height);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+    boxList.push_back(box);
 
     offset.x() = length/2 + width/2;
-    box[1] = new Box( width , (length * factorlength2) + 2 * width , height);
-    box[1]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box[1]->setPose(osg::Matrix::translate(offset) * pose);
+    box = new Box( width , (length * factorlength2) + 2 * width , height);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+    boxList.push_back(box);
 
     offset.x() = 0;
     offset.y() = -( (length*factorlength2)/2 +width/2);
-    box[2] = new Box( length, width, height);
-    box[2]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box[2]->setPose(osg::Matrix::translate(offset) * pose);
+    box = new Box( length, width, height);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+    boxList.push_back(box);
 
     offset.y() = (length*factorlength2)/2 +width/2;
-    box[3] = new Box( length, width, height);
-    box[3]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box[3]->setPose(osg::Matrix::translate(offset) * pose);
+    box = new Box( length, width, height);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+    boxList.push_back(box);
+
+    // ground plane
+    offset.x() = 0;
+    offset.y() = 0;
+    offset.z() = -0.05f;
+    box = new Box( length, length, 0.1f);
+    box->init(odeHandle, 0, osgHandle,
+		 Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setColor(Color(1.0f,1.0f,1.0f));
+    box->getOSGPrimitive()->setTexture("Images/ground2.rgb", true, true);
+    boxList.push_back(box);
     
     obstacle_exists=true;
   };
 
 
   virtual void destroy(){
-    for(int i=0; i<4; i++){
-      if(box[i]) delete(box[i]);
+    for(vector<Box*>::iterator i=boxList.begin(); i != boxList.end(); i++){
+      delete(*i); 
     }
-    
+    boxList.clear(); // delete references
     obstacle_exists=false;
   };
 

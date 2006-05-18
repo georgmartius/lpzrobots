@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.3  2006-05-11 08:59:15  robot3
+ *   Revision 1.4.4.4  2006-05-18 07:42:36  robot3
+ *   Grounds have now a groundPlane for shadowing issues
+ *   osgprimitive.cpp contains a bug that repeating textures (wrapping)
+ *   don't work, needs to be fixed
+ *
+ *   Revision 1.4.4.3  2006/05/11 08:59:15  robot3
  *   -fixed a positioning bug (e.g. for passivesphere)
  *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
  *
@@ -52,6 +57,7 @@ class OctaPlayground : public AbstractObstacle {
   double radius, width, height;
 
   vector<Primitive*> obst; //obstacles
+  Box* groundPlane; // the groundplane
 
   bool obstacle_exists;
 
@@ -73,15 +79,13 @@ public:
         
     number_elements=numberCorners;
     angle= 2*M_PI/number_elements;    
-    obst.resize(number_elements);    
+    obst.resize(number_elements);
     
     calcBoxLength();
   };
   
   virtual ~OctaPlayground(){
-    for (unsigned int i=0; i < obst.size(); i++){
-      if(obst[i]) delete obst[i];
-    }
+    destroy();
     obst.clear();
   }
 
@@ -89,6 +93,7 @@ public:
     for (unsigned int i=0; i<obst.size(); i++){
       if(obst[i]) obst[i]->update();
     }
+    if (groundPlane) groundPlane->update();
   };
   
 
@@ -106,6 +111,7 @@ protected:
     // radius for positioning is smaller than radius since we use secants. 
     //  r is the smallest distance of the secant to the center of the circle.
     double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;
+    double rGround = r - box_length*0.5f;
     for (int i=0; i<number_elements; i++){
       obst[i] = new Box(width , box_length , height);
       obst[i]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
@@ -114,8 +120,16 @@ protected:
 				sin(M_PI - i*angle) * r, 
 				height/2) * pose;
       obst[i]->setPose(R);
-            
+      obst[i]->getOSGPrimitive()->setTexture("Images/dusty.rgb");
     }
+    // now create the plane in the middle
+    groundPlane = new Box(2.0f*r,2.0f*r, 0.1f);
+    groundPlane->init(odeHandle, 0, osgHandle,
+		 Primitive::Geom | Primitive::Draw);
+    groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
+    groundPlane->getOSGPrimitive()->setColor(Color(1.0f,1.0f,1.0f));
+    groundPlane->getOSGPrimitive()->setTexture("Images/ground2.rgb",true,true);
+    obstacle_exists=true;
   };
 
 
@@ -123,6 +137,7 @@ protected:
     for(int i=0; i < number_elements; i++){
       if(obst[i]) delete obst[i];
     }
+    if (groundPlane) delete(groundPlane);
     obstacle_exists=false;
   };
 
