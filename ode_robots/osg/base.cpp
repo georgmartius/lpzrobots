@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-01-12 22:34:06  martius
+ *   Revision 1.1.2.7  2006-05-18 11:42:51  robot3
+ *   -shadowing the normal scene integrated (first version)
+ *   -note that there is a bug that the shadow disappears
+ *    after some time (e.g. 60 minutes)
+ *
+ *   Revision 1.1.2.6  2006/01/12 22:34:06  martius
  *   *** empty log message ***
  *
  *   Revision 1.1.2.5  2006/01/12 14:21:00  martius
@@ -59,6 +65,9 @@
 #include <osg/Light>
 #include <osg/LightSource>
 #include <osg/ShapeDrawable>
+#include <osg/PolygonOffset>
+#include <osg/CullFace>
+#include <osg/TexGenNode>
 
 #include <osgUtil/CullVisitor>
 
@@ -67,13 +76,170 @@
 
 #include <osgGA/AnimationPathManipulator>
 
-#include "rendertotexturecallback.h"
+#include "shadowcallback.h"
 #include "base.h"
 #include "primitive.h"
 
 using namespace osg;
 
 namespace lpzrobots {
+
+
+
+
+  /********************************************************************
+   * fragment shader for non textured objects (non-default, not used) *
+   *******************************************************************/
+  char fragmentShaderSource_noBaseTexture[] = 
+  "uniform sampler2DShadow shadowTexture; \n"
+  "uniform vec2 ambientBias; \n"
+  "\n"
+  "void main(void) \n"
+  "{ \n"
+  "    ambientBias.x=0.8f; \n"
+  "    ambientBias.y=0.4f; \n"
+  "    gl_FragColor = gl_Color * (ambientBias.x + shadow2DProj( shadowTexture, gl_TexCoord[0] ) * ambientBias.y - 0.4f); \n"
+  "}\n";
+  
+
+  /********************************************************************
+   * fragment shader for textured objects (default, used)             *
+   *******************************************************************/
+  char fragmentShaderSource_withBaseTexture[] = 
+  "uniform sampler2D baseTexture; \n"
+  "uniform sampler2DShadow shadowTexture; \n"
+  "uniform vec2 ambientBias; \n"
+  "\n"
+  "void main(void) \n"
+  "{ \n"
+  "    vec4 color = gl_Color* texture2D( baseTexture, gl_TexCoord[0].xy ); \n"
+  "    gl_FragColor = color * (ambientBias.x + shadow2DProj( shadowTexture, gl_TexCoord[1])  * ambientBias.y); \n"
+  "}\n";
+  
+
+  osg::Group* Base::createShadowedScene(osg::Node* shadowed, osg::Vec3 posOfLight, unsigned int unit)
+  {
+    osg::Group* group = new osg::Group;
+    
+    unsigned int tex_width = 1024; // up to 2048 is possible but slower
+    unsigned int tex_height =1024; // up to 2048 is possible but slower
+    
+    osg::Texture2D* texture = new osg::Texture2D;
+    texture->setTextureSize(tex_width, tex_height);
+
+    texture->setInternalFormat(GL_DEPTH_COMPONENT);
+    texture->setShadowComparison(true);
+    texture->setShadowTextureMode(Texture::LUMINANCE);
+    texture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR);
+    texture->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
+    
+    // set up the render to texture camera.
+    {
+      // create the camera
+      osg::CameraNode* camera = new osg::CameraNode;
+
+      camera->setClearMask(GL_DEPTH_BUFFER_BIT);
+      camera->setClearColor(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
+      camera->setComputeNearFarMode(osg::CameraNode::DO_NOT_COMPUTE_NEAR_FAR);
+
+      // set viewport
+      camera->setViewport(0,0,tex_width,tex_height);
+
+      osg::StateSet*  _local_stateset = camera->getOrCreateStateSet();
+
+      _local_stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+
+
+      float factor = 0.0f;
+      float units = 1.0f;
+
+      ref_ptr<PolygonOffset> polygon_offset = new PolygonOffset;
+      polygon_offset->setFactor(factor);
+      polygon_offset->setUnits(units);
+      _local_stateset->setAttribute(polygon_offset.get(), StateAttribute::ON | StateAttribute::OVERRIDE);
+      _local_stateset->setMode(GL_POLYGON_OFFSET_FILL, StateAttribute::ON | StateAttribute::OVERRIDE);
+
+      ref_ptr<CullFace> cull_face = new CullFace;
+      cull_face->setMode(CullFace::FRONT);
+      _local_stateset->setAttribute(cull_face.get(), StateAttribute::ON | StateAttribute::OVERRIDE);
+      _local_stateset->setMode(GL_CULL_FACE, StateAttribute::ON | StateAttribute::OVERRIDE);
+
+
+      // set the camera to render before the main camera.
+      camera->setRenderOrder(osg::CameraNode::PRE_RENDER);
+
+      // tell the camera to use OpenGL frame buffer object where supported.
+      camera->setRenderTargetImplementation(osg::CameraNode::FRAME_BUFFER_OBJECT);
+
+      // attach the texture and use it as the color buffer.
+      camera->attach(osg::CameraNode::DEPTH_BUFFER, texture);
+
+      // add subgraph to render
+      camera->addChild(shadowed);
+        
+      group->addChild(camera);
+        
+      // create the texgen node to project the tex coords onto the subgraph
+      osg::TexGenNode* texgenNode = new osg::TexGenNode;
+      texgenNode->setTextureUnit(unit);
+      group->addChild(texgenNode);
+
+      // set an update callback to keep moving the camera and tex gen in the right direction.
+      group->setUpdateCallback(new ShadowDrawCallback(posOfLight, camera, texgenNode));
+    }
+   
+
+    // set the shadowed subgraph so that it uses the texture and tex gen settings.    
+    {
+      osg::Group* shadowedGroup = new osg::Group;
+      shadowedGroup->addChild(shadowed);
+      group->addChild(shadowedGroup);
+                
+      osg::StateSet* stateset = shadowedGroup->getOrCreateStateSet();
+      stateset->setTextureAttributeAndModes(unit,texture,osg::StateAttribute::ON);
+      stateset->setTextureMode(unit,GL_TEXTURE_GEN_S,osg::StateAttribute::ON);
+      stateset->setTextureMode(unit,GL_TEXTURE_GEN_T,osg::StateAttribute::ON);
+      stateset->setTextureMode(unit,GL_TEXTURE_GEN_R,osg::StateAttribute::ON);
+
+      stateset->setTextureMode(unit,GL_TEXTURE_GEN_Q,osg::StateAttribute::ON);
+
+      osg::Program* program = new osg::Program;
+      stateset->setAttribute(program);
+
+      if (unit==0)
+        {
+	  std::cout << "not using textures." << std::endl;
+       	  osg::Shader* fragment_shader = 
+	    new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_noBaseTexture);
+      	  program->addShader(fragment_shader);
+
+	  // uniforms are for the shader program
+	  osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
+	  stateset->addUniform(shadowTextureSampler);
+        }
+      else
+        {
+	  std::cout << "using textures." << std::endl;
+	  osg::Shader* fragment_shader = 
+	    new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_withBaseTexture);
+	  program->addShader(fragment_shader);
+
+ 	  // uniforms are for the shader program
+	  osg::Uniform* baseTextureSampler = new osg::Uniform("baseTexture",0);
+	  stateset->addUniform(baseTextureSampler);
+
+	  osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
+	  stateset->addUniform(shadowTextureSampler);
+        }
+        
+      // uniform is for the shader program
+      osg::Uniform* ambientBias = new osg::Uniform("ambientBias",osg::Vec2(0.7f,0.5f));
+      stateset->addUniform(ambientBias);
+
+    }
+
+    return group;
+  }
 
 
   Group* Base::makeScene(){
@@ -84,7 +250,7 @@ namespace lpzrobots {
     // osg::Depth, and setting their bin numbers to less than 0,
     // to force them to draw before the rest of the scene.
     ClearNode* clearNode = new ClearNode;
-    
+
     // use a transform to make the sky and base around with the eye point.
     osg::Transform* transform = new osg::Transform;//MoveEarthySkyWithEyePointTransform;
 
@@ -92,16 +258,13 @@ namespace lpzrobots {
     clearNode->addChild(transform);
 
     root->addChild(clearNode);
-
-    Group* group = new Group; // create an extra group for the normal scene
     
-    root->addChild(group);
-
-    // transform's value isn't knowm until in the cull traversal so its bounding
+    // transform's value isn't known until in the cull traversal so its bounding
     // volume can't be determined, therefore culling will be invalid,
-    // so switch it off, this cause all our paresnts to switch culling
+    // so switch it off, this cause all our parents to switch culling
     // off as well. But don't worry culling will be back on once underneath
     // this node or any other branch above this transform.
+    
     transform->setCullingActive(false);
 
     // add the sky and base layer.
@@ -111,20 +274,25 @@ namespace lpzrobots {
     LightSource* lightSource = makeLights(root->getOrCreateStateSet());
     transform->addChild(lightSource);
     
-    // This should bring real shadows, need to be fixed somehow
-    // ref_ptr<Texture2D> texture = new Texture2D;
-//     texture->setInternalFormat(GL_DEPTH_COMPONENT);
-//     texture->setShadowComparison(true);
-//     texture->setShadowTextureMode(Texture::LUMINANCE);
+    Group* group = new Group; // create an extra group for the normal scene
+
+    // enable shadows
+    Group* shadowedScene;
+
+    // transform the Vec4 in a Vec3
+    osg::Vec3 posOfLight;
+    posOfLight[0]=lightSource->getLight()->getPosition()[0];
+    posOfLight[1]=lightSource->getLight()->getPosition()[1];
+    posOfLight[2]=lightSource->getLight()->getPosition()[2];
     
-//     ref_ptr<TexGen> texGen = new TexGen;
-//     texGen->setMode(TexGen::EYE_LINEAR);
-//     group->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get(), StateAttribute::ON);
-//     group->getOrCreateStateSet()->setTextureAttributeAndModes(0, texGen.get(), StateAttribute::ON);
+    // create the shadowed scene, using textures
+    shadowedScene = createShadowedScene(group,posOfLight,1);
     
-//     root->setCullCallback(new RenderToTextureCallback(group, texture.get(), lightSource, texGen.get()));
+    // add the shadowed scene to the root
+    root->addChild(shadowedScene);
     
-    return group; 
+    // the normal scene
+    return group;
   }
 
   Node* Base::makeSky() {
@@ -234,7 +402,7 @@ namespace lpzrobots {
     return geode;
   }
 
-  Node* Base::makeGround(){
+  Node* Base::makeGround(){ // the old ground, is NOT used for shadowing!
     int i, c;
     float theta;
     float ir = 1000.0f;
@@ -253,7 +421,7 @@ namespace lpzrobots {
       {
         theta = osg::DegreesToRadians((float)i * 20.0);
 
-        (*coords)[c].set(ir * cosf( theta ), ir * sinf( theta ), 0.0f);
+        (*coords)[c].set(ir * cosf( theta ), ir * sinf( theta ), -0.001f);
         (*tcoords)[c].set((*coords)[c][0],(*coords)[c][1]);
 
         c++;
@@ -272,7 +440,7 @@ namespace lpzrobots {
 
     Texture2D *tex = new Texture2D;
 
-    tex->setImage(osgDB::readImageFile("Images/ground.rgb"));
+    tex->setImage(osgDB::readImageFile("Images/greenground.rgb"));
     tex->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
     tex->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
 
@@ -282,51 +450,45 @@ namespace lpzrobots {
 
     dstate->setTextureAttribute(0, new TexEnv );
 
-//     // clear the depth to the far plane.
-//     osg::Depth* depth = new osg::Depth;
-//     depth->setFunction(osg::Depth::ALWAYS);
-//     depth->setRange(1.0,1.0);   
-//     dstate->setAttributeAndModes(depth,StateAttribute::ON );
+    //     // clear the depth to the far plane.
+    //     osg::Depth* depth = new osg::Depth;
+    //     depth->setFunction(osg::Depth::ALWAYS);
+    //     depth->setRange(1.0,1.0);   
+    //     dstate->setAttributeAndModes(depth,StateAttribute::ON );
 
     dstate->setRenderBinDetails(-1,"RenderBin");
-
-
     geom->setStateSet( dstate );
 
     Geode *geode = new Geode;
     geode->addDrawable( geom );
     geode->setName( "Ground" );
 
-    // add ODE Ground here
+    // add ODE Ground here (physical plane)
     ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
 
     return geode;
   }
 
 
-LightSource* Base::makeLights(StateSet* stateset)
-{
-  // create a spot light.
-  Light* light_0 = new Light;
-  light_0->setLightNum(0);
-  light_0->setPosition(Vec4(10.0, 0, 20.0, 1.0f));
-  light_0->setDirection(Vec3(-0.5, 0, -1.0));
-  light_0->setAmbient(Vec4(0.6f, 0.6f, 0.6f, 1.0f));
-  light_0->setDiffuse(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-  //light_0->setSpotCutoff(60.0f);
-  //  light_0->setSpotExponent(2.0f);
+  LightSource* Base::makeLights(StateSet* stateset)
+  {
+    // create a spot light.
+    Light* light_0 = new Light;
+    light_0->setLightNum(0);
+    light_0->setPosition(Vec4(0.0f, 0.0f, 50.0f, 1.0f));
+    // note that the blue component doesn't work!!! (bug in OSG???)
+    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
 
-  LightSource* light_source_0 = new LightSource;	
-  light_source_0->setLight(light_0);
-  light_source_0->setLocalStateSetModes(StateAttribute::ON);   
+    LightSource* light_source_0 = new LightSource;	
+    light_source_0->setLight(light_0);
+    light_source_0->setLocalStateSetModes(StateAttribute::ON);   
+    light_source_0->setStateSetModes(*stateset, StateAttribute::ON);
   
-  light_source_0->setStateSetModes(*stateset, StateAttribute::ON);
-  
-  return light_source_0;
-}
+    return light_source_0;
+  }
 
 
-/********************************************************************************/
+  /********************************************************************************/
 
   bool MoveEarthySkyWithEyePointTransform::computeLocalToWorldMatrix(osg::Matrix& matrix,osg::NodeVisitor* nv) const 
   {
