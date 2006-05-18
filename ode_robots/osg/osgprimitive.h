@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-04-04 14:13:24  fhesse
+ *   Revision 1.1.2.10  2006-05-18 07:39:41  robot3
+ *   -setTexture(string& filename,bool repeatOnX, bool repeatOnY) added
+ *    note that this does not work yet (the bool parameter have no effect)
+ *
+ *   Revision 1.1.2.9  2006/04/04 14:13:24  fhesse
  *   documentation improved
  *
  *   Revision 1.1.2.8  2006/03/29 15:06:40  martius
@@ -78,7 +82,6 @@ namespace lpzrobots {
   */
   class OSGPrimitive {
   public:
-
     typedef enum Quality {Low, Middle, High};
 
     OSGPrimitive ();
@@ -92,6 +95,8 @@ namespace lpzrobots {
     virtual osg::Group* getGroup();
     /// assigns a texture to the primitive
     virtual void setTexture(const std::string& filename);
+    /// assigns a texture to the primitive, you can choose if the texture should be repeated
+    virtual void setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY);
     /// sets the color for painting this primitive
     virtual void setColor(const Color& color);
     /// returns a osg transformation object;
