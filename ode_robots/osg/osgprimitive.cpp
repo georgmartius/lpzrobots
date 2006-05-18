@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-03-29 15:06:40  martius
+ *   Revision 1.1.2.12  2006-05-18 07:16:36  robot3
+ *   -setTexture(string& filename,bool repeatOnX, bool repeatOnY) added
+ *    note that this does not work yet (the bool parameter have no effect)
+ *
+ *   Revision 1.1.2.11  2006/03/29 15:06:40  martius
  *   OSGMesh
  *
  *   Revision 1.1.2.10  2006/01/12 14:21:00  martius
@@ -80,6 +84,7 @@
 //#include <osg/LightSource>
 #include <osg/Material>
 #include <osgDB/ReadFile>
+#include <osg/TexEnv>
 
 
 #include "osgprimitive.h"
@@ -119,14 +124,27 @@ namespace lpzrobots {
     return transform.get(); 
   }
 
-  void OSGPrimitive::setTexture(const std::string& filename){
+ void OSGPrimitive::setTexture(const std::string& filename){
+   setTexture(filename,false,false);
+  }
+
+ void OSGPrimitive::setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY){
     osg::Group* grp = getGroup();    
     osg::Texture2D* texture = new osg::Texture2D;
     texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
     texture->setImage(osgDB::readImageFile(filename));
+    ///TODO: needs to be fixed (why does this not work???)
+    if (repeatOnX)
+      texture->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
+    if (repeatOnY)
+      texture->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
+    //    texture->setWrap( Texture2D::WRAP_R, Texture2D::REPEAT ); // ???
     osg::StateSet* stateset = grp->getOrCreateStateSet();
     stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);
+    stateset->setTextureAttribute(0, new TexEnv );
+
   }
+
 
   void OSGPrimitive::setColor(const Color& color){
     if(shape.valid())
@@ -335,11 +353,11 @@ namespace lpzrobots {
     dif.alpha()=c.alpha();
     Color spec(c*0.2);
     spec.alpha()=c.alpha();
-    m->setAmbient(Material::FRONT_AND_BACK, amb);
+    //    m->setAmbient(Material::FRONT_AND_BACK, amb);
     m->setDiffuse(Material::FRONT_AND_BACK, dif);
     m->setSpecular(Material::FRONT_AND_BACK, spec);
     m->setShininess(Material::FRONT_AND_BACK, 5.0f);
-    //    m->setShininess(Material::FRONT_AND_BACK, 25.0f);
+    //  m->setShininess(Material::FRONT_AND_BACK, 25.0f);
     return m;
   }
 
