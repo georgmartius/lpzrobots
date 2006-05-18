@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.14  2006-05-15 13:11:30  robot3
+ *   Revision 1.14.4.15  2006-05-18 11:55:56  robot3
+ *   made playground smaller (for shadowing issues)
+ *
+ *   Revision 1.14.4.14  2006/05/15 13:11:30  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -125,7 +129,7 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(30, 0.2, 0.5));
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 0.5));
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
