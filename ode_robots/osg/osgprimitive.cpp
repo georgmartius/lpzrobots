@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.13  2006-05-18 10:33:39  robot3
+ *   Revision 1.1.2.14  2006-05-18 12:28:39  robot3
+ *   added a dummy texture to every osgprimitive for correct shadowing
+ *
+ *   Revision 1.1.2.13  2006/05/18 10:33:39  robot3
  *   fixed error which outshined other objects
  *
  *   Revision 1.1.2.12  2006/05/18 07:16:36  robot3
@@ -205,7 +208,8 @@ namespace lpzrobots {
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
-
+    // set dummy texture
+    setTexture("Images/really_white.rgb");
   }
 
 
@@ -232,6 +236,7 @@ namespace lpzrobots {
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
+    setTexture("Images/really_white.rgb");
   }
 
   /******************************************************************************/
@@ -258,6 +263,7 @@ namespace lpzrobots {
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
 
+    setTexture("Images/really_white.rgb");
   }
 
   /******************************************************************************/
@@ -284,6 +290,7 @@ namespace lpzrobots {
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
+    setTexture("Images/really_white.rgb");
   }
 
   /******************************************************************************/
@@ -311,6 +318,7 @@ namespace lpzrobots {
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
 
+    setTexture("Images/really_white.rgb");
   }
 
   /******************************************************************************/
@@ -341,6 +349,7 @@ namespace lpzrobots {
 //     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 // 						       StateAttribute::ON);
 
+    setTexture("Images/really_white.rgb");
   }
 
 
