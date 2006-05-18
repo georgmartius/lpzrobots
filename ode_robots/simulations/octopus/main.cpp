@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-05-16 09:47:57  robot8
+ *   Revision 1.1.2.8  2006-05-18 12:04:21  robot3
+ *   made octaplayground smaller (for shadowing issues)
+ *
+ *   Revision 1.1.2.7  2006/05/16 09:47:57  robot8
  *   - complex robots constructed from components now could be controlled by only one controller
  *   - the controllers do not support the function of having less sensors than motrs, so do not use the configuration option completesensormode = false with completemotormode = true
  *   -soft links implemented -> ring structures possible
@@ -112,7 +115,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    setCameraHomePos(Pos(4.82909, 6.32486, 3.59017),  Pos(142.709, -23.2136, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -127,7 +130,7 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 1), 12);
+    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(5, 0.2, 0.5), 12);
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
