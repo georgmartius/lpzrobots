@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.8  2006-05-18 12:54:24  robot3
+ *   Revision 1.10.4.9  2006-05-18 14:32:12  robot3
+ *   walls are now textured with a wood texture
+ *
+ *   Revision 1.10.4.8  2006/05/18 12:54:24  robot3
  *   -fixed not being able to change the color after positioning
  *    the obstacle
  *   -cleared the files up
@@ -107,7 +110,8 @@ public:
     height=dimension.z();
     factorlength2=factorxy;
     obstacle_exists=false;
-    setColor(Color(226 / 255.0, 103 / 255.0, 66 / 255.0));
+    //    setColor(Color(226 / 255.0, 103 / 255.0, 66 / 255.0));
+    setColor(Color(1.0f, 1.0f, 1.0f));
   };
 
   /**
@@ -135,14 +139,14 @@ public:
     box = new Box( width , (length * factorlength2) + 2 * width , height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+    box->getOSGPrimitive()->setTexture("Images/wall.rgb");
     boxList.push_back(box);
 
     offset.x() = length/2 + width/2;
     box = new Box( width , (length * factorlength2) + 2 * width , height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+    box->getOSGPrimitive()->setTexture("Images/wall.rgb");
     boxList.push_back(box);
 
     offset.x() = 0;
@@ -150,14 +154,14 @@ public:
     box = new Box( length, width, height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+    box->getOSGPrimitive()->setTexture("Images/wall.rgb");
     boxList.push_back(box);
 
     offset.y() = (length*factorlength2)/2 +width/2;
     box = new Box( length, width, height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+    box->getOSGPrimitive()->setTexture("Images/wall.rgb");
     boxList.push_back(box);
 
     // ground plane
