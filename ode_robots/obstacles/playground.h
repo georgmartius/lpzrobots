@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.6  2006-05-18 07:42:36  robot3
+ *   Revision 1.10.4.7  2006-05-18 09:43:24  robot3
+ *   using existing texture image in cvs for the groundplane now
+ *
+ *   Revision 1.10.4.6  2006/05/18 07:42:36  robot3
  *   Grounds have now a groundPlane for shadowing issues
  *   osgprimitive.cpp contains a bug that repeating textures (wrapping)
  *   don't work, needs to be fixed
@@ -160,7 +163,7 @@ public:
 		 Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
     box->getOSGPrimitive()->setColor(Color(1.0f,1.0f,1.0f));
-    box->getOSGPrimitive()->setTexture("Images/ground2.rgb", true, true);
+    box->getOSGPrimitive()->setTexture("Images/greenground.rgb", true, true);
     boxList.push_back(box);
     
     obstacle_exists=true;
