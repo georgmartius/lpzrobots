@@ -21,15 +21,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-05-18 13:06:51  robot3
+ *   Revision 1.1.2.2  2006-05-18 15:36:15  robot3
+ *   fixed compiling bug
+ *
+ *   Revision 1.1.2.1  2006/05/18 13:06:51  robot3
  *   added a passive passive capsule
  *
  *
  *                                                    *
  *                                                                         *
  ***************************************************************************/
-#ifndef __PASSIVEBOX_H
-#define __PASSIVEBOX_H
+#ifndef __PASSIVECAPSULE_H
+#define __PASSIVECAPSULE_H
 
 #include <stdio.h>
 #include <math.h>
