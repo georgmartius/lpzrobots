@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.12  2006-05-18 07:16:36  robot3
+ *   Revision 1.1.2.13  2006-05-18 10:33:39  robot3
+ *   fixed error which outshined other objects
+ *
+ *   Revision 1.1.2.12  2006/05/18 07:16:36  robot3
  *   -setTexture(string& filename,bool repeatOnX, bool repeatOnY) added
  *    note that this does not work yet (the bool parameter have no effect)
  *
@@ -347,8 +351,8 @@ namespace lpzrobots {
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode) {
     ref_ptr<Material> m = new Material ();
     m->setColorMode(mode);
-    Color amb (c*0.3);
-    amb.alpha()=c.alpha();
+    //    Color amb (c*0.3);
+    //    amb.alpha()=c.alpha();
     Color dif(c*0.7);
     dif.alpha()=c.alpha();
     Color spec(c*0.2);
