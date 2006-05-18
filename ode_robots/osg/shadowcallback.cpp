@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-05-18 11:25:59  robot3
+ *   Revision 1.1.2.2  2006-05-18 11:33:17  robot3
+ *   imports optimized
+ *
+ *   Revision 1.1.2.1  2006/05/18 11:25:59  robot3
  *   -first open version
  *   -note that there is probably a precision problem that causes
  *    the disappearing of the shadow after some time (after ca. 60
@@ -34,6 +37,7 @@
  *
  *                                                                         *
  ***************************************************************************/
+#include <osgProducer/Viewer>
 
 #include "shadowcallback.h"
 
