@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.7  2006-05-18 12:54:24  robot3
+ *   Revision 1.4.4.8  2006-05-18 14:38:28  robot3
+ *   wall uses wall texture now
+ *
+ *   Revision 1.4.4.7  2006/05/18 12:54:24  robot3
  *   -fixed not being able to change the color after positioning
  *    the obstacle
  *   -cleared the files up
@@ -129,7 +132,7 @@ protected:
 				sin(M_PI - i*angle) * r, 
 				height/2) * pose;
       obst[i]->setPose(R);
-      obst[i]->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+      obst[i]->getOSGPrimitive()->setTexture("Images/wall.rgb");
     }
     // now create the plane in the middle
     groundPlane = new Box(2.0f*r,2.0f*r, 0.1f);
