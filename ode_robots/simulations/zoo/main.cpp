@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.8  2006-05-15 13:09:33  robot3
+ *   Revision 1.11.4.9  2006-05-18 10:26:50  robot3
+ *   -made the playground smaller (for shadowing issues)
+ *   -changed camera homepos
+ *
+ *   Revision 1.11.4.8  2006/05/15 13:09:33  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -87,7 +91,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    setCameraHomePos(Pos(-18.00f, 13.0f, 6.9f),  Pos(-125.0f, -20.0f, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -96,7 +100,7 @@ public:
     global.odeConfig.setParam("controlinterval",1);
     // initialization
     
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 1.5));
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(18, 0.2, 1.0));
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
     
