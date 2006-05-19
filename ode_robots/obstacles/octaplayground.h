@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.8  2006-05-18 14:38:28  robot3
+ *   Revision 1.4.4.9  2006-05-19 08:42:36  robot3
+ *   -some code moved to abstractground.h
+ *   -it's now possible creating a playground without a groundplane
+ *
+ *   Revision 1.4.4.8  2006/05/18 14:38:28  robot3
  *   wall uses wall texture now
  *
  *   Revision 1.4.4.7  2006/05/18 12:54:24  robot3
@@ -62,62 +67,36 @@
 #include <osg/Matrix>
 
 #include "primitive.h"
-#include "abstractobstacle.h"
+#include "abstractground.h"
 
 namespace lpzrobots {
 
-class OctaPlayground : public AbstractObstacle {
+  class OctaPlayground : public AbstractGround {
+    
+    double radius, width, height;
+    
+    int number_elements;
+    double angle;    
+    double box_length;
 
-  double radius, width, height;
-
-  vector<Primitive*> obst; //obstacles
-  Box* groundPlane; // the groundplane
-
-
-  int number_elements;
-  double angle;    
-  double box_length;
-
-public:
+  public:
   
-  OctaPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		 const Pos& geometry = Pos(7,0.2,0.5), int numberCorners=8):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle){
+
+    OctaPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+		 const Pos& geometry = Pos(7,0.2,0.5), int numberCorners=8, bool createGround=true):
+    AbstractGround::AbstractGround(odeHandle, osgHandle,createGround) {
     
     radius = geometry.x();
     width  = geometry.y();
     height = geometry.z();
 
-    obstacle_exists=false;
-        
     number_elements=numberCorners;
     angle= 2*M_PI/number_elements;    
     obst.resize(number_elements);
-    
+
     calcBoxLength();
   };
   
-  virtual ~OctaPlayground(){
-    destroy();
-    obst.clear();
-  }
-
-  virtual void update(){
-    for (unsigned int i=0; i<obst.size(); i++){
-      if(obst[i]) obst[i]->update();
-    }
-    if (groundPlane) groundPlane->update();
-  };
-  
-
-  virtual void setPose(const osg::Matrix& pose){
-    this->pose = pose;
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
-  };
-
 protected:
 
   virtual void create(){
@@ -134,23 +113,9 @@ protected:
       obst[i]->setPose(R);
       obst[i]->getOSGPrimitive()->setTexture("Images/wall.rgb");
     }
-    // now create the plane in the middle
-    groundPlane = new Box(2.0f*r,2.0f*r, 0.1f);
-    groundPlane->init(odeHandle, 0, osgHandle,
-		 Primitive::Geom | Primitive::Draw);
-    groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
-    groundPlane->getOSGPrimitive()->setColor(Color(1.0f,1.0f,1.0f));
-    groundPlane->getOSGPrimitive()->setTexture("Images/greenground.rgb",true,true);
+    // size of groundplane
+    ground_length=2.0*r;
     obstacle_exists=true;
-  };
-
-
-  virtual void destroy(){
-    for(int i=0; i < number_elements; i++){
-      if(obst[i]) delete obst[i];
-    }
-    if (groundPlane) delete(groundPlane);
-    obstacle_exists=false;
   };
 
   virtual void calcBoxLength(){

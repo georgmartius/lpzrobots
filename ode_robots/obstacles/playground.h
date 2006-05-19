@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.9  2006-05-18 14:32:12  robot3
+ *   Revision 1.10.4.10  2006-05-19 08:42:54  robot3
+ *   -some code moved to abstractground.h
+ *   -it's now possible creating a playground without a groundplane
+ *
+ *   Revision 1.10.4.9  2006/05/18 14:32:12  robot3
  *   walls are now textured with a wood texture
  *
  *   Revision 1.10.4.8  2006/05/18 12:54:24  robot3
@@ -86,49 +91,32 @@
 
 #include "mathutils.h"
 #include "primitive.h"
-#include "abstractobstacle.h"
+#include "abstractground.h"
  
 namespace lpzrobots {
 
 //Fixme: playground creates collisions with ground and itself
-class Playground : public AbstractObstacle {
+class Playground : public AbstractGround {
 protected:
 
   double length, width, height;
   double factorlength2;
-  vector<Box*> boxList;
-  bool obstacle_exists;
 
 public:
   
   Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
-	     const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) , double factorxy = 1):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle){
+	     const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) ,
+	     double factorxy = 1, bool createGround=true):
+    AbstractGround::AbstractGround(odeHandle, osgHandle, createGround){
 
     length=dimension.x();
     width=dimension.y();
     height=dimension.z();
     factorlength2=factorxy;
-    obstacle_exists=false;
-    //    setColor(Color(226 / 255.0, 103 / 255.0, 66 / 255.0));
-    setColor(Color(1.0f, 1.0f, 1.0f));
-  };
 
-  /**
-   * updates the position of the geoms  ( not nessary for static objects)
-   */
-  virtual void update(){
   };
 
   
-  
-  virtual void setPose(const osg::Matrix& pose){
-    this->pose = pose;
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
-  };
 
  
 
@@ -140,14 +128,14 @@ public:
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
     box->getOSGPrimitive()->setTexture("Images/wall.rgb");
-    boxList.push_back(box);
+    obst.push_back(box);
 
     offset.x() = length/2 + width/2;
     box = new Box( width , (length * factorlength2) + 2 * width , height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
     box->getOSGPrimitive()->setTexture("Images/wall.rgb");
-    boxList.push_back(box);
+    obst.push_back(box);
 
     offset.x() = 0;
     offset.y() = -( (length*factorlength2)/2 +width/2);
@@ -155,37 +143,19 @@ public:
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
     box->getOSGPrimitive()->setTexture("Images/wall.rgb");
-    boxList.push_back(box);
+    obst.push_back(box);
 
     offset.y() = (length*factorlength2)/2 +width/2;
     box = new Box( length, width, height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
     box->getOSGPrimitive()->setTexture("Images/wall.rgb");
-    boxList.push_back(box);
-
-    // ground plane
-    offset.x() = 0;
-    offset.y() = 0;
-    offset.z() = -0.05f;
-    box = new Box( length, length, 0.1f);
-    box->init(odeHandle, 0, osgHandle,
-		 Primitive::Geom | Primitive::Draw);
-    box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setColor(Color(1.0f,1.0f,1.0f));
-    box->getOSGPrimitive()->setTexture("Images/greenground.rgb", true, true);
-    boxList.push_back(box);
+    obst.push_back(box);
     
+    // size of groundplane
+    ground_length=length;
+
     obstacle_exists=true;
-  };
-
-
-  virtual void destroy(){
-    for(vector<Box*>::iterator i=boxList.begin(); i != boxList.end(); i++){
-      delete(*i); 
-    }
-    boxList.clear(); // delete references
-    obstacle_exists=false;
   };
 
 };
