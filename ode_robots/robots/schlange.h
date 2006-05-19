@@ -26,7 +26,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.7  2006-03-30 12:34:56  martius
+ *   Revision 1.15.4.8  2006-05-19 09:04:38  der
+ *   -setTexture and setHeadTexture added
+ *   -uses now whitemetal texture
+ *
+ *   Revision 1.15.4.7  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.15.4.6  2006/03/29 15:08:54  martius
@@ -102,7 +106,7 @@ public:
     conf.segmNumber = 10;    //  number of snake elements
     conf.segmLength = 0.8;   // length of one snake element
     conf.segmDia    = 0.2;   //  diameter of a snake element
-    conf.segmMass   = 0.4;   //  mass of one snake element
+    conf.segmMass   = 0.1;//0.4   //  mass of one snake element
     conf.motorPower = 1;    //  power of the servos
     conf.sensorFactor = 1;    //  scale for sensors
     conf.frictionGround = 1.0; // friction with ground
@@ -186,6 +190,17 @@ public:
       return (objects[0]);
     }else return 0;
   }
+
+  /** sets a texture to the body of the snake
+   * note: the head texture of the snake is set by
+   * this method too!
+   */
+  virtual void setTexture(const std::string& filename);
+  
+  /** sets a texture to the head of the snake
+   */
+  virtual void setHeadTexture(const std::string& filename);
+
 protected:
 
   /** creates vehicle at desired pose

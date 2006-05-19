@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20.4.6  2006-02-23 18:05:04  martius
+ *   Revision 1.20.4.7  2006-05-19 09:03:50  der
+ *   -setTexture and setHeadTexture added
+ *   -uses now whitemetal texture
+ *
+ *   Revision 1.20.4.6  2006/02/23 18:05:04  martius
  *   friction with angularmotor
  *
  *   Revision 1.20.4.5  2006/02/01 18:33:40  martius
@@ -216,21 +220,70 @@ namespace lpzrobots {
 	
     int half = conf.segmNumber/2;
     for ( int n = 0; n < conf.segmNumber; n++ ) {
-      Primitive* p = new Capsule(conf.segmDia/2 , conf.segmLength);
-      p->init(odeHandle, conf.segmMass, osgHandle);    
+      Primitive* p;
+      if (n==-1* conf.segmNumber/2) {
+		p = new Box(conf.segmLength*1.8,conf.segmLength*.8, conf.segmLength*1);
+		//p = new Capsule(conf.segmDia*2 , conf.segmLength);
+	p->init(odeHandle, conf.segmMass*2, osgHandle);    
+      }
+      //    else {
+      //if(n==0 || n== conf.segmNumber){ 
+
+      //  p = new Box(conf.segmLength,conf.segmLength*2, conf.segmLength);
+      //  p->init(odeHandle, conf.segmMass*2, osgHandle);
+      //	}	
+      else{
+
+
+	if(n==-1/*== 0 | n== conf.segmNumber-1*/){ 
+	  p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
+	// p = new Box(conf.segmLength*.3,conf.segmLength, conf.segmLength*.9);
+        p->init(odeHandle, conf.segmMass*4, osgHandle);}
+	else{
+	  	p = new Capsule(conf.segmDia*.8 , conf.segmLength); 
+		//	p = new Box(conf.segmLength*.3,conf.segmLength*0.3, conf.segmLength*1.0);
+	p->init(odeHandle, conf.segmMass, osgHandle); 
+	} }  
+	//	else {
+
+      //      p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
+      //		 osg::Matrix::translate((n-half)*conf.segmLength*(1+((double)n)/10), 0 , conf.segmDia/2) * 
+      //		 pose);
       p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
+	     //  p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
 		 osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * 
 		 pose);
-      p->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      //      p->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      //  p->getOSGPrimitive()->setTexture("Images/tire.rgb");
+      p->getOSGPrimitive()->setTexture("Images/whitemetal_farbig.rgb");
+      p->getOSGPrimitive()->setColor(Color(0.0f,0.0f,1.0f,0.2f));
+      
       objects.push_back(p);
-    }
+	}
     
     created=true;
   }; 
 
+  void Schlange::setTexture(const std::string& filename){
+    if(created) {
+      // go through all objects (primites)
+      for(int n = 0; n < conf.segmNumber; n++){
+	objects[n]->getOSGPrimitive()->setTexture(filename);
+      }      
+    }
+  }
 
-  /** destroys vehicle and space
-   */
+
+  void Schlange::setHeadTexture(const std::string& filename){
+    if(created) {
+      objects[0]->getOSGPrimitive()->setTexture(filename);
+    }      
+  }
+ 
+
+
+  /** destroys vehicle and space    */
+
   void Schlange::destroy(){
     if (created){
       for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
