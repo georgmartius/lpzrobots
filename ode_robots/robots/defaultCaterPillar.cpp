@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-05-15 21:11:12  robot5
+ *   Revision 1.1.2.7  2006-05-22 14:19:11  robot5
+ *   Added variable conf.firstJoint to represent the first slider type in the alternating sequence.
+ *   Code cleaning.
+ *
+ *   Revision 1.1.2.6  2006/05/15 21:11:12  robot5
  *   Using slider and universal joints now (alternating)
  *
  *   Revision 1.1.2.5  2006/05/09 08:47:00  robot3
@@ -215,11 +219,11 @@ namespace lpzrobots {
     int half = conf.segmNumber/2;
 
     for ( int n = 0; n < conf.segmNumber; n++ ) {
-      Primitive* p = new Box(conf.segmDia/2, conf.segmDia*2, conf.segmLength);
+      Primitive* p = new Box(conf.segmDia/2, conf.segmDia*3, conf.segmLength);
 
-      p->init(odeHandle, conf.segmMass, osgHandle);    
+      p->init(odeHandle, conf.segmMass, osgHandle);
       p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
-		 osg::Matrix::translate((n-half)*conf.segmLength*0.7, 0 , conf.segmDia/2) *  // made boxes overlapping for not seeing any gaps (*0.7)
+		 osg::Matrix::translate((n-half)*conf.segmLength*0.7, 0 , conf.segmDia/2) *
 		 pose);
       p->getOSGPrimitive()->setTexture("Images/dusty.rgb");
       objects.push_back(p);

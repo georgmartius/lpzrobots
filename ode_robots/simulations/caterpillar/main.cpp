@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-05-15 13:11:29  robot3
+ *   Revision 1.1.2.5  2006-05-22 14:19:11  robot5
+ *   Added variable conf.firstJoint to represent the first slider type in the alternating sequence.
+ *   Code cleaning.
+ *
+ *   Revision 1.1.2.4  2006/05/15 13:11:29  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -84,7 +88,7 @@ public:
         
     OdeAgent* agent;
     AbstractWiring* wiring;
-    OdeRobot* robot;
+//    OdeRobot* robot;
     AbstractController *controller;
     
     CaterPillar* myCaterPillar;
@@ -92,8 +96,8 @@ public:
     //******* R A U P E  *********/
     myCaterPillarConf.segmNumber=7;
     myCaterPillarConf.jointLimit=M_PI/4;
-    myCaterPillarConf.motorPower=0.8; //0.2
-    myCaterPillarConf.frictionGround=0.04; //0.01
+    myCaterPillarConf.motorPower=0.8;
+    myCaterPillarConf.frictionGround=0.04;
     myCaterPillar = new CaterPillar ( odeHandle, osgHandle.changeColor(Color(0.0f,1.0f,0.0f)), myCaterPillarConf, "Raupe1");
     ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0.2)); 
     

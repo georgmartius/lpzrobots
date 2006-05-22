@@ -32,7 +32,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-05-09 04:24:34  robot5
+ *   Revision 1.1.2.4  2006-05-22 14:19:11  robot5
+ *   Added variable conf.firstJoint to represent the first slider type in the alternating sequence.
+ *   Code cleaning.
+ *
+ *   Revision 1.1.2.3  2006/05/09 04:24:34  robot5
  *   *** empty log message ***
  *
  *   Revision 1.1.2.2  2006/04/11 13:27:48  robot3
@@ -70,6 +74,7 @@ public:
   double frictionGround;  //< friction with ground
   double frictionJoint;   //< friction within joint
   double jointLimit;      //< maximal angle for the joints (M_PI/2 = 90 degree)
+  int firstJoint;	//< first joint type to use: 0=sliderJoint, 1=universalJoint
 } CaterPillarConf;
 
 
@@ -95,7 +100,7 @@ public:
 
   static CaterPillarConf getDefaultConf(){
     CaterPillarConf conf;
-    conf.segmNumber = 10;    //  number of snake elements
+    conf.segmNumber = 7;    //  number of snake elements
     conf.segmLength = 0.4;   // length of one snake element
     conf.segmDia    = 0.2;   //  diameter of a snake element
     conf.segmMass   = 0.4;   //  mass of one snake element
@@ -104,6 +109,7 @@ public:
     conf.frictionGround = 1.0; // friction with ground
     conf.frictionJoint = 0.1; // friction within joint
     conf.jointLimit =  M_PI/8;
+    conf.firstJoint=1;
     return conf;
   }
 

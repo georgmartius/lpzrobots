@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-05-16 07:57:48  robot3
+ *   Revision 1.1.2.8  2006-05-22 14:19:11  robot5
+ *   Added variable conf.firstJoint to represent the first slider type in the alternating sequence.
+ *   Code cleaning.
+ *
+ *   Revision 1.1.2.7  2006/05/16 07:57:48  robot3
  *   fixed getSensor() and getMotor() bug
  *
  *   Revision 1.1.2.6  2006/05/15 21:11:12  robot5
@@ -71,11 +75,10 @@ namespace lpzrobots {
    assert(created);
    unsigned int len = min(motornumber, getMotorNumber())/2;
    // controller output as torques 
-   unsigned int usedSliders=0;
    for(unsigned int i=0; (i<len) && (i<sliderServos.size()); i++) {
     sliderServos[i]->set(motors[i]);
-    usedSliders++;
    }
+   unsigned int usedSliders=min(len,sliderServos.size());
    for(unsigned int i=0; (i<len) && (i<universalServos.size()); i++) {
     universalServos[i]->set(motors[usedSliders+2*i], motors[usedSliders+2*i+1]);
    }
@@ -91,12 +94,11 @@ namespace lpzrobots {
   int CaterPillar::getSensors(sensor* sensors, int sensornumber) {
    assert(created);
    unsigned int len=min(sensornumber, getSensorNumber());
-   unsigned int usedSliders=0;
    // get the SliderServos
    for(unsigned int n=0; (n<len) && (n<sliderServos.size()); n++) {
     sensors[n] = sliderServos[n]->get();
-    usedSliders++;
    }
+   unsigned int usedSliders=min(len,sliderServos.size());
    // get the universalServos (2 sensors each!)
    for(unsigned int n=0; (n<len) && (n<universalServos.size()); n++) {
     sensors[usedSliders+2*n] = universalServos[n]->get1();
@@ -115,21 +117,31 @@ namespace lpzrobots {
    for(int n=0; n<conf.segmNumber-1; n++) {
     const Pos& p1(objects[n]->getPosition());
     const Pos& p2(objects[n+1]->getPosition());
-    if(n%2==0) {
-     // new slider joints //
-     SliderJoint *s=new SliderJoint(objects[n], objects[n+1], osg::Vec3((0), (conf.segmDia), (0)), Axis(1,0,0)* pose);
+
+
+    if((n+conf.firstJoint)%2==0) {
+
+
+
+     // slider joints //
+     SliderJoint *s=new SliderJoint(objects[n],objects[n+1],osg::Vec3((0), (conf.segmDia), (0)), Axis(1,0,0)* pose);
      s->init(odeHandle, osgHandle);
-     s->setParam(dParamLoStop, -0.5*conf.segmDia);
-     s->setParam(dParamHiStop, 0.5*conf.segmDia);
+     s->setParam(dParamLoStop, -0.25*conf.segmLength);
+     s->setParam(dParamHiStop,  0.25*conf.segmLength);
+     s->setParam(dParamCFM, 0.1);
      s->setParam(dParamStopCFM, 0.1);
      s->setParam(dParamStopERP, 0.9);
-     s->setParam(dParamCFM, 0.001);
      joints.push_back(s);
 
      SliderServo *ss = new SliderServo(s,-conf.segmDia,conf.segmDia,conf.segmMass);
      sliderServos.push_back(ss);
-     // end of new slider joints //
+     // end of slider joints //
+
+
     } else {
+
+
+
      // normal servos creating //
      UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
 					    (p1 + p2)/2,
@@ -146,7 +158,12 @@ namespace lpzrobots {
      universalServos.push_back(servo);
      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, conf.frictionJoint, conf.frictionJoint));
      // end of normal servos //
+
     }
+
+
+
+
    }
   }
 
