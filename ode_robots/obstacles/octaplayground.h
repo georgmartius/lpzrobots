@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.9  2006-05-19 08:42:36  robot3
+ *   Revision 1.4.4.10  2006-05-23 13:37:22  robot3
+ *   -fixed some creating bugs
+ *   -setColor,setTexture and createGround must be
+ *    called before setPosition now
+ *
+ *   Revision 1.4.4.9  2006/05/19 08:42:36  robot3
  *   -some code moved to abstractground.h
  *   -it's now possible creating a playground without a groundplane
  *
@@ -64,7 +69,6 @@
 
 #include <math.h>
 #include <vector>
-#include <osg/Matrix>
 
 #include "primitive.h"
 #include "abstractground.h"
@@ -72,7 +76,9 @@
 namespace lpzrobots {
 
   class OctaPlayground : public AbstractGround {
-    
+  
+
+  protected:
     double radius, width, height;
     
     int number_elements;
@@ -104,17 +110,19 @@ protected:
     //  r is the smallest distance of the secant to the center of the circle.
     double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;
     for (int i=0; i<number_elements; i++){
-      obst[i] = new Box(width , box_length , height);
-      obst[i]->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+      Box* box =  new Box(width , box_length , height);
+      box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       osg::Matrix R = osg::Matrix::rotate(- i*angle, 0,0,1) * 
 	osg::Matrix::translate( cos(M_PI - i*angle) * r, 
 				sin(M_PI - i*angle) * r, 
-				height/2) * pose;
-      obst[i]->setPose(R);
-      obst[i]->getOSGPrimitive()->setTexture("Images/wall.rgb");
+				height/2+0.01f /*reduces graphic errors and ode collisions*/
+				)* pose;
+      box->setPose(R);
+      box->getOSGPrimitive()->setTexture(wallTextureFileName);
+      obst.push_back(box);
     }
     // size of groundplane
-    ground_length=2.0*r;
+    ground_length=2.0*r; 
     obstacle_exists=true;
   };
 

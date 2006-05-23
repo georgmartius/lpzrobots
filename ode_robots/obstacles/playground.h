@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.10  2006-05-19 08:42:54  robot3
+ *   Revision 1.10.4.11  2006-05-23 13:37:34  robot3
+ *   -fixed some creating bugs
+ *   -setColor,setTexture and createGround must be
+ *    called before setPosition now
+ *
+ *   Revision 1.10.4.10  2006/05/19 08:42:54  robot3
  *   -some code moved to abstractground.h
  *   -it's now possible creating a playground without a groundplane
  *
@@ -96,7 +101,9 @@
 namespace lpzrobots {
 
 //Fixme: playground creates collisions with ground and itself
+//fixed: collisions with ground
 class Playground : public AbstractGround {
+
 protected:
 
   double length, width, height;
@@ -123,18 +130,20 @@ public:
  protected:
   virtual void create(){
     Box* box;
-    osg::Vec3 offset(- (length/2 + width/2), 0, height/2);
+    osg::Vec3 offset(- (length/2 + width/2),
+		     0,
+		     height/2+0.01f/*reduces graphic errors and ode collisions*/);
     box = new Box( width , (length * factorlength2) + 2 * width , height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture("Images/wall.rgb");
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
 
     offset.x() = length/2 + width/2;
     box = new Box( width , (length * factorlength2) + 2 * width , height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture("Images/wall.rgb");
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
 
     offset.x() = 0;
@@ -142,14 +151,14 @@ public:
     box = new Box( length, width, height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture("Images/wall.rgb");
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
 
     offset.y() = (length*factorlength2)/2 +width/2;
     box = new Box( length, width, height);
     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture("Images/wall.rgb");
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
     
     // size of groundplane

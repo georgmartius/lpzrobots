@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.6  2006-05-18 12:54:24  robot3
+ *   Revision 1.8.4.7  2006-05-23 13:38:02  robot3
+ *   -fixed some creating bugs
+ *   -setColor,setTexture and createGround must be
+ *    called before setPosition now
+ *
+ *   Revision 1.8.4.6  2006/05/18 12:54:24  robot3
  *   -fixed not being able to change the color after positioning
  *    the obstacle
  *   -cleared the files up
@@ -69,6 +74,7 @@
 
 #include "odehandle.h"
 #include "osghandle.h"
+#include <osg/Matrix>
 
 namespace lpzrobots {
 
@@ -86,6 +92,9 @@ class AbstractObstacle{
    */
   AbstractObstacle(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
     : odeHandle(odeHandle), osgHandle(osgHandle) {
+    // initialize the pose matrix correctly
+    pose=osg::Matrix::translate(0,0,0);
+    obstacle_exists=false;
   };
 
   virtual ~AbstractObstacle(){}
@@ -130,6 +139,7 @@ osg::Matrix getPose(){ return pose; }
       destroy();
       create();
     }
+    obstacle_exists=true;
   };
 
 

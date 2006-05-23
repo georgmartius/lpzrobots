@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-05-19 08:41:27  robot3
+ *   Revision 1.1.2.2  2006-05-23 13:37:45  robot3
+ *   -fixed some creating bugs
+ *   -setColor,setTexture and createGround must be
+ *    called before setPosition now
+ *
+ *   Revision 1.1.2.1  2006/05/19 08:41:27  robot3
  *   Class AbstractGround contains now basic routines like
  *   creating the groundPlane, setPose and so on
  *
@@ -50,40 +55,65 @@ public:
 
   AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, bool createGround=true):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), creategroundPlane(createGround) {
-    obstacle_exists=false;
     ground_length=10.0f;
+    wallTextureFileName="Images/wall.rgb";
   };
   
   virtual ~AbstractGround(){
     destroy();
-    obst.clear();
   }
 
   virtual void update(){
-    for (unsigned int i=0; i<obst.size(); i++){
-      if(obst[i]) obst[i]->update();
+    if (obstacle_exists){
+      for (unsigned int i=0; i<obst.size(); i++){
+	if(obst[i]) obst[i]->update();
+      }
+      if (groundPlane) groundPlane->update();
     }
-    if (groundPlane) groundPlane->update();
   };
   
 
   virtual void setPose(const osg::Matrix& pose){
     this->pose = pose;
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
-    createGround();
+    recreate();
   };
 
   virtual void createGround(bool create) {
     creategroundPlane=create;
-    if (obstacle_exists){
-      destroy();
-      this->create();
-      this->createGround();
+    if (obstacle_exists) {
+      std::cout << "ERROR: createGround(bool create)  has no effect AFTER setPosition(osg::Vec3) !!!" 
+		<< std::endl;
+      std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
+      exit(-1);
     }
   }
+
+  /**
+   * sets the obstacle color
+   * @param color values in RGBA
+   */
+  virtual void setColor(const Color& color) {
+    osgHandle.color = color;
+    if (obstacle_exists) {
+      std::cout << "ERROR: setColor(const Color& color) has no effect AFTER setPosition(osg::Vec3) !!!"
+		<< std::endl;
+      std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
+      exit(-1);
+    }
+  };
+
+
+  virtual void setTexture(const std::string& filename){
+    wallTextureFileName=filename;
+    if (obstacle_exists) {
+      std::cout << "ERROR: "
+		<< "setTexture(const std::sting& filename) has no effect AFTER setPosition(osg::Vec3) !!!"
+		<< std::endl;
+      std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
+      exit(-1);
+    }
+  }
+
 
 protected:
 
@@ -91,6 +121,16 @@ protected:
     Box* groundPlane; // the groundplane
     bool creategroundPlane;
     double ground_length;
+    string wallTextureFileName;
+
+    virtual void recreate() {
+      if (obstacle_exists){
+	destroy();
+      }
+      create();
+      createGround();
+      obstacle_exists=true;
+    }
 
     virtual void create()=0;
 
@@ -109,11 +149,14 @@ protected:
 
   virtual void destroy(){
     for(unsigned int i=0; i < obst.size(); i++){
-      if(obst[i]) delete obst[i];
+      if(obst[i]) delete(obst[i]);
     }
+    obst.clear();
     if (groundPlane) delete(groundPlane);
+    groundPlane=0;
     obstacle_exists=false;
   };
+  
 
 };
 
