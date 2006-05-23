@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20.4.7  2006-05-19 09:03:50  der
+ *   Revision 1.20.4.8  2006-05-23 13:39:02  robot3
+ *   setting color to blue in init removed
+ *
+ *   Revision 1.20.4.7  2006/05/19 09:03:50  der
  *   -setTexture and setHeadTexture added
  *   -uses now whitemetal texture
  *
@@ -256,7 +259,7 @@ namespace lpzrobots {
       //      p->getOSGPrimitive()->setTexture("Images/wood.rgb");
       //  p->getOSGPrimitive()->setTexture("Images/tire.rgb");
       p->getOSGPrimitive()->setTexture("Images/whitemetal_farbig.rgb");
-      p->getOSGPrimitive()->setColor(Color(0.0f,0.0f,1.0f,0.2f));
+      //      p->getOSGPrimitive()->setColor(Color(0.0f,0.0f,1.0f,0.2f));
       
       objects.push_back(p);
 	}
