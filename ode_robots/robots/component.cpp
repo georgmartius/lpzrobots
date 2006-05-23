@@ -120,6 +120,17 @@ namespace lpzrobots
 
     }
 
+    bool Component::hasSubcomponent ( Component* subcomp )
+    {
+	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	{
+
+	}
+
+
+	    return false;
+    }
+
     bool Component::setSoftlink ( unsigned int position , bool state )
     {
 	if ( connection.size () >= position )

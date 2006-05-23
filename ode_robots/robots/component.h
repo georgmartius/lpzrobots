@@ -171,6 +171,13 @@ virtual Component* removeSubcomponent ( int removedsubcomponentnumber );
 virtual Component* removeSubcomponent ( Component* removedsubcomponent );
 
 /**
+ *This method looks if a special component is a subcomponent of this component. Only direct subcomponents are registrated.
+ *@param the component, which could be a subcomponent of this component
+ *@return true if it is a subcomponent, false if not
+ **/
+virtual bool Component::hasSubcomponent ( Component* subcomp );
+
+/**
  *Sets the connection between the component and one of its subcomponents to be a softlink. That means that the recusion for this branch stops here.
  *@param number of the subcomponent in the subcomponent list of the component
  *@param true = connection becomes a softlink
