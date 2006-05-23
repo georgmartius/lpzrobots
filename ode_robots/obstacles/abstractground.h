@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-05-23 13:37:45  robot3
+ *   Revision 1.1.2.3  2006-05-23 14:13:41  der
+ *   fixed initialization bug
+ *
+ *   Revision 1.1.2.2  2006/05/23 13:37:45  robot3
  *   -fixed some creating bugs
  *   -setColor,setTexture and createGround must be
  *    called before setPosition now
@@ -56,6 +59,7 @@ public:
   AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, bool createGround=true):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), creategroundPlane(createGround) {
     ground_length=10.0f;
+    groundPlane=0;
     wallTextureFileName="Images/wall.rgb";
   };
   
@@ -68,7 +72,8 @@ public:
       for (unsigned int i=0; i<obst.size(); i++){
 	if(obst[i]) obst[i]->update();
       }
-      if (groundPlane) groundPlane->update();
+      if (groundPlane)
+	groundPlane->update();
     }
   };
   
