@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-15 13:08:34  robot3
+ *   Revision 1.1.2.6  2006-05-23 21:13:08  martius
+ *   - add virtual destructor
+ *
+ *   Revision 1.1.2.5  2006/05/15 13:08:34  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
  *   -CTRL-G now restarts the GuiLogger
@@ -112,6 +115,8 @@ public:
   PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; logfile=0; }
   PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, int interval = 1)
     :mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0; logfile=0;}
+
+  virtual ~PlotOption(){}
 
   // switches between the plot type pause and window
   virtual void switchPlotType();
