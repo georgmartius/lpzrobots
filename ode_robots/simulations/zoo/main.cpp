@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.10  2006-05-18 14:16:03  robot3
+ *   Revision 1.11.4.11  2006-05-24 09:17:10  robot3
+ *   snake is now colored (not blue)
+ *
+ *   Revision 1.11.4.10  2006/05/18 14:16:03  robot3
  *   -inserted SphereRobot3Masses
  *   -inserted CaterPillar
  *   -inserted SchlangeServo2
@@ -181,7 +184,7 @@ public:
     snakeConf.segmNumber=4;
     snakeConf.frictionGround=0.01;
 
-    snake = new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0,0.5,0.8)), snakeConf, "Schlange" );
+    snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "Schlange" );
     ((OdeRobot*) snake)->place(Pos(4,4,0)); 
     controller = new InvertMotorNStep(invertnconf);     
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
