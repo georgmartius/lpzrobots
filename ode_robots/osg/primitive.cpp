@@ -22,7 +22,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.12  2006-03-30 12:34:53  martius
+ *   Revision 1.1.2.13  2006-05-24 12:23:10  robot3
+ *   -passive_mesh works now (simple bound_version)
+ *   -Primitive Mesh now exists (simple bound_version)
+ *
+ *   Revision 1.1.2.12  2006/03/30 12:34:53  martius
  *   documentation updated
  *
  *   Revision 1.1.2.11  2006/03/29 15:06:58  martius
@@ -365,5 +369,46 @@ namespace lpzrobots{
   void Transform::update(){
     if(child) child->update();
   }
+
+  /******************************************************************************/
+
+  Mesh::Mesh(const std::string& filename,float scale) {    
+    osgmesh = new OSGMesh(filename, scale);
+  }
+
+  Mesh::~Mesh(){
+    if(osgmesh) delete osgmesh; 
+  }
+
+  void Mesh::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
+		     char mode) {
+    assert(mode & Body || mode & Geom);
+    this->mode=mode;
+    if (mode & Draw){
+      osgmesh->init(osgHandle);
+    }
+    if (mode & Body){
+      body = dBodyCreate (odeHandle.world);
+      dMass m;
+      dMassSetSphere(&m, 1, osgmesh->getRadius()); // we use a sphere
+      dMassAdjust (&m, mass); 
+      dBodySetMass (body,&m); //assign the mass to the body
+    } 
+    if (mode & Geom){    
+      geom = dCreateSphere ( odeHandle.space , osgmesh->getRadius());
+      if (mode & Body)
+	dGeomSetBody (geom, body); // geom is assigned to body      
+    }
+  }
+
+  void Mesh::update(){
+    if(mode & Draw) {
+      if(body)
+	osgmesh->setMatrix(osgPose(body));
+      else 
+	osgmesh->setMatrix(osgPose(geom));
+    }
+  }
+
 
 }

@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-04-04 14:13:24  fhesse
+ *   Revision 1.1.2.10  2006-05-24 12:23:10  robot3
+ *   -passive_mesh works now (simple bound_version)
+ *   -Primitive Mesh now exists (simple bound_version)
+ *
+ *   Revision 1.1.2.9  2006/04/04 14:13:24  fhesse
  *   documentation improved
  *
  *   Revision 1.1.2.8  2006/03/29 15:07:17  martius
@@ -200,6 +204,23 @@ public:
 
 protected:
   OSGCapsule* osgcapsule;
+};
+
+
+/** Mesh primitive */
+class Mesh : public Primitive {
+public:
+  Mesh(const std::string& filename,float scale);
+  virtual ~Mesh();
+  virtual void init(const OdeHandle& odeHandle, double mass,
+		    const OsgHandle& osgHandle,
+		    char mode = Body | Geom | Draw) ;
+  virtual float getRadius() { return osgmesh->getRadius(); };
+  virtual void update();
+  virtual OSGPrimitive* getOSGPrimitive() { return osgmesh; }
+
+protected:
+  OSGMesh* osgmesh;
 };
 
 

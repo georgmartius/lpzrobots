@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-05-18 12:54:24  robot3
+ *   Revision 1.1.2.4  2006-05-24 12:23:10  robot3
+ *   -passive_mesh works now (simple bound_version)
+ *   -Primitive Mesh now exists (simple bound_version)
+ *
+ *   Revision 1.1.2.3  2006/05/18 12:54:24  robot3
  *   -fixed not being able to change the color after positioning
  *    the obstacle
  *   -cleared the files up
@@ -75,7 +79,10 @@ public:
    * updates the position of the geoms  ( not nessary for static objects)
    */
   virtual void update(){
+    
   };
+
+
   
   
   virtual void setPose(const osg::Matrix& pose){
@@ -85,6 +92,7 @@ public:
     }
     create();
   };
+
 
 
  protected:
@@ -101,9 +109,10 @@ public:
       printf("use default bounding box, because bbox file not found\n");
       bound = new Sphere(bsphere.radius()); 
       bound->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.2)), Primitive::Geom | Primitive::Draw);    
-      bound->setPose(osg::Matrix::translate(bsphere.center()));      
+      bound->setPose(osg::Matrix::translate(bsphere.center())*
+		     osg::Matrix::translate(0.0f,0.0f,bsphere.radius()));       // set sphere higher
+      mesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,bsphere.radius())*pose); // set obstacle higher
     }
-
     obstacle_exists=true;
   };
 

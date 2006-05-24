@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.14  2006-05-18 12:28:39  robot3
+ *   Revision 1.1.2.15  2006-05-24 12:23:10  robot3
+ *   -passive_mesh works now (simple bound_version)
+ *   -Primitive Mesh now exists (simple bound_version)
+ *
+ *   Revision 1.1.2.14  2006/05/18 12:28:39  robot3
  *   added a dummy texture to every osgprimitive for correct shadowing
  *
  *   Revision 1.1.2.13  2006/05/18 10:33:39  robot3
@@ -331,6 +335,9 @@ namespace lpzrobots {
   OSGMesh::~OSGMesh(){
   }
 
+  float OSGMesh::getRadius() {
+    return getGroup()->getBound().radius(); 
+  }
   void OSGMesh::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
     transform = new MatrixTransform;        

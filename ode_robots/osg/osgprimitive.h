@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-05-18 07:39:41  robot3
+ *   Revision 1.1.2.11  2006-05-24 12:23:10  robot3
+ *   -passive_mesh works now (simple bound_version)
+ *   -Primitive Mesh now exists (simple bound_version)
+ *
+ *   Revision 1.1.2.10  2006/05/18 07:39:41  robot3
  *   -setTexture(string& filename,bool repeatOnX, bool repeatOnY) added
  *    note that this does not work yet (the bool parameter have no effect)
  *
@@ -218,8 +222,9 @@ namespace lpzrobots {
     OSGMesh(const std::string& filename, float scale = 1, const osgDB::ReaderWriter::Options* options = 0);
     ~OSGMesh();
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
-
+    virtual float getRadius();
     float getScale() { return scale; }
+
   protected:
     std::string filename;
     float scale;  
