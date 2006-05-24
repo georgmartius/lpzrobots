@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-05-16 08:57:51  robot3
+ *   Revision 1.1.2.2  2006-05-24 12:21:44  robot3
+ *   demo of the new passive mesh
+ *   CVS
+ *
+ *   Revision 1.1.2.1  2006/05/16 08:57:51  robot3
  *   first version
  *
  *   Revision 1.14.4.14  2006/05/15 13:11:30  robot3
@@ -98,6 +102,8 @@
 #include "playground.h"
 // used passive spheres
 #include "passivesphere.h"
+// used passive meshes
+#include "passivemesh.h"
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
@@ -128,9 +134,19 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(30, 0.2, 0.5));
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(6, 0.2, 1.0f));
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
+
+
+    PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
+					   "cow.osg", // the filename of the mesh
+					   0.15, // the scale factor to be used
+					   1.0); // the mass of the mesh
+    myMesh->setPosition(osg::Vec3(-1,0,0));
+    global.obstacles.push_back(myMesh);
+
+    
 
     // add passive spheres as obstacles
     // - create pointer to sphere (with odehandle, osghandle and 
@@ -140,7 +156,7 @@ public:
     // - add sphere to list of obstacles
     for (int i=0; i<= 1/*2*/; i+=2){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-      s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
+      s1->setPosition(osg::Vec3(-2.5,2.5,0));
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
@@ -154,11 +170,12 @@ public:
     // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
     // - place robot
      Nimm2Conf c = Nimm2::getDefaultConf();
-     c.bumper  = true;
-     c.cigarMode  = true;
-     c.irFront = true;
+     c.size = 1.4;
+     //     c.bumper  = true;
+     //     c.cigarMode  = true;
+     //     c.irFront = true;
      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c);    
-     vehicle->place(Pos(2,0,0));
+     vehicle->place(Pos(1.5,0,0));
 
     // use Nimm4 vehicle as robot:
     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
@@ -169,7 +186,8 @@ public:
     // create pointer to controller
     // push controller in global list of configurables
     //  AbstractController *controller = new InvertNChannelController(10);  
-    AbstractController *controller = new InvertMotorSpace(10);  
+    AbstractController *controller = new InvertMotorSpace(15);  
+    controller->setParam("s4avg",10);
     global.configs.push_back(controller);
   
     // create pointer to one2onewiring
