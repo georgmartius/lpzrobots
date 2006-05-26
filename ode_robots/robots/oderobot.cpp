@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-14 15:37:09  martius
+ *   Revision 1.1.2.4  2006-05-26 15:47:20  fhesse
+ *   using Geom in getPosition() (temporary version)
+ *
+ *   Revision 1.1.2.3  2005/12/14 15:37:09  martius
  *   robots are working with osg
  *
  *   Revision 1.1.2.2  2005/12/13 18:11:40  martius
@@ -71,8 +74,32 @@ namespace lpzrobots {
   */
   Position OdeRobot::getPosition() const {
     const Primitive* o = getMainPrimitive();    
-    if (o && o->getBody()){
-      return Position(dBodyGetPosition(o->getBody()));
+    //    if (o && o->getBody()){
+    //      return Position(dBodyGetPosition(o->getBody()));
+    //    } else {
+
+      /*********************************
+Testing
+      osg::Vec3 p(o->getPosition());
+     //((Transform*)o)->parent->getOSGPrimitive()->getTransform().computeLocalToWorldMatrix(p,NodeVisitor());
+     // osg::MatrixTransform m(((Transform*)o)->parent->getOSGPrimitive()->getTransform(), CopyOp());
+
+      //dummer weise ist das kein osg::Transform, sondern ein lpzrobots::Transform 
+      ((Transform*)o)->getOSGPrimitive()->getTransform().computeLocalToWorldMatrix(p,NodeVisitor());;
+
+      std::cout<<"Position1("<<p[0]<<", "<<p[1]<<", "<<p[2]<<") \n";
+      Position p2(dGeomGetPosition(o->parent->getGeom()));
+      Position p3(p2.x+p[0],p2.y+p[1],p2.z+p[2]);
+      std::cout<<"Position3("<<p3.x<<", "<<p3.y<<", "<<p3.z<<") \n";
+      return  p3;//Position(0,0,0);
+    }
+      ***************************************/   
+
+
+    // using the Geom has maybe the advantage to get the position of transform objects 
+    // (e.g. hand of muscledArm)
+    if (o && o->getGeom()){
+      return Position(dGeomGetPosition(o->getGeom()));
     } else return Position(0,0,0);
   }
   
