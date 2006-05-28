@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-05-18 11:42:51  robot3
+ *   Revision 1.1.2.8  2006-05-28 22:12:16  martius
+ *   - noshadow cmdline flag
+ *
+ *   Revision 1.1.2.7  2006/05/18 11:42:51  robot3
  *   -shadowing the normal scene integrated (first version)
  *   -note that there is a bug that the shadow disappears
  *    after some time (e.g. 60 minutes)
@@ -203,35 +206,32 @@ namespace lpzrobots {
 
       stateset->setTextureMode(unit,GL_TEXTURE_GEN_Q,osg::StateAttribute::ON);
 
+
       osg::Program* program = new osg::Program;
       stateset->setAttribute(program);
-
-      if (unit==0)
-        {
-	  std::cout << "not using textures." << std::endl;
-       	  osg::Shader* fragment_shader = 
-	    new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_noBaseTexture);
-      	  program->addShader(fragment_shader);
-
-	  // uniforms are for the shader program
-	  osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
-	  stateset->addUniform(shadowTextureSampler);
-        }
-      else
-        {
-	  std::cout << "using textures." << std::endl;
-	  osg::Shader* fragment_shader = 
-	    new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_withBaseTexture);
-	  program->addShader(fragment_shader);
-
- 	  // uniforms are for the shader program
-	  osg::Uniform* baseTextureSampler = new osg::Uniform("baseTexture",0);
-	  stateset->addUniform(baseTextureSampler);
-
-	  osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
-	  stateset->addUniform(shadowTextureSampler);
-        }
-        
+      if (unit==0) {
+	std::cout << "not using textures." << std::endl;
+	osg::Shader* fragment_shader = 
+	  new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_noBaseTexture);
+	program->addShader(fragment_shader);
+	
+	// uniforms are for the shader program
+	osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
+	stateset->addUniform(shadowTextureSampler);
+      } else {
+	std::cout << "using textures." << std::endl;
+	osg::Shader* fragment_shader = 
+	  new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_withBaseTexture);
+	program->addShader(fragment_shader);
+	
+	// uniforms are for the shader program
+	osg::Uniform* baseTextureSampler = new osg::Uniform("baseTexture",0);
+	stateset->addUniform(baseTextureSampler);
+	
+	osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
+	stateset->addUniform(shadowTextureSampler);
+      }
+            
       // uniform is for the shader program
       osg::Uniform* ambientBias = new osg::Uniform("ambientBias",osg::Vec2(0.7f,0.5f));
       stateset->addUniform(ambientBias);
@@ -242,7 +242,7 @@ namespace lpzrobots {
   }
 
 
-  Group* Base::makeScene(){
+  Group* Base::makeScene(bool useShadow){
     // no database loaded so automatically create Ed Levin Park..
     root = new Group;
     // the base and sky subgraphs go to set the earth sky of the
@@ -274,25 +274,29 @@ namespace lpzrobots {
     LightSource* lightSource = makeLights(root->getOrCreateStateSet());
     transform->addChild(lightSource);
     
-    Group* group = new Group; // create an extra group for the normal scene
+    Group* scene = new Group; // create an extra group for the normal scene
 
-    // enable shadows
-    Group* shadowedScene;
-
-    // transform the Vec4 in a Vec3
-    osg::Vec3 posOfLight;
-    posOfLight[0]=lightSource->getLight()->getPosition()[0];
-    posOfLight[1]=lightSource->getLight()->getPosition()[1];
-    posOfLight[2]=lightSource->getLight()->getPosition()[2];
-    
-    // create the shadowed scene, using textures
-    shadowedScene = createShadowedScene(group,posOfLight,1);
-    
-    // add the shadowed scene to the root
-    root->addChild(shadowedScene);
+    if(useShadow){
+      // enable shadows
+      Group* shadowedScene;
+      
+      // transform the Vec4 in a Vec3
+      osg::Vec3 posOfLight;
+      posOfLight[0]=lightSource->getLight()->getPosition()[0];
+      posOfLight[1]=lightSource->getLight()->getPosition()[1];
+      posOfLight[2]=lightSource->getLight()->getPosition()[2];
+      
+      // create the shadowed scene, using textures
+      shadowedScene = createShadowedScene(scene,posOfLight,1);
+      
+      // add the shadowed scene to the root
+      root->addChild(shadowedScene);
+    }else {
+      root->addChild(scene);
+    }
     
     // the normal scene
-    return group;
+    return scene;
   }
 
   Node* Base::makeSky() {

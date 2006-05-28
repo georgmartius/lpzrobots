@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.16  2006-05-15 13:07:48  robot3
+ *   Revision 1.18.4.17  2006-05-28 22:12:03  martius
+ *   - noshadow cmdline flag
+ *
+ *   Revision 1.18.4.16  2006/05/15 13:07:48  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
  *   -CTRL-G now restarts the GuiLogger
@@ -269,6 +272,7 @@ namespace lpzrobots {
     int windowWidth;
     int windowHeight;
     bool pause;
+    bool useShadow;
 
     long sim_step;
   

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.29  2006-05-15 13:07:35  robot3
+ *   Revision 1.40.4.30  2006-05-28 22:11:44  martius
+ *   - noshadow cmdline flag
+ *
+ *   Revision 1.40.4.29  2006/05/15 13:07:35  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
  *   -CTRL-G now restarts the GuiLogger
@@ -285,6 +288,7 @@ namespace lpzrobots {
     sim_step = 0;
     state    = none;
     pause    = false;
+    useShadow= true;
     viewer   = 0;
     cam      = 0;
     arguments= 0;
@@ -322,6 +326,8 @@ namespace lpzrobots {
     //set Gravity to Earth level
     dWorldSetGravity ( odeHandle.world , 0 , 0 , globalData.odeConfig.gravity );
     dWorldSetERP ( odeHandle.world , 1 );
+    dWorldSetCFM ( odeHandle.world,1e-5);
+
 
     cmd_handler_init();
 
@@ -383,7 +389,7 @@ namespace lpzrobots {
 
     osgHandle.color = Color(1,1,1,1);
 
-    osgHandle.scene=makeScene();
+    osgHandle.scene=makeScene(useShadow);
     if (!osgHandle.scene) return false;
 
     osgHandle.normalState = new StateSet();
@@ -731,7 +737,7 @@ namespace lpzrobots {
     }
 
     pause = contains(argv, argc, "-pause")!=0;
-
+    useShadow = contains(argv, argc, "-noshadow")==0;
   }
 
   // Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
@@ -753,22 +759,30 @@ namespace lpzrobots {
       // using standard collision treatment
 
       int i,n;  
-      const int N = 40;
+      const int N = 80;
       dContact contact[N];
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       if (n > 0) {
 	for (i=0; i<n; i++)
 	  {
+	    
+ 	    // contact[i].surface.mode = dContactBounce | dContactSoftCFM;
+//  	    contact[i].surface.mu = 1;
+//  	    contact[i].surface.mu2 = 0;
+//  	    contact[i].surface.bounce = 0.1;
+//  	    contact[i].surface.bounce_vel = 0.1;
+//  	    contact[i].surface.soft_cfm = 0.1;
+
 	    contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	      dContactSoftERP | dContactSoftCFM | dContactApprox1;
 	    contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
 	    contact[i].surface.slip1 = 0.005;
 	    contact[i].surface.slip2 = 0.005;
-	    contact[i].surface.soft_erp = 1;
-	    contact[i].surface.soft_cfm = 0.00001;
+	    contact[i].surface.soft_erp = 0.999;
+	    contact[i].surface.soft_cfm = 0.001;	   
 	    dJointID c = dJointCreateContact (me->odeHandle.world, 
 					      me->odeHandle.jointGroup,&contact[i]);
-	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
+	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
 	  }
       }
     }
@@ -833,6 +847,7 @@ namespace lpzrobots {
     printf("\t-r SEED\t\tuse SEED as random number seed\n");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (640x480 default)\n");
     printf("\t-pause \t\tstart in pause mode\n");
+    printf("\t-noshadow \t\tdisables shadows and shaders\n");
   }
 
   // Commandline interface stuff
