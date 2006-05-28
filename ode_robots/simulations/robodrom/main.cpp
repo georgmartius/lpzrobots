@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.3  2006-05-23 21:57:28  martius
+ *   Revision 1.15.4.4  2006-05-28 22:14:18  martius
+ *   new meshground
+ *
+ *   Revision 1.15.4.3  2006/05/23 21:57:28  martius
  *   new system
  *
  *   Revision 1.15.4.2  2005/11/16 11:27:38  martius
@@ -55,6 +58,7 @@
 #include "meshground.h"
 // used passive spheres
 #include "passivesphere.h"
+#include "passivecapsule.h"
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
@@ -67,7 +71,7 @@ using namespace lpzrobots;
 
 Sphererobot3Masses* sphere ;
 //const double height = 6.5;
-const double height = 3;
+const double height = 2;
 
 
 class ThisSim : public Simulation {
@@ -145,17 +149,19 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 0.5));
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, height));
+    playground->setPosition(osg::Vec3(0,0,0.01)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
 
-    MeshGround* meshground = new MeshGround(odeHandle, osgHandle,"mesh.dat");
-    meshground->setPose(osg::Matrix::translate(0,0,0));
+    MeshGround* meshground = new MeshGround(odeHandle, osgHandle,
+					    "terrains/threebumps.ppm", "terrains/threebumps.ppm", 
+					    20, 20, height);
+    meshground->setPose(osg::Matrix::translate(0, 0, 0));
     global.obstacles.push_back(meshground);
     
-    addRobot(odeHandle, osgHandle, global, 0);
-    addRobot(odeHandle, osgHandle, global, 1);
+    //    addRobot(odeHandle, osgHandle, global, 0);
+    // addRobot(odeHandle, osgHandle, global, 1);
 
     // add passive spheres as obstacles
     // - create pointer to sphere (with odehandle, osghandle and 
@@ -163,9 +169,15 @@ public:
     // - set Pose(Position) of sphere 
     // - set a texture for the sphere
     // - add sphere to list of obstacles
-    for (int i=0; i<= 1/*2*/; i+=2){
-      PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-      s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
+    for (int i=0; i< 4; i+=1){
+      PassiveCapsule* s1 = new PassiveCapsule(odeHandle, osgHandle, 0.5,0.1);
+      s1->setPosition(osg::Vec3(-8+2*i,2,height+0.5));
+      s1->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s1);
+    }
+    for (int i=0; i< 4; i+=1){
+      PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5,0.1);
+      s1->setPosition(osg::Vec3(-8+2*i,-2,height+0.5));
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
