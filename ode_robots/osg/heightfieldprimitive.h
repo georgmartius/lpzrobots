@@ -18,48 +18,54 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************
+ *                                                                         *
+ *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2006-05-28 22:14:57  martius
+ *   Revision 1.1.2.1  2006-05-28 22:14:56  martius
  *   heightfield included
  *
- *   Revision 1.3  2005/10/25 22:24:05  martius
- *   data constructor
- *   store method
- *
- *   Revision 1.2  2005/09/13 13:22:08  martius
+ *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
  *   *** empty log message ***
  *
- *   Revision 1.1  2005/08/26 09:34:35  robot2
- *   ppm image lib
- *
- *   Revision 1.1  2005/08/02 13:18:33  fhesse
- *   function for drawing geoms
  *                                                                 *
- *                                                                         *
  ***************************************************************************/
-#ifndef __IMAGEPPM_H
-#define __IMAGEPPM_H
+#ifndef __HEIGHTFIELDPRIMITIVES_H
+#define __HEIGHTFIELDPRIMITIVES_H
 
-#include <string>
+#include "primitive.h"
+#include "osgheightfield.h"
+#include <ode/ode.h>
 
-class ImagePPM {
+namespace lpzrobots {
 
-private:
-  int image_width, image_height;
-  unsigned char *image_data;
 
-public:
-  ImagePPM ();  
-  /// data must contain width*height*3 (RGB) values!
-  ImagePPM (int width, int height, unsigned char* data);  
-  ~ImagePPM();
-  int loadImage(const std::string& filename); // load from PPM file (returns 0 if error)
-  int storeImage(const std::string& filename); // store to PPM file (returns 0 if error)
-  int width()           { return image_width;  }
-  int height()          { return image_height; }
-  unsigned char *data() { return image_data;   }
+  /** Height field primitive */
+  class HeightField : public Primitive {
+  public:
+    HeightField(const std::string& filename, float x_size, float y_size, float height);
+    HeightField(osg::HeightField* heightfield, float x_size, float y_size);
+    
+    virtual ~HeightField();
+    virtual void init(const OdeHandle& odeHandle, double mass,
+		      const OsgHandle& osgHandle,
+		      char mode = Body | Geom | Draw) ;
+    
+    
+    virtual void setPose(const osg::Matrix& pose);
+    
+    virtual void update();
+    virtual OSGPrimitive* getOSGPrimitive() { return osgheightfield; }
+  
+  protected:
+    OSGHeightField* osgheightfield;
+    dTriMeshDataID data;
+    
+    OSGPrimitive* test[20];
+  };
 
-};
+
+}
 
 #endif

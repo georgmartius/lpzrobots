@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.15  2006-05-24 12:23:10  robot3
+ *   Revision 1.1.2.16  2006-05-28 22:14:56  martius
+ *   heightfield included
+ *
+ *   Revision 1.1.2.15  2006/05/24 12:23:10  robot3
  *   -passive_mesh works now (simple bound_version)
  *   -Primitive Mesh now exists (simple bound_version)
  *
@@ -94,7 +97,6 @@
 //#include <osg/Light>
 //#include <osg/LightSource>
 #include <osg/Material>
-#include <osgDB/ReadFile>
 #include <osg/TexEnv>
 
 
@@ -105,8 +107,10 @@ namespace lpzrobots {
   using namespace osg;
   using namespace osgDB;
 
+
   // returns a material with the given color
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::DIFFUSE );
+
 
   /******************************************************************************/
 

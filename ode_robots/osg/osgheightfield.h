@@ -18,48 +18,61 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************
+ *                                                                         *
+ *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2006-05-28 22:14:57  martius
+ *   Revision 1.1.2.1  2006-05-28 22:14:56  martius
  *   heightfield included
  *
- *   Revision 1.3  2005/10/25 22:24:05  martius
- *   data constructor
- *   store method
- *
- *   Revision 1.2  2005/09/13 13:22:08  martius
+ *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
  *   *** empty log message ***
  *
- *   Revision 1.1  2005/08/26 09:34:35  robot2
- *   ppm image lib
- *
- *   Revision 1.1  2005/08/02 13:18:33  fhesse
- *   function for drawing geoms
  *                                                                 *
- *                                                                         *
  ***************************************************************************/
-#ifndef __IMAGEPPM_H
-#define __IMAGEPPM_H
+#ifndef __OSGHEIGHTFIELD_H
+#define __OSGHEIGHTFIELD_H
 
-#include <string>
 
-class ImagePPM {
+#include "osgprimitive.h"
+#include <osg/Shape>
 
-private:
-  int image_width, image_height;
-  unsigned char *image_data;
+namespace lpzrobots {
 
-public:
-  ImagePPM ();  
-  /// data must contain width*height*3 (RGB) values!
-  ImagePPM (int width, int height, unsigned char* data);  
-  ~ImagePPM();
-  int loadImage(const std::string& filename); // load from PPM file (returns 0 if error)
-  int storeImage(const std::string& filename); // store to PPM file (returns 0 if error)
-  int width()           { return image_width;  }
-  int height()          { return image_height; }
-  unsigned char *data() { return image_data;   }
+  /**
+     Graphical HeightField
+  */
+  class OSGHeightField : public OSGPrimitive {
+  public:
 
-};
+    typedef enum CodingMode {Red, Sum, LowMidHigh};
+      
+
+    OSGHeightField(osg::HeightField* heightfield,float x_size, float y_size);    
+    OSGHeightField(const std::string& filename, float x_size, float y_size, float height);
+
+    virtual void setMatrix(const osg::Matrix& matrix);
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
+
+    virtual const osg::HeightField* getHeightField() const { return field; }
+
+    /** loads an ppm image and returns the height field using the given coding and the height 
+	(maximal height of the heightfield)
+    */
+    static osg::HeightField* loadFromPPM(const std::string& filename, double height, 
+					 CodingMode codingMode=Red);
+    /// return the height using the given coding mode. The data pointer points to RGB data point
+    static double coding(CodingMode mode, const unsigned char* data);
+
+  protected:
+    osg::HeightField* field;
+    float x_size;
+    float y_size;
+  };
+
+
+
+}
 
 #endif

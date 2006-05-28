@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-05-18 12:54:24  robot3
+ *   Revision 1.1.2.10  2006-05-28 22:14:56  martius
+ *   heightfield included
+ *
+ *   Revision 1.1.2.9  2006/05/18 12:54:24  robot3
  *   -fixed not being able to change the color after positioning
  *    the obstacle
  *   -cleared the files up
@@ -89,7 +92,6 @@ class PassiveSphere : public AbstractObstacle{
   int texture;
 
   Sphere* sphere;
-
 
  public:
   

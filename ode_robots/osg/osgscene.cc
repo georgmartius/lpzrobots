@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2005-12-13 18:11:13  martius
+ *   Revision 1.1.2.4  2006-05-28 22:14:56  martius
+ *   heightfield included
+ *
+ *   Revision 1.1.2.3  2005/12/13 18:11:13  martius
  *   transform primitive added, some joints stuff done, forward declaration
  *
  *   Revision 1.1.2.2  2005/12/09 16:54:16  martius
@@ -98,7 +101,7 @@ ref_ptr<Group> _create_scene()
   shape->setColor(Vec4(1.0f, 0.3f, 0.3f, 1.0f));
   geode_2->addDrawable(shape.get());
 
-  OsgHandle osgHandle(scene.get(), hints.get(), Color(1.0f, 0.0f, 0.0f, 1.0f) );
+  OsgHandle osgHandle(scene.get(), hints.get(), new StateSet(), new StateSet(), Color(1.0f, 0.0f, 0.0f, 1.0f) );
 
   Matrix m;
 

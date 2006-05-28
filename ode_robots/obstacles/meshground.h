@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,46 +21,58 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.1  2006-05-28 22:14:57  martius
+ *   Revision 1.1.2.1  2006-05-28 22:14:56  martius
  *   heightfield included
  *
- *   Revision 1.3  2005/10/25 22:24:05  martius
- *   data constructor
- *   store method
  *
- *   Revision 1.2  2005/09/13 13:22:08  martius
- *   *** empty log message ***
- *
- *   Revision 1.1  2005/08/26 09:34:35  robot2
- *   ppm image lib
- *
- *   Revision 1.1  2005/08/02 13:18:33  fhesse
- *   function for drawing geoms
  *                                                                 *
- *                                                                         *
  ***************************************************************************/
-#ifndef __IMAGEPPM_H
-#define __IMAGEPPM_H
+#ifndef __MESHGROUND_H
+#define __MESHGROUND_H
 
-#include <string>
+#include <stdio.h>
+#include <math.h>
 
-class ImagePPM {
+#include "heightfieldprimitive.h"
+#include "abstractobstacle.h"
+ 
+namespace lpzrobots {
 
-private:
-  int image_width, image_height;
-  unsigned char *image_data;
+  class MeshGround : public AbstractObstacle {
+  protected:
 
-public:
-  ImagePPM ();  
-  /// data must contain width*height*3 (RGB) values!
-  ImagePPM (int width, int height, unsigned char* data);  
-  ~ImagePPM();
-  int loadImage(const std::string& filename); // load from PPM file (returns 0 if error)
-  int storeImage(const std::string& filename); // store to PPM file (returns 0 if error)
-  int width()           { return image_width;  }
-  int height()          { return image_height; }
-  unsigned char *data() { return image_data;   }
+    std::string filename;
+    std::string texture;
+    HeightField* heightfield;
+    double x_size;
+    double y_size;
+    double height;
+    OSGHeightField::CodingMode coding;
 
-};
+  public:
+  
+    MeshGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	       const std::string& filename, const std::string& texture, 
+	       double x_size, double y_size, double height,
+	       OSGHeightField::CodingMode coding = OSGHeightField::Red);
+
+    /**
+     * updates the position of the geoms  ( not nessary for static objects)
+     */
+    virtual void update(){
+    };
+  
+  
+    virtual void setPose(const osg::Matrix& pose);
+
+
+  protected:
+    virtual void create();
+
+
+    virtual void destroy();    
+
+  };
+}
 
 #endif

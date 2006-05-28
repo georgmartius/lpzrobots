@@ -23,7 +23,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-18 11:45:51  robot3
+ *   Revision 1.1.2.6  2006-05-28 22:14:56  martius
+ *   heightfield included
+ *
+ *   Revision 1.1.2.5  2006/05/18 11:45:51  robot3
  *   -shadowing the normal scene integrated (first version)
  *   -note that there is a bug that the shadow disappears
  *    after some time (e.g. 60 minutes)
@@ -68,7 +71,7 @@ namespace lpzrobots {
 
   class Base {
   public:
-    virtual osg::Group* makeScene();
+    virtual osg::Group* makeScene(bool useShadow);
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
     virtual osg::LightSource* makeLights(osg::StateSet* stateset);  

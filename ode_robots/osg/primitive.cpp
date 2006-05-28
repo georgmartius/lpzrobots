@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.13  2006-05-24 12:23:10  robot3
+ *   Revision 1.1.2.14  2006-05-28 22:14:57  martius
+ *   heightfield included
+ *
+ *   Revision 1.1.2.13  2006/05/24 12:23:10  robot3
  *   -passive_mesh works now (simple bound_version)
  *   -Primitive Mesh now exists (simple bound_version)
  *
@@ -116,6 +119,18 @@ namespace lpzrobots{
   Primitive::~Primitive () {
     if(geom) dGeomDestroy( geom );
     if(body) dBodyDestroy( body );
+  }
+
+
+  
+  void Primitive::setTexture(const std::string& filename){
+    if(getOSGPrimitive())
+      getOSGPrimitive()->setTexture(filename);
+  }
+  
+  void Primitive::setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY){
+    if(getOSGPrimitive())
+      getOSGPrimitive()->setTexture(filename, repeatOnX, repeatOnY);
   }
 
 

@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-05-24 12:23:10  robot3
+ *   Revision 1.1.2.11  2006-05-28 22:14:57  martius
+ *   heightfield included
+ *
+ *   Revision 1.1.2.10  2006/05/24 12:23:10  robot3
  *   -passive_mesh works now (simple bound_version)
  *   -Primitive Mesh now exists (simple bound_version)
  *
@@ -115,6 +118,11 @@ public:
 
   /// returns the assoziated osg primitive if there or 0
   virtual OSGPrimitive* getOSGPrimitive() = 0;
+
+  /// assigns a texture to the primitive
+  virtual void setTexture(const std::string& filename);
+  /// assigns a texture to the primitive, you can choose if the texture should be repeated
+  virtual void setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY);
 
   /// set the position of the primitive (orientation is preserved)
   void setPosition(const osg::Vec3& pos);

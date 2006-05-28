@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.1  2006-01-12 15:12:34  martius
+ *   Revision 1.7.4.2  2006-05-28 22:14:56  martius
+ *   heightfield included
+ *
+ *   Revision 1.7.4.1  2006/01/12 15:12:34  martius
  *   disabled for now
  *
  *   Revision 1.7  2005/10/25 22:22:46  martius
@@ -71,64 +74,52 @@
 #define __TERRAINGROUND_H
 
 
-/* #include "abstractobstacle.h" */
-/* #include "imageppm.h" */
+#include "abstractobstacle.h"
+#include "imageppm.h"
 
-/* //Fixme: Terrainground creates collisions with ground and itself */
-/* class Terrainground : public AbstractObstacle { */
+namespace lpzrobots {
 
-/*   double base_x, base_y, base_z; */
+class Terrainground : public AbstractObstacle {
 
-/*   ImagePPM heightmap; */
+  ImagePPM image;
 
-/*   bool obstacle_exists; */
+  bool obstacle_exists;
 
-/*   dGeomID terrainZ; */
-/*   char *filename; */
-/*   int TERRAINNODES;  // only in one direction */
-/*   double *pTerrainHeights; */
+  //  HeighField heighfield;
+  char *filename;
+  char *texture;
 
-/*   double size;  // size in world coordinated (in both directions) */
-/*   double height; */
-/*   int displayListNumber; */
-/*   int texture; */
+  double height;
 
-/* public: */
-/*   /// height coding using in the read in bitmap.  */
-/*   // Red: just the red channel is used; */
-/*   // Sum: the sum of all channels is used; */
-/*   // HighMidLow: Blue is least significant, Green is medium significant and Red is most significant */
-/*   typedef enum CodingMode {Red, Sum, LowMidHigh}; */
+public:
+  /// height coding using in the read in bitmap.
+  // Red: just the red channel is used;
+  // Sum: the sum of all channels is used;
+  // HighMidLow: Blue is least significant, Green is medium significant and Red is most significant
+  typedef enum CodingMode {Red, Sum, LowMidHigh};
   
-/*   /// Constructor */
-/*   // @param size size in world coordinates (in both directions) */
-/*   // @param height height in world coordinates */
-/*   Terrainground(const OdeHandle& odehandle, double size, double height, char *filename,  */
-/* 		CodingMode codingMode=Red); */
-/*   virtual ~Terrainground(); */
-
-/*   void setTextureID(int t);  */
+  /// Constructor
+  // @param size size in world coordinates (in both directions)
+  // @param height height in world coordinates
+  Terrainground(const OdeHandle& odehandle, double x_size, double y_size, double height, char *filename, char* texture, CodingMode codingMode=Red);
+  virtual ~Terrainground();
   
-/*   // draws the obstacle (terrain)    */
-/*   virtual void draw();   */
+  virtual void update();
   
-/*   virtual void setPosition(double x, double y, double z); */
+  virtual void setPose(const osg::Matrix& pose);
 
-/*   virtual void getPosition(double& x, double& y, double& z); */
-  
-/*   virtual void setGeometry(double length_, double width_, double height_); */
+protected:
+  virtual void create();
 
-/*   virtual void setColor(double r, double g, double b); */
+  virtual void destroy();
 
-/* protected: */
-/*   virtual void create(); */
-
-/*   virtual void destroy(); */
-
-/*   // return the height using the giben coding mode. The data pointer points at the red channel */
-/*   static double coding(CodingMode mode, const unsigned char* data); */
+  // return the height using the giben coding mode. The data pointer points to RGB data point
+  static double coding(CodingMode mode, const unsigned char* data);
   
 
-/* }; */
+};
+
+
+}
 
 #endif
