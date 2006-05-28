@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-05-28 22:14:56  martius
+ *   Revision 1.1.2.2  2006-05-28 22:29:46  martius
+ *   some cleanup
+ *
+ *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
  *   heightfield included
  *
  *
@@ -44,8 +47,6 @@
 #include <ode/common.h>
 
 #include "meshground.h"
-#include "terrain.h"
-
  
 namespace lpzrobots {
 
@@ -57,7 +58,7 @@ namespace lpzrobots {
 			 OSGHeightField::CodingMode coding)
     :  AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), 
        filename(filename), texture(texture), 
-       x_size(x_size), y_size(y_size), height(height), coding(coding) {
+       x_size(x_size), y_size(y_size), height(height), coding(coding){
     obstacle_exists=false;    
   };
 
