@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-29 15:03:19  martius
+ *   Revision 1.1.2.3  2006-05-29 22:22:07  martius
+ *   added std includes
+ *
+ *   Revision 1.1.2.2  2006/03/29 15:03:19  martius
  *   format documented
  *
  *   Revision 1.1.2.1  2006/03/29 14:51:45  martius
@@ -38,6 +41,9 @@
 #define __BOUNDINGSHAPE_H
 
 #include "primitive.h"
+
+#include <list>
+#include <string>
 
 namespace lpzrobots {
 
@@ -91,7 +97,7 @@ box length width height (x,y,z) (alpha, beta, gamma)
     }
 
   private:
-    list<Primitive*> geoms;
+    std::list<Primitive*> geoms;
     std::string filename;
   };
 
