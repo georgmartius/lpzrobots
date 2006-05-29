@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-05-28 22:14:57  martius
+ *   Revision 1.1.2.12  2006-05-29 21:27:02  robot3
+ *   made some preparations for the boundingshape of the Mesh
+ *
+ *   Revision 1.1.2.11  2006/05/28 22:14:57  martius
  *   heightfield included
  *
  *   Revision 1.1.2.10  2006/05/24 12:23:10  robot3
@@ -218,7 +221,7 @@ protected:
 /** Mesh primitive */
 class Mesh : public Primitive {
 public:
-  Mesh(const std::string& filename,float scale);
+  Mesh(const std::string& filename,float scale,bool drawODEBoundings=false);
   virtual ~Mesh();
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
@@ -227,8 +230,12 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive() { return osgmesh; }
 
+
 protected:
   OSGMesh* osgmesh;
+  char drawBoundingMode;
+  const std::string filename;
+  float scale;
 };
 
 

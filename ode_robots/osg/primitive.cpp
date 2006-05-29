@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.14  2006-05-28 22:14:57  martius
+ *   Revision 1.1.2.15  2006-05-29 21:26:48  robot3
+ *   made some preparations for the boundingshape of the Mesh
+ *
+ *   Revision 1.1.2.14  2006/05/28 22:14:57  martius
  *   heightfield included
  *
  *   Revision 1.1.2.13  2006/05/24 12:23:10  robot3
@@ -77,6 +80,7 @@
 
 #include "primitive.h"
 #include "pos.h"
+#include "boundingshape.h"
 
 namespace lpzrobots{
 
@@ -387,8 +391,13 @@ namespace lpzrobots{
 
   /******************************************************************************/
 
-  Mesh::Mesh(const std::string& filename,float scale) {    
+  Mesh::Mesh(const std::string& filename,float scale,bool drawODEBoundings) :
+    filename(filename), scale(scale)  {    
     osgmesh = new OSGMesh(filename, scale);
+    if (drawODEBoundings)
+      drawBoundingMode=Primitive::Geom | Primitive::Body | Primitive::Draw;
+    else
+      drawBoundingMode=Primitive::Geom | Primitive::Body;
   }
 
   Mesh::~Mesh(){
@@ -401,6 +410,19 @@ namespace lpzrobots{
     this->mode=mode;
     if (mode & Draw){
       osgmesh->init(osgHandle);
+    }
+    // read boundingshape file
+    const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
+    BoundingShape* boundshape = new BoundingShape(filename  + ".bbox" );
+    if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(0,1,0,0.2)), 
+			 getPose(), scale, drawBoundingMode)){
+      printf("use default bounding box, because bbox file not found\n");
+      Primitive* bound = new Sphere(osgmesh->getRadius()); 
+      bound->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.2)),
+		  drawBoundingMode);    
+      bound->setPose(osg::Matrix::translate(bsphere.center())*
+		     osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius()));       // set sphere higher
+      osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
     }
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
@@ -415,6 +437,7 @@ namespace lpzrobots{
 	dGeomSetBody (geom, body); // geom is assigned to body      
     }
   }
+
 
   void Mesh::update(){
     if(mode & Draw) {
