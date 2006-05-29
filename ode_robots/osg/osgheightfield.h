@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-05-28 22:14:56  martius
+ *   Revision 1.1.2.2  2006-05-29 20:10:06  martius
+ *   docu
+ *
+ *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
  *   heightfield included
  *
  *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
@@ -46,6 +49,10 @@ namespace lpzrobots {
   class OSGHeightField : public OSGPrimitive {
   public:
 
+    /// height coding using in the read in bitmap.
+    // Red: just the red channel is used;
+    // Sum: the sum of all channels is used;
+    // HighMidLow: Blue is least significant, Green is medium significant and Red is most significant
     typedef enum CodingMode {Red, Sum, LowMidHigh};
       
 
