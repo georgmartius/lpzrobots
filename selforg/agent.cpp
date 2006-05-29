@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-05-15 13:08:18  robot3
+ *   Revision 1.1.2.9  2006-05-29 12:11:12  fhesse
+ *   Agent::initLoggingFile() call added in Agent::init()
+ *
+ *   Revision 1.1.2.8  2006/05/15 13:08:18  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
  *   -CTRL-G now restarts the GuiLogger
@@ -164,6 +167,9 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
     // init the plotting pipe 
     initPlottingPipe();
 
+    // init the file
+    initLoggingFile();
+    
     return true;
   }
 }
