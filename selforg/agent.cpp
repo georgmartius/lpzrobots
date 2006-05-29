@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-05-29 12:11:12  fhesse
+ *   Revision 1.1.2.10  2006-05-29 20:43:28  martius
+ *   better file name for logging
+ *
+ *   Revision 1.1.2.9  2006/05/29 12:11:12  fhesse
  *   Agent::initLoggingFile() call added in Agent::init()
  *
  *   Revision 1.1.2.8  2006/05/15 13:08:18  robot3
@@ -281,14 +284,16 @@ void PlotOption::switchFileLogging() {
 
 void PlotOption::openFileLogging() {
   // create filename string
-  struct tm *tmnow;
+  struct tm *t;
   time_t tnow;
   time(&tnow);
-  tmnow = localtime(&tnow);
-  char date[255];
-  strcpy(date,ctime(&tnow));
-  char* logfilename =strtok(date,"\n");
-  strcat(logfilename,".log");
+  t = localtime(&tnow);
+
+  
+  char logfilename[255];
+  sprintf(logfilename,"%02i-%02i-%02i_%02i-%02i-%02i-%02i.log",
+	  t->tm_year, t->tm_mon , t->tm_mday,
+	  t->tm_hour, t->tm_hour, t->tm_min, t->tm_sec);
   if (logfile)
     fclose(logfile);
   logfile=fopen(logfilename,"w");
