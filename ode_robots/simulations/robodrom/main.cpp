@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.5  2006-05-29 18:58:13  martius
+ *   Revision 1.15.4.6  2006-05-29 20:09:36  martius
+ *   macrospheres
+ *
+ *   Revision 1.15.4.5  2006/05/29 18:58:13  martius
  *   terrainground is used again
  *
  *   Revision 1.15.4.4  2006/05/28 22:14:18  martius
@@ -157,11 +160,14 @@ public:
     global.obstacles.push_back(playground);
 
 
+//     TerrainGround* terrainground = 
+//       new TerrainGround(odeHandle, osgHandle,
+//  			"terrains/threebumps.ppm", "terrains/threebumps.ppm", 20, 20, height);
     TerrainGround* terrainground = 
       new TerrainGround(odeHandle, osgHandle,
-			"terrains/threebumps.ppm", "terrains/threebumps.ppm", 
-			20, 20, height);
-    terrainground->setPose(osg::Matrix::translate(0, 0, 0));
+			"terrains/macrospheresLMH_64.ppm", "terrains/macrospheresTex_256.ppm", 
+			20, 20, height, OSGHeightField::LowMidHigh);
+    terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
     global.obstacles.push_back(terrainground);
     
     addRobot(odeHandle, osgHandle, global, 0);
