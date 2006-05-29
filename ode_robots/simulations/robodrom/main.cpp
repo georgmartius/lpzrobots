@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.4  2006-05-28 22:14:18  martius
+ *   Revision 1.15.4.5  2006-05-29 18:58:13  martius
+ *   terrainground is used again
+ *
+ *   Revision 1.15.4.4  2006/05/28 22:14:18  martius
  *   new meshground
  *
  *   Revision 1.15.4.3  2006/05/23 21:57:28  martius
@@ -55,7 +58,7 @@
 
 // used arena
 #include "playground.h"
-#include "meshground.h"
+#include "terrainground.h"
 // used passive spheres
 #include "passivesphere.h"
 #include "passivecapsule.h"
@@ -154,14 +157,15 @@ public:
     global.obstacles.push_back(playground);
 
 
-    MeshGround* meshground = new MeshGround(odeHandle, osgHandle,
-					    "terrains/threebumps.ppm", "terrains/threebumps.ppm", 
-					    20, 20, height);
-    meshground->setPose(osg::Matrix::translate(0, 0, 0));
-    global.obstacles.push_back(meshground);
+    TerrainGround* terrainground = 
+      new TerrainGround(odeHandle, osgHandle,
+			"terrains/threebumps.ppm", "terrains/threebumps.ppm", 
+			20, 20, height);
+    terrainground->setPose(osg::Matrix::translate(0, 0, 0));
+    global.obstacles.push_back(terrainground);
     
-    //    addRobot(odeHandle, osgHandle, global, 0);
-    // addRobot(odeHandle, osgHandle, global, 1);
+    addRobot(odeHandle, osgHandle, global, 0);
+    addRobot(odeHandle, osgHandle, global, 1);
 
     // add passive spheres as obstacles
     // - create pointer to sphere (with odehandle, osghandle and 
@@ -169,12 +173,6 @@ public:
     // - set Pose(Position) of sphere 
     // - set a texture for the sphere
     // - add sphere to list of obstacles
-    for (int i=0; i< 4; i+=1){
-      PassiveCapsule* s1 = new PassiveCapsule(odeHandle, osgHandle, 0.5,0.1);
-      s1->setPosition(osg::Vec3(-8+2*i,2,height+0.5));
-      s1->setTexture("Images/dusty.rgb");
-      global.obstacles.push_back(s1);
-    }
     for (int i=0; i< 4; i+=1){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5,0.1);
       s1->setPosition(osg::Vec3(-8+2*i,-2,height+0.5));
