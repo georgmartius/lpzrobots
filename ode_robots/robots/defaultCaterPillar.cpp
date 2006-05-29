@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-05-29 20:28:43  robot5
+ *   Revision 1.1.2.9  2006-05-29 22:05:52  martius
+ *   ode_robot/Makefile should be called without argument to ensure proper build of libselforg
+ *
+ *   Revision 1.1.2.8  2006/05/29 20:28:43  robot5
  *   Annular placement of segments.
  *
  *   Revision 1.1.2.7  2006/05/22 14:19:11  robot5
@@ -220,7 +223,6 @@ namespace lpzrobots {
     odeHandle.space = dSimpleSpaceCreate (parentspace);
 	
     int half = conf.segmNumber/2;
-<<<<<<< defaultCaterPillar.cpp
 /*
     // linear positioning (snake-like)
     for(int n = 0; n < conf.segmNumber; n++) {

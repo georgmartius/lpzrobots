@@ -37,10 +37,10 @@ CXX = g++ $(CFLAGS) $(INC)
 # used for lib-packing 
 AR = ar -rs
 
-all: libselforg $(SELFORG)/libselforg.a $(LIB)
+all: libselforg $(LIB)
 
 # $(LIB): libselforg $(SELFORG)/libselforg.a Makefile.depend $(OFILES) $(UTILS)
-$(LIB):  Makefile.depend $(OFILES) $(UTILS)
+$(LIB):  Makefile.depend $(SELFORG)/libselforg.a $(OFILES) $(UTILS)
 	$(AR) $(LIB) $(OFILES)
 
 libselforg:	

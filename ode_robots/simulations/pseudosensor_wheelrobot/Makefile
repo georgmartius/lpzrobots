@@ -24,7 +24,7 @@ LIBS   = -lm \
 	-L$(ODEROBOTS) -lode_robots \
 	-L$(SELFORG)   -lselforg \
 	-L$(MATRIXLIB)  -l$(MATRIX) \
-	-lode -ldrawstuff -lGL -lGLU -lglut
+	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut
 
 INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include -I$(MATRIXLIB)
 
@@ -35,14 +35,11 @@ CXX = g++ $(CFLAGS) $(INC)
 CC = g++ $(CFLAGS)
 #CC = g++ -g3 -pg  
 
-$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a libselforg $(SELFORG)/libselforg.a Makefile Makefile.depend $(OFILES)
+$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a  Makefile Makefile.depend $(OFILES)
 	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
 
 libode_robots:	
-	cd $(ODEROBOTS) && make libode_robots.a		
-
-libselforg:	
-	cd $(SELFORG) && make libselforg.a		
+	cd $(ODEROBOTS) && make
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
