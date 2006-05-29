@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-22 14:19:11  robot5
+ *   Revision 1.1.2.6  2006-05-29 20:28:43  robot5
+ *   Annular placement of segments.
+ *
+ *   Revision 1.1.2.5  2006/05/22 14:19:11  robot5
  *   Added variable conf.firstJoint to represent the first slider type in the alternating sequence.
  *   Code cleaning.
  *
@@ -94,7 +97,7 @@ public:
     CaterPillar* myCaterPillar;
     CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
     //******* R A U P E  *********/
-    myCaterPillarConf.segmNumber=7;
+    myCaterPillarConf.segmNumber=6;
     myCaterPillarConf.jointLimit=M_PI/4;
     myCaterPillarConf.motorPower=0.8;
     myCaterPillarConf.frictionGround=0.04;

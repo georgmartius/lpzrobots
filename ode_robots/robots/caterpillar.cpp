@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-05-22 14:19:11  robot5
+ *   Revision 1.1.2.9  2006-05-29 20:28:43  robot5
+ *   Annular placement of segments.
+ *
+ *   Revision 1.1.2.8  2006/05/22 14:19:11  robot5
  *   Added variable conf.firstJoint to represent the first slider type in the alternating sequence.
  *   Code cleaning.
  *
@@ -118,13 +121,15 @@ namespace lpzrobots {
     const Pos& p1(objects[n]->getPosition());
     const Pos& p2(objects[n+1]->getPosition());
 
+    if(n%2==0) {
+     // new slider joints //
+     //SliderJoint *s=new SliderJoint(objects[n], objects[n+1], osg::Vec3((0), (conf.segmDia), (0)),Axis(1,0,0)*pose);
+     SliderJoint *s=new SliderJoint(objects[n], objects[n+1], osg::Vec3((0), (conf.segmDia), (0)),
+                                    Axis(cos(2*M_PI*(n+2)/conf.segmNumber),
+                                         0,
+                                         sin(2*M_PI*(n+2)/conf.segmNumber))*
+                                    pose);
 
-    if((n+conf.firstJoint)%2==0) {
-
-
-
-     // slider joints //
-     SliderJoint *s=new SliderJoint(objects[n],objects[n+1],osg::Vec3((0), (conf.segmDia), (0)), Axis(1,0,0)* pose);
      s->init(odeHandle, osgHandle);
      s->setParam(dParamLoStop, -0.25*conf.segmLength);
      s->setParam(dParamHiStop,  0.25*conf.segmLength);
@@ -145,7 +150,7 @@ namespace lpzrobots {
      // normal servos creating //
      UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
 					    (p1 + p2)/2,
-					    Axis(0,0,1)* pose, Axis(0,1,0)* pose);
+					    Axis(0,0,1)*pose, Axis(0,1,0)*pose);
      j->init(odeHandle, osgHandle, true, conf.segmDia/2 * 1.02);
 
      // setting stops at universal joints
@@ -165,6 +170,31 @@ namespace lpzrobots {
 
 
    }
+
+
+
+
+    // connecting first with last segment //
+    const Pos& p1(objects[0]->getPosition());
+    const Pos& p2(objects[conf.segmNumber-1]->getPosition());
+    UniversalJoint* j = new UniversalJoint(objects[0], objects[conf.segmNumber-1],
+					   (p1 + p2)/2,
+					   Axis(0,0,1)*pose, Axis(0,1,0)*pose);
+    j->init(odeHandle, osgHandle, true, conf.segmDia/2 * 1.02);
+
+    // setting stops at universal joints
+    j->setParam(dParamLoStop, -conf.jointLimit*1.5);
+    j->setParam(dParamHiStop,  conf.jointLimit*1.5);
+    joints.push_back(j);
+
+    UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
+					        -conf.jointLimit, conf.jointLimit, conf.motorPower);
+    universalServos.push_back(servo);
+    frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, conf.frictionJoint, conf.frictionJoint));
+
+
+
+
   }
 
   bool CaterPillar::setParam(const paramkey& key, paramval val) {

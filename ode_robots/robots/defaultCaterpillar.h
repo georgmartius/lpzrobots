@@ -32,7 +32,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-05-22 14:19:11  robot5
+ *   Revision 1.1.2.5  2006-05-29 20:28:43  robot5
+ *   Annular placement of segments.
+ *
+ *   Revision 1.1.2.4  2006/05/22 14:19:11  robot5
  *   Added variable conf.firstJoint to represent the first slider type in the alternating sequence.
  *   Code cleaning.
  *
@@ -100,7 +103,7 @@ public:
 
   static CaterPillarConf getDefaultConf(){
     CaterPillarConf conf;
-    conf.segmNumber = 7;    //  number of snake elements
+    conf.segmNumber = 6;    //  number of snake elements
     conf.segmLength = 0.4;   // length of one snake element
     conf.segmDia    = 0.2;   //  diameter of a snake element
     conf.segmMass   = 0.4;   //  mass of one snake element
