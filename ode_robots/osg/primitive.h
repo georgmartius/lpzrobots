@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.12  2006-05-29 21:27:02  robot3
+ *   Revision 1.1.2.13  2006-05-29 22:03:26  martius
+ *   cylinder
+ *
+ *   Revision 1.1.2.12  2006/05/29 21:27:02  robot3
  *   made some preparations for the boundingshape of the Mesh
  *
  *   Revision 1.1.2.11  2006/05/28 22:14:57  martius
@@ -215,6 +218,22 @@ public:
 
 protected:
   OSGCapsule* osgcapsule;
+};
+
+/** Cylinder primitive */
+class Cylinder : public Primitive {
+public:
+  Cylinder(float radius, float height);
+  virtual ~Cylinder();
+  virtual void init(const OdeHandle& odeHandle, double mass,
+		    const OsgHandle& osgHandle,
+		    char mode = Body | Geom | Draw) ;
+
+  virtual void update();
+  virtual OSGPrimitive* getOSGPrimitive() { return osgcylinder; }
+
+protected:
+  OSGCylinder* osgcylinder;
 };
 
 

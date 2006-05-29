@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.15  2006-05-29 21:26:48  robot3
+ *   Revision 1.1.2.16  2006-05-29 22:03:49  martius
+ *   cylinder
+ *
+ *   Revision 1.1.2.15  2006/05/29 21:26:48  robot3
  *   made some preparations for the boundingshape of the Mesh
  *
  *   Revision 1.1.2.14  2006/05/28 22:14:57  martius
@@ -348,6 +351,45 @@ namespace lpzrobots{
 	osgcapsule->setMatrix(osgPose(body));
       else 
 	osgcapsule->setMatrix(osgPose(geom));
+    }
+  }
+
+  /******************************************************************************/
+  Cylinder::Cylinder(float radius, float height) {    
+    osgcylinder = new OSGCylinder(radius, height);
+  }
+
+  Cylinder::~Cylinder(){
+    if(osgcylinder) delete osgcylinder; 
+  }
+
+  void Cylinder::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
+		     char mode) {
+    assert(mode & Body || mode & Geom);
+    this->mode=mode;
+    if (mode & Body){
+      body = dBodyCreate (odeHandle.world);
+      dMass m;
+      dMassSetCylinder(&m, 1.0, 3 , osgcylinder->getRadius(), osgcylinder->getHeight()); 
+      dMassAdjust (&m, mass); 
+      dBodySetMass (body,&m); //assign the mass to the body
+    }  
+    if (mode & Geom){    
+      geom = dCreateCylinder ( odeHandle.space , osgcylinder->getRadius(), osgcylinder->getHeight());
+      if (mode & Body)
+	dGeomSetBody (geom, body); // geom is assigned to body      
+    }
+    if (mode & Draw){
+      osgcylinder->init(osgHandle);
+    }
+  }
+
+  void Cylinder::update(){
+    if(mode & Draw) {
+      if(body)
+	osgcylinder->setMatrix(osgPose(body));
+      else 
+	osgcylinder->setMatrix(osgPose(geom));
     }
   }
 
