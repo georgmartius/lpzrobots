@@ -8,6 +8,7 @@ PREFIX=$HOME
 all: matrixlib guilogger neuronviz
 	cd selforg && make depend
 	cd ode_robots && make depend
+	@if test ! -e opende/Makefile; then echo -e "You need to setup ODE from opende folder first!\nPlease run:\ncd opende; sh autogen.sh\n./configure --enable-opcode --enable-double-precision\nmake\nmake install #(as root)"; exit; fi
 
 .PHONY: matrixlib
 matrixlib:
