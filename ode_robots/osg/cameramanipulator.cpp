@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.15  2006-04-25 09:06:16  robot3
+ *   Revision 1.1.2.16  2006-05-29 20:00:49  robot3
+ *   added pos1 (center on agent) and end (move behind agent)
+ *
+ *   Revision 1.1.2.15  2006/04/25 09:06:16  robot3
  *   *** empty log message ***
  *
  *   Revision 1.1.2.14  2006/03/28 09:55:12  robot3
@@ -218,6 +221,7 @@ namespace lpzrobots {
 	  manageAgents(key-65469);
 	  return true; // was handled
 	}
+	std::cout << key << " was pressed." << std::endl;
 	switch(key) {
 	case ' ':	
 	  {
@@ -235,6 +239,16 @@ namespace lpzrobots {
 	  }	  
 	  // TODO: pos1 for center on robot
 	  // TODO: end for move behind robot
+	case 65360:
+	  {
+	    centerOnAgent();
+	    break;
+	  }
+	case 65367:
+	  {
+	    moveBehindAgent();
+	    break;
+	  }
      	default:
 	  return false;
 	}
@@ -253,6 +267,7 @@ namespace lpzrobots {
     usage.addKeyboardMouseBinding("Camera: Space","Reset the viewing position to home");
     usage.addKeyboardMouseBinding("Camera: p","Print position of the camera");
     usage.addKeyboardMouseBinding("Camera: F1-F12","switch the Agent to be watched");
+    usage.addKeyboardMouseBinding("Camera: end","move behind the Agent to be watched");
   }
 
   void CameraManipulator::flushMouseEventStack(){
@@ -400,6 +415,85 @@ namespace lpzrobots {
       std::cout << "the agent was choosed: " << i-1 << "\n";
       setHomeViewByAgent();
       setHomeEyeByAgent();
+    }
+  }
+
+  void CameraManipulator::moveBehindAgent() {
+    // taken from the race camera
+    if (watchingAgent!=NULL) {
+      // manipulate desired eye by the move of the robot
+      const double* robMove = (watchingAgent->getRobot()->getPosition()-oldPositionOfAgent).toArray();
+      // attach the robSpeed to desired eye
+      for (int i=0;i<=2;i++) {
+	if (!isNaN(robMove[i])) {
+	  desiredEye[i]+=robMove[i];}
+	else 
+	  std::cout << "NAN exception!" << std::endl;
+      }
+      // move behind the robot
+      // returns the orientation of the robot in matrix style
+      matrix::Matrix Orientation= (watchingAgent->getRobot()->getOrientation());
+      Orientation.toTranspose();
+      // first get the normalized vector of the orientation
+      double eVecX[3] = {0,1,0};
+      double eVecY[3] = {1,0,0};
+      matrix::Matrix normVecX = Orientation * matrix::Matrix(3,1,eVecX);
+      matrix::Matrix normVecY = Orientation * matrix::Matrix(3,1,eVecY);
+      // then get the distance between robot and camera
+      Position robPos = watchingAgent->getRobot()->getPosition();
+      double distance = sqrt(square(desiredEye[0]-robPos.x)+
+			     square(desiredEye[1]-robPos.y));
+      // then new eye = robPos minus normalized vector * distance
+      desiredEye[0]=robPos.x + distance *normVecX.val(1,0);
+      desiredEye[1]=robPos.y - distance *normVecY.val(1,0);
+
+      // now do center on the robot (manipulate the view)
+      // desiredEye is the position of the camera
+      // calculate the horizontal angle, means pan (view.x)
+      if (robPos.x-desiredEye[0]!=0) { // division by zero
+	desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
+	  / PI*180.0f+180.0f;
+       	if (desiredEye[1]-robPos.y<0) // we must switch
+		  desiredView[0]+=180.0f;
+      }
+      // calculate the vertical angle
+      if (robPos.z-desiredEye[2]!=0) { // division by zero
+	// need dz and sqrt(dx^2+dy^2) for calulation
+	desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
+				  square(desiredEye[1]-robPos.y)))
+			    /(robPos.z-desiredEye[2]))
+	  / PI*180.0f-90.0f;
+	if (desiredEye[2]-robPos.z<0) // we must switch
+	  desiredView[1]+=180.0f;
+      }
+    }
+  }
+
+  void CameraManipulator::centerOnAgent() {
+    // taken from the follow camera
+    // ok here the camera will center on the robot
+    if (watchingAgent!=NULL) {
+      // the actual position of the agent has to be recognized
+      // we use the Position getPosition() from OdeRobot
+      Position robPos = watchingAgent->getRobot()->getPosition();
+      // desiredEye is the position of the camera
+      // calculate the horizontal angle, means pan (view.x)
+      if (robPos.x-desiredEye[0]!=0) { // division by zero
+	desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
+	  / PI*180.0f+180.0f;
+       	if (desiredEye[1]-robPos.y<0) // we must switch
+		  desiredView[0]+=180.0f;
+      }
+      // calculate the vertical angle
+      if (robPos.z-desiredEye[2]!=0) { // division by zero
+	// need dz and sqrt(dx^2+dy^2) for calulation
+	desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
+				  square(desiredEye[1]-robPos.y)))
+			    /(robPos.z-desiredEye[2]))
+	  / PI*180.0f-90.0f;
+	if (desiredEye[2]-robPos.z<0) // we must switch
+	  desiredView[1]+=180.0f;
+      }
     }
   }
   
