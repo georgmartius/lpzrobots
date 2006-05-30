@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-16 11:24:28  martius
+ *   Revision 1.1.2.2  2006-05-30 14:13:03  fhesse
+ *   in getInternalParams():
+ *   write noise values only when plotNoise flag is set
+ *
+ *   Revision 1.1.2.1  2005/11/16 11:24:28  martius
  *   moved to selforg
  *
  *   Revision 1.9  2005/10/28 12:05:54  martius
@@ -138,8 +142,10 @@ list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames() const {
 */
 list<Inspectable::iparamval> One2OneWiring::getInternalParams() const {
   list<iparamval> l;
-  for(int i=0; i < rsensornumber; i++){
-    l += noisevals[i];
+  if(plotNoise) {    
+    for(int i=0; i < rsensornumber; i++){
+      l += noisevals[i];
+    }
   }
   return l;
 }
