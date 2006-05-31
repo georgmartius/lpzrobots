@@ -5,10 +5,10 @@
 PREFIX=$HOME
 
 # subdirectories which contain libraries or binaries needed some of the other project in this tree 
-all: matrixlib guilogger neuronviz
+all: matrixlib neuronviz
 	cd selforg && make depend
 	cd ode_robots && make depend
-	@if test ! -e opende/Makefile; then echo -e "You need to setup ODE from opende folder first!\nPlease run:\ncd opende; sh autogen.sh\n./configure --enable-opcode --enable-double-precision\nmake\nmake install #(as root)"; exit; fi
+	@if test ! -e opende/Makefile; then echo -e "You need to setup ODE from opende folder first!\nPlease run:\ncd opende; sh autogen.sh\n./configure --enable-opcode --enable-double-precision\nmake\nmake install #(as root)\n\nOn most SUSE linux computers it's necessary to run thereafter\n\nldconfig #(as root)\n\nfor a correct linking of the libode.so!\n"; exit; fi
 
 .PHONY: matrixlib
 matrixlib:
@@ -25,7 +25,7 @@ neuronviz:
 install:
 	@cp guilogger/bin/guilogger $(HOME)/bin/ && echo "copied guilogger to $(HOME)/bin/" || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
 #	cd neuronviz/src && make install
-	
+
 tags: 
 	etags `find -name "*.[ch]*"` 
 
