@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-05-28 22:14:56  martius
+ *   Revision 1.1.2.2  2006-06-09 15:43:49  fhesse
+ *   include assert.h added
+ *
+ *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
  *   heightfield included
  *
  *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
@@ -37,6 +40,7 @@
 #include "pos.h"
 #include <string>
 #include <iostream>
+#include <assert.h>
 
 namespace lpzrobots {
 
