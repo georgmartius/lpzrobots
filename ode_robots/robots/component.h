@@ -66,8 +66,10 @@ class Component : public OdeRobot
 	Joint* joint;
 	bool softlink; //if true the connection ends the recursion, false = normal
     } componentConnection;
- 
-    vector <componentConnection> connection;
+
+    vector <componentConnection*> connection;
+public: 
+    Component* originComponent;
 
  public:
 
@@ -175,7 +177,28 @@ virtual Component* removeSubcomponent ( Component* removedsubcomponent );
  *@param the component, which could be a subcomponent of this component
  *@return true if it is a subcomponent, false if not
  **/
-virtual bool Component::hasSubcomponent ( Component* subcomp );
+virtual bool hasSubcomponent ( Component* subcomp );
+
+/**
+ *This method looks if a special component is a subcomponent of this component and all its recursive subcomponents.
+ *@param the component, which could be a subcomponent
+ *@return true if it is a subcomponent, false if not
+ **/
+virtual bool hasSubcomponentAll ( Component* subcomp );
+
+/**
+ *This method looks if a special component somehow connected to this component.
+ *@param the component, which could be connected
+ *@return true if it is connected, false if not
+ **/
+virtual bool isComponentConnected ( Component* connectedComp );
+
+/**
+ *This garants an direct access to the connections between the components. Be carefull with using the given references. 
+ *@param the number of the connection
+ *@return the reference of connection element
+ **/
+virtual componentConnection* getConnection ( int connectionnumber );
 
 /**
  *Sets the connection between the component and one of its subcomponents to be a softlink. That means that the recusion for this branch stops here.

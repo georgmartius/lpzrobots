@@ -32,7 +32,8 @@ namespace lpzrobots
     
     Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , const ComponentConf& conf = getDefaultConf () ) : OdeRobot ( odeHandle, osgHandle , "Component" ) , conf ( conf )
     {
-    
+	originComponent = this;
+	connection.clear ();
     }
 
     Component::~Component ()
@@ -71,11 +72,11 @@ namespace lpzrobots
 
 	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
-	    size += connection[n].subcomponent->getNumberSubcomponentsAll ();
+	    if ( connection[n]->softlink == false )
+		size += connection[n]->subcomponent->getNumberSubcomponentsAll ();
 	}
 	return size;
     }
-
 
     void Component::addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint )
     {
@@ -85,17 +86,36 @@ namespace lpzrobots
 
 	newconnection.softlink = false;
 
-	connection.push_back ( newconnection );
+
+	//sets the origin; it is always the origin of the adding component, only the true origin has the originComponent pointer of itself
+//	if ( originComponent == this )
+	    newconnection.subcomponent->originComponent = originComponent;
+//	else
+//	    newconnection.subcomponent->originComponent = originComponent;
+
+	connection.push_back ( &newconnection );
+
+	cout<<"Size? "<<connection.size()<<"\n";
+	cout<<"same Subcomponent? "<<connection[connection.size()-1]->subcomponent == newsubcomponent<<"\n";
+	cout<<"same Joint? "<<connection[connection.size()-1]->joint == newconnectingjoint<<"\n";
+
+	cout<<"Subcomponent? "<<connection[connection.size()-1]->subcomponent<<"\n";
+	cout<<"Joint? "<<connection[connection.size()-1]->joint<<"\n";
     }
 
     Component* Component::removeSubcomponent ( int n )
     {
 	Component* tmpcomponent;
 
-	vector <componentConnection>::iterator eraseiterator;
+	vector <componentConnection*>::iterator eraseiterator;
 	eraseiterator = connection.begin () + n;
-	tmpcomponent = connection[n].subcomponent;
+	tmpcomponent = connection[n]->subcomponent;
+
+	delete ( connection[n]->joint );
+	delete ( connection[n] );
+
 	connection.erase ( eraseiterator );
+
 	return tmpcomponent;
     }
 
@@ -104,14 +124,21 @@ namespace lpzrobots
     {
 	Component* tmpcomponent;
 
-	vector<componentConnection>::iterator it = connection.begin ();
+	vector<componentConnection*>::iterator it = connection.begin ();
 	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    it++;
-	    if ( connection[n].subcomponent == removedsubcomponent )
+	    if ( connection[n]->subcomponent == removedsubcomponent )
 	    {
-		tmpcomponent = connection[n].subcomponent;
+		//move origins
+		tmpcomponent = connection[n]->subcomponent;
+
+		//deleting the joint
+		delete ( connection[n]->joint );
+		delete ( connection[n] );
+
 		connection.erase ( it );
+
 		break;
 	    }
 	}
@@ -124,18 +151,45 @@ namespace lpzrobots
     {
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-
+	    if ( subcomp == connection[n]->subcomponent )
+		if ( connection[n]->softlink == false )
+		    return true;
 	}
+	return false;
+    }
 
+    bool Component::hasSubcomponentAll ( Component* subcomp )
+    {
+	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	{
+	    if ( subcomp == connection[n]->subcomponent )
+//		if ( connection[n].softlink == false )
+		    return true;
+	    if ( connection[n]->subcomponent->hasSubcomponentAll ( subcomp ) == true )
+//		if ( connection[n].softlink == false )
+		    return true;
+	}
+	return false;
+    }
 
-	    return false;
+    bool Component::isComponentConnected ( Component* connectedComp )
+    {
+//	if ( originComponent != NULL )
+	    return originComponent->hasSubcomponentAll ( connectedComp );
+//	else
+//	    return false;
+    }
+
+    Component::componentConnection* Component::getConnection ( int connectionnumber )
+    {
+	return connection[connectionnumber];
     }
 
     bool Component::setSoftlink ( unsigned int position , bool state )
     {
 	if ( connection.size () >= position )
 	{
-	    connection[position].softlink = state;
+	    connection[position]->softlink = state;
 	    return true;
 	}
 	else

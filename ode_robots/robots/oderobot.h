@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.15  2006-03-30 12:34:56  martius
+ *   Revision 1.1.2.16  2006-06-12 12:59:07  robot8
+ *   -some corrections to component system (for example now connections are only pushed as pointers to the connection vector)
+ *   -created the evolution simulation for evolutionary evolution algorithms with atom like structures
+ *
+ *   Revision 1.1.2.15  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.1.2.14  2006/03/30 09:59:36  fhesse
@@ -128,6 +132,7 @@ namespace lpzrobots {
   public:
 
     friend class OdeAgent;
+//    friend class AtomOdeAgent;
 
     /**
      * Constructor
