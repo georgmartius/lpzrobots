@@ -418,8 +418,8 @@ namespace lpzrobots
 	    addSubcomponent ( atom_to_fuse , j1 );
 
 	cout<<"Size? "<<connection.size()<<"\n";
-	cout<<"same Subcomponent? "<<connection[connection.size()-1]->subcomponent == atom_to_fuse<<"\n";
-	cout<<"same Joint? "<<connection[connection.size()-1]->joint == j1<<"\n";
+	cout<<"same Subcomponent? "<<(connection[connection.size()-1]->subcomponent == atom_to_fuse)<<"\n";
+	cout<<"same Joint? "<<(connection[connection.size()-1]->joint == j1)<<"\n";
 
 	cout<<"Subcomponent? "<<(connection[connection.size()-1]->subcomponent)<<"\n";
 	cout<<"Joint? "<<(connection[connection.size()-1]->joint)<<"\n";

@@ -96,11 +96,11 @@ namespace lpzrobots
 	connection.push_back ( &newconnection );
 
 	cout<<"Size? "<<connection.size()<<"\n";
-	cout<<"same Subcomponent? "<<connection[connection.size()-1]->subcomponent == newsubcomponent<<"\n";
-	cout<<"same Joint? "<<connection[connection.size()-1]->joint == newconnectingjoint<<"\n";
+	cout<<"same Subcomponent? "<<(connection[connection.size()-1]->subcomponent == newsubcomponent)<<"\n";
+	cout<<"same Joint? "<<(connection[connection.size()-1]->joint == newconnectingjoint)<<"\n";
 
-	cout<<"Subcomponent? "<<connection[connection.size()-1]->subcomponent<<"\n";
-	cout<<"Joint? "<<connection[connection.size()-1]->joint<<"\n";
+	cout<<"Subcomponent? "<<(connection[connection.size()-1]->subcomponent)<<"\n";
+	cout<<"Joint? "<<(connection[connection.size()-1]->joint)<<"\n";
     }
 
     Component* Component::removeSubcomponent ( int n )
