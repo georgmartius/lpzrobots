@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-01-12 14:39:06  martius
+ *   Revision 1.1.2.5  2006-06-12 13:37:12  robot3
+ *   added missing const OsgHandle->changeAlpha(const float& alpha);
+ *
+ *   Revision 1.1.2.4  2006/01/12 14:39:06  martius
  *   transparent stateset
  *
  *   Revision 1.1.2.3  2005/12/29 16:48:06  martius
@@ -61,6 +64,12 @@ namespace lpzrobots {
   OsgHandle OsgHandle::changeColor(const Color& color) const {
     OsgHandle copy(*this);
     copy.color = color;
+    return copy;
+  }
+
+  OsgHandle OsgHandle::changeAlpha(const float& alpha) const {
+    OsgHandle copy(*this);
+    copy.alpha = alpha;
     return copy;
   }
 

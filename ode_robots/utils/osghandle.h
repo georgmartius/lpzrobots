@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-01-12 14:39:06  martius
+ *   Revision 1.1.2.6  2006-06-12 13:37:55  robot3
+ *   added missing const OsgHandle->changeAlpha(const float& alpha);
+ *
+ *   Revision 1.1.2.5  2006/01/12 14:39:06  martius
  *   transparent stateset
  *
  *   Revision 1.1.2.4  2005/12/29 16:48:06  martius
@@ -61,6 +64,7 @@ public:
   Color color;
 
   OsgHandle changeColor(const Color& color) const;
+  OsgHandle changeAlpha(const float& alpha) const;
   
 };
 
