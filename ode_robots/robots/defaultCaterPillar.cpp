@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.9  2006-05-29 22:05:52  martius
+ *   Revision 1.1.2.10  2006-06-13 04:24:22  robot5
+ *   Separated annular and linear placement in different robots.
+ *   See "wheelie" for annular segment placement.
+ *
+ *   Revision 1.1.2.9  2006/05/29 22:05:52  martius
  *   ode_robot/Makefile should be called without argument to ensure proper build of libselforg
  *
  *   Revision 1.1.2.8  2006/05/29 20:28:43  robot5
@@ -223,7 +227,7 @@ namespace lpzrobots {
     odeHandle.space = dSimpleSpaceCreate (parentspace);
 	
     int half = conf.segmNumber/2;
-/*
+
     // linear positioning (snake-like)
     for(int n = 0; n < conf.segmNumber; n++) {
       Primitive* p = new Box(conf.segmDia/2, conf.segmDia*2, conf.segmLength);
@@ -231,39 +235,12 @@ namespace lpzrobots {
       p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
 		 osg::Matrix::translate((n-half)*conf.segmLength*0.7, 0, conf.segmDia/2) * // made boxes overlapping for not seeing any gaps (*0.7)
 		 pose);
-
       p->getOSGPrimitive()->setTexture("Images/dusty.rgb");
       objects.push_back(p);
     }
-*/
-    // annular positioning
-    for(int n = 0; n < conf.segmNumber; n+=2) {
-      Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength);
-      p1->init(odeHandle, conf.segmMass, osgHandle);
-      p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
-                  osg::Matrix::rotate(M_PI*2*n/conf.segmNumber+4*M_PI/conf.segmNumber, 0, -1, 0) *
-  		  osg::Matrix::translate(cos(2*M_PI*n/conf.segmNumber)*conf.segmLength,
-					 0,
-					 (sin(2*M_PI*n/conf.segmNumber)+1+conf.segmDia/2)*conf.segmLength)*
-  	  	  pose);
-      p1->getOSGPrimitive()->setTexture("Images/dusty.rgb");
-      objects.push_back(p1);
-      Primitive* p2 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength);
-      p2->init(odeHandle, conf.segmMass, osgHandle);
-      p2->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
-                  osg::Matrix::rotate(M_PI*2*n/conf.segmNumber+4*M_PI/conf.segmNumber, 0, -1, 0) *
-                  osg::Matrix::translate(cos(2*M_PI*(n+1)/conf.segmNumber)*conf.segmLength,
-                                         0,
-                                         (sin(2*M_PI*(n+1)/conf.segmNumber)+1+conf.segmDia/2)*conf.segmLength)*
-  	  	  pose);
-      p2->getOSGPrimitive()->setTexture("Images/dusty.rgb");
-      objects.push_back(p2);
-     }
-
 
     created=true;
   }
-
 
   /** destroys vehicle and space
    */
