@@ -204,7 +204,7 @@ namespace lpzrobots {
 					 0,
 					 (sin(2*M_PI*n/conf.segmNumber)+1+conf.segmDia/2)*conf.segmLength*1.1)*
   	  	  pose);
-      p1->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+      p1->getOSGPrimitive()->setTexture("Images/whitemetal_farbig.rgb");
       objects.push_back(p1);
      }
 

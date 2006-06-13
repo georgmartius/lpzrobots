@@ -78,11 +78,11 @@ public:
     myWheelieConf.jointLimit=M_PI/4;
     myWheelieConf.motorPower=0.8;
     myWheelieConf.frictionGround=0.04;
-    myWheelie = new Wheelie(odeHandle, osgHandle.changeColor(Color(0.0f,1.0f,0.0f)), myWheelieConf, "Wheelie1");
+    myWheelie = new Wheelie(odeHandle, osgHandle, myWheelieConf, "Wheelie1");
     ((OdeRobot*) myWheelie)->place(Pos(-5,-5,0.2)); 
     
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-    invertnconf.cInit=2.0;
+    //    invertnconf.cInit=2.0;
     controller = new InvertMotorNStep(invertnconf);    
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent = new OdeAgent( plotoptions );
