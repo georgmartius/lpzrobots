@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-06-12 13:40:02  robot3
+ *   Revision 1.1.2.7  2006-06-15 09:16:59  martius
+ *   restores changeAlpha
+ *
+ *   Revision 1.1.2.6  2006/06/12 13:40:02  robot3
  *   changeAlpha is now a dummy method (for fast implement issues)
  *
  *   Revision 1.1.2.5  2006/06/12 13:37:12  robot3
@@ -70,10 +73,9 @@ namespace lpzrobots {
     return copy;
   }
 
-  OsgHandle OsgHandle::changeAlpha(const float& alpha) const {
+  OsgHandle OsgHandle::changeAlpha(double alpha) const {
     OsgHandle copy(*this);
-    //    copy.alpha = alpha;
+    copy.color.alpha() = alpha;
     return copy;
   }
-
 }

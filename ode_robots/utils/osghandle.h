@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-06-12 13:37:55  robot3
+ *   Revision 1.1.2.7  2006-06-15 09:17:09  martius
+ *   restores changeAlpha
+ *
+ *   Revision 1.1.2.6  2006/06/12 13:37:55  robot3
  *   added missing const OsgHandle->changeAlpha(const float& alpha);
  *
  *   Revision 1.1.2.5  2006/01/12 14:39:06  martius
@@ -63,8 +66,10 @@ public:
   osg::StateSet* transparentState;  
   Color color;
 
+  // returns a new osghandle with only the color changed
   OsgHandle changeColor(const Color& color) const;
-  OsgHandle changeAlpha(const float& alpha) const;
+  // returns a new osghandle with only the alpha channel changed
+  OsgHandle changeAlpha(double alpha) const; 
   
 };
 
