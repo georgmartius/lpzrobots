@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-05-18 15:40:32  robot3
+ *   Revision 1.1.2.4  2006-06-16 22:27:26  martius
+ *   getMainPrimtive
+ *
+ *   Revision 1.1.2.3  2006/05/18 15:40:32  robot3
  *   fixed setPose
  *
  *   Revision 1.1.2.2  2006/05/18 15:36:15  robot3
@@ -90,6 +93,8 @@ class PassiveCapsule : public AbstractObstacle{
     }
     create();
   };
+
+  virtual Primitive* getMainPrimitive() const { return capsule; }
 
  protected:
   virtual void create(){

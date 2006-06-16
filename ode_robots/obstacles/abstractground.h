@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-05-23 14:13:41  der
+ *   Revision 1.1.2.4  2006-06-16 22:27:26  martius
+ *   getMainPrimtive
+ *
+ *   Revision 1.1.2.3  2006/05/23 14:13:41  der
  *   fixed initialization bug
  *
  *   Revision 1.1.2.2  2006/05/23 13:37:45  robot3
@@ -119,6 +122,7 @@ public:
     }
   }
 
+  virtual Primitive* getMainPrimitive() const { return groundPlane; }
 
 protected:
 
@@ -142,7 +146,7 @@ protected:
     virtual void createGround() {
       if (creategroundPlane) {
 	// now create the plane in the middle
-	groundPlane = new Box(ground_length,ground_length, 0.1f);
+	groundPlane = new Box(ground_length,ground_length, 0.15f);
 	groundPlane->init(odeHandle, 0, osgHandle,
 			  Primitive::Geom | Primitive::Draw);
 	groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);

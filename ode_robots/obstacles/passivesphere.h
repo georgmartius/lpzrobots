@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-05-28 22:14:56  martius
+ *   Revision 1.1.2.11  2006-06-16 22:27:26  martius
+ *   getMainPrimtive
+ *
+ *   Revision 1.1.2.10  2006/05/28 22:14:56  martius
  *   heightfield included
  *
  *   Revision 1.1.2.9  2006/05/18 12:54:24  robot3
@@ -127,6 +130,7 @@ class PassiveSphere : public AbstractObstacle{
     create();
   };
 
+  virtual Primitive* getMainPrimitive() const { return sphere; }
 
   
  protected:
@@ -134,7 +138,6 @@ class PassiveSphere : public AbstractObstacle{
     sphere = new Sphere(radius);
     sphere->init(odeHandle, mass, osgHandle);
     osg::Vec3 pos=pose.getTrans();
-    pos[2]+=radius;
     sphere->setPosition(pos);
         
     obstacle_exists=true;

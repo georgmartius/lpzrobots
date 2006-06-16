@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-18 12:54:24  robot3
+ *   Revision 1.1.2.6  2006-06-16 22:27:26  martius
+ *   getMainPrimtive
+ *
+ *   Revision 1.1.2.5  2006/05/18 12:54:24  robot3
  *   -fixed not being able to change the color after positioning
  *    the obstacle
  *   -cleared the files up
@@ -98,6 +101,8 @@ class PassiveBox : public AbstractObstacle{
     }
     create();
   };
+
+  virtual Primitive* getMainPrimitive() const { return box; }
 
  protected:
   virtual void create(){

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.3  2006-05-29 18:55:46  martius
+ *   Revision 1.7.4.4  2006-06-16 22:27:26  martius
+ *   getMainPrimtive
+ *
+ *   Revision 1.7.4.3  2006/05/29 18:55:46  martius
  *   moved from meshground to terrainground as it was in former times
  *
  *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
@@ -75,6 +78,8 @@ namespace lpzrobots {
 
     virtual void setPose(const osg::Matrix& pose);
 
+
+    virtual Primitive* getMainPrimitive() const { return 0; }
 
   protected:
     virtual void create();

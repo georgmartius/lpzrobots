@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.7  2006-05-23 13:38:02  robot3
+ *   Revision 1.8.4.8  2006-06-16 22:27:26  martius
+ *   getMainPrimtive
+ *
+ *   Revision 1.8.4.7  2006/05/23 13:38:02  robot3
  *   -fixed some creating bugs
  *   -setColor,setTexture and createGround must be
  *    called before setPosition now
@@ -142,6 +145,7 @@ osg::Matrix getPose(){ return pose; }
     obstacle_exists=true;
   };
 
+  virtual Primitive* getMainPrimitive() const = 0;
 
 
  protected:
