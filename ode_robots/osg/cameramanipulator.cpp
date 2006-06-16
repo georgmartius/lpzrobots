@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.16  2006-05-29 20:00:49  robot3
+ *   Revision 1.1.2.17  2006-06-16 22:30:52  martius
+ *   removed key debug output
+ *
+ *   Revision 1.1.2.16  2006/05/29 20:00:49  robot3
  *   added pos1 (center on agent) and end (move behind agent)
  *
  *   Revision 1.1.2.15  2006/04/25 09:06:16  robot3
@@ -221,7 +224,7 @@ namespace lpzrobots {
 	  manageAgents(key-65469);
 	  return true; // was handled
 	}
-	std::cout << key << " was pressed." << std::endl;
+	//	std::cout << key << " was pressed." << std::endl;
 	switch(key) {
 	case ' ':	
 	  {
