@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-15 13:11:30  robot3
+ *   Revision 1.1.2.6  2006-06-16 12:06:37  robot8
+ *   - correcting some mistakes in component_template
+ *
+ *   Revision 1.1.2.5  2006/05/15 13:11:30  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -80,7 +83,7 @@
 #include "sphererobot.h"
 #include "sphererobot3masses.h"
 
-#include "component.h"
+#include "robotcomponent.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -181,8 +184,8 @@ public:
    
    
     //creating compoents for the two spheres
-    Component* C1 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );C1 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );
-    Component* C2 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );    C2 = new Component ( odeHandle , osgHandle , Component::getDefaultConf () );
+    RobotComponent* C1 = new RobotComponent ( odeHandle , osgHandle , Component::getDefaultConf () );
+    RobotComponent* C2 = new RobotComponent ( odeHandle , osgHandle , Component::getDefaultConf () );
 
     //setting the spheres as robots for the components
     C1->setRobot ( global.agents[0]->getRobot () );
