@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    marcel@informatik.uni-leipzig.de                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -52,15 +53,24 @@ class AtomComponent : public Component
  public:
     AtomConf atomconf;
 
- protected:
-/*    typedef struct
+ public:
+
+    class connectionAddition
     {
-	Component* subcomponent;
-	Joint* joint;
-	bool softlink; //if true the connection ends the recursion, false = normal
+    public:
 	double binding_strength;
-    } componentConnection;
-*/
+
+	connectionAddition ()
+	{
+	}
+
+	~connectionAddition ()
+	{
+	}
+    };
+
+
+
  private:
     //only one of this two should reference to an object
     OSGSphere* core;
@@ -162,7 +172,7 @@ virtual bool fusionCondition ( dGeomID o1 , dGeomID o2 );
  *@param Geom reference to the second atom
  *@return true if fulfilled false if not
  **/
-virtual bool fissionCondition ( dGeomID o1 , dGeomID o2 );
+virtual bool fissionCondition ( dGeomID o1 , dGeomID o2 , double force );
 
 /**
  *Test which collisions should not be handled.
@@ -184,7 +194,7 @@ virtual bool fusion ( AtomComponent* atom_to_fuse );
  *@param the AtomComponent, to fission
  *@retuen true if the fission was successfull, false if not
  **/
-virtual bool fission ( /*AtomComponent* atom_to_fission*/ );
+virtual bool fission ( double force );
 
 /**
  *This method adds an existing Component as a subcomponent to this component, overwriting the function from the component base class.

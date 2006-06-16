@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    marcel@informatik.uni-leipzig.de                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -59,19 +60,19 @@ namespace lpzrobots
 	    //sensor values of this component
 	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
 		//Fixed- and Ball-Joint-Classes do not have the getPosition-function
-		if ( ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeBall ) )
+		if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeBall ) )
 		{
 		    //nothing is done
 		}
 		else //now all other joints, which should be normaly used, are treated; they are all subclasses of the OneAxisJoint-class
 		{
-		    sensors[n] = ((OneAxisJoint*) connection[n]->joint)->getPosition1 ();
+		    sensors[n] = ((OneAxisJoint*) connection[n].joint)->getPosition1 ();
 		    sensorcounter++;
 //		    cout<<"sensor "<<n<<" set to:"<<sensors[n]<<"\n";
 
-		    if ( ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeUniversal ) )
+		    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
 		    {
-			sensors[n+1] = ((TwoAxisJoint*) connection[n]->joint)->getPosition2 ();
+			sensors[n+1] = ((TwoAxisJoint*) connection[n].joint)->getPosition2 ();
 			sensorcounter++;
 		    }
 		}
@@ -79,8 +80,8 @@ namespace lpzrobots
 	    //sensor values of all subcomponents and their robots
 	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	    {
-		if ( connection[n]->softlink == false )
-		    sensorcounter += connection[n]->subcomponent->getSensors ( &sensors[sensorcounter] , connection[n]->subcomponent->getSensorNumber () );
+		if ( connection[n].softlink == false )
+		    sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
 	    }
 
 	//if there are less sensor values than expected (that happens beause the controller size is maximized from the beginning), then
@@ -100,15 +101,15 @@ namespace lpzrobots
 
 	for ( int n = 0; ( (unsigned int) n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
 	{
-	    connection[n]->joint->setParam ( dParamVel , motors[n]*conf.speed ); // set velocity
-	    connection[n]->joint->setParam ( dParamFMax ,conf.max_force );       // set maximal force
+	    connection[n].joint->setParam ( dParamVel , motors[n]*conf.speed ); // set velocity
+	    connection[n].joint->setParam ( dParamFMax ,conf.max_force );       // set maximal force
 	    motorcounter++;
 //	    cout<<"motor "<<n<<" set to:"<<motors[n]<<"\n";
 
-	    if ( ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeUniversal ) )
+	    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
 	    {
-		connection[n]->joint->setParam ( dParamVel2 , motors[n]*conf.speed ); // set velocity2
-		connection[n]->joint->setParam ( dParamFMax2 ,conf.max_force );       // set maximal force2
+		connection[n].joint->setParam ( dParamVel2 , motors[n]*conf.speed ); // set velocity2
+		connection[n].joint->setParam ( dParamFMax2 ,conf.max_force );       // set maximal force2
 		motorcounter++;
 	    }
 
@@ -116,11 +117,11 @@ namespace lpzrobots
 
 	for ( int n = 0; ( (unsigned int) n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
 	{
-	    if ( connection[n]->softlink == false )
+	    if ( connection[n].softlink == false )
 	    {
 		tmpmotors = (motor*) &motors[motorcounter]; //the pointer for the new array
-		connection[n]->subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
-		motorcounter += connection[n]->subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
+		connection[n].subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
+		motorcounter += connection[n].subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
 	    }
 
 	}
@@ -134,21 +135,21 @@ namespace lpzrobots
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
 	    //counting the sensors by the type of the used joint, coded by ode type, because the joints are created external
-	    if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge )
+	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
 		sensors++;
 	    else
-		if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeSlider )
+		if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeSlider )
 		    sensors++;
 		else
-		    if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge2 )
+		    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
 			sensors = sensors + 2;
 		    else
-			if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeUniversal )
+			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
 			    sensors = sensors + 2;
 	
     	    //recursive sensor-counting for all subcomponents
-	    if ( connection[n]->softlink == false )
-		sensors += connection[n]->subcomponent->getSensorNumber ();
+	    if ( connection[n].softlink == false )
+		sensors += connection[n].subcomponent->getSensorNumber ();
 	}
 
 
@@ -162,21 +163,21 @@ namespace lpzrobots
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{//counting the motors by the type of the used joint, coded by ode type, because the joints are created external
-	    if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge )
+	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
 		motors++;
 	    else
-		if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeSlider )
+		if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeSlider )
 		    motors++;
 		else
-		    if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge2 )
+		    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
 			motors = motors + 2;
 		    else
-			if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeUniversal )
+			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
 			    motors = motors + 2;
 	     
 	    //recursive sensor-counting for all subcomponents
-	    if ( connection[n]->softlink == false )
-		motors += connection[n]->subcomponent->getMotorNumber ();
+	    if ( connection[n].softlink == false )
+		motors += connection[n].subcomponent->getMotorNumber ();
 	}
 
 	return motors;
@@ -191,8 +192,8 @@ namespace lpzrobots
 	//all subcomponents and joints also are updated
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    connection[n]->joint->update ();
-	    connection[n]->subcomponent->update ();
+	    connection[n].joint->update ();
+	    connection[n].subcomponent->update ();
 	}
     }
 
@@ -204,8 +205,8 @@ namespace lpzrobots
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    newpos = connection[n]->subcomponent->getPosition () - ((Pos)pos).toPosition ();
-	    connection[n]->subcomponent->place ( *(new Pos ( newpos )) );
+	    newpos = connection[n].subcomponent->getPosition () - ((Pos)pos).toPosition ();
+	    connection[n].subcomponent->place ( *(new Pos ( newpos )) );
 	}
     }
 
@@ -230,33 +231,44 @@ namespace lpzrobots
 //		cout<<(AtomComponent*) dGeomGetData ( o1 )<<" | "<<(AtomComponent*) dGeomGetData ( o2 )<<"\n";
 //		cout<<((AtomComponent*) dGeomGetData ( o1 ))->isComponentConnected ( (Component*) dGeomGetData ( o2 ) )<<"\n";
 //		cout<<((AtomComponent*) dGeomGetData ( o2 ))->isComponentConnected ( (Component*) dGeomGetData ( o1 ) )<<"\n";
+		
+		double force = ((AtomComponent*) dGeomGetData ( o2 ))->getCollisionForce ( (AtomComponent*) dGeomGetData ( o1 ) );
 
-
-	cout<<"Sub Added \n";
 		if ( shell->getGeom () == o1 )
 		{
 		    if ( fusionCondition ( o1 , o2 ) == true )
-			 fusion ( (AtomComponent*) dGeomGetData ( o2 ) ); //FUSION is called;
-		    else
 		    {
-//			 if ( fissionCondition ( o1 , o2 ) == true )
-//			     fission (); //FISSION is called
-//			 else
-			     return false;
+			 fusion ( (AtomComponent*) dGeomGetData ( o2 ) ); //FUSION is called;
+			 return true;
 		    }
+
+		    if ( fissionCondition ( o1 , o2 , force ) == true )
+		    {
+			fission ( force ); //FISSION is called
+			return true;
+		    }
+
+		    //if no fusion and no fission dit happen
+		    return false;
+//		    }
 		}
 		else
 		    if ( shell->getGeom () == o2 )
 		    {
 			if ( fusionCondition ( o2 , o1 ) == true )
-			    fusion ( (AtomComponent*) dGeomGetData ( o1 ) ); //FUSION is called;
-			else
 			{
-//			    if ( fissionCondition ( o2 , o1 ) == true )
-//				fission (); //FISSION is called
-//			    else
-				return false;
+			    fusion ( (AtomComponent*) dGeomGetData ( o1 ) ); //FUSION is called;
+			    return true;
 			}
+
+			if ( fissionCondition ( o2 , o1 , force ) == true )
+			{
+			    fission ( force ); //FISSION is called
+			    return true;
+			}
+
+			//if no fusion and no fission dit happen
+			return false;
 		    }
 		     
 		/**********************************************************************************************/
@@ -269,7 +281,7 @@ namespace lpzrobots
 	{
 	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	    {
-		if ( connection[n]->subcomponent->collisionCallback ( data , o1 , o2 ) )
+		if ( connection[n].subcomponent->collisionCallback ( data , o1 , o2 ) )
 		    return true; // exit if collision was treated by a robot/component
 	    }
 
@@ -361,18 +373,23 @@ namespace lpzrobots
 	else
 	    return false;
     }
-
-    bool AtomComponent::fissionCondition ( dGeomID o1 , dGeomID o2 )
+/**
+ *now fission is allowed if there is a single connection, with a binding energy smaller than the force of the colission
+ **/
+    bool AtomComponent::fissionCondition ( dGeomID o1 , dGeomID o2 , double force )
     {
-	double force = ((AtomComponent*) dGeomGetData ( o2 ))->getCollisionForce ( (AtomComponent*) dGeomGetData ( o1 ) );
-	if ( force >= atomconf.binding_energy*getNumberSubcomponents () )
-	    return true;//fission ()
-	else
-	    return false;
+	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	{
+//	    componentConnection tmpcon;// = (componentConnection) connection[n];
+	    if ( force >= ((connectionAddition*) connection[n].data)->binding_strength )
+		return true;//fission
+	}
+	return false;//no fission
     }
 
     bool AtomComponent::collisionExclusionCondition ( dGeomID o1 , dGeomID o2 )
     {
+/*
 	if ( ((AtomComponent*) dGeomGetData ( o1 ))->isComponentConnected ( (Component*) dGeomGetData ( o2 ) ) == true )
 	{
 	    return true; //in this case the collision is ignored
@@ -381,9 +398,9 @@ namespace lpzrobots
 	{
 	    return true; //in this case the collision is ignored
 	}
+*/
 
-
-/*	if ( ((AtomComponent*) dGeomGetData ( o1 ))->hasSubcomponent ( (Component*) dGeomGetData ( o2 ) ) == true )
+	if ( ((AtomComponent*) dGeomGetData ( o1 ))->hasSubcomponent ( (Component*) dGeomGetData ( o2 ) ) == true )
 	{
 	    return true; //in this case the collision is ignored
 	}
@@ -392,7 +409,7 @@ namespace lpzrobots
 	{
 	    return true; //in this case the collision is ignored
 	}
-*/
+
 	return false;
     }
 
@@ -406,80 +423,76 @@ namespace lpzrobots
 	
 	HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
 
-	j1->init ( odeHandle , osgHandle , true , 0.1 );
+	j1->init ( odeHandle , osgHandle , true , atomconf.shell_radius+atomconf.core_radius );
 
 	//if the atom_to_fuse is a subcomponent of this before fusing, then the new connection only becomes a softlink
 	if ( isComponentConnected ( atom_to_fuse ) == true )
 	{
-//	    addSubcomponent ( atom_to_fuse , j1 );
-//	    setSoftlink ( getNumberSubcomponents() - 1 , true );   
+	    addSubcomponent ( atom_to_fuse , j1 );
+	    if ( setSoftlink ( getNumberSubcomponents() - 1 , true ) != true )
+		cout<<"Softlink could not be set because of wrong indexation\n";   
 	}
 	else
 	    addSubcomponent ( atom_to_fuse , j1 );
 
-	cout<<"Size? "<<connection.size()<<"\n";
-	cout<<"same Subcomponent? "<<(connection[connection.size()-1]->subcomponent == atom_to_fuse)<<"\n";
-	cout<<"same Joint? "<<(connection[connection.size()-1]->joint == j1)<<"\n";
+	
+	connection.back().data = new connectionAddition ();
+	((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
 
-	cout<<"Subcomponent? "<<(connection[connection.size()-1]->subcomponent)<<"\n";
-	cout<<"Joint? "<<(connection[connection.size()-1]->joint)<<"\n";
-
-//	cout<<"SofLink? "<<connection[getNumberSubcomponents() - 1]->softlink<<"\n";
-		
 	return true;
     }
 
-    bool AtomComponent::fission ( /*AtomComponent* atom_to_fission*/ )
+    bool AtomComponent::fission ( double force )
     {
 	cout<<"fission\n";
 
-/*	int tmppos;
 
-	Component* newaddcomp;
-	HingeJoint* tmpjoint;
+//first creating a list of all bound subcomponents, sorting it after the binding_strength of the connections
 
-	if ( ( tmppos = getNumberSubcomponents () - 1 ) < 0 )
-	    tmppos++;;
+	double binding_strength_counter = 100000000;
+	int m = 0;
 
-	for ( int n = 0; n < connection[tmppos]->subcomponent->getNumberSubcomponents (); n++ )
+	while ( force > 0 && ( getNumberSubcomponents() > 0 ) )
 	{
-	    if ( getNumberSubcomponents () <= atomconf.max_bindings )
+	    cout<<"# Subcomponents: "<<getNumberSubcomponents ()<<"\n";
+	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	    {
-		newaddcomp = (connection[tmppos]->subcomponent)->getConnection( n )->subcomponent;
-		Axis axis = Axis ( ( getPosition () - newaddcomp->getPosition ()).toArray() );
-		tmpjoint = new HingeJoint ( getMainPrimitive () , newaddcomp->getMainPrimitive () , getPositionbetweenComponents ( newaddcomp ) , axis );
-		tmpjoint->init ( odeHandle , osgHandle , true , 0.1 );
-
-		addSubcomponent ( newaddcomp , tmpjoint );
+		if ( ((connectionAddition*) connection[n].data)->binding_strength < binding_strength_counter )
+		{
+		    m = n;
+		    binding_strength_counter = ((connectionAddition*) connection[n].data)->binding_strength;		
+		}
 	    }
+
+	    removeSubcomponent ( m );
+
+	    force -= binding_strength_counter;
 	}
 
-	removeSubcomponent ( tmppos );
-*/
 	
 	return true;
     }
 
 /*    void AtomComponent::addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint )
     {
-	componentConnection newconnection;
-	newconnection.subcomponent = newsubcomponent;
-	newconnection.joint = newconnectingjoint;
+	componentConnection* newconnection;
+	newconnection = new componentConnection ();
+	newconnection->subcomponent = newsubcomponent;
+	newconnection->joint = newconnectingjoint;
 
-	newconnection.softlink = false;
+	newconnection->softlink = false;
 
+	newconnection->binding_strength = ((AtomComponent*) newsubcomponent)->getCollisionForce ( this );
 
 	//sets the origin; it is always the origin of the adding component, only the true origin has the originComponent pointer of itself
-//	if ( originComponent == this )
-	    newconnection.subcomponent->originComponent = originComponent;
-//	else
-//	    newconnection.subcomponent->originComponent = originComponent;
+	    newconnection->subcomponent->originComponent = originComponent;
 
-//	    connection[0].softlink = false;//.push_back ( (componentConnection) newconnection );
-	    connection.push_back ( (Component::componentConnection*) &newconnection );
-    }*/
+	    
+	connection.push_back ( *newconnection );
 
+	delete ( newconnection );
 
+	}*/
 
 }
 

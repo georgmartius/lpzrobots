@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-06-12 12:59:08  robot8
+ *   Revision 1.1.2.2  2006-06-16 12:07:39  robot8
+ *   -component update
+ *   -atomcomponents now could use fusion and fission
+ *   -but still fission does not work all correctly
+ *
+ *   Revision 1.1.2.1  2006/06/12 12:59:08  robot8
  *   -some corrections to component system (for example now connections are only pushed as pointers to the connection vector)
  *   -created the evolution simulation for evolutionary evolution algorithms with atom like structures
  *
@@ -84,9 +89,9 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 5), 4);
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground);
+//    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 5), 4);
+//    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+//    global.obstacles.push_back(playground);
 
     //****************
 
@@ -98,7 +103,7 @@ public:
     cConf.speed = 5;
     cConf.max_force = 5;
 
-//    aConf.shell_radius = 0.2;
+    aConf.shell_radius = 0.12;
     aConf.max_bindings = 4;
     aConf.binding_energy = 4;
 
@@ -111,12 +116,14 @@ public:
     AtomOdeAgent* agent;
 
 //unbound atoms
-    for ( int m = 1; m <= 10; m++ )
+    for ( int m = 1; m <= 6; m++ )
     {
 	components.push_back ( new AtomComponent ( odeHandle , osgHandle , cConf , aConf ) );
 	components.back ()->place ( Pos( 0.05*m , 0 , m*2 )); 
     }
 
+	components.push_back ( new AtomComponent ( odeHandle , osgHandle , cConf , aConf ) );
+	components.back ()->place ( Pos( 0 , 0 , 100 )); 
 
 
 

@@ -1,8 +1,9 @@
-#/***************************************************************************
+/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    marcel@informatik.uni-leipzig.de                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -59,15 +60,17 @@ class Component : public OdeRobot
  public:
     ComponentConf conf;
 
- protected:
+ public:
+
     typedef struct
     {
 	Component* subcomponent;
 	Joint* joint;
 	bool softlink; //if true the connection ends the recursion, false = normal
+	void *data;
     } componentConnection;
 
-    vector <componentConnection*> connection;
+    vector <componentConnection> connection;
 public: 
     Component* originComponent;
 
@@ -198,7 +201,7 @@ virtual bool isComponentConnected ( Component* connectedComp );
  *@param the number of the connection
  *@return the reference of connection element
  **/
-virtual componentConnection* getConnection ( int connectionnumber );
+virtual componentConnection getConnection ( int connectionnumber );
 
 /**
  *Sets the connection between the component and one of its subcomponents to be a softlink. That means that the recusion for this branch stops here.

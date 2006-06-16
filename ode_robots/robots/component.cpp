@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    marcel@informatik.uni-leipzig.de                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -33,7 +34,6 @@ namespace lpzrobots
     Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , const ComponentConf& conf = getDefaultConf () ) : OdeRobot ( odeHandle, osgHandle , "Component" ) , conf ( conf )
     {
 	originComponent = this;
-	connection.clear ();
     }
 
     Component::~Component ()
@@ -72,8 +72,8 @@ namespace lpzrobots
 
 	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
-	    if ( connection[n]->softlink == false )
-		size += connection[n]->subcomponent->getNumberSubcomponentsAll ();
+	    if ( connection[n].softlink == false )
+		size += connection[n].subcomponent->getNumberSubcomponentsAll ();
 	}
 	return size;
     }
@@ -93,28 +93,29 @@ namespace lpzrobots
 //	else
 //	    newconnection.subcomponent->originComponent = originComponent;
 
-	connection.push_back ( &newconnection );
+	    
+	connection.push_back ( newconnection );
 
-	cout<<"Size? "<<connection.size()<<"\n";
-	cout<<"same Subcomponent? "<<(connection[connection.size()-1]->subcomponent == newsubcomponent)<<"\n";
-	cout<<"same Joint? "<<(connection[connection.size()-1]->joint == newconnectingjoint)<<"\n";
-
-	cout<<"Subcomponent? "<<(connection[connection.size()-1]->subcomponent)<<"\n";
-	cout<<"Joint? "<<(connection[connection.size()-1]->joint)<<"\n";
     }
 
     Component* Component::removeSubcomponent ( int n )
     {
 	Component* tmpcomponent;
 
-	vector <componentConnection*>::iterator eraseiterator;
+	vector <componentConnection>::iterator eraseiterator;
 	eraseiterator = connection.begin () + n;
-	tmpcomponent = connection[n]->subcomponent;
+	tmpcomponent = connection[n].subcomponent;
 
-	delete ( connection[n]->joint );
-	delete ( connection[n] );
+	cout<<"before\n";
+	cout<<"Softlink? : "<<connection[n].softlink<<"\n";
 
+	delete ( connection[n].data );
+	cout<<"between 1\n";
+	cout<<"Joint? :"<<connection[n].joint<<"\n";
+	delete ( connection[n].joint );
+	cout<<"between 2\n";
 	connection.erase ( eraseiterator );
+	cout<<"after\n";
 
 	return tmpcomponent;
     }
@@ -124,18 +125,19 @@ namespace lpzrobots
     {
 	Component* tmpcomponent;
 
-	vector<componentConnection*>::iterator it = connection.begin ();
+	vector<componentConnection>::iterator it = connection.begin ();
 	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    it++;
-	    if ( connection[n]->subcomponent == removedsubcomponent )
+	    if ( connection[n].subcomponent == removedsubcomponent )
 	    {
 		//move origins
-		tmpcomponent = connection[n]->subcomponent;
+		tmpcomponent = connection[n].subcomponent;
 
 		//deleting the joint
-		delete ( connection[n]->joint );
-		delete ( connection[n] );
+		delete ( connection[n].joint );
+		//deleting the extra data pointer
+		delete ( connection[n].data );
 
 		connection.erase ( it );
 
@@ -151,8 +153,8 @@ namespace lpzrobots
     {
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    if ( subcomp == connection[n]->subcomponent )
-		if ( connection[n]->softlink == false )
+	    if ( subcomp == connection[n].subcomponent )
+		if ( connection[n].softlink == false )
 		    return true;
 	}
 	return false;
@@ -162,12 +164,13 @@ namespace lpzrobots
     {
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    if ( subcomp == connection[n]->subcomponent )
-//		if ( connection[n].softlink == false )
+	    if ( connection[n].softlink == false )
+	    {
+		if ( subcomp == connection[n].subcomponent )
 		    return true;
-	    if ( connection[n]->subcomponent->hasSubcomponentAll ( subcomp ) == true )
-//		if ( connection[n].softlink == false )
+		if ( connection[n].subcomponent->hasSubcomponentAll ( subcomp ) == true )
 		    return true;
+	    }
 	}
 	return false;
     }
@@ -180,16 +183,16 @@ namespace lpzrobots
 //	    return false;
     }
 
-    Component::componentConnection* Component::getConnection ( int connectionnumber )
+    Component::componentConnection  Component::getConnection ( int connectionnumber )
     {
 	return connection[connectionnumber];
     }
 
     bool Component::setSoftlink ( unsigned int position , bool state )
     {
-	if ( connection.size () >= position )
+	if ( connection.size () > position )
 	{
-	    connection[position]->softlink = state;
+	    connection[position].softlink = state;
 	    return true;
 	}
 	else

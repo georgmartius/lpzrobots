@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    marcel@informatik.uni-leipzig.de                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -50,17 +51,17 @@ namespace lpzrobots
 	    //sensor values of this component, and its robot
 	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
 		//Fixed- and Ball-Joint-Classes do not have the getPosition-function
-		if ( ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeBall ) )
+		if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeBall ) )
 		{
 		    //nothing is done
 		}
 		else //now all other joints, which should be normaly used, are treated; they are all subclasses of the OneAxisJoint-class
 		{
-		    sensors[n] = ((OneAxisJoint*) connection[n]->joint)->getPosition1 ();
+		    sensors[n] = ((OneAxisJoint*) connection[n].joint)->getPosition1 ();
 		    sensorcounter++;
-		    if ( ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeUniversal ) )
+		    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
 		    {
-			sensors[n] = ((TwoAxisJoint*) connection[n]->joint)->getPosition2 ();
+			sensors[n] = ((TwoAxisJoint*) connection[n].joint)->getPosition2 ();
 			sensorcounter++;
 		    }
 		}
@@ -75,8 +76,8 @@ namespace lpzrobots
 	    //sensor values of all subcomponents and their robots
 	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	    {
-		if ( connection[n]->softlink == false )
-		    sensorcounter += connection[n]->subcomponent->getSensors ( &sensors[sensorcounter] , connection[n]->subcomponent->getSensorNumber () );
+		if ( connection[n].softlink == false )
+		    sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
 	    }
 
 	}
@@ -91,13 +92,13 @@ namespace lpzrobots
 
 	for ( int n = 0; ( (unsigned int) n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
 	{
-	    connection[n]->joint->setParam ( dParamVel , motors[n]*conf.speed ); // set velocity
-	    connection[n]->joint->setParam ( dParamFMax ,conf.max_force );       // set maximal force
+	    connection[n].joint->setParam ( dParamVel , motors[n]*conf.speed ); // set velocity
+	    connection[n].joint->setParam ( dParamFMax ,conf.max_force );       // set maximal force
 
-	    if ( ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeUniversal ) )
+	    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
 	    {
-		connection[n]->joint->setParam ( dParamVel2 , motors[n]*conf.speed ); // set velocity2
-		connection[n]->joint->setParam ( dParamFMax2 ,conf.max_force );       // set maximal force2
+		connection[n].joint->setParam ( dParamVel2 , motors[n]*conf.speed ); // set velocity2
+		connection[n].joint->setParam ( dParamFMax2 ,conf.max_force );       // set maximal force2
 		motorcounter++;
 	    }
 	}
@@ -112,11 +113,11 @@ namespace lpzrobots
 
 	for ( int n = 0; ( (unsigned int) n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
 	{
-	    if ( connection[n]->softlink == false )
+	    if ( connection[n].softlink == false )
 	    {
 		tmpmotors = (motor*) &motors[motorcounter]; //the pointer for the new array
-		connection[n]->subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
-		motorcounter += connection[n]->subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
+		connection[n].subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
+		motorcounter += connection[n].subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
 	    }
 
 	}
@@ -134,21 +135,21 @@ namespace lpzrobots
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
 	    //counting the sensors by the type of the used joint, coded by ode type, because the joints are created external
-	    if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge )
+	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
 		sensors++;
 	    else
-		if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeSlider )
+		if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeSlider )
 		    sensors++;
 		else
-		    if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge2 )
+		    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
 			sensors = sensors + 2;
 		    else
-			if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeUniversal )
+			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
 			    sensors = sensors + 2;
 	
     	    //recursive sensor-counting for all subcomponents
-	    if ( connection[n]->softlink == false )
-		sensors += connection[n]->subcomponent->getSensorNumber ();
+	    if ( connection[n].softlink == false )
+		sensors += connection[n].subcomponent->getSensorNumber ();
 	}
 
 	return sensors;
@@ -166,22 +167,22 @@ namespace lpzrobots
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
 	    //counting the motors by the type of the used joint, coded by ode type, because the joints are created external
-	    if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge )
+	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
 		motors++;
 	    else
-		if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeSlider )
+		if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeSlider )
 		    motors++;
 		else
-		    if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeHinge2 )
+		    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
 			motors = motors + 2;
 		    else
-			if ( dJointGetType ( connection[n]->joint->getJoint () ) == dJointTypeUniversal )
+			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
 			    motors = motors + 2;
 	     
 
 	    //recursive motor-counting for all subcomponents
-	    if ( connection[n]->softlink == false )
-		motors += connection[n]->subcomponent->getMotorNumber ();
+	    if ( connection[n].softlink == false )
+		motors += connection[n].subcomponent->getMotorNumber ();
 	}
 
 	return motors;
@@ -195,8 +196,8 @@ namespace lpzrobots
 	//all subcomponents and joints also are updated
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    connection[n]->joint->update ();
-	    connection[n]->subcomponent->update ();
+	    connection[n].joint->update ();
+	    connection[n].subcomponent->update ();
 	}
     }
 
@@ -210,8 +211,8 @@ namespace lpzrobots
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    newpos = connection[n]->subcomponent->getPosition () - ((Pos)pos).toPosition ();
-	    connection[n]->subcomponent->place ( *(new Pos ( newpos )) );
+	    newpos = connection[n].subcomponent->getPosition () - ((Pos)pos).toPosition ();
+	    connection[n].subcomponent->place ( *(new Pos ( newpos )) );
 	}
     }
 
@@ -230,7 +231,7 @@ namespace lpzrobots
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    if ( connection[n]->subcomponent->collisionCallback ( data , o1 , o2 ) )
+	    if ( connection[n].subcomponent->collisionCallback ( data , o1 , o2 ) )
 		return true; // exit if collision was treated by a robot/component
 	}
 
