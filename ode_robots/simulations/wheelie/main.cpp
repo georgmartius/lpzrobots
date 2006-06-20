@@ -33,6 +33,7 @@
 #include <selforg/one2onewiring.h>
 
 #include "wheelie.h"
+#include "sliderwheelie.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -67,31 +68,50 @@ public:
       global.obstacles.push_back(s);    
     }
         
-    OdeAgent *agent;
-    AbstractWiring* wiring;
-//    OdeRobot* robot;
-    AbstractController *controller;
+    OdeAgent *agent, *slideragent;
+    AbstractWiring *wiring, *sliderwiring;
+    AbstractController *controller, *slidercontroller;
+
     
     Wheelie *myWheelie;
     WheelieConf myWheelieConf = DefaultWheelie::getDefaultConf();
-    //******* w H E E L I E *********/
+    /******* w H E E L I E *********/
     myWheelieConf.jointLimit=M_PI/4;
     myWheelieConf.motorPower=0.8;
     myWheelieConf.frictionGround=0.04;
     myWheelie = new Wheelie(odeHandle, osgHandle, myWheelieConf, "Wheelie1");
     ((OdeRobot*) myWheelie)->place(Pos(-5,-5,0.2)); 
-    
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-    //    invertnconf.cInit=2.0;
     controller = new InvertMotorNStep(invertnconf);    
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( plotoptions );
+    agent = new OdeAgent(plotoptions);
     agent->init(controller, myWheelie, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(controller);
     global.configs.push_back(myWheelie);   
     myWheelie->setParam("gamma",/*gb");
     global.obstacles.push_back(s)0.0000*/ 0.0);
+
+
+    SliderWheelie *mySliderWheelie;
+    SliderWheelieConf mySliderWheelieConf = DefaultSliderWheelie::getDefaultConf();
+    /******* S L I D E R - w H E E L I E *********/
+    mySliderWheelieConf.jointLimit=M_PI/4;
+    mySliderWheelieConf.motorPower=0.8;
+    mySliderWheelieConf.frictionGround=0.04;
+    mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
+    ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-4,0.2)); 
+    InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
+    slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
+    sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    slideragent = new OdeAgent(plotoptions);
+    slideragent->init(slidercontroller, mySliderWheelie, sliderwiring);
+    global.agents.push_back(slideragent);
+    global.configs.push_back(slidercontroller);
+    global.configs.push_back(mySliderWheelie);   
+    mySliderWheelie->setParam("gamma",/*gb");
+    global.obstacles.push_back(s)0.0000*/ 0.0);
+
 
   }
   // add own key handling stuff here, just insert some case values
