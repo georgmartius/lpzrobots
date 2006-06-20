@@ -20,6 +20,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
+ *   $Log$
+ *   Revision 1.1.2.4  2006-06-20 07:17:35  robot3
+ *   -changed some behaviour of wheelie
+ *   -added cvs log
+ *
  *
  ***************************************************************************/
 #include "simulation.h"
@@ -79,6 +84,7 @@ public:
     myWheelieConf.jointLimit=M_PI/4;
     myWheelieConf.motorPower=0.8;
     myWheelieConf.frictionGround=0.04;
+    myWheelieConf.jointLimit =  M_PI/4;
     myWheelie = new Wheelie(odeHandle, osgHandle, myWheelieConf, "Wheelie1");
     ((OdeRobot*) myWheelie)->place(Pos(-5,-5,0.2)); 
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
