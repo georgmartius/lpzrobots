@@ -20,6 +20,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
+ *   $Log$
+ *   Revision 1.1.2.2  2006-06-20 07:18:29  robot3
+ *   -added cvs log
+ *   -changed some behaviour of wheelie
+ *
  *
  ***************************************************************************/
 
@@ -89,11 +94,11 @@ namespace lpzrobots {
     j->init(odeHandle, osgHandle, true, conf.segmDia/2*1.02);
 
     // setting stops at universal joints
-    j->setParam(dParamLoStop, -conf.jointLimit*0.5);
-    j->setParam(dParamHiStop,  conf.jointLimit*0.5);
+    j->setParam(dParamLoStop, -conf.jointLimit*1.5);
+    j->setParam(dParamHiStop,  conf.jointLimit*1.5);
     joints.push_back(j);
 
-    HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
+    HingeServo* servo = new HingeServo(j, -conf.jointLimit-M_PI/6, conf.jointLimit-M_PI/6, conf.motorPower);
     hingeServos.push_back(servo);
 //    frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, conf.frictionJoint, conf.frictionJoint));
     // end of normal servos //
@@ -113,7 +118,7 @@ namespace lpzrobots {
    j->setParam(dParamHiStop,  conf.jointLimit*1.5);
    joints.push_back(j);
 
-   HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
+   HingeServo* servo = new HingeServo(j, -conf.jointLimit-M_PI/6, conf.jointLimit-M_PI/6, conf.motorPower);
    hingeServos.push_back(servo);
   }
 
