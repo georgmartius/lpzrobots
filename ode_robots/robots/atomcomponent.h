@@ -76,7 +76,6 @@ class AtomComponent : public Component
     OSGSphere* core;
     Primitive* shell;
 
-
  public:
 
     AtomComponent ( const OdeHandle &odeHandle, const OsgHandle &osgHandle, const ComponentConf& conf, const AtomConf& aconf );

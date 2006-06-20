@@ -24,7 +24,6 @@
 
 #include <math.h>
 #include <ode/ode.h>
-#include <iostream>
 #include <typeinfo>
 
 #include <vector>

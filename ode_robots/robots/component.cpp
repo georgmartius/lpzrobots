@@ -85,7 +85,7 @@ namespace lpzrobots
 	newconnection.joint = newconnectingjoint;
 
 	newconnection.softlink = false;
-
+	newconnection.data = NULL;
 
 	//sets the origin; it is always the origin of the adding component, only the true origin has the originComponent pointer of itself
 //	if ( originComponent == this )
@@ -93,31 +93,37 @@ namespace lpzrobots
 //	else
 //	    newconnection.subcomponent->originComponent = originComponent;
 
-	    
 	connection.push_back ( newconnection );
 
     }
 
     Component* Component::removeSubcomponent ( int n )
     {
-	Component* tmpcomponent;
+	if ( getNumberSubcomponents ()  > 0 && getNumberSubcomponents()  > n )
+	{
+	    Component* tmpcomponent;
 
-	vector <componentConnection>::iterator eraseiterator;
-	eraseiterator = connection.begin () + n;
-	tmpcomponent = connection[n].subcomponent;
+	    vector <componentConnection>::iterator eraseiterator;
+	    eraseiterator = connection.begin () + n;
+	    tmpcomponent = connection[n].subcomponent;
 
-	cout<<"before\n";
-	cout<<"Softlink? : "<<connection[n].softlink<<"\n";
+	    if (connection [n].data != NULL )
+	        delete ( connection[n].data );
+	    else
+		cout<<"tries to delete void* data, but no pointer is set\n";
 
-	delete ( connection[n].data );
-	cout<<"between 1\n";
-	cout<<"Joint? :"<<connection[n].joint<<"\n";
-	delete ( connection[n].joint );
-	cout<<"between 2\n";
-	connection.erase ( eraseiterator );
-	cout<<"after\n";
+	    if ( connection[n].joint != NULL )
+		delete ( connection[n].joint );
+	    else
+		cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
 
-	return tmpcomponent;
+	    connection[n].subcomponent->originComponent = connection[n].subcomponent;
+
+	    connection.erase ( eraseiterator );
+
+	    return tmpcomponent;
+	}
+	return NULL;
     }
 
 
@@ -135,9 +141,16 @@ namespace lpzrobots
 		tmpcomponent = connection[n].subcomponent;
 
 		//deleting the joint
-		delete ( connection[n].joint );
+		if ( connection[n].joint != NULL )
+		    delete ( connection[n].joint );
+		else
+		    cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
+
 		//deleting the extra data pointer
-		delete ( connection[n].data );
+		if (connection [n].data != NULL )
+		    delete ( connection[n].data );
+		else
+		    cout<<"tries to delete void* data, but no pointer is set\n";
 
 		connection.erase ( it );
 
