@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-06-16 22:27:26  martius
+ *   Revision 1.1.2.5  2006-06-22 12:25:45  der
+ *   added setGroundTexture and setGroundColor
+ *
+ *   Revision 1.1.2.4  2006/06/16 22:27:26  martius
  *   getMainPrimtive
  *
  *   Revision 1.1.2.3  2006/05/23 14:13:41  der
@@ -64,6 +67,8 @@ public:
     ground_length=10.0f;
     groundPlane=0;
     wallTextureFileName="Images/wall.rgb";
+    wallTextureFileName="Images/greenground.rgb";
+    groundColor=Color(1.0f,1.0f,1.0f);
   };
   
   virtual ~AbstractGround(){
@@ -124,13 +129,45 @@ public:
 
   virtual Primitive* getMainPrimitive() const { return groundPlane; }
 
+  virtual void setGroundTexture(const std::string& filename){
+    groundTextureFileName=filename;
+    if (obstacle_exists) {
+      std::cout << "ERROR: "
+		<< "setGroundTexture(const std::sting& filename) has no effect AFTER setPosition(osg::Vec3) !!!"
+		<< std::endl;
+      std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
+      exit(-1);
+    }
+  }
+
+  /**
+   * sets the ground color
+   * should be called before setPosition()
+   * @param color values in RGBA
+   */
+  virtual void setGroundColor(const Color& color) {
+    groundColor = color;
+    if (obstacle_exists) {
+      std::cout << "ERROR: "
+		<< "setGroundColor(const Color& color) has no effect AFTER setPosition(osg::Vec3) !!!"
+		<< std::endl;
+      std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
+      exit(-1);
+    }
+  };
+
+
+
 protected:
+
 
     vector<Primitive*> obst; //obstacles
     Box* groundPlane; // the groundplane
     bool creategroundPlane;
     double ground_length;
     string wallTextureFileName;
+    Color groundColor;
+    string groundTextureFileName;
 
     virtual void recreate() {
       if (obstacle_exists){
@@ -150,8 +187,8 @@ protected:
 	groundPlane->init(odeHandle, 0, osgHandle,
 			  Primitive::Geom | Primitive::Draw);
 	groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
-	groundPlane->getOSGPrimitive()->setColor(Color(1.0f,1.0f,1.0f));
-	groundPlane->getOSGPrimitive()->setTexture("Images/greenground.rgb",true,true);
+	groundPlane->getOSGPrimitive()->setColor(groundColor);
+	groundPlane->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);
       }
     }
 
