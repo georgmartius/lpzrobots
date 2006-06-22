@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-12-06 17:38:21  martius
+ *   Revision 1.1.2.2  2006-06-22 11:38:07  robot3
+ *   *** empty log message ***
+ *
+ *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
  *   *** empty log message ***
  *
  *                                                                 *
