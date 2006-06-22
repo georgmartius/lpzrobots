@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +24,7 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-06-22 11:33:43  robot3
+ *   Revision 1.1.2.1  2006-06-22 11:33:30  robot3
  *   moved boundingshape implementation to .cpp-file
  *
  *   Revision 1.1.2.3  2006/05/29 22:22:07  martius
@@ -40,13 +41,10 @@
  *
  *                                                                 *
  ***************************************************************************/
-#ifndef __BOUNDINGSHAPE_H
-#define __BOUNDINGSHAPE_H
 
-#include "primitive.h"
+#include "boundingshape.h"
 
-#include <list>
-#include <string>
+#include <iostream>
 
 namespace lpzrobots {
 
@@ -57,31 +55,48 @@ namespace lpzrobots {
      cylinder radius height (x,y,z) (alpha, beta, gamma)
      capsule radius height (x,y,z) (alpha, beta, gamma)
      box length width height (x,y,z) (alpha, beta, gamma)
-     (x,y,z) is the position vector and (alpha, beta, gamma) are 
+     (x,y,z) is the position vector and (alpha, beta, gamma) are
      the rotation angles about x,y,z axis respectively        
   */
 
-  class BoundingShape{
+  BoundingShape::BoundingShape(const std::string& filename) : filename(filename) {}
+  
+  BoundingShape::~BoundingShape(){}
 
-  public:
-    BoundingShape(const std::string& filename);
-
-    virtual ~BoundingShape();
-
-    bool readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		      const osg::Matrix& pose, double scale, char mode);
+  bool BoundingShape::readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+				   const osg::Matrix& pose, double scale, char mode){
+    // TODO: use search path (maybe try to use some osgDB function)
+    FILE* f = fopen(filename.c_str(),"r");
+    if(!f) return false;
+      char buffer[128];
+      float r,x,y,z;
+      while(fgets(buffer,128,f)){
+	if(strstr(buffer,"sphere")==buffer){
+	  if(sscanf(buffer+7, "%g (%g,%g,%g)", &r, &x, &y, &z)==4){
+	    Sphere* s = new Sphere(r * scale);
+	    s->init(odeHandle,0,osgHandle, mode);
+	    s->setPose(osg::Matrix::translate(scale*x,scale*y,scale*z) * pose);
+	    geoms.push_back(s);
+	    std::cout << "line with sphere parsed successful.";
+	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
+	} else if(strstr(buffer,"capsule")==buffer){
+	  fprintf(stderr, "Not implemented : %s", buffer);
+	} else if(strstr(buffer,"cylinder")==buffer){
+	  fprintf(stderr, "Not implemented : %s", buffer);
+	} else if(strstr(buffer,"box")==buffer){
+	  fprintf(stderr, "Not implemented : %s", buffer);
+	}else {
+	  fprintf(stderr, "Unknown Line: %s", buffer);
+	}
+      }
+      return true;
+    }
       
-    virtual bool init(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const osg::Matrix& pose,
-		      double scale, char mode);
+    bool BoundingShape::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const osg::Matrix& pose,
+		      double scale, char mode){
+      return readBBoxFile(filename, odeHandle, osgHandle, pose, scale, mode);
+    }
     
-    virtual void update();
-
-  private:
-    std::list<Primitive*> geoms;
-    std::string filename;
-
-  };
-
+    void BoundingShape::update(){
+    }
 }
-
-#endif
