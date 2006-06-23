@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-06-22 11:33:43  robot3
+ *   Revision 1.1.2.5  2006-06-23 08:54:40  robot3
+ *   made some changes on primitive Mesh (including boundingshape)
+ *
+ *   Revision 1.1.2.4  2006/06/22 11:33:43  robot3
  *   moved boundingshape implementation to .cpp-file
  *
  *   Revision 1.1.2.3  2006/05/29 22:22:07  martius
@@ -38,7 +42,7 @@
  *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
  *   *** empty log message ***
  *
- *                                                                 *
+ *                                                                         *
  ***************************************************************************/
 #ifndef __BOUNDINGSHAPE_H
 #define __BOUNDINGSHAPE_H
@@ -47,6 +51,7 @@
 
 #include <list>
 #include <string>
+
 
 namespace lpzrobots {
 
@@ -76,9 +81,12 @@ namespace lpzrobots {
     
     virtual void update();
 
+    virtual bool isActive();
+
   private:
     std::list<Primitive*> geoms;
     std::string filename;
+    bool active;
 
   };
 

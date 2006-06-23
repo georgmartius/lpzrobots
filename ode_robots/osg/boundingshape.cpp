@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-06-22 11:33:30  robot3
+ *   Revision 1.1.2.2  2006-06-23 08:54:53  robot3
+ *   made some changes on primitive Mesh (including boundingshape)
+ *
+ *   Revision 1.1.2.1  2006/06/22 11:33:30  robot3
  *   moved boundingshape implementation to .cpp-file
  *
  *   Revision 1.1.2.3  2006/05/29 22:22:07  martius
@@ -59,7 +62,9 @@ namespace lpzrobots {
      the rotation angles about x,y,z axis respectively        
   */
 
-  BoundingShape::BoundingShape(const std::string& filename) : filename(filename) {}
+  BoundingShape::BoundingShape(const std::string& filename) : filename(filename) {
+    active=false;
+  }
   
   BoundingShape::~BoundingShape(){}
 
@@ -69,7 +74,7 @@ namespace lpzrobots {
     FILE* f = fopen(filename.c_str(),"r");
     if(!f) return false;
       char buffer[128];
-      float r,x,y,z;
+      float r,h,x,y,z;
       while(fgets(buffer,128,f)){
 	if(strstr(buffer,"sphere")==buffer){
 	  if(sscanf(buffer+7, "%g (%g,%g,%g)", &r, &x, &y, &z)==4){
@@ -77,10 +82,14 @@ namespace lpzrobots {
 	    s->init(odeHandle,0,osgHandle, mode);
 	    s->setPose(osg::Matrix::translate(scale*x,scale*y,scale*z) * pose);
 	    geoms.push_back(s);
-	    std::cout << "line with sphere parsed successful.";
 	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
 	} else if(strstr(buffer,"capsule")==buffer){
-	  fprintf(stderr, "Not implemented : %s", buffer);
+	  if(sscanf(buffer+7, "%g %g (%g,%g,%g)", &r, &h, &x, &y, &z)==5){
+	    Capsule* c = new Capsule(r * scale,h * scale);
+	    c->init(odeHandle,0,osgHandle, mode);
+	    c->setPose(osg::Matrix::translate(scale*x,scale*y,scale*z) * pose);
+	    geoms.push_back(c);
+	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
 	} else if(strstr(buffer,"cylinder")==buffer){
 	  fprintf(stderr, "Not implemented : %s", buffer);
 	} else if(strstr(buffer,"box")==buffer){
@@ -89,6 +98,7 @@ namespace lpzrobots {
 	  fprintf(stderr, "Unknown Line: %s", buffer);
 	}
       }
+      active=true;
       return true;
     }
       
@@ -96,7 +106,17 @@ namespace lpzrobots {
 		      double scale, char mode){
       return readBBoxFile(filename, odeHandle, osgHandle, pose, scale, mode);
     }
-    
+
     void BoundingShape::update(){
+      // update all primitives in list
+      for(std::list<Primitive*>::iterator i=geoms.begin();i!=geoms.end();i++) {
+	  (*i)->update();
+	  std::cout << "updating boundingshape!" << std::endl;
+	}
     }
+
+  bool BoundingShape::isActive(){
+    return active;
+  }
+
 }
