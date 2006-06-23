@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-06-16 22:27:26  martius
+ *   Revision 1.1.2.3  2006-06-23 09:01:14  robot3
+ *   made changes on primitive Mesh
+ *
+ *   Revision 1.1.2.2  2006/06/16 22:27:26  martius
  *   getMainPrimtive
  *
  *   Revision 1.1.2.1  2006/05/29 19:17:41  robot3
@@ -93,7 +96,7 @@ class PassiveMesh : public AbstractObstacle{
   
  protected:
   virtual void create(){
-    mesh = new Mesh(filename,scale);
+    mesh = new Mesh(filename,scale,true);
     mesh->init(odeHandle, mass, osgHandle);
     osg::Vec3 pos=pose.getTrans();
     pos[2]+=mesh->getRadius();
