@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-06-09 15:43:49  fhesse
+ *   Revision 1.1.2.3  2006-06-23 09:04:48  robot3
+ *   added #include <assert.h>
+ *
+ *   Revision 1.1.2.2  2006/06/09 15:43:49  fhesse
  *   include assert.h added
  *
  *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
@@ -54,6 +57,7 @@
 //#include <osg/LightSource>
 #include <osg/Material>
 #include <osg/TexEnv>
+#include <assert.h>
 
 #include "imageppm.h"
 

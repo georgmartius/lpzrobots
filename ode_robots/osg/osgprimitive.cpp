@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.16  2006-05-28 22:14:56  martius
+ *   Revision 1.1.2.17  2006-06-23 09:04:48  robot3
+ *   added #include <assert.h>
+ *
+ *   Revision 1.1.2.16  2006/05/28 22:14:56  martius
  *   heightfield included
  *
  *   Revision 1.1.2.15  2006/05/24 12:23:10  robot3
@@ -144,7 +147,7 @@ namespace lpzrobots {
   }
 
  void OSGPrimitive::setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY){
-    osg::Group* grp = getGroup();    
+    osg::Group* grp = getGroup();
     osg::Texture2D* texture = new osg::Texture2D;
     texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
     texture->setImage(osgDB::readImageFile(filename));
