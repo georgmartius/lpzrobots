@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.6  2006-05-29 20:09:36  martius
+ *   Revision 1.15.4.7  2006-06-23 09:05:55  robot3
+ *   robodrom has now golden ground, modified some other things
+ *
+ *   Revision 1.15.4.6  2006/05/29 20:09:36  martius
  *   macrospheres
  *
  *   Revision 1.15.4.5  2006/05/29 18:58:13  martius
@@ -93,14 +96,14 @@ public:
     //SphererobotArms* sphere = new SphererobotArms ( odeHandle, conf);
     if(i==0){
       col.r()=0;
-      col.g()=0.5;
-      col.b()=1;
+      col.g()=1;
+      col.b()=0.1;
       sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere", 0.4);
       sphere->place ( osg::Matrix::translate(9.5 , 0 , height+1 ));
     }else
       if(i==1){
 	col.r()=1;
-	col.g()=0.4;
+	col.g()=0.2;
 	col.b()=0;
 	sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere", 0.4);
 	sphere->place ( osg::Matrix::translate( 2 , -2 , height+1 ));
@@ -140,7 +143,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    setCameraHomePos(Pos(16.3129, 18.2069, 12.5683),  Pos(137.914, -28.1771, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -155,7 +158,7 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, height));
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, height+0.3f));
     playground->setPosition(osg::Vec3(0,0,0.01)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
@@ -164,9 +167,9 @@ public:
 //       new TerrainGround(odeHandle, osgHandle,
 //  			"terrains/threebumps.ppm", "terrains/threebumps.ppm", 20, 20, height);
     TerrainGround* terrainground = 
-      new TerrainGround(odeHandle, osgHandle,
-			"terrains/macrospheresLMH_64.ppm", "terrains/macrospheresTex_256.ppm", 
-			20, 20, height, OSGHeightField::LowMidHigh);
+      new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,194.0/255.0,41.0/255.0)),
+			"terrains/macrospheresLMH_64.ppm",""/*"Images/dusty.rgb" "terrains/macrospheresTex_256.ppm"*/, 
+			20, 20, height, OSGHeightField::Red);
     terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
     global.obstacles.push_back(terrainground);
     
