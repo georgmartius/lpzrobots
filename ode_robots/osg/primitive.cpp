@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.16  2006-05-29 22:03:49  martius
+ *   Revision 1.1.2.17  2006-06-23 08:53:40  robot3
+ *   made some changes on primitive Mesh
+ *
+ *   Revision 1.1.2.16  2006/05/29 22:03:49  martius
  *   cylinder
  *
  *   Revision 1.1.2.15  2006/05/29 21:26:48  robot3
@@ -179,7 +182,12 @@ namespace lpzrobots{
   }
 
   osg::Matrix Primitive::getPose() const {
-    if(!body) return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));    
+    if(!body) {
+      if (!geom) 
+	return osg::Matrix::translate(0.0f,0.0f,0.0f); // fixes init bug
+	else 
+	return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));    
+    }
     return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
   }
 
@@ -437,9 +445,9 @@ namespace lpzrobots{
     filename(filename), scale(scale)  {    
     osgmesh = new OSGMesh(filename, scale);
     if (drawODEBoundings)
-      drawBoundingMode=Primitive::Geom | Primitive::Body | Primitive::Draw;
+      drawBoundingMode=Primitive::Geom | Primitive::Draw;
     else
-      drawBoundingMode=Primitive::Geom | Primitive::Body;
+      drawBoundingMode=Primitive::Geom;
   }
 
   Mesh::~Mesh(){
@@ -455,8 +463,8 @@ namespace lpzrobots{
     }
     // read boundingshape file
     const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
-    BoundingShape* boundshape = new BoundingShape(filename  + ".bbox" );
-    if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(0,1,0,0.2)), 
+    boundshape = new BoundingShape(filename  + ".bbox" );
+    if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.2)), 
 			 getPose(), scale, drawBoundingMode)){
       printf("use default bounding box, because bbox file not found\n");
       Primitive* bound = new Sphere(osgmesh->getRadius()); 
@@ -485,6 +493,9 @@ namespace lpzrobots{
     if(mode & Draw) {
       if(body)
 	osgmesh->setMatrix(osgPose(body));
+      // update boundingshape
+      if (boundshape->isActive())
+	boundshape->update();
       else 
 	osgmesh->setMatrix(osgPose(geom));
     }

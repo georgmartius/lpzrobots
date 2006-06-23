@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.13  2006-05-29 22:03:26  martius
+ *   Revision 1.1.2.14  2006-06-23 08:53:56  robot3
+ *   made some changes on primitive Mesh
+ *
+ *   Revision 1.1.2.13  2006/05/29 22:03:26  martius
  *   cylinder
  *
  *   Revision 1.1.2.12  2006/05/29 21:27:02  robot3
@@ -81,8 +84,10 @@
 
 #include <ode/common.h>
 
+
 namespace lpzrobots {
 
+class BoundingShape; // forward declaration
 
 /// returns the osg (4x4) pose matrix of the ode geom
 osg::Matrix osgPose( dGeomID geom );
@@ -255,6 +260,7 @@ protected:
   char drawBoundingMode;
   const std::string filename;
   float scale;
+  BoundingShape* boundshape;
 };
 
 
