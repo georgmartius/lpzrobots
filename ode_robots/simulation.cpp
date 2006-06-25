@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.30  2006-05-28 22:11:44  martius
+ *   Revision 1.40.4.31  2006-06-25 16:52:23  martius
+ *   filelogging is done with a plotoption
+ *
+ *   Revision 1.40.4.30  2006/05/28 22:11:44  martius
  *   - noshadow cmdline flag
  *
  *   Revision 1.40.4.29  2006/05/15 13:07:35  robot3
@@ -429,24 +432,6 @@ namespace lpzrobots {
 
   bool Simulation::run(int argc, char** argv){
 
-    // guilogger-loading stuff here
-    // start with online windows (default: start without plotting and logging)
-    if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-
-    // start with online windows and logging to file
-    if(contains(argv, argc, "-f")) plotoptions.push_back(PlotOption(GuiLogger_File, Controller, 5));
- 
-    // note: display help (-h) is handled later
-
-    // use of NeuronViz 
-    if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));
-
-
-    // set default configuration for plotting and logging
-    if (plotoptions.size()==0)
-      plotoptions.push_back(PlotOption(NoPlot, Controller, 5));
-    
-
     if(!init(argc, argv)) return false;
   
     // information on terminal, can be removed if the printout is undesired
@@ -622,13 +607,17 @@ namespace lpzrobots {
 	switch(ea.getKey()){
 	case 6 : // Ctrl - f
 	  for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
-	    (*i)->switchFileLogging();
+	    if(!(*i)->removePlotOption(File)){
+	      (*i)->addPlotOption(PlotOption(File, Controller, filelogginginterval));
+	    }
 	  }
 	  return true;
 	  break;
 	case 7 : // Ctrl - g
 	  for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
-	    (*i)->switchPlotType();
+	    if(!(*i)->removePlotOption(GuiLogger)){
+	      (*i)->addPlotOption(PlotOption(GuiLogger, Controller, guiloggerinterval));
+	    }	  
 	  }
 	  return true;
 	  break;
@@ -715,11 +704,34 @@ namespace lpzrobots {
   void Simulation::processCmdLine(int argc, char** argv){
     if(contains(argv, argc, "-h")) usage(argv[0]);
 
-    int seedIndex = contains(argv, argc, "-r");
+    // guilogger-loading stuff here
+    // start with online windows
+    int index = contains(argv, argc, "-g");
+    guiloggerinterval=1;
+    if(index) {
+      if(argc > index)	
+	guiloggerinterval=atoi(argv[index]);
+      plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval));      
+    }
+
+    // logging to file
+    filelogginginterval=5;
+    index = contains(argv, argc, "-f");
+    if(index) {
+      if(argc > index)	
+	filelogginginterval=atoi(argv[index]);
+      plotoptions.push_back(PlotOption(File, Controller, filelogginginterval));      
+    }
+ 
+    // note: display help (-h) is handled later
+    // use of NeuronViz 
+    if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));
+
+    index = contains(argv, argc, "-r");
     long seed=0;
     // initialize random number generator
-    if(seedIndex && argc > seedIndex) {
-      seed=atoi(argv[seedIndex]);
+    if(index && argc > index) {
+      seed=atoi(argv[index]);
     }else{
 
       seed=time(0);
@@ -842,9 +854,11 @@ namespace lpzrobots {
   }
 
   void Simulation::usage(const char* progname){
-    printf("Usage: %s [-g] [-f] [-r seed]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile\n\t-r seed\trandom number seed ", progname);
-    printf("Parameter: %s [-r SEED] [-x WxH] [-pause]\n", progname);
-    printf("\t-r SEED\t\tuse SEED as random number seed\n");
+    printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed] [-x WxH] [-pause] [-noshadow]\n", 
+	   progname);
+    printf("\t-g [interval]\tuse guilogger (default interval 1)\n");
+    printf("\t-f [interval]\twrite logging file (default interval 5)\n");
+    printf("\t-r seed\trandom number seed ");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (640x480 default)\n");
     printf("\t-pause \t\tstart in pause mode\n");
     printf("\t-noshadow \t\tdisables shadows and shaders\n");

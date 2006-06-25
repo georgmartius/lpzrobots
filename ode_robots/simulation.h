@@ -27,7 +27,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.17  2006-05-28 22:12:03  martius
+ *   Revision 1.18.4.18  2006-06-25 16:52:23  martius
+ *   filelogging is done with a plotoption
+ *
+ *   Revision 1.18.4.17  2006/05/28 22:12:03  martius
  *   - noshadow cmdline flag
  *
  *   Revision 1.18.4.16  2006/05/15 13:07:48  robot3
@@ -191,8 +194,7 @@ namespace lpzrobots {
 
     /// end() is called at the end and should tidy up
     virtual void end(GlobalData& globalData);
-    /** config() is called when the user presses Ctrl-C. 
-	Default: Call \ref changeParams(globalData.configs) */
+    /** config() is called when the user presses Ctrl-C */
     virtual void config(GlobalData& globalData);
     /** command() is called if a key was pressed
 	keycodes see: osgGA::GUIEventAdapter
@@ -275,7 +277,10 @@ namespace lpzrobots {
     bool useShadow;
 
     long sim_step;
-  
+
+    int guiloggerinterval;
+    int filelogginginterval;
+
     //  CameraType camType; // default is a non-moving and non-rotating camera
     //  OdeRobot* viewedRobot; // the robot who is viewed from the camera
 
