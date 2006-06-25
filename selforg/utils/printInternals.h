@@ -39,7 +39,7 @@ void printInternalParameters(FILE* f,
     \endcode
     All identifiers are alphanumeric without spaces.
 */
-void printNetworkDescription(FILE* f, const string& name, const Inspectable* inspectable);
+void printNetworkDescription(FILE* f, const std::string& name, const Inspectable* inspectable);
 
 
 #endif

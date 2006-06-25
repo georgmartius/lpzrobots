@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-05-23 21:13:08  martius
+ *   Revision 1.1.2.7  2006-06-25 16:51:35  martius
+ *   configureable has name and revision
+ *   a robot is configureable by default
+ *
+ *   Revision 1.1.2.6  2006/05/23 21:13:08  martius
  *   - add virtual destructor
  *
  *   Revision 1.1.2.5  2006/05/15 13:08:34  robot3
@@ -75,7 +79,9 @@
 
 #include <stdio.h>
 #include <list>
-using namespace std;
+#include <utility>
+#include <string>
+
 
 class AbstractRobot;
 class AbstractController;
@@ -89,11 +95,13 @@ class Agent;
 /** Plot mode for plot agent. (only used by initialization)
  */
 enum PlotMode {
-  /// no plotting to screen or logging to file
+  /// dummy (does nothing) is there for compatibility, might be removed later
   NoPlot, 
-  /// only plotting to screen, no logging to file 
+  /// write into file
+  File, 
+  /// plotting with guilogger (gnuplot)
   GuiLogger, 
-  /// plotting to screen and logging to file
+  /// plotting with guiscreen (gnuplot) in file logging mode
   GuiLogger_File,
   /// net visualiser
   NeuronViz
@@ -112,32 +120,27 @@ public:
   friend class Agent;
 
 
-  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; logfile=0; }
+  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; }
   PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, int interval = 1)
-    :mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0; logfile=0;}
+    : mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0;}
 
   virtual ~PlotOption(){}
 
-  // switches between the plot type pause and window
-  virtual void switchPlotType();
-
-  // switches the file logging
-  virtual void switchFileLogging();
+  /// nice predicate function for finding by mode
+  struct matchMode : public std::unary_function<const PlotOption&, bool> {
+    matchMode(PlotMode mode) : mode(mode) {}
+    int mode;
+    bool operator()(const PlotOption& m) { return m.mode == mode; }
+  };
 
 private:
-
  
- 
-  void openFileLogging(); /// inits the file logging
-  void closeFileLogging(); /// closes the filelog
-  
-
   bool open(); /// opens the connections to the plot tool 
   void close();/// closes the connections to the plot tool
 
   FILE* pipe;
-  FILE* logfile;
   long t;
+  std::string name;
 
   PlotMode mode;
   PlotSensors whichSensors;
@@ -153,7 +156,7 @@ public:
   /** constructor
    */
   Agent(const PlotOption& plotOption);
-  Agent(const list<PlotOption>& plotOptions);
+  Agent(const std::list<PlotOption>& plotOptions);
 
   /** destructor
    */
@@ -188,11 +191,15 @@ public:
   virtual void setTrackOptions(const TrackRobot& trackrobot);
 
 
-  // switches between the plot type pause and window
-  virtual void switchPlotType();
+  /** adds the PlotOptions to the list of plotoptions
+      If a plotoption with the same Mode exists, then the old one is deleted first
+   */
+  virtual void addPlotOption(const PlotOption& plotoption);
 
-  // switches the file logging
-  virtual void switchFileLogging();
+  /** removes the PlotOptions with the given type 
+      @return true if sucessful, false otherwise
+   */
+  virtual bool removePlotOption(PlotMode mode);
   
 protected:
 
@@ -230,18 +237,10 @@ protected:
   TrackRobot trackrobot;
 
  private:
-  list<PlotOption> plotOptions;
+  std::list<PlotOption> plotOptions;
 
   int t;
 
-  // inits the plotting pipe
-  virtual void initPlottingPipe();
-
-  // inits the logfile
-  virtual void initLoggingFile();
-
-  // closes the plotting pipe
-  virtual void closePlottingPipe();
 };
 
 #endif

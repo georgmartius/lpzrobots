@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2005-11-14 17:37:56  martius
+ *   Revision 1.1.2.2  2006-06-25 16:51:35  martius
+ *   configureable has name and revision
+ *   a robot is configureable by default
+ *
+ *   Revision 1.1.2.1  2005/11/14 17:37:56  martius
  *   moved to selforg
  *
  *   Revision 1.11  2005/10/06 17:14:24  martius
@@ -64,9 +68,9 @@
 #define __ABSTRACTROBOT_H
 
 #include <vector>
-using namespace std;
  
 #include "trackable.h"
+#include "configurable.h"
 #include "position.h"
 #include "types.h"
 
@@ -75,21 +79,18 @@ using namespace std;
  * 
  * 
  */
-class AbstractRobot : public Trackable {
+class AbstractRobot : public Trackable, public Configurable {
 public:
 
   /**
    * Constructor
    * @param name name of the robot
    */
-  AbstractRobot(const char* name="abstractRobot")
-    : name(name) {
+  AbstractRobot(const std::string& name="abstractRobot", const std::string& revision = "$ID$")
+    : Configurable(name, revision) {
   };
 
   virtual ~AbstractRobot(){}
-
-  /// returns the name of the robot
-  string getName() const { return name;}
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
@@ -112,13 +113,8 @@ public:
   */
   virtual int getMotorNumber()=0;
 
+  
 
-protected:
-  /// sets the name of the robot (only for child classes)
-  void setName(const char* name) { this->name = name; }
-
- protected:
-  string name;
 };
 
 #endif

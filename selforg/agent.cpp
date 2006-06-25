@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-05-29 20:43:28  martius
+ *   Revision 1.1.2.11  2006-06-25 16:51:35  martius
+ *   configureable has name and revision
+ *   a robot is configureable by default
+ *
+ *   Revision 1.1.2.10  2006/05/29 20:43:28  martius
  *   better file name for logging
  *
  *   Revision 1.1.2.9  2006/05/29 12:11:12  fhesse
@@ -108,6 +112,8 @@
 #include <time.h>
 #include <string.h>
 
+using namespace std;
+
 Agent::Agent(const PlotOption& plotOption){
   internInit();
   plotOptions.push_back(plotOption);
@@ -131,7 +137,10 @@ void Agent::internInit(){
 }
   
 Agent::~Agent(){
-  closePlottingPipe();
+  // closes all pipes of the agents due to pause mode or so
+  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
+    removePlotOption((*i).mode);
+  }
   trackrobot.close();
   if(rsensors) free(rsensors);
   if(rmotors)  free(rmotors);
@@ -160,159 +169,57 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
     csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
     cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
 
-    // open the plotting pipe (and file logging) if configured
-    for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-      // this prevents the simulation to terminate if the child  closes
-      // or if we fail to open it.
-      signal(SIGPIPE,SIG_IGN); 
-      (*i).open();
-    }    
-    // init the plotting pipe 
-    initPlottingPipe();
 
-    // init the file
-    initLoggingFile();
+    // copy plotoption list and add it one by one
+    list<PlotOption> po_copy(plotOptions);
+    plotOptions.clear();
+    // open the plotting pipe (and file logging) if configured
+    for(list<PlotOption>::iterator i=po_copy.begin(); i != po_copy.end(); i++){
+      addPlotOption(*i);
+    }    
     
     return true;
   }
 }
 
-void Agent::initPlottingPipe() {
-  /// prints all the internal parameters so that the pipe for guilogger is correct initialized
-  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    if((*i).pipe){
-      // print network description given by the structural information of the controller
-      printNetworkDescription((*i).pipe, "Lpzrobots"/*controller->getName()*/, controller);
-      // print interval
-      if((*i).interval > 1) fprintf((*i).pipe, "# Recording every %dth dataset\n", (*i).interval);
-      // print all parameters of the controller
-      controller->print((*i).pipe, "# ");
-      // print head line with all parameter names
-	unsigned int snum = (*i).whichSensors == Robot ? rsensornumber : csensornumber;
-	Inspectable* inspectables[2] = {controller, wiring};      
-	printInternalParameterNames((*i).pipe, snum, cmotornumber, inspectables, 2);
-    }
-  }    
-}
+void Agent::addPlotOption(const PlotOption& plotOption) {
+  PlotOption po = plotOption;
+  // if plotoption with the same mode exists -> delete it
+  removePlotOption(po.mode);
 
-
-void Agent::initLoggingFile() {
-  /// prints all the internal parameters so that the pipe for guilogger is correct initialized
-  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    if((*i).logfile){
-      // print network description given by the structural information of the controller
-      printNetworkDescription((*i).logfile, "Lpzrobots"/*controller->getName()*/, controller);
-      // print interval
-      if((*i).interval > 1) fprintf((*i).logfile, "# Recording every %dth dataset\n", (*i).interval);
-      // print all parameters of the controller
-      controller->print((*i).logfile, "# ");
-      // print head line with all parameter names
-	unsigned int snum = (*i).whichSensors == Robot ? rsensornumber : csensornumber;
-	Inspectable* inspectables[2] = {controller, wiring};      
-	printInternalParameterNames((*i).logfile, snum, cmotornumber, inspectables, 2);
-    }
-  }    
-}
-
-
-void Agent::closePlottingPipe() {
-  // closes all pipes of the agents due to pause mode or so
-  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    (*i).close();
-  }
-}
-
-// switches between the plot type pause and window
-void Agent::switchPlotType() {
-  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    (*i).switchPlotType();
-  }
-  initPlottingPipe();
-}
-
-void Agent::switchFileLogging() {
-  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    (*i).switchFileLogging();
-  }
-  initLoggingFile();
-}
-
-
-
-bool PlotOption::open(){
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN); 
-  // TODO: get the guilogger call from some config
-  switch(mode){
-  case GuiLogger_File:
-    pipe=popen("guilogger -m pipe -d 5","w");
-    openFileLogging(); // and init the file logging
-    break;
-  case GuiLogger:
-    pipe=popen("guilogger -m pipe -d 5","w");
-    break;
-  case NeuronViz:
-    pipe=popen("neuronviz ","w");
-    break;
-  default: // and NoPlot
-    return false;
+  if(robot) {
+    po.name = robot->getName();
   }
-  if(pipe==0){
-    fprintf(stderr, "%s:%i: could not open plot tool!\n", __FILE__, __LINE__);    
-    return false;
-  }else return true;
+  po.open();
+  if(po.pipe){
+    // print network description given by the structural information of the controller
+    printNetworkDescription(po.pipe, "Lpzrobots"/*controller->getName()*/, controller);
+    // print interval
+    if(plotOption.interval > 1) 
+      fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
+    // print all parameters of the controller
+    controller->print(po.pipe, "# ");
+    // print head line with all parameter names
+    unsigned int snum = plotOption.whichSensors == Robot ? rsensornumber : csensornumber;
+    Inspectable* inspectables[2] = {controller, wiring};      
+    printInternalParameterNames(po.pipe, snum, cmotornumber, inspectables, 2);
+  }    
+  plotOptions.push_back(po);
 }
 
-
-
-
-void PlotOption::close(){
-  if (pipe) {
-    std::cout << "guilogger pipe closing...maybe you must manually close the guilogger first!" << std::endl;
-    pclose(pipe);
-    std::cout << "guilogger pipe closing...SUCCESSFUL" << std::endl;
-    pipe=0;
+bool Agent::removePlotOption(PlotMode mode) {
+  // if plotoption with the same mode exists -> delete it
+  list<PlotOption>::iterator po 
+      = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
+  if(po != plotOptions.end()){ 
+    (*po).close();
+    plotOptions.erase(po);
+    return true;
   }
-}
-
-void PlotOption::switchFileLogging() {
-  if (logfile)
-    closeFileLogging();
-  else openFileLogging();
-}
-
-void PlotOption::openFileLogging() {
-  // create filename string
-  struct tm *t;
-  time_t tnow;
-  time(&tnow);
-  t = localtime(&tnow);
-
-  
-  char logfilename[255];
-  sprintf(logfilename,"%02i-%02i-%02i_%02i-%02i-%02i-%02i.log",
-	  t->tm_year, t->tm_mon , t->tm_mday,
-	  t->tm_hour, t->tm_hour, t->tm_min, t->tm_sec);
-  if (logfile)
-    fclose(logfile);
-  logfile=fopen(logfilename,"w");
-  if (logfile)
-    std::cout << "Now logging to file \"" << logfilename << "\"." << std::endl;
-}
-
-void PlotOption::closeFileLogging() {
-  fclose(logfile);
-  logfile=0;
-  std::cout << "Stopped logging to file." << std::endl;
-}
-
-
-void PlotOption::switchPlotType() {
-  // close guilogger pipe
-  close();
-  // open pipe again
-  pipe=popen("guilogger -m pipe -d 5","w");
+  return false;
 }
 
 
@@ -333,18 +240,6 @@ void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csen
     } else {
       if (!(*i).pipe) { // if pipe is closed
 	//	std::cout << "pipe is closed!" << std::endl;
-      }
-    }
-    if( ((*i).logfile) && (t % (*i).interval == 0) ){ // for the filelogger file
-      if((*i).whichSensors == Robot){
-	printInternalParameters((*i).logfile, rx, rsensornumber, y, motornumber, inspectables , 2);
-      }else{
-	printInternalParameters((*i).logfile, cx, csensornumber, y, motornumber, inspectables , 2);
-      }
-      if(t% ((*i).interval * 10)) fflush((*i).logfile);
-    } else {
-      if (!(*i).logfile) { // if logfile is closed
-	//	std::cout << "logfile is closed!" << std::endl;
       }
     }
   }
@@ -395,3 +290,69 @@ void Agent::setTrackOptions(const TrackRobot& trackrobot){
     }
   }
 }
+
+bool PlotOption::open(){
+  // this prevents the simulation to terminate if the child  closes
+  // or if we fail to open it.
+  signal(SIGPIPE,SIG_IGN); 
+  // TODO: get the guilogger call from some config
+  switch(mode){
+  case File:
+      struct tm *t;
+      time_t tnow;
+      time(&tnow);
+      t = localtime(&tnow);            
+      char logfilename[255];
+      sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i-%02i.log",
+	      name.c_str(), t->tm_year%100, t->tm_mon+1 , t->tm_mday,
+	      t->tm_hour, t->tm_hour, t->tm_min, t->tm_sec);
+      pipe=fopen(logfilename,"w");
+      if (pipe)
+	std::cout << "Now logging to file \"" << logfilename << "\"." << std::endl;
+      break;
+  case GuiLogger_File:
+    pipe=popen("guilogger -m pipe -d 5 -l","w");
+    break;
+  case GuiLogger:
+    pipe=popen("guilogger -m pipe -d 5","w");
+    break;
+  case NeuronViz:
+    pipe=popen("neuronviz ","w");
+    break;
+  default: // and NoPlot
+    return false;
+  }
+  if(pipe==0){
+    fprintf(stderr, "%s:%i: could not open plot tool!\n", __FILE__, __LINE__);    
+    return false;
+  }else return true;
+}
+
+
+
+
+void PlotOption::close(){
+  if (pipe) {
+    switch(mode){
+    case File:
+      std::cout << "logfile closing...SUCCESSFUL" << std::endl;
+      fclose(pipe);
+      break;
+    case GuiLogger:
+    case GuiLogger_File:
+      std::cout << "guilogger pipe closing...maybe you must manually close the guilogger first!" << std::endl;
+      pclose(pipe);
+      std::cout << "guilogger pipe closing...SUCCESSFUL" << std::endl;
+      break;
+    case NeuronViz:
+      std::cout << "neuronviz pipe closing...maybe you must manually close the neuronviz first!" << std::endl;
+      pclose(pipe);
+      std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
+      break;
+    default:
+      break;
+    }
+    pipe=0;
+  }
+}
+
