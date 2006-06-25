@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.4  2006-01-12 14:47:47  martius
+ *   Revision 1.4.4.5  2006-06-25 16:57:13  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.4.4.4  2006/01/12 14:47:47  martius
  *   just taken from nimm4
  *
  *   Revision 1.4.4.3  2005/12/06 17:38:17  martius
@@ -58,7 +62,7 @@ namespace lpzrobots {
   Formel1::Formel1(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double size/*=1.0*/, 
 	       double force /*=3*/, double speed/*=15*/, bool sphereWheels /*=true*/)
     : // calling OdeRobots construtor with name of the actual robot
-      OdeRobot(odeHandle, osgHandle, "Formel1")
+      OdeRobot(odeHandle, osgHandle, "Formel1", "$ID$")
   { 
   
     // robot is not created till now

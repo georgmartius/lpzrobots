@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.12  2006-04-04 14:13:24  fhesse
+ *   Revision 1.5.4.13  2006-06-25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.5.4.12  2006/04/04 14:13:24  fhesse
  *   documentation improved
  *
  *   Revision 1.5.4.11  2006/03/31 16:20:28  fhesse
@@ -102,7 +106,7 @@ namespace lpzrobots {
      * @param speed factor for changing speed of robot
      * @param sphereWheels switches between spheres and  'normal' wheels 
      */
-    Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+    Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const std::string& name,
 	  double size=1, double force=3, double speed=15, bool sphereWheels=true);
 
     virtual ~Nimm4(){};

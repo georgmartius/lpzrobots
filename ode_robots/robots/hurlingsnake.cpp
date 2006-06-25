@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9.4.4  2005-12-30 22:54:38  martius
+ *   Revision 1.9.4.5  2006-06-25 16:57:13  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.9.4.4  2005/12/30 22:54:38  martius
  *   removed parentspace!
  *
  *   Revision 1.9.4.3  2005/12/21 17:34:59  martius
@@ -67,6 +71,8 @@
 
 #include "hurlingsnake.h"
 
+using namespace std;
+
 namespace lpzrobots {
 
   /**
@@ -75,14 +81,9 @@ namespace lpzrobots {
    * @param s space in which robot should be created
    * @param c contactgroup for collision treatment
    */
-  HurlingSnake::HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
-    : OdeRobot(odeHandle, osgHandle), oldp(0,0,0){
-    
-    // prepare name;
-    name.clear();
-    Configurable::insertCVSInfo(name, "$RCSfile$", 
-				"$Revision$");
-
+  HurlingSnake::HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+			     const string& name)
+    : OdeRobot(odeHandle, osgHandle, name, "$ID$"), oldp(0,0,0){
     factorForce=3.0;
     factorSensor=20.0;
     frictionGround=0.3;

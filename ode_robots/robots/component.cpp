@@ -31,11 +31,14 @@ namespace lpzrobots
 /* Component                                                                 */
 /*****************************************************************************/
     
-    Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , const ComponentConf& conf = getDefaultConf () ) : OdeRobot ( odeHandle, osgHandle , "Component" ) , conf ( conf )
+    Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , 
+			   const ComponentConf& conf = getDefaultConf () ) 
+      : OdeRobot ( odeHandle, osgHandle , "Component", "$ID$" ) , 
+	conf ( conf )
     {
-	originComponent = this;
+      originComponent = this;
     }
-
+  
     Component::~Component ()
     {
     }

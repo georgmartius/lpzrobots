@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-06-10 20:13:33  martius
+ *   Revision 1.1.2.2  2006-06-25 16:57:17  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.1  2006/06/10 20:13:33  martius
  *   unknown walking object
  *
  *
@@ -53,7 +57,7 @@ namespace lpzrobots {
 
   /** UWO: Unknown Walk Object :-), looks like a plate with a lot of legs 
    */
-  class Uwo : public OdeRobot, public Configurable {
+  class Uwo : public OdeRobot {
   public:
   
     /**
@@ -64,20 +68,21 @@ namespace lpzrobots {
      * @param force maximal used force to realize motorcommand
      * @param radialLegs switches between cartensian and radial leg joints 
      */
-    Uwo(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const UwoConf& conf);
+    Uwo(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const UwoConf& conf, 
+	const std::string& name);
 
     virtual ~Uwo(){};
 
     static UwoConf getDefaultConf(){
       UwoConf c;
-      c.size      = 1;
-      c.legNumber = 8;
-      c.legLength = 0.3;
-      c.mass = 1;
+      c.size       = 1;
+      c.legNumber  = 8;
+      c.legLength  = 0.3;
+      c.mass       = 1;
       c.relLegmass = 1;
       c.motorPower = 0.5;
       c.jointLimit = M_PI/12; // +- 15 degree
-      c.radialLegs=true;
+      c.radialLegs = true;
       c.frictionGround = 1;
       return c;
     }
@@ -131,9 +136,6 @@ namespace lpzrobots {
     */
     virtual void doInternalStuff(const GlobalData& globalData);
 
-
-    /// returns the name of the object (with version number)
-    virtual paramkey getName() const { return name; } 
     
     /** The list of all parameters with there value as allocated lists.
      */
@@ -162,9 +164,9 @@ namespace lpzrobots {
 
     bool created;      // true if robot was created
 
-    vector<Primitive*> objects;  // 1 body, legs
-    vector<Joint*> joints; // joints between cylinder and each legs
-    vector <UniversalServo*> servos; // motors
+    std::vector<Primitive*> objects;  // 1 body, legs
+    std::vector<Joint*> joints; // joints between cylinder and each legs
+    std::vector <UniversalServo*> servos; // motors
 
   };
 

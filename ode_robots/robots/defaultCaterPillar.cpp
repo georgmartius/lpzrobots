@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-06-13 04:24:22  robot5
+ *   Revision 1.1.2.11  2006-06-25 16:57:12  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.10  2006/06/13 04:24:22  robot5
  *   Separated annular and linear placement in different robots.
  *   See "wheelie" for annular segment placement.
  *
@@ -58,15 +62,15 @@
 
 #include "defaultCaterpillar.h"
 
+using namespace std;
+
 namespace lpzrobots {
 
   DefaultCaterPillar::DefaultCaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       const CaterPillarConf& conf, const char* name )
-    : OdeRobot( odeHandle, osgHandle, name), conf(conf) {
+					   const CaterPillarConf& conf, 
+					   const std::string& name, const std::string& revision)
+    : OdeRobot( odeHandle, osgHandle, name, revision), conf(conf) {
 
-    // prepare name;
-    Configurable::insertCVSInfo(this->name, "$RCSfile$", 
-				"$Revision$");    	
     created=false;
   }
 	

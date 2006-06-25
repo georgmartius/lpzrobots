@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17.4.9  2006-03-30 12:34:56  martius
+ *   Revision 1.17.4.10  2006-06-25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.17.4.9  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.17.4.8  2006/01/31 15:36:14  martius
@@ -140,7 +144,8 @@ typedef struct {
 class Nimm2 : public OdeRobot{
 public:
   
-  Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle, const Nimm2Conf& conf);
+  Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle, 
+	const Nimm2Conf& conf, const string& name);
 
   static Nimm2Conf getDefaultConf(){
     Nimm2Conf conf;

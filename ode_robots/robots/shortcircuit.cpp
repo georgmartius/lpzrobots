@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.3  2006-01-10 20:32:51  martius
+ *   Revision 1.5.4.4  2006-06-25 16:57:16  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.5.4.3  2006/01/10 20:32:51  martius
  *   moved to osg
  *
  *   Revision 1.5.4.2  2005/11/15 12:29:27  martius
@@ -43,7 +47,7 @@ namespace lpzrobots {
 
   ShortCircuit::ShortCircuit(const OdeHandle& odeHandle, 
 			     const OsgHandle& osgHandle, int sensornumber, int motornumber)
-    : OdeRobot(odeHandle, osgHandle){
+    : OdeRobot(odeHandle, osgHandle, "ShortCircuit", "$ID$"){
 
     sensorno = sensornumber; 
     motorno  = motornumber;  

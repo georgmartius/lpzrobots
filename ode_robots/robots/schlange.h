@@ -26,7 +26,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15.4.8  2006-05-19 09:04:38  der
+ *   Revision 1.15.4.9  2006-06-25 16:57:15  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.15.4.8  2006/05/19 09:04:38  der
  *   -setTexture and setHeadTexture added
  *   -uses now whitemetal texture
  *
@@ -86,7 +90,7 @@ public:
  * It consists of a number of equal elements, each linked 
  * by a joint
  **/
-class Schlange: public OdeRobot, public Configurable
+class Schlange: public OdeRobot
 {
 protected:
   
@@ -99,7 +103,7 @@ protected:
 
 public:
   Schlange ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-	     const SchlangeConf& conf, const char* name);
+	     const SchlangeConf& conf, const std::string& name, const std::string& revision);
 
   static SchlangeConf getDefaultConf(){
     SchlangeConf conf;
@@ -171,8 +175,6 @@ public:
   */
   virtual int getSegmentsPosition(vector<Position> &poslist);
 
-  /// returns the name of the object (with version number)
-  virtual paramkey getName() const { return name; } 
 
   /** The list of all parameters with there value as allocated lists.
   */

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.14  2006-04-04 17:03:21  fhesse
+ *   Revision 1.7.4.15  2006-06-25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.7.4.14  2006/04/04 17:03:21  fhesse
  *   docu added
  *
  *   Revision 1.7.4.13  2006/04/04 14:13:24  fhesse
@@ -82,6 +86,7 @@
 
 using namespace osg;
 
+
 namespace lpzrobots {
 
   // constructor:
@@ -90,10 +95,11 @@ namespace lpzrobots {
   // - sphereWheels switches between spheres or wheels as wheels
   //   (wheels are only drawn, collision handling is always with spheres)
   Nimm4::Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	       const std::string& name, 
 	       double size/*=1.0*/, double force /*=3*/, double speed/*=15*/, 
 	       bool sphereWheels /*=true*/)
     : // calling OdeRobots construtor with name of the actual robot
-      OdeRobot(odeHandle, osgHandle, "Nimm4")
+      OdeRobot(odeHandle, osgHandle, name, "$ID$")
   { 
   
     // robot is not created till now

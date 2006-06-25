@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-06-20 07:18:29  robot3
+ *   Revision 1.1.2.3  2006-06-25 16:57:17  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.2  2006/06/20 07:18:29  robot3
  *   -added cvs log
  *   -changed some behaviour of wheelie
  *
@@ -33,11 +37,10 @@
 namespace lpzrobots {
 
   Wheelie::Wheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			     const WheelieConf& conf, const char* n) 
-    : DefaultWheelie(odeHandle, osgHandle, conf, n)
+			     const WheelieConf& conf, const std::string& name) 
+    : DefaultWheelie(odeHandle, osgHandle, conf, name, "$ID$")
   {
-    Configurable::insertCVSInfo(name, "$RCSfile$", 
-				"$Revision$");
+
   }
 	
   Wheelie::~Wheelie() {

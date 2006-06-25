@@ -32,7 +32,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-29 20:28:43  robot5
+ *   Revision 1.1.2.6  2006-06-25 16:57:12  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.5  2006/05/29 20:28:43  robot5
  *   Annular placement of segments.
  *
  *   Revision 1.1.2.4  2006/05/22 14:19:11  robot5
@@ -86,20 +90,20 @@ public:
  * It consists of a number of equal elements, each linked 
  * by a joint
  **/
-class DefaultCaterPillar: public OdeRobot, public Configurable
+class DefaultCaterPillar: public OdeRobot
 {
 protected:
   
   bool created;
 
-  vector <Primitive*> objects;
-  vector <Joint*> joints;
-  vector <AngularMotor*> frictionmotors;
+  std::vector <Primitive*> objects;
+  std::vector <Joint*> joints;
+  std::vector <AngularMotor*> frictionmotors;
   CaterPillarConf conf;
 
 public:
   DefaultCaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-	     const CaterPillarConf& conf, const char* name);
+	     const CaterPillarConf& conf, const std::string& name, const std::string& revision);
 
   static CaterPillarConf getDefaultConf(){
     CaterPillarConf conf;
@@ -170,10 +174,7 @@ public:
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
   */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
-
-  /// returns the name of the object (with version number)
-  virtual paramkey getName() const { return name; }
+  virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
   /** The list of all parameters with there value as allocated lists.
   */

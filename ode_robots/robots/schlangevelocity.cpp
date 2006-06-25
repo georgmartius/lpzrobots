@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-02-01 18:33:40  martius
+ *   Revision 1.1.2.3  2006-06-25 16:57:16  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.2  2006/02/01 18:33:40  martius
  *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
  *
  *   Revision 1.1.2.1  2006/01/10 13:55:12  fhesse
@@ -35,11 +39,9 @@
 namespace lpzrobots {
 
   SchlangeVelocity::SchlangeVelocity ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-				 const SchlangeConf& conf, const char* n) 
-    : Schlange(odeHandle, osgHandle, conf, n)
+				       const SchlangeConf& conf, const std::string& name) 
+    : Schlange(odeHandle, osgHandle, conf, name, "$ID$")
   {
-    Configurable::insertCVSInfo(name, "$RCSfile$", 
-				"$Revision$");
   }
 
 

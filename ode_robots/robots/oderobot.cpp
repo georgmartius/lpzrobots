@@ -21,7 +21,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-05-26 15:47:20  fhesse
+ *   Revision 1.1.2.5  2006-06-25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.4  2006/05/26 15:47:20  fhesse
  *   using Geom in getPosition() (temporary version)
  *
  *   Revision 1.1.2.3  2005/12/14 15:37:09  martius
@@ -48,8 +52,9 @@ namespace lpzrobots {
    * Constructor
    * @param odehandle structure with all global ODE variables
    */
-  OdeRobot::OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const char* name)
-    : AbstractRobot(name), odeHandle(odeHandle), osgHandle(osgHandle) {
+  OdeRobot::OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+		     const std::string& name,const std::string& revision)
+    : AbstractRobot(name, revision), odeHandle(odeHandle), osgHandle(osgHandle) {
     parentspace = odeHandle.space;
   };
 

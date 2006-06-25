@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.16  2006-06-12 12:59:07  robot8
+ *   Revision 1.1.2.17  2006-06-25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.16  2006/06/12 12:59:07  robot8
  *   -some corrections to component system (for example now connections are only pushed as pointers to the connection vector)
  *   -created the evolution simulation for evolutionary evolution algorithms with atom like structures
  *
@@ -137,7 +141,8 @@ namespace lpzrobots {
     /**
      * Constructor
      */
-    OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const char* name="OdeRobot");
+    OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	     const std::string& name, const std::string& revision);
 
     virtual ~OdeRobot();
 

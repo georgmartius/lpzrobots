@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.6  2006-03-30 12:34:56  martius
+ *   Revision 1.4.4.7  2006-06-25 16:57:11  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.4.4.6  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.4.4.5  2006/01/03 13:18:51  fhesse
@@ -89,7 +93,7 @@ namespace lpzrobots{
 
 
 
-  class Arm2Segm : public OdeRobot, public Configurable{
+  class Arm2Segm : public OdeRobot{
   public:
   
     Arm2Segm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const Arm2SegmConf);
@@ -160,9 +164,6 @@ namespace lpzrobots{
     */
     virtual void doInternalStuff(const GlobalData& globalData);
 
-    /// returns the name of the object (with version number)
-    virtual paramkey getName() const {return name; } 
-  
     /** The list of all parameters with there value as allocated lists.
 	@return list of names
     */

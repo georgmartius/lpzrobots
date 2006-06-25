@@ -24,7 +24,11 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-03-30 12:34:57  martius
+ *   Revision 1.1.2.4  2006-06-25 16:57:17  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.3  2006/03/30 12:34:57  martius
  *   documentation updated
  *
  *   Revision 1.1.2.2  2006/01/10 17:15:44  martius
@@ -109,7 +113,7 @@ public:
    *constructor
    **/ 
   Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       const Sphererobot3MassesConf& conf, const char* name, double transparency=0.5 );
+		       const Sphererobot3MassesConf& conf, const string& name, double transparency=0.5 );
   
   virtual ~Sphererobot3Masses();
 	

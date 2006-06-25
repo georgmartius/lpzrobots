@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.12  2006-05-05 16:20:27  fhesse
+ *   Revision 1.1.4.13  2006-06-25 16:57:13  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.4.12  2006/05/05 16:20:27  fhesse
  *   hand with fixed joint -> to allow tracing
  *   (does not work with transform while only geom)
  *
@@ -70,15 +74,13 @@
 #include "mathutils.h"
 #include "muscledarm.h"
 
+using namespace std;
+
 namespace lpzrobots{
 
-  MuscledArm::MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const MuscledArmConf& conf):
-    OdeRobot(odeHandle, osgHandle), conf(conf){ 
-
-    // prepare name;
-    Configurable::insertCVSInfo(name, "$RCSfile$",
-				"$Revision$");
- 
+  MuscledArm::MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+			 const MuscledArmConf& conf, const string& name):
+    OdeRobot(odeHandle, osgHandle, name, "$ID$"), conf(conf){  
  
     parentspace=odeHandle.space;
     factorMotors=0.1;

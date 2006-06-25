@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.6  2006-01-05 13:50:31  fhesse
+ *   Revision 1.6.4.7  2006-06-25 16:57:11  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.6.4.6  2006/01/05 13:50:31  fhesse
  *   started to add tip at the end
  *
  *   Revision 1.6.4.5  2006/01/04 14:45:10  fhesse
@@ -49,11 +53,8 @@
 namespace lpzrobots{
 
   Arm2Segm::Arm2Segm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const Arm2SegmConf armConf):
-    OdeRobot(odeHandle, osgHandle), conf(armConf){ 
+    OdeRobot(odeHandle, osgHandle,"Arm2Segm", "$ID$"), conf(armConf){ 
 
-    // prepare name;
-    Configurable::insertCVSInfo(name, "$RCSfile$",
-				"$Revision$");
     parentspace=odeHandle.space;
 
     speed=1.0;

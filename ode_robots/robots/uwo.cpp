@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-06-10 20:13:49  martius
+ *   Revision 1.1.2.2  2006-06-25 16:57:17  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.1  2006/06/10 20:13:49  martius
  *   unknown walking object
  *
  *
@@ -44,16 +48,13 @@ namespace lpzrobots {
 
   // constructor:
   // - give handle for ODE and OSG stuff
-  Uwo::Uwo(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const UwoConf& c)
-    : // calling OdeRobots construtor with name of the actual robot
-    OdeRobot(odeHandle, osgHandle, "Uwo"), conf(c)
+  Uwo::Uwo(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	   const UwoConf& c, const std::string& name)
+    : OdeRobot(odeHandle, osgHandle, name, "$ID$"), conf(c)
   { 
     // robot is not created till now
     created=false;
 
-    // prepare name;
-    Configurable::insertCVSInfo(name, "$RCSfile$", 
-				"$Revision$");
     // choose color here a pastel white is used
     this->osgHandle.color = Color(1.0, 156/255.0, 156/255.0, 1.0f);
     

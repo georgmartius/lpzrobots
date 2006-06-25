@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12.4.6  2006-04-25 09:06:16  robot3
+ *   Revision 1.12.4.7  2006-06-25 16:57:15  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.12.4.6  2006/04/25 09:06:16  robot3
  *   *** empty log message ***
  *
  *   Revision 1.12.4.5  2006/02/23 18:05:05  martius
@@ -49,11 +53,9 @@
 namespace lpzrobots {
 
   SchlangeForce::SchlangeForce ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-				 const SchlangeConf& conf, const char* n) 
-    : Schlange(odeHandle, osgHandle, conf, n)
+				 const SchlangeConf& conf, const string& name) 
+    : Schlange(odeHandle, osgHandle, conf, name, "$ID$")
   {
-    Configurable::insertCVSInfo(name, "$RCSfile$", 
-				"$Revision$");
   }
 	
   SchlangeForce::~SchlangeForce() { }

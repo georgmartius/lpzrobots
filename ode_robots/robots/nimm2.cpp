@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21.4.17  2006-03-31 12:12:41  fhesse
+ *   Revision 1.21.4.18  2006-06-25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.21.4.17  2006/03/31 12:12:41  fhesse
  *   documentation improved
  *
  *   Revision 1.21.4.16  2006/02/01 18:33:39  martius
@@ -98,9 +102,8 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff, and default configuration
   Nimm2::Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle, 
-	       const Nimm2Conf& conf = getDefaultConf()):
-    // calling OdeRobots construtor with name of the actual robot
-    OdeRobot(odehandle, osgHandle, "Nimm2"), conf(conf) { 
+	       const Nimm2Conf& conf, const string& name)
+    : OdeRobot(odehandle, osgHandle, name, "$ID$"), conf(conf) { 
 
     // robot not created up to now
     created=false;

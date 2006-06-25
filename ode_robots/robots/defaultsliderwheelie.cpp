@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-06-20 07:18:29  robot3
+ *   Revision 1.1.2.3  2006-06-25 16:57:12  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.2  2006/06/20 07:18:29  robot3
  *   -added cvs log
  *   -changed some behaviour of wheelie
  *
@@ -33,12 +37,9 @@
 namespace lpzrobots {
 
   DefaultSliderWheelie::DefaultSliderWheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       const SliderWheelieConf& conf, const char* name)
-    : OdeRobot(odeHandle, osgHandle, name), conf(conf) {
+		       const SliderWheelieConf& conf, const std::string& name, const std::string& revision)
+    : OdeRobot(odeHandle, osgHandle, name, revision), conf(conf) {
 
-    // prepare name;
-    Configurable::insertCVSInfo(this->name, "$RCSfile$", 
-				"$Revision$");    	
     created=false;
   }
 	

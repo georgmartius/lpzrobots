@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-05-09 04:24:34  robot5
+ *   Revision 1.1.2.6  2006-06-25 16:57:16  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.5  2006/05/09 04:24:34  robot5
  *   *** empty log message ***
  *
  *   Revision 1.1.2.4  2006/03/29 15:09:27  martius
@@ -68,9 +72,9 @@ namespace lpzrobots {
    *constructor
    **/
   Sphererobot3Masses::Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-					   const Sphererobot3MassesConf& conf, const char* name, 
+					   const Sphererobot3MassesConf& conf, const std::string& name,
 					   double transparency)
-    : OdeRobot ( odeHandle, osgHandle, name ), conf(conf)
+    : OdeRobot ( odeHandle, osgHandle, name, "$ID$"), conf(conf)
   {
 
     created = false;

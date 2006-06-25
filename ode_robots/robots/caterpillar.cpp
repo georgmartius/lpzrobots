@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.10  2006-06-13 04:24:22  robot5
+ *   Revision 1.1.2.11  2006-06-25 16:57:11  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.10  2006/06/13 04:24:22  robot5
  *   Separated annular and linear placement in different robots.
  *   See "wheelie" for annular segment placement.
  *
@@ -62,10 +66,8 @@ namespace lpzrobots {
 
   CaterPillar::CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			     const CaterPillarConf& conf, const char* n) 
-    : DefaultCaterPillar(odeHandle, osgHandle, conf, n)
+    : DefaultCaterPillar(odeHandle, osgHandle, conf, n, "$ID$")
   {
-    Configurable::insertCVSInfo(name, "$RCSfile$", 
-				"$Revision$");
   }
 	
   CaterPillar::~CaterPillar() {

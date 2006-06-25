@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.6  2006-02-23 18:05:05  martius
+ *   Revision 1.5.4.7  2006-06-25 16:57:15  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.5.4.6  2006/02/23 18:05:05  martius
  *   friction with angularmotor
  *
  *   Revision 1.5.4.5  2006/02/01 18:33:40  martius
@@ -49,13 +53,10 @@
 namespace lpzrobots {
 
 SchlangeServo::SchlangeServo ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			       const SchlangeConf& conf, const char* n) 
-  : Schlange(odeHandle, osgHandle, conf, n) 
+			       const SchlangeConf& conf, const std::string& name) 
+  : Schlange(odeHandle, osgHandle, conf, name, "$ID$") 
 {
 
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			      "$Revision$");
 }
 	
 SchlangeServo::~SchlangeServo() { }
@@ -113,7 +114,7 @@ void SchlangeServo::create(const osg::Matrix& pose){
 				   Axis(0,0,1)* pose);
     j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
     
-    // setting stops at universal joints		
+    // setting stops at hinge joints		
     j->setParam(dParamLoStop, -conf.jointLimit*1.5);
     j->setParam(dParamHiStop,  conf.jointLimit*1.5);
     

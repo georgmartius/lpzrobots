@@ -26,7 +26,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-03-30 12:34:56  martius
+ *   Revision 1.1.2.3  2006-06-25 16:57:16  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.2  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.1.2.1  2006/02/01 18:33:40  martius
@@ -55,7 +59,7 @@ namespace lpzrobots {
 
   public:
     SchlangeServo2 ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		    const SchlangeConf& conf, const char* name);
+		    const SchlangeConf& conf, const std::string& name);
 
     
     virtual ~SchlangeServo2();

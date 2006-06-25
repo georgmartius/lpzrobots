@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.13  2006-05-05 16:20:27  fhesse
+ *   Revision 1.1.4.14  2006-06-25 16:57:13  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.4.13  2006/05/05 16:20:27  fhesse
  *   hand with fixed joint -> to allow tracing
  *   (does not work with transform while only geom)
  *
@@ -139,12 +143,13 @@ namespace lpzrobots{
 
   } MuscledArmConf;
 
-  class MuscledArm : public OdeRobot, public Configurable{
+  class MuscledArm : public OdeRobot{
   public:
   
     double force_[6];
   
-    MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const MuscledArmConf& conf);
+    MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const MuscledArmConf& conf, 
+	       const std::string& name);
 
     static MuscledArmConf getDefaultConf(){
       MuscledArmConf conf;
@@ -210,9 +215,6 @@ namespace lpzrobots{
 	@param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(const GlobalData& globalData);
-
-    /// returns the name of the object (with version number)
-    virtual paramkey getName() const {return name; } 
   
     /** The list of all parameters with there value as allocated lists.
     */

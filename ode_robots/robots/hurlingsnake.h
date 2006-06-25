@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.8  2006-03-30 12:34:56  martius
+ *   Revision 1.6.4.9  2006-06-25 16:57:13  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.6.4.8  2006/03/30 12:34:56  martius
  *   documentation updated
  *
  *   Revision 1.6.4.7  2006/03/30 08:43:05  fhesse
@@ -81,12 +85,12 @@ namespace lpzrobots {
    * Hurling snake is a string a beats.
    * 
    */
-  class HurlingSnake : public OdeRobot, public Configurable{
+  class HurlingSnake : public OdeRobot{
   public:
     /**
      * Constructor
      */
-    HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
+    HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const string& name);
   
     /// update the subcomponents
     virtual void update();
@@ -134,9 +138,6 @@ namespace lpzrobots {
 	@return length of the list
     */
     virtual int getSegmentsPosition(vector<Position> &poslist);
-  
-    /// returns the name of the object (with version number)
-    virtual paramkey getName() const {return name; } 
   
     /** The list of all parameters with there value as allocated lists.       
     */

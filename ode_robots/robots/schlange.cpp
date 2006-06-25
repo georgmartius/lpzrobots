@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20.4.8  2006-05-23 13:39:02  robot3
+ *   Revision 1.20.4.9  2006-06-25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.20.4.8  2006/05/23 13:39:02  robot3
  *   setting color to blue in init removed
  *
  *   Revision 1.20.4.7  2006/05/19 09:03:50  der
@@ -56,12 +60,9 @@
 namespace lpzrobots {
 
   Schlange::Schlange ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       const SchlangeConf& conf, const char* name )
-    : OdeRobot( odeHandle, osgHandle, name), conf(conf) {
+		       const SchlangeConf& conf, const std::string& name, const std::string& revision)
+    : OdeRobot( odeHandle, osgHandle, name, revision), conf(conf) {
 
-    // prepare name;
-    Configurable::insertCVSInfo(this->name, "$RCSfile$", 
-				"$Revision$");    	
     created=false;
   }
 	
