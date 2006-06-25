@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.4  2006-03-29 15:10:00  martius
+ *   Revision 1.3.4.5  2006-06-25 17:01:26  martius
+ *   removed using namespace std
+ *
+ *   Revision 1.3.4.4  2006/03/29 15:10:00  martius
  *   Dummy Primitive for Environment
  *
  *   Revision 1.3.4.3  2005/12/06 10:13:26  martius
@@ -41,8 +44,6 @@
 
 
 #include <vector>
-using namespace std;
-
 #include "odehandle.h"
 #include "odeconfig.h"
 
@@ -54,9 +55,9 @@ class OdeAgent;
 class AbstractObstacle;
 class Primitive;
 
-typedef vector<AbstractObstacle*> ObstacleList; ///
-typedef vector<Configurable*> ConfigList;       ///
-typedef vector<OdeAgent*> OdeAgentList;         ///
+typedef std::vector<AbstractObstacle*> ObstacleList; ///
+typedef std::vector<Configurable*> ConfigList;       ///
+typedef std::vector<OdeAgent*> OdeAgentList;         ///
 
 /**
   Data structure holding all essential global information.
