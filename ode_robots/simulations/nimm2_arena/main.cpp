@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.4  2006-06-25 17:01:55  martius
+ *   Revision 1.5.4.5  2006-06-25 21:57:41  martius
+ *   robot names with numbers
+ *
+ *   Revision 1.5.4.4  2006/06/25 17:01:55  martius
  *   remove old simulations
  *   robots get names
  *
@@ -126,7 +129,7 @@ public:
 	} else {
 	  contrl = new InvertNChannelController(10);  		
 	  agent = new OdeAgent(NoPlot);	  
-	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + i + "_" + j);
+	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + itos(i) + "_" + itos(j));
 	  agent->init(contrl, nimm2, wiring);
 	  contrl->setParam("adaptrate", 0.000);
 	  //    controller->setParam("nomupdate", 0.0005);

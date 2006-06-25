@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.12  2006-06-25 17:01:57  martius
+ *   Revision 1.11.4.13  2006-06-25 21:57:47  martius
+ *   robot names with numbers
+ *
+ *   Revision 1.11.4.12  2006/06/25 17:01:57  martius
  *   remove old simulations
  *   robots get names
  *
@@ -166,7 +169,8 @@ public:
     myCaterPillarConf.frictionGround=0.01;
     myCaterPillarConf.frictionJoint=0.01;
     myCaterPillar =
-      new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), myCaterPillarConf, "Raupe");
+      new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), 
+			myCaterPillarConf, "Raupe");
     ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0.2)); 
     
      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
@@ -188,7 +192,7 @@ public:
     snakeConf.segmNumber=4;
     snakeConf.frictionGround=0.01;
 
-    snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "Schlange" );
+    snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" );
     ((OdeRobot*) snake)->place(Pos(4,4,0)); 
     controller = new InvertMotorNStep(invertnconf);     
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -203,7 +207,7 @@ public:
     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
     nimm2conf.size = 1.6;
     for(int r=0; r < 1; r++) { 
-      robot = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2");
+      robot = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + itos(r));
       robot->place(Pos ((r-1)*5,5,0));
       //    controller = new InvertMotorNStep(10);   
       controller = new InvertMotorSpace(15);   
@@ -218,7 +222,7 @@ public:
     
     //******* N I M M  4 *********/
     for(int r=0; r < 1; r++) {
-      robot = new Nimm4(odeHandle, osgHandle, "Nimm4");
+      robot = new Nimm4(odeHandle, osgHandle, "Nimm4_" + itos(r));
       robot->place(Pos((r-1)*5,-3,0));
       controller = new InvertMotorSpace(20);
       controller->setParam("s4avg",10); 
@@ -235,7 +239,7 @@ public:
       Color c;    
       if (r==0) c=Color(0.8, 0.8, 0);
       if (r==1) c=Color(0,   0.8, 0);
-      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake1");
+      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake_" + itos(r));
       ((OdeRobot*) snake)->place(Pos(r*5,-6,0.3));
       invertnconf.cInit=1.5;
       controller = new InvertMotorNStep(invertnconf);
