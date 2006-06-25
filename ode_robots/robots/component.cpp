@@ -33,7 +33,7 @@ namespace lpzrobots
     
     Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , 
 			   const ComponentConf& conf = getDefaultConf () ) 
-      : OdeRobot ( odeHandle, osgHandle , "Component", "$ID$" ) , 
+      : OdeRobot ( odeHandle, osgHandle , "Component", "$Id$" ) , 
 	conf ( conf )
     {
       originComponent = this;

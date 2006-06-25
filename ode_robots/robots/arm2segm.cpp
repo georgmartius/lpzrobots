@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.7  2006-06-25 16:57:11  martius
+ *   Revision 1.6.4.8  2006-06-25 17:00:31  martius
+ *   Id
+ *
+ *   Revision 1.6.4.7  2006/06/25 16:57:11  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -53,7 +56,7 @@
 namespace lpzrobots{
 
   Arm2Segm::Arm2Segm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const Arm2SegmConf armConf):
-    OdeRobot(odeHandle, osgHandle,"Arm2Segm", "$ID$"), conf(armConf){ 
+    OdeRobot(odeHandle, osgHandle,"Arm2Segm", "$Id$"), conf(armConf){ 
 
     parentspace=odeHandle.space;
 

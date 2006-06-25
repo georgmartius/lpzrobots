@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-06-25 16:57:17  martius
+ *   Revision 1.1.2.3  2006-06-25 16:57:50  martius
+ *   Id
+ *
+ *   Revision 1.1.2.2  2006/06/25 16:57:17  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -50,7 +53,7 @@ namespace lpzrobots {
   // - give handle for ODE and OSG stuff
   Uwo::Uwo(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	   const UwoConf& c, const std::string& name)
-    : OdeRobot(odeHandle, osgHandle, name, "$ID$"), conf(c)
+    : OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(c)
   { 
     // robot is not created till now
     created=false;

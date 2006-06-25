@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-06-25 16:57:11  martius
+ *   Revision 1.1.2.12  2006-06-25 17:00:31  martius
+ *   Id
+ *
+ *   Revision 1.1.2.11  2006/06/25 16:57:11  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -66,7 +69,7 @@ namespace lpzrobots {
 
   CaterPillar::CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			     const CaterPillarConf& conf, const char* n) 
-    : DefaultCaterPillar(odeHandle, osgHandle, conf, n, "$ID$")
+    : DefaultCaterPillar(odeHandle, osgHandle, conf, n, "$Id$")
   {
   }
 	

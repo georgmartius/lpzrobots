@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.4  2006-06-25 16:57:13  martius
+ *   Revision 1.4.4.5  2006-06-25 17:00:31  martius
+ *   Id
+ *
+ *   Revision 1.4.4.4  2006/06/25 16:57:13  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -60,7 +63,7 @@ namespace lpzrobots {
    **/
   ForcedSphere::ForcedSphere ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		 const char* name, double radius, double max_force)
-    : OdeRobot ( odeHandle, osgHandle, name, "$ID$" ), radius(radius), max_force(max_force)
+    : OdeRobot ( odeHandle, osgHandle, name, "$Id$" ), radius(radius), max_force(max_force)
   {
 
     created = false;

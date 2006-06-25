@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-06-25 16:57:17  martius
+ *   Revision 1.1.2.4  2006-06-25 17:00:33  martius
+ *   Id
+ *
+ *   Revision 1.1.2.3  2006/06/25 16:57:17  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -38,7 +41,7 @@ namespace lpzrobots {
 
   Wheelie::Wheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			     const WheelieConf& conf, const std::string& name) 
-    : DefaultWheelie(odeHandle, osgHandle, conf, name, "$ID$")
+    : DefaultWheelie(odeHandle, osgHandle, conf, name, "$Id$")
   {
 
   }
