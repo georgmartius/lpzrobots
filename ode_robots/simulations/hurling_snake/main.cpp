@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6.4.7  2006-05-15 13:11:29  robot3
+ *   Revision 1.6.4.8  2006-06-25 17:01:54  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.6.4.7  2006/05/15 13:11:29  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -107,7 +111,7 @@ public:
     OdeAgent* agent;
 
     for (int i=0; i<1; i++){
-      hs = new HurlingSnake(odeHandle, osgHandle);
+      hs = new HurlingSnake(odeHandle, osgHandle, "Hurling");
       Color col;
       if (i==0) col=Color(2,2,0);
       if (i==1) col=Color(0,2,0);

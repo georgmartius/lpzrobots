@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-06-16 21:35:50  martius
+ *   Revision 1.1.2.2  2006-06-25 17:01:57  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.1.2.1  2006/06/16 21:35:50  martius
  *   test environment
  *
  *   Revision 1.14.4.15  2006/05/18 11:55:56  robot3
@@ -95,6 +99,7 @@
 #include "joint.h"
 
 
+
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
@@ -138,8 +143,8 @@ public:
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
-	case 'a': dBodyAddForce(s1->getMainPrimitive()->getBody(),1,0,0); break;
-	case 'd': dBodyAddForce(s1->getMainPrimitive()->getBody(),0,1,0); break;
+	case 'a': dBodyAddForce(s1->getMainPrimitive()->getBody(),5,0,0); break;
+	case 'd': dBodyAddForce(s1->getMainPrimitive()->getBody(),0,5,0); break;
 	case 'g': if(j) delete(j); j=0; break;
 	default:
 	  return false;

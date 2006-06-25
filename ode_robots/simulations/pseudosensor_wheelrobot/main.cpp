@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13.4.2  2005-11-16 11:27:38  martius
+ *   Revision 1.13.4.3  2006-06-25 17:01:55  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.13.4.2  2005/11/16 11:27:38  martius
  *   invertmotornstep has configuration
  *
  *   Revision 1.13.4.1  2005/11/15 12:29:54  martius
@@ -123,17 +127,8 @@ void config(GlobalData& global){
   changeParams(global.configs);
 }
 
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
-}
-
 int main (int argc, char **argv)
 {    
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-  
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config);
   // start the simulation (returns, if the user closes the simulation)

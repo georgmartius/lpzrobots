@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.4.15  2006-05-18 11:55:56  robot3
+ *   Revision 1.14.4.16  2006-06-25 17:01:56  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.14.4.15  2006/05/18 11:55:56  robot3
  *   made playground smaller (for shadowing issues)
  *
  *   Revision 1.14.4.14  2006/05/15 13:11:30  robot3
@@ -158,7 +162,7 @@ public:
      c.bumper  = true;
      c.cigarMode  = true;
      c.irFront = true;
-     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c);    
+     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c, "Nimm2");    
      vehicle->place(Pos(2,0,0));
 
     // use Nimm4 vehicle as robot:

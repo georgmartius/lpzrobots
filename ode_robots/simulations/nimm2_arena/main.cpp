@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5.4.3  2006-05-15 13:11:29  robot3
+ *   Revision 1.5.4.4  2006-06-25 17:01:55  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.5.4.3  2006/05/15 13:11:29  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -92,8 +96,6 @@ public:
     AbstractWiring* wiring;
     OdeAgent* agent;
         
-    OsgHandle osgHandle_yellow = osgHandle.changeColor(Color(1.0,1.0,0));
-    OsgHandle osgHandle_orange = osgHandle.changeColor(Color(2, 156/255.0, 0));
     for (int j=-0; j<1; j++){ 
       for (int i=-0; i<1; i++){
 	//      nimm2 = new Nimm2(odeHandle);
@@ -107,7 +109,8 @@ public:
 	  controller = new InvertMotorNStep();  
 	  //	  controller = new InvertMotorSpace(10);  
 	  agent = new OdeAgent(plotoptions);
-	  nimm2 = new Nimm2(odeHandle, osgHandle_yellow, conf);
+	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
+	  nimm2->setColor(Color(1.0,1.0,0));
 	  global.configs.push_back(controller);
 	  agent->init(controller, nimm2, wiring);
 	  controller->setParam("adaptrate", 0.000);
@@ -123,7 +126,7 @@ public:
 	} else {
 	  contrl = new InvertNChannelController(10);  		
 	  agent = new OdeAgent(NoPlot);	  
-	  nimm2 = new Nimm2(odeHandle, osgHandle_orange, conf);
+	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + i + "_" + j);
 	  agent->init(contrl, nimm2, wiring);
 	  contrl->setParam("adaptrate", 0.000);
 	  //    controller->setParam("nomupdate", 0.0005);

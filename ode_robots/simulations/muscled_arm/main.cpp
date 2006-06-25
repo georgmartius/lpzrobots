@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.4.8  2006-05-15 13:11:29  robot3
+ *   Revision 1.1.4.9  2006-06-25 17:01:55  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.1.4.8  2006/05/15 13:11:29  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -116,7 +120,7 @@ public:
     conf.muscleLengthSensors=false;
     conf.jointActuator=false;
 
-    arm = new MuscledArm(odeHandle, osgHandle, conf);
+    arm = new MuscledArm(odeHandle, osgHandle, conf, "Arm");
     // set muscled arm parameters
     //arm->setParam("damping",20);
     //arm->setParam("factorMotors",5);

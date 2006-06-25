@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-06-10 20:12:45  martius
+ *   Revision 1.1.2.2  2006-06-25 17:01:57  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.1.2.1  2006/06/10 20:12:45  martius
  *   simulation for uwo (unknown walking object)
  *
  *
@@ -103,7 +107,7 @@ public:
     conf.frictionGround = 1;
     conf.motorPower = 1;
     conf.legNumber = 6;
-    Uwo* vehicle = new Uwo(odeHandle, osgHandle,conf);    
+    Uwo* vehicle = new Uwo(odeHandle, osgHandle,conf, "Uwo1");    
     vehicle->place(osg::Matrix::translate(2,0,0));
     global.configs.push_back(vehicle);
 

@@ -40,7 +40,7 @@ public:
     nimm2Conf.singleMotor=true;
     nimm2Conf.force = 5;
     //  nimm2Conf.force=nimm2Conf.force*3;  
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, nimm2Conf);
+    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, nimm2Conf, "Nimm2");
     vehicle->place(Pos(0,0,0.2));
 
   

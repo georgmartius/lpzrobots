@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.1  2005-11-15 12:29:51  martius
+ *   Revision 1.7.4.2  2006-06-25 17:01:55  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.7.4.1  2005/11/15 12:29:51  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.7  2005/11/09 13:43:17  fhesse
@@ -121,11 +125,6 @@ void config(GlobalData& global){
   changeParams(configs);
 }
 
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
-}
-
 //Funktion die eingegebene Befehle/kommandos verarbeitet
 void command (const OdeHandle&, GlobalData& globalData, int cmd)
 {
@@ -154,10 +153,6 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotoptions.push_back(PlotOption(GuiLogger));
-  if(contains(argv, argc, "-l")) plotoptions.push_back(PlotOption(GuiLogger_File));
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config, &command , 0 , 0 );
   // start the simulation (returns, if the user closes the simulation)

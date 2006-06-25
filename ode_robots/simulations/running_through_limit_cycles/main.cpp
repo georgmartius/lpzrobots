@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.1  2005-11-15 12:29:57  martius
+ *   Revision 1.7.4.2  2006-06-25 17:01:56  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.7.4.1  2005/11/15 12:29:57  martius
  *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.7  2005/11/09 13:41:25  martius
@@ -46,7 +50,6 @@
 #include <selforg/one2onewiring.h>
 #include "odeagent.h"
 #include "nimm2.h"
-#include "fixedsnake2elements.h"
 #include "playground.h"
 
 #include <selforg/invertnchannelcontroller.h>

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.4  2006-05-15 13:11:29  robot3
+ *   Revision 1.2.4.5  2006-06-25 17:01:54  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.2.4.4  2006/05/15 13:11:29  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -75,7 +79,7 @@ public:
 //     global.obstacles.push_back(playground);
 
     Arm2SegmConf arm_conf=Arm2Segm::getDefaultConf();
-    Arm2Segm* vehicle = new Arm2Segm(odeHandle, osgHandle, arm_conf);
+    Arm2Segm* vehicle = new Arm2Segm(odeHandle, osgHandle, arm_conf, "arm");
     ((OdeRobot* )vehicle)->place(Position(0,0,0));
     //AbstractController *controller = new InvertNChannelController(10);  
     AbstractController *controller = new SineController();  

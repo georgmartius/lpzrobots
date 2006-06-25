@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.11  2006-05-24 09:17:10  robot3
+ *   Revision 1.11.4.12  2006-06-25 17:01:57  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.11.4.11  2006/05/24 09:17:10  robot3
  *   snake is now colored (not blue)
  *
  *   Revision 1.11.4.10  2006/05/18 14:16:03  robot3
@@ -198,8 +202,8 @@ public:
     //******* N I M M  2 *********/
     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
     nimm2conf.size = 1.6;
-    for(int r=0; r < 1; r++) {    
-      robot = new Nimm2(odeHandle, osgHandle, nimm2conf);
+    for(int r=0; r < 1; r++) { 
+      robot = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2");
       robot->place(Pos ((r-1)*5,5,0));
       //    controller = new InvertMotorNStep(10);   
       controller = new InvertMotorSpace(15);   
@@ -214,7 +218,7 @@ public:
     
     //******* N I M M  4 *********/
     for(int r=0; r < 1; r++) {
-      robot = new Nimm4(odeHandle, osgHandle);
+      robot = new Nimm4(odeHandle, osgHandle, "Nimm4");
       robot->place(Pos((r-1)*5,-3,0));
       controller = new InvertMotorSpace(20);
       controller->setParam("s4avg",10); 
@@ -231,7 +235,7 @@ public:
       Color c;    
       if (r==0) c=Color(0.8, 0.8, 0);
       if (r==1) c=Color(0,   0.8, 0);
-      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c));
+      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake1");
       ((OdeRobot*) snake)->place(Pos(r*5,-6,0.3));
       invertnconf.cInit=1.5;
       controller = new InvertMotorNStep(invertnconf);

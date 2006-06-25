@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-05-15 13:11:29  robot3
+ *   Revision 1.1.2.9  2006-06-25 17:01:56  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.1.2.8  2006/05/15 13:11:29  robot3
  *   -handling of starting guilogger moved to simulation.cpp
  *    (is in internal simulation routine now)
  *   -CTRL-F now toggles logging to the file (controller stuff) on/off
@@ -61,7 +65,6 @@
 #include <selforg/one2onewiring.h>
 
 #include "nimm2.h"
-#include "meshobstacle.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -87,12 +90,7 @@ public:
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(11, 0.2, 1), 2);
     playground->setColor(Color(0,0,1,0.5)); 
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground);
-
-    MeshObstacle* me = new MeshObstacle(odeHandle, osgHandle, "cessna.osg",0.1);
-    me->setPosition(osg::Vec3(0,0,3));
-    global.obstacles.push_back(me);
-    
+    global.obstacles.push_back(playground);    
 
     for(int i=0; i<20; i++){
       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5,10);
@@ -101,7 +99,7 @@ public:
     }
     
     Nimm2Conf c = Nimm2::getDefaultConf();    
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);
+    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
     //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
     vehicle->place(Pos(0,0,0.6));
 
