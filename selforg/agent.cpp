@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-06-25 16:51:35  martius
+ *   Revision 1.1.2.12  2006-06-25 21:56:38  martius
+ *   examples added
+ *
+ *   Revision 1.1.2.11  2006/06/25 16:51:35  martius
  *   configureable has name and revision
  *   a robot is configureable by default
  *
@@ -202,6 +205,8 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
       fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
     // print all parameters of the controller
     controller->print(po.pipe, "# ");
+    // print all parameters of the controller
+    robot->print(po.pipe, "# ");
     // print head line with all parameter names
     unsigned int snum = plotOption.whichSensors == Robot ? rsensornumber : csensornumber;
     Inspectable* inspectables[2] = {controller, wiring};      
