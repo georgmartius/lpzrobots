@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-06-20 07:18:29  robot3
+ *   Revision 1.1.2.3  2006-06-25 21:57:20  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.1.2.2  2006/06/20 07:18:29  robot3
  *   -added cvs log
  *   -changed some behaviour of wheelie
  *
@@ -49,7 +53,7 @@ namespace lpzrobots {
 
   public:
       SliderWheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const SliderWheelieConf& conf, const char* name);
+		      const SliderWheelieConf& conf, const std::string& name);
     
       virtual ~SliderWheelie();
 	
