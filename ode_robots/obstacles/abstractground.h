@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-06-22 12:25:45  der
+ *   Revision 1.1.2.6  2006-06-26 08:25:03  robot3
+ *   fixed ground texture bug
+ *
+ *   Revision 1.1.2.5  2006/06/22 12:25:45  der
  *   added setGroundTexture and setGroundColor
  *
  *   Revision 1.1.2.4  2006/06/16 22:27:26  martius
@@ -67,7 +70,7 @@ public:
     ground_length=10.0f;
     groundPlane=0;
     wallTextureFileName="Images/wall.rgb";
-    wallTextureFileName="Images/greenground.rgb";
+    groundTextureFileName="Images/greenground.rgb";
     groundColor=Color(1.0f,1.0f,1.0f);
   };
   
