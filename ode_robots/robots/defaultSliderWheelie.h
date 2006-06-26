@@ -32,7 +32,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-06-25 16:57:12  martius
+ *   Revision 1.1.2.4  2006-06-26 20:33:50  robot5
+ *   Joint adjustments.
+ *
+ *   Revision 1.1.2.3  2006/06/25 16:57:12  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -97,7 +100,7 @@ public:
     conf.segmLength = 0.4;   // length of one snake element
     conf.segmDia    = 0.2;   //  diameter of a snake element
     conf.segmMass   = 0.4;   //  mass of one snake element
-    conf.motorPower = 1;    //  power of the servos
+    conf.motorPower = 0.2;    //  power of the servos
     conf.sensorFactor = 1;    //  scale for sensors
     conf.frictionGround = 1.0; // friction with ground
     conf.frictionJoint = 0.1; // friction within joint

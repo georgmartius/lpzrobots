@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-06-25 21:57:20  martius
+ *   Revision 1.1.2.4  2006-06-26 20:33:50  robot5
+ *   Joint adjustments.
+ *
+ *   Revision 1.1.2.3  2006/06/25 21:57:20  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -99,11 +102,11 @@ namespace lpzrobots {
      HingeJoint* j = new HingeJoint(objects[n], objects[n+1],
  					   (p1 + p2)/2,
 					   Axis(0,1,0)*pose);
-     j->init(odeHandle, osgHandle, true, conf.segmDia/2*1.02);
+     j->init(odeHandle, osgHandle, false, conf.segmDia/2*1.02);
 
      // setting stops at hinge joints
-     j->setParam(dParamLoStop, -conf.jointLimit*0.5);
-     j->setParam(dParamHiStop,  conf.jointLimit*0.5);
+     j->setParam(dParamLoStop, -conf.jointLimit);
+     j->setParam(dParamHiStop,  conf.jointLimit);
      joints.push_back(j);
 
      HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
@@ -113,14 +116,14 @@ namespace lpzrobots {
      SliderJoint* j = new SliderJoint(objects[n], objects[n+1],
  					   (p1 + p2)/2,
 					   Axis(cos(6.28*n/conf.segmNumber+1.96),0,sin(6.28*n/conf.segmNumber+1.96))*pose);
-     j->init(odeHandle, osgHandle, true, conf.segmDia/2*1.02);
+     j->init(odeHandle, osgHandle, false, conf.segmDia/2*1.02);
 
      // setting stops at slider joints
-     j->setParam(dParamLoStop, -conf.jointLimit*0.02);
-     j->setParam(dParamHiStop,  conf.jointLimit*0.02);
+     j->setParam(dParamLoStop, -conf.segmLength*0.4);
+     j->setParam(dParamHiStop,  conf.segmLength*0.1);
      joints.push_back(j);
 
-     SliderServo* servo = new SliderServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
+     SliderServo* servo = new SliderServo(j, -conf.jointLimit*0.4, conf.jointLimit*0.1, conf.motorPower);
      sliderServos.push_back(servo);
 
     }
@@ -133,11 +136,11 @@ namespace lpzrobots {
    HingeJoint* j = new HingeJoint(objects[conf.segmNumber-1], objects[0],
 				  (p1 + p2)/2,
  				  Axis(0,1,0)*pose);
-   j->init(odeHandle, osgHandle, true, conf.segmDia/2*1.02);
+   j->init(odeHandle, osgHandle, false, conf.segmDia/2*1.02);
 
    // setting stops at hinge joints
-   j->setParam(dParamLoStop, -conf.jointLimit*1.5);
-   j->setParam(dParamHiStop,  conf.jointLimit*1.5);
+   j->setParam(dParamLoStop, -conf.jointLimit);
+   j->setParam(dParamHiStop,  conf.jointLimit);
    joints.push_back(j);
 
    HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
