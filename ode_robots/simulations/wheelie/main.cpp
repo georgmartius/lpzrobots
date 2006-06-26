@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-06-20 07:17:35  robot3
+ *   Revision 1.1.2.5  2006-06-26 20:36:17  robot5
+ *   Initial value of variables modified.
+ *
+ *   Revision 1.1.2.4  2006/06/20 07:17:35  robot3
  *   -changed some behaviour of wheelie
  *   -added cvs log
  *
@@ -57,7 +60,7 @@ public:
 
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("gravity:",1); // normally at -9.81
+    global.odeConfig.setParam("gravity",-1); // normally at -9.81
     // initialization
     
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 1.5));
@@ -82,9 +85,8 @@ public:
     WheelieConf myWheelieConf = DefaultWheelie::getDefaultConf();
     /******* w H E E L I E *********/
     myWheelieConf.jointLimit=M_PI/4;
-    myWheelieConf.motorPower=0.8;
+    myWheelieConf.motorPower=0.2;
     myWheelieConf.frictionGround=0.04;
-    myWheelieConf.jointLimit =  M_PI/4;
     myWheelie = new Wheelie(odeHandle, osgHandle, myWheelieConf, "Wheelie1");
     ((OdeRobot*) myWheelie)->place(Pos(-5,-5,0.2)); 
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
@@ -102,8 +104,8 @@ public:
     SliderWheelie *mySliderWheelie;
     SliderWheelieConf mySliderWheelieConf = DefaultSliderWheelie::getDefaultConf();
     /******* S L I D E R - w H E E L I E *********/
-    mySliderWheelieConf.jointLimit=M_PI/4;
-    mySliderWheelieConf.motorPower=0.8;
+    mySliderWheelieConf.jointLimit=M_PI/2;
+    mySliderWheelieConf.motorPower=0.2;
     mySliderWheelieConf.frictionGround=0.04;
     mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
     ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-4,0.2)); 
