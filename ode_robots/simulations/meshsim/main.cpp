@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-06-23 08:55:51  robot3
+ *   Revision 1.1.2.4  2006-06-26 21:53:35  robot3
+ *   Mesh works now with bbox file
+ *
+ *   Revision 1.1.2.3  2006/06/23 08:55:51  robot3
  *   mesh tested
  *
  *   Revision 1.1.2.2  2006/05/24 12:21:44  robot3
@@ -177,7 +180,7 @@ public:
      //     c.bumper  = true;
      //     c.cigarMode  = true;
      //     c.irFront = true;
-     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c);    
+     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c, "robot 1");    
      vehicle->place(Pos(1.5,0,0));
 
     // use Nimm4 vehicle as robot:

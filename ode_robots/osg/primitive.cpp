@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.17  2006-06-23 08:53:40  robot3
+ *   Revision 1.1.2.18  2006-06-26 21:51:59  robot3
+ *   Mesh works now with bbox file
+ *
+ *   Revision 1.1.2.17  2006/06/23 08:53:40  robot3
  *   made some changes on primitive Mesh
  *
  *   Revision 1.1.2.16  2006/05/29 22:03:49  martius
@@ -87,6 +90,7 @@
 #include "primitive.h"
 #include "pos.h"
 #include "boundingshape.h"
+
 
 namespace lpzrobots{
 
@@ -461,9 +465,16 @@ namespace lpzrobots{
     if (mode & Draw){
       osgmesh->init(osgHandle);
     }
+    if (mode & Body){
+      body = dBodyCreate (odeHandle.world);
+      dMass m;
+      dMassSetSphere(&m, 1, osgmesh->getRadius()); // we use a sphere
+      dMassAdjust (&m, mass); 
+      dBodySetMass (body,&m); //assign the mass to the body
+    } 
     // read boundingshape file
     const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
-    boundshape = new BoundingShape(filename  + ".bbox" );
+    boundshape = new BoundingShape(filename  + ".bbox" ,this);
     if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.2)), 
 			 getPose(), scale, drawBoundingMode)){
       printf("use default bounding box, because bbox file not found\n");
@@ -474,30 +485,31 @@ namespace lpzrobots{
 		     osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius()));       // set sphere higher
       osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
     }
-    if (mode & Body){
-      body = dBodyCreate (odeHandle.world);
-      dMass m;
-      dMassSetSphere(&m, 1, osgmesh->getRadius()); // we use a sphere
-      dMassAdjust (&m, mass); 
-      dBodySetMass (body,&m); //assign the mass to the body
-    } 
-    if (mode & Geom){    
-      geom = dCreateSphere ( odeHandle.space , osgmesh->getRadius());
+    if (mode & Geom){
+      if (!boundshape->isActive()) {
+	geom = dCreateSphere ( odeHandle.space , osgmesh->getRadius());
+      }
       if (mode & Body)
-	dGeomSetBody (geom, body); // geom is assigned to body      
+	if (!boundshape->isActive()) {
+	  dGeomSetBody (geom, body); // geom is assigned to body      
+	}
     }
   }
 
 
   void Mesh::update(){
     if(mode & Draw) {
-      if(body)
+      if(body) {
 	osgmesh->setMatrix(osgPose(body));
-      // update boundingshape
-      if (boundshape->isActive())
-	boundshape->update();
-      else 
+	// update all geoms?
+// 	std::list<Primitive*> geoms = boundshape->getPrimitives();
+// 	for (std::list<Primitive*>::iterator i=geoms.begin();i!=geoms.end();i++) {
+// 	  (*i)->setPose(osgPose(body));
+// 	}
+      }
+      else {
 	osgmesh->setMatrix(osgPose(geom));
+      }
     }
   }
 

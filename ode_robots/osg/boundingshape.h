@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-06-23 08:54:40  robot3
+ *   Revision 1.1.2.6  2006-06-26 21:52:58  robot3
+ *   Mesh works now with bbox file
+ *
+ *   Revision 1.1.2.5  2006/06/23 08:54:40  robot3
  *   made some changes on primitive Mesh (including boundingshape)
  *
  *   Revision 1.1.2.4  2006/06/22 11:33:43  robot3
@@ -69,7 +72,7 @@ namespace lpzrobots {
   class BoundingShape{
 
   public:
-    BoundingShape(const std::string& filename);
+    BoundingShape(const std::string& filename, Primitive* parent);
 
     virtual ~BoundingShape();
 
@@ -79,15 +82,20 @@ namespace lpzrobots {
     virtual bool init(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const osg::Matrix& pose,
 		      double scale, char mode);
     
-    virtual void update();
+    virtual void update(const osg::Matrix& m4x4);
 
     virtual bool isActive();
+
+    virtual std::list<Primitive*> getPrimitives();
+
+    virtual std::list<osg::Matrix> getPoses();
 
   private:
     std::list<Primitive*> geoms;
     std::string filename;
     bool active;
-
+    Primitive* parent;
+    std::list<osg::Matrix> poses; // relative pose of the Primitives
   };
 
 }
