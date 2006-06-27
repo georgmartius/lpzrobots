@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-06-26 21:53:35  robot3
+ *   Revision 1.1.2.5  2006-06-27 10:15:10  robot3
+ *   better bbox file created
+ *
+ *   Revision 1.1.2.4  2006/06/26 21:53:35  robot3
  *   Mesh works now with bbox file
  *
  *   Revision 1.1.2.3  2006/06/23 08:55:51  robot3
@@ -147,7 +150,7 @@ public:
 
     PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
 					   "cow.osg", // the filename of the mesh
-					   0.15, // the scale factor to be used
+					   0.2, // the scale factor to be used
 					   1.0); // the mass of the mesh
     myMesh->setPosition(osg::Vec3(-1,0,2.0f));
     global.obstacles.push_back(myMesh);
