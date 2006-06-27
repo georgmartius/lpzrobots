@@ -22,7 +22,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.18  2006-06-26 21:51:59  robot3
+ *   Revision 1.1.2.19  2006-06-27 14:14:29  robot3
+ *   -optimized mesh and boundingshape code
+ *   -other changes
+ *
+ *   Revision 1.1.2.18  2006/06/26 21:51:59  robot3
  *   Mesh works now with bbox file
  *
  *   Revision 1.1.2.17  2006/06/23 08:53:40  robot3
@@ -412,7 +416,7 @@ namespace lpzrobots{
 
   void Transform::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		       char mode) {
-    // we ignore the mode!
+    // we ignore the mode ! EDIT by Frank G: no (for the child)
     assert(parent && parent->getBody() != 0 && child); // parent and child must exist
     assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised    
 
@@ -429,7 +433,7 @@ namespace lpzrobots{
     osgHandleChild.scene = parent->getOSGPrimitive()->getTransform();
     assert(osgHandleChild.scene);
     // initialise the child
-    child->init(odeHandleChild, 0, osgHandleChild, Primitive::Geom | Primitive::Draw);
+    child->init(odeHandleChild, 0, osgHandleChild, mode);
     // move the child to the right place (in local coordinates)
     child->setPose(pose);
   
@@ -475,24 +479,12 @@ namespace lpzrobots{
     // read boundingshape file
     const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
     boundshape = new BoundingShape(filename  + ".bbox" ,this);
-    if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.2)), 
-			 getPose(), scale, drawBoundingMode)){
-      printf("use default bounding box, because bbox file not found\n");
+    if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.3)), scale, drawBoundingMode)){
+      printf("use default bounding box, because bbox file not found!\n");
       Primitive* bound = new Sphere(osgmesh->getRadius()); 
-      bound->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.2)),
-		  drawBoundingMode);    
-      bound->setPose(osg::Matrix::translate(bsphere.center())*
-		     osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius()));       // set sphere higher
+      Transform* trans = new Transform(this,bound,osg::Matrix::translate(0.0f,0.0f,0.0f));
+      trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);    
       osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
-    }
-    if (mode & Geom){
-      if (!boundshape->isActive()) {
-	geom = dCreateSphere ( odeHandle.space , osgmesh->getRadius());
-      }
-      if (mode & Body)
-	if (!boundshape->isActive()) {
-	  dGeomSetBody (geom, body); // geom is assigned to body      
-	}
     }
   }
 
@@ -501,17 +493,11 @@ namespace lpzrobots{
     if(mode & Draw) {
       if(body) {
 	osgmesh->setMatrix(osgPose(body));
-	// update all geoms?
-// 	std::list<Primitive*> geoms = boundshape->getPrimitives();
-// 	for (std::list<Primitive*>::iterator i=geoms.begin();i!=geoms.end();i++) {
-// 	  (*i)->setPose(osgPose(body));
-// 	}
       }
       else {
 	osgmesh->setMatrix(osgPose(geom));
       }
     }
   }
-
 
 }

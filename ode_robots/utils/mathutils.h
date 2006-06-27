@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.8  2006-03-29 15:10:11  martius
+ *   Revision 1.3.4.9  2006-06-27 14:14:30  robot3
+ *   -optimized mesh and boundingshape code
+ *   -other changes
+ *
+ *   Revision 1.3.4.8  2006/03/29 15:10:11  martius
  *   osgMatrix2matrixlib
  *
  *   Revision 1.3.4.7  2006/03/05 10:58:18  robot3
@@ -82,6 +86,13 @@ namespace lpzrobots {
   inline T normalize360(T v)
     { while (v>360) v-=360; while (v<360) v+=360; return v; }
   /*******************************************************************************/
+
+
+  /**
+   * returns a rotation matrix (osg) with the given angles
+   * alpha, beta and gamma
+   */
+  osg::Matrix osgRotate(const double& alpha, const double& beta, const double& gamma);
 
   /**
      converts osg matrix to matrix of matrixlib

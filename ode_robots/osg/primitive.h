@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.14  2006-06-23 08:53:56  robot3
+ *   Revision 1.1.2.15  2006-06-27 14:14:29  robot3
+ *   -optimized mesh and boundingshape code
+ *   -other changes
+ *
+ *   Revision 1.1.2.14  2006/06/23 08:53:56  robot3
  *   made some changes on primitive Mesh
  *
  *   Revision 1.1.2.13  2006/05/29 22:03:26  martius
@@ -250,10 +254,9 @@ public:
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
-  virtual float getRadius() { return osgmesh->getRadius(); };
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive() { return osgmesh; }
-
+  virtual float getRadius() { return osgmesh->getRadius(); }
 
 protected:
   OSGMesh* osgmesh;
@@ -277,7 +280,7 @@ public:
       This Primitive must NOT have a body
   */
   Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose);
-  /// mode is ignored
+  /// mode is not ignored
   virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw);

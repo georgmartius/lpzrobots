@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.6  2006-03-30 12:35:07  martius
+ *   Revision 1.2.4.7  2006-06-27 14:14:30  robot3
+ *   -optimized mesh and boundingshape code
+ *   -other changes
+ *
+ *   Revision 1.2.4.6  2006/03/30 12:35:07  martius
  *   documentation updated
  *
  *   Revision 1.2.4.5  2006/03/29 15:10:11  martius
@@ -57,6 +61,18 @@
 using namespace matrix;
 
 namespace lpzrobots {
+
+
+
+  /**
+   * returns a rotation matrix (osg) with the given angles
+   * alpha, beta and gamma
+   */
+  osg::Matrix osgRotate(const double& alpha, const double& beta, const double& gamma) {
+    return (osg::Matrix::rotate(alpha,1,0,0)
+	    *osg::Matrix::rotate(beta,0,1,0)
+	    *osg::Matrix::rotate(gamma,0,0,1));
+  }
 
   /*
      converts osg matrix to matrix of matrixlib

@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-06-23 09:01:14  robot3
+ *   Revision 1.1.2.4  2006-06-27 14:14:29  robot3
+ *   -optimized mesh and boundingshape code
+ *   -other changes
+ *
+ *   Revision 1.1.2.3  2006/06/23 09:01:14  robot3
  *   made changes on primitive Mesh
  *
  *   Revision 1.1.2.2  2006/06/16 22:27:26  martius
@@ -40,6 +44,7 @@
 #include <math.h>
 
 #include "primitive.h"
+#include "osgprimitive.h"
 #include "abstractobstacle.h"
 
 namespace lpzrobots {
@@ -61,9 +66,9 @@ class PassiveMesh : public AbstractObstacle{
    * Constructor
    */
   PassiveMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle,const string& filename,
-	      double scale = 1.0, double mass = 1.0):
+	      double scale = 1.0, double mass = 1.0, bool drawBoundings=false):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), 
-    filename(filename), scale(scale), mass(mass) {       
+    filename(filename), scale(scale), mass(mass), drawBoundings(drawBoundings) {       
     mesh=0;
     obstacle_exists=false;    
   };
@@ -95,8 +100,11 @@ class PassiveMesh : public AbstractObstacle{
   virtual Primitive* getMainPrimitive() const { return mesh; }
   
  protected:
+
+  bool drawBoundings;
+
   virtual void create(){
-    mesh = new Mesh(filename,scale,true);
+    mesh = new Mesh(filename,scale,drawBoundings);
     mesh->init(odeHandle, mass, osgHandle);
     osg::Vec3 pos=pose.getTrans();
     pos[2]+=mesh->getRadius();

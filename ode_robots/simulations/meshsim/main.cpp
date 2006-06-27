@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-06-27 10:15:10  robot3
+ *   Revision 1.1.2.6  2006-06-27 14:14:30  robot3
+ *   -optimized mesh and boundingshape code
+ *   -other changes
+ *
+ *   Revision 1.1.2.5  2006/06/27 10:15:10  robot3
  *   better bbox file created
  *
  *   Revision 1.1.2.4  2006/06/26 21:53:35  robot3
@@ -104,8 +108,8 @@
 #include <selforg/one2onewiring.h>
 
 // used robot
-#include "nimm2.h"
-#include "nimm4.h"
+#include "truckmesh.h"
+
 
 // used arena
 #include "playground.h"
@@ -151,8 +155,9 @@ public:
     PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
 					   "cow.osg", // the filename of the mesh
 					   0.2, // the scale factor to be used
-					   1.0); // the mass of the mesh
-    myMesh->setPosition(osg::Vec3(-1,0,2.0f));
+					   1.0, // the mass of the mesh
+					  false); // draw the bounding shapes?
+    myMesh->setPosition(osg::Vec3(-1,0,0.0f));
     global.obstacles.push_back(myMesh);
 
     
@@ -173,24 +178,9 @@ public:
     // set color for nimm robot
     OsgHandle osgHandle_orange = osgHandle.changeColor(Color(2, 156/255.0, 0));
 
-    // use Nimm2 vehicle as robot:
-    // - get default configuration for nimm2
-    // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
-    // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
-    // - place robot
-     Nimm2Conf c = Nimm2::getDefaultConf();
-     c.size = 1.4;
-     //     c.bumper  = true;
-     //     c.cigarMode  = true;
-     //     c.irFront = true;
-     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c, "robot 1");    
-     vehicle->place(Pos(1.5,0,0));
-
-    // use Nimm4 vehicle as robot:
-    // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
-    // - place robot
-    //OdeRobot* vehiInvertMotorSpacecle = new Nimm4(odeHandle, osgHandle);
-    //vehicle->place(Pos(0,2,0));
+     OdeRobot* vehicle = new TruckMesh(odeHandle, osgHandle_orange, "Truck 1",
+				       1.2, 3, 15, false);    
+     vehicle->place(Pos(1.5,0,2.0f));
 
     // create pointer to controller
     // push controller in global list of configurables

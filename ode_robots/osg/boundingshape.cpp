@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-06-26 21:52:38  robot3
+ *   Revision 1.1.2.4  2006-06-27 14:14:29  robot3
+ *   -optimized mesh and boundingshape code
+ *   -other changes
+ *
+ *   Revision 1.1.2.3  2006/06/26 21:52:38  robot3
  *   Mesh works now with bbox file
  *
  *   Revision 1.1.2.2  2006/06/23 08:54:53  robot3
@@ -73,71 +77,60 @@ namespace lpzrobots {
   
   BoundingShape::~BoundingShape(){}
 
-  bool BoundingShape::readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-				   const osg::Matrix& pose, double scale, char mode){
+  bool BoundingShape::readBBoxFile(std::string& filename,
+				   const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+				   double scale, char mode){
     // TODO: use search path (maybe try to use some osgDB function)
     FILE* f = fopen(filename.c_str(),"r");
     if(!f) return false;
       char buffer[128];
-      float r,h,x,y,z;
+      float r,h,x,y,z,l,w;
+      double a,b,c;
       while(fgets(buffer,128,f)){
 	if(strstr(buffer,"sphere")==buffer){
 	  if(sscanf(buffer+7, "%g (%g,%g,%g)", &r, &x, &y, &z)==4){
 	    Sphere* s = new Sphere(r * scale);
-	    //	    s->init(odeHandle,0,osgHandle, mode);
-	    //	    s->setPose(osg::Matrix::translate(scale*x,scale*y,scale*z) * pose);
-	    geoms.push_back(s);
-	    poses.push_back(osg::Matrix::translate(scale*x,scale*y,scale*z));
-	    std::cout << "Sphere as bounding added." << scale*x << "," << scale*y << "," << scale*z << std::endl;
+	    Primitive* Trans = new Transform(parent,s,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
+					     *osg::Matrix::translate(scale*x,scale*y,scale*z));
+	    Trans->init(odeHandle, 0, osgHandle,mode);
+	    active=true;
 	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
 	} else if(strstr(buffer,"capsule")==buffer){
-	  if(sscanf(buffer+7, "%g %g (%g,%g,%g)", &r, &h, &x, &y, &z)==5){
-	    Capsule* c = new Capsule(r * scale,h * scale);
-	    //	    c->init(odeHandle,0,osgHandle, mode);
-	    //	    c->setPose(osg::Matrix::translate(scale*x,scale*y,scale*z) * pose);
-	    geoms.push_back(c);
-	    poses.push_back(osg::Matrix::translate(scale*x,scale*y,scale*z));
-	    Primitive* Trans = new Transform(parent,c,osg::Matrix::translate(scale*x,scale*y,scale*z));
-	    Trans->init(odeHandle, 0, osgHandle);
-	    std::cout << osgMatrix2Matrixlib(osg::Matrix::translate(scale*x,scale*y,scale*z));
-	    std::cout << "Capsule as bounding added:" << scale*x << "," << scale*y << "," << scale*z << std::endl;
+	  if(sscanf(buffer+7, "%g %g (%g,%g,%g) (%lg,%lg,%lg)", &r, &h, &x, &y, &z, &a, &b, &c)==8){
+	    Capsule* ca = new Capsule(r * scale,h * scale);
+	    Primitive* Trans = new Transform(parent,ca,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
+					     *osg::Matrix::translate(scale*x,scale*y,scale*z));
+	    Trans->init(odeHandle, 0, osgHandle,mode);
+	    active=true;
 	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
 	} else if(strstr(buffer,"cylinder")==buffer){
-	  fprintf(stderr, "Not implemented : %s", buffer);
+	  if(sscanf(buffer+8, "%g %g (%g,%g,%g) (%lg,%lg,%lg)", &r, &h, &x, &y, &z, &a, &b, &c)==8){
+	    Cylinder* cy = new Cylinder(r * scale,h * scale);
+	    Primitive* Trans = new Transform(parent,cy,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
+					     *osg::Matrix::translate(scale*x,scale*y,scale*z));
+	    Trans->init(odeHandle, 0, osgHandle,mode);
+	    active=true;
+	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
 	} else if(strstr(buffer,"box")==buffer){
-	  fprintf(stderr, "Not implemented : %s", buffer);
+	  if(sscanf(buffer+3, "%g %g %g (%g,%g,%g) (%lg,%lg,%lg)", &l, &w, &h, &x, &y, &z, &a, &b, &c)==9){
+	    Box* box = new Box(l * scale,w * scale, h * scale);
+	    Primitive* Trans = new Transform(parent,box,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
+					     *osg::Matrix::translate(scale*x,scale*y,scale*z));
+	    Trans->init(odeHandle, 0, osgHandle,mode);
+	    active=true;
+	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
 	}else {
 	  fprintf(stderr, "Unknown Line: %s", buffer);
 	}
       }
-      active=true;
       return true;
     }
       
-    bool BoundingShape::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const osg::Matrix& pose,
+    bool BoundingShape::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		      double scale, char mode){
-      return readBBoxFile(filename, odeHandle, osgHandle, pose, scale, mode);
+      return readBBoxFile(filename, odeHandle, osgHandle, scale, mode);
     }
 
-    void BoundingShape::update(const osg::Matrix& m4x4){
-      // update all primitives in list
-      std::list<osg::Matrix>::iterator p=poses.begin();
-      for(std::list<Primitive*>::iterator i=geoms.begin();i!=geoms.end();i++) {
-	  (*i)->setPose(osg::Matrix::translate((*p).getTrans()) * m4x4);
-	  std::cout << "updating boundingshape!" << std::endl;
-	  p++;
-      }
-    }
-
-
-
-  std::list<Primitive*> BoundingShape::getPrimitives() {
-    return geoms;
-  }
-
-  std::list<osg::Matrix> BoundingShape::getPoses() {
-    return poses;
-  }
 
   bool BoundingShape::isActive(){
     return active;
