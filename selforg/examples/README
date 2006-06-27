@@ -4,8 +4,8 @@
 Examples for the usage of the selforg framework. 
 You have two options for the usage of the controllers and the framwork.
 It depends on what you want and what you have. 
-You can either use a controller just as it is (see example onlycontroller.cpp), 
- or use it in the framework of controller and wiring and agent (see example integration.cpp).
+You can either use a controller just as it is (see example directconnect), 
+ or use it in the framework of controller and wiring and agent (see example integration).
 The first version means that you have the direct control of the data flow.
 The latter has the advantage to faciliates you with the plotting options such like.
 Here the data flow is controlled by the agent, which then asks the robot about the sensors,
@@ -14,13 +14,13 @@ Here the data flow is controlled by the agent, which then asks the robot about t
 
 
 /**
-\example onlycontroller.cpp 
- A simple example for the usage of the controller without the framework. (lpzrobots/selforg/examples/onlycontroller.cpp). 
+\example directconnect/directconnect.cpp 
+ A simple example for the usage of the controller without the framework.
 */
 
 
 /**
-\example integration.cpp 
- A simple example for the integration of a robot into the framework (with agent, controller, wiring). (lpzrobots/selforg/examples/integration.cpp). 
+\example integration/main.cpp 
+ A simple example for the integration of a robot into the framework (with agent, controller, wiring). 
 */
 
