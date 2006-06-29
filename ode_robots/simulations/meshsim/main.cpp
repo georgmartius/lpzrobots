@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-06-27 14:14:30  robot3
+ *   Revision 1.1.2.7  2006-06-29 16:31:05  robot3
+ *   improved version of the truckmesh
+ *
+ *   Revision 1.1.2.6  2006/06/27 14:14:30  robot3
  *   -optimized mesh and boundingshape code
  *   -other changes
  *
@@ -132,7 +135,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    setCameraHomePos(Pos(5.77213, -1.65879, 2.31173),  Pos(67.1911, -18.087, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -147,17 +150,17 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(6, 0.2, 1.0f));
+    Playground* playground = new Playground(odeHandle, osgHandle.changeColor(Color(1,1,1,0.1)), osg::Vec3(10, 0.2, 1.0f));
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
 
     PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
 					   "cow.osg", // the filename of the mesh
-					   0.2, // the scale factor to be used
-					   1.0, // the mass of the mesh
-					  false); // draw the bounding shapes?
-    myMesh->setPosition(osg::Vec3(-1,0,0.0f));
+					  global, // GlobalData, decides if boundings are drawed
+					   0.1, // the scale factor to be used
+					   0.5); // the mass of the mesh
+    myMesh->setPosition(osg::Vec3(1.0,0.2,0.4f));
     global.obstacles.push_back(myMesh);
 
     
@@ -170,7 +173,7 @@ public:
     // - add sphere to list of obstacles
     for (int i=0; i<= 1/*2*/; i+=2){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-      s1->setPosition(osg::Vec3(-2.5,2.5,0));
+      s1->setPosition(osg::Vec3(-2.5,2.5,0.2));
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
@@ -178,9 +181,13 @@ public:
     // set color for nimm robot
     OsgHandle osgHandle_orange = osgHandle.changeColor(Color(2, 156/255.0, 0));
 
-     OdeRobot* vehicle = new TruckMesh(odeHandle, osgHandle_orange, "Truck 1",
-				       1.2, 3, 15, false);    
-     vehicle->place(Pos(1.5,0,2.0f));
+    OdeRobot* vehicle = new TruckMesh(odeHandle, osgHandle_orange, // ODE- and OSGHandle
+				      "Truck 1", // the final name of the Meshrobot in the simulation
+				      global, // give the mesh informations if boundings been drawed
+				      1.2, // scale factor of the robot
+				      3, // the force of the motors
+				      15); // the max speed of the vehicle
+     vehicle->place(Pos(1.5,0,0.1));
 
     // create pointer to controller
     // push controller in global list of configurables
