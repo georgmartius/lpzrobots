@@ -27,7 +27,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-06-27 15:19:52  robot3
+ *   Revision 1.1.2.2  2006-06-29 16:36:46  robot3
+ *   -controller now gets 6 wheels for control
+ *   -wheels are on the right position now
+ *
+ *   Revision 1.1.2.1  2006/06/27 15:19:52  robot3
  *   truckmesh uses a mesh for the body of the robot
  *
  *   Revision 1.5.4.13  2006/06/25 16:57:14  martius
@@ -116,7 +120,7 @@ namespace lpzrobots {
      * @param speed factor for changing speed of robot
      */
     TruckMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const std::string& name,
-	  double size=1, double force=3, double speed=15, bool drawBoundings=false);
+	      GlobalData& global, double size=1, double force=3, double speed=15);
 
 
    virtual ~TruckMesh(){};
@@ -190,6 +194,8 @@ namespace lpzrobots {
 
     double length;     // chassis length
     double width;      // chassis width
+    double middlewidth; // chassis middle position of width
+    double middlelength; // chassis middle position of length
     double height;     // chassis height
     double radius;     // wheel radius
     double wheelthickness; // thickness of the wheels  
@@ -205,8 +211,10 @@ namespace lpzrobots {
 
     bool created;      // true if robot was created
 
-    Primitive* object[5];  // 1 mesh, 4 wheels
-    Hinge2Joint* joint[4]; // joints between mesh and each wheel
+    Primitive* object[7];  // 1 mesh, 6 wheels
+    Hinge2Joint* joint[6]; // joints between mesh and each wheel
+
+    GlobalData global;
 
   };
 
