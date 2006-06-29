@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.4.16  2006-06-25 17:00:32  martius
+ *   Revision 1.7.4.17  2006-06-29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.7.4.16  2006/06/25 17:00:32  martius
  *   Id
  *
  *   Revision 1.7.4.15  2006/06/25 16:57:14  martius
@@ -80,6 +85,7 @@
 
 // include primitives (box, spheres, cylinders ...)
 #include "primitive.h"
+#include "osgprimitive.h"
 
 // include joints
 #include "joint.h"

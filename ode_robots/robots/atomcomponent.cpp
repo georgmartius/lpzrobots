@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "atomcomponent.h"
+#include "osgprimitive.h"
 
 namespace lpzrobots
 {

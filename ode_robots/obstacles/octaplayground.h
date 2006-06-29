@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.10  2006-05-23 13:37:22  robot3
+ *   Revision 1.4.4.11  2006-06-29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.4.4.10  2006/05/23 13:37:22  robot3
  *   -fixed some creating bugs
  *   -setColor,setTexture and createGround must be
  *    called before setPosition now
@@ -67,10 +72,6 @@
 #ifndef __OCTAPLAYGROUND_H
 #define __OCTAPLAYGROUND_H
 
-#include <math.h>
-#include <vector>
-
-#include "primitive.h"
 #include "abstractground.h"
 
 namespace lpzrobots {

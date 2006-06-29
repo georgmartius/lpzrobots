@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-06-25 16:57:12  martius
+ *   Revision 1.1.2.5  2006-06-29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.1.2.4  2006/06/25 16:57:12  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -33,6 +38,7 @@
  ***************************************************************************/
 
 #include "defaultWheelie.h"
+#include "osgprimitive.h"
 
 namespace lpzrobots {
 

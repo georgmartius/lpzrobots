@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20.4.9  2006-06-25 16:57:14  martius
+ *   Revision 1.20.4.10  2006-06-29 16:39:56  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.20.4.9  2006/06/25 16:57:14  martius
  *   abstractrobot is configureable
  *   name and revision
  *
@@ -56,6 +61,7 @@
  ***************************************************************************/
 
 #include "schlange.h"
+#include "osgprimitive.h"
 
 namespace lpzrobots {
 

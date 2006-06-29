@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.11  2006-05-23 13:37:34  robot3
+ *   Revision 1.10.4.12  2006-06-29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.10.4.11  2006/05/23 13:37:34  robot3
  *   -fixed some creating bugs
  *   -setColor,setTexture and createGround must be
  *    called before setPosition now
@@ -90,12 +95,7 @@
 #ifndef __PLAYGROUND_H
 #define __PLAYGROUND_H
 
-
-#include <stdio.h>
-#include <math.h>
-
 #include "mathutils.h"
-#include "primitive.h"
 #include "abstractground.h"
  
 namespace lpzrobots {
@@ -122,10 +122,6 @@ public:
     factorlength2=factorxy;
 
   };
-
-  
-
- 
 
  protected:
   virtual void create(){

@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8.4.8  2006-06-16 22:27:26  martius
+ *   Revision 1.8.4.9  2006-06-29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.8.4.8  2006/06/16 22:27:26  martius
  *   getMainPrimtive
  *
  *   Revision 1.8.4.7  2006/05/23 13:38:02  robot3
@@ -81,10 +87,13 @@
 
 namespace lpzrobots {
 
+  class Primitive;
+
 /**
  *  Abstract class (interface) for obstacles
  */
 class AbstractObstacle{
+
 
  public:
   /**
@@ -93,14 +102,9 @@ class AbstractObstacle{
    * @param osgHandle containing OSG stuff like scene, color...
    * be used for creation of obstacles
    */
-  AbstractObstacle(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
-    : odeHandle(odeHandle), osgHandle(osgHandle) {
-    // initialize the pose matrix correctly
-    pose=osg::Matrix::translate(0,0,0);
-    obstacle_exists=false;
-  };
+  AbstractObstacle(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
 
-  virtual ~AbstractObstacle(){}
+  virtual ~AbstractObstacle();
   
   /**
    * updates the position if the scenegraph nodes
@@ -110,22 +114,17 @@ class AbstractObstacle{
   /**
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
-  void setPosition(const osg::Vec3& pos){
-    pose.setTrans(pos);
-    setPose(pose);
-  };
+  virtual void setPosition(const osg::Vec3& pos);
 
   /**
    * gives actual position of the obstacle
    */
-  osg::Vec3 getPosition(){
-    return pose.getTrans();
-  }
+  virtual osg::Vec3 getPosition();
 
   /**
    * gives actual pose of the obstacle
    */
-osg::Matrix getPose(){ return pose; }
+  virtual osg::Matrix getPose();
 
   /**
    * sets position of the obstacle and creates/recreates obstacle if necessary
@@ -136,17 +135,9 @@ osg::Matrix getPose(){ return pose; }
    * sets the obstacle color
    * @param color values in RGBA
    */
-  virtual void setColor(const Color& color) {
-    osgHandle.color = color;
-    if (obstacle_exists) {
-      destroy();
-      create();
-    }
-    obstacle_exists=true;
-  };
+  virtual void setColor(const Color& color);
 
   virtual Primitive* getMainPrimitive() const = 0;
-
 
  protected:
   osg::Matrix pose;

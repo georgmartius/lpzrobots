@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.4  2006-06-27 14:14:29  robot3
+ *   Revision 1.1.2.5  2006-06-29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.1.2.4  2006/06/27 14:14:29  robot3
  *   -optimized mesh and boundingshape code
  *   -other changes
  *
@@ -58,6 +63,7 @@ class PassiveMesh : public AbstractObstacle{
   double mass;
 
   Mesh* mesh;
+  GlobalData globalData;
 
 
  public:
@@ -66,9 +72,9 @@ class PassiveMesh : public AbstractObstacle{
    * Constructor
    */
   PassiveMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle,const string& filename,
-	      double scale = 1.0, double mass = 1.0, bool drawBoundings=false):
+	     GlobalData& globalData, double scale = 1.0, double mass = 1.0):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), 
-    filename(filename), scale(scale), mass(mass), drawBoundings(drawBoundings) {       
+    filename(filename), scale(scale), mass(mass), globalData(globalData) {       
     mesh=0;
     obstacle_exists=false;    
   };
@@ -104,7 +110,7 @@ class PassiveMesh : public AbstractObstacle{
   bool drawBoundings;
 
   virtual void create(){
-    mesh = new Mesh(filename,scale,drawBoundings);
+    mesh = new Mesh(filename,scale,globalData);
     mesh->init(odeHandle, mass, osgHandle);
     osg::Vec3 pos=pose.getTrans();
     pos[2]+=mesh->getRadius();

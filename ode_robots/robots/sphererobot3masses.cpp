@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-06-25 17:00:33  martius
+ *   Revision 1.1.2.8  2006-06-29 16:39:56  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.1.2.7  2006/06/25 17:00:33  martius
  *   Id
  *
  *   Revision 1.1.2.6  2006/06/25 16:57:16  martius
@@ -64,6 +69,8 @@
 
 #include "irsensor.h"
 #include "invisibleprimitive.h"
+#include "osgprimitive.h" // get access to graphical (OSG) primitives
+
 
 using namespace osg;
 

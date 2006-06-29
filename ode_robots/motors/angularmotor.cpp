@@ -23,7 +23,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-02-23 18:05:30  martius
+ *   Revision 1.1.2.4  2006-06-29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.1.2.3  2006/02/23 18:05:30  martius
  *   setPower (on all axis the same)
  *
  *   Revision 1.1.2.2  2006/02/07 15:51:56  martius
@@ -41,6 +46,7 @@
 #include <ode/objects.h>
 #include "mathutils.h"
 #include "angularmotor.h"
+#include "odehandle.h"
 
 
 namespace lpzrobots {

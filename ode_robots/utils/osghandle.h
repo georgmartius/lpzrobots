@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-06-15 09:17:09  martius
+ *   Revision 1.1.2.8  2006-06-29 16:39:56  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.1.2.7  2006/06/15 09:17:09  martius
  *   restores changeAlpha
  *
  *   Revision 1.1.2.6  2006/06/12 13:37:55  robot3
@@ -55,7 +60,7 @@ namespace lpzrobots {
 class OsgHandle
 {
 public:
-  OsgHandle( );
+  OsgHandle();
   OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
 	     osg::StateSet* normalState, osg::StateSet* transparentState, 
 	     const Color& color);
