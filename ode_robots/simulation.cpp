@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.32  2006-06-29 16:31:47  robot3
+ *   Revision 1.40.4.33  2006-06-29 16:41:14  robot3
+ *   you can now see the bounding shapes of meshes
+ *   if you type ./start -drawboundings on command line
+ *
+ *   Revision 1.40.4.32  2006/06/29 16:31:47  robot3
  *   includes cleared up
  *
  *   Revision 1.40.4.31  2006/06/25 16:52:23  martius
@@ -273,8 +277,6 @@
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
-
-
 
 namespace lpzrobots {
 
