@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -22,7 +23,12 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.19  2006-06-27 14:14:29  robot3
+ *   Revision 1.1.2.20  2006-06-29 16:35:32  robot3
+ *   -Mesh code optimized
+ *   -includes cleared up, more using forward declarations
+ *    (sometimes additionally #include "osgprimitive.h" is needed)
+ *
+ *   Revision 1.1.2.19  2006/06/27 14:14:29  robot3
  *   -optimized mesh and boundingshape code
  *   -other changes
  *
@@ -94,6 +100,9 @@
 #include "primitive.h"
 #include "pos.h"
 #include "boundingshape.h"
+#include "osgprimitive.h"
+#include "odehandle.h"
+#include "globaldata.h"
 
 
 namespace lpzrobots{
@@ -218,6 +227,8 @@ namespace lpzrobots{
     if(osgplane) delete osgplane;
   }
 
+  OSGPrimitive* Plane::getOSGPrimitive() { return osgplane; }
+
   void Plane::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		   char mode) {
     assert(mode & Body || mode & Geom);
@@ -257,6 +268,8 @@ namespace lpzrobots{
   Box::~Box(){
     if(osgbox) delete osgbox; 
   }
+
+  OSGPrimitive* Box::getOSGPrimitive() { return osgbox; }
 
   void Box::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		 char mode) {
@@ -300,6 +313,8 @@ namespace lpzrobots{
     if(osgsphere) delete osgsphere; 
   }
 
+  OSGPrimitive* Sphere::getOSGPrimitive() { return osgsphere; }
+
   void Sphere::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		    char mode) {
     assert(mode & Body || mode & Geom);
@@ -340,6 +355,8 @@ namespace lpzrobots{
     if(osgcapsule) delete osgcapsule; 
   }
 
+  OSGPrimitive* Capsule::getOSGPrimitive() { return osgcapsule; }
+
   void Capsule::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     assert(mode & Body || mode & Geom);
@@ -379,6 +396,8 @@ namespace lpzrobots{
     if(osgcylinder) delete osgcylinder; 
   }
 
+  OSGPrimitive* Cylinder::getOSGPrimitive() { return osgcylinder; }
+
   void Cylinder::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     assert(mode & Body || mode & Geom);
@@ -414,9 +433,11 @@ namespace lpzrobots{
     : parent(parent), child(child), pose(pose) {
   }
 
+  OSGPrimitive* Transform::getOSGPrimitive() { return 0; }
+
   void Transform::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		       char mode) {
-    // we ignore the mode ! EDIT by Frank G: no (for the child)
+    // Primitive::body is ignored (removed) from mode
     assert(parent && parent->getBody() != 0 && child); // parent and child must exist
     assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised    
 
@@ -433,7 +454,7 @@ namespace lpzrobots{
     osgHandleChild.scene = parent->getOSGPrimitive()->getTransform();
     assert(osgHandleChild.scene);
     // initialise the child
-    child->init(odeHandleChild, 0, osgHandleChild, mode);
+    child->init(odeHandleChild, 0, osgHandleChild, mode & ~Primitive::Body );
     // move the child to the right place (in local coordinates)
     child->setPose(pose);
   
@@ -449,10 +470,10 @@ namespace lpzrobots{
 
   /******************************************************************************/
 
-  Mesh::Mesh(const std::string& filename,float scale,bool drawODEBoundings) :
+  Mesh::Mesh(const std::string& filename,float scale,GlobalData& global) :
     filename(filename), scale(scale)  {    
     osgmesh = new OSGMesh(filename, scale);
-    if (drawODEBoundings)
+    if (global.odeConfig.drawBoundings)
       drawBoundingMode=Primitive::Geom | Primitive::Draw;
     else
       drawBoundingMode=Primitive::Geom;
@@ -461,6 +482,8 @@ namespace lpzrobots{
   Mesh::~Mesh(){
     if(osgmesh) delete osgmesh; 
   }
+
+  OSGPrimitive* Mesh::getOSGPrimitive() { return osgmesh; }
 
   void Mesh::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
@@ -477,17 +500,18 @@ namespace lpzrobots{
       dBodySetMass (body,&m); //assign the mass to the body
     } 
     // read boundingshape file
-    const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
+    //    const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
     boundshape = new BoundingShape(filename  + ".bbox" ,this);
     if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.3)), scale, drawBoundingMode)){
       printf("use default bounding box, because bbox file not found!\n");
       Primitive* bound = new Sphere(osgmesh->getRadius()); 
       Transform* trans = new Transform(this,bound,osg::Matrix::translate(0.0f,0.0f,0.0f));
-      trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);    
+      trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);
       osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
     }
   }
 
+  float Mesh::getRadius() { return osgmesh->getRadius(); }
 
   void Mesh::update(){
     if(mode & Draw) {

@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.17  2006-06-23 09:04:48  robot3
+ *   Revision 1.1.2.18  2006-06-29 16:35:32  robot3
+ *   -Mesh code optimized
+ *   -includes cleared up, more using forward declarations
+ *    (sometimes additionally #include "osgprimitive.h" is needed)
+ *
+ *   Revision 1.1.2.17  2006/06/23 09:04:48  robot3
  *   added #include <assert.h>
  *
  *   Revision 1.1.2.16  2006/05/28 22:14:56  martius
@@ -345,6 +350,7 @@ namespace lpzrobots {
   float OSGMesh::getRadius() {
     return getGroup()->getBound().radius(); 
   }
+
   void OSGMesh::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
     transform = new MatrixTransform;        
@@ -354,7 +360,7 @@ namespace lpzrobots {
     transform->addChild(scaletrans.get());
     mesh  = osgDB::readNodeFile(filename, options);
     scaletrans->addChild(mesh.get());
-
+    
 //     if(osgHandle.color.alpha() < 1.0){
 //       shape->setStateSet(osgHandle.transparentState);
 //     }else{
@@ -363,9 +369,30 @@ namespace lpzrobots {
 //     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 // 						       StateAttribute::ON);
 
-    setTexture("Images/really_white.rgb");
-  }
+//    setTexture("Images/really_white.rgb");
+//    setColor(osgHandle.color); // doesn't work with Mesh(es)
 
+    /***********************************************************************************************
+     * the following code is for setTexture() for a Mesh, since the normal setTexture() doesn't    *
+     * work. This works with the cow.osg example, but NOT with the dumptruck.osg example (why?)    *
+     **********************************************************************************************/
+    /*
+    osg::Geode* geode = dynamic_cast<osg::Geode*> (mesh.get()->asGroup()->getChild(0));
+    osg::Drawable* geom = geode->getDrawable(0);
+    osg::Texture2D* texture = new osg::Texture2D;
+    texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
+    texture->setImage(osgDB::readImageFile("Images/whitemetal_farbig.rgb"));
+    ///TODO: needs to be fixed (why does this not work???)
+//     if (repeatOnX)
+       texture->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
+//     if (repeatOnY)
+       texture->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
+    //    texture->setWrap( Texture2D::WRAP_R, Texture2D::REPEAT ); // ???
+    osg::StateSet* stateset = geom->getOrCreateStateSet();
+    stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);
+    stateset->setTextureAttribute(0, new TexEnv );
+    */
+  }
 
 
   /********************* HELPER ************************************************/

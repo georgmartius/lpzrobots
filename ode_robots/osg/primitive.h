@@ -4,6 +4,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.15  2006-06-27 14:14:29  robot3
+ *   Revision 1.1.2.16  2006-06-29 16:35:32  robot3
+ *   -Mesh code optimized
+ *   -includes cleared up, more using forward declarations
+ *    (sometimes additionally #include "osgprimitive.h" is needed)
+ *
+ *   Revision 1.1.2.15  2006/06/27 14:14:29  robot3
  *   -optimized mesh and boundingshape code
  *   -other changes
  *
@@ -82,16 +88,29 @@
 #ifndef __PRIMITIVE_H
 #define __PRIMITIVE_H
 
-#include "osgprimitive.h"
-#include "odehandle.h"
 #include <osg/Matrix>
-
 #include <ode/common.h>
 
+// another forward declaration "block"
+#include "osgforwarddecl.h"
 
 namespace lpzrobots {
 
-class BoundingShape; // forward declaration
+   /***** begin of forward declaration block *****/
+   class BoundingShape;
+   class OSGPrimitive;
+   class OSGPlane;
+   class OSGBox;
+   class OSGSphere;
+   class OSGCapsule;
+   class OSGCylinder;
+   class OSGDummy;
+   class OSGMesh;
+   typedef struct GlobalData;
+   class OdeHandle;
+   class OsgHandle;
+   /*****  end of forward declaration block  *****/
+
 
 /// returns the osg (4x4) pose matrix of the ode geom
 osg::Matrix osgPose( dGeomID geom );
@@ -170,7 +189,7 @@ public:
 		    char mode = Body | Geom | Draw) ;
 
   virtual void update();  
-  virtual OSGPrimitive* getOSGPrimitive() { return osgplane; }
+  virtual OSGPrimitive* getOSGPrimitive();
 
 protected:
   OSGPlane* osgplane;
@@ -189,7 +208,7 @@ public:
 		    char mode = Body | Geom | Draw) ;
 
   virtual void update();
-  virtual OSGPrimitive* getOSGPrimitive() { return osgbox; }
+  virtual OSGPrimitive* getOSGPrimitive();
 
 protected:
   OSGBox* osgbox;
@@ -207,7 +226,7 @@ public:
 		    char mode = Body | Geom | Draw) ;
 
   virtual void update();
-  virtual OSGPrimitive* getOSGPrimitive() { return osgsphere; }
+  virtual OSGPrimitive* getOSGPrimitive();
 
 protected:
   OSGSphere* osgsphere;
@@ -223,7 +242,7 @@ public:
 		    char mode = Body | Geom | Draw) ;
 
   virtual void update();
-  virtual OSGPrimitive* getOSGPrimitive() { return osgcapsule; }
+  virtual OSGPrimitive* getOSGPrimitive();
 
 protected:
   OSGCapsule* osgcapsule;
@@ -239,7 +258,7 @@ public:
 		    char mode = Body | Geom | Draw) ;
 
   virtual void update();
-  virtual OSGPrimitive* getOSGPrimitive() { return osgcylinder; }
+  virtual OSGPrimitive* getOSGPrimitive();
 
 protected:
   OSGCylinder* osgcylinder;
@@ -249,14 +268,14 @@ protected:
 /** Mesh primitive */
 class Mesh : public Primitive {
 public:
-  Mesh(const std::string& filename,float scale,bool drawODEBoundings=false);
+  Mesh(const std::string& filename,float scale,GlobalData& global);
   virtual ~Mesh();
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
   virtual void update();
-  virtual OSGPrimitive* getOSGPrimitive() { return osgmesh; }
-  virtual float getRadius() { return osgmesh->getRadius(); }
+  virtual OSGPrimitive* getOSGPrimitive();
+  virtual float getRadius();
 
 protected:
   OSGMesh* osgmesh;
@@ -286,7 +305,7 @@ public:
 		    char mode = Body | Geom | Draw);
 
   virtual void update();
-  virtual OSGPrimitive* getOSGPrimitive() { return 0; }
+  virtual OSGPrimitive* getOSGPrimitive();
 
 protected:
   Primitive* parent;
