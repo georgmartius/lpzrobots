@@ -22,7 +22,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-01-12 14:22:49  martius
+ *   Revision 1.1.2.2  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.1  2006/01/12 14:22:49  martius
  *   invisibles
  *
  *                                                                 *
@@ -33,6 +36,7 @@
 #include <ode/ode.h>
 
 #include "invisibleprimitive.h"
+#include "odehandle.h"
 
 namespace lpzrobots{
 
@@ -40,6 +44,7 @@ namespace lpzrobots{
   InvisibleBox::InvisibleBox(float lengthX, float lengthY, float lengthZ) 
     : lengthX(lengthX), lengthY(lengthY), lengthZ(lengthZ){
   }
+
 
   void InvisibleBox::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		    char mode) {
@@ -66,6 +71,7 @@ namespace lpzrobots{
   InvisibleSphere::InvisibleSphere(float radius) 
     : radius(radius)  {    
   }
+
   
   void InvisibleSphere::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		    char mode) {
@@ -91,6 +97,7 @@ namespace lpzrobots{
     : radius(radius), height(height) { 
   }
   
+
   void InvisibleCapsule::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		    char mode) {
     assert(mode & Body || mode & Geom);

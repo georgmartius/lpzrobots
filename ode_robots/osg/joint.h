@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-03-29 15:05:57  martius
+ *   Revision 1.1.2.12  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.11  2006/03/29 15:05:57  martius
  *   fixed joint
  *
  *   Revision 1.1.2.10  2006/02/01 18:34:03  martius
@@ -68,8 +71,10 @@
 #include "primitive.h"
 #include "osgforwarddecl.h"
 #include "axis.h"
+#include "osghandle.h"
 
 namespace lpzrobots {
+
 
   /***************************************************************************/
 

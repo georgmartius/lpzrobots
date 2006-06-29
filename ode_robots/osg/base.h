@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.6  2006-05-28 22:14:56  martius
+ *   Revision 1.1.2.7  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.6  2006/05/28 22:14:56  martius
  *   heightfield included
  *
  *   Revision 1.1.2.5  2006/05/18 11:45:51  robot3
@@ -55,8 +59,6 @@
 #include "odehandle.h"
 
 class osg::Node;
-class osg::Node;
-
 
 namespace lpzrobots {
 

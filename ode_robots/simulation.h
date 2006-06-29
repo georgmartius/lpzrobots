@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -27,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.18.4.18  2006-06-25 16:52:23  martius
+ *   Revision 1.18.4.19  2006-06-29 16:31:47  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.18.4.18  2006/06/25 16:52:23  martius
  *   filelogging is done with a plotoption
  *
  *   Revision 1.18.4.17  2006/05/28 22:12:03  martius
@@ -142,38 +146,33 @@
 #ifndef __SIMULATION_H
 #define __SIMULATION_H
 
-#include <math.h>
-#define PI M_PI // (3.14159265358979323846)
+// include base classes of class Simulation
+#include "base.h"
 #include <osgGA/GUIEventHandler>
 #include <Producer/Camera>
 
+#include <math.h>
+#define PI M_PI // (3.14159265358979323846)
 #include <vector>
 #include <iterator>
 
-#include "odeconfig.h"
-#include "camera.h"
+#include "globaldata.h"
 #include "grabframe.h"
 
-#include "globaldata.h"
-#include "base.h"
+/***  some forward declarations  ***/
+class PlotOption; // selforg
 
-#include "extendedViewer.h"
-
-namespace osg{
-  class ArgumentParser;
+namespace lpzrobots {
+  class ExtendedViewer;
 }
-
-//namespace osgProducer{
-//  class Viewer;
-//}
-
-class PlotOption; // forward declaration, needed for PlotOption
+/*** end of forward declarations ***/
 
 
 namespace lpzrobots {
 
   class Simulation : public Base, public osgGA::GUIEventHandler, public Producer::Camera::Callback {
   public:
+
     typedef enum SimulationState { none, initialised, running, closed };
     
     Simulation();
@@ -241,7 +240,7 @@ namespace lpzrobots {
     // plotoptions is a list of possible online output, 
     // if the list is empty no online gnuplot windows and no logging to file occurs.
     // The list is modified with commandline options, see run() in simulation.cpp
-    list<PlotOption> plotoptions;
+    std::list<PlotOption> plotoptions;
 
 
   private:

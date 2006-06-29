@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.31  2006-06-25 16:52:23  martius
+ *   Revision 1.40.4.32  2006-06-29 16:31:47  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.40.4.31  2006/06/25 16:52:23  martius
  *   filelogging is done with a plotoption
  *
  *   Revision 1.40.4.30  2006/05/28 22:11:44  martius
@@ -251,10 +254,11 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include <selforg/configurable.h>
 #include <selforg/abstractcontroller.h>
 
 #include "simulation.h"
+
+#include "extendedViewer.h"
 
 #include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
@@ -263,18 +267,14 @@
 #include <osgDB/ReaderWriter>
 #include <osgDB/FileUtils>
 
-#include "odeagent.h"
 #include "primitive.h"
-
-#include "grabframe.h"
-
 #include "abstractobstacle.h"
-#include "cameramanipulator.h"
+
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
 
-#include "motionblurcallback.h"
+
 
 namespace lpzrobots {
 
@@ -468,11 +468,11 @@ namespace lpzrobots {
     viewer->realize();
 
     // set our motion blur callback as the draw callback for each scene handler
-//      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
-//      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
-//      {
-//          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
-//      }
+    //      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
+    //      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
+    //      {
+    //          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
+    //      }
 
 
     while (!viewer->done())
@@ -559,10 +559,10 @@ namespace lpzrobots {
 	    cameramanipulator->update();
 	}
       
-// 	// grab frame if in captureing mode
-// 	if(videostream.opened && !pause){
-// 	  grabAndWriteFrame(videostream);
-// 	}
+	// 	// grab frame if in captureing mode
+	// 	if(videostream.opened && !pause){
+	// 	  grabAndWriteFrame(videostream);
+	// 	}
       }
 
     }  
@@ -651,7 +651,7 @@ namespace lpzrobots {
       }      	  
     case(osgGA::GUIEventAdapter::KEYUP):
       {
-	  handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);	
+	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);	
       }
     default: 
       break;      
@@ -672,7 +672,7 @@ namespace lpzrobots {
   }
 
   ///////////////// Camera::Callback interface
- void Simulation::operator() (const Producer::Camera &c){
+  void Simulation::operator() (const Producer::Camera &c){
     // grab frame if in captureing mode
     if(videostream.isOpen() && !pause){
       if(!videostream.grabAndWriteFrame(c)){
@@ -750,6 +750,7 @@ namespace lpzrobots {
 
     pause = contains(argv, argc, "-pause")!=0;
     useShadow = contains(argv, argc, "-noshadow")==0;
+    globalData.odeConfig.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
   }
 
   // Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
@@ -779,11 +780,11 @@ namespace lpzrobots {
 	  {
 	    
  	    // contact[i].surface.mode = dContactBounce | dContactSoftCFM;
-//  	    contact[i].surface.mu = 1;
-//  	    contact[i].surface.mu2 = 0;
-//  	    contact[i].surface.bounce = 0.1;
-//  	    contact[i].surface.bounce_vel = 0.1;
-//  	    contact[i].surface.soft_cfm = 0.1;
+	    //  	    contact[i].surface.mu = 1;
+	    //  	    contact[i].surface.mu2 = 0;
+	    //  	    contact[i].surface.bounce = 0.1;
+	    //  	    contact[i].surface.bounce_vel = 0.1;
+	    //  	    contact[i].surface.soft_cfm = 0.1;
 
 	    contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
 	      dContactSoftERP | dContactSoftCFM | dContactApprox1;
@@ -854,14 +855,15 @@ namespace lpzrobots {
   }
 
   void Simulation::usage(const char* progname){
-    printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed] [-x WxH] [-pause] [-noshadow]\n", 
-	   progname);
+    printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed]"
+	   " [-x WxH] [-pause] [-noshadow] [-drawboundings]\n", progname);
     printf("\t-g [interval]\tuse guilogger (default interval 1)\n");
     printf("\t-f [interval]\twrite logging file (default interval 5)\n");
-    printf("\t-r seed\trandom number seed ");
+    printf("\t-r seed\t\trandom number seed\n");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (640x480 default)\n");
     printf("\t-pause \t\tstart in pause mode\n");
-    printf("\t-noshadow \t\tdisables shadows and shaders\n");
+    printf("\t-noshadow \tdisables shadows and shaders\n");
+    printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
   }
 
   // Commandline interface stuff

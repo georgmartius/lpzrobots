@@ -24,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-05-29 20:00:33  robot3
+ *   Revision 1.1.2.12  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.11  2006/05/29 20:00:33  robot3
  *   added pos1 (center on agent) and end (move behind agent)
  *
  *   Revision 1.1.2.10  2006/03/19 13:32:12  robot3
@@ -74,7 +77,6 @@
 #include <osgGA/MatrixManipulator>
 #include "odeagent.h"
 #include "globaldata.h"
-
 
 namespace lpzrobots {
 

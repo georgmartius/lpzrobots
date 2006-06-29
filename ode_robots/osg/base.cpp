@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-05-28 22:12:16  martius
+ *   Revision 1.1.2.9  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.8  2006/05/28 22:12:16  martius
  *   - noshadow cmdline flag
  *
  *   Revision 1.1.2.7  2006/05/18 11:42:51  robot3
@@ -86,8 +89,6 @@
 using namespace osg;
 
 namespace lpzrobots {
-
-
 
 
   /********************************************************************

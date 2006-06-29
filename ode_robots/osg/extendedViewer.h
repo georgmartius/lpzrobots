@@ -21,12 +21,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-03-06 16:51:04  robot3
+ *   Revision 1.1.2.2  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.1  2006/03/06 16:51:04  robot3
  *   written an own viewer because getCurrentCameraManipulator() was not implemented
  *
  *                                                                         *
  ***************************************************************************/
-
 /* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2005 Robert Osfield
  *
  * This library is open source and may be redistributed and/or modified under
@@ -39,28 +41,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * OpenSceneGraph Public License for more details.
  */
+#ifndef EXTENDEDVIEWER_H
+#define EXTENDEDVIEWER_H
 
-#ifndef OSGPRODUCER_EXTENDEDVIEWER
-#define OSGPRODUCER_EXTENDEDVIEWER 1
-
-#include <osg/NodeVisitor>
-#include <osg/ArgumentParser>
-#include <osg/ApplicationUsage>
-#include <osg/AnimationPath>
-#include <osg/RefNodePath>
-
-#include <osgUtil/IntersectVisitor>
-
-#include <osgGA/GUIActionAdapter>
-#include <osgGA/GUIEventHandler>
-#include <osgGA/EventVisitor>
-#include <osgGA/KeySwitchMatrixManipulator>
-
-#include <osgProducer/OsgCameraGroup>
-#include <osgProducer/KeyboardMouseCallback>
 #include <osgProducer/Viewer>
-
-#include <list>
 
 namespace lpzrobots {
 
@@ -87,10 +71,7 @@ namespace lpzrobots {
     virtual ~ExtendedViewer();
 
     /** Get the current active camera manipulator.*/
-    osgGA::MatrixManipulator* getCurrentCameraManipulator() 
-      { return _keyswitchManipulator->getCurrentMatrixManipulator(); }
-
-    protected :
+    virtual osgGA::MatrixManipulator* getCurrentCameraManipulator();
 
   };
 

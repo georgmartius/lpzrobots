@@ -25,7 +25,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-01-12 14:21:00  martius
+ *   Revision 1.1.2.3  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.2  2006/01/12 14:21:00  martius
  *   drawmode, material
  *
  *   Revision 1.1.2.1  2006/01/10 16:06:30  martius
@@ -83,7 +86,7 @@ public:
 		    char mode = Body | Geom | Draw);
 
   virtual void update() {}
-  virtual OSGPrimitive* getOSGPrimitive() { return osgcapsule; }
+  virtual OSGPrimitive* getOSGPrimitive() { return 0; }
 
 protected:
   OSGCapsule* osgcapsule;

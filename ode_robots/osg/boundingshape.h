@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-06-27 14:14:29  robot3
+ *   Revision 1.1.2.8  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.7  2006/06/27 14:14:29  robot3
  *   -optimized mesh and boundingshape code
  *   -other changes
  *
@@ -61,7 +64,7 @@
 
 
 namespace lpzrobots {
-
+  
   /**
      class for reading bounding shape description files (.bbox) and to create appropriate geoms
      File Format: Lines wise, every line stands for one primitive. Possible lines are:

@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.14  2006-05-05 16:07:23  fhesse
+ *   Revision 1.1.2.15  2006-06-29 16:35:56  robot3
+ *   includes cleared up
+ *
+ *   Revision 1.1.2.14  2006/05/05 16:07:23  fhesse
  *   dJointSetFixed(joint); added in init of FixedJoint
  *   to remember relative positions
  *
@@ -79,7 +82,8 @@
 #include "joint.h"
 #include "pos.h"
 #include "mathutils.h"
-
+#include "odehandle.h"
+#include "osgprimitive.h"
 
 namespace lpzrobots {
 
