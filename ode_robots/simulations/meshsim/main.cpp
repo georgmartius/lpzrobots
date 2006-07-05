@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-06-29 16:31:05  robot3
+ *   Revision 1.1.2.8  2006-07-05 16:47:40  robot3
+ *   added a tree as a another example
+ *
+ *   Revision 1.1.2.7  2006/06/29 16:31:05  robot3
  *   improved version of the truckmesh
  *
  *   Revision 1.1.2.6  2006/06/27 14:14:30  robot3
@@ -155,13 +158,22 @@ public:
     global.obstacles.push_back(playground);
 
 
-    PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
-					   "cow.osg", // the filename of the mesh
-					  global, // GlobalData, decides if boundings are drawed
-					   0.1, // the scale factor to be used
-					   0.5); // the mass of the mesh
-    myMesh->setPosition(osg::Vec3(1.0,0.2,0.4f));
-    global.obstacles.push_back(myMesh);
+     PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
+				   "cow.osg", // the filename of the mesh
+ 					  global, // GlobalData, decides if boundings are drawed
+ 					   0.1, // the scale factor to be used
+ 					   1.0); // the mass of the mesh
+     myMesh->setPosition(osg::Vec3(1.0,0.2,0.4f));
+     global.obstacles.push_back(myMesh);
+
+
+     myMesh = new PassiveMesh(odeHandle,osgHandle,
+				   "tree1.osg", // the filename of the mesh
+ 					  global, // GlobalData, decides if boundings are drawed
+ 					   0.01, // the scale factor to be used
+ 					   10000.0); // the mass of the mesh
+     myMesh->setPosition(osg::Vec3(-1.0,0.2,0.4f));
+     global.obstacles.push_back(myMesh);
 
     
 
@@ -186,7 +198,7 @@ public:
 				      global, // give the mesh informations if boundings been drawed
 				      1.2, // scale factor of the robot
 				      3, // the force of the motors
-				      15); // the max speed of the vehicle
+				      100); // the max speed of the vehicle
      vehicle->place(Pos(1.5,0,0.1));
 
     // create pointer to controller
