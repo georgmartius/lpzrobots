@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.12  2006-06-25 17:00:31  martius
+ *   Revision 1.1.2.13  2006-07-05 13:12:54  der
+ *   fixed sliderServos.size() bug being used in min-function
+ *   (compiler said that sliderServos.size() returned size_t
+ *    instead of unsigned int)
+ *    this problem occured on x86_64 suse linux 10.0 (der)
+ *
+ *   Revision 1.1.2.12  2006/06/25 17:00:31  martius
  *   Id
  *
  *   Revision 1.1.2.11  2006/06/25 16:57:11  martius
@@ -64,6 +70,7 @@
  ***************************************************************************/
 
 #include "caterpillar.h"
+#include "mathutils.h"
 
 namespace lpzrobots {
 
@@ -90,7 +97,8 @@ namespace lpzrobots {
    for(unsigned int i=0; (i<len) && (i<sliderServos.size()); i++) {
     sliderServos[i]->set(motors[i]);
    }
-   unsigned int usedSliders=min(len,sliderServos.size());
+   unsigned int sssize = sliderServos.size();
+   unsigned int usedSliders=min(len,sssize);
    for(unsigned int i=0; (i<len) && (i<universalServos.size()); i++) {
     universalServos[i]->set(motors[usedSliders+2*i], motors[usedSliders+2*i+1]);
    }
@@ -105,12 +113,13 @@ namespace lpzrobots {
    **/
   int CaterPillar::getSensors(sensor* sensors, int sensornumber) {
    assert(created);
-   unsigned int len=min(sensornumber, getSensorNumber());
+   unsigned int len=min(sensornumber,getSensorNumber());
    // get the SliderServos
    for(unsigned int n=0; (n<len) && (n<sliderServos.size()); n++) {
     sensors[n] = sliderServos[n]->get();
    }
-   unsigned int usedSliders=min(len,sliderServos.size());
+   unsigned int sssize = sliderServos.size();
+   unsigned int usedSliders=min(len,sssize);
    // get the universalServos (2 sensors each!)
    for(unsigned int n=0; (n<len) && (n<universalServos.size()); n++) {
     sensors[usedSliders+2*n] = universalServos[n]->get1();
