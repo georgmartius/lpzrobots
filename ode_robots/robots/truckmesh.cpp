@@ -27,7 +27,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-06-29 16:36:46  robot3
+ *   Revision 1.1.2.3  2006-07-06 12:33:09  robot3
+ *   -mass of the truck can be set by the constructor now
+ *   -code cleaned up
+ *   -all 6 wheels have now contact to the ground (instead of only 4)
+ *
+ *   Revision 1.1.2.2  2006/06/29 16:36:46  robot3
  *   -controller now gets 6 wheels for control
  *   -wheels are on the right position now
  *
@@ -113,7 +118,7 @@ namespace lpzrobots {
   // - size of robot, maximal used force and speed factor are adjustable
   TruckMesh::TruckMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 		       const std::string& name, GlobalData& global,
-	       double size/*=1.0*/, double force /*=3*/, double speed/*=15*/)
+		       double size/*=1.0*/, double force /*=3*/, double speed/*=15*/, double mass/*=1*/)
     : // calling OdeRobots construtor with name of the actual robot
     OdeRobot(odeHandle, osgHandle, name, "$Id$"),
     global(global)
@@ -139,10 +144,10 @@ namespace lpzrobots {
     middlewidth=size/10; // for y axis, it's the middle of the truck
     middlelength=-size*0.326;
     width=size*0.4;  // width of the truck
-    radius=size*0.099; // wheel radius
+    radius=size*0.0995; // wheel radius
     wheelthickness=size/20; // thickness of the wheels (if wheels used, no spheres)
-    cmass=8*size;  // mass of the body
-    wmass=size;    // mass of the wheels
+    cmass=mass*size*8;  // mass of the body
+    wmass=mass*size;    // mass of the wheels
     sensorno=6;    // number of sensors
     motorno=6;     // number of motors
     segmentsno=7;  // number of segments of the robot
@@ -295,24 +300,21 @@ namespace lpzrobots {
       Vec3 wpos;
       if (i<3) { // back wheels
 	cyl = new Cylinder(radius,wheelthickness*1.80);
-      wpos = Vec3(middlelength-length*0.342,
-	//			((i-1)%2==0?-1:1)*(width*0.25+wheelthickness)+0.1, 
+      wpos = Vec3(middlelength-length*0.343,
 		  middlewidth+((i-1)%2==0?-1.02:1)*width*0.35,
-			-height*0.302+radius );
+		  -height*0.302+radius );
       } 
       else if (i<5){ // middle wheels
 	cyl = new Cylinder(radius,wheelthickness*1.80);
-	wpos = Vec3(middlelength-length*0.201,//((i-1)/2==0?-1:1)*length/2.4+middlelength,
-			//			((i-1)%2==0?-1:1)*(width*0.25+wheelthickness)+0.1, 
+	wpos = Vec3(middlelength-length*0.201,
 		    middlewidth+((i-1)%2==0?-1.02:1)*width*0.35,
-			-height*0.302+radius );
+		    -height*0.302+radius );
       }
       else if (i<7){ // front wheels
-	cyl = new Cylinder(radius*0.994,wheelthickness*1.02);
-	wpos = Vec3(middlelength+length*0.407,//((i-1)/2==0?-1:1)*length/2.4+middlelength,
-			//			((i-1)%2==0?-1:1)*(width*0.25+wheelthickness)+0.1, 
+	cyl = new Cylinder(radius,wheelthickness*1.02);
+	wpos = Vec3(middlelength+length*0.407,
 			middlewidth+((i-1)%2==0?-1.05:1)*width*0.387,
-			-height*0.307+radius*0.994);
+		    -height*0.302+radius); 
       }
       cyl->init(odeHandle, wmass, osgHandle);    
       cyl->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos) * pose);

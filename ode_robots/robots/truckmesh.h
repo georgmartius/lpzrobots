@@ -27,7 +27,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-06-29 16:36:46  robot3
+ *   Revision 1.1.2.3  2006-07-06 12:33:31  robot3
+ *   -mass of the truck can be set by the constructor now
+ *   -code cleaned up
+ *   -all 6 wheels have now contact to the ground (instead of only 4)
+ *
+ *   Revision 1.1.2.2  2006/06/29 16:36:46  robot3
  *   -controller now gets 6 wheels for control
  *   -wheels are on the right position now
  *
@@ -120,7 +125,7 @@ namespace lpzrobots {
      * @param speed factor for changing speed of robot
      */
     TruckMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const std::string& name,
-	      GlobalData& global, double size=1, double force=3, double speed=15);
+	      GlobalData& global, double size=1, double force=3, double speed=15, double mass=1);
 
 
    virtual ~TruckMesh(){};
