@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-07-05 16:47:40  robot3
+ *   Revision 1.1.2.9  2006-07-06 12:34:09  robot3
+ *   -mass of the truck can be set by the constructor now
+ *   -all 6 wheels have now contact to the ground (instead of only 4)
+ *
+ *   Revision 1.1.2.8  2006/07/05 16:47:40  robot3
  *   added a tree as a another example
  *
  *   Revision 1.1.2.7  2006/06/29 16:31:05  robot3
@@ -165,13 +169,12 @@ public:
  					   1.0); // the mass of the mesh
      myMesh->setPosition(osg::Vec3(1.0,0.2,0.4f));
      global.obstacles.push_back(myMesh);
-
-
+     
      myMesh = new PassiveMesh(odeHandle,osgHandle,
 				   "tree1.osg", // the filename of the mesh
  					  global, // GlobalData, decides if boundings are drawed
  					   0.01, // the scale factor to be used
- 					   10000.0); // the mass of the mesh
+ 					   1000.0); // the mass of the mesh
      myMesh->setPosition(osg::Vec3(-1.0,0.2,0.4f));
      global.obstacles.push_back(myMesh);
 
@@ -196,9 +199,10 @@ public:
     OdeRobot* vehicle = new TruckMesh(odeHandle, osgHandle_orange, // ODE- and OSGHandle
 				      "Truck 1", // the final name of the Meshrobot in the simulation
 				      global, // give the mesh informations if boundings been drawed
-				      1.2, // scale factor of the robot
-				      3, // the force of the motors
-				      100); // the max speed of the vehicle
+				      1.2, // scale factor (size) of the robot
+				      2, // the force of the motors (scales automatically with size)
+				      5, // the max speed of the vehicle
+				      1); // the mass of the vehicle (scales automatically with size)
      vehicle->place(Pos(1.5,0,0.1));
 
     // create pointer to controller
