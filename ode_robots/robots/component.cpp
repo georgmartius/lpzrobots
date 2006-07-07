@@ -21,13 +21,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.18  2006-07-07 13:51:30  robot3
+ *   Revision 1.1.2.19  2006-07-07 13:59:02  robot3
+ *   #include "mathutils.h" for template function abs() added
+ *   (compiling on other machines works now)
+ *
+ *   Revision 1.1.2.18  2006/07/07 13:51:30  robot3
  *   added cvslog
  *
  *                                                                         *
  ***************************************************************************/
 
 #include "component.h"
+#include "mathutils.h"
 
 namespace lpzrobots
 {
