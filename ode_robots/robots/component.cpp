@@ -31,14 +31,12 @@ namespace lpzrobots
 /* Component                                                                 */
 /*****************************************************************************/
     
-    Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , 
-			   const ComponentConf& conf = getDefaultConf () ) 
-      : OdeRobot ( odeHandle, osgHandle , "Component", "$Id$" ) , 
-	conf ( conf )
+    Component::Component ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , const ComponentConf& conf = getDefaultConf () ) : OdeRobot ( odeHandle, osgHandle , std::string ( "Component" ) , std::string ( "component" ) ) , conf ( conf )
     {
-      originComponent = this;
+	originComponent = this;
+	directOriginComponent = this;
     }
-  
+
     Component::~Component ()
     {
     }
@@ -53,6 +51,23 @@ namespace lpzrobots
 
     }
 
+    void Component::resetMotorsRecursive ()
+    {
+	for ( int n = 0; ( (unsigned int) n < connection.size() ); n++ ) //garants that there is no wrong memory access
+	{
+	    connection[n].joint->setParam ( dParamVel , 0 ); // set velocity
+	    connection[n].joint->setParam ( dParamFMax ,0 ); // set maximal force
+
+	    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
+	    {
+		connection[n].joint->setParam ( dParamVel2 , 0 );  // set velocity2
+		connection[n].joint->setParam ( dParamFMax2 , 0 ); // set maximal force2
+	    }
+
+	    connection[n].subcomponent->resetMotorsRecursive ();
+	}
+    }
+
     osg::Vec3 Component::getPositionbetweenComponents ( Component* component )
     {
 	osg::Vec3 posi1 = getMainPrimitive ()->getPosition ();
@@ -64,6 +79,11 @@ namespace lpzrobots
 
     int Component::getNumberSubcomponents ()
     {
+/*	int n;
+	componentConnection con = connection.back ();
+	for ( n = 0; connection[n].subcomponent == connection.back ().subcomponent; n++ );
+
+	return n;*/
 	return connection.size ();
     }
 
@@ -83,6 +103,7 @@ namespace lpzrobots
 
     void Component::addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint )
     {
+//	cout<<"addSubcomponent reached\n";
 	componentConnection newconnection;
 	newconnection.subcomponent = newsubcomponent;
 	newconnection.joint = newconnectingjoint;
@@ -90,14 +111,16 @@ namespace lpzrobots
 	newconnection.softlink = false;
 	newconnection.data = NULL;
 
-	//sets the origin; it is always the origin of the adding component, only the true origin has the originComponent pointer of itself
-//	if ( originComponent == this )
+	//sets the origin; if it is NULL if a subcomponent i added, no subcomponent has ever been added here; now it becomes the origin of an subcomponent structure, so its origin is set to itsself
+/*	if ( originComponent == NULL )
+	originComponent = this;*/
 	    newconnection.subcomponent->originComponent = originComponent;
+	    newconnection.subcomponent->directOriginComponent = this;
 //	else
 //	    newconnection.subcomponent->originComponent = originComponent;
-
+	
 	connection.push_back ( newconnection );
-
+//	cout<<"addSubcomponent ended\n";
     }
 
     Component* Component::removeSubcomponent ( int n )
@@ -108,19 +131,30 @@ namespace lpzrobots
 
 	    vector <componentConnection>::iterator eraseiterator;
 	    eraseiterator = connection.begin () + n;
+
+	    //move origins
 	    tmpcomponent = connection[n].subcomponent;
 
+	    //deleting the extra data pointer
 	    if (connection [n].data != NULL )
-	        delete ( connection[n].data );
+	    {
+	        free ( connection[n].data );
+		connection[n].data = NULL;
+	    }
 	    else
 		cout<<"tries to delete void* data, but no pointer is set\n";
 
+	    //deleting the joint
 	    if ( connection[n].joint != NULL )
+	    {
 		delete ( connection[n].joint );
+		connection[n].joint = NULL;
+	    }
 	    else
 		cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
 
-	    connection[n].subcomponent->originComponent = connection[n].subcomponent;
+	    //updates the references of origin within the tree structure
+	    connection[n].subcomponent->updateOriginsRecursive ( connection[n].subcomponent );
 
 	    connection.erase ( eraseiterator );
 
@@ -129,40 +163,118 @@ namespace lpzrobots
 	return NULL;
     }
 
-
     Component* Component::removeSubcomponent ( Component* removedsubcomponent )
     {
-	Component* tmpcomponent;
+	Component* tmpcomponent = NULL;
 
 	vector<componentConnection>::iterator it = connection.begin ();
 	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
-	    it++;
 	    if ( connection[n].subcomponent == removedsubcomponent )
 	    {
 		//move origins
 		tmpcomponent = connection[n].subcomponent;
 
-		//deleting the joint
-		if ( connection[n].joint != NULL )
-		    delete ( connection[n].joint );
-		else
-		    cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
-
 		//deleting the extra data pointer
 		if (connection [n].data != NULL )
-		    delete ( connection[n].data );
+		{
+		    free ( connection[n].data );
+		    connection[n].data = NULL;
+		}
 		else
 		    cout<<"tries to delete void* data, but no pointer is set\n";
 
+		//deleting the joint
+		if ( connection[n].joint != NULL )
+		{
+		    delete ( connection[n].joint );
+		    connection[n].joint = NULL;
+		}
+		else
+		    cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
+
+		//updates the references of origin within the tree structure
+		connection[n].subcomponent->updateOriginsRecursive ( connection[n].subcomponent );
+		
 		connection.erase ( it );
 
 		break;
 	    }
+	    it++;
 	}
 
 	return tmpcomponent;
 
+    }
+
+    void Component::removeAllSubcomponentsRecursive ()
+    {
+	for ( int n = 0; n < getNumberSubcomponents (); n ++ )
+	{
+	    removeSubcomponent ( n );
+	    if ( connection[n].softlink == false)
+		connection[n].subcomponent->removeAllSubcomponentsRecursive ();
+	}
+
+    }
+
+    void Component::updateOriginsRecursive ( Component* parent )
+    {
+	if ( parent != this )
+	{
+	    directOriginComponent = parent;
+	    originComponent = parent->originComponent;
+	}
+	else
+	{
+	    directOriginComponent = this;
+	    originComponent = this;
+	}
+	
+	
+	for ( unsigned int n = 0; n < connection.size (); n++ )
+	{
+	    connection[n].subcomponent->updateOriginsRecursive ( this );
+	}
+    }
+
+    void Component::removeSoftlinksRecursive ()
+    {
+	for ( int n = 0; n < getNumberSubcomponents (); n ++ )
+	{
+	    if ( connection[n].softlink == true )
+	    {
+		if ( getNumberSubcomponents ()  > 0 && getNumberSubcomponents()  > n )
+		{
+	    
+		    vector <componentConnection>::iterator eraseiterator;
+		    eraseiterator = connection.begin () + n;
+		    
+		    //deleting the extra data pointer
+		    if (connection [n].data != NULL )
+		    {
+			free ( connection[n].data );
+			connection[n].data = NULL;
+		    }
+		    else
+			cout<<"tries to delete void* data, but no pointer is set\n";
+		    
+		    //deleting the joint
+		    if ( connection[n].joint != NULL )
+		    {
+			delete ( connection[n].joint );
+			connection[n].joint = NULL;
+		    }
+		    else
+			cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
+		    
+		    connection.erase ( eraseiterator );
+	    
+		}
+	    }
+	    else
+		connection[n].subcomponent->removeSoftlinksRecursive ();
+	}
     }
 
     bool Component::hasSubcomponent ( Component* subcomp )
@@ -170,7 +282,6 @@ namespace lpzrobots
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
 	    if ( subcomp == connection[n].subcomponent )
-		if ( connection[n].softlink == false )
 		    return true;
 	}
 	return false;
@@ -178,12 +289,13 @@ namespace lpzrobots
 
     bool Component::hasSubcomponentAll ( Component* subcomp )
     {
+	if ( hasSubcomponent ( subcomp ) == true )
+	    return true;
+	
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
 	    if ( connection[n].softlink == false )
 	    {
-		if ( subcomp == connection[n].subcomponent )
-		    return true;
 		if ( connection[n].subcomponent->hasSubcomponentAll ( subcomp ) == true )
 		    return true;
 	    }
@@ -213,6 +325,47 @@ namespace lpzrobots
 	}
 	else
 	    return false;
+    }
+
+    Component* Component::getBestDivideComponent ( double targetrelation , int maxsize , Component* currentBestDivideComponent )
+    {
+	cout<<"target relation: "<<targetrelation<<"\n";
+	cout<<"maxsize: "<<maxsize<<"\n";
+
+
+	double a;
+
+	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	{
+	    if ( connection[n].softlink == false )
+	    {
+		//calculation the efficency of dividing the structure here (connection n of this)
+		a = ( abs ( ( (connection[n].subcomponent->getNumberSubcomponentsAll () +1 )/((double) maxsize) - targetrelation)*1000000)/1000000.0 );
+		//1000000 because abs does only work with integers
+
+		cout<<"-----------------------------------------------component: "<<this<<"\n";
+		cout<<"connection "<<n<<"     relation= "<<a<<" \n";
+		//comparing the dividing efficience to the best efficience up till now, if better it becomes the new best
+		if ( currentBestDivideComponent != NULL )
+		{
+		    if ( a < ( abs ( ( ( currentBestDivideComponent->getNumberSubcomponentsAll () + 1 )/ ((double) maxsize)  - targetrelation )*1000000)/1000000.0 ) )
+		    {
+			currentBestDivideComponent = connection[n].subcomponent;
+			cout<<"new best hit\n";
+		    }
+		}
+		else
+		{
+		    currentBestDivideComponent = connection[n].subcomponent;
+		    cout<<"first best hit\n";
+		}
+		
+		//recusive call for the subcomponents
+		currentBestDivideComponent = connection[n].subcomponent->getBestDivideComponent ( targetrelation , maxsize , currentBestDivideComponent );
+	    }
+	}
+
+	return currentBestDivideComponent;
     }
 
 }

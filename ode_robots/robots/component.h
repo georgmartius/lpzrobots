@@ -72,6 +72,7 @@ class Component : public OdeRobot
     vector <componentConnection> connection;
 public: 
     Component* originComponent;
+    Component* directOriginComponent;
 
  public:
 
@@ -106,6 +107,11 @@ virtual int 	getSensors (sensor *sensors, int sensornumber) = 0; //returns actua
  *@param 
  **/
 virtual void 	setMotors (const motor *motors, int motornumber) = 0; //sets actual motorcommands; only for the connecting joints
+
+/**
+ *This sets all motors in the component structure to zero, starting from this component.
+ **/
+virtual void    resetMotorsRecursive ( );
 
 virtual int 	getSensorNumber () = 0; //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
 
@@ -175,6 +181,22 @@ virtual Component* removeSubcomponent ( int removedsubcomponentnumber );
 virtual Component* removeSubcomponent ( Component* removedsubcomponent );
 
 /**
+ *This removes all subcomponents of THIS component, and all their subcomponents, till the whole structure is destroyed.
+ **/
+virtual void removeAllSubcomponentsRecursive ();
+
+/**
+ *This updates the origin references within the component tree. If this is a removed subcomponent for examble, then parent should be this itself, so it is the top of the tree.
+ *@param the component wich is the top of the tree structure, could also be this component itself
+ **/
+ virtual void updateOriginsRecursive ( Component* parent );
+
+/**
+ *This removes all softlinks of the structure that has THIS as his origin.
+ **/
+ virtual void removeSoftlinksRecursive ();
+
+/**
  *This method looks if a special component is a subcomponent of this component. Only direct subcomponents are registrated.
  *@param the component, which could be a subcomponent of this component
  *@return true if it is a subcomponent, false if not
@@ -208,6 +230,15 @@ virtual componentConnection getConnection ( int connectionnumber );
  *@param true = connection becomes a softlink
  **/
 virtual bool setSoftlink ( unsigned int position , bool state );
+
+/**
+ *This divides the component structure, following this component into two seperate component structures
+ *@param the relation between the two new component structures, if it is 1/2 the structures would have the same number of components or only have a difference by one if the whole structures has an odd number of components
+ *@param maximum size of the whole Component structure of the first call of this function
+ *@param the best component for dividing at the moment of calling this function; it should be NULL for the first call of the function, so that no best component is set up till now
+ *@return the best Componet for dividing at the moment the function is finished
+ */
+virtual Component* getBestDivideComponent ( double targetrelation , int maxsize , Component* currentBestDivideComponent );
      
 };
 

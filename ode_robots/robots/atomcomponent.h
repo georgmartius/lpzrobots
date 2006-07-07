@@ -23,6 +23,8 @@
 
 
 #include "component.h"
+#include <osgprimitive.h>
+
 
 #ifndef atomcomponent_h
 #define atomcomponent_h
@@ -38,6 +40,11 @@ namespace lpzrobots
 	double mass;
 	int max_bindings; //maximum possible number of fused atoms on this atom
 	double binding_energy; //the value of kinetic energy that is necessary, to fuse two AtomComponents
+	double min_fission_energy; //this is the minimum value of fission that has to be reached
+
+	bool leadingatom;//this value sais, that a atomcomponent is the first component a component structure, that is controlled by a robot controller;
+	//it only is important for the origin of an component structure
+
 
     } AtomConf;
 
@@ -92,6 +99,8 @@ static AtomConf getDefaultAtomConf()
     conf.mass = 1;
     conf.max_bindings = 4;
     conf.binding_energy = 3;
+    conf.min_fission_energy = 0;
+    conf.leadingatom = false;
 
     return conf;
 }
@@ -196,13 +205,13 @@ virtual bool fusion ( AtomComponent* atom_to_fuse );
 virtual bool fission ( double force );
 
 /**
- *This method adds an existing Component as a subcomponent to this component, overwriting the function from the component base class.
- *@param subcomponent to add
- *@param reference to external created joint, which connects both components
+ *This is a special fusion of two AtomComponents. They have to belong to two robots, so that touching each ofer causes a crossing over in her structure.
+ *@param the AtomComponent which belongs to the structure to replicate with, and which is the point where the replication will happen
  **/
-//virtual void addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint );
-     
+virtual void replication ( AtomComponent* atom_to_recplicate );
+
 };
+
 
 
 }
