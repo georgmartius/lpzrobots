@@ -69,7 +69,6 @@ int main( int argc, char ** argv ) {
        printf("   -f [file]  input file\n");
        printf("      only viwewing, no streaming\n");
        printf("   -l turns logging on\n");
-       printf("   -d [delay] delay for piped input, should be a natural number\n");
        printf("   --help displays this message.\n");
        return 0;
    }
