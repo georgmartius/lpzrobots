@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.8  2006-06-29 16:39:56  robot3
+ *   Revision 1.1.2.9  2006-07-10 12:05:02  martius
+ *   Matrixlib now in selforg
+ *   no namespace std in header files
+ *
+ *   Revision 1.1.2.8  2006/06/29 16:39:56  robot3
  *   -you can now see bounding shapes if you type ./start -drawboundings
  *   -includes cleared up
  *   -abstractobstacle and abstractground have now .cpp-files
@@ -63,7 +67,7 @@
  ***************************************************************************/
 
 #include <assert.h>
-#include <matrix.h>
+#include <selforg/matrix.h>
 #include <osg/Matrix>
 #include "sphererobot3masses.h"
 

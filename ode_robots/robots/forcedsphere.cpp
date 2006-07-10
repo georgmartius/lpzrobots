@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4.4.5  2006-06-25 17:00:31  martius
+ *   Revision 1.4.4.6  2006-07-10 12:05:01  martius
+ *   Matrixlib now in selforg
+ *   no namespace std in header files
+ *
+ *   Revision 1.4.4.5  2006/06/25 17:00:31  martius
  *   Id
  *
  *   Revision 1.4.4.4  2006/06/25 16:57:13  martius
@@ -49,7 +53,7 @@
  ***************************************************************************/
 
 #include <assert.h>
-#include <matrix.h>
+#include <selforg/matrix.h>
 #include <osg/Matrix>
 #include "primitive.h"
 #include "forcedsphere.h"

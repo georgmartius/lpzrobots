@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11.4.8  2006-06-25 17:00:33  martius
+ *   Revision 1.11.4.9  2006-07-10 12:05:02  martius
+ *   Matrixlib now in selforg
+ *   no namespace std in header files
+ *
+ *   Revision 1.11.4.8  2006/06/25 17:00:33  martius
  *   Id
  *
  *   Revision 1.11.4.7  2006/06/25 16:57:16  martius
@@ -58,7 +62,7 @@
 #include "sliderservo.h"
 #include "invisibleprimitive.h"
 
-#include "matrix.h"
+#include <selforg/matrix.h>
 using namespace matrix;
 
 namespace lpzrobots {
