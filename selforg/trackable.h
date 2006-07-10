@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.5  2006-03-30 12:35:09  martius
+ *   Revision 1.1.2.6  2006-07-10 11:59:23  martius
+ *   Matrixlib now in selforg
+ *   no namespace std in header files
+ *
+ *   Revision 1.1.2.5  2006/03/30 12:35:09  martius
  *   documentation updated
  *
  *   Revision 1.1.2.4  2006/01/31 15:47:37  martius
@@ -40,8 +44,8 @@
 #ifndef __TRACKABLE_H
 #define __TRACKABLE_H
  
-#include "position.h"
-#include <matrix.h>
+#include <selforg/position.h>
+#include <selforg/matrix.h>
 
 /**
  * Abstract class (interface) for trackable objects (used for robots)

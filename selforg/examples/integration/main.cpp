@@ -83,7 +83,7 @@ public:
       @return 3x3 rotation matrix
    */
   virtual matrix::Matrix getOrientation() const {
-    Matrix m(3,3);
+    matrix::Matrix m(3,3);
     m.toId();
     return m; 
   };

@@ -3,7 +3,7 @@
 using namespace std; 
 
 #include "selforg/multilayerffnn.h" 
-#include "matrix.h" 
+#include <selforg/matrix.h>
 using namespace matrix;
 
 void test2x2(){
