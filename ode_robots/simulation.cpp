@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40.4.33  2006-06-29 16:41:14  robot3
+ *   Revision 1.40.4.34  2006-07-10 12:03:47  martius
+ *   Cosmetics
+ *
+ *   Revision 1.40.4.33  2006/06/29 16:41:14  robot3
  *   you can now see the bounding shapes of meshes
  *   if you type ./start -drawboundings on command line
  *
@@ -262,8 +265,6 @@
 
 #include "simulation.h"
 
-#include "extendedViewer.h"
-
 #include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
 #include <osg/BlendFunc>
@@ -274,6 +275,7 @@
 #include "primitive.h"
 #include "abstractobstacle.h"
 
+#include "extendedViewer.h"
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
