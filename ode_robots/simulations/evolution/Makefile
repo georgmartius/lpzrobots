@@ -7,39 +7,50 @@ CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = start
-
-# -pg for profiling
-CFLAGS = -Wall -I. -g
-## Optimisation
-#CFLAGS = -Wall -I. -O3 -DNDEBUG
+EXEC_OPT = start_opt
 
 LPZROBOTS  = ../../..
 ODEROBOTS  = $(LPZROBOTS)/ode_robots
 SELFORG    = $(LPZROBOTS)/selforg
-MATRIXLIB  = $(LPZROBOTS)/matrixlib
-#MATRIX     = matrix
-MATRIX     = matrix_debug
+
+ODEROBOTSLIB := ode_robots
+ODEROBOTSLIB_OPT := ode_robots_opt
+LIBODEROBOTS = lib$(ODEROBOTSLIB).a
+
+SELFORGLIB = selforg
+SELFORGLIB_OPT = selforg_opt
+LIBSELFORG = lib$(SELFORGLIB).a
 
 LIBS   = -lm \
-	-L$(ODEROBOTS) -lode_robots \
-	-L$(SELFORG)   -lselforg \
-	-L$(MATRIXLIB)  -l$(MATRIX) \
+	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
+	-L$(SELFORG)   -l$(SELFORGLIB) \
 	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut
 
-INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include -I$(MATRIXLIB)
+INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include
 
-# used for single file compilation
-CXX = g++ $(CFLAGS) $(INC)
+CXX = g++
+# -pg for profiling
+CPPFLAGS = -Wall -I. -g $(INC)
+## Optimisation
+CPPFLAGS_OPT = -Wall -I. -O3 -DNDEBUG $(INC)
 
-# used for binary compilation (linking)
-CC = g++ $(CFLAGS)
-#CC = g++ -g3 -pg  
 
-$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a  Makefile Makefile.depend $(OFILES)
-	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
+$(EXEC): libode_robots $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
+	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
+
+opt: $(EXEC_OPT)
+
+$(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
+$(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
+$(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
+$(EXEC_OPT): libode_robots_opt $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
+	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
 libode_robots:	
-	cd $(ODEROBOTS) && make libode_robots.a		
+	cd $(ODEROBOTS) && make
+
+libode_robots_opt:	
+	cd $(ODEROBOTS) && make opt
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null

@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3.4.9  2006-06-27 14:14:30  robot3
+ *   Revision 1.3.4.10  2006-07-10 12:07:16  martius
+ *   Matrixlib now in selforg
+ *   optimised compilation
+ *
+ *   Revision 1.3.4.9  2006/06/27 14:14:30  robot3
  *   -optimized mesh and boundingshape code
  *   -other changes
  *
@@ -65,7 +69,7 @@
 #ifndef __MATHUTILS_H
 #define __MATHUTILS_H
 
-#include <matrix.h>
+#include <selforg/matrix.h>
 #include <selforg/position.h>
 #include "osgforwarddecl.h"
 #include <osg/Math>
