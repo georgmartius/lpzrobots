@@ -14,8 +14,8 @@ CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
-LIBS   = -lm -L../../../matrixlib/ -lmatrix_debug -L../../ -lselforg 
-INC   = -I../../../matrixlib/ -I../../include
+LIBS   = -lm -L../../ -lselforg 
+INC   = -I../../include
 
 cc = g++ $(CFLAGS) $(INC) -c
 #cc = g++ $(CFLAGS) -c -O -g3 -pg
