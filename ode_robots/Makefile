@@ -5,10 +5,10 @@
 LPZROBOTS=..
 ODEROBOTS=.
 SELFORG=../selforg
-MATRIXLIB=../matrixlib
 INCLUDEDIR=include/ode_robots
 REVINCLUDEDIR=../..
 LIB=libode_robots.a
+LIB_OPT=libode_robots_opt.a
 
 include Makefile.conf
 
@@ -18,38 +18,43 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 find_h_files = $(wildcard $(dir)/*.h)
 HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 
-
 UTILS = 
 # utils/splitvideo
 
 # -pg for profiling
-# CFLAGS = -Wall -I. -g
-## Optimisation #DNDEBUG
-#CFLAGS = -Wall -g -I. -O3 
-CFLAGS = -Wall -g -I. 
-# used for single file compilation
-CXX = g++ $(CFLAGS) $(INC)
+CPPFLAGS = -Wall -g -I. $(INC)
 
+## Optimisation
+CPPFLAGS_OPT = -Wall -I. $(INC) -O3 -DNDEBUG
 
 # used for single file compilation
-CXX = g++ $(CFLAGS) $(INC)
+CXX = g++
 
 # used for lib-packing 
 AR = ar -rs
 
-all: libselforg $(LIB)
+all: libselforg $(LIB) $(UTILS)
 
-# $(LIB): libselforg $(SELFORG)/libselforg.a Makefile.depend $(OFILES) $(UTILS)
-$(LIB):  Makefile.depend $(SELFORG)/libselforg.a $(OFILES) $(UTILS)
+opt: libselforg_opt $(LIB_OPT)
+
+$(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
+
+$(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
+$(LIB_OPT): Makefile.depend $(SELFORG)/libselforg_opt.a $(OFILES)
+	$(AR) $(LIB_OPT) $(OFILES)
 
 libselforg:	
 	cd $(SELFORG) && make libselforg.a		
 
+libselforg_opt:	
+	cd $(SELFORG) && make libselforg_opt.a		
 
 utils/splitvideo: utils/splitvideo.c
 	$(CXX) -o utils/splitvideo utils/splitvideo.c
 
+#%.o: %.cpp
+#	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -o $(OBJDIR)/$(@F)  $< 
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
@@ -66,11 +71,11 @@ tags:
 	etags `find -name "*.[ch]*"` 
 
 clean:
-	rm -f $(LIB) *.o Makefile.depend
+	rm -f $(LIB) Makefile.depend
+	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 	for dir in $(dirs); do \
 		rm -f $$dir/*.o; \
 	done
-	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
 todo:
 	grep -ni "Todo:" $(CPPFILES) $(HFILES)
