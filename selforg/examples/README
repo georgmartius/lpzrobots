@@ -28,3 +28,7 @@ Here the data flow is controlled by the agent, which then asks the robot about t
  invokes the controller and sends the motor values the robot again.
 */
 
+/**
+\example matrix/example.cpp 
+An example for the usage of the matrix library.
+*/
