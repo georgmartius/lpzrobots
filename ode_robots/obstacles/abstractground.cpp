@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.1  2006-06-29 16:43:20  robot3
+ *   Revision 1.1.2.2  2006-07-11 04:23:41  robot5
+ *   Ground now displays repeating textures.
+ *
+ *   Revision 1.1.2.1  2006/06/29 16:43:20  robot3
  *   abstract classes have now own .cpp-files
  *
  *   Revision 1.1.2.6  2006/06/26 08:25:03  robot3
@@ -54,6 +57,11 @@
 #include "osgprimitive.h"
 #include <iostream>
 
+#include <osg/Geometry>
+#include <osg/Texture2D>
+#include <osg/TexEnv>
+
+using namespace osg;
 
 namespace lpzrobots {
 
@@ -65,7 +73,7 @@ namespace lpzrobots {
     groundTextureFileName="Images/greenground.rgb";
     groundColor=Color(1.0f,1.0f,1.0f);
   };
-  
+
   AbstractGround::~AbstractGround(){
     destroy();
   }
@@ -79,7 +87,7 @@ namespace lpzrobots {
 	groundPlane->update();
     }
   };
-  
+
 
   void AbstractGround::setPose(const osg::Matrix& pose){
     this->pose = pose;
@@ -89,7 +97,7 @@ namespace lpzrobots {
   void AbstractGround::createGround(bool create) {
     creategroundPlane=create;
     if (obstacle_exists) {
-      std::cout << "ERROR: createGround(bool create)  has no effect AFTER setPosition(osg::Vec3) !!!" 
+      std::cout << "ERROR: createGround(bool create)  has no effect AFTER setPosition(osg::Vec3) !!!"
 		<< std::endl;
       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
       exit(-1);
@@ -166,12 +174,46 @@ namespace lpzrobots {
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
-      groundPlane = new Box(ground_length,ground_length, 0.15f);
-      groundPlane->init(odeHandle, 0, osgHandle,
-			Primitive::Geom | Primitive::Draw);
+/*      groundPlane = new Box(ground_length,ground_length, 0.15f);
+      groundPlane->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
       groundPlane->getOSGPrimitive()->setColor(groundColor);
-      groundPlane->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);
+      groundPlane->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);*/
+      Vec3Array *coords = new Vec3Array(4);
+	  (*coords)[0].set(-12.6f, 12.6f,0.0f);
+	  (*coords)[1].set(-12.6f,-12.6f,0.0f);
+	  (*coords)[2].set( 12.6f, 12.6f,0.0f);
+	  (*coords)[3].set( 12.6f,-12.6f,0.0f);
+
+	  Vec2Array *tcoords = new Vec2Array(4);
+	  (*tcoords)[0].set(-12.6f, 12.6f);
+	  (*tcoords)[1].set(-12.6f,-12.6f);
+	  (*tcoords)[2].set( 12.6f, 12.6f);
+	  (*tcoords)[3].set( 12.6f,-12.6f);
+
+	  Vec4Array *colors = new Vec4Array(1);
+	  (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
+
+	  Geometry *geom = new Geometry;
+	  geom->setVertexArray(coords);
+	  geom->setTexCoordArray(0,tcoords);
+	  geom->setColorArray(colors);
+	  geom->setColorBinding(Geometry::BIND_OVERALL);
+	  geom->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
+
+	  Texture2D *tex = new Texture2D;
+	  tex->setImage(osgDB::readImageFile("Images/greenground.rgb"));
+	  tex->setWrap(Texture2D::WRAP_S,Texture2D::REPEAT);
+	  tex->setWrap(Texture2D::WRAP_T,Texture2D::REPEAT);
+	  StateSet *dstate = new StateSet;
+	  dstate->setMode(GL_LIGHTING,StateAttribute::OFF);
+	  dstate->setTextureAttributeAndModes(0,tex,StateAttribute::ON);
+	  dstate->setTextureAttribute(0,new TexEnv);
+	  geom->setStateSet(dstate);
+	  Geode *geode = new Geode;
+	  geode->addDrawable(geom);
+
+      osgHandle.scene->addChild(geode);
     }
   }
 
@@ -184,6 +226,6 @@ namespace lpzrobots {
     if (groundPlane) delete(groundPlane);
     groundPlane=0;
     obstacle_exists=false;
-  };
-  
+  }
+
 }
