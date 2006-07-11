@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.13  2006-07-11 04:24:19  robot5
+ *   Revision 1.10.4.14  2006-07-11 12:43:39  robot5
+ *   Collision model of playground walls corrected.
+ *
+ *   Revision 1.10.4.13  2006/07/11 04:24:19  robot5
  *   Walls now display repeating textures.
  *
  *   Revision 1.10.4.12  2006/06/29 16:39:55  robot3
@@ -169,12 +172,12 @@ public:
 
   virtual void create() {
    const float w=width;
-   const float h=height+0.0101f;
+   const float h=height;
    //inner walls
-   float x1=-0.5f*length+0.0002f, y1=-0.5f*length+0.0002f;
-   float x2= 0.5f*length-0.0002f, y2=-0.5f*length+0.0002f;
-   float x3= 0.5f*length-0.0002f, y3= 0.5f*length-0.0002f;
-   float x4=-0.5f*length+0.0002f, y4= 0.5f*length-0.0002f;
+   float x1=-0.5f*length, y1=-0.5f*length;
+   float x2= 0.5f*length, y2=-0.5f*length;
+   float x3= 0.5f*length, y3= 0.5f*length;
+   float x4=-0.5f*length, y4= 0.5f*length;
    realPlane(x1-w,y1,0.0f,
              x1-w,y1,   h,
              x2+w,y2,0.0f,
@@ -197,10 +200,10 @@ public:
              length+w,h);
 
    //outer walls
-   x1=-0.5f*length-w-0.0002f; y1=-0.5f*length-w-0.0002f;
-   x2= 0.5f*length+w+0.0002f; y2=-0.5f*length-w-0.0002f;
-   x3= 0.5f*length+w+0.0002f; y3= 0.5f*length+w+0.0002f;
-   x4=-0.5f*length-w-0.0002f; y4= 0.5f*length+w+0.0002f;
+   x1-=w; y1-=w;
+   x2+=w; y2-=w;
+   x3+=w; y3+=w;
+   x4-=w; y4+=w;
    realPlane(x1,y1,0.0f,
              x1,y1,   h,
              x2,y2,0.0f,
@@ -250,14 +253,14 @@ public:
 		     0,
 		     height/2+0.01f); //reduces graphic errors and ode collisions
     box = new Box( width , (length * factorlength2) + 2 * width , height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom);
     box->setPose(osg::Matrix::translate(offset) * pose);
     //box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
 
     offset.x() = length/2 + width/2;
     box = new Box( width , (length * factorlength2) + 2 * width , height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom);
     box->setPose(osg::Matrix::translate(offset) * pose);
     //box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
@@ -265,14 +268,14 @@ public:
     offset.x() = 0;
     offset.y() = -( (length*factorlength2)/2 +width/2);
     box = new Box( length, width, height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom);
     box->setPose(osg::Matrix::translate(offset) * pose);
     //box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
 
     offset.y() = (length*factorlength2)/2 +width/2;
     box = new Box( length, width, height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom);
     box->setPose(osg::Matrix::translate(offset) * pose);
     //box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
