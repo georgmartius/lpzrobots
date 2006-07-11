@@ -20,6 +20,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
+ *   $Log$
+ *   Revision 1.1.2.6  2006-07-11 07:51:14  robot3
+ *   cvslog added
+ *
+ *                                                                         *
  ***************************************************************************/
 
 #include "atomcomponent.h"
