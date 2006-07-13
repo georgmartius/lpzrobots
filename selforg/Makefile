@@ -60,4 +60,8 @@ clean:
 	done
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
+todo:
+	grep -ni "Todo:" $(CPPFILES) $(HFILES)
+
+
 include Makefile.depend
