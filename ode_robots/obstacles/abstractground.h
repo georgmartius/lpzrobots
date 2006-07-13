@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.7  2006-06-29 16:39:55  robot3
+ *   Revision 1.1.2.8  2006-07-13 12:11:26  robot5
+ *   Using overhauled primitives Plane and Box.
+ *   Repeat texturing is supported by them now.
+ *
+ *   Revision 1.1.2.7  2006/06/29 16:39:55  robot3
  *   -you can now see bounding shapes if you type ./start -drawboundings
  *   -includes cleared up
  *   -abstractobstacle and abstractground have now .cpp-files
@@ -57,20 +61,20 @@
 #include "abstractobstacle.h"
 
 namespace lpzrobots {
-  
-  class Box; // Primitive Box
+
+  class Plane; // Primitive Plane
 
   // abstract class for any playground
   class AbstractGround : public AbstractObstacle {
 
 public:
-  
+
     AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, bool createGround=true);
-  
+
     virtual ~AbstractGround();
 
     virtual void update();
-  
+
 
     virtual void setPose(const osg::Matrix& pose);
 
@@ -99,7 +103,7 @@ public:
   protected:
 
     std::vector<Primitive*> obst; //obstacles
-    Box* groundPlane; // the groundplane
+    Plane* groundPlane; // the groundplane
     bool creategroundPlane;
     double ground_length;
     std::string wallTextureFileName;

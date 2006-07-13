@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.2  2006-07-11 04:23:41  robot5
+ *   Revision 1.1.2.3  2006-07-13 12:11:26  robot5
+ *   Using overhauled primitives Plane and Box.
+ *   Repeat texturing is supported by them now.
+ *
+ *   Revision 1.1.2.2  2006/07/11 04:23:41  robot5
  *   Ground now displays repeating textures.
  *
  *   Revision 1.1.2.1  2006/06/29 16:43:20  robot3
@@ -174,46 +178,27 @@ namespace lpzrobots {
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
-/*      groundPlane = new Box(ground_length,ground_length, 0.15f);
+      groundPlane = new Plane(ground_length,ground_length,ground_length,ground_length);
       groundPlane->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,0.001f) * pose);
       groundPlane->getOSGPrimitive()->setColor(groundColor);
-      groundPlane->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);*/
-      Vec3Array *coords = new Vec3Array(4);
-	  (*coords)[0].set(-12.6f, 12.6f,0.0f);
-	  (*coords)[1].set(-12.6f,-12.6f,0.0f);
-	  (*coords)[2].set( 12.6f, 12.6f,0.0f);
-	  (*coords)[3].set( 12.6f,-12.6f,0.0f);
+      groundPlane->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);
 
-	  Vec2Array *tcoords = new Vec2Array(4);
-	  (*tcoords)[0].set(-12.6f, 12.6f);
-	  (*tcoords)[1].set(-12.6f,-12.6f);
-	  (*tcoords)[2].set( 12.6f, 12.6f);
-	  (*tcoords)[3].set( 12.6f,-12.6f);
+//old
+/*      Box *a = new Box(ground_length,ground_length,0.15f,ground_length,ground_length);
+      a->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+      a->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
+      a->getOSGPrimitive()->setColor(groundColor);
+      a->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);*/
 
-	  Vec4Array *colors = new Vec4Array(1);
-	  (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
 
-	  Geometry *geom = new Geometry;
-	  geom->setVertexArray(coords);
-	  geom->setTexCoordArray(0,tcoords);
-	  geom->setColorArray(colors);
-	  geom->setColorBinding(Geometry::BIND_OVERALL);
-	  geom->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
-
-	  Texture2D *tex = new Texture2D;
-	  tex->setImage(osgDB::readImageFile("Images/greenground.rgb"));
-	  tex->setWrap(Texture2D::WRAP_S,Texture2D::REPEAT);
-	  tex->setWrap(Texture2D::WRAP_T,Texture2D::REPEAT);
-	  StateSet *dstate = new StateSet;
-	  dstate->setMode(GL_LIGHTING,StateAttribute::OFF);
-	  dstate->setTextureAttributeAndModes(0,tex,StateAttribute::ON);
-	  dstate->setTextureAttribute(0,new TexEnv);
-	  geom->setStateSet(dstate);
-	  Geode *geode = new Geode;
-	  geode->addDrawable(geom);
-
-      osgHandle.scene->addChild(geode);
+//test
+/*      Box *b = new Box(ground_length/10,2*ground_length/10,2*ground_length/10,
+                       2*ground_length/10,3*ground_length/10);
+      b->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+      b->setPose(osg::Matrix::translate(-0.5f*ground_length,-0.5f*ground_length,5.0f) * pose);
+      b->getOSGPrimitive()->setColor(groundColor);
+      b->getOSGPrimitive()->setTexture("Images/chess.rgb",true,true);*/
     }
   }
 
