@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.20  2006-06-29 16:35:32  robot3
+ *   Revision 1.1.2.21  2006-07-13 12:15:09  robot5
+ *   Primitives Plane and Box fully support repeat texturing and use geometry models.
+ *
+ *   Revision 1.1.2.20  2006/06/29 16:35:32  robot3
  *   -Mesh code optimized
  *   -includes cleared up, more using forward declarations
  *    (sometimes additionally #include "osgprimitive.h" is needed)
@@ -122,7 +125,7 @@ namespace lpzrobots{
     return osg::Matrix( R[0], R[4], R[8],  0,
 			R[1], R[5], R[9],  0,
 			R[2], R[6], R[10], 0,
-			V[0], V[1], V[2] , 1);  
+			V[0], V[1], V[2] , 1);
   }
 
   // converts a position vector and a rotation matrix from ode to osg 4x4 matrix
@@ -139,7 +142,7 @@ namespace lpzrobots{
 
   /******************************************************************************/
 
-  Primitive::Primitive() 
+  Primitive::Primitive()
     : geom(0), body(0) {
   }
 
@@ -149,12 +152,12 @@ namespace lpzrobots{
   }
 
 
-  
+
   void Primitive::setTexture(const std::string& filename){
     if(getOSGPrimitive())
       getOSGPrimitive()->setTexture(filename);
   }
-  
+
   void Primitive::setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY){
     if(getOSGPrimitive())
       getOSGPrimitive()->setTexture(filename, repeatOnX, repeatOnY);
@@ -173,7 +176,7 @@ namespace lpzrobots{
   void Primitive::setPose(const osg::Matrix& pose){
     if(body){
       osg::Vec3 pos = pose.getTrans();
-      dBodySetPosition(body, pos.x(), pos.y(), pos.z());    
+      dBodySetPosition(body, pos.x(), pos.y(), pos.z());
       osg::Quat q;
       pose.get(q);
       // this should be
@@ -182,14 +185,14 @@ namespace lpzrobots{
       dBodySetQuaternion(body, quat);
     }else if(geom){ // okay there is just a geom no body
       osg::Vec3 pos = pose.getTrans();
-      dGeomSetPosition(geom, pos.x(), pos.y(), pos.z());    
+      dGeomSetPosition(geom, pos.x(), pos.y(), pos.z());
       osg::Quat q;
       pose.get(q);
       // this should be
       // dReal quat[4] = {q.x(), q.y(), q.z(), q.w()};
       dReal quat[4] = {q.w(), q.x(), q.y(), q.z()};
       dGeomSetQuaternion(geom, quat);
-    }  
+    }
     update(); // update the scenegraph stuff
   }
 
@@ -200,27 +203,32 @@ namespace lpzrobots{
 
   osg::Matrix Primitive::getPose() const {
     if(!body) {
-      if (!geom) 
+      if (!geom)
 	return osg::Matrix::translate(0.0f,0.0f,0.0f); // fixes init bug
-	else 
-	return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));    
+	else
+	return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));
     }
     return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
   }
 
-  dGeomID Primitive::getGeom() const { 
-   if (this) return geom; 
+  dGeomID Primitive::getGeom() const {
+   if (this) return geom;
    else return 0;
   }
 
-  dBodyID Primitive::getBody() const { 
-   if (this) return body; 
+  dBodyID Primitive::getBody() const {
+   if (this) return body;
    else return 0;
   }
 
   /******************************************************************************/
-  Plane::Plane(){    
-    osgplane = new OSGPlane();    
+  // tlengthX and tlengthY represent the texture coordinates going from 0.0f to their values.
+  // If you are not familiar with it set both to 1.0f for clamp texturing or equal to lengthX and lengthY for repeat texturing.
+  Plane::Plane(float lengthX, float lengthY, float tlengthX, float tlengthY){
+    osgplane = new OSGPlane(lengthX, lengthY, tlengthX, tlengthY);
+  }
+  Plane::Plane(float lengthX, float lengthY){
+    osgplane = new OSGPlane(lengthX, lengthY, 1.0f, 1.0f);
   }
 
   Plane::~Plane(){
@@ -236,14 +244,15 @@ namespace lpzrobots{
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      dMassSetBox(&m,1,1000,1000,0.01); // fake the mass of the plane with a thin box
-      dMassAdjust (&m, mass); 
+      dMassSetBox(&m,1,osgplane->getLengthX() , osgplane->getLengthY(),0.01); // fake the mass of the plane with a thin box
+      dMassAdjust (&m, mass);
       dBodySetMass (body,&m); //assign the mass to the body
     }
     if(mode & Geom){
-      geom = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );      
+      //geom = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
+geom = dCreateBox ( odeHandle.space , osgplane->getLengthX() , osgplane->getLengthY() , .01);
       if(mode & Body)
-	dGeomSetBody (geom, body); // geom is assigned to body	    
+	dGeomSetBody (geom, body); // geom is assigned to body
     }
     if(mode & Draw){
       osgplane->init(osgHandle);
@@ -255,18 +264,21 @@ namespace lpzrobots{
     if(mode & Draw) {
       if(body)
 	osgplane->setMatrix(osgPose(body));
-      else 
+      else
 	osgplane->setMatrix(osgPose(geom));
     }
   }
 
   /******************************************************************************/
+  Box::Box(float lengthX, float lengthY, float lengthZ, float tlengthX, float tlengthY) {
+    osgbox = new OSGBox(lengthX, lengthY, lengthZ, tlengthX, tlengthY);
+  }
   Box::Box(float lengthX, float lengthY, float lengthZ) {
-    osgbox = new OSGBox(lengthX, lengthY, lengthZ);    
+    osgbox = new OSGBox(lengthX, lengthY, lengthZ, 1.0f, 1.0f);
   }
 
   Box::~Box(){
-    if(osgbox) delete osgbox; 
+    if(osgbox) delete osgbox;
   }
 
   OSGPrimitive* Box::getOSGPrimitive() { return osgbox; }
@@ -279,19 +291,19 @@ namespace lpzrobots{
       body = dBodyCreate (odeHandle.world);
       dMass m;
       // fake the mass of the plane with a thin box
-      dMassSetBox(&m, 1, osgbox->getLengthX() , osgbox->getLengthY() , osgbox->getLengthZ()); 
-      dMassAdjust (&m, mass); 
-      dBodySetMass (body,&m); //assign the mass to the body      
-    }  
-    if (mode & Geom){    
-      geom = dCreateBox ( odeHandle.space , osgbox->getLengthX() , 
+      dMassSetBox(&m, 1, osgbox->getLengthX() , osgbox->getLengthY() , osgbox->getLengthZ());
+      dMassAdjust (&m, mass);
+      dBodySetMass (body,&m); //assign the mass to the body
+    }
+    if (mode & Geom){
+      geom = dCreateBox ( odeHandle.space , osgbox->getLengthX() ,
 			  osgbox->getLengthY() , osgbox->getLengthZ());
       if (mode & Body){
 	dGeomSetBody (geom, body); // geom is assigned to body
       }
     }
     if (mode & Draw){
-      osgbox->init(osgHandle);      
+      osgbox->init(osgHandle);
     }
   }
 
@@ -310,7 +322,7 @@ namespace lpzrobots{
   }
 
   Sphere::~Sphere(){
-    if(osgsphere) delete osgsphere; 
+    if(osgsphere) delete osgsphere;
   }
 
   OSGPrimitive* Sphere::getOSGPrimitive() { return osgsphere; }
@@ -323,16 +335,16 @@ namespace lpzrobots{
       body = dBodyCreate (odeHandle.world);
       dMass m;
       dMassSetSphere(&m, 1, osgsphere->getRadius());
-      dMassAdjust (&m, mass); 
+      dMassAdjust (&m, mass);
       dBodySetMass (body,&m); //assign the mass to the body
-    }  
+    }
     if (mode & Geom){
       geom = dCreateSphere ( odeHandle.space , osgsphere->getRadius());
       if (mode & Body)
 	dGeomSetBody (geom, body); // geom is assigned to body
     }
     if (mode & Draw){
-      osgsphere->init(osgHandle);      
+      osgsphere->init(osgHandle);
     }
 
   }
@@ -341,18 +353,18 @@ namespace lpzrobots{
     if(mode & Draw) {
       if(body)
 	osgsphere->setMatrix(osgPose(body));
-      else 
-	osgsphere->setMatrix(osgPose(geom));    
+      else
+	osgsphere->setMatrix(osgPose(geom));
     }
   }
 
   /******************************************************************************/
-  Capsule::Capsule(float radius, float height) {    
+  Capsule::Capsule(float radius, float height) {
     osgcapsule = new OSGCapsule(radius, height);
   }
 
   Capsule::~Capsule(){
-    if(osgcapsule) delete osgcapsule; 
+    if(osgcapsule) delete osgcapsule;
   }
 
   OSGPrimitive* Capsule::getOSGPrimitive() { return osgcapsule; }
@@ -364,14 +376,14 @@ namespace lpzrobots{
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      dMassSetCappedCylinder(&m, 1.0, 3 , osgcapsule->getRadius(), osgcapsule->getHeight()); 
-      dMassAdjust (&m, mass); 
+      dMassSetCappedCylinder(&m, 1.0, 3 , osgcapsule->getRadius(), osgcapsule->getHeight());
+      dMassAdjust (&m, mass);
       dBodySetMass (body,&m); //assign the mass to the body
-    }  
-    if (mode & Geom){    
+    }
+    if (mode & Geom){
       geom = dCreateCCylinder ( odeHandle.space , osgcapsule->getRadius(), osgcapsule->getHeight());
       if (mode & Body)
-	dGeomSetBody (geom, body); // geom is assigned to body      
+	dGeomSetBody (geom, body); // geom is assigned to body
     }
     if (mode & Draw){
       osgcapsule->init(osgHandle);
@@ -382,18 +394,18 @@ namespace lpzrobots{
     if(mode & Draw) {
       if(body)
 	osgcapsule->setMatrix(osgPose(body));
-      else 
+      else
 	osgcapsule->setMatrix(osgPose(geom));
     }
   }
 
   /******************************************************************************/
-  Cylinder::Cylinder(float radius, float height) {    
+  Cylinder::Cylinder(float radius, float height) {
     osgcylinder = new OSGCylinder(radius, height);
   }
 
   Cylinder::~Cylinder(){
-    if(osgcylinder) delete osgcylinder; 
+    if(osgcylinder) delete osgcylinder;
   }
 
   OSGPrimitive* Cylinder::getOSGPrimitive() { return osgcylinder; }
@@ -405,14 +417,14 @@ namespace lpzrobots{
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      dMassSetCylinder(&m, 1.0, 3 , osgcylinder->getRadius(), osgcylinder->getHeight()); 
-      dMassAdjust (&m, mass); 
+      dMassSetCylinder(&m, 1.0, 3 , osgcylinder->getRadius(), osgcylinder->getHeight());
+      dMassAdjust (&m, mass);
       dBodySetMass (body,&m); //assign the mass to the body
-    }  
-    if (mode & Geom){    
+    }
+    if (mode & Geom){
       geom = dCreateCylinder ( odeHandle.space , osgcylinder->getRadius(), osgcylinder->getHeight());
       if (mode & Body)
-	dGeomSetBody (geom, body); // geom is assigned to body      
+	dGeomSetBody (geom, body); // geom is assigned to body
     }
     if (mode & Draw){
       osgcylinder->init(osgHandle);
@@ -423,7 +435,7 @@ namespace lpzrobots{
     if(mode & Draw) {
       if(body)
 	osgcylinder->setMatrix(osgPose(body));
-      else 
+      else
 	osgcylinder->setMatrix(osgPose(geom));
     }
   }
@@ -439,7 +451,7 @@ namespace lpzrobots{
 		       char mode) {
     // Primitive::body is ignored (removed) from mode
     assert(parent && parent->getBody() != 0 && child); // parent and child must exist
-    assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised    
+    assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised
 
     // our own geom is just a transform
     geom = dCreateGeomTransform(odeHandle.space);
@@ -457,11 +469,11 @@ namespace lpzrobots{
     child->init(odeHandleChild, 0, osgHandleChild, mode & ~Primitive::Body );
     // move the child to the right place (in local coordinates)
     child->setPose(pose);
-  
+
     // assoziate the child with the transform geom
     dGeomTransformSetGeom (geom, child->getGeom());
     // finally bind the transform the body of parent
-    dGeomSetBody (geom, parent->getBody());    
+    dGeomSetBody (geom, parent->getBody());
   }
 
   void Transform::update(){
@@ -471,7 +483,7 @@ namespace lpzrobots{
   /******************************************************************************/
 
   Mesh::Mesh(const std::string& filename,float scale,GlobalData& global) :
-    filename(filename), scale(scale)  {    
+    filename(filename), scale(scale)  {
     osgmesh = new OSGMesh(filename, scale);
     if (global.odeConfig.drawBoundings)
       drawBoundingMode=Primitive::Geom | Primitive::Draw;
@@ -480,7 +492,7 @@ namespace lpzrobots{
   }
 
   Mesh::~Mesh(){
-    if(osgmesh) delete osgmesh; 
+    if(osgmesh) delete osgmesh;
   }
 
   OSGPrimitive* Mesh::getOSGPrimitive() { return osgmesh; }
@@ -496,15 +508,15 @@ namespace lpzrobots{
       body = dBodyCreate (odeHandle.world);
       dMass m;
       dMassSetSphere(&m, 1, osgmesh->getRadius()); // we use a sphere
-      dMassAdjust (&m, mass); 
+      dMassAdjust (&m, mass);
       dBodySetMass (body,&m); //assign the mass to the body
-    } 
+    }
     // read boundingshape file
-    //    const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
+    //    const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound();
     boundshape = new BoundingShape(filename  + ".bbox" ,this);
     if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.3)), scale, drawBoundingMode)){
       printf("use default bounding box, because bbox file not found!\n");
-      Primitive* bound = new Sphere(osgmesh->getRadius()); 
+      Primitive* bound = new Sphere(osgmesh->getRadius());
       Transform* trans = new Transform(this,bound,osg::Matrix::translate(0.0f,0.0f,0.0f));
       trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);
       osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher

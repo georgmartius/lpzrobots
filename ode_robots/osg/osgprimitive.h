@@ -1,4 +1,4 @@
- 
+
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.11  2006-05-24 12:23:10  robot3
+ *   Revision 1.1.2.12  2006-07-13 12:15:09  robot5
+ *   Primitives Plane and Box fully support repeat texturing and use geometry models.
+ *
+ *   Revision 1.1.2.11  2006/05/24 12:23:10  robot3
  *   -passive_mesh works now (simple bound_version)
  *   -Primitive Mesh now exists (simple bound_version)
  *
@@ -108,7 +111,7 @@ namespace lpzrobots {
 
   protected:
     osg::ref_ptr<osg::Geode> geode;
-    osg::ref_ptr<osg::MatrixTransform> transform;  
+    osg::ref_ptr<osg::MatrixTransform> transform;
     osg::ref_ptr<osg::ShapeDrawable> shape;
   };
 
@@ -125,18 +128,29 @@ namespace lpzrobots {
     virtual void setTexture(const std::string& filename);
     virtual void setColor(const Color& color);
     /// returns a osg transformation object;
-    virtual osg::Transform* getTransform();  
+    virtual osg::Transform* getTransform();
   };
 
 
   /**
-     Graphical plane (represented as a large thin box, because OSG does not draw planes)
+     Graphical plane
   */
   class OSGPlane : public OSGPrimitive {
   public:
-    OSGPlane();
+    OSGPlane(float lengthX, float lengthY, float tlengthX, float tlengthY);
 
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
+
+    float getLengthX() { return lengthX; }
+    float getLengthY() { return lengthY; }
+    float gettLengthX() { return tlengthX; }
+    float gettLengthY() { return tlengthY; }
+
+  protected:
+    float lengthX;
+    float lengthY;
+    float tlengthX;
+    float tlengthY;
   };
 
 
@@ -145,6 +159,7 @@ namespace lpzrobots {
   */
   class OSGBox : public OSGPrimitive {
   public:
+    OSGBox(float lengthX, float lengthY, float lengthZ, float tlengthX, float tlengthY);
     OSGBox(float lengthX, float lengthY, float lengthZ);
 
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
@@ -152,11 +167,15 @@ namespace lpzrobots {
     float getLengthX() { return lengthX; }
     float getLengthY() { return lengthY; }
     float getLengthZ() { return lengthZ; }
-  
+    float gettLengthX() { return tlengthX; }
+    float gettLengthY() { return tlengthY; }
+
   protected:
     float lengthX;
     float lengthY;
-    float lengthZ;  
+    float lengthZ;
+    float tlengthX;
+    float tlengthY;
   };
 
 
@@ -171,7 +190,7 @@ namespace lpzrobots {
 
     float getRadius() { return radius; }
   protected:
-    float radius;  
+    float radius;
   };
 
   /**
@@ -203,7 +222,7 @@ namespace lpzrobots {
     float getRadius() { return radius; }
     float getHeight() { return height; }
   protected:
-    float radius;  
+    float radius;
     float height;
   };
 
@@ -216,7 +235,7 @@ namespace lpzrobots {
     /**
        Constuctor
        @param filename filename of the model file (search path is osg data path)
-       @param scale scale factor used for scaling the model 
+       @param scale scale factor used for scaling the model
        @options options for model reader
      */
     OSGMesh(const std::string& filename, float scale = 1, const osgDB::ReaderWriter::Options* options = 0);
@@ -227,11 +246,11 @@ namespace lpzrobots {
 
   protected:
     std::string filename;
-    float scale;  
-    const osgDB::ReaderWriter::Options* options;        
+    float scale;
+    const osgDB::ReaderWriter::Options* options;
     osg::ref_ptr<osg::Node> mesh;
-    osg::ref_ptr<osg::MatrixTransform> scaletrans;  
-        
+    osg::ref_ptr<osg::MatrixTransform> scaletrans;
+
   };
 
 }
