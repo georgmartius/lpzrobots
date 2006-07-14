@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-07-14 12:23:40  martius
- *   selforg becomes HEAD
+ *   Revision 1.11  2006-07-14 15:13:45  fhesse
+ *   minor changes
  *
  *   Revision 1.9.4.7  2006/06/29 16:39:55  robot3
  *   -you can now see bounding shapes if you type ./start -drawboundings
@@ -263,7 +263,7 @@ namespace lpzrobots {
       } else {
 	object[i]->init(odeHandle, MASS, osgHandle);
       }
-      object[i]->setPose(osg::Matrix::translate(i*RADIUS*2*1.1, 0, 0) * pose);
+      object[i]->setPose(osg::Matrix::translate(i*RADIUS*2*1.1, 0, 0+0.03) * pose);
       object[i]->getOSGPrimitive()->setTexture("Images/wood.rgb");	      
     }
     oldp = object[NUM-1]->getPosition();

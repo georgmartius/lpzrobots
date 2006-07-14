@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-07-14 12:23:46  martius
- *   selforg becomes HEAD
+ *   Revision 1.8  2006-07-14 15:13:15  fhesse
+ *   minor changes
  *
  *   Revision 1.6.4.8  2006/06/25 17:01:54  martius
  *   remove old simulations
@@ -89,7 +89,7 @@ public:
     // initialization
     global.odeConfig.noise=0.05;
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("gravity",0);
+    global.odeConfig.setParam("gravity",-0.5);
 
   
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20.0, 0.2, 1.0));
@@ -141,9 +141,12 @@ public:
       else  agent = new OdeAgent(NoPlot);
       agent->init(controller, hs, wiring);
       // enable tracing of head element
-      agent->setTrackOptions(TrackRobot(false, false, false, true, "0", 1));
+      //agent->setTrackOptions(TrackRobot(false, false, false, true, "0", 1));
       // setting trace length and trace thickness
-       agent->init_tracing(1000, 0.008);      
+      // agent->init_tracing(1000, 0.008);      
+
+      // track position (plot position in file)
+      agent->setTrackOptions(TrackRobot(true, false, false, false, "0"));
 
       global.agents.push_back(agent);
     

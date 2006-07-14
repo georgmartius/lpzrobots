@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-07-14 12:23:40  martius
- *   selforg becomes HEAD
+ *   Revision 1.8  2006-07-14 15:13:46  fhesse
+ *   minor changes
  *
  *   Revision 1.6.4.9  2006/06/25 16:57:13  martius
  *   abstractrobot is configureable
