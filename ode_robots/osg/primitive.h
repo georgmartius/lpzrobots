@@ -1,4 +1,4 @@
-
+ 
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -27,8 +27,8 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.17  2006-07-13 12:15:09  robot5
- *   Primitives Plane and Box fully support repeat texturing and use geometry models.
+ *   Revision 1.1.2.18  2006-07-14 11:23:38  martius
+ *   revert to older revision of robot3
  *
  *   Revision 1.1.2.16  2006/06/29 16:35:32  robot3
  *   -Mesh code optimized
@@ -138,7 +138,7 @@ public:
 
   Primitive ();
   virtual ~Primitive ();
-  /** registers primitive in ODE and OSG.
+  /** registers primitive in ODE and OSG. 
       @param osgHandle scruct with ODE variables inside (to specify space, world...)
       @param mass Mass of the object in ODE (if withBody = true)
       @param osgHandle scruct with OSG variables inside (scene node, color ...)
@@ -171,7 +171,7 @@ public:
   osg::Matrix getPose() const;
 
   /// returns ODE geomID if there
-  dGeomID getGeom() const;
+  dGeomID getGeom() const;    
   /// returns ODE bodyID if there
   dBodyID getBody() const;
 
@@ -185,14 +185,13 @@ protected:
 /** Plane primitive */
 class Plane : public Primitive {
 public:
-  Plane(float lengthX, float lengthY, float tlengthX, float tlengthY);
-  Plane(float lengthX, float lengthY);
+  Plane();
   virtual ~Plane();
-  virtual void init(const OdeHandle& odeHandle, double mass,
+  virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
 
-  virtual void update();
+  virtual void update();  
   virtual OSGPrimitive* getOSGPrimitive();
 
 protected:
@@ -204,7 +203,6 @@ protected:
 class Box : public Primitive {
 public:
 
-  Box(float lengthX, float lengthY, float lengthZ, float tlengthX, float tlengthY);
   Box(float lengthX, float lengthY, float lengthZ);
   virtual ~Box();
 
@@ -226,7 +224,7 @@ public:
   Sphere(float radius);
   virtual ~Sphere();
 
-  virtual void init(const OdeHandle& odeHandle, double mass,
+  virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
 
@@ -292,20 +290,20 @@ protected:
 
 
 /**
-   Primitive for transforming a geom (primitive without body)
-    in respect to a body (primitive with body).
-   Hides complexity of ODE TransformGeoms.
+   Primitive for transforming a geom (primitive without body) 
+    in respect to a body (primitive with body). 
+   Hides complexity of ODE TransformGeoms. 
 */
 class Transform : public Primitive {
 public:
-  /**
+  /** 
       @param parent primitive should have a body and should be initialised
-      @param child  is transformed by pose in respect to parent.
+      @param child  is transformed by pose in respect to parent. 
       This Primitive must NOT have a body
   */
   Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose);
   /// mode is not ignored
-  virtual void init(const OdeHandle& odeHandle, double mass,
+  virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw);
 
@@ -319,21 +317,21 @@ protected:
 };
 
 /**
-   Dummy Primitive which returns 0 for geom and body.
+   Dummy Primitive which returns 0 for geom and body. 
    Only useful for representing the static world in terms of primitives.
 */
 class DummyPrimitive : public Primitive {
 public:
-  /**
+  /** 
       @param parent primitive should have a body and should be initialised
-      @param child  is transformed by pose in respect to parent.
+      @param child  is transformed by pose in respect to parent. 
       This Primitive must NOT have a body
   */
-  DummyPrimitive() {
+  DummyPrimitive() {     
     body=0;
     geom=0;
   }
-  virtual void init(const OdeHandle& odeHandle, double mass,
+  virtual void init(const OdeHandle& odeHandle, double mass, 
 		    const OsgHandle& osgHandle, char mode = Body | Geom | Draw) {
   }
   virtual void update() {}

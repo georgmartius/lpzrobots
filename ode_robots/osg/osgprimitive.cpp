@@ -27,8 +27,8 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.19  2006-07-13 12:15:09  robot5
- *   Primitives Plane and Box fully support repeat texturing and use geometry models.
+ *   Revision 1.1.2.20  2006-07-14 11:23:38  martius
+ *   revert to older revision of robot3
  *
  *   Revision 1.1.2.18  2006/06/29 16:35:32  robot3
  *   -Mesh code optimized
@@ -109,7 +109,7 @@
 //#include <osg/LightSource>
 #include <osg/Material>
 #include <osg/TexEnv>
-#include <osg/Geometry>
+
 
 #include "osgprimitive.h"
 
@@ -128,10 +128,10 @@ namespace lpzrobots {
 
   OSGPrimitive::OSGPrimitive(){  }
 
-  OSGPrimitive::~OSGPrimitive(){
+  OSGPrimitive::~OSGPrimitive(){    
     Node::ParentList l = transform->getParents();
     for(Node::ParentList::iterator i = l.begin(); i != l.end(); i++){
-      (*i)->removeChild(transform.get());
+      (*i)->removeChild(transform.get());  
     }
   }
 
@@ -142,12 +142,12 @@ namespace lpzrobots {
     transform->setMatrix(m4x4);
   }
 
-  Group* OSGPrimitive::getGroup() {
-    return transform.get();
+  Group* OSGPrimitive::getGroup() { 
+    return transform.get(); 
   }
 
-  Transform* OSGPrimitive::getTransform() {
-    return transform.get();
+  Transform* OSGPrimitive::getTransform() { 
+    return transform.get(); 
   }
 
  void OSGPrimitive::setTexture(const std::string& filename){
@@ -181,165 +181,70 @@ namespace lpzrobots {
 
   /******************************************************************************/
   OSGDummy::OSGDummy(){}
-
+  
   void OSGDummy::init(const OsgHandle& osgHandle, Quality quality){
   }
-
+  
   void OSGDummy::setMatrix( const osg::Matrix& m4x4 ) {
   }
-
-  Group* OSGDummy::getGroup() {
+  
+  Group* OSGDummy::getGroup() { 
     return 0;
   }
 
   void OSGDummy::setTexture(const std::string& filename) {
-
+    
   }
 
   void OSGDummy::setColor(const Color& color) {
 
   }
-
+  
   Transform* OSGDummy::getTransform() {
     return 0;
   }
 
   /******************************************************************************/
-  // tlengthX and tlengthY represent the texture coordinates going from 0.0f to their values.
-  // If you are not familiar with it set both to 1.0f for clamp texturing or equal to lengthX and lengthY for repeat texturing.
-  OSGPlane::OSGPlane(float lengthX, float lengthY, float tlengthX, float tlengthY)
-    : lengthX(lengthX), lengthY(lengthY), tlengthX(tlengthX), tlengthY(tlengthY) {
+  OSGPlane::OSGPlane() {
   }
 
   void OSGPlane::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
-    geode = new Geode;
-
-    Vec3Array *coords = new Vec3Array(4);
-	(*coords)[0].set(-0.5f*lengthX,-0.5f*lengthY,0.0f);
-	(*coords)[1].set(-0.5f*lengthX, 0.5f*lengthY,0.0f);
-	(*coords)[2].set( 0.5f*lengthX,-0.5f*lengthY,0.0f);
-	(*coords)[3].set( 0.5f*lengthX, 0.5f*lengthY,0.0f);
-    Vec2Array *tcoords = new Vec2Array(4);
-	(*tcoords)[0].set(    0.0f,    0.0f);
-	(*tcoords)[1].set(    0.0f,tlengthY);
-	(*tcoords)[2].set(tlengthX,    0.0f);
-	(*tcoords)[3].set(tlengthX,tlengthY);
-
-
-	Geometry *geom = new Geometry;
-	geom->setVertexArray(coords);
-	geom->setTexCoordArray(0,tcoords);
-	geom->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
-
-	StateSet *dstate = new StateSet;
-	dstate->setMode(GL_LIGHTING,StateAttribute::OFF);
-	geom->setStateSet(dstate);
-	geode->addDrawable(geom);
-	transform = new MatrixTransform;
-	transform->addChild(geode.get());
-	osgHandle.scene->addChild(transform.get());
+    geode = new Geode;  
+    transform = new MatrixTransform;
+    transform->addChild(geode.get());
+    osgHandle.scene->addChild(transform.get());
+  
+    //  shape = new ShapeDrawable(new InfinitePlane(), osgHandle.tesselhints);
+    shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
+				      50, 50, 0.01), osgHandle.tesselhints[quality]); // TODO add larger values here
+    shape->setColor(osgHandle.color);
+    geode->addDrawable(shape.get());
+    if(osgHandle.color.alpha() < 1.0){
+      shape->setStateSet(osgHandle.transparentState);
+    }else{
+      shape->setStateSet(osgHandle.normalState);
+    }
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+						       StateAttribute::ON);
+    // set dummy texture
+    setTexture("Images/really_white.rgb");
   }
 
 
   /******************************************************************************/
-  OSGBox::OSGBox(float lengthX, float lengthY, float lengthZ, float tlengthX, float tlengthY)
-    : lengthX(lengthX), lengthY(lengthY), lengthZ(lengthZ), tlengthX(tlengthX), tlengthY(tlengthY) {
-  }
   OSGBox::OSGBox(float lengthX, float lengthY, float lengthZ)
-    : lengthX(lengthX), lengthY(lengthY), lengthZ(lengthZ), tlengthX(1.0f), tlengthY(1.0f) {
+    : lengthX(lengthX), lengthY(lengthY), lengthZ(lengthZ) {
   }
+
   void OSGBox::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
-    geode = new Geode;
+    geode = new Geode;  
+    transform = new MatrixTransform;
+    transform->addChild(geode.get());
+    osgHandle.scene->addChild(transform.get());
 
-	  StateSet *dstate = new StateSet;
-	  dstate->setMode(GL_LIGHTING,StateAttribute::OFF);
-      transform = new MatrixTransform;
-	  Vec2Array *tcoords = new Vec2Array(4);
-	  (*tcoords)[0].set(    0.0f,    0.0f);
-	  (*tcoords)[1].set(    0.0f,tlengthY);
-	  (*tcoords)[2].set(tlengthX,    0.0f);
-	  (*tcoords)[3].set(tlengthX,tlengthY);
-
-      Vec3Array *coordsXZ1 = new Vec3Array(4); //back
-	   (*coordsXZ1)[0].set(-0.5f*lengthX,-0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsXZ1)[1].set(-0.5f*lengthX,-0.5f*lengthY, 0.5f*lengthZ);
-	   (*coordsXZ1)[2].set( 0.5f*lengthX,-0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsXZ1)[3].set( 0.5f*lengthX,-0.5f*lengthY, 0.5f*lengthZ);
-      Vec3Array *coordsXZ2 = new Vec3Array(4); //front
-	   (*coordsXZ2)[0].set( 0.5f*lengthX, 0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsXZ2)[1].set( 0.5f*lengthX, 0.5f*lengthY, 0.5f*lengthZ);
-	   (*coordsXZ2)[2].set(-0.5f*lengthX, 0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsXZ2)[3].set(-0.5f*lengthX, 0.5f*lengthY, 0.5f*lengthZ);
-      Vec3Array *coordsYZ1 = new Vec3Array(4); //right
-	   (*coordsYZ1)[0].set(-0.5f*lengthX, 0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsYZ1)[1].set(-0.5f*lengthX, 0.5f*lengthY, 0.5f*lengthZ);
-	   (*coordsYZ1)[2].set(-0.5f*lengthX,-0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsYZ1)[3].set(-0.5f*lengthX,-0.5f*lengthY, 0.5f*lengthZ);
-      Vec3Array *coordsYZ2 = new Vec3Array(4); //left
-	   (*coordsYZ2)[0].set( 0.5f*lengthX,-0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsYZ2)[1].set( 0.5f*lengthX,-0.5f*lengthY, 0.5f*lengthZ);
-	   (*coordsYZ2)[2].set( 0.5f*lengthX, 0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsYZ2)[3].set( 0.5f*lengthX, 0.5f*lengthY, 0.5f*lengthZ);
-      Vec3Array *coordsXY1 = new Vec3Array(4); // bottom
-	   (*coordsXY1)[0].set(-0.5f*lengthX, 0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsXY1)[1].set(-0.5f*lengthX,-0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsXY1)[2].set( 0.5f*lengthX, 0.5f*lengthY,-0.5f*lengthZ);
-	   (*coordsXY1)[3].set( 0.5f*lengthX,-0.5f*lengthY,-0.5f*lengthZ);
-      Vec3Array *coordsXY2 = new Vec3Array(4); // top
-	   (*coordsXY2)[0].set( 0.5f*lengthX, 0.5f*lengthY, 0.5f*lengthZ);
-	   (*coordsXY2)[1].set( 0.5f*lengthX,-0.5f*lengthY, 0.5f*lengthZ);
-	   (*coordsXY2)[2].set(-0.5f*lengthX, 0.5f*lengthY, 0.5f*lengthZ);
-	   (*coordsXY2)[3].set(-0.5f*lengthX,-0.5f*lengthY, 0.5f*lengthZ);
-
-	  Geometry *geomXZ1 = new Geometry;
-	  geomXZ1->setVertexArray(coordsXZ1);
-	  geomXZ1->setTexCoordArray(0,tcoords);
-	  geomXZ1->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
-	  geomXZ1->setStateSet(dstate);
-	  geode->addDrawable(geomXZ1);
-
-	  Geometry *geomXZ2 = new Geometry;
-	  geomXZ2->setVertexArray(coordsXZ2);
-	  geomXZ2->setTexCoordArray(0,tcoords);
-	  geomXZ2->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
-	  geomXZ2->setStateSet(dstate);
-	  geode->addDrawable(geomXZ2);
-
-	  Geometry *geomYZ1 = new Geometry;
-	  geomYZ1->setVertexArray(coordsYZ1);
-	  geomYZ1->setTexCoordArray(0,tcoords);
-	  geomYZ1->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
-	  geomYZ1->setStateSet(dstate);
-	  geode->addDrawable(geomYZ1);
-
-	  Geometry *geomYZ2 = new Geometry;
-	  geomYZ2->setVertexArray(coordsYZ2);
-	  geomYZ2->setTexCoordArray(0,tcoords);
-	  geomYZ2->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
-	  geomYZ2->setStateSet(dstate);
-	  geode->addDrawable(geomYZ2);
-
-	  Geometry *geomXY1 = new Geometry;
-	  geomXY1->setVertexArray(coordsXY1);
-	  geomXY1->setTexCoordArray(0,tcoords);
-	  geomXY1->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
-	  geomXY1->setStateSet(dstate);
-	  geode->addDrawable(geomXY1);
-
-	  Geometry *geomXY2 = new Geometry;
-	  geomXY2->setVertexArray(coordsXY2);
-	  geomXY2->setTexCoordArray(0,tcoords);
-	  geomXY2->addPrimitiveSet(new DrawArrays(PrimitiveSet::TRIANGLE_STRIP,0,4));
-	  geomXY2->setStateSet(dstate);
-	  geode->addDrawable(geomXY2);
-
-      transform->addChild(geode.get());
-      osgHandle.scene->addChild(transform.get());
-
-
-/*    shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f),
+    shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
 				      lengthX, lengthY, lengthZ), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
@@ -348,9 +253,9 @@ namespace lpzrobots {
     }else{
       shape->setStateSet(osgHandle.normalState);
     }
-    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(),
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
-    setTexture("Images/really_white.rgb");*/
+    setTexture("Images/really_white.rgb");
   }
 
   /******************************************************************************/
@@ -360,8 +265,8 @@ namespace lpzrobots {
 
   void OSGSphere::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
-
-    geode = new Geode;
+    
+    geode = new Geode;  
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
@@ -374,7 +279,7 @@ namespace lpzrobots {
     }else{
       shape->setStateSet(osgHandle.normalState);
     }
-    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(),
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
 
     setTexture("Images/really_white.rgb");
@@ -388,12 +293,12 @@ namespace lpzrobots {
   void OSGCapsule::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
 
-    geode = new Geode;
+    geode = new Geode;  
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
-    shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f),
+    shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f), 
 					  radius, height), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
@@ -402,7 +307,7 @@ namespace lpzrobots {
     }else{
       shape->setStateSet(osgHandle.normalState);
     }
-    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(),
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
     setTexture("Images/really_white.rgb");
   }
@@ -415,12 +320,12 @@ namespace lpzrobots {
   void OSGCylinder::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
 
-    geode = new Geode;
+    geode = new Geode;  
     transform = new MatrixTransform;
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
-    shape = new ShapeDrawable(new Cylinder(Vec3(0.0f, 0.0f, 0.0f),
+    shape = new ShapeDrawable(new Cylinder(Vec3(0.0f, 0.0f, 0.0f), 
 					   radius, height), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
@@ -429,16 +334,16 @@ namespace lpzrobots {
     }else{
       shape->setStateSet(osgHandle.normalState);
     }
-    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(),
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
 
     setTexture("Images/really_white.rgb");
   }
 
   /******************************************************************************/
-  OSGMesh::OSGMesh(const std::string& filename, float scale,
+  OSGMesh::OSGMesh(const std::string& filename, float scale, 
 		   const ReaderWriter::Options* options)
-    : filename(filename), scale(scale), options(options)
+    : filename(filename), scale(scale), options(options) 
   {
   }
 
@@ -446,25 +351,25 @@ namespace lpzrobots {
   }
 
   float OSGMesh::getRadius() {
-    return getGroup()->getBound().radius();
+    return getGroup()->getBound().radius(); 
   }
 
   void OSGMesh::init(const OsgHandle& osgHandle, Quality quality){
     assert(osgHandle.scene);
-    transform = new MatrixTransform;
+    transform = new MatrixTransform;        
     osgHandle.scene->addChild(transform.get());
-    scaletrans = new MatrixTransform;
+    scaletrans = new MatrixTransform;    
     scaletrans->setMatrix(osg::Matrix::scale(scale,scale,scale));
     transform->addChild(scaletrans.get());
     mesh  = osgDB::readNodeFile(filename, options);
     scaletrans->addChild(mesh.get());
-
+    
 //     if(osgHandle.color.alpha() < 1.0){
 //       shape->setStateSet(osgHandle.transparentState);
 //     }else{
 //       shape->setStateSet(osgHandle.normalState);
 //     }
-//     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(),
+//     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 // 						       StateAttribute::ON);
 
 //    setTexture("Images/really_white.rgb");
