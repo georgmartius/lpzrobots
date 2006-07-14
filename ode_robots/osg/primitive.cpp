@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2006-07-14 21:37:56  robot3
+ *   .bbox-file uses now the searchpath of osgDB
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.22  2006/07/14 11:23:38  martius
@@ -109,6 +112,8 @@
 #include "osgprimitive.h"
 #include "odehandle.h"
 #include "globaldata.h"
+
+#include <osgDB/FileUtils>
 
 
 namespace lpzrobots{
@@ -507,7 +512,9 @@ namespace lpzrobots{
     } 
     // read boundingshape file
     //    const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
-    boundshape = new BoundingShape(filename  + ".bbox" ,this);
+    // use osgDB method for getting path of the file:
+    std::string filenamepath = osgDB::findDataFile(filename+".bbox");
+    boundshape = new BoundingShape(filenamepath ,this);
     if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.3)), scale, drawBoundingMode)){
       printf("use default bounding box, because bbox file not found!\n");
       Primitive* bound = new Sphere(osgmesh->getRadius()); 
