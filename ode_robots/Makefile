@@ -4,54 +4,80 @@
 
 LPZROBOTS=..
 ODEROBOTS=.
+SELFORG=../selforg
+INCLUDEDIR=include/ode_robots
+REVINCLUDEDIR=../..
+LIB=libode_robots.a
+LIB_OPT=libode_robots_opt.a
 
 include Makefile.conf
 
 find_files = $(wildcard $(dir)/*.cpp)
 CPPFILES   := $(foreach dir,$(dirs),$(find_files))
 OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
-
-LIB=libode_robots.a
+find_h_files = $(wildcard $(dir)/*.h)
+HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 
 UTILS = 
 # utils/splitvideo
 
 # -pg for profiling
-# CFLAGS = -Wall -I. -g
-## Optimisation #DNDEBUG
-#CFLAGS = -Wall -g -I. -O3 
-CFLAGS = -Wall -g -I. 
-# used for single file compilation
-CXX = g++ $(CFLAGS) $(INC)
+CPPFLAGS = -Wall -g -I. $(INC)
 
+## Optimisation
+CPPFLAGS_OPT = -Wall -I. $(INC) -O3 -DNDEBUG
 
 # used for single file compilation
-CXX = g++ $(CFLAGS) $(INC)
+CXX = g++
 
 # used for lib-packing 
 AR = ar -rs
 
-$(LIB): Makefile.depend $(OFILES) $(UTILS)
-	@echo "$(OFILES)";
+all: libselforg $(LIB) $(UTILS)
+
+opt: libselforg_opt $(LIB_OPT)
+
+$(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
+
+$(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
+$(LIB_OPT): Makefile.depend $(SELFORG)/libselforg_opt.a $(OFILES)
+	$(AR) $(LIB_OPT) $(OFILES)
+
+libselforg:	
+	cd $(SELFORG) && make libselforg.a		
+
+libselforg_opt:	
+	cd $(SELFORG) && make libselforg_opt.a		
 
 utils/splitvideo: utils/splitvideo.c
 	$(CXX) -o utils/splitvideo utils/splitvideo.c
 
+#%.o: %.cpp
+#	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -o $(OBJDIR)/$(@F)  $< 
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
+	cd $(INCLUDEDIR)
+	for file in $(HFILES); do \
+		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
+	done
 
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CPPFILES)  -f- > Makefile.depend 2>/dev/null
+	rm Makefile.depend
+	make Makefile.depend
 
 tags: 
-	etags `find -name "*.[ch]"` 
+	etags `find -name "*.[ch]*"` 
 
 clean:
-	rm -f $(LIB) *.o Makefile.depend
+	rm -f $(LIB) Makefile.depend
+	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 	for dir in $(dirs); do \
 		rm -f $$dir/*.o; \
 	done
+
+todo:
+	grep -ni "Todo:" $(CPPFILES) $(HFILES)
 
 include Makefile.depend

@@ -11,22 +11,22 @@ the simulations we did with ODE (http://ode.org).
 
 \par Simulation Environment
 
-The class \ref OdeConfig holds the configurable parameters of the simulation environment
-like \ref OdeConfig::gravity "gravity", \ref OdeConfig::simStepSize "simStepSize", 
-\ref OdeConfig::realTimeFactor "realTimeFactor"  and so on.\n
-In \ref simulation.h and \ref simulation.cpp you find the \ref OdeConfig::simulation_start "start",
-\ref OdeConfig::simulation_init "init" and \ref OdeConfig::simulation_close "close" routines 
-as well as the \ref OdeConfig::nearCallback "collision handling" etc. of the simulation environment,
+The class \ref lpzrobots::OdeConfig holds the configurable parameters of the simulation environment
+like \ref lpzrobots::OdeConfig::gravity "gravity", \ref lpzrobots::OdeConfig::simStepSize "simStepSize", 
+\ref lpzrobots::OdeConfig::realTimeFactor "realTimeFactor"  and so on.\n
+In \ref simulation.h and \ref simulation.cpp you find the \ref lpzrobots::OdeConfig::simulation_start "start",
+\ref lpzrobots::OdeConfig::simulation_init "init" and \ref lpzrobots::OdeConfig::simulation_close "close" routines 
+as well as the \ref lpzrobots::OdeConfig::nearCallback "collision handling" etc. of the simulation environment,
 which are used for all simulations.
-In the \ref OdeConfig::simulation_init "init" function you can specify user defined functions if your simulation needs this, possible are:
-- \ref OdeConfig::startFunction "startFunction"
-- \ref OdeConfig::endFunction "endFunction"
-- \ref OdeConfig::configFunction "configFunction"
-- \ref OdeConfig::commandFunction "commandFunction"
-- \ref OdeConfig::collisionCallback "collisionCallback"
-- \ref OdeConfig::additionalCallback "additionalCallback"
+In the \ref lpzrobots::OdeConfig::simulation_init "init" function you can specify user defined functions if your simulation needs this, possible are:
+- \ref lpzrobots::Simulation::start "start"
+- \ref lpzrobots::Simulation::end "end"
+- \ref lpzrobots::Simulation::config "config"
+- \ref lpzrobots::Simulation::command "command"
+- \ref lpzrobots::Simulation::collCallback "collCallback"
+- \ref lpzrobots::Simulation::addCallback "addCallback"
 
-So you normally do not have to change anything in this files.
+But you normally do not have to change anything in this files.
 
 
 \par Simulation Objects and more
@@ -43,6 +43,8 @@ the following subdirectories
 	them are in this directory
 - \ref ode_robots/components "components":
 	create your robots by plugging together different parts (work in progress)
+- \ref ode_robots/osg "osg primitives":
+	primitives of which robots and obstacles can be assembled, and further helpful things dealing with OSG
 - \ref ode_robots/motors "motors":
 	a few additional motors (PID servos)
 - \ref ode_robots/sensors "senors":
