@@ -14,5 +14,10 @@ and the sensor values of the controller, and between the motor outputs of the co
 and the motor values given to the robot. 
 It also faciliates logging and plotting of parameters.
 
-Please see the examples folder \ref examples
+The following subdirectories are included:
+ - \ref selforg/matrixlib : comfortable matrix library used for calculations e.g. in our controllers
+ - \ref selforg/controller : contains controller with some necessary helper modules
+ - \ref selforg/wiring : implementation of standart wirings, that connect robot and controller
+ - \ref selforg/utils : utility code
+ - \ref selforg/examples : examples for the usage of controller, the framework and the matrix library.
  */ 

@@ -4,7 +4,6 @@
 
 
 /** \mainpage Documentation of lpzrobots
-
 \par Organization:
 	University Leipzig \n
 	Institute for Computer Science  \n
@@ -30,9 +29,9 @@ It consists of the following directories (click for details):
 	(Open Dynamics Engine, see http://www.ode.org) such as robots, 
  	obstacles, utils, our patches and stuff for visualization with OSG 
         (OpenSceneGraph, see http://www.openscenegraph.org)
-  - \ref matrixlib : comfortable matrix library used for calculations e.g. in our controllers
   - \ref guilogger : application that coordinates multiple gnuplot 
 	windows and switches channels on or of, data is sent per pipe from your program 
+  - \ref webots : directory with some webots simulations  
 
 
 \section Requirements
