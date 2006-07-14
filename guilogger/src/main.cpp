@@ -69,15 +69,18 @@ int main( int argc, char ** argv ) {
        printf("   -f [file]  input file\n");
        printf("      only viwewing, no streaming\n");
        printf("   -l turns logging on\n");
-       printf("   -d [delay] delay for piped input, should be a natural number\n");
        printf("   --help displays this message.\n");
        return 0;
    }
 
     QApplication a( argc, argv );
 
-    QString mode;
     QDataSource *qsource=0;
+
+
+    if(params.getMode().isEmpty() && !params.getFile().isEmpty()) {
+      params.setMode("file");
+    }
 
     guilogger *gl = new guilogger(params);
 
@@ -89,27 +92,23 @@ int main( int argc, char ** argv ) {
         a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
         qsource->start();
     }
-    else if(params.getMode()=="pipe") 
-    {   QPipeReader *qpipe = new QPipeReader();
-        if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
-        printf("Using pipe input with delay %i.\n", qpipe->getDelay());
-        qsource = qpipe;
-        a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
-        qsource->start();
-    }
-    else if(params.getMode()=="file") 
+    else if(params.getMode()=="pipe") {  
+      QPipeReader *qpipe = new QPipeReader();
+      //        if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
+      //        printf("Using pipe input with delay %i.\n", qpipe->getDelay());
+      printf("Using pipe input\n");
+      qsource = qpipe;
+      a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
+      qsource->start();
+    } else if(params.getMode()=="file") 
     {  // printf("Sorry, there are no native segfaults any more.\n");
 //        printf("But nevertheless I further provide segfaults for convenience by using free(0)\n");
 //        printf("Just kidding! Have a nice day.\n");
+    } else {
+      fprintf(stderr, "Specify mode (-m) or file (-f) and use (-h) for help.\n");
+      exit(1);
     }
-    else
-    {    QSerialReader *qserial = new QSerialReader();
-         if(params.getPort() != "") qserial->setComPort(params.getPort());
-         printf("Using as default serial communication on port %s\n", qserial->getComPort().latin1());
-         qsource = qserial;
-         a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
-         qsource->start();
-    }
+   
 
     FileLogger fl;
     if(params.getLogg()) 

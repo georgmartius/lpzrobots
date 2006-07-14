@@ -20,83 +20,91 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-09 13:31:51  martius
+ *   Revision 1.4  2006-07-14 12:23:56  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.3.4.2  2006/05/15 13:14:10  robot3
+ *   STRG-R now makes screenshots in jpg-format
+ *   STRG-F now toggles the file logging (controller stuff) on/off
+ *   STRG-G now restarts the GuiLogger
+ *
+ *   Revision 1.3.4.1  2006/02/22 15:27:22  martius
+ *   class-ified and osg-ified
+ *
+ *   Revision 1.3  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
-#include <GL/gl.h>
 #include <assert.h>
 #include <string.h>
+#include <osgDB/WriteFile>
 #include "grabframe.h"
 
-bool getGLFrameBuffer( unsigned char *buf, int w, int h);
+namespace lpzrobots {
 
-VideoStream openVideoStream(const char* filename){
-  int vals[4];
-  glGetIntegerv(GL_VIEWPORT,vals);
-  
-  VideoStream stream;
-  stream.w    = vals[2];
-  stream.h    = vals[3];
-  assert (filename);
-  stream.filename = new char[strlen(filename) + 1];
-  strcpy(stream.filename, filename);
-  stream.buf      = new unsigned char[stream.w*stream.h*3];
-  stream.revbuf   = new unsigned char[stream.w*stream.h*3];
-  stream.counter  = 0;
-  stream.opened = true;
+  // bool getGLFrameBuffer( unsigned char *buf, int w, int h);
 
-//   assert (filename);
-//   stream.file=fopen(filename, "wb");
-//   if(!stream.file){
-//     fprintf(stderr,"Cannot open file %s for writing",filename);    
-//   }
-  return stream;
-}
-
-void closeVideoStream(VideoStream& stream){
-  if(stream.buf) delete[] stream.buf;
-  if(stream.revbuf) delete[] stream.revbuf;
-  if(stream.filename) delete[] stream.filename;
-  stream.filename = 0;
-  stream.buf    = 0;
-  stream.revbuf = 0;
-  stream.opened = false;
-}
-
-bool grabAndWriteFrame(VideoStream& stream){
-  if(!stream.opened) return false;
-  char name[128];
-  FILE *file;
-  bool ok = getGLFrameBuffer(stream.buf, stream.w, stream.h);
-  if (ok) {
-    for (int y=0; y<stream.h; y++) {
-      int chunk = 3 * stream.w;
-      memcpy(stream.revbuf + y*chunk, stream.buf + (stream.h - 1 - y)*chunk, chunk);
-    }
-    sprintf(name,"%s_%06ld.ppm", stream.filename, stream.counter);
-    stream.counter++;
-    file=fopen(name, "wb");
-    if(!file){
-      fprintf(stderr,"Cannot open file %s for writing",stream.filename);    
-    }else{
-      fprintf(file,"P6 %d %d 255\n", stream.w, stream.h);
-      fwrite(stream.revbuf, stream.w*stream.h*3, 1, file);
-      fclose(file);
-    }
+  void VideoStream::open(const char* _filename){
+    assert (_filename);
+    filename = new char[strlen(_filename) + 1];
+    strcpy(filename, _filename);
+    counter  = 0;
+    opened = true;    
   }
-  return true;
-}
 
+  void VideoStream::close(){
+    if(filename) delete[] filename;
+    filename = 0;
+    opened   = false;
+  }
 
-bool getGLFrameBuffer( unsigned char *buf, int w, int h){    
-  if (!buf)
-    return false;
-  glReadPixels(0,0,w,h,GL_RGB,GL_UNSIGNED_BYTE,(GLvoid*)buf);
-  return true;
+  bool VideoStream::grabAndWriteFrame(const Producer::Camera& camera){
+    if(!opened) return false;
+    char name[128];
+    osg::ref_ptr<osg::Image>image = new osg::Image; 
+    int x, y; 
+    camera.getProjectionRectangle(x, y, w, h); 
+    image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE); 
+    
+    image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE); 
+    sprintf(name,"%s_%06ld.jpg", filename, counter);
+    if(!osgDB::writeImageFile( *(image.get()), name )){
+      fprintf(stderr, "VideoStream: Cannot write to file %s\n", name);
+      return false;
+    }
+    counter++;
+    return true;
+  }
+
 } 
 
- 
+// bool getGLFrameBuffer( unsigned char *buf, int w, int h){    
+//   if (!buf)
+//     return false;
+//   glReadPixels(0,0,w,h,GL_RGB,GL_UNSIGNED_BYTE,(GLvoid*)buf);
+//   return true;
+// } 
+
+// > the best way to capture frames within OSG is to use osg::Image. One 
+// > suggestion is to use a Producer::Camera postDrawCallback. Each frame, 
+// > then, (to quote a current project): 
+// > 
+// > osg::ref_ptr<osg::Image>image = new osg::Image; 
+// > int x, y; 
+// > unsigned int w, h; 
+// > camera.getProjectionRectangle(x,y,w,h); 
+// > image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE); 
+
+// > image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE); 
+// > 
+// > 
+// > char filename[128]; 
+// > sprintf( filename, "ScreenCapture/%04d.bmp", _screenCaptureSequence); 
+// > osgDB::writeImageFile( *(image.get()), filename ); 
+// > _screenCaptureSequence++;
+
+
+
 //  And finally, to create mpegs, (I made mpeg1), you simply
 //  use the mpeg_encode with this cfg file encode.stats:
  

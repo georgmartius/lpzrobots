@@ -20,7 +20,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-11-09 13:41:25  martius
+ *   Revision 1.8  2006-07-14 12:23:52  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.7.4.2  2006/06/25 17:01:56  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.7.4.1  2005/11/15 12:29:57  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.7  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -38,15 +48,14 @@
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
-#include "noisegenerator.h"
+#include <selforg/noisegenerator.h>
 #include "simulation.h"
-#include "one2onewiring.h"
-#include "agent.h"
+#include <selforg/one2onewiring.h>
+#include "odeagent.h"
 #include "nimm2.h"
-#include "fixedsnake2elements.h"
 #include "playground.h"
 
-#include "invertnchannelcontroller.h"
+#include <selforg/invertnchannelcontroller.h>
 
 ConfigList configs;
 
@@ -78,7 +87,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   AbstractController *controller = new InvertNChannelController(10);  
   configs.push_back(controller);
 
-  One2OneAgent* agent = new One2OneAgent(NoPlot); 
+  One2OneOdeAgent* agent = new One2OneOdeAgent(NoPlot); 
   agent->init(controller, vehicle);
   global.agents.push_back(agent);
   */
@@ -89,7 +98,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   configs.push_back(controller2);
   
   One2OneWiring* wiring2 = new One2OneWiring(new ColorUniformNoise());
-  Agent* agent2 = new Agent(/*NoPlot*/GuiLogger);
+  OdeAgent* agent2 = new OdeAgent(/*NoPlot*/GuiLogger);
   agent2->init(controller2, testjoints, wiring2);
   global.agents.push_back(agent2);
   
@@ -101,7 +110,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);

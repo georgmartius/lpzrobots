@@ -21,14 +21,41 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-12-12 13:45:32  martius
- *   special inverse for 4x4 matrices in Pose form (can have diagonal zeros)
+ *   Revision 1.7  2006-07-14 12:23:56  martius
+ *   selforg becomes HEAD
  *
- *   Revision 1.5  2005/11/15 13:38:27  martius
- *   *** empty log message ***
+ *   Revision 1.3.4.10  2006/07/10 12:07:16  martius
+ *   Matrixlib now in selforg
+ *   optimised compilation
  *
- *   Revision 1.4  2005/11/15 14:26:32  robot3
- *   some new useful functions added
+ *   Revision 1.3.4.9  2006/06/27 14:14:30  robot3
+ *   -optimized mesh and boundingshape code
+ *   -other changes
+ *
+ *   Revision 1.3.4.8  2006/03/29 15:10:11  martius
+ *   osgMatrix2matrixlib
+ *
+ *   Revision 1.3.4.7  2006/03/05 10:58:18  robot3
+ *   added a template function normalize360
+ *
+ *   Revision 1.3.4.6  2006/03/04 16:57:36  robot3
+ *   added a template function for abs
+ *
+ *   Revision 1.3.4.5  2006/02/07 15:48:56  martius
+ *   axis
+ *
+ *   Revision 1.3.4.4  2005/12/15 17:04:32  martius
+ *   getAngle
+ *   min, max and so on are template functions now
+ *
+ *   Revision 1.3.4.3  2005/12/14 15:37:38  martius
+ *   rotation matrix for axis
+ *
+ *   Revision 1.3.4.2  2005/11/24 16:21:45  fhesse
+ *   multMatrixPosition added
+ *
+ *   Revision 1.3.4.1  2005/11/14 17:37:25  martius
+ *   moved to selforg
  *
  *   Revision 1.3  2005/11/10 09:09:55  martius
  *   use defines for definitions of sqrt, min, max...
@@ -45,106 +72,95 @@
 #ifndef __MATHUTILS_H
 #define __MATHUTILS_H
 
-#include <matrix.h>
-using namespace matrix;
-#include "position.h"
+#include <selforg/matrix.h>
+#include <selforg/position.h>
+#include "osgforwarddecl.h"
+#include <osg/Math>
 
-#ifndef MIN_MAX_AND_SO_ON
-#define MIN_MAX_AND_SO_ON
-#define min(a,b) ( (a) < (b) ? a : b )
-#define max(a,b) ( (a) > (b) ? a : b )
-#define sign(x)  ( (x) < 0 ? -1 : 1 )
-#define sqr(x)   ( (x)*(x) )
-#define clip(x, lobound, highbound) ( (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ) )
-#endif
+namespace lpzrobots {
 
-/*
- * returns the difference vector of two positions as a Position
- */
-Position getDifferencePosition(Position p, Position q);
+  class Axis;
 
+  template<typename T>
+  inline T clip(T v,T minimum, T maximum)
+    { return clampBelow(clampAbove(v,minimum),maximum); }
 
-/**
- * returns a translation and rotation matrix with the given Position and angle
- */
-Matrix getTranslationRotationMatrix(const Position& p, double angle);
+  template<typename T>
+  inline T abs(T v)
+    { return ((v>0)?v:-v); }
+
+  template<typename T>
+  inline T normalize360(T v)
+    { while (v>360) v-=360; while (v<360) v+=360; return v; }
+  /*******************************************************************************/
 
 
+  /**
+   * returns a rotation matrix (osg) with the given angles
+   * alpha, beta and gamma
+   */
+  osg::Matrix osgRotate(const double& alpha, const double& beta, const double& gamma);
 
-/**
- * returns the middle point of the two given positions
- */
-Position getMiddlePosition(Position& p, Position& q);
-
-/**
- * returns a rotation matrix with the given angle
- */
-Matrix getRotationMatrix(const double& angle);
-
-
-/**
- * returns a translation (4x4) matrix with the given Position
- */
-Matrix getTranslationMatrix(const Position& p) ;
+  /**
+     converts osg matrix to matrix of matrixlib
+   */
+  matrix::Matrix osgMatrix2Matrixlib(const osg::Matrix& m);
 
 
-/**
- * returns a position (4x1) matrix with the given Position
- */
-Matrix getPositionMatrix(const Position& p);
+  /**
+     returns a Rotation matrix that rotates the x-axis along with the given axis. 
+     The other 2 axis (y,z) are ambiguous.
+  */
+  osg::Matrix rotationMatrixFromAxisX(const Axis& axis);
 
-Position getPosition4x1(const Matrix& position4x1);
+  /**
+     returns a Rotation matrix that rotates the z-axis along with the given axis. 
+     The other 2 axis (x,y) are ambiguous.
+  */
+  osg::Matrix rotationMatrixFromAxisZ(const Axis& axis);
 
-/**
- * removes the translation in the matrix
- */
-Matrix removeTranslationInMatrix(const Matrix& pose);
-
-
-/**
- * removes the rotation in the matrix
- */
-Matrix removeRotationInMatrix(const Matrix& pose) ;
+  /**
+   * returns the angle between two vectors (in rad)
+   */
+  double getAngle(const osg::Vec3& a, const osg::Vec3& b) ;
 
 
-/**
- * returns the angle between two vectors
- */
-double getAngle(Position a, Position b) ;
+  /*******************************************************************************/
 
-/**
- * returns the Position stored in the pose
- */
-Position getPosition(const Matrix& pose);
+  /**
+     Multiplies 3x3 matrix with position
+  */
+  Position multMatrixPosition(const matrix::Matrix& r, Position& p);
 
-/**
- * returns the angle stored in the Matrix
- */
-double getAngle(Matrix& pose);
+  /**
+   * returns a rotation matrix with the given angle
+   */
+  matrix::Matrix getRotationMatrix(const double& angle);
 
-/*  Matrix inversion technique:
-Given a matrix mat, we want to invert it.
-mat = [ r00 r01 r02 tx
-        r10 r11 r12 ty
-        r20 r21 r22 tz
-        0  0  0  d ]
-We note that this matrix can be split into two matrices.
-mat = rot * trans, where rot is rotation part, trans is translation part
-rot = [ r00 r01 r02 0
-        r10 r11 r12 0
-        r20 r21 r22 0
-        0   0   0   1 ]
-trans = [ 1 0 0 tx
-         0 1 0 ty
-         0 0 1 tz
-         0 0 0 d ]
-So the inverse is mat^-1 = (trans^-1 * rot^-1) 
-******************************************/
-Matrix invert_4x4PoseMatrix(const Matrix& m);
 
-/**
- * returns the length of a vector stored as Position
- */
-double getLength(const Position& p);
+  /**
+   * returns a translation matrix with the given Position
+   */
+  matrix::Matrix getTranslationMatrix(const Position& p) ;
+
+
+  /**
+   * removes the translation in the matrix
+   */
+  matrix::Matrix removeTranslationInMatrix(const matrix::Matrix& pose);
+
+
+  /**
+   * removes the rotation in the matrix
+   */
+  matrix::Matrix removeRotationInMatrix(const matrix::Matrix& pose) ;
+
+
+  /**
+   * returns the angle between two vectors
+   */
+  double getAngle(Position a, Position b) ;
+
+}
 
 #endif

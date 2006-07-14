@@ -1,4 +1,4 @@
- /***************************************************************************
+/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
@@ -20,7 +20,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-10-06 17:14:24  martius
+ *   Revision 1.5  2006-07-14 12:23:38  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.4.4.7  2006/06/25 16:57:11  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.4.4.6  2006/03/30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.4.4.5  2006/01/03 13:18:51  fhesse
+ *   cleaned up
+ *   TODO: in the long run robot disappears (huge sensorvalues)
+ *
+ *   Revision 1.4.4.4  2006/01/03 10:01:46  fhesse
+ *   moved to osg
+ *
+ *   Revision 1.4.4.3  2005/11/16 11:26:52  martius
+ *   moved to selforg
+ *
+ *   Revision 1.4.4.2  2005/11/15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.4.4.1  2005/11/14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.4  2005/10/06 17:14:24  martius
  *   switched to stl lists
  *
  *   Revision 1.3  2005/09/22 12:24:36  martius
@@ -42,170 +68,144 @@
 #ifndef __ARM2SEGM_H
 #define __ARM2SEGM_H
 
-#include "abstractrobot.h"
-#include "configurable.h"
+#include "oderobot.h"
+#include <selforg/configurable.h>
+#include <vector>
 
-typedef struct {
-public:
-  int armAnzahl; ///  number of snake elements
-  double gliederLaenge; /// length of one snake element
-  double gliederDurchmesser; ///  diameter of a snake element
-  /**  distance between two snake elements; 
-       0 means there is a distance of the length of one snake element 
-       between each snake element an its successor */
-  double gliederAbstand; 
-  double gliederMasse; ///  mass of one snake element
-  double maxMotorKraft; ///  maximal force used by the motors of the snake
-  double factorForce; ///  factor for the speed, which the motors of the snake use
-  double factorSensors; /// sensors values are multiplied with this value
-} arm2SegmConf;
+#include "primitive.h"
+#include "joint.h"
+
+#include "angularmotor.h"
+namespace lpzrobots{
+
+  typedef struct {
+    double max_force;  // maximal force for motors
+    int segmentsno;    // number of segments
+
+    double base_mass;  // mass of base
+    double base_length;
+    double base_width;
+
+    double arm_mass;   // mass of arms
+    double arm_width;
+    double arm_length;
+    double arm_offset; // used for placing of arms
+
+    double joint_offset; // used for placing of arms
+  } Arm2SegmConf;
 
 
 
-class Arm2Segm : public AbstractRobot, public Configurable{
-public:
+  class Arm2Segm : public OdeRobot{
+  public:
   
-  Arm2Segm(const OdeHandle& odeHandle);
+    Arm2Segm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const Arm2SegmConf);
 
-  virtual ~Arm2Segm(){};
+    virtual ~Arm2Segm(){};
 
-  /**
-   * draws the vehicle
-   */
-  virtual void draw();
+    static Arm2SegmConf getDefaultConf(){
+      Arm2SegmConf conf;
+      conf.max_force=5;       // maximal force for motors
+      conf.segmentsno=4;      // number of segments
+      conf.base_mass=0.5;     // mass of base segment
+      conf.base_length= 0.4;  // length of base segment
+      conf.base_width= 0.1;   // width of base segment
+      conf.arm_mass=0.1;      // mass of arm elements
+      conf.arm_width=0.2;     // width (thickness) of arms
+      conf.arm_length = 1.2;  // length of arms 
+      conf.arm_offset= 0.03;  // offset between arms (so that they do not touch)
+      conf.joint_offset=0.2;  // overlapping of arms (to have area for joints)
+      return conf;
+    }
 
-  /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-      @params pos desired position of the robot in struct Position
-      @param c desired color for the robot in struct Color
-  */
-  virtual void place(Position pos , Color *c = 0);
+    /// update the subcomponents
+    virtual void update();
 
-  /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
-      @param sensornumber length of the sensor array
-      @return number of actually written sensors
-  */
-  virtual int getSensors(sensor* sensors, int sensornumber);
+    /** sets the pose of the vehicle
+	@param pose desired 4x4 pose matrix
+    */
+    virtual void place(const osg::Matrix& pose);
 
-  /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
-      @param motornumber length of the motor array
-  */
-  virtual void setMotors(const motor* motors, int motornumber);
+    /** returns actual sensorvalues
+	@param sensors sensors scaled to [-1,1] 
+	@param sensornumber length of the sensor array
+	@return number of actually written sensors
+    */
+    virtual int getSensors(sensor* sensors, int sensornumber);
 
-  /** returns number of sensors
-   */
-  virtual int getSensorNumber(){
-    return sensorno;
-  };
+    /** sets actual motorcommands
+	@param motors motors scaled to [-1,1] 
+	@param motornumber length of the motor array
+    */
+    virtual void setMotors(const motor* motors, int motornumber);
 
-  /** returns number of motors
-   */
-  virtual int getMotorNumber(){
-    return motorno;
-  };
+    /** returns number of sensors
+     */
+    virtual int getSensorNumber(){
+      return sensorno;
+    };
 
-  /** returns position of robot 
-      @return position robot position in struct Position  
-  */
-  virtual Position getPosition();
+    /** returns number of motors
+     */
+    virtual int getMotorNumber(){
+      return motorno;
+    };
 
-  /** returns a vector with the positions of all segments of the robot
-      @param poslist vector of positions (of all robot segments) 
-      @return length of the list
-  */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
+    /** returns a vector with the positions of all segments of the robot
+	@param poslist vector of positions (of all robot segments) 
+	@return length of the list
+    */
+    virtual int getSegmentsPosition(vector<Position> &poslist);
 
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-   */
-  virtual void doInternalStuff(const GlobalData& globalData);
+    /** the main object of the robot, which is used for position and speed tracking */
+    virtual Primitive* getMainPrimitive() const;
 
-  /// returns the name of the object (with version number)
-  virtual paramkey getName() const {return name; } 
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+    /** this function is called in each timestep. It should perform robot-internal checks, 
+	like space-internal collision detection, sensor resets/update etc.
+	@param globalData structure that contains global data from the simulation environment
+    */
+    virtual void doInternalStuff(const GlobalData& globalData);
+
+    /** The list of all parameters with there value as allocated lists.
+	@return list of names
+    */
+    paramlist getParamList() const;
   
-  /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
-      @return length of the lists
-  */
-  paramlist getParamList() const;
+    virtual paramval getParam(const paramkey& key) const;
   
-  virtual paramval getParam(const paramkey& key) const;
-  
-  virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val);
 
 
-protected:
+  protected:
 
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
-  */
-  virtual void create(Position pos); 
+    /** creates vehicle at desired pose
+	@param pose 4x4 pose matrix
+    */
+    virtual void create(const osg::Matrix& pose); 
+ 
+    /** destroys vehicle and space
+     */
+    virtual void destroy();
 
-  /** destroys vehicle and space
-   */
-  virtual void destroy();
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
+    static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
-  double dBodyGetPositionAll ( dBodyID basis , int para );
+    dSpaceID parentspace;
 
+    Arm2SegmConf conf;
 
-
-  static const int  armanzahl= 3;
-  //Object km[armanzahl-1]; //Armglieder
-
-  //  dJointID j[armanzahl+1];
-    dJointID jm[armanzahl+1];
-
-    double old_angle[armanzahl+1];
-    Object object[armanzahl+1];  
-    dJointID joint[armanzahl+1]; 
+    vector <Primitive*> objects;
+    vector <Joint*> joints;
+    vector <AngularMotor1Axis*> amotors;
 
     string name;    
-    paramval factorMotors;
+    paramval speed;
     paramval factorSensors;
-    paramval avgMotor;
-    paramval maxMotorKraft;
 
-
-  int segmentsno;    // number of motorsvehicle segments
-
-
-
-  double gelenkabstand;
-  double SOCKEL_LAENGE;
-  double SOCKEL_BREITE;
-  double SOCKEL_HOEHE; 
-  double SOCKEL_MASSE;
-
-  double ARMDICKE;
-  double ARMLAENGE;
-  double ARMABSTAND;
-  double ARMMASSE;
-  /*
-  double length;  // chassis length
-  double width;  // chassis width
-  double height;   // chassis height
-  double radius;  // wheel radius
-  double wheelthickness; // thickness of the wheels  
-  double cmass;    // chassis mass
-  double wmass;    // wheel mass
-  */
-  int sensorno;      //number of sensors
-  int motorno;       // number of motors
-
-  /*  double speed;    // 
-
-  Position initial_pos;    // initial position of robot
-  double max_force;        // maximal force for motors
-  */
-  bool created;      // true if robot was created
-
-
-
-  dSpaceID arm_space;
+    int sensorno;      //number of sensors
+    int motorno;       // number of motors
+    
+    bool created;      // true if robot was created
+  };
 };
-
 #endif

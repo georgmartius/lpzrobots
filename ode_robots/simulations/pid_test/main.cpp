@@ -20,30 +20,40 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-11-09 13:43:17  fhesse
+ *   Revision 1.8  2006-07-14 12:23:50  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.7.4.2  2006/06/25 17:01:55  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.7.4.1  2005/11/15 12:29:51  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.7  2005/11/09 13:43:17  fhesse
  *   GPL added
  *                                                                 *
  *                                                                         * 
-/***************************************************************************/
+ ***************************************************************************/
 #include <stdio.h>
 #include <drawstuff/drawstuff.h>
 #include <ode/ode.h>
 
 #include "simulation.h"
-#include "noisegenerator.h"
-#include "agent.h"
-#include "one2onewiring.h"
+#include <selforg/noisegenerator.h>
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
 #include "playground.h"
 
-#include "invertnchannelcontroller.h"
-#include "sinecontroller.h"
-#include "noisegenerator.h"
+#include <selforg/invertnchannelcontroller.h>
+#include <selforg/sinecontroller.h>
+#include <selforg/noisegenerator.h>
 
 #include "sphererobot.h"
 #include "sphererobotTest.h"
 
 ConfigList configs;
-PlotMode plotMode = NoPlot;
+list<PlotOption> plotoptions;
 AbstractController *controller;
 
 SphererobotTest* sphere1;
@@ -91,7 +101,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   controller->setParam("phaseShift", 0.8);
 
   One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
-  Agent* agent = new Agent ( plotMode );
+  OdeAgent* agent = new OdeAgent ( plotoptions );
   agent->init ( controller , sphere1 , wiring );
   global.agents.push_back ( agent ); 
   configs.push_back ( controller );
@@ -104,7 +114,7 @@ void end(GlobalData& global){
     delete (*i);
   }
   global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
+  for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
     delete (*i)->getRobot();
     delete (*i)->getController();
     delete (*i);
@@ -116,11 +126,6 @@ void end(GlobalData& global){
 // this function is called if the user pressed Ctrl-C
 void config(GlobalData& global){
   changeParams(configs);
-}
-
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
 }
 
 //Funktion die eingegebene Befehle/kommandos verarbeitet
@@ -151,10 +156,6 @@ void command (const OdeHandle&, GlobalData& globalData, int cmd)
 
 int main (int argc, char **argv)
 {  
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config, &command , 0 , 0 );
   // start the simulation (returns, if the user closes the simulation)

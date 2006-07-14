@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-10-25 19:26:56  fhesse
+ *   Revision 1.9  2006-07-14 12:23:32  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.8.4.9  2006/06/29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.8.4.8  2006/06/16 22:27:26  martius
+ *   getMainPrimtive
+ *
+ *   Revision 1.8.4.7  2006/05/23 13:38:02  robot3
+ *   -fixed some creating bugs
+ *   -setColor,setTexture and createGround must be
+ *    called before setPosition now
+ *
+ *   Revision 1.8.4.6  2006/05/18 12:54:24  robot3
+ *   -fixed not being able to change the color after positioning
+ *    the obstacle
+ *   -cleared the files up
+ *
+ *   Revision 1.8.4.5  2006/05/11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.8.4.4  2006/03/30 12:34:51  martius
+ *   documentation updated
+ *
+ *   Revision 1.8.4.3  2006/03/29 15:04:38  martius
+ *   have pose now
+ *
+ *   Revision 1.8.4.2  2005/12/06 10:13:23  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.8.4.1  2005/11/14 17:37:14  martius
+ *   moved to selforg
+ *
+ *   Revision 1.8  2005/10/25 19:26:56  fhesse
  *   comments adjusted and in doxygen style
  *
  *   Revision 1.7  2005/09/22 12:24:36  martius
@@ -44,74 +82,79 @@
 #ifndef __ABSTRACTOBSTACLE_H
 #define __ABSTRACTOBSTACLE_H
 
-#include <abstractrobot.h>
 #include <ode/ode.h>
 
 #include "odehandle.h"
-#include "color.h"
+#include "osghandle.h"
+#include <osg/Matrix>
 
+namespace lpzrobots {
+
+  class Primitive;
 
 /**
  *  Abstract class (interface) for obstacles
  */
 class AbstractObstacle{
 
+
  public:
   /**
    * Constructor
-   * @param odehandle containing world, space and jointgroup which should 
+   * @param odeHandle containing ODE stuff like world, space and jointgroup
+   * @param osgHandle containing OSG stuff like scene, color...
    * be used for creation of obstacles
    */
-  AbstractObstacle(const OdeHandle& odehandle): color(0.5,0.5,0.5) {
-    world=odehandle.world;
-    space=odehandle.space;
-  };
+  AbstractObstacle(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
 
-  virtual ~AbstractObstacle(){}
+  virtual ~AbstractObstacle();
   
   /**
-   * draws the obstacle
+   * updates the position if the scenegraph nodes
    */
-  virtual void draw() = 0;
+  virtual void update() = 0;
   
   /**
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
-  virtual void setPosition(double x, double y, double z) = 0;
+  virtual void setPosition(const osg::Vec3& pos);
 
   /**
    * gives actual position of the obstacle
    */
-  virtual void getPosition(double& x, double& y, double& z) = 0;
-  
+  virtual osg::Vec3 getPosition();
+
   /**
-   * sets geometry parameters for the obstacle
+   * gives actual pose of the obstacle
    */
-  virtual void setGeometry(double length, double width, double height) = 0;
-  
+  virtual osg::Matrix getPose();
+
+  /**
+   * sets position of the obstacle and creates/recreates obstacle if necessary
+   */
+  virtual void setPose(const osg::Matrix& pose) = 0;
+
   /**
    * sets the obstacle color
-   * @param r, g, b color values in RGB
+   * @param color values in RGBA
    */
-  virtual void setColor(double r, double g, double b)=0;
+  virtual void setColor(const Color& color);
+
+  virtual Primitive* getMainPrimitive() const = 0;
 
  protected:
+  osg::Matrix pose;
+  bool obstacle_exists;
 
-  /**
-   * space in which the obstacle should be created
-   */
-  dSpaceID space;
+  OdeHandle odeHandle;
+  OsgHandle osgHandle; 
 
-  /**
-   * world in which the obstacle should be created
-   */
-  dWorldID world;
+  virtual void destroy()=0;
 
-  /**
-   * obstacle color
-   */
-  Color color;
+  virtual void create()=0;
 
 };
+
+}
 
 #endif

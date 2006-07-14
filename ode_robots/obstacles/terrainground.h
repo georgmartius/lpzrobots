@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,112 +21,82 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-10-25 22:22:46  martius
- *   moved implementation to cpp
- *   data constructor
- *   store method
- *   different heighmap codings
+ *   Revision 1.8  2006-07-14 12:23:33  martius
+ *   selforg becomes HEAD
  *
- *   Revision 1.6  2005/09/22 13:17:11  martius
- *   OdeHandle and GlobalData finished
- *   doInternalStuff included
+ *   Revision 1.7.4.4  2006/06/16 22:27:26  martius
+ *   getMainPrimtive
  *
- *   Revision 1.5  2005/09/22 12:24:36  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
+ *   Revision 1.7.4.3  2006/05/29 18:55:46  martius
+ *   moved from meshground to terrainground as it was in former times
  *
- *   Revision 1.4  2005/09/13 13:19:32  martius
- *   if image not found handled graciously
+ *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
+ *   heightfield included
  *
- *   Revision 1.3  2005/09/12 14:32:08  martius
- *   use new texture interface
  *
- *   Revision 1.2  2005/09/08 14:28:25  robot2
- *   *** empty log message ***
- *
- *   Revision 1.1  2005/08/26 09:22:23  robot2
- *   terrain
- *
- *   Revision 1.8  2005/08/02 14:09:06  fhesse
- *   factor between length in x and y direction
- *   added to constructor
- *
- *   Revision 1.7  2005/07/29 14:27:59  martius
- *   color set to some red
- *
- *   Revision 1.6  2005/07/18 14:52:33  martius
- *   world and space are not pointers anymore.
- *
- *   Revision 1.5  2005/07/07 10:24:23  martius
- *   avoid internal collisions
- *
- *   Revision 1.4  2005/06/15 14:22:11  martius
- *   GPL included
  *                                                                 *
  ***************************************************************************/
 #ifndef __TERRAINGROUND_H
 #define __TERRAINGROUND_H
 
+#include <stdio.h>
+#include <math.h>
 
+#include "heightfieldprimitive.h"
 #include "abstractobstacle.h"
-#include "imageppm.h"
+ 
+namespace lpzrobots {
 
-//Fixme: Terrainground creates collisions with ground and itself
-class Terrainground : public AbstractObstacle {
-
-  double base_x, base_y, base_z;
-
-  ImagePPM heightmap;
-
-  bool obstacle_exists;
-
-  dGeomID terrainZ;
-  char *filename;
-  int TERRAINNODES;  // only in one direction
-  double *pTerrainHeights;
-
-  double size;  // size in world coordinated (in both directions)
-  double height;
-  int displayListNumber;
-  int texture;
-
-public:
-  /// height coding using in the read in bitmap. 
-  // Red: just the red channel is used;
-  // Sum: the sum of all channels is used;
-  // HighMidLow: Blue is least significant, Green is medium significant and Red is most significant
-  typedef enum CodingMode {Red, Sum, LowMidHigh};
+  /** Class provides an terrain based on HeightFields. 
+      Can be loaded from image or from HeightFieldFiles
+  */
+  class TerrainGround : public AbstractObstacle {
+  public:
+    
   
-  /// Constructor
-  // @param size size in world coordinates (in both directions)
-  // @param height height in world coordinates
-  Terrainground(const OdeHandle& odehandle, double size, double height, char *filename, 
-		CodingMode codingMode=Red);
-  virtual ~Terrainground();
+    /** Constructor
+	@param odeHandle 
+	@param osgHandle
+	@param filename name of the file to load. 
+	If ending is .ppm then it is considered as a bitmap height file.
+	The coding mode is used to decode the heights. 
+	Otherwise it is consider to be a OSG HeightFieldFile
+	@param texture image filename for the texture
+	@param x_size size in x direction in world coordinates
+	@param y_size size in y direction in world coordinates
+	@param height height in world coordinates
+	@param coding Coding mode, see OSGHeightField (this an own class, not in OSG)
+    */
+    TerrainGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	       const std::string& filename, const std::string& texture, 
+	       double x_size, double y_size, double height,
+	       OSGHeightField::CodingMode coding = OSGHeightField::Red);
 
-  void setTextureID(int t); 
-  
-  // draws the obstacle (terrain)   
-  virtual void draw();  
-  
-  virtual void setPosition(double x, double y, double z);
+    virtual ~TerrainGround(){}
 
-  virtual void getPosition(double& x, double& y, double& z);
-  
-  virtual void setGeometry(double length_, double width_, double height_);
+    /**
+     * updates the position of the geoms  ( not nessary for static objects)
+     */
+    virtual void update(){ };
 
-  virtual void setColor(double r, double g, double b);
+    virtual void setPose(const osg::Matrix& pose);
 
-protected:
-  virtual void create();
 
-  virtual void destroy();
+    virtual Primitive* getMainPrimitive() const { return 0; }
 
-  // return the height using the giben coding mode. The data pointer points at the red channel
-  static double coding(CodingMode mode, const unsigned char* data);
-  
+  protected:
+    virtual void create();
+    virtual void destroy();    
 
-};
+  protected:
+    std::string filename;
+    std::string texture;
+    HeightField* heightfield;
+    double x_size;
+    double y_size;
+    double height;
+    OSGHeightField::CodingMode coding;
+  };
+}
 
 #endif

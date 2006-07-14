@@ -20,7 +20,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2005-09-27 14:11:37  martius
+ *   Revision 1.18  2006-07-14 12:23:40  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.17.4.10  2006/06/25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.17.4.9  2006/03/30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.17.4.8  2006/01/31 15:36:14  martius
+ *   irRange in config
+ *
+ *   Revision 1.17.4.7  2006/01/17 17:02:19  martius
+ *   faster, stronger, more friction
+ *
+ *   Revision 1.17.4.6  2005/12/15 17:04:08  martius
+ *   Primitives are not longer inherited from OSGPrimitive, moreover
+ *   they aggregate them.
+ *   Joint have better getter and setter
+ *
+ *   Revision 1.17.4.5  2005/12/14 15:37:09  martius
+ *   robots are working with osg
+ *
+ *   Revision 1.17.4.4  2005/12/13 18:11:39  martius
+ *   still trying to port robots
+ *
+ *   Revision 1.17.4.3  2005/11/16 11:26:52  martius
+ *   moved to selforg
+ *
+ *   Revision 1.17.4.2  2005/11/15 12:29:26  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.17.4.1  2005/11/14 17:37:17  martius
+ *   moved to selforg
+ *
+ *   Revision 1.17  2005/09/27 14:11:37  martius
  *   changed to use of Nimm2Conf
  *   IR sensors at front
  *
@@ -77,14 +113,18 @@
 #ifndef __NIMM2_H
 #define __NIMM2_H
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 #include "raysensorbank.h"
 
+#include "primitive.h"
+#include "joint.h"
 
-typedef struct
-{
-  dGeomID transform;
-  dGeomID geom;
+namespace lpzrobots {
+
+typedef struct Bumper{
+  Bumper() { trans = 0; bump = 0;}
+  Primitive* trans;
+  Primitive* bump;
 } Bumper;
 
 typedef struct {
@@ -97,28 +137,31 @@ typedef struct {
   bool irFront;
   bool irBack;
   bool irSide;
+  double irRange;
   bool singleMotor;
 } Nimm2Conf;
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
     2 wheels and a cylinder like body   
 */
-class Nimm2 : public AbstractRobot{
+class Nimm2 : public OdeRobot{
 public:
   
-  Nimm2(const OdeHandle& odehandle, const Nimm2Conf& conf);
+  Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle, 
+	const Nimm2Conf& conf, const string& name);
 
   static Nimm2Conf getDefaultConf(){
     Nimm2Conf conf;
     conf.size=1;
-    conf.force=2;
-    conf.speed=6;
+    conf.force=8;
+    conf.speed=12;
     conf.sphereWheels=true;
     conf.bumper=false;
     conf.cigarMode=false;
     conf.irFront=false;
     conf.irBack=false;
     conf.irSide=false;
+    conf.irRange=3;
     conf.singleMotor=false;
     return conf;
   }
@@ -126,15 +169,14 @@ public:
   virtual ~Nimm2(){};
 
   /**
-   * draws the vehicle
+   * updates the OSG nodes of the vehicle
    */
-  virtual void draw();
+  virtual void update();
 
-  /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-      @params pos desired position of the robot in struct Position
-      @param c desired color for the robot in struct Color
+  /** sets the pose of the vehicle
+      @param pose desired 4x4 pose matrix
   */
-  virtual void place(Position pos , Color *c = 0);
+  virtual void place(const osg::Matrix& pose);
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] 
@@ -161,11 +203,6 @@ public:
     return motorno;
   };
 
-  /** returns position of robot 
-      @return position robot position in struct Position  
-  */
-  virtual Position getPosition();
-
   /** returns a vector with the positions of all segments of the robot
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
@@ -176,21 +213,18 @@ public:
   
     /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
+      @param globalData structure that contains global data from the simulation environment
    */
   virtual void doInternalStuff(const GlobalData& globalData);
 
-
-  /** sets the textures used for body and wheels
-  */
-  virtual void setTextures(int body, int wheels);
-
 protected:
+  /** the main object of the robot, which is used for position and speed tracking */
+  virtual Primitive* getMainPrimitive() const { return object[0]; }
 
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
+  /** creates vehicle at desired pose
+      @param pose 4x4 pose matrix
   */
-  virtual void create(Position pos); 
+  virtual void create(const osg::Matrix& pose); 
 
   /** destroys vehicle and space
    */
@@ -208,22 +242,19 @@ protected:
   double wmass;    // wheel mass
   int sensorno;      //number of sensors
   int motorno;       // number of motors
-  int segmentsno;    // number of motorsvehicle segments
-
-  int bodyTexture;
-  int wheelTexture;
 
   bool created;      // true if robot was created
   double max_force; 
 
-  Object object[3];  // 1 cylinder, 2 wheels
+  Primitive* object[3];  // 1 cylinder, 2 wheels
   double  wheeloffset; // offset from center when in cigarMode
   int number_bumpers;  // number of bumpers (1 -> bumpers at one side, 2 -> bumpers at 2 sides)
   Bumper bumper[2]; 
-  dJointID joint[2]; // joints between cylinder and each wheel
+  Hinge2Joint* joint[2]; // joints between cylinder and each wheel
 
-  dSpaceID car_space;
   RaySensorBank irSensorBank; // a collection of ir sensors
 };
+
+}
 
 #endif

@@ -20,7 +20,25 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-11-09 13:31:51  martius
+ *   Revision 1.4  2006-07-14 12:23:56  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.3.4.5  2006/06/25 17:01:26  martius
+ *   removed using namespace std
+ *
+ *   Revision 1.3.4.4  2006/03/29 15:10:00  martius
+ *   Dummy Primitive for Environment
+ *
+ *   Revision 1.3.4.3  2005/12/06 10:13:26  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.3.4.2  2005/11/15 12:30:24  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.3.4.1  2005/11/14 17:37:25  martius
+ *   moved to selforg
+ *
+ *   Revision 1.3  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -29,29 +47,38 @@
 
 
 #include <vector>
-using namespace std;
-
 #include "odehandle.h"
 #include "odeconfig.h"
 
-class Agent;
-class AbstractObstacle;
 class Configurable;
 
-typedef vector<AbstractObstacle*> ObstacleList; ///
-typedef vector<Configurable*> ConfigList;       ///
-typedef vector<Agent*> AgentList;               ///
+namespace lpzrobots {
 
+class OdeAgent;
+class AbstractObstacle;
+class Primitive;
+
+typedef std::vector<AbstractObstacle*> ObstacleList; ///
+typedef std::vector<Configurable*> ConfigList;       ///
+typedef std::vector<OdeAgent*> OdeAgentList;         ///
+
+/**
+  Data structure holding all essential global information.
+*/
 typedef struct GlobalData
 {
   GlobalData() { 
     time = 0;
+    environment = 0;
   }
   OdeConfig odeConfig;
   ConfigList configs;
   ObstacleList obstacles;
-  AgentList agents;
+  OdeAgentList agents;
+  Primitive* environment; /// < this is used to be able to attach objects to the static environment
   double time;
 } GlobalData;
+
+}
 
 #endif

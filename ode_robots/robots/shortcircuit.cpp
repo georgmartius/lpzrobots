@@ -20,84 +20,75 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-09 13:24:42  martius
+ *   Revision 1.6  2006-07-14 12:23:42  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.5.4.5  2006/06/25 17:00:33  martius
+ *   Id
+ *
+ *   Revision 1.5.4.4  2006/06/25 16:57:16  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.5.4.3  2006/01/10 20:32:51  martius
+ *   moved to osg
+ *
+ *   Revision 1.5.4.2  2005/11/15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.5.4.1  2005/11/14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.5  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
-#include <drawstuff/drawstuff.h>
-#include <ode/ode.h>
 #include <assert.h>
 
 #include "simulation.h"
 
 #include "shortcircuit.h"
 
+namespace lpzrobots {
 
-ShortCircuit::ShortCircuit(const OdeHandle& odeHandle, int sensornumber, int motornumber)
-  : AbstractRobot::AbstractRobot(odeHandle){
+  ShortCircuit::ShortCircuit(const OdeHandle& odeHandle, 
+			     const OsgHandle& osgHandle, int sensornumber, int motornumber)
+    : OdeRobot(odeHandle, osgHandle, "ShortCircuit", "$Id$"){
 
-  sensorno = sensornumber; 
-  motorno  = motornumber;  
-  motors = (motor*)malloc(motorno * sizeof(motor));
-  for(int i=0; i < motorno; i++){
-    motors[i]=0.0;
-  }
+    sensorno = sensornumber; 
+    motorno  = motornumber;  
+    motors = (motor*)malloc(motorno * sizeof(motor));
+    for(int i=0; i < motorno; i++){
+      motors[i]=0.0;
+    }
   
-};
+  };
 
-/** sets actual motorcommands
-    @param motors motors scaled to [-1,1] 
-    @param motornumber length of the motor array
-*/
-void ShortCircuit::setMotors(const motor* _motors, int motornumber){
-  assert(motornumber == motorno);
-  memcpy(motors, _motors, sizeof(motor) * motornumber);
-};
+  /** sets actual motorcommands
+      @param motors motors scaled to [-1,1] 
+      @param motornumber length of the motor array
+  */
+  void ShortCircuit::setMotors(const motor* _motors, int motornumber){
+    assert(motornumber == motorno);
+    memcpy(motors, _motors, sizeof(motor) * motornumber);
+  };
 
-/** returns actual sensorvalues
-    @param sensors sensors scaled to [-1,1] (more or less)
-    @param sensornumber length of the sensor array
-    @return number of actually written sensors
-*/
-int ShortCircuit::getSensors(sensor* sensors, int sensornumber){
-  assert(sensornumber == sensorno);  
-  int mini = min(sensorno,motorno); 
-  for (int i=0; i< mini; i++){
-    sensors[i]=motors[i]; // %motorno
-  }
-  for (int i=mini; i< sensorno; i++){
-    sensors[i]=0;
-  }
-  return sensorno;
-};
-
-/** returns position of robot 
-    @return position robot position in struct Position  
-*/
-Position ShortCircuit::getPosition(){
-  Position pos;
-  pos.x=0;
-  pos.y=0;
-  pos.z=0;
-  return pos;
-};
-
-/** returns a vector with the positions of all segments of the robot
-    @param poslist vector of positions (of all robot segments) 
-    @return length of the list
-*/
-int ShortCircuit::getSegmentsPosition(vector<Position> &poslist){
-  return 0;
-};  
-
-/**
- * draws the vehicle
- */
-void ShortCircuit::draw(){};
+  /** returns actual sensorvalues
+      @param sensors sensors scaled to [-1,1] (more or less)
+      @param sensornumber length of the sensor array
+      @return number of actually written sensors
+  */
+  int ShortCircuit::getSensors(sensor* sensors, int sensornumber){
+    assert(sensornumber == sensorno);  
+    int mini = min(sensorno,motorno); 
+    for (int i=0; i< mini; i++){
+      sensors[i]=motors[i]; // %motorno
+    }
+    for (int i=mini; i< sensorno; i++){
+      sensors[i]=0;
+    }
+    return sensorno;
+  };
 
 
-
-
-
-
-
+}

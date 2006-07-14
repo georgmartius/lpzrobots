@@ -20,7 +20,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-27 13:59:26  martius
+ *   Revision 1.3  2006-07-14 12:23:43  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.2.4.4  2006/03/30 12:34:59  martius
+ *   documentation updated
+ *
+ *   Revision 1.2.4.3  2006/01/12 15:14:57  martius
+ *   indentation and clear routine
+ *
+ *   Revision 1.2.4.2  2005/12/14 12:43:07  martius
+ *   moved to osg
+ *
+ *   Revision 1.2.4.1  2005/12/13 18:11:54  martius
+ *   sensors ported, but not yet finished
+ *
+ *   Revision 1.2  2005/09/27 13:59:26  martius
  *   ir sensors are working now
  *
  *   Revision 1.1  2005/09/27 11:03:34  fhesse
@@ -34,6 +49,8 @@
 #include <vector>
 #include "raysensor.h"
 
+namespace lpzrobots {
+
 /** Class for a bank of ray sensors. 
     Ray sensors can be registered at the bank. Methods for resetting, 
     sensing and reading the sensorvalues of all sensors are provided.
@@ -44,16 +61,20 @@ public:
 
   virtual ~RaySensorBank();
 
-  /** gives the space of the parent (usually robot)
+  /** initialises sensor bank with handles for ode and osg
    */
-  virtual void init(dSpaceID parent_space, RaySensor::rayDrawMode drawmode); 
+  virtual void init( const OdeHandle& odeHandle, const OsgHandle& osgHandle ); 
 
   /** registers a new sensor at the sensor bank. The body and the pose have to be provided.
+      @param raysensor RaySensor to add
+      @param body body to which the sensor should be connected
+      @param pose relative position/orientation
       @param range maximum sense range of the sensor
       @return index of the sensor
    */
-  virtual unsigned int registerSensor(RaySensor* raysensor, dBodyID body, 
-			     const Position& pos, const dMatrix3 rotation, double range);
+  virtual unsigned int registerSensor(RaySensor* raysensor, Primitive* body, 
+				      const osg::Matrix& pose, double range,
+				      RaySensor::rayDrawMode drawMode);
 
   /** resets all sensors (used for reseting the sensor value to a value of maximal distance) 
    */
@@ -70,7 +91,6 @@ public:
 
   /** writes sensorvalues in given sensorarray
       @param sensorarray pointer to the sensorarray in which the values should be stored
-      @param start element in the sensorarray in which the first raysensor should be stored
       @param array_size maximal number of all elements in the sensorarray
       @return number of written sensorvalues
    */
@@ -80,17 +100,21 @@ public:
    */
   virtual dSpaceID getSpaceID();
 
-  /** draws all sensors
+  /** updates the sensor's graphical representation
    */
-  virtual void draw();
+  virtual void update();
   
-
+  // delete all registered sensors.
+  virtual void clear();
 
 protected:
   std::vector<RaySensor*> bank;
-  dSpaceID sensor_space;
   bool initialized;
-  RaySensor::rayDrawMode drawMode;
+
+  OdeHandle odeHandle;
+  OsgHandle osgHandle; 
 };
+
+}
 
 #endif

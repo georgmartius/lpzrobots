@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:32:13  martius
+ *   Revision 1.5  2006-07-14 12:23:55  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.4.4.1  2006/05/29 20:09:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2005/11/09 13:32:13  martius
  *   GPL'ised
  *
  ***************************************************************************/
@@ -33,7 +39,7 @@ double sqr(double p) { return p*p;}
 double min(double a,double b) { return a<b ? a : b;}
 double max(double a,double b) { return a>b ? a : b;}
 
-#define IMAGE_SIZE 1024
+#define IMAGE_SIZE 256
 #define TEXTURE_STEPS 8
 #define TEXTURE_MIN 128
 #define TEXTURE_MAX 255
@@ -65,7 +71,7 @@ double calcSingleParabel(double x, double y){
 /// function that returns an value of the height map at the position (x,y)
 // range: 0<= x < 1; 0<= y < 1; 
 // can return any number. The map is scaled to 0 - 255 later.
-double (*fun)(double, double) = &calcSingleParabel;
+double (*fun)(double, double) = &calcMacroSpheres;
 
 /// function that codes the double value into the r g b values of the given data array
 void (*code)(double value, unsigned char* data) = &codeGrayTex;

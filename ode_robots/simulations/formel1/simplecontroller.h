@@ -21,8 +21,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2005-11-15 14:23:44  robot3
- *   raceground testet
+ *   Revision 1.7  2006-07-14 12:23:46  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.5.4.2  2006/03/30 12:35:03  martius
+ *   documentation updated
+ *
+ *   Revision 1.5.4.1  2005/11/15 12:29:39  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
  *
  *   Revision 1.5  2005/10/17 13:17:10  martius
  *   converted to new list's
@@ -47,7 +53,7 @@
 
 
 #include <stdio.h>
-#include "abstractcontroller.h"
+#include <selforg/abstractcontroller.h>
 
 
 /**
@@ -69,11 +75,11 @@ public:
   //  virtual constparamkey getName() const {return name; } 
   virtual paramkey getName() const {return name; } 
   
-  /// @return Number of sensors the controller was initialised with or 0 if not initialised
+  /** @return Number of sensors the controller was initialised with or 0 if not initialised*/
   virtual int getSensorNumber() const {return number_sensors;}
 
 
-  /// @return Number of motors the controller was initialised with or 0 if not initialised
+  /** @return Number of motors the controller was initialised with or 0 if not initialised */
   virtual int getMotorNumber() const {return number_motors;}
 
   /** performs one step (includes learning). 
@@ -92,8 +98,8 @@ public:
 			      motor* , int number_motors);
   
   /** The list of the names of all internal parameters given by getInternalParams().
-      @param: keylist (do NOT free it! It is a pointer to an internal structure)
-      @return: length of the lists
+      @param keylist (do NOT free it! It is a pointer to an internal structure)
+      @return length of the lists
    */
   virtual list<iparamkey> getInternalParamNames() const {return list<iparamkey>();}
 
@@ -111,7 +117,6 @@ public:
   */
 //   virtual void setCameraHandling(void (*handling)());
 //  virtual void setCameraHandling() const;
-
 
 
 

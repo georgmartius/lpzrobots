@@ -20,19 +20,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:31:51  martius
+ *   Revision 1.5  2006-07-14 12:23:56  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.4.4.1  2006/05/28 22:14:57  martius
+ *   heightfield included
+ *
+ *   Revision 1.4  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
 #include "imageppm.h"
-#include "stdio.h"
+#include <stdio.h>
+#include <iostream>
+#include <string>
 
-static int readNumber (char *filename, FILE *f)
+static int readNumber (const std::string& filename, FILE *f)
 {
   int c,n=0;
   for(;;) {
     c = fgetc(f);
-    if (c==EOF) fprintf (stderr,"unexpected end of file in \"%s\"\n",filename);
+    if (c==EOF) std::cerr << "unexpected end of file in '" << filename << "'" << std::endl;
     if (c >= '0' && c <= '9') n = n*10 + (c - '0');
     else {
       ungetc (c,f);
@@ -42,18 +50,18 @@ static int readNumber (char *filename, FILE *f)
 }
 
 
-static void skipWhiteSpace (char *filename, FILE *f)
+static void skipWhiteSpace (const std::string& filename, FILE *f)
 {
   int c,d;
   for(;;) {
     c = fgetc(f);
-    if (c==EOF) fprintf (stderr, "unexpected end of file in \"%s\"\n",filename);
+    if (c==EOF) std::cerr << "unexpected end of file in '" << filename << "'" << std::endl;
 
     // skip comments
     if (c == '#') {
       do {
 	d = fgetc(f);
-	if (d==EOF) fprintf (stderr, "unexpected end of file in \"%s\"\n",filename);
+	if (d==EOF) std::cerr << "unexpected end of file in '" << filename << "'" << std::endl;
       } while (d != '\n');
       continue;
     }
@@ -78,17 +86,17 @@ ImagePPM::ImagePPM (int width, int height, unsigned char* data){
 }
 
 
-int ImagePPM::loadImage(char*filename)
+int ImagePPM::loadImage(const std::string& filename)
 {
-  FILE *f = fopen (filename,"rb");
-  if (!f) 
-  {  fprintf (stderr, "Can't open image file `%s'\n", filename);
-     return 0;
+  FILE *f = fopen (filename.c_str(),"rb");
+  if (!f) { 
+    std::cerr << "Can't open image file '" <<  filename <<  "'" << std::endl;
+    return 0;
   }
 
   // read in header
   if (fgetc(f) != 'P' || fgetc(f) != '6')
-    fprintf (stderr, "image file \"%s\" is not a binary PPM (no P6 header)\n",filename);
+    std::cerr << "image file ist not binary PPM (no P6 header) '" <<  filename <<  "'" << std::endl;
   skipWhiteSpace (filename,f);
 
   // read in image parameters
@@ -100,9 +108,9 @@ int ImagePPM::loadImage(char*filename)
 
   // check values
   if (image_width < 1 || image_height < 1)
-    fprintf (stderr, "bad image file \"%s\"\n",filename);
+    std::cerr << "bad image file '" <<  filename <<  "'" << std::endl;
   if (max_value != 255)
-    fprintf (stderr, "image file \"%s\" must have color range of 255\n",filename);
+    std::cerr << "image file '" <<  filename <<  "' must have color range 255" << std::endl;
 
   // read either nothing, LF (10), or CR,LF (13,10)
   int c = fgetc(f);
@@ -119,7 +127,7 @@ int ImagePPM::loadImage(char*filename)
   // read in rest of data
   image_data = new unsigned char [image_width*image_height*3];
   if (fread( image_data, image_width*image_height*3, 1, f) != 1){
-    fprintf (stderr, "Can not read data from image file `%s'\n",filename);
+    std::cerr << "Can't read data from image file '" <<  filename <<  "'" << std::endl;
     return 0;
   } 
   fclose (f);
@@ -127,12 +135,11 @@ int ImagePPM::loadImage(char*filename)
 }
 
 
-int ImagePPM::storeImage(char*filename)
-{
-  FILE *f = fopen (filename,"wb");
-  if (!f) 
-  {  fprintf (stderr, "Can't open image file `%s'\n", filename);
-     return 0;
+int ImagePPM::storeImage(const std::string& filename) {
+  FILE *f = fopen (filename.c_str(),"wb");
+  if (!f) { 
+    std::cerr << "Can't open image file '" <<  filename <<  "'" << std::endl;
+    return 0;
   }
 
   // write header
@@ -143,7 +150,7 @@ int ImagePPM::storeImage(char*filename)
 
   // write data
   if (fwrite( image_data, image_width*image_height*3, 1, f) != 1){
-    fprintf (stderr, "Can not write data toimage file `%s'\n",filename);
+    std::cerr << "Can't write to image file '" <<  filename <<  "'" << std::endl;
     return 0;
   } 
   fclose (f);

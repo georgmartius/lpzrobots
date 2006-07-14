@@ -18,124 +18,117 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                 *
+ ***************************************************************************
+ *                                                                         *
+ * Spherical Robot magically driven                                        *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-22 12:24:36  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
+ *   Revision 1.3  2006-07-14 12:23:40  martius
+ *   selforg becomes HEAD
  *
- *   Revision 1.1  2005/09/01 09:45:56  robot4
- *   sphere with external force control
+ *   Revision 1.2.4.5  2006/03/30 12:34:56  martius
+ *   documentation updated
  *
+ *   Revision 1.2.4.4  2006/01/10 22:25:09  martius
+ *   moved to osg
+ *
+ *
+ *                                                                 *
  ***************************************************************************/
 
-#ifndef __FORCEDSPHERE_H
-#define __FORCEDSPHERE_H
+#ifndef __FORCESSPHERE_H
+#define __FORCESSPHERE_H
 
-#include "abstractrobot.h"
+#include "oderobot.h"
 
+namespace lpzrobots {
 
-/** Robot that looks like sphere   
-*/
-class Forcedsphere : public AbstractRobot{
-public:
+  class Primitive;
+
+  class ForcedSphere : public OdeRobot
+  {
+  protected:
+    Primitive* object[1];
+    double radius;
+    double max_force;
+    bool created;
+
+  public:
   
-  Forcedsphere(const OdeHandle& odeHandle, double radius=1, double max_force=1, 
-	       double max_linSpeed=10, double max_angSpeed=10);
+    /**
+     *constructor
+     **/ 
+    ForcedSphere ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		   const char* name, double radius=1, double max_force=1);
+  
+    virtual ~ForcedSphere();
+	
+    /// update all primitives and joints
+    virtual void update();
 
-  virtual ~Forcedsphere(){};
+    /** sets the pose of the vehicle
+	@param pose desired 4x4 pose matrix
+    */
+    virtual void place(const osg::Matrix& pose);
+  
+    /**
+     *This is the collision handling function for snake robots.
+     *This overwrides the function collisionCallback of the class robot.
+     *@param data
+     *@param o1 first geometrical object, which has taken part in the collision
+     *@param o2 second geometrical object, which has taken part in the collision
+     *@return true if the collision was threated  by the robot, false if not
+     **/
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+    /** this function is called in each timestep. It should perform robot-internal checks, 
+	like space-internal collision detection, sensor resets/update etc.
+	@param globalData structure that contains global data from the simulation environment
+    */
+    virtual void doInternalStuff(const GlobalData& globalData);
+	
+    /**
+     *Writes the sensor values to an array in the memory.
+     *@param sensors pointer to the array
+     *@param sensornumber length of the sensor array
+     *@return number of actually written sensors
+     **/
+    virtual int getSensors ( sensor* sensors, int sensornumber );
+	
+    /**
+     *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
+     *It is an linear allocation.
+     *@param motors pointer to the array, motor values are scaled to [-1,1] 
+     *@param motornumber length of the motor array
+     **/
+    virtual void setMotors ( const motor* motors, int motornumber );
+	
+    /**
+     *Returns the number of motors used by the snake.
+     *@return number of motors
+     **/
+    virtual int getMotorNumber();
+  
+    /**
+     *Returns the number of sensors used by the robot.
+     *@return number of sensors
+     **/
+    virtual int getSensorNumber();
+	
+ 
+  protected:
+    /** the main object of the robot, which is used for position and speed tracking */
+    virtual Primitive* getMainPrimitive() const { return object[0]; }
 
-  /**
-   * draws the vehicle
-   */
-  virtual void draw();
+    /** creates vehicle at desired pose
+	@param pose 4x4 pose matrix
+    */
+    virtual void create(const osg::Matrix& pose); 
+    virtual void destroy(); 
 
-  /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-      @params pos desired position of the robot in struct Position
-      @param c desired color for the robot in struct Color
-  */
-  virtual void place(Position pos , Color *c = 0);
 
-  /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
-      @param sensornumber length of the sensor array
-      @return number of actually written sensors
-  */
-  virtual int getSensors(sensor* sensors, int sensornumber);
-
-  /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
-      @param motornumber length of the motor array
-  */
-  virtual void setMotors(const motor* motors, int motornumber);
-
-  /** returns number of sensors
-   */
-  virtual int getSensorNumber(){
-    return sensorno;
   };
 
-  /** returns number of motors
-   */
-  virtual int getMotorNumber(){
-    return motorno;
-  };
-
-  /** returns position of robot 
-      @return position robot position in struct Position  
-  */
-  virtual Position getPosition();
-
-  /** returns a vector with the positions of all segments of the robot
-      @param poslist vector of positions (of all robot segments) 
-      @return length of the list
-  */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
-
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-   */
-  virtual void doInternalStuff(const GlobalData& globalData);
-
-  /** sets the textures used for body and wheels
-  */
-  virtual void setTextures(int body);
-
-protected:
-
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
-  */
-  virtual void create(Position pos); 
-
-  /** destroys vehicle and space
-   */
-  virtual void destroy();
-
-// Kugelvariablen (raus *g*)
-  double radius;
-  double masse;
-  int texture;
-
-  dGeomID geom;
-  dBodyID body;
-
-  int sensorno;      //number of sensors
-  int motorno;       // number of motors
-  int segmentsno;    // number of motorsvehicle segments
-  
-  Position initial_pos;    // initial position of robot
-  double max_force;        // maximal force for motors
-
-  bool created;      // true if robot was created
-
-  double max_linSpeed;
-  double max_angSpeed;
-
-
-};
+}
 
 #endif

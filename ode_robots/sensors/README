@@ -6,10 +6,10 @@
 \dir sensors
 
 All sensors should be placed in this folder.
-Up to now there is an abstract class for Ray-based sensors called \ref RaySensor and
-one child implementing an infrared sensor (\ref IRSensor).
+Up to now there is an abstract class for Ray-based sensors called \ref lpzrobots::RaySensor and
+one child implementing an infrared sensor (\ref lpzrobots::IRSensor).
 
-The \ref RaySensorBank allows a common administration of a set of ray sensors.
+The \ref lpzrobots::RaySensorBank allows a common administration of a set of ray sensors.
 
 
 */ 

@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,59 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2005-09-22 12:24:36  martius
+ *   Revision 1.11  2006-07-14 12:23:33  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.10.4.16  2006/07/14 11:11:53  martius
+ *   revert to 1.10.4.12
+ *
+ *   Revision 1.10.4.12  2006/06/29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.10.4.11  2006/05/23 13:37:34  robot3
+ *   -fixed some creating bugs
+ *   -setColor,setTexture and createGround must be
+ *    called before setPosition now
+ *
+ *   Revision 1.10.4.10  2006/05/19 08:42:54  robot3
+ *   -some code moved to abstractground.h
+ *   -it's now possible creating a playground without a groundplane
+ *
+ *   Revision 1.10.4.9  2006/05/18 14:32:12  robot3
+ *   walls are now textured with a wood texture
+ *
+ *   Revision 1.10.4.8  2006/05/18 12:54:24  robot3
+ *   -fixed not being able to change the color after positioning
+ *    the obstacle
+ *   -cleared the files up
+ *
+ *   Revision 1.10.4.7  2006/05/18 09:43:24  robot3
+ *   using existing texture image in cvs for the groundplane now
+ *
+ *   Revision 1.10.4.6  2006/05/18 07:42:36  robot3
+ *   Grounds have now a groundPlane for shadowing issues
+ *   osgprimitive.cpp contains a bug that repeating textures (wrapping)
+ *   don't work, needs to be fixed
+ *
+ *   Revision 1.10.4.5  2006/05/11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.10.4.4  2006/03/29 15:04:39  martius
+ *   have pose now
+ *
+ *   Revision 1.10.4.3  2006/01/10 20:27:15  martius
+ *   protected members
+ *
+ *   Revision 1.10.4.2  2006/01/10 17:17:33  martius
+ *   new mode for primitives
+ *
+ *   Revision 1.10.4.1  2005/12/06 10:13:23  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.10  2005/09/22 12:24:36  martius
  *   removed global variables
  *   OdeHandle and GlobalData are used instead
  *   sensor prepared
@@ -48,128 +101,76 @@
 #ifndef __PLAYGROUND_H
 #define __PLAYGROUND_H
 
-
-#include <stdio.h>
-#include <math.h>
-
-#include "abstractobstacle.h"
-#include <drawstuff/drawstuff.h>
-
+#include "mathutils.h"
+#include "abstractground.h"
+ 
+namespace lpzrobots {
 
 //Fixme: playground creates collisions with ground and itself
-class Playground : public AbstractObstacle {
+//fixed: collisions with ground
+class Playground : public AbstractGround {
+
+protected:
 
   double length, width, height;
-  double base_x, base_y, base_z;
   double factorlength2;
 
-  dGeomID obst1; //Obstacle1
-  dGeomID obst2; //Obstacle2
-  dGeomID obst3; //Obstacle3
-  dGeomID obst4; //Obstacle4
-
-  bool obstacle_exists;
-
- public:
+public:
   
-  Playground(const OdeHandle& odehandle, double factorxy = 1):
-    AbstractObstacle::AbstractObstacle(odehandle){
+  Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
+	     const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) ,
+	     double factorxy = 1, bool createGround=true):
+    AbstractGround::AbstractGround(odeHandle, osgHandle, createGround){
 
-    base_x=0.0;
-    base_y=0.0;
-    base_z=0.0;
-	
-    length=7.0;
-    width=0.2;
-    height=0.5;
-
+    length=dimension.x();
+    width=dimension.y();
+    height=dimension.z();
     factorlength2=factorxy;
 
-    obstacle_exists=false;
-    
-    setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
-  };
-
-  /**
-   * draws the obstacle (4 boxes for the playground)
-   */
-  virtual void draw(){
-    double box[3];
-    dsSetTexture (DS_NONE);    
-    dsSetColor (color.r, color.g, color.b);
-
-    box[0] = width; box[1] = length*factorlength2; box[2] = height;
-    dsDrawBox ( dGeomGetPosition ( obst1 ) , dGeomGetRotation ( obst1 ) , box );
-    dsDrawBox ( dGeomGetPosition ( obst2 ) , dGeomGetRotation ( obst2 ) , box );
-    box[0] = length; box[1] = width; box[2] = height;
-    dsDrawBox ( dGeomGetPosition ( obst3 ) , dGeomGetRotation ( obst3 ) , box );
-    dsDrawBox ( dGeomGetPosition ( obst4 ) , dGeomGetRotation ( obst4 ) , box );
-  };
-  
-  
-  virtual void setPosition(double x, double y, double z){
-    base_x=x;
-    base_y=y;
-    base_z=z;
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
-  };
-
-  virtual void getPosition(double& x, double& y, double& z){
-    x=base_x;
-    y=base_y;
-    z=base_z;
-  }
-  
-  virtual void setGeometry(double length_, double width_, double height_){
-    length=length_;
-    width=width_;
-    height =height_;
-  };
-
-  //  virtual void setGeometry(double length_, double width_, double height_, double factorlength2_){
-  //    length=length_;
-  //    width=width_;
-  //    height =height_;
-  //    factorlength2=factorlength2_;
-  //  };
-
-  virtual void setColor(double r, double g, double b){
-    color.r=r;
-    color.g=g;
-    color.b=b;
   };
 
  protected:
   virtual void create(){
-    obst1 = dCreateBox ( space, width , (length * factorlength2)-0.01 , height);
-    dGeomSetPosition ( obst1, base_x - (length/2 + width/2), base_y, height/2 +base_z);
-	
-    obst2 = dCreateBox ( space, width, (length * factorlength2)-0.01, height );
-    dGeomSetPosition ( obst2, base_x + (length/2 +width/2), base_y, height/2 +base_z);
-	
-    obst3 = dCreateBox ( space, length-0.01, width, height );
-    dGeomSetPosition ( obst3, base_x, base_y-( (length*factorlength2)/2 +width/2), height/2 +base_z);
-	
-    obst4 = dCreateBox ( space, length-0.01, width, height );
-    dGeomSetPosition ( obst4, base_x, base_y+( (length*factorlength2)/2 +width/2), height/2 +base_z);
+    Box* box;
+    osg::Vec3 offset(- (length/2 + width/2),
+		     0,
+		     height/2+0.01f/*reduces graphic errors and ode collisions*/);
+    box = new Box( width , (length * factorlength2) + 2 * width , height);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
+    obst.push_back(box);
+
+    offset.x() = length/2 + width/2;
+    box = new Box( width , (length * factorlength2) + 2 * width , height);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
+    obst.push_back(box);
+
+    offset.x() = 0;
+    offset.y() = -( (length*factorlength2)/2 +width/2);
+    box = new Box( length, width, height);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
+    obst.push_back(box);
+
+    offset.y() = (length*factorlength2)/2 +width/2;
+    box = new Box( length, width, height);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::translate(offset) * pose);
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
+    obst.push_back(box);
+    
+    // size of groundplane
+    ground_length=length;
 
     obstacle_exists=true;
-    // printf("Obst: %i,%i,%i,%i\n",obst1,obst2,obst3,obst4);
-  };
-
-
-  virtual void destroy(){
-    dGeomDestroy( obst1 );
-    dGeomDestroy( obst2 );
-    dGeomDestroy( obst3 );
-    dGeomDestroy( obst4 );
-    
-    obstacle_exists=false;
   };
 
 };
+
+}
 
 #endif

@@ -1,0 +1,23 @@
+/** 
+ * This file is used for the doxygen documentation. 
+ */
+
+/**
+
+\dir selforg
+
+The selforg directory contains the controller and a small framework to use them in different scenarios.
+The class \ref Agent is a subsumption
+of a robot, a controller and a wiring. 
+The wiring specifies the connections between the sensor values of the robot
+and the sensor values of the controller, and between the motor outputs of the controller 
+and the motor values given to the robot. 
+It also faciliates logging and plotting of parameters.
+
+The following subdirectories are included:
+ - \ref selforg/matrixlib : comfortable matrix library used for calculations e.g. in our controllers
+ - \ref selforg/controller : contains controller with some necessary helper modules
+ - \ref selforg/wiring : implementation of standart wirings, that connect robot and controller
+ - \ref selforg/utils : utility code
+ - \ref selforg/examples : examples for the usage of controller, the framework and the matrix library.
+ */ 

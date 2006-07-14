@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2005-10-25 22:24:05  martius
+ *   Revision 1.4  2006-07-14 12:23:56  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.3.4.1  2006/05/28 22:14:57  martius
+ *   heightfield included
+ *
+ *   Revision 1.3  2005/10/25 22:24:05  martius
  *   data constructor
  *   store method
  *
@@ -38,6 +44,7 @@
 #ifndef __IMAGEPPM_H
 #define __IMAGEPPM_H
 
+#include <string>
 
 class ImagePPM {
 
@@ -50,8 +57,8 @@ public:
   /// data must contain width*height*3 (RGB) values!
   ImagePPM (int width, int height, unsigned char* data);  
   ~ImagePPM();
-  int loadImage(char *filename); // load from PPM file (returns 0 if error)
-  int storeImage(char *filename); // store to PPM file (returns 0 if error)
+  int loadImage(const std::string& filename); // load from PPM file (returns 0 if error)
+  int storeImage(const std::string& filename); // store to PPM file (returns 0 if error)
   int width()           { return image_width;  }
   int height()          { return image_height; }
   unsigned char *data() { return image_data;   }

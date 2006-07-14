@@ -20,7 +20,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-09 13:24:20  martius
+ *   Revision 1.6  2006-07-14 12:23:43  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.5.4.4  2006/03/30 12:34:59  martius
+ *   documentation updated
+ *
+ *   Revision 1.5.4.3  2006/01/12 15:14:02  martius
+ *   some fwd decl.
+ *
+ *   Revision 1.5.4.2  2005/12/14 12:43:07  martius
+ *   moved to osg
+ *
+ *   Revision 1.5.4.1  2005/12/13 18:11:53  martius
+ *   sensors ported, but not yet finished
+ *
+ *   Revision 1.5  2005/11/09 13:24:20  martius
  *   added exponent
  *
  *   Revision 1.4  2005/11/09 09:13:47  fhesse
@@ -43,6 +58,11 @@
 
 #include "raysensor.h"
 
+namespace lpzrobots {
+
+  class OSGCylinder;
+  class OSGBox;
+
 /** Class for IR sensors. 
     IR sensors are based on distance measurements using the ODE geom class Ray. 
     The sensor value is obtained by collisions. 
@@ -51,14 +71,20 @@
  */
 class IRSensor : public RaySensor {
 public:  
-  /// @param exponent exponent of the sensor characteritic (default: 1 (linear))
+  /**
+     @param exponent exponent of the sensor characteritic (default: 1 (linear))
+  */
   IRSensor(double exponent = 1);
 
   virtual ~IRSensor();
 
   /** providing essential informations
    */
-  virtual void init(dSpaceID space, dBodyID body, const Position& pos, const dMatrix3 rotation, double range); 
+  virtual void init(const OdeHandle& odeHandle,
+		    const OsgHandle& osgHandle, 
+		    Primitive* body, 
+		    const osg::Matrix pose, double range,
+		    rayDrawMode drawMode = drawSensor);
 
   /** used for reseting the sensor value to a value of maximal distance. 
    */
@@ -75,7 +101,7 @@ public:
 
   /** draws the sensor ray
    */
-  virtual void draw(rayDrawMode drawMode);
+  virtual void update();
   
   /** returns the geomID of the ray geom (used for optimisation)
    */
@@ -101,7 +127,13 @@ protected:
   double value; // actual sensor value
   double exponent; // exponent of the sensor characteritic 
 
+  OSGCylinder* sensorBody;
+  OSGBox* sensorRay;
+  OsgHandle osgHandle;
+  
   bool initialised;
 };
+
+}
 
 #endif

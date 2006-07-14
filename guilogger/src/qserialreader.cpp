@@ -84,15 +84,16 @@ void QSerialReader::run()
         if(size > 0 && c=='#') size=0;  // neue Channel Zeile fängt mitten drinne irgendwie an
 
         size++;
-        s = (char*) realloc( s, size);
+        s = (char*) realloc( s, size+1);
         s[size-1] = c;
 
         if(c==blockterminator || c==13 || c==10)  // check if we got a line ending
         {   // now s contains a complete line readed from serial port
             s[size-1] = '\0';       // makes s a Zero terminated string (ZTS)
+            s[size] = '\n';         // insert new line
 
             if(size > 3)
-            {   // printf("Readed: %s\n", s);
+            {   // printf("Readed: %s", s);
                 emit newData(s);
             }
 

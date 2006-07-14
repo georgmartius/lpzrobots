@@ -20,138 +20,158 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2005-11-14 12:50:21  martius
+ *   Revision 1.16  2006-07-14 12:23:52  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.15.4.6  2006/05/15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.15.4.5  2006/02/08 16:15:11  martius
+ *   testing with invertcontroller
+ *
+ *   Revision 1.15.4.4  2006/01/10 21:46:02  martius
+ *   moved to osg
+ *
+ *   Revision 1.15.4.3  2005/12/06 17:38:19  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.15.4.2  2005/11/16 11:27:38  martius
+ *   invertmotornstep has configuration
+ *
+ *   Revision 1.15.4.1  2005/11/15 12:30:04  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.15  2005/11/14 12:50:21  martius
  *   *** empty log message ***
  *
  *   Revision 1.14  2005/11/09 13:41:25  martius
  *   GPL'ised
  *
  ***************************************************************************/
-#include <stdio.h>
-#include <drawstuff/drawstuff.h>
-#include <ode/ode.h>
-
 #include "simulation.h"
-#include "noisegenerator.h"
-#include "agent.h"
-#include "one2onewiring.h"
-#include "selectiveone2onewiring.h"
-#include "derivativewiring.h"
 
-#include "nimm2.h"
+#include "odeagent.h"
+#include "octaplayground.h"
+
+#include <selforg/noisegenerator.h>
+#include <selforg/one2onewiring.h>
+#include <selforg/selectiveone2onewiring.h>
+#include <selforg/derivativewiring.h>
+
+#include <selforg/sinecontroller.h>
+#include <selforg/invertmotornstep.h>
+#include <selforg/invertmotorspace.h>
+#include <selforg/invertnchannelcontroller.h>
+
 #include "shortcircuit.h"
-#include "playground.h"
 
-#include "sinecontroller.h"
-#include "invertmotornstep.h"
-#include "invertmotorspace.h"
-#include "invertnchannelcontroller.h"
+// fetch all the stuff of lpzrobots into scope
+using namespace lpzrobots;
 
-PlotMode plotMode=NoPlot;
 int channels;
 int t=0;
 double omega = 0.05;
 
+
 SineWhiteNoise* sineNoise;
 
-//Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird 
-void start(const OdeHandle& odeHandle, GlobalData& global) 
-{
-  dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-  dsPrint ( "------------------------------------------------------------------------\n" );
-  dsPrint ( "Noise frequency modification with  < > , . r n\n" );
-  dsPrint ( "Press Ctrl-C (on the console) for an basic commandline interface.\n\n" );
+class ThisSim : public Simulation {
+
+public:
+  // starting function (executed once at the beginning of the simulation loop)
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  {
+    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+
+    // initialization
+    global.odeConfig.setParam("noise",0.05);
+    global.odeConfig.setParam("realtimefactor",0);
+    global.odeConfig.setParam("drawinterval", 500);
 
 
-  //Anfangskameraposition und Punkt auf den die Kamera blickt
-  float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
-  dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
-  dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
-
-  // initialization
-  global.odeConfig.setParam("noise",0.1);
-  global.odeConfig.setParam("realtimefactor",0);
-  global.odeConfig.setParam("drawinterval", 500);
-  
-  AbstractRobot* robot = new ShortCircuit(odeHandle, channels, channels);  
-  //  AbstractRobot* robot = new Nimm2(odeHandle);  
-  AbstractController *controller = new InvertMotorNStep(10);  
-  //AbstractController *controller = new InvertMotorSpace(10,1.2);  
-  //controller->setParam("nomupdate",0.001);
-  controller->setParam("epsA",0.01);
-  controller->setParam("epsC",0.01);
-  controller->setParam("factorB",0);
-  controller->setParam("steps",2);
-  //  AbstractController *controller = new InvertNChannelController(10);  
-  //AbstractController *controller = new SineController();
-  
-  Agent* agent = new Agent(plotMode, Robot);
-  
-  //sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
-  //One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
-  One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
- 
-  //AbstractWiring* wiring = new SelectiveOne2OneWiring(sineNoise, &select_firsthalf);
-  // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-//   c.useId=true;
-//   c.useFirstD=true;
-//   c.derivativeScale=20;
-//   c.blindMotorSets=0;
-//   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
-  agent->init(controller, robot, wiring);
-  global.agents.push_back(agent);
-  
-  global.configs.push_back(controller);
-  showParams(global.configs);
-}
-
-// void addcallback (bool, bool){
-//   t++;
-//   sineNoise->setOmega(0.1*cos(t/100000.0));
-// }
-
-void end(GlobalData& global){
-  for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
-    delete (*i);
+    OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);  
+    //  OdeRobot* robot = new Nimm2(odeHandle);  
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    cc.cInit=0.1;
+    cc.cNonDiag=0.0;
+    AbstractController *controller = new InvertMotorNStep(cc);  
+    //AbstractController *controller = new InvertNChannelController(40);  
+    //AbstractController *controller = new InvertMotorSpace(10,1);  
+    //controller->setParam("nomupdate",0.001);
+    controller->setParam("adaptrate",0.000);
+    controller->setParam("epsA",0.6);
+    controller->setParam("epsC",0.6);
+    controller->setParam("factorB",0.1);
+    controller->setParam("steps",1);
+    //  AbstractController *controller = new InvertNChannelController(10);  
+    //AbstractController *controller = new SineController();
+    
+    OdeAgent* agent = new OdeAgent(plotoptions);
+    
+    // sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
+    // One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
+    One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
+    
+    //AbstractWiring* wiring = new SelectiveOne2OneWiring(sineNoise, &select_firsthalf);
+    // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+    //   c.useId=true;
+    //   c.useFirstD=true;
+    //   c.derivativeScale=20;
+    //   c.blindMotorSets=0;
+    //   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
+    agent->init(controller, robot, wiring);
+    global.agents.push_back(agent);
+    
+    global.configs.push_back(controller);
+    
+    showParams(global.configs);
   }
-  global.obstacles.clear();
-  for(AgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
-    delete (*i)->getRobot();
-    delete (*i)->getController();
-    delete (*i);
+
+
+
+  void command(const OdeHandle& odeHandle, GlobalData& global, int key){
+    switch (key){
+    case '>': omega+=0.05;
+      break;
+    case '<': omega-=0.05;
+      break;
+    case '.': omega+=0.005;
+      break;
+    case ',': omega-=0.005;
+      break;
+    case 'r': omega=0.05;
+      break;
+    case 'n': omega=0;
+      break;
+    }
+    fprintf(stderr, "Omega: %g\n", omega);
+    sineNoise->setOmega(omega);
   }
-  global.agents.clear();
-}
 
+  // note: this is the normal signature (look above)
+  // add own key handling stuff here, just insert some case values
+//   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+//   {
+//     if (down) { // only when key is pressed, not when released
+//       switch ( (char) key )
+// 	{
+// 	default:
+// 	  return false;
+// 	  break;
+// 	}
+//     }
+//     return false;
+//   }
 
-// this function is called if the user pressed Ctrl-C
-void config(GlobalData& global){
-  changeParams(global.configs);
-}
-
-void command(const OdeHandle& odeHandle, GlobalData& global, int key){
-  switch (key){
-  case '>': omega+=0.05;
-    break;
-  case '<': omega-=0.05;
-    break;
-  case '.': omega+=0.005;
-    break;
-  case ',': omega-=0.005;
-    break;
-  case 'r': omega=0.05;
-    break;
-  case 'n': omega=0;
-    break;
-  }
-  fprintf(stderr, "Omega: %g\n", omega);
-  sineNoise->setOmega(omega);
-}
+  
+};
 
 void printUsage(const char* progname){
-  printf("Usage: %s numchannels [-g] [-l]\n\tnumchannels\tnumber of channels\n\
-\t-g\t\tuse guilogger\n\t-l\t\tuse guilogger with logfile", progname);
+  printf("Usage: %s numchannels [-g] [-f]\n\tnumchannels\tnumber of channels\n\
+\t-g\t\tuse guilogger\n\t-f\t\tuse guilogger with logfile", progname);
 }
 
 int main (int argc, char **argv)
@@ -161,15 +181,18 @@ int main (int argc, char **argv)
     return -1;
   }
   channels = max(1,atoi(argv[1]));
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
-  // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config, &command);
-  // start the simulation (returns, if the user closes the simulation)
-  simulation_start(argc, argv);
-  simulation_close();  // tidy up.
-  return 0;
+  ThisSim sim;
+  return sim.run(argc, argv) ? 0 : 1;
 }
  
+/*
+Mit 
+invertmotornstep/motorspace
+  epsC=epsA=0.6
+  noise=0.05
+Es scheint wichtig zu sein, dass das Modell mitlernt.
+
+Bei mehreren steps muss epsC runtergedreht werden.
+
+*/
+

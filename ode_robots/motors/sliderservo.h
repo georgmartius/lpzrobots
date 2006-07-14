@@ -20,7 +20,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-09-01 14:22:00  martius
+ *   Revision 1.3  2006-07-14 12:23:32  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.2.4.2  2006/01/10 14:49:23  martius
+ *   maxforce not needed
+ *
+ *   Revision 1.2.4.1  2005/12/20 17:53:42  martius
+ *   changed to Joints from joint.h
+ *   new servos for universal and hinge2
+ *
+ *   Revision 1.2  2005/09/01 14:22:00  martius
  *   parameters adjusted
  *
  *   Revision 1.1  2005/08/30 16:55:48  martius
@@ -32,13 +42,16 @@
 #define __SLIDERSERVO_H
 
 #include "pid.h"
+#include "joint.h"
+
+namespace lpzrobots {
 
 /** PID Servo motor for slider joints.     
 */
-class SliderServo : public PID{
+class SliderServo {
 public:
   /** min and max values are understood as travel bounds. Min should be less than 0.*/
-  SliderServo(dJointID joint, double min, double max, double force = 400);
+  SliderServo(SliderJoint* joint, double min, double max, double mass);
   /** sets the set point of the servo. 
       Position must be between -1 and 1. It is scaled to fit into min, max
   */
@@ -47,10 +60,11 @@ public:
   double get();
   
 private:
+  PID pid;
   double min;
   double max;
-  dJointID joint;
-  double maxforce;
+  SliderJoint* joint;
 };
 
+}
 #endif

@@ -20,373 +20,333 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2005-11-09 13:24:42  martius
+ *   Revision 1.21  2006-07-14 12:23:41  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.20.4.10  2006/06/29 16:39:56  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.20.4.9  2006/06/25 16:57:14  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.20.4.8  2006/05/23 13:39:02  robot3
+ *   setting color to blue in init removed
+ *
+ *   Revision 1.20.4.7  2006/05/19 09:03:50  der
+ *   -setTexture and setHeadTexture added
+ *   -uses now whitemetal texture
+ *
+ *   Revision 1.20.4.6  2006/02/23 18:05:04  martius
+ *   friction with angularmotor
+ *
+ *   Revision 1.20.4.5  2006/02/01 18:33:40  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.20.4.4  2006/01/18 09:55:54  martius
+ *   created was uninitialised
+ *
+ *   Revision 1.20.4.3  2005/12/30 22:53:46  martius
+ *   removed parentspace init because done in oderobot
+ *
+ *   Revision 1.20.4.2  2005/12/29 16:45:58  martius
+ *   does not inherit from Roboter
+ *   moved to osg
+ *
+ *   Revision 1.20.4.1  2005/11/15 12:29:27  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.20  2005/11/09 13:24:42  martius
  *   added GPL
  *
  ***************************************************************************/
-/************************************************************************/
-/*schlange.cpp								*/
-/*Schlangenkonstrukt fuer das ODE-Robotersystem des Authors		*/
-/*@author Marcel Kretschmann						*/
-/*@version alpha 0.1							*/
-/*									*/
-/************************************************************************/
 
 #include "schlange.h"
-#include <iostream>
+#include "osgprimitive.h"
 
-/**
- *constructor
- *@param startRoboterID ID, which should be managed clearly
+namespace lpzrobots {
 
- *@author Marcel Kretschmann
- *@version beta
- **/
-Schlange::Schlange ( int startRoboterID , const OdeHandle& odeHandle, 
-		     const SchlangenConf& conf ) 
-  : Roboter ( startRoboterID , odeHandle , 2*(conf.armAnzahl-1) )
-{
-  char buffer[20]; 
-  sprintf(buffer, "Schlange_%i", startRoboterID);
-  name = string(buffer);
+  Schlange::Schlange ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		       const SchlangeConf& conf, const std::string& name, const std::string& revision)
+    : OdeRobot( odeHandle, osgHandle, name, revision), conf(conf) {
 
-  snake_space = dSimpleSpaceCreate (space);
-  dSpaceSetCleanup ( snake_space , 0 );
-  
-  Object tmp_body;
-  this->conf = conf;
-	
-  dMass masse;
-  dMatrix3 R;	
-  
-  color = Color(0,0.5,0.8);
-
-  //*************body definition**************
-	
-  dMassSetCappedCylinderTotal ( &masse , conf.gliederMasse , 2 , conf.gliederLaenge , conf.gliederDurchmesser );
-	
-  dRFromAxisAndAngle ( R , 0 , 1 , 0 , M_PI/2 );//rotation of the matrix R by 90°
-
-  for ( int n = 0; n < conf.armAnzahl; n++ )
-    {
-      tmp_body.body = dBodyCreate ( world );
-      objektliste.push_back ( tmp_body );
-		
-	
-      dBodySetPosition ( (objektliste.back ()).body , 
-			 (n + 0.5 )*conf.gliederLaenge + n * conf.gliederAbstand, 0 , conf.gliederDurchmesser/2 );
-
-      dBodySetMass ( (objektliste.back ()).body , &masse );
-	
-      (objektliste.back ()).geom = dCreateCCylinder ( space , conf.gliederDurchmesser , conf.gliederLaenge );
-      dGeomSetBody ( (objektliste.back ()).geom , (objektliste.back ()).body );
-
-      dGeomSetRotation ( (objektliste.back ()).geom , R );//includes rotation of the body
-    }
-
-  //*****************joint definition***********
-  for ( int n = 0; n < conf.armAnzahl-1; n++ )
-    {
-      jointliste.push_back ( dJointCreateUniversal ( world , 0 ) );
-		
-      dJointAttach ( jointliste.back () , objektliste[n].body , objektliste[n+1].body );
-			
-      dJointSetUniversalAnchor ( jointliste.back () , dBodyGetPositionAll ( objektliste[n].body , 1 ) + ( dBodyGetPositionAll ( objektliste[n+1].body , 1 ) - dBodyGetPositionAll ( objektliste[n].body , 1 ) )/2 , dBodyGetPositionAll ( objektliste[n].body , 2 ) + ( dBodyGetPositionAll ( objektliste[n+1].body , 2 ) - dBodyGetPositionAll ( objektliste[n].body , 2 ) )/2 , dBodyGetPositionAll ( objektliste[n].body , 3 ) );
-
-      dJointSetUniversalAxis1 ( jointliste.back () , 0 , 1 , 0 );
-      dJointSetUniversalAxis2 ( jointliste.back () , 0 , 0 , 1 );
-
-      // setting stops at universal joints		
-      dJointSetUniversalParam ( jointliste.back () , dParamLoStop, -conf.maxWinkel );
-      dJointSetUniversalParam ( jointliste.back () , dParamHiStop,  conf.maxWinkel );
-      dJointSetUniversalParam ( jointliste.back () , dParamLoStop2,-conf.maxWinkel); 
-      dJointSetUniversalParam ( jointliste.back () , dParamHiStop2, conf.maxWinkel); 
-
-      // making stops bouncy
-      dJointSetUniversalParam ( jointliste.back () , dParamBounce, 0.9 );
-      dJointSetUniversalParam ( jointliste.back () , dParamBounce2, 0.9 );
-    }	
-}
-	
-/**
- *Destruktor
- *@author Marcel Kretschmann
- *@version beta
- **/
-Schlange::~Schlange()
-{  
-  dSpaceDestroy( snake_space );
-}
-
-/** fix segment 0 in the sky
- */
-void Schlange::fixInSky(){
-  for (int i=0; i<2; i++){
-    skyJoints.push_back( dJointCreateHinge ( world , 0 ) );
-    dJointAttach ( skyJoints.back(), objektliste[0].body , 0 );
-    dJointSetUniversalAnchor ( skyJoints.back(), 
-			       dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
-			       dBodyGetPositionAll ( objektliste[0].body , 2 ) , 
-			       dBodyGetPositionAll ( objektliste[0].body , 3 ) ); 
-    if (i==0) dJointSetHingeAxis(skyJoints.back(),1,0,0);
-    if (i==1) dJointSetHingeAxis(skyJoints.back(),0,1,0);
-    dJointSetFixed(skyJoints.back());
+    created=false;
   }
-  /*
-    jointliste.push_back( dJointCreateHinge ( world , 0 ) );
-    dJointAttach ( jointliste.back() , objektliste[0].body , 0 );
-    dJointSetUniversalAnchor ( jointliste.back() , 
-    dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
-    dBodyGetPositionAll ( objektliste[0].body , 2 ) , 
-    dBodyGetPositionAll ( objektliste[0].body , 3 ) ); 
-    dJointSetHingeAxis(jointliste.back(),0,1,0);
-    dJointSetFixed(jointliste.back());
-  */
-};
-
 	
-/**
- *Draws all elements of the snake.
- *@author Marcel Kretschmann
- *@version beta
- **/
-void Schlange::draw()
-{
-  double box [3];
-  dsSetTexture (DS_WOOD);
-  dsSetColor ( color.r , color.g , color.b );
+  Schlange::~Schlange()
+  {  
+    if(created) destroy();
+  }
 
-  box[0] = conf.gliederLaenge/10; box[1] = conf.gliederDurchmesser/10; box[2] = conf.gliederDurchmesser/10;
-  for ( int n = 0; n < conf.armAnzahl; n++ )
-    {
-      dsDrawCappedCylinder ( dGeomGetPosition ( getObjektAt ( n ).geom ) , 
-			     dGeomGetRotation ( getObjektAt ( n ).geom ) , 
-			     conf.gliederLaenge , conf.gliederDurchmesser );
+       
+  void Schlange::place(const osg::Matrix& pose){
+    // the position of the robot is the center of the body (without wheels)
+    // to set the vehicle on the ground when the z component of the position is 0
+    // width*0.6 is added (without this the wheels and half of the robot will be in the ground)    
+    create(pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.segmDia/2))); 
+  }
+
+  void Schlange::update(){
+    assert(created); // robot must exist
+    for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
+      if(*i) (*i)->update();
     }
-}
+    for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
+      if(*i) (*i)->update();
+    }
+  }
 
-/**Sets the snake to position pos, sets color to c, and creates snake if necessary.
- *This overwrides the function place of the class robot.
- *@param pos desired position of the snake in struct Position
- *@param c desired color for the snake in struct Color (might be NULL!)
- *@author Marcel Kretschmann
- *@version beta
- **/
-void Schlange::place (Position pos, Color *c)
-{
-  pos.z = max(conf.gliederDurchmesser/2, pos.z);
-  double dx , dy , dz;
-  dx = pos.x - getPosition ().x;
-  dy = pos.y - getPosition ().y;
-  dz = pos.z - getPosition ().z;
-  
-  for ( int n = 0; n < getObjektAnzahl (); n++ )
-    dBodySetPosition ( getObjektAt(n).body , getPosition ( n ).x + dx , getPosition ( n ).y + pos.y ,getPosition ( n ).z +  pos.z );
-	
-  if(c)
-    color = (*c);
-}
+  void Schlange::doInternalStuff(const GlobalData& global){
+    if(created){
+      // mycallback is called for internal collisions! Only once per step
+      dSpaceCollide(odeHandle.space, this, mycallback);
+    }
+  }
 
-void Schlange::mycallback(void *data, dGeomID o1, dGeomID o2)
-{
-  Schlange* me = (Schlange*) data;
-  for ( unsigned int n = 0; n < me->objektliste.size (); n++ )
+  void Schlange::mycallback(void *data, dGeomID o1, dGeomID o2)
   {
-	if 
-	( ( me->getObjektAt ( n ).geom == o1 && me->getObjektAt ( n + 1 ).geom == o2 ) || ( me->getObjektAt ( n ).geom == o2 && me->getObjektAt ( n + 1 ).geom == o1 ) )
-	{}
-	else
-	{
-		// internal collisions
-		Schlange* me = (Schlange*)data;  
-		int i,n;  
-		const int N = 10;
-		dContact contact[N];  
-		n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-		for (i=0; i<n; i++)
-		{
-			contact[i].surface.mode = 0;
-			contact[i].surface.mu = 0;
-			contact[i].surface.mu2 = 0;
-			//     contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-			//       dContactSoftERP | dContactSoftCFM | dContactApprox1;
-			//     contact[i].surface.mu = 0.0;
-			//     contact[i].surface.slip1 = 0.005;
-			//     contact[i].surface.slip2 = 0.005;
-			//     contact[i].surface.soft_erp = 1;
-			//     contact[i].surface.soft_cfm = 0.00001;
-			dJointID c = dJointCreateContact( me->world, me->contactgroup, &contact[i]);
-			dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;     
-  		}
-	}
-    } 
-}
-
-/**
- *This is the collision handling function for snake robots.
- *This overwrides the function collisionCallback of the class robot.
- *@param data
- *@param o1 first geometrical object, which has taken part in the collision
- *@param o2 second geometrical object, which has taken part in the collision
- *@return true if the collision was threated  by the robot, false if not
- *@author Marcel Kretschmann
- *@version beta
- **/
-void Schlange::doInternalStuff(const GlobalData& global){}
-bool Schlange::collisionCallback(void *data, dGeomID o1, dGeomID o2)
-{
-  //checks if one of the collision objects is part of the robot
-  if( o1 == (dGeomID)snake_space || o2 == (dGeomID)snake_space){
-    // mycallback is called for internal collisions!
-    dSpaceCollide(snake_space, this, mycallback);
-
-    // the rest is for collisions of some snake elements with the rest of the world
-    int i,n;  
-    const int N = 10;
-    dContact contact[N];
-
-    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-    for (i=0; i<n; i++){
-           contact[i].surface.mode = 0;
-           contact[i].surface.mu = 0.2;
-           contact[i].surface.mu2 = 0;
-// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-// 	contact[i].surface.mu = frictionGround;
-// 	contact[i].surface.slip1 = 0.005;
-// 	contact[i].surface.slip2 = 0.005;
-// 	contact[i].surface.soft_erp = 1;
-// 	contact[i].surface.soft_cfm = 0.00001;
-	dJointID c = dJointCreateContact( world, contactgroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
+    Schlange* me = (Schlange*) data;
+    int i=0;
+    int o1_index= -1;
+    int o2_index= -1;
+    for (vector<Primitive*>::iterator n = me->objects.begin(); n!= me->objects.end(); n++, i++){      
+      if( (*n)->getGeom() == o1)
+	o1_index=i;
+      if( (*n)->getGeom() == o2)
+	o2_index=i;
     }
+
+    if(o1_index >= 0 && o2_index >= 0 && abs(o1_index - o2_index) > 1){
+      // internal collisions
+      int i,n;  
+      const int N = 10;
+      dContact contact[N];  
+      n = dCollide (o1, o2, N, &contact[0].geom, sizeof(dContact));	  
+      for (i=0; i<n; i++) {
+	contact[i].surface.mode = 0;
+	contact[i].surface.mu = 0;
+	contact[i].surface.mu2 = 0;
+	dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;     
+      }
+    }
+  } 
+  
+
+  /**
+   *This is the collision handling function for snake robots.
+   *This overwrides the function collisionCallback of the class robot.
+   *@param data
+   *@param o1 first geometrical object, which has taken part in the collision
+   *@param o2 second geometrical object, which has taken part in the collision
+   *@return true if the collision was threated  by the robot, false if not
+   **/
+  bool Schlange::collisionCallback(void *data, dGeomID o1, dGeomID o2)
+  {
+    //checks if one of the collision objects is part of the robot
+    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
+      int i,n;  
+      const int N = 20;
+      dContact contact[N];
+      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+      for (i=0; i<n; i++){
+	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
+	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
+	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
+	contact[i].surface.slip1 = 0.001;
+	contact[i].surface.slip2 = 0.001;
+	contact[i].surface.mu = conf.frictionGround; //*10;
+	//      contact[i].surface.mu2 = conf.frictionGround;
+	contact[i].surface.soft_erp = 0.9;
+	contact[i].surface.soft_cfm = 0.001;
+	
+	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
+      }
+      return true;
+    }
+    return false;
+  }
+
+
+
+  /** The list of all parameters with there value as allocated lists.
+      @param keylist,vallist will be allocated with malloc (free it after use!)
+      @return length of the lists
+  */
+  Configurable::paramlist Schlange::getParamList() const{
+    paramlist list;
+    list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
+    list += pair<paramkey, paramval> (string("frictionjoint"), conf.frictionJoint);
+    list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
+    list += pair<paramkey, paramval> (string("sensorfactor"), conf.sensorFactor);
+    return list;
+  }
+  
+  
+  Configurable::paramval Schlange::getParam(const paramkey& key) const{    
+    if(key == "frictionground") return conf.frictionGround; 
+    else if(key == "frictionjoint") return conf.frictionJoint; 
+    else if(key == "motorpower") return conf.motorPower; 
+    else if(key == "sensorfactor") return conf.sensorFactor; 
+    else  return Configurable::getParam(key) ;
+  }
+  
+  bool Schlange::setParam(const paramkey& key, paramval val){    
+    if(key == "frictionground") conf.frictionGround = val; 
+    else if(key == "motorpower") conf.motorPower = val; 
+    else if(key == "sensorfactor") conf.sensorFactor = val; 
+    else if(key == "frictionjoint") { 
+      conf.frictionJoint = val; 
+      for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
+	if (*i) (*i)->setPower(conf.frictionJoint);	
+      }         
+    } else 
+      return Configurable::setParam(key, val);    
     return true;
   }
-  return false;
-}
-
-/**
- *Writes the sensor values to an array in the memory.
- *@param sensor* pointer to the array
- *@param sensornumber length of the sensor array
- *@return number of actually written sensors
- *@author Marcel Kretschmann
- *@version beta
- **/
-int Schlange::getSensors ( sensor* sensors, int sensornumber )
-{
-  sensoraktualisierung ();
-  for ( int n = 0; n < sensornumber; n++ )
-    {
-      if ( conf.ausgabeArt == angle )
-	(*sensors++) = sensorfeld[n].istwinkel/(2*M_PI);
-      if ( conf.ausgabeArt == anglerate )
-	getWinkelDifferenz ( n , sensors++ );
-			
+  
+  
+  int Schlange::getSegmentsPosition(vector<Position> &poslist){
+    assert(created);
+    for(int n = 0; n < conf.segmNumber; n++){
+      Pos p(objects[n]->getPosition());
+      poslist.push_back(p.toPosition());
     }
-	
-  return getSensorfeldGroesse (); //es sind immer alle Sensorwerte durchgeschrieben, da  alle in einem Schritt aktualisiert werden
-}
-
-
-/**
- *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
- *It is an linear allocation.
- *@param motors pointer to the array, motor values are scaled to [-1,1] 
- *@param motornumber length of the motor array
- *@author Marcel Kretschmann
- *@version beta
- **/
-void Schlange::setMotors ( const motor* motors, int motornumber )
-{
-  for ( int n = 0; n < motornumber; n++ )
-    if ( n % 2 == 0 )
-      {
-	dJointSetUniversalParam ( getJointAt(n/2) , dParamVel , *(motors++)*conf.factorForce );
-	dJointSetUniversalParam ( jointliste[n/2] , dParamFMax , conf.maxMotorKraft );
-      }
-    else
-      {
-	dJointSetUniversalParam ( jointliste[n/2] , dParamVel2 , *(motors++)*conf.factorForce );
-	dJointSetUniversalParam ( jointliste[n/2] , dParamFMax2 , conf.maxMotorKraft );
-      }
-}	
-
-/**
- *Returns the number of motors used by the snake.
- *@return number of motors
- *@author Marcel Kretschmann
- *@version final
- **/
-int Schlange::getMotorNumber()
-{
-  return 2*getJointAnzahl ();
-}
-	
-/**
- *Updates the sensorarray.
- *This overwrides the function sensoraktualisierung of the class robot
- *@author Marcel Kretschmann
- *@version beta
- **/
-void Schlange::sensoraktualisierung ( )
-{
-  for ( int n = 0; n < getSensorfeldGroesse (); n++ )
-    {
-      sensorfeld[n].istwinkel_alt = sensorfeld[n].istwinkel;
-		
-      if ( n % 2 == 0 )
-	sensorfeld[n].istwinkel = dJointGetUniversalAngle1 ( getJointAt (n/2) );
-      else
-	sensorfeld[n].istwinkel = dJointGetUniversalAngle2 ( getJointAt (n/2) );
-    }
-}
-
-/**
- *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
- *@return Position (x,y,z)
- *@author Marcel Kretschmann
- *@version final
- **/
-Position Schlange::getPosition ()
-{
-  const dReal* tmpPos;
-  Position returnPos;
-  tmpPos = dBodyGetPosition ( getObjektAt(0).body );
-  returnPos.x = tmpPos[0];
-  returnPos.y = tmpPos[1];
-  returnPos.z = tmpPos[2];
-
-  return returnPos;
-}
-
-/**
- *Returns the position of one element of the snake.
- @param n number of the snake element
- *@return Position (x,y,z)
- *@author Marcel Kretschmann
- *@version final
- **/
-Position Schlange::getPosition ( int n )
-{
-  const dReal* tmpPos;
-  Position returnPos;
-  tmpPos = dBodyGetPosition ( getObjektAt (n).body );
-  returnPos.x = tmpPos[0];
-  returnPos.y = tmpPos[1];
-  returnPos.z = tmpPos[2];
-
-  return returnPos;
-}
-
-/**
- *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.
- *@author Marcel Kretschmann
- *@version beta
- **/
-void Schlange::getStatus ()
-{
-  for ( int n = 0; n < getSensorfeldGroesse (); n++){ 
-    dsPrint ( "Sensor %i: %lf\n" , n , sensorfeld[n].istwinkel );
+    return conf.segmNumber;    
   }
+
+
+
+  /** creates vehicle at desired position 
+      @param pos struct Position with desired position
+  */
+  void Schlange::create(const osg::Matrix& pose){
+    if (created) {
+      destroy();
+    }
+    
+    odeHandle.space = dSimpleSpaceCreate (parentspace);
+	
+    int half = conf.segmNumber/2;
+    for ( int n = 0; n < conf.segmNumber; n++ ) {
+      Primitive* p;
+      if (n==-1* conf.segmNumber/2) {
+		p = new Box(conf.segmLength*1.8,conf.segmLength*.8, conf.segmLength*1);
+		//p = new Capsule(conf.segmDia*2 , conf.segmLength);
+	p->init(odeHandle, conf.segmMass*2, osgHandle);    
+      }
+      //    else {
+      //if(n==0 || n== conf.segmNumber){ 
+
+      //  p = new Box(conf.segmLength,conf.segmLength*2, conf.segmLength);
+      //  p->init(odeHandle, conf.segmMass*2, osgHandle);
+      //	}	
+      else{
+
+
+	if(n==-1/*== 0 | n== conf.segmNumber-1*/){ 
+	  p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
+	// p = new Box(conf.segmLength*.3,conf.segmLength, conf.segmLength*.9);
+        p->init(odeHandle, conf.segmMass*4, osgHandle);}
+	else{
+	  	p = new Capsule(conf.segmDia*.8 , conf.segmLength); 
+		//	p = new Box(conf.segmLength*.3,conf.segmLength*0.3, conf.segmLength*1.0);
+	p->init(odeHandle, conf.segmMass, osgHandle); 
+	} }  
+	//	else {
+
+      //      p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
+      //		 osg::Matrix::translate((n-half)*conf.segmLength*(1+((double)n)/10), 0 , conf.segmDia/2) * 
+      //		 pose);
+      p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
+	     //  p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
+		 osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * 
+		 pose);
+      //      p->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      //  p->getOSGPrimitive()->setTexture("Images/tire.rgb");
+      p->getOSGPrimitive()->setTexture("Images/whitemetal_farbig.rgb");
+      //      p->getOSGPrimitive()->setColor(Color(0.0f,0.0f,1.0f,0.2f));
+      
+      objects.push_back(p);
+	}
+    
+    created=true;
+  }; 
+
+  void Schlange::setTexture(const std::string& filename){
+    if(created) {
+      // go through all objects (primites)
+      for(int n = 0; n < conf.segmNumber; n++){
+	objects[n]->getOSGPrimitive()->setTexture(filename);
+      }      
+    }
+  }
+
+
+  void Schlange::setHeadTexture(const std::string& filename){
+    if(created) {
+      objects[0]->getOSGPrimitive()->setTexture(filename);
+    }      
+  }
+ 
+
+
+  /** destroys vehicle and space    */
+
+  void Schlange::destroy(){
+    if (created){
+      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
+	if(*i) delete *i;
+      }
+      objects.clear();
+      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
+	if(*i) delete *i;
+      }
+      joints.clear();
+      for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
+	if(*i) delete *i;
+      }
+      frictionmotors.clear();
+      dSpaceDestroy(odeHandle.space);
+    }
+    created=false;
+  }
+
+
+
+
+//   /** fix segment 0 in the sky
+//    */
+//   void Schlange::fixInSky(){
+//     for (int i=0; i<2; i++){
+//       skyJoints.push_back( dJointCreateHinge ( world , 0 ) );
+//       dJointAttach ( skyJoints.back(), objektliste[0].body , 0 );
+//       dJointSetUniversalAnchor ( skyJoints.back(), 
+// 				 dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
+// 				 dBodyGetPositionAll ( objektliste[0].body , 2 ) , 
+// 				 dBodyGetPositionAll ( objektliste[0].body , 3 ) ); 
+//       if (i==0) dJointSetHingeAxis(skyJoints.back(),1,0,0);
+//       if (i==1) dJointSetHingeAxis(skyJoints.back(),0,1,0);
+//       dJointSetFixed(skyJoints.back());
+//     }
+//     /*
+//       jointliste.push_back( dJointCreateHinge ( world , 0 ) );
+//       dJointAttach ( jointliste.back() , objektliste[0].body , 0 );
+//       dJointSetUniversalAnchor ( jointliste.back() , 
+//       dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
+//       dBodyGetPositionAll ( objektliste[0].body , 2 ) , 
+//       dBodyGetPositionAll ( objektliste[0].body , 3 ) ); 
+//       dJointSetHingeAxis(jointliste.back(),0,1,0);
+//       dJointSetFixed(jointliste.back());
+//     */
+//   };
+
+	
 }
+
+
+

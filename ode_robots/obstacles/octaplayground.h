@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,53 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-11-09 13:29:21  fhesse
+ *   Revision 1.5  2006-07-14 12:23:33  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.4.4.11  2006/06/29 16:39:55  robot3
+ *   -you can now see bounding shapes if you type ./start -drawboundings
+ *   -includes cleared up
+ *   -abstractobstacle and abstractground have now .cpp-files
+ *
+ *   Revision 1.4.4.10  2006/05/23 13:37:22  robot3
+ *   -fixed some creating bugs
+ *   -setColor,setTexture and createGround must be
+ *    called before setPosition now
+ *
+ *   Revision 1.4.4.9  2006/05/19 08:42:36  robot3
+ *   -some code moved to abstractground.h
+ *   -it's now possible creating a playground without a groundplane
+ *
+ *   Revision 1.4.4.8  2006/05/18 14:38:28  robot3
+ *   wall uses wall texture now
+ *
+ *   Revision 1.4.4.7  2006/05/18 12:54:24  robot3
+ *   -fixed not being able to change the color after positioning
+ *    the obstacle
+ *   -cleared the files up
+ *
+ *   Revision 1.4.4.6  2006/05/18 12:00:57  robot3
+ *   removed unused variables
+ *
+ *   Revision 1.4.4.5  2006/05/18 09:40:03  robot3
+ *   using existing texture image in cvs for the groundplane now
+ *
+ *   Revision 1.4.4.4  2006/05/18 07:42:36  robot3
+ *   Grounds have now a groundPlane for shadowing issues
+ *   osgprimitive.cpp contains a bug that repeating textures (wrapping)
+ *   don't work, needs to be fixed
+ *
+ *   Revision 1.4.4.3  2006/05/11 08:59:15  robot3
+ *   -fixed a positioning bug (e.g. for passivesphere)
+ *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
+ *
+ *   Revision 1.4.4.2  2006/03/29 15:04:39  martius
+ *   have pose now
+ *
+ *   Revision 1.4.4.1  2006/01/10 20:11:12  martius
+ *   moved to osg
+ *
+ *   Revision 1.4  2005/11/09 13:29:21  fhesse
  *   GPL added
  *                                                                 *
  *                                                                         *
@@ -28,124 +75,59 @@
 #ifndef __OCTAPLAYGROUND_H
 #define __OCTAPLAYGROUND_H
 
+#include "abstractground.h"
 
-#include <stdio.h>
-#include <math.h>
-#include <vector>
+namespace lpzrobots {
 
-#include "abstractobstacle.h"
-#include <drawstuff/drawstuff.h>
-
-
-class OctaPlayground : public AbstractObstacle {
-
-  double radius, width, height;
-  double base_x, base_y, base_z;
-
-  vector<dGeomID> obst; //obstacles
-
-  bool obstacle_exists;
-
-  int number_elements;
-  double angle;    
-  double box_length;
-
-
-public:
+  class OctaPlayground : public AbstractGround {
   
-  OctaPlayground(const OdeHandle& odehandle, int numberCorners=8):
-    AbstractObstacle::AbstractObstacle(odehandle){
 
-    base_x=0.0;
-    base_y=0.0;
-    base_z=0.0;
+  protected:
+    double radius, width, height;
     
-    radius=7.0;
-    width=0.2;
-    height=0.5;
+    int number_elements;
+    double angle;    
+    double box_length;
+
+  public:
   
-    obstacle_exists=false;
-        
+
+    OctaPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+		 const Pos& geometry = Pos(7,0.2,0.5), int numberCorners=8, bool createGround=true):
+    AbstractGround::AbstractGround(odeHandle, osgHandle,createGround) {
+    
+    radius = geometry.x();
+    width  = geometry.y();
+    height = geometry.z();
+
     number_elements=numberCorners;
     angle= 2*M_PI/number_elements;    
-    obst.resize(number_elements);    
-    
+    obst.resize(number_elements);
+
     calcBoxLength();
-    setColor(226 / 255.0, 103 / 255.0, 66 / 255.0);
   };
   
-  virtual ~OctaPlayground(){
-  }
-
-  /**
-   * draws the obstacle (4 boxes for the playground)
-   */
-  virtual void draw(){
-    double box[3];
-    //dsSetTexture (DS_WOOD);    
-    dsSetColor (color.r, color.g, color.b);
-    box[0] = width; box[1] = box_length; box[2] = height;    
-
-    for(int i=0; i<number_elements; i++){
-      dsDrawBox ( dGeomGetPosition ( obst[i] ) , dGeomGetRotation ( obst[i] ) , box );
-    }
-  };
-  
-  
-  virtual void setPosition(double x, double y, double z){
-    base_x=x;
-    base_y=y;
-    base_z=z;
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
-  };
-
-  virtual void getPosition(double& x, double& y, double& z){
-    x=base_x;
-    y=base_y;
-    z=base_z;
-  }
-  
-  virtual void setGeometry(double radius_, double width_, double height_){
-    radius=radius_;
-    width=width_;
-    height =height_;
-    calcBoxLength();  
-  };
-
-  virtual void setColor(double r, double g, double b){
-    color.r=r;
-    color.g=g;
-    color.b=b;
-  };
-
 protected:
+
   virtual void create(){
     // radius for positioning is smaller than radius since we use secants. 
     //  r is the smallest distance of the secant to the center of the circle.
     double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;
     for (int i=0; i<number_elements; i++){
-      obst[i] = dCreateBox ( space, width , box_length , height);
-      dMatrix3 R;
-      dRFromEulerAngles(R, 0,0, i*angle);
-      dGeomSetRotation ( obst[i], R);
-
-      dGeomSetPosition ( obst[i], 
-       			 base_x + cos(M_PI - i*angle) * r, 
- 			 base_y + sin(M_PI - i*angle) * r, 
- 			 height/2 +base_z);
-
+      Box* box =  new Box(width , box_length , height);
+      box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+      osg::Matrix R = osg::Matrix::rotate(- i*angle, 0,0,1) * 
+	osg::Matrix::translate( cos(M_PI - i*angle) * r, 
+				sin(M_PI - i*angle) * r, 
+				height/2+0.01f /*reduces graphic errors and ode collisions*/
+				)* pose;
+      box->setPose(R);
+      box->getOSGPrimitive()->setTexture(wallTextureFileName);
+      obst.push_back(box);
     }
-  };
-
-
-  virtual void destroy(){
-    for(int i=0; i<10; i++){
-      dGeomDestroy( obst[i] );
-    }
-    obstacle_exists=false;
+    // size of groundplane
+    ground_length=2.0*r; 
+    obstacle_exists=true;
   };
 
   virtual void calcBoxLength(){
@@ -155,5 +137,7 @@ protected:
   }
 
 };
+
+}
 
 #endif

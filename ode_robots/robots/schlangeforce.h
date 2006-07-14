@@ -1,8 +1,6 @@
 /************************************************************************/
-/*schlangeforce.h							*/
-/*Schlangenkonstrukt for lpzrobots                                      */
-/*@author Marcel Kretschmann						*/
-/*@version alpha 0.1							*/
+/*schlangeforce.h			                            	*/
+/*Snake with torque added to joints                     		*/
 /*									*/
 /************************************************************************/
 /***************************************************************************
@@ -27,7 +25,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2005-11-14 12:48:43  martius
+ *   Revision 1.14  2006-07-14 12:23:41  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.13.4.6  2006/06/25 16:57:15  martius
+ *   abstractrobot is configureable
+ *   name and revision
+ *
+ *   Revision 1.13.4.5  2006/03/30 12:34:56  martius
+ *   documentation updated
+ *
+ *   Revision 1.13.4.4  2006/02/01 18:33:40  martius
+ *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
+ *
+ *   Revision 1.13.4.3  2006/01/04 17:04:41  fhesse
+ *   comments originating from old file removed
+ *
+ *   Revision 1.13.4.2  2006/01/04 14:46:00  fhesse
+ *   inherits from Schlange; moved to osg
+ *
+ *   Revision 1.13.4.1  2005/11/14 17:37:18  martius
+ *   moved to selforg
+ *
+ *   Revision 1.13  2005/11/14 12:48:43  martius
  *   *** empty log message ***
  *
  *   Revision 1.12  2005/11/09 13:24:42  martius
@@ -38,103 +58,54 @@
 #ifndef __SCHLANGEFORCE_H
 #define __SCHLANGEFORCE_H
 
-using namespace std;
-
 #include "schlange.h"
-#include "configurable.h"
 
-/**
- *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 
- *by a joint. This class is based upon the class roboter by the same author.
- *@author Marcel Kretschmann
- *@version beta
- **/
-class SchlangeForce : public Schlange, public Configurable
-{
-private:
-  
-  paramval gamma;
-  paramval frictionGround;
-  paramval factorForce;
-  paramval factorSensors;
+namespace lpzrobots {
 
-public:
+  /**
+   * This is a class, which models a snake like robot. 
+   * It consists of a number of equal elements, each linked 
+   * by a joint powered by torques added to joints
+   **/
+  class SchlangeForce: public Schlange
+    {
+    public:
+      SchlangeForce ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		      const SchlangeConf& conf, const string& name);
 
-	/**
-	 *constructor
-	 *@param startRoboterID ID, which should be managed clearly
-	 *@author Marcel Kretschmann
-	 *@version beta
-	 **/ 
-	SchlangeForce ( int startRoboterID , const OdeHandle& odeHandle, 
-			const SchlangenConf& conf );
-
-	static SchlangenConf getDefaultConf(){
-	  return Schlange::getStandartConf();
-	}
-
-	/**
-	*Destruktor
-	*@author Marcel Kretschmann
-	*@version beta
-	**/
-	virtual ~SchlangeForce();
+    
+      virtual ~SchlangeForce();
 	
+      /**
+       *Reads the actual motor commands from an array, 
+       *an sets all motors of the snake to this values.
+       *It is an linear allocation.
+       *@param motors pointer to the array, motor values are scaled to [-1,1] 
+       *@param motornumber length of the motor array
+       **/
+      virtual void setMotors ( const motor* motors, int motornumber );
 
-	/**
-	 *This is the collision handling function for snake robots.
-	 *This overwrides the function collisionCallback of the class robot.
-	 *@param data
-	 *@param o1 first geometrical object, which has taken part in the collision
-	 *@param o2 second geometrical object, which has taken part in the collision
-	 *@return true if the collision was threated  by the robot, false if not
-	 *@author Marcel Kretschmann
-	 *@version beta
-	 **/
-	virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-   */
-  virtual void doInternalStuff(const GlobalData& globalData);
+      /**
+       *Writes the sensor values to an array in the memory.
+       *@param sensors pointer to the array
+       *@param sensornumber length of the sensor array
+       *@return number of actually written sensors
+       **/
+      virtual int getSensors ( sensor* sensors, int sensornumber );
 	
+      /** returns number of sensors
+       */
+      virtual int getSensorNumber() { assert(created); return joints.size() * 2; }
 
-	
-	/**
-	*Reads the actual motor commands from an array, an sets all motors of the snake to this values.
-	*It is an linear allocation.
-	*@param motors pointer to the array, motor values are scaled to [-1,1] 
-	*@param motornumber length of the motor array
-	*@author Marcel Kretschmann
-	*@version beta
-	**/
-	virtual void setMotors ( const motor* motors, int motornumber );
+      /** returns number of motors
+       */
+      virtual int getMotorNumber(){ assert(created); return joints.size() * 2; }
 
-	/**
-	 *Writes the sensor values to an array in the memory.
-	 *@param sensor* pointer to the array
-	 *@param sensornumber length of the sensor array
-	 *@return number of actually written sensors
-	 *@author Marcel Kretschmann
-	 *@version beta
-	 **/
-	virtual int getSensors ( sensor* sensors, int sensornumber );
-	
+    private:
+      virtual void create(const osg::Matrix& pose);
+      virtual void destroy();
+    };
 
-	/// returns the name of the object (with version number)
-	virtual paramkey getName() const {return name; } 
-
-	/** The list of all parameters with there value as allocated lists.
-	    @param keylist,vallist will be allocated with malloc (free it after use!)
-	    @return length of the lists
-	*/
-	virtual paramlist getParamList() const;
-
-	virtual paramval getParam(const paramkey& key) const;
-
-	virtual bool setParam(const paramkey& key, paramval val);
-	
-
-};
+}
 
 #endif

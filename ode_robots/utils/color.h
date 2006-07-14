@@ -20,20 +20,52 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-09 13:31:51  martius
+ *   Revision 1.3  2006-07-14 12:23:55  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.2.4.3  2006/02/08 16:16:23  martius
+ *   no namespace using
+ *
+ *   Revision 1.2.4.2  2006/01/12 14:37:39  martius
+ *   access functions
+ *
+ *   Revision 1.2.4.1  2005/12/06 10:13:26  martius
+ *   openscenegraph integration started
+ *
+ *   Revision 1.2  2005/11/09 13:31:51  martius
  *   GPL'ised
  *
  ***************************************************************************/
 #ifndef __COLOR_H
 #define __COLOR_H
 
-typedef struct Color
+#include<osg/Vec4>
+
+namespace lpzrobots{
+
+class Color : public osg::Vec4
 {
-  Color() {r=g=b=0;};
-  Color(double _r, double _g, double _b){ r=_r; g=_g; b=_b; }
-  double r;
-  double g;
-  double b;
-} Color;
+public:
+  Color() {};
+  Color(const osg::Vec4& color) 
+    : osg::Vec4(color)  {};
+  Color(float r, float g, float b)
+    : osg::Vec4(r, g, b, 1.0){} 
+  Color(float r, float g, float b, float a)
+    : osg::Vec4(r, g, b, a){} 
+
+/*   float r() const { return x(); } */
+/*   float& r() { return x(); } */
+/*   float g() const { return y(); } */
+/*   float& g() { return y(); } */
+/*   float b() const { return z(); } */
+/*   float& b() { return z(); } */
+/*   float a() const { return w(); } */
+/*   float& a() { return w(); } */
+  float alpha() const { return w(); }
+  float& alpha() { return w(); }
+};
+
+}
 
 #endif

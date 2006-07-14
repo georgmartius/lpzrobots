@@ -6,10 +6,17 @@ include Makefile.conf
 
 all: $(SIMULATIONS)
 
-.PHONY: clean $(SIMULATIONS)
+.PHONY: depend clean $(SIMULATIONS)
+
 $(SIMULATIONS): 
 	@echo -e "\n************ Building SIMULATION $@ **************"
 	$(MAKE) -C $@
+
+depend: 
+	for dir in $(SIMULATIONS); do \
+		$(MAKE) -C $$dir depend; \
+	done
+    
 
 clean: 
 	for dir in $(SIMULATIONS); do \

@@ -20,11 +20,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2005-11-09 13:43:17  fhesse
+ *   Revision 1.6  2006-07-14 12:23:50  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.5.4.1  2005/11/15 12:29:51  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.5  2005/11/09 13:43:17  fhesse
  *   GPL added
  *                                                                 *
  *                                                                         * 
-/***************************************************************************/
+ ***************************************************************************/
 /************************************************************************/
 /*shpererobot.cpp							*/
 /*Schlangenkonstrukt fuer das ODE-Robotersystem des Authors		*/
@@ -60,8 +66,6 @@ SphererobotTest::SphererobotTest ( int startRoboterID , const OdeHandle& odeHand
   //*************body definition**************
   Object base;
   Object pendular;
-  Object bottom[3];
-  Object top[3];       
   //sphere base body
   lastJointPos[0]=0;
 
@@ -414,16 +418,6 @@ void SphererobotTest::sensoraktualisierung ( )
     sensorfeld[n].istwinkel = dJointGetLMotorAnglerate ( getMotorAt ( n ) );*/
 }
 
-/**
- *Returns the position of the snake. Here the position of the snake is the position of the first element of the snake.
- *@return Position (x,y,z)
- *@author Marcel Kretschmann
- *@version final
- **/
-Position SphererobotTest::getPosition ()
-{
-  return Position(dBodyGetPosition ( getObjektAt(Base).body ));
-}
 
 /**
  *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.

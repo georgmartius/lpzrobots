@@ -2,42 +2,55 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-FILES = main sphererobotTest
+FILES = main
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = start
-
-# -pg for profiling
-CFLAGS = -Wall -I. -g
-## Optimisation
-#CFLAGS = -Wall -I. -O3 -DNDEBUG
+EXEC_OPT = start_opt
 
 LPZROBOTS  = ../../..
 ODEROBOTS  = $(LPZROBOTS)/ode_robots
-CONTROLLER = $(LPZROBOTS)/controller
-MATRIXLIB  = $(LPZROBOTS)/matrixlib
-#MATRIX     = matrix
-MATRIX     = matrix_debug
+SELFORG    = $(LPZROBOTS)/selforg
 
-include $(ODEROBOTS)/Makefile.conf
+ODEROBOTSLIB := ode_robots
+ODEROBOTSLIB_OPT := ode_robots_opt
+LIBODEROBOTS = lib$(ODEROBOTSLIB).a
 
-LIBS   = -lm -L$(ODEROBOTS) -lode_robots\
-	-lode -ldrawstuff -lGL -lGLU -lglut \
-	 -L$(MATRIXLIB)  -l$(MATRIX)
+SELFORGLIB = selforg
+SELFORGLIB_OPT = selforg_opt
+LIBSELFORG = lib$(SELFORGLIB).a
 
-# used for single file compilation
-CXX = g++ $(CFLAGS) $(INC)
+LIBS   = -lm \
+	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
+	-L$(SELFORG)   -l$(SELFORGLIB) \
+	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut
 
-# used for binary compilation (linking)
-CC = g++ $(CFLAGS)
-#CC = g++ -g3 -pg  
+INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include
 
-$(EXEC): libode_robots $(ODEROBOTS)/libode_robots.a Makefile Makefile.depend $(OFILES)
-	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
+CXX = g++
+# -pg for profiling
+CPPFLAGS = -Wall -I. -g $(INC)
+## Optimisation
+CPPFLAGS_OPT = -Wall -I. -O3 -DNDEBUG $(INC)
+
+
+$(EXEC): libode_robots $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
+	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
+
+opt: $(EXEC_OPT)
+
+$(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
+$(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
+$(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
+$(EXEC_OPT): libode_robots_opt $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
+	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
 libode_robots:	
-	cd $(ODEROBOTS) && make libode_robots.a		
+	cd $(ODEROBOTS) && make
+
+libode_robots_opt:	
+	cd $(ODEROBOTS) && make opt
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null

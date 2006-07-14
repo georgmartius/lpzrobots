@@ -20,119 +20,102 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2005-11-09 13:36:41  fhesse
+ *   Revision 1.3  2006-07-14 12:23:43  martius
+ *   selforg becomes HEAD
+ *
+ *   Revision 1.2.4.5  2006/06/25 17:01:54  martius
+ *   remove old simulations
+ *   robots get names
+ *
+ *   Revision 1.2.4.4  2006/05/15 13:11:29  robot3
+ *   -handling of starting guilogger moved to simulation.cpp
+ *    (is in internal simulation routine now)
+ *   -CTRL-F now toggles logging to the file (controller stuff) on/off
+ *   -CTRL-G now restarts the GuiLogger
+ *
+ *   Revision 1.2.4.3  2006/04/18 14:12:20  fhesse
+ *   minor changes
+ *
+ *   Revision 1.2.4.2  2006/01/03 10:01:05  fhesse
+ *   moved to osg
+ *
+ *   Revision 1.2.4.1  2005/11/15 12:29:35  martius
+ *   new selforg structure and OdeAgent, OdeRobot ...
+ *
+ *   Revision 1.2  2005/11/09 13:36:41  fhesse
  *   GPL added
  *
  *   Revision 1.7  2005/11/09 13:28:24  fhesse
  *   GPL added
  *                                                                * 
-/***************************************************************************/
+ ***************************************************************************/
 #include <stdio.h>
-#include <drawstuff/drawstuff.h>
-#include <ode/ode.h>
 
-#include "noisegenerator.h"
+#include <selforg/noisegenerator.h>
 #include "simulation.h"
-#include "agent.h"
-#include "one2onewiring.h"
-#include "nimm2.h"
+#include "odeagent.h"
+#include <selforg/one2onewiring.h>
 #include "playground.h"
 
 #include "arm2segm.h"
 
-#include "invertnchannelcontroller.h"
+#include <selforg/invertnchannelcontroller.h>
+#include <selforg/sinecontroller.h>
 
-ConfigList configs;
-PlotMode plotMode = NoPlot;
+using namespace lpzrobots;
 
-// Funktion die die Steuerung des Roboters uebernimmt
-bool StepRobot()
-{
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    (*i)->step(simulationConfig.noise);
-  }
-  return true;
-}
+class ThisSim : public Simulation {
 
-//Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start() 
-{
-  dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-  dsPrint ( "------------------------------------------------------------------------\n" );
-  dsPrint ( "Press Ctrl-C for an basic commandline interface.\n\n" );
+public:
 
-  //Anfangskameraposition und Punkt auf den die Kamera blickt
-  float KameraXYZ[3]= {2.1640f,-1.3079f,1.7600f};
-  float KameraViewXYZ[3] = {125.5000f,-17.0000f,0.0000f};;
-  dsSetViewpoint ( KameraXYZ , KameraViewXYZ );
-  dsSetSphereQuality (2); //Qualitaet in der Sphaeren gezeichnet werden
 
-  // initialization
-  simulationConfig.noise=0.1;
-  int chessTexture = dsRegisterTexture("chess.ppm");
-  printf("Chess: %i", chessTexture);
+  /// start() is called at the start and should create all the object (obstacles, agents...).
+  virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
+  {
+    setCameraHomePos(Pos(8.85341, -11.2614, 3.32813),  Pos(33.5111, -7.0144, 0));
+
+    // initialization
+    global.odeConfig.noise=0.1;
+
+//     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(7.0, 0.2, 1.5));
+//     playground->setPosition(Pos(0,0,0)); // playground positionieren und generieren
+//     global.obstacles.push_back(playground);
+
+    Arm2SegmConf arm_conf=Arm2Segm::getDefaultConf();
+    Arm2Segm* vehicle = new Arm2Segm(odeHandle, osgHandle, arm_conf, "arm");
+    ((OdeRobot* )vehicle)->place(Position(0,0,0));
+    //AbstractController *controller = new InvertNChannelController(10);  
+    AbstractController *controller = new SineController();  
+    global.configs.push_back(vehicle);
   
-  Playground* playground = new Playground(world, space);
-  playground->setGeometry(7.0, 0.2, 1.5);
-  playground->setPosition(0,0,0); // playground positionieren und generieren
-  obstacles.push_back(playground);
+    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    OdeAgent* agent = new OdeAgent(plotoptions);
+    agent->init(controller, vehicle, wiring);
+    global.agents.push_back(agent);
 
-//   Nimm2* vehicle = new Nimm2(world, space, contactgroup);
-//   vehicle->setTextures(DS_WOOD, chessTexture); 
-//   vehicle->place(Position(0,0,0));
-//   AbstractController *controller = new InvertNChannelController(10);  
+    global.configs.push_back(controller);
+    showParams(global.configs);
+  }
 
-  Arm2Segm* vehicle = new Arm2Segm(world, space, contactgroup);
-  //vehicle->setTextures(DS_WOOD, chessTexture); 
-  vehicle->place(Position(0,0,0));
-  AbstractController *controller = new InvertNChannelController(10);  
-  configs.push_back(vehicle);
+  // add own key handling stuff here, just insert some case values
+ virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (down) { // only when key is pressed, not when released
+      switch ( (char) key )
+	{
+	default:
+	  return false;
+	  break;
+	}
+    }
+    return false;
+  }
   
-  One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  Agent* agent = new Agent(plotMode);
-  agent->init(controller, vehicle, wiring);
-  agents.push_back(agent);
-
-  configs.push_back(&simulationConfig);
-  configs.push_back(controller);
-  showParams(configs);
-}
-
-void end(){
-  for(ObstacleList::iterator i=obstacles.begin(); i != obstacles.end(); i++){
-    delete (*i);
-  }
-  obstacles.clear();
-  for(AgentList::iterator i=agents.begin(); i != agents.end(); i++){
-    delete (*i)->getRobot();
-    delete (*i)->getController();
-    delete (*i);
-  }
-  agents.clear();
-}
-
-
-// this function is called if the user pressed Ctrl-C
-void config(){
-  changeParams(configs);
-}
-
-void printUsage(const char* progname){
-  printf("Usage: %s [-g] [-l]\n\t-g\tuse guilogger\n\t-l\tuse guilogger with logfile", progname);
-  exit(0);
-}
+};
 
 int main (int argc, char **argv)
-{  
-  if(contains(argv, argc, "-g")) plotMode = GuiLogger;
-  if(contains(argv, argc, "-l")) plotMode = GuiLogger_File;
-  if(contains(argv, argc, "-h")) printUsage(argv[0]);
-
-  // initialise the simulation and provide the start, end, and config-function
-  simulation_init(&start, &end, &config);
-  // start the simulation (returns, if the user closes the simulation)
-  simulation_start(argc, argv);
-  simulation_close();  // tidy up.
-  return 0;
+{ 
+  ThisSim sim;
+  // run simulation
+  return sim.run(argc, argv) ? 0 : 1;
 }
- 
