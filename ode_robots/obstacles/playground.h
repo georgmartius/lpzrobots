@@ -21,15 +21,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10.4.15  2006-07-13 12:11:26  robot5
- *   Using overhauled primitives Plane and Box.
- *   Repeat texturing is supported by them now.
- *
- *   Revision 1.10.4.14  2006/07/11 12:43:39  robot5
- *   Collision model of playground walls corrected.
- *
- *   Revision 1.10.4.13  2006/07/11 04:24:19  robot5
- *   Walls now display repeating textures.
+ *   Revision 1.10.4.16  2006-07-14 11:11:53  martius
+ *   revert to 1.10.4.12
  *
  *   Revision 1.10.4.12  2006/06/29 16:39:55  robot3
  *   -you can now see bounding shapes if you type ./start -drawboundings
@@ -107,11 +100,7 @@
 
 #include "mathutils.h"
 #include "abstractground.h"
-
-#include <osg/Geometry>
-#include <osg/Texture2D>
-#include <osg/TexEnv>
-
+ 
 namespace lpzrobots {
 
 //Fixme: playground creates collisions with ground and itself
@@ -124,8 +113,8 @@ protected:
   double factorlength2;
 
 public:
-
-  Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle ,
+  
+  Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
 	     const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) ,
 	     double factorxy = 1, bool createGround=true):
     AbstractGround::AbstractGround(odeHandle, osgHandle, createGround){
@@ -138,63 +127,39 @@ public:
   };
 
  protected:
-  virtual void create() {
-   Plane *wall;
-   for(float i=0.0f; i<4.0f; i+=1.0f) {
-    wall = new Plane(length,height,length,height);
-    wall->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    wall->setPose(osg::Matrix::rotate(-M_PI*0.5f, 1, 0, 0) *
-                  osg::Matrix::translate(0.0f,0.5f*length-width,0.5f*height) * pose *
-                  osg::Matrix::rotate(i*M_PI*0.5f, 0, 0, 1));
-    wall->getOSGPrimitive()->setTexture(wallTextureFileName,true,true);
-
-    wall = new Plane(length,height,length,height);
-    wall->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    wall->setPose(osg::Matrix::rotate(-M_PI*0.5f, 1, 0, 0) *
-	              osg::Matrix::translate(0.0f,0.5f*length,0.5f*height) * pose *
-                  osg::Matrix::rotate(i*M_PI*0.5f, 0, 0, 1));
-    wall->getOSGPrimitive()->setTexture(wallTextureFileName,true,true);
-
-    wall = new Plane(length-width,width,length-width,width*0.4f);
-    wall->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    wall->setPose(osg::Matrix::translate(-0.5f*width,0.5f*(length-width),height) * pose *
-                  osg::Matrix::rotate(i*M_PI*0.5f, 0, 0, 1));
-    wall->getOSGPrimitive()->setTexture(wallTextureFileName,true,true);
-   }
-
-// old
-/*    Box* box;
+  virtual void create(){
+    Box* box;
     osg::Vec3 offset(- (length/2 + width/2),
 		     0,
-		     height/2+0.01f); //reduces graphic errors and ode collisions
+		     height/2+0.01f/*reduces graphic errors and ode collisions*/);
     box = new Box( width , (length * factorlength2) + 2 * width , height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    //box->getOSGPrimitive()->setTexture(wallTextureFileName);
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
 
     offset.x() = length/2 + width/2;
     box = new Box( width , (length * factorlength2) + 2 * width , height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    //box->getOSGPrimitive()->setTexture(wallTextureFileName);
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
 
     offset.x() = 0;
     offset.y() = -( (length*factorlength2)/2 +width/2);
     box = new Box( length, width, height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    //box->getOSGPrimitive()->setTexture(wallTextureFileName);
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
 
     offset.y() = (length*factorlength2)/2 +width/2;
     box = new Box( length, width, height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     box->setPose(osg::Matrix::translate(offset) * pose);
-    //box->getOSGPrimitive()->setTexture(wallTextureFileName);
+    box->getOSGPrimitive()->setTexture(wallTextureFileName);
     obst.push_back(box);
-*/
+    
     // size of groundplane
     ground_length=length;
 
