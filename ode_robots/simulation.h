@@ -28,8 +28,9 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2006-07-14 11:57:23  martius
- *   selforg becomes HEAD
+ *   Revision 1.20  2006-07-14 15:17:33  fhesse
+ *   start option for intended simulation time added
+ *   -simtime [min]
  *
  *   Revision 1.18.4.19  2006/06/29 16:31:47  robot3
  *   includes cleared up
@@ -277,6 +278,8 @@ namespace lpzrobots {
     int windowHeight;
     bool pause;
     bool useShadow;
+    bool simulation_time_reached;
+    long int simulation_time;
 
     long sim_step;
 

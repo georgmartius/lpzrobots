@@ -21,8 +21,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.41  2006-07-14 11:57:23  martius
- *   selforg becomes HEAD
+ *   Revision 1.42  2006-07-14 15:17:33  fhesse
+ *   start option for intended simulation time added
+ *   -simtime [min]
  *
  *   Revision 1.40.4.34  2006/07/10 12:03:47  martius
  *   Cosmetics
@@ -299,6 +300,8 @@ namespace lpzrobots {
     state    = none;
     pause    = false;
     useShadow= true;
+    simulation_time=-1;
+    simulation_time_reached=false;
     viewer   = 0;
     cam      = 0;
     arguments= 0;
@@ -482,7 +485,7 @@ namespace lpzrobots {
     //      }
 
 
-    while (!viewer->done())
+    while ( (!viewer->done()) && (!simulation_time_reached) )
       {
 	// wait for all cull and draw threads to complete.
 	viewer->sync();
@@ -532,6 +535,16 @@ namespace lpzrobots {
 	// print simulation time every 10 min.
 	if(sim_step% ( int(1/globalData.odeConfig.simStepSize) * 600) ==0) {
 	  printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
+	}
+	// end simulation if intended simulation time is reached
+	if(simulation_time!=-1){ // check time only if activated
+	  if( (sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
+	    if (!simulation_time_reached){ // print out once only
+	      printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
+	    }
+	    simulation_time_reached=true;
+	    
+	  }
 	}
 	// for all agents: robots internal stuff and control step if at controlInterval
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
@@ -758,6 +771,15 @@ namespace lpzrobots {
     pause = contains(argv, argc, "-pause")!=0;
     useShadow = contains(argv, argc, "-noshadow")==0;
     globalData.odeConfig.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
+
+    // read intended simulation time 
+    index = contains(argv, argc, "-simtime");
+    if (index){
+      if(argc > index)	
+	simulation_time=atoi(argv[index]);
+      printf("simtime=%li\n",simulation_time);
+    }
+
   }
 
   // Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
@@ -863,7 +885,7 @@ namespace lpzrobots {
 
   void Simulation::usage(const char* progname){
     printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed]"
-	   " [-x WxH] [-pause] [-noshadow] [-drawboundings]\n", progname);
+	   " [-x WxH] [-pause] [-noshadow] [-drawboundings] [-simtime [min]]\n", progname);
     printf("\t-g [interval]\tuse guilogger (default interval 1)\n");
     printf("\t-f [interval]\twrite logging file (default interval 5)\n");
     printf("\t-r seed\t\trandom number seed\n");
@@ -871,6 +893,8 @@ namespace lpzrobots {
     printf("\t-pause \t\tstart in pause mode\n");
     printf("\t-noshadow \tdisables shadows and shaders\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
+    printf("\t-simtime [min]\tintended simulation time in minutes\n");
+
   }
 
   // Commandline interface stuff
