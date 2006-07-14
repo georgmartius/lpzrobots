@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:48  martius
+ *   Revision 1.3  2006-07-14 21:47:17  robot3
+ *   .osg and .bbox-files moved to lpzrobots/ode_robots/osg/data/Meshes
+ *
+ *   Revision 1.2  2006/07/14 12:23:48  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.9  2006/07/06 12:34:09  robot3
@@ -166,7 +169,7 @@ public:
 
 
      PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
-				   "cow.osg", // the filename of the mesh
+				   "Meshes/cow.osg", // the filename of the mesh
  					  global, // GlobalData, decides if boundings are drawed
  					   0.1, // the scale factor to be used
  					   1.0); // the mass of the mesh
@@ -174,7 +177,7 @@ public:
      global.obstacles.push_back(myMesh);
      
      myMesh = new PassiveMesh(odeHandle,osgHandle,
-				   "tree1.osg", // the filename of the mesh
+				   "Meshes/tree1.osg", // the filename of the mesh
  					  global, // GlobalData, decides if boundings are drawed
  					   0.01, // the scale factor to be used
  					   1000.0); // the mass of the mesh
