@@ -26,8 +26,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2006-07-14 12:23:41  martius
- *   selforg becomes HEAD
+ *   Revision 1.17  2006-07-14 13:52:01  der
+ *   setheadcolor
  *
  *   Revision 1.15.4.9  2006/06/25 16:57:15  martius
  *   abstractrobot is configureable
@@ -205,6 +205,12 @@ public:
   /** sets a texture to the head of the snake
    */
   virtual void setHeadTexture(const std::string& filename);
+
+  /**
+   * sets the color of the head element
+   */
+  virtual void setHeadColor(const Color& color);
+
 
 protected:
 

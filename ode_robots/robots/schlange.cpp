@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2006-07-14 12:23:41  martius
- *   selforg becomes HEAD
+ *   Revision 1.22  2006-07-14 13:52:01  der
+ *   setheadcolor
  *
  *   Revision 1.20.4.10  2006/06/29 16:39:56  robot3
  *   -you can now see bounding shapes if you type ./start -drawboundings
@@ -291,6 +291,12 @@ namespace lpzrobots {
     if(created) {
       objects[0]->getOSGPrimitive()->setTexture(filename);
     }      
+  }
+
+  void Schlange::setHeadColor(const Color& color) {
+    if (created) {
+      objects[0]->getOSGPrimitive()->setColor(color);
+    }
   }
  
 
