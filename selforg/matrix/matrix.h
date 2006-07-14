@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.1.2.1  2006-07-10 12:01:02  martius
+// Revision 1.1.2.2  2006-07-14 08:56:53  der
+// New function NullTimesNull
+//
+// Revision 1.1.2.1  2006/07/10 12:01:02  martius
 // Matrixlib moved to selforg
 //
 // Revision 1.20.6.4  2006/03/30 23:08:53  martius
@@ -193,6 +196,9 @@ namespace matrix{
     void sub(const Matrix& a, const Matrix& b); ///< subtraction: this = a - b
     void mult(const Matrix& a, const Matrix& b);///< multiplication: this = a * b
     void mult(const Matrix& a, const D& fac);///< scaling: this = a * fac
+
+    /// returns true if matrix is a 0x0 matrix
+    bool isNulltimesNull();
 
     /**  maps the matrix to a new matrix 
 	 with all elements mapped with the given function 
