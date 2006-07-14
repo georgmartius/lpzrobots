@@ -34,16 +34,17 @@ CPPFLAGS = -Wall -I. -g $(INC)
 ## Optimisation
 CPPFLAGS_OPT = -Wall -I. -O3 -DNDEBUG $(INC)
 
+normal: libode_robots $(EXEC)
 
-$(EXEC): libode_robots $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
+$(EXEC): $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
 
-opt: $(EXEC_OPT)
+opt: libode_robots_opt $(EXEC_OPT)
 
 $(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
-$(EXEC_OPT): libode_robots_opt $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
+$(EXEC_OPT): $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
 libode_robots:	
@@ -66,6 +67,6 @@ cleanall: clean
 	cd $(SELFORG) && make clean
 
 clean:
-	rm -f $(EXEC) *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC_OPT) *.o Makefile.depend
 
 include Makefile.depend

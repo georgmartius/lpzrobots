@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:49  martius
+ *   Revision 1.3  2006-07-14 14:36:43  martius
+ *   cleanall target
+ *   no unnecessary rebuild
+ *
+ *   Revision 1.2  2006/07/14 12:23:49  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/07/13 13:18:20  der
@@ -67,16 +71,6 @@
 list<PlotOption> plotoptions;
 
 using namespace lpzrobots;
-
-int zeit =0;
-Matrix turnMotor(const Matrix _dont_care){  
-  Matrix y(_dont_care.getM(),1);
-  for(int i=0; i< y.getM(); i++){
-    y.val(i,0) = pow(-1,i)*sin(zeit/100.0)*0.9;
-  }
-  zeit++;
-  return y;
-}
 
 class ThisSim : public Simulation {
 public:
