@@ -21,12 +21,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1.2.3  2006-07-13 12:11:26  robot5
- *   Using overhauled primitives Plane and Box.
- *   Repeat texturing is supported by them now.
- *
- *   Revision 1.1.2.2  2006/07/11 04:23:41  robot5
- *   Ground now displays repeating textures.
+ *   Revision 1.1.2.4  2006-07-14 11:19:49  martius
+ *   revert to 1.1.2.1
  *
  *   Revision 1.1.2.1  2006/06/29 16:43:20  robot3
  *   abstract classes have now own .cpp-files
@@ -61,11 +57,6 @@
 #include "osgprimitive.h"
 #include <iostream>
 
-#include <osg/Geometry>
-#include <osg/Texture2D>
-#include <osg/TexEnv>
-
-using namespace osg;
 
 namespace lpzrobots {
 
@@ -77,7 +68,7 @@ namespace lpzrobots {
     groundTextureFileName="Images/greenground.rgb";
     groundColor=Color(1.0f,1.0f,1.0f);
   };
-
+  
   AbstractGround::~AbstractGround(){
     destroy();
   }
@@ -91,7 +82,7 @@ namespace lpzrobots {
 	groundPlane->update();
     }
   };
-
+  
 
   void AbstractGround::setPose(const osg::Matrix& pose){
     this->pose = pose;
@@ -101,7 +92,7 @@ namespace lpzrobots {
   void AbstractGround::createGround(bool create) {
     creategroundPlane=create;
     if (obstacle_exists) {
-      std::cout << "ERROR: createGround(bool create)  has no effect AFTER setPosition(osg::Vec3) !!!"
+      std::cout << "ERROR: createGround(bool create)  has no effect AFTER setPosition(osg::Vec3) !!!" 
 		<< std::endl;
       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
       exit(-1);
@@ -178,27 +169,12 @@ namespace lpzrobots {
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
-      groundPlane = new Plane(ground_length,ground_length,ground_length,ground_length);
-      groundPlane->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,0.001f) * pose);
+      groundPlane = new Box(ground_length,ground_length, 0.15f);
+      groundPlane->init(odeHandle, 0, osgHandle,
+			Primitive::Geom | Primitive::Draw);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
       groundPlane->getOSGPrimitive()->setColor(groundColor);
       groundPlane->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);
-
-//old
-/*      Box *a = new Box(ground_length,ground_length,0.15f,ground_length,ground_length);
-      a->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      a->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
-      a->getOSGPrimitive()->setColor(groundColor);
-      a->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);*/
-
-
-//test
-/*      Box *b = new Box(ground_length/10,2*ground_length/10,2*ground_length/10,
-                       2*ground_length/10,3*ground_length/10);
-      b->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      b->setPose(osg::Matrix::translate(-0.5f*ground_length,-0.5f*ground_length,5.0f) * pose);
-      b->getOSGPrimitive()->setColor(groundColor);
-      b->getOSGPrimitive()->setTexture("Images/chess.rgb",true,true);*/
     }
   }
 
@@ -211,6 +187,6 @@ namespace lpzrobots {
     if (groundPlane) delete(groundPlane);
     groundPlane=0;
     obstacle_exists=false;
-  }
-
+  };
+  
 }
