@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.1.2.1  2006-07-10 12:01:01  martius
+// Revision 1.1.2.2  2006-07-14 08:57:40  der
+// New function isNullTimesNull
+//
+// Revision 1.1.2.1  2006/07/10 12:01:01  martius
 // Matrixlib moved to selforg
 //
 // Revision 1.23.6.1  2006/03/29 15:12:46  martius
@@ -109,6 +112,12 @@ const int T=0xFF;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////// ACCESSORS ///////////////////////////////////////////////////////////////
+  /// returns true if matrix is a 0x0 matrix
+  bool Matrix::isNulltimesNull(){
+    return (m==0 && n==0);
+  }
+
+
   Matrix Matrix::row(unsigned short index) const{
     assert(index < m);
     Matrix result(1,n,data+(index*n));    
