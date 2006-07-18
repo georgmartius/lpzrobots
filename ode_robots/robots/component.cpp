@@ -356,7 +356,7 @@ namespace lpzrobots
 	    if ( connection[n].softlink == false )
 	    {
 		//calculation the efficency of dividing the structure here (connection n of this)
-		a = ( abs ( ( (connection[n].subcomponent->getNumberSubcomponentsAll () +1 )/((double) maxsize) - targetrelation)*1000000)/1000000.0 );
+		a = ( fabs ( ( (connection[n].subcomponent->getNumberSubcomponentsAll () +1 )/((double) maxsize) - targetrelation)*1000000)/1000000.0 );
 		//1000000 because abs does only work with integers
 
 		cout<<"-----------------------------------------------component: "<<this<<"\n";
@@ -364,7 +364,7 @@ namespace lpzrobots
 		//comparing the dividing efficience to the best efficience up till now, if better it becomes the new best
 		if ( currentBestDivideComponent != NULL )
 		{
-		    if ( a < ( abs ( ( ( currentBestDivideComponent->getNumberSubcomponentsAll () + 1 )/ ((double) maxsize)  - targetrelation )*1000000)/1000000.0 ) )
+		    if ( a < ( fabs ( ( ( currentBestDivideComponent->getNumberSubcomponentsAll () + 1 )/ ((double) maxsize)  - targetrelation )*1000000)/1000000.0 ) )
 		    {
 			currentBestDivideComponent = connection[n].subcomponent;
 			cout<<"new best hit\n";
