@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.2  2006-07-14 12:24:01  martius
+// Revision 1.3  2006-07-18 14:13:09  martius
+// crucial bug fixing in *= operator!
+//
+// Revision 1.2  2006/07/14 12:24:01  martius
 // selforg becomes HEAD
 //
 // Revision 1.1.2.2  2006/07/14 08:56:53  der
@@ -270,6 +273,7 @@ namespace matrix{
     Matrix& operator *= (const Matrix& c) {
       Matrix result;
       result.mult(*this, c);
+      this->copy(result);
       return *this; 
     }
     Matrix& operator *= (const D& fac) {toMult(fac); return *this; }
