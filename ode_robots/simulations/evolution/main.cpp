@@ -20,8 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:46  martius
- *   selforg becomes HEAD
+ *   Revision 1.3  2006-07-18 09:23:22  robot8
+ *   -atomcomponent update
+ *   -coloring simulation
+ *   -one bug left: softlink removal from higher branches of the tree could not removed
+ *
+ *   Revision 1.1.2.4  2006/07/14 13:01:41  robot8
+ *   -atomcomponent update
+ *   -one bug left: softlink removal from higher branches of the tree could not removed
  *
  *   Revision 1.1.2.3  2006/07/07 07:40:16  robot8
  *   -some bugs removed to components and robots
@@ -64,10 +70,10 @@
 #include "robotcomponent.h"
 #include "atomcomponent.h"
 
-#define REACTIONROOMWIDTH 2
-#define REACTIONROOMLENGTH 2
+#define REACTIONROOMWIDTH 1
+#define REACTIONROOMLENGTH 1
 //both density values ahve to be bigger than 1 so, that the atoms do not colide at the beginning
-#define ATOMDENSITY 1.8
+#define ATOMDENSITY 6
  //this is the space between two atoms, bigger means less robots and smaller more atoms
 #define ROBOTDENSITY 6 //this is the space between two robots-atoms, bigger means less robots and smaler more robot-atoms
 #define ROBOTHEIGHT 1.5
@@ -91,6 +97,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
+
     setCameraHomePos ( Pos ( 0, 0, 7), Pos ( -0.0828247 , -89.9146 , 0) );
     // initialization
     // - set noise to 0.1
@@ -107,7 +114,7 @@ public:
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3( REACTIONROOMWIDTH , 0.2 , REACTIONROOMLENGTH ) , 4 );
-    playground->setPosition(osg::Vec3(0,0,-1)); // playground positionieren und generieren
+    playground->setPosition(osg::Vec3(0,0,-0.1)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
     //****************
@@ -126,6 +133,7 @@ public:
 //adding the controller for the component-connections
 
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+
     cc.cInit=2;
     AbstractController* controller;
     DerivativeWiringConf c = DerivativeWiring::getDefaultConf ();
@@ -144,14 +152,15 @@ public:
 
 	    ((AtomComponent*) components.back ())->atomconf.leadingatom = true;
 	    //controller
-	    controller = new InvertMotorNStep ( cc );
+/*	    controller = new InvertMotorNStep ( cc );
 	    controller->setParam ("adaptrate", 0.005);
 	    controller->setParam ("epsC", 0.005);
 	    controller->setParam ("epsA", 0.001);
 	    controller->setParam ("rootE", 3);
 	    controller->setParam ("steps", 2);
 	    controller->setParam ("s4avg", 5);
-	    controller->setParam ("factorB",0);
+	    controller->setParam ("factorB",0);*/
+	    controller = new SineController ( 18 );
 	    //wiring
 	    wiring = new DerivativeWiring ( c , new ColorUniformNoise () );   
 	    //agent
@@ -165,8 +174,8 @@ public:
 
     osgHandle_2 = osgHandle.changeColor ( Color ( 2 , 156/255.0 , 0 ) );
 
-    for ( double x = -REACTIONROOMWIDTH/2; x <= REACTIONROOMWIDTH/2; x += ATOMDENSITY*(2*aConf.shell_radius) )
-	for ( double y = -REACTIONROOMLENGTH/2; y <= REACTIONROOMLENGTH/2; y += ATOMDENSITY*(2*aConf.shell_radius) )
+    for ( double x = -REACTIONROOMWIDTH/2.0; x <= REACTIONROOMWIDTH/2.0; x += ATOMDENSITY*(2*aConf.shell_radius) )
+	for ( double y = -REACTIONROOMLENGTH/2.0; y <= REACTIONROOMLENGTH/2.0; y += ATOMDENSITY*(2*aConf.shell_radius) )
 	{
 	    components.push_back ( new AtomComponent ( odeHandle , osgHandle_2 , cConf , aConf ) );
 	    components.back ()->place ( Pos( x , y , 2*aConf.shell_radius ) ); 
@@ -219,53 +228,56 @@ public:
 		atConf.max_bindings = 4;
 		atConf.binding_energy = 0.3;
 		atConf.min_fission_energy = 2;
+		
+		int n = 3;
 
       switch ( (char) key )
 	{
 	    case 'Q':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2 , REACTIONROOMLENGTH/2 , atConf.shell_radius + 5 )); 
+
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0 , 0 , 0 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.0 , REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
 		break;
 	    case 'W':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( 0 , REACTIONROOMLENGTH/2 , atConf.shell_radius + 5 )); 
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0 , 0 , 1 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( 0 , REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
 		break;
 	    case 'E':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( REACTIONROOMWIDTH/2 , REACTIONROOMLENGTH/2 , atConf.shell_radius + 5 )); 
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0 ,  1 , 0 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.0 , REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
 		break;
 	    case 'A':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2 , 0 , atConf.shell_radius + 5 )); 
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0 , 1 , 1 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.0 , 0 , atConf.shell_radius + n )); 
 		break;
 	    case 'S':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( 0 , 0 , atConf.shell_radius + 5 )); 
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 1 , 0 , 0 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( 0 , 0 , atConf.shell_radius + n )); 
 		break;
 	    case 'D':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( REACTIONROOMWIDTH/2 , 0 , atConf.shell_radius + 5 )); 
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 1 , 0 , 1 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.0 , 0 , atConf.shell_radius + n )); 
 		break;
 	    case 'Y':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2 , -REACTIONROOMLENGTH/2 , atConf.shell_radius + 5 )); 
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 1 , 1 , 0 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.0 , -REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
 		break;
 	    case 'X':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( 0 , -REACTIONROOMLENGTH/2 , atConf.shell_radius + 5 )); 
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 1 , 1 , 1 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( 0 , -REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
 		break;
 	    case 'C':
 		cout<<"atom added\n";
-		components.push_back ( new AtomComponent ( odeHandle , osgHandle , compConf , atConf ) );
-		components.back ()->place ( Pos( REACTIONROOMWIDTH/2 , -REACTIONROOMLENGTH/2 , atConf.shell_radius + 5 )); 
+		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0.5 , 0.5 , 0.5 ) ) , compConf , atConf ) );
+		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.0 , -REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
 		break;
 	    case 'F':
 		cout<<"KEY REPLICATION\n";
@@ -274,12 +286,33 @@ public:
 		break;
 	    case 'I':
 		cout<<"PRINTING INFORMATION\n";
-//		for ( int n = 0; n < g.size (); n++ )
+		for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
 		{
-//		    ((AtomComponent*) components[n])->;
-//		    cout<<"END OF KEY REPLICATION\n";
+		    cout<<"################################################Robot##"<<n<<"################################################\n";
+		    printComponentInfo ( (Component*) globalData.agents[n]->getRobot() );
 		}
-		
+		break;
+	    case 'L':
+		    cout<<"#####################################Complete Component List#############################################\n";
+		for ( unsigned int n = 0; n < components.size (); n++ )
+		{
+		    cout<<"*******************Component**"<<components[n]<<"******************\n";   
+		    cout<<"origin component: "<<((AtomComponent*) components[n] )->originComponent<<"\n";
+		    cout<<"direct origin component: "<<((AtomComponent*) components[n] )->directOriginComponent<<"\n";
+		    cout<<"leading atom: "<<((AtomComponent*) components[n] )->atomconf.leadingatom<<"\n";
+		    cout<<"number of Subcomponents: "<<((AtomComponent*) components[n] )->getNumberSubcomponents ()<<"\n";
+		    cout<<"number of all Subcomponents: "<<((AtomComponent*) components[n])->getNumberSubcomponentsAll ()<<"\n";
+		    
+		    for ( unsigned int m = 0; m < ((AtomComponent*) components[n])->connection.size (); m++ )
+		    {
+			cout<<"------------Connection-"<<m<<"------------\n";
+			cout<<"softlink: "<<((AtomComponent*) components[n])->connection[m].softlink<<"\n";
+			cout<<"data: "<<((AtomComponent*) components[n])->connection[m].data<<"\n";
+			cout<<"subcomponent: "<<((AtomComponent*) components[n])->connection[m].subcomponent<<"\n";
+		    }
+
+
+		}
 		break;
 
 
@@ -292,6 +325,34 @@ public:
     return false;
   }
 
+    void printComponentInfo ( Component* comp )
+	{
+	    cout<<"*******************Component**"<<comp<<"******************\n";   
+	    cout<<"origin component: "<<((AtomComponent*) comp )->originComponent<<"\n";
+	    cout<<"direct origin component: "<<((AtomComponent*) comp )->directOriginComponent<<"\n";
+	    cout<<"leading atom: "<<((AtomComponent*) comp )->atomconf.leadingatom<<"\n";
+	    cout<<"number of Subcomponents: "<<((AtomComponent*) comp)->getNumberSubcomponents ()<<"\n";
+	    cout<<"number of all Subcomponents: "<<((AtomComponent*) comp)->getNumberSubcomponentsAll ()<<"\n";
+	    
+	    for ( unsigned int m = 0; m < ((AtomComponent*) comp)->connection.size (); m++ )
+	    {
+		cout<<"------------Connection-"<<m<<"------------\n";
+		cout<<"softlink: "<<((AtomComponent*) comp)->connection[m].softlink<<"\n";
+		cout<<"data: "<<((AtomComponent*) comp)->connection[m].data<<"\n";
+		cout<<"subcomponent: "<<((AtomComponent*) comp)->connection[m].subcomponent<<"\n";
+
+
+	    }
+//	    cout<<"*********************************************************\n";   
+	    
+	    for ( unsigned int m = 0; m < ((AtomComponent*) comp)->connection.size (); m++ )
+	    {
+		if ( !comp->connection[m].softlink )
+		    printComponentInfo ( comp->connection[m].subcomponent );
+
+	    }
+
+	}
 
 
   /**

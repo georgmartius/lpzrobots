@@ -74,7 +74,7 @@ class AtomComponent : public Component
 	~connectionAddition ()
 	{
 	}
-    };
+	};
 
 
 

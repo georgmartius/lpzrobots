@@ -20,22 +20,9 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.2  2006-07-14 12:23:39  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.19  2006/07/07 13:59:02  robot3
- *   #include "mathutils.h" for template function abs() added
- *   (compiling on other machines works now)
- *
- *   Revision 1.1.2.18  2006/07/07 13:51:30  robot3
- *   added cvslog
- *
- *                                                                         *
  ***************************************************************************/
 
 #include "component.h"
-#include "mathutils.h"
 
 namespace lpzrobots
 {
@@ -92,12 +79,14 @@ namespace lpzrobots
 
     int Component::getNumberSubcomponents ()
     {
-/*	int n;
-	componentConnection con = connection.back ();
-	for ( n = 0; connection[n].subcomponent == connection.back ().subcomponent; n++ );
+	int counter = 0;
+//	componentConnection con = connection.back ();
+	for ( unsigned int n = 0; n < connection.size (); n++ )
+	    if ( connection[n].softlink == false )
+		counter++;
 
-	return n;*/
-	return connection.size ();
+	return counter;
+//	return connection.size ();
     }
 
     int Component::getNumberSubcomponentsAll ()
@@ -114,23 +103,22 @@ namespace lpzrobots
 	return size;
     }
 
-    void Component::addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint )
+    void Component::addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint , bool softlink )
     {
 //	cout<<"addSubcomponent reached\n";
 	componentConnection newconnection;
 	newconnection.subcomponent = newsubcomponent;
 	newconnection.joint = newconnectingjoint;
 
-	newconnection.softlink = false;
+	newconnection.softlink = softlink;
 	newconnection.data = NULL;
 
 	//sets the origin; if it is NULL if a subcomponent i added, no subcomponent has ever been added here; now it becomes the origin of an subcomponent structure, so its origin is set to itsself
-/*	if ( originComponent == NULL )
-	originComponent = this;*/
-	    newconnection.subcomponent->originComponent = originComponent;
-	    newconnection.subcomponent->directOriginComponent = this;
-//	else
-//	    newconnection.subcomponent->originComponent = originComponent;
+	    if ( softlink == false )
+	    {
+		newconnection.subcomponent->originComponent = originComponent;
+		newconnection.subcomponent->directOriginComponent = this;
+	    }
 	
 	connection.push_back ( newconnection );
 //	cout<<"addSubcomponent ended\n";
@@ -138,7 +126,7 @@ namespace lpzrobots
 
     Component* Component::removeSubcomponent ( int n )
     {
-	if ( getNumberSubcomponents ()  > 0 && getNumberSubcomponents()  > n )
+	if ( (int) connection.size () > 0 && (int) connection.size () > n )
 	{
 	    Component* tmpcomponent;
 
@@ -148,8 +136,13 @@ namespace lpzrobots
 	    //move origins
 	    tmpcomponent = connection[n].subcomponent;
 
+	    //updates the references of origin within the tree structure !!!BUT ONLY IF IT WAS NO SOFTLINK, WHICH WAS DESTROYED
+	    if ( connection[n].softlink == false )
+		tmpcomponent->updateOriginsRecursive ( tmpcomponent );
+
+
 	    //deleting the extra data pointer
-	    if (connection [n].data != NULL )
+	    if (connection[n].data != NULL )
 	    {
 	        free ( connection[n].data );
 		connection[n].data = NULL;
@@ -166,10 +159,10 @@ namespace lpzrobots
 	    else
 		cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
 
-	    //updates the references of origin within the tree structure
-	    connection[n].subcomponent->updateOriginsRecursive ( connection[n].subcomponent );
-
+//	    cout<<"size before remove: "<<connection.size()<<"\n";
 	    connection.erase ( eraseiterator );
+//	    cout<<"size after remove: "<<connection.size()<<"\n";
+
 
 	    return tmpcomponent;
 	}
@@ -187,6 +180,11 @@ namespace lpzrobots
 	    {
 		//move origins
 		tmpcomponent = connection[n].subcomponent;
+
+		//updates the references of origin within the tree structure !!!BUT ONLY IF IT WAS NO SOFTLINK, WHICH WAS DESTROYED
+		if ( connection[n].softlink == false )
+		    tmpcomponent->updateOriginsRecursive ( tmpcomponent );
+
 
 		//deleting the extra data pointer
 		if (connection [n].data != NULL )
@@ -206,10 +204,11 @@ namespace lpzrobots
 		else
 		    cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
 
-		//updates the references of origin within the tree structure
-		connection[n].subcomponent->updateOriginsRecursive ( connection[n].subcomponent );
-		
+//		cout<<"size before remove: "<<connection.size()<<"\n";
 		connection.erase ( it );
+//		cout<<"size after remove: "<<connection.size()<<"\n";
+
+
 
 		break;
 	    }
@@ -222,11 +221,12 @@ namespace lpzrobots
 
     void Component::removeAllSubcomponentsRecursive ()
     {
-	for ( int n = 0; n < getNumberSubcomponents (); n ++ )
+	for ( unsigned int n = 0; n < connection.size (); n ++ )
 	{
-	    removeSubcomponent ( n );
-	    if ( connection[n].softlink == false)
+	    if ( connection[n].softlink == false )
 		connection[n].subcomponent->removeAllSubcomponentsRecursive ();
+
+	    removeSubcomponent ( n );
 	}
 
     }
@@ -253,11 +253,11 @@ namespace lpzrobots
 
     void Component::removeSoftlinksRecursive ()
     {
-	for ( int n = 0; n < getNumberSubcomponents (); n ++ )
+	for ( unsigned int n = 0; n < connection.size (); n ++ )
 	{
 	    if ( connection[n].softlink == true )
 	    {
-		if ( getNumberSubcomponents ()  > 0 && getNumberSubcomponents()  > n )
+		if ( connection.size () > n )
 		{
 	    
 		    vector <componentConnection>::iterator eraseiterator;
@@ -292,20 +292,21 @@ namespace lpzrobots
 
     bool Component::hasSubcomponent ( Component* subcomp )
     {
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
-	    if ( subcomp == connection[n].subcomponent )
+//	    if ( connection[n].softlink == false )
+		if ( subcomp == connection[n].subcomponent )
 		    return true;
 	}
 	return false;
     }
 
-    bool Component::hasSubcomponentAll ( Component* subcomp )
+/*    bool Component::hasSubcomponentAll ( Component* subcomp )
     {
 	if ( hasSubcomponent ( subcomp ) == true )
 	    return true;
 	
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    if ( connection[n].softlink == false )
 	    {
@@ -315,13 +316,14 @@ namespace lpzrobots
 	}
 	return false;
     }
+*/
 
     bool Component::isComponentConnected ( Component* connectedComp )
     {
-//	if ( originComponent != NULL )
-	    return originComponent->hasSubcomponentAll ( connectedComp );
-//	else
-//	    return false;
+	if ( originComponent == connectedComp->originComponent )
+	    return true;
+	else
+	    return false;
     }
 
     Component::componentConnection  Component::getConnection ( int connectionnumber )
@@ -329,7 +331,7 @@ namespace lpzrobots
 	return connection[connectionnumber];
     }
 
-    bool Component::setSoftlink ( unsigned int position , bool state )
+/*    bool Component::setSoftlink ( unsigned int position , bool state )
     {
 	if ( connection.size () > position )
 	{
@@ -339,6 +341,7 @@ namespace lpzrobots
 	else
 	    return false;
     }
+*/
 
     Component* Component::getBestDivideComponent ( double targetrelation , int maxsize , Component* currentBestDivideComponent )
     {
@@ -348,7 +351,7 @@ namespace lpzrobots
 
 	double a;
 
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    if ( connection[n].softlink == false )
 	    {

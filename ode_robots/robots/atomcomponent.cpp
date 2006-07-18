@@ -21,8 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:39  martius
- *   selforg becomes HEAD
+ *   Revision 1.3  2006-07-18 09:23:22  robot8
+ *   -atomcomponent update
+ *   -coloring simulation
+ *   -one bug left: softlink removal from higher branches of the tree could not removed
  *
  *   Revision 1.1.2.6  2006/07/11 07:51:14  robot3
  *   cvslog added
@@ -74,7 +76,7 @@ namespace lpzrobots
 	int sensorcounter = 0;
 
 	    //sensor values of this component
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	    for ( unsigned int n = 0; n < connection.size (); n++ )
 		//Fixed- and Ball-Joint-Classes do not have the getPosition-function
 		if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeBall ) )
 		{
@@ -93,7 +95,7 @@ namespace lpzrobots
 		}
 
 	    //sensor values of all subcomponents and their robots
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	    for ( unsigned int n = 0; n < connection.size (); n++ )
 	    {
 		if ( connection[n].softlink == false )
 		    sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
@@ -146,7 +148,7 @@ namespace lpzrobots
 	int sensors = 0;
 	//recursive sensor-counting for all subcomponents
 
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    //counting the sensors by the type of the used joint, coded by ode type, because the joints are created external
 	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
@@ -175,7 +177,7 @@ namespace lpzrobots
     {
 	int motors = 0;
 
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{//counting the motors by the type of the used joint, coded by ode type, because the joints are created external
 	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
 		motors++;
@@ -204,7 +206,7 @@ namespace lpzrobots
 
 
 	//all subcomponents and joints also are updated
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    connection[n].joint->update ();
 	    connection[n].subcomponent->update ();
@@ -217,7 +219,7 @@ namespace lpzrobots
 
  	shell->setPosition ( osg::Vec3 ( ((Pos)pos).toPosition().x , ((Pos)pos).toPosition().y , ((Pos)pos).toPosition().z ) );
 
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    newpos = connection[n].subcomponent->getPosition () - ((Pos)pos).toPosition ();
 	    connection[n].subcomponent->place ( *(new Pos ( newpos )) );
@@ -232,9 +234,10 @@ namespace lpzrobots
     bool AtomComponent::collisionCallback (void *data, dGeomID o1, dGeomID o2)
     {
 
+	//is the shell of this atomcomponent is involved in the collision?
 	if ( shellCollision ( o1 , o2 ) == true )
 	{
-
+	    //does it colide with another ode geom from type sphere?
 	    if ( dGeomGetClass ( o1 ) == dSphereClass && dGeomGetClass ( o2 ) == dSphereClass ) //only if two atoms colide, all other cases are handled by the default collision handling of the simulations
 	    {
 		if ( collisionExclusionCondition ( o1 , o2 ) == true )
@@ -258,6 +261,8 @@ namespace lpzrobots
 
 		    if ( fissionCondition ( o1 , o2 , force ) == true )
 		    {
+			cout<<"fission\n";
+			cout<<"target of fission: "<<(AtomComponent*) dGeomGetData ( o1 )<<" atom causing fission: "<<(AtomComponent*) dGeomGetData ( o2 )<<"\n";
 			fission ( force ); //FISSION is called
 			return true;
 		    }
@@ -266,6 +271,7 @@ namespace lpzrobots
 		    return false;
 		}
 		else
+		    
 		    if ( shell->getGeom () == o2 )
 		    {
 			if ( fusionCondition ( o2 , o1 ) == true )
@@ -276,12 +282,15 @@ namespace lpzrobots
 
 			if ( fissionCondition ( o2 , o1 , force ) == true )
 			{
+			    cout<<"fission\n";
+			    cout<<"target of fission: "<<(AtomComponent*) dGeomGetData ( o2 )<<" atom causing fission: "<<(AtomComponent*) dGeomGetData ( o1 )<<"\n";
 			    fission ( force ); //FISSION is called
 			    return true;
 			}
+		    
 			//if no fusion and no fission dit happen
-			return false;
-		    }
+		    return false;
+	    }
 		
 		/**********************************************************************************************/
 		return false;
@@ -293,10 +302,14 @@ namespace lpzrobots
 	}
 	else
 	{
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
+//    	    cout<<"atom with possible error: "<<this<<"\n";
+	    for ( unsigned int n = 0; n < connection.size (); n++ )
 	    {
-		if ( connection[n].subcomponent->collisionCallback ( data , o1 , o2 ) )
-		    return true; // exit if collision was treated by a robot/component
+//		cout<<"after loop start\n";
+		//collisions should not ne treated over softlinks
+		if ( connection[n].softlink == false )
+		    if ( connection[n].subcomponent->collisionCallback ( data , o1 , o2 ) )
+			return true; // exit if collision was treated by a subcomponent
 	    }
 	    return false; //a simpleComponent does never handle collisions itself, it uses the standard collisionCallback of the simulation
 	}
@@ -372,7 +385,7 @@ namespace lpzrobots
     bool AtomComponent::fusionCondition ( dGeomID o1 , dGeomID o2 )
     {
 	//only if there is a binding position remaining
-	if ( getNumberSubcomponents () < atomconf.max_bindings )
+	if ( connection.size () < (unsigned int) atomconf.max_bindings )
 	{
 	    double force = ((AtomComponent*) dGeomGetData ( o2 ))->getCollisionForce ( (AtomComponent*) dGeomGetData ( o1 ) );
 	    //only binds an AtomComponent to another, if the fusion as enough force
@@ -391,7 +404,7 @@ namespace lpzrobots
  **/
     bool AtomComponent::fissionCondition ( dGeomID o1 , dGeomID o2 , double force )
     {
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    if ( force >= atomconf.min_fission_energy )
 		if ( force >= ((connectionAddition*) connection[n].data)->binding_strength )
@@ -413,12 +426,12 @@ namespace lpzrobots
 	}
 */
 
-	if ( ((AtomComponent*) dGeomGetData ( o1 ))->hasSubcomponent ( (Component*) dGeomGetData ( o2 ) ) == true )
+	if ( ( (Component*) dGeomGetData ( o1 ))->hasSubcomponent ( (Component*) dGeomGetData ( o2 ) ) == true )
 	{
 	    return true; //in this case the collision is ignored
 	}
 
-	if ( ((AtomComponent*) dGeomGetData ( o2 ))->hasSubcomponent ( (Component*) dGeomGetData ( o1 ) ) == true )
+	if ( ( (Component*) dGeomGetData ( o2 ))->hasSubcomponent ( (Component*) dGeomGetData ( o1 ) ) == true )
 	{
 	    return true; //in this case the collision is ignored
 	}
@@ -435,90 +448,124 @@ namespace lpzrobots
 	//if the atom_to_fuse is a subcomponent of this before fusing, then the new connection only becomes a softlink
 	if ( isComponentConnected ( atom_to_fuse ) == true )
 	{
+	    cout<<"fusion case 1\n";
+	    cout<<"atom to bind on: "<<this<<" atom to fuse: "<<atom_to_fuse<<"\n";
+	    osgHandle.color.alpha () = 0.3;
+
 	    Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
 	    HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
 	    j1->init ( odeHandle , osgHandle , true/*false*/ , atomconf.shell_radius+atomconf.core_radius );
 
-	    addSubcomponent ( atom_to_fuse , j1 );
-	    if ( setSoftlink ( getNumberSubcomponents() - 1 , true ) != true )
-		cout<<"Softlink could not be set because of wrong indexation\n";   
-	    cout<<"Softlink set!\n";
+    	    osgHandle.color.alpha () = 1;
+
+
+	    //a subcomponent is added as a softlink
+	    addSubcomponent ( atom_to_fuse , j1 , true );
+
+
+	    void* testp = new connectionAddition ();
+	    connection.back().data = testp;
+	    ((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
+
+
+
+	    return true;
 
 	}
 	//if it is a fusion with atomcomponents of other structures or free ones
 	else
 	{
+
 	    //if the origins of both atoms are no leading atoms of a structure, does not exclude, that they are identical, but this should be catched by the rule above
 	    if ( !( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == true && ((AtomComponent*) originComponent)->atomconf.leadingatom == true ) )
 	    {
-		Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
-		HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
-		j1->init ( odeHandle , osgHandle , true/*false*/ , atomconf.shell_radius+atomconf.core_radius );
-
 		//this is the normal atom fusion
 		//switches the binding of the two components, so that the uncontrolled componments always will become subcomponents to the controlled ones
-		if ( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == false && ((AtomComponent*) originComponent)->atomconf.leadingatom == true )
+		if (((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == false && ((AtomComponent*) originComponent)->atomconf.leadingatom == true )
 		{
-		    addSubcomponent ( atom_to_fuse , j1 );
+			Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
+			HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
+			j1->init ( odeHandle , osgHandle , true/*false*/ , atomconf.shell_radius+atomconf.core_radius );
+			
+			cout<<"fusion case 2a\n";
+			cout<<"atom to bind on: "<<this<<" atom to fuse: "<<atom_to_fuse<<"\n";
+			addSubcomponent ( atom_to_fuse , j1 , false );
+			
+			void* testp = new connectionAddition ();
+			connection.back().data = testp;
+			((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
+			return true;
+
 		}
 		else
-		    if ( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == true && ((AtomComponent*) originComponent)->atomconf.leadingatom == false )
+		{
+/*		    if ( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == true && ((AtomComponent*) originComponent)->atomconf.leadingatom == false )
 		    {
-			atom_to_fuse->addSubcomponent ( this , j1 );
+			Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
+			HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
+			j1->init ( odeHandle , osgHandle , true , atomconf.shell_radius+atomconf.core_radius );
+
+			cout<<"fusion case 2b\n";
+			atom_to_fuse->addSubcomponent ( this , j1 , false );
+
+			void* testp = new connectionAddition ();
+			connection.back().data = testp;
+			((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
+			return true;
 		    }
+*/
+		}
 	    }
 	    //if two controller controlled component structures would fuse, the replication mecanism is activated
 	    else
-	    { 
-		cout<<getNumberSubcomponents ()<<"\n";
-		cout<<atom_to_fuse->getNumberSubcomponents ()<<"\n";
-		replication ( atom_to_fuse );
-		return true;
+	    {
+		cout<<"fusion case 3\n";
+//		cout<<getNumberSubcomponents ()<<"\n";
+//		cout<<atom_to_fuse->getNumberSubcomponents ()<<"\n";
+		//replication ( atom_to_fuse );
+		return false/*true*/;
 	    }
 	}
+	return false;
 
-	
-	connection.back().data = new connectionAddition ();
-	((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
-	return true;
     }
 
     bool AtomComponent::fission ( double force )
     {
-	cout<<"fission\n";
+
 	
-	cout<<getNumberSubcomponents ()<<"\n";
-
-
-
 //first creating a list of all bound subcomponents, sorting it after the binding_strength of the connections
 
 	double binding_strength_counter = 100000000;
 	int m = 0;
 
-	while ( force > 0 && ( getNumberSubcomponents() > 0 ) )
+	while ( force > 0 && ( connection.size() > 0 ) )
 	{
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	    for ( unsigned int n = 0; n < connection.size(); n++ )
 	    {
+//	    cout<<"before1\n";
+//	    cout<<((connectionAddition*) connection[n].data)<<" test\n";
 		if ( ((connectionAddition*) connection[n].data)->binding_strength < binding_strength_counter )
 		{
+//	    cout<<"before2\n";
 		    m = n;
 		    binding_strength_counter = ((connectionAddition*) connection[n].data)->binding_strength;		
 		}
 	    }
 
-	    connection[m].subcomponent->resetMotorsRecursive ( ); 
+//	    connection[m].subcomponent->resetMotorsRecursive ( ); 
 
 	    //softlinks should not stay like they are
 
-	    if ( removeSubcomponent ( m ) == NULL)
-		cout<<"Subcomponent removal Error\n";
+	    connection[m].subcomponent->removeAllSubcomponentsRecursive ();
 
+
+	    if ( removeSubcomponent ( m ) == NULL)
+		cout<<"Subcomponent removal Error\n";   
+//	    cout<<"after removing\n";
 	    force -= binding_strength_counter;
 	    binding_strength_counter = 100000000;
 	}
-
-	cout<<getNumberSubcomponents ()<<"\n";
 	
 	return true;
     }
@@ -531,7 +578,7 @@ namespace lpzrobots
 	cout<<"replication\n";
 	
 
-	if ( ( getNumberSubcomponentsAll () + 1 >= 4 ) && ( atom_to_replicate->getNumberSubcomponentsAll() + 1 >= 4 ) )
+	if ( ( originComponent->getNumberSubcomponentsAll () + 1 >= 4 ) && ( atom_to_replicate->originComponent->getNumberSubcomponentsAll() + 1 >= 4 ) )
 	{
 	    Component* partA1;
 	    Component* partA2;
@@ -544,6 +591,8 @@ namespace lpzrobots
 
 
 /*************************************splitting the first structure into 4 parts********************************************/
+
+	    cout<<"\n start splitting for first structure \n";
 	    partA1 = originComponent;
 	    partA3 = partA1->getBestDivideComponent ( 1.0/2.0 , partA1->getNumberSubcomponentsAll () + 1 , NULL );
 	    if ( partA3 != NULL )
@@ -561,7 +610,7 @@ namespace lpzrobots
 	    }
 	    else
 	    {
-		cout<<"replication aborded because of wrong dividing\n";
+		cout<<"replication aborded because of wrong dividing for A3\n";
 		return;
 	    }
 	    
@@ -584,13 +633,18 @@ namespace lpzrobots
 	    }
 	    else
 	    {
-		cout<<"replication aborded because of wrong dividing\n";
+		cout<<"replication aborded because of wrong dividing for A2\n";
 		return;
 	    }
 	    
 
 
-	    partA4 = partA3->getBestDivideComponent ( 1.0/2.0 , partA3->getNumberSubcomponentsAll () + 1 , NULL );
+	    //special threatment fpr the last splitting, because of the possibility that B3 is only a one-atom-struture
+	    if ( ( partA3->getNumberSubcomponentsAll () + 1 ) > 1 )
+		partA4 = partA3->getBestDivideComponent ( 1.0/2.0 , partA3->getNumberSubcomponentsAll () + 1 , NULL );
+	    else //in this case B1 is used because there had to be the rest atoms up to the minimum 4 atoms
+		partA4 = partA1->getBestDivideComponent ( 1.0/2.0 , partA1->getNumberSubcomponentsAll () + 1 , NULL );
+
 	    
 	    if ( partA4 != NULL )
 	    {
@@ -604,13 +658,16 @@ namespace lpzrobots
 	    }
 	    else
 	    {
-		cout<<"replication aborded because of wrong dividing\n";
+		cout<<"replication aborded because of wrong dividing for A4\n";
 		return;
 	    }
 
-	
+		    cout<<"\n end splitting for first structure \n";
 
 /*************************************splitting the second structure into 4 parts********************************************/
+
+
+	    cout<<"\n start splitting for second structure \n";
 
 	    partB1 = atom_to_replicate->originComponent;
 	    partB3 = partB1->getBestDivideComponent ( 1.0/2.0 , partB1->getNumberSubcomponentsAll () + 1 , NULL );
@@ -629,7 +686,7 @@ namespace lpzrobots
 	    }
 	    else
 	    {
-		cout<<"replication aborded because of wrong dividing\n";
+		cout<<"replication aborded because of wrong dividing for B3\n";
 		return;
 	    }
 	    
@@ -651,13 +708,16 @@ namespace lpzrobots
 	    }
 	    else
 	    {
-		cout<<"replication aborded because of wrong dividing\n";
+		cout<<"replication aborded because of wrong dividing for B2\n";
 		return;
 	    }
 	    
 
-
-	    partB4 = partB3->getBestDivideComponent ( 1.0/2.0 , partB3->getNumberSubcomponentsAll () + 1 , NULL );
+	    //special threatment for the last splitting, because of the possibility that B3 is only a one-atom-struture
+	    if ( ( partB3->getNumberSubcomponentsAll () + 1 ) > 1 )
+		partB4 = partB3->getBestDivideComponent ( 1.0/2.0 , partB3->getNumberSubcomponentsAll () + 1 , NULL );
+	    else //in this case B1 is used because there had to be the rest atoms up to the minimum 4 atoms
+		partB4 = partB1->getBestDivideComponent ( 1.0/2.0 , partB1->getNumberSubcomponentsAll () + 1 , NULL );
 	    
 	    if ( partB4 != NULL )
 	    {
@@ -671,15 +731,15 @@ namespace lpzrobots
 	    }
 	    else
 	    {
-		cout<<"replication aborded because of wrong dividing\n";
+		cout<<"replication aborded because of wrong dividing for B4\n";
 		return;
 	    }
 
-
+	    cout<<"\n end splitting for second structure \n";
 
 //creating the four joints between the 8 new components
 
-/*	    Axis axis = Axis ( ( partA1->getPosition () - partB2->getPosition()).toArray() );
+	    Axis axis = Axis ( ( partA1->getPosition () - partB2->getPosition()).toArray() );
 	    HingeJoint* j1 = new HingeJoint ( partA1->getMainPrimitive () , partB2->getMainPrimitive () , partA1->getPositionbetweenComponents ( partB2 ) , axis );
 	    j1->init ( odeHandle , osgHandle , true , ((AtomComponent*) partA1)->atomconf.shell_radius + ((AtomComponent*) partB2)->atomconf.core_radius );
 
@@ -695,11 +755,16 @@ namespace lpzrobots
 	    HingeJoint* j4 = new HingeJoint ( partA4->getMainPrimitive () , partB4->getMainPrimitive () , partA4->getPositionbetweenComponents ( partB4 ) , axis );
 	    j4->init ( odeHandle , osgHandle , true , ((AtomComponent*) partA4)->atomconf.shell_radius + ((AtomComponent*) partB4)->atomconf.core_radius );
 
-	    partA1->addSubcomponent ( partB2 , j1 );
-	    partB1->addSubcomponent ( partA1 , j2 );
-	    partA3->addSubcomponent ( partB3 , j3 );
-	    partA4->addSubcomponent ( partB4 , j4 );
-*/
+	    partA1->addSubcomponent ( partB2 , j1 , false );
+	    partB1->addSubcomponent ( partA2 , j2 , false );
+	    partA3->addSubcomponent ( partB3 , j3 , false );
+	    partA4->addSubcomponent ( partB4 , j4 , false );
+
+	    ((AtomComponent*) partA1)->atomconf.leadingatom = true;
+	    ((AtomComponent*) partB1)->atomconf.leadingatom = true;
+	    ((AtomComponent*) partA3)->atomconf.leadingatom = true;
+	    ((AtomComponent*) partA4)->atomconf.leadingatom = true;
+
 	}
 	else
 	    cout<<"No replication because only structures with four or more atoms could replicate\n";

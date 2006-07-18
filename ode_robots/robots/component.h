@@ -164,7 +164,7 @@ virtual int getNumberSubcomponentsAll ();
  *@param subcomponent to add
  *@param reference to external created joint, which connects both components
  **/
-virtual void addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint );
+virtual void addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint , bool softlink );
 
 /**
  *This method removes an existing Component as a subcomponent of this component. This also removes all Subcomponents of the subcomponent.
@@ -198,6 +198,7 @@ virtual void removeAllSubcomponentsRecursive ();
 
 /**
  *This method looks if a special component is a subcomponent of this component. Only direct subcomponents are registrated.
+ *Components which are only connected by softlink are a connection here as well.
  *@param the component, which could be a subcomponent of this component
  *@return true if it is a subcomponent, false if not
  **/
@@ -205,10 +206,11 @@ virtual bool hasSubcomponent ( Component* subcomp );
 
 /**
  *This method looks if a special component is a subcomponent of this component and all its recursive subcomponents.
+ *Softlinks count as connected, but are not recursivly counted.
  *@param the component, which could be a subcomponent
  *@return true if it is a subcomponent, false if not
  **/
-virtual bool hasSubcomponentAll ( Component* subcomp );
+//virtual bool hasSubcomponentAll ( Component* subcomp );
 
 /**
  *This method looks if a special component somehow connected to this component.
@@ -229,7 +231,7 @@ virtual componentConnection getConnection ( int connectionnumber );
  *@param number of the subcomponent in the subcomponent list of the component
  *@param true = connection becomes a softlink
  **/
-virtual bool setSoftlink ( unsigned int position , bool state );
+//virtual bool setSoftlink ( unsigned int position , bool state );
 
 /**
  *This divides the component structure, following this component into two seperate component structures
