@@ -7,7 +7,13 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.3  2006-07-18 14:13:09  martius
+// Revision 1.4  2006-07-19 09:26:37  martius
+// namespace std removed from header
+// store and restore
+// read and write
+// columns accessor
+//
+// Revision 1.3  2006/07/18 14:13:09  martius
 // crucial bug fixing in *= operator!
 //
 // Revision 1.2  2006/07/14 12:24:01  martius
@@ -108,7 +114,8 @@
 #ifndef AVR
 #include <iostream>
 #endif
-using namespace std;
+
+#include "storeable.h"
 
 // TODO: add doxygen section
 
@@ -136,7 +143,7 @@ namespace matrix{
       Please use -lmatrix_debug for testing.
       @author Georg Martius
   */
-  class Matrix{  
+  class Matrix : public Storeable {  
   public:
     /// default constructor: zero matrix (0x0)
     Matrix() 
@@ -168,6 +175,14 @@ namespace matrix{
       assert( i<m && j<n);
       return data[i*n+j];
     };
+
+    /** @return element at position i,j (row, column index) and 0 if out of bounds */
+    D valSecure(short i, short j) const { 	
+      if(0<=i && i<m && 0<=j && j<n)
+	return data[i*n+j];
+      else return 0;
+    };
+    
     /** sets the size of the matrix and maybe the data if given (row-wise).
         If data=null then the matrix is set to zero 
 	@see toZero()
@@ -182,6 +197,13 @@ namespace matrix{
     Matrix row(unsigned short index) const;
     /** @returns column-vector(as Nx1 matrix) containing the index'th column */
     Matrix column(unsigned short index) const;
+    /** @returns submatrix (as NxK matrix) 
+	containing column from startindex to endindex inclusively (K=stopindex-endindex) 
+	indices can be out of bounds, they are clipped in any case
+    */
+    Matrix columns(unsigned short startindex, unsigned short endindex) const;
+
+
 
     /** stores the content of the matrix (row-wise) in the given buffer
 	@param buffer Buffer for storing the elements (should have the length given by len)
@@ -192,7 +214,23 @@ namespace matrix{
     int convertToBuffer(D* buffer, unsigned int len) const;
     /** @return a list of the content of the matrix (row-wise)
      */
-    list<D> convertToList() const;
+    std::list<D> convertToList() const;
+
+    /**** STOREABLE ****/
+    /** stores the Matrix into the given file stream (binary)
+     */
+    bool Matrix::store(FILE* f) const;
+    /** reads a Matrix from the given file stream (binary)
+     */
+    bool Matrix::restore(FILE* f);
+
+    /** writes the Matrix into the given file stream (ascii)
+     */
+    bool Matrix::write(FILE* f) const;
+    /** reads a Matrix from the given file stream (ascii)
+     */
+    bool Matrix::read(FILE* f);
+	
 
   public:
     // ////////////////////////////////////////////////////////////////////
@@ -284,7 +322,7 @@ namespace matrix{
     /** printing operator:
         output format: mxn (\n row0\n..rown \n) where rowX is tab seperated list of values
     */
-    friend ostream& operator<<(ostream& , const Matrix&);
+    friend std::ostream& operator<<(std::ostream& , const Matrix&);
 #endif
 
   public:

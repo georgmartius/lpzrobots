@@ -5,7 +5,13 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.2  2006-07-14 12:24:01  martius
+// Revision 1.3  2006-07-19 09:26:28  martius
+// namespace std removed from header
+// store and restore
+// read and write
+// columns accessor
+//
+// Revision 1.2  2006/07/14 12:24:01  martius
 // selforg becomes HEAD
 //
 // Revision 1.1.2.2  2006/07/14 08:57:40  der
@@ -136,6 +142,16 @@ const int T=0xFF;
     return result;
   }
 
+  Matrix Matrix::columns(unsigned short startindex, unsigned short endindex) const{
+    unsigned short start = std::min( (int)startindex, n-1 );
+    unsigned short end   = std::max( (int)start, std::min((int)endindex,n-1));
+    unsigned short k     = end - start + 1;
+    Matrix result(m,k);
+    for(int i=0; i<m; i++){
+      memcpy(result.data + i*k, data + i*n + start, k*sizeof(D));
+    }
+    return result;
+  }
 
   void Matrix::set(unsigned short _m, unsigned short _n, const D* _data /*=0*/){
     m=_m;
@@ -159,8 +175,8 @@ const int T=0xFF;
     return 0;
   }
 
-  list<D> Matrix::convertToList() const {
-    list<D> l;
+  std::list<D> Matrix::convertToList() const {
+    std::list<D> l;
     if(data){      
       for(int i=0; i < m*n; i++){
 	l.push_back(data[i]);
@@ -168,6 +184,60 @@ const int T=0xFF;
     }
     return l;
   }
+  
+  bool Matrix::write(FILE* f) const{
+    fprintf(f,"%i %i\n", m,n);
+    for(int i=0; i< m*n; i++){
+      fprintf(f,"%f ", data[i]);
+    }
+    fprintf(f,"\n");
+    return true;
+  }
+  
+  bool Matrix::read(FILE* f){
+    char buffer[128];
+    if(fscanf(f,"%hu %hu\n", &m,&n)!=2)  return false;
+    allocate();
+    for(int i=0; i< m*n; i++){
+      if(fscanf(f,"%s ", buffer)!=1) return false;
+      data[i] = atof(buffer);
+    }
+    fscanf(f,"\n");
+    return true;
+  }
+
+  /** stores the Matrix into the given file stream (binary)
+   */
+  bool Matrix::store(FILE* f) const {
+    int dim[2] = { m, n };
+    unsigned int len = m * n;
+    bool rval=false;
+    if(fwrite(dim, sizeof(int), 2, f) == 2) 
+      if(fwrite(data, sizeof(D), len, f) == len)       
+	rval=true;
+    return rval;
+  }
+  
+  /** reads a Matrix from the given file stream (binary)
+   */
+  bool Matrix::restore(FILE* f){
+    int dim[2];
+    bool rval = false;
+    if(fread(dim, sizeof(int), 2, f) == 2){
+      m=dim[0]; 
+      n=dim[1];
+      allocate();
+      unsigned int len = m * n;      
+      if(fread(data, sizeof(D), len, f) == len) {  
+	rval = true;
+      }else fprintf(stderr, "Matrix::restore: cannot read matrix data\n"); 
+    }else{
+      fprintf(stderr, "Matrix::restore: cannot read dimension\n");
+    }
+    return rval;
+  }
+  
+  
 
 ////////////////////////////////////////////////////////////////////////////////
 ////// OPERATORS ///////////////////////////////////////////////////////////////
@@ -539,7 +609,7 @@ const int T=0xFF;
     return true;
   }
 
-  ostream& operator<<(ostream& str, const Matrix& mat){
+  std::ostream& operator<<(std::ostream& str, const Matrix& mat){
     if (mat.m==0 || mat.n==0) return str << "0";
     else { 
       str << mat.m << "x" << mat.n << " (\n";
@@ -547,7 +617,7 @@ const int T=0xFF;
         for(int j=0; j < mat.n; j++){
           str << mat.val(i,j) << "\t"; 
         }
-        str << endl;
+        str << std::endl;
       }      
     }
     return str << ")\n";
