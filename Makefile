@@ -21,7 +21,7 @@ neuronviz:
 
 .PHONY: install
 install:
-	-cp guilogger/bin/guilogger $(HOME)/bin/ && echo "copied guilogger to $(HOME)/bin/" || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
+	-@cp guilogger/bin/guilogger $(HOME)/bin/ && echo "copied guilogger to $(HOME)/bin/" || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
 #	cd neuronviz/src && make install
 
 .PHONY: tags
