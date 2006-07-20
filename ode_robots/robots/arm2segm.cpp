@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-07-14 12:23:38  martius
+ *   Revision 1.8  2006-07-20 17:19:43  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.7  2006/07/14 12:23:38  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.6.4.8  2006/06/25 17:00:31  martius
@@ -55,6 +58,8 @@
  ***************************************************************************/
 
 #include "arm2segm.h"
+
+using namespace std; 
 
 namespace lpzrobots{
 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2006-07-14 12:23:40  martius
+ *   Revision 1.19  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.18  2006/07/14 12:23:40  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.17.4.10  2006/06/25 16:57:14  martius
@@ -148,7 +151,7 @@ class Nimm2 : public OdeRobot{
 public:
   
   Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle, 
-	const Nimm2Conf& conf, const string& name);
+	const Nimm2Conf& conf, const std::string& name);
 
   static Nimm2Conf getDefaultConf(){
     Nimm2Conf conf;
@@ -207,7 +210,7 @@ public:
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
   */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
+  virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
   

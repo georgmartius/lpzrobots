@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-07-14 12:23:41  martius
+ *   Revision 1.7  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.6  2006/07/14 12:23:41  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.5.4.7  2006/06/25 16:57:15  martius
@@ -74,7 +77,7 @@ namespace lpzrobots {
   class SchlangeServo: public Schlange
   {
   private:
-    vector <HingeServo*> servos;
+    std::vector <HingeServo*> servos;
 
   public:
     SchlangeServo ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,

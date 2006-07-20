@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:39  martius
+ *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:39  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.13  2006/07/05 13:12:54  der
@@ -74,6 +77,8 @@
 
 #include "caterpillar.h"
 #include "mathutils.h"
+
+using namespace std;
 
 namespace lpzrobots {
 

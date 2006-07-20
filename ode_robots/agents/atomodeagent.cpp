@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:30  martius
+ *   Revision 1.3  2006-07-20 17:19:43  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:30  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/06/12 13:50:21  robot8
@@ -44,6 +47,8 @@
 #include <selforg/abstractwiring.h>
 #include "atomodeagent.h"
 #include "odeagent.h"
+
+using namespace std;
 
 namespace lpzrobots
 {

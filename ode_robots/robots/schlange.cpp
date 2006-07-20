@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2006-07-14 13:52:01  der
+ *   Revision 1.23  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.22  2006/07/14 13:52:01  der
  *   setheadcolor
  *
  *   Revision 1.20.4.10  2006/06/29 16:39:56  robot3
@@ -65,6 +68,7 @@
 
 #include "schlange.h"
 #include "osgprimitive.h"
+using namespace std;
 
 namespace lpzrobots {
 

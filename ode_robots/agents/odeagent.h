@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:31  martius
+ *   Revision 1.3  2006-07-20 17:19:43  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:31  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.6  2006/05/15 13:14:10  robot3
@@ -63,7 +66,7 @@ namespace lpzrobots {
   /** constructor
    */
   OdeAgent(const PlotOption& plotOption)  : Agent(plotOption) {tracing_initialized=false;}
-  OdeAgent(const list<PlotOption>& plotOptions) : Agent(plotOptions) {tracing_initialized=false;}
+  OdeAgent(const std::list<PlotOption>& plotOptions) : Agent(plotOptions) {tracing_initialized=false;}
   /** destructor
    */
   virtual ~OdeAgent() {}

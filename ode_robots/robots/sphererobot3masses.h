@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:42  martius
+ *   Revision 1.3  2006-07-20 17:19:45  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:42  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.4  2006/06/25 16:57:17  martius
@@ -116,7 +119,7 @@ public:
    *constructor
    **/ 
   Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       const Sphererobot3MassesConf& conf, const string& name, double transparency=0.5 );
+		       const Sphererobot3MassesConf& conf, const std::string& name, double transparency=0.5 );
   
   virtual ~Sphererobot3Masses();
 	

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-18 09:23:22  robot8
+ *   Revision 1.4  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.3  2006/07/18 09:23:22  robot8
  *   -atomcomponent update
  *   -coloring simulation
  *   -one bug left: softlink removal from higher branches of the tree could not removed
@@ -33,11 +36,11 @@
  ***************************************************************************/
 
 #include "atomcomponent.h"
+using namespace std;
+
 
 namespace lpzrobots
 {
-
-
 
 /*****************************************************************************/
 /* AtomComponent                                                             */

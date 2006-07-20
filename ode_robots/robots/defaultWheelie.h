@@ -32,7 +32,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:40  martius
+ *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:40  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/06/25 16:57:12  martius
@@ -85,14 +88,14 @@ protected:
   
   bool created;
 
-  vector <Primitive*> objects;
-  vector <Joint*> joints;
-  vector <AngularMotor*> frictionmotors;
+  std::vector <Primitive*> objects;
+  std::vector <Joint*> joints;
+  std::vector <AngularMotor*> frictionmotors;
   WheelieConf conf;
 
 public:
   DefaultWheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-	     const WheelieConf& conf, const string& name, const std::string& revision);
+	     const WheelieConf& conf, const std::string& name, const std::string& revision);
 
   static WheelieConf getDefaultConf(){
     WheelieConf conf;
@@ -162,7 +165,7 @@ public:
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
   */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
+  virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
 
   /** The list of all parameters with there value as allocated lists.

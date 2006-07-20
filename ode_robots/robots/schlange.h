@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2006-07-14 13:52:01  der
+ *   Revision 1.18  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.17  2006/07/14 13:52:01  der
  *   setheadcolor
  *
  *   Revision 1.15.4.9  2006/06/25 16:57:15  martius
@@ -99,9 +102,9 @@ protected:
   
   bool created;
 
-  vector <Primitive*> objects;
-  vector <Joint*> joints;
-  vector <AngularMotor*> frictionmotors;
+  std::vector <Primitive*> objects;
+  std::vector <Joint*> joints;
+  std::vector <AngularMotor*> frictionmotors;
   SchlangeConf conf;
 
 public:
@@ -176,7 +179,7 @@ public:
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
   */
-  virtual int getSegmentsPosition(vector<Position> &poslist);
+  virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
 
   /** The list of all parameters with there value as allocated lists.

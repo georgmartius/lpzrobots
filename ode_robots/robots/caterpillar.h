@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:39  martius
+ *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:39  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/05/09 08:46:47  robot3
@@ -58,8 +61,8 @@ namespace lpzrobots {
   class CaterPillar : public DefaultCaterPillar
     {
   private:
-    vector <UniversalServo*> universalServos;
-    vector <SliderServo*> sliderServos;
+    std::vector <UniversalServo*> universalServos;
+    std::vector <SliderServo*> sliderServos;
 
   public:
       CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,

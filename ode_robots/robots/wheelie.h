@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:43  martius
+ *   Revision 1.3  2006-07-20 17:19:45  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:43  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/06/25 16:57:17  martius
@@ -48,15 +51,15 @@ namespace lpzrobots {
    * by a joint powered by 1 servo
    **/
   class Wheelie : public DefaultWheelie
-    {
+  {
   private:
-    vector <HingeServo*> hingeServos;
+    std::vector <HingeServo*> hingeServos;
 
   public:
-      Wheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-	      const WheelieConf& conf, const std::string& name);
+    Wheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+	    const WheelieConf& conf, const std::string& name);
     
-      virtual ~Wheelie();
+    virtual ~Wheelie();
 	
     /**
      *Reads the actual motor commands from an array, 

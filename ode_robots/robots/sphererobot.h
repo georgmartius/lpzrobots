@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-07-14 12:23:42  martius
+ *   Revision 1.11  2006-07-20 17:19:45  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.10  2006/07/14 12:23:42  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.9.4.7  2006/06/25 16:57:16  martius
@@ -176,7 +179,7 @@ namespace lpzrobots {
 	
     /** returns a vector with the positions of all segments of the robot
     */
-    virtual int getSegmentsPosition(vector<Position> &poslist);	
+    virtual int getSegmentsPosition(std::vector<Position> &poslist);	
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */

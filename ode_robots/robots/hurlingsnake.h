@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-07-14 15:13:46  fhesse
+ *   Revision 1.9  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.8  2006/07/14 15:13:46  fhesse
  *   minor changes
  *
  *   Revision 1.6.4.9  2006/06/25 16:57:13  martius
@@ -93,7 +96,7 @@ namespace lpzrobots {
     /**
      * Constructor
      */
-    HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const string& name);
+    HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const std::string& name);
   
     /// update the subcomponents
     virtual void update();
@@ -140,7 +143,7 @@ namespace lpzrobots {
 	@param poslist vector of positions (of all robot segments) 
 	@return length of the list
     */
-    virtual int getSegmentsPosition(vector<Position> &poslist);
+    virtual int getSegmentsPosition(std::vector<Position> &poslist);
   
     /** The list of all parameters with there value as allocated lists.       
     */

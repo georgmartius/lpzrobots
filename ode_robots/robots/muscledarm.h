@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-14 12:23:40  martius
+ *   Revision 1.5  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.4  2006/07/14 12:23:40  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.4.14  2006/06/25 16:57:13  martius
@@ -210,7 +213,7 @@ namespace lpzrobots{
 	@param poslist vector of positions (of all robot segments) 
 	@return length of the list
     */
-    virtual int getSegmentsPosition(vector<Position> &poslist);
+    virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
     /** this function is called in each timestep. It should perform robot-internal checks, 
@@ -261,15 +264,11 @@ namespace lpzrobots{
     
     Position old_dist[NUMParts]; // used for damping
 
-    string name;    
     paramval factorMotors;
     paramval factorSensors;
     paramval damping;
     paramval print;
     
-
-
-
     int segmentsno;    // number of motorsvehicle segments
 
 

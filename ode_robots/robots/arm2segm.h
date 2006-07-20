@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-07-14 12:23:38  martius
+ *   Revision 1.6  2006-07-20 17:19:43  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.5  2006/07/14 12:23:38  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.4.4.7  2006/06/25 16:57:11  martius
@@ -155,7 +158,7 @@ namespace lpzrobots{
 	@param poslist vector of positions (of all robot segments) 
 	@return length of the list
     */
-    virtual int getSegmentsPosition(vector<Position> &poslist);
+    virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const;
@@ -194,11 +197,11 @@ namespace lpzrobots{
 
     Arm2SegmConf conf;
 
-    vector <Primitive*> objects;
-    vector <Joint*> joints;
-    vector <AngularMotor1Axis*> amotors;
+    std::vector <Primitive*> objects;
+    std::vector <Joint*> joints;
+    std::vector <AngularMotor1Axis*> amotors;
 
-    string name;    
+    std::string name;    
     paramval speed;
     paramval factorSensors;
 

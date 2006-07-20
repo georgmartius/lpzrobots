@@ -69,7 +69,7 @@ class Component : public OdeRobot
 	void *data;
     } componentConnection;
 
-    vector <componentConnection> connection;
+    std::vector <componentConnection> connection;
 public: 
     Component* originComponent;
     Component* directOriginComponent;

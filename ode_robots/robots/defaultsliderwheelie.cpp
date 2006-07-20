@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:40  martius
+ *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:40  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.4  2006/06/29 16:39:55  robot3
@@ -42,6 +45,7 @@
 
 #include "defaultSliderWheelie.h"
 #include "osgprimitive.h"
+using namespace std;
 
 namespace lpzrobots {
 

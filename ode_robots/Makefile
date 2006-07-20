@@ -25,7 +25,7 @@ UTILS =
 CPPFLAGS = -Wall -g -I. $(INC)
 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. $(INC) -O3 -DNDEBUG
+CPPFLAGS_OPT = -Wall -I. $(INC) -O -DNDEBUG
 
 # used for single file compilation
 CXX = g++
@@ -33,7 +33,9 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rs
 
-all: libselforg $(LIB) $(UTILS)
+.PHONY: lib opt clean todo depend tags
+
+lib: libselforg $(LIB) $(UTILS)
 
 opt: libselforg_opt $(LIB_OPT)
 

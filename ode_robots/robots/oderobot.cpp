@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:41  martius
+ *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   removed using namespace std from matrix.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:41  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.5  2006/06/25 16:57:14  martius
@@ -48,6 +51,8 @@
 
 #include "oderobot.h"
 #include "primitive.h"
+
+using namespace std;
 
 namespace lpzrobots {
 
