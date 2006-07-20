@@ -5,7 +5,12 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.2  2006-07-14 12:24:01  martius
+// Revision 1.3  2006-07-20 17:14:36  martius
+// removed std namespace from matrix.h
+// storable interface
+// abstract model and invertablemodel as superclasses for networks
+//
+// Revision 1.2  2006/07/14 12:24:01  martius
 // selforg becomes HEAD
 //
 // Revision 1.1.2.1  2006/07/10 12:01:02  martius
@@ -60,6 +65,7 @@
 #ifdef UNITTEST
 #include "unit_test.hpp"
 using namespace matrix;
+using namespace std;
 
 const D EPS=1e-9;
 bool comparetoidentity(const Matrix& m)  {

@@ -5,7 +5,12 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.3  2006-07-19 09:26:28  martius
+// Revision 1.4  2006-07-20 17:14:35  martius
+// removed std namespace from matrix.h
+// storable interface
+// abstract model and invertablemodel as superclasses for networks
+//
+// Revision 1.3  2006/07/19 09:26:28  martius
 // namespace std removed from header
 // store and restore
 // read and write
@@ -117,7 +122,6 @@ const int T=0xFF;
       assert(data);
     }
   }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 ////// ACCESSORS ///////////////////////////////////////////////////////////////

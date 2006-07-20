@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:24:02  martius
+ *   Revision 1.3  2006-07-20 17:14:36  martius
+ *   removed std namespace from matrix.h
+ *   storable interface
+ *   abstract model and invertablemodel as superclasses for networks
+ *
+ *   Revision 1.2  2006/07/14 12:24:02  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/02/08 16:20:21  martius
@@ -59,7 +64,7 @@
  ***************************************************************************/
 
 #include "derivativewiring.h"
-
+using namespace std;
 
 /// constructor
 DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf, 

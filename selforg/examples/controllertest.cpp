@@ -2,8 +2,8 @@
 #include<vector>
 using namespace std;
 
-#include "selforg/sinecontroller.h" 
-#include "selforg/invertnchannelcontroller.h" 
+#include <selforg/sinecontroller.h>
+#include <selforg/invertnchannelcontroller.h>
 
 int main(){
   AbstractController* controller = new InvertNChannelController(5 );

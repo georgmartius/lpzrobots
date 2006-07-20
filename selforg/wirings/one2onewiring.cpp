@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:24:02  martius
+ *   Revision 1.3  2006-07-20 17:14:36  martius
+ *   removed std namespace from matrix.h
+ *   storable interface
+ *   abstract model and invertablemodel as superclasses for networks
+ *
+ *   Revision 1.2  2006/07/14 12:24:02  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/05/30 14:13:03  fhesse
@@ -128,13 +133,13 @@ bool One2OneWiring::wireMotors(motor* rmotors, int rmotornumber,
 
 /** Returns the list of the names of all internal parameters.
 */
-list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames() const {
-  list<iparamkey> l;
+Inspectable::iparamkeylist One2OneWiring::getInternalParamNames() const {
+  iparamkeylist l;
   char buffer[32];
   if(plotNoise) {    
     for(int i = 0; i < rsensornumber; i++){
       sprintf(buffer,"n[%d]", i);
-      l += string(buffer);
+      l += std::string(buffer);
     }
   } 
   return l;
@@ -143,8 +148,8 @@ list<Inspectable::iparamkey> One2OneWiring::getInternalParamNames() const {
 /** Returns a list of the values of all internal parameters
     (in the order given by getInternalParamNames()).
 */
-list<Inspectable::iparamval> One2OneWiring::getInternalParams() const {
-  list<iparamval> l;
+Inspectable::iparamvallist One2OneWiring::getInternalParams() const {
+  iparamvallist l;
   if(plotNoise) {    
     for(int i=0; i < rsensornumber; i++){
       l += noisevals[i];

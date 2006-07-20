@@ -21,7 +21,7 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 # use -pg for profiling
 CFLAGS = -Wall -g -I. -Iinclude
 # Optimisation 
-CFLAGS_OPT = -Wall -I. -Iinclude -O3 -DNDEBUG
+CFLAGS_OPT = -Wall -I. -Iinclude -O -DNDEBUG
 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
@@ -30,8 +30,14 @@ CXX_OPT = g++ $(CFLAGS_OPT) $(INC)
 # used for lib-packing 
 AR = ar -rs
 
+.PHONY: lib opt clean todo depend tags
+
+lib: $(LIB)
+
 $(LIB): Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
+
+opt: $(LIB_OPT)
 
 $(LIB_OPT): CXX = $(CXX_OPT)
 $(LIB_OPT): Makefile.depend $(OFILES)

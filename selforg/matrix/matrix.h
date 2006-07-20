@@ -7,7 +7,12 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.4  2006-07-19 09:26:37  martius
+// Revision 1.5  2006-07-20 17:14:35  martius
+// removed std namespace from matrix.h
+// storable interface
+// abstract model and invertablemodel as superclasses for networks
+//
+// Revision 1.4  2006/07/19 09:26:37  martius
 // namespace std removed from header
 // store and restore
 // read and write
@@ -177,7 +182,7 @@ namespace matrix{
     };
 
     /** @return element at position i,j (row, column index) and 0 if out of bounds */
-    D valSecure(short i, short j) const { 	
+    D valDef0(short i, short j) const { 	
       if(0<=i && i<m && 0<=j && j<n)
 	return data[i*n+j];
       else return 0;
@@ -394,6 +399,7 @@ namespace matrix{
 	Matrix must be SQARE, in addition, all DIAGONAL ELEMENTS MUST BE NONZERO
 	(positive definite)
     */
+
 #ifndef AVR
     void invertnonzero();
     void invert3x3();

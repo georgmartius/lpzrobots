@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:24:02  martius
+ *   Revision 1.3  2006-07-20 17:14:36  martius
+ *   removed std namespace from matrix.h
+ *   storable interface
+ *   abstract model and invertablemodel as superclasses for networks
+ *
+ *   Revision 1.2  2006/07/14 12:24:02  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2005/11/16 11:24:28  martius
@@ -104,12 +109,12 @@ public:
 
   /** Returns the list of the names of all internal parameters.
   */
-  virtual list<iparamkey> getInternalParamNames() const;
+  virtual std::list<iparamkey> getInternalParamNames() const;
 
   /** The list of the values of all internal parameters given by getInternalParams().
       (in the order given by getInternalParamNames())
    */
-  virtual list<iparamval> getInternalParams() const;
+  virtual std::list<iparamval> getInternalParams() const;
 
 protected:
   /// TRUE for plotting noise values, FALSE for not plotting
