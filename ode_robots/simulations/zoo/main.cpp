@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2006-07-14 12:23:55  martius
+ *   Revision 1.13  2006-07-23 10:24:09  fhesse
+ *   a few std:: added
+ *
+ *   Revision 1.12  2006/07/14 12:23:55  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.11.4.13  2006/06/25 21:57:47  martius
@@ -199,7 +202,7 @@ public:
     ((OdeRobot*) snake)->place(Pos(4,4,0)); 
     controller = new InvertMotorNStep(invertnconf);     
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( list<PlotOption>() );
+    agent = new OdeAgent( std::list<PlotOption>() );
     agent->init(controller, snake, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(controller);
@@ -210,14 +213,14 @@ public:
     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
     nimm2conf.size = 1.6;
     for(int r=0; r < 1; r++) { 
-      robot = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + itos(r));
+      robot = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(r));
       robot->place(Pos ((r-1)*5,5,0));
       //    controller = new InvertMotorNStep(10);   
       controller = new InvertMotorSpace(15);   
       controller->setParam("s4avg",10);
       //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( list<PlotOption>() );
+      agent = new OdeAgent( std::list<PlotOption>() );
       agent->init(controller, robot, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);        
@@ -225,13 +228,13 @@ public:
     
     //******* N I M M  4 *********/
     for(int r=0; r < 1; r++) {
-      robot = new Nimm4(odeHandle, osgHandle, "Nimm4_" + itos(r));
+      robot = new Nimm4(odeHandle, osgHandle, "Nimm4_" + std::itos(r));
       robot->place(Pos((r-1)*5,-3,0));
       controller = new InvertMotorSpace(20);
       controller->setParam("s4avg",10); 
       controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( list<PlotOption>() );
+      agent = new OdeAgent( std::list<PlotOption>() );
       agent->init(controller, robot, wiring);
       global.agents.push_back(agent);        
     }
@@ -242,7 +245,7 @@ public:
       Color c;    
       if (r==0) c=Color(0.8, 0.8, 0);
       if (r==1) c=Color(0,   0.8, 0);
-      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake_" + itos(r));
+      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake_" + std::itos(r));
       ((OdeRobot*) snake)->place(Pos(r*5,-6,0.3));
       invertnconf.cInit=1.5;
       controller = new InvertMotorNStep(invertnconf);
@@ -258,7 +261,7 @@ public:
       //     deriveconf.derivativeScale = 50;
       //     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
       wiring = new One2OneWiring(new ColorUniformNoise(0.05));
-      agent = new OdeAgent( list<PlotOption>() );
+      agent = new OdeAgent( std::list<PlotOption>() );
       agent->init(controller, snake, wiring);
 			       global.configs.push_back(controller);
 			       global.agents.push_back(agent);     
