@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-18 09:23:22  robot8
+ *   Revision 1.4  2006-07-25 11:29:56  robot8
+ *   -test-update of atomcomponent (not working yet)
+ *   -added backward reference feature for component softlinks
+ *   -removed recusive destruction for fissed component-subtrees
+ *
+ *   Revision 1.3  2006/07/18 09:23:22  robot8
  *   -atomcomponent update
  *   -coloring simulation
  *   -one bug left: softlink removal from higher branches of the tree could not removed
@@ -279,11 +284,24 @@ public:
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0.5 , 0.5 , 0.5 ) ) , compConf , atConf ) );
 		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.0 , -REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
 		break;
-	    case 'F':
+	    case 'R':
 		cout<<"KEY REPLICATION\n";
 		((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] );
 		cout<<"END OF KEY REPLICATION\n";
 		break;
+	    case 'T':
+		cout<<"KEY RESTRUCTURE TEST\n";
+		cout<<"before\n";
+		printComponentInfo ( components.back () );
+
+		((AtomComponent*)components.back())->makeComponentStructureRoot ();
+		
+		cout<<"after\n";
+		printComponentInfo ( components.back () );
+		cout<<"END RESTRUCTURE TEST\n";
+		break;
+
+
 	    case 'I':
 		cout<<"PRINTING INFORMATION\n";
 		for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
@@ -311,6 +329,12 @@ public:
 			cout<<"subcomponent: "<<((AtomComponent*) components[n])->connection[m].subcomponent<<"\n";
 		    }
 
+		    for ( unsigned int m = 0; m < (components[n])->backwardreference.size (); m++ )
+		    {
+			cout<<"------------Backwardreference-"<<m<<"------------\n";
+			cout<<"component: "<<components[n]->backwardreference[m]<<"\n";
+			
+		    }
 
 		}
 		break;
@@ -343,6 +367,14 @@ public:
 
 
 	    }
+
+	    for ( unsigned int m = 0; m < ((AtomComponent*) comp)->backwardreference.size (); m++ )
+	    {
+		cout<<"------------Backwardreference-"<<m<<"------------\n";
+		cout<<"component: "<<comp->backwardreference[m]<<"\n";
+
+	    }
+
 //	    cout<<"*********************************************************\n";   
 	    
 	    for ( unsigned int m = 0; m < ((AtomComponent*) comp)->connection.size (); m++ )
