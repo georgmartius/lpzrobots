@@ -49,30 +49,34 @@ namespace lpzrobots
 	if ( sensornumber == getSensorNumber () )
 	{
 	    //sensor values of this component
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
-		//Fixed- and Ball-Joint-Classes do not have the getPosition-function
-		if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeBall ) )
-		{
-		    //nothing is done
-		}
-		else //now all other joints, which should be normaly used, are treated; they are all subclasses of the OneAxisJoint-class
-		{
-		    sensors[n] = ((OneAxisJoint*) connection[n].joint)->getPosition1 ();
-		    sensorcounter++;
-		    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
-		    {
-			sensors[n] = ((TwoAxisJoint*) connection[n].joint)->getPosition2 ();
-			sensorcounter++;
-		    }
-		}
+	  for ( int n = 0; n < getNumberSubcomponents (); n++ ){
+	    Joint* j = connection[n].joint->getJoint ();
+	    sensorcounter += j->getPositions(sensors);
+	  }
+	    
+// 	  //Fixed- and Ball-Joint-Classes do not have the getPosition-function
+// 	  if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeBall ) )
+// 		{
+// 		    //nothing is done
+// 		}
+// 		else //now all other joints, which should be normaly used, are treated; they are all subclasses of the OneAxisJoint-class
+// 		{
+// 		    sensors[n] = ((OneAxisJoint*) connection[n].joint)->getPosition1 ();
+// 		    sensorcounter++;
+// 		    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
+// 		    {
+// 			sensors[n] = ((TwoAxisJoint*) connection[n].joint)->getPosition2 ();
+// 			sensorcounter++;
+// 		    }
+// 		}
 
-	    //sensor values of all subcomponents and their robots
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	  //sensor values of all subcomponents and their robots
+	  for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	    {
-		if ( connection[n].softlink == false )
-		    sensorcounter += connection[n].subcomponent->getSensors ( &sensors[sensorcounter] , connection[n].subcomponent->getSensorNumber () );
-	    }
-
+	      if ( connection[n].softlink == false )
+		sensorcounter += connection[n].subcomponent->getSensors (&sensors[sensorcounter] , 
+									 connection[n].subcomponent->getSensorNumber () );
+	    }	  
 	}
 	return sensorcounter;
     }
@@ -116,25 +120,13 @@ namespace lpzrobots
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    //counting the sensors by the type of the used joint, coded by ode type, because the joints are created external
-	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
-		sensors++;
-	    else
-		if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeSlider )
-		    sensors++;
-		else
-		    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
-			sensors = sensors + 2;
-		    else
-			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
-			    sensors = sensors + 2;
-	
+	    Joint* j = connection[n].joint->getJoint ();
+	    sensors += j->getNumberAxes();
+
     	    //recursive sensor-counting for all subcomponents
 	    if ( connection[n].softlink == false )
 		sensors += connection[n].subcomponent->getSensorNumber ();
 	}
-
-
 	return sensors;
     }
 

@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2006-07-26 10:36:15  martius
+ *   joints support getPositions and getNumberAxes
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.15  2006/06/29 16:35:56  robot3
@@ -95,10 +98,55 @@ namespace lpzrobots {
   Matrix Joint::anchorAxisPose(const osg::Vec3& anchor, const Axis& axis){
     return rotationMatrixFromAxisZ(axis) * Matrix::translate(anchor);
   }
+  
+  Joint::~Joint(){ 
+    if (joint) dJointDestroy(joint);
+  }
+  
+  std::list<double> OneAxisJoint::getPositions() const {
+    std::list<double> l;
+    l.push_back(getPosition1());
+    return l;
+  }
+  std::list<double> OneAxisJoint::getPositionRates() const {
+    std::list<double> l;
+    l.push_back(getPosition1Rate());
+    return l;
+  }
 
- Joint::~Joint(){ 
-   if (joint) dJointDestroy(joint);
- }
+  std::list<double> TwoAxisJoint::getPositions() const {
+    std::list<double> l;
+    l.push_back(getPosition1());
+    l.push_back(getPosition2());
+    return l;
+  }
+  std::list<double> TwoAxisJoint::getPositionRates() const {
+    std::list<double> l;
+    l.push_back(getPosition1Rate());
+    l.push_back(getPosition2Rate());
+    return l;
+  }
+
+  int OneAxisJoint::getPositions(double* sensorarray) const {
+    sensorarray[0] = getPosition1();
+    return 1;
+  }
+  int OneAxisJoint::getPositionRates(double* sensorarray) const{
+    sensorarray[0] = getPosition1Rate();
+    return 1;
+  }
+
+  int TwoAxisJoint::getPositions(double* sensorarray) const {
+    sensorarray[0] = getPosition1();
+    sensorarray[1] = getPosition2();
+    return 2;
+  }
+  int TwoAxisJoint::getPositionRates(double* sensorarray) const{
+    sensorarray[0] = getPosition1Rate();
+    sensorarray[1] = getPosition2Rate();
+    return 2;
+  }
+
 
 
 /***************************************************************************/
@@ -124,7 +172,7 @@ namespace lpzrobots {
   void FixedJoint::setParam(int parameter, double value) {
   }
 
-  double FixedJoint::getParam(int parameter){
+  double FixedJoint::getParam(int parameter) const {
     return 0;
   }
  
@@ -173,11 +221,11 @@ namespace lpzrobots {
     dJointAddHingeTorque(joint, t);    
   }
 
-  double HingeJoint::getPosition1(){
+  double HingeJoint::getPosition1() const{
     return dJointGetHingeAngle(joint);
   }
   
-  double HingeJoint::getPosition1Rate(){
+  double HingeJoint::getPosition1Rate() const{
     return dJointGetHingeAngleRate(joint);
   }
 
@@ -185,7 +233,7 @@ namespace lpzrobots {
     dJointSetHingeParam(joint, parameter, value);
   }
 
-  double HingeJoint::getParam(int parameter){
+  double HingeJoint::getParam(int parameter) const{
     return dJointGetHingeParam(joint, parameter);
   }
 
@@ -237,20 +285,20 @@ namespace lpzrobots {
      dJointAddHinge2Torques(joint, t1, t2); 
   }
   
-  double Hinge2Joint::getPosition1(){
+  double Hinge2Joint::getPosition1()  const{
     return dJointGetHinge2Angle1(joint);
   }
 
-  double Hinge2Joint::getPosition2(){
+  double Hinge2Joint::getPosition2() const{
     fprintf(stderr, "Hinge2Joint::getPosition2() is called, but not supported!\n");
     return 0;
   }
   
-  double Hinge2Joint::getPosition1Rate(){
+  double Hinge2Joint::getPosition1Rate() const{
     return dJointGetHinge2Angle1Rate(joint);
   }
   
-  double Hinge2Joint::getPosition2Rate(){
+  double Hinge2Joint::getPosition2Rate() const{
     return dJointGetHinge2Angle2Rate(joint);
   }
 
@@ -258,7 +306,7 @@ namespace lpzrobots {
     dJointSetHinge2Param(joint, parameter, value);
   }
 
-  double Hinge2Joint::getParam(int parameter){
+  double Hinge2Joint::getParam(int parameter) const{
     return dJointGetHinge2Param(joint, parameter);
   }
 
@@ -318,19 +366,19 @@ namespace lpzrobots {
     dJointAddUniversalTorques(joint, t1,t2);    
   }
 
-  double UniversalJoint::getPosition1(){
+  double UniversalJoint::getPosition1() const{
     return dJointGetUniversalAngle1(joint); 
   }
 
-  double UniversalJoint::getPosition2(){
+  double UniversalJoint::getPosition2() const{
     return dJointGetUniversalAngle2(joint); 
   }
 
-  double UniversalJoint::getPosition1Rate(){
+  double UniversalJoint::getPosition1Rate() const{
     return dJointGetUniversalAngle1Rate(joint);    
   }
 
-  double UniversalJoint::getPosition2Rate(){
+  double UniversalJoint::getPosition2Rate() const{
     return dJointGetUniversalAngle2Rate(joint);    
   }
 
@@ -338,7 +386,7 @@ namespace lpzrobots {
     dJointSetUniversalParam(joint, parameter, value);
   }
 
-  double UniversalJoint::getParam(int parameter){
+  double UniversalJoint::getParam(int parameter) const{
     return dJointGetUniversalParam(joint, parameter);
   }
 
@@ -379,7 +427,7 @@ namespace lpzrobots {
   // Ball and Socket has no parameter
   void BallJoint::setParam(int parameter, double value) { } 
 
-  double BallJoint::getParam(int parameter){
+  double BallJoint::getParam(int parameter) const{
     return 0; // Ball and Socket has no parameter
   }
 
@@ -440,11 +488,11 @@ namespace lpzrobots {
     dJointAddSliderForce(joint, t);    
   }
 
-  double SliderJoint::getPosition1(){
+  double SliderJoint::getPosition1() const{
     return dJointGetSliderPosition(joint);
   }
   
-  double SliderJoint::getPosition1Rate(){
+  double SliderJoint::getPosition1Rate() const{
     return dJointGetSliderPositionRate(joint);
   }
 
@@ -452,7 +500,7 @@ namespace lpzrobots {
     dJointSetSliderParam(joint, parameter, value);
   }
 
-  double SliderJoint::getParam(int parameter){
+  double SliderJoint::getParam(int parameter) const{
     return dJointGetSliderParam(joint, parameter);
   }
     

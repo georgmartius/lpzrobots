@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2006-07-26 10:36:05  martius
+ *   joints support getPositions and getNumberAxes
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.12  2006/06/29 16:35:56  robot3
@@ -71,6 +74,8 @@
 #ifndef __JOINT_H
 #define __JOINT_H
 
+#include <list>
+
 #include "primitive.h"
 #include "osgforwarddecl.h"
 #include "axis.h"
@@ -98,12 +103,25 @@ namespace lpzrobots {
     /// sets the ODE joint parameter (see ODE manual)
     virtual void setParam(int parameter, double value) = 0;
     /// return the ODE joint parameter (see ODE manual)
-    virtual double getParam(int parameter) = 0;
+    virtual double getParam(int parameter) const = 0;
     
     dJointID getJoint() const  { return joint; }
     const Primitive* getPart1() const { return part1; }
     const Primitive* getPart2() const { return part2; } 
     const osg::Vec3 getAnchor() const { return anchor; }
+
+    /// returns the number of Axes
+    virtual int getNumberAxes() const { return 0; }
+    /// returns the positions of all Axes
+    virtual std::list<double> getPositions() const { return std::list<double>(); }
+    /// returns the position rates of all Axes
+    virtual std::list<double> getPositionRates() const { return std::list<double>(); }
+    /// stores the positions of all Axes into sensorarray and returns the number of written entries
+    virtual int getPositions(double* sensorarray) const { return 0; }
+    /** stores the position rates of all Axes into sensorarray and 
+	returns the number of written entries
+     */
+    virtual int getPositionRates(double* sensorarray) const { return 0; }
     
     static osg::Matrix anchorAxisPose(const osg::Vec3& anchor, const Axis& axis);
   protected:
@@ -119,9 +137,15 @@ namespace lpzrobots {
       : Joint(part1, part2, anchor), axis1(axis1) {}
     virtual Axis getAxis1() const { return axis1; };
     
-    virtual double getPosition1() = 0;
-    virtual double getPosition1Rate() = 0;
-        
+    virtual double getPosition1() const = 0;
+    virtual double getPosition1Rate() const = 0;
+    
+    virtual int getNumberAxis() const { return 1;};
+    virtual std::list<double> getPositions() const;
+    virtual std::list<double> getPositionRates() const;
+    virtual int getPositions(double* sensorarray) const;
+    virtual int getPositionRates(double* sensorarray) const;
+            
   protected:
     Axis axis1;
   };
@@ -133,8 +157,14 @@ namespace lpzrobots {
       : OneAxisJoint(part1, part2, anchor, axis1), axis2(axis2) {}
     virtual Axis getAxis2() const { return axis2; };
 
-    virtual double getPosition2() = 0;
-    virtual double getPosition2Rate() = 0;
+    virtual double getPosition2() const = 0;
+    virtual double getPosition2Rate() const = 0;
+
+    virtual int getNumberAxis() const { return 2;};
+    virtual std::list<double> getPositions() const;
+    virtual std::list<double> getPositionRates() const;
+    virtual int getPositions(double* sensorarray) const;
+    virtual int getPositionRates(double* sensorarray) const;
 
   protected:
     Axis  axis2;
@@ -155,7 +185,8 @@ namespace lpzrobots {
     
     virtual void update();    
     virtual void setParam(int parameter, double value);
-    virtual double getParam(int parameter);
+    virtual double getParam(int parameter) const;
+
   };
 
 
@@ -177,10 +208,10 @@ namespace lpzrobots {
     virtual void update();    
 
     virtual void addTorque(double t);
-    virtual double getPosition1();
-    virtual double getPosition1Rate();
+    virtual double getPosition1() const;
+    virtual double getPosition1Rate() const;
     virtual void setParam(int parameter, double value);
-    virtual double getParam(int parameter);
+    virtual double getParam(int parameter) const;
     
   protected:
     OSGPrimitive* visual;
@@ -205,12 +236,12 @@ namespace lpzrobots {
 
     /// adds torques to axis 1 and 2
     virtual void addTorques(double t1, double t2);
-    virtual double getPosition1();
-    virtual double getPosition2(); /// This is not supported by the joint!
-    virtual double getPosition1Rate();
-    virtual double getPosition2Rate();
+    virtual double getPosition1() const;
+    virtual double getPosition2() const; /// This is not supported by the joint!
+    virtual double getPosition1Rate() const;
+    virtual double getPosition2Rate() const;
     virtual void setParam(int parameter, double value);
-    virtual double getParam(int parameter);
+    virtual double getParam(int parameter) const;
     
   protected:
     OSGPrimitive* visual;
@@ -235,13 +266,13 @@ namespace lpzrobots {
 
     /// adds torques to axis 1 and 2
     virtual void addTorques(double t1, double t2);
-    virtual double getPosition1();
-    virtual double getPosition2();
-    virtual double getPosition1Rate();
-    virtual double getPosition2Rate();
+    virtual double getPosition1() const;
+    virtual double getPosition2() const;
+    virtual double getPosition1Rate() const;
+    virtual double getPosition2Rate() const;
 
     virtual void setParam(int parameter, double value);
-    virtual double getParam(int parameter);
+    virtual double getParam(int parameter) const;
     
   protected:
     OSGPrimitive* visual1;
@@ -266,7 +297,7 @@ namespace lpzrobots {
 
     // Ball and Socket has no parameter
     virtual void setParam(int parameter, double value);
-    virtual double getParam(int parameter);
+    virtual double getParam(int parameter) const;
     
   protected:
     OSGPrimitive* visual;
@@ -291,10 +322,10 @@ namespace lpzrobots {
     virtual void update();    
 
     virtual void addForce(double t);
-    virtual double getPosition1();
-    virtual double getPosition1Rate();
+    virtual double getPosition1() const;
+    virtual double getPosition1Rate() const;
     virtual void setParam(int parameter, double value);
-    virtual double getParam(int parameter);
+    virtual double getParam(int parameter) const;
     
   protected:
     OSGPrimitive* visual;
