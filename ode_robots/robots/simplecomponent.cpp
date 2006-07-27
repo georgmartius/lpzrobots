@@ -50,7 +50,7 @@ namespace lpzrobots
 	{
 	    //sensor values of this component
 	  for ( int n = 0; n < getNumberSubcomponents (); n++ ){
-	    Joint* j = connection[n].joint->getJoint ();
+	    Joint* j = connection[n].joint;
 	    sensorcounter += j->getPositions(sensors);
 	  }
 	    
@@ -120,7 +120,7 @@ namespace lpzrobots
 
 	for ( int n = 0; n < getNumberSubcomponents (); n++ )
 	{
-	    Joint* j = connection[n].joint->getJoint ();
+	    Joint* j = connection[n].joint;
 	    sensors += j->getNumberAxes();
 
     	    //recursive sensor-counting for all subcomponents
