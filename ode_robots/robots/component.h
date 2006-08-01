@@ -69,7 +69,9 @@ class Component : public OdeRobot
 	void *data;
     } componentConnection;
 
-    std::vector <componentConnection> connection;
+    vector <componentConnection> connection;
+    vector <Component*> backwardreference;
+
 public: 
     Component* originComponent;
     Component* directOriginComponent;
@@ -183,7 +185,7 @@ virtual Component* removeSubcomponent ( Component* removedsubcomponent );
 /**
  *This removes all subcomponents of THIS component, and all their subcomponents, till the whole structure is destroyed.
  **/
-virtual void removeAllSubcomponentsRecursive ();
+//virtual void removeAllSubcomponentsRecursive ();
 
 /**
  *This updates the origin references within the component tree. If this is a removed subcomponent for examble, then parent should be this itself, so it is the top of the tree.
@@ -203,6 +205,7 @@ virtual void removeAllSubcomponentsRecursive ();
  *@return true if it is a subcomponent, false if not
  **/
 virtual bool hasSubcomponent ( Component* subcomp );
+
 
 /**
  *This method looks if a special component is a subcomponent of this component and all its recursive subcomponents.
@@ -224,7 +227,14 @@ virtual bool isComponentConnected ( Component* connectedComp );
  *@param the number of the connection
  *@return the reference of connection element
  **/
-virtual componentConnection getConnection ( int connectionnumber );
+virtual componentConnection* getConnection ( int connectionnumber );
+
+/**
+ *This returns the connection that connects to the target component.
+ *@param the reference to the component which is subcomponent in the searched connection
+ *@return the reference of connection element
+ **/
+virtual componentConnection* getConnection ( Component* targetcomponent );
 
 /**
  *Sets the connection between the component and one of its subcomponents to be a softlink. That means that the recusion for this branch stops here.

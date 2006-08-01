@@ -21,8 +21,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-20 17:19:44  martius
- *   removed using namespace std from matrix.h
+ *   Revision 1.5  2006-08-01 11:01:05  robot8
+ *   -working makeComponentStructureRoot and getStrongtestSoftlinkofStructure functions in atomcomponent
+ *   -not yet working correct completly
  *
  *   Revision 1.3  2006/07/18 09:23:22  robot8
  *   -atomcomponent update
@@ -36,11 +37,11 @@
  ***************************************************************************/
 
 #include "atomcomponent.h"
-using namespace std;
-
 
 namespace lpzrobots
 {
+
+
 
 /*****************************************************************************/
 /* AtomComponent                                                             */
@@ -366,6 +367,76 @@ namespace lpzrobots
 	return shell;
     }
 
+    AtomComponent::componentConnection* AtomComponent::getStrongestSoftlinkofStructure ()
+    {
+	double tmp_binding_strength = 0;
+
+	componentConnection* tmpconnection = NULL;
+	for ( unsigned int n = 0; n < connection.size (); n++ )
+	{
+	    tmpconnection = ((AtomComponent*) connection[n].subcomponent)->getStrongestSoftlinkofStructure ();
+
+	    if ( ((connectionAddition*) tmpconnection->data)->binding_strength > tmp_binding_strength )
+	    {
+		tmp_binding_strength = ((connectionAddition*) tmpconnection->data)->binding_strength;
+	    }
+	}
+
+	//get first outgoing softlink
+	for ( unsigned int n = 0; n < connection.size (); n++ )
+	    if ( connection[n].softlink == true)
+		if ( ((connectionAddition*) connection[n].data)->binding_strength > tmp_binding_strength )
+		{
+		    if ( connection[n].subcomponent->isComponentConnected ( this ) )
+		    {
+			tmp_binding_strength = ((connectionAddition*) connection[n].data)->binding_strength;
+			tmpconnection = &connection[n];
+		    }
+		}
+	
+	
+
+	return tmpconnection;
+
+    }
+
+    void AtomComponent::makeComponentStructureRoot()
+    {
+
+	if ( directOriginComponent != this ) //it only works, and is necessary if the new root of the structure isn't a root already (which it should be if it refers itself as its origin)
+	{
+	    if ( directOriginComponent != /*directOriginComponent->directOriginComponent*/originComponent )
+	    {
+		if ( directOriginComponent->getConnection ( this )->softlink == false )
+		    ( (AtomComponent*) directOriginComponent)->makeComponentStructureRoot ();
+	    }
+	    
+	    Component* tmp_directOriginComponent = directOriginComponent;
+
+	    void* tmp_connectionAddition = new connectionAddition ();
+	    ((connectionAddition*) tmp_connectionAddition)->binding_strength = ((connectionAddition*) ( directOriginComponent->getConnection ( this ) )->data)->binding_strength;
+
+
+	    directOriginComponent->removeSubcomponent ( this );
+
+	    Axis axis = Axis ( ( tmp_directOriginComponent->getPosition () - getPosition ()).toArray() );
+//	    Axis axis = Axis ( ( getPosition () - tmp_directOriginComponent->getPosition ()).toArray() );
+	    HingeJoint* newjoint = new HingeJoint ( getMainPrimitive () , tmp_directOriginComponent->getMainPrimitive () , getPositionbetweenComponents ( tmp_directOriginComponent ) , axis );
+	    newjoint->init ( odeHandle , osgHandle , true/*false*/ , atomconf.shell_radius+atomconf.core_radius );
+
+	   
+	    addSubcomponent ( tmp_directOriginComponent , newjoint , false );
+
+	    //adding the data Pointer to
+	    (connectionAddition*)connection.back().data = tmp_connectionAddition;
+
+
+	    connection.back ().subcomponent->updateOriginsRecursive ( this );
+	}
+    }
+
+
+
     double AtomComponent::getMotionForce ()
     {
 	double* linVel;
@@ -546,26 +617,86 @@ namespace lpzrobots
 	{
 	    for ( unsigned int n = 0; n < connection.size(); n++ )
 	    {
-//	    cout<<"before1\n";
-//	    cout<<((connectionAddition*) connection[n].data)<<" test\n";
 		if ( ((connectionAddition*) connection[n].data)->binding_strength < binding_strength_counter )
 		{
-//	    cout<<"before2\n";
-		    m = n;
+		    m = n + 1; //zero is used for the removing of the direct origin
 		    binding_strength_counter = ((connectionAddition*) connection[n].data)->binding_strength;		
 		}
+
+		//the same for backwardreferences
+
 	    }
+	    
+	    //looks if the removing of the origin connection is possible
+/*	    if ( ((connectionAddition*) directOriginComponent->getConnection ( this )->data)->binding_strength < binding_strength_counter )
+	    {
+		m = 0;
+		binding_strength_counter = ((connectionAddition*) directOriginComponent->getConnection ( this )->data)->binding_strength;
+	    }
+
+
+	    for ( unsigned int n = 0; n < backwardreference.size (); n++ )
+	    {
+		if ( ( (connectionAddition*) backwardreference[n]->getConnection ( this )->data )->binding_strength < binding_strength_counter )
+		{
+		    m = -n-1; //using the negativ numbers to symolise that it is a backward reference that was selected as the connection to remove; -1 because 0 could be used only for one case, later there is a calculation of +1 to compensate the -1 from this line
+		    binding_strength_counter = ((connectionAddition*) backwardreference[n]->getConnection ( this )->data )->binding_strength;
+		}
+	    }
+*/
 
 //	    connection[m].subcomponent->resetMotorsRecursive ( ); 
 
 	    //softlinks should not stay like they are
 
-	    connection[m].subcomponent->removeAllSubcomponentsRecursive ();
+	    //if it was a normal connection that was selected to be removed
+	    if ( m > 0 )
+	    {
+		m = m - 1;
+//		if ( connection[m].softlink == false)
+//		    connection[m].subcomponent->removeAllSubcomponentsRecursive ();
 
+		Component* tmpremovedsub = removeSubcomponent ( m );
+		if ( tmpremovedsub == NULL)
+		    cout<<"Subcomponent removal Error\n";
+		else
+		{
+		    //get first outgoing softlink, and if there is a softlink from that substructure to a component, that is not connected to that structure (any more)
+//		    componentConnection* tmpsoftlinkconnection = ((AtomComponent*)tmpremovedsub)->getStrongestSoftlinkofStructure ();
+//		    if ( tmpsoftlinkconnection != NULL )
+//		    {
+			//get the component to which the tmpsoftlinkconnection belongs and do makeComponentStructureRoot ()
+//delete the softlink and add the new subtree to the subcomponent of the old connection (had do be saved previously)
+//->then ready: got the old connection deleted and the subtree was restructured and added as subtree to the component that hat the strongest softlink to that subtree, the softlink is deleted and now a normal connection
 
-	    if ( removeSubcomponent ( m ) == NULL)
-		cout<<"Subcomponent removal Error\n";   
-//	    cout<<"after removing\n";
+//but only for softlinks from the substructure, what if teh softlink comes from the outer struture so it is only saved as a backward link in the substructure?
+//		    }
+			
+
+		}
+		    
+	    }
+/*	    else
+	    {
+		//removing the origin connection
+		if ( m == 0 )
+		{
+		    if ( directOriginComponent->removeSubcomponent ( this ) == NULL )
+			cout<<"Subcomponent removal Error\n";
+		    else
+			removeAllSubcomponentsRecursive ();
+		}
+		//removing a backward reference connection
+		else
+		{
+		    m = m + 1;
+		    if ( ( backwardreference[m]->getConnection ( this ) )->subcomponent->removeSubcomponent ( m ) == NULL )
+			cout<<"Subcomponent removal Error\n";
+		}
+	    }
+*/
+	       
+
 	    force -= binding_strength_counter;
 	    binding_strength_counter = 100000000;
 	}
@@ -778,4 +909,5 @@ namespace lpzrobots
 
 
 }
+
 

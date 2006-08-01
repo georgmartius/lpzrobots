@@ -60,6 +60,8 @@ class AtomComponent : public Component
  public:
     AtomConf atomconf;
 
+    
+
  public:
 
     class connectionAddition
@@ -74,7 +76,7 @@ class AtomComponent : public Component
 	~connectionAddition ()
 	{
 	}
-	};
+    };
 
 
 
@@ -153,6 +155,18 @@ virtual osg::Vec3 getPositionbetweenComponents ( Component* component );
  *@return reference to the simple Primitive, or to the main Primitive of the robot assigend to the component. If nothimng is assigned, NULL is returned.
  **/
 virtual Primitive* getMainPrimitive () const;
+
+/**
+ *Searches for the softlink in the substructure of THIS component which has the highest binding strength.
+ *@return the softlink connection within the substructure of THIS component.
+ **/
+virtual componentConnection* getStrongestSoftlinkofStructure ();
+
+/**
+ *This changes the structure of all components connected with this component, so that this component will become the new root of this structure.
+ **/
+virtual void makeComponentStructureRoot();
+
 
 /**
  *Calculates the linear force the Component has at the time of calling this function

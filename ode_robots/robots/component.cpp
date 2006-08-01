@@ -23,7 +23,6 @@
  ***************************************************************************/
 
 #include "component.h"
-using namespace std;
 
 namespace lpzrobots
 {
@@ -106,6 +105,8 @@ namespace lpzrobots
 
     void Component::addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint , bool softlink )
     {
+
+/*************************connection part***************************/
 //	cout<<"addSubcomponent reached\n";
 	componentConnection newconnection;
 	newconnection.subcomponent = newsubcomponent;
@@ -123,6 +124,12 @@ namespace lpzrobots
 	
 	connection.push_back ( newconnection );
 //	cout<<"addSubcomponent ended\n";
+
+/*************************backward reference part***************************/
+	
+	if ( softlink )
+	    connection.back ().subcomponent->backwardreference.push_back ( this );
+
     }
 
     Component* Component::removeSubcomponent ( int n )
@@ -140,6 +147,18 @@ namespace lpzrobots
 	    //updates the references of origin within the tree structure !!!BUT ONLY IF IT WAS NO SOFTLINK, WHICH WAS DESTROYED
 	    if ( connection[n].softlink == false )
 		tmpcomponent->updateOriginsRecursive ( tmpcomponent );
+	    else
+	    {
+
+		vector <Component*>::iterator it;
+		for ( it = tmpcomponent->backwardreference.begin (); *it != this; )
+		    it++;
+
+		
+		//removing the backward reference in the subcomponent
+		tmpcomponent->backwardreference.erase ( it );
+		cout<<"backwardreference remove delting\n";
+	    }
 
 
 	    //deleting the extra data pointer
@@ -185,6 +204,15 @@ namespace lpzrobots
 		//updates the references of origin within the tree structure !!!BUT ONLY IF IT WAS NO SOFTLINK, WHICH WAS DESTROYED
 		if ( connection[n].softlink == false )
 		    tmpcomponent->updateOriginsRecursive ( tmpcomponent );
+		else
+		{
+		    vector <Component*>::iterator it;
+		    for ( it = tmpcomponent->backwardreference.begin (); *it != this; )
+			it++;
+		    //removing the backward reference in the subcomponent
+		    tmpcomponent->backwardreference.erase ( it );
+		    cout<<"backwardreference remove delting\n";
+		}
 
 
 		//deleting the extra data pointer
@@ -220,17 +248,30 @@ namespace lpzrobots
 
     }
 
-    void Component::removeAllSubcomponentsRecursive ()
+
+
+/*    void Component::removeAllSubcomponentsRecursive ()
     {
 	for ( unsigned int n = 0; n < connection.size (); n ++ )
 	{
 	    if ( connection[n].softlink == false )
 		connection[n].subcomponent->removeAllSubcomponentsRecursive ();
 
-	    removeSubcomponent ( n );
 	}
 
+	for ( unsigned int n = 0 ; n <  backwardreference.size (); n++ )
+	{
+	    backwardreference[0]->removeSubcomponent ( this );//always the first will be removed, until no elements are left in the vector   
+	}
+
+	for ( unsigned int n = 0; n < connection.size (); n ++ )
+	{
+	    removeSubcomponent ( 0 ); //always the first will be removed, until no elements are left in the vector
+	}
+
+
     }
+*/
 
     void Component::updateOriginsRecursive ( Component* parent )
     {
@@ -248,7 +289,8 @@ namespace lpzrobots
 	
 	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
-	    connection[n].subcomponent->updateOriginsRecursive ( this );
+	    if ( connection[n].softlink == false )
+		connection[n].subcomponent->updateOriginsRecursive ( this );
 	}
     }
 
@@ -327,9 +369,20 @@ namespace lpzrobots
 	    return false;
     }
 
-    Component::componentConnection  Component::getConnection ( int connectionnumber )
+    Component::componentConnection*  Component::getConnection ( int connectionnumber )
     {
-	return connection[connectionnumber];
+	return &connection[connectionnumber];
+    }
+
+    Component::componentConnection*  Component::getConnection ( Component* targetcomponent )
+    {
+	for ( unsigned int n = 0; n < connection.size (); n++ )
+	{
+	    if ( connection[n].subcomponent == targetcomponent )
+		return &connection[n];
+	}
+
+	return NULL;
     }
 
 /*    bool Component::setSoftlink ( unsigned int position , bool state )
@@ -357,7 +410,7 @@ namespace lpzrobots
 	    if ( connection[n].softlink == false )
 	    {
 		//calculation the efficency of dividing the structure here (connection n of this)
-		a = ( fabs ( ( (connection[n].subcomponent->getNumberSubcomponentsAll () +1 )/((double) maxsize) - targetrelation)*1000000)/1000000.0 );
+		a = ( abs ( ( (connection[n].subcomponent->getNumberSubcomponentsAll () +1 )/((double) maxsize) - targetrelation)*1000000)/1000000.0 );
 		//1000000 because abs does only work with integers
 
 		cout<<"-----------------------------------------------component: "<<this<<"\n";
@@ -365,7 +418,7 @@ namespace lpzrobots
 		//comparing the dividing efficience to the best efficience up till now, if better it becomes the new best
 		if ( currentBestDivideComponent != NULL )
 		{
-		    if ( a < ( fabs ( ( ( currentBestDivideComponent->getNumberSubcomponentsAll () + 1 )/ ((double) maxsize)  - targetrelation )*1000000)/1000000.0 ) )
+		    if ( a < ( abs ( ( ( currentBestDivideComponent->getNumberSubcomponentsAll () + 1 )/ ((double) maxsize)  - targetrelation )*1000000)/1000000.0 ) )
 		    {
 			currentBestDivideComponent = connection[n].subcomponent;
 			cout<<"new best hit\n";
