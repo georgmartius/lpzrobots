@@ -48,23 +48,31 @@ namespace lpzrobots
 
 	if ( sensornumber == getSensorNumber () )
 	{
+
+	    //sensor values of this component
+	  for ( int n = 0; n < getNumberSubcomponents (); n++ ){
+	    Joint* j = connection[n].joint;
+	    sensorcounter += j->getPositions(sensors);
+	  }
+
+
 	    //sensor values of this component, and its robot
-	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
-		//Fixed- and Ball-Joint-Classes do not have the getPosition-function
-		if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeBall ) )
-		{
-		    //nothing is done
-		}
-		else //now all other joints, which should be normaly used, are treated; they are all subclasses of the OneAxisJoint-class
-		{
-		    sensors[n] = ((OneAxisJoint*) connection[n].joint)->getPosition1 ();
-		    sensorcounter++;
-		    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
-		    {
-			sensors[n] = ((TwoAxisJoint*) connection[n].joint)->getPosition2 ();
-			sensorcounter++;
-		    }
-		}
+//	    for ( int n = 0; n < getNumberSubcomponents (); n++ )
+//		//Fixed- and Ball-Joint-Classes do not have the getPosition-function
+//		if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeFixed ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeBall ) )
+//		{
+//		    //nothing is done
+//		}
+//		else //now all other joints, which should be normaly used, are treated; they are all subclasses of the OneAxisJoint-class
+//		{
+//		    sensors[n] = ((OneAxisJoint*) connection[n].joint)->getPosition1 ();
+//		    sensorcounter++;
+//		    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
+//		    {
+//			sensors[n] = ((TwoAxisJoint*) connection[n].joint)->getPosition2 ();
+//			sensorcounter++;
+//		    }
+//		}
 
 
 	    if ( conf.completesensormode == true && robot != NULL )
