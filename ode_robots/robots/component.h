@@ -101,15 +101,16 @@ static ComponentConf getDefaultConf()
  *values of component connecting joints of the first subcomponent, values of the robot of the first subcomponent, ...
  *@robot sensor values of the connecting joints of this component and all subcomponents
  **/
-virtual int 	getSensors (sensor *sensors, int sensornumber) = 0; //returns actual sensorvalues; only for the connecting joints
+virtual int 	getSensors (sensor *sensors, int sensornumber); //returns actual sensorvalues; only for the connecting joints
+
 
 /**
  *Sets the motor values for the joints connecting the component with its subcomponents, an recursivly the joints of all subComponents.
  *The motors of all robots of the subcomponents is not set.
  *@param 
  **/
-virtual void 	setMotors (const motor *motors, int motornumber) = 0; //sets actual motorcommands; only for the connecting joints
-
+//virtual void 	setMotors (const motor *motors, int motornumber); //sets actual motorcommands; only for the connecting joints
+virtual void 	setMotors (const motor *motors, int motornumber); //sets actual motorcommands; only for the connecting joints
 /**
  *This sets all motors in the component structure to zero, starting from this component.
  **/

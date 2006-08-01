@@ -50,20 +50,6 @@ class SimpleComponent : public Component
 
  public:
 
-/**
- *Use this, to get all sensor values of all the joints of all subcomponents, and the sensors of all robots, belonging to all subcomponents.
- *The sensor values have the following sequence:
- *values of the component connecting joints, values of the robot of the component,
- *values of component connecting joints of the first subcomponent, values of the robot of the first subcomponent, ...
- *@param robot sensor values of the connecting joints of this component and all subcomponents
- **/
-virtual int 	getSensors (sensor *sensors, int sensornumber); //returns actual sensorvalues; only for the connecting joints
-
-/**
- *Sets the motor values for the joints connecting the component with its subcomponents, an recursivly the joints of all subComponents.
- *@param 
- **/
-virtual void 	setMotors (const motor *motors, int motornumber); //sets actual motorcommands; only for the connecting joints
 
 virtual int 	getSensorNumber (); //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
 

@@ -51,6 +51,65 @@ namespace lpzrobots
 
     }
 
+    int Component::getSensors ( sensor *sensors , int sensornumber )
+    {
+	int sensorcounter = 0;
+	
+
+	if ( sensornumber == getSensorNumber () )
+	{
+	    //sensor values of this component
+	  for ( int n = 0; n < getNumberSubcomponents (); n++ ){
+	    Joint* j = connection[n].joint;
+	    sensorcounter += j->getPositions(sensors);
+	  }
+	    
+
+	  //sensor values of all subcomponents and their robots
+	  for ( int n = 0; n < getNumberSubcomponents (); n++ )
+	    {
+	      if ( connection[n].softlink == false )
+		sensorcounter += connection[n].subcomponent->getSensors (&sensors[sensorcounter] , 
+									 connection[n].subcomponent->getSensorNumber () );
+	    }	  
+	}
+	return sensorcounter;
+    }
+
+    void Component::setMotors ( const motor *motors , int motornumber )
+    {
+	int motorcounter = 0;
+	motor* tmpmotors;
+
+	for ( int n = 0; ( (unsigned int) n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
+	{
+	    connection[n].joint->setParam ( dParamVel , motors[n]*conf.speed ); // set velocity
+	    connection[n].joint->setParam ( dParamFMax ,conf.max_force );       // set maximal force
+	    motorcounter++;
+
+	    if ( ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 ) || ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal ) )
+	    {
+		connection[n].joint->setParam ( dParamVel2 , motors[n]*conf.speed ); // set velocity2
+		connection[n].joint->setParam ( dParamFMax2 ,conf.max_force );       // set maximal force2
+		motorcounter++;
+	    }
+
+	}
+
+	for ( int n = 0; ( (unsigned int) n < connection.size() ) && ( n < motornumber ); n++ ) //garants that there is no wrong memory access
+	{
+	    if ( connection[n].softlink == false )
+	    {
+		tmpmotors = (motor*) &motors[motorcounter]; //the pointer for the new array
+		connection[n].subcomponent->setMotors ( tmpmotors , motornumber - motorcounter );
+		motorcounter += connection[n].subcomponent->getMotorNumber ();//the start of the array is shifted by the number of used array elements
+	    }
+
+	}
+    }
+
+
+
     void Component::resetMotorsRecursive ()
     {
 	for ( int n = 0; ( (unsigned int) n < connection.size() ); n++ ) //garants that there is no wrong memory access
