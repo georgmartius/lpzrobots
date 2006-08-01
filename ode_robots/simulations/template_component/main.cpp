@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:53  martius
+ *   Revision 1.3  2006-08-01 11:37:03  robot8
+ *   -update of template_component simulation for restructured component class
+ *
+ *   Revision 1.2  2006/07/14 12:23:53  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.6  2006/06/16 12:06:37  robot8
@@ -201,7 +204,7 @@ public:
     j1->init ( odeHandle , osgHandle , true , 1 );
 
     //connecting both components, and creating the new physical form of the robot
-    C1->addSubcomponent ( C2 , j1 );
+    C1->addSubcomponent ( C2 , j1 , false );
 
     //adding the controller for the component-connections
     controller = new InvertMotorSpace ( 10 );  
