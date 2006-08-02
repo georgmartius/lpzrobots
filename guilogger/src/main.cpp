@@ -29,15 +29,11 @@
 #include "commlineparser.h"
 
 
-int Control_C;
 void signal_handler_exit(void){
   signal(SIGINT,SIG_DFL);
 }
 
-void control_c(int ){
-  Control_C++ ;
-  if (Control_C > 100) exit(0);
-}
+void control_c(int ){ }
 
 
 /**
@@ -48,7 +44,6 @@ void control_c(int ){
 void signal_handler_init(){
   signal(SIGINT,control_c);
   atexit(signal_handler_exit);
-  Control_C=0;
   signal(SIGPIPE, SIG_DFL);
 }
 
