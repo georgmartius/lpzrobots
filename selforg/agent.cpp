@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:57  martius
+ *   Revision 1.3  2006-08-02 09:36:34  martius
+ *   neuronviz command updated
+ *   removeplotoptions does not segfault anymore
+ *   send #QUIT to pipes
+ *
+ *   Revision 1.2  2006/07/14 12:23:57  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.12  2006/06/25 21:56:38  martius
@@ -144,8 +149,8 @@ void Agent::internInit(){
   
 Agent::~Agent(){
   // closes all pipes of the agents due to pause mode or so
-  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    removePlotOption((*i).mode);
+  for (int i = NoPlot; i < LastPlot; i++){
+    removePlotOption((PlotMode)i);
   }
   trackrobot.close();
   if(rsensors) free(rsensors);
@@ -202,7 +207,7 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
   po.open();
   if(po.pipe){
     // print network description given by the structural information of the controller
-    printNetworkDescription(po.pipe, "Lpzrobots"/*controller->getName()*/, controller);
+    printNetworkDescription(po.pipe, "Selforg"/*controller->getName()*/, controller);
     // print interval
     if(plotOption.interval > 1) 
       fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
@@ -223,6 +228,8 @@ bool Agent::removePlotOption(PlotMode mode) {
   list<PlotOption>::iterator po 
       = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
   if(po != plotOptions.end()){ 
+    // send quit message to pipe
+    fprintf((*po).pipe, "#QUIT\n");
     (*po).close();
     plotOptions.erase(po);
     return true;
@@ -303,7 +310,6 @@ bool PlotOption::open(){
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN); 
-  // TODO: get the guilogger call from some config
   switch(mode){
   case File:
       struct tm *t;
@@ -325,7 +331,7 @@ bool PlotOption::open(){
     pipe=popen("guilogger -m pipe -d 5","w");
     break;
   case NeuronViz:
-    pipe=popen("neuronviz ","w");
+    pipe=popen("neuronviz > /dev/null","w");  // TODO: Platform dependent
     break;
   default: // and NoPlot
     return false;
@@ -340,6 +346,7 @@ bool PlotOption::open(){
 
 
 void PlotOption::close(){
+  // TODO: send quit message to pipe
   if (pipe) {
     switch(mode){
     case File:
