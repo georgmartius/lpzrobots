@@ -451,7 +451,7 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
 void guilogger::receiveRawData(char *data)
 {
     queuemutex.lock();
-       inputbuffer.enqueue(new QString(data));
+    inputbuffer.enqueue(new QString(data));
     queuemutex.unlock();
 }
 
@@ -479,16 +479,21 @@ void guilogger::update()
        if (data==NULL) break;
 
        parsedString = QStringList::split(' ', *data);  //parse data string with Space as separator
-
-       if(*(parsedString.begin()) == "#C")   //Channels einlesen
+       QString& first = *(parsedString.begin());
+       printf(first);
+       if(first == "#C")   //Channels einlesen
        {
            parsedString.remove(parsedString.begin());  // remove #C preambel
-           for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel(*i);  //transmit channels to GNUPlot
-
-//           for(int i=0; i<plotwindows; i++) if(gpWindowVisibility[i]) gp[i].plot();  // show channels imidiatly
-           for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
+	   //transmit channels to GNUPlot
+           for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel(*i);
+	   for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
        }
-       else if( (*(parsedString.begin()))[0] != '#')  // Daten einlesen
+       else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
+       {
+	 printf("Guilogger: Received Quit\n");
+	 emit quit();
+       }	
+       else if( first[0] != '#')  // Daten einlesen
        {
            QValueList<QString>::iterator channelname = ChannelList.begin();
            i = parsedString.begin();
