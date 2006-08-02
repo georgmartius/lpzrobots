@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-08-01 11:01:05  robot8
+ *   Revision 1.6  2006-08-02 09:26:54  martius
+ *   using namespace std
+ *
+ *   Revision 1.5  2006/08/01 11:01:05  robot8
  *   -working makeComponentStructureRoot and getStrongtestSoftlinkofStructure functions in atomcomponent
  *   -not yet working correct completly
  *
@@ -38,10 +41,10 @@
 
 #include "atomcomponent.h"
 
+using namespace std;
+
 namespace lpzrobots
 {
-
-
 
 /*****************************************************************************/
 /* AtomComponent                                                             */
@@ -428,7 +431,7 @@ namespace lpzrobots
 	    addSubcomponent ( tmp_directOriginComponent , newjoint , false );
 
 	    //adding the data Pointer to
-	    (connectionAddition*)connection.back().data = tmp_connectionAddition;
+	    (connection.back().data) = tmp_connectionAddition;
 
 
 	    connection.back ().subcomponent->updateOriginsRecursive ( this );
