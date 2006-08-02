@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:34  martius
+ *   Revision 1.3  2006-08-02 09:43:07  martius
+ *   comments
+ *
+ *   Revision 1.2  2006/07/14 12:23:34  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.17  2006/06/16 22:30:52  martius
@@ -243,14 +246,12 @@ namespace lpzrobots {
 	    printf(" Pos(%g, %g, %g));\n", view.x(), view.y(), view.z());
 	    break;
 	  }	  
-	  // TODO: pos1 for center on robot
-	  // TODO: end for move behind robot
-	case 65360:
+	case 65360: // pos1
 	  {
 	    centerOnAgent();
 	    break;
 	  }
-	case 65367:
+	case 65367: // end
 	  {
 	    moveBehindAgent();
 	    break;
