@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:57  martius
+ *   Revision 1.3  2006-08-02 09:35:09  martius
+ *   LastPlot as a dummy option added
+ *
+ *   Revision 1.2  2006/07/14 12:23:57  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.7  2006/06/25 16:51:35  martius
@@ -95,9 +98,9 @@ class AbstractWiring;
 
 class Agent;
 
-/** Plot mode for plot agent. (only used by initialization)
+/** Plot mode for plot agent.
  */
-enum PlotMode {
+enum PlotMode {  
   /// dummy (does nothing) is there for compatibility, might be removed later
   NoPlot, 
   /// write into file
@@ -107,7 +110,9 @@ enum PlotMode {
   /// plotting with guiscreen (gnuplot) in file logging mode
   GuiLogger_File,
   /// net visualiser
-  NeuronViz
+  NeuronViz,
+  /// dummy used for upper bound of plotmode type
+  LastPlot
 };
 
 /** Plot either sensors from robot or from controller 
