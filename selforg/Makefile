@@ -56,8 +56,8 @@ depend:
 	rm Makefile.depend
 	make Makefile.depend
 
-tags: 
-	etags `find -name "*.[ch]"` 
+tags:
+	etags `find -type f -regex ".*\.[hc]p?p?"` 
 
 clean:
 	rm -f $(LIB) $(LIB_OPT) *.o Makefile.depend
