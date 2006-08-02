@@ -21,21 +21,22 @@ void printInternalParameters(FILE* f,
 			     Inspectable** inspectables, int len);
 
 /** prints a network description of the structure given by the inspectable object.
-    The network description syntax is as follow
-    \code
-    #N network NETWORKNAME
+    The network description syntax is as follow TODO: doxygen code
+    \code 
+    #N neural_net NETWORKNAME
     #N layer LAYERNAME1 RANK?
-    #N neuron N0
-    #N neuron N1
+    #N neuron N0 BIASN0?
+    #N neuron N1 BIASN1?
     #N layer LAYERNAME2 RANK?
-    #N neuron K0
-    #N neuron K1
+    #N neuron K0 BIASK0?
+    #N neuron K1 BIASK1?
     ...
     #N connection C00 N0 K0
     #N connection C10 N0 K1
     #N connection C01 N1 K0
     #N connection C11 N1 K1
     ...
+    #N nn_end
     \endcode
     All identifiers are alphanumeric without spaces.
 */
