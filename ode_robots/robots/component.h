@@ -69,8 +69,8 @@ class Component : public OdeRobot
 	void *data;
     } componentConnection;
 
-    vector <componentConnection> connection;
-    vector <Component*> backwardreference;
+    std::vector <componentConnection> connection;
+    std::vector <Component*> backwardreference;
 
 public: 
     Component* originComponent;
