@@ -480,7 +480,6 @@ void guilogger::update()
 
        parsedString = QStringList::split(' ', *data);  //parse data string with Space as separator
        QString& first = *(parsedString.begin());
-       printf(first);
        if(first == "#C")   //Channels einlesen
        {
            parsedString.remove(parsedString.begin());  // remove #C preambel
