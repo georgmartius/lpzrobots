@@ -41,7 +41,7 @@ namespace lpzrobots
     {
     }
 
-    int SimpleComponent::getSensorNumber ()
+/*    int SimpleComponent::getSensorNumber ()
     {
 	int sensors = 0;   
 	//recursive sensor-counting for all subcomponents
@@ -57,8 +57,8 @@ namespace lpzrobots
 	}
 	return sensors;
     }
-
-
+*/
+/*
     int SimpleComponent::getMotorNumber ()
     {
 	int motors = 0;
@@ -84,7 +84,7 @@ namespace lpzrobots
 
 	return motors;
     }
-
+*/
     void SimpleComponent::update ()
     {
 	//there is a simplePrimitive, and it is updated

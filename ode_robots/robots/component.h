@@ -94,6 +94,10 @@ static ComponentConf getDefaultConf()
 
  public:
 
+virtual int 	getSensorNumber (); //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
+
+virtual int 	getMotorNumber (); //returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
+
 /**
  *Use this, to get all sensor values of all the joints of all subcomponents, and the sensors of all robots, belonging to all subcompionents.
  *The sensor values have the following sequence:
@@ -116,9 +120,9 @@ virtual void 	setMotors (const motor *motors, int motornumber); //sets actual mo
  **/
 virtual void    resetMotorsRecursive ( );
 
-virtual int 	getSensorNumber () = 0; //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
+//virtual int 	getSensorNumber () = 0; //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
 
-virtual int 	getMotorNumber () = 0; //returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
+//virtual int 	getMotorNumber () = 0; //returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
 
 virtual void 	update () = 0;//update the OSG notes here; update of the underlying robot or Primitive and recursive update of all Components in the Connection-vector
 
