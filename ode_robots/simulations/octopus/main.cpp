@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:50  martius
+ *   Revision 1.3  2006-08-02 08:34:09  robot8
+ *   -update of octopus because of changed component function parameters
+ *
+ *   Revision 1.2  2006/07/14 12:23:50  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.8  2006/05/18 12:04:21  robot3
@@ -220,7 +223,7 @@ public:
 	
 	j1 = new HingeJoint ( components.front ()->getMainPrimitive () , components.back ()->getMainPrimitive () , components.front ()->getPositionbetweenComponents ( components.back () ) , axis );
 	j1->init ( odeHandle , osgHandle , true , 1 );
-	components.front ()->addSubcomponent ( components.back () , j1 );
+	components.front ()->addSubcomponent ( components.back () , j1 , false );
 
 //	components.front ()->setSoftlink ( n , false );
 
