@@ -52,6 +52,7 @@ void signal_handler_init(){
   signal(SIGPIPE, SIG_DFL);
 }
 
+
 /**
   * \brief Main Programm
   * \author Dominic Schneider
@@ -87,7 +88,7 @@ int main( int argc, char ** argv ) {
     if(params.getMode()=="serial")    
     {   QSerialReader *qserial = new QSerialReader();
         if(params.getPort() != "") qserial->setComPort(params.getPort());
-        printf("Using serial port %s as source.\n", qserial->getComPort().latin1());
+        printf("Guilogger: Using serial port %s as source.\n", qserial->getComPort().latin1());
         qsource = qserial;
         a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
         qsource->start();
@@ -96,7 +97,7 @@ int main( int argc, char ** argv ) {
       QPipeReader *qpipe = new QPipeReader();
       //        if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
       //        printf("Using pipe input with delay %i.\n", qpipe->getDelay());
-      printf("Using pipe input\n");
+      printf("Guilogger: Using pipe input\n");
       qsource = qpipe;
       a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
       qsource->start();
@@ -105,7 +106,7 @@ int main( int argc, char ** argv ) {
 //        printf("But nevertheless I further provide segfaults for convenience by using free(0)\n");
 //        printf("Just kidding! Have a nice day.\n");
     } else {
-      fprintf(stderr, "Specify mode (-m) or file (-f) and use (-h) for help.\n");
+      fprintf(stderr, "Guilogger: Specify mode (-m) or file (-f) and use (-h) for help.\n");
       exit(1);
     }
    
@@ -113,16 +114,15 @@ int main( int argc, char ** argv ) {
     FileLogger fl;
     if(params.getLogg()) 
     {   fl.setLogging(TRUE);
-        printf("Logging is on\n");
+        printf("Guilogger: Logging is on\n");
         a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
     }
-    else printf("Logging is off\n");
 
 //    if(params.getMode() != "file") qsource->start();
 
     gl->setCaption( "GUI Logger" );
     gl->show();
-
+    a.connect( gl, SIGNAL(quit()), &a, SLOT(quit()) );
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     return a.exec();
 }

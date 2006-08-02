@@ -82,6 +82,9 @@ private slots:
     void horizonSliderValueChanged(int value);
     void horizonSliderReleased();
 
+signals:
+    void quit();
+
 private:
     void updateSliderPlot();
     int  analyzeFile();
