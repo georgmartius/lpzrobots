@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-26 10:36:05  martius
+ *   Revision 1.4  2006-08-02 10:11:27  martius
+ *   getNumberAxes was mistyped
+ *
+ *   Revision 1.3  2006/07/26 10:36:05  martius
  *   joints support getPositions and getNumberAxes
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
@@ -111,7 +114,7 @@ namespace lpzrobots {
     const osg::Vec3 getAnchor() const { return anchor; }
 
     /// returns the number of Axes
-    virtual int getNumberAxes() const { return 0; }
+    virtual int getNumberAxes() const = 0;
     /// returns the positions of all Axes
     virtual std::list<double> getPositions() const { return std::list<double>(); }
     /// returns the position rates of all Axes
@@ -140,7 +143,7 @@ namespace lpzrobots {
     virtual double getPosition1() const = 0;
     virtual double getPosition1Rate() const = 0;
     
-    virtual int getNumberAxis() const { return 1;};
+    virtual int getNumberAxes() const { return 1;};
     virtual std::list<double> getPositions() const;
     virtual std::list<double> getPositionRates() const;
     virtual int getPositions(double* sensorarray) const;
@@ -160,7 +163,7 @@ namespace lpzrobots {
     virtual double getPosition2() const = 0;
     virtual double getPosition2Rate() const = 0;
 
-    virtual int getNumberAxis() const { return 2;};
+    virtual int getNumberAxes() const { return 2;};
     virtual std::list<double> getPositions() const;
     virtual std::list<double> getPositionRates() const;
     virtual int getPositions(double* sensorarray) const;
@@ -186,6 +189,8 @@ namespace lpzrobots {
     virtual void update();    
     virtual void setParam(int parameter, double value);
     virtual double getParam(int parameter) const;
+
+    virtual int getNumberAxes() const { return 0; }
 
   };
 
@@ -295,6 +300,7 @@ namespace lpzrobots {
     
     virtual void update();    
 
+    virtual int getNumberAxes() const { return 0; }
     // Ball and Socket has no parameter
     virtual void setParam(int parameter, double value);
     virtual double getParam(int parameter) const;
