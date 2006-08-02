@@ -47,6 +47,15 @@ void signal_handler_init(){
   signal(SIGPIPE, SIG_DFL);
 }
 
+void printUsage(){
+  printf("guilogger parameter listing\n");
+  printf("   -m [mode]  mode = serial | pipe | file\n");
+  printf("   -p [port]  port = serial port to read from\n");
+  printf("   -f [file]  input file\n");
+  printf("      only viwewing, no streaming\n");
+  printf("   -l turns logging on\n");
+  printf("   --help displays this message.\n");
+}
 
 /**
   * \brief Main Programm
@@ -58,15 +67,9 @@ int main( int argc, char ** argv ) {
    CommLineParser params;
    params.parseCommandLine(argc, argv);
 
-   if(params.getHelp())
-   {   printf("guilogger parameter listing\n");
-       printf("   -m [mode]  mode = serial | pipe | file\n");
-       printf("   -p [port]  port = serial port to read from\n");
-       printf("   -f [file]  input file\n");
-       printf("      only viwewing, no streaming\n");
-       printf("   -l turns logging on\n");
-       printf("   --help displays this message.\n");
-       return 0;
+   if(params.getHelp()) {  
+     printUsage();
+     return 1;
    }
 
     QApplication a( argc, argv );
@@ -101,8 +104,8 @@ int main( int argc, char ** argv ) {
 //        printf("But nevertheless I further provide segfaults for convenience by using free(0)\n");
 //        printf("Just kidding! Have a nice day.\n");
     } else {
-      fprintf(stderr, "Guilogger: Specify mode (-m) or file (-f) and use (-h) for help.\n");
-      exit(1);
+      printUsage();
+      return 1;
     }
    
 
