@@ -9,16 +9,20 @@ using namespace std;
 void printNetworkDescription(FILE* f, const string& name, const Inspectable* inspectable){
   assert(inspectable);
   time_t t = time(0);
-  fprintf(f,"#Start %s", ctime(&t));  
-  fprintf(f,"#N network %s\n", name.c_str());  
+  fprintf(f,"# Start %s", ctime(&t));  
+  fprintf(f,"#N neural_net %s\n", name.c_str());  
   list< Inspectable::ILayer> layers      = inspectable->getStructuralLayers();
   list< Inspectable::IConnection> conns  = inspectable->getStructuralConnections();
   // print layers with neurons
   for(list<Inspectable::ILayer>::iterator i = layers.begin(); i != layers.end(); i++){    
     Inspectable::ILayer& l = (*i);
     fprintf(f, "#N layer %s %i\n", l.layername.c_str(), l.rank);
-    for(int n = 0; n < l.dimension; n++){      
-      fprintf(f, "#N neuron %s[%i]\n", l.vectorname.c_str(), n);
+    for(int n = 0; n < l.dimension; n++){ 
+      if(l.biasname.empty()){
+	fprintf(f, "#N neuron %s[%i]\n", l.vectorname.c_str(), n);
+      }else {
+	fprintf(f, "#N neuron %s[%i] %s[%i]\n", l.vectorname.c_str(), n, l.biasname.c_str(), n);
+      }
     }
   }
 
@@ -37,11 +41,13 @@ void printNetworkDescription(FILE* f, const string& name, const Inspectable* ins
     Inspectable::ILayer& l2 = (*l2it);
     for(int j=0; j < l1.dimension; j++){
       for(int k=0; k < l2.dimension; k++){
-	fprintf(f, "#N connection %s[%i][%i] %s[%i] %s[%i]\n", 
+	fprintf(f, "#N connection %s[%i,%i] %s[%i] %s[%i]\n", 
 		c.matrixname.c_str(), k, j, l1.vectorname.c_str(), j, l2.vectorname.c_str(), k);
       }
     }
   }
+  fprintf(f,"#N nn_end\n");  
+
  
 }
 
