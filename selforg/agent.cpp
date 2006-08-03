@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-02 09:36:34  martius
+ *   Revision 1.4  2006-08-03 07:35:53  martius
+ *   quit message not in file mode
+ *
+ *   Revision 1.3  2006/08/02 09:36:34  martius
  *   neuronviz command updated
  *   removeplotoptions does not segfault anymore
  *   send #QUIT to pipes
@@ -131,7 +134,7 @@ Agent::Agent(const PlotOption& plotOption){
 }
 
 
-Agent::Agent(const list<PlotOption>& plotOptions)
+Agent::Agent(const std::list<PlotOption>& plotOptions)
   : plotOptions(plotOptions){
   internInit();
 }
@@ -228,8 +231,6 @@ bool Agent::removePlotOption(PlotMode mode) {
   list<PlotOption>::iterator po 
       = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
   if(po != plotOptions.end()){ 
-    // send quit message to pipe
-    fprintf((*po).pipe, "#QUIT\n");
     (*po).close();
     plotOptions.erase(po);
     return true;
@@ -355,12 +356,18 @@ void PlotOption::close(){
       break;
     case GuiLogger:
     case GuiLogger_File:
-      std::cout << "guilogger pipe closing...maybe you must manually close the guilogger first!" << std::endl;
+      //std::cout << "guilogger pipe closing...maybe you must manually close the guilogger first!" 
+      //          << std::endl;
+      // send quit message to pipe
+      fprintf((*po).pipe, "#QUIT\n");
       pclose(pipe);
       std::cout << "guilogger pipe closing...SUCCESSFUL" << std::endl;
       break;
     case NeuronViz:
-      std::cout << "neuronviz pipe closing...maybe you must manually close the neuronviz first!" << std::endl;
+      //std::cout << "neuronviz pipe closing...maybe you must manually close the neuronviz first!" 
+      //          << std::endl;
+      // send quit message to pipe
+      fprintf((*po).pipe, "#QUIT\n");
       pclose(pipe);
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
       break;
