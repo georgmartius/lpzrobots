@@ -46,10 +46,7 @@ You need the following software and libraries installed (Tested on Linux x86 mac
   (Debian includes it in Etch (Testing) and higher)
 - (\a optional) Qt library from http://www.trolltech.com for guilogger (version > 3.0)
 - (\a optional) Java JDK for neuronviz (version >= J2SE 1.5.0)
-- (\a optional) avr-gcc and avr-binutils. \n
-   SuSE packages under: http://robot.informatik.uni-leipzig.de/software/\n
-   Debian includes them in Etch (Testing) and higher
- 
+
 \section Inst Installation \& Startup
 
 - Download source tar ball from 
