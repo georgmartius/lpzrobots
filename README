@@ -32,50 +32,64 @@ It consists of the following directories (click for details):
   - \ref guilogger : application that coordinates multiple gnuplot 
 	windows and switches channels on or of, data is sent per pipe from your program 
   - \ref webots : directory with some webots simulations  
+  - \ref opende : directory with a snapshot of the open dynamics engine (some developer version after 0.6)
+		(please follow the link for installion hints)
 
 
 \section Requirements
  
 You need the following software and libraries installed (Tested on Linux x86 machines)
-- ODE see http://www.ode.org and augmented with our 
-\ref ode_robots/ode_patches "patches"
+- ODE see http://www.ode.org which is now in the opende directory 
+   (please follow the instrutions printed by the Makefile in lpzrobots)
 - OpenSceneGraph http://www.openscenegraph.org (version >= 0.9.8) 
   (Debian includes it in Etch (Testing) and higher)
-- Qt library from http://www.trolltech.com for guilogger (version > 3.0)
-- avr-gcc and avr-binutils. \n
+- (\a optional) Qt library from http://www.trolltech.com for guilogger (version > 3.0)
+- (\a optional) Java JDK for neuronviz (version >= J2SE 1.5.0)
+- (\a optional) avr-gcc and avr-binutils. \n
    SuSE packages under: http://robot.informatik.uni-leipzig.de/software/\n
-   Debian includes them in Etch (Testing)  and higher
+   Debian includes them in Etch (Testing) and higher
  
-\section Inst Installation & Startup
+\section Inst Installation \& Startup
 
 - Download source tar ball from 
   http://robot.informatik.uni-leipzig.de/software .
 - Unpack file.
 - Change into <tt> lpzrobots </tt> directory
-- Call <tt> make </tt> to compile \ref matrixlib and \ref guilogger (not strictly necessary,
-  only for displaying parameters online)
-- Call <tt> make install </tt> to copy <tt> guilogger/bin/guilogger </tt> into the 
-  <tt>/bin</tt> folder of your home directory. (If this does not work copy by hand.)
+- Call <tt> make </tt>. It will to the following:
+	- it compiles \ref neuronviz (not strictly necessary, only for displaying neuronal network online) 
+	- it compiles \ref guilogger (not strictly necessary, only for displaying parameters online) 
+   	- Please note, that the make call will not fail if either of them failed to make, 
+ 	  because they are optional.  
+	  Type <tt> make guilogger </tt> and <tt> make neuronviz </tt> to compile them seperately.
+	- it creates dependency files and creates links to header files, that they can be found.
+	- it prints some information how to install the ODE residing in the \ref opende directory.
+- Call <tt> make install </tt> to install the guilogger binary and the neuronviz stuff to your  
+  <tt>~/bin</tt> and <tt>~/lib</tt> folder of your home directory. 
+	(Might be necessary to create the folders by hand.)
 - To start a simulation go into that simulation directory, call <tt>make</tt> and 
-  <tt>start</tt>.
+  <tt>./start</tt>.
   For example when you want to start the template_onerobot simulation type
   <tt>cd ode_robots/simulations/template_onerobot</tt>, then call <tt>make</tt> and after
-  successful compilation type <tt>start</tt> to start the simulation
+  successful compilation type <tt>start</tt> to start the simulation 
+  (<tt>make opt</tt> will produce and <tt>start_opt</tt>, which is compiled with optimisation. (might need a make clean before))
 - The following command line options are available 
-  (type start -h for the display of this options): \n
-  Usage: start [-g] [-l] [-r SEED] [-x WxH] [-pause] [-notex] [-noshadow] [-h]\n
-        \c -g      	use guilogger\n
-        \c -l      	use guilogger with logfile\n
-        \c -r \c SEED   use SEED as random number seed\n
-        \c -x \c WxH    window size of width(W) x height(H) is used (640x480 default)\n
-        \c -pause       start in pause mode\n
-        \c -notex       do not display textures\n
-        \c -noshadow    do not display shadows\n
-	\c -h 		display this help
+  (type start -h for a full list of options): \n
+\verbatim
+Usage: ./start [-g [interval]] [-f [interval]] [-r seed] [-x WxH] [-pause] [-noshadow] [-drawboundings] [-simtime [min]]
+        -g [interval]   use guilogger (default interval 1)
+        -f [interval]   write logging file (default interval 5)
+        -n [interval]   use neuronviz (default interval 10)
+        -r seed         random number seed
+        -x WxH          window size of width(W) x height(H) is used (640x480 default)
+        -pause          start in pause mode
+        -noshadow       disables shadows and shaders
+        -drawboundings  enables the drawing of the bounding shapes of the meshes
+        -simtime [min]  intended simulation time in minutes
+\endverbatim
 - Have a look at the console after starting the program, 
   there you will find some further information for the usage of the program.
 - For starting your own simulation see paragraph "How to Start Your Own Simulation" 
-  in \ref ode_robots .
+  in \ref ode_robots.
 - For a well documented examples of a main.cpp of a simulation and a robot .cpp file click 
   the tab "Examples" at the top of this page.
 
@@ -90,6 +104,5 @@ You need the following software and libraries installed (Tested on Linux x86 mac
   (Tar ball with pdf and example code also there available.)
 - The original ODE documentation can be found at http://www.ode.org/ode-docs.html 
 - The OSG documentation can be found at  http://www.openscenegraph.org/osgwiki/pmwiki.php/Documentation/Documentation
-
 
 */
