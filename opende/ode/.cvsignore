@@ -1,0 +1,16 @@
+Makefile 
+Makefile.in 
+*.m4 
+*.cache 
+.deps
+dstest
+compile 
+config.guess 
+config.log
+config.status
+config.sub
+configure
+depcomp
+install-sh
+missing
+ode-config
