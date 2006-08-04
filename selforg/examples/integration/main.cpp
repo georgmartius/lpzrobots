@@ -151,6 +151,9 @@ int main(int argc, char** argv){
   Agent* agent           = new Agent(plotoptions);
   AbstractWiring* wiring  = new One2OneWiring(new ColorUniformNoise(0.1));  
   agent->init(controller, robot, wiring);
+  // if you like, you can keep track of the robot with the following line. 
+  //  this assumes that you robot returns its position, speed and orientation. 
+  // agent->setTrackOptions(TrackRobot(true,false,false, false,"interagetiontest"));
  
   configs.push_back(robot);
   configs.push_back(controller);

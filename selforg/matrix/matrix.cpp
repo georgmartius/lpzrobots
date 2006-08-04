@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.4  2006-07-20 17:14:35  martius
+// Revision 1.5  2006-08-04 15:16:13  martius
+// documentation
+//
+// Revision 1.4  2006/07/20 17:14:35  martius
 // removed std namespace from matrix.h
 // storable interface
 // abstract model and invertablemodel as superclasses for networks
@@ -189,7 +192,7 @@ const int T=0xFF;
     return l;
   }
   
-  bool Matrix::write(FILE* f) const{
+  bool Matrix::write(FILE* f) const {
     fprintf(f,"%i %i\n", m,n);
     for(int i=0; i< m*n; i++){
       fprintf(f,"%f ", data[i]);
@@ -198,7 +201,7 @@ const int T=0xFF;
     return true;
   }
   
-  bool Matrix::read(FILE* f){
+  bool Matrix::read(FILE* f) {
     char buffer[128];
     if(fscanf(f,"%hu %hu\n", &m,&n)!=2)  return false;
     allocate();
@@ -224,7 +227,7 @@ const int T=0xFF;
   
   /** reads a Matrix from the given file stream (binary)
    */
-  bool Matrix::restore(FILE* f){
+  bool Matrix::restore(FILE* f) {
     int dim[2];
     bool rval = false;
     if(fread(dim, sizeof(int), 2, f) == 2){

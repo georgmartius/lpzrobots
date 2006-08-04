@@ -31,6 +31,7 @@ It consists of the following directories (click for details):
         (OpenSceneGraph, see http://www.openscenegraph.org)
   - \ref guilogger : application that coordinates multiple gnuplot 
 	windows and switches channels on or of, data is sent per pipe from your program 
+  - \ref neuronviz : application that displays neural networks
   - \ref webots : directory with some webots simulations  
   - \ref opende : directory with a snapshot of the open dynamics engine (some developer version after 0.6)
 		(please follow the link for installion hints)

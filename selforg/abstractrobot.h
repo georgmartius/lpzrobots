@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:57  martius
+ *   Revision 1.3  2006-08-04 15:16:12  martius
+ *   documentation
+ *
+ *   Revision 1.2  2006/07/14 12:23:57  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/06/25 16:51:35  martius
@@ -88,6 +91,7 @@ public:
   /**
    * Constructor
    * @param name name of the robot
+   * @param revision revision number of the file (Hint: use CVS variable \verbatim $ID$ \endverbatim )
    */
   AbstractRobot(const std::string& name="abstractRobot", const std::string& revision = "$ID$")
     : Configurable(name, revision) {

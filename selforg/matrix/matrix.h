@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.5  2006-07-20 17:14:35  martius
+// Revision 1.6  2006-08-04 15:16:13  martius
+// documentation
+//
+// Revision 1.5  2006/07/20 17:14:35  martius
 // removed std namespace from matrix.h
 // storable interface
 // abstract model and invertablemodel as superclasses for networks
@@ -217,24 +220,27 @@ namespace matrix{
 	@return number of actually written elements
      */
     int convertToBuffer(D* buffer, unsigned int len) const;
+
     /** @return a list of the content of the matrix (row-wise)
      */
     std::list<D> convertToList() const;
 
-    /**** STOREABLE ****/
+    /*       STOREABLE       */
     /** stores the Matrix into the given file stream (binary)
      */
-    bool Matrix::store(FILE* f) const;
+    bool store(FILE* f) const;
+
     /** reads a Matrix from the given file stream (binary)
      */
-    bool Matrix::restore(FILE* f);
+    bool restore(FILE* f);
 
     /** writes the Matrix into the given file stream (ascii)
      */
-    bool Matrix::write(FILE* f) const;
+    bool write(FILE* f) const;
+
     /** reads a Matrix from the given file stream (ascii)
      */
-    bool Matrix::read(FILE* f);
+    bool read(FILE* f);
 	
 
   public:

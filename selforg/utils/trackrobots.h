@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-02 09:33:21  martius
+ *   Revision 1.4  2006-08-04 15:16:13  martius
+ *   documentation
+ *
+ *   Revision 1.3  2006/08/02 09:33:21  martius
  *   Todo updated
  *
  *   Revision 1.2  2006/07/14 12:24:02  martius
@@ -51,33 +54,43 @@
 class AbstractRobot;
 class Agent;
 
+/**
+   This class provides tracking possibilies of a robot.    
+   The position, speed, and orientation can be logged.
+*/
 class TrackRobot {
 public:
 
   friend class Agent;
   //friend class OdeAgent;
 
+  /// constructor for no tracking at all
   TrackRobot(){
     trackPos = false;
     trackSpeed = false;
     trackOrientation = false;
-    tracePos = false;
+    displayTrace = false;
     interval = 1;
     file=0;
     cnt=0;
     scene=0;
   }
-  /** Set the tracking mode of the simulation environment. 
-      If one of the trackparameters is true the tracking is enabled.
-      The tracking is written into a file with the current date and time as name.
-      If tracePos is ture (at least in ode simulations) the trace of the robot is shown
+
+  /** Constructor that allows individial setting of tracking options.      
+      The tracked data is written into a file with the current date and time appended by a name given by scene.
+      @param trackPos if true the trace (position vectors) of the robot are logged
+      @param trackSpeed if true the speed vectors of the robot are logged
+      @param trackOrientation if true the orientation matrices  of the robot are logged
+      @param displayTrace if true the trace of the robot should be displayed (used in ODE simulations)
+      @param scene name of the scene (is appended to log file name)
+      @param interval timesteps between consequent logging events (default 1)
    */ 
-  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool tracePos, 
+  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool displayTrace, 
 	     const char* scene, int interval = 1){
     this->trackPos     = trackPos;
     this->trackSpeed   = trackSpeed;
     this->trackOrientation = trackOrientation;
-    this->tracePos     = tracePos;
+    this->displayTrace     = displayTrace;
     this->interval = interval;
     this->scene = strdup(scene);
     file=0;
@@ -88,18 +101,19 @@ public:
     if(scene) free(scene);
   }
 
+  /// returns whether tracing is activated
+  bool isDisplayTrace() const {return displayTrace;};
+
+ protected:
   bool open(const AbstractRobot* robot);
   void track(AbstractRobot* robot);
   void close();
 
-  //Todo: move this to protected and do it with friend class OdeAgent or the like
-  bool trace() const {return tracePos;};
-
- private:
+ protected:
   bool trackPos;
   bool trackSpeed;
   bool trackOrientation;
-  bool tracePos;
+  bool displayTrace;
 
   int interval;
   FILE* file;

@@ -29,6 +29,6 @@ Here the data flow is controlled by the agent, which then asks the robot about t
 */
 
 /**
-\example matrix/example.cpp 
+\example matrix/matrixexample.cpp 
 An example for the usage of the matrix library.
 */

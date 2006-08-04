@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-02 09:35:09  martius
+ *   Revision 1.4  2006-08-04 15:16:13  martius
+ *   documentation
+ *
+ *   Revision 1.3  2006/08/02 09:35:09  martius
  *   LastPlot as a dummy option added
  *
  *   Revision 1.2  2006/07/14 12:23:57  martius
@@ -98,7 +101,7 @@ class AbstractWiring;
 
 class Agent;
 
-/** Plot mode for plot agent.
+/** Output mode for agent.
  */
 enum PlotMode {  
   /// dummy (does nothing) is there for compatibility, might be removed later
@@ -115,19 +118,18 @@ enum PlotMode {
   LastPlot
 };
 
-/** Plot either sensors from robot or from controller 
+/** Output either sensors from robot or from controller 
     (there can be a difference depending on the used wiring)
  */
 enum PlotSensors {Robot, Controller};
 
-/** This class contains option and internal data for the use of an external plot util
-    like guilogger or neuronviz
+/** This class contains options for the use of an external plot utility like guilogger or neuronviz
+    or just simply file output
  */
 class PlotOption {
 public:
   friend class Agent;
-
-
+  
   PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; }
   PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, int interval = 1)
     : mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0;}
@@ -143,8 +145,8 @@ public:
 
 private:
  
-  bool open(); /// opens the connections to the plot tool 
-  void close();/// closes the connections to the plot tool
+  bool open(); //< opens the connections to the plot tool 
+  void close();//< closes the connections to the plot tool
 
   FILE* pipe;
   long t;
@@ -156,14 +158,23 @@ private:
 };
 
 
-/** Object containing controller, robot and wiring between them.
-    (Corresponding to use of the word in the robotic/simulation domain.)
+/** The Agent contains a controller, a robot and a wiring, which connects robot and controller.
+    Additionally there are some ways to keep track of internal information.
+    You have the possibility to keep track of sensor values, 
+     motor values and internal parameters of the controller with PlotOptions. 
+    The name PlotOptions is a bit missleaded, it should be "OutputOptions", 
+     however you can write the data into a file or send it to visialisation tools like
+     guilogger or neuronviz.
+
+    If want to log the position, speed and orienation of your robot you can use setTrackOptions().
  */
 class Agent {
 public:
-  /** constructor
+  /** constructor. PlotOption an output setting.
    */
   Agent(const PlotOption& plotOption);
+  /** constructor. A list of PlotOption can begin. A PlotOption is an output setting.
+   */
   Agent(const std::list<PlotOption>& plotOptions);
 
   /** destructor
@@ -171,7 +182,7 @@ public:
   virtual ~Agent();  
 
   /** initializes the object with the given controller, robot and wiring
-      and initializes pipe to guilogger
+      and initializes the output options
   */
   virtual bool init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring);
 
@@ -214,8 +225,11 @@ protected:
   /**
    * Plots controller sensor- and motorvalues and internal controller parameters.
    * @param rx actual sensorvalues from robot (used for generation of motorcommand in actual timestep)
+   * @param rsensornumber length of rx   
    * @param cx actual sensorvalues which are passed to controller (used for generation of motorcommand in actual timestep)
+   * @param csensornumber length of cx   
    * @param y actual motorcommand (generated in the actual timestep)
+   * @param motornumber length of y 
    */
   virtual void plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber, 
 		    const motor* y, int motornumber);

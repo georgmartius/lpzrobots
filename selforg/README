@@ -15,9 +15,9 @@ and the motor values given to the robot.
 It also faciliates logging and plotting of parameters.
 
 The following subdirectories are included:
- - \ref selforg/matrixlib : comfortable matrix library used for calculations e.g. in our controllers
+ - \ref selforg/matrix : comfortable matrix library used for calculations e.g. in our controllers
  - \ref selforg/controller : contains controller with some necessary helper modules
- - \ref selforg/wiring : implementation of standart wirings, that connect robot and controller
+ - \ref selforg/wirings : implementation of standart wirings, that connect robot and controller
  - \ref selforg/utils : utility code
  - \ref selforg/examples : examples for the usage of controller, the framework and the matrix library.
  */ 

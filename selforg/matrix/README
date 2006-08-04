@@ -2,7 +2,7 @@
 
 /** 
 
-\dir matrix
+\dir selforg/matrix
 
 \par
 The matrix library provides a class \ref matrix::Matrix "Matrix" with convinient operators 

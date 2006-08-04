@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-03 07:35:53  martius
+ *   Revision 1.5  2006-08-04 15:16:13  martius
+ *   documentation
+ *
+ *   Revision 1.4  2006/08/03 07:35:53  martius
  *   quit message not in file mode
  *
  *   Revision 1.3  2006/08/02 09:36:34  martius
@@ -301,7 +304,7 @@ void Agent::setTrackOptions(const TrackRobot& trackrobot){
     if(!this->trackrobot.open(robot)){
       fprintf(stderr, "could not open trackfile!\n");
     }else{
-      // print all parameters of the controller
+      // print all parameters of the controller to trackfile
       controller->print(this->trackrobot.file, "# ");                
     }
   }
@@ -347,7 +350,6 @@ bool PlotOption::open(){
 
 
 void PlotOption::close(){
-  // TODO: send quit message to pipe
   if (pipe) {
     switch(mode){
     case File:
@@ -359,7 +361,7 @@ void PlotOption::close(){
       //std::cout << "guilogger pipe closing...maybe you must manually close the guilogger first!" 
       //          << std::endl;
       // send quit message to pipe
-      fprintf((*po).pipe, "#QUIT\n");
+      fprintf(pipe, "#QUIT\n");
       pclose(pipe);
       std::cout << "guilogger pipe closing...SUCCESSFUL" << std::endl;
       break;
@@ -367,7 +369,7 @@ void PlotOption::close(){
       //std::cout << "neuronviz pipe closing...maybe you must manually close the neuronviz first!" 
       //          << std::endl;
       // send quit message to pipe
-      fprintf((*po).pipe, "#QUIT\n");
+      fprintf(pipe, "#QUIT\n");
       pclose(pipe);
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
       break;
