@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:39  martius
+ *   Revision 1.3  2006-08-04 15:07:27  martius
+ *   documentation
+ *
+ *   Revision 1.2  2006/07/14 12:23:39  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.12  2006/06/29 16:39:55  robot3
@@ -218,7 +221,7 @@ namespace lpzrobots {
   }
   
   
-  int DefaultCaterPillar::getSegmentsPosition(vector<Position> &poslist){
+  int DefaultCaterPillar::getSegmentsPosition(std::vector<Position> &poslist){
     assert(created);
     for(int n = 0; n < conf.segmNumber; n++){
       Pos p(objects[n]->getPosition());

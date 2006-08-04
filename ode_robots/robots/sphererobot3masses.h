@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:45  martius
+ *   Revision 1.4  2006-08-04 15:07:27  martius
+ *   documentation
+ *
+ *   Revision 1.3  2006/07/20 17:19:45  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:42  martius
@@ -76,6 +79,7 @@
 
 namespace lpzrobots {
 
+  /// configuration object for the Sphererobot3Masses robot.
 typedef struct {
 public:
   double diameter;
@@ -93,15 +97,20 @@ public:
   double irsensorscale; /// range of the ir sensors in units of diameter
 } Sphererobot3MassesConf;
 
-
+/**
+   A spherical robot with 3 internal masses, which can slide on their orthogonal axes.
+   This robot was inspired by Julius Popp (http://sphericalrobots.com)
+*/
 class Sphererobot3Masses : public OdeRobot
 {
 public:
+  /// enum for the objects of the robot
   typedef enum objects { Base, Pendular1, Pendular2, Pendular3, Last } ;
 
 protected:
   static const int servono=3;
 
+  Primitive* object[Last]; 
   SliderServo* servo[servono];
   SliderJoint* joint[servono];
   OSGPrimitive* axis[servono];
@@ -109,11 +118,9 @@ protected:
   bool created;
 
   Sphererobot3MassesConf conf;
-  RaySensorBank irSensorBank; // a collection of ir sensors  
+  RaySensorBank irSensorBank; /// a collection of ir sensors  
 
 public:
-  Primitive* object[Last];
-  
 
   /**
    *constructor
@@ -123,6 +130,7 @@ public:
   
   virtual ~Sphererobot3Masses();
 	
+  /// default configuration
   static Sphererobot3MassesConf getDefaultConf(){
     Sphererobot3MassesConf c;
     c.diameter     = 1;
@@ -149,14 +157,15 @@ public:
   virtual void place(const osg::Matrix& pose);
   
   /**
-   *This is the collision handling function for snake robots.
+   *This is the collision handling function for the robot.
    *This overwrides the function collisionCallback of the class robot.
-   *@param data
+   *@param data (unused)
    *@param o1 first geometrical object, which has taken part in the collision
    *@param o2 second geometrical object, which has taken part in the collision
    *@return true if the collision was threated  by the robot, false if not
    **/
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
       @param globalData structure that contains global data from the simulation environment
@@ -164,41 +173,30 @@ public:
   virtual void doInternalStuff(const GlobalData& globalData);
 	
   /**
-   *Writes the sensor values to an array in the memory.
+   *Writes the sensor values to the given an array.
    *@param sensors pointer to the array
    *@param sensornumber length of the sensor array
-   *@return number of actually written sensors
+   *@return number of actually written sensors (should be sensornumber)
    **/
   virtual int getSensors ( sensor* sensors, int sensornumber );
 	
   /**
-   *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
-   *It is an linear allocation.
+   *Reads the actual motor commands from an array, an sets all motors of the robot to this values.
    *@param motors pointer to the array, motor values are scaled to [-1,1] 
    *@param motornumber length of the motor array
    **/
   virtual void setMotors ( const motor* motors, int motornumber );
 	
-  /**
-   *Returns the number of motors used by the snake.
-   *@return number of motors
-   **/
   virtual int getMotorNumber();
   
-  /**
-   *Returns the number of sensors used by the robot.
-   *@return number of sensors
-   **/
   virtual int getSensorNumber();
 	
  
-protected:
   /** the main object of the robot, which is used for position and speed tracking */
   virtual Primitive* getMainPrimitive() const { return object[Base]; }
 
-  /** creates vehicle at desired pose
-      @param pose 4x4 pose matrix
-  */
+protected:
+
   virtual void create(const osg::Matrix& pose); 
   virtual void destroy(); 
 

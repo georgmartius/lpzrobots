@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2006-08-04 15:05:43  martius
+ *   documentation
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/06/23 09:04:48  robot3
@@ -75,7 +78,7 @@ namespace lpzrobots {
 
 
   /******************************************************************************/
-  OSGHeightField::OSGHeightField(HeightField* heightfield,float x_size, float y_size) 
+  OSGHeightField::OSGHeightField(osg::HeightField* heightfield,float x_size, float y_size) 
     : field(heightfield), x_size(x_size), y_size(y_size)
   {
     int cols = field->getNumColumns();

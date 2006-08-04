@@ -6,30 +6,19 @@
 \dir ode_robots
 
 
-The \a ode_robots directory provides all the stuff necessary for
-the simulations we did with ODE (http://ode.org).
+The ode_robots directory provides all the stuff necessary for
+ simulations with the physics engine ODE (http://ode.org).
 
 \par Simulation Environment
 
-The class \ref lpzrobots::OdeConfig holds the configurable parameters of the simulation environment
-like \ref lpzrobots::OdeConfig::gravity "gravity", \ref lpzrobots::OdeConfig::simStepSize "simStepSize", 
-\ref lpzrobots::OdeConfig::realTimeFactor "realTimeFactor"  and so on.\n
-In \ref simulation.h and \ref simulation.cpp you find the \ref lpzrobots::OdeConfig::simulation_start "start",
-\ref lpzrobots::OdeConfig::simulation_init "init" and \ref lpzrobots::OdeConfig::simulation_close "close" routines 
-as well as the \ref lpzrobots::OdeConfig::nearCallback "collision handling" etc. of the simulation environment,
-which are used for all simulations.
-In the \ref lpzrobots::OdeConfig::simulation_init "init" function you can specify user defined functions if your simulation needs this, possible are:
-- \ref lpzrobots::Simulation::start "start"
-- \ref lpzrobots::Simulation::end "end"
-- \ref lpzrobots::Simulation::config "config"
-- \ref lpzrobots::Simulation::command "command"
-- \ref lpzrobots::Simulation::collCallback "collCallback"
-- \ref lpzrobots::Simulation::addCallback "addCallback"
+The class lpzrobots::OdeConfig holds the configurable parameters of the simulation environment
+like lpzrobots::OdeConfig::gravity, lpzrobots::OdeConfig::simStepSize, lpzrobots::OdeConfig::realTimeFactor and so on.\n
+In the class lpzrobots::Simulation you find the functions to overload like 
+  lpzrobots::Simulation::start and lpzrobots::Simulation::end which have to be overloaded by all simulations.
+Addionally you can overload functions like lpzrobots::Simulation::config for configuration pusposes,
+  lpzrobots::Simulation::command to react on keystrokes, and some more.
 
-But you normally do not have to change anything in this files.
-
-
-\par Simulation Objects and more
+\par Simulation objects and more
 
 The things inside the simulation environment (and some additional stuff) is inside 
 the following subdirectories
@@ -41,10 +30,10 @@ the following subdirectories
 - \ref ode_robots/robots "robots":
 	our robots,creatures, vehicles or whatever you would like to call 
 	them are in this directory
-- \ref ode_robots/components "components":
-	create your robots by plugging together different parts (work in progress)
 - \ref ode_robots/osg "osg primitives":
-	primitives of which robots and obstacles can be assembled, and further helpful things dealing with OSG
+	many classes for the osg and ode integration. 
+	It provides Primitives and Joints of which robots and obstacles can be assembled, 
+          and further helpful things to deal with OSG
 - \ref ode_robots/motors "motors":
 	a few additional motors (PID servos)
 - \ref ode_robots/sensors "senors":
@@ -54,7 +43,7 @@ the following subdirectories
 - \ref ode_robots/utils "utils":
 	all the little things that make life easier
 - \ref ode_robots/ode_patches "ode_patches":
-	our patches for ODE and drawstuff
+	our patches for ODE 0.5 and drawstuff which are not used anymore
 - \ref ode_robots/textures "textures":
 	our textures used in the simulations and a program for calculating heigtmaps
 

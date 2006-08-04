@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2006-08-04 15:05:43  martius
+ *   documentation
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.20  2006/07/14 11:23:38  martius
@@ -345,7 +348,7 @@ namespace lpzrobots {
 
   /******************************************************************************/
   OSGMesh::OSGMesh(const std::string& filename, float scale, 
-		   const ReaderWriter::Options* options)
+		   const osgDB::ReaderWriter::Options* options)
     : filename(filename), scale(scale), options(options) 
   {
   }

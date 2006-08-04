@@ -5,14 +5,14 @@
 The robots of our simuated worlds "live" in this directory.
 You find the class \ref AbstractRobot here, which provides the interface fulfilled
 by all the robots (which are derived from this class).
-\ref lpzrobots::Nimm4 you maybe already know from the simulation 
-\ref lpzrobots/ode_robots/simulations/template_onerobot "template_onerobot".\n
-Both (the \ref lpzrobots/ode_robots/simulations/template_onerobot/main.cpp "main.cpp"
- of the template_onerobot simulation and nimm4.cpp) are really good 
-commented and therfore recommended as first example. You can easy find them by clicking 
-on the tab  "Examples" at the top of the page .
-
-
+There are two robots which are recommended as a first example:
+ \ref lpzrobots::Nimm4  and \ref lpzrobots::Sphererobot3Masses. \n
+Also the simulation template_sphererobot with
+ ode_robots/simulations/template_sphererobot/main.cpp
+ as a main function are really good commented 
+ and therfore recommended as first example. 
+You can easily find them by clicking 
+ on the tab  "Examples" at the top of the page.
 */	
 
 
@@ -20,11 +20,8 @@ on the tab  "Examples" at the top of the page .
 \example nimm4.cpp  
  Simple example for the creation of a simulated robot (lpzrobots/ode_robots/robots/nimm4.cpp). 
 */
-
 /**
-\example nimm2.cpp  
- Example for the creation of a simulated robot with transform object and infrared sensors 
- (lpzrobots/ode_robots/robots/nimm2.cpp). 
-*/
+\example sphererobot3masses.cpp  
+ Simple example of a spherical robot with 3 internal masses (lpzrobots/ode_robots/robots/sphererobot3masses.cpp). */
 
 

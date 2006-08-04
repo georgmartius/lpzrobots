@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-02 09:43:07  martius
+ *   Revision 1.4  2006-08-04 15:05:42  martius
+ *   documentation
+ *
+ *   Revision 1.3  2006/08/02 09:43:07  martius
  *   comments
  *
  *   Revision 1.2  2006/07/14 12:23:34  martius
@@ -141,7 +144,7 @@ namespace lpzrobots {
   CameraManipulator::~CameraManipulator(){
   }
 
-  void CameraManipulator::setNode(Node* node){
+  void CameraManipulator::setNode(osg::Node* node){
     // we do not support this since we give it manually to the constructor
   }
   const Node* CameraManipulator::getNode() const{
@@ -165,7 +168,7 @@ namespace lpzrobots {
   }
 
 
-  void CameraManipulator::home(const GUIEventAdapter& ea,GUIActionAdapter& us){
+  void CameraManipulator::home(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us){
     if(node.get() && !home_externally_set) {
       const BoundingSphere& boundingSphere=node->getBound();
 
@@ -188,7 +191,7 @@ namespace lpzrobots {
     
   }
 
-  void CameraManipulator::init(const GUIEventAdapter& ea,GUIActionAdapter& us){
+  void CameraManipulator::init(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us){
     flushMouseEventStack();
 
     us.requestContinuousUpdate(false);
@@ -199,7 +202,7 @@ namespace lpzrobots {
       }
   }
 
-  bool CameraManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
+  bool CameraManipulator::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us){
     int key=0;
     switch(ea.getEventType())
       {
@@ -270,7 +273,7 @@ namespace lpzrobots {
     return true;
   }
   
-  void CameraManipulator::getUsage(ApplicationUsage& usage) const{
+  void CameraManipulator::getUsage(osg::ApplicationUsage& usage) const{
     usage.addKeyboardMouseBinding("Camera: Space","Reset the viewing position to home");
     usage.addKeyboardMouseBinding("Camera: p","Print position of the camera");
     usage.addKeyboardMouseBinding("Camera: F1-F12","switch the Agent to be watched");
@@ -281,7 +284,7 @@ namespace lpzrobots {
     event_old = NULL;
     event = NULL;
   }
-  void CameraManipulator::addMouseEvent(const GUIEventAdapter& ea){
+  void CameraManipulator::addMouseEvent(const osgGA::GUIEventAdapter& ea){
     event_old = event;
     event = &ea;
   }

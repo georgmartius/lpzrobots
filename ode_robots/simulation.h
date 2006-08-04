@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2006-07-14 15:17:33  fhesse
+ *   Revision 1.21  2006-08-04 15:07:46  martius
+ *   documentation
+ *
+ *   Revision 1.20  2006/07/14 15:17:33  fhesse
  *   start option for intended simulation time added
  *   -simtime [min]
  *
@@ -199,9 +202,9 @@ namespace lpzrobots {
     virtual void end(GlobalData& globalData);
     /** config() is called when the user presses Ctrl-C */
     virtual void config(GlobalData& globalData);
-    /** command() is called if a key was pressed
-	keycodes see: osgGA::GUIEventAdapter
-	return true if the key was handled
+    /** is called if a key was pressed. 
+	For keycodes see: osgGA::GUIEventAdapter
+	@return true if the key was handled
     */
     virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, 
 			 int key, bool down) { return false; };
@@ -285,6 +288,7 @@ namespace lpzrobots {
 
     int guiloggerinterval;
     int filelogginginterval;
+    int neuronvizinterval;
 
     //  CameraType camType; // default is a non-moving and non-rotating camera
     //  OdeRobot* viewedRobot; // the robot who is viewed from the camera

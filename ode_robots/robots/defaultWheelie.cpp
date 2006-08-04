@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   Revision 1.4  2006-08-04 15:07:27  martius
+ *   documentation
+ *
+ *   Revision 1.3  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:39  martius
@@ -191,7 +194,7 @@ namespace lpzrobots {
   }
   
   
-  int DefaultWheelie::getSegmentsPosition(vector<Position> &poslist){
+  int DefaultWheelie::getSegmentsPosition(std::vector<Position> &poslist){
     assert(created);
     for(int n = 0; n < conf.segmNumber; n++){
       Pos p(objects[n]->getPosition());

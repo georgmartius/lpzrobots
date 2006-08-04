@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2006-07-14 11:57:23  martius
+ *   Revision 1.14  2006-08-04 15:07:46  martius
+ *   documentation
+ *
+ *   Revision 1.13  2006/07/14 11:57:23  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.12.4.8  2006/06/29 16:32:44  robot3
@@ -63,6 +66,9 @@
 
 namespace lpzrobots {
 
+  /**
+     The class $name holds the configurable parameters of the simulation environment.
+  */
   class OdeConfig : public Configurable {
   public:
     

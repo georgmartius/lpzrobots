@@ -16,7 +16,7 @@ http://www.openscenegraph.org/osgwiki/pmwiki.php/Documentation/Documentation
 
 For now only the primitives should be explained, which are required to build new objects for the 
 simulations:
-- \ref lpzrobots::	Plane Graphical plane (represented as a large thin box, because OSG does not draw planes)
+- \ref lpzrobots::Plane Graphical plane (represented as a large thin box, because OSG does not draw planes)
 - \ref lpzrobots::Box 
 - \ref lpzrobots::Sphere
 - \ref lpzrobots::Capsule (a cylinder with round ends

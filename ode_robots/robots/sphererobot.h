@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2006-07-20 17:19:45  martius
+ *   Revision 1.12  2006-08-04 15:07:27  martius
+ *   documentation
+ *
+ *   Revision 1.11  2006/07/20 17:19:45  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.10  2006/07/14 12:23:42  martius
@@ -181,10 +184,10 @@ namespace lpzrobots {
     */
     virtual int getSegmentsPosition(std::vector<Position> &poslist);	
 
-  protected:
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return object[Base]; }
 
+  protected:
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix
     */

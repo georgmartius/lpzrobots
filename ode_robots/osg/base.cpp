@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:33  martius
+ *   Revision 1.3  2006-08-04 15:05:42  martius
+ *   documentation
+ *
+ *   Revision 1.2  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.9  2006/06/29 16:35:56  robot3
@@ -478,7 +481,7 @@ namespace lpzrobots {
   }
 
 
-  LightSource* Base::makeLights(StateSet* stateset)
+  osg::LightSource* Base::makeLights(osg::StateSet* stateset)
   {
     // create a spot light.
     Light* light_0 = new Light;

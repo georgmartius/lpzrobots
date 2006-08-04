@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-07-14 12:23:56  martius
+ *   Revision 1.6  2006-08-04 15:07:47  martius
+ *   documentation
+ *
+ *   Revision 1.5  2006/07/14 12:23:56  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.2.4.7  2006/06/27 14:14:30  robot3
@@ -67,7 +70,7 @@ namespace lpzrobots {
 
 
 
-  /**
+  /*
    * returns a rotation matrix (osg) with the given angles
    * alpha, beta and gamma
    */

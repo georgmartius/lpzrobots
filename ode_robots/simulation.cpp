@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.42  2006-07-14 15:17:33  fhesse
+ *   Revision 1.43  2006-08-04 15:07:46  martius
+ *   documentation
+ *
+ *   Revision 1.42  2006/07/14 15:17:33  fhesse
  *   start option for intended simulation time added
  *   -simtime [min]
  *
@@ -723,6 +726,7 @@ namespace lpzrobots {
 
   void Simulation::processCmdLine(int argc, char** argv){
     if(contains(argv, argc, "-h")) usage(argv[0]);
+    if(contains(argv, argc, "--help")) usage(argv[0]);
 
     // guilogger-loading stuff here
     // start with online windows
@@ -742,11 +746,16 @@ namespace lpzrobots {
 	filelogginginterval=atoi(argv[index]);
       plotoptions.push_back(PlotOption(File, Controller, filelogginginterval));      
     }
- 
-    // note: display help (-h) is handled later
-    // use of NeuronViz 
-    if(contains(argv, argc, "-n")) plotoptions.push_back(PlotOption(NeuronViz, Controller, 10));
 
+    // starting neuronviz
+    neuronvizinterval=10;
+    index = contains(argv, argc, "-n");
+    if(index) {
+      if(argc > index)	
+	neuronvizinterval=atoi(argv[index]);
+      plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval));      
+    }
+ 
     index = contains(argv, argc, "-r");
     long seed=0;
     // initialize random number generator
@@ -888,6 +897,7 @@ namespace lpzrobots {
 	   " [-x WxH] [-pause] [-noshadow] [-drawboundings] [-simtime [min]]\n", progname);
     printf("\t-g [interval]\tuse guilogger (default interval 1)\n");
     printf("\t-f [interval]\twrite logging file (default interval 5)\n");
+    printf("\t-n [interval]\tuse neuronviz (default interval 10)\n");
     printf("\t-r seed\t\trandom number seed\n");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (640x480 default)\n");
     printf("\t-pause \t\tstart in pause mode\n");

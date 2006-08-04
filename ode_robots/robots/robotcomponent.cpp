@@ -49,7 +49,7 @@ namespace lpzrobots
 	if ( sensornumber == getSensorNumber () )
 	{
 
-	    //sensor values of this component
+	  //sensor values of this component
 	  for ( int n = 0; n < getNumberSubcomponents (); n++ ){
 	    Joint* j = connection[n].joint;
 	    sensorcounter += j->getPositions(sensors);

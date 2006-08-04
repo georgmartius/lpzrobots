@@ -70,7 +70,7 @@ depend:
 	make Makefile.depend
 
 tags: 
-	etags `find -name "*.[ch]*"` 
+	etags `find -type f -regex ".*\.[hc]p?p?"` 
 
 clean:
 	rm -f $(LIB) Makefile.depend

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:43  martius
+ *   Revision 1.4  2006-08-04 15:06:38  martius
+ *   documentation
+ *
+ *   Revision 1.3  2006/07/20 17:19:43  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:30  martius
@@ -62,7 +65,7 @@ AtomOdeAgent::AtomOdeAgent(const PlotOption& plotOption) : OdeAgent(plotOption)
 	      
 }
 
-AtomOdeAgent::AtomOdeAgent(const list<PlotOption>& plotOptions) : OdeAgent(plotOptions)
+AtomOdeAgent::AtomOdeAgent(const std::list<PlotOption>& plotOptions) : OdeAgent(plotOptions)
 {
 
 	      

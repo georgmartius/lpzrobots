@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 11:57:23  martius
+ *   Revision 1.3  2006-08-04 15:07:46  martius
+ *   documentation
+ *
+ *   Revision 1.2  2006/07/14 11:57:23  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/06/29 16:32:44  robot3
@@ -60,12 +63,6 @@
 #include <ode/ode.h>
 #include "mathutils.h"
 
-// TODO: i (Frank G.) think this is a hack,
-// since paramkey etc. are defined in configurable.h
-typedef std::string paramkey;
-typedef double paramval;
-typedef std::list< std::pair<paramkey, paramval> > paramlist;
-
 namespace lpzrobots {
 
   OdeConfig::OdeConfig() :
@@ -86,9 +83,9 @@ namespace lpzrobots {
   }
 
         
-  paramkey OdeConfig::getName() const { return name; }
+  Configurable::paramkey OdeConfig::getName() const { return name; }
 
-  paramlist OdeConfig::getParamList() const{
+  Configurable::paramlist OdeConfig::getParamList() const{
     paramlist list;
     list.push_back(std::pair<paramkey, paramval> (std::string("noise"), noise));
     list.push_back(std::pair<paramkey, paramval> (std::string("simstepsize"), simStepSize));
@@ -102,7 +99,7 @@ namespace lpzrobots {
     return list;
   } 
 
-  paramval OdeConfig::getParam(const paramkey& key) const {
+  Configurable::paramval OdeConfig::getParam(const paramkey& key) const {
     if(key == "noise") return noise; 
     else if(key == "simstepsize") return simStepSize; 
     else if(key == "realtimefactor") return realTimeFactor; 

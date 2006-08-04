@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2006-07-14 12:23:53  martius
+ *   Revision 1.16  2006-08-04 15:07:46  martius
+ *   documentation
+ *
+ *   Revision 1.15  2006/07/14 12:23:53  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.14.4.16  2006/06/25 17:01:56  martius
@@ -153,9 +156,6 @@ public:
       global.obstacles.push_back(s1);
     }
 
-    // set color for nimm robot
-    OsgHandle osgHandle_orange = osgHandle.changeColor(Color(2, 156/255.0, 0));
-
     // use Nimm2 vehicle as robot:
     // - get default configuration for nimm2
     // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
@@ -165,7 +165,7 @@ public:
      c.bumper  = true;
      c.cigarMode  = true;
      c.irFront = true;
-     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c, "Nimm2");    
+     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");    
      vehicle->place(Pos(2,0,0));
 
     // use Nimm4 vehicle as robot:

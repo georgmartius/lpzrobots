@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-07-20 17:19:43  martius
+ *   Revision 1.9  2006-08-04 15:07:27  martius
+ *   documentation
+ *
+ *   Revision 1.8  2006/07/20 17:19:43  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.7  2006/07/14 12:23:38  martius
@@ -157,7 +160,7 @@ namespace lpzrobots{
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
   */
-  int Arm2Segm::getSegmentsPosition(vector<Position> &poslist){
+  int Arm2Segm::getSegmentsPosition(std::vector<Position> &poslist){
     for (int i=0; i<conf.segmentsno; i++){
       Pos p = objects[i]->getPosition();
       poslist.push_back(p.toPosition());
