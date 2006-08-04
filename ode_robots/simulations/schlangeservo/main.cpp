@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 12:23:52  martius
+ *   Revision 1.4  2006-08-04 16:25:14  martius
+ *   bugfixing
+ *
+ *   Revision 1.3  2006/07/14 12:23:52  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.2.4.5  2006/05/15 13:11:29  robot3
@@ -56,7 +59,6 @@
 #include "playground.h"
 #include "passivesphere.h"
 
-#include <selforg/deprivation.h>
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
@@ -67,17 +69,6 @@
 
 using namespace lpzrobots;
 
-int zeit =0;
-Matrix turnMotor(const Matrix& _dont_care){  
-  Matrix y(_dont_care.getM(),1);
-  for(int i=0; i< y.getM(); i++){
-    y.val(i,0) = pow(-1.0,i)*sin(zeit/100.0)*0.9;
-  }
-  zeit++;
-  return y;
-}
-
-Deprivation *controller;
 
 class ThisSim : public Simulation {
 public:
@@ -101,7 +92,6 @@ public:
     //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
     //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
     //    AbstractController *controller = new InvertMotorNStep();  
-    //    controller = new Deprivation(turnMotor);  
     AbstractController *controller = new SineController();  
   
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -140,36 +130,6 @@ public:
 
     showParams(global.configs);
   }
-
-  //Funktion die eingegebene Befehle/kommandos verarbeitet
-  virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
-  {
-    if (!down) return false;    
-    bool handled = false;
-    switch ( key )
-      {
-      case 't' : 	
-	controller->setExternalControlMode(!controller->getExternalControlMode());
-	printf("Control Mode: %i\n", controller->getExternalControlMode());
-	handled = true; break;	
-      case 's' :
-	controller->store("test") && printf("Controller stored\n");
-	handled = true; break;	
-      case 'l' :
-	controller->restore("test") && printf("Controller loaded\n");
-	handled = true; break;	
-      }
-    fflush(stdout);
-    return handled;
-  }
-
-
-  virtual void bindingDescription(osg::ApplicationUsage & au) const {
-    au.addKeyboardMouseBinding("Deprivation: t","toggle mode (straight moving/controller)");
-    au.addKeyboardMouseBinding("Simulation: s","store");
-    au.addKeyboardMouseBinding("Simulation: l","load");
-  }
-
 
 };
 

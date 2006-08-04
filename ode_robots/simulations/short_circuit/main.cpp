@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2006-07-14 12:23:52  martius
+ *   Revision 1.17  2006-08-04 16:25:14  martius
+ *   bugfixing
+ *
+ *   Revision 1.16  2006/07/14 12:23:52  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.15.4.6  2006/05/15 13:11:29  robot3
@@ -180,7 +183,7 @@ int main (int argc, char **argv)
     printUsage(argv[0]);  
     return -1;
   }
-  channels = max(1,atoi(argv[1]));
+  channels = std::max(1,atoi(argv[1]));
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }

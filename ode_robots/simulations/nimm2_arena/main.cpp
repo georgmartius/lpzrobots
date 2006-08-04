@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-07-14 12:23:50  martius
+ *   Revision 1.7  2006-08-04 16:25:14  martius
+ *   bugfixing
+ *
+ *   Revision 1.6  2006/07/14 12:23:50  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.5.4.5  2006/06/25 21:57:41  martius
@@ -62,6 +65,7 @@
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/stl_adds.h>
 
 #include "nimm2.h"
 
@@ -102,8 +106,8 @@ public:
     AbstractWiring* wiring;
     OdeAgent* agent;
         
-    for (int j=-0; j<1; j++){ 
-      for (int i=-0; i<1; i++){
+    for (int j=-0; j<3; j++){ 
+      for (int i=-0; i<3; i++){
 	//      nimm2 = new Nimm2(odeHandle);
 	Nimm2Conf conf = Nimm2::getDefaultConf();
 	conf.speed=20;
@@ -132,7 +136,7 @@ public:
 	} else {
 	  contrl = new InvertNChannelController(10);  		
 	  agent = new OdeAgent(NoPlot);	  
-	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + itos(i) + "_" + itos(j));
+	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
 	  agent->init(contrl, nimm2, wiring);
 	  contrl->setParam("adaptrate", 0.000);
 	  //    controller->setParam("nomupdate", 0.0005);
@@ -157,14 +161,19 @@ public:
   {
     if (!down) return false;    
     bool handled = false;
+    FILE* f;
     switch ( key )
       {
       case 's' :
-	controller->store("test") && printf("Controller stored\n");
+	f=fopen("controller","wb");
+	controller->store(f) && printf("Controller stored\n");
+	fclose(f);
 	handled = true; break;	
       case 'l' :
-	controller->restore("test") && printf("Controller loaded\n");
+	f=fopen("controller","rb");
+	controller->restore(f) && printf("Controller loaded\n");
 	handled = true; break;	
+	fclose(f);
       }
     fflush(stdout);
     return handled;

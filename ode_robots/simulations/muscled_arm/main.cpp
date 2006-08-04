@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 12:23:50  martius
+ *   Revision 1.4  2006-08-04 16:25:14  martius
+ *   bugfixing
+ *
+ *   Revision 1.3  2006/07/14 12:23:50  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.4.9  2006/06/25 17:01:55  martius
@@ -186,72 +189,71 @@ public:
     // show (print to console) params of all objects in configurable list 
     showParams(global.configs);
   }
-};
 
-//Funktion die eingegebene Befehle/kommandos verarbeitet
-void command (const OdeHandle&, GlobalData& globalData, int cmd)
-{
-  //     //printp ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
-  //     switch ( (char) cmd )
-  //       {
-  //       case '1' : arm->force_[0]+=0.5; break;
-  //       case '!' : arm->force_[0]-=0.5; break;
-
-  //       case '2' : arm->force_[1]+=0.5; break;
-  //       case '@' : arm->force_[1]-=0.5; break;
-
-  //       case '3' : arm->force_[2]+=0.5; break;
-  //       case '#' : arm->force_[2]-=0.5; break;
-
-  //       case '4' : arm->force_[3]+=0.5; break;
-  //       case '$' : arm->force_[3]-=0.5; break;
-
-  //       case '5' : arm->force_[4]+=0.5; break;
-  //       case '%' : arm->force_[4]-=0.5; break;
-
-  //       case '6' : arm->force_[5]+=0.5; break;
-  //       case '^' : arm->force_[5]-=0.5; break;
-
-  //       case 'q' : arm->force_[0]=0; break;
-  //       case 'w' : arm->force_[1]=0; break;
-  //       case 'e' : arm->force_[2]=0; break;
-  //       case 'r' : arm->force_[3]=0; break;
-  //       case 't' : arm->force_[4]=0; break;
-  //       case 'y' : arm->force_[5]=0; break;
-
-  //       case 'a' : for (int i=0; i<6; i++) arm->force_[i]=0; break;
-
-  //       case 'z' : 
-  // 	arm->force_[0]=0;
-  // 	arm->force_[1]=0;
-  // 	arm->force_[2]=0.5;
-  // 	arm->force_[3]=0.5;
-  // 	arm->force_[4]=-0.5;
-  // 	arm->force_[5]=-0.5; 
-  // 	break;
-  //       }
-  //     for (int i=0; i<6; i++){
-  //       std::cout<<arm->force_[i]<<"  ";
-  //     }
-  //     std::cout<<"\n";
+  //Funktion die eingegebene Befehle/kommandos verarbeitet
+  void command (const OdeHandle&, GlobalData& globalData, int cmd)
+  {
+    //     //printp ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
+    //     switch ( (char) cmd )
+    //       {
+    //       case '1' : arm->force_[0]+=0.5; break;
+    //       case '!' : arm->force_[0]-=0.5; break;
     
-}
+    //       case '2' : arm->force_[1]+=0.5; break;
+    //       case '@' : arm->force_[1]-=0.5; break;
+    
+    //       case '3' : arm->force_[2]+=0.5; break;
+    //       case '#' : arm->force_[2]-=0.5; break;
+    
+    //       case '4' : arm->force_[3]+=0.5; break;
+    //       case '$' : arm->force_[3]-=0.5; break;
+    
+    //       case '5' : arm->force_[4]+=0.5; break;
+    //       case '%' : arm->force_[4]-=0.5; break;
+    
+    //       case '6' : arm->force_[5]+=0.5; break;
+    //       case '^' : arm->force_[5]-=0.5; break;
+    
+    //       case 'q' : arm->force_[0]=0; break;
+    //       case 'w' : arm->force_[1]=0; break;
+    //       case 'e' : arm->force_[2]=0; break;
+    //       case 'r' : arm->force_[3]=0; break;
+    //       case 't' : arm->force_[4]=0; break;
+    //       case 'y' : arm->force_[5]=0; break;
+    
+    //       case 'a' : for (int i=0; i<6; i++) arm->force_[i]=0; break;
+    
+    //       case 'z' : 
+    // 	arm->force_[0]=0;
+    // 	arm->force_[1]=0;
+    // 	arm->force_[2]=0.5;
+    // 	arm->force_[3]=0.5;
+    // 	arm->force_[4]=-0.5;
+    // 	arm->force_[5]=-0.5; 
+    // 	break;
+    //       }
+    //     for (int i=0; i<6; i++){
+    //       std::cout<<arm->force_[i]<<"  ";
+    //     }
+    //     std::cout<<"\n";
+    
+  }
 
 
   // add own key handling stuff here, just insert some case values
-// note: this is the normal signature (look above)
-//   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
-//   {
-//     if (down) { // only when key is pressed, not when released
-//       switch ( (char) key )
-// 	{
-// 	default:
-// 	  return false;
-// 	  break;
-// 	}
-//     }
-//     return false;
-//   }
+  // note: this is the normal signature (look above)
+  //   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  //   {
+  //     if (down) { // only when key is pressed, not when released
+  //       switch ( (char) key )
+  // 	{
+  // 	default:
+  // 	  return false;
+  // 	  break;
+  // 	}
+  //     }
+  //     return false;
+  //   }
   
 };
 
