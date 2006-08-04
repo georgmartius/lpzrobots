@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.2
+VERSION=0.3
 NAME=lpzrobots
 BASE=../..
 
@@ -14,8 +14,8 @@ for F in `find $SRCDIR -maxdepth 1 -type f`; do
     cp "$F" $DIR/;
 done
 
-echo "Copy matrix lib";
-cp -r  $SRCDIR/matrixlib $DIR/;
+echo "Copy opende lib";
+cp -r  $SRCDIR/opende $DIR/;
 echo "Copy guilogger";
 cp -r  $SRCDIR/guilogger $DIR/;
 echo "Copy gnuplot";

@@ -1,6 +1,4 @@
-atomsimulation
 createNewSimulation.sh
-formel1
 hurling_snake
 Makefile
 Makefile.conf
@@ -13,7 +11,5 @@ sphericalrobot
 template_onerobot
 template_schlange
 template_schlangeforce
-template_snakebot
 template_sphererobot
-template_spiderbot
 zoo
