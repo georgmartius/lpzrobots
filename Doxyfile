@@ -1,10 +1,10 @@
-# Doxyfile 1.4.6 
+# Doxyfile 1.4.7
 
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "Robotsystem of the Robot Group Leipzig"
-PROJECT_NUMBER         = 
+PROJECT_NUMBER         = 0.3
 OUTPUT_DIRECTORY       = doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -25,10 +25,10 @@ ABBREVIATE_BRIEF       = "The $name class" \
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = NO
-STRIP_FROM_PATH        = /home/georg/src/lpzrobots/
+STRIP_FROM_PATH        = /scratch.local/georg/lpzrobots/
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
-JAVADOC_AUTOBRIEF      = NO
+JAVADOC_AUTOBRIEF      = YES
 MULTILINE_CPP_IS_BRIEF = NO
 DETAILS_AT_TOP         = NO
 INHERIT_DOCS           = YES
@@ -44,8 +44,8 @@ SUBGROUPING            = YES
 # Build related configuration options
 #---------------------------------------------------------------------------
 EXTRACT_ALL            = YES
-EXTRACT_PRIVATE        = NO
-EXTRACT_STATIC         = NO
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
 EXTRACT_LOCAL_METHODS  = NO
 HIDE_UNDOC_MEMBERS     = NO
@@ -82,54 +82,32 @@ WARN_LOGFILE           = doxygen.warn
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-<<<<<<< Doxyfile
-
-# The INPUT tag can be used to specify the files and/or directories that contain 
-# documented source files. You may enter file names like "myfile.cpp" or 
-# directories like "/usr/src/myproject". Separate the files or directories 
-# with spaces.
-
-#INPUT                  = controller matrixlib ode_robots README
-INPUT                  = controller matrixlib ode_robots gnuplot README 
-#INPUT                  = README controller matrixlib ode_robots gnuplot  guilogger/README
-
-# If the value of the INPUT tag contains directories, you can use the 
-# FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
-# and *.h) to filter out the source-files in the directories. If left 
-# blank the following patterns are tested: 
-# *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp 
-# *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm
-
-FILE_PATTERNS          = *.c *.c *.cpp *.h *.hpp README 
-
-# The RECURSIVE tag can be used to turn specify whether or not subdirectories 
-# should be searched for input files as well. Possible values are YES and NO. 
-# If left blank NO is used.
-
-=======
 INPUT                  = selforg \
-                         matrixlib \
                          ode_robots \
-                         README \
-                         guilogger/README
+                         ode_robots/simulations/README \
+                         neuronviz/README \
+                         guilogger/README \
+                         opende/README \
+                         README
+
+
 FILE_PATTERNS          = *.c \
                          *.cpp \
                          *.h \
                          *.hpp \
                          README
->>>>>>> 1.5.6.4
 RECURSIVE              = YES
 EXCLUDE                = ode_robots/textures/calcheightmaps \
-                         ode_robots/simulations \
                          ode_robots/include \
+                         ode_robots/components \
                          selforg/include \
                          selforg/controller/old_stuff \
-                         matrixlib/unit_test.h
+                         selforg/matrix/unit_test.hpp
 EXCLUDE_SYMLINKS       = YES
-EXCLUDE_PATTERNS       = 
-EXAMPLE_PATH           = ode_robots/simulations/template_onerobot \
+EXCLUDE_PATTERNS       = main.cpp
+EXAMPLE_PATH           = ode_robots/simulations/template_sphererobot \
                          ode_robots/robots \
-                         selforg/examples/
+                         selforg/examples
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = YES
 IMAGE_PATH             = doc/images/ \
@@ -140,11 +118,12 @@ FILTER_SOURCE_FILES    = NO
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
 #---------------------------------------------------------------------------
-SOURCE_BROWSER         = YES
+SOURCE_BROWSER         = NO
 INLINE_SOURCES         = NO
 STRIP_CODE_COMMENTS    = NO
 REFERENCED_BY_RELATION = NO
 REFERENCES_RELATION    = NO
+REFERENCES_LINK_SOURCE = NO
 USE_HTAGS              = NO
 VERBATIM_HEADERS       = YES
 #---------------------------------------------------------------------------
@@ -246,7 +225,7 @@ PERL_PATH              = /usr/bin/perl
 #---------------------------------------------------------------------------
 # Configuration options related to the dot tool   
 #---------------------------------------------------------------------------
-CLASS_DIAGRAMS         = YES
+CLASS_DIAGRAMS         = NO
 HIDE_UNDOC_RELATIONS   = YES
 HAVE_DOT               = YES
 CLASS_GRAPH            = YES
@@ -257,6 +236,7 @@ TEMPLATE_RELATIONS     = NO
 INCLUDE_GRAPH          = YES
 INCLUDED_BY_GRAPH      = YES
 CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
 GRAPHICAL_HIERARCHY    = YES
 DIRECTORY_GRAPH        = YES
 DOT_IMAGE_FORMAT       = png
@@ -272,4 +252,4 @@ DOT_CLEANUP            = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to the search engine   
 #---------------------------------------------------------------------------
-SEARCHENGINE           = NO
+SEARCHENGINE           = YES
