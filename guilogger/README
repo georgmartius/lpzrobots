@@ -37,7 +37,7 @@ One can also you can view a logfile with <tt> guilogger -m file -f filename.log<
 where filename.log is the name of the logfile.
 Guilogger can also read from serial port with <tt> guilogger -m serial -p portnumber</tt>.
 This information is summarized in the parameter listing, which you can get by typing
-<tt> guilogger --help </tt>\n
+\code guilogger --help \endcode \n
 
 guilogger parameter listing \n
 <tt> -m [mode] </tt> mode = serial | pipe | file \n
@@ -46,31 +46,32 @@ guilogger parameter listing \n
 <tt> -l        </tt> turns logging on \n
 <tt> --help    </tt> displays this message. \n
 
+
 \b Format \n 
 Here the BNF of the Logging Format:\n
-<tt>
+\code
 <STREAM>        := <LINE> <STREAM> | <LINE>
 <LINE>          := <CMDLINE> | <COMMENTLINE> | <DATALINE>\n
 <CMDLINE>       := #C <CHANNELLABEL>*<ENDLINE> | #<CHAR> <STRING><ENDLINE>\n 
 <COMMENT>       := # <STRING><ENDLINE>\n
 <CHANNELLABEL>  := <STRING_W/O_WHITESPACE>\n
 <DATALINE>      := <FLOAT> <FLOAT>*\n
-</tt>
-<tt>*</tt>* means multiple occurences separated by space. 
+\endcode
+<tt>*</tt> means multiple occurences separated by space. 
 The number of Channellabels should be the same as the number of data values.
 
 Here one example:
-<pre>
-# This is a comment
-# the following line can be treated as a comments these are required for other programs
-#N neural_net stefan
-#N layer l1
-#N neuron n1
-# the following line defined our channels
-#C n1 x[1] y[0] eps 
- -0.3 0.424253 10e-5
- 0.1 -1.2 0.00
-</pre>
+\code
+ # This is a comment
+ # the following line can be treated as a comments these are required for other programs
+ #N neural_net stefan
+ #N layer l1
+ #N neuron n1
+ # the following line defined our channels
+ #C n1 x[1] y[0] eps 
+  -0.3 0.424253 10e-5
+  0.1 -1.2 0.00
+\endcode
 
 */
 
