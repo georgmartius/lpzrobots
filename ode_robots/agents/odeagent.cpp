@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:31  martius
+ *   Revision 1.3  2006-08-04 15:06:24  martius
+ *   TrackRobot tracing changed
+ *
+ *   Revision 1.2  2006/07/14 12:23:31  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/03/31 16:16:58  fhesse
@@ -52,7 +55,7 @@ namespace lpzrobots {
     for (int i=0; i<trace_length; i++){
       segments[i]=0;
     }
-    // init lastpos with position of body_to_follow
+    // init lastpos with position of robot to follow
     Pos pos(robot->getPosition());
     lastpos=pos;
 
@@ -67,7 +70,7 @@ namespace lpzrobots {
     Agent::step(noise);
     // todo: do this (trackrobot.trace()) with friend class OdeAgent or the like
     // to be able to directly use trackrobot.tracePos
-    if (trackrobot.trace()){
+    if (trackrobot.isDisplayTrace()){
       if (!tracing_initialized) {
 	init_tracing();
       }
