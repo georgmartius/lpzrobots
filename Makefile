@@ -33,6 +33,13 @@ tags:
 doc:
 	doxygen Doxyfile	
 
+.PHONY: docintern
+docintern:
+	date "+PROJECT_NUMBER=%2u-%B-%Y" > builddate
+	cat builddate Doxyfile.intern | nice -19 doxygen -	
+	find doc/html -type f | xargs chmod ug+rw
+	find doc/html -type f | xargs chmod o+r
+
 .PHONY: docwarn
 docwarn:
 	cat doxygen.warn
