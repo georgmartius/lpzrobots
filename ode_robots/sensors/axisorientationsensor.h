@@ -18,42 +18,49 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************
+ *                                                                         *
+ *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-11-22 10:24:04  martius
- *   abstract class for position sensor
+ *   Revision 1.1  2006-08-08 17:03:27  martius
+ *   new sensors model
  *
- *                                                                         *
+ *                                                                 *
  ***************************************************************************/
-#ifndef __POSITIONSENSOR_H
-#define __POSITIONSENSOR_H
+#ifndef __AXISORIENTATIONSENSOR_H
+#define __AXISORIENTATIONSENSOR_H
 
-#include <list>
-using namespace std;
-#include <ode/common.h>
-#include "position.h"
+#include "sensor.h"
 
-/** Abstract class for Position-sensors. 
-    The sensor value is usually some kind of distance to some fixed object in space
- */
-class PositionSensor {
-public:  
-  PositionSensor() {}
-  virtual ~PositionSensor() {}
+namespace lpzrobots {
+
+  /** Class for sensing the axis orienation of a primitive (robot)
+  */
+  class AxisOrientationSensor : public Sensor {
+  public:  
+    /// Sensor mode
+    enum Mode { OnlyZAxis //< Z axis in word coordinated
+		, ZProjection //< z-komponent of each axis
+		, XYZAxis //< 3x3 rotation matrix
+    };
+
+    AxisOrientationSensor(Mode mode);
+    virtual ~AxisOrientationSensor() {}
+    
+    virtual void init(Primitive* own);  
+    virtual int getSensorNumber() const;
   
-  /** initialises sensor with body of robot
-      @return number of sensor values returned by get
-   */
-  virtual int init(dBodyID body) = 0;  
-  
-  /** performs sense action
-   */
-  virtual bool sense(const GlobalData& globaldata) = 0;
+    virtual bool sense(const GlobalData& globaldata);
+    virtual std::list<sensor> get() const;
+    virtual int get(sensor* sensors, int length) const;
 
-  /** returns a list of sensor values (usually in the range [0,1] )
-   */
-  virtual list<double> get() = 0;
+  private:
+    Mode mode;
+    Primitive* own;
+  };
 
-};
+
+}
 
 #endif

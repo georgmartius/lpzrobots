@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-14 12:23:43  martius
+ *   Revision 1.5  2006-08-08 17:03:27  martius
+ *   new sensors model
+ *
+ *   Revision 1.4  2006/07/14 12:23:43  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.3.4.3  2006/01/31 15:46:16  martius
@@ -68,7 +71,13 @@ public:
   RaySensor() {}
   virtual ~RaySensor(){}
   
-  /** providing essential information
+  /** providing essential informations
+      @param odeHandle OdeHandle
+      @param osgHandle OsgHandle
+      @param body primitive to which the sensor will be attached
+      @param pose relative pose in respect to body in which the sensor will be placed
+      @param range length of the sensor
+      @param drawMode whether to draw nothing, sensor body, ray, or both 
    */
   virtual void init(const OdeHandle& odeHandle,
 		    const OsgHandle& osgHandle, Primitive* body, 

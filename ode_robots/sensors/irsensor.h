@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-07-14 12:23:43  martius
+ *   Revision 1.7  2006-08-08 17:03:27  martius
+ *   new sensors model
+ *
+ *   Revision 1.6  2006/07/14 12:23:43  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.5.4.4  2006/03/30 12:34:59  martius
@@ -63,76 +66,61 @@ namespace lpzrobots {
   class OSGCylinder;
   class OSGBox;
 
-/** Class for IR sensors. 
-    IR sensors are based on distance measurements using the ODE geom class Ray. 
-    The sensor value is obtained by collisions. 
-    However of no collision is detected the sensor needs to ajust its output as well. 
-    Therefore a reset function is provided.
- */
-class IRSensor : public RaySensor {
-public:  
-  /**
-     @param exponent exponent of the sensor characteritic (default: 1 (linear))
+  /** Class for IR sensors. 
+      IR sensors are based on distance measurements using the ODE geom class Ray. 
+      The sensor value is obtained by collisions. 
+      However of no collision is detected the sensor needs to ajust its output as well. 
+      Therefore a reset function is provided.
   */
-  IRSensor(double exponent = 1);
+  class IRSensor : public RaySensor {
+  public:  
+    /**
+       @param exponent exponent of the sensor characteritic (default: 1 (linear))
+    */
+    IRSensor(double exponent = 1);
 
-  virtual ~IRSensor();
+    virtual ~IRSensor();
 
-  /** providing essential informations
-   */
-  virtual void init(const OdeHandle& odeHandle,
-		    const OsgHandle& osgHandle, 
-		    Primitive* body, 
-		    const osg::Matrix pose, double range,
-		    rayDrawMode drawMode = drawSensor);
+    virtual void init(const OdeHandle& odeHandle,
+		      const OsgHandle& osgHandle, 
+		      Primitive* body, 
+		      const osg::Matrix pose, double range,
+		      rayDrawMode drawMode = drawSensor);
 
-  /** used for reseting the sensor value to a value of maximal distance. 
-   */
-  virtual void reset();  
+    virtual void reset();  
+    virtual bool sense(dGeomID object);
   
-  /** performs sense action by checking collision with the given object
-      @return true for collision handled (sensed) and false for no interaction
-   */
-  virtual bool sense(dGeomID object);
-
-  /** returns the sensor value (usually in the range [-1,1] )
-   */
-  virtual double get();
-
-  /** draws the sensor ray
-   */
-  virtual void update();
+    virtual double get();
+    virtual void update();
   
-  /** returns the geomID of the ray geom (used for optimisation)
-   */
-  virtual dGeomID getGeomID();
+    virtual dGeomID getGeomID();
 
-  /// returns the exponent of the sensor characteritic (default: 1 (linear))
-  double getExponent () const { return exponent;} 
+    /// returns the exponent of the sensor characteritic (default: 1 (linear))
+    double getExponent () const { return exponent;} 
 
-  /// sets the exponent of the sensor characteritic (default: 1 (linear))
-  void   setExponent (double exp) { exponent = exp;}
+    /// sets the exponent of the sensor characteritic (default: 1 (linear))
+    void   setExponent (double exp) { exponent = exp;}
 
-protected:
-  /** describes the sensor characteritic 
-      linear curve used here
-  */
-  virtual double characteritic(double len);
+  protected:
+    /** describes the sensor characteritic 
+	linear curve used here
+    */
+    virtual double characteritic(double len);
 
-protected:
-  dGeomID transform;
-  dGeomID ray;
-  double range; // max length
-  double len;   // last measured length
-  double value; // actual sensor value
-  double exponent; // exponent of the sensor characteritic 
+  protected:
+    dGeomID transform;
+    dGeomID ray;
+    double range; // max length
+    double len;   // last measured length
+    double value; // actual sensor value
+    double exponent; // exponent of the sensor characteritic 
 
-  OSGCylinder* sensorBody;
-  OSGBox* sensorRay;
-  OsgHandle osgHandle;
+    OSGCylinder* sensorBody;
+    OSGBox* sensorRay;
+    OsgHandle osgHandle;
   
-  bool initialised;
-};
+    bool initialised;
+  };
 
 }
 
