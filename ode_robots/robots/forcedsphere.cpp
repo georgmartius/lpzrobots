@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-07-14 12:23:40  martius
+ *   Revision 1.6  2006-08-08 17:04:46  martius
+ *   added new sensor model
+ *
+ *   Revision 1.5  2006/07/14 12:23:40  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.4.4.6  2006/07/10 12:05:01  martius
@@ -57,25 +60,22 @@
 
 #include <assert.h>
 #include <selforg/matrix.h>
-#include <osg/Matrix>
 #include "primitive.h"
 #include "forcedsphere.h"
+#include "mathutils.h"
 
 using namespace osg;
+using namespace std;
 
 namespace lpzrobots {
 
-  /**
-   *constructor
-   **/
   ForcedSphere::ForcedSphere ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		 const char* name, double radius, double max_force)
-    : OdeRobot ( odeHandle, osgHandle, name, "$Id$" ), radius(radius), max_force(max_force)
+		 const char* name, const ForcedSphereConf& conf)
+    : OdeRobot( odeHandle, osgHandle, name, "$Id$" ),
+      conf(conf)
   {
-
     created = false;
-    object[0] = 0;
-    
+    object[0] = 0;    
   }
 	
   ForcedSphere::~ForcedSphere()
@@ -88,41 +88,25 @@ namespace lpzrobots {
     if(object[0]) object[0]->update();
   }
   
-  /**
-   *Writes the sensor values to an array in the memory.
-   *@param sensor* pointer to the array
-   *@param sensornumber length of the sensor array
-   *@return number of actually written sensors
-   **/
   int ForcedSphere::getSensors ( sensor* sensors, int sensornumber )
   {  
     int len=0;
-    matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[0]->getBody() ) );
-
-    // z-coordinate of axis position in world coordinates
-    len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
-    // rotation matrix - 9 (vectors of all axis in world coordinates
-    //len += A.convertToBuffer(sensors + len , sensornumber -len);
-      
+    for(list<Sensor*>::iterator i = conf.sensors.begin(); i != conf.sensors.end(); i++){
+      len += (*i)->get(sensors+len, sensornumber-len);
+    }
     return len;
   }
 
-  /**
-   *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
-   *It is an linear allocation.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
-   *@param motornumber length of the motor array
-   **/
   void ForcedSphere::setMotors ( const motor* motors, int motornumber ) {
     if (motornumber==2){
-      dBodyAddForce(object[0]->getBody(), motors[0]*max_force, motors[1]*max_force, 0);
+      dBodyAddForce(object[0]->getBody(), motors[0]*conf.max_force, motors[1]*conf.max_force, 0);
     }
   }
 
 
   void ForcedSphere::place(const osg::Matrix& pose){
     osg::Matrix p2;
-    p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, radius)); 
+    p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.radius)); 
     create(p2);    
   };
 
@@ -130,52 +114,35 @@ namespace lpzrobots {
   void ForcedSphere::doInternalStuff(const GlobalData& global){
   }
 
-  /**
-   *This is the collision handling function for sphere robots.
-   *This overwrides the function collisionCallback of the class robot.
-   *@param data
-   *@param o1 first geometrical object, which has taken part in the collision
-   *@param o2 second geometrical object, which has taken part in the collision
-   *@return true if the collision was threated  by the robot, false if not
-   **/
   bool ForcedSphere::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
     return false; // let the standard routine do it for us
   }
 
 
-  /**
-   *Returns the number of motors used by the snake.
-   *@return number of motors
-   **/
   int ForcedSphere::getMotorNumber(){
     return 2;
   }
 
-  /**
-   *Returns the number of sensors used by the robot.
-   *@return number of sensors
-   **/
   int ForcedSphere::getSensorNumber() {
-    return 3;
+    int s = 0;
+    for(list<Sensor*>::iterator i = conf.sensors.begin(); i != conf.sensors.end(); i++){
+      s += (*i)->getSensorNumber();
+    }
+    return s;
   }
 
 
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
-  */
   void ForcedSphere::create(const osg::Matrix& pose){
     if (created) {
       destroy();
     }
 
-    object[0] = new Sphere(radius);
-    object[0]->init(odeHandle, radius, osgHandle);
+    object[0] = new Sphere(conf.radius);
+    object[0]->init(odeHandle, conf.radius, osgHandle);
     object[0]->setPose(pose);    
   }
 
 
-  /** destroys vehicle and space
-   */
   void ForcedSphere::destroy(){
     if (created){
       for (int i=0; i<1; i++){

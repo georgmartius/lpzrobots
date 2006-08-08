@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:56  martius
+ *   Revision 1.3  2006-08-08 17:04:47  martius
+ *   added new sensor model
+ *
+ *   Revision 1.2  2006/07/14 12:23:56  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.4  2005/12/21 17:42:16  martius
@@ -40,9 +43,10 @@
 #ifndef __POS_H
 #define __POS_H
 
+#include <iostream>
+
 #include <osg/Vec3>
 #include <ode/ode.h>
-#include <iostream>
 #include <selforg/position.h>
 
 namespace lpzrobots{

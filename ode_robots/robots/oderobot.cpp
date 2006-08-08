@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   Revision 1.4  2006-08-08 17:04:46  martius
+ *   added new sensor model
+ *
+ *   Revision 1.3  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:41  martius
@@ -51,6 +54,7 @@
 
 #include "oderobot.h"
 #include "primitive.h"
+#include "mathutils.h"
 
 using namespace std;
 
@@ -154,32 +158,5 @@ Testing
     return false;
   }
 
-  matrix::Matrix OdeRobot::odeRto3x3RotationMatrixT ( const double R[12] ) {  
-    matrix::Matrix matrix(3,3);
-    matrix.val(0,0)=R[0];
-    matrix.val(0,1)=R[4];
-    matrix.val(0,2)=R[8];
-    matrix.val(1,0)=R[1];
-    matrix.val(1,1)=R[5];
-    matrix.val(1,2)=R[9];
-    matrix.val(2,0)=R[2];
-    matrix.val(2,1)=R[6];
-    matrix.val(2,2)=R[10];
-    return matrix;
-  }
-
-  matrix::Matrix OdeRobot::odeRto3x3RotationMatrix ( const double R[12] ) {  
-    matrix::Matrix matrix(3,3);
-    matrix.val(0,0)=R[0];
-    matrix.val(1,0)=R[4];
-    matrix.val(2,0)=R[8];
-    matrix.val(0,1)=R[1];
-    matrix.val(1,1)=R[5];
-    matrix.val(2,1)=R[9];
-    matrix.val(0,2)=R[2];
-    matrix.val(1,2)=R[6];
-    matrix.val(2,2)=R[10];
-    return matrix;
-  }
 
 }

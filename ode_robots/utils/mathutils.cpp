@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-08-04 15:07:47  martius
+ *   Revision 1.7  2006-08-08 17:04:47  martius
+ *   added new sensor model
+ *
+ *   Revision 1.6  2006/08/04 15:07:47  martius
  *   documentation
  *
  *   Revision 1.5  2006/07/14 12:23:56  martius
@@ -119,6 +122,35 @@ namespace lpzrobots {
     // here a*b is the dot product (Skalarprodukt)
     return acos(a*b / (a.length()*b.length())); 
   }
+
+  matrix::Matrix odeRto3x3RotationMatrixT ( const double R[12] ) {  
+    matrix::Matrix matrix(3,3);
+    matrix.val(0,0)=R[0];
+    matrix.val(0,1)=R[4];
+    matrix.val(0,2)=R[8];
+    matrix.val(1,0)=R[1];
+    matrix.val(1,1)=R[5];
+    matrix.val(1,2)=R[9];
+    matrix.val(2,0)=R[2];
+    matrix.val(2,1)=R[6];
+    matrix.val(2,2)=R[10];
+    return matrix;
+  }
+
+  matrix::Matrix odeRto3x3RotationMatrix ( const double R[12] ) {  
+    matrix::Matrix matrix(3,3);
+    matrix.val(0,0)=R[0];
+    matrix.val(1,0)=R[4];
+    matrix.val(2,0)=R[8];
+    matrix.val(0,1)=R[1];
+    matrix.val(1,1)=R[5];
+    matrix.val(2,1)=R[9];
+    matrix.val(0,2)=R[2];
+    matrix.val(1,2)=R[6];
+    matrix.val(2,2)=R[10];
+    return matrix;
+  }
+
 
 
   /******************************************************************************/
