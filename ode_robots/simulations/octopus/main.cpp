@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-02 08:34:09  robot8
+ *   Revision 1.4  2006-08-09 07:42:17  robot8
+ *   -update of octopus because of changed component function parameters
+ *
+ *   Revision 1.3  2006/08/02 08:34:09  robot8
  *   -update of octopus because of changed component function parameters
  *
  *   Revision 1.2  2006/07/14 12:23:50  martius
@@ -106,7 +109,7 @@
 #include "simplecomponent.h"
 #include "robotcomponent.h"
 
-#define MAX_NUMBER_OF_ARMS 6
+#define MAX_NUMBER_OF_ARMS 8
 #define HEAD_ARM_DISTANCE 1
 
 
@@ -172,7 +175,7 @@ public:
     for ( int n = 0; n < MAX_NUMBER_OF_ARMS; n++ )
     {
 	SchlangeConf sc = Schlange::getDefaultConf ();
-	sc.segmNumber = 3;
+	sc.segmNumber = 2;
 	sc.segmLength = 0.4;
 	sc.segmMass = 0.1;
 	sc.motorPower = 0.4;
@@ -228,6 +231,7 @@ public:
 //	components.front ()->setSoftlink ( n , false );
 
 	positionlist.clear ();
+
     }
 
 
@@ -235,7 +239,7 @@ public:
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=2;
 
-    AbstractController* controller = new InvertMotorNStep ();//SineController ();//InvertMotorSpace ( 12 );//
+    AbstractController* controller = new InvertMotorNStep ( cc );//SineController ();//InvertMotorSpace ( 12 );//
     controller->setParam("adaptrate", 0.005);
     controller->setParam("epsC", 0.005);
     controller->setParam("epsA", 0.001);
@@ -254,6 +258,10 @@ public:
 
 
     showParams(global.configs);
+
+	cout<<"Number of Sensors: "<<components.front()->getSensorNumber ()<<"\n";
+	cout<<"Number of Motors: "<<components.front()->getMotorNumber ()<<"\n";
+
   } 
 
   // add own key handling stuff here, just insert some case values
