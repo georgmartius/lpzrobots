@@ -477,15 +477,14 @@ void guilogger::update()
        queuemutex.unlock();
 
        if (data==NULL) break;
-
        parsedString = QStringList::split(' ', *data);  //parse data string with Space as separator
        QString& first = *(parsedString.begin());
        if(first == "#C")   //Channels einlesen
-       {
-           parsedString.remove(parsedString.begin());  // remove #C preambel
-	   //transmit channels to GNUPlot
-           for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel(*i);
-	   for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
+       {	
+	 parsedString.erase(parsedString.begin());
+	 //transmit channels to GNUPlot
+	 for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel((*i).stripWhiteSpace());
+	 for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
        }
        else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
        {
@@ -498,9 +497,10 @@ void guilogger::update()
            i = parsedString.begin();
 
            while((i != parsedString.end()) && (channelname != ChannelList.end()))
-           {   putData(*channelname, (*i).toFloat());  // send data and correlated channel name to GNUPlot
-               i++;
-               channelname++;
+           { // send data and correlated channel name to GNUPlot  
+	     putData(*channelname, (*i).stripWhiteSpace().toFloat());  
+	     i++;
+	     channelname++;
            }
            datacounter++;
        }
