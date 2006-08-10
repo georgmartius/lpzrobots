@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:14:36  martius
+ *   Revision 1.4  2006-08-10 11:56:15  martius
+ *   noise is now applied to all sensors
+ *
+ *   Revision 1.3  2006/07/20 17:14:36  martius
  *   removed std namespace from matrix.h
  *   storable interface
  *   abstract model and invertablemodel as superclasses for networks
@@ -114,7 +117,8 @@ bool DerivativeWiring::init(int rsensornumber, int rmotornumber){
   second            = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
 
   if(!noiseGenerator) return false;
-  noiseGenerator->init(this->rsensornumber);
+  //  noiseGenerator->init(this->rsensornumber);
+  noiseGenerator->init(this->rsensornumber*(conf.useId+conf.useFirstD+conf.useSecondD));
   return true;
 }
 
@@ -140,7 +144,6 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
   int blocksize = conf.useId + conf.useFirstD + conf.useSecondD;
   if(conf.useId) { // normal sensors values
     memcpy(id, rsensors, sizeof(sensor) * this->rsensornumber);
-    noiseGenerator->add(id, -noise, noise);   
     for(int i=0; i < this->rsensornumber; i++ ){ 
       csensors[i*blocksize] = id[i];
     }
@@ -171,6 +174,9 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
     // 	*(csensors+offset+i) = 0;
     //     }
   }      
+  // add noise
+  noiseGenerator->add(csensors, -noise, noise);   
+
 
   if(conf.blindMotorSets > 0) { // shortcircuit of blind motors
     memcpy(csensors+blocksize*this->rsensornumber, blindMotors, 
