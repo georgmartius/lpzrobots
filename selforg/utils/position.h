@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:24:02  martius
+ *   Revision 1.3  2006-08-11 15:48:24  martius
+ *   print
+ *
+ *   Revision 1.2  2006/07/14 12:24:02  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
@@ -34,6 +37,7 @@
 #define __POSITION_H
 
 #include <math.h>
+#include <iostream>
 
 class Position
 {
