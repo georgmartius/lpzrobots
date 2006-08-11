@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:33  martius
+ *   Revision 1.3  2006-08-11 15:41:31  martius
+ *   osgDB used to find path
+ *
+ *   Revision 1.2  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.4  2006/06/27 14:14:29  robot3
@@ -58,8 +61,8 @@
 #include "boundingshape.h"
 #include "mathutils.h"
 
-
 #include <iostream>
+#include <osgDB/FileUtils>
 
 namespace lpzrobots {
 
@@ -74,7 +77,8 @@ namespace lpzrobots {
      the rotation angles about x,y,z axis respectively        
   */
 
-  BoundingShape::BoundingShape(const std::string& filename, Primitive* parent) : filename(filename), parent(parent) {
+  BoundingShape::BoundingShape(const std::string& filename, Primitive* parent) 
+    : filename(filename), parent(parent) {
     active=false;
   }
   
@@ -83,8 +87,9 @@ namespace lpzrobots {
   bool BoundingShape::readBBoxFile(std::string& filename,
 				   const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 				   double scale, char mode){
-    // TODO: use search path (maybe try to use some osgDB function)
-    FILE* f = fopen(filename.c_str(),"r");
+
+    std::string filenamepath = osgDB::findDataFile(filename);
+    FILE* f = fopen(filenamepath.c_str(),"r");
     if(!f) return false;
       char buffer[128];
       float r,h,x,y,z,l,w;

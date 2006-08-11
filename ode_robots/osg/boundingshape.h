@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:33  martius
+ *   Revision 1.3  2006-08-11 15:41:40  martius
+ *   osgDB used to find path
+ *
+ *   Revision 1.2  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.8  2006/06/29 16:35:56  robot3
@@ -70,29 +73,51 @@ namespace lpzrobots {
   
   /**
      class for reading bounding shape description files (.bbox) and to create appropriate geoms
-     File Format: Lines wise, every line stands for one primitive. Possible lines are:
-     sphere radius (x,y,z)
-     cylinder radius height (x,y,z) (alpha, beta, gamma)
-     capsule radius height (x,y,z) (alpha, beta, gamma)
-     box length width height (x,y,z) (alpha, beta, gamma)
+
+     File Format: Lines wise, every line stands for one primitive. 
+
+     Possible lines are:
+     - sphere radius (x,y,z)
+     - cylinder radius height (x,y,z) (alpha, beta, gamma)
+     - capsule radius height (x,y,z) (alpha, beta, gamma)
+     - box length width height (x,y,z) (alpha, beta, gamma)
+     
      (x,y,z) is the position vector and (alpha, beta, gamma) are 
      the rotation angles about x,y,z axis respectively        
+
+     Example:
+     \code
+cylinder 6.5 50 (0,0,25) (0,0,0)
+cylinder 50 15 (0,0,28) (0,0,0)
+cylinder 40 30 (0,0,50) (0,0,0)
+cylinder 30 20 (0,0,75) (0,0,0)
+cylinder 20 30 (0,0,100) (0,0,0)
+cylinder 13 30 (0,0,125) (0,0,0)
+cylinder 8 30 (0,0,150) (0,0,0)
+cylinder 5 30 (0,0,175) (0,0,0)
+     \endcode
   */
 
   class BoundingShape{
 
   public:
+    /**
+       @param filename path and name of bbox file. It is located using OsgDB search path
+       @param parent primitive to which the bbox is assoziated
+    */
     BoundingShape(const std::string& filename, Primitive* parent);
 
     virtual ~BoundingShape();
 
-    bool readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		      double scale, char mode);
-      
+    /// tries to open the bbox file and greates all geoms
     virtual bool init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		      double scale, char mode);
     
     virtual bool isActive();
+
+  private:
+    bool readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+		      double scale, char mode);
 
   private:
     std::string filename;
