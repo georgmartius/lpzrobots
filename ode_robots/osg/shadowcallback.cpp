@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:36  martius
+ *   Revision 1.3  2006-08-11 15:43:41  martius
+ *   removed warnings if nothing is in scenegraph
+ *
+ *   Revision 1.2  2006/07/14 12:23:36  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/05/18 11:33:17  robot3
@@ -63,8 +66,8 @@ void ShadowDrawCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
             
   if (!bs.valid())
     {
-      std::cout << "bb invalid!" << std::endl;
-      osg::notify(osg::WARN) << "bb invalid"<<_cameraNode.get()<<std::endl;
+//      std::cout << "bb invalid!" << std::endl;
+//      osg::notify(osg::WARN) << "bb invalid"<<_cameraNode.get()<<std::endl;
       return;
     }
             
