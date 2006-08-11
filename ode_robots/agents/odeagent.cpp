@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-04 15:06:24  martius
+ *   Revision 1.4  2006-08-11 15:40:27  martius
+ *   removed to do
+ *
+ *   Revision 1.3  2006/08/04 15:06:24  martius
  *   TrackRobot tracing changed
  *
  *   Revision 1.2  2006/07/14 12:23:31  martius
@@ -68,8 +71,6 @@ namespace lpzrobots {
 
   void OdeAgent::step(double noise){
     Agent::step(noise);
-    // todo: do this (trackrobot.trace()) with friend class OdeAgent or the like
-    // to be able to directly use trackrobot.tracePos
     if (trackrobot.isDisplayTrace()){
       if (!tracing_initialized) {
 	init_tracing();
