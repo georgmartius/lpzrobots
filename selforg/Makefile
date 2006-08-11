@@ -67,7 +67,8 @@ clean:
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
 todo:
-	grep -ni "Todo:" $(CPPFILES) $(HFILES)
+	grep -ni "Todo"  $(CPPFILES) $(HFILES)
+	grep -ni "Fixme"  $(CPPFILES) $(HFILES)
 
 
 include Makefile.depend
