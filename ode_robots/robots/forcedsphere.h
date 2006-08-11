@@ -24,7 +24,10 @@
  * Spherical Robot magically driven                                        *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-08 17:04:46  martius
+ *   Revision 1.5  2006-08-11 15:44:35  martius
+ *   has conf now and arbitrary sensors
+ *
+ *   Revision 1.4  2006/08/08 17:04:46  martius
  *   added new sensor model
  *
  *   Revision 1.3  2006/07/14 12:23:40  martius
@@ -50,11 +53,22 @@ namespace lpzrobots {
 
   class Primitive;
 
-  typedef struct {
-    double radius;
-    double max_force;
-    std::list<Sensor*> sensors;            
-  }ForcedSphereConf;
+  class ForcedSphereConf {
+  public:
+    ForcedSphereConf();
+    ~ForcedSphereConf();
+    /// deletes sensors
+    void destroy();
+
+    double radius; //< radius of the sphere
+    double max_force; //< maximal force applied to the sphere
+    /// bit mask for selecting the dimensions for the forces (see ForcedSphere::Dimensions)
+    short drivenDimensions; 
+    /// list of sensors that are mounted at the robot. (e.g.\ AxisOrientationSensor)
+    std::list<Sensor*> sensors; 
+    /// adds a sensor to the list of sensors
+    void addSensor(Sensor* s) { sensors.push_back(s); }    
+  };
 
   class ForcedSphere : public OdeRobot
   {
@@ -65,19 +79,24 @@ namespace lpzrobots {
 
   public:
   
+    enum Dimensions { X = 1, Y = 2, Z = 4 };
+
     /**
-     *constructor
+     * constructor
+     * 
+     * use getDefaultConf() to obtain a configuration with default values, which can be altered 
+     *  to personal needs.
      **/ 
     ForcedSphere ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		   const char* name, const ForcedSphereConf& ForcedSphereConf);
+		   const ForcedSphereConf& ForcedSphereConf, const std::string& name);
   
     virtual ~ForcedSphere();
 	
     static ForcedSphereConf getDefaultConf(){
       ForcedSphereConf c;
       c.radius = 1;
-      c.max_force = 1;
-      
+      c.max_force = 1;     
+      c.drivenDimensions = X | Y;
       return c;      
     }
 

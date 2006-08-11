@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-08-08 17:04:46  martius
+ *   Revision 1.7  2006-08-11 15:44:29  martius
+ *   has conf now and arbitrary sensors
+ *
+ *   Revision 1.6  2006/08/08 17:04:46  martius
  *   added new sensor model
  *
  *   Revision 1.5  2006/07/14 12:23:40  martius
@@ -69,10 +72,24 @@ using namespace std;
 
 namespace lpzrobots {
 
+
+  ForcedSphereConf::ForcedSphereConf() {}
+
+  ForcedSphereConf::~ForcedSphereConf(){}
+
+  void ForcedSphereConf::destroy(){
+    for(list<Sensor*>::iterator i = sensors.begin(); i != sensors.end(); i++){
+      if(*i) delete *i;
+    }    
+    sensors.clear();
+  }
+
+
+
   ForcedSphere::ForcedSphere ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		 const char* name, const ForcedSphereConf& conf)
-    : OdeRobot( odeHandle, osgHandle, name, "$Id$" ),
-      conf(conf)
+			       const ForcedSphereConf& conf, const std::string& name)
+    : OdeRobot( odeHandle, osgHandle, 
+		name, "$Id$" ), conf(conf)
   {
     created = false;
     object[0] = 0;    
@@ -81,6 +98,7 @@ namespace lpzrobots {
   ForcedSphere::~ForcedSphere()
   {
     destroy(); 
+    conf.destroy();
   }
 
   void ForcedSphere::update()
@@ -90,6 +108,7 @@ namespace lpzrobots {
   
   int ForcedSphere::getSensors ( sensor* sensors, int sensornumber )
   {  
+    assert(created);
     int len=0;
     for(list<Sensor*>::iterator i = conf.sensors.begin(); i != conf.sensors.end(); i++){
       len += (*i)->get(sensors+len, sensornumber-len);
@@ -98,8 +117,16 @@ namespace lpzrobots {
   }
 
   void ForcedSphere::setMotors ( const motor* motors, int motornumber ) {
-    if (motornumber==2){
-      dBodyAddForce(object[0]->getBody(), motors[0]*conf.max_force, motors[1]*conf.max_force, 0);
+    assert(created);
+    if (motornumber==getMotorNumber()){
+      int i=0;
+      double xforce = (conf.drivenDimensions & X) ? motors[i++] : 0;
+      double yforce = (conf.drivenDimensions & Y) ? motors[i++] : 0;
+      double zforce = (conf.drivenDimensions & Z) ? motors[i++] : 0;
+      dBodyAddForce(object[0]->getBody(), 
+		    xforce*conf.max_force, 
+		    yforce*conf.max_force,
+		    zforce*conf.max_force);
     }
   }
 
@@ -119,8 +146,9 @@ namespace lpzrobots {
   }
 
 
-  int ForcedSphere::getMotorNumber(){
-    return 2;
+  int ForcedSphere::getMotorNumber(){    
+    return (conf.drivenDimensions & X) + ((conf.drivenDimensions & X) >> 1) + 
+      ((conf.drivenDimensions & Z) >> 2);
   }
 
   int ForcedSphere::getSensorNumber() {
@@ -138,8 +166,12 @@ namespace lpzrobots {
     }
 
     object[0] = new Sphere(conf.radius);
-    object[0]->init(odeHandle, conf.radius, osgHandle);
+    object[0]->init(odeHandle, conf.radius*conf.radius, osgHandle);
     object[0]->setPose(pose);    
+    for(list<Sensor*>::iterator i = conf.sensors.begin(); i != conf.sensors.end(); i++){
+      (*i)->init(object[0]);
+    }
+    created = true;
   }
 
 
