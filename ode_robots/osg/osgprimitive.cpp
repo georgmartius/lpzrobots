@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-04 15:05:43  martius
+ *   Revision 1.4  2006-08-11 15:42:45  martius
+ *   larger plane
+ *
+ *   Revision 1.3  2006/08/04 15:05:43  martius
  *   documentation
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
@@ -223,7 +226,7 @@ namespace lpzrobots {
   
     //  shape = new ShapeDrawable(new InfinitePlane(), osgHandle.tesselhints);
     shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
-				      50, 50, 0.01), osgHandle.tesselhints[quality]); // TODO add larger values here
+				      100, 100, 0.01), osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
