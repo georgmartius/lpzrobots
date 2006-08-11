@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 21:47:17  robot3
+ *   Revision 1.4  2006-08-11 15:46:34  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2006/07/14 21:47:17  robot3
  *   .osg and .bbox-files moved to lpzrobots/ode_robots/osg/data/Meshes
  *
  *   Revision 1.2  2006/07/14 12:23:48  martius
@@ -70,7 +73,7 @@
  *
  *   Revision 1.14.4.11  2006/03/31 11:27:53  fhesse
  *   documentation updated
- *   one sphere removed (todo: fix prob;em with sphere placing)
+ *   one sphere removed (todo  fix problem with sphere placing)
  *
  *   Revision 1.14.4.10  2006/01/12 15:17:46  martius
  *   *** empty log message ***

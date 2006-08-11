@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-08-08 17:03:27  martius
+ *   Revision 1.2  2006-08-11 15:45:38  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2006/08/08 17:03:27  martius
  *   new sensors model
  *
  *
@@ -76,7 +79,7 @@ namespace lpzrobots {
     case XYZAxis:
       return A.convertToList();
       break;
-    }      
+    }       
     return std::list<sensor>();
   }
 

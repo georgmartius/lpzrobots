@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-08-04 15:07:27  martius
+ *   Revision 1.10  2006-08-11 15:44:52  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.9  2006/08/04 15:07:27  martius
  *   documentation
  *
  *   Revision 1.8  2006/07/20 17:19:43  martius
@@ -44,7 +47,7 @@
  *
  *   Revision 1.6.4.4  2006/01/03 13:18:51  fhesse
  *   cleaned up
- *   TODO: in the long run robot disappears (huge sensorvalues)
+ *   To do in the long run robot disappears (huge sensorvalues)
  *
  *   Revision 1.6.4.3  2006/01/03 10:01:46  fhesse
  *   moved to osg

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:45  martius
+ *   Revision 1.3  2006-08-11 15:46:34  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2006/07/14 12:23:45  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/05/23 13:43:19  robot3
@@ -44,7 +47,7 @@
  *
  *   Revision 1.14.4.11  2006/03/31 11:27:53  fhesse
  *   documentation updated
- *   one sphere removed (todo: fix prob;em with sphere placing)
+ *   one sphere removed (todo  fix problem with sphere placing)
  *
  *   Revision 1.14.4.10  2006/01/12 15:17:46  martius
  *   *** empty log message ***

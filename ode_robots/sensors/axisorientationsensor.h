@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-08-08 17:03:27  martius
+ *   Revision 1.2  2006-08-11 15:45:38  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2006/08/08 17:03:27  martius
  *   new sensors model
  *
  *                                                                 *
@@ -39,7 +42,8 @@ namespace lpzrobots {
   */
   class AxisOrientationSensor : public Sensor {
   public:  
-    /// Sensor mode
+    //    TODO: check whether Doxygen can handle the following
+    /// Sensor mode 
     enum Mode { OnlyZAxis //< Z axis in word coordinated
 		, ZProjection //< z-komponent of each axis
 		, XYZAxis //< 3x3 rotation matrix
