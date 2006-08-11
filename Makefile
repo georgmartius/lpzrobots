@@ -27,7 +27,8 @@ install:
 
 .PHONY: tags
 tags: 
-	etags `find -type f -regex ".*\.[hc]p?p?"`
+	etags `find selforg -type f -regex ".*\.[hc]p?p?"`
+	etags -a `find ode_robots -type f -regex ".*\.[hc]p?p?"`
 
 .PHONY: doc
 doc:
@@ -45,8 +46,8 @@ docwarn:
 	cat doxygen.warn
 
 todo:
-	grep -ni "Todo:" `find -type f -regex ".*\.[hc]p?p?"`
-
+	cd ode_robots && make todo
+	cd selforg && make todo
 
 clean:
 	cd guilogger && make clean
