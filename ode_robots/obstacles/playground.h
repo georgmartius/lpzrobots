@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2006-07-14 12:23:33  martius
+ *   Revision 1.12  2006-08-11 15:41:04  martius
+ *   playgrounds handle non-quadratic ground planes
+ *
+ *   Revision 1.11  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.10.4.16  2006/07/14 11:11:53  martius
@@ -106,70 +109,66 @@
  
 namespace lpzrobots {
 
-//Fixme: playground creates collisions with ground and itself
-//fixed: collisions with ground
-class Playground : public AbstractGround {
+  //TODO: playground creates collisions with ground and itself
+  //fixed: collisions with ground
+  class Playground : public AbstractGround {
 
-protected:
+  protected:
 
-  double length, width, height;
-  double factorlength2;
+    double length, width, height;
+    double factorlength2;
 
-public:
+  public:
   
-  Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
-	     const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) ,
-	     double factorxy = 1, bool createGround=true):
-    AbstractGround::AbstractGround(odeHandle, osgHandle, createGround){
+    Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
+	       const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) ,
+	       double factorxy = 1, bool createGround=true)
+      : AbstractGround(odeHandle, osgHandle, createGround, dimension.x(), dimension.x()*factorxy) {
 
-    length=dimension.x();
-    width=dimension.y();
-    height=dimension.z();
-    factorlength2=factorxy;
+      length=dimension.x();
+      width=dimension.y();
+      height=dimension.z();
+      factorlength2=factorxy;
+    };
 
-  };
+  protected:
+    virtual void create(){
+      Box* box;
+      osg::Vec3 offset(- (length/2 + width/2),
+		       0,
+		       height/2+0.01f/*reduces graphic errors and ode collisions*/);
+      box = new Box( width , (length * factorlength2) + 2 * width , height);
+      box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+      box->setPose(osg::Matrix::translate(offset) * pose);
+      box->getOSGPrimitive()->setTexture(wallTextureFileName);
+      obst.push_back(box);
 
- protected:
-  virtual void create(){
-    Box* box;
-    osg::Vec3 offset(- (length/2 + width/2),
-		     0,
-		     height/2+0.01f/*reduces graphic errors and ode collisions*/);
-    box = new Box( width , (length * factorlength2) + 2 * width , height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture(wallTextureFileName);
-    obst.push_back(box);
+      offset.x() = length/2 + width/2;
+      box = new Box( width , (length * factorlength2) + 2 * width , height);
+      box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+      box->setPose(osg::Matrix::translate(offset) * pose);
+      box->getOSGPrimitive()->setTexture(wallTextureFileName);
+      obst.push_back(box);
 
-    offset.x() = length/2 + width/2;
-    box = new Box( width , (length * factorlength2) + 2 * width , height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture(wallTextureFileName);
-    obst.push_back(box);
+      offset.x() = 0;
+      offset.y() = -( (length*factorlength2)/2 +width/2);
+      box = new Box( length, width, height);
+      box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+      box->setPose(osg::Matrix::translate(offset) * pose);
+      box->getOSGPrimitive()->setTexture(wallTextureFileName);
+      obst.push_back(box);
 
-    offset.x() = 0;
-    offset.y() = -( (length*factorlength2)/2 +width/2);
-    box = new Box( length, width, height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture(wallTextureFileName);
-    obst.push_back(box);
-
-    offset.y() = (length*factorlength2)/2 +width/2;
-    box = new Box( length, width, height);
-    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-    box->setPose(osg::Matrix::translate(offset) * pose);
-    box->getOSGPrimitive()->setTexture(wallTextureFileName);
-    obst.push_back(box);
+      offset.y() = (length*factorlength2)/2 +width/2;
+      box = new Box( length, width, height);
+      box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+      box->setPose(osg::Matrix::translate(offset) * pose);
+      box->getOSGPrimitive()->setTexture(wallTextureFileName);
+      obst.push_back(box);
     
-    // size of groundplane
-    ground_length=length;
+      obstacle_exists=true;
+    };
 
-    obstacle_exists=true;
   };
-
-};
 
 }
 

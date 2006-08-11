@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:32  martius
+ *   Revision 1.3  2006-08-11 15:41:04  martius
+ *   playgrounds handle non-quadratic ground planes
+ *
+ *   Revision 1.2  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.4  2006/07/14 11:19:49  martius
@@ -63,9 +66,10 @@
 
 namespace lpzrobots {
 
-  AbstractGround::AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, bool createGround):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), creategroundPlane(createGround) {
-    ground_length=10.0f;
+  AbstractGround::AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+				 bool createGround, double groundLength, double groundWidth)
+    : AbstractObstacle(odeHandle, osgHandle), 
+      creategroundPlane(createGround), groundLength(groundLength), groundWidth(groundWidth) {
     groundPlane=0;
     wallTextureFileName="Images/wall.rgb";
     groundTextureFileName="Images/greenground.rgb";
@@ -128,7 +132,11 @@ namespace lpzrobots {
     }
   }
 
-  Primitive* AbstractGround::getMainPrimitive() const { return groundPlane; }
+  Primitive* AbstractGround::getMainPrimitive() const { 
+    if(groundPlane)
+      return groundPlane; 
+    else return obst[0];
+  }
 
   void AbstractGround::setGroundTexture(const std::string& filename){
     groundTextureFileName=filename;
@@ -172,12 +180,11 @@ namespace lpzrobots {
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
-      groundPlane = new Box(ground_length,ground_length, 0.15f);
-      groundPlane->init(odeHandle, 0, osgHandle,
+      groundPlane = new Box(groundLength,groundWidth, 0.10f);
+      groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
       groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
-      groundPlane->getOSGPrimitive()->setColor(groundColor);
-      groundPlane->getOSGPrimitive()->setTexture(groundTextureFileName,true,true);
+      groundPlane->setTexture(groundTextureFileName,true,true);
     }
   }
 

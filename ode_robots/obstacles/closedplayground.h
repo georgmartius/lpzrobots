@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 12:23:32  martius
+ *   Revision 1.4  2006-08-11 15:41:04  martius
+ *   playgrounds handle non-quadratic ground planes
+ *
+ *   Revision 1.3  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.2.4.2  2006/05/11 08:59:15  robot3
@@ -65,7 +68,7 @@ namespace lpzrobots {
   
     ClosedPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
 		     const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) , double factorxy = 1)
-      :Playground(odeHandle, osgHandle, dimension, factorxy){
+      : Playground(odeHandle, osgHandle, dimension, factorxy){
     };
     
 

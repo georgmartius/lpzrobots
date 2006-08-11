@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-07-14 12:23:33  martius
+ *   Revision 1.6  2006-08-11 15:41:04  martius
+ *   playgrounds handle non-quadratic ground planes
+ *
+ *   Revision 1.5  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.4.4.11  2006/06/29 16:39:55  robot3
@@ -94,7 +97,7 @@ namespace lpzrobots {
 
     OctaPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 		 const Pos& geometry = Pos(7,0.2,0.5), int numberCorners=8, bool createGround=true):
-    AbstractGround::AbstractGround(odeHandle, osgHandle,createGround) {
+    AbstractGround::AbstractGround(odeHandle, osgHandle,createGround,geometry.x(),geometry.x()) {
     
     radius = geometry.x();
     width  = geometry.y();
@@ -125,8 +128,6 @@ protected:
       box->getOSGPrimitive()->setTexture(wallTextureFileName);
       obst.push_back(box);
     }
-    // size of groundplane
-    ground_length=2.0*r; 
     obstacle_exists=true;
   };
 

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:32  martius
+ *   Revision 1.3  2006-08-11 15:41:04  martius
+ *   playgrounds handle non-quadratic ground planes
+ *
+ *   Revision 1.2  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.9  2006/07/14 11:36:32  martius
@@ -75,7 +78,8 @@ namespace lpzrobots {
 
 public:
 
-    AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, bool createGround=true);
+    AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+		   bool createGround, double groundLength, double groundWidth);
 
     virtual ~AbstractGround();
 
@@ -111,7 +115,8 @@ public:
     std::vector<Primitive*> obst; //obstacles
     Primitive* groundPlane; // the groundplane
     bool creategroundPlane;
-    double ground_length;
+    double groundLength;
+    double groundWidth;
     std::string wallTextureFileName;
     Color groundColor;
     std::string groundTextureFileName;
