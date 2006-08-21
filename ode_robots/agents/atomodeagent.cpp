@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-04 15:06:38  martius
+ *   Revision 1.5  2006-08-21 14:15:56  robot8
+ *   -added some commemts
+ *   -update of atomcomponent
+ *
+ *   Revision 1.4  2006/08/04 15:06:38  martius
  *   documentation
  *
  *   Revision 1.3  2006/07/20 17:19:43  martius
@@ -113,7 +117,6 @@ bool AtomOdeAgent::init ( AbstractController* controller, OdeRobot* robot, Abstr
     return true;
   }
 }
-
 
 
 
