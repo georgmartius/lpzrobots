@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-25 11:29:56  robot8
+ *   Revision 1.5  2006-08-21 11:50:59  robot8
+ *   -added some commemts
+ *   -update of atomcomponent
+ *
+ *   Revision 1.4  2006/07/25 11:29:56  robot8
  *   -test-update of atomcomponent (not working yet)
  *   -added backward reference feature for component softlinks
  *   -removed recusive destruction for fissed component-subtrees
@@ -53,7 +57,6 @@
 
 #include "simulation.h"
 
-#include "odeagent.h"
 #include "atomodeagent.h"
 #include "octaplayground.h"
 #include "passivesphere.h"
@@ -70,32 +73,36 @@
 #include "schlangeservo.h"
 #include "sphererobot3masses.h"
 
-#include "component.h"
-#include "simplecomponent.h"
-#include "robotcomponent.h"
 #include "atomcomponent.h"
 
+
+
+//physical definition part
 #define REACTIONROOMWIDTH 1
 #define REACTIONROOMLENGTH 1
 //both density values ahve to be bigger than 1 so, that the atoms do not colide at the beginning
 #define ATOMDENSITY 6
  //this is the space between two atoms, bigger means less robots and smaller more atoms
-#define ROBOTDENSITY 6 //this is the space between two robots-atoms, bigger means less robots and smaler more robot-atoms
+#define ROBOTDENSITY 10 //this is the space between two robots-atoms, bigger means less robots and smaler more robot-atoms
 #define ROBOTHEIGHT 1.5
 #define SHIFTBETWEENATOMSANDROBOTS_X 0.1
 #define SHIFTBETWEENATOMSANDROBOTS_Y 0.1
 
+//controller parameters
+
+
+//evolution definition part
+#define MINFITTNESS 1
+
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
-
-
 
 class Evolution : public Simulation 
 {
 
 public:
-
     vector <Component*> components;
+    vector <repSlider> replicationSlider;
 
 public:
 
@@ -132,8 +139,8 @@ public:
     aConf.shell_radius = 0.1;
     aConf.mass = 1;
     aConf.max_bindings = 4;
-    aConf.binding_energy = 0.3;
-    aConf.min_fission_energy = 2;
+    aConf.binding_energy = 0.1;
+    aConf.min_fission_energy = 3;
 
 //adding the controller for the component-connections
 
@@ -149,7 +156,7 @@ public:
 
 
     for ( double x = -REACTIONROOMWIDTH/2; x <= REACTIONROOMWIDTH/2; x += ROBOTDENSITY*(2*aConf.shell_radius) )
-	for ( double y = -REACTIONROOMLENGTH/2; y <= REACTIONROOMLENGTH/2; y += ROBOTDENSITY*(2*aConf.shell_radius) )
+	for ( double y = -REACTIONROOMLENGTH/2; y <= REACTIONROOMLENGTH/2; y += ROBOTDENSITY*(2*aConf.shell_radius) +1)
 	{
 	    //atom
 	    components.push_back ( new AtomComponent ( odeHandle , osgHandle_2 , cConf , aConf ) );
@@ -157,15 +164,15 @@ public:
 
 	    ((AtomComponent*) components.back ())->atomconf.leadingatom = true;
 	    //controller
-/*	    controller = new InvertMotorNStep ( cc );
+	    controller = new InvertMotorNStep ( cc );
 	    controller->setParam ("adaptrate", 0.005);
 	    controller->setParam ("epsC", 0.005);
 	    controller->setParam ("epsA", 0.001);
 	    controller->setParam ("rootE", 3);
 	    controller->setParam ("steps", 2);
 	    controller->setParam ("s4avg", 5);
-	    controller->setParam ("factorB",0);*/
-	    controller = new SineController ( 18 );
+	    controller->setParam ("factorB",0);
+//	    controller = new SineController ( 18 );
 	    //wiring
 	    wiring = new DerivativeWiring ( c , new ColorUniformNoise () );   
 	    //agent
@@ -186,9 +193,9 @@ public:
 	    components.back ()->place ( Pos( x , y , 2*aConf.shell_radius ) ); 
 	}
 
-
-
     showParams(global.configs);
+    replicationSlider.empty ();
+
   } 
 
     void addCallback ( GlobalData& globalData , bool draw , bool pause )
@@ -196,21 +203,95 @@ public:
 	    for ( unsigned int n = 0; n < components.size (); n++ )
 		components[n]->update (); //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
 
+	    //only if there are replication sliders allocated at the moment
+//	    cout<<&replicationSlider<<"\n";
+//	    cout<<replicationSlider.size ()<<"\n";
+	    for ( unsigned int n = 0; n < replicationSlider.size (); n++ )
+	    {
+		cout<<"addCallback "<<replicationSlider.size ()<<"\n";
+		replicationSlider[n].slider->update (); //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
+		replicationSlider[n].bindingcounter--;
+
+		if ( replicationSlider[n].startComponent->getDistanceToComponent ( replicationSlider[n].endComponent ) < 0.3 || replicationSlider[n].bindingcounter == 0 )
+		{
+		    //adding the new controllers for the two structures that do not have one up till now, that means the ones that have now leading atom
+		    if ( ((AtomComponent*) replicationSlider[n].startComponent)->atomconf.leadingatom == false )
+		    {
+			((AtomComponent*) replicationSlider[n].startComponent)->makeComponentStructureRoot (); //to be shure that the structure stays correct when we create a new controller
+			InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+			cc.cInit=2;
+			AbstractController* controller;
+			DerivativeWiringConf c = DerivativeWiring::getDefaultConf ();
+			DerivativeWiring* wiring;
+			AtomOdeAgent* agent;
+
+			//controller
+			controller = new InvertMotorNStep ( cc );
+			controller->setParam ("adaptrate", 0.005);
+			controller->setParam ("epsC", 0.005);
+			controller->setParam ("epsA", 0.001);
+			controller->setParam ("rootE", 3);
+			controller->setParam ("steps", 2);
+			controller->setParam ("s4avg", 5);
+			controller->setParam ("factorB",0);
+			//wiring
+			wiring = new DerivativeWiring ( c , new ColorUniformNoise () );   
+			//agent
+			agent = new AtomOdeAgent ( plotoptions );
+			agent->init ( controller ,  replicationSlider[n].startComponent , wiring );
+			globalData.agents.push_back ( agent );
+			globalData.configs.push_back ( controller );
+
+			((AtomComponent*) replicationSlider[n].startComponent)->atomconf.leadingatom = true;
+		    }
+		    
+		    ((AtomComponent*) replicationSlider[n].startComponent->originComponent)->enableStructureFusionRecursive ();
+		    ((AtomComponent*) replicationSlider[n].endComponent->originComponent)->enableStructureFusionRecursive ();
+
+		    ((AtomComponent*) replicationSlider[n].startComponent)->fusion ( (AtomComponent*) replicationSlider[n].endComponent );
+		    ((AtomComponent::connectionAddition*) replicationSlider[n].startComponent->connection.back().data)->binding_strength = replicationSlider[n].startingdistance;
+
+		    delete replicationSlider[n].slider;
+		    replicationSlider.erase ( replicationSlider.begin () + n );
+		}
+	    }
+
+
 
 	    /**********************************************************************************************/
 
 	    //	    evolution loop
 	    //      calculate fitness
-	    //      create vector of fitness values and components
-	    //      sort that vector
-	    //      delete Controler of selected component-trees -> these robots will die, number depends on global fitness Setings of the Simulation
-	    //      physical structures are still within the simulation, so they could colide and be bound to other structures, maybe destruction of the structure? should be a parameter of the simulation
 
 /*
-  
+	    
+	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
+	    {
+		if ( globalData.agents[n]->getController () < MINFITTNESS ) //is there a param for E?
+		{
+		    
+		    ((AtomComponent*) globalData.agents[n]->getRobot ())->atomconf.leadingatom = false;
 
+		    //deleting the controller from global configs
+		    vector <Configurable*>::iterator eraseiterator = globalData.configs.begin ();
+		    for ( int m = 0; ((InvertMotorNStep*) globalData.configs.at ( m )) == globalData.agents[n]->getController (); m++ )
+			eraseiterator++;
 
+		    globalData.configs.erase ( eraseiterator );
+
+		    delete ( globalData.agents[n] );
+		}
+		
+	    }
 */
+	    //      delete Controller of selected component-trees -> these robots will die, number depends on global fitness Setings of the Simulation
+	    //      physical structures are still within the simulation, so they could colide and be bound to other structures, maybe destruction of the structure? should be a parameter of the simulation
+
+	    
+
+
+
+
 
 
 	    /**********************************************************************************************/
@@ -286,7 +367,11 @@ public:
 		break;
 	    case 'R':
 		cout<<"KEY REPLICATION\n";
-		((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] );
+		cout<<"replicationSlider-Adress: "<<&replicationSlider<<"\n";
+		((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] , &replicationSlider );
+		cout<<&replicationSlider<<"\n";
+		cout<<replicationSlider.size ()<<"\n";
+
 		cout<<"END OF KEY REPLICATION\n";
 		break;
 	    case 'T':
@@ -337,6 +422,13 @@ public:
 		    }
 
 		}
+		break;
+	    case 'M' :
+		cout<<"#####################################connection vector capacity analysis#############################################\n";
+		for ( unsigned int n = 0; n < components.size(); n++)
+		    cout<<"Component "<<n<<" holds "<<components[n]->connection.size ()<<" and can hold "<<components[n]->connection.capacity ()<<" connections\n";
+		break;
+
 		break;
 
 
@@ -397,6 +489,8 @@ public:
   
 
 };
+
+
 
 int main (int argc, char **argv)
 { 

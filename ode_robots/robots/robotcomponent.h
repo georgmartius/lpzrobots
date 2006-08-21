@@ -31,9 +31,10 @@
 namespace lpzrobots
 {
 /**
- * RobotComponent
- *
- *
+ * This is a special class of the component system. The physical object that belongs to objects of this class is a robot whose class is derived from OdeRobot.
+ * The sensor an motor values these component sends and gets could be used to controll the robot that belongs to this component.
+ * If this controling method should be used there are two controling parameters that tell the component, how to handle its sensor/motor values.
+ * These are the params completemotormode and complete sensormode of the componentConf. These two parameters control if the sensor/motor values will eb send to the robot of the component or not. If thei are not sent to the robot the robot needs its own controller.
  */
 class RobotComponent : public Component
 {

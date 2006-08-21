@@ -30,8 +30,19 @@
 #define atomcomponent_h
 
 
+
 namespace lpzrobots
 {
+
+    typedef struct
+    {
+	lpzrobots::Component* startComponent;
+	lpzrobots::Component* endComponent;
+	lpzrobots::SliderJoint* slider;
+	double startingdistance;
+	int bindingcounter;
+    } repSlider;
+
 
     typedef struct
     {
@@ -45,8 +56,11 @@ namespace lpzrobots
 	bool leadingatom;//this value sais, that a atomcomponent is the first component a component structure, that is controlled by a robot controller;
 	//it only is important for the origin of an component structure
 
+	bool fusionDisabled; //this value can disable or enable the ability of an atom to fuse with another one
 
     } AtomConf;
+
+
 
 
 /**
@@ -56,6 +70,7 @@ namespace lpzrobots
  */
 class AtomComponent : public Component
 {
+
 
  public:
     AtomConf atomconf;
@@ -103,6 +118,7 @@ static AtomConf getDefaultAtomConf()
     conf.binding_energy = 3;
     conf.min_fission_energy = 0;
     conf.leadingatom = false;
+    conf.fusionDisabled = false;
 
     return conf;
 }
@@ -211,6 +227,16 @@ virtual bool collisionExclusionCondition ( dGeomID o1 , dGeomID o2 );
  **/
 virtual bool fusion ( AtomComponent* atom_to_fuse );
 
+/**Sets all teh fusionDisable parameters of the structure belonging to THIS atom to true, so that no fusion will occur.
+ *
+ **/
+virtual void disableStructureFusionRecursive ();
+
+/**Sets all teh fusionDisable parameters of the structure belonging to THIS atom to false, so that fusion will occur.
+ *
+ **/
+virtual void enableStructureFusionRecursive ();
+
 /**
  *fissions a AtomComponent from this AtomComponent
  *@param the AtomComponent, to fission
@@ -222,7 +248,7 @@ virtual bool fission ( double force );
  *This is a special fusion of two AtomComponents. They have to belong to two robots, so that touching each ofer causes a crossing over in her structure.
  *@param the AtomComponent which belongs to the structure to replicate with, and which is the point where the replication will happen
  **/
-virtual void replication ( AtomComponent* atom_to_recplicate );
+virtual void replication ( AtomComponent* atom_to_recplicate , vector <repSlider>* replicationSlider );
 
 };
 

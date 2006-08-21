@@ -41,50 +41,6 @@ namespace lpzrobots
     {
     }
 
-/*    int SimpleComponent::getSensorNumber ()
-    {
-	int sensors = 0;   
-	//recursive sensor-counting for all subcomponents
-
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{
-	    Joint* j = connection[n].joint;
-	    sensors += j->getNumberAxes();
-
-    	    //recursive sensor-counting for all subcomponents
-	    if ( connection[n].softlink == false )
-		sensors += connection[n].subcomponent->getSensorNumber ();
-	}
-	return sensors;
-    }
-*/
-/*
-    int SimpleComponent::getMotorNumber ()
-    {
-	int motors = 0;
-
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{//counting the motors by the type of the used joint, coded by ode type, because the joints are created external
-	    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge )
-		motors++;
-	    else
-		if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeSlider )
-		    motors++;
-		else
-		    if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeHinge2 )
-			motors = motors + 2;
-		    else
-			if ( dJointGetType ( connection[n].joint->getJoint () ) == dJointTypeUniversal )
-			    motors = motors + 2;
-	     
-	    //recursive sensor-counting for all subcomponents
-	    if ( connection[n].softlink == false )
-		motors += connection[n].subcomponent->getMotorNumber ();
-	}
-
-	return motors;
-    }
-*/
     void SimpleComponent::update ()
     {
 	//there is a simplePrimitive, and it is updated

@@ -50,9 +50,15 @@ namespace lpzrobots
     } ComponentConf;
 
 /**
- * Component
- *
- *
+ * This is the abstract base class of the component system. A component includes the routines for managing sensor and motor values from a controller.
+ * With a bunch of components it is possible to create a tree like structure. There is always a root structure.
+ * Components could be used as normal robot objects, so they can get motor and sensor values. These values are shared with all components in the tree structure of a component.
+ * Between the differnt objects of the component class could exist connections, which are physical represented by Ode-Joints.
+ * The components use the motor values they get, to control the joints between them.
+ * From these joints sensor values are read out, which where send with the getSensor () function like a normal robot does.
+ * But the arrray of sensor values comes from all components within the structure beneth the component, from which the function was called.
+ * You could say that each component is a non physical shell around a physical object like a primitive or a robot in classical meaning of this project.
+ * These shells build a connection between the physical parts and control these connections, which could be also physical existend.
  */
 class Component : public OdeRobot
 {
@@ -61,6 +67,9 @@ class Component : public OdeRobot
 
  public:
 
+    /**
+     *This is the structure of one connection between two components.
+     **/
     typedef struct
     {
 	Component* subcomponent;
@@ -94,9 +103,17 @@ static ComponentConf getDefaultConf()
 
  public:
 
-virtual int 	getSensorNumber (); //returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
+/**
+ *Returns number of sensors; recursivly adding of the number of sensors all subcomponents and the robots of all Subcomponents.
+ *@return number of sensors of the component and all its subcomponents
+ **/
+virtual int 	getSensorNumber ();
 
-virtual int 	getMotorNumber (); //returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
+/**
+ *returns number of motors; recursivly adding of the number of sensors all subcomponents; at the moment only counts Hinge-, Slider-, Hinge2 and Universal-Joints; The Motor-Numbers of the robots of the Components is not counted.
+ *@return number of motors of the component and all its subcomponents
+ **/
+virtual int 	getMotorNumber (); 
 
 /**
  *Use this, to get all sensor values of all the joints of all subcomponents, and the sensors of all robots, belonging to all subcompionents.
@@ -113,8 +130,8 @@ virtual int 	getSensors (sensor *sensors, int sensornumber); //returns actual se
  *The motors of all robots of the subcomponents is not set.
  *@param 
  **/
-//virtual void 	setMotors (const motor *motors, int motornumber); //sets actual motorcommands; only for the connecting joints
 virtual void 	setMotors (const motor *motors, int motornumber); //sets actual motorcommands; only for the connecting joints
+
 /**
  *This sets all motors in the component structure to zero, starting from this component.
  **/
@@ -135,6 +152,12 @@ virtual void 	doInternalStuff (const GlobalData &globalData);// this function is
 // virtual void 	setColor (const Color &col); 	sets color of the robot; not nessecary
 
 virtual Position getPosition () const = 0; //returns position of the object; relates to the robot or Primitive belonging to the component
+
+/**
+ *Gets the distance between two components.
+ *@return distance in space
+ **/
+ virtual double getDistanceToComponent ( Component* comp );
 
 //virtual Position getSpeed () const;//returns linear speed vector of the object; must be computed from all sub-robots
 
@@ -232,7 +255,7 @@ virtual bool isComponentConnected ( Component* connectedComp );
  *@param the number of the connection
  *@return the reference of connection element
  **/
-virtual componentConnection* getConnection ( int connectionnumber );
+virtual componentConnection* getConnection ( unsigned int connectionnumber );
 
 /**
  *This returns the connection that connects to the target component.
@@ -246,7 +269,7 @@ virtual componentConnection* getConnection ( Component* targetcomponent );
  *@param number of the subcomponent in the subcomponent list of the component
  *@param true = connection becomes a softlink
  **/
-//virtual bool setSoftlink ( unsigned int position , bool state );
+virtual bool setSoftlink ( unsigned int position , bool state );
 
 /**
  *This divides the component structure, following this component into two seperate component structures
