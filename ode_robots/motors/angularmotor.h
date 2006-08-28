@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:32  martius
+ *   Revision 1.3  2006-08-28 14:11:40  martius
+ *   added getJoint()
+ *
+ *   Revision 1.2  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.6  2006/03/30 12:34:49  martius
@@ -87,6 +90,9 @@ namespace lpzrobots {
 	@return number actually returned velocities
     */
     virtual int get(double* velocities, int len);
+
+    /// returns the joint to which this motor is attached
+    virtual Joint* getJoint() = 0;
   
   protected:
     dJointID motor;  
@@ -104,7 +110,6 @@ namespace lpzrobots {
     AngularMotor1Axis(const OdeHandle& odeHandle, OneAxisJoint* joint, double power);
     virtual ~AngularMotor1Axis() {}
     
-    /// returns the number of Axis of this Motor
     virtual int getNumberOfAxes() { return 1; };
 
     /** sets the desired speed of the motor at the given axis.       
@@ -117,10 +122,9 @@ namespace lpzrobots {
      */
     virtual double get(int axisNumber) ;    
 
-    /**  sets the maximal force the motor has
-     */
     virtual void setPower(double power);
     
+    virtual Joint* getJoint() { return joint; }
   protected:
     OneAxisJoint* joint;  
   };
@@ -144,13 +148,11 @@ namespace lpzrobots {
 	@param velocity Desired motor velocity (this will be an angular or linear velocity).
     */
     virtual void set(int axisNumber, double velocity);
-    /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range*/
     virtual double get(int axisNumber) ;    
     
-    /**  sets the maximal force the motor has
-     */
     virtual void setPower(double power);
 
+    virtual Joint* getJoint() { return joint; }
   protected:
     TwoAxisJoint* joint;      
   };
@@ -185,6 +187,8 @@ namespace lpzrobots {
      */
     virtual void setPower(double power);
 
+    virtual Joint* getJoint() { return joint; }
+
   protected:
     BallJoint* joint;      
   };
@@ -217,10 +221,9 @@ namespace lpzrobots {
      */
     virtual double get(int axisNumber) ;    
 
-    /**
-       sets the maximal force the motor has
-     */
     virtual void setPower(double power);
+
+    virtual Joint* getJoint() { return joint; }
     
   protected:
     Joint* joint; 
