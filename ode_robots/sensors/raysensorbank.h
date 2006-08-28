@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 12:23:43  martius
+ *   Revision 1.4  2006-08-28 12:18:31  martius
+ *   documentation
+ *
+ *   Revision 1.3  2006/07/14 12:23:43  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.2.4.4  2006/03/30 12:34:59  martius
@@ -51,9 +54,9 @@
 
 namespace lpzrobots {
 
-/** Class for a bank of ray sensors. 
+/** Class for a bank (collection) of ray sensors. 
     Ray sensors can be registered at the bank. Methods for resetting, 
-    sensing and reading the sensorvalues of all sensors are provided.
+    sensing and reading the sensor values of all sensors are provided.
  */
 class RaySensorBank {
 public:  

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-08-08 17:03:27  martius
+ *   Revision 1.6  2006-08-28 12:18:31  martius
+ *   documentation
+ *
+ *   Revision 1.5  2006/08/08 17:03:27  martius
  *   new sensors model
  *
  *   Revision 1.4  2006/07/14 12:23:43  martius
@@ -63,6 +66,7 @@ namespace lpzrobots {
     The sensor value is obtained by collisions. 
     However of no collision is detected the sensor needs to ajust its output as well. 
     Therefore a reset function is provided.
+    See also RaySensorBank, which is an object for managing multiple ray sensors.
  */
 class RaySensor {
 public:  

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-08-08 17:03:27  martius
+ *   Revision 1.8  2006-08-28 12:18:31  martius
+ *   documentation
+ *
+ *   Revision 1.7  2006/08/08 17:03:27  martius
  *   new sensors model
  *
  *   Revision 1.6  2006/07/14 12:23:43  martius
@@ -89,7 +92,12 @@ namespace lpzrobots {
 
     virtual void reset();  
     virtual bool sense(dGeomID object);
-  
+ 
+    /** returns the sensor value in the range [0,1];
+	0 means nothing no object in the sensor distance range
+	1 means contact with another object
+	@ see characteritic()
+     */
     virtual double get();
     virtual void update();
   
@@ -103,7 +111,8 @@ namespace lpzrobots {
 
   protected:
     /** describes the sensor characteritic 
-	linear curve used here
+	An exponential curve is used.
+	@see setExponent()
     */
     virtual double characteritic(double len);
 
