@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.43  2006-08-04 15:07:46  martius
+ *   Revision 1.44  2006-08-30 09:00:19  martius
+ *   code for full collision control inserted (as a comment)
+ *
+ *   Revision 1.43  2006/08/04 15:07:46  martius
  *   documentation
  *
  *   Revision 1.42  2006/07/14 15:17:33  fhesse
@@ -807,6 +810,24 @@ namespace lpzrobots {
     if (collision_treated) return; // exit if collision was treated by a robot
   
     if(!(me->collCallback(me->odeHandle, data,o1,o2))){
+
+      // Todo: here is a code, that generated all possible contact points,
+      //  for the new collision code, make sure we incorperate that.
+//       if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
+//       // colliding a space with something
+//       dSpaceCollide2 (o1,o2,data,&nearCallback);
+//       // collide all geoms internal to the space(s)
+//       if (dGeomIsSpace (o1)) dSpaceCollide (o1,data,&nearCallback);
+//       if (dGeomIsSpace (o2)) dSpaceCollide (o2,data,&nearCallback);
+//     }
+//     else {
+//       // colliding two non-space geoms, so generate contact
+//       // points between o1 and o2
+//       int num_contact = dCollide (o1,o2,max_contacts,contact_array,skip);
+//       // add these contact points to the simulation
+//       ...
+//     }
+
       // using standard collision treatment
 
       int i,n;  
