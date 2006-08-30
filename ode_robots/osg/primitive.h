@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2006-08-30 08:58:56  martius
+ *   categories and collision mask used for static geoms to reduce number of collision checks
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.18  2006/07/14 11:23:38  martius
@@ -136,8 +139,10 @@ public:
   /** Body means that it is a dynamic object with a body.
       Geom means it has a geometrical represenation used for collision detection.
       Draw means the primitive is drawn
+      Child is only used internally and is used for transformed geoms.
   */
-  typedef enum Modes {Body=1, Geom=2, Draw=4};
+  typedef enum Modes {Body=1, Geom=2, Draw=4, Child=8};
+  typedef enum Category { Dyn=1, Stat=2};
 
   Primitive ();
   virtual ~Primitive ();
@@ -177,6 +182,12 @@ public:
   dGeomID getGeom() const;    
   /// returns ODE bodyID if there
   dBodyID getBody() const;
+
+protected:
+  /** attaches geom to body (if any) and sets the category bits and collision bitfields.
+      assumes: mode & Geom != 0
+   */
+  virtual void attachGeomAndSetColliderFlags();
 
 protected:
   dGeomID geom;
@@ -302,11 +313,14 @@ public:
   /** 
       @param parent primitive should have a body and should be initialised
       @param child  is transformed by pose in respect to parent. 
-      This Primitive must NOT have a body
+      This Primitive must NOT have a body and should not be initialised
   */
   Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose);
-  /// mode is not ignored
-  virtual void init(const OdeHandle& odeHandle, double mass, 
+  /** initialised the transform object. This automatically 
+      initialises the child geom. 
+      @param mode is the mode for the child, except that Body bit is ignored (child can't have a body)
+   */
+  virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw);
 

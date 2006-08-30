@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-11 15:43:14  martius
+ *   Revision 1.5  2006-08-30 08:59:07  martius
+ *   categories and collision mask used for static geoms to reduce number of collision checks
+ *
+ *   Revision 1.4  2006/08/11 15:43:14  martius
  *   osgDB filepath search is now moved to bbox
  *
  *   Revision 1.3  2006/07/14 21:37:56  robot3
@@ -116,7 +119,6 @@
 #include "odehandle.h"
 #include "globaldata.h"
 
-
 namespace lpzrobots{
 
   // returns the osg (4x4) pose matrix of the ode geom
@@ -148,7 +150,6 @@ namespace lpzrobots{
   }
 
 
-
   /******************************************************************************/
 
   Primitive::Primitive() 
@@ -158,6 +159,25 @@ namespace lpzrobots{
   Primitive::~Primitive () {
     if(geom) dGeomDestroy( geom );
     if(body) dBodyDestroy( body );
+  }
+
+
+  void Primitive::attachGeomAndSetColliderFlags(){
+    if(mode & Body){
+      // geom is assigned to body and is set into category Dyn
+      dGeomSetBody (geom, body); 
+      dGeomSetCategoryBits (geom, Dyn);
+      dGeomSetCollideBits (geom, ~0x0); // collides with everything
+    } else {
+      // geom is static, so it is member of the static category and will collide not with other statics
+      dGeomSetCategoryBits (geom, Stat);
+      dGeomSetCollideBits (geom, ~Stat);
+    }
+    if(mode & Child){ // in case of a child object it is always dynamic
+      dGeomSetCategoryBits (geom, Dyn);
+      dGeomSetCollideBits (geom, ~0x0); // collides with everything
+    }
+
   }
 
 
@@ -254,8 +274,7 @@ namespace lpzrobots{
     }
     if(mode & Geom){
       geom = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );      
-      if(mode & Body)
-	dGeomSetBody (geom, body); // geom is assigned to body	    
+      attachGeomAndSetColliderFlags();
     }
     if(mode & Draw){
       osgplane->init(osgHandle);
@@ -298,9 +317,7 @@ namespace lpzrobots{
     if (mode & Geom){    
       geom = dCreateBox ( odeHandle.space , osgbox->getLengthX() , 
 			  osgbox->getLengthY() , osgbox->getLengthZ());
-      if (mode & Body){
-	dGeomSetBody (geom, body); // geom is assigned to body
-      }
+      attachGeomAndSetColliderFlags();
     }
     if (mode & Draw){
       osgbox->init(osgHandle);      
@@ -340,8 +357,7 @@ namespace lpzrobots{
     }  
     if (mode & Geom){
       geom = dCreateSphere ( odeHandle.space , osgsphere->getRadius());
-      if (mode & Body)
-	dGeomSetBody (geom, body); // geom is assigned to body
+      attachGeomAndSetColliderFlags();
     }
     if (mode & Draw){
       osgsphere->init(osgHandle);      
@@ -382,8 +398,7 @@ namespace lpzrobots{
     }  
     if (mode & Geom){    
       geom = dCreateCCylinder ( odeHandle.space , osgcapsule->getRadius(), osgcapsule->getHeight());
-      if (mode & Body)
-	dGeomSetBody (geom, body); // geom is assigned to body      
+      attachGeomAndSetColliderFlags();
     }
     if (mode & Draw){
       osgcapsule->init(osgHandle);
@@ -423,8 +438,7 @@ namespace lpzrobots{
     }  
     if (mode & Geom){    
       geom = dCreateCylinder ( odeHandle.space , osgcylinder->getRadius(), osgcylinder->getHeight());
-      if (mode & Body)
-	dGeomSetBody (geom, body); // geom is assigned to body      
+      attachGeomAndSetColliderFlags();
     }
     if (mode & Draw){
       osgcylinder->init(osgHandle);
@@ -466,7 +480,7 @@ namespace lpzrobots{
     osgHandleChild.scene = parent->getOSGPrimitive()->getTransform();
     assert(osgHandleChild.scene);
     // initialise the child
-    child->init(odeHandleChild, 0, osgHandleChild, mode & ~Primitive::Body );
+    child->init(odeHandleChild, 0, osgHandleChild, (mode & ~Primitive::Body) | Primitive::Child );
     // move the child to the right place (in local coordinates)
     child->setPose(pose);
   

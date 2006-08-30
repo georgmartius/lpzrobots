@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-04 15:05:42  martius
+ *   Revision 1.4  2006-08-30 08:59:21  martius
+ *   categories and collision mask used for static geoms to reduce number of collision checks
+ *
+ *   Revision 1.3  2006/08/04 15:05:42  martius
  *   documentation
  *
  *   Revision 1.2  2006/07/14 12:23:33  martius
@@ -476,6 +479,8 @@ namespace lpzrobots {
 
     // add ODE Ground here (physical plane)
     ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
+    dGeomSetCategoryBits(ground,Primitive::Stat);
+    dGeomSetCollideBits(ground,~Primitive::Stat);
 
     return geode;
   }
