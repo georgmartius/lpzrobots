@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-08-21 11:50:59  robot8
+ *   Revision 1.6  2006-08-31 07:34:13  robot8
+ *   -temporary disabling a part oif the replication function
+ *
+ *   Revision 1.5  2006/08/21 11:50:59  robot8
  *   -added some commemts
  *   -update of atomcomponent
  *
@@ -75,6 +78,7 @@
 
 #include "atomcomponent.h"
 
+#include <vector.h>
 
 
 //physical definition part
@@ -368,7 +372,7 @@ public:
 	    case 'R':
 		cout<<"KEY REPLICATION\n";
 		cout<<"replicationSlider-Adress: "<<&replicationSlider<<"\n";
-		((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] , &replicationSlider );
+		((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] /*, &replicationSlider*/ );
 		cout<<&replicationSlider<<"\n";
 		cout<<replicationSlider.size ()<<"\n";
 

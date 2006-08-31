@@ -26,7 +26,7 @@
 #include <ode/ode.h>
 #include <typeinfo>
 
-#include <vector>
+#include <vector.h>
 #include <list>
 
 

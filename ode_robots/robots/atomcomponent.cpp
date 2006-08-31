@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-08-21 11:50:45  robot8
+ *   Revision 1.8  2006-08-31 07:33:56  robot8
+ *   -temporary disabling a part oif the replication function
+ *
+ *   Revision 1.7  2006/08/21 11:50:45  robot8
  *   -added some commemts
  *   -update of atomcomponent
  *
@@ -830,8 +833,9 @@ bool AtomComponent::fission ( double force )
     /**
      *Replication
      **/
-    void AtomComponent::replication ( AtomComponent* atom_to_replicate , vector <repSlider>* replicationSlider )
+void AtomComponent::replication ( AtomComponent* atom_to_replicate /*, vector <repSlider>* replicationSlider */)
     {
+	vector <repSlider>* replicationSlider;
 	cout<<"replication\n";
 	
 

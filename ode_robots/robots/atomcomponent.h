@@ -248,7 +248,7 @@ virtual bool fission ( double force );
  *This is a special fusion of two AtomComponents. They have to belong to two robots, so that touching each ofer causes a crossing over in her structure.
  *@param the AtomComponent which belongs to the structure to replicate with, and which is the point where the replication will happen
  **/
-virtual void replication ( AtomComponent* atom_to_recplicate , std::vector <repSlider>* replicationSlider );
+ virtual void replication ( AtomComponent* atom_to_recplicate /*, vector <repSlider>* replicationSlider*/ );
 
 };
 
