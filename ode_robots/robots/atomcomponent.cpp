@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-08-31 07:33:56  robot8
+ *   Revision 1.9  2006-09-04 06:28:03  robot8
+ *   -adding some testing key functions for manual fusion and fission
+ *
+ *   Revision 1.8  2006/08/31 07:33:56  robot8
  *   -temporary disabling a part oif the replication function
  *
  *   Revision 1.7  2006/08/21 11:50:45  robot8
@@ -576,6 +579,7 @@ namespace lpzrobots
 		void* testp = new connectionAddition ();
 		connection.back().data = testp;
 		((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
+		cout<<"end of fusion 1\n";
 		return true;
 		
 	    }
@@ -604,6 +608,7 @@ namespace lpzrobots
 			void* testp = new connectionAddition ();
 			connection.back().data = testp;
 			((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
+			cout<<"end of fusion 2a\n";
 			return true;
 			
 		    }
@@ -624,6 +629,7 @@ namespace lpzrobots
 			    void* testp = new connectionAddition ();
 			    connection.back().data = testp;
 			    ((connectionAddition*) connection.back().data)->binding_strength = this->getCollisionForce ( atom_to_fuse );
+			    cout<<"end of fusion 2b\n";
 			    return true;
 			}
 			
@@ -666,7 +672,7 @@ void AtomComponent::enableStructureFusionRecursive ()
 
 bool AtomComponent::fission ( double force )
     {
-
+	cout<<"fission\n";
 	
 //first creating a list of all bound subcomponents, sorting it after the binding_strength of the connections
 
@@ -674,8 +680,12 @@ bool AtomComponent::fission ( double force )
 	int m = 0;
 	AtomComponent* tmpremovedsub = NULL;
 
-	while ( force > 0 && ( connection.size() > 0 ) )
+	while ( force > 0 && ( ( connection.size() > 0 ) || ( backwardreference.size () > 0 )  || ( directOriginComponent != this) ) )
 	{
+
+	    force -= binding_strength_counter;
+	    binding_strength_counter = 100000000;
+
 
 	    //searches for the weakes connection
 	    for ( unsigned int n = 0; n < connection.size(); n++ )
@@ -755,9 +765,8 @@ bool AtomComponent::fission ( double force )
 			tmpremovedsub->resetMotorsRecursive ( ); 
 
 		    }
-
-
-		    if ( tmp_softlinkconnection != NULL ) //if there is a softlink incomming or outgoing in or from the removed substructure
+		    else //if there is a softlink incomming or outgoing in or from the removed substructure
+		    // if ( tmp_softlinkconnection != NULL ) 
 			for ( unsigned int n = 0;  n < tmp_softlinkconnection->subcomponent->backwardreference.size (); n++ )
 			    for ( unsigned int m = 0; m < tmp_softlinkconnection->subcomponent->backwardreference[n]->connection.size() ; m++ )
 				if ( tmp_softlinkconnection->subcomponent->backwardreference[n]->getConnection ( m ) == tmp_softlinkconnection )
@@ -820,11 +829,6 @@ bool AtomComponent::fission ( double force )
 				    break;
 				}
 		}
-
-	       
-
-	    force -= binding_strength_counter;
-	    binding_strength_counter = 100000000;
 	}
 		    cout<<"end of fission\n";
 	return true;
@@ -1003,22 +1007,22 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate /*, vector <r
 
 	    Axis axis = Axis ( ( partA1->getPosition () - partB2->getPosition()).toArray() );
 	    SliderJoint* j1 = new SliderJoint ( partA1->getMainPrimitive () , partB2->getMainPrimitive () , partA1->getPositionbetweenComponents ( partB2 ) , axis );
-	    j1->init ( odeHandle , osgHandle , true , ((AtomComponent*) partA1)->atomconf.shell_radius + ((AtomComponent*) partB2)->atomconf.core_radius );
+	    j1->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partA1)->atomconf.shell_radius + ((AtomComponent*) partB2)->atomconf.core_radius );
 	    cout<<"1\n";
 
 	    axis = Axis ( ( partB1->getPosition () - partA2->getPosition()).toArray() );
 	    SliderJoint* j2 = new SliderJoint ( partB1->getMainPrimitive () , partA2->getMainPrimitive () , partB1->getPositionbetweenComponents ( partA2 ) , axis );
-	    j2->init ( odeHandle , osgHandle , true , ((AtomComponent*) partB1)->atomconf.shell_radius + ((AtomComponent*) partA2)->atomconf.core_radius );
+	    j2->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partB1)->atomconf.shell_radius + ((AtomComponent*) partA2)->atomconf.core_radius );
 	    cout<<"2\n";
 
 	    axis = Axis ( ( partA3->getPosition () - partB3->getPosition()).toArray() );
 	    SliderJoint* j3 = new SliderJoint ( partA3->getMainPrimitive () , partB3->getMainPrimitive () , partA3->getPositionbetweenComponents ( partB3 ) , axis );
-	    j3->init ( odeHandle , osgHandle , true , ((AtomComponent*) partA3)->atomconf.shell_radius + ((AtomComponent*) partB3)->atomconf.core_radius );
+	    j3->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partA3)->atomconf.shell_radius + ((AtomComponent*) partB3)->atomconf.core_radius );
 	    cout<<"3\n";
 
 	    axis = Axis ( ( partA4->getPosition () - partB4->getPosition()).toArray() );
 	    SliderJoint* j4 = new SliderJoint ( partA4->getMainPrimitive () , partB4->getMainPrimitive () , partA4->getPositionbetweenComponents ( partB4 ) , axis );
-	    j4->init ( odeHandle , osgHandle , true , ((AtomComponent*) partA4)->atomconf.shell_radius + ((AtomComponent*) partB4)->atomconf.core_radius );
+	    j4->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partA4)->atomconf.shell_radius + ((AtomComponent*) partB4)->atomconf.core_radius );
 
 //	    j1->setParam ( dParamLoStop , -dInfinity );
 //	    j1->setParam ( dParamHiStop , dInfinity );

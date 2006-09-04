@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-08-31 07:34:13  robot8
+ *   Revision 1.7  2006-09-04 06:27:22  robot8
+ *   -adding some testing key functions for manual fusion and fission
+ *
+ *   Revision 1.6  2006/08/31 07:34:13  robot8
  *   -temporary disabling a part oif the replication function
  *
  *   Revision 1.5  2006/08/21 11:50:59  robot8
@@ -427,18 +430,44 @@ public:
 
 		}
 		break;
-	    case 'M' :
+/*	    case 'M' :
 		cout<<"#####################################connection vector capacity analysis#############################################\n";
 		for ( unsigned int n = 0; n < components.size(); n++)
 		    cout<<"Component "<<n<<" holds "<<components[n]->connection.size ()<<" and can hold "<<components[n]->connection.capacity ()<<" connections\n";
 		break;
-
+*/
+		
+		//external fission/fusion test
+	    case 'V': 
+		((AtomComponent*) components[0])->fusion ( (AtomComponent*) components[1] );
 		break;
+	    case 'B': 
+		((AtomComponent*) components[1])->fusion ( (AtomComponent*) components[2] );
+		break;
+	    case 'N': 
+		((AtomComponent*) components[2])->fusion ( (AtomComponent*) components[3] );
+		break;
+	    case 'M': 
+		((AtomComponent*) components[0])->fusion ( (AtomComponent*) components[2] );
+		break;
+	    case ';': 
+		((AtomComponent*) components[0])->fission ( 1000 );
+		break;
+	    case ':': 
+		((AtomComponent*) components[1])->fission ( 1000 );
+		break;
+	    case '_': 
+		((AtomComponent*) components[2])->fission ( 1000 );
+		break;
+
+
+
 
 
 	    default:
 		return false;
 		break;
+		
 
 	}
     }
