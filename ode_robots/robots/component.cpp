@@ -248,7 +248,7 @@ namespace lpzrobots
 
 /*************************backward reference part***************************/
 	
-	if ( softlink )
+	if ( softlink == true )
 	    connection.back ().subcomponent->backwardreference.push_back ( this );
 
 
@@ -324,17 +324,17 @@ namespace lpzrobots
 		    tmpcomponent->updateOriginsRecursive ( tmpcomponent );
 		else
 		{
-		    vector <Component*>::iterator it;
-		    for ( it = tmpcomponent->backwardreference.begin (); *it != this; )
-			it++;
+		    vector <Component*>::iterator it2;
+		    for ( it2 = tmpcomponent->backwardreference.begin (); *it2!= this; it2++ )
+			;
 		    //removing the backward reference in the subcomponent
-		    tmpcomponent->backwardreference.erase ( it );
+		    tmpcomponent->backwardreference.erase ( it2);
 		    cout<<"backwardreference remove delting\n";
 		}
 
 
 		//deleting the extra data pointer
-		if (connection [n].data != NULL )
+		if (connection[n].data != NULL )
 		{
 		    free ( connection[n].data );
 		    connection[n].data = NULL;
@@ -352,14 +352,13 @@ namespace lpzrobots
 		    cout<<"tries to delete Joint* joint, but no joint - pointer is set\n";
 
 		connection.erase ( it );
-
+		
 
 
 		break;
 	    }
 	    it++;
 	}
-
 	return tmpcomponent;
 
     }

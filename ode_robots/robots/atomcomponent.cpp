@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-09-04 06:28:03  robot8
+ *   Revision 1.10  2006-09-07 05:50:17  robot8
+ *   -corrected recursion error in atomcomponent::update
+ *
+ *   Revision 1.9  2006/09/04 06:28:03  robot8
  *   -adding some testing key functions for manual fusion and fission
  *
  *   Revision 1.8  2006/08/31 07:33:56  robot8
@@ -229,7 +232,8 @@ namespace lpzrobots
 	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    connection[n].joint->update ();
-	    connection[n].subcomponent->update ();
+	    if ( connection[n].softlink == false )
+		connection[n].subcomponent->update ();
 	}
     }
 
@@ -242,7 +246,8 @@ namespace lpzrobots
 	for ( unsigned int n = 0; n < connection.size (); n++ )
 	{
 	    newpos = connection[n].subcomponent->getPosition () - ((Pos)pos).toPosition ();
-	    connection[n].subcomponent->place ( *(new Pos ( newpos )) );
+	    if ( connection[n].softlink == false )
+		connection[n].subcomponent->place ( *(new Pos ( newpos )) );
 	}
     }
 
@@ -280,7 +285,7 @@ namespace lpzrobots
 			 fusion ( (AtomComponent*) dGeomGetData ( o2 ) ); //FUSION is called;
 			 return true;
 		    }
-
+		    else
 		    if ( fissionCondition ( o1 , o2 , force ) == true )
 		    {
 			cout<<"fission\n";
@@ -301,14 +306,14 @@ namespace lpzrobots
 			    fusion ( (AtomComponent*) dGeomGetData ( o1 ) ); //FUSION is called;
 			    return true;
 			}
-
-			if ( fissionCondition ( o2 , o1 , force ) == true )
-			{
-			    cout<<"fission\n";
-			    cout<<"target of fission: "<<(AtomComponent*) dGeomGetData ( o2 )<<" atom causing fission: "<<(AtomComponent*) dGeomGetData ( o1 )<<"\n";
-			    fission ( force ); //FISSION is called
-			    return true;
-			}
+			else
+			    if ( fissionCondition ( o2 , o1 , force ) == true )
+			    {
+				cout<<"fission\n";
+				cout<<"target of fission: "<<(AtomComponent*) dGeomGetData ( o2 )<<" atom causing fission: "<<(AtomComponent*) dGeomGetData ( o1 )<<"\n";
+				fission ( force ); //FISSION is called
+				return true;
+			    }
 		    
 			//if no fusion and no fission dit happen
 		    return false;
@@ -420,14 +425,15 @@ namespace lpzrobots
 	for ( unsigned int n = 0; n < backwardreference.size (); n++ )
 	    for ( unsigned int m = 0; m < backwardreference[n]->connection.size(); m++ )
 	    {
-		if ( ((connectionAddition*) backwardreference[n]->connection[m].data)->binding_strength > tmp_binding_strength )
-		{
-		    //it is important that the two components are not connected, because softlinks within the removed substructure are not important
-		    if ( !backwardreference[n]->isComponentConnected ( this ) )
+		if ( backwardreference[n]->connection[m].subcomponent == this )
+		    if ( ((connectionAddition*) backwardreference[n]->connection[m].data)->binding_strength > tmp_binding_strength )
 		    {
-			tmp_binding_strength = ((connectionAddition*) backwardreference[n]->connection[m].data)->binding_strength;
-			tmpconnection = &(backwardreference[n]->connection[m]);
-		    }
+			//it is important that the two components are not connected, because softlinks within the removed substructure are not important
+			if ( !backwardreference[n]->isComponentConnected ( this ) )
+			{
+			    tmp_binding_strength = ((connectionAddition*) backwardreference[n]->connection[m].data)->binding_strength;
+			    tmpconnection = &(backwardreference[n]->connection[m]);
+			}
 		}
 	    }
 
@@ -459,7 +465,7 @@ namespace lpzrobots
 
 	    Axis axis = Axis ( ( getPosition () - tmp_directOriginComponent->getPosition ()).toArray() );
 	    HingeJoint* newjoint = new HingeJoint ( getMainPrimitive () , tmp_directOriginComponent->getMainPrimitive () , getPositionbetweenComponents ( tmp_directOriginComponent ) , axis );
-	    newjoint->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , atomconf.shell_radius+atomconf.core_radius );
+	    newjoint->init ( odeHandle , osgHandle , TESTBOOLVAL/*truealse*/ , atomconf.shell_radius+atomconf.core_radius );
 
 	   
 	    addSubcomponent ( tmp_directOriginComponent , newjoint , false );
@@ -567,7 +573,7 @@ namespace lpzrobots
 		
 		Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
 		HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
-		j1->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , atomconf.shell_radius+atomconf.core_radius );
+		j1->init ( odeHandle , osgHandle , TESTBOOLVAL , atomconf.shell_radius+atomconf.core_radius );
 		
 		osgHandle.color.alpha () = 1;
 		
@@ -579,6 +585,7 @@ namespace lpzrobots
 		void* testp = new connectionAddition ();
 		connection.back().data = testp;
 		((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
+
 		cout<<"end of fusion 1\n";
 		return true;
 		
@@ -586,7 +593,7 @@ namespace lpzrobots
 	    //if it is a fusion with atomcomponents of other structures or free ones
 	    else
 	    {
-		
+		cout<<"fusion case 2\n";
 		//if the origins of both atoms are no leading atoms of a structure, does not exclude, that they are identical, but this should be catched by the rule above
 		if ( !( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == true && ((AtomComponent*) originComponent)->atomconf.leadingatom == true ) )
 		{
@@ -594,6 +601,7 @@ namespace lpzrobots
 		    //switches the binding of the two components, so that the uncontrolled componments always will become subcomponents to the controlled ones
 		    if (((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == false && ((AtomComponent*) originComponent)->atomconf.leadingatom == true )
 		    {
+			cout<<"fusion case 2_\n";
 			Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
 			HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
 			j1->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , atomconf.shell_radius+atomconf.core_radius );
@@ -682,11 +690,6 @@ bool AtomComponent::fission ( double force )
 
 	while ( force > 0 && ( ( connection.size() > 0 ) || ( backwardreference.size () > 0 )  || ( directOriginComponent != this) ) )
 	{
-
-	    force -= binding_strength_counter;
-	    binding_strength_counter = 100000000;
-
-
 	    //searches for the weakes connection
 	    for ( unsigned int n = 0; n < connection.size(); n++ )
 	    {
@@ -694,16 +697,19 @@ bool AtomComponent::fission ( double force )
 		{
 		    m = n + 1; //zero is used for the removing of the direct origin
 		    binding_strength_counter = ((connectionAddition*) connection[n].data)->binding_strength;		
+		    cout<<"connection selected\n";
 		}
 	    }
-	    
+
 	    //looks if the removing of the origin connection is possible
 	    if ( directOriginComponent != this ) //only if there is a connection to an directOrigin, and the component is not the root of the structure itself
 	    {
+
 		if ( ((connectionAddition*) directOriginComponent->getConnection ( this )->data)->binding_strength < binding_strength_counter )
 		{
 		    m = 0;
 		    binding_strength_counter = ((connectionAddition*) directOriginComponent->getConnection ( this )->data)->binding_strength;
+		    cout<<"direct origin selected\n";
 		}
 	    }
 
@@ -714,9 +720,11 @@ bool AtomComponent::fission ( double force )
 		{
 		    m = (-1*n)-1; //using the negativ numbers to symolise that it is a backward reference that was selected as the connection to remove; -1 because 0 could be used only for one case, later there is a calculation of +1 to compensate the -1 from this line
 		    binding_strength_counter = ((connectionAddition*) backwardreference[n]->getConnection ( this )->data )->binding_strength;
+		    cout<<"backwardreference selected\n";
 		}
 	    }
 
+	    cout<<"m : "<<m<<"\n";
 
 	//now removing one of the connection possibilities
 	    //removing a normal connection
@@ -738,10 +746,12 @@ bool AtomComponent::fission ( double force )
 		else
 		{
 		    m = -(m + 1);//changing the number to positive values again
-		    tmpremovedsub = (AtomComponent*) backwardreference[m]->getConnection ( this )->subcomponent->removeSubcomponent ( m );
+		    tmpremovedsub = (AtomComponent*) backwardreference[m]/*->getConnection ( this )->subcomponent*/->removeSubcomponent ( this );
+
 		}
 	    }
 	    cout<<"end of removal section\n";
+
 
 
 //consequences of removing a not-softlink-connection
@@ -751,12 +761,13 @@ bool AtomComponent::fission ( double force )
 		else
 		    //removing was successfull
 		{
-		    cout<<tmpremovedsub<<"\n";
-		    cout<<tmpremovedsub->connection.size()<<"\n";
-		    
-		    componentConnection* tmp_softlinkconnection = ((AtomComponent*) tmpremovedsub)->getStrongestSoftlinkofStructure ();
+//		    cout<<tmpremovedsub<<"\n";
+//		    cout<<tmpremovedsub->connection.size()<<"\n";
 
-		    cout<<"Softlink adress:"<<tmp_softlinkconnection<<"\n";
+		    componentConnection* tmp_softlinkconnection = ((AtomComponent*) tmpremovedsub)->getStrongestSoftlinkofStructure ();
+		    cout<<"found tmp_softlinkconnection: "<<tmp_softlinkconnection<<"\n";
+
+//		    cout<<"Softlink adress:"<<tmp_softlinkconnection<<"\n";
 
 		    //setting the motor values to zero, but only if there was no softlink found and the substructure will be seperated from the rest of the structure
 		    if ( tmp_softlinkconnection == NULL )	
@@ -768,9 +779,14 @@ bool AtomComponent::fission ( double force )
 		    else //if there is a softlink incomming or outgoing in or from the removed substructure
 		    // if ( tmp_softlinkconnection != NULL ) 
 			for ( unsigned int n = 0;  n < tmp_softlinkconnection->subcomponent->backwardreference.size (); n++ )
+			{
+			    cout<<"n: "<<n<<"\n";
 			    for ( unsigned int m = 0; m < tmp_softlinkconnection->subcomponent->backwardreference[n]->connection.size() ; m++ )
+			    {
+				cout<<m<<"\n";
 				if ( tmp_softlinkconnection->subcomponent->backwardreference[n]->getConnection ( m ) == tmp_softlinkconnection )
 				{
+				    cout<<m<<"\n";
 				    //if true, it is an incoming softlink to the structure belonging to tmpremovedsub
 				    if ( tmpremovedsub->isComponentConnected ( tmp_softlinkconnection->subcomponent ) )
 				    {
@@ -780,19 +796,22 @@ bool AtomComponent::fission ( double force )
 					tmpcomp2 = tmp_softlinkconnection->subcomponent;
 
 					tmpcomp1->removeSubcomponent ( tmpcomp2 );					
-					((AtomComponent*) tmpcomp2)->makeComponentStructureRoot (); //creating a new structure root					
 					
+					((AtomComponent*) tmpcomp2)->makeComponentStructureRoot (); //creating a new structure root					
+					cout<<"end of first option\n";
 					
 
 					Axis axis = Axis ( ( tmpcomp1->getPosition () - tmpcomp2->getPosition ()).toArray() );
 					HingeJoint* newjoint = new HingeJoint ( tmpcomp1->getMainPrimitive () , tmpcomp2->getMainPrimitive () , tmpcomp1->getPositionbetweenComponents ( tmpcomp2 ) , axis );
-					newjoint->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , ((AtomComponent*) tmpcomp1)->atomconf.shell_radius + ((AtomComponent*) tmpcomp1)->atomconf.core_radius );
+					newjoint->init (  odeHandle ,  osgHandle , TESTBOOLVAL/*truefalse*/ , ((AtomComponent*) tmpcomp1)->atomconf.shell_radius + ((AtomComponent*) tmpcomp1)->atomconf.core_radius );
 					tmpcomp1->addSubcomponent ( tmpcomp2 , newjoint , false );
 
 					//adding the binding energy
 					void* testp = new connectionAddition ();
 					tmpcomp1->connection.back().data = testp;
 					((connectionAddition*) tmpcomp1->connection.back().data)->binding_strength = ((AtomComponent*) tmpcomp2)->getCollisionForce ( (AtomComponent*) tmpcomp1 );
+					tmp_softlinkconnection = NULL;
+					break;
 				    }
 				    else
 					//if false it is an outgoing softlink to the structure belonging to tmpremovedsub
@@ -805,6 +824,7 @@ bool AtomComponent::fission ( double force )
 					    
 
 					    tmpcomp1->removeSubcomponent ( tmpcomp2  ); //deleting the softlink,origin update is no problem, because the connection was a softlink
+					    cout<<"end of sencond option\n";
 					    ((AtomComponent*) tmpcomp1)->makeComponentStructureRoot ();
 					    //is backwardref deleted??
 					    
@@ -812,7 +832,7 @@ bool AtomComponent::fission ( double force )
 					    
 					    Axis axis = Axis ( ( tmpcomp2->getPosition () - tmpcomp1->getPosition ()).toArray() );
 					    HingeJoint* newjoint = new HingeJoint ( tmpcomp2->getMainPrimitive () , tmpcomp1->getMainPrimitive () , tmpcomp2->getPositionbetweenComponents ( tmpcomp1 ) , axis );
-					    newjoint->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , ((AtomComponent*) tmpcomp2)->atomconf.shell_radius + ((AtomComponent*) tmpcomp2)->atomconf.core_radius );
+					    newjoint->init ( odeHandle ,  osgHandle , TESTBOOLVAL/*truefalse*/ , ((AtomComponent*) tmpcomp2)->atomconf.shell_radius + ((AtomComponent*) tmpcomp2)->atomconf.core_radius );
 					    
 					    tmpcomp2->addSubcomponent ( tmpcomp1 , newjoint , false );
 
@@ -821,14 +841,21 @@ bool AtomComponent::fission ( double force )
 					    tmpcomp2->connection.back().data = testp;
 					    ((connectionAddition*) tmpcomp2->connection.back().data)->binding_strength = ((AtomComponent*) tmpcomp1)->getCollisionForce ( (AtomComponent*) tmpcomp2 );
 
+//					    tmpcomp1->updateOriginsRecursive ( tmpcomp2 );
 
-					    
-					    tmpcomp1->updateOriginsRecursive ( tmpcomp2 );
+					    tmp_softlinkconnection = NULL;
+					    break;
 					}
-				    
-				    break;
 				}
+
+			    }
+			    if ( tmp_softlinkconnection == NULL )
+				break;
+			}
 		}
+
+	    force -= binding_strength_counter;
+	    binding_strength_counter = 100000000;
 	}
 		    cout<<"end of fission\n";
 	return true;
