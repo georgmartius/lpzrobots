@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-09-07 05:50:17  robot8
+ *   Revision 1.11  2006-09-08 09:16:11  robot8
+ *   *** empty log message ***
+ *
+ *   Revision 1.10  2006/09/07 05:50:17  robot8
  *   -corrected recursion error in atomcomponent::update
  *
  *   Revision 1.9  2006/09/04 06:28:03  robot8
@@ -648,10 +651,9 @@ namespace lpzrobots
 		else
 		{
 		    cout<<"fusion case 3\n";
-		    //cout<<getNumberSubcomponents ()<<"\n";
-		    //cout<<atom_to_fuse->getNumberSubcomponents ()<<"\n";
-		    //replication ( atom_to_fuse );
-		    return false/*true*/;
+
+		    replication ( atom_to_fuse );
+		    return true;
 		}
 	    }
 	    return false;
@@ -864,13 +866,13 @@ bool AtomComponent::fission ( double force )
     /**
      *Replication
      **/
-void AtomComponent::replication ( AtomComponent* atom_to_replicate /*, vector <repSlider>* replicationSlider */)
+void AtomComponent::replication ( AtomComponent* atom_to_replicate )
     {
-	vector <repSlider>* replicationSlider;
+
 	cout<<"replication\n";
 	
 
-	if ( ( originComponent->getNumberSubcomponentsAll () + 1 >= 4 ) && ( atom_to_replicate->originComponent->getNumberSubcomponentsAll() + 1 >= 4 ) )
+	if ( ( originComponent->getNumberSubcomponentsAll () + 1 >= 6) && ( atom_to_replicate->originComponent->getNumberSubcomponentsAll() + 1 >= 6) )
 	{
 	    Component* partA1;
 	    Component* partA2;
@@ -1051,8 +1053,6 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate /*, vector <r
 	    SliderJoint* j4 = new SliderJoint ( partA4->getMainPrimitive () , partB4->getMainPrimitive () , partA4->getPositionbetweenComponents ( partB4 ) , axis );
 	    j4->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partA4)->atomconf.shell_radius + ((AtomComponent*) partB4)->atomconf.core_radius );
 
-//	    j1->setParam ( dParamLoStop , -dInfinity );
-//	    j1->setParam ( dParamHiStop , dInfinity );
 	    cout<<"before VelParam-Setting\n";
 	    j1->setParam ( dParamVel , -0.5 );
 	    j1->setParam ( dParamFMax , 30 );
@@ -1066,26 +1066,30 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate /*, vector <r
 
 	    repSlider rps1 , rps2 , rps3 , rps4;
 	    rps1.startComponent = partA1; rps1.endComponent = partB2; rps1.slider = j1; rps1.startingdistance = rps1.startComponent->getDistanceToComponent ( rps1.endComponent );
-	    rps1.bindingcounter = 100;
-	    replicationSlider->push_back ( rps1 );
+	    rps1.bindingcounter = 500;
+	    atomconf.replicationSliderHandle->push_back ( rps1 );
 
 	    rps2.startComponent = partB1; rps2.endComponent = partA2; rps2.slider = j2; rps2.startingdistance = rps2.startComponent->getDistanceToComponent ( rps2.endComponent );
-	    rps2.bindingcounter = 100;
-	    replicationSlider->push_back ( rps2 );
+	    rps2.bindingcounter = 500;
+	    atomconf.replicationSliderHandle->push_back ( rps2 );
 
 	    rps3.startComponent = partA3; rps3.endComponent = partB3; rps3.slider = j3; rps3.startingdistance = rps3.startComponent->getDistanceToComponent ( rps3.endComponent );
-	    rps3.bindingcounter = 100;
-	    replicationSlider->push_back ( rps3 );
+	    rps3.bindingcounter = 500;
+	    atomconf.replicationSliderHandle->push_back ( rps3 );
 
 	    rps4.startComponent = partA4; rps4.endComponent = partB4; rps4.slider = j4; rps4.startingdistance = rps4.startComponent->getDistanceToComponent ( rps4.endComponent );
-	    rps4.bindingcounter = 100;
-	    replicationSlider->push_back ( rps4 );
+	    rps4.bindingcounter = 500;
+	    atomconf.replicationSliderHandle->push_back ( rps4 );
 
 	    //disabling the ability to fuse of all structures
 		((AtomComponent*) partA1->originComponent)->disableStructureFusionRecursive ();
+		((AtomComponent*) partA2->originComponent)->disableStructureFusionRecursive ();
 		((AtomComponent*) partB1->originComponent)->disableStructureFusionRecursive ();
+		((AtomComponent*) partB2->originComponent)->disableStructureFusionRecursive ();
 		((AtomComponent*) partA3->originComponent)->disableStructureFusionRecursive ();
+		((AtomComponent*) partB3->originComponent)->disableStructureFusionRecursive ();
 		((AtomComponent*) partA4->originComponent)->disableStructureFusionRecursive ();
+		((AtomComponent*) partB4->originComponent)->disableStructureFusionRecursive ();
 
 
 	}

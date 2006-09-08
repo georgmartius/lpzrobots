@@ -58,6 +58,8 @@ namespace lpzrobots
 
 	bool fusionDisabled; //this value can disable or enable the ability of an atom to fuse with another one
 
+	vector <repSlider>* replicationSliderHandle; //this handle tells the atom, where to sve the slider-joints temporary used while replication
+
     } AtomConf;
 
 
@@ -100,6 +102,7 @@ class AtomComponent : public Component
     OSGSphere* core;
     Primitive* shell;
 
+
  public:
 
     AtomComponent ( const OdeHandle &odeHandle, const OsgHandle &osgHandle, const ComponentConf& conf, const AtomConf& aconf );
@@ -119,6 +122,7 @@ static AtomConf getDefaultAtomConf()
     conf.min_fission_energy = 0;
     conf.leadingatom = false;
     conf.fusionDisabled = false;
+    conf.replicationSliderHandle = NULL;
 
     return conf;
 }
@@ -248,7 +252,7 @@ virtual bool fission ( double force );
  *This is a special fusion of two AtomComponents. They have to belong to two robots, so that touching each ofer causes a crossing over in her structure.
  *@param the AtomComponent which belongs to the structure to replicate with, and which is the point where the replication will happen
  **/
- virtual void replication ( AtomComponent* atom_to_recplicate /*, vector <repSlider>* replicationSlider*/ );
+ virtual void replication ( AtomComponent* atom_to_recplicate );
 
 };
 

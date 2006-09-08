@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-09-04 06:27:22  robot8
+ *   Revision 1.8  2006-09-08 09:16:31  robot8
+ *   *** empty log message ***
+ *
+ *   Revision 1.7  2006/09/04 06:27:22  robot8
  *   -adding some testing key functions for manual fusion and fission
  *
  *   Revision 1.6  2006/08/31 07:34:13  robot8
@@ -64,7 +67,7 @@
 #include "simulation.h"
 
 #include "atomodeagent.h"
-#include "octaplayground.h"
+#include "octalplayground.h"
 #include "passivesphere.h"
 
 #include <selforg/invertnchannelcontroller.h>
@@ -85,8 +88,8 @@
 
 
 //physical definition part
-#define REACTIONROOMWIDTH 1
-#define REACTIONROOMLENGTH 1
+#define REACTIONROOMWIDTH 2
+#define REACTIONROOMLENGTH 2
 //both density values ahve to be bigger than 1 so, that the atoms do not colide at the beginning
 #define ATOMDENSITY 6
  //this is the space between two atoms, bigger means less robots and smaller more atoms
@@ -132,7 +135,7 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3( REACTIONROOMWIDTH , 0.2 , REACTIONROOMLENGTH ) , 4 );
+    OctalPlayground* playground = new OctalPlayground(odeHandle, osgHandle, osg::Vec3( REACTIONROOMWIDTH , 0.2 , REACTIONROOMLENGTH ) , 4 );
     playground->setPosition(osg::Vec3(0,0,-0.1)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
@@ -148,6 +151,8 @@ public:
     aConf.max_bindings = 4;
     aConf.binding_energy = 0.1;
     aConf.min_fission_energy = 3;
+
+    aConf.replicationSliderHandle = &replicationSlider;
 
 //adding the controller for the component-connections
 
@@ -214,7 +219,7 @@ public:
 //	    cout<<&replicationSlider<<"\n";
 //	    cout<<replicationSlider.size ()<<"\n";
 	    for ( unsigned int n = 0; n < replicationSlider.size (); n++ )
-	    {
+	    {		
 		cout<<"addCallback "<<replicationSlider.size ()<<"\n";
 		replicationSlider[n].slider->update (); //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
 		replicationSlider[n].bindingcounter--;
@@ -274,9 +279,10 @@ public:
 	    
 	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
 	    {
-		if ( globalData.agents[n]->getController () < MINFITTNESS ) //is there a param for E?
+	    //calling the fitness function
+		if ( calculateFitness ( n ) ) //is there a param for E?
 		{
-		    
+		//SELECTION
 		    ((AtomComponent*) globalData.agents[n]->getRobot ())->atomconf.leadingatom = false;
 
 		    //deleting the controller from global configs
@@ -375,22 +381,23 @@ public:
 	    case 'R':
 		cout<<"KEY REPLICATION\n";
 		cout<<"replicationSlider-Adress: "<<&replicationSlider<<"\n";
-		((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] /*, &replicationSlider*/ );
-		cout<<&replicationSlider<<"\n";
+		((AtomComponent*) globalData.agents[0]->getRobot())->replication ( ((AtomComponent*) globalData.agents[1]->getRobot()) );
+		((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] );
+
 		cout<<replicationSlider.size ()<<"\n";
 
 		cout<<"END OF KEY REPLICATION\n";
 		break;
 	    case 'T':
-		cout<<"KEY RESTRUCTURE TEST\n";
-		cout<<"before\n";
-		printComponentInfo ( components.back () );
+		cout<<"TERMINATE ALL FREE ATOMS\n";
 
-		((AtomComponent*)components.back())->makeComponentStructureRoot ();
-		
-		cout<<"after\n";
-		printComponentInfo ( components.back () );
-		cout<<"END RESTRUCTURE TEST\n";
+		for ( unsigned int n = 0; n < components.size (); n++)
+		{
+		    if ( components[n]->connection.size() == 0 && components[n]->backwardreference.size () == 0 && components[n]->directOriginComponent == components[n] && ((AtomComponent*) components[n])->atomconf.leadingatom == false )
+		    {
+			components.erase ( components.begin() + n );
+		    }
+		}
 		break;
 
 
@@ -416,6 +423,7 @@ public:
 		    for ( unsigned int m = 0; m < ((AtomComponent*) components[n])->connection.size (); m++ )
 		    {
 			cout<<"------------Connection-"<<m<<"------------\n";
+			cout<<"adress: "<<&((AtomComponent*) components[n])->connection[m]<<"\n";
 			cout<<"softlink: "<<((AtomComponent*) components[n])->connection[m].softlink<<"\n";
 			cout<<"data: "<<((AtomComponent*) components[n])->connection[m].data<<"\n";
 			cout<<"subcomponent: "<<((AtomComponent*) components[n])->connection[m].subcomponent<<"\n";
@@ -440,23 +448,52 @@ public:
 		//external fission/fusion test
 	    case 'V': 
 		((AtomComponent*) components[0])->fusion ( (AtomComponent*) components[1] );
+//		cout<<*((double*) ((AtomComponent*) components[0])->connection[0].data)<<"\n";
 		break;
 	    case 'B': 
 		((AtomComponent*) components[1])->fusion ( (AtomComponent*) components[2] );
+//		cout<<*((double*) ((AtomComponent*) components[1])->connection[0].data)<<"\n";
 		break;
 	    case 'N': 
 		((AtomComponent*) components[2])->fusion ( (AtomComponent*) components[3] );
+//		cout<<*((double*) ((AtomComponent*) components[2])->connection[0].data)<<"\n";
 		break;
 	    case 'M': 
 		((AtomComponent*) components[0])->fusion ( (AtomComponent*) components[2] );
+//		cout<<*((double*) ((AtomComponent*) components[0])->connection[1].data)<<"\n";
 		break;
 	    case ';': 
+/*		cout<<"backward binding strength: \n";
+		for ( unsigned int n = 0; n < ((AtomComponent*) components[0])->backwardreference.size(); n++ )
+		    cout<<*((double*) ((AtomComponent*) components[0])->backwardreference[n]->getConnection ( (AtomComponent*) components[0] )->data)<<"\n";
+		cout<<"normal connection-binding strength: \n";
+		for ( unsigned int n = 0; n < ((AtomComponent*) components[0])->connection.size(); n++ )
+		    cout<<*((double*) ((AtomComponent*) components[0])->connection[n].data)<<"\n";
+*/
 		((AtomComponent*) components[0])->fission ( 1000 );
 		break;
 	    case ':': 
+/*		cout<<"directOrigin connection-binding-strength\n";
+		cout<<*((double*) ((AtomComponent*) components[1])->directOriginComponent->getConnection ( (AtomComponent*) components[1] )->data)<<"\n";
+		cout<<"backward binding strength: \n";
+		for ( unsigned int n = 0; n < ((AtomComponent*) components[1])->backwardreference.size(); n++ )
+		    cout<<*((double*) ((AtomComponent*) components[1])->backwardreference[n]->getConnection ( (AtomComponent*) components[1] )->data)<<"\n";
+		cout<<"normal connection-binding strength: \n";
+		for ( unsigned int n = 0; n < ((AtomComponent*) components[1])->connection.size(); n++ )
+		    cout<<*((double*) ((AtomComponent*) components[1])->connection[n].data)<<"\n";
+*/
 		((AtomComponent*) components[1])->fission ( 1000 );
 		break;
 	    case '_': 
+/*		cout<<"directOrigin connection-binding-strength\n";
+		cout<<*((double*) ((AtomComponent*) components[2])->directOriginComponent->getConnection ( (AtomComponent*) components[2] )->data)<<"\n";
+		cout<<"backward binding strength: \n";
+		for ( unsigned int n = 0; n < ((AtomComponent*) components[0])->backwardreference.size(); n++ )
+		    cout<<*((double*) ((AtomComponent*) components[0])->backwardreference[n]->getConnection ( (AtomComponent*) components[0] )->data)<<"\n";
+		cout<<"normal connection-binding strength: \n";
+		for ( unsigned int n = 0; n < ((AtomComponent*) components[0])->connection.size(); n++ )
+		    cout<<*((double*) ((AtomComponent*) components[0])->connection[n].data)<<"\n";
+*/
 		((AtomComponent*) components[2])->fission ( 1000 );
 		break;
 
@@ -486,6 +523,7 @@ public:
 	    for ( unsigned int m = 0; m < ((AtomComponent*) comp)->connection.size (); m++ )
 	    {
 		cout<<"------------Connection-"<<m<<"------------\n";
+		cout<<"adress: "<<&((AtomComponent*) comp)->connection[m]<<"\n";
 		cout<<"softlink: "<<((AtomComponent*) comp)->connection[m].softlink<<"\n";
 		cout<<"data: "<<((AtomComponent*) comp)->connection[m].data<<"\n";
 		cout<<"subcomponent: "<<((AtomComponent*) comp)->connection[m].subcomponent<<"\n";
@@ -514,10 +552,11 @@ public:
 
   /**
    *fitness calculation
+   *If the fitness value is smaler than 0 it is bad.
    **/
-  double calculateFitness ()
+  double calculateFitness ( int n )
   {
-      return 0;
+      return 0;//globalData.agents[n]->getController () - MINFITTNESS;
   }
   
 
