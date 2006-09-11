@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-09-08 09:16:31  robot8
+ *   Revision 1.9  2006-09-11 12:01:31  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.8  2006/09/08 09:16:31  robot8
  *   *** empty log message ***
  *
  *   Revision 1.7  2006/09/04 06:27:22  robot8
@@ -106,6 +109,7 @@
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
+using namespace std;
 
 class Evolution : public Simulation 
 {

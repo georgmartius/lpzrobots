@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-08-28 12:18:31  martius
+ *   Revision 1.9  2006-09-11 12:01:31  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.8  2006/08/28 12:18:31  martius
  *   documentation
  *
  *   Revision 1.7  2006/08/08 17:03:27  martius
@@ -96,7 +99,7 @@ namespace lpzrobots {
     /** returns the sensor value in the range [0,1];
 	0 means nothing no object in the sensor distance range
 	1 means contact with another object
-	@ see characteritic()
+	@see characteritic()
      */
     virtual double get();
     virtual void update();

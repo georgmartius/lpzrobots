@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-11 15:48:24  martius
+ *   Revision 1.4  2006-09-11 12:01:43  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2006/08/11 15:48:24  martius
  *   print
  *
  *   Revision 1.2  2006/07/14 12:24:02  martius
@@ -36,8 +39,8 @@
 #ifndef __POSITION_H
 #define __POSITION_H
 
-#include <math.h>
 #include <iostream>
+#include <math.h>
 
 class Position
 {

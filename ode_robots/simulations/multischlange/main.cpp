@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 14:36:43  martius
+ *   Revision 1.4  2006-09-11 12:01:31  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2006/07/14 14:36:43  martius
  *   cleanall target
  *   no unnecessary rebuild
  *
@@ -68,7 +71,8 @@
 #include "schlangeservo2.h"
 #include "sphererobot3masses.h"
 
-list<PlotOption> plotoptions;
+
+std::list<PlotOption> plotoptions;
 
 using namespace lpzrobots;
 

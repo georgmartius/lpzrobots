@@ -19,6 +19,12 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ *   $Log$
+ *   Revision 1.9  2006-09-11 12:01:31  martius
+ *   *** empty log message ***
+ *
+ *                                                                         *
  ***************************************************************************/
 
 
@@ -58,7 +64,7 @@ namespace lpzrobots
 
 	bool fusionDisabled; //this value can disable or enable the ability of an atom to fuse with another one
 
-	vector <repSlider>* replicationSliderHandle; //this handle tells the atom, where to sve the slider-joints temporary used while replication
+	std::vector <repSlider>* replicationSliderHandle; //this handle tells the atom, where to sve the slider-joints temporary used while replication
 
     } AtomConf;
 
