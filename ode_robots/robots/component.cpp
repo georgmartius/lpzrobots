@@ -1,4 +1,4 @@
-ma/***************************************************************************
+/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
@@ -19,6 +19,12 @@ ma/***************************************************************************
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ *   $Log$
+ *   Revision 1.13  2006-09-11 12:00:51  martius
+ *   removed accidental "ma" at beginning of file
+ *
+ *                                                                         *
  *                                                                         *
  ***************************************************************************/
 
@@ -560,5 +566,5 @@ namespace lpzrobots
 	return currentBestDivideComponent;
     }
 
-}
+};
 
