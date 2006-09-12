@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-11 15:41:04  martius
+ *   Revision 1.5  2006-09-12 08:23:13  robot8
+ *   -corrected the wrong call for pos with getPosition ()
+ *
+ *   Revision 1.4  2006/08/11 15:41:04  martius
  *   playgrounds handle non-quadratic ground planes
  *
  *   Revision 1.3  2006/07/14 12:23:32  martius
@@ -78,7 +81,7 @@ namespace lpzrobots {
       roof = new Box(length + 2 * width , (length * factorlength2) + 2 * width , width);
       roof->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
 
-      roof->setPosition(pos + osg::Vec3(0,0,height+width/2));
+      roof->setPosition(getPosition () + osg::Vec3(0,0,height+width/2));
     };
 
 
