@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-09-11 12:01:31  martius
+ *   Revision 1.10  2006-09-12 09:29:45  robot8
+ *   -working simulation is possible, but no fitness calculation and no selection at the moment
+ *
+ *   Revision 1.9  2006/09/11 12:01:31  martius
  *   *** empty log message ***
  *
  *                                                                         *
@@ -257,8 +260,9 @@ virtual bool fission ( double force );
 /**
  *This is a special fusion of two AtomComponents. They have to belong to two robots, so that touching each ofer causes a crossing over in her structure.
  *@param the AtomComponent which belongs to the structure to replicate with, and which is the point where the replication will happen
+ *@return true if replication was successfull, else false
  **/
- virtual void replication ( AtomComponent* atom_to_recplicate );
+ virtual bool replication ( AtomComponent* atom_to_recplicate );
 
 };
 

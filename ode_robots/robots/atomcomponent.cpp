@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2006-09-08 09:16:11  robot8
+ *   Revision 1.12  2006-09-12 09:29:45  robot8
+ *   -working simulation is possible, but no fitness calculation and no selection at the moment
+ *
+ *   Revision 1.11  2006/09/08 09:16:11  robot8
  *   *** empty log message ***
  *
  *   Revision 1.10  2006/09/07 05:50:17  robot8
@@ -652,8 +655,10 @@ namespace lpzrobots
 		{
 		    cout<<"fusion case 3\n";
 
-		    replication ( atom_to_fuse );
-		    return true;
+		    if ( replication ( atom_to_fuse ) == true )
+			return true;
+		    else
+			return false;
 		}
 	    }
 	    return false;
@@ -866,7 +871,7 @@ bool AtomComponent::fission ( double force )
     /**
      *Replication
      **/
-void AtomComponent::replication ( AtomComponent* atom_to_replicate )
+bool AtomComponent::replication ( AtomComponent* atom_to_replicate )
     {
 
 	cout<<"replication\n";
@@ -905,7 +910,7 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    else
 	    {
 		cout<<"replication aborded because of wrong dividing for A3\n";
-		return;
+		return false;
 	    }
 	    
 
@@ -928,7 +933,7 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    else
 	    {
 		cout<<"replication aborded because of wrong dividing for A2\n";
-		return;
+		return false;
 	    }
 	    
 
@@ -953,7 +958,7 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    else
 	    {
 		cout<<"replication aborded because of wrong dividing for A4\n";
-		return;
+		return false;
 	    }
 
 		    cout<<"\n end splitting for first structure \n";
@@ -981,7 +986,7 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    else
 	    {
 		cout<<"replication aborded because of wrong dividing for B3\n";
-		return;
+		return false;
 	    }
 	    
 	    
@@ -1003,7 +1008,7 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    else
 	    {
 		cout<<"replication aborded because of wrong dividing for B2\n";
-		return;
+		return false;
 	    }
 	    
 
@@ -1026,7 +1031,7 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    else
 	    {
 		cout<<"replication aborded because of wrong dividing for B4\n";
-		return;
+		return false;
 	    }
 
 	    cout<<"\n end splitting for second structure \n";
@@ -1053,7 +1058,6 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    SliderJoint* j4 = new SliderJoint ( partA4->getMainPrimitive () , partB4->getMainPrimitive () , partA4->getPositionbetweenComponents ( partB4 ) , axis );
 	    j4->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partA4)->atomconf.shell_radius + ((AtomComponent*) partB4)->atomconf.core_radius );
 
-	    cout<<"before VelParam-Setting\n";
 	    j1->setParam ( dParamVel , -0.5 );
 	    j1->setParam ( dParamFMax , 30 );
 	    j2->setParam ( dParamVel , -0.5 );
@@ -1062,7 +1066,6 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    j3->setParam ( dParamFMax , 30 );
 	    j4->setParam ( dParamVel , -0.5 );
 	    j4->setParam ( dParamFMax , 30 );
-
 
 	    repSlider rps1 , rps2 , rps3 , rps4;
 	    rps1.startComponent = partA1; rps1.endComponent = partB2; rps1.slider = j1; rps1.startingdistance = rps1.startComponent->getDistanceToComponent ( rps1.endComponent );
@@ -1092,9 +1095,16 @@ void AtomComponent::replication ( AtomComponent* atom_to_replicate )
 		((AtomComponent*) partB4->originComponent)->disableStructureFusionRecursive ();
 
 
+		return true;
+		cout<<"end of replication\n";
 	}
 	else
+	{
 	    cout<<"No replication because only structures with four or more atoms could replicate\n";
+
+	    return false;
+
+	}
 
 	cout<<"end of replication\n";
     }
