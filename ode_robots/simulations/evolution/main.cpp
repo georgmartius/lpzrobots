@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-09-11 12:01:31  martius
+ *   Revision 1.10  2006-09-12 09:39:25  robot8
+ *   -working simulation is possible, but no fitness calculation and no selection at the moment
+ *
+ *   Revision 1.9  2006/09/11 12:01:31  martius
  *   *** empty log message ***
  *
  *   Revision 1.8  2006/09/08 09:16:31  robot8
@@ -70,7 +73,7 @@
 #include "simulation.h"
 
 #include "atomodeagent.h"
-#include "octalplayground.h"
+#include "closedplayground.h"
 #include "passivesphere.h"
 
 #include <selforg/invertnchannelcontroller.h>
@@ -139,7 +142,10 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    OctalPlayground* playground = new OctalPlayground(odeHandle, osgHandle, osg::Vec3( REACTIONROOMWIDTH , 0.2 , REACTIONROOMLENGTH ) , 4 );
+    Color color2 = Color ( 1 , 1 , 1 );
+    color2.alpha() = 0.2;	
+    OsgHandle osgHandlePlayground = osgHandle.changeColor ( color2 );
+    ClosedPlayground* playground = new ClosedPlayground(odeHandle, osgHandlePlayground, osg::Vec3( REACTIONROOMWIDTH , 0.2 , REACTIONROOMLENGTH ) );
     playground->setPosition(osg::Vec3(0,0,-0.1)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
@@ -331,8 +337,9 @@ public:
 		atConf.max_bindings = 4;
 		atConf.binding_energy = 0.3;
 		atConf.min_fission_energy = 2;
+		atConf.replicationSliderHandle = &replicationSlider;
 		
-		int n = 3;
+		int n = 1;//heigh value for placing new atoms to teh simulation
 
       switch ( (char) key )
 	{
@@ -340,22 +347,22 @@ public:
 		cout<<"atom added\n";
 
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0 , 0 , 0 ) ) , compConf , atConf ) );
-		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.0 , REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
+		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.5 , REACTIONROOMLENGTH/2.5 , atConf.shell_radius + n )); 
 		break;
 	    case 'W':
 		cout<<"atom added\n";
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0 , 0 , 1 ) ) , compConf , atConf ) );
-		components.back ()->place ( Pos( 0 , REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
+		components.back ()->place ( Pos( 0 , REACTIONROOMLENGTH/2.5 , atConf.shell_radius + n )); 
 		break;
 	    case 'E':
 		cout<<"atom added\n";
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0 ,  1 , 0 ) ) , compConf , atConf ) );
-		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.0 , REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
+		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.5 , REACTIONROOMLENGTH/2.5 , atConf.shell_radius + n )); 
 		break;
 	    case 'A':
 		cout<<"atom added\n";
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0 , 1 , 1 ) ) , compConf , atConf ) );
-		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.0 , 0 , atConf.shell_radius + n )); 
+		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.5 , 0 , atConf.shell_radius + n )); 
 		break;
 	    case 'S':
 		cout<<"atom added\n";
@@ -365,22 +372,22 @@ public:
 	    case 'D':
 		cout<<"atom added\n";
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 1 , 0 , 1 ) ) , compConf , atConf ) );
-		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.0 , 0 , atConf.shell_radius + n )); 
+		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.5 , 0 , atConf.shell_radius + n )); 
 		break;
 	    case 'Y':
 		cout<<"atom added\n";
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 1 , 1 , 0 ) ) , compConf , atConf ) );
-		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.0 , -REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
+		components.back ()->place ( Pos( -REACTIONROOMWIDTH/2.5 , -REACTIONROOMLENGTH/2.5 , atConf.shell_radius + n )); 
 		break;
 	    case 'X':
 		cout<<"atom added\n";
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 1 , 1 , 1 ) ) , compConf , atConf ) );
-		components.back ()->place ( Pos( 0 , -REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
+		components.back ()->place ( Pos( 0 , -REACTIONROOMLENGTH/2.5 , atConf.shell_radius + n )); 
 		break;
 	    case 'C':
 		cout<<"atom added\n";
 		components.push_back ( new AtomComponent ( odeHandle , osgHandle.changeColor ( Color ( 0.5 , 0.5 , 0.5 ) ) , compConf , atConf ) );
-		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.0 , -REACTIONROOMLENGTH/2.0 , atConf.shell_radius + n )); 
+		components.back ()->place ( Pos( REACTIONROOMWIDTH/2.5 , -REACTIONROOMLENGTH/2.5 , atConf.shell_radius + n )); 
 		break;
 	    case 'R':
 		cout<<"KEY REPLICATION\n";
