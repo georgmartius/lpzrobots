@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2006-07-14 12:23:51  martius
+ *   Revision 1.17  2006-09-20 12:56:32  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.16  2006/07/14 12:23:51  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.15.4.7  2006/06/23 09:05:55  robot3
@@ -77,9 +80,9 @@
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
 
-// fetch all the stuff of lpzrobots into scope
+// fetch all the stuff of lpzrobots and std into scope
 using namespace lpzrobots;
-
+using namespace std;
 
 Sphererobot3Masses* sphere ;
 //const double height = 6.5;
@@ -172,7 +175,7 @@ public:
     TerrainGround* terrainground = 
       new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,194.0/255.0,41.0/255.0)),
 			"terrains/macrospheresLMH_64.ppm",""/*"Images/dusty.rgb" "terrains/macrospheresTex_256.ppm"*/, 
-			20, 20, height, OSGHeightField::Red);
+			20, 20, height, OSGHeightField::LowMidHigh);
     terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
     global.obstacles.push_back(terrainground);
     
