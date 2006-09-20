@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:55  martius
+ *   Revision 1.3  2006-09-20 09:14:47  robot8
+ *   - wheelie robots updated:
+ *   -added biger chain  elements on every 4th position of the robots primitive, starting with the second primitive
+ *   - normal wheelies Hinge Joints became less limited so they have more possibilities to move
+ *
+ *   Revision 1.2  2006/07/14 12:23:55  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.5  2006/06/26 20:36:17  robot5
@@ -67,7 +72,7 @@ public:
     // initialization
     
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 1.5));
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    playground->setPosition(osg::Vec3(0,0,-0.1)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
     
     for(int i=0; i<5; i++){
@@ -87,11 +92,15 @@ public:
     Wheelie *myWheelie;
     WheelieConf myWheelieConf = DefaultWheelie::getDefaultConf();
     /******* w H E E L I E *********/
-    myWheelieConf.jointLimit=M_PI/4;
+    myWheelieConf.jointLimit=M_PI/3;
     myWheelieConf.motorPower=0.2;
     myWheelieConf.frictionGround=0.04;
+//    myWheelieConf.segmNumber = 8;
+//    myWheelieConf.segmLength = 0.2;
+//    myWheelieConf.segmDia = 0.1;
+    myWheelieConf.motorPower = 1;
     myWheelie = new Wheelie(odeHandle, osgHandle, myWheelieConf, "Wheelie1");
-    ((OdeRobot*) myWheelie)->place(Pos(-5,-5,0.2)); 
+    ((OdeRobot*) myWheelie)->place(Pos(-5,-6,0.2)); 
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
     controller = new InvertMotorNStep(invertnconf);    
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -104,6 +113,9 @@ public:
     global.obstacles.push_back(s)0.0000*/ 0.0);
 
 
+    myWheelieConf.motorPower = 1;
+    myWheelieConf.jointLimit=M_PI/4;
+
     SliderWheelie *mySliderWheelie;
     SliderWheelieConf mySliderWheelieConf = DefaultSliderWheelie::getDefaultConf();
     /******* S L I D E R - w H E E L I E *********/
@@ -111,7 +123,7 @@ public:
     mySliderWheelieConf.motorPower=0.2;
     mySliderWheelieConf.frictionGround=0.04;
     mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
-    ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-4,0.2)); 
+    ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.2)); 
     InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
     slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
