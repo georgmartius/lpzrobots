@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 12:23:33  martius
+ *   Revision 1.4  2006-09-20 12:55:30  martius
+ *   correct size of ground
+ *
+ *   Revision 1.3  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.2.4.3  2006/05/29 18:55:39  martius
@@ -82,7 +85,7 @@ namespace lpzrobots {
     heightfield->setPose(pose);
     heightfield->init(odeHandle, 0, osgHandle);
     if(!texture.empty())
-      heightfield->setTexture(texture);
+      heightfield->setTexture(texture, true, true);
   
     obstacle_exists=true;
   }

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-08-11 15:41:04  martius
+ *   Revision 1.7  2006-09-20 12:55:30  martius
+ *   correct size of ground
+ *
+ *   Revision 1.6  2006/08/11 15:41:04  martius
  *   playgrounds handle non-quadratic ground planes
  *
  *   Revision 1.5  2006/07/14 12:23:33  martius
@@ -97,8 +100,7 @@ namespace lpzrobots {
 
     OctaPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 		 const Pos& geometry = Pos(7,0.2,0.5), int numberCorners=8, bool createGround=true):
-    AbstractGround::AbstractGround(odeHandle, osgHandle,createGround,geometry.x(),geometry.x()) {
-    
+    AbstractGround::AbstractGround(odeHandle, osgHandle,createGround,2*geometry.x(),2*geometry.x()) {    
     radius = geometry.x();
     width  = geometry.y();
     height = geometry.z();
