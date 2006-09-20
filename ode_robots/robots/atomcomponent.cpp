@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2006-09-12 09:29:45  robot8
+ *   Revision 1.13  2006-09-20 07:24:24  robot8
+ *   *** empty log message ***
+ *
+ *   Revision 1.12  2006/09/12 09:29:45  robot8
  *   -working simulation is possible, but no fitness calculation and no selection at the moment
  *
  *   Revision 1.11  2006/09/08 09:16:11  robot8
@@ -288,8 +291,7 @@ namespace lpzrobots
 		{
 		    if ( fusionCondition ( o1 , o2 ) == true )
 		    {
-			 fusion ( (AtomComponent*) dGeomGetData ( o2 ) ); //FUSION is called;
-			 return true;
+			 return fusion ( (AtomComponent*) dGeomGetData ( o2 ) ); //FUSION is called;
 		    }
 		    else
 		    if ( fissionCondition ( o1 , o2 , force ) == true )
@@ -309,21 +311,20 @@ namespace lpzrobots
 		    {
 			if ( fusionCondition ( o2 , o1 ) == true )
 			{
-			    fusion ( (AtomComponent*) dGeomGetData ( o1 ) ); //FUSION is called;
-			    return true;
+			    return fusion ( (AtomComponent*) dGeomGetData ( o1 ) ); //FUSION is called;
 			}
 			else
 			    if ( fissionCondition ( o2 , o1 , force ) == true )
 			    {
 				cout<<"fission\n";
 				cout<<"target of fission: "<<(AtomComponent*) dGeomGetData ( o2 )<<" atom causing fission: "<<(AtomComponent*) dGeomGetData ( o1 )<<"\n";
-				fission ( force ); //FISSION is called
+				return fission ( force ); //FISSION is called
 				return true;
 			    }
 		    
 			//if no fusion and no fission dit happen
-		    return false;
-	    }
+			return false;
+		    }
 		
 		/**********************************************************************************************/
 		return false;
@@ -588,8 +589,8 @@ namespace lpzrobots
 		addSubcomponent ( atom_to_fuse , j1 , true );
 		
 		
-		void* testp = new connectionAddition ();
-		connection.back().data = testp;
+		
+		connection.back().data = (void*) new connectionAddition ();
 		((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
 
 		cout<<"end of fusion 1\n";

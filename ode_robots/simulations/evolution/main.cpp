@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-09-12 09:39:25  robot8
+ *   Revision 1.11  2006-09-20 07:24:36  robot8
+ *   *** empty log message ***
+ *
+ *   Revision 1.10  2006/09/12 09:39:25  robot8
  *   -working simulation is possible, but no fitness calculation and no selection at the moment
  *
  *   Revision 1.9  2006/09/11 12:01:31  martius
@@ -108,7 +111,7 @@
 
 
 //evolution definition part
-#define MINFITTNESS 1
+#define MAXPOPULATIONSIZE 3;
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -120,6 +123,7 @@ class Evolution : public Simulation
 public:
     vector <Component*> components;
     vector <repSlider> replicationSlider;
+    vector <Agent*> selectionlist;
 
 public:
 
@@ -153,6 +157,7 @@ public:
 
     ComponentConf cConf = Component::getDefaultConf ();
     cConf.max_force = 5;
+    cConf.speed = 3;
 
     AtomConf aConf = AtomComponent::getDefaultAtomConf ();
     aConf.core_radius = 0.05;
@@ -265,6 +270,7 @@ public:
 			globalData.configs.push_back ( controller );
 
 			((AtomComponent*) replicationSlider[n].startComponent)->atomconf.leadingatom = true;
+
 		    }
 		    
 		    ((AtomComponent*) replicationSlider[n].startComponent->originComponent)->enableStructureFusionRecursive ();
@@ -285,38 +291,71 @@ public:
 	    //	    evolution loop
 	    //      calculate fitness
 
-/*
-	    
-	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
+
+	    double fitnesscounter;
+	    unsigned int pushbackposition = 0;
+
+	    selectionlist.clear (); //clears all elements from the selection list, so that a new selection for this simulation step could start
+
+	    for ( unsigned int m = 0; m < globalData.agents.size (); m++ )
 	    {
-	    //calling the fitness function
-		if ( calculateFitness ( n ) ) //is there a param for E?
+		fitnesscounter = 1000000000; //not realy good, but ok for the moment
+
+		//updating the lifecycle is included here to save calculation time by using existing loops
+		((AtomOdeAgent*) globalData.agents[m])->setLifeCycle ( ((AtomOdeAgent*) globalData.agents[m])->getLifeCycle () - 1 );
+
+		for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
 		{
-		//SELECTION
-		    ((AtomComponent*) globalData.agents[n]->getRobot ())->atomconf.leadingatom = false;
-
-		    //deleting the controller from global configs
-		    vector <Configurable*>::iterator eraseiterator = globalData.configs.begin ();
-		    for ( int m = 0; ((InvertMotorNStep*) globalData.configs.at ( m )) == globalData.agents[n]->getController (); m++ )
-			eraseiterator++;
-
-		    globalData.configs.erase ( eraseiterator );
-
-		    delete ( globalData.agents[n] );
+		    if ( ((AtomOdeAgent*) globalData.agents[n])->getLifeCycle () <= 0 )
+		    {
+			double tmpfitness = calculateFitness ( n );
+			//calling the fitness function
+			if ( tmpfitness < fitnesscounter )
+			{
+			    fitnesscounter = tmpfitness;
+			    pushbackposition = n;
+			}
+		    }
 		}
-		
+		selectionlist.push_back ( globalData.agents[pushbackposition] );
 	    }
-*/
+	    //after this double loop the selection list contains all agents whose lifeCycle has ended. It ends with the fittest idividual, the individuals less fit are at the start of the vector
+	    //also the life times had been updated
+	    cout<<"start Selection part\n";
+	    //SELECTION
+	    while ( selectionlist.size () > 3/*MAXPOPULATIONSIZE*/ )
+	    {
+		((AtomComponent*) (selectionlist.front()->getRobot ()))->atomconf.leadingatom = false;
+		
+		//deleting the controller from global configs
+		vector <Configurable*>::iterator eraseiterator = globalData.configs.begin ();
+		for ( int m = 0; ((InvertMotorNStep*) globalData.configs[m]) == selectionlist.front ()->getController (); m++ )
+		    eraseiterator++;
+		cout<<"before config erase\n";
+		globalData.configs.erase ( eraseiterator );
+
+		vector <OdeAgent*>::iterator eraseiterator2 = globalData.agents.begin ();
+		int m;
+		for ( m = 0; globalData.agents[m] == selectionlist.front (); m++ )
+		    eraseiterator2++;
+		cout<<"before erasing\n";
+		delete ( globalData.agents[m] );
+		globalData.agents.erase ( eraseiterator2 );
+		selectionlist.erase ( selectionlist.begin () );
+//		break;
+	    }
+	    cout<<"before lifecycle update\n";
+	    //all individuals who have survived the selection get a new lifeCycle of existance to aquire fitness
+	    for ( unsigned int n = 0; n < selectionlist.size (); n++ )
+	    {
+		    ((AtomOdeAgent*) selectionlist[n])->setLifeCycle ( 1000 );
+	    }
+	    cout<<"end Selection part\n";
+
 	    //      delete Controller of selected component-trees -> these robots will die, number depends on global fitness Setings of the Simulation
 	    //      physical structures are still within the simulation, so they could colide and be bound to other structures, maybe destruction of the structure? should be a parameter of the simulation
 
-	    
-
-
-
-
-
-
+	 
 	    /**********************************************************************************************/
 
 	}
