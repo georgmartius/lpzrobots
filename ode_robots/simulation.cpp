@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.45  2006-09-20 12:55:09  martius
+ *   Revision 1.46  2006-09-20 15:30:40  martius
+ *   shadowsize
+ *
+ *   Revision 1.45  2006/09/20 12:55:09  martius
  *   ERP = 0.999 and CFM=0.0001
  *
  *   Revision 1.44  2006/08/30 09:00:19  martius
@@ -411,7 +414,7 @@ namespace lpzrobots {
 
     osgHandle.color = Color(1,1,1,1);
 
-    osgHandle.scene=makeScene(useShadow);
+    osgHandle.scene=makeScene();
     if (!osgHandle.scene) return false;
 
     osgHandle.normalState = new StateSet();
@@ -785,6 +788,13 @@ namespace lpzrobots {
 
     pause = contains(argv, argc, "-pause")!=0;
     useShadow = contains(argv, argc, "-noshadow")==0;
+    shadowTexSize = 2048;
+    int shadowsizeindex = contains(argv, argc, "-shadowsize");
+    if(shadowsizeindex && argc > shadowsizeindex) {
+      sscanf(argv[shadowsizeindex],"%i", &shadowTexSize);
+    }
+
+    
     globalData.odeConfig.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
 
     // read intended simulation time 
@@ -923,9 +933,10 @@ namespace lpzrobots {
     printf("\t-f [interval]\twrite logging file (default interval 5)\n");
     printf("\t-n [interval]\tuse neuronviz (default interval 10)\n");
     printf("\t-r seed\t\trandom number seed\n");
-    printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (640x480 default)\n");
+    printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (default 640x480)\n");
     printf("\t-pause \t\tstart in pause mode\n");
     printf("\t-noshadow \tdisables shadows and shaders\n");
+    printf("\t-shadowsize size \tsets the size of the shadow texture (default 2048)\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
     printf("\t-simtime [min]\tintended simulation time in minutes\n");
 

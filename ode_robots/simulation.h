@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2006-08-04 15:07:46  martius
+ *   Revision 1.22  2006-09-20 15:30:40  martius
+ *   shadowsize
+ *
+ *   Revision 1.21  2006/08/04 15:07:46  martius
  *   documentation
  *
  *   Revision 1.20  2006/07/14 15:17:33  fhesse
@@ -280,7 +283,6 @@ namespace lpzrobots {
     int windowWidth;
     int windowHeight;
     bool pause;
-    bool useShadow;
     bool simulation_time_reached;
     long int simulation_time;
 
