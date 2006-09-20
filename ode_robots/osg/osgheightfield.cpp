@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-04 15:05:43  martius
+ *   Revision 1.4  2006-09-20 12:55:44  martius
+ *   Light
+ *
+ *   Revision 1.3  2006/08/04 15:05:43  martius
  *   documentation
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
@@ -50,23 +53,21 @@
 #include <iostream>
 #include <assert.h>
 
-#include <osgDB/ReadFile>
 #include <osg/Texture2D>
-#include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
-#include <osgDB/ReadFile>
-//#include <osg/Texture>
-//#include <osg/TexGen>
-//#include <osg/PolygonOffset>
-//#include <osg/Light>
-//#include <osg/LightSource>
+#include <osgDB/FileUtils>
 #include <osg/Material>
-#include <osg/TexEnv>
-#include <assert.h>
+// #include <osg/Geode>
+// #include <osgDB/ReadFile>
+// #include <osg/Texture>
+// #include <osg/TexGen>
+// #include <osg/PolygonOffset>
+// #include <osg/Light>
+// #include <osg/LightSource>
+// #include <osg/TexEnv>
 
 #include "imageppm.h"
-
 
 namespace lpzrobots {
 
@@ -161,7 +162,8 @@ namespace lpzrobots {
   HeightField* OSGHeightField::loadFromPPM(const std::string& filename, double height, CodingMode codingMode){
     HeightField* field = new HeightField();
     ImagePPM image;
-    if(!image.loadImage(filename.c_str())) {
+    std::string filenamepath = osgDB::findDataFile(filename);
+    if(!image.loadImage(filenamepath.c_str())) {
       std::cerr << "could not open PPM image file: '" << filename << "'" << std::endl;
       exit(1);
     }

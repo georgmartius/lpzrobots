@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-30 08:59:21  martius
+ *   Revision 1.5  2006-09-20 12:55:44  martius
+ *   Light
+ *
+ *   Revision 1.4  2006/08/30 08:59:21  martius
  *   categories and collision mask used for static geoms to reduce number of collision checks
  *
  *   Revision 1.3  2006/08/04 15:05:42  martius
@@ -134,8 +137,8 @@ namespace lpzrobots {
   {
     osg::Group* group = new osg::Group;
     
-    unsigned int tex_width = 1024; // up to 2048 is possible but slower
-    unsigned int tex_height =1024; // up to 2048 is possible but slower
+    unsigned int tex_width  = 2048; // 1024; // up to 2048 is possible but slower
+    unsigned int tex_height = 2048; // 1024; // up to 2048 is possible but slower
     
     osg::Texture2D* texture = new osg::Texture2D;
     texture->setTextureSize(tex_width, tex_height);

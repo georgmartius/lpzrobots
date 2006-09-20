@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-11 15:42:45  martius
+ *   Revision 1.5  2006-09-20 12:55:44  martius
+ *   Light
+ *
+ *   Revision 1.4  2006/08/11 15:42:45  martius
  *   larger plane
  *
  *   Revision 1.3  2006/08/04 15:05:43  martius
@@ -417,7 +420,7 @@ namespace lpzrobots {
     //    amb.alpha()=c.alpha();
     Color dif(c*0.7);
     dif.alpha()=c.alpha();
-    Color spec(c*0.2);
+    Color spec(c*0.4);
     spec.alpha()=c.alpha();
     //    m->setAmbient(Material::FRONT_AND_BACK, amb);
     m->setDiffuse(Material::FRONT_AND_BACK, dif);
