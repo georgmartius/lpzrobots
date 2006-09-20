@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2006-07-20 17:19:44  martius
+ *   Revision 1.19  2006-09-20 12:56:16  martius
+ *   Snakes have CreateSegment
+ *
+ *   Revision 1.18  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.17  2006/07/14 13:52:01  der
@@ -221,6 +224,10 @@ protected:
       @param pose 4x4 pose matrix
   */
   virtual void create(const osg::Matrix& pose); 
+  /**
+     creates and initialised the segment with the given index
+   */
+  virtual Primitive* createSegment(int index); 
   virtual void destroy();
 };
 

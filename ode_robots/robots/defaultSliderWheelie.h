@@ -32,7 +32,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   Revision 1.4  2006-09-20 12:56:16  martius
+ *   Snakes have CreateSegment
+ *
+ *   Revision 1.3  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:39  martius
@@ -77,6 +80,7 @@ public:
   double frictionGround;  //< friction with ground
   double frictionJoint;   //< friction within joint
   double jointLimit;      //< maximal angle for the joints (M_PI/2 = 90 degree)
+  double sliderLength;  //< length of the slider in segmLength
 } SliderWheelieConf;
 
 
@@ -110,7 +114,8 @@ public:
     conf.sensorFactor = 1;    //  scale for sensors
     conf.frictionGround = 1.0; // friction with ground
     conf.frictionJoint = 0.1; // friction within joint
-    conf.jointLimit =  M_PI/8;
+    conf.jointLimit    =  M_PI/8;
+    conf.sliderLength  =  0.6;
     return conf;
   }
 

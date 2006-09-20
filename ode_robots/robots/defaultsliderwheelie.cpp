@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-20 09:14:47  robot8
+ *   Revision 1.6  2006-09-20 12:56:16  martius
+ *   Snakes have CreateSegment
+ *
+ *   Revision 1.5  2006/09/20 09:14:47  robot8
  *   - wheelie robots updated:
  *   -added biger chain  elements on every 4th position of the robots primitive, starting with the second primitive
  *   - normal wheelies Hinge Joints became less limited so they have more possibilities to move
@@ -223,8 +226,8 @@ namespace lpzrobots {
 	
     // annular positioning
     for(int n = 0; n < conf.segmNumber; n++) {
-      Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*(((n%4)%3)%2*2+1), conf.segmLength);
-      p1->init(odeHandle, conf.segmMass, osgHandle);
+      Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( n%4 ==0 ? 2 : 1), conf.segmLength);
+      p1->init(odeHandle, conf.segmMass * ( n%4 ==0 ? 2 : 1), osgHandle);
       p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
                   osg::Matrix::rotate(M_PI*2*n/conf.segmNumber+4*M_PI/conf.segmNumber, 0, -1, 0) *
   		  osg::Matrix::translate(cos(2*M_PI*n/conf.segmNumber)*conf.segmLength*1.1,

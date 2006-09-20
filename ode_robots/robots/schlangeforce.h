@@ -25,7 +25,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2006-07-20 17:19:44  martius
+ *   Revision 1.16  2006-09-20 12:56:17  martius
+ *   Snakes have CreateSegment
+ *
+ *   Revision 1.15  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.14  2006/07/14 12:23:41  martius
@@ -74,7 +77,8 @@ namespace lpzrobots {
     {
     public:
       SchlangeForce ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const SchlangeConf& conf, const std::string& name);
+		      const SchlangeConf& conf, 
+		      const std::string& name, const std::string& revision);
 
     
       virtual ~SchlangeForce();

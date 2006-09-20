@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   Revision 1.4  2006-09-20 12:56:17  martius
+ *   Snakes have CreateSegment
+ *
+ *   Revision 1.3  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:42  martius
@@ -126,11 +129,14 @@ namespace lpzrobots {
      j->init(odeHandle, osgHandle, false, conf.segmDia/2*1.02);
 
      // setting stops at slider joints
-     j->setParam(dParamLoStop, -conf.segmLength*0.4);
-     j->setParam(dParamHiStop,  conf.segmLength*0.1);
+     j->setParam(dParamLoStop, -conf.segmLength*conf.sliderLength*0.2);
+     j->setParam(dParamHiStop,  conf.segmLength*conf.sliderLength*0.8);
      joints.push_back(j);
 
-     SliderServo* servo = new SliderServo(j, -conf.jointLimit*0.4, conf.jointLimit*0.1, conf.motorPower);
+     SliderServo* servo = new SliderServo(j, 
+					  -conf.segmLength*conf.sliderLength*0.15, 
+					  conf.segmLength*conf.sliderLength*0.75, 
+					  conf.motorPower);
      sliderServos.push_back(servo);
 
     }
@@ -158,11 +164,11 @@ namespace lpzrobots {
   bool SliderWheelie::setParam(const paramkey& key, paramval val) {
    bool rv = DefaultSliderWheelie::setParam(key, val);
    for(vector<HingeServo*>::iterator i=hingeServos.begin(); i!=hingeServos.end(); i++) {
-    if(*i) (*i)->setPower(conf.motorPower);
+     if(*i) (*i)->setPower(conf.motorPower);
    }
-//   for(vector<SliderServo*>::iterator i=sliderServos.begin(); i!=sliderServos.end(); i++) {
-//    if(*i) (*i)->setPower(conf.motorPower);
-//   }
+   for(vector<SliderServo*>::iterator i=sliderServos.begin(); i!=sliderServos.end(); i++) {
+     if(*i) (*i)->setPower(conf.motorPower);
+   }
    return rv;
   }
 

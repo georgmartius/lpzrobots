@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   Revision 1.4  2006-09-20 12:56:17  martius
+ *   Snakes have CreateSegment
+ *
+ *   Revision 1.3  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:41  martius
@@ -47,51 +50,54 @@ using namespace std;
 
 namespace lpzrobots {
 
-SchlangeServo2::SchlangeServo2 ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			       const SchlangeConf& conf, const std::string& name) 
-  : Schlange(odeHandle, osgHandle, conf, name, "$Id$") 
-{
-
-}
-	
-SchlangeServo2::~SchlangeServo2() { }
-	
-
-/**
- *Reads the actual motor commands from an array, an sets all motors (forces) of the snake to this values.
- *It is an linear allocation.
- *@param motors pointer to the array, motor values are scaled to [-1,1] 
- *@param motornumber length of the motor array
- **/
-void SchlangeServo2::setMotors ( const motor* motors, int motornumber )
-{
-  assert(created);
-  int len = min(motornumber, getMotorNumber())/2;
-  // controller output as torques 
-  for (int i = 0; i < len; i++){
-    servos[i]->set(motors[2*i], motors[2*i+1]);
+  SchlangeServo2::
+  SchlangeServo2 ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		   const SchlangeConf& conf, const std::string& name,
+		   const std::string& revision )
+    : Schlange(odeHandle, osgHandle, conf, name, 
+	       revision.empty() ? "$Id$" : revision) 
+  {
+    
   }
-}	
-
-/**
- *Writes the sensor values to an array in the memory.
- *@param sensor* pointer to the arrays
-
- *@param sensornumber length of the sensor array
- *@return number of actually written sensors
- **/
-int SchlangeServo2::getSensors ( sensor* sensors, int sensornumber )
-{
-  assert(created);
-  int len = min(sensornumber, getSensorNumber())/2;
   
-  for (int n = 0; n < len; n++) {
-    sensors[2*n] = servos[n]->get1();
-    sensors[2*n+1] = servos[n]->get2();
-  }
+  SchlangeServo2::~SchlangeServo2() { }
 	
-  return 2*len;
-}
+
+  /**
+   *Reads the actual motor commands from an array, an sets all motors (forces) of the snake to this values.
+   *It is an linear allocation.
+   *@param motors pointer to the array, motor values are scaled to [-1,1] 
+   *@param motornumber length of the motor array
+   **/
+  void SchlangeServo2::setMotors ( const motor* motors, int motornumber )
+  {
+    assert(created);
+    int len = min(motornumber, getMotorNumber())/2;
+    // controller output as torques 
+    for (int i = 0; i < len; i++){
+      servos[i]->set(motors[2*i], motors[2*i+1]);
+    }
+  }	
+
+  /**
+   *Writes the sensor values to an array in the memory.
+   *@param sensor* pointer to the arrays
+
+   *@param sensornumber length of the sensor array
+   *@return number of actually written sensors
+   **/
+  int SchlangeServo2::getSensors ( sensor* sensors, int sensornumber )
+  {
+    assert(created);
+    int len = min(sensornumber, getSensorNumber())/2;
+  
+    for (int n = 0; n < len; n++) {
+      sensors[2*n] = servos[n]->get1();
+      sensors[2*n+1] = servos[n]->get2();
+    }
+	
+    return 2*len;
+  }
 
 
   /** creates vehicle at desired position 
@@ -131,25 +137,25 @@ int SchlangeServo2::getSensors ( sensor* sensors, int sensornumber )
   }
 
 
-bool SchlangeServo2::setParam(const paramkey& key, paramval val){
-  bool rv = Schlange::setParam(key, val);
-  for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
-    if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
-  }
-  return rv;
-}
-
-
-/** destroys vehicle and space
- */
-void SchlangeServo2::destroy(){  
-  if (created){
-    Schlange::destroy();
+  bool SchlangeServo2::setParam(const paramkey& key, paramval val){
+    bool rv = Schlange::setParam(key, val);
     for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
-      if(*i) delete *i;
+      if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
     }
-    servos.clear();
+    return rv;
   }
-}
+
+
+  /** destroys vehicle and space
+   */
+  void SchlangeServo2::destroy(){  
+    if (created){
+      Schlange::destroy();
+      for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+	if(*i) delete *i;
+      }
+      servos.clear();
+    }
+  }
 
 }
