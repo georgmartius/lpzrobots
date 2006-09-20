@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:43  martius
+ *   Revision 1.4  2006-09-20 07:23:36  robot8
+ *   - added functiomnm for counting time (lifeCycle)
+ *
+ *   Revision 1.3  2006/07/20 17:19:43  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:30  martius
@@ -67,6 +70,9 @@ namespace lpzrobots {
 /** Specialised agent for ode robots
  */
 class AtomOdeAgent : public OdeAgent {
+ private:
+    int lifecycle;
+
   public:
   /** constructor
    */
@@ -83,6 +89,9 @@ class AtomOdeAgent : public OdeAgent {
   */
   virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring);
 
+  virtual void setLifeCycle ( int newLifeCycleValue );
+
+  virtual int getLifeCycle ();
 };
 
 }

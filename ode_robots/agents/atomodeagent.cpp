@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-08-21 14:15:56  robot8
+ *   Revision 1.6  2006-09-20 07:23:36  robot8
+ *   - added functiomnm for counting time (lifeCycle)
+ *
+ *   Revision 1.5  2006/08/21 14:15:56  robot8
  *   -added some commemts
  *   -update of atomcomponent
  *
@@ -77,6 +80,8 @@ AtomOdeAgent::AtomOdeAgent(const std::list<PlotOption>& plotOptions) : OdeAgent(
 
 AtomOdeAgent::~AtomOdeAgent ()
 {
+    delete ( wiring );
+    delete ( controller );
 }
 
 
@@ -114,10 +119,22 @@ bool AtomOdeAgent::init ( AbstractController* controller, OdeRobot* robot, Abstr
     // init the plotting pipe 
     initPlottingPipe();*/
 
+    /*evolutionary parameters*/
+    lifecycle = 1000;
+
     return true;
   }
 }
 
+void AtomOdeAgent::setLifeCycle ( int newLifeCycleValue )
+{
+    lifecycle = newLifeCycleValue;
+}
+
+int AtomOdeAgent::getLifeCycle ()
+{
+    return lifecycle;
+}
 
 
 }
