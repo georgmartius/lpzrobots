@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 12:23:43  martius
+ *   Revision 1.4  2006-09-20 12:56:28  martius
+ *   setRange
+ *
+ *   Revision 1.3  2006/07/14 12:23:43  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.2.4.4  2006/01/12 15:14:57  martius
@@ -106,6 +109,18 @@ namespace lpzrobots {
     }
     return counter;
   };
+
+  void RaySensorBank::setRange(unsigned int index, double range){
+    assert(index<bank.size());
+    return bank[index]->setRange(range);    
+  }
+
+  void RaySensorBank::setRange(double range){
+    for(unsigned int i=0; i<bank.size(); i++){
+      bank[i]->setRange(range);
+    }
+  }
+
 
   dSpaceID RaySensorBank::getSpaceID(){
     return odeHandle.space;

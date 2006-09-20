@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-09-11 12:01:31  martius
+ *   Revision 1.10  2006-09-20 12:56:28  martius
+ *   setRange
+ *
+ *   Revision 1.9  2006/09/11 12:01:31  martius
  *   *** empty log message ***
  *
  *   Revision 1.8  2006/08/28 12:18:31  martius
@@ -104,6 +107,8 @@ namespace lpzrobots {
     virtual double get();
     virtual void update();
   
+    virtual void setRange(double range);
+
     virtual dGeomID getGeomID();
 
     /// returns the exponent of the sensor characteritic (default: 1 (linear))

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-07-14 12:23:43  martius
+ *   Revision 1.6  2006-09-20 12:56:28  martius
+ *   setRange
+ *
+ *   Revision 1.5  2006/07/14 12:23:43  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.4.4.5  2006/01/26 18:37:20  martius
@@ -148,6 +151,9 @@ bool IRSensor::sense(dGeomID object){
   return rv;  
 }
 
+void IRSensor::setRange(double range){
+  this->range = range;
+}
 
 double IRSensor::get(){
   return value;

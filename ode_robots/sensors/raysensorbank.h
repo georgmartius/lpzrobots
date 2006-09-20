@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-28 12:18:31  martius
+ *   Revision 1.5  2006-09-20 12:56:28  martius
+ *   setRange
+ *
+ *   Revision 1.4  2006/08/28 12:18:31  martius
  *   documentation
  *
  *   Revision 1.3  2006/07/14 12:23:43  martius
@@ -99,6 +102,17 @@ public:
    */
   virtual int get(double* sensorarray, unsigned int array_size);
 
+  /** set the range of the specified sensor (index)
+      @param index index of sensor to modify
+      @param range new length of the sensor
+  */
+  virtual void setRange(unsigned int index, double range);
+
+  /** set the range of all sensors 
+      @param range new length of the sensors
+  */
+  virtual void setRange(double range);
+  
   /** returns the spaceID of the sensor space
    */
   virtual dSpaceID getSpaceID();
