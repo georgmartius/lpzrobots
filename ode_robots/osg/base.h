@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:33  martius
+ *   Revision 1.3  2006-09-20 15:30:47  martius
+ *   shadowsize, light
+ *
+ *   Revision 1.2  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.7  2006/06/29 16:35:56  robot3
@@ -76,11 +79,13 @@ namespace lpzrobots {
 
   class Base {
   public:
-    virtual osg::Group* makeScene(bool useShadow);
+    virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
     virtual osg::LightSource* makeLights(osg::StateSet* stateset);  
-    virtual osg::Group* createShadowedScene(osg::Node* shadowed,osg::Vec3 posOfLight, unsigned int unit);
+    virtual osg::Group* createShadowedScene(osg::Node* shadowed,
+					    osg::Vec3 posOfLight, 
+					    unsigned int unit);
 
 
     virtual ~Base() {}
@@ -93,6 +98,9 @@ namespace lpzrobots {
     OsgHandle osgHandle;
     // ODE globals
     OdeHandle odeHandle;
+
+    bool useShadow;
+    unsigned int shadowTexSize;
   };
 }
 

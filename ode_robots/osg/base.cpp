@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-20 12:55:44  martius
+ *   Revision 1.6  2006-09-20 15:30:47  martius
+ *   shadowsize, light
+ *
+ *   Revision 1.5  2006/09/20 12:55:44  martius
  *   Light
  *
  *   Revision 1.4  2006/08/30 08:59:21  martius
@@ -133,12 +136,14 @@ namespace lpzrobots {
   "}\n";
   
 
-  osg::Group* Base::createShadowedScene(osg::Node* shadowed, osg::Vec3 posOfLight, unsigned int unit)
+  osg::Group* Base::createShadowedScene(osg::Node* shadowed, 
+					osg::Vec3 posOfLight, 
+					unsigned int unit)
   {
     osg::Group* group = new osg::Group;
     
-    unsigned int tex_width  = 2048; // 1024; // up to 2048 is possible but slower
-    unsigned int tex_height = 2048; // 1024; // up to 2048 is possible but slower
+    unsigned int tex_width  = shadowTexSize; // 1024; // up to 2048 is possible but slower
+    unsigned int tex_height = shadowTexSize; // 1024; // up to 2048 is possible but slower
     
     osg::Texture2D* texture = new osg::Texture2D;
     texture->setTextureSize(tex_width, tex_height);
@@ -255,7 +260,7 @@ namespace lpzrobots {
   }
 
 
-  Group* Base::makeScene(bool useShadow){
+  Group* Base::makeScene(){
     // no database loaded so automatically create Ed Levin Park..
     root = new Group;
     // the base and sky subgraphs go to set the earth sky of the
@@ -494,9 +499,13 @@ namespace lpzrobots {
     // create a spot light.
     Light* light_0 = new Light;
     light_0->setLightNum(0);
-    light_0->setPosition(Vec4(0.0f, 0.0f, 50.0f, 1.0f));
-    // note that the blue component doesn't work!!! (bug in OSG???)
-    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
+    //    light_0->setPosition(Vec4(0.0f, 0.0f, 50.0f, 1.0f));
+    light_0->setPosition(Vec4(40.0f, 40.0f, 50.0f, 1.0f));
+    //    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
+    light_0->setAmbient(Vec4(0.5f, 0.5f, 0.5f, 1.0f)); 
+    light_0->setDiffuse(Vec4(0.8f, 0.8f, 0.8f, 1.0f)); 
+    //    light_0->setDirection(Vec3(-1.0f, -1.0f, -1.2f)); 
+    light_0->setSpecular(Vec4(1.0f, 0.9f, 0.8f, 1.0f)); 
 
     LightSource* light_source_0 = new LightSource;	
     light_source_0->setLight(light_0);
