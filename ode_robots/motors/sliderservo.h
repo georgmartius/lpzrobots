@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-14 12:23:32  martius
+ *   Revision 1.4  2006-09-20 12:55:16  martius
+ *   setPower
+ *
+ *   Revision 1.3  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.2.4.2  2006/01/10 14:49:23  martius
@@ -58,6 +61,9 @@ public:
   void set(double position);
   /** returns the position of the slider in ranges [-1, 1] (scaled by min, max)*/
   double get();
+
+  /* adjusts the power of the servo*/
+  void setPower(double power);
   
 private:
   PID pid;

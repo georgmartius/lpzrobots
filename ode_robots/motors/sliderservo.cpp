@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-07-14 12:23:32  martius
+ *   Revision 1.7  2006-09-20 12:55:16  martius
+ *   setPower
+ *
+ *   Revision 1.6  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.5.4.2  2006/01/03 10:42:17  fhesse
@@ -81,5 +84,10 @@ double SliderServo::get(){
   }
   return pos;
 }
+
+  void SliderServo::setPower(double power){
+    pid.setKP(power);
+  }
+
   
 }
