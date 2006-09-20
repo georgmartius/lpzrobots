@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.44  2006-08-30 09:00:19  martius
+ *   Revision 1.45  2006-09-20 12:55:09  martius
+ *   ERP = 0.999 and CFM=0.0001
+ *
+ *   Revision 1.44  2006/08/30 09:00:19  martius
  *   code for full collision control inserted (as a comment)
  *
  *   Revision 1.43  2006/08/04 15:07:46  martius
@@ -344,8 +347,8 @@ namespace lpzrobots {
  
     //set Gravity to Earth level
     dWorldSetGravity ( odeHandle.world , 0 , 0 , globalData.odeConfig.gravity );
-    dWorldSetERP ( odeHandle.world , 1 );
-    dWorldSetCFM ( odeHandle.world,1e-5);
+    dWorldSetERP ( odeHandle.world , 0.999 );
+    dWorldSetCFM ( odeHandle.world,1e-4);
 
 
     cmd_handler_init();
