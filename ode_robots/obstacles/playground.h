@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2006-08-11 15:41:04  martius
+ *   Revision 1.13  2006-09-21 22:09:12  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.12  2006/08/11 15:41:04  martius
  *   playgrounds handle non-quadratic ground planes
  *
  *   Revision 1.11  2006/07/14 12:23:33  martius
@@ -109,8 +112,6 @@
  
 namespace lpzrobots {
 
-  //TODO: playground creates collisions with ground and itself
-  //fixed: collisions with ground
   class Playground : public AbstractGround {
 
   protected:
