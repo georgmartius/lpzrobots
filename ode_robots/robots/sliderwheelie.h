@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-21 16:17:18  der
+ *   Revision 1.6  2006-09-21 22:09:58  martius
+ *   collision for mesh
+ *
+ *   Revision 1.5  2006/09/21 16:17:18  der
  *   *** empty log message ***
  *
  *   Revision 1.4  2006/09/21 08:15:15  martius
@@ -67,7 +70,7 @@ namespace lpzrobots {
     double segmDia;     //<  diameter of a snake element
     double segmMass;    //<  mass of one snake element
     double motorPower;  //<  power of the motors / servos
-    double powerRatio;  //<  ratio of power of the motors / servos
+    double powerRatio;   //< ratio of motorpower for hinge vs. slider
     double sensorFactor;    //<  scale for sensors
     double frictionGround;  //< friction with ground
     double frictionJoint;   //< friction within joint
@@ -110,13 +113,12 @@ namespace lpzrobots {
       conf.motorPower = 0.2;    //  power of the servos
       conf.powerRatio = 2;    //  power of the servos
       conf.sensorFactor = 1;    //  scale for sensors
-      conf.frictionGround = 1.0; // friction with ground
-      conf.frictionJoint = 0.1; // friction within joint
-      conf.jointLimit    =  M_PI/8;
-      conf.sliderLength  =  0.6;
+      conf.frictionGround = 0.8; // friction with ground
+      conf.frictionJoint = 0.0; // friction within joint
+      conf.jointLimit    =  M_PI/4;
+      conf.sliderLength  =  1; 
       return conf;
     }
-
 
     virtual void place(const osg::Matrix& pose);
     

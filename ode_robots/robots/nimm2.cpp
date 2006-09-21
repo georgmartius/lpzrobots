@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2006-07-20 17:19:44  martius
+ *   Revision 1.24  2006-09-21 22:09:58  martius
+ *   collision for mesh
+ *
+ *   Revision 1.23  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.22  2006/07/14 12:23:40  martius
@@ -126,8 +129,8 @@ namespace lpzrobots {
     created=false;
   
     // Nimm2 color ;-)
-    // this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
-    // can be set in main.cpp of simulation
+    this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
+    // can be overwritten in main.cpp of simulation with setColor
 
     // maximal used force is calculated from the force and size given in the configuration
     max_force   = conf.force*conf.size*conf.size;
@@ -135,8 +138,8 @@ namespace lpzrobots {
     height=conf.size;
 
     width=conf.size/2;  // radius of body
-    radius=conf.size/4; // +conf.size/600;  //radius of wheels
-    wheelthickness=conf.size/20; // thickness of the wheels (if wheels used, no spheres)
+    radius=(conf.size/4) * conf.wheelSize;  //radius of wheels
+    wheelthickness=conf.size/20; // thickness of the wheels (if cylinder used, no spheres)
     cmass=4*conf.size;    // mass of body
     wmass=conf.size/5.0;  // mass of wheels
     if(conf.singleMotor){ //-> one dimensional robot
@@ -270,7 +273,7 @@ namespace lpzrobots {
 
       bool colwithbody;  
       int i,n;  
-      const int N = 10;
+      const int N = 20;
       dContact contact[N];
       //    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
@@ -294,12 +297,12 @@ namespace lpzrobots {
 	contact[i].surface.slip2 = 0.005; // sliping in y
 	if(colwithbody){
 	  contact[i].surface.mu = 0.1; // small friction of smooth body
-	  contact[i].surface.soft_erp = 0.5;
-	  contact[i].surface.soft_cfm = 0.005;
+	  contact[i].surface.soft_erp = 0.8;
+	  contact[i].surface.soft_cfm = 0.1;
 	}else{
 	  contact[i].surface.mu = 5.0; //large friction
-	  contact[i].surface.soft_erp = 0.5;
-	  contact[i].surface.soft_cfm = 0.001;
+	  contact[i].surface.soft_erp = 0.8;
+	  contact[i].surface.soft_cfm = 0.1;
 	}
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
@@ -316,7 +319,7 @@ namespace lpzrobots {
   /** creates vehicle at desired position 
       @param pos struct Position with desired position
   */
-  void Nimm2::create(const Matrix& pose){
+  void Nimm2::create(const Matrix& pose){ 
     if (created) {
       destroy();
     }
@@ -361,18 +364,19 @@ namespace lpzrobots {
 	wheel->init(odeHandle, wmass, osgHandleWheels); // init with odehandle, mass, and osghandle
       
 	wheel->setPose(Matrix::rotate(M_PI/2.0, 1, 0, 0) * 
-		       Matrix::translate(wheeloffset, (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
+		       Matrix::translate(wheeloffset, 
+					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
 		       pose); // place wheels
 	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
 	object[i] = wheel;
       }else{ // for "normal" wheels
-	//       Cylinder* wheel = new Cylinder(radius);      
-	//       wheel->init(odeHandle, wmass, osgHandleWheels);
-      
-	//       wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) * 
-	// 		     Matrix::translate(wheeloffset, (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)*
-	//                   pose);
-	//       object[i] = wheel;
+	Cylinder* wheel = new Cylinder(radius, wheelthickness);      
+	wheel->init(odeHandle, wmass, osgHandleWheels);
+	
+	wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) * 
+		       Matrix::translate(wheeloffset, 
+					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);
+	object[i] = wheel;
       }
     }
   

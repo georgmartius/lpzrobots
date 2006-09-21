@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2006-07-20 17:19:44  martius
+ *   Revision 1.20  2006-09-21 22:09:58  martius
+ *   collision for mesh
+ *
+ *   Revision 1.19  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.18  2006/07/14 12:23:40  martius
@@ -135,6 +138,7 @@ typedef struct {
   double force;
   double speed;
   bool sphereWheels;
+  double wheelSize; //< size of the wheels in body diameters
   bool bumper;
   bool cigarMode;
   bool irFront;
@@ -159,6 +163,7 @@ public:
     conf.force=8;
     conf.speed=12;
     conf.sphereWheels=true;
+    conf.wheelSize=1;
     conf.bumper=false;
     conf.cigarMode=false;
     conf.irFront=false;

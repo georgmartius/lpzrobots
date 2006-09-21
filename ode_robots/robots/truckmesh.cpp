@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:42  martius
+ *   Revision 1.3  2006-09-21 22:09:58  martius
+ *   collision for mesh
+ *
+ *   Revision 1.2  2006/07/14 12:23:42  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/07/06 12:33:09  robot3
@@ -299,7 +302,7 @@ namespace lpzrobots {
       // calculate position of wheels(must be at desired positions relative to the body)
       // rotate and place body (here by 90° around the x-axis)
       // set texture for wheels
-      Cylinder* cyl;
+      Cylinder* cyl=0;
       Vec3 wpos;
       if (i<3) { // back wheels
 	cyl = new Cylinder(radius,wheelthickness*1.80);
@@ -319,6 +322,7 @@ namespace lpzrobots {
 			middlewidth+((i-1)%2==0?-1.05:1)*width*0.387,
 		    -height*0.302+radius); 
       }
+      assert(cyl);
       cyl->init(odeHandle, wmass, osgHandle);    
       cyl->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos) * pose);
       cyl->getOSGPrimitive()->setTexture("Images/tire_full.rgb");

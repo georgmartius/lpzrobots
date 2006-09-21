@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-21 16:17:18  der
+ *   Revision 1.6  2006-09-21 22:09:58  martius
+ *   collision for mesh
+ *
+ *   Revision 1.5  2006/09/21 16:17:18  der
  *   *** empty log message ***
  *
  *   Revision 1.4  2006/08/04 15:07:27  martius
@@ -98,6 +101,7 @@ public:
   bool irAxis3;
   bool drawIRs;
   double irsensorscale; /// range of the ir sensors in units of diameter
+  double irCharacter;
 } Sphererobot3MassesConf;
 
 /**
@@ -148,6 +152,7 @@ public:
     c.irAxis3=false;
     c.drawIRs=true;
     c.irsensorscale=1.5;
+    c.irCharacter=1;  
     return c;
   }
 
