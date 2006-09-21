@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2006-09-20 12:56:16  martius
+ *   Revision 1.25  2006-09-21 11:44:38  martius
+ *   less hard collisions and more contact points
+ *
+ *   Revision 1.24  2006/09/20 12:56:16  martius
  *   Snakes have CreateSegment
  *
  *   Revision 1.23  2006/07/20 17:19:44  martius
@@ -155,7 +158,7 @@ namespace lpzrobots {
     //checks if one of the collision objects is part of the robot
     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
       int i,n;  
-      const int N = 20;
+      const int N = 100;
       dContact contact[N];
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       for (i=0; i<n; i++){
@@ -168,7 +171,7 @@ namespace lpzrobots {
 	contact[i].surface.mu = conf.frictionGround; //*10;
 	//      contact[i].surface.mu2 = conf.frictionGround;
 	contact[i].surface.soft_erp = 0.9;
-	contact[i].surface.soft_cfm = 0.001;
+	contact[i].surface.soft_cfm = 0.01;
 	
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
