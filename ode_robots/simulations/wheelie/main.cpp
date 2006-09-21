@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-09-21 09:54:46  martius
+ *   Revision 1.8  2006-09-21 10:21:59  robot8
+ *   - parameters of structure changed
+ *
+ *   Revision 1.7  2006/09/21 09:54:46  martius
  *   params
  *
  *   Revision 1.6  2006/09/21 09:38:12  robot8
@@ -130,12 +133,12 @@ public:
     SliderWheelie *mySliderWheelie;
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     /******* S L I D E R - w H E E L I E *********/
-    mySliderWheelieConf.segmNumber=12;
-    mySliderWheelieConf.jointLimit=M_PI/8;
-    mySliderWheelieConf.motorPower=0.3;
+    mySliderWheelieConf.segmNumber=8;
+    mySliderWheelieConf.jointLimit=M_PI/7;
+    mySliderWheelieConf.motorPower=0.6;
     mySliderWheelieConf.frictionGround=0.8;
     mySliderWheelieConf.sliderLength=1;
-    mySliderWheelieConf.segmLength=0.6;
+    mySliderWheelieConf.segmLength=0.4;
     mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
     ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.0)); 
     InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();

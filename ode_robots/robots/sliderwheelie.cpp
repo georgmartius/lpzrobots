@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-21 09:38:02  robot8
+ *   Revision 1.7  2006-09-21 10:21:33  robot8
+ *   - parameters of structure changed
+ *
+ *   Revision 1.6  2006/09/21 09:38:02  robot8
  *   *** empty log message ***
  *
  *   Revision 1.5  2006/09/21 08:14:55  martius
@@ -129,9 +132,11 @@ namespace lpzrobots {
    assert(created);
    unsigned int len = min(motornumber, getMotorNumber())/2;
    // controller output as torques 
+
    for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++) {
     hingeServos[i]->set(motors[i]);
    }
+
    for(unsigned int i=0; (i<len) && (i<sliderServos.size()); i++) {
     sliderServos[i]->set(motors[i]);
    }
@@ -141,9 +146,11 @@ namespace lpzrobots {
    assert(created);
    unsigned int len=min(sensornumber, getSensorNumber());
    // get the hingeServos
+
    for(unsigned int n=0; (n<len) && (n<hingeServos.size()); n++) {
     sensors[n] = hingeServos[n]->get();
    }
+
    for(unsigned int n=0; (n<len) && (n<sliderServos.size()); n++) {
     sensors[n] = sliderServos[n]->get();
    }
@@ -218,12 +225,12 @@ namespace lpzrobots {
 	j->init(odeHandle, osgHandle, true, conf.segmDia);
 	
 	// setting stops at slider joints
-	j->setParam(dParamLoStop, -conf.segmLength*conf.sliderLength/2);
+	j->setParam(dParamLoStop, -conf.segmLength*conf.sliderLength);
 	j->setParam(dParamHiStop,  conf.segmLength*conf.sliderLength/2);
 	joints.push_back(j);
 	
 	SliderServo* servo = new SliderServo(j, 
-					     -conf.segmLength*conf.sliderLength/2, 
+					     -conf.segmLength*conf.sliderLength, 
 					     conf.segmLength*conf.sliderLength/2, 
 					     conf.motorPower);
 	sliderServos.push_back(servo);	
@@ -262,6 +269,7 @@ namespace lpzrobots {
       
       HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
       hingeServos.push_back(servo);
+
     }
 
    // connecting first and last segment
@@ -280,6 +288,7 @@ namespace lpzrobots {
 
    HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
    hingeServos.push_back(servo);
+
 
    created=true;
 
@@ -306,6 +315,7 @@ namespace lpzrobots {
       for (vector<HingeServo*>::iterator i = hingeServos.begin(); i!= hingeServos.end(); i++) {
 	if(*i) delete *i;
       }
+
       for (vector<SliderServo*>::iterator i = sliderServos.begin(); i!= sliderServos.end(); i++) {
 	if(*i) delete *i;
       }
@@ -340,9 +350,11 @@ namespace lpzrobots {
     if(key == "frictionground") conf.frictionGround = val; 
     else if(key == "motorpower") { 
       conf.motorPower = val; 
+
       for(vector<HingeServo*>::iterator i=hingeServos.begin(); i!=hingeServos.end(); i++) {
 	if(*i) (*i)->setPower(conf.motorPower);
       }
+
       for(vector<SliderServo*>::iterator i=sliderServos.begin(); i!=sliderServos.end(); i++) {
 	if(*i) (*i)->setPower(conf.motorPower);
       }      
