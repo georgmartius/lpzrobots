@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-20 12:56:36  martius
+ *   Revision 1.5  2006-09-21 08:16:16  martius
+ *   test
+ *
+ *   Revision 1.4  2006/09/20 12:56:36  martius
  *   *** empty log message ***
  *
  *   Revision 1.3  2006/09/20 09:14:47  robot8
@@ -65,7 +68,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    setCameraHomePos(Pos(-3.90752, 9.63146, 3.31768),  Pos(172.39, -10.7938, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -73,11 +76,11 @@ public:
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
     global.odeConfig.setParam("gravity",-9.81); // normally at -9.81
-    global.odeConfig.setParam("realtimefactor",3); 
+    global.odeConfig.setParam("realtimefactor",0.2); 
     // initialization
     
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 1.5));
-    playground->setPosition(osg::Vec3(0,0,-0.1)); // playground positionieren und generieren
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 2));
+    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
     
     for(int i=0; i<5; i++){
@@ -119,17 +122,17 @@ public:
 
 
     SliderWheelie *mySliderWheelie;
-    SliderWheelieConf mySliderWheelieConf = DefaultSliderWheelie::getDefaultConf();
+    SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     /******* S L I D E R - w H E E L I E *********/
-    mySliderWheelieConf.segmNumber=8;
-    mySliderWheelieConf.jointLimit=M_PI/2;
-    mySliderWheelieConf.motorPower=1.0;
+    mySliderWheelieConf.segmNumber=12;
+    mySliderWheelieConf.jointLimit=M_PI/3;
+    mySliderWheelieConf.motorPower=0.00;
     mySliderWheelieConf.frictionGround=0.1;
     mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
-    ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.2)); 
+    ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.0)); 
     InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
     sliderinvertnconf.cInit=2;
-    //    slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
+    //slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
     slidercontroller = new SineController();
     slidercontroller->setParam("steps",2);
     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
