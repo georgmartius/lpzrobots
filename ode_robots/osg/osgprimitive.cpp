@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-20 12:55:44  martius
+ *   Revision 1.6  2006-09-21 22:09:40  martius
+ *   material has no spec because everthing shines then liek the coloured objects
+ *
+ *   Revision 1.5  2006/09/20 12:55:44  martius
  *   Light
  *
  *   Revision 1.4  2006/08/11 15:42:45  martius
@@ -416,13 +419,13 @@ namespace lpzrobots {
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode) {
     ref_ptr<Material> m = new Material ();
     m->setColorMode(mode);
-    //    Color amb (c*0.3);
-    //    amb.alpha()=c.alpha();
+    // Color amb (c*0.3);
+//     amb.alpha()=c.alpha();
     Color dif(c*0.7);
     dif.alpha()=c.alpha();
-    Color spec(c*0.4);
+    Color spec(c*0.05);
     spec.alpha()=c.alpha();
-    //    m->setAmbient(Material::FRONT_AND_BACK, amb);
+    //m->setAmbient(Material::FRONT_AND_BACK, amb);
     m->setDiffuse(Material::FRONT_AND_BACK, dif);
     m->setSpecular(Material::FRONT_AND_BACK, spec);
     m->setShininess(Material::FRONT_AND_BACK, 5.0f);
