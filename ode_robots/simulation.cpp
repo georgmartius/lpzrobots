@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.47  2006-09-21 16:01:48  martius
+ *   Revision 1.48  2006-09-21 16:17:27  der
+ *   different friction because of terrain
+ *
+ *   Revision 1.47  2006/09/21 16:01:48  martius
  *   relaxed collisions
  *
  *   Revision 1.46  2006/09/20 15:30:40  martius
@@ -868,8 +871,8 @@ namespace lpzrobots {
 	    contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
 	    contact[i].surface.slip1 = 0.005;
 	    contact[i].surface.slip2 = 0.005;
-	    contact[i].surface.soft_erp = 0.999;
-	    contact[i].surface.soft_cfm = 0.001;	   
+	    contact[i].surface.soft_erp = 0.9;
+	    contact[i].surface.soft_cfm = 0.1;	   
 	    dJointID c = dJointCreateContact (me->odeHandle.world, 
 					      me->odeHandle.jointGroup,&contact[i]);
 	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));

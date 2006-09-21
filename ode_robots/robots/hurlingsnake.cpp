@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2006-08-11 15:44:53  martius
+ *   Revision 1.13  2006-09-21 16:15:40  der
+ *   different friction because of terrain
+ *
+ *   Revision 1.12  2006/08/11 15:44:53  martius
  *   *** empty log message ***
  *
  *   Revision 1.11  2006/07/14 15:13:45  fhesse
@@ -169,21 +172,21 @@ namespace lpzrobots {
 
       // the rest is for collisions of some snake elements with the rest of the world
       int i,n;  
-      const int N = 10;
+      const int N = 20;
       dContact contact[N];
 
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       for (i=0; i<n; i++){
-	contact[i].surface.mode = 0;
+// 	contact[i].surface.mode = 0;
+// 	contact[i].surface.mu = frictionGround;
+// 	contact[i].surface.mu2 = 0;
+	contact[i].surface.mode = // dContactSlip1 | dContactSlip2 |
+	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
 	contact[i].surface.mu = frictionGround;
-	contact[i].surface.mu2 = 0;
-	// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	// 	contact[i].surface.mu = frictionGround;
 	// 	contact[i].surface.slip1 = 0.005;
 	// 	contact[i].surface.slip2 = 0.005;
-	// 	contact[i].surface.soft_erp = 1;
-	// 	contact[i].surface.soft_cfm = 0.00001;
+	contact[i].surface.soft_erp = 0.999;
+	contact[i].surface.soft_cfm = 0.01;
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
       }
