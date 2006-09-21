@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.46  2006-09-20 15:30:40  martius
+ *   Revision 1.47  2006-09-21 16:01:48  martius
+ *   relaxed collisions
+ *
+ *   Revision 1.46  2006/09/20 15:30:40  martius
  *   shadowsize
  *
  *   Revision 1.45  2006/09/20 12:55:09  martius
@@ -350,7 +353,7 @@ namespace lpzrobots {
  
     //set Gravity to Earth level
     dWorldSetGravity ( odeHandle.world , 0 , 0 , globalData.odeConfig.gravity );
-    dWorldSetERP ( odeHandle.world , 0.999 );
+    dWorldSetERP ( odeHandle.world , 0.9 );
     dWorldSetCFM ( odeHandle.world,1e-4);
 
 
@@ -610,13 +613,14 @@ namespace lpzrobots {
       else{
 	if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
 	  usleep((diff-2)*1000); 
-	  nextLeakAnnounce=4;
+	  nextLeakAnnounce=10;
 	}else if (diff < 0){	
 	  // we do not bother the user all the time
 	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()){
+	    nextLeakAnnounce=min(nextLeakAnnounce*20,20000);
 	    printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
 		   -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
-	    nextLeakAnnounce=min(nextLeakAnnounce*2,512);
+
 	    leakAnnCounter=0;
 	    resetSyncTimer();
 	  }
@@ -792,6 +796,7 @@ namespace lpzrobots {
     int shadowsizeindex = contains(argv, argc, "-shadowsize");
     if(shadowsizeindex && argc > shadowsizeindex) {
       sscanf(argv[shadowsizeindex],"%i", &shadowTexSize);
+      printf("shadowTexSize=%i\n",shadowTexSize);
     }
 
     
