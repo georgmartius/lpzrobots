@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-28 14:11:40  martius
+ *   Revision 1.4  2006-09-21 16:15:06  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2006/08/28 14:11:40  martius
  *   added getJoint()
  *
  *   Revision 1.2  2006/07/14 12:23:32  martius
@@ -93,6 +96,13 @@ namespace lpzrobots {
 
     /// returns the joint to which this motor is attached
     virtual Joint* getJoint() = 0;
+
+    //sets the parameter for a motor
+    virtual void setParam(int parameter, double value);
+
+    /// return the ODE joint parameter (see ODE manual)
+    virtual double getParam(int parameter);
+
   
   protected:
     dJointID motor;  

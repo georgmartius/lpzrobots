@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-09-20 12:57:21  martius
+ *   Revision 1.2  2006-09-21 16:17:18  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2006/09/20 12:57:21  martius
  *   snake with feet and body
  *
  *
@@ -47,16 +50,20 @@ namespace lpzrobots {
     Primitive* p;
 
     /////////// MIDDLE SEGMENT (BODY)
-    if (index*2 == conf.segmNumber-1) {
+    if ( index*2 == conf.segmNumber-1) {
       //p = new Box(conf.segmLength*1.5,conf.segmLength*1.5, conf.segmLength*.6);
-      //p = new Capsule(conf.segmDia*2 , conf.segmLength);
-      p = new Sphere(conf.segmLength/2);
-      p->init(odeHandle, conf.segmMass*2, osgHandle);          
+      //p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
+
+       //  p = new Capsule(conf.segmLength/2 , conf.segmLength*2);
+         p = new Sphere(conf.segmLength*.8);
+      p->init(odeHandle, conf.segmMass*2, osgHandle);      
+      // p->setPose( osg::Matrix::rotate(M_PI/2, 0, 1, 0)*osg::Matrix::translate( conf.segmDia, 0, 0) );
       p->setTexture("Images/wood.rgb");
     } /////// FEED
-    else if(index == 0 | index== conf.segmNumber-1) { 
+    else if( index == 0 | index== conf.segmNumber-1) { 
       // p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
-      p = new Box(2*conf.segmLength,3*conf.segmLength, conf.segmLength*.3);
+       // p = new Sphere(conf.segmLength/2*2);
+	      p = new Box(1.8*conf.segmLength,3*conf.segmLength, conf.segmLength*.3);
       p->init(odeHandle, conf.segmMass*3, osgHandle);	
       p->setTexture("Images/whitemetal_farbig_small.rgb");
     } /////// NORMAL SEGMENT

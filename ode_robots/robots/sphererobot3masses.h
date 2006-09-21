@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-04 15:07:27  martius
+ *   Revision 1.5  2006-09-21 16:17:18  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2006/08/04 15:07:27  martius
  *   documentation
  *
  *   Revision 1.3  2006/07/20 17:19:45  martius
@@ -134,7 +137,7 @@ public:
   static Sphererobot3MassesConf getDefaultConf(){
     Sphererobot3MassesConf c;
     c.diameter     = 1;
-    c.spheremass   = 0.1;
+    c.spheremass   = .3;// 0.1
     c.pendularmass  = 1.0;
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
     c.axisZsensor = true;
@@ -144,7 +147,7 @@ public:
     c.irAxis2=false;
     c.irAxis3=false;
     c.drawIRs=true;
-    c.irsensorscale=2;
+    c.irsensorscale=1.5;
     return c;
   }
 

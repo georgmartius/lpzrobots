@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:43  martius
+ *   Revision 1.4  2006-09-21 16:15:06  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2006/07/20 17:19:43  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:32  martius
@@ -89,6 +92,18 @@ namespace lpzrobots {
       velocities[i] = get(i);
     }
     return n;
+  }
+
+/** sets the parameters of the motor
+*/
+  void AngularMotor::setParam(int parameter, double value) {
+	dJointSetAMotorParam (motor, parameter, value);
+  }
+
+/** gets the parameters of the motor
+*/
+  double AngularMotor::getParam(int parameter){
+     return dJointGetAMotorParam(motor, parameter);
   }
 
   /*******************************************************************************/

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2006-09-21 11:44:38  martius
+ *   Revision 1.26  2006-09-21 16:17:18  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.25  2006/09/21 11:44:38  martius
  *   less hard collisions and more contact points
  *
  *   Revision 1.24  2006/09/20 12:56:16  martius
@@ -158,6 +161,7 @@ namespace lpzrobots {
     //checks if one of the collision objects is part of the robot
     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
       int i,n;  
+
       const int N = 100;
       dContact contact[N];
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
@@ -166,13 +170,15 @@ namespace lpzrobots {
 	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.001;
-	contact[i].surface.slip2 = 0.001;
+	contact[i].surface.slip1 = 0.005;
+	contact[i].surface.slip2 = 0.005;
 	contact[i].surface.mu = conf.frictionGround; //*10;
 	//      contact[i].surface.mu2 = conf.frictionGround;
+
+
 	contact[i].surface.soft_erp = 0.9;
 	contact[i].surface.soft_cfm = 0.01;
-	
+
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
       }
@@ -240,16 +246,16 @@ namespace lpzrobots {
     }
     
     odeHandle.space = dSimpleSpaceCreate (parentspace);
-	
     int half = conf.segmNumber/2;
+
     for ( int n = 0; n < conf.segmNumber; n++ ) {
       Primitive* p;
       p = createSegment(n);
+      p->setPose(p->getPose() * osg::Matrix::rotate(M_PI/2, 0, 1, 0)
+		 * osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * pose);
+
       objects.push_back(p);
 
-      p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
-		 osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * 
-		 pose);
     }
 
 //       if (n==-1* conf.segmNumber/2) {

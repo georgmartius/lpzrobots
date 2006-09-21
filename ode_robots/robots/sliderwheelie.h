@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-21 08:15:15  martius
+ *   Revision 1.5  2006-09-21 16:17:18  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2006/09/21 08:15:15  martius
  *   with sliders inside a segment
  *
  *   Revision 1.3  2006/07/20 17:19:44  martius
@@ -64,6 +67,7 @@ namespace lpzrobots {
     double segmDia;     //<  diameter of a snake element
     double segmMass;    //<  mass of one snake element
     double motorPower;  //<  power of the motors / servos
+    double powerRatio;  //<  ratio of power of the motors / servos
     double sensorFactor;    //<  scale for sensors
     double frictionGround;  //< friction with ground
     double frictionJoint;   //< friction within joint
@@ -104,6 +108,7 @@ namespace lpzrobots {
       conf.segmDia    = 0.2;   //  diameter of a snake element
       conf.segmMass   = 0.4;   //  mass of one snake element
       conf.motorPower = 0.2;    //  power of the servos
+      conf.powerRatio = 2;    //  power of the servos
       conf.sensorFactor = 1;    //  scale for sensors
       conf.frictionGround = 1.0; // friction with ground
       conf.frictionJoint = 0.1; // friction within joint
