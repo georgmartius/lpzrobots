@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-07-14 15:13:15  fhesse
+ *   Revision 1.9  2006-09-21 22:10:42  martius
+ *   make opt fixed
+ *
+ *   Revision 1.8  2006/07/14 15:13:15  fhesse
  *   minor changes
  *
  *   Revision 1.6.4.8  2006/06/25 17:01:54  martius
@@ -88,8 +91,8 @@ public:
 
     // initialization
     global.odeConfig.noise=0.05;
-    global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("gravity",-0.5);
+    global.odeConfig.setParam("controlinterval",2);
+    global.odeConfig.setParam("gravity",-2);
 
   
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20.0, 0.2, 1.0));
@@ -121,13 +124,16 @@ public:
       if (i==2) col=Color(0,2,2);
       ((OdeRobot* )hs)->place(Pos(-5,(i-1)*5,0.0));
 
+      hs->setParam("factorForce",12);
+      hs->setParam("frictionGround",0.2);
+
       //controller = new InvertMotorSpace(10);  
       controller = new InvertMotorNStep();  
       controller->setParam("steps", 2);
-      // controller->setParam("epsA", 0.15);
-      // controller->setParam("epsC", 0.04);
-      controller->setParam("adaptrate", 0.001);
-      controller->setParam("nomupdate", 0.001);
+      controller->setParam("epsA", 0.15);
+      controller->setParam("epsC", 0.04);
+      controller->setParam("adaptrate", 0.000);
+      controller->setParam("nomupdate", 0.000);
 
       // controller = new SineController();
       //    wiring = new One2OneWiring(new ColorUniformNoise(0.1));

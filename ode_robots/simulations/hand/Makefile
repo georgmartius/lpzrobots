@@ -2,7 +2,7 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-FILES = main hand
+FILES = main
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
@@ -16,6 +16,7 @@ SELFORG    = $(LPZROBOTS)/selforg
 ODEROBOTSLIB := ode_robots
 ODEROBOTSLIB_OPT := ode_robots_opt
 LIBODEROBOTS = lib$(ODEROBOTSLIB).a
+LIBODEROBOTS_OPT = lib$(ODEROBOTSLIB_OPT).a
 
 SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
@@ -44,7 +45,7 @@ opt: libode_robots_opt $(EXEC_OPT)
 $(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
-$(EXEC_OPT): $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
+$(EXEC_OPT): $(ODEROBOTS)/$(LIBODEROBOTS_OPT)  Makefile Makefile.depend $(OFILES)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
 libode_robots:	

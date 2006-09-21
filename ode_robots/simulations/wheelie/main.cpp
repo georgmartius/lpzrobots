@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-09-21 11:49:55  martius
+ *   Revision 1.11  2006-09-21 22:11:28  martius
+ *   make opt fixed
+ *
+ *   Revision 1.10  2006/09/21 11:49:55  martius
  *   low gravity ground higher
  *
  *   Revision 1.9  2006/09/21 11:44:02  martius
@@ -69,6 +72,7 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 #include "wheelie.h"
 #include "sliderwheelie.h"
@@ -134,12 +138,10 @@ public:
 //     global.configs.push_back(myWheelie);   
 //     myWheelie->setParam("gamma", 0.0);
 
-
-
     SliderWheelie *mySliderWheelie;
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     /******* S L I D E R - w H E E L I E *********/
-    mySliderWheelieConf.segmNumber=12;
+    mySliderWheelieConf.segmNumber=8;
     mySliderWheelieConf.jointLimit=M_PI/4;
     mySliderWheelieConf.motorPower=0.4;
     mySliderWheelieConf.frictionGround=0.8;
@@ -148,17 +150,22 @@ public:
     mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
     ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.0)); 
     InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
-    sliderinvertnconf.cInit=2;
+    sliderinvertnconf.cInit=1;
     slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
     //slidercontroller = new SineController();
     slidercontroller->setParam("steps",2);
-    sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    slidercontroller->setParam("factorB",0);
+
+    DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+    c.useId = false;
+    c.useFirstD = true;
+    sliderwiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
+    //     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
     slideragent = new OdeAgent(plotoptions);
     slideragent->init(slidercontroller, mySliderWheelie, sliderwiring);
     global.agents.push_back(slideragent);
     global.configs.push_back(slidercontroller);
     global.configs.push_back(mySliderWheelie);   
-    mySliderWheelie->setParam("gamma",0.0);
 
     showParams(global.configs);
 
