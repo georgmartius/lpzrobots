@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-09-21 11:44:02  martius
+ *   Revision 1.10  2006-09-21 11:49:55  martius
+ *   low gravity ground higher
+ *
+ *   Revision 1.9  2006/09/21 11:44:02  martius
  *   powerratio
  *
  *   Revision 1.8  2006/09/21 10:21:59  robot8
@@ -87,12 +90,12 @@ public:
 
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("gravity",-9.81); // normally at -9.81
+    global.odeConfig.setParam("gravity",-2); // normally at -9.81
     global.odeConfig.setParam("realtimefactor",1); 
     // initialization
     
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 2));
-    playground->setPosition(osg::Vec3(0,0,-0.1)); // playground positionieren und generieren
+    playground->setPosition(osg::Vec3(0,0,0.1)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
     
     for(int i=0; i<5; i++){
@@ -136,7 +139,7 @@ public:
     SliderWheelie *mySliderWheelie;
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     /******* S L I D E R - w H E E L I E *********/
-    mySliderWheelieConf.segmNumber=8;
+    mySliderWheelieConf.segmNumber=12;
     mySliderWheelieConf.jointLimit=M_PI/4;
     mySliderWheelieConf.motorPower=0.4;
     mySliderWheelieConf.frictionGround=0.8;
