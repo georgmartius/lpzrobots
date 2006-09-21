@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-21 08:14:55  martius
+ *   Revision 1.6  2006-09-21 09:38:02  robot8
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2006/09/21 08:14:55  martius
  *   with sliders inside a segment
  *
  *   Revision 1.4  2006/09/20 12:56:17  martius
@@ -188,23 +191,27 @@ namespace lpzrobots {
     for(int n = 0; n < conf.segmNumber; n++) {
       osg::Matrix m = osg::Matrix::rotate(M_PI*2*n/conf.segmNumber, 0, -1, 0) * pose;
       if(n%2==0){
+	
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength/2);
 	p1->init(odeHandle, conf.segmMass/2 , osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
-		    osg::Matrix::translate(conf.segmLength/4,0,
+		    osg::Matrix::translate(-conf.segmLength/4,0,
 					   -0.5*conf.segmLength*conf.segmNumber/M_PI) * m );
 	p1->setTexture("Images/wood.rgb");
 	objects.push_back(p1);
+
 	Primitive* p2 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength/2);
+	
 	p2->init(odeHandle, conf.segmMass/2 , osgHandle);
 	p2->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
-		    osg::Matrix::translate(-conf.segmLength/4,0,
+		    osg::Matrix::translate(conf.segmLength/4,0,
 					   -0.5*conf.segmLength*conf.segmNumber/M_PI) * m );	
 	p2->setTexture("Images/dusty.rgb");
 	objects.push_back(p2);
 
 	const Pos& pos1(p1->getPosition());
 	const Pos& pos2(p2->getPosition());
+	
 	SliderJoint* j = new SliderJoint(p1, p2,
 					 (pos1 + pos2)/2,
 					 Axis(1,0,0)*m);
@@ -240,8 +247,8 @@ namespace lpzrobots {
       }
       int o1 = i;
       int o2 = i+1;
-      const Pos& p1(objects[o1]->getPosition());
-      const Pos& p2(objects[o2]->getPosition());
+//      const Pos& p1(objects[o1]->getPosition());
+//      const Pos& p2(objects[o2]->getPosition());
       
       HingeJoint* j = new HingeJoint(objects[o1], objects[o2],
 				     ancors[n],
@@ -249,8 +256,8 @@ namespace lpzrobots {
       j->init(odeHandle, osgHandle, true, conf.segmDia*2);
       
       // setting stops at hinge joints
-      //      j->setParam(dParamLoStop, -conf.jointLimit);
-      //      j->setParam(dParamHiStop,  conf.jointLimit);
+            j->setParam(dParamLoStop, -conf.jointLimit);
+            j->setParam(dParamHiStop,  conf.jointLimit);
       joints.push_back(j);
       
       HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);

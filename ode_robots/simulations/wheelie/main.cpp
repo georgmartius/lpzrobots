@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-21 08:16:16  martius
+ *   Revision 1.6  2006-09-21 09:38:12  robot8
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2006/09/21 08:16:16  martius
  *   test
  *
  *   Revision 1.4  2006/09/20 12:56:36  martius
@@ -76,11 +79,11 @@ public:
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
     global.odeConfig.setParam("gravity",-9.81); // normally at -9.81
-    global.odeConfig.setParam("realtimefactor",0.2); 
+    global.odeConfig.setParam("realtimefactor",1); 
     // initialization
     
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 2));
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    playground->setPosition(osg::Vec3(0,0,-0.1)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
     
     for(int i=0; i<5; i++){
@@ -125,9 +128,9 @@ public:
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     /******* S L I D E R - w H E E L I E *********/
     mySliderWheelieConf.segmNumber=12;
-    mySliderWheelieConf.jointLimit=M_PI/3;
-    mySliderWheelieConf.motorPower=0.00;
-    mySliderWheelieConf.frictionGround=0.1;
+    mySliderWheelieConf.jointLimit=M_PI/8;
+    mySliderWheelieConf.motorPower=0.3;
+    mySliderWheelieConf.frictionGround=0.8;
     mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
     ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.0)); 
     InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
