@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-09-21 10:21:33  robot8
+ *   Revision 1.8  2006-09-21 11:43:45  martius
+ *   powerratio
+ *
+ *   Revision 1.7  2006/09/21 10:21:33  robot8
  *   - parameters of structure changed
  *
  *   Revision 1.6  2006/09/21 09:38:02  robot8
@@ -219,8 +222,7 @@ namespace lpzrobots {
 	const Pos& pos1(p1->getPosition());
 	const Pos& pos2(p2->getPosition());
 	
-	SliderJoint* j = new SliderJoint(p1, p2,
-					 (pos1 + pos2)/2,
+	SliderJoint* j = new SliderJoint(p1, p2, (pos1 + pos2)/2,
 					 Axis(1,0,0)*m);
 	j->init(odeHandle, osgHandle, true, conf.segmDia);
 	
@@ -236,7 +238,7 @@ namespace lpzrobots {
 	sliderServos.push_back(servo);	
       }else{
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 2 : 1), conf.segmLength);
-	p1->init(odeHandle, conf.segmMass * ( (n+1)%4 ==0 ? 2 : 1), osgHandle);
+	p1->init(odeHandle, conf.segmMass * ( (n+1)%4 ==0 ? 1.0 : 1), osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
 		    osg::Matrix::translate(0,0,-0.5*conf.segmLength*conf.segmNumber/M_PI) * m );
 	p1->setTexture("Images/whitemetal_farbig_small.rgb");
@@ -267,7 +269,8 @@ namespace lpzrobots {
             j->setParam(dParamHiStop,  conf.jointLimit);
       joints.push_back(j);
       
-      HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
+      HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, 
+					 conf.motorPower*conf.powerRatio);
       hingeServos.push_back(servo);
 
     }
@@ -286,7 +289,9 @@ namespace lpzrobots {
    j->setParam(dParamHiStop,  conf.jointLimit);
    joints.push_back(j);
 
-   HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower);
+   HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, 
+					 conf.motorPower*conf.powerRatio);
+
    hingeServos.push_back(servo);
 
 
@@ -331,7 +336,7 @@ namespace lpzrobots {
   Configurable::paramlist SliderWheelie::getParamList() const{
     paramlist list;
     list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
-    list += pair<paramkey, paramval> (string("frictionjoint"), conf.frictionJoint);
+    list += pair<paramkey, paramval> (string("powerratio"), conf.powerRatio);
     list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
     list += pair<paramkey, paramval> (string("sensorfactor"), conf.sensorFactor);
     return list;
@@ -340,7 +345,7 @@ namespace lpzrobots {
   
   Configurable::paramval SliderWheelie::getParam(const paramkey& key) const{    
     if(key == "frictionground") return conf.frictionGround; 
-    else if(key == "frictionjoint") return conf.frictionJoint; 
+    else if(key == "powerratio") return conf.powerRatio; 
     else if(key == "motorpower") return conf.motorPower; 
     else if(key == "sensorfactor") return conf.sensorFactor; 
     else  return Configurable::getParam(key) ;
@@ -352,7 +357,7 @@ namespace lpzrobots {
       conf.motorPower = val; 
 
       for(vector<HingeServo*>::iterator i=hingeServos.begin(); i!=hingeServos.end(); i++) {
-	if(*i) (*i)->setPower(conf.motorPower);
+	if(*i) (*i)->setPower(conf.motorPower * conf.powerRatio);
       }
 
       for(vector<SliderServo*>::iterator i=sliderServos.begin(); i!=sliderServos.end(); i++) {
@@ -360,11 +365,10 @@ namespace lpzrobots {
       }      
     }
     else if(key == "sensorfactor") conf.sensorFactor = val; 
-    else if(key == "frictionjoint") { 
-      conf.frictionJoint = val; 
-      for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); 
-	   i!= frictionmotors.end(); i++){
-	if (*i) (*i)->setPower(conf.frictionJoint);	
+    else if(key == "powerratio") { 
+      conf.powerRatio = val; 
+      for(vector<HingeServo*>::iterator i=hingeServos.begin(); i!=hingeServos.end(); i++) {
+	if(*i) (*i)->setPower(conf.motorPower * conf.powerRatio); 
       }         
     } else 
       return Configurable::setParam(key, val);    

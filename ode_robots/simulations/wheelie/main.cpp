@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-09-21 10:21:59  robot8
+ *   Revision 1.9  2006-09-21 11:44:02  martius
+ *   powerratio
+ *
+ *   Revision 1.8  2006/09/21 10:21:59  robot8
  *   - parameters of structure changed
  *
  *   Revision 1.7  2006/09/21 09:54:46  martius
@@ -134,8 +137,8 @@ public:
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     /******* S L I D E R - w H E E L I E *********/
     mySliderWheelieConf.segmNumber=8;
-    mySliderWheelieConf.jointLimit=M_PI/7;
-    mySliderWheelieConf.motorPower=0.6;
+    mySliderWheelieConf.jointLimit=M_PI/4;
+    mySliderWheelieConf.motorPower=0.4;
     mySliderWheelieConf.frictionGround=0.8;
     mySliderWheelieConf.sliderLength=1;
     mySliderWheelieConf.segmLength=0.4;
