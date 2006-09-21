@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-21 09:38:12  robot8
+ *   Revision 1.7  2006-09-21 09:54:46  martius
+ *   params
+ *
+ *   Revision 1.6  2006/09/21 09:38:12  robot8
  *   *** empty log message ***
  *
  *   Revision 1.5  2006/09/21 08:16:16  martius
@@ -131,12 +134,14 @@ public:
     mySliderWheelieConf.jointLimit=M_PI/8;
     mySliderWheelieConf.motorPower=0.3;
     mySliderWheelieConf.frictionGround=0.8;
+    mySliderWheelieConf.sliderLength=1;
+    mySliderWheelieConf.segmLength=0.6;
     mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
     ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.0)); 
     InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
     sliderinvertnconf.cInit=2;
-    //slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
-    slidercontroller = new SineController();
+    slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
+    //slidercontroller = new SineController();
     slidercontroller->setParam("steps",2);
     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
     slideragent = new OdeAgent(plotoptions);
