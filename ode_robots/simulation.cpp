@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.48  2006-09-21 16:17:27  der
+ *   Revision 1.49  2006-09-21 22:09:01  martius
+ *   timeleak is seldom annouced
+ *
+ *   Revision 1.48  2006/09/21 16:17:27  der
  *   different friction because of terrain
  *
  *   Revision 1.47  2006/09/21 16:01:48  martius
@@ -616,11 +619,11 @@ namespace lpzrobots {
       else{
 	if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
 	  usleep((diff-2)*1000); 
-	  nextLeakAnnounce=10;
+	  nextLeakAnnounce=100;
 	}else if (diff < 0){	
 	  // we do not bother the user all the time
 	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()){
-	    nextLeakAnnounce=min(nextLeakAnnounce*20,20000);
+	    nextLeakAnnounce=min(nextLeakAnnounce*10,10000);
 	    printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
 		   -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
 
