@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2006-09-20 07:24:24  robot8
+ *   Revision 1.14  2006-09-22 05:27:03  robot8
+ *   *** empty log message ***
+ *
+ *   Revision 1.13  2006/09/20 07:24:24  robot8
  *   *** empty log message ***
  *
  *   Revision 1.12  2006/09/12 09:29:45  robot8
@@ -1043,17 +1046,15 @@ bool AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    Axis axis = Axis ( ( partA1->getPosition () - partB2->getPosition()).toArray() );
 	    SliderJoint* j1 = new SliderJoint ( partA1->getMainPrimitive () , partB2->getMainPrimitive () , partA1->getPositionbetweenComponents ( partB2 ) , axis );
 	    j1->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partA1)->atomconf.shell_radius + ((AtomComponent*) partB2)->atomconf.core_radius );
-	    cout<<"1\n";
 
 	    axis = Axis ( ( partB1->getPosition () - partA2->getPosition()).toArray() );
 	    SliderJoint* j2 = new SliderJoint ( partB1->getMainPrimitive () , partA2->getMainPrimitive () , partB1->getPositionbetweenComponents ( partA2 ) , axis );
 	    j2->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partB1)->atomconf.shell_radius + ((AtomComponent*) partA2)->atomconf.core_radius );
-	    cout<<"2\n";
+
 
 	    axis = Axis ( ( partA3->getPosition () - partB3->getPosition()).toArray() );
 	    SliderJoint* j3 = new SliderJoint ( partA3->getMainPrimitive () , partB3->getMainPrimitive () , partA3->getPositionbetweenComponents ( partB3 ) , axis );
 	    j3->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partA3)->atomconf.shell_radius + ((AtomComponent*) partB3)->atomconf.core_radius );
-	    cout<<"3\n";
 
 	    axis = Axis ( ( partA4->getPosition () - partB4->getPosition()).toArray() );
 	    SliderJoint* j4 = new SliderJoint ( partA4->getMainPrimitive () , partB4->getMainPrimitive () , partA4->getPositionbetweenComponents ( partB4 ) , axis );

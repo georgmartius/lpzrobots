@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2006-09-20 07:24:36  robot8
+ *   Revision 1.12  2006-09-22 05:27:14  robot8
+ *   *** empty log message ***
+ *
+ *   Revision 1.11  2006/09/20 07:24:36  robot8
  *   *** empty log message ***
  *
  *   Revision 1.10  2006/09/12 09:39:25  robot8
@@ -235,7 +238,6 @@ public:
 //	    cout<<replicationSlider.size ()<<"\n";
 	    for ( unsigned int n = 0; n < replicationSlider.size (); n++ )
 	    {		
-		cout<<"addCallback "<<replicationSlider.size ()<<"\n";
 		replicationSlider[n].slider->update (); //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
 		replicationSlider[n].bindingcounter--;
 
@@ -321,7 +323,7 @@ public:
 	    }
 	    //after this double loop the selection list contains all agents whose lifeCycle has ended. It ends with the fittest idividual, the individuals less fit are at the start of the vector
 	    //also the life times had been updated
-	    cout<<"start Selection part\n";
+//	    cout<<"start Selection part\n";
 	    //SELECTION
 	    while ( selectionlist.size () > 3/*MAXPOPULATIONSIZE*/ )
 	    {
@@ -344,13 +346,13 @@ public:
 		selectionlist.erase ( selectionlist.begin () );
 //		break;
 	    }
-	    cout<<"before lifecycle update\n";
+//	    cout<<"before lifecycle update\n";
 	    //all individuals who have survived the selection get a new lifeCycle of existance to aquire fitness
 	    for ( unsigned int n = 0; n < selectionlist.size (); n++ )
 	    {
 		    ((AtomOdeAgent*) selectionlist[n])->setLifeCycle ( 1000 );
 	    }
-	    cout<<"end Selection part\n";
+//	    cout<<"end Selection part\n";
 
 	    //      delete Controller of selected component-trees -> these robots will die, number depends on global fitness Setings of the Simulation
 	    //      physical structures are still within the simulation, so they could colide and be bound to other structures, maybe destruction of the structure? should be a parameter of the simulation
