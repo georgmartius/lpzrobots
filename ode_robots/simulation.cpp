@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.49  2006-09-21 22:09:01  martius
+ *   Revision 1.50  2006-09-22 10:57:36  martius
+ *   again hard collisions
+ *
+ *   Revision 1.49  2006/09/21 22:09:01  martius
  *   timeleak is seldom annouced
  *
  *   Revision 1.48  2006/09/21 16:17:27  der
@@ -874,8 +877,8 @@ namespace lpzrobots {
 	    contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
 	    contact[i].surface.slip1 = 0.005;
 	    contact[i].surface.slip2 = 0.005;
-	    contact[i].surface.soft_erp = 0.9;
-	    contact[i].surface.soft_cfm = 0.1;	   
+	    contact[i].surface.soft_erp = 0.999;
+	    contact[i].surface.soft_cfm = 0.001;	   
 	    dJointID c = dJointCreateContact (me->odeHandle.world, 
 					      me->odeHandle.jointGroup,&contact[i]);
 	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
