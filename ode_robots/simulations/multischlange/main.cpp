@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-21 22:10:46  martius
+ *   Revision 1.7  2006-09-22 08:50:34  der
+ *   tuning
+ *
+ *   Revision 1.6  2006/09/21 22:10:46  martius
  *   make opt fixed
  *
  *   Revision 1.5  2006/09/21 16:15:58  der
@@ -82,19 +85,26 @@
 //#include "forcedsphere.h"
 #include "nimm2.h"
 
-
 using namespace lpzrobots;
 
 class ThisSim : public Simulation {
 public:
 	
-
   /// start() is called at the start and should create all the object (obstacles, agents...).
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
     setCameraHomePos(Pos(15.2297, -16.7329, 11.8299),  Pos(45.3984, -29.7745, 0));
 
+    int plattfuesse = 2;
+    int snakes = 1;
+    int sphericalsIR = 0;
+    int sphericalsXYZ = 0;
+    int hurlings = 0;
+    int cigars = 0;
+    int wheelies = 0;
+
     global.odeConfig.setParam("controlinterval",2);
     global.odeConfig.setParam("gravity", -2.); 
+    global.odeConfig.setParam("realtimefactor", 4.); 
 
     /*     Playground* playground = new Playground(odeHandle, osgHandle, 
 	   osg::Vec3(120, 0.2, 5.5),0.9);
@@ -103,7 +113,7 @@ public:
 	   global.obstacles.push_back(playground);
     */
     /////////Neuer Playground klein innen 
-    //    double diam=1.2; //internaldiameter=.9*diam, offset=1.0*internaldiameter; 
+    double diam=1.2; //internaldiameter=.9*diam, offset=1.0*internaldiameter; 
 
     //   OctaPlayground* playground2 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/1*diam, 0.2,/*Height*/ 4), 12,false);
     //      playground2->setTexture("Images/whitemetal_farbig.rgb");
@@ -132,31 +142,33 @@ public:
     //global.obstacles.push_back(playground2);
 
 
-    //      OctaPlayground* playground4 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/10.5  *diam,.1,/*Height*/ 4), 12,true); //false heisst ohne Schatten 
-    //  // playground4->setTexture("Images/really_white.rgb");
-    //  playground4->setColor(Color(.2,.2,.2,0.2));
-    //  playground4->setGroundTexture("Images/really_white.rgb");
-    //  playground4->setGroundColor(Color(255.0f/255.0f,200.0f/255.0f,21.0f/255.0f));
-    //  playground4->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    //     global.obstacles.push_back(playground4);
-
+    OctaPlayground* playground4 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/10.5  *diam,.1,/*Height*/ 4), 12,true); //false heisst ohne Schatten 
+    playground4->setColor(Color(.2,.2,.2,0.1));
+    playground4->setGroundTexture("Images/really_white.rgb");
+    playground4->setGroundColor(Color(255.0f/255.0f,200.0f/255.0f,21.0f/255.0f));
+    playground4->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    global.obstacles.push_back(playground4);
+    
     /////////Neuer Playground Ende
 
-    Playground* playground = new Playground(odeHandle, osgHandle, 
-					    osg::Vec3(20, 0.2, 8.5),1,true);
-    playground->setColor(Color(1,0.2,0,0.1));
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground);
+    double height = 0.0; //1.5;
+
+    /// TERRAIN mit Wand
+
+//     Playground* playground = new Playground(odeHandle, osgHandle, 
+// 					    osg::Vec3(20, 0.2, 8.5),1,true);
+//     playground->setColor(Color(1,0.2,0,0.1));
+//     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+//     global.obstacles.push_back(playground);
     
 
-    double height = 0.3; //1.5;
-    TerrainGround* terrainground = 
-      new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,194.0/255.0,41.0/255.0)),
-			"terrains/zoo_landscape1.ppm",
-			""/*"Images/dusty.rgb" "terrains/macrospheresTex_256.ppm"*/, 
-			20, 20, height, OSGHeightField::Red);
-    terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
-    global.obstacles.push_back(terrainground);
+//     TerrainGround* terrainground = 
+//       new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,194.0/255.0,41.0/255.0)),
+// 			"terrains/zoo_landscape1.ppm",
+// 			""/*"Images/dusty.rgb" "terrains/macrospheresTex_256.ppm"*/, 
+// 			20, 20, height, OSGHeightField::Red);
+//     terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
+//     global.obstacles.push_back(terrainground);
 
     height += 0.1;
 
@@ -167,7 +179,7 @@ public:
 	new  PassiveBox(odeHandle, 
 			osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 
 			osg::Vec3(1.0, 1.0, 1.0), 3);
-      b->setPosition(Pos(i*0.3-2, i*0.5-2, height)); 
+      b->setPosition(Pos(i*0.3+5, i*0.5+2, height)); 
       b->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(b);    
     }
@@ -185,7 +197,7 @@ public:
 
     // Creation of spherical robots: 
     //****** SPHERICALS IR **********/
-    for(int i=0; i<0; i++){
+    for(int i=0; i<sphericalsIR; i++){
       OdeRobot* sphere1;
       //Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf(); 
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
@@ -197,7 +209,7 @@ public:
       conf.irAxis2=true;
       conf.irAxis3=true;
       conf.pendularrange=0.35;
-      conf.irCharacter=0.5;
+      // conf.irCharacter=0.5;
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0.0)), 
        					 conf, "Sphere1", 0.5); 
 //      sphere1 = new ForcedSphere(odeHandle, osgHandle.changeColor(Color(1.0,0.0,0.0))
@@ -233,7 +245,7 @@ public:
 
     // Creation of spherical robots: 
     //****** SPHERICALS XYZ **********/
-    for(int i=0; i<2; i++){
+    for(int i=0; i<sphericalsXYZ; i++){
       OdeRobot* sphere1;
       //Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf(); 
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
@@ -273,18 +285,18 @@ public:
 
     //creation of flatfoot  snakes 
     //****** PLATTFUSS **********/
-    for(int i=0; i<2; i++){
+    for(int i=0; i<plattfuesse; i++){
 
       //****************/
       SchlangeConf conf = Schlange::getDefaultConf();
       conf.segmMass   = .2;
       conf.segmLength=.4;
       conf.segmDia=.1;
-      conf.motorPower=.3;
+      conf.motorPower=.4;
       conf.segmNumber = 5+2*i;//-i/2; 
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit*2.0;
-      conf.frictionGround=0.2;// +((double)i)/100;
+      conf.frictionGround=0.1;// +((double)i)/100;
       conf.frictionJoint=0.1;
       PlattfussSchlange* schlange1; 
       if (i==0) {
@@ -312,7 +324,9 @@ public:
 
       //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
       //      AbstractController *controller = new InvertMotorNStep(); 
-      AbstractController *controller = new DerController(); 
+      DerControllerConf cconf = DerController::getDefaultConf();
+      cconf.cInit=2;
+      AbstractController *controller = new DerController(cconf); 
       //AbstractController *controller = new SineController();  
   
       //  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
@@ -349,7 +363,7 @@ public:
 
     //****** SNAKES **********/
     //creation of normal   snakes 
-    for(int i=0; i<1; i++){
+    for(int i=0; i<snakes; i++){
 
       //****************/
       SchlangeConf conf = Schlange::getDefaultConf();
@@ -360,7 +374,7 @@ public:
       conf.segmNumber = 10+2*i;//-i/2; 
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit*2.0;
-      conf.frictionGround=0.2;// +((double)i)/100;
+      conf.frictionGround=0.1;// +((double)i)/100;
       conf.frictionJoint=0.1;
       //PlattfussSchlange* schlange1; 
       SchlangeServo2* schlange1; 
@@ -378,7 +392,7 @@ public:
       //Positionieren und rotieren 
       schlange1->place(// osg::Matrix::rotate(M_PI/2, 0, 1, 0)*
 		       // osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
-		       osg::Matrix::translate(5-i,2 + i*2,height));
+		       osg::Matrix::translate(5-i,2 + i*2,height+2));
       schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
       if (i==0) {
 	schlange1->setHeadColor(Color(1.0,0,0));
@@ -388,7 +402,9 @@ public:
  
 
       //      AbstractController *controller = new InvertMotorNStep(); 
-      AbstractController *controller = new DerController(); 
+      DerControllerConf cconf = DerController::getDefaultConf();
+      cconf.cInit=2;
+      AbstractController *controller = new DerController(cconf); 
       //AbstractController *controller = new SineController();  
   
       //  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
@@ -425,7 +441,7 @@ public:
 
 
     //****** H U R L I N G **********/
-    for(int r=0; r < 2; r++) {
+    for(int r=0; r < hurlings; r++) {
       HurlingSnake* snake;
       Color c;    
       if (r==0) c=Color(0.8, 0.8, 0);
@@ -433,7 +449,7 @@ public:
       snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake_" + std::itos(r));
       ((OdeRobot*) snake)->place(Pos(r*3+3,r*2-5, height));
       snake->setParam("factorForce",12);
-      snake->setParam("frictionGround",0.2);
+      snake->setParam("frictionGround",0.3);
 
       InvertMotorNStepConf invertnconf2 = InvertMotorNStep::getDefaultConf();
       invertnconf2.cInit=1.2;
@@ -454,13 +470,13 @@ public:
 
 
     //****** CIGARS **********/
-    for(int i=0; i < 2; i++) {
+    for(int i=0; i < cigars; i++) {
       
       Nimm2Conf conf = Nimm2::getDefaultConf();
       conf.speed=10;
-      conf.wheelSize=1.2;
+      //conf.wheelSize=1.2;
       conf.force=1.0;
-      conf.bumper=true;
+      conf.bumper=false;
       conf.cigarMode=true;
 
       OdeRobot* nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Cigar" + std::itos(i));
@@ -471,15 +487,15 @@ public:
 
       AbstractController* controller = new InvertMotorNStep();  
       //	  controller = new InvertMotorSpace(10);  
-      controller->setParam("adaptrate", 0.000);
-      //    controller->setParam("nomupdate", 0.0005);
-      controller->setParam("epsC", 0.05);
-      controller->setParam("epsA", 0.01);
-      controller->setParam("epsC", 0.05);
+      // controller->setParam("adaptrate", 0.000);
+      //      controller->setParam("nomupdate", 0.0005);
+//       controller->setParam("epsC", 0.05);
+//       controller->setParam("epsA", 0.01);
+//       controller->setParam("epsC", 0.05);
       controller->setParam("rootE", 0);
       controller->setParam("steps", 2);
       controller->setParam("s4avg", 5);
-      controller->setParam("s4del", 5);
+      controller->setParam("s4del", 2);
 
 
       AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -489,10 +505,9 @@ public:
       global.agents.push_back(agent);     
     }
 
-    //****** CIGARS **********/
-    for(int i=0; i < 1; i++) {      
-      SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
       /******* S L I D E R - w H E E L I E *********/
+    for(int i=0; i < wheelies; i++) {      
+      SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
       mySliderWheelieConf.segmNumber=8;
       mySliderWheelieConf.jointLimit=M_PI/4;
       mySliderWheelieConf.motorPower=0.4;
