@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2006-07-23 10:24:09  fhesse
+ *   Revision 1.14  2006-09-22 06:18:56  robot8
+ *   - added SliderWheelie - robot
+ *
+ *   Revision 1.13  2006/07/23 10:24:09  fhesse
  *   a few std:: added
  *
  *   Revision 1.12  2006/07/14 12:23:55  martius
@@ -101,6 +104,7 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 #include "hurlingsnake.h"
 #include "schlangeservo2.h"
@@ -108,6 +112,7 @@
 #include "nimm2.h"
 #include "nimm4.h"
 #include "sphererobot3masses.h"
+#include "sliderwheelie.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -281,6 +286,36 @@ public:
     agent->init ( controller , sphere1 , wiring2 );
     global.agents.push_back ( agent );
     global.configs.push_back ( controller );
+
+    /******* S L I D E R - w H E E L I E *********/
+    SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
+
+    mySliderWheelieConf.segmNumber=8;
+    mySliderWheelieConf.jointLimit=M_PI/4;
+    mySliderWheelieConf.motorPower=0.4;
+    mySliderWheelieConf.frictionGround=0.8;
+    mySliderWheelieConf.sliderLength=1;
+    mySliderWheelieConf.segmLength=0.4;
+    
+    SliderWheelie* mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
+    ((OdeRobot*) mySliderWheelie)->place(Pos(4,0,0.0)); 
+    invertnconf = InvertMotorNStep::getDefaultConf();
+    invertnconf.cInit=1;
+    controller = new InvertMotorNStep(invertnconf);    
+    controller->setParam("steps",2);
+    controller->setParam("factorB",0);
+
+    DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+    c.useId = false;
+    c.useFirstD = true;
+    DerivativeWiring* wiring3 = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
+    agent = new OdeAgent(plotoptions);
+    agent->init(controller, mySliderWheelie, wiring3);
+    global.agents.push_back(agent);
+    global.configs.push_back(controller);
+    global.configs.push_back(mySliderWheelie);   
+
+    
 
     
     showParams(global.configs);
