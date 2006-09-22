@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2006-09-22 05:27:14  robot8
+ *   Revision 1.13  2006-09-22 08:52:20  robot8
+ *   - corrected lifeCycle update
+ *
+ *   Revision 1.12  2006/09/22 05:27:14  robot8
  *   *** empty log message ***
  *
  *   Revision 1.11  2006/09/20 07:24:36  robot8
@@ -114,7 +117,8 @@
 
 
 //evolution definition part
-#define MAXPOPULATIONSIZE 3;
+#define MAXPOPULATIONSIZE 2
+#define MAXLIFECYCLE 1000
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -233,6 +237,10 @@ public:
 	    for ( unsigned int n = 0; n < components.size (); n++ )
 		components[n]->update (); //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
 
+	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
+		cout<<"LifeCycle of "<<n<<" = "<<((AtomOdeAgent*) globalData.agents[n])->getLifeCycle ()<<"\n"; //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
+	    
+
 	    //only if there are replication sliders allocated at the moment
 //	    cout<<&replicationSlider<<"\n";
 //	    cout<<replicationSlider.size ()<<"\n";
@@ -325,33 +333,44 @@ public:
 	    //also the life times had been updated
 //	    cout<<"start Selection part\n";
 	    //SELECTION
-	    while ( selectionlist.size () > 3/*MAXPOPULATIONSIZE*/ )
+	    if ( selectionlist.size () > MAXPOPULATIONSIZE )
 	    {
-		((AtomComponent*) (selectionlist.front()->getRobot ()))->atomconf.leadingatom = false;
+		while ( selectionlist.size () > MAXPOPULATIONSIZE )
+		{
+		    ((AtomComponent*) (selectionlist.front()->getRobot ()))->atomconf.leadingatom = false;
 		
-		//deleting the controller from global configs
-		vector <Configurable*>::iterator eraseiterator = globalData.configs.begin ();
-		for ( int m = 0; ((InvertMotorNStep*) globalData.configs[m]) == selectionlist.front ()->getController (); m++ )
+		    //deleting the controller from global configs
+		    vector <Configurable*>::iterator eraseiterator = globalData.configs.begin ();
+		    for ( int m = 0; ((InvertMotorNStep*) globalData.configs[m]) == selectionlist.front ()->getController (); m++ )
 		    eraseiterator++;
-		cout<<"before config erase\n";
-		globalData.configs.erase ( eraseiterator );
-
-		vector <OdeAgent*>::iterator eraseiterator2 = globalData.agents.begin ();
-		int m;
-		for ( m = 0; globalData.agents[m] == selectionlist.front (); m++ )
-		    eraseiterator2++;
-		cout<<"before erasing\n";
-		delete ( globalData.agents[m] );
-		globalData.agents.erase ( eraseiterator2 );
-		selectionlist.erase ( selectionlist.begin () );
-//		break;
+		    cout<<"before config erase\n";
+		    globalData.configs.erase ( eraseiterator );
+		    
+		    vector <OdeAgent*>::iterator eraseiterator2 = globalData.agents.begin ();
+		    int m;
+		    for ( m = 0; globalData.agents[m] == selectionlist.front (); m++ )
+			eraseiterator2++;
+		    cout<<"before erasing\n";
+		    delete ( globalData.agents[m] );
+		    globalData.agents.erase ( eraseiterator2 );
+		    selectionlist.erase ( selectionlist.begin () );
+		    cout<<"after erasing\n";
+		}
+		//all individuals who have survived the selection get a new lifeCycle of existance to aquire fitness
+		for ( unsigned int n = 0; n < selectionlist.size (); n++ )
+		{
+		    ((AtomOdeAgent*) selectionlist[n])->setLifeCycle ( MAXLIFECYCLE );
+		}
 	    }
-//	    cout<<"before lifecycle update\n";
-	    //all individuals who have survived the selection get a new lifeCycle of existance to aquire fitness
-	    for ( unsigned int n = 0; n < selectionlist.size (); n++ )
+	    for ( unsigned int m = 0; m < globalData.size (); m++ )
 	    {
-		    ((AtomOdeAgent*) selectionlist[n])->setLifeCycle ( 1000 );
+		if ( ((AtomOdeAgent*) globalData.agents[m])->getLifeCycle () <= 0 )
+		    ((AtomOdeAgent*) globalData.agents[m])->setLifeCycle ( MAXLIFECYCLE );
 	    }
+
+
+//	    cout<<"before lifecycle update\n";
+
 //	    cout<<"end Selection part\n";
 
 	    //      delete Controller of selected component-trees -> these robots will die, number depends on global fitness Setings of the Simulation
@@ -608,7 +627,7 @@ public:
    **/
   double calculateFitness ( int n )
   {
-      return 0;//globalData.agents[n]->getController () - MINFITTNESS;
+      return 1/globalData.agents[n]->getController ()->getParam ( "epsC" );
   }
   
 
