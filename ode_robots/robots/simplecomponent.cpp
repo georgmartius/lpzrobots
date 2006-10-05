@@ -72,7 +72,7 @@ namespace lpzrobots
 
     void SimpleComponent::place (const osg::Matrix &pose)
     {
-
+	simplePrimitive->setPose ( pose );
     }
 
     bool SimpleComponent::collisionCallback (void *data, dGeomID o1, dGeomID o2)
