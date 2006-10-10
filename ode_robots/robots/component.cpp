@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2006-09-11 12:00:51  martius
+ *   Revision 1.14  2006-10-10 07:49:39  robot8
+ *   -update of the evolution projekt
+ *   -only changed some parameter
+ *
+ *   Revision 1.13  2006/09/11 12:00:51  martius
  *   removed accidental "ma" at beginning of file
  *
  *                                                                         *
@@ -80,7 +84,6 @@ namespace lpzrobots
 	{
 	    Joint* j = connection[n].joint;
 	    sensors += j->getNumberAxes();
-
     	    //recursive sensor-counting for all subcomponents
 	    if ( connection[n].softlink == false )
 		sensors += connection[n].subcomponent->getSensorNumber ();
@@ -120,8 +123,8 @@ namespace lpzrobots
 	int sensorcounter = 0;
 	
 
-	if ( sensornumber == getSensorNumber () )
-	{
+//	if ( sensornumber <= getSensorNumber () )
+//	{
 	    //sensor values of this component
 	  for ( int n = 0; n < getNumberSubcomponents (); n++ ){
 	    Joint* j = connection[n].joint;
@@ -136,7 +139,7 @@ namespace lpzrobots
 		sensorcounter += connection[n].subcomponent->getSensors (&sensors[sensorcounter] , 
 									 connection[n].subcomponent->getSensorNumber () );
 	    }	  
-	}
+//	}
 	return sensorcounter;
     }
 

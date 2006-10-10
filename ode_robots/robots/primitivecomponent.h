@@ -47,6 +47,7 @@ class PrimitiveComponent : public Component
   
   virtual void 	update ();
   virtual void 	place (const Pos &pos);
+  virtual void 	place (const osg:Matrix&);
   
   
   // virtual void 	setColor (const Color &col); 	sets color of the robot; not nessecary

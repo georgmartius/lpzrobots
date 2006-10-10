@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2006-09-22 05:27:03  robot8
+ *   Revision 1.15  2006-10-10 07:49:39  robot8
+ *   -update of the evolution projekt
+ *   -only changed some parameter
+ *
+ *   Revision 1.14  2006/09/22 05:27:03  robot8
  *   *** empty log message ***
  *
  *   Revision 1.13  2006/09/20 07:24:24  robot8
@@ -65,6 +69,7 @@
  ***************************************************************************/
 
 #define TESTBOOLVAL true
+#define MAXNUMBERATOMSPERROBOT 10
 
 #include "atomcomponent.h"
 
@@ -572,102 +577,109 @@ namespace lpzrobots
     {
 	if ( !( atomconf.fusionDisabled == true || atom_to_fuse->atomconf.fusionDisabled == true) )
 	{
-	    cout<<"fusion\n";
+		cout<<"fusion\n";
 	    
-	    //if the atom_to_fuse is a subcomponent of this before fusing, then the new connection only becomes a softlink
-	    if ( isComponentConnected ( atom_to_fuse ) == true )
-	    {
-		cout<<"fusion case 1\n";
-		cout<<"atom to bind on: "<<this<<" atom to fuse: "<<atom_to_fuse<<"\n";
-		osgHandle.color.alpha () = 0.3;
-		
-		Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
-		HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
-		j1->init ( odeHandle , osgHandle , TESTBOOLVAL , atomconf.shell_radius+atomconf.core_radius );
-		
-		osgHandle.color.alpha () = 1;
-		
-		
-		//a subcomponent is added as a softlink
-		addSubcomponent ( atom_to_fuse , j1 , true );
-		
-		
-		
-		connection.back().data = (void*) new connectionAddition ();
-		((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
-
-		cout<<"end of fusion 1\n";
-		return true;
-		
-	    }
-	    //if it is a fusion with atomcomponents of other structures or free ones
-	    else
-	    {
-		cout<<"fusion case 2\n";
-		//if the origins of both atoms are no leading atoms of a structure, does not exclude, that they are identical, but this should be catched by the rule above
-		if ( !( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == true && ((AtomComponent*) originComponent)->atomconf.leadingatom == true ) )
+		//if the atom_to_fuse is a subcomponent of this before fusing, then the new connection only becomes a softlink
+		if ( isComponentConnected ( atom_to_fuse ) == true )
 		{
-		    //this is the normal atom fusion
-		    //switches the binding of the two components, so that the uncontrolled componments always will become subcomponents to the controlled ones
-		    if (((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == false && ((AtomComponent*) originComponent)->atomconf.leadingatom == true )
+		    if ( (originComponent->getNumberSubcomponentsAll () + 1 )< MAXNUMBERATOMSPERROBOT && ( atom_to_fuse->originComponent->getNumberSubcomponentsAll () + 1 )< MAXNUMBERATOMSPERROBOT )
 		    {
-			cout<<"fusion case 2_\n";
+			cout<<"fusion case 1\n";
+			cout<<"atom to bind on: "<<this<<" atom to fuse: "<<atom_to_fuse<<"\n";
+			osgHandle.color.alpha () = 0.3;
+			
 			Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
 			HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
-			j1->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , atomconf.shell_radius+atomconf.core_radius );
+			j1->init ( odeHandle , osgHandle , TESTBOOLVAL , atomconf.shell_radius+atomconf.core_radius );
 			
-			cout<<"fusion case 2a\n";
-			cout<<"atom to bind on: "<<this<<" atom to fuse: "<<atom_to_fuse<<"\n";
-			//before binding the structure has to be changed, so that the tree structure stays consitent
-			atom_to_fuse->makeComponentStructureRoot ();
-
-			addSubcomponent ( atom_to_fuse , j1 , false );
+			osgHandle.color.alpha () = 1;
 			
-			void* testp = new connectionAddition ();
-			connection.back().data = testp;
+			
+			//a subcomponent is added as a softlink
+			addSubcomponent ( atom_to_fuse , j1 , true );
+			
+			
+			
+			connection.back().data = (void*) new connectionAddition ();
 			((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
-			cout<<"end of fusion 2a\n";
+			
+			cout<<"end of fusion 1\n";
 			return true;
-			
 		    }
-		    else
-		    {
-			
-			if ( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == true && ((AtomComponent*) originComponent)->atomconf.leadingatom == false )
-			{
-			    Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
-			    HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
-			    j1->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , atomconf.shell_radius+atomconf.core_radius );
-			    
-			    cout<<"fusion case 2b\n";
-			    cout<<"atom to bind on: "<<atom_to_fuse<<" atom to fuse: "<<this<<"\n";
-			    this->makeComponentStructureRoot ();
-			    atom_to_fuse->addSubcomponent ( this , j1 , false );
-			    
-			    void* testp = new connectionAddition ();
-			    connection.back().data = testp;
-			    ((connectionAddition*) connection.back().data)->binding_strength = this->getCollisionForce ( atom_to_fuse );
-			    cout<<"end of fusion 2b\n";
-			    return true;
-			}
-			
-			//the case false false is not handled
-		    }
+		    return false;
 		}
-		//if two controller controlled component structures would fuse, the replication mecanism is activated
+		//if it is a fusion with atomcomponents of other structures or free ones
 		else
 		{
-		    cout<<"fusion case 3\n";
-
-		    if ( replication ( atom_to_fuse ) == true )
-			return true;
-		    else
-			return false;
+		    if ( ( originComponent->getNumberSubcomponentsAll () + 1 )< MAXNUMBERATOMSPERROBOT && ( atom_to_fuse->originComponent->getNumberSubcomponentsAll () + 1 )< MAXNUMBERATOMSPERROBOT )
+		    {
+			cout<<"fusion case 2\n";
+			//if the origins of both atoms are no leading atoms of a structure, does not exclude, that they are identical, but this should be catched by the rule above
+			if ( !( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == true && ((AtomComponent*) originComponent)->atomconf.leadingatom == true ) )
+			{
+			    //this is the normal atom fusion
+			    //switches the binding of the two components, so that the uncontrolled componments always will become subcomponents to the controlled ones
+			    if (((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == false && ((AtomComponent*) originComponent)->atomconf.leadingatom == true )
+			    {
+				
+//				cout<<"fusion case 2_\n";
+				Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
+				HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
+				j1->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , atomconf.shell_radius+atomconf.core_radius );
+				
+				cout<<"fusion case 2a\n";
+				cout<<"atom to bind on: "<<this<<" atom to fuse: "<<atom_to_fuse<<"\n";
+				//before binding the structure has to be changed, so that the tree structure stays consitent
+				atom_to_fuse->makeComponentStructureRoot ();
+				
+				addSubcomponent ( atom_to_fuse , j1 , false );
+				
+				void* testp = new connectionAddition ();
+				connection.back().data = testp;
+				((connectionAddition*) connection.back().data)->binding_strength = atom_to_fuse->getCollisionForce ( this );
+				cout<<"end of fusion 2a\n";
+				return true;
+				    
+			    }
+			    else
+			    {
+				if ( ((AtomComponent*) (atom_to_fuse->originComponent))->atomconf.leadingatom == true && ((AtomComponent*) originComponent)->atomconf.leadingatom == false )
+				{
+				    Axis axis = Axis ( ( getPosition () - atom_to_fuse->getPosition ()).toArray() );
+				    HingeJoint* j1 = new HingeJoint ( getMainPrimitive () , atom_to_fuse->getMainPrimitive () , getPositionbetweenComponents ( atom_to_fuse ) , axis );
+				    j1->init ( odeHandle , osgHandle , TESTBOOLVAL/*truefalse*/ , atomconf.shell_radius+atomconf.core_radius );
+				    
+				    cout<<"fusion case 2b\n";
+				    cout<<"atom to bind on: "<<atom_to_fuse<<" atom to fuse: "<<this<<"\n";
+				    this->makeComponentStructureRoot ();
+				    atom_to_fuse->addSubcomponent ( this , j1 , false );
+				    
+				    void* testp = new connectionAddition ();
+				    connection.back().data = testp;
+				    ((connectionAddition*) connection.back().data)->binding_strength = this->getCollisionForce ( atom_to_fuse );
+				    cout<<"end of fusion 2b\n";
+				    return true;
+				}
+				
+				//the case false false is not handled
+			    }	
+			}
+			//if two controller controlled component structures would fuse, the replication mecanism is activated
+			else
+			{
+			    cout<<"fusion case 3\n";
+			    
+			    if ( replication ( atom_to_fuse ) == true )
+				return true;
+			    else
+				return false;
+			}
+		    }
+		    return false;
 		}
+		return false;
 	    }
 	    return false;
-	}
-	return false;
     }
 
 void AtomComponent::disableStructureFusionRecursive ()
@@ -772,19 +784,15 @@ bool AtomComponent::fission ( double force )
 		else
 		    //removing was successfull
 		{
-//		    cout<<tmpremovedsub<<"\n";
-//		    cout<<tmpremovedsub->connection.size()<<"\n";
-
 		    componentConnection* tmp_softlinkconnection = ((AtomComponent*) tmpremovedsub)->getStrongestSoftlinkofStructure ();
 		    cout<<"found tmp_softlinkconnection: "<<tmp_softlinkconnection<<"\n";
-
-//		    cout<<"Softlink adress:"<<tmp_softlinkconnection<<"\n";
 
 		    //setting the motor values to zero, but only if there was no softlink found and the substructure will be seperated from the rest of the structure
 		    if ( tmp_softlinkconnection == NULL )	
 		    {
 			cout<<"no softlink connection\n";
 			tmpremovedsub->resetMotorsRecursive ( ); 
+//			((AtomComponent*) tmpremovedsub->originComponent)->atomconf.leadingatom = false; //if no softlink was found, then the structure will be seperated from the main structure, and it is no robot any more
 
 		    }
 		    else //if there is a softlink incomming or outgoing in or from the removed substructure
@@ -1060,14 +1068,14 @@ bool AtomComponent::replication ( AtomComponent* atom_to_replicate )
 	    SliderJoint* j4 = new SliderJoint ( partA4->getMainPrimitive () , partB4->getMainPrimitive () , partA4->getPositionbetweenComponents ( partB4 ) , axis );
 	    j4->init ( odeHandle , osgHandle , /*true*/TESTBOOLVAL , ((AtomComponent*) partA4)->atomconf.shell_radius + ((AtomComponent*) partB4)->atomconf.core_radius );
 
-	    j1->setParam ( dParamVel , -0.5 );
-	    j1->setParam ( dParamFMax , 30 );
-	    j2->setParam ( dParamVel , -0.5 );
-	    j2->setParam ( dParamFMax , 30 );
-	    j3->setParam ( dParamVel , -0.5 );
-	    j3->setParam ( dParamFMax , 30 );
-	    j4->setParam ( dParamVel , -0.5 );
-	    j4->setParam ( dParamFMax , 30 );
+	    j1->setParam ( dParamVel , -1 );
+	    j1->setParam ( dParamFMax , 50 );
+	    j2->setParam ( dParamVel , -1 );
+	    j2->setParam ( dParamFMax , 50 );
+	    j3->setParam ( dParamVel , -1 );
+	    j3->setParam ( dParamFMax , 50 );
+	    j4->setParam ( dParamVel , -1 );
+	    j4->setParam ( dParamFMax , 50 );
 
 	    repSlider rps1 , rps2 , rps3 , rps4;
 	    rps1.startComponent = partA1; rps1.endComponent = partB2; rps1.slider = j1; rps1.startingdistance = rps1.startComponent->getDistanceToComponent ( rps1.endComponent );
