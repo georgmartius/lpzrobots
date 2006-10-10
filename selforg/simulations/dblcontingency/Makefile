@@ -7,7 +7,7 @@ FILES = main cmdline
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
-EXEC = integration
+EXEC = dblcon
 
 # -pg for profiling
 CFLAGS = -Wall -I. -g
