@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-11 15:46:34  martius
+ *   Revision 1.5  2006-10-19 12:24:48  martius
+ *   dyn cast comment
+ *
+ *   Revision 1.4  2006/08/11 15:46:34  martius
  *   *** empty log message ***
  *
  *   Revision 1.3  2006/07/14 21:47:17  robot3
@@ -144,6 +147,12 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
+/*
+Geode* g = dynamic_cast<Geode*> (node);
+if(g){
+  success
+}
+*/
 
 class ThisSim : public Simulation {
 public:
