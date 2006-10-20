@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.50  2006-09-22 10:57:36  martius
+ *   Revision 1.51  2006-10-20 14:24:55  martius
+ *   max velocity for joint-correction limited
+ *
+ *   Revision 1.50  2006/09/22 10:57:36  martius
  *   again hard collisions
  *
  *   Revision 1.49  2006/09/21 22:09:01  martius
@@ -364,6 +367,9 @@ namespace lpzrobots {
     dWorldSetGravity ( odeHandle.world , 0 , 0 , globalData.odeConfig.gravity );
     dWorldSetERP ( odeHandle.world , 0.9 );
     dWorldSetCFM ( odeHandle.world,1e-4);
+
+    dWorldSetContactMaxCorrectingVel (odeHandle.world, 1000); // default is infinity
+    dWorldSetContactSurfaceLayer (odeHandle.world, 0.001); // default is 0
 
 
     cmd_handler_init();
