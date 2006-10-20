@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2006-10-10 07:50:22  robot8
+ *   Revision 1.15  2006-10-20 13:52:42  robot8
+ *   -update of the evolution projekt
+ *   -only changed some parameter
+ *
+ *   Revision 1.14  2006/10/10 07:50:22  robot8
  *   -update of the evolution projekt
  *   -only changed some parameter
  *
@@ -103,7 +107,7 @@
 
 #include "atomcomponent.h"
 
-#include <vector.h>
+#include <vector>
 
 
 //physical definition part
@@ -316,12 +320,10 @@ public:
 	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
 	    {
 
-		cout<<"original Adresse: "<<globalData.agents[n]<<"\n";
 		if ( ((AtomOdeAgent*) globalData.agents[n])->getLifeCycle() <= 0 )
 		{
 //		    cout<<"LifeCycle-status: "<<((AtomOdeAgent*) globalData.agents[n])->getLifeCycle()<<"\n";
 		    tmpagentvec.push_back ( (AtomOdeAgent*) globalData.agents[n] );
-		    cout<<"tmp Adresse: "<<tmpagentvec.back ()<<"\n";
 
 		}
 	    }
@@ -344,20 +346,17 @@ public:
 			    pushbackposition = m;
 			}
 		}
-		cout<<"selected adress: "<<tmpagentvec[pushbackposition]<<"\n";
 		selectionlist.push_back ( tmpagentvec[pushbackposition] );
 		tmpagentvec.erase ( tmpagentvec.begin() + pushbackposition );
 //		cout<<"original Adresse: "<<globalData.agents[pushbackposition]<<"\n";
 //		cout<<"tmp Adresse: "<<tmpagentvec.back ()<<"\n";
 	    }
-	    cout<<"selectionlist.size() : "<<selectionlist.size()<<"\n";
 
 	    //after this double loop the selection list contains all agents whose lifeCycle has ended. It ends with the fittest idividual, the individuals less fit are at the start of the vector
 	    //also the life times had been updated
 //	    cout<<"start Selection part\n";
 	    //SELECTION
-//	    if ( globalData.agents.size() > MAXPOPULATIONSIZE && selectionlist.size () > 0 )
-//	    {
+
 	    cout<<"Bedingung: "<<((globalData.agents.size() > MAXPOPULATIONSIZE) && (selectionlist.size () > 0))<<"\n";
 	    while ( (globalData.agents.size() > MAXPOPULATIONSIZE) && (selectionlist.size () > 0) ) //only select if there are beeings whose life cycle ended
 	    {
@@ -365,8 +364,7 @@ public:
 		
 		//deleting the controller from global configs
 		vector <Configurable*>::iterator eraseiterator = globalData.configs.begin ();
-//		for ( unsigned int n = 0; n < selectionlist.size (); n++ )
-//		{
+
 		    eraseiterator = globalData.configs.begin ();
 		    for ( unsigned int m = 0; m < globalData.configs.size (); m++ )
 		    {
@@ -377,23 +375,21 @@ public:
 			if ( globalData.configs[m] == selectionlist.front()/*[n]*/->getController () )
 			{    
 			    globalData.configs.erase ( eraseiterator );
+			    cout<<"config was erased\n";
 			    break;
 			}
 		    }
-//		}
 
-//		vector <OdeAgent*>::iterator eraseiterator2 = globalData.agents.begin ();		   
-//		for ( unsigned int n = 0; n < selectionlist.size (); n++ )
-//		{
-//		    eraseiterator2= globalData.configs.begin ();
+
 		    for ( unsigned int m = 0; m < globalData.agents.size (); m++ )
 		    {
-//			eraseiterator2++;
 		    
 			cout<<"before config erase2\n";
 			
 			if ( globalData.agents[m] == selectionlist.front() /*[n]*/ )
 			{    
+			    ((Component*) globalData.agents[m]->getRobot ())->removeAllSubcomponentsRecursive ();
+
 			    cout<<"m: "<<m<<"\n";
 			    cout<<"before size selectionlist: "<<selectionlist.size()<<"\n";
 			    cout<<"before size agents: "<<globalData.agents.size()<<"\n";
@@ -408,7 +404,7 @@ public:
 			}
 
 		    }
-//		}
+
 		
 	    }
 	    cout<<"end while\n";
@@ -416,7 +412,6 @@ public:
 	    //lifeCycle update
 	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
 	    {
-//		cout<<"wo liegt das Problem?\n";
 		((AtomOdeAgent*) globalData.agents[n])->setLifeCycle ( ((AtomOdeAgent*) globalData.agents[n])->getLifeCycle () - 1 );
 	    }
 
@@ -424,18 +419,15 @@ public:
 
 	    for ( unsigned int m = 0; m < globalData.agents.size (); m++ )
 	    {
-//		cout<<"wo liegt das Problem?\n";
 		if ( ((AtomOdeAgent*) globalData.agents[m])->getLifeCycle () < 0 )
 		{
-//		    cout<<"wo liegt das Problem?\n";
 		    ((AtomOdeAgent*) globalData.agents[m])->setLifeCycle ( MAXLIFECYCLE );
 		}
 	    }
 
-	    cout<<"end of evolution section\n";
 //	    cout<<"before lifecycle update\n";
 
-//	    cout<<"end Selection part\n";
+	    cout<<"end Selection part\n";
 
 	    //      delete Controller of selected component-trees -> these robots will die, number depends on global fitness Setings of the Simulation
 	    //      physical structures are still within the simulation, so they could colide and be bound to other structures, maybe destruction of the structure? should be a parameter of the simulation

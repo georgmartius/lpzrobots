@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2006-10-10 07:49:39  robot8
+ *   Revision 1.15  2006-10-20 13:52:32  robot8
+ *   -update of the evolution projekt
+ *   -only changed some parameter
+ *
+ *   Revision 1.14  2006/10/10 07:49:39  robot8
  *   -update of the evolution projekt
  *   -only changed some parameter
  *
@@ -374,7 +378,7 @@ namespace lpzrobots
 
 
 
-/*    void Component::removeAllSubcomponentsRecursive ()
+    void Component::removeAllSubcomponentsRecursive ()
     {
 	for ( unsigned int n = 0; n < connection.size (); n ++ )
 	{
@@ -395,7 +399,7 @@ namespace lpzrobots
 
 
     }
-*/
+
 
     void Component::updateOriginsRecursive ( Component* parent )
     {

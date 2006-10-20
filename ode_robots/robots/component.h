@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2006-09-11 12:01:31  martius
+ *   Revision 1.12  2006-10-20 13:52:33  robot8
+ *   -update of the evolution projekt
+ *   -only changed some parameter
+ *
+ *   Revision 1.11  2006/09/11 12:01:31  martius
  *   *** empty log message ***
  *
  *                                                                         *
@@ -214,7 +218,7 @@ namespace lpzrobots
       /**
        *This removes all subcomponents of THIS component, and all their subcomponents, till the whole structure is destroyed.
        **/
-      //virtual void removeAllSubcomponentsRecursive ();
+      virtual void removeAllSubcomponentsRecursive ();
 
       /**
        *This updates the origin references within the component tree. If this is a removed subcomponent for examble, then parent should be this itself, so it is the top of the tree.
@@ -226,6 +230,8 @@ namespace lpzrobots
        *This removes all softlinks of the structure that has THIS as his origin.
        **/
       virtual void removeSoftlinksRecursive ();
+
+
 
       /**
        *This method looks if a special component is a subcomponent of this component. Only direct subcomponents are registrated.
