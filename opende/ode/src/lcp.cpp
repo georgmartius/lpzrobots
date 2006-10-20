@@ -1249,7 +1249,7 @@ void dSolveLCPBasic (int n, dReal *A, dReal *x, dReal *b,
 	dReal s = -w[i]/delta_w[i];
 
 	if (s <= 0) {
-	  dMessage (d_ERR_LCP, "LCP internal error, s <= 0 (s=%.4e)",s);
+//	  dMessage (d_ERR_LCP, "LCP internal error, s <= 0 (s=%.4e)",s);
 	  if (i < (n-1)) {
 	    dSetZero (x+i,n-i);
 	    dSetZero (w+i,n-i);
@@ -1669,7 +1669,7 @@ void dSolveLCP (int n, dReal *A, dReal *x, dReal *b,
 	// we're going to get stuck in an infinite loop. instead, just cross
 	// our fingers and exit with the current solution.
 	if (s <= 0) {
-	  dMessage (d_ERR_LCP, "LCP internal error, s <= 0 (s=%.4e)",s);
+//	  dMessage (d_ERR_LCP, "LCP internal error, s <= 0 (s=%.4e)",s);
 	  if (i < (n-1)) {
 	    dSetZero (x+i,n-i);
 	    dSetZero (w+i,n-i);
