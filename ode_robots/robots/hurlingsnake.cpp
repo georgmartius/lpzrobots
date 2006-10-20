@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2006-09-21 22:09:58  martius
+ *   Revision 1.15  2006-10-20 14:25:07  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.14  2006/09/21 22:09:58  martius
  *   collision for mesh
  *
  *   Revision 1.13  2006/09/21 16:15:40  der
@@ -109,6 +112,28 @@ namespace lpzrobots {
     factorSensor=20.0;
     frictionGround=0.3;
 
+    /* Parameter: 
+       gravity= -0.5
+       factorForce=3.0;
+       factorSensor=20.0;
+       frictionGround=0.3;
+       InvertMotorNStep():
+       controller->setParam("steps", 2);
+       controller->setParam("adaptrate", 0.001);
+       controller->setParam("nomupdate", 0.001);
+
+       gravity= -1
+       factorForce=5.0;
+       factorSensor=20.0;
+       frictionGround=0.3;
+       InvertMotorNStep():
+       controller->setParam("steps", 2);
+       controller->setParam("adaptrate", 0.001);
+       controller->setParam("nomupdate", 0.001);
+
+       
+       
+    */
     created=false;
 
     this->osgHandle.color=Color(1,1,0);

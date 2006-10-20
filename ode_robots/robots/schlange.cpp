@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2006-09-21 16:17:18  der
+ *   Revision 1.27  2006-10-20 14:25:08  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.26  2006/09/21 16:17:18  der
  *   *** empty log message ***
  *
  *   Revision 1.25  2006/09/21 11:44:38  martius
@@ -166,6 +169,7 @@ namespace lpzrobots {
       dContact contact[N];
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       for (i=0; i<n; i++){
+	
 	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
 	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	

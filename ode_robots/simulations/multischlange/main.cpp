@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-09-22 08:50:34  der
+ *   Revision 1.8  2006-10-20 14:25:11  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.7  2006/09/22 08:50:34  der
  *   tuning
  *
  *   Revision 1.6  2006/09/21 22:10:46  martius
@@ -94,17 +97,17 @@ public:
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
     setCameraHomePos(Pos(15.2297, -16.7329, 11.8299),  Pos(45.3984, -29.7745, 0));
 
-    int plattfuesse = 2;
-    int snakes = 1;
+    int plattfuesse = 0;
+    int snakes = 0;
     int sphericalsIR = 0;
     int sphericalsXYZ = 0;
-    int hurlings = 0;
+    int hurlings = 2;
     int cigars = 0;
     int wheelies = 0;
 
     global.odeConfig.setParam("controlinterval",2);
     global.odeConfig.setParam("gravity", -2.); 
-    global.odeConfig.setParam("realtimefactor", 4.); 
+    global.odeConfig.setParam("realtimefactor", 5.); 
 
     /*     Playground* playground = new Playground(odeHandle, osgHandle, 
 	   osg::Vec3(120, 0.2, 5.5),0.9);
@@ -448,13 +451,13 @@ public:
       if (r==1) c=Color(0,   0.8, 0);
       snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake_" + std::itos(r));
       ((OdeRobot*) snake)->place(Pos(r*3+3,r*2-5, height));
-      snake->setParam("factorForce",12);
-      snake->setParam("frictionGround",0.3);
+      snake->setParam("factorForce",16);
+      snake->setParam("frictionGround",0.2);
 
-      InvertMotorNStepConf invertnconf2 = InvertMotorNStep::getDefaultConf();
-      invertnconf2.cInit=1.2;
-      AbstractController *controller = new InvertMotorNStep(invertnconf2);
-      controller->setParam("steps", 2);
+      AbstractController *controller = new InvertNChannelController(40);
+      //      AbstractController *controller = new InvertMotorSpace();
+      //AbstractController *controller = new SineController();
+      //      controller->setParam("steps", 2);
       controller->setParam("epsA", 0.15);
       controller->setParam("epsC", 0.04);
       controller->setParam("adaptrate",  0.000); //0.001);
@@ -464,6 +467,7 @@ public:
       AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05));
       OdeAgent* agent = new OdeAgent( plotoptions );
       agent->init(controller, snake, wiring);
+      global.configs.push_back(snake);
       global.configs.push_back(controller);
       global.agents.push_back(agent);     
     }
