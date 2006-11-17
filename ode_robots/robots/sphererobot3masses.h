@@ -24,7 +24,11 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-21 22:09:58  martius
+ *   Revision 1.7  2006-11-17 13:44:43  martius
+ *   corrected z-axes sensor problem
+ *   there are two sensors for this situation
+ *
+ *   Revision 1.6  2006/09/21 22:09:58  martius
  *   collision for mesh
  *
  *   Revision 1.5  2006/09/21 16:17:18  der
@@ -90,18 +94,19 @@ typedef struct {
 public:
   double diameter;
   double spheremass;
-  double pendulardiameter; /// automatically set
+  double pendulardiameter; //< automatically set
   double pendularmass;
   double pendularrange;
-  bool axisZsensor;  
-  bool axisXYZsensor;  
-  bool motorsensor;  
+  bool motorsensor;        //< motor values as sensors
+  bool worldZaxissensor;   //< world cooridinate of z axis
+  bool axisZsensor;        //< z-coordinate of all internal axes
+  bool axisXYZsensor;      //< entire rotation matrix
   bool irAxis1;
   bool irAxis2;
   bool irAxis3;
   bool drawIRs;
-  double irsensorscale; /// range of the ir sensors in units of diameter
-  double irCharacter;
+  double irsensorscale; //< range of the ir sensors in units of diameter
+  double irCharacter;   //< characteristics of sensor (\f[ x^c \f] where x is the range-distance)
 } Sphererobot3MassesConf;
 
 /**
@@ -125,7 +130,7 @@ protected:
   bool created;
 
   Sphererobot3MassesConf conf;
-  RaySensorBank irSensorBank; /// a collection of ir sensors  
+  RaySensorBank irSensorBank; //< a collection of ir sensors  
 
 public:
 
@@ -146,6 +151,7 @@ public:
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
     c.axisZsensor = true;
     c.axisXYZsensor = false;  
+    c.worldZaxissensor = false;
     c.motorsensor = false;  
     c.irAxis1=false;
     c.irAxis2=false;
@@ -156,43 +162,16 @@ public:
     return c;
   }
 
-  /// update all primitives and joints
   virtual void update();
 
-  /** sets the pose of the vehicle
-      @param pose desired 4x4 pose matrix
-  */
   virtual void place(const osg::Matrix& pose);
   
-  /**
-   *This is the collision handling function for the robot.
-   *This overwrides the function collisionCallback of the class robot.
-   *@param data (unused)
-   *@param o1 first geometrical object, which has taken part in the collision
-   *@param o2 second geometrical object, which has taken part in the collision
-   *@return true if the collision was threated  by the robot, false if not
-   **/
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param globalData structure that contains global data from the simulation environment
-   */
   virtual void doInternalStuff(const GlobalData& globalData);
 	
-  /**
-   *Writes the sensor values to the given an array.
-   *@param sensors pointer to the array
-   *@param sensornumber length of the sensor array
-   *@return number of actually written sensors (should be sensornumber)
-   **/
   virtual int getSensors ( sensor* sensors, int sensornumber );
 	
-  /**
-   *Reads the actual motor commands from an array, an sets all motors of the robot to this values.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
-   *@param motornumber length of the motor array
-   **/
   virtual void setMotors ( const motor* motors, int motornumber );
 	
   virtual int getMotorNumber();

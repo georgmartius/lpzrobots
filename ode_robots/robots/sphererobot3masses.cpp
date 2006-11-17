@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-08 17:04:46  martius
+ *   Revision 1.5  2006-11-17 13:44:50  martius
+ *   corrected z-axes sensor problem
+ *   there are two sensors for this situation
+ *
+ *   Revision 1.4  2006/08/08 17:04:46  martius
  *   added new sensor model
  *
  *   Revision 1.3  2006/07/20 17:19:45  martius
@@ -149,12 +153,13 @@ namespace lpzrobots {
 	len++;
       }
     }
-    if(conf.axisZsensor){
-      // z-coordinate of axis position in world coordinates
-      //      len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
-
+    if(conf.worldZaxissensor){
       // world coordinates of z-axis
       len += A.column(2).convertToBuffer(sensors+len, sensornumber-len);  
+    }
+    if(conf.axisZsensor){
+      // z-coordinate of axis position in world coordinates
+      len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
     }
     if(conf.axisXYZsensor){
       // rotation matrix - 9 (vectors of all axis in world coordinates
