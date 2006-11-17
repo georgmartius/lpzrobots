@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-08-04 15:16:13  martius
+ *   Revision 1.6  2006-11-17 13:46:59  martius
+ *   list of configureables to appear in configuration file
+ *
+ *   Revision 1.5  2006/08/04 15:16:13  martius
  *   documentation
  *
  *   Revision 1.4  2006/08/03 07:35:53  martius
@@ -172,31 +175,31 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
   this->controller = controller;
   this->robot      = robot;
   this->wiring     = wiring;
-  if(!controller || !robot || !wiring) return false;
-  else{
-    rsensornumber = robot->getSensorNumber();
-    rmotornumber  = robot->getMotorNumber();
-    wiring->init(rsensornumber, rmotornumber);
-    csensornumber = wiring->getControllerSensornumber();
-    cmotornumber  = wiring->getControllerMotornumber();
-    controller->init(csensornumber, cmotornumber);
+  assert(controller && robot && wiring);
 
-    rsensors      = (sensor*) malloc(sizeof(sensor) * rsensornumber);
-    rmotors       = (motor*)  malloc(sizeof(motor)  * rmotornumber);
-    csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
-    cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
+  rsensornumber = robot->getSensorNumber();
+  rmotornumber  = robot->getMotorNumber();
+  wiring->init(rsensornumber, rmotornumber);
+  csensornumber = wiring->getControllerSensornumber();
+  cmotornumber  = wiring->getControllerMotornumber();
+  controller->init(csensornumber, cmotornumber);
+
+  rsensors      = (sensor*) malloc(sizeof(sensor) * rsensornumber);
+  rmotors       = (motor*)  malloc(sizeof(motor)  * rmotornumber);
+  csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
+  cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
 
 
-    // copy plotoption list and add it one by one
-    list<PlotOption> po_copy(plotOptions);
-    plotOptions.clear();
-    // open the plotting pipe (and file logging) if configured
-    for(list<PlotOption>::iterator i=po_copy.begin(); i != po_copy.end(); i++){
-      addPlotOption(*i);
-    }    
+  // copy plotoption list and add it one by one
+  list<PlotOption> po_copy(plotOptions);
+  plotOptions.clear();
+  // open the plotting pipe (and file logging) if configured
+  for(list<PlotOption>::iterator i=po_copy.begin(); i != po_copy.end(); i++){
+    addPlotOption(*i);
+  }    
     
-    return true;
-  }
+  return true;
+
 }
 
 void Agent::addPlotOption(const PlotOption& plotOption) {
@@ -215,8 +218,11 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
     // print network description given by the structural information of the controller
     printNetworkDescription(po.pipe, "Selforg"/*controller->getName()*/, controller);
     // print interval
-    if(plotOption.interval > 1) 
-      fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
+    fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
+    // print all configureables
+    for(list<const Configurable*>::iterator i = po.configureables.begin(); i!= po.configureables.end(); i++){
+      (*i)->print(po.pipe, "# ");
+    }    
     // print all parameters of the controller
     controller->print(po.pipe, "# ");
     // print all parameters of the controller
@@ -271,13 +277,7 @@ void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csen
 //  to robot.
 //  @param noise Noise strength.
 void Agent::step(double noise){
-
-  if(!controller || !robot || !wiring || !rsensors || !rmotors || !csensors || !cmotors) {
-    fprintf(stderr, "%s:%i: something is null: cont %i rob %i wiring %i rsens %i rmots %i csens %i cmots %i!\n", 
-	    __FILE__, __LINE__, controller==0, robot==0,  
-	    wiring==0, rsensors==0, rmotors==0, 
-	    csensors==0, cmotors==0);
-  }
+  assert(controller && robot && wiring && rsensors && rmotors && csensors && cmotors);
   
   int len =  robot->getSensors(rsensors, rsensornumber);
   if(len != rsensornumber){
@@ -294,6 +294,12 @@ void Agent::step(double noise){
   trackrobot.track(robot);
 
   t++;
+}
+
+// Sends only last motor commands again to robot. 
+void Agent::onlyControlRobot(){
+  assert(robot && rmotors);
+  robot->setMotors(rmotors, rmotornumber);  
 }
 
 
@@ -378,5 +384,9 @@ void PlotOption::close(){
     }
     pipe=0;
   }
+}
+
+void PlotOption::addConfigurable(const Configurable* c){
+  configureables.push_back(c);
 }
 

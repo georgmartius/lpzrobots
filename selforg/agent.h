@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-04 15:16:13  martius
+ *   Revision 1.5  2006-11-17 13:46:53  martius
+ *   list of configureables to appear in configuration file
+ *
+ *   Revision 1.4  2006/08/04 15:16:13  martius
  *   documentation
  *
  *   Revision 1.3  2006/08/02 09:35:09  martius
@@ -95,6 +98,7 @@
 class AbstractRobot;
 class AbstractController;
 class AbstractWiring;
+class Configurable;
 
 #include "types.h"
 #include "trackrobots.h"
@@ -131,8 +135,9 @@ public:
   friend class Agent;
   
   PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; }
-  PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, int interval = 1)
-    : mode(mode), whichSensors(whichSensors), interval(interval) {  pipe=0;}
+  PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, 
+	      int interval = 1, std::list<const Configurable*> confs = std::list<const Configurable*>())
+    : mode(mode), whichSensors(whichSensors), interval(interval), configureables(confs) { pipe=0; }
 
   virtual ~PlotOption(){}
 
@@ -142,6 +147,8 @@ public:
     int mode;
     bool operator()(const PlotOption& m) { return m.mode == mode; }
   };
+
+  void addConfigurable(const Configurable*);
 
 private:
  
@@ -155,6 +162,7 @@ private:
   PlotMode mode;
   PlotSensors whichSensors;
   int interval;  
+  std::list< const Configurable* > configureables;
 };
 
 
@@ -186,13 +194,15 @@ public:
   */
   virtual bool init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring);
 
-
   /** Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
       controller step, pushing controller outputs (= motorcommands) back through wiring and sent 
       resulting motorcommands to robot.
       @param noise Noise strength.
   */
   virtual void step(double noise);
+
+  /** Sends only last motor commands again to robot. */
+  virtual void onlyControlRobot();
 
   /** Returns a pointer to the controller.
    */
