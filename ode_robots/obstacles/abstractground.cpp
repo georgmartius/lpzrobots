@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-11 15:41:04  martius
+ *   Revision 1.4  2006-11-17 13:42:26  martius
+ *   Recreation in setColor and ...
+ *   removed error Message
+ *
+ *   Revision 1.3  2006/08/11 15:41:04  martius
  *   playgrounds handle non-quadratic ground planes
  *
  *   Revision 1.2  2006/07/14 12:23:32  martius
@@ -112,24 +116,27 @@ namespace lpzrobots {
    */
   void AbstractGround::setColor(const Color& color) {
     osgHandle.color = color;
-    if (obstacle_exists) {
-      std::cout << "ERROR: setColor(const Color& color) has no effect AFTER setPosition(osg::Vec3) !!!"
-		<< std::endl;
-      std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
-      exit(-1);
-    }
+    if (obstacle_exists) recreate();
+//     if (obstacle_exists) {
+//       std::cout << "ERROR: setColor(const Color& color) has no effect AFTER setPosition(osg::Vec3) !!!"
+// 		<< std::endl;
+//       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
+//       exit(-1);
+//     }
   };
 
 
   void AbstractGround::setTexture(const std::string& filename){
     wallTextureFileName=filename;
-    if (obstacle_exists) {
-      std::cout << "ERROR: "
-		<< "setTexture(const std::sting& filename) has no effect AFTER setPosition(osg::Vec3) !!!"
-		<< std::endl;
-      std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
-      exit(-1);
-    }
+    if (obstacle_exists) recreate();
+
+//     if (obstacle_exists) {
+//       std::cout << "ERROR: "
+// 		<< "setTexture(const std::sting& filename) has no effect AFTER setPosition(osg::Vec3) !!!"
+// 		<< std::endl;
+//       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
+//       exit(-1);
+//     }
   }
 
   Primitive* AbstractGround::getMainPrimitive() const { 
