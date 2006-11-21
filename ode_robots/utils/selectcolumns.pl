@@ -6,10 +6,10 @@ while(shift){}
 if ($argc<1) { 
     print "Usage: selectrows.pl fieldpatterns < logfile > newlogfile \n";  
     print "\t fieldpatterns: regular expressions that match field descriptions in #C line\n";  
-    print "\t \t please note that some special characters have to be quoted, see below.\n";  
+    print "\t\t please note that some special characters have to be quoted, see below.\n";  
     print "\t Example: \"x\\[\" \"C\\[0\\]\"\n";  
-    print "\t \t the file will contain all sensor values x[..] and the first row of the controller matrix C[0][..]\n";  
-    print "\t Hint: If you want to get rid of the comment lines then use: | grep -v \"^#\" > newlogfile\n";
+    print "\t\t the file (newlogfile) will contain all sensor values x[..] \n\t\t and the first row of the controller matrix C[0][..]\n";  
+    print "\t Hint: If you want to get rid of the comment lines then use: \n\t\t| grep -v \"^#\" > newlogfile\n";
     exit;
 }
 my @columns;
