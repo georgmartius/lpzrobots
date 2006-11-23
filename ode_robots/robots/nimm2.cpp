@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2006-09-21 22:09:58  martius
+ *   Revision 1.25  2006-11-23 10:25:47  fhesse
+ *   side and rear infrared sensors added
+ *   orientation of front ir sensors modified
+ *
+ *   Revision 1.24  2006/09/21 22:09:58  martius
  *   collision for mesh
  *
  *   Revision 1.23  2006/07/20 17:19:44  martius
@@ -165,6 +169,10 @@ namespace lpzrobots {
     
     // increase sensornumber by 2 if front infrared sensors are used
     sensorno+= conf.irFront * 2;
+    // increase sensornumber by 4 if side infrared sensors are used
+    sensorno+= conf.irSide * 4;
+    // increase sensornumber by 2 if rear infrared sensors are used
+    sensorno+= conf.irBack * 2;
   };
 
 
@@ -206,7 +214,8 @@ namespace lpzrobots {
     }
     // ask sensorbank for sensor values (from infrared sensors)
     //  sensor+len is the starting point in the sensors array
-    len += irSensorBank.get(sensors+len, sensornumber-len);
+    if (conf.irFront || conf.irSide || conf.irBack)
+      len += irSensorBank.get(sensors+len, sensornumber-len);
     return len;
   };
 
@@ -393,20 +402,77 @@ namespace lpzrobots {
       joint[i]->setParam(dParamHiStop,0);
     }
 
-    // initialize sensorbank (for use of infrared sensors)
-    irSensorBank.init(odeHandle, osgHandle);
 
-    if (conf.irFront){ // add front infrared sensors to sensorbank if required
+    /* initialize sensorbank (for use of infrared sensors)
+     * sensor values (if sensors used) are saved in the vector of 
+     * sensorvalues in the following order:
+     * front left
+     * front right 
+     * right front
+     * right rear
+     * rear rigth
+     * rear left
+     * left rear
+     * left front
+    */
+    irSensorBank.init(odeHandle, osgHandle);
+    if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
 	irSensorBank.registerSensor(sensor, object[0], 
-				    Matrix::rotate(i*M_PI/10, Vec3(0,0,1)) * 
-				    Matrix::translate(0,i*width/10,length/2 + width/2 - width/60 ), 
+				    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) * 
+				    Matrix::translate(0,-i*width/10,length/2 + width/2 - width/60 ), 
 				    conf.irRange, RaySensor::drawAll);
       }
     }
-    // TODO Back , Side sensors
-
+    if (conf.irSide){ // add right front and right rear infrared sensor to sensorbank if required
+      for(int i=-1; i<2; i+=2){ 
+	IRSensor* sensor = new IRSensor();
+	if (conf.bumper){ // if bumpers used place on bumper
+	  irSensorBank.registerSensor(sensor, object[0], 
+				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) * 
+				      Matrix::rotate(M_PI/2, Vec3(1,0,0)) * 
+				      Matrix::translate(0,-width,-i*(length/2) ), 
+				      conf.irRange, RaySensor::drawAll);
+	  
+	}else{ // place on body
+	  irSensorBank.registerSensor(sensor, object[0], 
+				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) * 
+				      Matrix::rotate(M_PI/2, Vec3(1,0,0)) * 
+				      Matrix::translate(0,-width/2,i*(length/2) ), 
+				      conf.irRange, RaySensor::drawAll);
+	}
+      }
+    }
+    if (conf.irBack){ // add rear right and rear left infrared sensor to sensorbank if required
+      for(int i=-1; i<2; i+=2){
+	IRSensor* sensor = new IRSensor();
+	irSensorBank.registerSensor(sensor, object[0], 
+				    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) * 
+				    Matrix::rotate(i*M_PI, Vec3(0,1,0)) * 
+				    Matrix::translate(0,i*width/10,-(length/2 + width/2 - width/60) ), 
+				    conf.irRange, RaySensor::drawAll);
+      }
+    }
+    if (conf.irSide){ // add left rear and left front infrared sensor to sensorbank if required
+      for(int i=-1; i<2; i+=2){
+	IRSensor* sensor = new IRSensor();
+	if (conf.bumper){ // if bumpers used place on bumper
+	  irSensorBank.registerSensor(sensor, object[0], 
+				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) * 
+				      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) * 
+				      Matrix::translate(0,width,i*(length/2) ), 
+				      conf.irRange, RaySensor::drawAll);
+	  
+	} else { // else place onb body
+	  irSensorBank.registerSensor(sensor, object[0], 
+				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) * 
+				      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) * 
+				      Matrix::translate(0,width/2,i*(length/2) ), 
+				      conf.irRange, RaySensor::drawAll);
+	}
+      }
+    }
     created=true;
   }; 
 
