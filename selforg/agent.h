@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-11-17 13:46:53  martius
+ *   Revision 1.6  2006-11-23 13:06:10  martius
+ *   onlyControlRobot is a new function. Useful for ODE simulations where physics runs faster than
+ *   control cycle
+ *
+ *   Revision 1.5  2006/11/17 13:46:53  martius
  *   list of configureables to appear in configuration file
  *
  *   Revision 1.4  2006/08/04 15:16:13  martius
@@ -201,7 +205,7 @@ public:
   */
   virtual void step(double noise);
 
-  /** Sends only last motor commands again to robot. */
+  /** Sends only last motor commands again to robot.  */
   virtual void onlyControlRobot();
 
   /** Returns a pointer to the controller.
