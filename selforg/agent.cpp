@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-11-17 13:46:59  martius
+ *   Revision 1.7  2006-11-23 13:04:10  martius
+ *   bugfix in onlycontrolrobot because rmotor was not set to zero!
+ *
+ *   Revision 1.6  2006/11/17 13:46:59  martius
  *   list of configureables to appear in configuration file
  *
  *   Revision 1.5  2006/08/04 15:16:13  martius
@@ -186,9 +189,9 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
 
   rsensors      = (sensor*) malloc(sizeof(sensor) * rsensornumber);
   rmotors       = (motor*)  malloc(sizeof(motor)  * rmotornumber);
+  memset(rmotors,0,sizeof(motor)*rmotornumber);
   csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
   cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
-
 
   // copy plotoption list and add it one by one
   list<PlotOption> po_copy(plotOptions);
