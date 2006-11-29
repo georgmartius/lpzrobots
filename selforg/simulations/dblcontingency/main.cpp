@@ -8,7 +8,8 @@
 
 #include <selforg/agent.h>
 #include <selforg/abstractrobot.h>
-#include <selforg/invertmotorspace.h>
+// #include <selforg/invertmotorspace.h>
+#include <selforg/invertmotornstep.h>
 #include <selforg/one2onewiring.h>
 
 #include "cmdline.h"
@@ -217,9 +218,11 @@ int main(int argc, char** argv){
   list<Agent*> agents;
   
   for(int i=0; i<3; i++){
-    AbstractController* controller = new InvertMotorSpace(10);
+    AbstractController* controller = new InvertMotorNStep();
     controller->setParam("s4delay",1.0);
     controller->setParam("s4avg",2.0);  
+    controller->setParam("adaptrate",0.0);  
+    controller->setParam("factorB",0.01);  
   
     MyRobot* robot         = new MyRobot("Robot" + itos(i), Position(0,0,0));
     Agent* agent           = new Agent(i==0 ? plotoptions : list<PlotOption>());

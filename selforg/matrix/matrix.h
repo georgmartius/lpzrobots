@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.6  2006-08-04 15:16:13  martius
+// Revision 1.7  2006-11-29 16:22:43  martius
+// name is a variable of configurable and is used as such
+//
+// Revision 1.6  2006/08/04 15:16:13  martius
 // documentation
 //
 // Revision 1.5  2006/07/20 17:14:35  martius
@@ -203,6 +206,11 @@ namespace matrix{
     void set(const D* _data);
     /** @return row-vector(as 1xN matrix) containing the index'th row */
     Matrix row(unsigned short index) const;
+    /** @returns submatrix (as KxN matrix) 
+	containing row from startindex to endindex inclusively (K=stopindex-endindex) 
+	indices can be out of bounds, they are clipped in any case
+    */
+    Matrix rows(unsigned short startindex, unsigned short endindex) const;
     /** @returns column-vector(as Nx1 matrix) containing the index'th column */
     Matrix column(unsigned short index) const;
     /** @returns submatrix (as NxK matrix) 

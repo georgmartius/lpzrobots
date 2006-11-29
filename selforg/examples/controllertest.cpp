@@ -6,10 +6,10 @@ using namespace std;
 #include <selforg/invertnchannelcontroller.h>
 
 int main(){
-  AbstractController* controller = new InvertNChannelController(5 );
+  //AbstractController* controller = new InvertNChannelController(5 );
+  AbstractController* controller = new SineController();
   controller->init(2,2);
   controller->print(stderr,0);
-  return 0;
   sensor sensors[3] = {0.1,-0.1,0.3};
   motor motors[2];
   // short circuit

@@ -2,6 +2,7 @@
 #include <iostream>
 using namespace std;
 #include "cmdline.h"
+#include <string>
 
 // Commandline interface stuff
 void showParams(const ConfigList& configs, FILE* f /*= 0*/, const char* lineprefix /*= 0*/)
@@ -24,7 +25,7 @@ void changeParams(ConfigList& configs,
   
   char *p = strchr(buffer,'=');
   if (p){
-    *p=0; // terminate key string 
+    *p=0; // terminate key string
     double v=strtod(p+1,0);
     for(ConfigList::iterator i=configs.begin(); i != configs.end(); i++){
       if ((*i)->setParam(buffer,v))
