@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-07-14 12:23:52  martius
+ *   Revision 1.8  2006-11-29 09:16:09  martius
+ *   modell stuff
+ *
+ *   Revision 1.7  2006/07/14 12:23:52  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.6.4.6  2006/05/15 13:11:29  robot3
@@ -63,30 +66,33 @@
 #include "passivesphere.h"
 
 #include <selforg/invertmotornstep.h>
+#include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
 
 #include "forcedsphere.h"
 #include "sphererobot3masses.h"
+#include "barrel2masses.h"
+#include "axisorientationsensor.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
 
-AbstractController *controller;
-
 class ThisSim : public Simulation {
 public:
+  AbstractController *controller;
+  OdeRobot* sphere1;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
     global.odeConfig.setParam("noise",0.03);
     //  global.odeConfig.setParam("gravity",-10);
-    global.odeConfig.setParam("controlinterval",1);
+    global.odeConfig.setParam("controlinterval",4);
 
 //   // Outer Ring
 //   AbstractObstacle* ring1 = new OctaPlayground(odeHandle, 20);
@@ -107,30 +113,46 @@ public:
 
     
     //****************
-     OdeRobot* sphere1;
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+    conf.pendularrange  = 0.3; 
+    conf.motorsensor=false;
     conf.axisZsensor=true;
     conf.axisXYZsensor=false;
     conf.irAxis1=false;
     conf.irAxis2=false;
     conf.irAxis3=false;
     conf.spheremass   = 1;
-    sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
-				       conf, "Sphere1", 0.2); 
-//    sphere1 = new ForcedSphere(odeHandle, osgHandle, "FSphere");
-    
-    sphere1->place ( Pos( 0 , 0 , 0 ));
-    controller = new InvertMotorNStep();
+    //    sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
+    //				       conf, "Sphere1", 0.2); 
+    sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
+				  conf, "Barrel1", 0.2); 
+    //// FORCEDSPHERE
+    // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
+    // fsc.drivenDimensions=ForcedSphere::X;
+    // fsc.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+    // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
+    // 
+    sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    cc.cInit=0.5;
+    controller = new InvertMotorNStep(cc);    
+    //controller = new SineController();
     controller->setParam("steps", 2);    
-    controller->setParam("adaptrate", 0.001);    
+    //    controller->setParam("adaptrate", 0.001);    
+    controller->setParam("adaptrate", 0.0);    
     controller->setParam("nomupdate", 0.005);    
-    controller->setParam("epsC", 0.01);    
-    controller->setParam("epsA", 0.005);    
+    controller->setParam("epsC", 0.03);    
+    controller->setParam("epsA", 0.05);    
+    // controller->setParam("epsC", 0.001);    
+    // controller->setParam("epsA", 0.001);    
+    //    controller->setParam("rootE", 1);    
+    //    controller->setParam("logaE", 2);    
     controller->setParam("rootE", 3);    
-    controller->setParam("logaE", 2);    
+    controller->setParam("logaE", 0);    
 //     controller = new SineController();  
-//     controller->setParam("sinerate", 40);  
-//     controller->setParam("phaseshift", 0.0);
+    controller->setParam("sinerate", 15);  
+    controller->setParam("phaseshift", 0.45);
     
     One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
     OdeAgent* agent = new OdeAgent ( plotoptions );
@@ -142,31 +164,22 @@ public:
     showParams(global.configs);
   }
 
-//   //Funktion die eingegebene Befehle/kommandos verarbeitet
-//   void command (const OdeHandle&, GlobalData& globalData, int key)
-//   {
-//     //dsPrint ( "Eingabe erfolgt %d (`%c')\n" , cmd , cmd );
-//     switch ( (char) key )
-//       {
-//       case 'y' : dBodyAddForce ( sphere1->object[Sphererobot::Base]->getBody() , 10 ,0 , 0 ); break;
-//       case 'Y' : dBodyAddForce ( sphere1->object[Sphererobot::Base]->getBody() , -10 , 0 , 0 ); break;
-//       case 'x' : dBodyAddTorque ( sphere1->object[Sphererobot::Base]->getBody() , 0 , 0 , 3 ); break;
-//       case 'X' : dBodyAddTorque ( sphere1->object[Sphererobot::Base]->getBody() , 0 , 0 , -3 ); break;
-//       case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2); 
-// 	printf("sineRate : %g\n", controller->getParam("sineRate"));
-//       break;
-//       case 's' : controller->setParam("sineRate", controller->getParam("sineRate")/1.2); 
-// 	printf("sineRate : %g\n", controller->getParam("sineRate"));
-// 	break;
-//       }
-//   }
-
   // add own key handling stuff here, just insert some case values
-virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
+	case 'y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , 10 ,0 , 0 ); break;
+	case 'Y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -10 , 0 , 0 ); break;
+	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0 , 3 ); break;
+	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0 , -3 ); break;
+	case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2); 
+	  printf("sineRate : %g\n", controller->getParam("sineRate"));
+	  break;
+	case 's' : controller->setParam("sineRate", controller->getParam("sineRate")/1.2); 
+	  printf("sineRate : %g\n", controller->getParam("sineRate"));
+	  break;
 	default:
 	  return false;
 	  break;

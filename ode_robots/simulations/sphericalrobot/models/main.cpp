@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <selforg/multilayerffnn.h>
+#include "datafunc.h"
 
 #define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(); it!= (coll).end(); it++ )
 #define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(); it!= (coll).end(); it++ )
@@ -52,79 +53,6 @@ int contains(char **list, int len,  const char *str){
   return 0;
 }
 
-/// INPUT / Output Data selectors
-typedef Matrix (*DataFunc)(const vector<Matrix>& data, int time);
-
-Matrix tm12(const vector<Matrix>& data, int time){
-  assert(time>1);
-  return data[time-2].above(data[time-1]);
-}
-
-Matrix tm123(const vector<Matrix>& data, int time){
-  assert(time>2);
-  return data[time-3].above(data[time-2].above(data[time-1]));
-}
-
-Matrix tm125(const vector<Matrix>& data, int time){
-  assert(time>4);
-  return data[time-5].above(data[time-2].above(data[time-1]));
-}
-
-
-Matrix tm12345(const vector<Matrix>& data, int time){
-  assert(time>4);
-  return data[time-5].above(data[time-4].above(data[time-3].above(data[time-2].above(data[time-1]))));
-}
-
-Matrix tm12358(const vector<Matrix>& data, int time){
-  assert(time>7);
-  return data[time-8].above(data[time-5].above(data[time-3].above(data[time-2].above(data[time-1]))));
-}
-
-Matrix tm125_10_20(const vector<Matrix>& data, int time){
-  assert(time>19);
-  return data[time-20].above(data[time-10].above(data[time-5].above(data[time-2].above(data[time-1]))));
-}
-
-Matrix tm1_to_20(const vector<Matrix>& data, int time){
-  assert(time>19);
-  Matrix rv=data[time-20];
-  for(int i=19; i>=1; i--){
-    rv = rv.above(data[time-i]);
-  }
-  return rv;
-}
-
-Matrix t(const vector<Matrix>& data, int time){
-  assert(time>=0);
-  return data[time];
-}
-
-Matrix t_01(const vector<Matrix>& data, int time){
-  assert(time>=0);
-  return data[time].rows(0,1);
-}
-
-Matrix t_012(const vector<Matrix>& data, int time){
-  assert(time>=0);
-  return data[time].rows(0,2);
-}
-
-DataFunc datafunctions(const string& name){
-  if(name=="tm12") return &tm12;
-  if(name=="tm123") return &tm123;
-  if(name=="tm125") return &tm125;
-  if(name=="tm12345") return &tm12345;
-  if(name=="tm12358") return &tm12358;
-  if(name=="tm125_10_20") return &tm125_10_20;
-  if(name=="tm1-20") return &tm1_to_20;
-  if(name=="t") return &t;
-  if(name=="t_01") return &t_01;
-  if(name=="t_012") return &t_012;
-  cerr << "Unknown Data-function: " << name << endl;
-  exit(1);  
-  return 0;
-}
 
 
 int main(int argc, char** argv){
@@ -138,7 +66,7 @@ int main(int argc, char** argv){
   int iterations = 1;
   double eps = 0.01;
   int maxhistory=20;
-  int numhidden=3;
+  int numHidden=3;
   DataFunc inp = &tm123;
   DataFunc out = &t;
   FILE* f;  
@@ -174,7 +102,7 @@ int main(int argc, char** argv){
   index = contains(argv,argc,"-i");
   if(index!=0 && argc > index) { iterations = atoi(argv[index]); }
   index = contains(argv,argc,"-u");
-  if(index!=0 && argc > index) { numhidden = atoi(argv[index]); }
+  if(index!=0 && argc > index) { numHidden = atoi(argv[index]); }
   index = contains(argv,argc,"-inp");
   if(index!=0 && argc > index) { inp = datafunctions(argv[index]); }
   index = contains(argv,argc,"-out");
