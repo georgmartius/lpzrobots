@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.5  2006-08-04 15:16:13  martius
+// Revision 1.6  2006-11-29 09:57:53  martius
+// bugfix in rows!
+//
+// Revision 1.5  2006/08/04 15:16:13  martius
 // documentation
 //
 // Revision 1.4  2006/07/20 17:14:35  martius
@@ -137,6 +140,15 @@ const int T=0xFF;
   Matrix Matrix::row(unsigned short index) const{
     assert(index < m);
     Matrix result(1,n,data+(index*n));    
+    return result;
+  }
+
+  Matrix Matrix::rows(unsigned short startindex, unsigned short endindex) const{
+    unsigned short start = std::min( (int)startindex, m-1 );
+    unsigned short end   = std::max( (int)start, std::min((int)endindex,m-1));
+    unsigned short k     = end - start + 1;
+    Matrix result(k,n);
+    memcpy(result.data, data + start*n, k*n*sizeof(D));    
     return result;
   }
 
@@ -619,15 +631,16 @@ const int T=0xFF;
   std::ostream& operator<<(std::ostream& str, const Matrix& mat){
     if (mat.m==0 || mat.n==0) return str << "0";
     else { 
-      str << mat.m << "x" << mat.n << " (\n";
+      //      str << mat.m << "x" << mat.n << " (\n";
       for(int i=0; i < mat.m; i++){
         for(int j=0; j < mat.n; j++){
-          str << mat.val(i,j) << "\t"; 
+          str << mat.val(i,j) << " \t"; 
         }
-        str << std::endl;
+        if(i!=mat.m-1) str << std::endl;
       }      
     }
-    return str << ")\n";
+    //    return str << ")\n";
+    return str;
   }
 #endif
 
