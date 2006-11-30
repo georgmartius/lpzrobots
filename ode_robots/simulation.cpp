@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.51  2006-10-20 14:24:55  martius
+ *   Revision 1.52  2006-11-30 10:06:41  robot5
+ *   dded support for Sndchanger (experimental). Startup with argument -s.
+ *
+ *   Revision 1.51  2006/10/20 14:24:55  martius
  *   max velocity for joint-correction limited
  *
  *   Revision 1.50  2006/09/22 10:57:36  martius
@@ -763,7 +766,7 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)	
 	guiloggerinterval=atoi(argv[index]);
-      plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval));      
+      plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval));
     }
 
     // logging to file
@@ -772,7 +775,7 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)	
 	filelogginginterval=atoi(argv[index]);
-      plotoptions.push_back(PlotOption(File, Controller, filelogginginterval));      
+      plotoptions.push_back(PlotOption(File, Controller, filelogginginterval));
     }
 
     // starting neuronviz
@@ -781,9 +784,14 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)	
 	neuronvizinterval=atoi(argv[index]);
-      plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval));      
+      plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval));
     }
- 
+
+    // using sndchanger for acustic output
+    if(contains(argv, argc, "-s")) {
+     plotoptions.push_back(PlotOption(SndChanger, Controller, 1));
+    }
+
     index = contains(argv, argc, "-r");
     long seed=0;
     // initialize random number generator
@@ -814,7 +822,7 @@ namespace lpzrobots {
       printf("shadowTexSize=%i\n",shadowTexSize);
     }
 
-    
+
     globalData.odeConfig.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
 
     // read intended simulation time 
