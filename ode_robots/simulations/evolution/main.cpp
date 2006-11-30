@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2006-10-20 13:52:42  robot8
+ *   Revision 1.16  2006-11-30 08:51:39  robot8
+ *   -update of the evolution projekt
+ *   -fitness changed
+ *   -replication changed
+ *   -added copy function
+ *
+ *   Revision 1.15  2006/10/20 13:52:42  robot8
  *   -update of the evolution projekt
  *   -only changed some parameter
  *
@@ -107,16 +113,16 @@
 
 #include "atomcomponent.h"
 
-#include <vector>
+#include <vector.h>
 
 
 //physical definition part
 #define REACTIONROOMWIDTH 2.5
 #define REACTIONROOMLENGTH 2.5
 //both density values ahve to be bigger than 1 so, that the atoms do not colide at the beginning, the higher the value, the less atoms are there
-#define ATOMDENSITY 5
+#define ATOMDENSITY 3
  //this is the space between two atoms, bigger means less robots and smaller more atoms
-#define ROBOTDENSITY 10 //this is the space between two robots-atoms, bigger means less robots and smaler more robot-atoms
+#define ROBOTDENSITY 6 //this is the space between two robots-atoms, bigger means less robots and smaler more robot-atoms
 #define ROBOTHEIGHT 1.5
 #define SHIFTBETWEENATOMSANDROBOTS_X 0.1
 #define SHIFTBETWEENATOMSANDROBOTS_Y 0.1
@@ -180,7 +186,7 @@ public:
     aConf.mass = 1;
     aConf.max_bindings = 4;
     aConf.binding_energy = 0.1;
-    aConf.min_fission_energy = 3;
+    aConf.min_fission_energy = 1.5;
 
     aConf.replicationSliderHandle = &replicationSlider;
 
@@ -202,10 +208,11 @@ public:
 	{
 	    //atom
 	    components.push_back ( new AtomComponent ( odeHandle , osgHandle_2 , cConf , aConf ) );
-	    components.back ()->place ( Pos( x + SHIFTBETWEENATOMSANDROBOTS_X , y + SHIFTBETWEENATOMSANDROBOTS_Y , aConf.shell_radius*2 + ROBOTHEIGHT )); 
+	    components.back ()->place ( Pos( x + SHIFTBETWEENATOMSANDROBOTS_X , y + SHIFTBETWEENATOMSANDROBOTS_Y , aConf.shell_radius*2 + ROBOTHEIGHT ));
 
 	    ((AtomComponent*) components.back ())->atomconf.leadingatom = true;
 	    //controller
+
 	    controller = new InvertMotorNStep ( cc );
 	    controller->setParam ("adaptrate", 0.005);
 	    controller->setParam ("epsC", 0.005);
@@ -238,16 +245,30 @@ public:
     showParams(global.configs);
     replicationSlider.empty ();
 
+
+    /*    selectionlist.push_back ( (AtomOdeAgent*) globalData.agents.front () );
+    globalData.configs.erase ( globalData.configs.begin () );
+    delete ( globalData.agents.front() );
+    globalData.agents.erase ( globalData.agents.begin () );
+
+    selectionlist.erase ( selectionlist.begin () );*/
+    
+
   } 
 
     void addCallback ( GlobalData& globalData , bool draw , bool pause )
 	{
+
+
+
+
 	    for ( unsigned int n = 0; n < components.size (); n++ )
 		components[n]->update (); //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents   
 
+
 	    //only if there are replication sliders allocated at the moment
-//	    cout<<&replicationSlider<<"\n";
-//	    cout<<replicationSlider.size ()<<"\n";
+
+	    
 	    for ( unsigned int n = 0; n < replicationSlider.size (); n++ )
 	    {		
 		replicationSlider[n].slider->update (); //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
@@ -259,6 +280,17 @@ public:
 		    if ( ((AtomComponent*) replicationSlider[n].startComponent)->atomconf.leadingatom == false )
 		    {
 			((AtomComponent*) replicationSlider[n].startComponent)->makeComponentStructureRoot (); //to be shure that the structure stays correct when we create a new controller
+
+
+	    //saving the existing controllers so hey can be used to create the new ones
+	    //the two replication sliders where the startComponents atoms are leading atoms(do have agents)
+	    //each pair of even and uneven controller driven atoms belong to each other (hat means belong to one replication, so that the new controllers should be build from them)
+			//	    for ( unsigned int n = 0; n < replicationSlider.size (); n++ )
+			//	      if ( ((AtomComponent*) replicationSlider[n].startComponent)->atomconf.leadingatom == true )
+			//		;
+
+
+
 			InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 			cc.cInit=2;
 			AbstractController* controller;
@@ -285,7 +317,7 @@ public:
 
 			((AtomOdeAgent*) globalData.agents.back ())->setLifeCycle ( MAXLIFECYCLE );
 
-			((AtomComponent*) replicationSlider[n].startComponent)->atomconf.leadingatom = true;
+			((AtomComponent*) ((AtomOdeAgent*) globalData.agents.back ())->getRobot())->atomconf.leadingatom = true;
 
 		    }
 		    
@@ -301,33 +333,37 @@ public:
 	    }
 
 
-
 	    /**********************************************************************************************/
 
 	    //	    evolution loop
 	    //      calculate fitness
 
 	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
-		cout<<"LifeCycle of "<<n<<" = "<<((AtomOdeAgent*) globalData.agents[n])->getLifeCycle ()<<"\n"; //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
+	      cout<<"LifeCycle of "<<n<<" : "<<globalData.agents[n]->getRobot ()<<" = "<<((AtomOdeAgent*) globalData.agents[n])->getLifeCycle ()<<" Fitness: "<<((AtomOdeAgent*) globalData.agents[n])->getFitness ()<<"\n"; //not realy perfect, because the atoms belonging to robots are drawn an additional time by the agents
+
 
 	    double fitnesscounter;
 	    selectionlist.clear (); //clears all elements from the selection list, so that a new selection for this simulation step could start
 
 	    unsigned int pushbackposition = 0;
-	    vector <AtomOdeAgent*> tmpagentvec;
+	    vector <AtomOdeAgent*> tmpagentvec; //vector for all agents with lifecycle 0
+	    vector <AtomOdeAgent*> tmpagentvec2;//vector for all agents not with life cycle 0
 
 	    //creating a selected list from the original agent list
 	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
 	    {
 
 		if ( ((AtomOdeAgent*) globalData.agents[n])->getLifeCycle() <= 0 )
-		{
-//		    cout<<"LifeCycle-status: "<<((AtomOdeAgent*) globalData.agents[n])->getLifeCycle()<<"\n";
-		    tmpagentvec.push_back ( (AtomOdeAgent*) globalData.agents[n] );
 
-		}
+		  tmpagentvec.push_back ( (AtomOdeAgent*) globalData.agents[n] );
+
+		else
+
+		  tmpagentvec2.push_back ( (AtomOdeAgent*) globalData.agents[n] );
 	    }
-	    cout<<"tmpagentsvec.size() : "<<tmpagentvec.size()<<"\n";
+
+	    //tmp val for finaly approving the selection
+	    bool selection_is = true;
 	    
 	    
 	    //creating a sorted list of all agents
@@ -338,7 +374,10 @@ public:
 		double tmpfitness;
 		for ( unsigned int m = 0; m < tmpagentvec.size (); m++ )
 		{
-			tmpfitness = calculateFitness ( m );
+			tmpfitness = tmpagentvec[m]->getFitness ();
+
+			//creating new fitness selection here
+
 			//calling the fitness function
 			if ( tmpfitness < fitnesscounter )
 			{
@@ -346,94 +385,99 @@ public:
 			    pushbackposition = m;
 			}
 		}
-		selectionlist.push_back ( tmpagentvec[pushbackposition] );
-		tmpagentvec.erase ( tmpagentvec.begin() + pushbackposition );
-//		cout<<"original Adresse: "<<globalData.agents[pushbackposition]<<"\n";
-//		cout<<"tmp Adresse: "<<tmpagentvec.back ()<<"\n";
-	    }
 
-	    //after this double loop the selection list contains all agents whose lifeCycle has ended. It ends with the fittest idividual, the individuals less fit are at the start of the vector
+		//controlling if fitness of the selected agent is smaller than all other fitness values of agents who where notselected up till now
+		for ( unsigned int a = 0; a < tmpagentvec2.size (); a++ )
+		  {
+		    if ( fitnesscounter > tmpagentvec2[a]->getFitness () )
+		      {
+			selection_is = false;
+			break;
+		      }
+		    else
+		      selection_is = true;
+		  }
+
+		if ( selection_is == true )
+		    selectionlist.push_back ( tmpagentvec[pushbackposition] );
+
+		//in all cases the agent that was tested will be removed from the tmpagentvec, so that the while loop will come to an end in all cases
+		tmpagentvec.erase ( tmpagentvec.begin() + pushbackposition );
+		
+	    }
+	    selection_is = true;
+
+	    //	    for ( unsigned int n = 0; n < selectionlist.size (); n++ )
+	    //	    cout<<selectionlist[n]<<" : "<<selectionlist[n]->getFitness ()<<"\n";
+
+	    //after this double loop the selection list contains all agents whose lifeCycle has ended, and whose fitness values are the lowest in the whole population at the moment of calculation. It ends with the fittest idividual, the individuals less fit are at the start of the vector. That means agents are only selected if they have the lowest fitness in the population and if their lifetime is over
 	    //also the life times had been updated
-//	    cout<<"start Selection part\n";
+
+
 	    //SELECTION
 
-	    cout<<"Bedingung: "<<((globalData.agents.size() > MAXPOPULATIONSIZE) && (selectionlist.size () > 0))<<"\n";
 	    while ( (globalData.agents.size() > MAXPOPULATIONSIZE) && (selectionlist.size () > 0) ) //only select if there are beeings whose life cycle ended
-	    {
-		((AtomComponent*) (selectionlist.front()->getRobot ()))->atomconf.leadingatom = false;
-		
+	    {	
 		//deleting the controller from global configs
-		vector <Configurable*>::iterator eraseiterator = globalData.configs.begin ();
+	      //		vector <Configurable*>::iterator eraseiterator = globalData.configs.begin ();
 
-		    eraseiterator = globalData.configs.begin ();
 		    for ( unsigned int m = 0; m < globalData.configs.size (); m++ )
 		    {
-			eraseiterator++;
-		    
-			cout<<"before config erase\n";
-			
 			if ( globalData.configs[m] == selectionlist.front()/*[n]*/->getController () )
-			{    
-			    globalData.configs.erase ( eraseiterator );
-			    cout<<"config was erased\n";
-			    break;
+			{
+			  globalData.configs.erase ( globalData.configs.begin () + m );
+			  break;
 			}
 		    }
-
 
 		    for ( unsigned int m = 0; m < globalData.agents.size (); m++ )
 		    {
 		    
-			cout<<"before config erase2\n";
-			
-			if ( globalData.agents[m] == selectionlist.front() /*[n]*/ )
-			{    
-			    ((Component*) globalData.agents[m]->getRobot ())->removeAllSubcomponentsRecursive ();
+			if ( globalData.agents[m] == selectionlist.front() )
+			{
+			  
+			  globalData.agents.erase ( globalData.agents.begin () + m /* eraseiterator2*/ );
 
-			    cout<<"m: "<<m<<"\n";
-			    cout<<"before size selectionlist: "<<selectionlist.size()<<"\n";
-			    cout<<"before size agents: "<<globalData.agents.size()<<"\n";
-			    delete ( globalData.agents[m] );
-			    cout<<"testpos 1\n";
-			    globalData.agents.erase ( globalData.agents.begin ()+m/* eraseiterator2*/ );
-			    cout<<"testpos 2\n";
-			    selectionlist.erase ( selectionlist.begin () );
-			    cout<<"after size selectionlist: "<<selectionlist.size()<<"\n";
-			    cout<<"after size agents: "<<globalData.agents.size()<<"\n";
-			    break;
+			  break;
 			}
-
 		    }
 
-		
+		    ((AtomComponent*) selectionlist.front ()->getRobot ())->atomconf.leadingatom = false;
+		    ((AtomComponent*) selectionlist.front ()->getRobot ())->removeAllSubcomponentsRecursive ();
+		    ((AtomComponent*) selectionlist.front ()->getRobot ())->resetMotorsRecursive ();
+
+
+		    delete ( selectionlist.front() );
+
+		    selectionlist.erase ( selectionlist.begin () );
+
 	    }
-	    cout<<"end while\n";
 	    
-	    //lifeCycle update
+	    //lifeCycle and fitnes update
 	    for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
 	    {
-		((AtomOdeAgent*) globalData.agents[n])->setLifeCycle ( ((AtomOdeAgent*) globalData.agents[n])->getLifeCycle () - 1 );
+	      ((AtomOdeAgent*) globalData.agents[n])->setLifeCycle ( ((AtomOdeAgent*) globalData.agents[n])->getLifeCycle () - 1 );
+	      ((AtomOdeAgent*) globalData.agents[n])->updateFitness ();
 	    }
+	    
 
 	    //all individuals who have survived the selection get a new lifeCycle of existance to aquire fitness
-
 	    for ( unsigned int m = 0; m < globalData.agents.size (); m++ )
 	    {
 		if ( ((AtomOdeAgent*) globalData.agents[m])->getLifeCycle () < 0 )
 		{
 		    ((AtomOdeAgent*) globalData.agents[m])->setLifeCycle ( MAXLIFECYCLE );
+		    ((AtomOdeAgent*) globalData.agents[m])->resetFitness ();
 		}
 	    }
 
 //	    cout<<"before lifecycle update\n";
 
-	    cout<<"end Selection part\n";
-
-	    //      delete Controller of selected component-trees -> these robots will die, number depends on global fitness Setings of the Simulation
-	    //      physical structures are still within the simulation, so they could colide and be bound to other structures, maybe destruction of the structure? should be a parameter of the simulation
+//	    cout<<"end Selection part\n";
 
  
 	    /**********************************************************************************************/
+
 
 	}
 
@@ -509,12 +553,19 @@ public:
 		cout<<"KEY REPLICATION\n";
 		cout<<"replicationSlider-Adress: "<<&replicationSlider<<"\n";
 		((AtomComponent*) globalData.agents[0]->getRobot())->replication ( ((AtomComponent*) globalData.agents[1]->getRobot()) );
-		((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] );
+		//((AtomComponent*)components[0])->replication ( (AtomComponent*) components[1] );
 
 		cout<<replicationSlider.size ()<<"\n";
 
 		cout<<"END OF KEY REPLICATION\n";
 		break;
+
+	    case 'M':
+	      cout<<"CREATE COPIES OF ALL INDIVIDUALS\n";
+	      for ( unsigned int n = 0; n < globalData.agents.size (); n++ )
+		((AtomComponent*) globalData.agents[n]->getRobot())->copyCompleteStructure ( Pos ( 0 , 0 , 10 ) , NULL );
+	      break;
+
 	    case 'T':
 		cout<<"TERMINATE ALL FREE ATOMS\n";
 
@@ -522,6 +573,7 @@ public:
 		{
 		    if ( components[n]->connection.size() == 0 && components[n]->backwardreference.size () == 0 && components[n]->directOriginComponent == components[n] && ((AtomComponent*) components[n])->atomconf.leadingatom == false )
 		    {
+		      delete ( components[n] );
 			components.erase ( components.begin() + n );
 		    }
 		}
@@ -536,7 +588,7 @@ public:
 		    printComponentInfo ( (Component*) globalData.agents[n]->getRobot() );
 		}
 		break;
-	    case 'L':
+		/*	    case 'L':
 		    cout<<"#####################################Complete Component List#############################################\n";
 		for ( unsigned int n = 0; n < components.size (); n++ )
 		{
@@ -565,6 +617,7 @@ public:
 
 		}
 		break;
+		*/
 /*	    case 'M' :
 		cout<<"#####################################connection vector capacity analysis#############################################\n";
 		for ( unsigned int n = 0; n < components.size(); n++)
@@ -573,7 +626,7 @@ public:
 */
 		
 		//external fission/fusion test
-	    case 'V': 
+		/*	    case 'V': 
 		((AtomComponent*) components[0])->fusion ( (AtomComponent*) components[1] );
 //		cout<<*((double*) ((AtomComponent*) components[0])->connection[0].data)<<"\n";
 		break;
@@ -590,7 +643,7 @@ public:
 //		cout<<*((double*) ((AtomComponent*) components[0])->connection[1].data)<<"\n";
 		break;
 	    case ';': 
-/*		cout<<"backward binding strength: \n";
+		cout<<"backward binding strength: \n";
 		for ( unsigned int n = 0; n < ((AtomComponent*) components[0])->backwardreference.size(); n++ )
 		    cout<<*((double*) ((AtomComponent*) components[0])->backwardreference[n]->getConnection ( (AtomComponent*) components[0] )->data)<<"\n";
 		cout<<"normal connection-binding strength: \n";
@@ -623,8 +676,46 @@ public:
 */
 		((AtomComponent*) components[2])->fission ( 1000 );
 		break;
+	case 'L':
+	  InvertMotorNStepConf cc;
+	  cc = InvertMotorNStep::getDefaultConf();
+	  cc.cInit=2;
+	  AbstractController* controller;
+	  DerivativeWiringConf c;
+	  c = DerivativeWiring::getDefaultConf ();
+	  DerivativeWiring* wiring;
+	  AtomOdeAgent* agent;
+	  
+	  //controller
+	  controller = new InvertMotorNStep ( cc );
+	  controller->setParam ("adaptrate", 0.005);
+	  controller->setParam ("epsC", 0.005);
+	  controller->setParam ("epsA", 0.001);
+	  controller->setParam ("rootE", 3);
+	  controller->setParam ("steps", 2);
+	  controller->setParam ("s4avg", 5);
+	  controller->setParam ("factorB",0);
+	  //wiring
+	  wiring = new DerivativeWiring ( c , new ColorUniformNoise () );   
+	  //agent
+	  agent = new AtomOdeAgent ( plotoptions );
+	  agent->init ( controller ,  components.back () , wiring );
+	  globalData.agents.push_back ( agent );
+	  globalData.configs.push_back ( controller );		
+	  
+	  ((AtomOdeAgent*) globalData.agents.back ())->setLifeCycle ( MAXLIFECYCLE );
+	  
+	  ((AtomComponent*) ((AtomOdeAgent*) globalData.agents.back ())->getRobot())->atomconf.leadingatom = true;
+	  break;
 
-
+	case 'K':
+	  if ( globalData.agents.size () > 0 )
+	    {
+	      delete ( globalData.agents.front () );
+	      globalData.agents.erase ( globalData.agents.begin () );
+	      
+	      break;
+	    }
 
 
 
@@ -675,16 +766,6 @@ public:
 	    }
 
 	}
-
-
-  /**
-   *fitness calculation
-   *If the fitness value is smaler than 0 it is bad.
-   **/
-  double calculateFitness ( int n )
-  {
-      return 1/globalData.agents[n]->getController ()->getParam ( "epsC" );
-  }
   
 
 };

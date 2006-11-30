@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-20 07:23:36  robot8
+ *   Revision 1.5  2006-11-30 08:51:39  robot8
+ *   -update of the evolution projekt
+ *   -fitness changed
+ *   -replication changed
+ *   -added copy function
+ *
+ *   Revision 1.4  2006/09/20 07:23:36  robot8
  *   - added functiomnm for counting time (lifeCycle)
  *
  *   Revision 1.3  2006/07/20 17:19:43  martius
@@ -55,14 +61,13 @@
  *
  *                                                                 *
  ***************************************************************************/
+
 #ifndef __ATOMODEAGENT_H
 #define __ATOMODEAGENT_H
 
 #include <selforg/agent.h>
 #include <selforg/abstractcontroller.h>
 #include "odeagent.h"
-
-
 
 
 namespace lpzrobots {
@@ -82,16 +87,22 @@ class AtomOdeAgent : public OdeAgent {
 
   /** destructor
    */
-      virtual ~AtomOdeAgent();
+    //    virtual ~AtomOdeAgent() {}
 
   /** initializes the object with the given controller, robot and wiring
       and initializes pipe to guilogger
   */
-  virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring);
+      virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring);
 
   virtual void setLifeCycle ( int newLifeCycleValue );
 
   virtual int getLifeCycle ();
+
+  virtual void updateFitness ();
+
+  virtual double getFitness ();
+
+  virtual void resetFitness ();
 };
 
 }

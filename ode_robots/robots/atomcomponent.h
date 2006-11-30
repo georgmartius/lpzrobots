@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-09-12 09:29:45  robot8
+ *   Revision 1.11  2006-11-30 08:51:39  robot8
+ *   -update of the evolution projekt
+ *   -fitness changed
+ *   -replication changed
+ *   -added copy function
+ *
+ *   Revision 1.10  2006/09/12 09:29:45  robot8
  *   -working simulation is possible, but no fitness calculation and no selection at the moment
  *
  *   Revision 1.9  2006/09/11 12:01:31  martius
@@ -33,6 +39,8 @@
 
 #include "component.h"
 #include <osgprimitive.h>
+
+#include <selforg/abstractcontroller.h>
 
 
 #ifndef atomcomponent_h
@@ -71,7 +79,11 @@ namespace lpzrobots
 
     } AtomConf;
 
-
+    typedef struct
+    {
+      Component* original;
+      Component* copy;
+    } TableLine;
 
 
 /**
@@ -94,9 +106,12 @@ class AtomComponent : public Component
     {
     public:
 	double binding_strength;
+	double fitness;
 
 	connectionAddition ()
 	{
+	  binding_strength = 0;
+	  fitness = 0;
 	}
 
 	~connectionAddition ()
@@ -136,6 +151,7 @@ static AtomConf getDefaultAtomConf()
     return conf;
 }
 
+ virtual void deleteStructureRecursive ();
 
 /**
  *Use this, to get all sensor values of all the joints of all subcomponents, and the sensors of all robots, belonging to all subcomponents.
@@ -257,12 +273,39 @@ virtual void enableStructureFusionRecursive ();
  **/
 virtual bool fission ( double force );
 
+virtual void fissionOf ( componentConnection* tmpconnection );
+
+virtual AtomComponent* getLeastFittestDivideComponent ( int minsize , AtomComponent* currentBestDivideComponent );
+
+
+virtual AtomComponent* getCopyOutofTable ( std::vector<TableLine> &table );
+
+virtual AtomComponent* copyBaseStructure ( osg::Vec3 deltaposition , std::vector<TableLine> &copytable );
+
+virtual AtomComponent* copySoftlinkStructure ( std::vector<TableLine> &copytable );
+
+virtual AtomComponent* copyCompleteStructure ( osg::Vec3 deltaposition , AtomComponent* copystartcomponent);
+
 /**
  *This is a special fusion of two AtomComponents. They have to belong to two robots, so that touching each ofer causes a crossing over in her structure.
  *@param the AtomComponent which belongs to the structure to replicate with, and which is the point where the replication will happen
  *@return true if replication was successfull, else false
  **/
- virtual bool replication ( AtomComponent* atom_to_recplicate );
+virtual bool replication ( AtomComponent* atom_to_recplicate );
+
+virtual bool replication_old ( AtomComponent* atom_to_recplicate );
+
+virtual void setConnectionFitness ( unsigned int number , double value );
+
+virtual void setConnectionFitnessAll ( double value );
+
+virtual double getConnectionFitness ( unsigned int number );
+
+virtual double getConnectionFitness ( AtomComponent* searchedsubcomponent );
+
+virtual double getStructureFitness ();
+
+virtual void updateConnectionFitnessAll ( AbstractController* controller );
 
 };
 

@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2006-10-20 13:52:33  robot8
+ *   Revision 1.13  2006-11-30 08:51:39  robot8
+ *   -update of the evolution projekt
+ *   -fitness changed
+ *   -replication changed
+ *   -added copy function
+ *
+ *   Revision 1.12  2006/10/20 13:52:33  robot8
  *   -update of the evolution projekt
  *   -only changed some parameter
  *
@@ -198,6 +204,7 @@ namespace lpzrobots
        *This method adds an existing Component as a subcomponent to this component
        *@param subcomponent to add
        *@param reference to external created joint, which connects both components
+       *@param true if connection should be a softlink, false else
        **/
       virtual void addSubcomponent ( Component* newsubcomponent , Joint* newconnectingjoint , bool softlink );
 
@@ -250,6 +257,7 @@ namespace lpzrobots
        **/
       //virtual bool hasSubcomponentAll ( Component* subcomp );
 
+
       /**
        *This method looks if a special component somehow connected to this component.
        *@param the component, which could be connected
@@ -286,6 +294,8 @@ namespace lpzrobots
        *@return the best Componet for dividing at the moment the function is finished
        */
       virtual Component* getBestDivideComponent ( double targetrelation , int maxsize , Component* currentBestDivideComponent );
+
+
      
     };
 

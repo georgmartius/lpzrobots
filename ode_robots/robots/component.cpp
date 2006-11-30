@@ -1,3 +1,4 @@
+
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -21,7 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2006-10-20 13:52:32  robot8
+ *   Revision 1.16  2006-11-30 08:51:39  robot8
+ *   -update of the evolution projekt
+ *   -fitness changed
+ *   -replication changed
+ *   -added copy function
+ *
+ *   Revision 1.15  2006/10/20 13:52:32  robot8
  *   -update of the evolution projekt
  *   -only changed some parameter
  *
@@ -572,6 +579,8 @@ namespace lpzrobots
 
 	return currentBestDivideComponent;
     }
+
+
 
 };
 

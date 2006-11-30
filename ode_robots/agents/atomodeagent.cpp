@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-20 07:23:36  robot8
+ *   Revision 1.7  2006-11-30 08:51:39  robot8
+ *   -update of the evolution projekt
+ *   -fitness changed
+ *   -replication changed
+ *   -added copy function
+ *
+ *   Revision 1.6  2006/09/20 07:23:36  robot8
  *   - added functiomnm for counting time (lifeCycle)
  *
  *   Revision 1.5  2006/08/21 14:15:56  robot8
@@ -58,6 +64,8 @@
 #include "atomodeagent.h"
 #include "odeagent.h"
 
+#include "atomcomponent.h"
+
 using namespace std;
 
 namespace lpzrobots
@@ -78,11 +86,12 @@ AtomOdeAgent::AtomOdeAgent(const std::list<PlotOption>& plotOptions) : OdeAgent(
 	      
 }
 
-AtomOdeAgent::~AtomOdeAgent ()
+/*AtomOdeAgent::~AtomOdeAgent ()
 {
     delete ( wiring );
     delete ( controller );
 }
+*/
 
 
 bool AtomOdeAgent::init ( AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring )
@@ -109,8 +118,8 @@ bool AtomOdeAgent::init ( AbstractController* controller, OdeRobot* robot, Abstr
     csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
     cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
 
-/*    // open the plotting pipe (and file logging) if configured
-    for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
+    // open the plotting pipe (and file logging) if configured
+    /*    for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
       // this prevents the simulation to terminate if the child  closes
       // or if we fail to open it.
       signal(SIGPIPE,SIG_IGN); 
@@ -135,6 +144,28 @@ int AtomOdeAgent::getLifeCycle ()
 {
     return lifecycle;
 }
+
+void AtomOdeAgent::updateFitness ()
+{
+
+  ((AtomComponent*) getRobot ())->updateConnectionFitnessAll ( getController () );
+}
+
+
+
+/**
+ *fitness calculation
+ **/
+double AtomOdeAgent::getFitness ()
+{
+  return ((AtomComponent*) getRobot ())->getStructureFitness ();
+}
+
+void AtomOdeAgent::resetFitness ()
+{
+  ((AtomComponent*) getRobot ())->setConnectionFitnessAll ( 0 );
+}
+
 
 
 }
