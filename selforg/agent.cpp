@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-11-23 13:04:10  martius
+ *   Revision 1.8  2006-11-30 10:02:11  robot5
+ *   Added support for Sndchanger (experimental). Startup with argument -s.
+ *
+ *   Revision 1.7  2006/11/23 13:04:10  martius
  *   bugfix in onlycontrolrobot because rmotor was not set to zero!
  *
  *   Revision 1.6  2006/11/17 13:46:59  martius
@@ -346,6 +349,11 @@ bool PlotOption::open(){
   case NeuronViz:
     pipe=popen("neuronviz > /dev/null","w");  // TODO: Platform dependent
     break;
+
+  case SndChanger:
+    pipe=popen("perl ../../utils/sndchanger.pl","w");
+    break;
+
   default: // and NoPlot
     return false;
   }
@@ -382,6 +390,12 @@ void PlotOption::close(){
       pclose(pipe);
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
       break;
+
+    case SndChanger:
+      std::cout << "SndChanger closing...SUCCESSFUL" << std::endl;
+      fclose(pipe);
+      break;
+
     default:
       break;
     }

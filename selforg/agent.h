@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-11-23 13:06:10  martius
+ *   Revision 1.7  2006-11-30 10:02:11  robot5
+ *   Added support for Sndchanger (experimental). Startup with argument -s.
+ *
+ *   Revision 1.6  2006/11/23 13:06:10  martius
  *   onlyControlRobot is a new function. Useful for ODE simulations where physics runs faster than
  *   control cycle
  *
@@ -111,17 +114,21 @@ class Agent;
 
 /** Output mode for agent.
  */
-enum PlotMode {  
+enum PlotMode {
   /// dummy (does nothing) is there for compatibility, might be removed later
-  NoPlot, 
+  NoPlot,
   /// write into file
-  File, 
+  File,
   /// plotting with guilogger (gnuplot)
-  GuiLogger, 
+  GuiLogger,
   /// plotting with guiscreen (gnuplot) in file logging mode
   GuiLogger_File,
   /// net visualiser
   NeuronViz,
+
+  /// Acustic output of robotic values via external Sndchanger
+  SndChanger,
+
   /// dummy used for upper bound of plotmode type
   LastPlot
 };
@@ -137,7 +144,7 @@ enum PlotSensors {Robot, Controller};
 class PlotOption {
 public:
   friend class Agent;
-  
+
   PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; }
   PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, 
 	      int interval = 1, std::list<const Configurable*> confs = std::list<const Configurable*>())
@@ -155,7 +162,7 @@ public:
   void addConfigurable(const Configurable*);
 
 private:
- 
+
   bool open(); //< opens the connections to the plot tool 
   void close();//< closes the connections to the plot tool
 
@@ -165,7 +172,7 @@ private:
 
   PlotMode mode;
   PlotSensors whichSensors;
-  int interval;  
+  int interval;
   std::list< const Configurable* > configureables;
 };
 
