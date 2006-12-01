@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-11-17 13:44:50  martius
+ *   Revision 1.6  2006-12-01 16:20:40  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2006/11/17 13:44:50  martius
  *   corrected z-axes sensor problem
  *   there are two sensors for this situation
  *
@@ -97,15 +100,35 @@ namespace lpzrobots {
 
   const int Sphererobot3Masses::servono;
 
+
   /**
    *constructor
    **/
   Sphererobot3Masses::Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 					   const Sphererobot3MassesConf& conf, const std::string& name,
 					   double transparency)
-    : OdeRobot ( odeHandle, osgHandle, name, "$Id$"), conf(conf)
+    : OdeRobot ( odeHandle, osgHandle, name, "$Id$"), 
+      conf(conf), transparency(transparency) 
   {
+    numberaxis=3;
+    init();
+  }
 
+  /**
+   *constructor
+   **/
+  Sphererobot3Masses::Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+					   const Sphererobot3MassesConf& conf, const std::string& name,
+					   const std::string& revision,
+					   double transparency)
+    : OdeRobot ( odeHandle, osgHandle, name, revision), conf(conf),transparency(transparency)
+  {
+    numberaxis=3;
+    init();
+  }
+
+
+  void Sphererobot3Masses::init(){
     created = false;
     memset(object, 0,sizeof(void*) * Last);
     memset(joint, 0,sizeof(void*) * servono);
@@ -113,9 +136,8 @@ namespace lpzrobots {
     memset(servo, 0,sizeof(void*) * servono);
     
     this->conf.pendulardiameter = conf.diameter/7;
-    this->transparency=transparency;	
-
   }
+  
 	
   Sphererobot3Masses::~Sphererobot3Masses()
   {
@@ -148,7 +170,7 @@ namespace lpzrobots {
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base]->getBody() ) );
 
     if(conf.motorsensor){
-      for ( int n = 0; n < servono; n++ ) {
+      for ( unsigned int n = 0; n < numberaxis; n++ ) {
 	sensors[len] = servo[n]->get() * 0.2;
 	len++;
       }
@@ -179,14 +201,8 @@ namespace lpzrobots {
     return len;
   }
 
-  /**
-   *Reads the actual motor commands from an array, and sets all motors of the snake to this values.
-   *It is a linear allocation.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
-   *@param motornumber length of the motor array
-   **/
   void Sphererobot3Masses::setMotors ( const motor* motors, int motornumber ) {
-    int len = min(motornumber, servono);
+    int len = min((unsigned)motornumber, numberaxis);
     for ( int n = 0; n < len; n++ ) {
       servo[n]->set(motors[n]);
     }
@@ -250,7 +266,7 @@ namespace lpzrobots {
    *@return number of motors
    **/
   int Sphererobot3Masses::getMotorNumber(){
-    return servono;
+    return numberaxis;
   }
 
   /**
@@ -258,7 +274,8 @@ namespace lpzrobots {
    *@return number of sensors
    **/
   int Sphererobot3Masses::getSensorNumber() {
-    return conf.motorsensor * servono + conf.axisZsensor * servono + conf.axisXYZsensor * servono * 3 
+    return conf.motorsensor * numberaxis + conf.axisZsensor * servono
+      + conf.worldZaxissensor * servono + conf.axisXYZsensor * servono * 3 
       + (conf.irAxis1 + conf.irAxis2 + conf.irAxis3) * 2;
   }
 
@@ -288,17 +305,18 @@ namespace lpzrobots {
     object[Base]->setPose(pose);    
 
     Pos p(pose.getTrans());
-    Primitive* pendular[3];
+    Primitive* pendular[servono];
+    memset(pendular, 0, sizeof(void*) * servono);
 
     //definition of the 3 Slider-Joints, which are the controled by the robot-controler
-    for ( unsigned int n = 0; n < 3; n++ ) {
+    for ( unsigned int n = 0; n < numberaxis; n++ ) {
       pendular[n] = new Sphere(conf.pendulardiameter/2);
       pendular[n]->init(odeHandle, conf.pendularmass, osgHandleX[n], 
 			Primitive::Body | Primitive::Draw); // without geom
       pendular[n]->setPose(pose);    
 
       joint[n] = new SliderJoint(object[Base], pendular[n],
-				 p, osg::Vec3((n==0), (n==1), (n==2)));
+				 p, Axis((n==0), (n==1), (n==2))*pose);
       joint[n]->init(odeHandle, osgHandle, false);
       // the Stop parameters are messured from the initial position!
       joint[n]->setParam ( dParamLoStop, -1.1*conf.diameter*conf.pendularrange );

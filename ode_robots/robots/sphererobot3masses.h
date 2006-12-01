@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-11-17 13:44:43  martius
+ *   Revision 1.8  2006-12-01 16:20:40  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.7  2006/11/17 13:44:43  martius
  *   corrected z-axes sensor problem
  *   there are two sensors for this situation
  *
@@ -121,16 +124,17 @@ public:
 
 protected:
   static const int servono=3;
+  unsigned int numberaxis;
 
   Primitive* object[Last]; 
   SliderServo* servo[servono];
   SliderJoint* joint[servono];
   OSGPrimitive* axis[servono];
-  double transparency;
-  bool created;
 
   Sphererobot3MassesConf conf;
   RaySensorBank irSensorBank; //< a collection of ir sensors  
+  double transparency;
+  bool created;
 
 public:
 
@@ -139,8 +143,19 @@ public:
    **/ 
   Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		       const Sphererobot3MassesConf& conf, const std::string& name, double transparency=0.5 );
-  
+
+protected:
+  /**
+   *constructor for children
+   **/ 
+  Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		       const Sphererobot3MassesConf& conf, 
+		       const std::string& name, const std::string& revision, double transparency);
+  /// initialises some internal variables
+  void init();
+public:  
   virtual ~Sphererobot3Masses();
+
 	
   /// default configuration
   static Sphererobot3MassesConf getDefaultConf(){

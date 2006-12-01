@@ -65,7 +65,7 @@ int main(int argc, char** argv){
   bool loadnetwork=false;
   int iterations = 1;
   double eps = 0.01;
-  int maxhistory=20;
+  unsigned int maxhistory=20;
   int numHidden=3;
   DataFunc inp = &tm123;
   DataFunc out = &t;
@@ -167,19 +167,21 @@ int main(int argc, char** argv){
     net = MultiLayerFFNN(eps, layers);
     net.init(inputdim,outputdim);
     cerr << "Dimensions: " << inputdim << "," << outputdim << endl;
-  }
+  }  
+  cout << "# Number of Hidden units: " << numHidden <<  endl;
   
   /// TRAIN AND/OR CHECK
-  cout << "#C error activity" << endl;
-  
+  cout << "#C error activity avgerror" << endl;
+  double slidingavg=0.5;
   for(int k=0; k<iterations; k++){
     for(unsigned int i=maxhistory; i<data.size()-1; i++){    
       const Matrix& sensors = inp(data, i);
       const Matrix& result  = net.process(sensors); // activate with next data in order judge prediction
       const Matrix& nomout = out(data,i);
-      double diff = (nomout - result).multTM().val(0,0);    
+      double diff = sqrt((nomout - result).multTM().val(0,0));          
+      slidingavg = slidingavg*0.999 + diff*0.001;
       double datdiff = (out(data,i+1) - nomout).multTM().val(0,0) + 0.05;    
-      cout << diff << " " << datdiff  << endl;      
+      cout << diff << " " << datdiff << " " << slidingavg  << endl;      
       if(dumpfile.is_open()) dumpfile << (result^T) << (nomout^T) << endl;
       if(training){
 	net.learn(sensors, out(data,i)); // learn

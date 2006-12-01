@@ -17,7 +17,7 @@ CFLAGS = -Wall -I. -g
 #CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
 LIBS   = -lm -L$(SELFORG) -lselforg 
-INC   = -I$(SELFORG)/include
+INC   = -I$(SELFORG)/include -I../models
 
 cc = g++ $(CFLAGS) $(INC) -c
 #cc = g++ $(CFLAGS) -c -O -g3 -pg
