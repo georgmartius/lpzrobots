@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-11-29 09:16:09  martius
+ *   Revision 1.9  2006-12-01 16:19:05  martius
+ *   barrel in use
+ *
+ *   Revision 1.8  2006/11/29 09:16:09  martius
  *   modell stuff
  *
  *   Revision 1.7  2006/07/14 12:23:52  martius
@@ -68,6 +71,7 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
+#include <selforg/ffnncontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
 
@@ -75,6 +79,25 @@
 #include "sphererobot3masses.h"
 #include "barrel2masses.h"
 #include "axisorientationsensor.h"
+
+#include <osg/Node>
+#include <osg/Geode>
+#include <osg/Geometry>
+#include <osg/Texture2D>
+#include <osg/TexEnv>
+#include <osg/TexGen>
+#include <osg/Depth>
+#include <osg/StateSet>
+#include <osg/ClearNode>
+#include <osg/Transform>
+#include <osg/MatrixTransform>
+#include <osg/Light>
+#include <osg/LightSource>
+#include <osg/ShapeDrawable>
+#include <osg/PolygonOffset>
+#include <osg/CullFace>
+#include <osg/TexGenNode>
+using namespace osg;
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -125,7 +148,7 @@ public:
     //    sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
     //				       conf, "Sphere1", 0.2); 
     sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				  conf, "Barrel1", 0.2); 
+				  conf, "Barrel1", 0.4); 
     //// FORCEDSPHERE
     // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
     // fsc.drivenDimensions=ForcedSphere::X;
@@ -136,8 +159,10 @@ public:
 
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=0.5;
+    //    cc.useS=true;
     controller = new InvertMotorNStep(cc);    
     //controller = new SineController();
+    //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
     controller->setParam("steps", 2);    
     //    controller->setParam("adaptrate", 0.001);    
     controller->setParam("adaptrate", 0.0);    
@@ -170,10 +195,10 @@ public:
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
-	case 'y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , 10 ,0 , 0 ); break;
-	case 'Y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -10 , 0 , 0 ); break;
-	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0 , 3 ); break;
-	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0 , -3 ); break;
+	case 'y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
+	case 'Y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
+	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
+	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
 	case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2); 
 	  printf("sineRate : %g\n", controller->getParam("sineRate"));
 	  break;
@@ -187,6 +212,70 @@ public:
     }
     return false;
   }
+
+  virtual Node* makeGround(){ // is NOT used for shadowing!
+    float ir = 2000.0f;
+    float texscale =0.1;
+    Vec3Array *coords = new Vec3Array(4);
+    Vec2Array *tcoords = new Vec2Array(4);
+    Vec4Array *colors = new Vec4Array(1);
+
+    (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
+
+    (*coords)[0].set(-ir,-ir,0.0f);
+    (*coords)[1].set(-ir, ir,0.0f);
+    (*coords)[2].set( ir, ir,0.0f);
+    (*coords)[3].set( ir,-ir,0.0f);
+    (*tcoords)[0].set(-texscale*ir,-texscale*ir);
+    (*tcoords)[1].set(-texscale*ir, texscale*ir);
+    (*tcoords)[2].set( texscale*ir, texscale*ir);
+    (*tcoords)[3].set( texscale*ir,-texscale*ir);
+    
+
+    Geometry *geom = new Geometry;
+
+    geom->setVertexArray( coords );
+
+    geom->setTexCoordArray( 0, tcoords );
+
+    geom->setColorArray( colors );
+    geom->setColorBinding( Geometry::BIND_OVERALL );
+
+    geom->addPrimitiveSet( new DrawArrays(PrimitiveSet::TRIANGLE_FAN,0,4) );
+
+    Texture2D *tex = new Texture2D;
+
+    tex->setImage(osgDB::readImageFile("Images/greenground_large.rgb"));
+    tex->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
+    tex->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
+
+    StateSet *dstate = new StateSet;
+    dstate->setMode( GL_LIGHTING, StateAttribute::OFF );
+    dstate->setTextureAttributeAndModes(0, tex, StateAttribute::ON );
+
+    dstate->setTextureAttribute(0, new TexEnv );
+
+    //     // clear the depth to the far plane.
+    //     osg::Depth* depth = new osg::Depth;
+    //     depth->setFunction(osg::Depth::ALWAYS);
+    //     depth->setRange(1.0,1.0);   
+    //     dstate->setAttributeAndModes(depth,StateAttribute::ON );
+
+    dstate->setRenderBinDetails(-1,"RenderBin");
+    geom->setStateSet( dstate );
+
+    Geode *geode = new Geode;
+    geode->addDrawable( geom );
+    geode->setName( "Ground" );
+
+    // add ODE Ground here (physical plane)
+    ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
+    dGeomSetCategoryBits(ground,Primitive::Stat);
+    dGeomSetCollideBits(ground,~Primitive::Stat);
+
+    return geode;
+  }
+
   
 };
 
