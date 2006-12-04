@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-10 11:56:15  martius
+ *   Revision 1.5  2006-12-04 16:04:43  der
+ *   fix
+ *
+ *   Revision 1.4  2006/08/10 11:56:15  martius
  *   noise is now applied to all sensors
  *
  *   Revision 1.3  2006/07/20 17:14:36  martius
@@ -76,9 +79,10 @@ DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf,
 
   this->conf=conf;
   time     = buffersize;
-  delay    = min(buffersize/2-1, int(0.25/(conf.eps+0.01))+1);
+  //  this->conf.derivativeScale*= 1/this->conf.eps+0.01;
+  // delay    = min(buffersize/2-1, int(0.25/(conf.eps+0.01))+1);
   // make sure that at least id is on.
-  if (!conf.useFirstD && !conf.useSecondD) this->conf.useId=true; 
+  if ((!conf.useFirstD) && (!conf.useSecondD)) this->conf.useId=true; 
 }
 
 DerivativeWiring::~DerivativeWiring(){
@@ -179,8 +183,9 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 
 
   if(conf.blindMotorSets > 0) { // shortcircuit of blind motors
-    memcpy(csensors+blocksize*this->rsensornumber, blindMotors, 
-	   sizeof(sensor) * blindMotorNumber);
+    // FIXME!
+    // memcpy(csensors+blocksize*this->rsensornumber, blindMotors, 
+    //	   sizeof(sensor) * blindMotorNumber);
   }      
   
   time++;
@@ -211,7 +216,7 @@ bool DerivativeWiring::wireMotors(motor* rmotors, int rmotornumber,
 //  since we do not have f(x+1) we go one timestep in the past
 void DerivativeWiring::calcFirstDerivative(){  
   sensor* t   = sensorbuffer[time%buffersize];
-  sensor* tmdelay = sensorbuffer[(time-delay)%buffersize];
+  sensor* tmdelay = sensorbuffer[(time-1)%buffersize];
   for(int i=0; i < rsensornumber; i++){
     first[i] = conf.derivativeScale*(t[i] - tmdelay[i]);
   }
@@ -220,8 +225,8 @@ void DerivativeWiring::calcFirstDerivative(){
 /// f'(x) = f(x) - 2f(x-1) + f(x-2)
 void DerivativeWiring::calcSecondDerivative(){
   sensor* t   = sensorbuffer[time%buffersize];
-  sensor* tmdelay = sensorbuffer[(time-delay)%buffersize];
-  sensor* tm2delay = sensorbuffer[(time-2*delay)%buffersize];
+  sensor* tmdelay = sensorbuffer[(time-1)%buffersize];
+  sensor* tm2delay = sensorbuffer[(time-2)%buffersize];
   for(int i=0; i < rsensornumber; i++){
     second[i] = (t[i] - 2*tmdelay[i] + tm2delay[i])*conf.derivativeScale*conf.derivativeScale; 
   }
