@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-04 16:05:10  der
+ *   Revision 1.4  2006-12-04 17:44:28  martius
+ *   unclear
+ *
+ *   Revision 1.3  2006/12/04 16:05:10  der
  *   under construction
  *
  *   Revision 1.2  2006/07/14 12:24:02  martius
@@ -118,8 +121,8 @@ public:
     c.useId = true;        // use id
     c.useFirstD = false;   // do not use first derivative
     c.useSecondD = false;  // do not use secound derivative
-    c.eps = 0.05;        
-    c.derivativeScale=3;
+    c.eps = 0.5;        
+    c.derivativeScale=5;
     c.blindMotorSets=0;    // no blind motors used
     return c;
   };
