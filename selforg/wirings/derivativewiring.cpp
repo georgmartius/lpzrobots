@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-12-04 16:04:43  der
+ *   Revision 1.6  2006-12-04 17:44:18  martius
+ *   still completely unclear
+ *
+ *   Revision 1.5  2006/12/04 16:04:43  der
  *   fix
  *
  *   Revision 1.4  2006/08/10 11:56:15  martius
@@ -75,9 +78,8 @@ using namespace std;
 /// constructor
 DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf, 
 				   NoiseGenerator* noise)
-  : AbstractWiring::AbstractWiring(noise) {
+  : AbstractWiring::AbstractWiring(noise), conf(conf){
 
-  this->conf=conf;
   time     = buffersize;
   //  this->conf.derivativeScale*= 1/this->conf.eps+0.01;
   // delay    = min(buffersize/2-1, int(0.25/(conf.eps+0.01))+1);
@@ -87,7 +89,7 @@ DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf,
 
 DerivativeWiring::~DerivativeWiring(){
   for(int i=0 ; i<buffersize; i++){
-    if(sensorbuffer[i]) free(sensorbuffer[i]);
+    if(sensorbuffer[i]) free(sensorbuffer[i]); 
   }
   if(id) free(id);
   if(first) free(first);
