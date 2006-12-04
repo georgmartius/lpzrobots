@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:24:02  martius
+ *   Revision 1.3  2006-12-04 16:05:10  der
+ *   under construction
+ *
+ *   Revision 1.2  2006/07/14 12:24:02  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2005/11/16 11:24:28  martius
@@ -138,7 +141,7 @@ protected:
   static const int buffersize=40;
   int time;
   /// number timesteps the sensor values are delayed for calculation of the derivative
-  int delay;
+  //  int delay;
   
 
   /// current and old smoothed sensor values of robot
