@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2006-09-21 22:09:58  martius
+ *   Revision 1.21  2006-12-11 18:24:36  martius
+ *   memory freed
+ *
+ *   Revision 1.20  2006/09/21 22:09:58  martius
  *   collision for mesh
  *
  *   Revision 1.19  2006/07/20 17:19:44  martius
@@ -174,7 +177,7 @@ public:
     return conf;
   }
 
-  virtual ~Nimm2(){};
+  virtual ~Nimm2();
 
   /**
    * updates the OSG nodes of the vehicle

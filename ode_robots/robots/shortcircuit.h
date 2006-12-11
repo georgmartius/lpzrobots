@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-14 12:23:42  martius
+ *   Revision 1.5  2006-12-11 18:24:37  martius
+ *   memory freed
+ *
+ *   Revision 1.4  2006/07/14 12:23:42  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.3.4.6  2006/03/30 12:34:57  martius
@@ -67,6 +70,8 @@ namespace lpzrobots {
   class ShortCircuit : public OdeRobot{
   public:
     ShortCircuit(const OdeHandle& odeHandle, const OsgHandle& osgHandle, int sensornumber, int motornumber);
+
+    ~ShortCircuit();
 
     virtual void update() {}
 

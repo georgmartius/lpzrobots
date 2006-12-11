@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-07-20 17:19:44  martius
+ *   Revision 1.8  2006-12-11 18:24:37  martius
+ *   memory freed
+ *
+ *   Revision 1.7  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.6  2006/07/14 12:23:42  martius
@@ -67,6 +70,10 @@ namespace lpzrobots {
     }
   
   };
+
+  ShortCircuit::~ShortCircuit(){
+    if(motors) free(motors); 
+  }
 
   /** sets actual motorcommands
       @param motors motors scaled to [-1,1] 

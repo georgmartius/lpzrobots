@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2006-11-23 10:25:47  fhesse
+ *   Revision 1.26  2006-12-11 18:24:36  martius
+ *   memory freed
+ *
+ *   Revision 1.25  2006/11/23 10:25:47  fhesse
  *   side and rear infrared sensors added
  *   orientation of front ir sensors modified
  *
@@ -176,6 +179,21 @@ namespace lpzrobots {
   };
 
 
+  Nimm2::~Nimm2(){
+    for (int i=0; i<3; i++) { // update objects
+      if(object[i]) delete object[i];
+    }
+    for (int i=0; i < 2; i++) { // update joints
+      if(joint[i]) delete joint[i]; 
+    }
+    if (conf.bumper){ // if bumper used update transform objects
+      for (int i=0; i<number_bumpers; i++){	
+	if(bumper[i].trans) delete bumper[i].trans;
+      }
+    }
+  }
+
+
   /** sets actual motorcommands
       @param motors motors scaled to [-1,1] 
       @param motornumber length of the motor array
@@ -259,7 +277,7 @@ namespace lpzrobots {
 	bumper[i].trans->update();
       }
     }
-
+    
     // update sensorbank with infrared sensors
     irSensorBank.update();  
   }

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-20 12:56:28  martius
+ *   Revision 1.7  2006-12-11 18:25:08  martius
+ *   memory freed
+ *
+ *   Revision 1.6  2006/09/20 12:56:28  martius
  *   setRange
  *
  *   Revision 1.5  2006/07/14 12:23:43  martius
@@ -81,6 +84,8 @@ IRSensor::IRSensor(double exponent/* = 1*/){
 
 IRSensor::~IRSensor(){
   dGeomDestroy(transform);     
+  if(sensorRay) delete sensorRay;
+  if(sensorBody) delete sensorBody;
 }
 
 void IRSensor::init(const OdeHandle& odeHandle,
