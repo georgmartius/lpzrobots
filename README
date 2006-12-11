@@ -45,6 +45,12 @@ You need the following software and libraries installed (Tested on Linux x86 mac
 - OpenSceneGraph http://www.openscenegraph.org (version >= 0.9.8) 
   (Debian includes it in Etch (Testing) and higher)
 - (\a optional) Qt library from http://www.trolltech.com for guilogger (version > 3.0)
+	- make sure you install the devel packages
+	- set the following enviroment variables (best to have them in the <tt>~/.bash.rc</tt> or similar)
+	\verbatim
+	export QTDIR="/usr/lib/qt3"
+	export PATH="$PATH:$QTDIR/bin" # also $HOME/bin is required to start the executables
+	\endverbatim	
 - (\a optional) Java JDK for neuronviz (version >= J2SE 1.5.0)
 
 \section Inst Installation \& Startup
