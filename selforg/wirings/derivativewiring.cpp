@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-12-04 17:44:18  martius
+ *   Revision 1.7  2006-12-11 18:23:21  martius
+ *   changed order again: first all sensors, then all derivatives ...
+ *   noise is only added to first sensor set
+ *   now 2 functions for default configs
+ *   blind motors not as sets, but as direct number given
+ *
+ *   Revision 1.6  2006/12/04 17:44:18  martius
  *   still completely unclear
  *
  *   Revision 1.5  2006/12/04 16:04:43  der
@@ -81,6 +87,9 @@ DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf,
   : AbstractWiring::AbstractWiring(noise), conf(conf){
 
   time     = buffersize;
+  first    = 0;
+  second   = 0;
+  blindMotors = 0;    
   //  this->conf.derivativeScale*= 1/this->conf.eps+0.01;
   // delay    = min(buffersize/2-1, int(0.25/(conf.eps+0.01))+1);
   // make sure that at least id is on.
@@ -91,7 +100,7 @@ DerivativeWiring::~DerivativeWiring(){
   for(int i=0 ; i<buffersize; i++){
     if(sensorbuffer[i]) free(sensorbuffer[i]); 
   }
-  if(id) free(id);
+  //  if(id) free(id);
   if(first) free(first);
   if(second) free(second);
   if(blindMotors) free(blindMotors);
@@ -101,11 +110,10 @@ DerivativeWiring::~DerivativeWiring(){
 bool DerivativeWiring::init(int rsensornumber, int rmotornumber){  
   this->rsensornumber = rsensornumber;
   this->rmotornumber  = rmotornumber;
-  blindMotorNumber = this->rmotornumber * conf.blindMotorSets;
 
   this->csensornumber = this->rsensornumber*( (int)conf.useId+(int)conf.useFirstD+(int)conf.useSecondD)
-    + blindMotorNumber;
-  this->cmotornumber  = this->rmotornumber + blindMotorNumber;
+    + conf.blindMotors;
+  this->cmotornumber  = this->rmotornumber + conf.blindMotors;
     
   for(int i=0; i<buffersize; i++){
     sensorbuffer[i]      = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
@@ -113,18 +121,19 @@ bool DerivativeWiring::init(int rsensornumber, int rmotornumber){
       sensorbuffer[i][k]=0;
     }
   }
-  blindMotors       = (motor*) malloc(sizeof(motor) * (blindMotorNumber+1));
-  for(unsigned int k=0; k < blindMotorNumber; k++){
-    blindMotors[k]=0;
+  // if(conf.useId)     id           = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
+  if(conf.useFirstD)  first  = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
+  if(conf.useSecondD) second = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
+  if(conf.blindMotors>0){
+    blindMotors       = (motor*) malloc(sizeof(motor) * conf.blindMotors);
+    for(unsigned int k=0; k < conf.blindMotors; k++){
+      blindMotors[k]=0;
+    }
   }
 
-  id                = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
-  first             = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
-  second            = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
-
   if(!noiseGenerator) return false;
-  //  noiseGenerator->init(this->rsensornumber);
-  noiseGenerator->init(this->rsensornumber*(conf.useId+conf.useFirstD+conf.useSecondD));
+  noiseGenerator->init(this->rsensornumber);
+    //noiseGenerator->init(this->rsensornumber*(conf.useId+conf.useFirstD+conf.useSecondD));
   return true;
 }
 
@@ -147,47 +156,57 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
   int index = (time) % buffersize;  
   int lastIndex = (time-1) % buffersize;  
  
-  int blocksize = conf.useId + conf.useFirstD + conf.useSecondD;
-  if(conf.useId) { // normal sensors values
-    memcpy(id, rsensors, sizeof(sensor) * this->rsensornumber);
-    for(int i=0; i < this->rsensornumber; i++ ){ 
-      csensors[i*blocksize] = id[i];
-    }
-  }   
-  
   if(conf.useFirstD || conf.useSecondD){ // calc smoothed sensor values
     for(int i=0; i < this->rsensornumber; i++ ){ 
       sensorbuffer[index][i] = (1-conf.eps)*sensorbuffer[lastIndex][i] + conf.eps*rsensors[i]; 
     }
   }
 
+  if(conf.useId) { // normal sensors values
+    memcpy(csensors, rsensors, sizeof(sensor) * this->rsensornumber);
+  }   
+  
   if(conf.useFirstD) { // first derivative
     calcFirstDerivative();
-    int offset = conf.useId;
-    for(int i=0; i < this->rsensornumber; i++ ){ 
-      csensors[i*blocksize+offset] = first[i];
-    }
+    int offset = conf.useId*this->rsensornumber;
+    memcpy(csensors+offset, first, sizeof(sensor) * this->rsensornumber);
   }
   if(conf.useSecondD) { // second derivative
     calcSecondDerivative();
-    int offset = conf.useId + conf.useFirstD;
-    for(int i=0; i < this->rsensornumber; i++ ){ 
-      csensors[i*blocksize+offset] = second[i];
-    }
-    // test  ( if angle near bounce point than set derivative to 0;
-    // for(int i=0; i<this->rsensornumber; i++){
-    //       if(fabs(*(csensors+i)) > 0.8)
-    // 	*(csensors+offset+i) = 0;
-    //     }
+    int offset = (conf.useId + conf.useFirstD)*this->rsensornumber;
+    memcpy(csensors+offset, second, sizeof(sensor) * this->rsensornumber);
   }      
-  // add noise
+
+
+//   int blocksize = conf.useId + conf.useFirstD + conf.useSecondD;
+//   if(conf.useId) { // normal sensors values
+//     memcpy(id, rsensors, sizeof(sensor) * this->rsensornumber);
+//     for(int i=0; i < this->rsensornumber; i++ ){ 
+//       csensors[i*blocksize] = id[i];
+//     }
+//   }   
+  
+//   if(conf.useFirstD) { // first derivative
+//     calcFirstDerivative();
+//     int offset = conf.useId;
+//     for(int i=0; i < this->rsensornumber; i++ ){ 
+//       csensors[i*blocksize+offset] = first[i];
+//     }
+//   }
+//   if(conf.useSecondD) { // second derivative
+//     calcSecondDerivative();
+//     int offset = conf.useId + conf.useFirstD;
+//     for(int i=0; i < this->rsensornumber; i++ ){ 
+//       csensors[i*blocksize+offset] = second[i];
+//     }
+//   }      
+
+  // add noise only to first used sensors
   noiseGenerator->add(csensors, -noise, noise);   
 
-
-  if(conf.blindMotorSets > 0) { // shortcircuit of blind motors
-    // FIXME!
-    // memcpy(csensors+blocksize*this->rsensornumber, blindMotors, 
-    //	   sizeof(sensor) * blindMotorNumber);
+  if(conf.blindMotors > 0) { // shortcircuit of blind motors
+    int offset = (conf.useId + conf.useFirstD + conf.useSecondD)*this->rsensornumber;    
+    memcpy(csensors+offset, blindMotors, sizeof(sensor) * conf.blindMotors);
   }      
   
   time++;
@@ -203,15 +222,12 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 bool DerivativeWiring::wireMotors(motor* rmotors, int rmotornumber,
 				  const motor* cmotors, int cmotornumber){
 
-  if (this->cmotornumber!=cmotornumber && rmotornumber <= cmotornumber) 
-    return false;
-  else{
-    memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
-    if(blindMotorNumber!=0){
-      memcpy(blindMotors, cmotors + rmotornumber, sizeof(motor)*blindMotorNumber);      
-    }
-    return true;
+  assert( (this->cmotornumber==cmotornumber) && ((rmotornumber + (signed)conf.blindMotors) == cmotornumber)) ;
+  memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
+  if(conf.blindMotors>0){
+    memcpy(blindMotors, cmotors + rmotornumber, sizeof(motor)*conf.blindMotors);      
   }
+  return true;  
 }
 
 /// f'(x) = (f(x+1) - f(x-1)) / 2

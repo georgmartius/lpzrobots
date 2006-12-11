@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-12-04 17:44:28  martius
+ *   Revision 1.5  2006-12-11 18:23:11  martius
+ *   changed order again: first all sensors, then all derivatives ...
+ *   noise is only added to first sensor set
+ *   now 2 functions for default configs
+ *   blind motors not as sets, but as direct number given
+ *
+ *   Revision 1.4  2006/12/04 17:44:28  martius
  *   unclear
  *
  *   Revision 1.3  2006/12/04 16:05:10  der
@@ -67,7 +73,7 @@ typedef struct __DerivativeWiringConf {
   bool useSecondD;  //< second include second derivative
   double eps;       //< update rate for floating average (0 -> no sensor variation, 1 -> no smoothing)
   double derivativeScale;   //< factor for the derivatives
-  unsigned int blindMotorSets;   //< number of complete motor sets that are blind (not given to robot)
+  unsigned int blindMotors;   //< number of motors that are blind (not given to robot)
 } DerivativeWiringConf;
 
 
@@ -114,16 +120,32 @@ public:
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
 			  const motor* cmotors, int cmotornumber);
 
-  /** Providing default configuration for DerivativeWiring as static method
+  /** Providing default configuration for DerivativeWiring with first derivative.
+      No smoothing and no scaling. ( as static method )
    */
   static DerivativeWiringConf getDefaultConf(){
     DerivativeWiringConf c;
     c.useId = true;        // use id
-    c.useFirstD = false;   // do not use first derivative
+    c.useFirstD = true;    // use first derivative
     c.useSecondD = false;  // do not use secound derivative
-    c.eps = 0.5;        
-    c.derivativeScale=5;
-    c.blindMotorSets=0;    // no blind motors used
+    c.eps = 1;             // no smoothing
+    c.derivativeScale=1;   // no scaleing
+    c.blindMotors=0;       // no blind motors used
+    return c;
+  };
+
+  /** Providing default configuration for DerivativeWiring for only first derivative. 
+      smoothing over 4 steps and scale of 5. Use smaller noise!
+      ( as static method )
+   */
+  static DerivativeWiringConf getDefaultConfSnd(){
+    DerivativeWiringConf c;
+    c.useId = false;       // do not use id
+    c.useFirstD = true;    // use first derivative
+    c.useSecondD = false;  // do not use secound derivative
+    c.eps = 0.5;          // smoothing over 2 steps
+    c.derivativeScale=5;   // scaling with 5
+    c.blindMotors=0;       // no blind motors used
     return c;
   };
 
@@ -151,7 +173,7 @@ protected:
   sensor* sensorbuffer[buffersize]; 
 
   /// current sensors (with noise)
-  sensor* id;
+  // sensor* id;
 
   /// current first derivative
   sensor* first;               
@@ -162,8 +184,6 @@ protected:
   /// array that stored the values of the blind motors     
   motor *blindMotors;        
 
-  /// number of blind motors used
-  unsigned int blindMotorNumber;
 };
 
 #endif
