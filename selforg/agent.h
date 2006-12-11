@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-11-30 10:02:11  robot5
+ *   Revision 1.8  2006-12-11 18:10:27  martius
+ *   noisefactor and default constructor
+ *
+ *   Revision 1.7  2006/11/30 10:02:11  robot5
  *   Added support for Sndchanger (experimental). Startup with argument -s.
  *
  *   Revision 1.6  2006/11/23 13:06:10  martius
@@ -189,12 +192,14 @@ private:
  */
 class Agent {
 public:
-  /** constructor. PlotOption an output setting.
+  /** constructor. PlotOption as output setting.
+      noisefactor is used to set the relative noise strength of this agent     
    */
-  Agent(const PlotOption& plotOption);
-  /** constructor. A list of PlotOption can begin. A PlotOption is an output setting.
+  Agent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1);
+  /** constructor. A list of PlotOption can given.
+      noisefactor is used to set the relative noise strength of this agent     
    */
-  Agent(const std::list<PlotOption>& plotOptions);
+  Agent(const std::list<PlotOption>& plotOptions, double noisefactor = 1);
 
   /** destructor
    */
@@ -268,6 +273,9 @@ protected:
   int csensornumber;
   /// number of motors of comntroller
   int cmotornumber;
+
+  /// factor that is  muliplied with noise stength
+  double noisefactor;
 
   sensor *rsensors;
   motor  *rmotors;

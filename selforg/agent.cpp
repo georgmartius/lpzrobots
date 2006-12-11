@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-11-30 10:02:11  robot5
+ *   Revision 1.9  2006-12-11 18:10:52  martius
+ *   noisefactor and default constructor
+ *
+ *   Revision 1.8  2006/11/30 10:02:11  robot5
  *   Added support for Sndchanger (experimental). Startup with argument -s.
  *
  *   Revision 1.7  2006/11/23 13:04:10  martius
@@ -140,14 +143,15 @@
 
 using namespace std;
 
-Agent::Agent(const PlotOption& plotOption){
+Agent::Agent(const PlotOption& plotOption, double noisefactor){
   internInit();
-  plotOptions.push_back(plotOption);
+  if(plotOption.mode!=NoPlot) plotOptions.push_back(plotOption);
+  this->noisefactor = noisefactor;
 }
 
 
-Agent::Agent(const std::list<PlotOption>& plotOptions)
-  : plotOptions(plotOptions){
+Agent::Agent(const std::list<PlotOption>& plotOptions, double noisefactor)
+  : noisefactor(noisefactor), plotOptions(plotOptions){
   internInit();
 }
 
@@ -291,7 +295,7 @@ void Agent::step(double noise){
 	    rsensornumber, len);
   }
   
-  wiring->wireSensors(rsensors, rsensornumber, csensors, csensornumber, noise);
+  wiring->wireSensors(rsensors, rsensornumber, csensors, csensornumber, noise * noisefactor);
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
   robot->setMotors(rmotors, rmotornumber);
