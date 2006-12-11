@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.52  2006-11-30 10:06:41  robot5
+ *   Revision 1.53  2006-12-11 18:31:34  martius
+ *   list of configurables for agents
+ *   reference counting and memleaks fixed
+ *   onlycontrol used in steps where  controller is not used
+ *
+ *   Revision 1.52  2006/11/30 10:06:41  robot5
  *   dded support for Sndchanger (experimental). Startup with argument -s.
  *
  *   Revision 1.51  2006/10/20 14:24:55  martius
@@ -296,6 +301,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <selforg/abstractcontroller.h>
+#include <selforg/abstractwiring.h>
 
 #include "simulation.h"
 
@@ -335,6 +341,10 @@ namespace lpzrobots {
     viewer   = 0;
     cam      = 0;
     arguments= 0;
+    // we have to count references by our selfes
+    osg::Referenced::ref();
+    osgGA::GUIEventHandler::ref();
+    Producer::Camera::Callback::ref();     
   }
 
   Simulation::~Simulation(){  
@@ -345,13 +355,14 @@ namespace lpzrobots {
     dCloseODE ();
   
     state=closed;
-     // tweak this, because Simulation is inherited from Referenced
-    osgGA::GUIEventHandler::unref_nodelete();
-    // tweak this, because Simulation is inherited from Referenced
-    Producer::Camera::Callback::unref_nodelete(); 
-  }
+    if(arguments) delete arguments;
 
- 
+    // we have to count references by our selfes
+    osgGA::GUIEventHandler::unref();
+    Producer::Camera::Callback::unref_nodelete(); 
+    Producer::Camera::Callback::unref_nodelete(); 
+    osg::Referenced::unref_nodelete();    
+  }
 
   bool Simulation::init(int argc, char** argv){
 
@@ -381,6 +392,7 @@ namespace lpzrobots {
 
     // add ode config to config list
     globalData.configs.push_back(&(globalData.odeConfig));
+    globalconfigurables.push_back(&(globalData.odeConfig));
 
     /**************** OpenSceneGraph-Section   ***********************/
 
@@ -426,9 +438,10 @@ namespace lpzrobots {
       return false;
     }
 
-    osgHandle.tesselhints[0] = new TessellationHints();
-    osgHandle.tesselhints[1] = new TessellationHints();
-    osgHandle.tesselhints[2] = new TessellationHints();
+    for(int i=0; i<3; i++){
+      osgHandle.tesselhints[i] = new TessellationHints();
+      osgHandle.tesselhints[i]->ref();
+    }
     osgHandle.tesselhints[0]->setDetailRatio(0.1f); // Low
     osgHandle.tesselhints[1]->setDetailRatio(1.0f); // Middle
     osgHandle.tesselhints[2]->setDetailRatio(3.0f); // High
@@ -439,7 +452,8 @@ namespace lpzrobots {
     if (!osgHandle.scene) return false;
 
     osgHandle.normalState = new StateSet();
-    
+    osgHandle.normalState->ref();
+
     // set up blending for transparent stateset      
     osg::StateSet* stateset = new StateSet();
     osg::BlendFunc* transBlend = new osg::BlendFunc;
@@ -449,6 +463,7 @@ namespace lpzrobots {
     //stateset->setRenderBinDetails(5,"RenderBin");
     stateset->setMode(GL_CULL_FACE,osg::StateAttribute::ON); // disable backface because of problems
     osgHandle.transparentState = stateset;
+    osgHandle.transparentState->ref();
 
     // setup the camera manipulators
     CameraManipulator* defaultCameramanipulator =
@@ -536,8 +551,8 @@ namespace lpzrobots {
     
     // wait for all cull and draw threads to complete before exit.
     viewer->sync();    
-    tidyUp(globalData);
     end(globalData);
+    tidyUp(globalData);
     return true;
 
   }
@@ -561,7 +576,7 @@ namespace lpzrobots {
 	resetSyncTimer();
       }
 
-      // the simulation is just run if pause is not enabled
+      // the simulation just runs if pause is not enabled
       if (!pause) {
 	globalData.time += globalData.odeConfig.simStepSize;      
 	sim_step++;
@@ -569,22 +584,23 @@ namespace lpzrobots {
 	if(sim_step% ( int(1/globalData.odeConfig.simStepSize) * 600) ==0) {
 	  printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
 	}
-	// end simulation if intended simulation time is reached
+	// finish simulation, if intended simulation time is reached
 	if(simulation_time!=-1){ // check time only if activated
 	  if( (sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
 	    if (!simulation_time_reached){ // print out once only
 	      printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
 	    }
-	    simulation_time_reached=true;
-	    
+	    simulation_time_reached=true;	    
 	  }
 	}
 	// for all agents: robots internal stuff and control step if at controlInterval
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	  if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ){
 	    (*i)->step(globalData.odeConfig.noise); 
+	    (*i)->getRobot()->doInternalStuff(globalData);
+	  }else{
+	    (*i)->onlyControlRobot();
 	  }
-	  (*i)->getRobot()->doInternalStuff(globalData);
 	}
   
 	/**********************Simulationsschritt an sich**********************/
@@ -662,7 +678,7 @@ namespace lpzrobots {
 	case 6 : // Ctrl - f
 	  for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	    if(!(*i)->removePlotOption(File)){
-	      (*i)->addPlotOption(PlotOption(File, Controller, filelogginginterval));
+	      (*i)->addPlotOption(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
 	    }
 	  }
 	  return true;
@@ -670,7 +686,7 @@ namespace lpzrobots {
 	case 7 : // Ctrl - g
 	  for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	    if(!(*i)->removePlotOption(GuiLogger)){
-	      (*i)->addPlotOption(PlotOption(GuiLogger, Controller, guiloggerinterval));
+	      (*i)->addPlotOption(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
 	    }	  
 	  }
 	  return true;
@@ -748,10 +764,20 @@ namespace lpzrobots {
     for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++){
       delete (*i)->getRobot();
       delete (*i)->getController();
+      delete (*i)->getWiring();
       delete (*i);
     }
-    if(global.environment) delete global.environment;
+    if(global.environment){ delete global.environment; global.environment=0;}
+
+    if(osgHandle.normalState) osgHandle.normalState->unref();
+    if(osgHandle.transparentState) osgHandle.transparentState->unref();
+    for(int i=0; i<3; i++){
+      if(osgHandle.tesselhints[i]) osgHandle.tesselhints[i]->unref();
+    }
     global.agents.clear();
+
+    viewer->getEventHandlerList().clear();
+    // delete viewer;
   }
   
 
@@ -766,7 +792,7 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)	
 	guiloggerinterval=atoi(argv[index]);
-      plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval));
+      plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));      
     }
 
     // logging to file
@@ -775,7 +801,7 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)	
 	filelogginginterval=atoi(argv[index]);
-      plotoptions.push_back(PlotOption(File, Controller, filelogginginterval));
+      plotoptions.push_back(PlotOption(File, Controller, filelogginginterval, globalconfigurables));      
     }
 
     // starting neuronviz
@@ -784,12 +810,12 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)	
 	neuronvizinterval=atoi(argv[index]);
-      plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval));
+      plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval, globalconfigurables)); 
     }
 
     // using sndchanger for acustic output
     if(contains(argv, argc, "-s")) {
-     plotoptions.push_back(PlotOption(SndChanger, Controller, 1));
+     plotoptions.push_back(PlotOption(SndChanger, Controller, 1, globalconfigurables));
     }
 
     index = contains(argv, argc, "-r");

@@ -28,7 +28,12 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2006-09-20 15:30:40  martius
+ *   Revision 1.23  2006-12-11 18:31:34  martius
+ *   list of configurables for agents
+ *   reference counting and memleaks fixed
+ *   onlycontrol used in steps where  controller is not used
+ *
+ *   Revision 1.22  2006/09/20 15:30:40  martius
  *   shadowsize
  *
  *   Revision 1.21  2006/08/04 15:07:46  martius
@@ -251,6 +256,8 @@ namespace lpzrobots {
     // if the list is empty no online gnuplot windows and no logging to file occurs.
     // The list is modified with commandline options, see run() in simulation.cpp
     std::list<PlotOption> plotoptions;
+    /// this list contains by default only the odeconfig. This list os passed to the plotoptions.
+    std::list<const Configurable*> globalconfigurables;
 
 
   private:
