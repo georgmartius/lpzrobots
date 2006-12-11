@@ -40,7 +40,7 @@ int main(){
   memset(motors,0,sizeof(motor)*MNumber);  // clear motors
 
   // the robot is here respresented by the function myrobot
-  for(int i=0; i < 50000; i++){
+  for(int i=0; i < 1000; i++){
     // call robot with motors and receive sensors 
     myrobot(sensors, SNumber, motors, MNumber);
     cout << i << " S0: " << sensors[0] << ", " <<" S1: " << sensors[1];
@@ -55,6 +55,7 @@ int main(){
     controller->step(sensors, SNumber, motors, MNumber); 
     cout << i << " Motor values: " << motors[0] << ", " << motors[1] << endl;
   }
+  delete controller;
   return 0;
 }
 
