@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:56  martius
+ *   Revision 1.3  2006-12-11 18:26:55  martius
+ *   destructor, but without any function
+ *
+ *   Revision 1.2  2006/07/14 12:23:56  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.8  2006/06/29 16:39:56  robot3
@@ -67,6 +70,8 @@ public:
   OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
 	     osg::StateSet* normalState, osg::StateSet* transparentState, 
 	     const Color& color);
+
+  ~OsgHandle();
 
   osg::Group* scene;  
   osg::TessellationHints* tesselhints[3];  

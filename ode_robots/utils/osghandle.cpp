@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:56  martius
+ *   Revision 1.3  2006-12-11 18:26:55  martius
+ *   destructor, but without any function
+ *
+ *   Revision 1.2  2006/07/14 12:23:56  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.7  2006/06/15 09:16:59  martius
@@ -68,6 +71,10 @@ namespace lpzrobots {
     this->normalState = normalState;
     this->transparentState = transparentState;
     this->color = color;
+  }
+
+  OsgHandle::~OsgHandle(){
+    // we should not delete any of the refs, because they are redundant
   }
 
   OsgHandle OsgHandle::changeColor(const Color& color) const {
