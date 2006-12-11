@@ -10,6 +10,7 @@ using namespace std;
 #include <selforg/abstractrobot.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 #include "cmdline.h"
 
@@ -26,7 +27,7 @@ public:
     y = new double[motornumber];
   }
 
-  MyRobot::~MyRobot(){
+  ~MyRobot(){
     if(x) delete[] x;
     if(y) delete[] y;
   }
@@ -160,7 +161,8 @@ int main(int argc, char** argv){
   showParams(configs);
 
   cmd_handler_init();
-  while(!stop){
+  //  while(!stop){
+  for(int n=0; n<20; n++) { 
     usleep(1000);
     agent->step(0.1);
     if(control_c_pressed()){
