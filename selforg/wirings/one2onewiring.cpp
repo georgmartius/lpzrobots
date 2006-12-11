@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:14:36  martius
+ *   Revision 1.4  2006-12-11 18:17:22  martius
+ *   delete instead of free for noisegen
+ *
+ *   Revision 1.3  2006/07/20 17:14:36  martius
  *   removed std namespace from matrix.h
  *   storable interface
  *   abstract model and invertablemodel as superclasses for networks
@@ -75,7 +78,7 @@ One2OneWiring::One2OneWiring(NoiseGenerator* noise, bool plotNoise)
 }
 
 One2OneWiring::~One2OneWiring(){
-  if(noisevals) delete (noisevals);
+  if(noisevals) free(noisevals);
 }
 
 
