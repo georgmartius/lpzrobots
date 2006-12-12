@@ -20,8 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-12-11 18:19:02  martius
- *   noisegen is deleted in derivativewiring
+ *   Revision 1.6  2006-12-12 09:44:02  martius
+ *   corrected wrong commit comment
+ *
+ *   Revision 1.5  2006/12/11 18:19:02  martius
+ *   noisegen is deleted in abstractwiring
  *
  *   Revision 1.4  2006/12/11 18:17:22  martius
  *   delete instead of free for noisegen
