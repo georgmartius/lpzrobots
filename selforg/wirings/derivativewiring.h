@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-12-11 18:23:11  martius
+ *   Revision 1.6  2006-12-12 09:43:40  martius
+ *   getDefaultConf1()
+ *
+ *   Revision 1.5  2006/12/11 18:23:11  martius
  *   changed order again: first all sensors, then all derivatives ...
  *   noise is only added to first sensor set
  *   now 2 functions for default configs
@@ -138,7 +141,7 @@ public:
       smoothing over 4 steps and scale of 5. Use smaller noise!
       ( as static method )
    */
-  static DerivativeWiringConf getDefaultConfSnd(){
+  static DerivativeWiringConf getDefaultConf1(){
     DerivativeWiringConf c;
     c.useId = false;       // do not use id
     c.useFirstD = true;    // use first derivative
