@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-26 10:36:15  martius
+ *   Revision 1.4  2006-12-13 09:09:15  martius
+ *   removed some spaces at strange places
+ *
+ *   Revision 1.3  2006/07/26 10:36:15  martius
  *   joints support getPositions and getNumberAxes
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
@@ -189,7 +192,7 @@ namespace lpzrobots {
 
   void HingeJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			 bool withVisual, double visualSize){
-    joint = dJointCreateHinge (odeHandle. world,0);
+    joint = dJointCreateHinge (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetHingeAnchor (joint, anchor.x(), anchor.y(), anchor.z());
     dJointSetHingeAxis (joint,  axis1.x(), axis1.y(), axis1.z());
@@ -250,7 +253,7 @@ namespace lpzrobots {
 
   void Hinge2Joint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			 bool withVisual, double visualSize){
-    joint = dJointCreateHinge2 (odeHandle. world,0);
+    joint = dJointCreateHinge2 (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetHinge2Anchor (joint, anchor.x(), anchor.y(), anchor.z());
     dJointSetHinge2Axis1 (joint,  axis1.x(), axis1.y(), axis1.z());
@@ -324,7 +327,7 @@ namespace lpzrobots {
 
   void UniversalJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			 bool withVisual, double visualSize){
-    joint = dJointCreateUniversal (odeHandle. world,0);
+    joint = dJointCreateUniversal (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetUniversalAnchor (joint, anchor.x(), anchor.y(), anchor.z());
     dJointSetUniversalAxis1 (joint,  axis1.x(), axis1.y(), axis1.z());
@@ -403,7 +406,7 @@ namespace lpzrobots {
 
   void BallJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		       bool withVisual, double visualSize){
-    joint = dJointCreateBall(odeHandle. world,0);
+    joint = dJointCreateBall(odeHandle.world, 0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetBallAnchor (joint, anchor.x(), anchor.y(), anchor.z());
     if(withVisual){
@@ -448,7 +451,7 @@ namespace lpzrobots {
     this->osgHandle= osgHandle;
     this->visualSize = visualSize;
 
-    joint = dJointCreateSlider (odeHandle. world,0);
+    joint = dJointCreateSlider (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     osg::Vec3 p1 = part1->getPosition();
     osg::Vec3 p2 = part2->getPosition();
