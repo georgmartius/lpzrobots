@@ -36,6 +36,8 @@ guilogger::guilogger(const CommLineParser& configobj) : QMainWindow( 0, "guilogg
     datacounter   = 0;
     buffersize    = 250;
     int linecount = 0;
+    const int startplottimer = 2000;
+    const int maxplottimer = 5000;
     
     mode     = configobj.getMode();
     filename = configobj.getFile();
@@ -89,10 +91,10 @@ guilogger::guilogger(const CommLineParser& configobj) : QMainWindow( 0, "guilogg
     }
     else 
     {   horizonslider->setMinValue(1);
-        horizonslider->setMaxValue(3000);   // MaxTimer für Plottimer
-        horizonslider->setValue(500);       // actual Value for Plottimer
+        horizonslider->setMaxValue(maxplottimer);   // MaxTimer für Plottimer
+        horizonslider->setValue(startplottimer);       // actual Value for Plottimer
         horizonsliderlayout->addWidget(new QLabel("Timer", horizonsliderwidget));
-        horizonslidervalue->setText(QString::number(500, 10));
+        horizonslidervalue->setText(QString::number(startplottimer, 10));
     }
     horizonsliderlayout->addWidget(horizonslider);
     horizonsliderlayout->addWidget(horizonslidervalue);
@@ -142,7 +144,7 @@ guilogger::guilogger(const CommLineParser& configobj) : QMainWindow( 0, "guilogg
 
     plottimer = new QTimer( this);
     connect(plottimer, SIGNAL(timeout()), SLOT(GNUPlotUpdate()));
-    plottimer->start(500, FALSE);
+    plottimer->start(startplottimer, FALSE);
 
     filegraphtimer = NULL;
 }
@@ -234,6 +236,7 @@ int guilogger::analyzeFile()
     bool channelline=false;
     while(!channelline){
       size=1;
+      c=0;	    
       while(c!= 10 && c != 13) 
 	{
 	  i = fread(&c, 1, 1, instream);
@@ -249,8 +252,7 @@ int guilogger::analyzeFile()
 	    break;
 	  }
 	}
-      if (s[0] == '#' && s[1] == 'C') channelline=true; 
-      c=0;	    
+      if (s[0] == '#' && s[1] == 'C') channelline=true;       
     }
     s[size-1]='\0';
     printf(s);
@@ -279,21 +281,23 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
     if(tag == "Channels")
     {   //if(on) gpWindowVisibility[gpwindow]=true;
         //else gpWindowVisibility[gpwindow]=false;
+    }else if(tag == "Send")
+    {   
+      // send command to gnuplot
+      
+      for(int i=0; i<plotwindows; i++) 
+	gp[i].command(paramvaluelineedit->text()); 
     }
 
-    if(mode == "file")
-    {    //updateSliderPlot();
-    }
-    else
-    {
-        if( on) 
-        {   gp[gpwindow].show(tag);  // einzelnen Kanal abschalten
-            
-        }
-        else 
-        {    gp[gpwindow].hide(tag);
-        }
-        
+
+    if(mode == "file") {   
+      updateSliderPlot();
+    } else {
+        if( on) {   
+	  gp[gpwindow].show(tag);  // einzelnen Kanal abschalten            
+        } else { 
+	  gp[gpwindow].hide(tag);
+        }        
         for(int i=0; i<plotwindows; i++) gp[i].plot();  // sofort aktualisieren
     }
 }
