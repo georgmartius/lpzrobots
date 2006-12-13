@@ -1,3 +1,55 @@
+2006-12-12 martius
+	1. agents receive comments about changes in configuration values from simulations.cpp
+	
+	
+2006-12-11 martius
+	1. controllinterval wie schon angekuendigt ist jetzt die richtige
+	Verhalten bezueglich des controllintervals eingecheckt. D.h. in
+	jedem Simulationsschritt werden die Motorsignale an den Roboter
+	geschickt, aber nur aller "controllinterval" Schritte werden sie
+	Sensoren abgefragt und der Controller benutzt.
+	
+	2. derivativewiring
+	2a: Reihenfolge hat sich geaendert: Jetzt: sensoren einer Qualitaet in 
+	Bloecken. Also erst alle Sensorwerte (Id), dann alle ersten Ableitungen 
+	(FirstD), dann alle zweiten Ableitungen (SecondD)
+	2b: Rauschen: Nur der erste Block an Sensorwerten wird verrauscht. Also wenn 
+	man Id und FirstD benutzt, dann sind nur Id verrauscht. Wenn man FirstD und 
+	SecondD benutzt, dann ist nur FirstD verrauscht.
+	2c: Defaults: es gibt jetzt zwei Default Funktionen: 
+		getDefautConf(): Id und FirstD, kein Smoothing, kein Scaling
+		getDetaultConf1() Nur FirstD, Smoothing ueber 2 Zeitschritte, Scaling mit 5
+		(die alten Einstellungen: Smoothing ueber 20 Zeitschritte, Scaling mit 10)
+	2d: bei blind motors wird jetzt direkt die Nummer angegeben.
+	
+	3. agent hat eigenen noisefactor:
+	beim Konstuktor eines Agents, kann man jetzt einen noisefactor angeben.
+	z.B. OdeAgent* agent  = new OdeAgent(plotoptions, 0.1); 
+	Heisst dann dieser Agent nur ein 10tel des Rauschens benutzt. Das eigentliche 
+	Rauschlevel wird nach wie vor von der globalen noise Variable bestimmt.
+	
+	4. colornoise
+	4a: die Varianz des farbigen Rauschens ist jetzt farbunabhaengig. (Haette es 
+	schon die ganze Zeit sein sollen). Also egal welches tau man angibt, die 
+	Varianz ist wie beim weissen Rauschen.
+	4b: der default Wert fuer tau (Farbigkeit) ist jetzt bei 0.05, d.h. ueber 20 
+	Schritte. Meist haben wir 0.1 benutzt, aber der default wert war auf 0.5, was 
+	quasi fast weiss ist.
+	
+	5. memory leak tester valgrind 
+	Ich habe die letzten 2 Tage damit verbracht unsere Simulationsumgebung von 
+	Memoryleak und dergleichen zu gefreien. Dazu gibt es ein schoenes Tool namens 
+	"valgrind". Das findet wirklich alles raus. Leider soviel, dass es auch in 
+	den Standard-libs und in OpenGl und osg und uberall was findet. Damit man bei 
+	unserem Komplexen Programm ueberhaupt etwas sieht habe ich ein suppression 
+	file unter ode_robots/ angelegt. Der Aufruf von valgrind ist unter 
+	ode_robots/utils/valgrind.cmd zu finden. Aber es werden immer irgendwelche 
+	Sachen gefunden, die aber nicht durch uns auftreten.
+	Controller kann man am besten testen, in dem man sie in 
+	selforg/examples/directconnect oder selforg/examples/integration einsetzt und 
+	dann dort valgrind startet. Aufruf ist auch in 
+	selforg/examples/integration/valgrind.cmd zu finden.
+
 2005-12-12 11:58 martius 
 	to version 0.2
 	* selforg agent and controller and abstract robot are moved to selforg directory
