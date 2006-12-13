@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.53  2006-12-11 18:31:34  martius
+ *   Revision 1.54  2006-12-13 09:13:03  martius
+ *   agents get comments about changed parameter for logfile
+ *
+ *   Revision 1.53  2006/12/11 18:31:34  martius
  *   list of configurables for agents
  *   reference counting and memleaks fixed
  *   onlycontrol used in steps where  controller is not used
@@ -558,7 +561,7 @@ namespace lpzrobots {
   }
 
   void Simulation::config(GlobalData& globalData){
-    changeParams(globalData.configs);
+    changeParams(globalData);
   }
 
   void Simulation::end(GlobalData& globalData){
@@ -1004,7 +1007,8 @@ namespace lpzrobots {
     }
   }
 
-  void changeParams(ConfigList& configs){
+  void changeParams(GlobalData& globalData){
+    ConfigList& configs = globalData.configs;
     char buffer[1024];
     std::cout << "Type: Parameter=Value\n";
     fgets( buffer, 1024, stdin);
@@ -1012,15 +1016,23 @@ namespace lpzrobots {
       showParams(configs);
       return;
     }
-
+    bool changed = false;
     char *p = strchr(buffer,'=');
     if (p){
       *p=0; // terminate key string 
       double v=strtod(p+1,0);
       for(ConfigList::iterator i=configs.begin(); i != configs.end(); i++){
-	if ((*i)->setParam(buffer,v))
+	if ((*i)->setParam(buffer,v)){
 	  printf(" %s=\t%f \n", buffer, (*i)->getParam(buffer));
+	  changed = true;
+	}
       }
+    }
+    if(changed){ // send comment about changes to all agents
+      *p='='; // remove termination again string 
+      for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){	
+	(*i)->writePlotComment(buffer);
+      }      
     }
   }
 

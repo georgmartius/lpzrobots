@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-12-11 18:10:27  martius
+ *   Revision 1.9  2006-12-13 09:13:24  martius
+ *   agents get comments about changed parameter for logfile
+ *
+ *   Revision 1.8  2006/12/11 18:10:27  martius
  *   noisefactor and default constructor
  *
  *   Revision 1.7  2006/11/30 10:02:11  robot5
@@ -245,7 +248,12 @@ public:
       @return true if sucessful, false otherwise
    */
   virtual bool removePlotOption(PlotMode mode);
-  
+
+  /**
+     write comment to output streams (PlotOptions). For instance changes in parameters.     
+  */
+  virtual void writePlotComment(const char* cmt);
+
 protected:
 
   /**

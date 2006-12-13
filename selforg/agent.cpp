@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-12-11 18:10:52  martius
+ *   Revision 1.10  2006-12-13 09:13:24  martius
+ *   agents get comments about changed parameter for logfile
+ *
+ *   Revision 1.9  2006/12/11 18:10:52  martius
  *   noisefactor and default constructor
  *
  *   Revision 1.8  2006/11/30 10:02:11  robot5
@@ -265,22 +268,32 @@ void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csen
   
   Inspectable* inspectables[2] = {controller, wiring};
   for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    if( ((*i).pipe) && (t % (*i).interval == 0) ){ // for the guilogger pipe
+    if( ((*i).pipe) && (t % (*i).interval == 0) ){
       if((*i).whichSensors == Robot){
 	printInternalParameters((*i).pipe, rx, rsensornumber, y, motornumber, inspectables , 2);
       }else{
 	printInternalParameters((*i).pipe, cx, csensornumber, y, motornumber, inspectables , 2);
       }
       if(t% ((*i).interval * 10)) fflush((*i).pipe);    
-    } else {
-      if (!(*i).pipe) { // if pipe is closed
-	//	std::cout << "pipe is closed!" << std::endl;
-      }
-    }
+    } // else {
+      //      if (!(*i).pipe) { // if pipe is closed
+      // std::cout << "pipe is closed!" << std::endl;
+      //      }
+      // }
   }
 };
 
 
+void Agent::writePlotComment(const char* cmt){
+  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
+    if( ((*i).pipe) && (t % (*i).interval == 0) && (strlen(cmt)>0)){ // for the guilogger pipe      
+      char last = cmt[strlen(cmt)-1];
+      fprintf((*i).pipe, "# %s", cmt);
+      if(last!=10 && last!=13) // print with or without new line
+	fprintf((*i).pipe, "\n");	
+    } 
+  }
+}
 
 //  Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
 //  controller step, pushing controller steps back through wiring and sent resulting motorcommands 

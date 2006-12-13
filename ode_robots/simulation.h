@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2006-12-11 18:31:34  martius
+ *   Revision 1.24  2006-12-13 09:13:03  martius
+ *   agents get comments about changed parameter for logfile
+ *
+ *   Revision 1.23  2006/12/11 18:31:34  martius
  *   list of configurables for agents
  *   reference counting and memleaks fixed
  *   onlycontrol used in steps where  controller is not used
@@ -325,8 +328,9 @@ namespace lpzrobots {
   // Commandline interface stuff
   /// shows all parameters of all given configurable objects
   void showParams(const ConfigList& configs);
-  /// offers the possibility to change parameter of all configurable objects
-  void changeParams(ConfigList& configs);
+  /// offers the possibility to change parameter of all configurable objects in globalData.
+  // also informs agents about changes
+  void changeParams(GlobalData& globalData);
   
   /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
   void createNewDir(const char* base, char *newdir);
