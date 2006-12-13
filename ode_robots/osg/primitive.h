@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-30 08:58:56  martius
+ *   Revision 1.4  2006-12-13 09:09:56  martius
+ *   transform objects delete child
+ *
+ *   Revision 1.3  2006/08/30 08:58:56  martius
  *   categories and collision mask used for static geoms to reduce number of collision checks
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
@@ -316,6 +319,10 @@ public:
       This Primitive must NOT have a body and should not be initialised
   */
   Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose);
+
+  /// destructor deletes child object
+  ~Transform();
+
   /** initialised the transform object. This automatically 
       initialises the child geom. 
       @param mode is the mode for the child, except that Body bit is ignored (child can't have a body)

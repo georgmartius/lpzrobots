@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-08-30 08:59:07  martius
+ *   Revision 1.6  2006-12-13 09:09:56  martius
+ *   transform objects delete child
+ *
+ *   Revision 1.5  2006/08/30 08:59:07  martius
  *   categories and collision mask used for static geoms to reduce number of collision checks
  *
  *   Revision 1.4  2006/08/11 15:43:14  martius
@@ -459,6 +462,10 @@ namespace lpzrobots{
     : parent(parent), child(child), pose(pose) {
   }
 
+  Transform::~Transform(){
+    if(child) delete child;
+  }
+
   OSGPrimitive* Transform::getOSGPrimitive() { return 0; }
 
   void Transform::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
@@ -470,7 +477,7 @@ namespace lpzrobots{
     // our own geom is just a transform
     geom = dCreateGeomTransform(odeHandle.space);
     dGeomTransformSetInfo(geom, 1);
-    dGeomTransformSetCleanup(geom, 1);
+    dGeomTransformSetCleanup(geom, 0);
 
     // the child geom must go into space 0 (because it inherits the space from the transform geom)
     OdeHandle odeHandleChild(odeHandle);
