@@ -90,7 +90,7 @@ guilogger::guilogger(const CommLineParser& configobj) : QMainWindow( 0, "guilogg
         horizonslidervalue->setText(QString::number(buffersize, 10));
     }
     else 
-    {   horizonslider->setMinValue(1);
+    {   horizonslider->setMinValue(10);
         horizonslider->setMaxValue(maxplottimer);   // MaxTimer für Plottimer
         horizonslider->setValue(startplottimer);       // actual Value for Plottimer
         horizonsliderlayout->addWidget(new QLabel("Timer", horizonsliderwidget));
