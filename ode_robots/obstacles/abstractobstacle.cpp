@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:32  martius
+ *   Revision 1.3  2006-12-13 09:17:16  martius
+ *   obstacle_exists should be set in create if childs
+ *
+ *   Revision 1.2  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/06/29 16:43:20  robot3
@@ -127,7 +130,6 @@ namespace lpzrobots {
       destroy();
       create();
     }
-    obstacle_exists=true;
   };
 
 }
