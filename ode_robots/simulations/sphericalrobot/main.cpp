@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-12-01 16:19:05  martius
+ *   Revision 1.10  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.9  2006/12/01 16:19:05  martius
  *   barrel in use
  *
  *   Revision 1.8  2006/11/29 09:16:09  martius
@@ -74,11 +78,14 @@
 #include <selforg/ffnncontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/selectiveone2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 #include "forcedsphere.h"
 #include "sphererobot3masses.h"
 #include "barrel2masses.h"
 #include "axisorientationsensor.h"
+#include "speedsensor.h"
 
 #include <osg/Node>
 #include <osg/Geode>
@@ -111,6 +118,10 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
+    int num_barrels=1;
+    int num_spheres=0;
+      
+
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
     global.odeConfig.setParam("noise",0.03);
@@ -133,58 +144,108 @@ public:
 //       s->setPosition(osg::Vec3(5,0,i*3)); 
 //       global.obstacles.push_back(s);    
 //     }
-
     
-    //****************
-    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-    conf.pendularrange  = 0.3; 
-    conf.motorsensor=false;
-    conf.axisZsensor=true;
-    conf.axisXYZsensor=false;
-    conf.irAxis1=false;
-    conf.irAxis2=false;
-    conf.irAxis3=false;
-    conf.spheremass   = 1;
-    //    sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
-    //				       conf, "Sphere1", 0.2); 
-    sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				  conf, "Barrel1", 0.4); 
-    //// FORCEDSPHERE
-    // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
-    // fsc.drivenDimensions=ForcedSphere::X;
-    // fsc.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
-    // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
-    // 
-    sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+    /* * * * BARRELS * * * */
+    for(int i=0; i< num_barrels; i++){
+      //****************
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+      conf.pendularrange  = 0.3; 
+      conf.motorsensor=false;
+      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
+      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
+      conf.irAxis1=false;
+      conf.irAxis2=false;
+      conf.irAxis3=false;
+      conf.spheremass   = 1;
+      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
+				    conf, "Barrel1", 0.4); 
+      sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
 
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    cc.cInit=0.5;
-    //    cc.useS=true;
-    controller = new InvertMotorNStep(cc);    
-    //controller = new SineController();
-    //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-    controller->setParam("steps", 2);    
-    //    controller->setParam("adaptrate", 0.001);    
-    controller->setParam("adaptrate", 0.0);    
-    controller->setParam("nomupdate", 0.005);    
-    controller->setParam("epsC", 0.03);    
-    controller->setParam("epsA", 0.05);    
-    // controller->setParam("epsC", 0.001);    
-    // controller->setParam("epsA", 0.001);    
-    //    controller->setParam("rootE", 1);    
-    //    controller->setParam("logaE", 2);    
-    controller->setParam("rootE", 3);    
-    controller->setParam("logaE", 0);    
-//     controller = new SineController();  
-    controller->setParam("sinerate", 15);  
-    controller->setParam("phaseshift", 0.45);
+      InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+      cc.cInit=0.5;
+      //    cc.useS=true;
+      controller = new InvertMotorNStep(cc);    
+      //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
+      controller->setParam("steps", 2);    
+      //    controller->setParam("adaptrate", 0.001);    
+      controller->setParam("adaptrate", 0.0);    
+      controller->setParam("nomupdate", 0.005);    
+      controller->setParam("epsC", 0.03);    
+      controller->setParam("epsA", 0.05);    
+      // controller->setParam("epsC", 0.001);    
+      // controller->setParam("epsA", 0.001);    
+      //    controller->setParam("rootE", 1);    
+      //    controller->setParam("logaE", 2);    
+      controller->setParam("rootE", 3);    
+      controller->setParam("logaE", 0);    
+      //     controller = new SineController();  
+      controller->setParam("sinerate", 15);  
+      controller->setParam("phaseshift", 0.45);
     
-    One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
-    OdeAgent* agent = new OdeAgent ( plotoptions );
-    agent->init ( controller , sphere1 , wiring );
-    //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
-    global.agents.push_back ( agent );
-    global.configs.push_back ( controller );
+//       DerivativeWiringConf dc = DerivativeWiring::getDefaultConf();
+//       dc.useId=true;
+//       dc.useFirstD=false;
+//       AbstractWiring* wiring = new DerivativeWiring(dc,new ColorUniformNoise());
+      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
+      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
+      agent->init ( controller , sphere1 , wiring );
+      //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
+      global.agents.push_back ( agent );
+      global.configs.push_back ( controller );
+    }
+
+
+    /* * * * SPHERES * * * */
+    for(int i=0; i< num_spheres; i++){
+      //****************
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+      conf.pendularrange  = 0.3; 
+      conf.motorsensor=false;
+      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+      //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
+      conf.irAxis1=false;
+      conf.irAxis2=false;
+      conf.irAxis3=false;
+      conf.spheremass   = 1;
+      sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
+					 conf, "Sphere1", 0.2); 
+      //// FORCEDSPHERE
+      // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
+      // fsc.drivenDimensions=ForcedSphere::X;
+      // fsc.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+      // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
+      // 
+      sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+
+      InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+      cc.cInit=0.5;
+      //    cc.useS=true;
+      controller = new InvertMotorNStep(cc);    
+      //controller = new SineController();
+      //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
+      controller->setParam("steps", 2);    
+      //    controller->setParam("adaptrate", 0.001);    
+      controller->setParam("adaptrate", 0.0);    
+      controller->setParam("nomupdate", 0.005);    
+      controller->setParam("epsC", 0.03);    
+      controller->setParam("epsA", 0.05);    
+      // controller->setParam("epsC", 0.001);    
+      // controller->setParam("epsA", 0.001);    
+      //    controller->setParam("rootE", 1);    
+      //    controller->setParam("logaE", 2);    
+      controller->setParam("rootE", 3);    
+      controller->setParam("logaE", 0);    
+      //     controller = new SineController();  
+      controller->setParam("sinerate", 15);  
+      controller->setParam("phaseshift", 0.45);
+    
+      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
+      OdeAgent* agent = new OdeAgent ( plotoptions );
+      agent->init ( controller , sphere1 , wiring );
+      //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
+      global.agents.push_back ( agent );
+      global.configs.push_back ( controller );
+    }
       
     showParams(global.configs);
   }

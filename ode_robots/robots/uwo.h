@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:42  martius
+ *   Revision 1.3  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.2  2006/07/14 12:23:42  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/06/25 16:57:17  martius
@@ -46,15 +50,15 @@ namespace lpzrobots {
 
   typedef struct {
   public:
-    double size;       //< scaling factor for robot (diameter of body)
-    double legLength;  //< length of the legs in units of size 
-    int    legNumber;  //<  number of snake elements
-    bool   radialLegs; //< joint orientation is radial instead of cartesian
-    double mass;       //< chassis mass
-    double relLegmass; //< relative overall leg mass
-    double jointLimit; //< angle range for legs
-    double motorPower; //< maximal force for motors
-    double frictionGround; //< friction with the ground
+    double size;       ///< scaling factor for robot (diameter of body)
+    double legLength;  ///< length of the legs in units of size 
+    int    legNumber;  ///<  number of snake elements
+    bool   radialLegs; ///< joint orientation is radial instead of cartesian
+    double mass;       ///< chassis mass
+    double relLegmass; ///< relative overall leg mass
+    double jointLimit; ///< angle range for legs
+    double motorPower; ///< maximal force for motors
+    double frictionGround; ///< friction with the ground
   } UwoConf;
 
 

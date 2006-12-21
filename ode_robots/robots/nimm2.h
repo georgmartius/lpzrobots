@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2006-12-11 18:24:36  martius
+ *   Revision 1.22  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.21  2006/12/11 18:24:36  martius
  *   memory freed
  *
  *   Revision 1.20  2006/09/21 22:09:58  martius
@@ -141,7 +145,7 @@ typedef struct {
   double force;
   double speed;
   bool sphereWheels;
-  double wheelSize; //< size of the wheels in body diameters
+  double wheelSize; ///< size of the wheels in body diameters
   bool bumper;
   bool cigarMode;
   bool irFront;

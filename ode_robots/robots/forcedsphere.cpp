@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-08-11 15:44:29  martius
+ *   Revision 1.8  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.7  2006/08/11 15:44:29  martius
  *   has conf now and arbitrary sensors
  *
  *   Revision 1.6  2006/08/08 17:04:46  martius
@@ -110,7 +114,7 @@ namespace lpzrobots {
   {  
     assert(created);
     int len=0;
-    for(list<Sensor*>::iterator i = conf.sensors.begin(); i != conf.sensors.end(); i++){
+    FOREACH(list<Sensor*>, conf.sensors, i){
       len += (*i)->get(sensors+len, sensornumber-len);
     }
     return len;
@@ -153,7 +157,7 @@ namespace lpzrobots {
 
   int ForcedSphere::getSensorNumber() {
     int s = 0;
-    for(list<Sensor*>::iterator i = conf.sensors.begin(); i != conf.sensors.end(); i++){
+    FOREACHC(list<Sensor*>, conf.sensors, i){
       s += (*i)->getSensorNumber();
     }
     return s;
@@ -168,7 +172,7 @@ namespace lpzrobots {
     object[0] = new Sphere(conf.radius);
     object[0]->init(odeHandle, conf.radius*conf.radius, osgHandle);
     object[0]->setPose(pose);    
-    for(list<Sensor*>::iterator i = conf.sensors.begin(); i != conf.sensors.end(); i++){
+    FOREACH(list<Sensor*>, conf.sensors, i){
       (*i)->init(object[0]);
     }
     created = true;

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-12-01 16:21:15  martius
+ *   Revision 1.2  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.1  2006/12/01 16:21:15  martius
  *   like sphere3masses, but with 2 masses and cylindric body
  *
  *
@@ -53,7 +57,6 @@ namespace lpzrobots {
   {
     numberaxis=2;
     this->conf.irAxis3 = false;
-    this->conf.worldZaxissensor = false;
   }
 	
   Barrel2Masses::~Barrel2Masses()
@@ -64,32 +67,31 @@ namespace lpzrobots {
   {  
     int len=0;
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base]->getBody() ) );
-
     if(conf.motorsensor){
       for ( unsigned int n = 0; n < numberaxis; n++ ) {
 	sensors[len] = servo[n]->get()*0.5;
 	len++;
       }
     }
-    if(conf.axisZsensor){
-      // z-coordinate of local x and y axis in world coordinates
-      len += A.row(2).columns(0,1).convertToBuffer(sensors+len, sensornumber-len);  
+
+    FOREACH(list<Sensor*>, conf.sensors, i){
+      len += (*i)->get(sensors+len, sensornumber-len);
     }
-    if(conf.axisXYZsensor){
-      // rotation matrix - 9 (vectors of all axis in world coordinates
-      len += A.convertToBuffer(sensors + len , sensornumber -len);
-    }
+
+//     if(conf.axisZsensor){
+//       // z-coordinate of local x and y axis in world coordinates
+//       len += A.row(2).columns(0,1).convertToBuffer(sensors+len, sensornumber-len);  
+//     }
+//     if(conf.axisXYZsensor){
+//       // rotation matrix - 9 (vectors of all axis in world coordinates
+//       len += A.convertToBuffer(sensors + len , sensornumber -len);
+//     }   
     
     // reading ir sensorvalues
     if (conf.irAxis1 || conf.irAxis2){
       len += irSensorBank.get(sensors+len, sensornumber-len);
     }
     return len;
-  }
-
-  int Barrel2Masses::getSensorNumber() {
-    return conf.motorsensor * numberaxis + conf.axisZsensor * numberaxis 
-      + conf.axisXYZsensor * servono * 3 + (conf.irAxis1 + conf.irAxis2) * 2;
   }
 
   void Barrel2Masses::create(const osg::Matrix& pose){
@@ -157,6 +159,11 @@ namespace lpzrobots {
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
+
+    FOREACH(list<Sensor*>, conf.sensors, i){
+      (*i)->init(object[Base]);
+    }
+
   }
 
 }

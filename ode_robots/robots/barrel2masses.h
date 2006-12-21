@@ -24,7 +24,11 @@
  * cylinder like Robot inspired by Julius Popp's Adam.                     *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-12-01 16:21:15  martius
+ *   Revision 1.2  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.1  2006/12/01 16:21:15  martius
  *   like sphere3masses, but with 2 masses and cylindric body
  *
  *
@@ -86,16 +90,14 @@ public:
   
   virtual ~Barrel2Masses();
 	
-  /// default configuration
+  /** default configuration. It has no sensors. 
+      Use addSensor(new AxisOrientationSensor(ZProjectionXY) for example.*/
   static Sphererobot3MassesConf getDefaultConf(){
     Sphererobot3MassesConf c;
     c.diameter     = 1;
     c.spheremass   = .3;// 0.1
     c.pendularmass  = 1.0;
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
-    c.axisZsensor = true;
-    c.axisXYZsensor = false;  
-    c.worldZaxissensor = false; // this has no sence here!
     c.motorsensor = false;  
     c.irAxis1=false;
     c.irAxis2=false;
@@ -107,7 +109,6 @@ public:
   }
 	
   virtual int getSensors ( sensor* sensors, int sensornumber );
-  virtual int getSensorNumber();
 	
 protected:
 

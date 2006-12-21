@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:53  martius
+ *   Revision 1.3  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.2  2006/07/14 12:23:53  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.9  2006/06/25 17:01:56  martius
@@ -134,20 +138,21 @@ public:
   {
     if (!down) return false;    
     bool handled = false;
+    FILE* f;
     //    double m;
     //    motor motors[2];
     switch ( key )
       {
       case 'u' : 
-	teaching[0] = min(0.95, teaching[0]+0.1);
-	teaching[1] = min(0.95, teaching[1]+0.1);
+	teaching[0] = std::min(0.95, teaching[0]+0.1);
+	teaching[1] = std::min(0.95, teaching[1]+0.1);
 	controller->setMotorTeachingSignal(teaching, 2);
 	printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
 	handled = true; 
 	break;
       case 'j' : 
-	teaching[0] = max(-0.95, teaching[0]-0.1);
-	teaching[1] = max(-0.95, teaching[1]-0.1);
+	teaching[0] = std::max(-0.95, teaching[0]-0.1);
+	teaching[1] = std::max(-0.95, teaching[1]-0.1);
 	controller->setMotorTeachingSignal(teaching, 2);
 	printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
 	handled = true; 
@@ -159,10 +164,14 @@ public:
 	teaching[1]=0.5;
 	handled = true; break;	
       case 's' :
-	controller->store("test") && printf("Controller stored\n");
+        f = fopen("test","wb");
+	controller->store(f) && printf("Controller stored\n");
+	fclose(f);
 	handled = true; break;	
       case 'l' :
-	controller->restore("test") && printf("Controller loaded\n");
+	f = fopen("test","rb");
+	controller->restore(f) && printf("Controller loaded\n");
+	fclose(f);
 	handled = true; break;	
       }
     fflush(stdout);

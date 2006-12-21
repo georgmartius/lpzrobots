@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2006-08-04 16:25:14  martius
+ *   Revision 1.18  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.17  2006/08/04 16:25:14  martius
  *   bugfixing
  *
  *   Revision 1.16  2006/07/14 12:23:52  martius
@@ -91,8 +95,8 @@ public:
 
     // initialization
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("realtimefactor",0);
-    global.odeConfig.setParam("drawinterval", 500);
+    global.odeConfig.setParam("realtimefactor",1);
+    global.odeConfig.setParam("drawinterval", 50);
 
 
     OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);  
@@ -100,13 +104,16 @@ public:
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=0.1;
     cc.cNonDiag=0.0;
-    AbstractController *controller = new InvertMotorNStep(cc);  
-    //AbstractController *controller = new InvertNChannelController(40);  
-    //AbstractController *controller = new InvertMotorSpace(10,1);  
+    // AbstractController *controller = new InvertMotorNStep(cc);  
+    AbstractController *controller = new InvertNChannelController(40);  
+    controller->setParam("eps",0.01);
+     //AbstractController *controller = new InvertMotorSpace(10,1);  
+   // AbstractController *controller = new SineController();  
     //controller->setParam("nomupdate",0.001);
+    controller->setParam("sinerate",10000000.0);
     controller->setParam("adaptrate",0.000);
-    controller->setParam("epsA",0.6);
-    controller->setParam("epsC",0.6);
+    controller->setParam("epsA",0.06);
+    controller->setParam("epsC",0.06);
     controller->setParam("factorB",0.1);
     controller->setParam("steps",1);
     //  AbstractController *controller = new InvertNChannelController(10);  
@@ -117,14 +124,15 @@ public:
     // sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
     // One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
     One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
+    //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05), true);
     
     //AbstractWiring* wiring = new SelectiveOne2OneWiring(sineNoise, &select_firsthalf);
     // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-    //   c.useId=true;
-    //   c.useFirstD=true;
-    //   c.derivativeScale=20;
-    //   c.blindMotorSets=0;
-    //   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
+//     c.useId=true;
+//     c.useFirstD=false;
+//     c.derivativeScale=20;
+//     c.blindMotorSets=0;
+//     AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05)); 
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);
     

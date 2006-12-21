@@ -24,7 +24,11 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-12-01 16:20:40  martius
+ *   Revision 1.9  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.8  2006/12/01 16:20:40  martius
  *   *** empty log message ***
  *
  *   Revision 1.7  2006/11/17 13:44:43  martius
@@ -88,6 +92,7 @@
 #include "joint.h"
 #include "sliderservo.h"
 #include "oderobot.h"
+#include "sensor.h"
 #include "raysensorbank.h"
 
 namespace lpzrobots {
@@ -97,19 +102,23 @@ typedef struct {
 public:
   double diameter;
   double spheremass;
-  double pendulardiameter; //< automatically set
+  double pendulardiameter; ///< automatically set
   double pendularmass;
   double pendularrange;
-  bool motorsensor;        //< motor values as sensors
-  bool worldZaxissensor;   //< world cooridinate of z axis
-  bool axisZsensor;        //< z-coordinate of all internal axes
-  bool axisXYZsensor;      //< entire rotation matrix
+  bool motorsensor;        ///< motor values as sensors
   bool irAxis1;
   bool irAxis2;
   bool irAxis3;
   bool drawIRs;
-  double irsensorscale; //< range of the ir sensors in units of diameter
-  double irCharacter;   //< characteristics of sensor (\f[ x^c \f] where x is the range-distance)
+  double irsensorscale; ///< range of the ir sensors in units of diameter
+  double irCharacter;   ///< characteristics of sensor (\f[ x^c \f] where x is the range-distance)
+
+  /// function that deletes sensors
+  void destroy(); 
+  /// list of sensors that are mounted at the robot. (e.g.\ AxisOrientationSensor)
+  std::list<Sensor*> sensors; 
+  /// adds a sensor to the list of sensors
+  void addSensor(Sensor* s) { sensors.push_back(s); }    
 } Sphererobot3MassesConf;
 
 /**
@@ -132,7 +141,7 @@ protected:
   OSGPrimitive* axis[servono];
 
   Sphererobot3MassesConf conf;
-  RaySensorBank irSensorBank; //< a collection of ir sensors  
+  RaySensorBank irSensorBank; ///< a collection of ir sensors  
   double transparency;
   bool created;
 
@@ -164,9 +173,6 @@ public:
     c.spheremass   = .3;// 0.1
     c.pendularmass  = 1.0;
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
-    c.axisZsensor = true;
-    c.axisXYZsensor = false;  
-    c.worldZaxissensor = false;
     c.motorsensor = false;  
     c.irAxis1=false;
     c.irAxis2=false;

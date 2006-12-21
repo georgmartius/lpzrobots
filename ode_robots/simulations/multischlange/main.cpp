@@ -1,4 +1,3 @@
-
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -21,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-10-20 14:25:11  martius
+ *   Revision 1.9  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.8  2006/10/20 14:25:11  martius
  *   *** empty log message ***
  *
  *   Revision 1.7  2006/09/22 08:50:34  der

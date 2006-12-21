@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-08-11 15:46:12  martius
+ *   Revision 1.3  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.2  2006/08/11 15:46:12  martius
  *   two spheres
  *
  *   Revision 1.1  2006/08/08 17:04:47  martius
@@ -69,71 +73,88 @@ public:
     global.odeConfig.setParam("noise",0.1);
     //  global.odeConfig.setParam("gravity", 0); // no gravity
 
-    Playground* playground1 = new Playground(odeHandle, osgHandle, osg::Vec3(20.5, 0.2, 2.0),0.05);
-    playground1->setColor(Color(0,0.8,0,0.2));
-    playground1->setTexture("Images/really_white.rgb");
+    Playground* playground1 = new Playground(odeHandle, osgHandle, osg::Vec3(20.5, 0.2, 2.0),0.05, true);
+    //    playground1->setColor(Color(0,0.8,0,0.2));
+    //    playground1->setTexture("Images/really_white.rgb");
     playground1->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground1);
-    
-    Playground* playground2 = new Playground(odeHandle, osgHandle, osg::Vec3(20.5, 0.2, 2.0),0.05);
-    playground2->setColor(Color(0,0.8,0,0.2));
-    playground2->setTexture("Images/really_white.rgb");
-    playground2->setPosition(osg::Vec3(0,1.4,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground2);
+    //    global.obstacles.push_back(playground1);
 
-//     Box* box = new Box(3, 2.6 ,0.1);
-//     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-//     box->setPose(osg::Matrix::rotate(-M_PI/6,osg::Vec3(0,1,0)) * osg::Matrix::translate(9.0,0.7,0.4));
-//     box->update();
+    playground1->setColor(Color(1,0,0));
+
+//     Playground* playground2 = new Playground(odeHandle, osgHandle, osg::Vec3(20.5, 0.2, 2.0),0.05);
+//     playground2->setColor(Color(0,0.8,0,0.2));
+//     playground2->setTexture("Images/really_white.rgb");
+//     playground2->setPosition(osg::Vec3(0,1.4,0)); // playground positionieren und generieren
+//     global.obstacles.push_back(playground2);
+
+    Box* box = new Box(3, 2.6 ,0.1);
+    box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
+    box->setPose(osg::Matrix::rotate(-M_PI/6,osg::Vec3(0,1,0)) * osg::Matrix::translate(9.0,0.7,0.4));
+    box->update();
+
 //     box = new Box(3, 2.6 ,0.1);
 //     box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
 //     box->setPose(osg::Matrix::rotate(M_PI/6,osg::Vec3(0,1,0)) * osg::Matrix::translate(-9.0,0.7,0.4));
 //     box->update();
 
-    ForcedSphereConf conf;
-    ForcedSphere* sphere1;
-    ForcedSphere* sphere2;
-    AbstractWiring* wiring;
-    OdeAgent* agent;
+    Box* b = new Box(1,2,3);
+    b->init(odeHandle, 0, osgHandle.changeColor(Color(0,1,1)),
+			Primitive::Geom | Primitive::Draw);
+    b->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f));
+    b->setTexture("Images/greenground.rgb",true,true);
 
-    //////// AGENT 1
+    delete b;
+    b = new Box(1,2,3);
+    b->init(odeHandle, 0, osgHandle.changeColor(Color(0,1,1)),
+			Primitive::Geom | Primitive::Draw);
+    b->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f));
+    b->setTexture("Images/greenground.rgb",true,true);
+    
 
-    conf = ForcedSphere::getDefaultConf(); 
-    //    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::OnlyZAxis));
-    RelativePositionSensor* s = new RelativePositionSensor(4,1,RelativePositionSensor::X);
-    s->setReference(playground1->getMainPrimitive());
-    conf.addSensor(s);    
-    conf.radius = 0.5;
-    conf.drivenDimensions = ForcedSphere::X;
-    sphere1 = new ForcedSphere ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
-				 conf, "Agent1");     
-    ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.5 ));
+//     ForcedSphereConf conf;
+//     ForcedSphere* sphere1;
+//     ForcedSphere* sphere2;
+//     AbstractWiring* wiring;
+//     OdeAgent* agent;
 
-    //    controller = new InvertMotorSpace(50);  
-    controller = new InvertMotorNStep();  
-    controller->setParam("epsA",0.005); // model learning rate
-    controller->setParam("epsC",0.02); // controller learning rate
-    //    controller->setParam("rootE",3);    // model and contoller learn with square rooted error
-    controller->setParam("factorB",0); 
-    controller->setParam("noiseB",0);  
-    controller->setParam("adaptrate",0.0); 
-    controller->setParam("noiseY",0.0); 
-    global.configs.push_back ( controller );
+//     //////// AGENT 1
 
-    //controller = new SineController();
-    //global.configs.push_back ( controller );
+//     conf = ForcedSphere::getDefaultConf(); 
+//     //    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::OnlyZAxis));
+//     RelativePositionSensor* s = new RelativePositionSensor(4,1,RelativePositionSensor::X);
+//     s->setReference(playground1->getMainPrimitive());
+//     conf.addSensor(s);    
+//     conf.radius = 0.5;
+//     conf.drivenDimensions = ForcedSphere::X;
+//     sphere1 = new ForcedSphere ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
+// 				 conf, "Agent1");     
+//     ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.5 ));
+
+//     //    controller = new InvertMotorSpace(50);  
+//     controller = new InvertMotorNStep();  
+//     controller->setParam("epsA",0.005); // model learning rate
+//     controller->setParam("epsC",0.02); // controller learning rate
+//     //    controller->setParam("rootE",3);    // model and contoller learn with square rooted error
+//     controller->setParam("factorB",0); 
+//     controller->setParam("noiseB",0);  
+//     controller->setParam("adaptrate",0.0); 
+//     controller->setParam("noiseY",0.0); 
+//     global.configs.push_back ( controller );
+
+//     //controller = new SineController();
+//     //global.configs.push_back ( controller );
       
 
-    // wiring = new One2OneWiring ( new ColorUniformNoise() );
-    DerivativeWiringConf wc = DerivativeWiring::getDefaultConf();
-    wc.useId=false;
-    wc.useSecondD=true;
-    wc.eps=1;
-    wc.derivativeScale=100;
-    wiring = new DerivativeWiring ( wc, new ColorUniformNoise());
-    agent = new OdeAgent ( plotoptions );
-    agent->init ( controller , sphere1 , wiring );
-    global.agents.push_back ( agent );
+//     // wiring = new One2OneWiring ( new ColorUniformNoise() );
+//     DerivativeWiringConf wc = DerivativeWiring::getDefaultConf();
+//     wc.useId=false;
+//     wc.useSecondD=true;
+//     wc.eps=1;
+//     wc.derivativeScale=100;
+//     wiring = new DerivativeWiring ( wc, new ColorUniformNoise());
+//     agent = new OdeAgent ( plotoptions );
+//     agent->init ( controller , sphere1 , wiring );
+//     global.agents.push_back ( agent );
 
 
     //////// AGENT 2

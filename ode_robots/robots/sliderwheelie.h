@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-21 22:09:58  martius
+ *   Revision 1.7  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.6  2006/09/21 22:09:58  martius
  *   collision for mesh
  *
  *   Revision 1.5  2006/09/21 16:17:18  der
@@ -65,17 +69,17 @@ namespace lpzrobots {
 
   typedef struct {
   public:
-    int    segmNumber;  //<  number of snake elements
-    double segmLength;  //< length of one snake element
-    double segmDia;     //<  diameter of a snake element
-    double segmMass;    //<  mass of one snake element
-    double motorPower;  //<  power of the motors / servos
-    double powerRatio;   //< ratio of motorpower for hinge vs. slider
-    double sensorFactor;    //<  scale for sensors
-    double frictionGround;  //< friction with ground
-    double frictionJoint;   //< friction within joint
-    double jointLimit;      //< maximal angle for the joints (M_PI/2 = 90 degree)
-    double sliderLength;  //< length of the slider in segmLength
+    int    segmNumber;  ///<  number of snake elements
+    double segmLength;  ///< length of one snake element
+    double segmDia;     ///<  diameter of a snake element
+    double segmMass;    ///<  mass of one snake element
+    double motorPower;  ///<  power of the motors / servos
+    double powerRatio;   ///< ratio of motorpower for hinge vs. slider
+    double sensorFactor;    ///<  scale for sensors
+    double frictionGround;  ///< friction with ground
+    double frictionJoint;   ///< friction within joint
+    double jointLimit;      ///< maximal angle for the joints (M_PI/2 = 90 degree)
+    double sliderLength;  ///< length of the slider in segmLength
   } SliderWheelieConf;
   
 

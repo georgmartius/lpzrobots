@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-08-04 16:25:14  martius
+ *   Revision 1.8  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.7  2006/08/04 16:25:14  martius
  *   bugfixing
  *
  *   Revision 1.6  2006/07/14 12:23:50  martius
@@ -83,6 +87,9 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
+    int number_x=3;
+    int number_y=3;
+
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -106,8 +113,8 @@ public:
     AbstractWiring* wiring;
     OdeAgent* agent;
         
-    for (int j=-0; j<3; j++){ 
-      for (int i=-0; i<3; i++){
+    for (int j=-0; j<number_x; j++){ 
+      for (int i=-0; i<number_y; i++){
 	//      nimm2 = new Nimm2(odeHandle);
 	Nimm2Conf conf = Nimm2::getDefaultConf();
 	conf.speed=20;

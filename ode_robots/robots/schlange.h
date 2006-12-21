@@ -26,7 +26,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2006-09-20 12:56:16  martius
+ *   Revision 1.20  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.19  2006/09/20 12:56:16  martius
  *   Snakes have CreateSegment
  *
  *   Revision 1.18  2006/07/20 17:19:44  martius
@@ -82,15 +86,15 @@ namespace lpzrobots {
 
 typedef struct {
 public:
-  int    segmNumber;  //<  number of snake elements
-  double segmLength;  //< length of one snake element
-  double segmDia;     //<  diameter of a snake element
-  double segmMass;    //<  mass of one snake element
-  double motorPower;  //<  power of the motors / servos
-  double sensorFactor;    //<  scale for sensors
-  double frictionGround;  //< friction with ground
-  double frictionJoint;   //< friction within joint
-  double jointLimit;      //< maximal angle for the joints (M_PI/2 = 90 degree)
+  int    segmNumber;  ///<  number of snake elements
+  double segmLength;  ///< length of one snake element
+  double segmDia;     ///<  diameter of a snake element
+  double segmMass;    ///<  mass of one snake element
+  double motorPower;  ///<  power of the motors / servos
+  double sensorFactor;    ///<  scale for sensors
+  double frictionGround;  ///< friction with ground
+  double frictionJoint;   ///< friction within joint
+  double jointLimit;      ///< maximal angle for the joints (M_PI/2 = 90 degree)
 } SchlangeConf;
 
 

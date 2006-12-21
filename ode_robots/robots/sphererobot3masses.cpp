@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-12-01 16:20:40  martius
+ *   Revision 1.7  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.6  2006/12/01 16:20:40  martius
  *   *** empty log message ***
  *
  *   Revision 1.5  2006/11/17 13:44:50  martius
@@ -98,8 +102,15 @@ using namespace std;
 
 namespace lpzrobots {
 
-  const int Sphererobot3Masses::servono;
 
+  void Sphererobot3MassesConf::destroy(){
+    for(list<Sensor*>::iterator i = sensors.begin(); i != sensors.end(); i++){
+      if(*i) delete *i;
+    }    
+    sensors.clear();
+  }
+
+  const int Sphererobot3Masses::servono;
 
   /**
    *constructor
@@ -167,27 +178,31 @@ namespace lpzrobots {
   int Sphererobot3Masses::getSensors ( sensor* sensors, int sensornumber )
   {  
     int len=0;
+    assert(created);
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base]->getBody() ) );
-
+    FOREACH(list<Sensor*>, conf.sensors, i){
+      len += (*i)->get(sensors+len, sensornumber-len);
+    }
+  
     if(conf.motorsensor){
       for ( unsigned int n = 0; n < numberaxis; n++ ) {
 	sensors[len] = servo[n]->get() * 0.2;
 	len++;
       }
     }
-    if(conf.worldZaxissensor){
-      // world coordinates of z-axis
-      len += A.column(2).convertToBuffer(sensors+len, sensornumber-len);  
-    }
-    if(conf.axisZsensor){
-      // z-coordinate of axis position in world coordinates
-      len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
-    }
-    if(conf.axisXYZsensor){
-      // rotation matrix - 9 (vectors of all axis in world coordinates
-      len += A.convertToBuffer(sensors + len , sensornumber -len);
-    }
-    
+    // this is now done with Sensors, see above
+//     if(conf.worldZaxissensor){
+//       // world coordinates of z-axis
+//       len += A.column(2).convertToBuffer(sensors+len, sensornumber-len);  
+//     }
+//     if(conf.axisZsensor){
+//       // z-coordinate of axis position in world coordinates
+//       len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
+//     }
+//     if(conf.axisXYZsensor){
+//       // rotation matrix - 9 (vectors of all axis in world coordinates
+//       len += A.convertToBuffer(sensors + len , sensornumber -len);
+//     }    
     //   // angular velocities (local coord.) - 3
     //   Matrix angVelOut(3, 1, dBodyGetAngularVel( object[ Base ].body ));
     //   Matrix angVelIn = A*angVelOut;
@@ -274,9 +289,12 @@ namespace lpzrobots {
    *@return number of sensors
    **/
   int Sphererobot3Masses::getSensorNumber() {
-    return conf.motorsensor * numberaxis + conf.axisZsensor * servono
-      + conf.worldZaxissensor * servono + conf.axisXYZsensor * servono * 3 
-      + (conf.irAxis1 + conf.irAxis2 + conf.irAxis3) * 2;
+    int s=0;
+    FOREACHC(list<Sensor*>, conf.sensors, i){
+      s += (*i)->getSensorNumber();
+    }
+    return conf.motorsensor * numberaxis + s + 
+      (conf.irAxis1 + conf.irAxis2 + conf.irAxis3) * 2;
   }
 
 
@@ -362,6 +380,11 @@ namespace lpzrobots {
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
+
+    FOREACH(list<Sensor*>, conf.sensors, i){
+      (*i)->init(object[Base]);
+    }
+
   }
 
 

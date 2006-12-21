@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2006-08-11 15:46:34  martius
+ *   Revision 1.18  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.17  2006/08/11 15:46:34  martius
  *   *** empty log message ***
  *
  *   Revision 1.16  2006/08/04 15:07:46  martius
@@ -103,6 +107,7 @@
 
 // used wiring
 #include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 // used robot
 #include "nimm2.h"
@@ -114,8 +119,9 @@
 #include "passivesphere.h"
 
 // used controller
-//#include <selforg/invertnchannelcontroller.h>
+#include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
+#include <selforg/sinecontroller.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -131,7 +137,7 @@ public:
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.noise=0.1;
+    global.odeConfig.noise=0.05;
     //  global.odeConfig.setParam("gravity", 0);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
@@ -165,37 +171,43 @@ public:
     // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
     // - place robot
      Nimm2Conf c = Nimm2::getDefaultConf();
+     c.force   = 4;
      c.bumper  = true;
      c.cigarMode  = true;
-     c.irFront = true;
+     //     c.irFront = true;
      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");    
      vehicle->place(Pos(2,0,0));
-
-    // use Nimm4 vehicle as robot:
-    // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
-    // - place robot
-    //OdeRobot* vehiInvertMotorSpacecle = new Nimm4(odeHandle, osgHandle);
-    //vehicle->place(Pos(0,2,0));
-
-    // create pointer to controller
-    // push controller in global list of configurables
-    //  AbstractController *controller = new InvertNChannelController(10);  
-    AbstractController *controller = new InvertMotorSpace(10);  
-    global.configs.push_back(controller);
-  
-    // create pointer to one2onewiring
-    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-
-    // create pointer to agent
-    // initialize pointer with controller, robot and wiring
-    // push agent in globel list of agents
-    OdeAgent* agent = new OdeAgent(plotoptions);
-    agent->init(controller, vehicle, wiring);
-    global.agents.push_back(agent);
-  
-    showParams(global.configs);
+     
+     // use Nimm4 vehicle as robot:
+     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
+     // - place robot
+     //OdeRobot* vehiInvertMotorSpacecle = new Nimm4(odeHandle, osgHandle);
+     //vehicle->place(Pos(0,2,0));
+     
+     // create pointer to controller
+     // push controller in global list of configurables
+     // AbstractController *controller = new InvertNChannelController(10);  
+     AbstractController *controller = new InvertMotorSpace(10,0.8 );  
+     controller->setParam("s4avg",2);
+     controller->setParam("s4del",2);
+     //     AbstractController *controller = new SineController();  
+     global.configs.push_back(controller);
+     
+     // create pointer to one2onewiring
+     // One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+     DerivativeWiringConf dc = DerivativeWiring::getDefaultConf1();
+     AbstractWiring* wiring = new DerivativeWiring(dc, new ColorUniformNoise());     
+     
+     // create pointer to agent
+     // initialize pointer with controller, robot and wiring
+     // push agent in globel list of agents
+     OdeAgent* agent = new OdeAgent(plotoptions, 1);
+     agent->init(controller, vehicle, wiring);
+     global.agents.push_back(agent);
+     
+     showParams(global.configs);
   }
-
+  
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {

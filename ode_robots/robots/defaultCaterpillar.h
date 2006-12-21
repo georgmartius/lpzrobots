@@ -32,7 +32,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:39  martius
+ *   Revision 1.3  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.2  2006/07/14 12:23:39  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.6  2006/06/25 16:57:12  martius
@@ -75,16 +79,16 @@ namespace lpzrobots {
 
 typedef struct {
 public:
-  int    segmNumber;  //<  number of snake elements
-  double segmLength;  //< length of one snake element
-  double segmDia;     //<  diameter of a snake element
-  double segmMass;    //<  mass of one snake element
-  double motorPower;  //<  power of the motors / servos
-  double sensorFactor;    //<  scale for sensors
-  double frictionGround;  //< friction with ground
-  double frictionJoint;   //< friction within joint
-  double jointLimit;      //< maximal angle for the joints (M_PI/2 = 90 degree)
-  int firstJoint;	//< first joint type to use: 0=sliderJoint, 1=universalJoint
+  int    segmNumber;  ///<  number of snake elements
+  double segmLength;  ///< length of one snake element
+  double segmDia;     ///<  diameter of a snake element
+  double segmMass;    ///<  mass of one snake element
+  double motorPower;  ///<  power of the motors / servos
+  double sensorFactor;    ///<  scale for sensors
+  double frictionGround;  ///< friction with ground
+  double frictionJoint;   ///< friction within joint
+  double jointLimit;      ///< maximal angle for the joints (M_PI/2 = 90 degree)
+  int firstJoint;        ///< first joint type to use: 0=sliderJoint, 1=universalJoint
 } CaterPillarConf;
 
 

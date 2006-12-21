@@ -24,7 +24,11 @@
  * Spherical Robot magically driven                                        *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-08-11 15:44:35  martius
+ *   Revision 1.6  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.5  2006/08/11 15:44:35  martius
  *   has conf now and arbitrary sensors
  *
  *   Revision 1.4  2006/08/08 17:04:46  martius
@@ -61,7 +65,7 @@ namespace lpzrobots {
     void destroy();
 
     double radius; //< radius of the sphere
-    double max_force; //< maximal force applied to the sphere
+    double max_force; ///< maximal force applied to the sphere
     /// bit mask for selecting the dimensions for the forces (see ForcedSphere::Dimensions)
     short drivenDimensions; 
     /// list of sensors that are mounted at the robot. (e.g.\ AxisOrientationSensor)

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-09-21 22:10:42  martius
+ *   Revision 1.10  2006-12-21 11:43:05  martius
+ *   commenting style for doxygen //< -> ///<
+ *   new sensors for spherical robots
+ *
+ *   Revision 1.9  2006/09/21 22:10:42  martius
  *   make opt fixed
  *
  *   Revision 1.8  2006/07/14 15:13:15  fhesse
@@ -92,7 +96,7 @@ public:
     // initialization
     global.odeConfig.noise=0.05;
     global.odeConfig.setParam("controlinterval",2);
-    global.odeConfig.setParam("gravity",-2);
+    global.odeConfig.setParam("gravity",-9);
 
   
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20.0, 0.2, 1.0));
@@ -124,21 +128,23 @@ public:
       if (i==2) col=Color(0,2,2);
       ((OdeRobot* )hs)->place(Pos(-5,(i-1)*5,0.0));
 
-      hs->setParam("factorForce",12);
-      hs->setParam("frictionGround",0.2);
+      hs->setParam("factorForce",4);
+      hs->setParam("frictionGround",0.05);
 
       //controller = new InvertMotorSpace(10);  
-      controller = new InvertMotorNStep();  
-      controller->setParam("steps", 2);
+      controller = new InvertNChannelController(20);  
+      //      controller = new InvertMotorNStep();  
+      //      controller->setParam("steps", 2);
+      controller->setParam("factorA", 0.4);
       controller->setParam("epsA", 0.15);
-      controller->setParam("epsC", 0.04);
+      controller->setParam("eps", 0.05); 
       controller->setParam("adaptrate", 0.000);
       controller->setParam("nomupdate", 0.000);
 
       // controller = new SineController();
       //    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
       DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-      c.blindMotorSets=0;
+      c.blindMotors=0;
       c.useId = true;
       //    c.useFirstD = true;
       c.derivativeScale = 20;
