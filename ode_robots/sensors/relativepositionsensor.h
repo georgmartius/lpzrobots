@@ -23,7 +23,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-08-08 17:03:27  martius
+ *   Revision 1.2  2006-12-21 11:42:10  martius
+ *   sensors have dimension to sense
+ *   axissensors have finer settings
+ *
+ *   Revision 1.1  2006/08/08 17:03:27  martius
  *   new sensors model
  *
  *                                                                 *
@@ -40,9 +44,6 @@ namespace lpzrobots {
   */
   class RelativePositionSensor : public Sensor {
   public:  
-
-    enum Dimensions { X = 1, Y = 2, Z = 4 };
-
     /**
        @param maxDistance maximal distance that is expected used for normalisation of sensor value
        @param exponent exponent of the sensor characteritic (default: 1 (linear))

@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-08-11 15:45:38  martius
+ *   Revision 1.3  2006-12-21 11:42:10  martius
+ *   sensors have dimension to sense
+ *   axissensors have finer settings
+ *
+ *   Revision 1.2  2006/08/11 15:45:38  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2006/08/08 17:03:27  martius
@@ -42,8 +46,8 @@
 
 namespace lpzrobots {
 
-  AxisOrientationSensor::AxisOrientationSensor(Mode mode) 
-    : mode(mode) {
+  AxisOrientationSensor::AxisOrientationSensor(Mode mode, short dimensions) 
+    : mode(mode), dimensions(dimensions) {
     own = 0;
   }
 
@@ -52,13 +56,15 @@ namespace lpzrobots {
   }
 
   int AxisOrientationSensor::getSensorNumber() const{
+    
+    short n = ((dimensions & X) != 0) + ((dimensions & Y) != 0) + ((dimensions & Z) != 0);
     switch (mode) {
     case OnlyZAxis: 
     case ZProjection: 
-      return 3;
+      return n;
       break;
-    case XYZAxis:
-      return 9;
+    case Axis:
+      return 3*n;
       break;
     }      
     return 0;
@@ -69,17 +75,18 @@ namespace lpzrobots {
   std::list<sensor> AxisOrientationSensor::get() const {
     assert(own);
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( own->getBody() ) );
+    
     switch (mode) {
     case OnlyZAxis: 
-      return A.column(2).convertToList();
-      break;
+      if(dimensions == (X | Y | Z)) return A.column(2).convertToList();
+      else return selectrows(A.column(2),dimensions); break;
     case ZProjection: 
-      return A.row(2).convertToList();
-      break;
-    case XYZAxis:
-      return A.convertToList();
-      break;
-    }       
+      if(dimensions == (X | Y | Z)) return A.row(2).convertToList();
+      else return selectrows(A.row(2)^(matrix::T),dimensions);  break;
+    case Axis:
+      if(dimensions == (X | Y | Z)) return A.convertToList();
+      else return selectrows(A,dimensions); break;
+    }    
     return std::list<sensor>();
   }
 
@@ -88,16 +95,17 @@ namespace lpzrobots {
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( own->getBody() ) );
     switch (mode) {
     case OnlyZAxis: 
-      return A.column(2).convertToBuffer(sensors, length);  
-      break;
+      if(dimensions == (X | Y | Z)) return A.column(2).convertToBuffer(sensors, length);
+      else return selectrows(sensors, length, A.column(2),dimensions); break;
     case ZProjection: 
-      return A.row(2).convertToBuffer(sensors, length);  
-      break;
-    case XYZAxis:
-      return A.convertToBuffer(sensors, length); 
-      break;
-    }      
+      if(dimensions == (X | Y | Z)) return A.row(2).convertToBuffer(sensors, length);
+      else return selectrows(sensors, length, A.row(2)^(matrix::T),dimensions);  break;
+    case Axis:
+      if(dimensions == (X | Y | Z)) return A.convertToBuffer(sensors, length);
+      else return selectrows(sensors, length, A,dimensions); break;
+    }    
     return 0;
   }
-  
+
 }
+

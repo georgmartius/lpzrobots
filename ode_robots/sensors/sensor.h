@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-08-08 11:59:01  martius
+ *   Revision 1.2  2006-12-21 11:42:10  martius
+ *   sensors have dimension to sense
+ *   axissensors have finer settings
+ *
+ *   Revision 1.1  2006/08/08 11:59:01  martius
  *   new abstract class for sensors
  *
  *   Revision 1.1  2005/11/22 10:24:04  martius
@@ -33,6 +37,8 @@
 
 #include <list>
 #include <selforg/types.h>
+#include <selforg/stl_adds.h>
+#include <selforg/matrix.h>
 #include "pos.h"
 
 namespace lpzrobots {
@@ -45,6 +51,9 @@ namespace lpzrobots {
   */
   class Sensor {
   public:  
+    /// defines which dimensions should be sensed. The meaning is sensor specific.
+    enum Dimensions { X = 1, Y = 2, Z = 4 };
+
     Sensor() {}
     virtual ~Sensor() {}
   
@@ -71,6 +80,24 @@ namespace lpzrobots {
 	@return number of sensor values written
      */
     virtual int get(sensor* sensors, int length) const  = 0;
+
+    /// selects the rows specified by dimensions (X->0, Y->1, Z->2)
+    static std::list<sensor> selectrows(const matrix::Matrix& m, short dimensions) {
+      std::list<sensor> l;
+      for(int i=0; i<2; i++){
+	if(( 1>>i) & dimensions) l += m.row(i).convertToList();
+      } 
+      return l;
+    }
+    /// selects the rows specified by dimensions (X->0, Y->1, Z->2)
+    static int selectrows(sensor* sensors, int length, const matrix::Matrix& m, short dimensions) {
+      int len=0;
+      for(int i=0; i<3; i++){
+	if(( 1 << i) & dimensions) 
+	  len+=m.row(i).convertToBuffer(sensors+len, length-len);	
+      } 
+      return len;
+    }
 
   };
 

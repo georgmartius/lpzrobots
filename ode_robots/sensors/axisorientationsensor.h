@@ -23,7 +23,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-11 18:25:08  martius
+ *   Revision 1.4  2006-12-21 11:42:10  martius
+ *   sensors have dimension to sense
+ *   axissensors have finer settings
+ *
+ *   Revision 1.3  2006/12/11 18:25:08  martius
  *   memory freed
  *
  *   Revision 1.2  2006/08/11 15:45:38  martius
@@ -45,14 +49,19 @@ namespace lpzrobots {
   */
   class AxisOrientationSensor : public Sensor {
   public:  
-    //    TODO: check whether Doxygen can handle the following
     /// Sensor mode 
-    enum Mode { OnlyZAxis //< Z axis in word coordinated
-		, ZProjection //< z-component of each axis
-		, XYZAxis //< 3x3 rotation matrix
+    enum Mode { OnlyZAxis, ///< Z axis in word coordinated (Dimension select components of this vector)
+		ZProjection, ///< z-component of each axis (Dimension select components of this vector)
+		Axis ///< for each dimension one orienation vector, i.e. for X | Y | Z it is a 3x3 rotation matrix
     };
-
-    AxisOrientationSensor(Mode mode);
+    
+    /**
+       @param mode how to measure the axis orientation
+       @param dimensions bit mask for the dimensions to sense. Default: X | Y | Z (all dimensions)       
+       @see Sensor::Dimensions
+       @see Mode
+     */
+    AxisOrientationSensor(Mode mode, short dimensions = X | Y | Z );
     virtual ~AxisOrientationSensor() {}
     
     virtual void init(Primitive* own);  
@@ -64,6 +73,7 @@ namespace lpzrobots {
 
   private:
     Mode mode;
+    short dimensions;
     Primitive* own;
   };
 
