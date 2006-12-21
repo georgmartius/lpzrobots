@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-12-13 09:13:24  martius
+ *   Revision 1.10  2006-12-21 11:44:17  martius
+ *   commenting style for doxygen //< -> ///<
+ *   FOREACH and FOREACHC are macros for collection iteration
+ *
+ *   Revision 1.9  2006/12/13 09:13:24  martius
  *   agents get comments about changed parameter for logfile
  *
  *   Revision 1.8  2006/12/11 18:10:27  martius
@@ -169,8 +173,8 @@ public:
 
 private:
 
-  bool open(); //< opens the connections to the plot tool 
-  void close();//< closes the connections to the plot tool
+  bool open(); ///< opens the connections to the plot tool 
+  void close();///< closes the connections to the plot tool
 
   FILE* pipe;
   long t;

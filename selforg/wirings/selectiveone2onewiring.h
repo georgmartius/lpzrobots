@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:24:02  martius
+ *   Revision 1.3  2006-12-21 11:44:17  martius
+ *   commenting style for doxygen //< -> ///<
+ *   FOREACH and FOREACHC are macros for collection iteration
+ *
+ *   Revision 1.2  2006/07/14 12:24:02  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2005/11/16 11:24:28  martius
@@ -38,12 +42,32 @@
 #define __SELECTIVEONE2ONEWIRING_H
 
 #include "one2onewiring.h"
+#include <functional>
 
-typedef bool (*select_predicate)(unsigned int index, unsigned int len);
+/** predicate to select sensors. 
+    First parameter is the index 
+    and the second parameter is the length (or number of sensors).
+*/
+struct select_predicate : public std::binary_function< int,  int, bool> { 
+  virtual ~select_predicate(){}
+  virtual bool operator()( int index,  int len) { return true; }
+};
 
-bool select_all(unsigned int index, unsigned int len);
-bool select_firsthalf(unsigned int index, unsigned int len);
+struct select_all : public  select_predicate { };
 
+struct select_firsthalf : public  select_predicate {  
+  virtual ~select_firsthalf(){}
+  virtual bool operator()( int index,  int len) { return index < len/2; }
+};
+
+/// select sensors in the range \f[ [from, to] \f] (inclusively)
+struct select_from_to : public  select_predicate {   
+  virtual ~select_from_to(){}
+  select_from_to( int from,  int to) : from(from), to(to) {}
+  virtual bool operator()( int index,  int len) { return (index >= from) && (index <= to); }
+  int from;
+  int to;
+};
 
 /** 
  *   Implements a selective one to one wireing of robot sensors to inputs of the controller 
@@ -53,9 +77,10 @@ class SelectiveOne2OneWiring : public One2OneWiring{
 public:
   /** constructor
       @param noise NoiseGenerator that is used for adding noise to sensor values  
-      @param sel_sensor select_predicate describung what sensors should be selected
+      @param sel_sensor binary predicate taking the index and the length (number of sensors) 
+             and decides which sensor to select
   */
-  SelectiveOne2OneWiring(NoiseGenerator* noise, select_predicate sel_sensor);
+  SelectiveOne2OneWiring(NoiseGenerator* noise, select_predicate* sel_sensor);
   virtual ~SelectiveOne2OneWiring();
 
   /** initializes the number of sensors and motors on robot side, calculate
@@ -74,7 +99,7 @@ public:
 			   double noise);
 
 protected:  
-  select_predicate sel_sensor;
+  select_predicate* sel_sensor;
 
 };
 

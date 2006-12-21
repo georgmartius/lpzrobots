@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:14:36  martius
+ *   Revision 1.4  2006-12-21 11:44:17  martius
+ *   commenting style for doxygen //< -> ///<
+ *   FOREACH and FOREACHC are macros for collection iteration
+ *
+ *   Revision 1.3  2006/07/20 17:14:36  martius
  *   removed std namespace from matrix.h
  *   storable interface
  *   abstract model and invertablemodel as superclasses for networks
@@ -162,6 +166,7 @@ protected:
   /// number of motors at controller side
   int cmotornumber;
 
+  /// noise generator
   NoiseGenerator* noiseGenerator;
 
 };

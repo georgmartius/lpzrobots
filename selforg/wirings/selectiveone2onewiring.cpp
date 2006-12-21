@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:24:02  martius
+ *   Revision 1.3  2006-12-21 11:44:17  martius
+ *   commenting style for doxygen //< -> ///<
+ *   FOREACH and FOREACHC are macros for collection iteration
+ *
+ *   Revision 1.2  2006/07/14 12:24:02  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2005/11/16 11:24:28  martius
@@ -41,22 +45,15 @@
 #include "selectiveone2onewiring.h"
 #include "assert.h"
 
-bool select_all(unsigned int index, unsigned int len){
-  return true;
-}
-bool select_firsthalf(unsigned int index, unsigned int len){
-  return index < len/2;
-}
-
 
 /// constructor
 SelectiveOne2OneWiring::SelectiveOne2OneWiring(NoiseGenerator* noise, 
-					       select_predicate sel_sensor)
-  : One2OneWiring(noise){
-  this->sel_sensor = sel_sensor;
+					       select_predicate* sel_sensor)
+  : One2OneWiring(noise), sel_sensor(sel_sensor) {
 }
 
 SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){
+  if(sel_sensor) delete sel_sensor;
 }
 
 
@@ -64,13 +61,12 @@ SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){
 //  number of sensors and motors on controller side
 bool SelectiveOne2OneWiring::init(int robotsensornumber, int robotmotornumber){
   One2OneWiring::init(robotsensornumber, robotmotornumber);
-  assert(sel_sensor);
   int num=0;
   for(int i=0; i<robotsensornumber; i++){
-    if(sel_sensor(i,robotsensornumber)) num++;
+    if((*sel_sensor)(i,robotsensornumber)) num++;
   }  
-  printf("csensornumber: %i\n", num);
   csensornumber = num;
+  printf("robot sensors: %i, selected senors: %i\n", robotsensornumber, num);
   return true;
 }
 
@@ -87,7 +83,7 @@ bool SelectiveOne2OneWiring::wireSensors(const sensor* rsensors, int rsensornumb
   noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);   
   int num=0;
   for(int i=0; i< rsensornumber; i++){
-    if(sel_sensor(i,rsensornumber)){
+    if((*sel_sensor)(i,rsensornumber)){
       csensors[num] = rsensors[i] + noisevals[i];
       num++;
     }

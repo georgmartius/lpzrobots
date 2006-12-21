@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-12-12 09:43:40  martius
+ *   Revision 1.7  2006-12-21 11:44:17  martius
+ *   commenting style for doxygen //< -> ///<
+ *   FOREACH and FOREACHC are macros for collection iteration
+ *
+ *   Revision 1.6  2006/12/12 09:43:40  martius
  *   getDefaultConf1()
  *
  *   Revision 1.5  2006/12/11 18:23:11  martius
@@ -72,11 +76,11 @@
 */
 typedef struct __DerivativeWiringConf {
   bool useId;        //< include zeroth derivative
-  bool useFirstD;   //< include first derivative
-  bool useSecondD;  //< second include second derivative
-  double eps;       //< update rate for floating average (0 -> no sensor variation, 1 -> no smoothing)
-  double derivativeScale;   //< factor for the derivatives
-  unsigned int blindMotors;   //< number of motors that are blind (not given to robot)
+  bool useFirstD;   ///< include first derivative
+  bool useSecondD;  ///< second include second derivative
+  double eps;       ///< update rate for floating average (0 -> no sensor variation, 1 -> no smoothing)
+  double derivativeScale;   ///< factor for the derivatives
+  unsigned int blindMotors;   ///< number of motors that are blind (not given to robot)
 } DerivativeWiringConf;
 
 
