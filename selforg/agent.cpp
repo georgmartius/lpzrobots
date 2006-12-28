@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-12-13 09:13:24  martius
+ *   Revision 1.11  2006-12-28 18:38:03  robot5
+ *   Soundchanger call modified.
+ *
+ *   Revision 1.10  2006/12/13 09:13:24  martius
  *   agents get comments about changed parameter for logfile
  *
  *   Revision 1.9  2006/12/11 18:10:52  martius
@@ -348,7 +351,7 @@ bool PlotOption::open(){
       struct tm *t;
       time_t tnow;
       time(&tnow);
-      t = localtime(&tnow);            
+      t = localtime(&tnow);
       char logfilename[255];
       sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i-%02i.log",
 	      name.c_str(), t->tm_year%100, t->tm_mon+1 , t->tm_mday,
@@ -368,14 +371,14 @@ bool PlotOption::open(){
     break;
 
   case SndChanger:
-    pipe=popen("perl ../../utils/sndchanger.pl","w");
+    pipe=popen("cd ../../utils/; javac Sound.java; java Sound","w");
     break;
 
   default: // and NoPlot
     return false;
   }
   if(pipe==0){
-    fprintf(stderr, "%s:%i: could not open plot tool!\n", __FILE__, __LINE__);    
+    fprintf(stderr, "%s:%i: could not open plot tool!\n", __FILE__, __LINE__);
     return false;
   }else return true;
 }
