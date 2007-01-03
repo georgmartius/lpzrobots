@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-12-21 11:43:05  martius
+ *   Revision 1.8  2007-01-03 15:01:09  fhesse
+ *   created=true; added (at end of create())
+ *
+ *   Revision 1.7  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -384,7 +387,8 @@ namespace lpzrobots {
     FOREACH(list<Sensor*>, conf.sensors, i){
       (*i)->init(object[Base]);
     }
-
+ 
+  created=true;
   }
 
 
