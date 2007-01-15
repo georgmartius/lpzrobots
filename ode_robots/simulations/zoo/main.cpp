@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-01-15 09:38:06  martius
+ *   Revision 1.16  2007-01-15 15:17:33  robot3
+ *   fixed compile bug
+ *
+ *   Revision 1.15  2007/01/15 09:38:06  martius
  *   number of agents per type as variables on top of start function
  *   sphere gets axisorientationsensor
  *
@@ -197,7 +200,7 @@ public:
       myCaterPillarConf.frictionJoint=0.01;
       myCaterPillar =
 	new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), 
-			  myCaterPillarConf, "Raupe" + std::itos(r));
+			  myCaterPillarConf, "Raupe" );//+ std::itos(r));
       ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5+2*r,0.2)); 
       
       InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
