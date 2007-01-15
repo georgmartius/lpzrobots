@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2006-09-22 06:18:56  robot8
+ *   Revision 1.15  2007-01-15 09:38:06  martius
+ *   number of agents per type as variables on top of start function
+ *   sphere gets axisorientationsensor
+ *
+ *   Revision 1.14  2006/09/22 06:18:56  robot8
  *   - added SliderWheelie - robot
  *
  *   Revision 1.13  2006/07/23 10:24:09  fhesse
@@ -106,6 +110,8 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
 
+#include "axisorientationsensor.h"
+
 #include "hurlingsnake.h"
 #include "schlangeservo2.h"
 #include "caterpillar.h"
@@ -123,6 +129,15 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
+    int numCater=1;
+    int numSchlangeL=1;
+    int numNimm2=2;
+    int numNimm4=1;
+    int numHurling=1;
+    int numSphere=1;
+    int numSliderWheele=1;
+
+
     setCameraHomePos(Pos(-19.15, 13.9, 6.9),  Pos(-126.1, -17.6, 0));
     // initialization
     // - set noise to 0.1
@@ -172,52 +187,57 @@ public:
     AbstractController *controller;
     
     //******* R A U P E  *********/
-    CaterPillar* myCaterPillar;
-    CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
-    myCaterPillarConf.segmNumber=3;
-    myCaterPillarConf.jointLimit=M_PI/3;
-    myCaterPillarConf.motorPower=0.2;
-    myCaterPillarConf.frictionGround=0.01;
-    myCaterPillarConf.frictionJoint=0.01;
-    myCaterPillar =
-      new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), 
-			myCaterPillarConf, "Raupe");
-    ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,0.2)); 
+    for(int r=0; r < numCater ; r++) { 
+      CaterPillar* myCaterPillar;
+      CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
+      myCaterPillarConf.segmNumber=3+r;
+      myCaterPillarConf.jointLimit=M_PI/3;
+      myCaterPillarConf.motorPower=0.2;
+      myCaterPillarConf.frictionGround=0.01;
+      myCaterPillarConf.frictionJoint=0.01;
+      myCaterPillar =
+	new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), 
+			  myCaterPillarConf, "Raupe" + std::itos(r));
+      ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5+2*r,0.2)); 
+      
+      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+      invertnconf.cInit=2.0;
+      controller = new InvertMotorSpace(15);
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent( plotoptions );
+      agent->init(controller, myCaterPillar, wiring);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.configs.push_back(myCaterPillar);   
+      myCaterPillar->setParam("gamma",/*gb");
+					global.obstacles.push_back(s)0.0000*/ 0.0);
+    }
     
-     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-     invertnconf.cInit=2.0;
-     controller = new InvertMotorSpace(15);
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( plotoptions );
-    agent->init(controller, myCaterPillar, wiring);
-    global.agents.push_back(agent);
-    global.configs.push_back(controller);
-    global.configs.push_back(myCaterPillar);   
-    myCaterPillar->setParam("gamma",/*gb");
-    global.obstacles.push_back(s)0.0000*/ 0.0);
-  
-
+    
     //******* S C H L A N G E  (Long)  *********/
-    SchlangeServo2* snake;
-    SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
-    snakeConf.segmNumber=4;
-    snakeConf.frictionGround=0.01;
-
-    snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" );
-    ((OdeRobot*) snake)->place(Pos(4,4,0)); 
-    controller = new InvertMotorNStep(invertnconf);     
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( std::list<PlotOption>() );
-    agent->init(controller, snake, wiring);
-    global.agents.push_back(agent);
-    global.configs.push_back(controller);
-    global.configs.push_back(snake);   
-  
+    for(int r=0; r < numSchlangeL ; r++) { 
+      SchlangeServo2* snake;
+      SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
+      snakeConf.segmNumber=6+r;
+      snakeConf.frictionGround=0.01;
+      
+      snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" + std::itos(r));
+      ((OdeRobot*) snake)->place(Pos(4,4-r,0)); 
+      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+      invertnconf.cInit=2.0;
+      controller = new InvertMotorNStep(invertnconf);     
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent( std::list<PlotOption>() );
+      agent->init(controller, snake, wiring);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.configs.push_back(snake);   
+    }
 
     //******* N I M M  2 *********/
     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
     nimm2conf.size = 1.6;
-    for(int r=0; r < 1; r++) { 
+    for(int r=0; r < numNimm2; r++) { 
       robot = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(r));
       robot->place(Pos ((r-1)*5,5,0));
       //    controller = new InvertMotorNStep(10);   
@@ -232,7 +252,7 @@ public:
     }
     
     //******* N I M M  4 *********/
-    for(int r=0; r < 1; r++) {
+    for(int r=0; r < numNimm4; r++) {
       robot = new Nimm4(odeHandle, osgHandle, "Nimm4_" + std::itos(r));
       robot->place(Pos((r-1)*5,-3,0));
       controller = new InvertMotorSpace(20);
@@ -245,13 +265,14 @@ public:
     }
 
     //****** H U R L I N G **********/
-    for(int r=0; r < 1; r++) {
+    for(int r=0; r < numHurling; r++) {
       HurlingSnake* snake;
       Color c;    
       if (r==0) c=Color(0.8, 0.8, 0);
       if (r==1) c=Color(0,   0.8, 0);
       snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake_" + std::itos(r));
       ((OdeRobot*) snake)->place(Pos(r*5,-6,0.3));
+      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
       invertnconf.cInit=1.5;
       controller = new InvertMotorNStep(invertnconf);
       controller->setParam("steps", 2);
@@ -273,49 +294,52 @@ public:
     }
 
     //****** S P H E R E **********/
-    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-    Sphererobot3Masses* sphere1 = 
-      new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
-				       conf, "Sphere1", 0.2); 
-    ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));
-    controller = new InvertMotorSpace(15);
-    controller->setParam("sinerate", 40);  
-    controller->setParam("phaseshift", 0.0);
-    One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
-    agent = new OdeAgent ( plotoptions );
-    agent->init ( controller , sphere1 , wiring2 );
-    global.agents.push_back ( agent );
-    global.configs.push_back ( controller );
+    for(int r=0; r < numSphere; r++) {
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+      Sphererobot3Masses* sphere1 = 
+	new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
+				 conf, "Sphere" + std::itos(r), 0.2); 
+      ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));
+      controller = new InvertMotorSpace(15);
+      controller->setParam("sinerate", 40);  
+      controller->setParam("phaseshift", 0.0);
+      One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
+      agent = new OdeAgent ( plotoptions );
+      agent->init ( controller , sphere1 , wiring2 );
+      global.agents.push_back ( agent );
+      global.configs.push_back ( controller );
+    }
 
     /******* S L I D E R - w H E E L I E *********/
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
-
-    mySliderWheelieConf.segmNumber=8;
-    mySliderWheelieConf.jointLimit=M_PI/4;
-    mySliderWheelieConf.motorPower=0.4;
-    mySliderWheelieConf.frictionGround=0.8;
-    mySliderWheelieConf.sliderLength=1;
-    mySliderWheelieConf.segmLength=0.4;
-    
-    SliderWheelie* mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
-    ((OdeRobot*) mySliderWheelie)->place(Pos(4,0,0.0)); 
-    invertnconf = InvertMotorNStep::getDefaultConf();
-    invertnconf.cInit=1;
-    controller = new InvertMotorNStep(invertnconf);    
-    controller->setParam("steps",2);
-    controller->setParam("factorB",0);
-
-    DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-    c.useId = false;
-    c.useFirstD = true;
-    DerivativeWiring* wiring3 = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
-    agent = new OdeAgent(plotoptions);
-    agent->init(controller, mySliderWheelie, wiring3);
-    global.agents.push_back(agent);
-    global.configs.push_back(controller);
-    global.configs.push_back(mySliderWheelie);   
-
-    
+    for(int r=0; r < numSliderWheele; r++) {
+      mySliderWheelieConf.segmNumber=8;
+      mySliderWheelieConf.jointLimit=M_PI/4;
+      mySliderWheelieConf.motorPower=0.4;
+      mySliderWheelieConf.frictionGround=0.8;
+      mySliderWheelieConf.sliderLength=1;
+      mySliderWheelieConf.segmLength=0.4;
+      
+      SliderWheelie* mySliderWheelie = 
+	new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie" + std::itos(r));
+      ((OdeRobot*) mySliderWheelie)->place(Pos(4-2*r,0,0.0)); 
+      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+      invertnconf.cInit=1;
+      controller = new InvertMotorNStep(invertnconf);    
+      controller->setParam("steps",2);
+      controller->setParam("factorB",0);
+      
+      DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+      c.useId = false;
+      c.useFirstD = true;
+      DerivativeWiring* wiring3 = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
+      agent = new OdeAgent(plotoptions);
+      agent->init(controller, mySliderWheelie, wiring3);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.configs.push_back(mySliderWheelie);   
+    }
 
     
     showParams(global.configs);
