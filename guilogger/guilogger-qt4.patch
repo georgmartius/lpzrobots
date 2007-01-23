@@ -1,0 +1,220 @@
+Nur in guilogger/bin: guilogger.
+Nur in guilogger-qt4/bin: MyRobot_06-11-08_00-00-32-29.log.
+diff -rn guilogger/guilogger.pro guilogger-qt4/guilogger.pro
+d3 2
+a4 1
+CONFIG += warn_on \
+Nur in guilogger: Makefile.
+diff -rn guilogger/src/channelrow.cpp guilogger-qt4/src/channelrow.cpp
+a20 3
+//Added by qt3to4:
+#include <Q3Frame>
+#include <QLabel>
+d25 1
+a25 1
+    : Q3Frame(parent, name)
+diff -rn guilogger/src/channelrow.h guilogger-qt4/src/channelrow.h
+d23 1
+a23 1
+#include <q3frame.h>
+d33 1
+a33 1
+class ChannelRow : public Q3Frame
+diff -rn guilogger/src/commlineparser.h guilogger-qt4/src/commlineparser.h
+a0 2
+//Added by qt3to4:
+#include <Q3ValueList>
+d62 1
+a62 1
+        {   Q3ValueList<QString> ComLineParams;
+d65 1
+a65 1
+            Q3ValueList<QString>::iterator it;
+diff -rn guilogger/src/gnuplot.h guilogger-qt4/src/gnuplot.h
+d123 1
+a123 1
+	    str << (const char *)name;
+diff -rn guilogger/src/guilogger.cpp guilogger-qt4/src/guilogger.cpp
+a28 6
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3ValueList>
+#include <QLabel>
+#include <Q3PopupMenu>
+#include <Q3VBoxLayout>
+d31 1
+a31 1
+guilogger::guilogger(const CommLineParser& configobj) : Q3MainWindow( 0, "guilogger")
+d39 2
+d57 1
+a57 1
+    layout        = new Q3HBoxLayout(centralWidget());
+d59 1
+a59 1
+    sv = new Q3ScrollView(centralWidget());
+d61 1
+a61 1
+    sv->setResizePolicy(Q3ScrollView::AutoOneFit);
+d79 2
+a80 2
+    channellayout = new Q3VBoxLayout(channelWidget);
+    commlayout    = new Q3VBoxLayout(commWidget);
+d83 1
+a83 1
+    Q3BoxLayout *horizonsliderlayout = new Q3VBoxLayout(horizonsliderwidget);
+d93 3
+a95 3
+    {   horizonslider->setMinValue(1);
+        horizonslider->setMaxValue(3000);   // MaxTimer für Plottimer
+        horizonslider->setValue(500);       // actual Value for Plottimer
+d97 1
+a97 1
+        horizonslidervalue->setText(QString::number(500, 10));
+d104 1
+a104 1
+    Q3BoxLayout *datasliderlayout = new Q3VBoxLayout(datasliderwidget);
+d116 1
+a116 1
+    parameterlistbox   = new Q3TextEdit(commWidget);
+d126 1
+a126 1
+    filemenu = new Q3PopupMenu(this);
+d147 1
+a147 1
+    plottimer->start(500, FALSE);
+d239 1
+d255 1
+a255 2
+      if (s[0] == '#' && s[1] == 'C') channelline=true; 
+      c=0;	    
+d284 6
+d292 9
+a300 13
+    if(mode == "file")
+    {    //updateSliderPlot();
+    }
+    else
+    {
+        if( on) 
+        {   gp[gpwindow].show(tag);  // einzelnen Kanal abschalten
+            
+        }
+        else 
+        {    gp[gpwindow].hide(tag);
+        }
+        
+d438 1
+a438 1
+                Q3ValueList<int>::iterator lit = (*it).begin();  // wenn Ausdruck matcht, Plotwindows rausbekommen
+a483 1
+
+d487 5
+a491 5
+       {
+           parsedString.remove(parsedString.begin());  // remove #C preambel
+	   //transmit channels to GNUPlot
+           for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel(*i);
+	   for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
+d500 1
+a500 1
+           Q3ValueList<QString>::iterator channelname = ChannelList.begin();
+d504 4
+a507 3
+           {   putData(*channelname, (*i).toFloat());  // send data and correlated channel name to GNUPlot
+               i++;
+               channelname++;
+diff -rn guilogger/src/guilogger.h guilogger-qt4/src/guilogger.h
+d25 2
+a26 2
+#include <q3mainwindow.h>
+#include <q3popupmenu.h>
+d30 1
+a30 1
+#include <q3ptrlist.h>
+d34 1
+a34 1
+#include <q3ptrqueue.h>
+d37 4
+a40 4
+#include <q3valuelist.h>
+#include <q3scrollview.h>
+#include <q3vbox.h>
+#include <q3listbox.h>
+d44 2
+a45 2
+#include <q3listview.h>
+#include <q3textedit.h>
+d61 1
+a61 1
+class guilogger: public Q3MainWindow
+d93 1
+a93 1
+    typedef QMap<QString, Q3ValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
+d95 2
+a96 2
+    Q3PtrList<ChannelRow> ChannelRowPtrList; // für Grafikelemente
+    Q3PtrQueue<QString> inputbuffer;
+d100 1
+a100 1
+    Q3ScrollView* sv;
+d104 1
+a104 1
+    Q3TextEdit   *parameterlistbox;
+d112 1
+a112 1
+    Q3PopupMenu  *filemenu;
+d118 1
+a118 1
+    Q3ValueList<QString> ChannelList;
+diff -rn guilogger/src/inifile.cpp guilogger-qt4/src/inifile.cpp
+d51 1
+a51 2
+//  QString line;
+  char line[1024];
+d67 1
+a67 1
+  if (!file.open( QIODevice::ReadOnly)) {
+d127 1
+a127 2
+  if ( (start=regexp.search(_line,0))>=0){
+    len=regexp.matchedLength();
+d133 1
+a133 2
+  if ( (start=regexp.search(_line,0))>=0 ){
+    len=regexp.matchedLength();
+d135 1
+a135 2
+    start=regexp.search(_line,0);
+    len=regexp.matchedLength();
+d141 1
+a141 2
+    start=regexp.search( _line, start2);
+    len=regexp.matchedLength();
+d161 1
+a161 1
+  if (! file.open(QIODevice::WriteOnly)){
+diff -rn guilogger/src/inifile.h guilogger-qt4/src/inifile.h
+d23 2
+a24 2
+//#include<qlist.h>
+#include<q3ptrlist.h>
+d58 1
+a58 1
+	Q3PtrList <IniSection> sections;	
+d93 1
+a93 1
+  Q3PtrList <IniVar> vars;
+Nur in guilogger/src: Makefile.
+diff -rn guilogger/src/qdatasource.h guilogger-qt4/src/qdatasource.h
+d29 1
+a29 1
+class QDataSource :/* public QObject,*/ public QThread
+diff -rn guilogger/src/src.pro guilogger-qt4/src/src.pro
+d24 2
+a25 1
+CONFIG += warn_on \
+a28 4
+#The following line was inserted by qt3to4
+QT +=  qt3support 
+#The following line was inserted by qt3to4
+QT +=  
