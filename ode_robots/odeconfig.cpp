@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-04 15:07:46  martius
+ *   Revision 1.4  2007-01-25 14:09:15  martius
+ *   use new configurable addParameter feature
+ *
+ *   Revision 1.3  2006/08/04 15:07:46  martius
  *   documentation
  *
  *   Revision 1.2  2006/07/14 11:57:23  martius
@@ -66,76 +69,60 @@
 namespace lpzrobots {
 
   OdeConfig::OdeConfig() :
-    name ("Simulation Environment: ")
+    Configurable ("Simulation Environment", "$Id$")
   {
-    simStepSize=0.01;
-    controlInterval=1;
     realTimeFactor=1.0;
-    noise=0.1;
     gravity=-9.81;
-    drawInterval=calcDrawInterval25();
-    cameraSpeed=100;
-    motionPersistence=0.09;
-    drawBoundings=false;
+    simStepSize = 0.01;
+    controlInterval = 1;
+    drawInterval = calcDrawInterval25();
+    addParameterDef("noise",            &noise,0.1);
+    addParameterDef("cameraspeed",      &cameraSpeed,100);
+    addParameterDef("motionpersistence",&motionPersistence,0.09);
     // prepare name;
-    Configurable::insertCVSInfo(name, "$RCSfile$", "$Revision$");
     videoRecordingMode=false;
+    drawBoundings=false;
   }
-
         
-  Configurable::paramkey OdeConfig::getName() const { return name; }
-
   Configurable::paramlist OdeConfig::getParamList() const{
-    paramlist list;
-    list.push_back(std::pair<paramkey, paramval> (std::string("noise"), noise));
+    paramlist list = Configurable::getParamList();
+    list.push_back(std::pair<paramkey, paramval> (std::string("controlinterval"), controlInterval));
     list.push_back(std::pair<paramkey, paramval> (std::string("simstepsize"), simStepSize));
+    list.push_back(std::pair<paramkey, paramval> (std::string("gravity"), gravity));
     list.push_back(std::pair<paramkey, paramval> (std::string("realtimefactor"), realTimeFactor));
     list.push_back(std::pair<paramkey, paramval> (std::string("drawinterval"), drawInterval));
-    list.push_back(std::pair<paramkey, paramval> (std::string("controlinterval"), controlInterval));
-    list.push_back(std::pair<paramkey, paramval> (std::string("cameraspeed"), cameraSpeed));
-    list.push_back(std::pair<paramkey, paramval> (std::string("motionpersistence"), motionPersistence));
-    list.push_back(std::pair<paramkey, paramval> (std::string("gravity"), gravity));
-    list.push_back(std::pair<paramkey, paramval> (std::string("drawboundings"), drawBoundings));
     return list;
   } 
 
   Configurable::paramval OdeConfig::getParam(const paramkey& key) const {
-    if(key == "noise") return noise; 
-    else if(key == "simstepsize") return simStepSize; 
-    else if(key == "realtimefactor") return realTimeFactor; 
-    else if(key == "drawinterval") return drawInterval; 
-    else if(key == "controlinterval") return controlInterval; 
-    else if(key == "cameraspeed") return cameraSpeed; 
-    else if(key == "motionpersistence") return motionPersistence; 
+    if(key == "realtimefactor") return realTimeFactor; 
     else if(key == "gravity") return gravity; 
-    else  return 0.0;
+    else if(key == "simstepsize") return simStepSize;
+    else if(key == "drawinterval") return drawInterval;
+    else if(key == "controlinterval") return controlInterval;
+    else return Configurable::getParam(key);
   }
 
   bool OdeConfig::setParam(const paramkey& key, paramval val){
-    if(key == "noise") noise = val; 
-    else if(key == "simstepsize") {
+    if(key == "simstepsize") {
       simStepSize=std::max(0.0000001,val); 
-      drawInterval=calcDrawInterval50();
+      drawInterval=calcDrawInterval25();
     }else if(key == "realtimefactor"){
       realTimeFactor=std::max(0.0,val); 
       //      if (videoRecordingMode)
       drawInterval=calcDrawInterval25();
       //      else
       //	drawInterval=calcDrawInterval50();
-    }
-    else if(key == "drawinterval") drawInterval=(int)val; 
-    else if(key == "controlinterval") controlInterval=(int)val;
-    else if(key == "motionpersistence") motionPersistence=abs(val);
-    else if(key == "cameraspeed") cameraSpeed=(int)val; 
-    else if(key == "drawboundings") {
-      std::cout << "drawboundings cannot be changed during simulation. Run" << std::endl
-		<< "./start -drawboundings     to enable the drawing of the bounding boxes of Meshes." << std::endl;
-    }
-    else if(key == "gravity") {
+    } else if(key == "gravity") {
       gravity=val; 
       dWorldSetGravity ( odeHandle.world , 0 , 0 , gravity );
+    } else if(key == "controlinterval") {
+      controlInterval = std::max(1,int(val)); 
+    } else if(key == "drawinterval") {
+      drawInterval = std::max(1,int(val)); 
+    } else {
+      return Configurable::setParam(key,val);      
     }
-    else return false;
     return true;
   }
 

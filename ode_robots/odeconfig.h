@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2006-08-04 15:07:46  martius
+ *   Revision 1.15  2007-01-25 14:09:50  martius
+ *   use new configurable addParameter feature
+ *
+ *   Revision 1.14  2006/08/04 15:07:46  martius
  *   documentation
  *
  *   Revision 1.13  2006/07/14 11:57:23  martius
@@ -75,10 +78,8 @@ namespace lpzrobots {
     // creates new instance of OdeConfig with default values
     OdeConfig();
     
-    ~OdeConfig() {}
-    
-    virtual paramkey getName() const;
-    
+    virtual ~OdeConfig() {}
+        
     virtual paramlist getParamList() const;
 
     virtual paramval getParam(const paramkey& key) const;
@@ -102,15 +103,18 @@ namespace lpzrobots {
     bool videoRecordingMode;
     double simStepSize;
     double realTimeFactor;
+    double motionPersistence;
     int drawInterval;
     int controlInterval;
-    double motionPersistence;
     double noise;
     double gravity;
     double cameraSpeed;
-    bool drawBoundings;
-    std::string name;
+    bool drawBoundings;   
     OdeHandle odeHandle;
+  private:
+    double _drawInterval;
+    double _controlInterval;
+
   };
 
 }
