@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-12-01 16:18:42  martius
+ *   Revision 1.6  2007-01-26 12:07:08  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.5  2006/12/01 16:18:42  martius
  *   test of S
  *
  *   Revision 1.4  2006/08/04 16:25:14  martius
@@ -76,16 +79,21 @@ using namespace lpzrobots;
 class ThisSim : public Simulation {
 public:
 	
-
+  Joint* fixator;
+  
   /// start() is called at the start and should create all the object (obstacles, agents...).
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
     setCameraHomePos(Pos(-10.7854, -7.41751, 5.92078),  Pos(-50.6311, -5.00218, 0));
+
+    global.odeConfig.setParam("controlinterval",4);
+    global.odeConfig.setParam("gravity", 0.0); 
+    global.odeConfig.setParam("realtimefactor",4);
 
     //****************/
     SchlangeConf conf = Schlange::getDefaultConf();
     conf.motorPower=0.2;
     conf.frictionJoint=0.01;
-    conf.segmNumber=6; 
+    conf.segmNumber=10;     
     //     conf.jointLimit=conf.jointLimit*3;
     SchlangeServo2* schlange1 = 
       new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
@@ -95,8 +103,9 @@ public:
     //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
     //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    cc.cInit=0.5;
+    cc.cInit=1.0;
     cc.useS=true;
+    //    cc.someInternalParams=false;
     AbstractController *controller = new InvertMotorNStep(cc);  
     //    AbstractController *controller = new SineController();  
   
@@ -114,11 +123,9 @@ public:
     global.configs.push_back(schlange1);
   
  
-    global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("gravity", 0.0); 
-
+    controller->setParam("rootE",3);
     controller->setParam("steps",2);
-    controller->setParam("epsC",0.0005);
+    controller->setParam("epsC",0.01);
     controller->setParam("epsA",0.01);
     controller->setParam("adaptrate",0);
     //    controller->setParam("rootE",3);
@@ -131,12 +138,30 @@ public:
     //   controller->setParam("zetaupdate",0.1);
 
     Primitive* head = schlange1->getMainPrimitive();
-    Joint* j = new BallJoint(head, global.environment, head->getPosition());
-    j->init(odeHandle, osgHandle);
+    fixator = new BallJoint(head, global.environment, head->getPosition());
+    fixator->init(odeHandle, osgHandle);
 
     showParams(global.configs);
   }
 
+  // add own key handling stuff here, just insert some case values
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (down) { // only when key is pressed, not when released
+      switch ( (char) key )
+	{
+	case 'x': 
+	  if(fixator) delete fixator;
+	  fixator=0;	 
+	  return true;
+	  break;
+	default:
+	  return false;
+	  break;
+	}
+    }
+    return false;
+  }
 };
 
 

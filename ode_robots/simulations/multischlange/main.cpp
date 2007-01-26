@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-12-21 11:43:05  martius
+ *   Revision 1.10  2007-01-26 12:07:08  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.9  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -82,6 +85,7 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/dercontroller.h>
 
+#include "axisorientationsensor.h"
 #include "sliderwheelie.h"
 #include "schlangeservo.h"
 #include "schlangeservo2.h"
@@ -207,10 +211,9 @@ public:
       OdeRobot* sphere1;
       //Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf(); 
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       conf.diameter=1.4;
       conf.spheremass = 2; 
-      conf.axisZsensor=true;
-      conf.axisXYZsensor=false;
       conf.irAxis1=true;
       conf.irAxis2=true;
       conf.irAxis3=true;

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-09-21 22:11:33  martius
+ *   Revision 1.3  2007-01-26 12:07:09  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.2  2006/09/21 22:11:33  martius
  *   make opt fixed
  *
  *   Revision 1.1  2006/09/20 12:56:40  martius
@@ -58,6 +61,7 @@
 #include "nimm4.h"
 #include "sphererobot3masses.h"
 #include "plattfussschlange.h"
+#include "axisorientationsensor.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -236,6 +240,7 @@ public:
 
     //****** S P H E R E **********/
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     Sphererobot3Masses* sphere1 = 
       new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
 				       conf, "Sphere1", 0.2); 

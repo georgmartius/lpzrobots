@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2006-08-04 15:07:47  martius
+ *   Revision 1.18  2007-01-26 12:07:08  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.17  2006/08/04 15:07:47  martius
  *   documentation
  *
  *   Revision 1.16  2006/07/14 12:23:54  martius
@@ -64,12 +67,14 @@
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
 
-
 #include <selforg/noisegenerator.h> // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/one2onewiring.h>  // simple wiring
 
 // robots
 #include "sphererobot3masses.h"
+#include "axisorientationsensor.h"
+
+#include "axisorientationsensor.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -115,6 +120,9 @@ public:
     // - create pointer to spherical robot (with odeHandle, osgHandle and configuration)
     // - place robot (unfortunatelly there is a type cast necessary, which is not quite understandable)
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+    conf.diameter=1.0;
+    conf.pendularrange= 0.35;
     sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
 				       conf, "Sphere1", 0.2);     
     ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));

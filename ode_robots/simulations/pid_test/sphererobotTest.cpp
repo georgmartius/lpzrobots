@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-07-14 12:23:50  martius
+ *   Revision 1.7  2007-01-26 12:07:08  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.6  2006/07/14 12:23:50  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.5.4.1  2005/11/15 12:29:51  martius
@@ -43,6 +46,8 @@
 #include "simulation.h"
 #include <iostream>
 #include <assert.h>
+
+namespace lpzrobots {
 
 /**
  *constructor
@@ -197,29 +202,12 @@ SphererobotTest::~SphererobotTest()
  *@author Marcel Kretschmann
  *@version beta
  **/
-void SphererobotTest::draw()
+void SphererobotTest::update()
 {
-  dsSetTexture (DS_WOOD);
-  dsSetColor ( color.r , color.g , color.b );
+  for (int i=0; i < Last; i++) { 
+    if(object[i]) object[i]->update();
+  }
   
-  //  dsDrawSphere ( dGeomGetPosition ( getObjektAt ( Base ).geom ) , 
-  //  		 dGeomGetRotation ( getObjektAt ( Base ).geom ) , conf.diameter/2 );
-  const double box[3]={0.8,0.8,0.8};
-  dsDrawBox ( dGeomGetPosition ( getObjektAt ( Base ).geom ) , 
-   	      dGeomGetRotation ( getObjektAt ( Base ).geom ) , box );
-
-  dsSetColor ( 1 , 1 , 0 );
-  dsDrawSphere ( dGeomGetPosition ( getObjektAt ( Pendular ).geom ), 
-  		 dGeomGetRotation ( getObjektAt ( Pendular ).geom ) , conf.diameter/2);
-  
-//   for(unsigned int n = 0; n < 3; n++){
-//     dsSetColor ( n==0 , n==1 , n==2 );
-//     dsDrawCylinder ( dBodyGetPosition ( getObjektAt ( Pole1Bot + n ).body ) , 
-// 		     dBodyGetRotation ( getObjektAt ( Pole1Bot + n ).body ) , 0.1 , 0.05 );
-//     dsSetColor ( 1 , n==1 , n==2 );
-//     dsDrawCylinder ( dBodyGetPosition ( getObjektAt ( Pole1Top + n ).body ) , 
-// 		     dBodyGetRotation ( getObjektAt ( Pole1Top + n ).body ) , 0.05 , 0.05 );
-//   }
 }
 
 /**
@@ -404,29 +392,4 @@ int SphererobotTest::getSensorNumber()
   return /*getMotorNumber ()*/4;
 }
 	
-/**
- *Updates the sensorarray.
- *This overwrides the function sensoraktualisierung of the class robot
- *@author Marcel Kretschmann
- *@version beta
- **/
-void SphererobotTest::sensoraktualisierung ( )
-{
-  /*for ( int n = 0; n < getSensorfeldGroesse (); n++ )
-    {
-    sensorfeld[n].istwinkel_alt = sensorfeld[n].istwinkel;	
-    sensorfeld[n].istwinkel = dJointGetLMotorAnglerate ( getMotorAt ( n ) );*/
-}
-
-
-/**
- *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.
- *@author Marcel Kretschmann
- *@version beta
- **/
-void SphererobotTest::getStatus ()
-{
-  for ( int n = 0; n < getSensorfeldGroesse (); n++){
-    dsPrint ( "Sensor %i: %lf\n" , n , sensorfeld[n].istwinkel );
-  }
 }

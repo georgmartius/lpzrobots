@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-11 15:46:34  martius
+ *   Revision 1.4  2007-01-26 12:07:08  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.3  2006/08/11 15:46:34  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2006/07/14 12:23:45  martius
@@ -248,8 +251,6 @@ public:
       OdeRobot* sphere1;
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.diameter=2;
-      conf.axisZsensor=false;
-      conf.axisXYZsensor=false;
       conf.irAxis1=true;
       conf.irAxis2=true;
       conf.irAxis3=true;

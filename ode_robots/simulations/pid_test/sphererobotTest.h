@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-07-14 12:23:50  martius
+ *   Revision 1.7  2007-01-26 12:07:08  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.6  2006/07/14 12:23:50  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.5.4.2  2006/03/30 12:35:04  martius
@@ -44,10 +47,14 @@
 #ifndef __SPHEREROBOTTest_H
 #define __SPHEREROBOTTest_H
 
-
+#include "oderobot.h"
 #include "sphererobot.h"
 #include "sliderservo.h"
-#include "roboter.h"
+#include "pid.h"
+
+#include <vector>
+
+namespace lpzrobots {
 
 /**
  *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 
@@ -55,7 +62,7 @@
  *@author Marcel Kretschmann
  *@version beta
  **/
-class SphererobotTest : public Roboter
+class SphererobotTest : public OdeRobot
 {
  public:
   typedef enum objects { Base, Pendular, Pole1Bot, Pole2Bot, Pole3Bot, 
@@ -66,7 +73,7 @@ private:
   //std::vector<dJointID> skyJoints; // for fixing segment 0 in the sky
   dSpaceID sphererobot_space;
   
-  vector<PID*> motorliste2;
+  std::vector<PID*> motorliste2;
   
 public:
   SliderServo* servo;
@@ -94,7 +101,7 @@ public:
    **/
   virtual ~SphererobotTest();
 	
-  static SphererobotConf getStandartConf(){
+  static SphererobotConf getDefaultConf(){
     SphererobotConf c;
     c.diameter     = 1;
     c.spheremass   = 0.001;
@@ -111,7 +118,7 @@ public:
    *@author Marcel Kretschmann
    *@version beta
    **/
-  virtual void draw();
+  virtual void update();
 	
   /**Sets the sphere to position pos, sets color to c, and creates sphere if necessary.
    *This overwrides the function place of the class robot.
@@ -172,24 +179,10 @@ public:
    **/
   virtual int getSensorNumber();
 	
-  /**
-   *Updates the sensorarray.
-   *This overwrides the function sensoraktualisierung of the class robot
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual void sensoraktualisierung ( );
-		
-  /**
-   *Prints some internal robot parameters. Actualy it prints all sensor data of one callculation step.
-   *@author Marcel Kretschmann
-   *@version beta
-   **/
-  virtual void getStatus ();
 
  protected:
-  virtual Object getMainObject(){ return Object();}
 
 };
 
+}
 #endif

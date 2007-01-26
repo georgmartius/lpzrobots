@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2006-09-20 12:56:32  martius
+ *   Revision 1.18  2007-01-26 12:07:08  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.17  2006/09/20 12:56:32  martius
  *   *** empty log message ***
  *
  *   Revision 1.16  2006/07/14 12:23:51  martius
@@ -67,6 +70,8 @@
 
 // used robot
 #include "sphererobot3masses.h"
+#include "axisorientationsensor.h"
+
 
 // used arena
 #include "playground.h"
@@ -97,6 +102,7 @@ public:
     Color col;
     
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     conf.diameter=1.0;
     conf.pendularrange= 0.35; // 0.15;
     //SphererobotArms* sphere = new SphererobotArms ( odeHandle, conf);

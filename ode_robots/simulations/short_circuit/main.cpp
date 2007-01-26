@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2006-12-21 11:43:05  martius
+ *   Revision 1.19  2007-01-26 12:07:08  martius
+ *   orientationsensor added
+ *
+ *   Revision 1.18  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -102,11 +105,12 @@ public:
     OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);  
     //  OdeRobot* robot = new Nimm2(odeHandle);  
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    cc.cInit=0.1;
-    cc.cNonDiag=0.0;
-    // AbstractController *controller = new InvertMotorNStep(cc);  
-    AbstractController *controller = new InvertNChannelController(40);  
-    controller->setParam("eps",0.01);
+    cc.cInit=0.8;
+    cc.cNonDiag=0.5;
+    cc.someInternalParams=false;
+    AbstractController *controller = new InvertMotorNStep(cc);  
+    //AbstractController *controller = new InvertNChannelController(40);  
+    //    controller->setParam("eps",0.01);
      //AbstractController *controller = new InvertMotorSpace(10,1);  
    // AbstractController *controller = new SineController();  
     //controller->setParam("nomupdate",0.001);
