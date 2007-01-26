@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2006-08-04 15:07:27  martius
+ *   Revision 1.13  2007-01-26 12:05:05  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.12  2006/08/04 15:07:27  martius
  *   documentation
  *
  *   Revision 1.11  2006/07/20 17:19:45  martius
@@ -62,14 +65,13 @@
 #define __SPHEREROBOT_H
 
 #include "oderobot.h"
-#include "sliderservo.h"
+#include "oneaxisservo.h"
 
 namespace lpzrobots {
 
   class Primitive;
   class Joint;
   class SliderJoint;
-  class SliderServo;  
 
   typedef struct {
   public:

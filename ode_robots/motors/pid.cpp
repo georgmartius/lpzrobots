@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-07-14 12:23:32  martius
+ *   Revision 1.10  2007-01-26 12:04:15  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.9  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.8.4.3  2006/02/07 15:51:56  martius
@@ -93,7 +96,7 @@ namespace lpzrobots {
 	
     P = error;
     I += (1-alpha) * (error * KI - I);
-    D = -derivative * KD;
+    D = -derivative * KD; // Fixme: limit derivative!
     // D = -( 3*position - 4 * lastposition + last2position ) * KD;
     //double maxforce = KP/10;
     //P = P > maxforce ? maxforce : (force < -maxforce ? -maxforce : P);

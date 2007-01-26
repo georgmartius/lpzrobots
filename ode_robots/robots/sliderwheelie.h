@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-12-21 11:43:05  martius
+ *   Revision 1.8  2007-01-26 12:05:04  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.7  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -61,8 +64,7 @@
 #include "joint.h"
 #include "angularmotor.h"
 
-#include "hingeservo.h"
-#include "sliderservo.h"
+#include "oneaxisservo.h"
 
 
 namespace lpzrobots {

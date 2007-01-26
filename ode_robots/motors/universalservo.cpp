@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:32  martius
+ *   Revision 1.3  2007-01-26 12:04:16  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.2  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/02/07 15:51:56  martius
@@ -45,7 +48,9 @@ namespace lpzrobots {
 
   UniversalServo::UniversalServo(UniversalJoint* joint, double min1, double max1, double power1,
 				 double min2, double max2, double power2)
-    : pid1(power1, 2.0, 0.3 ), pid2(power2, 2.0, 0.3 ), joint(joint)
+    : pid1(power1,  2.0, 0.3 ), 
+      pid2(power2, 2.0, 0.3 ), 
+      joint(joint)
   {
     assert(min1 <= 0 && min1 <= max1);
     assert(min2 <= 0 && min2 <= max2);
@@ -71,7 +76,7 @@ namespace lpzrobots {
     pid2.setTargetPosition(pos2);  
     double force2 = pid2.stepWithD(joint->getPosition2(), joint->getPosition2Rate());
 
-    joint->addTorques(force1, force2);
+    joint->addForces(force1, force2);
   }
 
   double UniversalServo::get1(){

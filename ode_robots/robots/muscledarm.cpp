@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-14 12:23:40  martius
+ *   Revision 1.5  2007-01-26 12:05:04  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.4  2006/07/14 12:23:40  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.4.14  2006/06/25 17:00:32  martius
@@ -153,12 +156,12 @@ namespace lpzrobots{
 
 	// 
 	((SliderJoint*)joint[i])->
-	  addForce(factorMotors * (motors[i-SJ_mM1]- 8 * ((SliderJoint*)joint[i])->getPosition1()));
+	  addForce1(factorMotors * (motors[i-SJ_mM1]- 8 * ((SliderJoint*)joint[i])->getPosition1()));
       }
     }else{
       for(int i=HJ_BuA; i<= HJ_uAlA; i++){ // two hinge joints
 	//	((HingeJoint*)joint[i])->addTorque(motors[i-HJ_BuA]);
-	((HingeJoint*)joint[i])->addTorque
+	((HingeJoint*)joint[i])->addForce1
 	  (M_PI/3 //range of joint is -M_PI/3 .. M_PI/3, and so is the result of getPosition1()
 	   * motors[i-HJ_BuA] 
 	   - ((HingeJoint*)joint[i])->getPosition1());

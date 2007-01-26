@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:32  martius
+ *   Revision 1.3  2007-01-26 12:04:16  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.2  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/02/07 15:51:56  martius
@@ -48,7 +51,7 @@ public:
       power is the power of the servo
       */
   UniversalServo(UniversalJoint* joint, double min1, double max1, double power1,
-	      double min2, double max2, double power2);
+		 double min2, double max2, double power2);
 
   /** sets the set point of the servo. 
       Position must be between -1 and 1. It is scaled to fit into min, max

@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:44  martius
+ *   Revision 1.4  2007-01-26 12:05:04  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.3  2006/07/20 17:19:44  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:39  martius
@@ -49,7 +52,7 @@
 
 #include "defaultCaterpillar.h"
 #include "universalservo.h"
-#include "sliderservo.h"
+#include "oneaxisservo.h"
 
 namespace lpzrobots {
 
@@ -66,7 +69,7 @@ namespace lpzrobots {
 
   public:
       CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const CaterPillarConf& conf, const char* name);
+		      const CaterPillarConf& conf, const std::string& name);
     
       virtual ~CaterPillar();
 	

@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2006-12-21 11:43:05  martius
+ *   Revision 1.21  2007-01-26 12:05:04  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.20  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -75,9 +78,10 @@
 #include<vector>
 #include<assert.h>
 
-#include"primitive.h"
+#include "primitive.h"
 #include "joint.h"
 #include "angularmotor.h"
+#include "pid.h"
 
 #include "oderobot.h"
 #include <selforg/configurable.h>

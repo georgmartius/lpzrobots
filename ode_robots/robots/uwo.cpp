@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:45  martius
+ *   Revision 1.4  2007-01-26 12:05:05  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.3  2006/07/20 17:19:45  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:42  martius
@@ -159,7 +162,7 @@ namespace lpzrobots {
 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
 	contact[i].surface.slip1 = 0.005;
 	contact[i].surface.slip2 = 0.005;
-	contact[i].surface.mu2 = conf.frictionGround;
+	contact[i].surface.mu = conf.frictionGround;
 	contact[i].surface.soft_erp = 0.9;
 	contact[i].surface.soft_cfm = 0.5;
 	

@@ -25,7 +25,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:42  martius
+ *   Revision 1.3  2007-01-26 12:05:04  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.2  2006/07/14 12:23:42  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.4  2006/06/25 16:57:16  martius
@@ -76,7 +79,7 @@ namespace lpzrobots {
 	conf.segmMass   = 0.4;     //  mass of one snake element
 	conf.motorPower = 0.3;     //  power of motors
 	conf.frictionGround = 0.1; // friction with ground
-	conf.jointLimit =  M_PI/4;
+	conf.jointLimit =  M_PI/4;	
 	return conf;
       }
 

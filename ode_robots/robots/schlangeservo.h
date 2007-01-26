@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-09-20 12:56:17  martius
+ *   Revision 1.9  2007-01-26 12:05:04  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.8  2006/09/20 12:56:17  martius
  *   Snakes have CreateSegment
  *
  *   Revision 1.7  2006/07/20 17:19:44  martius
@@ -68,7 +71,7 @@
 
 
 #include "schlange.h"
-#include "hingeservo.h"
+#include "oneaxisservo.h"
 
 namespace lpzrobots {
 

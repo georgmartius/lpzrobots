@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:19:45  martius
+ *   Revision 1.4  2007-01-26 12:05:05  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.3  2006/07/20 17:19:45  martius
  *   removed using namespace std from matrix.h
  *
  *   Revision 1.2  2006/07/14 12:23:43  martius
@@ -41,7 +44,7 @@
 #define __WHEELIE_H
 
 #include "defaultWheelie.h"
-#include "hingeservo.h"
+#include "oneaxisservo.h"
 
 namespace lpzrobots {
 

@@ -24,7 +24,10 @@
  * cylinder like Robot inspired by Julius Popp's Adam.                     *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-12-21 11:43:05  martius
+ *   Revision 1.3  2007-01-26 12:05:04  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.2  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -40,7 +43,7 @@
 
 #include "primitive.h"
 #include "joint.h"
-#include "sliderservo.h"
+#include "oneaxisservo.h"
 #include "oderobot.h"
 #include "raysensorbank.h"
 #include "sphererobot3masses.h"

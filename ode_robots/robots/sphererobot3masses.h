@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-12-21 11:43:05  martius
+ *   Revision 1.10  2007-01-26 12:05:05  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.9  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -90,7 +93,7 @@
 
 #include "primitive.h"
 #include "joint.h"
-#include "sliderservo.h"
+#include "oneaxisservo.h"
 #include "oderobot.h"
 #include "sensor.h"
 #include "raysensorbank.h"

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2006-09-20 12:56:17  martius
+ *   Revision 1.16  2007-01-26 12:05:04  martius
+ *   servos combinied into OneAxisServo
+ *
+ *   Revision 1.15  2006/09/20 12:56:17  martius
  *   Snakes have CreateSegment
  *
  *   Revision 1.14  2006/07/20 17:19:44  martius
@@ -91,7 +94,7 @@ namespace lpzrobots {
     for (int i = 0; i < len; i++){
       // motorcommand
       // use all motors
-      ((UniversalJoint*)joints[i])->addTorques(conf.motorPower * motors[2*i], 
+      ((UniversalJoint*)joints[i])->addForces(conf.motorPower * motors[2*i], 
       					       conf.motorPower * motors[2*i+1]);
       
       // or use only one motor at a joint (alternating between motor 1 and motor 2)      
