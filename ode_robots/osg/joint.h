@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-02 10:11:27  martius
+ *   Revision 1.5  2007-01-26 12:05:36  martius
+ *   joint support forces in uniform manner
+ *
+ *   Revision 1.4  2006/08/02 10:11:27  martius
  *   getNumberAxes was mistyped
  *
  *   Revision 1.3  2006/07/26 10:36:05  martius
@@ -142,13 +145,13 @@ namespace lpzrobots {
     
     virtual double getPosition1() const = 0;
     virtual double getPosition1Rate() const = 0;
-    
+    virtual void addForce1(double force) = 0;    
+
     virtual int getNumberAxes() const { return 1;};
     virtual std::list<double> getPositions() const;
     virtual std::list<double> getPositionRates() const;
     virtual int getPositions(double* sensorarray) const;
-    virtual int getPositionRates(double* sensorarray) const;
-            
+    virtual int getPositionRates(double* sensorarray) const;            
   protected:
     Axis axis1;
   };
@@ -162,6 +165,10 @@ namespace lpzrobots {
 
     virtual double getPosition2() const = 0;
     virtual double getPosition2Rate() const = 0;
+    virtual void addForce2(double force) = 0;
+    void addForces(double force1,double force2){
+      addForce1(force1); addForce2(force2); 
+    }
 
     virtual int getNumberAxes() const { return 2;};
     virtual std::list<double> getPositions() const;
@@ -212,7 +219,7 @@ namespace lpzrobots {
     
     virtual void update();    
 
-    virtual void addTorque(double t);
+    virtual void addForce1(double t);
     virtual double getPosition1() const;
     virtual double getPosition1Rate() const;
     virtual void setParam(int parameter, double value);
@@ -240,7 +247,8 @@ namespace lpzrobots {
     virtual void update();    
 
     /// adds torques to axis 1 and 2
-    virtual void addTorques(double t1, double t2);
+    virtual void addForce1(double t1);
+    virtual void addForce2(double t2);
     virtual double getPosition1() const;
     virtual double getPosition2() const; /// This is not supported by the joint!
     virtual double getPosition1Rate() const;
@@ -270,7 +278,8 @@ namespace lpzrobots {
     virtual void update();    
 
     /// adds torques to axis 1 and 2
-    virtual void addTorques(double t1, double t2);
+    virtual void addForce1(double t1);
+    virtual void addForce2(double t2);
     virtual double getPosition1() const;
     virtual double getPosition2() const;
     virtual double getPosition1Rate() const;
@@ -327,7 +336,7 @@ namespace lpzrobots {
     
     virtual void update();    
 
-    virtual void addForce(double t);
+    virtual void addForce1(double t);
     virtual double getPosition1() const;
     virtual double getPosition1Rate() const;
     virtual void setParam(int parameter, double value);

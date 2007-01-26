@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-12-13 09:09:56  martius
+ *   Revision 1.5  2007-01-26 12:05:36  martius
+ *   joint support forces in uniform manner
+ *
+ *   Revision 1.4  2006/12/13 09:09:56  martius
  *   transform objects delete child
  *
  *   Revision 1.3  2006/08/30 08:58:56  martius
@@ -325,6 +328,7 @@ public:
 
   /** initialised the transform object. This automatically 
       initialises the child geom. 
+      @param mass mass of the child
       @param mode is the mode for the child, except that Body bit is ignored (child can't have a body)
    */
   virtual void init(const OdeHandle& odeHandle, double mass,

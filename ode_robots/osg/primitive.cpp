@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-12-13 09:09:56  martius
+ *   Revision 1.7  2007-01-26 12:05:36  martius
+ *   joint support forces in uniform manner
+ *
+ *   Revision 1.6  2006/12/13 09:09:56  martius
  *   transform objects delete child
  *
  *   Revision 1.5  2006/08/30 08:59:07  martius
@@ -487,7 +490,7 @@ namespace lpzrobots{
     osgHandleChild.scene = parent->getOSGPrimitive()->getTransform();
     assert(osgHandleChild.scene);
     // initialise the child
-    child->init(odeHandleChild, 0, osgHandleChild, (mode & ~Primitive::Body) | Primitive::Child );
+    child->init(odeHandleChild, mass, osgHandleChild, (mode & ~Primitive::Body) | Primitive::Child );
     // move the child to the right place (in local coordinates)
     child->setPose(pose);
   

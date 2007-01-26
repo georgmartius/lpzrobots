@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-12-13 09:09:15  martius
+ *   Revision 1.5  2007-01-26 12:05:36  martius
+ *   joint support forces in uniform manner
+ *
+ *   Revision 1.4  2006/12/13 09:09:15  martius
  *   removed some spaces at strange places
  *
  *   Revision 1.3  2006/07/26 10:36:15  martius
@@ -220,7 +223,7 @@ namespace lpzrobots {
     }
   }
 
-  void HingeJoint::addTorque(double t){
+  void HingeJoint::addForce1(double t){
     dJointAddHingeTorque(joint, t);    
   }
 
@@ -233,10 +236,12 @@ namespace lpzrobots {
   }
 
   void HingeJoint::setParam(int parameter, double value) {
+    assert(joint); // joint is not initialised
     dJointSetHingeParam(joint, parameter, value);
   }
 
   double HingeJoint::getParam(int parameter) const{
+    assert(joint); // joint is not initialised
     return dJointGetHingeParam(joint, parameter);
   }
 
@@ -283,9 +288,13 @@ namespace lpzrobots {
     }
   }
 
-  /// adds torques to axis 1 and 2
-  void Hinge2Joint::addTorques(double t1, double t2){
-     dJointAddHinge2Torques(joint, t1, t2); 
+  /// add torque to axis 1
+  void Hinge2Joint::addForce1(double t1){
+     dJointAddHinge2Torques(joint, t1, 0); 
+  }
+  /// add torque to axis 1
+  void Hinge2Joint::addForce2(double t2){
+     dJointAddHinge2Torques(joint, 0, t2); 
   }
   
   double Hinge2Joint::getPosition1()  const{
@@ -306,10 +315,12 @@ namespace lpzrobots {
   }
 
   void Hinge2Joint::setParam(int parameter, double value) {
+    assert(joint); // joint is not initialised
     dJointSetHinge2Param(joint, parameter, value);
   }
 
   double Hinge2Joint::getParam(int parameter) const{
+    assert(joint);// joint is not initialised
     return dJointGetHinge2Param(joint, parameter);
   }
 
@@ -364,9 +375,11 @@ namespace lpzrobots {
     }
   }
 
-  /// adds torques to axis 1 and 2
-  void UniversalJoint::addTorques(double t1, double t2){
-    dJointAddUniversalTorques(joint, t1,t2);    
+  void UniversalJoint::addForce1(double t1){
+    dJointAddUniversalTorques(joint, t1,0);    
+  }
+  void UniversalJoint::addForce2(double t2){
+    dJointAddUniversalTorques(joint, 0,t2);    
   }
 
   double UniversalJoint::getPosition1() const{
@@ -487,7 +500,7 @@ namespace lpzrobots {
     }
   }
 
-  void SliderJoint::addForce(double t){
+  void SliderJoint::addForce1(double t){
     dJointAddSliderForce(joint, t);    
   }
 
@@ -500,10 +513,12 @@ namespace lpzrobots {
   }
 
   void SliderJoint::setParam(int parameter, double value) {
+    assert(joint); // joint is not initialised
     dJointSetSliderParam(joint, parameter, value);
   }
 
   double SliderJoint::getParam(int parameter) const{
+    assert(joint); // joint is not initialised
     return dJointGetSliderParam(joint, parameter);
   }
     
