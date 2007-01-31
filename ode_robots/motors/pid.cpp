@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-01-26 12:04:15  martius
+ *   Revision 1.11  2007-01-31 16:24:15  martius
+ *   stabalised servos extremly through limiting damping
+ *
+ *   Revision 1.10  2007/01/26 12:04:15  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.9  2006/07/14 12:23:32  martius
@@ -44,6 +47,7 @@
  *                                                                * 
  ***************************************************************************/
 #include <ode/ode.h>
+#include <iostream>
 
 #include "pid.h"
 
@@ -96,14 +100,13 @@ namespace lpzrobots {
 	
     P = error;
     I += (1-alpha) * (error * KI - I);
-    D = -derivative * KD; // Fixme: limit derivative!
-    // D = -( 3*position - 4 * lastposition + last2position ) * KD;
-    //double maxforce = KP/10;
-    //P = P > maxforce ? maxforce : (force < -maxforce ? -maxforce : P);
-
+    D = -derivative * KD; 
+    // limit damping term to the size of P+I (this stabilised it tremendously!
+    double PI = fabs(P+I);
+    D = std::min(PI, std::max(-PI,D));
+    //D = -( 3*position - 4 * lastposition + last2position ) * KD;    
     force = KP*(P + I + D);
     return force;
-
   }
 
 }
