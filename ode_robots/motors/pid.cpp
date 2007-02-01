@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-01-31 16:24:15  martius
+ *   Revision 1.12  2007-02-01 09:27:36  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.11  2007/01/31 16:24:15  martius
  *   stabalised servos extremly through limiting damping
  *
  *   Revision 1.10  2007/01/26 12:04:15  martius
@@ -49,7 +52,9 @@
 #include <ode/ode.h>
 #include <iostream>
 
+
 #include "pid.h"
+using namespace std;
 
 namespace lpzrobots {
 
@@ -58,7 +63,7 @@ namespace lpzrobots {
     this->KP = KP;
     this->KI = KI;
     this->KD = KD;
-
+    cout << "HASLLO " << KP << " " <<  KD << " " << KI << endl;
     P=D=I=0;
 
     targetposition = 0;
@@ -101,8 +106,8 @@ namespace lpzrobots {
     P = error;
     I += (1-alpha) * (error * KI - I);
     D = -derivative * KD; 
-    // limit damping term to the size of P+I (this stabilised it tremendously!
-    double PI = fabs(P+I);
+    // limit damping term to the size of P+I and damping constant (this stabilised it tremendously)!
+    double PI = fabs(P+I) + KD;
     D = std::min(PI, std::max(-PI,D));
     //D = -( 3*position - 4 * lastposition + last2position ) * KD;    
     force = KP*(P + I + D);
