@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2006-12-28 18:38:03  robot5
+ *   Revision 1.12  2007-02-01 15:53:16  martius
+ *   inspectables list. Robot is added in case it is derived from Inspectable
+ *
+ *   Revision 1.11  2006/12/28 18:38:03  robot5
  *   Soundchanger call modified.
  *
  *   Revision 1.10  2006/12/13 09:13:24  martius
@@ -169,6 +172,7 @@ void Agent::internInit(){
   rsensors=0; rmotors=0; 
   csensors=0; cmotors=0; 
   
+  initialised = false;
   t=0;
 }
   
@@ -206,6 +210,11 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
   csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
   cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
 
+  inspectables.push_back(controller);
+  inspectables.push_back(wiring);  
+  if(dynamic_cast<Inspectable*>(robot) !=0)
+    inspectables.push_back((Inspectable*)robot);  
+
   // copy plotoption list and add it one by one
   list<PlotOption> po_copy(plotOptions);
   plotOptions.clear();
@@ -213,9 +222,8 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
   for(list<PlotOption>::iterator i=po_copy.begin(); i != po_copy.end(); i++){
     addPlotOption(*i);
   }    
-    
+  initialised = true;
   return true;
-
 }
 
 void Agent::addPlotOption(const PlotOption& plotOption) {
@@ -245,8 +253,7 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
     robot->print(po.pipe, "# ");
     // print head line with all parameter names
     unsigned int snum = plotOption.whichSensors == Robot ? rsensornumber : csensornumber;
-    Inspectable* inspectables[2] = {controller, wiring};      
-    printInternalParameterNames(po.pipe, snum, cmotornumber, inspectables, 2);
+    printInternalParameterNames(po.pipe, snum, cmotornumber, inspectables);
   }    
   plotOptions.push_back(po);
 }
@@ -269,13 +276,12 @@ void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csen
 		 const motor* y, int motornumber){
   assert(controller && rx && cx && y);
   
-  Inspectable* inspectables[2] = {controller, wiring};
   for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
     if( ((*i).pipe) && (t % (*i).interval == 0) ){
       if((*i).whichSensors == Robot){
-	printInternalParameters((*i).pipe, rx, rsensornumber, y, motornumber, inspectables , 2);
+	printInternalParameters((*i).pipe, rx, rsensornumber, y, motornumber, inspectables);
       }else{
-	printInternalParameters((*i).pipe, cx, csensornumber, y, motornumber, inspectables , 2);
+	printInternalParameters((*i).pipe, cx, csensornumber, y, motornumber, inspectables);
       }
       if(t% ((*i).interval * 10)) fflush((*i).pipe);    
     } // else {
@@ -341,6 +347,13 @@ void Agent::setTrackOptions(const TrackRobot& trackrobot){
     }
   }
 }
+
+void Agent::addInspectable(const Inspectable* inspectable){
+  if(!initialised){
+    inspectables.push_back(inspectable);
+  }
+}
+
 
 bool PlotOption::open(){
   // this prevents the simulation to terminate if the child  closes

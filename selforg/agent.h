@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-12-21 11:44:17  martius
+ *   Revision 1.11  2007-02-01 15:53:08  martius
+ *   inspectables list. Robot is added in case it is derived from Inspectable
+ *
+ *   Revision 1.10  2006/12/21 11:44:17  martius
  *   commenting style for doxygen //< -> ///<
  *   FOREACH and FOREACHC are macros for collection iteration
  *
@@ -116,6 +119,7 @@ class AbstractRobot;
 class AbstractController;
 class AbstractWiring;
 class Configurable;
+class Inspectable;
 
 #include "types.h"
 #include "trackrobots.h"
@@ -258,6 +262,10 @@ public:
   */
   virtual void writePlotComment(const char* cmt);
 
+  /** adds an inspectable object for logging. Must be called before addPlotOption and before init!
+   */
+  virtual void addInspectable(const Inspectable* inspectable);
+
 protected:
 
   /**
@@ -301,7 +309,8 @@ protected:
 
  private:
   std::list<PlotOption> plotOptions;
-
+  std::list<const Inspectable* > inspectables;
+  bool initialised;
   int t;
 
 };
