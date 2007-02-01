@@ -53,8 +53,7 @@ void printNetworkDescription(FILE* f, const string& name, const Inspectable* ins
 
 void printInternalParameterNames(FILE* f, 
 				int sensornumber, int motornumber, 
-				Inspectable** inspectables, int len) {
-  assert(inspectables);
+				list<const Inspectable*> inspectables) {
   fprintf(f,"#C");
   for(int i = 0; i < sensornumber; i++){
     fprintf(f, " x[%i]", i);
@@ -62,10 +61,10 @@ void printInternalParameterNames(FILE* f,
   for(int i = 0; i < motornumber; i++){
     fprintf(f, " y[%i]", i);
   }
-  for(int k=0; k<len; k++){
-    if(inspectables[k]){
+  FOREACHC(list<const Inspectable*>, inspectables, insp){
+    if(*insp){
       // then the internal parameters
-      list<Inspectable::iparamkey> l = inspectables[k]->getInternalParamNames();
+      list<Inspectable::iparamkey> l = (*insp)->getInternalParamNames();
       for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
 	fprintf(f, " %s", (*i).c_str());
       }
@@ -77,8 +76,7 @@ void printInternalParameterNames(FILE* f,
 void printInternalParameters(FILE* f, 
 			     const sensor* x, int sensornumber, 
 			     const motor* y,  int motornumber,
-			     Inspectable** inspectables, int len){
-  assert(inspectables);
+			     list<const Inspectable*> inspectables){
   
   for(int i = 0; i < sensornumber; i++){
     fprintf(f, " %f", x[i]);
@@ -88,12 +86,12 @@ void printInternalParameters(FILE* f,
   }  
   // internal parameters ( we allocate one place more to be able to realise when the number raises)
   list<Inspectable::iparamval> l;
-  for(int k=0; k<len; k++){
-    if(inspectables[k]){    
-      l = inspectables[k]->getInternalParams();
-      for(list<Inspectable::iparamval>::iterator i = l.begin(); i != l.end(); i++){
+  FOREACHC(list<const Inspectable*>, inspectables, insp){
+    if(*insp){    
+      l = (*insp)->getInternalParams();
+      FOREACHC(list<Inspectable::iparamval>, l, i ){
 	fprintf(f, " %f", (*i));
-      }  
+      }
     }
   }
   fprintf(f,"\n"); // terminate line  

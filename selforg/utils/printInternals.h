@@ -10,7 +10,7 @@
 */
 void printInternalParameterNames(FILE* f, 
 				int sensornumber, int motornumber, 
-				Inspectable** inspectables, int len);
+				std::list<const Inspectable*> inspectables);
 
 /** prints the values of the motors and sensors
     and the internal parameters of the inspectable objects to a file or stream
@@ -18,7 +18,7 @@ void printInternalParameterNames(FILE* f,
 void printInternalParameters(FILE* f, 
 			     const sensor* x, int sensornumber, 
 			     const motor* y,  int motornumber, 
-			     Inspectable** inspectables, int len);
+			     std::list<const Inspectable*> inspectables);
 
 /** prints a network description of the structure given by the inspectable object.
     The network description syntax is as follow
