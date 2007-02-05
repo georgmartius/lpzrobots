@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.7  2006-11-29 16:22:43  martius
+// Revision 1.8  2007-02-05 12:31:21  martius
+// reshape
+//
+// Revision 1.7  2006/11/29 16:22:43  martius
 // name is a variable of configurable and is used as such
 //
 // Revision 1.6  2006/08/04 15:16:13  martius
@@ -397,7 +400,13 @@ namespace matrix{
 
     /// sets the matrix a below (this) matrix
     void toAbove(const Matrix& a);
-
+    
+    /// sorts the matrix (rowwise)
+    void toSort();
+    
+    /** reshapes the matrix without distroying the data. Remember: The data is stored rowwise.
+	m*n must be equal to getM()*getN()*/
+    void reshape(int m, int n);
             
   private:
     // NOTE: buffersize determines available memory storage. 

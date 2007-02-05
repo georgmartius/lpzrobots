@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.6  2006-11-29 09:57:53  martius
+// Revision 1.7  2007-02-05 12:31:21  martius
+// reshape
+//
+// Revision 1.6  2006/11/29 09:57:53  martius
 // bugfix in rows!
 //
 // Revision 1.5  2006/08/04 15:16:13  martius
@@ -102,6 +105,7 @@
 #include "matrix.h"
 #include <string.h>
 #include <math.h>
+#include <algorithm>
 
 namespace matrix {
 
@@ -416,6 +420,20 @@ const int T=0xFF;
     data = (D*)realloc(data, sizeof(D) * (this->m * this->n + a.n * a.m));
     memcpy(data+this->m * this->n, a.data, sizeof(D) * (a.n * a.m));
     this->m+=a.m;      
+  }
+
+  int cmpdouble(const void* a, const void* b){
+    return *((double*)a) < *((double*)b) ? -1 : (*((double*)a) > *((double*)b) ? 1 : 0);
+  }
+  
+  void Matrix::toSort(){
+    qsort(data, m*n, sizeof(double), cmpdouble); 
+  }
+
+  void Matrix::reshape(int _m, int _n){
+    assert(m*n == _m*_n);
+    m=_m;
+    n=_n;
   }
 
 
