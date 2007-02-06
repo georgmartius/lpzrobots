@@ -24,7 +24,10 @@
  * cylinder like Robot inspired by Julius Popp's Adam.                     *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-01-18 14:43:35  robot3
+ *   Revision 1.2  2007-02-06 10:56:42  martius
+ *   oneaxisjoint
+ *
+ *   Revision 1.1  2007/01/18 14:43:35  robot3
  *   special variant for master thesis
  *
  *   Revision 1.2  2006/12/21 11:43:05  martius
@@ -43,7 +46,7 @@
 
 #include "primitive.h"
 #include "joint.h"
-#include "sliderservo.h"
+#include "oneaxisservo.h"
 #include "oderobot.h"
 #include "raysensorbank.h"
 #include "sphererobot3masses.h"
