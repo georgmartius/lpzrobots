@@ -286,7 +286,7 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
       // send command to gnuplot
       
       for(int i=0; i<plotwindows; i++) 
-	gp[i].command(paramvaluelineedit->text()); 
+	gp[i].command(paramvaluelineedit->text().latin1()); 
     }
 
 
