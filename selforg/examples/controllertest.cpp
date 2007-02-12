@@ -4,20 +4,22 @@ using namespace std;
 
 #include <selforg/sinecontroller.h>
 #include <selforg/invertnchannelcontroller.h>
+#include <selforg/invertmotornstep.h>
 
 int main(){
   //AbstractController* controller = new InvertNChannelController(5 );
-  AbstractController* controller = new SineController();
+  //  AbstractController* controller = new SineController();
+  InvertMotorNStep* controller = new InvertMotorNStep();
   controller->init(2,2);
   controller->print(stderr,0);
   sensor sensors[3] = {0.1,-0.1,0.3};
   motor motors[2];
   // short circuit
-  for(int i=0; i < 5; i++){
+  for(int i=0; i < 5; i++){ 
     sensors[0]=motors[0]+(double(rand())/RAND_MAX-0.5)*0.3;
     sensors[1]=motors[1]+(double(rand())/RAND_MAX-0.5)*0.3;
     sensors[2]=motors[1]+(double(rand())/RAND_MAX-0.5)*0.3;
-    controller->stepNoLearning(sensors, 2, motors, 2);    
+    controller->stepNoLearning(sensors, 2, motors, 2);
   }
   for(int i=0; i < 50000; i++){
     sensors[0]=motors[0]+(double(rand())/RAND_MAX-0.5)*0.3;
@@ -36,6 +38,16 @@ int main(){
     cout << i << " Motor values: " << motors[0] << ", " << motors[1] << endl;
   }
   cout << "Motor values: " << motors[0] << ", " << motors[1] << endl;
+
+//   double data[8] = {0.01,1.1,0.05,0.3,0.5,0.3,0.4,0.2};
+//   matrix::Matrix m(2,4,data);
+//   matrix::Matrix m2(2,4,data);
+//   cout << m << endl << endl;
+//   controller->kwtaInhibition(m,1,0.1);  
+//   cout <<m << endl<< endl;
+//   controller->kwtaInhibition(m2,4,0.1);  
+//   cout <<m2 << endl;
+
   return 0;
 }
 
