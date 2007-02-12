@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-01-26 12:07:08  martius
+ *   Revision 1.7  2007-02-12 13:25:47  martius
+ *   on the way to teaching
+ *
+ *   Revision 1.6  2007/01/26 12:07:08  martius
  *   orientationsensor added
  *
  *   Revision 1.5  2006/12/01 16:18:42  martius
@@ -71,6 +74,7 @@
 #include <selforg/sinecontroller.h>
 
 #include "schlangeservo2.h"
+#include "schlangeservo.h"
 
 
 using namespace lpzrobots;
@@ -78,12 +82,19 @@ using namespace lpzrobots;
 
 class ThisSim : public Simulation {
 public:
-	
   Joint* fixator;
+  InvertMotorNStep* controller;
+  bool teaching;
+  bool dteaching;
+  double* teachingSignal;
+  int teachingLen;
+  double* dteachingSignal;
+  int dteachingLen;
   
+
   /// start() is called at the start and should create all the object (obstacles, agents...).
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
-    setCameraHomePos(Pos(-10.7854, -7.41751, 5.92078),  Pos(-50.6311, -5.00218, 0));
+    setCameraHomePos(Pos(-19.7951, -12.3665, 16.4319),  Pos(-51.7826, -26.772, 0));
 
     global.odeConfig.setParam("controlinterval",4);
     global.odeConfig.setParam("gravity", 0.0); 
@@ -91,23 +102,25 @@ public:
 
     //****************/
     SchlangeConf conf = Schlange::getDefaultConf();
-    conf.motorPower=0.2;
-    conf.frictionJoint=0.01;
-    conf.segmNumber=10;     
+    conf.motorPower=0.5;
+    conf.frictionJoint=0.001;
+    conf.segmNumber=15;     
     //     conf.jointLimit=conf.jointLimit*3;
-    SchlangeServo2* schlange1 = 
-      new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-			  conf, "S1");
+    SchlangeServo* schlange1 = 
+      new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+			  conf, "Schlange1D");
     ((OdeRobot*)schlange1)->place(Pos(0,0,3)); 
 
-    //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
+    //    //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
     //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=1.0;
-    cc.useS=true;
+    cc.cNonDiag=0.0;
+    //    cc.useS=true;
     //    cc.someInternalParams=false;
-    AbstractController *controller = new InvertMotorNStep(cc);  
-    //    AbstractController *controller = new SineController();  
+    controller = new InvertMotorNStep(cc);  
+    //AbstractController *controller = new SineController();  
+    
   
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     //   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
@@ -122,17 +135,22 @@ public:
     global.configs.push_back(controller);
     global.configs.push_back(schlange1);
   
+
+    //controller->setParam("inhibition",0.00);
+    controller->setParam("limitrf",3);
+    //    controller->setParam("kwta",5);
+    controller->setParam("dampS",0.001);
  
     controller->setParam("rootE",3);
-    controller->setParam("steps",2);
-    controller->setParam("epsC",0.01);
-    controller->setParam("epsA",0.01);
-    controller->setParam("adaptrate",0);
-    //    controller->setParam("rootE",3);
+    controller->setParam("steps",1);
+    controller->setParam("epsC",0.00);
+    controller->setParam("epsA",0.00);
+    controller->setParam("adaptrate",0.000);
+    //    controller->setParam("nomupdate",0.05);
 
     // controller->setParam("desens",0.0);
     //   controller->setParam("s4delay",1.0);
-    //   controller->setParam("s4avg",1.0);
+    controller->setParam("s4avg",2.0);
     
     //   controller->setParam("factorB",0.0);
     //   controller->setParam("zetaupdate",0.1);
@@ -142,27 +160,75 @@ public:
     fixator->init(odeHandle, osgHandle);
 
     showParams(global.configs);
+    
+    teaching=false;
+    dteaching=false;
+    teachingLen = schlange1->getMotorNumber();
+    teachingSignal = new double[teachingLen];
+    dteachingLen = schlange1->getSensorNumber();
+    dteachingSignal = new double[teachingLen];
   }
 
-  // add own key handling stuff here, just insert some case values
-  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
-  {
-    if (down) { // only when key is pressed, not when released
-      switch ( (char) key )
-	{
-	case 'x': 
-	  if(fixator) delete fixator;
-	  fixator=0;	 
-	  return true;
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+    double sineRate=30;
+    double phaseShift=0.65;
+    if(teaching){
+      for(int i=0; i<teachingLen; i++){
+	teachingSignal[i]=sin(globalData.time/sineRate + i*phaseShift*M_PI/2);
+      }
+
     }
-    return false;
+
+  };
+
+  //Funktion die eingegebene Befehle/kommandos verarbeitet
+  virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (!down) return false;    
+    bool handled = false;
+    FILE* f;
+    //    double m;
+    //    motor motors[2];
+    switch ( key )
+      {
+      case 't' : 
+	teaching=!teaching;
+	if(teaching) dteaching=false;
+	printf("Teaching Signal: %s,\n", teaching ? "on" : "off");
+	handled = true; 
+	break;
+      case 'j' : 
+	dteaching=!dteaching;
+	if(dteaching) teaching=false;
+	printf("Distal Teaching Signal: %s,\n", dteaching ? "on" : "off");
+	handled = true; 
+	break;
+      case 's' :
+        f = fopen("test","wb");
+	controller->store(f) && printf("Controller stored\n");
+	fclose(f);
+	handled = true; break;	
+      case 'l' :
+	f = fopen("test","rb");
+	controller->restore(f) && printf("Controller loaded\n");
+	fclose(f);
+	handled = true; break;	
+      }
+    fflush(stdout);
+    return handled;
   }
+
+  virtual void bindingDescription(osg::ApplicationUsage & au) const {
+    au.addKeyboardMouseBinding("Teaching: t","toggle motor teaching");
+    au.addKeyboardMouseBinding("Teaching: d","toggle distal teaching");
+    au.addKeyboardMouseBinding("Simulation: s","store");
+    au.addKeyboardMouseBinding("Simulation: l","load");
+  }
+
 };
+
+
 
 
 int main (int argc, char **argv)
