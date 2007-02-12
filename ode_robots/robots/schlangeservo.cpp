@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-01-26 12:05:04  martius
+ *   Revision 1.10  2007-02-12 13:28:38  martius
+ *   twoaxiservos
+ *
+ *   Revision 1.9  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.8  2006/09/20 12:56:17  martius
@@ -142,10 +145,10 @@ void SchlangeServo::create(const osg::Matrix& pose){
     
     joints.push_back(j); 
     
-    HingeServo* servo =  new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,0.1,0);
+    HingeServo* servo =  new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,conf.frictionJoint,0);
     servos.push_back(servo);
 
-    frictionmotors.push_back(new AngularMotor1Axis(odeHandle, j, conf.frictionJoint) );
+    //    frictionmotors.push_back(new AngularMotor1Axis(odeHandle, j, conf.frictionJoint) );
   }	  
 }
 
@@ -154,6 +157,10 @@ bool SchlangeServo::setParam(const paramkey& key, paramval val){
   for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
     if(*i) (*i)->setPower(conf.motorPower);
   }
+  for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+    if(*i) (*i)->damping()=conf.frictionJoint;
+  }
+
   return rv;    
 }
 

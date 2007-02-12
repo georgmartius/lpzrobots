@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-20 12:56:17  martius
+ *   Revision 1.5  2007-02-12 13:28:38  martius
+ *   twoaxiservos
+ *
+ *   Revision 1.4  2006/09/20 12:56:17  martius
  *   Snakes have CreateSegment
  *
  *   Revision 1.3  2006/07/20 17:19:44  martius
@@ -52,7 +55,7 @@
 
 
 #include "schlange.h"
-#include "universalservo.h"
+#include "twoaxisservo.h"
 
 namespace lpzrobots {
 

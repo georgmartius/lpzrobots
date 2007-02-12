@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-01-26 12:05:04  martius
+ *   Revision 1.5  2007-02-12 13:28:38  martius
+ *   twoaxiservos
+ *
+ *   Revision 1.4  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.3  2006/07/20 17:19:44  martius
@@ -51,7 +54,7 @@
 #define __CATERPILLAR_H
 
 #include "defaultCaterpillar.h"
-#include "universalservo.h"
+#include "twoaxisservo.h"
 #include "oneaxisservo.h"
 
 namespace lpzrobots {
