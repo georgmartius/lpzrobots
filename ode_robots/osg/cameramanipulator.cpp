@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-04 15:05:42  martius
+ *   Revision 1.5  2007-02-12 13:33:28  martius
+ *   camera does not go to infinity anymore. Better speed scaling with drawinterval
+ *
+ *   Revision 1.4  2006/08/04 15:05:42  martius
  *   documentation
  *
  *   Revision 1.3  2006/08/02 09:43:07  martius
@@ -325,7 +328,7 @@ namespace lpzrobots {
 
     // now do smoothness
     float updateFactor;
-    updateFactor = globalData.odeConfig.drawInterval * globalData.odeConfig.simStepSize * globalData.odeConfig.cameraSpeed;
+    updateFactor = globalData.odeConfig.drawInterval/std::max(0.1,globalData.odeConfig.realTimeFactor) * globalData.odeConfig.simStepSize * globalData.odeConfig.cameraSpeed;
       //    std::cout << "drawInt: " << globalData.odeConfig.drawInterval << ", realtimefactor: "
       //      << globalData.odeConfig.realTimeFactor << ", updateFactor: " 
       //      << updateFactor << "\n";
@@ -341,8 +344,14 @@ namespace lpzrobots {
       if (abs(desiredEye[i]-eye[i])>lengthAccuracy)
 	eye[i]= lengthSmoothness * updateFactor * desiredEye[i]
 	  + (1.0 - lengthSmoothness * updateFactor) * eye[i];
-    }
 
+      // if out of bounds then just go the to disired position
+      if(fabs(eye[i])+fabs(view[i])>20000) {
+	eye[i]=desiredEye[i];
+	view[i]=desiredView[i];
+      }
+    }
+      
     // now set the current robots-position
     if (watchingAgentDefined) {
       oldPositionOfAgent = watchingAgent->getRobot()->getPosition();
