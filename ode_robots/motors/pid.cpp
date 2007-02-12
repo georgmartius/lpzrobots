@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-02-01 09:27:36  martius
+ *   Revision 1.13  2007-02-12 13:28:20  martius
+ *   twoaxisservo and some minor changes
+ *
+ *   Revision 1.12  2007/02/01 09:27:36  martius
  *   *** empty log message ***
  *
  *   Revision 1.11  2007/01/31 16:24:15  martius
@@ -63,7 +66,6 @@ namespace lpzrobots {
     this->KP = KP;
     this->KI = KI;
     this->KD = KD;
-    cout << "HASLLO " << KP << " " <<  KD << " " << KI << endl;
     P=D=I=0;
 
     targetposition = 0;
