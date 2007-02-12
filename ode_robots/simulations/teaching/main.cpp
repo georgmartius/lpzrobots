@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-21 11:43:05  martius
+ *   Revision 1.4  2007-02-12 13:17:41  martius
+ *   new teaching interface
+ *
+ *   Revision 1.3  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -157,12 +160,20 @@ public:
 	printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
 	handled = true; 
 	break;
-      case 't' : 	
-	controller->setTeachingMode(!controller->getTeachingMode());
-	printf("Teaching Mode: %i\n", controller->getTeachingMode());
-	teaching[0]=0.5;
-	teaching[1]=0.5;
-	handled = true; break;	
+      case 'i' : 
+	teaching[0] = std::min(0.95, teaching[0]+0.1);
+	teaching[1] = std::min(0.95, teaching[1]+0.1);
+	controller->setSensorTeachingSignal(teaching, 2);
+	printf("Distal Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
+	handled = true; 
+	break;
+      case 'k' : 
+	teaching[0] = std::max(-0.95, teaching[0]-0.1);
+	teaching[1] = std::max(-0.95, teaching[1]-0.1);
+	controller->setSensorTeachingSignal(teaching, 2);
+	printf("Distal Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
+	handled = true; 
+	break;
       case 's' :
         f = fopen("test","wb");
 	controller->store(f) && printf("Controller stored\n");
@@ -179,7 +190,6 @@ public:
   }
 
   virtual void bindingDescription(osg::ApplicationUsage & au) const {
-    au.addKeyboardMouseBinding("Teachung: t","toggle mode");
     au.addKeyboardMouseBinding("Teaching: u","forward");
     au.addKeyboardMouseBinding("Teaching: j","backward");
     au.addKeyboardMouseBinding("Simulation: s","store");
