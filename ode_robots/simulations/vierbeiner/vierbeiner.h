@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-02-02 08:58:15  martius
+ *   Revision 1.2  2007-02-12 13:30:40  martius
+ *   dog looks allready nicer
+ *
+ *   Revision 1.1  2007/02/02 08:58:15  martius
  *   dog
  *
  *
@@ -46,8 +49,10 @@ namespace lpzrobots {
     double relLegmass; ///< relative overall leg mass
     double jointLimit; ///< angle range for legs
     double motorPower; ///< maximal force for motors
-    double kneePower;  ///< spring strength in the knee
-    double kneeDamping; ///< damping in the knee
+    double kneePower;  ///< spring strength in the knees
+    double kneeDamping; ///< damping in the knees
+    double anklePower;  ///< spring strength in the ankles
+    double ankleDamping; ///< damping in the ankles
     double frictionGround; ///< friction with the ground
   } VierBeinerConf;
 
@@ -75,9 +80,11 @@ namespace lpzrobots {
       c.legLength  = 0.5;
       c.mass       = 1;
       c.relLegmass = 1;
-      c.motorPower = 5;
-      c.kneePower  = 2.5;
-      c.kneeDamping = 0.02;
+      c.motorPower = 7;
+      c.kneePower  = 5;
+      c.kneeDamping = 0.01;
+      c.anklePower  = 2;
+      c.ankleDamping = 0.001;
       c.jointLimit = M_PI/10; // +- 18 degree
       c.frictionGround = 0.5;
       return c;
@@ -158,6 +165,7 @@ namespace lpzrobots {
     std::vector<Joint*> joints; // joints legs
     std::vector <OneAxisServo*> hipservos; // motors
     std::vector <OneAxisServo*> kneeservos; // motors
+    std::vector <OneAxisServo*> ankleservos; // motors
     std::vector <OneAxisServo*> headtailservos; // motors
 
   };

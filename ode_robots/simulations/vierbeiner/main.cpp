@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-01-26 12:07:09  martius
+ *   Revision 1.2  2007-02-12 13:30:40  martius
+ *   dog looks allready nicer
+ *
+ *   Revision 1.1  2007/01/26 12:07:09  martius
  *   orientationsensor added
  *
  *   Revision 1.2  2006/07/14 12:23:55  martius
@@ -84,7 +87,7 @@ public:
     // initialization
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.setParam("controlinterval",8);
+    global.odeConfig.setParam("controlinterval",4);
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("realtimefactor",4);
     //    global.odeConfig.setParam("gravity", 0);
@@ -117,12 +120,10 @@ public:
 
     VierBeinerConf conf = VierBeiner::getDefaultConf();
     //    conf.frictionGround = 1;
-    conf.jointLimit = M_PI/7; 
-    conf.kneePower = 3.5;
+    conf.jointLimit = M_PI/8; 
     conf.legNumber = 4;
-    conf.motorPower = 5;
-    VierBeiner* dog = new VierBeiner(odeHandle, osgHandle,conf, "Dog");    
-    dog->place(osg::Matrix::translate(0,0,0.1));
+    VierBeiner* dog = new VierBeiner(odeHandle, osgHandle,conf, "Dog");
+    dog->place(osg::Matrix::translate(0,0,0.4));
     global.configs.push_back(dog);
 
     Primitive* trunk = dog->getMainPrimitive();
@@ -148,6 +149,8 @@ public:
     controller->setParam("epsA",0.01);
     controller->setParam("steps",1);
     controller->setParam("s4avg",2);
+    controller->setParam("kwta",4);
+    controller->setParam("inhibition",0.01);
     
     global.configs.push_back(controller);
   
