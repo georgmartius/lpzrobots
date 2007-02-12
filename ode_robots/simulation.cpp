@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.54  2006-12-13 09:13:03  martius
+ *   Revision 1.55  2007-02-12 13:29:40  martius
+ *   addCallback has flag about controllstep
+ *
+ *   Revision 1.54  2006/12/13 09:13:03  martius
  *   agents get comments about changed parameter for logfile
  *
  *   Revision 1.53  2006/12/11 18:31:34  martius
@@ -596,6 +599,7 @@ namespace lpzrobots {
 	    simulation_time_reached=true;	    
 	  }
 	}
+	
 	// for all agents: robots internal stuff and control step if at controlInterval
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	  if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ){
@@ -613,7 +617,7 @@ namespace lpzrobots {
 	dJointGroupEmpty (odeHandle.jointGroup);    
       }  
     
-      addCallback(globalData, t==0, pause);
+      addCallback(globalData, t==0, pause, (sim_step % globalData.odeConfig.controlInterval ) == 0);
 
       if(t==0){
  	/************************** Update the scene ***********************/

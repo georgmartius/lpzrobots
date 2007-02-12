@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2006-12-13 09:13:03  martius
+ *   Revision 1.25  2007-02-12 13:29:48  martius
+ *   addCallback has flag about controllstep
+ *
+ *   Revision 1.24  2006/12/13 09:13:03  martius
  *   agents get comments about changed parameter for logfile
  *
  *   Revision 1.23  2006/12/11 18:31:34  martius
@@ -230,8 +233,13 @@ namespace lpzrobots {
     */
     virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
 
-    /// addCallback()  optional additional callback function.
-    virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {};
+    /** optional additional callback function which is called every simulation step. 
+	Called between physical simulation step and drawing.
+	@param draw indicates that objects are drawn in this timestep
+	@param pause indicates that simulation is paused
+	@param control indicates that robots have been controlled this timestep	
+     */
+    virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {};
 
     ///////////////// Camera::Callback interface
     virtual void operator() (const Producer::Camera &);
