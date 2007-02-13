@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-21 11:43:05  martius
+ *   Revision 1.4  2007-02-13 19:32:13  martius
+ *   twoaxisservo
+ *
+ *   Revision 1.3  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -41,12 +44,12 @@
 #define __UWO_H
 
 #include "oderobot.h"
+#include "twoaxisservo.h"
 
 namespace lpzrobots {
 
   class Primitive; 
   class Joint;
-  class UniversalServo;
 
   typedef struct {
   public:
