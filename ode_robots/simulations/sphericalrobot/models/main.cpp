@@ -4,10 +4,8 @@
 #include <vector>
 
 #include <selforg/multilayerffnn.h>
+#include <selforg/elman.h>
 #include "datafunc.h"
-
-#define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(); it!= (coll).end(); it++ )
-#define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(); it!= (coll).end(); it++ )
 
 using namespace std;
 using namespace matrix;
@@ -70,8 +68,18 @@ int main(int argc, char** argv){
   DataFunc inp = &tm123;
   DataFunc out = &t;
   FILE* f;  
+  bool useElman;
+  bool useJordan;
 
   /// PARSE Parameter
+  index = contains(argv,argc,"-type");
+  if(index!=0 && argc > index) {    
+    char* type = argv[index];
+    useElman= (strchr(type,'e')!=0);
+    useJordan= (strchr(type,'j')!=0);
+    cout << "# network type: " << (!useElman && !useJordan ? "Feedforward" : "" )
+	 << (useElman ? "Elman " : "") << (useJordan ? "Jordan " : "")  << endl;  
+  }
   index = contains(argv,argc,"-f");
   if(index!=0 && argc > index) {    
     filename = argv[index];
@@ -119,6 +127,7 @@ int main(int argc, char** argv){
   if(contains(argv,argc,"-h")!=0) {
     printf("Usage: %s [-f file] [-n network] [-o newnet] [-t] [-d output] [-i num] [-e eps] [-inp dfunc] [-out dfunc]\n",argv[0]);
     printf("\t-f file\tuse this data file (def: data)\n");
+    printf("\t-type f|e|j|ej\ttype of network: feedforward, elman, jordan, or both\n");
     printf("\t-n network\tfile to load network from (def: create a new one)\n");
     printf("\t-o newnet\tfile to store new network to (def: network.net)\n");
     printf("\t-t   \ttest mode (requires -n)\n");
@@ -144,18 +153,23 @@ int main(int argc, char** argv){
   unsigned int outputdim = out(data,maxhistory).getM();
 
   /// LOAD/INITALISE NETWORK
-  MultiLayerFFNN net(eps, vector<Layer>());
+  MultiLayerFFNN* net;
+
   if(loadnetwork){
+    if(useElman || useJordan) 
+      net = new Elman(eps, vector<Layer>(), useElman, useJordan);
+    else
+      net = new MultiLayerFFNN(eps, vector<Layer>());
     f = fopen(networkpath, "r");
     assert(f);
-    if(!net.restore(f)){
+    if(!net->restore(f)){
       cerr << "could not read network: " << networkpath << endl;
       exit(1);
     }
     fclose(f);
-    if(net.getInputDim() != inputdim || net.getOutputDim() != outputdim){
+    if(net->getInputDim() != inputdim || net->getOutputDim() != outputdim){
       cerr << "loaded networks dimension do not fit: observed: " 
-	   << net.getInputDim() << "," << net.getOutputDim()
+	   << net->getInputDim() << "," << net->getOutputDim()
 	   << " exected: " << inputdim << "," << outputdim << endl;
       exit(1);
     }
@@ -164,8 +178,11 @@ int main(int argc, char** argv){
     //    layers.push_back(Layer(2, 1.0, FeedForwardNN::sigmoid, FeedForwardNN::dsigmoid));
     layers.push_back(Layer(numHidden, 1.0 , FeedForwardNN::tanh,FeedForwardNN::dtanh));
     layers.push_back(Layer(1));
-    net = MultiLayerFFNN(eps, layers);
-    net.init(inputdim,outputdim);
+    if(useElman || useJordan)
+      net = new Elman(eps, layers, useElman, useJordan);
+    else
+      net = new MultiLayerFFNN(eps, layers);
+    net->init(inputdim,outputdim);
     cerr << "Dimensions: " << inputdim << "," << outputdim << endl;
   }  
   cout << "# Number of Hidden units: " << numHidden <<  endl;
@@ -176,7 +193,7 @@ int main(int argc, char** argv){
   for(int k=0; k<iterations; k++){
     for(unsigned int i=maxhistory; i<data.size()-1; i++){    
       const Matrix& sensors = inp(data, i);
-      const Matrix& result  = net.process(sensors); // activate with next data in order judge prediction
+      const Matrix& result  = net->process(sensors); // activate with next data in order judge prediction
       const Matrix& nomout = out(data,i);
       double diff = sqrt((nomout - result).multTM().val(0,0));          
       slidingavg = slidingavg*0.999 + diff*0.001;
@@ -184,7 +201,7 @@ int main(int argc, char** argv){
       cout << diff << " " << datdiff << " " << slidingavg  << endl;      
       if(dumpfile.is_open()) dumpfile << (result^T) << (nomout^T) << endl;
       if(training){
-	net.learn(sensors, out(data,i)); // learn
+	net->learn(sensors, out(data,i)); // learn
       }
     }
   }
@@ -192,7 +209,7 @@ int main(int argc, char** argv){
   if(training){
     f = fopen((outnetworkpath).c_str(), "w");
     assert(f);
-    net.store(f);
+    net->store(f);
     fclose(f);
   }
   if(dumpfile.is_open()) dumpfile.close();
