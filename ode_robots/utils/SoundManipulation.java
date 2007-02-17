@@ -8,12 +8,12 @@ import java.io.*;
 public class SoundManipulation extends Thread {
 
 // private PipedInputStream pis;
- private String mode;
+ private int mode;
  private int numSensors;
  private SourceDataLine sourceLine;
  private InputStream is;
 
- public SoundManipulation(/*PipedInputStream pis, */String mode, InputStream is) {
+ public SoundManipulation(/*PipedInputStream pis, */int mode, InputStream is) {
 //  this.pis=pis;
   this.mode=mode;
   this.is=is;
@@ -34,10 +34,6 @@ public class SoundManipulation extends Thread {
   }
  }
 
-// public void setNumSensors(int numSensors) {
-//  this.numSensors=numSensors;
-// }
-
  public void run() {
   byte[] data=new byte[128];
   String input="";
@@ -57,13 +53,41 @@ public class SoundManipulation extends Thread {
      numSensors=input.charAt(12)-47;
     } else if(!input.startsWith("#")) {
      String[] values=input.trim().substring(0,numSensors*10).split(" ");
+     float sensorSum=0.0f;
      for(int i=0; i<numSensors; i++) {
-      if(Math.abs(new Float(values[i]).floatValue())>0.7f) {
-       for(int j=0; j<data.length; j++) {
-        data[j]=(byte)(Math.sin(j/(i+1.0))*127);
-       }
-       sourceLine.write(data,0,data.length);
+
+      switch(mode) {
+       case 1: // discrete
+        if(Math.abs(new Float(values[i]).floatValue())>0.7f) {
+         for(int j=0; j<data.length; j++) {
+          data[j]=(byte)(Math.sin(j/(i+1.0))*127);
+         }
+         sourceLine.write(data,0,data.length);
+        }
+        break;
+       case 2: // amplitude
+        sensorSum+=Math.abs(new Float(values[i]).floatValue());
+        if(i==numSensors-1) {
+         float sensorAverage=sensorSum/numSensors;
+         for(int j=0; j<data.length; j++) {
+          data[j]=(byte)(sensorAverage*Math.sin(j/10.0f)*127);
+         }
+         sourceLine.write(data,0,data.length);
+        }
+        break;
+       case 3: // frequency
+        sensorSum+=Math.abs(new Float(values[i]).floatValue());
+        if(i==numSensors-1) {
+         float sensorAverage=sensorSum/numSensors;
+         for(int j=0; j<data.length; j++) {
+          data[j]=(byte)(Math.sin(sensorAverage*j/50.0f)*127);
+         }
+         sourceLine.write(data,0,data.length);
+        }
+        break;
+
       }
+
      }
     }
     input="";

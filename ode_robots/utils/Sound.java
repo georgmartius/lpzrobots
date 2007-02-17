@@ -9,11 +9,14 @@ public class Sound {
  public static void main(String[] args) {
 //  try {
 //   PipedOutputStream pos=new PipedOutputStream();
-   SoundManipulation sm=new SoundManipulation(/*new PipedInputStream(pos), */"",System.in);
-sm.start();
-try{
- sm.join();
-} catch(InterruptedException ie) {}
+  SoundManipulation sm=new SoundManipulation(/*new PipedInputStream(pos), */2,System.in);
+  sm.start();
+  try{
+   sm.join();
+  } catch(InterruptedException ie) {
+   System.out.println(ie.getMessage());
+   System.exit(0);
+  }
 //   String input="";
 //   byte[] tmp=new byte[1];
 //   byte[] data=new byte[1024];
