@@ -88,11 +88,12 @@ namespace lpzrobots{
 		double elbow_max;
 
 		double motorPower;
+	        double damping;    // motor damping
 		double joint_offset;		
 		
   } ArmConf;
 
-  class Arm : public OdeRobot, public Inspectable{
+  class Arm : public OdeRobot, public Inspectable {
   public:
 		  
 		Arm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const ArmConf& conf, const std::string& name);
@@ -101,7 +102,8 @@ namespace lpzrobots{
 	  {
 			ArmConf conf;		 
 			
-			conf.motorPower=0.05;//1.0;
+			conf.motorPower=2;//1.0;
+			conf.damping=0.1;//1.0;
 			conf.upperarm_radius = 0.05;//0.15; <- not beautiful
       conf.forearm_radius = 0.05;//0.1; <- not beautiful TODO universelle Anordnung!
 			
@@ -114,10 +116,10 @@ namespace lpzrobots{
 			conf.shoulder_mass=0.005;
 			conf.shoulder_radius=0.03; // 0.1
       // upper arm
-			conf.upperarm_mass = 0.01;
+			conf.upperarm_mass = 0.1; // 0.01
 			conf.upperarm_length = 1.5;
 			// forearm
-			conf.forearm_mass = 0.01;
+			conf.forearm_mass = 0.1; // 0.01
       conf.forearm_length = 1.2;
 			// stops at hinge joints 
 			conf.elevation_min=-M_PI/2;
@@ -238,8 +240,8 @@ namespace lpzrobots{
 		void BodyCreate(int n, dMass m, dReal x, dReal y, dReal z, dReal qx, dReal qy, dReal qz, dReal qangle);
 
 		// inspectable interface
-		virtual std::list<iparamkey> getInternalParamNames() const;
-		virtual std::list<iparamval> getInternalParams() const;
+		virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
+		virtual std::list<Inspectable::iparamval> getInternalParams() const;
 //		virtual std::list<ILayer> getStructuralLayers() const;
 //		virtual std::list<IConnection> getStructuralConnections() const;
 
@@ -247,9 +249,7 @@ namespace lpzrobots{
 		ArmConf conf;    
 		matrix::Matrix endeff;
 		
-		paramval factorMotors;
 		paramval factorSensors;
-		paramval damping;
 		paramval print;
 		
 		std::vector <Primitive*> objects; // Primitive* object[NUMParts]; 

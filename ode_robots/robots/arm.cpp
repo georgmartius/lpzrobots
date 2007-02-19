@@ -49,10 +49,8 @@ namespace lpzrobots{
 					
     parentspace=odeHandle.space;
 					
-		factorMotors=0.5;//1.0;
     factorSensors=0.0001; // only for endeffector position
-    //damping=1;
-
+    
     sensorno=4; // hingeServo values (shoulder: 3, elbow: 1)
 
 //		sensorno=3; // endeffector position
@@ -149,7 +147,7 @@ namespace lpzrobots{
  		// controller output as torques
 		for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++) 
 		{
-			hingeServos[i]->set(factorMotors * motors[i]);
+			hingeServos[i]->set(motors[i]);
 		}
 //		printf("motors: ");
 //		for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++) 
@@ -378,7 +376,7 @@ namespace lpzrobots{
 		joints.push_back(HJ_elbow);
 		// create servo motor for elbow joint, add to list of motors 
 		// min und max beeinlussen Geschwindigkeit?!	
-		HingeServo* elbow_servo = new HingeServo(HJ_elbow, conf.elbow_min/*-M_PI/6*/, conf.elbow_max/*-M_PI/6*/, conf.motorPower);
+		HingeServo* elbow_servo = new HingeServo(HJ_elbow, conf.elbow_min/*-M_PI/6*/, conf.elbow_max/*-M_PI/6*/, conf.motorPower, conf.damping, 0);
     hingeServos.push_back(elbow_servo);
 // === one axis joint for shoulder elevation =====
 // === Biess, Flash (2006): THETA ================
@@ -395,7 +393,7 @@ namespace lpzrobots{
 		// ANMERKUNG 2: min und max skalieren die GESCHWINDIGKEIT der Bewegung! "travel bounds"? :-(
 		//    oneaxisservo.h: /** min and max values are understood as travel bounds. Min should be less than 0.*/
 		// servo motor for joint
-		HingeServo* elev_servo = new HingeServo(HJ_elev, conf.elevation_min, conf.elevation_max, conf.motorPower);
+		HingeServo* elev_servo = new HingeServo(HJ_elev, conf.elevation_min, conf.elevation_max, conf.motorPower, conf.damping, 0);
     hingeServos.push_back(elev_servo);
 // === one axis joint for shoulder azimuthal angle =====
 // === Biess, Flash (2006): ETA ================
@@ -410,7 +408,7 @@ namespace lpzrobots{
     HJ_azimut->setParam(dParamHiStop, conf.azimuthal_max+0.1);
 		joints.push_back(HJ_azimut);
 		// servo motor for joint
-		HingeServo* azimut_servo = new HingeServo(HJ_azimut, conf.azimuthal_min, conf.azimuthal_max, conf.motorPower);
+		HingeServo* azimut_servo = new HingeServo(HJ_azimut, conf.azimuthal_min, conf.azimuthal_max, conf.motorPower, conf.damping, 0);
     hingeServos.push_back(azimut_servo);
 // === one axis joint for shoulder humeral angle =====
 // === Biess, Flash (2006): XSI ================
@@ -425,7 +423,7 @@ namespace lpzrobots{
     HJ_humer->setParam(dParamHiStop, conf.humeral_max+0.1); 
    	joints.push_back(HJ_humer);
 	 	// servo motor for joint	
-		HingeServo* humer_servo = new HingeServo(HJ_humer, conf.humeral_min, conf.humeral_max, conf.motorPower);
+		HingeServo* humer_servo = new HingeServo(HJ_humer, conf.humeral_min, conf.humeral_max, conf.motorPower, conf.damping, 0);
     hingeServos.push_back(humer_servo);
 		
 		printf("size: %d objects, %d joints, %d hingeservos\n", objects.size(), joints.size(), hingeServos.size());
@@ -467,27 +465,40 @@ namespace lpzrobots{
   Configurable::paramlist Arm::getParamList() const
 	{
     paramlist list;
-    list.push_back(pair<paramkey, paramval> (string("factorMotors"), factorMotors));
+    list.push_back(pair<paramkey, paramval> (string("motorPower"), conf.motorPower));
     list.push_back(pair<paramkey, paramval> (string("factorSensors"), factorSensors));
-    list.push_back(pair<paramkey, paramval> (string("damping"), damping));
+    list.push_back(pair<paramkey, paramval> (string("damping"), conf.damping));
     list.push_back(pair<paramkey, paramval> (string("print"), print));
     return list;
   };
 
   Configurable::paramval Arm::getParam(const paramkey& key) const
 	{
-    if(key == "factorMotors") return factorMotors; 
+    if(key == "motorPower") return conf.motorPower; 
     else if(key == "factorSensors") return factorSensors; 
-    else if(key == "damping") return damping; 
+    else if(key == "damping") return conf.damping; 
     else if(key == "print") return print; 
     else  return Configurable::getParam(key) ;
   };
 
   bool Arm::setParam(const paramkey& key, paramval val)
 	{
-    if(key == "factorMotors") factorMotors=val;
-    else if(key == "factorSensors") factorSensors = val; 
-    else if(key == "damping") damping = val; 
+    if(key == "motorPower") {
+      conf.motorPower=val;
+      hingeServos[0]->setPower(val);
+      hingeServos[1]->setPower(val);
+      hingeServos[2]->setPower(val/4);
+      hingeServos[3]->setPower(val/2);
+//       FOREACH (vector<HingeServo*>, hingeServos, i) {
+// 	(*i)->setPower(val);
+//       }
+    } else if(key == "factorSensors") factorSensors = val; 
+    else if(key == "damping") {
+      conf.damping = val; 
+      FOREACH (vector<HingeServo*>, hingeServos, i) {
+	(*i)->damping() = val;
+      }
+    }
     else if(key == "print") print = val; 
     else return Configurable::setParam(key, val);
     return true;
@@ -495,16 +506,16 @@ namespace lpzrobots{
 
 list<Inspectable::iparamkey> Arm::getInternalParamNames() const
 {
-	list<iparamkey> keylist;
-//	keylist+=storeMatrixFieldNames(endeff,"pos");
+	list<Inspectable::iparamkey> keylist;
+	keylist+=storeMatrixFieldNames(endeff,"pos");
 //	printf("gotInternalParamNames\n");
  	return keylist;
 }
 
 list<Inspectable::iparamval> Arm::getInternalParams() const 
 {
-	list<iparamval> l;
-//	l+=endeff.convertToList();
+	list<Inspectable::iparamval> l;
+	l+=endeff.convertToList();
 //	printf("gotInternalParams\n");
   return l;
 }
