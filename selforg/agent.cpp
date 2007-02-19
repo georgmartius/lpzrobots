@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-02-01 15:53:16  martius
+ *   Revision 1.13  2007-02-19 15:42:18  martius
+ *   dynamic_cast for inspectable robot is important
+ *
+ *   Revision 1.12  2007/02/01 15:53:16  martius
  *   inspectables list. Robot is added in case it is derived from Inspectable
  *
  *   Revision 1.11  2006/12/28 18:38:03  robot5
@@ -212,8 +215,9 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
 
   inspectables.push_back(controller);
   inspectables.push_back(wiring);  
-  if(dynamic_cast<Inspectable*>(robot) !=0)
-    inspectables.push_back((Inspectable*)robot);  
+  Inspectable* irobot = dynamic_cast<Inspectable*>(robot);
+  if(irobot !=0)
+    inspectables.push_back(irobot);  
 
   // copy plotoption list and add it one by one
   list<PlotOption> po_copy(plotOptions);
