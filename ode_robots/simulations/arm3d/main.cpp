@@ -95,7 +95,7 @@ public:
 //		global.obstacles.push_back(s2);
 									 
     ArmConf conf = Arm::getDefaultConf();
-
+    
     arm = new Arm(odeHandle, osgHandle, conf, "Arm");
 
     ((OdeRobot*)arm)->place(Position(-0.7,0.9,0.1));
@@ -103,8 +103,8 @@ public:
 
 //		AbstractController* controller; // wegen command funktion jetzt ausserhalb von start definiert
 //	  controller = new InvertNChannelController(10);
-		controller = new InvertMotorNStep();
-//		controller = new SineController();
+//		controller = new InvertMotorNStep();
+		AbstractController* controller = new SineController();
 		// create pointer to one2onewiring
 		One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 		
@@ -134,6 +134,7 @@ public:
 		controller->setParam("s4avg", 5); // zeitglaettung controllerinput ueber # steps
 		controller->setParam("s4del", 1); // verzoegerung bis motor echt greift
 		// controlinterval - anzahl zeitschritte mit gleichem controller
+		global.configs.push_back(controller);
 		
 		//  agent->setTrackOptions(TrackRobot(true, false, false,50));
 		global.agents.push_back(agent);
