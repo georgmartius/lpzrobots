@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-07-20 17:16:05  martius
+ *   Revision 1.2  2007-02-20 15:54:40  martius
+ *   barrel
+ *
+ *   Revision 1.1  2006/07/20 17:16:05  martius
  *   simulation for complex model networks
  *
  *   Revision 1.15  2006/07/14 12:23:53  martius
@@ -47,8 +50,11 @@
 #include <selforg/one2onewiring.h>
 
 // used robot
+#include "barrel2masses.h"
 #include "nimm2.h"
 #include "nimm4.h"
+#include "axisorientationsensor.h"
+#include "speedsensor.h"
 
 // used arena
 #include "playground.h"
@@ -57,7 +63,9 @@
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
+//#include <selforg/invertmotorspace.h>
 #include <selforg/invertmotorbigmodel.h>
+#include <selforg/sinecontroller.h>
 #include <selforg/multilayerffnn.h>
 
 // fetch all the stuff of lpzrobots into scope
@@ -66,6 +74,8 @@ using namespace lpzrobots;
 
 class ThisSim : public Simulation {
 public:
+  InvertMotorBigModel* controller;
+  motor teaching[2];
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -85,9 +95,9 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 0.5));
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground);
+    //    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(100, 0.2, 0.5));
+    //    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    //    global.obstacles.push_back(playground);
 
     // add passive spheres as obstacles
     // - create pointer to sphere (with odehandle, osghandle and 
@@ -103,19 +113,23 @@ public:
     }
 
     // set color for nimm robot
-    OsgHandle osgHandle_orange = osgHandle.changeColor(Color(2, 156/255.0, 0));
+  
+    Sphererobot3MassesConf conf = Barrel2Masses::getDefaultConf();  
+    //conf.motorsensor=true;
+    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
+    //    conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
+//     conf.irAxis1=false;
+//     conf.irAxis2=false;
+//     conf.irAxis3=false;
+    conf.pendularrange= 0.25;
+    conf.spheremass   = 1;
+    Barrel2Masses* vehicle = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
+				  conf, "Barrel1", 0.4); 
+    vehicle->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
 
-    // use Nimm2 vehicle as robot:
-    // - get default configuration for nimm2
-    // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
-    // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
-    // - place robot
-    Nimm2Conf c = Nimm2::getDefaultConf();
-    c.bumper  = true;
-    c.cigarMode  = false;
-    c.irFront = false;
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle_orange, c, "Nimm2");    
-    vehicle->place(Pos(2,0,0));
+    
+//    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), "nummer");
+//    vehicle->place(Pos(0,2,0));
     
     // use Nimm4 vehicle as robot:
     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
@@ -125,20 +139,24 @@ public:
     
     // create pointer to controller
     // push controller in global list of configurables
-    //  AbstractController *controller = new InvertNChannelController(10);  
-    //AbstractController *controller = new InvertMotorSpace(10);  
+    // AbstractController *controller = new InvertNChannelController(10);  
+    // AbstractController *controller = new InvertMotorSpace(10);  
+    //    AbstractController* controller = new SineController();
+    
     InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
 
     std::vector<Layer> layers;
-    //    layers.push_back(Layer(3, 0.5 , FeedForwardNN::tanh,FeedForwardNN::dtanh));
-    layers.push_back(Layer(3,0.5));
-    layers.push_back(Layer(2,0.5));
-    MultiLayerFFNN* net = new MultiLayerFFNN(0.05, layers);
+    layers.push_back(Layer(6, 0.5 , FeedForwardNN::tanh,FeedForwardNN::dtanh));
+    //layers.push_back(Layer(3,0.5));
+    layers.push_back(Layer(2,1));
+    MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers);
     cc.model = net;
-    cc.modelInit = 0.5;
-    AbstractController *controller = new InvertMotorBigModel(cc);  
+    cc.modelInit = 1.0;
+    cc.useS = true;
+    controller = new InvertMotorBigModel(cc);  
     controller->setParam("adaptrate",0);
     global.configs.push_back(controller);
+    global.configs.push_back(vehicle);
     
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -156,15 +174,52 @@ public:
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
+    bool handled = false;
+    FILE* f;
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
+	case 'u' : 
+	  teaching[0] = teaching[1] =0.8;
+	  controller->setMotorTeachingSignal(teaching, 2);
+	  printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
+	  handled = true; 
+	  break;
+	case 'j' : 
+	  teaching[0] = 0.8;
+	  teaching[1] = - 0.8;
+	  controller->setMotorTeachingSignal(teaching, 2);
+	  printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
+	  handled = true; 
+	  break;
+	case 'i' : 
+	  teaching[0] = teaching[1] =0.8;
+	  controller->setSensorTeachingSignal(teaching, 2);
+	  printf("DTeaching Signal: %f, %f\n", teaching[0], teaching[1]);
+	  handled = true; 
+	  break;
+	case 'k' : 
+	  teaching[0] = 0.8;
+	  teaching[1] = - 0.8;
+	  controller->setSensorTeachingSignal(teaching, 2);
+	  printf("DTeaching Signal: %f, %f\n", teaching[0], teaching[1]);
+	  handled = true; 
+	  break;
+	case 's' :
+	  f = fopen("controller","wb");
+	  controller->store(f) && printf("Controller stored\n");
+	  fclose(f);
+	  handled = true; break;	
+	case 'l' :
+	  f = fopen("controller","rb");
+	  controller->restore(f) && printf("Controller loaded\n");
+	  fclose(f);
+	  handled = true; break;	
 	default:
-	  return false;
 	  break;
 	}
     }
-    return false;
+    return handled;
   }
 
 
