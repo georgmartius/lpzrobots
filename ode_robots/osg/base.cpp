@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-20 15:30:47  martius
+ *   Revision 1.7  2007-02-21 14:26:18  martius
+ *   increased ambient light
+ *
+ *   Revision 1.6  2006/09/20 15:30:47  martius
  *   shadowsize, light
  *
  *   Revision 1.5  2006/09/20 12:55:44  martius
@@ -502,7 +505,7 @@ namespace lpzrobots {
     //    light_0->setPosition(Vec4(0.0f, 0.0f, 50.0f, 1.0f));
     light_0->setPosition(Vec4(40.0f, 40.0f, 50.0f, 1.0f));
     //    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
-    light_0->setAmbient(Vec4(0.5f, 0.5f, 0.5f, 1.0f)); 
+    light_0->setAmbient(Vec4(0.7f, 0.7f, 0.7f, 1.0f));  // Georg 21.07.2007 changed from 0.5 to 0.7
     light_0->setDiffuse(Vec4(0.8f, 0.8f, 0.8f, 1.0f)); 
     //    light_0->setDirection(Vec3(-1.0f, -1.0f, -1.2f)); 
     light_0->setSpecular(Vec4(1.0f, 0.9f, 0.8f, 1.0f)); 
