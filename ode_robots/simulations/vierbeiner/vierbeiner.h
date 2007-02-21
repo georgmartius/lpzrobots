@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-02-12 13:30:40  martius
+ *   Revision 1.3  2007-02-21 16:08:45  der
+ *   frontlegs no feet
+ *   ankles are powered
+ *   invisible pole (or box) in top
+ *
+ *   Revision 1.2  2007/02/12 13:30:40  martius
  *   dog looks allready nicer
  *
  *   Revision 1.1  2007/02/02 08:58:15  martius
@@ -47,9 +52,10 @@ namespace lpzrobots {
     int    legNumber;  ///<  number of snake elements
     double mass;       ///< chassis mass
     double relLegmass; ///< relative overall leg mass
-    double jointLimit; ///< angle range for legs
-    double motorPower; ///< maximal force for motors
+    double hipPower; ///< maximal force for at hip joint motors
+    double hipJointLimit; ///< angle range for legs
     double kneePower;  ///< spring strength in the knees
+    double kneeJointLimit; ///< angle range for knees
     double kneeDamping; ///< damping in the knees
     double anklePower;  ///< spring strength in the ankles
     double ankleDamping; ///< damping in the ankles
@@ -77,15 +83,16 @@ namespace lpzrobots {
       VierBeinerConf c;
       c.size       = 1;
       c.legNumber  = 4;
-      c.legLength  = 0.5;
+      c.legLength  = 0.6;
       c.mass       = 1;
       c.relLegmass = 1;
-      c.motorPower = 7;
+      c.hipPower = 5;
       c.kneePower  = 5;
       c.kneeDamping = 0.01;
       c.anklePower  = 2;
       c.ankleDamping = 0.001;
-      c.jointLimit = M_PI/10; // +- 18 degree
+      c.hipJointLimit = M_PI/3; // +- 60 degree
+      c.kneeJointLimit = M_PI/4; // +- 45 degree
       c.frictionGround = 0.5;
       return c;
     }

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-02-12 13:30:40  martius
+ *   Revision 1.3  2007-02-21 16:08:30  der
+ *   frontlegs no feet
+ *   ankles are powered
+ *   invisible pole (or box) in top
+ *
+ *   Revision 1.2  2007/02/12 13:30:40  martius
  *   dog looks allready nicer
  *
  *   Revision 1.1  2007/02/02 08:58:03  martius
@@ -59,14 +64,12 @@ namespace lpzrobots {
     this->osgHandle.color = Color(1.0, 1,1,1);
     //    this->osgHandle.color = Color(1.0, 156/255.0, 156/255.0, 1.0f);
     
-    conf.motorPower *= conf.mass;
-    conf.legLength *= conf.size;
     legmass=conf.mass * conf.relLegmass / conf.legNumber;    // mass of each legs
   };
 
 
   int VierBeiner::getMotorNumber(){
-    return headtailservos.size() + hipservos.size() + kneeservos.size(); //  + ankleservos.size();
+    return headtailservos.size() + hipservos.size() + kneeservos.size() + ankleservos.size();
   };
 
   /* sets actual motorcommands
@@ -91,23 +94,23 @@ namespace lpzrobots {
       (*s)->set(motors[n]);
       n++;
     }
-//      FOREACH(vector <HingeServo*>, ankleservos, s){
-//        (*s)->set(motors[n]);
-//        n++;
-//      }
+    FOREACH(vector <HingeServo*>, ankleservos, s){
+      (*s)->set(motors[n]);
+      n++;
+    }
     assert(len==n);
     /// set knee servos to set point 0 (spring emulation)
 //     FOREACH(vector <HingeServo*>, kneeservos, s){
 //       (*s)->set(0);
 //     }
     /// set ankle servos to set point 0 (spring emulation)
-    FOREACH(vector <HingeServo*>, ankleservos, s){
-      (*s)->set(0);
-    }
+    //    FOREACH(vector <HingeServo*>, ankleservos, s){
+    //      (*s)->set(0);
+    //    }
   };
 
   int VierBeiner::getSensorNumber(){
-    return headtailservos.size() + hipservos.size() + kneeservos.size();
+    return headtailservos.size() + hipservos.size() + kneeservos.size() + ankleservos.size();
   };
 
   /* returns actual sensorvalues
@@ -128,6 +131,10 @@ namespace lpzrobots {
       n++;
     }
     FOREACHC(vector <HingeServo*>, kneeservos, s){
+      sensors[n]   = (*s)->get();
+      n++;
+    }
+    FOREACHC(vector <HingeServo*>, ankleservos, s){
       sensors[n]   = (*s)->get();
       n++;
     }
@@ -189,8 +196,8 @@ namespace lpzrobots {
 	contact[i].surface.slip1 = 0.005;
 	contact[i].surface.slip2 = 0.005;
 	contact[i].surface.mu = conf.frictionGround;
-	contact[i].surface.soft_erp = 0.9;
-	contact[i].surface.soft_cfm = 0.1; 
+	contact[i].surface.soft_erp = 0.8;
+	contact[i].surface.soft_cfm = 0.01; 
 	
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
@@ -215,14 +222,23 @@ namespace lpzrobots {
     HingeServo* servo;
     
     // create body
-    Primitive* trunk;
     double twidth = conf.size / 1.5;
     double theight = conf.size / 4;
+    Primitive* trunk;    
     trunk = new Box(conf.size, twidth, theight);
     trunk->init(odeHandle, conf.mass*0.8, osgHandle);
     trunk->setPose(osg::Matrix::translate(0,0,conf.legLength)*pose);
     trunk->setTexture("Images/toy_fur3.jpg");
     objects.push_back(trunk);
+    // the pole is a non-visible box which hinders the dog from falling over.
+    Primitive* pole;
+    double poleheight=conf.size*2;
+    pole = new Box(conf.size*2,twidth*8,poleheight);
+    Primitive* poletransform;
+    poletransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,theight/2+poleheight/2));
+    poletransform->init(odeHandle, 0, osgHandle, Primitive::Geom); 
+    objects.push_back(poletransform);
+    
     
     // create head and neck
     Primitive* neck;
@@ -279,21 +295,21 @@ namespace lpzrobots {
     // legs  (counted from back to front)
     double legdist = conf.size*0.9 / (conf.legNumber/2-1);
     for ( int n = 0; n < conf.legNumber; n++ ) {            
-      double motorPower = conf.motorPower - 0.5 * conf.motorPower * ((int)n/2) / (conf.legNumber/2);
-      double l1 =       n<2 ? conf.legLength*0.4 : conf.legLength*0.3;
+      double l1 =       n<2 ? conf.legLength*0.45 : conf.legLength*0.5;
       double t1       = conf.legLength/10;
       double hipangle = n<2 ? -M_PI/18 : M_PI/18;
-      double l2 = conf.legLength*0.5;
+      double hiplowstop  = -conf.hipJointLimit;
+      double hiphighstop = conf.hipJointLimit;
+      double l2 =       n<2 ? conf.legLength*0.45 : conf.legLength*0.5;
       double t2       = conf.legLength/10;
       double kneeangle = n<2 ? M_PI/5 : -M_PI/5;
-      double kneelowstop = -M_PI/8; 
-      double kneehighstop = M_PI/8;       
-      double l3 = n<2 ? conf.legLength*0.35 : conf.legLength*0.25;
+      double kneelowstop = -conf.kneeJointLimit; 
+      double kneehighstop = conf.kneeJointLimit;       
+      double l3 = n<2 ? conf.legLength*0.25 : 0;  // front legs have no feet
       double t3       = conf.legLength/12;
-      double ankleangle = n<2 ? -M_PI/4 : -M_PI/10;
+      double ankleangle = n<2 ? -M_PI/3 : 0;
       double anklelowstop = -M_PI/5; 
-      double anklehighstop = M_PI/12;       
-
+      double anklehighstop = M_PI/5;       
 
       // upper limp
       Primitive* p1;      
@@ -307,7 +323,15 @@ namespace lpzrobots {
       osg::Matrix m1 = osg::Matrix::translate(0,0,-l1/2) * osg::Matrix::rotate(hipangle,0,1,0) * m;
       p1->setPose(m1);
       objects.push_back(p1);
-      
+      // powered hip joint
+      Pos nullpos(0,0,0);
+      j = new HingeJoint(trunk, p1, nullpos * m, Axis(0,1,0) * m);
+      j->init(odeHandle, osgHandleJ, true, t1 * 2.1);
+      joints.push_back(j);
+      servo =  new HingeServo(j,hiplowstop, hiphighstop, 
+			      conf.hipPower,0.1,0);
+      hipservos.push_back(servo);
+
       // lower limp
       Primitive* p2;
       p2 = new Capsule(t2, l2); 
@@ -316,56 +340,37 @@ namespace lpzrobots {
 	osg::Matrix::translate(0,0,-l1/2) * m1;
       p2->setPose(m2);
       objects.push_back(p2);
-
-      // feet
-      Primitive* p3;
-      p3 = new Capsule(t3, l3); 
-      p3->init(odeHandle, legmass*0.2, osgHandle);
-      osg::Matrix m3 = osg::Matrix::translate(0,0,-l3/2) * osg::Matrix::rotate(ankleangle,0, 1,0) * 
-	osg::Matrix::translate(0,0,-l2/2) * m2;
-      p3->setPose(m3);
-      objects.push_back(p3);
-
-      // powered hip joint
-      Pos nullpos(0,0,0);
-      j = new HingeJoint(trunk, p1, nullpos * m, Axis(0,1,0) * m);
-      j->init(odeHandle, osgHandleJ, true, t1 * 2.1);
-      j->setParam(dParamLoStop, -conf.jointLimit*1.5);
-      j->setParam(dParamHiStop,  conf.jointLimit*1.5);
-      joints.push_back(j);
-      servo =  new HingeServo(j, -conf.jointLimit, conf.jointLimit, 
-			      motorPower,0.1,0);
-      hipservos.push_back(servo);
-
-      // passive/powered knee joint
+      // powered knee joint
       j = new HingeJoint(p1, p2, Pos(0,0,-l1/2) * m1, Axis(0,n<2 ? -1 : 1,0) * m1);
-      j->init(odeHandle, osgHandleJ, true, t1 * 2.1);
-                  
-      // setting stops
-      j->setParam(dParamLoStop, kneelowstop*1.5);
-      j->setParam(dParamHiStop, kneehighstop*1.5);
+      j->init(odeHandle, osgHandleJ, true, t1 * 2.1);                  
       joints.push_back(j);
 
       // servo used as a spring
       servo =  new HingeServo(j, kneelowstop, kneehighstop, conf.kneePower, conf.kneeDamping,0);
       kneeservos.push_back(servo);
-
-      // passive ankle joint
-      j = new HingeJoint(p2, p3, Pos(0,0,-l2/2) * m2, Axis(0,1,0) * m2);
-      j->init(odeHandle, osgHandleJ, true, t2 * 2.1);
-
-      // setting stops
-      j->setParam(dParamLoStop, anklelowstop*1.5);
-      j->setParam(dParamHiStop, anklehighstop*1.5);
-      joints.push_back(j);
-
-      // servo used as a spring
-      servo =  new HingeServo(j, anklelowstop, anklehighstop, conf.anklePower, conf.ankleDamping,0);
-      ankleservos.push_back(servo);
-
       p1->setTexture("Images/toy_fur3.jpg");
       p2->setTexture("Images/toy_fur3.jpg");
-      p3->setTexture("Images/toy_fur3.jpg");
+
+      
+      if(n<2){
+	// feet
+	Primitive* p3;
+	p3 = new Capsule(t3, l3); 
+	p3->init(odeHandle, legmass*0.2, osgHandle);
+	osg::Matrix m3 = osg::Matrix::translate(0,0,-l3/2) * osg::Matrix::rotate(ankleangle,0, 1,0) * 
+	  osg::Matrix::translate(0,0,-l2/2) * m2;
+	p3->setPose(m3);
+	objects.push_back(p3);
+	// powered ankle joint
+	j = new HingeJoint(p2, p3, Pos(0,0,-l2/2) * m2, Axis(0,1,0) * m2);
+	j->init(odeHandle, osgHandleJ, true, t2 * 2.1);
+	joints.push_back(j);
+	
+	// servo used as a spring
+	servo =  new HingeServo(j, anklelowstop, anklehighstop, conf.anklePower, conf.ankleDamping,0);
+	ankleservos.push_back(servo);
+	p3->setTexture("Images/toy_fur3.jpg");
+      }
 
     }      
     
@@ -415,9 +420,11 @@ namespace lpzrobots {
   Configurable::paramlist VierBeiner::getParamList() const{
     paramlist list;
     list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
-    list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
+    list += pair<paramkey, paramval> (string("hippower"),   conf.hipPower);
+    list += pair<paramkey, paramval> (string("hipjointlimit"),   conf.hipJointLimit);
     list += pair<paramkey, paramval> (string("kneepower"),   conf.kneePower);
     list += pair<paramkey, paramval> (string("kneedamping"),   conf.kneeDamping);
+    list += pair<paramkey, paramval> (string("kneejointlimit"),   conf.kneeJointLimit);
     list += pair<paramkey, paramval> (string("anklepower"),   conf.anklePower);
     list += pair<paramkey, paramval> (string("ankledamping"),   conf.ankleDamping);
     return list;
@@ -426,20 +433,22 @@ namespace lpzrobots {
   
   Configurable::paramval VierBeiner::getParam(const paramkey& key) const{    
     if(key == "frictionground") return conf.frictionGround; 
-    else if(key == "motorpower") return conf.motorPower; 
+    else if(key == "hippower") return conf.hipPower; 
     else if(key == "kneepower") return conf.kneePower; 
     else if(key == "kneedamping") return conf.kneeDamping; 
     else if(key == "anklepower") return conf.anklePower; 
     else if(key == "ankledamping") return conf.ankleDamping; 
+    else if(key == "hipjointlimit") return conf.hipJointLimit; 
+    else if(key == "kneejointlimit") return conf.kneeJointLimit; 
     else  return Configurable::getParam(key) ;
   }
   
   bool VierBeiner::setParam(const paramkey& key, paramval val){    
     if(key == "frictionground") conf.frictionGround = val; 
-    else if(key == "motorpower") {
-      conf.motorPower = val; 
+    else if(key == "hippower") {
+      conf.hipPower = val; 
       FOREACH(vector<HingeServo*>, hipservos, i){
-	if(*i) (*i)->setPower(conf.motorPower);
+	if(*i) (*i)->setPower(conf.hipPower);
       }
     } else if(key == "kneepower") {
       conf.kneePower = val; 
@@ -449,7 +458,7 @@ namespace lpzrobots {
     } else if(key == "kneedamping") {
       conf.kneeDamping = val; 
       FOREACH(vector<HingeServo*>, kneeservos, i){
-	if(*i) {(*i)->damping() = conf.kneeDamping; cout << (*i)->damping() << endl; } 
+	if(*i) {(*i)->damping() = conf.kneeDamping;} 
       }
     } else if(key == "anklepower") {
       conf.anklePower = val; 
@@ -459,7 +468,17 @@ namespace lpzrobots {
     } else if(key == "ankledamping") {
       conf.ankleDamping = val; 
       FOREACH(vector<HingeServo*>, ankleservos, i){
-	if(*i) {(*i)->damping() = conf.ankleDamping; cout << (*i)->damping() << endl; } 
+	if(*i) {(*i)->damping() = conf.ankleDamping; } 
+      }
+    } else if(key == "hipjointlimit") {
+      conf.hipJointLimit = val; 
+      FOREACH(vector<HingeServo*>, hipservos, i){
+	if(*i) (*i)->setMinMax(-val,+val);
+      }
+    } else if(key == "kneejointlimit") {
+      conf.kneeJointLimit = val; 
+      FOREACH(vector<HingeServo*>, kneeservos, i){
+	if(*i) (*i)->setMinMax(-val,+val);
       }
     } else return Configurable::setParam(key, val);    
     return true;
