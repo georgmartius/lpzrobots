@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-02-23 15:14:17  martius
+ *   Revision 1.13  2007-02-23 19:36:42  martius
+ *   useSD
+ *
+ *   Revision 1.12  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.11  2007/01/26 12:07:08  martius
@@ -76,6 +79,7 @@
 
 #include "odeagent.h"
 #include "octaplayground.h"
+#include "playground.h"
 #include "passivesphere.h"
 
 #include <selforg/invertmotornstep.h>
@@ -125,14 +129,21 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     int num_barrels=0;
-    int num_spheres=1;
-      
+    int num_spheres=1;      
 
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
     global.odeConfig.setParam("noise",0.03);
     //  global.odeConfig.setParam("gravity",-10);
-    global.odeConfig.setParam("controlinterval",4);
+    global.odeConfig.setParam("controlinterval",2);
+
+//     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(50, 0.0, 0.0));
+//     playground->setGroundTexture("Images/dusty.rgb");    
+//     playground->setGroundColor(Color(41/255.0,181/255.0,40/255.0));
+//     playground->setColor(Color(41/255.0,121/255.0,40/255.0));
+//     playground->setPosition(osg::Vec3(0,0,0.01));
+//     global.obstacles.push_back(playground);
+
 
 //   // Outer Ring
 //   AbstractObstacle* ring1 = new OctaPlayground(odeHandle, 20);
@@ -169,7 +180,7 @@ public:
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=0.5;
-      //    cc.useS=true;
+      //    cc.useSD=true;
       controller = new InvertMotorNStep(cc);    
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       controller->setParam("steps", 2);    
@@ -207,15 +218,15 @@ public:
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.25; 
       conf.motorsensor=false;
-      //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
       //      conf.addSensor(new SpeedSensor(10));
-      conf.irAxis1=true;
-      conf.irAxis2=true;
-      conf.irAxis3=true;
+      //conf.irAxis1=true;
+      //      conf.irAxis2=true;
+      //      conf.irAxis3=true;
       conf.spheremass   = 1;
-      sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
-					 conf, "Sphere1", 0.2); 
+      sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
+					 conf, "Sphere1", 0.3); 
       //// FORCEDSPHERE
       // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
       // fsc.drivenDimensions=ForcedSphere::X;
@@ -225,8 +236,10 @@ public:
       sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-      cc.cInit=0.5;
-      cc.useS=true;
+      //      DerControllerConf cc = DerController::getDefaultConf();
+      cc.cInit=1.0;
+      cc.useSD=true;
+      //controller = new DerController(cc);    
       controller = new InvertMotorNStep(cc);    
       //controller = new SineController();
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
@@ -234,14 +247,14 @@ public:
       //    controller->setParam("adaptrate", 0.001);    
       controller->setParam("adaptrate", 0.0);    
       controller->setParam("nomupdate", 0.005);    
-      controller->setParam("epsC", 0.001);    
-      controller->setParam("epsA", 0.001);    
+      controller->setParam("epsC", 0.05);    
+      controller->setParam("epsA", 0.05);    
       // controller->setParam("epsC", 0.001);    
       // controller->setParam("epsA", 0.001);    
       //    controller->setParam("rootE", 1);    
       //    controller->setParam("logaE", 2);    
       controller->setParam("rootE", 0);    
-      controller->setParam("logaE", 0);    
+      controller->setParam("logaE", 3);    
       //     controller = new SineController();  
       controller->setParam("sinerate", 15);  
       controller->setParam("phaseshift", 0.45);
