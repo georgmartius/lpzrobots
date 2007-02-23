@@ -49,14 +49,18 @@ namespace lpzrobots{
 					
     parentspace=odeHandle.space;
 					
-    factorSensors=0.0001; // only for endeffector position
+    factorSensors=1/2.7; // normalization of position w.r.t. arm length (only for endeffector position)
     
-    sensorno=4; // hingeServo values (shoulder: 3, elbow: 1)
+    sensorno=4; // endeff pos + dummy-zero
+		
+		// hingeServo values (shoulder: 3, elbow: 1)
 
 //		sensorno=3; // endeffector position
 		
     motorno=4; // dito
 
+		hitCount=0;
+		
     print=3; //0;
 
 		// standard objects color: white 
@@ -66,7 +70,7 @@ namespace lpzrobots{
 		// (0,1,0) = green
 		// (0,0,1) = blue
 		// (1,1,1) = white 
-		this->osgHandle.color = Color(1,1,1);
+		this->osgHandle.color = Color(1.1,1,1.4);
   
 		endeff.set(3,1);
 	
@@ -115,17 +119,21 @@ namespace lpzrobots{
     assert(created); // robot must exist
 		unsigned int len=min(sensornumber, getSensorNumber());
 
-    // get the hingeServos
-    for(unsigned int n=0; (n<len) && (n<hingeServos.size()); n++) 
-		{
-    	sensors[n] = hingeServos[n]->get();
-		}
+//    // get the hingeServos
+//    for(unsigned int n=0; (n<len) && (n<hingeServos.size()); n++) 
+//		{
+//    	sensors[n] = hingeServos[n]->get();
+//		}
 
-//		// get endeffector position ("watching" arm)
-//		osg::Vec3 pos = objects[hand]->getPosition();
-//    sensors[0]=factorSensors*pos[0];
-//    sensors[1]=factorSensors*pos[1];
-//    sensors[2]=factorSensors*pos[2];
+		// get endeffector position ("watching" arm)
+		// factorSensors (total arm length) used to normalize position to [-1,1]
+		osg::Vec3 pos = objects[hand]->getPosition();
+    sensors[0]=pos[0];
+    sensors[1]=pos[1];
+    sensors[2]=pos[2];
+    sensors[3]=0;
+		scaleShoulderCentered(sensors);
+		
 //		printf("sensors: ");
 //    for(unsigned int n=0; n<3; n++) 
 //		{
@@ -173,6 +181,14 @@ namespace lpzrobots{
     return (int)objects.size();
   }; 
 
+  void Arm::getEndeffectorPosition(double* position)
+	{
+		osg::Vec3 pos = objects[hand]->getPosition();
+		position[0]=pos[0];
+		position[1]=pos[1];
+		position[2]=pos[2];
+	}
+	
   void Arm::doInternalStuff(const GlobalData& globalData)
 	{
    	if(created)
@@ -182,6 +198,21 @@ namespace lpzrobots{
 		}
 	}
 
+	void Arm::hitTarget()
+	{
+		if(!red)
+		{
+			objects[hand+1]->setTexture("Images/red.jpg");
+			red=true;
+		}
+		else
+		{
+			objects[hand+1]->setTexture("Images/white.jpg");
+			red=false;
+		}
+		hitCount++;
+	}
+	
   void Arm::mycallback(void *data, dGeomID o1, dGeomID o2)
 	{
     Arm* me = (Arm*)data;  
@@ -215,6 +246,11 @@ namespace lpzrobots{
 				dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
       }
     }
+		else if(((o1 == me->objects[hand+1]->getGeom()) && (o2 == me->objects[hand]->getGeom()))
+				    || ((o2 == me->objects[hand+1]->getGeom()) && (o1 == me->objects[hand]->getGeom())))
+		{
+				me->hitTarget();
+		}
   }
 
   bool Arm::collisionCallback(void *data, dGeomID o1, dGeomID o2)
@@ -314,22 +350,18 @@ namespace lpzrobots{
 		_upperArm->setPose(_pose); 
 		objects.push_back(_upperArm);
 
-		// marking of x-axis (shoulder centered coordinate system) 
-		Primitive* _xaxis = new Sphere(0.05);
-		_xaxis->init(odeHandle, 0.005, osgHandle);
-		_xaxis->setPose(osg::Matrix::translate(conf.upperarm_radius, 0, conf.upperarm_length/2) * _pose);
-		objects.push_back(_xaxis);
-		FixedJoint* FJ_xaxis = new FixedJoint(objects[upperArm], objects[xaxis]);
-		FJ_xaxis->init(odeHandle, osgHandle);
-		joints.push_back(FJ_xaxis);		
-		// marking of y-axis (shoulder centered coordinate system) 
-		Primitive* _yaxis = new Sphere(0.03);
-		_yaxis->init(odeHandle, 0.005, osgHandle);
-		_yaxis->setPose(osg::Matrix::translate(0, conf.upperarm_radius, conf.upperarm_length/2) * _pose);
-		objects.push_back(_yaxis);
-		FixedJoint* FJ_yaxis = new FixedJoint(objects[upperArm], objects[yaxis]);
-		FJ_yaxis->init(odeHandle, osgHandle);
-		joints.push_back(FJ_yaxis);		
+//		// marking of x-axis (shoulder centered coordinate system) 
+//		Primitive* _xaxis_prim = new Sphere(0.05);
+//		// glue sphere to upper arm via transform object (at given position - relative position w.r.t. upper arm)
+//		Primitive* _xaxis_trans = new Transform(objects[upperArm], _xaxis_prim, 
+//			osg::Matrix::translate(conf.upperarm_radius, 0, conf.upperarm_length/2));
+//		// initialize transform object with zero mass
+//		_xaxis_trans->init(odeHandle, 0, osgHandle);
+//		// marking of y-axis (shoulder centered coordinate system) 
+//		Primitive* _yaxis_prim = new Sphere(0.03);
+//		Primitive* _yaxis_trans = new Transform(objects[upperArm], _yaxis_prim, 
+//			osg::Matrix::translate(0, conf.upperarm_radius, conf.upperarm_length/2));
+//		_yaxis_trans->init(odeHandle, 0, osgHandle);
 
 // === FOREARM =========
 		// position of forearm
@@ -353,6 +385,24 @@ namespace lpzrobots{
 		_hand->setPose(_pose); 
 		objects.push_back(_hand);
 
+  	if(conf.displayTarget)
+		{
+			Color c(osgHandle.color);
+	  	c.alpha() = 0.4;
+			OsgHandle osgHandle_target = osgHandle.changeColor(c);
+	  	Sphere* targetSphere = new Sphere(conf.targetRadius);
+			targetSphere->init(odeHandle, 0.1, osgHandle_target);			
+    	osg::Matrix tp = osg::Matrix::translate(conf.targetPos[0], conf.targetPos[1], conf.targetPos[2]);
+			targetSphere->setPose(tp);
+			targetSphere->setTexture("Images/white.jpg");
+			red=false;
+			objects.push_back(targetSphere);
+			FixedJoint* anker = new FixedJoint(0 /* fixation to ground*/, objects[hand+1]/*targetSphere*/);
+			anker->init(odeHandle, osgHandle);
+			joints.push_back(anker);
+			scaleShoulderCentered(conf.targetPos); // now just needed to display and compare with (shoulder centered) sensor values
+		}
+		
 // ===== JOINTS AND MOTORS ========
 		// fixation of cuboid base
 		FixedJoint* FJ_anker = new FixedJoint(0 /* fixation to ground*/, objects[base]);
@@ -371,12 +421,12 @@ namespace lpzrobots{
 				osg::Vec3(0, 0, 1)); // rotation axis: y-axis of shoulder centered coordinate system 
 				// = z-axis of world coordinate system, because of initial rotation of shoulder joint (M_PI/2 round y-axis)
     HJ_elbow->init(odeHandle, osgHandle, true);
-    HJ_elbow->setParam(dParamLoStop, conf.elbow_min-0.1); // 0.1 - make joint wider than motor can reach
-    HJ_elbow->setParam(dParamHiStop, conf.elbow_max+0.1); // to avoid side effects because of hitting the joint constraints
+    HJ_elbow->setParam(dParamLoStop, conf.elbow_min);
+    HJ_elbow->setParam(dParamHiStop, conf.elbow_max); 
 		joints.push_back(HJ_elbow);
 		// create servo motor for elbow joint, add to list of motors 
 		// min und max beeinlussen Geschwindigkeit?!	
-		HingeServo* elbow_servo = new HingeServo(HJ_elbow, conf.elbow_min/*-M_PI/6*/, conf.elbow_max/*-M_PI/6*/, conf.motorPower, conf.damping, 0);
+		HingeServo* elbow_servo = new HingeServo(HJ_elbow, conf.servoFactor*conf.elbow_min, conf.servoFactor*conf.elbow_max, conf.motorPower, conf.damping, 0);
     hingeServos.push_back(elbow_servo);
 // === one axis joint for shoulder elevation =====
 // === Biess, Flash (2006): THETA ================
@@ -386,14 +436,14 @@ namespace lpzrobots{
 	  	osg::Vec3(pos[0]-(conf.shoulder_radius)-(conf.joint_offset), pos[1], pos[2]), 
 				osg::Vec3(1, 0, 0));
     HJ_elev->init(odeHandle, osgHandle, true);
-    HJ_elev->setParam(dParamLoStop, conf.elevation_min-0.1); // 0.1 - make joint wider than motor can reach
-    HJ_elev->setParam(dParamHiStop, conf.elevation_max+0.1); // to avoid side effects because of hitting the joint constraints
+    HJ_elev->setParam(dParamLoStop, conf.elevation_min); 
+    HJ_elev->setParam(dParamHiStop, conf.elevation_max);
 		joints.push_back(HJ_elev);
 		// ANMERKUNG: conf.elevation_min beeinflusst OBEREN Armanschlag?
 		// ANMERKUNG 2: min und max skalieren die GESCHWINDIGKEIT der Bewegung! "travel bounds"? :-(
 		//    oneaxisservo.h: /** min and max values are understood as travel bounds. Min should be less than 0.*/
 		// servo motor for joint
-		HingeServo* elev_servo = new HingeServo(HJ_elev, conf.elevation_min, conf.elevation_max, conf.motorPower, conf.damping, 0);
+		HingeServo* elev_servo = new HingeServo(HJ_elev, conf.servoFactor*conf.elevation_min, conf.servoFactor*conf.elevation_max, conf.motorPower, conf.damping, 0);
     hingeServos.push_back(elev_servo);
 // === one axis joint for shoulder azimuthal angle =====
 // === Biess, Flash (2006): ETA ================
@@ -404,11 +454,11 @@ namespace lpzrobots{
 				osg::Vec3(0, 0, 1)); // rotated roation axis (y-axis of shoulder centered coordinate system)
 					// because of lifting the arm M_PI/2 in the beginning
     HJ_azimut->init(odeHandle, osgHandle, true);
-    HJ_azimut->setParam(dParamLoStop, conf.azimuthal_min-0.1); 
-    HJ_azimut->setParam(dParamHiStop, conf.azimuthal_max+0.1);
+    HJ_azimut->setParam(dParamLoStop, conf.azimuthal_min); 
+    HJ_azimut->setParam(dParamHiStop, conf.azimuthal_max);
 		joints.push_back(HJ_azimut);
 		// servo motor for joint
-		HingeServo* azimut_servo = new HingeServo(HJ_azimut, conf.azimuthal_min, conf.azimuthal_max, conf.motorPower, conf.damping, 0);
+		HingeServo* azimut_servo = new HingeServo(HJ_azimut, conf.servoFactor*conf.azimuthal_min, conf.servoFactor*conf.azimuthal_max, conf.motorPower/4, conf.damping, 0);
     hingeServos.push_back(azimut_servo);
 // === one axis joint for shoulder humeral angle =====
 // === Biess, Flash (2006): XSI ================
@@ -419,11 +469,11 @@ namespace lpzrobots{
 				osg::Vec3(0, -1, 0)); // rotated rotation axis (z-axis of shoulder centered coordinate system) 
 					// because of lifting the arm M_PI/2 in the beginning
     HJ_humer->init(odeHandle, osgHandle, true);
-    HJ_humer->setParam(dParamLoStop, conf.humeral_min-0.1);
-    HJ_humer->setParam(dParamHiStop, conf.humeral_max+0.1); 
+    HJ_humer->setParam(dParamLoStop, conf.humeral_min);
+    HJ_humer->setParam(dParamHiStop, conf.humeral_max); 
    	joints.push_back(HJ_humer);
 	 	// servo motor for joint	
-		HingeServo* humer_servo = new HingeServo(HJ_humer, conf.humeral_min, conf.humeral_max, conf.motorPower, conf.damping, 0);
+		HingeServo* humer_servo = new HingeServo(HJ_humer, conf.servoFactor*conf.humeral_min, conf.servoFactor*conf.humeral_max, conf.motorPower/2, conf.damping, 0);
     hingeServos.push_back(humer_servo);
 		
 		printf("size: %d objects, %d joints, %d hingeservos\n", objects.size(), joints.size(), hingeServos.size());
@@ -508,6 +558,10 @@ list<Inspectable::iparamkey> Arm::getInternalParamNames() const
 {
 	list<Inspectable::iparamkey> keylist;
 	keylist+=storeMatrixFieldNames(endeff,"pos");
+	keylist+= string("target_x");
+	keylist+= string("target_y");
+	keylist+= string("target_z");
+	keylist+= string("dummy");
 //	printf("gotInternalParamNames\n");
  	return keylist;
 }
@@ -516,6 +570,10 @@ list<Inspectable::iparamval> Arm::getInternalParams() const
 {
 	list<Inspectable::iparamval> l;
 	l+=endeff.convertToList();
+	l+=conf.targetPos[0];
+	l+=conf.targetPos[1];
+	l+=conf.targetPos[2];
+	l+=conf.targetPos[2];
 //	printf("gotInternalParams\n");
   return l;
 }

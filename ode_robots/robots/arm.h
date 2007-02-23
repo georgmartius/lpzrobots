@@ -54,8 +54,6 @@ namespace lpzrobots{
 		shoulder1,
 		shoulder2,
 		upperArm,
-		xaxis,
-		yaxis,
 	 	foreArm,
 		hand
 	};
@@ -69,6 +67,7 @@ namespace lpzrobots{
 
 		double shoulder_mass;
 		double shoulder_radius;
+		double joint_offset; // distance of shoulder components from each other	
 		
 		double upperarm_mass;
 		double upperarm_radius;
@@ -88,8 +87,12 @@ namespace lpzrobots{
 		double elbow_max;
 
 		double motorPower;
-	        double damping;    // motor damping
-		double joint_offset;		
+	  double damping;    // motor damping
+		double servoFactor; // reduces servo angle constraints to servoFactor percent of hingeJoint angle constraints
+
+		bool displayTarget; // true - display sphere at given targetPos
+		double targetRadius;
+		double* targetPos; // position of target sphere
 		
   } ArmConf;
 
@@ -115,6 +118,7 @@ namespace lpzrobots{
 			// shoulder
 			conf.shoulder_mass=0.005;
 			conf.shoulder_radius=0.03; // 0.1
+			conf.joint_offset=0.005;
       // upper arm
 			conf.upperarm_mass = 0.1; // 0.01
 			conf.upperarm_length = 1.5;
@@ -124,16 +128,18 @@ namespace lpzrobots{
 			// stops at hinge joints 
 			conf.elevation_min=-M_PI/2;
 			conf.elevation_max=M_PI/2;
-			// TODO muessen hingejoint Grenzen symmetrisch sein? sonst hoehere Anfaelligkeit bei hohem Motorpower???
-			// Anmerkung: flieg auch fuer 2*M_PI/3 und M_PI/2 weg bei motorPower 0.1
-			// Anmerkung2: M_PI/2 und motorPower 0.05 geht (aber wackliger als M_PI/3 und 0.1)
 			conf.humeral_min=-M_PI/2;//-4*M_PI/10;//-2*M_PI/3;
 			conf.humeral_max=M_PI/2;//4*M_PI/10;//2*M_PI/3;
 			conf.azimuthal_min=-M_PI/3;//-3*M_PI/4;
 			conf.azimuthal_max=M_PI/3;
 			conf.elbow_min=-M_PI/2;
 			conf.elbow_max=M_PI/2;
-			conf.joint_offset=0.005;
+			conf.servoFactor=0.8;
+
+			conf.displayTarget=false;
+			conf.targetRadius=0.5;
+			conf.targetPos=NULL;
+			
       return conf;
 		}			
 			
@@ -183,6 +189,21 @@ namespace lpzrobots{
 			return motorno;
 		};
 
+		/**
+		 * transform position in external coordinate space into position in shoulder centered coordinate space
+		 * (second shoulder part assumed to be origin)
+		 * e.g. used to create a proper target in distal learning
+		 * @param list containing  x,y,z-coordinate
+		 */
+		void scaleShoulderCentered(double* pos)
+		{
+			// TODO ensure that not less than 3 values
+			osg::Vec3 origin = objects[shoulder2]->getPosition();	
+			pos[0]=(pos[0]-origin[0])*factorSensors;
+			pos[1]=(pos[1]-origin[1])*factorSensors;
+			pos[2]=(pos[2]-origin[2])*factorSensors;
+		}
+		
 		/** 
 		 * returns a vector with the positions of all segments of the robot
 		 * @param poslist vector of positions (of all robot segments)
@@ -190,6 +211,12 @@ namespace lpzrobots{
 		 */
 		virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
+		/**
+		 * returns the position of the endeffector (hand)
+		 * @param position vector position vector
+		 */
+		void getEndeffectorPosition(double* position);
+		
 		virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
 		/** 
@@ -210,14 +237,24 @@ namespace lpzrobots{
 
     virtual Primitive* getMainObject() const;
 		
-
+		int getHitCounter()
+		{
+			return hitCount;
+		}
+	
+		void resetHitCounter()
+		{
+			hitCount=0;
+		}
+		
 	protected:
   	/**
 		 * the main object of the robot, which is used for position and speed tracking 
 		 */
 		virtual Primitive* getMainPrimitive() const 
 		{ 
-			return objects[hand]; 
+			//return objects[hand]; 
+			return objects[base]; 
 		}
 
 		/** 
@@ -234,6 +271,8 @@ namespace lpzrobots{
 
 		static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
+		void hitTarget();
+		
     double dBodyGetPositionAll ( dBodyID basis , int para );
 		double dGeomGetPositionAll ( dGeomID basis , int para );
 
@@ -255,11 +294,15 @@ namespace lpzrobots{
 		std::vector <Primitive*> objects; // Primitive* object[NUMParts]; 
 		std::vector <Joint*> joints; // Joint* joint[NUMJoints]; 
 		std::vector <HingeServo*> hingeServos;
+	
+		int hitCount;
 		
 		int sensorno;      // number of sensors
 		int motorno;       // number of motors
 		
 		bool created;      // true if robot was created
+	
+		bool red;
 		
 		dSpaceID parentspace;
 		
