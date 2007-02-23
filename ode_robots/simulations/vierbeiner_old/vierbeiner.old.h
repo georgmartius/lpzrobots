@@ -20,16 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-02-23 09:30:41  der
+ *   Revision 1.1  2007-02-23 09:37:51  der
  *   *** empty log message ***
- *
- *   Revision 1.3  2007/02/21 16:08:45  der
- *   frontlegs no feet
- *   ankles are powered
- *   invisible pole (or box) in top
- *
- *   Revision 1.2  2007/02/12 13:30:40  martius
- *   dog looks allready nicer
  *
  *   Revision 1.1  2007/02/02 08:58:15  martius
  *   dog
@@ -37,8 +29,8 @@
  *
  *                                                                 *
  ***************************************************************************/
-#ifndef __VIERBEINER_H
-#define __VIERBEINER_H
+#ifndef __VIERBEINEROLD_H
+#define __VIERBEINEROLD_H
 
 #include "oderobot.h"
 
@@ -55,50 +47,42 @@ namespace lpzrobots {
     int    legNumber;  ///<  number of snake elements
     double mass;       ///< chassis mass
     double relLegmass; ///< relative overall leg mass
-    double hipPower; ///< maximal force for at hip joint motors
-    double hipJointLimit; ///< angle range for legs
-    double kneePower;  ///< spring strength in the knees
-    double kneeJointLimit; ///< angle range for knees
-    double kneeDamping; ///< damping in the knees
-    double anklePower;  ///< spring strength in the ankles
-    double ankleDamping; ///< damping in the ankles
+    double jointLimit; ///< angle range for legs
+    double motorPower; ///< maximal force for motors
+    double kneePower;  ///< spring strength in the knee
+    double kneeDamping; ///< damping in the knee
     double frictionGround; ///< friction with the ground
-    double elasticity; ///< elasticity of collisions 0.5: soft 100: hard
-  } VierBeinerConf;
+  } VierBeinerOldConf;
 
 
   /** should look like a dog
    */
-  class VierBeiner : public OdeRobot {
+  class VierBeinerOld : public OdeRobot {
   public:
   
     /**
-     * constructor of VierBeiner robot
+     * constructor of VierBeinerOld robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    VierBeiner(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const VierBeinerConf& conf, 
+    VierBeinerOld(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const VierBeinerOldConf& conf, 
 	       const std::string& name);
 
-    virtual ~VierBeiner(){};
+    virtual ~VierBeinerOld(){};
 
-    static VierBeinerConf getDefaultConf(){
-      VierBeinerConf c;
+    static VierBeinerOldConf getDefaultConf(){
+      VierBeinerOldConf c;
       c.size       = 1;
-      c.legNumber  = 4;
-      c.legLength  = 0.6;
+      c.legNumber  = 6;//4;
+      c.legLength  = 0.5;
       c.mass       = 1;
       c.relLegmass = 1;
-      c.hipPower = 5;
-      c.kneePower  = 5;
-      c.kneeDamping = 0.01;
-      c.anklePower  = 2;
-      c.ankleDamping = 0.001;
-      c.hipJointLimit = M_PI/3; // +- 60 degree
-      c.kneeJointLimit = M_PI/4; // +- 45 degree
-      c.frictionGround = 0.1;
-      c.elasticity = 10;
+      c.motorPower = 5;
+      c.kneePower  = 2.5;
+      c.kneeDamping = 0.02;
+      c.jointLimit = M_PI/6; //10; // +- 18 degree
+      c.frictionGround = 0.8;
       return c;
     }
 
@@ -168,7 +152,7 @@ namespace lpzrobots {
      */
     virtual void destroy();
 
-    VierBeinerConf conf; 
+    VierBeinerOldConf conf; 
     double legmass;    // leg mass
 
     bool created;      // true if robot was created
@@ -177,7 +161,6 @@ namespace lpzrobots {
     std::vector<Joint*> joints; // joints legs
     std::vector <OneAxisServo*> hipservos; // motors
     std::vector <OneAxisServo*> kneeservos; // motors
-    std::vector <OneAxisServo*> ankleservos; // motors
     std::vector <OneAxisServo*> headtailservos; // motors
 
   };
