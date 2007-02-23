@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-02-21 16:07:23  der
+ *   Revision 1.4  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2007/02/21 16:07:23  der
  *   min and max are adjustable during runtime
  *   jointlimits are set by servo to 1.3 fold of servo limits
  *
@@ -47,7 +50,7 @@ namespace lpzrobots {
   public:
     /** min and max values are understood as travel bounds. Min should be less than 0.*/
   
-    OneAxisServo(OneAxisJoint* joint, double _min, double _max, double power, double damp=0.3, double integration=2.0)
+    OneAxisServo(OneAxisJoint* joint, double _min, double _max, double power, double damp=0.05, double integration=2.0)
       : joint(joint), pid(power, integration, damp) { 
       assert(joint); 
       setMinMax(_min,_max);

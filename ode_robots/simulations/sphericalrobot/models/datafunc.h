@@ -8,6 +8,11 @@
 /// INPUT / Output Data selectors
 typedef matrix::Matrix (*DataFunc)(const std::vector<matrix::Matrix>& data, int time);
 
+matrix::Matrix tm1(const std::vector<matrix::Matrix>& data, int time){
+  assert(time>0);
+  return data[time-1];
+}
+
 matrix::Matrix tm12(const std::vector<matrix::Matrix>& data, int time){
   assert(time>1);
   return data[time-1].above(data[time-2]);
@@ -88,6 +93,7 @@ matrix::Matrix t_23(const std::vector<matrix::Matrix>& data, int time){
 }
 
 DataFunc datafunctions(const std::string& name){
+  if(name=="tm1") return &tm1;
   if(name=="tm12") return &tm12;
   if(name=="tm123") return &tm123;
   if(name=="tm125") return &tm125;

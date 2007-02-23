@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-01-26 12:05:04  martius
+ *   Revision 1.5  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.3  2006/07/20 17:19:44  martius
@@ -162,7 +165,7 @@ namespace lpzrobots {
      s->setParam(dParamStopERP, 0.9);
      joints.push_back(s);
 
-     SliderServo *ss = new SliderServo(s,-conf.segmDia,conf.segmDia,conf.segmMass);
+     SliderServo *ss = new SliderServo(s,-conf.segmDia,conf.segmDia,conf.segmMass*100,0.01,0);
      sliderServos.push_back(ss);
      // end of slider joints //
 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2006-12-21 11:43:05  martius
+ *   Revision 1.23  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.22  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -167,7 +170,7 @@ public:
   static Nimm2Conf getDefaultConf(){
     Nimm2Conf conf;
     conf.size=1;
-    conf.force=8;
+    conf.force=5;
     conf.speed=12;
     conf.sphereWheels=true;
     conf.wheelSize=1;

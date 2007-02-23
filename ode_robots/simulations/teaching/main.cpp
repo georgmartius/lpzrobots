@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-02-12 13:17:41  martius
+ *   Revision 1.5  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2007/02/12 13:17:41  martius
  *   new teaching interface
  *
  *   Revision 1.3  2006/12/21 11:43:05  martius
@@ -80,11 +83,13 @@
 using namespace lpzrobots;
 
 
-InvertMotorNStep*controller;
-motor teaching[2];
 
 class ThisSim : public Simulation {
 public:
+
+  InvertMotorNStep*controller;
+  OdeRobot* vehicle;
+  motor teaching[2];
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -97,19 +102,22 @@ public:
     //    global.odeConfig.setParam("gravity", 0);
 
     // use Playground as boundary:
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(11, 0.2, 1), 2);
-    playground->setColor(Color(0,0,1,0.5)); 
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, 1), 2);
+    playground->setColor(Color(0,0,0,0.8)); 
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);    
 
-    for(int i=0; i<20; i++){
+    for(int i=0; i<0; i++){ //20
       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5,10);
       s->setPosition(osg::Vec3(-4+2*(i/5),-4+2*(i%5),2));
       global.obstacles.push_back(s);    
     }
     
     Nimm2Conf c = Nimm2::getDefaultConf();    
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
+    c.sphereWheels=false;
+    c.sphereWheels=false;
+
+    vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
     //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
     vehicle->place(Pos(0,0,0.6));
 
@@ -118,6 +126,7 @@ public:
     //  AbstractController *controller = new InvertNChannelController(10);      
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
     cc.cInit=1.0;
+    
     controller = new InvertMotorNStep(cc);  
     controller->setParam("adaptrate", 0.000);
     //    controller->setParam("nomupdate", 0.0005);

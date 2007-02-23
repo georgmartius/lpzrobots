@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-01-26 12:07:08  martius
+ *   Revision 1.12  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.11  2007/01/26 12:07:08  martius
  *   orientationsensor added
  *
  *   Revision 1.10  2006/12/21 11:43:05  martius
@@ -121,8 +124,8 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    int num_barrels=1;
-    int num_spheres=0;
+    int num_barrels=0;
+    int num_spheres=1;
       
 
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
@@ -202,13 +205,14 @@ public:
     for(int i=0; i< num_spheres; i++){
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.3; 
+      conf.pendularrange  = 0.25; 
       conf.motorsensor=false;
-      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+      //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
-      conf.irAxis1=false;
-      conf.irAxis2=false;
-      conf.irAxis3=false;
+      //      conf.addSensor(new SpeedSensor(10));
+      conf.irAxis1=true;
+      conf.irAxis2=true;
+      conf.irAxis3=true;
       conf.spheremass   = 1;
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
 					 conf, "Sphere1", 0.2); 
@@ -222,21 +226,21 @@ public:
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=0.5;
-      //    cc.useS=true;
+      cc.useS=true;
       controller = new InvertMotorNStep(cc);    
       //controller = new SineController();
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-      controller->setParam("steps", 2);    
+      controller->setParam("steps", 1);    
       //    controller->setParam("adaptrate", 0.001);    
       controller->setParam("adaptrate", 0.0);    
       controller->setParam("nomupdate", 0.005);    
-      controller->setParam("epsC", 0.03);    
-      controller->setParam("epsA", 0.05);    
+      controller->setParam("epsC", 0.001);    
+      controller->setParam("epsA", 0.001);    
       // controller->setParam("epsC", 0.001);    
       // controller->setParam("epsA", 0.001);    
       //    controller->setParam("rootE", 1);    
       //    controller->setParam("logaE", 2);    
-      controller->setParam("rootE", 3);    
+      controller->setParam("rootE", 0);    
       controller->setParam("logaE", 0);    
       //     controller = new SineController();  
       controller->setParam("sinerate", 15);  

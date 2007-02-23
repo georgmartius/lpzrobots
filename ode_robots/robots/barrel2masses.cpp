@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-12-21 11:43:05  martius
+ *   Revision 1.3  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -126,15 +129,15 @@ namespace lpzrobots {
 				 p, Axis((n==0), (n==1), (n==2))*pose );
       joint[n]->init(odeHandle, osgHandle, false);
       // the Stop parameters are messured from the initial position!
-      joint[n]->setParam ( dParamLoStop, -1.1*conf.diameter*conf.pendularrange );
-      joint[n]->setParam ( dParamHiStop, 1.1*conf.diameter*conf.pendularrange );
+      joint[n]->setParam ( dParamLoStop, -1.2*conf.diameter*conf.pendularrange );
+      joint[n]->setParam ( dParamHiStop, 1.2*conf.diameter*conf.pendularrange );
       joint[n]->setParam ( dParamStopCFM, 0.1);
       joint[n]->setParam ( dParamStopERP, 0.9);
       joint[n]->setParam ( dParamCFM, 0.001);
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
-				 conf.pendularmass); 
+				 conf.pendularmass*50,0.2,0.5); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);

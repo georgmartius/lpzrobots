@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-01-03 15:01:09  fhesse
+ *   Revision 1.9  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.8  2007/01/03 15:01:09  fhesse
  *   created=true; added (at end of create())
  *
  *   Revision 1.7  2006/12/21 11:43:05  martius
@@ -146,7 +149,7 @@ namespace lpzrobots {
     created = false;
     memset(object, 0,sizeof(void*) * Last);
     memset(joint, 0,sizeof(void*) * servono);
-    memset(axis, 0,sizeof(void*) * servono);
+    memset(axis, 0,sizeof(void*) * servono); 
     memset(servo, 0,sizeof(void*) * servono);
     
     this->conf.pendulardiameter = conf.diameter/7;
@@ -348,7 +351,7 @@ namespace lpzrobots {
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
-				 conf.pendularmass); 
+				 conf.pendularmass*200,0.1,0.3); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);

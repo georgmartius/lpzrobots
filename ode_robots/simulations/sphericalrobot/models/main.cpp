@@ -68,8 +68,9 @@ int main(int argc, char** argv){
   DataFunc inp = &tm123;
   DataFunc out = &t;
   FILE* f;  
-  bool useElman;
-  bool useJordan;
+  bool useElman=false;
+  bool useJordan=false;
+  bool useBypass=false;
 
   /// PARSE Parameter
   index = contains(argv,argc,"-type");
@@ -77,8 +78,10 @@ int main(int argc, char** argv){
     char* type = argv[index];
     useElman= (strchr(type,'e')!=0);
     useJordan= (strchr(type,'j')!=0);
+    useBypass= (strchr(type,'b')!=0);
     cout << "# network type: " << (!useElman && !useJordan ? "Feedforward" : "" )
-	 << (useElman ? "Elman " : "") << (useJordan ? "Jordan " : "")  << endl;  
+	 << (useElman ? "Elman " : "") << (useJordan ? "Jordan " : "")  
+	 << (useBypass ? "with Bypass" : "") << endl;  
   }
   index = contains(argv,argc,"-f");
   if(index!=0 && argc > index) {    
@@ -127,7 +130,7 @@ int main(int argc, char** argv){
   if(contains(argv,argc,"-h")!=0) {
     printf("Usage: %s [-f file] [-n network] [-o newnet] [-t] [-d output] [-i num] [-e eps] [-inp dfunc] [-out dfunc]\n",argv[0]);
     printf("\t-f file\tuse this data file (def: data)\n");
-    printf("\t-type f|e|j|ej\ttype of network: feedforward, elman, jordan, or both\n");
+    printf("\t-type f|{e|j}*[b]\ttype of network: feedforward, elman, jordan, or both, with,w/o bypass\n");
     printf("\t-n network\tfile to load network from (def: create a new one)\n");
     printf("\t-o newnet\tfile to store new network to (def: network.net)\n");
     printf("\t-t   \ttest mode (requires -n)\n");
@@ -157,7 +160,7 @@ int main(int argc, char** argv){
 
   if(loadnetwork){
     if(useElman || useJordan) 
-      net = new Elman(eps, vector<Layer>(), useElman, useJordan);
+      net = new Elman(eps, vector<Layer>(), false, false); // it is loaded anyway
     else
       net = new MultiLayerFFNN(eps, vector<Layer>());
     f = fopen(networkpath, "r");
@@ -175,13 +178,13 @@ int main(int argc, char** argv){
     }
   }else{
     vector<Layer> layers;
-    //    layers.push_back(Layer(2, 1.0, FeedForwardNN::sigmoid, FeedForwardNN::dsigmoid));
+    //layers.push_back(Layer(2, 1.0, FeedForwardNN::sigmoid, FeedForwardNN::dsigmoid));
     layers.push_back(Layer(numHidden, 1.0 , FeedForwardNN::tanh,FeedForwardNN::dtanh));
     layers.push_back(Layer(1));
     if(useElman || useJordan)
-      net = new Elman(eps, layers, useElman, useJordan);
+      net = new Elman(eps, layers, useElman, useJordan, useBypass);
     else
-      net = new MultiLayerFFNN(eps, layers);
+      net = new MultiLayerFFNN(eps, layers, useBypass);
     net->init(inputdim,outputdim);
     cerr << "Dimensions: " << inputdim << "," << outputdim << endl;
   }  

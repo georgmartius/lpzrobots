@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2006-12-11 18:24:36  martius
+ *   Revision 1.27  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.26  2006/12/11 18:24:36  martius
  *   memory freed
  *
  *   Revision 1.25  2006/11/23 10:25:47  fhesse
@@ -142,11 +145,14 @@ namespace lpzrobots {
     // maximal used force is calculated from the force and size given in the configuration
     max_force   = conf.force*conf.size*conf.size;
 
+    addParameter("speed", &this->conf.speed);
+    addParameter("max_force", &max_force);
+
     height=conf.size;
 
     width=conf.size/2;  // radius of body
-    radius=(conf.size/4) * conf.wheelSize;  //radius of wheels
-    wheelthickness=conf.size/20; // thickness of the wheels (if cylinder used, no spheres)
+    radius=(width/2) * conf.wheelSize;  //radius of wheels
+    wheelthickness=conf.size/10; // thickness of the wheels (if cylinder used, no spheres)
     cmass=4*conf.size;    // mass of body
     wmass=conf.size/5.0;  // mass of wheels
     if(conf.singleMotor){ //-> one dimensional robot
@@ -325,11 +331,11 @@ namespace lpzrobots {
 	if(colwithbody){
 	  contact[i].surface.mu = 0.1; // small friction of smooth body
 	  contact[i].surface.soft_erp = 0.8;
-	  contact[i].surface.soft_cfm = 0.1;
+	  contact[i].surface.soft_cfm = 0.01;
 	}else{
 	  contact[i].surface.mu = 5.0; //large friction
 	  contact[i].surface.soft_erp = 0.8;
-	  contact[i].surface.soft_cfm = 0.1;
+	  contact[i].surface.soft_cfm = 0.01;
 	}
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
@@ -403,6 +409,7 @@ namespace lpzrobots {
 	wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) * 
 		       Matrix::translate(wheeloffset, 
 					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);
+	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
 	object[i] = wheel;
       }
     }
@@ -414,7 +421,7 @@ namespace lpzrobots {
     for (int i=0; i<2; i++) {
       joint[i] = new Hinge2Joint(object[0], object[i+1], object[i+1]->getPosition(), 
 				 Axis(0, 0, 1)*pose, Axis(0, -1, 0)*pose);
-      joint[i]->init(odeHandle, osgHandleWheels, true, 2.01 * radius);
+      joint[i]->init(odeHandle, osgHandleWheels, true, conf.sphereWheels ? 2.01 * radius : wheelthickness*1.05 );
       // set stops to make sure wheels always stay in alignment
       joint[i]->setParam(dParamLoStop,0);
       joint[i]->setParam(dParamHiStop,0);

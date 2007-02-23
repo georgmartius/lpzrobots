@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-02-12 13:25:47  martius
+ *   Revision 1.8  2007-02-23 15:14:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.7  2007/02/12 13:25:47  martius
  *   on the way to teaching
  *
  *   Revision 1.6  2007/01/26 12:07:08  martius
@@ -68,6 +71,7 @@
 #include "playground.h"
 #include "passivesphere.h"
 
+#include <selforg/dercontroller.h>
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
@@ -80,7 +84,7 @@
 using namespace lpzrobots;
 
 
-class ThisSim : public Simulation {
+class ThisSim : public Simulation,  public Configurable {
 public:
   Joint* fixator;
   InvertMotorNStep* controller;
@@ -90,7 +94,15 @@ public:
   int teachingLen;
   double* dteachingSignal;
   int dteachingLen;
+  double sineRate;
+  double phaseShift;
   
+  ThisSim() : 
+    Configurable ("SchlangeServoSim", "$Id$")
+  {
+    addParameterDef("sinerate",   &sineRate,   20);
+    addParameterDef("phaseshift", &phaseShift, 0.65);
+  }
 
   /// start() is called at the start and should create all the object (obstacles, agents...).
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
@@ -102,8 +114,10 @@ public:
 
     //****************/
     SchlangeConf conf = Schlange::getDefaultConf();
-    conf.motorPower=0.5;
-    conf.frictionJoint=0.001;
+    conf.motorPower=3;
+    conf.frictionJoint=0.05;
+    //conf.motorPower=5;
+    //    conf.frictionJoint=0.01;
     conf.segmNumber=15;     
     //     conf.jointLimit=conf.jointLimit*3;
     SchlangeServo* schlange1 = 
@@ -115,14 +129,21 @@ public:
     //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=1.0;
-    cc.cNonDiag=0.0;
-    //    cc.useS=true;
-    //    cc.someInternalParams=false;
+    //    cc.cNonDiag=0.0;
+    cc.useS=true;
+    cc.someInternalParams=false;
     controller = new InvertMotorNStep(cc);  
-    //AbstractController *controller = new SineController();  
+    
+    //    DerControllerConf dc = DerController::getDefaultConf();
+    //    dc.cInit=1;
+    //    AbstractController *controller = new DerController(dc);  
+    //    controller->setParam("noiseY",0);
+    
+    //    AbstractController *controller = new SineController();  
     
   
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    // AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
     //   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
     //   c.useId=true;
     //   c.useFirstD=true;
@@ -137,15 +158,16 @@ public:
   
 
     //controller->setParam("inhibition",0.00);
-    controller->setParam("limitrf",3);
+    controller->setParam("limitrf",4);
     //    controller->setParam("kwta",5);
     controller->setParam("dampS",0.001);
  
     controller->setParam("rootE",3);
     controller->setParam("steps",1);
-    controller->setParam("epsC",0.00);
-    controller->setParam("epsA",0.00);
+    controller->setParam("epsC",0.01);
+    controller->setParam("epsA",0.01);
     controller->setParam("adaptrate",0.000);
+    controller->setParam("teacher",3.000);
     //    controller->setParam("nomupdate",0.05);
 
     // controller->setParam("desens",0.0);
@@ -159,6 +181,7 @@ public:
     fixator = new BallJoint(head, global.environment, head->getPosition());
     fixator->init(odeHandle, osgHandle);
 
+    global.configs.push_back(this);
     showParams(global.configs);
     
     teaching=false;
@@ -167,19 +190,27 @@ public:
     teachingSignal = new double[teachingLen];
     dteachingLen = schlange1->getSensorNumber();
     dteachingSignal = new double[teachingLen];
+
+
   }
 
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-    double sineRate=30;
-    double phaseShift=0.65;
-    if(teaching){
-      for(int i=0; i<teachingLen; i++){
-	teachingSignal[i]=sin(globalData.time/sineRate + i*phaseShift*M_PI/2);
+    if(control){
+      if(teaching){
+	for(int i=0; i<teachingLen; i++){
+	  teachingSignal[i]=0.6*sin(globalData.time/sineRate*25 + i*phaseShift*M_PI/2);
+	}
+	controller->setMotorTeachingSignal(teachingSignal,teachingLen);
       }
-
+      if(dteaching){
+	for(int i=0; i<dteachingLen; i++){
+	  dteachingSignal[i]=0.6*sin(globalData.time/sineRate*25 + i*phaseShift*M_PI/2);
+	}
+	controller->setSensorTeachingSignal(dteachingSignal,dteachingLen);
+      }
+      
     }
-
   };
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
@@ -188,17 +219,20 @@ public:
     if (!down) return false;    
     bool handled = false;
     FILE* f;
-    //    double m;
-    //    motor motors[2];
     switch ( key )
       {
+      case 'x':
+	if(fixator) delete (fixator);
+	fixator=0 ;	
+	handled = true; 
+	break;
       case 't' : 
 	teaching=!teaching;
 	if(teaching) dteaching=false;
 	printf("Teaching Signal: %s,\n", teaching ? "on" : "off");
 	handled = true; 
 	break;
-      case 'j' : 
+      case 'd' : 
 	dteaching=!dteaching;
 	if(dteaching) teaching=false;
 	printf("Distal Teaching Signal: %s,\n", dteaching ? "on" : "off");
@@ -222,6 +256,7 @@ public:
   virtual void bindingDescription(osg::ApplicationUsage & au) const {
     au.addKeyboardMouseBinding("Teaching: t","toggle motor teaching");
     au.addKeyboardMouseBinding("Teaching: d","toggle distal teaching");
+    au.addKeyboardMouseBinding("Schlange: x","remove fixation");
     au.addKeyboardMouseBinding("Simulation: s","store");
     au.addKeyboardMouseBinding("Simulation: l","load");
   }
