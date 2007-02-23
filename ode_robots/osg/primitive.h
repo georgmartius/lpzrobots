@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-01-26 12:05:36  martius
+ *   Revision 1.6  2007-02-23 15:13:24  martius
+ *   setColor
+ *
+ *   Revision 1.5  2007/01/26 12:05:36  martius
  *   joint support forces in uniform manner
  *
  *   Revision 1.4  2006/12/13 09:09:56  martius
@@ -108,6 +111,7 @@
 
 // another forward declaration "block"
 #include "osgforwarddecl.h"
+// #include "color.h"
 
 namespace lpzrobots {
 
@@ -124,6 +128,7 @@ namespace lpzrobots {
    typedef struct GlobalData;
    class OdeHandle;
    class OsgHandle;
+  class Color;
    /*****  end of forward declaration block  *****/
 
 
@@ -169,6 +174,9 @@ public:
 
   /// returns the assoziated osg primitive if there or 0
   virtual OSGPrimitive* getOSGPrimitive() = 0;
+
+  /// sets the color for the underlaying osgprimitive
+  virtual void setColor(const Color& color);
 
   /// assigns a texture to the primitive
   virtual void setTexture(const std::string& filename);

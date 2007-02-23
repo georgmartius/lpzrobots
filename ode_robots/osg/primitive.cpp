@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-01-26 12:05:36  martius
+ *   Revision 1.8  2007-02-23 15:13:32  martius
+ *   setColor
+ *
+ *   Revision 1.7  2007/01/26 12:05:36  martius
  *   joint support forces in uniform manner
  *
  *   Revision 1.6  2006/12/13 09:09:56  martius
@@ -186,6 +189,11 @@ namespace lpzrobots{
 
   }
 
+
+  void Primitive::setColor(const Color& color){
+    if(getOSGPrimitive())
+      getOSGPrimitive()->setColor(color);
+  }
 
   
   void Primitive::setTexture(const std::string& filename){
