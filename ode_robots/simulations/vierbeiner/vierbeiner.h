@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-02-21 16:08:45  der
+ *   Revision 1.4  2007-02-23 09:30:41  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2007/02/21 16:08:45  der
  *   frontlegs no feet
  *   ankles are powered
  *   invisible pole (or box) in top
@@ -60,6 +63,7 @@ namespace lpzrobots {
     double anklePower;  ///< spring strength in the ankles
     double ankleDamping; ///< damping in the ankles
     double frictionGround; ///< friction with the ground
+    double elasticity; ///< elasticity of collisions 0.5: soft 100: hard
   } VierBeinerConf;
 
 
@@ -93,7 +97,8 @@ namespace lpzrobots {
       c.ankleDamping = 0.001;
       c.hipJointLimit = M_PI/3; // +- 60 degree
       c.kneeJointLimit = M_PI/4; // +- 45 degree
-      c.frictionGround = 0.5;
+      c.frictionGround = 0.1;
+      c.elasticity = 10;
       return c;
     }
 

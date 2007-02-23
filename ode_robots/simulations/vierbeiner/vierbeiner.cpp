@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-02-21 16:08:30  der
+ *   Revision 1.4  2007-02-23 09:30:41  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2007/02/21 16:08:30  der
  *   frontlegs no feet
  *   ankles are powered
  *   invisible pole (or box) in top
@@ -63,6 +66,7 @@ namespace lpzrobots {
     // choose color here a pastel white is used
     this->osgHandle.color = Color(1.0, 1,1,1);
     //    this->osgHandle.color = Color(1.0, 156/255.0, 156/255.0, 1.0f);
+    addParameter("elast", &conf.elasticity);
     
     legmass=conf.mass * conf.relLegmass / conf.legNumber;    // mass of each legs
   };
@@ -196,8 +200,10 @@ namespace lpzrobots {
 	contact[i].surface.slip1 = 0.005;
 	contact[i].surface.slip2 = 0.005;
 	contact[i].surface.mu = conf.frictionGround;
-	contact[i].surface.soft_erp = 0.8;
-	contact[i].surface.soft_cfm = 0.01; 
+	double hkp = conf.elasticity;
+	double kd = hkp/4;
+	contact[i].surface.soft_erp = hkp /(hkp+kd);
+	contact[i].surface.soft_cfm = 1/(hkp+kd);
 	
 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
@@ -297,7 +303,7 @@ namespace lpzrobots {
     for ( int n = 0; n < conf.legNumber; n++ ) {            
       double l1 =       n<2 ? conf.legLength*0.45 : conf.legLength*0.5;
       double t1       = conf.legLength/10;
-      double hipangle = n<2 ? -M_PI/18 : M_PI/18;
+      double hipangle = n<2 ? -M_PI/18 : -M_PI/18;
       double hiplowstop  = -conf.hipJointLimit;
       double hiphighstop = conf.hipJointLimit;
       double l2 =       n<2 ? conf.legLength*0.45 : conf.legLength*0.5;
