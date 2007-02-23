@@ -51,28 +51,36 @@
 
 // used controller
 #include <selforg/invertnchannelcontroller.h>
-#include <selforg/invertmotornstep.h>
-#include <selforg/sinecontroller.h>
+#include <selforg/invertmotorbigmodel.h>
+#include <selforg/multilayerffnn.h>
 
 using namespace lpzrobots;
 
 Arm* arm;
-InvertMotorNStep* controller;
+
+//InvertMotorNStep* controller;
+InvertMotorBigModel* controller;
+
 // distal learning stuff
 bool dteaching;
 double* dteachingSignal;
 int dteachingLen;
 
-class ThisSim : public Simulation {
-public:
+// target of reaching task in euklidian coordinates
+double target[]={-1.5,2,4};
 
+class ThisSim : public Simulation 
+{
+	public:
 
-  /// start() is called at the start and should create all the object (obstacles, agents...).
+	/// start() is called at the start and should create all the object (obstacles, agents...).
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     // initial camera position and viewpoint
 		setCameraHomePos(Pos(13.6696, 9.12317, 5.54366),  Pos(119.528, -8.6947, 0)); // watch robot
     //setCameraHomePos(Pos(2.69124, 4.76157, 8.87839),  Pos(134.901, -47.8333, 0)); // control initial arm config
+		//(Pos(4.51276, 15.1867, 4.2256),  Pos(157.899, -1.90167, 0)); // frontal, ganz drauf
+		//
 		
 		// initialization
     global.odeConfig.noise=0.1;
@@ -82,6 +90,17 @@ public:
 		playground->setPosition(osg::Vec3(0,0,0));
 		global.obstacles.push_back(playground);
 
+//		Color c(osgHandle.color);
+//    c.alpha() = 0.4;
+//		OsgHandle osgHandle_target = osgHandle.changeColor(c);
+//		
+//		Sphere* targetSphere = new Sphere(0.5);
+//		targetSphere->init(odeHandle, 0, osgHandle_target);
+//		osg::Matrix tp = osg::Matrix::translate(target[0], target[1], target[2]);
+//		targetSphere->setPose(tp);
+//		FixedJoint* anker = new FixedJoint(0 /* fixation to ground*/, targetSphere);
+//		anker->init(odeHandle, osgHandle);
+				
 //		// X-direction sphere
 //		PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
 //    s1->setPosition(osg::Vec3(4,0,0));
@@ -95,16 +114,50 @@ public:
 //		global.obstacles.push_back(s2);
 									 
     ArmConf conf = Arm::getDefaultConf();
-    
+   	conf.displayTarget=true;
+		conf.targetPos=target;
+		conf.targetRadius=0.2;
+		
     arm = new Arm(odeHandle, osgHandle, conf, "Arm");
 
     ((OdeRobot*)arm)->place(Position(-0.7,0.9,0.1));
     global.configs.push_back(arm);
 
-//		AbstractController* controller; // wegen command funktion jetzt ausserhalb von start definiert
-//	  controller = new InvertNChannelController(10);
-//		controller = new InvertMotorNStep();
-		AbstractController* controller = new SineController();
+		// PSEUDOLINEAR MODEL CONTROLLER
+//		InvertMotorNStepConf confi= InvertMotorNStep::getDefaultConf();
+//		confi.useS=true;
+//		confi.someInternalParams=false;
+//		confi.buffersize=6; // TODO was tut die?
+//		controller = new InvertMotorNStep(confi);
+//		controller->setParam("adaptrate", 0.000);
+//		controller->setParam("epsC", 0.05);
+//		controller->setParam("epsA", 0.01);
+//		controller->setParam("epsC", 0.05);
+//		controller->setParam("rootE", 0);
+//		controller->setParam("steps", 2);
+//		controller->setParam("s4avg", 5); // zeitglaettung controllerinput ueber # steps
+//		controller->setParam("s4del", 1); // verzoegerung bis motor echt greift
+//		// controlinterval - anzahl zeitschritte mit gleichem controller
+//		global.configs.push_back(controller);
+
+		// BIGMODEL-CONTROLLER
+		InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
+		cc.someInternalParams=false;
+		cc.useS=true;
+		std::vector<Layer> layers;
+		// Layer: size, factor_bias, act-fct (default: lin), dact-fct (default: lin)
+		layers.push_back(Layer(25, 0.5 , FeedForwardNN::tanh, FeedForwardNN::linear));
+		layers.push_back(Layer(10,0.5));
+		// MultiLayerFFNN(0.05, layers, true); // true -bypass (uebergeht ncihtlin schicht)
+		MultiLayerFFNN* net = new MultiLayerFFNN(0.05, layers);
+		cc.model = net;
+		cc.modelInit = 0.5;
+		controller = new InvertMotorBigModel(cc);
+		controller->setParam("adaptrate",0);
+		controller->setParam("epsA",0.001);
+		global.configs.push_back(controller);
+
+		//AbstractController* controller = new SineController();
 		// create pointer to one2onewiring
 		One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 		
@@ -114,28 +167,6 @@ public:
 		OdeAgent*  agent = new OdeAgent(plotoptions);
 		agent->init(controller, arm, wiring);
 
-//		// @InvertNChannelController
-//		controller->setParam("adaptrate", 0.000);
-//		//    controller->setParam("nomupdate", 0.0005);
-//		controller->setParam("epsC", 0.0005);
-//		controller->setParam("epsA", 0.0001);
-//		controller->setParam("rootE", 0);
-//		controller->setParam("steps", 2);
-//		controller->setParam("s4avg", 5);
-//		controller->setParam("factorB",0);
-
-		// @InvertMotorNStep
-		controller->setParam("adaptrate", 0.000);
-		controller->setParam("epsC", 0.05);
-		controller->setParam("epsA", 0.01);
-		controller->setParam("epsC", 0.05);
-		controller->setParam("rootE", 0);
-		controller->setParam("steps", 2);
-		controller->setParam("s4avg", 5); // zeitglaettung controllerinput ueber # steps
-		controller->setParam("s4del", 1); // verzoegerung bis motor echt greift
-		// controlinterval - anzahl zeitschritte mit gleichem controller
-		global.configs.push_back(controller);
-		
 		//  agent->setTrackOptions(TrackRobot(true, false, false,50));
 		global.agents.push_back(agent);
 
@@ -151,44 +182,37 @@ public:
 		dteaching=false;
 		dteachingLen = arm->getSensorNumber();
 		dteachingSignal = new double[dteachingLen];
-										 
-}
-
-// add distal teaching signal (desired behavior! not error)
-virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) 
-{
-	double sineRate=30;
-  double phaseShift=0.65;
-	if(dteaching)
-	{
-//		// alle sensoren schwingen phasenverschoben	
-//		for(int i=0; i<dteachingLen; i++)
-//		{
-//			dteachingSignal[i]=sin(globalData.time/sineRate + i*phaseShift*M_PI/2);
-//			printf("%f ",dteachingSignal[i]);
-//		}
-		
-//		// ausgewaehlter sensor schwingt
-//		dteachingSignal[3]=sin(globalData.time/3);// + phaseShift*M_PI/2);
-//		printf("%f ",dteachingSignal[0]);
-//		dteachingSignal[1]=0;
-//		dteachingSignal[2]=0;
-//		dteachingSignal[0]=0;
 	
-		// alle sensoren schwingen gleichphasig	
-		dteachingSignal[0]=sin(globalData.time/3);// + phaseShift*M_PI/2);
-		dteachingSignal[1]=sin(globalData.time/3);// + phaseShift*M_PI/2);
-		dteachingSignal[2]=sin(globalData.time/3);// + phaseShift*M_PI/2);
-		dteachingSignal[3]=sin(globalData.time/3);// + phaseShift*M_PI/2);
-		printf("4x %f ",dteachingSignal[0]);
-		
-		printf("\n");
-		controller->setSensorTeachingSignal(dteachingSignal, 4); // teaching signal and its length 
-	}
-};
+		// transform target into shoulder centered coordinates
+		arm->scaleShoulderCentered(target);
+		printf("target shoulder centered = (%f, %f, %f)\n", target[0], target[1], target[2]);		
+	} //start-end
+
+	// add distal teaching signal (desired behavior! not error)
+	/*virtual*/ void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) 
+	{
+	//	double sineRate=30;
+	// 	double phaseShift=0.65;
+
+		double pos[3];
+		double lambda=0.5; // 1 - target is target for each timestep, 0<..<1 - intermediate targets
+		if(dteaching)
+		{
+			arm->getEndeffectorPosition(pos);
+			// reaching into the right direction (target-pos)
+			dteachingSignal[0]=(1-lambda)*pos[0]+lambda*target[0];
+			dteachingSignal[1]=(1-lambda)*pos[1]+lambda*target[1];
+			dteachingSignal[2]=(1-lambda)*pos[2]+lambda*target[2];
+			dteachingSignal[3]=0;
+			// Bemerkung: durch Clipping in InvertMotorNStep y-Sollsignale fast immer -1 oder 1!
+			// maybe therefore no reaching?
+			// printf("setdone (%d) %f %f %f %f\n", dteachingLen, dteachingSignal[0], dteachingSignal[1], dteachingSignal[2], dteachingSignal[3]);
+			controller->setSensorTeachingSignal(dteachingSignal, 4); // teaching signal and its length 
+		} 
+	}; // addCallback-end
 
 //Funktion die eingegebene Befehle/kommandos verarbeitet
-virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+/*virtual*/ bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
 {
 	if (!down) return false;
 	bool handled = false;
@@ -196,6 +220,7 @@ virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData
 	{
 		case 'u' :
 			dteaching=!dteaching;
+			arm->resetHitCounter();
 			printf("Distal teaching %s.\n", dteaching ? "on" : "off");
 			break;
 		case 'i' :
@@ -220,14 +245,21 @@ virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData
 	fflush(stdout);
   return handled;
 }
+//}; // class-end
 
-virtual void bindingDescription(osg::ApplicationUsage & au) const 
+/*virtual*/ void bindingDescription(osg::ApplicationUsage & au) const 
 {
 	au.addKeyboardMouseBinding("Distal Teaching: i","increase error (nimm: forward)");
 	au.addKeyboardMouseBinding("Distal Teaching: k","decrease error (nimm: backward)");
 }
 
+virtual void end(GlobalData& globalData)
+{
+	printf("TREFFER: %d\n", arm->getHitCounter());
+}
+
 };
+//}; // class-end
 
 int main (int argc, char **argv)
 { 
