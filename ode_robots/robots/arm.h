@@ -247,7 +247,6 @@ namespace lpzrobots{
 			hitCount=0;
 		}
 		
-	protected:
   	/**
 		 * the main object of the robot, which is used for position and speed tracking 
 		 */
@@ -256,6 +255,7 @@ namespace lpzrobots{
 			//return objects[hand]; 
 			return objects[base]; 
 		}
+	protected:
 
 		/** 
 		 * creates vehicle at desired pose
@@ -296,13 +296,13 @@ namespace lpzrobots{
 		std::vector <HingeServo*> hingeServos;
 	
 		int hitCount;
+		int lastHit;
 		
 		int sensorno;      // number of sensors
 		int motorno;       // number of motors
 		
 		bool created;      // true if robot was created
 	
-		bool red;
 		
 		dSpaceID parentspace;
 		

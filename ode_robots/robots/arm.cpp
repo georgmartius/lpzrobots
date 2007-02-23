@@ -55,12 +55,12 @@ namespace lpzrobots{
 		
 		// hingeServo values (shoulder: 3, elbow: 1)
 
-//		sensorno=3; // endeffector position
+    // sensorno=3; // endeffector position
 		
     motorno=4; // dito
 
 		hitCount=0;
-		
+		lastHit=0;
     print=3; //0;
 
 		// standard objects color: white 
@@ -117,7 +117,7 @@ namespace lpzrobots{
   int Arm::getSensors(sensor* sensors, int sensornumber)
 	{
     assert(created); // robot must exist
-		unsigned int len=min(sensornumber, getSensorNumber());
+    unsigned int len=min(sensornumber, getSensorNumber());
 
 //    // get the hingeServos
 //    for(unsigned int n=0; (n<len) && (n<hingeServos.size()); n++) 
@@ -191,26 +191,29 @@ namespace lpzrobots{
 	
   void Arm::doInternalStuff(const GlobalData& globalData)
 	{
-   	if(created)
-	 	{
-	 		// mycallback is called for internal collisions! Only once per step
-  		dSpaceCollide(odeHandle.space, this, mycallback);
-		}
+	  if(created)
+	    {
+	      // mycallback is called for internal collisions! Only once per step
+	      dSpaceCollide(odeHandle.space, this, mycallback);
+	      if(lastHit>0)
+		{
+		  lastHit--;
+		  //		  objects[hand+1]->setTexture("Images/red.jpg");
+		  objects[hand+1]->setColor(Color(1,0,0));
+		  if(lastHit==0){
+		    objects[hand+1]->setColor(Color(0,1,0));
+		  }
+		} 
+	    }
 	}
 
 	void Arm::hitTarget()
 	{
-		if(!red)
-		{
-			objects[hand+1]->setTexture("Images/red.jpg");
-			red=true;
-		}
-		else
-		{
-			objects[hand+1]->setTexture("Images/white.jpg");
-			red=false;
-		}
-		hitCount++;
+	  
+	  if(lastHit<=0){
+	    lastHit=10;
+	  }
+	    hitCount++;
 	}
 	
   void Arm::mycallback(void *data, dGeomID o1, dGeomID o2)
@@ -394,8 +397,7 @@ namespace lpzrobots{
 			targetSphere->init(odeHandle, 0.1, osgHandle_target);			
     	osg::Matrix tp = osg::Matrix::translate(conf.targetPos[0], conf.targetPos[1], conf.targetPos[2]);
 			targetSphere->setPose(tp);
-			targetSphere->setTexture("Images/white.jpg");
-			red=false;
+			targetSphere->setColor(Color(0,1,0));
 			objects.push_back(targetSphere);
 			FixedJoint* anker = new FixedJoint(0 /* fixation to ground*/, objects[hand+1]/*targetSphere*/);
 			anker->init(odeHandle, osgHandle);
