@@ -53,6 +53,7 @@
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorbigmodel.h>
 #include <selforg/multilayerffnn.h>
+#include <selforg/derbigcontroller.h> 
 
 using namespace lpzrobots;
 
@@ -60,6 +61,7 @@ Arm* arm;
 
 //InvertMotorNStep* controller;
 InvertMotorBigModel* controller;
+//DerBigController* controller;
 
 // distal learning stuff
 bool dteaching;
@@ -67,7 +69,7 @@ double* dteachingSignal;
 int dteachingLen;
 
 // target of reaching task in euklidian coordinates
-double target[]={-1.5,2,4};
+double target[]={-1,2,4};
 
 class ThisSim : public Simulation 
 {
@@ -141,20 +143,26 @@ class ThisSim : public Simulation
 //		global.configs.push_back(controller);
 
 		// BIGMODEL-CONTROLLER
-		InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
+                InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
+    //	DerBigControllerConf cc = DerBigController::getDefaultConf();
 		cc.someInternalParams=false;
 		cc.useS=true;
 		std::vector<Layer> layers;
 		// Layer: size, factor_bias, act-fct (default: lin), dact-fct (default: lin)
-		layers.push_back(Layer(25, 0.5 , FeedForwardNN::tanh, FeedForwardNN::linear));
+		layers.push_back(Layer(25, 0.5 , FeedForwardNN::tanh, FeedForwardNN::dtanh));
 		layers.push_back(Layer(10,0.5));
-		// MultiLayerFFNN(0.05, layers, true); // true -bypass (uebergeht ncihtlin schicht)
-		MultiLayerFFNN* net = new MultiLayerFFNN(0.05, layers);
+		MultiLayerFFNN* net = new  MultiLayerFFNN(0.05, layers, true); // true -bypass (uebergeht ncihtlin schicht)
+		//		MultiLayerFFNN* net = new MultiLayerFFNN(0.05, layers);
 		cc.model = net;
-		cc.modelInit = 0.5;
+		cc.modelInit = 1;
+		cc.cInit = 1.5;
 		controller = new InvertMotorBigModel(cc);
+		//		controller = new DerBigController(cc);
 		controller->setParam("adaptrate",0);
-		controller->setParam("epsA",0.001);
+		controller->setParam("epsA",0.01);
+		controller->setParam("epsC",0.05);
+		controller->setParam("rootE",3);
+		controller->setParam("teacher",0.5);
 		global.configs.push_back(controller);
 
 		//AbstractController* controller = new SineController();
@@ -195,10 +203,11 @@ class ThisSim : public Simulation
 	// 	double phaseShift=0.65;
 
 		double pos[3];
-		double lambda=0.5; // 1 - target is target for each timestep, 0<..<1 - intermediate targets
+		double lambda=0.1; // 1 - target is target for each timestep, 0<..<1 - intermediate targets
 		if(dteaching)
 		{
 			arm->getEndeffectorPosition(pos);
+			arm->scaleShoulderCentered(pos);
 			// reaching into the right direction (target-pos)
 			dteachingSignal[0]=(1-lambda)*pos[0]+lambda*target[0];
 			dteachingSignal[1]=(1-lambda)*pos[1]+lambda*target[1];
@@ -219,7 +228,12 @@ class ThisSim : public Simulation
 	switch ( key )
 	{
 		case 'u' :
-			dteaching=!dteaching;
+			dteaching=!dteaching;Color(1.1,1,1.4);
+			if(dteaching)
+			  arm->getMainPrimitive()->setColor(Color(0.6,0.5,0.9));
+			else{
+			  arm->getMainPrimitive()->setColor(Color(1.1,1,1.4));
+			}
 			arm->resetHitCounter();
 			printf("Distal teaching %s.\n", dteaching ? "on" : "off");
 			break;
