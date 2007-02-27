@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.55  2007-02-12 13:29:40  martius
+ *   Revision 1.56  2007-02-27 11:56:40  robot5
+ *   Minor changes for SoundMan functionalities.
+ *
+ *   Revision 1.55  2007/02/12 13:29:40  martius
  *   addCallback has flag about controllstep
  *
  *   Revision 1.54  2006/12/13 09:13:03  martius
@@ -33,7 +36,7 @@
  *   onlycontrol used in steps where  controller is not used
  *
  *   Revision 1.52  2006/11/30 10:06:41  robot5
- *   dded support for Sndchanger (experimental). Startup with argument -s.
+ *   Added support for Sndchanger (experimental). Startup with argument -s.
  *
  *   Revision 1.51  2006/10/20 14:24:55  martius
  *   max velocity for joint-correction limited
@@ -820,9 +823,11 @@ namespace lpzrobots {
       plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval, globalconfigurables)); 
     }
 
-    // using sndchanger for acustic output
+    // using SoundMan for acustic output
     if(contains(argv, argc, "-s")) {
-     plotoptions.push_back(PlotOption(SndChanger, Controller, 1, globalconfigurables));
+     if(contains(argv, argc, "-disc")) plotoptions.push_back(PlotOption(SoundMan_Disc, Controller, 1, globalconfigurables));
+     else if(contains(argv, argc, "-ampl")) plotoptions.push_back(PlotOption(SoundMan_Ampl, Controller, 1, globalconfigurables));
+     else if(contains(argv, argc, "-freq")) plotoptions.push_back(PlotOption(SoundMan_Freq, Controller, 1, globalconfigurables));
     }
 
     index = contains(argv, argc, "-r");

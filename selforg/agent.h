@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-02-01 15:53:08  martius
+ *   Revision 1.12  2007-02-27 12:00:05  robot5
+ *   Minor changes for SoundMan functionalities.
+ *
+ *   Revision 1.11  2007/02/01 15:53:08  martius
  *   inspectables list. Robot is added in case it is derived from Inspectable
  *
  *   Revision 1.10  2006/12/21 11:44:17  martius
@@ -140,8 +143,10 @@ enum PlotMode {
   /// net visualiser
   NeuronViz,
 
-  /// Acustic output of robotic values via external Sndchanger
-  SndChanger,
+  /// Acustic output of robotic values via external SoundMan
+  SoundMan_Disc,
+  SoundMan_Ampl,
+  SoundMan_Freq,
 
   /// dummy used for upper bound of plotmode type
   LastPlot

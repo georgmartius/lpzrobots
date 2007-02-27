@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-02-19 15:42:18  martius
- *   dynamic_cast for inspectable robot is important
+ *   Revision 1.14  2007-02-27 12:00:05  robot5
+ *   Minor changes for SoundMan functionalities.
  *
  *   Revision 1.12  2007/02/01 15:53:16  martius
  *   inspectables list. Robot is added in case it is derived from Inspectable
@@ -215,9 +215,8 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
 
   inspectables.push_back(controller);
   inspectables.push_back(wiring);  
-  Inspectable* irobot = dynamic_cast<Inspectable*>(robot);
-  if(irobot !=0)
-    inspectables.push_back(irobot);  
+  if(dynamic_cast<Inspectable*>(robot) !=0)
+    inspectables.push_back((Inspectable*)robot);  
 
   // copy plotoption list and add it one by one
   list<PlotOption> po_copy(plotOptions);
@@ -387,9 +386,16 @@ bool PlotOption::open(){
     pipe=popen("neuronviz > /dev/null","w");  // TODO: Platform dependent
     break;
 
-  case SndChanger:
-    pipe=popen("cd ../../utils/; javac Sound.java; java Sound","w");
+  case SoundMan_Disc:
+    pipe=popen("cd ../../utils/; java SoundMan -disc","w");
     break;
+  case SoundMan_Ampl:
+    pipe=popen("cd ../../utils/; java SoundMan -ampl","w");
+    break;
+  case SoundMan_Freq:
+    pipe=popen("cd ../../utils/; java SoundMan -freq","w");
+    break;
+
 
   default: // and NoPlot
     return false;
@@ -428,8 +434,10 @@ void PlotOption::close(){
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
       break;
 
-    case SndChanger:
-      std::cout << "SndChanger closing...SUCCESSFUL" << std::endl;
+    case SoundMan_Disc:
+    case SoundMan_Ampl:
+    case SoundMan_Freq:
+      std::cout << "SoundMan closing...SUCCESSFUL" << std::endl;
       fclose(pipe);
       break;
 
