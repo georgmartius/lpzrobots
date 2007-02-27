@@ -7,15 +7,15 @@ import java.io.*;
 
 public class SoundManipulation extends Thread {
 
-// private PipedInputStream pis;
  private int mode;
+ private float param;
  private int numSensors;
  private SourceDataLine sourceLine;
  private InputStream is;
 
- public SoundManipulation(/*PipedInputStream pis, */int mode, InputStream is) {
-//  this.pis=pis;
+ public SoundManipulation(int mode, float param, InputStream is) {
   this.mode=mode;
+  this.param=param;
   this.is=is;
 
   AudioFormat format=new AudioFormat(48000.0f,16,1,true,false);
@@ -58,9 +58,9 @@ public class SoundManipulation extends Thread {
 
       switch(mode) {
        case 1: // discrete
-        if(Math.abs(new Float(values[i]).floatValue())>0.7f) {
+        if(Math.abs(new Float(values[i]).floatValue())>param) {
          for(int j=0; j<data.length; j++) {
-          data[j]=(byte)(Math.sin(j/(i+1.0))*127);
+          data[j]=(byte)(Math.sin(j*i/(float)numSensors)*127);
          }
          sourceLine.write(data,0,data.length);
         }
@@ -70,7 +70,7 @@ public class SoundManipulation extends Thread {
         if(i==numSensors-1) {
          float sensorAverage=sensorSum/numSensors;
          for(int j=0; j<data.length; j++) {
-          data[j]=(byte)(sensorAverage*Math.sin(j/10.0f)*127);
+          data[j]=(byte)(sensorAverage*Math.sin(j/((param+1.0f)*5.0f))*127);
          }
          sourceLine.write(data,0,data.length);
         }
@@ -80,7 +80,7 @@ public class SoundManipulation extends Thread {
         if(i==numSensors-1) {
          float sensorAverage=sensorSum/numSensors;
          for(int j=0; j<data.length; j++) {
-          data[j]=(byte)(Math.sin(sensorAverage*j/50.0f)*127);
+          data[j]=(byte)(Math.sin(sensorAverage*j/((param+1)*25.0f))*127);
          }
          sourceLine.write(data,0,data.length);
         }
@@ -93,27 +93,6 @@ public class SoundManipulation extends Thread {
     input="";
    }
   }
-/*
-   input="";
-   try {
-    char next;
-    do {
-     next=(char)pis.read();
-     input+=next;
-    } while(next!='\n');
-   } catch(IOException ioe) {
-    System.out.println(ioe.getMessage());
-    System.exit(0);
-   }
-   String[] values=input.trim().substring(0,numSensors*10).split(" ");
-   for(int i=0; i<numSensors; i++) {
-    if(Math.abs(new Float(values[i]).floatValue())>0.7f) {
-     for(int j=0; j<data.length; j++) {
-      data[j]=(byte)(Math.sin(j/(i+1.0))*127);
-     }
-     sourceLine.write(data,0,data.length);
-    }
-   }
-  }*/
+
  }
 }
