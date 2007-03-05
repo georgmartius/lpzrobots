@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-02-27 12:00:05  robot5
+ *   Revision 1.15  2007-03-05 17:52:20  martius
+ *   plotoptions hav optional string parameter
+ *
+ *   Revision 1.14  2007/02/27 12:00:05  robot5
  *   Minor changes for SoundMan functionalities.
  *
  *   Revision 1.12  2007/02/01 15:53:16  martius
@@ -359,6 +362,7 @@ void Agent::addInspectable(const Inspectable* inspectable){
 
 
 bool PlotOption::open(){
+  char cmd[255];
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN); 
@@ -385,18 +389,10 @@ bool PlotOption::open(){
   case NeuronViz:
     pipe=popen("neuronviz > /dev/null","w");  // TODO: Platform dependent
     break;
-
-  case SoundMan_Disc:
-    pipe=popen("cd ../../utils/; java SoundMan -disc","w");
+  case SoundMan:
+    sprintf(cmd,"soundMan %s",parameter.c_str());
+    pipe=popen(cmd,"w");
     break;
-  case SoundMan_Ampl:
-    pipe=popen("cd ../../utils/; java SoundMan -ampl","w");
-    break;
-  case SoundMan_Freq:
-    pipe=popen("cd ../../utils/; java SoundMan -freq","w");
-    break;
-
-
   default: // and NoPlot
     return false;
   }
@@ -434,9 +430,7 @@ void PlotOption::close(){
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
       break;
 
-    case SoundMan_Disc:
-    case SoundMan_Ampl:
-    case SoundMan_Freq:
+    case SoundMan:
       std::cout << "SoundMan closing...SUCCESSFUL" << std::endl;
       fclose(pipe);
       break;

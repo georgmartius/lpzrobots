@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-02-27 12:00:05  robot5
+ *   Revision 1.13  2007-03-05 17:52:14  martius
+ *   plotoptions hav optional string parameter
+ *
+ *   Revision 1.12  2007/02/27 12:00:05  robot5
  *   Minor changes for SoundMan functionalities.
  *
  *   Revision 1.11  2007/02/01 15:53:08  martius
@@ -144,9 +147,7 @@ enum PlotMode {
   NeuronViz,
 
   /// Acustic output of robotic values via external SoundMan
-  SoundMan_Disc,
-  SoundMan_Ampl,
-  SoundMan_Freq,
+  SoundMan,
 
   /// dummy used for upper bound of plotmode type
   LastPlot
@@ -164,10 +165,12 @@ class PlotOption {
 public:
   friend class Agent;
 
-  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; }
+  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; parameter="";}
   PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, 
-	      int interval = 1, std::list<const Configurable*> confs = std::list<const Configurable*>())
-    : mode(mode), whichSensors(whichSensors), interval(interval), configureables(confs) { pipe=0; }
+	      int interval = 1, std::list<const Configurable*> confs = std::list<const Configurable*>(), 
+	      std::string parameter="")
+    : mode(mode), whichSensors(whichSensors), interval(interval), configureables(confs), parameter(parameter) 
+    { pipe=0; }
 
   virtual ~PlotOption(){}
 
@@ -193,6 +196,7 @@ private:
   PlotSensors whichSensors;
   int interval;
   std::list< const Configurable* > configureables;
+  std::string parameter; ///< additional parameter for external command
 };
 
 
