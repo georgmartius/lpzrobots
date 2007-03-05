@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2007-02-23 15:14:17  martius
+ *   Revision 1.24  2007-03-05 10:49:32  fhesse
+ *   food at position x=0, y=0 added
+ *   motorcommand y set to zero when near food (controller doesn't know)
+ *   after eating_time food is empty and motorcommand executed again
+ *
+ *   Revision 1.23  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.22  2006/12/21 11:43:05  martius
@@ -271,6 +276,13 @@ protected:
   Hinge2Joint* joint[2]; // joints between cylinder and each wheel
 
   RaySensorBank irSensorBank; // a collection of ir sensors
+
+  Primitive* food;  // primitive representing food for the robot
+  int eating_time;  // time spend for eating
+  int eating_counter;  // actual time spent eating
+  bool hungry;      // saves actual state of robot
+
+
 };
 
 }

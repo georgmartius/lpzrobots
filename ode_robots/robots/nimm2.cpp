@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2007-02-23 15:14:17  martius
+ *   Revision 1.28  2007-03-05 10:49:32  fhesse
+ *   food at position x=0, y=0 added
+ *   motorcommand y set to zero when near food (controller doesn't know)
+ *   after eating_time food is empty and motorcommand executed again
+ *
+ *   Revision 1.27  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.26  2006/12/11 18:24:36  martius
@@ -163,6 +168,11 @@ namespace lpzrobots {
       motorno=2;  
     }
 
+    eating_time=400;
+    eating_counter=0;
+    hungry=true;
+
+
     if (conf.cigarMode){
       length=conf.size*2.0;    // long body
       wheeloffset= -length/4;  // wheels at the end of the cylinder, and the opposite endas the bumper
@@ -225,6 +235,8 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
+ sensor ir_old[4];
+ sensor ir_tmp[4];
   int Nimm2::getSensors(sensor* sensors, int sensornumber){
     assert(created);
   
@@ -240,6 +252,11 @@ namespace lpzrobots {
     //  sensor+len is the starting point in the sensors array
     if (conf.irFront || conf.irSide || conf.irBack)
       len += irSensorBank.get(sensors+len, sensornumber-len);
+      for (int i=0; i<4; i++){
+        ir_tmp[i]=sensors[2+i];
+	sensors[2+i]=ir_tmp[i]-ir_old[i];
+	ir_old[i]=ir_tmp[i];
+      }
     return len;
   };
 
@@ -286,6 +303,37 @@ namespace lpzrobots {
     
     // update sensorbank with infrared sensors
     irSensorBank.update();  
+
+
+    // update eating state 
+    Position p=dBodyGetPosition(object[0]->getBody());
+    double dist = p.x*p.x+p.y*p.y; // calculate from food (here food at position x=0, y=0)
+    // if robot near food and hungry start eating
+    if ((dist <3.5) && (hungry)){ 
+      if ( eating_counter==0) { 
+         std::cout<<"started eating \n";
+	 //std::cout<<"started eating, dist="<<dist<<" \n";
+      }
+      eating_counter++; // increase counter for eating time
+      max_force=0.0;    // stop robot near food
+
+      // change color of "food" while eating
+      food->getOSGPrimitive()->setColor(Color(1.0-((double)eating_counter/eating_time),
+		1.0-((double)eating_counter/eating_time),1.0-((double)eating_counter/eating_time)));
+      if (eating_counter>eating_time){ // stop eating 
+	std::cout<<"not hungry anymore, dist="<<dist<<"\n";
+        hungry=false;  
+        max_force=conf.force;  // give robot back its strength so it can move again
+      }
+    }
+    if(dist>4.5){ // if robot has left food he can get hungry again and food is renewed
+      if (eating_counter>0) {std::cout<<"hungry again, dist="<<dist<<" \n";}
+      hungry=true;
+      eating_counter=0;
+      max_force=conf.force;
+      food->getOSGPrimitive()->setColor(Color(1,1,1));
+    }
+
   }
 
 
@@ -364,7 +412,7 @@ namespace lpzrobots {
     // create body
     // - create cylinder for main body (with radius and length)
     // - init cylinder with odehandle, mass and osghandle
-    // - rotate and place body (here by 90° around the y-axis)
+    // - rotate and place body (here by 90 around the y-axis)
     // - set texture for cylinder
     // - put it into object[0]
     Capsule* cap = new Capsule(width/2, length);
@@ -405,7 +453,6 @@ namespace lpzrobots {
       }else{ // for "normal" wheels
 	Cylinder* wheel = new Cylinder(radius, wheelthickness);      
 	wheel->init(odeHandle, wmass, osgHandleWheels);
-	
 	wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) * 
 		       Matrix::translate(wheeloffset, 
 					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);
@@ -413,6 +460,15 @@ namespace lpzrobots {
 	object[i] = wheel;
       }
     }
+
+    // create food (currently at position 0,0,0) 
+    OsgHandle osgHandleFood(osgHandle);    // new osghandle with color for the food
+    osgHandleFood.color = Color(1.0,1.0,1.0); 
+    Cylinder* f = new Cylinder(1.75, 0.05);      
+    f->init(odeHandle, wmass, osgHandleFood);
+    food =f;
+
+   
   
     // set joints between wheels and body (see ODE documentation)
     // - create joint
