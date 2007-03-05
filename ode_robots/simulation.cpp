@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.56  2007-02-27 11:56:40  robot5
+ *   Revision 1.57  2007-03-05 17:54:24  martius
+ *   soundMan with parameters
+ *
+ *   Revision 1.56  2007/02/27 11:56:40  robot5
  *   Minor changes for SoundMan functionalities.
  *
  *   Revision 1.55  2007/02/12 13:29:40  martius
@@ -824,10 +827,11 @@ namespace lpzrobots {
     }
 
     // using SoundMan for acustic output
-    if(contains(argv, argc, "-s")) {
-     if(contains(argv, argc, "-disc")) plotoptions.push_back(PlotOption(SoundMan_Disc, Controller, 1, globalconfigurables));
-     else if(contains(argv, argc, "-ampl")) plotoptions.push_back(PlotOption(SoundMan_Ampl, Controller, 1, globalconfigurables));
-     else if(contains(argv, argc, "-freq")) plotoptions.push_back(PlotOption(SoundMan_Freq, Controller, 1, globalconfigurables));
+    index = contains(argv, argc, "-s");
+    if(index) {
+      string param="";
+      if(argc > index) param=argv[index];
+      plotoptions.push_back(PlotOption(SoundMan, Controller, 1, globalconfigurables,param));
     }
 
     index = contains(argv, argc, "-r");
@@ -998,6 +1002,7 @@ namespace lpzrobots {
     printf("\t-g [interval]\tuse guilogger (default interval 1)\n");
     printf("\t-f [interval]\twrite logging file (default interval 5)\n");
     printf("\t-n [interval]\tuse neuronviz (default interval 10)\n");
+    printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");
     printf("\t-r seed\t\trandom number seed\n");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (default 640x480)\n");
     printf("\t-pause \t\tstart in pause mode\n");
