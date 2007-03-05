@@ -11,7 +11,10 @@ public class SoundMan {
   if(args.length==0) { // discrete as standard
    sm=new SoundManipulation(1,0.7f,System.in);
   } else if(args.length>0) {
-   if(args[0].equals("-disc")) { // discrete
+   if(args[0].equals("--help") || args[0].equals("-h")) { // help
+      printUsage();
+      System.exit(0);
+   }else if(args[0].equals("-disc")) { // discrete
     if(args.length==2) sm=new SoundManipulation(1,new Float(args[1]).floatValue(),System.in);
     else if(args.length==1) sm=new SoundManipulation(1,0.7f,System.in);
    } else if(args[0].equals("-ampl")) { // amplitude
@@ -21,9 +24,6 @@ public class SoundMan {
     if(args.length==2) sm=new SoundManipulation(3,new Float(args[1]).floatValue(),System.in);
     else if(args.length==1) sm=new SoundManipulation(3,0.7f,System.in);
    }
-  } else {
-   printUsage();
-   System.exit(0);
   }
   sm.start();
   try{
