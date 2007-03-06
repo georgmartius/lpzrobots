@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2007-03-05 10:49:32  fhesse
+ *   Revision 1.29  2007-03-06 10:11:04  fhesse
+ *   food removed
+ *
+ *   Revision 1.28  2007/03/05 10:49:32  fhesse
  *   food at position x=0, y=0 added
  *   motorcommand y set to zero when near food (controller doesn't know)
  *   after eating_time food is empty and motorcommand executed again
@@ -168,11 +171,6 @@ namespace lpzrobots {
       motorno=2;  
     }
 
-    eating_time=400;
-    eating_counter=0;
-    hungry=true;
-
-
     if (conf.cigarMode){
       length=conf.size*2.0;    // long body
       wheeloffset= -length/4;  // wheels at the end of the cylinder, and the opposite endas the bumper
@@ -304,36 +302,6 @@ namespace lpzrobots {
     // update sensorbank with infrared sensors
     irSensorBank.update();  
 
-
-    // update eating state 
-    Position p=dBodyGetPosition(object[0]->getBody());
-    double dist = p.x*p.x+p.y*p.y; // calculate from food (here food at position x=0, y=0)
-    // if robot near food and hungry start eating
-    if ((dist <3.5) && (hungry)){ 
-      if ( eating_counter==0) { 
-         std::cout<<"started eating \n";
-	 //std::cout<<"started eating, dist="<<dist<<" \n";
-      }
-      eating_counter++; // increase counter for eating time
-      max_force=0.0;    // stop robot near food
-
-      // change color of "food" while eating
-      food->getOSGPrimitive()->setColor(Color(1.0-((double)eating_counter/eating_time),
-		1.0-((double)eating_counter/eating_time),1.0-((double)eating_counter/eating_time)));
-      if (eating_counter>eating_time){ // stop eating 
-	std::cout<<"not hungry anymore, dist="<<dist<<"\n";
-        hungry=false;  
-        max_force=conf.force;  // give robot back its strength so it can move again
-      }
-    }
-    if(dist>4.5){ // if robot has left food he can get hungry again and food is renewed
-      if (eating_counter>0) {std::cout<<"hungry again, dist="<<dist<<" \n";}
-      hungry=true;
-      eating_counter=0;
-      max_force=conf.force;
-      food->getOSGPrimitive()->setColor(Color(1,1,1));
-    }
-
   }
 
 
@@ -378,8 +346,15 @@ namespace lpzrobots {
 	contact[i].surface.slip2 = 0.005; // sliping in y
 	if(colwithbody){
 	  contact[i].surface.mu = 0.1; // small friction of smooth body
+
+	  //	  contact[i].surface.soft_erp = 0.8;
+	  //contact[i].surface.soft_cfm = 0.1;
+	  //contact[i].surface.soft_erp = 0.99;
+	  //contact[i].surface.soft_cfm = 0.01;
+
 	  contact[i].surface.soft_erp = 0.8;
 	  contact[i].surface.soft_cfm = 0.01;
+
 	}else{
 	  contact[i].surface.mu = 5.0; //large friction
 	  contact[i].surface.soft_erp = 0.8;
@@ -461,14 +436,6 @@ namespace lpzrobots {
       }
     }
 
-    // create food (currently at position 0,0,0) 
-    OsgHandle osgHandleFood(osgHandle);    // new osghandle with color for the food
-    osgHandleFood.color = Color(1.0,1.0,1.0); 
-    Cylinder* f = new Cylinder(1.75, 0.05);      
-    f->init(odeHandle, wmass, osgHandleFood);
-    food =f;
-
-   
   
     // set joints between wheels and body (see ODE documentation)
     // - create joint
