@@ -32,7 +32,7 @@ install:
 	-cp ode_robots/utils/SoundMan.class ode_robots/utils/SoundManipulation.class $(HOME)/lib/
 	-cp ode_robots/utils/soundMan $(HOME)/bin/
 	-cp ode_robots/utils/feedfile.pl $(HOME)/bin/
-	-cp ode_robots/utils/encodevideo.pl $(HOME)/bin/
+	-cp ode_robots/utils/encodevideo.sh $(HOME)/bin/
 	-cp ode_robots/utils/selectcolumns.pl $(HOME)/bin/
 
 .PHONY: tags
