@@ -4,9 +4,17 @@
 
 //import javax.sound.sampled.*;
 import java.io.*;
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 public class SoundMan {
  public static void main(String[] args) {
+  // ignore Ctrl+C
+//  Signal.handle(new Signal("INT"), new SignalHandler() {
+//    public void handle(Signal sig) {System.out.println("ctrl+c gedrückt");}
+//   }
+//  );
+
   SoundManipulation sm=null;
   if(args.length==0) { // discrete as standard
    sm=new SoundManipulation(1,0.7f,System.in);
@@ -16,15 +24,19 @@ public class SoundMan {
       System.exit(0);
    }else if(args[0].equals("-disc")) { // discrete
     if(args.length==2) sm=new SoundManipulation(1,new Float(args[1]).floatValue(),System.in);
-    else if(args.length==1) sm=new SoundManipulation(1,0.7f,System.in);
+    else if(args.length==1) sm=new SoundManipulation(1,0.4f,System.in);
    } else if(args[0].equals("-ampl")) { // amplitude
     if(args.length==2) sm=new SoundManipulation(2,new Float(args[1]).floatValue(),System.in);
-    else if(args.length==1) sm=new SoundManipulation(2,0.7f,System.in);
+    else if(args.length==1) sm=new SoundManipulation(2,0.8f,System.in);
    } else if(args[0].equals("-freq")) { // frequency
     if(args.length==2) sm=new SoundManipulation(3,new Float(args[1]).floatValue(),System.in);
-    else if(args.length==1) sm=new SoundManipulation(3,0.7f,System.in);
+    else if(args.length==1) sm=new SoundManipulation(3,0.8f,System.in);
+   } else {
+    printUsage();
+    System.exit(0);
    }
   }
+
   sm.start();
   try{
    sm.join();

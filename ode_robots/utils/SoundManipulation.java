@@ -2,6 +2,7 @@
  Converts sensor values into sound.
 */
 
+import javax.sound.midi.*;
 import javax.sound.sampled.*;
 import java.io.*;
 
@@ -12,6 +13,7 @@ public class SoundManipulation extends Thread {
  private int numSensors;
  private SourceDataLine sourceLine;
  private InputStream is;
+ private Receiver synthRcvr;
 
  public SoundManipulation(int mode, float param, InputStream is) {
   this.mode=mode;
@@ -32,6 +34,23 @@ public class SoundManipulation extends Thread {
    System.out.println(lue.getMessage());
    System.exit(0);
   }
+
+
+  Sequencer seq;
+  Transmitter seqTrans;
+  Synthesizer synth;
+  try {
+   seq=MidiSystem.getSequencer();
+   seqTrans=seq.getTransmitter();
+   synth=MidiSystem.getSynthesizer();
+   synth.open();
+   synthRcvr=synth.getReceiver();
+   seqTrans.setReceiver(synthRcvr);
+  } catch(MidiUnavailableException mue) {
+   System.out.println(mue.getMessage());
+   System.exit(0);
+  }
+
  }
 
  public void run() {
@@ -58,11 +77,24 @@ public class SoundManipulation extends Thread {
 
       switch(mode) {
        case 1: // discrete
-        if(Math.abs(new Float(values[i]).floatValue())>param) {
+        float sensVal=Math.abs(new Float(values[i]).floatValue());
+        if(sensVal>param) {
+         /*
          for(int j=0; j<data.length; j++) {
           data[j]=(byte)(Math.sin(j*i/(float)numSensors)*127);
          }
          sourceLine.write(data,0,data.length);
+       */
+         try {
+          ShortMessage sm=new ShortMessage();
+          sm.setMessage(ShortMessage.NOTE_ON, 0, 50+20*i/numSensors, (int)(sensVal*40.0f));
+          synthRcvr.send(sm, -1);
+         } catch(InvalidMidiDataException imde) {
+          System.out.println(imde.getMessage());
+          System.exit(0);
+         }
+
+
         }
         break;
        case 2: // amplitude
