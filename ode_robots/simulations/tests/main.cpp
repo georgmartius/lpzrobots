@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-11 15:46:34  martius
+ *   Revision 1.4  2007-03-16 10:58:58  martius
+ *   test of substances
+ *
+ *   Revision 1.3  2006/08/11 15:46:34  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2006/07/14 12:23:54  martius
@@ -89,8 +92,6 @@
  ***************************************************************************/
 #include <stdio.h>
 
-// include ode library
-#include <ode/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>
@@ -98,13 +99,14 @@
 // include simulation environment stuff
 #include "simulation.h"
 
-// used passive spheres
+// used passive spheres and boxes
 #include "passivesphere.h"
+#include "passivebox.h"
 
 
 #include "joint.h"
 
-
+using namespace std;
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -120,26 +122,128 @@ public:
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.noise=0.1;
-    //  global.odeConfig.setParam("gravity", 0);
+    // global.odeConfig.setParam("gravity", 0);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
-
+    j=0;
+    if(0){
     s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-    s1->setPosition(osg::Vec3(0,0,0));
+    s1->setPosition(osg::Vec3(10,2,2));
     global.obstacles.push_back(s1);
-     
+    
     s2 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-    s2->setPosition(osg::Vec3(1,0,0));
+    s2->setPosition(osg::Vec3(10.8,2,2));
     global.obstacles.push_back(s2);
-    
-     j = new HingeJoint(s1->getMainPrimitive(), s2->getMainPrimitive(), Pos(0.5,0,0.5), Axis(0,0,1));
-     j->init(odeHandle, osgHandle);
-    
+
+    Sphere* t = new Sphere(0.2);
+    Transform* trans = new Transform(s2->getMainPrimitive(), t,osg::Matrix::translate(-0.5,0,0));
+    trans->init(odeHandle, 0, osgHandle);
+    OdeHandle o1 = odeHandle;
+    o1.addIgnoredPair(trans->getGeom(), s1->getMainPrimitive()->getGeom());
+        
+    j = new HingeJoint(s1->getMainPrimitive(), s2->getMainPrimitive(), Pos(10.4,2,2.5), Axis(0,0,1));
+    j->init(odeHandle, osgHandle);
+    }
+
+    PassiveBox* b;
+    OdeHandle handle2 = odeHandle;
+    PassiveSphere* s;
+    FixedJoint* fj;
+
+    if(0){
+    // Metal ground
+    handle2.substance.toMetal(1);
+    b = new PassiveBox(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), osg::Vec3(7,1,1),100);
+    b->setPosition(osg::Vec3(0,0,0));
+    global.obstacles.push_back(b);
+    fj= new FixedJoint(global.environment, b->getMainPrimitive());
+    fj->init(odeHandle,osgHandle, false);
+
+    handle2.substance.toMetal(1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), 0.5);
+    s->setPosition(osg::Vec3(-3,0,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toPlastic(1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,1)), 0.5);
+    s->setPosition(osg::Vec3(-1,0,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toRubber(0.1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), 0.5);
+    s->setPosition(osg::Vec3(1,0,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toFoam(0.01);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,0)), 0.5);
+    s->setPosition(osg::Vec3(3,0,3));
+    global.obstacles.push_back(s);
+    }
+    if(1){
+    // Rubber ground
+    handle2.substance.toRubber(0.5);
+    b = new PassiveBox(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), osg::Vec3(7,1,1),100);
+    b->setPosition(osg::Vec3(0,5,0));
+    global.obstacles.push_back(b);
+    fj= new FixedJoint(global.environment, b->getMainPrimitive());
+    fj->init(odeHandle,osgHandle, false);
+
+    handle2.substance.toMetal(1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), 0.5);
+    s->setPosition(osg::Vec3(-3,5,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toPlastic(1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,1)), 0.5);
+    s->setPosition(osg::Vec3(-1,5,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toRubber(0.1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), 0.5);
+    s->setPosition(osg::Vec3(1,5,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toFoam(0.01);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,0)), 0.5);
+    s->setPosition(osg::Vec3(3,5,3));
+    global.obstacles.push_back(s);
+    }
+    if(0){
+    // Plastik ground
+    handle2.substance.toPlastic(0.8);
+    b = new PassiveBox(handle2, osgHandle.changeColor(Color(1,1,1)), osg::Vec3(7,1,1),10);
+    b->setPosition(osg::Vec3(0,-5,0));
+    global.obstacles.push_back(b);
+    fj= new FixedJoint(global.environment, b->getMainPrimitive());
+    fj->init(odeHandle,osgHandle, false);
+
+    handle2.substance.toMetal(1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), 0.5);
+    s->setPosition(osg::Vec3(-3,-5,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toPlastic(1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,1)), 0.5);
+    s->setPosition(osg::Vec3(-1,-5,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toRubber(0.1);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), 0.5);
+    s->setPosition(osg::Vec3(1,-5,3));
+    global.obstacles.push_back(s);
+
+    handle2.substance.toFoam(0.01);
+    s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,0)), 0.5);
+    s->setPosition(osg::Vec3(3,-5,3));
+    global.obstacles.push_back(s);
+    }
+
+
   
     showParams(global.configs);
   }
 
 
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(j) j->update();
   };
 
