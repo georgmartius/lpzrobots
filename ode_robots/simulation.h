@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2007-02-12 13:29:48  martius
+ *   Revision 1.26  2007-03-16 10:53:18  martius
+ *   new nearcallback structure
+ *
+ *   Revision 1.25  2007/02/12 13:29:48  martius
  *   addCallback has flag about controllstep
  *
  *   Revision 1.24  2006/12/13 09:13:03  martius
@@ -179,6 +182,7 @@
 
 #include "globaldata.h"
 #include "grabframe.h"
+#include "pos.h"
 
 /***  some forward declarations  ***/
 class PlotOption; // selforg
@@ -260,6 +264,7 @@ namespace lpzrobots {
     */
     void setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view);
 
+    static void nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2);
     static void nearCallback(void *data, dGeomID o1, dGeomID o2);
     bool control_c_pressed();
 
