@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:34  martius
+ *   Revision 1.3  2007-03-16 10:52:14  martius
+ *   geom userdata is set to primitive itself
+ *
+ *   Revision 1.2  2006/07/14 12:23:34  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/06/29 16:35:56  robot3
@@ -90,6 +93,7 @@ namespace lpzrobots {
   void HeightField::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     assert(mode & Geom);
+    substance = odeHandle.substance;
     this->mode=mode;
     if (mode & Draw){
       osgheightfield->init(osgHandle);
@@ -123,6 +127,7 @@ namespace lpzrobots {
       //				    indices, k, sizeof(Indices), normales);
       dGeomTriMeshDataBuildSimple (data, (dReal*)vertices, rows*cols, (int*)indices, k*3);
       geom = dCreateTriMesh (odeHandle.space, data, 0, 0, 0);
+      dGeomSetData(geom, (void*)this); // set primitive as geom data
   
 
 // #define VertexCount 5
