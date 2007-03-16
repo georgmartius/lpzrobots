@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-01-26 12:05:36  martius
+ *   Revision 1.6  2007-03-16 11:00:41  martius
+ *   registration of ignored geoms
+ *
+ *   Revision 1.5  2007/01/26 12:05:36  martius
  *   joint support forces in uniform manner
  *
  *   Revision 1.4  2006/08/02 10:11:27  martius
@@ -86,6 +89,7 @@
 #include "osgforwarddecl.h"
 #include "axis.h"
 #include "osghandle.h"
+#include "odehandle.h"
 
 namespace lpzrobots {
 
@@ -99,10 +103,11 @@ namespace lpzrobots {
     virtual ~Joint();
     /** initialises (and creates) the joint. If visual is true then the joints is
 	also drawn. visualSize is the size of the visual representation.
-	(To be overloaded)
+	Also member variable odeHandle should be set.
+	(To be overloaded, but this init should be called always from children!)
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2) = 0;
+		      bool withVisual = true, double visualSize = 0.2);
     
     /// should syncronise the Ode stuff and the OSG notes (if any)
     virtual void update() = 0;
@@ -135,6 +140,7 @@ namespace lpzrobots {
     Primitive* part1;
     Primitive* part2;    
     osg::Vec3 anchor;
+    OdeHandle odeHandle;
   };
 
   class OneAxisJoint : public Joint {
