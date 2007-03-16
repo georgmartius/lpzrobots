@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-02-23 09:30:13  der
+ *   Revision 1.2  2007-03-16 10:57:44  martius
+ *   no elasticity, since substance support allows to make Playground soft
+ *   new substance and collision control
+ *
+ *   Revision 1.1  2007/02/23 09:30:13  der
  *   dog :-)
  *
  *   Revision 1.3  2007/02/21 16:08:30  der
@@ -66,7 +70,7 @@ namespace lpzrobots {
     // choose color here a pastel white is used
     this->osgHandle.color = Color(1.0, 1,1,1);
     //    this->osgHandle.color = Color(1.0, 156/255.0, 156/255.0, 1.0f);
-    addParameter("elast", &conf.elasticity);
+    //    addParameter("elast", &conf.elasticity);
     
     legmass=conf.mass * conf.relLegmass / conf.legNumber;    // mass of each legs
   };
@@ -176,7 +180,8 @@ namespace lpzrobots {
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
   */
-  void VierBeiner::doInternalStuff(const GlobalData& global){ }
+  void VierBeiner::doInternalStuff(const GlobalData& global){     
+  }
 
   /** checks for internal collisions and treats them. 
    *  In case of a treatment return true (collision will be ignored by other objects 
@@ -184,32 +189,32 @@ namespace lpzrobots {
    *  (if not treated) to the default routine).
    */
   bool VierBeiner::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    assert(created); // robot must exist
+//     assert(created); // robot must exist
     
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-      int i,n;  
-      const int N = 100;
-      dContact contact[N];
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++){
-	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
-	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.005;
-	contact[i].surface.slip2 = 0.005;
-	contact[i].surface.mu = conf.frictionGround;
-	double hkp = conf.elasticity;
-	double kd = hkp/4;
-	contact[i].surface.soft_erp = hkp /(hkp+kd);
-	contact[i].surface.soft_cfm = 1/(hkp+kd);
+//     //checks if one of the collision objects is part of the robot
+//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
+//       int i,n;  
+//       const int N = 100;
+//       dContact contact[N];
+//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+//       for (i=0; i<n; i++){
+// 	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
+// 	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
+// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// 	contact[i].surface.slip1 = 0.005;
+// 	contact[i].surface.slip2 = 0.005;
+// 	contact[i].surface.mu = conf.frictionGround;
+// 	double hkp = conf.elasticity;
+// 	double kd = hkp/4;
+// 	contact[i].surface.soft_erp = hkp /(hkp+kd);
+// 	contact[i].surface.soft_cfm = 1/(hkp+kd);
 	
-	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
-      }
-      return true;
-    }
+// 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+// 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
+//       }
+//       return true;
+//     }
     return false;
   }
 
@@ -230,7 +235,6 @@ namespace lpzrobots {
     // create body
     double twidth = conf.size / 1.5;
     double theight = conf.size / 4;
-    Primitive* trunk;    
     trunk = new Box(conf.size, twidth, theight);
     trunk->init(odeHandle, conf.mass*0.8, osgHandle);
     trunk->setPose(osg::Matrix::translate(0,0,conf.legLength)*pose);
@@ -240,14 +244,12 @@ namespace lpzrobots {
     Primitive* pole;
     double poleheight=conf.size*2;
     pole = new Box(conf.size*2,twidth*8,poleheight);
-    Primitive* poletransform;
-    poletransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,theight/2+poleheight/2));
-    poletransform->init(odeHandle, 0, osgHandle, Primitive::Geom); 
-    objects.push_back(poletransform);
+    bigboxtransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,theight/2+poleheight/2));
+    bigboxtransform->init(odeHandle, 0, osgHandle, Primitive::Geom); 
+    objects.push_back(bigboxtransform);
     
     
     // create head and neck
-    Primitive* neck;
     double necklength = conf.size/6;
     double neckwidth = theight/2;
     double headmass = conf.mass*0.1;
@@ -261,22 +263,27 @@ namespace lpzrobots {
     objects.push_back(neck);
     Primitive* head;
     head = new Capsule(neckwidth,theight);
-    Primitive* trans = new Transform(neck, head, Matrix::translate(0, 0, -headlength/2) 
-				     * Matrix::rotate(-M_PI/2,0,1,0) 
-				     * Matrix::translate(0, 0, necklength));
-    trans->init(odeHandle, 0, osgHandle); 
+    headtrans = new Transform(neck, head, Matrix::translate(0, 0, -headlength/2) 
+			  * Matrix::rotate(-M_PI/2,0,1,0) 
+			  * Matrix::translate(0, 0, necklength));
+    headtrans->init(odeHandle, 0, osgHandle); 
     head->setTexture("Images/fur4.jpg");
     neck->setTexture("Images/toy_fur3.jpg");
-    objects.push_back(trans);
+    objects.push_back(headtrans);
+    ///ignore collision between box on top of dog and head and also between head and body
+    odeHandle.addIgnoredPair(bigboxtransform,headtrans);
+    odeHandle.addIgnoredPair(bigboxtransform,neck);
+    odeHandle.addIgnoredPair(trunk,headtrans);
+    
+
     j = new HingeJoint(trunk, neck, neckpos * pose, Axis(0,0,1) * pose);
     j->init(odeHandle, osgHandleJ, true, theight * 1.2);
     joints.push_back(j);
     servo =  new HingeServo(j, -M_PI/4, M_PI/4,
-			    headmass,0.1,0.1); 
+			    headmass ,0.1,0.1); 
     headtailservos.push_back(servo);        
 
     // create tail
-    Primitive* tail;
     double taillength = conf.size/3;
     double tailwidth = taillength/10;
     double tailmass  = headmass/3;
@@ -292,9 +299,11 @@ namespace lpzrobots {
     j->setParam(dParamLoStop, -M_PI/2);
     j->setParam(dParamHiStop,  M_PI/2);    
     joints.push_back(j);
-    servo =  new HingeServo(j, -M_PI/3, M_PI/3, tailmass*2); 
+    servo =  new HingeServo(j, -M_PI/3, M_PI/3, tailmass*3,0.1,0.1); 
     headtailservos.push_back(servo);        
     tail->setTexture("Images/fur3.jpg");
+    ///ignore collision between box on top of dog and tail
+    odeHandle.addIgnoredPair(bigboxtransform,tail);
         
 
 
@@ -388,6 +397,12 @@ namespace lpzrobots {
    */
   void VierBeiner::destroy(){
     if (created){
+      odeHandle.removeIgnoredPair(bigboxtransform,headtrans);
+      odeHandle.removeIgnoredPair(bigboxtransform,neck);
+      odeHandle.removeIgnoredPair(trunk,headtrans);
+      odeHandle.removeIgnoredPair(bigboxtransform,tail);
+
+
       for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
 	if(*i) delete *i;
       }
@@ -414,6 +429,7 @@ namespace lpzrobots {
       headtailservos.clear();
       dSpaceDestroy(odeHandle.space);
     }
+
     created=false;
   }
 
