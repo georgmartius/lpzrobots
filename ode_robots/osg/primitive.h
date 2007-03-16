@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-02-23 15:13:24  martius
+ *   Revision 1.7  2007-03-16 10:51:36  martius
+ *   each primitive has a substance
+ *   geom userdata is set to primitive itself
+ *
+ *   Revision 1.6  2007/02/23 15:13:24  martius
  *   setColor
  *
  *   Revision 1.5  2007/01/26 12:05:36  martius
@@ -109,6 +113,7 @@
 #include <osg/Matrix>
 #include <ode/common.h>
 
+#include <substance.h>
 // another forward declaration "block"
 #include "osgforwarddecl.h"
 // #include "color.h"
@@ -203,6 +208,8 @@ protected:
    */
   virtual void attachGeomAndSetColliderFlags();
 
+public:
+  Substance substance; // substance description
 protected:
   dGeomID geom;
   dBodyID body;

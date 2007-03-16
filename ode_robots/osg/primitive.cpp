@@ -23,7 +23,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-02-23 15:13:32  martius
+ *   Revision 1.9  2007-03-16 10:51:45  martius
+ *   each primitive has a substance
+ *   geom userdata is set to primitive itself
+ *
+ *   Revision 1.8  2007/02/23 15:13:32  martius
  *   setColor
  *
  *   Revision 1.7  2007/01/26 12:05:36  martius
@@ -186,7 +190,7 @@ namespace lpzrobots{
       dGeomSetCategoryBits (geom, Dyn);
       dGeomSetCollideBits (geom, ~0x0); // collides with everything
     }
-
+    dGeomSetData(geom, (void*)this); // set primitive as geom data
   }
 
 
@@ -319,6 +323,7 @@ namespace lpzrobots{
   void Box::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		 char mode) {
     assert((mode & Body) || (mode & Geom));
+    substance = odeHandle.substance;
     this->mode=mode;
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
@@ -361,6 +366,7 @@ namespace lpzrobots{
   void Sphere::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		    char mode) {
     assert(mode & Body || mode & Geom);
+    substance = odeHandle.substance;
     this->mode=mode;
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
@@ -402,6 +408,7 @@ namespace lpzrobots{
   void Capsule::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     assert(mode & Body || mode & Geom);
+    substance = odeHandle.substance;
     this->mode=mode;
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
@@ -442,6 +449,7 @@ namespace lpzrobots{
   void Cylinder::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     assert(mode & Body || mode & Geom);
+    substance = odeHandle.substance;
     this->mode=mode;
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
@@ -484,6 +492,7 @@ namespace lpzrobots{
     // Primitive::body is ignored (removed) from mode
     assert(parent && parent->getBody() != 0 && child); // parent and child must exist
     assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised    
+    substance = odeHandle.substance;
 
     // our own geom is just a transform
     geom = dCreateGeomTransform(odeHandle.space);
@@ -506,6 +515,7 @@ namespace lpzrobots{
     dGeomTransformSetGeom (geom, child->getGeom());
     // finally bind the transform the body of parent
     dGeomSetBody (geom, parent->getBody());    
+    dGeomSetData(geom, (void*)this); // set primitive as geom data
   }
 
   void Transform::update(){
@@ -532,6 +542,7 @@ namespace lpzrobots{
   void Mesh::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     assert(mode & Body || mode & Geom);
+    substance = odeHandle.substance;
     this->mode=mode;
     if (mode & Draw){
       osgmesh->init(osgHandle);
