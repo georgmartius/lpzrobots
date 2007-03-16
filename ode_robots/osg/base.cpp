@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-02-21 14:26:18  martius
+ *   Revision 1.8  2007-03-16 11:37:11  martius
+ *   ground plane gets primitive to support substances
+ *
+ *   Revision 1.7  2007/02/21 14:26:18  martius
  *   increased ambient light
  *
  *   Revision 1.6  2006/09/20 15:30:47  martius
@@ -492,6 +495,10 @@ namespace lpzrobots {
     ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
     dGeomSetCategoryBits(ground,Primitive::Stat);
     dGeomSetCollideBits(ground,~Primitive::Stat);
+    // assign a dummy primitive to the ground plane to have substance (material) support
+    Plane* plane = new Plane();
+    dGeomSetData(ground, (void*)plane);
+    //    std::cout << "GROUND: " << ground << std::endl;
 
     return geode;
   }
