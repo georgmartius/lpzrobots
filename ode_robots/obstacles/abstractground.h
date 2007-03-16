@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-11 15:41:04  martius
+ *   Revision 1.4  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.3  2006/08/11 15:41:04  martius
  *   playgrounds handle non-quadratic ground planes
  *
  *   Revision 1.2  2006/07/14 12:23:32  martius
@@ -83,19 +87,10 @@ public:
 
     virtual ~AbstractGround();
 
-    virtual void update();
-
 
     virtual void setPose(const osg::Matrix& pose);
 
     virtual void createGround(bool create);
-
-    /**
-     * sets the obstacle color
-     * @param color values in RGBA
-     */
-    virtual void setColor(const Color& color);
-
 
     virtual void setTexture(const std::string& filename);
 
@@ -112,7 +107,6 @@ public:
 
   protected:
 
-    std::vector<Primitive*> obst; //obstacles
     Primitive* groundPlane; // the groundplane
     bool creategroundPlane;
     double groundLength;
@@ -121,13 +115,7 @@ public:
     Color groundColor;
     std::string groundTextureFileName;
 
-    virtual void recreate();
-
-    virtual void create()=0;
-
     virtual void createGround();
-
-    virtual void destroy();
 
   };
 

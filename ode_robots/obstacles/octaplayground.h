@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-09-20 12:55:30  martius
+ *   Revision 1.8  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.7  2006/09/20 12:55:30  martius
  *   correct size of ground
  *
  *   Revision 1.6  2006/08/11 15:41:04  martius
@@ -115,6 +119,8 @@ namespace lpzrobots {
 protected:
 
   virtual void create(){
+    createGround();
+
     // radius for positioning is smaller than radius since we use secants. 
     //  r is the smallest distance of the secant to the center of the circle.
     double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;

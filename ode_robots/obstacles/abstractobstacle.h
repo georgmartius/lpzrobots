@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2006-07-14 12:23:32  martius
+ *   Revision 1.10  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.9  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.8.4.9  2006/06/29 16:39:55  robot3
@@ -88,6 +92,8 @@
 #include "osghandle.h"
 #include <osg/Matrix>
 
+#include <vector>
+
 namespace lpzrobots {
 
   class Primitive;
@@ -111,8 +117,9 @@ class AbstractObstacle{
   
   /**
    * updates the position if the scenegraph nodes
+   * the default implementation calls update on all primitive on "obst"
    */
-  virtual void update() = 0;
+  virtual void update();
   
   /**
    * sets position of the obstacle and creates/recreates obstacle if necessary
@@ -140,17 +147,28 @@ class AbstractObstacle{
    */
   virtual void setColor(const Color& color);
 
+  /// return the "main" primitive of the obtactle. The meaning of "main" is arbitrary
   virtual Primitive* getMainPrimitive() const = 0;
 
+  /**
+   * sets the substance of the obtactle. It is applied to all objects in obj
+   * @param substance description of the substance
+   */
+  virtual void setSubstance(const Substance& substance);
+
  protected:
+  std::vector<Primitive*> obst; ///< primitives which belong to this obstacle
+
   osg::Matrix pose;
   bool obstacle_exists;
 
   OdeHandle odeHandle;
   OsgHandle osgHandle; 
 
-  virtual void destroy()=0;
+  /// is called to destroy the object. The default implementation is to delete all primitives in "obst". 
+  virtual void destroy();
 
+  /// overload this function to create the obstactle. All primitives should go into the list "obst"
   virtual void create()=0;
 
 };

@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-20 12:55:30  martius
+ *   Revision 1.5  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.4  2006/09/20 12:55:30  martius
  *   correct size of ground
  *
  *   Revision 1.3  2006/07/14 12:23:33  martius
@@ -86,7 +90,7 @@ namespace lpzrobots {
     heightfield->init(odeHandle, 0, osgHandle);
     if(!texture.empty())
       heightfield->setTexture(texture, true, true);
-  
+    obst.push_back(heightfield);
     obstacle_exists=true;
   }
   

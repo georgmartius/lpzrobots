@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:33  martius
+ *   Revision 1.3  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.2  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.11  2006/06/16 22:27:26  martius
@@ -85,6 +89,7 @@
 #include <math.h>
 
 #include "primitive.h"
+#include "osgprimitive.h"
 #include "abstractobstacle.h"
 
 namespace lpzrobots {
@@ -110,17 +115,6 @@ class PassiveSphere : public AbstractObstacle{
     obstacle_exists=false;    
   };
 
-  ~PassiveSphere(){
-    if(sphere) delete sphere;
-  }
-
-  /**
-   * update position of sphere
-   */
-  virtual void update(){
-    if(sphere) sphere->update();
-  };
-
   virtual void setTexture(const std::string& filename){
     if(sphere) sphere->getOSGPrimitive()->setTexture(filename);
   }
@@ -142,14 +136,9 @@ class PassiveSphere : public AbstractObstacle{
     sphere->init(odeHandle, mass, osgHandle);
     osg::Vec3 pos=pose.getTrans();
     sphere->setPosition(pos);
+    obst.push_back(sphere);
         
     obstacle_exists=true;
-  };
-
-
-  virtual void destroy(){
-    if(sphere) delete sphere;    
-    obstacle_exists=false;
   };
 
 };

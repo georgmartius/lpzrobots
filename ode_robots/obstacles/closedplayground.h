@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-12 08:23:13  robot8
+ *   Revision 1.6  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.5  2006/09/12 08:23:13  robot8
  *   -corrected the wrong call for pos with getPosition ()
  *
  *   Revision 1.4  2006/08/11 15:41:04  martius
@@ -82,13 +86,12 @@ namespace lpzrobots {
       roof->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
 
       roof->setPosition(getPosition () + osg::Vec3(0,0,height+width/2));
+      obst.push_back(roof);
     };
 
 
     virtual void destroy(){
       Playground::destroy();
-      
-      if(roof) delete roof;
     }
   };
 

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:33  martius
+ *   Revision 1.3  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.2  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.6  2006/06/16 22:27:26  martius
@@ -82,16 +86,6 @@ class PassiveBox : public AbstractObstacle{
     obstacle_exists=false;    
   };
 
-  ~PassiveBox(){
-    if(box) delete box;
-  }
-
-  /**
-   * update position of box
-   */
-  virtual void update(){
-    if(box) box->update();
-  };
 
   virtual void setTexture(const std::string& filename){
     if(box) box->getOSGPrimitive()->setTexture(filename);
@@ -113,13 +107,9 @@ class PassiveBox : public AbstractObstacle{
     box->init(odeHandle, mass, osgHandle);
     osg::Vec3 pos=pose.getTrans();
     box->setPosition(pos);
-        
-    obstacle_exists=true;
-  };
+    obst.push_back(box);
 
-  virtual void destroy(){
-    if(box) delete box;    
-    obstacle_exists=false;
+    obstacle_exists=true;
   };
 
 };

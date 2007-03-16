@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2006-09-21 22:09:12  martius
+ *   Revision 1.14  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.13  2006/09/21 22:09:12  martius
  *   *** empty log message ***
  *
  *   Revision 1.12  2006/08/11 15:41:04  martius
@@ -134,6 +138,8 @@ namespace lpzrobots {
 
   protected:
     virtual void create(){
+      createGround();
+      
       Box* box;
       osg::Vec3 offset(- (length/2 + width/2),
 		       0,

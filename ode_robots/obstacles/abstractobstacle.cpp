@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-13 09:17:16  martius
+ *   Revision 1.4  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.3  2006/12/13 09:17:16  martius
  *   obstacle_exists should be set in create if childs
  *
  *   Revision 1.2  2006/07/14 12:23:32  martius
@@ -81,10 +85,15 @@
  *                                                                 *
  ***************************************************************************/
 #include "abstractobstacle.h"
+#include "primitive.h"
+#include <selforg/stl_adds.h>
+
+
+using namespace std;
 
 namespace lpzrobots {
 
-  /**
+  /*
    * Constructor
    * @param odeHandle containing ODE stuff like world, space and jointgroup
    * @param osgHandle containing OSG stuff like scene, color...
@@ -97,9 +106,19 @@ namespace lpzrobots {
     obstacle_exists=false;
   };
 
-  AbstractObstacle::~AbstractObstacle(){}
+  AbstractObstacle::~AbstractObstacle(){
+    if(obstacle_exists) destroy();
+  }
   
-  /**
+  void AbstractObstacle::update(){
+    if (obstacle_exists){
+      for (unsigned int i=0; i<obst.size(); i++){
+	if(obst[i]) obst[i]->update();
+      }
+    }
+  };
+
+  /*
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
   void AbstractObstacle::setPosition(const osg::Vec3& pos) {
@@ -107,29 +126,48 @@ namespace lpzrobots {
     setPose(pose);
   };
 
-  /**
+  /*
    * gives actual position of the obstacle
    */
   osg::Vec3 AbstractObstacle::getPosition(){
     return pose.getTrans();
   }
 
-  /**
+  /*
    * gives actual pose of the obstacle
    */
   osg::Matrix AbstractObstacle::getPose(){ return pose; }
 
 
-  /**
+  /*
    * sets the obstacle color
    * @param color values in RGBA
    */
   void AbstractObstacle::setColor(const Color& color) {
     osgHandle.color = color;
     if (obstacle_exists) {
-      destroy();
-      create();
+      FOREACH(vector<Primitive*>, obst, it){
+	(*it)->setColor(color);
+      }
     }
+  }
+
+  void AbstractObstacle::setSubstance(const Substance& substance){
+    odeHandle.substance = substance;
+    if (obstacle_exists) {
+      FOREACH(vector<Primitive*>, obst, it){
+	(*it)->substance=substance;
+      }
+    }
+  }
+
+  void AbstractObstacle::destroy(){
+    for(unsigned int i=0; i < obst.size(); i++){
+      if(obst[i]) delete(obst[i]);
+    }
+    obst.clear();
+    obstacle_exists=false;
   };
+  
 
 }

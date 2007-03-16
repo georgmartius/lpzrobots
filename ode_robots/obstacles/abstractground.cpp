@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-11-17 13:42:26  martius
+ *   Revision 1.5  2007-03-16 11:01:37  martius
+ *   abstractobstacle gets mor functionallity
+ *   setSubstance
+ *
+ *   Revision 1.4  2006/11/17 13:42:26  martius
  *   Recreation in setColor and ...
  *   removed error Message
  *
@@ -83,21 +87,14 @@ namespace lpzrobots {
   AbstractGround::~AbstractGround(){
     destroy();
   }
-
-  void AbstractGround::update(){
-    if (obstacle_exists){
-      for (unsigned int i=0; i<obst.size(); i++){
-	if(obst[i]) obst[i]->update();
-      }
-      if (groundPlane)
-	groundPlane->update();
-    }
-  };
   
 
   void AbstractGround::setPose(const osg::Matrix& pose){
     this->pose = pose;
-    recreate();
+    if(obstacle_exists){
+      destroy();     
+    }
+    create();
   };
 
   void AbstractGround::createGround(bool create) {
@@ -110,33 +107,12 @@ namespace lpzrobots {
     }
   }
 
-  /**
-   * sets the obstacle color
-   * @param color values in RGBA
-   */
-  void AbstractGround::setColor(const Color& color) {
-    osgHandle.color = color;
-    if (obstacle_exists) recreate();
-//     if (obstacle_exists) {
-//       std::cout << "ERROR: setColor(const Color& color) has no effect AFTER setPosition(osg::Vec3) !!!"
-// 		<< std::endl;
-//       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
-//       exit(-1);
-//     }
-  };
-
-
   void AbstractGround::setTexture(const std::string& filename){
     wallTextureFileName=filename;
-    if (obstacle_exists) recreate();
-
-//     if (obstacle_exists) {
-//       std::cout << "ERROR: "
-// 		<< "setTexture(const std::sting& filename) has no effect AFTER setPosition(osg::Vec3) !!!"
-// 		<< std::endl;
-//       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
-//       exit(-1);
-//     }
+    if (obstacle_exists) {
+      destroy();
+      create();
+    }
   }
 
   Primitive* AbstractGround::getMainPrimitive() const { 
@@ -172,18 +148,6 @@ namespace lpzrobots {
     }
   };
 
-
-
-
-  void AbstractGround::recreate() {
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
-    createGround();
-    obstacle_exists=true;
-  }
-
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
@@ -192,18 +156,8 @@ namespace lpzrobots {
 			Primitive::Geom | Primitive::Draw);
       groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
       groundPlane->setTexture(groundTextureFileName,true,true);
+      obst.push_back(groundPlane);
     }
   }
-
-
-  void AbstractGround::destroy(){
-    for(unsigned int i=0; i < obst.size(); i++){
-      if(obst[i]) delete(obst[i]);
-    }
-    obst.clear();
-    if (groundPlane) delete(groundPlane);
-    groundPlane=0;
-    obstacle_exists=false;
-  };
   
 }
