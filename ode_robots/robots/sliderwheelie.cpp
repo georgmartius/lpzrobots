@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-09-21 11:43:45  martius
+ *   Revision 1.9  2007-03-16 10:58:37  martius
+ *   new collision control via substances
+ *   fixed Bug in creation
+ *
+ *   Revision 1.8  2006/09/21 11:43:45  martius
  *   powerratio
  *
  *   Revision 1.7  2006/09/21 10:21:33  robot8
@@ -94,42 +98,7 @@ namespace lpzrobots {
   }
 
   void SliderWheelie::doInternalStuff(const GlobalData& global){
-    if(created){
-      // mycallback is called for internal collisions! Only once per step
-      //      dSpaceCollide(odeHandle.space, this, mycallback);
-    }
   }
-
-  void SliderWheelie::mycallback(void *data, dGeomID o1, dGeomID o2)
-  {
-    SliderWheelie* me = (SliderWheelie*) data;
-    int i=0;
-    int o1_index= -1;
-    int o2_index= -1;
-    for (vector<Primitive*>::iterator n = me->objects.begin(); n!= me->objects.end(); n++, i++) {      
-      if( (*n)->getGeom() == o1)
-	o1_index=i;
-      if( (*n)->getGeom() == o2)
-	o2_index=i;
-    }
-
-    if(o1_index >= 0 && o2_index >= 0 && abs(o1_index - o2_index) > 1 &&
-       !(o1_index == 0 && o2_index == me->conf.segmNumber-1)) {
-      // internal collisions
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];  
-      n = dCollide (o1, o2, N, &contact[0].geom, sizeof(dContact));	  
-      for (i=0; i<n; i++) {
-	contact[i].surface.mode = 0;
-	contact[i].surface.mu = 0;
-	contact[i].surface.mu2 = 0;
-	dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;     
-      }
-    }
-  } 
-
 
   void SliderWheelie::setMotors(const motor* motors, int motornumber) {
    assert(created);
@@ -162,32 +131,8 @@ namespace lpzrobots {
 
   bool SliderWheelie::collisionCallback(void *data, dGeomID o1, dGeomID o2)
   {
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-      int i,n;  
-      const int N = 20;
-      dContact contact[N];
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++){
-	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
-	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.001;
-	contact[i].surface.slip2 = 0.001;
-	contact[i].surface.mu = conf.frictionGround; //*10;
-	//      contact[i].surface.mu2 = conf.frictionGround;
-	contact[i].surface.soft_erp = 0.9;
-	contact[i].surface.soft_cfm = 0.01;
-	
-	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-      }
-      return true;
-    }
     return false;
   }
-
 
   void SliderWheelie::create(const osg::Matrix& pose) {
     if (created) {
@@ -195,12 +140,13 @@ namespace lpzrobots {
     }
     
     odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.substance.toRubber(0.001);
 	
     vector<Pos> ancors;
-    // annular positioning
+    // angular positioning
     for(int n = 0; n < conf.segmNumber; n++) {
       osg::Matrix m = osg::Matrix::rotate(M_PI*2*n/conf.segmNumber, 0, -1, 0) * pose;
-      if(n%2==0){
+      if(n%2==0){ // slider segment
 	
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength/2);
 	p1->init(odeHandle, conf.segmMass/2 , osgHandle);
@@ -236,7 +182,7 @@ namespace lpzrobots {
 					     conf.segmLength*conf.sliderLength/2, 
 					     conf.motorPower);
 	sliderServos.push_back(servo);	
-      }else{
+      }else{ // normal segment
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 2 : 1), conf.segmLength);
 	p1->init(odeHandle, conf.segmMass * ( (n+1)%4 ==0 ? 1.0 : 1), osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
@@ -250,14 +196,12 @@ namespace lpzrobots {
 
    //***************** hinge joint definition***********
     int i = 0;
-    for(int n=0; n < conf.segmNumber-1; n++, i++) {            
+    for(int n=0; n < conf.segmNumber; n++, i++) {            
       if(n%2==0){
 	i++;	
       }
       int o1 = i;
-      int o2 = i+1;
-//      const Pos& p1(objects[o1]->getPosition());
-//      const Pos& p2(objects[o2]->getPosition());
+      int o2 = (i+1) % objects.size();
       
       HingeJoint* j = new HingeJoint(objects[o1], objects[o2],
 				     ancors[n],
@@ -274,26 +218,6 @@ namespace lpzrobots {
       hingeServos.push_back(servo);
 
     }
-
-   // connecting first and last segment
-   const Pos& p1((*objects.rbegin())->getPosition());
-   const Pos& p2((*objects.begin())->getPosition());
-
-   HingeJoint* j = new HingeJoint((*objects.rbegin()), (*objects.begin()),
-				  (p1 + p2)/2,
- 				  Axis(0,1,0)*pose);
-   j->init(odeHandle, osgHandle, true, conf.segmDia/2*1.02);
-
-   // setting stops at hinge joints
-   j->setParam(dParamLoStop, -conf.jointLimit);
-   j->setParam(dParamHiStop,  conf.jointLimit);
-   joints.push_back(j);
-
-   HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, 
-					 conf.motorPower*conf.powerRatio);
-
-   hingeServos.push_back(servo);
-
 
    created=true;
 
