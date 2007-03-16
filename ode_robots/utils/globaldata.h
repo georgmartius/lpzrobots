@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-14 12:23:56  martius
+ *   Revision 1.5  2007-03-16 10:56:33  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2006/07/14 12:23:56  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.3.4.5  2006/06/25 17:01:26  martius
@@ -65,19 +68,21 @@ typedef std::vector<OdeAgent*> OdeAgentList;         ///
 /**
   Data structure holding all essential global information.
 */
-typedef struct GlobalData
+struct GlobalData
 {
   GlobalData() { 
     time = 0;
     environment = 0;
   }
+
   OdeConfig odeConfig;
   ConfigList configs;
   ObstacleList obstacles;
   OdeAgentList agents;
   Primitive* environment; /// < this is used to be able to attach objects to the static environment
+
   double time;
-} GlobalData;
+};
 
 }
 
