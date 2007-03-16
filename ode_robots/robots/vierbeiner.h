@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-02-23 09:30:13  der
+ *   Revision 1.2  2007-03-16 10:57:26  martius
+ *   no elasticity, since substance support allows to make Playground soft
+ *
+ *   Revision 1.1  2007/02/23 09:30:13  der
  *   dog :-)
  *
  *   Revision 1.3  2007/02/21 16:08:45  der
@@ -63,7 +66,7 @@ namespace lpzrobots {
     double anklePower;  ///< spring strength in the ankles
     double ankleDamping; ///< damping in the ankles
     double frictionGround; ///< friction with the ground
-    double elasticity; ///< elasticity of collisions 0.5: soft 100: hard
+    //    double elasticity; ///< elasticity of collisions 0.5: soft 100: hard
   } VierBeinerConf;
 
 
@@ -98,7 +101,7 @@ namespace lpzrobots {
       c.hipJointLimit = M_PI/3; // +- 60 degree
       c.kneeJointLimit = M_PI/4; // +- 45 degree
       c.frictionGround = 0.1;
-      c.elasticity = 10;
+      //      c.elasticity = 10;
       return c;
     }
 
@@ -173,7 +176,10 @@ namespace lpzrobots {
 
     bool created;      // true if robot was created
 
-    std::vector<Primitive*> objects;  // 1 body, head, (tail?) legs
+
+    // some objects explicitly needed for ignored collision pairs
+    Primitive *trunk, *headtrans, *bigboxtransform, *neck, *tail; 
+    std::vector<Primitive*> objects;  // all the objects
     std::vector<Joint*> joints; // joints legs
     std::vector <OneAxisServo*> hipservos; // motors
     std::vector <OneAxisServo*> kneeservos; // motors
