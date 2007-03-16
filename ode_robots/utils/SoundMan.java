@@ -24,7 +24,7 @@ public class SoundMan {
       System.exit(0);
    }else if(args[0].equals("-disc")) { // discrete
     if(args.length==2) sm=new SoundManipulation(1,new Float(args[1]).floatValue(),System.in);
-    else if(args.length==1) sm=new SoundManipulation(1,0.4f,System.in);
+    else if(args.length==1) sm=new SoundManipulation(1,0.7f,System.in);
    } else if(args[0].equals("-ampl")) { // amplitude
     if(args.length==2) sm=new SoundManipulation(2,new Float(args[1]).floatValue(),System.in);
     else if(args.length==1) sm=new SoundManipulation(2,0.8f,System.in);
