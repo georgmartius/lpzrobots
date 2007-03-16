@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-02-23 09:30:41  der
+ *   Revision 1.4  2007-03-16 11:36:10  martius
+ *   soft playground
+ *
+ *   Revision 1.3  2007/02/23 09:30:41  der
  *   *** empty log message ***
  *
  *   Revision 1.2  2007/02/12 13:30:40  martius
@@ -91,6 +94,7 @@ public:
 
   Joint* fixator;
   AbstractObstacle* playground; 
+  double hardness;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -114,8 +118,9 @@ public:
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, 0.4));
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    playground->setPosition(osg::Vec3(0,0,0.1)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
+    hardness=1;
     //     double diam = .8; 
 //     OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/10*diam, .2*diam,/*Height*/ 2), 12,false);
 //       playground3->setColor(Color(.0,0.2,1.0,0.1));
@@ -169,7 +174,7 @@ public:
 
     // create pointer to controller
     // push controller in global list of configurables
-    // AbstractController *controller = new SineController();
+    AbstractController *controller = new SineController();
     //    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     //    cc.useS=true;
     //    AbstractController *controller = new InvertMotorNStep(cc);
@@ -182,7 +187,7 @@ public:
     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, true);
     cc.model=net;
     cc.useS=true;
-    AbstractController* controller = new DerBigController(cc);
+    //AbstractController* controller = new DerBigController(cc);
     //AbstractController* controller = new InvertMotorBigModel(cc);
     controller->setParam("sinerate",50);
     controller->setParam("phaseshift",1);
@@ -220,6 +225,24 @@ public:
 	case 'x': 
 	  if(fixator) delete fixator;
 	  fixator=0;	 
+	  return true;
+	  break;
+	case 'i': 
+	  if(playground) {
+	    hardness*=1.5;
+	    cout << "hardness " << hardness << endl;
+	    Substance s(0.8,0.01,hardness,0);
+	    playground->setSubstance(s);
+	  }
+	  return true;
+	  break;
+	case 'j': 
+	  if(playground) {
+	    hardness/=1.5;
+	    cout << "hardness " << hardness << endl;
+	    Substance s(0.8,0.01,hardness,0);
+	    playground->setSubstance(s);
+	  }
 	  return true;
 	  break;
 	default:
