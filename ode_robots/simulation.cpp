@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.57  2007-03-05 17:54:24  martius
+ *   Revision 1.58  2007-03-16 10:55:03  martius
+ *   new nearcallback structure
+ *   Toplevel nearcallback uses robots collision control
+ *   normal nearcallback uses new substance implementation
+ *
+ *   Revision 1.57  2007/03/05 17:54:24  martius
  *   soundMan with parameters
  *
  *   Revision 1.56  2007/02/27 11:56:40  robot5
@@ -379,14 +384,8 @@ namespace lpzrobots {
   bool Simulation::init(int argc, char** argv){
 
     /**************** ODE-Section   ***********************/
-    odeHandle.world = dWorldCreate ();
+    odeHandle.init();
 
-    // Create the primary world-space, which is used for collision detection
-    odeHandle.space = dHashSpaceCreate (0);
-    // the jointGroup is used for collision handling, 
-    //  where a lot of joints are created every step
-    odeHandle.jointGroup = dJointGroupCreate ( 1000000 );
-  
     globalData.odeConfig.setOdeHandle(odeHandle);
  
     //set Gravity to Earth level
@@ -617,7 +616,7 @@ namespace lpzrobots {
 	}
   
 	/**********************Simulationsschritt an sich**********************/
-	dSpaceCollide ( odeHandle.space , this , &nearCallback );
+	dSpaceCollide ( odeHandle.space , this , &nearCallback_TopLevel );
 	dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize ); 
 	//ODE-Engine geht einen Schritt weiter
 	dJointGroupEmpty (odeHandle.jointGroup);    
@@ -877,12 +876,77 @@ namespace lpzrobots {
 
   }
 
-  // Diese Funktion wird immer aufgerufen, wenn es im definierten Space zu einer Kollission kam
-  // 
-  void Simulation::nearCallback(void *data, dGeomID o1, dGeomID o2){    
+//   // This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide)
+//   void nearCallback_Old(void *data, dGeomID o1, dGeomID o2){    
+//     Simulation* me = (Simulation*) data;
+//     if (!me) return;
+
+//     bool collision_treated=false;
+//     // call robots collision treatments
+//     for(OdeAgentList::iterator i= me->globalData.agents.begin(); 
+// 	(i != me->globalData.agents.end()) && !collision_treated; i++){
+//       collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
+//     }
+  
+//     if (collision_treated) return; // exit if collision was treated by a robot
+  
+//     if(!(me->collCallback(me->odeHandle, data,o1,o2))){
+
+//       // Todo: here is a code, that generated all possible contact points,
+//       //  for the new collision code, make sure we incorperate that.
+// //       if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
+// //       // colliding a space with something
+// //       dSpaceCollide2 (o1,o2,data,&nearCallback);
+// //       // collide all geoms internal to the space(s)
+// //       if (dGeomIsSpace (o1)) dSpaceCollide (o1,data,&nearCallback);
+// //       if (dGeomIsSpace (o2)) dSpaceCollide (o2,data,&nearCallback);
+// //     }
+// //     else {
+// //       // colliding two non-space geoms, so generate contact
+// //       // points between o1 and o2
+// //       int num_contact = dCollide (o1,o2,max_contacts,contact_array,skip);
+// //       // add these contact points to the simulation
+// //       ...
+// //     }
+
+//       // using standard collision treatment
+
+//       int i,n;  
+//       const int N = 80;
+//       dContact contact[N];
+//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+//       if (n > 0) {
+// 	for (i=0; i<n; i++)
+// 	  {
+	    
+//  	    // contact[i].surface.mode = dContactBounce | dContactSoftCFM;
+// 	    //  	    contact[i].surface.mu = 1;
+// 	    //  	    contact[i].surface.mu2 = 0;
+// 	    //  	    contact[i].surface.bounce = 0.1;
+// 	    //  	    contact[i].surface.bounce_vel = 0.1;
+// 	    //  	    contact[i].surface.soft_cfm = 0.1;
+
+// 	    contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+// 	      dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// 	    contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
+// 	    contact[i].surface.slip1 = 0.005;
+// 	    contact[i].surface.slip2 = 0.005;
+// 	    contact[i].surface.soft_erp = 0.999;
+// 	    contact[i].surface.soft_cfm = 0.001;	   
+// 	    dJointID c = dJointCreateContact (me->odeHandle.world, 
+// 					      me->odeHandle.jointGroup,&contact[i]);
+// 	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+// 	  }
+//       }
+//     }
+//   }
+
+
+// This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide)
+  void Simulation::nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2){    
     Simulation* me = (Simulation*) data;
     if (!me) return;
-
+    
     bool collision_treated=false;
     // call robots collision treatments
     for(OdeAgentList::iterator i= me->globalData.agents.begin(); 
@@ -891,59 +955,72 @@ namespace lpzrobots {
     }
   
     if (collision_treated) return; // exit if collision was treated by a robot
-  
-    if(!(me->collCallback(me->odeHandle, data,o1,o2))){
+    
+    nearCallback(data, o1, o2);
+  }
 
-      // Todo: here is a code, that generated all possible contact points,
-      //  for the new collision code, make sure we incorperate that.
-//       if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
-//       // colliding a space with something
-//       dSpaceCollide2 (o1,o2,data,&nearCallback);
-//       // collide all geoms internal to the space(s)
-//       if (dGeomIsSpace (o1)) dSpaceCollide (o1,data,&nearCallback);
-//       if (dGeomIsSpace (o2)) dSpaceCollide (o2,data,&nearCallback);
-//     }
-//     else {
-//       // colliding two non-space geoms, so generate contact
-//       // points between o1 and o2
-//       int num_contact = dCollide (o1,o2,max_contacts,contact_array,skip);
-//       // add these contact points to the simulation
-//       ...
-//     }
 
-      // using standard collision treatment
-
+  void Simulation::nearCallback (void *data, dGeomID o1, dGeomID o2)
+  {
+    Simulation* me = (Simulation*) data;
+    if (!me) return;
+    if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
+      // colliding a space with something
+      dSpaceCollide2 (o1,o2,data,&nearCallback);
+      // collide all geoms internal to the space(s)
+      if (dGeomIsSpace (o1)){	
+	if(! me->odeHandle.isIgnoredSpace((dxSpace*)o1) )
+	   dSpaceCollide ((dxSpace*)o1,data,&nearCallback);
+      }
+      if (dGeomIsSpace (o2)){
+	if(! me->odeHandle.isIgnoredSpace((dxSpace*)o2) )
+	   dSpaceCollide ((dxSpace*)o2,data,&nearCallback);
+      }
+    } else {
+      // colliding two non-space geoms, so generate contact
+      // points between o1 and o2
+      /// use the new method with substances
+      dSurfaceParameters surfParams;
+      // check whether ignored pair (e.g. connected by joint)
+      if(me->odeHandle.isIgnoredPair(o1, o2 )) {	
+	//cerr << "ign:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;	  
+	return;
+      }
+      //cerr << "col:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;	  
+      Primitive* p1 = (Primitive*)dGeomGetData (o1);
+      Primitive* p2 = (Primitive*)dGeomGetData (o2);
+      if(!p1 || !p2) {
+	cerr << "collision detected without primitive\n";
+	return;
+      }
+      const Substance& s1 = p1->substance;
+      const Substance& s2 = p2->substance;
+      bool have_params = false;
+      if(s1.callback) {
+	have_params = s1.callback(surfParams, me->globalData, s1.userdata, 
+				  o1, o2, &s1, &s2);
+      }
+      if(s2.callback && !have_params) {
+	have_params = s2.callback(surfParams, me->globalData, s2.userdata, 
+				  o2, o1, &s2, &s1);
+      }
+      if(!have_params){
+	surfParams = Substance::getSurfaceParams(s1,s2);
+	//Substance::printSurfaceParams(surfParams);
+      }
+      
       int i,n;  
       const int N = 80;
       dContact contact[N];
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      if (n > 0) {
-	for (i=0; i<n; i++)
-	  {
-	    
- 	    // contact[i].surface.mode = dContactBounce | dContactSoftCFM;
-	    //  	    contact[i].surface.mu = 1;
-	    //  	    contact[i].surface.mu2 = 0;
-	    //  	    contact[i].surface.bounce = 0.1;
-	    //  	    contact[i].surface.bounce_vel = 0.1;
-	    //  	    contact[i].surface.soft_cfm = 0.1;
-
-	    contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	      dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	    contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
-	    contact[i].surface.slip1 = 0.005;
-	    contact[i].surface.slip2 = 0.005;
-	    contact[i].surface.soft_erp = 0.999;
-	    contact[i].surface.soft_cfm = 0.001;	   
-	    dJointID c = dJointCreateContact (me->odeHandle.world, 
-					      me->odeHandle.jointGroup,&contact[i]);
-	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-	  }
-      }
+      for (i=0; i < n; i++) {
+	contact[i].surface = surfParams;	
+	dJointID c = dJointCreateContact (me->odeHandle.world, 
+					  me->odeHandle.jointGroup,&contact[i]);
+	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+      }      
     }
   }
-
-
 
 
   /// internals
