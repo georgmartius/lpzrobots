@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-01-26 12:05:36  martius
+ *   Revision 1.6  2007-03-16 11:00:06  martius
+ *   ground plane gets primitive to support substances
+ *
+ *   Revision 1.5  2007/01/26 12:05:36  martius
  *   joint support forces in uniform manner
  *
  *   Revision 1.4  2006/12/13 09:09:15  martius
@@ -107,7 +110,18 @@ namespace lpzrobots {
   
   Joint::~Joint(){ 
     if (joint) dJointDestroy(joint);
+    if(odeHandle.ignoredPairs && part1->getGeom() && part2->getGeom()){
+      odeHandle.removeIgnoredPair(part1->getGeom(), part2->getGeom());
+    }    
   }
+
+  void Joint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+		   bool withVisual, double visualSize){
+    this->odeHandle = odeHandle;
+    if(part1->getGeom() && part2->getGeom())
+      this->odeHandle.addIgnoredPair(part1->getGeom(), part2->getGeom());
+  }
+
   
   std::list<double> OneAxisJoint::getPositions() const {
     std::list<double> l;
@@ -168,6 +182,7 @@ namespace lpzrobots {
     */
   void FixedJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		      bool withVisual, double visualSize){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
     joint = dJointCreateFixed (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetFixed (joint);
@@ -195,6 +210,7 @@ namespace lpzrobots {
 
   void HingeJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			 bool withVisual, double visualSize){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
     joint = dJointCreateHinge (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetHingeAnchor (joint, anchor.x(), anchor.y(), anchor.z());
@@ -258,6 +274,7 @@ namespace lpzrobots {
 
   void Hinge2Joint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			 bool withVisual, double visualSize){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
     joint = dJointCreateHinge2 (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetHinge2Anchor (joint, anchor.x(), anchor.y(), anchor.z());
@@ -338,6 +355,7 @@ namespace lpzrobots {
 
   void UniversalJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 			 bool withVisual, double visualSize){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
     joint = dJointCreateUniversal (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetUniversalAnchor (joint, anchor.x(), anchor.y(), anchor.z());
@@ -419,6 +437,7 @@ namespace lpzrobots {
 
   void BallJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		       bool withVisual, double visualSize){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
     joint = dJointCreateBall(odeHandle.world, 0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetBallAnchor (joint, anchor.x(), anchor.y(), anchor.z());
@@ -463,6 +482,7 @@ namespace lpzrobots {
 			 bool withVisual, double visualSize){
     this->osgHandle= osgHandle;
     this->visualSize = visualSize;
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
 
     joint = dJointCreateSlider (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
@@ -520,7 +540,6 @@ namespace lpzrobots {
   double SliderJoint::getParam(int parameter) const{
     assert(joint); // joint is not initialised
     return dJointGetSliderParam(joint, parameter);
-  }
-    
+  } 
 
 }
