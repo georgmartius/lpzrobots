@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-02-23 19:36:42  martius
+ *   Revision 1.14  2007-03-26 13:15:51  martius
+ *   new makefile with readline support
+ *
+ *   Revision 1.13  2007/02/23 19:36:42  martius
  *   useSD
  *
  *   Revision 1.12  2007/02/23 15:14:17  martius
@@ -224,7 +227,7 @@ public:
       //conf.irAxis1=true;
       //      conf.irAxis2=true;
       //      conf.irAxis3=true;
-      conf.spheremass   = 1;
+      //      conf.spheremass   = 1;
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
 					 conf, "Sphere1", 0.3); 
       //// FORCEDSPHERE
@@ -234,14 +237,14 @@ public:
       // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
       // 
       sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
-
+      
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       //      DerControllerConf cc = DerController::getDefaultConf();
       cc.cInit=1.0;
-      cc.useSD=true;
+      //      cc.useSD=true;
       //controller = new DerController(cc);    
       controller = new InvertMotorNStep(cc);    
-      //controller = new SineController();
+      // controller = new SineController();
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       controller->setParam("steps", 1);    
       //    controller->setParam("adaptrate", 0.001);    
@@ -259,7 +262,7 @@ public:
       controller->setParam("sinerate", 15);  
       controller->setParam("phaseshift", 0.45);
     
-      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
+      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.25) );
       OdeAgent* agent = new OdeAgent ( plotoptions );
       agent->init ( controller , sphere1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
@@ -280,11 +283,11 @@ public:
 	case 'Y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
 	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
 	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
-	case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2); 
-	  printf("sineRate : %g\n", controller->getParam("sineRate"));
+	case 'S' : controller->setParam("sinerate", controller->getParam("sinerate")*1.2); 
+	  printf("sinerate : %g\n", controller->getParam("sinerate"));
 	  break;
-	case 's' : controller->setParam("sineRate", controller->getParam("sineRate")/1.2); 
-	  printf("sineRate : %g\n", controller->getParam("sineRate"));
+	case 's' : controller->setParam("sinerate", controller->getParam("sinerate")/1.2); 
+	  printf("sinerate : %g\n", controller->getParam("sinerate"));
 	  break;
 	default:
 	  return false;

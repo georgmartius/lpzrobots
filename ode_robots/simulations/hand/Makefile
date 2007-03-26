@@ -1,8 +1,8 @@
-#File:     Makefile for Matrix libary
+#File:     Makefile for lpzrobots simulation
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-FILES = main hand
+FILES = main
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
@@ -25,7 +25,8 @@ LIBSELFORG = lib$(SELFORGLIB).a
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
-	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut
+	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
+	-lreadline
 
 INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include
 

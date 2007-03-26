@@ -1,50 +1,74 @@
-#File:     Makefile for integration example
+#File:     Makefile for lpzrobots simulation
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
-#Date:     June 2006
+#Date:     Mai 2005
 
-# add files to compile here
 FILES = main
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
-EXEC = models
+EXEC = start
+EXEC_OPT = start_opt
 
-LPZROBOTS = ../../../..
-SELFORG = $(LPZROBOTS)/selforg
+LPZROBOTS  = ../../..
+ODEROBOTS  = $(LPZROBOTS)/ode_robots
+SELFORG    = $(LPZROBOTS)/selforg
+
+ODEROBOTSLIB := ode_robots
+ODEROBOTSLIB_OPT := ode_robots_opt
+LIBODEROBOTS = lib$(ODEROBOTSLIB).a
+LIBODEROBOTS_OPT = lib$(ODEROBOTSLIB_OPT).a
+
+SELFORGLIB = selforg
+SELFORGLIB_OPT = selforg_opt
+LIBSELFORG = lib$(SELFORGLIB).a
+
+LIBS   = -lm \
+	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
+	-L$(SELFORG)   -l$(SELFORGLIB) \
+	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
+	-lreadline
+
+INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include
+
+CXX = g++
 # -pg for profiling
-CFLAGS = -Wall -I. -g
+CPPFLAGS = -Wall -I. -g $(INC)
 ## Optimisation
-#CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
+CPPFLAGS_OPT = -Wall -I. -O3 -DNDEBUG $(INC)
 
-LIBS   = -lm -L$(SELFORG) -lselforg 
-INC   = -I$(SELFORG)/include
+normal: libode_robots $(EXEC)
 
-cc = g++ $(CFLAGS) $(INC) -c
-#cc = g++ $(CFLAGS) -c -O -g3 -pg
-CXX = g++ $(CFLAGS) $(INC)  -c
+$(EXEC): $(ODEROBOTS)/$(LIBODEROBOTS)  Makefile Makefile.depend $(OFILES)
+	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
 
-CC = g++ $(CFLAGS) 
-#CC = g++ -g3 -pg  
+opt: libode_robots_opt $(EXEC_OPT)
 
-$(EXEC): Makefile.depend $(OFILES) libselforg
-	$(CC) $(OFILES) $(LIBS)  -o $(EXEC)
+$(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
+$(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
+$(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
+$(EXEC_OPT): $(ODEROBOTS)/$(LIBODEROBOTS_OPT)  Makefile Makefile.depend $(OFILES)
+	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
-libselforg: 
-	cd $(SELFORG) && make
+libode_robots:	
+	cd $(ODEROBOTS) && make
 
-depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+libode_robots_opt:	
+	cd $(ODEROBOTS) && make opt
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
 
-todo:
-	find -name "*.[ch]*" -exec grep -Hni "TODO" {} \;
+depend: 
+	makedepend $(CFLAGS) $(INC) $(CFILES)  -f- > Makefile.depend 2>/dev/null
 
 tags: 
 	etags `find -name "*.[ch]"` 
 
+cleanall: clean
+	cd $(ODEROBOTS) && make clean
+	cd $(SELFORG) && make clean
+
 clean:
-	rm -f $(EXEC) *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC_OPT) *.o Makefile.depend
 
 include Makefile.depend

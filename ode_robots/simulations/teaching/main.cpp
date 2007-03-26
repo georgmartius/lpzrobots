@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-02-23 15:14:17  martius
+ *   Revision 1.6  2007-03-26 13:15:51  martius
+ *   new makefile with readline support
+ *
+ *   Revision 1.5  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2007/02/12 13:17:41  martius
@@ -126,6 +129,7 @@ public:
     //  AbstractController *controller = new InvertNChannelController(10);      
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
     cc.cInit=1.0;
+    cc.useS=true;
     
     controller = new InvertMotorNStep(cc);  
     controller->setParam("adaptrate", 0.000);
