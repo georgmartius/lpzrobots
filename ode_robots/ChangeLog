@@ -24,12 +24,14 @@
 	show           [OBJECTID]: Lists paramters of OBJECTID or of all objects (of no id given).
 	view           Synonym for `show'.
 	quit           Quit program.
-
+	
 	There is also a history and all features you know from you terminal console e.g.:
 	Up / Down  previous and next in history
 	TAB        auto completion 
 	Ctrl+r     reverse search in history
 	...	
+	
+	With store and load you can save the controller of any agent
 	
 2006-12-12 martius
 	1. agents receive comments about changes in configuration values
