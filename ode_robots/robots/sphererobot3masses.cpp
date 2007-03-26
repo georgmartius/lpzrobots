@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-02-23 15:14:17  martius
+ *   Revision 1.10  2007-03-26 13:17:43  martius
+ *   changes servo params
+ *
+ *   Revision 1.9  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.8  2007/01/03 15:01:09  fhesse
@@ -185,7 +188,6 @@ namespace lpzrobots {
   {  
     int len=0;
     assert(created);
-    matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base]->getBody() ) );
     FOREACH(list<Sensor*>, conf.sensors, i){
       len += (*i)->get(sensors+len, sensornumber-len);
     }
@@ -197,6 +199,8 @@ namespace lpzrobots {
       }
     }
     // this is now done with Sensors, see above
+
+//     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base]->getBody() ) );
 //     if(conf.worldZaxissensor){
 //       // world coordinates of z-axis
 //       len += A.column(2).convertToBuffer(sensors+len, sensornumber-len);  
@@ -351,7 +355,7 @@ namespace lpzrobots {
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
-				 conf.pendularmass*200,0.1,0.3); 
+				 conf.pendularmass*150,0.1,0.2); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);
