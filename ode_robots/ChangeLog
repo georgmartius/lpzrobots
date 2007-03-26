@@ -1,7 +1,9 @@
 2007-03-26 martius
 	1. new collision treatment
 	Class substance carries information about material of each primitive.
-	On collision the substances of two colliding primitives are joint to 
+	The substance for new primitives is taken from odeHandle. 
+	For an example see simulations/tests. 
+	On collision the substances of two colliding primitives are combines to 
 	contact surface parameter. 
 	There is a global list of ignored pairs of geoms. If you create a joint the 
 	two parts are automatically inserted in this list. If you want to specify 
@@ -21,7 +23,7 @@
 	set            syntax: set [OBJECTID] PARAM=VAL; sets parameter of Object (or all all objects) to value.
 	store          Stores controller of AGENTID to FILE.
 	load           Loads controller of AGENTID from FILE.
-	show           [OBJECTID]: Lists paramters of OBJECTID or of all objects (of no id given).
+	show           [OBJECTID]: Lists paramters of OBJECTID or of all objects (if no id given).
 	view           Synonym for `show'.
 	quit           Quit program.
 	
