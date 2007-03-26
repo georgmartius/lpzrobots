@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.58  2007-03-16 10:55:03  martius
+ *   Revision 1.59  2007-03-26 13:06:19  martius
+ *   use new commandline interface
+ *
+ *   Revision 1.58  2007/03/16 10:55:03  martius
  *   new nearcallback structure
  *   Toplevel nearcallback uses robots collision control
  *   normal nearcallback uses new substance implementation
@@ -321,6 +324,7 @@
 #include <selforg/abstractwiring.h>
 
 #include "simulation.h"
+#include "console.h"
 
 #include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
@@ -508,6 +512,7 @@ namespace lpzrobots {
     printf ( "------------------------------------------------------------------------\n" );
     printf ( "Press Ctrl-C for an basic commandline interface (on the console).\n\n" );
     printf ( "Press h      for help.\n\n" );
+    initializeConsole();
 
     //********************Simulation start*****************
     state=running;
@@ -549,7 +554,7 @@ namespace lpzrobots {
 	// wait for all cull and draw threads to complete.
 	viewer->sync();
            
-	loop();
+	if(!loop()) break;
 
 	// update the scene by traversing it with the the update visitor which will
 	// call all node update callbacks and animations.
@@ -562,27 +567,29 @@ namespace lpzrobots {
     
     // wait for all cull and draw threads to complete before exit.
     viewer->sync();    
+    closeConsole();
     end(globalData);
     tidyUp(globalData);
     return true;
 
   }
 
-  void Simulation::config(GlobalData& globalData){
-    changeParams(globalData);
+  bool Simulation::config(GlobalData& globalData){
+    return handleConsole(globalData);
   }
 
   void Simulation::end(GlobalData& globalData){
   }
 
-  void Simulation::loop(){
+  bool Simulation::loop(){
     // we run the physical simulation as often as "drawinterval",
     //  the drawing of all object should occur if t==0  
+    bool run=true;
     for(int t = 0; t < globalData.odeConfig.drawInterval; t++){
       // Parametereingabe  
       if (control_c_pressed()){
 	cmd_begin_input();
-	config(globalData);
+	run=config(globalData);
 	cmd_end_input();
 	resetSyncTimer();
       }
@@ -675,7 +682,8 @@ namespace lpzrobots {
       }
     }else if (pause) {
       usleep(1000); 	
-    }    
+    }   
+    return run;
   }
 
   bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {  
@@ -1064,15 +1072,6 @@ namespace lpzrobots {
   }
 
 
-
-  // Helper
-  int contains(char **list, int len,  const char *str){
-    for(int i=0; i<len; i++){
-      if(strcmp(list[i],str) == 0) return i+1;
-    }
-    return 0;
-  }
-
   void Simulation::usage(const char* progname){
     printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed]"
 	   " [-x WxH] [-pause] [-noshadow] [-drawboundings] [-simtime [min]]\n", progname);
@@ -1090,42 +1089,24 @@ namespace lpzrobots {
 
   }
 
-  // Commandline interface stuff
-  void showParams(const ConfigList& configs)
-  {
-    for(vector<Configurable*>::const_iterator i=configs.begin(); i != configs.end(); i++){
-      (*i)->print(stdout, 0);
+  void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view){
+    osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
+    if(mm){
+      CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);      
+      if(cameramanipulator)
+	cameramanipulator->setHome(eye, view);
     }
   }
 
-  void changeParams(GlobalData& globalData){
-    ConfigList& configs = globalData.configs;
-    char buffer[1024];
-    std::cout << "Type: Parameter=Value\n";
-    fgets( buffer, 1024, stdin);
-    if ( strchr(buffer,'?')!=0){
-      showParams(configs);
-      return;
+
+  // Helper
+  int contains(char **list, int len,  const char *str){
+    for(int i=0; i<len; i++){
+      if(strcmp(list[i],str) == 0) return i+1;
     }
-    bool changed = false;
-    char *p = strchr(buffer,'=');
-    if (p){
-      *p=0; // terminate key string 
-      double v=strtod(p+1,0);
-      for(ConfigList::iterator i=configs.begin(); i != configs.end(); i++){
-	if ((*i)->setParam(buffer,v)){
-	  printf(" %s=\t%f \n", buffer, (*i)->getParam(buffer));
-	  changed = true;
-	}
-      }
-    }
-    if(changed){ // send comment about changes to all agents
-      *p='='; // remove termination again string 
-      for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){	
-	(*i)->writePlotComment(buffer);
-      }      
-    }
+    return 0;
   }
+
 
   void createNewDir(const char* base, char *newdir){
     struct stat s;
@@ -1138,16 +1119,6 @@ namespace lpzrobots {
     }
     assert(1); // should not happen
   }
-
-  void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view){
-    osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
-    if(mm){
-      CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);      
-      if(cameramanipulator)
-	cameramanipulator->setHome(eye, view);
-    }
-  }
-
 
 }
 

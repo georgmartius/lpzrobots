@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2007-03-16 10:53:18  martius
+ *   Revision 1.27  2007-03-26 13:06:30  martius
+ *   use new commandline interface
+ *
+ *   Revision 1.26  2007/03/16 10:53:18  martius
  *   new nearcallback structure
  *
  *   Revision 1.25  2007/02/12 13:29:48  martius
@@ -218,8 +221,10 @@ namespace lpzrobots {
 
     /// end() is called at the end and should tidy up
     virtual void end(GlobalData& globalData);
-    /** config() is called when the user presses Ctrl-C */
-    virtual void config(GlobalData& globalData);
+    /** config() is called when the user presses Ctrl-C 
+	@return false to exit program, true otherwiese
+    */
+    virtual bool config(GlobalData& globalData);
     /** is called if a key was pressed. 
 	For keycodes see: osgGA::GUIEventAdapter
 	@return true if the key was handled
@@ -278,7 +283,7 @@ namespace lpzrobots {
 
   private:
     void processCmdLine(int argc, char** argv);
-    void loop();
+    bool loop(); 
     /// clears obstacle and agents lists and delete entries
     void tidyUp(GlobalData& globalData);
 
@@ -341,9 +346,6 @@ namespace lpzrobots {
   // Commandline interface stuff
   /// shows all parameters of all given configurable objects
   void showParams(const ConfigList& configs);
-  /// offers the possibility to change parameter of all configurable objects in globalData.
-  // also informs agents about changes
-  void changeParams(GlobalData& globalData);
   
   /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
   void createNewDir(const char* base, char *newdir);
