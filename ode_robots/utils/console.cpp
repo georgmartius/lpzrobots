@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-03-26 13:05:51  martius
+ *   Revision 1.2  2007-03-26 13:36:58  martius
+ *   typo
+ *
+ *   Revision 1.1  2007/03/26 13:05:51  martius
  *   new commandline interface
  *
  *                                                                         *
@@ -77,7 +80,7 @@ COMMAND commands[] = {
   { "set",  com_set, "syntax: set [OBJECTID] PARAM=VAL; sets parameter of Object (or all all objects) to value" },
   { "store", com_store, "Stores controller of AGENTID to FILE" },
   { "load", com_load, "Loads controller of AGENTID from FILE" },
-  { "show", com_show, "[OBJECTID]: Lists paramters of OBJECTID or of all objects (of no id given)" },
+  { "show", com_show, "[OBJECTID]: Lists paramters of OBJECTID or of all objects (if no id given)" },
   { "view", com_show, "Synonym for `show'" },
   { "quit", com_quit, "Quit program" },
   { (char *)NULL, (commandfunc_t)NULL, (char *)NULL }
