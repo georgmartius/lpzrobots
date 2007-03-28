@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-12-11 18:11:01  martius
+ *   Revision 1.5  2007-03-28 07:16:58  martius
+ *   trace is drawn thicker
+ *
+ *   Revision 1.4  2006/12/11 18:11:01  martius
  *   noisefactor and default constructor
  *
  *   Revision 1.3  2006/07/20 17:19:43  martius
@@ -107,7 +110,7 @@ namespace lpzrobots {
    * @param tracelength number of past positions shown as trace in osg 
    * @param tracethickness  thickness of the trace
    */
-  virtual void init_tracing(int tracelength=1000, double tracethickness=0.003);
+  virtual void init_tracing(int tracelength=1000, double tracethickness=0.01);
 
 
   private:
