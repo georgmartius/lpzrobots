@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-03-05 17:52:14  martius
+ *   Revision 1.14  2007-03-28 11:36:53  robot3
+ *   Moved int t from private to protected area because the OdeAgent needs access
+ *   to it.
+ *
+ *   Revision 1.13  2007/03/05 17:52:14  martius
  *   plotoptions hav optional string parameter
  *
  *   Revision 1.12  2007/02/27 12:00:05  robot5
@@ -315,12 +319,12 @@ protected:
 
  protected:
   TrackRobot trackrobot;
+  int t; // access to this variable is needed from OdeAgent
 
  private:
   std::list<PlotOption> plotOptions;
   std::list<const Inspectable* > inspectables;
   bool initialised;
-  int t;
 
 };
 
