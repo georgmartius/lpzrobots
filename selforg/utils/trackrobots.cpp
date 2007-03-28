@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:24:02  martius
+ *   Revision 1.3  2007-03-28 07:15:54  martius
+ *   speed and orientation tracking enabled
+ *
+ *   Revision 1.2  2006/07/14 12:24:02  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/01/31 15:48:37  martius
@@ -53,33 +56,20 @@ bool TrackRobot::open(const AbstractRobot* robot){
       fclose(file);
     }
 
-    char filename[100];
-    char filename2[100];
+    char date[128];
+    char filename[256];
     time_t t = time(0);
     struct stat filestat;
-    strftime(filename, 50, "%F_%H-%M-%S_", localtime(&t));
-    if(scene){      
-      strcat(filename,scene);
-      strcat(filename,"_");
-    }
-    strcat(filename,robot->getName().c_str());
-    sprintf(filename2, "%s.log", filename);
-    // try to stat file and if it exists then try to append a number
-    for(int i=1; i< 20; i++){
-      if(stat(filename2, &filestat) == -1){
-	break;
-      }else{
-	sprintf(filename2, "%s%i.log", filename, i );
-      }      
-    }
+    strftime(date, 128, "%F_%H-%M-%S", localtime(&t));
+    sprintf(filename, "%s_track_%s_%s.log", robot->getName().c_str(), scene, date);
 
-    file = fopen(filename2,"w");
+    file = fopen(filename,"w");
 
     if(!file) return false;
     fprintf(file, "#C t ");
     if(trackPos)   fprintf(file, "x y z ");
     if(trackSpeed) fprintf(file, "vx vy vz ");
-    if( trackOrientation) fprintf(file," Not Implemented");    
+    if( trackOrientation)  fprintf(file, "o11 o12 o13 o21 o22 o23 o31 o32 o33 ");
     fprintf(file,"\n");  
   } 
   return true;
@@ -94,10 +84,16 @@ void TrackRobot::track(AbstractRobot* robot) {
       fprintf(file, "%g %g %g ", p.x, p.y, p.z);
     }
     if(trackSpeed){
-      fprintf(stderr," SpeedTracking is not implemented yet");
+      Position s = robot->getSpeed();
+      fprintf(file, "%g %g %g ", s.x, s.y, s.z);
     }
     if( trackOrientation){
-      fprintf(stderr," OrientationTracking is not implemented yet");
+      const matrix::Matrix& o = robot->getOrientation();
+      for(int i=0; i<3; i++){
+	for(int j=0; j<3; j++){
+	  fprintf(file, "%g ", o.val(i,j));	  
+	}	
+      }
     }
     fprintf(file, "\n");
   }
