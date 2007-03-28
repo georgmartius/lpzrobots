@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-11 15:40:27  martius
+ *   Revision 1.5  2007-03-28 07:16:37  martius
+ *   drawing of tracking trace fixed
+ *
+ *   Revision 1.4  2006/08/11 15:40:27  martius
  *   removed to do
  *
  *   Revision 1.3  2006/08/04 15:06:24  martius
@@ -50,7 +53,7 @@
 namespace lpzrobots {
   
 
-  void OdeAgent::init_tracing(int tracelength/*=10*/,double tracethickness/*=0.003*/){
+  void OdeAgent::init_tracing(int tracelength,double tracethickness){
     trace_length=tracelength;
     trace_thickness=tracethickness;
 
@@ -71,7 +74,7 @@ namespace lpzrobots {
 
   void OdeAgent::step(double noise){
     Agent::step(noise);
-    if (trackrobot.isDisplayTrace()){
+    if (trackrobot.isDisplayTrace() && t%10==0){
       if (!tracing_initialized) {
 	init_tracing();
       }
@@ -88,7 +91,7 @@ namespace lpzrobots {
 //       s->init(osgHandle_white, OSGPrimitive::Low);
       s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);
       s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) * 
-		   osg::Matrix::translate(pos+(pos - lastpos)/2));
+		   osg::Matrix::translate(lastpos+(pos - lastpos)/2));
       segments[counter%trace_length] = s;
       lastpos = pos;
       counter++;
