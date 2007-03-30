@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-03-16 10:58:37  martius
+ *   Revision 1.10  2007-03-30 17:52:28  martius
+ *   sensor and motor assignment fixed
+ *   friction with ground adaptable
+ *
+ *   Revision 1.9  2007/03/16 10:58:37  martius
  *   new collision control via substances
  *   fixed Bug in creation
  *
@@ -103,30 +107,32 @@ namespace lpzrobots {
   void SliderWheelie::setMotors(const motor* motors, int motornumber) {
    assert(created);
    unsigned int len = min(motornumber, getMotorNumber())/2;
+   unsigned int n=0;
    // controller output as torques 
 
-   for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++) {
-    hingeServos[i]->set(motors[i]);
+   for(unsigned int i=0; (n<len) && (i<hingeServos.size()); i++, n++) {
+    hingeServos[i]->set(motors[n]);
    }
 
-   for(unsigned int i=0; (i<len) && (i<sliderServos.size()); i++) {
-    sliderServos[i]->set(motors[i]);
+   for(unsigned int i=0; (n<len) && (i<sliderServos.size()); i++, n++) {
+    sliderServos[i]->set(motors[n]);
    }
   }
 
   int SliderWheelie::getSensors(sensor* sensors, int sensornumber) {
    assert(created);
    unsigned int len=min(sensornumber, getSensorNumber());
+   unsigned int n=0;
    // get the hingeServos
 
-   for(unsigned int n=0; (n<len) && (n<hingeServos.size()); n++) {
-    sensors[n] = hingeServos[n]->get();
+   for(unsigned int i=0; (n<len) && (i<hingeServos.size()); i++, n++) {
+     sensors[n] = hingeServos[i]->get();
    }
 
-   for(unsigned int n=0; (n<len) && (n<sliderServos.size()); n++) {
-    sensors[n] = sliderServos[n]->get();
+   for(unsigned int i=0; (n<len) && (i<sliderServos.size()); i++,n++) {
+     sensors[n] = sliderServos[i]->get();
    }
-   return len;
+   return n;
   }
 
   bool SliderWheelie::collisionCallback(void *data, dGeomID o1, dGeomID o2)
@@ -140,7 +146,7 @@ namespace lpzrobots {
     }
     
     odeHandle.space = dSimpleSpaceCreate (parentspace);
-    odeHandle.substance.toRubber(0.001);
+    //    odeHandle.substance.toRubber(0.001);
 	
     vector<Pos> ancors;
     // angular positioning
@@ -172,18 +178,15 @@ namespace lpzrobots {
 					 Axis(1,0,0)*m);
 	j->init(odeHandle, osgHandle, true, conf.segmDia);
 	
-	// setting stops at slider joints
-	j->setParam(dParamLoStop, -conf.segmLength*conf.sliderLength);
-	j->setParam(dParamHiStop,  conf.segmLength*conf.sliderLength/2);
 	joints.push_back(j);
 	
 	SliderServo* servo = new SliderServo(j, 
-					     -conf.segmLength*conf.sliderLength, 
+					     -conf.segmLength*conf.sliderLength/2, 
 					     conf.segmLength*conf.sliderLength/2, 
 					     conf.motorPower);
 	sliderServos.push_back(servo);	
       }else{ // normal segment
-	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 2 : 1), conf.segmLength);
+	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 3 : 1), conf.segmLength);
 	p1->init(odeHandle, conf.segmMass * ( (n+1)%4 ==0 ? 1.0 : 1), osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
 		    osg::Matrix::translate(0,0,-0.5*conf.segmLength*conf.segmNumber/M_PI) * m );
@@ -208,9 +211,6 @@ namespace lpzrobots {
 				     Axis(0,1,0)*pose);
       j->init(odeHandle, osgHandle, true, conf.segmDia*2);
       
-      // setting stops at hinge joints
-            j->setParam(dParamLoStop, -conf.jointLimit);
-            j->setParam(dParamHiStop,  conf.jointLimit);
       joints.push_back(j);
       
       HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, 
@@ -276,7 +276,12 @@ namespace lpzrobots {
   }
   
   bool SliderWheelie::setParam(const paramkey& key, paramval val){    
-    if(key == "frictionground") conf.frictionGround = val; 
+    if(key == "frictionground") {
+      conf.frictionGround = val; 
+      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
+	if(*i) (*i)->substance.roughness=val;
+      }      
+    } 
     else if(key == "motorpower") { 
       conf.motorPower = val; 
 
