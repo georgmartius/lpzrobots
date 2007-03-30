@@ -3,7 +3,6 @@
 */
 
 import javax.sound.midi.*;
-//import javax.sound.sampled.*;
 import java.io.*;
 
 public class SoundManipulation extends Thread {
@@ -11,46 +10,39 @@ public class SoundManipulation extends Thread {
  private int mode;
  private float param;
  private int numSensors;
-// private SourceDataLine sourceLine;
  private InputStream is;
  private Receiver synthRcvr;
+ private Synthesizer synth;
+ private SoundManGUI gui;
+ private String[] instrNames;
 
  public SoundManipulation(int mode, float param, InputStream is) {
   this.mode=mode;
   this.param=param;
   this.is=is;
-/*
-  AudioFormat format=new AudioFormat(48000.0f,16,1,true,false);
-  DataLine.Info sourceInfo=new DataLine.Info(SourceDataLine.class,format);
-  if(!AudioSystem.isLineSupported(sourceInfo)) {
-   System.out.println("SoundOutput: Line not supported.");
-   System.exit(0);
-  }
-  try {
-   sourceLine=(SourceDataLine)AudioSystem.getLine(sourceInfo);
-   sourceLine.open(format);
-   sourceLine.start();
-  } catch(LineUnavailableException lue) {
-   System.out.println(lue.getMessage());
-   System.exit(0);
-  }
-*/
 
   Sequencer seq;
   Transmitter seqTrans;
-  Synthesizer synth;
   try {
    seq=MidiSystem.getSequencer();
    seqTrans=seq.getTransmitter();
    synth=MidiSystem.getSynthesizer();
    synth.open();
+   Soundbank sb = synth.getDefaultSoundbank();
+   Instrument[] instruments=sb.getInstruments();
+   instrNames=new String[instruments.length];
+   for(int i=0; i<instrNames.length; i++) instrNames[i]=instruments[i].getName();
    synthRcvr=synth.getReceiver();
    seqTrans.setReceiver(synthRcvr);
   } catch(MidiUnavailableException mue) {
    System.out.println(mue.getMessage());
    System.exit(0);
   }
+ }
 
+ public void setGUI(SoundManGUI gui) {
+  this.gui=gui;
+  this.gui.setInstruments(instrNames);
  }
 
  public void run() {
@@ -73,6 +65,11 @@ public class SoundManipulation extends Thread {
     } else if(!input.startsWith("#")) {
      String[] values=input.trim().substring(0,numSensors*10).split(" ");
      float sensorMax=0.0f;
+     param=gui.getParam();
+     if(gui.instrumentChanged()) {
+      synth.getChannels()[0].allNotesOff();
+      synth.getChannels()[0].programChange(gui.getInstrument());
+     }
      for(int i=0; i<numSensors; i++) {
 
       switch(mode) {
@@ -81,7 +78,7 @@ public class SoundManipulation extends Thread {
         if(sensVal>param) {
          try {
           ShortMessage sm=new ShortMessage();
-          sm.setMessage(ShortMessage.NOTE_ON, Math.min(i,15), 50+20*i/numSensors, 90);
+          sm.setMessage(ShortMessage.NOTE_ON, 0, 50+20*i/numSensors, 90);
           synthRcvr.send(sm, -1);
          } catch(InvalidMidiDataException imde) {
           System.out.println(imde.getMessage());
