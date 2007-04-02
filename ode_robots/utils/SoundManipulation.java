@@ -62,16 +62,17 @@ public class SoundManipulation extends Thread {
    if((char)next=='\n') {
     if(input.startsWith("#N neuron x[")) {
      numSensors=input.charAt(12)-47;
+     gui.setNumSensors(numSensors);
     } else if(!input.startsWith("#")) {
      String[] values=input.trim().substring(0,numSensors*10).split(" ");
      float sensorMax=0.0f;
      param=gui.getParam();
+     mode=gui.getMode();
      if(gui.instrumentChanged()) {
       synth.getChannels()[0].allNotesOff();
       synth.getChannels()[0].programChange(gui.getInstrument());
      }
      for(int i=0; i<numSensors; i++) {
-
       switch(mode) {
        case 1: // discrete
         float sensVal=Math.abs(new Float(values[i]).floatValue());

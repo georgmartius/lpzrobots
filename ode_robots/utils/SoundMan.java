@@ -16,21 +16,25 @@ public class SoundMan {
   );
 
   float param=0.0f;
+  int mode=0;
   SoundManipulation sm=null;
   if(args.length==0) { // discrete as standard
-   param=0.7f; sm=new SoundManipulation(1,0.7f,System.in);
+   param=0.7f; mode=1; sm=new SoundManipulation(1,0.7f,System.in);
   } else if(args.length>0) {
    if(args[0].equals("--help") || args[0].equals("-h")) {
     printUsage();
     System.exit(0);
    }else if(args[0].equals("-disc")) { // discrete
-    if(args.length==2) {param=new Float(args[1]).floatValue(); sm=new SoundManipulation(1,param,System.in);}
+    mode=1;
+    if(args.length==2) {param=new Float(args[1]).floatValue(); sm=new SoundManipulation(mode,param,System.in);}
     else if(args.length==1) {param=0.7f; sm=new SoundManipulation(1,0.7f,System.in);}
    } else if(args[0].equals("-ampl")) { // amplitude
-    if(args.length==2) {param=new Float(args[1]).floatValue(); sm=new SoundManipulation(2,param,System.in);}
+    mode=2;
+    if(args.length==2) {param=new Float(args[1]).floatValue(); sm=new SoundManipulation(mode,param,System.in);}
     else if(args.length==1) {param=0.8f; sm=new SoundManipulation(2,0.8f,System.in);}
    } else if(args[0].equals("-freq")) { // frequency
-    if(args.length==2) {param=new Float(args[1]).floatValue(); sm=new SoundManipulation(3,param,System.in);}
+    mode=3;
+    if(args.length==2) {param=new Float(args[1]).floatValue(); sm=new SoundManipulation(mode,param,System.in);}
     else if(args.length==1) {param=0.8f; sm=new SoundManipulation(3,0.8f,System.in);}
    } else {
     printUsage();
@@ -38,7 +42,7 @@ public class SoundMan {
    }
   }
 
-  SoundManGUI gui=new SoundManGUI(param);
+  SoundManGUI gui=new SoundManGUI(param, mode);
   gui.setVisible(true);
   sm.setGUI(gui);
 
