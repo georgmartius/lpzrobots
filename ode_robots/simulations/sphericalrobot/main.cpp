@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-03-26 13:15:51  martius
+ *   Revision 1.15  2007-04-03 16:26:47  der
+ *   labyrint
+ *
+ *   Revision 1.14  2007/03/26 13:15:51  martius
  *   new makefile with readline support
  *
  *   Revision 1.13  2007/02/23 19:36:42  martius
@@ -84,6 +87,7 @@
 #include "octaplayground.h"
 #include "playground.h"
 #include "passivesphere.h"
+#include "passivebox.h"
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
@@ -140,12 +144,33 @@ public:
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
 
-//     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(50, 0.0, 0.0));
-//     playground->setGroundTexture("Images/dusty.rgb");    
-//     playground->setGroundColor(Color(41/255.0,181/255.0,40/255.0));
-//     playground->setColor(Color(41/255.0,121/255.0,40/255.0));
-//     playground->setPosition(osg::Vec3(0,0,0.01));
+    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 5 ), 1);
+    playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+    playground->setGroundTexture("Images/really_white.rgb");    
+    playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+    playground->setPosition(osg::Vec3(0,0,0.1));
+    playground->setTexture("");
+    global.obstacles.push_back(playground);
+//     // inner playground
+//     playground = new Playground(odeHandle, osgHandle,osg::Vec3(10, 0.2, 1.2), 1, false);
+// //     playground->setGroundTexture("Images/dusty.rgb");    
+// //     playground->setGroundColor(Color(41/255.0,181/255.0,40/255.0));
+//     playground->setColor(Color(255/255.0,200/255.0,0/255.0, 0.1));
+//     playground->setPosition(osg::Vec3(0,0,0.1));
+//     playground->setTexture("");
 //     global.obstacles.push_back(playground);
+
+
+    double radius=7.5;
+    int obstanz=30;
+    OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
+    OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
+    for(int i=0; i<obstanz; i++){
+      PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
+				     osg::Vec3(random_minusone_to_one(0)+1.2, random_minusone_to_one(0)+1.2 ,1),5);
+      s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
+      global.obstacles.push_back(s);    
+    }
 
 
 //   // Outer Ring
@@ -219,8 +244,8 @@ public:
     for(int i=0; i< num_spheres; i++){
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.25; 
-      conf.motorsensor=false;
+      conf.pendularrange  = 0.2; 
+      conf.motorsensor=false; 
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
       //      conf.addSensor(new SpeedSensor(10));
@@ -228,6 +253,9 @@ public:
       //      conf.irAxis2=true;
       //      conf.irAxis3=true;
       //      conf.spheremass   = 1;
+      conf.irRing=true;
+      conf.irSide=true;
+      conf.drawIRs=false;
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
 					 conf, "Sphere1", 0.3); 
       //// FORCEDSPHERE
@@ -236,12 +264,12 @@ public:
       // fsc.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
       // 
-      sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+      sphere1->place ( osg::Matrix::translate(6.25,0,0.2));
       
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       //      DerControllerConf cc = DerController::getDefaultConf();
-      cc.cInit=1.0;
-      //      cc.useSD=true;
+      cc.cInit=0.1;
+      cc.useSD=true;
       //controller = new DerController(cc);    
       controller = new InvertMotorNStep(cc);    
       // controller = new SineController();
@@ -250,8 +278,8 @@ public:
       //    controller->setParam("adaptrate", 0.001);    
       controller->setParam("adaptrate", 0.0);    
       controller->setParam("nomupdate", 0.005);    
-      controller->setParam("epsC", 0.05);    
-      controller->setParam("epsA", 0.05);    
+      controller->setParam("epsC", 0.1);    
+      controller->setParam("epsA", 0.5);    
       // controller->setParam("epsC", 0.001);    
       // controller->setParam("epsA", 0.001);    
       //    controller->setParam("rootE", 1);    
@@ -297,68 +325,68 @@ public:
     return false;
   }
 
-  virtual Node* makeGround(){ // is NOT used for shadowing!
-    float ir = 2000.0f;
-    float texscale =0.1;
-    Vec3Array *coords = new Vec3Array(4);
-    Vec2Array *tcoords = new Vec2Array(4);
-    Vec4Array *colors = new Vec4Array(1);
+//   virtual Node* makeGround(){ // is NOT used for shadowing!    
+//     float ir = 2000.0f;
+//     float texscale =0.1;
+//     Vec3Array *coords = new Vec3Array(4);
+//     Vec2Array *tcoords = new Vec2Array(4);
+//     Vec4Array *colors = new Vec4Array(1);
 
-    (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
+//     (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
 
-    (*coords)[0].set(-ir,-ir,0.0f);
-    (*coords)[1].set(-ir, ir,0.0f);
-    (*coords)[2].set( ir, ir,0.0f);
-    (*coords)[3].set( ir,-ir,0.0f);
-    (*tcoords)[0].set(-texscale*ir,-texscale*ir);
-    (*tcoords)[1].set(-texscale*ir, texscale*ir);
-    (*tcoords)[2].set( texscale*ir, texscale*ir);
-    (*tcoords)[3].set( texscale*ir,-texscale*ir);
+//     (*coords)[0].set(-ir,-ir,0.0f);
+//     (*coords)[1].set(-ir, ir,0.0f);
+//     (*coords)[2].set( ir, ir,0.0f);
+//     (*coords)[3].set( ir,-ir,0.0f);
+//     (*tcoords)[0].set(-texscale*ir,-texscale*ir);
+//     (*tcoords)[1].set(-texscale*ir, texscale*ir);
+//     (*tcoords)[2].set( texscale*ir, texscale*ir);
+//     (*tcoords)[3].set( texscale*ir,-texscale*ir);
     
 
-    Geometry *geom = new Geometry;
+//     Geometry *geom = new Geometry;
 
-    geom->setVertexArray( coords );
+//     geom->setVertexArray( coords );
 
-    geom->setTexCoordArray( 0, tcoords );
+//     geom->setTexCoordArray( 0, tcoords );
 
-    geom->setColorArray( colors );
-    geom->setColorBinding( Geometry::BIND_OVERALL );
+//     geom->setColorArray( colors );
+//     geom->setColorBinding( Geometry::BIND_OVERALL );
 
-    geom->addPrimitiveSet( new DrawArrays(PrimitiveSet::TRIANGLE_FAN,0,4) );
+//     geom->addPrimitiveSet( new DrawArrays(PrimitiveSet::TRIANGLE_FAN,0,4) );
 
-    Texture2D *tex = new Texture2D;
+//     Texture2D *tex = new Texture2D;
 
-    tex->setImage(osgDB::readImageFile("Images/greenground_large.rgb"));
-    tex->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
-    tex->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
+//     tex->setImage(osgDB::readImageFile("Images/greenground_large.rgb"));
+//     tex->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
+//     tex->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
 
-    StateSet *dstate = new StateSet;
-    dstate->setMode( GL_LIGHTING, StateAttribute::OFF );
-    dstate->setTextureAttributeAndModes(0, tex, StateAttribute::ON );
+//     StateSet *dstate = new StateSet;
+//     dstate->setMode( GL_LIGHTING, StateAttribute::OFF );
+//     dstate->setTextureAttributeAndModes(0, tex, StateAttribute::ON );
 
-    dstate->setTextureAttribute(0, new TexEnv );
+//     dstate->setTextureAttribute(0, new TexEnv );
 
-    //     // clear the depth to the far plane.
-    //     osg::Depth* depth = new osg::Depth;
-    //     depth->setFunction(osg::Depth::ALWAYS);
-    //     depth->setRange(1.0,1.0);   
-    //     dstate->setAttributeAndModes(depth,StateAttribute::ON );
+//     //     // clear the depth to the far plane.
+//     //     osg::Depth* depth = new osg::Depth;
+//     //     depth->setFunction(osg::Depth::ALWAYS);
+//     //     depth->setRange(1.0,1.0);   
+//     //     dstate->setAttributeAndModes(depth,StateAttribute::ON );
 
-    dstate->setRenderBinDetails(-1,"RenderBin");
-    geom->setStateSet( dstate );
+//     dstate->setRenderBinDetails(-1,"RenderBin");
+//     geom->setStateSet( dstate );
 
-    Geode *geode = new Geode;
-    geode->addDrawable( geom );
-    geode->setName( "Ground" );
+//     Geode *geode = new Geode;
+//     geode->addDrawable( geom );
+//     geode->setName( "Ground" );
 
-    // add ODE Ground here (physical plane)
-    ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
-    dGeomSetCategoryBits(ground,Primitive::Stat);
-    dGeomSetCollideBits(ground,~Primitive::Stat);
+//     // add ODE Ground here (physical plane)
+//     ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
+//     dGeomSetCategoryBits(ground,Primitive::Stat);
+//     dGeomSetCollideBits(ground,~Primitive::Stat);
 
-    return geode;
-  }
+//     return geode;
+//   }
 
   
 };
