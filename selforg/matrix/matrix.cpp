@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.8  2007-04-03 07:11:56  der
+// Revision 1.9  2007-04-03 09:57:44  martius
+// speedup in nonoptimised mode through use of VAL macro
+//
+// Revision 1.8  2007/04/03 07:11:56  der
 // plus lambdaI
 //
 // Revision 1.7  2007/02/05 12:31:21  martius
@@ -113,7 +116,10 @@
 namespace matrix {
 
 #define COMPARE_EPS 1e-12
+#define VAL(i,j) data[i*n+j]
+
 const int T=0xFF;
+
 
   Matrix::Matrix(const Matrix& c)
     : m(0), n(0), buffersize(0), data(0){
@@ -130,8 +136,8 @@ const int T=0xFF;
   void Matrix::allocate() {
     if((unsigned)m*n > buffersize){
       buffersize=m*n;      
-      if(data) { delete[] data; }
-      data = new D[buffersize];
+      if(data) { free(data); }
+      data = (D*) malloc(sizeof(D)*buffersize);
       assert(data);
     }
   }
@@ -163,7 +169,7 @@ const int T=0xFF;
     assert(index < n);    
     Matrix result(m,1);    
     for(int i=0; i<m; i++){
-      result.val(i,0) = val(i,index);
+      result.val(i,0) = VAL(i,index);
     }
     return result;
   }
@@ -273,13 +279,13 @@ const int T=0xFF;
   void Matrix::toTranspose(){
     assert(buffersize > 0);
     if(m!=1 && n!=1){ // if m or n == 1 then no copying is necessary! 
-      double* newdata = new D[buffersize];
+      double* newdata = (D*)malloc(sizeof(D)*buffersize);
       for(unsigned short i=0; i < m; i++){
 	for(unsigned short j=0; j < n; j++){
 	  newdata[j*m+i]=data[i*n+j];
 	}
       }
-      delete[] data;
+      free(data);
       data=newdata;    
     }
     // swap n and m
@@ -296,7 +302,7 @@ const int T=0xFF;
     toZero();
     unsigned short smallerdim = m < n ? m : n;
     for(unsigned short i=0; i < smallerdim; i++){
-      val(i,i)=D_One;
+      VAL(i,i)=D_One;
     }
   }
 
@@ -325,7 +331,7 @@ const int T=0xFF;
 	for(unsigned short k=0; k < interdim; k++){
 	  d+=a.val(i,k)*b.val(k,j);
 	}
-	val(i,j)=d;	
+	VAL(i,j)=d;	
       }
     }
   }
@@ -353,7 +359,7 @@ const int T=0xFF;
   void Matrix::toExp (int exponent) {
     switch(exponent){
     case -1: 
-      if(m==1) val(0,0) = 1/val(0,0);
+      if(m==1) VAL(0,0) = 1/VAL(0,0);
       else if(m==2) invert2x2();
 #ifndef AVR      
       else if(m==3) invert3x3();
@@ -404,7 +410,7 @@ const int T=0xFF;
     assert(m == factors.m && factors.n == 1);
     for(unsigned int i = 0; i < m; i++){
       for (unsigned int j = 0; j < n; j++){
-	val(i,j) *= factors.val(i,0);
+	VAL(i,j) *= factors.val(i,0);
       }
     }
   }
@@ -413,7 +419,7 @@ const int T=0xFF;
     assert(n == factors.m && factors.n == 1);
     for(unsigned int i = 0; i < m; i++){
       for (unsigned int j = 0; j < n; j++){
-	val(i,j) *= factors.val(j,0);
+	VAL(i,j) *= factors.val(j,0);
       }
     }
   }
@@ -443,7 +449,7 @@ const int T=0xFF;
   Matrix& Matrix::pluslambdaI(double lambda){
     int smallerdim=std::min(m,n);
     for(int i=0; i< smallerdim; i++){
-      val(i,i)+=lambda;
+      VAL(i,i)+=lambda;
     }
     return *this;
   }
@@ -470,7 +476,7 @@ const int T=0xFF;
       for(unsigned short j=0; j < m; j++){
 	d=0;
 	for(unsigned short k=0; k < n; k++){
-	  d+=val(i,k) * val(j,k);
+	  d+=VAL(i,k) * VAL(j,k);
 	}
 	result.val(i,j)=d;	
       }
@@ -487,7 +493,7 @@ const int T=0xFF;
       for(unsigned short j=0; j < n; j++){
 	d=0;
 	for(unsigned short k=0; k < m; k++){
-	  d+=val(k,i) * val(k,j);
+	  d+=VAL(k,i) * VAL(k,j);
 	}
 	result.val(i,j)=d;	
       }
@@ -532,15 +538,15 @@ const int T=0xFF;
       for (unsigned int j=i; j < m; j++)  { // do a column of L
         D sum = 0.0;
         for (unsigned int k = 0; k < i; k++)  
-	  sum += val(j,k) * val(k,i);
-        val(j,i) -= sum;
+	  sum += VAL(j,k) * VAL(k,i);
+        VAL(j,i) -= sum;
       }
       if (i == (unsigned) m-1) continue;
       for (unsigned int j=i+1; j < m; j++)  {  // do a row of U
         D sum = 0.0;
         for (unsigned int k = 0; k < i; k++)
-	  sum += val(i,k)*val(k,j);
-        val(i,j) = (val(i,j)-sum) / val(i,i);
+	  sum += VAL(i,k)*VAL(k,j);
+        VAL(i,j) = (VAL(i,j)-sum) / VAL(i,i);
       }
     }
     for (unsigned int i = 0; i < m; i++ )  // invert L
@@ -549,24 +555,24 @@ const int T=0xFF;
         if ( i != j ) {
           x = 0.0;
           for (unsigned int k = i; k < j; k++ ) 
-	    x -= val(j,k)*val(k,i);
+	    x -= VAL(j,k)*VAL(k,i);
 	}
-        val(j,i) = x / val(j,j);
+        VAL(j,i) = x / VAL(j,j);
       }
     for (unsigned int i = 0; i < m; i++ )   // invert U
       for (unsigned int j = i; j < m; j++ )  {
         if ( i == j ) continue;
         D sum = 0.0;
         for (unsigned int k = i; k < j; k++ )
-	  sum += val(k,j)*( (i==k) ? 1.0 : val(i,k) );
-        val(i,j) = -sum;
+	  sum += VAL(k,j)*( (i==k) ? 1.0 : VAL(i,k) );
+        VAL(i,j) = -sum;
       }
     for (unsigned int i = 0; i < m; i++ )   // final inversion
       for (unsigned int j = 0; j < m; j++ )  {
         D sum = 0.0;
         for (unsigned int k = ((i>j)?i:j); k < m; k++ )  
-	  sum += ((j==k)?1.0:val(j,k))*val(k,i);
-        val(j,i) = sum;
+	  sum += ((j==k)?1.0:VAL(j,k))*VAL(k,i);
+        VAL(j,i) = sum;
       }
   };
 #endif
@@ -589,19 +595,19 @@ const int T=0xFF;
     D Q_adjoint[3][3];
     D detQ=0;
     //calculate the inverse of Q
-    Q_adjoint[0][0]=val(1,1)*val(2,2)-val(1,2)*val(2,1) ;
-    Q_adjoint[0][1]=(val(1,2)*val(2,0)-val(1,0)*val(2,2)) ;
-    Q_adjoint[0][2]=val(1,0)*val(2,1)-val(1,1)*val(2,0) ;
-    Q_adjoint[1][0]=(val(2,1)*val(0,2)-val(0,1)*val(2,2)) ;
-    Q_adjoint[1][1]=val(0,0)*val(2,2)-val(0,2)*val(2,0) ;
-    Q_adjoint[1][2]=(val(0,1)*val(2,0)-val(0,0)*val(2,1)) ;
-    Q_adjoint[2][0]=val(0,1)*val(1,2)-val(1,1)*val(0,2) ;
-    Q_adjoint[2][1]=(val(1,0)*val(0,2)-val(0,0)*val(1,2)) ;
-    Q_adjoint[2][2]=val(0,0)*val(1,1)-val(0,1)*val(1,0) ;
-    detQ=val(0,0)*Q_adjoint[0][0]+val(0,1)*Q_adjoint[0][1]+val(0,2)*Q_adjoint[0][2] ;
+    Q_adjoint[0][0]=VAL(1,1)*VAL(2,2)-VAL(1,2)*VAL(2,1) ;
+    Q_adjoint[0][1]=(VAL(1,2)*VAL(2,0)-VAL(1,0)*VAL(2,2)) ;
+    Q_adjoint[0][2]=VAL(1,0)*VAL(2,1)-VAL(1,1)*VAL(2,0) ;
+    Q_adjoint[1][0]=(VAL(2,1)*VAL(0,2)-VAL(0,1)*VAL(2,2)) ;
+    Q_adjoint[1][1]=VAL(0,0)*VAL(2,2)-VAL(0,2)*VAL(2,0) ;
+    Q_adjoint[1][2]=(VAL(0,1)*VAL(2,0)-VAL(0,0)*VAL(2,1)) ;
+    Q_adjoint[2][0]=VAL(0,1)*VAL(1,2)-VAL(1,1)*VAL(0,2) ;
+    Q_adjoint[2][1]=(VAL(1,0)*VAL(0,2)-VAL(0,0)*VAL(1,2)) ;
+    Q_adjoint[2][2]=VAL(0,0)*VAL(1,1)-VAL(0,1)*VAL(1,0) ;
+    detQ=VAL(0,0)*Q_adjoint[0][0]+VAL(0,1)*Q_adjoint[0][1]+VAL(0,2)*Q_adjoint[0][2] ;
     for(int i=0; i<3; i++){
       for(int j=0; j<3; j++) {                                                     
-	val(i,j)=(Q_adjoint[j][i])/detQ  ;
+	VAL(i,j)=(Q_adjoint[j][i])/detQ  ;
       }
     }          
   }
