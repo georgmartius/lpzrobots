@@ -149,7 +149,7 @@ class ThisSim : public Simulation
 		cc.useS=true;
 		std::vector<Layer> layers;
 		// Layer: size, factor_bias, act-fct (default: lin), dact-fct (default: lin)
-		layers.push_back(Layer(25, 0.5 , FeedForwardNN::tanh, FeedForwardNN::dtanh));
+		layers.push_back(Layer(25, 0.5 , FeedForwardNN::tanh));
 		layers.push_back(Layer(10,0.5));
 		MultiLayerFFNN* net = new  MultiLayerFFNN(0.05, layers, true); // true -bypass (uebergeht ncihtlin schicht)
 		//		MultiLayerFFNN* net = new MultiLayerFFNN(0.05, layers);

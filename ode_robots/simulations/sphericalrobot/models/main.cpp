@@ -179,7 +179,7 @@ int main(int argc, char** argv){
   }else{
     vector<Layer> layers;
     //layers.push_back(Layer(2, 1.0, FeedForwardNN::sigmoid, FeedForwardNN::dsigmoid));
-    layers.push_back(Layer(numHidden, 1.0 , FeedForwardNN::tanh,FeedForwardNN::dtanh));
+    layers.push_back(Layer(numHidden, 1.0 , FeedForwardNN::tanh));
     layers.push_back(Layer(1));
     if(useElman || useJordan)
       net = new Elman(eps, layers, useElman, useJordan, useBypass);

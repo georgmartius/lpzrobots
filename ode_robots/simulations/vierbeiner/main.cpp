@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-03-16 11:36:10  martius
+ *   Revision 1.5  2007-04-03 11:27:07  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2007/03/16 11:36:10  martius
  *   soft playground
  *
  *   Revision 1.3  2007/02/23 09:30:41  der
@@ -181,9 +184,9 @@ public:
     DerBigControllerConf cc = DerBigController::getDefaultConf();
     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
     vector<Layer> layers;
-    layers.push_back(Layer(20,0.5,FeedForwardNN::tanh,FeedForwardNN::dtanh)); // hidden layer
+    layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
     // size of output layer is automatically set
-    layers.push_back(Layer(1,1,FeedForwardNN::linear,FeedForwardNN::dlinear)); 
+    layers.push_back(Layer(1,1,FeedForwardNN::linear); 
     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, true);
     cc.model=net;
     cc.useS=true;

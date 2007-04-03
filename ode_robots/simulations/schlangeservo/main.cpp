@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-02-23 15:14:17  martius
+ *   Revision 1.9  2007-04-03 11:27:07  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.8  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.7  2007/02/12 13:25:47  martius
@@ -128,19 +131,20 @@ public:
     //    //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
     //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    cc.cInit=1.8;
     cc.cInit=1.0;
     //    cc.cNonDiag=0.0;
-    cc.useS=true;
+    cc.useSD=true;
     cc.someInternalParams=false;
     controller = new InvertMotorNStep(cc);  
     
+    AbstractController *controller = new InvertMotorNStep(cc);  
     //    DerControllerConf dc = DerController::getDefaultConf();
     //    dc.cInit=1;
     //    AbstractController *controller = new DerController(dc);  
     //    controller->setParam("noiseY",0);
     
     //    AbstractController *controller = new SineController();  
-    
   
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     // AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());

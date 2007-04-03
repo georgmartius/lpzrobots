@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-02-20 15:54:40  martius
+ *   Revision 1.3  2007-04-03 11:27:07  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2007/02/20 15:54:40  martius
  *   barrel
  *
  *   Revision 1.1  2006/07/20 17:16:05  martius
@@ -146,7 +149,7 @@ public:
     InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
 
     std::vector<Layer> layers;
-    layers.push_back(Layer(6, 0.5 , FeedForwardNN::tanh,FeedForwardNN::dtanh));
+    layers.push_back(Layer(6, 0.5 , FeedForwardNN::tanh));
     //layers.push_back(Layer(3,0.5));
     layers.push_back(Layer(2,1));
     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers);
