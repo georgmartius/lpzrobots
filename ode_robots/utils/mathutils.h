@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-08-08 17:04:47  martius
+ *   Revision 1.9  2007-04-03 16:33:13  der
+ *   removed clip
+ *
+ *   Revision 1.8  2006/08/08 17:04:47  martius
  *   added new sensor model
  *
  *   Revision 1.7  2006/07/14 12:23:56  martius
@@ -84,9 +87,9 @@ namespace lpzrobots {
 
   class Axis;
 
-  template<typename T>
-  inline T clip(T v,T minimum, T maximum)
-    { return clampBelow(clampAbove(v,minimum),maximum); }
+/*   template<typename T> */
+/*   inline T clip(T v,T minimum, T maximum) */
+/*     { return clampBelow(clampAbove(v,minimum),maximum); } */
 
   template<typename T>
   inline T abs(T v)
