@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-12-11 18:25:08  martius
+ *   Revision 1.8  2007-04-03 16:32:21  der
+ *   thicker drawing
+ *
+ *   Revision 1.7  2006/12/11 18:25:08  martius
  *   memory freed
  *
  *   Revision 1.6  2006/09/20 12:56:28  martius
@@ -179,7 +182,7 @@ void IRSensor::update(){
 
   if(sensorRay)  {
     delete sensorRay;
-    sensorRay = new OSGBox(0.002, 0.002, len);
+    sensorRay = new OSGBox(0.008, 0.008, len);
     sensorRay->init(osgHandle);
     sensorRay->setMatrix(osg::Matrix::translate(osg::Vec3(0,0,len/2.0)) * osgPose(actual_pos,actual_R));
     sensorRay->setColor(Color(value*2.0, 0.0, 0.0));
