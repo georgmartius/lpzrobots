@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-02-12 13:28:20  martius
+ *   Revision 1.14  2007-04-03 16:28:38  der
+ *   derivative computed on error! This is the correct implementation
+ *
+ *   Revision 1.13  2007/02/12 13:28:20  martius
  *   twoaxisservo and some minor changes
  *
  *   Revision 1.12  2007/02/01 09:27:36  martius
@@ -95,25 +98,17 @@ namespace lpzrobots {
     last2position = lastposition;
     lastposition = position;
     position = newsensorval;
-	
-    return stepWithD(newsensorval, lastposition - position);
-  }
-
-  double PID::stepWithD ( double newsensorval, double derivative ){
-    position = newsensorval;
 
     lasterror = error;
     error = targetposition - position;
-	
+    double derivative = lasterror - error;
+
     P = error;
     I += (1-alpha) * (error * KI - I);
     D = -derivative * KD; 
-    // limit damping term to the size of P+I and damping constant (this stabilised it tremendously)!
-    double PI = fabs(P+I) + KD;
-    D = std::min(PI, std::max(-PI,D));
-    //D = -( 3*position - 4 * lastposition + last2position ) * KD;    
     force = KP*(P + I + D);
     return force;
   }
+
 
 }
