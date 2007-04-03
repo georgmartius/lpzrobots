@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-03-16 10:57:26  martius
+ *   Revision 1.3  2007-04-03 16:37:13  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2007/03/16 10:57:26  martius
  *   no elasticity, since substance support allows to make Playground soft
  *
  *   Revision 1.1  2007/02/23 09:30:13  der
@@ -59,6 +62,7 @@ namespace lpzrobots {
     double mass;       ///< chassis mass
     double relLegmass; ///< relative overall leg mass
     double hipPower; ///< maximal force for at hip joint motors
+    double hipDamping; ///< damping of hio joint servos
     double hipJointLimit; ///< angle range for legs
     double kneePower;  ///< spring strength in the knees
     double kneeJointLimit; ///< angle range for knees
@@ -93,12 +97,13 @@ namespace lpzrobots {
       c.legLength  = 0.6;
       c.mass       = 1;
       c.relLegmass = 1;
-      c.hipPower = 5;
-      c.kneePower  = 5;
-      c.kneeDamping = 0.01;
-      c.anklePower  = 2;
-      c.ankleDamping = 0.001;
-      c.hipJointLimit = M_PI/3; // +- 60 degree
+      c.hipPower = 3;
+      c.hipDamping = 10;
+      c.kneePower  = 2;
+      c.kneeDamping = 2;
+      c.anklePower  = 1.5;
+      c.ankleDamping = 2;
+      c.hipJointLimit = M_PI/2; // +- 90 degree
       c.kneeJointLimit = M_PI/4; // +- 45 degree
       c.frictionGround = 0.1;
       //      c.elasticity = 10;

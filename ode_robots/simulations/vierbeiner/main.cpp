@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-03 11:27:07  martius
+ *   Revision 1.6  2007-04-03 16:35:43  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2007/04/03 11:27:07  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2007/03/16 11:36:10  martius
@@ -86,6 +89,9 @@
 #include "playground.h"
 #include "terrainground.h"
 #include "octaplayground.h"
+#include "sliderwheelie.h"
+#include "nimm2.h"
+//#include "derivativewiring.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -106,7 +112,7 @@ public:
     // initialization
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.setParam("controlinterval",4);
+    global.odeConfig.setParam("controlinterval",2);
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("realtimefactor",3);
     //    global.odeConfig.setParam("gravity", 0);
@@ -120,8 +126,17 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, 0.4));
-    playground->setPosition(osg::Vec3(0,0,0.1)); // playground positionieren und generieren
+    double diam = .8; 
+    int anzgrounds=4;
+    for (int i=0; i< anzgrounds; i++){
+      playground = new Playground(odeHandle, osgHandle, osg::Vec3(4+4*i, .2, .15+0.15*i), 1, i==(anzgrounds-1));
+      OdeHandle myhandle = odeHandle;
+      myhandle.substance.toFoam(0.01);
+      // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
+      playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
+      // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
+    //global.obstacles.push_back(playground);
+    }
     global.obstacles.push_back(playground);
     hardness=1;
     //     double diam = .8; 
@@ -131,7 +146,7 @@ public:
 //      global.obstacles.push_back(playground3);
 
 
-//      OctaPlayground* playground4 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/11.5 *diam,.1,/*Height*/ 1), 12,true); //false heisst ohne Schatten 
+    //  OctaPlayground* playground4 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/11.5 *diam,1,/*Height*/ 1.6), 12,true); //false heisst ohne Schatten 
 //        playground4->setColor(Color(.2,.2,.2,0.1));
 //        playground4->setGroundTexture("Images/really_white.rgb");
 //        playground4->setGroundColor(Color(255.0f/255.0f,200.0f/255.0f,21.0f/255.0f));
@@ -155,14 +170,15 @@ public:
       global.obstacles.push_back(s1);
     }
 
+    for (int i=0; i< 1/*2*/; i++){ //Several dogs 
+
     VierBeinerConf conf = VierBeiner::getDefaultConf();
-    //    conf.frictionGround = 1;
-    //    conf.hipJointLimit = M_PI/8; 
+        conf.frictionGround = .6;
+	//  conf.hipJointLimit = M_PI/8;        
     conf.legNumber = 4;
-    conf.hipPower = 5;
-    conf.kneePower = 5;
-    VierBeiner* dog = new VierBeiner(odeHandle, osgHandle,conf, "Dog");    
-    dog->place(osg::Matrix::translate(0,0,0.15));
+    VierBeiner* dog = new VierBeiner(odeHandle, osgHandle,conf, "Dog");     
+    //dog->place(osg::Matrix::translate(0,0,0.15));  
+    dog->place(osg::Matrix::translate(0,0,.5 + 4*i));
     global.configs.push_back(dog);
 
     Primitive* trunk = dog->getMainPrimitive();
@@ -184,23 +200,26 @@ public:
     DerBigControllerConf cc = DerBigController::getDefaultConf();
     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
     vector<Layer> layers;
-    layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+    // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
     // size of output layer is automatically set
-    layers.push_back(Layer(1,1,FeedForwardNN::linear); 
-    MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, true);
+    layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+    MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
     cc.model=net;
     cc.useS=true;
-    //AbstractController* controller = new DerBigController(cc);
-    //AbstractController* controller = new InvertMotorBigModel(cc);
+    //cc.useS=false;
+    // AbstractController* controller = new DerBigController(cc);
+	// AbstractController* controller = new InvertMotorBigModel(cc);
     controller->setParam("sinerate",50);
     controller->setParam("phaseshift",1);
     controller->setParam("adaptrate",0);
     controller->setParam("rootE",3);
-    controller->setParam("epsC",0.01);
-    controller->setParam("epsA",0.01);
+    controller->setParam("epsC",0.1);
+    controller->setParam("epsA",0.2);
     controller->setParam("steps",1);
     controller->setParam("s4avg",2);
     controller->setParam("teacher",0);
+    controller->setParam("dampS",0.0001);
+    controller->setParam("dampA",0.00003);
     //    controller->setParam("kwta",4);
     //    controller->setParam("inhibition",0.01);
     
@@ -214,10 +233,16 @@ public:
     // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, dog, wiring);
+    //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
     global.agents.push_back(agent);
+  
+    //  showParams(global.configs);
+    }// Several dogs end
+    
   
     showParams(global.configs);
   }
+
 
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)

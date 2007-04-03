@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-03-16 10:58:58  martius
+ *   Revision 1.5  2007-04-03 16:35:54  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2007/03/16 10:58:58  martius
  *   test of substances
  *
  *   Revision 1.3  2006/08/11 15:46:34  martius
@@ -149,7 +152,7 @@ public:
     PassiveSphere* s;
     FixedJoint* fj;
 
-    if(0){
+    if(1){
     // Metal ground
     handle2.substance.toMetal(1);
     b = new PassiveBox(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), osg::Vec3(7,1,1),100);
@@ -207,7 +210,7 @@ public:
     s->setPosition(osg::Vec3(3,5,3));
     global.obstacles.push_back(s);
     }
-    if(0){
+    if(1){
     // Plastik ground
     handle2.substance.toPlastic(0.8);
     b = new PassiveBox(handle2, osgHandle.changeColor(Color(1,1,1)), osg::Vec3(7,1,1),10);

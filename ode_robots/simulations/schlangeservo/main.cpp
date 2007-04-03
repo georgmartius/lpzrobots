@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-04-03 11:27:07  martius
+ *   Revision 1.10  2007-04-03 16:35:07  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.9  2007/04/03 11:27:07  martius
  *   *** empty log message ***
  *
  *   Revision 1.8  2007/02/23 15:14:17  martius
@@ -78,6 +81,7 @@
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
+#include <selforg/dercontroller.h>
 #include <selforg/sinecontroller.h>
 
 #include "schlangeservo2.h"
@@ -145,6 +149,11 @@ public:
     //    controller->setParam("noiseY",0);
     
     //    AbstractController *controller = new SineController();  
+//     DerControllerConf cc = DerController::getDefaultConf();
+//     cc.cInit=0.8;
+//     cc.useS=false;
+//     AbstractController *controller = new DerController(cc);  
+
   
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     // AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
@@ -166,13 +175,14 @@ public:
     //    controller->setParam("kwta",5);
     controller->setParam("dampS",0.001);
  
-    controller->setParam("rootE",3);
+    global.odeConfig.setParam("controlinterval",1);
+    global.odeConfig.setParam("gravity", 0.0); 
+
     controller->setParam("steps",1);
     controller->setParam("epsC",0.01);
     controller->setParam("epsA",0.01);
-    controller->setParam("adaptrate",0.000);
-    controller->setParam("teacher",3.000);
-    //    controller->setParam("nomupdate",0.05);
+    controller->setParam("adaptrate",0);
+    controller->setParam("rootE",3);
 
     // controller->setParam("desens",0.0);
     //   controller->setParam("s4delay",1.0);
@@ -242,16 +252,6 @@ public:
 	printf("Distal Teaching Signal: %s,\n", dteaching ? "on" : "off");
 	handled = true; 
 	break;
-      case 's' :
-        f = fopen("test","wb");
-	controller->store(f) && printf("Controller stored\n");
-	fclose(f);
-	handled = true; break;	
-      case 'l' :
-	f = fopen("test","rb");
-	controller->restore(f) && printf("Controller loaded\n");
-	fclose(f);
-	handled = true; break;	
       }
     fflush(stdout);
     return handled;

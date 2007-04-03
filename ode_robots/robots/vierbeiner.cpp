@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-03-16 10:57:44  martius
+ *   Revision 1.3  2007-04-03 16:37:09  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2007/03/16 10:57:44  martius
  *   no elasticity, since substance support allows to make Playground soft
  *   new substance and collision control
  *
@@ -243,7 +246,7 @@ namespace lpzrobots {
     // the pole is a non-visible box which hinders the dog from falling over.
     Primitive* pole;
     double poleheight=conf.size*2;
-    pole = new Box(conf.size*2,twidth*8,poleheight);
+    pole = new Box(conf.size*2,twidth*1.5,poleheight);
     bigboxtransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,theight/2+poleheight/2));
     bigboxtransform->init(odeHandle, 0, osgHandle, Primitive::Geom); 
     objects.push_back(bigboxtransform);
@@ -279,8 +282,7 @@ namespace lpzrobots {
     j = new HingeJoint(trunk, neck, neckpos * pose, Axis(0,0,1) * pose);
     j->init(odeHandle, osgHandleJ, true, theight * 1.2);
     joints.push_back(j);
-    servo =  new HingeServo(j, -M_PI/4, M_PI/4,
-			    headmass ,0.1,0.1); 
+    servo =  new HingeServo(j, -M_PI/4, M_PI/4, headmass/2,20); 
     headtailservos.push_back(servo);        
 
     // create tail
@@ -299,7 +301,7 @@ namespace lpzrobots {
     j->setParam(dParamLoStop, -M_PI/2);
     j->setParam(dParamHiStop,  M_PI/2);    
     joints.push_back(j);
-    servo =  new HingeServo(j, -M_PI/3, M_PI/3, tailmass*3,0.1,0.1); 
+    servo =  new HingeServo(j, -M_PI/3, M_PI/3, tailmass*3 ,20); 
     headtailservos.push_back(servo);        
     tail->setTexture("Images/fur3.jpg");
     ///ignore collision between box on top of dog and tail
@@ -359,6 +361,8 @@ namespace lpzrobots {
       j = new HingeJoint(p1, p2, Pos(0,0,-l1/2) * m1, Axis(0,n<2 ? -1 : 1,0) * m1);
       j->init(odeHandle, osgHandleJ, true, t1 * 2.1);                  
       joints.push_back(j);
+      // lower limp should not collide with body!
+      odeHandle.addIgnoredPair(trunk,p2);      
 
       // servo used as a spring
       servo =  new HingeServo(j, kneelowstop, kneehighstop, conf.kneePower, conf.kneeDamping,0);
@@ -380,6 +384,8 @@ namespace lpzrobots {
 	j = new HingeJoint(p2, p3, Pos(0,0,-l2/2) * m2, Axis(0,1,0) * m2);
 	j->init(odeHandle, osgHandleJ, true, t2 * 2.1);
 	joints.push_back(j);
+	// feet should not collide with body!
+	odeHandle.addIgnoredPair(trunk,p3);      
 	
 	// servo used as a spring
 	servo =  new HingeServo(j, anklelowstop, anklehighstop, conf.anklePower, conf.ankleDamping,0);
@@ -443,6 +449,7 @@ namespace lpzrobots {
     paramlist list;
     list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
     list += pair<paramkey, paramval> (string("hippower"),   conf.hipPower);
+    list += pair<paramkey, paramval> (string("hipdamping"),   conf.hipDamping);
     list += pair<paramkey, paramval> (string("hipjointlimit"),   conf.hipJointLimit);
     list += pair<paramkey, paramval> (string("kneepower"),   conf.kneePower);
     list += pair<paramkey, paramval> (string("kneedamping"),   conf.kneeDamping);
@@ -456,6 +463,7 @@ namespace lpzrobots {
   Configurable::paramval VierBeiner::getParam(const paramkey& key) const{    
     if(key == "frictionground") return conf.frictionGround; 
     else if(key == "hippower") return conf.hipPower; 
+    else if(key == "hipdamping") return conf.hipDamping; 
     else if(key == "kneepower") return conf.kneePower; 
     else if(key == "kneedamping") return conf.kneeDamping; 
     else if(key == "anklepower") return conf.anklePower; 
@@ -471,6 +479,11 @@ namespace lpzrobots {
       conf.hipPower = val; 
       FOREACH(vector<HingeServo*>, hipservos, i){
 	if(*i) (*i)->setPower(conf.hipPower);
+      }
+    } else if(key == "hipdamping") {
+      conf.hipDamping = val; 
+      FOREACH(vector<HingeServo*>, hipservos, i){
+	if(*i) { (*i)->damping() = conf.hipDamping; }
       }
     } else if(key == "kneepower") {
       conf.kneePower = val; 
