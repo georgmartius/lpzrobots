@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-03-16 10:50:43  martius
+ *   Revision 1.2  2007-04-03 16:32:58  der
+ *   default material softer
+ *
+ *   Revision 1.1  2007/03/16 10:50:43  martius
  *   initial version
  *
  *
@@ -135,7 +138,7 @@ namespace lpzrobots {
   // medium slip, a bit elastic, medium hardness, roughness [0.5-1]
   void Substance::toPlastic(float _roughness){
     roughness  = _roughness;
-    hardness   = 5;
+    hardness   = 2;
     elasticity = 0.5;
     slip       = 0.01;
   }
