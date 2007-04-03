@@ -31,8 +31,8 @@ void test2x2(){
 
   // test
   cout << "TEST" << endl;
-  cout << net.process(input1);      
-  cout << net.process(input2);    
+  cout << net.process(input1) << endl;;      
+  cout << net.process(input2) << endl;;    
 }
 
 MultiLayerFFNN testnonlinear(){
@@ -62,11 +62,11 @@ MultiLayerFFNN testnonlinear(){
 
   // test
   cout << "TEST" << endl;
-  cout << net.process(Matrix(2, 1, i0));      
-  cout << net.process(Matrix(2, 1, i1));      
-  cout << net.process(Matrix(2, 1, i2));      
-  cout << net.process(Matrix(2, 1, i3));      
-  cout << net.process(Matrix(2, 1, i4));      
+  cout << net.process(Matrix(2, 1, i0)) << endl;;      
+  cout << net.process(Matrix(2, 1, i1)) << endl;;      
+  cout << net.process(Matrix(2, 1, i2)) << endl;;      
+  cout << net.process(Matrix(2, 1, i3)) << endl;;      
+  cout << net.process(Matrix(2, 1, i4)) << endl;;      
   return net;
 }
 
@@ -74,9 +74,9 @@ void testinvertation(const MultiLayerFFNN& net){
   double i0[2] = {1,1};
   Matrix input (2, 1, i0);
   Matrix J = net.response(input);
-  cout << "Responsematrix for " << input << J;
+  cout << "Responsematrix for " << (input^T) << endl << endl << J << endl;
   Matrix o = J*input;
-  cout << "Test: " << o;
+  cout << "Test: " << o << endl;
 }
 
 void testinvertation2(){
@@ -89,9 +89,44 @@ void testinvertation2(){
   double i0[2] = {1,1};
   Matrix input (2, 1, i0);
   Matrix J = net.response(input);
-  cout << "Responsematrix for " << input << J;
+  cout << "Responsematrix for " << (input^T) << endl << endl  << J << endl;
   Matrix o = J*input;
-  cout << "Test: " << o;  
+  cout << "Test: " << o << endl;
+
+}
+
+void testinvertation3(const MultiLayerFFNN& net){
+  double i0[2] = {1,  1};
+  double xsi_[2] = {0.1};
+  Matrix input (2, 1, i0);
+  Matrix xsi(1,1,xsi_);
+  MultiLayerFFNN net2=net;
+  Matrix eta = net2.inversion(input, xsi);
+  Matrix o = net2.process(input);
+  cout << "Normal output: " << o << endl;
+  cout << "inversion for " << (input^T) <<endl << ":" << eta << endl;
+  o = net2.process(input+eta);
+  cout << "Shifted Output after inversion: " << (o^T) << endl;
+}
+
+void testinvertation4(){
+  std::vector<Layer> layers;
+  layers.push_back(Layer(2));
+  layers.push_back(Layer(2));
+  MultiLayerFFNN net(0.1, layers);
+  net.init(2,2,1.0);
+
+  double i0[2] = {1,1};
+  double i1[2] = {0.1,-0.2};
+  Matrix input (2, 1, i0);
+  Matrix xsi(2,1,i1);
+  Matrix eta = net.inversion(input, xsi);
+  Matrix o = net.process(input);
+  cout << "Normal output: " << (o^T) << endl;
+  cout << "inversion for " << (input^T) <<endl << ":" << (eta^T) << endl;
+  o = net.process(input+eta);
+  cout << "Shifted Output after inversion: " << (o^T) << endl;
+
 
 }
 
@@ -107,6 +142,10 @@ int main(){
   testinvertation(net);
   cout << "******************** testinvertation2\n";
   testinvertation2();
+  cout << "******************** testinvertation3\n";
+  testinvertation3(net);
+  cout << "******************** testinvertation4\n";
+  testinvertation4();
   return 0;
 }
 
