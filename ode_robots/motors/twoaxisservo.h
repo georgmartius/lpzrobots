@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-02-12 13:28:20  martius
+ *   Revision 1.2  2007-04-03 16:31:02  der
+ *   use fixed version of pid
+ *   new default values
+ *
+ *   Revision 1.1  2007/02/12 13:28:20  martius
  *   twoaxisservo and some minor changes
  *
  *
@@ -43,7 +47,7 @@ namespace lpzrobots {
   
     TwoAxisServo(TwoAxisJoint* joint, double min1, double max1, double power1, 
 		 double min2, double max2, double power2, 
-		 double damp=0.3, double integration=2.0)
+		 double damp=10, double integration=0.2)
       : joint(joint), min1(min1), max1(max1), min2(min2), max2(max2), 
 	pid1(power1, integration, damp),
 	pid2(power2, integration, damp) { 
@@ -65,14 +69,20 @@ namespace lpzrobots {
 	pos1 *= -min1;
       }
       pid1.setTargetPosition(pos1);  
-      double force1 = pid1.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
+      // double force1 = pid1.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
+      double force1 = pid1.step(joint->getPosition1());
+      // limit force to 1*KP
+      force1 =  force1<-pid1.KP ? -pid1.KP : ( force1 > pid1.KP ? pid1.KP : force1 );
       if(pos2 > 0){
 	pos2 *= max2; 
       }else{
 	pos2 *= -min2;
       }
       pid2.setTargetPosition(pos2);  
-      double force2 = pid2.stepWithD(joint->getPosition2(), joint->getPosition2Rate());
+      //      double force2 = pid2.stepWithD(joint->getPosition2(), joint->getPosition2Rate());
+      double force2 = pid2.step(joint->getPosition2());
+      // limit force to 1*KP
+      force2 =  force2<-pid2.KP ? -pid2.KP : ( force2 > pid2.KP ? pid2.KP : force2 );
       joint->addForces(force1, force2);
     }
 

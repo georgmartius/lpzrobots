@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-02-23 15:14:17  martius
+ *   Revision 1.5  2007-04-03 16:29:24  der
+ *   use fixed version of pid
+ *   new default values
+ *
+ *   Revision 1.4  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.3  2007/02/21 16:07:23  der
@@ -50,7 +54,7 @@ namespace lpzrobots {
   public:
     /** min and max values are understood as travel bounds. Min should be less than 0.*/
   
-    OneAxisServo(OneAxisJoint* joint, double _min, double _max, double power, double damp=0.05, double integration=2.0)
+    OneAxisServo(OneAxisJoint* joint, double _min, double _max, double power, double damp=10, double integration=0.2)
       : joint(joint), pid(power, integration, damp) { 
       assert(joint); 
       setMinMax(_min,_max);
@@ -72,7 +76,10 @@ namespace lpzrobots {
 	pos *= -min;
       }
       pid.setTargetPosition(pos);  
-      double force = pid.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
+      // double force = pid.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
+      double force = pid.step(joint->getPosition1());
+      // limit force to 1*KP
+      force =  force<-pid.KP ? -pid.KP : ( force > pid.KP ? pid.KP : force );
       joint->addForce1(force);      
     }
 
