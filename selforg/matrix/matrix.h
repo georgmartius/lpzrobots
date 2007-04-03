@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.9  2007-04-03 07:13:32  der
+// Revision 1.10  2007-04-03 09:58:20  martius
+// memory management done with free and malloc
+//
+// Revision 1.9  2007/04/03 07:13:32  der
 // plus lambdaI
 //
 // Revision 1.8  2007/02/05 12:31:21  martius
@@ -173,7 +176,7 @@ namespace matrix{
     Matrix(unsigned short _m, unsigned short _n, const D* _data=0);
     /// constucts a instance on the base of a deep copy of the given matrix
     Matrix (const Matrix& c);	
-    ~Matrix() { if(data) delete[] data; };
+    ~Matrix() { if(data) free(data); };
 
   public: 
     //  /////////////////// Accessors ///////////////////////////////
@@ -182,19 +185,19 @@ namespace matrix{
     /** @return number of columns */
     unsigned short getN() const { return n; };
     /** @return element at position i,j (row, column index) */
-    D val(unsigned short i, unsigned short j) const { 	
+    inline D val(unsigned short i, unsigned short j) const { 	
       assert( i<m && j<n);	 
       return data[i*n+j];
     };
     /** @return reference to element at position i,j 
 	(can be used as left side value) */
-    D& val(unsigned short i, unsigned short j) { 	
+    inline D& val(unsigned short i, unsigned short j) { 	
       assert( i<m && j<n);
       return data[i*n+j];
     };
 
     /** @return element at position i,j (row, column index) and 0 if out of bounds */
-    D valDef0(short i, short j) const { 	
+    inline D valDef0(short i, short j) const { 	
       if(0<=i && i<m && 0<=j && j<n)
 	return data[i*n+j];
       else return 0;
