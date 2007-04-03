@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-03-26 13:17:43  martius
+ *   Revision 1.11  2007-04-03 16:27:31  der
+ *   new IR shape
+ *   new servo parameters
+ *
+ *   Revision 1.10  2007/03/26 13:17:43  martius
  *   changes servo params
  *
  *   Revision 1.9  2007/02/23 15:14:17  martius
@@ -198,28 +202,9 @@ namespace lpzrobots {
 	len++;
       }
     }
-    // this is now done with Sensors, see above
-
-//     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base]->getBody() ) );
-//     if(conf.worldZaxissensor){
-//       // world coordinates of z-axis
-//       len += A.column(2).convertToBuffer(sensors+len, sensornumber-len);  
-//     }
-//     if(conf.axisZsensor){
-//       // z-coordinate of axis position in world coordinates
-//       len += A.row(2).convertToBuffer(sensors+len, sensornumber-len);  
-//     }
-//     if(conf.axisXYZsensor){
-//       // rotation matrix - 9 (vectors of all axis in world coordinates
-//       len += A.convertToBuffer(sensors + len , sensornumber -len);
-//     }    
-    //   // angular velocities (local coord.) - 3
-    //   Matrix angVelOut(3, 1, dBodyGetAngularVel( object[ Base ].body ));
-    //   Matrix angVelIn = A*angVelOut;
-    //   len += angVelIn.convertToBuffer(sensors+len,  sensornumber-len );
 
     // reading ir sensorvalues
-    if (conf.irAxis1 || conf.irAxis2 || conf.irAxis3){
+    if (conf.irAxis1 || conf.irAxis2 || conf.irAxis3 || conf.irRing || conf.irSide){
       len += irSensorBank.get(sensors+len, sensornumber-len);
     }
   
@@ -303,8 +288,7 @@ namespace lpzrobots {
     FOREACHC(list<Sensor*>, conf.sensors, i){
       s += (*i)->getSensorNumber();
     }
-    return conf.motorsensor * numberaxis + s + 
-      (conf.irAxis1 + conf.irAxis2 + conf.irAxis3) * 2;
+    return conf.motorsensor * numberaxis + s + irSensorBank.getSensorNumber();
   }
 
 
@@ -328,7 +312,7 @@ namespace lpzrobots {
 
     //    object[Base] = new InvisibleSphere(conf.diameter/2);
     object[Base] = new Sphere(conf.diameter/2);
-    //object[Base] = new InvisibleBox(conf.diameter, conf.diameter, conf.diameter);
+    // object[Base] = new InvisibleBox(conf.diameter, conf.diameter, conf.diameter);
     object[Base]->init(odeHandle, conf.spheremass, osgHandle_Base);
     object[Base]->setPose(pose);    
 
@@ -355,7 +339,7 @@ namespace lpzrobots {
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
-				 conf.pendularmass*150,0.1,0.2); 
+				 conf.pendularmass*conf.motorpowerfactor,10,1); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);
@@ -370,14 +354,14 @@ namespace lpzrobots {
     irSensorBank.init(odeHandle, osgHandle );
     if (conf.irAxis1){
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor(1.5);
+	IRSensor* sensor = new IRSensor(conf.irCharacter);
 	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * Matrix::translate(0,-i*conf.diameter/2,0 );
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irAxis2){
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor(1.5);
+	IRSensor* sensor = new IRSensor(conf.irCharacter);
 	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * Matrix::translate(i*conf.diameter/2,0,0 );
 	//	dRFromEulerAngles(R,i*M_PI/2,-i*M_PI/2,0);      
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
@@ -385,9 +369,25 @@ namespace lpzrobots {
     }
     if (conf.irAxis3){
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor(1.5);
+	IRSensor* sensor = new IRSensor(conf.irCharacter);
 	Matrix R = Matrix::rotate( i==1 ? 0 : M_PI, 1, 0, 0) * Matrix::translate(0,0,i*conf.diameter/2);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
+      }
+    }
+    if (conf.irRing){
+      for(double i=0; i<2*M_PI; i+=M_PI/6){  // 12 sensors
+	IRSensor* sensor = new IRSensor(conf.irCharacter);
+	Matrix R = Matrix::translate(0,0,conf.diameter/2) * Matrix::rotate( i, 0, 1, 0);
+	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
+      }
+    }
+    if (conf.irSide){
+      for(double i=0; i<2*M_PI; i+=M_PI/2){
+	IRSensor* sensor = new IRSensor(conf.irCharacter);
+	Matrix R = Matrix::translate(0,0,conf.diameter/2) * Matrix::rotate( M_PI/2-M_PI/8, 1, 0, 0) *  Matrix::rotate( i, 0, 1, 0);
+	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode); 
+	sensor = new IRSensor(conf.irCharacter);// and the other side	
+	irSensorBank.registerSensor(sensor, object[Base], R * Matrix::rotate( M_PI, 0, 0, 1), sensorrange, drawMode); 
       }
     }
 
