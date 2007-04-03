@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.7  2007-02-05 12:31:21  martius
+// Revision 1.8  2007-04-03 07:11:56  der
+// plus lambdaI
+//
+// Revision 1.7  2007/02/05 12:31:21  martius
 // reshape
 //
 // Revision 1.6  2006/11/29 09:57:53  martius
@@ -434,6 +437,15 @@ const int T=0xFF;
     assert(m*n == _m*_n);
     m=_m;
     n=_n;
+  }
+
+  /// adds the given value to the diagonal
+  Matrix& Matrix::pluslambdaI(double lambda){
+    int smallerdim=std::min(m,n);
+    for(int i=0; i< smallerdim; i++){
+      val(i,i)+=lambda;
+    }
+    return *this;
   }
 
 

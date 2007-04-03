@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.8  2007-02-05 12:31:21  martius
+// Revision 1.9  2007-04-03 07:13:32  der
+// plus lambdaI
+//
+// Revision 1.8  2007/02/05 12:31:21  martius
 // reshape
 //
 // Revision 1.7  2006/11/29 16:22:43  martius
@@ -407,6 +410,9 @@ namespace matrix{
     /** reshapes the matrix without distroying the data. Remember: The data is stored rowwise.
 	m*n must be equal to getM()*getN()*/
     void reshape(int m, int n);
+
+    /// adds the given value to the diagonal
+    Matrix& pluslambdaI(double lambda);
             
   private:
     // NOTE: buffersize determines available memory storage. 
