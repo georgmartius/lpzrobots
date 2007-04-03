@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-01-26 12:05:05  martius
+ *   Revision 1.11  2007-04-03 16:27:06  der
+ *   new IR shape
+ *
+ *   Revision 1.10  2007/01/26 12:05:05  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.9  2006/12/21 11:43:05  martius
@@ -107,11 +110,14 @@ public:
   double spheremass;
   double pendulardiameter; ///< automatically set
   double pendularmass;
+  double motorpowerfactor; ///< power factor for servos w.r.t. pendularmass 
   double pendularrange;
   bool motorsensor;        ///< motor values as sensors
   bool irAxis1;
   bool irAxis2;
   bool irAxis3;
+  bool irRing;            ///< IR sensors in a ring in x,z plane (collides with irAxis1 and irAxis3)
+  bool irSide;            ///< 4 IR senors to both side in y direction (collides with irAxis2)
   bool drawIRs;
   double irsensorscale; ///< range of the ir sensors in units of diameter
   double irCharacter;   ///< characteristics of sensor (\f[ x^c \f] where x is the range-distance)
@@ -175,11 +181,14 @@ public:
     c.diameter     = 1;
     c.spheremass   = .3;// 0.1
     c.pendularmass  = 1.0;
-    c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
-    c.motorsensor = false;  
+    c.pendularrange  = 0.20; // range of the slider from center in multiple of diameter [-range,range]
+    c.motorpowerfactor  = 100;
+    c.motorsensor = true; 
     c.irAxis1=false;
     c.irAxis2=false;
     c.irAxis3=false;
+    c.irRing=false;
+    c.irSide=false;
     c.drawIRs=true;
     c.irsensorscale=1.5;
     c.irCharacter=1;  
