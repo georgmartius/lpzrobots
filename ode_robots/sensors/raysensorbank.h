@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-20 12:56:28  martius
+ *   Revision 1.6  2007-04-03 14:12:28  der
+ *   getSensorNumber
+ *
+ *   Revision 1.5  2006/09/20 12:56:28  martius
  *   setRange
  *
  *   Revision 1.4  2006/08/28 12:18:31  martius
@@ -101,6 +104,9 @@ public:
       @return number of written sensorvalues
    */
   virtual int get(double* sensorarray, unsigned int array_size);
+
+  /// returns the number of sensors in the bank
+  virtual int getSensorNumber();
 
   /** set the range of the specified sensor (index)
       @param index index of sensor to modify

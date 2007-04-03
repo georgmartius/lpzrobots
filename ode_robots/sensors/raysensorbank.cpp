@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-20 12:56:28  martius
+ *   Revision 1.5  2007-04-03 14:12:24  der
+ *   getSensorNumber
+ *
+ *   Revision 1.4  2006/09/20 12:56:28  martius
  *   setRange
  *
  *   Revision 1.3  2006/07/14 12:23:43  martius
@@ -109,6 +112,10 @@ namespace lpzrobots {
     }
     return counter;
   };
+
+  int RaySensorBank::getSensorNumber(){
+    return bank.size();
+  }
 
   void RaySensorBank::setRange(unsigned int index, double range){
     assert(index<bank.size());
