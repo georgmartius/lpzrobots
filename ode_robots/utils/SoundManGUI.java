@@ -22,14 +22,35 @@ public class SoundManGUI extends JFrame {
   JRadioButton discRB=new JRadioButton("Discrete");
   discRB.setBounds(5, 10, 75, 20);
   getContentPane().add(discRB);
+  discRB.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     mode=1;
+    }
+   }
+  );
 
   JRadioButton amplRB=new JRadioButton("Amplitude");
   amplRB.setBounds(80, 10, 80, 20);
   getContentPane().add(amplRB);
+  amplRB.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     mode=2;
+    }
+   }
+  );
 
   JRadioButton freqRB=new JRadioButton("Frequency");
   freqRB.setBounds(160, 10, 80, 20);
   getContentPane().add(freqRB);
+  freqRB.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     mode=3;
+    }
+   }
+  );
 
   ButtonGroup modeBG=new ButtonGroup();
   modeBG.add(discRB);
@@ -46,8 +67,11 @@ public class SoundManGUI extends JFrame {
   getContentPane().add(l1);
 
   DecimalFormat df=new DecimalFormat();
-  df.setMaximumFractionDigits(2);
-  df.setMinimumFractionDigits(0);
+  df.setMaximumIntegerDigits(1);
+  df.setMinimumIntegerDigits(1);
+//  df.setMaximumFractionDigits(2);
+  df.setMinimumFractionDigits(1);
+  df.setDecimalSeparatorAlwaysShown(true);
   final JFormattedTextField paramFTF=new JFormattedTextField(df);
   paramFTF.setText(NumberFormat.getInstance().format(param));
   paramFTF.setBounds(85, 40, 50, 20);
@@ -59,7 +83,12 @@ public class SoundManGUI extends JFrame {
   paramB.addActionListener(
    new ActionListener() {
     public void actionPerformed(ActionEvent e) {
-     param=new Float(paramFTF.getText().replace(',','.')).floatValue();
+     float newParam=new Float(paramFTF.getText().replace(',','.')).floatValue();
+     if(newParam<0.0f) {
+      newParam=Math.abs(newParam);
+      paramFTF.setText(NumberFormat.getInstance().format(newParam));
+     }
+     param=newParam;
     }
    }
   );

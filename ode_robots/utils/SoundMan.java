@@ -21,7 +21,7 @@ public class SoundMan {
   if(args.length==0) { // discrete as standard
    param=0.7f; mode=1; sm=new SoundManipulation(1,0.7f,System.in);
   } else if(args.length>0) {
-   if(args[0].equals("--help") || args[0].equals("-h")) {
+   if(args[0].equals("-help") || args[0].equals("-h")) {
     printUsage();
     System.exit(0);
    }else if(args[0].equals("-disc")) { // discrete
@@ -63,6 +63,10 @@ public class SoundMan {
   System.out.println("Example: \'java SoundMan -disc 0.7\'");
   System.out.println("\'java SoundMan -disc\' etc. will use standard values as parameters.");
   System.out.println("\'java SoundMan\' equals \'java SoundMan -disc\'");
+  System.out.println("Explanation of param:");
+  System.out.println("In discrete mode a note for every (absolute) sensor value above a certain criterion is played. This criterion is defined by param.");
+  System.out.println("In amplitude mode the maximum sensor value is multiplied with param to determine the volume of the output. The output consists of a single note which is altered only by it's volume.");
+  System.out.println("In frequency mode the maximum sensor value is multiplied with param to alter the tone pitch.");
  }
 
 }

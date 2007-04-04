@@ -92,7 +92,7 @@ public class SoundManipulation extends Thread {
         if(i==numSensors-1) {
          try {
           ShortMessage sm=new ShortMessage();
-          sm.setMessage(ShortMessage.NOTE_ON, 0, 50, (int)(param*Math.pow(sensorMax,3.0)*20.0f));
+          sm.setMessage(ShortMessage.NOTE_ON, 0, 50, (int)Math.min(127,param*Math.pow(sensorMax,3.0)*20.0f));
           synthRcvr.send(sm, -1);
          } catch(InvalidMidiDataException imde) {
           System.out.println(imde.getMessage());
@@ -106,7 +106,7 @@ public class SoundManipulation extends Thread {
         if(i==numSensors-1) {
          try {
           ShortMessage sm=new ShortMessage();
-          sm.setMessage(ShortMessage.NOTE_ON, 0, (int)(param*Math.pow(sensorMax,3.0)*15.0f), 50);
+          sm.setMessage(ShortMessage.NOTE_ON, 0, (int)Math.min(127,param*sensorMax*50.0f), 50);
           synthRcvr.send(sm, -1);
          } catch(InvalidMidiDataException imde) {
           System.out.println(imde.getMessage());
