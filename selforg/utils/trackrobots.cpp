@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-03-28 07:15:54  martius
+ *   Revision 1.4  2007-04-04 06:55:35  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2007/03/28 07:15:54  martius
  *   speed and orientation tracking enabled
  *
  *   Revision 1.2  2006/07/14 12:24:02  martius
@@ -59,7 +62,6 @@ bool TrackRobot::open(const AbstractRobot* robot){
     char date[128];
     char filename[256];
     time_t t = time(0);
-    struct stat filestat;
     strftime(date, 128, "%F_%H-%M-%S", localtime(&t));
     sprintf(filename, "%s_track_%s_%s.log", robot->getName().c_str(), scene, date);
 

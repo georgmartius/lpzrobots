@@ -3,7 +3,7 @@
 #Date:     Mai 2005
 
 # us -pg for profiling
-TEST_DEBUG_CFLAGS = -Wall -I. -I../include/selforg -DUNITTEST -O1 -g
+TEST_DEBUG_CFLAGS = -Wall -I. -I../include/selforg -DUNITTEST -g
 TEST_OPTIM_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG
 #LIB_DEBUG_CFLAGS = -Wall -I. 
 #LIB_OPTIM_CFLAGS = -Wall -I. -O3 -DNDEBUG 
