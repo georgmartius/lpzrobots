@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-03-16 11:01:37  martius
+ *   Revision 1.5  2007-04-05 15:10:14  martius
+ *   extra ground substance
+ *
+ *   Revision 1.4  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -96,6 +99,9 @@ public:
 
     virtual Primitive* getMainPrimitive() const;
 
+    /**
+     * assigns the texture to the object
+     */
     virtual void setGroundTexture(const std::string& filename);
 
     /**
@@ -104,6 +110,13 @@ public:
      * @param color values in RGBA
      */
     virtual void setGroundColor(const Color& color);
+
+    /**
+     * sets the substance of the ground. 
+     * @param substance description of the substance
+     */
+    virtual void setGroundSubstance(const Substance& substance);
+
 
   protected:
 

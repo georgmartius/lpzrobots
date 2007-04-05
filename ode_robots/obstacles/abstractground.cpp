@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-03-16 11:01:37  martius
+ *   Revision 1.6  2007-04-05 15:10:14  martius
+ *   extra ground substance
+ *
+ *   Revision 1.5  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -147,6 +150,13 @@ namespace lpzrobots {
       exit(-1);
     }
   };
+
+  void AbstractGround::setGroundSubstance(const Substance& substance){
+    if(creategroundPlane && groundPlane)
+      groundPlane->substance=substance;
+    else std::cerr << "AbstractGround::setGroundSubstance() gound not created or no ground used!\n";
+  }
+
 
   void AbstractGround::createGround() {
     if (creategroundPlane) {
