@@ -11,7 +11,7 @@ all:
 	-make soundman
 	cd selforg && make depend
 	cd ode_robots && make depend
-	make tags
+	-make tags
 	@if test ! -e opende/Makefile; then echo -e "You need to setup ODE from opende folder first!\nPlease run:\ncd opende; sh autogen.sh\n./configure --enable-opcode --enable-double-precision\nmake\nmake install #(as root)\n\nOn most SUSE linux computers it's necessary to run thereafter\n\nldconfig #(as root)\n\nfor a correct linking of the libode.so!\n"; exit; fi
 
 .PHONY: guilogger
