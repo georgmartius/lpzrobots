@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-04-03 16:26:47  der
+ *   Revision 1.16  2007-04-05 15:12:56  martius
+ *   structured
+ *
+ *   Revision 1.15  2007/04/03 16:26:47  der
  *   labyrint
  *
  *   Revision 1.14  2007/03/26 13:15:51  martius
@@ -138,51 +141,52 @@ public:
     int num_barrels=0;
     int num_spheres=1;      
 
+    bool labyrint=true;      
+    bool squarecorridor=false;
+
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
     global.odeConfig.setParam("noise",0.03);
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
 
-    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 5 ), 1);
-    playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-    playground->setGroundTexture("Images/really_white.rgb");    
-    playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
-    playground->setPosition(osg::Vec3(0,0,0.1));
-    playground->setTexture("");
-    global.obstacles.push_back(playground);
-//     // inner playground
-//     playground = new Playground(odeHandle, osgHandle,osg::Vec3(10, 0.2, 1.2), 1, false);
-// //     playground->setGroundTexture("Images/dusty.rgb");    
-// //     playground->setGroundColor(Color(41/255.0,181/255.0,40/255.0));
-//     playground->setColor(Color(255/255.0,200/255.0,0/255.0, 0.1));
-//     playground->setPosition(osg::Vec3(0,0,0.1));
-//     playground->setTexture("");
-//     global.obstacles.push_back(playground);
-
-
-    double radius=7.5;
-    int obstanz=30;
-    OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
-    OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
-    for(int i=0; i<obstanz; i++){
-      PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
-				     osg::Vec3(random_minusone_to_one(0)+1.2, random_minusone_to_one(0)+1.2 ,1),5);
-      s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
-      global.obstacles.push_back(s);    
+    if(squarecorridor){
+      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 1.2 ), 1);
+      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+      playground->setPosition(osg::Vec3(0,0,0.1));
+      playground->setTexture("");
+      global.obstacles.push_back(playground);
+      //     // inner playground
+      playground = new Playground(odeHandle, osgHandle,osg::Vec3(10, 0.2, 1.2), 1, false);
+      playground->setColor(Color(255/255.0,200/255.0,0/255.0, 0.1));
+      playground->setPosition(osg::Vec3(0,0,0.1));
+      playground->setTexture("");
+      global.obstacles.push_back(playground);
     }
 
-
-//   // Outer Ring
-//   AbstractObstacle* ring1 = new OctaPlayground(odeHandle, 20);
-//   ring1->setGeometry(6, 0.1, 2); 
-//   ring1->setPosition(0,0,0); // playground positionieren und generieren
-//   global.obstacles.push_back(ring1);
-//   // Inner Ring
-//   AbstractObstacle* ring2 = new OctaPlayground(odeHandle, 24);
-//   ring2->setGeometry(11.5, 0.1, 2);
-//   ring2->setPosition(0,0,0); // playground positionieren und generieren
-//   global.obstacles.push_back(ring2);
+    if(labyrint){
+      double radius=7.5;
+      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(radius*2+1, 0.2, 5 ), 1);
+      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+      playground->setPosition(osg::Vec3(0,0,0.1));
+      playground->setTexture("");
+      global.obstacles.push_back(playground);
+      int obstanz=30;
+      OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
+      OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
+      for(int i=0; i<obstanz; i++){
+	PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
+				       osg::Vec3(random_minusone_to_one(0)+1.2, 
+						 random_minusone_to_one(0)+1.2 ,1),5);
+	s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) 
+		   * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
+	global.obstacles.push_back(s);    
+      }
+    }
 
 //     for(int i=0; i<5; i++){
 //       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
