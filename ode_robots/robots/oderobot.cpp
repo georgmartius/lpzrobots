@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-08 17:04:46  martius
+ *   Revision 1.5  2007-04-05 15:11:42  martius
+ *   angular speed tracking
+ *
+ *   Revision 1.4  2006/08/08 17:04:46  martius
  *   added new sensor model
  *
  *   Revision 1.3  2006/07/20 17:19:44  martius
@@ -95,44 +98,29 @@ namespace lpzrobots {
     //      return Position(dBodyGetPosition(o->getBody()));
     //    } else {
 
-      /*********************************
-Testing
-      osg::Vec3 p(o->getPosition());
-     //((Transform*)o)->parent->getOSGPrimitive()->getTransform().computeLocalToWorldMatrix(p,NodeVisitor());
-     // osg::MatrixTransform m(((Transform*)o)->parent->getOSGPrimitive()->getTransform(), CopyOp());
-
-      //dummer weise ist das kein osg::Transform, sondern ein lpzrobots::Transform 
-      ((Transform*)o)->getOSGPrimitive()->getTransform().computeLocalToWorldMatrix(p,NodeVisitor());;
-
-      std::cout<<"Position1("<<p[0]<<", "<<p[1]<<", "<<p[2]<<") \n";
-      Position p2(dGeomGetPosition(o->parent->getGeom()));
-      Position p3(p2.x+p[0],p2.y+p[1],p2.z+p[2]);
-      std::cout<<"Position3("<<p3.x<<", "<<p3.y<<", "<<p3.z<<") \n";
-      return  p3;//Position(0,0,0);
-    }
-      ***************************************/   
-
-
     // using the Geom has maybe the advantage to get the position of transform objects 
     // (e.g. hand of muscledArm)
-    if (o && o->getGeom()){
+    if (o && o->getGeom())
       return Position(dGeomGetPosition(o->getGeom()));
-    } else return Position(0,0,0);
+    else if(o->getBody())
+      return Position(dBodyGetPosition(o->getBody()));     
+    else return Position(0,0,0);
   }
   
-  /** returns linear speed vector of the object
-      @return vector  (vx,vy,vz)
-  */
   Position OdeRobot::getSpeed() const {
     const Primitive* o = getMainPrimitive();
-    if (o && o->getBody()){
-      return Position(dBodyGetLinearVel(o->getBody()));
-    } else return Position(0,0,0);
+    if (o && o->getBody())
+      return Position(dBodyGetLinearVel(o->getBody()));     
+    else return Position(0,0,0);
+  }
+
+  Position OdeRobot::getAngularSpeed() const {
+    const Primitive* o = getMainPrimitive();
+    if (o && o->getBody())
+      return Position(dBodyGetAngularVel(o->getBody()));     
+    else return Position(0,0,0);
   }
   
-  /** returns the orientation of the object
-      @return 3x3 rotation matrix
-  */
   matrix::Matrix OdeRobot::getOrientation() const {
     const Primitive* o = getMainPrimitive();
     if (o && o->getBody()){

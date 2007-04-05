@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-04-04 06:55:35  martius
+ *   Revision 1.5  2007-04-05 15:14:15  martius
+ *   angular speed tracking
+ *
+ *   Revision 1.4  2007/04/04 06:55:35  martius
  *   *** empty log message ***
  *
  *   Revision 1.3  2007/03/28 07:15:54  martius
@@ -70,7 +73,7 @@ bool TrackRobot::open(const AbstractRobot* robot){
     if(!file) return false;
     fprintf(file, "#C t ");
     if(trackPos)   fprintf(file, "x y z ");
-    if(trackSpeed) fprintf(file, "vx vy vz ");
+    if(trackSpeed) fprintf(file, "vx vy vz wx wy wz");
     if( trackOrientation)  fprintf(file, "o11 o12 o13 o21 o22 o23 o31 o32 o33 ");
     fprintf(file,"\n");  
   } 
@@ -87,6 +90,8 @@ void TrackRobot::track(AbstractRobot* robot) {
     }
     if(trackSpeed){
       Position s = robot->getSpeed();
+      fprintf(file, "%g %g %g ", s.x, s.y, s.z);
+      s = robot->getAngularSpeed();
       fprintf(file, "%g %g %g ", s.x, s.y, s.z);
     }
     if( trackOrientation){

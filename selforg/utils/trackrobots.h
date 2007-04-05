@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-04 15:16:13  martius
+ *   Revision 1.5  2007-04-05 15:14:15  martius
+ *   angular speed tracking
+ *
+ *   Revision 1.4  2006/08/04 15:16:13  martius
  *   documentation
  *
  *   Revision 1.3  2006/08/02 09:33:21  martius
@@ -79,7 +82,7 @@ public:
   /** Constructor that allows individial setting of tracking options.      
       The tracked data is written into a file with the current date and time appended by a name given by scene.
       @param trackPos if true the trace (position vectors) of the robot are logged
-      @param trackSpeed if true the speed vectors of the robot are logged
+      @param trackSpeed if true the speed vectors (linear and angular) of the robot are logged
       @param trackOrientation if true the orientation matrices  of the robot are logged
       @param displayTrace if true the trace of the robot should be displayed (used in ODE simulations)
       @param scene name of the scene (is appended to log file name)

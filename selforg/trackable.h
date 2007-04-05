@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:57  martius
+ *   Revision 1.3  2007-04-05 15:13:21  martius
+ *   angular speed tracking
+ *
+ *   Revision 1.2  2006/07/14 12:23:57  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.6  2006/07/10 11:59:23  martius
@@ -75,6 +78,11 @@ public:
       @return vector  (vx,vy,vz)
    */
   virtual Position getSpeed() const =0;
+
+  /** returns angular velocity vector of the object
+      @return vector  (wx,wy,wz)
+   */
+  virtual Position getAngularSpeed() const =0;
 
   /** returns the orientation of the object
       @return 3x3 rotation matrix

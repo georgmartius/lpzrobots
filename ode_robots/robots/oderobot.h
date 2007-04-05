@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-08 17:04:46  martius
+ *   Revision 1.5  2007-04-05 15:11:42  martius
+ *   angular speed tracking
+ *
+ *   Revision 1.4  2006/08/08 17:04:46  martius
  *   added new sensor model
  *
  *   Revision 1.3  2006/07/20 17:19:44  martius
@@ -196,6 +199,10 @@ namespace lpzrobots {
 	@return vector  (vx,vy,vz)
     */
     virtual Position getSpeed() const; 
+    /** returns angular velocity vector of the object
+	@return vector  (wx,wy,wz)
+    */
+    virtual Position getAngularSpeed() const; 
     /** returns the orientation of the object
 	@return 3x3 rotation matrix
     */

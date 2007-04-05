@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-04-03 16:27:31  der
+ *   Revision 1.12  2007-04-05 15:11:43  martius
+ *   angular speed tracking
+ *
+ *   Revision 1.11  2007/04/03 16:27:31  der
  *   new IR shape
  *   new servo parameters
  *
@@ -239,35 +242,35 @@ namespace lpzrobots {
    *@return true if the collision was threated  by the robot, false if not
    **/
   bool Sphererobot3Masses::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
-    //checks if either of both of the collision objects are part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
-      if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
-      if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
+//     //checks if either of both of the collision objects are part of the robot
+//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
+//       if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
+//       if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
 
-      // inner space collisions are not treated!
-      int i,n;  
-      const int N = 40;
-      dContact contact[N];
+//       // inner space collisions are not treated!
+//       int i,n;  
+//       const int N = 40;
+//       dContact contact[N];
     
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++) {
-	if( contact[i].geom.g1 == object[Base]->getGeom() || contact[i].geom.g2 == object[Base]->getGeom() ){ 
-	  // only treat collisions with envelop
-	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
-	  //	  dContactSoftERP | dContactSoftCFM | 
-	  contact[i].surface.mu = 2.0;
-	  contact[i].surface.slip1 = 0.005;
-	  contact[i].surface.slip2 = 0.005;
-	  //	contact[i].surface.soft_erp = 1; // 0.95;
-	  //	contact[i].surface.soft_cfm = 0.00001;
-	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-	}
-      }
-      return true;
-    } else {
+//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+//       for (i=0; i<n; i++) {
+// 	if( contact[i].geom.g1 == object[Base]->getGeom() || contact[i].geom.g2 == object[Base]->getGeom() ){ 
+// 	  // only treat collisions with envelop
+// 	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
+// 	  //	  dContactSoftERP | dContactSoftCFM | 
+// 	  contact[i].surface.mu = 2.0;
+// 	  contact[i].surface.slip1 = 0.005;
+// 	  contact[i].surface.slip2 = 0.005;
+// 	  //	contact[i].surface.soft_erp = 1; // 0.95;
+// 	  //	contact[i].surface.soft_cfm = 0.00001;
+// 	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+// 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+// 	}
+//       }
+//       return true;
+//     } else {
       return false;
-    }
+//     }
   }
 
 
