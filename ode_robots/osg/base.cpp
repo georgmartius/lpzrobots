@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-03-16 11:37:11  martius
+ *   Revision 1.9  2007-04-05 15:10:36  martius
+ *   different ground
+ *
+ *   Revision 1.8  2007/03/16 11:37:11  martius
  *   ground plane gets primitive to support substances
  *
  *   Revision 1.7  2007/02/21 14:26:18  martius
@@ -168,7 +171,9 @@ namespace lpzrobots {
       camera->setClearMask(GL_DEPTH_BUFFER_BIT);
       camera->setClearColor(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
       camera->setComputeNearFarMode(osg::CameraNode::DO_NOT_COMPUTE_NEAR_FAR);
-
+      //      std::cerr << camera->getNearFarRatio() <<  std::endl;
+      //      camera->setNearFarRatio(0.0001);
+      
       // set viewport
       camera->setViewport(0,0,tex_width,tex_height);
 
@@ -431,29 +436,46 @@ namespace lpzrobots {
   }
 
   Node* Base::makeGround(){ // the old ground, is NOT used for shadowing!
-    int i, c;
-    float theta;
     float ir = 1000.0f;
-
-    Vec3Array *coords = new Vec3Array(19);
-    Vec2Array *tcoords = new Vec2Array(19);
+    float texscale =0.2;
+    Vec3Array *coords = new Vec3Array(4);
+    Vec2Array *tcoords = new Vec2Array(4);
     Vec4Array *colors = new Vec4Array(1);
-
-    (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
-
-    c = 0;
-    (*coords)[c].set(0.0f,0.0f,0.0f);
-    (*tcoords)[c].set(0.0f,0.0f);
     
-    for( i = 0; i <= 18; i++ )
-      {
-        theta = osg::DegreesToRadians((float)i * 20.0);
+    (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
+    
+    (*coords)[0].set(-ir,-ir,0.0f);
+    (*coords)[1].set(-ir, ir,0.0f);
+    (*coords)[2].set( ir, ir,0.0f);
+    (*coords)[3].set( ir,-ir,0.0f);
+    (*tcoords)[0].set(-texscale*ir,-texscale*ir);
+    (*tcoords)[1].set(-texscale*ir, texscale*ir);
+    (*tcoords)[2].set( texscale*ir, texscale*ir);
+    (*tcoords)[3].set( texscale*ir,-texscale*ir);
 
-        (*coords)[c].set(ir * cosf( theta ), ir * sinf( theta ), -0.001f);
-        (*tcoords)[c].set((*coords)[c][0],(*coords)[c][1]);
+//     int i, c;
+//     float theta;
+//     float ir = 1000.0f;
 
-        c++;
-      }
+//     Vec3Array *coords = new Vec3Array(19);
+//     Vec2Array *tcoords = new Vec2Array(19);
+//     Vec4Array *colors = new Vec4Array(1);
+
+//     (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
+
+//     c = 0;
+//     (*coords)[c].set(0.0f,0.0f,0.0f);
+//     (*tcoords)[c].set(0.0f,0.0f);
+    
+//     for( i = 0; i <= 18; i++ )
+//       {
+//         theta = osg::DegreesToRadians((float)i * 20.0);
+
+//         (*coords)[c].set(ir * cosf( theta ), ir * sinf( theta ), -0.001f);
+//         (*tcoords)[c].set((*coords)[c][0],(*coords)[c][1]);
+
+//         c++;
+//       }
 
     Geometry *geom = new Geometry;
 
@@ -464,7 +486,8 @@ namespace lpzrobots {
     geom->setColorArray( colors );
     geom->setColorBinding( Geometry::BIND_OVERALL );
 
-    geom->addPrimitiveSet( new DrawArrays(PrimitiveSet::TRIANGLE_FAN,0,19) );
+    //    geom->addPrimitiveSet( new DrawArrays(PrimitiveSet::TRIANGLE_FAN,0,19) );
+    geom->addPrimitiveSet( new DrawArrays(PrimitiveSet::TRIANGLE_FAN,0,4) );
 
     Texture2D *tex = new Texture2D;
 
@@ -493,7 +516,7 @@ namespace lpzrobots {
 
     // add ODE Ground here (physical plane)
     ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
-    dGeomSetCategoryBits(ground,Primitive::Stat);
+    dGeomSetCategoryBits(ground,Primitive::Stat); 
     dGeomSetCollideBits(ground,~Primitive::Stat);
     // assign a dummy primitive to the ground plane to have substance (material) support
     Plane* plane = new Plane();
