@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-03-22 08:03:35  robot3
+ *   Revision 1.2  2007-04-12 13:30:03  robot3
+ *   tests
+ *
+ *   Revision 1.1  2007/03/22 08:03:35  robot3
  *   simulation for testing the mutual information of an arbitrary controller
  *
  *   Revision 1.16  2007/01/15 15:17:33  robot3
@@ -247,16 +250,22 @@ public:
       global.configs.push_back(snake);
     }
 
-    //******* N I M M  2 *********/
-    Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
-    nimm2conf.size = 1.6;
-	  nimm2conf.singleMotor=true;
+/*****************************************************************************************************************/
+/*****************************************************************************************************************/
+/******************************************** N I M M  2 *********************************************************/
+
+	  Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
+	  nimm2conf.size = 1.6;
+	  nimm2conf.singleMotor=false;
     for(int r=0; r < numNimm2; r++) {
 	    robot = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(r));
 	    //robot = new ShortCircuit(odeHandle,osgHandle,1,1);
       robot->place(Pos ((r-1)*5,5,0));
 	    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
 	    controller = new InvertMotorNStep(invertnconf);
+	    invertnconf.cInit = 0.1;
+	    controller->setParam( "epsA",0);
+	    controller->setParam( "epsC",0);
 	    //         controller = new InvertMotorSpace(15);
 	    //      controller->setParam("s4avg",10);
 	    //controller = new SineController();
@@ -285,6 +294,12 @@ public:
 	global.agents.push_back(agent);
     }
 
+
+/******************************************** N I M M  2 *********************************************************/
+/*****************************************************************************************************************/
+/*****************************************************************************************************************/
+	  
+	  
     //******* N I M M  4 *********/
     for(int r=0; r < numNimm4; r++) {
       robot = new Nimm4(odeHandle, osgHandle, "Nimm4_" + std::itos(r));
