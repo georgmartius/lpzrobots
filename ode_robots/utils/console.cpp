@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-03-26 13:36:58  martius
+ *   Revision 1.3  2007-04-13 13:10:28  robot4
+ *   exceptions handled
+ *
+ *   Revision 1.2  2007/03/26 13:36:58  martius
  *   typo
  *
  *   Revision 1.1  2007/03/26 13:05:51  martius
@@ -54,13 +57,13 @@ namespace lpzrobots {
 
 typedef bool (*commandfunc_t)(GlobalData& globalData, char *, char *);          
 /* The names of functions that actually do the manipulation.  parameter: global data, entire line, arg */
-bool com_list __P((GlobalData& globalData, char *, char *));
-bool com_show __P((GlobalData& globalData, char *, char *));
-bool com_store __P((GlobalData& globalData, char *, char *));
-bool com_load __P((GlobalData& globalData, char *, char *));
-bool com_set __P((GlobalData& globalData, char *, char *));
-bool com_help __P((GlobalData& globalData, char *, char *));
-bool com_quit __P((GlobalData& globalData, char *, char *));
+bool com_list (GlobalData& globalData, char *, char *);
+bool com_show (GlobalData& globalData, char *, char *);
+bool com_store (GlobalData& globalData, char *, char *);
+bool com_load (GlobalData& globalData, char *, char *);
+bool com_set (GlobalData& globalData, char *, char *);
+bool com_help (GlobalData& globalData, char *, char *);
+bool com_quit (GlobalData& globalData, char *, char *);
 
 /* A structure which contains information on the commands this program
    can understand. */
@@ -214,8 +217,9 @@ char * stripwhite (char *string){
 /*                                                                  */
 /* **************************************************************** */
 
-char *command_generator __P((const char *, int));
-char **console_completion __P((const char *, int, int));
+char *command_generator (const char *, int);
+//char **console_completion __P((const char *, int, int));
+char **console_completion (const char *, int, int);
 
 /* Tell the GNU Readline library how to complete.  We want to try to
    complete on command names if this is the first word in the line, or
@@ -249,9 +253,10 @@ char ** console_completion (const char *text, int start, int end) {
   /* If this word is at the start of the line, then it is a command
      to complete.  Otherwise it is the name of a file in the current
      directory. */
-  if (start == 0)
-    matches = rl_completion_matches (text, command_generator);
-
+ 	try{
+		if (start == 0)
+ 	  	 matches = rl_completion_matches (text, command_generator);
+	}catch(...){}
   return (matches);
 }
 
