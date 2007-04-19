@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-04-12 13:30:03  robot3
+ *   Revision 1.3  2007-04-19 13:45:05  robot3
+ *   modified for mi tests
+ *
+ *   Revision 1.2  2007/04/12 13:30:03  robot3
  *   tests
  *
  *   Revision 1.1  2007/03/22 08:03:35  robot3
@@ -160,7 +163,7 @@ public:
 
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",1);
+    global.odeConfig.setParam("realtimefactor",0);
     // initialization
 
     Playground* playground =
@@ -169,7 +172,7 @@ public:
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
-    for(int i=0; i<5; i++){
+    for(int i=0; i<15; i++){
       PassiveSphere* s =
 	new PassiveSphere(odeHandle,
 			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
@@ -178,7 +181,7 @@ public:
       global.obstacles.push_back(s);
     }
 
-    for(int i=0; i<5; i++){
+    for(int i=0; i<15; i++){
       PassiveBox* b =
 	new PassiveBox(odeHandle,
 			  osgHandle, osg::Vec3(0.2+i*0.1,0.2+i*0.1,0.2+i*0.1));
@@ -188,7 +191,7 @@ public:
       global.obstacles.push_back(b);
     }
 
-    for(int i=0; i<5; i++){
+    for(int i=0; i<15; i++){
       PassiveCapsule* c =
 	new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
       c->setPosition(Pos(i-1, -i, 1.0));
@@ -262,8 +265,8 @@ public:
 	    //robot = new ShortCircuit(odeHandle,osgHandle,1,1);
       robot->place(Pos ((r-1)*5,5,0));
 	    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+	    invertnconf.cInit = 1.2;
 	    controller = new InvertMotorNStep(invertnconf);
-	    invertnconf.cInit = 0.1;
 	    controller->setParam( "epsA",0);
 	    controller->setParam( "epsC",0);
 	    //         controller = new InvertMotorSpace(15);
@@ -277,18 +280,15 @@ public:
 	//	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
 	//	    discretesizer->setIntervalCount(3);
 	OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-	    MutualInformationController* mic = new MutualInformationController(5);
+	    MutualInformationController* mic = new MutualInformationController(30);
 	    mic->setParam("showF",0);
 	    mic->setParam("showP",0);
-	    onamupaco->addPassiveController(mic,"mi5");
-	    mic = new MutualInformationController(10);
+	    onamupaco->addPassiveController(mic,"mi30");
+	    /*mic = new MutualInformationController(10);
 	    mic->setParam("showF",0);
 	    mic->setParam("showP",0);
-	    onamupaco->addPassiveController(mic,"mi10");
-	    mic = new MutualInformationController(20);
-	    onamupaco->addPassiveController(mic,"mi20");
 	    mic = new MutualInformationController(50);
-	    onamupaco->addPassiveController(mic,"mi50");
+	    onamupaco->addPassiveController(mic,"mi50");*/
 	    agent->init(onamupaco, robot, wiring);
 	global.configs.push_back(controller);
 	global.agents.push_back(agent);
