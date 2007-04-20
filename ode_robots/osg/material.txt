@@ -1,0 +1,19 @@
+This file concerns material implementation in the simulator.
+
+Terminology:
+Since "Material" is used for OpenGL stuff and also in OSG 
+ we should use something else for the physical material: substance
+
+So how to implement substance to cover all collission cases and requirements.
+It would be nice to keep the collisioncontrol as it is for compatibility reasons.
+In general:
+
+- every ode geom should get a user data pointer to the primitive 
+- primitive has a certain substance 
+- 2 substance define collision parameters
+- also an optional callback function for user defined handling
+- collission detection is done globally. 
+- via joint connected geoms are stored in a set (globally)
+- spaces are globally registered
+
+
