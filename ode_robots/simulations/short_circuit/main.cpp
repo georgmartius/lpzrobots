@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2007-02-23 15:14:17  martius
+ *   Revision 1.21  2007-04-20 12:31:16  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.20  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.19  2007/01/26 12:07:08  martius
@@ -77,7 +80,7 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
-#include <selforg/invertnchannelcontroller.h>
+#include "invertnchannelcontroller_nobias.h"
 
 #include "shortcircuit.h"
 
@@ -107,22 +110,25 @@ public:
 
     OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);  
     //  OdeRobot* robot = new Nimm2(odeHandle);  
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    cc.cInit=0.8;
-    cc.cNonDiag=0.5;
-    cc.someInternalParams=false;
-    //AbstractController *controller = new InvertMotorNStep(cc);  
-    //    AbstractController *controller = new InvertNChannelController(40);  
+//     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+//     cc.cInit=1;
+//     cc.cNonDiag=0.5;
+//     cc.someInternalParams=false;
+//     AbstractController *controller = new InvertMotorNStep(cc);  
+    AbstractController *controller = new InvertNChannelController_NoBias(40);  
+    controller->setParam("eps",0.05);
+    controller->setParam("factor_a",0.00);
     //    controller->setParam("eps",0.01);
      //AbstractController *controller = new InvertMotorSpace(10,1);  
-    AbstractController *controller = new SineController();  
+    //AbstractController *controller = new SineController();  
     //controller->setParam("nomupdate",0.001);
     controller->setParam("sinerate",100.0);
     controller->setParam("phaseshift",0.6);
     controller->setParam("adaptrate",0.000);
-    controller->setParam("epsA",0.06);
+    controller->setParam("epsA",0.00);
     controller->setParam("epsC",0.06);
-    controller->setParam("factorB",0.1);
+    controller->setParam("factorB",0.0);
+    controller->setParam("noiseB",0.0);
     controller->setParam("steps",1);
     //  AbstractController *controller = new InvertNChannelController(10);  
     //AbstractController *controller = new SineController();
