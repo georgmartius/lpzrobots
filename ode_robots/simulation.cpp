@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.59  2007-03-26 13:06:19  martius
+ *   Revision 1.60  2007-04-20 12:18:56  martius
+ *   help output
+ *
+ *   Revision 1.59  2007/03/26 13:06:19  martius
  *   use new commandline interface
  *
  *   Revision 1.58  2007/03/16 10:55:03  martius
@@ -437,7 +440,7 @@ namespace lpzrobots {
       Viewer::ESCAPE_SETS_DONE;
     viewer->setUpViewer(options);
 
-    viewer->getEventHandlerList().push_front(this);
+    viewer->getEventHandlerList().push_front(this); 
 
     // if user request help write it out to cout.
     if (arguments->read("-h") || arguments->read("--help")) {
@@ -1075,9 +1078,9 @@ namespace lpzrobots {
   void Simulation::usage(const char* progname){
     printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed]"
 	   " [-x WxH] [-pause] [-noshadow] [-drawboundings] [-simtime [min]]\n", progname);
-    printf("\t-g [interval]\tuse guilogger (default interval 1)\n");
-    printf("\t-f [interval]\twrite logging file (default interval 5)\n");
-    printf("\t-n [interval]\tuse neuronviz (default interval 10)\n");
+    printf("\t-g interval\tuse guilogger (default interval 1)\n");
+    printf("\t-f interval\twrite logging file (default interval 5)\n");
+    printf("\t-n interval\tuse neuronviz (default interval 10)\n");
     printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");
     printf("\t-r seed\t\trandom number seed\n");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (default 640x480)\n");
@@ -1085,7 +1088,7 @@ namespace lpzrobots {
     printf("\t-noshadow \tdisables shadows and shaders\n");
     printf("\t-shadowsize size \tsets the size of the shadow texture (default 2048)\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
-    printf("\t-simtime [min]\tintended simulation time in minutes\n");
+    printf("\t-simtime min\tintended simulation time in minutes\n");
 
   }
 
