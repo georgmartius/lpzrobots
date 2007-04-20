@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-02-23 15:14:17  martius
+ *   Revision 1.4  2007-04-20 12:20:13  martius
+ *   new servo parameter
+ *
+ *   Revision 1.3  2007/02/23 15:14:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2006/12/21 11:43:05  martius
@@ -137,7 +140,7 @@ namespace lpzrobots {
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
-				 conf.pendularmass*50,0.2,0.5); 
+				 conf.pendularmass*100,10,1); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);
