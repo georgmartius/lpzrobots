@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-04-05 15:12:56  martius
+ *   Revision 1.17  2007-04-20 12:31:55  martius
+ *   fixed controller test
+ *
+ *   Revision 1.16  2007/04/05 15:12:56  martius
  *   structured
  *
  *   Revision 1.15  2007/04/03 16:26:47  der
@@ -100,6 +103,7 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/selectiveone2onewiring.h>
 #include <selforg/derivativewiring.h>
+#include "invertnchannelcontroller_nobias.h"
 
 #include "forcedsphere.h"
 #include "sphererobot3masses.h"
@@ -138,17 +142,29 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    int num_barrels=0;
-    int num_spheres=1;      
+    int num_barrels=1;
+    int num_spheres=0;      
 
-    bool labyrint=true;      
+    bool labyrint=false;      
     bool squarecorridor=false;
+    bool normalplayground=true;
 
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
-    global.odeConfig.setParam("noise",0.03);
+    global.odeConfig.setParam("noise",0.1);
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
+
+    if(normalplayground){
+      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.01, 0.01 ), 1);
+//       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+//       playground->setGroundTexture("Images/really_white.rgb");    
+//       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+      playground->setPosition(osg::Vec3(0,0,0.05));
+      playground->setTexture("");
+      global.obstacles.push_back(playground);
+    }
+
 
     if(squarecorridor){
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 1.2 ), 1);
@@ -198,10 +214,10 @@ public:
     for(int i=0; i< num_barrels; i++){
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.3; 
+      conf.pendularrange  = 0.15; 
       conf.motorsensor=true;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
-      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
+      //      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
       conf.irAxis1=false;
       conf.irAxis2=false;
       conf.irAxis3=false;
@@ -214,6 +230,9 @@ public:
       cc.cInit=0.5;
       //    cc.useSD=true;
       controller = new InvertMotorNStep(cc);    
+      ///> test with fixed C
+      //>      controller = new InvertNChannelController_NoBias(40);  
+      //>    controller->setParam("eps",0.00);
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       controller->setParam("steps", 2);    
       //    controller->setParam("adaptrate", 0.001);    
@@ -248,12 +267,12 @@ public:
     for(int i=0; i< num_spheres; i++){
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.2; 
-      conf.motorsensor=false; 
+      conf.pendularrange  = 0.15; 
+      conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
       //      conf.addSensor(new SpeedSensor(10));
-      //conf.irAxis1=true;
+      //      conf.irAxis1=true;
       //      conf.irAxis2=true;
       //      conf.irAxis3=true;
       //      conf.spheremass   = 1;
@@ -261,7 +280,7 @@ public:
       conf.irSide=true;
       conf.drawIRs=false;
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
-					 conf, "Sphere1", 0.3); 
+					 conf, "Sphere1_SD_slowstart_Reinforce", 0.3); 
       //// FORCEDSPHERE
       // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
       // fsc.drivenDimensions=ForcedSphere::X;
@@ -272,7 +291,7 @@ public:
       
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       //      DerControllerConf cc = DerController::getDefaultConf();
-      cc.cInit=0.1;
+      cc.cInit=1.0;
       cc.useSD=true;
       //controller = new DerController(cc);    
       controller = new InvertMotorNStep(cc);    
@@ -288,8 +307,8 @@ public:
       // controller->setParam("epsA", 0.001);    
       //    controller->setParam("rootE", 1);    
       //    controller->setParam("logaE", 2);    
-      controller->setParam("rootE", 0);    
-      controller->setParam("logaE", 3);    
+      controller->setParam("rootE", 3);    
+      controller->setParam("logaE", 0);    
       //     controller = new SineController();  
       controller->setParam("sinerate", 15);  
       controller->setParam("phaseshift", 0.45);
@@ -297,7 +316,7 @@ public:
       One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.25) );
       OdeAgent* agent = new OdeAgent ( plotoptions );
       agent->init ( controller , sphere1 , wiring );
-      //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
+      agent->setTrackOptions(TrackRobot(true, true, false, true, "ZSens", 50));
       global.agents.push_back ( agent );
       global.configs.push_back ( controller );
     }
@@ -305,6 +324,15 @@ public:
     showParams(global.configs);
   }
 
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+    InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
+    if(c){
+      matrix::Matrix m(3,1, dBodyGetLinearVel( sphere1->getMainPrimitive()->getBody())); 
+      c->setReinforcement(m.map(abs).elementSum()/3 - 1); 
+    }
+
+  }
+  
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
