@@ -3,7 +3,7 @@
 // '  C=command byte 0cccaaaa 
 // '    ccc Command:  000 R = Reset, 001 D = Dimension, 010 = Sensors
 // '                  011 M = Motors 
-// '                  100 E = Error
+// '                  100 E = Error, 101 V = Verbose
 // '    aaaa Address: 4 subnets - from 0 to 3 and 4 to 7...
 // '             0,4,8,12  master(s) (PC)
 // '             rest indiviual addresses
@@ -45,6 +45,7 @@ using namespace std;
 #define C_S 2
 #define C_M 3
 #define C_E 4
+#define C_V 5
 
 typedef struct Xbee {
   Xbee(short addr) : addr(addr), initialised(0){}
@@ -92,14 +93,14 @@ public:
     agent = 0;
   }
 
-  Communicator::~Communicator(){
+  ~Communicator(){
     if(agent) delete agent;
     fprintf(stderr,"closed\n");
     if(x) free(x);
     if(y) free(y);
   }
 
-  virtual void Communicator::Initialise(){
+  virtual void Initialise(){
     currentXbee=0;
     sensornumber_new=0;
     motornumber_new=0; 
@@ -108,7 +109,7 @@ public:
     d.send(fd);
   }
 
-  virtual void Communicator::ReceivedCommand(const DAT& s){
+  virtual void ReceivedCommand(const DAT& s){
     if(verbose) {
       s.print();
     }
@@ -187,6 +188,10 @@ public:
     case C_E:
       cerr << "ERROR:"; 
       if(s.len<0) printError(s); 
+      break;
+    case C_V:
+      cerr << "MSG:"; 
+      if(s.len<0) s.print(); 
       break;
     default:
       break;
@@ -379,7 +384,7 @@ int main(int argc, char** argv){
 
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
   
-  communication= new Communicator("/dev/ttyS0", 4800, controller, 
+  communication= new Communicator("/dev/ttyUSB0", 4800, controller, 
 				  new One2OneWiring(new ColorUniformNoise(0.01)),
 				  plotoptions, 
 				  xbees,

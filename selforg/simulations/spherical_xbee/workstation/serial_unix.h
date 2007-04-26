@@ -51,9 +51,6 @@ class CSerialThread{
     virtual void loopCallback() = 0;
     /// is called at the beginning after initialisation of serial
     virtual void Initialise() = 0;
-    /// reads a line terminated by eol from serial
-    CString CSerialThread::readline();
-
 
     /// thread is running?
     bool is_running(){return m_is_running;};

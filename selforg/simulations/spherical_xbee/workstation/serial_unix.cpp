@@ -136,21 +136,21 @@ bool CSerialThread::run(){
   return true;
 };
 
-CString CSerialThread::readline(){
-  int i=0;
-  char c;
-  CString s="";
-  do{
-    do{
-      loopCallback();
-      i=read(fd,&c,1);
-      pthread_testcancel();
-    } while(i!=1);
-    s+=c;
-    // check if we got a line ending
-  } while(c!='\n');
-  return s;
-}
+// CString readline(){
+//   int i=0;
+//   char c;
+//   CString s="";
+//   do{
+//     do{
+//       loopCallback();
+//       i=read(fd,&c,1);
+//       pthread_testcancel();
+//     } while(i!=1);
+//     s+=c;
+//     // check if we got a line ending
+//   } while(c!='\n');
+//   return s;
+// }
 
 
 /// redirection function, because we can't call member function direct
