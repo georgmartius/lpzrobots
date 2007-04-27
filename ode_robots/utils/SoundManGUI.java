@@ -7,16 +7,18 @@ public class SoundManGUI extends JFrame {
  private int mode;
  private int numSensors;
  private int curInstrument;
+ private boolean isPlaybackActive;
  private JComboBox instruCB;
  private JLabel l3;
 
  public SoundManGUI(float p, int m) {
   param=p;
   mode=m;
+  isPlaybackActive=true;
   getContentPane().setLayout(null);
   setTitle("SoundMan");
   setResizable(false);
-  setSize(250,160);
+  setSize(250,185);
 
   ////////// mode //////////
   JRadioButton discRB=new JRadioButton("Discrete");
@@ -69,7 +71,6 @@ public class SoundManGUI extends JFrame {
   DecimalFormat df=new DecimalFormat();
   df.setMaximumIntegerDigits(1);
   df.setMinimumIntegerDigits(1);
-//  df.setMaximumFractionDigits(2);
   df.setMinimumFractionDigits(1);
   df.setDecimalSeparatorAlwaysShown(true);
   final JFormattedTextField paramFTF=new JFormattedTextField(df);
@@ -106,6 +107,28 @@ public class SoundManGUI extends JFrame {
   l3=new JLabel("Number of sensors: -");
   l3.setBounds(10, 100, 200, 20);
   getContentPane().add(l3);
+
+  ////////// playback //////////
+  JLabel l4=new JLabel("Playback:");
+  l4.setBounds(10, 125, 200, 20);
+  getContentPane().add(l4);
+
+  final JButton playbackB=new JButton("Mute");
+  playbackB.setBounds(90, 125, 140, 20);
+  getContentPane().add(playbackB);
+  playbackB.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     isPlaybackActive=!isPlaybackActive;
+     if(isPlaybackActive) playbackB.setText("Mute");
+     else playbackB.setText("Unmute");
+    }
+   }
+  );
+ }
+
+ public boolean isPlaybackActive() {
+  return isPlaybackActive;
  }
 
  public void setNumSensors(int n) {
