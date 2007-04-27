@@ -107,12 +107,15 @@ public:
     motornumber_new=0; 
     DAT d(C_R,xbees[currentXbee].addr,0); //send reset to first xbee
     state=PHASE_INIT;
-    d.send(fd_out);
+    if(verbose) { 
+      cout << "Initialise!\n";
+    }
+    if(!d.send(fd_out, verbose)) cerr << "Error while sending reset\n";
   }
 
   virtual void ReceivedCommand(const DAT& s){
     if(verbose) {
-      cout << "CMD: ";
+      cout << "RECEIVED: ";
       s.print();
     }
       
@@ -152,9 +155,9 @@ public:
     }
   }
 
-  virtual void ProcessCmd(short cmd, const DAT& s){
+  virtual void ProcessCmd(short cmd, DAT& s){
     if(verbose) {
-      cout << "DATA:\n";
+      cout << "DATA:"; 
       s.print();
     }
     switch(cmd){
@@ -195,13 +198,16 @@ public:
       break;
     case C_E:
       cerr << "ERROR:"; 
-      if(s.len<0) printError(s); 
+      if(s.len<0) printError(s);
+      return;
       break;
     case C_V:
-      cerr << "MSG:"; 
-      if(s.len<0) s.print(); 
-      break;
+      s.buffer[s.len]=0; 
+      cerr << "MSG:" << s.buffer << endl; 
+      return;break;
     default:
+      cerr << "UNKNOWN CMD "<< cmd;
+      return;
       break;
     }
     
@@ -223,7 +229,7 @@ public:
 	}
       }else{
 	DAT d(C_R,xbees[currentXbee].addr,0); //send reset to next xbee
-	d.send(fd_out);
+	d.send(fd_out, verbose);
       }
       break;
     case PHASE_CYCLE:
@@ -242,17 +248,12 @@ public:
 	if(verbose) printf("%i ",d.buffer[i+2]);
       }
       if(verbose) cout << endl;
-      d.send(fd_out);      
+      d.send(fd_out, verbose);      
       break;
     }
   }
 
   virtual void loopCallback(){
-    // check for cmdline interrupt
-    if (control_c_pressed()){
-      changeParams(configs);
-      cmd_end_input();
-    }
   }
 
   // robot interface
@@ -295,6 +296,7 @@ public:
   virtual paramval getParam(const paramkey& key) const{
     if(key == "noise") return noise; 
     else if(key == "cycletime") return cycletime; 
+    else if(key == "reset") return 0; 
     else  return Configurable::getParam(key);
   }
 
@@ -304,7 +306,7 @@ public:
       cycletime=val;
       cycletimechanged=true;
     } else if(key == "reset"){
-      initController();
+      Initialise();
     } else 
       return Configurable::setParam(key, val); 
     return true;
@@ -374,6 +376,13 @@ int contains(char **list, int len,  const char *str){
 void test(){
   FILE* f = fopen("protokoll_test", "wb");
   unsigned char d[10];
+  d[0] = (C_V << 4);
+  d[1] = 128+4;
+  d[2] = 'I';
+  d[3] = 'N';
+  d[4] = 'I';
+  d[5] = 'T';
+  fwrite(d,1,6,f);
   d[0] = (C_D << 4);
   d[1] = 128+2;
   d[2] = 4;
@@ -389,11 +398,13 @@ void test(){
   fclose(f);
 }
 
+bool test2();
+
 int main(int argc, char** argv){
   list<PlotOption> plotoptions;
   bool verbose = false;
-
-  //  test();  return 1;
+  test2();
+  // test();  return 1;
 
   vector<Xbee> xbees;
   xbees.push_back(Xbee(1));
@@ -414,13 +425,13 @@ int main(int argc, char** argv){
   }
 
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
-  
-  communication= new Communicator("protokoll_test", 4800, controller, 
-//  communication= new Communicator("/dev/ttyUSB0", 4800, controller, 
-				  new One2OneWiring(new ColorUniformNoise(0.01)),
-				  plotoptions, 
-				  xbees,
-				  verbose, true);
+
+  // communication= new Communicator("protokoll_test", 4800, controller, 
+//   				  new One2OneWiring(new ColorUniformNoise(0.01)),
+//   				  plotoptions, xbees, verbose, true);
+     communication= new Communicator("/dev/ttyUSB0", 2400, controller, 
+   				  new One2OneWiring(new ColorUniformNoise(0.01)),
+   				  plotoptions, xbees, verbose);
   communication->start();
   cmd_handler_init();
 
@@ -429,7 +440,13 @@ int main(int argc, char** argv){
   showParams(configs);
 
   while(communication->is_running()){
+    // communication is done in communication thread
     usleep(1000);
+    // check for cmdline interrupt
+    if (control_c_pressed()){
+      changeParams(configs);
+      cmd_end_input();
+    }
   };  
 
 
@@ -442,5 +459,77 @@ int main(int argc, char** argv){
 
   return 0;
 }
+
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <stdio.h>
+
+bool test2(){
+  int baud;
+  struct termios newtio;
+  
+  int m_baud=2400;
+
+  switch(m_baud){
+  case 1200:baud=B1200;break;
+  case 2400:baud=B2400;break;
+  case 4800:baud=B4800;break;
+  case 9600:baud=B9600;break;
+  case 19200:baud=B19200;break;
+  case 38400:baud=B38400;break;
+  case 57600:baud=B57600;break;
+  default: 
+    return false;
+  }
+
+  // open port
+  int fd_in = open("/dev/ttyUSB0", O_RDWR|O_SYNC);//|O_NONBLOCK);
+  //    pthread_testcancel();
+  if (fd_in <0) return false;
+  int fd_out=fd_in;
+  
+  // set interface parameters
+  newtio.c_cflag = baud | CS8 | CLOCAL | CREAD | CSTOPB;
+  newtio.c_iflag = IGNPAR;
+  newtio.c_oflag = 0;
+  newtio.c_lflag = 0;
+  newtio.c_cc[VMIN]=1;
+  newtio.c_cc[VTIME]=0;
+ 
+  tcsetattr(fd_in,TCSANOW,&newtio);
+  //    pthread_testcancel();
+  tcflush(fd_in, TCIFLUSH);
+  //    pthread_testcancel();
+
+  unsigned char d[120]="Ha";
+  write(fd_out,d,1);
+    usleep(1000);
+    write(fd_out,d+1,1);
+  DAT s(2);
+  // main loop
+  while(1){
+    int i = 0;
+    int r;
+    do{
+      r=read(fd_in,s.buffer + i,1);
+      if(r>0) fprintf(stderr,"test: %i: %c: %x,\n",i, s.buffer[i],s.buffer[i]);
+      i+=r;
+//       if(i==1 && s.buffer[0] & (1<<7) != 0) i=0; // command/addr byte should start with 0 bit
+//       if(i==2 && s.buffer[1] & (1<<7) == 0) i=0; // length byte should start with 1 bit
+    } while(i<2);
+    unsigned char d[120]="hu";
+    write(fd_out,d,1);
+    usleep(1000);
+    write(fd_out,d+1,1);
+
+  }//  end of while loop
+  close(fd_in);
+  fd_in=-1;
+  return true;
+};
 
 
