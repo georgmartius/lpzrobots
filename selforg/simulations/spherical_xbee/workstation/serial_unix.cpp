@@ -35,7 +35,8 @@ void CSerialThread::start(){
   m_is_running=true;
   m_is_joined=false;
   terminated=false;
-  fd=-1;
+  fd_in=-1;
+  fd_out=-1;
   // start thread using this static function
   pthread_create(&thread,NULL,CSerialThread_run, this);
 };
@@ -82,9 +83,14 @@ bool CSerialThread::run(){
   }
 
   // open port
-  fd = open(m_port.c_str(), O_RDWR|O_SYNC);//|O_NONBLOCK);
+  fd_in = open(m_port.c_str(), O_RDWR|O_SYNC);//|O_NONBLOCK);
   //    pthread_testcancel();
-  if (fd <0) return false;
+  if (fd_in <0) return false;
+  if(test_mode){
+    fd_out = open((m_port + "_out").c_str(), O_RDWR|O_SYNC);//|O_NONBLOCK);    
+  }else{
+    fd_out=fd_in;
+  }
   
   // set interface parameters
   newtio.c_cflag = baud | CS8 | CLOCAL | CREAD | CSTOPB;
@@ -94,9 +100,9 @@ bool CSerialThread::run(){
   newtio.c_cc[VMIN]=1;
   newtio.c_cc[VTIME]=0;
  
-  tcsetattr(fd,TCSANOW,&newtio);
+  tcsetattr(fd_in,TCSANOW,&newtio);
   //    pthread_testcancel();
-  tcflush(fd, TCIFLUSH);
+  tcflush(fd_in, TCIFLUSH);
   //    pthread_testcancel();
 
   DAT s(2);
@@ -105,14 +111,17 @@ bool CSerialThread::run(){
 
   // main loop
   while(!terminated){
-    int i;
+    int i = 0;
     pthread_testcancel();
     do{
       loopCallback();
-      i=read(fd,s.buffer,2);
+      i+=read(fd_in,s.buffer + i,1);
+      if(i==1 && s.buffer[0] & (1<<7) != 0) i=0; // command/addr byte should start with 0 bit
+      if(i==2 && s.buffer[1] & (1<<7) == 0) i=0; // length byte should start with 1 bit
       pthread_testcancel();
-    } while(i!=2);
+    } while(i<2);
     
+
     ReceivedCommand(s);        
 //     // check if we got a line ending
 //     if(c=='\n')
@@ -130,8 +139,9 @@ bool CSerialThread::run(){
 // 	s.clear();
 //       }
   }//  end of while loop
-  close(fd);
-  fd=-1;
+  close(fd_in);
+  fd_in=-1;
+  if(test_mode) close(fd_out);
   m_is_running=false;
   return true;
 };

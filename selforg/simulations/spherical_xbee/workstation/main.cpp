@@ -75,9 +75,10 @@ public:
 	       AbstractWiring* wiring,
 	       const list<PlotOption>& plotOptions,
 	       const vector<Xbee>& xbees,
-               bool verbose)
+               bool verbose,
+	       bool test_mode =false)
     : AbstractRobot("RemoteRobot", "$Id$"), 
-      CSerialThread(port,baud), verbose(verbose),
+      CSerialThread(port,baud, test_mode), verbose(verbose),
       controller(controller), wiring(wiring), plotOptions(plotOptions), xbees(xbees)
   { 
 
@@ -106,42 +107,39 @@ public:
     motornumber_new=0; 
     DAT d(C_R,xbees[currentXbee].addr,0); //send reset to first xbee
     state=PHASE_INIT;
-    d.send(fd);
+    d.send(fd_out);
   }
 
   virtual void ReceivedCommand(const DAT& s){
     if(verbose) {
+      cout << "CMD: ";
       s.print();
-    }
-    // Parse Command string: (values are int values in the range 0-255)
-    if(s.buffer[0] & (1<<7) != 0 || s.buffer[1] & (1<<7) ==0){
-      cerr << "# got wrong cmd!\n";
-      return;
     }
       
     short cmd = s.buffer[0] >> 4;   // select upper 4 bit
     short addr = s.buffer[0] & 0x0F; // select last 4 bit
     short len = s.buffer[1] & 0x7F; // select last 7 bit
+    if(verbose) cout << "Packet: CMD: " << cmd << " ADDR: " << addr << " LEN " << len << endl;
     int readlen;
     DAT c;
     if(addr & 0x03 !=0){ // not a packet for master
       cout << "# not a packet for master\n";
       if(len>0){
-	readlen=read(fd,c.buffer,len);
-	if(readlen!=len) {
-	  cout << "# did not get enough data while skipping packet.\n";
-	}
+	readlen=0;
+	do{ 
+	  loopCallback();
+	  readlen += read(fd_in, c.buffer+readlen, 1);
+	}while(readlen<len);
       }
       return;
     }else{ // our packet 
       if(len>0){
-	readlen=read(fd,c.buffer,len);
-	if(readlen!=len) {
-	  cout << "# did not get enough data!\n";
-	  return;
-	}else{
-	  c.len=len;
-	}
+	readlen=0;
+	do{ 
+	  loopCallback();
+	  readlen += read(fd_in, c.buffer+readlen, 1);
+	}while(readlen<len);
+	c.len=len;
       }
       ProcessCmd(cmd,c);
     }
@@ -170,6 +168,13 @@ public:
       xbees[currentXbee].motoroffset = motornumber_new;
       motornumber_new += xbees[currentXbee].nummotors;
       xbees[currentXbee].initialised=true;
+      if(verbose){
+	cout << "Dim for xbee " << currentXbee << ": " 
+	     << xbees[currentXbee].numsensors << ", "
+	     << xbees[currentXbee].nummotors << endl;
+	cout << "Offets: " << xbees[currentXbee].sensoroffset << ", " 
+	     << xbees[currentXbee].sensoroffset << endl;	
+      }
       currentXbee++;
       break;
     case C_S:
@@ -180,9 +185,12 @@ public:
 	       << " expected " << xbees[currentXbee].numsensors << endl;
         }
 	int offset = xbees[currentXbee].sensoroffset;
+	if(verbose) cout << "Sensors: "; 
 	for(int i = 0; i < s.len; i++){	  	  
 	  x[i+offset] = (s.buffer[i]/ 127.0)-1.0;
+	  if(verbose) cout << x[i+offset] << " " ;
 	}
+	if(verbose) cout << endl;
       }else{cerr << "Initialisation error\n";}
       break;
     case C_E:
@@ -206,22 +214,21 @@ public:
 	  cout << "# No changes in motor and sensornumber. Keep controller!\n"; 
 	}else{
 	  if(sensornumber_new<1 || motornumber_new<1) {
-	    cout << "# Sensor or Motor number 0! "; 
+	    cerr << "# Sensor or Motor number 0! "; 
 	  } else {
 	    sensornumber = sensornumber_new;
 	    motornumber  = motornumber_new;
 	    initController();
 	  }
 	}
-
-	initController();
       }else{
 	DAT d(C_R,xbees[currentXbee].addr,0); //send reset to next xbee
-	d.send(fd);
+	d.send(fd_out);
       }
       break;
     case PHASE_CYCLE:
       if(currentXbee>=xbees.size()){
+	if (verbose) cout << "Step " << endl; 
 	// calls controller and asks us about sensors and stores motors
 	agent->step(noise);
 	currentXbee=0;
@@ -229,9 +236,13 @@ public:
       // send motor values
       DAT d(C_M,xbees[currentXbee].addr,xbees[currentXbee].nummotors); 
       int offset = xbees[currentXbee].motoroffset;
-      for(int i=0; i < xbees[currentXbee].nummotors; i++)
-	d.buffer[i+2] = (unsigned char)((x[i+offset]+1.0)*127.0);
-      d.send(fd);      
+      if(verbose) cout << "Motors to " << currentXbee << ": "; 
+      for(int i=0; i < xbees[currentXbee].nummotors; i++){
+	d.buffer[i+2] = (unsigned char)((y[i+offset]+1.0)*127.0);
+	if(verbose) printf("%i ",d.buffer[i+2]);
+      }
+      if(verbose) cout << endl;
+      d.send(fd_out);      
       break;
     }
   }
@@ -360,10 +371,30 @@ int contains(char **list, int len,  const char *str){
   return 0;
 }
 
+void test(){
+  FILE* f = fopen("protokoll_test", "wb");
+  unsigned char d[10];
+  d[0] = (C_D << 4);
+  d[1] = 128+2;
+  d[2] = 4;
+  d[3] = 2;
+  fwrite(d,1,4,f);
+  d[0] = C_S << 4;
+  d[1] = 128+4;
+  d[2] = 128;
+  d[3] = 48;
+  d[4] = 49;
+  d[5] = 255;
+  fwrite(d,1,6,f);
+  fclose(f);
+}
+
 int main(int argc, char** argv){
   list<PlotOption> plotoptions;
   bool verbose = false;
-  
+
+  //  test();  return 1;
+
   vector<Xbee> xbees;
   xbees.push_back(Xbee(1));
   //  xbees.push_back(Xbee(2));
@@ -384,11 +415,12 @@ int main(int argc, char** argv){
 
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
   
-  communication= new Communicator("/dev/ttyUSB0", 4800, controller, 
+  communication= new Communicator("protokoll_test", 4800, controller, 
+//  communication= new Communicator("/dev/ttyUSB0", 4800, controller, 
 				  new One2OneWiring(new ColorUniformNoise(0.01)),
 				  plotoptions, 
 				  xbees,
-				  verbose);
+				  verbose, true);
   communication->start();
   cmd_handler_init();
 
@@ -410,3 +442,5 @@ int main(int argc, char** argv){
 
   return 0;
 }
+
+

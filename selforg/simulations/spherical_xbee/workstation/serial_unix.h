@@ -34,13 +34,15 @@ class CSerialThread{
     bool m_is_joined;
 	
     pthread_t thread;
+    bool test_mode;
  protected:
-    int fd; // file handle
+    int fd_in; // file handle for incomming
+    int fd_out; // file handle for outgoing (=fd_in expect in file test mode)
 
  public:
 
-    CSerialThread(const CString& port, int baud)
-	: m_port(port),m_baud(baud), terminated(false), m_is_joined(true){};
+    CSerialThread(const CString& port, int baud, bool test_mode=false)
+	: m_port(port),m_baud(baud), terminated(false), m_is_joined(true), test_mode(test_mode){};
     virtual ~CSerialThread(){stopandwait();};
 
     // for communication with inherited class
