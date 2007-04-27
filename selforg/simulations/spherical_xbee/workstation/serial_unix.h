@@ -15,7 +15,7 @@ typedef struct DAT {
     buffer[1]= datalen | (1 << 7);
   }
   void print() const;
-  bool send(int fd);
+  bool send(int fd, bool verbose);
   
   unsigned char buffer[128];
   short len;

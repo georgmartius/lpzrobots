@@ -18,16 +18,19 @@ void DAT::print() const {
     else 
       printf(" ");
   }
-  printf("\nH: ");
+  printf(" Hex: ");
   for( short i=0; i<len; i++){
     printf("%02X ",buffer[i]);
   }
   printf("\n");
 }
 
-bool DAT::send(int fd){
-  int written = write(fd,buffer,len);
-  return (written==len);
+bool DAT::send(int fd, bool verbose){
+  if (verbose) { printf("> "); print();}
+  for(int i=0;i<len; i++){
+      if(write(fd,buffer+i,1)!=1) return false;
+  }
+  return true; 
 }
 
 /// start serial communication
@@ -112,10 +115,13 @@ bool CSerialThread::run(){
   // main loop
   while(!terminated){
     int i = 0;
+    int r;
     pthread_testcancel();
     do{
       loopCallback();
-      i+=read(fd_in,s.buffer + i,1);
+      r=read(fd_in,s.buffer + i,1);
+      if(r>0) fprintf(stderr,"test: %i: %i\n",i, s.buffer[i]);
+      i+=r;
       if(i==1 && s.buffer[0] & (1<<7) != 0) i=0; // command/addr byte should start with 0 bit
       if(i==2 && s.buffer[1] & (1<<7) == 0) i=0; // length byte should start with 1 bit
       pthread_testcancel();
@@ -123,21 +129,6 @@ bool CSerialThread::run(){
     
 
     ReceivedCommand(s);        
-//     // check if we got a line ending
-//     if(c=='\n')
-//       {
-// 	// process comand
-// 	ReceivedCommand(s);
-// 	ans=ParseCommandLine(s);
-// 	if(ans.size()!=0){
-// 	  SentAnswer(ans);
-
-// 	  pthread_testcancel();
-// 	  // send answer
-// 	  write(fd,ans.c_str(), ans.size());
-// 	}
-// 	s.clear();
-//       }
   }//  end of while loop
   close(fd_in);
   fd_in=-1;
