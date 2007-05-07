@@ -25,6 +25,8 @@
 #ifndef COMMLINEPARSER_H
 #define COMMLINEPARSER_H
 
+#include <qvaluelist.h>
+
 class CommLineParser
 {
     private:

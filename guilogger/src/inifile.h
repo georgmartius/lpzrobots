@@ -20,7 +20,7 @@
 
 #include<qstring.h>
 #include<qfile.h>
-#include<qlist.h>
+#include<qptrlist.h>
 
 #define EMPTY 0
 #define COMMENT 1
@@ -55,7 +55,7 @@ public:
         IniSection *addSection(QString name);
         void delSection(IniSection* _section);
         
-	QList <IniSection> sections;	
+	QPtrList <IniSection> sections;	
 	
 private:
   // ermittelt Zeilentyp: siehe defines (COMMENT;SECTION;VAR)
@@ -90,7 +90,7 @@ public:
         void addValue(QString value, QString name);
         void delVar(IniVar* _var);
         
-  QList <IniVar> vars;
+  QPtrList <IniVar> vars;
 
   bool operator== (IniSection& _section); // Vergleicht nur Namen!
   void copy (IniSection& _section); // kopiert eigenen Inhalt in _section)
