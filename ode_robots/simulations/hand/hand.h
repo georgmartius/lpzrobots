@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-09-21 16:15:57  der
+ *   Revision 1.3  2007-05-07 09:07:21  robot3
+ *   intended region for converting the code from nonreadable to human readable
+ *
+ *   Revision 1.2  2006/09/21 16:15:57  der
  *   *** empty log message ***
  *
  *   Revision 1.6.4.9  2006/06/25 16:57:13  martius
@@ -94,66 +97,66 @@
 
 namespace lpzrobots {
 
-enum Hand_Is_Drawn_Under_Angel
-{
-Is_Draw_under_180_degree,
-Is_Draw_under_90_degree
-};
+  enum Hand_Is_Drawn_Under_Angel
+    {
+      Is_Draw_under_180_degree,
+      Is_Draw_under_90_degree
+    };
 
-enum Motor_type
-{
-With_servo_motor,
-Without_servo_motor
-};
+  enum Motor_type
+    {
+      With_servo_motor,
+      Without_servo_motor
+    };
 
-enum IrSensor_Type{
-irDrawAll,
-irBack,
-irSide,
-irFront
-};
+  enum IrSensor_Type{
+    irDrawAll,
+    irBack,
+    irSide,
+    irFront
+  };
 
-enum Draw_Part_of_Ir_Sensor
-{
-Draw_All,
-Draw_just_Sensor,
-Draw_just_Ray,
-Draw_Nothing
-};
-// struct containing geom and body for each beam (= box, (cappped)cylinder, sphere)
-typedef struct {
-public:
+  enum Draw_Part_of_Ir_Sensor
+    {
+      Draw_All,
+      Draw_just_Sensor,
+      Draw_just_Ray,
+      Draw_Nothing
+    };
+  // struct containing geom and body for each beam (= box, (cappped)cylinder, sphere)
+  typedef struct {
+    public:
 
 double velocity;
-double power;
-double servo_motor_Power;
-double invert;
-double jointLimit1;
-double jointLimit2;
-double frictionJoint;
-double x;
-double y;
-double z;
-bool show_contacts;
-double thumb_angle;
-enum Motor_type set_typ_of_motor;
-enum Hand_Is_Drawn_Under_Angel hand_is_drawn_under_angel;
-double factorSensor;
-double finger_winkel;
+    double power;
+    double servo_motor_Power;
+    double invert;
+    double jointLimit1;
+    double jointLimit2;
+    double frictionJoint;
+    double x;
+    double y;
+    double z;
+    bool show_contacts;
+    double thumb_angle;
+    enum Motor_type set_typ_of_motor;
+    enum Hand_Is_Drawn_Under_Angel hand_is_drawn_under_angel;
+    double factorSensor;
+    double finger_winkel;
 
 
-//---------------InfrarRedSensor--------------------------  
-//  enum IrSensor_Type set_irsensor_type;
-  double irRange;
-  int number_of_ir_sensors;
-  bool ir_sensor_used;
-enum Draw_Part_of_Ir_Sensor Draw_part_of_ir_sensor;
-} HandConf;
+    //---------------InfrarRedSensor--------------------------  
+    //  enum IrSensor_Type set_irsensor_type;
+    double irRange;
+    int number_of_ir_sensors;
+    bool ir_sensor_used;
+    enum Draw_Part_of_Ir_Sensor Draw_part_of_ir_sensor;
+  } HandConf;
 
-enum GripMode{
-	lateral,
-	precision
-};
+  enum GripMode{
+    lateral,
+    precision
+  };
 
   /**
    * Artificial Hand 
@@ -164,35 +167,35 @@ enum GripMode{
 
     Hand(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const HandConf& conf, const std::string& name);
 
-//  Hand(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const string& name);
+    //  Hand(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const string& name);
 
 
-static HandConf getDefaultConf()
-{
-      HandConf conf;
-      conf.velocity = 0.2;
-      conf.power = 0.5;
-      conf.servo_motor_Power = 0.1;
-      conf.frictionJoint = 90; // friction within joint
-      conf.invert = 1; 
-      conf.x =0;
-      conf.y =0;
-      conf.z =2;	
-      conf.show_contacts = true;
-      conf.jointLimit1 = M_PI/2;
-      conf.jointLimit2 = 2*M_PI;
-      conf.set_typ_of_motor = Without_servo_motor;
-      conf.thumb_angle=0;
-      //conf.set_irsensor_type=irDrawAll;    
-      conf.irRange = 2;
-      conf.ir_sensor_used=true;
-      conf.number_of_ir_sensors = 0;
+    static HandConf getDefaultConf()
+      {
+	HandConf conf;
+	conf.velocity = 0.2;
+	conf.power = 0.5;
+	conf.servo_motor_Power = 0.1;
+	conf.frictionJoint = 90; // friction within joint
+	conf.invert = 1; 
+	conf.x =0;
+	conf.y =0;
+	conf.z =2;	
+	conf.show_contacts = true;
+	conf.jointLimit1 = M_PI/2;
+	conf.jointLimit2 = 2*M_PI;
+	conf.set_typ_of_motor = Without_servo_motor;
+	conf.thumb_angle=0;
+	//conf.set_irsensor_type=irDrawAll;    
+	conf.irRange = 2;
+	conf.ir_sensor_used=true;
+	conf.number_of_ir_sensors = 0;
 	conf.Draw_part_of_ir_sensor=Draw_just_Ray;
-      conf.hand_is_drawn_under_angel = Is_Draw_under_90_degree;
-      conf.factorSensor=2.0;
-      conf.finger_winkel=M_PI/2;
-      return conf;
-}
+	conf.hand_is_drawn_under_angel = Is_Draw_under_90_degree;
+	conf.factorSensor=2.0;
+	conf.finger_winkel=M_PI/2;
+	return conf;
+      }
 
     /**
      * Constructor
@@ -243,10 +246,10 @@ static HandConf getDefaultConf()
 	@param poslist vector of positions (of all robot segments) 
 	@return length of the list
     */
-  //  virtual int getSegmentsPosition(vector<Position> &poslist);
+    //  virtual int getSegmentsPosition(vector<Position> &poslist);
   
     /** The list of all parameters with there value as allocated lists.       
-    */
+     */
     virtual paramlist getParamList() const;
   
     virtual paramval getParam(const paramkey& key) const;
@@ -255,13 +258,13 @@ static HandConf getDefaultConf()
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
-     virtual Primitive* getMainPrimitive() const {
-    if(!objects.empty()){
-      //      int half = objects.size()/2;
-      //      return (objects[half]);
-      return (objects[1]);
-    }else return 0;
-  }
+    virtual Primitive* getMainPrimitive() const {
+      if(!objects.empty()){
+	//      int half = objects.size()/2;
+	//      return (objects[half]);
+	return (objects[1]);
+      }else return 0;
+    }
 
 
   private:
@@ -279,44 +282,44 @@ static HandConf getDefaultConf()
        
     bool created;      // true if robot was created
 
-protected:
+  protected:
 
-HandConf conf;
-std::vector <Primitive*> objects;
-std::vector <OSGPrimitive*> osg_objects;
-std::vector <IRSensor*> ir_sensors;
-bool contact_joint_created;
+    HandConf conf;
+    std::vector <Primitive*> objects;
+    std::vector <OSGPrimitive*> osg_objects;
+    std::vector <IRSensor*> ir_sensors;
+    bool contact_joint_created;
 
-//std::vector <HingeServo*> servos;
-//objects.reserve(number_beams);
+    //std::vector <HingeServo*> servos;
+    //objects.reserve(number_beams);
 
-std::vector <Joint*> joints;
+    std::vector <Joint*> joints;
 
-std::vector <AngularMotor*> frictionmotors;
-std::vector <HingeServo*> servos;
-RaySensorBank irSensorBank; // a collection of ir sensors
-
-
-Primitive* p;
-Joint* j;
-
-//Beam beam[number_beams]; // array of elements (rectangle and cylinders)
-dSpaceID hand_space;     // space containing the hand
-//dJointID joint[number_joints];  // array containg "normal" joints for connecting the elementsconf
-
-//dJointID fix_joint[number_fix_joints]; //joints for keeping index, middle, ring and little finger together to achieve mor prosthetic like motion
-
-// two motorjoints for actuating the two ball joints (forearm_palm and palm_thumb)
-AngularMotor* palm_motor_joint;
-AngularMotor* thumb_motor_joint;
-
-Joint* fix_forearm_joint; //joint connecting forearm with simulation environment
+    std::vector <AngularMotor*> frictionmotors;
+    std::vector <HingeServo*> servos;
+    RaySensorBank irSensorBank; // a collection of ir sensors
 
 
+    Primitive* p;
+    Joint* j;
 
-double thumb1, thumb2, thumb3;
+    //Beam beam[number_beams]; // array of elements (rectangle and cylinders)
+    dSpaceID hand_space;     // space containing the hand
+    //dJointID joint[number_joints];  // array containg "normal" joints for connecting the elementsconf
 
-GripMode gripmode; //for handling lateral and precision grip modes
+    //dJointID fix_joint[number_fix_joints]; //joints for keeping index, middle, ring and little finger together to achieve mor prosthetic like motion
+
+    // two motorjoints for actuating the two ball joints (forearm_palm and palm_thumb)
+    AngularMotor* palm_motor_joint;
+    AngularMotor* thumb_motor_joint;
+
+    Joint* fix_forearm_joint; //joint connecting forearm with simulation environment
+
+
+
+    double thumb1, thumb2, thumb3;
+
+    GripMode gripmode; //for handling lateral and precision grip modes
 
 
 
@@ -324,11 +327,11 @@ GripMode gripmode; //for handling lateral and precision grip modes
     Position initial_pos;    // initial position of robot
 
     int NUM;	   /* number of beats */
-   double MASS;	   /* mass of a beats */
-   double RADIUS;   /* sphere radius */
+    double MASS;	   /* mass of a beats */
+    double RADIUS;   /* sphere radius */
 
-   // Joint* joint[10];
-   // Primitive* object[10];
+    // Joint* joint[10];
+    // Primitive* object[10];
 
     Pos oldp;
 
@@ -340,11 +343,11 @@ GripMode gripmode; //for handling lateral and precision grip modes
     
     double velocity;
     double power;    
-public:
+  public:
 
 
-static double palm_torque;
-static double finger_force;
+    static double palm_torque;
+    static double finger_force;
 
   };
 
