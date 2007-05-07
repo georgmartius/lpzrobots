@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-03-28 11:36:53  robot3
+ *   Revision 1.15  2007-05-07 20:58:21  robot3
+ *   added support for Interface Callbackable (to find in selforg/utils)
+ *   classes can now register at agent to get a callback every step
+ *
+ *   Revision 1.14  2007/03/28 11:36:53  robot3
  *   Moved int t from private to protected area because the OdeAgent needs access
  *   to it.
  *
@@ -130,6 +134,7 @@ class AbstractController;
 class AbstractWiring;
 class Configurable;
 class Inspectable;
+class Callbackable;
 
 #include "types.h"
 #include "trackrobots.h"
@@ -157,7 +162,7 @@ enum PlotMode {
   LastPlot
 };
 
-/** Output either sensors from robot or from controller 
+/** Output either sensors from robot or from controller
     (there can be a difference depending on the used wiring)
  */
 enum PlotSensors {Robot, Controller};
@@ -170,10 +175,10 @@ public:
   friend class Agent;
 
   PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; parameter="";}
-  PlotOption( PlotMode mode, PlotSensors whichSensors = Controller, 
-	      int interval = 1, std::list<const Configurable*> confs = std::list<const Configurable*>(), 
+  PlotOption( PlotMode mode, PlotSensors whichSensors = Controller,
+	      int interval = 1, std::list<const Configurable*> confs = std::list<const Configurable*>(),
 	      std::string parameter="")
-    : mode(mode), whichSensors(whichSensors), interval(interval), configureables(confs), parameter(parameter) 
+    : mode(mode), whichSensors(whichSensors), interval(interval), configureables(confs), parameter(parameter)
     { pipe=0; }
 
   virtual ~PlotOption(){}
@@ -189,7 +194,7 @@ public:
 
 private:
 
-  bool open(); ///< opens the connections to the plot tool 
+  bool open(); ///< opens the connections to the plot tool
   void close();///< closes the connections to the plot tool
 
   FILE* pipe;
@@ -206,9 +211,9 @@ private:
 
 /** The Agent contains a controller, a robot and a wiring, which connects robot and controller.
     Additionally there are some ways to keep track of internal information.
-    You have the possibility to keep track of sensor values, 
-     motor values and internal parameters of the controller with PlotOptions. 
-    The name PlotOptions is a bit missleaded, it should be "OutputOptions", 
+    You have the possibility to keep track of sensor values,
+     motor values and internal parameters of the controller with PlotOptions.
+    The name PlotOptions is a bit missleaded, it should be "OutputOptions",
      however you can write the data into a file or send it to visialisation tools like
      guilogger or neuronviz.
 
@@ -217,25 +222,25 @@ private:
 class Agent {
 public:
   /** constructor. PlotOption as output setting.
-      noisefactor is used to set the relative noise strength of this agent     
+      noisefactor is used to set the relative noise strength of this agent
    */
   Agent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1);
   /** constructor. A list of PlotOption can given.
-      noisefactor is used to set the relative noise strength of this agent     
+      noisefactor is used to set the relative noise strength of this agent
    */
   Agent(const std::list<PlotOption>& plotOptions, double noisefactor = 1);
 
   /** destructor
    */
-  virtual ~Agent();  
+  virtual ~Agent();
 
   /** initializes the object with the given controller, robot and wiring
       and initializes the output options
   */
   virtual bool init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring);
 
-  /** Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
-      controller step, pushing controller outputs (= motorcommands) back through wiring and sent 
+  /** Performs an step of the agent, including sensor reading, pushing sensor values through wiring,
+      controller step, pushing controller outputs (= motorcommands) back through wiring and sent
       resulting motorcommands to robot.
       @param noise Noise strength.
   */
@@ -265,13 +270,13 @@ public:
    */
   virtual void addPlotOption(const PlotOption& plotoption);
 
-  /** removes the PlotOptions with the given type 
+  /** removes the PlotOptions with the given type
       @return true if sucessful, false otherwise
    */
   virtual bool removePlotOption(PlotMode mode);
 
   /**
-     write comment to output streams (PlotOptions). For instance changes in parameters.     
+     write comment to output streams (PlotOptions). For instance changes in parameters.
   */
   virtual void writePlotComment(const char* cmt);
 
@@ -279,20 +284,24 @@ public:
    */
   virtual void addInspectable(const Inspectable* inspectable);
 
+	/** adds an Callbackable object for getting a callback every step.
+	 */
+	virtual void addCallbackable(Callbackable* callbackable);
+
 protected:
 
   /**
    * Plots controller sensor- and motorvalues and internal controller parameters.
    * @param rx actual sensorvalues from robot (used for generation of motorcommand in actual timestep)
-   * @param rsensornumber length of rx   
+   * @param rsensornumber length of rx
    * @param cx actual sensorvalues which are passed to controller (used for generation of motorcommand in actual timestep)
-   * @param csensornumber length of cx   
+   * @param csensornumber length of cx
    * @param y actual motorcommand (generated in the actual timestep)
-   * @param motornumber length of y 
+   * @param motornumber length of y
    */
-  virtual void plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber, 
+  virtual void plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber,
 		    const motor* y, int motornumber);
-  
+
 
   AbstractController* controller;
   AbstractRobot* robot;
@@ -325,6 +334,8 @@ protected:
   std::list<PlotOption> plotOptions;
   std::list<const Inspectable* > inspectables;
   bool initialised;
+
+	std::list<Callbackable* > callbackables;
 
 };
 

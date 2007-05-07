@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-03-05 17:52:20  martius
+ *   Revision 1.16  2007-05-07 20:58:21  robot3
+ *   added support for Interface Callbackable (to find in selforg/utils)
+ *   classes can now register at agent to get a callback every step
+ *
+ *   Revision 1.15  2007/03/05 17:52:20  martius
  *   plotoptions hav optional string parameter
  *
  *   Revision 1.14  2007/02/27 12:00:05  robot5
@@ -156,6 +160,8 @@
 #include <time.h>
 #include <string.h>
 
+#include "callbackable.h"
+
 using namespace std;
 
 Agent::Agent(const PlotOption& plotOption, double noisefactor){
@@ -174,14 +180,14 @@ void Agent::internInit(){
   controller = 0;
   robot      = 0;
   wiring     = 0;
-    
-  rsensors=0; rmotors=0; 
-  csensors=0; cmotors=0; 
-  
+
+  rsensors=0; rmotors=0;
+  csensors=0; cmotors=0;
+
   initialised = false;
   t=0;
 }
-  
+
 Agent::~Agent(){
   // closes all pipes of the agents due to pause mode or so
   for (int i = NoPlot; i < LastPlot; i++){
@@ -217,9 +223,9 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
   cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
 
   inspectables.push_back(controller);
-  inspectables.push_back(wiring);  
+  inspectables.push_back(wiring);
   if(dynamic_cast<Inspectable*>(robot) !=0)
-    inspectables.push_back((Inspectable*)robot);  
+	inspectables.push_back((Inspectable*)robot);
 
   // copy plotoption list and add it one by one
   list<PlotOption> po_copy(plotOptions);
@@ -227,7 +233,7 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
   // open the plotting pipe (and file logging) if configured
   for(list<PlotOption>::iterator i=po_copy.begin(); i != po_copy.end(); i++){
     addPlotOption(*i);
-  }    
+  }
   initialised = true;
   return true;
 }
@@ -239,7 +245,7 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
 
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
-  signal(SIGPIPE,SIG_IGN); 
+  signal(SIGPIPE,SIG_IGN);
   if(robot) {
     po.name = robot->getName();
   }
@@ -252,7 +258,7 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
     // print all configureables
     for(list<const Configurable*>::iterator i = po.configureables.begin(); i!= po.configureables.end(); i++){
       (*i)->print(po.pipe, "# ");
-    }    
+    }
     // print all parameters of the controller
     controller->print(po.pipe, "# ");
     // print all parameters of the controller
@@ -260,15 +266,15 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
     // print head line with all parameter names
     unsigned int snum = plotOption.whichSensors == Robot ? rsensornumber : csensornumber;
     printInternalParameterNames(po.pipe, snum, cmotornumber, inspectables);
-  }    
+  }
   plotOptions.push_back(po);
 }
 
 bool Agent::removePlotOption(PlotMode mode) {
   // if plotoption with the same mode exists -> delete it
-  list<PlotOption>::iterator po 
+  list<PlotOption>::iterator po
       = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
-  if(po != plotOptions.end()){ 
+  if(po != plotOptions.end()){
     (*po).close();
     plotOptions.erase(po);
     return true;
@@ -278,10 +284,10 @@ bool Agent::removePlotOption(PlotMode mode) {
 
 
 // Plots controller sensor- and motorvalues and internal controller parameters.
-void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber, 
+void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber,
 		 const motor* y, int motornumber){
   assert(controller && rx && cx && y);
-  
+
   for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
     if( ((*i).pipe) && (t % (*i).interval == 0) ){
       if((*i).whichSensors == Robot){
@@ -289,7 +295,7 @@ void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csen
       }else{
 	printInternalParameters((*i).pipe, cx, csensornumber, y, motornumber, inspectables);
       }
-      if(t% ((*i).interval * 10)) fflush((*i).pipe);    
+      if(t% ((*i).interval * 10)) fflush((*i).pipe);
     } // else {
       //      if (!(*i).pipe) { // if pipe is closed
       // std::cout << "pipe is closed!" << std::endl;
@@ -301,43 +307,46 @@ void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csen
 
 void Agent::writePlotComment(const char* cmt){
   for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    if( ((*i).pipe) && (t % (*i).interval == 0) && (strlen(cmt)>0)){ // for the guilogger pipe      
+    if( ((*i).pipe) && (t % (*i).interval == 0) && (strlen(cmt)>0)){ // for the guilogger pipe
       char last = cmt[strlen(cmt)-1];
       fprintf((*i).pipe, "# %s", cmt);
       if(last!=10 && last!=13) // print with or without new line
-	fprintf((*i).pipe, "\n");	
-    } 
+	fprintf((*i).pipe, "\n");
+    }
   }
 }
 
-//  Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
-//  controller step, pushing controller steps back through wiring and sent resulting motorcommands 
+//  Performs an step of the agent, including sensor reading, pushing sensor values through wiring,
+//  controller step, pushing controller steps back through wiring and sent resulting motorcommands
 //  to robot.
 //  @param noise Noise strength.
 void Agent::step(double noise){
   assert(controller && robot && wiring && rsensors && rmotors && csensors && cmotors);
-  
+
   int len =  robot->getSensors(rsensors, rsensornumber);
   if(len != rsensornumber){
-    fprintf(stderr, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__, 
+    fprintf(stderr, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__,
 	    rsensornumber, len);
   }
-  
+
   wiring->wireSensors(rsensors, rsensornumber, csensors, csensornumber, noise * noisefactor);
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
   robot->setMotors(rmotors, rmotornumber);
   plot(rsensors, rsensornumber, csensors, csensornumber, cmotors, cmotornumber);
-  
-  trackrobot.track(robot);
 
+  trackrobot.track(robot);
+	// do a callback for all registered Callbackable classes
+	for(list<Callbackable*>::iterator i = callbackables.begin(); i!= callbackables.end(); i++){
+		(*i)->doOnCallBack();
+	}
   t++;
 }
 
-// Sends only last motor commands again to robot. 
+// Sends only last motor commands again to robot.
 void Agent::onlyControlRobot(){
   assert(robot && rmotors);
-  robot->setMotors(rmotors, rmotornumber);  
+  robot->setMotors(rmotors, rmotornumber);
 }
 
 
@@ -349,7 +358,7 @@ void Agent::setTrackOptions(const TrackRobot& trackrobot){
       fprintf(stderr, "could not open trackfile!\n");
     }else{
       // print all parameters of the controller to trackfile
-      controller->print(this->trackrobot.file, "# ");                
+      controller->print(this->trackrobot.file, "# ");
     }
   }
 }
@@ -357,15 +366,23 @@ void Agent::setTrackOptions(const TrackRobot& trackrobot){
 void Agent::addInspectable(const Inspectable* inspectable){
   if(!initialised){
     inspectables.push_back(inspectable);
+  } else {
+	  std::cerr << "Agent::addInspectable(const Inspectable* inspectable); failed, because Agent was already initialised! " << std::endl;
+	  std::cerr <<  "( with Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring); )" << std::endl;
   }
 }
+
+void Agent::addCallbackable(Callbackable* callbackable){
+	callbackables.push_back(callbackable);
+}
+
 
 
 bool PlotOption::open(){
   char cmd[255];
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
-  signal(SIGPIPE,SIG_IGN); 
+  signal(SIGPIPE,SIG_IGN);
   switch(mode){
   case File:
       struct tm *t;
@@ -414,7 +431,7 @@ void PlotOption::close(){
       break;
     case GuiLogger:
     case GuiLogger_File:
-      //std::cout << "guilogger pipe closing...maybe you must manually close the guilogger first!" 
+      //std::cout << "guilogger pipe closing...maybe you must manually close the guilogger first!"
       //          << std::endl;
       // send quit message to pipe
       fprintf(pipe, "#QUIT\n");
@@ -422,7 +439,7 @@ void PlotOption::close(){
       std::cout << "guilogger pipe closing...SUCCESSFUL" << std::endl;
       break;
     case NeuronViz:
-      //std::cout << "neuronviz pipe closing...maybe you must manually close the neuronviz first!" 
+      //std::cout << "neuronviz pipe closing...maybe you must manually close the neuronviz first!"
       //          << std::endl;
       // send quit message to pipe
       fprintf(pipe, "#QUIT\n");
