@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2007-03-06 10:11:04  fhesse
+ *   Revision 1.26  2007-05-07 21:12:19  robot3
+ *   added experimental force sensors
+ *
+ *   Revision 1.25  2007/03/06 10:11:04  fhesse
  *   food removed
  *
  *   Revision 1.24  2007/03/05 10:49:32  fhesse
@@ -142,6 +145,8 @@
 
 #include "primitive.h"
 #include "joint.h"
+#include <selforg/inspectable.h>
+
 
 namespace lpzrobots {
 
@@ -164,15 +169,16 @@ typedef struct {
   bool irSide;
   double irRange;
   bool singleMotor;
+  bool visForce;
 } Nimm2Conf;
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
-    2 wheels and a cylinder like body   
+    2 wheels and a cylinder like body
 */
-class Nimm2 : public OdeRobot{
+class Nimm2 : public OdeRobot /*, public Inspectable*/ {
 public:
-  
-  Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle, 
+
+  Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle,
 	const Nimm2Conf& conf, const std::string& name);
 
   static Nimm2Conf getDefaultConf(){
@@ -189,6 +195,7 @@ public:
     conf.irSide=false;
     conf.irRange=3;
     conf.singleMotor=false;
+	  conf.visForce=false;
     return conf;
   }
 
@@ -205,14 +212,14 @@ public:
   virtual void place(const osg::Matrix& pose);
 
   /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
+      @param sensors sensors scaled to [-1,1]
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
   virtual int getSensors(sensor* sensors, int sensornumber);
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   virtual void setMotors(const motor* motors, int motornumber);
@@ -230,55 +237,80 @@ public:
   };
 
   /** returns a vector with the positions of all segments of the robot
-      @param poslist vector of positions (of all robot segments) 
+      @param poslist vector of positions (of all robot segments)
       @return length of the list
   */
   virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-  
-    /** this function is called in each timestep. It should perform robot-internal checks, 
+
+    /** this function is called in each timestep. It should perform robot-internal checks,
       like space-internal collision detection, sensor resets/update etc.
       @param globalData structure that contains global data from the simulation environment
    */
   virtual void doInternalStuff(const GlobalData& globalData);
 
+	virtual double& getSumForce() { return sumForce; }
+
+	virtual double& getContactPoints() { return contactPoints; }
+
 protected:
-  /** the main object of the robot, which is used for position and speed tracking */
+
+	double contactPoints;
+
+/** the main object of the robot, which is used for position and speed tracking */
   virtual Primitive* getMainPrimitive() const { return object[0]; }
 
   /** creates vehicle at desired pose
       @param pose 4x4 pose matrix
   */
-  virtual void create(const osg::Matrix& pose); 
+  virtual void create(const osg::Matrix& pose);
+
+
 
   /** destroys vehicle and space
    */
   virtual void destroy();
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
+	/**
+	 * Inspectable interface
+	 */
+	/*
+	virtual std::list<iparamkey> getInternalParamNames() const  { return std::list<iparamkey>(); }
+
+	virtual std::list<iparamval> getInternalParams() const { return std::list<iparamval>(); }*/
+	/*
+	virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
+
+	virtual std::list<Inspectable::iparamval> getInternalParams() const;
+	*/
+
   Nimm2Conf conf;
-  
+
   double length;  // chassis length
   double width;  // chassis width
   double height;   // chassis height
   double radius;  // wheel radius
-  double wheelthickness; // thickness of the wheels  
+  double wheelthickness; // thickness of the wheels
   double cmass;    // chassis mass
   double wmass;    // wheel mass
   int sensorno;      //number of sensors
   int motorno;       // number of motors
 
   bool created;      // true if robot was created
-  double max_force; 
+  double max_force;
 
   Primitive* object[3];  // 1 cylinder, 2 wheels
   double  wheeloffset; // offset from center when in cigarMode
   int number_bumpers;  // number of bumpers (1 -> bumpers at one side, 2 -> bumpers at 2 sides)
-  Bumper bumper[2]; 
+  Bumper bumper[2];
   Hinge2Joint* joint[2]; // joints between cylinder and each wheel
 
   RaySensorBank irSensorBank; // a collection of ir sensors
+
+	bool visForce; // decides if contact force is made visible in guilogger
+	double sumForce; // stores the contact force made by collisions with external objects
 
 };
 
