@@ -64,15 +64,10 @@ void printInternalParameterNames(FILE* f,
   FOREACHC(list<const Inspectable*>, inspectables, insp){
     if(*insp){
       // then the internal parameters
-	    std::cout << "getting params...";
       list<Inspectable::iparamkey> l = (*insp)->getInternalParamNames();
-	    std::cout << "params got." << std::endl;
 	    for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
-			std::cout << "bla" << std::endl;
-		    std::cout << "param: "<< (*i) <<  std::endl;
 		    fprintf(f, " %s", (*i).c_str());
     	}
-	    std::cout << "outputput finished." << std::endl;
     }
   }
   fprintf(f,"\n"); // terminate line
