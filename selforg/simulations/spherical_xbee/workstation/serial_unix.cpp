@@ -11,7 +11,7 @@
 static void* CSerialThread_run(void* p);
 
 void DAT::print() const {
-  printf("A: ");
+  printf("ASCII: ");
   for( short i=0; i<len; i++){
     if(buffer[i] >32 && buffer[i] < 128)
       printf("%c",buffer[i]);
@@ -27,11 +27,19 @@ void DAT::print() const {
 
 bool DAT::send(int fd, bool verbose){
   if (verbose) { printf("> "); print();}
-  for(int i=0;i<len; i++){
-      if(write(fd,buffer+i,1)!=1) return false;
-  }
+  if(write(fd,buffer,10)!=10) return false;
   return true; 
 }
+
+bool DAT::nextpart(){
+  if(len>10){
+    memmove(buffer, buffer+10,len-10);
+    len -=10;
+    return true; 
+  }else return false;
+}
+
+
 
 /// start serial communication
 void CSerialThread::start(){
@@ -120,7 +128,7 @@ bool CSerialThread::run(){
     do{
       loopCallback();
       r=read(fd_in,s.buffer + i,1);
-      if(r>0) fprintf(stderr,"test: %i: %i\n",i, s.buffer[i]);
+      // if(r>0) fprintf(stderr,"test: %i: %i\n",i, s.buffer[i]);
       i+=r;
       if(i==1 && s.buffer[0] & (1<<7) != 0) i=0; // command/addr byte should start with 0 bit
       if(i==2 && s.buffer[1] & (1<<7) == 0) i=0; // length byte should start with 1 bit

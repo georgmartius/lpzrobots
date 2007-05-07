@@ -11,12 +11,21 @@ typedef struct DAT {
   DAT(const DAT& d) {len=d.len, memcpy(buffer,d.buffer,len);}
   DAT(short len): len(len) {}
   DAT(short cmd, short addr, short datalen): len(datalen+2) {
+    memset(buffer,0,128);
     buffer[0]= (cmd<<4) + addr;
     buffer[1]= datalen | (1 << 7);
   }
   void print() const;
+  /** sends data to fd, 
+      always sends 10 bytes (because the picaxe serin function is
+      stupid). To determine whether more packets have to be send, call
+      nextpart()
+  */
   bool send(int fd, bool verbose);
-  
+  /** converts data to next packet (shift data in buffer and reduce
+      len return false if already at the end
+  */
+  bool nextpart(); 
   unsigned char buffer[128];
   short len;
 } DAT;

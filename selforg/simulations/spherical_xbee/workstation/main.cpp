@@ -4,23 +4,31 @@
 // '    ccc Command:  000 R = Reset, 001 D = Dimension, 010 = Sensors
 // '                  011 M = Motors 
 // '                  100 E = Error, 101 V = Verbose
+// '                  111 A = Ack
 // '    aaaa Address: 4 subnets - from 0 to 3 and 4 to 7...
 // '             0,4,8,12  master(s) (PC)
 // '             rest indiviual addresses
 // '            }
 // '  L=length byte 1lllllll
-// '    lllllll: Length of message
+// '    lllllll: Length of message (in mulitpacket setup then entire length
 // '  X=value byte
-
+// '
+// ' If it is send to the robot we
+// ' cannot send packets longer then 10 byte, e.i. 8 byte workload.
+// ' Therefor we send multiple packets and wait for an Ack in between
+// '  The length byte tell how many bytes in total are still to come.
 // ' Communication (< from Robot, > from Workstation)
 // ' > R1 0
 // ' < D0 2 NumSensors NumMotors
-// ' > M1 2 0 0   ' initial motor values 0
+// ' > M1 10 0 0 0 0 0 0 0 0 ' initial motor values 0
+// ' < A0 0
+// ' > M1 2 0 0 ' initial rest of the motor values 0
 // ' < S0 3 s1 s2 s3  
-// ' > M1 2 m1 m2 
+// ' > M1 10 m1 m2 m3 m4 m5 m6 m7 m8
+// ' < A0
+// ' > M1 2 m9 m10
 // ' < S0 3 s1 s2 s3
 // ' .....
-// ' > M1 2 m1 m2 
 // ' < E0 1 1
 
 #include <signal.h>
@@ -46,6 +54,7 @@ using namespace std;
 #define C_M 3
 #define C_E 4
 #define C_V 5
+#define C_A 7
 
 typedef struct Xbee {
   Xbee(short addr) : addr(addr), initialised(0){}
@@ -64,7 +73,7 @@ Communicator* communication;
 void onTermination();
 
 class Communicator : public AbstractRobot, public CSerialThread {
-  enum State {PHASE_INIT, PHASE_CYCLE};
+  enum State {PHASE_INIT, PHASE_CYCLE, PHASE_CYCLE_W4Ack};
 public:
   /** @param serial port name: e.g.: ttyS0
       @param baud rate e.g. 4800
@@ -90,6 +99,7 @@ public:
     noise=0.1;
     cycletime=50;
     cycletimechanged=false;
+    pause=false;
 
     agent = 0;
   }
@@ -114,15 +124,15 @@ public:
   }
 
   virtual void ReceivedCommand(const DAT& s){
-    if(verbose) {
-      cout << "RECEIVED: ";
-      s.print();
-    }
+//     if(verbose) {
+//       cout << "RECEIVED: ";
+//       s.print();
+//     }
       
     short cmd = s.buffer[0] >> 4;   // select upper 4 bit
     short addr = s.buffer[0] & 0x0F; // select last 4 bit
     short len = s.buffer[1] & 0x7F; // select last 7 bit
-    if(verbose) cout << "Packet: CMD: " << cmd << " ADDR: " << addr << " LEN " << len << endl;
+    //    if(verbose) cout << "Packet: CMD: " << cmd << " ADDR: " << addr << " LEN " << len << endl;
     int readlen;
     DAT c;
     if(addr & 0x03 !=0){ // not a packet for master
@@ -156,10 +166,10 @@ public:
   }
 
   virtual void ProcessCmd(short cmd, DAT& s){
-    if(verbose) {
-      cout << "DATA:"; 
-      s.print();
-    }
+//     if(verbose) {
+//       cout << "DATA:"; 
+//       s.print();
+//     }
     switch(cmd){
     case C_D:
       if(state!=PHASE_INIT) { cerr << "got unexpected dimension\n"; return;}      
@@ -189,12 +199,25 @@ public:
         }
 	int offset = xbees[currentXbee].sensoroffset;
 	if(verbose) cout << "Sensors: "; 
-	for(int i = 0; i < s.len; i++){	  	  
-	  x[i+offset] = (s.buffer[i]/ 127.0)-1.0;
-	  if(verbose) cout << x[i+offset] << " " ;
+	for(int i = 0; i < s.len; i++){	  	 
+	  if(verbose) cout << (int)s.buffer[i] << " " ;
+	  x[i+offset] = (s.buffer[i]/ 127.0)-1.0;	  
 	}
 	if(verbose) cout << endl;
+	currentXbee++;
       }else{cerr << "Initialisation error\n";}
+      break;
+    case C_A:
+      if(state!=PHASE_CYCLE_W4Ack){  cerr << "got unexpected Acknowledgement\n"; return;}
+      if(!motorDat.send(fd_out, verbose)){
+	cerr << "cannot write motor values!" << endl;
+      }
+      if(motorDat.nextpart()){
+	state=PHASE_CYCLE_W4Ack; // even a next packet
+      }else{
+	state=PHASE_CYCLE;
+	return;
+      }      
       break;
     case C_E:
       cerr << "ERROR:"; 
@@ -210,7 +233,7 @@ public:
       return;
       break;
     }
-    
+  switch_again:
     switch (state){
     case PHASE_INIT:
       if(currentXbee>=xbees.size()){
@@ -227,33 +250,48 @@ public:
 	    initController();
 	  }
 	}
+	goto switch_again;
       }else{
 	DAT d(C_R,xbees[currentXbee].addr,0); //send reset to next xbee
 	d.send(fd_out, verbose);
       }
       break;
+    case PHASE_CYCLE_W4Ack:
+      break;
     case PHASE_CYCLE:
       if(currentXbee>=xbees.size()){
 	if (verbose) cout << "Step " << endl; 
 	// calls controller and asks us about sensors and stores motors
-	agent->step(noise);
+	agent->step(noise);	
 	currentXbee=0;
+	int ti = time(0);
+	cout << ti << endl;
       }
       // send motor values
+      
       DAT d(C_M,xbees[currentXbee].addr,xbees[currentXbee].nummotors); 
+      motorDat = d;
       int offset = xbees[currentXbee].motoroffset;
       if(verbose) cout << "Motors to " << currentXbee << ": "; 
       for(int i=0; i < xbees[currentXbee].nummotors; i++){
-	d.buffer[i+2] = (unsigned char)((y[i+offset]+1.0)*127.0);
-	if(verbose) printf("%i ",d.buffer[i+2]);
+	motorDat.buffer[i+2] = (unsigned char)((y[i+offset]+1.0)*127.0);
+	if(verbose) printf("%i ",motorDat.buffer[i+2]);
       }
       if(verbose) cout << endl;
-      d.send(fd_out, verbose);      
+      if(!motorDat.send(fd_out, verbose)){
+	cerr << "cannot write motor values!" << endl;
+      }
+      if(motorDat.nextpart()){
+	state=PHASE_CYCLE_W4Ack;
+      }
       break;
     }
   }
 
   virtual void loopCallback(){
+    while(pause){
+      usleep(1000);
+    }
   }
 
   // robot interface
@@ -334,6 +372,10 @@ protected:
 	 << motornumber  << " Motors\n";     
   }
 
+public:
+    bool pause;
+
+
 private:
   int motornumber;
   int sensornumber;
@@ -346,6 +388,8 @@ private:
   bool verbose;
   unsigned int currentXbee;
   State state;
+
+  DAT motorDat;
   
   Agent* agent;
   AbstractController* controller;
@@ -395,6 +439,13 @@ void test(){
   d[4] = 49;
   d[5] = 255;
   fwrite(d,1,6,f);
+  d[0] = C_S << 4;
+  d[1] = 128+4;
+  d[2] = 128;
+  d[3] = 48;
+  d[4] = 49;
+  d[5] = 255;
+  fwrite(d,1,6,f);
   fclose(f);
 }
 
@@ -403,8 +454,9 @@ bool test2();
 int main(int argc, char** argv){
   list<PlotOption> plotoptions;
   bool verbose = false;
-  test2();
-  // test();  return 1;
+  const char* port = "/dev/ttyUSB0";
+  // test2();
+  // test();
 
   vector<Xbee> xbees;
   xbees.push_back(Xbee(1));
@@ -419,19 +471,26 @@ int main(int argc, char** argv){
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
   if(contains(argv,argc,"-v")!=0) verbose=true;
   if(contains(argv,argc,"-h")!=0) {
-    printf("Usage: %s [-g] [-f]\n",argv[0]);
+    printf("Usage: %s [-g] [-f] [-v] [-h] [-p port]\n",argv[0]);
     printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
+    printf("\t-v\enable verbose mode\n\t-p port\tuse give serial port (/dev/ttyUSB0)\n");
     exit(0);
   }
+  int index = contains(argv,argc,"-p");
+  if(index && index<argc){
+    port = argv[index];
+    cout << "use port " << port << endl;
+  }
+  
 
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
-  // communication= new Communicator("protokoll_test", 4800, controller, 
-//   				  new One2OneWiring(new ColorUniformNoise(0.01)),
-//   				  plotoptions, xbees, verbose, true);
-     communication= new Communicator("/dev/ttyUSB0", 2400, controller, 
-   				  new One2OneWiring(new ColorUniformNoise(0.01)),
-   				  plotoptions, xbees, verbose);
+  //   communication= new Communicator("protokoll_test", 4800, controller, 
+  // 				  new One2OneWiring(new ColorUniformNoise(0.01)),
+  // 				  plotoptions, xbees, verbose, true);
+  communication= new Communicator(port, 4800, controller, 
+				  new One2OneWiring(new ColorUniformNoise(0.01)),
+ 				  plotoptions, xbees, verbose);
   communication->start();
   cmd_handler_init();
 
@@ -444,8 +503,10 @@ int main(int argc, char** argv){
     usleep(1000);
     // check for cmdline interrupt
     if (control_c_pressed()){
+      communication->pause=true;
       changeParams(configs);
       cmd_end_input();
+      communication->pause=false;
     }
   };  
 
@@ -472,7 +533,7 @@ bool test2(){
   int baud;
   struct termios newtio;
   
-  int m_baud=2400;
+  int m_baud=4800;
 
   switch(m_baud){
   case 1200:baud=B1200;break;
@@ -487,7 +548,7 @@ bool test2(){
   }
 
   // open port
-  int fd_in = open("/dev/ttyUSB0", O_RDWR|O_SYNC);//|O_NONBLOCK);
+  int fd_in = open("/dev/ttyS0", O_RDWR|O_SYNC);//|O_NONBLOCK);
   //    pthread_testcancel();
   if (fd_in <0) return false;
   int fd_out=fd_in;
@@ -505,26 +566,23 @@ bool test2(){
   tcflush(fd_in, TCIFLUSH);
   //    pthread_testcancel();
 
-  unsigned char d[120]="Ha";
-  write(fd_out,d,1);
-    usleep(1000);
-    write(fd_out,d+1,1);
-  DAT s(2);
+  unsigned char d[120]="1234567890";
+  write(fd_out,d,10);
+  DAT s(12);
   // main loop
   while(1){
     int i = 0;
     int r;
     do{
       r=read(fd_in,s.buffer + i,1);
-      if(r>0) fprintf(stderr,"test: %i: %c: %x,\n",i, s.buffer[i],s.buffer[i]);
+      //      if(r>0) fprintf(stderr,"test: %i: %c: %x,\n",i, s.buffer[i],s.buffer[i]);
       i+=r;
-//       if(i==1 && s.buffer[0] & (1<<7) != 0) i=0; // command/addr byte should start with 0 bit
-//       if(i==2 && s.buffer[1] & (1<<7) == 0) i=0; // length byte should start with 1 bit
-    } while(i<2);
-    unsigned char d[120]="hu";
-    write(fd_out,d,1);
-    usleep(1000);
-    write(fd_out,d+1,1);
+    } while(i<10);
+    printf("%i, %i\n", s.buffer[2], s.buffer[3]);
+    int ti = time(0);
+    cout << ti << endl;
+    unsigned char d[120]="0987654321";
+    write(fd_out,d,10);
 
   }//  end of while loop
   close(fd_in);
