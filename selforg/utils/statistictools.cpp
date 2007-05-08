@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-05-07 21:01:32  robot3
+ *   Revision 1.2  2007-05-08 10:18:15  der
+ *   added a function for starting the measure after a given time.
+ *   made some tests
+ *
+ *   Revision 1.1  2007/05/07 21:01:32  robot3
  *   statistictools is a class for easy visualization of measurements of observed values
  *   it is possible to add the observed value itself with mode ID
  *
@@ -36,7 +40,9 @@
 
 void StatisticTools::doOnCallBack() {
 	// update all statistic measures
-	for (std::list<StatisticMeasure*>::iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
+	if (beginMeasureCounter>0)
+		beginMeasureCounter--;
+	else for (std::list<StatisticMeasure*>::iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
 		(*i)->step();
 	}
 }
@@ -45,6 +51,10 @@ double& StatisticTools::addMeasure(double& observedValue, char* measureName, Mea
 	StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
 	this->activeMeasures.push_back(newMeasure);
 	return newMeasure->getValueAdress();
+}
+
+void StatisticTools::beginMeasureAt(long step) {
+	this->beginMeasureCounter=step;
 }
 
 std::list<Inspectable::iparamkey> StatisticTools::getInternalParamNames() const  {

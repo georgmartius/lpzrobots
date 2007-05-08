@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-05-07 21:01:32  robot3
+ *   Revision 1.2  2007-05-08 10:18:15  der
+ *   added a function for starting the measure after a given time.
+ *   made some tests
+ *
+ *   Revision 1.1  2007/05/07 21:01:32  robot3
  *   statistictools is a class for easy visualization of measurements of observed values
  *   it is possible to add the observed value itself with mode ID
  *
@@ -66,6 +70,7 @@ enum MeasureMode {
 class StatisticTools : public Inspectable, public Callbackable {
 
 public:
+	StatisticTools() { beginMeasureCounter=0; }
 
 	/**
 	 * adds a variable to observe and measure the value
@@ -82,6 +87,14 @@ public:
 	 * @return measured value as adress. So it is possible to measure this value again
 	 */
 	virtual double& addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
+
+
+	/**
+	 * starts the measure at a specific time. This is useful if there are
+	 * values that have to be ignored at simulation start.
+	 */
+	virtual void beginMeasureAt(long step);
+
 
 	/**
 	 * CALLBACKABLE INTERFACE
@@ -100,6 +113,7 @@ public:
 
 private:
 	std::list<StatisticMeasure*> activeMeasures;
+	long beginMeasureCounter;
 };
 
 #endif

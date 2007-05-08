@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-05-07 20:56:58  robot3
+ *   Revision 1.5  2007-05-08 10:18:15  der
+ *   added a function for starting the measure after a given time.
+ *   made some tests
+ *
+ *   Revision 1.4  2007/05/07 20:56:58  robot3
  *   testing new nice statistic tools
  *   made some tests about force "sensors"
  *
@@ -188,7 +192,7 @@ public:
 
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",2);
+    global.odeConfig.setParam("realtimefactor",10);
     // initialization
 
     Playground* playground =
@@ -197,7 +201,7 @@ public:
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
-    	for(int i=0; i<5; i++){
+    	for(int i=0; i<0; i++){
       		PassiveSphere* s =
 				new PassiveSphere(odeHandle,
 			  	osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
@@ -206,19 +210,19 @@ public:
       		global.obstacles.push_back(s);
     }
 
-	for (int j=0;j<1;j++) {
-		for(int i=0; i<5; i++){
-      		PassiveBox* b =
+	for (int j=0;j<4;j++) {
+		for(int i=0; i<4; i++){
+      			PassiveBox* b =
 				new PassiveBox(odeHandle,
-			  	osgHandle, osg::Vec3(0.2+i*0.01,0.2+i*0.01,0.2+i*0.05));
-      		b->setPosition(Pos(i*0.5-5, i*0.5, 1.0+j));
-      		b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
-      		b->setTexture("Images/light_chess.rgb");
-      		global.obstacles.push_back(b);
-    	}
+			  	osgHandle, osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),20.0);
+      			b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
+      			b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+      			b->setTexture("Images/light_chess.rgb");
+      			global.obstacles.push_back(b);
+    		}
 	}
 
-    for(int i=0; i<5; i++){
+    for(int i=0; i<0; i++){
       PassiveCapsule* c =
 	new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
       c->setPosition(Pos(i-1, -i, 1.0));
@@ -294,7 +298,7 @@ public:
 	    //robot = new ShortCircuit(odeHandle,osgHandle,1,1);
 	    ((OdeRobot*)myNimm2)->place(Pos ((r-1)*5,5,0));
 	    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-	    invertnconf.cInit = 1.075;
+	    invertnconf.cInit = 0.9;
 	    controller = new InvertMotorNStep(invertnconf);
 	    controller->setParam( "epsA",0);
 	    controller->setParam( "epsC",0);
@@ -309,10 +313,10 @@ public:
 	//	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
 	//	    discretesizer->setIntervalCount(3);
 	OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-	    MutualInformationController* mic = new MutualInformationController(30);
-	    mic->setParam("showF",0);
-	    mic->setParam("showP",0);
-	    onamupaco->addPassiveController(mic,"mi30");
+	    //MutualInformationController* mic = new MutualInformationController(30);
+	    //mic->setParam("showF",0);
+	    //mic->setParam("showP",0);
+	    //onamupaco->addPassiveController(mic,"mi30");
 	    /*mic = new MutualInformationController(10);
 	    mic->setParam("showF",0);
 	    mic->setParam("showP",0);
@@ -326,6 +330,7 @@ public:
 	    global.configs.push_back(controller);
 		global.agents.push_back(agent);
 
+	    stats->beginMeasureAt(100);
 	    stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
 	    stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
 	    stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);

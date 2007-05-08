@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-04-05 15:10:14  martius
+ *   Revision 1.7  2007-05-08 10:18:15  der
+ *   added a function for starting the measure after a given time.
+ *   made some tests
+ *
+ *   Revision 1.6  2007/04/05 15:10:14  martius
  *   extra ground substance
  *
  *   Revision 1.5  2007/03/16 11:01:37  martius
@@ -164,7 +168,7 @@ namespace lpzrobots {
       groundPlane = new Box(groundLength,groundWidth, 0.10f);
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.05f) * pose);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.01f) * pose);
       groundPlane->setTexture(groundTextureFileName,true,true);
       obst.push_back(groundPlane);
     }
