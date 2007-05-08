@@ -30,7 +30,7 @@ soundman:
 install:
 	-cd neuronviz/src && make install
 	-@cp guilogger/bin/guilogger $(HOME)/bin/ && echo "copied guilogger to $(HOME)/bin/" || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
-	-cp ode_robots/utils/SoundMan.class ode_robots/utils/SoundManipulation.class $(HOME)/lib/
+	-mkdir $(HOME)/lib/soundMan && cp ode_robots/utils/*.class $(HOME)/lib/soundMan/
 	-cp ode_robots/utils/soundMan $(HOME)/bin/
 	-cp ode_robots/utils/feedfile.pl $(HOME)/bin/
 	-cp ode_robots/utils/encodevideo.sh $(HOME)/bin/
