@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-05-08 10:18:15  der
+ *   Revision 1.6  2007-05-09 14:57:25  robot3
+ *   to increase or reduce the simulation speed (realtimefactor), use + and -
+ *   to toggle to the maximum simulation speed, use * in the simulation
+ *
+ *   Revision 1.5  2007/05/08 10:18:15  der
  *   added a function for starting the measure after a given time.
  *   made some tests
  *
@@ -192,7 +196,9 @@ public:
 
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",10);
+    global.odeConfig.setParam("realtimefactor",0);
+	global.odeConfig.setParam("simstepsize",0.1);
+	global.odeConfig.setParam("drawinterval",5);
     // initialization
 
     Playground* playground =
@@ -236,54 +242,6 @@ public:
     OdeRobot* robot;
     AbstractController *controller;
 
-    //******* R A U P E  *********/
-    for(int r=0; r < numCater ; r++) {
-      CaterPillar* myCaterPillar;
-      CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
-      myCaterPillarConf.segmNumber=3+r;
-      myCaterPillarConf.jointLimit=M_PI/3;
-      myCaterPillarConf.motorPower=0.2;
-      myCaterPillarConf.frictionGround=0.01;
-      myCaterPillarConf.frictionJoint=0.01;
-      myCaterPillar =
-	new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)),
-			  myCaterPillarConf, "Raupe" );//+ std::itos(r));
-      ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5+2*r,0.2));
-
-      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      invertnconf.cInit=2.0;
-      controller = new InvertMotorSpace(15);
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( plotoptions );
-      agent->init(controller, myCaterPillar, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(myCaterPillar);
-      myCaterPillar->setParam("gamma",/*gb");
-					global.obstacles.push_back(s)0.0000*/ 0.0);
-    }
-
-
-    //******* S C H L A N G E  (Long)  *********/
-    for(int r=0; r < numSchlangeL ; r++) {
-      SchlangeServo2* snake;
-      SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
-      snakeConf.segmNumber=6+r;
-      snakeConf.frictionGround=0.01;
-
-      snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" + std::itos(r));
-      ((OdeRobot*) snake)->place(Pos(4,4-r,0));
-      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      invertnconf.cInit=2.0;
-      controller = new InvertMotorNStep(invertnconf);
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( std::list<PlotOption>() );
-      agent->init(controller, snake, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(snake);
-    }
-
 /*****************************************************************************************************************/
 /*****************************************************************************************************************/
 /******************************************** N I M M  2 *********************************************************/
@@ -298,7 +256,7 @@ public:
 	    //robot = new ShortCircuit(odeHandle,osgHandle,1,1);
 	    ((OdeRobot*)myNimm2)->place(Pos ((r-1)*5,5,0));
 	    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-	    invertnconf.cInit = 0.9;
+	    invertnconf.cInit = 1.25;
 	    controller = new InvertMotorNStep(invertnconf);
 	    controller->setParam( "epsA",0);
 	    controller->setParam( "epsC",0);
@@ -334,7 +292,7 @@ public:
 	    stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
 	    stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
 	    stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);
-	    double& peakForce = stats->addMeasure(myNimm2->getSumForce(),"peakForce",PEAK,0,0.009);
+	    double& peakForce = stats->addMeasure(myNimm2->getSumForce(),"peakForce",PEAK,0,0.06333);
 	    stats->addMeasure(peakForce, "peakForceMax", MAX, 0);
 	    stats->addMeasure(myNimm2->getSumForce(), "ForceMax", MAX, 0);
 	    double& sumsumForce = stats->addMeasure(peakForce, "sumPeakForce50", SUM, 50);
@@ -440,6 +398,54 @@ public:
       global.configs.push_back(mySliderWheelie);
     }
 
+
+	      //******* R A U P E  *********/
+	  for(int r=0; r < numCater ; r++) {
+		  CaterPillar* myCaterPillar;
+		  CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
+		  myCaterPillarConf.segmNumber=3+r;
+		  myCaterPillarConf.jointLimit=M_PI/3;
+		  myCaterPillarConf.motorPower=0.2;
+		  myCaterPillarConf.frictionGround=0.01;
+		  myCaterPillarConf.frictionJoint=0.01;
+		  myCaterPillar =
+			  new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)),
+			                    myCaterPillarConf, "Raupe" );//+ std::itos(r));
+		  ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5+2*r,0.2));
+
+		  InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+		  invertnconf.cInit=2.0;
+		  controller = new InvertMotorSpace(15);
+		  wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+		  agent = new OdeAgent( plotoptions );
+		  agent->init(controller, myCaterPillar, wiring);
+		  global.agents.push_back(agent);
+		  global.configs.push_back(controller);
+		  global.configs.push_back(myCaterPillar);
+		  myCaterPillar->setParam("gamma",/*gb");
+					global.obstacles.push_back(s)0.0000*/ 0.0);
+	  }
+
+
+    //******* S C H L A N G E  (Long)  *********/
+	  for(int r=0; r < numSchlangeL ; r++) {
+		  SchlangeServo2* snake;
+		  SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
+		  snakeConf.segmNumber=6+r;
+		  snakeConf.frictionGround=0.01;
+
+		  snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" + std::itos(r));
+		  ((OdeRobot*) snake)->place(Pos(4,4-r,0));
+		  InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+		  invertnconf.cInit=2.0;
+		  controller = new InvertMotorNStep(invertnconf);
+		  wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+		  agent = new OdeAgent( std::list<PlotOption>() );
+		  agent->init(controller, snake, wiring);
+		  global.agents.push_back(agent);
+		  global.configs.push_back(controller);
+		  global.configs.push_back(snake);
+	  }
 
     showParams(global.configs);
   }
