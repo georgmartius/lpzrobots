@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-05-07 20:58:21  robot3
+ *   Revision 1.17  2007-05-09 15:14:46  robot3
+ *   *** empty log message ***
+ *
+ *   Revision 1.16  2007/05/07 20:58:21  robot3
  *   added support for Interface Callbackable (to find in selforg/utils)
  *   classes can now register at agent to get a callback every step
  *
@@ -291,9 +294,9 @@ void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csen
   for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
     if( ((*i).pipe) && (t % (*i).interval == 0) ){
       if((*i).whichSensors == Robot){
-	printInternalParameters((*i).pipe, rx, rsensornumber, y, motornumber, inspectables);
+		printInternalParameters((*i).pipe, rx, rsensornumber, y, motornumber, inspectables);
       }else{
-	printInternalParameters((*i).pipe, cx, csensornumber, y, motornumber, inspectables);
+		printInternalParameters((*i).pipe, cx, csensornumber, y, motornumber, inspectables);
       }
       if(t% ((*i).interval * 10)) fflush((*i).pipe);
     } // else {
