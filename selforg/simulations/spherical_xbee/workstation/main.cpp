@@ -473,7 +473,7 @@ int main(int argc, char** argv){
   if(contains(argv,argc,"-h")!=0) {
     printf("Usage: %s [-g] [-f] [-v] [-h] [-p port]\n",argv[0]);
     printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
-    printf("\t-v\enable verbose mode\n\t-p port\tuse give serial port (/dev/ttyUSB0)\n");
+    printf("\t-v\tenable verbose mode\n\t-p port\tuse give serial port (/dev/ttyUSB0)\n");
     exit(0);
   }
   int index = contains(argv,argc,"-p");
