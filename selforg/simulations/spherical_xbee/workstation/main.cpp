@@ -84,13 +84,12 @@ public:
 	       AbstractWiring* wiring,
 	       const list<PlotOption>& plotOptions,
 	       const vector<Xbee>& xbees,
-               bool verbose,
+               int verboseMode,
 	       bool test_mode =false)
     : AbstractRobot("RemoteRobot", "$Id$"), 
-      CSerialThread(port,baud, test_mode), verbose(verbose),
+      CSerialThread(port,baud, test_mode), 
       controller(controller), wiring(wiring), plotOptions(plotOptions), xbees(xbees)
   { 
-
     sensornumber=0;
     motornumber=0; 
     numberinternals=0;
@@ -102,6 +101,15 @@ public:
     pause=false;
 
     agent = 0;
+
+    pendingTime=0;
+
+    if (verboseMode==1)
+    	verbose=true;
+    else if (verboseMode==2) {
+      verbose=true;
+      verboseMore=true;
+    }
   }
 
   ~Communicator(){
@@ -112,9 +120,11 @@ public:
   }
 
   virtual void Initialise(){
+    pendingTime=0;
     currentXbee=0;
     sensornumber_new=0;
     motornumber_new=0; 
+            
     DAT d(C_R,xbees[currentXbee].addr,0); //send reset to first xbee
     state=PHASE_INIT;
     if(verbose) { 
@@ -124,37 +134,29 @@ public:
   }
 
   virtual void ReceivedCommand(const DAT& s){
-//     if(verbose) {
-//       cout << "RECEIVED: ";
-//       s.print();
-//     }
+     pendingTime=0;
+     if(verboseMore) {
+       cout << "RECEIVED: ";
+       s.print();
+     }
       
     short cmd = s.buffer[0] >> 4;   // select upper 4 bit
     short addr = s.buffer[0] & 0x0F; // select last 4 bit
-    short len = s.buffer[1] & 0x7F; // select last 7 bit
-    //    if(verbose) cout << "Packet: CMD: " << cmd << " ADDR: " << addr << " LEN " << len << endl;
-    int readlen;
+    short len = s.buffer[1] & 0x7F; // select last 7 bit (payload)
+    if(verboseMore) cout << "Packet: CMD: " << cmd << " ADDR: " << addr << " LEN " << len << endl;
     DAT c;
     if(addr & 0x03 !=0){ // not a packet for master
       cout << "# not a packet for master\n";
-      if(len>0){
-	readlen=0;
-	do{ 
-	  loopCallback();
-	  readlen += read(fd_in, c.buffer+readlen, 1);
-	}while(readlen<len);
-      }
+      // don't do anything
       return;
     }else{ // our packet 
-      if(len>0){
-	readlen=0;
-	do{ 
-	  loopCallback();
-	  readlen += read(fd_in, c.buffer+readlen, 1);
-	}while(readlen<len);
-	c.len=len;
+      if(len>10){ 
+        cout << "waiting for more packets !Not implemented!" << endl;	      
+      }else{
+        memcpy(c.buffer,s.buffer+2,len);
+	      c.len=len;
+        ProcessCmd(cmd,c);
       }
-      ProcessCmd(cmd,c);
     }
   }
 
@@ -166,10 +168,11 @@ public:
   }
 
   virtual void ProcessCmd(short cmd, DAT& s){
-//     if(verbose) {
-//       cout << "DATA:"; 
-//       s.print();
-//     }
+     pendingTime=0;
+     if(verboseMore) {
+      cout << "DATA: "; 
+      s.print();
+     }
     switch(cmd){
     case C_D:
       if(state!=PHASE_INIT) { cerr << "got unexpected dimension\n"; return;}      
@@ -182,10 +185,10 @@ public:
       motornumber_new += xbees[currentXbee].nummotors;
       xbees[currentXbee].initialised=true;
       if(verbose){
-	cout << "Dim for xbee " << currentXbee << ": " 
+	cout << "Dim for xbee " << currentXbee << " (adress: " << xbees[currentXbee].addr  << ") : "
 	     << xbees[currentXbee].numsensors << ", "
 	     << xbees[currentXbee].nummotors << endl;
-	cout << "Offets: " << xbees[currentXbee].sensoroffset << ", " 
+	cout << "Offsets: " << xbees[currentXbee].sensoroffset << ", " 
 	     << xbees[currentXbee].sensoroffset << endl;	
       }
       currentXbee++;
@@ -209,15 +212,8 @@ public:
       break;
     case C_A:
       if(state!=PHASE_CYCLE_W4Ack){  cerr << "got unexpected Acknowledgement\n"; return;}
-      if(!motorDat.send(fd_out, verbose)){
-	cerr << "cannot write motor values!" << endl;
-      }
-      if(motorDat.nextpart()){
-	state=PHASE_CYCLE_W4Ack; // even a next packet
-      }else{
-	state=PHASE_CYCLE;
-	return;
-      }      
+      sendMotorCommands();
+    	return;
       break;
     case C_E:
       cerr << "ERROR:"; 
@@ -229,33 +225,36 @@ public:
       cerr << "MSG:" << s.buffer << endl; 
       return;break;
     default:
-      cerr << "UNKNOWN CMD "<< cmd;
+      cerr << "UNKNOWN CMD: "<< cmd << endl;
+      // at this point the motor commands should be resend
+      sendMotorCommands();
       return;
       break;
     }
   switch_again:
     switch (state){
-    case PHASE_INIT:
-      if(currentXbee>=xbees.size()){
-	state=PHASE_CYCLE;
-	currentXbee=0;
-	if(sensornumber_new==sensornumber && motornumber_new == motornumber){
-	  cout << "# No changes in motor and sensornumber. Keep controller!\n"; 
-	}else{
-	  if(sensornumber_new<1 || motornumber_new<1) {
-	    cerr << "# Sensor or Motor number 0! "; 
-	  } else {
-	    sensornumber = sensornumber_new;
-	    motornumber  = motornumber_new;
-	    initController();
-	  }
-	}
-	goto switch_again;
-      }else{
-	DAT d(C_R,xbees[currentXbee].addr,0); //send reset to next xbee
-	d.send(fd_out, verbose);
-      }
-      break;
+      case PHASE_INIT:
+        if(currentXbee>=xbees.size()){
+          state=PHASE_CYCLE;
+          currentXbee=0;
+          if(sensornumber_new==sensornumber && motornumber_new == motornumber){
+            cout << "# No changes in motor and sensornumber. Keep controller!\n"; 
+          }else{
+            if(sensornumber_new<1 || motornumber_new<1) {
+              cerr << "# Sensor or Motor number 0! sensornumber: " << sensornumber_new << ", motornumber: " << motornumber_new << endl; 
+            } else {
+              sensornumber = sensornumber_new;
+              motornumber  = motornumber_new;
+              initController();
+            }
+          }
+          goto switch_again;
+        }else{
+          if(verboseMore){ printf("send init to xbee %i\n",currentXbee);}
+          DAT d(C_R,xbees[currentXbee].addr,0); //send reset to next xbee
+          d.send(fd_out, verbose);
+        }
+        break;
     case PHASE_CYCLE_W4Ack:
       break;
     case PHASE_CYCLE:
@@ -274,15 +273,15 @@ public:
       int offset = xbees[currentXbee].motoroffset;
       if(verbose) cout << "Motors to " << currentXbee << ": "; 
       for(int i=0; i < xbees[currentXbee].nummotors; i++){
-	motorDat.buffer[i+2] = (unsigned char)((y[i+offset]+1.0)*127.0);
-	if(verbose) printf("%i ",motorDat.buffer[i+2]);
+	      motorDat.buffer[i+2] = (unsigned char)((y[i+offset]+1.0)*127.0);
+	      if(verbose) printf("%i ",motorDat.buffer[i+2]);
       }
       if(verbose) cout << endl;
       if(!motorDat.send(fd_out, verbose)){
-	cerr << "cannot write motor values!" << endl;
+	      cerr << "cannot write motor values!" << endl;
       }
       if(motorDat.nextpart()){
-	state=PHASE_CYCLE_W4Ack;
+	      state=PHASE_CYCLE_W4Ack;
       }
       break;
     }
@@ -293,6 +292,27 @@ public:
       usleep(1000);
     }
   }
+
+  virtual void sendMotorCommands() {
+    pendingTime=0;
+    if(!motorDat.send(fd_out, verbose)){
+      cerr << "cannot write motor values!" << endl;
+    }
+    if(motorDat.nextpart()){
+      state=PHASE_CYCLE_W4Ack; // even a next packet
+    }else{
+	     state=PHASE_CYCLE;
+    }
+    if (verboseMore) cout << "motor commands sent." << endl;
+  }
+
+virtual bool is_pending(int pendingTimeout) {
+  if (pendingTime==pendingTimeout)
+    return true;
+  else
+    pendingTime++;
+  return false;
+}
 
   // robot interface
 
@@ -386,8 +406,11 @@ private:
   double cycletime;
   bool cycletimechanged;
   bool verbose;
+  bool verboseMore;
   unsigned int currentXbee;
   State state;
+
+  int pendingTime;
 
   DAT motorDat;
   
@@ -453,23 +476,24 @@ bool test2();
 
 int main(int argc, char** argv){
   list<PlotOption> plotoptions;
-  bool verbose = false;
-  const char* port = "/dev/ttyUSB0";
+  int verboseMode=0;
+  const char* port = "/dev/ttyS0";
   // test2();
   // test();
 
   vector<Xbee> xbees;
   xbees.push_back(Xbee(1));
-  //  xbees.push_back(Xbee(2));
+  xbees.push_back(Xbee(2));
 
-  //  AbstractController* controller = new InvertMotorSpace(10);
-  AbstractController* controller = new SineController();
+  AbstractController* controller = new InvertMotorSpace(10);
+//  AbstractController* controller = new SineController();
   controller->setParam("s4delay",2.0);
   controller->setParam("s4avg",2.0);
 
   if(contains(argv,argc,"-g")!=0) plotoptions.push_back(PlotOption(GuiLogger));
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
-  if(contains(argv,argc,"-v")!=0) verbose=true;
+  if(contains(argv,argc,"-v")!=0) verboseMode=1;
+  if(contains(argv,argc,"-vv")!=0) verboseMode=2;
   if(contains(argv,argc,"-h")!=0) {
     printf("Usage: %s [-g] [-f] [-v] [-h] [-p port]\n",argv[0]);
     printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
@@ -488,9 +512,9 @@ int main(int argc, char** argv){
   //   communication= new Communicator("protokoll_test", 4800, controller, 
   // 				  new One2OneWiring(new ColorUniformNoise(0.01)),
   // 				  plotoptions, xbees, verbose, true);
-  communication= new Communicator(port, 4800, controller, 
+  communication= new Communicator(port, 2400, controller, 
 				  new One2OneWiring(new ColorUniformNoise(0.01)),
- 				  plotoptions, xbees, verbose);
+ 				  plotoptions, xbees, verboseMode);
   communication->start();
   cmd_handler_init();
 
@@ -501,6 +525,12 @@ int main(int argc, char** argv){
   while(communication->is_running()){
     // communication is done in communication thread
     usleep(1000);
+    // check for communication activity
+    if (communication->is_pending(200)) {
+      cout  << "communication is pending!" << endl;
+      // resend motor commands or reinitialise
+      communication->sendMotorCommands();
+    }
     // check for cmdline interrupt
     if (control_c_pressed()){
       communication->pause=true;

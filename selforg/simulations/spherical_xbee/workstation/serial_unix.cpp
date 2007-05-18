@@ -116,7 +116,7 @@ bool CSerialThread::run(){
   tcflush(fd_in, TCIFLUSH);
   //    pthread_testcancel();
 
-  DAT s(2);
+  DAT s(10);
   
   Initialise();
 
@@ -128,15 +128,21 @@ bool CSerialThread::run(){
     do{
       loopCallback();
       r=read(fd_in,s.buffer + i,1);
-      // if(r>0) fprintf(stderr,"test: %i: %i\n",i, s.buffer[i]);
+      //if(r>0) fprintf(stderr,"test: %i: %i\n",i, s.buffer[i]);
       i+=r;
-      if(i==1 && s.buffer[0] & (1<<7) != 0) i=0; // command/addr byte should start with 0 bit
-      if(i==2 && s.buffer[1] & (1<<7) == 0) i=0; // length byte should start with 1 bit
+      if(i==1 && s.buffer[0] & (1<<7) != 0) {
+        i=0; // command/addr byte should start with 0 bit
+        printf("skip data: %x\n", s.buffer[0]);
+      }
+      if(i==2 && s.buffer[1] & (1<<7) == 0) {
+        i=0; // length byte should start with 1 bit
+        printf("skip data %x\n", s.buffer[1]);
+      }
       pthread_testcancel();
-    } while(i<2);
+    } while(i<10);
     
 
-    ReceivedCommand(s);        
+    ReceivedCommand(s);
   }//  end of while loop
   close(fd_in);
   fd_in=-1;
