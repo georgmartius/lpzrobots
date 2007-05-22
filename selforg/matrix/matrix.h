@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.10  2007-04-03 09:58:20  martius
+// Revision 1.11  2007-05-22 13:52:36  martius
+// inplace operators return *this which makes them more useable for temporary matrices
+//
+// Revision 1.10  2007/04/03 09:58:20  martius
 // memory management done with free and malloc
 //
 // Revision 1.9  2007/04/03 07:13:32  der
@@ -362,26 +365,28 @@ namespace matrix{
       memcpy(data,c.data,m*n*sizeof(D));    
     }
 
-    void toTranspose();  ///< inplace transpose
-    void toZero();       ///< inplace converts matrix to zero matrix
-    void toId();         ///< inplace converts matrix to identity (use ^0 to get a copy version of it)
+    Matrix& toTranspose();  ///< inplace transpose
+    Matrix& toZero();       ///< inplace converts matrix to zero matrix
+    Matrix& toId();         ///< inplace converts matrix to identity (use ^0 to get a copy version of it)
     /// inplace addition: this = this + a
-    void toSum(const Matrix& a) {
+    Matrix& toSum(const Matrix& a) {
       assert(a.m==m && a.n==n);
       for(unsigned short i=0; i<m*n; i++){
 	data[i]+=a.data[i];
       }
+      return *this;
     }
     /// inplace subtraction: this = this - a
-    void toDiff(const Matrix& a){
+    Matrix& toDiff(const Matrix& a){
       assert(a.m==m && a.n==n);
       for(unsigned short i=0; i<m*n; i++){
 	data[i]-=a.data[i];
       }
+      return *this;
     }
 
     /// inplace multiplication with scalar: this = this*fac
-    void toMult(const D& fac);     
+    Matrix& toMult(const D& fac);     
 
     /** special inplace matrix potence: 
 	@param exponent -1 -> inverse; (matrix MUST be SQUARE and NONZERO)
@@ -389,30 +394,30 @@ namespace matrix{
 	            1 -> itself;
 	            T -> Transpose
     */
-    void toExp(int exponent);
+    Matrix& toExp(int exponent);
     /**  inplace mapping of matrix elements (element-wise application) */
-    void toMap(D (*fun)(D));
+    Matrix& toMap(D (*fun)(D));
     /**  like toMap, but with an extra parameter for the mapping function. */
-    void toMapP(void* param, D (*fun)(void*, D));
+    Matrix& toMapP(void* param, D (*fun)(void*, D));
     // Exotic operations
     /** Inplace row-wise multiplication
 	@param factors column vector of factors, one for each row 
     */
-    void toMultrowwise(const Matrix& factors);
+    Matrix& toMultrowwise(const Matrix& factors);
     /** Inplace column-wise multiplication
 	@param factors column vector of factors, one for each column
     */
-    void toMultcolwise(const Matrix& factors);    
+    Matrix& toMultcolwise(const Matrix& factors);    
 
     /// sets the matrix a below (this) matrix
-    void toAbove(const Matrix& a);
+    Matrix& toAbove(const Matrix& a);
     
     /// sorts the matrix (rowwise)
-    void toSort();
+    Matrix& toSort();
     
     /** reshapes the matrix without distroying the data. Remember: The data is stored rowwise.
 	m*n must be equal to getM()*getN()*/
-    void reshape(int m, int n);
+    Matrix& reshape(int m, int n);
 
     /// adds the given value to the diagonal
     Matrix& pluslambdaI(double lambda);

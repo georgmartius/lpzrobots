@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.9  2007-04-03 09:57:44  martius
+// Revision 1.10  2007-05-22 13:52:46  martius
+// inplace operators return *this which makes them more useable for temporary matrices
+//
+// Revision 1.9  2007/04/03 09:57:44  martius
 // speedup in nonoptimised mode through use of VAL macro
 //
 // Revision 1.8  2007/04/03 07:11:56  der
@@ -276,7 +279,7 @@ const int T=0xFF;
 //  INPLACE:
 //________________________________________________________________
   
-  void Matrix::toTranspose(){
+  Matrix& Matrix::toTranspose(){
     assert(buffersize > 0);
     if(m!=1 && n!=1){ // if m or n == 1 then no copying is necessary! 
       double* newdata = (D*)malloc(sizeof(D)*buffersize);
@@ -292,18 +295,21 @@ const int T=0xFF;
     unsigned short t = m;
     m=n;
     n=t;
+    return *this;
   }
 
-  void Matrix::toZero(){
+  Matrix& Matrix::toZero(){
     memset(data, D_Zero, m*n*sizeof(D));   
+    return *this;
   }
 
-  void Matrix::toId(){
+  Matrix& Matrix::toId(){
     toZero();
     unsigned short smallerdim = m < n ? m : n;
     for(unsigned short i=0; i < smallerdim; i++){
       VAL(i,i)=D_One;
     }
+    return *this;    
   }
 
   void Matrix::add(const Matrix& a,const Matrix& b){
@@ -345,10 +351,11 @@ const int T=0xFF;
     }    
   }
 
-  void Matrix::toMult(const D& fac){
+  Matrix& Matrix::toMult(const D& fac){
     for(unsigned short i=0; i<m*n; i++){
       data[i]*=fac;
     }    
+    return *this;
   }
 
   /** special inplace matrix potence: 
@@ -356,7 +363,7 @@ const int T=0xFF;
       1 -> itself;
       T -> Transpose
   */
-  void Matrix::toExp (int exponent) {
+  Matrix& Matrix::toExp (int exponent) {
     switch(exponent){
     case -1: 
       if(m==1) VAL(0,0) = 1/VAL(0,0);
@@ -378,13 +385,15 @@ const int T=0xFF;
       assert("Should not be reached" == 0);
       break;
     }
+    return *this;
   }
 
-  void Matrix::toMap(D (*fun)(D)){
+  Matrix& Matrix::toMap(D (*fun)(D)){
     unsigned int len = m*n;
     for(unsigned short i=0; i < len; i++){
       data[i]=fun(data[i]);
     }    
+    return *this;
   }
 
   Matrix Matrix::map(D (*fun)(D)) const {
@@ -393,11 +402,12 @@ const int T=0xFF;
     return result;
   }
 
-  void Matrix::toMapP(void* param, D (*fun)(void*, D)){
+  Matrix& Matrix::toMapP(void* param, D (*fun)(void*, D)){
     unsigned int len = m*n;
     for(unsigned short i=0; i < len; i++){
       data[i]=fun(param, data[i]);
     }    
+    return *this;
   }
 
   Matrix Matrix::mapP(void* param, D (*fun)(void*, D)) const {
@@ -406,43 +416,48 @@ const int T=0xFF;
     return result;
   }
 
-  void Matrix::toMultrowwise(const Matrix& factors){
+  Matrix& Matrix::toMultrowwise(const Matrix& factors){
     assert(m == factors.m && factors.n == 1);
     for(unsigned int i = 0; i < m; i++){
       for (unsigned int j = 0; j < n; j++){
 	VAL(i,j) *= factors.val(i,0);
       }
     }
+    return *this;
   }
 
-  void Matrix::toMultcolwise(const Matrix& factors){
+  Matrix& Matrix::toMultcolwise(const Matrix& factors){
     assert(n == factors.m && factors.n == 1);
     for(unsigned int i = 0; i < m; i++){
       for (unsigned int j = 0; j < n; j++){
 	VAL(i,j) *= factors.val(j,0);
       }
     }
+    return *this;
   }
 
-  void Matrix::toAbove(const Matrix& a){
+  Matrix& Matrix::toAbove(const Matrix& a){
     assert(a.n == this->n);
     data = (D*)realloc(data, sizeof(D) * (this->m * this->n + a.n * a.m));
     memcpy(data+this->m * this->n, a.data, sizeof(D) * (a.n * a.m));
-    this->m+=a.m;      
+    this->m+=a.m; 
+    return *this;      
   }
 
   int cmpdouble(const void* a, const void* b){
     return *((double*)a) < *((double*)b) ? -1 : (*((double*)a) > *((double*)b) ? 1 : 0);
   }
   
-  void Matrix::toSort(){
+  Matrix& Matrix::toSort(){
     qsort(data, m*n, sizeof(double), cmpdouble); 
+    return *this;
   }
 
-  void Matrix::reshape(int _m, int _n){
+  Matrix& Matrix::reshape(int _m, int _n){
     assert(m*n == _m*_n);
     m=_m;
     n=_n;
+    return *this;
   }
 
   /// adds the given value to the diagonal
