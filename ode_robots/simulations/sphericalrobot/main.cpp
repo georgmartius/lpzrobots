@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-04-20 12:31:55  martius
+ *   Revision 1.18  2007-05-22 08:31:46  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.17  2007/04/20 12:31:55  martius
  *   fixed controller test
  *
  *   Revision 1.16  2007/04/05 15:12:56  martius
@@ -143,17 +146,18 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     int num_barrels=1;
-    int num_spheres=0;      
+    int num_spheres=0;
 
     bool labyrint=false;      
     bool squarecorridor=false;
-    bool normalplayground=true;
+    bool normalplayground=false;
 
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
     global.odeConfig.setParam("noise",0.1);
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
+    global.odeConfig.setParam("realtimefactor",5);
 
     if(normalplayground){
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.01, 0.01 ), 1);
@@ -215,9 +219,9 @@ public:
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.15; 
-      conf.motorsensor=true;
+      conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
-      //      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
+      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
       conf.irAxis1=false;
       conf.irAxis2=false;
       conf.irAxis3=false;
@@ -229,10 +233,10 @@ public:
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=0.5;
       //    cc.useSD=true;
-      controller = new InvertMotorNStep(cc);    
+      //     controller = new InvertMotorNStep(cc);    
       ///> test with fixed C
-      //>      controller = new InvertNChannelController_NoBias(40);  
-      //>    controller->setParam("eps",0.00);
+      controller = new InvertNChannelController_NoBias(40,0.45f);  
+      controller->setParam("eps",0.00);
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       controller->setParam("steps", 2);    
       //    controller->setParam("adaptrate", 0.001);    

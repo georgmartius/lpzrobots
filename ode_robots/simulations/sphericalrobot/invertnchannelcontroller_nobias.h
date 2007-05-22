@@ -18,7 +18,10 @@
  *                                            * 
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-04-20 12:32:38  martius
+ *   Revision 1.2  2007-05-22 08:31:46  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2007/04/20 12:32:38  martius
  *   fixed controller test
  *
  *   Revision 1.19  2006/12/11 18:14:14  martius
@@ -78,7 +81,7 @@
 class InvertNChannelController_NoBias : public InvertController {
 
 public:
-  InvertNChannelController_NoBias(int _buffersize, bool _update_only_1=false);
+  InvertNChannelController_NoBias(int _buffersize, double angle, bool _update_only_1=false);
   virtual void init(int sensornumber, int motornumber);
 
   virtual ~InvertNChannelController_NoBias();
@@ -117,6 +120,7 @@ protected:
   unsigned short number_channels;
   unsigned short buffersize;
   bool update_only_1;
+  double angle;
 
   matrix::Matrix A; // Model Matrix
   matrix::Matrix C; // Controller Matrix

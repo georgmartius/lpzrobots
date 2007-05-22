@@ -16,7 +16,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-04-20 12:32:38  martius
+ *   Revision 1.2  2007-05-22 08:31:46  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2007/04/20 12:32:38  martius
  *   fixed controller test
  *
  *                                  *
@@ -27,13 +30,14 @@
 using namespace matrix;
 using namespace std;
 
-InvertNChannelController_NoBias::InvertNChannelController_NoBias(int _buffersize, bool _update_only_1/*=false*/)
-  : InvertController("InvertNChannelController_NoBias", "$Id$"){
+InvertNChannelController_NoBias::InvertNChannelController_NoBias(int _buffersize, double angle, bool _update_only_1/*=false*/)
+  : InvertController("InvertNChannelController_NoBias", "$Id$"), angle(angle){
   t=0;
   update_only_1 = _update_only_1;
   buffersize    = _buffersize;
   x_buffer=0;
   y_buffer=0;
+  addParameter("angle", &this->angle);
 
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile$", 
@@ -57,7 +61,7 @@ void InvertNChannelController_NoBias::init(int sensornumber, int motornumber){
   C.toId(); // set a to identity matrix;
 
   if(sensornumber > 1 && motornumber > 1){
-    double p=-0.2;
+    double p=angle;
     C.val(0,0)=cos(p);
     C.val(0,1)=-sin(p);
     C.val(1,0)=sin(p);
