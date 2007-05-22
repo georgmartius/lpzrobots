@@ -13,6 +13,7 @@ public class SoundManGUI extends JFrame {
  private JComboBox instruCB;
  private JLabel l4;
  private JSlider noteSlide;
+ private JSlider[] sensorSlide;
 
  public SoundManGUI(float p, int m) {
   param=p;
@@ -22,7 +23,7 @@ public class SoundManGUI extends JFrame {
   getContentPane().setLayout(null);
   setTitle("SoundMan");
   setResizable(false);
-  setSize(250,210);
+  setSize(250,260);
 
   ////////// mode //////////
   JRadioButton discRB=new JRadioButton("Discrete");
@@ -134,11 +135,11 @@ public class SoundManGUI extends JFrame {
 
   ////////// playback //////////
   JLabel l5=new JLabel("Playback:");
-  l5.setBounds(10, 150, 200, 20);
+  l5.setBounds(10, 200, 200, 20);
   getContentPane().add(l5);
 
   final JButton playbackB=new JButton("Mute");
-  playbackB.setBounds(90, 150, 140, 20);
+  playbackB.setBounds(90, 200, 140, 20);
   getContentPane().add(playbackB);
   playbackB.addActionListener(
    new ActionListener() {
@@ -165,8 +166,22 @@ public class SoundManGUI extends JFrame {
  }
 
  public void setNumSensors(int n) {
+  if(numSensors==n || n==0) return;
   numSensors=n;
   l4.setText("Number of sensors: "+n);
+
+  sensorSlide=new JSlider[n];
+  for(int i=0; i<n; i++) {
+   sensorSlide[i]=new JSlider(JSlider.VERTICAL,0, 100, 0);
+   sensorSlide[i].setEnabled(false);
+   sensorSlide[i].setBounds(10+i*210/(n-1), 140, 10, 50);
+   getContentPane().add(sensorSlide[i]);
+   getContentPane().repaint();
+  }
+ }
+
+ public void setSensorValue(int num, float val) {
+  sensorSlide[num].setValue((int)(val*100.0));
  }
 
  public float getParam() {
