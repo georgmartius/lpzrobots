@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-04-20 12:30:42  martius
- *   multiple sat networks test
+ *   Revision 1.2  2007-05-23 14:07:34  martius
+ *   *** empty log message ***
  *
  *   Revision 1.14  2007/03/26 13:15:51  martius
  *   new makefile with readline support
@@ -92,6 +92,7 @@
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/ffnncontroller.h>
+#include "multisat.h"
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/selectiveone2onewiring.h>
@@ -128,15 +129,15 @@ using namespace lpzrobots;
 
 class ThisSim : public Simulation {
 public:
-  AbstractController *controller;
   OdeRobot* sphere1;
+  AbstractController *controller;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    int num_barrels=0;
-    int num_spheres=1;      
-
+    int num_barrels=1;
+    int num_spheres=0;      
+    
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
     global.odeConfig.setParam("noise",0.1);
@@ -168,53 +169,56 @@ public:
 //       global.obstacles.push_back(s);    
 //     }
     
+    controller=0;
+
     /* * * * BARRELS * * * */
     for(int i=0; i< num_barrels; i++){
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.3; 
-      conf.motorsensor=true;
+      conf.pendularrange  = 0.15; 
+      conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
-      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
+      //      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
       conf.irAxis1=false;
       conf.irAxis2=false;
       conf.irAxis3=false;
-      conf.spheremass   = 1;
+      conf.spheremass   = 0.3; // 1
       sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
 				    conf, "Barrel1", 0.4); 
       sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
-
+      
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=0.5;
       //    cc.useSD=true;
-      controller = new InvertMotorNStep(cc);    
+      InvertMotorNStep* controller = new InvertMotorNStep(cc); // selforg controller
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
+      MultiSatConf msc = MultiSat::getDefaultConf();
+      msc.controller = controller;
+      AbstractController* multisat = new MultiSat(msc);
+      
       controller->setParam("steps", 2);    
       //    controller->setParam("adaptrate", 0.001);    
       controller->setParam("adaptrate", 0.0);    
       controller->setParam("nomupdate", 0.005);    
       controller->setParam("epsC", 0.03);    
       controller->setParam("epsA", 0.05);    
-      // controller->setParam("epsC", 0.001);    
-      // controller->setParam("epsA", 0.001);    
-      //    controller->setParam("rootE", 1);    
-      //    controller->setParam("logaE", 2);    
       controller->setParam("rootE", 3);    
       controller->setParam("logaE", 0);    
-      //     controller = new SineController();  
-      controller->setParam("sinerate", 15);  
-      controller->setParam("phaseshift", 0.45);
     
 //       DerivativeWiringConf dc = DerivativeWiring::getDefaultConf();
 //       dc.useId=true;
 //       dc.useFirstD=false;
 //       AbstractWiring* wiring = new DerivativeWiring(dc,new ColorUniformNoise());
-      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
-      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
-      agent->init ( controller , sphere1 , wiring );
+//      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
+      AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2));
+      //      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
+      OdeAgent* agent = new OdeAgent ( plotoptions );
+      agent->addInspectable(controller); // add selforg controller to list of inspectables
+      agent->init ( multisat , sphere1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
       global.configs.push_back ( controller );
+      global.configs.push_back ( multisat );
     }
 
 
@@ -278,11 +282,11 @@ public:
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-    InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
-    if(c){
-      matrix::Matrix m(3,1, dBodyGetLinearVel( sphere1->getMainPrimitive()->getBody())); 
-      c->setReinforcement(m.map(abs).elementSum()/3 - 1); 
-    }
+//     InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
+//     if(c){
+//       matrix::Matrix m(3,1, dBodyGetLinearVel( sphere1->getMainPrimitive()->getBody())); 
+//       c->setReinforcement(m.map(abs).elementSum()/3 - 1); 
+//     }
 
   }
   
@@ -296,12 +300,6 @@ public:
 	case 'Y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
 	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
 	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
-	case 'S' : controller->setParam("sinerate", controller->getParam("sinerate")*1.2); 
-	  printf("sinerate : %g\n", controller->getParam("sinerate"));
-	  break;
-	case 's' : controller->setParam("sinerate", controller->getParam("sinerate")/1.2); 
-	  printf("sinerate : %g\n", controller->getParam("sinerate"));
-	  break;
 	default:
 	  return false;
 	  break;
@@ -310,68 +308,68 @@ public:
     return false;
   }
 
-  virtual Node* makeGround(){ // is NOT used for shadowing!
-    float ir = 2000.0f;
-    float texscale =0.1;
-    Vec3Array *coords = new Vec3Array(4);
-    Vec2Array *tcoords = new Vec2Array(4);
-    Vec4Array *colors = new Vec4Array(1);
+//   virtual Node* makeGround(){ // is NOT used for shadowing!
+//     float ir = 2000.0f;
+//     float texscale =0.1;
+//     Vec3Array *coords = new Vec3Array(4);
+//     Vec2Array *tcoords = new Vec2Array(4);
+//     Vec4Array *colors = new Vec4Array(1);
 
-    (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
+//     (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
 
-    (*coords)[0].set(-ir,-ir,0.0f);
-    (*coords)[1].set(-ir, ir,0.0f);
-    (*coords)[2].set( ir, ir,0.0f);
-    (*coords)[3].set( ir,-ir,0.0f);
-    (*tcoords)[0].set(-texscale*ir,-texscale*ir);
-    (*tcoords)[1].set(-texscale*ir, texscale*ir);
-    (*tcoords)[2].set( texscale*ir, texscale*ir);
-    (*tcoords)[3].set( texscale*ir,-texscale*ir);
+//     (*coords)[0].set(-ir,-ir,0.0f);
+//     (*coords)[1].set(-ir, ir,0.0f);
+//     (*coords)[2].set( ir, ir,0.0f);
+//     (*coords)[3].set( ir,-ir,0.0f);
+//     (*tcoords)[0].set(-texscale*ir,-texscale*ir);
+//     (*tcoords)[1].set(-texscale*ir, texscale*ir);
+//     (*tcoords)[2].set( texscale*ir, texscale*ir);
+//     (*tcoords)[3].set( texscale*ir,-texscale*ir);
     
 
-    Geometry *geom = new Geometry;
+//     Geometry *geom = new Geometry;
 
-    geom->setVertexArray( coords );
+//     geom->setVertexArray( coords );
 
-    geom->setTexCoordArray( 0, tcoords );
+//     geom->setTexCoordArray( 0, tcoords );
 
-    geom->setColorArray( colors );
-    geom->setColorBinding( Geometry::BIND_OVERALL );
+//     geom->setColorArray( colors );
+//     geom->setColorBinding( Geometry::BIND_OVERALL );
 
-    geom->addPrimitiveSet( new DrawArrays(PrimitiveSet::TRIANGLE_FAN,0,4) );
+//     geom->addPrimitiveSet( new DrawArrays(PrimitiveSet::TRIANGLE_FAN,0,4) );
 
-    Texture2D *tex = new Texture2D;
+//     Texture2D *tex = new Texture2D;
 
-    tex->setImage(osgDB::readImageFile("Images/greenground_large.rgb"));
-    tex->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
-    tex->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
+//     tex->setImage(osgDB::readImageFile("Images/greenground_large.rgb"));
+//     tex->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
+//     tex->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
 
-    StateSet *dstate = new StateSet;
-    dstate->setMode( GL_LIGHTING, StateAttribute::OFF );
-    dstate->setTextureAttributeAndModes(0, tex, StateAttribute::ON );
+//     StateSet *dstate = new StateSet;
+//     dstate->setMode( GL_LIGHTING, StateAttribute::OFF );
+//     dstate->setTextureAttributeAndModes(0, tex, StateAttribute::ON );
 
-    dstate->setTextureAttribute(0, new TexEnv );
+//     dstate->setTextureAttribute(0, new TexEnv );
 
-    //     // clear the depth to the far plane.
-    //     osg::Depth* depth = new osg::Depth;
-    //     depth->setFunction(osg::Depth::ALWAYS);
-    //     depth->setRange(1.0,1.0);   
-    //     dstate->setAttributeAndModes(depth,StateAttribute::ON );
+//     //     // clear the depth to the far plane.
+//     //     osg::Depth* depth = new osg::Depth;
+//     //     depth->setFunction(osg::Depth::ALWAYS);
+//     //     depth->setRange(1.0,1.0);   
+//     //     dstate->setAttributeAndModes(depth,StateAttribute::ON );
 
-    dstate->setRenderBinDetails(-1,"RenderBin");
-    geom->setStateSet( dstate );
+//     dstate->setRenderBinDetails(-1,"RenderBin");
+//     geom->setStateSet( dstate );
 
-    Geode *geode = new Geode;
-    geode->addDrawable( geom );
-    geode->setName( "Ground" );
+//     Geode *geode = new Geode;
+//     geode->addDrawable( geom );
+//     geode->setName( "Ground" );
 
-    // add ODE Ground here (physical plane)
-    ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
-    dGeomSetCategoryBits(ground,Primitive::Stat);
-    dGeomSetCollideBits(ground,~Primitive::Stat);
+//     // add ODE Ground here (physical plane)
+//     ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
+//     dGeomSetCategoryBits(ground,Primitive::Stat);
+//     dGeomSetCollideBits(ground,~Primitive::Stat);
 
-    return geode;
-  }
+//     return geode;
+//   }
 
   
 };
