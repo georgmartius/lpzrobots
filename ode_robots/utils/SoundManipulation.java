@@ -6,7 +6,6 @@ import javax.sound.midi.*;
 import java.io.*;
 
 public class SoundManipulation extends Thread {
-
  private int mode;
  private float param;
  private int numSensors;
@@ -15,6 +14,7 @@ public class SoundManipulation extends Thread {
  private Synthesizer synth;
  private SoundManGUI gui;
  private String[] instrNames;
+ private float[][] oldSensorValues;
 
  public SoundManipulation(int mode, float param, InputStream is) {
   this.mode=mode;
@@ -46,8 +46,8 @@ public class SoundManipulation extends Thread {
  }
 
  public void run() {
-  byte[] data=new byte[128];
   String input="";
+  float sensorDiff=0.0f;
   while(true) {
    int next=0;
    try {
@@ -61,6 +61,7 @@ public class SoundManipulation extends Thread {
    if((char)next=='\n') {
     if(input.startsWith("#N neuron x[")) {
      numSensors=input.charAt(12)-47;
+     oldSensorValues=new float[numSensors][2];
     } else if(!input.startsWith("#")) {
      gui.setNumSensors(numSensors);
      String[] values=input.trim().substring(0,numSensors*10).split(" ");
@@ -71,14 +72,15 @@ public class SoundManipulation extends Thread {
       synth.getChannels()[0].allNotesOff();
       synth.getChannels()[0].programChange(gui.getInstrument());
      }
-
+     updateOldSensorValues();
      if(gui.isPlaybackActive()) {
       for(int i=0; i<numSensors; i++) {
-       gui.setSensorValue(i,Math.abs(new Float(values[i]).floatValue()));
+       oldSensorValues[i][1]=Math.abs(new Float(values[i]).floatValue());
+       sensorDiff=Math.abs(oldSensorValues[i][1]-oldSensorValues[i][0]);
+       gui.setSensorValue(i,sensorDiff);
        switch(mode) {
         case 1: // discrete
-         float sensVal=Math.abs(new Float(values[i]).floatValue());
-         if(sensVal>param) {
+         if(sensorDiff>param) {
           try {
            ShortMessage sm=new ShortMessage();
            sm.setMessage(ShortMessage.NOTE_ON, 0, gui.getNote()+27*i/numSensors, 90);
@@ -90,11 +92,11 @@ public class SoundManipulation extends Thread {
          }
          break;
         case 2: // amplitude
-         sensorMax=Math.max(sensorMax,Math.abs(new Float(values[i]).floatValue()));
+         sensorMax=Math.max(sensorMax,sensorDiff);
          if(i==numSensors-1) {
           try {
            ShortMessage sm=new ShortMessage();
-           sm.setMessage(ShortMessage.NOTE_ON, 0, gui.getNote()+10, (int)Math.min(127,param*Math.pow(sensorMax,3.0)*20.0f));
+           sm.setMessage(ShortMessage.NOTE_ON, 0, gui.getNote()+10, (int)Math.min(127,param*sensorMax*127.0f));
            synthRcvr.send(sm, -1);
           } catch(InvalidMidiDataException imde) {
            System.out.println(imde.getMessage());
@@ -104,10 +106,10 @@ public class SoundManipulation extends Thread {
          }
          break;
         case 3: // frequency
-         sensorMax=Math.max(sensorMax,Math.abs(new Float(values[i]).floatValue()));
+         sensorMax=Math.max(sensorMax,sensorDiff);
          if(i==numSensors-1) {
           try {
-           int note=(int)Math.min(127,param*sensorMax*50.0f);
+           int note=(int)Math.min(127,param*sensorMax*127.0f);
            gui.setNote(note);
            ShortMessage sm=new ShortMessage();
            sm.setMessage(ShortMessage.NOTE_ON, 0, note, 90);
@@ -129,6 +131,10 @@ public class SoundManipulation extends Thread {
     input="";
    }
   }
-
  }
+
+ private void updateOldSensorValues() {
+  for(int i=0; i<oldSensorValues.length; i++) oldSensorValues[i][0]=oldSensorValues[i][1];
+ }
+
 }

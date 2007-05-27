@@ -174,7 +174,7 @@ public class SoundManGUI extends JFrame {
   for(int i=0; i<n; i++) {
    sensorSlide[i]=new JSlider(JSlider.VERTICAL,0, 100, 0);
    sensorSlide[i].setEnabled(false);
-   sensorSlide[i].setBounds(10+i*210/(n-1), 140, 10, 50);
+   sensorSlide[i].setBounds((i+1)*230/(n+1), 140, 10, 50);
    getContentPane().add(sensorSlide[i]);
    getContentPane().repaint();
   }
