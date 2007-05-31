@@ -24,13 +24,14 @@ neuronviz:
 
 .PHONY: neuronviz
 soundman:
-	cd ode_robots/utils && javac SoundMan.java SoundManipulation.java
+	cd ode_robots/utils && javac SoundMan.java SoundManipulation.java SoundManGUI.java
 
 .PHONY: install
 install:
 	-cd neuronviz/src && make install
 	-@cp guilogger/bin/guilogger $(HOME)/bin/ && echo "copied guilogger to $(HOME)/bin/" || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
-	-mkdir $(HOME)/lib/soundMan && cp ode_robots/utils/*.class $(HOME)/lib/soundMan/
+	-cp ode_robots/utils/Sound*.class $(HOME)/lib/
+	-cp ode_robots/utils/*.class $(HOME)/lib/soundMan/
 	-cp ode_robots/utils/soundMan $(HOME)/bin/
 	-cp ode_robots/utils/feedfile.pl $(HOME)/bin/
 	-cp ode_robots/utils/encodevideo.sh $(HOME)/bin/
