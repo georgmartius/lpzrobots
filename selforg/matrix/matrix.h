@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.11  2007-05-22 13:52:36  martius
+// Revision 1.12  2007-06-08 15:50:29  martius
+// added unsafeGetData
+//
+// Revision 1.11  2007/05/22 13:52:36  martius
 // inplace operators return *this which makes them more useable for temporary matrices
 //
 // Revision 1.10  2007/04/03 09:58:20  martius
@@ -244,6 +247,9 @@ namespace matrix{
     /** @return a list of the content of the matrix (row-wise)
      */
     std::list<D> convertToList() const;
+
+    /// returns a pointer to the data. UNSAFE!!!
+    const double* unsafeGetData() const{return data;}
 
     /*       STOREABLE       */
     /** stores the Matrix into the given file stream (binary)
