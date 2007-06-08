@@ -2,7 +2,7 @@
 #define __DATAFUNC_H
 
 #include <vector>
-#include <selforg/matrix.h>
+#include "matrix.h"
 
 
 /// INPUT / Output Data selectors
@@ -104,6 +104,16 @@ matrix::Matrix t(const std::vector<matrix::Matrix>& data, int time){
   return data[time];
 }
 
+matrix::Matrix ts0(const std::vector<matrix::Matrix>& data, int time){
+  assert(time>=0);
+  return data[time].rows(0,0);
+}
+
+matrix::Matrix ts1(const std::vector<matrix::Matrix>& data, int time){
+  assert(time>=0);
+  return data[time].rows(1,1);
+}
+
 matrix::Matrix ts01(const std::vector<matrix::Matrix>& data, int time){
   assert(time>=0);
   return data[time].rows(0,1);
@@ -118,6 +128,12 @@ matrix::Matrix ts23(const std::vector<matrix::Matrix>& data, int time){
   assert(time>=0);
   return data[time].rows(2,3);
 }
+
+matrix::Matrix tsfrom1(const std::vector<matrix::Matrix>& data, int time){
+  assert(time>=0);
+  return data[time].rows(1,data[time].getM());
+}
+
 
 DataFunc datafunctions(const std::string& name){
   if(name=="tm1") return &tm1;
@@ -137,9 +153,12 @@ DataFunc datafunctions(const std::string& name){
   if(name=="tm1s01_m2") return &tm1s01_m2;           
   if(name=="ts01_m1s23") return &ts01_m1s23;
   if(name=="t") return &t;
+  if(name=="ts0") return &ts0;
+  if(name=="ts1") return &ts1;
   if(name=="ts01") return &ts01;
   if(name=="ts012") return &ts012;
   if(name=="ts23") return &ts23;
+  if(name=="ts1-") return &tsfrom1;
   std::cerr << "Unknown Data-function: " << name << std::endl;
   exit(1);  
   return 0;
