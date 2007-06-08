@@ -4,6 +4,7 @@
 using namespace std; 
 
 #include <selforg/multilayerffnn.h>
+#include <selforg/som.h>
 #include <selforg/matrix.h>
 using namespace matrix;
 
@@ -96,6 +97,80 @@ void testinvertation(MultiLayerFFNN net){
   cout << "Shifted Output after inversion: " << (o^T) << endl;
 }
 
+void testsom1D(){
+  SOM net(1, 5, 0.1,"SOM", "01");
+  net.init(2,100);
+  cout << "SOM 1D 2-100 (5)\n";
+  FOREACH(SOM::Neighbourhood, net.getNeighbourhood(), i){
+    cout << i->first << "\t w: " << i->second << "\n";
+  }
+  Matrix inp(2,1);
+  Matrix out(100,1);
+    
+  for(int i=0; i < 10000; i++){
+    inp.toMap(random_minusone_to_one);
+    net.process(inp);
+    net.learn(inp,out);
+  }
+  net.printWeights(stdout);
+}
+
+void testsom2D(){
+  SOM net(2, 3, 0.01,"SOM", "01");
+  net.init(2,36,0);
+  cout << "SOM 2D 2-36 (3)\n";
+  FOREACH(SOM::Neighbourhood, net.getNeighbourhood(), i){
+    cout << (i->first^T) << "\t w: " << i->second << "\n";
+  }
+  Matrix inp(2,1);
+  Matrix out(100,1);
+    
+  for(int i=0; i < 10000; i++){
+    inp.toMap(random_minusone_to_one);
+    net.process(inp);
+    net.learn(inp,out);
+  }
+  net.setParam("eps",0.001);
+  for(int i=0; i < 5000; i++){
+    inp = inp.map(random_minusone_to_one) * 0.05;
+    net.process(inp);
+    net.learn(inp,out);
+  }
+  Matrix offset(2,1);
+  offset.val(0,0)=0.5;
+  offset.val(1,0)=-0.8;
+  for(int i=0; i < 5000; i++){
+    inp = inp.map(random_minusone_to_one) * 0.05 + offset;
+    net.process(inp);
+    net.learn(inp,out);
+  }
+
+  net.printWeights(stderr);
+}
+
+
+void testsom1D_local(){
+  SOM net(1,3, 0.01,"SOM", "01");
+  net.init(2,36,1.5);
+  cout << "SOM 1D 2-36 (3)\n";
+  FOREACH(SOM::Neighbourhood, net.getNeighbourhood(), i){
+    cout << i->first << "\t w: " << i->second << "\n";
+  }
+  return;
+  Matrix inp(2,1);
+  Matrix out(100,1);
+    
+  for(int i=0; i < 100; i++){
+    inp = inp.map(random_minusone_to_one) * 0.1;
+    net.process(inp);
+    net.learn(inp,out);
+  }
+
+  net.printWeights(stderr);
+
+}
+
+
 
 
 int main(){
@@ -139,6 +214,12 @@ int main(){
   testinvertation(netnonlinear);
   cout << "******************** testinvertation (bypass)\n";
   testinvertation(netbypass);
+
+  cout << "******************** TEST SOM\n";
+  testsom1D();
+  testsom2D();
+  testsom1D_local();
+ 
   return 0;
 }
 
