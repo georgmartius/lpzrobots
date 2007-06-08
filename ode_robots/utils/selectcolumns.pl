@@ -15,13 +15,14 @@ if ($argc<1) {
 my @columns;
 while(<>){
     my $line=$_;
-    if(/^#[^C]/ )
-       { print $line; 
+    if(/^#[^C]/ ){ 
+       print $line; 
      }elsif($line =~ /^#C/) 
-     { 
+     {      
 	 @columns=();
-	 print STDERR "I use the following fields: \n";
+	 print STDERR "I use the following fields: ";
 	 print "#C";
+	 chomp $line;
 	 my @Fields = split(/ /,$line);       
 	 shift @Fields;
 	 my $i =0;
@@ -35,10 +36,11 @@ while(<>){
 	     }
 	     $i++; 
 	 }
-	 print STDERR "\nColumns: " . (join(" ", @columns)) . "\n";
+	 print STDERR "\nColumns: " . join(" ", @columns) . "\n";
 	 print "\n";	 
    } else{ # normal data line
        $line =~ s/^\s+//; # remove leading space
+       chomp $line;       # remove tailing space
        my @values=split(/ /, $line);
        foreach my $i (@columns) {	     
 	   print $values[$i] . " ";

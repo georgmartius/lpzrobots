@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-01-25 14:09:50  martius
+ *   Revision 1.16  2007-06-08 15:37:22  martius
+ *   random seed into OdeConfig -> logfiles
+ *
+ *   Revision 1.15  2007/01/25 14:09:50  martius
  *   use new configurable addParameter feature
  *
  *   Revision 1.14  2006/08/04 15:07:46  martius
@@ -110,10 +113,8 @@ namespace lpzrobots {
     double gravity;
     double cameraSpeed;
     bool drawBoundings;   
+    long randomSeed;
     OdeHandle odeHandle;
-  private:
-    double _drawInterval;
-    double _controlInterval;
 
   };
 

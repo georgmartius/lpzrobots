@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-03-16 10:58:01  martius
+ *   Revision 1.13  2007-06-08 15:37:22  martius
+ *   random seed into OdeConfig -> logfiles
+ *
+ *   Revision 1.12  2007/03/16 10:58:01  martius
  *   test of substances
  *
  *   Revision 1.11  2006/09/21 22:11:28  martius
@@ -101,18 +104,18 @@ public:
     global.odeConfig.setParam("realtimefactor",1); 
     // initialization
     
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(25, 0.2, 2));
-    playground->setPosition(osg::Vec3(0,0,0.1)); // playground positionieren und generieren
-    global.obstacles.push_back(playground);
+//     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(30, 0.2, 1));
+//     playground->setPosition(osg::Vec3(0,0,0.1)); // playground positionieren und generieren
+//     global.obstacles.push_back(playground);
     
-    for(int i=0; i<5; i++){
-      PassiveSphere* s = 
-	new PassiveSphere(odeHandle, 
-			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
-      s->setPosition(Pos(i*0.5-2, i*0.5, 1.0)); 
-      s->setTexture("Images/dusty.rgb");
-      global.obstacles.push_back(s);    
-    }
+//     for(int i=0; i<5; i++){
+//       PassiveSphere* s = 
+// 	new PassiveSphere(odeHandle, 
+// 			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
+//       s->setPosition(Pos(i*0.5-2, i*0.5, 1.0)); 
+//       s->setTexture("Images/dusty.rgb");
+//       global.obstacles.push_back(s);    
+//     }
         
     OdeAgent *agent, *slideragent;
     AbstractWiring *wiring, *sliderwiring;
@@ -146,24 +149,29 @@ public:
     /******* S L I D E R - w H E E L I E *********/
     mySliderWheelieConf.segmNumber=12;
     mySliderWheelieConf.jointLimit=M_PI/2;
-    mySliderWheelieConf.motorPower=0.4;
+    mySliderWheelieConf.motorPower=0.5;
     mySliderWheelieConf.frictionGround=0.8;
     mySliderWheelieConf.sliderLength=0.5;
     mySliderWheelieConf.segmLength=1.4;
     mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
     ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.0)); 
     InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
-    sliderinvertnconf.cInit=1;
+    sliderinvertnconf.cInit=0.5;
+    sliderinvertnconf.useSD=true;
     slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
     //slidercontroller = new SineController();
-    slidercontroller->setParam("steps",2);
+    slidercontroller->setParam("noiseY",0);
+    //    slidercontroller->setParam("epsC",0);
+    slidercontroller->setParam("adaptrate",0.005);
+    slidercontroller->setParam("rootE",3); 
+    slidercontroller->setParam("steps",1);
     slidercontroller->setParam("factorB",0);
 
     DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
     c.useId = false;
     c.useFirstD = true;
-    sliderwiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
-    //     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    //sliderwiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
+    sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
     slideragent = new OdeAgent(plotoptions);
     slideragent->init(slidercontroller, mySliderWheelie, sliderwiring);
     global.agents.push_back(slideragent);

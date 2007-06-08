@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.61  2007-05-09 14:57:25  robot3
+ *   Revision 1.62  2007-06-08 15:37:22  martius
+ *   random seed into OdeConfig -> logfiles
+ *
+ *   Revision 1.61  2007/05/09 14:57:25  robot3
  *   to increase or reduce the simulation speed (realtimefactor), use + and -
  *   to toggle to the maximum simulation speed, use * in the simulation
  *
@@ -888,11 +891,11 @@ namespace lpzrobots {
     if(index && argc > index) {
       seed=atoi(argv[index]);
     }else{
-
       seed=time(0);
     }
     printf("Use random number seed: %li\n", seed);
     srand(seed);
+    globalData.odeConfig.randomSeed=seed;
 
     int resolindex = contains(argv, argc, "-x");
     windowWidth = 640;

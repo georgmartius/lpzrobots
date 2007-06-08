@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-12-21 11:41:12  martius
+ *   Revision 1.2  2007-06-08 15:37:22  martius
+ *   random seed into OdeConfig -> logfiles
+ *
+ *   Revision 1.1  2006/12/21 11:41:12  martius
  *   sensor from measuring speed
  *
  *                                                                 *
@@ -42,8 +45,10 @@ namespace lpzrobots {
   public:  
 
     /// Sensor mode 
-    enum Mode { Translational, ///< measures translational speed in (Linear velocity)
-		Rotational, ///< measures roational velocity around the axis
+    enum Mode { Translational,     ///< measures translational speed in world coordinates (Linear velocity)
+		TranslationalRel,  ///< measures translational speed in body coordinates (Linear velocity)
+		Rotational,        ///< measures roational velocity around the world axis
+		RotationalRel      ///< measures roational velocity around the body axis
     };
 
     /**
@@ -60,8 +65,10 @@ namespace lpzrobots {
     virtual bool sense(const GlobalData& globaldata);
     virtual std::list<sensor> get() const;
     virtual int get(sensor* sensors, int length) const;
+  protected:
+    matrix::Matrix getSenseMatrix() const;
 
-  private:
+  protected:
     double maxSpeed;
     Mode mode;
     short dimensions;

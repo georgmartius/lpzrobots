@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-04-20 12:30:43  martius
+ *   Revision 1.2  2007-06-08 15:37:22  martius
+ *   random seed into OdeConfig -> logfiles
+ *
+ *   Revision 1.1  2007/04/20 12:30:43  martius
  *   multiple sat networks test
  *
  *
@@ -25,7 +28,7 @@
 #ifndef __MULTISAT_H
 #define __MULTISAT_H
 
-#include <selforg/invertmotornstep.h>
+#include <selforg/abstractcontroller.h>
 #include <selforg/multilayerffnn.h>
 
 #include <assert.h>
@@ -33,25 +36,28 @@
 
 #include <selforg/matrix.h>
 #include <selforg/noisegenerator.h>
+#include <selforg/som.h>
+#include <selforg/multilayerffnn.h>
 
 typedef struct MultiSatConf {
-  InvertMotorNStep* controller;
+  AbstractController* controller;
   unsigned short buffersize; ///< size of the ringbuffers for sensors, motors,...
-  int numberHidden;   ///< number of hidden units in the satelite networks
-  double eps0;        ///< initial learning rate for satelite networks
-  double lambda_time; ///< decay of learning rate over time
-  double lambda_comp; ///< discount of learning rate for non-winners
-  int tau;            ///< time horizont for averaging error ;
+  int numHidden;      ///< number of hidden units in the satelite networks
+  double eps0;        ///< learning rate for satelite networks
+  double tauE;            ///< time horizont for averaging error;
+  double tauC;            ///< time horizont for inceasing competition
+  double lambda_comp; ///< discount of learning rate for non-winners (competition) (modulated automatically)
+  double deltaMin;       ///< additive decay the minimum term (in 1/1000) (should be very small)
+  int numSomPerDim;     ///< number of SOM neuronen per context dimension (attention raises exponential)
+  int numContext;    ///< number of context sensors
+  int numSats;       ///< number of satelite networks
 } MultiSatConf;
 
 /// Satelite network struct
 typedef struct Sat {
   Sat(MultiLayerFFNN* _net, double _eps);
   MultiLayerFFNN* net;
-  double eps;
-  double sigma;
-  double error;
-  double avg_error;
+  double eps;  
 } Sat;
 
 /**
@@ -79,6 +85,16 @@ public:
   virtual void stepNoLearning(const sensor* , int number_sensors, 
 			      motor* , int number_motors);
 
+  /// stores the sat networks into seperate files
+  void storeSats(const char* filestem); 
+
+
+  /************** CONFIGURABLE ********************************/
+  virtual paramval getParam(const paramkey& key) const;
+  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramlist getParamList() const;
+
+
   /**** STOREABLE ****/
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
@@ -94,11 +110,15 @@ public:
   static MultiSatConf getDefaultConf(){
     MultiSatConf c;
     c.buffersize=10;
-    c.numberHidden = 10;
-    c.eps0=0.2;
-    c.lambda_time = 0.99;
-    c.lambda_comp = 0.05;
-    c.tau = 10; 
+    c.numHidden = 10;
+    c.eps0=0.001;
+    c.lambda_comp = 0;
+    c.deltaMin = 1.0/500.0; 
+    c.tauC = 5.0/c.eps0; 
+    c.tauE = 200; 
+    c.numContext=0;
+    c.numSomPerDim=5;
+    c.numSats=2;
     return c;
   }
 
@@ -112,18 +132,30 @@ protected:
   matrix::Matrix* x_buffer;
   matrix::Matrix* xp_buffer;
   matrix::Matrix* y_buffer;
+  matrix::Matrix* x_context_buffer;
 
   std::vector <Sat> sats; ///< satelite networks
   int winner; ///< index of winner network
   matrix::Matrix nomSatOutput; ///< norminal output of satelite networks (x_t,y_t)^T
   matrix::Matrix satInput;     ///< input to satelite networks (x_{t-1}, xp_{t-1}, y_{t-1})^T
+
+  bool runcompetefirsttime;       ///< flag to initialise averaging with proper value
+  matrix::Matrix satErrors;       ///< actual errors of the sats
+  matrix::Matrix satPredErrors;   ///< predicted errors of sats
+  matrix::Matrix satModPredErrors; ///< modulated predicted errors of sats
+  matrix::Matrix satAvgErrors;    ///< average errors of sats
+  matrix::Matrix satMinErrors;    ///< minimum errors of sats
+
+  SOM* gatingSom;
+  MultiLayerFFNN* gatingNet;  
   
   MultiSatConf conf;
   bool initialised;
   int t;
+  int managementInterval;       ///< interval between subsequent management calls
   
-  /// satelite networks competition
-  int compete();
+  /// satelite networks competition, return vector of predicted errors of sat networks
+  matrix::Matrix compete();
 
   // put new value in ring buffer
   void putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& vec, int delay = 0);

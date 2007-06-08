@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-01-25 14:09:15  martius
+ *   Revision 1.5  2007-06-08 15:37:22  martius
+ *   random seed into OdeConfig -> logfiles
+ *
+ *   Revision 1.4  2007/01/25 14:09:15  martius
  *   use new configurable addParameter feature
  *
  *   Revision 1.3  2006/08/04 15:07:46  martius
@@ -76,6 +79,7 @@ namespace lpzrobots {
     simStepSize = 0.01;
     controlInterval = 1;
     drawInterval = calcDrawInterval25();
+    randomSeed = 0;
     addParameterDef("noise",            &noise,0.1);
     addParameterDef("cameraspeed",      &cameraSpeed,100);
     addParameterDef("motionpersistence",&motionPersistence,0.09);
@@ -91,6 +95,7 @@ namespace lpzrobots {
     list.push_back(std::pair<paramkey, paramval> (std::string("gravity"), gravity));
     list.push_back(std::pair<paramkey, paramval> (std::string("realtimefactor"), realTimeFactor));
     list.push_back(std::pair<paramkey, paramval> (std::string("drawinterval"), drawInterval));
+    list.push_back(std::pair<paramkey, paramval> (std::string("randomseed"), randomSeed));
     return list;
   } 
 
@@ -100,6 +105,7 @@ namespace lpzrobots {
     else if(key == "simstepsize") return simStepSize;
     else if(key == "drawinterval") return drawInterval;
     else if(key == "controlinterval") return controlInterval;
+    else if(key == "randomseed") return randomSeed;
     else return Configurable::getParam(key);
   }
 
@@ -120,13 +126,14 @@ namespace lpzrobots {
       controlInterval = std::max(1,int(val)); 
     } else if(key == "drawinterval") {
       drawInterval = std::max(1,int(val)); 
+    } else if(key == "randomseed") {
+      return true;
     } else {
       return Configurable::setParam(key,val);      
     }
     return true;
   }
-
-
+  
   void OdeConfig::setOdeHandle(const OdeHandle& odeHandle){
     this->odeHandle = odeHandle;
   }

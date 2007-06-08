@@ -1,14 +1,27 @@
 #!/usr/bin/perl -w
 use strict;
 
-if($ARGV[0]){
+
+if(defined $ARGV[0]){
     my $delay = shift;
+    my $every = 1;
+    if($ARGV[0]){
+       $every = shift;
+    }
+    my $cnt=0;
 
     while (<>) {
-        select(undef,undef,undef,$delay/1000);
-        print $_;
+	if(/^#/ ){ 
+          $cnt-=1;	      
+	}else{	
+          select(undef,undef,undef,$delay/1000) if($delay);
+	}
+        $cnt+=1;
+	if($cnt % $every == 0){
+          print $_;
+	}	
     }
 
 }else{
-    print "Usage: feedfile.pl delay < logfile\n\tdelay in milliseconds\n";
+    print "Usage: feedfile.pl delay [every]< logfile\n\tdelay in milliseconds\n\tevery xth dataset to use\n";
 }

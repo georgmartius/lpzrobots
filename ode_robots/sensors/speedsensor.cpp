@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-12-21 11:41:06  martius
+ *   Revision 1.2  2007-06-08 15:37:22  martius
+ *   random seed into OdeConfig -> logfiles
+ *
+ *   Revision 1.1  2006/12/21 11:41:06  martius
  *   sensor from measuring speed
  *
  *
@@ -52,53 +55,52 @@ namespace lpzrobots {
   }
 
   int SpeedSensor::getSensorNumber() const{
-    switch(mode){
-    case Translational:
-      return (dimensions & X) + ((dimensions & Y) >> 1)  + ((dimensions & Z) >> 2);
-      break;
-    case Rotational:
-      return 3* ( (dimensions & X) + ((dimensions & Y) >> 1)  + ((dimensions & Z) >> 2) );
-      break;      
-    }
-    return 0;
+    return (dimensions & X) + ((dimensions & Y) >> 1)  + ((dimensions & Z) >> 2);    
   }
   
   bool SpeedSensor::sense(const GlobalData& globaldata) { return true; }
 
   std::list<sensor> SpeedSensor::get() const {
-    assert(own);
-    assert(own->getBody());
-    Matrix m;
-    switch(mode){
-    case Translational:
-      m.set(3,1, dBodyGetLinearVel(own->getBody()));
-      break;
-    case Rotational:
-      m = odeRto3x3RotationMatrix(dBodyGetRotation(own->getBody()));       
-      break;      
-    }
-    if(dimensions == X | Y | Z) 
-      return m.convertToList(); 
-    else
-      return selectrows(m,dimensions);
+    const Matrix& m = getSenseMatrix();
+    return selectrows(m,dimensions);
   }
 
   int SpeedSensor::get(sensor* sensors, int length) const{
+    const Matrix& m = getSenseMatrix()*(1.0/maxSpeed);
+
+    if(dimensions == (X | Y | Z)) 
+      return m.convertToBuffer(sensors, length); 
+    else{
+      return selectrows(sensors, length, m, dimensions);
+    }
+  }
+
+  Matrix SpeedSensor::getSenseMatrix() const {
     assert(own);
     assert(own->getBody());
+    Matrix local;
     Matrix m;
     switch(mode){
     case Translational:
       m.set(3,1, dBodyGetLinearVel(own->getBody()));
       break;
+    case TranslationalRel:      
+      local = osgMatrix2Matrixlib(own->getPose());
+      m.set(4,1, dBodyGetLinearVel(own->getBody()));
+      m.val(3,0)=0; // we have a vector and not a point (homogeneous coordinates)
+      m=local*m;
+      break;
     case Rotational:
-      m = odeRto3x3RotationMatrix(dBodyGetRotation(own->getBody()));       
+      m.set(3,1, dBodyGetAngularVel(own->getBody()));
       break;      
+    case RotationalRel:
+      local = osgMatrix2Matrixlib(own->getPose());
+      m.set(4,1, dBodyGetAngularVel(own->getBody()));
+      m.val(3,0)=0; // we have a vector and not a point (homogeneous coordinates)
+      m=local*m;  // this is m^T= m^T*local^T, ode matrix multiplications are the other way around (left sided) 
+      break;
     }
-    if(dimensions == X | Y | Z) 
-      return m.convertToBuffer(sensors, length); 
-    else
-      return selectrows(sensors, length, m,dimensions);
+    return m;
   }
   
 }

@@ -1,4 +1,4 @@
-/***************************************************************************
+#/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-03 16:35:54  der
+ *   Revision 1.6  2007-06-08 15:37:22  martius
+ *   random seed into OdeConfig -> logfiles
+ *
+ *   Revision 1.5  2007/04/03 16:35:54  der
  *   *** empty log message ***
  *
  *   Revision 1.4  2007/03/16 10:58:58  martius
@@ -128,7 +131,7 @@ public:
     // global.odeConfig.setParam("gravity", 0);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
     j=0;
-    if(0){
+    if(1){
     s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
     s1->setPosition(osg::Vec3(10,2,2));
     global.obstacles.push_back(s1);
