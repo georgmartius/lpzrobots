@@ -8,8 +8,6 @@ using namespace std;
 
 void printNetworkDescription(FILE* f, const string& name, const Inspectable* inspectable){
   assert(inspectable);
-  time_t t = time(0);
-  fprintf(f,"# Start %s", ctime(&t));
   fprintf(f,"#N neural_net %s\n", name.c_str());
   list< Inspectable::ILayer> layers      = inspectable->getStructuralLayers();
   list< Inspectable::IConnection> conns  = inspectable->getStructuralConnections();
