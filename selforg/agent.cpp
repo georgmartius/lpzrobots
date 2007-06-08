@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-05-09 15:14:46  robot3
+ *   Revision 1.18  2007-06-08 15:49:47  martius
+ *   print start time into log
+ *
+ *   Revision 1.17  2007/05/09 15:14:46  robot3
  *   *** empty log message ***
  *
  *   Revision 1.16  2007/05/07 20:58:21  robot3
@@ -254,6 +257,9 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
   }
   po.open();
   if(po.pipe){
+    // print start
+    time_t t = time(0);
+    fprintf(po.pipe,"# Start %s", ctime(&t));    
     // print network description given by the structural information of the controller
     printNetworkDescription(po.pipe, "Selforg"/*controller->getName()*/, controller);
     // print interval
