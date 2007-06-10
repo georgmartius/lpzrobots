@@ -18,62 +18,17 @@ public class SoundManGUI extends JFrame {
  public SoundManGUI(float p, int m) {
   param=p;
   mode=m;
-  if(mode==3) noteSlide.setEnabled(false);
+  if(mode>=3) noteSlide.setEnabled(false);
   isPlaybackActive=true;
   getContentPane().setLayout(null);
   setTitle("SoundMan");
   setResizable(false);
-  setSize(250,260);
+  setSize(250,290);
 
-  ////////// mode //////////
-  JRadioButton discRB=new JRadioButton("Discrete");
-  discRB.setBounds(5, 10, 75, 20);
-  getContentPane().add(discRB);
-  discRB.addActionListener(
-   new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-     mode=1;
-     noteSlide.setEnabled(true);
-    }
-   }
-  );
-
-  JRadioButton amplRB=new JRadioButton("Amplitude");
-  amplRB.setBounds(80, 10, 80, 20);
-  getContentPane().add(amplRB);
-  amplRB.addActionListener(
-   new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-     mode=2;
-     noteSlide.setEnabled(true);
-    }
-   }
-  );
-
-  JRadioButton freqRB=new JRadioButton("Frequency");
-  freqRB.setBounds(160, 10, 80, 20);
-  getContentPane().add(freqRB);
-  freqRB.addActionListener(
-   new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-     mode=3;
-     noteSlide.setEnabled(false);
-    }
-   }
-  );
-
-  ButtonGroup modeBG=new ButtonGroup();
-  modeBG.add(discRB);
-  modeBG.add(amplRB);
-  modeBG.add(freqRB);
-
-  if(mode==1) discRB.setSelected(true);
-  else if(mode==2) amplRB.setSelected(true);
-  else freqRB.setSelected(true);
 
   ////////// param //////////
   JLabel l1=new JLabel("Parameter:");
-  l1.setBounds(10, 40, 80, 20);
+  l1.setBounds(10, 70, 80, 20);
   getContentPane().add(l1);
 
   DecimalFormat df=new DecimalFormat();
@@ -83,11 +38,23 @@ public class SoundManGUI extends JFrame {
   df.setDecimalSeparatorAlwaysShown(true);
   final JFormattedTextField paramFTF=new JFormattedTextField(df);
   paramFTF.setText(NumberFormat.getInstance().format(param));
-  paramFTF.setBounds(85, 40, 50, 20);
+  paramFTF.setBounds(85, 70, 50, 20);
   getContentPane().add(paramFTF);
+  paramFTF.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     float newParam=new Float(paramFTF.getText().replace(',','.')).floatValue();
+     if(newParam<0.0f) {
+      newParam=Math.abs(newParam);
+      paramFTF.setText(NumberFormat.getInstance().format(newParam));
+     }
+     param=newParam;
+    }
+   }
+  );
 
-  JButton paramB=new JButton("Accept");
-  paramB.setBounds(150, 40, 75, 20);
+  final JButton paramB=new JButton("Accept");
+  paramB.setBounds(150, 70, 75, 20);
   getContentPane().add(paramB);
   paramB.addActionListener(
    new ActionListener() {
@@ -102,13 +69,81 @@ public class SoundManGUI extends JFrame {
    }
   );
 
+  ////////// mode //////////
+  JRadioButton discRB=new JRadioButton("Discrete");
+  discRB.setBounds(5, 10, 75, 20);
+  getContentPane().add(discRB);
+  discRB.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     mode=1;
+     noteSlide.setEnabled(true);
+     paramFTF.setEnabled(true);
+     paramB.setEnabled(true);
+    }
+   }
+  );
+
+  JRadioButton amplRB=new JRadioButton("Amplitude");
+  amplRB.setBounds(80, 10, 80, 20);
+  getContentPane().add(amplRB);
+  amplRB.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     mode=2;
+     noteSlide.setEnabled(true);
+     paramFTF.setEnabled(true);
+     paramB.setEnabled(true);
+    }
+   }
+  );
+
+  JRadioButton freqRB=new JRadioButton("Frequency");
+  freqRB.setBounds(160, 10, 80, 20);
+  getContentPane().add(freqRB);
+  freqRB.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     mode=3;
+     noteSlide.setEnabled(false);
+     paramFTF.setEnabled(true);
+     paramB.setEnabled(true);
+    }
+   }
+  );
+
+  JRadioButton masterRB=new JRadioButton("Master mode (all three combined)");
+  masterRB.setBounds(5, 40, 255, 20);
+  getContentPane().add(masterRB);
+  masterRB.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     mode=4;
+     noteSlide.setEnabled(false);
+     paramFTF.setEnabled(false);
+     paramB.setEnabled(false);
+    }
+   }
+  );
+
+  ButtonGroup modeBG=new ButtonGroup();
+  modeBG.add(discRB);
+  modeBG.add(amplRB);
+  modeBG.add(freqRB);
+  modeBG.add(masterRB);
+
+  if(mode==1) discRB.setSelected(true);
+  else if(mode==2) amplRB.setSelected(true);
+  else if(mode==3) freqRB.setSelected(true);
+  else masterRB.setSelected(true);
+
   ////////// note //////////
   JLabel l2=new JLabel("Note:");
-  l2.setBounds(10, 70, 35, 20);
+  l2.setBounds(10, 95, 35, 20);
   getContentPane().add(l2);
 
   noteSlide=new JSlider(0, 100, 50);
-  noteSlide.setBounds(45, 70, 190, 20);
+  noteSlide.setBounds(45, 95, 190, 20);
   getContentPane().add(noteSlide);
   note=noteSlide.getValue();
   noteSlide.addChangeListener(
@@ -121,25 +156,25 @@ public class SoundManGUI extends JFrame {
 
   ////////// instruments //////////
   JLabel l3=new JLabel("Instrument:");
-  l3.setBounds(10, 95, 80, 20);
+  l3.setBounds(10, 120, 80, 20);
   getContentPane().add(l3);
 
   instruCB=new JComboBox();
-  instruCB.setBounds(90, 95, 140, 20);
+  instruCB.setBounds(90, 120, 140, 20);
   getContentPane().add(instruCB);
 
   ////////// sensors //////////
   l4=new JLabel("Number of sensors: -");
-  l4.setBounds(10, 120, 200, 20);
+  l4.setBounds(10, 150, 200, 20);
   getContentPane().add(l4);
 
   ////////// playback //////////
   JLabel l5=new JLabel("Playback:");
-  l5.setBounds(10, 200, 200, 20);
+  l5.setBounds(10, 230, 200, 20);
   getContentPane().add(l5);
 
   final JButton playbackB=new JButton("Mute");
-  playbackB.setBounds(90, 200, 140, 20);
+  playbackB.setBounds(90, 230, 140, 20);
   getContentPane().add(playbackB);
   playbackB.addActionListener(
    new ActionListener() {
@@ -174,7 +209,7 @@ public class SoundManGUI extends JFrame {
   for(int i=0; i<n; i++) {
    sensorSlide[i]=new JSlider(JSlider.VERTICAL,0, 100, 0);
    sensorSlide[i].setEnabled(false);
-   sensorSlide[i].setBounds((i+1)*230/(n+1), 140, 10, 50);
+   sensorSlide[i].setBounds((i+1)*230/(n+1), 165, 10, 50);
    getContentPane().add(sensorSlide[i]);
    getContentPane().repaint();
   }

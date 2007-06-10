@@ -48,6 +48,7 @@ public class SoundManipulation extends Thread {
  public void run() {
   String input="";
   float sensorDiff=0.0f;
+  float[] sensorDiffs=null;
   while(true) {
    int next=0;
    try {
@@ -62,6 +63,7 @@ public class SoundManipulation extends Thread {
     if(input.startsWith("#N neuron x[")) {
      numSensors=input.charAt(12)-47;
      oldSensorValues=new float[numSensors][2];
+     sensorDiffs=new float[numSensors];
     } else if(!input.startsWith("#")) {
      gui.setNumSensors(numSensors);
      String[] values=input.trim().substring(0,numSensors*10).split(" ");
@@ -69,22 +71,30 @@ public class SoundManipulation extends Thread {
      param=gui.getParam();
      mode=gui.getMode();
      if(gui.instrumentChanged()) {
-      synth.getChannels()[0].allNotesOff();
-      synth.getChannels()[0].programChange(gui.getInstrument());
+      for(int i=0; i<numSensors; i++) {
+       synth.getChannels()[i].allNotesOff();
+       synth.getChannels()[i].programChange(gui.getInstrument());
+      }
      }
      updateOldSensorValues();
      if(gui.isPlaybackActive()) {
       for(int i=0; i<numSensors; i++) {
        oldSensorValues[i][1]=Math.abs(new Float(values[i]).floatValue());
-       sensorDiff=Math.abs(oldSensorValues[i][1]-oldSensorValues[i][0]);
+//       sensorDiff=Math.abs(oldSensorValues[i][1]-oldSensorValues[i][0]);
+       sensorDiff=oldSensorValues[i][1]-oldSensorValues[i][0];
+       sensorDiffs[i]+=0.01f*(sensorDiff-sensorDiffs[i]);
+       sensorDiff=Math.abs(sensorDiffs[i]);
        gui.setSensorValue(i,sensorDiff);
        switch(mode) {
         case 1: // discrete
-         if(sensorDiff>param) {
+         if(10.0f*sensorDiff>param) {
           try {
+           int note=gui.getNote()+27*i/numSensors;
            ShortMessage sm=new ShortMessage();
-           sm.setMessage(ShortMessage.NOTE_ON, 0, gui.getNote()+27*i/numSensors, 90);
+           sm.setMessage(ShortMessage.NOTE_ON, 0, note, 90);
            synthRcvr.send(sm, -1);
+           sm.setMessage(ShortMessage.NOTE_OFF, 0, note, 90);
+           synthRcvr.send(sm, 50);
           } catch(InvalidMidiDataException imde) {
            System.out.println(imde.getMessage());
            System.exit(0);
@@ -95,9 +105,13 @@ public class SoundManipulation extends Thread {
          sensorMax=Math.max(sensorMax,sensorDiff);
          if(i==numSensors-1) {
           try {
+           int note=gui.getNote()+10;
+           int volume=(int)Math.min(127,param*sensorMax*127.0f);
            ShortMessage sm=new ShortMessage();
-           sm.setMessage(ShortMessage.NOTE_ON, 0, gui.getNote()+10, (int)Math.min(127,param*sensorMax*127.0f));
+           sm.setMessage(ShortMessage.NOTE_ON, 0, note, volume);
            synthRcvr.send(sm, -1);
+           sm.setMessage(ShortMessage.NOTE_OFF, 0, note, volume);
+           synthRcvr.send(sm, 50);
           } catch(InvalidMidiDataException imde) {
            System.out.println(imde.getMessage());
            System.exit(0);
@@ -114,6 +128,8 @@ public class SoundManipulation extends Thread {
            ShortMessage sm=new ShortMessage();
            sm.setMessage(ShortMessage.NOTE_ON, 0, note, 90);
            synthRcvr.send(sm, -1);
+           sm.setMessage(ShortMessage.NOTE_OFF, 0, note, 90);
+           synthRcvr.send(sm, 50);
           } catch(InvalidMidiDataException imde) {
            System.out.println(imde.getMessage());
            System.exit(0);
@@ -121,10 +137,24 @@ public class SoundManipulation extends Thread {
           sensorMax=0.0f;
          }
          break;
+        case 4: // master mode
+         try {
+          int volume=(int)Math.min(100,Math.sqrt(sensorDiff)*300.0f);
+          int note=volume+27*i/(numSensors-1);
+          ShortMessage sm=new ShortMessage();
+          sm.setMessage(ShortMessage.NOTE_ON, i, note, volume);
+          synthRcvr.send(sm, -1);
+          sm.setMessage(ShortMessage.NOTE_OFF, i, note, volume);
+          synthRcvr.send(sm, 50);
+         } catch(InvalidMidiDataException imde) {
+          System.out.println(imde.getMessage());
+          System.exit(0);
+         }
+         break;
        }
       }
      } else {
-      synth.getChannels()[0].allNotesOff();
+      for(int i=0; i<numSensors; i++) synth.getChannels()[i].allNotesOff();
      }
 
     }
