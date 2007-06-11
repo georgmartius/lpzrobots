@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-06-08 15:37:22  martius
+ *   Revision 1.2  2007-06-11 08:26:49  martius
+ *   sphere
+ *
+ *   Revision 1.1  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *
@@ -66,7 +69,6 @@ public:
   virtual matrix::Matrix assembleNetworkOutput(const matrix::Matrix& output) const {    
     return output.rows(number_sensors, number_sensors + number_motors);
   }
-
 };
 
 
@@ -81,8 +83,8 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    int num_barrels=1;
-    int num_spheres=0;      
+    int num_barrels=0;
+    int num_spheres=1;      
 
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
@@ -123,10 +125,10 @@ public:
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.15; 
+      conf.motorpowerfactor  = 150;    
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
-      //      conf.addSensor(new SpeedSensor(10));
       //      conf.irAxis1=true;
       //      conf.irAxis2=true;
       //      conf.irAxis3=true;
@@ -141,7 +143,7 @@ public:
       // 
       sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
       
-      controller = new BarrelNetControl("");    
+      controller = new BarrelNetControl(networkfilename);    
 
       One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.25) );
       OdeAgent* agent = new OdeAgent ( plotoptions );
