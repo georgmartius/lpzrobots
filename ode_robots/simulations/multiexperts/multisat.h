@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-06-08 15:37:22  martius
+ *   Revision 1.3  2007-06-14 08:01:45  martius
+ *   Pred error modulation by distance to minimum works
+ *
+ *   Revision 1.2  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.1  2007/04/20 12:30:43  martius
@@ -42,15 +45,16 @@
 typedef struct MultiSatConf {
   AbstractController* controller;
   unsigned short buffersize; ///< size of the ringbuffers for sensors, motors,...
-  int numHidden;      ///< number of hidden units in the satelite networks
-  double eps0;        ///< learning rate for satelite networks
-  double tauE;            ///< time horizont for averaging error;
-  double tauC;            ///< time horizont for inceasing competition
-  double lambda_comp; ///< discount of learning rate for non-winners (competition) (modulated automatically)
-  double deltaMin;       ///< additive decay the minimum term (in 1/1000) (should be very small)
-  int numSomPerDim;     ///< number of SOM neuronen per context dimension (attention raises exponential)
-  int numContext;    ///< number of context sensors
-  int numSats;       ///< number of satelite networks
+  int numHidden;        ///< number of hidden units in the satelite networks
+  double eps0;          ///< learning rate for satelite networks
+  double tauE;          ///< time horizont for averaging error;
+  double tauC;          ///< time horizont for inceasing competition
+  double lambda_comp;   ///< discount of learning rate for non-winners (competition) (modulated automatically)
+  double deltaMin;      ///< additive decay the minimum term (in 1/1000) (should be very small)
+  int    numSomPerDim;  ///< number of SOM neuronen per context dimension (attention raises exponential)
+  int    numContext;    ///< number of context sensors
+  int    numSats;       ///< number of satelite networks
+  bool   useDerive;     ///< input to sat network includes derivatives
 } MultiSatConf;
 
 /// Satelite network struct
@@ -119,6 +123,7 @@ public:
     c.numContext=0;
     c.numSomPerDim=5;
     c.numSats=2;
+    c.useDerive=false;
     return c;
   }
 

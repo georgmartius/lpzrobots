@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-06-11 08:26:49  martius
+ *   Revision 1.3  2007-06-14 08:01:45  martius
+ *   Pred error modulation by distance to minimum works
+ *
+ *   Revision 1.2  2007/06/11 08:26:49  martius
  *   sphere
  *
  *   Revision 1.1  2007/06/08 15:37:22  martius
@@ -71,6 +74,27 @@ public:
   }
 };
 
+class SatNetControl : public FFNNController {
+public:
+  SatNetControl(const std::string& networkfilename):
+    FFNNController(networkfilename, 1, false) {
+  }
+  
+  virtual matrix::Matrix assembleNetworkInputXY(matrix::Matrix* xbuffer, matrix::Matrix* ybuffer) const {
+    int tp = t+buffersize;
+    Matrix m(xbuffer[tp%buffersize]);
+    for(int i=1; i<=history; i++){
+      m=m.above(xbuffer[(tp-i)%buffersize].above(ybuffer[(tp-i)%buffersize]));
+    }
+    return m;
+  }
+
+  virtual matrix::Matrix assembleNetworkOutput(const matrix::Matrix& output) const {    
+    return output.rows(number_sensors, number_sensors + number_motors);
+  }
+};
+
+
 
 class ThisSim : public Simulation {
 public:
@@ -84,7 +108,7 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     int num_barrels=0;
-    int num_spheres=1;      
+    int num_spheres=1; 
 
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
@@ -145,7 +169,7 @@ public:
       
       controller = new BarrelNetControl(networkfilename);    
 
-      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.25) );
+      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
       OdeAgent* agent = new OdeAgent ( plotoptions );
       agent->init ( controller , sphere1 , wiring );
       //      agent->setTrackOptions(TrackRobot(true, true, false, true, "ZSens", 50));

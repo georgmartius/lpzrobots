@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-06-08 15:37:22  martius
+ *   Revision 1.3  2007-06-14 08:01:45  martius
+ *   Pred error modulation by distance to minimum works
+ *
+ *   Revision 1.2  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.1  2007/04/20 12:30:42  martius
@@ -49,7 +52,8 @@ MultiSat::MultiSat( const MultiSatConf& _conf)
   }
   runcompetefirsttime=true;
   managementInterval=100;
-  initialised = false;
+  winner=0;
+  initialised = false;  
 };
 
 
@@ -97,7 +101,10 @@ void MultiSat::init(int sensornumber, int motornumber){
     layers.push_back(Layer(conf.numHidden, 0.5 , FeedForwardNN::tanh));
     layers.push_back(Layer(1,1));
     MultiLayerFFNN* net = new MultiLayerFFNN(1, layers); // learning rate is set to 1 and modulates each step  
-    net->init(3*number_real_sensors+number_motors, number_real_sensors+number_motors);
+    if(conf.useDerive)
+      net->init(3*number_real_sensors+number_motors, number_real_sensors+number_motors);
+    else
+      net->init(2*number_real_sensors+number_motors, number_real_sensors+number_motors);
     Sat sat(net, conf.eps0);
     sats.push_back(sat);
   }
@@ -157,22 +164,13 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
       ranking[i].second = i;      
     }
     std::sort(ranking.begin(), ranking.end());
-    int n = min(4,(int)ranking.size());
+    int n = ranking.size();
     for(int i=0; i< n; i++){
       if(conf.lambda_comp*i > 30) continue; // no need for learning (eps < 1e-14 )
       // cout << ranking[i].first << " " << ranking[i].second << " " << exp(-conf.lambda_comp*i) << "\n";
       sats[ranking[i].second].net->learn(satInput, nomSatOutput,  
 					 sats[ranking[i].second].eps * exp(-conf.lambda_comp*i));    
     }
-//     FOREACH(vector<Sat>, sats, s){
-//       s->sigma=conf.lambda_comp;
-//     }
-//    sats[winner].eps *= conf.lambda_time;
-//     FOREACH(vector<Sat>, sats, s){
-//       s->net->learn(satInput, nomSatOutput, s->eps*s->sigma);
-//     }
-//    sats[winner].net->learn(satInput, nomSatOutput, sats[winner].eps);
-    // winner should somehow influence control! e.g. control himself.
   }
   if(t%managementInterval==0){
     management();
@@ -199,8 +197,10 @@ void MultiSat::fillSensorBuffer(const sensor* x_, int number_sensors)
   Matrix x_c(conf.numContext, 1, x_+number_sensors-conf.numContext);
   // put new input vector in ring buffer x_buffer
   putInBuffer(x_buffer, x);  
-  const Matrix& xp = calcDerivatives(x_buffer,0);
-  putInBuffer(xp_buffer, xp);    
+  if(conf.useDerive){
+    const Matrix& xp = calcDerivatives(x_buffer,0);
+    putInBuffer(xp_buffer, xp);    
+  }
   putInBuffer(x_context_buffer, x_c);  
 }
 
@@ -225,18 +225,25 @@ Matrix MultiSat::compete()
 {
   const Matrix& x_context = x_context_buffer[t%buffersize];
   const Matrix& x = x_buffer[t%buffersize];
-  const Matrix& y = y_buffer[t%buffersize];
 
   const Matrix& x_tm1 = x_buffer[(t-1)%buffersize];
+  const Matrix& x_tm2 = x_buffer[(t-2)%buffersize];
   const Matrix& xp_tm1 = xp_buffer[(t-1)%buffersize];
   const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
+  const Matrix& y_tm2 = y_buffer[(t-2)%buffersize];
+
+  // we have to use F(x_{t-1},x_{t-2} | \dot x_{t-1} ,y_{t-2}) -> (x_t, y_{t-1}) for the sat network
 
   // let gating network decide about winner:
   const Matrix& somOutput = gatingSom->process(x_context);
   satPredErrors = gatingNet->process(somOutput);
   
-  nomSatOutput = x.above(y);
-  satInput   = x_tm1.above(xp_tm1.above(y_tm1));
+  nomSatOutput = x.above(y_tm1);
+  if(conf.useDerive)
+    satInput   = x_tm1.above(xp_tm1.above(y_tm2));
+  else
+    satInput   = x_tm1.above(x_tm2.above(y_tm2));
+
   // ask all networks to make there predictions on last timestep, compare with real world
   // and train gating network
 

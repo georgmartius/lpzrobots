@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-06-08 15:37:22  martius
+ *   Revision 1.4  2007-06-14 08:01:45  martius
+ *   Pred error modulation by distance to minimum works
+ *
+ *   Revision 1.3  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.2  2007/05/23 14:07:34  martius
@@ -96,6 +99,8 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/ffnncontroller.h>
 #include "multisat.h"
+#include <selforg/replaycontroller.h>
+
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/selectiveone2onewiring.h>
@@ -106,6 +111,8 @@
 #include "barrel2masses.h"
 #include "axisorientationsensor.h"
 #include "speedsensor.h"
+#include "replayrobot.h"
+
 
 #include <osg/Node>
 #include <osg/Geode>
@@ -140,40 +147,17 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     int num_barrels=0;
-    int num_spheres=1;      
-    
+    int num_spheres=1;          
+    controller=0;
+    multisat=0;
+    sphere1=0;
+
     setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     // initialization
     global.odeConfig.setParam("noise",0.05);
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
-
-//     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(50, 0.0, 0.0));
-//     playground->setGroundTexture("Images/dusty.rgb");    
-//     playground->setGroundColor(Color(41/255.0,181/255.0,40/255.0));
-//     playground->setColor(Color(41/255.0,121/255.0,40/255.0));
-//     playground->setPosition(osg::Vec3(0,0,0.01));
-//     global.obstacles.push_back(playground);
-
-
-//   // Outer Ring
-//   AbstractObstacle* ring1 = new OctaPlayground(odeHandle, 20);
-//   ring1->setGeometry(6, 0.1, 2); 
-//   ring1->setPosition(0,0,0); // playground positionieren und generieren
-//   global.obstacles.push_back(ring1);
-//   // Inner Ring
-//   AbstractObstacle* ring2 = new OctaPlayground(odeHandle, 24);
-//   ring2->setGeometry(11.5, 0.1, 2);
-//   ring2->setPosition(0,0,0); // playground positionieren und generieren
-//   global.obstacles.push_back(ring2);
-
-//     for(int i=0; i<5; i++){
-//       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-//       s->setPosition(osg::Vec3(5,0,i*3)); 
-//       global.obstacles.push_back(s);    
-//     }
     
-    controller=0;
 
     /* * * * BARRELS * * * */
     for(int i=0; i< num_barrels; i++){
@@ -189,7 +173,7 @@ public:
       conf.irAxis3=false;
       conf.spheremass   = 0.3; // 1
       sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				    conf, "Multi4_3h_Barrel", 0.4); 
+				    conf, "Multi4_4h_Barrel", 0.4); 
       sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
       
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
@@ -201,7 +185,7 @@ public:
       MultiSatConf msc = MultiSat::getDefaultConf();
       msc.controller = controller;
       msc.numContext = 1;
-      msc.numHidden = 3;
+      msc.numHidden = 4;
       msc.numSats = 4;
       multisat = new MultiSat(msc);
       
@@ -235,7 +219,10 @@ public:
 
     /* * * * SPHERES * * * */
     for(int i=0; i< num_spheres; i++){
+      bool replay=true;
+      global.odeConfig.setParam("noise", replay ? 0 : 0.1);
       //****************
+      const char* replayfilename="Sphere_reinforce_axis_rot.sel.log";
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.15; 
       conf.motorpowerfactor  = 150;    
@@ -243,26 +230,20 @@ public:
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
       conf.addSensor(new SpeedSensor(5, SpeedSensor::RotationalRel));
-      //      conf.irAxis1=true;
-      //      conf.irAxis2=true;
-      //      conf.irAxis3=true;
-      //      conf.spheremass   = 1;
+
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
-					 conf, "Multi4_2h_Sphere", 0.3); 
-      //// FORCEDSPHERE
-      // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
-      // fsc.drivenDimensions=ForcedSphere::X;
-      // fsc.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
-      // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
-      // 
-      sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+					 conf, "Multi4_2h_Sphere", 0.3);     
+      sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0)); 
       
-      InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-      //      DerControllerConf cc = DerController::getDefaultConf();
-      cc.cInit=1.0;
-      //      cc.useSD=true;
-      //controller = new DerController(cc);    
-      controller = new InvertMotorNStep(cc);    
+      if(!replay){
+	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+	//      DerControllerConf cc = DerController::getDefaultConf();
+	cc.cInit=1.0;
+	//      cc.useSD=true;
+	//controller = new DerController(cc);    
+	//      controller = new InvertMotorNStep(cc);    
+      }else 
+	controller = new ReplayController(replayfilename);    
 
       MultiSatConf msc = MultiSat::getDefaultConf();
       msc.controller = controller;
@@ -270,9 +251,9 @@ public:
       msc.numSomPerDim = 3;
       msc.numHidden = 2;
       msc.numSats = 4;
+      msc.useDerive=false;
       multisat = new MultiSat(msc);
 
-      // controller = new SineController();
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       controller->setParam("steps", 1);    
       //    controller->setParam("adaptrate", 0.001);    
@@ -280,14 +261,8 @@ public:
       controller->setParam("nomupdate", 0.005);    
       controller->setParam("epsC", 0.1);    
       controller->setParam("epsA", 0.2);    
-      //      controller->setParam("dampA", 0.0001);    
-      // controller->setParam("epsC", 0.001);    
-      // controller->setParam("epsA", 0.001);    
-      //    controller->setParam("rootE", 1);    
-      //    controller->setParam("logaE", 2);    
       controller->setParam("rootE", 3);    
       controller->setParam("logaE", 0);    
-      //     controller = new SineController();  
       controller->setParam("sinerate", 15);  
       controller->setParam("phaseshift", 0.45);
     
@@ -419,5 +394,5 @@ int main (int argc, char **argv)
 //Use random number seed: 1181308527
 
 // nice regular behaving sphere
-// Use random number seed: 1181225497
+// Use random number seed: 1181566764
  
