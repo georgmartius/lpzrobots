@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-06-14 07:59:30  martius
+ *   Revision 1.2  2007-06-18 08:11:22  martius
+ *   nice version with many agents
+ *
+ *   Revision 1.1  2007/06/14 07:59:30  martius
  *   nice scanning of initial parameters
  *
  *
@@ -74,8 +77,7 @@ public:
 class SatNetControl : public FFNNController {
 public:
   SatNetControl(const std::string& networkfilename):
-    //    FFNNController(networkfilename, 1, false, accelerationTime+1) {
-    FFNNController(networkfilename, 1, false, 10000) {
+    FFNNController(networkfilename, 1, false, accelerationTime+1) {
   }
   
   virtual matrix::Matrix assembleNetworkInputXY(matrix::Matrix* xbuffer, matrix::Matrix* ybuffer) const {
@@ -120,6 +122,9 @@ public:
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
     global.odeConfig.setParam("realtimefactor",1);
+
+    global.odeConfig.setParam("realtimefactor",0);
+    global.odeConfig.setParam("drawinterval",2000);
     
     runcounter=0;
     maxCounter=10000;
@@ -134,13 +139,14 @@ public:
     logfile << "# speed scan for sat network " << networkfilename << endl; 
     logfile << "#C sx sy sz ex ey ez" << endl; 
 
-    // generate start speeds
-    double stepsize=M_PI/12;
+    // generate start speeds on 3 spheres
+    double stepsize; 
     double powers[3] = {5,10,15};    
     startAngles.push_back(Matrix(3,1)); // add zero initial condition
     //{ double theta =0;
     for(int p=0; p < 3; p++){
-      stepsize=M_PI/(6.0*(p+1.0));
+      //      stepsize=M_PI/(6.0*(p+1.0));  // 663 initial condictions
+      stepsize=M_PI/(3.0*(p+1.0));  // 172 initial conditions
       for(double theta=-M_PI/2; theta < M_PI/2; theta +=stepsize){      
 	//       { double omega=0;
 	for(double omega=-M_PI; omega < M_PI; omega += (stepsize/cos(theta)) ){
@@ -152,21 +158,6 @@ public:
 	}
       } 
     }     
-//     // generate start speeds
-//     double stepsize=M_PI/5;
-//     double powers[5] = {0,10,15,20,25};    
-//     for(double theta=-M_PI; theta < M_PI; theta +=stepsize){
-//       { double omega=0;
-//       // for(double omega=-M_PI; omega < M_PI; omega +=stepsize){
-// 	for(int p=1; p < 2; p++){
-// 	  Matrix m(3,1);
-// 	  m.val(0,0)=theta;
-// 	  m.val(1,0)=omega;
-// 	  m.val(2,0)=powers[p];
-// 	  startAngles.push_back(m);
-// 	}
-//       } 
-//     }     
 
       
     speedsensor = new SpeedSensor(5, SpeedSensor::RotationalRel);

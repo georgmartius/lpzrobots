@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-06-14 08:01:45  martius
+ *   Revision 1.4  2007-06-18 08:11:22  martius
+ *   nice version with many agents
+ *
+ *   Revision 1.3  2007/06/14 08:01:45  martius
  *   Pred error modulation by distance to minimum works
  *
  *   Revision 1.2  2007/06/08 15:37:22  martius
@@ -38,6 +41,7 @@ using namespace std;
 Sat::Sat(MultiLayerFFNN* _net, double _eps){
   net=_net;
   eps=_eps;
+  lifetime=0;
 }
 
 
@@ -158,18 +162,21 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
 
     //    cout << "Winner: " << winner << endl;
     // rank
+    //  the whole ranking thing is actually a residual from former times, keep it for simplicity
     vector<pair<double,int> > ranking(errors.getM());
     for(int i=0; i< errors.getM(); i++){
       ranking[i].first  = errors.val(i,0);
       ranking[i].second = i;      
     }
     std::sort(ranking.begin(), ranking.end());
-    int n = ranking.size();
-    for(int i=0; i< n; i++){
-      if(conf.lambda_comp*i > 30) continue; // no need for learning (eps < 1e-14 )
-      // cout << ranking[i].first << " " << ranking[i].second << " " << exp(-conf.lambda_comp*i) << "\n";
-      sats[ranking[i].second].net->learn(satInput, nomSatOutput,  
-					 sats[ranking[i].second].eps * exp(-conf.lambda_comp*i));    
+
+    sats[ranking[0].second].net->learn(satInput, nomSatOutput,  
+				       sats[ranking[0].second].eps);    
+    FOREACH(vector<Sat>, sats, s){
+      double e = exp(-(1/conf.tauC)*s->lifetime);
+      if(e>10e-12){
+	s->net->learn(satInput, nomSatOutput, s->eps*e);    
+      }
     }
   }
   if(t%managementInterval==0){
@@ -212,8 +219,9 @@ void MultiSat::fillMotorBuffer(const motor* y_, int number_motors)
   putInBuffer(y_buffer, y);  
 }
 
-double multisat_errormodulation(double e, double e_min){
-  return e*(1+5*sqr(max(0.0,e-e_min)));
+double multisat_errormodulation(void* fak, double e, double e_min){
+  double faktor = *((double*)fak);
+  return e*(1 + faktor*sqr(max(0.0,e-e_min)));
 }
 
 
@@ -273,7 +281,7 @@ Matrix MultiSat::compete()
   gatingNet->learn(somOutput,satErrors);
 
   // modulate predicted error to avoid strong relearning
-  satModPredErrors = Matrix::map2(multisat_errormodulation, satPredErrors, satMinErrors);
+  satModPredErrors = Matrix::map2P(&conf.penalty, multisat_errormodulation, satPredErrors, satMinErrors);
 
   return satModPredErrors;
 
@@ -290,7 +298,10 @@ Matrix MultiSat::calcDerivatives(const matrix::Matrix* buffer,int delay){
 
 void MultiSat::management(){
   // annealing of neighbourhood learning
-  conf.lambda_comp = t * (1.0/conf.tauC);
+  FOREACH(vector<Sat> , sats, s){
+    s->lifetime+=managementInterval;
+  }
+  // conf.lambda_comp = t * (1.0/conf.tauC);
   
   // decay minima
   Matrix deltaM (satMinErrors.getM(),1);
@@ -417,6 +428,7 @@ list<Inspectable::iparamkey> MultiSat::getInternalParamNames() const {
   keylist += storeVectorFieldNames(satModPredErrors, "mperrs");
   keylist += storeVectorFieldNames(satAvgErrors, "avgerrs");
   keylist += storeVectorFieldNames(satMinErrors, "minerrs");
+  keylist += string("epsSatAn");
   keylist += string("winner");
   return keylist; 
 }
@@ -430,6 +442,7 @@ list<Inspectable::iparamval> MultiSat::getInternalParams() const {
   l += satModPredErrors.convertToList();
   l += satAvgErrors.convertToList();
   l += satMinErrors.convertToList();
+  l += (double)exp(-(1/conf.tauC)*sats[0].lifetime); 
   l += (double)winner;
   return l;
 }

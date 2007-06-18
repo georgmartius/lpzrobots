@@ -16,8 +16,19 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
+ *   This version of multisat has the following features                   *
+ *    n agents, competition by gating network                              *
+ *    error predictions are modulated by penalty term which depends        *
+ *    on suboptimality (away from minimum) for each agent                  *
+ *    only winner is allowd to learn                                       *
+ *    every agent has a lifetime and he will learn every timestep as       *
+ *    with decreasing learningrate                                         *
+ *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-06-14 08:01:45  martius
+ *   Revision 1.4  2007-06-18 08:11:22  martius
+ *   nice version with many agents
+ *
+ *   Revision 1.3  2007/06/14 08:01:45  martius
  *   Pred error modulation by distance to minimum works
  *
  *   Revision 1.2  2007/06/08 15:37:22  martius
@@ -55,6 +66,7 @@ typedef struct MultiSatConf {
   int    numContext;    ///< number of context sensors
   int    numSats;       ///< number of satelite networks
   bool   useDerive;     ///< input to sat network includes derivatives
+  double penalty;       ///< factor to multiply with square of difference of error and optimal error 
 } MultiSatConf;
 
 /// Satelite network struct
@@ -62,6 +74,7 @@ typedef struct Sat {
   Sat(MultiLayerFFNN* _net, double _eps);
   MultiLayerFFNN* net;
   double eps;  
+  double lifetime;
 } Sat;
 
 /**
@@ -124,6 +137,7 @@ public:
     c.numSomPerDim=5;
     c.numSats=2;
     c.useDerive=false;
+    c.penalty=5;
     return c;
   }
 

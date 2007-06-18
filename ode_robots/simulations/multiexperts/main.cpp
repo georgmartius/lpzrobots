@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-06-14 08:01:45  martius
+ *   Revision 1.5  2007-06-18 08:11:22  martius
+ *   nice version with many agents
+ *
+ *   Revision 1.4  2007/06/14 08:01:45  martius
  *   Pred error modulation by distance to minimum works
  *
  *   Revision 1.3  2007/06/08 15:37:22  martius
@@ -232,7 +235,7 @@ public:
       conf.addSensor(new SpeedSensor(5, SpeedSensor::RotationalRel));
 
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
-					 conf, "Multi4_2h_Sphere", 0.3);     
+					 conf, "Multi20_2h_Sphere", 0.3);     
       sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0)); 
       
       if(!replay){
@@ -243,14 +246,17 @@ public:
 	//controller = new DerController(cc);    
 	//      controller = new InvertMotorNStep(cc);    
       }else 
-	controller = new ReplayController(replayfilename);    
+	controller = new ReplayController(replayfilename,true);     
 
       MultiSatConf msc = MultiSat::getDefaultConf();
       msc.controller = controller;
       msc.numContext = 3;
       msc.numSomPerDim = 3;
       msc.numHidden = 2;
-      msc.numSats = 4;
+      msc.numSats   = 20;
+      msc.eps0      = 0.0005;
+      msc.deltaMin  = 0.0005;
+      msc.tauC      = 20000;
       msc.useDerive=false;
       multisat = new MultiSat(msc);
 
