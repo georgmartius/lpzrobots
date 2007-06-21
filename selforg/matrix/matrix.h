@@ -7,7 +7,11 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.12  2007-06-08 15:50:29  martius
+// Revision 1.13  2007-06-21 16:29:18  martius
+// added map2P
+// map2 into cpp
+//
+// Revision 1.12  2007/06/08 15:50:29  martius
 // added unsafeGetData
 //
 // Revision 1.11  2007/05/22 13:52:36  martius
@@ -294,15 +298,13 @@ namespace matrix{
        The resulting matrix consists of the function values applied to the elements of a and b.
        In haskell this would something like: map (uncurry . fun) $ zip a b
     */
-    static Matrix map2( D (*fun)(D,D), const Matrix& a, const Matrix& b) {
-      assert(a.m == b.m && a.n == b.n);
-      Matrix result(a);
-      unsigned int len = a.m*a.n;
-      for(unsigned short i=0; i < len; i++){
-	result.data[i] = fun(a.data[i], b.data[i]);
-      }    
-      return result;
-    }
+    static Matrix map2( D (*fun)(D,D), const Matrix& a, const Matrix& b);
+
+    /** binary map operator for matrices with parameter. 
+       The resulting matrix consists of the function values applied to the elements of a and b.
+       In haskell this would something like: map (uncurry . (fun p)) $ zip a b
+    */
+    static Matrix map2P( void* param, D (*fun)(void*, D,D), const Matrix& a, const Matrix& b);
 
     /** row-wise multiplication
 	@param factors column vector (Mx1) of factors, one for each row 
@@ -431,7 +433,7 @@ namespace matrix{
   private:
     // NOTE: buffersize determines available memory storage. 
     // m and n define the actual size
-    unsigned short m, n;
+    unsigned short m, n; 
     unsigned int buffersize;  // max number if elements
     D* data;      // where the data contents of the matrix are stored    
 

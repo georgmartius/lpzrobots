@@ -5,7 +5,11 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.10  2007-05-22 13:52:46  martius
+// Revision 1.11  2007-06-21 16:29:27  martius
+// added map2P
+// map2 into cpp
+//
+// Revision 1.10  2007/05/22 13:52:46  martius
 // inplace operators return *this which makes them more useable for temporary matrices
 //
 // Revision 1.9  2007/04/03 09:57:44  martius
@@ -469,6 +473,25 @@ const int T=0xFF;
     return *this;
   }
 
+  Matrix Matrix::map2( D (*fun)(D,D), const Matrix& a, const Matrix& b) {
+    assert(a.m == b.m && a.n == b.n);
+    Matrix result(a);
+    unsigned int len = a.m*a.n;
+    for(unsigned short i=0; i < len; i++){
+      result.data[i] = fun(a.data[i], b.data[i]);
+    }    
+    return result;
+  }
+
+  Matrix Matrix::map2P( void* param, D (*fun)(void*, D,D), const Matrix& a, const Matrix& b){
+    assert(a.m == b.m && a.n == b.n);
+    Matrix result(a);
+    unsigned int len = a.m*a.n;
+    for(unsigned short i=0; i < len; i++){
+      result.data[i] = fun(param, a.data[i], b.data[i]);
+    }    
+    return result;
+  }
 
   Matrix Matrix::multrowwise(const Matrix& factors) const {
     Matrix result(*this);
