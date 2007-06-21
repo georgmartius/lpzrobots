@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2007-03-26 13:06:30  martius
+ *   Revision 1.28  2007-06-21 16:19:48  martius
+ *   -nopgraphics option which disables graphics rendering
+ *
+ *   Revision 1.27  2007/03/26 13:06:30  martius
  *   use new commandline interface
  *
  *   Revision 1.26  2007/03/16 10:53:18  martius
@@ -313,6 +316,7 @@ namespace lpzrobots {
     bool pause;
     bool simulation_time_reached;
     long int simulation_time;
+    bool noGraphics;
 
     long sim_step;
 

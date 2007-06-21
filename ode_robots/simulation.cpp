@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.62  2007-06-08 15:37:22  martius
+ *   Revision 1.63  2007-06-21 16:19:59  martius
+ *   -nopgraphics option which disables graphics rendering
+ *
+ *   Revision 1.62  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.61  2007/05/09 14:57:25  robot3
@@ -367,6 +370,7 @@ namespace lpzrobots {
     state    = none;
     pause    = false;
     useShadow= true;
+    noGraphics=false;
     simulation_time=-1;
     simulation_time_reached=false;
     viewer   = 0;
@@ -387,12 +391,11 @@ namespace lpzrobots {
 
     state=closed;
     if(arguments) delete arguments;
-
     // we have to count references by our selfes
     osgGA::GUIEventHandler::unref();
     Producer::Camera::Callback::unref_nodelete();
     Producer::Camera::Callback::unref_nodelete();
-    osg::Referenced::unref_nodelete();
+    osg::Referenced::unref_nodelete();    
   }
 
   bool Simulation::init(int argc, char** argv){
@@ -426,41 +429,44 @@ namespace lpzrobots {
     osgDB::setDataFilePathList(l);
 
     processCmdLine(argc, argv);
-    // use an ArgumentParser object to manage the program arguments.
-    arguments = new ArgumentParser(&argc, argv);
 
-    // set up the usage document, in case we need to print out how to use this program.
-    arguments->getApplicationUsage()->setDescription(
-                  arguments->getApplicationName() + " Lpzrobots Simulator");
-    arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName());
-    arguments->getApplicationUsage()->addCommandLineOption(
-		 "-h or --help", "Display this information");
-
-    // construct the viewer.
-    viewer = new ExtendedViewer(*arguments);
-
-    // set up the value with sensible default event handlers.
-    unsigned int options =  Viewer::SKY_LIGHT_SOURCE |
-      Viewer::STATE_MANIPULATOR |
-      Viewer::STATS_MANIPULATOR |
-      Viewer::VIEWER_MANIPULATOR |
-      Viewer::ESCAPE_SETS_DONE;
-    viewer->setUpViewer(options);
-
-    viewer->getEventHandlerList().push_front(this);
-
-    // if user request help write it out to cout.
-    if (arguments->read("-h") || arguments->read("--help")) {
-      arguments->getApplicationUsage()->write(std::cout);
-      return false;
-    }
-    // any option left unread are converted into errors to write out later.
-    //    arguments->reportRemainingOptionsAsUnrecognized();
-
-    // report any errors if they have occured when parsing the program aguments.
-    if (arguments->errors()) {
-      arguments->writeErrorMessages(std::cout);
-      return false;
+    if(!noGraphics){
+      // use an ArgumentParser object to manage the program arguments.
+      arguments = new ArgumentParser(&argc, argv);
+      
+      // set up the usage document, in case we need to print out how to use this program.
+      arguments->getApplicationUsage()->setDescription(
+						       arguments->getApplicationName() + " Lpzrobots Simulator");
+      arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName());
+      arguments->getApplicationUsage()->addCommandLineOption(
+							     "-h or --help", "Display this information");
+      
+      // construct the viewer.
+      viewer = new ExtendedViewer(*arguments);
+      
+      // set up the value with sensible default event handlers.
+      unsigned int options =  Viewer::SKY_LIGHT_SOURCE |
+	Viewer::STATE_MANIPULATOR |
+	Viewer::STATS_MANIPULATOR |
+	Viewer::VIEWER_MANIPULATOR |
+	Viewer::ESCAPE_SETS_DONE;
+      viewer->setUpViewer(options);
+      
+      viewer->getEventHandlerList().push_front(this);
+      
+      // if user request help write it out to cout.
+      if (arguments->read("-h") || arguments->read("--help")) {
+	arguments->getApplicationUsage()->write(std::cout);
+	return false;
+      }
+      // any option left unread are converted into errors to write out later.
+      //    arguments->reportRemainingOptionsAsUnrecognized();
+      
+      // report any errors if they have occured when parsing the program aguments.
+      if (arguments->errors()) {
+	arguments->writeErrorMessages(std::cout);
+	return false;
+      }
     }
 
     for(int i=0; i<3; i++){
@@ -490,23 +496,25 @@ namespace lpzrobots {
     osgHandle.transparentState = stateset;
     osgHandle.transparentState->ref();
 
-    // setup the camera manipulators
-    CameraManipulator* defaultCameramanipulator =
-      new CameraManipulator(osgHandle.scene, globalData);
-    CameraManipulator* cameramanipulatorFollow =
-      new CameraManipulatorFollow(osgHandle.scene, globalData);
-    CameraManipulator* cameramanipulatorTV =
-      new CameraManipulatorTV(osgHandle.scene, globalData);
-    CameraManipulator* cameramanipulatorRace =
-      new CameraManipulatorRace(osgHandle.scene, globalData);
-    unsigned int pos = viewer->addCameraManipulator(defaultCameramanipulator);
-    viewer->addCameraManipulator(cameramanipulatorFollow);
-    viewer->addCameraManipulator(cameramanipulatorTV);
-    viewer->addCameraManipulator(cameramanipulatorRace);
-    viewer->selectCameraManipulator(pos); // this is the default camera type
-
-    // get details on keyboard and mouse bindings used by the viewer.
-    viewer->getUsage(*(arguments->getApplicationUsage()));
+    if(!noGraphics){
+      // setup the camera manipulators
+      CameraManipulator* defaultCameramanipulator =
+	new CameraManipulator(osgHandle.scene, globalData);
+      CameraManipulator* cameramanipulatorFollow =
+	new CameraManipulatorFollow(osgHandle.scene, globalData);
+      CameraManipulator* cameramanipulatorTV =
+	new CameraManipulatorTV(osgHandle.scene, globalData);
+      CameraManipulator* cameramanipulatorRace =
+	new CameraManipulatorRace(osgHandle.scene, globalData);
+      unsigned int pos = viewer->addCameraManipulator(defaultCameramanipulator);
+      viewer->addCameraManipulator(cameramanipulatorFollow);
+      viewer->addCameraManipulator(cameramanipulatorTV);
+      viewer->addCameraManipulator(cameramanipulatorRace);
+      viewer->selectCameraManipulator(pos); // this is the default camera type
+      
+      // get details on keyboard and mouse bindings used by the viewer.
+      viewer->getUsage(*(arguments->getApplicationUsage()));
+    }
 
     state=initialised;
     return true;
@@ -531,25 +539,26 @@ namespace lpzrobots {
 
     start(odeHandle, osgHandle, globalData);
 
-    // add model to viewer.
-    viewer->setSceneData(root);
+    if(!noGraphics){
+      // add model to viewer.
+      viewer->setSceneData(root);
+      
+      Producer::CameraConfig* cfg = viewer->getCameraConfig();
+      cam = cfg->getCamera(0);
+      
+      Producer::RenderSurface* rs = cam->getRenderSurface();
+      rs->setWindowName( "LpzRobots - Selforg" );
 
-    Producer::CameraConfig* cfg = viewer->getCameraConfig();
-    cam = cfg->getCamera(0);
+      // the following starts the system in windowed mode
+      int x = rs->getWindowOriginX();
+      int y = rs->getWindowOriginY();
+      rs->setWindowRectangle(x,y,windowWidth, windowHeight);
+      rs->fullScreen(false);
 
-    Producer::RenderSurface* rs = cam->getRenderSurface();
-    rs->setWindowName( "LpzRobots - Selforg" );
+      cam->addPostDrawCallback(this);
 
-    // the following starts the system in windowed mode
-    int x = rs->getWindowOriginX();
-    int y = rs->getWindowOriginY();
-    rs->setWindowRectangle(x,y,windowWidth, windowHeight);
-    rs->fullScreen(false);
-
-    cam->addPostDrawCallback(this);
-
-    // create the windows and run the threads.
-    viewer->realize();
+      // create the windows and run the threads.
+      viewer->realize();
 
     // set our motion blur callback as the draw callback for each scene handler
     //      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
@@ -557,26 +566,38 @@ namespace lpzrobots {
     //      {
     //          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
     //      }
+    }
 
-
-    while ( (!viewer->done()) && (!simulation_time_reached) )
+    if(!noGraphics){
+      while ( (!viewer->done()) && (!simulation_time_reached) )
+	{
+	  // wait for all cull and draw threads to complete.
+	  viewer->sync();
+	  
+	  if(!loop()) break;
+	  
+	  if(!noGraphics){
+	    // wait for all cull and draw threads to complete.
+	    viewer->sync();
+	  }
+	  // update the scene by traversing it with the the update visitor which will
+	  // call all node update callbacks and animations.
+	  viewer->update();
+	  
+	  
+	  // fire off the cull and draw traversals of the scene.
+	  viewer->frame();
+	}
+      
+      // wait for all cull and draw threads to complete before exit.
+      viewer->sync();
+    }else{
+      while ( !simulation_time_reached)
       {
-	// wait for all cull and draw threads to complete.
-	viewer->sync();
-
 	if(!loop()) break;
-
-	// update the scene by traversing it with the the update visitor which will
-	// call all node update callbacks and animations.
-	viewer->update();
-
-
-	// fire off the cull and draw traversals of the scene.
-	viewer->frame();
       }
+    }
 
-    // wait for all cull and draw threads to complete before exit.
-    viewer->sync();
     closeConsole();
     end(globalData);
     tidyUp(globalData);
@@ -613,7 +634,7 @@ namespace lpzrobots {
 	  printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
 	}
 	// finish simulation, if intended simulation time is reached
-	if(simulation_time!=-1){ // check time only if activated
+	if(simulation_time!=-1){ // check time only if activated 
 	  if( (sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
 	    if (!simulation_time_reached){ // print out once only
 	      printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
@@ -641,7 +662,7 @@ namespace lpzrobots {
 
       addCallback(globalData, t==0, pause, (sim_step % globalData.odeConfig.controlInterval ) == 0);
 
-      if(t==0){
+      if(t==0 && !noGraphics){
  	/************************** Update the scene ***********************/
 	for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++){
 	  (*i)->update();
@@ -839,9 +860,9 @@ namespace lpzrobots {
       if(osgHandle.tesselhints[i]) osgHandle.tesselhints[i]->unref();
     }
     global.agents.clear();
-
-    viewer->getEventHandlerList().clear();
-    // delete viewer;
+    
+    if(!noGraphics)    // delete viewer;
+      viewer->getEventHandlerList().clear();
   }
 
 
@@ -908,6 +929,7 @@ namespace lpzrobots {
 
     pause = contains(argv, argc, "-pause")!=0;
     useShadow = contains(argv, argc, "-noshadow")==0;
+    noGraphics = contains(argv, argc, "-nographics")!=0;
     shadowTexSize = 2048;
     int shadowsizeindex = contains(argv, argc, "-shadowsize");
     if(shadowsizeindex && argc > shadowsizeindex) {
@@ -1126,6 +1148,7 @@ namespace lpzrobots {
     printf("\t-r seed\t\trandom number seed\n");
     printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (default 640x480)\n");
     printf("\t-pause \t\tstart in pause mode\n");
+    printf("\t-nographics \t\tstart without any graphics\n");
     printf("\t-noshadow \tdisables shadows and shaders\n");
     printf("\t-shadowsize size \tsets the size of the shadow texture (default 2048)\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
@@ -1134,11 +1157,13 @@ namespace lpzrobots {
   }
 
   void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view){
-    osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
-    if(mm){
-      CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
-      if(cameramanipulator)
-	cameramanipulator->setHome(eye, view);
+    if(!noGraphics){
+      osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
+      if(mm){
+	CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
+	if(cameramanipulator)
+	  cameramanipulator->setHome(eye, view);
+      }
     }
   }
 
