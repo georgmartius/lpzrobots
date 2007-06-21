@@ -20,13 +20,12 @@
  *    n agents, competition by gating network                              *
  *    error predictions are modulated by penalty term which depends        *
  *    on suboptimality (away from minimum) for each agent                  *
- *    only winner is allowed to learn                                      *
- *    individual leaning rate is modulated by NPOSA                        *
+ *    only winner is allowd to learn                                       *
  *    every agent has a lifetime and he will learn every timestep as       *
  *    with decreasing learningrate                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-06-21 16:31:54  martius
+ *   Revision 1.1  2007-06-21 16:31:54  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2007/06/18 08:11:22  martius
@@ -147,7 +146,6 @@ public:
 
 
 protected:
-public:
   unsigned short number_sensors;
   unsigned short number_motors;
   
@@ -169,8 +167,6 @@ public:
   matrix::Matrix satModPredErrors; ///< modulated predicted errors of sats
   matrix::Matrix satAvgErrors;    ///< average errors of sats
   matrix::Matrix satMinErrors;    ///< minimum errors of sats
-
-  matrix::Matrix satLearnRateFactors;  ///< learning rate factors from 0.01-1.01
 
   SOM* gatingSom;
   MultiLayerFFNN* gatingNet;  

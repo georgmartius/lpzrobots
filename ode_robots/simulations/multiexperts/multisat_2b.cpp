@@ -17,7 +17,7 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-06-21 16:31:54  martius
+ *   Revision 1.1  2007-06-21 16:31:54  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2007/06/18 08:11:22  martius
@@ -84,7 +84,6 @@ void MultiSat::init(int sensornumber, int motornumber){
   number_motors  = motornumber;
   number_sensors = sensornumber;  
   int number_real_sensors = number_sensors - conf.numContext;
-  assert(number_real_sensors>0);
 
   if(!conf.controller){
     cerr << "multisat::init() no main controller given in config!" << endl;
@@ -122,7 +121,6 @@ void MultiSat::init(int sensornumber, int motornumber){
   satModPredErrors.set(conf.numSats, 1);
   satAvgErrors.set(conf.numSats, 1);
   satMinErrors.set(conf.numSats, 1);
-  satLearnRateFactors.set(conf.numSats, 1);
 
   // initialise gating network
   int numsomneurons = conf.numSomPerDim;
@@ -154,6 +152,7 @@ void MultiSat::putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& vec, in
 /// performs one step (includes learning). Calculates motor commands from sensor inputs.
 void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_motors)
 {
+
   fillSensorBuffer(x_, number_sensors);
   conf.controller->step(x_, number_sensors-conf.numContext, y_, number_motors);
   fillMotorBuffer(y_, number_motors);
@@ -178,8 +177,8 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
 				       sats[ranking[0].second].eps);    
     FOREACH(vector<Sat>, sats, s){
       double e = exp(-(1/conf.tauC)*s->lifetime);
-      if(e * s->eps >10e-12){
-	s->net->learn(satInput, nomSatOutput, e * s->eps);    
+      if(e>10e-12){
+	s->net->learn(satInput, nomSatOutput, s->eps*e);    
       }
     }
   }
@@ -306,20 +305,7 @@ void MultiSat::management(){
     s->lifetime+=managementInterval;
   }
   // conf.lambda_comp = t * (1.0/conf.tauC);
-
-  // update learning rates for each network
-  double max_e = max(satAvgErrors);
-  double min_e = min(satAvgErrors) - 1/100*max_e;
-  if(max_e==0 || max_e < min_e) max_e = min_e+0.01;
-  double max_min = max_e - min_e;
-  double min_plus_delta = min_e - max_min*0.01;
-  satLearnRateFactors = (satAvgErrors - satAvgErrors.mapP(&min_plus_delta, constant) )* (1/max_min);
-  int i=0; 
-  FOREACH(vector<Sat> , sats, s){
-    s->eps=conf.eps0*satLearnRateFactors.val(i,0);
-    i++;
-  }
-
+  
   // decay minima
   Matrix deltaM (satMinErrors.getM(),1);
   double delta = (conf.deltaMin*(double)managementInterval/1000.0); 
@@ -380,9 +366,6 @@ bool MultiSat::store(FILE* f) const {
 }
 
 bool MultiSat::restore(FILE* f){
-  if(!initialised)
-    init(2,2);
-  
   char buffer[128];
   if(fscanf(f,"%s\n", buffer) != 1) return false;	
   conf.numSats = atoi(buffer);
@@ -405,7 +388,7 @@ bool MultiSat::restore(FILE* f){
 
   // restore gating network
   if(!gatingSom->restore(f)) return false;
-  if(!gatingNet->restore(f)) return false;
+  if(!gatingNet->restore(f)) return false; 
 
   // clean sats array
   sats.clear();
@@ -448,7 +431,6 @@ list<Inspectable::iparamkey> MultiSat::getInternalParamNames() const {
   keylist += storeVectorFieldNames(satModPredErrors, "mperrs");
   keylist += storeVectorFieldNames(satAvgErrors, "avgerrs");
   keylist += storeVectorFieldNames(satMinErrors, "minerrs");
-  keylist += storeVectorFieldNames(satLearnRateFactors, "lf");
   keylist += string("epsSatAn");
   keylist += string("winner");
   return keylist; 
@@ -463,7 +445,6 @@ list<Inspectable::iparamval> MultiSat::getInternalParams() const {
   l += satModPredErrors.convertToList();
   l += satAvgErrors.convertToList();
   l += satMinErrors.convertToList();
-  l += satLearnRateFactors.convertToList();
   l += (double)exp(-(1/conf.tauC)*sats[0].lifetime); 
   l += (double)winner;
   return l;

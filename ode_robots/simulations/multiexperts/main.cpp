@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-06-18 08:11:22  martius
+ *   Revision 1.6  2007-06-21 16:31:54  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2007/06/18 08:11:22  martius
  *   nice version with many agents
  *
  *   Revision 1.4  2007/06/14 08:01:45  martius
@@ -254,9 +257,9 @@ public:
       msc.numSomPerDim = 3;
       msc.numHidden = 2;
       msc.numSats   = 20;
-      msc.eps0      = 0.0005;
+      msc.eps0      = 0.01;
       msc.deltaMin  = 0.0005;
-      msc.tauC      = 20000;
+      msc.tauC      = 2000;
       msc.useDerive=false;
       multisat = new MultiSat(msc);
 
