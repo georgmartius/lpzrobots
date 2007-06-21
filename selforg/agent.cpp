@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2007-06-08 15:49:47  martius
+ *   Revision 1.19  2007-06-21 16:21:58  martius
+ *   time is written here to logfile
+ *
+ *   Revision 1.18  2007/06/08 15:49:47  martius
  *   print start time into log
  *
  *   Revision 1.17  2007/05/09 15:14:46  robot3
@@ -196,10 +199,10 @@ void Agent::internInit(){
 
 Agent::~Agent(){
   // closes all pipes of the agents due to pause mode or so
-  for (int i = NoPlot; i < LastPlot; i++){
+  for (int i = NoPlot; i < LastPlot; i++){ 
     removePlotOption((PlotMode)i);
   }
-  trackrobot.close();
+  trackrobot.close(); 
   if(rsensors) free(rsensors);
   if(rmotors)  free(rmotors);
   if(csensors) free(csensors);
@@ -382,7 +385,7 @@ void Agent::addInspectable(const Inspectable* inspectable){
 }
 
 void Agent::addCallbackable(Callbackable* callbackable){
-	callbackables.push_back(callbackable);
+  callbackables.push_back(callbackable);
 }
 
 
