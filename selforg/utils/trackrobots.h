@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-05 15:14:15  martius
+ *   Revision 1.6  2007-06-21 16:18:57  martius
+ *   do not free scene -> Segfault
+ *
+ *   Revision 1.5  2007/04/05 15:14:15  martius
  *   angular speed tracking
  *
  *   Revision 1.4  2006/08/04 15:16:13  martius
@@ -101,7 +104,7 @@ public:
   }
 
   ~TrackRobot(){
-    if(scene) free(scene);
+    // if(scene) free(scene);
   }
 
   /// returns whether tracing is activated
