@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-06-08 15:37:22  martius
+ *   Revision 1.6  2007-06-21 16:33:43  martius
+ *   random seed
+ *
+ *   Revision 1.5  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.4  2007/01/25 14:09:15  martius
@@ -150,7 +153,7 @@ namespace lpzrobots {
   int OdeConfig::calcDrawInterval25(){
     if(realTimeFactor>0 && simStepSize>0){
       return int(ceil(1/(25.0*simStepSize/realTimeFactor)));
-    }else return 50;
+    }else return 500;
   }
 
   /// calculates the draw interval with simStepSize and realTimeFactor so that we have 50 frames/sec
@@ -158,7 +161,7 @@ namespace lpzrobots {
   int OdeConfig::calcDrawInterval50(){
     if(realTimeFactor>0 && simStepSize>0){
       return int(ceil(1/(50.0*simStepSize/realTimeFactor)));
-    }else return 50;
+    }else return 500;
   }
 
 
