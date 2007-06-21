@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-05-07 20:58:21  robot3
+ *   Revision 1.16  2007-06-21 16:22:17  martius
+ *   indentation
+ *
+ *   Revision 1.15  2007/05/07 20:58:21  robot3
  *   added support for Interface Callbackable (to find in selforg/utils)
  *   classes can now register at agent to get a callback every step
  *
@@ -284,9 +287,9 @@ public:
    */
   virtual void addInspectable(const Inspectable* inspectable);
 
-	/** adds an Callbackable object for getting a callback every step.
-	 */
-	virtual void addCallbackable(Callbackable* callbackable);
+  /** adds an Callbackable object for getting a callback every step.
+   */
+  virtual void addCallbackable(Callbackable* callbackable);
 
 protected:
 
@@ -335,7 +338,7 @@ protected:
   std::list<const Inspectable* > inspectables;
   bool initialised;
 
-	std::list<Callbackable* > callbackables;
+  std::list<Callbackable* > callbackables; 
 
 };
 
