@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-03-16 10:56:04  martius
+ *   Revision 1.3  2007-06-21 16:20:34  martius
+ *   inlined isIgnoredSpace and Pair
+ *
+ *   Revision 1.2  2007/03/16 10:56:04  martius
  *   substance added
  *   ignoredSpaces and ignoredPairs
  *
@@ -66,10 +69,6 @@ namespace lpzrobots {
   void OdeHandle::removeIgnoredSpace(dSpaceID g) { 
     ignoredSpaces->erase((long)g);
   }
-  // checks whether the space is an ignored space for collision detection
-  bool OdeHandle::isIgnoredSpace(dSpaceID g) const { 
-    return ignoredSpaces->find((long)g) != ignoredSpaces->end(); 
-  }
   
   // adds a pair of geoms to the list of ignored geom pairs for collision detection
   void OdeHandle::addIgnoredPair(dGeomID g1, dGeomID g2) { 
@@ -90,13 +89,6 @@ namespace lpzrobots {
   void OdeHandle::removeIgnoredPair(Primitive* p1, Primitive* p2) {
     ignoredPairs->erase(std::pair<long, long>((long)p1->getGeom(),(long)p2->getGeom()));
     ignoredPairs->erase(std::pair<long, long>((long)p2->getGeom(),(long)p1->getGeom()));
-  }
-
-
-  // checks whether a pair of geoms is an ignored pair for collision detection
-  bool OdeHandle::isIgnoredPair(dGeomID g1, dGeomID g2) const { 
-    return (ignoredPairs->find(std::pair<long, long>((long)g1,(long)g2)) != ignoredPairs->end())
-      || (ignoredPairs->find(std::pair<long, long>((long)g2,(long)g1)) != ignoredPairs->end());
   }
 
 }

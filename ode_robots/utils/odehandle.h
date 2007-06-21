@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-03-16 10:55:44  martius
+ *   Revision 1.5  2007-06-21 16:20:26  martius
+ *   inlined isIgnoredSpace and Pair
+ *
+ *   Revision 1.4  2007/03/16 10:55:44  martius
  *   substance added
  *   ignoredSpaces and ignoredPairs
  *
@@ -73,7 +76,10 @@ public:
   /// removes a space from the list of ignored spaces for collision detection
   void removeIgnoredSpace(dSpaceID g);
   /// checks whether the space is an ignored space for collision detection
-  bool isIgnoredSpace(dSpaceID g) const;
+  inline bool isIgnoredSpace(dSpaceID g) const { 
+    return ignoredSpaces->find((long)g) != ignoredSpaces->end(); 
+  }
+
   
   /// adds a pair of geoms to the list of ignored geom pairs for collision detection
   void addIgnoredPair(dGeomID g1, dGeomID g2);
@@ -84,13 +90,15 @@ public:
   /// like removeIgnoredPair(dGeomID g1, dGeomID g2) just with primitives (provided for convinience)
   void removeIgnoredPair(Primitive* p1, Primitive* p2);
   /// checks whether a pair of geoms is an ignored pair for collision detection
-  bool isIgnoredPair(dGeomID g1, dGeomID g2) const;
+  inline bool isIgnoredPair(dGeomID g1, dGeomID g2) const { 
+    return (ignoredPairs->find(std::pair<long, long>((long)g1,(long)g2)) != ignoredPairs->end())
+      || (ignoredPairs->find(std::pair<long, long>((long)g2,(long)g1)) != ignoredPairs->end());
+  }
 
   /// set of ignored spaces
   __gnu_cxx::hash_set<long>* ignoredSpaces;
   /// set of ignored geom pairs for collision
   __gnu_cxx::hash_set<std::pair<long,long>, geomPairHash >* ignoredPairs;
-
 };
 
 }
