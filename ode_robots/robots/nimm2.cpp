@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2007-05-07 21:12:19  robot3
+ *   Revision 1.31  2007-06-21 16:23:52  martius
+ *   collision threatment with general collision detection
+ *    maybe modify body substance
+ *   joints are deleted before objects
+ *
+ *   Revision 1.30  2007/05/07 21:12:19  robot3
  *   added experimental force sensors
  *
  *   Revision 1.29  2007/03/06 10:11:04  fhesse
@@ -203,17 +208,7 @@ namespace lpzrobots {
 
 
   Nimm2::~Nimm2(){
-    for (int i=0; i<3; i++) { // update objects
-      if(object[i]) delete object[i];
-    }
-    for (int i=0; i < 2; i++) { // update joints
-      if(joint[i]) delete joint[i];
-    }
-    if (conf.bumper){ // if bumper used update transform objects
-      for (int i=0; i<number_bumpers; i++){
-	if(bumper[i].trans) delete bumper[i].trans;
-      }
-    }
+    destroy();
   }
 
 
@@ -242,10 +237,11 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
- sensor ir_old[4];
- sensor ir_tmp[4];
+  sensor ir_old[4];
+  sensor ir_tmp[4];
+
   int Nimm2::getSensors(sensor* sensors, int sensornumber){
-    assert(created);
+    assert(created); 
 
     // choose sensornumber according to number of motors
     // - one motorcommand -> one sensorvalue
@@ -257,13 +253,14 @@ namespace lpzrobots {
     }
     // ask sensorbank for sensor values (from infrared sensors)
     //  sensor+len is the starting point in the sensors array
-    if (conf.irFront || conf.irSide || conf.irBack)
+    if (conf.irFront || conf.irSide || conf.irBack){
       len += irSensorBank.get(sensors+len, sensornumber-len);
       for (int i=0; i<4; i++){
         ir_tmp[i]=sensors[2+i];
 	sensors[2+i]=ir_tmp[i]-ir_old[i];
 	ir_old[i]=ir_tmp[i];
       }
+    }
     return len;
   };
 
@@ -314,72 +311,76 @@ namespace lpzrobots {
   }
 
 
-  void Nimm2::mycallback(void *data, dGeomID o1, dGeomID o2){
-    // Nimm2* me = (Nimm2*)data;
-    // o1 and o2 are member of the space
+//   void Nimm2::mycallback(void *data, dGeomID o1, dGeomID o2){
+//     // Nimm2* me = (Nimm2*)data;
+//     // o1 and o2 are member of the space
 
-    // we ignore the collisions
-  }
+//     // we ignore the collisions
+//   }
 
-  bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    //checks if one of the collision objects is part of the robot
-    assert(created);
-    bool colwithme = false;
+   bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
+     return false;
+   }
 
-	  if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-	    // collision between anything and me was detected
-      if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
-      if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
+//   bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
+//     //checks if one of the collision objects is part of the robot
+//     assert(created);
+//     bool colwithme = false;
 
-      bool colwithbody;
-      int i,n;
-	    const int N = 50; // number of created contact points
-	    dContact contact[N]; // array for contact points
-      //    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-	    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact)); // let ode create contacts of collision
-		if (visForce)
-			contactPoints+= n;
-      for (i=0; i<n; i++){
-		colwithme = true; // there is at least one collision with some part of the robot (not sensors)
-		colwithbody = false;
-		if( contact[i].geom.g1 == object[0]->getGeom() || contact[i].geom.g2 == object[0]->getGeom() ||
-	    	( bumper[0].trans && bumper[1].trans) && (
-	    	contact[i].geom.g1 == bumper[0].trans->getGeom() ||
-	    	contact[i].geom.g2 == bumper[0].trans->getGeom() ||
-	    	contact[i].geom.g1 == bumper[1].trans->getGeom() ||
-	    	contact[i].geom.g2 == bumper[1].trans->getGeom()) ){
-			  colwithbody = true;
-		}
-		contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	  	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-		// one could try to make the body sliping along its axis by using
-		//  sin(alpha), cos(alpha) for sliping params (only for body collisions)
-		contact[i].surface.slip1 = 0.005; // sliping in x
-		contact[i].surface.slip2 = 0.005; // sliping in y
-		if(colwithbody){
-	  		contact[i].surface.mu = 0.1; // small friction of smooth body
-		  	// contact[i].surface.soft_erp = 0.8;
-	  		//contact[i].surface.soft_cfm = 0.1;
-	  		//contact[i].surface.soft_erp = 0.99;
-	  		//contact[i].surface.soft_cfm = 0.01;
+// 	  if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
+// 	    // collision between anything and me was detected
+//       if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
+//       if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
 
-	  		contact[i].surface.soft_erp = 0.8;
-	  		contact[i].surface.soft_cfm = 0.01;
-		}else{
-			// collision with external world!
-		  	contact[i].surface.mu = 5.0; //large friction
-	  		contact[i].surface.soft_erp = 0.8;
-	  		contact[i].surface.soft_cfm = 0.01;
-			if (visForce) {
-				sumForce+=contact[i].geom.depth;
-			}
-		}
-		dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-		dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-      }
-    }
-    return colwithme;
-  }
+//       bool colwithbody;
+//       int i,n;
+// 	    const int N = 50; // number of created contact points
+// 	    dContact contact[N]; // array for contact points
+//       //    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+// 	    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact)); // let ode create contacts of collision
+// 		if (visForce)
+// 			contactPoints+= n;
+//       for (i=0; i<n; i++){
+// 		colwithme = true; // there is at least one collision with some part of the robot (not sensors)
+// 		colwithbody = false;
+// 		if( contact[i].geom.g1 == object[0]->getGeom() || contact[i].geom.g2 == object[0]->getGeom() ||
+// 	    	( bumper[0].trans && bumper[1].trans) && (
+// 	    	contact[i].geom.g1 == bumper[0].trans->getGeom() ||
+// 	    	contact[i].geom.g2 == bumper[0].trans->getGeom() ||
+// 	    	contact[i].geom.g1 == bumper[1].trans->getGeom() ||
+// 	    	contact[i].geom.g2 == bumper[1].trans->getGeom()) ){
+// 			  colwithbody = true;
+// 		}
+// 		contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
+// 	  	dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// 		// one could try to make the body sliping along its axis by using
+// 		//  sin(alpha), cos(alpha) for sliping params (only for body collisions)
+// 		contact[i].surface.slip1 = 0.005; // sliping in x
+// 		contact[i].surface.slip2 = 0.005; // sliping in y
+// 		if(colwithbody){
+// 	  		contact[i].surface.mu = 0.1; // small friction of smooth body
+// 		  	// contact[i].surface.soft_erp = 0.8;
+// 	  		//contact[i].surface.soft_cfm = 0.1;
+// 	  		//contact[i].surface.soft_erp = 0.99;
+// 	  		//contact[i].surface.soft_cfm = 0.01;
+
+// 	  		contact[i].surface.soft_erp = 0.8;
+// 	  		contact[i].surface.soft_cfm = 0.01;
+// 		}else{
+// 			// collision with external world!
+// 		  	contact[i].surface.mu = 5.0; //large friction
+// 	  		contact[i].surface.soft_erp = 0.8;
+// 	  		contact[i].surface.soft_cfm = 0.01;
+// 			if (visForce) {
+// 				sumForce+=contact[i].geom.depth;
+// 			}
+// 		}
+// 		dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+// 		dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+//       }
+//     }
+//     return colwithme;
+//   }
 
   void Nimm2::doInternalStuff(const GlobalData& globalData){
     // dSpaceCollide(car_space, this, mycallback); // checks collisions in the car_space only (not needed)
@@ -547,11 +548,11 @@ namespace lpzrobots {
    */
   void Nimm2::destroy(){
     if (created){
-      for (int i=0; i<3; i++){
-	if(object[i]) delete object[i];
-      }
       for (int i=0; i<2; i++){
 	if(joint[i]) delete joint[i];
+      }
+      for (int i=0; i<3; i++){ 
+	if(object[i]) delete object[i];
       }
       for (int i=0; i<2; i++){
 	if(bumper[i].bump) delete bumper[i].bump;
