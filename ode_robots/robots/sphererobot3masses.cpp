@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-04-05 15:11:43  martius
+ *   Revision 1.13  2007-06-21 16:24:27  martius
+ *   joints are deleted before objects
+ *
+ *   Revision 1.12  2007/04/05 15:11:43  martius
  *   angular speed tracking
  *
  *   Revision 1.11  2007/04/03 16:27:31  der
@@ -406,13 +409,13 @@ namespace lpzrobots {
    */
   void Sphererobot3Masses::destroy(){
     if (created){
-      for (int i=0; i<Last; i++){
-	if(object[i]) delete object[i];
-      }
       for (int i=0; i<servono; i++){
 	if(joint[i]) delete joint[i];
 	if(servo[i]) delete servo[i];
 	if(axis[i]) delete axis[i];
+      }
+      for (int i=0; i<Last; i++){
+	if(object[i]) delete object[i];
       }
       irSensorBank.clear();
       dSpaceDestroy(odeHandle.space);
