@@ -17,10 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-06-22 14:25:08  martius
+ *   Revision 1.1  2007-06-22 14:25:26  martius
  *   *** empty log message ***
  *
- *   Revision 1.1  2007/06/21 16:31:54  martius
+ *   Revision 1.5  2007/06/21 16:31:54  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2007/06/18 08:11:22  martius
@@ -63,7 +63,6 @@ MultiSat::MultiSat( const MultiSatConf& _conf)
   runcompetefirsttime=true;
   managementInterval=100;
   winner=0;
-  satControl=false;
   initialised = false;  
 };
 
@@ -88,6 +87,7 @@ void MultiSat::init(int sensornumber, int motornumber){
   number_motors  = motornumber;
   number_sensors = sensornumber;  
   int number_real_sensors = number_sensors - conf.numContext;
+  assert(number_real_sensors>0);
 
   if(!conf.controller){
     cerr << "multisat::init() no main controller given in config!" << endl;
@@ -125,6 +125,7 @@ void MultiSat::init(int sensornumber, int motornumber){
   satModPredErrors.set(conf.numSats, 1);
   satAvgErrors.set(conf.numSats, 1);
   satMinErrors.set(conf.numSats, 1);
+  satLearnRateFactors.set(conf.numSats, 1);
 
   // initialise gating network
   int numsomneurons = conf.numSomPerDim;
@@ -156,9 +157,9 @@ void MultiSat::putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& vec, in
 /// performs one step (includes learning). Calculates motor commands from sensor inputs.
 void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_motors)
 {
-  Matrix y_sat;
-
   fillSensorBuffer(x_, number_sensors);
+  conf.controller->step(x_, number_sensors-conf.numContext, y_, number_motors);
+  fillMotorBuffer(y_, number_motors);
   if(t>buffersize) {
     
     const Matrix& errors = compete();    
@@ -180,27 +181,14 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
 				       sats[ranking[0].second].eps);    
     FOREACH(vector<Sat>, sats, s){
       double e = exp(-(1/conf.tauC)*s->lifetime);
-      if(e>10e-12){
-	s->net->learn(satInput, nomSatOutput, s->eps*e);    
+      if(e * s->eps >10e-12){
+	s->net->learn(satInput, nomSatOutput, e * s->eps);    
       }
     }
-
-    // check for satelite control
-    y_sat = controlBySat(winner);
   }
   if(t%managementInterval==0){
     management();
   }
-
-  conf.controller->step(x_, number_sensors-conf.numContext, y_, number_motors);
-  fillMotorBuffer(y_, number_motors);
-  if(!y_sat.isNulltimesNull()){ // okay, use y from sat to control robot partially (half)
-    satControl = true;
-    const Matrix& y = y_buffer[t % buffersize];
-    Matrix y_res = (y + y_sat) * 0.5;
-    y_res.convertToBuffer(y_, number_motors); // store the values into y_ array
-    fillMotorBuffer(y_, number_motors); //  overwrite buffer    
-  }else satControl=false;
   // update step counter
   t++;
 };
@@ -248,35 +236,6 @@ double multisat_min(double a, double b){
   return min(a,b);
 }
 
-Matrix MultiSat::controlBySat(int winner){
-  /* idea 1:
-     sat with below half of the minimal prediction error range is allowed to 
-     give a control suggestion 
-   */
-  //  double mini = min(satMinErrors);
-  //  double maxi = max(satMinErrors);
-  //  if( satAvgErrors.val(winner,0) < ( (mini + maxi) / 2 ) ){
-  /* idea 2:
-     sat with close to its minimum
-   */
-  if( satAvgErrors.val(winner,0) < satMinErrors.val(winner,0)*2 ){
-    const Matrix& x_t   = x_buffer[t%buffersize];
-    const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
-    if(conf.useDerive){
-      const Matrix& xp_t  = xp_buffer[t%buffersize];
-      satInput   = x_t.above(xp_t.above(y_tm1));
-    } else {
-      const Matrix& x_tm1 = x_buffer[(t-1)%buffersize];
-      satInput   = x_t.above(x_tm1.above(y_tm1));
-    }
-    const Matrix& out = sats[winner].net->process(satInput);
-    return out.rows(x_t.getM(), out.getM()-1);
-  }else{    
-    return Matrix();
-  }
-}
-
-
 Matrix MultiSat::compete()
 {
   const Matrix& x_context = x_context_buffer[t%buffersize];
@@ -288,7 +247,6 @@ Matrix MultiSat::compete()
   const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
   const Matrix& y_tm2 = y_buffer[(t-2)%buffersize];
 
-  // depending on useDerive we have
   // we have to use F(x_{t-1},x_{t-2} | \dot x_{t-1} ,y_{t-2}) -> (x_t, y_{t-1}) for the sat network
 
   // let gating network decide about winner:
@@ -351,7 +309,20 @@ void MultiSat::management(){
     s->lifetime+=managementInterval;
   }
   // conf.lambda_comp = t * (1.0/conf.tauC);
-  
+
+  // update learning rates for each network
+  double max_e = max(satAvgErrors);
+  double min_e = min(satAvgErrors) - 1/100*max_e;
+  if(max_e==0 || max_e < min_e) max_e = min_e+0.01;
+  double max_min = max_e - min_e;
+  double min_plus_delta = min_e - max_min*0.01;
+  satLearnRateFactors = (satAvgErrors - satAvgErrors.mapP(&min_plus_delta, constant) )* (1/max_min);
+  int i=0; 
+  FOREACH(vector<Sat> , sats, s){
+    s->eps=conf.eps0*satLearnRateFactors.val(i,0);
+    i++;
+  }
+
   // decay minima
   Matrix deltaM (satMinErrors.getM(),1);
   double delta = (conf.deltaMin*(double)managementInterval/1000.0); 
@@ -412,6 +383,9 @@ bool MultiSat::store(FILE* f) const {
 }
 
 bool MultiSat::restore(FILE* f){
+  if(!initialised)
+    init(2,2);
+  
   char buffer[128];
   if(fscanf(f,"%s\n", buffer) != 1) return false;	
   conf.numSats = atoi(buffer);
@@ -434,7 +408,7 @@ bool MultiSat::restore(FILE* f){
 
   // restore gating network
   if(!gatingSom->restore(f)) return false;
-  if(!gatingNet->restore(f)) return false; 
+  if(!gatingNet->restore(f)) return false;
 
   // clean sats array
   sats.clear();
@@ -477,9 +451,9 @@ list<Inspectable::iparamkey> MultiSat::getInternalParamNames() const {
   keylist += storeVectorFieldNames(satModPredErrors, "mperrs");
   keylist += storeVectorFieldNames(satAvgErrors, "avgerrs");
   keylist += storeVectorFieldNames(satMinErrors, "minerrs");
+  keylist += storeVectorFieldNames(satLearnRateFactors, "lf");
   keylist += string("epsSatAn");
   keylist += string("winner");
-  keylist += string("satctrl");
   return keylist; 
 }
 
@@ -492,9 +466,9 @@ list<Inspectable::iparamval> MultiSat::getInternalParams() const {
   l += satModPredErrors.convertToList();
   l += satAvgErrors.convertToList();
   l += satMinErrors.convertToList();
+  l += satLearnRateFactors.convertToList();
   l += (double)exp(-(1/conf.tauC)*sats[0].lifetime); 
   l += (double)winner;
-  l += (double)satControl;
   return l;
 }
 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-06-21 16:31:54  martius
+ *   Revision 1.7  2007-06-22 14:25:07  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.6  2007/06/21 16:31:54  martius
  *   *** empty log message ***
  *
  *   Revision 1.5  2007/06/18 08:11:22  martius
@@ -225,7 +228,7 @@ public:
 
     /* * * * SPHERES * * * */
     for(int i=0; i< num_spheres; i++){
-      bool replay=true;
+      bool replay=false;
       global.odeConfig.setParam("noise", replay ? 0 : 0.1);
       //****************
       const char* replayfilename="Sphere_reinforce_axis_rot.sel.log";
@@ -247,7 +250,7 @@ public:
 	cc.cInit=1.0;
 	//      cc.useSD=true;
 	//controller = new DerController(cc);    
-	//      controller = new InvertMotorNStep(cc);    
+	controller = new InvertMotorNStep(cc);    
       }else 
 	controller = new ReplayController(replayfilename,true);     
 
@@ -256,8 +259,8 @@ public:
       msc.numContext = 3;
       msc.numSomPerDim = 3;
       msc.numHidden = 2;
-      msc.numSats   = 20;
-      msc.eps0      = 0.01;
+      msc.numSats   = 6;
+      msc.eps0      = 0.005;
       msc.deltaMin  = 0.0005;
       msc.tauC      = 2000;
       msc.useDerive=false;

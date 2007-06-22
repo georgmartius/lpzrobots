@@ -21,17 +21,15 @@
  *    error predictions are modulated by penalty term which depends        *
  *    on suboptimality (away from minimum) for each agent                  *
  *    only winner is allowed to learn                                      *
+ *    individual leaning rate is modulated by NPOSA                        *
  *    every agent has a lifetime and he will learn every timestep as       *
  *    with decreasing learningrate                                         *
  *                                                                         *
- *    the sat network with most learning progress is used for control      *
- *                                                                         *
- *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-06-22 14:25:08  martius
+ *   Revision 1.1  2007-06-22 14:25:26  martius
  *   *** empty log message ***
  *
- *   Revision 1.1  2007/06/21 16:31:54  martius
+ *   Revision 1.5  2007/06/21 16:31:54  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2007/06/18 08:11:22  martius
@@ -75,7 +73,7 @@ typedef struct MultiSatConf {
   int    numContext;    ///< number of context sensors
   int    numSats;       ///< number of satelite networks
   bool   useDerive;     ///< input to sat network includes derivatives
-  double penalty;       ///< factor to multiply the square of the difference of error and optimal error 
+  double penalty;       ///< factor to multiply with square of difference of error and optimal error 
 } MultiSatConf;
 
 /// Satelite network struct
@@ -152,6 +150,7 @@ public:
 
 
 protected:
+public:
   unsigned short number_sensors;
   unsigned short number_motors;
   
@@ -164,7 +163,6 @@ protected:
 
   std::vector <Sat> sats; ///< satelite networks
   int winner; ///< index of winner network
-  bool satControl; ///< True is sat networks take part in control
   matrix::Matrix nomSatOutput; ///< norminal output of satelite networks (x_t,y_t)^T
   matrix::Matrix satInput;     ///< input to satelite networks (x_{t-1}, xp_{t-1}, y_{t-1})^T
 
@@ -174,6 +172,8 @@ protected:
   matrix::Matrix satModPredErrors; ///< modulated predicted errors of sats
   matrix::Matrix satAvgErrors;    ///< average errors of sats
   matrix::Matrix satMinErrors;    ///< minimum errors of sats
+
+  matrix::Matrix satLearnRateFactors;  ///< learning rate factors from 0.01-1.01
 
   SOM* gatingSom;
   MultiLayerFFNN* gatingNet;  
@@ -185,9 +185,6 @@ protected:
   
   /// satelite networks competition, return vector of predicted errors of sat networks
   matrix::Matrix compete();
-
-  /// control of the robot through satelite network(s), and returns suggested control (or 0 matrix if none)
-  matrix::Matrix controlBySat(int winner);
 
   // put new value in ring buffer
   void putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& vec, int delay = 0);
