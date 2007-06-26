@@ -80,11 +80,10 @@ public class SoundManipulation extends Thread {
      if(gui.isPlaybackActive()) {
       for(int i=0; i<numSensors; i++) {
        oldSensorValues[i][1]=Math.abs(new Float(values[i]).floatValue());
-//       sensorDiff=Math.abs(oldSensorValues[i][1]-oldSensorValues[i][0]);
        sensorDiff=oldSensorValues[i][1]-oldSensorValues[i][0];
        sensorDiffs[i]+=0.01f*(sensorDiff-sensorDiffs[i]);
        sensorDiff=Math.abs(sensorDiffs[i]);
-       gui.setSensorValue(i,sensorDiff);
+       gui.setSensorValue(i,sensorDiff*100);
        switch(mode) {
         case 1: // discrete
          if(10.0f*sensorDiff>param) {
@@ -105,8 +104,8 @@ public class SoundManipulation extends Thread {
          sensorMax=Math.max(sensorMax,sensorDiff);
          if(i==numSensors-1) {
           try {
-           int note=gui.getNote()+10;
-           int volume=(int)Math.min(127,param*sensorMax*127.0f);
+           int note=gui.getNote()+27;
+           int volume=(int)Math.min(127,param*sensorMax*127000.0f);
            ShortMessage sm=new ShortMessage();
            sm.setMessage(ShortMessage.NOTE_ON, 0, note, volume);
            synthRcvr.send(sm, -1);
@@ -123,7 +122,7 @@ public class SoundManipulation extends Thread {
          sensorMax=Math.max(sensorMax,sensorDiff);
          if(i==numSensors-1) {
           try {
-           int note=(int)Math.min(127,param*sensorMax*127.0f);
+           int note=(int)Math.min(127,param*sensorMax*12700.0f);
            gui.setNote(note);
            ShortMessage sm=new ShortMessage();
            sm.setMessage(ShortMessage.NOTE_ON, 0, note, 90);
@@ -139,13 +138,15 @@ public class SoundManipulation extends Thread {
          break;
         case 4: // master mode
          try {
-          int volume=(int)Math.min(100,Math.sqrt(sensorDiff)*300.0f);
-          int note=volume+27*i/(numSensors-1);
-          ShortMessage sm=new ShortMessage();
-          sm.setMessage(ShortMessage.NOTE_ON, i, note, volume);
-          synthRcvr.send(sm, -1);
-          sm.setMessage(ShortMessage.NOTE_OFF, i, note, volume);
-          synthRcvr.send(sm, 50);
+          if(sensorDiff>0.0f) {
+           int volume=(int)Math.min(100,sensorDiff*12500.0f);
+           int note=volume+27*i/(numSensors-1);
+           ShortMessage sm=new ShortMessage();
+           sm.setMessage(ShortMessage.NOTE_ON, i, note, volume);
+           synthRcvr.send(sm, -1);
+           sm.setMessage(ShortMessage.NOTE_OFF, i, note, volume);
+           synthRcvr.send(sm, 50);
+          }
          } catch(InvalidMidiDataException imde) {
           System.out.println(imde.getMessage());
           System.exit(0);
