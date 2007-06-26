@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <stdio.h>
-#include <iostream.h>
+#include <iostream>
 
 
 static void* CSerialThread_run(void* p);
@@ -93,13 +93,10 @@ bool CSerialThread::run(){
   // main loop
   while(!terminated){
     pthread_testcancel();
-	
-    
     /* Get sensor values / send motor values. */
     //usleep(1000000);
     writeMotors_readSensors();
-    
-    //ReceivedCommand(s);
+    loopCallback();
   }//  end of while loop
   close(fd_in);
   fd_in=-1;

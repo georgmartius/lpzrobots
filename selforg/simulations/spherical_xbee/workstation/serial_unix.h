@@ -56,10 +56,7 @@ class CSerialThread{
     virtual ~CSerialThread(){stopandwait();};
 
     // for communication with inherited class
-    
-    /// (log) received string 
-    virtual void ReceivedCommand() = 0; //const DAT& s) = 0;
-    
+        
     // read sensors and write motors
     virtual void writeMotors_readSensors() = 0; //const DAT& s) = 0;
 
