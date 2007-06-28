@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2006-10-20 14:25:07  martius
+ *   Revision 1.16  2007-06-28 11:25:36  fhesse
+ *   dBodyAddRelForce() as comment in  setMotors to check later
+ *
+ *   Revision 1.15  2006/10/20 14:25:07  martius
  *   *** empty log message ***
  *
  *   Revision 1.14  2006/09/21 22:09:58  martius
@@ -249,7 +252,10 @@ namespace lpzrobots {
   */
   void HurlingSnake::setMotors(const motor* motors, int motornumber){    
     //  dBodyAddForce (object[NUM-1].body,motors[0]*factorForce,motors[1]*factorForce,motors[2]*factorForce);
+    // force vector in global frame of reference
     dBodyAddForce (object[NUM-1]->getBody(),motors[0]*factorForce,motors[1]*factorForce,0);
+    // force vector is applied relative to the body's own frame of reference
+    //dBodyAddRelForce (object[NUM-1]->getBody(),motors[0]*factorForce,motors[1]*factorForce,0);
   }
 
 
