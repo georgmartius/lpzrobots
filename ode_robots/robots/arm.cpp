@@ -29,7 +29,8 @@
 #include "oneaxisservo.h"
 
 #include <selforg/controller_misc.h>
-#include <selforg/matrix.h>
+#include "../../../selforg/matrix/matrix.h"
+//#include <selforg/matrix.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -59,8 +60,6 @@ namespace lpzrobots{
 		
     motorno=4; // dito
 
-		hitCount=0;
-		lastHit=0;
     print=3; //0;
 
 		// standard objects color: white 
@@ -73,7 +72,7 @@ namespace lpzrobots{
 		this->osgHandle.color = Color(1.1,1,1.4);
   
 		endeff.set(3,1);
-	
+			
 	};
 
   /**
@@ -131,8 +130,8 @@ namespace lpzrobots{
     sensors[0]=pos[0];
     sensors[1]=pos[1];
     sensors[2]=pos[2];
-    sensors[3]=0;
-		scaleShoulderCentered(sensors);
+    sensors[3]=pos[2];
+		// TODO scaleShoulderCentered(sensors);
 		
 //		printf("sensors: ");
 //    for(unsigned int n=0; n<3; n++) 
@@ -155,7 +154,7 @@ namespace lpzrobots{
  		// controller output as torques
 		for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++) 
 		{
-			hingeServos[i]->set(motors[i]);
+			hingeServos[i]->set(0.5*motors[i]);
 		}
 //		printf("motors: ");
 //		for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++) 
@@ -192,30 +191,12 @@ namespace lpzrobots{
   void Arm::doInternalStuff(const GlobalData& globalData)
 	{
 	  if(created)
-	    {
-	      // mycallback is called for internal collisions! Only once per step
-	      dSpaceCollide(odeHandle.space, this, mycallback);
-	      if(lastHit>0)
 		{
-		  lastHit--;
-		  //		  objects[hand+1]->setTexture("Images/red.jpg");
-		  objects[hand+1]->setColor(Color(1,0,0));
-		  if(lastHit==0){
-		    objects[hand+1]->setColor(Color(0,1,0));
-		  }
-		} 
-	    }
-	}
+			// mycallback is called for internal collisions! Only once per step
+			dSpaceCollide(odeHandle.space, this, mycallback);
+		}
+	}	
 
-	void Arm::hitTarget()
-	{
-	  
-	  if(lastHit<=0){
-	    lastHit=10;
-	  }
-	    hitCount++;
-	}
-	
   void Arm::mycallback(void *data, dGeomID o1, dGeomID o2)
 	{
     Arm* me = (Arm*)data;  
@@ -249,11 +230,6 @@ namespace lpzrobots{
 				dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
       }
     }
-		else if(((o1 == me->objects[hand+1]->getGeom()) && (o2 == me->objects[hand]->getGeom()))
-				    || ((o2 == me->objects[hand+1]->getGeom()) && (o1 == me->objects[hand]->getGeom())))
-		{
-				me->hitTarget();
-		}
   }
 
   bool Arm::collisionCallback(void *data, dGeomID o1, dGeomID o2)
@@ -387,23 +363,6 @@ namespace lpzrobots{
 	 	_hand->init(odeHandle, 0.005 /*almost weightless*/, osgHandle);
 		_hand->setPose(_pose); 
 		objects.push_back(_hand);
-
-  	if(conf.displayTarget)
-		{
-			Color c(osgHandle.color);
-	  	c.alpha() = 0.4;
-			OsgHandle osgHandle_target = osgHandle.changeColor(c);
-	  	Sphere* targetSphere = new Sphere(conf.targetRadius);
-			targetSphere->init(odeHandle, 0.1, osgHandle_target);			
-    	osg::Matrix tp = osg::Matrix::translate(conf.targetPos[0], conf.targetPos[1], conf.targetPos[2]);
-			targetSphere->setPose(tp);
-			targetSphere->setColor(Color(0,1,0));
-			objects.push_back(targetSphere);
-			FixedJoint* anker = new FixedJoint(0 /* fixation to ground*/, objects[hand+1]/*targetSphere*/);
-			anker->init(odeHandle, osgHandle);
-			joints.push_back(anker);
-			scaleShoulderCentered(conf.targetPos); // now just needed to display and compare with (shoulder centered) sensor values
-		}
 		
 // ===== JOINTS AND MOTORS ========
 		// fixation of cuboid base
@@ -428,7 +387,8 @@ namespace lpzrobots{
 		joints.push_back(HJ_elbow);
 		// create servo motor for elbow joint, add to list of motors 
 		// min und max beeinlussen Geschwindigkeit?!	
-		HingeServo* elbow_servo = new HingeServo(HJ_elbow, conf.servoFactor*conf.elbow_min, conf.servoFactor*conf.elbow_max, conf.motorPower, conf.damping, 0);
+		HingeServo* elbow_servo = new HingeServo(HJ_elbow, conf.servoFactor*conf.elbow_min, conf.servoFactor*conf.elbow_max, 
+				conf.scaleMotorElbow * conf.motorPower, conf.damping, 0); // P D I(0.1-0.2)
     hingeServos.push_back(elbow_servo);
 // === one axis joint for shoulder elevation =====
 // === Biess, Flash (2006): THETA ================
@@ -559,11 +519,7 @@ namespace lpzrobots{
 list<Inspectable::iparamkey> Arm::getInternalParamNames() const
 {
 	list<Inspectable::iparamkey> keylist;
-	keylist+=storeMatrixFieldNames(endeff,"pos");
-	keylist+= string("target_x");
-	keylist+= string("target_y");
-	keylist+= string("target_z");
-	keylist+= string("dummy");
+	keylist+=storeMatrixFieldNames(endeff,"endeff");
 //	printf("gotInternalParamNames\n");
  	return keylist;
 }
@@ -572,10 +528,6 @@ list<Inspectable::iparamval> Arm::getInternalParams() const
 {
 	list<Inspectable::iparamval> l;
 	l+=endeff.convertToList();
-	l+=conf.targetPos[0];
-	l+=conf.targetPos[1];
-	l+=conf.targetPos[2];
-	l+=conf.targetPos[2];
 //	printf("gotInternalParams\n");
   return l;
 }

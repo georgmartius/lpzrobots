@@ -21,7 +21,6 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #ifndef __ARM_H
 #define __ARM_H
 
@@ -89,14 +88,12 @@ namespace lpzrobots{
 		double motorPower;
 	  double damping;    // motor damping
 		double servoFactor; // reduces servo angle constraints to servoFactor percent of hingeJoint angle constraints
-
-		bool displayTarget; // true - display sphere at given targetPos
-		double targetRadius;
-		double* targetPos; // position of target sphere
+		double scaleMotorElbow;
 		
   } ArmConf;
-
-  class Arm : public OdeRobot, public Inspectable {
+	
+  class Arm : public OdeRobot, public Inspectable 
+	{
   public:
 		  
 		Arm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const ArmConf& conf, const std::string& name);
@@ -135,11 +132,8 @@ namespace lpzrobots{
 			conf.elbow_min=-M_PI/2;
 			conf.elbow_max=M_PI/2;
 			conf.servoFactor=0.8;
+			conf.scaleMotorElbow=0.8;
 
-			conf.displayTarget=false;
-			conf.targetRadius=0.5;
-			conf.targetPos=NULL;
-			
       return conf;
 		}			
 			
@@ -189,21 +183,6 @@ namespace lpzrobots{
 			return motorno;
 		};
 
-		/**
-		 * transform position in external coordinate space into position in shoulder centered coordinate space
-		 * (second shoulder part assumed to be origin)
-		 * e.g. used to create a proper target in distal learning
-		 * @param list containing  x,y,z-coordinate
-		 */
-		void scaleShoulderCentered(double* pos)
-		{
-			// TODO ensure that not less than 3 values
-			osg::Vec3 origin = objects[shoulder2]->getPosition();	
-			pos[0]=(pos[0]-origin[0])*factorSensors;
-			pos[1]=(pos[1]-origin[1])*factorSensors;
-			pos[2]=(pos[2]-origin[2])*factorSensors;
-		}
-		
 		/** 
 		 * returns a vector with the positions of all segments of the robot
 		 * @param poslist vector of positions (of all robot segments)
@@ -237,16 +216,6 @@ namespace lpzrobots{
 
     virtual Primitive* getMainObject() const;
 		
-		int getHitCounter()
-		{
-			return hitCount;
-		}
-	
-		void resetHitCounter()
-		{
-			hitCount=0;
-		}
-		
   	/**
 		 * the main object of the robot, which is used for position and speed tracking 
 		 */
@@ -255,6 +224,10 @@ namespace lpzrobots{
 			//return objects[hand]; 
 			return objects[base]; 
 		}
+		
+		void setDlearnTargetHack(double* post);
+		void setDmotorTargetHack(double* post);
+
 	protected:
 
 		/** 
@@ -272,7 +245,7 @@ namespace lpzrobots{
 		static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
 		void hitTarget();
-		
+	
     double dBodyGetPositionAll ( dBodyID basis , int para );
 		double dGeomGetPositionAll ( dGeomID basis , int para );
 
@@ -295,15 +268,11 @@ namespace lpzrobots{
 		std::vector <Joint*> joints; // Joint* joint[NUMJoints]; 
 		std::vector <HingeServo*> hingeServos;
 	
-		int hitCount;
-		int lastHit;
-		
 		int sensorno;      // number of sensors
 		int motorno;       // number of motors
 		
 		bool created;      // true if robot was created
 	
-		
 		dSpaceID parentspace;
 		
 		int printed;
