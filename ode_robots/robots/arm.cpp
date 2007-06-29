@@ -433,7 +433,7 @@ namespace lpzrobots{
 					  osg::Vec3(pos[0]+(conf.shoulder_radius)+(conf.joint_offset), pos[1], pos[2]), 
 					  osg::Vec3(0, -1, 0)); // rotated rotation axis (z-axis of shoulder centered coordinate system) 
     // because of lifting the arm M_PI/2 in the beginning
-    HJ_humer->init(odeHandle, osgHandle, true);
+    HJ_humer->init(odeHandle, osgHandle, true); 
     HJ_humer->setParam(dParamLoStop, conf.humeral_min);
     HJ_humer->setParam(dParamHiStop, conf.humeral_max); 
     joints.push_back(HJ_humer);
@@ -451,21 +451,21 @@ namespace lpzrobots{
   void Arm::destroy()
   {
     if (created){
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) 
-	{
-	  if(*i) delete *i;
-	}
-      objects.clear();
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++) 
-	{
-	  if(*i) delete *i;
-	}
-      joints.clear();
       for (vector<HingeServo*>::iterator i = hingeServos.begin(); i!= hingeServos.end(); i++) 
 	{
 	  if(*i) delete *i;
 	}
       hingeServos.clear();
+      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++) 
+	{
+	  if(*i) delete *i;
+	}
+      joints.clear();
+      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) 
+	{
+	  if(*i) delete *i;
+	}
+      objects.clear();
       
       dSpaceDestroy(odeHandle.space);
     }
