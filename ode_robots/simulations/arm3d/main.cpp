@@ -116,13 +116,14 @@ class ThisSim : public Simulation
 //		global.obstacles.push_back(s2);
 									 
     ArmConf conf = Arm::getDefaultConf();
-   	conf.displayTarget=true;
-		conf.targetPos=target;
-		conf.targetRadius=0.2;
-		
+    
     arm = new Arm(odeHandle, osgHandle, conf, "Arm");
 
     ((OdeRobot*)arm)->place(Position(-0.7,0.9,0.1));
+    // fixation of cuboid base
+    FixedJoint* anker = new FixedJoint(global.environment /* fixation to ground*/, arm->getMainObject());
+    anker->init(odeHandle, osgHandle);
+
     global.configs.push_back(arm);
 
 		// PSEUDOLINEAR MODEL CONTROLLER
@@ -192,8 +193,8 @@ class ThisSim : public Simulation
 		dteachingSignal = new double[dteachingLen];
 	
 		// transform target into shoulder centered coordinates
-		arm->scaleShoulderCentered(target);
-		printf("target shoulder centered = (%f, %f, %f)\n", target[0], target[1], target[2]);		
+		//		arm->scaleShoulderCentered(target);
+		// printf("target shoulder centered = (%f, %f, %f)\n", target[0], target[1], target[2]);		
 	} //start-end
 
 	// add distal teaching signal (desired behavior! not error)
@@ -202,64 +203,63 @@ class ThisSim : public Simulation
 	//	double sineRate=30;
 	// 	double phaseShift=0.65;
 
-		double pos[3];
-		double lambda=0.1; // 1 - target is target for each timestep, 0<..<1 - intermediate targets
-		if(dteaching)
-		{
-			arm->getEndeffectorPosition(pos);
-			arm->scaleShoulderCentered(pos);
-			// reaching into the right direction (target-pos)
-			dteachingSignal[0]=(1-lambda)*pos[0]+lambda*target[0];
-			dteachingSignal[1]=(1-lambda)*pos[1]+lambda*target[1];
-			dteachingSignal[2]=(1-lambda)*pos[2]+lambda*target[2];
-			dteachingSignal[3]=0;
-			// Bemerkung: durch Clipping in InvertMotorNStep y-Sollsignale fast immer -1 oder 1!
-			// maybe therefore no reaching?
-			// printf("setdone (%d) %f %f %f %f\n", dteachingLen, dteachingSignal[0], dteachingSignal[1], dteachingSignal[2], dteachingSignal[3]);
-			controller->setSensorTeachingSignal(dteachingSignal, 4); // teaching signal and its length 
-		} 
+// 		double pos[3];
+// 		double lambda=0.1; // 1 - target is target for each timestep, 0<..<1 - intermediate targets
+// 		if(dteaching)
+// 		{
+// 			arm->getEndeffectorPosition(pos);
+// 			arm->scaleShoulderCentered(pos);
+// 			// reaching into the right direction (target-pos)
+// 			dteachingSignal[0]=(1-lambda)*pos[0]+lambda*target[0];
+// 			dteachingSignal[1]=(1-lambda)*pos[1]+lambda*target[1];
+// 			dteachingSignal[2]=(1-lambda)*pos[2]+lambda*target[2];
+// 			dteachingSignal[3]=0;
+// 			// Bemerkung: durch Clipping in InvertMotorNStep y-Sollsignale fast immer -1 oder 1!
+// 			// maybe therefore no reaching?
+// 			// printf("setdone (%d) %f %f %f %f\n", dteachingLen, dteachingSignal[0], dteachingSignal[1], dteachingSignal[2], dteachingSignal[3]);
+// 			controller->setSensorTeachingSignal(dteachingSignal, 4); // teaching signal and its length 
+// 		} 
 	}; // addCallback-end
 
-//Funktion die eingegebene Befehle/kommandos verarbeitet
-/*virtual*/ bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
-{
-	if (!down) return false;
-	bool handled = false;
-	switch ( key )
-	{
-		case 'u' :
-			dteaching=!dteaching;Color(1.1,1,1.4);
-			if(dteaching)
-			  arm->getMainPrimitive()->setColor(Color(0.6,0.5,0.9));
-			else{
-			  arm->getMainPrimitive()->setColor(Color(1.1,1,1.4));
-			}
-			arm->resetHitCounter();
-			printf("Distal teaching %s.\n", dteaching ? "on" : "off");
-			break;
-		case 'i' :
-			dteachingSignal[0] = std::min(0.95, dteachingSignal[0]+0.1);
-			dteachingSignal[1] = std::min(0.95, dteachingSignal[1]+0.1);
-			dteachingSignal[2] = std::min(0.95, dteachingSignal[2]+0.1);
-			dteachingSignal[3] = std::min(0.95, dteachingSignal[3]+0.1);
-			controller->setSensorTeachingSignal(dteachingSignal, 4); // teaching signal and its length
-			printf("DistalTeachingSignal: %f, %f, %f, %f\n", dteachingSignal[0], dteachingSignal[1], dteachingSignal[2], dteachingSignal[3]);
-			handled = true;
-			break;
-		case 'k' :
-			dteachingSignal[0] = std::max(-0.95, dteachingSignal[0]-0.1);
-			dteachingSignal[1] = std::max(-0.95, dteachingSignal[1]-0.1);
-			dteachingSignal[2] = std::max(-0.95, dteachingSignal[2]-0.1);
-			dteachingSignal[3] = std::max(-0.95, dteachingSignal[3]-0.1);
-			controller->setSensorTeachingSignal(dteachingSignal, 4); // teaching signal and its length 
-			printf("Distal  Teaching  Signal: %f, %f, %f, %f\n", dteachingSignal[0], dteachingSignal[1], dteachingSignal[2], dteachingSignal[3]);
-			handled = true;
-			break;
-	}	 
-	fflush(stdout);
-  return handled;
-}
-//}; // class-end
+// //Funktion die eingegebene Befehle/kommandos verarbeitet
+// /*virtual*/ bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+// {
+// 	if (!down) return false;
+// 	bool handled = false;
+// 	switch ( key )
+// 	{
+// 		case 'u' :
+// 			dteaching=!dteaching;Color(1.1,1,1.4);
+// 			if(dteaching)
+// 			  arm->getMainPrimitive()->setColor(Color(0.6,0.5,0.9));
+// 			else{
+// 			  arm->getMainPrimitive()->setColor(Color(1.1,1,1.4));
+// 			}
+// 			arm->resetHitCounter();
+// 			printf("Distal teaching %s.\n", dteaching ? "on" : "off");
+// 			break;
+// 		case 'i' :
+// 			dteachingSignal[0] = std::min(0.95, dteachingSignal[0]+0.1);
+// 			dteachingSignal[1] = std::min(0.95, dteachingSignal[1]+0.1);
+// 			dteachingSignal[2] = std::min(0.95, dteachingSignal[2]+0.1);
+// 			dteachingSignal[3] = std::min(0.95, dteachingSignal[3]+0.1);
+// 			controller->setSensorTeachingSignal(dteachingSignal, 4); // teaching signal and its length
+// 			printf("DistalTeachingSignal: %f, %f, %f, %f\n", dteachingSignal[0], dteachingSignal[1], dteachingSignal[2], dteachingSignal[3]);
+// 			handled = true;
+// 			break;
+// 		case 'k' :
+// 			dteachingSignal[0] = std::max(-0.95, dteachingSignal[0]-0.1);
+// 			dteachingSignal[1] = std::max(-0.95, dteachingSignal[1]-0.1);
+// 			dteachingSignal[2] = std::max(-0.95, dteachingSignal[2]-0.1);
+// 			dteachingSignal[3] = std::max(-0.95, dteachingSignal[3]-0.1);
+// 			controller->setSensorTeachingSignal(dteachingSignal, 4); // teaching signal and its length 
+// 			printf("Distal  Teaching  Signal: %f, %f, %f, %f\n", dteachingSignal[0], dteachingSignal[1], dteachingSignal[2], dteachingSignal[3]);
+// 			handled = true;
+// 			break;
+// 	}	 
+// 	fflush(stdout);
+//   return handled;
+// }
 
 /*virtual*/ void bindingDescription(osg::ApplicationUsage & au) const 
 {
@@ -269,7 +269,7 @@ class ThisSim : public Simulation
 
 virtual void end(GlobalData& globalData)
 {
-	printf("TREFFER: %d\n", arm->getHitCounter());
+  //	printf("TREFFER: %d\n", arm->getHitCounter());
 }
 
 };

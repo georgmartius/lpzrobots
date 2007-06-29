@@ -103,7 +103,7 @@ class ThisSim : public Simulation
 //		targetSphere->init(odeHandle, 0, osgHandle_target);
 //		osg::Matrix tp = osg::Matrix::translate(target[0], target[1], target[2]);
 //		targetSphere->setPose(tp);
-//		FixedJoint* anker = new FixedJoint(0 /* fixation to ground*/, targetSphere);
+//		FixedJoint* anker = new FixedJoint(global.environment /* fixation to ground*/, targetSphere);
 //		anker->init(odeHandle, osgHandle);
 				
 //		// X-direction sphere
@@ -119,13 +119,15 @@ class ThisSim : public Simulation
 //		global.obstacles.push_back(s2);
 									 
     ArmConf conf = Arm::getDefaultConf();
-   	conf.displayTarget=true;
-		conf.targetPos=target;
-		conf.targetRadius=0.2;
-		
+    //    conf.withContext=true;
+    conf.useJointSensors=false;
     arm = new Arm(odeHandle, osgHandle, conf, "Arm");
 
     ((OdeRobot*)arm)->place(Position(-0.7,0.9,0.1));
+    // fixation of cuboid base
+    FixedJoint* anker = new FixedJoint(global.environment /* fixation to ground*/, arm->getMainObject());
+    anker->init(odeHandle, osgHandle);
+
     global.configs.push_back(arm);
 
 		// PSEUDOLINEAR MODEL CONTROLLER
@@ -170,12 +172,12 @@ class ThisSim : public Simulation
 
 		//AbstractController* controller = new SineController();
 
-		MultiSatConf msc = MultiSat::getDefaultConf();
-	      msc.controller = controller;
-	      msc.numContext = 3;
-	      msc.numHidden = 4;
-	      msc.numSats = 4;
-	      AbstractController* multisat = new MultiSat(msc);
+// 		MultiSatConf msc = MultiSat::getDefaultConf();
+// 	      msc.controller = controller;
+// 	      msc.numContext = 3;
+// 	      msc.numHidden = 4;
+// 	      msc.numSats = 4;
+// 	      AbstractController* multisat = new MultiSat(msc);
 
 
 		// create pointer to one2onewiring
@@ -185,7 +187,8 @@ class ThisSim : public Simulation
 		// initialize pointer with controller, robot and wiring
 		// push agent in globel list of agents
 		OdeAgent*  agent = new OdeAgent(plotoptions);
-		agent->init(multisat, arm, wiring);
+		//		agent->init(multisat, arm, wiring);
+		agent->init(controller, arm, wiring);
 
 		//  agent->setTrackOptions(TrackRobot(true, false, false,50));
 		global.agents.push_back(agent);
@@ -204,7 +207,7 @@ class ThisSim : public Simulation
 		dteachingSignal = new double[dteachingLen];
 	
 		// transform target into shoulder centered coordinates
-		arm->scaleShoulderCentered(target);
+		//		arm->scaleShoulderCentered(target);
 		printf("target shoulder centered = (%f, %f, %f)\n", target[0], target[1], target[2]);		
 	} //start-end
 
@@ -219,7 +222,7 @@ class ThisSim : public Simulation
 		if(dteaching)
 		{
 			arm->getEndeffectorPosition(pos);
-			arm->scaleShoulderCentered(pos);
+			// arm->scaleShoulderCentered(pos);
 			// reaching into the right direction (target-pos)
 			dteachingSignal[0]=(1-lambda)*pos[0]+lambda*target[0];
 			dteachingSignal[1]=(1-lambda)*pos[1]+lambda*target[1];
@@ -246,7 +249,7 @@ class ThisSim : public Simulation
 			else{
 			  arm->getMainPrimitive()->setColor(Color(1.1,1,1.4));
 			}
-			arm->resetHitCounter();
+			//arm->resetHitCounter();
 			printf("Distal teaching %s.\n", dteaching ? "on" : "off");
 			break;
 		case 'i' :
@@ -281,7 +284,7 @@ class ThisSim : public Simulation
 
 virtual void end(GlobalData& globalData)
 {
-	printf("TREFFER: %d\n", arm->getHitCounter());
+  //printf("TREFFER: %d\n", arm->getHitCounter());
 }
 
 };
