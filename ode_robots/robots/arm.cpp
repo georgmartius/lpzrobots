@@ -514,21 +514,21 @@ namespace lpzrobots{
     return true;
   };
 
-  list<Inspectable::iparamkey> Arm::getInternalParamNames() const
-  {
-    list<Inspectable::iparamkey> keylist;
-    keylist+=storeMatrixFieldNames(endeff,"endeff");
-    //	printf("gotInternalParamNames\n");
-    return keylist;
-  }
-
-  list<Inspectable::iparamval> Arm::getInternalParams() const 
-  {
-    list<Inspectable::iparamval> l;
-    l+=endeff.convertToList();
-    //	printf("gotInternalParams\n");
-    return l;
-  }
+//  list<Inspectable::iparamkey> Arm::getInternalParamNames() const
+//  {
+//    list<Inspectable::iparamkey> keylist;
+////    keylist+=storeMatrixFieldNames(endeff,"endeff");
+//    //	printf("gotInternalParamNames\n");
+//    return keylist;
+//  }
+//
+//  list<Inspectable::iparamval> Arm::getInternalParams() const 
+//  {
+//    list<Inspectable::iparamval> l;
+////    l+=endeff.convertToList();
+//    //	printf("gotInternalParams\n");
+//    return l;
+//  }
 
   //list<Inspectable::ILayer> Arm::getStructuralLayers() const 
   //{
