@@ -95,7 +95,7 @@ namespace lpzrobots{
 		
   } ArmConf;
 	
-  class Arm : public OdeRobot, public Inspectable 
+  class Arm : public OdeRobot /*, public Inspectable */
   {
   public:
 		  
@@ -258,8 +258,8 @@ namespace lpzrobots{
     void BodyCreate(int n, dMass m, dReal x, dReal y, dReal z, dReal qx, dReal qy, dReal qz, dReal qangle);
 
     // inspectable interface
-    virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
-    virtual std::list<Inspectable::iparamval> getInternalParams() const;
+    //virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
+    //virtual std::list<Inspectable::iparamval> getInternalParams() const;
     //		virtual std::list<ILayer> getStructuralLayers() const;
     //		virtual std::list<IConnection> getStructuralConnections() const;
 
