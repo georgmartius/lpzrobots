@@ -119,7 +119,7 @@ class ThisSim : public Simulation
 //		global.obstacles.push_back(s2);
 									 
     ArmConf conf = Arm::getDefaultConf();
-    //    conf.withContext=true;
+    conf.withContext=true;
     conf.useJointSensors=false;
     arm = new Arm(odeHandle, osgHandle, conf, "Arm");
 
@@ -168,16 +168,16 @@ class ThisSim : public Simulation
 		controller->setParam("epsC",0.05);
 		controller->setParam("rootE",3);
 		controller->setParam("teacher",0.5);
-		global.configs.push_back(controller);
+		global.configs.push_back(controller); 
 
 		//AbstractController* controller = new SineController();
 
-// 		MultiSatConf msc = MultiSat::getDefaultConf();
-// 	      msc.controller = controller;
-// 	      msc.numContext = 3;
-// 	      msc.numHidden = 4;
-// 	      msc.numSats = 4;
-// 	      AbstractController* multisat = new MultiSat(msc);
+		MultiSatConf msc = MultiSat::getDefaultConf();
+		msc.controller = controller;
+		msc.numContext = 3;
+		msc.numHidden = 4;
+		msc.numSats = 4;
+		AbstractController* multisat = new MultiSat(msc);
 
 
 		// create pointer to one2onewiring
@@ -187,8 +187,8 @@ class ThisSim : public Simulation
 		// initialize pointer with controller, robot and wiring
 		// push agent in globel list of agents
 		OdeAgent*  agent = new OdeAgent(plotoptions);
-		//		agent->init(multisat, arm, wiring);
-		agent->init(controller, arm, wiring);
+		agent->init(multisat, arm, wiring);
+		//		agent->init(controller, arm, wiring);
 
 		//  agent->setTrackOptions(TrackRobot(true, false, false,50));
 		global.agents.push_back(agent);
