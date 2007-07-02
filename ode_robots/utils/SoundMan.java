@@ -1,5 +1,6 @@
 /*
  Converts sensor values into sound.
+ Authors: Steffen Horn, Tobias Müller
 */
 
 import java.io.*;

@@ -10,20 +10,23 @@ public class SoundManGUI extends JFrame {
  private int curInstrument;
  private boolean isPlaybackActive;
  private int note;
+ private int toneLength;
  private JComboBox instruCB;
  private JLabel l4;
  private JSlider noteSlide;
+ private JSlider toneLSlide;
  private JSlider[] sensorSlide;
 
  public SoundManGUI(float p, int m) {
   param=p;
   mode=m;
+  toneLength=150;
   if(mode>=3) noteSlide.setEnabled(false);
   isPlaybackActive=true;
   getContentPane().setLayout(null);
   setTitle("SoundMan");
   setResizable(false);
-  setSize(250,290);
+  setSize(250,305);
 
 
   ////////// param //////////
@@ -154,27 +157,45 @@ public class SoundManGUI extends JFrame {
    }
   );
 
+  ////////// tone length //////////
+  JLabel l6=new JLabel("Tone length in ms:");
+  l6.setBounds(10, 120, 120, 20);
+  getContentPane().add(l6);
+
+  toneLSlide=new JSlider(50, 1000, 150);
+  toneLSlide.setBounds(125, 120, 115, 35);
+  toneLSlide.setMajorTickSpacing(950);
+  toneLSlide.setPaintLabels(true);
+  getContentPane().add(toneLSlide);
+  toneLSlide.addChangeListener(
+   new ChangeListener() {
+    public void stateChanged(ChangeEvent e) {
+     toneLength=toneLSlide.getValue();
+    }
+   }
+  );
+
   ////////// instruments //////////
   JLabel l3=new JLabel("Instrument:");
-  l3.setBounds(10, 120, 80, 20);
+  l3.setBounds(10, 155, 80, 20);
   getContentPane().add(l3);
 
   instruCB=new JComboBox();
-  instruCB.setBounds(90, 120, 140, 20);
+  instruCB.setBounds(90, 155, 140, 20);
   getContentPane().add(instruCB);
 
   ////////// sensors //////////
   l4=new JLabel("Number of sensors: -");
-  l4.setBounds(10, 150, 200, 20);
+  l4.setBounds(10, 175, 200, 20);
   getContentPane().add(l4);
 
   ////////// playback //////////
   JLabel l5=new JLabel("Playback:");
-  l5.setBounds(10, 230, 200, 20);
+  l5.setBounds(10, 245, 200, 20);
   getContentPane().add(l5);
 
   final JButton playbackB=new JButton("Mute");
-  playbackB.setBounds(90, 230, 140, 20);
+  playbackB.setBounds(90, 245, 140, 20);
   getContentPane().add(playbackB);
   playbackB.addActionListener(
    new ActionListener() {
@@ -185,6 +206,10 @@ public class SoundManGUI extends JFrame {
     }
    }
   );
+ }
+
+ public int getToneLength() {
+  return toneLength;
  }
 
  public int getNote() {
@@ -209,7 +234,7 @@ public class SoundManGUI extends JFrame {
   for(int i=0; i<n; i++) {
    sensorSlide[i]=new JSlider(JSlider.VERTICAL,0, 100, 0);
    sensorSlide[i].setEnabled(false);
-   sensorSlide[i].setBounds((i+1)*230/(n+1), 165, 10, 50);
+   sensorSlide[i].setBounds((i+1)*230/(n+1), 190, 10, 50);
    getContentPane().add(sensorSlide[i]);
    getContentPane().repaint();
   }
