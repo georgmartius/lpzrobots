@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-04-03 16:27:50  der
+ *   Revision 1.10  2007-07-03 13:01:41  martius
+ *   new pid formulas, with stepsize
+ *   we use clipped sum for integral term
+ *   and clipped derivative value
+ *
+ *   Revision 1.9  2007/04/03 16:27:50  der
  *   no stepD anymore
  *
  *   Revision 1.8  2007/01/26 12:04:15  martius
@@ -77,6 +82,7 @@ namespace lpzrobots {
     double I;
 	
     double force;
+    double lasttime;  // last update time (to calc stepsize)
 
     //*********************methods******************
   public :
@@ -89,7 +95,7 @@ namespace lpzrobots {
 		
     double getTargetPosition ();
 		
-    double step ( double newsensorval );
+    double step ( double newsensorval, double time);
   };
 
 }
