@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-05-08 10:18:15  der
+ *   Revision 1.8  2007-07-03 13:06:41  martius
+ *   groundplane thick
+ *
+ *   Revision 1.7  2007/05/08 10:18:15  der
  *   added a function for starting the measure after a given time.
  *   made some tests
  *
@@ -82,9 +85,10 @@
 namespace lpzrobots {
 
   AbstractGround::AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-				 bool createGround, double groundLength, double groundWidth)
+				 bool createGround, double groundLength, double groundWidth, double wallThickness)
     : AbstractObstacle(odeHandle, osgHandle), 
-      creategroundPlane(createGround), groundLength(groundLength), groundWidth(groundWidth) {
+      creategroundPlane(createGround), groundLength(groundLength), groundWidth(groundWidth), 
+      wallThickness(wallThickness) {
     groundPlane=0;
     wallTextureFileName="Images/wall.rgb";
     groundTextureFileName="Images/greenground.rgb";
@@ -165,10 +169,10 @@ namespace lpzrobots {
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
-      groundPlane = new Box(groundLength,groundWidth, 0.10f);
+      groundPlane = new Box(groundLength+1.95*wallThickness, groundWidth+1.95*wallThickness, 0.50f);
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.01f) * pose);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.25f) * pose);
       groundPlane->setTexture(groundTextureFileName,true,true);
       obst.push_back(groundPlane);
     }

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-03-16 11:01:37  martius
+ *   Revision 1.15  2007-07-03 13:06:41  martius
+ *   groundplane thick
+ *
+ *   Revision 1.14  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -128,7 +131,7 @@ namespace lpzrobots {
     Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
 	       const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) ,
 	       double factorxy = 1, bool createGround=true)
-      : AbstractGround(odeHandle, osgHandle, createGround, dimension.x(), dimension.x()*factorxy) {
+      : AbstractGround(odeHandle, osgHandle, createGround, dimension.x(), dimension.x()*factorxy, dimension.y()) {
 
       length=dimension.x();
       width=dimension.y();

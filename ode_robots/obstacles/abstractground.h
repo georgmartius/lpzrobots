@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-05 15:10:14  martius
+ *   Revision 1.6  2007-07-03 13:06:41  martius
+ *   groundplane thick
+ *
+ *   Revision 1.5  2007/04/05 15:10:14  martius
  *   extra ground substance
  *
  *   Revision 1.4  2007/03/16 11:01:37  martius
@@ -86,7 +89,7 @@ namespace lpzrobots {
 public:
 
     AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		   bool createGround, double groundLength, double groundWidth);
+		   bool createGround, double groundLength, double groundWidth, double wallThickness);
 
     virtual ~AbstractGround();
 
@@ -124,6 +127,7 @@ public:
     bool creategroundPlane;
     double groundLength;
     double groundWidth;
+    double wallThickness;
     std::string wallTextureFileName;
     Color groundColor;
     std::string groundTextureFileName;

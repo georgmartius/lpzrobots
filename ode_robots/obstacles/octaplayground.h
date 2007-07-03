@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-03-16 11:01:37  martius
+ *   Revision 1.9  2007-07-03 13:06:41  martius
+ *   groundplane thick
+ *
+ *   Revision 1.8  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -104,7 +107,7 @@ namespace lpzrobots {
 
     OctaPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 		 const Pos& geometry = Pos(7,0.2,0.5), int numberCorners=8, bool createGround=true):
-    AbstractGround::AbstractGround(odeHandle, osgHandle,createGround,2*geometry.x(),2*geometry.x()) {    
+    AbstractGround::AbstractGround(odeHandle, osgHandle,createGround,2*geometry.x(),2*geometry.x(), geometry.y()) {
     radius = geometry.x();
     width  = geometry.y();
     height = geometry.z();
