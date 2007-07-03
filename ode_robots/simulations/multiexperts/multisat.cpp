@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-06-22 14:25:08  martius
+ *   Revision 1.7  2007-07-03 13:06:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.6  2007/06/22 14:25:08  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2007/06/21 16:31:54  martius
@@ -257,7 +260,7 @@ Matrix MultiSat::controlBySat(int winner){
   //  double maxi = max(satMinErrors);
   //  if( satAvgErrors.val(winner,0) < ( (mini + maxi) / 2 ) ){
   /* idea 2:
-     sat with close to its minimum
+     if it is close to its minimum
    */
   if( satAvgErrors.val(winner,0) < satMinErrors.val(winner,0)*2 ){
     const Matrix& x_t   = x_buffer[t%buffersize];

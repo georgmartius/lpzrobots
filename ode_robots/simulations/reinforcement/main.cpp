@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-04-05 14:44:14  martius
+ *   Revision 1.2  2007-07-03 13:06:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2007/04/05 14:44:14  martius
  *   reinforcement stuff
  *
  *   Revision 1.15  2007/04/03 16:26:47  der
@@ -247,7 +250,7 @@ public:
       // conf.irSide=true;
       conf.drawIRs=false;
       OdeHandle h1 = odeHandle;
-      h1.substance.toFoam(0.1);
+      h1.substance.toFoam(10);
 	
       sphere1 = new Sphererobot3Masses ( h1, osgHandle.changeColor(Color(0,0.0,2.0)), 
 					 conf, "Sphere1_SD", 0.3); 

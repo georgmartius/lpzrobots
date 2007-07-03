@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-01-26 12:07:08  martius
+ *   Revision 1.10  2007-07-03 13:06:17  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.9  2007/01/26 12:07:08  martius
  *   orientationsensor added
  *
  *   Revision 1.2  2006/07/14 12:23:55  martius
@@ -57,7 +60,7 @@
 #include "playground.h"
 // used passive spheres
 #include "joint.h"
-#include "oneaxisservo.h"
+#include "oneaxisservo.h" 
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
@@ -73,19 +76,32 @@ public:
   AbstractController *controller;
 
   Primitive* sphere1;
+  Primitive* box1;
+  Primitive* box2;
+  Primitive* box3;
   SliderServo* servo;
+  SliderServo* servo2;
+  SliderServo* servo3;
   SliderJoint* joint;
+  SliderJoint* joint2;
+  SliderJoint* joint3;
+  double freq;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     setCameraHomePos(Pos(1.53837, 4.73003, 1.27411),  Pos(154.844, -9.01605, 0));
+
+    dWorldSetContactMaxCorrectingVel ( odeHandle.world , 50);
+    dWorldSetContactSurfaceLayer (odeHandle.world, 0.001);
+
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.noise=0.1;
     //    global.odeConfig.setParam("gravity", 0);
     global.odeConfig.setParam("cameraspeed", 250);
+    global.odeConfig.setParam("simstepsize", 0.01);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
@@ -102,18 +118,44 @@ public:
     sphere1=new Sphere(0.2);
     sphere1->init(odeHandle, 1, osgHandle);
     sphere1->setPose(osg::Matrix::translate(0,0,1));
-    joint = new SliderJoint(global.environment, sphere1,sphere1->getPosition(), Axis(0,0,1));
-    joint->init(odeHandle, osgHandle, true,1);
-    servo = new OneAxisServo(joint,-1,1,1);
-    
+    joint = new SliderJoint(sphere1, global.environment, sphere1->getPosition(), Axis(0,0,1));
+    joint->init(odeHandle, osgHandle, true,0.1);
+    servo = new OneAxisServo(joint,-1,1,100,0.2,2);    
 
+    box1=new Box(1,1,1);
+    box1->init(odeHandle, 10, osgHandle);
+    box1->setPose(osg::Matrix::translate(1,0,0.5));
+    box2=new Box(1,1,1);
+    box2->init(odeHandle, 1, osgHandle);
+    box2->setPose(osg::Matrix::translate(1,0,2));
+    box3=new Box(1,1,1);
+    box3->init(odeHandle, 1, osgHandle);
+    box3->setPose(osg::Matrix::translate(1,0,3.5));
+    joint2 = new SliderJoint(box1, box2, (box1->getPosition() + box2->getPosition())/2, Axis(0,0,1));
+    joint2->init(odeHandle, osgHandle, true,0.1);
+    joint3 = new SliderJoint(box2, box3, (box1->getPosition() + box2->getPosition())/2, Axis(0,0,1));
+    joint3->init(odeHandle, osgHandle, true,0.1);
+    servo2 = new OneAxisServo(joint2,-1,1,100,0.2,2);    
+    servo3 = new OneAxisServo(joint3,-1,1,100,0.2,2);    
+
+    freq=0.06;
   }
 
   /// addCallback()  optional additional callback function.
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause) {
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     sphere1->update();    
     joint->update();    
-    //    servo->set(0);
+    servo->set(sin(globalData.time/freq));
+
+    box1->update();    
+    box2->update();    
+    box3->update();    
+    joint2->update();    
+    joint3->update();    
+    servo2->set(sin(globalData.time/freq));
+    servo3->set(sin((globalData.time+1.234567)/freq ));
+    // servo->set(0, globalData.time);
+    //printf("Point: %f \n", servo->get());
   }
 
 
@@ -122,16 +164,12 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key ) {
-      case 'y' : dBodyAddForce ( sphere1->getBody() , 0 ,0 , 100 ); break;
-      case 'a' : dBodyAddForce ( sphere1->getBody(), 0 , 0 , 100 ); break;
-      case 'x' : dBodyAddTorque ( sphere1->getBody(), 0 , 0 , 2 ); break;
-      case 'c' : dBodyAddTorque ( sphere1->getBody() , 0 , 0 , -2 ); break;
-      case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")-0.5); 
-	printf("sineRate : %g\n", controller->getParam("sineRate"));
-	break;
-      case 's' : controller->setParam("sineRate", controller->getParam("sineRate")+0.5); 
-      printf("sineRate : %g\n", controller->getParam("sineRate"));
-      break;
+      case 'x' : dBodyAddForce ( box3->getBody() , 0 ,0 , 1000 ); break;
+      case 'X' : dBodyAddForce ( box3->getBody(), 0 , 0 , -1000 ); break;
+      case 'y' : dBodyAddForce ( sphere1->getBody() , 0 ,0 , 1000 ); break;
+      case 'a' : dBodyAddForce ( sphere1->getBody(), 0 , 0 , -1000 ); break;
+      case 'S' : freq*=0.8; printf("FR : %g\n", freq);	break; 
+      case 's' : freq/=0.8; printf("FR : %g\n", freq);	break; 
       case 'P' : servo->power()+=5; printf("KP : %g\n", servo->power()); break;
       case 'p' : servo->power()-=5; printf("KP : %g\n", servo->power()); break;
       case 'D' : servo->damping()*=1.01; printf("KD : %g\n", servo->damping()); break;
