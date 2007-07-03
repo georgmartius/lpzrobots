@@ -106,7 +106,7 @@ namespace lpzrobots{
       ArmConf conf;		 
 			
       conf.motorPower=2;//1.0;
-      conf.damping=0.1;//1.0;
+      conf.damping=0.05;//1.0;
       conf.upperarm_radius = 0.05;//0.15; <- not beautiful
       conf.forearm_radius = 0.05;//0.1; <- not beautiful TODO universelle Anordnung!
 			

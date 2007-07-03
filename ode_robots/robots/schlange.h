@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2007-01-26 12:05:04  martius
+ *   Revision 1.22  2007-07-03 13:05:23  martius
+ *   new servo constants
+ *
+ *   Revision 1.21  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.20  2006/12/21 11:43:05  martius
@@ -131,7 +134,7 @@ public:
     conf.motorPower = 1;    //  power of the servos
     conf.sensorFactor = 1;    //  scale for sensors
     conf.frictionGround = 1.0; // friction with ground
-    conf.frictionJoint = 0.1; // friction within joint
+    conf.frictionJoint = 0.02; // friction within joint
     conf.jointLimit =  M_PI/4;
     return conf;
   }

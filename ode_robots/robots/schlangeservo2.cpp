@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-02-12 13:28:38  martius
+ *   Revision 1.6  2007-07-03 13:05:23  martius
+ *   new servo constants
+ *
+ *   Revision 1.5  2007/02/12 13:28:38  martius
  *   twoaxiservos
  *
  *   Revision 1.4  2006/09/20 12:56:17  martius
@@ -131,7 +134,7 @@ namespace lpzrobots {
       
       UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
 					          -conf.jointLimit, conf.jointLimit, conf.motorPower, 
-						  0.5,0.0);
+						  0.02,0.0);
       servos.push_back(servo);
       
       frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, 

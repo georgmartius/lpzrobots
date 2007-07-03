@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-04-20 12:20:13  martius
+ *   Revision 1.5  2007-07-03 13:05:23  martius
+ *   new servo constants
+ *
+ *   Revision 1.4  2007/04/20 12:20:13  martius
  *   new servo parameter
  *
  *   Revision 1.3  2007/02/23 15:14:17  martius
@@ -75,7 +78,7 @@ namespace lpzrobots {
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base]->getBody() ) );
     if(conf.motorsensor){
       for ( unsigned int n = 0; n < numberaxis; n++ ) {
-	sensors[len] = servo[n]->get()*0.5;
+	sensors[len] = servo[n]->get()*0.5; // we half them to decrease their influence to the control
 	len++;
       }
     }
@@ -132,15 +135,16 @@ namespace lpzrobots {
 				 p, Axis((n==0), (n==1), (n==2))*pose );
       joint[n]->init(odeHandle, osgHandle, false);
       // the Stop parameters are messured from the initial position!
-      joint[n]->setParam ( dParamLoStop, -1.2*conf.diameter*conf.pendularrange );
-      joint[n]->setParam ( dParamHiStop, 1.2*conf.diameter*conf.pendularrange );
+//       joint[n]->setParam ( dParamLoStop, -1.2*conf.diameter*conf.pendularrange );
+//       joint[n]->setParam ( dParamHiStop, 1.2*conf.diameter*conf.pendularrange );
       joint[n]->setParam ( dParamStopCFM, 0.1);
       joint[n]->setParam ( dParamStopERP, 0.9);
       joint[n]->setParam ( dParamCFM, 0.001);
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
-				 conf.pendularmass*100,10,1); 
+				 //				 conf.pendularmass*100,10,1); 
+      				 conf.pendularmass*conf.motorpowerfactor,0.1,0.5); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);

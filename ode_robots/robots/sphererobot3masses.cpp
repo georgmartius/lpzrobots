@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-06-21 16:24:27  martius
+ *   Revision 1.14  2007-07-03 13:05:23  martius
+ *   new servo constants
+ *
+ *   Revision 1.13  2007/06/21 16:24:27  martius
  *   joints are deleted before objects
  *
  *   Revision 1.12  2007/04/05 15:11:43  martius
@@ -204,7 +207,7 @@ namespace lpzrobots {
   
     if(conf.motorsensor){
       for ( unsigned int n = 0; n < numberaxis; n++ ) {
-	sensors[len] = servo[n]->get() * 0.2;
+	sensors[len] = servo[n]->get() * 0.5;  // we half them to decrease their influence to the control
 	len++;
       }
     }
@@ -345,7 +348,8 @@ namespace lpzrobots {
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
-				 conf.pendularmass*conf.motorpowerfactor,10,1); 
+				 //				 conf.pendularmass*conf.motorpowerfactor,10,1); 
+				 conf.pendularmass*conf.motorpowerfactor,0.1,0.5); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);

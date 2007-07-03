@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-03-30 17:52:28  martius
+ *   Revision 1.11  2007-07-03 13:05:23  martius
+ *   new servo constants
+ *
+ *   Revision 1.10  2007/03/30 17:52:28  martius
  *   sensor and motor assignment fixed
  *   friction with ground adaptable
  *
@@ -146,7 +149,7 @@ namespace lpzrobots {
     }
     
     odeHandle.space = dSimpleSpaceCreate (parentspace);
-    //    odeHandle.substance.toRubber(0.001);
+    //    odeHandle.substance.toRubber(10);
 	
     vector<Pos> ancors;
     // angular positioning

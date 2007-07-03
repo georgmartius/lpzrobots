@@ -24,7 +24,10 @@
  * cylinder like Robot inspired by Julius Popp's Adam.                     *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-01-26 12:05:04  martius
+ *   Revision 1.4  2007-07-03 13:05:23  martius
+ *   new servo constants
+ *
+ *   Revision 1.3  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.2  2006/12/21 11:43:05  martius
@@ -101,6 +104,7 @@ public:
     c.spheremass   = .3;// 0.1
     c.pendularmass  = 1.0;
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
+    c.motorpowerfactor = 150;
     c.motorsensor = false;  
     c.irAxis1=false;
     c.irAxis2=false;
