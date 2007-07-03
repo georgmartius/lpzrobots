@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-08-11 15:45:38  martius
+ *   Revision 1.3  2007-07-03 13:13:57  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2006/08/11 15:45:38  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2006/08/08 17:03:27  martius
@@ -77,8 +80,7 @@ namespace lpzrobots {
   int RelativePositionSensor::get(sensor* sensors, int length) const{
     assert(ref);    assert(own); 
     int i = 0;
-    int len = getSensorNumber();
-    assert ( length >= len );
+    assert ( length >= getSensorNumber() );
     osg::Vec3 v = ref->getPosition() - own->getPosition();
     double scale = pow(v.length() / maxDistance, exponent);
     v *= (1/maxDistance)*scale;
