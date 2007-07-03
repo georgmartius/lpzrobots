@@ -23,7 +23,11 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-03-16 11:00:41  martius
+ *   Revision 1.7  2007-07-03 13:03:07  martius
+ *   assert for parts
+ *   getPartX also as non-Const
+ *
+ *   Revision 1.6  2007/03/16 11:00:41  martius
  *   registration of ignored geoms
  *
  *   Revision 1.5  2007/01/26 12:05:36  martius
@@ -83,6 +87,7 @@
 #ifndef __JOINT_H
 #define __JOINT_H
 
+#include <assert.h>
 #include <list>
 
 #include "primitive.h"
@@ -99,7 +104,9 @@ namespace lpzrobots {
   class Joint {
   public: 
     Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor) 
-      : joint(0), part1(part1), part2(part2), anchor(anchor) {}
+      : joint(0), part1(part1), part2(part2), anchor(anchor) {
+      assert(part1 && part2);
+    }
     virtual ~Joint();
     /** initialises (and creates) the joint. If visual is true then the joints is
 	also drawn. visualSize is the size of the visual representation.
@@ -118,7 +125,9 @@ namespace lpzrobots {
     
     dJointID getJoint() const  { return joint; }
     const Primitive* getPart1() const { return part1; }
+    Primitive* getPart1() { return part1; }
     const Primitive* getPart2() const { return part2; } 
+    Primitive* getPart2() { return part2; } 
     const osg::Vec3 getAnchor() const { return anchor; }
 
     /// returns the number of Axes
@@ -140,6 +149,7 @@ namespace lpzrobots {
     Primitive* part1;
     Primitive* part2;    
     osg::Vec3 anchor;
+  public:
     OdeHandle odeHandle;
   };
 
