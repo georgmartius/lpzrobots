@@ -23,7 +23,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-03-16 10:50:32  martius
+ *   Revision 1.2  2007-07-03 13:14:57  martius
+ *   stepsize included, but not yet sorted out
+ *   changing stepsize varies the behaviour
+ *
+ *   Revision 1.1  2007/03/16 10:50:32  martius
  *   initial version
  *
  *
@@ -118,7 +122,7 @@ namespace lpzrobots {
 
   public:
     /// Combination of two surfaces
-    static dSurfaceParameters getSurfaceParams(const Substance& s1, const Substance& s2);
+    static dSurfaceParameters getSurfaceParams(const Substance& s1, const Substance& s2, double stepsize);
 
     static void printSurfaceParams(const dSurfaceParameters& surfParams);
 

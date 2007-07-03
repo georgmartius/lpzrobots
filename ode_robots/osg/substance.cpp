@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-04-03 16:32:58  der
+ *   Revision 1.3  2007-07-03 13:13:27  martius
+ *   stepsize included, but not yet sorted out
+ *   changing stepsize varies the behaviour
+ *
+ *   Revision 1.2  2007/04/03 16:32:58  der
  *   default material softer
  *
  *   Revision 1.1  2007/03/16 10:50:43  martius
@@ -58,18 +62,29 @@ namespace lpzrobots {
   }
 
   // Combination of two surfaces
-  dSurfaceParameters Substance::getSurfaceParams(const Substance& s1, const Substance& s2){
+  dSurfaceParameters Substance::getSurfaceParams(const Substance& s1, const Substance& s2, double stepsize){
     dSurfaceParameters sp;    
     sp.mu = s1.roughness * s2.roughness;
     //    sp.bounce;
     //    sp.bounce_vel;
     dReal kp   = 100*s1.hardness* s2.hardness / (s1.hardness + s2.hardness);
     double kd1 = (1.00-s1.elasticity);
-    double kd2 = (1.00-s2.elasticity);
-    dReal kd   = 10*(kd1 * s2.hardness + kd2 * s1.hardness) / (s1.hardness + s2.hardness);
-    //  cout << "spring: " << kp << "\t "<<kd << endl;
-    sp.soft_erp = kp / ( kp + kd);
-    sp.soft_cfm = 1  / (kp + kd);
+    double kd2 = (1.00-s2.elasticity); 
+    dReal kd   = 50*(kd1 * s2.hardness + kd2 * s1.hardness) / (s1.hardness + s2.hardness);
+    //    cout << "spring: " << kp << "\t "<<kd << "\t step: " << stepsize << endl;    
+//     kp=10000;
+//     kd=0;
+    sp.soft_erp = stepsize*kp / ( stepsize*kp + kd);
+    sp.soft_cfm =  1 / (stepsize*kp + kd);
+//    sp.soft_erp = 10000*stepsize*stepsize;
+//    sp.soft_cfm =  0;
+//     if(sp.soft_cfm>0.1) {
+//       fprintf(stderr,"CFM on collision to large!\n");
+//     }
+//     if(sp.soft_erp<0.1) {
+//       fprintf(stderr,"ERP on collision to small!\n");
+//     }
+//    cout << "ERP: " << sp.soft_erp << "\t CFM:  "<<  sp.soft_cfm << endl;
     //    sp.motion1,motion2;
     sp.slip1=s1.slip + s2.slip;
     sp.slip2=s1.slip + s2.slip;
@@ -99,31 +114,36 @@ namespace lpzrobots {
     toPlastic(0.8);
   }
 
-  // very hard and elastic 
+  // very hard and elastic  with slip
   Substance Substance::getMetal(float _roughness){
     Substance s;
     s.toMetal(_roughness);
     return s;
   }
-  // very hard and elastic
+  // very hard and elastic with slip
   void Substance::toMetal(float _roughness){
+    if(_roughness<0) { cerr << "negative roughness in metal!" << endl;}
+    if(_roughness>2) { cerr << "very rough metal used!" << endl;}
     roughness = _roughness;
-    hardness   = 20;
-    elasticity = 1.0;
+    hardness   = 200;
+    elasticity = 0.8;
     slip       = 0.01;
   }
   
+  // high roughness, no slip, very elastic, hardness : [5-50]
   Substance Substance::getRubber(float _hardness){
     Substance s;
     s.toRubber(_hardness);
     return s;
   }
 
-  // high roughness, no slip, a bit elastic, hardness : [0.1-0.5]
+  // high roughness, no slip, very elastic, hardness : [5-50]
   void Substance::toRubber(float _hardness){
+    if(_hardness<5) { cerr << "to soft rubber!" << endl;}
+    if(_hardness>50) { cerr << "to hard rubber!" << endl;}
     roughness  = 3;
     hardness   = _hardness;
-    elasticity = 0.3;
+    elasticity = 0.95;
     slip       = 0.0;
   }
   
@@ -135,15 +155,17 @@ namespace lpzrobots {
 
   }
 
-  // medium slip, a bit elastic, medium hardness, roughness [0.5-1]
+  // medium slip, a bit elastic, medium hardness, roughness [0.5-2]
   void Substance::toPlastic(float _roughness){
+    if(_roughness<0) { cerr << "negative roughness in plastic!" << endl;}
+    if(_roughness>3) { cerr << "very rough plastic used!" << endl;}
     roughness  = _roughness;
-    hardness   = 2;
-    elasticity = 0.5;
+    hardness   = 40;
+    elasticity = 0.5; 
     slip       = 0.01;
   }
 
-  // large slip, not elastic, low hardness [0.01-0.3], high roughness
+  // large slip, not elastic, low hardness [1-30], high roughness
   Substance Substance::getFoam(float _hardness){
     Substance s;
     s.toFoam(_hardness);
@@ -151,8 +173,10 @@ namespace lpzrobots {
 
   }
 
-  // large slip, not elastic, low hardness [0.01-0.3], high roughness
+  // large slip, not elastic, low hardness [1-30], high roughness
   void Substance::toFoam(float _hardness){
+    if(_hardness<1) { cerr << "to soft foam!" << endl;}
+    if(_hardness>30) { cerr << "to hard foam!" << endl;}
     roughness  = 2;
     hardness   = _hardness;
     elasticity = 0;
