@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-04-03 16:37:09  der
+ *   Revision 1.4  2007-07-03 12:59:57  martius
+ *   new servo parameter, for current servo implementation
+ *
+ *   Revision 1.3  2007/04/03 16:37:09  der
  *   *** empty log message ***
  *
  *   Revision 1.2  2007/03/16 10:57:44  martius
@@ -246,8 +249,9 @@ namespace lpzrobots {
     // the pole is a non-visible box which hinders the dog from falling over.
     Primitive* pole;
     double poleheight=conf.size*2;
-    pole = new Box(conf.size*2,twidth*1.5,poleheight);
+    pole = new Box(conf.size*1.6,twidth*1.5,poleheight);
     bigboxtransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,theight/2+poleheight/2));
+    //bigboxtransform->init(odeHandle, 0, osgHandle.changeAlpha(0.1), Primitive::Geom | Primitive::Draw); 
     bigboxtransform->init(odeHandle, 0, osgHandle, Primitive::Geom); 
     objects.push_back(bigboxtransform);
     
@@ -282,7 +286,7 @@ namespace lpzrobots {
     j = new HingeJoint(trunk, neck, neckpos * pose, Axis(0,0,1) * pose);
     j->init(odeHandle, osgHandleJ, true, theight * 1.2);
     joints.push_back(j);
-    servo =  new HingeServo(j, -M_PI/4, M_PI/4, headmass/2,20); 
+    servo =  new HingeServo(j, -M_PI/4, M_PI/4, headmass/2); 
     headtailservos.push_back(servo);        
 
     // create tail
@@ -301,7 +305,7 @@ namespace lpzrobots {
     j->setParam(dParamLoStop, -M_PI/2);
     j->setParam(dParamHiStop,  M_PI/2);    
     joints.push_back(j);
-    servo =  new HingeServo(j, -M_PI/3, M_PI/3, tailmass*3 ,20); 
+    servo =  new HingeServo(j, -M_PI/3, M_PI/3, tailmass*3); 
     headtailservos.push_back(servo);        
     tail->setTexture("Images/fur3.jpg");
     ///ignore collision between box on top of dog and tail
@@ -346,7 +350,7 @@ namespace lpzrobots {
       j->init(odeHandle, osgHandleJ, true, t1 * 2.1);
       joints.push_back(j);
       servo =  new HingeServo(j,hiplowstop, hiphighstop, 
-			      conf.hipPower,0.1,0);
+			      conf.hipPower, conf.hipDamping,0 );
       hipservos.push_back(servo);
 
       // lower limp
@@ -388,7 +392,7 @@ namespace lpzrobots {
 	odeHandle.addIgnoredPair(trunk,p3);      
 	
 	// servo used as a spring
-	servo =  new HingeServo(j, anklelowstop, anklehighstop, conf.anklePower, conf.ankleDamping,0);
+	servo =  new HingeServo(j, anklelowstop, anklehighstop, conf.anklePower, conf.ankleDamping, 0);
 	ankleservos.push_back(servo);
 	p3->setTexture("Images/toy_fur3.jpg");
       }

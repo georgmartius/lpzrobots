@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-04-03 16:37:13  der
+ *   Revision 1.4  2007-07-03 13:00:14  martius
+ *   new servo parameter, for current servo implementation
+ *
+ *   Revision 1.3  2007/04/03 16:37:13  der
  *   *** empty log message ***
  *
  *   Revision 1.2  2007/03/16 10:57:26  martius
@@ -98,14 +101,13 @@ namespace lpzrobots {
       c.mass       = 1;
       c.relLegmass = 1;
       c.hipPower = 3;
-      c.hipDamping = 10;
+      c.hipDamping = 0.1;
       c.kneePower  = 2;
-      c.kneeDamping = 2;
-      c.anklePower  = 1.5;
-      c.ankleDamping = 2;
+      c.kneeDamping = 0.05;
+      c.anklePower  = 0.5;
+      c.ankleDamping = 0.02;
       c.hipJointLimit = M_PI/2; // +- 90 degree
       c.kneeJointLimit = M_PI/4; // +- 45 degree
-      c.frictionGround = 0.1;
       //      c.elasticity = 10;
       return c;
     }
