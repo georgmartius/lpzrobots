@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.63  2007-06-21 16:19:59  martius
+ *   Revision 1.64  2007-07-03 13:09:32  martius
+ *   odeHandle knows about time
+ *
+ *   Revision 1.63  2007/06/21 16:19:59  martius
  *   -nopgraphics option which disables graphics rendering
  *
  *   Revision 1.62  2007/06/08 15:37:22  martius
@@ -337,6 +340,7 @@
 #include <selforg/abstractwiring.h>
 
 #include "simulation.h"
+#include "odeagent.h"
 #include "console.h"
 
 #include <osg/ShapeDrawable>
@@ -401,18 +405,17 @@ namespace lpzrobots {
   bool Simulation::init(int argc, char** argv){
 
     /**************** ODE-Section   ***********************/
-    odeHandle.init();
+    odeHandle.init(&globalData.time);
 
     globalData.odeConfig.setOdeHandle(odeHandle);
 
     //set Gravity to Earth level
     dWorldSetGravity ( odeHandle.world , 0 , 0 , globalData.odeConfig.gravity );
-    dWorldSetERP ( odeHandle.world , 0.9 );
+    dWorldSetERP ( odeHandle.world , 0.3 );
     dWorldSetCFM ( odeHandle.world,1e-4);
 
-    dWorldSetContactMaxCorrectingVel (odeHandle.world, 1000); // default is infinity
+    dWorldSetContactMaxCorrectingVel (odeHandle.world, 100); // default is infinity
     dWorldSetContactSurfaceLayer (odeHandle.world, 0.001); // default is 0
-
 
     cmd_handler_init();
 
@@ -742,40 +745,43 @@ namespace lpzrobots {
 	  }
 	  return true;
 	  break;
-	default:
-		//	std::cout << ea.getKey() << std::endl;
-	  return false;
+	case 65450: // keypad *  // normal * is allready used by LOD 
+	  globalData.odeConfig.setParam("realtimefactor", 0);
+	  std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
+	  handled=true;
 	  break;
-
-	case 65450: // *
-		globalData.odeConfig.realTimeFactor=0;
-		std::cout << "realtimefactor = " << globalData.odeConfig.realTimeFactor << std::endl;
-		handled=true;
-		break;
-	case 65451: // +
-		if (globalData.odeConfig.realTimeFactor>=2)
-			globalData.odeConfig.realTimeFactor+=1;
-		else if (globalData.odeConfig.realTimeFactor>=1.0)
-			globalData.odeConfig.realTimeFactor+=0.25;
-		else if (globalData.odeConfig.realTimeFactor>=0.1)
-			globalData.odeConfig.realTimeFactor+=0.1;
-		else
-			globalData.odeConfig.realTimeFactor=1;
-		std::cout << "realtimefactor = " << globalData.odeConfig.realTimeFactor << std::endl;
-		handled=true;
-		break;
-	case 65453: // -
-		if (globalData.odeConfig.realTimeFactor>2)
-			globalData.odeConfig.realTimeFactor-=1;
-		else if (globalData.odeConfig.realTimeFactor>=1.25)
-			globalData.odeConfig.realTimeFactor-=0.25;
-		else if (globalData.odeConfig.realTimeFactor>0.1)
-			globalData.odeConfig.realTimeFactor-=0.1;
-		else
-			globalData.odeConfig.realTimeFactor=1;
-		std::cout << "realtimefactor = " << globalData.odeConfig.realTimeFactor << std::endl;
-		handled=true;
-		break;
+	case 65451: // keypad +
+	case 43: // +
+	  { 
+	    double rf = globalData.odeConfig.realTimeFactor;
+	    if (rf >= 2)
+	      globalData.odeConfig.setParam("realtimefactor", rf+1);
+	    else if (rf>=1.0)
+	      globalData.odeConfig.setParam("realtimefactor", rf+0.25);
+	    else if (rf>=0.1)
+	      globalData.odeConfig.setParam("realtimefactor", rf+0.1);
+	    else
+	      globalData.odeConfig.setParam("realtimefactor", 0.1);
+	    std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+	    handled=true;
+	  }
+	  break;
+	case 65453: // keypad -
+	case 45: // -
+	  { 
+	    double rf = globalData.odeConfig.realTimeFactor;
+	    if (rf>2)
+	      globalData.odeConfig.setParam("realtimefactor", rf-1);
+	    else if (rf>=1.0)
+	      globalData.odeConfig.setParam("realtimefactor", rf-0.25);
+	    else if (rf>=0.1)
+	      globalData.odeConfig.setParam("realtimefactor", rf-0.1);
+	    else
+	      globalData.odeConfig.setParam("realtimefactor", 0.1);
+	    std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+	    handled=true;
+	  }
+	  break;
 	case 18:  // Ctrl - r
 	  if(videostream.isOpen()){
 	    printf("Stop video recording!\n");
@@ -798,34 +804,37 @@ namespace lpzrobots {
 	  printf( pause ? "Pause\n" : "Continue\n" );
 	  resetSyncTimer();
 	  handled = true;
-	  break;
+	  break;	
+	default:
+	  // std::cout << ea.getKey() << std::endl;
+	  return false;
+	  break;	
 	}
       }
+      break;
     case(osgGA::GUIEventAdapter::KEYUP):
-      {
-	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);
-      }
+      handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);	
     default:
       break;
     }
     return handled;
   }
-
+    
   void Simulation::getUsage (osg::ApplicationUsage& au) const {
     au.addKeyboardMouseBinding("Simulation: Ctrl-f","File-Logging on/off");
     au.addKeyboardMouseBinding("Simulation: Ctrl-g","Restart the Gui-Logger");
     au.addKeyboardMouseBinding("Simulation: Ctrl-r","Start/Stop video recording");
     au.addKeyboardMouseBinding("Simulation: Ctrl-p","Pause on/off");
-	au.addKeyboardMouseBinding("Simulation: +","increase simulation speed (realtimefactor)");
-	au.addKeyboardMouseBinding("Simulation: -","decrease simulation speed (realtimefactor)");
-	au.addKeyboardMouseBinding("Simulation: *","set maximum simulation speed (realtimefactor=0)");
-	bindingDescription(au);
+    au.addKeyboardMouseBinding("Simulation: +","increase simulation speed (realtimefactor)");
+    au.addKeyboardMouseBinding("Simulation: -","decrease simulation speed (realtimefactor)");
+    au.addKeyboardMouseBinding("Simulation: *","set maximum simulation speed (realtimefactor=0)");
+    bindingDescription(au);
   }
-
+  
   void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
     v.visit(*this);
   }
-
+  
   ///////////////// Camera::Callback interface
   void Simulation::operator() (const Producer::Camera &c){
     // grab frame if in captureing mode
@@ -1067,33 +1076,36 @@ namespace lpzrobots {
 		cerr << "collision detected without primitive\n";
 		return;
       }
-      const Substance& s1 = p1->substance;
-      const Substance& s2 = p2->substance;
-      bool have_params = false;
-      if(s1.callback) {
-		have_params = s1.callback(surfParams, me->globalData, s1.userdata,
-				  o1, o2, &s1, &s2);
-      }
-      if(s2.callback && !have_params) {
-		have_params = s2.callback(surfParams, me->globalData, s2.userdata,
-				  o2, o1, &s2, &s1);
-      }
-      if(!have_params){
-		surfParams = Substance::getSurfaceParams(s1,s2);
-		//Substance::printSurfaceParams(surfParams);
-      }
 
       int i,n;
       const int N = 80;
       dContact contact[N];
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i < n; i++) {
-		contact[i].surface = surfParams;
-		dJointID c = dJointCreateContact (me->odeHandle.world,
-					  me->odeHandle.jointGroup,&contact[i]);
-		dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-      }
-    }
+      if(n>0){
+	const Substance& s1 = p1->substance;
+	const Substance& s2 = p2->substance;
+	bool have_params = false;
+	if(s1.callback) {
+	  have_params = s1.callback(surfParams, me->globalData, s1.userdata,
+				    o1, o2, &s1, &s2);
+	}
+	if(s2.callback && !have_params) {
+	  have_params = s2.callback(surfParams, me->globalData, s2.userdata,
+				    o2, o1, &s2, &s1);
+	}
+	if(!have_params){
+	  surfParams = Substance::getSurfaceParams(s1,s2, me->globalData.odeConfig.simStepSize);
+	  //Substance::printSurfaceParams(surfParams);
+	}
+	
+	for (i=0; i < n; i++) {
+	  contact[i].surface = surfParams;
+	  dJointID c = dJointCreateContact (me->odeHandle.world,
+					    me->odeHandle.jointGroup,&contact[i]);
+	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+	}
+      } // if contact points
+    } // if geoms 
   }
 
 
