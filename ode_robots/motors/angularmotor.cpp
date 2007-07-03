@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-21 16:15:06  der
+ *   Revision 1.5  2007-07-03 13:10:13  martius
+ *   initialization of variables
+ *
+ *   Revision 1.4  2006/09/21 16:15:06  der
  *   *** empty log message ***
  *
  *   Revision 1.3  2006/07/20 17:19:43  martius
@@ -174,7 +177,7 @@ namespace lpzrobots {
       @param velocity Desired motor velocity (this will be an angular or linear velocity).
   */
   void AngularMotor2Axis::set(int axisNumber, double velocity){
-    int param;
+    int param = dParamVel;
     switch (axisNumber) {
     case 0:
       param = dParamVel; 
@@ -284,7 +287,7 @@ namespace lpzrobots {
 
   /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range*/
   double AngularMotorNAxis::get(int axisNumber){    
-    int param;
+    int param = dParamVel;
     switch (axisNumber) {
     case 0:
       param = dParamVel; 
@@ -303,7 +306,7 @@ namespace lpzrobots {
    */
   void AngularMotorNAxis::setPower(double power){
     int param;
-    for(int i; i<getNumberOfAxes(); i++) {
+    for(int i=0; i<getNumberOfAxes(); i++) {
       switch (i) {
       case 0: 
 	param = dParamFMax; break;
