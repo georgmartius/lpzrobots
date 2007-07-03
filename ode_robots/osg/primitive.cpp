@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-03-16 10:51:45  martius
+ *   Revision 1.10  2007-07-03 13:12:40  martius
+ *   limitLinearVel
+ *
+ *   Revision 1.9  2007/03/16 10:51:45  martius
  *   each primitive has a substance
  *   geom userdata is set to primitive itself
  *
@@ -259,14 +262,27 @@ namespace lpzrobots{
   }
 
   dGeomID Primitive::getGeom() const { 
-   if (this) return geom; 
-   else return 0;
+   return geom;    
   }
 
   dBodyID Primitive::getBody() const { 
-   if (this) return body; 
-   else return 0;
+   return body;    
   }
+
+  bool Primitive::limitLinearVel(double maxVel){
+    // check for maximum speed:
+    if(!body) return false;
+    const double* vel = dBodyGetLinearVel( body );
+    double vellen = vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2];
+    if(vellen > maxVel*maxVel){
+      fprintf(stderr, ".");
+      double scaling = sqrt(vellen)/maxVel;
+      dBodySetLinearVel(body, vel[0]/scaling, vel[1]/scaling, vel[2]/scaling);
+      return true;
+    }else 
+      return false;
+  }
+
 
   /******************************************************************************/
   Plane::Plane(){    

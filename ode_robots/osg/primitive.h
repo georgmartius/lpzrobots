@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-03-16 10:51:36  martius
+ *   Revision 1.8  2007-07-03 13:12:52  martius
+ *   limitLinearVel
+ *
+ *   Revision 1.7  2007/03/16 10:51:36  martius
  *   each primitive has a substance
  *   geom userdata is set to primitive itself
  *
@@ -201,6 +204,9 @@ public:
   dGeomID getGeom() const;    
   /// returns ODE bodyID if there
   dBodyID getBody() const;
+
+  /// checks whether the object has higher velocity than maxVel and limits it in case
+  bool limitLinearVel(double maxVel);
 
 protected:
   /** attaches geom to body (if any) and sets the category bits and collision bitfields.
