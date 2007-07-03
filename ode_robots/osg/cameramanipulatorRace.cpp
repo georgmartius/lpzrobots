@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:34  martius
+ *   Revision 1.3  2007-07-03 13:15:17  martius
+ *   odehandle.h in cpp files included
+ *
+ *   Revision 1.2  2006/07/14 12:23:34  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/03/19 13:35:10  robot3
@@ -37,6 +40,7 @@
 #include "cameramanipulatorRace.h"
 #include "mathutils.h"
 #include "pos.h"
+#include "odeagent.h"
 #include <stdio.h>
 
 

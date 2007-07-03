@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-02-12 13:33:28  martius
+ *   Revision 1.6  2007-07-03 13:15:17  martius
+ *   odehandle.h in cpp files included
+ *
+ *   Revision 1.5  2007/02/12 13:33:28  martius
  *   camera does not go to infinity anymore. Better speed scaling with drawinterval
  *
  *   Revision 1.4  2006/08/04 15:05:42  martius
@@ -102,6 +105,7 @@
 
 #include <osg/Notify>
 #include "cameramanipulator.h"
+#include "odeagent.h"
 #include "mathutils.h"
 #include "pos.h"
 

@@ -24,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:34  martius
+ *   Revision 1.3  2007-07-03 13:15:17  martius
+ *   odehandle.h in cpp files included
+ *
+ *   Revision 1.2  2006/07/14 12:23:34  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.12  2006/06/29 16:35:56  robot3
@@ -78,8 +81,8 @@
 
 #include "osgforwarddecl.h"
 #include <osgGA/MatrixManipulator>
-#include "odeagent.h"
 #include "globaldata.h"
+#include <selforg/position.h>
 
 namespace lpzrobots {
 
