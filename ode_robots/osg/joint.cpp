@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-03-16 11:00:06  martius
+ *   Revision 1.7  2007-07-03 13:03:39  martius
+ *   ignorepairs is private in odeHandle
+ *
+ *   Revision 1.6  2007/03/16 11:00:06  martius
  *   ground plane gets primitive to support substances
  *
  *   Revision 1.5  2007/01/26 12:05:36  martius
@@ -110,7 +113,7 @@ namespace lpzrobots {
   
   Joint::~Joint(){ 
     if (joint) dJointDestroy(joint);
-    if(odeHandle.ignoredPairs && part1->getGeom() && part2->getGeom()){
+    if(part1->getGeom() && part2->getGeom()){
       odeHandle.removeIgnoredPair(part1->getGeom(), part2->getGeom());
     }    
   }
@@ -121,7 +124,6 @@ namespace lpzrobots {
     if(part1->getGeom() && part2->getGeom())
       this->odeHandle.addIgnoredPair(part1->getGeom(), part2->getGeom());
   }
-
   
   std::list<double> OneAxisJoint::getPositions() const {
     std::list<double> l;
@@ -486,13 +488,13 @@ namespace lpzrobots {
 
     joint = dJointCreateSlider (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
-    osg::Vec3 p1 = part1->getPosition();
-    osg::Vec3 p2 = part2->getPosition();
-    anchor = (p1+p2)*0.5;
+//     osg::Vec3 p1 = part1->getPosition();
+//     osg::Vec3 p2 = part2->getPosition();
+//     anchor = (p1+p2)*0.5;
     dJointSetSliderAxis (joint,  axis1.x(), axis1.y(), axis1.z());
     if(withVisual){
       double len = getPosition1();
-      visual = new OSGCylinder(visualSize/10, len+visualSize);
+      visual = new OSGCylinder(visualSize/10, fabs(len)+visualSize);
       visual->init(osgHandle, OSGPrimitive::Low);      
       Matrix t = anchorAxisPose(anchor, axis1);
       
@@ -502,9 +504,9 @@ namespace lpzrobots {
     
   void SliderJoint::update(){
     if(visual){
-      osg::Vec3 p1 = part1->getPosition();
-      osg::Vec3 p2 = part2->getPosition();
-      anchor = (p1+p2)*0.5;
+//       osg::Vec3 p1 = part1->getPosition();
+//       osg::Vec3 p2 = part2->getPosition();
+//       anchor = (p1+p2)*0.5;
       dVector3 v;
       dJointGetSliderAxis(joint, v);
       axis1.x() = v[0];
@@ -513,7 +515,7 @@ namespace lpzrobots {
 
       double len = getPosition1();
       delete visual;
-      visual = new OSGCylinder(visualSize/10, len+visualSize);
+      visual = new OSGCylinder(visualSize/10, fabs(len)+visualSize);
       visual->init(osgHandle, OSGPrimitive::Low);      
       Matrix t = anchorAxisPose(anchor, axis1);      
       visual->setMatrix(t); 
