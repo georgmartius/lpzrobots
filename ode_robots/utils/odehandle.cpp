@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-06-21 16:20:34  martius
+ *   Revision 1.4  2007-07-03 13:04:54  martius
+ *   pointer to global simulation time
+ *   hash-maps are protected
+ *
+ *   Revision 1.3  2007/06/21 16:20:34  martius
  *   inlined isIgnoredSpace and Pair
  *
  *   Revision 1.2  2007/03/16 10:56:04  martius
@@ -35,6 +39,7 @@
  ***************************************************************************/
 
 #include "odehandle.h"
+#include <assert.h>
 #include <ode/ode.h>
 #include "primitive.h"
 
@@ -48,9 +53,11 @@ namespace lpzrobots {
     ignoredPairs=0;    
   }
 
-  void OdeHandle::init(){
+  void OdeHandle::init(double* time){
+    assert(time);
+    this->time=time;
     world = dWorldCreate ();
-    
+ 
     // Create the primary world-space, which is used for collision detection
     space = dHashSpaceCreate (0);
     // the jointGroup is used for collision handling, 

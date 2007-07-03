@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-06-21 16:20:26  martius
+ *   Revision 1.6  2007-07-03 13:04:22  martius
+ *   pointer to global simulation time
+ *   hash-maps are protected
+ *
+ *   Revision 1.5  2007/06/21 16:20:26  martius
  *   inlined isIgnoredSpace and Pair
  *
  *   Revision 1.4  2007/03/16 10:55:44  martius
@@ -66,8 +70,8 @@ public:
 
   Substance substance;
 
-  /// creates world at global space and so on.
-  void init();
+  /// creates world at global space and so on and sets global time pointer.
+  void init(double* time); 
 
   /** sets of ignored geom pairs  and spaces
    adds a space to the list of ignored spaces for collision detection (i.e within this space there is no collision)
@@ -80,6 +84,7 @@ public:
     return ignoredSpaces->find((long)g) != ignoredSpaces->end(); 
   }
 
+  inline double getTime(){ return *time; }
   
   /// adds a pair of geoms to the list of ignored geom pairs for collision detection
   void addIgnoredPair(dGeomID g1, dGeomID g2);
@@ -95,10 +100,15 @@ public:
       || (ignoredPairs->find(std::pair<long, long>((long)g2,(long)g1)) != ignoredPairs->end());
   }
 
+protected:
+  double* time;
+
   /// set of ignored spaces
   __gnu_cxx::hash_set<long>* ignoredSpaces;
   /// set of ignored geom pairs for collision
   __gnu_cxx::hash_set<std::pair<long,long>, geomPairHash >* ignoredPairs;
+
+
 };
 
 }
