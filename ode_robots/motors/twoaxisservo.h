@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-04-03 16:31:02  der
+ *   Revision 1.3  2007-07-03 13:02:22  martius
+ *   maximum velocity check
+ *   new pid with stepsize
+ *
+ *   Revision 1.2  2007/04/03 16:31:02  der
  *   use fixed version of pid
  *   new default values
  *
@@ -47,10 +51,11 @@ namespace lpzrobots {
   
     TwoAxisServo(TwoAxisJoint* joint, double min1, double max1, double power1, 
 		 double min2, double max2, double power2, 
-		 double damp=10, double integration=0.2)
+		 double damp=0.2, double integration=2, double maxVel=10.0)
       : joint(joint), min1(min1), max1(max1), min2(min2), max2(max2), 
 	pid1(power1, integration, damp),
-	pid2(power2, integration, damp) { 
+	pid2(power2, integration, damp),  
+	maxVel(maxVel) { 
       assert(joint); 
       assert(min1<max1); assert(min2<max2);
       assert(min1 <= 0); assert(min2 <= 0);
@@ -70,9 +75,10 @@ namespace lpzrobots {
       }
       pid1.setTargetPosition(pos1);  
       // double force1 = pid1.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
-      double force1 = pid1.step(joint->getPosition1());
+      double force1 = pid1.step(joint->getPosition1(), joint->odeHandle.getTime());
       // limit force to 1*KP
-      force1 =  force1<-pid1.KP ? -pid1.KP : ( force1 > pid1.KP ? pid1.KP : force1 );
+      force1 = std::min(pid1.KP, std::max(-pid1.KP,force1));// limit force to 1*KP
+
       if(pos2 > 0){
 	pos2 *= max2; 
       }else{
@@ -80,10 +86,12 @@ namespace lpzrobots {
       }
       pid2.setTargetPosition(pos2);  
       //      double force2 = pid2.stepWithD(joint->getPosition2(), joint->getPosition2Rate());
-      double force2 = pid2.step(joint->getPosition2());
+      double force2 = pid2.step(joint->getPosition2(), joint->odeHandle.getTime());
       // limit force to 1*KP
-      force2 =  force2<-pid2.KP ? -pid2.KP : ( force2 > pid2.KP ? pid2.KP : force2 );
+      force2 = std::min(pid2.KP, std::max(-pid2.KP,force2));// limit force to 1*KP
       joint->addForces(force1, force2);
+      joint->getPart1()->limitLinearVel(maxVel);
+      joint->getPart2()->limitLinearVel(maxVel);
     }
 
     /** returns the position of the servo (joint) of 1. axis in ranges [-1, 1] (scaled by min1, max1)*/
@@ -146,6 +154,7 @@ namespace lpzrobots {
     double max2;
     PID pid1;
     PID pid2;
+    double maxVel;
   };
 
   typedef TwoAxisServo UniversalServo;

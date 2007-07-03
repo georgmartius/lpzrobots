@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-03 16:29:24  der
+ *   Revision 1.6  2007-07-03 13:02:14  martius
+ *   maximum velocity check
+ *   new pid with stepsize
+ *
+ *   Revision 1.5  2007/04/03 16:29:24  der
  *   use fixed version of pid
  *   new default values
  *
@@ -54,8 +58,9 @@ namespace lpzrobots {
   public:
     /** min and max values are understood as travel bounds. Min should be less than 0.*/
   
-    OneAxisServo(OneAxisJoint* joint, double _min, double _max, double power, double damp=10, double integration=0.2)
-      : joint(joint), pid(power, integration, damp) { 
+    OneAxisServo(OneAxisJoint* joint, double _min, double _max, 
+		 double power, double damp=0.2, double integration=2, double maxVel=10.0)
+      : joint(joint), pid(power, integration, damp), maxVel(maxVel) { 
       assert(joint); 
       setMinMax(_min,_max);
       assert(min<max);
@@ -76,11 +81,12 @@ namespace lpzrobots {
 	pos *= -min;
       }
       pid.setTargetPosition(pos);  
-      // double force = pid.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
-      double force = pid.step(joint->getPosition1());
-      // limit force to 1*KP
-      force =  force<-pid.KP ? -pid.KP : ( force > pid.KP ? pid.KP : force );
-      joint->addForce1(force);      
+      
+      double force = pid.step(joint->getPosition1(), joint->odeHandle.getTime());
+      force = std::min(pid.KP, std::max(-pid.KP,force));// limit force to 1*KP
+      joint->addForce1(force);
+      joint->getPart1()->limitLinearVel(maxVel);
+      joint->getPart2()->limitLinearVel(maxVel);
     }
 
     /** returns the position of the slider in ranges [-1, 1] (scaled by min, max)*/
@@ -124,6 +130,7 @@ namespace lpzrobots {
     double min;
     double max;
     PID pid;
+    double maxVel;
   };
 
   typedef OneAxisServo SliderServo;
