@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-04-03 16:28:38  der
+ *   Revision 1.15  2007-07-03 13:01:21  martius
+ *   new pid formulas,
+ *   we use clipped sum for integral term
+ *   and clipped derivative value
+ *
+ *   Revision 1.14  2007/04/03 16:28:38  der
  *   derivative computed on error! This is the correct implementation
  *
  *   Revision 1.13  2007/02/12 13:28:20  martius
@@ -77,6 +82,7 @@ namespace lpzrobots {
     lastposition = 0;
     error = 0;
     alpha = 0.95;
+    lasttime=-1;
   }
 
   void PID::setKP(double KP){
@@ -93,22 +99,30 @@ namespace lpzrobots {
     return targetposition;
   }
 
-  double PID::step ( double newsensorval )
-  {
-    last2position = lastposition;
-    lastposition = position;
-    position = newsensorval;
-
-    lasterror = error;
-    error = targetposition - position;
-    double derivative = lasterror - error;
-
-    P = error;
-    I += (1-alpha) * (error * KI - I);
-    D = -derivative * KD; 
-    force = KP*(P + I + D);
+  double PID::step ( double newsensorval, double time)
+  { 
+    if(lasttime != -1 && time - lasttime > 0 ){
+      last2position = lastposition;
+      lastposition = position;
+      position = newsensorval;
+      double stepsize=time-lasttime;
+      
+      lasterror = error;
+      error = targetposition - position;
+      double derivative = (lasterror - error) / stepsize;
+      
+      P = error;
+      //    I += (1-alpha) * (error * KI - I); // I+=error * KI 
+      I += stepsize * error * KI;
+      I = min(0.5,max(-0.5,I)); // limit I to 0.5
+      D = -derivative * KD; 
+      D = min(0.9,max(-0.9,D)); // limit D to 0.9
+      force = KP*(P + I + D);     
+    } else {
+      force=0;
+    }
+    lasttime=time;
     return force;
   }
-
 
 }
