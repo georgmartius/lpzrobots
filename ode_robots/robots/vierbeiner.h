@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *   Copyright (C) 2007 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-03 13:00:14  martius
+ *   Revision 1.5  2007-07-04 13:16:17  martius
+ *   no friction parameter anymore
+ *
+ *   Revision 1.4  2007/07/03 13:00:14  martius
  *   new servo parameter, for current servo implementation
  *
  *   Revision 1.3  2007/04/03 16:37:13  der
@@ -72,8 +75,6 @@ namespace lpzrobots {
     double kneeDamping; ///< damping in the knees
     double anklePower;  ///< spring strength in the ankles
     double ankleDamping; ///< damping in the ankles
-    double frictionGround; ///< friction with the ground
-    //    double elasticity; ///< elasticity of collisions 0.5: soft 100: hard
   } VierBeinerConf;
 
 
