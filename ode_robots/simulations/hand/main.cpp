@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-05-07 09:07:21  robot3
+ *   Revision 1.4  2007-07-05 11:20:02  robot6
+ *   hingeservo.h substituted by oneaxismotor.h (includes Hingeservo)
+ *   "hand" added in Makefile
+ *
+ *   Revision 1.3  2007/05/07 09:07:21  robot3
  *   intended region for converting the code from nonreadable to human readable
  *
  *   Revision 1.2  2006/09/21 16:15:57  der
@@ -107,7 +111,7 @@ public:
 
 
     // for(int i=0; i<50; i++){
-    //       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
+    //      PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
     //       s->setPosition(osg::Vec3(-4+(i/10),-4+(i%10),1)); 
     //       global.obstacles.push_back(s);    
     //     }
@@ -170,17 +174,15 @@ public:
     global.configs.push_back(controller); 
     global.configs.push_back(hand);
 
-    /*	
-      PassiveSphere* s = 
+    	
+     /* PassiveSphere* s = 
       new PassiveSphere(odeHandle, 
       osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
       s->setPosition(Pos(0,0.05,0.5+3)); 
       s->setTexture("Images/dusty.rgb");
-      global.obstacles.push_back(s);         
+      global.obstacles.push_back(s);         */
       
 
-
-    */   
     //---For-the-reverse-hand
 
     //one hand directly above the over, so that the fingers can touch each other 
@@ -252,16 +254,16 @@ public:
       }
    
 
-    /*
+    
       PassiveSphere* s = 
       new PassiveSphere(odeHandle, 
       osgHandle,1.3);
-      s->setPosition(Pos(-0.4,0.45,0.5+4.4)); 
+      s->setPosition(Pos(-0.4,0.45,0.5+7.4)); 
       s->setColor(Color(1.0f,0.2f,0.2f,0.5f));
       s->setTexture("Images/light_chess.rgb");
       global.obstacles.push_back(s); 
       showParams(global.configs);
-    */
+    
 
 
     // the flashing box within a hand.

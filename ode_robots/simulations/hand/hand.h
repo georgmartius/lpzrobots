@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-05-07 09:07:21  robot3
+ *   Revision 1.4  2007-07-05 11:20:02  robot6
+ *   hingeservo.h substituted by oneaxismotor.h (includes Hingeservo)
+ *   "hand" added in Makefile
+ *
+ *   Revision 1.3  2007/05/07 09:07:21  robot3
  *   intended region for converting the code from nonreadable to human readable
  *
  *   Revision 1.2  2006/09/21 16:15:57  der
@@ -80,13 +84,14 @@
 #ifndef __HAND_H
 #define __HAND_H
 
-#include  <drawstuff/drawstuff.h>
+//#include  <drawstuff/drawstuff.h>
 #include "oderobot.h"
 #include <selforg/configurable.h>
 #include "primitive.h"
 #include "joint.h"
 #include "angularmotor.h"
-#include  "hingeservo.h"
+#include "oneaxisservo.h"
+//"hingeservo.h"
 
 #include "primitive.h"
 #include "osgforwarddecl.h"
