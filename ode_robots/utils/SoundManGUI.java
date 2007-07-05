@@ -16,6 +16,7 @@ public class SoundManGUI extends JFrame {
  private JSlider noteSlide;
  private JSlider toneLSlide;
  private JSlider[] sensorSlide;
+ private JCheckBox[] sensorCheck;
 
  public SoundManGUI(float p, int m) {
   param=p;
@@ -26,7 +27,7 @@ public class SoundManGUI extends JFrame {
   getContentPane().setLayout(null);
   setTitle("SoundMan");
   setResizable(false);
-  setSize(250,305);
+  setSize(250,320);
 
 
   ////////// param //////////
@@ -191,11 +192,11 @@ public class SoundManGUI extends JFrame {
 
   ////////// playback //////////
   JLabel l5=new JLabel("Playback:");
-  l5.setBounds(10, 245, 200, 20);
+  l5.setBounds(10, 260, 200, 20);
   getContentPane().add(l5);
 
   final JButton playbackB=new JButton("Mute");
-  playbackB.setBounds(90, 245, 140, 20);
+  playbackB.setBounds(90, 260, 140, 20);
   getContentPane().add(playbackB);
   playbackB.addActionListener(
    new ActionListener() {
@@ -238,6 +239,18 @@ public class SoundManGUI extends JFrame {
    getContentPane().add(sensorSlide[i]);
    getContentPane().repaint();
   }
+
+  sensorCheck=new JCheckBox[n];
+  for(int i=0; i<n; i++) {
+   sensorCheck[i]=new JCheckBox("",true);
+   sensorCheck[i].setBounds((i+1)*230/(n+1)-5, 241, 16, 12);
+   getContentPane().add(sensorCheck[i]);
+   getContentPane().repaint();
+  }
+ }
+
+ public boolean isSensorChecked(int i) {
+  return sensorCheck[i].isSelected();
  }
 
  public void setSensorValue(int num, float val) {
