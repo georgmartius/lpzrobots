@@ -457,8 +457,22 @@ public:
     // for IR Sensors 
     int j = numMotorSensors;
     for(int i=numMotorSensors; i< rsensornumber; i++){
-      csensors[j]   = rsensors[i] * rsensors[0];
-      csensors[j+1] = rsensors[i]private:
+      csensors[j]   = rsensors[i] * lastmotors[0];
+      csensors[j+1] = rsensors[i] * lastmotors[1];
+      j+=2;
+    }
+    return true;
+  }
+
+  virtual bool wireMotors(motor* rmotors, int rmotornumber,
+					 const motor* cmotors, int cmotornumber){
+    memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
+    memcpy(lastmotors, cmotors, sizeof(motor)*rmotornumber);
+    return true;
+  }
+
+
+private:
   motor* lastmotors;
   int numMotorSensors;
 };
@@ -491,11 +505,11 @@ int main(int argc, char** argv){
   initializeConsole();
 
   vector<Xbee> xbees;
-  xbees.push_back(Xbee(1));
+  // xbees.push_back(Xbee(1));
   xbees.push_back(Xbee(2));
 
-  AbstractController* controller = new InvertMotorSpace(10);
-  //AbstractController* controller = new SineController();
+  // AbstractController* controller = new InvertMotorSpace(10);
+  AbstractController* controller = new SineController();
   controller->setParam("s4delay",2.0);
   controller->setParam("s4avg",2.0);
 
@@ -519,7 +533,8 @@ int main(int argc, char** argv){
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
   communication= new Communicator(port, 115200, controller, 
-                                  new OurWiring(new ColorUniformNoise(0.01)),
+				  //                                  new OurWiring(new ColorUniformNoise(0.01)),
+                                  new One2OneWiring(new ColorUniformNoise(0.01)),
                                   plotoptions, xbees, verboseMode);
   communication->start();
   cmd_handler_init();
