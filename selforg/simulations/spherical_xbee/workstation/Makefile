@@ -2,7 +2,7 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
 
-FILES = main cmdline serial_unix
+FILES = main cmdline serial_unix console
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = workstation
@@ -17,7 +17,9 @@ CONTROLLER = $(LPZROBOTS)/controller
 SELFORG    = $(LPZROBOTS)/selforg
 
 LIBS   = -lm -pthread\
-	 -L$(MATRIXLIB)  -l$(MATRIX) -L$(SELFORG) -lselforg
+	 -L$(MATRIXLIB)  -l$(MATRIX) -L$(SELFORG) -lselforg \
+	 -lreadline
+
 
 INC    = -I$(LPZROBOTS)/matrixlib/ -I$(LPZROBOTS)/controller -I$(SELFORG)/include
 
