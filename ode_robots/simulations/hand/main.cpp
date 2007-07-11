@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-05 11:20:02  robot6
+ *   Revision 1.5  2007-07-11 09:39:22  fhesse
+ *   quick commenting and adapting to get
+ *   - one hand
+ *   - one obstacle with which the hand plays
+ *
+ *   Revision 1.4  2007/07/05 11:20:02  robot6
  *   hingeservo.h substituted by oneaxismotor.h (includes Hingeservo)
  *   "hand" added in Makefile
  *
@@ -182,7 +187,7 @@ public:
       s->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s);         */
       
-
+/*
     //---For-the-reverse-hand
 
     //one hand directly above the over, so that the fingers can touch each other 
@@ -224,17 +229,18 @@ public:
 	 
     hand1->place(Pos(2.5,1.26,0));
     global.agents.push_back(agent1);
-
+*/
 
     ClosedPlayground* playground;
     if(conf.hand_is_drawn_under_angel == Is_Draw_under_180_degree){
       // use Playground as boundary:
       playground = new ClosedPlayground(odeHandle, osgHandle, osg::Vec3(4.7, 0.2, 26), 0.9);
       playground->setColor(Color(1.0f,0.0f,0.26f,0.0f));
-      playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+      playground->setPosition(osg::Vec3(0-0.5,0,0)); // playground positionieren und generieren
       global.obstacles.push_back(playground);
 
     } 
+/*
     else if(conf.hand_is_drawn_under_angel == Is_Draw_under_90_degree)
       {
 	// use Playground as boundary:
@@ -246,15 +252,15 @@ public:
 
 	  playground->setColor(Color(1.0f,0.0f,0.26f,0.1f));
 	  playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-	*/
+	* /
 	Playground *playground1 = new Playground(odeHandle, osgHandle, osg::Vec3(4.7, 0.2, 10), 0.9);
 	playground1->setColor(Color(1.0f,0.0f,0.26f,0.2f));
 	playground1->setPosition(osg::Vec3(0,0,0)); // playground positionieren und g
 	global.obstacles.push_back(playground1);
       }
-   
+  */ 
 
-    
+/*    
       PassiveSphere* s = 
       new PassiveSphere(odeHandle, 
       osgHandle,1.3);
@@ -263,7 +269,7 @@ public:
       s->setTexture("Images/light_chess.rgb");
       global.obstacles.push_back(s); 
       showParams(global.configs);
-    
+  */  
 
 
     // the flashing box within a hand.
@@ -289,15 +295,18 @@ public:
 
     */
 
-    /*
+    
       PassiveCapsule* c = 
       new PassiveCapsule(odeHandle, 
       osgHandle, 1,1,5);
-      c->setPosition(Pos(0,0.05,0.5+2.4)); 
+      c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
       c->setColor(Color(1.0f,0.2f,0.2f,0.5f));
-      c->setTexture("Images/light_chess.rgb");
+      //c->setTexture("Images/light_chess.rgb");
+      //c->setTexture("Images/dusty.rgb");
+      //c->setTexture("Images/sandyground.rgb");
+      c->setTexture("Images/furry_toy.jpg");
       global.obstacles.push_back(c); 
-    */
+    
 
     showParams(global.configs);
   }
@@ -317,6 +326,18 @@ public:
 	/*	controller->restore("test") && printf("Controller loaded\n");
 		handled = true; */
 	break;	
+      case 'c' :{
+	PassiveCapsule* c =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
+      	c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
+      	c->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+      	c->setTexture("Images/light_chess.rgb");
+      	globalData.obstacles.push_back(c); }
+	break;
+      case 'v' :
+        ClosedPlayground* playground=(ClosedPlayground* )globalData.obstacles.back();
+	playground->setColor(Color(1.0f,0.0f,0.26f,0.0f));
+	break;
+ 	
 	/*      
 		case 'a': case'A':
 		finger_force -= 0.3;
@@ -421,6 +442,7 @@ public:
     au.addKeyboardMouseBinding("Teaching: j","backward");
     au.addKeyboardMouseBinding("Simulation: s","store");
     au.addKeyboardMouseBinding("Simulation: l","load");
+    au.addKeyboardMouseBinding("Simulation: c","add new capsule above hand");
   }
 
   
