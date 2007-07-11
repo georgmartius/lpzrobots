@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-05-07 09:07:20  robot3
+ *   Revision 1.4  2007-07-11 10:00:19  fhesse
+ *   texture of hand palm deactivated
+ *   new camera position
+ *
+ *   Revision 1.3  2007/05/07 09:07:20  robot3
  *   intended region for converting the code from nonreadable to human readable
  *
  *   Revision 1.2  2006/09/21 16:15:57  der
@@ -587,7 +591,7 @@ namespace lpzrobots {
 		 | Primitive::Geom | Primitive::Draw);
 
     palm->setPose(osg::Matrix::translate(conf.invert*(0+conf.x),(0+conf.y),(0.5+conf.z)));
-    palm->getOSGPrimitive()->setTexture("Images/light_chess.rgb");
+    //palm->getOSGPrimitive()->setTexture("Images/light_chess.rgb");
     //  palm->getOSGPrimitive()->setTexture("Images/ground.rgb"); 
 
     objects.push_back(palm);

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-07-11 09:39:22  fhesse
+ *   Revision 1.6  2007-07-11 10:00:19  fhesse
+ *   texture of hand palm deactivated
+ *   new camera position
+ *
+ *   Revision 1.5  2007/07/11 09:39:22  fhesse
  *   quick commenting and adapting to get
  *   - one hand
  *   - one obstacle with which the hand plays
@@ -105,7 +109,9 @@ public:
     //----to observe the ball on the palm of the hand.
     //setCameraHomePos(Pos(-4.56577, -0.127742, 5.61211),  Pos(-88.1353, -45.1827, 0));
     // the second hand 
-    setCameraHomePos(Pos(-17.9977, 3.4133, 17.9206),  Pos(-88.7149, -43.5015, 0));
+    //setCameraHomePos(Pos(-17.9977, 3.4133, 17.9206),  Pos(-88.7149, -43.5015, 0));
+    setCameraHomePos(Pos(9.48066, -6.96316, 9.95062),  Pos(56.9904, -10.8096, 0));
+
 
     // initialization
     // - set noise to 0.1
@@ -330,7 +336,7 @@ public:
 	PassiveCapsule* c =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
       	c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
       	c->setColor(Color(1.0f,0.2f,0.2f,0.5f));
-      	c->setTexture("Images/light_chess.rgb");
+      	c->setTexture("Images/furry_toy.jpg");
       	globalData.obstacles.push_back(c); }
 	break;
       case 'v' :
