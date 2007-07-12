@@ -37,6 +37,8 @@
 #include "primitive.h"
 #include "oneaxisservo.h"
 #include "joint.h"
+#include "sensor.h"
+
 
 #include<math.h>
 
@@ -92,6 +94,8 @@ namespace lpzrobots{
 	      
     bool withContext; // if true context sensors are the effector positions
     bool useJointSensors; // if true joint sensors otherwise effector positions
+
+    std::list<Sensor*> sensors; // list of additional sensors
 		
   } ArmConf;
 	
@@ -107,6 +111,7 @@ namespace lpzrobots{
 			
       conf.motorPower=2;//1.0;
       conf.damping=0.05;//1.0;
+
       conf.upperarm_radius = 0.05;//0.15; <- not beautiful
       conf.forearm_radius = 0.05;//0.1; <- not beautiful TODO universelle Anordnung!
 			

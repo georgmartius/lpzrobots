@@ -27,6 +27,8 @@
 #include "mathutils.h"
 #include "arm.h"
 #include "oneaxisservo.h"
+#include "sensor.h"
+
 
 #include <selforg/controller_misc.h>
 #include <selforg/matrix.h>
@@ -38,6 +40,8 @@ using namespace std;
 using namespace matrix;
 
 namespace lpzrobots{
+
+    
 
   //    OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(conf)
   //    OdeRobot(odeHandle, osgHandle), conf(conf)
@@ -51,10 +55,14 @@ namespace lpzrobots{
     
     factorSensors=1/2.7; // normalization of position w.r.t. arm length (only for endeffector position)
 
+    int s=0;
+    FOREACHC(list<Sensor*>, conf.sensors, i){
+      s += (*i)->getSensorNumber();
+    }
     if(conf.withContext){
-      sensorno=7; // (endeff pos + dummy | joint angles) + context sensors
+      sensorno=7 + s; // (endeff pos + dummy | joint angles) + context sensors
     }else{
-      sensorno=4; // (endeff pos + dummy | joint angles hingeServo values (shoulder: 3, elbow: 1))
+      sensorno=4 + s; // (endeff pos + dummy | joint angles hingeServo values (shoulder: 3, elbow: 1))
     }
 				
     motorno=4; // dito
@@ -115,29 +123,32 @@ namespace lpzrobots{
   int Arm::getSensors(sensor* sensors, int sensornumber)
   {
     assert(created); // robot must exist
-    unsigned int len=min(sensornumber, getSensorNumber());
+    unsigned int len=0;
 
     if(conf.useJointSensors){
       // get the hingeServos
-      for(unsigned int n=0; (n<len) && (n<hingeServos.size()); n++) 
-	{
-	  sensors[n] = hingeServos[n]->get();
-	}
+      for(len=0; (len<hingeServos.size()); len++) {
+	  sensors[len] = hingeServos[len]->get();
+      }
     }else{
       // get endeffector position ("watching" arm)
       // factorSensors (total arm length) used to normalize position to [-1,1]
       osg::Vec3 pos = objects[hand]->getPosition();
-      sensors[0]=pos[0];
-      sensors[1]=pos[1];
-      sensors[2]=pos[2];
-      sensors[3]=pos[2];
+      sensors[len++]=pos[0];
+      sensors[len++]=pos[1];
+      sensors[len++]=pos[2];
+      sensors[len++]=pos[2];
       // TODO scaleShoulderCentered(sensors);
     }
     if(conf.withContext){
       osg::Vec3 pos = objects[hand]->getPosition();
-      sensors[4]=pos[0];
-      sensors[5]=pos[1];
-      sensors[6]=pos[2];      
+      sensors[len++]=pos[0];
+      sensors[len++]=pos[1];
+      sensors[len++]=pos[2];      
+    }
+
+    FOREACH(list<Sensor*>, conf.sensors, i){
+	len += (*i)->get(sensors+len, sensornumber-len);
     }
 		
     //		printf("sensors: ");
@@ -218,8 +229,8 @@ namespace lpzrobots{
 	|| ((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[hand]->getGeom()))	
 	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[hand]->getGeom()))	
 	// collision between fixed body and upper arm
-	|| ((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[upperArm]->getGeom())) 
-	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[upperArm]->getGeom()))	
+	/*|| ((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[upperArm]->getGeom())) 
+	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[upperArm]->getGeom()))*/	
 	)
       {
 	int i,n;  
@@ -442,6 +453,12 @@ namespace lpzrobots{
     hingeServos.push_back(humer_servo);
 		
     printf("size: %d objects, %d joints, %d hingeservos\n", objects.size(), joints.size(), hingeServos.size());
+    
+    FOREACH(list<Sensor*>, conf.sensors, i){
+	(*i)->init(objects[hand]);
+    }
+
+
     created=true;
   }; 
 
@@ -451,6 +468,11 @@ namespace lpzrobots{
   void Arm::destroy()
   {
     if (created){
+      for(list<Sensor*>::iterator i = conf.sensors.begin(); i != conf.sensors.end(); i++){
+          if(*i) delete *i;
+      }    
+      conf.sensors.clear();
+
       for (vector<HingeServo*>::iterator i = hingeServos.begin(); i!= hingeServos.end(); i++) 
 	{
 	  if(*i) delete *i;
