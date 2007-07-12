@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-03 12:59:57  martius
+ *   Revision 1.5  2007-07-12 18:05:13  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2007/07/03 12:59:57  martius
  *   new servo parameter, for current servo implementation
  *
  *   Revision 1.3  2007/04/03 16:37:09  der
@@ -413,14 +416,6 @@ namespace lpzrobots {
       odeHandle.removeIgnoredPair(bigboxtransform,tail);
 
 
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-	if(*i) delete *i;
-      }
-      objects.clear();
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();      
       FOREACH(vector<HingeServo*>, hipservos, i){
 	if(*i) delete *i;
       }
@@ -437,6 +432,16 @@ namespace lpzrobots {
 	if(*i) delete *i;
       }
       headtailservos.clear();
+
+      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
+	if(*i) delete *i;
+      }
+      joints.clear();      
+      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
+	if(*i) delete *i;
+      }
+      objects.clear();
+
       dSpaceDestroy(odeHandle.space);
     }
 
@@ -451,7 +456,6 @@ namespace lpzrobots {
   */
   Configurable::paramlist VierBeiner::getParamList() const{
     paramlist list;
-    list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
     list += pair<paramkey, paramval> (string("hippower"),   conf.hipPower);
     list += pair<paramkey, paramval> (string("hipdamping"),   conf.hipDamping);
     list += pair<paramkey, paramval> (string("hipjointlimit"),   conf.hipJointLimit);
@@ -465,8 +469,7 @@ namespace lpzrobots {
   
   
   Configurable::paramval VierBeiner::getParam(const paramkey& key) const{    
-    if(key == "frictionground") return conf.frictionGround; 
-    else if(key == "hippower") return conf.hipPower; 
+    if(key == "hippower") return conf.hipPower; 
     else if(key == "hipdamping") return conf.hipDamping; 
     else if(key == "kneepower") return conf.kneePower; 
     else if(key == "kneedamping") return conf.kneeDamping; 
@@ -478,8 +481,7 @@ namespace lpzrobots {
   }
   
   bool VierBeiner::setParam(const paramkey& key, paramval val){    
-    if(key == "frictionground") conf.frictionGround = val; 
-    else if(key == "hippower") {
+    if(key == "hippower") {
       conf.hipPower = val; 
       FOREACH(vector<HingeServo*>, hipservos, i){
 	if(*i) (*i)->setPower(conf.hipPower);
