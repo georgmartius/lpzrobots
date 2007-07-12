@@ -42,7 +42,8 @@
 #include <selforg/one2onewiring.h>
 
 // used robot
-#include "../../robots/arm.h"
+#include <arm.h>
+#include <speedsensor.h>
 
 // used arena
 #include "playground.h"
@@ -76,19 +77,23 @@ double target[]={-1,2,4};
 
 class ThisSim : public Simulation 
 {
-	public:
+public:
+    bool switchedToRL;
+    AbstractController* multisat;
 
 	/// start() is called at the start and should create all the object (obstacles, agents...).
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     // initial camera position and viewpoint
-		setCameraHomePos(Pos(13.6696, 9.12317, 5.54366),  Pos(119.528, -8.6947, 0)); // watch robot
-    //setCameraHomePos(Pos(2.69124, 4.76157, 8.87839),  Pos(134.901, -47.8333, 0)); // control initial arm config
-		//(Pos(4.51276, 15.1867, 4.2256),  Pos(157.899, -1.90167, 0)); // frontal, ganz drauf
-		//
-		
-		// initialization
-    global.odeConfig.noise=0.1;
+      setCameraHomePos(Pos(13.6696, 9.12317, 5.54366),  Pos(119.528, -8.6947, 0)); // watch robot
+      //setCameraHomePos(Pos(2.69124, 4.76157, 8.87839),  Pos(134.901, -47.8333, 0)); // control initial arm config
+      //(Pos(4.51276, 15.1867, 4.2256),  Pos(157.899, -1.90167, 0)); // frontal, ganz drauf
+      //
+      
+      switchedToRL=false;
+      
+      // initialization
+      global.odeConfig.noise=0.1;
 
     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(18, 0.2, 1.0));
 		playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
@@ -121,8 +126,9 @@ class ThisSim : public Simulation
     ArmConf conf = Arm::getDefaultConf();
     conf.withContext=true;
     conf.useJointSensors=false;
+    conf.sensors.push_back(new SpeedSensor(5));
     arm = new Arm(odeHandle, osgHandle, conf, "Arm");
-
+    
     ((OdeRobot*)arm)->place(Position(-0.7,0.9,0.1));
     // fixation of cuboid base
     FixedJoint* anker = new FixedJoint(global.environment /* fixation to ground*/, arm->getMainObject());
@@ -174,11 +180,12 @@ class ThisSim : public Simulation
 
 		MultiSatConf msc = MultiSat::getDefaultConf();
 		msc.controller = controller;
-		msc.numContext = 3;
-		msc.numHidden = 4;
-		msc.numSats = 4;
-		AbstractController* multisat = new MultiSat(msc);
-
+		msc.numContext = 6; // use first X sensors as context
+		msc.numHidden = 3;
+		msc.numSats = 32;
+		msc.numSomPerDim=2;
+		multisat = new MultiSat(msc);
+		global.configs.push_back(multisat);
 
 		// create pointer to one2onewiring
 		One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -195,7 +202,7 @@ class ThisSim : public Simulation
 
 		//-----------------------
 		// switch off/change gravity
-		global.odeConfig.setParam("gravity",-3);
+		global.odeConfig.setParam("gravity",-3.00);
 		//     global.odeConfig.setParam("realtimefactor",0);
 
 		// show (print to console) params of all objects in configurable list 
@@ -212,10 +219,16 @@ class ThisSim : public Simulation
 	} //start-end
 
 	// add distal teaching signal (desired behavior! not error)
-	/*virtual*/ void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) 
+	virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) 
 	{
 	//	double sineRate=30;
 	// 	double phaseShift=0.65;
+	    if(globalData.time > 60*60 && !switchedToRL){
+		multisat->setParam("rlmode",1);
+		printf("RL started\n");
+		switchedToRL=true;
+	    }
+
 
 		double pos[3];
 		double lambda=0.1; // 1 - target is target for each timestep, 0<..<1 - intermediate targets
