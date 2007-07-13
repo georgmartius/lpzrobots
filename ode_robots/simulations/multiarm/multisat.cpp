@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-06-29 09:05:06  robot6
+ *   Revision 1.2  2007-07-13 15:34:39  martius
+ *   restore bug fixed
+ *
+ *   Revision 1.1  2007/06/29 09:05:06  robot6
  *   *** empty log message ***
  *
  *   Revision 1.6  2007/06/22 14:25:08  martius
@@ -414,6 +417,7 @@ bool MultiSat::store(FILE* f) const {
   return true;
 }
 
+
 bool MultiSat::restore(FILE* f){
   char buffer[128];
   if(fscanf(f,"%s\n", buffer) != 1) return false;	
@@ -425,7 +429,7 @@ bool MultiSat::restore(FILE* f){
   if(fscanf(f,"%s\n", buffer) != 1) return false;	
   conf.numHidden = atoi(buffer);
 
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if((fgets(buffer,128, f))==NULL) return false; // we need to use fgets in order to avoid surious effects with following matrix (binary)
   runcompetefirsttime = atoi(buffer);
 
   // restore matrix values

@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-07-03 13:06:17  martius
+ *   Revision 1.8  2007-07-13 15:34:59  martius
+ *   restore bug fixed
+ *
+ *   Revision 1.7  2007/07/03 13:06:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.6  2007/06/22 14:25:08  martius
@@ -425,7 +428,7 @@ bool MultiSat::restore(FILE* f){
   if(fscanf(f,"%s\n", buffer) != 1) return false;	
   conf.numHidden = atoi(buffer);
 
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if((fgets(buffer,128, f))==NULL) return false; // we need to use fgets in order to avoid surious effects with following matrix (binary)
   runcompetefirsttime = atoi(buffer);
 
   // restore matrix values
