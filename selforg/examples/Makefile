@@ -10,6 +10,11 @@ FILES_FT = feedforwardtest
 CFILES_FT = $(addsuffix .cpp, $(FILES_FT))
 OFILES_FT = $(addsuffix .o, $(FILES_FT))
 
+FILES_RLT = rl_test
+CFILES_RLT = $(addsuffix .cpp, $(FILES_RLT))
+OFILES_RLT = $(addsuffix .o, $(FILES_RLT))
+
+ALLCFILES = $(CFILES_CT) $(CFILES_FT) $(CFILES_RLT) 
 
 # -pg for profiling
 CFLAGS = -Wall -I. -g
@@ -32,15 +37,18 @@ controllertest: Makefile.depend $(OFILES_CT) libselforg
 feedforwardtest: Makefile.depend $(OFILES_FT) libselforg
 	$(CC) $(OFILES_FT) $(LIBS)  -o feedforwardtest
 
+rl_test: Makefile.depend $(OFILES_RLT) libselforg
+	$(CC) $(OFILES_RLT) $(LIBS)  -o rl_test
+
 libselforg: 
 	cd ../ && make
 
 
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES_FT) $(CFILES_CT) -f- > Makefile.depend 2>/dev/null
+	makedepend $(CFLAGS) $(INC) $(ALLCFILES) -f- > Makefile.depend 2>/dev/null
 
 Makefile.depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES_FT) $(CFILES_CT) -f- > Makefile.depend 2>/dev/null
+	makedepend $(CFLAGS) $(INC) $(ALLCFILES) -f- > Makefile.depend 2>/dev/null
 
 search:
 	find -name "*.[ch]*" -exec grep -Hn "something" {} \;
@@ -52,6 +60,6 @@ tags:
 	etags `find -name "*.[ch]"` 
 
 clean:
-	rm -f controllertest feedforwardtest *.o Makefile.depend
+	rm -f controllertest feedforwardtest rl_test *.o Makefile.depend
 
 include Makefile.depend
