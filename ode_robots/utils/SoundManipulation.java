@@ -4,6 +4,7 @@
 
 import javax.sound.midi.*;
 import java.io.*;
+import java.util.regex.*;
 
 public class SoundManipulation extends Thread {
  private int mode;
@@ -49,7 +50,7 @@ public class SoundManipulation extends Thread {
  }
 
  public void run() {
-  String input="";
+  StringBuilder input=new StringBuilder();
   float sensorDiff=0.0f;
   long time=0;
   float[] sensorDiffs=null;
@@ -66,19 +67,24 @@ public class SoundManipulation extends Thread {
     }
     if(next==-1) break; // end of input stream reached
     // parse input
-    if(index<numSensors) input+=(char)next;
-    if(initIsOver && next==' ' && index<numSensors) {
+    if(index<2*numSensors) input.append((char)next);
+    if(initIsOver && next==' ' && index<2*numSensors) {
      if(index>=0) {
-      values[index]=input;
-      input="";
+      if(index>=numSensors) values[index-numSensors]=input.toString();
+      input.delete(0,input.length());
      }
      index++;
     }
     if(next=='\n') {
      index=-1;
-     if(input.startsWith("#N neuron x[")) {
-      // adjust the number of sensors of the robot
-      numSensors=Integer.parseInt(input.substring(input.indexOf("[")+1,input.indexOf("]")))+1;
+     if(input.indexOf("#C")==0) {
+      // find the number of sensors of the robot
+      Pattern p = Pattern.compile("x\\[\\d++\\]");
+      Matcher m = p.matcher(input);
+      m.find();
+      do {
+       numSensors=Integer.parseInt(m.group().substring(2,m.group().length()-1))+1;
+      } while(m.find());
       oldSensorValues=new float[numSensors][2];
       sensorDiffs=new float[numSensors];
       oldNote=new int[numSensors];
@@ -88,14 +94,16 @@ public class SoundManipulation extends Thread {
      } else if(Math.abs(System.currentTimeMillis()-time)>gui.getToneLength()) {
       // new data received and timestep is over
       time=System.currentTimeMillis();
-      if(!input.startsWith("#")) {
+      if(input.indexOf("#")==-1) {
        initIsOver=true;
-       // set the number of sensors of the robot
-       // and handle sensor values
+       // set the number of sensors of the robot and handle sensor values
        gui.setNumSensors(numSensors);
        float sensorMax=0.0f;
        param=gui.getParam();
-       mode=gui.getMode();
+       if(mode!=gui.getMode()) {
+        mode=gui.getMode();
+        synth.getChannels()[0].allNotesOff();
+       }
        if(gui.instrumentChanged()) {
         // change instrument for playback
         clearOldSensorValues();
@@ -106,40 +114,46 @@ public class SoundManipulation extends Thread {
        if(gui.isPlaybackActive()) {
         for(int i=0; i<numSensors; i++) {
          // smoothing the changes of sensor values
-         oldSensorValues[i][1]=Math.abs(new Float(values[i]).floatValue());
-         sensorDiff=oldSensorValues[i][1]-oldSensorValues[i][0];
-         sensorDiffs[i]+=0.01f*(sensorDiff-sensorDiffs[i]);
-         sensorDiff=Math.abs(sensorDiffs[i]);
-         gui.setSensorValue(i,sensorDiff*100);
-         if(gui.isSensorChecked(i)) {
+         oldSensorValues[i][1]=new Float(values[i]).floatValue();
+         sensorDiff=0.5f*(oldSensorValues[i][1]-oldSensorValues[i][0]);
+         if(gui.isSmoothingEnabled()) {
+          // smoothing enabled
+          sensorDiffs[i]+=0.1f*(sensorDiff-sensorDiffs[i]);
+          sensorDiff=Math.abs(sensorDiffs[i]);
+         } else {
+          // smoothing disabled
+          sensorDiff=Math.abs(sensorDiff);
+         }
+         gui.setSensorValue(i,sensorDiff);
+         if(gui.isSensorChecked(i) || i==numSensors-1) {
           switch(mode) {
            case 1: // discrete
-            if(10.0f*sensorDiff>param) {
+            if(sensorDiff>param && gui.isSensorChecked(i)) {
              int note=gui.getNote()+27*i/numSensors;
              play(i,note,90);
             }
             break;
            case 2: // amplitude
-            sensorMax=Math.max(sensorMax,sensorDiff);
+            if(gui.isSensorChecked(i)) sensorMax=Math.max(sensorMax,sensorDiff);
             if(i==numSensors-1) {
              int note=gui.getNote()+27;
-             int volume=(int)Math.min(127,param*sensorMax*127000.0f);
+             int volume=(int)Math.min(127,param*sensorMax*12700.0f);
              play(i,note,volume);
              sensorMax=0.0f;
             }
             break;
            case 3: // frequency
-            sensorMax=Math.max(sensorMax,sensorDiff);
+            if(gui.isSensorChecked(i)) sensorMax=Math.max(sensorMax,sensorDiff);
             if(i==numSensors-1) {
-             int note=(int)Math.min(127,param*sensorMax*12700.0f);
+             int note=(int)Math.min(127,param*sensorMax*1270.0f);
              play(i,note,90);
              gui.setNote(note);
              sensorMax=0.0f;
             }
             break;
            case 4: // master mode
-            if(sensorDiff>0.0f) { 
-             int volume=(int)Math.min(100,sensorDiff*12500.0f);
+            if(sensorDiff>0.0f && gui.isSensorChecked(i)) {
+             int volume=(int)Math.min(100,sensorDiff*250.0f);
              int note=volume+27*i/(numSensors-1);
              play(i,note,volume);
             }
@@ -153,7 +167,7 @@ public class SoundManipulation extends Thread {
        }
       }
      }
-     input="";
+     input.delete(0,input.length());
    }
   }
  }

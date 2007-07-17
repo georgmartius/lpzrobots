@@ -9,6 +9,7 @@ public class SoundManGUI extends JFrame {
  private int numSensors;
  private int curInstrument;
  private boolean isPlaybackActive;
+ private boolean smoothing;
  private int note;
  private int toneLength;
  private JComboBox instruCB;
@@ -24,11 +25,11 @@ public class SoundManGUI extends JFrame {
   toneLength=150;
   if(mode>=3) noteSlide.setEnabled(false);
   isPlaybackActive=true;
+  smoothing=false;
   getContentPane().setLayout(null);
   setTitle("SoundMan");
   setResizable(false);
-  setSize(250,320);
-
+  setSize(250,335);
 
   ////////// param //////////
   JLabel l1=new JLabel("Parameter:");
@@ -158,13 +159,13 @@ public class SoundManGUI extends JFrame {
    }
   );
 
-  ////////// tone length //////////
-  JLabel l6=new JLabel("Tone length in ms:");
-  l6.setBounds(10, 120, 120, 20);
+  ////////// timestep //////////
+  JLabel l6=new JLabel("Timestep in ms:");
+  l6.setBounds(10, 120, 110, 20);
   getContentPane().add(l6);
 
   toneLSlide=new JSlider(50, 1000, 150);
-  toneLSlide.setBounds(125, 120, 115, 35);
+  toneLSlide.setBounds(115, 120, 125, 35);
   toneLSlide.setMajorTickSpacing(950);
   toneLSlide.setPaintLabels(true);
   getContentPane().add(toneLSlide);
@@ -176,27 +177,40 @@ public class SoundManGUI extends JFrame {
    }
   );
 
+  ////////// smoothing //////////
+  JCheckBox smooth=new JCheckBox("Smoothing of sound over time");
+  smooth.setSelected(false);
+  smooth.setBounds(10, 150, 230, 20);
+  getContentPane().add(smooth);
+  smooth.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     smoothing=!smoothing;
+    }
+   }
+  );
+
   ////////// instruments //////////
   JLabel l3=new JLabel("Instrument:");
-  l3.setBounds(10, 155, 80, 20);
+  l3.setBounds(10, 170, 80, 20);
   getContentPane().add(l3);
 
   instruCB=new JComboBox();
-  instruCB.setBounds(90, 155, 140, 20);
+  instruCB.setBounds(90, 170, 140, 20);
   getContentPane().add(instruCB);
 
   ////////// sensors //////////
   l4=new JLabel("Number of sensors: -");
-  l4.setBounds(10, 175, 200, 20);
+  l4.setBounds(10, 190, 200, 20);
   getContentPane().add(l4);
 
   ////////// playback //////////
   JLabel l5=new JLabel("Playback:");
-  l5.setBounds(10, 260, 200, 20);
+  l5.setBounds(10, 275, 200, 20);
   getContentPane().add(l5);
 
   final JButton playbackB=new JButton("Mute");
-  playbackB.setBounds(90, 260, 140, 20);
+  playbackB.setBounds(90, 275, 140, 20);
   getContentPane().add(playbackB);
   playbackB.addActionListener(
    new ActionListener() {
@@ -235,7 +249,7 @@ public class SoundManGUI extends JFrame {
   for(int i=0; i<n; i++) {
    sensorSlide[i]=new JSlider(JSlider.VERTICAL,0, 100, 0);
    sensorSlide[i].setEnabled(false);
-   sensorSlide[i].setBounds((i+1)*230/(n+1), 190, 10, 50);
+   sensorSlide[i].setBounds((i+1)*230/(n+1), 205, 10, 50);
    getContentPane().add(sensorSlide[i]);
    getContentPane().repaint();
   }
@@ -243,10 +257,14 @@ public class SoundManGUI extends JFrame {
   sensorCheck=new JCheckBox[n];
   for(int i=0; i<n; i++) {
    sensorCheck[i]=new JCheckBox("",true);
-   sensorCheck[i].setBounds((i+1)*230/(n+1)-5, 241, 16, 12);
+   sensorCheck[i].setBounds((i+1)*230/(n+1)-5, 256, 17, 13);
    getContentPane().add(sensorCheck[i]);
    getContentPane().repaint();
   }
+ }
+
+ public boolean isSmoothingEnabled() {
+  return smoothing;
  }
 
  public boolean isSensorChecked(int i) {
