@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-07-03 13:05:23  martius
+ *   Revision 1.6  2007-07-17 07:22:28  martius
+ *   removed invisible primitives
+ *
+ *   Revision 1.5  2007/07/03 13:05:23  martius
  *   new servo constants
  *
  *   Revision 1.4  2007/04/20 12:20:13  martius
@@ -45,7 +48,6 @@
 #include "barrel2masses.h"
 
 #include "irsensor.h"
-#include "invisibleprimitive.h"
 #include "osgprimitive.h" // get access to graphical (OSG) primitives
 #include "mathutils.h"
 

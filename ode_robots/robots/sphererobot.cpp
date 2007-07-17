@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-01-26 12:05:04  martius
+ *   Revision 1.16  2007-07-17 07:22:28  martius
+ *   removed invisible primitives
+ *
+ *   Revision 1.15  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.14  2006/08/08 17:04:46  martius
@@ -72,7 +75,6 @@
 #include "primitive.h"
 #include "joint.h"
 #include "oneaxisservo.h"
-#include "invisibleprimitive.h"
 #include "mathutils.h"
 
 #include <selforg/matrix.h>
@@ -227,9 +229,10 @@ namespace lpzrobots {
     OsgHandle osgHandle_bottom = osgHandle.changeColor(Color(1.0, 0, 0));
     OsgHandle osgHandle_pendular = osgHandle.changeColor(Color(0.0, 1.0 , 0));
   
-    object[Base] = new InvisibleSphere(conf.diameter/2);
+    object[Base] = new Sphere(conf.diameter/2);
     //object[Base] = new Sphere(conf.diameter/2);
     //object[Base] = new InvisibleBox(conf.diameter, conf.diameter, conf.diameter);
+    //    object[Base]->init(odeHandle, conf.spheremass, osgHandle, Primitive::Body | Primitive::Geom);
     object[Base]->init(odeHandle, conf.spheremass, osgHandle);
     object[Base]->setPose(pose);    
 
