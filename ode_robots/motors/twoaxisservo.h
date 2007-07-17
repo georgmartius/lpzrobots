@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-07-03 13:02:22  martius
+ *   Revision 1.4  2007-07-17 07:17:40  martius
+ *   joints limits are set
+ *   damping is accessable for both axis
+ *
+ *   Revision 1.3  2007/07/03 13:02:22  martius
  *   maximum velocity check
  *   new pid with stepsize
  *
@@ -49,14 +53,16 @@ namespace lpzrobots {
   public:
     /** min and max values are understood as travel bounds. Min should be less than 0.*/
   
-    TwoAxisServo(TwoAxisJoint* joint, double min1, double max1, double power1, 
-		 double min2, double max2, double power2, 
+    TwoAxisServo(TwoAxisJoint* joint, double _min1, double _max1, double power1, 
+		 double _min2, double _max2, double power2, 
 		 double damp=0.2, double integration=2, double maxVel=10.0)
-      : joint(joint), min1(min1), max1(max1), min2(min2), max2(max2), 
+      : joint(joint),
 	pid1(power1, integration, damp),
 	pid2(power2, integration, damp),  
 	maxVel(maxVel) { 
       assert(joint); 
+      setMinMax1(_min1,_max1);
+      setMinMax2(_min2,_max2);
       assert(min1<max1); assert(min2<max2);
       assert(min1 <= 0); assert(min2 <= 0);
       assert(max1 >= 0); assert(max2 >= 0);
@@ -138,13 +144,34 @@ namespace lpzrobots {
     };
 
     /** returns the damping of the servo*/
-    virtual double& damping() { 
+    virtual double& damping1() { 
       return pid1.KD;
     };
+
+    /** returns the damping of the servo*/
+    virtual double& damping2() { 
+      return pid2.KD;
+    };
+
     /** returns the damping of the servo*/
     virtual double& offsetCanceling() { 
-      return pid1.KI;
+      return pid1.KI; 
     };
+
+    virtual void setMinMax1(double _min, double _max){
+      min1=_min;
+      max1=_max;
+      joint->setParam(dParamLoStop, _min * 1.3);
+      joint->setParam(dParamHiStop, _max * 1.3);
+    }
+
+    virtual void setMinMax2(double _min, double _max){
+      min2=_min;
+      max2=_max;
+      joint->setParam(dParamLoStop2, _min * 1.3);
+      joint->setParam(dParamHiStop2, _max * 1.3);
+    }
+
   
   private:
     TwoAxisJoint* joint;
