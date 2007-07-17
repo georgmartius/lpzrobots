@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-07-03 13:13:27  martius
+ *   Revision 1.4  2007-07-17 07:21:16  martius
+ *   testing code (anyway commented)
+ *
+ *   Revision 1.3  2007/07/03 13:13:27  martius
  *   stepsize included, but not yet sorted out
  *   changing stepsize varies the behaviour
  *
@@ -71,20 +74,18 @@ namespace lpzrobots {
     double kd1 = (1.00-s1.elasticity);
     double kd2 = (1.00-s2.elasticity); 
     dReal kd   = 50*(kd1 * s2.hardness + kd2 * s1.hardness) / (s1.hardness + s2.hardness);
-    //    cout << "spring: " << kp << "\t "<<kd << "\t step: " << stepsize << endl;    
-//     kp=10000;
-//     kd=0;
+//     kp=30;
+//     kd=1;
+//     cout << "spring: " << kp << "\t "<<kd << "\t step: " << stepsize << endl;    
     sp.soft_erp = stepsize*kp / ( stepsize*kp + kd);
     sp.soft_cfm =  1 / (stepsize*kp + kd);
-//    sp.soft_erp = 10000*stepsize*stepsize;
-//    sp.soft_cfm =  0;
 //     if(sp.soft_cfm>0.1) {
 //       fprintf(stderr,"CFM on collision to large!\n");
 //     }
 //     if(sp.soft_erp<0.1) {
 //       fprintf(stderr,"ERP on collision to small!\n");
 //     }
-//    cout << "ERP: " << sp.soft_erp << "\t CFM:  "<<  sp.soft_cfm << endl;
+//     cout << "ERP: " << sp.soft_erp << "\t CFM:  "<<  sp.soft_cfm << endl;
     //    sp.motion1,motion2;
     sp.slip1=s1.slip + s2.slip;
     sp.slip2=s1.slip + s2.slip;
@@ -120,7 +121,7 @@ namespace lpzrobots {
     s.toMetal(_roughness);
     return s;
   }
-  // very hard and elastic with slip
+  // very hard and elastic with slip roughness [0.1-1]
   void Substance::toMetal(float _roughness){
     if(_roughness<0) { cerr << "negative roughness in metal!" << endl;}
     if(_roughness>2) { cerr << "very rough metal used!" << endl;}
