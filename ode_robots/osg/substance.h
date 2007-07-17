@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-07-03 13:14:57  martius
+ *   Revision 1.3  2007-07-17 07:20:29  martius
+ *   updated comments
+ *
+ *   Revision 1.2  2007/07/03 13:14:57  martius
  *   stepsize included, but not yet sorted out
  *   changing stepsize varies the behaviour
  *
@@ -132,24 +135,24 @@ namespace lpzrobots {
     static Substance getDefaultSubstance();
     void toDefaultSubstance();
 
-    /// very hard and elastic 
+    /// very hard and elastic with slip roughness [0.1-1]
     static Substance getMetal(float roughness);
-    /// very hard and elastic
+    /// very hard and elastic with slip roughness [0.1-1]
     void toMetal(float roughness);
 
-    /// high roughness, no slip, a bit elastic, hardness : [0.1-0.5]
+    /// high roughness, no slip, very elastic, hardness : [5-50]
     static Substance getRubber(float hardness);
-    /// high roughness, no slip, a bit elastic, hardness : [0.1-0.5]
+    /// high roughness, no slip, very elastic, hardness : [5-50]
     void toRubber(float hardness);
 
-    /// medium slip, a bit elastic, medium hardness, roughness [0.5-5]
+    /// medium slip, a bit elastic, medium hardness, roughness [0.5-2]
     static Substance getPlastic(float roughness);
-    /// medium slip, a bit elastic, medium hardness, roughness [0.5-5]
+    /// medium slip, a bit elastic, medium hardness, roughness [0.5-2]
     void toPlastic(float roughness);
 
-    /// large slip, not elastic, low hardness [0.01-0.5], high roughness
+    /// large slip, not elastic, low hardness [1-30], high roughness
     Substance getFoam(float _hardness);    
-    /// large slip, not elastic, low hardness [0.01-0.5], high roughness
+    /// large slip, not elastic, low hardness [1-30], high roughness
     void toFoam(float _hardness);
       
   };
