@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.3  2006-07-20 17:14:36  martius
+// Revision 1.4  2007-07-17 07:28:06  martius
+// store and restore test
+//
+// Revision 1.3  2006/07/20 17:14:36  martius
 // removed std namespace from matrix.h
 // storable interface
 // abstract model and invertablemodel as superclasses for networks
@@ -358,12 +361,42 @@ DEFINE_TEST( speed ) {
   unit_pass();  
 }
 
+
+DEFINE_TEST( store_restore ) {  
+  cout << "\n -[ Store and Restore]-\n";  
+  Matrix M1(32,1);
+  for(int i =0; i<32; i++){
+    M1.val(0,0) = (double)rand()/RAND_MAX;
+  }
+  Matrix M2(32,2);
+  for(int i =0; i<64; i++){
+    M2.val(i%32,i/32) = (double)rand()/RAND_MAX;
+  }
+  FILE* f;
+  f=fopen("test.dat","wb");
+  M1.store(f);
+  M2.store(f);
+  fclose(f);
+  f=fopen("test.dat","rb");  
+  Matrix M3,M4;
+  M3.restore(f); 
+  M4.restore(f); 
+  fclose(f);  
+  unit_assert( "validation", (M1-M3).map(fabs).elementSum()==0);
+  unit_assert( "validation", (M2-M4).map(fabs).elementSum()==0);
+
+  unit_pass();  
+}
+
+
+
 UNIT_TEST_RUN( "Matrix Tests" )
   ADD_TEST( check_creation )
   ADD_TEST( check_vector_operation )
   ADD_TEST( check_matrix_operation )
   ADD_TEST( check_matrix_operators )
   ADD_TEST( speed )
+  ADD_TEST( store_restore )
 
   UNIT_TEST_END
 
