@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:34  martius
+ *   Revision 1.3  2007-07-17 07:18:19  martius
+ *   setMass added (dummy)
+ *
+ *   Revision 1.2  2006/07/14 12:23:34  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
@@ -60,6 +63,8 @@ namespace lpzrobots {
     
     virtual void update();
     virtual OSGPrimitive* getOSGPrimitive() { return osgheightfield; }
+
+    virtual void setMass(double mass) {}
   
   protected:
     OSGHeightField* osgheightfield;
