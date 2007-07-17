@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-07-03 13:12:40  martius
+ *   Revision 1.11  2007-07-17 07:19:54  martius
+ *   setMass added
+ *
+ *   Revision 1.10  2007/07/03 13:12:40  martius
  *   limitLinearVel
  *
  *   Revision 1.9  2007/03/16 10:51:45  martius
@@ -269,6 +272,19 @@ namespace lpzrobots{
    return body;    
   }
 
+  /** sets full mass specification
+    \param cg center of gravity vector
+    \param I parts of the 3x3 interia tensor
+  */
+  void Primitive::setMass(double mass, double cgx, double cgy, double cgz,
+			  double I11, double I22, double I33,
+			  double I12, double I13, double I23){
+    dMass mass0;
+    dMassSetParameters(&mass0, mass, cgx, cgy, cgz, I11, I22, I33, I12, I13, I23);
+    dBodySetMass(body, &mass0);
+  }
+
+
   bool Primitive::limitLinearVel(double maxVel){
     // check for maximum speed:
     if(!body) return false;
@@ -325,6 +341,14 @@ namespace lpzrobots{
     }
   }
 
+  void Plane::setMass(double mass){
+    dMass m;
+    dMassSetBox(&m,1,1000,1000,0.01); // fake the mass of the plane with a thin box
+    dMassAdjust (&m, mass); 
+    dBodySetMass (body,&m); //assign the mass to the body
+  }
+
+
   /******************************************************************************/
   Box::Box(float lengthX, float lengthY, float lengthZ) {
     osgbox = new OSGBox(lengthX, lengthY, lengthZ);    
@@ -344,7 +368,6 @@ namespace lpzrobots{
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      // fake the mass of the plane with a thin box
       dMassSetBox(&m, 1, osgbox->getLengthX() , osgbox->getLengthY() , osgbox->getLengthZ()); 
       dMassAdjust (&m, mass); 
       dBodySetMass (body,&m); //assign the mass to the body      
@@ -366,6 +389,13 @@ namespace lpzrobots{
       else
 	osgbox->setMatrix(osgPose(geom));
     }
+  }
+
+  void Box::setMass(double mass){
+    dMass m;
+    dMassSetBox(&m, 1, osgbox->getLengthX() , osgbox->getLengthY() , osgbox->getLengthZ()); 
+    dMassAdjust (&m, mass); 
+    dBodySetMass (body,&m); //assign the mass to the body      
   }
 
   /******************************************************************************/
@@ -410,6 +440,13 @@ namespace lpzrobots{
     }
   }
 
+  void Sphere::setMass(double mass){
+    dMass m;
+    dMassSetSphere(&m, 1, osgsphere->getRadius());
+    dMassAdjust (&m, mass); 
+    dBodySetMass (body,&m); //assign the mass to the body      
+  }
+
   /******************************************************************************/
   Capsule::Capsule(float radius, float height) {    
     osgcapsule = new OSGCapsule(radius, height);
@@ -451,6 +488,13 @@ namespace lpzrobots{
     }
   }
 
+  void Capsule::setMass(double mass){
+    dMass m;
+    dMassSetCappedCylinder(&m, 1.0, 3 , osgcapsule->getRadius(), osgcapsule->getHeight()); 
+    dMassAdjust (&m, mass); 
+    dBodySetMass (body,&m); //assign the mass to the body      
+  }
+
   /******************************************************************************/
   Cylinder::Cylinder(float radius, float height) {    
     osgcylinder = new OSGCylinder(radius, height);
@@ -490,6 +534,13 @@ namespace lpzrobots{
       else 
 	osgcylinder->setMatrix(osgPose(geom));
     }
+  }
+
+  void Cylinder::setMass(double mass){
+    dMass m;
+    dMassSetCylinder(&m, 1.0, 3 , osgcylinder->getRadius(), osgcylinder->getHeight());
+    dMassAdjust (&m, mass); 
+    dBodySetMass (body,&m); //assign the mass to the body      
   }
 
   /******************************************************************************/
@@ -537,6 +588,10 @@ namespace lpzrobots{
   void Transform::update(){
     if(child) child->update();
   }
+    
+  void Transform::setMass(double mass){
+    child->setMass(mass);
+  }
 
   /******************************************************************************/
 
@@ -565,6 +620,7 @@ namespace lpzrobots{
     }
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
+      // Todo: use compound bounding box mass instead
       dMass m;
       dMassSetSphere(&m, 1, osgmesh->getRadius()); // we use a sphere
       dMassAdjust (&m, mass); 
@@ -593,6 +649,14 @@ namespace lpzrobots{
 	osgmesh->setMatrix(osgPose(geom));
       }
     }
+  }
+
+  void Mesh::setMass(double mass){
+    // we should use the bouding box here
+    dMass m;
+    dMassSetSphere(&m, 1, osgmesh->getRadius()); // we use a sphere
+    dMassAdjust (&m, mass); 
+    dBodySetMass (body,&m); //assign the mass to the body
   }
 
 }

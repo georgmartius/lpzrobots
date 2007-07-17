@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-07-03 13:12:52  martius
+ *   Revision 1.9  2007-07-17 07:20:04  martius
+ *   setMass added
+ *
+ *   Revision 1.8  2007/07/03 13:12:52  martius
  *   limitLinearVel
  *
  *   Revision 1.7  2007/03/16 10:51:36  martius
@@ -200,6 +203,16 @@ public:
   /// returns the pose
   osg::Matrix getPose() const;
 
+  /// sets the mass of the body (uniform)
+  virtual void setMass(double mass) = 0;
+  /** sets full mass specification
+    \param cg center of gravity vector
+    \param I  3x3 interia tensor
+  */
+  void setMass(double mass, double cgx, double cgy, double cgz,
+	       double I11, double I22, double I33,
+	       double I12, double I13, double I23);
+
   /// returns ODE geomID if there
   dGeomID getGeom() const;    
   /// returns ODE bodyID if there
@@ -235,6 +248,8 @@ public:
   virtual void update();  
   virtual OSGPrimitive* getOSGPrimitive();
 
+  virtual void setMass(double mass);
+
 protected:
   OSGPlane* osgplane;
 };
@@ -254,6 +269,7 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
+  virtual void setMass(double mass);
 protected:
   OSGBox* osgbox;
 };
@@ -272,6 +288,8 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
+  virtual void setMass(double mass);
+
 protected:
   OSGSphere* osgsphere;
 };
@@ -287,6 +305,8 @@ public:
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
+
+  virtual void setMass(double mass);
 
 protected:
   OSGCapsule* osgcapsule;
@@ -304,6 +324,7 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
+  virtual void setMass(double mass);
 protected:
   OSGCylinder* osgcylinder;
 };
@@ -321,6 +342,7 @@ public:
   virtual OSGPrimitive* getOSGPrimitive();
   virtual float getRadius();
 
+  virtual void setMass(double mass);
 protected:
   OSGMesh* osgmesh;
   char drawBoundingMode;
@@ -359,6 +381,7 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
+  virtual void setMass(double mass);
 protected:
   Primitive* parent;
   Primitive* child;
@@ -385,6 +408,9 @@ public:
   }
   virtual void update() {}
   virtual OSGPrimitive* getOSGPrimitive() { return 0; }
+
+  virtual void setMass(double mass) {}
+
 };
 
 
