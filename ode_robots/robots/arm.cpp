@@ -172,7 +172,7 @@ namespace lpzrobots{
     // controller output as torques
     for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++) 
       {
-	hingeServos[i]->set(0.5*motors[i]);
+	hingeServos[i]->set(/*0.5**/motors[i]);
       }
     //		printf("motors: ");
     //		for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++) 
@@ -208,84 +208,84 @@ namespace lpzrobots{
 	
   void Arm::doInternalStuff(const GlobalData& globalData)
   {
-    if(created)
-      {
-	// mycallback is called for internal collisions! Only once per step
-	dSpaceCollide(odeHandle.space, this, mycallback);
-      }
+//     if(created)
+//       {
+// 	// mycallback is called for internal collisions! Only once per step
+// 	dSpaceCollide(odeHandle.space, this, mycallback);
+//       }
   }	
 
-  void Arm::mycallback(void *data, dGeomID o1, dGeomID o2)
-  {
-    Arm* me = (Arm*)data;  
-    if (
-	// collision between fixed body and forearm
-	((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[foreArm]->getGeom()))	
-	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[foreArm]->getGeom()))	
-	//				// collision between upper arm and forearm
-	//				|| ((o1 == me->objects[upperArm]->getGeom()) && (o2 == me->objects[foreArm]->getGeom()))	
-	//				|| ((o2 == me->objects[upperArm]->getGeom()) && (o1 == me->objects[foreArm]->getGeom()))	
-	// collision between upper body and hand
-	|| ((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[hand]->getGeom()))	
-	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[hand]->getGeom()))	
-	// collision between fixed body and upper arm
-	/*|| ((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[upperArm]->getGeom())) 
-	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[upperArm]->getGeom()))*/	
-	)
-      {
-	int i,n;  
-	const int N = 10;
-	dContact contact[N];
+//   void Arm::mycallback(void *data, dGeomID o1, dGeomID o2)
+//   {
+//     Arm* me = (Arm*)data;  
+//     if (
+// 	// collision between fixed body and forearm
+// 	((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[foreArm]->getGeom()))	
+// 	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[foreArm]->getGeom()))	
+// 	//				// collision between upper arm and forearm
+// 	//				|| ((o1 == me->objects[upperArm]->getGeom()) && (o2 == me->objects[foreArm]->getGeom()))	
+// 	//				|| ((o2 == me->objects[upperArm]->getGeom()) && (o1 == me->objects[foreArm]->getGeom()))	
+// 	// collision between upper body and hand
+// 	|| ((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[hand]->getGeom()))	
+// 	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[hand]->getGeom()))	
+// 	// collision between fixed body and upper arm
+// 	/*|| ((o1 == me->objects[base]->getGeom()) && (o2 == me->objects[upperArm]->getGeom())) 
+// 	|| ((o2 == me->objects[base]->getGeom()) && (o1 == me->objects[upperArm]->getGeom()))*/	
+// 	)
+//       {
+// 	int i,n;  
+// 	const int N = 10;
+// 	dContact contact[N];
     
-	n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-	for (i=0; i<n; i++) 
-	  {
-	    contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	    contact[i].surface.mu = 0.01;
-	    contact[i].surface.soft_erp = 1;
-	    contact[i].surface.soft_cfm = 0.00001;
-	    dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
-	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-	  }
-      }
-  }
+// 	n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+// 	for (i=0; i<n; i++) 
+// 	  {
+// 	    contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// 	    contact[i].surface.mu = 0.01;
+// 	    contact[i].surface.soft_erp = 1;
+// 	    contact[i].surface.soft_cfm = 0.00001;
+// 	    dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
+// 	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+// 	  }
+//       }
+//   }
 
   bool Arm::collisionCallback(void *data, dGeomID o1, dGeomID o2)
   {
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) 
-      {
-	int i,n;  
-	const int N = 10;
-	dContact contact[N];
-	n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-	for (i=0; i<n; i++) 
-	  {
-	    if( // only treat collisions with fixed body, upper arm ,lower arm or hand
-	       contact[i].geom.g1 == objects[base]->getGeom() 
-	       || contact[i].geom.g2 == objects[base]->getGeom()
-	       || contact[i].geom.g1 == objects[upperArm]->getGeom() 
-	       || contact[i].geom.g2 == objects[upperArm]->getGeom()  
-	       || contact[i].geom.g1 == objects[foreArm]->getGeom() 
-	       || contact[i].geom.g2 == objects[foreArm]->getGeom() 
-	       || contact[i].geom.g1 == objects[hand]->getGeom() 
-	       || contact[i].geom.g2 == objects[hand]->getGeom() 
-	       )
-	      { 
-		contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
-		contact[i].surface.mu = 0.01;
-		contact[i].surface.soft_erp = 1;
-		contact[i].surface.soft_cfm = 0.00001;
+//     //checks if one of the collision objects is part of the robot
+//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) 
+//       {
+// 	int i,n;  
+// 	const int N = 10;
+// 	dContact contact[N];
+// 	n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+// 	for (i=0; i<n; i++) 
+// 	  {
+// 	    if( // only treat collisions with fixed body, upper arm ,lower arm or hand
+// 	       contact[i].geom.g1 == objects[base]->getGeom() 
+// 	       || contact[i].geom.g2 == objects[base]->getGeom()
+// 	       || contact[i].geom.g1 == objects[upperArm]->getGeom() 
+// 	       || contact[i].geom.g2 == objects[upperArm]->getGeom()  
+// 	       || contact[i].geom.g1 == objects[foreArm]->getGeom() 
+// 	       || contact[i].geom.g2 == objects[foreArm]->getGeom() 
+// 	       || contact[i].geom.g1 == objects[hand]->getGeom() 
+// 	       || contact[i].geom.g2 == objects[hand]->getGeom() 
+// 	       )
+// 	      { 
+// 		contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// 		contact[i].surface.mu = 0.01;
+// 		contact[i].surface.soft_erp = 1;
+// 		contact[i].surface.soft_cfm = 0.00001;
 
-		dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-		dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-	      } 
-	  }
-	return true;
-      } else {
-	return false;
-      }
-    return true;
+// 		dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+// 		dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+// 	      } 
+// 	  }
+// 	return true;
+//       } else {
+// 	return false;
+//       }
+    return false;
   }
 
   /** 
@@ -303,7 +303,8 @@ namespace lpzrobots{
     // robot will be inserted in the vehicle space
     odeHandle.space = dSimpleSpaceCreate(parentspace);
 		
-    // ======= OBJECTS =======
+    // ======= OBJECTS AND JOINTS AND MOTORS ========
+
     // === BODY CREATION ==============
     // create body, initialize, set position and add to list of objects
     Primitive* _base = new Box(conf.body_width, conf.body_depth, conf.body_height);
@@ -325,6 +326,23 @@ namespace lpzrobots{
     _shoulder1->init(odeHandle, conf.shoulder_mass, osgHandle);
     _shoulder1->setPose(_pose);
     objects.push_back(_shoulder1);
+
+    // === one axis joint for shoulder elevation =====
+    // === Biess, Flash (2006): THETA ================
+    // creation procedure (see above) 1st DOF @ shoulder
+    HingeJoint* HJ_elev = new HingeJoint(objects[base], objects[shoulder1], 
+					 Pos(0,0,0)*_pose,
+					 Axis(1, 0, 0)*_pose);
+    HJ_elev->init(odeHandle, osgHandle, true);
+    HJ_elev->setParam(dParamLoStop, conf.elevation_min); 
+    HJ_elev->setParam(dParamHiStop, conf.elevation_max);
+    joints.push_back(HJ_elev);
+    // ANMERKUNG: conf.elevation_min beeinflusst OBEREN Armanschlag?
+    // ANMERKUNG 2: min und max skalieren die GESCHWINDIGKEIT der Bewegung! "travel bounds"? :-(
+    //    oneaxisservo.h: /** min and max values are understood as travel bounds. Min should be less than 0.*/
+    // servo motor for joint
+    HingeServo* elev_servo = new HingeServo(HJ_elev, conf.servoFactor*conf.elevation_min, conf.servoFactor*conf.elevation_max, conf.motorPower, conf.damping, 0);
+    hingeServos.push_back(elev_servo);
 	
     // position of shoulder joint part 2
     _pose = osg::Matrix::translate( (2*conf.shoulder_radius)+(2*conf.joint_offset), 0, 0) * _pose;
@@ -334,18 +352,38 @@ namespace lpzrobots{
     _shoulder2->setPose(_pose);
     objects.push_back(_shoulder2);
 	
+    // === one axis joint for shoulder azimuthal angle =====
+    // === Biess, Flash (2006): ETA ================
+    // creation procedure (see above) 2nd DOF @ shoulder
+    HingeJoint* HJ_azimut = new HingeJoint(objects[shoulder1], objects[shoulder2], 
+					   Pos(-(conf.shoulder_radius + conf.joint_offset),0,0)*_pose,
+					   Axis(0, 0, 1)*_pose); // rotated roation axis (y-axis of shoulder centered coordinate system)
+    // because of lifting the arm M_PI/2 in the beginning
+    HJ_azimut->init(odeHandle, osgHandle, true);
+    HJ_azimut->setParam(dParamLoStop, conf.azimuthal_min); 
+    HJ_azimut->setParam(dParamHiStop, conf.azimuthal_max);
+    joints.push_back(HJ_azimut);
+    // servo motor for joint
+    HingeServo* azimut_servo = new HingeServo(HJ_azimut, conf.servoFactor*conf.azimuthal_min, conf.servoFactor*conf.azimuthal_max, conf.motorPower/2, 2*conf.damping, 0);
+    hingeServos.push_back(azimut_servo);
+
+
     // === UPPER ARM =========	
     // position of upper arm
-    _pose = 
+    //  initial turn of the upper arm is M_PI/4;
+    osg::Matrix shoulder2_pose = osg::Matrix::rotate(M_PI/4, 0, 1, 0) * _pose;
+    _pose = osg::Matrix::translate( 0,0, -(conf.upperarm_length/2))* 
       osg::Matrix::rotate(M_PI/2, 1, 0, 0) * // initial elevation of upper arm of M_PI/2 
-      // for symmetrical starting position with respect to joint constraints
-      osg::Matrix::translate( (conf.upperarm_radius)+(conf.shoulder_radius)+(2*conf.joint_offset), (conf.upperarm_length/2), 
-			      -(conf.upperarm_radius) ) * _pose;
+      osg::Matrix::translate( (conf.upperarm_radius)+(conf.shoulder_radius)+(2*conf.joint_offset), 0,0)
+      * shoulder2_pose;
     // creating procedure (see above) upper arm 
     Primitive* _upperArm = new Capsule(conf.upperarm_radius, conf.upperarm_length);
     _upperArm->init(odeHandle, conf.upperarm_mass, osgHandle);
     _upperArm->setPose(_pose); 
     objects.push_back(_upperArm);
+
+    // avoid collision of upper arm with body
+    odeHandle.addIgnoredPair(objects[base],objects[upperArm]);
 
     //		// marking of x-axis (shoulder centered coordinate system) 
     //		Primitive* _xaxis_prim = new Sphere(0.05);
@@ -360,19 +398,55 @@ namespace lpzrobots{
     //			osg::Matrix::translate(0, conf.upperarm_radius, conf.upperarm_length/2));
     //		_yaxis_trans->init(odeHandle, 0, osgHandle);
 
+    // === one axis joint for shoulder humeral angle =====
+    // === Biess, Flash (2006): XSI ================
+    // creation procedure (see above) 3rd DOF @ shoulder
+    HingeJoint* HJ_humer = new HingeJoint(objects[shoulder2], objects[upperArm], 
+					  Pos(conf.shoulder_radius + conf.joint_offset,0,0)*shoulder2_pose, 
+					  Axis(0, -1, 0)*shoulder2_pose); // rotated rotation axis (z-axis of shoulder centered coordinate system) 
+    // because of lifting the arm M_PI/2 in the beginning
+    HJ_humer->init(odeHandle, osgHandle, true); 
+    HJ_humer->setParam(dParamLoStop, conf.humeral_min);
+    HJ_humer->setParam(dParamHiStop, conf.humeral_max); 
+    joints.push_back(HJ_humer);
+    // servo motor for joint	
+    HingeServo* humer_servo = new HingeServo(HJ_humer, conf.servoFactor*conf.humeral_min, conf.servoFactor*conf.humeral_max, conf.motorPower/4, conf.damping, 0, 30/*maxVel*/); 
+    hingeServos.push_back(humer_servo);
+
+
     // === FOREARM =========
-    // position of forearm
-    _pose = 
-      osg::Matrix::translate(conf.forearm_length/2 /*+ conf.joint_offset*/ +2*conf.forearm_radius+conf.upperarm_radius /* move along upper arm! */, 0, 
-			     -conf.upperarm_length/2+/* TODO Term fuer groessere Radii unschoen */2*conf.forearm_radius/*-conf.joint_offset*/) * 
-      osg::Matrix::rotate(M_PI/2, 0, 1, 0) * // initial flexion of elbow joint of M_PI/2 
-      // for symmetrical starting position with respect to joint constraints
+    /* move reference point to elbow */
+    osg::Matrix elbow_pose= osg::Matrix::translate(0, 0, -conf.upperarm_length/2) * 
       _pose;
+    /* coordinate transform for forarm */
+    _pose = osg::Matrix::translate(0,0,-conf.forearm_length/2)* /* move forarm so that 0,0,0 is at lower end */
+      osg::Matrix::rotate(M_PI/3, 0, 1, 0)*  // initial flexion of elbow joint of M_PI/3
+      elbow_pose;
     // creating procedure (see above) forearm 
     Primitive* _foreArm = new Capsule(conf.forearm_radius, conf.forearm_length);
     _foreArm->init(odeHandle, conf.forearm_mass, osgHandle);
     _foreArm->setPose(_pose); 
     objects.push_back(_foreArm);
+
+   // === one axis joint for Elbow =======
+    // === Biess, Flash (2006): PHI =======
+    // create joint between upper arm and forearm, initialize, set constraints, add to list of joints
+    HingeJoint* HJ_elbow = new HingeJoint(objects[upperArm], objects[foreArm], 
+					  Pos(0,0,0)*elbow_pose,
+					  //osg::Vec3(pos[0], pos[1]+conf.upperarm_length/2+conf.joint_offset, pos[2]) /* anchor of joint */, 
+					  Axis(0, 1, 0)* elbow_pose); // rotation axis: y-axis of shoulder centered coordinate system 
+    // = z-axis of world coordinate system, because of initial rotation of shoulder joint (M_PI/2 round y-axis)
+    HJ_elbow->init(odeHandle, osgHandle, true);
+    HJ_elbow->setParam(dParamLoStop, conf.elbow_min);
+    HJ_elbow->setParam(dParamHiStop, conf.elbow_max); 
+    joints.push_back(HJ_elbow);
+    // create servo motor for elbow joint, add to list of motors 
+    // min und max beeinlussen Geschwindigkeit?!	
+    HingeServo* elbow_servo = new HingeServo(HJ_elbow, conf.servoFactor*conf.elbow_min, conf.servoFactor*conf.elbow_max, 
+					     conf.scaleMotorElbow * conf.motorPower, conf.damping, 0, 30); // P D I(0) MaxVel
+    hingeServos.push_back(elbow_servo);
+
+
     // === HAND =========
     // position of hand 
     _pose = osg::Matrix::translate(0, 0, -conf.forearm_length/2 ) * _pose;
@@ -382,75 +456,11 @@ namespace lpzrobots{
     _hand->setPose(_pose); 
     objects.push_back(_hand);
 		
-    // ===== JOINTS AND MOTORS ========
     // === fixed wrist ===========
     FixedJoint* FJ_hand = new FixedJoint(objects[foreArm], objects[hand]);
     FJ_hand->init(odeHandle, osgHandle);
     joints.push_back(FJ_hand);		
-    // === one axis joint for elbow =======
-    // === Biess, Flash (2006): PHI =======
-    // create joint between upper arm and forearm, initialize, set constraints, add to list of joints
-    osg::Vec3 pos=objects[upperArm]->getPosition();
-    HingeJoint* HJ_elbow = new HingeJoint(objects[upperArm], objects[foreArm], 
-					  osg::Vec3(pos[0], pos[1]+conf.upperarm_length/2+conf.joint_offset, pos[2]) /* anchor of joint */, 
-					  osg::Vec3(0, 0, 1)); // rotation axis: y-axis of shoulder centered coordinate system 
-    // = z-axis of world coordinate system, because of initial rotation of shoulder joint (M_PI/2 round y-axis)
-    HJ_elbow->init(odeHandle, osgHandle, true);
-    HJ_elbow->setParam(dParamLoStop, conf.elbow_min);
-    HJ_elbow->setParam(dParamHiStop, conf.elbow_max); 
-    joints.push_back(HJ_elbow);
-    // create servo motor for elbow joint, add to list of motors 
-    // min und max beeinlussen Geschwindigkeit?!	
-    HingeServo* elbow_servo = new HingeServo(HJ_elbow, conf.servoFactor*conf.elbow_min, conf.servoFactor*conf.elbow_max, 
-					     conf.scaleMotorElbow * conf.motorPower, conf.damping, 0); // P D I(0.1-0.2)
-    hingeServos.push_back(elbow_servo);
-    // === one axis joint for shoulder elevation =====
-    // === Biess, Flash (2006): THETA ================
-    // creation procedure (see above) 1st DOF @ shoulder
-    pos=objects[shoulder1]->getPosition();
-    HingeJoint* HJ_elev = new HingeJoint(objects[base], objects[shoulder1], 
-					 osg::Vec3(pos[0]-(conf.shoulder_radius)-(conf.joint_offset), pos[1], pos[2]), 
-					 osg::Vec3(1, 0, 0));
-    HJ_elev->init(odeHandle, osgHandle, true);
-    HJ_elev->setParam(dParamLoStop, conf.elevation_min); 
-    HJ_elev->setParam(dParamHiStop, conf.elevation_max);
-    joints.push_back(HJ_elev);
-    // ANMERKUNG: conf.elevation_min beeinflusst OBEREN Armanschlag?
-    // ANMERKUNG 2: min und max skalieren die GESCHWINDIGKEIT der Bewegung! "travel bounds"? :-(
-    //    oneaxisservo.h: /** min and max values are understood as travel bounds. Min should be less than 0.*/
-    // servo motor for joint
-    HingeServo* elev_servo = new HingeServo(HJ_elev, conf.servoFactor*conf.elevation_min, conf.servoFactor*conf.elevation_max, conf.motorPower, conf.damping, 0);
-    hingeServos.push_back(elev_servo);
-    // === one axis joint for shoulder azimuthal angle =====
-    // === Biess, Flash (2006): ETA ================
-    // creation procedure (see above) 2nd DOF @ shoulder
-    pos=objects[shoulder1]->getPosition();
-    HingeJoint* HJ_azimut = new HingeJoint(objects[shoulder1], objects[shoulder2], 
-					   osg::Vec3(pos[0]+(conf.shoulder_radius)+(conf.joint_offset), pos[1], pos[2]), 
-					   osg::Vec3(0, 0, 1)); // rotated roation axis (y-axis of shoulder centered coordinate system)
-    // because of lifting the arm M_PI/2 in the beginning
-    HJ_azimut->init(odeHandle, osgHandle, true);
-    HJ_azimut->setParam(dParamLoStop, conf.azimuthal_min); 
-    HJ_azimut->setParam(dParamHiStop, conf.azimuthal_max);
-    joints.push_back(HJ_azimut);
-    // servo motor for joint
-    HingeServo* azimut_servo = new HingeServo(HJ_azimut, conf.servoFactor*conf.azimuthal_min, conf.servoFactor*conf.azimuthal_max, conf.motorPower/4, conf.damping, 0);
-    hingeServos.push_back(azimut_servo);
-    // === one axis joint for shoulder humeral angle =====
-    // === Biess, Flash (2006): XSI ================
-    // creation procedure (see above) 3rd DOF @ shoulder
-    pos=objects[shoulder2]->getPosition();
-    HingeJoint* HJ_humer = new HingeJoint(objects[shoulder2], objects[upperArm], 
-					  osg::Vec3(pos[0]+(conf.shoulder_radius)+(conf.joint_offset), pos[1], pos[2]), 
-					  osg::Vec3(0, -1, 0)); // rotated rotation axis (z-axis of shoulder centered coordinate system) 
-    // because of lifting the arm M_PI/2 in the beginning
-    HJ_humer->init(odeHandle, osgHandle, true); 
-    HJ_humer->setParam(dParamLoStop, conf.humeral_min);
-    HJ_humer->setParam(dParamHiStop, conf.humeral_max); 
-    joints.push_back(HJ_humer);
-    // servo motor for joint	
-    HingeServo* humer_servo = new HingeServo(HJ_humer, conf.servoFactor*conf.humeral_min, conf.servoFactor*conf.humeral_max, conf.motorPower/2, conf.damping, 0);
-    hingeServos.push_back(humer_servo);
+ 
 		
     printf("size: %d objects, %d joints, %d hingeservos\n", objects.size(), joints.size(), hingeServos.size());
     
@@ -517,10 +527,10 @@ namespace lpzrobots{
   {
     if(key == "motorPower") {
       conf.motorPower=val;
-      hingeServos[0]->setPower(val);
-      hingeServos[1]->setPower(val);
-      hingeServos[2]->setPower(val/4);
-      hingeServos[3]->setPower(val/2);
+      hingeServos[0]->setPower(val);   // elevation
+      hingeServos[1]->setPower(val/2); // azimutal
+      hingeServos[2]->setPower(val/4); // humeral
+      hingeServos[3]->setPower(val*conf.scaleMotorElbow);
       //       FOREACH (vector<HingeServo*>, hingeServos, i) {
       // 	(*i)->setPower(val);
       //       }
