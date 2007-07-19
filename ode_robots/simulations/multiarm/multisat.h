@@ -17,19 +17,23 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   This version of multisat has the following features                   *
- *    n agents, competition by gating network                              *
- *    error predictions are modulated by penalty term which depends        *
- *    on suboptimality (away from minimum) for each agent                  *
- *    only winner is allowed to learn                                      *
- *    every agent has a lifetime and he will learn every timestep as       *
- *    with decreasing learningrate                                         *
+ *    n agents, competition __without__ gating network but                 *
+ *     but with own prediction errors                                      *
+ *    prediction errors are modulated by penalty term which depends        *
+ *     on suboptimality (away from minimum) for each agent                 *
+ *    only winner is allowed to learn with full learning rate              *
+ *    every agent (independent of winner)                                  *
+ *     has a lifetime and he will learn every timestep                     *
+ *     with decreasing learningrate (makes them understand somthing)       *
  *                                                                         *
  *    the sat network with most learning progress is used for control      *
+ *     with half influence on the motor commands                           *
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-06-29 09:05:06  robot6
- *   *** empty log message ***
+ *   Revision 1.2  2007-07-19 15:50:00  martius
+ *   copied new sat implementation from multiexperts
+ *   differnent arm parameters
  *
  *   Revision 1.6  2007/06/22 14:25:08  martius
  *   *** empty log message ***
@@ -62,7 +66,6 @@
 
 #include <selforg/matrix.h>
 #include <selforg/noisegenerator.h>
-#include <selforg/som.h>
 #include <selforg/multilayerffnn.h>
 
 typedef struct MultiSatConf {
@@ -70,15 +73,16 @@ typedef struct MultiSatConf {
   unsigned short buffersize; ///< size of the ringbuffers for sensors, motors,...
   int numHidden;        ///< number of hidden units in the satelite networks
   double eps0;          ///< learning rate for satelite networks
-  double tauE;          ///< time horizont for averaging error;
+  double tauE1;          ///< time horizont for short averaging error;
+  double tauE2;          ///< time horizont for long averaging error;
   double tauC;          ///< time horizont for annealing initial learning phase
-  double lambda_comp;   ///< discount of learning rate for non-winners (competition) (modulated automatically)
+  //  double lambda_comp;   ///< discount of learning rate for non-winners (competition) (modulated automatically)
   double deltaMin;      ///< additive decay the minimum term (in 1/1000) (should be very small)
-  int    numSomPerDim;  ///< number of SOM neuronen per context dimension (attention raises exponential)
-  int    numContext;    ///< number of context sensors
+  int    numContext;    ///< number of context sensors (ignored)
   int    numSats;       ///< number of satelite networks
   bool   useDerive;     ///< input to sat network includes derivatives
   double penalty;       ///< factor to multiply the square of the difference of error and optimal error 
+  double satControlFactor; ///< factor of which the output of winner sat is used for control
 } MultiSatConf;
 
 /// Satelite network struct
@@ -114,6 +118,8 @@ public:
   virtual void stepNoLearning(const sensor* , int number_sensors, 
 			      motor* , int number_motors);
 
+  // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
+  
   /// stores the sat networks into seperate files
   void storeSats(const char* filestem); 
 
@@ -140,16 +146,17 @@ public:
     MultiSatConf c;
     c.buffersize=10;
     c.numHidden = 2;
-    c.eps0=0.0005;
-    c.lambda_comp = 0;
-    c.deltaMin = 1.0/500.0; 
+    c.eps0=0.005;
+    //    c.lambda_comp = 0;
+    c.deltaMin = 1.0/1000.0; 
     c.tauC = 10.0/c.eps0; 
-    c.tauE = 200; 
+    c.tauE1 = 20; 
+    c.tauE2 = 200; 
     c.numContext=0;
-    c.numSomPerDim=3;
     c.numSats=20;
     c.useDerive=false;
     c.penalty=5;
+    c.satControlFactor = 0;
     return c;
   }
 
@@ -173,13 +180,10 @@ protected:
 
   bool runcompetefirsttime;       ///< flag to initialise averaging with proper value
   matrix::Matrix satErrors;       ///< actual errors of the sats
-  matrix::Matrix satPredErrors;   ///< predicted errors of sats
-  matrix::Matrix satModPredErrors; ///< modulated predicted errors of sats
-  matrix::Matrix satAvgErrors;    ///< average errors of sats
-  matrix::Matrix satMinErrors;    ///< minimum errors of sats
-
-  SOM* gatingSom;
-  MultiLayerFFNN* gatingNet;  
+  matrix::Matrix satAvg1Errors;   ///< short averaged errors of sats
+  matrix::Matrix satAvg2Errors;   ///< long averaged errors of sats
+  matrix::Matrix satModErrors;    ///< modulated (avg1) errors of sats
+  matrix::Matrix satMinErrors;    ///< minimum errors of sats (calculated from avg2)
   
   MultiSatConf conf;
   bool initialised;
