@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-06-22 14:25:07  martius
+ *   Revision 1.8  2007-07-19 15:44:32  martius
+ *   new multisat version without gating
+ *
+ *   Revision 1.7  2007/06/22 14:25:07  martius
  *   *** empty log message ***
  *
  *   Revision 1.6  2007/06/21 16:31:54  martius
@@ -228,13 +231,16 @@ public:
 
     /* * * * SPHERES * * * */
     for(int i=0; i< num_spheres; i++){
-      bool replay=false;
+      bool replay=true;
       global.odeConfig.setParam("noise", replay ? 0 : 0.1);
       //****************
-      const char* replayfilename="Sphere_reinforce_axis_rot.sel.log";
+      //      const char* replayfilename="Sphere_reinforce_axis_rot.sel.log";
+      //const char* replayfilename="Sphere_slow_07-07-18.sel.log";
+      const char* replayfilename="Sphere_long_rich_07-07-18.sel.log";
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.15; 
       conf.motorpowerfactor  = 150;    
+      conf.spheremass  = 1;    
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
@@ -257,12 +263,11 @@ public:
       MultiSatConf msc = MultiSat::getDefaultConf();
       msc.controller = controller;
       msc.numContext = 3;
-      msc.numSomPerDim = 3;
       msc.numHidden = 2;
-      msc.numSats   = 6;
+      msc.numSats   = 20; 
       msc.eps0      = 0.005;
-      msc.deltaMin  = 0.0005;
-      msc.tauC      = 2000;
+      msc.deltaMin  = 0.0001;
+      msc.tauE1     = 40;
       msc.useDerive=false;
       multisat = new MultiSat(msc);
 

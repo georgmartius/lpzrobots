@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-06-14 14:08:19  martius
+ *   Revision 1.2  2007-07-19 15:44:32  martius
+ *   new multisat version without gating
+ *
+ *   Revision 1.1  2007/06/14 14:08:19  martius
  *   cvs tag multiexpert 2 stage
  *
  *   Revision 1.3  2007/06/14 08:01:45  martius
@@ -355,6 +358,9 @@ bool MultiSat::store(FILE* f) const {
 }
 
 bool MultiSat::restore(FILE* f){
+  if(!initialised)
+    init(2,2);
+
   char buffer[128];
   if(fscanf(f,"%s\n", buffer) != 1) return false;	
   conf.numSats = atoi(buffer);
