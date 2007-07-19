@@ -99,7 +99,7 @@ namespace lpzrobots{
 		
   } ArmConf;
 	
-  class Arm : public OdeRobot /*, public Inspectable */
+  class Arm : public OdeRobot
   {
   public:
 		  
@@ -109,8 +109,8 @@ namespace lpzrobots{
     {
       ArmConf conf;		 
 			
-      conf.motorPower=2;//1.0;
-      conf.damping=0.05;//1.0;
+      conf.motorPower=5;//2-15;
+      conf.damping=0.2;//1.0;
 
       conf.upperarm_radius = 0.05;//0.15; <- not beautiful
       conf.forearm_radius = 0.05;//0.1; <- not beautiful TODO universelle Anordnung!
@@ -131,16 +131,16 @@ namespace lpzrobots{
       conf.forearm_mass = 0.1; // 0.01
       conf.forearm_length = 1.2;
       // stops at hinge joints 
-      conf.elevation_min=-M_PI/2;
-      conf.elevation_max=M_PI/2;
-      conf.humeral_min=-M_PI/2;//-4*M_PI/10;//-2*M_PI/3;
-      conf.humeral_max=M_PI/2;//4*M_PI/10;//2*M_PI/3;
-      conf.azimuthal_min=-M_PI/3;//-3*M_PI/4;
+      conf.elevation_min=-M_PI/3;
+      conf.elevation_max=M_PI/3;
+      conf.humeral_min=-M_PI/4;
+      conf.humeral_max=M_PI/4;
+      conf.azimuthal_min=-M_PI/4;
       conf.azimuthal_max=M_PI/3;
-      conf.elbow_min=-M_PI/2;
-      conf.elbow_max=M_PI/2;
-      conf.servoFactor=0.8;
-      conf.scaleMotorElbow=0.8;
+      conf.elbow_min=-M_PI/3.5; // 50Deg. the hard limit is at about 60
+      conf.elbow_max=M_PI/3.5; // 50Deg. the hard limit is at about 60
+      conf.servoFactor=1;
+      conf.scaleMotorElbow=0.6;
       conf.useJointSensors=true;
       conf.withContext=false;
 
@@ -206,7 +206,7 @@ namespace lpzrobots{
      */
     void getEndeffectorPosition(double* position);
 		
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2); 
 
     /** 
      * this function is called in each timestep. It should perform robot-internal checks,
