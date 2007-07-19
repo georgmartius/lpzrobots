@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.64  2007-07-03 13:09:32  martius
+ *   Revision 1.65  2007-07-19 15:54:55  martius
+ *   fixme added
+ *
+ *   Revision 1.64  2007/07/03 13:09:32  martius
  *   odeHandle knows about time
  *
  *   Revision 1.63  2007/06/21 16:19:59  martius
@@ -658,6 +661,8 @@ namespace lpzrobots {
 
 	/**********************Simulationsschritt an sich**********************/
 	dSpaceCollide ( odeHandle.space , this , &nearCallback_TopLevel );
+	// FIXME: we also need to check within spaces! 
+
 	dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize );
 	//ODE-Engine geht einen Schritt weiter
 	dJointGroupEmpty (odeHandle.jointGroup);
@@ -1038,8 +1043,8 @@ namespace lpzrobots {
     }
 
     if (collision_treated) return; // exit if collision was treated by a robot
-
-    nearCallback(data, o1, o2);
+        
+    nearCallback(data, o1, o2);    
   }
 
 
