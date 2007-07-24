@@ -18,6 +18,7 @@ public class SoundManGUI extends JFrame {
  private JSlider toneLSlide;
  private JSlider[] sensorSlide;
  private JCheckBox[] sensorCheck;
+ private JSlider[] customSlider;
 
  public SoundManGUI(float p, int m) {
   param=p;
@@ -29,7 +30,32 @@ public class SoundManGUI extends JFrame {
   getContentPane().setLayout(null);
   setTitle("SoundMan");
   setResizable(false);
-  setSize(250,335);
+  setSize(350,335);
+
+
+  ////////// CUSTOM SLIDERS //////////
+  // Slider values can be queried in SoundManipulation.java
+  // via gui.getCustomSliderValue(i) with i from 0-2 being
+  // the number of the slider from left to right.
+  customSlider=new JSlider[3];
+  for(int i=0; i<3; i++) {
+   customSlider[i]=new JSlider(JSlider.VERTICAL,0, 100, 50);
+   customSlider[i].setBounds(250+i*25, 10, 15, 250);
+   getContentPane().add(customSlider[i]);
+   getContentPane().repaint();
+  }
+
+  ////////// CUSTOM BUTTON //////////
+  JButton customButton=new JButton("Custom");
+  customButton.setBounds(250, 275, 75, 20);
+  getContentPane().add(customButton);
+  customButton.addActionListener(
+   new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+     // What's to do when pushing the button?
+    }
+   }
+  );
 
   ////////// param //////////
   JLabel l1=new JLabel("Parameter:");
@@ -44,6 +70,7 @@ public class SoundManGUI extends JFrame {
   final JFormattedTextField paramFTF=new JFormattedTextField(df);
   paramFTF.setText(NumberFormat.getInstance().format(param));
   paramFTF.setBounds(85, 70, 50, 20);
+  paramFTF.setToolTipText("The motor value change needed to play sound.");
   getContentPane().add(paramFTF);
   paramFTF.addActionListener(
    new ActionListener() {
@@ -84,6 +111,7 @@ public class SoundManGUI extends JFrame {
      mode=1;
      noteSlide.setEnabled(true);
      paramFTF.setEnabled(true);
+     paramFTF.setToolTipText("The motor value change needed to play sound.");
      paramB.setEnabled(true);
     }
    }
@@ -98,6 +126,7 @@ public class SoundManGUI extends JFrame {
      mode=2;
      noteSlide.setEnabled(true);
      paramFTF.setEnabled(true);
+     paramFTF.setToolTipText("Boosts the volume.");
      paramB.setEnabled(true);
     }
    }
@@ -112,13 +141,14 @@ public class SoundManGUI extends JFrame {
      mode=3;
      noteSlide.setEnabled(false);
      paramFTF.setEnabled(true);
+     paramFTF.setToolTipText("Amplifies changing of notes.");
      paramB.setEnabled(true);
     }
    }
   );
 
   JRadioButton masterRB=new JRadioButton("Master mode (all three combined)");
-  masterRB.setBounds(5, 40, 255, 20);
+  masterRB.setBounds(5, 40, 240, 20);
   getContentPane().add(masterRB);
   masterRB.addActionListener(
    new ActionListener() {
@@ -126,6 +156,7 @@ public class SoundManGUI extends JFrame {
      mode=4;
      noteSlide.setEnabled(false);
      paramFTF.setEnabled(false);
+     paramFTF.setToolTipText("No usage in master mode.");
      paramB.setEnabled(false);
     }
    }
@@ -221,6 +252,11 @@ public class SoundManGUI extends JFrame {
     }
    }
   );
+ }
+
+ // CUSTOM SLIDER GETTER
+ public int getCustomSliderValue(int i) {
+  return customSlider[i].getValue();
  }
 
  public int getToneLength() {
