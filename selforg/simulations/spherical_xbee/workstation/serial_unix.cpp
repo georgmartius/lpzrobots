@@ -238,7 +238,6 @@ int CSerialThread::sendByte(uint8 c) {
 
 int CSerialThread::getByte(uint8 *c) {
   int cnt = 0, n=-1;
-  //extern int errno;
   
   while ((n = read(fd_in, c, 1)) <= 0) {
 
