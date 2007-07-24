@@ -157,7 +157,7 @@ public:
     else{  // later resets -> lets check whether the same number of motors and sensors
       if(xbees[currentXbee].numsensors != databuf[0] || xbees[currentXbee].nummotors != databuf[1]){
 	cerr << "Error: sensor or motor number not equivalent to initial values " << databuf[0] << ", " << databuf[1] << endl;
-	exit(1);
+	//exit(1);
       }
     }
     return true;
@@ -505,7 +505,7 @@ int main(int argc, char** argv){
   initializeConsole();
 
   vector<Xbee> xbees;
-  // xbees.push_back(Xbee(1));
+  //xbees.push_back(Xbee(1));
   xbees.push_back(Xbee(2));
 
   // AbstractController* controller = new InvertMotorSpace(10);
@@ -532,7 +532,7 @@ int main(int argc, char** argv){
 
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
-  communication= new Communicator(port, 115200, controller, 
+  communication= new Communicator(port, 57600, controller, 
 				  //                                  new OurWiring(new ColorUniformNoise(0.01)),
                                   new One2OneWiring(new ColorUniformNoise(0.01)),
                                   plotoptions, xbees, verboseMode);

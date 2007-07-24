@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <iostream>
+#include <errno.h>
 
 
 static void* CSerialThread_run(void* p);
@@ -215,8 +216,9 @@ int CSerialThread::sendData(uint8 adr, uint8 cmd, uint8 *data, uint8 len) {
     return -1;
   }
   if (c != (PACK  | MSADR)) {
-    if (verbose) { 
-      cerr << "Got unexpected data (ACK/NACK expected).\n";
+    if (verbose) {
+      cerr << "Got unexpected data (ACK/NACK expected): |";
+      printf(" %i\n",c);
     }
     return -1;
   }
@@ -230,18 +232,25 @@ int CSerialThread::sendData(uint8 adr, uint8 cmd, uint8 *data, uint8 len) {
  * value of the write method.
  */
 int CSerialThread::sendByte(uint8 c) {
+  usleep(10000);
   return write(fd_out, &c, 1);
 }
 
 int CSerialThread::getByte(uint8 *c) {
-  int cnt = 0, n;
+  int cnt = 0, n=-1;
+  //extern int errno;
+  
   while ((n = read(fd_in, c, 1)) <= 0) {
+
     if (cnt++ > READTIMEOUT) {
       cerr << "Time out!\n";
       return -1;
     }
     usleep(10000);
   }
+  if (errno==EAGAIN)
+    cerr << "EAGAIN detected!" << endl;
+  cout << "errno: " << errno << endl;
   return n;
 }
 
