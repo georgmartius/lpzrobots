@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <iostream>
 #include <vector>
@@ -81,6 +82,7 @@ public:
       verbose=true;
       verboseMore=true;
     }
+    resetSyncTimer();
   }
 
   ~Communicator(){
@@ -268,11 +270,40 @@ public:
     return;
   }
 
+  long timeOfDayinMS(){
+    struct timeval t;
+    gettimeofday(&t, 0);
+    return t.tv_sec*1000 + t.tv_usec/1000;
+  }
+
+  void resetSyncTimer(){
+    realtimeoffset = timeOfDayinMS();
+  }
+
   virtual void loopCallback(){
-    // Todo: add time stuff
-    while(pause){
-      usleep(1000);
-    }
+    /************************** Time Syncronisation ***********************/
+    // Time syncronisation of real time and simulations time (not if on capture mode, or pause)
+    if(!pause){
+      long elaped = timeOfDayinMS() - realtimeoffset;
+      // difference between actual passed time and desired cycletime
+      long diff = cycletime - elaped;
+      if(diff > 10000 || diff < -10000)  // check for overflow or other weird things
+	resetSyncTimer();
+      else{
+	if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
+	  usleep((diff-2)*1000);
+	}else if (diff < 0){
+	  if (verbose) {
+	    printf("Time leak of %li ms detected\n",abs(diff));		
+	  }
+	}
+      }
+    }else {
+      while(pause){
+	usleep(1000);
+      }
+    }    
+    resetSyncTimer();
   }
 
   virtual void sendMotorCommands() {
@@ -340,7 +371,7 @@ public:
   virtual bool setParam(const paramkey& key, paramval val){
     if(key == "noise") noise = val; 
     else if(key == "cycletime"){
-      cycletime=val;
+      cycletime=(long)val;
     } else if(key == "reset"){
       Initialise();
     } else 
@@ -384,9 +415,10 @@ private:
   int motornumber_new;
   int sensornumber_new;
   double noise;
-  double cycletime;
+  long cycletime;
   unsigned int currentXbee;
   State state;
+  long realtimeoffset;
 
 
   //DAT motorDat;
