@@ -18,14 +18,6 @@ using namespace std;
 #include "cmdline.h"
 #include "globaldata.h"
 
-#define C_R 0
-#define C_D 1
-#define C_S 2
-#define C_M 3
-#define C_E 4
-#define C_V 5
-#define C_A 7
-
 
 typedef struct Xbee {
   Xbee(short addr) : addr(addr), initialised(false), failurecounter(0){}
@@ -75,17 +67,13 @@ public:
   { 
     sensornumber=0;
     motornumber=0; 
-    numberinternals=0;
     x=0;
     y=0;
     noise=0.1;
     cycletime=50;
-    cycletimechanged=false;
     pause=false;
 
     agent = 0;
-
-    pendingTime=0;
 
     if (verboseMode==1)
       verbose=true;
@@ -112,7 +100,9 @@ public:
 
 
 
-  /// this function is calles at the beginning (initialised==false) or if connection is lost (initialised==true)
+  /** this function is called at the beginning (initialised==false) 
+      or if connection is lost (initialised==true)
+  */
   virtual bool resetXbee(int currentXbee){
     if (sendData(xbees[currentXbee].addr, CBEEP, NULL, 0) < 0){
       cerr << "Error while sending beep.\n";
@@ -166,7 +156,6 @@ public:
 
 
   virtual void Initialise(){
-    pendingTime=0;
     currentXbee=0;
     sensornumber_new=0;
     motornumber_new=0;
@@ -177,20 +166,28 @@ public:
       cout << "Initialise!\n";
     }
 
-    // this might result in a random order of xbee initialisation -> random motor/sensor order
-    bool allinitialised;
-    do{
-      allinitialised=true;
-      for (currentXbee = 0; currentXbee < xbees.size(); currentXbee++) {
-	if(xbees[currentXbee].initialised) continue;
-	allinitialised &= resetXbee(currentXbee);
-      }
-      if(!allinitialised){
-	cout << "Some Xbee was not responing, try again!\n";
-	usleep(500000);
-      }
-    }while(!allinitialised);
+//     // this might result in a random order of xbee initialisation -> random motor/sensor order
+//     bool allinitialised;
+//     do{
+//       allinitialised=true;
+//       for (currentXbee = 0; currentXbee < xbees.size(); currentXbee++) {
+// 	if(xbees[currentXbee].initialised) continue;
+// 	allinitialised &= resetXbee(currentXbee);
+//       }
+//       if(!allinitialised){
+// 	cout << "Some Xbee was not responing, try again!\n";
+// 	usleep(500000);
+//       }
+//     }while(!allinitialised);
 
+    // New sequencial initialisation    
+    for (currentXbee = 0; currentXbee < xbees.size(); currentXbee++) {
+      while(!resetXbee(currentXbee)){
+	if (verbose) cout << "Xbee " << currentXbee << " not responing, try again!\n";
+	usleep(5000);
+      };
+      
+    }
 
     sensornumber = sensornumber_new;
     motornumber  = motornumber_new;
@@ -201,12 +198,6 @@ public:
     initController();
   }
 
-  virtual void printError() { //const DAT& s){
-    //switch(s.buffer[0]){
-    //case 0: cerr << "some error\n"; break;
-    //default: cerr << " number " << s.buffer[0]; break;
-    //}
-  }
 
   Agent* getAgent(){
     return agent;
@@ -278,6 +269,7 @@ public:
   }
 
   virtual void loopCallback(){
+    // Todo: add time stuff
     while(pause){
       usleep(1000);
     }
@@ -285,7 +277,6 @@ public:
 
   virtual void sendMotorCommands() {
     int i, len, offset, n;
-    pendingTime=0;
 
     /* Send motor values. */
     offset = xbees[currentXbee].motoroffset;
@@ -300,14 +291,6 @@ public:
     if (verbose && (len != n))
       cerr << "Error while sending motor values.\n";
     return;
-  }
-
-  virtual bool is_pending(int pendingTimeout) {
-    if (pendingTime==pendingTimeout)
-      return true;
-    else
-      pendingTime++;
-    return false;
   }
 
   // robot interface
@@ -358,7 +341,6 @@ public:
     if(key == "noise") noise = val; 
     else if(key == "cycletime"){
       cycletime=val;
-      cycletimechanged=true;
     } else if(key == "reset"){
       Initialise();
     } else 
@@ -401,14 +383,11 @@ private:
   int sensornumber;
   int motornumber_new;
   int sensornumber_new;
-  int numberinternals;
   double noise;
   double cycletime;
-  bool cycletimechanged;
   unsigned int currentXbee;
   State state;
 
-  int pendingTime;
 
   //DAT motorDat;
   uint8 databuf[135];
