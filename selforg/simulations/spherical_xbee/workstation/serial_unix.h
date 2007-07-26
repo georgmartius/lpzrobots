@@ -33,7 +33,7 @@ typedef string CString;
 #define MAX_NACKS 2
 
 #define READTIMEOUT 10
-#define MAXFAILURES 10
+#define MAXFAILURES 4
 
 typedef unsigned char uint8;
 
