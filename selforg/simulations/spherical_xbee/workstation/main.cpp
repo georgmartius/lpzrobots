@@ -71,7 +71,7 @@ public:
     x=0;
     y=0;
     noise=0.1;
-    cycletime=50;
+    cycletime=200;
     pause=false;
 
     agent = 0;
@@ -512,6 +512,7 @@ int main(int argc, char** argv){
   list<PlotOption> plotoptions;
   int verboseMode=0;
   const char* port = "/dev/ttyS0";
+  int baud = 57600;
   GlobalData globaldata;
   initializeConsole();
 
@@ -532,6 +533,7 @@ int main(int argc, char** argv){
   if(contains(argv,argc,"-h")!=0) {
     printf("Usage: %s [-g] [-f] [-v] [-h] [-p port]\n",argv[0]);
     printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
+    printf("\t-b baud\tset baud rate\n");
     printf("\t-v\tenable verbose mode\n\t-p port\tuse give serial port (/dev/ttyUSB0)\n");
     exit(0);
   }
@@ -540,10 +542,15 @@ int main(int argc, char** argv){
     port = argv[index];
     cout << "use port " << port << endl;
   }
+  index = contains(argv,argc,"-b");
+  if(index && index<argc){
+    baud = atoi(argv[index]);
+    cout << "use baud rate " << baud << endl;
+  }
 
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
-  communication= new Communicator(port, 57600, controller, 
+  communication= new Communicator(port, baud, controller, 
 				  // new OurWiring(new ColorUniformNoise(0.01)),
                                   new One2OneWiring(new ColorUniformNoise(0.01)),
                                   plotoptions, xbees, verboseMode);
