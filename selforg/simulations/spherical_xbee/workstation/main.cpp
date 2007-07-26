@@ -498,7 +498,7 @@ int contains(char **list, int len,  const char *str){
 
 
 int main(int argc, char** argv){
-tt  list<PlotOption> plotoptions;
+  list<PlotOption> plotoptions;
   int verboseMode=0;
   const char* port = "/dev/ttyS0";
   GlobalData globaldata;

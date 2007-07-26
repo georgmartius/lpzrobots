@@ -69,8 +69,8 @@ bool CSerialThread::run(){
   }
 
   // open port, non-block for error handling is necessary
-  // fd_in = open(m_port.c_str(), O_RDWR|O_SYNC|O_NONBLOCK);
-  fd_in = open(m_port.c_str(), O_RDWR);
+  fd_in = open(m_port.c_str(), O_RDWR|O_SYNC|O_NONBLOCK);
+  //fd_in = open(m_port.c_str(), O_RDWR);
   //    pthread_testcancel();
   if (fd_in <0) { cerr << "Error open port.\n"; return false; }
   if(test_mode){
@@ -97,7 +97,6 @@ bool CSerialThread::run(){
   while(!terminated){
     pthread_testcancel();
     /* Get sensor values / send motor values. */
-    //usleep(1000000);
     writeMotors_readSensors();
     loopCallback();
   }//  end of while loop
@@ -233,7 +232,6 @@ int CSerialThread::sendData(uint8 adr, uint8 cmd, uint8 *data, uint8 len) {
  * value of the write method.
  */
 int CSerialThread::sendByte(uint8 c) {
-  usleep(10000);
   return write(fd_out, &c, 1);
 }
 
@@ -241,16 +239,15 @@ int CSerialThread::getByte(uint8 *c) {
   int cnt = 0, n=-1;
   
   while ((n = read(fd_in, c, 1)) <= 0) {
-
     if (cnt++ > READTIMEOUT) {
       cerr << "Time out!\n";
       return -1;
     }
-    usleep(10000);
+    usleep(1000);
   }
-  if (errno==EAGAIN)
-    cerr << "EAGAIN detected!" << endl;
-  cout << "errno: " << errno << endl;
+//   if (errno==EAGAIN)
+//     cerr << "EAGAIN detected!" << endl;
+//   cout << "errno: " << errno << endl;
   return n;
 }
 
