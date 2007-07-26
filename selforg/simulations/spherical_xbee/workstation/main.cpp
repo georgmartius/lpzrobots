@@ -498,7 +498,7 @@ int contains(char **list, int len,  const char *str){
 
 
 int main(int argc, char** argv){
-  list<PlotOption> plotoptions;
+tt  list<PlotOption> plotoptions;
   int verboseMode=0;
   const char* port = "/dev/ttyS0";
   GlobalData globaldata;
@@ -533,7 +533,7 @@ int main(int argc, char** argv){
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
   communication= new Communicator(port, 57600, controller, 
-				  //                                  new OurWiring(new ColorUniformNoise(0.01)),
+				  // new OurWiring(new ColorUniformNoise(0.01)),
                                   new One2OneWiring(new ColorUniformNoise(0.01)),
                                   plotoptions, xbees, verboseMode);
   communication->start();

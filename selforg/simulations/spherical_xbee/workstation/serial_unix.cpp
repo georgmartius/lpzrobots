@@ -69,7 +69,8 @@ bool CSerialThread::run(){
   }
 
   // open port, non-block for error handling is necessary
-  fd_in = open(m_port.c_str(), O_RDWR|O_SYNC|O_NONBLOCK);
+  // fd_in = open(m_port.c_str(), O_RDWR|O_SYNC|O_NONBLOCK);
+  fd_in = open(m_port.c_str(), O_RDWR);
   //    pthread_testcancel();
   if (fd_in <0) { cerr << "Error open port.\n"; return false; }
   if(test_mode){
