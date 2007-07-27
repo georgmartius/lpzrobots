@@ -32,7 +32,7 @@ typedef string CString;
    frame (adr, cmd, len [, data, len]). */
 #define MAX_NACKS 2
 
-#define READTIMEOUT 10
+#define READTIMEOUT 30
 #define MAXFAILURES 4
 
 typedef unsigned char uint8;
@@ -134,6 +134,10 @@ public:
   void comport(const CString& port){ m_port=port; };
   /// set baud rate
   void baudrate(int baud){ m_baud=baud; };
+
+
+  int readB();
+  int readNByte(unsigned char*, int n, int timeout);
 
   /// thread function
   bool run();

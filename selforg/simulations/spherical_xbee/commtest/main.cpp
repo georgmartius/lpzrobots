@@ -1,3 +1,7 @@
+// test program for communication with xbee and atmega
+//  atmega programm under: avr/projects/comm_test
+// Main code is in serial_unix.cpp in run() function
+
 #include <signal.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -19,7 +23,7 @@ int contains(char **list, int len,  const char *str){
 int main(int argc, char** argv){
   int verboseMode=0;
   const char* port = "/dev/ttyS0";
-  int baud = 57600;
+  int baud = 38400;
 
   if(contains(argv,argc,"-v")!=0) verboseMode=1;
   if(contains(argv,argc,"-vv")!=0) verboseMode=2;

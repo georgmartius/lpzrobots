@@ -45,6 +45,42 @@ void CSerialThread::stop(){
   pthread_testcancel();
 };
 
+int CSerialThread::readB() {
+  int cnt = 0, n=-1;
+  unsigned char c;
+  while ((n = read(fd_in, &c, 1)) <= 0) {
+    if (cnt++ > READTIMEOUT) {
+      cerr << "Time out!\n";
+      return -1;
+    }
+    usleep(1000);
+  }
+  return c;
+}
+
+
+int CSerialThread::readNByte(unsigned char* c, int n, int timeout){  
+  int r = read(fd_out, c, n);
+  if(r<n){ // second try
+    if(r<0) r=0;
+    printf("Retry!\n");    
+    usleep(timeout);
+    int r1= read(fd_out, c+r, n-r);
+    if (r1<0) 
+      return -1;
+    else
+      r+=r1;
+  }
+  if(r==n){
+    if(c[0]=='#' && c[1]=='#'){
+      return r;
+    }else{
+      
+    }
+  }return -1;
+  
+  
+}
 
 // thread function
 bool CSerialThread::run(){
@@ -94,20 +130,47 @@ bool CSerialThread::run(){
 
   unsigned char slave = 0;
   unsigned char c[40];
-  int numslaves = 1;
+  int numslaves = 2;
   // main loop
   while(!terminated){
     pthread_testcancel();
     //!!test
-    printf("Send to %i\n",slave);    
-    c[0]=slave;
-    write(fd_out, c, 1);
-    // wait for answer
-    usleep(10000);
-    int r = read(fd_out, c, 20);
-    c[r]=0;
-    printf("Got from %i %i bytes: %s\n",slave,r,c);    
     slave = (slave+1)%numslaves;
+    printf("Send to %i\n",slave);        
+    c[0]=255;          
+    c[1]=slave+1;          
+    c[2]=17;          
+    write(fd_out, c, 20);
+    
+    int b;
+    do{
+      b = readB();
+      if(b>31 && b<96) printf("%c",b);
+    }while( (b != 255) && (b != -1));
+    if (b == -1) continue;
+    int addr = readB();
+    if (addr == -1) continue;
+    int len = readB();
+    if (len == -1) continue;
+    if(addr==0){
+      int i;
+      for(i=0; i<len; i++){
+	int b =readB();
+	if(b==-1) break; 
+	c[i] = b;
+      }
+      if(i<len) continue;
+    }else{
+      printf("Got weird packet\n");    
+    }
+
+    // output
+    printf("Got from %i: ",slave);    
+    for(int i=0; i<len; i++){
+      printf("%i ",c[i]);    
+    }
+    printf("\n");    
+
   }//  end of while loop
   close(fd_in);
   fd_in=-1;

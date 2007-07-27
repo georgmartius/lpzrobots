@@ -3,6 +3,7 @@
 #Date:     Mai 2005
 
 FILES = main serial_unix
+CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = commtest
@@ -12,17 +13,7 @@ CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DNDEBUG
 
-LPZROBOTS  = ../../../..
-CONTROLLER = $(LPZROBOTS)/controller
-SELFORG    = $(LPZROBOTS)/selforg
-
-LIBS   = -lm -pthread\
-	 -L$(MATRIXLIB)  -l$(MATRIX) -L$(SELFORG) -lselforg \
-	 -lreadline
-
-
-INC    = -I$(LPZROBOTS)/matrixlib/ -I$(LPZROBOTS)/controller -I$(SELFORG)/include
-
+LIBS   = -lm -pthread 
 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
@@ -31,13 +22,11 @@ CXX = g++ $(CFLAGS) $(INC)
 CC = g++ $(CFLAGS)
 #CC = g++ -g3 -pg  
 
-all: libselforg $(EXEC)
-
-libselforg:	
-	cd $(SELFORG) && make libselforg.a		
+all:  $(EXEC)
 
 
-$(EXEC): $(SELFORG)/libselforg.a Makefile Makefile.depend $(OFILES)
+
+$(EXEC): Makefile Makefile.depend $(OFILES)
 	$(CC) $(OFILES) $(LIBS) -o $(EXEC)
 
 depend: Makefile.depend
