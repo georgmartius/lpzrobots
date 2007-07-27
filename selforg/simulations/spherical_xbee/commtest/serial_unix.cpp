@@ -69,7 +69,7 @@ bool CSerialThread::run(){
   }
 
   // open port, non-block for error handling is necessary
-  fd_in = open(m_port.c_str(), O_RDWR|O_SYNC/*|O_NONBLOCK*/);
+  fd_in = open(m_port.c_str(), O_RDWR|O_SYNC|O_NONBLOCK);
   //fd_in = open(m_port.c_str(), O_RDWR);
   //    pthread_testcancel();
   if (fd_in <0) { cerr << "Error open port.\n"; return false; }
@@ -99,12 +99,14 @@ bool CSerialThread::run(){
   while(!terminated){
     pthread_testcancel();
     //!!test
+    printf("Send to %i\n",slave);    
     c[0]=slave;
     write(fd_out, c, 1);
     // wait for answer
+    usleep(10000);
     int r = read(fd_out, c, 20);
     c[r]=0;
-    printf("Got from %i: %s\n",slave,c);    
+    printf("Got from %i %i bytes: %s\n",slave,r,c);    
     slave = (slave+1)%numslaves;
   }//  end of while loop
   close(fd_in);
