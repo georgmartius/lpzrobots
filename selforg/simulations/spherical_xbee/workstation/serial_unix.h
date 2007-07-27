@@ -7,14 +7,6 @@ using namespace std;
 
 typedef string CString;
 
-#define PADR    0x0  /* 00000000 */
-#define PACK    0x10 /* 00010000 */
-#define PNACK   0x20 /* 00100000 */
-#define PSTOP   0x30 /* 00110000 */
-#define PCMD    0x40 /* 01000000 */
-#define PLEN    0x80 /* 10000000 */
-#define PDAT    0xc0 /* 11000000 */
-
 #define CRES    0x1  /* 00000001 Reset command                            */
 #define CDIM    0x2  /* 00000010 Dimension data: number of sensors/motors */
 #define CDSEN   0x3  /* 00000011 Sensor data values                       */
@@ -28,12 +20,7 @@ typedef string CString;
 
 #define MSADR   0x0  /* Master address */
 
-/* The maximum number of NACKs to be send for a single data
-   frame (adr, cmd, len [, data, len]). */
-#define MAX_NACKS 2
-
-#define READTIMEOUT 10
-#define MAXFAILURES 4
+#define READTIMEOUT 100
 
 typedef unsigned char uint8;
 
@@ -66,63 +53,14 @@ public:
   virtual ~CSerialThread(){stopandwait();};
 
   virtual int sendByte(uint8 c);
-  virtual int getByte(uint8 *c);
-  virtual int receiveData(uint8 adr, uint8 *cmd, uint8 *data, uint8 maxlen, int rn);
-  virtual void receiveMsg(uint8 adr, int len);
-
-  /**
-   * This method creates two data packets 11aaxxxx|11bbyyyy where xxxxyyyy is the original
-   * data byte. Packets are numbered subsequently according to a mod 4 rule (00, 01, 10,
-   * 11, 00, 01, ...; bits aa and bb, resp.).
-   */
-  virtual uint8* makeDataPackets(uint8 data, uint8* p, uint8 i);
-  /**
-   * This method creates an address packet 0000xxxx with xxxx indicating the slave
-   * address, i.e. only the 4 lower bits are taken from the 'adr'.
-   */
-  virtual uint8 makeAddrPacket(uint8 adr);
-  
-  virtual uint8 makeStopPacket(uint8 adr);
-    
-  /**
-   * This method creates an acknowledge packet 0001xxxx with xxxx indicating the
-   * slave address.
-   */
-  virtual uint8 makeAckPacket(uint8 adr);
-
-  /**
-   * This method creates an not-acknowledge packet 0010xxxx with xxxx indicating the
-   * slave address.
-   */
-  virtual uint8 makeNackPacket(uint8 adr);
-
-  /**
-   * This method creates a command packet 01xxxxxx with xxxxxx indicating the command,
-   * i.e. only the 6 lower bits are taken from the paramter cmd.
-   */
-  virtual uint8 makeCmdPacket(uint8 cmd);
-    
-  /**
-   * This method creates a length packet 10xxxxxx with xxxxxx indicating the length,
-   * i.e. only the 6 lower bits are taken from the paramter len.
-   * Note: Since data bytes are splitted (see makeDataPackets()), the actual number
-   * of data packets is twice the number of data bytes to be send. The length indicates
-   * the number of data bytes, and not the number of data packets.
-   */
-  virtual uint8 makeLenPacket(uint8 len);
+  virtual int getByte();
+  virtual int receiveData(uint8 adr, uint8 *cmd, uint8 *data);
 
   /**
    * This method writes len bytes of 'raw' data to the slave with the address 'adr'.
    * On success the net number of bytes (len) is returned, otherwise -1.
    */
   virtual int sendData(uint8 adr, uint8 cmd, uint8 *data, uint8 len);
-  virtual void sendAck(uint8 adr);
-  virtual void sendNack(uint8 adr);
-    
-
-  // for communication with inherited class
-
-  virtual void printMsg(uint8* data, int len) = 0;
         
   // read sensors and write motors
   virtual void writeMotors_readSensors() = 0; //const DAT& s) = 0;

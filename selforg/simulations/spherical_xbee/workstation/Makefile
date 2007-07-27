@@ -3,6 +3,7 @@
 #Date:     Mai 2005
 
 FILES = main cmdline serial_unix console
+CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = workstation

@@ -19,6 +19,7 @@ using namespace std;
 #include "cmdline.h"
 #include "globaldata.h"
 
+#define MAXFAILURES 4
 
 typedef struct Xbee {
   Xbee(short addr) : addr(addr), initialised(false), failurecounter(0){}
@@ -119,7 +120,7 @@ public:
 
     /* Receive dimension, i.e. number of sensors/motors. */
     uint8 cmd;
-    int len = receiveData(xbees[currentXbee].addr, &cmd, databuf, 2, MAX_NACKS);
+    int len = receiveData(MSADR, &cmd, databuf);
     if ((cmd != CDIM) || (len != 2)) {
       cerr << "Didn't receive number of motors/sensors (len = " << len << ")\n";
       return false;
@@ -229,7 +230,7 @@ public:
       offset = xbees[currentXbee].sensoroffset;
       n = xbees[currentXbee].numsensors;
       uint8 cmd;
-      len = receiveData(xbees[currentXbee].addr, &cmd, databuf, n, MAX_NACKS);
+      len = receiveData(MSADR, &cmd, databuf);
   
       /* When data were successfully read. */
       if (len >= 0) {
@@ -422,7 +423,7 @@ private:
 
 
   //DAT motorDat;
-  uint8 databuf[135];
+  uint8 databuf[255];
   
   Agent* agent;
   AbstractController* controller;
