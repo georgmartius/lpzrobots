@@ -7,20 +7,7 @@ using namespace std;
 
 typedef string CString;
 
-#define CRES    0x1  /* 00000001 Reset command                            */
-#define CDIM    0x2  /* 00000010 Dimension data: number of sensors/motors */
-#define CDSEN   0x3  /* 00000011 Sensor data values                       */
-#define CDMOT   0x4  /* 00000100 Motor data values                        */
-#define CBEEP   0x8  /* 00001000 Make a beep    */
-#define CDMSG   0x9  /* 00001001 Message data.  */
-
-#define MASK_L2 0xc0 /* 11000000 */
-#define MASK_L4 0xf0 /* 11110000 */
-#define MASK_R4 0xf  /* 00001111 */
-
-#define MSADR   0x0  /* Master address */
-
-#define READTIMEOUT 100
+#define READTIMEOUT 50
 
 typedef unsigned char uint8;
 
@@ -55,6 +42,7 @@ public:
   virtual int sendByte(uint8 c);
   virtual int getByte();
   virtual int receiveData(uint8 adr, uint8 *cmd, uint8 *data);
+  virtual void flushInputBuffer(int wait);
 
   /**
    * This method writes len bytes of 'raw' data to the slave with the address 'adr'.

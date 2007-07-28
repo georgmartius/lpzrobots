@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-07-10 13:42:00  robot3
+ *   Revision 1.2  2007-07-28 10:13:26  martius
+ *   very nicely working communication with multiple xbees *g*
+ *
+ *   Revision 1.1  2007/07/10 13:42:00  robot3
  *   added readline console
  *
  *   Revision 1.3  2007/04/13 13:10:28  robot4
@@ -126,6 +129,7 @@ bool handleConsole(GlobalData& globalData){
   bool rv = true;
 
   //  initialize_readline ();       /* Bind our completer. */
+  fflush(stdout);
   std::cout << "Type: ? for help or press TAB\n";
   line = readline ("> ");
   

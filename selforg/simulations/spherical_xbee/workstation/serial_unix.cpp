@@ -32,10 +32,13 @@ void CSerialThread::stopandwait(){
     {
       // set stop signal
       terminated=true;
+      usleep(1000);
       pthread_testcancel();
+      usleep(1000);
       //      pthread_cancel(thread);
       pthread_join(thread,NULL);
       m_is_joined=true;
+      m_is_running=false;
     }
 };
 
@@ -146,6 +149,12 @@ int CSerialThread::getByte() {
     usleep(1000);
   }
   return c;
+}
+
+void CSerialThread::flushInputBuffer(int wait) {
+  char buffer [128];
+  usleep(wait*1000);
+  read(fd_in, buffer, 128);
 }
 
 /**
