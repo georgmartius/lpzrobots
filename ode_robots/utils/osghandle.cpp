@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-11 18:26:55  martius
+ *   Revision 1.4  2007-07-30 14:14:10  martius
+ *   drawBoundings moved here
+ *
+ *   Revision 1.3  2006/12/11 18:26:55  martius
  *   destructor, but without any function
  *
  *   Revision 1.2  2006/07/14 12:23:56  martius
@@ -71,6 +74,7 @@ namespace lpzrobots {
     this->normalState = normalState;
     this->transparentState = transparentState;
     this->color = color;
+    drawBoundings=false;
   }
 
   OsgHandle::~OsgHandle(){

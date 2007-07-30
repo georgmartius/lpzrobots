@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-11 18:26:55  martius
+ *   Revision 1.4  2007-07-30 14:13:40  martius
+ *   drawBoundings moved here
+ *
+ *   Revision 1.3  2006/12/11 18:26:55  martius
  *   destructor, but without any function
  *
  *   Revision 1.2  2006/07/14 12:23:56  martius
@@ -73,6 +76,8 @@ public:
 
   ~OsgHandle();
 
+  /// decides whether to draw bounding boxes 
+  bool drawBoundings;   
   osg::Group* scene;  
   osg::TessellationHints* tesselhints[3];  
   osg::StateSet* normalState;  
