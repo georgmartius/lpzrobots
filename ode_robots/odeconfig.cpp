@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-06-21 16:33:43  martius
+ *   Revision 1.7  2007-07-30 14:13:06  martius
+ *   drawBoundings moved to osgHandle
+ *
+ *   Revision 1.6  2007/06/21 16:33:43  martius
  *   random seed
  *
  *   Revision 1.5  2007/06/08 15:37:22  martius
@@ -88,7 +91,6 @@ namespace lpzrobots {
     addParameterDef("motionpersistence",&motionPersistence,0.09);
     // prepare name;
     videoRecordingMode=false;
-    drawBoundings=false;
   }
         
   Configurable::paramlist OdeConfig::getParamList() const{

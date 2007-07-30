@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-06-08 15:37:22  martius
+ *   Revision 1.17  2007-07-30 14:13:17  martius
+ *   drawBoundings moved to osgHandle
+ *
+ *   Revision 1.16  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.15  2007/01/25 14:09:50  martius
@@ -112,7 +115,6 @@ namespace lpzrobots {
     double noise;
     double gravity;
     double cameraSpeed;
-    bool drawBoundings;   
     long randomSeed;
     OdeHandle odeHandle;
 
