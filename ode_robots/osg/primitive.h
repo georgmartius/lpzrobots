@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-07-17 07:20:04  martius
+ *   Revision 1.10  2007-07-31 08:21:34  martius
+ *   OSGMesh does not need GlobalData
+ *   drawBoundings moved to OsgHandle
+ *
+ *   Revision 1.9  2007/07/17 07:20:04  martius
  *   setMass added
  *
  *   Revision 1.8  2007/07/03 13:12:52  martius
@@ -333,7 +337,7 @@ protected:
 /** Mesh primitive */
 class Mesh : public Primitive {
 public:
-  Mesh(const std::string& filename,float scale,GlobalData& global);
+  Mesh(const std::string& filename,float scale);
   virtual ~Mesh();
   virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
@@ -345,7 +349,6 @@ public:
   virtual void setMass(double mass);
 protected:
   OSGMesh* osgmesh;
-  char drawBoundingMode;
   const std::string filename;
   float scale;
   BoundingShape* boundshape;

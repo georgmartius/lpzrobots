@@ -23,7 +23,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-07-17 07:19:54  martius
+ *   Revision 1.12  2007-07-31 08:21:34  martius
+ *   OSGMesh does not need GlobalData
+ *   drawBoundings moved to OsgHandle
+ *
+ *   Revision 1.11  2007/07/17 07:19:54  martius
  *   setMass added
  *
  *   Revision 1.10  2007/07/03 13:12:40  martius
@@ -595,13 +599,9 @@ namespace lpzrobots{
 
   /******************************************************************************/
 
-  Mesh::Mesh(const std::string& filename,float scale,GlobalData& global) :
+  Mesh::Mesh(const std::string& filename,float scale) :
     filename(filename), scale(scale)  {    
     osgmesh = new OSGMesh(filename, scale);
-    if (global.odeConfig.drawBoundings)
-      drawBoundingMode=Primitive::Geom | Primitive::Draw;
-    else
-      drawBoundingMode=Primitive::Geom;
   }
 
   Mesh::~Mesh(){
@@ -615,23 +615,31 @@ namespace lpzrobots{
     assert(mode & Body || mode & Geom);
     substance = odeHandle.substance;
     this->mode=mode;
+    double r=0.01;
     if (mode & Draw){
       osgmesh->init(osgHandle);
+      r =  osgmesh->getRadius();
     }
+    if (r<0) r=0.01;
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       // Todo: use compound bounding box mass instead
       dMass m;
-      dMassSetSphere(&m, 1, osgmesh->getRadius()); // we use a sphere
+      dMassSetSphere(&m, 1, r); // we use a sphere
       dMassAdjust (&m, mass); 
       dBodySetMass (body,&m); //assign the mass to the body
     } 
     // read boundingshape file
     //    const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
+    short drawBoundingMode;
+    if (osgHandle.drawBoundings)
+      drawBoundingMode=Primitive::Geom | Primitive::Draw;
+    else
+      drawBoundingMode=Primitive::Geom;
     boundshape = new BoundingShape(filename+".bbox" ,this);
     if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.3)), scale, drawBoundingMode)){
       printf("use default bounding box, because bbox file not found!\n");
-      Primitive* bound = new Sphere(osgmesh->getRadius()); 
+      Primitive* bound = new Sphere(r); 
       Transform* trans = new Transform(this,bound,osg::Matrix::translate(0.0f,0.0f,0.0f));
       trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);
       osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher

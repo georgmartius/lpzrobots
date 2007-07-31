@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-09-21 22:09:40  martius
+ *   Revision 1.7  2007-07-31 08:21:33  martius
+ *   OSGMesh does not need GlobalData
+ *   drawBoundings moved to OsgHandle
+ *
+ *   Revision 1.6  2006/09/21 22:09:40  martius
  *   material has no spec because everthing shines then liek the coloured objects
  *
  *   Revision 1.5  2006/09/20 12:55:44  martius
@@ -377,6 +381,10 @@ namespace lpzrobots {
     scaletrans->setMatrix(osg::Matrix::scale(scale,scale,scale));
     transform->addChild(scaletrans.get());
     mesh  = osgDB::readNodeFile(filename, options);
+    if(mesh==0){
+      fprintf(stderr,"OSGMesh: init: cannot load file: %s\n Abort!\n",filename.c_str());
+      exit(1); 
+    }
     scaletrans->addChild(mesh.get());
     
 //     if(osgHandle.color.alpha() < 1.0){
