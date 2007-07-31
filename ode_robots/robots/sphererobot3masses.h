@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-04-03 16:27:06  der
+ *   Revision 1.12  2007-07-31 08:25:11  martius
+ *   added comments
+ *
+ *   Revision 1.11  2007/04/03 16:27:06  der
  *   new IR shape
  *
  *   Revision 1.10  2007/01/26 12:05:05  martius
@@ -111,7 +114,7 @@ public:
   double pendulardiameter; ///< automatically set
   double pendularmass;
   double motorpowerfactor; ///< power factor for servos w.r.t. pendularmass 
-  double pendularrange;
+  double pendularrange;    ///< fraction of the diameter the pendular masses can move to one side
   bool motorsensor;        ///< motor values as sensors
   bool irAxis1;
   bool irAxis2;
