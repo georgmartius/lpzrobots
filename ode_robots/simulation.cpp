@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.65  2007-07-19 15:54:55  martius
+ *   Revision 1.66  2007-07-31 08:20:33  martius
+ *   list of spaces for internal collision detection added
+ *
+ *   Revision 1.65  2007/07/19 15:54:55  martius
  *   fixme added
  *
  *   Revision 1.64  2007/07/03 13:09:32  martius
@@ -661,7 +664,10 @@ namespace lpzrobots {
 
 	/**********************Simulationsschritt an sich**********************/
 	dSpaceCollide ( odeHandle.space , this , &nearCallback_TopLevel );
-	// FIXME: we also need to check within spaces! 
+	FOREACHC(list<dSpaceID>, odeHandle.getSpaces(), i){	  
+	  dSpaceCollide ( *i , this , &nearCallback );
+	}
+
 
 	dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize );
 	//ODE-Engine geht einen Schritt weiter
@@ -951,8 +957,7 @@ namespace lpzrobots {
       printf("shadowTexSize=%i\n",shadowTexSize);
     }
 
-
-    globalData.odeConfig.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
+    osgHandle.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
 
     // read intended simulation time
     index = contains(argv, argc, "-simtime");
@@ -1030,13 +1035,13 @@ namespace lpzrobots {
 //   }
 
 
-// This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide)
+// This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide (0))
   void Simulation::nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2){
     Simulation* me = (Simulation*) data;
     if (!me) return;
 
     bool collision_treated=false;
-    // call robots collision treatments
+    // call robots collision treatments (old stuff, should be removed at some point)
     for(OdeAgentList::iterator i= me->globalData.agents.begin();
 	(i != me->globalData.agents.end()) && !collision_treated; i++){
       collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
