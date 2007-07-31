@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2007-07-03 13:06:18  martius
+ *   Revision 1.20  2007-07-31 08:33:55  martius
+ *   modified reinforment for one-axis-rolling
+ *
+ *   Revision 1.19  2007/07/03 13:06:18  martius
  *   *** empty log message ***
  *
  *   Revision 1.18  2007/05/22 08:31:46  martius
@@ -153,7 +156,7 @@ public:
     int num_barrels=0;
     int num_barrels_test=0;
     int num_spheres=1;
-    useReinforcement=3;
+    useReinforcement=0;
 
     sensor=0;
 
@@ -311,7 +314,9 @@ public:
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.15; 
-      conf.motorpowerfactor  = 250;     
+      conf.motorpowerfactor  = 150;     
+      conf.spheremass = 1;
+      
       //      conf.motorpowerfactor  = 50;    
 
       sensor = new SpeedSensor(5, SpeedSensor::RotationalRel);
@@ -357,11 +362,11 @@ public:
 	controller->setParam("epsC", 0.1);    
 	controller->setParam("epsA", 0.2); // 0.5    	
       }
-      // controller->setParam("epsC", 0.001);    
-      // controller->setParam("epsA", 0.001);    
+      controller->setParam("epsC", 0.05);    
+      controller->setParam("epsA", 0.1);    
       //    controller->setParam("rootE", 1);    
       //    controller->setParam("logaE", 2);    
-      controller->setParam("steps", 2);    
+      controller->setParam("steps", 1);    
       controller->setParam("rootE", 3);    
       controller->setParam("logaE", 0);    
       //     controller = new SineController();  
@@ -370,13 +375,12 @@ public:
     
       //      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.2) );
       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), new select_from_to(0,2));
-      //      OdeAgent* agent = new OdeAgent ( plotoptions );
-      //      std::list<PlotOption> l;
-      //      l.push_back(PlotOption(GuiLogger, Robot, 5));
-      //      l.push_back(PlotOption(File, Robot, 1));
-
-      //      OdeAgent* agent = new OdeAgent ( l );
-      OdeAgent* agent = new OdeAgent ( plotoptions);
+      std::list<PlotOption> l;
+      l.push_back(PlotOption(GuiLogger, Robot, 5));
+      l.push_back(PlotOption(File, Robot, 1));
+      
+      OdeAgent* agent = new OdeAgent ( l );
+      // OdeAgent* agent = new OdeAgent ( plotoptions);
       agent->init ( controller , sphere1 , wiring );
       //agent->setTrackOptions(TrackRobot(true, true, false, true, "ZSens", 50));
       global.agents.push_back ( agent );
@@ -387,14 +391,15 @@ public:
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-    if(useReinforcement==3){ // spinning around one particilar axis mot too fast
+    if(useReinforcement==3){ // spinning around one particilar axis not too fast
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
       if(c && sensor){
  	double dat[3];
 	sensor->get(dat, 3);
 	for(int i=0; i<3; i++) dat[i]=fabs(dat[i]);
  	std::sort(dat,dat+3);
- 	double penalty = dat[0] + dat[1] + 0.5*sqr(dat[2]-1.2);
+ 	double penalty = (dat[0] + dat[1])/(dat[2]+0.01);
+	// 	double penalty = dat[0] + dat[1] + 0.5*sqr(dat[2]-1.2);
  	c->setReinforcement(1.0 - penalty); 
       }
     }
