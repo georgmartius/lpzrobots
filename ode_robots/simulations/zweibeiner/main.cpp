@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-07-17 07:25:26  martius
+ *   Revision 1.2  2007-07-31 08:35:52  martius
+ *   tried wrl mesh
+ *
+ *   Revision 1.1  2007/07/17 07:25:26  martius
  *   first attempt to build a two legged robot (humanoid)
  *
  *   Revision 1.7  2007/07/03 13:06:10  martius
@@ -81,6 +84,7 @@
 #include "playground.h"
 // used passive spheres
 #include "passivesphere.h"
+#include "passivemesh.h"
 #include "joint.h"
 
 // used controller
@@ -151,6 +155,13 @@ public:
     }
     global.obstacles.push_back(playground);
 
+//     // 
+//     AbstractObstacle* m = new PassiveMesh(odeHandle, osgHandle, "Meshes/skeleton/Chest_center.wrl",0.4,1);
+//     m->setPosition(osg::Vec3(1,1,1)); 
+//     global.obstacles.push_back(m);
+    
+    
+    
 
     for (int i=0; i< 1/*2*/; i++){ //Several humans
 
