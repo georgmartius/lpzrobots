@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-07-03 13:04:22  martius
+ *   Revision 1.7  2007-07-31 08:37:03  martius
+ *   added a list of spaces for collision control within them
+ *
+ *   Revision 1.6  2007/07/03 13:04:22  martius
  *   pointer to global simulation time
  *   hash-maps are protected
  *
@@ -45,6 +48,7 @@
 #define __ODEHANDLE_H
 
 #include <ext/hash_set>
+#include <list>
 #include <ode/common.h>
 #include "substance.h"
 
@@ -84,6 +88,14 @@ public:
     return ignoredSpaces->find((long)g) != ignoredSpaces->end(); 
   }
 
+  /** adds a space to the list of spaces for collision detection (ignored spaces do not need to be insered)*/
+  void addSpace(dSpaceID g);
+  /// removes a space from the list of ignored spaces for collision detection
+  void removeSpace(dSpaceID g);
+  /// returns list of all spaces
+  const std::list<dSpaceID>& getSpaces();
+
+
   inline double getTime(){ return *time; }
   
   /// adds a pair of geoms to the list of ignored geom pairs for collision detection
@@ -103,6 +115,8 @@ public:
 protected:
   double* time;
 
+  /// list of spaces, expect ignored spaces
+  std::list<dSpaceID>* spaces;
   /// set of ignored spaces
   __gnu_cxx::hash_set<long>* ignoredSpaces;
   /// set of ignored geom pairs for collision

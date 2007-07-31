@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-03 13:04:54  martius
+ *   Revision 1.5  2007-07-31 08:36:22  martius
+ *   added a list of spaces for collision control within them
+ *
+ *   Revision 1.4  2007/07/03 13:04:54  martius
  *   pointer to global simulation time
  *   hash-maps are protected
  *
@@ -60,6 +63,7 @@ namespace lpzrobots {
  
     // Create the primary world-space, which is used for collision detection
     space = dHashSpaceCreate (0);
+    spaces = new std::list<dSpaceID>();
     // the jointGroup is used for collision handling, 
     //  where a lot of joints are created every step
     jointGroup = dJointGroupCreate ( 1000000 );
@@ -77,6 +81,26 @@ namespace lpzrobots {
     ignoredSpaces->erase((long)g);
   }
   
+
+  // adds a space to the list of spaces for collision detection (ignored spaces do not need to be insered)
+  void OdeHandle::addSpace(dSpaceID g){
+    spaces->push_back(g);
+  }
+
+  // removes a space from the list of ignored spaces for collision detection
+  void OdeHandle::removeSpace(dSpaceID g){
+    std::list<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
+    if(i!=spaces->end()){
+      spaces->erase(i);
+    }
+  }
+
+  // returns list of all spaces
+  const std::list<dSpaceID>& OdeHandle::getSpaces(){
+    return *spaces;
+  }
+
+
   // adds a pair of geoms to the list of ignored geom pairs for collision detection
   void OdeHandle::addIgnoredPair(dGeomID g1, dGeomID g2) { 
     ignoredPairs->insert(std::pair<long, long>((long)g1,(long)g2));
