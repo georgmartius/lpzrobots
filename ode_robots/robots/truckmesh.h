@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:42  martius
+ *   Revision 1.3  2007-07-31 08:19:26  martius
+ *   mesh without global
+ *
+ *   Revision 1.2  2006/07/14 12:23:42  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/07/06 12:33:31  robot3
@@ -128,7 +131,7 @@ namespace lpzrobots {
      * @param speed factor for changing speed of robot
      */
     TruckMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const std::string& name,
-	      GlobalData& global, double size=1, double force=3, double speed=15, double mass=1);
+	      double size=1, double force=3, double speed=15, double mass=1);
 
 
    virtual ~TruckMesh(){};
@@ -221,8 +224,6 @@ namespace lpzrobots {
 
     Primitive* object[7];  // 1 mesh, 6 wheels
     Hinge2Joint* joint[6]; // joints between mesh and each wheel
-
-    GlobalData global;
 
   };
 

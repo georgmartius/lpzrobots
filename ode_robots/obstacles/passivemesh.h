@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-10-15 15:42:59  robot3
+ *   Revision 1.4  2007-07-31 08:20:49  martius
+ *   mesh without global
+ *
+ *   Revision 1.3  2006/10/15 15:42:59  robot3
  *   fixed package relation
  *
  *   Revision 1.2  2006/07/14 12:23:33  martius
@@ -69,8 +72,6 @@ class PassiveMesh : public AbstractObstacle{
   double mass;
 
   Mesh* mesh;
-  GlobalData globalData;
-
 
  public:
   
@@ -78,11 +79,11 @@ class PassiveMesh : public AbstractObstacle{
    * Constructor
    */
   PassiveMesh(const OdeHandle& odeHandle,
-	 const OsgHandle& osgHandle,
-	const std::string& filename,
-	     GlobalData& globalData, double scale = 1.0, double mass = 1.0):
+	      const OsgHandle& osgHandle,
+	      const std::string& filename,
+	      double scale = 1.0, double mass = 1.0):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), 
-    filename(filename), scale(scale), mass(mass), globalData(globalData) {       
+    filename(filename), scale(scale), mass(mass){       
     mesh=0;
     obstacle_exists=false;    
   };
@@ -115,10 +116,8 @@ class PassiveMesh : public AbstractObstacle{
   
  protected:
 
-  bool drawBoundings;
-
   virtual void create(){
-    mesh = new Mesh(filename,scale,globalData);
+    mesh = new Mesh(filename,scale);
     mesh->init(odeHandle, mass, osgHandle);
     osg::Vec3 pos=pose.getTrans();
     pos[2]+=mesh->getRadius();

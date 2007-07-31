@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-09-21 22:09:58  martius
+ *   Revision 1.4  2007-07-31 08:19:17  martius
+ *   mesh without global
+ *
+ *   Revision 1.3  2006/09/21 22:09:58  martius
  *   collision for mesh
  *
  *   Revision 1.2  2006/07/14 12:23:42  martius
@@ -112,7 +115,6 @@
 // include header file
 #include "truckmesh.h"
 #include "osgprimitive.h" // get access to graphical (OSG) primitives
-#include "globaldata.h"
 
 using namespace osg;
 
@@ -123,11 +125,10 @@ namespace lpzrobots {
   // - give handle for ODE and OSG stuff
   // - size of robot, maximal used force and speed factor are adjustable
   TruckMesh::TruckMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		       const std::string& name, GlobalData& global,
+		       const std::string& name,
 		       double size/*=1.0*/, double force /*=3*/, double speed/*=15*/, double mass/*=1*/)
     : // calling OdeRobots construtor with name of the actual robot
-    OdeRobot(odeHandle, osgHandle, name, "$Id$"),
-    global(global)
+    OdeRobot(odeHandle, osgHandle, name, "$Id$")
   { 
     
     // robot is not created till now
@@ -288,7 +289,7 @@ namespace lpzrobots {
     // rotate and place body (here by 90° around the y-axis)
     // use texture 'wood' for mesh
     // put it into object[0]
-    Mesh* mesh = new Mesh("dumptruck.osg",height/20.0f,global);
+    Mesh* mesh = new Mesh("dumptruck.osg",height/20.0f);
     mesh->init(odeHandle, cmass, osgHandle);
     mesh->setPose(/*Matrix::rotate(M_PI/2, 0, 1, 0) */ pose);
     mesh->getOSGPrimitive()->setTexture("Images/really_white.rgb");

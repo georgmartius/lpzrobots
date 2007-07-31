@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-10-19 12:24:48  martius
+ *   Revision 1.6  2007-07-31 08:19:44  martius
+ *   mesh without global
+ *
+ *   Revision 1.5  2006/10/19 12:24:48  martius
  *   dyn cast comment
  *
  *   Revision 1.4  2006/08/11 15:46:34  martius
@@ -181,8 +184,7 @@ public:
 
 
      PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
-				   "Meshes/cow.osg", // the filename of the mesh
- 					  global, // GlobalData, decides if boundings are drawed
+				   "Meshes/cow.osg", // the filename of the mesh 
  					   0.1, // the scale factor to be used
  					   1.0); // the mass of the mesh
      myMesh->setPosition(osg::Vec3(1.0,0.2,0.4f));
@@ -190,7 +192,6 @@ public:
      
      myMesh = new PassiveMesh(odeHandle,osgHandle,
 				   "Meshes/tree1.osg", // the filename of the mesh
- 					  global, // GlobalData, decides if boundings are drawed
  					   0.01, // the scale factor to be used
  					   1000.0); // the mass of the mesh
      myMesh->setPosition(osg::Vec3(-1.0,0.2,0.4f));
@@ -216,7 +217,6 @@ public:
 
     OdeRobot* vehicle = new TruckMesh(odeHandle, osgHandle_orange, // ODE- and OSGHandle
 				      "Truck 1", // the final name of the Meshrobot in the simulation
-				      global, // give the mesh informations if boundings been drawed
 				      1.2, // scale factor (size) of the robot
 				      2, // the force of the motors (scales automatically with size)
 				      5, // the max speed of the vehicle
