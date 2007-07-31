@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-07-17 07:25:26  martius
+ *   Revision 1.2  2007-07-31 08:35:39  martius
+ *   addSpace
+ *
+ *   Revision 1.1  2007/07/17 07:25:26  martius
  *   first attempt to build a two legged robot (humanoid)
  *
  * *
@@ -198,6 +201,7 @@ namespace lpzrobots {
     }
     
     odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.addSpace(odeHandle.space);  
     OsgHandle osgHandleJ = osgHandle.changeColor(Color(1.0,0.0,0.0));
     HingeJoint* j;
     HingeServo* servo;

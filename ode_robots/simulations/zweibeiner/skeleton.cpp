@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-07-17 07:25:26  martius
+ *   Revision 1.2  2007-07-31 08:35:28  martius
+ *   addSpace
+ *
+ *   Revision 1.1  2007/07/17 07:25:26  martius
  *   first attempt to build a two legged robot (humanoid)
  *
  * *
@@ -210,7 +213,7 @@ namespace lpzrobots {
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
   */
-  void Skeleton::doInternalStuff(const GlobalData& global){     
+  void Skeleton::doInternalStuff(const GlobalData& global){
   }
 
 
@@ -223,6 +226,7 @@ namespace lpzrobots {
     }
     
     odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.addSpace(odeHandle.space);      
     OsgHandle osgHandleJ = osgHandle.changeColor(Color(1.0,0.0,0.0));
     HingeJoint* j;
     UniversalJoint* uj;
@@ -234,7 +238,7 @@ namespace lpzrobots {
     objects.clear();
     objects.resize(LastPart);
 
-    // this is taken from DANCE
+    // this is taken from DANCE, therefore the body creation is rather static
     // body creation    
     // Hip    
     b = new Box(0.2,0.1,0.1);
@@ -244,6 +248,7 @@ namespace lpzrobots {
     objects[Hip]=b;
     
     // Trunk_comp
+    //    b = new Mesh("Meshes/skeleton/Trunk_comp_center.wrl",1);    
     b = new Box(0.3,0.45,0.2);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
@@ -420,22 +425,22 @@ namespace lpzrobots {
     // TODO: substitute the servos with Muscles
     // Hip and Thighs
     uj = new UniversalJoint(objects[Hip], objects[Left_Thigh], Pos(0.1118, 1.0904, 0.011) * pose, 
-			   Axis(1,0,0) * pose, Axis(0,0,1) * pose);
-    uj->init(odeHandle, osgHandleJ, true, 0.15);
-    joints.push_back(uj);
-    
-    servo2 =  new TwoAxisServo(uj, -conf.hipJointLimit, conf.hipJointLimit, conf.hipPower,
-			      -conf.hip2JointLimit, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping);
-    servo2->damping2() = conf.hip2Damping;
-    hipservos.push_back(servo2);
-
-    uj = new UniversalJoint(objects[Hip], objects[Right_Thigh], Pos(-0.1118, 1.0904, 0.011) * pose, 
 			   Axis(1,0,0) * pose, Axis(0,0,-1) * pose);
     uj->init(odeHandle, osgHandleJ, true, 0.15);
     joints.push_back(uj);
     
     servo2 =  new TwoAxisServo(uj, -conf.hipJointLimit, conf.hipJointLimit, conf.hipPower,
-			      -conf.hip2JointLimit, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping);
+			      -conf.hip2JointLimit, conf.hip2JointLimit*2, conf.hip2Power, conf.hipDamping);
+    servo2->damping2() = conf.hip2Damping;
+    hipservos.push_back(servo2);
+
+    uj = new UniversalJoint(objects[Hip], objects[Right_Thigh], Pos(-0.1118, 1.0904, 0.011) * pose, 
+			   Axis(1,0,0) * pose, Axis(0,0,1) * pose);
+    uj->init(odeHandle, osgHandleJ, true, 0.15);
+    joints.push_back(uj);
+    
+    servo2 =  new TwoAxisServo(uj, -conf.hipJointLimit, conf.hipJointLimit, conf.hipPower,
+			      -conf.hip2JointLimit, conf.hip2JointLimit*2, conf.hip2Power, conf.hipDamping);
     servo2->damping2() = conf.hip2Damping;
     hipservos.push_back(servo2);
 
