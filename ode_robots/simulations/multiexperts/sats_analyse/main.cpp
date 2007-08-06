@@ -20,7 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-08-06 14:25:57  martius
+ *   Revision 1.1  2007-08-06 14:25:57  martius
  *   new version without gating network
  *
  *   Revision 1.8  2007/07/19 15:44:32  martius
@@ -113,7 +113,7 @@
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/ffnncontroller.h>
-#include "multisat.h"
+#include "multisat_checksats.h"
 #include <selforg/replaycontroller.h>
 
 #include <selforg/noisegenerator.h>
@@ -128,17 +128,16 @@
 #include "speedsensor.h"
 #include "replayrobot.h"
 
-
-
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
+char* file;
 
 class ThisSim : public Simulation {
 public:
   OdeRobot* sphere1;
   AbstractController *controller;
-  MultiSat *multisat;
+  MultiSatCheck *multisat;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -179,12 +178,12 @@ public:
       AbstractController* controller = new InvertMotorNStep(cc); // selforg controller
       //AbstractController* controller = new SineController(); 
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-      MultiSatConf msc = MultiSat::getDefaultConf();
+      MultiSatCheckConf msc = MultiSatCheck::getDefaultConf();
       msc.controller = controller;
       msc.numContext = 1;
       msc.numHidden = 4;
       msc.numSats = 4;
-      multisat = new MultiSat(msc);
+      multisat = new MultiSatCheck(msc);
       
       controller->setParam("steps", 2);    
       //    controller->setParam("adaptrate", 0.001);    
@@ -219,23 +218,21 @@ public:
       bool replay=true;
       global.odeConfig.setParam("noise", replay ? 0 : 0.1);
       //****************
-      const char* replayfilename="Sphere_reinforce_axis_rot.sel.log";
+      const char* replayfilename="../Sphere_reinforce_axis_rot.sel.log"; 
       //const char* replayfilename="Sphere_slow_07-07-18.sel.log";
       //   const char* replayfilename="Sphere_long_rich_07-07-18.sel.log";
-      // const char* replayfilename="Sphere_long_rich_2_07-07-31.sel.log";
+      //      const char* replayfilename="../Sphere_long_rich_2_07-07-31.sel.log";
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.15; 
       conf.motorpowerfactor  = 150;    
-      //      conf.spheremass  = 1;    
-      conf.spheremass  = 0.3;    
+      conf.spheremass  = 1;    
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
       conf.addSensor(new SpeedSensor(5, SpeedSensor::RotationalRel));
 
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
-					 conf, "Multi20_2h_Sphere_nogat", 0.3); 
-      //					 conf, "Multi16_2h_Sphere_long_rich2", 0.3); 
+					 conf, "Multi20_2h_Sphere_satcheck", 0.3);     
       sphere1->place ( osg::Matrix::translate(0,0,0.2)); 
       
       if(!replay){
@@ -248,96 +245,39 @@ public:
       }else 
 	controller = new ReplayController(replayfilename,true);     
 
-      MultiSatConf msc = MultiSat::getDefaultConf();
+      MultiSatCheckConf msc = MultiSatCheck::getDefaultConf();
       msc.controller = controller;
-      msc.numContext = 3;
-      msc.numHidden = 2;
-      msc.numSats   = 20; 
-      msc.eps0      = 0.005;
-      msc.deltaMin  = 1/1000.0;
-      //      msc.numSomPerDim = 3;
-      msc.tauE1     = 40;
-      msc.tauW     = 10000;
-
+      msc.numContext=3;
+      msc.numSats=20;
       msc.useDerive=false;
-      multisat = new MultiSat(msc);
-
-      //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-      controller->setParam("steps", 1);    
-      //    controller->setParam("adaptrate", 0.001);    
-      controller->setParam("adaptrate", 0.0);    
-      controller->setParam("nomupdate", 0.005);    
-      controller->setParam("epsC", 0.1);    
-      controller->setParam("epsA", 0.2);    
-      controller->setParam("rootE", 3);    
-      controller->setParam("logaE", 0);    
-      controller->setParam("sinerate", 15);  
-      controller->setParam("phaseshift", 0.45);
-    
-      // AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), new select_from_to(0,2));
-      //OdeAgent* agent = new OdeAgent ( PlotOption(GuiLogger, Robot, 5) );
-      //     agent->init ( controller , sphere1 , wiring );
-      global.configs.push_back ( controller );
+      multisat = new MultiSatCheck(msc);
 
       AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
       OdeAgent* agent = new OdeAgent ( plotoptions );
       agent->init ( multisat , sphere1 , wiring );
       global.configs.push_back ( multisat );
-      //      agent->setTrackOptions(TrackRobot(true, true, false, true, "ZSens", 50));
       global.agents.push_back ( agent );
+
+      FILE* f =  fopen(file,"rb");
+      multisat->restore(f);
+      fclose(f);
+
     }
       
     showParams(global.configs);
   }
-
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-//     InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
-//     if(c){
-//       matrix::Matrix m(3,1, dBodyGetLinearVel( sphere1->getMainPrimitive()->getBody())); 
-//       c->setReinforcement(m.map(abs).elementSum()/3 - 1); 
-//     }
-
-  }
-  
-  // add own key handling stuff here, just insert some case values
-  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
-  {
-    char filename[256];
-    if (down) { // only when key is pressed, not when released      
-      switch ( (char) key )
-	{
-	case 'y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
-	case 'Y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
-	  //	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
-	  //	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
-	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0, 30); break;
-	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0,-30); break;
-	case 'n' : 
-	  std::cout << "Please type a filename stem:";
-	  std::cin >> filename;
-	  if(multisat) multisat->storeSats(filename); 
-	  break;
-	default:
-	  return false;
-	  break;
-	}
-    }
-    return false;
-  }
-
-  
+    
 };
 
 int main (int argc, char **argv)
 { 
   ThisSim sim;
   // run simulation
+  if(argc<2) {
+    std::cerr << "Provide multisat controller to load\n";
+    exit(1);
+  }
+  file = argv[1];
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
-// with this seed the sphere does all sorts of things
-//Use random number seed: 1181308527
-
-// nice regular behaving sphere
-// Use random number seed: 1181566764
  

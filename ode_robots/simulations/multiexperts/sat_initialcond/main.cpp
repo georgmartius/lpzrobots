@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-06-18 08:11:22  martius
+ *   Revision 1.3  2007-08-06 14:25:57  martius
+ *   new version without gating network
+ *
+ *   Revision 1.2  2007/06/18 08:11:22  martius
  *   nice version with many agents
  *
  *   Revision 1.1  2007/06/14 07:59:30  martius
@@ -126,7 +129,7 @@ public:
     global.odeConfig.setParam("realtimefactor",0);
     global.odeConfig.setParam("drawinterval",2000);
     
-    runcounter=0;
+    runcounter=0; 
     maxCounter=10000;
     //    maxCounter=500;
     counter = maxCounter;
@@ -142,6 +145,7 @@ public:
     // generate start speeds on 3 spheres
     double stepsize; 
     double powers[3] = {5,10,15};    
+    //  double powers[3] = {5,15,30};    
     startAngles.push_back(Matrix(3,1)); // add zero initial condition
     //{ double theta =0;
     for(int p=0; p < 3; p++){
@@ -153,7 +157,7 @@ public:
 	  Matrix m(3,1);
 	  m.val(0,0)=theta;
 	  m.val(1,0)=omega;
-	  m.val(2,0)=powers[p];
+	  m.val(2,0)=powers[p]; 
 	  startAngles.push_back(m);
 	}
       } 
@@ -167,6 +171,8 @@ public:
     conf.pendularrange  = 0.15; 
     conf.motorpowerfactor  = 150;    
     conf.motorsensor=false;
+    //    conf.spheremass  = 1;    
+    conf.spheremass  = 0.3;  
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     
     showParams(global.configs);
@@ -225,11 +231,11 @@ public:
       global.agents.push_back ( agent );
 
       runcounter++;
-    } else if(counter > 1 && counter < accelerationTime){ // measure start speed      
+    } else if(counter > 1 && counter < accelerationTime){ 
       // speed up sphere
       double power = startAngles[runcounter-1].val(2,0);
       dBodyAddTorque ( sphere->getMainPrimitive()->getBody() , 0, power, 0 );
-    }else if(counter == accelerationTime){
+    }else if(counter == accelerationTime){ // measure start speed
       double dat[3];
       speedsensor->sense(global);
       speedsensor->get(dat,3);

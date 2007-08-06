@@ -33,7 +33,7 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-08-06 14:25:57  martius
+ *   Revision 1.1  2007-08-06 14:25:57  martius
  *   new version without gating network
  *
  *   Revision 1.7  2007/07/19 15:44:32  martius
@@ -59,8 +59,8 @@
  *
  *
  ***************************************************************************/
-#ifndef __MULTISAT_H
-#define __MULTISAT_H
+#ifndef __MultiSatCheck_H
+#define __MultiSatCheck_H
 
 #include <selforg/abstractcontroller.h>
 #include <selforg/multilayerffnn.h>
@@ -72,7 +72,7 @@
 #include <selforg/noisegenerator.h>
 #include <selforg/multilayerffnn.h>
 
-typedef struct MultiSatConf {
+typedef struct MultiSatCheckConf {
   AbstractController* controller;
   unsigned short buffersize; ///< size of the ringbuffers for sensors, motors,...
   int numHidden;        ///< number of hidden units in the satelite networks
@@ -88,7 +88,7 @@ typedef struct MultiSatConf {
   bool   useDerive;     ///< input to sat network includes derivatives
   double penalty;       ///< factor to multiply the square of the difference of error and optimal error 
   double satControlFactor; ///< factor of which the output of winner sat is used for control
-} MultiSatConf;
+} MultiSatCheckConf;
 
 /// Satelite network struct
 typedef struct Sat {
@@ -102,13 +102,13 @@ typedef struct Sat {
  * class for robot controller 
  * using several feedforward networks (satelite) and one selforg controller
  */
-class MultiSat : public AbstractController {
+class MultiSatCheck : public AbstractController {
 
 public:
-  MultiSat(const MultiSatConf& conf = getDefaultConf());
+  MultiSatCheck(const MultiSatCheckConf& conf = getDefaultConf());
   virtual void init(int sensornumber, int motornumber);
 
-  virtual ~MultiSat();
+  virtual ~MultiSatCheck();
 
   /// returns the number of sensors the controller was initialised with or 0 if not initialised
   virtual int getSensorNumber() const { return number_sensors; }
@@ -147,8 +147,8 @@ public:
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
-  static MultiSatConf getDefaultConf(){
-    MultiSatConf c;
+  static MultiSatCheckConf getDefaultConf(){
+    MultiSatCheckConf c;
     c.buffersize=10;
     c.numHidden = 2;
     c.eps0=0.005;
@@ -192,7 +192,7 @@ protected:
   matrix::Matrix satMinErrors;    ///< minimum errors of sats (calculated from avg2)
   matrix::Matrix satEpsMod;       ///< modulated eps of sats
   
-  MultiSatConf conf;
+  MultiSatCheckConf conf;
   bool initialised;
   int t;
   int managementInterval;       ///< interval between subsequent management calls
