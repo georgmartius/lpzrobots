@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-06-08 15:37:22  martius
+ *   Revision 1.3  2007-08-22 08:27:15  martius
+ *   removed bug with relative modes where 4 values are returned not 3
+ *
+ *   Revision 1.2  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.1  2006/12/21 11:41:06  martius
@@ -89,6 +92,7 @@ namespace lpzrobots {
       m.set(4,1, dBodyGetLinearVel(own->getBody()));
       m.val(3,0)=0; // we have a vector and not a point (homogeneous coordinates)
       m=local*m;
+      m.reshape(3,1);
       break;
     case Rotational:
       m.set(3,1, dBodyGetAngularVel(own->getBody()));
@@ -98,6 +102,7 @@ namespace lpzrobots {
       m.set(4,1, dBodyGetAngularVel(own->getBody()));
       m.val(3,0)=0; // we have a vector and not a point (homogeneous coordinates)
       m=local*m;  // this is m^T= m^T*local^T, ode matrix multiplications are the other way around (left sided) 
+      m.reshape(3,1);
       break;
     }
     return m;
