@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.11  2007-06-21 16:29:27  martius
+// Revision 1.12  2007-08-22 08:27:58  martius
+// contrains for reshape relaxed
+//
+// Revision 1.11  2007/06/21 16:29:27  martius
 // added map2P
 // map2 into cpp
 //
@@ -458,7 +461,7 @@ const int T=0xFF;
   }
 
   Matrix& Matrix::reshape(int _m, int _n){
-    assert(m*n == _m*_n);
+    assert(_m*_n <= m*n);
     m=_m;
     n=_n;
     return *this;

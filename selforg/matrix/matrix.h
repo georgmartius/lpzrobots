@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.13  2007-06-21 16:29:18  martius
+// Revision 1.14  2007-08-22 08:28:07  martius
+// contrains for reshape relaxed
+//
+// Revision 1.13  2007/06/21 16:29:18  martius
 // added map2P
 // map2 into cpp
 //
@@ -424,7 +427,7 @@ namespace matrix{
     Matrix& toSort();
     
     /** reshapes the matrix without distroying the data. Remember: The data is stored rowwise.
-	m*n must be equal to getM()*getN()*/
+	m*n must be lower or equal to getM()*getN()*/
     Matrix& reshape(int m, int n);
 
     /// adds the given value to the diagonal
