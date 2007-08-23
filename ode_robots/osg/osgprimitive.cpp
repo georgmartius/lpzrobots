@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-07-31 08:21:33  martius
+ *   Revision 1.8  2007-08-23 14:52:40  martius
+ *   box is resizeable
+ *
+ *   Revision 1.7  2007/07/31 08:21:33  martius
  *   OSGMesh does not need GlobalData
  *   drawBoundings moved to OsgHandle
  *
@@ -253,7 +256,10 @@ namespace lpzrobots {
 
   /******************************************************************************/
   OSGBox::OSGBox(float lengthX, float lengthY, float lengthZ)
-    : lengthX(lengthX), lengthY(lengthY), lengthZ(lengthZ) {
+    : dim(lengthX, lengthY, lengthZ) {
+  }
+  OSGBox::OSGBox(Vec3 dim)
+    : dim(dim){
   }
 
   void OSGBox::init(const OsgHandle& osgHandle, Quality quality){
@@ -263,8 +269,9 @@ namespace lpzrobots {
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
-    shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
-				      lengthX, lengthY, lengthZ), osgHandle.tesselhints[quality]);
+    box = new Box(Vec3(0.0f, 0.0f, 0.0f), 
+		  dim.x(), dim.y(), dim.z());
+    shape = new ShapeDrawable(box, osgHandle.tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
@@ -276,6 +283,15 @@ namespace lpzrobots {
 						       StateAttribute::ON);
     setTexture("Images/really_white.rgb");
   }
+
+  Vec3 OSGBox::getDim(){
+    return dim;  
+  }
+  void OSGBox::setDim(Vec3 d){
+    dim = d;
+    box->setHalfLengths(d/2);
+  }
+
 
   /******************************************************************************/
   OSGSphere::OSGSphere(float radius)

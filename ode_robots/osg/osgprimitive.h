@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2007-08-23 14:52:26  martius
+ *   box is resizeable
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.13  2006/07/14 11:23:38  martius
@@ -152,17 +155,16 @@ namespace lpzrobots {
   class OSGBox : public OSGPrimitive {
   public:
     OSGBox(float lengthX, float lengthY, float lengthZ);
+    OSGBox(osg::Vec3 dim);
 
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
 
-    float getLengthX() { return lengthX; }
-    float getLengthY() { return lengthY; }
-    float getLengthZ() { return lengthZ; }
+    osg::Vec3 getDim();
+    void setDim(osg::Vec3);
   
   protected:
-    float lengthX;
-    float lengthY;
-    float lengthZ;  
+    osg::Vec3 dim;
+    osg::Box* box;
   };
 
 
