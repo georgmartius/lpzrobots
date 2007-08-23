@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-07-31 08:21:34  martius
+ *   Revision 1.11  2007-08-23 14:51:28  martius
+ *   Ray
+ *
+ *   Revision 1.10  2007/07/31 08:21:34  martius
  *   OSGMesh does not need GlobalData
  *   drawBoundings moved to OsgHandle
  *
@@ -332,6 +335,33 @@ public:
 protected:
   OSGCylinder* osgcylinder;
 };
+
+/** Ray primitive 
+    The actual visual representation can have different length than the
+    ray object. This is specified by length. 
+    SetLength is an efficient way to change the length at runtime.
+*/
+class Ray : public Primitive {
+public:
+  Ray(double range, float thickness, float length);
+  virtual ~Ray();
+  virtual void init(const OdeHandle& odeHandle, double mass,
+      const OsgHandle& osgHandle,
+      char mode = Geom | Draw) ;
+  
+  void setLength(float len);
+  virtual void update();
+  virtual OSGPrimitive* getOSGPrimitive();
+    
+  virtual void setMass(double mass);
+protected:
+  double range;
+  float thickness;
+  float length;
+  OSGBox* osgbox;
+};
+
+
 
 
 /** Mesh primitive */

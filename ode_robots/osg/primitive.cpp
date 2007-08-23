@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-07-31 08:21:34  martius
+ *   Revision 1.13  2007-08-23 14:52:07  martius
+ *   Ray
+ *
+ *   Revision 1.12  2007/07/31 08:21:34  martius
  *   OSGMesh does not need GlobalData
  *   drawBoundings moved to OsgHandle
  *
@@ -369,16 +372,16 @@ namespace lpzrobots{
     assert((mode & Body) || (mode & Geom));
     substance = odeHandle.substance;
     this->mode=mode;
+    osg::Vec3 dim = osgbox->getDim();
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      dMassSetBox(&m, 1, osgbox->getLengthX() , osgbox->getLengthY() , osgbox->getLengthZ()); 
+      dMassSetBox(&m, 1, dim.x() , dim.y() , dim.z()); 
       dMassAdjust (&m, mass); 
       dBodySetMass (body,&m); //assign the mass to the body      
     }  
     if (mode & Geom){    
-      geom = dCreateBox ( odeHandle.space , osgbox->getLengthX() , 
-			  osgbox->getLengthY() , osgbox->getLengthZ());
+      geom = dCreateBox ( odeHandle.space , dim.x() , dim.y() , dim.z());
       attachGeomAndSetColliderFlags();
     }
     if (mode & Draw){
@@ -397,7 +400,8 @@ namespace lpzrobots{
 
   void Box::setMass(double mass){
     dMass m;
-    dMassSetBox(&m, 1, osgbox->getLengthX() , osgbox->getLengthY() , osgbox->getLengthZ()); 
+    osg::Vec3 dim = osgbox->getDim();    
+    dMassSetBox(&m, 1, dim.x() , dim.y() , dim.z()); 
     dMassAdjust (&m, mass); 
     dBodySetMass (body,&m); //assign the mass to the body      
   }
@@ -546,6 +550,50 @@ namespace lpzrobots{
     dMassAdjust (&m, mass); 
     dBodySetMass (body,&m); //assign the mass to the body      
   }
+
+  /******************************************************************************/
+  Ray::Ray(double range, float thickness, float length)
+    : range(range), thickness(thickness), length(length)
+  {    
+    osgbox = new OSGBox(thickness, thickness, length);
+  }
+
+  Ray::~Ray(){
+    if(osgbox) delete osgbox; 
+  }
+
+  OSGPrimitive* Ray::getOSGPrimitive() { return osgbox; }
+
+  void Ray::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
+		 char mode) {
+    assert(!(mode & Body) && (mode & Geom));
+    substance = odeHandle.substance;
+    this->mode=mode;
+    
+    geom = dCreateRay ( odeHandle.space, range);
+    attachGeomAndSetColliderFlags();
+    
+    if (mode & Draw){
+      osgbox->init(osgHandle);      
+    }
+  }
+  
+  void Ray::setLength(float len){
+    length=len;
+    osgbox->setDim(osg::Vec3(thickness,thickness,length));   
+  }
+
+  void Ray::update(){
+    if(mode & Draw) {
+      osgbox->setMatrix(osgPose(geom)*osg::Matrix::translate(0,0,length/2));
+    }
+  }
+
+  void Ray::setMass(double mass){
+  }
+
+
+
 
   /******************************************************************************/
   Transform::Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose)
