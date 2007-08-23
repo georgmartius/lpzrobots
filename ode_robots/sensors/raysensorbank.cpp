@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-03 14:12:24  der
+ *   Revision 1.6  2007-08-23 15:39:05  martius
+ *   new IR sensor schema which uses substances and callbacks, very nice
+ *
+ *   Revision 1.5  2007/04/03 14:12:24  der
  *   getSensorNumber
  *
  *   Revision 1.4  2006/09/20 12:56:28  martius
@@ -76,7 +79,7 @@ namespace lpzrobots {
   }; 
 
   unsigned int RaySensorBank::registerSensor(RaySensor* raysensor, Primitive* body, 
-					     const Matrix& pose, double range,
+					     const Matrix& pose, float range,
 					     RaySensor::rayDrawMode drawMode){
     raysensor->init(odeHandle, osgHandle, body, pose, range, drawMode);
     bank.push_back(raysensor);  
@@ -89,16 +92,6 @@ namespace lpzrobots {
     }
   };  
   
-  bool RaySensorBank::sense(dGeomID object){
-    bool sth_sensed=false;
-    for (unsigned int i=0; i<bank.size(); i++){
-      if (bank[i]->sense(object)){
-	sth_sensed=true;
-      }
-    }
-    return sth_sensed;
-  };
-
   double RaySensorBank::get(unsigned int index){
     assert(index<bank.size());
     return bank[index]->get();
@@ -117,12 +110,12 @@ namespace lpzrobots {
     return bank.size();
   }
 
-  void RaySensorBank::setRange(unsigned int index, double range){
+  void RaySensorBank::setRange(unsigned int index, float range){
     assert(index<bank.size());
     return bank[index]->setRange(range);    
   }
 
-  void RaySensorBank::setRange(double range){
+  void RaySensorBank::setRange(float range){
     for(unsigned int i=0; i<bank.size(); i++){
       bank[i]->setRange(range);
     }

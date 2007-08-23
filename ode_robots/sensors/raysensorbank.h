@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-04-03 14:12:28  der
+ *   Revision 1.7  2007-08-23 15:39:05  martius
+ *   new IR sensor schema which uses substances and callbacks, very nice
+ *
+ *   Revision 1.6  2007/04/03 14:12:28  der
  *   getSensorNumber
  *
  *   Revision 1.5  2006/09/20 12:56:28  martius
@@ -82,18 +85,13 @@ public:
       @return index of the sensor
    */
   virtual unsigned int registerSensor(RaySensor* raysensor, Primitive* body, 
-				      const osg::Matrix& pose, double range,
+				      const osg::Matrix& pose, float range,
 				      RaySensor::rayDrawMode drawMode);
 
   /** resets all sensors (used for reseting the sensor value to a value of maximal distance) 
    */
   virtual void reset();  
   
-  /** performs sense action of all sensors by checking collision with the given object
-      @return true for any collision handled (sensed) and false for no interaction
-   */
-  virtual bool sense(dGeomID object);
-
   /** returns the sensor value of the given sensor (usually in the range [-1,1] )
    */
   virtual double get(unsigned int index);
@@ -112,12 +110,12 @@ public:
       @param index index of sensor to modify
       @param range new length of the sensor
   */
-  virtual void setRange(unsigned int index, double range);
+  virtual void setRange(unsigned int index, float range);
 
   /** set the range of all sensors 
       @param range new length of the sensors
   */
-  virtual void setRange(double range);
+  virtual void setRange(float range);
   
   /** returns the spaceID of the sensor space
    */

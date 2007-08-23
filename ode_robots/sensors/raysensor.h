@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-09-20 12:56:28  martius
+ *   Revision 1.8  2007-08-23 15:39:05  martius
+ *   new IR sensor schema which uses substances and callbacks, very nice
+ *
+ *   Revision 1.7  2006/09/20 12:56:28  martius
  *   setRange
  *
  *   Revision 1.6  2006/08/28 12:18:31  martius
@@ -78,7 +81,7 @@ public:
   RaySensor() {}
   virtual ~RaySensor(){}
   
-  /** providing essential informations
+  /** providing essential information
       @param odeHandle OdeHandle
       @param osgHandle OsgHandle
       @param body primitive to which the sensor will be attached
@@ -88,18 +91,13 @@ public:
    */
   virtual void init(const OdeHandle& odeHandle,
 		    const OsgHandle& osgHandle, Primitive* body, 
-		    const osg::Matrix pose, double range,
+		    const osg::Matrix pose, float range,
 		    rayDrawMode drawMode = drawSensor) = 0;  
 
   /** used for reseting the sensor value to a value of maximal distance. 
    */
   virtual void reset() = 0;  
   
-  /** performs sense action by checking collision with the given object
-      @return true for collision handled (sensed) and false for no interaction
-   */
-  virtual bool sense(dGeomID object) = 0;
-
   /** returns the sensor value (usually in the range [-1,1] )
    */
   virtual double get() = 0;
@@ -107,16 +105,12 @@ public:
   /** set the range of the sensor
       @param range new length of the sensor
   */
-  virtual void setRange(double range) = 0;
+  virtual void setRange(float range) = 0;
 
   /** updates the position of the osg nodes 
    */
   virtual void update() = 0;
   
-  /** returns the geomID of the ray geom (used for optimisation)
-   */
-  virtual dGeomID getGeomID() =0;
-
 };
 
 }

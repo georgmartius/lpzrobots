@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-09-20 12:56:28  martius
+ *   Revision 1.11  2007-08-23 15:39:05  martius
+ *   new IR sensor schema which uses substances and callbacks, very nice
+ *
+ *   Revision 1.10  2006/09/20 12:56:28  martius
  *   setRange
  *
  *   Revision 1.9  2006/09/11 12:01:31  martius
@@ -75,9 +78,12 @@ namespace lpzrobots {
   class OSGCylinder;
   class OSGBox;
 
+
   /** Class for IR sensors. 
       IR sensors are based on distance measurements using the ODE geom class Ray. 
-      The sensor value is obtained by collisions. 
+      The sensor value is obtained by collisions, which are handled by the simulation
+      environement. The information of a collision comes to the sensor via the 
+      collision callback of the substance used for the ray (actually for the transform).
       However of no collision is detected the sensor needs to ajust its output as well. 
       Therefore a reset function is provided.
   */
@@ -86,18 +92,17 @@ namespace lpzrobots {
     /**
        @param exponent exponent of the sensor characteritic (default: 1 (linear))
     */
-    IRSensor(double exponent = 1);
+    IRSensor(float exponent = 1);
 
     virtual ~IRSensor();
 
     virtual void init(const OdeHandle& odeHandle,
 		      const OsgHandle& osgHandle, 
 		      Primitive* body, 
-		      const osg::Matrix pose, double range,
+		      const osg::Matrix pose, float range,
 		      rayDrawMode drawMode = drawSensor);
 
     virtual void reset();  
-    virtual bool sense(dGeomID object);
  
     /** returns the sensor value in the range [0,1];
 	0 means nothing no object in the sensor distance range
@@ -107,35 +112,35 @@ namespace lpzrobots {
     virtual double get();
     virtual void update();
   
-    virtual void setRange(double range);
+    virtual void setRange(float range);
 
-    virtual dGeomID getGeomID();
+    virtual void setLength(float len);
 
     /// returns the exponent of the sensor characteritic (default: 1 (linear))
     double getExponent () const { return exponent;} 
 
     /// sets the exponent of the sensor characteritic (default: 1 (linear))
-    void   setExponent (double exp) { exponent = exp;}
+    void   setExponent (float exp) { exponent = exp;}
 
   protected:
     /** describes the sensor characteritic 
 	An exponential curve is used.
 	@see setExponent()
     */
-    virtual double characteritic(double len);
+    virtual float characteritic(float len);
 
   protected:
-    dGeomID transform;
-    dGeomID ray;
-    double range; // max length
-    double len;   // last measured length
-    double value; // actual sensor value
-    double exponent; // exponent of the sensor characteritic 
+    float range; // max length
+    float len;   // last measured length
+    float value; // actual sensor value
+    float exponent; // exponent of the sensor characteritic 
 
     OSGCylinder* sensorBody;
-    OSGBox* sensorRay;
+    //    OSGBox* sensorRay;
     OsgHandle osgHandle;
-  
+
+    Transform* transform;
+    Ray* ray;
     bool initialised;
   };
 

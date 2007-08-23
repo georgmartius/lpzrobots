@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-04-03 16:32:21  der
+ *   Revision 1.9  2007-08-23 15:39:05  martius
+ *   new IR sensor schema which uses substances and callbacks, very nice
+ *
+ *   Revision 1.8  2007/04/03 16:32:21  der
  *   thicker drawing
  *
  *   Revision 1.7  2006/12/11 18:25:08  martius
@@ -75,135 +78,126 @@
 
 namespace lpzrobots {
 
-IRSensor::IRSensor(double exponent/* = 1*/){
-  value = 0;  
-  len=0;
-  ray=0;
-  this->exponent = exponent;
-  initialised = false;
-  sensorBody = 0;
-  sensorRay  = 0;
-}
+  // this function is called if the ray has a collision. In the userdata we get the 
+  //  irsensor and the depth is in the contact information
+  int irCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
+		     dContact* contacts, int numContacts,
+		     dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+    
+    IRSensor* sensor = (IRSensor*)userdata;
+    sensor->setLength(contacts[0].geom.depth);
+    return 0;    
+  }
 
-IRSensor::~IRSensor(){
-  dGeomDestroy(transform);     
-  if(sensorRay) delete sensorRay;
-  if(sensorBody) delete sensorBody;
-}
 
-void IRSensor::init(const OdeHandle& odeHandle,
-		    const OsgHandle& osgHandle, 
-		    Primitive* body, 
-		    const osg::Matrix pose, double range,
-		    rayDrawMode drawMode){
-  this->range = range;
-  this->osgHandle = osgHandle;
-  value = 0;
-  len   = range;
+  IRSensor::IRSensor(float exponent/* = 1*/){
+    value = 0;  
+    len=0;
+    ray=0;
+    this->exponent = exponent;
+    initialised = false;
+    sensorBody = 0;
+    //  sensorRay  = 0;
 
-  transform = dCreateGeomTransform (odeHandle.space); 
-  dGeomTransformSetInfo(transform, 0);   
-  dGeomTransformSetCleanup(transform, 1); // destroy ray geom of transform is created
+    ray=0;
+    transform=0;
+  }
 
-  ray = dCreateRay ( 0, range); 
-  osg::Vec3 p = pose.getTrans();
-  dGeomSetPosition (ray, p.x(), p.y(), p.z());
-  dMatrix3 rot;
-  odeRotation(pose, rot);
-  dGeomSetRotation(ray, rot);
-
-  dGeomTransformSetGeom(transform, ray);  
-  dGeomSetBody ( transform, body->getBody() );
-  // disable transform geom, 
-  //  so that it is not treated by normal collision detection.
-  dGeomDisable (transform); 
-
-  switch(drawMode){
-  case drawAll:
-  case drawRay:     
-    sensorRay = new OSGBox(0.002, 0.002, len);
-    sensorRay->init(osgHandle);
-    if( drawMode != drawAll) break;
-  case drawSensor:
-    sensorBody = new OSGCylinder(0.05, 0.01);
-    sensorBody->init(osgHandle);
-    break;
-  default:
-    break;
-  }    
-  update();
-  initialised = true;
-}; 
-
-void IRSensor::reset(){
-  value = 0;
-  len   = range;
-}  
+  IRSensor::~IRSensor(){
+    if(transform) delete(transform);
   
-bool IRSensor::sense(dGeomID object){
-  assert(initialised);
-  int n; 
-  bool rv = false;
-  dContact contact;
-  dGeomEnable (transform); // enable transform geom of this ray
-  n = dCollide (object, transform, 1, &contact.geom, sizeof(dContact));
-  if(n) {
-    //     printf("ray: %x\n",ray);
-    //     printf("coll between: %x  %x\n",contact.geom.g1,contact.geom.g2);
-    len = contact.geom.depth;
+    //   dGeomDestroy(transform);     
+    //   if(sensorRay) delete sensorRay;
+    if(sensorBody) delete sensorBody;
+  }
+
+  void IRSensor::init(const OdeHandle& odeHandle,
+		      const OsgHandle& osgHandle, 
+		      Primitive* body, 
+		      const osg::Matrix pose, float range,
+		      rayDrawMode drawMode){
+    this->range = range;
+    this->osgHandle = osgHandle;
+    value = 0;
+    len   = range;
+  
+    ray = new Ray(range, 0.005, len);
+    transform = new Transform(body, ray, pose);
+    OdeHandle myOdeHandle(odeHandle);  
+    transform->init(odeHandle, 0, osgHandle, 
+		    (drawMode==drawAll || drawMode==drawRay) ? (Primitive::Draw | Primitive::Geom) : Primitive::Geom );
+    transform->substance.setCollisionCallback(irCollCallback,this);
+  
+
+    // transform = dCreateGeomTransform (odeHandle.space); 
+    //   dGeomTransformSetInfo(transform, 0);   
+    //   dGeomTransformSetCleanup(transform, 1); // destroy ray geom of transform is deleted
+
+    //   ray = dCreateRay ( 0, range); 
+    //   osg::Vec3 p = pose.getTrans();
+    //   dGeomSetPosition (ray, p.x(), p.y(), p.z());
+    //   dMatrix3 rot;
+    //   odeRotation(pose, rot);
+    //   dGeomSetRotation(ray, rot);
+
+    //   dGeomTransformSetGeom(transform, ray);  
+    //   dGeomSetBody ( transform, body->getBody() );
+    //   // disable transform geom, 
+    //   //  so that it is not treated by normal collision detection.
+    //   dGeomDisable (transform); 
+
+    switch(drawMode){
+    case drawAll:
+      //   case drawRay:     
+      //     sensorRay = new OSGBox(0.002, 0.002, len);
+      //     sensorRay->init(osgHandle);
+      //     if( drawMode != drawAll) break;
+    case drawSensor:
+      sensorBody = new OSGCylinder(0.05, 0.01);
+      sensorBody->init(osgHandle);
+      break;
+    default:
+      break;
+    }    
+    update();
+    initialised = true;
+  }; 
+
+  void IRSensor::reset(){
+    value = 0;
+    len   = range;
+  }  
+  
+  void IRSensor::setLength(float len){
+    this->len = len;
     value = characteritic(len);
+    ray->setLength(len);
     //    printf("len= %f, value: %f, \n",len, value);
-    rv = true;
-  } 
-  dGeomDisable (transform);// disable transform geom, so that it is not treated by normal collision detection.
-  return rv;  
-}
-
-void IRSensor::setRange(double range){
-  this->range = range;
-}
-
-double IRSensor::get(){
-  return value;
-}
-
-void IRSensor::update(){  
-  const dReal* pos = dGeomGetPosition (transform);
-  const dReal* R = dGeomGetRotation (transform);
-  const dReal *pos2 = dGeomGetPosition (ray); // local position
-  const dReal *R2 = dGeomGetRotation (ray);   // local rotation
-  dVector3 actual_pos;
-  dMatrix3 actual_R;
-  dMULTIPLY0_331 (actual_pos,R,pos2);
-  actual_pos[0] += pos[0];
-  actual_pos[1] += pos[1];
-  actual_pos[2] += pos[2];
-  dMULTIPLY0_333 (actual_R,R,R2);
-
-  if(sensorRay)  {
-    delete sensorRay;
-    sensorRay = new OSGBox(0.008, 0.008, len);
-    sensorRay->init(osgHandle);
-    sensorRay->setMatrix(osg::Matrix::translate(osg::Vec3(0,0,len/2.0)) * osgPose(actual_pos,actual_R));
-    sensorRay->setColor(Color(value*2.0, 0.0, 0.0));
   }
-  if(sensorBody) {
-    delete sensorBody;
-    sensorBody = new OSGCylinder(0.05, 0.01);
-    sensorBody->init(osgHandle);
-    sensorBody->setMatrix(osgPose(actual_pos,actual_R));
-    sensorBody->setColor(Color(value*2.0, 0.0, 0.0));
-  }
-}
 
+  void IRSensor::setRange(float range){
+    this->range = range;
+  }
+
+  double IRSensor::get(){
+    return value;
+  }
+
+  void IRSensor::update(){  
+
+    ray->setColor(Color(value*2.0, 0.0, 0.0));
+    ray->update();
   
-dGeomID IRSensor::getGeomID(){
-  return ray;
-}
+    if(sensorBody) {    
+      sensorBody->setMatrix(ray->getPose() * osg::Matrix::translate(0,0,0.005) * transform->getPose());
+      sensorBody->setColor(Color(value*2.0, 0.0, 0.0));
+    }
 
-double IRSensor::characteritic(double len){
-  double v = (range - len)/range;
-  return v < 0 ? 0 : pow(v, exponent);
-}
+  }
+  
+  float IRSensor::characteritic(float len){
+    float v = (range - len)/range;
+    return v < 0 ? 0 : pow(v, exponent);
+  }
 
 }

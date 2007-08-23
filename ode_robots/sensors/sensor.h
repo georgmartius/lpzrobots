@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-12-21 11:42:10  martius
+ *   Revision 1.3  2007-08-23 15:39:05  martius
+ *   new IR sensor schema which uses substances and callbacks, very nice
+ *
+ *   Revision 1.2  2006/12/21 11:42:10  martius
  *   sensors have dimension to sense
  *   axissensors have finer settings
  *
@@ -85,7 +88,7 @@ namespace lpzrobots {
     static std::list<sensor> selectrows(const matrix::Matrix& m, short dimensions) {
       std::list<sensor> l;
       for(int i=0; i<2; i++){
-	if(( 1>>i) & dimensions) l += m.row(i).convertToList();
+	if(( 1 <<i ) & dimensions) l += m.row(i).convertToList();
       } 
       return l;
     }
