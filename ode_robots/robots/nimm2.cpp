@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.32  2007-08-23 15:40:27  martius
+ *   Revision 1.33  2007-08-23 15:53:14  martius
+ *   rubber wheels
+ *
+ *   Revision 1.32  2007/08/23 15:40:27  martius
  *   removed ir derivative and collition control
  *   irsenors don't need explicit sense call
  *
@@ -162,7 +165,7 @@ namespace lpzrobots {
     // Nimm2 color ;-)
     this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
     // can be overwritten in main.cpp of simulation with setColor
-
+    
     // maximal used force is calculated from the force and size given in the configuration
     max_force   = conf.force*conf.size*conf.size;
 
@@ -324,9 +327,9 @@ namespace lpzrobots {
 //     bool colwithme = false;
 
 // 	  if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-// 	    // collision between anything and me was detected
-//       if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
-//       if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
+// // 	    // collision between anything and me was detected
+// //       if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
+// //       if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
 
 //       bool colwithbody;
 //       int i,n;
@@ -399,6 +402,9 @@ namespace lpzrobots {
     // robot will be inserted in the vehicle space
     odeHandle.space = dSimpleSpaceCreate (parentspace);
 
+    OdeHandle wheelHandle(odeHandle);
+    wheelHandle.substance.toRubber(40);
+
     // create body
     // - create cylinder for main body (with radius and length)
     // - init cylinder with odehandle, mass and osghandle
@@ -432,7 +438,7 @@ namespace lpzrobots {
     for (int i=1; i<3; i++) {
       if(conf.sphereWheels) { // for spherical wheels
 	Sphere* wheel = new Sphere(radius);      // create spheres
-	wheel->init(odeHandle, wmass, osgHandleWheels); // init with odehandle, mass, and osghandle
+	wheel->init(wheelHandle, wmass, osgHandleWheels); // init with odehandle, mass, and osghandle
 
 	wheel->setPose(Matrix::rotate(M_PI/2.0, 1, 0, 0) *
 		       Matrix::translate(wheeloffset,
@@ -442,7 +448,7 @@ namespace lpzrobots {
 	object[i] = wheel;
       }else{ // for "normal" wheels
 	Cylinder* wheel = new Cylinder(radius, wheelthickness);
-	wheel->init(odeHandle, wmass, osgHandleWheels);
+	wheel->init(wheelHandle, wmass, osgHandleWheels);
 	wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) *
 		       Matrix::translate(wheeloffset,
 					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);
