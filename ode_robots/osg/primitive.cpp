@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-08-23 14:52:07  martius
+ *   Revision 1.14  2007-08-23 15:33:19  martius
+ *   geoms are actually destroyed by DestroySpace
+ *
+ *   Revision 1.13  2007/08/23 14:52:07  martius
  *   Ray
  *
  *   Revision 1.12  2007/07/31 08:21:34  martius
@@ -183,7 +186,7 @@ namespace lpzrobots{
   }
 
   Primitive::~Primitive () {
-    if(geom) dGeomDestroy( geom );
+    //     if(geom) dGeomDestroy( geom );  // this is automatically cleaned up by deletion of the space
     if(body) dBodyDestroy( body );
   }
 
@@ -585,7 +588,7 @@ namespace lpzrobots{
 
   void Ray::update(){
     if(mode & Draw) {
-      osgbox->setMatrix(osgPose(geom)*osg::Matrix::translate(0,0,length/2));
+      osgbox->setMatrix(osg::Matrix::translate(0,0,length/2)*osgPose(geom));
     }
   }
 
