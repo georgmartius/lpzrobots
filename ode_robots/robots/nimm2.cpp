@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.31  2007-06-21 16:23:52  martius
+ *   Revision 1.32  2007-08-23 15:40:27  martius
+ *   removed ir derivative and collition control
+ *   irsenors don't need explicit sense call
+ *
+ *   Revision 1.31  2007/06/21 16:23:52  martius
  *   collision threatment with general collision detection
  *    maybe modify body substance
  *   joints are deleted before objects
@@ -237,8 +241,8 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  sensor ir_old[4];
-  sensor ir_tmp[4];
+//   sensor ir_old[4];
+//   sensor ir_tmp[4];
 
   int Nimm2::getSensors(sensor* sensors, int sensornumber){
     assert(created); 
@@ -255,11 +259,11 @@ namespace lpzrobots {
     //  sensor+len is the starting point in the sensors array
     if (conf.irFront || conf.irSide || conf.irBack){
       len += irSensorBank.get(sensors+len, sensornumber-len);
-      for (int i=0; i<4; i++){
-        ir_tmp[i]=sensors[2+i];
-	sensors[2+i]=ir_tmp[i]-ir_old[i];
-	ir_old[i]=ir_tmp[i];
-      }
+//       for (int i=0; i<4; i++){
+//         ir_tmp[i]=sensors[2+i];
+// 	sensors[2+i]=ir_tmp[i]-ir_old[i];
+// 	ir_old[i]=ir_tmp[i];
+//       }
     }
     return len;
   };
@@ -309,14 +313,6 @@ namespace lpzrobots {
     irSensorBank.update();
 
   }
-
-
-//   void Nimm2::mycallback(void *data, dGeomID o1, dGeomID o2){
-//     // Nimm2* me = (Nimm2*)data;
-//     // o1 and o2 are member of the space
-
-//     // we ignore the collisions
-//   }
 
    bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
      return false;
@@ -548,17 +544,17 @@ namespace lpzrobots {
    */
   void Nimm2::destroy(){
     if (created){
+      irSensorBank.clear();
       for (int i=0; i<2; i++){
 	if(joint[i]) delete joint[i];
+      }
+      for (int i=0; i<2; i++){
+	//	if(bumper[i].bump) delete bumper[i].bump; is done by transform primitive
+	if(bumper[i].trans) delete bumper[i].trans;
       }
       for (int i=0; i<3; i++){ 
 	if(object[i]) delete object[i];
       }
-      for (int i=0; i<2; i++){
-	if(bumper[i].bump) delete bumper[i].bump;
-	if(bumper[i].trans) delete bumper[i].trans;
-      }
-      irSensorBank.clear();
       dSpaceDestroy(odeHandle.space);
     }
     created=false;
