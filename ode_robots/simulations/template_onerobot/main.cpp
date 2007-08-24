@@ -22,8 +22,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2007-01-18 14:42:15  robot3
- *   changed to barrel2nd
+ *   Revision 1.20  2007-08-24 08:35:19  martius
+ *   restored clean example
+ *
  *
  *   Revision 1.18  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
@@ -114,8 +115,8 @@
 #include <selforg/derivativewiring.h>
 
 // used robot
-#include "barrel2masses2nd.h"
-//#include "sphererobot3masses.h"
+#include "nimm2.h"
+#include "nimm4.h"
 
 
 // used arena
@@ -125,9 +126,8 @@
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
-//#include <selforg/invertmotorspace.h>
+#include <selforg/invertmotorspace.h>
 //#include <selforg/sinecontroller.h>
-#include <selforg/invertmotornstep.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -159,8 +159,8 @@ public:
     
     // odeHandle and osgHandle are global references
     // vec3 == length, width, height
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 0.5));
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(12, 0.2, 0.5));
+    playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
     // register playground in obstacles list
     global.obstacles.push_back(playground);
 
@@ -170,101 +170,50 @@ public:
     // - set Pose(Position) of sphere 
     // - set a texture for the sphere
     // - add sphere to list of obstacles
-//    for (int i=0; 0<= 1/*2*/; i+=2){
-//      PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-//      s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
-//      s1->setTexture("Images/dusty.rgb");
-//      global.obstacles.push_back(s1);
-//    }
+    for (int i=0; i < 0/*2*/; i++){
+      PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
+      s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
+      s1->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s1);
+    }
 
     // use Nimm2 vehicle as robot:
     // - get default configuration for nimm2
     // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
     // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
     // - place robot
-//     Nimm2Conf c = Nimm2::getDefaultConf();
-//     c.force   = 4;
-//     c.bumper  = true;
-//     c.cigarMode  = true;
-     //     c.irFront = true;
-//     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");    
-//     vehicle->place(Pos(2,0,0));
+    Nimm2Conf c = Nimm2::getDefaultConf();
+    c.force   = 4;
+    c.bumper  = true;
+    c.cigarMode  = true;
+    // c.irFront = true;
+    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");    
+    vehicle->place(Pos(0,0,0));
      
-     // use Nimm4 vehicle as robot:
-     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
-     // - place robot
-     //OdeRobot* vehiInvertMotorSpacecle = new Nimm4(odeHandle, osgHandle);
-     //vehicle->place(Pos(0,2,0));
+    // use Nimm4 vehicle as robot:
+    // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
+    // - place robot
+    //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle, "Nimm4");
+    //vehicle->place(Pos(0,1,0));
+    
+    
+    // create pointer to controller
+    // push controller in global list of configurables
+    //  AbstractController *controller = new InvertNChannelController(10);  
+    AbstractController *controller = new InvertMotorSpace(10);  
+    global.configs.push_back(controller);
+  
+    // create pointer to one2onewiring
+    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+
+    // create pointer to agent
+    // initialize pointer with controller, robot and wiring
+    // push agent in globel list of agents
+    OdeAgent* agent = new OdeAgent(plotoptions);
+    agent->init(controller, vehicle, wiring);
+    global.agents.push_back(agent);
      
-     
-    /* * * * BARRELS * * * */
-    for(int i=0; i< 1; i++){
-      //****************
-      Sphererobot3MassesConf conf = Barrel2Masses2nd::getDefaultConf();
-      conf.motorsensor=true;
-//      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
-//      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
-      conf.irAxis1=true;
-      conf.irAxis2=true;
-      conf.irAxis3=true;
-      conf.spheremass   = 0.3;
-      conf.drawIRs=true;
-      conf.diameter     = 1;
-      conf.pendularmass  = 1.0;
-      conf.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
-      conf.irsensorscale=1.5;
-      conf.irCharacter=1;  
-
-      // osgHandle.changeColor(Color(0.0,0.0,1.0) -- aendert color der barrel
-        Barrel2Masses2nd* myBarrel = new Barrel2Masses2nd ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				    conf, "Barrel2nd"); //, 0.5); 
-      // Matrixangabe -- rotate liefert fertige matrix zurueck
-      myBarrel->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
-
-
-      InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-//      cc.cInit=0.5;
-      //    cc.useS=true;
-        InvertMotorNStep*  controller = new InvertMotorNStep(cc);    
-      //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-//      controller->setParam("steps", 2);    
-      //    controller->setParam("adaptrate", 0.001);    
-//      controller->setParam("adaptrate", 0.0);    
-//    controller->setParam("nomupdate", 0.005);    
-//    controller->setParam("epsC", 0.03);    
-//    controller->setParam("epsA", 0.05);    
-      // controller->setParam("epsC", 0.001);    
-      // controller->setParam("epsA", 0.001);    
-      //    controller->setParam("rootE", 1);    
-      //    controller->setParam("logaE", 2);    
-//    controller->setParam("rootE", 3);    
-//    controller->setParam("logaE", 0);    
-      //     controller = new SineController();  
-//    controller->setParam("sinerate", 15);  
-//    controller->setParam("phaseshift", 0.45);
-
-// derivative == ableitung, also benutze zusaetzlich abgeleitete sensoren
-//       DerivativeWiringConf dc = DerivativeWiring::getDefaultConf();
-//       dc.useId=true;
-//       dc.useFirstD=false;
-//       AbstractWiring* wiring = new DerivativeWiring(dc,new ColorUniformNoise());
-
-// selektiert bestimmte sensoren und motoren
-//    AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
-
-      // zusaetzlich das rauschen, gibt weisses und color...
-      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );   
-
-      OdeAgent* agent = new OdeAgent ( plotoptions );
-
-//      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
-      agent->init ( controller , myBarrel , wiring );
-      //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
-      global.agents.push_back ( agent );
-      global.configs.push_back ( controller );
-    }
-     
-     showParams(global.configs);
+    showParams(global.configs);
   }
   
   // add own key handling stuff here, just insert some case values
