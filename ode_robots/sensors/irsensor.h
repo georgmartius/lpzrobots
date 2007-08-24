@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-08-23 15:39:05  martius
+ *   Revision 1.12  2007-08-24 11:57:48  martius
+ *   some forward declaration
+ *
+ *   Revision 1.11  2007/08/23 15:39:05  martius
  *   new IR sensor schema which uses substances and callbacks, very nice
  *
  *   Revision 1.10  2006/09/20 12:56:28  martius
@@ -77,6 +80,8 @@ namespace lpzrobots {
 
   class OSGCylinder;
   class OSGBox;
+  class Transform;
+  class Ray;
 
 
   /** Class for IR sensors. 
