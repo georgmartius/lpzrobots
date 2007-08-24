@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2007-07-31 08:33:55  martius
+ *   Revision 1.21  2007-08-24 12:00:46  martius
+ *   cleaned up a bit
+ *
+ *   Revision 1.20  2007/07/31 08:33:55  martius
  *   modified reinforment for one-axis-rolling
  *
  *   Revision 1.19  2007/07/03 13:06:18  martius
@@ -104,6 +107,7 @@
 #include "passivesphere.h"
 #include "passivebox.h"
 
+#include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
@@ -112,7 +116,7 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/selectiveone2onewiring.h>
 #include <selforg/derivativewiring.h>
-#include "invertnchannelcontroller_nobias.h"
+// #include "invertnchannelcontroller_nobias.h"
 
 #include "forcedsphere.h"
 #include "sphererobot3masses.h"
@@ -120,24 +124,24 @@
 #include "axisorientationsensor.h"
 #include "speedsensor.h"
 
-#include <osg/Node>
-#include <osg/Geode>
-#include <osg/Geometry>
-#include <osg/Texture2D>
-#include <osg/TexEnv>
-#include <osg/TexGen>
-#include <osg/Depth>
-#include <osg/StateSet>
-#include <osg/ClearNode>
-#include <osg/Transform>
-#include <osg/MatrixTransform>
-#include <osg/Light>
-#include <osg/LightSource>
-#include <osg/ShapeDrawable>
-#include <osg/PolygonOffset>
-#include <osg/CullFace>
-#include <osg/TexGenNode>
-using namespace osg;
+// #include <osg/Node>
+// #include <osg/Geode>
+// #include <osg/Geometry>
+// #include <osg/Texture2D>
+// #include <osg/TexEnv>
+// #include <osg/TexGen>
+// #include <osg/Depth>
+// #include <osg/StateSet>
+// #include <osg/ClearNode>
+// #include <osg/Transform>
+// #include <osg/MatrixTransform>
+// #include <osg/Light>
+// #include <osg/LightSource>
+// #include <osg/ShapeDrawable>
+// #include <osg/PolygonOffset>
+// #include <osg/CullFace>
+// #include <osg/TexGenNode>
+// using namespace osg;
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -156,7 +160,7 @@ public:
     int num_barrels=0;
     int num_barrels_test=0;
     int num_spheres=1;
-    useReinforcement=0;
+    useReinforcement=3;
 
     sensor=0;
 
@@ -315,25 +319,26 @@ public:
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.15; 
       conf.motorpowerfactor  = 150;     
-      conf.spheremass = 1;
-      
+      //      conf.spheremass = 1;
+      conf.spheremass = 0.4;
       //      conf.motorpowerfactor  = 50;    
 
-      sensor = new SpeedSensor(5, SpeedSensor::RotationalRel);
       conf.motorsensor=false;
-      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+      sensor = new AxisOrientationSensor(AxisOrientationSensor::ZProjection);      
       conf.addSensor(sensor);
-
-      //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
+      sensor = new SpeedSensor(5, SpeedSensor::RotationalRel);
+      conf.addSensor(sensor);
       //      conf.addSensor(new SpeedSensor(10));
-      //      conf.irAxis1=true;
-      //      conf.irAxis2=true;
-      //      conf.irAxis3=true;
+      conf.irAxis1=true;
+      conf.irAxis2=true;
+      conf.irAxis3=true;
       //      conf.spheremass   = 1;
       // conf.irRing=true;
       // conf.irSide=true;
       //       conf.drawIRs=false;
-      sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
+      OdeHandle sphereOdeHandle = odeHandle;
+      sphereOdeHandle.substance.roughness=10;
+      sphere1 = new Sphererobot3Masses ( sphereOdeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
 					 conf, "Sphere", 0.3);       
       //// FORCEDSPHERE
       // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
@@ -349,6 +354,10 @@ public:
       //      cc.useSD=true;
       //controller = new DerController(cc);    
       controller = new InvertMotorNStep(cc);    
+//       controller = new InvertNChannelController(20);    
+//       controller->setParam("eps", 0.05);    
+//       controller->setParam("factor_a", 2);
+
       // controller = new SineController();
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       controller->setParam("steps", 1);    
@@ -362,8 +371,8 @@ public:
 	controller->setParam("epsC", 0.1);    
 	controller->setParam("epsA", 0.2); // 0.5    	
       }
-      controller->setParam("epsC", 0.05);    
-      controller->setParam("epsA", 0.1);    
+      controller->setParam("epsC", 0.02);    
+      controller->setParam("epsA", 0.05);    
       //    controller->setParam("rootE", 1);    
       //    controller->setParam("logaE", 2);    
       controller->setParam("steps", 1);    
@@ -373,8 +382,8 @@ public:
       controller->setParam("sinerate", 15);  
       controller->setParam("phaseshift", 0.45);
     
-      //      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.2) );
-      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), new select_from_to(0,2));
+      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.2) );
+      //      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), new select_from_to(0,2));
       std::list<PlotOption> l;
       l.push_back(PlotOption(GuiLogger, Robot, 5));
       l.push_back(PlotOption(File, Robot, 1));
@@ -394,8 +403,9 @@ public:
     if(useReinforcement==3){ // spinning around one particilar axis not too fast
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
       if(c && sensor){
- 	double dat[3];
-	sensor->get(dat, 3);
+ 	double dat[5];
+	//sensor->get(dat, 3);
+	std::cerr << "test: " << sensor->get(dat, 5) << std::endl;
 	for(int i=0; i<3; i++) dat[i]=fabs(dat[i]);
  	std::sort(dat,dat+3);
  	double penalty = (dat[0] + dat[1])/(dat[2]+0.01);
