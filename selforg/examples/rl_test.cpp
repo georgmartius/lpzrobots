@@ -9,14 +9,15 @@ using namespace matrix;
 
 void testQLearning(){
   int size=10;
-  QLearning q(0.2,0.9,0.1, 5);
+  //  QLearning q(0.2,0.9,0.05, 5,false,false);
+  QLearning q(0.2,0.9,0.05, 5,false,true);
   q.init(size,2);
-  cout << "Q Learning 5x2\n";
+  cout << "Q Learning 10x2\n";
   cerr << q.getQ();
     
   int x=0;
   int a = 1;
-  for(int i=0; i < 1000; i++){
+  for(int i=0; i < 10000; i++){
     if(a==0) x--;
     if(a==1) x++;
     if(x<0) x=0;
