@@ -58,12 +58,11 @@ utils/splitvideo: utils/splitvideo.c
 #%.o: %.cpp
 #	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -o $(OBJDIR)/$(@F)  $< 
 
-Makefile.depend: 
-	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
-	cd $(INCLUDEDIR)
+Makefile.depend: 	
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
+	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
 
 depend: 
 	rm Makefile.depend

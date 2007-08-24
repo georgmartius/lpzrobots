@@ -39,18 +39,19 @@ $(LIB): Makefile.depend $(OFILES)
 
 opt: $(LIB_OPT)
 
+# a test to make objectfiles go to another folder
+#$(LIB_OPT): OUTPUT_OPTION = -o .obj/`basename $@`
+
 $(LIB_OPT): CXX = $(CXX_OPT)
 $(LIB_OPT): Makefile.depend $(OFILES)
 	@echo "$(OFILES)";
 	$(AR) $(LIB_OPT) $(OFILES)
 
-
 Makefile.depend: 
-	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
-	cd $(INCLUDEDIR)
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
+	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
 
 depend: 
 	rm Makefile.depend
