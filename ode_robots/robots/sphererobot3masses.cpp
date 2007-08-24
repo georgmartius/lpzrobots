@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-07-17 07:22:28  martius
+ *   Revision 1.16  2007-08-24 11:57:30  martius
+ *   additional sensors can be before or after motor and ir sensors
+ *
+ *   Revision 1.15  2007/07/17 07:22:28  martius
  *   removed invisible primitives
  *
  *   Revision 1.14  2007/07/03 13:05:23  martius
@@ -203,8 +206,10 @@ namespace lpzrobots {
   {  
     int len=0;
     assert(created);
-    FOREACH(list<Sensor*>, conf.sensors, i){
-      len += (*i)->get(sensors+len, sensornumber-len);
+    if(!conf.motor_ir_before_sensors){
+      FOREACH(list<Sensor*>, conf.sensors, i){
+	len += (*i)->get(sensors+len, sensornumber-len);
+      }
     }
   
     if(conf.motorsensor){
@@ -218,6 +223,13 @@ namespace lpzrobots {
     if (conf.irAxis1 || conf.irAxis2 || conf.irAxis3 || conf.irRing || conf.irSide){
       len += irSensorBank.get(sensors+len, sensornumber-len);
     }
+
+    if(conf.motor_ir_before_sensors){
+      FOREACH(list<Sensor*>, conf.sensors, i){
+	len += (*i)->get(sensors+len, sensornumber-len);
+      }
+    }
+
   
     return len;
   }
@@ -238,6 +250,14 @@ namespace lpzrobots {
 
 
   void Sphererobot3Masses::doInternalStuff(const GlobalData& global){
+    // slow down rotation around z axis because friction does not catch it.
+    dBodyID b = getMainPrimitive()->getBody();
+    double friction = odeHandle.substance.roughness;
+    const double* vel = dBodyGetAngularVel( b);
+    if(fabs(vel[2])>0.2){
+      dBodyAddTorque ( b , 0 , 0 , -0.05*friction*vel[2] );
+    }
+
     irSensorBank.reset();
   }
 
@@ -251,9 +271,10 @@ namespace lpzrobots {
    **/
   bool Sphererobot3Masses::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
 //     //checks if either of both of the collision objects are part of the robot
-//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
-//       if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
-//       if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
+//      if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
+//        if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
+//        if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
+//      }
 
 //       // inner space collisions are not treated!
 //       int i,n;  
@@ -323,7 +344,7 @@ namespace lpzrobots {
 
     //    object[Base] = new InvisibleSphere(conf.diameter/2);
     object[Base] = new Sphere(conf.diameter/2);
-    // object[Base] = new InvisibleBox(conf.diameter, conf.diameter, conf.diameter);
+	//object[Base] = new Box(conf.diameter, conf.diameter, conf.diameter);
     object[Base]->init(odeHandle, conf.spheremass, osgHandle_Base);
     object[Base]->setPose(pose);    
 
@@ -362,19 +383,20 @@ namespace lpzrobots {
 
     double sensorrange = conf.irsensorscale * conf.diameter;
     RaySensor::rayDrawMode drawMode = conf.drawIRs ? RaySensor::drawAll : RaySensor::drawSensor;
+    double sensors_inside=0.02;
 
     irSensorBank.init(odeHandle, osgHandle );
     if (conf.irAxis1){
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor(conf.irCharacter);
-	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * Matrix::translate(0,-i*conf.diameter/2,0 );
+	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * Matrix::translate(0,-i*(conf.diameter/2-sensors_inside),0 );
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irAxis2){
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor(conf.irCharacter);
-	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * Matrix::translate(i*conf.diameter/2,0,0 );
+	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * Matrix::translate(i*(conf.diameter/2-sensors_inside),0,0 );
 	//	dRFromEulerAngles(R,i*M_PI/2,-i*M_PI/2,0);      
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
@@ -382,21 +404,21 @@ namespace lpzrobots {
     if (conf.irAxis3){
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor(conf.irCharacter);
-	Matrix R = Matrix::rotate( i==1 ? 0 : M_PI, 1, 0, 0) * Matrix::translate(0,0,i*conf.diameter/2);
+	Matrix R = Matrix::rotate( i==1 ? 0 : M_PI, 1, 0, 0) * Matrix::translate(0,0,i*(conf.diameter/2-sensors_inside));
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irRing){
       for(double i=0; i<2*M_PI; i+=M_PI/6){  // 12 sensors
 	IRSensor* sensor = new IRSensor(conf.irCharacter);
-	Matrix R = Matrix::translate(0,0,conf.diameter/2) * Matrix::rotate( i, 0, 1, 0);
+	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * Matrix::rotate( i, 0, 1, 0);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irSide){
       for(double i=0; i<2*M_PI; i+=M_PI/2){
 	IRSensor* sensor = new IRSensor(conf.irCharacter);
-	Matrix R = Matrix::translate(0,0,conf.diameter/2) * Matrix::rotate( M_PI/2-M_PI/8, 1, 0, 0) *  Matrix::rotate( i, 0, 1, 0);
+	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * Matrix::rotate( M_PI/2-M_PI/8, 1, 0, 0) *  Matrix::rotate( i, 0, 1, 0);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode); 
 	sensor = new IRSensor(conf.irCharacter);// and the other side	
 	irSensorBank.registerSensor(sensor, object[Base], R * Matrix::rotate( M_PI, 0, 0, 1), sensorrange, drawMode); 
@@ -430,4 +452,3 @@ namespace lpzrobots {
   }
 
 }
-

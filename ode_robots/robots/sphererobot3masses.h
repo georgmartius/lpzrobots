@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-07-31 08:25:11  martius
+ *   Revision 1.13  2007-08-24 11:57:30  martius
+ *   additional sensors can be before or after motor and ir sensors
+ *
+ *   Revision 1.12  2007/07/31 08:25:11  martius
  *   added comments
  *
  *   Revision 1.11  2007/04/03 16:27:06  der
@@ -124,6 +127,7 @@ public:
   bool drawIRs;
   double irsensorscale; ///< range of the ir sensors in units of diameter
   double irCharacter;   ///< characteristics of sensor (\f[ x^c \f] where x is the range-distance)
+  double motor_ir_before_sensors; ///< if true motor sensors and ir sensors are given before additional sensors
 
   /// function that deletes sensors
   void destroy(); 
@@ -195,7 +199,8 @@ public:
     c.drawIRs=true;
     c.irsensorscale=1.5;
     c.irCharacter=1;  
-    return c;
+    c.motor_ir_before_sensors=false;
+   return c;
   }
 
   virtual void update();
