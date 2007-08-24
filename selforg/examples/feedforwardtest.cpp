@@ -5,6 +5,7 @@ using namespace std;
 
 #include <selforg/multilayerffnn.h>
 #include <selforg/som.h>
+#include <selforg/neuralgas.h>
 #include <selforg/matrix.h>
 using namespace matrix;
 
@@ -98,10 +99,10 @@ void testinvertation(MultiLayerFFNN net){
 }
 
 void testsom1D(){
-  SOM net(1, 5, 0.1,"SOM", "01");
+  SOM net(1, 5, 0.1,1,"SOM", "01");
   net.init(2,100);
   cout << "SOM 1D 2-100 (5)\n";
-  FOREACH(SOM::Neighbourhood, net.getNeighbourhood(), i){
+  FOREACHC(SOM::Neighbourhood, net.getNeighbourhood(), i){
     cout << i->first << "\t w: " << i->second << "\n";
   }
   Matrix inp(2,1);
@@ -112,14 +113,16 @@ void testsom1D(){
     net.process(inp);
     net.learn(inp,out);
   }
-  net.printWeights(stdout);
+  FILE* f = fopen("som1D.weights","w");
+  net.printWeights(f);
+  fclose(f);
 }
 
 void testsom2D(){
-  SOM net(2, 3, 0.01,"SOM", "01");
+  SOM net(2, 3, 0.01,1,"SOM", "01");
   net.init(2,36,0);
   cout << "SOM 2D 2-36 (3)\n";
-  FOREACH(SOM::Neighbourhood, net.getNeighbourhood(), i){
+  FOREACHC(SOM::Neighbourhood, net.getNeighbourhood(), i){
     cout << (i->first^T) << "\t w: " << i->second << "\n";
   }
   Matrix inp(2,1);
@@ -145,18 +148,19 @@ void testsom2D(){
     net.learn(inp,out);
   }
 
-  net.printWeights(stderr);
+  FILE* f = fopen("som2D.weights","w");
+  net.printWeights(f);
+  fclose(f);
 }
 
 
 void testsom1D_local(){
-  SOM net(1,3, 0.01,"SOM", "01");
+  SOM net(1,3, 0.01,1,"SOM", "01");
   net.init(2,36,1.5);
   cout << "SOM 1D 2-36 (3)\n";
-  FOREACH(SOM::Neighbourhood, net.getNeighbourhood(), i){
+  FOREACHC(SOM::Neighbourhood, net.getNeighbourhood(), i){
     cout << i->first << "\t w: " << i->second << "\n";
   }
-  return;
   Matrix inp(2,1);
   Matrix out(100,1);
     
@@ -166,16 +170,55 @@ void testsom1D_local(){
     net.learn(inp,out);
   }
 
-  net.printWeights(stderr);
+  FILE* f = fopen("som1Dlocal.weights","w");
+  net.printWeights(f);
+  fclose(f);
 
 }
 
+void testneuralgas(){
+  NeuralGas net(2, 0.01,0);
+  net.init(2,36,0);
+  cout << "NeuralGas 2D 2-36\n";
+
+  Matrix inp(2,1);
+  Matrix out(100,1);
+    
+  for(int i=0; i < 10000; i++){
+    inp.toMap(random_minusone_to_one);
+    net.process(inp);
+    net.learn(inp,out);
+  }
+  net.printCellsizes(stdout);
+  cout << "\n";
+  net.setParam("eps",0.001);
+  for(int i=0; i < 5000; i++){
+    inp = inp.map(random_minusone_to_one) * 0.05;
+    net.process(inp);
+    net.learn(inp,out);
+  }
+  Matrix offset(2,1);
+  offset.val(0,0)=0.5;
+  offset.val(1,0)=-0.8;
+  for(int i=0; i < 5000; i++){
+    inp = inp.map(random_minusone_to_one) * 0.05 + offset;
+    net.process(inp);
+    net.learn(inp,out);
+  }
+  net.printCellsizes(stdout);
+  cout << "\n";
+  FILE* f = fopen("neural_gas.weights","w");
+  net.printWeights(f);
+  fclose(f);
+}
 
 
 
 int main(){
   srand(time(0));
-  
+  cout << "******************** TEST Neural Gas\n";
+  testneuralgas();
+  return 1;  
   vector<Layer> layers1;
   layers1.push_back(Layer(2,0));
   MultiLayerFFNN netlinear(0.1, layers1);
@@ -219,6 +262,9 @@ int main(){
   testsom1D();
   testsom2D();
   testsom1D_local();
+
+  cout << "******************** TEST Neural Gas\n";
+  testneuralgas();
  
   return 0;
 }
