@@ -23,7 +23,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-07-03 13:15:17  martius
+ *   Revision 1.7  2007-08-24 11:54:21  martius
+ *   proper cameraspeed calculation. camera speed is now definied in simulated time
+ *   which makes it better to follow robots in high speed simulations
+ *
+ *   Revision 1.6  2007/07/03 13:15:17  martius
  *   odehandle.h in cpp files included
  *
  *   Revision 1.5  2007/02/12 13:33:28  martius
@@ -332,10 +336,14 @@ namespace lpzrobots {
 
     // now do smoothness
     float updateFactor;
-    updateFactor = globalData.odeConfig.drawInterval/std::max(0.1,globalData.odeConfig.realTimeFactor) * globalData.odeConfig.simStepSize * globalData.odeConfig.cameraSpeed;
-      //    std::cout << "drawInt: " << globalData.odeConfig.drawInterval << ", realtimefactor: "
-      //      << globalData.odeConfig.realTimeFactor << ", updateFactor: " 
-      //      << updateFactor << "\n";
+    updateFactor = globalData.odeConfig.drawInterval * globalData.odeConfig.simStepSize * 
+      globalData.odeConfig.cameraSpeed;
+    if(lengthSmoothness * updateFactor > 1) updateFactor = 1/lengthSmoothness;
+    if(degreeSmoothness * updateFactor > 1) updateFactor = 1/degreeSmoothness;
+    // /std::max(0.1,globalData.odeConfig.realTimeFactor)
+    //    std::cout << "drawInt: " << globalData.odeConfig.drawInterval << ", realtimefactor: "
+    //      << globalData.odeConfig.realTimeFactor << ", updateFactor: " 
+    //      << updateFactor << "\n";
     for (int i=0;i<=2;i++) {
       // view is in °, we must be careful for switches at the 360°-point
       if ((desiredView[i]-view[i])>180) // desiredView is to high
