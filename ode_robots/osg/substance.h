@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-07-17 07:20:29  martius
+ *   Revision 1.4  2007-08-24 11:55:54  martius
+ *   collision callbacks get more information
+ *
+ *   Revision 1.3  2007/07/17 07:20:29  martius
  *   updated comments
  *
  *   Revision 1.2  2007/07/03 13:14:57  martius
@@ -72,16 +75,19 @@ namespace lpzrobots {
       @param params surface parameter, which should be changed by this function
       @param globaldata global information
       @param userdata pointer to user data for this callback (stored in substance)
+      @param contacts array of contact information
+      @param numContacts length of contact information array      
       @param o1 geom corresponding to substance of this callback
       @param o2 other geom 
       @param s1 substance of this callback
       @param s2 other substance 
       @return 0 if collision should not be treated;
-              1 if collision should be treated otherwise (by other callback or standart methods);
+              1 if collision should be treated otherwise (by other callback or standard methods);
               2 if collision to be treated and parameters for collision are set in params
    */
   typedef int (*CollisionCallback)(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
-				    dGeomID o1, dGeomID o2, const Substance* s1, const Substance* s2);
+				   dContact* contacts, int numContacts,
+				   dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2);
 
   /**
      Physical substance definition, used for collision detection/treatment
@@ -125,7 +131,7 @@ namespace lpzrobots {
 
   public:
     /// Combination of two surfaces
-    static dSurfaceParameters getSurfaceParams(const Substance& s1, const Substance& s2, double stepsize);
+    static void getSurfaceParams(dSurfaceParameters& sp, const Substance& s1, const Substance& s2, double stepsize);
 
     static void printSurfaceParams(const dSurfaceParameters& surfParams);
 

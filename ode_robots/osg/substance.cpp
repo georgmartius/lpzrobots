@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-17 07:21:16  martius
+ *   Revision 1.5  2007-08-24 11:55:54  martius
+ *   collision callbacks get more information
+ *
+ *   Revision 1.4  2007/07/17 07:21:16  martius
  *   testing code (anyway commented)
  *
  *   Revision 1.3  2007/07/03 13:13:27  martius
@@ -59,14 +62,13 @@ namespace lpzrobots {
   {
   }
 
-  void Substance::setCollisionCallback(CollisionCallback func, void* userdata){
+  void Substance::setCollisionCallback(CollisionCallback func, void* userdata_){
     callback = func;
-    userdata=0;
+    userdata=userdata_;
   }
 
   // Combination of two surfaces
-  dSurfaceParameters Substance::getSurfaceParams(const Substance& s1, const Substance& s2, double stepsize){
-    dSurfaceParameters sp;    
+  void Substance::getSurfaceParams(dSurfaceParameters& sp, const Substance& s1, const Substance& s2, double stepsize){
     sp.mu = s1.roughness * s2.roughness;
     //    sp.bounce;
     //    sp.bounce_vel;
@@ -93,7 +95,6 @@ namespace lpzrobots {
     else sp.mode = dContactSlip1 | dContactSlip2;
     sp.mode |= dContactSoftERP | dContactSoftCFM | dContactApprox1;
     
-    return sp;
   }
 
   void Substance::printSurfaceParams(const dSurfaceParameters& sp){
