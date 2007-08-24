@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-07-03 13:06:41  martius
+ *   Revision 1.16  2007-08-24 11:53:10  martius
+ *   Change geometry
+ *
+ *   Revision 1.15  2007/07/03 13:06:41  martius
  *   groundplane thick
  *
  *   Revision 1.14  2007/03/16 11:01:37  martius
@@ -138,6 +141,18 @@ namespace lpzrobots {
       height=dimension.z();
       factorlength2=factorxy;
     };
+
+    virtual void changeGeometry(double length, double width, double height, double factorxy){
+      AbstractGround::changeGeometry(length, width, height, factorxy);
+      this->length = length;
+      this->width  = width;
+      this->height  = height;
+      this->factorlength2  = factorxy;
+      if (obstacle_exists) {
+	destroy();
+	create();
+      }      
+    }
 
   protected:
     virtual void create(){

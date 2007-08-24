@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-07-03 13:06:41  martius
+ *   Revision 1.7  2007-08-24 11:53:10  martius
+ *   Change geometry
+ *
+ *   Revision 1.6  2007/07/03 13:06:41  martius
  *   groundplane thick
  *
  *   Revision 1.5  2007/04/05 15:10:14  martius
@@ -101,6 +104,8 @@ public:
     virtual void setTexture(const std::string& filename);
 
     virtual Primitive* getMainPrimitive() const;
+
+    virtual void changeGeometry(double length, double width, double height, double factorxy);
 
     /**
      * assigns the texture to the object
