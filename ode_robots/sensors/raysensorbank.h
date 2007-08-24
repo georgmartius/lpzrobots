@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-08-23 15:39:05  martius
+ *   Revision 1.8  2007-08-24 11:58:14  martius
+ *   size()
+ *
+ *   Revision 1.7  2007/08/23 15:39:05  martius
  *   new IR sensor schema which uses substances and callbacks, very nice
  *
  *   Revision 1.6  2007/04/03 14:12:28  der
@@ -86,11 +89,14 @@ public:
    */
   virtual unsigned int registerSensor(RaySensor* raysensor, Primitive* body, 
 				      const osg::Matrix& pose, float range,
-				      RaySensor::rayDrawMode drawMode);
+				      RaySensor::rayDrawMode drawMode);  
 
   /** resets all sensors (used for reseting the sensor value to a value of maximal distance) 
    */
   virtual void reset();  
+
+  /// returns the number of sensors
+  virtual int size() { return bank.size(); }
   
   /** returns the sensor value of the given sensor (usually in the range [-1,1] )
    */
