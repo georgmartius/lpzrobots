@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-08-23 15:39:05  martius
+ *   Revision 1.10  2007-08-24 12:48:04  martius
+ *   tranformation for sensor body fixed
+ *
+ *   Revision 1.9  2007/08/23 15:39:05  martius
  *   new IR sensor schema which uses substances and callbacks, very nice
  *
  *   Revision 1.8  2007/04/03 16:32:21  der
@@ -189,7 +192,7 @@ namespace lpzrobots {
     ray->update();
   
     if(sensorBody) {    
-      sensorBody->setMatrix(ray->getPose() * osg::Matrix::translate(0,0,0.005) * transform->getPose());
+      sensorBody->setMatrix(osg::Matrix::translate(0,0,0.005) * ray->getPose() * transform->getPose());
       sensorBody->setColor(Color(value*2.0, 0.0, 0.0));
     }
 
