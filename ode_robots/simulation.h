@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2007-06-21 16:19:48  martius
+ *   Revision 1.29  2007-08-24 11:52:42  martius
+ *   resetsynctimer is protected
+ *
+ *   Revision 1.28  2007/06/21 16:19:48  martius
  *   -nopgraphics option which disables graphics rendering
  *
  *   Revision 1.27  2007/03/26 13:06:30  martius
@@ -290,9 +293,11 @@ namespace lpzrobots {
     /// clears obstacle and agents lists and delete entries
     void tidyUp(GlobalData& globalData);
 
+  protected:
     void resetSyncTimer();
     long timeOfDayinMS();
 
+  private:
     static void control_c(int i);
     static void cmd_handler_exit();
     static void cmd_handler_init();
