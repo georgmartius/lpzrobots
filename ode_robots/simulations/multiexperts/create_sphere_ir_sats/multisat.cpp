@@ -17,7 +17,7 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-08-24 11:59:43  martius
+ *   Revision 1.1  2007-08-24 11:59:44  martius
  *   *** empty log message ***
  *
  *   Revision 1.10  2007/08/06 14:25:57  martius
@@ -120,9 +120,9 @@ void MultiSat::init(int sensornumber, int motornumber){
     layers.push_back(Layer(1,1));
     MultiLayerFFNN* net = new MultiLayerFFNN(1, layers); // learning rate is set to 1 and modulates each step  
     if(conf.useDerive)
-      net->init(3*number_real_sensors + (conf.useY ? number_motors : 0), number_real_sensors+number_motors);
+      net->init(3*number_real_sensors+number_motors, number_real_sensors+number_motors);
     else
-      net->init(2*number_real_sensors + (conf.useY ? number_motors : 0), number_real_sensors+number_motors);
+      net->init(2*number_real_sensors+number_motors, number_real_sensors+number_motors);
     Sat sat(net, conf.eps0);
     sats.push_back(sat);
   }
@@ -157,7 +157,6 @@ void MultiSat::putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& vec, in
 /// performs one step (includes learning). Calculates motor commands from sensor inputs.
 void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_motors)
 {
-  assert(number_sensors && number_motors);
   Matrix y_sat;
 
   fillSensorBuffer(x_, number_sensors);
@@ -176,7 +175,7 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
 
     // let all sats learn with their decreasing learning rate
     FOREACH(vector<Sat>, sats, s){
-      double e = exp(-(1/conf.tauC)*s->lifetime); 
+      double e = exp(-(1/conf.tauC)*s->lifetime);
       if(e>10e-12){
 	s->net->learn(satInput, nomSatOutput, s->eps*e);    
       }
@@ -240,8 +239,7 @@ void MultiSat::fillMotorBuffer(const motor* y_, int number_motors)
 
 double multisat_errormodulation(void* fak, double e, double e_min){
   double faktor = *((double*)fak);
-  //  return e*(1 + faktor*sqr(max(0.0,e-e_min))); 
-  return e*(1 + sqrt(faktor*max(0.0,e-e_min))); 
+  return e*(1 + faktor*sqr(max(0.0,e-e_min)));
 }
 
 // we need this indirection because of some template error if we use just min
@@ -262,17 +260,14 @@ Matrix MultiSat::controlBySat(int winner){
    */
   if( satAvg1Errors.val(winner,0) < satMinErrors.val(winner,0)*2 ){
     const Matrix& x_t   = x_buffer[t%buffersize];
+    const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
     if(conf.useDerive){
       const Matrix& xp_t  = xp_buffer[t%buffersize];
-      satInput   = x_t.above(xp_t);
+      satInput   = x_t.above(xp_t.above(y_tm1));
     } else {
       const Matrix& x_tm1 = x_buffer[(t-1)%buffersize];
-      satInput   = x_t.above(x_tm1);
+      satInput   = x_t.above(x_tm1.above(y_tm1));
     }
-  if(conf.useY){
-    const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
-    satInput.toAbove(y_tm1);
-  }
     const Matrix& out = sats[winner].net->process(satInput);
     return out.rows(x_t.getM(), out.getM()-1);
   }else{    
@@ -287,23 +282,19 @@ Matrix MultiSat::compete()
   const Matrix& x = x_buffer[t%buffersize];
 
   const Matrix& x_tm1 = x_buffer[(t-1)%buffersize];
+  const Matrix& x_tm2 = x_buffer[(t-2)%buffersize];
+  const Matrix& xp_tm1 = xp_buffer[(t-1)%buffersize];
   const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
+  const Matrix& y_tm2 = y_buffer[(t-2)%buffersize];
 
   // depending on useDerive we have
   // we have to use F(x_{t-1},x_{t-2} | \dot x_{t-1} ,y_{t-2}) -> (x_t, y_{t-1}) for the sat network
 
   nomSatOutput = x.above(y_tm1);
-  if(conf.useDerive){
-    const Matrix& xp_tm1 = xp_buffer[(t-1)%buffersize];
-    satInput   = x_tm1.above(xp_tm1);
-  }else{
-    const Matrix& x_tm2 = x_buffer[(t-2)%buffersize];
-    satInput   = x_tm1.above(x_tm2);
-  }
-  if(conf.useY){
-    const Matrix& y_tm2 = y_buffer[(t-2)%buffersize];
-    satInput.toAbove(y_tm2);
-  }
+  if(conf.useDerive)
+    satInput   = x_tm1.above(xp_tm1.above(y_tm2));
+  else
+    satInput   = x_tm1.above(x_tm2.above(y_tm2));
 
   // ask all networks to make there predictions on last timestep, compare with real world
   assert(satErrors.getM()>=sats.size());
@@ -315,8 +306,8 @@ Matrix MultiSat::compete()
     i++;
   }
   if(runcompetefirsttime){
-    satAvg1Errors=satErrors*20;
-    satAvg2Errors=satErrors*20;
+    satAvg1Errors=satErrors*2;
+    satAvg2Errors=satErrors*2;
     satMinErrors=satAvg2Errors;
     runcompetefirsttime=false;
   }

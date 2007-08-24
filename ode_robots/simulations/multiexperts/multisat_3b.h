@@ -31,10 +31,9 @@
  *    the sat network with most learning progress is used for control      *
  *     with half influence on the motor commands                           *
  *                                                                         *
- *    optionally sat networks do not get last motor command                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-08-24 11:59:43  martius
+ *   Revision 1.1  2007-08-24 11:59:44  martius
  *   *** empty log message ***
  *
  *   Revision 1.8  2007/08/06 14:25:57  martius
@@ -90,7 +89,6 @@ typedef struct MultiSatConf {
   int    numContext;    ///< number of context sensors (ignored)
   int    numSats;       ///< number of satelite networks
   bool   useDerive;     ///< input to sat network includes derivatives
-  bool   useY;          ///< input to sat network includes y
   double penalty;       ///< factor to multiply the square of the difference of error and optimal error 
   double satControlFactor; ///< factor of which the output of winner sat is used for control
 } MultiSatConf;
@@ -166,7 +164,6 @@ public:
     c.numContext=0;
     c.numSats=20;
     c.useDerive=false;
-    c.useY=true;
     c.penalty=5;
     c.satControlFactor = 0;
     return c;

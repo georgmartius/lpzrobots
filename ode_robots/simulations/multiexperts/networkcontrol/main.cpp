@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-06-14 08:01:45  martius
+ *   Revision 1.4  2007-08-24 11:59:44  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2007/06/14 08:01:45  martius
  *   Pred error modulation by distance to minimum works
  *
  *   Revision 1.2  2007/06/11 08:26:49  martius
@@ -94,6 +97,27 @@ public:
   }
 };
 
+class SatNetControl_NoY : public FFNNController {
+public:
+  SatNetControl_NoY(const std::string& networkfilename):
+    FFNNController(networkfilename, 1, true, 0) {
+  }
+  
+  virtual matrix::Matrix assembleNetworkInputX(matrix::Matrix* xbuffer, matrix::Matrix* ybuffer) const {
+    int tp = t+buffersize;
+    Matrix m(xbuffer[tp%buffersize]);
+    for(int i=1; i<=history; i++){
+      m=m.above(xbuffer[(tp-i)%buffersize]);
+    }
+    return m;
+  }
+
+  virtual matrix::Matrix assembleNetworkOutput(const matrix::Matrix& output) const {    
+    return output.rows(number_sensors, number_sensors + number_motors);
+  }
+};
+
+
 
 
 class ThisSim : public Simulation {
@@ -151,23 +175,19 @@ public:
       conf.pendularrange  = 0.15; 
       conf.motorpowerfactor  = 150;    
       conf.motorsensor=false;
-      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+      //    conf.spheremass  = 1;    
+      conf.spheremass  = 0.3;  
+      //conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection)); 
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
-      //      conf.irAxis1=true;
-      //      conf.irAxis2=true;
-      //      conf.irAxis3=true;
+      conf.irAxis1=true;
+      conf.irAxis2=true;
+      conf.irAxis3=true;
       //      conf.spheremass   = 1;
       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
-					 conf, "Sphere1_SD_slowstart_Reinforce", 0.3); 
-      //// FORCEDSPHERE
-      // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
-      // fsc.drivenDimensions=ForcedSphere::X;
-      // fsc.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
-      // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
-      // 
-      sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+					 conf, "Sphere_satctrl", 0.3); 
+      sphere1->place ( Pos(0,0,0.2));
       
-      controller = new BarrelNetControl(networkfilename);    
+      controller = new SatNetControl(networkfilename);    
 
       One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
       OdeAgent* agent = new OdeAgent ( plotoptions );

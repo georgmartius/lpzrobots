@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-08-06 14:25:57  martius
+ *   Revision 1.4  2007-08-24 11:59:44  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2007/08/06 14:25:57  martius
  *   new version without gating network
  *
  *   Revision 1.2  2007/06/18 08:11:22  martius
@@ -88,6 +91,26 @@ public:
     Matrix m(xbuffer[tp%buffersize]);
     for(int i=1; i<=history; i++){
       m=m.above(xbuffer[(tp-i)%buffersize].above(ybuffer[(tp-i)%buffersize]));
+    }
+    return m;
+  }
+
+  virtual matrix::Matrix assembleNetworkOutput(const matrix::Matrix& output) const {    
+    return output.rows(number_sensors, number_sensors + number_motors);
+  }
+};
+
+class SatNetControl_NoY : public FFNNController {
+public:
+  SatNetControl_NoY(const std::string& networkfilename):
+    FFNNController(networkfilename, 1, true, accelerationTime+1) {
+  }
+  
+  virtual matrix::Matrix assembleNetworkInputX(matrix::Matrix* xbuffer, matrix::Matrix* ybuffer) const {
+    int tp = t+buffersize;
+    Matrix m(xbuffer[tp%buffersize]);
+    for(int i=1; i<=history; i++){
+      m=m.above(xbuffer[(tp-i)%buffersize]);
     }
     return m;
   }
@@ -222,7 +245,8 @@ public:
       
       speedsensor->init(sphere->getMainPrimitive());
 
-      controller = new SatNetControl(networkfilename);    
+      //      controller = new SatNetControl(networkfilename);    
+      controller = new SatNetControl_NoY(networkfilename);    
 
       wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
       agent = new OdeAgent ( plotoptions );
