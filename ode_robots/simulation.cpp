@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.66  2007-07-31 08:20:33  martius
+ *   Revision 1.67  2007-08-24 11:52:18  martius
+ *   timer reset on key stroke handling
+ *   different substance callback handling
+ *
+ *   Revision 1.66  2007/07/31 08:20:33  martius
  *   list of spaces for internal collision detection added
  *
  *   Revision 1.65  2007/07/19 15:54:55  martius
@@ -736,8 +740,11 @@ namespace lpzrobots {
     switch(ea.getEventType()) {
     case(osgGA::GUIEventAdapter::KEYDOWN):
       {
-	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);
-	if(handled) break;
+	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);	
+	if(handled) {
+	  resetSyncTimer();
+	  break;
+	}
 	//	printf("Key: %i\n", ea.getKey());
 	switch(ea.getKey()){
 	case 6 : // Ctrl - f
@@ -825,6 +832,7 @@ namespace lpzrobots {
       break;
     case(osgGA::GUIEventAdapter::KEYUP):
       handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);	
+      if(handled) resetSyncTimer();
     default:
       break;
     }
@@ -1094,20 +1102,20 @@ namespace lpzrobots {
       if(n>0){
 	const Substance& s1 = p1->substance;
 	const Substance& s2 = p2->substance;
-	bool have_params = false;
+	int callbackrv = 1;
 	if(s1.callback) {
-	  have_params = s1.callback(surfParams, me->globalData, s1.userdata,
-				    o1, o2, &s1, &s2);
+	  callbackrv = s1.callback(surfParams, me->globalData, s1.userdata, contact, n,
+				   o1, o2, s1, s2);
 	}
-	if(s2.callback && !have_params) {
-	  have_params = s2.callback(surfParams, me->globalData, s2.userdata,
-				    o2, o1, &s2, &s1);
+	if(s2.callback && callbackrv==1) {
+	  callbackrv = s2.callback(surfParams, me->globalData, s2.userdata, contact, n, 
+				    o2, o1, s2, s1 );
 	}
-	if(!have_params){
-	  surfParams = Substance::getSurfaceParams(s1,s2, me->globalData.odeConfig.simStepSize);
+	if(callbackrv==1){
+	  Substance::getSurfaceParams(surfParams, s1,s2, me->globalData.odeConfig.simStepSize);
 	  //Substance::printSurfaceParams(surfParams);
 	}
-	
+	if(callbackrv==0) return;
 	for (i=0; i < n; i++) {
 	  contact[i].surface = surfParams;
 	  dJointID c = dJointCreateContact (me->odeHandle.world,
