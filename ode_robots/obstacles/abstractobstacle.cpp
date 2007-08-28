@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-03-16 11:01:37  martius
+ *   Revision 1.5  2007-08-28 09:24:36  martius
+ *   nonvirtual call in destructor, and FOREACH loop
+ *
+ *   Revision 1.4  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -107,7 +110,7 @@ namespace lpzrobots {
   };
 
   AbstractObstacle::~AbstractObstacle(){
-    if(obstacle_exists) destroy();
+    if(obstacle_exists) AbstractObstacle::destroy();
   }
   
   void AbstractObstacle::update(){
@@ -162,8 +165,8 @@ namespace lpzrobots {
   }
 
   void AbstractObstacle::destroy(){
-    for(unsigned int i=0; i < obst.size(); i++){
-      if(obst[i]) delete(obst[i]);
+    FOREACH(vector<Primitive*>, obst, it){
+      if(*it) delete(*it);
     }
     obst.clear();
     obstacle_exists=false;
