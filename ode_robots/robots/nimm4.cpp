@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-07-14 12:23:40  martius
+ *   Revision 1.9  2007-08-28 14:13:09  martius
+ *   typo
+ *
+ *   Revision 1.8  2006/07/14 12:23:40  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.7.4.17  2006/06/29 16:39:55  robot3
@@ -132,7 +135,7 @@ namespace lpzrobots {
     height=size;  
 
     length=size/2.5; // length of body
-    width=size/2;  // radius of body
+    width=size/2;  // diameter of body
     radius=size/6; // wheel radius
     wheelthickness=size/20; // thickness of the wheels (if wheels used, no spheres)
     cmass=8*size;  // mass of the body
@@ -251,64 +254,6 @@ namespace lpzrobots {
    *  (if not treated) to the default routine).
    */
   bool Nimm4::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    assert(created); // robot must exist
-
-    // checks if one of the collision objects is part of thee space the robot is in 
-    // and therefore part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space){
-      // if the space is involved check for collisions between parts inside the space
-      // this has no meaning here, because collsions between wheels and body are ignored
-      // but if parts of the robot can move against each other this is important
-      dSpaceCollide(odeHandle.space, this, mycallback);
-
-      bool colwithme;   // for collision with some part of the vehicle
-      bool colwithbody; // for collision with the (main) body
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];
-      // extract collision points between the two objects that intersect
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      // for each collision point
-      for (i=0; i<n; i++){
-	// collisions set to false
-	colwithbody = false; 
-	colwithme = false;  
-	// if there is a collision with the body both bools have to be set to true
-	if( contact[i].geom.g1 == object[0]->getGeom() || contact[i].geom.g2 == object[0]->getGeom()){
-	  colwithbody = true;
-	  colwithme = true;
-	}
-	// if there is a collision with one of the wheels only colwithme has to be set true
-	if( isGeomInPrimitiveList(object+1, segmentsno-1, contact[i].geom.g1) || 
-	    isGeomInPrimitiveList(object+1, segmentsno-1, contact[i].geom.g2)){
-	  colwithme = true;
-	}
-	if( colwithme){ // if collision set the contact parameters
-	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	    dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	  contact[i].surface.slip1 = 0.005;
-	  contact[i].surface.slip2 = 0.005;
-	  if(colwithbody){ // if collision with body set small friction
-	    contact[i].surface.mu = 0.1; // small friction of smooth body
-	    contact[i].surface.soft_erp = 0.5;
-	    contact[i].surface.soft_cfm = 0.001;
-	  }else{  // if collision with the wheels set large friction to give wheels grip on the ground
-	    contact[i].surface.mu = 1.1; //large friction
-	    contact[i].surface.soft_erp = 0.9;
-	    contact[i].surface.soft_cfm = 0.001;
-	  }
-	  // create a joint in the world with the properties set above
-	  // (the joint must be put in group "contactgroup", which is deleted 
-	  // after each simulation step, see ode documentation)
-	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	  // attach the intersecting objects to the joint
-	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
-	}
-      }
-      //if collision handled return true
-      return true;
-    }
-    //if collision not handled return false
     return false;
   }
 
@@ -320,9 +265,12 @@ namespace lpzrobots {
     if (created) {  // if robot exists destroy it
       destroy();
     }
-    // create car space and add it to the top level space
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    // create car space with ignored internal collisions
+    odeHandle.createNewSimpleSpace(parentspace, true);
  
+    OdeHandle wheelHandle(odeHandle);
+    wheelHandle.substance.toRubber(40);
+
     // create cylinder for main body
     // initialize it with ode-, osghandle and mass
     // rotate and place body (here by 90° around the y-axis)
@@ -343,7 +291,7 @@ namespace lpzrobots {
       // rotate and place body (here by 90° around the x-axis)
       // set texture for wheels
       Sphere* sph = new Sphere(radius);
-      sph->init(odeHandle, wmass, osgHandle);    
+      sph->init(wheelHandle, wmass, osgHandle);    
       Vec3 wpos = Vec3( ((i-1)/2==0?-1:1)*length/2.0, 
 			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
 			-width*0.6+radius );
@@ -357,7 +305,7 @@ namespace lpzrobots {
       Pos anchor(dBodyGetPosition (object[i+1]->getBody()));
       joint[i] = new Hinge2Joint(object[0], object[i+1], anchor, Axis(0,0,1)*pose, Axis(0,1,0)*pose);
       joint[i]->init(odeHandle, osgHandle, true, 2.01 * radius);
-    }
+    } 
     for (int i=0; i<4; i++) {
       // set stops to make sure wheels always stay in alignment
       joint[i]->setParam(dParamLoStop, 0);
@@ -372,13 +320,13 @@ namespace lpzrobots {
    */
   void Nimm4::destroy(){
     if (created){
-      for (int i=0; i<segmentsno; i++){
-	if(object[i]) delete object[i]; // destroy bodies and geoms
-      }
       for (int i=0; i<4; i++){
 	if(joint[i]) delete joint[i]; // destroy bodies and geoms
       }
-      dSpaceDestroy(odeHandle.space); // destroy space
+      for (int i=0; i<segmentsno; i++){
+	if(object[i]) delete object[i]; // destroy bodies and geoms
+      }
+      odeHandle.deleteSpace(); // destroy space
     }
     created=false; // robot does not exist (anymore)
   }
