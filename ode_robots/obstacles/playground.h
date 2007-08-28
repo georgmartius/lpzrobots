@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-08-24 11:53:10  martius
+ *   Revision 1.17  2007-08-28 09:25:13  martius
+ *   include primitive.h
+ *
+ *   Revision 1.16  2007/08/24 11:53:10  martius
  *   Change geometry
  *
  *   Revision 1.15  2007/07/03 13:06:41  martius
@@ -119,6 +122,7 @@
 
 #include "mathutils.h"
 #include "abstractground.h"
+#include "primitive.h"
  
 namespace lpzrobots {
 
