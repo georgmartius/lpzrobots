@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-07-31 08:36:22  martius
+ *   Revision 1.6  2007-08-29 08:43:58  martius
+ *   create simple space and delete space
+ *
+ *   Revision 1.5  2007/07/31 08:36:22  martius
  *   added a list of spaces for collision control within them
  *
  *   Revision 1.4  2007/07/03 13:04:54  martius
@@ -63,12 +66,30 @@ namespace lpzrobots {
  
     // Create the primary world-space, which is used for collision detection
     space = dHashSpaceCreate (0);
+    dSpaceSetCleanup (space, 0);
     spaces = new std::list<dSpaceID>();
     // the jointGroup is used for collision handling, 
     //  where a lot of joints are created every step
     jointGroup = dJointGroupCreate ( 1000000 );
     ignoredSpaces = new __gnu_cxx::hash_set<long>();
     ignoredPairs  = new __gnu_cxx::hash_set<std::pair<long,long>,geomPairHash >();
+  }
+
+  void OdeHandle::createNewSimpleSpace(dSpaceID parentspace, bool ignore_inside_collisions){
+    space = dSimpleSpaceCreate (parentspace);
+    dSpaceSetCleanup (space, 0);
+    if(ignore_inside_collisions) 
+      addIgnoredSpace(space);
+    else 
+      addSpace(space);
+  }
+
+  void OdeHandle::deleteSpace(){
+    if(isIgnoredSpace(space))
+      removeIgnoredSpace(space);
+    else
+      removeSpace(space);
+    dSpaceDestroy(space);
   }
 
   // sets of ignored geom pairs  and spaces

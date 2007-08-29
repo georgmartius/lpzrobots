@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-07-31 08:37:03  martius
+ *   Revision 1.8  2007-08-29 08:43:50  martius
+ *   create simple space and delete space
+ *
+ *   Revision 1.7  2007/07/31 08:37:03  martius
  *   added a list of spaces for collision control within them
  *
  *   Revision 1.6  2007/07/03 13:04:22  martius
@@ -76,6 +79,14 @@ public:
 
   /// creates world at global space and so on and sets global time pointer.
   void init(double* time); 
+
+  /** use this function to create a new space with optional ignored collisions, 
+      use deleteSpace to destroy it      
+   */
+  void createNewSimpleSpace(dSpaceID parentspace, bool ignore_inside_collisions);
+
+  /// destroys the space and unregisters them in the global lists
+  void deleteSpace();
 
   /** sets of ignored geom pairs  and spaces
    adds a space to the list of ignored spaces for collision detection (i.e within this space there is no collision)
