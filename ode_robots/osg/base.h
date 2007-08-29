@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-09-20 15:30:47  martius
+ *   Revision 1.4  2007-08-29 13:07:48  martius
+ *   added HUD
+ *
+ *   Revision 1.3  2006/09/20 15:30:47  martius
  *   shadowsize, light
  *
  *   Revision 1.2  2006/07/14 12:23:33  martius
@@ -60,6 +63,7 @@
 
 #include<ode/ode.h>
 #include<osg/Transform>
+#include <osgText/Text>
 
 #include "osghandle.h"
 #include "odehandle.h"
@@ -79,25 +83,40 @@ namespace lpzrobots {
 
   class Base {
   public:
+    Base(const char* caption=0)
+      : caption(caption){
+      timestats=0; hud=0;
+    }
+      
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
+    virtual osg::Node* createHUD();
     virtual osg::LightSource* makeLights(osg::StateSet* stateset);  
     virtual osg::Group* createShadowedScene(osg::Node* shadowed,
 					    osg::Vec3 posOfLight, 
 					    unsigned int unit);
 
 
-    virtual ~Base() {}
+    virtual void setCaption(const char* caption) {
+      this->caption = caption;
+    }
+
+    virtual ~Base();
 
   protected:
+    virtual void setTimeStats(double time, double realtimefactor);
+
     dGeomID ground;
 
     osg::Group* root;
+    osg::Node* hud;
+    osgText::Text* timestats;
 
     OsgHandle osgHandle;
     // ODE globals
     OdeHandle odeHandle;
+    const char* caption;
 
     bool useShadow;
     unsigned int shadowTexSize;
