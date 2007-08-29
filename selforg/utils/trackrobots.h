@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-06-21 16:18:57  martius
+ *   Revision 1.7  2007-08-29 11:33:20  martius
+ *   simulation time enters logfile
+ *
+ *   Revision 1.6  2007/06/21 16:18:57  martius
  *   do not free scene -> Segfault
  *
  *   Revision 1.5  2007/04/05 15:14:15  martius
@@ -112,7 +115,7 @@ public:
 
  protected:
   bool open(const AbstractRobot* robot);
-  void track(AbstractRobot* robot);
+  void track(AbstractRobot* robot, double time);
   void close();
 
  protected:

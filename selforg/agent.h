@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-06-21 16:22:17  martius
+ *   Revision 1.17  2007-08-29 11:33:20  martius
+ *   simulation time enters logfile
+ *
+ *   Revision 1.16  2007/06/21 16:22:17  martius
  *   indentation
  *
  *   Revision 1.15  2007/05/07 20:58:21  robot3
@@ -242,12 +245,13 @@ public:
   */
   virtual bool init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring);
 
-  /** Performs an step of the agent, including sensor reading, pushing sensor values through wiring,
-      controller step, pushing controller outputs (= motorcommands) back through wiring and sent
+  /** Performs an step of the agent, including sensor reading, pushing sensor values through the wiring,
+      controller step, pushing controller outputs (= motorcommands) back through the wiring and sent
       resulting motorcommands to robot.
       @param noise Noise strength.
+      @param time (optional) current simulation time (used for logging)
   */
-  virtual void step(double noise);
+  virtual void step(double noise, double time=-1);
 
   /** Sends only last motor commands again to robot.  */
   virtual void onlyControlRobot();
@@ -301,9 +305,10 @@ protected:
    * @param csensornumber length of cx
    * @param y actual motorcommand (generated in the actual timestep)
    * @param motornumber length of y
+   * @param time simulation time
    */
   virtual void plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber,
-		    const motor* y, int motornumber);
+		    const motor* y, int motornumber, double time);
 
 
   AbstractController* controller;

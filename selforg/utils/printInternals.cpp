@@ -52,7 +52,7 @@ void printNetworkDescription(FILE* f, const string& name, const Inspectable* ins
 void printInternalParameterNames(FILE* f,
 				int sensornumber, int motornumber,
 				list<const Inspectable*> inspectables) {
-  fprintf(f,"#C");
+  fprintf(f,"#C t");
   for(int i = 0; i < sensornumber; i++){
     fprintf(f, " x[%i]", i);
   }
@@ -71,11 +71,11 @@ void printInternalParameterNames(FILE* f,
   fprintf(f,"\n"); // terminate line
 }
 
-void printInternalParameters(FILE* f,
+void printInternalParameters(FILE* f, double time,
 			     const sensor* x, int sensornumber,
 			     const motor* y,  int motornumber,
 			     list<const Inspectable*> inspectables){
-
+  fprintf(f, "%f", time);
   for(int i = 0; i < sensornumber; i++){
     fprintf(f, " %f", x[i]);
   }

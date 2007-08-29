@@ -15,7 +15,7 @@ void printInternalParameterNames(FILE* f,
 /** prints the values of the motors and sensors
     and the internal parameters of the inspectable objects to a file or stream
 */
-void printInternalParameters(FILE* f, 
+void printInternalParameters(FILE* f, double time,
 			     const sensor* x, int sensornumber, 
 			     const motor* y,  int motornumber, 
 			     std::list<const Inspectable*> inspectables);

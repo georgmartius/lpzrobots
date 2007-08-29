@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-05 15:14:15  martius
+ *   Revision 1.6  2007-08-29 11:33:20  martius
+ *   simulation time enters logfile
+ *
+ *   Revision 1.5  2007/04/05 15:14:15  martius
  *   angular speed tracking
  *
  *   Revision 1.4  2007/04/04 06:55:35  martius
@@ -76,14 +79,16 @@ bool TrackRobot::open(const AbstractRobot* robot){
     if(trackSpeed) fprintf(file, "vx vy vz wx wy wz");
     if( trackOrientation)  fprintf(file, "o11 o12 o13 o21 o22 o23 o31 o32 o33 ");
     fprintf(file,"\n");  
+    fprintf(file,"# Recorded every %ith time step\n", interval);  
   } 
   return true;
 }
 
-void TrackRobot::track(AbstractRobot* robot) {
+void TrackRobot::track(AbstractRobot* robot, double time) {
   if(!file || !robot) return;
   if(cnt % interval==0){
-    fprintf(file, "%li ", cnt);
+    //   fprintf(file, "%li ", cnt);
+    fprintf(file, "%f ", time);
     if(trackPos){
       Position p = robot->getPosition();
       fprintf(file, "%g %g %g ", p.x, p.y, p.z);

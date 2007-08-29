@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2007-06-21 16:21:58  martius
+ *   Revision 1.20  2007-08-29 11:33:20  martius
+ *   simulation time enters logfile
+ *
+ *   Revision 1.19  2007/06/21 16:21:58  martius
  *   time is written here to logfile
  *
  *   Revision 1.18  2007/06/08 15:49:47  martius
@@ -297,15 +300,16 @@ bool Agent::removePlotOption(PlotMode mode) {
 
 // Plots controller sensor- and motorvalues and internal controller parameters.
 void Agent::plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber,
-		 const motor* y, int motornumber){
+		 const motor* y, int motornumber, double time){
   assert(controller && rx && cx && y);
 
   for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
     if( ((*i).pipe) && (t % (*i).interval == 0) ){
+      
       if((*i).whichSensors == Robot){
-		printInternalParameters((*i).pipe, rx, rsensornumber, y, motornumber, inspectables);
+		printInternalParameters((*i).pipe, time, rx, rsensornumber, y, motornumber, inspectables);
       }else{
-		printInternalParameters((*i).pipe, cx, csensornumber, y, motornumber, inspectables);
+		printInternalParameters((*i).pipe, time, cx, csensornumber, y, motornumber, inspectables);
       }
       if(t% ((*i).interval * 10)) fflush((*i).pipe);
     } // else {
@@ -332,7 +336,8 @@ void Agent::writePlotComment(const char* cmt){
 //  controller step, pushing controller steps back through wiring and sent resulting motorcommands
 //  to robot.
 //  @param noise Noise strength.
-void Agent::step(double noise){
+//  @param time (optional) current simulation time (used for logging)
+void Agent::step(double noise, double time){
   assert(controller && robot && wiring && rsensors && rmotors && csensors && cmotors);
 
   int len =  robot->getSensors(rsensors, rsensornumber);
@@ -345,13 +350,13 @@ void Agent::step(double noise){
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
   robot->setMotors(rmotors, rmotornumber);
-  plot(rsensors, rsensornumber, csensors, csensornumber, cmotors, cmotornumber);
+  plot(rsensors, rsensornumber, csensors, csensornumber, cmotors, cmotornumber,time);
 
-  trackrobot.track(robot);
-	// do a callback for all registered Callbackable classes
-	for(list<Callbackable*>::iterator i = callbackables.begin(); i!= callbackables.end(); i++){
-		(*i)->doOnCallBack();
-	}
+  trackrobot.track(robot, time);
+  // do a callback for all registered Callbackable classes
+  for(list<Callbackable*>::iterator i = callbackables.begin(); i!= callbackables.end(); i++){
+    (*i)->doOnCallBack();
+  }
   t++;
 }
 
