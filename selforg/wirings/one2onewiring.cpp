@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-12-12 09:44:02  martius
+ *   Revision 1.7  2007-08-29 11:32:55  martius
+ *   cleanup
+ *
+ *   Revision 1.6  2006/12/12 09:44:02  martius
  *   corrected wrong commit comment
  *
  *   Revision 1.5  2006/12/11 18:19:02  martius
@@ -84,6 +87,7 @@ One2OneWiring::One2OneWiring(NoiseGenerator* noise, bool plotNoise)
 }
 
 One2OneWiring::~One2OneWiring(){
+  if(noisevals) free(noisevals);
 }
 
 
