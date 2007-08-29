@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-04-13 13:10:28  robot4
+ *   Revision 1.4  2007-08-29 15:18:19  martius
+ *   index starts at 0 for objects
+ *
+ *   Revision 1.3  2007/04/13 13:10:28  robot4
  *   exceptions handled
  *
  *   Revision 1.2  2007/03/26 13:36:58  martius
@@ -307,7 +310,7 @@ bool com_list (GlobalData& globalData, char* line, char* arg) {
     i++;
   }
   printf("Objects --------------(for set and show)\nID: Name\n");
-  
+  i=0;
   FOREACHC(ConfigList, globalData.configs,c){    
     printf(" %2i: %s\n", i, (*c)->getName().c_str());
     i++;
