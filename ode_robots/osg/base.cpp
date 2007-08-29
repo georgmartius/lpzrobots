@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-04-05 15:10:36  martius
+ *   Revision 1.10  2007-08-29 13:08:04  martius
+ *   added HUD with time and caption
+ *
+ *   Revision 1.9  2007/04/05 15:10:36  martius
  *   different ground
  *
  *   Revision 1.8  2007/03/16 11:37:11  martius
@@ -98,6 +101,7 @@
 #include <osg/PolygonOffset>
 #include <osg/CullFace>
 #include <osg/TexGenNode>
+#include <osgText/Font>
 
 #include <osgUtil/CullVisitor>
 
@@ -143,6 +147,15 @@ namespace lpzrobots {
   "    vec4 color = gl_Color* texture2D( baseTexture, gl_TexCoord[0].xy ); \n"
   "    gl_FragColor = color * (ambientBias.x + shadow2DProj( shadowTexture, gl_TexCoord[1])  * ambientBias.y); \n"
   "}\n";
+
+  Base::~Base(){
+    if(ground){
+      //      Plane* plane = (Plane*) dGeomGetData(ground);
+      //      delete plane;
+      dGeomDestroy(ground);
+    }    
+  }
+
   
 
   osg::Group* Base::createShadowedScene(osg::Node* shadowed, 
@@ -271,6 +284,110 @@ namespace lpzrobots {
   }
 
 
+  osg::Node* Base::createHUD()
+  {
+    osg::Geode* geode = new osg::Geode();
+    
+    // turn lighting off for the text and disable depth test to ensure its always ontop.
+    osg::StateSet* stateset = geode->getOrCreateStateSet();
+    stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
+    osgText::Font* font = osgText::readFontFile("fonts/arial.ttf");
+
+    osg::Vec3 position(500.0f,9.0f,0.0f);
+    Color textColor(0.2,0.2,0.0);
+    int fontsize=12;
+
+    {
+      osgText::Text* text = new  osgText::Text;
+      geode->addDrawable( text );
+      text->setCharacterSize(fontsize);
+      text->setFont(font);
+      text->setPosition(position);
+      text->setColor(textColor);
+      text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
+      if(caption) text->setText(caption);
+      else text->setText("lpzrobots Simulator      Martius, Der, Hesse");
+    }    
+    
+    // timing
+    position=osg::Vec3(12.0f,9.0f,0.0f);
+    {
+      timestats = new  osgText::Text;
+      geode->addDrawable( timestats);
+      timestats->setCharacterSize(fontsize);
+      timestats->setFont(font);
+      timestats->setPosition(position);
+      timestats->setColor(textColor);
+      setTimeStats(0,0);
+    }    
+    
+    {
+      osg::Geometry* geom = new osg::Geometry;
+
+      osg::Vec3Array* vertices = new osg::Vec3Array;
+      double xMin=6;
+      double xMax=506;
+      double yMin=6;
+      double yMax=22;
+      double depth=-0.1;
+      vertices->push_back(osg::Vec3(xMin,yMax,depth));
+      vertices->push_back(osg::Vec3(xMin,yMin,depth));
+      vertices->push_back(osg::Vec3(xMax,yMin,depth));
+      vertices->push_back(osg::Vec3(xMax,yMax,depth));
+
+      vertices->push_back(osg::Vec3());
+      geom->setVertexArray(vertices);
+
+      osg::Vec3Array* normals = new osg::Vec3Array;
+      normals->push_back(osg::Vec3(0.0f,0.0f,1.0f));
+      geom->setNormalArray(normals);
+      geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+
+      osg::Vec4Array* colors = new osg::Vec4Array;
+      colors->push_back(osg::Vec4(1.0f,1.0,0.8f,0.5f));
+      geom->setColorArray(colors);
+      geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+      geom->addPrimitiveSet(new osg::DrawArrays(GL_QUADS,0,4));
+        
+      osg::StateSet* stateset = geom->getOrCreateStateSet();
+      stateset->setMode(GL_BLEND,osg::StateAttribute::ON);
+      //stateset->setAttribute(new osg::PolygonOffset(1.0f,1.0f),osg::StateAttribute::ON);
+      stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+
+      geode->addDrawable(geom);
+    }
+
+    osg::CameraNode* camera = new osg::CameraNode;
+
+    // set the projection matrix
+    camera->setProjectionMatrix(osg::Matrix::ortho2D(0,512,0,384));
+
+    // set the view matrix    
+    camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+    camera->setViewMatrix(osg::Matrix::identity());
+
+    // only clear the depth buffer
+    camera->setClearMask(GL_DEPTH_BUFFER_BIT);
+
+    // draw subgraph after main camera view.
+    camera->setRenderOrder(osg::CameraNode::POST_RENDER);
+
+    camera->addChild(geode);
+    
+    return camera;
+  }
+
+  void Base::setTimeStats(double time, double realtimefactor){
+    if(timestats){
+      char buffer[100];
+      int minutes = (int)time/60;
+      sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes, int(time-minutes)%60,realtimefactor);
+      timestats->setText(buffer);
+    }
+  }
+
+
   Group* Base::makeScene(){
     // no database loaded so automatically create Ed Levin Park..
     root = new Group;
@@ -287,6 +404,8 @@ namespace lpzrobots {
     clearNode->addChild(transform);
 
     root->addChild(clearNode);
+    hud = createHUD();
+    if(hud) root->addChild(hud);
     
     // transform's value isn't known until in the cull traversal so its bounding
     // volume can't be determined, therefore culling will be invalid,

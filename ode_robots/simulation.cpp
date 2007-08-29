@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.67  2007-08-24 11:52:18  martius
+ *   Revision 1.68  2007-08-29 13:08:26  martius
+ *   added HUD with time and caption
+ *
+ *   Revision 1.67  2007/08/24 11:52:18  martius
  *   timer reset on key stroke handling
  *   different substance callback handling
  *
@@ -589,15 +592,12 @@ namespace lpzrobots {
 	  
 	  if(!loop()) break;
 	  
-	  if(!noGraphics){
-	    // wait for all cull and draw threads to complete.
-	    viewer->sync();
-	  }
+	  // wait for all cull and draw threads to complete.
+	  viewer->sync();
 	  // update the scene by traversing it with the the update visitor which will
 	  // call all node update callbacks and animations.
 	  viewer->update();
-	  
-	  
+	  	  
 	  // fire off the cull and draw traversals of the scene.
 	  viewer->frame();
 	}
@@ -659,7 +659,7 @@ namespace lpzrobots {
 	// for all agents: robots internal stuff and control step if at controlInterval
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++){
 	  if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ){
-	    (*i)->step(globalData.odeConfig.noise);
+	    (*i)->step(globalData.odeConfig.noise, globalData.time);
 	    (*i)->getRobot()->doInternalStuff(globalData);
 	  }else{
 	    (*i)->onlyControlRobot();
@@ -695,11 +695,9 @@ namespace lpzrobots {
 	  if(cameramanipulator)
 	    cameramanipulator->update();
 	}
+	// update timestats
+	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor);
 
-	// 	// grab frame if in captureing mode
-	// 	if(videostream.opened && !pause){
-	// 	  grabAndWriteFrame(videostream);
-	// 	}
       }
 
     }
@@ -1088,8 +1086,10 @@ namespace lpzrobots {
 		return;
       }
       //cerr << "col:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;
-      Primitive* p1 = (Primitive*)dGeomGetData (o1);
-      Primitive* p2 = (Primitive*)dGeomGetData (o2);
+      //      Primitive* p1 = (Primitive*)dGeomGetData (o1);
+      //      Primitive* p2 = (Primitive*)dGeomGetData (o2);
+      Primitive* p1 = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o1));
+      Primitive* p2 = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o2));
       if(!p1 || !p2) {
 		cerr << "collision detected without primitive\n";
 		return;
