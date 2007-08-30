@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-03-28 07:16:58  martius
+ *   Revision 1.6  2007-08-30 09:46:41  martius
+ *   simulation time
+ *
+ *   Revision 1.5  2007/03/28 07:16:58  martius
  *   trace is drawn thicker
  *
  *   Revision 1.4  2006/12/11 18:11:01  martius
@@ -65,63 +68,59 @@
 
 namespace lpzrobots {
 
-/** Specialised agent for ode robots
- */
+  /** Specialised agent for ode robots
+   */
   class OdeAgent : public Agent {
   public:
-  /** constructor
-   */
-  OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1)  
-    : Agent(plotOption, noisefactor) { tracing_initialized=false; }
-  OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1) 
-    : Agent(plotOptions, noisefactor) {tracing_initialized=false;}
-  /** destructor
-   */
-  virtual ~OdeAgent() {}
+    /** constructor
+     */
+    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1)  
+      : Agent(plotOption, noisefactor) { tracing_initialized=false; }
+    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1) 
+      : Agent(plotOptions, noisefactor) {tracing_initialized=false;}
+    /** destructor
+     */
+    virtual ~OdeAgent() {}
 
-  /** initializes the object with the given controller, robot and wiring
-      and initializes pipe to guilogger
-  */
-  virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring){
-    return Agent::init(controller, robot, wiring);
-  }
+    /** initializes the object with the given controller, robot and wiring
+	and initializes pipe to guilogger
+    */
+    virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring){
+      return Agent::init(controller, robot, wiring);
+    }
 
-  /** Performs an step of the agent, including sensor reading, pushing sensor values through wiring, 
-      controller step, pushing controller outputs (= motorcommands) back through wiring and sent 
-      resulting motorcommands to robot.
-      @param noise Noise strength.
-  */
-  virtual void step(double noise);
+    
+    virtual void step(double noise, double time);
 
-  void internInit(){
-    trace_length=0; // number of past robot positions shown in osg
-  }
+    void internInit(){
+      trace_length=0; // number of past robot positions shown in osg
+    }
 
-  /** 
-   * Returns a pointer to the robot.
-   */
-  virtual OdeRobot* getRobot() { return (OdeRobot*)robot;}
+    /** 
+     * Returns a pointer to the robot.
+     */
+    virtual OdeRobot* getRobot() { return (OdeRobot*)robot;}
 
-  /// gives the number of past robot positions shown as trace in osg
-  virtual int getTraceLength(){return trace_length;}
+    /// gives the number of past robot positions shown as trace in osg
+    virtual int getTraceLength(){return trace_length;}
 
-  /**
-   * initialize tracing in ode
-   * @param tracelength number of past positions shown as trace in osg 
-   * @param tracethickness  thickness of the trace
-   */
-  virtual void init_tracing(int tracelength=1000, double tracethickness=0.01);
+    /**
+     * initialize tracing in ode
+     * @param tracelength number of past positions shown as trace in osg 
+     * @param tracethickness  thickness of the trace
+     */
+    virtual void init_tracing(int tracelength=1000, double tracethickness=0.01);
 
 
   private:
-  int trace_length;
-  double trace_thickness;
-  int counter;
-  bool tracing_initialized;
+    int trace_length;
+    double trace_thickness;
+    int counter;
+    bool tracing_initialized;
 
-  OSGPrimitive** segments; // stores segments(cylinders) of the trace
-  osg::Vec3 lastpos;
-};
+    OSGPrimitive** segments; // stores segments(cylinders) of the trace
+    osg::Vec3 lastpos;
+  };
 
 }
 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-03-28 07:16:37  martius
+ *   Revision 1.6  2007-08-30 09:46:29  martius
+ *   simulation time
+ *
+ *   Revision 1.5  2007/03/28 07:16:37  martius
  *   drawing of tracking trace fixed
  *
  *   Revision 1.4  2006/08/11 15:40:27  martius
@@ -72,8 +75,8 @@ namespace lpzrobots {
 
 
 
-  void OdeAgent::step(double noise){
-    Agent::step(noise);
+  void OdeAgent::step(double noise, double time){
+    Agent::step(noise, time);
     if (trackrobot.isDisplayTrace() && t%10==0){
       if (!tracing_initialized) {
 	init_tracing();
@@ -86,9 +89,6 @@ namespace lpzrobots {
       double len = (pos - lastpos).length();
       if(segments[counter%trace_length]) delete segments[counter%trace_length];
       OSGPrimitive* s = new OSGCylinder(trace_thickness, len);
-//       OsgHandle osgHandle_white=((OdeRobot*)robot)->osgHandle;
-//       osgHandle_white.changeColor(Color(255, 255, 255));
-//       s->init(osgHandle_white, OSGPrimitive::Low);
       s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);
       s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) * 
 		   osg::Matrix::translate(lastpos+(pos - lastpos)/2));
