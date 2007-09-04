@@ -16,7 +16,7 @@ all:
 
 .PHONY: guilogger
 guilogger:
-	cd guilogger && qmake guilogger.pro && make
+	cd guilogger && qmake guilogger.pro && qmake src/src.pro && make
 
 .PHONY: neuronviz
 neuronviz:
