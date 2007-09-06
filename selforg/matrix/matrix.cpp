@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.12  2007-08-22 08:27:58  martius
+// Revision 1.13  2007-09-06 18:52:26  martius
+// write changed (ascii store)
+//
+// Revision 1.12  2007/08/22 08:27:58  martius
 // contrains for reshape relaxed
 //
 // Revision 1.11  2007/06/21 16:29:27  martius
@@ -228,7 +231,7 @@ const int T=0xFF;
   }
   
   bool Matrix::write(FILE* f) const {
-    fprintf(f,"%i %i\n", m,n);
+    fprintf(f,"MATRIX %i %i\n", m,n);
     for(int i=0; i< m*n; i++){
       fprintf(f,"%f ", data[i]);
     }
@@ -238,7 +241,7 @@ const int T=0xFF;
   
   bool Matrix::read(FILE* f) {
     char buffer[128];
-    if(fscanf(f,"%hu %hu\n", &m,&n)!=2)  return false;
+    if(fscanf(f,"MATRIX %hu %hu\n", &m,&n)!=2)  return false;
     allocate();
     for(int i=0; i< m*n; i++){
       if(fscanf(f,"%s ", buffer)!=1) return false;
@@ -266,13 +269,19 @@ const int T=0xFF;
     int dim[2];
     bool rval = false;
     if(fread(dim, sizeof(int), 2, f) == 2){
-      m=dim[0]; 
-      n=dim[1];
-      allocate();
-      unsigned int len = m * n;      
-      if(fread(data, sizeof(D), len, f) == len) {  
-	rval = true;
-      }else fprintf(stderr, "Matrix::restore: cannot read matrix data\n"); 
+      char* buffer = (char*)dim; // hack to check for no-binary format
+      if(buffer[0]=='M' && buffer[1]=='A' && buffer[2]=='T' && buffer[3]=='R' && buffer[4]=='I' && buffer[5]=='X'){
+	fseek(f, -sizeof(int)*2, SEEK_CUR);
+	return read(f);
+      }else{
+	m=dim[0]; 
+	n=dim[1];
+	allocate();
+	unsigned int len = m * n;      
+	if(fread(data, sizeof(D), len, f) == len) {  
+	  rval = true;
+	}else fprintf(stderr, "Matrix::restore: cannot read matrix data\n"); 
+      }
     }else{
       fprintf(stderr, "Matrix::restore: cannot read dimension\n");
     }
