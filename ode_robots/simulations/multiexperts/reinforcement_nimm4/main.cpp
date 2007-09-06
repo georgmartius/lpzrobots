@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-29 15:32:52  martius
+ *   Revision 1.2  2007-09-06 18:49:56  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2007/08/29 15:32:52  martius
  *   reinforcement learning with 4 wheeled
  *
  *   Revision 1.3  2007/08/06 14:25:57  martius
@@ -324,7 +327,7 @@ public:
     wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
     agent = new OdeAgent ( plotoptions );
     agent->init ( multirein , robot , wiring );
-    agent->setTrackOptions(TrackRobot(true,true,false,true,"Labyrint",20));
+//    agent->setTrackOptions(TrackRobot(true,true,false,true,"Labyrint",20));
     global.agents.push_back ( agent );
     
     global.configs.push_back(multirein);

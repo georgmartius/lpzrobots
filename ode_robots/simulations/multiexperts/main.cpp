@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-08-24 11:50:03  martius
+ *   Revision 1.11  2007-09-06 18:48:38  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.10  2007/08/24 11:50:03  martius
  *   with 4 wheeled now
  *
  *   Revision 1.9  2007/08/06 14:25:57  martius
@@ -146,13 +149,18 @@ public:
   AbstractController *controller;
   MultiSat *multisat;
   AbstractGround* playground;
+  Sensor* sensor;
+  int useReinforcement;
   
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     int num_barrels=0;
-    int num_spheres=0; 
-    int num_4wheel=1;          
+    int num_spheres=1;
+    useReinforcement=0; 
+    
+    int num_4wheel=0;          
+    //    useReinforcement=4; 
 
     controller=0;
     multisat=0;
@@ -167,6 +175,7 @@ public:
     bool longsquarecorridor=true; 
 
     playground=0;    
+    sensor=0;
     if(longsquarecorridor){
       playground = new Playground(odeHandle, osgHandle,osg::Vec3(500, 0.2, 1.2 ), 
 				  5000/500, false);
@@ -247,6 +256,7 @@ public:
       // const char* replayfilename="Sphere_long_rich_2_07-07-31.sel.log";
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
       conf.pendularrange  = 0.30; 
+      conf.brake          = 0.1; 
       //      conf.pendularrange  = 0.15; 
       //      conf.motorpowerfactor  = 150;    
       // conf.spheremass  = 1;      
@@ -267,7 +277,7 @@ public:
 	cc.cInit=1.0;
 	//      cc.useSD=true;
 	//controller = new DerController(cc);    
-	controller = new InvertMotorNStep(cc);    
+	controller = new InvertMotorNStep(cc);  
       }else 
 	controller = new ReplayController(replayfilename,true);     
 
@@ -275,7 +285,7 @@ public:
       msc.controller = controller;
       msc.numContext = 3;
       msc.numHidden = 4;
-      msc.numSats   = 20; 
+      msc.numSats   = 1; 
       msc.penalty   = 10.0; 
       msc.eps0      = 0.01;
       msc.deltaMin  = 1/500.0;
@@ -321,23 +331,20 @@ public:
       global.odeConfig.setParam("noise", replay ? 0 : 0.05);
       //****************
       const char* replayfilename="4Wheel_1.sel.log";
-      //const char* replayfilename="Sphere_slow_07-07-18.sel.log";
-      //   const char* replayfilename="Sphere_long_rich_07-07-18.sel.log";
-      // const char* replayfilename="Sphere_long_rich_2_07-07-31.sel.log";
-      // conf.addSensor(new SpeedSensor(5, SpeedSensor::TranslationalRel));
+
       FourWheeledConf fwc = FourWheeled::getDefaultConf();
       //       fwc.irFront=true;
       //       fwc.irBack=true;
       //       fwc.irSide=true;
-      OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "Multi4_2h_Nimm4_nogat_noy_sqrt");        
+      OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "Multi8_2h_Nimm4_nogat_noy_sqrt");        
       AddSensors2RobotAdapter* addsensorrobot = 
 	new AddSensors2RobotAdapter(odeHandle, osgHandle, nimm4);
-      addsensorrobot->addSensor(new SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z));
+      sensor = new SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z);
+      addsensorrobot->addSensor(sensor);
       addsensorrobot->addSensor(new SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X));
       robot = addsensorrobot;
       robot->place ( osg::Matrix::translate(0,0,0.2)); 
-      
-      
+            
       if(!replay){
 	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 	//      DerControllerConf cc = DerController::getDefaultConf();
@@ -352,7 +359,7 @@ public:
       msc.controller = controller;
       msc.numContext = 2;
       msc.numHidden = 2;
-      msc.numSats   = 6; 
+      msc.numSats   = 8; 
       msc.penalty   = 10.0; 
       msc.eps0      = 0.01;
       msc.deltaMin  = 1/100.0;
@@ -395,13 +402,14 @@ public:
 //       matrix::Matrix m(3,1, dBodyGetLinearVel( sphere->getMainPrimitive()->getBody())); 
 //       c->setReinforcement(m.map(abs).elementSum()/3 - 1); 
 //     }
-    
-//     if(robot){
-//       dBodyID b = robot->getMainPrimitive()->getBody();
-//       double brake=-0.25;
-//       const double* vel = dBodyGetAngularVel( b);
-//       dBodyAddTorque ( b , brake*vel[0] , brake*vel[1] , brake*vel[2] );    
-//     }
+    if(useReinforcement==4){ // for FourWheelie
+      InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
+      if(c && sensor){
+ 	double dat[1];
+	sensor->get(dat, 1); 	
+ 	c->setReinforcement(fabs(dat[0])); 
+      }
+    }
 
 
   }
@@ -423,6 +431,20 @@ public:
 	  std::cout << "Please type a filename stem:";
 	  std::cin >> filename;
 	  if(multisat) multisat->storeSats(filename); 
+	  break;
+	case 'l' : 
+	  if(controller){
+	    std::cout << "Controller filename: ";
+	    std::cin >> filename;
+	    {
+	      FILE* f = fopen(filename,"rb");
+	      if(f && controller->restore(f)){
+		printf("Controller restored\n");
+		controller->setParam("epsC",0);
+	      }
+	      else printf("Error occured while restoring contoller\n");	
+	    }
+	  }	  
 	  break;
 	default:
 	  return false;

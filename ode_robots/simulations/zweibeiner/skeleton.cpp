@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-07-31 08:35:28  martius
+ *   Revision 1.3  2007-09-06 18:50:33  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2007/07/31 08:35:28  martius
  *   addSpace
  *
  *   Revision 1.1  2007/07/17 07:25:26  martius
@@ -525,7 +528,7 @@ namespace lpzrobots {
 	if(*i) delete *i;
       }
       objects.clear();
-
+      odeHandle.removeSpace(odeHandle.space);
       dSpaceDestroy(odeHandle.space);
     }
 

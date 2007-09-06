@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2007-08-24 12:00:46  martius
+ *   Revision 1.22  2007-09-06 18:50:10  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.21  2007/08/24 12:00:46  martius
  *   cleaned up a bit
  *
  *   Revision 1.20  2007/07/31 08:33:55  martius
@@ -160,7 +163,7 @@ public:
     int num_barrels=0;
     int num_barrels_test=0;
     int num_spheres=1;
-    useReinforcement=3;
+    useReinforcement=2;
 
     sensor=0;
 
@@ -329,9 +332,9 @@ public:
       sensor = new SpeedSensor(5, SpeedSensor::RotationalRel);
       conf.addSensor(sensor);
       //      conf.addSensor(new SpeedSensor(10));
-      conf.irAxis1=true;
-      conf.irAxis2=true;
-      conf.irAxis3=true;
+      conf.irAxis1=false;
+      conf.irAxis2=false;
+      conf.irAxis3=false;
       //      conf.spheremass   = 1;
       // conf.irRing=true;
       // conf.irSide=true;
@@ -371,8 +374,6 @@ public:
 	controller->setParam("epsC", 0.1);    
 	controller->setParam("epsA", 0.2); // 0.5    	
       }
-      controller->setParam("epsC", 0.02);    
-      controller->setParam("epsA", 0.05);    
       //    controller->setParam("rootE", 1);    
       //    controller->setParam("logaE", 2);    
       controller->setParam("steps", 1);    
@@ -382,14 +383,14 @@ public:
       controller->setParam("sinerate", 15);  
       controller->setParam("phaseshift", 0.45);
     
-      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.2) );
-      //      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), new select_from_to(0,2));
+      // One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.2) );
+      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), new select_from_to(0,2));
       std::list<PlotOption> l;
       l.push_back(PlotOption(GuiLogger, Robot, 5));
-      l.push_back(PlotOption(File, Robot, 1));
-      
+      //      l.push_back(PlotOption(File, Robot, 1));      
       OdeAgent* agent = new OdeAgent ( l );
-      // OdeAgent* agent = new OdeAgent ( plotoptions);
+
+      //       OdeAgent* agent = new OdeAgent ( plotoptions);
       agent->init ( controller , sphere1 , wiring );
       //agent->setTrackOptions(TrackRobot(true, true, false, true, "ZSens", 50));
       global.agents.push_back ( agent );
@@ -409,6 +410,17 @@ public:
 	for(int i=0; i<3; i++) dat[i]=fabs(dat[i]);
  	std::sort(dat,dat+3);
  	double penalty = (dat[0] + dat[1])/(dat[2]+0.01);
+	// 	double penalty = dat[0] + dat[1] + 0.5*sqr(dat[2]-1.2);
+ 	c->setReinforcement(1.0 - penalty); 
+      }
+    }
+    if(useReinforcement==2){ // spinning around axis 1
+      InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
+      if(c && sensor){
+ 	double dat[3];
+	sensor->get(dat, 3);
+	for(int i=0; i<3; i++) dat[i]=fabs(dat[i]);
+ 	double penalty = (dat[1] + dat[2])/(dat[0]+0.01);
 	// 	double penalty = dat[0] + dat[1] + 0.5*sqr(dat[2]-1.2);
  	c->setReinforcement(1.0 - penalty); 
       }
@@ -508,6 +520,7 @@ public:
 int main (int argc, char **argv)
 { 
   ThisSim sim;
+  sim.setCaption("Spherical Robot (lpzrobots Simulator)   Martius,Der 2007");
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
