@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-01-26 12:05:04  martius
+ *   Revision 1.6  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.5  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.4  2006/07/14 12:23:40  martius
@@ -383,7 +386,7 @@ namespace lpzrobots{
       destroy();
     }
     // create vehicle space and add it to parentspace
-    odeHandle.space = dSimpleSpaceCreate(parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,false);
 
     // create base
     object[base] = new Box(base_width, base_width, base_length);
@@ -722,13 +725,13 @@ namespace lpzrobots{
    */
   void MuscledArm::destroy(){
     if (created){
-      for (int i=0; i<NUMParts; i++){
-	if(object[i]) delete object[i];
-      }
       for (int i=0; i<NUMJoints; i++){
 	if(joint[i]) delete joint[i];
       }
-      dSpaceDestroy(odeHandle.space);
+      for (int i=0; i<NUMParts; i++){
+	if(object[i]) delete object[i];
+      }
+      odeHandle.deleteSpace();
     }
     created=false;
   };

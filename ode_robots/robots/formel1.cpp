@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-07-14 12:23:40  martius
+ *   Revision 1.9  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.8  2006/07/14 12:23:40  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.4.4.7  2006/06/29 16:39:55  robot3
@@ -284,7 +287,7 @@ namespace lpzrobots {
       destroy();
     }
     // create car space and add it to the top level space
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,true);
  
     Capsule* cap = new Capsule(width/2, length);
     cap->init(odeHandle, cmass, osgHandle);    
@@ -328,13 +331,13 @@ namespace lpzrobots {
    */
   void Formel1::destroy(){
     if (created){
-      for (int i=0; i<segmentsno; i++){
-	if(object[i]) delete object[i]; // destroy bodies and geoms
-      }
       for (int i=0; i<4; i++){
 	if(joint[i]) delete joint[i]; // destroy bodies and geoms
       }
-      dSpaceDestroy(odeHandle.space); // destroy space
+      for (int i=0; i<segmentsno; i++){
+	if(object[i]) delete object[i]; // destroy bodies and geoms
+      }
+      odeHandle.deleteSpace();
     }
     created=false; // robot does not exist (anymore)
   }

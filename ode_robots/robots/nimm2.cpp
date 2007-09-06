@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.33  2007-08-23 15:53:14  martius
+ *   Revision 1.34  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.33  2007/08/23 15:53:14  martius
  *   rubber wheels
  *
  *   Revision 1.32  2007/08/23 15:40:27  martius
@@ -400,7 +403,7 @@ namespace lpzrobots {
 
     // create vehicle space and add it to the top level space
     // robot will be inserted in the vehicle space
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,true);
 
     OdeHandle wheelHandle(odeHandle);
     wheelHandle.substance.toRubber(40);
@@ -561,7 +564,7 @@ namespace lpzrobots {
       for (int i=0; i<3; i++){ 
 	if(object[i]) delete object[i];
       }
-      dSpaceDestroy(odeHandle.space);
+      odeHandle.deleteSpace();
     }
     created=false;
   }

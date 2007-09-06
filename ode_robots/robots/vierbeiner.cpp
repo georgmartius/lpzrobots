@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-07-12 18:05:13  martius
+ *   Revision 1.6  2007-09-06 18:48:00  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.5  2007/07/12 18:05:13  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2007/07/03 12:59:57  martius
@@ -236,7 +239,7 @@ namespace lpzrobots {
       destroy();
     }
     
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,false);
     OsgHandle osgHandleJ = osgHandle.changeColor(Color(1.0,0.0,0.0));
     HingeJoint* j;
     HingeServo* servo;
@@ -442,7 +445,7 @@ namespace lpzrobots {
       }
       objects.clear();
 
-      dSpaceDestroy(odeHandle.space);
+      odeHandle.deleteSpace();
     }
 
     created=false;

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-24 11:49:25  martius
+ *   Revision 1.2  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.1  2007/08/24 11:49:25  martius
  *   initial
  *
  *                                                                 *
@@ -87,7 +90,7 @@ namespace lpzrobots {
      * front left
      * front right
      * right middle
-     * rear rigth
+     * rear right
      * rear left
      * left  middle
     */
@@ -133,9 +136,9 @@ namespace lpzrobots {
   /** destroys vehicle and space
    */
   void FourWheeled::destroy(){
-    Nimm4::destroy();
     if (created)
       irSensorBank.clear();
+    Nimm4::destroy();
   }
 
 }

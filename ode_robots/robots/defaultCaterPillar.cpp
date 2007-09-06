@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-04 15:07:27  martius
+ *   Revision 1.4  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.3  2006/08/04 15:07:27  martius
  *   documentation
  *
  *   Revision 1.2  2006/07/14 12:23:39  martius
@@ -240,7 +243,7 @@ namespace lpzrobots {
       destroy();
     }
     
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,false);
 	
     int half = conf.segmNumber/2;
 
@@ -262,19 +265,19 @@ namespace lpzrobots {
    */
   void DefaultCaterPillar::destroy(){
     if (created){
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
-	if(*i) delete *i;
-      }
-      objects.clear();
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();
       for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
 	if(*i) delete *i;
       }
       frictionmotors.clear();
-      dSpaceDestroy(odeHandle.space);
+      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
+	if(*i) delete *i;
+      }
+      joints.clear();
+      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
+	if(*i) delete *i;
+      }
+      objects.clear();
+      odeHandle.deleteSpace();
     }
     created=false;
   }

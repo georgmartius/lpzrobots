@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-09-20 09:14:47  robot8
+ *   Revision 1.6  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.5  2006/09/20 09:14:47  robot8
  *   - wheelie robots updated:
  *   -added biger chain  elements on every 4th position of the robots primitive, starting with the second primitive
  *   - normal wheelies Hinge Joints became less limited so they have more possibilities to move
@@ -218,7 +221,7 @@ namespace lpzrobots {
       destroy();
     }
     
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,false);
 	
     // annular positioning
     for(int n = 0; n < conf.segmNumber; n++) {
@@ -242,19 +245,19 @@ namespace lpzrobots {
    */
   void DefaultWheelie::destroy(){
     if (created){
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
-	if(*i) delete *i;
-      }
-      objects.clear();
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();
       for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
 	if(*i) delete *i;
       }
       frictionmotors.clear();
-      dSpaceDestroy(odeHandle.space);
+      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
+	if(*i) delete *i;
+      }
+      joints.clear();
+      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
+	if(*i) delete *i;
+      }
+      objects.clear();
+      odeHandle.deleteSpace();
     }
     created=false;
   }

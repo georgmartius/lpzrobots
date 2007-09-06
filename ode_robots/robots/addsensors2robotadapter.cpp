@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-24 11:49:06  martius
+ *   Revision 1.2  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.1  2007/08/24 11:49:06  martius
  *   initial
  *
  *                                                                 *
@@ -52,6 +55,7 @@ namespace lpzrobots {
       if(*i) delete *i;
     }    
     sensors.clear();
+    delete robot;
   }
 
   void AddSensors2RobotAdapter::addSensor(Sensor* sensor){

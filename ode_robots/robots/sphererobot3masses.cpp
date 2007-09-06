@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-08-24 11:57:30  martius
+ *   Revision 1.17  2007-09-06 18:48:00  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.16  2007/08/24 11:57:30  martius
  *   additional sensors can be before or after motor and ir sensors
  *
  *   Revision 1.15  2007/07/17 07:22:28  martius
@@ -180,6 +183,7 @@ namespace lpzrobots {
   Sphererobot3Masses::~Sphererobot3Masses()
   {
     destroy(); 
+    if(conf.irSensorTempl) delete conf.irSensorTempl;
   }
 
   void Sphererobot3Masses::update()
@@ -257,6 +261,10 @@ namespace lpzrobots {
     if(fabs(vel[2])>0.2){
       dBodyAddTorque ( b , 0 , 0 , -0.05*friction*vel[2] );
     }
+    // deaccelerates the robot
+    if(conf.brake){
+      dBodyAddTorque ( b , -conf.brake*vel[0] , -conf.brake*vel[1] , -conf.brake*vel[2] );    
+    }
 
     irSensorBank.reset();
   }
@@ -333,7 +341,7 @@ namespace lpzrobots {
     }
 
     // create vehicle space and add it to the top level space
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,true);
     Color c(osgHandle.color);
     c.alpha() = transparency;
     OsgHandle osgHandle_Base = osgHandle.changeColor(c);
@@ -384,18 +392,20 @@ namespace lpzrobots {
     double sensorrange = conf.irsensorscale * conf.diameter;
     RaySensor::rayDrawMode drawMode = conf.drawIRs ? RaySensor::drawAll : RaySensor::drawSensor;
     double sensors_inside=0.02;
-
+    if(conf.irSensorTempl==0){
+      conf.irSensorTempl=new IRSensor(conf.irCharacter);
+    }
     irSensorBank.init(odeHandle, osgHandle );
     if (conf.irAxis1){
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor(conf.irCharacter);
+	RaySensor* sensor = conf.irSensorTempl->clone();
 	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * Matrix::translate(0,-i*(conf.diameter/2-sensors_inside),0 );
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irAxis2){
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor(conf.irCharacter);
+	RaySensor* sensor = conf.irSensorTempl->clone();
 	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * Matrix::translate(i*(conf.diameter/2-sensors_inside),0,0 );
 	//	dRFromEulerAngles(R,i*M_PI/2,-i*M_PI/2,0);      
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
@@ -403,21 +413,21 @@ namespace lpzrobots {
     }
     if (conf.irAxis3){
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor(conf.irCharacter);
+	RaySensor* sensor = conf.irSensorTempl->clone();
 	Matrix R = Matrix::rotate( i==1 ? 0 : M_PI, 1, 0, 0) * Matrix::translate(0,0,i*(conf.diameter/2-sensors_inside));
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irRing){
       for(double i=0; i<2*M_PI; i+=M_PI/6){  // 12 sensors
-	IRSensor* sensor = new IRSensor(conf.irCharacter);
+	RaySensor* sensor = conf.irSensorTempl->clone();
 	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * Matrix::rotate( i, 0, 1, 0);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irSide){
       for(double i=0; i<2*M_PI; i+=M_PI/2){
-	IRSensor* sensor = new IRSensor(conf.irCharacter);
+	RaySensor* sensor = conf.irSensorTempl->clone();
 	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * Matrix::rotate( M_PI/2-M_PI/8, 1, 0, 0) *  Matrix::rotate( i, 0, 1, 0);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode); 
 	sensor = new IRSensor(conf.irCharacter);// and the other side	
@@ -446,7 +456,7 @@ namespace lpzrobots {
 	if(object[i]) delete object[i];
       }
       irSensorBank.clear();
-      dSpaceDestroy(odeHandle.space);
+      odeHandle.deleteSpace();
     }
     created=false;
   }

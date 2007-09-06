@@ -301,7 +301,7 @@ namespace lpzrobots{
    
     // create vehicle space & add to parentspace
     // robot will be inserted in the vehicle space
-    odeHandle.space = dSimpleSpaceCreate(parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,false);
 		
     // ======= OBJECTS AND JOINTS AND MOTORS ========
 
@@ -499,7 +499,7 @@ namespace lpzrobots{
 	}
       objects.clear();
       
-      dSpaceDestroy(odeHandle.space);
+      odeHandle.deleteSpace();
     }
     created=false;
   };

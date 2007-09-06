@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-07-17 07:22:28  martius
+ *   Revision 1.3  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.2  2007/07/17 07:22:28  martius
  *   removed invisible primitives
  *
  *   Revision 1.1  2007/01/18 14:43:35  robot3
@@ -105,7 +108,7 @@ namespace lpzrobots {
     }
 
     // create vehicle space and add it to the top level space
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,true);
     Color c(osgHandle.color);
     c.alpha() = transparency;
     OsgHandle osgHandle_Base = osgHandle.changeColor(c);

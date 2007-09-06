@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-07-03 13:05:23  martius
+ *   Revision 1.12  2007-09-06 18:48:00  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.11  2007/07/03 13:05:23  martius
  *   new servo constants
  *
  *   Revision 1.10  2007/03/30 17:52:28  martius
@@ -148,7 +151,7 @@ namespace lpzrobots {
       destroy();
     }
     
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,false);
     //    odeHandle.substance.toRubber(10);
 	
     vector<Pos> ancors;
@@ -230,19 +233,10 @@ namespace lpzrobots {
    */
   void SliderWheelie::destroy() {
    if(created) {
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
-	if(*i) delete *i;
-      }
-      objects.clear();
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();
       for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
 	if(*i) delete *i;
       }
       frictionmotors.clear();
-      dSpaceDestroy(odeHandle.space);
 
       for (vector<HingeServo*>::iterator i = hingeServos.begin(); i!= hingeServos.end(); i++) {
 	if(*i) delete *i;
@@ -253,6 +247,15 @@ namespace lpzrobots {
       }
       hingeServos.clear();
       sliderServos.clear();
+      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
+	if(*i) delete *i;
+      }
+      joints.clear();
+      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
+	if(*i) delete *i;
+      }
+      objects.clear();
+      odeHandle.deleteSpace();
    }
   }
 

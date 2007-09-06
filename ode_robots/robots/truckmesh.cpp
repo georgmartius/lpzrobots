@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-31 08:19:17  martius
+ *   Revision 1.5  2007-09-06 18:48:00  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.4  2007/07/31 08:19:17  martius
  *   mesh without global
  *
  *   Revision 1.3  2006/09/21 22:09:58  martius
@@ -282,7 +285,7 @@ namespace lpzrobots {
       destroy();
     }
     // create car space and add it to the top level space
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,true);
  
     // create mesh for main body
     // initialize it with ode-, osghandle and mass
@@ -350,13 +353,13 @@ namespace lpzrobots {
    */
   void TruckMesh::destroy(){
     if (created){
-      for (int i=0; i<segmentsno; i++){
-	if(object[i]) delete object[i]; // destroy bodies and geoms
-      }
       for (int i=0; i<4; i++){
 	if(joint[i]) delete joint[i]; // destroy bodies and geoms
       }
-      dSpaceDestroy(odeHandle.space); // destroy space
+      for (int i=0; i<segmentsno; i++){
+	if(object[i]) delete object[i]; // destroy bodies and geoms
+      }
+      odeHandle.deleteSpace();
     }
     created=false; // robot does not exist (anymore)
   }

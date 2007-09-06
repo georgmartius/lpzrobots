@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-07-14 12:23:41  martius
+ *   Revision 1.7  2007-09-06 18:48:00  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.6  2006/07/14 12:23:41  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.5.4.13  2006/06/25 16:57:14  martius
@@ -112,7 +115,9 @@ namespace lpzrobots {
     Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const std::string& name,
 	  double size=1, double force=3, double speed=15, bool sphereWheels=true);
 
-    virtual ~Nimm4(){};
+    virtual ~Nimm4(){
+      destroy();
+    };
 
     /**
      * updates the OSG nodes of the vehicle

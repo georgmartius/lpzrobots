@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-02-13 19:32:20  martius
+ *   Revision 1.6  2007-09-06 18:48:00  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.5  2007/02/13 19:32:20  martius
  *   twoaxisservo
  *
  *   Revision 1.4  2007/01/26 12:05:05  martius
@@ -186,7 +189,7 @@ namespace lpzrobots {
       destroy();
     }
     
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,true);
 
     // create body
     Primitive* trunk;
@@ -242,19 +245,19 @@ namespace lpzrobots {
    */
   void Uwo::destroy(){
     if (created){
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-	if(*i) delete *i;
-      }
-      objects.clear();
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();
       for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
 	if(*i) delete *i;
       }
       servos.clear();
-      dSpaceDestroy(odeHandle.space);
+      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
+	if(*i) delete *i;
+      }
+      joints.clear();
+      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
+	if(*i) delete *i;
+      }
+      objects.clear();
+      odeHandle.deleteSpace();
     }
     created=false;
   }

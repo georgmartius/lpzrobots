@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-06-28 11:25:36  fhesse
+ *   Revision 1.17  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.16  2007/06/28 11:25:36  fhesse
  *   dBodyAddRelForce() as comment in  setMotors to check later
  *
  *   Revision 1.15  2006/10/20 14:25:07  martius
@@ -292,7 +295,7 @@ namespace lpzrobots {
       destroy();
     }
     // create vehicle space and add it to parentspace
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,true);
 
     for (int i=0; i<NUM; i++) {
       object[i] = new Sphere(RADIUS);      
@@ -322,13 +325,13 @@ namespace lpzrobots {
    */
   void HurlingSnake::destroy(){
     if (created){
-      for (int i=0; i<NUM; i++){
-	if(object[i]) delete object[i];
-      }
       for (int i=0; i<NUM-1; i++){
 	if(joint[i]) delete joint[i];
       }
-      dSpaceDestroy(odeHandle.space);
+      for (int i=0; i<NUM; i++){
+	if(object[i]) delete object[i];
+      }
+      odeHandle.deleteSpace();
     }
     created=false;
   }

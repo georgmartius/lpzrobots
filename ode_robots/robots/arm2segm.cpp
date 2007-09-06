@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-08-11 15:44:52  martius
+ *   Revision 1.11  2007-09-06 18:47:59  martius
+ *   createNewSimpleSpace used
+ *
+ *   Revision 1.10  2006/08/11 15:44:52  martius
  *   *** empty log message ***
  *
  *   Revision 1.9  2006/08/04 15:07:27  martius
@@ -233,7 +236,7 @@ namespace lpzrobots{
     }
     
     // create vehicle space and add it to parentspace
-    odeHandle.space = dSimpleSpaceCreate (parentspace);
+    odeHandle.createNewSimpleSpace(parentspace,false);
 
     // create base
     Primitive* o = new Box(conf.base_length, conf.base_width, conf.base_length);
@@ -303,19 +306,19 @@ namespace lpzrobots{
    */
   void Arm2Segm::destroy(){
     if (created){
-      for (vector<Primitive*>::iterator i=objects.begin(); i!=objects.end(); i++){
-	if (*i) delete *i;
-      }
-      objects.clear();
-      for (vector<Joint*>::iterator i=joints.begin(); i!=joints.end(); i++){
-	if (*i) delete *i;
-      }
-      joints.clear();
       for (vector<AngularMotor1Axis*>::iterator i=amotors.begin(); i!=amotors.end(); i++){
 	if (*i) delete *i;
       }
       amotors.clear();
-      dSpaceDestroy(odeHandle.space);
+      for (vector<Joint*>::iterator i=joints.begin(); i!=joints.end(); i++){
+	if (*i) delete *i;
+      }
+      joints.clear();
+      for (vector<Primitive*>::iterator i=objects.begin(); i!=objects.end(); i++){
+	if (*i) delete *i;
+      }
+      objects.clear();
+      odeHandle.deleteSpace();
     }
     created=false;
   };
