@@ -530,7 +530,7 @@ int main(int argc, char** argv){
 
   vector<Xbee> xbees;
   xbees.push_back(Xbee(1));
-  xbees.push_back(Xbee(2));
+//  xbees.push_back(Xbee(2));
 
   // AbstractController* controller = new InvertMotorSpace(10);
   AbstractController* controller = new SineController();
