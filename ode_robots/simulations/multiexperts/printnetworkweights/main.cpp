@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-24 11:59:44  martius
+ *   Revision 1.2  2007-09-06 18:48:55  martius
+ *   print also matrices
+ *
+ *   Revision 1.1  2007/08/24 11:59:44  martius
  *   *** empty log message ***
  *
  *
@@ -45,7 +48,7 @@ int main (int argc, char **argv)
     MultiLayerFFNN* net;
     
     net = new MultiLayerFFNN(0, std::vector<Layer>());
-    FILE* f = fopen(argv[1],"r");
+    FILE* f = fopen(argv[1],"rb");
     if(!f){
       fprintf(stderr, "cannot open file: %s\n", argv[1]);
       exit(1);
@@ -53,13 +56,23 @@ int main (int argc, char **argv)
     assert(net->restore(f));
     fclose(f);
     unsigned int ls=net->getLayerNum();
-    char buffer[256];
+    char buffer[1024];
     for(unsigned int i=0; i<ls;i++){
       const Matrix& m = net->getWeights(i);
       const Matrix& b = net->getBias(i);
       m.write(stdout);
       b.write(stdout);
     }
+    // also write it in Ascii
+    sprintf(buffer,"%s.ascii",argv[1]);
+    f = fopen(buffer,"w");
+    if(!f){
+      fprintf(stderr, "cannot write file: %s\n", buffer);
+      exit(1);
+    }
+    assert(net->write(f));
+    fclose(f);
+    
 
     return 0;
   }
