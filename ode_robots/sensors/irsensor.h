@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-08-24 11:57:48  martius
+ *   Revision 1.13  2007-09-06 18:48:29  martius
+ *   clone function (a bit like a factory)
+ *
+ *   Revision 1.12  2007/08/24 11:57:48  martius
  *   some forward declaration
  *
  *   Revision 1.11  2007/08/23 15:39:05  martius
@@ -120,6 +123,8 @@ namespace lpzrobots {
     virtual void setRange(float range);
 
     virtual void setLength(float len);
+
+    virtual RaySensor* clone() const;
 
     /// returns the exponent of the sensor characteritic (default: 1 (linear))
     double getExponent () const { return exponent;} 

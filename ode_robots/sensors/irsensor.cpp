@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-08-24 12:48:04  martius
+ *   Revision 1.11  2007-09-06 18:48:29  martius
+ *   clone function (a bit like a factory)
+ *
+ *   Revision 1.10  2007/08/24 12:48:04  martius
  *   tranformation for sensor body fixed
  *
  *   Revision 1.9  2007/08/23 15:39:05  martius
@@ -112,6 +115,11 @@ namespace lpzrobots {
     //   dGeomDestroy(transform);     
     //   if(sensorRay) delete sensorRay;
     if(sensorBody) delete sensorBody;
+  }
+
+  RaySensor* IRSensor::clone() const {
+    IRSensor* w = new IRSensor(exponent);
+    return (RaySensor*)w;
   }
 
   void IRSensor::init(const OdeHandle& odeHandle,

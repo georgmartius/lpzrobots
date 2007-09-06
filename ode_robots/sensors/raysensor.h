@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-08-23 15:39:05  martius
+ *   Revision 1.9  2007-09-06 18:48:29  martius
+ *   clone function (a bit like a factory)
+ *
+ *   Revision 1.8  2007/08/23 15:39:05  martius
  *   new IR sensor schema which uses substances and callbacks, very nice
  *
  *   Revision 1.7  2006/09/20 12:56:28  martius
@@ -80,6 +83,9 @@ public:
 
   RaySensor() {}
   virtual ~RaySensor(){}
+  
+  // should create a copy if this, without initialisation
+  virtual RaySensor* clone() const = 0;
   
   /** providing essential information
       @param odeHandle OdeHandle
