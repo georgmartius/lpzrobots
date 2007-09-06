@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-08-27 12:27:35  martius
+ *   Revision 1.11  2007-09-06 18:46:41  martius
+ *   printContours
+ *
+ *   Revision 1.10  2007/08/27 12:27:35  martius
  *   *** empty log message ***
  *
  *   Revision 1.9  2007/08/24 11:53:10  martius
@@ -84,7 +87,10 @@
 #include "abstractground.h"
 
 #include "primitive.h"
+#include "pos.h"
 #include "osgprimitive.h"
+#include <selforg/stl_adds.h>
+#include <assert.h>
 #include <iostream>
 
 
@@ -188,5 +194,42 @@ namespace lpzrobots {
       obst.push_back(groundPlane);
     }
   }
+
+
+  void printCornerPointsXY(Box* box, FILE* f){
+    OSGBox* obox = (OSGBox*)box->getOSGPrimitive();
+    std::list<Pos> ps;
+    Pos dim = obox->getDim();
+    ps.push_back(Pos(dim.x()*  0.5, dim.y()*  0.5,0));
+    ps.push_back(Pos(dim.x()*  0.5, dim.y()* -0.5,0));
+    ps.push_back(Pos(dim.x()* -0.5, dim.y()* -0.5,0));
+    ps.push_back(Pos(dim.x()* -0.5, dim.y()*  0.5,0));
+//     for(int i=0; i<8; i++){
+//       ps.push_back(Pos(dim.x()*( (i&4) ? 0.5: -0.5),dim.y()*( (i&2) ? 0.5: -0.5),dim.z()*( (i&1) ? 0.5: -0.5)));
+//     }
+    // transform them into global coords
+    FOREACH(std::list<Pos>, ps, p){
+      *p = (*p) * box->getPose();
+    }
+    FOREACHC(std::list<Pos>, ps, p){
+      fprintf(f,"%f %f\n",p->x(),p->y());
+    }
+    fprintf(f,"%f %f\n",ps.begin()->x(),ps.begin()->y());    
+  }
+
+
+  void AbstractGround::printContours(FILE* f){
+    assert(f);
+    FOREACH(std::vector<Primitive*>, obst, o){
+      Box* b= dynamic_cast<Box*>(*o);
+      if(b){
+	printCornerPointsXY(b, f);
+	fprintf(f, "\n\n");
+      }
+    }
+  }
+
+
+
   
 }

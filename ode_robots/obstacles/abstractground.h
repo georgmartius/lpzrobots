@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-08-24 11:53:10  martius
+ *   Revision 1.8  2007-09-06 18:46:41  martius
+ *   printContours
+ *
+ *   Revision 1.7  2007/08/24 11:53:10  martius
  *   Change geometry
  *
  *   Revision 1.6  2007/07/03 13:06:41  martius
@@ -106,6 +109,9 @@ public:
     virtual Primitive* getMainPrimitive() const;
 
     virtual void changeGeometry(double length, double width, double height, double factorxy);
+    
+    /// prints the contour of the boxes into the file
+    virtual void printContours(FILE* f);
 
     /**
      * assigns the texture to the object

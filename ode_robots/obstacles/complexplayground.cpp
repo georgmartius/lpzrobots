@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-28 09:23:20  martius
+ *   Revision 1.2  2007-09-06 18:46:41  martius
+ *   printContours
+ *
+ *   Revision 1.1  2007/08/28 09:23:20  martius
  *   initial
  *
  *
@@ -85,8 +88,10 @@ namespace lpzrobots {
     }
     printf("\n");
   }
-  
 
+
+
+  
   ComplexPlayground::ComplexPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
 				       const string filename,
 				       double factor, double heightfactor, bool createGround)
@@ -112,9 +117,9 @@ namespace lpzrobots {
 	lines.pop_front();
       }
     }
-    FOREACH(list<PolyLine>, polylines, p){
-      p->print();
-    }
+//     FOREACH(list<PolyLine>, polylines, p){
+//       p->print();
+//     }
   };
 
 
@@ -176,5 +181,4 @@ namespace lpzrobots {
       obst.push_back(box);
     }
   }
-
 }
