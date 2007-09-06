@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-08-23 15:33:19  martius
+ *   Revision 1.15  2007-09-06 18:47:17  martius
+ *   deletion of geom now here again
+ *
+ *   Revision 1.14  2007/08/23 15:33:19  martius
  *   geoms are actually destroyed by DestroySpace
  *
  *   Revision 1.13  2007/08/23 14:52:07  martius
@@ -186,7 +189,7 @@ namespace lpzrobots{
   }
 
   Primitive::~Primitive () {
-    //     if(geom) dGeomDestroy( geom );  // this is automatically cleaned up by deletion of the space
+    if(geom) dGeomDestroy( geom );
     if(body) dBodyDestroy( body );
   }
 
