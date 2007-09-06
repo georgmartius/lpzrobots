@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-08-24 11:55:54  martius
+ *   Revision 1.6  2007-09-06 18:47:28  martius
+ *   assert
+ *
+ *   Revision 1.5  2007/08/24 11:55:54  martius
  *   collision callbacks get more information
  *
  *   Revision 1.4  2007/07/17 07:21:16  martius
@@ -47,6 +50,7 @@
 #include "substance.h" 
 #include "globaldata.h"
 #include <iostream>
+#include <assert.h>
 using namespace std;
 
 namespace lpzrobots {
@@ -63,6 +67,7 @@ namespace lpzrobots {
   }
 
   void Substance::setCollisionCallback(CollisionCallback func, void* userdata_){
+    assert(func);
     callback = func;
     userdata=userdata_;
   }
