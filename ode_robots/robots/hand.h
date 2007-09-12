@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-12 11:23:11  fhesse
+ *   Revision 1.2  2007-09-12 14:25:44  fhesse
+ *   collisionCallback() emtied
+ *   comments added
+ *   started cleaning up
+ *
+ *   Revision 1.1  2007/09/12 11:23:11  fhesse
  *   moved from simulation/hand to here (to oderobots/robot)
  *
  *   Revision 1.4  2007/07/05 11:20:02  robot6
@@ -167,10 +172,13 @@ double velocity;
   class Hand : public OdeRobot{
   public:
 
+    /**
+     * constructor of hand
+     * @param odeHandle data structure for accessing ODE
+     * @param osgHandle ata structure for accessing OSG
+     * @param conf configuration of robot
+     */
     Hand(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const HandConf& conf, const std::string& name);
-
-    //  Hand(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const string& name);
-
 
     static HandConf getDefaultConf()
       {
@@ -199,23 +207,25 @@ double velocity;
 	return conf;
       }
 
-    /**
-     * Constructor
-     */
   
-    /// update the subcomponents
+    /** 
+     * update the subcomponents
+     */
     virtual void update();
 
-    /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
-    */
+    /** 
+     * sets the pose of the vehicle
+     * @param pose desired 4x4 pose matrix
+     */
     virtual void place(const osg::Matrix& pose);
 
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
-     *  else false (collision is passed to other objects and (if not treated) to the default routine).
+    /** 
+     * checks for internal collisions and treats them. 
+     * In case of a treatment return true (collision will be ignored by other objects and the default routine)
+     * else false (collision is passed to other objects and (if not treated) to the default routine).
      */
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
+
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
@@ -250,20 +260,32 @@ double velocity;
     */
     //  virtual int getSegmentsPosition(vector<Position> &poslist);
   
-    /** The list of all parameters with there value as allocated lists.       
+    /** 
+     * The list of all parameters with their value as allocated lists.       
      */
     virtual paramlist getParamList() const;
   
+    /** 
+     * Returns the value of the given parameter.       
+     * @param key name of the parameter
+     */
     virtual paramval getParam(const paramkey& key) const;
 
+    /** 
+     * Sets the values of the given parameter.       
+     * @param key name of the parameter
+     * @param val value to which the parameter will be set
+     */
     virtual bool setParam(const paramkey& key, paramval val);
 
+
   protected:
-    /** the main object of the robot, which is used for position and speed tracking */
+    /** 
+     * Returns the palm as the main object of the robot, 
+     * which is used for position and speed tracking.
+     */
     virtual Primitive* getMainPrimitive() const {
       if(!objects.empty()){
-	//      int half = objects.size()/2;
-	//      return (objects[half]);
 	return (objects[1]);
       }else return 0;
     }
@@ -271,66 +293,81 @@ double velocity;
 
   private:
 
-    /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
-    */
+    /** 
+     * creates the hand at the desired pose
+     * @param pose 4x4 pose matrix
+     */
     virtual void create(const osg::Matrix& pose); 
 
-    /** destroys robot and space
+    /** 
+     * destroys robot and space
      */
     virtual void destroy();
 
     static void mycallback(void *data, dGeomID o1, dGeomID o2);
        
-    bool created;      // true if robot was created
+    /** true if robot was created */
+    bool created;      
 
   protected:
 
+    /** configuration of hand */
     HandConf conf;
+
+    /** vector containing Primitives */
     std::vector <Primitive*> objects;
+    /** vector containing OSGPrimitives */
     std::vector <OSGPrimitive*> osg_objects;
+    /** vector containing Primitivesinfrared sensors */
     std::vector <IRSensor*> ir_sensors;
+
+    /** true if contact joint is created  */
     bool contact_joint_created;
 
     //std::vector <HingeServo*> servos;
     //objects.reserve(number_beams);
 
+    /** vector of the joints used in hand */
     std::vector <Joint*> joints;
 
+    /** vector of the angular motors */
     std::vector <AngularMotor*> frictionmotors;
+
+    /** vector of the used hinge servos*/
     std::vector <HingeServo*> servos;
-    RaySensorBank irSensorBank; // a collection of ir sensors
+
+    /**  a collection of ir sensors */
+    RaySensorBank irSensorBank; 
 
 
     Primitive* p;
     Joint* j;
 
-    //Beam beam[number_beams]; // array of elements (rectangle and cylinders)
-    dSpaceID hand_space;     // space containing the hand
-    //dJointID joint[number_joints];  // array containg "normal" joints for connecting the elementsconf
+    /** space containing the hand */
+    dSpaceID hand_space;     
 
+    //Beam beam[number_beams]; // array of elements (rectangle and cylinders)
+    //dJointID joint[number_joints];  // array containg "normal" joints for connecting the elementsconf
     //dJointID fix_joint[number_fix_joints]; //joints for keeping index, middle, ring and little finger together to achieve mor prosthetic like motion
 
-    // two motorjoints for actuating the two ball joints (forearm_palm and palm_thumb)
+    /** motorjoint for actuating the forearm_palm joint (ball joint) */
     AngularMotor* palm_motor_joint;
+
+    /** motorjoint for actuating the palm_thumb joint (ball joint) */
     AngularMotor* thumb_motor_joint;
 
-    Joint* fix_forearm_joint; //joint connecting forearm with simulation environment
+
+    /** for handling lateral and precision grip modes */
+    GripMode gripmode; 
 
 
 
-    double thumb1, thumb2, thumb3;
+    /** initial position of robot */
+    Position initial_pos;    
 
-    GripMode gripmode; //for handling lateral and precision grip modes
-
-
-
-
-    Position initial_pos;    // initial position of robot
-
-    int NUM;	   /* number of beats */
-    double MASS;	   /* mass of a beats */
-    double RADIUS;   /* sphere radius */
+    //    int NUM;	   /* number of beats */
+    //    double MASS;	   /* mass of a beats */
+    //    double RADIUS;   /* sphere radius */
 
     // Joint* joint[10];
     // Primitive* object[10];
@@ -345,12 +382,6 @@ double velocity;
     
     double velocity;
  
-  public:
-
-
-    static double palm_torque;
-    static double finger_force;
-
   };
 
 }

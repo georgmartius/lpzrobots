@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-09-12 11:32:14  fhesse
+ *   Revision 1.8  2007-09-12 14:25:44  fhesse
+ *   collisionCallback() emtied
+ *   comments added
+ *   started cleaning up
+ *
+ *   Revision 1.7  2007/09/12 11:32:14  fhesse
  *   partly cleaned up
  *   changed to use of fixator joint
  *
@@ -95,8 +100,8 @@ using namespace lpzrobots;
 
 
 
-AbstractController* controller;
-motor teaching[3];
+//AbstractController* controller;
+//motor teaching[3];
 
 class ThisSim : public Simulation {
 public:
@@ -115,17 +120,15 @@ public:
     global.odeConfig.setParam("controlinterval", 5);
 
 
-    OdeRobot *hand;
-    AbstractController *controller;
-    AbstractWiring *wiring;
-    OdeAgent *agent;
 
+    // adding hand
+    OdeRobot *hand;
     HandConf conf = Hand::getDefaultConf();  
     conf.invert = 1; 
     conf.irRange = 0.7;
     conf.set_typ_of_motor = With_servo_motor;
     conf.show_contacts = true;
-    conf.ir_sensor_used = false;
+    conf.ir_sensor_used = true;//false;
     conf.number_of_ir_sensors = conf.ir_sensor_used*15;
     conf.Draw_part_of_ir_sensor = Draw_All;
     conf.jointLimit1 = -M_PI/180;
@@ -137,19 +140,19 @@ public:
     conf.x = -1.45;
     conf.y = 0.8;
     conf.z = 6.01;	   
+    hand = new Hand(odeHandle, osgHandle,conf,"Hand");
+    hand->setColor(Color(1.0,0.5,1.0));
+    hand->place(Pos(2.5,1.26,0));
+    global.configs.push_back(hand);
 
-    //.changeColor(1,183,172)   
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    // adding controller
+    AbstractController *controller;
     InvertMotorNStepConf cc5 = InvertMotorNStep::getDefaultConf();
     cc5.cInit=1.5;
     //controller = new InvertMotorNStep(cc5); //SineController();//InvertMotorNStep(cc5);  
-    //	  controller = new InvertMotorSpace(10);  
-    controller = new InvertNChannelController(100); 
+    	  controller = new InvertMotorSpace(10);  
+	  //controller = new InvertNChannelController(100); 
 
-    agent = new OdeAgent(plotoptions);
-    hand = new Hand(odeHandle, osgHandle,conf,"Hand");
-    hand->setColor(Color(1.0,0.5,1.0));
-    agent->init(controller, hand, wiring);
     //controller->setParam("adaptrate", 0.000);
     ////    controller->setParam("nomupdate", 0.0005);
     //controller->setParam("epsC", 0.05);
@@ -159,25 +162,38 @@ public:
     //controller->setParam("s4avg", 5);
     //controller->setParam("s4del", 5);
     ////	  controller->setParam("factorB",0);
-	 
-    hand->place(Pos(2.5,1.26,0));
-    global.agents.push_back(agent);
     global.configs.push_back(controller); 
-    global.configs.push_back(hand);
 
+
+
+
+    // adding wiring
+    AbstractWiring *wiring;
+    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+
+
+    // adding agent
+    OdeAgent *agent;
+    agent = new OdeAgent(plotoptions);
+    agent->init(controller, hand, wiring);
+    global.agents.push_back(agent);
+
+
+
+    // fix hand (in actual position) to simulation
     Primitive* trunk = hand->getMainPrimitive();
     fixator = new FixedJoint(trunk, global.environment);
     fixator->init(odeHandle, osgHandle);
 
 
-     
+    /*
     ClosedPlayground* playground;
     // use Playground as boundary:
     playground = new ClosedPlayground(odeHandle, osgHandle, osg::Vec3(4.7, 0.2, 26), 0.9);
     playground->setColor(Color(1.0f,0.0f,0.26f,0.0f));
     playground->setPosition(osg::Vec3(0-0.5,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
-
+    */
 
 
 

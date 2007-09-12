@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-12 11:23:11  fhesse
+ *   Revision 1.2  2007-09-12 14:25:44  fhesse
+ *   collisionCallback() emtied
+ *   comments added
+ *   started cleaning up
+ *
+ *   Revision 1.1  2007/09/12 11:23:11  fhesse
  *   moved from simulation/hand to here (to oderobots/robot)
  *
  *   Revision 1.4  2007/07/11 10:00:19  fhesse
@@ -93,20 +98,13 @@
 
 namespace lpzrobots {
 
-  /**
-   * Constructor
-   * @param w world in which robot should be created
-   * @param s space in which robot should be created
-   * @param c contactgroup for collision treatment
-   */
-
+  // constructor:
+  // - give handle for ODE and OSG stuff and default configuration
   Hand::Hand(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const HandConf& conf, const std::string& name)
+    // calling OdeRobots construtor with name of the actual robot
     : OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(conf), oldp(0,0,0){
-    /*  
-	Hand::Hand(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const string& name)
-	: OdeRobot(odeHandle, osgHandle, name, "$Id$"), oldp(0,0,0){
-    */
     
+    // setting parameters
     frictionGround=0.3;
     velocity=2;
 
@@ -114,7 +112,6 @@ namespace lpzrobots {
 
     this->osgHandle.color=Color(0,1,1);
 
-    RADIUS= 0.1732f *2;	/* sphere radius */
 
 
     if (conf.one_finger_as_one_motor){  // one finger as one motor
@@ -130,7 +127,7 @@ namespace lpzrobots {
       motorno  += 2;
     }
 
-    if (conf.ir_sensor_used){
+    if (conf.ir_sensor_used){ // if infrared sensors are used
       sensorno+=15;
     }
     
@@ -156,28 +153,36 @@ namespace lpzrobots {
       osg_objects.clear();
       contact_joint_created=false;
     }
-    
-    // update sensorbank with infrared sensors
+       
+    // update (draw) sensorbank with infrared sensors
     if (conf.ir_sensor_used){
       irSensorBank.update();
     }
+   
+
   }
 
   void Hand::place(const osg::Matrix& pose){
     osg::Matrix p2;
+    // todo
+    // - include pose in create
+    // - has RADIUS some meaning?
+    double RADIUS= 0.1732f *2;	/* sphere radius */
     p2 = pose * osg::Matrix::translate(osg::Vec3(1, 14, RADIUS)); 
     create(p2);    
   };
 
   void Hand::doInternalStuff(const GlobalData& global){
     // mycallback is called for internal collisions! Only once per step
-    dSpaceCollide(odeHandle.space, this, mycallback);
+    // todo: geht im moment ohne, ist das ok?
+    //dSpaceCollide(odeHandle.space, this, mycallback);
     if (conf.ir_sensor_used){
       irSensorBank.reset(); // reset sensorbank (infrared sensors) 
     }
   }
 
   // internal collisions
+  // todo: wird im moment nich gebraucht, kann es ganz raus?
   void Hand::mycallback(void *data, dGeomID o1, dGeomID o2){
 
     // connected bodies are allowed to intersect
@@ -257,121 +262,6 @@ namespace lpzrobots {
     }
   }
   bool Hand::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-
-    OSGBox* OsgContactPoint;
-
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space){
-
-      /*
-      // only things colliding with hand space are considered
-      int g1 = (o1 == (dGeomID)odeHandle.space|| o2 == (dGeomID)odeHandle.space);
-      if (!g1) return;
-      */
-
-      /*
-      if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
-      if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
-      */
-
-      int n;
-      const int N = 10;
-      dContact contact[N];
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      if (n > 0) {
-	for (int i=0; i<n; i++) {
-
-	  /*
-	  // connected bodies are allowed to intersect
-	  if( dAreConnected(dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2)) )
-	  return;
-	  */
-
-	  if( contact[i].geom.g1 == objects[1]->getGeom() || contact[i].geom.g2 == objects[1]->getGeom())
-	    {
-	      contact[i].geom.depth=0.008;
-	    }
-	  //if all finger-segmens should be able to penetrate an object
-	  //for (unsigned int u=2; u<objects.size(); u++){
-
-	  for (unsigned int u=4; u<objects.size(); u+=3){
-	    if (contact[i].geom.g1 == objects[u]->getGeom() || contact[i].geom.g2 == objects[u]->getGeom())
-	      {
-		contact[i].geom.depth=0.008;
-	      }
-	  }
-	  /*
-	    else
-	    if( (contact[i].geom.g1 == objects[1]->getGeom() || contact[i].geom.g2 == objects[1]->getGeom()) && ((contact[i].geom.g1 == objects[3]->getGeom() || contact[i].geom.g2 == objects[3]->getGeom())||(contact[i].geom.g1 == objects[4]->getGeom() || contact[i].geom.g2 ==objects[4]->getGeom())))
-	    {
-	    contact[i].geom.depth=2;
-	    } 
-	  */
-
-	  /*
-	    else if ( (contact[i].geom.g1 == objects[1]->getGeom() || contact[i].geom.g2 == objects[1]->getGeom()) && (for(int u=5; u<18; u+=3){contact[i].geom.g1 == objects[u]->getGeom() || contact[i].geom.g2 == objects[u]->getGeom()
-	    } )
-	    {
-	    contact[i].geom.depth=1;
-	    }
-	  */
-
-	  /*
-	    {
-	    contact[i].geom.g1 == objects[u]->getGeom() || contact[i].geom.g2 == objects[u]->getGeom();
-	    }
-
-	    (
-	    ( 
-	    for(int u=5; u<18; u+=3)
-	    {
-	    contact[i].geom.g1 == objects[u]->getGeom() || contact[i].geom.g2 == objects[u]->getGeom();
-	    }
-	    )
-	    ||
-	    (
-	    for (int u=18; u<23; u+=1)
-	    {
-	    contact[i].geom.g1 == objects[u]->getGeom() || contact[i].geom.g2 == objects[u]->getGeom();
-	    }
-	    )
-	    )
-	    )
-	    {
-	    contact[i].geom.depth=1;
-	    }
-	  */
-	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	    dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	  contact[i].surface.mu = dInfinity;
-	  contact[i].surface.slip1 = 0.1;
-	  contact[i].surface.slip2 = 0.1;
-	  contact[i].surface.soft_erp = 0.5;
-	  contact[i].surface.soft_cfm = 0.3;
-	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
-
-	  if(conf.show_contacts)
-	    {
-	      dMatrix3 RI;
-	      dRSetIdentity (RI);
-	      OsgContactPoint = new OSGBox(0.02, 0.02, 0.02);
-	      OsgContactPoint->init(osgHandle);
-	      OsgContactPoint->setMatrix(osg::Matrix::translate(osg::Vec3(0,0,0.2/2.0)) * osgPose(contact[i].geom.pos,RI));
-	      OsgContactPoint->setColor(Color(0.0, 0.0, 1.0));
-	      osg_objects.push_back(OsgContactPoint);
-	      contact_joint_created=true;
-	      //delete OsgContactPoint;
- 
-	    }
-
-
-	}
-      }
-      //sleep(0);
-
-      return true;
-    }
     return false;
   }
 
@@ -567,64 +457,61 @@ namespace lpzrobots {
     if (created){
       destroy();
     }
-    
-    //initizialization
-    // double z=2; // z shift added to whole thing
-    /*thumb1=0;
-      thumb2=0;
-      thumb3=0;
-      finger_force=0;
-      palm_torque=0;
-      gripmode=lateral;*/
 
-
-
- 
+    // todo introduce gripmodes ?
+    //  gripmode=lateral;
 
     // create vehicle space and add it to parentspace
     odeHandle.space = dSimpleSpaceCreate (parentspace);
 
-    /*
-      Primitive* ground;
-      ground = new Plane();
-      ground->init ( odeHandle , 1 , osgHandle , Primitive::Body 	
-      | Primitive::Geom | Primitive::Draw);
-      ground->setPose(osg::Matrix::translate(0.0,0.0,0.0));
-      objects.push_back(ground);	
-    */
-    //--------------------forearm-------------------------/////////////////////
+
+    //--------------------forearm--------------------------------------------------
     Primitive*  forearm = new Capsule(0.5,5);
     
-    //Anstatt von odeHandle hand_space
-    forearm-> init ( odeHandle , 1 , osgHandle , Primitive::Body 	
-		     | Primitive::Geom | Primitive::Draw);
+    forearm->init ( odeHandle, 1, osgHandle, Primitive::Body | Primitive::Geom | Primitive::Draw);
     forearm->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *	     
 		     osg::Matrix::translate( conf.invert*(-3.7+conf.x),(0+conf.y),(0.5+conf.z)));//(*) pose wurde an der Stelle weggelassen, kann dann spaeter dazugenommen werden.
 
     //  forearm->getOSGPrimitive()->setTexture("Images/finger_handflaeche2.png"); 
     objects.push_back(forearm);
 
+
     //--------------------palm------------------------------------------------------
-    Primitive* palm = new Box(1.4,1.4,0.3);//Cylinder(1.0,0.3);
+
+    // todo: cylinder is penetrable at the edges: make some workaround
+    
+    Primitive* palm = new Cylinder(1.0,0.3);
+    palm-> init (odeHandle , 0.1 , osgHandle);
+    //    palm-> init (odeHandle , 0.1 , osgHandle ,Primitive::Body|Primitive::Geom|Primitive::Draw);
+    palm->setPose(osg::Matrix::translate(conf.invert*(0+conf.x),(0+conf.y),(0.5+conf.z)));
+    objects.push_back(palm);
+
+
+
+
+    // todo : remove following comments
+    /*
+    //    Primitive* palm = new Box(1.4,1.4,0.3);//Cylinder(1.0,0.3);
+    Primitive* palm = new Cylinder(1.0,0.3);
     // Primitive* palm = new Box(2.0,1.8,0.3);
-    //Anstatt von odeHandle hand_space
     palm-> init (odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		 | Primitive::Geom | Primitive::Draw);
-
-    palm->setPose(osg::Matrix::translate(conf.invert*(0+conf.x),(0+conf.y),(0.5+conf.z)));
+    
+    
     //palm->getOSGPrimitive()->setTexture("Images/light_chess.rgb");
     //  palm->getOSGPrimitive()->setTexture("Images/ground.rgb"); 
 
-    objects.push_back(palm);
-
+    /*
     //-----box for the palm as underground, in order ir-sensors work properly--------
     Primitive* palm_cylinder = new Cylinder(1.0,0.3);
     Primitive* box_in_cylinder_palm = new Transform(objects[1],palm_cylinder, osg::Matrix::translate(0, 0,0));
     box_in_cylinder_palm -> init (odeHandle , 0 , osgHandle);
-
+    * /
+    */
 
     //-------------------BallJoint between forearm and palm-------------------------
 
+    //todo: add pose
     Joint* forearm_palm = new BallJoint(forearm, palm,
 					Pos(conf.invert*(-1.2+conf.x), (0+conf.y), (0.5+conf.z)));//(*) pose wurde an dieser Stelle weggelassen, kann dann aber spaeter dazugenommen werden.
     forearm_palm->init(odeHandle, osgHandle, true, 0.2);//Die groesse muss hier neu eingestellt werden, bei Ode nicht einstellbar!!!
@@ -634,9 +521,7 @@ namespace lpzrobots {
     Axis axis1 = Axis(1,0,0);
     Axis axis3 = Axis(0,0,1);
     //int axis_number=0;
-
     //double velocity=palm_torque*M_PI/2;
-
 
     palm_motor_joint = new AngularMotor3AxisEuler(odeHandle, (BallJoint*) forearm_palm, 
 						  axis1, axis3, conf.power);
@@ -672,12 +557,10 @@ namespace lpzrobots {
 
 	//---ToDo
 	//thumb_b ->setPose(osg::Matrix::translate(conf.invert*(0), (0), (0.59))*(index_b->getPose()) * osg::Matrix::rotate(conf.invert*M_PI/2, 1, 0, 0));
-	
 	//index_b ->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(1.0+conf.x), (-0.6+conf.y), (0.5+conf.z)));
-	
 	//thumb_b ->setPose(osg::Matrix::rotate(conf.invert*M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * osg::Matrix::translate(conf.invert*(-0.6+conf.x),(-0.8+conf.y), (0.5+conf.z)));
-	
 	//thumb_b ->setPose(osg::Matrix::rotate(conf.invert*M_PI/2, osg::Vec3(1, 0, 0),conf.finger_winkel, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * osg::Matrix::translate((-forearm->getPosition()+palm->getPosition())/3.6)*(palm->getPose())*osg::Matrix::translate(-1.6,-0.8,0));
+
     if (conf.finger_winkel==M_PI/2){
       thumb_b ->setPose(osg::Matrix::rotate(M_PI/2, osg::Vec3(1, 0, 0),conf.invert*conf.finger_winkel, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) *(palm->getPose())*osg::Matrix::translate(conf.invert*-0.6,-0.8,0));
     }
@@ -712,6 +595,7 @@ namespace lpzrobots {
 
 
     objects.push_back(thumb_b);
+
     if(conf.ir_sensor_used){
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_b = new IRSensor();
@@ -783,8 +667,6 @@ namespace lpzrobots {
 
 
     //thumb_ct = new HingeJoint(thumb_c, thumb_t, (thumb_c->getPosition()+thumb_t->getPosition())/2, Axis(0, 1, 0));
-    
-
     //thumb_ct = new HingeJoint(thumb_c, thumb_t, Pos(conf.invert*(-0.6+conf.x), (-1.8+conf.y), (0.5+conf.z)), Axis(0, 0, conf.invert*(-1)));
 
     thumb_ct = new HingeJoint(thumb_c, thumb_t,
