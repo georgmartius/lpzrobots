@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-12 14:25:44  fhesse
+ *   Revision 1.3  2007-09-14 19:18:36  fhesse
+ *   pose added and cleaned up in create, HandConf adapted
+ *
+ *   Revision 1.2  2007/09/12 14:25:44  fhesse
  *   collisionCallback() emtied
  *   comments added
  *   started cleaning up
@@ -107,6 +110,7 @@
 
 #include "irsensor.h"
 #include "raysensorbank.h"
+#include "raysensor.h"
 
 namespace lpzrobots {
 
@@ -123,26 +127,17 @@ namespace lpzrobots {
     irFront
   };
 
-  enum Draw_Part_of_Ir_Sensor
-    {
-      Draw_All,
-      Draw_just_Sensor,
-      Draw_just_Ray,
-      Draw_Nothing
-    };
   // struct containing geom and body for each beam (= box, (cappped)cylinder, sphere)
   typedef struct {
+    
     public:
-
-double velocity;
+    double velocity;
     double power;       // used when non-servo motor is used
     double servo_motor_Power;  // used when servo motor is used
+    // todo: rmove:
     double invert;
     double jointLimit1;
     double jointLimit2;
-    double x;
-    double y;
-    double z;
     bool show_contacts;
     double thumb_angle;
     enum Motor_type set_typ_of_motor;
@@ -150,6 +145,7 @@ double velocity;
     double finger_winkel;
     bool fix_palm_joint;
     bool one_finger_as_one_motor;
+    bool draw_joints;
 
 
     //---------------InfrarRedSensor--------------------------  
@@ -157,7 +153,8 @@ double velocity;
     double irRange;
     int number_of_ir_sensors;
     bool ir_sensor_used;
-    enum Draw_Part_of_Ir_Sensor Draw_part_of_ir_sensor;
+    enum RaySensor::rayDrawMode ray_draw_mode; // for possible modes see sensors/raysensor.h
+	//Draw_part_of_ir_sensor;
   } HandConf;
 
   enum GripMode{
@@ -186,10 +183,8 @@ double velocity;
 	conf.velocity = 0.2;
 	conf.power = 5;
 	conf.servo_motor_Power = 0.1;
-	conf.invert = 1; 
-	conf.x =0;
-	conf.y =0;
-	conf.z =2;	
+	// todo remove:
+	conf.invert = 1;
 	conf.show_contacts = true;
 	conf.jointLimit1 = M_PI/2;
 	conf.jointLimit2 = 2*M_PI;
@@ -199,11 +194,12 @@ double velocity;
 	conf.irRange = 2;
 	conf.ir_sensor_used=true;
 	conf.number_of_ir_sensors = 0;
-	conf.Draw_part_of_ir_sensor=Draw_just_Ray;
+	conf.ray_draw_mode=RaySensor::drawAll;
 	conf.factorSensor=2.0;
 	conf.finger_winkel=M_PI/2;
 	conf.fix_palm_joint=true;
 	conf.one_finger_as_one_motor=false;
+	conf.draw_joints=false;
 	return conf;
       }
 

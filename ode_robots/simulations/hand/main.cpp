@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-09-12 14:25:44  fhesse
+ *   Revision 1.9  2007-09-14 19:18:36  fhesse
+ *   pose added and cleaned up in create, HandConf adapted
+ *
+ *   Revision 1.8  2007/09/12 14:25:44  fhesse
  *   collisionCallback() emtied
  *   comments added
  *   started cleaning up
@@ -130,21 +133,39 @@ public:
     conf.show_contacts = true;
     conf.ir_sensor_used = true;//false;
     conf.number_of_ir_sensors = conf.ir_sensor_used*15;
-    conf.Draw_part_of_ir_sensor = Draw_All;
     conf.jointLimit1 = -M_PI/180;
     conf.jointLimit2 = M_PI/2	;
     conf.servo_motor_Power = 1.2;
-    conf.finger_winkel = M_PI/2;
-    conf.fix_palm_joint=true;
+    conf.finger_winkel = M_PI/2;// /6;//2;
+    conf.fix_palm_joint=false;//true;
     conf.one_finger_as_one_motor=true;
-    conf.x = -1.45;
-    conf.y = 0.8;
-    conf.z = 6.01;	   
+    conf.draw_joints=false;//true;
     hand = new Hand(odeHandle, osgHandle,conf,"Hand");
     hand->setColor(Color(1.0,0.5,1.0));
-    hand->place(Pos(2.5,1.26,0));
+    //hand->place(Pos(2.5,1.26,0));
+    //hand->place(Pos(0,0,0));
+    //hand->place(Pos(2,3,1));
+	{
+	double matODE[12];
+	matODE[0] = 1.0f;
+	matODE[1] = 0.5;
+	matODE[2] = 1.0f;
+	matODE[3] =0.0f;
+	matODE[4] = 0.1f;
+	matODE[5] = 1.0f;
+	matODE[6] = 1.0f;
+	matODE[7] =0.0f;
+	matODE[8] = 1.0f;
+	matODE[9] = 1.0f;
+	matODE[10] = 1.0f;
+	matODE[11] =0.0f;
+	double Pos[3];
+	Pos[0]=0;
+	Pos[1]=0;
+	Pos[2]=5;
+    hand->place(osgPose( Pos , matODE ) );
     global.configs.push_back(hand);
-
+}
     // adding controller
     AbstractController *controller;
     InvertMotorNStepConf cc5 = InvertMotorNStep::getDefaultConf();

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-12 14:25:44  fhesse
+ *   Revision 1.3  2007-09-14 19:18:36  fhesse
+ *   pose added and cleaned up in create, HandConf adapted
+ *
+ *   Revision 1.2  2007/09/12 14:25:44  fhesse
  *   collisionCallback() emtied
  *   comments added
  *   started cleaning up
@@ -128,7 +131,7 @@ namespace lpzrobots {
     }
 
     if (conf.ir_sensor_used){ // if infrared sensors are used
-      sensorno+=15;
+      sensorno+=14;
     }
     
 
@@ -163,13 +166,14 @@ namespace lpzrobots {
   }
 
   void Hand::place(const osg::Matrix& pose){
-    osg::Matrix p2;
+    //    osg::Matrix p2;
     // todo
     // - include pose in create
     // - has RADIUS some meaning?
-    double RADIUS= 0.1732f *2;	/* sphere radius */
-    p2 = pose * osg::Matrix::translate(osg::Vec3(1, 14, RADIUS)); 
-    create(p2);    
+    //    double RADIUS= 0.1732f *2;	/* sphere radius */
+    //    p2 = pose * osg::Matrix::translate(osg::Vec3(1, 14, RADIUS)); 
+    //    create(p2);    
+    create(pose);
   };
 
   void Hand::doInternalStuff(const GlobalData& global){
@@ -465,69 +469,55 @@ namespace lpzrobots {
     odeHandle.space = dSimpleSpaceCreate (parentspace);
 
 
-    //--------------------forearm--------------------------------------------------
-    Primitive*  forearm = new Capsule(0.5,5);
-    
-    forearm->init ( odeHandle, 1, osgHandle, Primitive::Body | Primitive::Geom | Primitive::Draw);
-    forearm->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *	     
-		     osg::Matrix::translate( conf.invert*(-3.7+conf.x),(0+conf.y),(0.5+conf.z)));//(*) pose wurde an der Stelle weggelassen, kann dann spaeter dazugenommen werden.
+    double forearm_length=5; 
+    double forearm_radius=0.5;    
+    double palm_radius=1.0;
+    double palm_length=0.3; // (or better height)
 
+    // palm created here 
+    // (because it is the main component, 
+    // placing the hand at (0,0,0) means the palm will be at (0,0,forearm_radius))
+    // but added to objects after forearm to keep sequence of objects
+    // which is up to now used in collision stuff
+
+    // todo: cylinder is penetrable at the edges: make some workaround
+    Primitive* palm = new Cylinder(palm_radius, palm_length);
+    palm-> init (odeHandle , 0.1 , osgHandle);
+    palm->setPose(osg::Matrix::translate(0, 0, forearm_radius) * pose);
+
+
+    //--------------------forearm--------------------------------------------------
+    Primitive*  forearm = new Capsule(forearm_radius, forearm_length);
+    forearm->init ( odeHandle, 1, osgHandle, Primitive::Body | Primitive::Geom | Primitive::Draw);
+    forearm->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0)
+			*osg::Matrix::translate( -(forearm_length/2 + palm_radius) ,0 , 0)
+			*palm->getPose());
     //  forearm->getOSGPrimitive()->setTexture("Images/finger_handflaeche2.png"); 
     objects.push_back(forearm);
+
 
 
     //--------------------palm------------------------------------------------------
 
     // todo: cylinder is penetrable at the edges: make some workaround
-    
-    Primitive* palm = new Cylinder(1.0,0.3);
-    palm-> init (odeHandle , 0.1 , osgHandle);
-    //    palm-> init (odeHandle , 0.1 , osgHandle ,Primitive::Body|Primitive::Geom|Primitive::Draw);
-    palm->setPose(osg::Matrix::translate(conf.invert*(0+conf.x),(0+conf.y),(0.5+conf.z)));
+    // palm created above, but added to objects here to keep sequence (see above)
     objects.push_back(palm);
 
 
-
-
-    // todo : remove following comments
-    /*
-    //    Primitive* palm = new Box(1.4,1.4,0.3);//Cylinder(1.0,0.3);
-    Primitive* palm = new Cylinder(1.0,0.3);
-    // Primitive* palm = new Box(2.0,1.8,0.3);
-    palm-> init (odeHandle , 0.1 , osgHandle , Primitive::Body 	
-		 | Primitive::Geom | Primitive::Draw);
-    
-    
-    //palm->getOSGPrimitive()->setTexture("Images/light_chess.rgb");
-    //  palm->getOSGPrimitive()->setTexture("Images/ground.rgb"); 
-
-    /*
-    //-----box for the palm as underground, in order ir-sensors work properly--------
-    Primitive* palm_cylinder = new Cylinder(1.0,0.3);
-    Primitive* box_in_cylinder_palm = new Transform(objects[1],palm_cylinder, osg::Matrix::translate(0, 0,0));
-    box_in_cylinder_palm -> init (odeHandle , 0 , osgHandle);
-    * /
-    */
-
     //-------------------BallJoint between forearm and palm-------------------------
 
-    //todo: add pose
-    Joint* forearm_palm = new BallJoint(forearm, palm,
-					Pos(conf.invert*(-1.2+conf.x), (0+conf.y), (0.5+conf.z)));//(*) pose wurde an dieser Stelle weggelassen, kann dann aber spaeter dazugenommen werden.
-    forearm_palm->init(odeHandle, osgHandle, true, 0.2);//Die groesse muss hier neu eingestellt werden, bei Ode nicht einstellbar!!!
+    Joint* forearm_palm = new BallJoint(forearm, palm, Pos( -palm_radius, 0, 0)
+					* palm->getPose() );
+    forearm_palm->init(odeHandle, osgHandle, conf.draw_joints, 0.7);
     joints.push_back(forearm_palm);
 
-    //-------------AngularMotor for BallJoint---------------------------------------
-    Axis axis1 = Axis(1,0,0);
-    Axis axis3 = Axis(0,0,1);
-    //int axis_number=0;
-    //double velocity=palm_torque*M_PI/2;
 
+    //-------------AngularMotor for BallJoint---------------------------------------
+
+    Axis axis1 = Axis(1,0,0)*palm->getPose();
+    Axis axis3 = Axis(0,0,1)*palm->getPose();
     palm_motor_joint = new AngularMotor3AxisEuler(odeHandle, (BallJoint*) forearm_palm, 
 						  axis1, axis3, conf.power);
-    //palm_motor_joint->set(axis_number, conf.velocity)
-    //palm_motor_joint->init(odeHandle, osgHandle, true, 0.2 );
-
     ((AngularMotor*)palm_motor_joint)->setParam(dParamLoStop, 0);
     ((AngularMotor*)palm_motor_joint)->setParam(dParamHiStop, 0);
     if (conf.fix_palm_joint){
@@ -541,103 +531,67 @@ namespace lpzrobots {
       ((AngularMotor*)palm_motor_joint)->setParam(dParamLoStop3, -M_PI/360);
       ((AngularMotor*)palm_motor_joint)->setParam(dParamHiStop3,  M_PI/360);
     }
-    /*
-      ((AngularMotor3AxisEuler*)palm_motor_joint)->setHiLoStopParams(-M_PI/360, M_PI/360,  2);
-    */
     frictionmotors.push_back(palm_motor_joint);
-    //frictionmotors.push_back(new AngularMotor3AxisEuler(odeHandle, (BallJoint*) forearm_palm, axis1, axis3, conf.power));
+    
 
     //------------------------thumb ----------------------------------------------
+
     Primitive *thumb_b,*thumb_t,*thumb_c;
-
+    
     thumb_b = new Capsule(0.2,0.1);
-    thumb_b -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
-		      | Primitive::Geom | Primitive::Draw);
-
-
-	//---ToDo
-	//thumb_b ->setPose(osg::Matrix::translate(conf.invert*(0), (0), (0.59))*(index_b->getPose()) * osg::Matrix::rotate(conf.invert*M_PI/2, 1, 0, 0));
-	//index_b ->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(1.0+conf.x), (-0.6+conf.y), (0.5+conf.z)));
-	//thumb_b ->setPose(osg::Matrix::rotate(conf.invert*M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * osg::Matrix::translate(conf.invert*(-0.6+conf.x),(-0.8+conf.y), (0.5+conf.z)));
-	//thumb_b ->setPose(osg::Matrix::rotate(conf.invert*M_PI/2, osg::Vec3(1, 0, 0),conf.finger_winkel, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * osg::Matrix::translate((-forearm->getPosition()+palm->getPosition())/3.6)*(palm->getPose())*osg::Matrix::translate(-1.6,-0.8,0));
+    thumb_b -> init ( odeHandle , 0.1 , osgHandle , 
+		      Primitive::Body|Primitive::Geom|Primitive::Draw);
 
     if (conf.finger_winkel==M_PI/2){
-      thumb_b ->setPose(osg::Matrix::rotate(M_PI/2, osg::Vec3(1, 0, 0),conf.invert*conf.finger_winkel, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) *(palm->getPose())*osg::Matrix::translate(conf.invert*-0.6,-0.8,0));
+      thumb_b ->setPose(osg::Matrix::rotate(M_PI/2, osg::Vec3(1, 0, 0), 
+					    conf.finger_winkel, osg::Vec3(0, 1, 0),
+					    0.0, osg::Vec3(0, 0, 1)) 
+			* osg::Matrix::translate(-0.6,-0.8, 0) * (palm->getPose()));
     }
     else if (conf.finger_winkel==M_PI/6)
       {
-	thumb_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, osg::Vec3(1, 0, 0),0.0, osg::Vec3(0, 1, 0),-2*M_PI,osg::Vec3(0, 0, 1)) *(palm->getPose())*osg::Matrix::translate(conf.invert*-0.6,-0.8,0));
+	thumb_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, osg::Vec3(1, 0, 0),
+					      0.0, osg::Vec3(0, 1, 0),
+					      -2*M_PI,osg::Vec3(0, 0, 1)) 
+			  * osg::Matrix::translate(-0.6,-0.8, 0) *(palm->getPose()));
       }
-	/*
-	  if (conf.finger_winkel==M_PI/2)
-	  {
-	  ring_b->setPose(osg::Matrix::translate(conf.invert*(0), (0.9), conf.invert*(0.3))*(index_b->getPose()));
-	  }
-	  else if (conf.finger_winkel==2*M_PI)
-	  {
-	  ring_b->setPose(osg::Matrix::translate(conf.invert*(0.3), (0.9), conf.invert*(0))*(index_b->getPose()));
-	  }
-	  else if (conf.finger_winkel==M_PI/4)
-	  {
-	  ring_b->setPose(osg::Matrix::translate(conf.invert*(0.25), (0.9), conf.invert*(0.25))*(index_b->getPose()));
-	  }
-	  else if (conf.finger_winkel==M_PI/3)
-	  {
-	  ring_b->setPose(osg::Matrix::translate(conf.invert*(0.13), (0.9), conf.invert*(0.17))*(index_b->getPose()));
-	  }
-	  else if (conf.finger_winkel==M_PI/6)
-	  {
-	  ring_b->setPose(osg::Matrix::translate(conf.invert*(0.20), (0.9), conf.invert*(0.20))*(index_b->getPose()));
-	  }
-	*/
-
-    //}
-
-
     objects.push_back(thumb_b);
 
+//  thumb bottom ir sensor useless, senses only palm
+/*
     if(conf.ir_sensor_used){
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_b = new IRSensor();
       ir_sensors.push_back(sensor_thumb_b);
-      irSensorBank.registerSensor(sensor_thumb_b, objects[2], 
-				  osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * 
-				  osg::Matrix::translate(conf.invert*(-0), 0.2, 0.15), conf.irRange, 
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+      irSensorBank.registerSensor(
+	sensor_thumb_b, objects[2], 
+	osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) 
+	* osg::Matrix::translate(0, 0.2, 0.15), conf.irRange, conf.ray_draw_mode);
     }
-    // der minus beim 2-ten PMI zeigt den Sensor von der anderen Seite.
+*/  
+
     thumb_c = new Capsule(0.2,0.5);
-    thumb_c -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
-		      | Primitive::Geom | Primitive::Draw);
-
-	//thumb_c ->setPose(osg::Matrix::rotate(conf.invert*M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * osg::Matrix::translate(conf.invert*(-0.6+conf.x),(-1.4+conf.y), (0.5+conf.z)));
-
-    thumb_c ->setPose(osg::Matrix::translate(conf.invert*(0), (0), (0.47))*(thumb_b->getPose()));
-
-
-    //}
+    thumb_c -> init ( odeHandle , 0.1 , osgHandle , 
+		      Primitive::Body|Primitive::Geom|Primitive::Draw);
+    thumb_c ->setPose(osg::Matrix::translate(0, 0, 0.47)*(thumb_b->getPose()) );
     objects.push_back(thumb_c);
     
     if(conf.ir_sensor_used){
-      // for the left corner osg::Matrix::translate(conf.invert*(1.5+conf.x),(-0.6+conf.y), (-1.78+conf.z)), 
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_c = new IRSensor();
       ir_sensors.push_back(sensor_thumb_c);
       irSensorBank.registerSensor(sensor_thumb_c, objects[3], 
-				  osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * 
-				  osg::Matrix::translate(conf.invert*(0), 0.2, 0), conf.irRange, 
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),
+						      M_PI/2, osg::Vec3(0, 1, 0),
+						      0.0,osg::Vec3(0, 0, 1)) * 
+				  osg::Matrix::translate((0), 0.2, 0), 
+				  conf.irRange, conf.ray_draw_mode);
     }
     
     thumb_t = new Capsule(0.2,0.5);
-    thumb_t -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
-		      | Primitive::Geom | Primitive::Draw);
-
-    thumb_t ->setPose(osg::Matrix::rotate(conf.invert*M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1))  * osg::Matrix::translate(conf.invert*(-0.6+conf.x) ,(-2.2+conf.y), (0.5+conf.z)));
-    
-    thumb_t ->setPose(osg::Matrix::translate(conf.invert*(0), (0), (0.50))*(thumb_c->getPose()));
-
-    
+    thumb_t -> init ( odeHandle , 0.1 , osgHandle , 
+		      Primitive::Body|Primitive::Geom|Primitive::Draw);
+    thumb_t ->setPose(osg::Matrix::translate((0), (0), (0.50))*(thumb_c->getPose()));
     objects.push_back(thumb_t);
 
     if(conf.ir_sensor_used)  {
@@ -645,35 +599,34 @@ namespace lpzrobots {
       IRSensor* sensor_thumb_t = new IRSensor();
       ir_sensors.push_back(sensor_thumb_t);
       irSensorBank.registerSensor(sensor_thumb_t, objects[4], 
-				  osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * 
-				  osg::Matrix::translate(conf.invert*(0), 0.2, 0), conf.irRange, 
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),
+						      M_PI/2, osg::Vec3(0, 1, 0),
+						      0.0,osg::Vec3(0, 0, 1)) * 
+				  osg::Matrix::translate((0), 0.2, 0), 
+				  conf.irRange, conf.ray_draw_mode);
     }
     
     Primitive* thumb_nail = new Cylinder(0.19,0.0001);
-    Primitive* fix_thumb_nail= new Transform(objects[4],thumb_nail, osg::Matrix::translate(-0.39, 0,0.205)*osg::Matrix::rotate(M_PI/2+M_PI/58,1,0,0)*osg::Matrix::rotate(M_PI/2,0,1,0));
+    Primitive* fix_thumb_nail= new Transform(objects[4],thumb_nail, 
+					     osg::Matrix::translate(-0.39,0,0.205)
+					     *osg::Matrix::rotate(M_PI/2+M_PI/58,1,0,0)
+					     *osg::Matrix::rotate(M_PI/2,0,1,0));
     fix_thumb_nail -> init (odeHandle , 0 , osgHandle);
     
 
 
     //-------ball joint between palm and thumb----------------------------------------
-    Joint* palm_thumb = new BallJoint(palm, thumb_b,
-				      Pos(conf.invert*(-0.4+conf.x),  (-0.75+conf.y), (0.5+conf.z)));//(*) pose wurde an dieser Stelle weggelassen, kann dann aber spaeter dazugenommen werden.
-    palm_thumb->init(odeHandle, osgHandle, false, 0.2);//Die groesse muss hier neu eingestellt werden, bei Ode nicht einstellbar!!!
+    Joint* palm_thumb = new BallJoint(palm, thumb_b,Pos(-palm_radius /1.6, -palm_radius +0.2, 0)
+				      *palm->getPose());
+    palm_thumb->init(odeHandle, osgHandle, conf.draw_joints, 0.3);
     joints.push_back(palm_thumb);
 
     //-------hinge joints for thumb-----------------------------------------------------
     HingeJoint* thumb_ct, *thumb_bc;
-
-
-    //thumb_ct = new HingeJoint(thumb_c, thumb_t, (thumb_c->getPosition()+thumb_t->getPosition())/2, Axis(0, 1, 0));
-    //thumb_ct = new HingeJoint(thumb_c, thumb_t, Pos(conf.invert*(-0.6+conf.x), (-1.8+conf.y), (0.5+conf.z)), Axis(0, 0, conf.invert*(-1)));
-
     thumb_ct = new HingeJoint(thumb_c, thumb_t,
-				  (thumb_c->getPosition()+thumb_t->getPosition())/2,  Axis(0, 0, conf.invert*(-1)));
-
-
-    thumb_ct->init(odeHandle, osgHandle, true, 0.2 );
+			      (thumb_c->getPosition()+thumb_t->getPosition())/2,  
+			      Axis(0, 0,-1)*palm->getPose());
+    thumb_ct->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     //thumb_ct->setParam(dParamLoStop, -M_PI/360);
     //thumb_ct->setParam(dParamHiStop,  M_PI/2);
     // fixing this joint
@@ -684,33 +637,22 @@ namespace lpzrobots {
     thumb_ct->setParam(dParamHiStop, 0);
     joints.push_back(thumb_ct);
 
-
-
-    HingeServo* servo =  new HingeServo(thumb_ct, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo =  new HingeServo(thumb_ct, conf.jointLimit1, conf.jointLimit2, 
+					conf.servo_motor_Power);
     servos.push_back(servo);
-
-
-
-    //thumb_bc = new HingeJoint(thumb_b, thumb_c, (thumb_b->getPosition()+thumb_c->getPosition())/2, Axis(0, 1, 0));
-
-
-    //thumb_bc = new HingeJoint(thumb_b, thumb_c,Pos(conf.invert*(-0.55+conf.x), (-1.0+conf.y), (0.5+conf.z)), Axis(0, 0, conf.invert*(-1)));
-
+    // todo: axis wrong when cong.finger_angle!=MPI/2
     thumb_bc = new HingeJoint(thumb_b, thumb_c,
-			      (thumb_b->getPosition()+thumb_b->getPosition()+thumb_c->getPosition())/3,  Axis(0, 0, conf.invert*(-1)));
-
-      
-
-
-    thumb_bc->init(odeHandle, osgHandle, true, 0.2 );
+			      (thumb_b->getPosition()+thumb_b->getPosition()+
+			       thumb_c->getPosition())/3, Axis(0, 0, -1)*palm->getPose() );
+    thumb_bc->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     //thumb_bc->setParam(dParamLoStop, -M_PI/360);
     //thumb_bc->setParam(dParamHiStop,  M_PI/2);
     thumb_bc->setParam(dParamLoStop, -M_PI/360);
     thumb_bc->setParam(dParamHiStop, M_PI/10);
-
     joints.push_back(thumb_bc);
     
-    HingeServo* servo_bc =  new HingeServo((HingeJoint*)thumb_bc, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_bc =  new HingeServo((HingeJoint*)thumb_bc, conf.jointLimit1, 
+					   conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_bc);
 
 
@@ -718,15 +660,10 @@ namespace lpzrobots {
 
     thumb_motor_joint = new AngularMotor3AxisEuler(odeHandle, (BallJoint*)palm_thumb, 
 						   axis1, axis3, conf.power);
-    /*
-      thumb_motor_joint->init(hand_space, osgHandle, true, 0.2 );
-    */
-
-
-	  ((AngularMotor*)thumb_motor_joint)->setParam(dParamLoStop, -M_PI/360);
-	  ((AngularMotor*)thumb_motor_joint)->setParam(dParamHiStop,  0.8 * M_PI); 
-	  // with M_PI/2); thumb until it is orthogonal to palm
-	  // with M_PI-M_PI/10); thumb moves into palm
+  ((AngularMotor*)thumb_motor_joint)->setParam(dParamLoStop, -M_PI/360);
+  ((AngularMotor*)thumb_motor_joint)->setParam(dParamHiStop,  0.8 * M_PI); 
+  // with M_PI/2); thumb until it is orthogonal to palm
+  // with M_PI-M_PI/10); thumb moves into palm
     
     /*
     ((AngularMotor*)thumb_motor_joint)->setParam(dParamLoStop2, -M_PI/360);
@@ -738,47 +675,36 @@ namespace lpzrobots {
     ((AngularMotor*)thumb_motor_joint)->setParam(dParamHiStop2, 0);
     ((AngularMotor*)thumb_motor_joint)->setParam(dParamLoStop3, 0);
     ((AngularMotor*)thumb_motor_joint)->setParam(dParamHiStop3, 0);
-
-
     frictionmotors.push_back(thumb_motor_joint);
-    //frictionmotors.push_back(new AngularMotor3AxisEuler(odeHandle, (BallJoint*)palm_thumb, axis1, axis3, conf.power));
+
 
     //-----------index finger--------------------------------------------------
 
     Primitive *index_b, *index_c, *index_t;
 
     index_b = new Capsule(0.2,0.6);
-    index_b -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
-		      | Primitive::Geom | Primitive::Draw);
-
-    //palm->setPose(osg::Matrix::translate(conf.invert*(0+conf.x),(0.05+conf.y),(0.5+conf.z)));
+    index_b -> init ( odeHandle , 0.1 , osgHandle , 
+		      Primitive::Body|Primitive::Geom|Primitive::Draw);
     if (conf.finger_winkel==M_PI/2){ 
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) *osg::Matrix::translate(conf.invert*(1.0), (-0.6), (-0.05)) *(palm->getPose()));
+      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
+			*osg::Matrix::translate((1.0), (-0.6), (-0.05)) *(palm->getPose()));
     }
     else if (conf.finger_winkel==2*M_PI)  {
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) * osg::Matrix::translate(conf.invert*(0.65), (-0.6), (conf.invert*0.35))*(palm->getPose()));
-      
+      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
+			* osg::Matrix::translate((0.65), (-0.6), (0.35))*(palm->getPose()));
     }
     else if (conf.finger_winkel==M_PI/4)  {
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) * osg::Matrix::translate(conf.invert==-1 ? conf.invert*(0.9): conf.invert*(0.8), (-0.6), conf.invert==-1 ? conf.invert*(0.3) : (0.2))*(palm->getPose()));
+      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
+			* osg::Matrix::translate((0.8), (-0.6),  (0.2))*(palm->getPose()));
     }
     else if (conf.finger_winkel==M_PI/3) { 
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) *osg::Matrix::translate(conf.invert*(1.0), (-0.6), conf.invert*(0.2)) *(palm->getPose()));
+      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
+			*osg::Matrix::translate((1.0), (-0.6), (0.2)) *(palm->getPose()));
     }
     else if (conf.finger_winkel==M_PI/6){ 
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) *osg::Matrix::translate(conf.invert*(0.8), (-0.6), conf.invert==-1 ?conf.invert*(0.35):(0.3)) *(palm->getPose()));
+      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
+			*osg::Matrix::translate((0.8), (-0.6), (0.3)) *(palm->getPose()));
     }
-    
-    //(0.9), (-0.6), (-0.3)
-
-    //index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) * osg::Matrix::translate(Pos(index_b->getPosition()-(index_c->getPosition()-index_b->getPosition())/1.8)));
-
-    //index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) * osg::Matrix::translate((-forearm->getPosition()+palm->getPosition())/3.6)*(palm->getPose())*osg::Matrix::translate(0,-0.6,0));
-
-    //index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) * osg::Matrix::translate(sin(conf.finger_winkel)+0.4, (-0.6), cos(conf.finger_winkel)-0.6)*(palm->getPose()));
-
-    //index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) * osg::Matrix::translate(conf.invert*sin(conf.finger_winkel),(-0.6),cos(conf.finger_winkel))*(palm->getPose()));
-
     objects.push_back(index_b);
 
 
@@ -788,9 +714,9 @@ namespace lpzrobots {
       IRSensor* sensor_index_b = new IRSensor();
       ir_sensors.push_back(sensor_index_b);
       irSensorBank.registerSensor(sensor_index_b, objects[5], 
-				  osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				  osg::Matrix::translate(conf.invert*(-0.2), 0, 0), 
-				  conf.irRange, conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0), 
+				  conf.irRange, conf.ray_draw_mode);
     }
 
 
@@ -798,15 +724,7 @@ namespace lpzrobots {
     index_c = new Capsule(0.2,0.6);
     index_c -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		      | Primitive::Geom | Primitive::Draw);
-    
-  
-    index_c ->setPose(osg::Matrix::translate((0), (0), conf.invert*(0.59))*(index_b->getPose()));
-    
-    //osg::Matrix::translate(Pos(index_b->getPosition()))*osg::Matrix::rotate(index_b->getPosition())
-    //*osg::Matrix::translate(Pos(index_b->getRotation())
-    
-      
-
+    index_c ->setPose(osg::Matrix::translate((0), (0), (0.59))*(index_b->getPose()));
     objects.push_back(index_c);
 
     if(conf.ir_sensor_used)
@@ -815,21 +733,15 @@ namespace lpzrobots {
 	IRSensor* sensor_index_c = new IRSensor();
 	ir_sensors.push_back(sensor_index_c);
 	irSensorBank.registerSensor(sensor_index_c, objects[6], 
-				    osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				    osg::Matrix::translate(conf.invert*(-0.2), 0, 0), conf.irRange, 
-				    conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				    osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				    osg::Matrix::translate((-0.2), 0, 0), conf.irRange, 
+				    conf.ray_draw_mode);
       }
     
     index_t = new Capsule(0.2,0.5);
     index_t -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		      | Primitive::Geom | Primitive::Draw);
-
-    //index_t ->setPose(osg::Matrix::translate(conf.invert*(0), (0), (1.41))*(index_b->getPose()));
-    
-    index_t ->setPose(osg::Matrix::translate((0), (0), conf.invert*(0.59))*(index_c->getPose()));
-
-    //index_t ->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(2.35+conf.x),(-0.6+conf.y), (0.5+conf.z)));
-
+    index_t ->setPose(osg::Matrix::translate((0), (0), (0.59))*(index_c->getPose()));
     objects.push_back(index_t);
 
     if(conf.ir_sensor_used){
@@ -837,95 +749,86 @@ namespace lpzrobots {
       IRSensor* sensor_index_t = new IRSensor();
       ir_sensors.push_back(sensor_index_t);
       irSensorBank.registerSensor(sensor_index_t, objects[7], 
-				  osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				  osg::Matrix::translate(conf.invert*(-0.2), 0, 0), conf.irRange, 
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0), conf.irRange, 
+				  conf.ray_draw_mode);
     }
 
     Primitive* index_nail = new Cylinder(0.19,0.0001);
-    Primitive* fix_index_nail= new Transform(objects[7],index_nail, osg::Matrix::translate(-0.35, 0,0.205)*osg::Matrix::rotate(conf.invert*M_PI/2,0,1,0));
+    Primitive* fix_index_nail= new Transform(objects[7],index_nail, osg::Matrix::translate(-0.35, 0,0.205)*osg::Matrix::rotate(M_PI/2,0,1,0));
     fix_index_nail -> init (odeHandle , 0 , osgHandle);
     
 
     //----------------index finger joints----------------------------------------------
     Joint *palm_index, *index_bc, *index_ct;
-
-    //palm_index = new HingeJoint(palm, index_b,Pos(conf.invert*(0.6+conf.x), (-0.6+conf.y), (0.5+conf.z)), Axis(0, 1, 0));
-
-    palm_index = new HingeJoint(palm, index_b, index_b->getPosition()-(index_c->getPosition()-index_b->getPosition())/1.8, Axis(0, 1, 0));
-
-
-    palm_index ->init(odeHandle, osgHandle, true, 0.2 );
-
-	//palm_index ->setParam(dParamLoStop,  -M_PI/2);
-	//palm_index ->setParam(dParamHiStop,  M_PI/360);
-	if(conf.finger_winkel==M_PI/2)
-	  {
-	    palm_index ->setParam(dParamLoStop,  -M_PI/360);
-	    palm_index ->setParam(dParamHiStop,  M_PI/2);
-	  }
-	else if (conf.finger_winkel==2*M_PI)
-	  {
-	    palm_index ->setParam(dParamLoStop,  -M_PI/2);
-	    palm_index ->setParam(dParamHiStop,  M_PI/360);
-	  }
-	else if (conf.finger_winkel==M_PI/4)
-	  {
-	    palm_index ->setParam(dParamLoStop,  -M_PI/4);
-	    palm_index ->setParam(dParamHiStop,  M_PI/4);
-	  }
-	else if (conf.finger_winkel==M_PI/3)
-	  {
-	    palm_index ->setParam(dParamLoStop,  -M_PI/6);
-	    palm_index ->setParam(dParamHiStop,  M_PI/3);
-	  }
-	else if (conf.finger_winkel==M_PI/6)
-	  {
-	    palm_index ->setParam(dParamLoStop,  -M_PI/3);
-	    palm_index ->setParam(dParamHiStop,  M_PI/6);
-	  }
-
+    palm_index = new HingeJoint(palm, index_b, index_b->getPosition()
+				-(index_c->getPosition()-index_b->getPosition())/1.8, 
+				Axis(0, 1, 0)*palm->getPose());
+    palm_index ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
+    
+    //palm_index ->setParam(dParamLoStop,  -M_PI/2);
+    //palm_index ->setParam(dParamHiStop,  M_PI/360);
+    if(conf.finger_winkel==M_PI/2)
+      {
+	palm_index ->setParam(dParamLoStop,  -M_PI/360);
+	palm_index ->setParam(dParamHiStop,  M_PI/2);
+      }
+    else if (conf.finger_winkel==2*M_PI)
+      {
+	palm_index ->setParam(dParamLoStop,  -M_PI/2);
+	palm_index ->setParam(dParamHiStop,  M_PI/360);
+      }
+    else if (conf.finger_winkel==M_PI/4)
+      {
+	palm_index ->setParam(dParamLoStop,  -M_PI/4);
+	palm_index ->setParam(dParamHiStop,  M_PI/4);
+      }
+    else if (conf.finger_winkel==M_PI/3)
+      {
+	palm_index ->setParam(dParamLoStop,  -M_PI/6);
+	palm_index ->setParam(dParamHiStop,  M_PI/3);
+      }
+    else if (conf.finger_winkel==M_PI/6)
+      {
+	palm_index ->setParam(dParamLoStop,  -M_PI/3);
+	palm_index ->setParam(dParamHiStop,  M_PI/6);
+      }
+    
 
 
     palm_index ->setParam (dParamBounce, 0.9 );
     joints.push_back(palm_index);
 
-    HingeServo* servo_palm_index =  new HingeServo((HingeJoint*)palm_index, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power); 
+    HingeServo* servo_palm_index =  new HingeServo((HingeJoint*)palm_index, conf.jointLimit1, 
+						   conf.jointLimit2, conf.servo_motor_Power); 
     servos.push_back(servo_palm_index);
 
 
-	index_bc = new HingeJoint(index_b, index_c,
-				  (index_b->getPosition()+index_c->getPosition())/2, Axis(0, 1, 0));
-	// * osg::Matrix::translate(Pos(index_b->getPosition()))
-	//Pos(conf.invert*(1.35+conf.x),(-0.6+conf.y),(0.5+conf.z))
-
-
-    index_bc ->init(odeHandle, osgHandle, true, 0.2 );
+    index_bc = new HingeJoint(index_b, index_c,
+			      (index_b->getPosition()+index_c->getPosition())/2, 
+			      Axis(0, 1, 0)*palm->getPose());
+    index_bc ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     index_bc ->setParam(dParamHiStop,  M_PI/2);
     index_bc ->setParam(dParamLoStop, -M_PI/360);
     index_bc ->setParam (dParamBounce, 0.9 );
     joints.push_back(index_bc);
 
-    HingeServo* servo_index_bc =  new HingeServo((HingeJoint*)index_bc, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_index_bc =  new HingeServo((HingeJoint*)index_bc, conf.jointLimit1, 
+						 conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_index_bc);
 
 
-
-	//index_ct = new HingeJoint(index_c, index_t, Pos(conf.invert*(2.1+conf.x), (-0.6+conf.y),(0.5+conf.z)), Axis(0, 1, 0));
-
-	index_ct = new HingeJoint(index_c, index_t,
-				  ((index_c->getPosition()+index_t->getPosition())/2), Axis(0, 1, 0)); 
-	//* osg::Matrix::translate(Pos(index_c->getPosition())));
-
-
-
-    index_ct ->init(odeHandle, osgHandle, true, 0.2 );
+    index_ct = new HingeJoint(index_c, index_t,
+			      ((index_c->getPosition()+index_t->getPosition())/2), 
+			      Axis(0, 1, 0)*palm->getPose()); 
+    index_ct ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     index_ct ->setParam(dParamHiStop,  M_PI/2);
     index_ct ->setParam(dParamLoStop, -M_PI/360);
     index_ct ->setParam (dParamBounce, 0.9 );
     joints.push_back(index_ct);
 
-    HingeServo* servo_index_ct =  new HingeServo((HingeJoint*)index_ct, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_index_ct =  new HingeServo((HingeJoint*)index_ct, conf.jointLimit1, 
+						 conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_index_ct);
  
 
@@ -937,35 +840,27 @@ namespace lpzrobots {
     middle_b = new Capsule(0.2,0.6);
     middle_b -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		       | Primitive::Geom | Primitive::Draw);
-
-
-	//middle_b->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(1.35+conf.x), (-0.15+conf.y), (0.5+conf.z)));
-	if (conf.finger_winkel==M_PI/2)
-	  {
-	    middle_b->setPose(osg::Matrix::translate(conf.invert*(0), (0.45), conf.invert*(0.3))*(index_b->getPose()));
-	  }
-	else if (conf.finger_winkel==2*M_PI)
-	  {
-	    middle_b->setPose(osg::Matrix::translate(conf.invert*(0.3), (0.45), conf.invert*(0))*(index_b->getPose()));
-	  }
-	else if (conf.finger_winkel==M_PI/4)
-	  {
-	    middle_b->setPose(osg::Matrix::translate(conf.invert*(0.25), (0.45), conf.invert*(0.25))*(index_b->getPose()));
-	  }
-	else if (conf.finger_winkel==M_PI/3)
-	  {
-	    middle_b->setPose(osg::Matrix::translate(conf.invert*(0.13), (0.45), conf.invert*(0.17))*(index_b->getPose()));
-	  }
-	else if (conf.finger_winkel==M_PI/6)
-	  {
-	    middle_b->setPose(osg::Matrix::translate(conf.invert*(0.20), (0.45), conf.invert*(0.20))*(index_b->getPose()));
-	  }
-
-	//middle_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) * osg::Matrix::translate(sin(conf.finger_winkel),(-0.15),cos(conf.finger_winkel))*(palm->getPose()));
-
-	//middle_b->setPose(osg::Matrix::translate(conf.invert*(0), (0.45), (0))*(palm->getPose()));
-
-
+    if (conf.finger_winkel==M_PI/2)
+      {
+	middle_b->setPose(osg::Matrix::translate((0), (0.45), (0.3))*(index_b->getPose()));
+      }
+    else if (conf.finger_winkel==2*M_PI)
+      {
+	middle_b->setPose(osg::Matrix::translate((0.3), (0.45), (0))*(index_b->getPose()));
+      }
+    else if (conf.finger_winkel==M_PI/4)
+      {
+	middle_b->setPose(osg::Matrix::translate((0.25), (0.45), (0.25))*(index_b->getPose()));
+      }
+    else if (conf.finger_winkel==M_PI/3)
+      {
+	middle_b->setPose(osg::Matrix::translate((0.13), (0.45), (0.17))*(index_b->getPose()));
+      }
+    else if (conf.finger_winkel==M_PI/6)
+      {
+	middle_b->setPose(osg::Matrix::translate((0.20), (0.45), (0.20))*(index_b->getPose()));
+      }
+    
     objects.push_back(middle_b);
     if(conf.ir_sensor_used)
       {
@@ -973,21 +868,15 @@ namespace lpzrobots {
 	IRSensor* sensor_middle_b = new IRSensor();
 	ir_sensors.push_back(sensor_middle_b);
 	irSensorBank.registerSensor(sensor_middle_b, objects[8], 
-				    osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				    osg::Matrix::translate(conf.invert*(-0.2), 0, 0),  conf.irRange, 
-				    conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				    osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				    osg::Matrix::translate((-0.2), 0, 0),  conf.irRange, 
+				    conf.ray_draw_mode );
       }
 
     middle_c = new Capsule(0.2,0.7);
     middle_c -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		       | Primitive::Geom | Primitive::Draw);
-
-
-    //middle_c ->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(2.21+conf.x), (-0.15+conf.y), (0.5+conf.z)));
-
-    middle_c->setPose(osg::Matrix::translate(conf.invert*(0), (0), conf.invert*(0.69))*(middle_b->getPose()));
-
-
+    middle_c->setPose(osg::Matrix::translate((0), (0), (0.69))*(middle_b->getPose()));
     objects.push_back(middle_c);
 
     if(conf.ir_sensor_used)
@@ -996,19 +885,15 @@ namespace lpzrobots {
 	IRSensor* sensor_middle_c = new IRSensor();
 	ir_sensors.push_back(sensor_middle_c);
 	irSensorBank.registerSensor(sensor_middle_c, objects[9], 
-				    osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				    osg::Matrix::translate(conf.invert*(-0.2), 0, 0), conf.irRange, 
-				    conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				    osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				    osg::Matrix::translate((-0.2), 0, 0), conf.irRange, 
+				    conf.ray_draw_mode);
       }
 
     middle_t = new Capsule(0.2,0.7);
     middle_t -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		       | Primitive::Geom | Primitive::Draw);
-
-	middle_t->setPose(osg::Matrix::translate(conf.invert*(0), (0), conf.invert*(0.69))*(middle_c->getPose()));
-
-	//middle_t ->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(2.9+conf.x),(-0.15+conf.y), (0.5+conf.z)));
-
+    middle_t->setPose(osg::Matrix::translate((0), (0), (0.69))*(middle_c->getPose()));
     objects.push_back(middle_t);
 
     if(conf.ir_sensor_used) {
@@ -1016,22 +901,24 @@ namespace lpzrobots {
       IRSensor* sensor_middle_t = new IRSensor();
       ir_sensors.push_back(sensor_middle_t);
       irSensorBank.registerSensor(sensor_middle_t, objects[10], 
-				  osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				  osg::Matrix::translate(conf.invert*(-0.2), 0, 0),  conf.irRange, 
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0),  conf.irRange, 
+				  conf.ray_draw_mode);
     }
     
     Primitive* middle_nail = new Cylinder(0.19,0.0001);
-    Primitive* fix_middle_nail= new Transform(objects[10],middle_nail, osg::Matrix::translate(-0.4, 0,0.205)*osg::Matrix::rotate(conf.invert*M_PI/2,0,1,0));
+    Primitive* fix_middle_nail= new Transform(objects[10],middle_nail, osg::Matrix::translate(-0.4, 0,0.205)*osg::Matrix::rotate(M_PI/2,0,1,0));
     fix_middle_nail -> init (odeHandle , 0 , osgHandle);
+
+
 
     //-------------------------middle finger joints-------------------------------------
     Joint *palm_middle, *middle_bc, *middle_ct;
 
-    //palm_middle = new HingeJoint(palm, middle_b, (palm->getPosition()+middle_b->getPosition())/2, Axis(0, 1, 0));
-
-    palm_middle = new HingeJoint(palm, middle_b,Pos(conf.invert*(0.9+conf.x), (-0.15+conf.y), (0.5+conf.z)), Axis(0, 1, 0));
-    palm_middle ->init(odeHandle, osgHandle, true, 0.2 );
+    palm_middle = new HingeJoint(palm, middle_b,middle_b->getPosition()
+				 -(middle_c->getPosition()-middle_b->getPosition())/1.8,
+				 Axis(0, 1, 0)*palm->getPose());
+    palm_middle ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
 
     if (conf.finger_winkel==M_PI/2){
       palm_middle->setParam(dParamLoStop, -M_PI/360);
@@ -1053,36 +940,39 @@ namespace lpzrobots {
       palm_middle ->setParam(dParamLoStop,  -M_PI/3);
       palm_middle ->setParam(dParamHiStop,  M_PI/6);
     }
-
-
-
     joints.push_back(palm_middle);
 
-    HingeServo* servo_palm_middle =  new HingeServo((HingeJoint*)palm_middle, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_palm_middle =  new HingeServo((HingeJoint*)palm_middle, conf.jointLimit1, 
+						    conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_palm_middle);
 
 
     middle_bc = new HingeJoint(middle_b, middle_c,
-			       (middle_b->getPosition()+middle_c->getPosition())/2, Axis(0, 1, 0));
+			       (middle_b->getPosition()+middle_c->getPosition())/2, 
+			       Axis(0, 1, 0)*palm->getPose());
 
-    middle_bc ->init(odeHandle, osgHandle, true, 0.2 );
+    middle_bc ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     middle_bc->setParam(dParamHiStop,  M_PI/2);
     middle_bc->setParam(dParamLoStop, -M_PI/360);
     joints.push_back(middle_bc);
 
-    HingeServo* servo_middle_bc =  new HingeServo((HingeJoint*)middle_bc, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_middle_bc =  new HingeServo((HingeJoint*)middle_bc, conf.jointLimit1, 
+						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_middle_bc);
 
     middle_ct = new HingeJoint(middle_c, middle_t,
-			       (middle_c->getPosition()+middle_t->getPosition())/2, Axis(0, 1, 0));
-
-    middle_ct ->init(odeHandle, osgHandle, true, 0.2 );
+			       (middle_c->getPosition()+middle_t->getPosition())/2, 
+			       Axis(0, 1, 0)*palm->getPose());
+    middle_ct ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     middle_ct->setParam(dParamHiStop,  M_PI/2);
     middle_ct->setParam(dParamLoStop, -M_PI/360);
     joints.push_back(middle_ct);
 
-    HingeServo* servo_middle_ct =  new HingeServo((HingeJoint*)middle_ct, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_middle_ct =  new HingeServo((HingeJoint*)middle_ct, conf.jointLimit1, 
+						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_middle_ct);
+
+
 
     //---------------------------ring finger------------------------------------------- 
     Primitive *ring_b, *ring_c, *ring_t;
@@ -1090,30 +980,21 @@ namespace lpzrobots {
     ring_b = new Capsule(0.2,0.6);
     ring_b-> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		    | Primitive::Geom | Primitive::Draw);
-
-
-	//ring_b->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(1.3+conf.x), (0.3+conf.y), (0.5+conf.z)));
-
     if (conf.finger_winkel==M_PI/2)  {
-      ring_b->setPose(osg::Matrix::translate(conf.invert*(0), (0.9), conf.invert*(0.3))*(index_b->getPose()));
+      ring_b->setPose(osg::Matrix::translate((0), (0.9), (0.3))*(index_b->getPose()));
     }
     else if (conf.finger_winkel==2*M_PI){
-      ring_b->setPose(osg::Matrix::translate(conf.invert*(0.3), (0.9), conf.invert*(0))*(index_b->getPose()));
+      ring_b->setPose(osg::Matrix::translate((0.3), (0.9), (0))*(index_b->getPose()));
     }
     else if (conf.finger_winkel==M_PI/4){
-      ring_b->setPose(osg::Matrix::translate(conf.invert*(0.25), (0.9), conf.invert*(0.25))*(index_b->getPose()));
+      ring_b->setPose(osg::Matrix::translate((0.25), (0.9), (0.25))*(index_b->getPose()));
     }
     else if (conf.finger_winkel==M_PI/3)  {
-      ring_b->setPose(osg::Matrix::translate(conf.invert*(0.13), (0.9), conf.invert*(0.17))*(index_b->getPose()));
+      ring_b->setPose(osg::Matrix::translate((0.13), (0.9), (0.17))*(index_b->getPose()));
     }
     else if (conf.finger_winkel==M_PI/6){
-      ring_b->setPose(osg::Matrix::translate(conf.invert*(0.20), (0.9), conf.invert*(0.20))*(index_b->getPose()));
+      ring_b->setPose(osg::Matrix::translate((0.20), (0.9), (0.20))*(index_b->getPose()));
     }
-    
-
-	//ring_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) * osg::Matrix::translate(sin(conf.finger_winkel),(0.3),cos(conf.finger_winkel))*(palm->getPose()));
-
-
     objects.push_back(ring_b);
 
     if(conf.ir_sensor_used) {
@@ -1121,21 +1002,15 @@ namespace lpzrobots {
       IRSensor* sensor_ring_b = new IRSensor();
       ir_sensors.push_back(sensor_ring_b);
       irSensorBank.registerSensor(sensor_ring_b, objects[11], 
-				  osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				  osg::Matrix::translate(conf.invert*(-0.2), 0, 0),  conf.irRange, 
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0),  conf.irRange, 
+				  conf.ray_draw_mode );
     }
     
     ring_c = new Capsule(0.2,0.6);
     ring_c -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		     | Primitive::Geom | Primitive::Draw);
-
-
-	//ring_c ->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(2.0+conf.x), (0.3+conf.y), (0.5+conf.z)));
-
-	ring_c->setPose(osg::Matrix::translate(conf.invert*(0), (0), conf.invert*(0.59))*(ring_b->getPose()));
-
-
+    ring_c->setPose(osg::Matrix::translate((0), (0), (0.59))*(ring_b->getPose()));
     objects.push_back(ring_c);
 
     if(conf.ir_sensor_used) {
@@ -1143,17 +1018,15 @@ namespace lpzrobots {
       IRSensor* sensor_ring_c = new IRSensor();
       ir_sensors.push_back(sensor_ring_c);
       irSensorBank.registerSensor(sensor_ring_c, objects[12], 
-				  osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				  osg::Matrix::translate(conf.invert*(-0.2), 0, 0),  conf.irRange, 
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0),  conf.irRange, 
+				  conf.ray_draw_mode);
     }
     
     ring_t = new Capsule(0.2,0.5);
     ring_t -> init ( odeHandle, 0.1 , osgHandle , Primitive::Body 	
 		     | Primitive::Geom | Primitive::Draw);
-
-    ring_t->setPose(osg::Matrix::translate(conf.invert*(0), (0), conf.invert*(0.59))*(ring_c->getPose()));
-
+    ring_t->setPose(osg::Matrix::translate((0), (0), (0.59))*(ring_c->getPose()));
     objects.push_back(ring_t);
 
     if(conf.ir_sensor_used){
@@ -1161,13 +1034,15 @@ namespace lpzrobots {
       IRSensor* sensor_ring_t = new IRSensor();
       ir_sensors.push_back(sensor_ring_t);
       irSensorBank.registerSensor(sensor_ring_t, objects[13], 
-				  osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				  osg::Matrix::translate(conf.invert*(-0.2), 0, 0),  conf.irRange,
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0),  conf.irRange,
+				  conf.ray_draw_mode);
     }
     
     Primitive* ring_nail = new Cylinder(0.19,0.0001);
-    Primitive* fix_ring_nail= new Transform(objects[13],ring_nail, osg::Matrix::translate(-0.37, 0,0.205)*osg::Matrix::rotate(conf.invert*M_PI/2,0,1,0));
+    Primitive* fix_ring_nail= new Transform(objects[13],ring_nail, 
+					    osg::Matrix::translate(-0.37, 0,0.205)
+					    *osg::Matrix::rotate(M_PI/2,0,1,0));
     fix_ring_nail -> init (odeHandle , 0 , osgHandle);
 
 
@@ -1176,9 +1051,10 @@ namespace lpzrobots {
     Joint *palm_ring, *ring_bc, *ring_ct;
 
 
-    palm_ring = new HingeJoint(palm, ring_b,
-			       Pos(conf.invert*(0.9+conf.x), (0.3+conf.y), (0.5+conf.z)), Axis(0, 1, 0));
-    palm_ring->init(odeHandle, osgHandle, false, 0.2 );
+    palm_ring = new HingeJoint(palm, ring_b, ring_b->getPosition()
+			       -(ring_c->getPosition()-ring_b->getPosition())/1.8,
+			       Axis(0, 1, 0)*palm->getPose());
+    palm_ring->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
 
     if (conf.finger_winkel==M_PI/2)  {
       palm_ring ->setParam(dParamLoStop,  -M_PI/360);
@@ -1200,31 +1076,35 @@ namespace lpzrobots {
       palm_ring ->setParam(dParamLoStop,  -M_PI/3);
       palm_ring ->setParam(dParamHiStop,  M_PI/6);
     }
-
     joints.push_back(palm_ring);
 
-    HingeServo* servo_palm_ring =  new HingeServo((HingeJoint*)palm_ring, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_palm_ring =  new HingeServo((HingeJoint*)palm_ring, conf.jointLimit1, 
+						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_palm_ring);
-
-    ring_bc = new HingeJoint(ring_b, ring_c, (ring_b->getPosition()+ring_c->getPosition())/2, Axis(0, 1, 0));
-
-    ring_bc ->init(odeHandle, osgHandle, true, 0.2 );
+    
+    ring_bc = new HingeJoint(ring_b, ring_c, (ring_b->getPosition()+ring_c->getPosition())/2, 
+			     Axis(0, 1, 0)*palm->getPose());
+    ring_bc ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     ring_bc->setParam(dParamHiStop,  M_PI/2);
     ring_bc->setParam(dParamLoStop, -M_PI/360);
     joints.push_back(ring_bc);
 
-    HingeServo* servo_ring_bc =  new HingeServo((HingeJoint*)ring_bc, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_ring_bc =  new HingeServo((HingeJoint*)ring_bc, conf.jointLimit1, 
+						conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_ring_bc);
 
-    ring_ct = new HingeJoint(ring_c, ring_t, (ring_c->getPosition()+ring_t->getPosition())/2, Axis(0, 1, 0));
 
-    ring_ct ->init(odeHandle, osgHandle, true, 0.2 );
+    ring_ct = new HingeJoint(ring_c, ring_t, (ring_c->getPosition()+ring_t->getPosition())/2, 
+			     Axis(0, 1, 0)*palm->getPose());
+    ring_ct ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     ring_ct->setParam(dParamHiStop,  M_PI/2);
     ring_ct->setParam(dParamLoStop, -M_PI/360);
     joints.push_back(ring_ct);
-
-    HingeServo* servo_ring_ct =  new HingeServo((HingeJoint*)ring_ct, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    
+    HingeServo* servo_ring_ct =  new HingeServo((HingeJoint*)ring_ct, conf.jointLimit1, 
+						conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_ring_ct);
+
 
 
     //-----------little finger--------------------------------------------------------
@@ -1234,9 +1114,7 @@ namespace lpzrobots {
     little_b = new Capsule(0.2,0.6);
     little_b -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		       | Primitive::Geom | Primitive::Draw);
-
-    little_b->setPose(osg::Matrix::translate(conf.invert*(0), (1.35), (0))*(index_b->getPose()));
-
+    little_b->setPose(osg::Matrix::translate((0), (1.35), (0))*(index_b->getPose()));
     objects.push_back(little_b);
 
     if(conf.ir_sensor_used)
@@ -1245,20 +1123,16 @@ namespace lpzrobots {
 	IRSensor* sensor_little_b = new IRSensor();
 	ir_sensors.push_back(sensor_little_b);
 	irSensorBank.registerSensor(sensor_little_b, objects[14], 
-				    osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				    osg::Matrix::translate(conf.invert*(-0.2), 0, 0),   conf.irRange, 
-				    conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				    osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				    osg::Matrix::translate((-0.2), 0, 0),   conf.irRange, 
+				    conf.ray_draw_mode);
       }
 
     little_c = new Capsule(0.2,0.6);
     little_c -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		       | Primitive::Geom | Primitive::Draw);
 
-	little_c->setPose(osg::Matrix::translate(conf.invert*(0), (0), conf.invert*(0.59))*(little_b->getPose()));
-
-	//little_c ->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) * osg::Matrix::translate(conf.invert*(1.5+conf.x), (0.75+conf.y), (0.5+conf.z)));
-
-
+    little_c->setPose(osg::Matrix::translate((0), (0), (0.59))*(little_b->getPose()));
     objects.push_back(little_c);
 
     if(conf.ir_sensor_used)
@@ -1267,17 +1141,15 @@ namespace lpzrobots {
 	IRSensor* sensor_little_c = new IRSensor();
 	ir_sensors.push_back(sensor_little_c);
 	irSensorBank.registerSensor(sensor_little_c, objects[15], 
-				    osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				    osg::Matrix::translate(conf.invert*(-0.2), 0, 0),   conf.irRange, 
-				    conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				    osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				    osg::Matrix::translate((-0.2), 0, 0),   conf.irRange, 
+				    conf.ray_draw_mode);
       }
 
     little_t = new Capsule(0.2,0.6);
     little_t -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		       | Primitive::Geom | Primitive::Draw);
-
-    little_t->setPose(osg::Matrix::translate(conf.invert*(0), (0), conf.invert*(0.59))*(little_c->getPose()));
-
+    little_t->setPose(osg::Matrix::translate((0), (0), (0.59))*(little_c->getPose()));
     objects.push_back(little_t);
 
     if(conf.ir_sensor_used) {
@@ -1285,22 +1157,25 @@ namespace lpzrobots {
       IRSensor* sensor_little_t = new IRSensor();
       ir_sensors.push_back(sensor_little_t);
       irSensorBank.registerSensor(sensor_little_t, objects[16], 
-				  osg::Matrix::rotate(conf.invert*-M_PI/2, 0, 1, 0)  * 
-				  osg::Matrix::translate(conf.invert*(-0.2), 0, 0),   conf.irRange, 
-				  conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0),   conf.irRange, 
+				  conf.ray_draw_mode);
     }
     
     Primitive* little_nail = new Cylinder(0.19,0.0001);
-    Primitive* fix_little_nail= new Transform(objects[16],little_nail, osg::Matrix::translate(-0.39, 0,0.205)*osg::Matrix::rotate(conf.invert*M_PI/2,0,1,0));
+    Primitive* fix_little_nail= new Transform(objects[16],little_nail, osg::Matrix::translate(-0.39, 0,0.205)*osg::Matrix::rotate(M_PI/2,0,1,0));
     fix_little_nail -> init (odeHandle , 0 , osgHandle);
+
+
 
     //-----------------little finger joints-----------------------------------------
 
     Joint *palm_little, *little_bc, *little_ct;
 
     palm_little = new HingeJoint(palm, little_b,
-				 Pos(conf.invert*(0.6+conf.x), (0.75+conf.y), (0.5+conf.z)), Axis(0, 1, 0));
-    palm_little ->init(odeHandle, osgHandle, false, 0.2 );
+	little_b->getPosition()-(little_c->getPosition()-little_b->getPosition())/1.8,
+	Axis(0, 1, 0)*palm->getPose());
+    palm_little ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     if (conf.finger_winkel==M_PI/2){
       palm_little ->setParam(dParamLoStop, -M_PI/360);
       palm_little ->setParam(dParamHiStop,  M_PI/2);
@@ -1323,29 +1198,34 @@ namespace lpzrobots {
     }
 
     joints.push_back(palm_little);
-
-    HingeServo* servo_palm_little =  new HingeServo((HingeJoint*)palm_little, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    
+    HingeServo* servo_palm_little =  new HingeServo((HingeJoint*)palm_little, conf.jointLimit1, 
+						    conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_palm_little);
 
-    little_bc = new HingeJoint(little_b, little_c, (little_b->getPosition()+little_c->getPosition())/2, Axis(0, 1, 0));
-
-    little_bc ->init(odeHandle, osgHandle, true, 0.2 );
+    little_bc = new HingeJoint(little_b, little_c, 
+			       (little_b->getPosition()+little_c->getPosition())/2, 
+			       Axis(0, 1, 0)*palm->getPose());
+    little_bc ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     little_bc ->setParam(dParamHiStop,  M_PI/2);
     little_bc ->setParam(dParamLoStop, -M_PI/360);
     joints.push_back(little_bc);
 
-    HingeServo* servo_little_bc =  new HingeServo((HingeJoint*)little_bc, conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+    HingeServo* servo_little_bc =  new HingeServo((HingeJoint*)little_bc, conf.jointLimit1, 
+						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_little_bc);
 
-    little_ct = new HingeJoint(little_c, little_t, (little_c->getPosition()+little_t->getPosition())/2, Axis(0, 1, 0));
-
-    little_ct ->init(odeHandle, osgHandle, true, 0.2 );
+    little_ct = new HingeJoint(little_c, little_t, 
+			       (little_c->getPosition()+little_t->getPosition())/2, 
+			       Axis(0, 1, 0)*palm->getPose());
+    little_ct ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     little_ct ->setParam(dParamHiStop,  M_PI/2);
     little_ct ->setParam(dParamLoStop, -M_PI/360);
     joints.push_back(little_ct);
 
-    HingeServo* servo_little_ct =  new HingeServo((HingeJoint*)little_ct, 
-						  conf.jointLimit1, conf.jointLimit2, conf.servo_motor_Power);
+
+    HingeServo* servo_little_ct =  new HingeServo((HingeJoint*)little_ct, conf.jointLimit1, 
+						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_little_ct);
 
     // TDOD add following as conf option prostheses-like
@@ -1375,19 +1255,6 @@ namespace lpzrobots {
       ring_little ->setParam(dParamHiStop, -M_PI/360);
 
       joints.push_back(ring_little);
-    */
-
-
-    /*
-      --> no done in main.cpp with   Joint* fixator;
-    //---------joint connecting forearm with simulation environment----------------------
-
-    fix_forearm_joint = new HingeJoint(forearm, 0,
-				       Pos(conf.invert*(-6.2+conf.x), (0+conf.y), (0.5+conf.z)), Axis(1, 0, 0));
-    fix_forearm_joint->init(odeHandle, osgHandle, true, 0.2 );
-    fix_forearm_joint->setParam(dParamLoStop, -M_PI/360);
-    fix_forearm_joint->setParam(dParamHiStop,  M_PI/360);
-    joints.push_back(fix_forearm_joint);
     */
     created=true;
   }
@@ -1465,8 +1332,8 @@ namespace lpzrobots {
 	//     for (std::vector<Primitive*>::iterator i = objects.begin()+2; i!= objects.end(); i++){
 	irSensorBank.registerSensor(ir_sensors[i-2], objects[i], 
 				    osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),M_PI/2, osg::Vec3(0, 1, 0),0.0,osg::Vec3(0, 0, 1)) * 
-				    osg::Matrix::translate(conf.invert*(0), 0.2, 0), conf.irRange, 
-				    conf.Draw_part_of_ir_sensor==Draw_All ? RaySensor::drawAll : (conf.Draw_part_of_ir_sensor == Draw_just_Sensor ? RaySensor::drawSensor :   (conf.Draw_part_of_ir_sensor == Draw_just_Ray ?  RaySensor::drawRay : RaySensor::drawNothing)));
+				    osg::Matrix::translate((0), 0.2, 0), conf.irRange, 
+				    conf.ray_draw_mode);
 	
       }
       irSensorBank.update();
