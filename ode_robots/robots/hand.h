@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-09-14 19:18:36  fhesse
+ *   Revision 1.4  2007-09-17 13:11:20  fhesse
+ *   conf option drawFingernails added
+ *   box inside palm added to have collisions between palm and fingers
+ *   fixing stops of angular motor at forearm-palm-joint
+ *   thumb center element removed (now thumb has only 2 parts)
+ *
+ *   Revision 1.3  2007/09/14 19:18:36  fhesse
  *   pose added and cleaned up in create, HandConf adapted
  *
  *   Revision 1.2  2007/09/12 14:25:44  fhesse
@@ -146,7 +152,7 @@ namespace lpzrobots {
     bool fix_palm_joint;
     bool one_finger_as_one_motor;
     bool draw_joints;
-
+    bool showFingernails;
 
     //---------------InfrarRedSensor--------------------------  
     //  enum IrSensor_Type set_irsensor_type;
@@ -200,6 +206,7 @@ namespace lpzrobots {
 	conf.fix_palm_joint=true;
 	conf.one_finger_as_one_motor=false;
 	conf.draw_joints=false;
+	conf.showFingernails=true;
 	return conf;
       }
 
@@ -282,7 +289,8 @@ namespace lpzrobots {
      */
     virtual Primitive* getMainPrimitive() const {
       if(!objects.empty()){
-	return (objects[1]);
+	return (objects[0]); // returns forearm for fixation
+	//return (objects[1]); // returns palm
       }else return 0;
     }
 
