@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-09-17 13:09:08  fhesse
+ *   Revision 1.11  2007-09-17 19:34:40  fhesse
+ *   changes due to "experimenting"
+ *
+ *   Revision 1.10  2007/09/17 13:09:08  fhesse
  *   conf option drawFingernails added
  *   box inside palm added to have collision between palm and fingers
  *   fixing stops of angular motor at forarm_palm_joint
@@ -100,8 +103,10 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/invertnchannelcontrollerhebbxsi.h>
 
 #include "hand.h"
+#include "irinvertwiring.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -115,6 +120,7 @@ using namespace lpzrobots;
 class ThisSim : public Simulation {
 public:
 
+  PassiveBox* box;
   Joint* fixator;
 
   // starting function (executed once at the beginning of the simulation loop)
@@ -133,11 +139,12 @@ public:
     // adding hand
     OdeRobot *hand;
     HandConf conf = Hand::getDefaultConf();  
+    conf.velocity = 0.05;
     conf.invert = 1; 
     conf.irRange = 0.7;
-    conf.set_typ_of_motor = With_servo_motor;
+    conf.set_typ_of_motor = Without_servo_motor;//With_servo_motor;
     conf.show_contacts = true;
-    conf.ir_sensor_used =true;//false;
+    conf.ir_sensor_used =true;
     conf.number_of_ir_sensors = conf.ir_sensor_used*15;
     conf.jointLimit1 = -M_PI/180;
     conf.jointLimit2 = M_PI/2	;
@@ -182,17 +189,20 @@ public:
     cc5.cInit=1.5;
     //controller = new InvertMotorNStep(cc5); 
     //controller = new SineController();//InvertMotorNStep(cc5);  
-    controller = new InvertMotorSpace(10);  
-	  //controller = new InvertNChannelController(100); 
+    //controller = new InvertMotorSpace(10);  
+    //controller = new InvertNChannelController(10); 
+    controller = new InvertNChannelControllerHebbXsi(/*buffersize*/10, 
+    			     /*update_only_1*/false, 
+    			     /*inactivate_hebb*/false);
 
     //controller->setParam("adaptrate", 0.000);
     ////    controller->setParam("nomupdate", 0.0005);
-    //controller->setParam("epsC", 0.05);
+    controller->setParam("epsC", 0.05);
     //controller->setParam("epsA", 0.01);
     //controller->setParam("rootE", 0);
     //controller->setParam("steps", 2);
-    //controller->setParam("s4avg", 5);
-    //controller->setParam("s4del", 5);
+    controller->setParam("s4avg", 5);
+    controller->setParam("s4del", 5);
     ////	  controller->setParam("factorB",0);
     global.configs.push_back(controller); 
 
@@ -201,7 +211,8 @@ public:
 
     // adding wiring
     AbstractWiring *wiring;
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    //wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    wiring = new IRInvertWiring(new ColorUniformNoise(0.1));
 
 
     // adding agent
@@ -227,9 +238,7 @@ public:
     global.obstacles.push_back(playground);
     */
 
-
-
-    
+    /*
     PassiveCapsule* c = new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
     c->setPosition(Pos(0,0,6.7)); 
     c->setColor(Color(1.0f,0.2f,0.2f,0.5f));
@@ -238,6 +247,16 @@ public:
     //c->setTexture("Images/sandyground.rgb");
     c->setTexture("Images/furry_toy.jpg");
     global.obstacles.push_back(c); 
+    */
+    
+    box = new PassiveBox(odeHandle, osgHandle, osg::Vec3(0.7,5,0.7),10);
+    box->setPosition(Pos(0,0,6.7)); 
+    box->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+    //c->setTexture("Images/light_chess.rgb");
+    //c->setTexture("Images/dusty.rgb");
+    //c->setTexture("Images/sandyground.rgb");
+    box->setTexture("Images/furry_toy.jpg");
+    global.obstacles.push_back(box); 
     
     showParams(global.configs);
   }
@@ -262,6 +281,9 @@ public:
 	/*	controller->restore("test") && printf("Controller loaded\n");
 		handled = true; */
 	break;	
+      case 'r' : // replace box
+	box->setPosition(Pos(0,0,6.7)); 
+	break;
       case 'c' :{
 	PassiveCapsule* c =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
       	c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
