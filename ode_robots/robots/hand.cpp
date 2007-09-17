@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-09-17 13:11:20  fhesse
+ *   Revision 1.5  2007-09-17 19:31:57  fhesse
+ *   changes in setMotor() and getSensors() (tried to tidy up)
+ *
+ *   Revision 1.4  2007/09/17 13:11:20  fhesse
  *   conf option drawFingernails added
  *   box inside palm added to have collisions between palm and fingers
  *   fixing stops of angular motor at forearm-palm-joint
@@ -124,8 +127,8 @@ namespace lpzrobots {
 
 
     if (conf.one_finger_as_one_motor){  // one finger as one motor
-      sensorno=5;
-      motorno=5;
+      sensorno=6;
+      motorno=6;
     } else { // each finger joint as a seperate motor
       sensorno=15; 
       motorno=15;     
@@ -289,9 +292,9 @@ namespace lpzrobots {
 
     int sensorindex=0;
     if (!conf.fix_palm_joint){
-      sensors[sensorindex]=((AngularMotor*)palm_motor_joint)->getParam(dParamVel2);
+      sensors[sensorindex]=((AngularMotor*)palm_motor_joint)->getParam(dParamVel);
       sensorindex++;
-      sensors[sensorindex]=((AngularMotor*)palm_motor_joint)->getParam(dParamVel3);
+      sensors[sensorindex]=((AngularMotor*)palm_motor_joint)->getParam(dParamVel2);
       sensorindex++;
     }
 
@@ -301,11 +304,68 @@ namespace lpzrobots {
     /* not usable in the actual setup, thumb_motor_joint has only 1 controllable DOF
     sensors[sensorindex]=((AngularMotor*)thumb_motor_joint)->getParam(dParamVel2);
     sensorindex++;
+    */
     sensors[sensorindex]=((AngularMotor*)thumb_motor_joint)->getParam(dParamVel3);
     sensorindex++;
-    */
 
 
+    if (conf.one_finger_as_one_motor){ // motors at one finger get the same value
+      
+      //Without_servo_motor
+      // thumb already red out above
+
+      // sensorvalues for index finger
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) palm_index)->getPosition1Rate();
+      sensorindex++; 
+      // sensorvalues for middle finger
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) palm_middle)->getPosition1Rate();
+      sensorindex++; 
+      //motorvalues for ring finger
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) palm_ring)->getPosition1Rate();
+      sensorindex++; 
+      //motorvalues for little finger
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) palm_little)->getPosition1Rate();
+      sensorindex++; 
+
+    } else { // each joint has its own sensor/motor value
+
+      //Without_servo_motor
+      //thumb
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) thumb_bt)->getPosition1Rate();
+      sensorindex++; 
+      // index finger
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) palm_index)->getPosition1Rate();
+      sensorindex++; 
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) index_bc)->getPosition1Rate();
+      sensorindex++; 
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) index_ct)->getPosition1Rate();
+      sensorindex++; 
+      // middle finger
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) palm_middle)->getPosition1Rate();
+      sensorindex++; 
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) middle_bc)->getPosition1Rate();
+      sensorindex++; 
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) middle_ct)->getPosition1Rate();
+      sensorindex++; 
+      //ring finger
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) palm_ring)->getPosition1Rate();
+      sensorindex++; 
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) ring_bc)->getPosition1Rate();
+      sensorindex++; 
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) ring_ct)->getPosition1Rate();
+      sensorindex++; 
+      //little finger
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) palm_little)->getPosition1Rate();
+      sensorindex++; 
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) little_bc)->getPosition1Rate();
+      sensorindex++; 
+      sensors[sensorindex] = conf.factorSensor * ((HingeJoint*) little_ct)->getPosition1Rate();
+      sensorindex++; 
+    }
+
+    
+
+    /*
     if (conf.one_finger_as_one_motor){ // only values of palm-finger joints sensed
       for (uint i = 4; i < joints.size()-1; i+=3){
 	switch(conf.set_typ_of_motor){
@@ -342,6 +402,7 @@ namespace lpzrobots {
 	}
       }
     }
+    */
     if(conf.ir_sensor_used)
       {
 	sensorindex += irSensorBank.get(sensors+sensorindex, sensorno-sensorindex);
@@ -357,36 +418,118 @@ namespace lpzrobots {
   void Hand::setMotors(const motor* motors, int motornumber){    
     assert (created);
     assert (motorno == motornumber);
-    // there will always be an even number of motors
-    // (two sensors/motors per joint)
-    //    int len = min(motornumber/2, (int)joints.size()+2);
+
+    //  todo: add servomotor control
 
     int motorindex=0;
     // setting the motor values for joint between palm and forarm (only when joint is not fixed)
     if (!conf.fix_palm_joint){  
       ((AngularMotor3AxisEuler*)palm_motor_joint)->set(0, motors[motorindex]* velocity);
-      ////////////////////////////
-      //      ((AngularMotor3AxisEuler*)palm_motor_joint)->setPower(conf.power);
-      ////////////////////////////
-	motorindex++;
+      motorindex++;
       ((AngularMotor3AxisEuler*)palm_motor_joint)->set(1, motors[motorindex]* velocity);
       motorindex++;
+      ((AngularMotor3AxisEuler*)palm_motor_joint)->setPower(conf.power);
     }
 
-    // TODO:  why are 3 velocities used at the thumb?
-    // -> only axis 0 is needed!
+    // setting the motor values for joint between palm and thumb
     ((AngularMotor3AxisEuler*)thumb_motor_joint)->set(0, motors[motorindex]* velocity);
     motorindex++;
-    /*
+    /* not used here
     ((AngularMotor3AxisEuler*)thumb_motor_joint)->set(1, motors[motorindex]* velocity);
     motorindex++;
     */
     ((AngularMotor3AxisEuler*)thumb_motor_joint)->set(2, motors[motorindex]* velocity);
     motorindex++;
 
+
     if (conf.one_finger_as_one_motor){ // motors at one finger get the same value
+      
       motorindex--; // remaining joints of thumb shoud get the same motorvalue
-      for (uint i = 2; i < joints.size()-1; i++){ // when using thumb joints
+      //Without_servo_motor
+      ((HingeJoint*)thumb_bt) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)thumb_bt) -> setParam(dParamFMax, conf.power); 
+      motorindex++; //motorvalues for index finger
+      ((HingeJoint*)palm_index) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)palm_index) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)index_bc) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)index_bc) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)index_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)index_ct) -> setParam(dParamFMax, conf.power); 
+      motorindex++; //motorvalues for middle finger
+      ((HingeJoint*)palm_middle) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)palm_middle) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)middle_bc) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)middle_bc) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)middle_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)middle_ct) -> setParam(dParamFMax, conf.power); 
+      motorindex++; //motorvalues for ring finger
+      ((HingeJoint*)palm_ring) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)palm_ring) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)ring_bc) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)ring_bc) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)ring_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)ring_ct) -> setParam(dParamFMax, conf.power); 
+      motorindex++; //motorvalues for little finger
+      ((HingeJoint*)palm_little) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)palm_little) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)little_bc) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)little_bc) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)little_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)little_ct) -> setParam(dParamFMax, conf.power); 
+
+    } else { // each joint has its own motorvalue
+
+      //Without_servo_motor
+      //thumb
+      ((HingeJoint*)thumb_bt) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)thumb_bt) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+      // index finger
+      ((HingeJoint*)palm_index) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)palm_index) -> setParam(dParamFMax, conf.power); 
+      motorindex++; 
+      ((HingeJoint*)index_bc) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)index_bc) -> setParam(dParamFMax, conf.power); 
+      motorindex++; 
+      ((HingeJoint*)index_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)index_ct) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+      // middle finger
+      ((HingeJoint*)palm_middle) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)palm_middle) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+      ((HingeJoint*)middle_bc) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)middle_bc) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+      ((HingeJoint*)middle_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)middle_ct) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+
+      //ring finger
+      ((HingeJoint*)palm_ring) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)palm_ring) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+      ((HingeJoint*)ring_bc) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)ring_bc) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+      ((HingeJoint*)ring_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)ring_ct) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+
+      //little finger
+      ((HingeJoint*)palm_little) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)palm_little) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+      ((HingeJoint*)little_bc) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)little_bc) -> setParam(dParamFMax, conf.power); 
+      motorindex++;
+      ((HingeJoint*)little_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)little_ct) -> setParam(dParamFMax, conf.power); 
+    }
+    
+    /*
+
+    for (uint i = 2; i < joints.size()-1; i++){ // when using thumb joints
 	//for (uint i = 4; i < joints.size()-1; i++){ // when not using thumb joints
 	switch(conf.set_typ_of_motor){
 	case(Without_servo_motor):
@@ -430,7 +573,7 @@ namespace lpzrobots {
       }
     }
 
-
+    */
   }
 
   /** returns number of sensors
@@ -579,7 +722,6 @@ namespace lpzrobots {
       }
     objects.push_back(thumb_b);
 
-//  thumb bottom ir sensor useless, senses only palm
 
     if(conf.ir_sensor_used){
       irSensorBank.init(odeHandle, osgHandle);
@@ -595,7 +737,7 @@ namespace lpzrobots {
     thumb_t = new Capsule(0.2,0.5);
     thumb_t -> init ( odeHandle , 0.1 , osgHandle , 
 		      Primitive::Body|Primitive::Geom|Primitive::Draw);
-    thumb_t ->setPose(osg::Matrix::translate(0, 0, 0.6)*(thumb_b->getPose()) );
+    thumb_t ->setPose(osg::Matrix::translate(0, 0, 0.7)*(thumb_b->getPose()) );
     objects.push_back(thumb_t);
     
     if(conf.ir_sensor_used){
@@ -619,8 +761,7 @@ namespace lpzrobots {
     palm_thumb->init(odeHandle, osgHandle, conf.draw_joints, 0.3);
     joints.push_back(palm_thumb);
 
-    //-------hinge joints for thumb-----------------------------------------------------
-    HingeJoint* thumb_bt;
+    //-------hinge joint for thumb-----------------------------------------------------
     thumb_bt = new HingeJoint(thumb_b, thumb_t,
 			      (thumb_b->getPosition()+thumb_t->getPosition())/2,  
 			      Axis(0, 0, 1)*palm->getPose());
@@ -732,7 +873,7 @@ namespace lpzrobots {
     }
 
     //----------------index finger joints----------------------------------------------
-    Joint *palm_index, *index_bc, *index_ct;
+
     palm_index = new HingeJoint(palm, index_b, index_b->getPosition()
 				-(index_c->getPosition()-index_b->getPosition())/1.8, 
 				Axis(0, 1, 0)*palm->getPose());
@@ -887,7 +1028,6 @@ namespace lpzrobots {
 
 
     //-------------------------middle finger joints-------------------------------------
-    Joint *palm_middle, *middle_bc, *middle_ct;
 
     palm_middle = new HingeJoint(palm, middle_b,middle_b->getPosition()
 				 -(middle_c->getPosition()-middle_b->getPosition())/1.8,
@@ -1022,7 +1162,6 @@ namespace lpzrobots {
 
 
     //-----------ring finger joints----------------------------------------------------
-    Joint *palm_ring, *ring_bc, *ring_ct;
 
 
     palm_ring = new HingeJoint(palm, ring_b, ring_b->getPosition()
@@ -1146,7 +1285,6 @@ namespace lpzrobots {
 
     //-----------------little finger joints-----------------------------------------
 
-    Joint *palm_little, *little_bc, *little_ct;
 
     palm_little = new HingeJoint(palm, little_b,
 	little_b->getPosition()-(little_c->getPosition()-little_b->getPosition())/1.8,

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-09-17 13:11:20  fhesse
+ *   Revision 1.5  2007-09-17 19:31:57  fhesse
+ *   changes in setMotor() and getSensors() (tried to tidy up)
+ *
+ *   Revision 1.4  2007/09/17 13:11:20  fhesse
  *   conf option drawFingernails added
  *   box inside palm added to have collisions between palm and fingers
  *   fixing stops of angular motor at forearm-palm-joint
@@ -344,8 +347,8 @@ namespace lpzrobots {
     RaySensorBank irSensorBank; 
 
 
-    Primitive* p;
-    Joint* j;
+    //Primitive* p;
+    //Joint* j;
 
     /** space containing the hand */
     dSpaceID hand_space;     
@@ -359,6 +362,22 @@ namespace lpzrobots {
 
     /** motorjoint for actuating the palm_thumb joint (ball joint) */
     AngularMotor* thumb_motor_joint;
+
+    /** Hinge Joint between thumb_buttom and thumb_top*/
+    HingeJoint* thumb_bt;
+
+    /** Hinge Joint between buttom, center and top part of the index finger*/
+    Joint *palm_index, *index_bc, *index_ct;
+
+    /** Hinge Joint between buttom, center and top part of the middle finger*/
+    Joint *palm_middle, *middle_bc, *middle_ct;
+
+    /** Hinge Joint between buttom, center and top part of the ring finger*/
+    Joint *palm_ring, *ring_bc, *ring_ct;
+
+    /** Hinge Joint between buttom, center and top part of the little finger*/
+    Joint *palm_little, *little_bc, *little_ct;
+
 
 
     /** for handling lateral and precision grip modes */
@@ -385,6 +404,7 @@ namespace lpzrobots {
     paramval frictionGround;
     
     double velocity;
+
  
   };
 
