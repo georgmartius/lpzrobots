@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-09-14 19:18:36  fhesse
+ *   Revision 1.10  2007-09-17 13:09:08  fhesse
+ *   conf option drawFingernails added
+ *   box inside palm added to have collision between palm and fingers
+ *   fixing stops of angular motor at forarm_palm_joint
+ *   thumb center element removed (now thumb has only 2 parts)
+ *
+ *   Revision 1.9  2007/09/14 19:18:36  fhesse
  *   pose added and cleaned up in create, HandConf adapted
  *
  *   Revision 1.8  2007/09/12 14:25:44  fhesse
@@ -131,20 +137,19 @@ public:
     conf.irRange = 0.7;
     conf.set_typ_of_motor = With_servo_motor;
     conf.show_contacts = true;
-    conf.ir_sensor_used = true;//false;
+    conf.ir_sensor_used =true;//false;
     conf.number_of_ir_sensors = conf.ir_sensor_used*15;
     conf.jointLimit1 = -M_PI/180;
     conf.jointLimit2 = M_PI/2	;
     conf.servo_motor_Power = 1.2;
     conf.finger_winkel = M_PI/2;// /6;//2;
-    conf.fix_palm_joint=false;//true;
+    conf.fix_palm_joint=true;
     conf.one_finger_as_one_motor=true;
     conf.draw_joints=false;//true;
+    conf.showFingernails=false;
+
     hand = new Hand(odeHandle, osgHandle,conf,"Hand");
     hand->setColor(Color(1.0,0.5,1.0));
-    //hand->place(Pos(2.5,1.26,0));
-    //hand->place(Pos(0,0,0));
-    //hand->place(Pos(2,3,1));
 	{
 	double matODE[12];
 	matODE[0] = 1.0f;
@@ -163,15 +168,21 @@ public:
 	Pos[0]=0;
 	Pos[1]=0;
 	Pos[2]=5;
-    hand->place(osgPose( Pos , matODE ) );
+	//hand->place(osgPose( Pos , matODE ) );
+	}
+    //hand->place(Pos(2.5,1.26,0));
+    hand->place(Pos(0,0,6));
+    //hand->place(Pos(2,3,1));
+
     global.configs.push_back(hand);
-}
+
     // adding controller
     AbstractController *controller;
     InvertMotorNStepConf cc5 = InvertMotorNStep::getDefaultConf();
     cc5.cInit=1.5;
-    //controller = new InvertMotorNStep(cc5); //SineController();//InvertMotorNStep(cc5);  
-    	  controller = new InvertMotorSpace(10);  
+    //controller = new InvertMotorNStep(cc5); 
+    //controller = new SineController();//InvertMotorNStep(cc5);  
+    controller = new InvertMotorSpace(10);  
 	  //controller = new InvertNChannelController(100); 
 
     //controller->setParam("adaptrate", 0.000);
@@ -220,7 +231,7 @@ public:
 
     
     PassiveCapsule* c = new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
-    c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
+    c->setPosition(Pos(0,0,6.7)); 
     c->setColor(Color(1.0f,0.2f,0.2f,0.5f));
     //c->setTexture("Images/light_chess.rgb");
     //c->setTexture("Images/dusty.rgb");
