@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-09-17 19:34:40  fhesse
+ *   Revision 1.12  2007-09-18 11:03:02  fhesse
+ *   conf.finger_winkel and conf.number_of_ir_sensors removed
+ *   conf.initWithOpenHand and conf.fingerBendAngle added
+ *   servo stuff commented out (todo: readd cleaned version)
+ *
+ *   Revision 1.11  2007/09/17 19:34:40  fhesse
  *   changes due to "experimenting"
  *
  *   Revision 1.10  2007/09/17 13:09:08  fhesse
@@ -139,22 +144,18 @@ public:
     // adding hand
     OdeRobot *hand;
     HandConf conf = Hand::getDefaultConf();  
-    conf.velocity = 0.05;
-    conf.invert = 1; 
+    conf.velocity = 0.02;
     conf.irRange = 0.7;
     conf.set_typ_of_motor = Without_servo_motor;//With_servo_motor;
     conf.show_contacts = true;
     conf.ir_sensor_used =true;
-    conf.number_of_ir_sensors = conf.ir_sensor_used*15;
-    conf.jointLimit1 = -M_PI/180;
-    conf.jointLimit2 = M_PI/2	;
     conf.servo_motor_Power = 1.2;
-    conf.finger_winkel = M_PI/2;// /6;//2;
     conf.fix_palm_joint=true;
     conf.one_finger_as_one_motor=true;
     conf.draw_joints=false;//true;
     conf.showFingernails=false;
-
+    conf.fingerJointBendAngle=M_PI*2/5;
+    conf.initWithOpenHand=true;
     hand = new Hand(odeHandle, osgHandle,conf,"Hand");
     hand->setColor(Color(1.0,0.5,1.0));
 	{
@@ -283,6 +284,7 @@ public:
 	break;	
       case 'r' : // replace box
 	box->setPosition(Pos(0,0,6.7)); 
+	box->setTexture("Images/furry_toy.jpg");
 	break;
       case 'c' :{
 	PassiveCapsule* c =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);

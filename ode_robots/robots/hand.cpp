@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-09-17 19:31:57  fhesse
+ *   Revision 1.6  2007-09-18 11:03:02  fhesse
+ *   conf.finger_winkel and conf.number_of_ir_sensors removed
+ *   conf.initWithOpenHand and conf.fingerBendAngle added
+ *   servo stuff commented out (todo: readd cleaned version)
+ *
+ *   Revision 1.5  2007/09/17 19:31:57  fhesse
  *   changes in setMotor() and getSensors() (tried to tidy up)
  *
  *   Revision 1.4  2007/09/17 13:11:20  fhesse
@@ -658,6 +663,7 @@ namespace lpzrobots {
     
     // box inside the palm
     // because cylinder is penetrable 
+
     Primitive* palm_box = new Box(0.8,1.3,0.3);
     Primitive* box_in_cylinder_palm = new Transform(objects[1],palm_box, 
 						    osg::Matrix::translate(0.05, 0, 0));
@@ -706,20 +712,20 @@ namespace lpzrobots {
     thumb_b = new Capsule(0.2,0.7);
     thumb_b -> init ( odeHandle , 0.1 , osgHandle , 
 		      Primitive::Body|Primitive::Geom|Primitive::Draw);
-
-    if (conf.finger_winkel==M_PI/2){
+        
+    if (conf.initWithOpenHand){
       thumb_b ->setPose(osg::Matrix::rotate(M_PI/2, osg::Vec3(1, 0, 0), 
-					    conf.finger_winkel, osg::Vec3(0, 1, 0),
+					    M_PI/2, osg::Vec3(0, 1, 0),
 					    0.0, osg::Vec3(0, 0, 1)) 
 			* osg::Matrix::translate(-0.8,-1.0, 0) * (palm->getPose()));
+    } else {
+      // todo: rotation not correct
+      thumb_b ->setPose(osg::Matrix::rotate(M_PI/6, osg::Vec3(1, 0, 0),
+					    0.0, osg::Vec3(0, 1, 0),
+					    -2*M_PI,osg::Vec3(0, 0, 1)) 
+			* osg::Matrix::translate(-0.8,-1.0, 0.3) *(palm->getPose()));
     }
-    else if (conf.finger_winkel==M_PI/6)
-      {
-	thumb_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, osg::Vec3(1, 0, 0),
-					      0.0, osg::Vec3(0, 1, 0),
-					      -2*M_PI,osg::Vec3(0, 0, 1)) 
-			  * osg::Matrix::translate(-0.8,-1.0, 0.3) *(palm->getPose()));
-      }
+    
     objects.push_back(thumb_b);
 
 
@@ -766,12 +772,16 @@ namespace lpzrobots {
 			      (thumb_b->getPosition()+thumb_t->getPosition())/2,  
 			      Axis(0, 0, 1)*palm->getPose());
     thumb_bt->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
+    thumb_bt ->setParam(dParamLoStop,  -conf.fingerJointBendAngle);
+    thumb_bt ->setParam(dParamHiStop,  0);
+    thumb_bt ->setParam (dParamBounce, 0.9 );
     joints.push_back(thumb_bt);
 
+    /*
     HingeServo* servo_bt =  new HingeServo((HingeJoint*)thumb_bt, -M_PI*3/8, 
 					   0, conf.servo_motor_Power);
     servos.push_back(servo_bt);
-
+    */
 
     //------------AngularMotor for BallJoint ---------------
 
@@ -779,8 +789,6 @@ namespace lpzrobots {
 						   axis1, axis3, conf.power);
     ((AngularMotor*)thumb_motor_joint)->setParam(dParamLoStop, -M_PI/360);
     ((AngularMotor*)thumb_motor_joint)->setParam(dParamHiStop,  0.8 * M_PI); 
-  // with M_PI/2); thumb until it is orthogonal to palm
-  // with M_PI-M_PI/10); thumb moves into palm
     
     ((AngularMotor*)thumb_motor_joint)->setParam(dParamLoStop2, 0);
     ((AngularMotor*)thumb_motor_joint)->setParam(dParamHiStop2, 0);
@@ -796,26 +804,15 @@ namespace lpzrobots {
     index_b = new Capsule(0.2,0.6);
     index_b -> init ( odeHandle , 0.1 , osgHandle , 
 		      Primitive::Body|Primitive::Geom|Primitive::Draw);
-    if (conf.finger_winkel==M_PI/2){ 
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
-			*osg::Matrix::translate((1.0), (-0.6), (-0.05)) *(palm->getPose()));
-    }
-    else if (conf.finger_winkel==2*M_PI)  {
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
-			* osg::Matrix::translate((0.65), (-0.6), (0.35))*(palm->getPose()));
-    }
-    else if (conf.finger_winkel==M_PI/4)  {
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
-			* osg::Matrix::translate((0.8), (-0.6),  (0.2))*(palm->getPose()));
-    }
-    else if (conf.finger_winkel==M_PI/3) { 
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
-			*osg::Matrix::translate((1.0), (-0.6), (0.2)) *(palm->getPose()));
-    }
-    else if (conf.finger_winkel==M_PI/6){ 
-      index_b ->setPose(osg::Matrix::rotate(conf.finger_winkel, 0, 1, 0) 
+   
+    if (conf.initWithOpenHand){
+    index_b ->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) 
+		      *osg::Matrix::translate((1.0), (-0.6), (-0.05)) *(palm->getPose()));
+    } else {
+      index_b ->setPose(osg::Matrix::rotate(M_PI/6, 0, 1, 0) 
 			*osg::Matrix::translate((0.8), (-0.6), (0.3)) *(palm->getPose()));
     }
+    
     objects.push_back(index_b);
 
 
@@ -879,71 +876,50 @@ namespace lpzrobots {
 				Axis(0, 1, 0)*palm->getPose());
     palm_index ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
     
-    //palm_index ->setParam(dParamLoStop,  -M_PI/2);
-    //palm_index ->setParam(dParamHiStop,  M_PI/360);
-    if(conf.finger_winkel==M_PI/2)
-      {
-	palm_index ->setParam(dParamLoStop,  -M_PI/360);
-	palm_index ->setParam(dParamHiStop,  M_PI/2);
-      }
-    else if (conf.finger_winkel==2*M_PI)
-      {
-	palm_index ->setParam(dParamLoStop,  -M_PI/2);
-	palm_index ->setParam(dParamHiStop,  M_PI/360);
-      }
-    else if (conf.finger_winkel==M_PI/4)
-      {
-	palm_index ->setParam(dParamLoStop,  -M_PI/4);
-	palm_index ->setParam(dParamHiStop,  M_PI/4);
-      }
-    else if (conf.finger_winkel==M_PI/3)
-      {
-	palm_index ->setParam(dParamLoStop,  -M_PI/6);
-	palm_index ->setParam(dParamHiStop,  M_PI/3);
-      }
-    else if (conf.finger_winkel==M_PI/6)
-      {
-	palm_index ->setParam(dParamLoStop,  -M_PI/3);
-	palm_index ->setParam(dParamHiStop,  M_PI/6);
-      }
-    
-
-
+    if (conf.initWithOpenHand){
+      palm_index ->setParam(dParamLoStop,  0);
+      palm_index ->setParam(dParamHiStop,  conf.fingerJointBendAngle);
+    } else {
+      palm_index ->setParam(dParamLoStop,  -M_PI/3);
+      palm_index ->setParam(dParamHiStop,  (conf.fingerJointBendAngle-M_PI/3) );
+      //      palm_index ->setParam(dParamHiStop,  M_PI/6);
+    }
     palm_index ->setParam (dParamBounce, 0.9 );
     joints.push_back(palm_index);
 
+    /*
     HingeServo* servo_palm_index =  new HingeServo((HingeJoint*)palm_index, conf.jointLimit1, 
 						   conf.jointLimit2, conf.servo_motor_Power); 
     servos.push_back(servo_palm_index);
-
+    */
 
     index_bc = new HingeJoint(index_b, index_c,
 			      (index_b->getPosition()+index_c->getPosition())/2, 
 			      Axis(0, 1, 0)*palm->getPose());
     index_bc ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    index_bc ->setParam(dParamHiStop,  M_PI/2);
-    index_bc ->setParam(dParamLoStop, -M_PI/360);
+    index_bc ->setParam(dParamLoStop, 0);
+    index_bc ->setParam(dParamHiStop, conf.fingerJointBendAngle);
     index_bc ->setParam (dParamBounce, 0.9 );
     joints.push_back(index_bc);
-
+    /*
     HingeServo* servo_index_bc =  new HingeServo((HingeJoint*)index_bc, conf.jointLimit1, 
 						 conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_index_bc);
-
+    */
 
     index_ct = new HingeJoint(index_c, index_t,
 			      ((index_c->getPosition()+index_t->getPosition())/2), 
 			      Axis(0, 1, 0)*palm->getPose()); 
     index_ct ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    index_ct ->setParam(dParamHiStop,  M_PI/2);
-    index_ct ->setParam(dParamLoStop, -M_PI/360);
+    index_ct ->setParam(dParamLoStop, 0);
+    index_ct ->setParam(dParamHiStop,  conf.fingerJointBendAngle);
     index_ct ->setParam (dParamBounce, 0.9 );
     joints.push_back(index_ct);
-
+    /*
     HingeServo* servo_index_ct =  new HingeServo((HingeJoint*)index_ct, conf.jointLimit1, 
 						 conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_index_ct);
- 
+    */
 
     //---------middle finger----------------------------------------------------------  
 
@@ -953,26 +929,11 @@ namespace lpzrobots {
     middle_b = new Capsule(0.2,0.6);
     middle_b -> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		       | Primitive::Geom | Primitive::Draw);
-    if (conf.finger_winkel==M_PI/2)
-      {
-	middle_b->setPose(osg::Matrix::translate((0), (0.45), (0.3))*(index_b->getPose()));
-      }
-    else if (conf.finger_winkel==2*M_PI)
-      {
-	middle_b->setPose(osg::Matrix::translate((0.3), (0.45), (0))*(index_b->getPose()));
-      }
-    else if (conf.finger_winkel==M_PI/4)
-      {
-	middle_b->setPose(osg::Matrix::translate((0.25), (0.45), (0.25))*(index_b->getPose()));
-      }
-    else if (conf.finger_winkel==M_PI/3)
-      {
-	middle_b->setPose(osg::Matrix::translate((0.13), (0.45), (0.17))*(index_b->getPose()));
-      }
-    else if (conf.finger_winkel==M_PI/6)
-      {
-	middle_b->setPose(osg::Matrix::translate((0.20), (0.45), (0.20))*(index_b->getPose()));
-      }
+    if (conf.initWithOpenHand) {
+      middle_b->setPose(osg::Matrix::translate((0), (0.45), (0.3))*(index_b->getPose()));
+    } else {
+      middle_b->setPose(osg::Matrix::translate((0.20), (0.45), (0.20))*(index_b->getPose()));
+    }
     
     objects.push_back(middle_b);
     if(conf.ir_sensor_used)
@@ -1033,59 +994,46 @@ namespace lpzrobots {
 				 -(middle_c->getPosition()-middle_b->getPosition())/1.8,
 				 Axis(0, 1, 0)*palm->getPose());
     palm_middle ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-
-    if (conf.finger_winkel==M_PI/2){
-      palm_middle->setParam(dParamLoStop, -M_PI/360);
-      palm_middle->setParam(dParamHiStop,  M_PI/2);
-    }
-    else if (conf.finger_winkel==2*M_PI) {
-      palm_middle ->setParam(dParamLoStop,  -M_PI/2);
-      palm_middle ->setParam(dParamHiStop,  M_PI/360);
-    }
-    else if (conf.finger_winkel==M_PI/4){
-      palm_middle ->setParam(dParamLoStop,  -M_PI/4);
-      palm_middle ->setParam(dParamHiStop,  M_PI/4);
-    }
-    else if (conf.finger_winkel==M_PI/3){
-      palm_middle ->setParam(dParamLoStop,  -M_PI/6);
-      palm_middle ->setParam(dParamHiStop,  M_PI/3);
-    }
-    else if (conf.finger_winkel==M_PI/6){
+    if (conf.initWithOpenHand){
+      palm_middle->setParam(dParamLoStop, 0);
+      palm_middle->setParam(dParamHiStop, conf.fingerJointBendAngle);
+    } else {
       palm_middle ->setParam(dParamLoStop,  -M_PI/3);
-      palm_middle ->setParam(dParamHiStop,  M_PI/6);
+      palm_middle ->setParam(dParamHiStop,  (conf.fingerJointBendAngle-M_PI/3));
     }
+    
     joints.push_back(palm_middle);
-
+    /*
     HingeServo* servo_palm_middle =  new HingeServo((HingeJoint*)palm_middle, conf.jointLimit1, 
 						    conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_palm_middle);
-
+    */
 
     middle_bc = new HingeJoint(middle_b, middle_c,
 			       (middle_b->getPosition()+middle_c->getPosition())/2, 
 			       Axis(0, 1, 0)*palm->getPose());
 
     middle_bc ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    middle_bc->setParam(dParamHiStop,  M_PI/2);
-    middle_bc->setParam(dParamLoStop, -M_PI/360);
+    middle_bc->setParam(dParamLoStop, 0);
+    middle_bc->setParam(dParamHiStop, conf.fingerJointBendAngle);
     joints.push_back(middle_bc);
-
+    /*
     HingeServo* servo_middle_bc =  new HingeServo((HingeJoint*)middle_bc, conf.jointLimit1, 
 						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_middle_bc);
-
+    */
     middle_ct = new HingeJoint(middle_c, middle_t,
 			       (middle_c->getPosition()+middle_t->getPosition())/2, 
 			       Axis(0, 1, 0)*palm->getPose());
     middle_ct ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    middle_ct->setParam(dParamHiStop,  M_PI/2);
-    middle_ct->setParam(dParamLoStop, -M_PI/360);
+    middle_ct->setParam(dParamLoStop, 0);
+    middle_ct->setParam(dParamHiStop, conf.fingerJointBendAngle);
     joints.push_back(middle_ct);
-
+    /*
     HingeServo* servo_middle_ct =  new HingeServo((HingeJoint*)middle_ct, conf.jointLimit1, 
 						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_middle_ct);
-
+    */
 
 
     //---------------------------ring finger------------------------------------------- 
@@ -1094,21 +1042,12 @@ namespace lpzrobots {
     ring_b = new Capsule(0.2,0.6);
     ring_b-> init ( odeHandle , 0.1 , osgHandle , Primitive::Body 	
 		    | Primitive::Geom | Primitive::Draw);
-    if (conf.finger_winkel==M_PI/2)  {
+    if (conf.initWithOpenHand){
       ring_b->setPose(osg::Matrix::translate((0), (0.9), (0.3))*(index_b->getPose()));
-    }
-    else if (conf.finger_winkel==2*M_PI){
-      ring_b->setPose(osg::Matrix::translate((0.3), (0.9), (0))*(index_b->getPose()));
-    }
-    else if (conf.finger_winkel==M_PI/4){
-      ring_b->setPose(osg::Matrix::translate((0.25), (0.9), (0.25))*(index_b->getPose()));
-    }
-    else if (conf.finger_winkel==M_PI/3)  {
-      ring_b->setPose(osg::Matrix::translate((0.13), (0.9), (0.17))*(index_b->getPose()));
-    }
-    else if (conf.finger_winkel==M_PI/6){
+    } else {
       ring_b->setPose(osg::Matrix::translate((0.20), (0.9), (0.20))*(index_b->getPose()));
     }
+    
     objects.push_back(ring_b);
 
     if(conf.ir_sensor_used) {
@@ -1168,56 +1107,43 @@ namespace lpzrobots {
 			       -(ring_c->getPosition()-ring_b->getPosition())/1.8,
 			       Axis(0, 1, 0)*palm->getPose());
     palm_ring->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-
-    if (conf.finger_winkel==M_PI/2)  {
-      palm_ring ->setParam(dParamLoStop,  -M_PI/360);
-      palm_ring->setParam(dParamHiStop,  M_PI/2);
-    }
-    else if (conf.finger_winkel==2*M_PI) {
-      palm_ring ->setParam(dParamLoStop,  -M_PI/2);
-      palm_ring ->setParam(dParamHiStop,  M_PI/360);
-    }
-    else if (conf.finger_winkel==M_PI/4){
-      palm_ring ->setParam(dParamLoStop,  -M_PI/4);
-      palm_ring ->setParam(dParamHiStop,  M_PI/4);
-    }
-    else if (conf.finger_winkel==M_PI/3){
-      palm_ring ->setParam(dParamLoStop,  -M_PI/6);
-      palm_ring ->setParam(dParamHiStop,  M_PI/3);
-    }
-    else if (conf.finger_winkel==M_PI/6){
+    if (conf.initWithOpenHand){
+      palm_ring->setParam(dParamLoStop,  0);
+      palm_ring->setParam(dParamHiStop,  conf.fingerJointBendAngle);
+    } else {
       palm_ring ->setParam(dParamLoStop,  -M_PI/3);
-      palm_ring ->setParam(dParamHiStop,  M_PI/6);
+      palm_ring ->setParam(dParamHiStop,  (conf.fingerJointBendAngle - M_PI/3) );
     }
+    
     joints.push_back(palm_ring);
-
+    /*
     HingeServo* servo_palm_ring =  new HingeServo((HingeJoint*)palm_ring, conf.jointLimit1, 
 						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_palm_ring);
-    
+    */
     ring_bc = new HingeJoint(ring_b, ring_c, (ring_b->getPosition()+ring_c->getPosition())/2, 
 			     Axis(0, 1, 0)*palm->getPose());
     ring_bc ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    ring_bc->setParam(dParamHiStop,  M_PI/2);
-    ring_bc->setParam(dParamLoStop, -M_PI/360);
+    ring_bc->setParam(dParamLoStop, 0);
+    ring_bc->setParam(dParamHiStop, conf.fingerJointBendAngle);
     joints.push_back(ring_bc);
-
+    /*
     HingeServo* servo_ring_bc =  new HingeServo((HingeJoint*)ring_bc, conf.jointLimit1, 
 						conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_ring_bc);
-
+    */
 
     ring_ct = new HingeJoint(ring_c, ring_t, (ring_c->getPosition()+ring_t->getPosition())/2, 
 			     Axis(0, 1, 0)*palm->getPose());
     ring_ct ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    ring_ct->setParam(dParamHiStop,  M_PI/2);
-    ring_ct->setParam(dParamLoStop, -M_PI/360);
+    ring_ct->setParam(dParamLoStop, 0);
+    ring_ct->setParam(dParamHiStop, conf.fingerJointBendAngle);
     joints.push_back(ring_ct);
-    
+    /*
     HingeServo* servo_ring_ct =  new HingeServo((HingeJoint*)ring_ct, conf.jointLimit1, 
 						conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_ring_ct);
-
+    */
 
 
     //-----------little finger--------------------------------------------------------
@@ -1290,57 +1216,48 @@ namespace lpzrobots {
 	little_b->getPosition()-(little_c->getPosition()-little_b->getPosition())/1.8,
 	Axis(0, 1, 0)*palm->getPose());
     palm_little ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    if (conf.finger_winkel==M_PI/2){
-      palm_little ->setParam(dParamLoStop, -M_PI/360);
-      palm_little ->setParam(dParamHiStop,  M_PI/2);
-    }
-    else if (conf.finger_winkel==2*M_PI) {
-      palm_little ->setParam(dParamLoStop,  -M_PI/2);
-      palm_little ->setParam(dParamHiStop,  M_PI/360);
-    }
-    else if (conf.finger_winkel==M_PI/4)  {
-      palm_little ->setParam(dParamLoStop,  -M_PI/4);
-      palm_little ->setParam(dParamHiStop,  M_PI/4);
-    }
-    else if (conf.finger_winkel==M_PI/3)	  {
-      palm_little ->setParam(dParamLoStop,  -M_PI/6);
-      palm_little ->setParam(dParamHiStop,  M_PI/3);
-    }
-    else if (conf.finger_winkel==M_PI/6) {
+    if (conf.initWithOpenHand) {
+      palm_little ->setParam(dParamLoStop, 0);
+      palm_little ->setParam(dParamHiStop, conf.fingerJointBendAngle);
+    } else {
       palm_little  ->setParam(dParamLoStop,  -M_PI/3);
-      palm_little  ->setParam(dParamHiStop,  M_PI/6);
+      palm_little  ->setParam(dParamHiStop,  (conf.fingerJointBendAngle - M_PI/3) );
     }
-
-    joints.push_back(palm_little);
     
+    joints.push_back(palm_little);
+    /*
     HingeServo* servo_palm_little =  new HingeServo((HingeJoint*)palm_little, conf.jointLimit1, 
 						    conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_palm_little);
-
+    */
     little_bc = new HingeJoint(little_b, little_c, 
 			       (little_b->getPosition()+little_c->getPosition())/2, 
 			       Axis(0, 1, 0)*palm->getPose());
     little_bc ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    little_bc ->setParam(dParamHiStop,  M_PI/2);
-    little_bc ->setParam(dParamLoStop, -M_PI/360);
+    little_bc ->setParam(dParamLoStop, 0);
+    little_bc ->setParam(dParamHiStop, conf.fingerJointBendAngle);
     joints.push_back(little_bc);
-
+    /*
     HingeServo* servo_little_bc =  new HingeServo((HingeJoint*)little_bc, conf.jointLimit1, 
 						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_little_bc);
-
+    */
     little_ct = new HingeJoint(little_c, little_t, 
 			       (little_c->getPosition()+little_t->getPosition())/2, 
 			       Axis(0, 1, 0)*palm->getPose());
     little_ct ->init(odeHandle, osgHandle, conf.draw_joints, 0.7 );
-    little_ct ->setParam(dParamHiStop,  M_PI/2);
-    little_ct ->setParam(dParamLoStop, -M_PI/360);
+    little_ct ->setParam(dParamLoStop, 0);
+    little_ct ->setParam(dParamHiStop, conf.fingerJointBendAngle);
     joints.push_back(little_ct);
 
-
+    /*
     HingeServo* servo_little_ct =  new HingeServo((HingeJoint*)little_ct, conf.jointLimit1, 
 						  conf.jointLimit2, conf.servo_motor_Power);
     servos.push_back(servo_little_ct);
+    */
+
+
+
 
     // TDOD add following as conf option prostheses-like
     //-joints connecting index, middle, ring and little finger so that they move together
@@ -1414,7 +1331,7 @@ namespace lpzrobots {
 
   Configurable::paramlist Hand::getParamList() const{
     paramlist list;
-    list += std::pair<paramkey, paramval> (std::string("jointLimit1"), conf.jointLimit1);
+    //    list += std::pair<paramkey, paramval> (std::string("jointLimit1"), conf.jointLimit1);
     list += std::pair<paramkey, paramval> (std::string("servo_motor_Power"),   conf.servo_motor_Power);
     list += std::pair<paramkey, paramval> (std::string("factorSensor"), conf.factorSensor);
     list += std::pair<paramkey, paramval> (std::string("irRange"), conf.irRange);
@@ -1423,8 +1340,9 @@ namespace lpzrobots {
 
 
   Configurable::paramval Hand::getParam(const paramkey& key) const{
-    if(key == "jointLimit") return conf.jointLimit1; 
-    else if(key == "servo_motor_Power") return conf.servo_motor_Power;
+    //    if(key == "jointLimit") return conf.jointLimit1; 
+    //else 
+    if(key == "servo_motor_Power") return conf.servo_motor_Power;
     else if(key == "factorSensor") return conf.factorSensor; 
     else if(key == "irRange") return conf.irRange;
     else  return Configurable::getParam(key) ;
@@ -1432,8 +1350,9 @@ namespace lpzrobots {
 
 
   bool Hand::setParam(const paramkey& key, paramval val){
-    if(key == "jointLimit") conf.jointLimit1=val; 
-    else if(key == "servo_motor_Power") {
+    //if(key == "jointLimit") conf.jointLimit1=val; 
+    //else 
+    if(key == "servo_motor_Power") {
       conf.servo_motor_Power=val;
       for (std::vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
 	if(*i) (*i)->setPower(conf.servo_motor_Power);

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-09-17 19:31:57  fhesse
+ *   Revision 1.6  2007-09-18 11:03:02  fhesse
+ *   conf.finger_winkel and conf.number_of_ir_sensors removed
+ *   conf.initWithOpenHand and conf.fingerBendAngle added
+ *   servo stuff commented out (todo: readd cleaned version)
+ *
+ *   Revision 1.5  2007/09/17 19:31:57  fhesse
  *   changes in setMotor() and getSensors() (tried to tidy up)
  *
  *   Revision 1.4  2007/09/17 13:11:20  fhesse
@@ -104,14 +109,12 @@
 #ifndef __HAND_H
 #define __HAND_H
 
-//#include  <drawstuff/drawstuff.h>
 #include "oderobot.h"
 #include <selforg/configurable.h>
 #include "primitive.h"
 #include "joint.h"
 #include "angularmotor.h"
 #include "oneaxisservo.h"
-//"hingeservo.h"
 
 #include "primitive.h"
 #include "osgforwarddecl.h"
@@ -143,27 +146,20 @@ namespace lpzrobots {
     double velocity;
     double power;       // used when non-servo motor is used
     double servo_motor_Power;  // used when servo motor is used
-    // todo: rmove:
-    double invert;
-    double jointLimit1;
-    double jointLimit2;
     bool show_contacts;
-    double thumb_angle;
     enum Motor_type set_typ_of_motor;
     double factorSensor;
-    double finger_winkel;
     bool fix_palm_joint;
     bool one_finger_as_one_motor;
     bool draw_joints;
     bool showFingernails;
+    double fingerJointBendAngle;
+    bool initWithOpenHand; // init hand with open or half closed hand
 
     //---------------InfrarRedSensor--------------------------  
-    //  enum IrSensor_Type set_irsensor_type;
     double irRange;
-    int number_of_ir_sensors;
     bool ir_sensor_used;
     enum RaySensor::rayDrawMode ray_draw_mode; // for possible modes see sensors/raysensor.h
-	//Draw_part_of_ir_sensor;
   } HandConf;
 
   enum GripMode{
@@ -192,24 +188,18 @@ namespace lpzrobots {
 	conf.velocity = 0.2;
 	conf.power = 5;
 	conf.servo_motor_Power = 0.1;
-	// todo remove:
-	conf.invert = 1;
 	conf.show_contacts = true;
-	conf.jointLimit1 = M_PI/2;
-	conf.jointLimit2 = 2*M_PI;
 	conf.set_typ_of_motor = Without_servo_motor;
-	conf.thumb_angle=0;
-	//conf.set_irsensor_type=irDrawAll;    
 	conf.irRange = 2;
 	conf.ir_sensor_used=true;
-	conf.number_of_ir_sensors = 0;
 	conf.ray_draw_mode=RaySensor::drawAll;
 	conf.factorSensor=2.0;
-	conf.finger_winkel=M_PI/2;
 	conf.fix_palm_joint=true;
 	conf.one_finger_as_one_motor=false;
 	conf.draw_joints=false;
 	conf.showFingernails=true;
+	conf.fingerJointBendAngle=M_PI/2;
+	conf.initWithOpenHand=true; // init with open hand
 	return conf;
       }
 
@@ -347,9 +337,6 @@ namespace lpzrobots {
     RaySensorBank irSensorBank; 
 
 
-    //Primitive* p;
-    //Joint* j;
-
     /** space containing the hand */
     dSpaceID hand_space;     
 
@@ -388,12 +375,6 @@ namespace lpzrobots {
     /** initial position of robot */
     Position initial_pos;    
 
-    //    int NUM;	   /* number of beats */
-    //    double MASS;	   /* mass of a beats */
-    //    double RADIUS;   /* sphere radius */
-
-    // Joint* joint[10];
-    // Primitive* object[10];
 
     Pos oldp;
 
