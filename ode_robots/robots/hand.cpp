@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-09-18 11:03:02  fhesse
+ *   Revision 1.7  2007-09-18 16:01:20  fhesse
+ *   ir options in conf added
+ *
+ *   Revision 1.6  2007/09/18 11:03:02  fhesse
  *   conf.finger_winkel and conf.number_of_ir_sensors removed
  *   conf.initWithOpenHand and conf.fingerBendAngle added
  *   servo stuff commented out (todo: readd cleaned version)
@@ -145,7 +148,15 @@ namespace lpzrobots {
     }
 
     if (conf.ir_sensor_used){ // if infrared sensors are used
-      sensorno+=14;
+      if (conf.irs_at_fingerbottom){
+	sensorno+=5;
+      } 
+      if (conf.irs_at_fingercenter){
+	sensorno+=5;
+      } 
+      if (conf.irs_at_fingertip){
+	sensorno+=5;
+      } 
     }
     
 
@@ -180,13 +191,6 @@ namespace lpzrobots {
   }
 
   void Hand::place(const osg::Matrix& pose){
-    //    osg::Matrix p2;
-    // todo
-    // - include pose in create
-    // - has RADIUS some meaning?
-    //    double RADIUS= 0.1732f *2;	/* sphere radius */
-    //    p2 = pose * osg::Matrix::translate(osg::Vec3(1, 14, RADIUS)); 
-    //    create(p2);    
     create(pose);
   };
 
@@ -663,12 +667,12 @@ namespace lpzrobots {
     
     // box inside the palm
     // because cylinder is penetrable 
-
+    /*
     Primitive* palm_box = new Box(0.8,1.3,0.3);
     Primitive* box_in_cylinder_palm = new Transform(objects[1],palm_box, 
 						    osg::Matrix::translate(0.05, 0, 0));
     box_in_cylinder_palm -> init (odeHandle , 0 , osgHandle);
-    
+    */
     
 
 
@@ -729,7 +733,7 @@ namespace lpzrobots {
     objects.push_back(thumb_b);
 
 
-    if(conf.ir_sensor_used){
+    if(conf.ir_sensor_used && conf.irs_at_fingerbottom){
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_b = new IRSensor();
       ir_sensors.push_back(sensor_thumb_b);
@@ -746,7 +750,7 @@ namespace lpzrobots {
     thumb_t ->setPose(osg::Matrix::translate(0, 0, 0.7)*(thumb_b->getPose()) );
     objects.push_back(thumb_t);
     
-    if(conf.ir_sensor_used){
+    if(conf.ir_sensor_used && (conf.irs_at_fingertip || conf.irs_at_fingercenter)){ // fingercenter to have always 5 IR sensors
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_t = new IRSensor();
       ir_sensors.push_back(sensor_thumb_t);
@@ -817,7 +821,7 @@ namespace lpzrobots {
 
 
     
-    if(conf.ir_sensor_used){
+    if(conf.ir_sensor_used && conf.irs_at_fingerbottom){
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_index_b = new IRSensor();
       ir_sensors.push_back(sensor_index_b);
@@ -835,7 +839,7 @@ namespace lpzrobots {
     index_c ->setPose(osg::Matrix::translate((0), (0), (0.59))*(index_b->getPose()));
     objects.push_back(index_c);
 
-    if(conf.ir_sensor_used)
+    if(conf.ir_sensor_used && conf.irs_at_fingercenter)
       {
 	irSensorBank.init(odeHandle, osgHandle);
 	IRSensor* sensor_index_c = new IRSensor();
@@ -852,7 +856,7 @@ namespace lpzrobots {
     index_t ->setPose(osg::Matrix::translate((0), (0), (0.59))*(index_c->getPose()));
     objects.push_back(index_t);
 
-    if(conf.ir_sensor_used){
+    if(conf.ir_sensor_used && conf.irs_at_fingertip){
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_index_t = new IRSensor();
       ir_sensors.push_back(sensor_index_t);
@@ -882,7 +886,6 @@ namespace lpzrobots {
     } else {
       palm_index ->setParam(dParamLoStop,  -M_PI/3);
       palm_index ->setParam(dParamHiStop,  (conf.fingerJointBendAngle-M_PI/3) );
-      //      palm_index ->setParam(dParamHiStop,  M_PI/6);
     }
     palm_index ->setParam (dParamBounce, 0.9 );
     joints.push_back(palm_index);
@@ -936,8 +939,7 @@ namespace lpzrobots {
     }
     
     objects.push_back(middle_b);
-    if(conf.ir_sensor_used)
-      {
+    if(conf.ir_sensor_used && conf.irs_at_fingerbottom){
 	irSensorBank.init(odeHandle, osgHandle);
 	IRSensor* sensor_middle_b = new IRSensor();
 	ir_sensors.push_back(sensor_middle_b);
@@ -953,8 +955,7 @@ namespace lpzrobots {
     middle_c->setPose(osg::Matrix::translate((0), (0), (0.69))*(middle_b->getPose()));
     objects.push_back(middle_c);
 
-    if(conf.ir_sensor_used)
-      {
+    if(conf.ir_sensor_used && conf.irs_at_fingercenter) {
 	irSensorBank.init(odeHandle, osgHandle);
 	IRSensor* sensor_middle_c = new IRSensor();
 	ir_sensors.push_back(sensor_middle_c);
@@ -970,7 +971,7 @@ namespace lpzrobots {
     middle_t->setPose(osg::Matrix::translate((0), (0), (0.69))*(middle_c->getPose()));
     objects.push_back(middle_t);
 
-    if(conf.ir_sensor_used) {
+    if(conf.ir_sensor_used && conf.irs_at_fingertip) {
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_middle_t = new IRSensor();
       ir_sensors.push_back(sensor_middle_t);
@@ -1050,7 +1051,7 @@ namespace lpzrobots {
     
     objects.push_back(ring_b);
 
-    if(conf.ir_sensor_used) {
+    if(conf.ir_sensor_used && conf.irs_at_fingerbottom) {
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_ring_b = new IRSensor();
       ir_sensors.push_back(sensor_ring_b);
@@ -1066,7 +1067,7 @@ namespace lpzrobots {
     ring_c->setPose(osg::Matrix::translate((0), (0), (0.59))*(ring_b->getPose()));
     objects.push_back(ring_c);
 
-    if(conf.ir_sensor_used) {
+    if(conf.ir_sensor_used && conf.irs_at_fingercenter) {
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_ring_c = new IRSensor();
       ir_sensors.push_back(sensor_ring_c);
@@ -1082,7 +1083,7 @@ namespace lpzrobots {
     ring_t->setPose(osg::Matrix::translate((0), (0), (0.59))*(ring_c->getPose()));
     objects.push_back(ring_t);
 
-    if(conf.ir_sensor_used){
+    if(conf.ir_sensor_used && conf.irs_at_fingertip){
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_ring_t = new IRSensor();
       ir_sensors.push_back(sensor_ring_t);
@@ -1156,8 +1157,7 @@ namespace lpzrobots {
     little_b->setPose(osg::Matrix::translate((0), (1.35), (0))*(index_b->getPose()));
     objects.push_back(little_b);
 
-    if(conf.ir_sensor_used)
-      {
+    if(conf.ir_sensor_used && conf.irs_at_fingerbottom) {
 	irSensorBank.init(odeHandle, osgHandle);
 	IRSensor* sensor_little_b = new IRSensor();
 	ir_sensors.push_back(sensor_little_b);
@@ -1174,8 +1174,7 @@ namespace lpzrobots {
     little_c->setPose(osg::Matrix::translate((0), (0), (0.59))*(little_b->getPose()));
     objects.push_back(little_c);
 
-    if(conf.ir_sensor_used)
-      {
+    if(conf.ir_sensor_used && conf.irs_at_fingercenter)  {
 	irSensorBank.init(odeHandle, osgHandle);
 	IRSensor* sensor_little_c = new IRSensor();
 	ir_sensors.push_back(sensor_little_c);
@@ -1191,7 +1190,7 @@ namespace lpzrobots {
     little_t->setPose(osg::Matrix::translate((0), (0), (0.59))*(little_c->getPose()));
     objects.push_back(little_t);
 
-    if(conf.ir_sensor_used) {
+    if(conf.ir_sensor_used && conf.irs_at_fingertip) {
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_little_t = new IRSensor();
       ir_sensors.push_back(sensor_little_t);

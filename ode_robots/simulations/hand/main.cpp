@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-09-18 11:03:02  fhesse
+ *   Revision 1.13  2007-09-18 16:02:22  fhesse
+ *   ir options in conf added
+ *
+ *   Revision 1.12  2007/09/18 11:03:02  fhesse
  *   conf.finger_winkel and conf.number_of_ir_sensors removed
  *   conf.initWithOpenHand and conf.fingerBendAngle added
  *   servo stuff commented out (todo: readd cleaned version)
@@ -109,6 +112,7 @@
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/invertnchannelcontrollerhebbxsi.h>
+#include <selforg/invertnchannelcontrollerhebbxsihand.h>
 
 #include "hand.h"
 #include "irinvertwiring.h"
@@ -149,6 +153,9 @@ public:
     conf.set_typ_of_motor = Without_servo_motor;//With_servo_motor;
     conf.show_contacts = true;
     conf.ir_sensor_used =true;
+    conf.irs_at_fingertip =false;
+    conf.irs_at_fingercenter =true;
+    conf.irs_at_fingerbottom = false;
     conf.servo_motor_Power = 1.2;
     conf.fix_palm_joint=true;
     conf.one_finger_as_one_motor=true;
@@ -190,21 +197,20 @@ public:
     cc5.cInit=1.5;
     //controller = new InvertMotorNStep(cc5); 
     //controller = new SineController();//InvertMotorNStep(cc5);  
-    //controller = new InvertMotorSpace(10);  
+    //    controller = new InvertMotorSpace(10);  
     //controller = new InvertNChannelController(10); 
-    controller = new InvertNChannelControllerHebbXsi(/*buffersize*/10, 
-    			     /*update_only_1*/false, 
-    			     /*inactivate_hebb*/false);
+    //    controller = new InvertNChannelControllerHebbXsi(/*buffersize*/10, 
+    //		     /*update_only_1*/false, 
+    //		     /*inactivate_hebb*/false);
+    controller = new InvertNChannelControllerHebbXsiHand(/*buffersize*/10, 
+							 /*update_only_1*/false, 
+							 /*inactivate_hebb*/false);
 
-    //controller->setParam("adaptrate", 0.000);
-    ////    controller->setParam("nomupdate", 0.0005);
-    controller->setParam("epsC", 0.05);
-    //controller->setParam("epsA", 0.01);
-    //controller->setParam("rootE", 0);
-    //controller->setParam("steps", 2);
-    controller->setParam("s4avg", 5);
-    controller->setParam("s4del", 5);
-    ////	  controller->setParam("factorB",0);
+    controller->setParam("eps", 0.05);
+    controller->setParam("factor_a", 0.1);
+    controller->setParam("s4avg", 10);
+    controller->setParam("s4delay", 3);
+    
     global.configs.push_back(controller); 
 
 
@@ -212,8 +218,8 @@ public:
 
     // adding wiring
     AbstractWiring *wiring;
-    //wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    wiring = new IRInvertWiring(new ColorUniformNoise(0.1));
+    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    //wiring = new IRInvertWiring(new ColorUniformNoise(0.1));
 
 
     // adding agent

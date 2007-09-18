@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-09-18 11:03:02  fhesse
+ *   Revision 1.7  2007-09-18 16:01:20  fhesse
+ *   ir options in conf added
+ *
+ *   Revision 1.6  2007/09/18 11:03:02  fhesse
  *   conf.finger_winkel and conf.number_of_ir_sensors removed
  *   conf.initWithOpenHand and conf.fingerBendAngle added
  *   servo stuff commented out (todo: readd cleaned version)
@@ -159,6 +162,9 @@ namespace lpzrobots {
     //---------------InfrarRedSensor--------------------------  
     double irRange;
     bool ir_sensor_used;
+    bool irs_at_fingertip;
+    bool irs_at_fingercenter;
+    bool irs_at_fingerbottom;
     enum RaySensor::rayDrawMode ray_draw_mode; // for possible modes see sensors/raysensor.h
   } HandConf;
 
@@ -192,8 +198,11 @@ namespace lpzrobots {
 	conf.set_typ_of_motor = Without_servo_motor;
 	conf.irRange = 2;
 	conf.ir_sensor_used=true;
+	conf.irs_at_fingerbottom=true;
+	conf.irs_at_fingercenter=true;
+	conf.irs_at_fingertip =true;
 	conf.ray_draw_mode=RaySensor::drawAll;
-	conf.factorSensor=2.0;
+	conf.factorSensor=1.0;
 	conf.fix_palm_joint=true;
 	conf.one_finger_as_one_motor=false;
 	conf.draw_joints=false;
