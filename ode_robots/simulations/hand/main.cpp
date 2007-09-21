@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-09-18 16:02:22  fhesse
+ *   Revision 1.14  2007-09-21 17:05:05  fhesse
+ *   IR sensors at fingertip added
+ *
+ *   Revision 1.13  2007/09/18 16:02:22  fhesse
  *   ir options in conf added
  *
  *   Revision 1.12  2007/09/18 11:03:02  fhesse
@@ -113,6 +116,7 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/invertnchannelcontrollerhebbxsi.h>
 #include <selforg/invertnchannelcontrollerhebbxsihand.h>
+#include <selforg/invertnchannelcontrollerhebbhhand.h>
 
 #include "hand.h"
 #include "irinvertwiring.h"
@@ -153,9 +157,10 @@ public:
     conf.set_typ_of_motor = Without_servo_motor;//With_servo_motor;
     conf.show_contacts = true;
     conf.ir_sensor_used =true;
-    conf.irs_at_fingertip =false;
-    conf.irs_at_fingercenter =true;
-    conf.irs_at_fingerbottom = false;
+    conf.irs_at_fingertip =true;
+    conf.irs_at_fingertop =false;
+    conf.irs_at_fingercenter =false;
+    conf.irs_at_fingerbottom =false;
     conf.servo_motor_Power = 1.2;
     conf.fix_palm_joint=true;
     conf.one_finger_as_one_motor=true;
@@ -202,14 +207,18 @@ public:
     //    controller = new InvertNChannelControllerHebbXsi(/*buffersize*/10, 
     //		     /*update_only_1*/false, 
     //		     /*inactivate_hebb*/false);
-    controller = new InvertNChannelControllerHebbXsiHand(/*buffersize*/10, 
+//     controller = new InvertNChannelControllerHebbXsiHand(/*buffersize*/10, 
+// 							 /*update_only_1*/false, 
+// 							 /*inactivate_hebb*/false);
+    controller = new InvertNChannelControllerHebbHHand(/*buffersize*/100, 
 							 /*update_only_1*/false, 
 							 /*inactivate_hebb*/false);
 
     controller->setParam("eps", 0.05);
+    controller->setParam("eps_hebb", 0.00005);
     controller->setParam("factor_a", 0.1);
     controller->setParam("s4avg", 10);
-    controller->setParam("s4delay", 3);
+    controller->setParam("s4delay", 1);
     
     global.configs.push_back(controller); 
 
@@ -218,8 +227,8 @@ public:
 
     // adding wiring
     AbstractWiring *wiring;
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    //wiring = new IRInvertWiring(new ColorUniformNoise(0.1));
+    //wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    wiring = new IRInvertWiring(new ColorUniformNoise(0.1));
 
 
     // adding agent

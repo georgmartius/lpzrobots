@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-09-18 16:01:20  fhesse
+ *   Revision 1.8  2007-09-21 17:05:05  fhesse
+ *   IR sensors at fingertip added
+ *
+ *   Revision 1.7  2007/09/18 16:01:20  fhesse
  *   ir options in conf added
  *
  *   Revision 1.6  2007/09/18 11:03:02  fhesse
@@ -152,6 +155,9 @@ namespace lpzrobots {
 	sensorno+=5;
       } 
       if (conf.irs_at_fingercenter){
+	sensorno+=5;
+      } 
+      if (conf.irs_at_fingertop){
 	sensorno+=5;
       } 
       if (conf.irs_at_fingertip){
@@ -750,7 +756,7 @@ namespace lpzrobots {
     thumb_t ->setPose(osg::Matrix::translate(0, 0, 0.7)*(thumb_b->getPose()) );
     objects.push_back(thumb_t);
     
-    if(conf.ir_sensor_used && (conf.irs_at_fingertip || conf.irs_at_fingercenter)){ // fingercenter to have always 5 IR sensors
+    if(conf.ir_sensor_used && (conf.irs_at_fingertop || conf.irs_at_fingercenter)){ // fingercenter to have always 5 IR sensors
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_t = new IRSensor();
       ir_sensors.push_back(sensor_thumb_t);
@@ -759,6 +765,18 @@ namespace lpzrobots {
 						      M_PI/2, osg::Vec3(0, 1, 0),
 						      0.0,osg::Vec3(0, 0, 1)) * 
 				  osg::Matrix::translate((0), 0.2, 0), 
+				  conf.irRange, conf.ray_draw_mode);
+    }
+
+    if(conf.ir_sensor_used && (conf.irs_at_fingertip || conf.irs_at_fingercenter)){ 
+      irSensorBank.init(odeHandle, osgHandle);
+      IRSensor* sensor_thumb_t = new IRSensor();
+      ir_sensors.push_back(sensor_thumb_t);
+      irSensorBank.registerSensor(sensor_thumb_t, thumb_t,//objects[3], 
+				  osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),
+						      M_PI/2, osg::Vec3(0, 1, 0),
+						      0.0,osg::Vec3(0, 0, 1)) * 
+				  osg::Matrix::translate((0), 0.2, 0.25), 
 				  conf.irRange, conf.ray_draw_mode);
     }
     
@@ -856,13 +874,22 @@ namespace lpzrobots {
     index_t ->setPose(osg::Matrix::translate((0), (0), (0.59))*(index_c->getPose()));
     objects.push_back(index_t);
 
-    if(conf.ir_sensor_used && conf.irs_at_fingertip){
+    if(conf.ir_sensor_used && conf.irs_at_fingertop){
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_index_t = new IRSensor();
       ir_sensors.push_back(sensor_index_t);
       irSensorBank.registerSensor(sensor_index_t, index_t,//objects[7], 
 				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
 				  osg::Matrix::translate((-0.2), 0, 0), conf.irRange, 
+				  conf.ray_draw_mode);
+    }
+    if(conf.ir_sensor_used && conf.irs_at_fingertip){
+      irSensorBank.init(odeHandle, osgHandle);
+      IRSensor* sensor_index_t = new IRSensor();
+      ir_sensors.push_back(sensor_index_t);
+      irSensorBank.registerSensor(sensor_index_t, index_t,//objects[7], 
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0.3), conf.irRange, 
 				  conf.ray_draw_mode);
     }
     if (conf.showFingernails){
@@ -971,13 +998,22 @@ namespace lpzrobots {
     middle_t->setPose(osg::Matrix::translate((0), (0), (0.69))*(middle_c->getPose()));
     objects.push_back(middle_t);
 
-    if(conf.ir_sensor_used && conf.irs_at_fingertip) {
+    if(conf.ir_sensor_used && conf.irs_at_fingertop) {
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_middle_t = new IRSensor();
       ir_sensors.push_back(sensor_middle_t);
       irSensorBank.registerSensor(sensor_middle_t, middle_t,//objects[10], 
 				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
 				  osg::Matrix::translate((-0.2), 0, 0),  conf.irRange, 
+				  conf.ray_draw_mode);
+    }
+    if(conf.ir_sensor_used && conf.irs_at_fingertip) {
+      irSensorBank.init(odeHandle, osgHandle);
+      IRSensor* sensor_middle_t = new IRSensor();
+      ir_sensors.push_back(sensor_middle_t);
+      irSensorBank.registerSensor(sensor_middle_t, middle_t,//objects[10], 
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0.35),  conf.irRange, 
 				  conf.ray_draw_mode);
     }
     if (conf.showFingernails){
@@ -1083,13 +1119,22 @@ namespace lpzrobots {
     ring_t->setPose(osg::Matrix::translate((0), (0), (0.59))*(ring_c->getPose()));
     objects.push_back(ring_t);
 
-    if(conf.ir_sensor_used && conf.irs_at_fingertip){
+    if(conf.ir_sensor_used && conf.irs_at_fingertop){
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_ring_t = new IRSensor();
       ir_sensors.push_back(sensor_ring_t);
       irSensorBank.registerSensor(sensor_ring_t, ring_t,//objects[13], 
 				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
 				  osg::Matrix::translate((-0.2), 0, 0),  conf.irRange,
+				  conf.ray_draw_mode);
+    }
+    if(conf.ir_sensor_used && conf.irs_at_fingertip){
+      irSensorBank.init(odeHandle, osgHandle);
+      IRSensor* sensor_ring_t = new IRSensor();
+      ir_sensors.push_back(sensor_ring_t);
+      irSensorBank.registerSensor(sensor_ring_t, ring_t,//objects[13], 
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0.25),  conf.irRange,
 				  conf.ray_draw_mode);
     }
     if (conf.showFingernails){ 
@@ -1190,13 +1235,22 @@ namespace lpzrobots {
     little_t->setPose(osg::Matrix::translate((0), (0), (0.59))*(little_c->getPose()));
     objects.push_back(little_t);
 
-    if(conf.ir_sensor_used && conf.irs_at_fingertip) {
+    if(conf.ir_sensor_used && conf.irs_at_fingertop) {
       irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_little_t = new IRSensor();
       ir_sensors.push_back(sensor_little_t);
       irSensorBank.registerSensor(sensor_little_t, little_t,//objects[16], 
 				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
 				  osg::Matrix::translate((-0.2), 0, 0),   conf.irRange, 
+				  conf.ray_draw_mode);
+    }
+    if(conf.ir_sensor_used && conf.irs_at_fingertip) {
+      irSensorBank.init(odeHandle, osgHandle);
+      IRSensor* sensor_little_t = new IRSensor();
+      ir_sensors.push_back(sensor_little_t);
+      irSensorBank.registerSensor(sensor_little_t, little_t,//objects[16], 
+				  osg::Matrix::rotate(-M_PI/2, 0, 1, 0)  * 
+				  osg::Matrix::translate((-0.2), 0, 0.3),   conf.irRange, 
 				  conf.ray_draw_mode);
     }
     if (conf.showFingernails){

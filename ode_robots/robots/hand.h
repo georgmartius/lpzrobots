@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-09-18 16:01:20  fhesse
+ *   Revision 1.8  2007-09-21 17:05:05  fhesse
+ *   IR sensors at fingertip added
+ *
+ *   Revision 1.7  2007/09/18 16:01:20  fhesse
  *   ir options in conf added
  *
  *   Revision 1.6  2007/09/18 11:03:02  fhesse
@@ -163,6 +166,7 @@ namespace lpzrobots {
     double irRange;
     bool ir_sensor_used;
     bool irs_at_fingertip;
+    bool irs_at_fingertop;
     bool irs_at_fingercenter;
     bool irs_at_fingerbottom;
     enum RaySensor::rayDrawMode ray_draw_mode; // for possible modes see sensors/raysensor.h
@@ -200,7 +204,8 @@ namespace lpzrobots {
 	conf.ir_sensor_used=true;
 	conf.irs_at_fingerbottom=true;
 	conf.irs_at_fingercenter=true;
-	conf.irs_at_fingertip =true;
+	conf.irs_at_fingertop =true;
+	conf.irs_at_fingertip =false;
 	conf.ray_draw_mode=RaySensor::drawAll;
 	conf.factorSensor=1.0;
 	conf.fix_palm_joint=true;
