@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-09-21 17:05:05  fhesse
+ *   Revision 1.15  2007-09-23 15:33:06  fhesse
+ *   testing controller ...
+ *
+ *   Revision 1.14  2007/09/21 17:05:05  fhesse
  *   IR sensors at fingertip added
  *
  *   Revision 1.13  2007/09/18 16:02:22  fhesse
@@ -153,7 +156,7 @@ public:
     OdeRobot *hand;
     HandConf conf = Hand::getDefaultConf();  
     conf.velocity = 0.02;
-    conf.irRange = 0.7;
+    conf.irRange = 1.0; //0.7;
     conf.set_typ_of_motor = Without_servo_motor;//With_servo_motor;
     conf.show_contacts = true;
     conf.ir_sensor_used =true;
