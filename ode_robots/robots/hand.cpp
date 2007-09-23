@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-09-21 17:05:05  fhesse
+ *   Revision 1.9  2007-09-23 23:19:50  fhesse
+ *   finger coupling introduced in setMotors()
+ *   by adding weighted motorvalue of neighbour
+ *   (optional as commentar)
+ *
+ *   Revision 1.8  2007/09/21 17:05:05  fhesse
  *   IR sensors at fingertip added
  *
  *   Revision 1.7  2007/09/18 16:01:20  fhesse
@@ -458,7 +463,69 @@ namespace lpzrobots {
 
 
     if (conf.one_finger_as_one_motor){ // motors at one finger get the same value
-      
+      /* fingers coupled * /
+      motorindex--; // remaining joints of thumb shoud get the same motorvalue
+      //Without_servo_motor
+      ((HingeJoint*)thumb_bt) -> setParam ( dParamVel , motors[motorindex]* velocity );
+      ((HingeJoint*)thumb_bt) -> setParam(dParamFMax, conf.power); 
+
+      motorindex++; //motorvalues for index finger
+      ((HingeJoint*)palm_index) -> setParam ( dParamVel , 
+					      (motors[motorindex]+0.2*motors[motorindex+1]) * velocity );
+      ((HingeJoint*)palm_index) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)index_bc) -> setParam ( dParamVel , 
+					    (motors[motorindex]+0.2*motors[motorindex+1])* velocity );
+      ((HingeJoint*)index_bc) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)index_ct) -> setParam ( dParamVel , 
+					    (motors[motorindex]+0.2*motors[motorindex+1])* velocity );
+      ((HingeJoint*)index_ct) -> setParam(dParamFMax, conf.power); 
+
+      motorindex++; //motorvalues for middle finger
+      ((HingeJoint*)palm_middle) -> setParam ( dParamVel , 
+					       (motors[motorindex]
+						+0.2*motors[motorindex-1]
+						+0.2*motors[motorindex+1])* velocity );
+      ((HingeJoint*)palm_middle) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)middle_bc) -> setParam ( dParamVel , 
+					     (motors[motorindex]
+					      +0.2*motors[motorindex-1]
+					      +0.2*motors[motorindex-+1])* velocity );
+      ((HingeJoint*)middle_bc) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)middle_ct) -> setParam ( dParamVel , 
+					     (motors[motorindex]
+					      +0.2*motors[motorindex-1]
+					      +0.2*motors[motorindex+1])* velocity );
+      ((HingeJoint*)middle_ct) -> setParam(dParamFMax, conf.power); 
+
+      motorindex++; //motorvalues for ring finger
+      ((HingeJoint*)palm_ring) -> setParam ( dParamVel , 
+					     (motors[motorindex]
+					      +0.3*motors[motorindex-1]
+					      +0.1*motors[motorindex+1])* velocity );
+      ((HingeJoint*)palm_ring) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)ring_bc) -> setParam ( dParamVel , 
+					   (motors[motorindex]
+					    +0.3*motors[motorindex-1]
+					    +0.1*motors[motorindex+1])* velocity );
+      ((HingeJoint*)ring_bc) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)ring_ct) -> setParam ( dParamVel ,
+					   (motors[motorindex]
+					    +0.3*motors[motorindex-1]
+					    +0.1*motors[motorindex+1])* velocity );
+      ((HingeJoint*)ring_ct) -> setParam(dParamFMax, conf.power); 
+      motorindex++; //motorvalues for little finger
+      ((HingeJoint*)palm_little) -> setParam ( dParamVel , 
+					       (motors[motorindex]+0.2*motors[motorindex-1])* velocity );
+      ((HingeJoint*)palm_little) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)little_bc) -> setParam ( dParamVel , 
+					     (motors[motorindex]+0.2*motors[motorindex-1])* velocity );
+      ((HingeJoint*)little_bc) -> setParam(dParamFMax, conf.power); 
+      ((HingeJoint*)little_ct) -> setParam ( dParamVel , 
+					     (motors[motorindex]+0.2*motors[motorindex-1])* velocity );
+      ((HingeJoint*)little_ct) -> setParam(dParamFMax, conf.power); 
+
+      */
+      /* fingers not coupled */
       motorindex--; // remaining joints of thumb shoud get the same motorvalue
       //Without_servo_motor
       ((HingeJoint*)thumb_bt) -> setParam ( dParamVel , motors[motorindex]* velocity );
@@ -491,6 +558,7 @@ namespace lpzrobots {
       ((HingeJoint*)little_bc) -> setParam(dParamFMax, conf.power); 
       ((HingeJoint*)little_ct) -> setParam ( dParamVel , motors[motorindex]* velocity );
       ((HingeJoint*)little_ct) -> setParam(dParamFMax, conf.power); 
+      /**/
 
     } else { // each joint has its own motorvalue
 
