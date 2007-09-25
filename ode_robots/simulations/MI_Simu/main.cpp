@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-05-09 14:57:25  robot3
+ *   Revision 1.7  2007-09-25 07:48:52  robot3
+ *   made some tests with white noise
+ *
+ *   Revision 1.6  2007/05/09 14:57:25  robot3
  *   to increase or reduce the simulation speed (realtimefactor), use + and -
  *   to toggle to the maximum simulation speed, use * in the simulation
  *
@@ -194,7 +197,7 @@ public:
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
 
-    global.odeConfig.setParam("noise",0.05);
+    global.odeConfig.setParam("noise",0.01);
     global.odeConfig.setParam("controlinterval",1);
     global.odeConfig.setParam("realtimefactor",0);
 	global.odeConfig.setParam("simstepsize",0.1);
@@ -256,7 +259,7 @@ public:
 	    //robot = new ShortCircuit(odeHandle,osgHandle,1,1);
 	    ((OdeRobot*)myNimm2)->place(Pos ((r-1)*5,5,0));
 	    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-	    invertnconf.cInit = 1.25;
+	    invertnconf.cInit = 1.00;
 	    controller = new InvertMotorNStep(invertnconf);
 	    controller->setParam( "epsA",0);
 	    controller->setParam( "epsC",0);
@@ -265,21 +268,26 @@ public:
 	    //controller = new SineController();
 	    //  controller->setParam( "sinerate",1);
       //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( std::list<PlotOption>() );
+	    //wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+	    wiring = new One2OneWiring(new WhiteUniformNoise());
+	    agent = new OdeAgent( std::list<PlotOption>() );
 	// create DiscreteControllerAdapter
 	//	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
 	//	    discretesizer->setIntervalCount(3);
 	OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-	    //MutualInformationController* mic = new MutualInformationController(30);
-	    //mic->setParam("showF",0);
-	    //mic->setParam("showP",0);
-	    //onamupaco->addPassiveController(mic,"mi30");
-	    /*mic = new MutualInformationController(10);
+	    MutualInformationController* mic = new MutualInformationController(30);
 	    mic->setParam("showF",0);
 	    mic->setParam("showP",0);
+	    onamupaco->addPassiveController(mic,"mi30");
+	    /*mic = new MutualInformationController(10);
+	    mic->setParam("showF",0);
+	    mic->setParam("showP",0);*/
 	    mic = new MutualInformationController(50);
-	    onamupaco->addPassiveController(mic,"mi50");*/
+	    onamupaco->addPassiveController(mic,"mi50");
+	    mic = new MutualInformationController(100);
+	    onamupaco->addPassiveController(mic,"mi100");
+	    mic = new MutualInformationController(200);
+	    onamupaco->addPassiveController(mic,"mi200");
 
 
 	    agent->addInspectable((Inspectable*)stats);
@@ -288,7 +296,7 @@ public:
 	    global.configs.push_back(controller);
 		global.agents.push_back(agent);
 
-	    stats->beginMeasureAt(100);
+	    /*    stats->beginMeasureAt(100);
 	    stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
 	    stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
 	    stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);
@@ -297,7 +305,7 @@ public:
 	    stats->addMeasure(myNimm2->getSumForce(), "ForceMax", MAX, 0);
 	    double& sumsumForce = stats->addMeasure(peakForce, "sumPeakForce50", SUM, 50);
 	    stats->addMeasure(sumsumForce, "sumPeakForceAvg50", AVG, 50);
-	    stats->addMeasure(sumsumForce, "MaxsumPeakForce50", MAX, 50);
+	    stats->addMeasure(sumsumForce, "MaxsumPeakForce50", MAX, 50);*/
 
 
     }
