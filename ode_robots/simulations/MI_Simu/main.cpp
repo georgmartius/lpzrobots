@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-09-27 10:44:33  robot3
+ *   Revision 1.9  2007-09-27 16:00:52  der
+ *   made some tests
+ *
+ *   Revision 1.8  2007/09/27 10:44:33  robot3
  *   tested new WSM (WindowStatisticsManager)
  *
  *   Revision 1.7  2007/09/25 07:48:52  robot3
@@ -157,29 +160,38 @@
 
 #include <selforg/statistictools.h>
 
+#include "substance.h"
+
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-class ThisSim : public Simulation /*, public Inspectable*/ {
+class ThisSim : public Simulation /*, public Inspectable*/
+{
 public:
 
-	StatisticTools* stats;
-	Nimm2* myNimm2;
-	/*
-	virtual std::list<iparamkey> getInternalParamNames() const  {
-		std::list<iparamkey> list;
-		list+=std::string("sumForce");
-		return list;
-	}
+  StatisticTools* stats;
+  Nimm2* myNimm2;
 
-	virtual std::list<iparamval> getInternalParams() const {
-		std::list<iparamval> list;
-		//list+=getAvgOf3( oldest,old,myNimm2->getSumForce());
-		return list;
-	}
-	*/
+  double cInit;
+  /*
+  virtual std::list<iparamkey> getInternalParamNames() const  {
+  	std::list<iparamkey> list;
+  	list+=std::string("sumForce");
+  	return list;
+  }
 
+  virtual std::list<iparamval> getInternalParams() const {
+  	std::list<iparamval> list;
+  	//list+=getAvgOf3( oldest,old,myNimm2->getSumForce());
+  	return list;
+  }
+  */
+
+
+  ThisSim()  { cInit = 1.0; }
+
+  ~ThisSim() {}
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
@@ -193,7 +205,7 @@ public:
     int numSliderWheele=0;
 
 
-	 stats = new StatisticTools();
+    stats = new StatisticTools();
 
     setCameraHomePos(Pos(-19.15, 13.9, 6.9),  Pos(-126.1, -17.6, 0));
     // initialization
@@ -202,41 +214,48 @@ public:
 
     global.odeConfig.setParam("noise",0.01);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",40);
-	global.odeConfig.setParam("simstepsize",0.1);
-	global.odeConfig.setParam("drawinterval",5);
+    global.odeConfig.setParam("realtimefactor",1);
+  //  global.odeConfig.setParam("simstepsize",0.1);
+  //  global.odeConfig.setParam("drawinterval",5);
     // initialization
 
     Playground* playground =
-      new Playground(odeHandle, osgHandle,osg::Vec3(18, 0.2, 1.0));
+      new Playground(odeHandle, osgHandle,osg::Vec3(18, 0.2, 2.0));
     playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    Substance substance;
+    substance.toRubber(40);
+    playground->setGroundSubstance(substance);
     global.obstacles.push_back(playground);
 
-    	for(int i=0; i<0; i++){
-      		PassiveSphere* s =
-				new PassiveSphere(odeHandle,
-			  	osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
-      		s->setPosition(Pos(i*0.5-2, i*0.5, 1.0));
-      		s->setTexture("Images/dusty.rgb");
-      		global.obstacles.push_back(s);
+    for(int i=0; i<0; i++)
+    {
+      PassiveSphere* s =
+        new PassiveSphere(odeHandle,
+                          osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
+      s->setPosition(Pos(i*0.5-2, i*0.5, 1.0));
+      s->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s);
     }
 
-	for (int j=0;j<4;j++) {
-		for(int i=0; i<4; i++){
-      			PassiveBox* b =
-				new PassiveBox(odeHandle,
-			  	osgHandle, osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),20.0);
-      			b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
-      			b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
-      			b->setTexture("Images/light_chess.rgb");
-      			global.obstacles.push_back(b);
-    		}
-	}
+    for (int j=0;j<4;j++)
+    {
+      for(int i=0; i<4; i++)
+      {
+        PassiveBox* b =
+          new PassiveBox(odeHandle,
+                         osgHandle, osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),40.0);
+        b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
+        b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+        b->setTexture("Images/light_chess.rgb");
+        global.obstacles.push_back(b);
+      }
+    }
 
-    for(int i=0; i<0; i++){
+    for(int i=0; i<0; i++)
+    {
       PassiveCapsule* c =
-	new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
+        new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
       c->setPosition(Pos(i-1, -i, 1.0));
       c->setColor(Color(0.2f,0.2f,1.0f,0.5f));
       c->setTexture("Images/light_chess.rgb");
@@ -248,89 +267,98 @@ public:
     OdeRobot* robot;
     AbstractController *controller;
 
-/*****************************************************************************************************************/
-/*****************************************************************************************************************/
-/******************************************** N I M M  2 *********************************************************/
-    double valueC = 1.0;
+    /*****************************************************************************************************************/
+    /*****************************************************************************************************************/
+    /******************************************** N I M M  2 *********************************************************/
 
-	  Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
-	  nimm2conf.size = 1.6;
-	  nimm2conf.force = 10;
-	  nimm2conf.singleMotor=false;
-	  nimm2conf.visForce=true;
-    for(int r=0; r < numNimm2; r++) {
-	    myNimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(r));
-	    //robot = new ShortCircuit(odeHandle,osgHandle,1,1);
-	    ((OdeRobot*)myNimm2)->place(Pos ((r-1)*5,5,0));
-	    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      invertnconf.cInit = valueC;
-	    controller = new InvertMotorNStep(invertnconf);
-	    controller->setParam( "epsA",0);
-	    controller->setParam( "epsC",0);
-	    //         controller = new InvertMotorSpace(15);
-	    //      controller->setParam("s4avg",10);
-	    //controller = new SineController();
-	    //  controller->setParam( "sinerate",1);
+
+    Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
+    nimm2conf.size = 1.6;
+    nimm2conf.force = 50;
+    nimm2conf.speed=40;
+    nimm2conf.cigarMode=true;
+    nimm2conf.singleMotor=false;
+    nimm2conf.visForce=true;
+    nimm2conf.boxMode=true;
+    for(int r=0; r < numNimm2; r++)
+    {
+      myNimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(r));
+      //robot = new ShortCircuit(odeHandle,osgHandle,1,1);
+      ((OdeRobot*)myNimm2)->place(Pos ((r-1)*5,5,0));
+      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+      invertnconf.cInit = cInit;
+      controller = new InvertMotorNStep(invertnconf);
+      controller->setParam( "epsA",0);
+      controller->setParam( "epsC",0);
+      //         controller = new InvertMotorSpace(15);
+      //      controller->setParam("s4avg",10);
+      //controller = new SineController();
+      //  controller->setParam( "sinerate",1);
       //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
-	    //wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-	    wiring = new One2OneWiring(new WhiteUniformNoise());
-	    agent = new OdeAgent( std::list<PlotOption>() );
-	// create DiscreteControllerAdapter
-	//	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
-	//	    discretesizer->setIntervalCount(3);
-	OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-	    MutualInformationController* mic = new MutualInformationController(30);
-	    mic->setParam("showF",0);
-	    mic->setParam("showP",0);
-	    onamupaco->addPassiveController(mic,"mi30");
-	    /*mic = new MutualInformationController(10);
-	    mic->setParam("showF",0);
-	    mic->setParam("showP",0);*/
-	    /*mic = new MutualInformationController(50);
-	    onamupaco->addPassiveController(mic,"mi50");
-	    mic = new MutualInformationController(100);
-	    onamupaco->addPassiveController(mic,"mi100");
-	    mic = new MutualInformationController(200);
-	    onamupaco->addPassiveController(mic,"mi200");*/
+      //wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      wiring = new One2OneWiring(new WhiteUniformNoise());
+      agent = new OdeAgent( std::list<PlotOption>() );
+      // create DiscreteControllerAdapter
+      //	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
+      //	    discretesizer->setIntervalCount(3);
+      OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
+      MutualInformationController* mic = new MutualInformationController(30);
+      mic->setParam("showF",0);
+      mic->setParam("showP",0);
+      onamupaco->addPassiveController(mic,"mi30");
+      /*mic = new MutualInformationController(10);
+      mic->setParam("showF",0);
+      mic->setParam("showP",0);*/
+      /*mic = new MutualInformationController(50);
+      onamupaco->addPassiveController(mic,"mi50");
+      mic = new MutualInformationController(100);
+      onamupaco->addPassiveController(mic,"mi100");
+      mic = new MutualInformationController(200);
+      onamupaco->addPassiveController(mic,"mi200");*/
 
 
-	    agent->addInspectable((Inspectable*)stats);
-	    agent->addCallbackable((Callbackable*)stats);
-	    agent->init(onamupaco, myNimm2		, wiring);
-	    global.configs.push_back(controller);
-		global.agents.push_back(agent);
+      agent->addInspectable((Inspectable*)stats);
+      agent->addCallbackable((Callbackable*)stats);
+      agent->init(onamupaco, myNimm2		, wiring);
+      global.configs.push_back(controller);
+      global.agents.push_back(agent);
 
-	    stats->beginMeasureAt(100);
+      stats->beginMeasureAt(100);
 
-	    stats->addMeasure(mic->getMI(0),"MI0",ID,0);
-	    stats->addMeasure(mic->getMI(1),"MI1",ID,0);
+      stats->addMeasure(mic->getMI(0),"MI0",ID,0);
+      stats->addMeasure(mic->getMI(1),"MI1",ID,0);
 
-        this->getWSM()->beginMeasureAt(100);
-        this->getWSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
-        this->getWSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
+      this->getWSM()->beginMeasureAt(100);
+      this->getWSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
+      this->getWSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
+
+      getWSM()->addMeasure( mic->getMI(0),"MI 0 AVG",AVG,50);
+      getWSM()->addMeasure( mic->getMI(0),"MI 0 CONV",CONV,50,0.01);
 
 
-/*stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
-	    stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
-	    stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);
-	    double& peakForce = stats->addMeasure(myNimm2->getSumForce(),"peakForce",PEAK,0,0.06333);
-	    stats->addMeasure(peakForce, "peakForceMax", MAX, 0);
-	    stats->addMeasure(myNimm2->getSumForce(), "ForceMax", MAX, 0);
-	    double& sumsumForce = stats->addMeasure(peakForce, "sumPeakForce50", SUM, 50);
-	    stats->addMeasure(sumsumForce, "sumPeakForceAvg50", AVG, 50);
-	    stats->addMeasure(sumsumForce, "MaxsumPeakForce50", MAX, 50);*/
+
+      /*stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
+      	    stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
+      	    stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);
+      	    double& peakForce = stats->addMeasure(myNimm2->getSumForce(),"peakForce",PEAK,0,0.06333);
+      	    stats->addMeasure(peakForce, "peakForceMax", MAX, 0);
+      	    stats->addMeasure(myNimm2->getSumForce(), "ForceMax", MAX, 0);
+      	    double& sumsumForce = stats->addMeasure(peakForce, "sumPeakForce50", SUM, 50);
+      	    stats->addMeasure(sumsumForce, "sumPeakForceAvg50", AVG, 50);
+      	    stats->addMeasure(sumsumForce, "MaxsumPeakForce50", MAX, 50);*/
 
 
     }
 
 
-/******************************************** N I M M  2 *********************************************************/
-/*****************************************************************************************************************/
-/*****************************************************************************************************************/
+    /******************************************** N I M M  2 *********************************************************/
+    /*****************************************************************************************************************/
+    /*****************************************************************************************************************/
 
 
     //******* N I M M  4 *********/
-    for(int r=0; r < numNimm4; r++) {
+    for(int r=0; r < numNimm4; r++)
+    {
       robot = new Nimm4(odeHandle, osgHandle, "Nimm4_" + std::itos(r));
       robot->place(Pos((r-1)*5,-3,0));
       controller = new InvertMotorSpace(20);
@@ -343,7 +371,8 @@ public:
     }
 
     //****** H U R L I N G **********/
-    for(int r=0; r < numHurling; r++) {
+    for(int r=0; r < numHurling; r++)
+    {
       HurlingSnake* snake;
       Color c;
       if (r==0) c=Color(0.8, 0.8, 0);
@@ -367,17 +396,18 @@ public:
       wiring = new One2OneWiring(new ColorUniformNoise(0.05));
       agent = new OdeAgent( std::list<PlotOption>() );
       agent->init(controller, snake, wiring);
-			       global.configs.push_back(controller);
-			       global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.agents.push_back(agent);
     }
 
     //****** S P H E R E **********/
-    for(int r=0; r < numSphere; r++) {
+    for(int r=0; r < numSphere; r++)
+    {
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       Sphererobot3Masses* sphere1 =
-	new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),
-				 conf, "Sphere" + std::itos(r), 0.2);
+        new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),
+                                 conf, "Sphere" + std::itos(r), 0.2);
       ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));
       controller = new InvertMotorSpace(15);
       controller->setParam("sinerate", 40);
@@ -391,7 +421,8 @@ public:
 
     /******* S L I D E R - w H E E L I E *********/
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
-    for(int r=0; r < numSliderWheele; r++) {
+    for(int r=0; r < numSliderWheele; r++)
+    {
       mySliderWheelieConf.segmNumber=8;
       mySliderWheelieConf.jointLimit=M_PI/4;
       mySliderWheelieConf.motorPower=0.4;
@@ -400,7 +431,7 @@ public:
       mySliderWheelieConf.segmLength=0.4;
 
       SliderWheelie* mySliderWheelie =
-	new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie" + std::itos(r));
+        new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie" + std::itos(r));
       ((OdeRobot*) mySliderWheelie)->place(Pos(4-2*r,0,0.0));
       InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
       invertnconf.cInit=1;
@@ -420,53 +451,55 @@ public:
     }
 
 
-	      //******* R A U P E  *********/
-	  for(int r=0; r < numCater ; r++) {
-		  CaterPillar* myCaterPillar;
-		  CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
-		  myCaterPillarConf.segmNumber=3+r;
-		  myCaterPillarConf.jointLimit=M_PI/3;
-		  myCaterPillarConf.motorPower=0.2;
-		  myCaterPillarConf.frictionGround=0.01;
-		  myCaterPillarConf.frictionJoint=0.01;
-		  myCaterPillar =
-			  new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)),
-			                    myCaterPillarConf, "Raupe" );//+ std::itos(r));
-		  ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5+2*r,0.2));
+    //******* R A U P E  *********/
+    for(int r=0; r < numCater ; r++)
+    {
+      CaterPillar* myCaterPillar;
+      CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
+      myCaterPillarConf.segmNumber=3+r;
+      myCaterPillarConf.jointLimit=M_PI/3;
+      myCaterPillarConf.motorPower=0.2;
+      myCaterPillarConf.frictionGround=0.01;
+      myCaterPillarConf.frictionJoint=0.01;
+      myCaterPillar =
+        new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)),
+                          myCaterPillarConf, "Raupe" );//+ std::itos(r));
+      ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5+2*r,0.2));
 
-		  InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-		  invertnconf.cInit=2.0;
-		  controller = new InvertMotorSpace(15);
-		  wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-		  agent = new OdeAgent( plotoptions );
-		  agent->init(controller, myCaterPillar, wiring);
-		  global.agents.push_back(agent);
-		  global.configs.push_back(controller);
-		  global.configs.push_back(myCaterPillar);
-		  myCaterPillar->setParam("gamma",/*gb");
-					global.obstacles.push_back(s)0.0000*/ 0.0);
-	  }
+      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+      invertnconf.cInit=2.0;
+      controller = new InvertMotorSpace(15);
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent( plotoptions );
+      agent->init(controller, myCaterPillar, wiring);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.configs.push_back(myCaterPillar);
+      myCaterPillar->setParam("gamma",/*gb");
+                              					global.obstacles.push_back(s)0.0000*/ 0.0);
+    }
 
 
     //******* S C H L A N G E  (Long)  *********/
-	  for(int r=0; r < numSchlangeL ; r++) {
-		  SchlangeServo2* snake;
-		  SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
-		  snakeConf.segmNumber=6+r;
-		  snakeConf.frictionGround=0.01;
+    for(int r=0; r < numSchlangeL ; r++)
+    {
+      SchlangeServo2* snake;
+      SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
+      snakeConf.segmNumber=6+r;
+      snakeConf.frictionGround=0.01;
 
-		  snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" + std::itos(r));
-		  ((OdeRobot*) snake)->place(Pos(4,4-r,0));
-		  InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-		  invertnconf.cInit=2.0;
-		  controller = new InvertMotorNStep(invertnconf);
-		  wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-		  agent = new OdeAgent( std::list<PlotOption>() );
-		  agent->init(controller, snake, wiring);
-		  global.agents.push_back(agent);
-		  global.configs.push_back(controller);
-		  global.configs.push_back(snake);
-	  }
+      snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" + std::itos(r));
+      ((OdeRobot*) snake)->place(Pos(4,4-r,0));
+      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+      invertnconf.cInit=2.0;
+      controller = new InvertMotorNStep(invertnconf);
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent( std::list<PlotOption>() );
+      agent->init(controller, snake, wiring);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.configs.push_back(snake);
+    }
 
     showParams(global.configs);
   }
@@ -474,13 +507,14 @@ public:
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (down) { // only when key is pressed, not when released
+    if (down)
+    { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+      {
+      default:
+        return false;
+        break;
+      }
     }
     return false;
   }
@@ -489,15 +523,20 @@ public:
 
 int main (int argc, char **argv)
 {
-	/*	std::list<AbstrakteKlasse*> klassenList;
-	KonkreteKlasse2* kk2= new KonkreteKlasse2();
-	klassenList.push_back(kk2);
-	kk2->method(4);
-	for (std::list<AbstrakteKlasse*>::iterator i=klassenList.begin();i!=klassenList.end();i++) {
-		(*i)->method(5);
-	}*/
-	 ThisSim sim;
-	// run simulation
-	return sim.run(argc, argv) ? 0 : 1;
+  ThisSim sim;
+
+  // check for cinit value
+  int index = contains(argv, argc, "-cinit");
+  if(index)
+  {
+    if(argc > index)
+    {
+      sim.cInit = atoi(argv[index]);
+    }
+  }
+
+
+  // run simulation
+  return sim.run(argc, argv) ? 0 : 1;
 }
 
