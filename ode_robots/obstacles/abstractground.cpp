@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-09-06 18:46:41  martius
+ *   Revision 1.12  2007-09-27 12:47:17  der
+ *   fixed abstractground placement bug (produces shadow artifacts)
+ *
+ *   Revision 1.11  2007/09/06 18:46:41  martius
  *   printContours
  *
  *   Revision 1.10  2007/08/27 12:27:35  martius
@@ -189,7 +192,7 @@ namespace lpzrobots {
       groundPlane = new Box(groundLength+1.95*wallThickness, groundWidth+1.95*wallThickness, 0.50f);
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-0.25f) * pose);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,0.05f) * pose);
       groundPlane->setTexture(groundTextureFileName,true,true);
       obst.push_back(groundPlane);
     }
