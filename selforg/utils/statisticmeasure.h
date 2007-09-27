@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-05-07 21:01:31  robot3
+ *   Revision 1.2  2007-09-27 10:49:39  robot3
+ *   removed some minor bugs,
+ *   added CONVergence test
+ *   changed little things for support of the new WSM
+ *
+ *   Revision 1.1  2007/05/07 21:01:31  robot3
  *   statistictools is a class for easy visualization of measurements of observed values
  *   it is possible to add the observed value itself with mode ID
  *
@@ -53,9 +58,9 @@ public:
 
 protected:
 	std::string name;
-	double value;
-	double& observedValue;
-	MeasureMode mode;
+	double value;  // this is the value which is determined, e.g. in AVG MeasureMode, it's the average!
+	double& observedValue; // the observed value from which the statistic is made
+	MeasureMode mode; // the MeasureMode, e.g. ID, AVG, MED, PEAK, CONV,...
 	long stepSpan; // determines the size of valueHistory
 	double additionalParam;
 	long actualStep; // actual step
@@ -64,11 +69,21 @@ protected:
 	double* valueHistory;
 
 	/**************************************************************************************************/
-	/* all the functions for calculating the values below                                             */
+	/* all the functions for calculating the values are below this line, add new variables if needed  */
 
 	virtual double calculateSumValue();
 
 	virtual double calculateAverageValue();
+
+	/* BEGIN convergence SECTION */
+	virtual double testConvergence();
+	// stores how much steps the convergence is reached,
+	// if stepsReached==stepSpan, convergence criteria is 1, otherwise 0
+	long stepsReached;
+	/* END convergence SECTION */
+
+
+
 
 };
 

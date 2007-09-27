@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-05-07 21:01:31  robot3
+ *   Revision 1.2  2007-09-27 10:49:39  robot3
+ *   removed some minor bugs,
+ *   added CONVergence test
+ *   changed little things for support of the new WSM
+ *
+ *   Revision 1.1  2007/05/07 21:01:31  robot3
  *   statistictools is a class for easy visualization of measurements of observed values
  *   it is possible to add the observed value itself with mode ID
  *
@@ -33,6 +38,9 @@
 
 #include "statisticmeasure.h"
 #include <iostream>
+#include "stl_adds.h"
+#include "assert.h"
+
 
 StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : name(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam) {
 	value=0;
@@ -44,13 +52,26 @@ StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, Mea
 		for (int i=0;i<stepSpan;i++)
 			this->valueHistory[i]=0;
 	}
+	/// use this section for defining individual constructor commands
+	switch(mode){
+		case CONV:
+			if (stepSpan==0) {
+				std::cout << "ERROR: The stepspan in addMeasure(observedValue, CONV, stepSpan, epsilon)"
+					<< std::endl << "       must not be <1!" << std::endl;
+				std::cout << "Program terminated. Please correct this error in main.cpp (or wherever) first." << std::endl;
+				exit(-1);
+			}
+			this->stepsReached=0;
+			break;
+		default: // not defined
+			break;
+	}
 }
 
 void StatisticMeasure::step() {
 	// update the variable value from observedValue
-	// for first example, return ID
 	switch(mode){
-		case ID:
+		case ID: // return observed value itself
 			value=observedValue;
 			break;
 		case AVG:
@@ -73,6 +94,9 @@ void StatisticMeasure::step() {
 		case SUM:
 			value=calculateSumValue();
 			break;
+		case CONV:
+			value=testConvergence();
+			break;
 		default: // not defined
 			break;
 	}
@@ -85,6 +109,16 @@ void StatisticMeasure::step() {
 			oldestStepIndex++;
 	}
 	actualStep++;
+}
+
+double StatisticMeasure::testConvergence() {
+	if (std::abs(observedValue-valueHistory[actualStep])<additionalParam) {
+		stepsReached++;
+		if (stepsReached==stepSpan)
+			return 1.0;
+	} else
+		stepsReached=0;
+	return 0.0;
 }
 
 

@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-05-08 10:18:15  der
+ *   Revision 1.3  2007-09-27 10:49:39  robot3
+ *   removed some minor bugs,
+ *   added CONVergence test
+ *   changed little things for support of the new WSM
+ *
+ *   Revision 1.2  2007/05/08 10:18:15  der
  *   added a function for starting the measure after a given time.
  *   made some tests
  *
@@ -39,33 +44,12 @@
 
 #include "inspectable.h"
 #include "callbackable.h"
+#include "measuremodes.h"
 
+
+// begin forward declarations
 class StatisticMeasure;
-
-
-/** measure modes of statistical types.
- */
-enum MeasureMode {
- 	/// returns the value to observe itself
- 	ID,
-	/// returns the average value
-	AVG,
-	/// returns the median value
-	MED,
-	/// returns the minimum value
-	MIN,
-	/// returns the maximum value
-	MAX,
-	/// returns only values above defined limit
- 	PEAK,
-	/// returns the sum of the value generated over time (or stepSpan)
- 	SUM
-};
-
-
-
-
-
+// end forward declarations
 
 class StatisticTools : public Inspectable, public Callbackable {
 
@@ -84,6 +68,7 @@ public:
 	 * The same counts for all the other MeasureModes.
 	 * @param additionalParam  is used for example for mode PEAK, the param is the limit value,
 	 * all values minus limit are displayed, values below the limit are set to 0.
+  	 * In CONV mode (test the convergence), this value is the epsilon criteria.
 	 * @return measured value as adress. So it is possible to measure this value again
 	 */
 	virtual double& addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
@@ -111,7 +96,7 @@ public:
 
 	virtual std::list<iparamval> getInternalParams() const;
 
-private:
+protected:
 	std::list<StatisticMeasure*> activeMeasures;
 	long beginMeasureCounter;
 };
