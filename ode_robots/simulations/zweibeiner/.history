@@ -347,3 +347,5 @@ sinerate=20
 realtimefactor=1
 sinerate=20
 phaseshift=0.5
+hippower=100
+realtimefactor=3

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2007-05-07 21:12:19  robot3
+ *   Revision 1.27  2007-09-27 16:01:28  der
+ *   added to nimm2 the box version
+ *
+ *   Revision 1.26  2007/05/07 21:12:19  robot3
  *   added experimental force sensors
  *
  *   Revision 1.25  2007/03/06 10:11:04  fhesse
@@ -170,6 +173,7 @@ typedef struct {
   double irRange;
   bool singleMotor;
   bool visForce;
+  bool boxMode;
 } Nimm2Conf;
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
@@ -196,6 +200,7 @@ public:
     conf.irRange=3;
     conf.singleMotor=false;
 	  conf.visForce=false;
+    conf.boxMode=false;
     return conf;
   }
 

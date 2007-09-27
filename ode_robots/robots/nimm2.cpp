@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.34  2007-09-06 18:47:59  martius
+ *   Revision 1.35  2007-09-27 16:01:28  der
+ *   added to nimm2 the box version
+ *
+ *   Revision 1.34  2007/09/06 18:47:59  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.33  2007/08/23 15:53:14  martius
@@ -85,7 +88,7 @@
  *
  *   Revision 1.21.4.15  2006/01/31 15:40:23  martius
  *   irRange configurable
- *   even higher friction and body is allways on th ground
+ *   even higher and body is allways on th ground
  *
  *   Revision 1.21.4.14  2006/01/26 18:37:20  martius
  *   *** empty log message ***
@@ -414,11 +417,21 @@ namespace lpzrobots {
     // - rotate and place body (here by 90 around the y-axis)
     // - set texture for cylinder
     // - put it into object[0]
-    Capsule* cap = new Capsule(width/2, length);
-    cap->init(odeHandle, cmass, osgHandle);
-    cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
-    cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
-    object[0]=cap;
+
+    if (conf.boxMode) {
+      Box* box = new Box(width/4*3,width/2, length/2);
+      box->init(odeHandle, cmass, osgHandle);
+      box->setPose(Matrix::translate(0, 0, -1) * Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
+      box->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      box->substance.toMetal(0);
+      object[0]=box;
+    } else {
+      Capsule* cap = new Capsule(width/2, length);
+      cap->init(odeHandle, cmass, osgHandle);
+      cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
+      cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      object[0]=cap;
+    }
 
     // create bumper if required
     // - create cylinder with radius and length
