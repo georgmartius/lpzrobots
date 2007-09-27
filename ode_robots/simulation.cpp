@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.68  2007-08-29 13:08:26  martius
+ *   Revision 1.69  2007-09-27 10:47:04  robot3
+ *   mathutils: moved abs to selforg/stl_adds.h
+ *   simulation,base: added callbackable support,
+ *   added WSM (WindowStatisticsManager) funtionality
+ *
+ *   Revision 1.68  2007/08/29 13:08:26  martius
  *   added HUD with time and caption
  *
  *   Revision 1.67  2007/08/24 11:52:18  martius
@@ -352,6 +357,8 @@
 #include <selforg/abstractcontroller.h>
 #include <selforg/abstractwiring.h>
 
+#include <selforg/callbackable.h>
+
 #include "simulation.h"
 #include "odeagent.h"
 #include "console.h"
@@ -412,7 +419,7 @@ namespace lpzrobots {
     osgGA::GUIEventHandler::unref();
     Producer::Camera::Callback::unref_nodelete();
     Producer::Camera::Callback::unref_nodelete();
-    osg::Referenced::unref_nodelete();    
+    osg::Referenced::unref_nodelete();
   }
 
   bool Simulation::init(int argc, char** argv){
@@ -449,17 +456,17 @@ namespace lpzrobots {
     if(!noGraphics){
       // use an ArgumentParser object to manage the program arguments.
       arguments = new ArgumentParser(&argc, argv);
-      
+
       // set up the usage document, in case we need to print out how to use this program.
       arguments->getApplicationUsage()->setDescription(
 						       arguments->getApplicationName() + " Lpzrobots Simulator");
       arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName());
       arguments->getApplicationUsage()->addCommandLineOption(
 							     "-h or --help", "Display this information");
-      
+
       // construct the viewer.
       viewer = new ExtendedViewer(*arguments);
-      
+
       // set up the value with sensible default event handlers.
       unsigned int options =  Viewer::SKY_LIGHT_SOURCE |
 	Viewer::STATE_MANIPULATOR |
@@ -467,9 +474,9 @@ namespace lpzrobots {
 	Viewer::VIEWER_MANIPULATOR |
 	Viewer::ESCAPE_SETS_DONE;
       viewer->setUpViewer(options);
-      
+
       viewer->getEventHandlerList().push_front(this);
-      
+
       // if user request help write it out to cout.
       if (arguments->read("-h") || arguments->read("--help")) {
 	arguments->getApplicationUsage()->write(std::cout);
@@ -477,7 +484,7 @@ namespace lpzrobots {
       }
       // any option left unread are converted into errors to write out later.
       //    arguments->reportRemainingOptionsAsUnrecognized();
-      
+
       // report any errors if they have occured when parsing the program aguments.
       if (arguments->errors()) {
 	arguments->writeErrorMessages(std::cout);
@@ -527,7 +534,7 @@ namespace lpzrobots {
       viewer->addCameraManipulator(cameramanipulatorTV);
       viewer->addCameraManipulator(cameramanipulatorRace);
       viewer->selectCameraManipulator(pos); // this is the default camera type
-      
+
       // get details on keyboard and mouse bindings used by the viewer.
       viewer->getUsage(*(arguments->getApplicationUsage()));
     }
@@ -558,10 +565,10 @@ namespace lpzrobots {
     if(!noGraphics){
       // add model to viewer.
       viewer->setSceneData(root);
-      
+
       Producer::CameraConfig* cfg = viewer->getCameraConfig();
       cam = cfg->getCamera(0);
-      
+
       Producer::RenderSurface* rs = cam->getRenderSurface();
       rs->setWindowName( "LpzRobots - Selforg" );
 
@@ -589,19 +596,19 @@ namespace lpzrobots {
 	{
 	  // wait for all cull and draw threads to complete.
 	  viewer->sync();
-	  
+
 	  if(!loop()) break;
-	  
+
 	  // wait for all cull and draw threads to complete.
 	  viewer->sync();
 	  // update the scene by traversing it with the the update visitor which will
 	  // call all node update callbacks and animations.
 	  viewer->update();
-	  	  
+
 	  // fire off the cull and draw traversals of the scene.
 	  viewer->frame();
 	}
-      
+
       // wait for all cull and draw threads to complete before exit.
       viewer->sync();
     }else{
@@ -647,7 +654,7 @@ namespace lpzrobots {
 	  printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
 	}
 	// finish simulation, if intended simulation time is reached
-	if(simulation_time!=-1){ // check time only if activated 
+	if(simulation_time!=-1){ // check time only if activated
 	  if( (sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
 	    if (!simulation_time_reached){ // print out once only
 	      printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
@@ -668,7 +675,7 @@ namespace lpzrobots {
 
 	/**********************Simulationsschritt an sich**********************/
 	dSpaceCollide ( odeHandle.space , this , &nearCallback_TopLevel );
-	FOREACHC(list<dSpaceID>, odeHandle.getSpaces(), i){	  
+	FOREACHC(list<dSpaceID>, odeHandle.getSpaces(), i){
 	  dSpaceCollide ( *i , this , &nearCallback );
 	}
 
@@ -698,6 +705,12 @@ namespace lpzrobots {
 	// update timestats
 	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor);
 
+        // call all registered callbackable classes
+        // NOTE: This can be buggy, because the registered classes are only called
+        // if graphics is turned on! Maybe we have to rearrange this code some time...
+        for(list<Callbackable*>::iterator i = callbackables.begin(); i!= callbackables.end(); i++){
+          (*i)->doOnCallBack();
+        }
       }
 
     }
@@ -738,7 +751,7 @@ namespace lpzrobots {
     switch(ea.getEventType()) {
     case(osgGA::GUIEventAdapter::KEYDOWN):
       {
-	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);	
+	handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);
 	if(handled) {
 	  resetSyncTimer();
 	  break;
@@ -761,14 +774,14 @@ namespace lpzrobots {
 	  }
 	  return true;
 	  break;
-	case 65450: // keypad *  // normal * is allready used by LOD 
+	case 65450: // keypad *  // normal * is allready used by LOD
 	  globalData.odeConfig.setParam("realtimefactor", 0);
 	  std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
 	  handled=true;
 	  break;
 	case 65451: // keypad +
 	case 43: // +
-	  { 
+	  {
 	    double rf = globalData.odeConfig.realTimeFactor;
 	    if (rf >= 2)
 	      globalData.odeConfig.setParam("realtimefactor", rf+1);
@@ -784,7 +797,7 @@ namespace lpzrobots {
 	  break;
 	case 65453: // keypad -
 	case 45: // -
-	  { 
+	  {
 	    double rf = globalData.odeConfig.realTimeFactor;
 	    if (rf>2)
 	      globalData.odeConfig.setParam("realtimefactor", rf-1);
@@ -820,23 +833,23 @@ namespace lpzrobots {
 	  printf( pause ? "Pause\n" : "Continue\n" );
 	  resetSyncTimer();
 	  handled = true;
-	  break;	
+	  break;
 	default:
 	  // std::cout << ea.getKey() << std::endl;
 	  return false;
-	  break;	
+	  break;
 	}
       }
       break;
     case(osgGA::GUIEventAdapter::KEYUP):
-      handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);	
+      handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);
       if(handled) resetSyncTimer();
     default:
       break;
     }
     return handled;
   }
-    
+
   void Simulation::getUsage (osg::ApplicationUsage& au) const {
     au.addKeyboardMouseBinding("Simulation: Ctrl-f","File-Logging on/off");
     au.addKeyboardMouseBinding("Simulation: Ctrl-g","Restart the Gui-Logger");
@@ -847,11 +860,11 @@ namespace lpzrobots {
     au.addKeyboardMouseBinding("Simulation: *","set maximum simulation speed (realtimefactor=0)");
     bindingDescription(au);
   }
-  
+
   void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
     v.visit(*this);
   }
-  
+
   ///////////////// Camera::Callback interface
   void Simulation::operator() (const Producer::Camera &c){
     // grab frame if in captureing mode
@@ -886,7 +899,7 @@ namespace lpzrobots {
       if(osgHandle.tesselhints[i]) osgHandle.tesselhints[i]->unref();
     }
     global.agents.clear();
-    
+
     if(!noGraphics)    // delete viewer;
       viewer->getEventHandlerList().clear();
   }
@@ -1054,8 +1067,8 @@ namespace lpzrobots {
     }
 
     if (collision_treated) return; // exit if collision was treated by a robot
-        
-    nearCallback(data, o1, o2);    
+
+    nearCallback(data, o1, o2);
   }
 
 
@@ -1108,7 +1121,7 @@ namespace lpzrobots {
 				   o1, o2, s1, s2);
 	}
 	if(s2.callback && callbackrv==1) {
-	  callbackrv = s2.callback(surfParams, me->globalData, s2.userdata, contact, n, 
+	  callbackrv = s2.callback(surfParams, me->globalData, s2.userdata, contact, n,
 				    o2, o1, s2, s1 );
 	}
 	if(callbackrv==1){
@@ -1123,7 +1136,7 @@ namespace lpzrobots {
 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
 	}
       } // if contact points
-    } // if geoms 
+    } // if geoms
   }
 
 

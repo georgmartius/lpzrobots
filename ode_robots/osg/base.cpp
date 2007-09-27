@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-08-29 13:08:04  martius
+ *   Revision 1.11  2007-09-27 10:47:04  robot3
+ *   mathutils: moved abs to selforg/stl_adds.h
+ *   simulation,base: added callbackable support,
+ *   added WSM (WindowStatisticsManager) funtionality
+ *
+ *   Revision 1.10  2007/08/29 13:08:04  martius
  *   added HUD with time and caption
  *
  *   Revision 1.9  2007/04/05 15:10:36  martius
@@ -114,6 +119,9 @@
 #include "base.h"
 #include "primitive.h"
 
+#include <selforg/callbackable.h>
+
+
 using namespace osg;
 
 namespace lpzrobots {
@@ -122,7 +130,7 @@ namespace lpzrobots {
   /********************************************************************
    * fragment shader for non textured objects (non-default, not used) *
    *******************************************************************/
-  char fragmentShaderSource_noBaseTexture[] = 
+  char fragmentShaderSource_noBaseTexture[] =
   "uniform sampler2DShadow shadowTexture; \n"
   "uniform vec2 ambientBias; \n"
   "\n"
@@ -132,12 +140,12 @@ namespace lpzrobots {
   "    ambientBias.y=0.4f; \n"
   "    gl_FragColor = gl_Color * (ambientBias.x + shadow2DProj( shadowTexture, gl_TexCoord[0] ) * ambientBias.y - 0.4f); \n"
   "}\n";
-  
+
 
   /********************************************************************
    * fragment shader for textured objects (default, used)             *
    *******************************************************************/
-  char fragmentShaderSource_withBaseTexture[] = 
+  char fragmentShaderSource_withBaseTexture[] =
   "uniform sampler2D baseTexture; \n"
   "uniform sampler2DShadow shadowTexture; \n"
   "uniform vec2 ambientBias; \n"
@@ -153,20 +161,20 @@ namespace lpzrobots {
       //      Plane* plane = (Plane*) dGeomGetData(ground);
       //      delete plane;
       dGeomDestroy(ground);
-    }    
+    }
   }
 
-  
 
-  osg::Group* Base::createShadowedScene(osg::Node* shadowed, 
-					osg::Vec3 posOfLight, 
+
+  osg::Group* Base::createShadowedScene(osg::Node* shadowed,
+					osg::Vec3 posOfLight,
 					unsigned int unit)
   {
     osg::Group* group = new osg::Group;
-    
+
     unsigned int tex_width  = shadowTexSize; // 1024; // up to 2048 is possible but slower
     unsigned int tex_height = shadowTexSize; // 1024; // up to 2048 is possible but slower
-    
+
     osg::Texture2D* texture = new osg::Texture2D;
     texture->setTextureSize(tex_width, tex_height);
 
@@ -175,7 +183,7 @@ namespace lpzrobots {
     texture->setShadowTextureMode(Texture::LUMINANCE);
     texture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR);
     texture->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
-    
+
     // set up the render to texture camera.
     {
       // create the camera
@@ -186,7 +194,7 @@ namespace lpzrobots {
       camera->setComputeNearFarMode(osg::CameraNode::DO_NOT_COMPUTE_NEAR_FAR);
       //      std::cerr << camera->getNearFarRatio() <<  std::endl;
       //      camera->setNearFarRatio(0.0001);
-      
+
       // set viewport
       camera->setViewport(0,0,tex_width,tex_height);
 
@@ -221,9 +229,9 @@ namespace lpzrobots {
 
       // add subgraph to render
       camera->addChild(shadowed);
-        
+
       group->addChild(camera);
-        
+
       // create the texgen node to project the tex coords onto the subgraph
       osg::TexGenNode* texgenNode = new osg::TexGenNode;
       texgenNode->setTextureUnit(unit);
@@ -232,14 +240,14 @@ namespace lpzrobots {
       // set an update callback to keep moving the camera and tex gen in the right direction.
       group->setUpdateCallback(new ShadowDrawCallback(posOfLight, camera, texgenNode));
     }
-   
 
-    // set the shadowed subgraph so that it uses the texture and tex gen settings.    
+
+    // set the shadowed subgraph so that it uses the texture and tex gen settings.
     {
       osg::Group* shadowedGroup = new osg::Group;
       shadowedGroup->addChild(shadowed);
       group->addChild(shadowedGroup);
-                
+
       osg::StateSet* stateset = shadowedGroup->getOrCreateStateSet();
       stateset->setTextureAttributeAndModes(unit,texture,osg::StateAttribute::ON);
       stateset->setTextureMode(unit,GL_TEXTURE_GEN_S,osg::StateAttribute::ON);
@@ -253,27 +261,27 @@ namespace lpzrobots {
       stateset->setAttribute(program);
       if (unit==0) {
 	std::cout << "not using textures." << std::endl;
-	osg::Shader* fragment_shader = 
+	osg::Shader* fragment_shader =
 	  new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_noBaseTexture);
 	program->addShader(fragment_shader);
-	
+
 	// uniforms are for the shader program
 	osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
 	stateset->addUniform(shadowTextureSampler);
       } else {
 	std::cout << "using textures." << std::endl;
-	osg::Shader* fragment_shader = 
+	osg::Shader* fragment_shader =
 	  new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_withBaseTexture);
 	program->addShader(fragment_shader);
-	
+
 	// uniforms are for the shader program
 	osg::Uniform* baseTextureSampler = new osg::Uniform("baseTexture",0);
 	stateset->addUniform(baseTextureSampler);
-	
+
 	osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
 	stateset->addUniform(shadowTextureSampler);
       }
-            
+
       // uniform is for the shader program
       osg::Uniform* ambientBias = new osg::Uniform("ambientBias",osg::Vec2(0.7f,0.5f));
       stateset->addUniform(ambientBias);
@@ -287,7 +295,7 @@ namespace lpzrobots {
   osg::Node* Base::createHUD()
   {
     osg::Geode* geode = new osg::Geode();
-    
+
     // turn lighting off for the text and disable depth test to ensure its always ontop.
     osg::StateSet* stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
@@ -307,8 +315,8 @@ namespace lpzrobots {
       text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
       if(caption) text->setText(caption);
       else text->setText("lpzrobots Simulator      Martius, Der, Hesse");
-    }    
-    
+    }
+
     // timing
     position=osg::Vec3(12.0f,9.0f,0.0f);
     {
@@ -319,8 +327,8 @@ namespace lpzrobots {
       timestats->setPosition(position);
       timestats->setColor(textColor);
       setTimeStats(0,0);
-    }    
-    
+    }
+
     {
       osg::Geometry* geom = new osg::Geometry;
 
@@ -349,13 +357,17 @@ namespace lpzrobots {
       geom->setColorBinding(osg::Geometry::BIND_OVERALL);
 
       geom->addPrimitiveSet(new osg::DrawArrays(GL_QUADS,0,4));
-        
+
       osg::StateSet* stateset = geom->getOrCreateStateSet();
       stateset->setMode(GL_BLEND,osg::StateAttribute::ON);
       //stateset->setAttribute(new osg::PolygonOffset(1.0f,1.0f),osg::StateAttribute::ON);
       stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
       geode->addDrawable(geom);
+
+      // create WindowStatisticsManager and register it for being called back every step
+      windowStatisticsManager = new WindowStatisticsManager(geode);
+      this->addCallbackable(windowStatisticsManager);
     }
 
     osg::CameraNode* camera = new osg::CameraNode;
@@ -363,7 +375,7 @@ namespace lpzrobots {
     // set the projection matrix
     camera->setProjectionMatrix(osg::Matrix::ortho2D(0,512,0,384));
 
-    // set the view matrix    
+    // set the view matrix
     camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
     camera->setViewMatrix(osg::Matrix::identity());
 
@@ -374,7 +386,7 @@ namespace lpzrobots {
     camera->setRenderOrder(osg::CameraNode::POST_RENDER);
 
     camera->addChild(geode);
-    
+
     return camera;
   }
 
@@ -382,7 +394,10 @@ namespace lpzrobots {
     if(timestats){
       char buffer[100];
       int minutes = (int)time/60;
+      if (realtimefactor>0)
       sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes, int(time-minutes)%60,realtimefactor);
+      else
+        sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (max)",minutes, int(time-minutes)%60,realtimefactor);
       timestats->setText(buffer);
     }
   }
@@ -406,43 +421,43 @@ namespace lpzrobots {
     root->addChild(clearNode);
     hud = createHUD();
     if(hud) root->addChild(hud);
-    
+
     // transform's value isn't known until in the cull traversal so its bounding
     // volume can't be determined, therefore culling will be invalid,
     // so switch it off, this cause all our parents to switch culling
     // off as well. But don't worry culling will be back on once underneath
     // this node or any other branch above this transform.
-    
+
     transform->setCullingActive(false);
 
     // add the sky and base layer.
     transform->addChild(makeSky());  // bin number -2 so drawn first.
-    transform->addChild(makeGround()); // bin number -1 so draw second.      
-    
+    transform->addChild(makeGround()); // bin number -1 so draw second.
+
     LightSource* lightSource = makeLights(root->getOrCreateStateSet());
     transform->addChild(lightSource);
-    
+
     Group* scene = new Group; // create an extra group for the normal scene
 
     if(useShadow){
       // enable shadows
       Group* shadowedScene;
-      
+
       // transform the Vec4 in a Vec3
       osg::Vec3 posOfLight;
       posOfLight[0]=lightSource->getLight()->getPosition()[0];
       posOfLight[1]=lightSource->getLight()->getPosition()[1];
       posOfLight[2]=lightSource->getLight()->getPosition()[2];
-      
+
       // create the shadowed scene, using textures
       shadowedScene = createShadowedScene(scene,posOfLight,1);
-      
+
       // add the shadowed scene to the root
       root->addChild(shadowedScene);
     }else {
       root->addChild(scene);
     }
-    
+
     // the normal scene
     return scene;
   }
@@ -471,8 +486,8 @@ namespace lpzrobots {
     Vec3Array& coords = *(new Vec3Array(19*nlev));
     Vec4Array& colors = *(new Vec4Array(19*nlev));
     Vec2Array& tcoords = *(new Vec2Array(19*nlev));
-    
-    
+
+
     int ci = 0;
 
     for( i = 0; i < nlev; i++ )
@@ -517,7 +532,7 @@ namespace lpzrobots {
 
         geom->addPrimitiveSet(drawElements);
       }
-    
+
     geom->setVertexArray( &coords );
     geom->setTexCoordArray( 0, &tcoords );
 
@@ -534,12 +549,12 @@ namespace lpzrobots {
     dstate->setTextureAttribute(0, new TexEnv );
     dstate->setMode( GL_LIGHTING, StateAttribute::OFF );
     dstate->setMode( GL_CULL_FACE, StateAttribute::ON );
-    
+
 
     // clear the depth to the far plane.
     osg::Depth* depth = new osg::Depth;
     depth->setFunction(osg::Depth::ALWAYS);
-    depth->setRange(1.0,1.0);   
+    depth->setRange(1.0,1.0);
     dstate->setAttributeAndModes(depth,StateAttribute::ON );
 
     dstate->setRenderBinDetails(-2,"RenderBin");
@@ -560,9 +575,9 @@ namespace lpzrobots {
     Vec3Array *coords = new Vec3Array(4);
     Vec2Array *tcoords = new Vec2Array(4);
     Vec4Array *colors = new Vec4Array(1);
-    
+
     (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
-    
+
     (*coords)[0].set(-ir,-ir,0.0f);
     (*coords)[1].set(-ir, ir,0.0f);
     (*coords)[2].set( ir, ir,0.0f);
@@ -585,7 +600,7 @@ namespace lpzrobots {
 //     c = 0;
 //     (*coords)[c].set(0.0f,0.0f,0.0f);
 //     (*tcoords)[c].set(0.0f,0.0f);
-    
+
 //     for( i = 0; i <= 18; i++ )
 //       {
 //         theta = osg::DegreesToRadians((float)i * 20.0);
@@ -623,7 +638,7 @@ namespace lpzrobots {
     //     // clear the depth to the far plane.
     //     osg::Depth* depth = new osg::Depth;
     //     depth->setFunction(osg::Depth::ALWAYS);
-    //     depth->setRange(1.0,1.0);   
+    //     depth->setRange(1.0,1.0);
     //     dstate->setAttributeAndModes(depth,StateAttribute::ON );
 
     dstate->setRenderBinDetails(-1,"RenderBin");
@@ -635,7 +650,7 @@ namespace lpzrobots {
 
     // add ODE Ground here (physical plane)
     ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
-    dGeomSetCategoryBits(ground,Primitive::Stat); 
+    dGeomSetCategoryBits(ground,Primitive::Stat);
     dGeomSetCollideBits(ground,~Primitive::Stat);
     // assign a dummy primitive to the ground plane to have substance (material) support
     Plane* plane = new Plane();
@@ -655,22 +670,22 @@ namespace lpzrobots {
     light_0->setPosition(Vec4(40.0f, 40.0f, 50.0f, 1.0f));
     //    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
     light_0->setAmbient(Vec4(0.7f, 0.7f, 0.7f, 1.0f));  // Georg 21.07.2007 changed from 0.5 to 0.7
-    light_0->setDiffuse(Vec4(0.8f, 0.8f, 0.8f, 1.0f)); 
-    //    light_0->setDirection(Vec3(-1.0f, -1.0f, -1.2f)); 
-    light_0->setSpecular(Vec4(1.0f, 0.9f, 0.8f, 1.0f)); 
+    light_0->setDiffuse(Vec4(0.8f, 0.8f, 0.8f, 1.0f));
+    //    light_0->setDirection(Vec3(-1.0f, -1.0f, -1.2f));
+    light_0->setSpecular(Vec4(1.0f, 0.9f, 0.8f, 1.0f));
 
-    LightSource* light_source_0 = new LightSource;	
+    LightSource* light_source_0 = new LightSource;
     light_source_0->setLight(light_0);
-    light_source_0->setLocalStateSetModes(StateAttribute::ON);   
+    light_source_0->setLocalStateSetModes(StateAttribute::ON);
     light_source_0->setStateSetModes(*stateset, StateAttribute::ON);
-  
+
     return light_source_0;
   }
 
 
   /********************************************************************************/
 
-  bool MoveEarthySkyWithEyePointTransform::computeLocalToWorldMatrix(osg::Matrix& matrix,osg::NodeVisitor* nv) const 
+  bool MoveEarthySkyWithEyePointTransform::computeLocalToWorldMatrix(osg::Matrix& matrix,osg::NodeVisitor* nv) const
   {
     osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
     if (cv)
@@ -684,7 +699,7 @@ namespace lpzrobots {
   bool MoveEarthySkyWithEyePointTransform::computeWorldToLocalMatrix(osg::Matrix& matrix,osg::NodeVisitor* nv) const
   {
     std::cout<<"computing transform"<<std::endl;
-    
+
     osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
     if (cv)
       {
@@ -693,7 +708,10 @@ namespace lpzrobots {
       }
     return true;
   }
-  
+
+  void Base::addCallbackable(Callbackable* callbackable){
+    callbackables.push_back(callbackable);
+  }
 
 }
 

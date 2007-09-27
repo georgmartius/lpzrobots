@@ -23,7 +23,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-08-24 11:54:21  martius
+ *   Revision 1.8  2007-09-27 10:47:04  robot3
+ *   mathutils: moved abs to selforg/stl_adds.h
+ *   simulation,base: added callbackable support,
+ *   added WSM (WindowStatisticsManager) funtionality
+ *
+ *   Revision 1.7  2007/08/24 11:54:21  martius
  *   proper cameraspeed calculation. camera speed is now definied in simulated time
  *   which makes it better to follow robots in high speed simulations
  *
@@ -112,16 +117,17 @@
 #include "odeagent.h"
 #include "mathutils.h"
 #include "pos.h"
+#include "selforg/stl_adds.h"
 
 #include <vector>
 #include <iterator>
 
 namespace lpzrobots {
-  
+
   using namespace osg;
   using namespace osgGA;
-  
-  
+
+
   osg::Vec3 CameraManipulator::eye(0,0,0);
   osg::Vec3 CameraManipulator::view(0,0,0);
   osg::Vec3 CameraManipulator::home_eye;
@@ -134,13 +140,13 @@ namespace lpzrobots {
   Position CameraManipulator::oldPositionOfAgent;
   bool CameraManipulator::oldPositionOfAgentDefined=false;
 
-  // globalData braucht er für alles
+  // globalData braucht er fr alles
   CameraManipulator::CameraManipulator(osg::Node* node, GlobalData& global)
     : node(node), globalData(global) {
-    if (this->node.get()) {    
+    if (this->node.get()) {
       const BoundingSphere& boundingSphere=this->node->getBound();
       modelScale = boundingSphere._radius;
-    }else 
+    }else
       modelScale = 0.01f;
     desiredEye=eye;
     desiredView=view;
@@ -193,13 +199,13 @@ namespace lpzrobots {
     desiredEye=home_eye;
     desiredView=home_view;
     computeMatrix();
-    
+
     us.requestRedraw();
-    
+
     us.requestWarpPointer((ea.getXmin()+ea.getXmax())/2.0f,(ea.getYmin()+ea.getYmax())/2.0f);
-    
+
     flushMouseEventStack();
-    
+
   }
 
   void CameraManipulator::init(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us){
@@ -217,18 +223,18 @@ namespace lpzrobots {
     int key=0;
     switch(ea.getEventType())
       {
-      case(GUIEventAdapter::PUSH): 
+      case(GUIEventAdapter::PUSH):
 	{
 	  flushMouseEventStack();
 	  return true;
 	}
-         
+
       case(GUIEventAdapter::RELEASE):
 	{
 	  flushMouseEventStack();
 	  return true;
 	}
-         
+
       case(GUIEventAdapter::DRAG):
         {
 	  addMouseEvent(ea);
@@ -246,7 +252,7 @@ namespace lpzrobots {
 	}
 	//	std::cout << key << " was pressed." << std::endl;
 	switch(key) {
-	case ' ':	
+	case ' ':
 	  {
 	    flushMouseEventStack();
 	    home(ea,us);
@@ -259,7 +265,7 @@ namespace lpzrobots {
 	    printf("Camera Position/View: (Pos(%g, %g, %g), ", eye.x(), eye.y(), eye.z());
 	    printf(" Pos(%g, %g, %g));\n", view.x(), view.y(), view.z());
 	    break;
-	  }	  
+	  }
 	case 65360: // pos1
 	  {
 	    centerOnAgent();
@@ -277,13 +283,13 @@ namespace lpzrobots {
 	init(ea,us);
 	us.requestRedraw();
 	return true;
-	
+
       default:
 	return false;
       }
     return true;
   }
-  
+
   void CameraManipulator::getUsage(osg::ApplicationUsage& usage) const{
     usage.addKeyboardMouseBinding("Camera: Space","Reset the viewing position to home");
     usage.addKeyboardMouseBinding("Camera: p","Print position of the camera");
@@ -305,14 +311,14 @@ namespace lpzrobots {
   void CameraManipulator::setByMatrix(const Matrixd& matrix){
 
     eye = matrix.getTrans();
-    Vec3 xaxis(1,0,0);    
+    Vec3 xaxis(1,0,0);
     Pos head = Matrix::transform3x3(xaxis, matrix);
-    view.x() = RadiansToDegrees(getAngle(xaxis, head)) *       
+    view.x() = RadiansToDegrees(getAngle(xaxis, head)) *
       sign(head.y()); // this resolves the ambiguity of getAngle
 
     Pos tilt = Matrix::transform3x3(Vec3(0,0,1), matrix);
     //    head.print();
-    //    tilt.print();    
+    //    tilt.print();
     std::cout << "Manipulator choosed: " <<  className() << std::endl;
     view.y() = RadiansToDegrees(getAngle(Vec3(0,0,1), tilt)-M_PI/2);
     desiredEye=eye;
@@ -322,7 +328,7 @@ namespace lpzrobots {
 
 
 
-  // hier reinhängen nicht, wird nur beim switch des manipulators aufgerufen
+  // hier reinhï¿½gen nicht, wird nur beim switch des manipulators aufgerufen
   Matrixd CameraManipulator::getMatrix() const {
     return pose;
   }
@@ -330,30 +336,30 @@ namespace lpzrobots {
   void CameraManipulator::update() {
     // the call from simulation.cpp works, but is made for ALL cameramanipulators!
     // which is now neccessary for the smoothness for the mouse interactions
-    
+
     // modify the desiredView and desiredEye by the movement of the agent
     calcMovementByAgent();
 
     // now do smoothness
     float updateFactor;
-    updateFactor = globalData.odeConfig.drawInterval * globalData.odeConfig.simStepSize * 
+    updateFactor = globalData.odeConfig.drawInterval * globalData.odeConfig.simStepSize *
       globalData.odeConfig.cameraSpeed;
     if(lengthSmoothness * updateFactor > 1) updateFactor = 1/lengthSmoothness;
     if(degreeSmoothness * updateFactor > 1) updateFactor = 1/degreeSmoothness;
     // /std::max(0.1,globalData.odeConfig.realTimeFactor)
     //    std::cout << "drawInt: " << globalData.odeConfig.drawInterval << ", realtimefactor: "
-    //      << globalData.odeConfig.realTimeFactor << ", updateFactor: " 
+    //      << globalData.odeConfig.realTimeFactor << ", updateFactor: "
     //      << updateFactor << "\n";
     for (int i=0;i<=2;i++) {
-      // view is in °, we must be careful for switches at the 360°-point
+      // view is in , we must be careful for switches at the 360-point
       if ((desiredView[i]-view[i])>180) // desiredView is to high
 	view[i]+=360;
       else if ((view[i]-desiredView[i])>180) // view is to high
 	desiredView[i]+=360;
-      if (abs(desiredView[i]-view[i])>degreeAccuracy)
-	view[i]= normalize360(degreeSmoothness * updateFactor * desiredView[i] + 
+	    if (std::abs(desiredView[i]-view[i])>degreeAccuracy)
+	view[i]= normalize360(degreeSmoothness * updateFactor * desiredView[i] +
 			      (1.0 - degreeSmoothness * updateFactor) * view[i]);
-      if (abs(desiredEye[i]-eye[i])>lengthAccuracy)
+	    if (std::abs(desiredEye[i]-eye[i])>lengthAccuracy)
 	eye[i]= lengthSmoothness * updateFactor * desiredEye[i]
 	  + (1.0 - lengthSmoothness * updateFactor) * eye[i];
 
@@ -363,7 +369,7 @@ namespace lpzrobots {
 	view[i]=desiredView[i];
       }
     }
-      
+
     // now set the current robots-position
     if (watchingAgentDefined) {
       oldPositionOfAgent = watchingAgent->getRobot()->getPosition();
@@ -373,7 +379,7 @@ namespace lpzrobots {
   }
 
 
-  
+
   // hier reinhaengen?? is called every drawstep!!!! really? ;)
   // should we call a CameraManipulator-routine from simulation.cpp?
   Matrixd CameraManipulator::getInverseMatrix() const {
@@ -388,8 +394,8 @@ namespace lpzrobots {
     osg::Matrix rot;
     rot.makeRotate( M_PI/2,                          osg::Vec3(1, 0, 0),
 		    osg::DegreesToRadians(view.x()), osg::Vec3(0, 0, 1), // heading
-		    osg::DegreesToRadians(view.y()), osg::Vec3(cos(osg::DegreesToRadians(view.x())), 
-							       sin(osg::DegreesToRadians(view.x())), 
+		    osg::DegreesToRadians(view.y()), osg::Vec3(cos(osg::DegreesToRadians(view.x())),
+							       sin(osg::DegreesToRadians(view.x())),
 							       0) // pitch
 		    );
 
@@ -414,13 +420,13 @@ namespace lpzrobots {
       desiredView.x() += dx*3.0f;
       desiredView.y() -= dy*3.0f;
     } else if (buttonMask==GUIEventAdapter::MIDDLE_MOUSE_BUTTON ||
-	       buttonMask==(GUIEventAdapter::LEFT_MOUSE_BUTTON | GUIEventAdapter::RIGHT_MOUSE_BUTTON)) { 
+	       buttonMask==(GUIEventAdapter::LEFT_MOUSE_BUTTON | GUIEventAdapter::RIGHT_MOUSE_BUTTON)) {
       desiredEye.z() += -dy;
       desiredEye.x() += - c*dx;
       desiredEye.y() += - s*dx;
     } else if (buttonMask==GUIEventAdapter::RIGHT_MOUSE_BUTTON) {
       desiredEye.x() +=  s*dy - c*dx;
-      desiredEye.y() +=  -c*dy - s*dx;      
+      desiredEye.y() +=  -c*dy - s*dx;
     } else return false;
     return true;
   }
@@ -458,7 +464,7 @@ namespace lpzrobots {
       for (int i=0;i<=2;i++) {
 	if (!isNaN(robMove[i])) {
 	  desiredEye[i]+=robMove[i];}
-	else 
+	else
 	  std::cout << "NAN exception!" << std::endl;
       }
       // move behind the robot
@@ -527,7 +533,7 @@ namespace lpzrobots {
       }
     }
   }
-  
+
   void CameraManipulator::calcMovementByAgent() {
     if (watchingAgentDefined && oldPositionOfAgentDefined) {
       // then manipulate desired view and desired eye

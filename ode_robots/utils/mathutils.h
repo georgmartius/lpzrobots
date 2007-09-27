@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-04-03 16:33:13  der
+ *   Revision 1.10  2007-09-27 10:47:04  robot3
+ *   mathutils: moved abs to selforg/stl_adds.h
+ *   simulation,base: added callbackable support,
+ *   added WSM (WindowStatisticsManager) funtionality
+ *
+ *   Revision 1.9  2007/04/03 16:33:13  der
  *   removed clip
  *
  *   Revision 1.8  2006/08/08 17:04:47  martius
@@ -91,9 +96,9 @@ namespace lpzrobots {
 /*   inline T clip(T v,T minimum, T maximum) */
 /*     { return clampBelow(clampAbove(v,minimum),maximum); } */
 
-  template<typename T>
-  inline T abs(T v)
-    { return ((v>0)?v:-v); }
+/*template<typename T> */
+/*	inline T abs(T v) */
+/*{ return ((v>0)?v:-v); } */
 
   template<typename T>
   inline T normalize360(T v)
@@ -114,13 +119,13 @@ namespace lpzrobots {
 
 
   /**
-     returns a Rotation matrix that rotates the x-axis along with the given axis. 
+     returns a Rotation matrix that rotates the x-axis along with the given axis.
      The other 2 axis (y,z) are ambiguous.
   */
   osg::Matrix rotationMatrixFromAxisX(const Axis& axis);
 
   /**
-     returns a Rotation matrix that rotates the z-axis along with the given axis. 
+     returns a Rotation matrix that rotates the z-axis along with the given axis.
      The other 2 axis (x,y) are ambiguous.
   */
   osg::Matrix rotationMatrixFromAxisZ(const Axis& axis);

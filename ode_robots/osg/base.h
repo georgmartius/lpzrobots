@@ -24,7 +24,12 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-08-29 13:07:48  martius
+ *   Revision 1.5  2007-09-27 10:47:04  robot3
+ *   mathutils: moved abs to selforg/stl_adds.h
+ *   simulation,base: added callbackable support,
+ *   added WSM (WindowStatisticsManager) funtionality
+ *
+ *   Revision 1.4  2007/08/29 13:07:48  martius
  *   added HUD
  *
  *   Revision 1.3  2006/09/20 15:30:47  martius
@@ -68,7 +73,10 @@
 #include "osghandle.h"
 #include "odehandle.h"
 
+#include "windowstatistics.h"
+
 class osg::Node;
+class Callbackable;
 
 namespace lpzrobots {
 
@@ -87,20 +95,28 @@ namespace lpzrobots {
       : caption(caption){
       timestats=0; hud=0;
     }
-      
+
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
     virtual osg::Node* createHUD();
-    virtual osg::LightSource* makeLights(osg::StateSet* stateset);  
+    virtual osg::LightSource* makeLights(osg::StateSet* stateset);
     virtual osg::Group* createShadowedScene(osg::Node* shadowed,
-					    osg::Vec3 posOfLight, 
+					    osg::Vec3 posOfLight,
 					    unsigned int unit);
 
 
     virtual void setCaption(const char* caption) {
       this->caption = caption;
     }
+
+  /** adds an Callbackable object for getting a callback every step.
+   * note that the object are not called back in this class. This must
+   * be done in the deduced class (here: Simulation).
+   */
+    virtual void addCallbackable(Callbackable* callbackable);
+
+    virtual WindowStatisticsManager* getWSM() { return this->windowStatisticsManager; }
 
     virtual ~Base();
 
@@ -112,6 +128,7 @@ namespace lpzrobots {
     osg::Group* root;
     osg::Node* hud;
     osgText::Text* timestats;
+	osgText::Text* statisticLine;
 
     OsgHandle osgHandle;
     // ODE globals
@@ -120,6 +137,11 @@ namespace lpzrobots {
 
     bool useShadow;
     unsigned int shadowTexSize;
+
+    /// this manager provides methods for displaying statistics on the graphical window!
+    WindowStatisticsManager* windowStatisticsManager;
+
+    std::list<Callbackable*> callbackables;
   };
 }
 
