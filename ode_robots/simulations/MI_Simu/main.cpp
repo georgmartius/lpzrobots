@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-09-25 07:48:52  robot3
+ *   Revision 1.8  2007-09-27 10:44:33  robot3
+ *   tested new WSM (WindowStatisticsManager)
+ *
+ *   Revision 1.7  2007/09/25 07:48:52  robot3
  *   made some tests with white noise
  *
  *   Revision 1.6  2007/05/09 14:57:25  robot3
@@ -199,7 +202,7 @@ public:
 
     global.odeConfig.setParam("noise",0.01);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",0);
+    global.odeConfig.setParam("realtimefactor",40);
 	global.odeConfig.setParam("simstepsize",0.1);
 	global.odeConfig.setParam("drawinterval",5);
     // initialization
@@ -248,6 +251,7 @@ public:
 /*****************************************************************************************************************/
 /*****************************************************************************************************************/
 /******************************************** N I M M  2 *********************************************************/
+    double valueC = 1.0;
 
 	  Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
 	  nimm2conf.size = 1.6;
@@ -259,7 +263,7 @@ public:
 	    //robot = new ShortCircuit(odeHandle,osgHandle,1,1);
 	    ((OdeRobot*)myNimm2)->place(Pos ((r-1)*5,5,0));
 	    InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-	    invertnconf.cInit = 1.00;
+      invertnconf.cInit = valueC;
 	    controller = new InvertMotorNStep(invertnconf);
 	    controller->setParam( "epsA",0);
 	    controller->setParam( "epsC",0);
@@ -282,12 +286,12 @@ public:
 	    /*mic = new MutualInformationController(10);
 	    mic->setParam("showF",0);
 	    mic->setParam("showP",0);*/
-	    mic = new MutualInformationController(50);
+	    /*mic = new MutualInformationController(50);
 	    onamupaco->addPassiveController(mic,"mi50");
 	    mic = new MutualInformationController(100);
 	    onamupaco->addPassiveController(mic,"mi100");
 	    mic = new MutualInformationController(200);
-	    onamupaco->addPassiveController(mic,"mi200");
+	    onamupaco->addPassiveController(mic,"mi200");*/
 
 
 	    agent->addInspectable((Inspectable*)stats);
@@ -296,8 +300,17 @@ public:
 	    global.configs.push_back(controller);
 		global.agents.push_back(agent);
 
-	    /*    stats->beginMeasureAt(100);
-	    stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
+	    stats->beginMeasureAt(100);
+
+	    stats->addMeasure(mic->getMI(0),"MI0",ID,0);
+	    stats->addMeasure(mic->getMI(1),"MI1",ID,0);
+
+        this->getWSM()->beginMeasureAt(100);
+        this->getWSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
+        this->getWSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
+
+
+/*stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
 	    stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
 	    stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);
 	    double& peakForce = stats->addMeasure(myNimm2->getSumForce(),"peakForce",PEAK,0,0.06333);
