@@ -24,7 +24,12 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-09-28 10:24:05  robot3
+ *   Revision 1.7  2007-09-28 12:31:49  robot3
+ *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
+ *   can be updated independently from the HUD
+ *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
+ *
+ *   Revision 1.6  2007/09/28 10:24:05  robot3
  *   The WindowStatisticsManager is now called HUDStatisticsManager
  *
  *   Revision 1.5  2007/09/27 10:47:04  robot3
@@ -81,6 +86,7 @@
 class osg::Node;
 class Callbackable;
 
+
 namespace lpzrobots {
 
   class MoveEarthySkyWithEyePointTransform : public osg::Transform {
@@ -117,7 +123,9 @@ namespace lpzrobots {
    * note that the object are not called back in this class. This must
    * be done in the deduced class (here: Simulation).
    */
-    virtual void addCallbackable(Callbackable* callbackable);
+    virtual void addGraphicsCallbackable(Callbackable* callbackable);
+
+    virtual void addPhysicsCallbackable(Callbackable* callbackable);
 
     virtual HUDStatisticsManager* getHUDSM() { return this->hUDStatisticsManager; }
 
@@ -144,7 +152,8 @@ namespace lpzrobots {
     /// this manager provides methods for displaying statistics on the graphical window!
     HUDStatisticsManager* hUDStatisticsManager;
 
-    std::list<Callbackable*> callbackables;
+    std::list<Callbackable*> graphicsCallbackables;
+    std::list<Callbackable*> physicsCallbackables;
   };
 }
 

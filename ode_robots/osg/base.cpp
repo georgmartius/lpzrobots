@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-09-28 10:24:04  robot3
+ *   Revision 1.14  2007-09-28 12:31:49  robot3
+ *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
+ *   can be updated independently from the HUD
+ *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
+ *
+ *   Revision 1.13  2007/09/28 10:24:04  robot3
  *   The WindowStatisticsManager is now called HUDStatisticsManager
  *
  *   Revision 1.12  2007/09/28 10:08:49  robot3
@@ -373,7 +378,8 @@ namespace lpzrobots {
 
       // create HUDStatisticsManager and register it for being called back every step
       hUDStatisticsManager = new HUDStatisticsManager(geode,font);
-      this->addCallbackable(hUDStatisticsManager);
+      this->addGraphicsCallbackable(hUDStatisticsManager);
+      this->addPhysicsCallbackable(hUDStatisticsManager->getStatisticTools());
     }
 
     osg::CameraNode* camera = new osg::CameraNode;
@@ -715,8 +721,12 @@ namespace lpzrobots {
     return true;
   }
 
-  void Base::addCallbackable(Callbackable* callbackable){
-    callbackables.push_back(callbackable);
+  void Base::addGraphicsCallbackable(Callbackable* callbackable){
+    graphicsCallbackables.push_back(callbackable);
+  }
+
+  void Base::addPhysicsCallbackable(Callbackable* callbackable){
+    physicsCallbackables.push_back(callbackable);
   }
 
 }

@@ -25,7 +25,12 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-28 10:24:05  robot3
+ *   Revision 1.2  2007-09-28 12:31:49  robot3
+ *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
+ *   can be updated independently from the HUD
+ *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
+ *
+ *   Revision 1.1  2007/09/28 10:24:05  robot3
  *   The WindowStatisticsManager is now called HUDStatisticsManager
  *
  *   Revision 1.4  2007/09/28 10:08:49  robot3
@@ -79,7 +84,7 @@ namespace lpzrobots {
  *   object, then storing it in a class named WindowStatistic
  *   (which is stored in the windowStatisticList).
  */
-class HUDStatisticsManager : public StatisticTools {
+class HUDStatisticsManager : public Callbackable {
 
 public:
   /**
@@ -88,7 +93,7 @@ public:
    */
   HUDStatisticsManager(osg::Geode* geode, osgText::Font* font);
 
-  ~HUDStatisticsManager() {}
+  virtual ~HUDStatisticsManager() {}
 
   	/**
 	 * adds a variable to observe (on the window) and measure the value
@@ -110,6 +115,38 @@ public:
 	 */
   virtual StatisticMeasure* getMeasure( double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
 
+  	/**
+	 * adds a variable to observe (on the window) and measure the value
+	 * @param observedValue    the value to observe.
+	 * @param measureName      the name of the measured value
+	 * @param mode             the mode of measure
+	 * @param stepSpan         in most cases the stepSpan is important to get
+	 * the measured value of a number of steps, like AVG:
+	 * if stepSpan = 0, AVG is calculated over all steps
+	 * if stepSpan = n, AVG is calculated over the LAST n steps
+	 * The same counts for all the other MeasureModes.
+	 * @param additionalParam  is used for example for mode PEAK, the param is the limit value,
+	 * all values minus limit are displayed, values below the limit are set to 0.
+  	 * In CONV mode (test the convergence), this value is the epsilon criteria.
+	 * @return the object StatisticMeasure. Use addMeasure(...) instead of getMeasure(...) to
+  	 * obtain the value adress of the calculated statistic.
+  	 * @see StatisticTools
+  	 * @see StatisticMeasure
+	 */
+  virtual double& addMeasure( double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
+
+  	/**
+	 * starts the measure at a specific time. This is useful if there are
+	 * values that have to be ignored at simulation start.
+	 * @param step number of steps (normally simsteps) to wait for beginning the measures
+	 */
+  virtual void beginMeasureAt(long step) { statTool->beginMeasureAt(step);}
+
+  /**
+   * Tells you wether the measures have already been started.
+   */
+  virtual bool measureStarted() { return statTool->measureStarted(); }
+
 
 	/**
 	 * CALLBACKABLE INTERFACE
@@ -118,6 +155,9 @@ public:
 	 * class is for callback registered, it is overwritten
 	 */
   virtual void doOnCallBack();
+
+
+  virtual StatisticTools* getStatisticTools() { return statTool; }
 
 protected:
 
@@ -130,11 +170,11 @@ protected:
     WindowStatistic(StatisticMeasure* measure, osgText::Text* text) : measure(measure),
       text(text) {}
 
-    ~WindowStatistic() {}
+    virtual ~WindowStatistic() {}
 
-    StatisticMeasure* getMeasure() { return measure; }
+    virtual StatisticMeasure* getMeasure() { return measure; }
 
-    osgText::Text* getText() { return text; }
+    virtual osgText::Text* getText() { return text; }
 
   private:
     StatisticMeasure* measure;
@@ -143,6 +183,8 @@ protected:
 
 /// the struct list which holds the measures and the appropiate text
   std::list<WindowStatistic*> windowStatisticList;
+
+  StatisticTools* statTool;
 
   // position of first graphical text
   float xInitPosition;

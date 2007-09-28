@@ -25,7 +25,12 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-28 10:24:05  robot3
+ *   Revision 1.2  2007-09-28 12:31:49  robot3
+ *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
+ *   can be updated independently from the HUD
+ *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
+ *
+ *   Revision 1.1  2007/09/28 10:24:05  robot3
  *   The WindowStatisticsManager is now called HUDStatisticsManager
  *
  *   Revision 1.4  2007/09/28 10:08:49  robot3
@@ -60,7 +65,7 @@ using namespace osg;
 
 namespace lpzrobots {
 
-HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font) : StatisticTools(), geode(geode), font(font) {
+HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font) : geode(geode), font(font) {
   xInitPosition = 500.0f;
   yInitPosition = 27.0f;
   zInitPosition = 0.0f;
@@ -68,12 +73,12 @@ HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* fon
   //font = osgText::readFontFile("fonts/arial.ttf");
   textColor = new Color(0.0,0.0,0.2,1.0);
   fontsize=12;
+  statTool = new StatisticTools();
 }
 
 StatisticMeasure* HUDStatisticsManager::getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
 
-  StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
-  this->activeMeasures.push_back(newMeasure);
+  StatisticMeasure* newMeasure = this->statTool->getMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
 
   // create new text object with default settings:
   float textPosition = windowStatisticList.size();
@@ -96,11 +101,16 @@ StatisticMeasure* HUDStatisticsManager::getMeasure(double& observedValue, char* 
   return newMeasure;
 }
 
+double& HUDStatisticsManager::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
+
+  StatisticMeasure* newMeasure = this->getMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
+
+  return newMeasure->getValueAdress();
+}
+
 void HUDStatisticsManager::doOnCallBack() {
-  // first call super method (calculate new statistic values)
-  StatisticTools::doOnCallBack();
   // go through WindowStatictList and update the graphical text, that should be all!
-  if (StatisticTools::beginMeasureCounter==0)
+  if (statTool->measureStarted())
     for (std::list<WindowStatistic*>::iterator i=windowStatisticList.begin();i!=windowStatisticList.end();i++) {
 
       char valueBuf[100];
