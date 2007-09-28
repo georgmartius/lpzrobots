@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-27 10:49:39  robot3
+ *   Revision 1.3  2007-09-28 08:48:21  robot3
+ *   corrected some minor bugs, files are still in develop status
+ *
+ *   Revision 1.2  2007/09/27 10:49:39  robot3
  *   removed some minor bugs,
  *   added CONVergence test
  *   changed little things for support of the new WSM
@@ -65,6 +68,7 @@ protected:
 	double additionalParam;
 	long actualStep; // actual step
 	long oldestStepIndex; // indicates the index number in the valueHistory, which was the oldest step
+  long newestStepIndex; // indicates the index number with the newest value, this is the oldestStepIndex one step before
 
 	double* valueHistory;
 

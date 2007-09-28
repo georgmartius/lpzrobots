@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-27 10:49:39  robot3
+ *   Revision 1.3  2007-09-28 08:48:20  robot3
+ *   corrected some minor bugs, files are still in develop status
+ *
+ *   Revision 1.2  2007/09/27 10:49:39  robot3
  *   removed some minor bugs,
  *   added CONVergence test
  *   changed little things for support of the new WSM
@@ -46,6 +49,7 @@ StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, Mea
 	value=0;
 	actualStep=0;
 	oldestStepIndex=0;
+  newestStepIndex=stepSpan-1;
 	if (stepSpan>0) {
 		this->valueHistory = (double*) malloc(sizeof(double) * stepSpan);
 		// set all values to 0
@@ -103,6 +107,7 @@ void StatisticMeasure::step() {
 	if (stepSpan>0) {
 		// store new value in history, the position is oldestStepIndex
 		valueHistory[oldestStepIndex]=observedValue;
+  	    newestStepIndex=oldestStepIndex;
 		if (oldestStepIndex==(stepSpan-1))
 			oldestStepIndex=0;
 		else
@@ -112,12 +117,16 @@ void StatisticMeasure::step() {
 }
 
 double StatisticMeasure::testConvergence() {
-	if (std::abs(observedValue-valueHistory[actualStep])<additionalParam) {
-		stepsReached++;
-		if (stepsReached==stepSpan)
-			return 1.0;
-	} else
+
+  if (std::abs(observedValue-valueHistory[newestStepIndex])<additionalParam) {
+    if (stepsReached<stepSpan)
+      stepsReached++;
+  	if (stepsReached==stepSpan)
+      return 1.0;
+  } else {
 		stepsReached=0;
+    std::cout << std::abs(observedValue-valueHistory[newestStepIndex]) << " = " << observedValue << " - " << valueHistory[actualStep] << std::endl;
+  }
 	return 0.0;
 }
 

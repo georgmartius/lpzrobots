@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-05-08 10:18:15  der
+ *   Revision 1.3  2007-09-28 08:48:21  robot3
+ *   corrected some minor bugs, files are still in develop status
+ *
+ *   Revision 1.2  2007/05/08 10:18:15  der
  *   added a function for starting the measure after a given time.
  *   made some tests
  *
@@ -48,9 +51,13 @@ void StatisticTools::doOnCallBack() {
 }
 
 double& StatisticTools::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
-	StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
-	this->activeMeasures.push_back(newMeasure);
-	return newMeasure->getValueAdress();
+  return this->getMeasure(observedValue,measureName,mode,stepSpan,additionalParam)->getValueAdress();
+}
+
+StatisticMeasure* StatisticTools::getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
+  StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
+  this->activeMeasures.push_back(newMeasure);
+  return newMeasure;
 }
 
 void StatisticTools::beginMeasureAt(long step) {

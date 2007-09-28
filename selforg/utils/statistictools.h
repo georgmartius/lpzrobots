@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-09-27 10:49:39  robot3
+ *   Revision 1.4  2007-09-28 08:48:21  robot3
+ *   corrected some minor bugs, files are still in develop status
+ *
+ *   Revision 1.3  2007/09/27 10:49:39  robot3
  *   removed some minor bugs,
  *   added CONVergence test
  *   changed little things for support of the new WSM
@@ -73,6 +76,11 @@ public:
 	 */
 	virtual double& addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
 
+  /**
+   * Same as the method above, but instead of getting the calculated value back (the adress), you get
+   * the StatisticMeasure itself
+   */
+  virtual StatisticMeasure* getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
 
 	/**
 	 * starts the measure at a specific time. This is useful if there are
