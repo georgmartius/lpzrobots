@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-09-23 23:20:22  fhesse
+ *   Revision 1.17  2007-09-28 15:50:13  fhesse
+ *   changing parameters
+ *
+ *   Revision 1.16  2007/09/23 23:20:22  fhesse
  *   testing ...
  *
  *   Revision 1.15  2007/09/23 15:33:06  fhesse
@@ -204,8 +207,8 @@ public:
 
     // adding controller
     AbstractController *controller;
-    InvertMotorNStepConf cc5 = InvertMotorNStep::getDefaultConf();
-    cc5.cInit=1.5;
+    //    InvertMotorNStepConf cc5 = InvertMotorNStep::getDefaultConf();
+    //    cc5.cInit=1.5;
     //controller = new InvertMotorNStep(cc5); 
     //controller = new SineController();//InvertMotorNStep(cc5);  
     //    controller = new InvertMotorSpace(10);  
@@ -233,8 +236,8 @@ public:
 
     // adding wiring
     AbstractWiring *wiring;
-    //wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    wiring = new IRInvertWiring(new ColorUniformNoise(0.1));
+    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    //wiring = new IRInvertWiring(new ColorUniformNoise(0.1));
 
 
     // adding agent
