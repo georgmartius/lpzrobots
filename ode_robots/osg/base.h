@@ -24,10 +24,13 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-09-27 10:47:04  robot3
+ *   Revision 1.6  2007-09-28 10:24:05  robot3
+ *   The WindowStatisticsManager is now called HUDStatisticsManager
+ *
+ *   Revision 1.5  2007/09/27 10:47:04  robot3
  *   mathutils: moved abs to selforg/stl_adds.h
  *   simulation,base: added callbackable support,
- *   added WSM (WindowStatisticsManager) funtionality
+ *   added WSM (HUDStatisticsManager) funtionality
  *
  *   Revision 1.4  2007/08/29 13:07:48  martius
  *   added HUD
@@ -73,7 +76,7 @@
 #include "osghandle.h"
 #include "odehandle.h"
 
-#include "windowstatistics.h"
+#include "hudstatistics.h"
 
 class osg::Node;
 class Callbackable;
@@ -116,7 +119,7 @@ namespace lpzrobots {
    */
     virtual void addCallbackable(Callbackable* callbackable);
 
-    virtual WindowStatisticsManager* getWSM() { return this->windowStatisticsManager; }
+    virtual HUDStatisticsManager* getHUDSM() { return this->hUDStatisticsManager; }
 
     virtual ~Base();
 
@@ -139,7 +142,7 @@ namespace lpzrobots {
     unsigned int shadowTexSize;
 
     /// this manager provides methods for displaying statistics on the graphical window!
-    WindowStatisticsManager* windowStatisticsManager;
+    HUDStatisticsManager* hUDStatisticsManager;
 
     std::list<Callbackable*> callbackables;
   };

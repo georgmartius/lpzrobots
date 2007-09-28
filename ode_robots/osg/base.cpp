@@ -24,13 +24,16 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-09-28 10:08:49  robot3
+ *   Revision 1.13  2007-09-28 10:24:04  robot3
+ *   The WindowStatisticsManager is now called HUDStatisticsManager
+ *
+ *   Revision 1.12  2007/09/28 10:08:49  robot3
  *   fixed memory bugs, statistics are from now on aligned right
  *
  *   Revision 1.11  2007/09/27 10:47:04  robot3
  *   mathutils: moved abs to selforg/stl_adds.h
  *   simulation,base: added callbackable support,
- *   added WSM (WindowStatisticsManager) funtionality
+ *   added WSM (HUDStatisticsManager) funtionality
  *
  *   Revision 1.10  2007/08/29 13:08:04  martius
  *   added HUD with time and caption
@@ -368,9 +371,9 @@ namespace lpzrobots {
 
       geode->addDrawable(geom);
 
-      // create WindowStatisticsManager and register it for being called back every step
-      windowStatisticsManager = new WindowStatisticsManager(geode,font);
-      this->addCallbackable(windowStatisticsManager);
+      // create HUDStatisticsManager and register it for being called back every step
+      hUDStatisticsManager = new HUDStatisticsManager(geode,font);
+      this->addCallbackable(hUDStatisticsManager);
     }
 
     osg::CameraNode* camera = new osg::CameraNode;
