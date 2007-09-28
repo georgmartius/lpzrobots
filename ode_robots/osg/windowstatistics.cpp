@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-09-28 09:15:24  robot3
+ *   Revision 1.4  2007-09-28 10:08:49  robot3
+ *   fixed memory bugs, statistics are from now on aligned right
+ *
+ *   Revision 1.3  2007/09/28 09:15:24  robot3
  *   extended comments
  *
  *   Revision 1.2  2007/09/28 08:47:29  robot3
@@ -47,51 +50,22 @@
 #include <osg/Geode>
 
 #include <stdlib.h>
+#include <iostream>
 
 
 using namespace osg;
 
 namespace lpzrobots {
 
-WindowStatisticsManager::WindowStatisticsManager(osg::Geode* geode) : StatisticTools(), geode(geode) {
-  xInitPosition = 12.0f;
+WindowStatisticsManager::WindowStatisticsManager(osg::Geode* geode, osgText::Font* font) : StatisticTools(), geode(geode), font(font) {
+  xInitPosition = 500.0f;
   yInitPosition = 27.0f;
   zInitPosition = 0.0f;
   yOffset = 18.0f;
-  font = osgText::readFontFile("fonts/arial.ttf");
-  textColor = new Color(0.0,0.0,0.0,0.0);
+  //font = osgText::readFontFile("fonts/arial.ttf");
+  textColor = new Color(0.0,0.0,0.2,1.0);
   fontsize=12;
 }
-
-/*double& WindowStatisticsManager::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
-
-  StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
-  this->activeMeasures.push_back(newMeasure);
-
-  // create new text object with default settings:
-  osgText::Font* font = osgText::readFontFile("fonts/arial.ttf");
-  Color textColor(0.0,0.0,0.0);
-  int fontsize=12;
-  float textPosition = windowStatisticList.size();
-  osg::Vec3 position(xInitPosition,yInitPosition+yOffset*textPosition,zInitPosition);
-
-  osgText::Text* text = new  osgText::Text;
-  geode->addDrawable( text );
-  text->setCharacterSize(fontsize);
-  text->setFont(font);
-  text->setPosition(position);
-  text->setColor(textColor);
-  text->setAlignment(osgText::Text::LEFT_BASE_LINE);
-
-  std::string buffer(newMeasure->getName());
-  buffer.append(":  -");
-  text->setText(buffer);
-
-  // create WindowStatistic
-  this->windowStatisticList.push_back(new WindowStatistic(newMeasure,text));
-
-  return newMeasure->getValueAdress();
-}*/
 
 StatisticMeasure* WindowStatisticsManager::getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
 
@@ -108,7 +82,7 @@ StatisticMeasure* WindowStatisticsManager::getMeasure(double& observedValue, cha
   text->setFont(font);
   text->setPosition(position);
   text->setColor(*textColor);
-  text->setAlignment(osgText::Text::LEFT_BASE_LINE);
+  text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
 
   std::string buffer(newMeasure->getName());
   buffer.append(":  -");
@@ -116,7 +90,6 @@ StatisticMeasure* WindowStatisticsManager::getMeasure(double& observedValue, cha
 
   // create WindowStatistic
   this->windowStatisticList.push_back(new WindowStatistic(newMeasure,text));
-
   return newMeasure;
 }
 
@@ -135,6 +108,7 @@ void WindowStatisticsManager::doOnCallBack() {
 
       (*i)->getText()->setText(buffer);
     }
+
 }
 
 }

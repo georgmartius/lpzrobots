@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-09-28 08:48:21  robot3
+ *   Revision 1.5  2007-09-28 10:08:49  robot3
+ *   fixed memory bugs, statistics are from now on aligned right
+ *
+ *   Revision 1.4  2007/09/28 08:48:21  robot3
  *   corrected some minor bugs, files are still in develop status
  *
  *   Revision 1.3  2007/09/27 10:49:39  robot3
@@ -57,7 +60,7 @@ class StatisticMeasure;
 class StatisticTools : public Inspectable, public Callbackable {
 
 public:
-	StatisticTools() { beginMeasureCounter=0; }
+  StatisticTools() : beginMeasureCounter(0) { }
 
 	/**
 	 * adds a variable to observe and measure the value
@@ -85,6 +88,7 @@ public:
 	/**
 	 * starts the measure at a specific time. This is useful if there are
 	 * values that have to be ignored at simulation start.
+	 * @param step number of steps (normally simsteps) to wait for beginning the measures
 	 */
 	virtual void beginMeasureAt(long step);
 

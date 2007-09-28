@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-09-28 09:15:25  robot3
+ *   Revision 1.4  2007-09-28 10:08:49  robot3
+ *   fixed memory bugs, statistics are from now on aligned right
+ *
+ *   Revision 1.3  2007/09/28 09:15:25  robot3
  *   extended comments
  *
  *   Revision 1.2  2007/09/28 08:47:29  robot3
@@ -80,7 +83,7 @@ public:
    * creates the WindowStatisticsManager, normally done by class Base.
    * @param geode this is the graphical node at wich the text objects are hooked in.
    */
-  WindowStatisticsManager(osg::Geode* geode);
+  WindowStatisticsManager(osg::Geode* geode, osgText::Font* font);
 
   ~WindowStatisticsManager() {}
 
