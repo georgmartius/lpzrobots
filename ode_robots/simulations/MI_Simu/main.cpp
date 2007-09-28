@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-09-28 08:46:26  robot3
+ *   Revision 1.11  2007-09-28 09:15:25  robot3
+ *   extended comments
+ *
+ *   Revision 1.10  2007/09/28 08:46:26  robot3
  *   added loop tests
  *
  *   Revision 1.9  2007/09/27 16:00:52  der
@@ -243,12 +246,12 @@ public:
       stats->addMeasure(mic->getMI(1),"MI1",ID,0);
 
       // this->getWSM()->beginMeasureAt(100);
-      // this->getWSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
-      // this->getWSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
+      this->getWSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
+      this->getWSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
 
-      //convTest1=getWSM()->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
+      convTest1=getWSM()->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
       // getWSM()->addMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
-      // convTest0=getWSM()->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,5,10.0);
+      convTest0=getWSM()->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,5,10.0);
 
 
 

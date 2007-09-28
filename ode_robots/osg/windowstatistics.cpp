@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-28 08:47:29  robot3
+ *   Revision 1.3  2007-09-28 09:15:24  robot3
+ *   extended comments
+ *
+ *   Revision 1.2  2007/09/28 08:47:29  robot3
  *   corrected some memory bug (3 still remaining)
  *
  *   Revision 1.1  2007/09/27 10:48:13  robot3
@@ -50,7 +53,7 @@ using namespace osg;
 
 namespace lpzrobots {
 
-WindowStatisticsManager::WindowStatisticsManager(osg::Geode* geode) : geode(geode) {
+WindowStatisticsManager::WindowStatisticsManager(osg::Geode* geode) : StatisticTools(), geode(geode) {
   xInitPosition = 12.0f;
   yInitPosition = 27.0f;
   zInitPosition = 0.0f;

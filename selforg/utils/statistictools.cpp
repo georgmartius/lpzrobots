@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-09-28 08:48:21  robot3
+ *   Revision 1.4  2007-09-28 09:15:25  robot3
+ *   extended comments
+ *
+ *   Revision 1.3  2007/09/28 08:48:21  robot3
  *   corrected some minor bugs, files are still in develop status
  *
  *   Revision 1.2  2007/05/08 10:18:15  der
@@ -51,7 +54,8 @@ void StatisticTools::doOnCallBack() {
 }
 
 double& StatisticTools::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
-  return this->getMeasure(observedValue,measureName,mode,stepSpan,additionalParam)->getValueAdress();
+  StatisticMeasure* newMeasure = this->getMeasure(observedValue,measureName,mode,stepSpan,additionalParam);
+  return  newMeasure->getValueAdress();
 }
 
 StatisticMeasure* StatisticTools::getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {

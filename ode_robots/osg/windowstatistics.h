@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-28 08:47:29  robot3
+ *   Revision 1.3  2007-09-28 09:15:25  robot3
+ *   extended comments
+ *
+ *   Revision 1.2  2007/09/28 08:47:29  robot3
  *   corrected some memory bug (3 still remaining)
  *
  *   Revision 1.1  2007/09/27 10:48:13  robot3
@@ -66,8 +69,9 @@ namespace lpzrobots {
  * window.
  *
  * So how it works:
- * - overwriting the method addMeasure gives us the ability to create the needed text
- *   object, then storing in the textObjectList.
+ * - overwriting the method getMeasure gives us the ability to create the needed text
+ *   object, then storing it in a class named WindowStatistic
+ *   (which is stored in the windowStatisticList).
  */
 class WindowStatisticsManager : public StatisticTools {
 
@@ -77,6 +81,8 @@ public:
    * @param geode this is the graphical node at wich the text objects are hooked in.
    */
   WindowStatisticsManager(osg::Geode* geode);
+
+  ~WindowStatisticsManager() {}
 
   	/**
 	 * adds a variable to observe (on the window) and measure the value
@@ -91,7 +97,10 @@ public:
 	 * @param additionalParam  is used for example for mode PEAK, the param is the limit value,
 	 * all values minus limit are displayed, values below the limit are set to 0.
   	 * In CONV mode (test the convergence), this value is the epsilon criteria.
-	 * @return measured value as adress. So it is possible to measure this value again
+	 * @return the object StatisticMeasure. Use addMeasure(...) instead of getMeasure(...) to
+  	 * obtain the value adress of the calculated statistic.
+  	 * @see StatisticTools
+  	 * @see StatisticMeasure
 	 */
   virtual StatisticMeasure* getMeasure( double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
 
