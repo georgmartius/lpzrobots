@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-09-27 16:00:52  der
+ *   Revision 1.10  2007-09-28 08:46:26  robot3
+ *   added loop tests
+ *
+ *   Revision 1.9  2007/09/27 16:00:52  der
  *   made some tests
  *
  *   Revision 1.8  2007/09/27 10:44:33  robot3
@@ -50,80 +53,6 @@
  *   Revision 1.1  2007/03/22 08:03:35  robot3
  *   simulation for testing the mutual information of an arbitrary controller
  *
- *   Revision 1.16  2007/01/15 15:17:33  robot3
- *   fixed compile bug
- *
- *   Revision 1.15  2007/01/15 09:38:06  martius
- *   number of agents per type as variables on top of start function
- *   sphere gets axisorientationsensor
- *
- *   Revision 1.14  2006/09/22 06:18:56  robot8
- *   - added SliderWheelie - robot
- *
- *   Revision 1.13  2006/07/23 10:24:09  fhesse
- *   a few std:: added
- *
- *   Revision 1.12  2006/07/14 12:23:55  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.11.4.13  2006/06/25 21:57:47  martius
- *   robot names with numbers
- *
- *   Revision 1.11.4.12  2006/06/25 17:01:57  martius
- *   remove old simulations
- *   robots get names
- *
- *   Revision 1.11.4.11  2006/05/24 09:17:10  robot3
- *   snake is now colored (not blue)
- *
- *   Revision 1.11.4.10  2006/05/18 14:16:03  robot3
- *   -inserted SphereRobot3Masses
- *   -inserted CaterPillar
- *   -inserted SchlangeServo2
- *   -removed multiple same robots (performance issues)
- *   -inserted new passiveCapsules
- *   -passiveBoxes look more interesting now
- *   -wall of playground is now transparent (0.2)
- *
- *   Revision 1.11.4.9  2006/05/18 10:26:50  robot3
- *   -made the playground smaller (for shadowing issues)
- *   -changed camera homepos
- *
- *   Revision 1.11.4.8  2006/05/15 13:09:33  robot3
- *   -handling of starting guilogger moved to simulation.cpp
- *    (is in internal simulation routine now)
- *   -CTRL-F now toggles logging to the file (controller stuff) on/off
- *   -CTRL-G now restarts the GuiLogger
- *
- *   Revision 1.11.4.7  2006/05/11 12:51:25  robot3
- *   the zoo contains now passive boxes
- *
- *   Revision 1.11.4.6  2006/04/25 09:05:23  robot3
- *   caterpillar is now represented by a box
- *
- *   Revision 1.11.4.5  2006/04/11 13:28:18  robot3
- *   caterpillar is now in the zoo too
- *
- *   Revision 1.11.4.4  2006/03/28 09:55:12  robot3
- *   -main: fixed snake explosion bug
- *   -odeconfig.h: inserted cameraspeed
- *   -camermanipulator.cpp: fixed setbyMatrix,
- *    updateFactor
- *
- *   Revision 1.11.4.3  2006/01/12 15:17:30  martius
- *   *** empty log message ***
- *
- *   Revision 1.11.4.2  2005/11/16 11:27:38  martius
- *   invertmotornstep has configuration
- *
- *   Revision 1.11.4.1  2005/11/15 12:30:22  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.11  2005/11/14 13:02:39  martius
- *   new paramters
- *
- *   Revision 1.10  2005/11/09 13:41:25  martius
- *   GPL'ised
  *
  ***************************************************************************/
 #include "simulation.h"
@@ -159,8 +88,12 @@
 #include <selforg/mutualinformationcontroller.h>
 
 #include <selforg/statistictools.h>
+#include <selforg/statisticmeasure.h>
 
 #include "substance.h"
+
+#include <stdio.h>
+#include <string.h>
 
 
 // fetch all the stuff of lpzrobots into scope
@@ -172,8 +105,11 @@ public:
 
   StatisticTools* stats;
   Nimm2* myNimm2;
+  MutualInformationController* mic;
 
   double cInit;
+  StatisticMeasure* convTest0;
+  StatisticMeasure* convTest1;
   /*
   virtual std::list<iparamkey> getInternalParamNames() const  {
   	std::list<iparamkey> list;
@@ -189,21 +125,15 @@ public:
   */
 
 
-  ThisSim()  { cInit = 1.0; }
+  ThisSim() { cInit = 1.0;}
 
   ~ThisSim() {}
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    int numCater=0;
-    int numSchlangeL=0;
-    int numNimm2=1;
-    int numNimm4=0;
-    int numHurling=0;
-    int numSphere=0;
-    int numSliderWheele=0;
 
+    int numNimm2=1;
 
     stats = new StatisticTools();
 
@@ -215,8 +145,8 @@ public:
     global.odeConfig.setParam("noise",0.01);
     global.odeConfig.setParam("controlinterval",1);
     global.odeConfig.setParam("realtimefactor",1);
-  //  global.odeConfig.setParam("simstepsize",0.1);
-  //  global.odeConfig.setParam("drawinterval",5);
+    //  global.odeConfig.setParam("simstepsize",0.1);
+    //  global.odeConfig.setParam("drawinterval",5);
     // initialization
 
     Playground* playground =
@@ -264,13 +194,7 @@ public:
 
     OdeAgent* agent;
     AbstractWiring* wiring;
-    OdeRobot* robot;
     AbstractController *controller;
-
-    /*****************************************************************************************************************/
-    /*****************************************************************************************************************/
-    /******************************************** N I M M  2 *********************************************************/
-
 
     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
     nimm2conf.size = 1.6;
@@ -302,20 +226,10 @@ public:
       //	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
       //	    discretesizer->setIntervalCount(3);
       OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-      MutualInformationController* mic = new MutualInformationController(30);
+      mic = new MutualInformationController(30);
       mic->setParam("showF",0);
       mic->setParam("showP",0);
       onamupaco->addPassiveController(mic,"mi30");
-      /*mic = new MutualInformationController(10);
-      mic->setParam("showF",0);
-      mic->setParam("showP",0);*/
-      /*mic = new MutualInformationController(50);
-      onamupaco->addPassiveController(mic,"mi50");
-      mic = new MutualInformationController(100);
-      onamupaco->addPassiveController(mic,"mi100");
-      mic = new MutualInformationController(200);
-      onamupaco->addPassiveController(mic,"mi200");*/
-
 
       agent->addInspectable((Inspectable*)stats);
       agent->addCallbackable((Callbackable*)stats);
@@ -328,12 +242,13 @@ public:
       stats->addMeasure(mic->getMI(0),"MI0",ID,0);
       stats->addMeasure(mic->getMI(1),"MI1",ID,0);
 
-      this->getWSM()->beginMeasureAt(100);
-      this->getWSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
-      this->getWSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
+      // this->getWSM()->beginMeasureAt(100);
+      // this->getWSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
+      // this->getWSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
 
-      getWSM()->addMeasure( mic->getMI(0),"MI 0 AVG",AVG,50);
-      getWSM()->addMeasure( mic->getMI(0),"MI 0 CONV",CONV,50,0.01);
+      //convTest1=getWSM()->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
+      // getWSM()->addMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
+      // convTest0=getWSM()->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,5,10.0);
 
 
 
@@ -350,158 +265,36 @@ public:
 
     }
 
-
-    /******************************************** N I M M  2 *********************************************************/
-    /*****************************************************************************************************************/
-    /*****************************************************************************************************************/
-
-
-    //******* N I M M  4 *********/
-    for(int r=0; r < numNimm4; r++)
-    {
-      robot = new Nimm4(odeHandle, osgHandle, "Nimm4_" + std::itos(r));
-      robot->place(Pos((r-1)*5,-3,0));
-      controller = new InvertMotorSpace(20);
-      controller->setParam("s4avg",10);
-      controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( std::list<PlotOption>() );
-      agent->init(controller, robot, wiring);
-      global.agents.push_back(agent);
-    }
-
-    //****** H U R L I N G **********/
-    for(int r=0; r < numHurling; r++)
-    {
-      HurlingSnake* snake;
-      Color c;
-      if (r==0) c=Color(0.8, 0.8, 0);
-      if (r==1) c=Color(0,   0.8, 0);
-      snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake_" + std::itos(r));
-      ((OdeRobot*) snake)->place(Pos(r*5,-6,0.3));
-      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      invertnconf.cInit=1.5;
-      controller = new InvertMotorNStep(invertnconf);
-      controller->setParam("steps", 2);
-      controller->setParam("adaptrate", 0.001);
-      controller->setParam("nomupdate", 0.001);
-      controller->setParam("factorB", 0);
-
-      // deriveconf = DerivativeWiring::getDefaultConf();
-      //     deriveconf.blindMotorSets=0;
-      //     deriveconf.useId = true;
-      //     deriveconf.useFirstD = true;
-      //     deriveconf.derivativeScale = 50;
-      //     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
-      wiring = new One2OneWiring(new ColorUniformNoise(0.05));
-      agent = new OdeAgent( std::list<PlotOption>() );
-      agent->init(controller, snake, wiring);
-      global.configs.push_back(controller);
-      global.agents.push_back(agent);
-    }
-
-    //****** S P H E R E **********/
-    for(int r=0; r < numSphere; r++)
-    {
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
-      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
-      Sphererobot3Masses* sphere1 =
-        new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),
-                                 conf, "Sphere" + std::itos(r), 0.2);
-      ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));
-      controller = new InvertMotorSpace(15);
-      controller->setParam("sinerate", 40);
-      controller->setParam("phaseshift", 0.0);
-      One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
-      agent = new OdeAgent ( plotoptions );
-      agent->init ( controller , sphere1 , wiring2 );
-      global.agents.push_back ( agent );
-      global.configs.push_back ( controller );
-    }
-
-    /******* S L I D E R - w H E E L I E *********/
-    SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
-    for(int r=0; r < numSliderWheele; r++)
-    {
-      mySliderWheelieConf.segmNumber=8;
-      mySliderWheelieConf.jointLimit=M_PI/4;
-      mySliderWheelieConf.motorPower=0.4;
-      mySliderWheelieConf.frictionGround=0.8;
-      mySliderWheelieConf.sliderLength=1;
-      mySliderWheelieConf.segmLength=0.4;
-
-      SliderWheelie* mySliderWheelie =
-        new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie" + std::itos(r));
-      ((OdeRobot*) mySliderWheelie)->place(Pos(4-2*r,0,0.0));
-      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      invertnconf.cInit=1;
-      controller = new InvertMotorNStep(invertnconf);
-      controller->setParam("steps",2);
-      controller->setParam("factorB",0);
-
-      DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-      c.useId = false;
-      c.useFirstD = true;
-      DerivativeWiring* wiring3 = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
-      agent = new OdeAgent(plotoptions);
-      agent->init(controller, mySliderWheelie, wiring3);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(mySliderWheelie);
-    }
-
-
-    //******* R A U P E  *********/
-    for(int r=0; r < numCater ; r++)
-    {
-      CaterPillar* myCaterPillar;
-      CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
-      myCaterPillarConf.segmNumber=3+r;
-      myCaterPillarConf.jointLimit=M_PI/3;
-      myCaterPillarConf.motorPower=0.2;
-      myCaterPillarConf.frictionGround=0.01;
-      myCaterPillarConf.frictionJoint=0.01;
-      myCaterPillar =
-        new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)),
-                          myCaterPillarConf, "Raupe" );//+ std::itos(r));
-      ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5+2*r,0.2));
-
-      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      invertnconf.cInit=2.0;
-      controller = new InvertMotorSpace(15);
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( plotoptions );
-      agent->init(controller, myCaterPillar, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(myCaterPillar);
-      myCaterPillar->setParam("gamma",/*gb");
-                              					global.obstacles.push_back(s)0.0000*/ 0.0);
-    }
-
-
-    //******* S C H L A N G E  (Long)  *********/
-    for(int r=0; r < numSchlangeL ; r++)
-    {
-      SchlangeServo2* snake;
-      SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
-      snakeConf.segmNumber=6+r;
-      snakeConf.frictionGround=0.01;
-
-      snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" + std::itos(r));
-      ((OdeRobot*) snake)->place(Pos(4,4-r,0));
-      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      invertnconf.cInit=2.0;
-      controller = new InvertMotorNStep(invertnconf);
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( std::list<PlotOption>() );
-      agent->init(controller, snake, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(snake);
-    }
-
     showParams(global.configs);
+  }
+
+  /** optional additional callback function which is called every simulation step.
+  Called between physical simulation step and drawing.
+  @param draw indicates that objects are drawn in this timestep
+  @param pause indicates that simulation is paused
+  @param control indicates that robots have been controlled this timestep
+   */
+  void addCallback(GlobalData& globalData, bool draw, bool pause, bool control)
+  {
+    /*
+    if ((this->convTest0->getValue()==1.0)&&(this->convTest1->getValue()==1.0)) {
+      FILE* file;
+      char filename[256];
+      sprintf(filename, "MI_C_%f.log", this->cInit);
+
+      file = fopen(filename,"w");
+
+      fprintf(file, "#Logfile for measuring the Mutual Information\n");
+      fprintf(file,"timeSteps   = %li\n",this->sim_step);
+      fprintf(file,"time in min = %f\n",((float)this->sim_step)/100/60);
+      fprintf(file,"MI sensor 0 = %f\n",mic->getMI(0));
+      fprintf(file,"MI sensor 1 = %f\n",mic->getMI(0));
+      if(file) fclose(file);
+
+      simulation_time_reached=true;
+   }
+
+*/
   }
 
   // add own key handling stuff here, just insert some case values
@@ -523,20 +316,19 @@ public:
 
 int main (int argc, char **argv)
 {
-  ThisSim sim;
+
 
   // check for cinit value
   int index = contains(argv, argc, "-cinit");
-  if(index)
-  {
-    if(argc > index)
-    {
+  if(index) {
+    if(argc > index) {
+      ThisSim sim;
       sim.cInit = atoi(argv[index]);
+      sim.run(argc,argv);
     }
+  } else for (double cinit=0.0;cinit<0.1;cinit+=0.1)  {
+    ThisSim sim;
+    sim.cInit=cinit;
+    sim.run(argc,argv);
   }
-
-
-  // run simulation
-  return sim.run(argc, argv) ? 0 : 1;
 }
-
