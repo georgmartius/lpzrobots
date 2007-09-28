@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-27 10:48:13  robot3
+ *   Revision 1.2  2007-09-28 08:47:29  robot3
+ *   corrected some memory bug (3 still remaining)
+ *
+ *   Revision 1.1  2007/09/27 10:48:13  robot3
  *   first version of the WSM
  *
  *                                                                         *
@@ -35,7 +38,7 @@
 #include <selforg/statisticmeasure.h>
 
 #include "osgforwarddecl.h"
-#include "color.h"
+#import "color.h"
 #include <osgText/Text>
 #include <osgText/Font>
 #include <osg/Geode>
@@ -52,9 +55,12 @@ WindowStatisticsManager::WindowStatisticsManager(osg::Geode* geode) : geode(geod
   yInitPosition = 27.0f;
   zInitPosition = 0.0f;
   yOffset = 18.0f;
+  font = osgText::readFontFile("fonts/arial.ttf");
+  textColor = new Color(0.0,0.0,0.0,0.0);
+  fontsize=12;
 }
 
-double& WindowStatisticsManager::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
+/*double& WindowStatisticsManager::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
 
   StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
   this->activeMeasures.push_back(newMeasure);
@@ -82,6 +88,33 @@ double& WindowStatisticsManager::addMeasure(double& observedValue, char* measure
   this->windowStatisticList.push_back(new WindowStatistic(newMeasure,text));
 
   return newMeasure->getValueAdress();
+}*/
+
+StatisticMeasure* WindowStatisticsManager::getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
+
+  StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
+  this->activeMeasures.push_back(newMeasure);
+
+  // create new text object with default settings:
+  float textPosition = windowStatisticList.size();
+  osg::Vec3 position(xInitPosition,yInitPosition+yOffset*textPosition,zInitPosition);
+
+  osgText::Text* text = new  osgText::Text;
+  geode->addDrawable( text );
+  text->setCharacterSize(fontsize);
+  text->setFont(font);
+  text->setPosition(position);
+  text->setColor(*textColor);
+  text->setAlignment(osgText::Text::LEFT_BASE_LINE);
+
+  std::string buffer(newMeasure->getName());
+  buffer.append(":  -");
+  text->setText(buffer);
+
+  // create WindowStatistic
+  this->windowStatisticList.push_back(new WindowStatistic(newMeasure,text));
+
+  return newMeasure;
 }
 
 void WindowStatisticsManager::doOnCallBack() {

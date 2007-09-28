@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-27 10:48:13  robot3
+ *   Revision 1.2  2007-09-28 08:47:29  robot3
+ *   corrected some memory bug (3 still remaining)
+ *
+ *   Revision 1.1  2007/09/27 10:48:13  robot3
  *   first version of the WSM
  *
  *                                                                         *
@@ -35,14 +38,20 @@
 
 #import <selforg/statistictools.h>
 
+/* forward declaration block */
 namespace osgText {
 class Text;
+class Font;
 }
 
 namespace osg {
 class Geode;
 }
 
+namespace lpzrobots {
+class Color;
+}
+/* end of forward declaration */
 
 namespace lpzrobots {
 
@@ -84,7 +93,7 @@ public:
   	 * In CONV mode (test the convergence), this value is the epsilon criteria.
 	 * @return measured value as adress. So it is possible to measure this value again
 	 */
-  virtual double& addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
+  virtual StatisticMeasure* getMeasure( double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
 
 
 	/**
@@ -128,6 +137,11 @@ protected:
 
   // graphical node
   osg::Geode* geode;
+
+  // default text properties
+  osgText::Font* font;
+  Color* textColor;
+  int fontsize;
 
 };
 
