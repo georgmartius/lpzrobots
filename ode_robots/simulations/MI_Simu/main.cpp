@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-09-28 12:29:12  robot3
+ *   Revision 1.14  2007-10-01 13:27:14  robot3
+ *   made some improvements
+ *
+ *   Revision 1.13  2007/09/28 12:29:12  robot3
  *   loop test now working
  *
  *   Revision 1.12  2007/09/28 10:08:49  robot3
@@ -134,7 +137,7 @@ public:
   */
 
 
-  ThisSim() { cInit = 1.0;}
+  ThisSim(double cInit=1.0) : cInit(cInit) {}
 
   ~ThisSim() {}
 
@@ -151,9 +154,9 @@ public:
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
 
-    global.odeConfig.setParam("noise",0.01);
+    global.odeConfig.setParam("noise",0.1);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",30);
+    global.odeConfig.setParam("realtimefactor",0);
     //  global.odeConfig.setParam("simstepsize",0.1);
     //  global.odeConfig.setParam("drawinterval",5);
     // initialization
@@ -207,8 +210,8 @@ public:
 
     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
     nimm2conf.size = 1.6;
-    nimm2conf.force = 50;
-    nimm2conf.speed=40;
+    nimm2conf.force = 5;
+    nimm2conf.speed=12;
     nimm2conf.cigarMode=true;
     nimm2conf.singleMotor=false;
     nimm2conf.visForce=true;
@@ -255,9 +258,9 @@ public:
       this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
       this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
 
-         convTest1=getHUDSM()->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,10000,0.01);
+         convTest1=getHUDSM()->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,50000,0.002);
       // getWSM()->addMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
-         convTest0=getHUDSM()->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,10000,0.01);
+         convTest0=getHUDSM()->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,50000,0.002);
 
 
 
@@ -275,6 +278,8 @@ public:
     }
 
     showParams(global.configs);
+    std::cout << "running with cInit = " << this->cInit << "." << std::endl;
+
   }
 
   /** optional additional callback function which is called every simulation step.
@@ -285,6 +290,12 @@ public:
    */
   void addCallback(GlobalData& globalData, bool draw, bool pause, bool control)
   {
+    if (this->sim_step%100000==0) {
+      printf("timeSteps   = %li\n",this->sim_step);
+      printf("time in min = %f\n",((float)this->sim_step)/100/60);
+      printf("MI sensor 0 = %f\n",mic->getMI(0));
+      printf("MI sensor 1 = %f\n",mic->getMI(1));
+    }
     if ((this->convTest0->getValue()==1.0)&&(this->convTest1->getValue()==1.0)) {
       FILE* file;
       char filename[256];
@@ -296,9 +307,13 @@ public:
       fprintf(file,"timeSteps   = %li\n",this->sim_step);
       fprintf(file,"time in min = %f\n",((float)this->sim_step)/100/60);
       fprintf(file,"MI sensor 0 = %f\n",mic->getMI(0));
-      fprintf(file,"MI sensor 1 = %f\n",mic->getMI(0));
+      fprintf(file,"MI sensor 1 = %f\n",mic->getMI(1));
+      fflush(file);
       if(file) fclose(file);
-
+      printf("timeSteps   = %li\n",this->sim_step);
+      printf("time in min = %f\n",((float)this->sim_step)/100/60);
+      printf("MI sensor 0 = %f\n",mic->getMI(0));
+      printf("MI sensor 1 = %f\n",mic->getMI(1));
       simulation_time_reached=true;
    }
   }
@@ -328,11 +343,10 @@ int main (int argc, char **argv)
   int index = contains(argv, argc, "-cinit");
   if(index) {
     if(argc > index) {
-      ThisSim sim;
-      sim.cInit = atoi(argv[index]);
+      ThisSim sim(atof(argv[index]));
       sim.run(argc,argv);
     }
-  } else for (double cinit=0.0;cinit<1.3;cinit+=0.05)  {
+  } else for (double cinit=0.0;cinit<=2.1;cinit+=0.05)  {
     ThisSim sim;
     sim.cInit=cinit;
     sim.run(argc,argv);
