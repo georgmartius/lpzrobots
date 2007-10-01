@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-09-28 08:48:20  robot3
+ *   Revision 1.4  2007-10-01 13:27:47  robot3
+ *   documentation
+ *
+ *   Revision 1.3  2007/09/28 08:48:20  robot3
  *   corrected some minor bugs, files are still in develop status
  *
  *   Revision 1.2  2007/09/27 10:49:39  robot3
@@ -45,117 +48,131 @@
 #include "assert.h"
 
 
-StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : name(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam) {
-	value=0;
-	actualStep=0;
-	oldestStepIndex=0;
+StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : name(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam)
+{
+  value=0;
+  actualStep=0;
+  oldestStepIndex=0;
   newestStepIndex=stepSpan-1;
-	if (stepSpan>0) {
-		this->valueHistory = (double*) malloc(sizeof(double) * stepSpan);
-		// set all values to 0
-		for (int i=0;i<stepSpan;i++)
-			this->valueHistory[i]=0;
-	}
-	/// use this section for defining individual constructor commands
-	switch(mode){
-		case CONV:
-			if (stepSpan==0) {
-				std::cout << "ERROR: The stepspan in addMeasure(observedValue, CONV, stepSpan, epsilon)"
-					<< std::endl << "       must not be <1!" << std::endl;
-				std::cout << "Program terminated. Please correct this error in main.cpp (or wherever) first." << std::endl;
-				exit(-1);
-			}
-			this->stepsReached=0;
-			break;
-		default: // not defined
-			break;
-	}
+  if (stepSpan>0)
+  {
+    this->valueHistory = (double*) malloc(sizeof(double) * stepSpan);
+    // set all values to 0
+    for (int i=0;i<stepSpan;i++)
+      this->valueHistory[i]=0;
+  }
+  /// use this section for defining individual constructor commands
+  switch(mode)
+  {
+  case CONV:
+    if (stepSpan==0)
+    {
+      std::cout << "ERROR: The stepspan in addMeasure(observedValue, CONV, stepSpan, epsilon)"
+      << std::endl << "       must not be <1!" << std::endl;
+      std::cout << "Program terminated. Please correct this error in main.cpp (or wherever) first." << std::endl;
+      exit(-1);
+    }
+    this->stepsReached=0;
+    break;
+  default: // not defined
+    break;
+  }
 }
 
-void StatisticMeasure::step() {
-	// update the variable value from observedValue
-	switch(mode){
-		case ID: // return observed value itself
-			value=observedValue;
-			break;
-		case AVG:
-			value=calculateAverageValue();
-			break;
-		case PEAK:
-			if (observedValue>additionalParam)
-				value=observedValue-additionalParam;
-			else
-				value=0;
-			break;
-		case MAX:
-			if (observedValue>value) // TODO: include history
-				value=observedValue;
-			break;
-		case MIN:
-			if (observedValue<value) // TODO: include history
-				value=observedValue;
-			break;
-		case SUM:
-			value=calculateSumValue();
-			break;
-		case CONV:
-			value=testConvergence();
-			break;
-		default: // not defined
-			break;
-	}
-	if (stepSpan>0) {
-		// store new value in history, the position is oldestStepIndex
-		valueHistory[oldestStepIndex]=observedValue;
-  	    newestStepIndex=oldestStepIndex;
-		if (oldestStepIndex==(stepSpan-1))
-			oldestStepIndex=0;
-		else
-			oldestStepIndex++;
-	}
-	actualStep++;
+void StatisticMeasure::step()
+{
+  // update the variable value from observedValue
+  switch(mode)
+  {
+  case ID: // return observed value itself
+    value=observedValue;
+    break;
+  case AVG:
+    value=calculateAverageValue();
+    break;
+  case PEAK:
+    if (observedValue>additionalParam)
+      value=observedValue-additionalParam;
+    else
+      value=0;
+    break;
+  case MAX:
+    if (observedValue>value) // TODO: include history
+      value=observedValue;
+    break;
+  case MIN:
+    if (observedValue<value) // TODO: include history
+      value=observedValue;
+    break;
+  case SUM:
+    value=calculateSumValue();
+    break;
+  case CONV:
+    value=testConvergence();
+    break;
+  default: // not defined
+    break;
+  }
+  if (stepSpan>0)
+  {
+    // store new value in history, the position is oldestStepIndex
+    valueHistory[oldestStepIndex]=observedValue;
+    newestStepIndex=oldestStepIndex;
+    if (oldestStepIndex==(stepSpan-1))
+      oldestStepIndex=0;
+    else
+      oldestStepIndex++;
+  }
+  actualStep++;
 }
 
 double StatisticMeasure::testConvergence() {
-
-  if (std::abs(observedValue-valueHistory[newestStepIndex])<additionalParam) {
+  if ((std::abs(observedValue-valueHistory[newestStepIndex])<additionalParam) &&
+      (std::abs(observedValue-valueHistory[oldestStepIndex])<additionalParam)) {
     if (stepsReached<stepSpan)
       stepsReached++;
-  	if (stepsReached==stepSpan)
+    if (stepsReached==stepSpan)
       return 1.0;
   } else {
-		stepsReached=0;
-    std::cout << std::abs(observedValue-valueHistory[newestStepIndex]) << " = " << observedValue << " - " << valueHistory[actualStep] << std::endl;
+    stepsReached=0;
   }
-	return 0.0;
+  return 0.0;
 }
 
 
-double StatisticMeasure::calculateSumValue() {
-	double newsum=this->value;
-	if (stepSpan==0) {
-		value+=observedValue;
-	} else {
-		// first: subtrate oldestVal from value
-		newsum -= valueHistory[oldestStepIndex];
-		// add observedValue to value
-		newsum += observedValue;
-	}
-	return newsum;
+double StatisticMeasure::calculateSumValue()
+{
+  double newsum=this->value;
+  if (stepSpan==0)
+  {
+    value+=observedValue;
+  }
+  else
+  {
+    // first: subtrate oldestVal from value
+    newsum -= valueHistory[oldestStepIndex];
+    // add observedValue to value
+    newsum += observedValue;
+  }
+  return newsum;
 }
 
 
-double StatisticMeasure::calculateAverageValue() {
-	double newavg=this->value;
-	if (stepSpan==0) {
-		// use update rule described in diploma thesis of Frank Guettler
+double StatisticMeasure::calculateAverageValue()
+{
+  double newavg=this->value;
+  if (stepSpan==0)
+  {
+    // use update rule described in diploma thesis of Frank Guettler
 
-	} else {
-		// first: subtrate 1/stepSpan*oldestVal from value
-		newavg -= valueHistory[oldestStepIndex]/stepSpan;
-		// add 1/stepSpan*observedValue to value
-		newavg += observedValue/stepSpan;
-	}
-	return newavg;
+  }
+  else
+  {
+    // first: subtrate 1/stepSpan*oldestVal from value
+    newavg -= valueHistory[oldestStepIndex]/stepSpan;
+    // add 1/stepSpan*observedValue to value
+    newavg += observedValue/stepSpan;
+  }
+  return newavg;
 }
 

@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-09-28 10:08:49  robot3
+ *   Revision 1.6  2007-10-01 13:27:47  robot3
+ *   documentation
+ *
+ *   Revision 1.5  2007/09/28 10:08:49  robot3
  *   fixed memory bugs, statistics are from now on aligned right
  *
  *   Revision 1.4  2007/09/28 08:48:21  robot3
@@ -91,6 +94,11 @@ public:
 	 * @param step number of steps (normally simsteps) to wait for beginning the measures
 	 */
 	virtual void beginMeasureAt(long step);
+
+  /**
+   * Tells you wether the measures have already been started.
+   */
+  virtual bool measureStarted() { return (beginMeasureCounter==0?true:false); }
 
 
 	/**
