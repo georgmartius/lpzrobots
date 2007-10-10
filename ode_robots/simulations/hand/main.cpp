@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-09-28 15:50:13  fhesse
+ *   Revision 1.18  2007-10-10 18:59:45  fhesse
+ *   testing controller
+ *
+ *   Revision 1.17  2007/09/28 15:50:13  fhesse
  *   changing parameters
  *
  *   Revision 1.16  2007/09/23 23:20:22  fhesse
@@ -126,6 +129,7 @@
 #include <selforg/invertnchannelcontrollerhebbxsi.h>
 #include <selforg/invertnchannelcontrollerhebbxsihand.h>
 #include <selforg/invertnchannelcontrollerhebbhhand.h>
+#include <selforg/invertnchannelcontrollerhebbh.h>
 
 #include "hand.h"
 #include "irinvertwiring.h"
@@ -219,16 +223,24 @@ public:
     // controller = new InvertNChannelControllerHebbXsiHand(/*buffersize*/10, 
     //						 /*update_only_1*/false, 
     //						 /*inactivate_hebb*/false);
-    controller = new InvertNChannelControllerHebbHHand(/*buffersize*/100, 
-     						       /*update_only_1*/false, 
-						       /*inactivate_hebb*/false);
 
+//     controller = new InvertNChannelControllerHebbHHand(/*buffersize*/100, 
+//      						       /*update_only_1*/false, 
+// 						       /*inactivate_hebb*/false);
+/*
     controller->setParam("eps", 0.01);
     controller->setParam("eps_hebb", 0.00005);
     controller->setParam("factor_a", 0.1);
     controller->setParam("s4avg", 10);
     controller->setParam("s4delay", 4);
-    
+  */  
+
+    controller = new InvertNChannelControllerHebbH(/*buffersize*/100, 
+     						       /*update_only_1*/false, 
+						       /*inactivate_hebb*/false);
+    controller->setParam("s4avg", 10);
+
+
     global.configs.push_back(controller); 
 
 
@@ -274,7 +286,7 @@ public:
     global.obstacles.push_back(c); 
     */
     
-    box = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1.2,5,0.5),10);
+    box = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1.0,5,0.5),10);
     box->setPosition(Pos(0,0,6.7)); 
     box->setColor(Color(1.0f,0.2f,0.2f,0.5f));
     //c->setTexture("Images/light_chess.rgb");
@@ -310,6 +322,11 @@ public:
 	box->setPosition(Pos(0,0,6.7)); 
 	box->setTexture("Images/furry_toy.jpg");
 	break;
+      case 'e' : // replace box
+	box->setPosition(Pos(0,0,0)); 
+	box->setTexture("Images/furry_toy.jpg");
+	break;
+
       case 'c' :{
 	PassiveCapsule* c =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
       	c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
