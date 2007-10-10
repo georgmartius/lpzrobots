@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-10-08 20:17:14  fhesse
+ *   Revision 1.2  2007-10-10 06:41:10  fhesse
+ *   z argument in robots place() call increased
+ *   (before it was inside earth (but therefore it worked))
+ *
+ *   Revision 1.1  2007/10/08 20:17:14  fhesse
  *   initial version of layered controller
  *   and nimm2_layered as testbed for this controller
  *
@@ -107,7 +111,7 @@ public:
 
     if(normalplayground){
       //     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(12, 0.2, 0.5));
-      Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(17, 0.2, 0.5));
+      Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(17, 0.2, 1.0));
       playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
       // register playground in obstacles list
       global.obstacles.push_back(playground);
@@ -217,7 +221,7 @@ public:
     c.force=2;
     c.speed=8;
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");    
-    vehicle->place(Pos(0,0,0));
+    vehicle->place(Pos(0,0,0.5));
     //    vehicle->place(Pos(0,6.25,0));
 
      
