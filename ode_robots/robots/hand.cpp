@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-09-23 23:19:50  fhesse
+ *   Revision 1.10  2007-10-10 18:59:07  fhesse
+ *   second IR sensor temporarily added for Controller Testing
+ *
+ *   Revision 1.9  2007/09/23 23:19:50  fhesse
  *   finger coupling introduced in setMotors()
  *   by adding weighted motorvalue of neighbour
  *   (optional as commentar)
@@ -166,7 +169,9 @@ namespace lpzrobots {
 	sensorno+=5;
       } 
       if (conf.irs_at_fingertip){
-	sensorno+=5;
+	// TODO: reset to 5 after testing of InvertNChannelControllerHebbH
+	//	sensorno+=5;
+	sensorno+=6;
       } 
     }
     
@@ -846,6 +851,19 @@ namespace lpzrobots {
 						      0.0,osg::Vec3(0, 0, 1)) * 
 				  osg::Matrix::translate((0), 0.2, 0.25), 
 				  conf.irRange, conf.ray_draw_mode);
+      /*
+       * added same sensor as above to have as many IR's as motors (to motors in thumb)
+       * TODO: remove (since it is only for testing InvertNChannelControllerHebbH)
+       */
+      IRSensor* sensor_thumb_t2 = new IRSensor();
+      ir_sensors.push_back(sensor_thumb_t2);
+      irSensorBank.registerSensor(sensor_thumb_t2, thumb_t,//objects[3], 
+				  osg::Matrix::rotate(-M_PI/2, osg::Vec3(1, 0, 0),
+						      M_PI/2, osg::Vec3(0, 1, 0),
+						      0.0,osg::Vec3(0, 0, 1)) * 
+				  osg::Matrix::translate((0), 0.2, 0.25), 
+				  conf.irRange, conf.ray_draw_mode);
+
     }
     
 
