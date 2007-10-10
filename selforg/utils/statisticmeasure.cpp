@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-10-10 13:17:14  martius
+ *   Revision 1.6  2007-10-10 13:18:06  martius
+ *   math.h
+ *
+ *   Revision 1.5  2007/10/10 13:17:14  martius
  *   use fabs instead of abs
  *
  *   Revision 1.4  2007/10/01 13:27:47  robot3
@@ -49,7 +52,7 @@
 #include <iostream>
 #include "stl_adds.h"
 #include "assert.h"
-
+#include "math.h"
 
 StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : name(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam)
 {
