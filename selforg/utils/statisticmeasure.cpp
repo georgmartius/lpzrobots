@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-10-01 13:27:47  robot3
+ *   Revision 1.5  2007-10-10 13:17:14  martius
+ *   use fabs instead of abs
+ *
+ *   Revision 1.4  2007/10/01 13:27:47  robot3
  *   documentation
  *
  *   Revision 1.3  2007/09/28 08:48:20  robot3
@@ -127,8 +130,8 @@ void StatisticMeasure::step()
 }
 
 double StatisticMeasure::testConvergence() {
-  if ((std::abs(observedValue-valueHistory[newestStepIndex])<additionalParam) &&
-      (std::abs(observedValue-valueHistory[oldestStepIndex])<additionalParam)) {
+  if ((fabs(observedValue-valueHistory[newestStepIndex])<additionalParam) &&
+      (fabs(observedValue-valueHistory[oldestStepIndex])<additionalParam)) {
     if (stepsReached<stepSpan)
       stepsReached++;
     if (stepsReached==stepSpan)
