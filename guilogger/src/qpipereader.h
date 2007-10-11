@@ -28,9 +28,10 @@ class QPipeReader : public QDataSource
 
 private:
     int delay;
+    FILE* f;
 
 public:
-    QPipeReader(int delay = 100);
+    QPipeReader(int delay = 0, FILE* f=stdin);
     virtual void run();
     void setDelay(int delay) {this->delay = delay;}
     int  getDelay()  {return delay;}

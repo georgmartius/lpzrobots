@@ -18,11 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "channelrow.h"
+//Added by qt3to4:
+#include <Q3Frame>
+#include <QLabel>
 
 //#include "guilogger.h"
 
 ChannelRow::ChannelRow(const Tag& channelName, int buttons, QWidget *parent, const char *name)
-    : QFrame(parent, name)
+    : Q3Frame(parent, name)
 {
     this->channelName = channelName;
     init(parent, buttons);
@@ -34,13 +37,14 @@ ChannelRow::~ChannelRow()
 }
 
 
-void ChannelRow::init( QWidget *parent, int buttons){
+void ChannelRow::init( QWidget* , int buttons){
     this->buttons = buttons;
-    layout = new QBoxLayout(this, QBoxLayout::LeftToRight);
+    layout = new Q3BoxLayout(this, Q3BoxLayout::LeftToRight);
     this->channelLabel = new QLabel(channelName, this);
     layout->addWidget(channelLabel);
     CheckBoxList = new TaggedCheckBox*[buttons];
     
+    TaggedCheckBox* CheckBox;
     for(int i=0; i<buttons; i++)
     {  CheckBox = new TaggedCheckBox( channelName, i, this, channelName);
        CheckBoxList[i] = CheckBox;

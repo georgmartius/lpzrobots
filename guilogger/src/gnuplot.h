@@ -81,6 +81,13 @@ protected:
 	    for(int i=_start;i<_end;++i)
 		fprintf(f,"%f\n",buffer[i%buffersize]);
 	};
+	/** print buffer content with reference Dataset to file pointer, usually a pipe */
+	void plotXY(FILE* f, Dataset* ref, int start=0, int end=0){
+	    int _start=current+start;
+	    int _end=current+((end<=0)?buffersize:end);
+	    for(int i=_start;i<_end;++i)
+		fprintf(f,"%f %f\n",ref->buffer[i%buffersize],buffer[i%buffersize]);
+	};
 	/** get buffer content */
 	double getData(int i){
 	    return buffer[(i+current)%buffersize];
@@ -93,6 +100,10 @@ protected:
     typedef std::map<T, Dataset*> dataset_map;
     dataset_map datasets;
     nameslist namesets;    
+    T reference1; 
+    T reference2; 
+    bool useReference1;
+    bool useReference2;
     int buffersize;
     int start;
     int end;
@@ -115,16 +126,34 @@ public:
     };
     /** add new channel with name. 
 	currently uses name as title if not given.  */
-    void addChannel(const T& name, const std::string& title="", const std::string& style="lines"){
+    void addChannel(const T& name, const std::string& title="", const std::string& style=""){
 	if(title != "")
 	    datasets.insert(std::make_pair(name,new Dataset(title,style,buffersize)));
 	else {
 	    std::ostringstream str;
-	    str << name;
+	    //	    str << name;
+	    str << name.latin1(); // this is a quick hack to get it to
+				  // work with qstring and qt4 
 	    datasets.insert(std::make_pair(name,new Dataset(str.str(),style,buffersize)));
 	}
         namesets.push_back(name);
     };
+
+  void setReference1(const T& ref1){
+    reference1=ref1;
+    useReference1=true;
+  }
+  void setReference2(const T& ref2){
+    reference2=ref2;
+    useReference2=true;
+  }
+  void setUseReference1(bool on){
+    useReference1=on;
+  }
+  void setUseReference2(bool on){
+    useReference2=on;
+  }
+
     /** add new data value to buffer for channel.
         if channel not exists nothing happens.
 	So you can select channels in your program by commenting out the addChannel() call */
@@ -204,15 +233,19 @@ public:
 		if(first) first=false;
 		else fprintf(pipe,", ");
 		fprintf(pipe,"'-'");    
-		fprintf(pipe," title '%s'",dataset->title.data());    
-		fprintf(pipe," with %s",dataset->style.data());    
+		fprintf(pipe," t '%s'",dataset->title.data());    
+		if(!dataset->style.empty()) fprintf(pipe," w %s",dataset->style.data());    
 	    }
 	}
 	fprintf(pipe,"\n");
+	typename dataset_map::iterator ref;
+	if(useReference1) ref= datasets.find(reference1);
+	if(ref==datasets.end()) return;	
 	for(typename dataset_map::iterator i=datasets.begin();i!=datasets.end();++i){
     	    Dataset* dataset=i->second;
 	    if(dataset->show){
-		dataset->plot(pipe,_start,_end);
+	      	if(useReference1) dataset->plotXY(pipe,ref->second,_start,_end); 		
+		else dataset->plot(pipe,_start,_end);
 	        fprintf(pipe,"e\n");
 	    }
 	}
@@ -257,8 +290,8 @@ public:
     	    Dataset* datasetX=iX->second;
     	    Dataset* datasetY=iY->second;
 	    fprintf(pipe,"'-'");    
-	    fprintf(pipe," title '%s'",std::string(datasetX->title + "<->" + datasetY->title).data());    
-	    fprintf(pipe," with %s",datasetY->style.data());    
+	    fprintf(pipe," t '%s'",std::string(datasetX->title + "<->" + datasetY->title).data()); 
+	    if(!datasetY->style.empty()) fprintf(pipe," w %s",datasetY->style.data());    
 	}
 	fprintf(pipe,"\n");
 	for(int i=0;i < size; ++i){

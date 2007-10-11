@@ -22,9 +22,10 @@
 #include <unistd.h>  //für usleep
 #include <stdlib.h>
 
-QPipeReader::QPipeReader(int delay)
+QPipeReader::QPipeReader(int delay,FILE* f)
 {   
-    this->delay = delay;// default parameter = 100
+  this->f = f;
+  this->delay = delay;// default parameter = 0
 }
 
 void QPipeReader::run()
@@ -35,11 +36,11 @@ void QPipeReader::run()
   char* ctrl = s;
   while(ctrl) {
     
-    ctrl = fgets(s, size, stdin);
+    ctrl = fgets(s, size, f);
     if(ctrl) {      
       emit newData(s);
     }
-    //     usleep(delay);     // wenn Line gelesen, mal ein bissel warten, damit nicht alles gleich durchpfeift
+    if(delay) usleep(delay);     // wenn Line gelesen, mal ein bissel warten, damit nicht alles gleich durchpfeift
   }
   free(s);  
 }

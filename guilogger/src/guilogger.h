@@ -22,27 +22,29 @@
 #ifndef GUILOGGER_H
 #define GUILOGGER_H
 
-#include <qmainwindow.h>
-#include <qpopupmenu.h>
+#include <q3mainwindow.h>
+#include <q3popupmenu.h>
 #include <qstringlist.h>
 #include <qlabel.h>
 #include <qdialog.h>
-#include <qptrlist.h>
+#include <q3ptrlist.h>
 #include <qlayout.h>
 #include <qstringlist.h>
+#include <qscrollarea.h>
 //#include <qtimer.h>
-#include <qptrqueue.h>
+#include <q3ptrqueue.h>
 #include <qmutex.h>
 #include <qmap.h>
-#include <qvaluelist.h>
-#include <qscrollview.h>
-#include <qvbox.h>
-#include <qlistbox.h>
+#include <q3valuelist.h>
+#include <q3scrollview.h>
+#include <q3vbox.h>
+#include <q3boxlayout.h>
+#include <q3listbox.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qslider.h>
-#include <qlistview.h>
-#include <qtextedit.h>
+#include <q3listview.h>
+#include <q3textedit.h>
 
 #include <string>
 #include <list>
@@ -53,12 +55,13 @@
 #include "commlineparser.h"
 
 class ChannelRow;
+class ChannelSelectRow;
 class QTimer;
 
 /** \brief Base class for layout and all the visualisation stuff
   * \author Dominic Schneider
   */
-class guilogger: public QMainWindow
+class guilogger: public Q3MainWindow
 {
     Q_OBJECT
 
@@ -72,6 +75,7 @@ public:
 
 private slots:
     void taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on);
+    void taggedComboBoxChanged(const Tag& tag, int gpwindow, const QString& entry);
     void receiveRawData(char *);
     void update();
     void GNUPlotUpdate();
@@ -81,6 +85,7 @@ private slots:
     void dataSliderReleased();
     void horizonSliderValueChanged(int value);
     void horizonSliderReleased();
+    void sendButtonPressed();
 
 signals:
     void quit();
@@ -90,18 +95,22 @@ private:
     int  analyzeFile();
 
 private:
-    typedef QMap<QString, QValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
+    typedef QMap<QString, Q3ValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
     
-    QPtrList<ChannelRow> ChannelRowPtrList; // für Grafikelemente
-    QPtrQueue<QString> inputbuffer;
-    QBoxLayout* channellayout;
-    QBoxLayout* commlayout;
-    QBoxLayout* layout;
-    QScrollView* sv;
+    Q3PtrList<ChannelRow> ChannelRowPtrList; // für Grafikelemente
+    Q3PtrQueue<QString> inputbuffer;
+    Q3BoxLayout* layout;
+    QWidget* channelandslider;
+    Q3BoxLayout* channelandsliderlayout;
+    Q3BoxLayout* channellayout;
+    Q3BoxLayout* commlayout;
+    Q3BoxLayout* sendlayout;
+    //    Q3ScrollView* sv;
+    QScrollArea* sv;
     QWidget* channelWidget;
     QWidget* commWidget; 
     
-    QTextEdit   *parameterlistbox;
+    Q3TextEdit   *parameterlistbox;
     QLineEdit   *paramvaluelineedit;
     QPushButton *sendbutton;
     QSlider     *dataslider;
@@ -109,13 +118,15 @@ private:
     QLabel      *dataslidervalue;
     QLabel      *horizonslidervalue;
     
-    QPopupMenu  *filemenu;
+    Q3PopupMenu  *filemenu;
     
     Gnuplot<QString> *gp;
     std::list<bool*> *buttonArray;
     bool *gpWindowVisibility;
     ChannelToWindowMap KnownChannels;  // Channels from the ConfigFile
-    QValueList<QString> ChannelList;
+    ChannelSelectRow* ref1channels;    // Channels to use for
+				       // Reference (x axis)
+    Q3ValueList<QString> ChannelList;
     
     int plotwindows;
     int framecounter;  //deprecated

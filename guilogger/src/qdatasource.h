@@ -26,7 +26,7 @@
 /** \brief Interface class for every data source we use
   * \author Dominic Schneider
   */
-class QDataSource : public QObject, public QThread
+class QDataSource : public QThread
 {
     Q_OBJECT
 

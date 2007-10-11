@@ -47,7 +47,7 @@ QString IniFile::getFilename(){
 
 bool IniFile::Load(){
   sections.clear();
-
+  char buffer[1024];
   QString line;
   IniSection* momsection;
   IniVar* momvar;
@@ -64,7 +64,7 @@ bool IniFile::Load(){
 #endif
     return false;
   }
-  if (!file.open( IO_ReadOnly)) {
+  if (!file.open( QIODevice::ReadOnly)) {
 #ifdef DEBUG
     cerr << "\nCannot read File: " << filename.latin1();
 #else
@@ -72,9 +72,9 @@ bool IniFile::Load(){
 #endif
     return false;
   }
-
   // Zeile für Zeile auslesen und zuordnen
-  while( (file.readLine(line,1024))>0 ){
+  while( (file.readLine(buffer,1024))>0 ){
+    line=QString(buffer);
     str1="";
     str2="";
     str3="";
@@ -124,21 +124,25 @@ int IniFile::getLineType( QString _line, QString &str1, QString &str2, QString &
   }
 
   regexp.setPattern("^\\[.+\\]");
-  if ( (start=regexp.match(_line,0,&len))>=0){
+  if ( (start=regexp.indexIn(_line,0))>=0){
+    len=regexp.matchedLength();
     str1=_line.mid(start+1,len-2);
     return SECTION;
   }
 
   regexp.setPattern(".+=.+");
-  if ( (start=regexp.match(_line,0,&len))>=0 ){
+  if ( (start=regexp.indexIn(_line,0))>=0 ){
+    len=regexp.matchedLength();
     regexp.setPattern(".+=");
-    start=regexp.match(_line,0,&len);
+    start=regexp.indexIn(_line,0);
+    len=regexp.matchedLength();
     str1=_line.left(len-1);
     int start2=len;
 
     
     regexp.setPattern(".+[;#]");
-    start=regexp.match( _line, start2, &len);
+    start=regexp.indexIn( _line, start2);
+    len=regexp.matchedLength();
     if (start>=0){ // is there a comment at the end of the line?
       str2=_line.mid(start2,len-1);
       str3=_line.mid(start2+len-1);
@@ -158,7 +162,7 @@ int IniFile::getLineType( QString _line, QString &str1, QString &str2, QString &
 bool IniFile::Save(){
   if (filename.isEmpty()) return false;
   file.setName(filename);
-  if (! file.open(IO_WriteOnly)){
+  if (! file.open(QIODevice::WriteOnly)){
 #ifdef DEBUG
     cerr << "\nCannot write File: " << filename.latin1();
 #else

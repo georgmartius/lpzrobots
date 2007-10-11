@@ -20,7 +20,8 @@
 #ifndef CHANNELROW_H
 #define CHANNELROW_H
 
-#include <qframe.h>
+#include <q3frame.h>
+#include <q3boxlayout.h>
 #include <qlabel.h>
 #include <qlayout.h>
 
@@ -30,7 +31,7 @@
   * \brief Container for widgets associated with one gnuplot channel.
   * \author Dominic Schneider
 */
-class ChannelRow : public QFrame
+class ChannelRow : public Q3Frame
 {
     Q_OBJECT
             
@@ -52,13 +53,12 @@ private:
 
 private:
     QLabel* channelLabel;
-    TaggedCheckBox* CheckBox;
     TaggedCheckBox** CheckBoxList;
     int buttons;
     
     Tag channelName;
 
-    QBoxLayout* layout;
+    Q3BoxLayout* layout;
 };
 
 #endif

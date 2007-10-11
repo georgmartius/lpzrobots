@@ -5,7 +5,9 @@
 
 HEADERS += guilogger.h \
            taggedcheckbox.h \
+           taggedcombobox.h \
            channelrow.h \
+           channelselectrow.h \
            filelogger.h \
            qdatasource.h \
            qserialreader.h \
@@ -15,7 +17,9 @@ HEADERS += guilogger.h \
 SOURCES += guilogger.cpp \
            main.cpp \
            taggedcheckbox.cpp \
+           taggedcombobox.cpp \
            channelrow.cpp \
+           channelselectrow.cpp \
            filelogger.cpp \
            qserialreader.cpp \
            qpipereader.cpp \
@@ -26,3 +30,5 @@ warn_on \
 thread \
 qt
 TARGET = ../bin/guilogger
+#The following line was inserted by qt3to4
+QT += qt3support

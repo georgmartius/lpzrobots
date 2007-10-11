@@ -49,8 +49,9 @@ void signal_handler_init(){
 
 void printUsage(){
   printf("guilogger parameter listing\n");
-  printf("   -m [mode]  mode = serial | pipe | file\n");
+  printf("   -m [mode]  mode = serial | pipe | fpipe| file\n");
   printf("   -p [port]  port = serial port to read from\n");
+  printf("   -d [delay] delay = ms to wait between data (for fpipe)\n");
   printf("   -f [file]  input file\n");
   printf("      only viwewing, no streaming\n");
   printf("   -l turns logging on\n");
@@ -90,12 +91,19 @@ int main( int argc, char ** argv ) {
         qsource = qserial;
         a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
         qsource->start();
-    }
-    else if(params.getMode()=="pipe") {  
+    }else if(params.getMode()=="pipe") {  
       QPipeReader *qpipe = new QPipeReader();
       //        if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
       //        printf("Using pipe input with delay %i.\n", qpipe->getDelay());
       printf("Guilogger: Using pipe input\n");
+      qsource = qpipe;
+      a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
+      qsource->start();
+    }else if(params.getMode()=="fpipe") {  
+      FILE* f = fopen(params.getFile(),"r");
+      QPipeReader *qpipe = new QPipeReader(0,f);
+      if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
+      printf("Guilogger: Using file-pipe input\n");
       qsource = qpipe;
       a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
       qsource->start();

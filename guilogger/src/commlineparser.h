@@ -25,7 +25,7 @@
 #ifndef COMMLINEPARSER_H
 #define COMMLINEPARSER_H
 
-#include <qvaluelist.h>
+#include <q3valuelist.h>
 
 class CommLineParser
 {
@@ -61,10 +61,10 @@ class CommLineParser
 
         // implementation for special use (read guilogger command line parameters)
         void parseCommandLine(int argc, char **argv)
-        {   QValueList<QString> ComLineParams;
+        {   Q3ValueList<QString> ComLineParams;
             for(int i=1; i<argc; i++) ComLineParams.push_back(argv[i]);
 
-            QValueList<QString>::iterator it;
+            Q3ValueList<QString>::iterator it;
             if((it=ComLineParams.find("-m")) != ComLineParams.end()) mode = *(++it);
             if((it=ComLineParams.find("-p")) != ComLineParams.end()) port = *(++it);
             if((it=ComLineParams.find("-f")) != ComLineParams.end()) file = *(++it);
