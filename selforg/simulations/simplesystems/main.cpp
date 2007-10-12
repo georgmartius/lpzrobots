@@ -22,27 +22,43 @@ using namespace std;
 
 bool stop=0;
 double noise=0.1;
-double sleep_=100000;
+double sleep_=1000;
 
-typedef enum Mode {INTERIA};
+typedef enum Mode {INERTIA, OPENEND, SINEINPUT};
 
+
+/** This robot emulates different systems based on the mode
+    parameter. 
+    This is usually some kind of short-circuit with inertia, 
+     additional inputs/outputs ...
+    */
 class MyRobot : public AbstractRobot {
 public:
   MyRobot(const string& name, Mode mode, int dimension = 2)
     : AbstractRobot(name, "$Id$"),
       mode(mode) {
-    
+    t=0;
     switch(mode){
-    case INTERIA:
+    case INERTIA:
       motornumber  = dimension;
       sensornumber = dimension;      
+      break;
+    case OPENEND:
+      motornumber  = dimension+1;
+      sensornumber = dimension;
+      break;
+    case SINEINPUT:
+      motornumber  = dimension;
+      sensornumber = dimension+1;
+      break;
     }
     x = new double[sensornumber];
     y = new double[motornumber];
-    addParameterDef("myparam", &myparam, 0);
+    addParameterDef("tau", &tau, 100);
     addParameterDef("inertia", &inertia, 0.0);
-    addParameterDef("sleep",   &sleep_,   1000);
-    addParameter("noise", &noise); // global parameter 
+
+    addParameterDef("sleep",   &sleep_,   1000); // actually a global parameter 
+    addParameter("noise", &noise);               // actually a global parameter 
   }
 
   ~MyRobot(){
@@ -71,9 +87,11 @@ public:
     assert(motornumber >= this->motornumber);
     memcpy(y, motors, sizeof(motor) * this->motornumber);
     switch(mode){
-    case INTERIA: doInertia(); break;
+    case INERTIA: 
+    case OPENEND: doInertia(); break;
+    case SINEINPUT : doSineInput(); break;
     }   
-    
+    t++;    
   }
 
   /** returns number of sensors */
@@ -93,11 +111,21 @@ public:
 
   // different Systems:
   
-  /// system with inertia 
+  /// system with inertia  (also used for OpenEnd because we ignore
+  /// additional motors
   void doInertia(){
+    for(int i=0; i<sensornumber; i++){
+      x[i] = x[i]*inertia + y[i]*(1-inertia); 
+    }
+  }
+
+  // system with one additional input, that is a sine wave (tau is
+  // period). the rest motors have inertia as above
+  void doSineInput(){
     for(int i=0; i<motornumber; i++){
       x[i] = x[i]*inertia + y[i]*(1-inertia); 
     }
+    x[sensornumber-1]=sin(t/tau);    
   }
 
 private:
@@ -108,15 +136,12 @@ private:
   double* x;
   double* y;
 
-  paramval myparam;
+  paramval tau;
   paramval inertia;
+  int t;
 
 }; 
 
-
-void onTermination(){
-  stop=1;
-}
 
 void printRobot(MyRobot* robot){
   char line[81];
@@ -156,12 +181,15 @@ int main(int argc, char** argv){
   
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
-  Mode mode  = INTERIA;
+  Mode mode  = INERTIA;
   int index = contains(argv,argc,"-m");
-  char* modestr = "interia";
+  char* modestr = "inertia";
   if(index >0 && argc>index) {
     modestr = argv[index];
-    if(strcasecmp(modestr,"inertia")) mode = INTERIA;
+    if(strcasecmp(modestr,"inertia")==0) mode = INERTIA;
+    else if(strcasecmp(modestr,"openend")==0) mode = OPENEND;
+    else if(strcasecmp(modestr,"sineinput")==0) mode = SINEINPUT;
+    else modestr="inertia";
   }
 
   GlobalData globaldata;
@@ -173,14 +201,15 @@ int main(int argc, char** argv){
 //   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 //   cc.useSD=true;
 //   AbstractController* controller = new InvertMotorNStep(cc);
+  AbstractController* controller = new InvertMotorSpace(10,1.0);
 //  AbstractController* controller = new DerController();
-  AbstractController* controller = new InvertNChannelController(10,1.0);
+//  AbstractController* controller = new InvertNChannelController(10,1.0);
   controller->setParam("s4delay",   1.0);
   controller->setParam("s4avg",     1.0);  
   controller->setParam("adaptrate", 0.0);  
   controller->setParam("factorB",   0.01);  
   
-  robot         = new MyRobot(string("Robot") + string(modestr), mode);
+  robot         = new MyRobot(string("Robot_") + string(modestr), mode);
   agent         = new Agent(plotoptions);
   AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
   agent->init(controller, robot, wiring);
@@ -203,7 +232,7 @@ int main(int argc, char** argv){
 
     if(control_c_pressed()){      
       if(!handleConsole(globaldata)){
-        onTermination();
+        stop=1;
       }
       cmd_end_input();
     }
@@ -214,7 +243,8 @@ int main(int argc, char** argv){
     }
     t++;
   };
-  
+  delete agent;
+  closeConsole();
   fprintf(stderr,"terminating\n");
   // should clean up but what costs the world
   return 0;
