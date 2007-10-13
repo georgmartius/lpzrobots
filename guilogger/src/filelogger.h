@@ -43,6 +43,6 @@ private:
 
 private slots:
     void openStream();  // opens the stream
-    void writeChannelData(char *);   // writes the block as it gets it to file
+    void writeChannelData(QString);   // writes the block as it gets it to file
 
 };

@@ -38,9 +38,9 @@ void QPipeReader::run()
     
     ctrl = fgets(s, size, f);
     if(ctrl) {      
-      emit newData(s);
+      emit newData(QString(s));
     }
-    if(delay) usleep(delay);     // wenn Line gelesen, mal ein bissel warten, damit nicht alles gleich durchpfeift
+    if(delay) usleep(delay);
   }
   free(s);  
 }

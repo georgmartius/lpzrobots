@@ -46,14 +46,14 @@ void FileLogger::openStream()
 }
 
 
-void FileLogger::writeChannelData(char *datablock)
+void FileLogger::writeChannelData(QString datablock)
 {
-    if(!log || !datablock) return;
+    if(!log) return;
 
     if(!instream)
     {   
       openStream();
     }
     if(instream)
-      fprintf(instream, "%s", datablock);
+      fprintf(instream, "%s", datablock.latin1());
 }

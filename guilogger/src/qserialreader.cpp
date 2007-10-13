@@ -94,7 +94,7 @@ void QSerialReader::run()
 
             if(size > 3)
             {   // printf("Readed: %s", s);
-                emit newData(s);
+                emit newData(QString(s));
             }
 
             free(s);

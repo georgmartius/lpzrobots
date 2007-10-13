@@ -30,10 +30,8 @@ class QDataSource : public QThread
 {
     Q_OBJECT
 
-signals:
-    // datablock could/should be a zero terminated string
-    // size is provided for convenience to make parsing procedures more safe
-    void newData(char *datablock);
+signals:    
+    void newData(QString datablock);
 
 };
 #endif

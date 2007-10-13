@@ -314,7 +314,7 @@ int guilogger::analyzeFile()
     s[size-1]='\0';
     printf(s);
 
-    receiveRawData(s);
+    receiveRawData(QString(s));
 
     do
     {   i = fread(&c, 1, 1, instream);
@@ -472,7 +472,7 @@ void guilogger::load()
 
 
 /// adds the channel to GNUPlot and refuses adding the channel if it already exists
-void guilogger::addChannel(const QString &name, const std::string &title, const std::string &style)
+void guilogger::addChannel(const QString &name, const QString &title, const QString &style)
 {
     if(ChannelList.find(name) == ChannelList.end()) // Channel noch nicht vorhanden...
     {   
@@ -480,7 +480,7 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
 	ref1channels->addItem(name);
 	
         for(int k=0; k<plotwindows; k++)
-        {   gp[k].addChannel(name, title, style);   // ...also in jedes GNUPlotfesnter feuern
+        {   gp[k].addChannel(name, title, style);   // ...also in jedes GNUPlotfenster feuern
             gp[k].hide(name);                       //    und per default nicht sichtbar machen
         }
 
@@ -522,10 +522,11 @@ void guilogger::addChannel(const QString &name, const std::string &title, const 
 
 
 /// enqueue the raw and unparsed data
-void guilogger::receiveRawData(char *data)
+void guilogger::receiveRawData(QString data)
 {
     queuemutex.lock();
-    inputbuffer.enqueue(new QString(data));
+    //    fprintf(stderr,"Rec: %s", data.latin1());
+    inputbuffer.push_back(data);
     queuemutex.unlock();
 }
 
@@ -541,48 +542,45 @@ void guilogger::putData(const QString &name, double data)
   *  updates the GNUPlot data queues with fresh data
   */
 void guilogger::update()
-{   QString *data = NULL;
+{   QString data;
     QStringList parsedString;
     QStringList::iterator i;
 
-    while(1)
-    {  queuemutex.lock();
-          data = inputbuffer.dequeue();
-       queuemutex.unlock();
-
-       if (data==NULL) break;
-       parsedString = QStringList::split(' ', *data);  //parse data string with Space as separator
-       QString& first = *(parsedString.begin());
-       if(first == "#C")   //Channels einlesen
-       {	
-	 parsedString.erase(parsedString.begin());
-	 //transmit channels to GNUPlot
-	 for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel((*i).stripWhiteSpace());
-	 for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
-       }
-       else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
-       {
-	 printf("Guilogger: Received Quit\n");
-	 emit quit();
-       }	
-       else if( first[0] != '#')  // Daten einlesen
-       {
-           Q3ValueList<QString>::iterator channelname = ChannelList.begin();
-           i = parsedString.begin();
-
-           while((i != parsedString.end()) && (channelname != ChannelList.end()))
-           { // send data and correlated channel name to GNUPlot  
-	     putData(*channelname, (*i).stripWhiteSpace().toFloat());  
-	     i++;
-	     channelname++;
-           }
-           datacounter++;
-       }
-
-       delete data;
-       data = NULL;       
+    while(!inputbuffer.empty()){ 
+      queuemutex.lock();      
+      data = inputbuffer.front();
+      inputbuffer.pop_front();
+      queuemutex.unlock();
+      
+      parsedString = QStringList::split(' ', data);  //parse data string with Space as separator
+      QString& first = *(parsedString.begin());
+      if(first == "#C")   //Channels einlesen
+	{	
+	  parsedString.erase(parsedString.begin());
+	  //transmit channels to GNUPlot
+	  for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel((*i).stripWhiteSpace());
+	  for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
+	}
+      else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
+	{
+	  printf("Guilogger: Received Quit\n");
+	  emit quit();
+	}	
+      else if( first[0] != '#')  // Daten einlesen
+	{
+	  Q3ValueList<QString>::iterator channelname = ChannelList.begin();
+	  i = parsedString.begin();
+	  
+	  while((i != parsedString.end()) && (channelname != ChannelList.end()))
+	    { // send data and correlated channel name to GNUPlot  
+	      putData(*channelname, (*i).stripWhiteSpace().toFloat());  
+	      i++;
+	      channelname++;
+	    }
+	  datacounter++;
+	}
     }
-
+    
 }
 
 

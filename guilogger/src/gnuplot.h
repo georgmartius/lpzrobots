@@ -10,7 +10,6 @@
 #include <cstdio>
 #include <map>
 #include <utility>
-#include <string>
 #include <sstream>
 #include <list>
 
@@ -54,11 +53,11 @@ protected:
 	int buffersize;
 	int current;
     public:    
-	std::string title;
-	std::string style;
+	QString title;
+	QString style;
 	bool show;
 	/** contruct a data buffer with (gnuplot) title and style. */
-	Dataset(const std::string& title="",const std::string& style="",int buffersize=256)
+	Dataset(const QString& title="",const QString& style="",int buffersize=256)
 	    :buffersize(buffersize),title(title),style(style){
 	    buffer=new double[buffersize];
 	    for(int i=0;i<buffersize;++i)
@@ -111,6 +110,8 @@ public:
     
     Gnuplot(int buffersize=256):buffersize(buffersize),start(0),end(buffersize){
 	pipe=OpenGnuplot();
+	useReference1=false;
+	useReference2=false;
     };
     ~Gnuplot(){
 	for(typename dataset_map::iterator i=datasets.begin();i!=datasets.end();++i){
@@ -126,15 +127,17 @@ public:
     };
     /** add new channel with name. 
 	currently uses name as title if not given.  */
-    void addChannel(const T& name, const std::string& title="", const std::string& style=""){
+    void addChannel(const T& name, const QString& title="", const QString& style=""){
 	if(title != "")
 	    datasets.insert(std::make_pair(name,new Dataset(title,style,buffersize)));
 	else {
-	    std::ostringstream str;
-	    //	    str << name;
-	    str << name.latin1(); // this is a quick hack to get it to
-				  // work with qstring and qt4 
-	    datasets.insert(std::make_pair(name,new Dataset(str.str(),style,buffersize)));
+	  //	    std::ostringstream str;
+	  //	    str << name;
+	  // datasets.insert(std::make_pair(name,new Dataset(str.str(),style,buffersize)));
+	 
+	  // this is a quick hack to get it to
+	  // work with qstring and qt4 
+	  datasets.insert(std::make_pair(name,new Dataset(name,style,buffersize)));
 	}
         namesets.push_back(name);
     };
@@ -225,16 +228,18 @@ public:
 	// calculate real values for start and end
 	int _start=buffersize-end;
 	int _end=buffersize-start;
-	fprintf(pipe,"plot ");
 	bool first=true;
 	for(typename dataset_map::iterator i=datasets.begin();i!=datasets.end();++i){
     	    Dataset* dataset=i->second;
 	    if(dataset->show){
-		if(first) first=false;
+		if(first){
+		  fprintf(pipe,"plot ");
+		  first=false;
+		}
 		else fprintf(pipe,", ");
 		fprintf(pipe,"'-'");    
-		fprintf(pipe," t '%s'",dataset->title.data());    
-		if(!dataset->style.empty()) fprintf(pipe," w %s",dataset->style.data());    
+		fprintf(pipe," t '%s'",dataset->title.latin1());    
+		if(!dataset->style.isEmpty()) fprintf(pipe," w %s",dataset->style.latin1());    
 	    }
 	}
 	fprintf(pipe,"\n");

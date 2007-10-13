@@ -89,7 +89,7 @@ int main( int argc, char ** argv ) {
         if(params.getPort() != "") qserial->setComPort(params.getPort());
         printf("Guilogger: Using serial port %s as source.\n", qserial->getComPort().latin1());
         qsource = qserial;
-        a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
+        a.connect(qsource, SIGNAL(newData(QString)), gl, SLOT(receiveRawData(QString)));
         qsource->start();
     }else if(params.getMode()=="pipe") {  
       QPipeReader *qpipe = new QPipeReader();
@@ -97,7 +97,7 @@ int main( int argc, char ** argv ) {
       //        printf("Using pipe input with delay %i.\n", qpipe->getDelay());
       printf("Guilogger: Using pipe input\n");
       qsource = qpipe;
-      a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
+      a.connect(qsource, SIGNAL(newData(QString)), gl, SLOT(receiveRawData(QString)));
       qsource->start();
     }else if(params.getMode()=="fpipe") {  
       FILE* f = fopen(params.getFile(),"r");
@@ -105,7 +105,7 @@ int main( int argc, char ** argv ) {
       if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
       printf("Guilogger: Using file-pipe input\n");
       qsource = qpipe;
-      a.connect(qsource, SIGNAL(newData(char *)), gl, SLOT(receiveRawData(char *)));
+      a.connect(qsource, SIGNAL(newData(QString)), gl, SLOT(receiveRawData(QString)));
       qsource->start();
     } else if(params.getMode()=="file") 
     {  // printf("Sorry, there are no native segfaults any more.\n");
@@ -121,7 +121,7 @@ int main( int argc, char ** argv ) {
     if(params.getLogg()) 
     {   fl.setLogging(TRUE);
         printf("Guilogger: Logging is on\n");
-        a.connect(qsource, SIGNAL(newData(char *)), &fl, SLOT(writeChannelData(char *)));  // the filelogger is listening
+        a.connect(qsource, SIGNAL(newData(QString)), &fl, SLOT(writeChannelData(QString)));  // the filelogger is listening
     }
 
 //    if(params.getMode() != "file") qsource->start();

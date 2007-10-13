@@ -28,6 +28,7 @@
 #include <qlabel.h>
 #include <qdialog.h>
 #include <q3ptrlist.h>
+#include <qlinkedlist.h>
 #include <qlayout.h>
 #include <qstringlist.h>
 #include <qscrollarea.h>
@@ -46,7 +47,6 @@
 #include <q3listview.h>
 #include <q3textedit.h>
 
-#include <string>
 #include <list>
 #include "taggedcheckbox.h"
 #include "gnuplot.h"
@@ -70,13 +70,13 @@ public:
     ~guilogger();
     void setChannels(QStringList &clist);
     void setChannels(const char &clist);
-    void addChannel(const QString &name, const std::string &title="", const std::string &style="lines");
+    void addChannel(const QString &name, const QString &title="", const QString &style="lines");
     void putData(const QString &name, double data);
 
 private slots:
     void taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on);
     void taggedComboBoxChanged(const Tag& tag, int gpwindow, const QString& entry);
-    void receiveRawData(char *);
+    void receiveRawData(QString);
     void update();
     void GNUPlotUpdate();
     void save();
@@ -98,7 +98,7 @@ private:
     typedef QMap<QString, Q3ValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
     
     Q3PtrList<ChannelRow> ChannelRowPtrList; // für Grafikelemente
-    Q3PtrQueue<QString> inputbuffer;
+    QLinkedList<QString> inputbuffer;
     Q3BoxLayout* layout;
     QWidget* channelandslider;
     Q3BoxLayout* channelandsliderlayout;
