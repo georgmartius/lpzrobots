@@ -21,10 +21,10 @@
 using namespace std;
 
 bool stop=0;
-double noise=0.1;
+double noise=.1;
 double sleep_=1000;
 
-typedef enum Mode {INERTIA, OPENEND, SINEINPUT};
+typedef enum Mode {NORMAL, EXTRASINE};
 
 
 /** This robot emulates different systems based on the mode
@@ -38,24 +38,29 @@ public:
     : AbstractRobot(name, "$Id$"),
       mode(mode) {
     t=0;
+    buffersize=20;
     switch(mode){
-    case INERTIA:
+    case NORMAL:
       motornumber  = dimension;
-      sensornumber = dimension;      
-      break;
-    case OPENEND:
-      motornumber  = dimension+1;
       sensornumber = dimension;
       break;
-    case SINEINPUT:
+    case EXTRASINE:
       motornumber  = dimension;
       sensornumber = dimension+1;
+      addParameterDef("tau",          &tau,        100.0);
       break;
     }
     x = new double[sensornumber];
     y = new double[motornumber];
-    addParameterDef("tau", &tau, 100);
-    addParameterDef("inertia", &inertia, 0.0);
+    x_buffer = new double*[buffersize];
+    for (unsigned int k = 0; k < buffersize; k++) {
+      x_buffer[k] = new double[sensornumber];
+    }
+
+    addParameterDef("inertia",      &inertia,      0.0);
+    addParameterDef("disablesensor",&disablesensor,0.0);
+    addParameterDef("correlation",  &correlation,  0.0);
+    addParameterDef("delay",        &delay,        0.0);
 
     addParameterDef("sleep",   &sleep_,   1000); // actually a global parameter 
     addParameter("noise", &noise);               // actually a global parameter 
@@ -64,6 +69,11 @@ public:
   ~MyRobot(){
     if(x) delete[] x;
     if(y) delete[] y;
+    if(x_buffer) {
+      for (unsigned int k = 0; k < buffersize; k++)
+	if(x_buffer[k]) delete [] x_buffer[k];
+      delete[] x_buffer;
+    }
   }
 
   // robot interface
@@ -75,7 +85,8 @@ public:
   */
   virtual int getSensors(sensor* sensors, int sensornumber){
     assert(sensornumber >= this->sensornumber);
-    memcpy(sensors, x, sizeof(sensor) * this->sensornumber);
+    double* x_cur = x_buffer[(t-1-(int)delay + buffersize)%buffersize];
+    memcpy(sensors, x_cur, sizeof(sensor) * this->sensornumber);
     return this->sensornumber;
   }
 
@@ -86,11 +97,12 @@ public:
   virtual void setMotors(const motor* motors, int motornumber){
     assert(motornumber >= this->motornumber);
     memcpy(y, motors, sizeof(motor) * this->motornumber);
-    switch(mode){
-    case INERTIA: 
-    case OPENEND: doInertia(); break;
-    case SINEINPUT : doSineInput(); break;
-    }   
+    normal();
+    if(mode == EXTRASINE){
+      extraSineInput();
+    }
+    // copy the sensor values into the buffer
+    memcpy(x_buffer[t%buffersize],x,sizeof(sensor)*sensornumber); 
     t++;    
   }
 
@@ -111,33 +123,37 @@ public:
 
   // different Systems:
   
-  /// system with inertia  (also used for OpenEnd because we ignore
-  /// additional motors
-  void doInertia(){
-    for(int i=0; i<sensornumber; i++){
-      x[i] = x[i]*inertia + y[i]*(1-inertia); 
-    }
+  // additional input, that is a sine wave (tau is
+  // period)
+  void extraSineInput(){
+    x[sensornumber-1]=sin(t/tau);    
   }
 
-  // system with one additional input, that is a sine wave (tau is
-  // period). the rest motors have inertia as above
-  void doSineInput(){
+  // system with inertia, correlation of subsequent channels (cyclic),
+  // and delay (the delay is actually done by getSensors()
+  void normal(){
     for(int i=0; i<motornumber; i++){
-      x[i] = x[i]*inertia + y[i]*(1-inertia); 
-    }
-    x[sensornumber-1]=sin(t/tau);    
+      x[i] = x[i]*inertia + y[i]*(1-inertia) + correlation*x[(i+1)%motornumber]; 
+    }    
+    if(disablesensor!=0.0)
+      x[motornumber-1]= 0;
   }
 
 private:
   int motornumber;
   int sensornumber;
+  unsigned int buffersize;
 
   Mode mode;
   double* x;
   double* y;
+  double** x_buffer;
 
   paramval tau;
   paramval inertia;
+  paramval correlation;
+  paramval disablesensor;
+  paramval delay;
   int t;
 
 }; 
@@ -151,6 +167,7 @@ void printRobot(MyRobot* robot){
   int len = robot->getSensors(s,20);
   for(int i=0; i<len; i++){
     double x = s[i];
+    x=clip(x,-1.0,1.0);
     line[int((x+1.0)/2.0*80.0)]='0'+ i;
   }
   
@@ -169,28 +186,36 @@ int contains(char **list, int len,  const char *str){
 
 int main(int argc, char** argv){
   list<PlotOption> plotoptions;
+  Mode mode  = NORMAL;
+  char* modestr = "normal";
+  int dim = 2;
 
-  if(contains(argv,argc,"-g")!=0) plotoptions.push_back(PlotOption(GuiLogger,Controller,10));
+  int index = contains(argv,argc,"-g");
+  if(index >0 && argc>index) {
+    plotoptions.push_back(PlotOption(GuiLogger,Controller,atoi(argv[index])));
+  }
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
+  index = contains(argv,argc,"-m");
+  if(index >0 && argc>index) {
+    modestr = argv[index];
+    if(strcasecmp(modestr,"normal")==0) mode = NORMAL;
+    else if(strcasecmp(modestr,"extrasine")==0) mode = EXTRASINE;
+    else { fprintf(stderr, "Unknown mode! See help -h\n"); exit(1);}
+  }
+  index = contains(argv,argc,"-d");
+  if(index >0 && argc>index)
+    dim=atoi(argv[index]); 
   if(contains(argv,argc,"-h")!=0) {
-    printf("Usage: %s [-g] [-f]\n",argv[0]);
-    printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
+    printf("Usage: %s [-g N] [-f] [-m MODE] [d DIM]\n",argv[0]);
+    printf("\t-g N\tstart guilogger with interval N\n\t-f\twrite logfile\n");
+    printf("\t-m MODE\t system properties: normal (def), extrasine\n");
+    printf("\t-d DIM\t dimensionality, default 2\n");
+    printf("\t-h\tdisplay this help\n");
     exit(0);
   }
-  // TODO add mode
   
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
-  Mode mode  = INERTIA;
-  int index = contains(argv,argc,"-m");
-  char* modestr = "inertia";
-  if(index >0 && argc>index) {
-    modestr = argv[index];
-    if(strcasecmp(modestr,"inertia")==0) mode = INERTIA;
-    else if(strcasecmp(modestr,"openend")==0) mode = OPENEND;
-    else if(strcasecmp(modestr,"sineinput")==0) mode = SINEINPUT;
-    else modestr="inertia";
-  }
 
   GlobalData globaldata;
   MyRobot* robot;
@@ -209,7 +234,7 @@ int main(int argc, char** argv){
   controller->setParam("adaptrate", 0.0);  
   controller->setParam("factorB",   0.01);  
   
-  robot         = new MyRobot(string("Robot_") + string(modestr), mode);
+  robot         = new MyRobot(string("Robot_") + string(modestr), mode, dim);
   agent         = new Agent(plotoptions);
   AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
   agent->init(controller, robot, wiring);

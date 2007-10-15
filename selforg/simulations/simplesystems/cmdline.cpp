@@ -12,53 +12,6 @@ void showParams(const ConfigList& configs, FILE* f /*= 0*/, const char* linepref
   }
 }
 
-void changeParams(ConfigList& configs, 
-		  void (*onQuit)()){
-  char buffer[1024];
-  std::cout << "Type: Parameter=Value\n";
-  fgets( buffer, 1024, stdin);
-  if ( strstr(buffer,"quit")==buffer){
-    if(onQuit)
-      onQuit();
-    else
-      exit(0);
-    return;
-  }
-  if ( strchr(buffer,'?')!=0){
-    showParams(configs);
-    return;
-  }
-  char *p = strchr(buffer,'=');
-  if (p){
-    *p=0; // terminate key string 
-    double v=strtod(p+1,0);
-    for(ConfigList::iterator i=configs.begin(); i != configs.end(); i++){
-      if ((*i)->setParam(buffer,v)){
-	printf(" %s=\t%f \n", buffer, (*i)->getParam(buffer));
-      }
-    }
-  }
-}
-
-vector<string> splitString(const string& str, char seperator){
-  vector<string> rv;
-  string::const_iterator startword=str.begin();
-  for(string::const_iterator i=str.begin(); i<str.end(); i++){
-    if((i+1)==str.end()) 
-      rv.push_back(string(startword, str.end()));
-    else{
-      if(*i==seperator){
-	rv.push_back(string(startword, i));
-	while( (*i)==seperator && i<str.end() ){ // skip multiple seperator  
-	  i++; 
-	}
-	startword=i;
-      }
-    }
-  } 
-  return rv;  
-}
-
 
 /// internals
 int Control_C=0;
