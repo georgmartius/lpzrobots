@@ -57,12 +57,22 @@ public:
       x_buffer[k] = new double[sensornumber];
     }
 
-    addParameterDef("inertia",      &inertia,      0.0);
+    //0: no interia, 1: only inertia, no control, a good value is 0.9
+    addParameterDef("inertia",      &inertia,      0.0); 
+    // if not 0 then the last sensor is set to 0 (only noise remains)
+    //  this usually kills the controller after some time, because
+    //  the C value for the input goes to infinity and eventually
+    //  strong interaction between the other channels occur
     addParameterDef("disablesensor",&disablesensor,0.0);
+    // 0 no correlation, 1 very strong correlation of subsequent sensors
     addParameterDef("correlation",  &correlation,  0.0);
-    addParameterDef("delay",        &delay,        0.0);
-
+    // 1: normal delay, >1 additional delay in the loop, use s4del of
+    // controllers in this situaltion
+    addParameterDef("delay",        &delay,        1.0);
+    
+    // parameter that defines speed of the simulation
     addParameterDef("sleep",   &sleep_,   1000); // actually a global parameter 
+    // noise level
     addParameter("noise", &noise);               // actually a global parameter 
   }
 
@@ -85,7 +95,8 @@ public:
   */
   virtual int getSensors(sensor* sensors, int sensornumber){
     assert(sensornumber >= this->sensornumber);
-    double* x_cur = x_buffer[(t-1-(int)delay + buffersize)%buffersize];
+    int d = max(1,int(delay));
+    double* x_cur = x_buffer[(t-d + buffersize)%buffersize];
     memcpy(sensors, x_cur, sizeof(sensor) * this->sensornumber);
     return this->sensornumber;
   }
@@ -213,9 +224,6 @@ int main(int argc, char** argv){
     printf("\t-h\tdisplay this help\n");
     exit(0);
   }
-  
-  printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
-
 
   GlobalData globaldata;
   MyRobot* robot;
@@ -248,7 +256,11 @@ int main(int argc, char** argv){
  
   
   showParams(globaldata.configs);
-  
+  printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
+  printf("The output of the program is more fun then useful ;-).\n");
+  printf(" The number are the sensors and the position there value.\n");
+  printf(" You probably want to use the guilogger with e.g.: -g 10\n");
+
   cmd_handler_init();
   long int t=0;
   while(!stop){

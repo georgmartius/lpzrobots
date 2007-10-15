@@ -7,7 +7,7 @@ FILES = main cmdline console
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
-EXEC = ss
+EXEC = start
 
 # -pg for profiling
 CFLAGS = -Wall -I. -g
