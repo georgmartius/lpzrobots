@@ -29,8 +29,10 @@ class ChannelSelectRow : public Q3Frame
 public:
     ChannelSelectRow(const Tag& tag, int buttons, QWidget* parent = 0, const char *name = 0);
     ~ChannelSelectRow();
+    int getSelectedIndex(int);
     QString getSelected(int);
     void setSelected(int, int index);
+    void setSelected(int, const QString s);
     QString getChannelName();
 
     void addItem(const QString&);

@@ -71,8 +71,13 @@ QString ChannelSelectRow::getChannelName()
 
 QString ChannelSelectRow::getSelected(int combobox)
 {   
-    if(combobox > buttons || combobox < 0) return FALSE;
+    if(combobox > buttons || combobox < 0) return "";
     return ComboBoxList[combobox]->currentText();
+}
+
+int ChannelSelectRow::getSelectedIndex(int combobox){
+  if(combobox > buttons || combobox < 0) return 0;
+  return ComboBoxList[combobox]->currentIndex();
 }
 
 
@@ -81,6 +86,14 @@ void ChannelSelectRow::setSelected(int gpwindow, int index)
     if(gpwindow > buttons || gpwindow < 0) return;
     ComboBoxList[gpwindow]->setCurrentIndex(index);
 }
+
+void ChannelSelectRow::setSelected(int gpwindow, const QString s){
+  if(gpwindow > buttons || gpwindow < 0) return;
+  int i = ComboBoxList[gpwindow]->findText ( s, Qt::MatchExactly);
+  if(i != -1)
+    ComboBoxList[gpwindow]->setCurrentIndex(i);
+}
+
 
 void ChannelSelectRow::addItem(const QString& e){
   for(int i=0; i<buttons; i++)
