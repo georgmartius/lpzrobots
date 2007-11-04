@@ -238,20 +238,30 @@ void guilogger::updateSliderPlot()
 
     for(int i=0; i<plotwindows; i++){   
       if(gpWindowVisibility[i]){
-	cmd = "plot [" + QString::number(value, 10) + ":" + QString::number(value + buffersize)+"] \"" + filename + "\" ";
-        cr = ChannelRowPtrList.first();
-	cr = ChannelRowPtrList.next(); //because first is diable
+	int refindex = ref1channels->getSelectedIndex(i);
+	if(refindex > 0){
+	  cmd = "plot \"" + filename + "\" ";
+        }else{
+	  cmd = "plot [" + QString::number(value, 10) + ":" + QString::number(value + buffersize)+"] \"" + filename + "\" ";
+        }
+	cr = ChannelRowPtrList.first();
+	cr = ChannelRowPtrList.next(); //because first is disable
 	
 	channel=0;  
         status = FALSE;
 
         while(cr!= 0)
         {   channel++;
-            if(cr->isChecked(i)) 
-            {   cmd += " u " + QString::number(channel, 10)+ " t \""+ cr->getChannelName() + "\" ";
-                cr = ChannelRowPtrList.next();
-                status = TRUE;
-                break;
+            if(cr->isChecked(i)) {
+	      if(status==TRUE)
+		cmd += ", \"\"";
+	      if(refindex>0){
+		cmd += " u " + QString::number(refindex,10) + ":";
+	      }else{
+		cmd += " u ";
+	      }
+	      cmd += QString::number(channel, 10)+ " t \""+ cr->getChannelName() + "\" ";
+	      status = TRUE;	     
             }
             cr = ChannelRowPtrList.next();
         }
@@ -327,7 +337,6 @@ int guilogger::analyzeFile()
 //    linecount = (linecount-250 > 0)?linecount:0;  // um in einem Datensatz < Buffersize nicht scrollen zu können
 
 //         printf("%i\n", linecount);
-         
     if(s != NULL) free(s);
     return linecount;
 }
@@ -400,10 +409,14 @@ void guilogger::save()
 
         IniSection *sec = cfgFile.addSection("Window");
         sec->addValue("Number", nr);
-
+	QString ref = ref1channels->getSelected(i);
+	if(!ref.isEmpty() && ref.compare("-")!=0){
+	  sec->addValue("Reference1", ref);
+	}
         while(cr != 0)
-        {   if(cr->isChecked(i))  sec->addValue("Channel", cr->getChannelName());
-            cr = ChannelRowPtrList.next();
+        { 	  
+	  if(cr->isChecked(i))  sec->addValue("Channel", cr->getChannelName());
+	  cr = ChannelRowPtrList.next();
         }
     }
 
@@ -422,6 +435,8 @@ void guilogger::load()
     IniSection* section;
     IniVar* var;
 
+    ref1channelsnames=new QString[plotwindows];
+
     KnownChannels.clear();
     pwin = -1;
 
@@ -434,7 +449,8 @@ void guilogger::load()
            {   qv = var->getValue();
 
                if(var->getName() == "Number") pwin = qv.toInt();
-	       else if(var->getName() == "Reference"){
+	       else if(var->getName() == "Reference1"){
+		 ref1channelsnames[pwin] = qv;
 		 // todo: select appropriate in Ref1Channel ReferenceChannels[pwin]=qv;
 	       } else if(var->getName() == "Channel")
                {        re.setPattern(qv);
@@ -453,9 +469,12 @@ void guilogger::load()
            }
         else if(section->getName() == "Misc")
             for(var = section->vars.first(); var!=0; var = section->vars.next())
-            {   qv = var->getValue();
-
-                if(var->getName() == "PlotWindows") plotwindows = qv.toInt();
+            {   qv = var->getValue();	      
+	      if(var->getName() == "PlotWindows"){
+		plotwindows = qv.toInt();
+		delete ref1channelsnames;
+		ref1channelsnames = new QString[plotwindows];
+	      }
             }
         else if(section->getName() == "GNUPlot")
             for(var = section->vars.first(); var!=0; var = section->vars.next())
@@ -558,8 +577,12 @@ void guilogger::update()
 	{	
 	  parsedString.erase(parsedString.begin());
 	  //transmit channels to GNUPlot
-	  for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel((*i).stripWhiteSpace());
-	  for(int i=0; i<plotwindows; i++) gp[i].plot();  // show channels imidiatly
+	  for(i=parsedString.begin(); i != parsedString.end(); i++) addChannel((*i).stripWhiteSpace());	  
+	  for(int i=0; i<plotwindows; i++) {
+	    ref1channels->setSelected(i, ref1channelsnames[i]);
+	    taggedComboBoxChanged("Ref", i, ref1channelsnames[i]);
+	    gp[i].plot();  // show channels imidiatly
+	  }
 	}
       else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
 	{
