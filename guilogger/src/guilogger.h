@@ -124,8 +124,8 @@ private:
     std::list<bool*> *buttonArray;
     bool *gpWindowVisibility;
     ChannelToWindowMap KnownChannels;  // Channels from the ConfigFile
-    ChannelSelectRow* ref1channels;    // Channels to use for
-				       // Reference (x axis)
+    ChannelSelectRow* ref1channels;    // Channels to use for Reference (x axis)
+    QString* ref1channelsnames; // this is only needed for initialisation time
     Q3ValueList<QString> ChannelList;
     
     int plotwindows;
