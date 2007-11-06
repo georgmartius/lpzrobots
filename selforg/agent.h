@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-08-29 11:33:20  martius
+ *   Revision 1.18  2007-11-06 14:58:58  martius
+ *   major change!
+ *   agent is now a robot with a wired controller,
+ *   most code moved to wiredcontroller class
+ *
+ *   Revision 1.17  2007/08/29 11:33:20  martius
  *   simulation time enters logfile
  *
  *   Revision 1.16  2007/06/21 16:22:17  martius
@@ -134,86 +139,12 @@
 #include <utility>
 #include <string>
 
+#include "wiredcontroller.h"
 
 class AbstractRobot;
-class AbstractController;
-class AbstractWiring;
-class Configurable;
-class Inspectable;
-class Callbackable;
 
 #include "types.h"
 #include "trackrobots.h"
-
-class Agent;
-
-/** Output mode for agent.
- */
-enum PlotMode {
-  /// dummy (does nothing) is there for compatibility, might be removed later
-  NoPlot,
-  /// write into file
-  File,
-  /// plotting with guilogger (gnuplot)
-  GuiLogger,
-  /// plotting with guiscreen (gnuplot) in file logging mode
-  GuiLogger_File,
-  /// net visualiser
-  NeuronViz,
-
-  /// Acustic output of robotic values via external SoundMan
-  SoundMan,
-
-  /// dummy used for upper bound of plotmode type
-  LastPlot
-};
-
-/** Output either sensors from robot or from controller
-    (there can be a difference depending on the used wiring)
- */
-enum PlotSensors {Robot, Controller};
-
-/** This class contains options for the use of an external plot utility like guilogger or neuronviz
-    or just simply file output
- */
-class PlotOption {
-public:
-  friend class Agent;
-
-  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; parameter="";}
-  PlotOption( PlotMode mode, PlotSensors whichSensors = Controller,
-	      int interval = 1, std::list<const Configurable*> confs = std::list<const Configurable*>(),
-	      std::string parameter="")
-    : mode(mode), whichSensors(whichSensors), interval(interval), configureables(confs), parameter(parameter)
-    { pipe=0; }
-
-  virtual ~PlotOption(){}
-
-  /// nice predicate function for finding by mode
-  struct matchMode : public std::unary_function<const PlotOption&, bool> {
-    matchMode(PlotMode mode) : mode(mode) {}
-    int mode;
-    bool operator()(const PlotOption& m) { return m.mode == mode; }
-  };
-
-  void addConfigurable(const Configurable*);
-
-private:
-
-  bool open(); ///< opens the connections to the plot tool
-  void close();///< closes the connections to the plot tool
-
-  FILE* pipe;
-  long t;
-  std::string name;
-
-  PlotMode mode;
-  PlotSensors whichSensors;
-  int interval;
-  std::list< const Configurable* > configureables;
-  std::string parameter; ///< additional parameter for external command
-};
-
 
 /** The Agent contains a controller, a robot and a wiring, which connects robot and controller.
     Additionally there are some ways to keep track of internal information.
@@ -223,9 +154,12 @@ private:
      however you can write the data into a file or send it to visialisation tools like
      guilogger or neuronviz.
 
-    If want to log the position, speed and orienation of your robot you can use setTrackOptions().
+    If want to log the position, speed and orienation of your robot
+    you can use setTrackOptions().
+    Please be aware that the Agent inherits from WiredController. You
+     might also find useful functions there.
  */
-class Agent {
+class Agent : public WiredController {
 public:
   /** constructor. PlotOption as output setting.
       noisefactor is used to set the relative noise strength of this agent
@@ -256,94 +190,29 @@ public:
   /** Sends only last motor commands again to robot.  */
   virtual void onlyControlRobot();
 
-  /** Returns a pointer to the controller.
-   */
-  virtual AbstractController* getController() { return controller;}
-
   /** Returns a pointer to the robot.
    */
   virtual AbstractRobot* getRobot() { return robot;}
 
-  /** Returns a pointer to the wiring.
-   */
-  virtual AbstractWiring* getWiring() { return wiring;}
-
   /// sets the trackoptions which enable tracking of a robot
   virtual void setTrackOptions(const TrackRobot& trackrobot);
 
-
   /** adds the PlotOptions to the list of plotoptions
-      If a plotoption with the same Mode exists, then the old one is deleted first
+      If a plotoption with the same Mode exists, then the old one is
+      deleted first (overwritten from WiredController, to add robot)
    */
   virtual void addPlotOption(const PlotOption& plotoption);
 
-  /** removes the PlotOptions with the given type
-      @return true if sucessful, false otherwise
-   */
-  virtual bool removePlotOption(PlotMode mode);
-
-  /**
-     write comment to output streams (PlotOptions). For instance changes in parameters.
-  */
-  virtual void writePlotComment(const char* cmt);
-
-  /** adds an inspectable object for logging. Must be called before addPlotOption and before init!
-   */
-  virtual void addInspectable(const Inspectable* inspectable);
-
-  /** adds an Callbackable object for getting a callback every step.
-   */
-  virtual void addCallbackable(Callbackable* callbackable);
-
 protected:
 
-  /**
-   * Plots controller sensor- and motorvalues and internal controller parameters.
-   * @param rx actual sensorvalues from robot (used for generation of motorcommand in actual timestep)
-   * @param rsensornumber length of rx
-   * @param cx actual sensorvalues which are passed to controller (used for generation of motorcommand in actual timestep)
-   * @param csensornumber length of cx
-   * @param y actual motorcommand (generated in the actual timestep)
-   * @param motornumber length of y
-   * @param time simulation time
-   */
-  virtual void plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber,
-		    const motor* y, int motornumber, double time);
-
-
-  AbstractController* controller;
   AbstractRobot* robot;
-  AbstractWiring* wiring;
-
-  /// number of sensors of robot
-  int rsensornumber;
-  /// number of motors of robot
-  int rmotornumber;
-  /// number of sensors of comntroller
-  int csensornumber;
-  /// number of motors of comntroller
-  int cmotornumber;
-
-  /// factor that is  muliplied with noise stength
-  double noisefactor;
 
   sensor *rsensors;
   motor  *rmotors;
-  sensor *csensors;
-  motor  *cmotors;
 
-  void internInit();
-
- protected:
+protected:
   TrackRobot trackrobot;
   int t; // access to this variable is needed from OdeAgent
-
- private:
-  std::list<PlotOption> plotOptions;
-  std::list<const Inspectable* > inspectables;
-  bool initialised;
-
-  std::list<Callbackable* > callbackables; 
 
 };
 
