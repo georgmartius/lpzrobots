@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-04 15:16:12  martius
+ *   Revision 1.4  2007-11-06 14:57:30  martius
+ *   motor and sensor type moved into class
+ *
+ *   Revision 1.3  2006/08/04 15:16:12  martius
  *   documentation
  *
  *   Revision 1.2  2006/07/14 12:23:57  martius
@@ -78,7 +81,6 @@
 #include "trackable.h"
 #include "configurable.h"
 #include "position.h"
-#include "types.h"
 
 /**
  * Abstract class (interface) for robot in general
@@ -87,6 +89,8 @@
  */
 class AbstractRobot : public Trackable, public Configurable {
 public:
+  typedef double sensor;
+  typedef double motor;
 
   /**
    * Constructor
