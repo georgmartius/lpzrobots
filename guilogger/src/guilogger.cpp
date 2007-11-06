@@ -373,7 +373,7 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
 void guilogger::taggedComboBoxChanged(const Tag& tag, int gpwindow, const QString& entry)
 {
     if(tag == "Ref"){ 
-      if(entry == "-")
+      if(entry.isEmpty() || entry == "-")
 	gp[gpwindow].setUseReference1(false);
       else
 	gp[gpwindow].setReference1(entry);
