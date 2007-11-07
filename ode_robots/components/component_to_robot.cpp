@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:31  martius
+ *   Revision 1.3  2007-11-07 13:13:29  martius
+ *   changed doInternalStuff
+ *
+ *   Revision 1.2  2006/07/14 12:23:31  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/01/12 14:52:37  martius
@@ -86,7 +89,7 @@ bool ComponentToRobot::collisionCallback(void *data, dGeomID o1, dGeomID o2)
   return p_component->collision_callback(NULL, o1, o2);
 }
 
-void ComponentToRobot::doInternalStuff(const GlobalData& globalData){
+void ComponentToRobot::doInternalStuff(GlobalData& globalData){
   // todo reset sensors
 }
 
