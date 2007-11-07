@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.70  2007-09-28 12:31:49  robot3
+ *   Revision 1.71  2007-11-07 13:13:01  martius
+ *   sound signals
+ *   draw at the end of drawinterval
+ *   FOREACH used more, indentation
+ *
+ *   Revision 1.70  2007/09/28 12:31:49  robot3
  *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
  *   can be updated independently from the HUD
  *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
@@ -655,6 +660,7 @@ bool Simulation::loop() {
 
         // the simulation just runs if pause is not enabled
         if (!pause) {
+	    // increase time
             globalData.time += globalData.odeConfig.simStepSize;
             sim_step++;
             // print simulation time every 10 min.
@@ -692,22 +698,32 @@ bool Simulation::loop() {
             //ODE-Engine geht einen Schritt weiter
             dJointGroupEmpty (odeHandle.jointGroup);
 
-          // call all registered physical callbackable classes
-          for(list<Callbackable*>::iterator i = physicsCallbackables.begin(); i!= physicsCallbackables.end(); i++) {
-            (*i)->doOnCallBack();
-          }
+	    // call all registered physical callbackable classes
+	    FOREACH(list<Callbackable*>, physicsCallbackables, i) {
+	      (*i)->doOnCallBack();
+	    }
+	    // remove old signals from sound list
+	    globalData.sounds.remove_if(Sound::older_than(globalData.time));
         }
 
-        addCallback(globalData, t==0, pause, (sim_step % globalData.odeConfig.controlInterval ) == 0);
+        addCallback(globalData, t==0, pause, 
+		    (sim_step % globalData.odeConfig.controlInterval ) == 0);
 
-        if(t==0 && !noGraphics) {
+        if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {
             /************************** Update the scene ***********************/
-            for(ObstacleList::iterator i=globalData.obstacles.begin(); i != globalData.obstacles.end(); i++) {
-                (*i)->update();
+            FOREACH(ObstacleList, globalData.obstacles, i) {
+	      (*i)->update();
             }
-            for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-                (*i)->getRobot()->update();
+            FOREACH(OdeAgentList, globalData.agents, i) {
+	      (*i)->getRobot()->update();
             }
+	    // draw sound blobs
+	    if(!globalData.sounds.empty()){
+	      FOREACH(SoundList, globalData.sounds, i){
+		i->render(osgHandle);
+	      }
+	    }
+
             // update the camera
             osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
             if(mm) {
@@ -758,110 +774,108 @@ bool Simulation::loop() {
 }
 
 bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {
-    bool handled = false;
-    switch(ea.getEventType()) {
-    case(osgGA::GUIEventAdapter::KEYDOWN): {
-            handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);
-            if(handled) {
-                resetSyncTimer();
-                break;
-            }
-            //	printf("Key: %i\n", ea.getKey());
-            switch(ea.getKey()) {
-            case 6 : // Ctrl - f
-                for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-                    if(!(*i)->removePlotOption(File)) {
-                        (*i)->addPlotOption(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
-                    }
-                }
-                return true;
-                break;
-            case 7 : // Ctrl - g
-                for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-                    if(!(*i)->removePlotOption(GuiLogger)) {
-                        (*i)->addPlotOption(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
-                    }
-                }
-                return true;
-                break;
-            case 65450: // keypad *  // normal * is allready used by LOD
-                globalData.odeConfig.setParam("realtimefactor", 0);
-                std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
-                handled=true;
-                break;
-            case 65451: // keypad +
-            case 43: // +
-                {
-                    double rf = globalData.odeConfig.realTimeFactor;
-                    if (rf >= 2)
-                        globalData.odeConfig.setParam("realtimefactor", rf+1);
-                    else if (rf>=1.0)
-                        globalData.odeConfig.setParam("realtimefactor", rf+0.25);
-                    else if (rf>=0.1)
-                        globalData.odeConfig.setParam("realtimefactor", rf+0.1);
-                    else
-                        globalData.odeConfig.setParam("realtimefactor", 0.1);
-                    std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
-                    handled=true;
-                }
-                break;
-            case 65453: // keypad -
-            case 45: // -
-                {
-                    double rf = globalData.odeConfig.realTimeFactor;
-                    if (rf>2)
-                        globalData.odeConfig.setParam("realtimefactor", rf-1);
-                    else if (rf>=1.0)
-                        globalData.odeConfig.setParam("realtimefactor", rf-0.25);
-                    else if (rf>=0.1)
-                        globalData.odeConfig.setParam("realtimefactor", rf-0.1);
-                    else
-                        globalData.odeConfig.setParam("realtimefactor", 0.1);
-                    std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
-                    handled=true;
-                }
-                break;
-            case 18:  // Ctrl - r
-                if(videostream.isOpen()) {
-                    printf("Stop video recording!\n");
-                    videostream.close();
-                    //	    printf("Switching back to 50fps!\n");
-                    globalData.odeConfig.videoRecordingMode=false;
-                } else {
-                    //	    printf("For video recording the simulation now switches to 25fps!\n");
-                    globalData.odeConfig.videoRecordingMode=true;
-                    char dir[128];
-                    char filename[140];
-                    createNewDir("video", dir);
-                    printf("Start video recording in %s!\n", dir);
-                    sprintf(filename, "%s/frame", dir);
-                    videostream.open(filename);
-                }
-                break;
-            case 16: // Ctrl - p
-                pause = !pause;
-                printf( pause ? "Pause\n" : "Continue\n" );
-                resetSyncTimer();
-                handled = true;
-                break;
-            default:
-                // std::cout << ea.getKey() << std::endl;
-                return false;
-                break;
-            }
-        }
-        break;
-    case(osgGA::GUIEventAdapter::KEYUP):
-                    handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);
-        if(handled)
-            resetSyncTimer();
-    default:
-        break;
+  bool handled = false;
+  switch(ea.getEventType()) {
+  case(osgGA::GUIEventAdapter::KEYDOWN): {
+    handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);
+    if(handled) {
+      break;
     }
-    return handled;
+    //	printf("Key: %i\n", ea.getKey());
+    switch(ea.getKey()) {
+    case 6 : // Ctrl - f
+      for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+	if(!(*i)->removePlotOption(File)) {
+	  (*i)->addPlotOption(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
+	}
+      }
+      handled= true;
+      break;
+    case 7 : // Ctrl - g
+      for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+	if(!(*i)->removePlotOption(GuiLogger)) {
+	  (*i)->addPlotOption(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
+	}
+      }
+      handled=true;
+      break;
+    case 65450: // keypad *  // normal * is allready used by LOD
+      globalData.odeConfig.setParam("realtimefactor", 0);
+      std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
+      handled=true;
+      break;
+    case 65451: // keypad +
+    case 43: // +
+      {
+	double rf = globalData.odeConfig.realTimeFactor;
+	if (rf >= 2)
+	  globalData.odeConfig.setParam("realtimefactor", rf+1);
+	else if (rf>=1.0)
+	  globalData.odeConfig.setParam("realtimefactor", rf+0.25);
+	else if (rf>=0.1)
+	  globalData.odeConfig.setParam("realtimefactor", rf+0.1);
+	else
+	  globalData.odeConfig.setParam("realtimefactor", 0.1);
+	std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+	handled=true;
+      }
+      break;
+    case 65453: // keypad -
+    case 45: // -
+      {
+	double rf = globalData.odeConfig.realTimeFactor;
+	if (rf>2)
+	  globalData.odeConfig.setParam("realtimefactor", rf-1);
+	else if (rf>1.0)
+	  globalData.odeConfig.setParam("realtimefactor", rf-0.25);
+	else if (rf>0.1)
+	  globalData.odeConfig.setParam("realtimefactor", rf-0.1);
+	else
+	  globalData.odeConfig.setParam("realtimefactor", 0.1);
+	std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+	handled=true;
+      }
+      break;
+    case 18:  // Ctrl - r
+      if(videostream.isOpen()) {
+	printf("Stop video recording!\n");
+	videostream.close();
+	//	    printf("Switching back to 50fps!\n");
+	globalData.odeConfig.videoRecordingMode=false;
+      } else {
+	//	    printf("For video recording the simulation now switches to 25fps!\n");
+	globalData.odeConfig.videoRecordingMode=true;
+	char dir[128];
+	char filename[140];
+	createNewDir("video", dir);
+	printf("Start video recording in %s!\n", dir);
+	sprintf(filename, "%s/frame", dir);
+	videostream.open(filename);
+      }
+      break;
+    case 16: // Ctrl - p
+      pause = !pause;
+      printf( pause ? "Pause\n" : "Continue\n" );
+      handled = true;
+      break;
+    default:
+      // std::cout << ea.getKey() << std::endl;
+      return false;
+      break;
+    }
+  }
+    break;
+  case(osgGA::GUIEventAdapter::KEYUP):
+    handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);
+  default:
+    break;
+  }
+  if(handled)
+    resetSyncTimer();
+  return handled;
 }
 
-void Simulation::getUsage (osg::ApplicationUsage& au) const {
+  void Simulation::getUsage (osg::ApplicationUsage& au) const {
     au.addKeyboardMouseBinding("Simulation: Ctrl-f","File-Logging on/off");
     au.addKeyboardMouseBinding("Simulation: Ctrl-g","Restart the Gui-Logger");
     au.addKeyboardMouseBinding("Simulation: Ctrl-r","Start/Stop video recording");
@@ -870,7 +884,7 @@ void Simulation::getUsage (osg::ApplicationUsage& au) const {
     au.addKeyboardMouseBinding("Simulation: -","decrease simulation speed (realtimefactor)");
     au.addKeyboardMouseBinding("Simulation: *","set maximum simulation speed (realtimefactor=0)");
     bindingDescription(au);
-}
+  }
 
 void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
     v.visit(*this);
