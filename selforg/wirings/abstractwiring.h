@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-12-21 11:44:17  martius
+ *   Revision 1.5  2007-11-07 13:40:24  martius
+ *   sensors and motors also added as type here (not very nice anyway)
+ *
+ *   Revision 1.4  2006/12/21 11:44:17  martius
  *   commenting style for doxygen //< -> ///<
  *   FOREACH and FOREACHC are macros for collection iteration
  *
@@ -74,6 +77,9 @@
  */
 class AbstractWiring : public Inspectable {
 public:
+  typedef double sensor;
+  typedef double motor;
+
   /** constructor
    *  @param noise NoiseGenerator that is used for adding noise to sensor values
    */
