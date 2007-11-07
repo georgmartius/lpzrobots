@@ -25,7 +25,10 @@
  *  instead of the real osg header files.                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2007-11-07 13:18:04  martius
+ *   vec4
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.3  2006/01/12 14:21:00  martius
@@ -61,6 +64,8 @@ namespace osg{
 
   class Vec3f;
   typedef Vec3f Vec3;
+  class Vec4f;
+  typedef Vec4f Vec4;
 
   class Matrixd;
   typedef Matrixd Matrix;
