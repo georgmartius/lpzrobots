@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-09-06 18:48:00  martius
+ *   Revision 1.18  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.17  2007/09/06 18:48:00  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.16  2007/07/17 07:22:28  martius
@@ -152,7 +155,7 @@ namespace lpzrobots {
     create(p2);    
   };
 
-  void Sphererobot::doInternalStuff(const GlobalData& global){}
+  void Sphererobot::doInternalStuff(GlobalData& global){}
 
   bool Sphererobot::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
     //checks if both of the collision objects are part of the robot

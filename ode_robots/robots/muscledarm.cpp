@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-09-06 18:47:59  martius
+ *   Revision 1.7  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.6  2007/09/06 18:47:59  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.5  2007/01/26 12:05:04  martius
@@ -251,7 +254,7 @@ namespace lpzrobots{
 
 
 
-  void MuscledArm::doInternalStuff(const GlobalData& globalData){
+  void MuscledArm::doInternalStuff(GlobalData& globalData){
 
     double k[6];
     k[0] = 0.5;	// spring constant between mainMuscle11 and mainMuscle12

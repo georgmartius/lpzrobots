@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2006-11-30 08:51:39  robot8
+ *   Revision 1.12  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.11  2006/11/30 08:51:39  robot8
  *   -update of the evolution projekt
  *   -fitness changed
  *   -replication changed
@@ -181,7 +184,7 @@ virtual bool 	collisionCallback (void *data, dGeomID o1, dGeomID o2);// checks f
 
 virtual bool    shellCollision ( dGeomID o1 , dGeomID o2 ); //testing function for collisions with the atom shell
 
-virtual void 	doInternalStuff (const GlobalData &globalData);// this function is called in each timestep.; maybee usefull
+virtual void 	doInternalStuff (GlobalData &globalData);// this function is called in each timestep.; maybee usefull
 
 // virtual void 	setColor (const Color &col); 	sets color of the robot; not nessecary
 

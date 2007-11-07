@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-09-06 18:47:59  martius
+ *   Revision 1.10  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.9  2007/09/06 18:47:59  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.8  2006/07/14 12:23:40  martius
@@ -209,7 +212,7 @@ namespace lpzrobots {
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
   */
-  void Formel1::doInternalStuff(const GlobalData& global){}
+  void Formel1::doInternalStuff(GlobalData& global){}
 
   /** checks for internal collisions and treats them. 
    *  In case of a treatment return true (collision will be ignored by other objects 

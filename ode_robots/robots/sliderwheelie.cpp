@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-09-06 18:48:00  martius
+ *   Revision 1.13  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.12  2007/09/06 18:48:00  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.11  2007/07/03 13:05:23  martius
@@ -107,7 +110,7 @@ namespace lpzrobots {
     }
   }
 
-  void SliderWheelie::doInternalStuff(const GlobalData& global){
+  void SliderWheelie::doInternalStuff(GlobalData& global){
   }
 
   void SliderWheelie::setMotors(const motor* motors, int motornumber) {

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-12-21 11:43:05  martius
+ *   Revision 1.9  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.8  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -122,15 +125,27 @@ namespace lpzrobots {
 
   void ForcedSphere::setMotors ( const motor* motors, int motornumber ) {
     assert(created);
-    if (motornumber==getMotorNumber()){
+    if (motornumber==getMotorNumber()){      
       int i=0;
-      double xforce = (conf.drivenDimensions & X) ? motors[i++] : 0;
-      double yforce = (conf.drivenDimensions & Y) ? motors[i++] : 0;
-      double zforce = (conf.drivenDimensions & Z) ? motors[i++] : 0;
-      dBodyAddForce(object[0]->getBody(), 
-		    xforce*conf.max_force, 
-		    yforce*conf.max_force,
-		    zforce*conf.max_force);
+      double x = (conf.drivenDimensions & X) ? motors[i++] : 0;
+      double y = (conf.drivenDimensions & Y) ? motors[i++] : 0;
+      double z = (conf.drivenDimensions & Z) ? motors[i++] : 0;
+      if(!conf.speedDriven)
+	dBodyAddForce(object[0]->getBody(), x*conf.maxForce, y*conf.maxForce, z*conf.maxForce);
+      else{
+	Position nom;
+	nom.x=x; nom.y=y; nom.z=z;
+        Position diff = (nom*conf.maxSpeed-getSpeed())*0.5*conf.maxForce;
+	dBodyAddForce(object[0]->getBody(), diff.x, diff.y, diff.z);
+	
+      }
+      int len=motornumber-i;
+      FOREACH(list<Motor*>, conf.motors, m){
+	int l=(*m)->set(motors+i,len);
+	i+=l;
+	len-=l;	
+      }
+      
     }
   }
 
@@ -142,7 +157,25 @@ namespace lpzrobots {
   };
 
 
-  void ForcedSphere::doInternalStuff(const GlobalData& global){
+  void ForcedSphere::doInternalStuff(GlobalData& global){
+    FOREACH(list<Motor*>, conf.motors, i){
+      (*i)->act(global);
+    }
+    FOREACH(list<Sensor*>, conf.sensors, i){
+      (*i)->sense(global);
+    }
+
+    // slow down rotation around z axis.
+    dBodyID b = getMainPrimitive()->getBody();
+    const double* vel = dBodyGetAngularVel( b);
+    if(fabs(vel[2])>0.05){
+      dBodyAddTorque ( b , 0 , 0 , -0.1*conf.maxForce*vel[2] );
+    }
+
+
+
+    
+
   }
 
   bool ForcedSphere::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
@@ -151,7 +184,11 @@ namespace lpzrobots {
 
 
   int ForcedSphere::getMotorNumber(){    
-    return (conf.drivenDimensions & X) + ((conf.drivenDimensions & X) >> 1) + 
+    int s = 0;
+    FOREACHC(list<Motor*>, conf.motors, i){
+      s += (*i)->getMotorNumber();
+    }
+    return s + (conf.drivenDimensions & X) + ((conf.drivenDimensions & Y) >> 1) + 
       ((conf.drivenDimensions & Z) >> 2);
   }
 
@@ -168,11 +205,24 @@ namespace lpzrobots {
     if (created) {
       destroy();
     }
-
-    object[0] = new Sphere(conf.radius);
+    
+    Transform* f;
+    if(conf.cylinderBody){
+      object[0] = new Cylinder(conf.radius,conf.radius/2);
+      Primitive* core = new Box(conf.radius/1.5,conf.radius/1.5,conf.radius/2.5);
+      f = new Transform(object[0], core, osg::Matrix::translate(0,0,0));
+    }
+    else
+      object[0] = new Sphere(conf.radius);
     object[0]->init(odeHandle, conf.radius*conf.radius, osgHandle);
+    if(conf.cylinderBody){
+      f->init(odeHandle, 0, osgHandle);
+    }
     object[0]->setPose(pose);    
     FOREACH(list<Sensor*>, conf.sensors, i){
+      (*i)->init(object[0]);
+    }
+    FOREACH(list<Motor*>, conf.motors, i){
       (*i)->init(object[0]);
     }
     created = true;

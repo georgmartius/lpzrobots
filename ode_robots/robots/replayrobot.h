@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-06-14 13:53:11  martius
+ *   Revision 1.2  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.1  2007/06/14 13:53:11  martius
  *   a robot, that just replays a logfile
  *
  *
@@ -74,7 +77,7 @@ namespace lpzrobots {
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(const GlobalData& globalData) {}
+    virtual void doInternalStuff(GlobalData& globalData) {}
 
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) { return false;}
 

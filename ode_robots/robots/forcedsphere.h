@@ -24,7 +24,10 @@
  * Spherical Robot magically driven                                        *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2006-12-21 11:43:05  martius
+ *   Revision 1.7  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.6  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -52,6 +55,7 @@
 
 #include "oderobot.h"
 #include "sensor.h"
+#include "motor.h"
 
 namespace lpzrobots {
 
@@ -63,15 +67,26 @@ namespace lpzrobots {
     ~ForcedSphereConf();
     /// deletes sensors
     void destroy();
-
+    
     double radius; //< radius of the sphere
-    double max_force; ///< maximal force applied to the sphere
+    double maxForce; ///< maximal force applied to the sphere
+    /// if true, the robot is powered to reach the given speed (force is calculated)
+    bool speedDriven;     
+    double maxSpeed; ///< maximum speed of the robot when in speedDriven mode
+    
     /// bit mask for selecting the dimensions for the forces (see ForcedSphere::Dimensions)
     short drivenDimensions; 
+    /// whether to use a cylinder as body (like a puck) or the normal sphere
+    bool cylinderBody; 
     /// list of sensors that are mounted at the robot. (e.g.\ AxisOrientationSensor)
     std::list<Sensor*> sensors; 
     /// adds a sensor to the list of sensors
     void addSensor(Sensor* s) { sensors.push_back(s); }    
+    /// list of motors that are mounted at the robot. (e.g.\ Speaker)
+    std::list<Motor*> motors; 
+    /// adds a motor to the list of motors
+    void addMotor(Motor* m) { motors.push_back(m); }    
+    
   };
 
   class ForcedSphere : public OdeRobot
@@ -99,8 +114,11 @@ namespace lpzrobots {
     static ForcedSphereConf getDefaultConf(){
       ForcedSphereConf c;
       c.radius = 1;
-      c.max_force = 1;     
+      c.maxForce = 1;     
       c.drivenDimensions = X | Y;
+      c.cylinderBody = false;
+      c.speedDriven=false;
+      c.maxSpeed = 5;
       return c;      
     }
 
@@ -109,7 +127,7 @@ namespace lpzrobots {
     virtual void place(const osg::Matrix& pose);
   
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-    virtual void doInternalStuff(const GlobalData& globalData);
+    virtual void doInternalStuff(GlobalData& globalData);
 	
     virtual int getSensors ( sensor* sensors, int sensornumber );
     virtual void setMotors ( const motor* motors, int motornumber );

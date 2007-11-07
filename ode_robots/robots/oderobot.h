@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-05 15:11:42  martius
+ *   Revision 1.6  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.5  2007/04/05 15:11:42  martius
  *   angular speed tracking
  *
  *   Revision 1.4  2006/08/08 17:04:46  martius
@@ -179,11 +182,12 @@ namespace lpzrobots {
      */
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) = 0;
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
+    /** this function is called in each timestep after control. It
+	should perform robot-internal checks and actions, 
+	like acting and sensing of internal motors/sensors etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(const GlobalData& globalData) = 0;
+    virtual void doInternalStuff(GlobalData& globalData) = 0;
 
     /** sets color of the robot
 	@param col Color struct with desired Color

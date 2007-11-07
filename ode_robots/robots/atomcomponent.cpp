@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2006-11-30 08:51:39  robot8
+ *   Revision 1.17  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.16  2006/11/30 08:51:39  robot8
  *   -update of the evolution projekt
  *   -fitness changed
  *   -replication changed
@@ -382,7 +385,7 @@ namespace lpzrobots
 		return false;
 	}
 
-    void AtomComponent::doInternalStuff (const GlobalData &globalData)
+    void AtomComponent::doInternalStuff (GlobalData &globalData)
     {
 	
     }

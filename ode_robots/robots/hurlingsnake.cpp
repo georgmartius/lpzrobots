@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-09-06 18:47:59  martius
+ *   Revision 1.18  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.17  2007/09/06 18:47:59  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.16  2007/06/28 11:25:36  fhesse
@@ -173,7 +176,7 @@ namespace lpzrobots {
     create(p2);    
   };
 
-  void HurlingSnake::doInternalStuff(const GlobalData& global){
+  void HurlingSnake::doInternalStuff(GlobalData& global){
     // mycallback is called for internal collisions! Only once per step
     dSpaceCollide(odeHandle.space, this, mycallback);
   }

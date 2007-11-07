@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-09-06 18:47:59  martius
+ *   Revision 1.12  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.11  2007/09/06 18:47:59  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.10  2006/08/11 15:44:52  martius
@@ -186,7 +189,7 @@ namespace lpzrobots{
   };
 
 
-  void Arm2Segm::doInternalStuff(const GlobalData& globalData){
+  void Arm2Segm::doInternalStuff(GlobalData& globalData){
   };
 
   void Arm2Segm::mycallback(void *data, dGeomID o1, dGeomID o2){

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2007-09-06 18:48:00  martius
+ *   Revision 1.29  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.28  2007/09/06 18:48:00  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.27  2006/10/20 14:25:08  martius
@@ -117,7 +120,7 @@ namespace lpzrobots {
     }
   }
 
-  void Schlange::doInternalStuff(const GlobalData& global){
+  void Schlange::doInternalStuff(GlobalData& global){
     if(created){
       // mycallback is called for internal collisions! Only once per step
       dSpaceCollide(odeHandle.space, this, mycallback);

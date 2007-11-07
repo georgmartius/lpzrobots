@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-09-06 18:48:00  martius
+ *   Revision 1.6  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.5  2007/09/06 18:48:00  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.4  2007/07/31 08:19:17  martius
@@ -264,7 +267,7 @@ namespace lpzrobots {
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
   */
-  void TruckMesh::doInternalStuff(const GlobalData& global){}
+  void TruckMesh::doInternalStuff(GlobalData& global){}
 
   /** checks for internal collisions and treats them. 
    *  In case of a treatment return true (collision will be ignored by other objects 

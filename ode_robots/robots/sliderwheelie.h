@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-01-26 12:05:04  martius
+ *   Revision 1.9  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.8  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.7  2006/12/21 11:43:05  martius
@@ -130,7 +133,7 @@ namespace lpzrobots {
     
     virtual void update();
 
-    void doInternalStuff(const GlobalData& global);
+    void doInternalStuff(GlobalData& global);
 
     bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 

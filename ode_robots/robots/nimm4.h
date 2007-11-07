@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-09-06 18:48:00  martius
+ *   Revision 1.8  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.7  2007/09/06 18:48:00  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.6  2006/07/14 12:23:41  martius
@@ -166,7 +169,7 @@ namespace lpzrobots {
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(const GlobalData& globalData);
+    virtual void doInternalStuff(GlobalData& globalData);
 
 
   protected:

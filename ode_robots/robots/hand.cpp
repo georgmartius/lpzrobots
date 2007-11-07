@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-10-10 18:59:07  fhesse
+ *   Revision 1.11  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.10  2007/10/10 18:59:07  fhesse
  *   second IR sensor temporarily added for Controller Testing
  *
  *   Revision 1.9  2007/09/23 23:19:50  fhesse
@@ -210,7 +213,7 @@ namespace lpzrobots {
     create(pose);
   };
 
-  void Hand::doInternalStuff(const GlobalData& global){
+  void Hand::doInternalStuff(GlobalData& global){
     // mycallback is called for internal collisions! Only once per step
     // todo: geht im moment ohne, ist das ok?
     //dSpaceCollide(odeHandle.space, this, mycallback);

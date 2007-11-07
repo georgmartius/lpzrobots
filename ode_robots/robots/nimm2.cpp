@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.35  2007-09-27 16:01:28  der
+ *   Revision 1.36  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.35  2007/09/27 16:01:28  der
  *   added to nimm2 the box version
  *
  *   Revision 1.34  2007/09/06 18:47:59  martius
@@ -387,7 +390,7 @@ namespace lpzrobots {
 //     return colwithme;
 //   }
 
-  void Nimm2::doInternalStuff(const GlobalData& globalData){
+  void Nimm2::doInternalStuff(GlobalData& globalData){
     // dSpaceCollide(car_space, this, mycallback); // checks collisions in the car_space only (not needed)
     irSensorBank.reset(); // reset sensorbank (infrared sensors)
 	  if (visForce) {

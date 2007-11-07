@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-08-11 15:44:52  martius
+ *   Revision 1.8  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.7  2006/08/11 15:44:52  martius
  *   *** empty log message ***
  *
  *   Revision 1.6  2006/07/20 17:19:43  martius
@@ -171,7 +174,7 @@ namespace lpzrobots{
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(const GlobalData& globalData);
+    virtual void doInternalStuff(GlobalData& globalData);
 
     /** The list of all parameters with there value as allocated lists.
 	@return list of names

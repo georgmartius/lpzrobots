@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-01-26 12:05:05  martius
+ *   Revision 1.14  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.13  2007/01/26 12:05:05  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.12  2006/08/04 15:07:27  martius
@@ -152,7 +155,7 @@ namespace lpzrobots {
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(const GlobalData& globalData);
+    virtual void doInternalStuff(GlobalData& globalData);
 	
     /**
      *Writes the sensor values to an array in the memory.

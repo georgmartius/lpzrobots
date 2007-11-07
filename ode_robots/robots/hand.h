@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-09-21 17:05:05  fhesse
+ *   Revision 1.9  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.8  2007/09/21 17:05:05  fhesse
  *   IR sensors at fingertip added
  *
  *   Revision 1.7  2007/09/18 16:01:20  fhesse
@@ -240,7 +243,7 @@ namespace lpzrobots {
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(const GlobalData& globalData);
+    virtual void doInternalStuff(GlobalData& globalData);
   
 
     /** returns actual sensorvalues

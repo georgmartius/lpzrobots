@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2007-07-03 13:05:23  martius
+ *   Revision 1.23  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.22  2007/07/03 13:05:23  martius
  *   new servo constants
  *
  *   Revision 1.21  2007/01/26 12:05:04  martius
@@ -162,7 +165,7 @@ public:
 
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
-  virtual void doInternalStuff(const GlobalData& global);
+  virtual void doInternalStuff(GlobalData& global);
 	
   /**
    *Reads the actual motor commands from an array, 

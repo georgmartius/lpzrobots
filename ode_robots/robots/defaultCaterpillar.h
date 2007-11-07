@@ -32,7 +32,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-21 11:43:05  martius
+ *   Revision 1.4  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.3  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -150,7 +153,7 @@ public:
 
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
-  virtual void doInternalStuff(const GlobalData& global);
+  virtual void doInternalStuff(GlobalData& global);
 	
   /**
    *Reads the actual motor commands from an array, 

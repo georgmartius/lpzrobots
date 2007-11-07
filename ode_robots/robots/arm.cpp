@@ -206,7 +206,7 @@ namespace lpzrobots{
     position[2]=pos[2];
   }
 	
-  void Arm::doInternalStuff(const GlobalData& globalData)
+  void Arm::doInternalStuff(GlobalData& globalData)
   {
 //     if(created)
 //       {

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-09-06 18:48:00  martius
+ *   Revision 1.7  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.6  2007/09/06 18:48:00  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.5  2007/07/12 18:05:13  martius
@@ -192,7 +195,7 @@ namespace lpzrobots {
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
   */
-  void VierBeiner::doInternalStuff(const GlobalData& global){     
+  void VierBeiner::doInternalStuff(GlobalData& global){     
   }
 
   /** checks for internal collisions and treats them. 

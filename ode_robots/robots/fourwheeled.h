@@ -22,7 +22,10 @@
  *  A robot with 4 wheels based on nimm4 with IR sensors                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-24 11:49:35  martius
+ *   Revision 1.2  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.1  2007/08/24 11:49:35  martius
  *   initial
  *
  *                                                                 *
@@ -97,7 +100,7 @@ namespace lpzrobots {
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(const GlobalData& globalData);
+    virtual void doInternalStuff(GlobalData& globalData);
 
 
   protected:

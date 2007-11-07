@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2007-09-27 16:01:28  der
+ *   Revision 1.28  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.27  2007/09/27 16:01:28  der
  *   added to nimm2 the box version
  *
  *   Revision 1.26  2007/05/07 21:12:19  robot3
@@ -253,7 +256,7 @@ public:
       like space-internal collision detection, sensor resets/update etc.
       @param globalData structure that contains global data from the simulation environment
    */
-  virtual void doInternalStuff(const GlobalData& globalData);
+  virtual void doInternalStuff(GlobalData& globalData);
 
 	virtual double& getSumForce() { return sumForce; }
 

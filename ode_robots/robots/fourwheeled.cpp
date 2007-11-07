@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-06 18:47:59  martius
+ *   Revision 1.3  2007-11-07 13:21:15  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.2  2007/09/06 18:47:59  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.1  2007/08/24 11:49:25  martius
@@ -74,7 +77,7 @@ namespace lpzrobots {
     irSensorBank.update();
   }
 
-  void FourWheeled::doInternalStuff(const GlobalData& globalData){
+  void FourWheeled::doInternalStuff(GlobalData& globalData){
     irSensorBank.reset(); // reset sensorbank (infrared sensors)
   }
 

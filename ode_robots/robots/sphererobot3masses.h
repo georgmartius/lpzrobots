@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-09-06 18:48:00  martius
+ *   Revision 1.15  2007-11-07 13:21:16  martius
+ *   doInternal stuff changed signature
+ *
+ *   Revision 1.14  2007/09/06 18:48:00  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.13  2007/08/24 11:57:30  martius
@@ -216,7 +219,7 @@ public:
   
   virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
-  virtual void doInternalStuff(const GlobalData& globalData);
+  virtual void doInternalStuff(GlobalData& globalData);
 	
   virtual int getSensors ( sensor* sensors, int sensornumber );
 	
