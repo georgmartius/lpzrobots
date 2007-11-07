@@ -23,7 +23,10 @@
  *    without modifiing them.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-24 11:48:56  martius
+ *   Revision 1.2  2007-11-07 13:20:25  martius
+ *   also motors can be added
+ *
+ *   Revision 1.1  2007/08/24 11:48:56  martius
  *   initial
  *
  *                                                                 *
@@ -33,6 +36,7 @@
 
 #include "oderobot.h"
 #include "sensor.h"
+#include "motor.h"
 
 namespace lpzrobots {
 
@@ -47,13 +51,18 @@ namespace lpzrobots {
      * @param senors list of sensors
      */
     AddSensors2RobotAdapter( const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			     OdeRobot* robot, const std::list<Sensor*>& sensors = std::list<Sensor*>(),
+			     OdeRobot* robot, 
+			     const std::list<Sensor*>& sensors = std::list<Sensor*>(),
+			     const std::list<Motor*>& motors  = std::list<Motor*>(), 
 			     bool sensors_before_rest = false);
 
     virtual ~AddSensors2RobotAdapter();
     
     /// adds a sensor to the robot. Must be called before placement of the robot, otherwise it has no affect
     virtual void addSensor(Sensor* sensor);
+
+    /// adds a motor to the robot. Must be called before placement of the robot, otherwise it has no affect
+    virtual void addMotor(Motor* motor);
 
     virtual void update(){ robot->update(); }
 
@@ -64,20 +73,19 @@ namespace lpzrobots {
     }
 
     virtual int getSensorNumber();
-    virtual int getSensors(sensor* sensors, int sensornumber);
+    virtual int getSensors(sensor* sensors_, int sensornumber);
 
-    virtual int getMotorNumber() { return robot->getMotorNumber();}
-    virtual void setMotors(const motor* motors, int motornumber) {
-      robot->setMotors(motors, motornumber);
-    }
+    virtual int getMotorNumber();
+    virtual void setMotors(const motor* motors_, int motornumber);
 
-    void doInternalStuff(const GlobalData& globalData);
+    void doInternalStuff(GlobalData& globalData);
 
     virtual Primitive* getMainPrimitive() const { return robot->getMainPrimitive();}
       
   protected:
     OdeRobot* robot;
     std::list<Sensor*> sensors;
+    std::list<Motor*> motors;
     bool sensors_before_rest;
   };
 

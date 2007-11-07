@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-06 18:47:59  martius
+ *   Revision 1.3  2007-11-07 13:20:16  martius
+ *   also motors can be added
+ *
+ *   Revision 1.2  2007/09/06 18:47:59  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.1  2007/08/24 11:49:06  martius
@@ -40,9 +43,11 @@ using namespace std;
 
 namespace lpzrobots {
 
-  AddSensors2RobotAdapter::AddSensors2RobotAdapter(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-						   OdeRobot* robot, const std::list<Sensor*>& sensors, 
-						   bool sensors_before_rest)
+  AddSensors2RobotAdapter::
+  AddSensors2RobotAdapter(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+			  OdeRobot* robot, const std::list<Sensor*>& sensors, 
+			  const std::list<Motor*>& motors, 
+			  bool sensors_before_rest)
     : OdeRobot(odeHandle, osgHandle, robot->getName(), robot->getRevision()),
     robot(robot), sensors(sensors), sensors_before_rest(sensors_before_rest)  
   {  
@@ -61,6 +66,12 @@ namespace lpzrobots {
   void AddSensors2RobotAdapter::addSensor(Sensor* sensor){
     assert(sensor); 
     sensors.push_back(sensor);
+  }
+
+
+  void AddSensors2RobotAdapter::addMotor(Motor* motor){
+    assert(motor);
+    motors.push_back(motor); 
   }
 
 
@@ -88,17 +99,42 @@ namespace lpzrobots {
     return len;
   };
 
+  int AddSensors2RobotAdapter::getMotorNumber() {
+    int s=0;
+    FOREACHC(list<Motor*>, motors, i){
+      s += (*i)->getMotorNumber();
+    } 
+    return robot->getMotorNumber() + s;
+  }
+
+  void AddSensors2RobotAdapter::setMotors(const motor* motors_, int motornumber) {
+    int len = 0;
+    assert(motornumber >= robot->getMotorNumber());
+    robot->setMotors(motors_, robot->getMotorNumber());
+    len += robot->getMotorNumber();
+    FOREACH(list<Motor*>, motors, i){
+      len += (*i)->set(motors_ + len, motornumber - len);
+    }
+    
+  }
+
   void AddSensors2RobotAdapter::place(const osg::Matrix& pose){
     robot->place(pose);
     Primitive* p = robot->getMainPrimitive();
     FOREACH(list<Sensor*>, sensors, i){
       (*i)->init(p);
     }
+    FOREACH(list<Motor*>, motors, i){
+      (*i)->init(p);
+    }
   }
 
-  void AddSensors2RobotAdapter::doInternalStuff(const GlobalData& globalData){
+  void AddSensors2RobotAdapter::doInternalStuff(GlobalData& globalData){
     FOREACH(list<Sensor*>, sensors, i){
       (*i)->sense(globalData);
+    }
+    FOREACH(list<Motor*>, motors, i){
+      (*i)->act(globalData);
     }
     robot->doInternalStuff(globalData);
   }
