@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-08-22 08:27:15  martius
+ *   Revision 1.4  2007-11-07 13:22:18  martius
+ *   scale sensor values
+ *
+ *   Revision 1.3  2007/08/22 08:27:15  martius
  *   removed bug with relative modes where 4 values are returned not 3
  *
  *   Revision 1.2  2007/06/08 15:37:22  martius
@@ -64,13 +67,12 @@ namespace lpzrobots {
   bool SpeedSensor::sense(const GlobalData& globaldata) { return true; }
 
   std::list<sensor> SpeedSensor::get() const {
-    const Matrix& m = getSenseMatrix();
+    const Matrix& m = getSenseMatrix()*(1.0/maxSpeed);
     return selectrows(m,dimensions);
   }
 
   int SpeedSensor::get(sensor* sensors, int length) const{
     const Matrix& m = getSenseMatrix()*(1.0/maxSpeed);
-
     if(dimensions == (X | Y | Z)) 
       return m.convertToBuffer(sensors, length); 
     else{
