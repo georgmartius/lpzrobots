@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-03-26 13:15:51  martius
+ *   Revision 1.7  2007-11-07 13:26:59  martius
+ *   tidy up
+ *
+ *   Revision 1.6  2007/03/26 13:15:51  martius
  *   new makefile with readline support
  *
  *   Revision 1.5  2007/02/23 15:14:17  martius
@@ -84,7 +87,6 @@
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
-
 
 
 class ThisSim : public Simulation {
@@ -187,16 +189,6 @@ public:
 	printf("Distal Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
 	handled = true; 
 	break;
-      case 's' :
-        f = fopen("test","wb");
-	controller->store(f) && printf("Controller stored\n");
-	fclose(f);
-	handled = true; break;	
-      case 'l' :
-	f = fopen("test","rb");
-	controller->restore(f) && printf("Controller loaded\n");
-	fclose(f);
-	handled = true; break;	
       }
     fflush(stdout);
     return handled;
@@ -205,8 +197,8 @@ public:
   virtual void bindingDescription(osg::ApplicationUsage & au) const {
     au.addKeyboardMouseBinding("Teaching: u","forward");
     au.addKeyboardMouseBinding("Teaching: j","backward");
-    au.addKeyboardMouseBinding("Simulation: s","store");
-    au.addKeyboardMouseBinding("Simulation: l","load");
+    au.addKeyboardMouseBinding("Distal Teaching: i","forward");
+    au.addKeyboardMouseBinding("Distal Teaching: k","backward");
   }
 
 };
