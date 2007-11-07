@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-09-06 18:47:17  martius
+ *   Revision 1.16  2007-11-07 13:18:44  martius
+ *   toLocal: coordinate transformation
+ *
+ *   Revision 1.15  2007/09/06 18:47:17  martius
  *   deletion of geom now here again
  *
  *   Revision 1.14  2007/08/23 15:33:19  martius
@@ -143,6 +146,7 @@
 
 #include <assert.h>
 #include <osg/MatrixTransform>
+#include <osg/Vec4>
 
 #include "primitive.h"
 #include "pos.h"
@@ -310,6 +314,25 @@ namespace lpzrobots{
       return true;
     }else 
       return false;
+  }
+
+
+  /// return the given point transformed to local coordinates of the primitive
+  osg::Vec3 Primitive::toLocal(const osg::Vec3& pos) const {
+    const osg::Matrix& m = osg::Matrix::inverse(getPose());
+    return pos*m;
+//     osg::Vec4 p(pos,1);    
+//     const osg::Vec4& pl = p*m;    
+//     // one should only use the transpose here, but osg does not have it!
+//     return osg::Vec3(pl.x(),pl.y(), pl.z());
+  }
+
+  /** return the given vector or axis transformed to local coordinates of the
+      primitive (translation depends on 4th coordinate)
+  */
+  osg::Vec4 Primitive::toLocal(const osg::Vec4& v) const {
+    osg::Matrix m = getPose();
+    return v*osg::Matrix::inverse(m);
   }
 
 

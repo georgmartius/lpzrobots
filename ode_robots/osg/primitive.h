@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-08-23 14:51:28  martius
+ *   Revision 1.12  2007-11-07 13:19:01  martius
+ *   toLocal: coordinate transformation
+ *
+ *   Revision 1.11  2007/08/23 14:51:28  martius
  *   Ray
  *
  *   Revision 1.10  2007/07/31 08:21:34  martius
@@ -146,7 +149,7 @@ namespace lpzrobots {
    typedef struct GlobalData;
    class OdeHandle;
    class OsgHandle;
-  class Color;
+   class Color;
    /*****  end of forward declaration block  *****/
 
 
@@ -228,6 +231,13 @@ public:
   /// checks whether the object has higher velocity than maxVel and limits it in case
   bool limitLinearVel(double maxVel);
 
+  /// return the given point transformed to local coordinates of the primitive
+  osg::Vec3 toLocal(const osg::Vec3& pos) const;
+  /** return the given vector or axis transformed to local coordinates
+      of the primitive (translation depends on the 4th coordinate)
+  */
+  osg::Vec4 toLocal(const osg::Vec4& axis) const;
+  
 protected:
   /** attaches geom to body (if any) and sets the category bits and collision bitfields.
       assumes: mode & Geom != 0
