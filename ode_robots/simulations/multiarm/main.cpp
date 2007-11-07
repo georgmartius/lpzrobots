@@ -67,7 +67,7 @@ using namespace lpzrobots;
 
 Arm* arm;
 
-#define REPLAY
+//#define REPLAY
 
 #ifdef REPLAY
 ReplayController* controller;
