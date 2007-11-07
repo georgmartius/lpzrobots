@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-03-16 10:56:33  martius
+ *   Revision 1.6  2007-11-07 13:27:55  martius
+ *   sound added
+ *
+ *   Revision 1.5  2007/03/16 10:56:33  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2006/07/14 12:23:56  martius
@@ -52,6 +55,7 @@
 #include <vector>
 #include "odehandle.h"
 #include "odeconfig.h"
+#include "sound.h"
 
 class Configurable;
 
@@ -61,9 +65,10 @@ class OdeAgent;
 class AbstractObstacle;
 class Primitive;
 
-typedef std::vector<AbstractObstacle*> ObstacleList; ///
-typedef std::vector<Configurable*> ConfigList;       ///
-typedef std::vector<OdeAgent*> OdeAgentList;         ///
+typedef std::vector<AbstractObstacle*> ObstacleList;      
+typedef std::vector<Configurable*> ConfigList;            
+typedef std::vector<OdeAgent*>     OdeAgentList; 
+typedef std::list<Sound>           SoundList; 
 
 /**
   Data structure holding all essential global information.
@@ -80,6 +85,8 @@ struct GlobalData
   ObstacleList obstacles;
   OdeAgentList agents;
   Primitive* environment; /// < this is used to be able to attach objects to the static environment
+
+  SoundList sounds;  ///< sound space
 
   double time;
 };
