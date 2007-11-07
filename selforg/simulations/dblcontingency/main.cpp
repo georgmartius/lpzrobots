@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(); it!= (coll).end(); it++ )
+//#define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(); it!= (coll).end(); it++ )
 
 bool stop=0;
 
@@ -117,6 +117,9 @@ public:
       @return vector  (vx,vy,vz)
    */
   virtual Position getSpeed() const {return speed;}
+
+
+  virtual Position getAngularSpeed() const {return speed;}
 
   /** returns the orientation of the object
       @return 3x3 rotation matrix
