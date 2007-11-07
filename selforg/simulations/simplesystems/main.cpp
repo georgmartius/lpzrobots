@@ -22,7 +22,7 @@ using namespace std;
 
 bool stop=0;
 double noise=.1;
-double sleep_=1000;
+double realtimefactor=0.1;
 
 typedef enum Mode {NORMAL, EXTRASINE};
 
@@ -70,8 +70,8 @@ public:
     // controllers in this situaltion
     addParameterDef("delay",        &delay,        1.0);
     
-    // parameter that defines speed of the simulation
-    addParameterDef("sleep",   &sleep_,   1000); // actually a global parameter 
+    // parameter that defines the speed of the simulation
+    addParameter("realtimefactor",&realtimefactor); // actually a global parameter 
     // noise level
     addParameter("noise", &noise);               // actually a global parameter 
   }
@@ -231,12 +231,13 @@ int main(int argc, char** argv){
   initializeConsole();
   
   
-//   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-//   cc.useSD=true;
-//   AbstractController* controller = new InvertMotorNStep(cc);
-  AbstractController* controller = new InvertMotorSpace(10,1.0);
+   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+   //   cc.useSD=true;
+   cc.someInternalParams=false;
+   AbstractController* controller = new InvertMotorNStep(cc);
+   //  AbstractController* controller = new InvertMotorSpace(10,1.2);
 //  AbstractController* controller = new DerController();
-//  AbstractController* controller = new InvertNChannelController(10,1.0);
+//  AbstractController* controller = new InvertNChannelController(10,false);
   controller->setParam("s4delay",   1.0);
   controller->setParam("s4avg",     1.0);  
   controller->setParam("adaptrate", 0.0);  
@@ -244,7 +245,8 @@ int main(int argc, char** argv){
   
   robot         = new MyRobot(string("Robot_") + string(modestr), mode, dim);
   agent         = new Agent(plotoptions);
-  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
+  //  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
+  AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());  
   agent->init(controller, robot, wiring);
   // if you like, you can keep track of the robot with the following line. 
   //  this assumes that you robot returns its position, speed and orientation. 
@@ -273,11 +275,14 @@ int main(int argc, char** argv){
       }
       cmd_end_input();
     }
-    if(t%10==0){
-      if(sleep_) usleep((int)(10*sleep_));    
-      if(sleep_ > 100 || t%100==0) 
-	printRobot(robot);    
+    int drawinterval = 10000;
+    if(realtimefactor!=0){
+      drawinterval = max(1,int(6*realtimefactor));
     }
+    if(t%drawinterval==0){
+      printRobot(robot);
+      usleep(60000);
+    }    
     t++;
   };
   delete agent;
