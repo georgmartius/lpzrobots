@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-08-23 15:39:05  martius
+ *   Revision 1.4  2007-11-07 13:22:47  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2007/08/23 15:39:05  martius
  *   new IR sensor schema which uses substances and callbacks, very nice
  *
  *   Revision 1.2  2006/12/21 11:42:10  martius
@@ -42,6 +45,7 @@
 #include <selforg/types.h>
 #include <selforg/stl_adds.h>
 #include <selforg/matrix.h>
+#include "globaldata.h"
 #include "pos.h"
 
 namespace lpzrobots {

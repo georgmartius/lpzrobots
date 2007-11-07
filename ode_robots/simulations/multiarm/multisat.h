@@ -31,7 +31,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-07-19 15:50:00  martius
+ *   Revision 1.3  2007-11-07 13:24:39  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2007/07/19 15:50:00  martius
  *   copied new sat implementation from multiexperts
  *   differnent arm parameters
  *
@@ -78,7 +81,7 @@ typedef struct MultiSatConf {
   double tauC;          ///< time horizont for annealing initial learning phase
   //  double lambda_comp;   ///< discount of learning rate for non-winners (competition) (modulated automatically)
   double deltaMin;      ///< additive decay the minimum term (in 1/1000) (should be very small)
-  int    numContext;    ///< number of context sensors (ignored)
+  int    numContext;    ///< number of context sensors (the sensors are ignored, but the number is important)
   int    numSats;       ///< number of satelite networks
   bool   useDerive;     ///< input to sat network includes derivatives
   double penalty;       ///< factor to multiply the square of the difference of error and optimal error 
