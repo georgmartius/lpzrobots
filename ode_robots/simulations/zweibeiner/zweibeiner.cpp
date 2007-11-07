@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-09-06 18:50:33  martius
+ *   Revision 1.4  2007-11-07 13:27:28  martius
+ *   doInternalstuff changed
+ *
+ *   Revision 1.3  2007/09/06 18:50:33  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2007/07/31 08:35:39  martius
@@ -191,7 +194,7 @@ namespace lpzrobots {
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
   */
-  void ZweiBeiner::doInternalStuff(const GlobalData& global){     
+  void ZweiBeiner::doInternalStuff(GlobalData& global){     
   }
 
 
