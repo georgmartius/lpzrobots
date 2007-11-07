@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-07-03 13:06:17  martius
+ *   Revision 1.3  2007-11-07 13:26:32  martius
+ *   added nimm2 robot
+ *
+ *   Revision 1.2  2007/07/03 13:06:17  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2007/04/05 14:44:14  martius
@@ -109,6 +112,8 @@
 #include "barrel2masses.h"
 #include "axisorientationsensor.h"
 #include "speedsensor.h"
+#include "nimm2.h"
+
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -117,15 +122,16 @@ using namespace lpzrobots;
 class ThisSim : public Simulation {
 public:
   AbstractController *controller;
-  OdeRobot* sphere1;
+  OdeRobot* robot1;
   int useReinforcement;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     int num_barrels=0;
-    int num_spheres=1;      
-    useReinforcement=2;
+    int num_spheres=0;      
+    int num_nimm2  =1; 
+    useReinforcement=3;
 
     bool labyrint=false;      
     bool squarecorridor=false;
@@ -181,6 +187,37 @@ public:
 //       s->setPosition(osg::Vec3(5,0,i*3)); 
 //       global.obstacles.push_back(s);    
 //     }
+
+    for(int i=0; i<num_nimm2; i++){
+      Nimm2Conf c = Nimm2::getDefaultConf();    
+      c.sphereWheels=false;
+      
+      robot1 = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
+      //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
+      robot1->place(Pos(0,i,0.6));
+      
+      // create pointer to controller
+      // push controller in global list of configurables
+      //  AbstractController *controller = new InvertNChannelController(10);      
+      InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
+      cc.cInit=1.0;
+      cc.useS=true;
+      
+      controller = new InvertMotorNStep(cc);  
+      controller->setParam("adaptrate", 0.000);
+      //    controller->setParam("nomupdate", 0.0005);
+      controller->setParam("epsC", 0.005);
+      controller->setParam("epsA", 0.001);
+      controller->setParam("rootE", 0);
+      controller->setParam("steps", 2);
+      controller->setParam("s4avg", 5);
+      
+      One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      OdeAgent* agent = new OdeAgent(plotoptions);
+      agent->init(controller, robot1, wiring);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+    }
     
     /* * * * BARRELS * * * */
     for(int i=0; i< num_barrels; i++){
@@ -194,9 +231,9 @@ public:
       conf.irAxis2=false;
       conf.irAxis3=false;
       conf.spheremass   = 1;
-      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
+      robot1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
 				    conf, "Barrel1", 0.4); 
-      sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+      robot1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=0.5;
@@ -225,7 +262,7 @@ public:
 //       AbstractWiring* wiring = new DerivativeWiring(dc,new ColorUniformNoise());
       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
       OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
-      agent->init ( controller , sphere1 , wiring );
+      agent->init ( controller , robot1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
       global.configs.push_back ( controller );
@@ -252,9 +289,9 @@ public:
       OdeHandle h1 = odeHandle;
       h1.substance.toFoam(10);
 	
-      sphere1 = new Sphererobot3Masses ( h1, osgHandle.changeColor(Color(0,0.0,2.0)), 
+      robot1 = new Sphererobot3Masses ( h1, osgHandle.changeColor(Color(0,0.0,2.0)), 
 					 conf, "Sphere1_SD", 0.3); 
-      sphere1->place ( osg::Matrix::translate(6.25,0,0.2));
+      robot1->place ( osg::Matrix::translate(6.25,0,0.2));
       
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       //      DerControllerConf cc = DerController::getDefaultConf();
@@ -282,7 +319,7 @@ public:
     
       One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.25) );
       OdeAgent* agent = new OdeAgent ( plotoptions );
-      agent->init ( controller , sphere1 , wiring );
+      agent->init ( controller , robot1 , wiring );
       const char* setting ;
       switch(useReinforcement){
       case 1: setting = "ZSens_ReinforceSpeed"; break;
@@ -302,15 +339,22 @@ public:
     if(useReinforcement==1){ // speed reinforcement
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
       if(c){
-	matrix::Matrix m(3,1, dBodyGetLinearVel( sphere1->getMainPrimitive()->getBody())); 
+	matrix::Matrix m(3,1, dBodyGetLinearVel( robot1->getMainPrimitive()->getBody())); 
 	c->setReinforcement(tanh(sqrt(m.map(sqr).elementSum())/4 - 1)); 
       }
     }
     if(useReinforcement==2){ // spinning around zaxis
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
       if(c){
-	matrix::Matrix m(3,1, dBodyGetAngularVel( sphere1->getMainPrimitive()->getBody()));	
-	c->setReinforcement(abs(m.val(2,0))/3 - 1); 
+	matrix::Matrix m(3,1, dBodyGetAngularVel( robot1->getMainPrimitive()->getBody()));	
+	c->setReinforcement(fabs(m.val(2,0))/3 - 1); 
+      }
+    }
+    if(useReinforcement==3){ // non-spin reinforcement (nimm2)
+      InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
+      if(c){
+	matrix::Matrix m(3,1, dBodyGetAngularVel( robot1->getMainPrimitive()->getBody()));	
+	c->setReinforcement(1-fabs(m.val(2,0)/2)); 
       }
     }
   }
@@ -321,12 +365,12 @@ public:
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
-	case 'y' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
-	case 'Y' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
-	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
-	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
-	case 'k' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 ,  0 , 5 ); break;
-	case 'K' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 ,   0 , -5 ); break;
+	case 'y' : dBodyAddTorque ( robot1->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
+	case 'Y' : dBodyAddTorque ( robot1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
+	case 'x' : dBodyAddTorque ( robot1->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
+	case 'X' : dBodyAddTorque ( robot1->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
+	case 'k' : dBodyAddTorque ( robot1->getMainPrimitive()->getBody() , 0 ,  0 , 5 ); break;
+	case 'K' : dBodyAddTorque ( robot1->getMainPrimitive()->getBody() , 0 ,   0 , -5 ); break;
 	case 'S' : controller->setParam("sinerate", controller->getParam("sinerate")*1.2); 
 	  printf("sinerate : %g\n", controller->getParam("sinerate"));
 	  break;
