@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.13  2007-09-06 18:52:26  martius
+// Revision 1.14  2007-11-07 13:38:40  martius
+// speed up in rows
+//
+// Revision 1.13  2007/09/06 18:52:26  martius
 // write changed (ascii store)
 //
 // Revision 1.12  2007/08/22 08:27:58  martius
@@ -173,6 +176,7 @@ const int T=0xFF;
     unsigned short start = std::min( (int)startindex, m-1 );
     unsigned short end   = std::max( (int)start, std::min((int)endindex,m-1));
     unsigned short k     = end - start + 1;
+    if(k==m) return *this;
     Matrix result(k,n);
     memcpy(result.data, data + start*n, k*n*sizeof(D));    
     return result;
