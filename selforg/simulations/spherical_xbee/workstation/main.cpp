@@ -27,7 +27,8 @@ using namespace std;
 #define CSEN   0x3  /* 00000011 Sensor data values                       */
 #define CMOT   0x4  /* 00000100 Motor data values                        */
 #define CBEEP   0x8  /* 00001000 Make a beep    */
-#define CMSG   0x9  /* 00001001 Message data.  */
+#define CMSG    0x9  /* 00001001 Message data.  */
+#define CTEST  0x10  /* 00001010 Test i2c communication.  */
 
 
 typedef struct Xbee {
@@ -113,8 +114,14 @@ public:
     //    flush input buffer
     flushInputBuffer(cycletime/2);
 
-    if (sendData(xbees[currentXbee].addr, CBEEP, NULL, 0) < 0){
+    /*if (sendData(xbees[currentXbee].addr, CBEEP, NULL, 0) < 0){
       cerr << "Error while sending beep.\n";
+      return false;
+    }*/
+
+   /* Send 'CTEST' command to current slave, which causes the xbee to test if i2c communication is ok! */
+    if (sendData(xbees[currentXbee].addr, CTEST, NULL, 0) < 0){
+      cerr << "Error while sending test command.\n";
       return false;
     }
 
@@ -529,7 +536,7 @@ int main(int argc, char** argv){
   initializeConsole();
 
   vector<Xbee> xbees;
-  xbees.push_back(Xbee(1));
+ xbees.push_back(Xbee(1));
 //  xbees.push_back(Xbee(2));
 
   // AbstractController* controller = new InvertMotorSpace(10);
