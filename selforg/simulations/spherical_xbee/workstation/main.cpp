@@ -13,6 +13,7 @@ using namespace std;
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/dercontroller.h>
 
 #include "serial_unix.h"
 #include "console.h"
@@ -539,7 +540,8 @@ int main(int argc, char** argv){
  xbees.push_back(Xbee(1));
 //  xbees.push_back(Xbee(2));
 
-  // AbstractController* controller = new InvertMotorSpace(10);
+   DerControllerConf dcc = DerController::getDefaultConf();
+ //  AbstractController* controller = new DerController(dcc);
   AbstractController* controller = new SineController();
   controller->setParam("s4delay",2.0);
   controller->setParam("s4avg",2.0);
