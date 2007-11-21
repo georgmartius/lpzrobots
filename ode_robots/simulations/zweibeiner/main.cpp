@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-07-31 08:35:52  martius
+ *   Revision 1.3  2007-11-21 13:18:10  der
+ *   ralfs aenderungen
+ *
+ *   Revision 1.2  2007/07/31 08:35:52  martius
  *   tried wrl mesh
  *
  *   Revision 1.1  2007/07/17 07:25:26  martius
@@ -90,6 +93,7 @@
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
 #include <selforg/derbigcontroller.h>
+#include <selforg/dercontroller.h>
 #include <selforg/invertmotorbigmodel.h>
 #include <selforg/multilayerffnn.h>
 #include <selforg/invertmotornstep.h>
@@ -128,8 +132,7 @@ public:
     global.odeConfig.setParam("noise",0.05); 
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("simstepsize",0.001);
-    global.odeConfig.setParam("controlinterval",20);
-    //    global.odeConfig.setParam("gravity", 0);
+        global.odeConfig.setParam("gravity", -1);
     //    global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
@@ -142,9 +145,9 @@ public:
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     s.toMetal(0.9);
 
-    int anzgrounds=4;
+    int anzgrounds=1;
     for (int i=0; i< anzgrounds; i++){
-      playground = new Playground(odeHandle, osgHandle, osg::Vec3(4+4*i, .2, .15+0.15*i), 1, i==(anzgrounds-1));
+      playground = new Playground(odeHandle, osgHandle, osg::Vec3(100.0+4*i, .2, 1.0+0.15*i), 1, i==(anzgrounds-1));
       OdeHandle myhandle = odeHandle;
       //      myhandle.substance.toFoam(10);
       // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
@@ -196,14 +199,17 @@ public:
 
       // create pointer to controller
       // push controller in global list of configurables
-      AbstractController *controller = new SineController();
-      controller->setParam("sinerate",50);
-      controller->setParam("phaseshift",0);
+      //AbstractController *controller = new SineController();
+      //controller->setParam("sinerate",50);
+      //controller->setParam("phaseshift",0);
       //    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-      //    cc.useS=true;
-      //    AbstractController *controller = new InvertMotorNStep(cc);
+      //  cc.useS=false;
+      //   AbstractController *controller = new InvertMotorNStep(cc);
       //     DerBigControllerConf cc = DerBigController::getDefaultConf();
-      //     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
+
+           DerControllerConf cc = DerController::getDefaultConf();    
+	   AbstractController* controller = new DerController(cc);
+  //     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
       //     vector<Layer> layers;
       //     // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
       //     // size of output layer is automatically set

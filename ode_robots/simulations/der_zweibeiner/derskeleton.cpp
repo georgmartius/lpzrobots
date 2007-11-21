@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-10-29 12:43:59  robot3
- *   MAIN WITH DIFFERET OBJECTS AND DERCONTROLLER
+ *   Revision 1.2  2007-11-21 13:18:10  der
+ *   ralfs aenderungen
  *
  *   Revision 1.3  2007/09/06 18:50:33  martius
  *   *** empty log message ***

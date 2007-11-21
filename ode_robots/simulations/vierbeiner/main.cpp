@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-07-03 13:06:10  martius
+ *   Revision 1.8  2007-11-21 13:18:10  der
+ *   ralfs aenderungen
+ *
+ *   Revision 1.7  2007/07/03 13:06:10  martius
  *   *** empty log message ***
  *
  *   Revision 1.6  2007/04/03 16:35:43  der
@@ -83,6 +86,8 @@
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
 #include <selforg/derbigcontroller.h>
+
+#include <selforg/dercontroller.h>
 #include <selforg/invertmotorbigmodel.h>
 #include <selforg/multilayerffnn.h>
 #include <selforg/invertmotornstep.h>
@@ -132,6 +137,10 @@ public:
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     s.toPlastic(0.9);
+
+// Neue playgrond varionate mit Xfig
+    //    double factor=2;
+    // playground = new ComplexPlayground(odeHandle, osgHandle, "labyrint42.fig", factor, 0.05);
 
     double diam = .8; 
     int anzgrounds=4;
@@ -200,28 +209,32 @@ public:
 
     // create pointer to controller
     // push controller in global list of configurables
-    AbstractController *controller = new SineController();
-    //    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+   // AbstractController *controller = new SineController();
+     //   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     //    cc.useS=true;
-    //    AbstractController *controller = new InvertMotorNStep(cc);
-    DerBigControllerConf cc = DerBigController::getDefaultConf();
+     //  AbstractController *controller = new InvertMotorNStep(cc);
+    // DerBigControllerConf cc = DerBigController::getDefaultConf();
+
+    DerControllerConf cc = DerController::getDefaultConf();
     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
-    vector<Layer> layers;
-    // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
-    // size of output layer is automatically set
-    layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-    MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
-    cc.model=net;
-    cc.useS=true;
+   //  vector<Layer> layers;
+//      layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+//     // size of output layer is automatically set
+//     layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+//     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
+//     cc.model=net;
+//     cc.useS=true;
     //cc.useS=false;
     // AbstractController* controller = new DerBigController(cc);
+
+     AbstractController* controller = new DerController(cc);
 	// AbstractController* controller = new InvertMotorBigModel(cc);
     controller->setParam("sinerate",50);
     controller->setParam("phaseshift",1);
     controller->setParam("adaptrate",0);
     controller->setParam("rootE",3);
     controller->setParam("epsC",0.1);
-    controller->setParam("epsA",0.2);
+    controller->setParam("epsA",0.02);
     controller->setParam("steps",1);
     controller->setParam("s4avg",2);
     controller->setParam("teacher",0);

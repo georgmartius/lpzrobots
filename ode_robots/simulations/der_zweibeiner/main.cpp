@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-10-29 12:43:59  robot3
+ *   Revision 1.2  2007-11-21 13:18:10  der
+ *   ralfs aenderungen
+ *
+ *   Revision 1.1  2007/10/29 12:43:59  robot3
  *   MAIN WITH DIFFERET OBJECTS AND DERCONTROLLER
  *
  *   Revision 1.2  2007/07/31 08:35:52  martius
@@ -93,8 +96,8 @@
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
-#include <selforg/derbigcontroller.h>
-#include <selforg/dercontroller.h>
+#include <selforg/dercontroller/derbigcontroller.h>
+#include <selforg/dercontroller/dercontroller.h>
 #include <selforg/invertmotorbigmodel.h>
 #include <selforg/multilayerffnn.h>
 #include <selforg/invertmotornstep.h>
