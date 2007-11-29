@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-08-29 11:32:55  martius
+ *   Revision 1.8  2007-11-29 19:18:09  martius
+ *   blind channels
+ *
+ *   Revision 1.7  2007/08/29 11:32:55  martius
  *   cleanup
  *
  *   Revision 1.6  2006/12/12 09:44:02  martius
@@ -78,16 +81,18 @@
  ***************************************************************************/
 
 #include "one2onewiring.h"
-
+#include <assert.h>
 
 /// constructor
-One2OneWiring::One2OneWiring(NoiseGenerator* noise, bool plotNoise)
-  : AbstractWiring(noise), plotNoise(plotNoise){
+One2OneWiring::One2OneWiring(NoiseGenerator* noise, bool plotNoise, int blind)
+  : AbstractWiring(noise), plotNoise(plotNoise), blind(blind){
   noisevals=0;
+  blindmotors=0;
 }
 
 One2OneWiring::~One2OneWiring(){
   if(noisevals) free(noisevals);
+  if(blindmotors) free(blindmotors);
 }
 
 
@@ -96,13 +101,18 @@ One2OneWiring::~One2OneWiring(){
 bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;
-  csensornumber = rsensornumber;
-  cmotornumber  = rmotornumber;
+  csensornumber = rsensornumber+blind;
+  cmotornumber  = rmotornumber+blind;
 
-  noisevals     = (sensor*) malloc(sizeof(sensor)  * this->rsensornumber);
+  noisevals     = (sensor*) malloc(sizeof(sensor)  * this->csensornumber);
+  memset(noisevals, 0 , sizeof(sensor) * this->csensornumber);
+  if(blind){
+    blindmotors = (sensor*) malloc(sizeof(sensor)  * blind);
+    memset(blindmotors, 0, sizeof(sensor)  * blind);
+  }
 
-  if(!noiseGenerator) return false;
-  noiseGenerator->init(rsensornumber);
+  if(noiseGenerator)
+    noiseGenerator->init(csensornumber);
   return true;
 }
 
@@ -115,16 +125,20 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber){
 bool One2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
 				sensor* csensors, int csensornumber, 
 				double noiseStrength){
-  if (rsensornumber!=csensornumber)
-    return false;
-  else{
-    memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
-    noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);   
-    for(int i=0; i< rsensornumber; i++){
-      csensors[i] = rsensors[i] + noisevals[i];
-    }
-    return true;
+  assert(rsensornumber == this->rsensornumber);
+  assert(csensornumber == this->csensornumber);
+
+  if(noiseGenerator) {
+    memset(noisevals, 0 , sizeof(sensor) * this->csensornumber);    
+    noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);  
+  } 
+  for(int i=0; i< rsensornumber; i++){
+    csensors[i] = rsensors[i] + noisevals[i];
   }
+  for(int i=0; i< blind; i++){
+    csensors[i + rsensornumber] = blindmotors[i] + noisevals[rsensornumber+i];
+  }
+  return true;  
 }
 
 
@@ -135,12 +149,12 @@ bool One2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 //   @param cmotornumber number of motorvalues from controller
 bool One2OneWiring::wireMotors(motor* rmotors, int rmotornumber,
 			       const motor* cmotors, int cmotornumber){
-  if (rmotornumber!=cmotornumber) 
-    return false;
-  else{
-    memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
-    return true;
-  }
+  assert(rmotornumber == this->rmotornumber);
+  assert(cmotornumber == this->cmotornumber);
+  memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
+  if(blind)
+    memcpy(blindmotors, cmotors+rmotornumber, sizeof(motor)*blind);
+  return true;
 }
 
 /** Returns the list of the names of all internal parameters.

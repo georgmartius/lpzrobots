@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-07-20 17:14:36  martius
+ *   Revision 1.4  2007-11-29 19:18:02  martius
+ *   blind channels
+ *
+ *   Revision 1.3  2006/07/20 17:14:36  martius
  *   removed std namespace from matrix.h
  *   storable interface
  *   abstract model and invertablemodel as superclasses for networks
@@ -75,8 +78,10 @@ public:
       @param plotNoise for plotting the noise values (to observe it from outside
       via getInternalParams() and guilogger) set it TRUE, for not plotting the noise set 
       it to FALSE.
+      @param blind number of blind channels
+        (additional sensors and motors coupled directly)
    */
-  One2OneWiring(NoiseGenerator* noise, bool plotNoise=false);
+  One2OneWiring(NoiseGenerator* noise, bool plotNoise=false, int blind=0);
 
   /** destructor
    */
@@ -121,6 +126,10 @@ protected:
   bool plotNoise; 
   /// for storing the noise values
   sensor* noisevals;
+
+  int blind; /// number of blind channels
+  /// blind motor values
+  motor* blindmotors;
 
 };
 
