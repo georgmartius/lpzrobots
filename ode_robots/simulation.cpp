@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.72  2007-12-06 10:30:52  der
+ *   Revision 1.73  2007-12-06 14:52:43  martius
+ *   mouse grasp started
+ *
+ *   Revision 1.72  2007/12/06 10:30:52  der
  *   the TV mode is now the default camera mode!
  *
  *   Revision 1.71  2007/11/07 13:13:01  martius
@@ -380,6 +383,7 @@
 #include <osg/ArgumentParser>
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
+#include <osgUtil/SceneView>
 #include <osgDB/ReaderWriter>
 #include <osgDB/FileUtils>
 
@@ -396,6 +400,7 @@ namespace lpzrobots {
 using namespace std;
 using namespace osg;
 using namespace osgProducer;
+using namespace osgUtil;
 
 
 int Simulation::ctrl_C = 0;
@@ -855,11 +860,25 @@ bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter
 	sprintf(filename, "%s/frame", dir);
 	videostream.open(filename);
       }
+      handled=true;
       break;
     case 16: // Ctrl - p
       pause = !pause;
       printf( pause ? "Pause\n" : "Continue\n" );
       handled = true;
+      break;
+    case 15: // Ctrl - o // TEST
+      { 
+	
+	SceneView* sv = viewer->getSceneHandlerList().front()->getSceneView();
+	Vec3 p(400,400,0);
+	Pos o;	
+	if(!sv->projectWindowIntoObject(p,o)){
+	  printf("SHIT happens always\n");	  
+	}
+	o.print();
+	handled = true;
+      }
       break;
     default:
       // std::cout << ea.getKey() << std::endl;
