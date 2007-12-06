@@ -24,7 +24,17 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-10-10 13:18:06  martius
+ *   Revision 1.7  2007-12-06 10:18:10  der
+ *   AbstractMeasure is now a abstract type for Measures,
+ *   StatisticTools now supports AbstractMeasures,
+ *   StatisticalMeasure, ComplexMeasure  now derived from
+ *   AbstractMeasure,
+ *   ComplexMeasure provides support for calculation e.g. entropy,
+ *   uses Discretisizer,
+ *   Discretisizer is a stand-alone class for support of discretisizing values
+ *   TrackableMeasure derived from ComplexMeasure and provides support for calculating complex measures for Trackable objects
+ *
+ *   Revision 1.6  2007/10/10 13:18:06  martius
  *   math.h
  *
  *   Revision 1.5  2007/10/10 13:17:14  martius
@@ -54,26 +64,16 @@
 #include "assert.h"
 #include "math.h"
 
-StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : name(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam)
+StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : AbstractMeasure(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam)
 {
-  value=0;
-  actualStep=0;
-  oldestStepIndex=0;
-  newestStepIndex=stepSpan-1;
-  if (stepSpan>0)
-  {
-    this->valueHistory = (double*) malloc(sizeof(double) * stepSpan);
-    // set all values to 0
-    for (int i=0;i<stepSpan;i++)
-      this->valueHistory[i]=0;
-  }
+  internInit();
   /// use this section for defining individual constructor commands
   switch(mode)
   {
   case CONV:
     if (stepSpan==0)
     {
-      std::cout << "ERROR: The stepspan in addMeasure(observedValue, CONV, stepSpan, epsilon)"
+      std::cout << "ERROR: The stepspan in addMeasure(observedValue,\"name\" ,CONV, stepSpan, epsilon)"
       << std::endl << "       must not be <1!" << std::endl;
       std::cout << "Program terminated. Please correct this error in main.cpp (or wherever) first." << std::endl;
       exit(-1);
@@ -84,6 +84,20 @@ StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, Mea
     break;
   }
 }
+
+void StatisticMeasure::internInit() {
+  oldestStepIndex=0;
+  newestStepIndex=stepSpan-1;
+  if (stepSpan>0)
+  {
+    this->valueHistory = (double*) malloc(sizeof(double) * stepSpan);
+    // set all values to 0
+    for (int i=0;i<stepSpan;i++)
+      this->valueHistory[i]=0;
+  }
+}
+
+
 
 void StatisticMeasure::step()
 {
@@ -167,10 +181,8 @@ double StatisticMeasure::calculateSumValue()
 double StatisticMeasure::calculateAverageValue()
 {
   double newavg=this->value;
-  if (stepSpan==0)
-  {
-    // use update rule described in diploma thesis of Frank Guettler
-
+  if (stepSpan==0) {
+    // use update rule
   }
   else
   {

@@ -24,7 +24,17 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-09-28 08:48:21  robot3
+ *   Revision 1.4  2007-12-06 10:18:10  der
+ *   AbstractMeasure is now a abstract type for Measures,
+ *   StatisticTools now supports AbstractMeasures,
+ *   StatisticalMeasure, ComplexMeasure  now derived from
+ *   AbstractMeasure,
+ *   ComplexMeasure provides support for calculation e.g. entropy,
+ *   uses Discretisizer,
+ *   Discretisizer is a stand-alone class for support of discretisizing values
+ *   TrackableMeasure derived from ComplexMeasure and provides support for calculating complex measures for Trackable objects
+ *
+ *   Revision 1.3  2007/09/28 08:48:21  robot3
  *   corrected some minor bugs, files are still in develop status
  *
  *   Revision 1.2  2007/09/27 10:49:39  robot3
@@ -41,50 +51,45 @@
 #ifndef _STATISTIC_MEASURE_H
 #define _STATISTIC_MEASURE_H
 
-#include "statistictools.h"
+#include "abstractmeasure.h"
+#include "measuremodes.h"
 
-class StatisticMeasure {
+class StatisticMeasure : public AbstractMeasure
+{
 
 public:
-	StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam);
+  StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam);
 
-	virtual ~StatisticMeasure() {}
+  virtual ~StatisticMeasure() {}
 
-	virtual void step();
-
-	virtual std::string getName() const { return name; }
-
-	virtual double getValue() const { return value; }
-
-	virtual double& getValueAdress()  { return value; }
-
+  virtual void step();
 
 protected:
-	std::string name;
-	double value;  // this is the value which is determined, e.g. in AVG MeasureMode, it's the average!
-	double& observedValue; // the observed value from which the statistic is made
-	MeasureMode mode; // the MeasureMode, e.g. ID, AVG, MED, PEAK, CONV,...
-	long stepSpan; // determines the size of valueHistory
-	double additionalParam;
-	long actualStep; // actual step
-	long oldestStepIndex; // indicates the index number in the valueHistory, which was the oldest step
+  double& observedValue; // the observed value from which the statistic is made
+  MeasureMode mode; // the MeasureMode, e.g. ID, AVG, MED, PEAK, CONV,...
+  long stepSpan; // determines the size of valueHistory
+  double additionalParam;
+  long oldestStepIndex; // indicates the index number in the valueHistory, which was the oldest step
   long newestStepIndex; // indicates the index number with the newest value, this is the oldestStepIndex one step before
 
-	double* valueHistory;
+  double* valueHistory;
 
-	/**************************************************************************************************/
-	/* all the functions for calculating the values are below this line, add new variables if needed  */
+  void internInit();
 
-	virtual double calculateSumValue();
 
-	virtual double calculateAverageValue();
+  /**************************************************************************************************/
+  /* all the functions for calculating the values are below this line, add new variables if needed  */
 
-	/* BEGIN convergence SECTION */
-	virtual double testConvergence();
-	// stores how much steps the convergence is reached,
-	// if stepsReached==stepSpan, convergence criteria is 1, otherwise 0
-	long stepsReached;
-	/* END convergence SECTION */
+  virtual double calculateSumValue();
+
+  virtual double calculateAverageValue();
+
+  /* BEGIN convergence SECTION */
+  virtual double testConvergence();
+  // stores how much steps the convergence is reached,
+  // if stepsReached==stepSpan, convergence criteria is 1, otherwise 0
+  long stepsReached;
+  /* END convergence SECTION */
 
 
 

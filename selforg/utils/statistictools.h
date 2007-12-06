@@ -24,7 +24,17 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-10-01 13:27:47  robot3
+ *   Revision 1.7  2007-12-06 10:18:10  der
+ *   AbstractMeasure is now a abstract type for Measures,
+ *   StatisticTools now supports AbstractMeasures,
+ *   StatisticalMeasure, ComplexMeasure  now derived from
+ *   AbstractMeasure,
+ *   ComplexMeasure provides support for calculation e.g. entropy,
+ *   uses Discretisizer,
+ *   Discretisizer is a stand-alone class for support of discretisizing values
+ *   TrackableMeasure derived from ComplexMeasure and provides support for calculating complex measures for Trackable objects
+ *
+ *   Revision 1.6  2007/10/01 13:27:47  robot3
  *   documentation
  *
  *   Revision 1.5  2007/09/28 10:08:49  robot3
@@ -57,6 +67,7 @@
 
 
 // begin forward declarations
+class AbstractMeasure;
 class StatisticMeasure;
 // end forward declarations
 
@@ -88,6 +99,15 @@ public:
    */
   virtual StatisticMeasure* getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
 
+
+  /**
+   * You can add another abstract measure you like. in some cases (e.g. complex
+   * measures) it is better to let the measure decide how it likes to be initialized
+   * @param measure the measure to add
+   */
+  virtual double& addMeasure(AbstractMeasure* measure);
+
+
 	/**
 	 * starts the measure at a specific time. This is useful if there are
 	 * values that have to be ignored at simulation start.
@@ -117,7 +137,7 @@ public:
 	virtual std::list<iparamval> getInternalParams() const;
 
 protected:
-	std::list<StatisticMeasure*> activeMeasures;
+	std::list<AbstractMeasure*> activeMeasures;
 	long beginMeasureCounter;
 };
 

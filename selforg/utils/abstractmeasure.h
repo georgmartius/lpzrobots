@@ -24,7 +24,7 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-12-06 10:18:10  der
+ *   Revision 1.1  2007-12-06 10:18:10  der
  *   AbstractMeasure is now a abstract type for Measures,
  *   StatisticTools now supports AbstractMeasures,
  *   StatisticalMeasure, ComplexMeasure  now derived from
@@ -34,68 +34,45 @@
  *   Discretisizer is a stand-alone class for support of discretisizing values
  *   TrackableMeasure derived from ComplexMeasure and provides support for calculating complex measures for Trackable objects
  *
- *   Revision 1.4  2007/09/28 09:15:25  robot3
- *   extended comments
- *
  *   Revision 1.3  2007/09/28 08:48:21  robot3
  *   corrected some minor bugs, files are still in develop status
  *
- *   Revision 1.2  2007/05/08 10:18:15  der
- *   added a function for starting the measure after a given time.
- *   made some tests
+ *   Revision 1.2  2007/09/27 10:49:39  robot3
+ *   removed some minor bugs,
+ *   added CONVergence test
+ *   changed little things for support of the new WSM
  *
- *   Revision 1.1  2007/05/07 21:01:32  robot3
+ *   Revision 1.1  2007/05/07 21:01:31  robot3
  *   statistictools is a class for easy visualization of measurements of observed values
  *   it is possible to add the observed value itself with mode ID
  *
  *                                                                         *
  ***************************************************************************/
-#include "statistictools.h"
-#include "statisticmeasure.h"
+#ifndef _ABSTRACT_MEASURE_H
+#define _ABSTRACT_MEASURE_H
+
+#import <iostream>
+class AbstractMeasure {
+
+public:
+	AbstractMeasure(const char* measureName) : name(measureName), value(0.0), actualStep(0) {}
+
+	virtual ~AbstractMeasure() {}
+
+	virtual void step()=0;
+
+	virtual std::string getName() const { return name; }
+
+	virtual double getValue() const { return value; }
+
+	virtual double& getValueAdress()  { return value; }
 
 
-void StatisticTools::doOnCallBack() {
-    // update all statistic measures
-    if (beginMeasureCounter>0)
-        beginMeasureCounter--;
-    else
-        for (std::list<AbstractMeasure*>::iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
-            (*i)->step();
-        }
-}
+protected:
+	std::string name;
+	double value;  // this is the value which is determined, e.g. in AVG MeasureMode, it's the average!
 
-double& StatisticTools::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
-    StatisticMeasure* newMeasure = this->getMeasure(observedValue,measureName,mode,stepSpan,additionalParam);
-    return  newMeasure->getValueAdress();
-}
+	long actualStep; // actual step
+};
 
-StatisticMeasure* StatisticTools::getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
-    StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
-    this->activeMeasures.push_back(newMeasure);
-    return newMeasure;
-}
-
-double& StatisticTools::addMeasure(AbstractMeasure* measure) {
-  this->activeMeasures.push_back(measure);
-  return  measure->getValueAdress();
-}
-
-void StatisticTools::beginMeasureAt(long step) {
-    this->beginMeasureCounter=step;
-}
-
-std::list<Inspectable::iparamkey> StatisticTools::getInternalParamNames() const  {
-    std::list<Inspectable::iparamkey> list;
-  for (std::list<AbstractMeasure*>::const_iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
-    list+=(*i)->getName();
-    }
-    return list;
-}
-
-std::list<Inspectable::iparamval> StatisticTools::getInternalParams() const {
-    std::list<Inspectable::iparamval> list;
-  for (std::list<AbstractMeasure*>::const_iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
-    list+=(*i)->getValue();
-    }
-    return list;
-}
+#endif
