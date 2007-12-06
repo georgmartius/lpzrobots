@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-12-06 15:58:31  der
+ *   Revision 1.3  2007-12-06 19:38:17  der
+ *   tested entropy
+ *
+ *   Revision 1.2  2007/12/06 15:58:31  der
  *   changed minor things
  *
  *   Revision 1.1  2007/12/06 10:01:18  der
@@ -164,7 +167,7 @@ public:
 
     global.odeConfig.setParam("noise",0.1);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",0);
+    global.odeConfig.setParam("realtimefactor",1);
     //  global.odeConfig.setParam("simstepsize",0.1);
     //  global.odeConfig.setParam("drawinterval",5);
     // initialization
@@ -195,7 +198,7 @@ public:
         PassiveBox* b =
           new PassiveBox(odeHandle,
                          osgHandle, osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),0.0);
-        b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
+        b->setPosition(Pos(i*4-6, -5+j*4, 0.01));
         b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
         b->setTexture("Images/light_chess.rgb");
         global.obstacles.push_back(b);
@@ -219,7 +222,7 @@ public:
     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
     nimm2conf.size = 1.6;
     nimm2conf.force = 5;
-    nimm2conf.speed=12;
+    nimm2conf.speed=10;
     nimm2conf.cigarMode=true;
     nimm2conf.singleMotor=false;
     nimm2conf.visForce=true;
@@ -246,26 +249,27 @@ public:
       //	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
       //	    discretesizer->setIntervalCount(3);
       OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-      mic = new MutualInformationController(30);
-      mic->setParam("showF",0);
-      mic->setParam("showP",0);
-      onamupaco->addPassiveController(mic,"mi30");
+       mic = new MutualInformationController(30);
+       mic->setParam("showF",0);
+       mic->setParam("showP",0);
+       onamupaco->addPassiveController(mic,"mi30");
 
-      agent->addInspectable((Inspectable*)stats);
-      agent->addCallbackable((Callbackable*)stats);
-      agent->init(onamupaco, myNimm2		, wiring);
+       //      agent->addInspectable((Inspectable*)stats);
+      //      agent->addCallbackable((Callbackable*)stats);
+      //      agent->init(onamupaco, myNimm2		, wiring);
+      agent->init(controller, myNimm2		, wiring);
       agent->setTrackOptions(TrackRobot(true,false, false, false, "entropyc",10));
       global.configs.push_back(controller);
       global.agents.push_back(agent);
 
-      stats->beginMeasureAt(100);
+      //  stats->beginMeasureAt(100);
 
-      stats->addMeasure(mic->getMI(0),"MI0",ID,0);
-      stats->addMeasure(mic->getMI(1),"MI1",ID,0);
+      //      stats->addMeasure(mic->getMI(0),"MI0",ID,0);
+      // stats->addMeasure(mic->getMI(1),"MI1",ID,0);
 
-      // this->getWSM()->beginMeasureAt(100);
-      this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
-      this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
+//       // this->getWSM()->beginMeasureAt(100);
+//       this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
+       this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
 
       //  convTest1=stats->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,50000,0.002);
       // getWSM()->addMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
@@ -277,11 +281,11 @@ public:
       
       //this->getHUDSM()->addMeasure(trackableEntropy);
       
-      trackableEntropySLOW= new TrackableMeasure(trackableList,"ESLOW Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 10);
+      trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 10);
       
       this->getHUDSM()->addMeasure(trackableEntropySLOW);
       
-      convTest1=stats->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,50000,0.001);
+      // convTest1=stats->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,50000,0.001);
       // getWSM()->addMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
       convTest0=stats->getMeasure( trackableEntropySLOW->getValueAdress(),"E CONV",CONV,50000,0.001);
     }
@@ -302,29 +306,29 @@ public:
     if (this->sim_step%100000==0) {
       printf("timeSteps   = %li\n",this->sim_step);
       printf("time in min = %f\n",((float)this->sim_step)/100/60);
-      printf("MI sensor 0 = %f\n",mic->getMI(0));
-      printf("MI sensor 1 = %f\n",mic->getMI(1));
+      //   printf("MI sensor 0 = %f\n",mic->getMI(0));
+      //  printf("MI sensor 1 = %f\n",mic->getMI(1));
       printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
     }
-    if (this->sim_step>=1000000) {
+    if (this->sim_step>=600000) {
         FILE* file;
       char filename[256];
-      sprintf(filename, "MI_C_%f.log", this->cInit);
+      sprintf(filename, "ent_C.log");
 
-      file = fopen(filename,"w");
+      file = fopen(filename,"a");
 
-      fprintf(file, "#Logfile for measuring the Mutual Information\n");
-      fprintf(file,"timeSteps   = %li\n",this->sim_step);
-      fprintf(file,"time in min = %f\n",((float)this->sim_step)/100/60);
-      fprintf(file,"MI sensor 0 = %f\n",mic->getMI(0));
-      fprintf(file,"MI sensor 1 = %f\n",mic->getMI(1));
-      fprintf(file,"Entropy     = %f\n",trackableEntropySLOW->getValue());
+      //  fprintf(file, "#Logfile for measuring the entropy\n");
+      // fprintf(file,"timeSteps   = %li\n",this->sim_step);
+      // fprintf(file,"time in min = %f\n",((float)this->sim_step)/100/60);
+      //fprintf(file,"MI sensor 0 = %f\n",mic->getMI(0));
+      //fprintf(file,"MI sensor 1 = %f\n",mic->getMI(1));
+      fprintf(file,"%f, %f\n",cInit,trackableEntropySLOW->getValue());
       fflush(file);
       if(file) fclose(file);
       printf("timeSteps   = %li\n",this->sim_step);
       printf("time in min = %f\n",((float)this->sim_step)/100/60);
-      printf("MI sensor 0 = %f\n",mic->getMI(0));
-      printf("MI sensor 1 = %f\n",mic->getMI(1));
+      //printf("MI sensor 0 = %f\n",mic->getMI(0));
+      //printf("MI sensor 1 = %f\n",mic->getMI(1));
       printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
       simulation_time_reached=true;
    }    
@@ -358,7 +362,7 @@ int main (int argc, char **argv)
       ThisSim sim(atof(argv[index]));
       sim.run(argc,argv);
     }
-  } else for (double cinit=0.0;cinit<=2.1;cinit+=0.05)  {
+  } else for (double cinit=0.7;cinit<=1.3;cinit+=0.05)  {
     ThisSim sim;
     sim.cInit=cinit;
     sim.run(argc,argv);
