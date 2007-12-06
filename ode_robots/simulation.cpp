@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.71  2007-11-07 13:13:01  martius
+ *   Revision 1.72  2007-12-06 10:30:52  der
+ *   the TV mode is now the default camera mode!
+ *
+ *   Revision 1.71  2007/11/07 13:13:01  martius
  *   sound signals
  *   draw at the end of drawinterval
  *   FOREACH used more, indentation
@@ -542,9 +545,9 @@ bool Simulation::init(int argc, char** argv) {
             new CameraManipulatorTV(osgHandle.scene, globalData);
         CameraManipulator* cameramanipulatorRace =
             new CameraManipulatorRace(osgHandle.scene, globalData);
-        unsigned int pos = viewer->addCameraManipulator(defaultCameramanipulator);
+        viewer->addCameraManipulator(defaultCameramanipulator);
         viewer->addCameraManipulator(cameramanipulatorFollow);
-        viewer->addCameraManipulator(cameramanipulatorTV);
+        unsigned int pos = viewer->addCameraManipulator(cameramanipulatorTV);
         viewer->addCameraManipulator(cameramanipulatorRace);
         viewer->selectCameraManipulator(pos); // this is the default camera type
 
