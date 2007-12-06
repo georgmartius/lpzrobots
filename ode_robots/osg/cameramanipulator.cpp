@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-09-27 10:47:04  robot3
+ *   Revision 1.9  2007-12-06 10:36:10  der
+ *   the first agent in the agentlist is now selected by default!
+ *
+ *   Revision 1.8  2007/09/27 10:47:04  robot3
  *   mathutils: moved abs to selforg/stl_adds.h
  *   simulation,base: added callbackable support,
  *   added WSM (WindowStatisticsManager) funtionality
@@ -334,6 +337,10 @@ namespace lpzrobots {
   }
 
   void CameraManipulator::update() {
+    // first look if some robot is selected, if not, select the first one
+    if (!watchingAgentDefined) {
+      manageAgents(1);
+    }
     // the call from simulation.cpp works, but is made for ALL cameramanipulators!
     // which is now neccessary for the smoothness for the mouse interactions
 
