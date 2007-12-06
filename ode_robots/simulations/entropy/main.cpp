@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-12-06 10:01:18  der
+ *   Revision 1.2  2007-12-06 15:58:31  der
+ *   changed minor things
+ *
+ *   Revision 1.1  2007/12/06 10:01:18  der
  *   new simulation for evaluating of the entropy over the positin histogramm of the robot
  *
  *   Revision 1.14  2007/10/01 13:27:14  robot3
@@ -191,7 +194,7 @@ public:
       {
         PassiveBox* b =
           new PassiveBox(odeHandle,
-                         osgHandle, osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),40.0);
+                         osgHandle, osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),0.0);
         b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
         b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
         b->setTexture("Images/light_chess.rgb");
@@ -237,7 +240,7 @@ public:
       //  controller->setParam( "sinerate",1);
       //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
       //wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      wiring = new One2OneWiring(new WhiteUniformNoise());
+      wiring = new One2OneWiring(new WhiteNormalNoise());
       agent = new OdeAgent( std::list<PlotOption>() );
       // create DiscreteControllerAdapter
       //	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
@@ -251,6 +254,7 @@ public:
       agent->addInspectable((Inspectable*)stats);
       agent->addCallbackable((Callbackable*)stats);
       agent->init(onamupaco, myNimm2		, wiring);
+      agent->setTrackOptions(TrackRobot(true,false, false, false, "entropyc",10));
       global.configs.push_back(controller);
       global.agents.push_back(agent);
 
@@ -273,7 +277,7 @@ public:
       
       //this->getHUDSM()->addMeasure(trackableEntropy);
       
-      trackableEntropySLOW= new TrackableMeasure(trackableList,"ESLOW Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 50);
+      trackableEntropySLOW= new TrackableMeasure(trackableList,"ESLOW Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 10);
       
       this->getHUDSM()->addMeasure(trackableEntropySLOW);
       
@@ -302,7 +306,7 @@ public:
       printf("MI sensor 1 = %f\n",mic->getMI(1));
       printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
     }
-    if ((this->convTest0->getValue()==1.0)&&(this->convTest1->getValue()==1.0)) {
+    if (this->sim_step>=1000000) {
         FILE* file;
       char filename[256];
       sprintf(filename, "MI_C_%f.log", this->cInit);
@@ -323,7 +327,7 @@ public:
       printf("MI sensor 1 = %f\n",mic->getMI(1));
       printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
       simulation_time_reached=true;
-   }
+   }    
   }
 
   // add own key handling stuff here, just insert some case values
