@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-11 12:01:43  martius
+ *   Revision 1.5  2007-12-06 07:48:43  der
+ *   added method print(), same as in class Pos (see ode_robots/utils)
+ *
+ *   Revision 1.4  2006/09/11 12:01:43  martius
  *   *** empty log message ***
  *
  *   Revision 1.3  2006/08/11 15:48:24  martius
@@ -61,6 +64,11 @@ public:
   double x;
   double y;
   double z;
+  
+  void print(){
+    std::cout << '(' << x << ',' << y << ',' << z << ')' << std::endl;
+  }
+  
 private:
   double array[3];
 };
