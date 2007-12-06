@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.36  2007-11-07 13:21:16  martius
+ *   Revision 1.37  2007-12-06 19:40:18  der
+ *   just a few changes
+ *
+ *   Revision 1.36  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.35  2007/09/27 16:01:28  der
@@ -422,7 +425,8 @@ namespace lpzrobots {
     // - put it into object[0]
 
     if (conf.boxMode) {
-      Box* box = new Box(width/4*3,width/2, length/2);
+      // height, width and length
+      Box* box = new Box(width/4*3,width/3, length/2);
       box->init(odeHandle, cmass, osgHandle);
       box->setPose(Matrix::translate(0, 0, -1) * Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
       box->getOSGPrimitive()->setTexture("Images/wood.rgb");
