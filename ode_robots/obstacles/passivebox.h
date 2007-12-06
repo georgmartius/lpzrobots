@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-03-16 11:01:37  martius
+ *   Revision 1.4  2007-12-06 15:59:19  der
+ *   if you set the mass=0.0, a passive box without a body is created
+ *
+ *   Revision 1.3  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -77,7 +80,7 @@ class PassiveBox : public AbstractObstacle{
  public:
   
   /**
-   * Constructor
+   * Constructor, if you set mass=0.0, you get a box which cannot be moved
    */
   PassiveBox(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	     const osg::Vec3& dimension = osg::Vec3(1.0, 1.0, 1.0), double mass = 1.0):
@@ -104,7 +107,11 @@ class PassiveBox : public AbstractObstacle{
  protected:
   virtual void create(){
     box = new Box(dimension.x(), dimension.y(), dimension.z());
-    box->init(odeHandle, mass, osgHandle);
+    if (mass==0.0) {
+      box->init(odeHandle, mass, osgHandle, Primitive::Geom | Primitive::Draw);
+    } else {
+      box->init(odeHandle, mass, osgHandle);
+    }
     osg::Vec3 pos=pose.getTrans();
     box->setPosition(pos);
     obst.push_back(box);
