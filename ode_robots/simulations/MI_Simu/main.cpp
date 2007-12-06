@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-10-01 13:27:14  robot3
+ *   Revision 1.15  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.14  2007/10/01 13:27:14  robot3
  *   made some improvements
  *
  *   Revision 1.13  2007/09/28 12:29:12  robot3
@@ -264,7 +269,7 @@ public:
 
 
 
-      /*stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
+      stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
       	    stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
       	    stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);
       	    double& peakForce = stats->addMeasure(myNimm2->getSumForce(),"peakForce",PEAK,0,0.06333);
@@ -272,7 +277,7 @@ public:
       	    stats->addMeasure(myNimm2->getSumForce(), "ForceMax", MAX, 0);
       	    double& sumsumForce = stats->addMeasure(peakForce, "sumPeakForce50", SUM, 50);
       	    stats->addMeasure(sumsumForce, "sumPeakForceAvg50", AVG, 50);
-      	    stats->addMeasure(sumsumForce, "MaxsumPeakForce50", MAX, 50);*/
+      	    stats->addMeasure(sumsumForce, "MaxsumPeakForce50", MAX, 50);
 
 
     }

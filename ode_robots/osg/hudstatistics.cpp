@@ -25,7 +25,12 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-28 12:31:49  robot3
+ *   Revision 1.3  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.2  2007/09/28 12:31:49  robot3
  *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
  *   can be updated independently from the HUD
  *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
@@ -49,6 +54,7 @@
  ***************************************************************************/
 
 #include "hudstatistics.h"
+#include <selforg/abstractmeasure.h>
 #include <selforg/statisticmeasure.h>
 
 #include "osgforwarddecl.h"
@@ -106,6 +112,29 @@ double& HUDStatisticsManager::addMeasure(double& observedValue, char* measureNam
   StatisticMeasure* newMeasure = this->getMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
 
   return newMeasure->getValueAdress();
+}
+
+double& HUDStatisticsManager::addMeasure(AbstractMeasure* measure) {
+   // create new text object with default settings:
+  float textPosition = windowStatisticList.size();
+  osg::Vec3 position(xInitPosition,yInitPosition+yOffset*textPosition,zInitPosition);
+  
+  osgText::Text* text = new  osgText::Text;
+  geode->addDrawable( text );
+  text->setCharacterSize(fontsize);
+  text->setFont(font);
+  text->setPosition(position);
+  text->setColor(*textColor);
+  text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
+  
+  std::string buffer(measure->getName());
+  buffer.append(":  -");
+  text->setText(buffer);
+  
+  // create WindowStatistic
+  this->windowStatisticList.push_back(new WindowStatistic(measure,text));
+  this->statTool->addMeasure(measure);
+  return  measure->getValueAdress();
 }
 
 void HUDStatisticsManager::doOnCallBack() {

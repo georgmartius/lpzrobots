@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-11-07 13:21:16  martius
+ *   Revision 1.7  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.6  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.5  2007/04/05 15:11:42  martius
@@ -193,31 +198,34 @@ namespace lpzrobots {
 	@param col Color struct with desired Color
     */
     virtual void setColor(const Color& col);
-  
-    /** returns position of the object
-	@return vector of position (x,y,z)
-    */
-    virtual Position getPosition() const; 
-  
-    /** returns linear speed vector of the object
-	@return vector  (vx,vy,vz)
-    */
-    virtual Position getSpeed() const; 
-    /** returns angular velocity vector of the object
-	@return vector  (wx,wy,wz)
-    */
-    virtual Position getAngularSpeed() const; 
-    /** returns the orientation of the object
-	@return 3x3 rotation matrix
-    */
-    virtual matrix::Matrix getOrientation() const ;
-  
-    /** overload this in the robot implementation.
-	If there is no object for some reason then return a null pointer
-	@return main object of the robot (used for tracking)
-    */
-    virtual Primitive* getMainPrimitive() const  = 0;
 
+
+  /*********** BEGIN ODETRACKABLE INTERFACE ****************/
+  
+   /** returns position of the object
+  @return vector of position (x,y,z)
+   */
+virtual Position getPosition() const;
+  
+  /** returns linear speed vector of the object
+  @return vector  (vx,vy,vz)
+   */
+virtual Position getSpeed() const;
+  
+  /** returns angular velocity vector of the object
+  @return vector  (wx,wy,wz)
+   */
+virtual Position getAngularSpeed() const;
+  
+  /** returns the orientation of the object
+  @return 3x3 rotation matrix
+   */
+virtual matrix::Matrix getOrientation() const;
+  
+  
+    virtual Primitive* getMainPrimitive() const  = 0;
+  /*********** END ODETRACKABLE INTERFACE ****************/
+  
   protected:
 
     static bool isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom);

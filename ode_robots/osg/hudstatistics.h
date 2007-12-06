@@ -25,7 +25,12 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-28 12:31:49  robot3
+ *   Revision 1.3  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.2  2007/09/28 12:31:49  robot3
  *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
  *   can be updated independently from the HUD
  *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
@@ -134,6 +139,13 @@ public:
   	 * @see StatisticMeasure
 	 */
   virtual double& addMeasure( double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
+  
+    /**
+   * You can add another abstract measure you like. in some cases (e.g. complex
+   * measures) it is better to let the measure decide how it likes to be initialized
+   * @param measure the measure to add
+   */
+  virtual double& addMeasure(AbstractMeasure* measure);
 
   	/**
 	 * starts the measure at a specific time. This is useful if there are
@@ -167,17 +179,17 @@ protected:
   class WindowStatistic {
   public:
 
-    WindowStatistic(StatisticMeasure* measure, osgText::Text* text) : measure(measure),
+    WindowStatistic(AbstractMeasure* measure, osgText::Text* text) : measure(measure),
       text(text) {}
 
     virtual ~WindowStatistic() {}
 
-    virtual StatisticMeasure* getMeasure() { return measure; }
+    virtual AbstractMeasure* getMeasure() { return measure; }
 
     virtual osgText::Text* getText() { return text; }
 
   private:
-    StatisticMeasure* measure;
+    AbstractMeasure* measure;
     osgText::Text* text;
   };
 

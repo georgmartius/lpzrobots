@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-09-06 18:46:41  martius
+ *   Revision 1.9  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.8  2007/09/06 18:46:41  martius
  *   printContours
  *
  *   Revision 1.7  2007/08/24 11:53:10  martius
@@ -84,6 +89,7 @@
 
 #include <vector>
 #include "abstractobstacle.h"
+#include <selforg/position.h>
 
 namespace lpzrobots {
 
@@ -130,6 +136,14 @@ public:
      * @param substance description of the substance
      */
     virtual void setGroundSubstance(const Substance& substance);
+    
+    
+    /**
+     * returns the corner points of the groundplane
+     * @return list of the cornerpoints
+     */
+    virtual std::list<Position> getCornerPointsXY();
+
 
 
   protected:

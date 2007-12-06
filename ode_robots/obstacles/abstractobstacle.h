@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-03-16 11:01:37  martius
+ *   Revision 1.11  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.10  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -94,6 +99,9 @@
 
 #include <vector>
 
+class Position;
+namespace matrix { class Matrix; }
+
 namespace lpzrobots {
 
   class Primitive;
@@ -124,12 +132,17 @@ class AbstractObstacle{
   /**
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
+  virtual void setPos(const osg::Vec3& pos);
+  
+    /**
+   * sets position of the obstacle and creates/recreates obstacle if necessary
+   */
   virtual void setPosition(const osg::Vec3& pos);
 
   /**
    * gives actual position of the obstacle
    */
-  virtual osg::Vec3 getPosition();
+  virtual osg::Vec3 getPos();
 
   /**
    * gives actual pose of the obstacle
@@ -155,6 +168,30 @@ class AbstractObstacle{
    * @param substance description of the substance
    */
   virtual void setSubstance(const Substance& substance);
+  
+   /*********** BEGIN TRACKABLE INTERFACE *******************/
+  
+   /** returns position of the object
+  @return vector of position (x,y,z)
+   */
+  virtual Position getPosition() const;
+  
+  /** returns linear speed vector of the object
+  @return vector  (vx,vy,vz)
+   */
+  virtual Position getSpeed() const;
+  
+  /** returns angular velocity vector of the object
+  @return vector  (wx,wy,wz)
+   */
+  virtual Position getAngularSpeed() const;
+  
+  /** returns the orientation of the object
+  @return 3x3 rotation matrix
+   */
+  virtual matrix::Matrix getOrientation() const;
+  
+  /*********** END TRACKABLE INTERFACE *******************/
 
  protected:
   std::vector<Primitive*> obst; ///< primitives which belong to this obstacle

@@ -21,7 +21,12 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-04-05 15:11:42  martius
+ *   Revision 1.6  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.5  2007/04/05 15:11:42  martius
  *   angular speed tracking
  *
  *   Revision 1.4  2006/08/08 17:04:46  martius
@@ -88,48 +93,6 @@ namespace lpzrobots {
   void OdeRobot::place(const Pos& pos){
     place(osg::Matrix::translate(pos));
   }
-
-  /** returns position of the object
-      @return vector of position (x,y,z)
-  */
-  Position OdeRobot::getPosition() const {
-    const Primitive* o = getMainPrimitive();    
-    //    if (o && o->getBody()){
-    //      return Position(dBodyGetPosition(o->getBody()));
-    //    } else {
-
-    // using the Geom has maybe the advantage to get the position of transform objects 
-    // (e.g. hand of muscledArm)
-    if (o && o->getGeom())
-      return Position(dGeomGetPosition(o->getGeom()));
-    else if(o->getBody())
-      return Position(dBodyGetPosition(o->getBody()));     
-    else return Position(0,0,0);
-  }
-  
-  Position OdeRobot::getSpeed() const {
-    const Primitive* o = getMainPrimitive();
-    if (o && o->getBody())
-      return Position(dBodyGetLinearVel(o->getBody()));     
-    else return Position(0,0,0);
-  }
-
-  Position OdeRobot::getAngularSpeed() const {
-    const Primitive* o = getMainPrimitive();
-    if (o && o->getBody())
-      return Position(dBodyGetAngularVel(o->getBody()));     
-    else return Position(0,0,0);
-  }
-  
-  matrix::Matrix OdeRobot::getOrientation() const {
-    const Primitive* o = getMainPrimitive();
-    if (o && o->getBody()){
-      return odeRto3x3RotationMatrix(dBodyGetRotation(o->getBody())); 
-    } else {
-      matrix::Matrix R(3,3); 
-      return R^0; // identity
-    }
-  }
   
 
   bool OdeRobot::isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom){  
@@ -145,6 +108,49 @@ namespace lpzrobots {
     }
     return false;
   }
+
+  /*********** BEGIN TRACKABLE INTERFACE ****************/
+  
+  /** returns position of the object
+@return vector of position (x,y,z)
+  */
+Position OdeRobot::getPosition() const {
+  const Primitive* o = getMainPrimitive();    
+    // using the Geom has maybe the advantage to get the position of transform objects 
+    // (e.g. hand of muscledArm)
+  if (o && o->getGeom())
+    return Position(dGeomGetPosition(o->getGeom()));
+  else if(o->getBody())
+    return Position(dBodyGetPosition(o->getBody()));     
+  else return Position(0,0,0);
+}
+
+Position OdeRobot::getSpeed() const {
+  const Primitive* o = getMainPrimitive();
+  if (o && o->getBody())
+    return Position(dBodyGetLinearVel(o->getBody()));     
+  else return Position(0,0,0);
+}
+
+Position OdeRobot::getAngularSpeed() const {
+  const Primitive* o = getMainPrimitive();
+  if (o && o->getBody())
+    return Position(dBodyGetAngularVel(o->getBody()));     
+  else return Position(0,0,0);
+}
+
+matrix::Matrix OdeRobot::getOrientation() const {
+  const Primitive* o = getMainPrimitive();
+  if (o && o->getBody()){
+    return odeRto3x3RotationMatrix(dBodyGetRotation(o->getBody())); 
+  } else {
+    matrix::Matrix R(3,3); 
+    return R^0; // identity
+  }
+}
+  
+  /*********** END TRACKABLE INTERFACE ****************/
+
 
 
 }

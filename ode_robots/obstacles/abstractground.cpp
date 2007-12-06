@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-10-15 13:16:57  martius
+ *   Revision 1.14  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.13  2007/10/15 13:16:57  martius
  *   changed thickness again, it was mistakingly set to 0.5
  *
  *   Revision 1.12  2007/09/27 12:47:17  der
@@ -234,6 +239,25 @@ namespace lpzrobots {
       }
     }
   }
+
+  std::list<Position> AbstractGround::getCornerPointsXY() {
+    OSGBox* obox = (OSGBox*)groundPlane->getOSGPrimitive();
+    std::list<Pos> ps;
+    Pos dim =obox->getDim();
+    ps.push_back(Pos(dim.x()*  0.5, dim.y()*  0.5,0));
+    ps.push_back(Pos(dim.x()*  0.5, dim.y()* -0.5,0));
+    ps.push_back(Pos(dim.x()* -0.5, dim.y()* -0.5,0));
+    ps.push_back(Pos(dim.x()* -0.5, dim.y()*  0.5,0));
+    // transform them into global coords
+    FOREACH(std::list<Pos>, ps, p){
+      *p = (*p) * groundPlane->getPose();
+    }
+    std::list<Position> posList;
+    FOREACH(std::list<Pos>, ps, p){
+      posList.push_back((*p).toPosition());
+    }
+    return posList;
+}
 
 
 

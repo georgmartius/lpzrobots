@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-08-28 09:24:36  martius
+ *   Revision 1.6  2007-12-06 10:02:49  der
+ *   abstractground: returns now cornerpoints
+ *   abstractobstacle: is now trackable
+ *   hudstatistics: supports now AbstractmMeasure
+ *
+ *   Revision 1.5  2007/08/28 09:24:36  martius
  *   nonvirtual call in destructor, and FOREACH loop
  *
  *   Revision 1.4  2007/03/16 11:01:37  martius
@@ -90,7 +95,10 @@
 #include "abstractobstacle.h"
 #include "primitive.h"
 #include <selforg/stl_adds.h>
+#include <selforg/position.h>
 
+#include "mathutils.h"
+#include "pos.h"
 
 using namespace std;
 
@@ -124,15 +132,22 @@ namespace lpzrobots {
   /*
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
-  void AbstractObstacle::setPosition(const osg::Vec3& pos) {
+  void AbstractObstacle::setPos(const osg::Vec3& pos) {
     pose.setTrans(pos);
     setPose(pose);
   };
 
   /*
+   * sets position of the obstacle and creates/recreates obstacle if necessary
+   */
+void AbstractObstacle::setPosition(const osg::Vec3& pos) {
+  setPos(pos);
+};
+
+  /*
    * gives actual position of the obstacle
    */
-  osg::Vec3 AbstractObstacle::getPosition(){
+  osg::Vec3 AbstractObstacle::getPos(){
     return pose.getTrans();
   }
 
@@ -171,6 +186,45 @@ namespace lpzrobots {
     obst.clear();
     obstacle_exists=false;
   };
+
+/** returns position of the object
+@return vector of position (x,y,z)
+  */
+Position AbstractObstacle::getPosition() const {
+  const Primitive* o = getMainPrimitive();    
+  
+    // using the Geom has maybe the advantage to get the position of transform objects 
+    // (e.g. hand of muscledArm)
+  if (o && o->getGeom())
+    return Position(dGeomGetPosition(o->getGeom()));
+  else if(o->getBody())
+    return Position(dBodyGetPosition(o->getBody()));     
+  else return Position(0,0,0);
+}
+
+ Position AbstractObstacle::getSpeed() const {
+  const Primitive* o = getMainPrimitive();
+  if (o && o->getBody())
+    return Position(dBodyGetLinearVel(o->getBody()));     
+  else return Position(0,0,0);
+}
+
+Position AbstractObstacle::getAngularSpeed() const {
+  const Primitive* o = getMainPrimitive();
+  if (o && o->getBody())
+    return Position(dBodyGetAngularVel(o->getBody()));     
+  else return Position(0,0,0);
+}
+
+matrix::Matrix AbstractObstacle::getOrientation() const {
+  const Primitive* o = getMainPrimitive();
+  if (o && o->getBody()){
+    return odeRto3x3RotationMatrix(dBodyGetRotation(o->getBody())); 
+  } else {
+    matrix::Matrix R(3,3); 
+    return R^0; // identity
+  }
+}
   
 
 }
