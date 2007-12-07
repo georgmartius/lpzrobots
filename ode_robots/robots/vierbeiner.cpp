@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-11-07 13:21:16  martius
+ *   Revision 1.8  2007-12-07 10:55:34  der
+ *   jippie
+ *
+ *   Revision 1.7  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.6  2007/09/06 18:48:00  martius
@@ -258,7 +261,7 @@ namespace lpzrobots {
     // the pole is a non-visible box which hinders the dog from falling over.
     Primitive* pole;
     double poleheight=conf.size*2;
-    pole = new Box(conf.size*1.6,twidth*1.5,poleheight);
+    pole = new Box(conf.size*1.6,twidth*2.9,poleheight);
     bigboxtransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,theight/2+poleheight/2));
     //bigboxtransform->init(odeHandle, 0, osgHandle.changeAlpha(0.1), Primitive::Geom | Primitive::Draw); 
     bigboxtransform->init(odeHandle, 0, osgHandle, Primitive::Geom); 

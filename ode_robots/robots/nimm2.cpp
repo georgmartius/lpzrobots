@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.37  2007-12-06 19:40:18  der
+ *   Revision 1.38  2007-12-07 10:55:34  der
+ *   jippie
+ *
+ *   Revision 1.37  2007/12/06 19:40:18  der
  *   just a few changes
  *
  *   Revision 1.36  2007/11/07 13:21:16  martius
@@ -426,7 +429,7 @@ namespace lpzrobots {
 
     if (conf.boxMode) {
       // height, width and length
-      Box* box = new Box(width/4*3,width/3, length/2);
+      Box* box = new Box(width/4*3,width/3, length/3*2);
       box->init(odeHandle, cmass, osgHandle);
       box->setPose(Matrix::translate(0, 0, -1) * Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
       box->getOSGPrimitive()->setTexture("Images/wood.rgb");
@@ -469,6 +472,9 @@ namespace lpzrobots {
 		       pose); // place wheels
 	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
 	object[i] = wheel;
+	if (conf.boxMode) {
+	  wheel->substance.toMetal(0.65);
+	}
       }else{ // for "normal" wheels
 	Cylinder* wheel = new Cylinder(radius, wheelthickness);
 	wheel->init(wheelHandle, wmass, osgHandleWheels);
