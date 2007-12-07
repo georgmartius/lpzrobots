@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-12-06 19:38:17  der
+ *   Revision 1.4  2007-12-07 08:51:18  der
+ *   made some test
+ *
+ *   Revision 1.3  2007/12/06 19:38:17  der
  *   tested entropy
  *
  *   Revision 1.2  2007/12/06 15:58:31  der
@@ -256,8 +259,8 @@ public:
 
        //      agent->addInspectable((Inspectable*)stats);
       //      agent->addCallbackable((Callbackable*)stats);
-      //      agent->init(onamupaco, myNimm2		, wiring);
-      agent->init(controller, myNimm2		, wiring);
+            agent->init(onamupaco, myNimm2		, wiring);
+      //agent->init(controller, myNimm2		, wiring);
       agent->setTrackOptions(TrackRobot(true,false, false, false, "entropyc",10));
       global.configs.push_back(controller);
       global.agents.push_back(agent);
@@ -277,17 +280,18 @@ public:
 
       std::list<Trackable*> trackableList;
       trackableList.push_back(myNimm2);
-      // TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
+      //    TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E upd Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
       
       //this->getHUDSM()->addMeasure(trackableEntropy);
       
-      trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 10);
+      trackableEntropySLOW= new TrackableMeasure(trackableList,"Eslow Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 10);
       
       this->getHUDSM()->addMeasure(trackableEntropySLOW);
+      //this->getHUDSM()->addMeasure(trackableEntropy);
       
       // convTest1=stats->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,50000,0.001);
       // getWSM()->addMeasure( mic->getMI(1),"MI 1 CONV",CONV,5,10.0);
-      convTest0=stats->getMeasure( trackableEntropySLOW->getValueAdress(),"E CONV",CONV,50000,0.001);
+      //convTest0=stats->getMeasure( trackableEntropySLOW->getValueAdress(),"E CONV",CONV,50000,0.001);
     }
 
     showParams(global.configs);
