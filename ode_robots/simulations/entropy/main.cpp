@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-12-07 08:51:18  der
+ *   Revision 1.5  2007-12-07 10:51:42  der
+ *   tested some things
+ *
+ *   Revision 1.4  2007/12/07 08:51:18  der
  *   made some test
  *
  *   Revision 1.3  2007/12/06 19:38:17  der
@@ -168,9 +171,9 @@ public:
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
 
-    global.odeConfig.setParam("noise",0.1);
+    global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",1);
+    global.odeConfig.setParam("realtimefactor",2);
     //  global.odeConfig.setParam("simstepsize",0.1);
     //  global.odeConfig.setParam("drawinterval",5);
     // initialization
@@ -366,7 +369,7 @@ int main (int argc, char **argv)
       ThisSim sim(atof(argv[index]));
       sim.run(argc,argv);
     }
-  } else for (double cinit=0.7;cinit<=1.3;cinit+=0.05)  {
+  } else for (double cinit=0.8;cinit<=1.2;cinit+=0.05)  {
     ThisSim sim;
     sim.cInit=cinit;
     sim.run(argc,argv);
