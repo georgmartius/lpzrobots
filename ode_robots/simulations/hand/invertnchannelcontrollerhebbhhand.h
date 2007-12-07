@@ -18,7 +18,11 @@
  *                                            * 
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-12-07 09:05:30  fhesse
+ *   Revision 1.2  2007-12-07 09:13:46  fhesse
+ *   adapted paths due to moving of controller files
+ *   to simulation/hand directory
+ *
+ *   Revision 1.1  2007/12/07 09:05:30  fhesse
  *   moved controller files specialized for hand here
  *   from selforg/controller directory
  *
@@ -39,7 +43,7 @@
 #ifndef __INVERTNCHANNELCONTROLLERHEBBHHAND_H
 #define __INVERTNCHANNELCONTROLLERHEBBHHAND_H
 
-#include "invertnchannelcontroller.h"
+#include "selforg/invertnchannelcontroller.h"
 
 #include <assert.h>
 #include <math.h>

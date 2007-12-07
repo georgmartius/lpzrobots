@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2007-10-10 18:59:45  fhesse
+ *   Revision 1.19  2007-12-07 09:13:46  fhesse
+ *   adapted paths due to moving of controller files
+ *   to simulation/hand directory
+ *
+ *   Revision 1.18  2007/10/10 18:59:45  fhesse
  *   testing controller
  *
  *   Revision 1.17  2007/09/28 15:50:13  fhesse
@@ -127,8 +131,8 @@
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/invertnchannelcontrollerhebbxsi.h>
-#include <selforg/invertnchannelcontrollerhebbxsihand.h>
-#include <selforg/invertnchannelcontrollerhebbhhand.h>
+#include <invertnchannelcontrollerhebbxsihand.h>
+#include <invertnchannelcontrollerhebbhhand.h>
 #include <selforg/invertnchannelcontrollerhebbh.h>
 
 #include "hand.h"
