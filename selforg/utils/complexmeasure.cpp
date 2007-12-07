@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.1  2007-12-06 10:18:10  der
+*   Revision 1.2  2007-12-07 08:52:37  der
+*   made some tests
+*
+*   Revision 1.1  2007/12/06 10:18:10  der
 *   AbstractMeasure is now a abstract type for Measures,
 *   StatisticTools now supports AbstractMeasures,
 *   StatisticalMeasure, ComplexMeasure  now derived from
@@ -127,9 +130,10 @@ void ComplexMeasure::updateEntropy( int binNumber ) {
     //}
   // update Entropy with old Entropy and dS
   if ( actualStep > 1 ) {
-    value = - ( ((double)(actualStep-1)) * value + dS - log( actualStep-1) ) / ((double)(actualStep)) + log((double) (actualStep));
+    std::cout << "dS=" << dS << ",actualStep=" << actualStep << ",value=" << value << ",log(actualStep-1)=" << log(double(actualStep-1)) << ",log((double)(actualStep))=" << log(((double)actualStep)) << std::endl;
+    value = ( ((double)(actualStep-1)) * (value - log((double) (actualStep-1))- dS  )) / ((double)(actualStep)) + log((double) (actualStep));
   } else
-    value=-dS;
+    value=0;
 }
 
 
