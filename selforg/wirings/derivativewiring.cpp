@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-12-11 18:23:21  martius
+ *   Revision 1.8  2007-12-07 10:56:33  der
+ *   changed method signature of generate() and add() of NoiseGenerator
+ *
+ *   Revision 1.7  2006/12/11 18:23:21  martius
  *   changed order again: first all sensors, then all derivatives ...
  *   noise is only added to first sensor set
  *   now 2 functions for default configs
@@ -202,7 +205,7 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 //   }      
 
   // add noise only to first used sensors
-  noiseGenerator->add(csensors, -noise, noise);   
+  noiseGenerator->add(csensors, noise);   
 
   if(conf.blindMotors > 0) { // shortcircuit of blind motors
     int offset = (conf.useId + conf.useFirstD + conf.useSecondD)*this->rsensornumber;    

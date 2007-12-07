@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-11-29 19:18:09  martius
+ *   Revision 1.9  2007-12-07 10:56:33  der
+ *   changed method signature of generate() and add() of NoiseGenerator
+ *
+ *   Revision 1.8  2007/11/29 19:18:09  martius
  *   blind channels
  *
  *   Revision 1.7  2007/08/29 11:32:55  martius
@@ -130,7 +133,7 @@ bool One2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 
   if(noiseGenerator) {
     memset(noisevals, 0 , sizeof(sensor) * this->csensornumber);    
-    noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);  
+    noiseGenerator->add(noisevals, noiseStrength);  
   } 
   for(int i=0; i< rsensornumber; i++){
     csensors[i] = rsensors[i] + noisevals[i];

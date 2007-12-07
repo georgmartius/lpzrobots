@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-11-28 10:30:46  martius
+ *   Revision 1.2  2007-12-07 10:56:33  der
+ *   changed method signature of generate() and add() of NoiseGenerator
+ *
+ *   Revision 1.1  2007/11/28 10:30:46  martius
  *   wiring with feedback connections
  *
  *                                            *
@@ -86,7 +89,7 @@ bool FeedbackWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 				double noiseStrength){
   assert(rsensornumber==csensornumber);
   memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
-  noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);
+  noiseGenerator->add(noisevals, noiseStrength);
   
   int fi=0;
   if((mode & Motor) == 0){

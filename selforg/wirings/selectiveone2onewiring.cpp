@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-12-21 11:44:17  martius
+ *   Revision 1.4  2007-12-07 10:56:33  der
+ *   changed method signature of generate() and add() of NoiseGenerator
+ *
+ *   Revision 1.3  2006/12/21 11:44:17  martius
  *   commenting style for doxygen //< -> ///<
  *   FOREACH and FOREACHC are macros for collection iteration
  *
@@ -80,7 +83,7 @@ bool SelectiveOne2OneWiring::wireSensors(const sensor* rsensors, int rsensornumb
 				sensor* csensors, int csensornumber, 
 				double noiseStrength){
   memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
-  noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);   
+  noiseGenerator->add(noisevals, noiseStrength);   
   int num=0;
   for(int i=0; i< rsensornumber; i++){
     if((*sel_sensor)(i,rsensornumber)){
