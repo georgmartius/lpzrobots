@@ -9,6 +9,7 @@ all:
 	-make guilogger
 	-make neuronviz
 	-make soundman
+	-make javacontroller
 	cd selforg && make depend
 	cd ode_robots && make depend
 	-make tags
@@ -22,6 +23,10 @@ guilogger:
 neuronviz:
 	cd neuronviz/src && make
 
+.PHONY: javacontroller
+javacontroller:
+	cd javacontroller/src && make
+
 .PHONY: neuronviz
 soundman:
 	cd ode_robots/utils && javac SoundMan.java SoundManipulation.java SoundManGUI.java
@@ -30,6 +35,7 @@ soundman:
 install:
 	-mkdir -p $(HOME)/bin $(HOME)/lib/soundMan
 	-cd neuronviz/src && make install
+	-cd javacontroller/src && make install
 	-@cp guilogger/bin/guilogger $(HOME)/bin/ && echo "copied guilogger to $(HOME)/bin/" || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
 	-cp ode_robots/utils/Sound*.class $(HOME)/lib/
 	-cp ode_robots/utils/*.class $(HOME)/lib/soundMan/
