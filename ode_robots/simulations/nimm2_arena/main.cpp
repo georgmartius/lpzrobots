@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-12-21 11:43:05  martius
+ *   Revision 1.9  2007-12-11 14:11:12  martius
+ *   chain of robots
+ *
+ *   Revision 1.8  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -71,24 +74,31 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/stl_adds.h>
 
+#include <vector>
+
 #include "nimm2.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
+using namespace std;
 
 
 AbstractController* controller;
 motor teaching[2];
+bool connectRobots;
 
 class ThisSim : public Simulation {
 public:
+  list<Joint*> joints;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
     int number_x=3;
-    int number_y=3;
+    int number_y=1;
+    connectRobots = true; 
+    double distance = 0.3;
 
     // initialization
     // - set noise to 0.1
@@ -98,7 +108,7 @@ public:
     global.odeConfig.setParam("controlinterval", 5);
 
     // use Playground as boundary:
-    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(11, 0.2, 1), 12);
+    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(111, 0.2, 1), 12);
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
@@ -112,9 +122,9 @@ public:
     AbstractController* contrl;
     AbstractWiring* wiring;
     OdeAgent* agent;
-        
-    for (int j=-0; j<number_x; j++){ 
-      for (int i=-0; i<number_y; i++){
+    vector<OdeRobot*> robots(number_x);
+    for (int i=-0; i<number_y; i++){
+      for (int j=-0; j<number_x; j++){ 
 	//      nimm2 = new Nimm2(odeHandle);
 	Nimm2Conf conf = Nimm2::getDefaultConf();
 	conf.speed=20;
@@ -154,14 +164,32 @@ public:
 	  contrl->setParam("s4avg", 5);
 	  contrl->setParam("factorB",0);
 	}
-	nimm2->place(Pos(j*2.5,i*1.26,0));
+	nimm2->place(Pos(j*(2.5+distance),i*1.26,0));
 	global.agents.push_back(agent);
-	
+	robots[j]=nimm2;
       }
+      if(connectRobots)
+	for(int j=0; j<number_x-1; j++){
+	  Joint* joint = new BallJoint(robots[j]->getMainPrimitive(), 
+				       robots[j+1]->getMainPrimitive(),
+				       Pos((j+0.5)*(2.5+distance),i*1.26,0.30) 
+				       );
+	  joint->init(odeHandle,osgHandle,true,distance/2);
+	  joints.push_back(joint);
+	}
     }
       
     showParams(global.configs);
   }
+
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+    if(draw && connectRobots){
+      FOREACH(list<Joint*>, joints,j){      
+	(*j)->update();
+      }
+    }
+  };
+
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
