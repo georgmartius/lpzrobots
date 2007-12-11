@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-12-10 15:39:41  robot3
+ *   Revision 1.3  2007-12-11 16:33:06  robot3
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2007/12/10 15:39:41  robot3
  *   Gwizdziel
  *
  *   Revision 1.1  2007/01/18 15:40:15  robot3
@@ -112,7 +115,7 @@ public:
 
     
     //Kugel 1 ***********************************************
-    /*
+    
     Sphererobot3Masses* myBarrel_1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,1.0)),conf, "Rocco-Kugel-1-Java-Controller");
     ((OdeRobot*)myBarrel_1)->place (Pos( 1.3,0,0.1));
 
@@ -125,7 +128,7 @@ public:
     agent_1->init ( jcontroller1 , myBarrel_1 , wiring1 );
     global.agents.push_back ( agent_1 );
     global.configs.push_back ( jcontroller1 );
-    */
+    
     // ENDE****************************************************
 	
 
