@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-11-07 13:21:16  martius
+ *   Revision 1.7  2007-12-11 14:41:54  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.6  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.5  2007/07/04 13:16:17  martius
@@ -81,7 +84,12 @@ namespace lpzrobots {
   } VierBeinerConf;
 
 
-  /** should look like a dog
+  /** robot that should look like a dog
+      
+     sensors/motors: 0: neck, 1: tail
+                     2,3,4,5 : hip:  rh, lh, rf, lf
+		     6,7,8,9 : knee: rh, lh, rf, lf
+		     10,11   : ankle rh, lh
    */
   class VierBeiner : public OdeRobot {
   public:
@@ -110,7 +118,7 @@ namespace lpzrobots {
       c.kneeDamping = 0.05;
       c.anklePower  = 0.5;
       c.ankleDamping = 0.02;
-      c.hipJointLimit = M_PI/2; // +- 90 degree
+      c.hipJointLimit = M_PI/3; // +- 60 degree
       c.kneeJointLimit = M_PI/4; // +- 45 degree
       //      c.elasticity = 10;
       return c;

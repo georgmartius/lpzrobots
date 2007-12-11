@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-12-07 10:56:33  der
+ *   Revision 1.3  2007-12-11 14:45:44  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2007/12/07 10:56:33  der
  *   changed method signature of generate() and add() of NoiseGenerator
  *
  *   Revision 1.1  2007/11/28 10:30:46  martius
@@ -56,7 +59,7 @@ bool FeedbackWiring::init(int robotsensornumber, int robotmotornumber){
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;  
   csensornumber = rsensornumber;  
-  if((mode & Context) == 0) // without context mapping no additional motors    
+  if((mode & Context) == 0) // without context mapping no additional motors 
     cmotornumber  = rmotornumber;
   else{ // with context mapping we have as many motors as sensors
     assert(rmotornumber < rsensornumber);
@@ -68,8 +71,7 @@ bool FeedbackWiring::init(int robotsensornumber, int robotmotornumber){
   motors    = (motor*)  malloc(sizeof(motor)  * this->cmotornumber);
   memset(motors,0,sizeof(motor)  * this->cmotornumber);
 
-  int feedbacknumber = ((mode & Motor) != 0)*rmotornumber + 
-    ((mode & Context) != 0)*(vmotornumber);
+  int feedbacknumber = ((mode & Motor) != 0)*rmotornumber + vmotornumber;
   if(feedbackratio.isNulltimesNull()){
     feedbackratio.set( feedbacknumber, 1);
     double c = defaultfeedbackratio;
