@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.73  2007-12-06 14:52:43  martius
+ *   Revision 1.74  2007-12-11 14:11:35  martius
+ *   addcallback draw flag was wrong
+ *
+ *   Revision 1.73  2007/12/06 14:52:43  martius
  *   mouse grasp started
  *
  *   Revision 1.72  2007/12/06 10:30:52  der
@@ -714,7 +717,7 @@ bool Simulation::loop() {
 	    globalData.sounds.remove_if(Sound::older_than(globalData.time));
         }
 
-        addCallback(globalData, t==0, pause, 
+        addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause, 
 		    (sim_step % globalData.odeConfig.controlInterval ) == 0);
 
         if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {
