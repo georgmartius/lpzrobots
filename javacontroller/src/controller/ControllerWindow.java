@@ -241,6 +241,7 @@ public class ControllerWindow extends JPanel{
 		buffer_timestep[counter%buffer_size] = timestep-timestep_alt;
 		timestep_alt = timestep+1;
 		
+				
 		//mittlere Abstande berechnen
 		int abstand = 0;
 		
@@ -251,8 +252,8 @@ public class ControllerWindow extends JPanel{
 				abstand+= buffer_timestep[i];
 			}	
 		
-		skiprate = abstand/(double)(buffer_size-1);
-		aktuelle_rate = 100 - (int)Math.round(abstand/(double)(buffer_size-1));
+		skiprate = abstand/(double)(buffer_size);
+		aktuelle_rate = 100 - (int)Math.round(abstand/(double)(buffer_size));
 		
 		}
 					
