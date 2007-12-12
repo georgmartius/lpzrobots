@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-07-03 13:15:17  martius
+ *   Revision 1.4  2007-12-12 10:27:31  der
+ *   fixed some nullpointer bugs
+ *
+ *   Revision 1.3  2007/07/03 13:15:17  martius
  *   odehandle.h in cpp files included
  *
  *   Revision 1.2  2006/07/14 12:23:34  martius
@@ -72,7 +75,7 @@ namespace lpzrobots {
 
 
   void CameraManipulatorTV::calcMovementByAgent() {
-    if (watchingAgent!=NULL) {
+    if (!watchingAgent) {
       // the actual position of the agent has to be recognized
       // we use the Position getPosition() from OdeRobot
       Position robPos = watchingAgent->getRobot()->getPosition();

@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-12-06 10:36:10  der
+ *   Revision 1.10  2007-12-12 10:27:31  der
+ *   fixed some nullpointer bugs
+ *
+ *   Revision 1.9  2007/12/06 10:36:10  der
  *   the first agent in the agentlist is now selected by default!
  *
  *   Revision 1.8  2007/09/27 10:47:04  robot3
@@ -378,7 +381,7 @@ namespace lpzrobots {
     }
 
     // now set the current robots-position
-    if (watchingAgentDefined) {
+    if (watchingAgentDefined && watchingAgent) {
       oldPositionOfAgent = watchingAgent->getRobot()->getPosition();
       oldPositionOfAgentDefined=true;
     }
@@ -449,7 +452,8 @@ namespace lpzrobots {
     for(OdeAgentList::iterator it=globalData.agents.begin(); it != globalData.agents.end(); it++){
       if (fkey==i++) {
 	watchingAgent=(*it);
-	watchingAgentDefined=true;
+        if (watchingAgent)
+	  watchingAgentDefined=true;
 	break;
       }
     }
@@ -464,7 +468,7 @@ namespace lpzrobots {
 
   void CameraManipulator::moveBehindAgent() {
     // taken from the race camera
-    if (watchingAgent!=NULL) {
+    if (!watchingAgent) {
       // manipulate desired eye by the move of the robot
       const double* robMove = (watchingAgent->getRobot()->getPosition()-oldPositionOfAgent).toArray();
       // attach the robSpeed to desired eye
@@ -516,7 +520,7 @@ namespace lpzrobots {
   void CameraManipulator::centerOnAgent() {
     // taken from the follow camera
     // ok here the camera will center on the robot
-    if (watchingAgent!=NULL) {
+    if (!watchingAgent) {
       // the actual position of the agent has to be recognized
       // we use the Position getPosition() from OdeRobot
       Position robPos = watchingAgent->getRobot()->getPosition();
@@ -542,7 +546,7 @@ namespace lpzrobots {
   }
 
   void CameraManipulator::calcMovementByAgent() {
-    if (watchingAgentDefined && oldPositionOfAgentDefined) {
+    if (watchingAgentDefined && oldPositionOfAgentDefined  && watchingAgent) {
       // then manipulate desired view and desired eye
       // the default camera manipulator does not need to change the eye and view
     }
