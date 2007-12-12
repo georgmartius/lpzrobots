@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-12-21 11:44:17  martius
+ *   Revision 1.8  2007-12-12 10:26:14  der
+ *   MI: calculation of H(X) and H(Y|X) added
+ *
+ *   Revision 1.7  2006/12/21 11:44:17  martius
  *   commenting style for doxygen //< -> ///<
  *   FOREACH and FOREACHC are macros for collection iteration
  *
@@ -133,7 +136,7 @@ public:
   static DerivativeWiringConf getDefaultConf(){
     DerivativeWiringConf c;
     c.useId = true;        // use id
-    c.useFirstD = true;    // use first derivative
+    c.useFirstD = false;    // use first derivative
     c.useSecondD = false;  // do not use secound derivative
     c.eps = 1;             // no smoothing
     c.derivativeScale=1;   // no scaleing
