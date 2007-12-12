@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-12-11 16:33:06  robot3
+ *   Revision 1.4  2007-12-12 15:39:25  robot3
+ *   Gwizdziel
+ *
+ *   Revision 1.3  2007/12/11 16:33:06  robot3
  *   *** empty log message ***
  *
  *   Revision 1.2  2007/12/10 15:39:41  robot3
@@ -71,11 +74,11 @@
 // used controller
 #include <selforg/sinecontroller.h>
 #include <selforg/invertmotornstep.h>
-#include <selforg/java_controller.h>
+#include <selforg/use_java_controller.h>
 
 
 
-//int java_controller::anzahl_Java_controller = 2;
+//int use_java_controller::anzahl_Java_controller = 2;
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -121,8 +124,8 @@ public:
 
     //Controller Kugel 1
     
-	java_controller* jcontroller1;
-    jcontroller1 = new java_controller("4811","4812","robot2");
+	use_java_controller* jcontroller1;
+    jcontroller1 = new use_java_controller("4811","4812","robot2");
 
     OdeAgent* agent_1 = new OdeAgent( plotoptions );
     agent_1->init ( jcontroller1 , myBarrel_1 , wiring1 );
@@ -140,9 +143,9 @@ public:
 
     //Controller Kugel 2
    
-    java_controller* Jcontroller;
+    use_java_controller* Jcontroller;
     //SineController* Jcontroller;
-   Jcontroller = new java_controller("4711","4712","robot1");
+   Jcontroller = new use_java_controller("4711","4712","robot1");
    //Jcontroller = new SineController();
 
     OdeAgent* agent_2 = new OdeAgent( plotoptions);
