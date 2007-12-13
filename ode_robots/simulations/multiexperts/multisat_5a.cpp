@@ -17,7 +17,7 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-12-13 16:57:40  martius
+ *   Revision 1.1  2007-12-13 16:57:40  martius
  *   new variation of the multisat controller
  *
  *   Revision 1.11  2007/08/24 11:59:43  martius
@@ -118,19 +118,19 @@ void MultiSat::init(int sensornumber, int motornumber){
     x_context_buffer[k].set(conf.numContext,1);
   }
 
-  int satinputdim = (conf.useDerive ? 3 : 2)*number_real_sensors +
-    (conf.useY ? number_motors : 0);
-  int satoutputdim = number_real_sensors+number_motors;
+  
   for(int i=0; i<conf.numSats; i++){
     vector<Layer> layers;
     layers.push_back(Layer(conf.numHidden, 0.5 , FeedForwardNN::tanh));
     layers.push_back(Layer(1,1));
     MultiLayerFFNN* net = new MultiLayerFFNN(1, layers); // learning rate is set to 1 and modulates each step  
-    net->init(satinputdim, satoutputdim);
+    if(conf.useDerive)
+      net->init(3*number_real_sensors + (conf.useY ? number_motors : 0), number_real_sensors+number_motors);
+    else
+      net->init(2*number_real_sensors + (conf.useY ? number_motors : 0), number_real_sensors+number_motors);
     Sat sat(net, conf.eps0);
     sats.push_back(sat);
   }
-  
 
   satErrors.set(conf.numSats, 1);
   satModErrors.set(conf.numSats, 1);
@@ -140,10 +140,6 @@ void MultiSat::init(int sensornumber, int motornumber){
   satEpsMod.set(conf.numSats, 1);
   double d = 1;
   satEpsMod.toMapP(&d,constant); // set all elements to 1;
-  satPredictWeight.set(satoutputdim,1);
-  satPredictWeight.toMapP(&d,constant); // set all elements to 1;
-  for(int i=0; i < number_real_sensors; i++) satPredictWeight.val(i,0)=0.5;
-  
 
   //  addParameter("lambda_c", &(conf.lambda_comp));
   addParameter("tauE1", &(conf.tauE1));
@@ -176,27 +172,27 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
     if(newwinner != winner){ // select new winner and companion
       if(newwinner==companion){
 	// select imature expert if exists
-	Matrix epsmod = satEpsMod;
-	epsmod.val(companion,0)=0; // knock out old companion
-	int newcomp = argmax(epsmod);
-	cerr << "new companion with epsmod:" << satEpsMod.val(newcomp,0) << "\n";
-// 	if(satEpsMod.val(newcomp,0)<0.4){ 
-// 	  // no imature expert go to simple competition without companion
-// 	  winner = companion;
-// 	  cerr << "would need to create new agent\n";
-// 	}else{
+	int newcomp = argmax(satEpsMod);
+	if(satEpsMod.val(newcomp,0)<0.4){ 
+	  // no imature expert go to simple competition without companion
+	  winner = companion;
+	}else{
 	  if(newcomp==companion) {
-	    cerr << "should never happen!\n";
+	    cerr << "new companion = old companion! Use expert with least error\n";
+	    Matrix errors1 = errors;
+	    errors1.val(companion,0)+=1000; // knock out old companion
+	    errors1.val(winner,0)+=1000; // knock out old winner
+	    newcomp = argmin(errors1);
 	  }
 	  winner = companion;
 	  companion = newcomp;	
 	  // just to make the companion selection better at the start, 
-	  //  when all experts have the same immaturity
+	  //  when all experts have some unmaturity
 	  satEpsMod.val(companion,0)-=0.0001; 
-	  //	}
+	}
       }else{ // another agent wins.
-	if(winner==companion){ // we have already no companion 
-	  // then if there is no imature one then we will have non.
+	if(winner==companion){ 
+	  // if we have no companion and there is no imature one, then we will have non.
 	  companion = argmax(satEpsMod);
 	  if(satEpsMod.val(companion,0)<0.4)	    
 	    companion = newwinner;
@@ -215,10 +211,7 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
 				 sats[winner].eps*satEpsMod.val(companion,0)); 
     }
 
-    // the winner only matures if he is successful (1 if error=0; 0 if error>0.3
-    double maturation = max(0.0,(0.3-satAvg1Errors.val(winner,0))*1/0.3); 
-    
-    satEpsMod.val(winner,0) *= (1-maturation/conf.tauW);
+    satEpsMod.val(winner,0) *= (1-1/conf.tauW);
 
 //     // let all sats learn with their decreasing learning rate
 //     FOREACH(vector<Sat>, sats, s){
@@ -337,7 +330,7 @@ Matrix MultiSat::compete()
   const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
 
   // depending on useDerive we have
-  // to use F(x_{t-1},x_{t-2} | \dot x_{t-1} ,y_{t-2}) -> (x_t, y_{t-1}) for the sat network
+  // we have to use F(x_{t-1},x_{t-2} | \dot x_{t-1} ,y_{t-2}) -> (x_t, y_{t-1}) for the sat network
 
   nomSatOutput = x.above(y_tm1);
   if(conf.useDerive){
@@ -369,15 +362,11 @@ Matrix MultiSat::compete()
   }
   satAvg1Errors = satAvg1Errors * (1.0-1.0/conf.tauE1) + satErrors * (1.0/conf.tauE1);
   satAvg2Errors = satAvg2Errors * (1.0-1.0/conf.tauE2) + satErrors * (1.0/conf.tauE2);
-    
-  // modulate predicted error to prefere mature experts
-  Matrix lambdaW = satEpsMod.mapP(&conf.lambda_w, constant);
-  satModErrors = satAvg1Errors.multrowwise(satEpsMod + lambdaW);
-
+  
   // modulate predicted error of winner and companion to introduce hysteresis
-    //  satModErrors = satAvg1Errors;
-  satModErrors.val(companion,0)+=0.03;
-//  satModErrors.val(winner,0)-=conf.lambda_w/5;
+  satModErrors = satAvg1Errors;
+  satModErrors.val(companion,0)+=conf.lambda_w;
+  satModErrors.val(winner,0)-=conf.lambda_w/5;
   return satModErrors;
 }
 

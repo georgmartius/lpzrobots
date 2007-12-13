@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-09-06 18:48:38  martius
+ *   Revision 1.12  2007-12-13 16:57:40  martius
+ *   new variation of the multisat controller
+ *
+ *   Revision 1.11  2007/09/06 18:48:38  martius
  *   *** empty log message ***
  *
  *   Revision 1.10  2007/08/24 11:50:03  martius
@@ -172,7 +175,7 @@ public:
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
     
-    bool longsquarecorridor=true; 
+    bool longsquarecorridor=false; 
 
     playground=0;    
     sensor=0;
@@ -212,7 +215,7 @@ public:
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       MultiSatConf msc = MultiSat::getDefaultConf();
       msc.controller = controller;
-      msc.numContext = 1;
+      //      msc.numContext = 1;
       msc.numHidden = 4;
       msc.numSats = 4;
       multisat = new MultiSat(msc);
@@ -247,11 +250,11 @@ public:
 
     /* * * * SPHERES * * * */
     for(int i=0; i< num_spheres; i++){
-      bool replay=false;
+      bool replay=true;
       global.odeConfig.setParam("noise", replay ? 0 : 0.05);
       //****************
-      const char* replayfilename="Sphere_reinforce_axis_rot.sel.log";
-      //const char* replayfilename="Sphere_slow_07-07-18.sel.log";
+      // const char* replayfilename="Sphere_reinforce_axis_rot.sel.log";
+      const char* replayfilename="Sphere_slow_07-07-18.sel.log";
       //   const char* replayfilename="Sphere_long_rich_07-07-18.sel.log";
       // const char* replayfilename="Sphere_long_rich_2_07-07-31.sel.log";
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
@@ -266,9 +269,9 @@ public:
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
       conf.addSensor(new SpeedSensor(5, SpeedSensor::RotationalRel));
 
-      robot = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
-					conf, "Multi20_6h_Sphereslow_nogat_noy_sqrt", 0.3);  
-      //					 conf, "Multi16_2h_Sphere_long_rich2", 0.3); 
+      robot = new Sphererobot3Masses(odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)),
+				     conf, "Multi20_h_Sphereslow_v5_noy_sqrt", 0.3);
+      //	conf, "Multi16_2h_Sphere_long_rich2", 0.3); 
       robot->place ( osg::Matrix::translate(0,0,0.2)); 
       
       if(!replay){
@@ -285,15 +288,13 @@ public:
       msc.controller = controller;
       msc.numContext = 3;
       msc.numHidden = 4;
-      msc.numSats   = 1; 
-      msc.penalty   = 10.0; 
-      msc.eps0      = 0.01;
-      msc.deltaMin  = 1/500.0;
+      msc.numSats   = 20; 
+      msc.eps0      = 0.1;
       //      msc.numSomPerDim = 3;
       msc.tauE1     = 50;
       msc.tauE2     = 500;
-      msc.tauC     = 1000;
-      msc.tauW     = 10000;
+      msc.tauW      = 2000;
+      msc.lambda_w  = 0.05;
 
       msc.useDerive=false;
       msc.useY=false;
@@ -360,13 +361,10 @@ public:
       msc.numContext = 2;
       msc.numHidden = 2;
       msc.numSats   = 8; 
-      msc.penalty   = 10.0; 
       msc.eps0      = 0.01;
-      msc.deltaMin  = 1/100.0;
       //      msc.numSomPerDim = 3;
       msc.tauE1     = 20;
       msc.tauE2     = 200;
-      msc.tauC     = 200;
       msc.tauW     = 2000;
 
       msc.useDerive=false;

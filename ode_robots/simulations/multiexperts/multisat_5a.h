@@ -18,16 +18,15 @@
  *                                                                         *
  *   This version of multisat has the following features                   *
  *    n experts, competition pairwise between winner and companion         *
- *    prediction error of companion is increased for competition (hysteris)*
- *    expert get mature, when winning and low error,                       *
- *     i.e. learning rate decreases                                        *
- *    always the agent with lowest maturation is selected  as new companion*
+ *    prediction error of winner is decreased for competition (hysteris)   *
+ *    expert get mature, when winning,i.e. learning rate decreases         *
+ *    new experts can be spawned if no immature expert is left             *
  *    only winner and companion is allowed to learn                        *
  *                                                                         *
  *    (NOT YET) sat networks have equal structure to selforg               *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-12-13 16:57:40  martius
+ *   Revision 1.1  2007-12-13 16:57:40  martius
  *   new variation of the multisat controller
  *
  *   Revision 1.9  2007/08/24 11:59:43  martius
@@ -192,8 +191,6 @@ protected:
   matrix::Matrix satModErrors;    ///< modulated (avg1) errors of sats
   matrix::Matrix satMinErrors;    ///< minimum errors of sats (calculated from avg2)
   matrix::Matrix satEpsMod;       ///< modulated eps of sats
-  /// modulats the importance of the prediction, e.g. sensors are less important
-  matrix::Matrix satPredictWeight;
   
   MultiSatConf conf;
   bool initialised;
