@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-12-07 10:55:34  der
+ *   Revision 1.9  2007-12-13 16:56:21  martius
+ *   more walking suitable configuration
+ *
+ *   Revision 1.8  2007/12/07 10:55:34  der
  *   jippie
  *
  *   Revision 1.7  2007/11/07 13:21:16  martius
@@ -261,7 +264,7 @@ namespace lpzrobots {
     // the pole is a non-visible box which hinders the dog from falling over.
     Primitive* pole;
     double poleheight=conf.size*2;
-    pole = new Box(conf.size*1.6,twidth*2.9,poleheight);
+    pole = new Box(conf.size*1.6,twidth*2.5,poleheight);
     bigboxtransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,theight/2+poleheight/2));
     //bigboxtransform->init(odeHandle, 0, osgHandle.changeAlpha(0.1), Primitive::Geom | Primitive::Draw); 
     bigboxtransform->init(odeHandle, 0, osgHandle, Primitive::Geom); 
@@ -285,7 +288,7 @@ namespace lpzrobots {
     headtrans = new Transform(neck, head, Matrix::translate(0, 0, -headlength/2) 
 			  * Matrix::rotate(-M_PI/2,0,1,0) 
 			  * Matrix::translate(0, 0, necklength));
-    headtrans->init(odeHandle, 0, osgHandle); 
+    headtrans->init(odeHandle, headmass/2, osgHandle); 
     head->setTexture("Images/fur4.jpg");
     neck->setTexture("Images/toy_fur3.jpg");
     objects.push_back(headtrans);
@@ -322,15 +325,13 @@ namespace lpzrobots {
     tail->setTexture("Images/fur3.jpg");
     ///ignore collision between box on top of dog and tail
     odeHandle.addIgnoredPair(bigboxtransform,tail);
-        
-
 
     // legs  (counted from back to front)
     double legdist = conf.size*0.9 / (conf.legNumber/2-1);
     for ( int n = 0; n < conf.legNumber; n++ ) {            
       double l1 =       n<2 ? conf.legLength*0.45 : conf.legLength*0.5;
       double t1       = conf.legLength/10;
-      double hipangle = n<2 ? -M_PI/18 : -M_PI/18;
+      double hipangle = n<2 ? 0 : M_PI/12; // -M_PI/18 : -M_PI/18
       double hiplowstop  = -conf.hipJointLimit;
       double hiphighstop = conf.hipJointLimit;
       double l2 =       n<2 ? conf.legLength*0.45 : conf.legLength*0.5;
@@ -342,7 +343,7 @@ namespace lpzrobots {
       double t3       = conf.legLength/12;
       double ankleangle = n<2 ? -M_PI/3 : 0;
       double anklelowstop = -M_PI/5; 
-      double anklehighstop = M_PI/5;       
+      double anklehighstop = M_PI/3;       
 
       // upper limp
       Primitive* p1;      
