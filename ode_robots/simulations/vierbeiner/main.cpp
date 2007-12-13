@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-11-21 13:18:10  der
+ *   Revision 1.9  2007-12-13 17:00:02  martius
+ *   walk controller
+ *
+ *   Revision 1.8  2007/11/21 13:18:10  der
  *   ralfs aenderungen
  *
  *   Revision 1.7  2007/07/03 13:06:10  martius
@@ -73,6 +76,9 @@
 
 // used wiring
 #include <selforg/one2onewiring.h>
+#include <selforg/feedbackwiring.h>
+#include <selforg/wiringsequence.h>
+
 
 // used robot
 #include "vierbeiner.h"
@@ -92,6 +98,8 @@
 #include <selforg/multilayerffnn.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
+#include <selforg/universalcontroller.h>
+#include "walkcontroller.h"
 /************/
 
 #include "playground.h"
@@ -113,6 +121,7 @@ public:
   AbstractObstacle* playground; 
   double hardness;
   Substance s;
+  AbstractController *teachcontroller;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -123,29 +132,20 @@ public:
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.setParam("controlinterval",2);
-    global.odeConfig.setParam("noise",0.05); 
-    global.odeConfig.setParam("realtimefactor",3);
-    //    global.odeConfig.setParam("gravity", 0);
+    global.odeConfig.setParam("noise",0.1); 
+    global.odeConfig.setParam("realtimefactor",1);
+    global.odeConfig.setParam("gravity", -3);
     //    global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
-    //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
-    // - setting initial position of the playground: setPosition(double x, double y, double z)
-    // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    s.toPlastic(0.9);
-
-// Neue playgrond varionate mit Xfig
-    //    double factor=2;
-    // playground = new ComplexPlayground(odeHandle, osgHandle, "labyrint42.fig", factor, 0.05);
-
-    double diam = .8; 
-    int anzgrounds=4;
+    s.toPlastic(0.9); 
+    double scale = 20; 
+    double height = 0;
+    int anzgrounds=1;
     for (int i=0; i< anzgrounds; i++){
-      playground = new Playground(odeHandle, osgHandle, osg::Vec3(4+4*i, .2, .15+0.15*i), 1, i==(anzgrounds-1));
+      playground = new Playground(odeHandle, osgHandle, 
+	     osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));
       OdeHandle myhandle = odeHandle;
       myhandle.substance.toFoam(10);
       // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
@@ -155,29 +155,9 @@ public:
     //global.obstacles.push_back(playground);
     }
     global.obstacles.push_back(playground);
-    //     double diam = .8; 
-//     OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/10*diam, .2*diam,/*Height*/ 2), 12,false);
-//       playground3->setColor(Color(.0,0.2,1.0,0.1));
-//       playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-//      global.obstacles.push_back(playground3);
-
-
-    //  OctaPlayground* playground4 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/11.5 *diam,1,/*Height*/ 1.6), 12,true); //false heisst ohne Schatten 
-//        playground4->setColor(Color(.2,.2,.2,0.1));
-//        playground4->setGroundTexture("Images/really_white.rgb");
-//        playground4->setGroundColor(Color(255.0f/255.0f,200.0f/255.0f,21.0f/255.0f));
-//        playground4->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-//       global.obstacles.push_back(playground4);
-    
-
 
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
-    //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
-    // - set a texture for the sphere
-    // - add sphere to list of obstacles
     for (int i=0; i< 0/*2*/; i+=2){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.3);
       // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
@@ -186,13 +166,18 @@ public:
       global.obstacles.push_back(s1);
     }
 
+
+    teachcontroller = new WalkController();
+    teachcontroller->init(12,12);
     for (int i=0; i< 1/*2*/; i++){ //Several dogs 
 
     VierBeinerConf conf = VierBeiner::getDefaultConf();
 	//  conf.hipJointLimit = M_PI/8;        
     conf.legNumber = 4;
 
-    VierBeiner* dog = new VierBeiner(odeHandle, osgHandle,conf, "Dog");     
+    OdeHandle doghandle = odeHandle;
+    doghandle.substance.toRubber(10);
+    VierBeiner* dog = new VierBeiner(doghandle, osgHandle,conf, "Dog");     
     //dog->place(osg::Matrix::translate(0,0,0.15));  
     dog->place(osg::Matrix::translate(0,0,.5 + 4*i));
     global.configs.push_back(dog);
@@ -208,14 +193,20 @@ public:
     //vehicle->place(Pos(0,2,0));
 
     // create pointer to controller
-    // push controller in global list of configurables
-   // AbstractController *controller = new SineController();
-     //   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+
+    // AbstractController *controller = new SineController();
+    //AbstractController *controller = new WalkController();
+    // InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    // cc.useS=false;
+    // AbstractController *controller = new InvertMotorNStep(cc);
+    
+    // AbstractController *controller = new SineController();
+    //   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     //    cc.useS=true;
-     //  AbstractController *controller = new InvertMotorNStep(cc);
+    //  AbstractController *controller = new InvertMotorNStep(cc);
     // DerBigControllerConf cc = DerBigController::getDefaultConf();
 
-    DerControllerConf cc = DerController::getDefaultConf();
+    //    DerControllerConf cc = DerController::getDefaultConf();
     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
    //  vector<Layer> layers;
 //      layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
@@ -227,30 +218,50 @@ public:
     //cc.useS=false;
     // AbstractController* controller = new DerBigController(cc);
 
-     AbstractController* controller = new DerController(cc);
+    //     AbstractController* controller = new DerController(cc);
 	// AbstractController* controller = new InvertMotorBigModel(cc);
+
+    AbstractController* controller = new UniversalController(UniversalController::getDefaultNetConf());
+
     controller->setParam("sinerate",50);
     controller->setParam("phaseshift",1);
     controller->setParam("adaptrate",0);
     controller->setParam("rootE",3);
     controller->setParam("epsC",0.1);
-    controller->setParam("epsA",0.02);
+    controller->setParam("epsA",0.1);
     controller->setParam("steps",1);
     controller->setParam("s4avg",2);
+    controller->setParam("s4delay",2);
     controller->setParam("teacher",0);
     controller->setParam("dampS",0.0001);
     controller->setParam("dampA",0.00003);
+    controller->setParam("continuity",0.5);
     //    controller->setParam("kwta",4);
     //    controller->setParam("inhibition",0.01);
     
+    // TEST
+    controller->setParam("epsC",0.0);
+    controller->setParam("epsA",0.1);
+    controller->setParam("steps",1);
+    controller->setParam("s4avg",2);
+    controller->setParam("s4delay",2);
+    controller->setParam("teacher",0.1);
+    controller->setParam("continuity",0);
+        
+
     global.configs.push_back(controller);
   
     // create pointer to one2onewiring
-    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    // feedback connection and blind channels
+    AbstractWiring* wiring = 
+      new WiringSequence(new FeedbackWiring(new ColorUniformNoise(0.1), 
+					    FeedbackWiring::Motor,0.5),
+			 new One2OneWiring(0, false, 2));
 
-    // create pointer to agent
+    // create pointer to agent 
     // initialize pointer with controller, robot and wiring
-    // push agent in globel list of agents
+    // push agent in globel list of agents 
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, dog, wiring);
     //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
@@ -263,6 +274,21 @@ public:
     showParams(global.configs);
   }
 
+
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+    if(control && !pause && teachcontroller){
+      double sensors[24];
+      double motors[24];
+      AbstractController* contr = globalData.agents.front()->getController();
+      InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(contr);
+      if(c){
+	int len = c->getSensorNumber();
+	teachcontroller->step(sensors, len, motors, len);
+	c->setMotorTeachingSignal(motors,len);
+      }
+    }
+
+  }
 
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
