@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-12-12 10:27:31  der
+ *   Revision 1.5  2007-12-13 07:04:53  der
+ *   fixed a stupid bug created through under sleep ;)
+ *
+ *   Revision 1.4  2007/12/12 10:27:31  der
  *   fixed some nullpointer bugs
  *
  *   Revision 1.3  2007/07/03 13:15:17  martius
@@ -61,7 +64,7 @@ namespace lpzrobots {
 
 
   void CameraManipulatorRace::calcMovementByAgent() {
-    if (!watchingAgent) {
+    if (watchingAgent) {
       // manipulate desired eye by the move of the robot
       const double* robMove = (watchingAgent->getRobot()->getPosition()-oldPositionOfAgent).toArray();
       // attach the robSpeed to desired eye

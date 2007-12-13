@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-12-12 10:27:31  der
+ *   Revision 1.5  2007-12-13 07:04:53  der
+ *   fixed a stupid bug created through under sleep ;)
+ *
+ *   Revision 1.4  2007/12/12 10:27:31  der
  *   fixed some nullpointer bugs
  *
  *   Revision 1.3  2007/07/03 13:15:17  martius
@@ -75,7 +78,7 @@ namespace lpzrobots {
 
 
   void CameraManipulatorTV::calcMovementByAgent() {
-    if (!watchingAgent) {
+    if (watchingAgent) {
       // the actual position of the agent has to be recognized
       // we use the Position getPosition() from OdeRobot
       Position robPos = watchingAgent->getRobot()->getPosition();

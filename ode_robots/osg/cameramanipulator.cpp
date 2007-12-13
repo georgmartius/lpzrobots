@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-12-12 10:27:31  der
+ *   Revision 1.11  2007-12-13 07:04:53  der
+ *   fixed a stupid bug created through under sleep ;)
+ *
+ *   Revision 1.10  2007/12/12 10:27:31  der
  *   fixed some nullpointer bugs
  *
  *   Revision 1.9  2007/12/06 10:36:10  der
@@ -468,7 +471,7 @@ namespace lpzrobots {
 
   void CameraManipulator::moveBehindAgent() {
     // taken from the race camera
-    if (!watchingAgent) {
+    if (watchingAgent) {
       // manipulate desired eye by the move of the robot
       const double* robMove = (watchingAgent->getRobot()->getPosition()-oldPositionOfAgent).toArray();
       // attach the robSpeed to desired eye
@@ -520,7 +523,7 @@ namespace lpzrobots {
   void CameraManipulator::centerOnAgent() {
     // taken from the follow camera
     // ok here the camera will center on the robot
-    if (!watchingAgent) {
+    if (watchingAgent) {
       // the actual position of the agent has to be recognized
       // we use the Position getPosition() from OdeRobot
       Position robPos = watchingAgent->getRobot()->getPosition();
