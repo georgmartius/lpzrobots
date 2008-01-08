@@ -2,11 +2,11 @@ import controller.AbstractController;
 
 
 
-public class MyController extends AbstractController {
+public class NeuroController extends AbstractController {
 
 
 		
-	public MyController(String serverIP, int port_controller, int port_internalParams) {
+	public NeuroController(String serverIP, int port_controller, int port_internalParams) {
 		super(serverIP, port_controller, port_internalParams);
 	}
 
