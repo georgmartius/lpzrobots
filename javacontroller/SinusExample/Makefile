@@ -25,7 +25,7 @@ MODE_FILES      = 444
 MODE_DIRS       = 2755
 
 # Build programs
-JAVAC           = javac -classpath ../lib/javacontroller.jar
+JAVAC           = javac -classpath ../lib/javacontroller.jar:.
 JAVADOC         = javadoc
 JAR             = jar
 

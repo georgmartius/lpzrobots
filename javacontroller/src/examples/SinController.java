@@ -17,15 +17,7 @@ public class SinController extends AbstractController {
 		
 		addConfigurableParameter("sinerate",40);
 		addConfigurableParameter("phaseshift",1);
-		/*addConfigurableParameter("phaseshift1",1);
-		addConfigurableParameter("phaseshift2",1);
-		addConfigurableParameter("phaseshift3",1);
-		addConfigurableParameter("phaseshift4",1);
-		addConfigurableParameter("phaseshift5",1);
-		addConfigurableParameter("phaseshift6",1);
-		addConfigurableParameter("phaseshift7",1);*/
-		
-			
+					
 	}
 	
 	
