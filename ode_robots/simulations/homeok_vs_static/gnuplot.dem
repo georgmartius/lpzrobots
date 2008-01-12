@@ -1,0 +1,15 @@
+
+set data style dots
+plot 'trax.log' u 2:3,'trax_f.log' u 2:3
+set term png
+set output 'trajectorie.png'
+replot 
+set term x11
+
+
+set data style dots
+plot "<awk '{x=x+sqrt(($2*$2)+($3*$3)); print x}' trax.log", "<awk '{x=x+sqrt( ($2*$2) + ($3*$3)); print x}' trax_f.log" 
+set term png
+set output 'summed_track.png'
+replot
+set term x11
