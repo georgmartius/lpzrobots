@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-12-06 10:18:10  der
+ *   Revision 1.2  2008-01-14 09:09:23  der
+ *   added stepSize. An abstractmeasure can now be calculated every stepSize
+ *   steps.
+ *
+ *   Revision 1.1  2007/12/06 10:18:10  der
  *   AbstractMeasure is now a abstract type for Measures,
  *   StatisticTools now supports AbstractMeasures,
  *   StatisticalMeasure, ComplexMeasure  now derived from
@@ -52,27 +56,35 @@
 #define _ABSTRACT_MEASURE_H
 
 #import <iostream>
-class AbstractMeasure {
+class AbstractMeasure
+{
 
 public:
-	AbstractMeasure(const char* measureName) : name(measureName), value(0.0), actualStep(0) {}
+  AbstractMeasure(const char* measureName) : name(measureName), value(0.0), actualStep(0), stepSize(1) {}
 
-	virtual ~AbstractMeasure() {}
+  virtual ~AbstractMeasure() {}
 
-	virtual void step()=0;
+  virtual void step()=0;
 
-	virtual std::string getName() const { return name; }
+  virtual std::string getName() const { return name; }
 
-	virtual double getValue() const { return value; }
+  virtual double getValue() const { return value; }
 
-	virtual double& getValueAdress()  { return value; }
+  virtual double& getValueAdress()  { return value; }
+
+  virtual void setStepSize(int newStepSize) { stepSize=newStepSize; }
+  
+  virtual int getStepSize() const { return stepSize; }
+  
+  virtual long getActualStep() const { return actualStep; }
 
 
 protected:
-	std::string name;
-	double value;  // this is the value which is determined, e.g. in AVG MeasureMode, it's the average!
+  std::string name;
+  double value;  // this is the value which is determined, e.g. in AVG MeasureMode, it's the average!
 
-	long actualStep; // actual step
+  long actualStep; // actual step
+  int stepSize;
 };
 
 #endif

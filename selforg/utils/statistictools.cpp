@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-12-06 10:18:10  der
+ *   Revision 1.6  2008-01-14 09:09:23  der
+ *   added stepSize. An abstractmeasure can now be calculated every stepSize
+ *   steps.
+ *
+ *   Revision 1.5  2007/12/06 10:18:10  der
  *   AbstractMeasure is now a abstract type for Measures,
  *   StatisticTools now supports AbstractMeasures,
  *   StatisticalMeasure, ComplexMeasure  now derived from
@@ -60,6 +64,7 @@ void StatisticTools::doOnCallBack() {
         beginMeasureCounter--;
     else
         for (std::list<AbstractMeasure*>::iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
+          if (((*i)->getActualStep())%((*i)->getStepSize())==0)
             (*i)->step();
         }
 }
