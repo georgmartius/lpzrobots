@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-01-15 15:30:47  fhesse
+ *   Revision 1.3  2008-01-15 17:42:09  fhesse
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2008/01/15 15:30:47  fhesse
  *   *** empty log message ***
  *
  *   Revision 1.1  2008/01/12 15:51:41  fhesse
@@ -129,6 +132,9 @@
 #include "playground.h"
 #include "complexplayground.h"
 
+//my substance definitions
+#include "mysubstance.h"
+
 // used passive spheres
 #include "passivesphere.h"
 
@@ -161,6 +167,7 @@ public:
     global.odeConfig.noise=0.05;
     //  global.odeConfig.setParam("gravity", 0);
    global.odeConfig.setParam("realtimefactor", 0);
+   global.odeConfig.setParam("controlinterval", 2);
 
     // use Playground as boundary:
     // - create pointer to playground (odeHandle contains things like world and space the 
@@ -180,10 +187,18 @@ public:
     OdeHandle PlaygroundHandle(odeHandle);
     //PlaygroundHandle.substance.toRubber(40);
     //PlaygroundHandle.substance.toMetal(2);
-    PlaygroundHandle.substance.toPlastic(0.5);
     //PlaygroundHandle.substance.toFoam(50);
+    //PlaygroundHandle.substance.toPlastic(0.5);
+    PlaygroundHandle.substance.roughness=0.3;
+    PlaygroundHandle.substance.slip=0.1;
+    PlaygroundHandle.substance.hardness=200;
+    PlaygroundHandle.substance.elasticity=0.0;    
 
-     Playground* playground = new Playground(PlaygroundHandle, osgHandle, osg::Vec3(16, 0.2, 0.5));
+
+//     Playground* playground = new Playground(PlaygroundHandle, osgHandle, osg::Vec3(16, 0.2, 0.5),
+//                          	 /*double factorxy = 1*/1,/* bool createGround=true*/ true);
+     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(16, 0.2, 0.8),
+                          	 /*double factorxy = 1*/1,/* bool createGround=true*/ true);
 
 
 //     Playground* playground = (Playground*)new ComplexPlayground(PlaygroundHandle, osgHandle , 
@@ -249,7 +264,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
 
     
     old_p=Position(0,0,0);  //used further down for summing up path
-    vehicle->place(Pos(0,0,0));
+    vehicle->place(Pos(0,0,0.25));
     
     
     // create pointer to controller
@@ -462,10 +477,10 @@ int main (int argc, char **argv)
         //while ( (a < 0) ) { 
         //  a=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch
         //}
-
-        double a=0;
+//c=11;h=0;
+ //       double a=10;
         ThisSim sim;
-        //sim.writeInvertNChannelControllerParamsToFile(((double)c)/10.0, /*a* / 1.0 */((double)a)/10.0, ((double)h)/10.0);
+//        sim.writeInvertNChannelControllerParamsToFile(((double)c)/10.0, /*a* / 1.0 */((double)a)/10.0, ((double)h)/10.0);
         sim.writeStaticControllerParamsToFile(((double)c)/10.0, ((double)h)/10.0);
         sim.run(argc, argv);
         /*if (i==0)*/{
