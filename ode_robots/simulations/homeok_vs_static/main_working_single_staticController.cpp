@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-01-15 15:30:47  fhesse
+ *   Revision 1.1  2008-01-15 15:30:47  fhesse
  *   *** empty log message ***
  *
  *   Revision 1.1  2008/01/12 15:51:41  fhesse

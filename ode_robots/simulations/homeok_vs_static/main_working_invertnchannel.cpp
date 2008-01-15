@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-01-15 15:30:47  fhesse
+ *   Revision 1.1  2008-01-15 15:30:47  fhesse
  *   *** empty log message ***
  *
  *   Revision 1.1  2008/01/12 15:51:41  fhesse
@@ -136,8 +136,6 @@
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 //#include <selforg/sinecontroller.h>
-#include <staticcontroller.h>
-
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -269,7 +267,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, vehicle, wiring);
-    //agent->setTrackOptions(TrackRobot(true, false, false, false, "track" ,1));
+    agent->setTrackOptions(TrackRobot(true, false, false, false, "track" ,1));
     global.agents.push_back(agent);
      
     showParams(global.configs);
@@ -363,7 +361,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
 
 
 
-  void writeInvertNChannelControllerParamsToFile(double _c, double _a, double _h){
+  void writeControllerParamsToFile(double _c, double _a, double _h){
     FILE* file;
     char filename[256];
     sprintf(filename, "init_weights.tmp");
@@ -386,40 +384,15 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     //fakeTempController->setParam("eps",0.0);
     //fakeTempController->Configurable::print(file,0);
     //if (fakeTempController) delete (fakeTempController);
-    controller = new InvertNChannelController(10);
+    controller = new InvertNChannelController(10);  
     controller -> init(/*sensornumber*/1, /*motornumber*/1);
     //controller -> setParam("eps",0.0);
     controller -> setParam("eps",0.1);
     controller -> Configurable::print(file,0);
     fflush(file);
     if(file) fclose(file);
-  }
-  
-  void writeStaticControllerParamsToFile(double _c, double _h){
-    FILE* file;
-    char filename[256];
-    sprintf(filename, "init_weights.tmp");
-    file = fopen(filename,"w+");
-
-    matrix::Matrix C;
-    matrix::Matrix H;
-    C.set(1,1);
-    H.set(1,1);
-    C.val(0,0)=_c;
-    H.val(0,0)=_h;
-
-    C.store(file);
-    H.store(file);
-    controller = new StaticController(10);    
-    controller -> init(/*sensornumber*/1, /*motornumber*/1);
-    controller -> Configurable::print(file,0);
-    fflush(file);
-    if(file) fclose(file);
 
   }
-
-
-
 
   void loadControllerParamsFromFile(){
     // load controller parameters from file
@@ -453,35 +426,30 @@ int main (int argc, char **argv)
   if(filen) fclose(filen);
   for (int i=0; i<10; i++){
     std::cout<<i<<". Runde beendet\n";
-    for (int c=-15; c<16; c++){
-      for (int h=-5; h<6; h++){
-        // small random values for a and c when using InvertNChannelController
-        //double c=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch durch 10 geteilt
-        //double a=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch
-        // a should have positive sign
-        //while ( (a < 0) ) { 
-        //  a=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch
-        //}
+//    for (int c=-15; c<16; c++){
+//      for (int h=-5; h<6; h++){
+        double c=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch durch 10 geteilt
+        double a=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch
 
-        double a=0;
+        while ( (a < 0) ) { // c and a should have same sign
+          a=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch
+        }
+
+        double h=0;
         ThisSim sim;
-        //sim.writeInvertNChannelControllerParamsToFile(((double)c)/10.0, /*a* / 1.0 */((double)a)/10.0, ((double)h)/10.0);
-        sim.writeStaticControllerParamsToFile(((double)c)/10.0, ((double)h)/10.0);
+        sim.writeControllerParamsToFile(((double)c)/10.0, /*a* / 1.0*/((double)a)/10.0, ((double)h)/10.0);
         sim.run(argc, argv);
         /*if (i==0)*/{
           FILE* filen;
           char filename[256];
           sprintf(filename, "parameters.log");
           filen = fopen(filename,"a");
-          //StaticController:
-          fprintf(filen,"%g   %g\n", ((double)c)/10.0, ((double)h)/10.0); 
-          //InvertNChannelController:
-          //fprintf(filen,"%g   %g  %g\n", ((double)c)/10.0, ((double)h)/10.0, ((double)a)/10.0 ); 
+          fprintf(filen,"%g   %g  %g\n", ((double)c)/10.0, ((double)h)/10.0, ((double)a)/10.0 );
           fflush(filen);
           if(filen) fclose(filen); 
         }
-      }
-    } 
+//      }
+//    } 
     FILE* file;
     char filename[256];
     sprintf(filename, "summed_path.log");
