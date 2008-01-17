@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.38  2007-12-07 10:55:34  der
+ *   Revision 1.39  2008-01-17 09:56:42  der
+ *   boxmode improved
+ *
+ *   Revision 1.38  2007/12/07 10:55:34  der
  *   jippie
  *
  *   Revision 1.37  2007/12/06 19:40:18  der
@@ -428,10 +431,12 @@ namespace lpzrobots {
     // - put it into object[0]
 
     if (conf.boxMode) {
+      double dheight = 0.0;
+      double height = width/4*3 + dheight;
       // height, width and length
-      Box* box = new Box(width/4*3,width/3, length/3*2);
-      box->init(odeHandle, cmass, osgHandle);
-      box->setPose(Matrix::translate(0, 0, -1) * Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
+      Box* box = new Box(height,width/3, length/4*3);
+      box->init(odeHandle, cmass*5, osgHandle);
+      box->setPose(Matrix::translate(0, 0, -1) * Matrix::rotate(M_PI/2, 0, 1, 0) * pose * Matrix::translate(0, 0, dheight/2));
       box->getOSGPrimitive()->setTexture("Images/wood.rgb");
       box->substance.toMetal(0);
       object[0]=box;
@@ -448,13 +453,21 @@ namespace lpzrobots {
     // - position bumper relative to main body
     //  (using transform object "glues" it together without using joints, see ODE documentation)
     // - init cylinder with odehandle, mass and osghandle
-    if (conf.bumper){
+    if (conf.bumper && !conf.boxMode){
       for (int i=0; i<number_bumpers; i++){
 	bumper[i].bump = new Capsule(width/4, 2*radius+width/2);
 	bumper[i].trans = new Transform(object[0], bumper[i].bump,
 					Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) *
 					Matrix::translate(0, 0, i==0 ? -(length/2) : (length/2)));
 	bumper[i].trans->init(odeHandle, 0, osgHandle);
+      }
+    } else if (conf.bumper && conf.boxMode){
+      for (int i=0; i<number_bumpers; i++){
+        bumper[i].bump = new Box(height/3,width/4, 2*radius+width/2);
+        bumper[i].trans = new Transform(object[0], bumper[i].bump,
+                                        Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) *
+                                        Matrix::translate(0, 0, i==0 ? -(length/4) : (length/4)));
+        bumper[i].trans->init(odeHandle, 0, osgHandle);
       }
     }
 
@@ -473,7 +486,7 @@ namespace lpzrobots {
 	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
 	object[i] = wheel;
 	if (conf.boxMode) {
-	  wheel->substance.toMetal(0.65);
+	  wheel->substance.toRubber( 40.0);
 	}
       }else{ // for "normal" wheels
 	Cylinder* wheel = new Cylinder(radius, wheelthickness);
