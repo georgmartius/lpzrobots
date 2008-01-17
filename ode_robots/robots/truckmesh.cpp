@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-11-07 13:21:16  martius
+ *   Revision 1.7  2008-01-17 09:57:40  der
+ *   correct mesh filepath
+ *
+ *   Revision 1.6  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.5  2007/09/06 18:48:00  martius
@@ -295,7 +298,7 @@ namespace lpzrobots {
     // rotate and place body (here by 90° around the y-axis)
     // use texture 'wood' for mesh
     // put it into object[0]
-    Mesh* mesh = new Mesh("dumptruck.osg",height/20.0f);
+    Mesh* mesh = new Mesh("Meshes/dumptruck.osg",height/20.0f);
     mesh->init(odeHandle, cmass, osgHandle);
     mesh->setPose(/*Matrix::rotate(M_PI/2, 0, 1, 0) */ pose);
     mesh->getOSGPrimitive()->setTexture("Images/really_white.rgb");
