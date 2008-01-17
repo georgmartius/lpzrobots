@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-12-06 10:02:49  der
+ *   Revision 1.4  2008-01-17 09:55:55  der
+ *   methods added for adding std::list<AbstractMeasure*> to the HUD
+ *
+ *   Revision 1.3  2007/12/06 10:02:49  der
  *   abstractground: returns now cornerpoints
  *   abstractobstacle: is now trackable
  *   hudstatistics: supports now AbstractmMeasure
@@ -56,6 +59,8 @@
 #include "hudstatistics.h"
 #include <selforg/abstractmeasure.h>
 #include <selforg/statisticmeasure.h>
+#include <selforg/complexmeasure.h>
+#include <selforg/statisticmeasure.h>
 
 #include "osgforwarddecl.h"
 #import "color.h"
@@ -82,7 +87,7 @@ HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* fon
   statTool = new StatisticTools();
 }
 
-StatisticMeasure* HUDStatisticsManager::getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
+StatisticMeasure* HUDStatisticsManager::getMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
 
   StatisticMeasure* newMeasure = this->statTool->getMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
 
@@ -107,7 +112,7 @@ StatisticMeasure* HUDStatisticsManager::getMeasure(double& observedValue, char* 
   return newMeasure;
 }
 
-double& HUDStatisticsManager::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
+double& HUDStatisticsManager::addMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
 
   StatisticMeasure* newMeasure = this->getMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
 
@@ -136,6 +141,29 @@ double& HUDStatisticsManager::addMeasure(AbstractMeasure* measure) {
   this->statTool->addMeasure(measure);
   return  measure->getValueAdress();
 }
+
+double& HUDStatisticsManager::addMeasureList(std::list<AbstractMeasure*> measureList) {
+  FOREACH(std::list<AbstractMeasure*>,measureList,measure) {
+    addMeasure(*measure);
+  }
+  return measureList.front()->getValueAdress();
+}
+
+double& HUDStatisticsManager::addMeasureList(std::list<ComplexMeasure*> measureList) {
+  FOREACH(std::list<ComplexMeasure*>,measureList,measure) {
+    addMeasure(*measure);
+  }
+  return measureList.front()->getValueAdress();
+}
+
+double& HUDStatisticsManager::addMeasureList(std::list<StatisticMeasure*> measureList) {
+  FOREACH(std::list<StatisticMeasure*>,measureList,measure) {
+    addMeasure(*measure);
+  }
+  return measureList.front()->getValueAdress();
+}
+
+
 
 void HUDStatisticsManager::doOnCallBack() {
   // go through WindowStatictList and update the graphical text, that should be all!

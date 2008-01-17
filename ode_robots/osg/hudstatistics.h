@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-12-06 10:02:49  der
+ *   Revision 1.4  2008-01-17 09:55:55  der
+ *   methods added for adding std::list<AbstractMeasure*> to the HUD
+ *
+ *   Revision 1.3  2007/12/06 10:02:49  der
  *   abstractground: returns now cornerpoints
  *   abstractobstacle: is now trackable
  *   hudstatistics: supports now AbstractmMeasure
@@ -118,7 +121,7 @@ public:
   	 * @see StatisticTools
   	 * @see StatisticMeasure
 	 */
-  virtual StatisticMeasure* getMeasure( double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
+  virtual StatisticMeasure* getMeasure( double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
 
   	/**
 	 * adds a variable to observe (on the window) and measure the value
@@ -138,7 +141,7 @@ public:
   	 * @see StatisticTools
   	 * @see StatisticMeasure
 	 */
-  virtual double& addMeasure( double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
+  virtual double& addMeasure( double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
   
     /**
    * You can add another abstract measure you like. in some cases (e.g. complex
@@ -146,7 +149,33 @@ public:
    * @param measure the measure to add
    */
   virtual double& addMeasure(AbstractMeasure* measure);
+  
+  /**
+   * You can add another abstract measure you like. in some cases (e.g. complex
+   * measures) it is better to let the measure decide how it likes to be initialized
+   * With this method you can add a list of AbstractMeasures.
+   * @param measureList the list of measures to add
+   */
+  virtual double& addMeasureList(std::list<AbstractMeasure*> measureList);
 
+    /**
+   * You can add another abstract measure you like. in some cases (e.g. complex
+   * measures) it is better to let the measure decide how it likes to be initialized
+   * With this method you can add a list of AbstractMeasures.
+   * @param measureList the list of measures to add
+   */
+  virtual double& addMeasureList(std::list<ComplexMeasure*> measureList);
+  
+  
+      /**
+   * You can add another abstract measure you like. in some cases (e.g. complex
+   * measures) it is better to let the measure decide how it likes to be initialized
+   * With this method you can add a list of AbstractMeasures.
+   * @param measureList the list of measures to add
+   */
+  virtual double& addMeasureList(std::list<StatisticMeasure*> measureList);
+  
+  
   	/**
 	 * starts the measure at a specific time. This is useful if there are
 	 * values that have to be ignored at simulation start.
