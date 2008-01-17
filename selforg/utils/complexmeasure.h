@@ -24,7 +24,14 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.1  2007-12-06 10:18:10  der
+*   Revision 1.2  2008-01-17 09:59:27  der
+*   complexmeasure: preparations made for predictive information,
+*   fixed a minor bug
+*   statisticmeasure, statistictools: added support for adding
+*   std::list<AbstractMeasure*> to StatisticTools, some minor
+*   improvements
+*
+*   Revision 1.1  2007/12/06 10:18:10  der
 *   AbstractMeasure is now a abstract type for Measures,
 *   StatisticTools now supports AbstractMeasures,
 *   StatisticalMeasure, ComplexMeasure  now derived from
@@ -60,7 +67,9 @@ enum ComplexMeasureMode {
   /// returns the entropy of the value, uses update formula, needs O(1)
   ENT,
   /// returns the entropy of the value, uses normal formula, needs O(n) or O(m*n)
-  ENTSLOW
+  ENTSLOW,
+  /// returns the mutual information of two values, uses update formula, needs O(1)
+  MI
 };
 
 class Discretisizer;
@@ -82,7 +91,7 @@ class ComplexMeasure : public AbstractMeasure {
   * measures the observedValue has to be discretisized, this does the
   * ComplexMeasure with the class Discretisizer for you.
   */
-ComplexMeasure( char* measureName, ComplexMeasureMode mode, int numberBins );
+ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins );
 
 
 
@@ -109,15 +118,25 @@ ComplexMeasure( char* measureName, ComplexMeasureMode mode, int numberBins );
   ComplexMeasureMode mode;
   int numberBins;
   int fSize; // size of F
-  int *F; // stores the frequencies as a linear vector.
+  int historySize; // size of binNumberHistory
+  int *F; // stores the frequencies as a linear vector
+  int *binNumberHistory; // holds the binNumbers as an history, for predictive information 2 values are enough
+  int historyIndex; // index of last stored value
 
   
   
     // calculation methods
+  
+      /**
+     * updates the mutual information. uses update rule with O(1) costs
+     * @param binNumber the bin number
+     */
+    void updateMI( int binNumber);
+  
 
     /**
      * updates the entropy. uses update rule with O(1) costs
-     * @param binNumbe1 the bin number
+     * @param binNumber the bin number
      */
     void updateEntropy( int binNumber);
 

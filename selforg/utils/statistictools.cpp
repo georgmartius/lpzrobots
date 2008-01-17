@@ -24,7 +24,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-01-14 09:09:23  der
+ *   Revision 1.7  2008-01-17 09:59:27  der
+ *   complexmeasure: preparations made for predictive information,
+ *   fixed a minor bug
+ *   statisticmeasure, statistictools: added support for adding
+ *   std::list<AbstractMeasure*> to StatisticTools, some minor
+ *   improvements
+ *
+ *   Revision 1.6  2008/01/14 09:09:23  der
  *   added stepSize. An abstractmeasure can now be calculated every stepSize
  *   steps.
  *
@@ -56,6 +63,7 @@
  ***************************************************************************/
 #include "statistictools.h"
 #include "statisticmeasure.h"
+#include "complexmeasure.h"
 
 
 void StatisticTools::doOnCallBack() {
@@ -69,12 +77,12 @@ void StatisticTools::doOnCallBack() {
         }
 }
 
-double& StatisticTools::addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
+double& StatisticTools::addMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
     StatisticMeasure* newMeasure = this->getMeasure(observedValue,measureName,mode,stepSpan,additionalParam);
     return  newMeasure->getValueAdress();
 }
 
-StatisticMeasure* StatisticTools::getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
+StatisticMeasure* StatisticTools::getMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
     StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
     this->activeMeasures.push_back(newMeasure);
     return newMeasure;
@@ -84,6 +92,29 @@ double& StatisticTools::addMeasure(AbstractMeasure* measure) {
   this->activeMeasures.push_back(measure);
   return  measure->getValueAdress();
 }
+
+double& StatisticTools::addMeasureList(std::list<AbstractMeasure*> measureList) {
+  FOREACH(std::list<AbstractMeasure*>,measureList,measure) {
+    addMeasure(*measure);
+  }
+  return measureList.front()->getValueAdress();
+}
+
+double& StatisticTools::addMeasureList(std::list<ComplexMeasure*> measureList) {
+  FOREACH(std::list<ComplexMeasure*>,measureList,measure) {
+    addMeasure(*measure);
+  }
+  return measureList.front()->getValueAdress();
+}
+
+double& StatisticTools::addMeasureList(std::list<StatisticMeasure*> measureList) {
+  FOREACH(std::list<StatisticMeasure*>,measureList,measure) {
+    addMeasure(*measure);
+  }
+  return measureList.front()->getValueAdress();
+}
+
+
 
 void StatisticTools::beginMeasureAt(long step) {
     this->beginMeasureCounter=step;

@@ -24,7 +24,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-12-06 10:18:10  der
+ *   Revision 1.8  2008-01-17 09:59:27  der
+ *   complexmeasure: preparations made for predictive information,
+ *   fixed a minor bug
+ *   statisticmeasure, statistictools: added support for adding
+ *   std::list<AbstractMeasure*> to StatisticTools, some minor
+ *   improvements
+ *
+ *   Revision 1.7  2007/12/06 10:18:10  der
  *   AbstractMeasure is now a abstract type for Measures,
  *   StatisticTools now supports AbstractMeasures,
  *   StatisticalMeasure, ComplexMeasure  now derived from
@@ -69,6 +76,7 @@
 // begin forward declarations
 class AbstractMeasure;
 class StatisticMeasure;
+class ComplexMeasure;
 // end forward declarations
 
 class StatisticTools : public Inspectable, public Callbackable {
@@ -91,13 +99,13 @@ public:
   	 * In CONV mode (test the convergence), this value is the epsilon criteria.
 	 * @return measured value as adress. So it is possible to measure this value again
 	 */
-	virtual double& addMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
+  virtual double& addMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
 
   /**
    * Same as the method above, but instead of getting the calculated value back (the adress), you get
    * the StatisticMeasure itself
    */
-  virtual StatisticMeasure* getMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
+  virtual StatisticMeasure* getMeasure(double& observedValue,const char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
 
 
   /**
@@ -106,6 +114,33 @@ public:
    * @param measure the measure to add
    */
   virtual double& addMeasure(AbstractMeasure* measure);
+  
+  /**
+   * You can add another abstract measure you like. in some cases (e.g. complex
+   * measures) it is better to let the measure decide how it likes to be initialized
+   * With this method you can add a list of AbstractMeasures.
+   * @param measureList the list of measures to add
+   */
+  virtual double& addMeasureList(std::list<AbstractMeasure*> measureList);
+  
+  
+    /**
+   * You can add another abstract measure you like. in some cases (e.g. complex
+   * measures) it is better to let the measure decide how it likes to be initialized
+   * With this method you can add a list of AbstractMeasures.
+   * @param measureList the list of measures to add
+   */
+  virtual double& addMeasureList(std::list<ComplexMeasure*> measureList);
+  
+  
+    /**
+   * You can add another abstract measure you like. in some cases (e.g. complex
+   * measures) it is better to let the measure decide how it likes to be initialized
+   * With this method you can add a list of AbstractMeasures.
+   * @param measureList the list of measures to add
+   */
+  virtual double& addMeasureList(std::list<StatisticMeasure*> measureList);
+  
 
 
 	/**

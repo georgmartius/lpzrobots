@@ -24,7 +24,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-12-06 10:18:10  der
+ *   Revision 1.8  2008-01-17 09:59:27  der
+ *   complexmeasure: preparations made for predictive information,
+ *   fixed a minor bug
+ *   statisticmeasure, statistictools: added support for adding
+ *   std::list<AbstractMeasure*> to StatisticTools, some minor
+ *   improvements
+ *
+ *   Revision 1.7  2007/12/06 10:18:10  der
  *   AbstractMeasure is now a abstract type for Measures,
  *   StatisticTools now supports AbstractMeasures,
  *   StatisticalMeasure, ComplexMeasure  now derived from
@@ -64,7 +71,7 @@
 #include "assert.h"
 #include "math.h"
 
-StatisticMeasure::StatisticMeasure(double& observedValue, char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : AbstractMeasure(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam)
+StatisticMeasure::StatisticMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : AbstractMeasure(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam)
 {
   internInit();
   /// use this section for defining individual constructor commands
