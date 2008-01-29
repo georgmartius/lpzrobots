@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-12-06 10:02:49  der
+ *   Revision 1.15  2008-01-29 16:19:30  der
+ *   increased groundbox thickness for avoiding collision bugs
+ *
+ *   Revision 1.14  2007/12/06 10:02:49  der
  *   abstractground: returns now cornerpoints
  *   abstractobstacle: is now trackable
  *   hudstatistics: supports now AbstractmMeasure
@@ -197,10 +200,10 @@ namespace lpzrobots {
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
-      groundPlane = new Box(groundLength+1.95*wallThickness, groundWidth+1.95*wallThickness, 0.05f);
+      groundPlane = new Box(groundLength+1.95*wallThickness, groundWidth+1.95*wallThickness, 10.0f);
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,0.025f) * pose);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-5.0f+0.001f) * pose);
       groundPlane->setTexture(groundTextureFileName,true,true);
       obst.push_back(groundPlane);
     }
