@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-08-28 09:25:13  martius
+ *   Revision 1.18  2008-02-07 14:25:29  der
+ *   added setWallTexture for PlayGround
+ *
+ *   Revision 1.17  2007/08/28 09:25:13  martius
  *   include primitive.h
  *
  *   Revision 1.16  2007/08/24 11:53:10  martius
@@ -157,6 +160,17 @@ namespace lpzrobots {
 	create();
       }      
     }
+
+    virtual void setWallSubstance(const Substance& substance) {
+      if (obstacle_exists) {
+	FOREACH(std::vector<Primitive*>,obst,wall) {
+	  (*wall)->substance=substance;
+	}
+      } else
+	std::cerr << "PlayGround::setWallSubstance() - PlayGround gound not created!\n";
+
+    }
+
 
   protected:
     virtual void create(){
