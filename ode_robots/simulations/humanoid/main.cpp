@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-02-05 07:58:09  der
+ *   Revision 1.3  2008-02-07 14:25:02  der
+ *   added setTexture and setColor for skeleton
+ *
+ *   Revision 1.2  2008/02/05 07:58:09  der
  *   neue Konfiguration playground
  *
  *   Revision 1.1  2008/01/29 09:52:16  der
@@ -129,7 +132,8 @@ public:
 
 
   Joint* fixator;
-  AbstractObstacle* playground; 
+  Playground* playground; 
+  //  AbstractObstacle* playground; 
   double hardness;
   Substance s;
   
@@ -161,7 +165,7 @@ public:
     global.odeConfig.setParam("noiseY",0.03); 
     global.odeConfig.setParam("noise",0.05); 
     global.odeConfig.setParam("realtimefactor",1);
-    global.odeConfig.setParam("simstepsize",0.007);
+    global.odeConfig.setParam("simstepsize",0.004);
         global.odeConfig.setParam("gravity", -4);
     //    global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
@@ -200,14 +204,16 @@ public:
 
     int anzgrounds=1;
     for (int i=0; i< anzgrounds; i++){
-      playground = new Playground(odeHandle, osgHandle, osg::Vec3(1.8+4*i, 2, .75+0.15*i), 1, i==(anzgrounds-1));
+      playground = new Playground(odeHandle, osgHandle, osg::Vec3(2.8+4*i, 2, .75+0.15*i), 1, i==(anzgrounds-1));
       OdeHandle myhandle = odeHandle;
       //      myhandle.substance.toFoam(10);
       // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
          playground->setColor(Color(0.9,0.1,0.1,0.99));
       playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
-      s.toRubber(100);
+      //      s.toRubber(100);
+      s.toPlastic(1);
       playground->setSubstance(s);
+      playground->setWallSubstance(s);
       // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
     //global.obstacles.push_back(playground);
     }
@@ -235,7 +241,7 @@ public:
 
       SkeletonConf conf = Skeleton::getDefaultConf();
       
-      double powerfactor = 1.8;//.3 
+      double powerfactor = 2.8;//.3 
 
        conf.bodyMass   = 0.1;
        conf.relLegmass = 5;
@@ -248,15 +254,22 @@ public:
        conf.armJointLimit=1.2; //!
 //       conf.ankleJointLimit=0.001; //!
        conf.pelvisJointLimit=.5; //!    
-            conf.hipPower=20 * powerfactor;   
+            conf.hipPower=50 * powerfactor;   
             conf.hip2Power=20 * powerfactor;      //5
             conf.pelvisPower=20 * powerfactor;
-      conf.kneePower= 5 * powerfactor;
+      conf.kneePower= 15 * powerfactor;
       conf.anklePower= 2 * powerfactor;
       conf.armPower = 15 * powerfactor;//5
+      if (i==1) {
+	conf.trunkTexture="Images/rabbit_fur.jpg";
+	conf.trunkColor=Color(1.0,1.0,1.0);
+      }
+      //      conf.bodyTexture="Images/whitemetal_farbig_small.rgb";
+      //      conf.bodyColor=Color(1.0,1.0,0.0);
       OdeHandle skelHandle=odeHandle;
       // skelHandle.substance.toMetal(1);
-      skelHandle.substance.toRubber(60);//TEST sonst 40
+      skelHandle.substance.toPlastic(2);//TEST sonst 40
+      //      skelHandle.substance.toRubber(90);//TEST sonst 40
       Skeleton* human = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
       human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		   *osg::Matrix::translate(-.2 +0.8*i,0,.1+1*i));
@@ -304,7 +317,6 @@ public:
       //     controller->setParam("teacher",0);
       //     controller->setParam("dampS",0.0001);
       //     controller->setParam("dampA",0.00003);
-      //     //    controller->setParam("kwta",4);
       //     //    controller->setParam("inhibition",0.01);
       
       global.configs.push_back(controller);
@@ -389,7 +401,7 @@ public:
 	  //    layers.push_back(Layer(10,0.5,FeedForwardNN::tanh)); // hidden layer
 	   //  size of output layer is automatically set
           layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-          MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
+          MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
           cconf.model=net;
           cconf.useS=false;
 

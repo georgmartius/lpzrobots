@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-01-29 09:52:16  der
+ *   Revision 1.2  2008-02-07 14:25:02  der
+ *   added setTexture and setColor for skeleton
+ *
+ *   Revision 1.1  2008/01/29 09:52:16  der
  *   first version
  *
  *   Revision 1.2  2007/11/07 13:27:28  martius
@@ -72,6 +75,14 @@ namespace lpzrobots {
     double pelvisJointLimit; ///< angle range of pelvis joint
     
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
+
+    Color headColor;
+    Color bodyColor;
+    Color trunkColor;
+
+    std::string headTexture; // texture of the head
+    std::string bodyTexture; // texture of the body
+    std::string trunkTexture; // texture of the trunk
 
   } SkeletonConf;
 
@@ -128,6 +139,14 @@ namespace lpzrobots {
       c.pelvisJointLimit = M_PI/30; // +- 6 degree
 
       c.onlyPrimaryFunctions=false;
+
+      //      c.headTexture="Images/really_white.rgb";
+      c.headTexture="Images/dusty.rgb";
+      c.headColor=Color(255/255.0, 219/255.0, 119/255.0, 1.0f);
+      c.bodyTexture="Images/whitemetal_farbig_small.rgb";
+      c.bodyColor=Color(207/255.0, 199/255.0, 139/255.0, 1.0f);
+      c.trunkTexture="Images/whitemetal_farbig_small.rgb";
+      c.trunkColor=Color(207/255.0, 199/255.0, 139/255.0, 1.0f);
       return c;
     }
 
