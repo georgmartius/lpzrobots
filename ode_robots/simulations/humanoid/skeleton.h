@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-02-07 14:25:02  der
+ *   Revision 1.3  2008-02-08 13:35:10  der
+ *   satelite teaching
+ *
+ *   Revision 1.2  2008/02/07 14:25:02  der
  *   added setTexture and setColor for skeleton
  *
  *   Revision 1.1  2008/01/29 09:52:16  der
@@ -51,7 +54,8 @@ namespace lpzrobots {
   typedef struct {
   public:
     double size;       ///< scaling factor for robot (height)
-    double bodyMass;   ///< chassis(body) mass
+    double massfactor; ///< mass factor for all parts
+
     double relLegmass; ///< relative overall leg mass
     double relArmmass; ///< relative overall arm mass
     double relFeetmass; ///< relative overall feet mass
@@ -106,10 +110,10 @@ namespace lpzrobots {
     static SkeletonConf getDefaultConf(){
       SkeletonConf c;
       c.size       = 1;
-      c.bodyMass   = 1;
-      c.relLegmass = 1;
-      c.relFeetmass = 100;// .1;
-      c.relArmmass = 10;// 0.3;
+      c.massfactor = 1;
+      c.relLegmass = 1;   // unused
+      c.relFeetmass = 100;// .1; unused
+      c.relArmmass = 10;// 0.3; unused
 
       c.hipPower=50;
       c.hipDamping=0.4;
@@ -233,7 +237,8 @@ namespace lpzrobots {
     std::vector<OneAxisServo*> ankleservos; // motors
     std::vector<TwoAxisServo*> armservos; // motors
     std::vector<OneAxisServo*> arm1servos; // motors
-    std::vector<OneAxisServo*> headservos; // motors
+/*     std::vector<OneAxisServo*> headservos; // motors */
+    std::vector<TwoAxisServo*> headservos; // motors
 
     TwoAxisServo* pelvisservo; // between Hip and Trunk_comp
 

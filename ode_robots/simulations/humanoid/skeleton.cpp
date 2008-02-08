@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-02-07 14:25:02  der
+ *   Revision 1.3  2008-02-08 13:35:10  der
+ *   satelite teaching
+ *
+ *   Revision 1.2  2008/02/07 14:25:02  der
  *   added setTexture and setColor for skeleton
  *
  *   Revision 1.1  2008/01/29 09:52:16  der
@@ -80,7 +83,7 @@ namespace lpzrobots {
       return hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size()+ 1/*pelvis*/ ;
     else
       return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2 + 
-	2/*pelvis*/+ headservos.size();
+	2/*pelvis*/+ /*headservos.size();*/ + 2*headservos.size();
   };
 
   /* sets actual motorcommands
@@ -128,12 +131,16 @@ namespace lpzrobots {
       n++;
     }
 
-    FOREACH(vector <OneAxisServo*>, headservos, s){
+    //    FOREACH(vector <OneAxisServo*>, headservos, s){
+    FOREACH(vector <TwoAxisServo*>, headservos, s){
       if(!conf.onlyPrimaryFunctions){
-	(*s)->set(motors[n]);
-	n++;
+// 	(*s)->set(motors[n]);
+// 	n++;
+	(*s)->set(motors[n],motors[n+1]);
+	n+=2;
       }else
-	(*s)->set(0);
+// 	(*s)->set(0);
+	(*s)->set(0,0);
     }
         
     assert(len==n);
@@ -144,7 +151,7 @@ namespace lpzrobots {
       return hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size() + 1 /*pelvis*/;
     else
       return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2
-	+ 2 /*pelvis*/ + headservos.size()  ; 
+	+ 2 /*pelvis*/ + /*headservos.size()*/ 2*headservos.size()  ; 
   };
 
   /* returns actual sensorvalues
@@ -186,9 +193,13 @@ namespace lpzrobots {
     if(!conf.onlyPrimaryFunctions){
       sensors[n] = pelvisservo->get2();
       n++;
-      FOREACHC(vector <OneAxisServo*>, headservos, s){
-	sensors[n]   = (*s)->get();
-	n++;
+//       FOREACHC(vector <OneAxisServo*>, headservos, s){
+      FOREACHC(vector <TwoAxisServo*>, headservos, s){
+// 	sensors[n]   = (*s)->get();
+// 	n++;
+	sensors[n]   = (*s)->get1();
+	sensors[n+1]   = (*s)->get2();
+	n+=2;
       }
     }
     assert(len==n);
@@ -258,7 +269,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::translate(0, 1.131, 0.0052) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(/*16*/.61, 0, 0, 0, 0.0996, 0.1284, 0.1882, 0, 0, 0);
+//    b->setMass(/*16*/.61, 0, 0, 0, 0.0996, 0.1284, 0.1882, 0, 0, 0);
+    b->setMass(1.6*conf.massfactor);
     objects[Hip]=b; 
  
     // Pole1    
@@ -281,7 +293,8 @@ namespace lpzrobots {
     b = new Box(0.3,0.45,0.2);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
-    b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
+//     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
+    b->setMass(1*conf.massfactor);
     b->setTexture(conf.trunkTexture);
     b->setColor(conf.trunkColor);
    //  b = new Capsule(0.3,0.2);
@@ -294,7 +307,8 @@ namespace lpzrobots {
     b = new Capsule(0.05,0.08);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884, 0.0253) * pose );
-    b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
+//     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
+    b->setMass(.1*conf.massfactor);
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
     objects[Neck]=b;
@@ -305,7 +319,8 @@ namespace lpzrobots {
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::translate(0, 1.8106, 0.063) * pose );
     // b->setMass(5.89, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
-    b->setMass(.1, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
+//     b->setMass(.1, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
+    b->setMass(0.1*conf.massfactor);
     b->setTexture(conf.headTexture);
     b->setColor(conf.headColor);
     objects[Head_comp]=b;
@@ -316,7 +331,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(0.3094, 1.587, 0.0227) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
+//     b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
+    b->setMass(0.2*conf.massfactor);
     objects[Left_Shoulder]=b;
 
     // Left_Forearm
@@ -325,7 +341,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(0.5798, 1.5909, 0.024) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
+//     b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
+    b->setMass(0.121*conf.massfactor);
     objects[Left_Forearm]=b;
 
     // Left_Hand
@@ -335,14 +352,16 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0.7826, 1.5948, 0.024) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
+//     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
+    b->setMass(0.55*conf.massfactor);
     objects[Left_Hand]=b;
 
     // Right_Shoulder
     b = new Capsule(0.04,0.28);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(-0.3094, 1.587, 0.0227) * pose );
-    b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
+//     b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
+    b->setMass(0.2*conf.massfactor);
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
     objects[Right_Shoulder]=b;
@@ -353,7 +372,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(-0.5798, 1.5909, 0.024) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
+//     b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
+    b->setMass(0.121*conf.massfactor);
     objects[Right_Forearm]=b;
 
     // Right_Hand
@@ -363,7 +383,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(-0.7826, 1.5948, 0.024) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
+//     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
+    b->setMass(0.55*conf.massfactor);
     objects[Right_Hand]=b;
 
     // Left_Thigh
@@ -373,7 +394,8 @@ namespace lpzrobots {
 	       osg::Matrix::translate(0.0949, 0.8525, 0.0253) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
+//     b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
+    b->setMass(1*conf.massfactor);
     objects[Left_Thigh]=b;
 
     // Left_Shin
@@ -382,7 +404,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0.0702, 0.3988, 0.0357) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(4.16, 0, 0, 0, 0.069, 0.0033, 0.069, 0, 0, 0);
+    //    b->setMass(4.16, 0, 0, 0, 0.069, 0.0033, 0.069, 0, 0, 0);
+    b->setMass(0.5*conf.massfactor);
     objects[Left_Shin]=b;
 
     // Left_Foot
@@ -391,7 +414,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::translate(0.0624, 0.1388, 0.0708) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
+    //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
+    b->setMass(0.5*conf.massfactor);
     objects[Left_Foot]=b;
 
     // Right_Thigh
@@ -401,7 +425,8 @@ namespace lpzrobots {
 	       osg::Matrix::translate(-0.0949, 0.8525, 0.0253) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
+    //    b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
+    b->setMass(1*conf.massfactor);
     objects[Right_Thigh]=b;
 
     // Right_Shin
@@ -410,7 +435,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(-0.0702, 0.3988, 0.0357) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(4.16, 0, 0, 0, 0.069, 0.0033, 0.069, 0, 0, 0);
+    //    b->setMass(4.16, 0, 0, 0, 0.069, 0.0033, 0.069, 0, 0, 0);
+    b->setMass(0.5*conf.massfactor);
     objects[Right_Shin]=b;
 
     // Right_Foot
@@ -419,7 +445,8 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::translate(-0.0624, 0.1388, 0.0708) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
-    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
+    //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
+    b->setMass(0.5*conf.massfactor);
     objects[Right_Foot]=b;
 
 
@@ -456,13 +483,18 @@ namespace lpzrobots {
 
     // The head and Neck joint we will make very simple, just lateral movements posible
     /// actually we should have a ball joint in the neck and another 2D joint to the head
-    j = new HingeJoint(objects[Trunk_comp], objects[Neck], Pos(0, 1.6442, 0.0188) * pose, 
-		       Axis(0,0,1) * pose);
-    j->init(odeHandle, osgHandleJ, true, 0.12);
-    joints.push_back(j);
+//     j = new HingeJoint(objects[Trunk_comp], objects[Neck], Pos(0, 1.6442, 0.0188) * pose, 
+//     j->init(odeHandle, osgHandleJ, true, 0.12);
+//     joints.push_back(j);
+    uj = new UniversalJoint(objects[Trunk_comp], objects[Neck], Pos(0, 1.6442, 0.0188) * pose, 
+		       Axis(0,0,1) * pose, Axis(1,0,0) * pose);
+    uj->init(odeHandle, osgHandleJ, true, 0.12);
+    joints.push_back(uj);
     
-    servo1 = new OneAxisServo(j, -M_PI/10, M_PI/10, 20,0.1);
-    headservos.push_back(servo1);
+//     servo1 = new OneAxisServo(j, -M_PI/10, M_PI/10, 20,0.1);
+//     headservos.push_back(servo1);
+    servo2 = new TwoAxisServo(uj, -M_PI/3, M_PI/3, 1, -M_PI/3, M_PI/6, 1,0.1);
+    headservos.push_back(servo2);
 
   //   fj = new FixedJoint(objects[Trunk_comp], objects[Neck]);
 //     fj->init(odeHandle, osgHandleJ, true, 0.12);
@@ -611,7 +643,8 @@ namespace lpzrobots {
 	if(*i) delete *i;
       }
       ankleservos.clear();
-      FOREACH(vector<OneAxisServo*>, headservos, i){
+//       FOREACH(vector<OneAxisServo*>, headservos, i){
+      FOREACH(vector<TwoAxisServo*>, headservos, i){
 	if(*i) delete *i;
       }
       FOREACH(vector<TwoAxisServo*>, armservos, i){

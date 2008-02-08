@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-02-07 14:25:02  der
+ *   Revision 1.4  2008-02-08 13:35:09  der
+ *   satelite teaching
+ *
+ *   Revision 1.3  2008/02/07 14:25:02  der
  *   added setTexture and setColor for skeleton
  *
  *   Revision 1.2  2008/02/05 07:58:09  der
@@ -154,8 +157,8 @@ public:
     //int hurlings = 0;
     //int cigars = 0;
     int wheelies = 0;
-    int humanoids=2;
-    int barrel=0;
+    int humanoids=1;
+    //    int barrel=0;
 
 
     // initialization
@@ -204,14 +207,14 @@ public:
 
     int anzgrounds=1;
     for (int i=0; i< anzgrounds; i++){
-      playground = new Playground(odeHandle, osgHandle, osg::Vec3(2.8+4*i, 2, .75+0.15*i), 1, i==(anzgrounds-1));
+      playground = new Playground(odeHandle, osgHandle, osg::Vec3(100.8+4*i, 2, .75+0.15*i), 1, i==(anzgrounds-1)); 
       OdeHandle myhandle = odeHandle;
       //      myhandle.substance.toFoam(10);
       // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
          playground->setColor(Color(0.9,0.1,0.1,0.99));
       playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
-      //      s.toRubber(100);
-      s.toPlastic(1);
+      s.toRubber(100);
+	   //s.toPlastic(1);
       playground->setSubstance(s);
       playground->setWallSubstance(s);
       // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
@@ -241,10 +244,10 @@ public:
 
       SkeletonConf conf = Skeleton::getDefaultConf();
       
-      double powerfactor = 2.8;//.3 
+      double powerfactor = 0.8; //2.8;//.3 
 
-       conf.bodyMass   = 0.1;
-       conf.relLegmass = 5;
+      conf.massfactor   = 1;
+      conf.relLegmass = 5;
       conf.relFeetmass = 1;
       conf.relArmmass = .1;//1.0;
 
@@ -269,7 +272,7 @@ public:
       OdeHandle skelHandle=odeHandle;
       // skelHandle.substance.toMetal(1);
       skelHandle.substance.toPlastic(2);//TEST sonst 40
-      //      skelHandle.substance.toRubber(90);//TEST sonst 40
+      // skelHandle.substance.toRubber(90);//TEST sonst 40
       Skeleton* human = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
       human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		   *osg::Matrix::translate(-.2 +0.8*i,0,.1+1*i));
@@ -277,9 +280,9 @@ public:
       
       Primitive* trunk = human->getMainPrimitive();
       
-      // fixator = new FixedJoint(trunk, global.environment);
-       //    fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
-      // fixator->init(odeHandle, osgHandle);
+      fixator = new FixedJoint(trunk, global.environment);
+      // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
+      fixator->init(odeHandle, osgHandle);
 
       // create pointer to controller
       // push controller in global list of configurables
@@ -299,13 +302,20 @@ public:
           // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
           // size of output layer is automatically set
           layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-          MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
-	  // cc.model=net;
-          cc.model=net;
+          MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
+          cc.model = net;
+
+          layers.clear();
+	  layers.push_back(Layer(5,0.5,FeedForwardNN::tanhr)); // hidden layer
+          // size of output layer is automatically set
+          layers.push_back(Layer(1,0.5,FeedForwardNN::tanhr)); 
+          MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
+          cc.sat   = sat;
+
           cc.useS=false;
           //cc.useS=false;   
-	   AbstractController* controller = new DerPseudoSensor(cc);
-
+	  AbstractController* controller = new DerPseudoSensor(cc);
+	   
       //     // AbstractController* controller = new DerBigController(cc);
       // 	// AbstractController* controller = new InvertMotorBigModel(cc);
       //     controller->setParam("adaptrate",0);
@@ -333,7 +343,7 @@ public:
       // create pointer to agent
       // initialize pointer with controller, robot and wiring
       // push agent in globel list of agents
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(i==0 ? plotoptions : list<PlotOption>());
       agent->init(controller, human, wiring);
       //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
       global.agents.push_back(agent);
@@ -383,7 +393,7 @@ public:
       } else {
 	schlange1->setHeadColor(Color(0,1.0,0));
       }
-   Primitive* trunk = schlange1->getMainPrimitive();
+      //   Primitive* trunk = schlange1->getMainPrimitive();
       
    //fixator = new FixedJoint(trunk, global.environment);
        //  fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
@@ -403,6 +413,13 @@ public:
           layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
           MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
           cconf.model=net;
+
+          layers.clear();
+	  //	  layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+          // size of output layer is automatically set
+          layers.push_back(Layer(1,0.5,FeedForwardNN::tanh)); 
+          MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
+          cconf.sat   = sat;
           cconf.useS=false;
 
       // AbstractController *controller = new DerBigController(cconf); 
