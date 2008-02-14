@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.3  2008-01-17 09:59:27  der
+*   Revision 1.4  2008-02-14 14:43:09  der
+*   made some enhancements
+*
+*   Revision 1.3  2008/01/17 09:59:27  der
 *   complexmeasure: preparations made for predictive information,
 *   fixed a minor bug
 *   statisticmeasure, statistictools: added support for adding
@@ -76,7 +79,8 @@
 #include <assert.h>
 
 
-ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins ) : AbstractMeasure( measureName ), mode( mode ), numberBins( numberBins ) {
+ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins ) : AbstractMeasure( measureName ), mode( mode ), numberBins( numberBins )
+{
   historySize=2;
   historyIndex=-1;
   binNumberHistory = ( int* ) malloc( sizeof( double ) * historySize );
@@ -99,15 +103,32 @@ void ComplexMeasure::step()
   int valNumber = 0;
   int binNumber=0;
   std::list<Discretisizer*>::iterator di = discretisizerList.begin();
-  FOREACH( std::list<double*>, observedValueList, oValue )
+  std::list<int> binList;
+  switch (mode)
   {
-    binNumber += (int) pow( numberBins,valNumber++)* ( *di ) ->getBinNumber( *(*oValue));
-    di++;
+  case MI:
+  case PINF:/*
+    binNumber = ( *di ) ->getBinNumber( *(*oValue));
+    binList.push_back(binNumber);
+    for (int i=0; i<historysize;i++)
+    {
+      binNumber += (int) pow( numberBins,i+1)* binNumberHistory[historyIndexList[i]];
+      binList.push_back(binNumberHistory[historyIndexList[i]]);
+    }*/
+    break;
+  default: // ENT, ENTSLOW
+    FOREACH( std::list<double*>, observedValueList, oValue )
+    {
+      binNumber += (int) pow( numberBins,valNumber++)* ( *di ) ->getBinNumber( *(*oValue));
+      di++;
+    }
+    break;
   }
+
   actualStep++;
   switch ( mode )
   {
-  case ENT:
+  case ENT:/*
     if (actualStep<10)
     {
       F[ binNumber ] ++;
@@ -118,15 +139,17 @@ void ComplexMeasure::step()
       updateEntropy( binNumber );
       // now make update of F
       F[ binNumber ] ++;
-    }
+    }*/
     break;
   case ENTSLOW:
+    //  case ENT:
     F[ binNumber ] ++;
     computeEntropy();
     break;
   case MI:
-    updateMI(binNumber);
-    F[ binNumber ] ++;
+  case PINF:/*
+    calculatePI(binList);
+    updateFforPI(binNumber, binList);*/
     break;
   default:
     break;
@@ -134,38 +157,33 @@ void ComplexMeasure::step()
   historyIndex++;
   if (historyIndex==historySize)
     historyIndex=0;
-  binNumberHistory[historyIndex]=binNumber;
+binNumberHistory[historyIndex]=binNumber;
 }
 
+  /*
+void ComplexMeasure::updateFforPI(int binNumber, std::list<int> binList)
+{
+  F[binNumber]++;
+  int i=0;
+  FOREACH( std::list<int>, binList, bin )  {
+    F[numberBins*numberBins+i*numberBins+bin]++;
+  }
+}*/
+  
 
-void ComplexMeasure::updateMI(int binNumber) {/*
-  int newState = binNumber;
-  int oldState = binNumberHistory[historyIndex];
-    // calculate dS
-  int n = numberBins; // use only for more compact formula
-  double dS=0.0;
-  if (((*F)->val(n,newState))>0.0)
-    dS=((*F)->val(n,newState)) * log(((*F)->val(n,newState)));
-  if (((*F)->val(oldState,n))>0.0)
-    dS+=((*F)->val(oldState,n)) * log(((*F)->val(oldState,n)));
-  if (((*F)->val(oldState,newState))>0.0)
-    dS-=((*F)->val(oldState,newState)) * log(((*F)->val(oldState,newState)));
-  dS+=(((*F)->val(oldState,newState))+1) * log(((*F)->val(oldState,newState))+1)
-    -(((*F)->val(n,newState))+1) * log(((*F)->val(n,newState))+1)
-    -(((*F)->val(oldState,n))+1) * log(((*F)->val(oldState,n))+1);
-    // updateMI with old MI and dS
-  double t = (double)(this->t);
-  double tminus1 = (double)(t-1);
-  if ((this->t)==1)
+
+void ComplexMeasure::calculatePInf()
+{
+  // calculate PI
+  double val = 0.0;
+  for ( int i = 0; i < fSize;i++ )
   {
-      // log(t-1) is infinite, use more simple formula
-    MI[i]=dS / t + log(t);
+    if ( F[ i ] > 0 )
+    {
+      val += (((double)F[ i ])/((double)actualStep)) * log(((double) F[ i ]) /((double)actualStep));
+    }
   }
-  else
-  {
-    MI[i]=((tminus1)*(MI[i] - log(tminus1)) + dS) / t + log(t);
-  }
-  */
+  value = -val;
 }
 
 void ComplexMeasure::addObservable(double& observedValue,double minValue, double maxValue)
@@ -176,7 +194,7 @@ void ComplexMeasure::addObservable(double& observedValue,double minValue, double
   initF();
 }
 
-
+/*
 void ComplexMeasure::updateEntropy( int binNumber )
 {
   // calculate dS
@@ -197,7 +215,7 @@ void ComplexMeasure::updateEntropy( int binNumber )
   else
     value=0;
 }
-
+*/
 
 void ComplexMeasure::computeEntropy()
 {
@@ -218,7 +236,7 @@ void ComplexMeasure::initF()
 {
   // determine fSize
   if (mode==MI)
-    fSize = (int) pow( numberBins+1, observedValueList.size() );
+    fSize = (int) pow( numberBins, observedValueList.size() ) + (historyIndexNumber+1) * numberBins;
   else
     fSize = (int) pow( numberBins, observedValueList.size() );
   // if ( F )

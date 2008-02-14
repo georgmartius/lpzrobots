@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.2  2008-01-17 09:59:27  der
+*   Revision 1.3  2008-02-14 14:43:09  der
+*   made some enhancements
+*
+*   Revision 1.2  2008/01/17 09:59:27  der
 *   complexmeasure: preparations made for predictive information,
 *   fixed a minor bug
 *   statisticmeasure, statistictools: added support for adding
@@ -69,7 +72,9 @@ enum ComplexMeasureMode {
   /// returns the entropy of the value, uses normal formula, needs O(n) or O(m*n)
   ENTSLOW,
   /// returns the mutual information of two values, uses update formula, needs O(1)
-  MI
+  MI,
+  /// returns the predictive information of two or more values
+  PINF
 };
 
 class Discretisizer;
@@ -122,16 +127,18 @@ ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins
   int *F; // stores the frequencies as a linear vector
   int *binNumberHistory; // holds the binNumbers as an history, for predictive information 2 values are enough
   int historyIndex; // index of last stored value
+  int *historyIndexList; // indexes of relevant stored values
+  int historyIndexNumber; // number of indexes stored in historyIndexList
+  int historyInterval; // interval between two different histoy indexes
 
   
   
     // calculation methods
   
       /**
-     * updates the mutual information. uses update rule with O(1) costs
-     * @param binNumber the bin number
+     * calculates the Predictive Information
      */
-    void updateMI( int binNumber);
+    void calculatePInf();
   
 
     /**
