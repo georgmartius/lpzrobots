@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-01-17 09:54:31  der
+ *   Revision 1.8  2008-02-14 14:40:07  der
+ *   tested some things
+ *
+ *   Revision 1.7  2008/01/17 09:54:31  der
  *   newest version contains a nimm2 train
  *
  *   Revision 1.6  2007/12/10 14:13:59  der
@@ -100,6 +103,8 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/derpseudosensor.h>
+#include <selforg/multilayerffnn.h>
 
 #include <selforg/oneactivemultipassivecontroller.h>
 #include <selforg/mutualinformationcontroller.h>
@@ -113,13 +118,15 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <vector.h>
 
 
 using namespace lpzrobots;
 
-class ThisSim : public Simulation {
+class ThisSim : public Simulation
+{
 public:
-   
+
   StatisticTools* stats;
   Nimm2* nimm2;
   MutualInformationController* mic;
@@ -127,6 +134,7 @@ public:
   bool connectRobots;
 
   double cInit;
+  double cNonDiag;
   StatisticMeasure* convTest0;
   StatisticMeasure* convTest1;
   StatisticMeasure* convTest2;
@@ -135,12 +143,14 @@ public:
   StatisticMeasure* convTest5;
   TrackableMeasure* trackableEntropySLOW;
 
-  ThisSim(double cInit=1.0) : cInit(cInit) {
+  ThisSim(double cInit=1.0, double cnondiag=0.2) : cInit(cInit), cNonDiag(cnondiag)
+  {
     setCaption("lpzrobots Simulator      Martius, Der, Guettler");
-    
+
   }
 
-  ~ThisSim() {
+  ~ThisSim()
+  {
     /* if (convTest0)
       delete(convTest0);
     if (convTest1)
@@ -151,60 +161,64 @@ public:
       delete(stats);
     if (mic)
       delete(mic);
-   }
+  }
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     int number_x=5;
     int number_y=1;
-    connectRobots = true; 
-    double distance = 1.0;    
-    
+    connectRobots = true;
+    double distance = 1.0;
+
     setCameraHomePos(Pos(-26.0495,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
 
-     global.odeConfig.setParam("noise",0.05);
-     global.odeConfig.setParam("realtimefactor",5);
+    global.odeConfig.setParam("noise",0.05);
+    global.odeConfig.setParam("realtimefactor",5);
 
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(30, 0.2, 2.0)); playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
-     playground->setPosition(osg::Vec3(0,0,0));
-     Substance substance;
-    substance.toMetal(1.0);
+    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(30, 0.2, 2.0));
+    playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
+    Substance substance;
+    substance.toPlastic(2);
+    playground->setPosition(osg::Vec3(0,0,1.00f));
     playground->setGroundSubstance(substance);
     global.obstacles.push_back(playground);
-/*    double xboxes=0.0;
-    double yboxes=0.0;*/
-    double xboxes=6.0;
-    double yboxes=6.0;
+    double xboxes=0.0;
+    double yboxes=0.0;
+/*    double xboxes=6.0;
+    double yboxes=6.0;*/
     double boxdis=4.8;
     for (double j=0.0;j<xboxes;j++)
-      for(double i=0.0; i<yboxes; i++) {
+      for(double i=0.0; i<yboxes; i++)
+      {
         double xsize=1.5;
         double ysize=1.5;
         double zsize=1.5;
         PassiveBox* b =
           new PassiveBox(odeHandle,
                          osgHandle, osg::Vec3(xsize,ysize,zsize),0.0);
-        b->setPosition(Pos(boxdis*(i-(xboxes-1)/2.0),boxdis*(j-(yboxes-1)/2.0), 0.01));
+        b->setPosition(Pos(boxdis*(i-(xboxes-1)/2.0),boxdis*(j-(yboxes-1)/2.0), 1.01));
         b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
         b->setTexture("Images/light_chess.rgb");
         global.obstacles.push_back(b);
       }
 
     stats = new StatisticTools();
-    
+
     OdeAgent* agent;
     AbstractWiring* wiring;
-    AbstractController *controller;    
+    AbstractController *controller;
     OdeRobot* nimm2;
     std::list<ComplexMeasure*> hmlist;
     std::list<ComplexMeasure*> mimlist;
     std::list<Trackable*> trackableList;
-    
+
     std::vector<OdeRobot*> robots(number_x);
-    for (int i=-0; i<number_y; i++){
-      for (int j=-0; j<number_x; j++){ 
-	//      nimm2 = new Nimm2(odeHandle);
+    for (int i=-0; i<number_y; i++)
+    {
+      for (int j=-0; j<number_x; j++)
+      {
+        //      nimm2 = new Nimm2(odeHandle);
         Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
         nimm2conf.size = 1.6;
         nimm2conf.force = 2;
@@ -215,17 +229,30 @@ public:
         nimm2conf.boxMode=true;
         nimm2conf.bumper=true;
         wiring = new One2OneWiring(new WhiteNormalNoise());
-        InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+        
+/*        InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
         invertnconf.cInit = cInit;
-        invertnconf.cNonDiagAbs=0.2;
-        controller = new InvertMotorNStep(invertnconf);
-        if ((i==0) && (j==0)) {
+	//        invertnconf.cNonDiagAbs=cNonDiag;
+        controller = new InvertMotorNStep(invertnconf);*/
+        
+        DerPseudoSensorConf cc = DerPseudoSensor::getDefaultConf();    
+        vector<Layer> layers;
+          // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+          // size of output layer is automatically set
+        layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+        MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
+        cc.model = net;
+        controller = new DerPseudoSensor(cc);
+        
+        
+        if ((i==0) && (j==0))
+        {
           agent = new OdeAgent(plotoptions);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2Yellow");
           nimm2->setColor(Color(1.0,1.0,0));
           trackableList.push_back(nimm2);
           global.configs.push_back(controller);
-          
+
           OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
           mic = new MutualInformationController(30);
           MeasureAdapter* ma = new MeasureAdapter(mic);
@@ -233,59 +260,63 @@ public:
           agent->addInspectable((Inspectable*)stats);
           agent->addCallbackable((Callbackable*)stats);
           agent->init(onamupaco, nimm2, wiring);
-          controller->setParam("epsC", 0.0);
+	  //          controller->setParam("epsC", 0.0);
           controller->setParam("epsA", 0.0);
           char cdesc[32];
           sprintf(cdesc, "c=%f_",cInit);
-          agent->setTrackOptions(TrackRobot(true,false, false,false,cdesc,10));
-          hmlist = ma->addSensorComplexMeasure("$H(x)",ENTSLOW,30,1);
+          // agent->setTrackOptions(TrackRobot(true,false, false,false,cdesc,10));
+          //  hmlist = ma->addSensorComplexMeasure("$H(x)",ENTSLOW,30,1);
           // mimlist = ma->addSensorComplexMeasure("$MI(x)",MI,30,1);
-        } else {
-          agent = new OdeAgent(NoPlot);	  
+        }
+        else
+        {
+          agent = new OdeAgent(NoPlot);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
           agent->init(controller, nimm2, wiring);
-          controller->setParam("epsC", 0.0);
+	  //  controller->setParam("epsC", 0.0);
           controller->setParam("epsA", 0.0);
           global.configs.push_back(controller);
         }
-        nimm2->place(Pos(j*(1.5+distance),i*1.26,0));
+        nimm2->place(Pos(j*(1.5+distance),i*1.26,1.0f));
         global.agents.push_back(agent);
         robots[j]=nimm2;
       }
       if(connectRobots)
-        for(int j=0; j<number_x-1; j++){
-          Joint* joint = new BallJoint(robots[j]->getMainPrimitive(), 
+        for(int j=0; j<number_x-1; j++)
+        {
+          Joint* joint = new BallJoint(robots[j]->getMainPrimitive(),
                                        robots[j+1]->getMainPrimitive(),
-                                       Pos((j+0.5)*(1.5+distance)-1.0,i*1.26,0.48) 
+                                       Pos((j+0.5)*(1.5+distance)-1.0,i*1.26,0.48)
                                       );
           joint->init(odeHandle,osgHandle,true,distance/6);
           joints.push_back(joint);
         }
     }
-       this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
-       this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
-       this->getHUDSM()->addMeasure(mic->getH_x(1),"H(x) 1",ID,1);
-       this->getHUDSM()->addMeasure(mic->getH_x(0),"H(x) 0",ID,1);
-       this->getHUDSM()->addMeasure(mic->getH_yx(1),"H(y|x) 1",ID,1);
-       this->getHUDSM()->addMeasure(mic->getH_yx(0),"H(y|x) 0",ID,1);
-       this->getHUDSM()->addMeasureList(hmlist);
+    this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
+    this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
+    this->getHUDSM()->addMeasure(mic->getH_x(1),"H(x) 1",ID,1);
+    this->getHUDSM()->addMeasure(mic->getH_x(0),"H(x) 0",ID,1);
+    this->getHUDSM()->addMeasure(mic->getH_yx(1),"H(y|x) 1",ID,1);
+    this->getHUDSM()->addMeasure(mic->getH_yx(0),"H(y|x) 0",ID,1);
+    //  this->getHUDSM()->addMeasureList(hmlist);
     //this->getHUDSM()->addMeasureList(mimlist);
-    
-//       convTest1=stats->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,50000,0.001);
-//       convTest0=stats->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,50000,0.001);
-//       convTest5=stats->getMeasure( mic->getH_x(1),"H(x) 1 CONV",CONV,50000,0.001);
-//       convTest4=stats->getMeasure( mic->getH_x(0),"H(x) 0 CONV",CONV,50000,0.001);
-//       convTest3=stats->getMeasure( mic->getH_yx(1),"H(y|x) 1 CONV",CONV,50000,0.001);
-//       convTest2=stats->getMeasure( mic->getH_yx(0),"H(y|x) 0 CONV",CONV,50000,0.001);
-      
-      trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 18);
-      this->getHUDSM()->addMeasure(trackableEntropySLOW);
-      //TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E upd Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
-      //this->getHUDSM()->addMeasure(trackableEntropy);
+
+    convTest1=stats->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,50000,0.001);
+    convTest0=stats->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,50000,0.001);
+    convTest5=stats->getMeasure( mic->getH_x(1),"H(x) 1 CONV",CONV,50000,0.001);
+    convTest4=stats->getMeasure( mic->getH_x(0),"H(x) 0 CONV",CONV,50000,0.001);
+    convTest3=stats->getMeasure( mic->getH_yx(1),"H(y|x) 1 CONV",CONV,50000,0.001);
+    convTest2=stats->getMeasure( mic->getH_yx(0),"H(y|x) 0 CONV",CONV,50000,0.001);
+
+    trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 18);
+    this->getHUDSM()->addMeasure(trackableEntropySLOW);
+    //TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E upd Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
+    //this->getHUDSM()->addMeasure(trackableEntropy);
 
     showParams(global.configs);
-    std::cout << "running with cInit = " << this->cInit << "." << std::endl;
-
+    std::cout << "running with cDiag = " << this->cInit << "." << std::endl;
+    std::cout << "running with cNonDiag = " << this->cNonDiag << "." << std::endl;
+    
   }
 
   /** optional additional callback function which is called every simulation step.
@@ -296,8 +327,10 @@ public:
    */
   void addCallback(GlobalData& globalData, bool draw, bool pause, bool control)
   {
-    if(draw && connectRobots){
-      FOREACH(std::list<Joint*>, joints,j){      
+    if(draw && connectRobots)
+    {
+      FOREACH(std::list<Joint*>, joints,j)
+      {
         (*j)->update();
       }
     }
@@ -308,13 +341,21 @@ public:
       printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
       printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
     }
-    
-/*     if  ((this->convTest0->getValue()==1.0)&&(this->convTest1->getValue()==1.0) &&
-       (this->convTest2->getValue()==1.0)&&(this->convTest3->getValue()==1.0) &&
-          (this->convTest4->getValue()==1.0)&&(this->convTest5->getValue()==1.0))*/
-       if (this->sim_step==600000)
+
+/*    if  ((this->convTest0->getValue()==1.0)&&(this->convTest1->getValue()==1.0) &&
+           (this->convTest2->getValue()==1.0)&&(this->convTest3->getValue()==1.0) &&
+              (this->convTest4->getValue()==1.0)&&(this->convTest5->getValue()==1.0))*/
+    // 600.000 = 100min
+    // we take 1440min = 8.640.000 = 24h
+    if (this->sim_step==500000)
+//    if (this->sim_step==1000)
     {
       simulation_time_reached=true;
+      printf("\nConvergence reached!\n");
+      printf("timeSteps   = %li\n",this->sim_step);
+      printf("time in min = %f\n",((float)this->sim_step)/100/60);
+      printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
+      printf("Entropy     = %f\n",trackableEntropySLOW->getValue());      
     }
   }
 
@@ -325,6 +366,13 @@ public:
     { // only when key is pressed, not when released
       switch ( (char) key )
       {
+      case 'e':
+        printf("timeSteps   = %li\n",this->sim_step);
+        printf("time in min = %f\n",((float)this->sim_step)/100/60);
+        printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
+        printf("Entropy     = %f\n",trackableEntropySLOW->getValue());        
+        return true;
+        break;
       default:
         return false;
         break;
@@ -335,60 +383,131 @@ public:
 
 };
 
-void runSim(double cinit, int runs, int argc, char **argv) {
+void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
+{
   double sum = 0.0;
-  /*  double misum=0.0;
+  double misum=0.0;
   double h_xsum=0.0;
   double h_yxsum=0.0;
- */ for (int i=0;i<runs;i++) {
+  double avg = -1.0;
+  double mi = -1.0;
+  double h_x = -1.0;
+  double h_yx = -1.0;
+  for (int i=0;i<runs;i++) 
+  {
     std::cout << "run number " << (i+1) << "..." << std::endl;
     ThisSim* sim;
-    sim = new ThisSim(cinit);
+    sim = new ThisSim(cinit,cnondiag);
     sim->run(argc,argv);
+    double val = sim->trackableEntropySLOW->getValue();
+    if (val>avg)
+      avg=val;
+    val = (sim->mic->getMI(0) + sim->mic->getMI(1))/2.0;
+    if (val>mi)
+      mi=val;
+    val = (sim->mic->getH_x(0) + sim->mic->getH_x(1))/2.0;
+    if (val>h_x)
+      h_x=val;
+    val = (sim->mic->getH_yx(0) + sim->mic->getH_yx(1))/2.0;
+    if (val>h_yx)
+      h_yx=val;
     sum+= sim->trackableEntropySLOW->getValue();
-    //  misum = (sim->mic->getMI(0) + sim->mic->getMI(1))/2.0;
-    //h_xsum = (sim->mic->getH_x(0) + sim->mic->getH_x(1))/2.0;
-    //h_yxsum = (sim->mic->getH_yx(0) + sim->mic->getH_yx(1))/2.0;
+    misum += (sim->mic->getMI(0) + sim->mic->getMI(1))/2.0;
+    h_xsum += (sim->mic->getH_x(0) + sim->mic->getH_x(1))/2.0;
+    h_yxsum += (sim->mic->getH_yx(0) + sim->mic->getH_yx(1))/2.0;
     delete(sim);
   }
-  
-  double avg = sum / ((double)runs);
-  /*  double mi = misum / ((double)runs);
-  double h_x = h_xsum / ((double)runs);
-  double h_yx = h_yxsum / ((double)runs);*/
+  double loc_avg = sum / ((double)runs);
+  double mi_avg = misum / ((double)runs);
+  double h_x_avg = h_xsum / ((double)runs);
+  double h_yx_avg = h_yxsum / ((double)runs);
   FILE* file;
   char filename[256];
-  sprintf(filename, "ent_C.log");
+  sprintf(filename, "ent_%f_%f_C.log",cinit,cnondiag);
   file = fopen(filename,"a");
-  fprintf(file,"%f, %f\n",cinit,avg/*,mi,h_x,h_yx*/);
-  fflush(file);  
+  fprintf(file,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n",cinit, cnondiag,avg,mi,h_x,h_yx,loc_avg,mi_avg,h_x_avg,h_yx_avg);
+  fflush(file);
+  
 }
+
 
 int main (int argc, char **argv)
 {
-  // check for runs value
-  int runs=1;
-  int index = contains(argv, argc, "-runs");
+  // check for -first value
+  int index = contains(argv, argc, "-first");
   if(index &&  (argc > index))
-      runs = atoi(argv[index]);
-  // check for cinit value
-  index = contains(argv, argc, "-cinit");
-  if (index && (argc > index))
-    for (int i=0;i<runs;i++) {
-      std::cout << "run number " << (i+1) << "..." << std::endl;
-      ThisSim sim(atof(argv[index]));
-      sim.run(argc,argv);
-    }
+  {
+    int firstStep=atoi(argv[index]);
+    int lastStep=0;
+    int stepId = 0;
+    int stepInterval=1;
+    index = contains(argv, argc, "-last");
+    if(index &&  (argc > index))
+      lastStep=atoi(argv[index]);
+    index = contains(argv, argc, "-step");
+    if(index &&  (argc > index))
+      stepInterval=atoi(argv[index]);
+    index = contains(argv, argc, "-id");
+    if(index &&  (argc > index))
+      stepId=atoi(argv[index]);
+    // -0.1 <= cnondiag <= 0.3
+    // 0.9 <= cdiag <= 1.8 normally
+    // cdiag=0.9 eq. id=90; cdiag=1.5 eq. id=150 etc.
+    // cnondiag uses same stepsize, but is restricted to -0.1 to 0.3
+    int steps = (lastStep-firstStep)/stepInterval +1;
+    // now calculate the real stepSize for C
+    //double stepSize = sqrt(1/((double)2*steps));
+    double stepSize = 1/((double)steps);
+    //double cnondiag = -0.1 + (((stepId-firstStep)/stepInterval) % (int)(0.5/stepSize)) *stepSize;
+    //double cdiag = 0.8 + ((double)((int)(((stepId-firstStep)/stepInterval) / (0.5/stepSize)))) * stepSize;
+    double cnondiag = 0.0;
+    double cdiag = 0.8 + ((double)(stepId-firstStep)) * stepSize;
+    // double cdiag = 0.8 + ((double)((int)(((stepId-firstStep)/stepInterval) / (0.5/stepSize)))) * stepSize;
+    
+    std::cout << "firstStep    = " << firstStep << std::endl;
+    std::cout << "lastStep     = " << lastStep << std::endl;
+    std::cout << "stepId       = " << stepId << std::endl;
+    std::cout << "stepInterval = " << stepInterval << std::endl;
+    std::cout << "steps        = " << steps << std::endl;
+    std::cout << "stepSize     = " << stepSize << std::endl;
+    std::cout << "cdiag        = " << cdiag << std::endl;
+    std::cout << "cnondiag     = " << cnondiag << std::endl;
+    runSim(cdiag,5,argc,argv,cnondiag);
+
+  }
   else
   {
-    double fineadjustment=.1;
-/*    for (double cinit=0.0;cinit<0.95;cinit+=fineadjustment)
-      runSim(cinit,runs,argc,argv);
-    for (double cinit=0.95;cinit<1.15;cinit+=fineadjustment/2.0)
-      runSim(cinit,runs,argc,argv);
-    for (double cinit=1.15;cinit<=1.3;cinit+=fineadjustment)
-      runSim(cinit,runs,argc,argv);*/
-    for (double cinit=1.3;cinit<=2.0;cinit+=fineadjustment)
-      runSim(cinit,runs,argc,argv);
+    // check for runs value
+    int runs=1;
+    int index = contains(argv, argc, "-runs");
+    if(index &&  (argc > index))
+      runs = atoi(argv[index]);
+    // check for cinit value
+    index = contains(argv, argc, "-cinit");
+    double cinit=1.0;
+    if (index && (argc > index)) {
+      cinit = atof(argv[index]);
+      // check for cnondiag value
+      index = contains(argv, argc, "-cnondiag");
+      double cnondiag=0.2;
+      if (index && (argc > index)) 
+        cnondiag=atof(argv[index]);
+      for (int i=0;i<runs;i++)
+      {
+        std::cout << "run number " << (i+1) << "..." << std::endl;
+        runSim(cinit,runs,argc,argv,cnondiag);
+      }
+    } else
+    {
+      double fineadjustment=.1;
+      /*    for (double cinit=0.0;cinit<0.95;cinit+=fineadjustment)
+            runSim(cinit,runs,argc,argv);
+          for (double cinit=0.95;cinit<1.15;cinit+=fineadjustment/2.0)
+            runSim(cinit,runs,argc,argv);
+          for (double cinit=1.15;cinit<=1.3;cinit+=fineadjustment)
+            runSim(cinit,runs,argc,argv);*/
+      for (double cinit=1.3;cinit<=2.0;cinit+=fineadjustment)
+        runSim(cinit,runs,argc,argv);
+    }
   }
 }
