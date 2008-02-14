@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-08-24 11:55:54  martius
+ *   Revision 1.5  2008-02-14 14:41:48  der
+ *   added snow as a new substance
+ *
+ *   Revision 1.4  2007/08/24 11:55:54  martius
  *   collision callbacks get more information
  *
  *   Revision 1.3  2007/07/17 07:20:29  martius
@@ -160,6 +163,14 @@ namespace lpzrobots {
     Substance getFoam(float _hardness);    
     /// large slip, not elastic, low hardness [1-30], high roughness
     void toFoam(float _hardness);
+    
+    /// variable slip and roughness [0-1], not elastic, high hardness for solid snow
+    /// slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0
+    Substance getSnow(float _slip);    
+    /// variable slip and roughness, not elastic, high hardness for solid snow
+    /// slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0
+    void toSnow(float _slip);
+    
       
   };
 

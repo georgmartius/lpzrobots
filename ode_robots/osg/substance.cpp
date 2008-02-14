@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-09-06 18:47:28  martius
+ *   Revision 1.7  2008-02-14 14:41:48  der
+ *   added snow as a new substance
+ *
+ *   Revision 1.6  2007/09/06 18:47:28  martius
  *   assert
  *
  *   Revision 1.5  2007/08/24 11:55:54  martius
@@ -75,6 +78,7 @@ namespace lpzrobots {
   // Combination of two surfaces
   void Substance::getSurfaceParams(dSurfaceParameters& sp, const Substance& s1, const Substance& s2, double stepsize){
     sp.mu = s1.roughness * s2.roughness;
+    //    cout << "r1= " << s1.roughness << ", r2 = " << s2.roughness << ", rges= " << sp.mu << std::endl;
     //    sp.bounce;
     //    sp.bounce_vel;
     dReal kp   = 100*s1.hardness* s2.hardness / (s1.hardness + s2.hardness);
@@ -83,7 +87,7 @@ namespace lpzrobots {
     dReal kd   = 50*(kd1 * s2.hardness + kd2 * s1.hardness) / (s1.hardness + s2.hardness);
 //     kp=30;
 //     kd=1;
-//     cout << "spring: " << kp << "\t "<<kd << "\t step: " << stepsize << endl;    
+    //     cout << "spring: " << kp << "\t "<<kd << "\t step: " << stepsize << endl;    
     sp.soft_erp = stepsize*kp / ( stepsize*kp + kd);
     sp.soft_cfm =  1 / (stepsize*kp + kd);
 //     if(sp.soft_cfm>0.1) {
@@ -94,8 +98,10 @@ namespace lpzrobots {
 //     }
 //     cout << "ERP: " << sp.soft_erp << "\t CFM:  "<<  sp.soft_cfm << endl;
     //    sp.motion1,motion2;
+    
     sp.slip1=s1.slip + s2.slip;
     sp.slip2=s1.slip + s2.slip;
+    //cout << "s1= " << s1.slip << ", s2 = " << s2.slip << ", sges= " << sp.slip1 << std::endl;
     if(sp.slip1<0.0001) sp.mode=0;
     else sp.mode = dContactSlip1 | dContactSlip2;
     sp.mode |= dContactSoftERP | dContactSoftCFM | dContactApprox1;
@@ -189,6 +195,27 @@ namespace lpzrobots {
     elasticity = 0;
     slip       = 0.1;
   }
+
+  // variable slip and roughness [0-1], not elastic, high hardness for solid snow
+  // slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0
+Substance Substance::getSnow(float _slip){
+  Substance s;
+  s.toSnow(_slip);
+  return s;
+  
+}
+
+  // variable slip and roughness [0-1], not elastic, high hardness for solid snow
+  // slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0
+void Substance::toSnow(float _slip){
+  if(_slip<0) { cerr << "slip is not defined for values<0!" << endl;}
+  if(_slip>1) { cerr << "to high slip!" << endl;}
+  roughness  = 1.0-_slip;
+  hardness   = 40;
+  elasticity = 0;
+  slip = _slip;
+}
+
 
   
 }
