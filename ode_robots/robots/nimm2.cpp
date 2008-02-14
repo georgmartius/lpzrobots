@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.39  2008-01-17 09:56:42  der
+ *   Revision 1.40  2008-02-14 14:42:13  der
+ *   modified box mode
+ *
+ *   Revision 1.39  2008/01/17 09:56:42  der
  *   boxmode improved
  *
  *   Revision 1.38  2007/12/07 10:55:34  der
@@ -468,6 +471,7 @@ namespace lpzrobots {
                                         Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) *
                                         Matrix::translate(0, 0, i==0 ? -(length/4) : (length/4)));
         bumper[i].trans->init(odeHandle, 0, osgHandle);
+        bumper[i].bump->substance.toMetal(0);
       }
     }
 
@@ -486,7 +490,8 @@ namespace lpzrobots {
 	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
 	object[i] = wheel;
 	if (conf.boxMode) {
-	  wheel->substance.toRubber( 40.0);
+  	//	  wheel->substance.toRubber( 40.0);
+  	  wheel->substance.toSnow(0.0);
 	}
       }else{ // for "normal" wheels
 	Cylinder* wheel = new Cylinder(radius, wheelthickness);
