@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-02-14 14:40:07  der
- *   tested some things
+ *   Revision 1.9  2008-02-22 09:27:35  der
+ *   changed some things
  *
  *   Revision 1.7  2008/01/17 09:54:31  der
  *   newest version contains a nimm2 train
@@ -105,6 +105,7 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/derpseudosensor.h>
 #include <selforg/multilayerffnn.h>
+#include <selforg/sinecontroller.h>
 
 #include <selforg/oneactivemultipassivecontroller.h>
 #include <selforg/mutualinformationcontroller.h>
@@ -135,6 +136,7 @@ public:
 
   double cInit;
   double cNonDiag;
+  bool staticC;
   StatisticMeasure* convTest0;
   StatisticMeasure* convTest1;
   StatisticMeasure* convTest2;
@@ -142,8 +144,9 @@ public:
   StatisticMeasure* convTest4;
   StatisticMeasure* convTest5;
   TrackableMeasure* trackableEntropySLOW;
-
-  ThisSim(double cInit=1.0, double cnondiag=0.2) : cInit(cInit), cNonDiag(cnondiag)
+  FILE* timefile;
+  
+  ThisSim(double cInit=1.0, double cnondiag=0.2,bool staticc=false) : cInit(cInit), cNonDiag(cnondiag), staticC(staticc)
   {
     setCaption("lpzrobots Simulator      Martius, Der, Guettler");
 
@@ -168,7 +171,7 @@ public:
   {
     int number_x=5;
     int number_y=1;
-    connectRobots = true;
+    connectRobots = false;
     double distance = 1.0;
 
     setCameraHomePos(Pos(-26.0495,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
@@ -176,17 +179,19 @@ public:
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("realtimefactor",5);
 
-    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(30, 0.2, 2.0));
+    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(90, 0.2, 2.0));
     playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
     Substance substance;
-    substance.toPlastic(2);
+    // substance.toSnow(0.10);
+    // substance.toRubber(90);
+    substance.toPlastic(9);
     playground->setPosition(osg::Vec3(0,0,1.00f));
     playground->setGroundSubstance(substance);
     global.obstacles.push_back(playground);
-    double xboxes=0.0;
-    double yboxes=0.0;
-/*    double xboxes=6.0;
-    double yboxes=6.0;*/
+    /*    double xboxes=0.0;
+        double yboxes=0.0;*/
+    double xboxes=20.0;
+    double yboxes=20.0;
     double boxdis=4.8;
     for (double j=0.0;j<xboxes;j++)
       for(double i=0.0; i<yboxes; i++)
@@ -229,10 +234,9 @@ public:
         nimm2conf.boxMode=true;
         nimm2conf.bumper=true;
         wiring = new One2OneWiring(new WhiteNormalNoise());
-        
 /*        InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
         invertnconf.cInit = cInit;
-	//        invertnconf.cNonDiagAbs=cNonDiag;
+        //   invertnconf.cNonDiagAbs=cNonDiag;
         controller = new InvertMotorNStep(invertnconf);*/
         
         DerPseudoSensorConf cc = DerPseudoSensor::getDefaultConf();    
@@ -242,9 +246,18 @@ public:
         layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
         MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
         cc.model = net;
+        if (staticC) {
+          cc.cNonDiag=(cNonDiag/cInit);
+          cc.cInit=cInit;
+        }
         controller = new DerPseudoSensor(cc);
         
-        
+        if (staticC) {
+          controller->setParam("epsC", 0.0);
+        } else {
+          controller->setParam("teacher", 1.0);
+        }
+        controller->setParam("epsA", 0.0);
         if ((i==0) && (j==0))
         {
           agent = new OdeAgent(plotoptions);
@@ -260,8 +273,6 @@ public:
           agent->addInspectable((Inspectable*)stats);
           agent->addCallbackable((Callbackable*)stats);
           agent->init(onamupaco, nimm2, wiring);
-	  //          controller->setParam("epsC", 0.0);
-          controller->setParam("epsA", 0.0);
           char cdesc[32];
           sprintf(cdesc, "c=%f_",cInit);
           // agent->setTrackOptions(TrackRobot(true,false, false,false,cdesc,10));
@@ -273,8 +284,7 @@ public:
           agent = new OdeAgent(NoPlot);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
           agent->init(controller, nimm2, wiring);
-	  //  controller->setParam("epsC", 0.0);
-          controller->setParam("epsA", 0.0);
+          //  controller->setParam("epsC", 0.0);
           global.configs.push_back(controller);
         }
         nimm2->place(Pos(j*(1.5+distance),i*1.26,1.0f));
@@ -317,6 +327,11 @@ public:
     std::cout << "running with cDiag = " << this->cInit << "." << std::endl;
     std::cout << "running with cNonDiag = " << this->cNonDiag << "." << std::endl;
     
+    char filename[256];
+    sprintf(filename, "timeanalysis_%f_%f_C.log",cInit,cNonDiag);
+    timefile = fopen(filename,"a");
+    
+    
   }
 
   /** optional additional callback function which is called every simulation step.
@@ -341,6 +356,17 @@ public:
       printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
       printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
     }
+    
+    if (this->sim_step%1000==0)
+    {
+        double loc = trackableEntropySLOW->getValue();
+        double mi = (mic->getMI(0) + mic->getMI(1))/2.0;
+        double h_x = (mic->getH_x(0) + mic->getH_x(1))/2.0;
+        double h_yx = (mic->getH_yx(0) + mic->getH_yx(1))/2.0;
+        fprintf(timefile,"%f, %f, %f, %f\n",loc,mi,h_x,h_yx);
+        fflush(timefile);
+    }
+    
 
 /*    if  ((this->convTest0->getValue()==1.0)&&(this->convTest1->getValue()==1.0) &&
            (this->convTest2->getValue()==1.0)&&(this->convTest3->getValue()==1.0) &&
@@ -383,7 +409,7 @@ public:
 
 };
 
-void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
+void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0, bool staticc=false)
 {
   double sum = 0.0;
   double misum=0.0;
@@ -397,7 +423,7 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
   {
     std::cout << "run number " << (i+1) << "..." << std::endl;
     ThisSim* sim;
-    sim = new ThisSim(cinit,cnondiag);
+    sim = new ThisSim(cinit,cnondiag,staticc);
     sim->run(argc,argv);
     double val = sim->trackableEntropySLOW->getValue();
     if (val>avg)
@@ -485,8 +511,10 @@ int main (int argc, char **argv)
     // check for cinit value
     index = contains(argv, argc, "-cinit");
     double cinit=1.0;
+    bool staticc=false;
     if (index && (argc > index)) {
       cinit = atof(argv[index]);
+      staticc=true;
       // check for cnondiag value
       index = contains(argv, argc, "-cnondiag");
       double cnondiag=0.2;
@@ -495,7 +523,7 @@ int main (int argc, char **argv)
       for (int i=0;i<runs;i++)
       {
         std::cout << "run number " << (i+1) << "..." << std::endl;
-        runSim(cinit,runs,argc,argv,cnondiag);
+        runSim(cinit,runs,argc,argv,cnondiag,staticc);
       }
     } else
     {
