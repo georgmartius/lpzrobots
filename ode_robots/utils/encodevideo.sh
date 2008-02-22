@@ -1,7 +1,38 @@
 #/bin/bash
+#**************************************************************************
+#   Copyright (C) 2005 by Robot Group Leipzig                             *
+#    martius@informatik.uni-leipzig.de                                    *
+#    fhesse@informatik.uni-leipzig.de                                     *
+#    der@informatik.uni-leipzig.de                                        *
+#    guettler@informatik.uni-leipzig.de                                   *
+#                                                                         *
+#   This program is free software; you can redistribute it and/or modify  *
+#   it under the terms of the GNU General Public License as published by  *
+#   the Free Software Foundation; either version 2 of the License, or     *
+#   (at your option) any later version.                                   *
+#                                                                         *
+#   This program is distributed in the hope that it will be useful,       *
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+#   GNU General Public License for more details.                          *
+#                                                                         *
+#   You should have received a copy of the GNU General Public License     *
+#   along with this program; if not, write to the                         *
+#   Free Software Foundation, Inc.,                                       *
+#   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+#**************************************************************************
+#                                                                         *
+#  DESCRIPTION                                                            *
+#                                                                         *
+#   $Log$
+#   Revision 1.11  2008-02-22 06:51:46  der
+#   added small xvid variant
+#
+#                                                                         *
+#**************************************************************************
 
 if test -z "$1"; then 
-    echo -e "USAGE: $0: BaseName [Target]\n\tExample: $0 frame00 SuperVideo";
+    echo -e "USAGE: $0: BaseName [Target]\n\tExample: $0 frame_00 SuperVideo";
     exit 1;
 fi
 
@@ -23,8 +54,10 @@ echo -e "*********************** to mpeg2 **************************";
 transcode -i "$TARGET.mjpeg" -o "$TARGET" -y mpeg2enc,null -F 3 -w 800 
 
 echo -e "*********************** to mpeg4 xvid 4 **************************";
-transcode -i "$TARGET.mjpeg" -o "$TARGET.avi" -y xvid4,null -w 400 
+transcode -i "$TARGET.mjpeg" -o "$TARGET.avi" -y xvid4,null -w 400
 
+echo -e "******************** to mpeg4 xvid 4 small variant ***************";
+transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.avi -y xvid4,null -w 100 -r 2
 
 
 
