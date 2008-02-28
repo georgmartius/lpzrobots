@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-02-08 13:35:10  der
+ *   Revision 1.4  2008-02-28 07:43:03  der
+ *   small changes
+ *
+ *   Revision 1.3  2008/02/08 13:35:10  der
  *   satelite teaching
  *
  *   Revision 1.2  2008/02/07 14:25:02  der
@@ -598,20 +601,20 @@ namespace lpzrobots {
     kneeservos.push_back(servo1);
 
     // Shins and Feet (Ankles)
-    fj = new FixedJoint(objects[Left_Shin], objects[Left_Foot]);
-    //   j = new HingeJoint(objects[Left_Shin], objects[Left_Foot], Pos(0.0624, 0.183, 0.0318) * pose, 
-// 		       Axis(1,0,0) * pose);
-    fj->init(odeHandle, osgHandleJ, true);
-    joints.push_back(fj);
+    // fj = new FixedJoint(objects[Left_Shin], objects[Left_Foot]);
+      j = new HingeJoint(objects[Left_Shin], objects[Left_Foot], Pos(0.0624, 0.183, 0.0318) * pose, 
+ 		       Axis(1,0,0) * pose);
+    j->init(odeHandle, osgHandleJ, true);
+    joints.push_back(j);
     
-  //   servo1 = new OneAxisServo(j, -conf.ankleJointLimit, conf.ankleJointLimit, conf.anklePower, conf.ankleDamping,0);
-//     ankleservos.push_back(servo1);
+     servo1 = new OneAxisServo(j, -conf.ankleJointLimit, conf.ankleJointLimit, conf.anklePower, conf.ankleDamping,0);
+     ankleservos.push_back(servo1);
 
-   //  j = new HingeJoint(objects[Right_Shin], objects[Right_Foot], Pos(-0.0624, 0.183, 0.0318) * pose, 
-// 		       Axis(1,0,0) * pose);
-    fj = new FixedJoint(objects[Right_Shin], objects[Right_Foot]);
-    fj->init(odeHandle, osgHandleJ, true, 0.1);
-    joints.push_back(fj);
+     j = new HingeJoint(objects[Right_Shin], objects[Right_Foot], Pos(-0.0624, 0.183, 0.0318) * pose, 
+ 		       Axis(1,0,0) * pose);
+			//  fj = new FixedJoint(objects[Right_Shin], objects[Right_Foot]);
+    j->init(odeHandle, osgHandleJ, true, 0.1);
+    joints.push_back(j);
     
     servo1 = new OneAxisServo(j, -conf.ankleJointLimit, conf.ankleJointLimit, conf.anklePower, conf.ankleDamping,0);
     ankleservos.push_back(servo1);
