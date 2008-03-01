@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.14  2007-08-22 08:28:07  martius
+// Revision 1.15  2008-03-01 01:33:30  martius
+// size added
+//
+// Revision 1.14  2007/08/22 08:28:07  martius
 // contrains for reshape relaxed
 //
 // Revision 1.13  2007/06/21 16:29:18  martius
@@ -197,6 +200,10 @@ namespace matrix{
     unsigned short getM() const { return m; };
     /** @return number of columns */
     unsigned short getN() const { return n; };
+    /// @return number number elements in the matrix (getM()*getN())
+    unsigned int size() const { return n*m; };
+    
+
     /** @return element at position i,j (row, column index) */
     inline D val(unsigned short i, unsigned short j) const { 	
       assert( i<m && j<n);	 
