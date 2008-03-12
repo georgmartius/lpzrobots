@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-27 10:56:40  robot3
+ *   Revision 1.2  2008-03-12 10:57:07  der
+ *   added moving average MOVAVG
+ *
+ *   Revision 1.1  2007/09/27 10:56:40  robot3
  *   The enum MeasureModes can be found as from now here. Seems to be better for
  *   guys who like to implement new statistic measures - the only relevant files
  *   are measuremodes.h (this one) and statisticmeasure.cpp.
@@ -66,6 +69,8 @@ enum MeasureMode {
 	ID,
 	/// returns the average value
 		AVG,
+	/// returns the moving average value
+                MOVAVG,
 	/// returns the median value
 		MED,
 	/// returns the minimum value

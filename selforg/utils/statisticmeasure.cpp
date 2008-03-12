@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-01-17 09:59:27  der
+ *   Revision 1.9  2008-03-12 10:57:07  der
+ *   added moving average MOVAVG
+ *
+ *   Revision 1.8  2008/01/17 09:59:27  der
  *   complexmeasure: preparations made for predictive information,
  *   fixed a minor bug
  *   statisticmeasure, statistictools: added support for adding
@@ -117,6 +120,9 @@ void StatisticMeasure::step()
   case AVG:
     value=calculateAverageValue();
     break;
+  case MOVAVG:
+    value=calculateMovingAverageValue();
+    break;
   case PEAK:
     if (observedValue>additionalParam)
       value=observedValue-additionalParam;
@@ -197,6 +203,19 @@ double StatisticMeasure::calculateAverageValue()
     newavg -= valueHistory[oldestStepIndex]/stepSpan;
     // add 1/stepSpan*observedValue to value
     newavg += observedValue/stepSpan;
+  }
+  return newavg;
+}
+
+double StatisticMeasure::calculateMovingAverageValue()
+{
+  double newavg=this->value;
+  if (stepSpan==0) {
+    //
+  }
+  else
+  {
+    newavg += (observedValue - newavg)/stepSpan;
   }
   return newavg;
 }

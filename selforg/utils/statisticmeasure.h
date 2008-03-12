@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-01-17 09:59:27  der
+ *   Revision 1.6  2008-03-12 10:57:07  der
+ *   added moving average MOVAVG
+ *
+ *   Revision 1.5  2008/01/17 09:59:27  der
  *   complexmeasure: preparations made for predictive information,
  *   fixed a minor bug
  *   statisticmeasure, statistictools: added support for adding
@@ -90,7 +93,9 @@ protected:
   virtual double calculateSumValue();
 
   virtual double calculateAverageValue();
-
+  
+  virtual double calculateMovingAverageValue();
+  
   /* BEGIN convergence SECTION */
   virtual double testConvergence();
   // stores how much steps the convergence is reached,
