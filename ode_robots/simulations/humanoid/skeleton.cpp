@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-02-28 07:43:03  der
+ *   Revision 1.5  2008-03-14 08:04:23  der
+ *   Some changes in main and skeleton (with new outfit)
+ *
+ *   Revision 1.4  2008/02/28 07:43:03  der
  *   small changes
  *
  *   Revision 1.3  2008/02/08 13:35:10  der
@@ -271,15 +274,15 @@ namespace lpzrobots {
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::translate(0, 1.131, 0.0052) * pose );
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.handColor);
 //    b->setMass(/*16*/.61, 0, 0, 0, 0.0996, 0.1284, 0.1882, 0, 0, 0);
     b->setMass(1.6*conf.massfactor);
     objects[Hip]=b; 
  
     // Pole1    
- //    b = new Box(4.45,1.99,.15);
+ //    b = new Box(.4,.3,.4);
 //     b->init(odeHandle, 1,osgHandle);
-//     b->setPose(osg::Matrix::translate(0, 1.1, -1.3) * pose );
+//     b->setPose(osg::Matrix::translate(0, 1.4, -.3) * pose );
 //       b->setMass(0.001*16.61, 0, 0, 0, 0.0996, 0.1284, 0.1882, 0, 0, 0);
 //       //  b->setMass(0, 0, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0);
 //     objects[Pole]=b;
@@ -333,7 +336,7 @@ namespace lpzrobots {
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(0.3094, 1.587, 0.0227) * pose );
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.trunkColor);
 //     b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
     b->setMass(0.2*conf.massfactor);
     objects[Left_Shoulder]=b;
@@ -354,7 +357,7 @@ namespace lpzrobots {
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0.7826, 1.5948, 0.024) * pose );
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.handColor);
 //     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
     b->setMass(0.55*conf.massfactor);
     objects[Left_Hand]=b;
@@ -366,7 +369,7 @@ namespace lpzrobots {
 //     b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
     b->setMass(0.2*conf.massfactor);
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.trunkColor);
     objects[Right_Shoulder]=b;
 
     // Right_Forearm
@@ -385,7 +388,7 @@ namespace lpzrobots {
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(-0.7826, 1.5948, 0.024) * pose );
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.handColor);
 //     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
     b->setMass(0.55*conf.massfactor);
     objects[Right_Hand]=b;
@@ -396,7 +399,7 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0)* osg::Matrix::rotate(-M_PI/60,0,0,1) * 
 	       osg::Matrix::translate(0.0949, 0.8525, 0.0253) * pose );
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.handColor);
 //     b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
     b->setMass(1*conf.massfactor);
     objects[Left_Thigh]=b;
@@ -416,7 +419,7 @@ namespace lpzrobots {
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::translate(0.0624, 0.1388, 0.0708) * pose );
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.trunkColor);
     //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
     b->setMass(0.5*conf.massfactor);
     objects[Left_Foot]=b;
@@ -427,7 +430,7 @@ namespace lpzrobots {
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0)* osg::Matrix::rotate(M_PI/60,0,0,1) * 
 	       osg::Matrix::translate(-0.0949, 0.8525, 0.0253) * pose );
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.handColor);
     //    b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
     b->setMass(1*conf.massfactor);
     objects[Right_Thigh]=b;
@@ -447,7 +450,7 @@ namespace lpzrobots {
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::translate(-0.0624, 0.1388, 0.0708) * pose );
     b->setTexture(conf.bodyTexture);
-    b->setColor(conf.bodyColor);
+    b->setColor(conf.trunkColor);
     //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
     b->setMass(0.5*conf.massfactor);
     objects[Right_Foot]=b;
@@ -473,7 +476,7 @@ namespace lpzrobots {
 //      uj->init(odeHandle, osgHandleJ, false, 0.2);
 //        joints.push_back(uj);
    
-  //   fj = new FixedJoint(objects[Pole], objects[Trunk_comp]);
+//     fj = new FixedJoint(objects[Pole], objects[Trunk_comp]);
 //     fj->init(odeHandle, osgHandleJ, true, 0.12);
 //     joints.push_back(fj);
 

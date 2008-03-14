@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-02-28 07:42:31  der
+ *   Revision 1.6  2008-03-14 08:04:23  der
+ *   Some changes in main and skeleton (with new outfit)
+ *
+ *   Revision 1.5  2008/02/28 07:42:31  der
  *   some small changes
  *
  *   Revision 1.4  2008/02/08 13:35:09  der
@@ -112,6 +115,7 @@
 #include <selforg/dercontroller.h>
 #include <selforg/invertmotorbigmodel.h>
 #include <selforg/multilayerffnn.h>
+#include <selforg/elman.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/derpseudosensor.h>
@@ -163,7 +167,7 @@ public:
     //int hurlings = 0;
     //int cigars = 0;
     int wheelies = 0;
-    int humanoids=1;
+    int humanoids=2;
     //    int barrel=0;
 
 
@@ -233,8 +237,8 @@ public:
 // //     m->setPosition(osg::Vec3(1,1,1)); 
 // //     global.obstacles.push_back(m);
     
-    
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.2, 2.0)); playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
+   
+     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20.5, 5.2, 1.0)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
      playground->setPosition(osg::Vec3(0,0,.1));
      Substance substance;
     substance.toPlastic(10.0);
@@ -242,14 +246,14 @@ public:
     global.obstacles.push_back(playground);
 /*    double xboxes=0.0;
     double yboxes=0.0;*/
-    double xboxes=0;//19.0;
-    double yboxes=0.0;
+    double xboxes=0;//19;//19.0;
+    double yboxes=0;//19;
     double boxdis=.9;//.45;//1.6;
     for (double j=0.0;j<xboxes;j++)
       for(double i=0.0; i<yboxes; i++) {
-        double xsize= .25;//1.0;
-        double ysize= .9;//.25;
-        double zsize=1.3;
+        double xsize= .45;//1.0;
+        double ysize= .4;//.25;
+        double zsize=.25;
         PassiveBox* b =
           new PassiveBox(odeHandle,
                          osgHandle, osg::Vec3(xsize,ysize,zsize),0.0);
@@ -274,7 +278,7 @@ public:
 
       SkeletonConf conf = Skeleton::getDefaultConf();
       
-      double powerfactor = .5; //2.8;//.3 
+      double powerfactor = 1.5;//.8;//1.2;// .2; //2.8;//.3 
 
       conf.massfactor   = 1;
       conf.relLegmass = 5;
@@ -293,19 +297,20 @@ public:
       conf.kneePower= 15 * powerfactor;
       conf.anklePower= 2 * powerfactor;
       conf.armPower = 15 * powerfactor;//5
-      if (i==1) {
-	//	conf.trunkTexture="Images/rabbit_fur.jpg";
-	conf.trunkColor=Color(1.0,.0,.0);
-      }
+       if (i==0) 
+	conf.trunkColor=Color(0.1, 0.3, 0.8);
+       else	conf.trunkColor=Color(0.9, 0.0, 0.1);
+	
       //    conf.bodyTexture="Images/whitemetal_farbig_small.rgb";
       //     conf.bodyColor=Color(1.0,1.0,0.0);
       OdeHandle skelHandle=odeHandle;
       // skelHandle.substance.toMetal(1);
-      skelHandle.substance.toPlastic(2);//TEST sonst 40
-      // skelHandle.substance.toRubber(90);//TEST sonst 40
+      //  skelHandle.substance.toPlastic(2);//TEST sonst 40
+     skelHandle.substance.toRubber(20);//TEST sonst 40
       Skeleton* human = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
       human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
-		   *osg::Matrix::translate(-.2 +2.9*i,0,1));
+		   //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
+		   *osg::Matrix::translate(0,0,1+2*i));
       global.configs.push_back(human);
       
       Primitive* trunk = human->getMainPrimitive();
@@ -320,41 +325,50 @@ public:
       //controller->setParam("sinerate",50);
       //controller->setParam("phaseshift",0);
 
-      //   DerPseudoSensorConf cc = DerPseudoSensor::getDefaultConf();    
-          BasicControllerConf cc = BasicController::getDefaultConf();    
+       DerPseudoSensorConf cc = DerPseudoSensor::getDefaultConf();    
+      //      BasicControllerConf cc = BasicController::getDefaultConf();    
 	   // AbstractController* controller = new DerPseudoSensor(cc);
 
   
-      //     vector<Layer> layers;
-//           // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
-//           // size of output layer is automatically set
-//           layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-//           MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
-//           cc.model = net;
+          vector<Layer> layers;
+          // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+          // size of output layer is automatically set
+          layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+          MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
+          cc.model = net;
 
 //           layers.clear();
-// 	  layers.push_back(Layer(7,0.5,FeedForwardNN::tanhr)); // hidden layer
+// 	  layers.push_back(Layer(3,0.5,FeedForwardNN::tanhr)); // hidden layer
 //           // size of output layer is automatically set
 //           layers.push_back(Layer(1,0.5,FeedForwardNN::tanhr)); 
 //           MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
 //           cc.sat   = sat;
 
+	  //Elman Net 
+          layers.clear();
+	  layers.push_back(Layer(8,0.5,Elman::tanhr)); // hidden layer
+          // size of output layer is automatically set
+          layers.push_back(Layer(1,0.5,Elman::tanh)); 
+          Elman* sat = new Elman(1, layers,true,true, false);
+          cc.sat   = sat;
+
           cc.useS=false;
-	  //AbstractController* controller = new DerPseudoSensor(cc);
-	   AbstractController* controller = new BasicController(cc);
+	 AbstractController* controller = new DerPseudoSensor(cc);
+	  //  AbstractController* controller = new BasicController(cc);
 	   
 
       //     controller->setParam("adaptrate",0);
       //     controller->setParam("rootE",3);
-           controller->setParam("epsC",0.01);
+           controller->setParam("epsC",0.1);
+           controller->setParam("epsSat",0.02);
            controller->setParam("epsA",0.0);
       //     controller->setParam("steps",1);
-           controller->setParam("s4avg",20);
-           controller->setParam("s4delay",5);
+           controller->setParam("s4avg",5);
+           controller->setParam("s4delay",3);
            controller->setParam("teacher",0.01);
       //     controller->setParam("dampS",0.0001);
       //     controller->setParam("dampA",0.00003);
-          controller->setParam("weighting",1);
+          controller->setParam("weighting",.5);
           controller->setParam("noise",0);
       
       global.configs.push_back(controller);
@@ -471,7 +485,7 @@ public:
   
  
       controller->setParam("steps",1);
-      controller->setParam("epsC",0.001);
+      controller->setParam("epsC",0.1);
       controller->setParam("epsA",0.0);
       controller->setParam("adaptrate",0.0);//0.005);
       controller->setParam("rootE",3); 
@@ -479,7 +493,7 @@ public:
 
       // controller->setParam("desens",0.0);
       controller->setParam("s4delay",2.0);
-      controller->setParam("s4avg",2.0);
+      controller->setParam("s4avg",10.0);
     
       controller->setParam("factorB",0.0); 
       controller->setParam("noiseB",0.0);

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-02-08 13:35:10  der
+ *   Revision 1.4  2008-03-14 08:04:23  der
+ *   Some changes in main and skeleton (with new outfit)
+ *
+ *   Revision 1.3  2008/02/08 13:35:10  der
  *   satelite teaching
  *
  *   Revision 1.2  2008/02/07 14:25:02  der
@@ -83,6 +86,7 @@ namespace lpzrobots {
     Color headColor;
     Color bodyColor;
     Color trunkColor;
+    Color handColor;
 
     std::string headTexture; // texture of the head
     std::string bodyTexture; // texture of the body
@@ -147,10 +151,12 @@ namespace lpzrobots {
       //      c.headTexture="Images/really_white.rgb";
       c.headTexture="Images/dusty.rgb";
       c.headColor=Color(255/255.0, 219/255.0, 119/255.0, 1.0f);
-      c.bodyTexture="Images/whitemetal_farbig_small.rgb";
+      //  c.bodyTexture="Images/whitemetal_farbig_small.rgb";
+      c.bodyTexture="Images/dusty.rgb";
       c.bodyColor=Color(207/255.0, 199/255.0, 139/255.0, 1.0f);
-      c.trunkTexture="Images/whitemetal_farbig_small.rgb";
+      c.trunkTexture="Images/dusty.rgb";//"Images/whitemetal_farbig_small.rgb";
       c.trunkColor=Color(207/255.0, 199/255.0, 139/255.0, 1.0f);
+      c.handColor=Color(247.0/255, 182.0/255,52.0/255, 1.0f);
       return c;
     }
 
