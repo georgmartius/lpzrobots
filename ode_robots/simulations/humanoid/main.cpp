@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-03-14 08:04:23  der
+ *   Revision 1.7  2008-03-26 09:25:44  der
+ *   small changes
+ *
+ *   Revision 1.6  2008/03/14 08:04:23  der
  *   Some changes in main and skeleton (with new outfit)
  *
  *   Revision 1.5  2008/02/28 07:42:31  der
@@ -167,7 +170,7 @@ public:
     //int hurlings = 0;
     //int cigars = 0;
     int wheelies = 0;
-    int humanoids=2;
+    int humanoids=1;
     //    int barrel=0;
 
 
@@ -251,9 +254,9 @@ public:
     double boxdis=.9;//.45;//1.6;
     for (double j=0.0;j<xboxes;j++)
       for(double i=0.0; i<yboxes; i++) {
-        double xsize= .45;//1.0;
-        double ysize= .4;//.25;
-        double zsize=.25;
+        double xsize= .35;//1.0;
+        double ysize= .25;//.25;
+        double zsize=.9;
         PassiveBox* b =
           new PassiveBox(odeHandle,
                          osgHandle, osg::Vec3(xsize,ysize,zsize),0.0);
@@ -278,7 +281,7 @@ public:
 
       SkeletonConf conf = Skeleton::getDefaultConf();
       
-      double powerfactor = 1.5;//.8;//1.2;// .2; //2.8;//.3 
+      double powerfactor = .9;// .8;//1.2;// .2; //2.8;//.3 
 
       conf.massfactor   = 1;
       conf.relLegmass = 5;
@@ -310,7 +313,7 @@ public:
       Skeleton* human = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
       human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		   //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
-		   *osg::Matrix::translate(0,0,1+2*i));
+		   *osg::Matrix::translate(i,i,1+2*i));
       global.configs.push_back(human);
       
       Primitive* trunk = human->getMainPrimitive();
@@ -346,7 +349,7 @@ public:
 
 	  //Elman Net 
           layers.clear();
-	  layers.push_back(Layer(8,0.5,Elman::tanhr)); // hidden layer
+	  layers.push_back(Layer(40,0.5,Elman::tanhr)); // hidden layer
           // size of output layer is automatically set
           layers.push_back(Layer(1,0.5,Elman::tanh)); 
           Elman* sat = new Elman(1, layers,true,true, false);
@@ -362,7 +365,7 @@ public:
            controller->setParam("epsC",0.1);
            controller->setParam("epsSat",0.02);
            controller->setParam("epsA",0.0);
-      //     controller->setParam("steps",1);
+           controller->setParam("steps",2);
            controller->setParam("s4avg",5);
            controller->setParam("s4delay",3);
            controller->setParam("teacher",0.01);
@@ -406,10 +409,10 @@ public:
       conf.segmLength= .8 * snakesize;// 0.8;
         conf.segmDia=.15 *snakesize;
       conf.motorPower= 2 * snakesize;
-      conf.segmNumber = 12+2*i;//-i/2; 
+      conf.segmNumber = 3+4*i;//-i/2; 
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit* 1.6;
-      conf.frictionGround=0.3;// +((double)i)/100;
+      conf.frictionGround=0.03;// +((double)i)/100;
       conf.frictionJoint=0.001;
       //PlattfussSchlange* schlange1; 
       SchlangeServo2* schlange1;
@@ -427,7 +430,7 @@ public:
       }
       //Positionieren und rotieren 
       schlange1->place(osg::Matrix::rotate(M_PI/2,0, 1, 0)*
-		        osg::Matrix::translate(-.7+0.7*i,0,1+(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
+		        osg::Matrix::translate(-.7+0.7*i,-2*i,1+(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
 		       // osg::Matrix::translate(5-i,2 + i*2,height+2));
       schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
       if (i==0) {
@@ -455,13 +458,21 @@ public:
           layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
           MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
           cconf.model=net;
-
+  
+	  //Elman Net 
           layers.clear();
-	  //	  layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+	  layers.push_back(Layer(8,0.5,Elman::tanhr)); // hidden layer
           // size of output layer is automatically set
-          layers.push_back(Layer(1,0.5,FeedForwardNN::tanh)); 
-          MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
+          layers.push_back(Layer(1,0.5,Elman::tanh)); 
+          Elman* sat = new Elman(1, layers,true,true, false);
           cconf.sat   = sat;
+
+        //   layers.clear();
+// 	  	  layers.push_back(Layer(8,0.5,FeedForwardNN::tanh)); // hidden layer
+//           // size of output layer is automatically set
+//           layers.push_back(Layer(1,0.5,FeedForwardNN::tanh)); 
+//           MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
+//           cconf.sat   = sat;
           cconf.useS=false;
 
       // AbstractController *controller = new DerBigController(cconf); 
@@ -490,10 +501,12 @@ public:
       controller->setParam("adaptrate",0.0);//0.005);
       controller->setParam("rootE",3); 
       controller->setParam("logaE",0);
+      controller->setParam("epsSat",0.02);
+      controller->setParam("weighting",0.5);
 
       // controller->setParam("desens",0.0);
       controller->setParam("s4delay",2.0);
-      controller->setParam("s4avg",10.0);
+      controller->setParam("s4avg",3.0);
     
       controller->setParam("factorB",0.0); 
       controller->setParam("noiseB",0.0);
