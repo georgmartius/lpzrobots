@@ -10,11 +10,11 @@ EXEC = start
 EXEC_OPT = start_opt
 
 LPZROBOTS  = ../../..
-ECBROBOTS  = $(LPZROBOTS)/ecb_robots
+ECBROBOTS  = $(LPZROBOTS)/ecbrobots
 SELFORG    = $(LPZROBOTS)/selforg
 
-ECBROBOTSLIB := ecb_robots
-ECBROBOTSLIB_OPT := ecb_robots_opt
+ECBROBOTSLIB := ecbrobots
+ECBROBOTSLIB_OPT := ecbrobots_opt
 LIBECBROBOTS = lib$(ECBROBOTSLIB).a
 LIBECBROBOTS_OPT = lib$(ECBROBOTSLIB_OPT).a
 
@@ -29,7 +29,7 @@ LIBS   = -lm \
 	-lreadline \
 	-lpthread
 
-INC   = -I. -I$(ECBROBOTS)/include/ecb_robots -I$(SELFORG)/include
+INC   = -I. -I$(ECBROBOTS)/include/ecbrobots -I$(SELFORG)/include
 
 CXX = g++
 # -pg for profiling
@@ -37,12 +37,12 @@ CPPFLAGS = -Wall -I. -g $(INC)
 ## Optimisation
 CPPFLAGS_OPT = -Wall -I. -O3 -DNDEBUG $(INC)
 
-normal: libecb_robots $(EXEC)
+normal: libecbrobots $(EXEC)
 
 $(EXEC): $(ECBROBOTS)/$(LIBECBROBOTS)  Makefile Makefile.depend $(OFILES)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
 
-opt: libecb_robots_opt $(EXEC_OPT)
+opt: libecbrobots_opt $(EXEC_OPT)
 
 $(EXEC_OPT): ECBROBOTSLIB = $(ECBROBOTSLIB_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
@@ -50,10 +50,10 @@ $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): $(ECBROBOTS)/$(LIBECBROBOTS_OPT)  Makefile Makefile.depend $(OFILES)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
-libecb_robots:
+libecbrobots:
 	cd $(ECBROBOTS) && make
 
-libecb_robots_opt:
+libecbrobots_opt:
 	cd $(ECBROBOTS) && make opt
 
 Makefile.depend:

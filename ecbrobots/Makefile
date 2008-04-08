@@ -5,10 +5,10 @@
 LPZROBOTS=..
 ECBROBOTS=.
 SELFORG=../selforg
-INCLUDEDIR=include/ecb_robots
+INCLUDEDIR=include/ecbrobots
 REVINCLUDEDIR=../..
-LIB=libecb_robots.a
-LIB_OPT=libecb_robots_opt.a
+LIB=libecbrobots.a
+LIB_OPT=libecbrobots_opt.a
 
 include Makefile.conf
 
