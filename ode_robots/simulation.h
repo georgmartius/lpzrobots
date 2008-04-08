@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2007-08-24 11:52:42  martius
+ *   Revision 1.29.2.1  2008-04-08 14:09:23  martius
+ *   compiles and runs with OSG2.2. Juhu
+ *
+ *   Revision 1.29  2007/08/24 11:52:42  martius
  *   resetsynctimer is protected
  *
  *   Revision 1.28  2007/06/21 16:19:48  martius
@@ -181,8 +184,12 @@
 
 // include base classes of class Simulation
 #include "base.h"
-#include <osgGA/GUIEventHandler>
-#include <Producer/Camera>
+
+#include <osgViewer/Viewer>
+#include <osgViewer/ViewerEventHandlers>
+#include <osgGA/KeySwitchMatrixManipulator>
+#include <osg/Camera>
+
 
 #include <math.h>
 #define PI M_PI // (3.14159265358979323846)
@@ -204,7 +211,8 @@ namespace lpzrobots {
 
 namespace lpzrobots {
 
-  class Simulation : public Base, public osgGA::GUIEventHandler, public Producer::Camera::Callback {
+  class Simulation : public Base, public osgGA::GUIEventHandler   //, public osg::Camera::DrawCallback
+  {
   public:
 
     typedef enum SimulationState { none, initialised, running, closed };
@@ -256,8 +264,9 @@ namespace lpzrobots {
      */
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {};
 
-    ///////////////// Camera::Callback interface
-    virtual void operator() (const Producer::Camera &);
+    ///////////////// Camera::DrawCallback interface
+    void onPostDraw(const osg::Camera &c);
+    // virtual void operator() ();
 
   
 
@@ -335,8 +344,9 @@ namespace lpzrobots {
   private:
     SimulationState state;
     osg::ArgumentParser* arguments;
-    ExtendedViewer* viewer;
-    Producer::Camera* cam;
+    osgViewer::Viewer* viewer;
+    osgGA::KeySwitchMatrixManipulator* keyswitchManipulator;
+
     static int ctrl_C;
   };
 

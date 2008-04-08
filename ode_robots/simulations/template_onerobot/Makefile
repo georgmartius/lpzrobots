@@ -25,10 +25,14 @@ LIBSELFORG = lib$(SELFORGLIB).a
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
-	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
+	-lode -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline
 
+#	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
+
 INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include
+INC += -I/home/georg/local/OpenSceneGraph-2.2.0/include
+
 
 CXX = g++
 # -pg for profiling

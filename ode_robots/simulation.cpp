@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.74  2007-12-11 14:11:35  martius
+ *   Revision 1.74.2.1  2008-04-08 14:09:23  martius
+ *   compiles and runs with OSG2.2. Juhu
+ *
+ *   Revision 1.74  2007/12/11 14:11:35  martius
  *   addcallback draw flag was wrong
  *
  *   Revision 1.73  2007/12/06 14:52:43  martius
@@ -387,13 +390,14 @@
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
 #include <osgUtil/SceneView>
+// #include <osgUtil/Optimizer>
 #include <osgDB/ReaderWriter>
 #include <osgDB/FileUtils>
+#include <osgGA/StateSetManipulator>
 
 #include "primitive.h"
 #include "abstractobstacle.h"
 
-#include "extendedViewer.h"
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
@@ -402,7 +406,7 @@ namespace lpzrobots {
 
 using namespace std;
 using namespace osg;
-using namespace osgProducer;
+using namespace osgViewer;
 using namespace osgUtil;
 
 
@@ -419,12 +423,11 @@ Simulation::Simulation() {
     simulation_time=-1;
     simulation_time_reached=false;
     viewer   = 0;
-    cam      = 0;
     arguments= 0;
     // we have to count references by our selfes
     osg::Referenced::ref();
     osgGA::GUIEventHandler::ref();
-    Producer::Camera::Callback::ref();
+    //    Producer::Camera::Callback::ref();
 }
 
 Simulation::~Simulation() {
@@ -440,8 +443,8 @@ Simulation::~Simulation() {
         delete arguments;
     // we have to count references by our selfes
     osgGA::GUIEventHandler::unref();
-    Producer::Camera::Callback::unref_nodelete();
-    Producer::Camera::Callback::unref_nodelete();
+    //    Producer::Camera::Callback::unref_nodelete();
+    //    Producer::Camera::Callback::unref_nodelete();
     osg::Referenced::unref_nodelete();
 }
 
@@ -488,17 +491,29 @@ bool Simulation::init(int argc, char** argv) {
             "-h or --help", "Display this information");
 
         // construct the viewer.
-        viewer = new ExtendedViewer(*arguments);
+        viewer = new Viewer(*arguments);
 
-        // set up the value with sensible default event handlers.
-        unsigned int options =  Viewer::SKY_LIGHT_SOURCE |
-                                Viewer::STATE_MANIPULATOR |
-                                Viewer::STATS_MANIPULATOR |
-                                Viewer::VIEWER_MANIPULATOR |
-                                Viewer::ESCAPE_SETS_DONE;
-        viewer->setUpViewer(options);
+	// add the state manipulator
+	viewer->addEventHandler( new osgGA::StateSetManipulator(viewer->getCamera()->getOrCreateStateSet()) );
+	
+	// add the thread model handler
+	viewer->addEventHandler(new osgViewer::ThreadingHandler);
+	
+	// add the window size toggle handler
+	viewer->addEventHandler(new osgViewer::WindowSizeHandler);
+        
+	// add the stats handler
+	viewer->addEventHandler(new osgViewer::StatsHandler);
+	 
+	// add the help handler
+	viewer->addEventHandler(new osgViewer::HelpHandler(arguments->getApplicationUsage()));
+	
+	// add the record camera path handler
+	viewer->addEventHandler(new osgViewer::RecordCameraPathHandler);
 
-        viewer->getEventHandlerList().push_front(this);
+	// add the record camera path handler
+	viewer->addEventHandler(this);
+
 
         // if user request help write it out to cout.
         if (arguments->read("-h") || arguments->read("--help")) {
@@ -544,20 +559,16 @@ bool Simulation::init(int argc, char** argv) {
     osgHandle.transparentState->ref();
 
     if(!noGraphics) {
+	keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
+
         // setup the camera manipulators
-        CameraManipulator* defaultCameramanipulator =
-            new CameraManipulator(osgHandle.scene, globalData);
-        CameraManipulator* cameramanipulatorFollow =
-            new CameraManipulatorFollow(osgHandle.scene, globalData);
-        CameraManipulator* cameramanipulatorTV =
-            new CameraManipulatorTV(osgHandle.scene, globalData);
-        CameraManipulator* cameramanipulatorRace =
-            new CameraManipulatorRace(osgHandle.scene, globalData);
-        viewer->addCameraManipulator(defaultCameramanipulator);
-        viewer->addCameraManipulator(cameramanipulatorFollow);
-        unsigned int pos = viewer->addCameraManipulator(cameramanipulatorTV);
-        viewer->addCameraManipulator(cameramanipulatorRace);
-        viewer->selectCameraManipulator(pos); // this is the default camera type
+      	keyswitchManipulator->addMatrixManipulator( '1', "Static", new CameraManipulator(osgHandle.scene, globalData) );
+      	keyswitchManipulator->addMatrixManipulator( '2', "Follow", new CameraManipulatorFollow(osgHandle.scene, globalData) );
+      	keyswitchManipulator->addMatrixManipulator( '3', "TV", new CameraManipulatorTV(osgHandle.scene, globalData) );
+      	keyswitchManipulator->addMatrixManipulator( '4', "Race", new CameraManipulatorRace(osgHandle.scene, globalData) );
+
+	keyswitchManipulator->selectMatrixManipulator(2);
+        viewer->setCameraManipulator( keyswitchManipulator );
 
         // get details on keyboard and mouse bindings used by the viewer.
         viewer->getUsage(*(arguments->getApplicationUsage()));
@@ -587,55 +598,62 @@ bool Simulation::run(int argc, char** argv) {
 
     start(odeHandle, osgHandle, globalData);
 
-    if(!noGraphics) {
-        // add model to viewer.
-        viewer->setSceneData(root);
+    if(!noGraphics) {      
+      // optimize the scene graph, remove redundant nodes and state etc.
+      // osgUtil::Optimizer optimizer;
+      // optimizer.optimize(root);
+      
 
-        Producer::CameraConfig* cfg = viewer->getCameraConfig();
-        cam = cfg->getCamera(0);
+      // add model to viewer.
+      viewer->setSceneData(root);
+            
+      //         Producer::CameraConfig* cfg = viewer->getCameraConfig();
+      //         cam = cfg->getCamera(0);
+      
+      //         Producer::RenderSurface* rs = cam->getRenderSurface();
+      //         rs->setWindowName( "LpzRobots - Selforg" );
+      
+      //         // the following starts the system in windowed mode
+      //         int x = rs->getWindowOriginX();
+      //         int y = rs->getWindowOriginY();
+      //         rs->setWindowRectangle(x,y,windowWidth, windowHeight);
+      //         rs->fullScreen(false);
+      
+      //         cam->addPostDrawCallback(this);      
+            
+      // create the windows and run the threads.
+      viewer->realize();
 
-        Producer::RenderSurface* rs = cam->getRenderSurface();
-        rs->setWindowName( "LpzRobots - Selforg" );
-
-        // the following starts the system in windowed mode
-        int x = rs->getWindowOriginX();
-        int y = rs->getWindowOriginY();
-        rs->setWindowRectangle(x,y,windowWidth, windowHeight);
-        rs->fullScreen(false);
-
-        cam->addPostDrawCallback(this);
-
-        // create the windows and run the threads.
-        viewer->realize();
-
-        // set our motion blur callback as the draw callback for each scene handler
-        //      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
-        //      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
-        //      {
-        //          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
-        //      }
+      // set our motion blur callback as the draw callback for each scene handler
+      //      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
+      //      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
+      //      {
+      //          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
+      //      }
     }
 
     if(!noGraphics) {
         while ( (!viewer->done()) && (!simulation_time_reached) ) {
-            // wait for all cull and draw threads to complete.
-            viewer->sync();
+	  // wait for all cull and draw threads to complete.
+	  // viewer->sync();
 
             if(!loop())
                 break;
 
             // wait for all cull and draw threads to complete.
-            viewer->sync();
+            // viewer->sync();
             // update the scene by traversing it with the the update visitor which will
             // call all node update callbacks and animations.
-            viewer->update();
+            // viewer->update();
 
             // fire off the cull and draw traversals of the scene.
             viewer->frame();
+	    // onPostDraw(*(viewer->getCamera()));
+      
         }
 
         // wait for all cull and draw threads to complete before exit.
-        viewer->sync();
+        // viewer->sync();
     } else {
         while ( !simulation_time_reached) {
             if(!loop())
@@ -736,7 +754,7 @@ bool Simulation::loop() {
 	    }
 
             // update the camera
-            osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
+	    osgGA::MatrixManipulator* mm = keyswitchManipulator->getCurrentMatrixManipulator();
             if(mm) {
                 CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
                 if(cameramanipulator)
@@ -870,19 +888,18 @@ bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter
       printf( pause ? "Pause\n" : "Continue\n" );
       handled = true;
       break;
-    case 15: // Ctrl - o // TEST
-      { 
-	
-	SceneView* sv = viewer->getSceneHandlerList().front()->getSceneView();
-	Vec3 p(400,400,0);
-	Pos o;	
-	if(!sv->projectWindowIntoObject(p,o)){
-	  printf("SHIT happens always\n");	  
-	}
-	o.print();
-	handled = true;
-      }
-      break;
+//     case 15: // Ctrl - o // TEST
+//       { 	
+// 	SceneView* sv = viewer->getSceneHandlerList().front()->getSceneView();
+// 	Vec3 p(400,400,0);
+// 	Pos o;	
+// 	if(!sv->projectWindowIntoObject(p,o)){
+// 	  printf("SHIT happens always\n");	  
+// 	}
+// 	o.print();
+// 	handled = true;
+//       }
+//       break;
     default:
       // std::cout << ea.getKey() << std::endl;
       return false;
@@ -916,7 +933,8 @@ void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
 }
 
 ///////////////// Camera::Callback interface
-void Simulation::operator() (const Producer::Camera &c) {
+//void Simulation::operator() (const osg::Camera &c) {
+void Simulation::onPostDraw(const osg::Camera &c) {
     // grab frame if in captureing mode
     if(videostream.isOpen() && !pause) {
         if(!videostream.grabAndWriteFrame(c)) {
@@ -957,7 +975,8 @@ void Simulation::tidyUp(GlobalData& global) {
     global.agents.clear();
 
     if(!noGraphics)    // delete viewer;
-        viewer->getEventHandlerList().clear();
+        viewer->getEventHandlers().clear();
+    //        viewer->getEventHandlerList().clear();
 }
 
 
@@ -1263,7 +1282,7 @@ void Simulation::usage(const char* progname) {
 
 void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view) {
     if(!noGraphics) {
-        osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
+        osgGA::MatrixManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
         if(mm) {
             CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
             if(cameramanipulator)

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-14 12:23:56  martius
+ *   Revision 1.4.4.1  2008-04-08 14:09:23  martius
+ *   compiles and runs with OSG2.2. Juhu
+ *
+ *   Revision 1.4  2006/07/14 12:23:56  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.3.4.1  2006/02/22 15:27:13  martius
@@ -35,7 +38,7 @@
 
 #include <stdio.h>
 #include <osg/Image>
-#include <Producer/Camera>
+#include <osg/Camera>
 
 namespace lpzrobots{
 
@@ -45,7 +48,7 @@ namespace lpzrobots{
 
     void open(const char* filename);
     void close();
-    bool grabAndWriteFrame(const Producer::Camera& camera);
+    bool grabAndWriteFrame(const osg::Camera& camera);
 
     bool isOpen() { return opened; }
 
