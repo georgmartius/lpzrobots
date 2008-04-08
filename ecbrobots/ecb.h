@@ -1,0 +1,185 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *    martius@informatik.uni-leipzig.de                                    *
+ *    fhesse@informatik.uni-leipzig.de                                     *
+ *    der@informatik.uni-leipzig.de                                        *
+ *    guettler@informatik.uni-leipzig.de                                   *
+ *    marcoeckert@web.de                                                   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ *   $Log$
+ *   Revision 1.1  2008-04-08 08:14:30  guettler
+ *   Initial revision
+ *
+ *                                                                         *
+ ***************************************************************************/
+#ifndef __ECB_H
+#define __ECB_H
+
+#include <selforg/configurable.h>
+#include <selforg/storeable.h>
+#include <selforg/types.h>
+
+#include "globaldata.h"
+
+#include <list>
+
+
+// forward declaration begin
+class ECBCommunicator;
+// forward declaration end
+
+
+typedef struct {
+  /// set I2C on or off
+  bool useI2C;
+  /// set ADC on or off
+  bool useADC;
+  /// enable ADC plug and play (guessing)
+  bool useJumperedADC_PlugNPlay;
+  /// set SPI on or off
+  bool useSPI;
+
+  /// the max number, important for init of controller
+  int maxNumberMotors;
+  /// the max number, important for init of controller
+  int maxNumberSensors;
+
+  /// define here which adc-sensors are active.
+  /// 00100000 -> adc[5] = adc-sensor 5 is online
+  int ADCSensorMask;
+
+
+} ECBConfig;
+
+
+class ECB : public Configurable, public Storeable {
+public:
+
+  /**
+   * Creates the ECB with the given address. Note that the configuration
+   * is read from the configuration file "ecb{address}.cfg"!
+   * @param address
+   */
+  ECB(short address, GlobalData& globalData,ECBConfig& ecbConfig);
+
+  virtual ~ECB();
+
+  // TODO: needed????
+//   virtual bool isInitialised() const { return initialised; }
+//
+//   virtual void setInitialised(bool initialised) { this->initialised=initialised; }
+
+  virtual short getAddress() const {	return address; }
+
+  virtual std::list<sensor> getSensorList() { return sensorList; }
+
+  virtual std::list<motor> getMotorList() { return motorList; }
+
+  virtual int getNumberMotors();
+
+  virtual int getNumberSensors();
+
+  virtual int getMaxNumberMotors();
+
+  virtual int getMaxNumberSensors();
+
+  /**
+   * Is called from the ECBRobot.
+   * @param motorArray the array that contains the new motor values
+   * @param beginIndex the index where the proper values start
+   * @param maxIndex  the maximum index which is allowed for motorArray
+   * @return The number of motor values read (used by the ECB)
+   */
+  virtual int setMotors(const motor* motorArray,int beginIndex,int maxIndex);
+
+  /// CONFIG VARS
+  static ECBConfig getDefaultConf(){
+    ECBConfig conf;
+    conf.useI2C = true;
+    conf.useADC = true;
+    conf.useJumperedADC_PlugNPlay = true;
+    conf.useSPI=false;
+    conf.maxNumberMotors = 4;
+    conf.maxNumberSensors = 20;
+    conf.ADCSensorMask = 00000000;
+
+    return conf;
+  }
+
+
+  /**
+   * Sends the new motor values to the ECB and receives the
+   * new sensor values
+   * @return true if the communication was successful
+   */
+  virtual bool writeMotors_readSensors();
+
+  /**
+  * Send reset command to the ECB and receive
+  * the number of connected motors and sensors
+  * If the reset fails, the ECB stays in uninitialized mode!
+  * @return
+  */
+  virtual bool resetECB();
+
+
+  /**
+   * Sends the beep command to the ECB
+   * @return true if send of the command was successful
+   */
+  virtual bool makeBeepECB();
+
+  /// STORABLE INTERFACE
+
+  /** stores the object to the given file stream (binary). */
+  virtual bool store(FILE* f) const;
+
+  /** loads the object from the given file stream (binary). */
+  virtual bool restore(FILE* f);
+
+
+private:
+  GlobalData globalData;
+  ECBConfig ecbConfig;
+
+  int currentNumberSensors;
+  int currentNumberMotors;
+
+  std::list<sensor> sensorList;
+  std::list<motor> motorList;
+
+  // gibt an, ob Reset-Command bereits erfolgreich
+  // es kann sein, dass ECB mehrmals nicht antwortet, dann setze
+  // initialise=0 und versuche im nächsten Step, neu zu resetten,
+  // Wenn reset nicht erfolgreich, übergehe zeitweilig ECB (wegen Funkstörung)
+  bool initialised;
+
+  // die Adresse, die das ECB hat, d.h. muss im ECB hardprogrammiert sein
+  short address;
+
+  // siehe initialised, wenn failurecounter bestimmten wert überschritten,
+  // dann reset im nächsten step versuchen
+  int failureCounter;
+
+  /// noch verschiedene sensortypen und motortypen berücksichtigen
+  /// bzw. hier bzw. in cpp-datei die cfg-datei berücksichtigen
+
+};
+
+
+#endif
