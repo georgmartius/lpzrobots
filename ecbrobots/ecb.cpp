@@ -22,8 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-08 09:09:09  martius
+ *   fixed globaldata to pointer in classes
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *                                                                         *
  ***************************************************************************/
@@ -35,7 +38,7 @@
 
 using namespace std;
 
-ECB::ECB ( short address,GlobalData& globalData,ECBConfig& ecbConfig ) : Configurable("ECB","$ID$"), globalData ( globalData ), ecbConfig ( ecbConfig ),address ( address ) {
+ECB::ECB ( short address,GlobalData& globalData,ECBConfig& ecbConfig ) : Configurable("ECB","$ID$"), globalData ( &globalData ), ecbConfig ( ecbConfig ),address ( address ) {
   failureCounter=0;
   initialised=false;
 }
@@ -43,9 +46,9 @@ ECB::ECB ( short address,GlobalData& globalData,ECBConfig& ecbConfig ) : Configu
 ECB::~ECB() {}
 
 bool ECB::writeMotors_readSensors() {
-  if (globalData.debug)
+  if (globalData->debug)
     std::cout << "ECB: writeMotors_readSensors!" << std::endl;
-  if ( ( !initialised ) || ( failureCounter > globalData.maxFailures ) ) {
+  if ( ( !initialised ) || ( failureCounter > globalData->maxFailures ) ) {
     resetECB();
   }
 
@@ -59,13 +62,13 @@ bool ECB::writeMotors_readSensors() {
   FOREACH (list<motor>,motorList,m) {
     motorComm.data[i++]=(*m);
   }
-  if (!globalData.comm->sendData(motorComm)) {
+  if (!globalData->comm->sendData(motorComm)) {
     cerr << "Error while sending motor values for ECB " << address << "." << endl;
     failureCounter++;
     return false;
   }
 
-  commData result = globalData.comm->receiveData();
+  commData result = globalData->comm->receiveData();
   if ((!result.commSuccess) || ( result.sourceAddress != address ) || ( result.command != CSEN ) || ( result.dataLength!=currentNumberSensors) ) {
     failureCounter++;
     return false;
@@ -87,11 +90,11 @@ bool ECB::writeMotors_readSensors() {
  * @return
  */
 bool ECB::resetECB() {
-  if (globalData.debug)
+  if (globalData->debug)
     std::cout << "ECB: resetECB!" << std::endl;
 
   //    flush input buffer
-  globalData.comm->flushInputBuffer();
+  globalData->comm->flushInputBuffer();
 
   initialised=false;
   // TODO: send specific config settings to ECB!
@@ -100,12 +103,12 @@ bool ECB::resetECB() {
   reset.command = CRES;
   reset.dataLength = 0;
 
-  if ( !globalData.comm->sendData ( reset )) {
+  if ( !globalData->comm->sendData ( reset )) {
     cerr << "Error while sending reset.\n";
     return false;
   }
 
-  commData result = globalData.comm->receiveData();
+  commData result = globalData->comm->receiveData();
 
   if ((!result.commSuccess) || ( result.sourceAddress != address ) || ( result.command != CDIM ) || ( result.dataLength!=2 ) )
     return false;
@@ -138,7 +141,7 @@ bool ECB::makeBeepECB () {
   mbeep.command = CBEEP;
   mbeep.dataLength = 0;
 
-  if ( !globalData.comm->sendData ( mbeep )) {
+  if ( !globalData->comm->sendData ( mbeep )) {
     cerr << "Error while sending make-beep.\n";
     failureCounter++;
     return false;

@@ -1,4 +1,4 @@
-/***************************************************************************
+#/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
@@ -22,8 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-08 09:09:09  martius
+ *   fixed globaldata to pointer in classes
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *                                                                         *
  ***************************************************************************/
@@ -198,9 +201,13 @@ bool CSerialThread::internInit() {
 /// redirection function, because we can't call member function direct
 static void* CSerialThread_run(void* p)
 {
-
-  bool rv = ((CSerialThread*)p)->run();
+  bool rv=false;
+  CSerialThread* ct = dynamic_cast<CSerialThread*>((CSerialThread*)p);
+  if(ct)
+    rv = ct->run();
+  else{
+    cerr << "scheisse" << endl;
+  }
   pthread_exit(&rv);
-
 }
 

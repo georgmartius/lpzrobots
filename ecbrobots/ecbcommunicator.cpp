@@ -22,8 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-08 09:09:09  martius
+ *   fixed globaldata to pointer in classes
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *                                                                         *
  ***************************************************************************/
@@ -37,33 +40,33 @@
 
 using namespace std;
 
-ECBCommunicator::ECBCommunicator(GlobalData& globalData):CSerialThread(globalData.portName, globalData.baudrate, globalData.serialReadTimeout, globalData.debug), globalData(globalData) {
-  if (globalData.debug)
+ECBCommunicator::ECBCommunicator(GlobalData& globalData):CSerialThread(globalData.portName, globalData.baudrate, globalData.serialReadTimeout, globalData.debug), globalData(&globalData) {
+  if (this->globalData->debug)
     std::cout << "New ECBCommunicator created." << std::endl;
   realtimeoffset = timeOfDayinMS();
   lastBenchmarkTime = realtimeoffset;
-  globalData.comm=this;
+  this->globalData->comm=this;
 }
 
 void ECBCommunicator::flushInputBuffer(int time) {
-  if (globalData.debug)
+  if (globalData->debug)
     std::cout << "ECBCommunicator: flushInputBuffer!" << std::endl;
   if (time==-1)
-    time = globalData.cycleTime/2;
+    time = globalData->cycleTime/2;
   CSerialThread::flushInputBuffer(time);
 }
 
   bool ECBCommunicator::loop() {
-    globalData.simStep++;
-    cout << globalData.simStep << " = simstepComm" << endl;
-    assert (globalData.comm==this);
-    if (globalData.debug)
-      std::cout << "ECBCommunicator: loop! simStep=" << globalData.simStep << std::endl;
+    globalData->simStep++;
+    cout << globalData->simStep << " = simstepComm" << endl;
+    assert (globalData->comm==this);
+    if (globalData->debug)
+      std::cout << "ECBCommunicator: loop! simStep=" << globalData->simStep << std::endl;
     /// With this for loop all agents perform a controller
     /// AND a robot step, this means, the communication with the
     /// hardware ECBs are startet too!
-      FOREACH (AgentList,globalData.agents,a) {
-        ((ECBAgent*)(*a))->step(globalData.noise);
+      FOREACH (AgentList,globalData->agents,a) {
+        ((ECBAgent*)(*a))->step(globalData->noise);
       }
     // sorgt dafür, dass der Zeittakt eingehalten wird:
     // Berechnung zu schnell -> warte,
@@ -85,33 +88,33 @@ void ECBCommunicator::flushInputBuffer(int time) {
   void ECBCommunicator::loopCallback(){
     /************************** Time Syncronisation ***********************/
     // Time syncronisation of real time and simulations time (not if on capture mode, or pause)
-    if(!globalData.pause){
+    if(!globalData->pause){
       long currentTime = timeOfDayinMS();
       int benchmarkSteps = 10;
       long elapsed = currentTime - realtimeoffset;
-      if (globalData.debug || globalData.debug) {
+      if (globalData->debug || globalData->debug) {
         std::cout << "Elapsed time: " << elapsed << std::endl;
-        if (globalData.benchmarkMode && (globalData.simStep % benchmarkSteps ==0)) {
+        if (globalData->benchmarkMode && (globalData->simStep % benchmarkSteps ==0)) {
           std::cout << "Benchmark: " << (((double)benchmarkSteps)/
                                          ((double)(currentTime -lastBenchmarkTime))) << " cycles" << std::endl;
           lastBenchmarkTime = currentTime;
         }
       }
       // difference between actual passed time and desired cycletime
-      long diff = globalData.cycleTime - elapsed;
+      long diff = globalData->cycleTime - elapsed;
       if(diff > 10000 || diff < -10000)  // check for overflow or other weird things
 	resetSyncTimer();
       else{
 	if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
 	  usleep((diff-2)*1000);
 	}else if (diff < 0){
-	  if (globalData.verbose) {
+	  if (globalData->verbose) {
 	    printf("Time leak of %li ms detected\n",abs(diff));
 	  }
 	}
       }
     }else {
-      while(globalData.pause){
+      while(globalData->pause){
 	usleep(1000);
       }
     }
@@ -129,21 +132,21 @@ void ECBCommunicator::flushInputBuffer(int time) {
    * 7. send crc byte (optional)
    */
   bool ECBCommunicator::sendData(commData& datac) {
-    if (globalData.debug) cout << "Sending data: ";
+    if (globalData->debug) cout << "Sending data: ";
     // start byte
-    if (!(sendByte(255) && sendByte(globalData.masterAddress) && sendByte(datac.destinationAddress)
+    if (!(sendByte(255) && sendByte(globalData->masterAddress) && sendByte(datac.destinationAddress)
           && sendByte(datac.command) && sendByte(datac.dataLength))) {
-      if (globalData.debug) cout << endl;
+      if (globalData->debug) cout << endl;
       return false;
     }
     for (int i=0;i<datac.dataLength;i++) {
         if (!sendByte(datac.data[i])) {
-          if (globalData.debug) cout << endl;
+          if (globalData->debug) cout << endl;
           return false;
         }
       }
     // insert crc byte here!
-    if (globalData.debug) cout << endl;
+    if (globalData->debug) cout << endl;
     return true;
   }
 
@@ -161,7 +164,7 @@ void ECBCommunicator::flushInputBuffer(int time) {
    * @return the data that was received
    */
 commData ECBCommunicator::receiveData() {
-  if (globalData.debug) cout << "Receiving data: ";
+  if (globalData->debug) cout << "Receiving data: ";
   commData result;
   result.commSuccess=false;
   result.destinationAddress=255;
@@ -173,47 +176,47 @@ commData ECBCommunicator::receiveData() {
   int b;
   do{
     b = getByte();
-    if (globalData.debug) cout << b << " ";
+    if (globalData->debug) cout << b << " ";
   }while( (b != 255) && (b != -1));
   if (b == -1) {
-    if (globalData.debug) cout << endl;
+    if (globalData->debug) cout << endl;
     return result;
   }
 
   // sourceAddress
   b = getByte();
   if (b == -1)  {
-    if (globalData.debug) cout << endl;
+    if (globalData->debug) cout << endl;
     return result;
   }
-  if (globalData.debug) cout << b << " ";
+  if (globalData->debug) cout << b << " ";
   result.sourceAddress=b;
 
   // destinationAddress
   b = getByte();
   if (b == -1)  {
-    if (globalData.debug) cout << endl;
+    if (globalData->debug) cout << endl;
     return result;
   }
-  if (globalData.debug) cout << b << " ";
+  if (globalData->debug) cout << b << " ";
   result.destinationAddress=b;
 
   // command
   b = getByte();
   if (b == -1)  {
-    if (globalData.debug) cout << endl;
+    if (globalData->debug) cout << endl;
     return result;
   }
-  if (globalData.debug) cout << b << " ";
+  if (globalData->debug) cout << b << " ";
   result.command=b;
 
   // dataLength
   b = getByte();
   if (b == -1)  {
-    if (globalData.debug) cout << endl;
+    if (globalData->debug) cout << endl;
     return result;
   }
-  if (globalData.debug) cout << b << " ";
+  if (globalData->debug) cout << b << " ";
   result.dataLength=b;
 
   // data
@@ -226,18 +229,18 @@ commData ECBCommunicator::receiveData() {
       continue;
     } else {
       result.data[i]=b;
-      if (globalData.debug) cout << b << " ";
+      if (globalData->debug) cout << b << " ";
     }
   }
   // insert receive of crc byte here
   result.commSuccess=true;
-  if (globalData.debug) cout << endl;
+  if (globalData->debug) cout << endl;
   return result;
 }
 
 void ECBCommunicator::initialise() {
-  globalData.comm=this;
-  if (globalData.debug)
+  globalData->comm=this;
+  if (globalData->debug)
     std::cout << "ECBCommunicator: (external) initialising..." << std::endl;
 }
 
@@ -295,11 +298,11 @@ int main(int argc, char** argv){
                                   new One2OneWiring(new ColorUniformNoise(0.01)),
                                   plotoptions, xbees, verboseMode);
 
-  globaldata.configs.push_back(communication);
-  globaldata.configs.push_back(controller);
-  globaldata.agents.push_back(communication->getAgent());
+  globalData->configs.push_back(communication);
+  globalData->configs.push_back(controller);
+  globalData->agents.push_back(communication->getAgent());
 
-  showParams(globaldata.configs);
+  showParams(globalData->configs);
 
   communication->start();
   cmd_handler_init();
