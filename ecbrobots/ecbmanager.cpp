@@ -22,8 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-08 10:11:03  guettler
+ *   alpha testing
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *                                                                         *
  ***************************************************************************/
@@ -54,7 +57,10 @@ void ECBManager::handleStartParameters ( int argc, char** argv ) {
 
   if ( contains ( argv,argc,"-s" ) !=0 ) globalData.plotOptions.push_back ( PlotOption ( SoundMan ) );
 
-  if ( contains ( argv,argc,"-d" ) !=0 ) globalData.debug=true;
+  if ( contains ( argv,argc,"-d" ) !=0 ) {
+    globalData.debug=true;
+    globalData.verbose=true;
+  }
 
   if ( contains ( argv,argc,"-v" ) !=0 ) globalData.verbose=true;
 

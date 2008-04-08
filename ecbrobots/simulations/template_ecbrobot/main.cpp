@@ -22,8 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-08 10:11:03  guettler
+ *   alpha testing
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *                                                                         *
  ***************************************************************************/
@@ -58,6 +61,8 @@ class MyECBManager : public ECBManager {
       global.portName = "/dev/ttyS0";
       global.masterAddress=0;
       global.maxFailures=4;
+      global.serialReadTimeout=5;
+      global.verbose = true;
 
 
       // create new controller
@@ -69,8 +74,8 @@ class MyECBManager : public ECBManager {
       // 2 ECBs will be added to robot
       ECBConfig ecbc1 = ECB::getDefaultConf();
       myRobot1->addECB ( 1,ecbc1 );
-      ECBConfig ecbc2 = ECB::getDefaultConf();
-      myRobot1->addECB ( 2,ecbc2 );
+      // ECBConfig ecbc2 = ECB::getDefaultConf();
+      //myRobot1->addECB ( 2,ecbc2 );
 
       // create new agent
       ECBAgent* myAgent1 = new ECBAgent();
@@ -78,29 +83,29 @@ class MyECBManager : public ECBManager {
       myAgent1->init ( myCon1,myRobot1,myWiring1 );
 
       // create new controller with example parameter changes
-      AbstractController* myCon2 = new InvertMotorSpace ( 10 );
-      myCon2->setParam ( "s4delay",2.0 );
-      myCon2->setParam ( "s4avg",2.0 );
-      // create new wiring
-      AbstractWiring* myWiring2 = new One2OneWiring ( new WhiteNormalNoise() );
-      // create new robot
-      ECBRobot* myRobot2 = new ECBRobot ( global );
-      // 2 ECBs will be added to robot
-      ECBConfig ecbc3 = ECB::getDefaultConf();
-      myRobot1->addECB ( 3,ecbc3 );
-      ECBConfig ecbc4 = ECB::getDefaultConf();
-      myRobot1->addECB ( 4,ecbc4 );
-
-      // create new agent
-      ECBAgent* myAgent2 = new ECBAgent();
-      // init agent with controller, robot and wiring
-      myAgent2->init ( myCon2,myRobot2,myWiring2 );
+//       AbstractController* myCon2 = new InvertMotorSpace ( 10 );
+//       myCon2->setParam ( "s4delay",2.0 );
+//       myCon2->setParam ( "s4avg",2.0 );
+//       // create new wiring
+//       AbstractWiring* myWiring2 = new One2OneWiring ( new WhiteNormalNoise() );
+//       // create new robot
+//       ECBRobot* myRobot2 = new ECBRobot ( global );
+//       // 2 ECBs will be added to robot
+//       ECBConfig ecbc3 = ECB::getDefaultConf();
+//       myRobot1->addECB ( 3,ecbc3 );
+//       ECBConfig ecbc4 = ECB::getDefaultConf();
+//       myRobot1->addECB ( 4,ecbc4 );
+//
+//       // create new agent
+//       ECBAgent* myAgent2 = new ECBAgent();
+//       // init agent with controller, robot and wiring
+//       myAgent2->init ( myCon2,myRobot2,myWiring2 );
 
 
 
       // register agents
       global.agents.push_back ( myAgent1 );
-      global.agents.push_back ( myAgent2 );
+      //  global.agents.push_back ( myAgent2 );
 
       return true;
     }

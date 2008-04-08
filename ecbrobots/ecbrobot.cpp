@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-08 09:09:09  martius
+ *   Revision 1.3  2008-04-08 10:11:03  guettler
+ *   alpha testing
+ *
+ *   Revision 1.2  2008/04/08 09:09:09  martius
  *   fixed globaldata to pointer in classes
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -61,7 +64,6 @@ void ECBRobot::addECB(int slaveAddress, ECBConfig& ecbConfig) {
 
 
 void ECBRobot::writeMotors_readSensors() {
-  cout << globalData->simStep << " = simstep" << endl;
   if (globalData->debug)
     std::cout << "ECBRobot: writeMotors_readSensors!" << std::endl;
   FOREACH(list<ECB*>,ECBlist,ecb) {

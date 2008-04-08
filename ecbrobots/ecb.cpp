@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-08 09:09:09  martius
+ *   Revision 1.3  2008-04-08 10:11:03  guettler
+ *   alpha testing
+ *
+ *   Revision 1.2  2008/04/08 09:09:09  martius
  *   fixed globaldata to pointer in classes
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -59,6 +62,7 @@ bool ECB::writeMotors_readSensors() {
   motorComm.command = CMOT;
   motorComm.dataLength = currentNumberMotors;
   int i=0;
+  // TODO: convert double
   FOREACH (list<motor>,motorList,m) {
     motorComm.data[i++]=(*m);
   }
@@ -90,7 +94,7 @@ bool ECB::writeMotors_readSensors() {
  * @return
  */
 bool ECB::resetECB() {
-  if (globalData->debug)
+  if (globalData->verbose)
     std::cout << "ECB: resetECB!" << std::endl;
 
   //    flush input buffer

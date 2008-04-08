@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-08 09:12:34  martius
+ *   Revision 1.4  2008-04-08 10:11:03  guettler
+ *   alpha testing
+ *
+ *   Revision 1.3  2008/04/08 09:12:34  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2008/04/08 09:09:09  martius
@@ -60,9 +63,8 @@ void ECBCommunicator::flushInputBuffer(int time) {
 }
 
   bool ECBCommunicator::loop() {
-    globalData->simStep++;
-    cout << globalData->simStep << " = simstepComm" << endl;
     assert (globalData->comm==this);
+    globalData->simStep++;
     if (globalData->debug)
       std::cout << "ECBCommunicator: loop! simStep=" << globalData->simStep << std::endl;
     /// With this for loop all agents perform a controller
@@ -95,11 +97,14 @@ void ECBCommunicator::flushInputBuffer(int time) {
       long currentTime = timeOfDayinMS();
       int benchmarkSteps = 10;
       long elapsed = currentTime - realtimeoffset;
-      if (globalData->debug || globalData->debug) {
-        std::cout << "Elapsed time: " << elapsed << std::endl;
+      if (globalData->benchmarkMode || globalData->debug) {
+        std::cout << "Elapsed time: " << elapsed << "ms" << std::endl;
         if (globalData->benchmarkMode && (globalData->simStep % benchmarkSteps ==0)) {
-          std::cout << "Benchmark: " << (((double)benchmarkSteps)/
-                                         ((double)(currentTime -lastBenchmarkTime))) << " cycles" << std::endl;
+          std::cout
+            << "Benchmark: "
+            << (((double)benchmarkSteps)/((double)(currentTime -lastBenchmarkTime)) *1000.0)
+            << " cycles/s"
+            << std::endl;
           lastBenchmarkTime = currentTime;
         }
       }
