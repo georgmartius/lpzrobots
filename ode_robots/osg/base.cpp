@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.2.2  2008-04-09 13:57:59  guettler
+ *   Revision 1.14.2.3  2008-04-09 14:25:35  martius
+ *   shadow cmd line option
+ *
+ *   Revision 1.14.2.2  2008/04/09 13:57:59  guettler
  *   New ShadowTechnique added.
  *
  *   Revision 1.14.2.1  2008/04/09 10:18:41  martius
@@ -560,7 +563,7 @@ namespace lpzrobots {
 
     Group* scene = new Group; // create an extra group for the normal scene
 
-    if(useShadow){
+    if(shadowType){
       // enable shadows
       Group* shadowedScene;
 
@@ -838,13 +841,6 @@ namespace lpzrobots {
   void Base::addPhysicsCallbackable(Callbackable* callbackable){
     physicsCallbackables.push_back(callbackable);
   }
-
-void Base::processCmdLine(int argc, char** argv) {
-    int index = contains(argv, argc, "-shadowtype");
-    if(index && (argc > index))
-        shadowType=atoi(argv[index]);
-    }
-
 
 
 // Helper

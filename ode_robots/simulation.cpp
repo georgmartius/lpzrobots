@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.74.2.3  2008-04-09 13:57:59  guettler
+ *   Revision 1.74.2.4  2008-04-09 14:25:35  martius
+ *   shadow cmd line option
+ *
+ *   Revision 1.74.2.3  2008/04/09 13:57:59  guettler
  *   New ShadowTechnique added.
  *
  *   Revision 1.74.2.2  2008/04/09 10:18:41  martius
@@ -425,7 +428,6 @@ namespace lpzrobots {
     sim_step = 0;
     state    = none;
     pause    = false;
-    useShadow= true;
     noGraphics=false;
     simulation_time=-1;
     simulation_time_reached=false;
@@ -1075,13 +1077,17 @@ namespace lpzrobots {
       windowWidth=-1;
     }
 
-    pause = contains(argv, argc, "-pause")!=0;
-    useShadow = contains(argv, argc, "-noshadow")==0;
     noGraphics = contains(argv, argc, "-nographics")!=0;
+    pause = contains(argv, argc, "-pause")!=0;
+
+    if(contains(argv, argc, "-noshadow")==0) shadowType=5;
+    index = contains(argv, argc, "-shadow");
+    if(index && (argc > index))
+      shadowType=atoi(argv[index]);
     shadowTexSize = 2048;
-    int shadowsizeindex = contains(argv, argc, "-shadowsize");
-    if(shadowsizeindex && argc > shadowsizeindex) {
-      sscanf(argv[shadowsizeindex],"%i", &shadowTexSize);
+    index = contains(argv, argc, "-shadowsize");
+    if(index && argc > index) {
+      shadowTexSize = atoi(argv[index]);
       printf("shadowTexSize=%i\n",shadowTexSize);
     }
 
@@ -1305,9 +1311,11 @@ namespace lpzrobots {
     printf("\t-fs\t\tfullscreen mode\n");
     printf("\t-pause \t\tstart in pause mode\n");
     printf("\t-nographics \t\tstart without any graphics\n");
-    printf("\t-noshadow \tdisables shadows and shaders\n");
+    printf("\t-noshadow \tdisables shadows and shaders (same as -shadow 0)\n");
+    printf("\t-shadow [0..5]] \tsets the type of the shadow to be used\n");
+    printf("\t\t\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap\n");
+    printf("\t\t\t4: SoftShadowMap, 5: ShadowMap (default)");
     printf("\t-shadowsize size \tsets the size of the shadow texture (default 2048)\n");
-    printf("\t-shadowtype [1..5]] \tsets the type of the shadow to be used (default 5)\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
     printf("\t-simtime min\tlimited simulation time in minutes\n");
 

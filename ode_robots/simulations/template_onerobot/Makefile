@@ -25,7 +25,7 @@ LIBSELFORG = lib$(SELFORGLIB).a
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
-	-lode -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
+	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline
 
 LIBS += -L/home/georg/local/OpenSceneGraph-2.2.0/lib

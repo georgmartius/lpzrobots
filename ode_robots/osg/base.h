@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.2.2  2008-04-09 13:57:59  guettler
+ *   Revision 1.7.2.3  2008-04-09 14:25:35  martius
+ *   shadow cmd line option
+ *
+ *   Revision 1.7.2.2  2008/04/09 13:57:59  guettler
  *   New ShadowTechnique added.
  *
  *   Revision 1.7.2.1  2008/04/09 10:18:41  martius
@@ -108,7 +111,7 @@ namespace lpzrobots {
   class Base {
   public:
     Base(const char* caption=0)
-      : ground(0), caption(caption){
+      : ground(0), caption(caption), shadowType(0){
       timestats=0; hud=0;
       ReceivesShadowTraversalMask = 0x1;
       CastsShadowTraversalMask = 0x2;
@@ -164,8 +167,6 @@ namespace lpzrobots {
     OdeHandle odeHandle;
     const char* caption;
 
-    bool useShadow;
-    unsigned int shadowTexSize;
 
     /// this manager provides methods for displaying statistics on the graphical window!
     HUDStatisticsManager* hUDStatisticsManager;
@@ -173,9 +174,8 @@ namespace lpzrobots {
     std::list<Callbackable*> graphicsCallbackables;
     std::list<Callbackable*> physicsCallbackables;
 
-    void processCmdLine(int argc, char** argv);
-
     int shadowType;
+    unsigned int shadowTexSize;
 
     int ReceivesShadowTraversalMask;
     int CastsShadowTraversalMask;
