@@ -1,6 +1,7 @@
 /***************************************************************************
  *  callback class for motion blur                                         *
- *  the param persistence determines the level of motion blur              *
+ *  the param globalData.odeConfig.motionPersistence determines            *
+ *  the level of motion blur                                               *
  *                                                                         *
  ***************************************************************************/
 /***************************************************************************
@@ -26,51 +27,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2.4.1  2008-04-08 14:34:27  martius
- *   *** empty log message ***
+ *   Revision 1.1.2.1  2008-04-09 08:58:20  martius
+ *   motion blur moved to old stuff
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
- *   Revision 1.1.2.1  2006/04/27 16:19:03  robot3
+ *   Revision 1.1.2.1  2006/04/27 16:18:24  robot3
  *   motionblurcallback for the simulation
  *
  *                                                                         *
  ***************************************************************************/
+#ifndef __MOTIONBLURCALLBACK_H
+#define __MOTIONBLURCALLBACK_H
 
-#include "motionblurcallback.h"
+#include <osgProducer/OsgSceneHandler>
+#include "globaldata.h"
 
 namespace lpzrobots {
 
-    MotionBlurDrawCallback::MotionBlurDrawCallback(GlobalData& global)
-      :    cleared_(false), globalData(global) {}
-
-    void MotionBlurDrawCallback::operator()(osgProducer::OsgSceneHandler &handler, Producer::Camera &camera)
+  /** a class that enables motion blur for the scenegraph 
+   *  should be called in the main simulation loop
+   */
+  class MotionBlurDrawCallback: public osgProducer::OsgSceneHandler::Callback
     {
-        double t = handler.getSceneView()->getFrameStamp()->getReferenceTime();
+    public:
+      /** globalData.odeConfig.motionPersistence - determines the level of motion blur,
+       *  between 0.0 and 1.0, for example:
+       *  heavy motion blur is set by globalData.odeConfig.motionPersistance=0.25
+       *  light motuib blur is set by globalData.odeConfig.motionPersistence=0.1
+       */ 
+      MotionBlurDrawCallback(GlobalData& global);
+      
+      virtual void operator()(osgProducer::OsgSceneHandler &handler, Producer::Camera &camera);
 
-        if (!cleared_)
-        {
-            // clear the accumulation buffer
-            glClearColor(0, 0, 0, 0);
-            glClear(GL_ACCUM_BUFFER_BIT);
-            cleared_ = true;
-            t0_ = t;
-        }
-
-        double dt = fabs(t - t0_);
-        t0_ = t;
-
-        // call the scene handler's draw function
-        handler.drawImplementation(camera);        
-
-        // compute the blur factor
-        double s = powf(0.2, dt / globalData.odeConfig.motionPersistence);
-
-        // scale, accumulate and return
-        glAccum(GL_MULT, s);
-        glAccum(GL_ACCUM, 1 - s);
-        glAccum(GL_RETURN, 1.0f);
-    }
-
+    private:
+      bool cleared_;
+      double t0_;
+      double persistence_;
+      GlobalData& globalData; // the global environment variables
+    };
+  
 }
+
+#endif
