@@ -28,7 +28,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.29.2.1  2008-04-08 14:09:23  martius
+ *   Revision 1.29.2.2  2008-04-09 10:18:41  martius
+ *   fullscreen and window options done
+ *   fonts on hud changed
+ *
+ *   Revision 1.29.2.1  2008/04/08 14:09:23  martius
  *   compiles and runs with OSG2.2. Juhu
  *
  *   Revision 1.29  2007/08/24 11:52:42  martius
@@ -298,6 +302,7 @@ namespace lpzrobots {
 
   private:
     void processCmdLine(int argc, char** argv);
+    void insertCmdLineOption(int& argc,char**& argv);
     bool loop(); 
     /// clears obstacle and agents lists and delete entries
     void tidyUp(GlobalData& globalData);

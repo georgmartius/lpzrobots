@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-09-28 12:31:49  robot3
+ *   Revision 1.14.2.1  2008-04-09 10:18:41  martius
+ *   fullscreen and window options done
+ *   fonts on hud changed
+ *
+ *   Revision 1.14  2007/09/28 12:31:49  robot3
  *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
  *   can be updated independently from the HUD
  *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
@@ -168,7 +172,7 @@ namespace lpzrobots {
   "}\n";
 
   Base::~Base(){
-    if(ground){
+    if(ground ){
       //      Plane* plane = (Plane*) dGeomGetData(ground);
       //      delete plane;
       dGeomDestroy(ground);
@@ -310,7 +314,7 @@ namespace lpzrobots {
     // turn lighting off for the text and disable depth test to ensure its always ontop.
     osg::StateSet* stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
-    osgText::Font* font = osgText::readFontFile("fonts/arial.ttf");
+    osgText::Font* font = osgText::readFontFile("fonts/fudd.ttf");
 
     osg::Vec3 position(500.0f,9.0f,0.0f);
     Color textColor(0.2,0.2,0.0);
@@ -325,7 +329,7 @@ namespace lpzrobots {
       text->setColor(textColor);
       text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
       if(caption) text->setText(caption);
-      else text->setText("lpzrobots Simulator      Martius, Der, Hesse");
+      else text->setText("lpzrobots Simulator          Martius, Der, Güttler");
     }
 
     // timing

@@ -24,7 +24,11 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-09-28 12:31:49  robot3
+ *   Revision 1.7.2.1  2008-04-09 10:18:41  martius
+ *   fullscreen and window options done
+ *   fonts on hud changed
+ *
+ *   Revision 1.7  2007/09/28 12:31:49  robot3
  *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
  *   can be updated independently from the HUD
  *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
@@ -101,7 +105,7 @@ namespace lpzrobots {
   class Base {
   public:
     Base(const char* caption=0)
-      : caption(caption){
+      : ground(0), caption(caption){
       timestats=0; hud=0;
     }
 
