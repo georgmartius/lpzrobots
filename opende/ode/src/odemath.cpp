@@ -32,6 +32,9 @@
 #endif				// added by andy for cygwin
 #endif
 
+#undef dNormalize3
+#undef dNormalize4
+
 
 // this may be called for vectors `a' with extremely small magnitude, for
 // example the result of a cross product on two nearly perpendicular vectors.
@@ -41,7 +44,7 @@
 // scale the components by 1/l. this has been verified to work with vectors
 // containing the smallest representable numbers.
 
-void dNormalize3 (dVector3 a)
+int dSafeNormalize3 (dVector3 a)
 {
   dReal a0,a1,a2,aa0,aa1,aa2,l;
   dAASSERT (a);
@@ -76,11 +79,10 @@ void dNormalize3 (dVector3 a)
     }
     else {		// aa0 is largest
       if (aa0 <= 0) {
-	// dDEBUGMSG ("vector has zero size"); ... this messace is annoying
 	a[0] = 1;	// if all a's are zero, this is where we'll end up.
 	a[1] = 0;	// return a default unit length vector.
 	a[2] = 0;
-	return;
+	return 0;
       }
       a1 /= aa0;
       a2 /= aa0;
@@ -90,14 +92,14 @@ void dNormalize3 (dVector3 a)
       a[2] = a2*l;
     }
   }
+  return 1;
 }
-
 
 /* OLD VERSION */
 /*
 void dNormalize3 (dVector3 a)
 {
-  dASSERT (a);
+  dIASSERT (a);
   dReal l = dDOT(a,a);
   if (l > 0) {
     l = dRecipSqrt(l);
@@ -113,8 +115,13 @@ void dNormalize3 (dVector3 a)
 }
 */
 
+void dNormalize3(dVector3 a)
+{
+	_dNormalize3(a);
+}
 
-void dNormalize4 (dVector4 a)
+
+int dSafeNormalize4 (dVector4 a)
 {
   dAASSERT (a);
   dReal l = dDOT(a,a)+a[3]*a[3];
@@ -124,14 +131,20 @@ void dNormalize4 (dVector4 a)
     a[1] *= l;
     a[2] *= l;
     a[3] *= l;
+	return 1;
   }
   else {
-    dDEBUGMSG ("vector has zero size");
     a[0] = 1;
     a[1] = 0;
     a[2] = 0;
     a[3] = 0;
+    return 0;
   }
+}
+
+void dNormalize4(dVector4 a)
+{
+	_dNormalize4(a);
 }
 
 

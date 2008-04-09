@@ -38,6 +38,10 @@ for geometry objects
 #include "collision_transform.h"
 #include "collision_trimesh_internal.h"
 
+#if dTRIMESH_GIMPACT
+#include <GIMPACT/gimpact.h>
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(disable:4291)  // for VC++, no complaints about "no matching operator delete found"
 #endif
@@ -179,30 +183,51 @@ static void initColliders()
   setCollider (dRayClass,dBoxClass,&dCollideRayBox);
   setCollider (dRayClass,dCapsuleClass,&dCollideRayCapsule);
   setCollider (dRayClass,dPlaneClass,&dCollideRayPlane);
-#ifdef dTRIMESH_ENABLED
+  setCollider (dRayClass,dCylinderClass,&dCollideRayCylinder);
+#if dTRIMESH_ENABLED
   setCollider (dTriMeshClass,dSphereClass,&dCollideSTL);
   setCollider (dTriMeshClass,dBoxClass,&dCollideBTL);
   setCollider (dTriMeshClass,dRayClass,&dCollideRTL);
   setCollider (dTriMeshClass,dTriMeshClass,&dCollideTTL);
   setCollider (dTriMeshClass,dCapsuleClass,&dCollideCCTL);
+  setCollider (dTriMeshClass,dPlaneClass,&dCollideTrimeshPlane);
   setCollider (dCylinderClass,dTriMeshClass,&dCollideCylinderTrimesh);
 #endif
   setCollider (dCylinderClass,dBoxClass,&dCollideCylinderBox);
   setCollider (dCylinderClass,dSphereClass,&dCollideCylinderSphere);
   setCollider (dCylinderClass,dPlaneClass,&dCollideCylinderPlane);
   //setCollider (dCylinderClass,dCylinderClass,&dCollideCylinderCylinder);
+
 //--> Convex Collision
   setCollider (dConvexClass,dPlaneClass,&dCollideConvexPlane);
   setCollider (dSphereClass,dConvexClass,&dCollideSphereConvex);
   setCollider (dConvexClass,dBoxClass,&dCollideConvexBox);
   setCollider (dConvexClass,dCapsuleClass,&dCollideConvexCapsule);
   setCollider (dConvexClass,dConvexClass,&dCollideConvexConvex);
+  setCollider (dRayClass,dConvexClass,&dCollideRayConvex);
 //<-- Convex Collision
+
+//--> dHeightfield Collision
+  setCollider (dHeightfieldClass,dRayClass,&dCollideHeightfield);
+  setCollider (dHeightfieldClass,dSphereClass,&dCollideHeightfield);
+  setCollider (dHeightfieldClass,dBoxClass,&dCollideHeightfield);
+  setCollider (dHeightfieldClass,dCapsuleClass,&dCollideHeightfield);
+  setCollider (dHeightfieldClass,dCylinderClass,&dCollideHeightfield);
+  setCollider (dHeightfieldClass,dConvexClass,&dCollideHeightfield);
+#if dTRIMESH_ENABLED
+  setCollider (dHeightfieldClass,dTriMeshClass,&dCollideHeightfield);
+#endif
+//<-- dHeightfield Collision
 
   setAllColliders (dGeomTransformClass,&dCollideTransform);
 }
 
 
+/*
+ *	NOTE!
+ *	If it is necessary to add special processing mode without contact generation
+ *	use NULL contact parameter value as indicator, not zero in flags.
+ */
 int dCollide (dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact,
 	      int skip)
 {
@@ -210,7 +235,14 @@ int dCollide (dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact,
   dUASSERT(colliders_initialized,"colliders array not initialized");
   dUASSERT(o1->type >= 0 && o1->type < dGeomNumClasses,"bad o1 class number");
   dUASSERT(o2->type >= 0 && o2->type < dGeomNumClasses,"bad o2 class number");
+  // Even though comparison for greater or equal to one is used in all the 
+  // other places, here it is more logical to check for greater than zero
+  // because function does not require any specific number of contact slots - 
+  // it must be just a positive.
+  dUASSERT((flags & NUMC_MASK) > 0, "no contacts requested"); 
 
+  // Extra precaution for zero contact count in parameters
+  if ((flags & NUMC_MASK) == 0) return 0;
   // no contacts if both geoms are the same
   if (o1 == o2) return 0;
 
@@ -409,7 +441,7 @@ void *dGeomGetData (dxGeom *g)
 void dGeomSetBody (dxGeom *g, dxBody *b)
 {
   dAASSERT (g);
-  dUASSERT (g->gflags & GEOM_PLACEABLE,"geom must be placeable");
+  dUASSERT (b == NULL || (g->gflags & GEOM_PLACEABLE),"geom must be placeable");
   CHECK_NOT_LOCKED (g->parent_space);
 
   if (b) {
@@ -547,12 +579,42 @@ const dReal * dGeomGetPosition (dxGeom *g)
 }
 
 
+void dGeomCopyPosition(dxGeom *g, dVector3 pos)
+{
+  dAASSERT (g);
+  dUASSERT (g->gflags & GEOM_PLACEABLE,"geom must be placeable");
+  g->recomputePosr();
+  const dReal* src = g->final_posr->pos;
+  pos[0] = src[0];
+  pos[1] = src[1];
+  pos[2] = src[2];
+}
+
+
 const dReal * dGeomGetRotation (dxGeom *g)
 {
   dAASSERT (g);
   dUASSERT (g->gflags & GEOM_PLACEABLE,"geom must be placeable");
   g->recomputePosr();
   return g->final_posr->R;
+}
+
+
+void dGeomCopyRotation(dxGeom *g, dMatrix3 R)
+{
+  dAASSERT (g);
+  dUASSERT (g->gflags & GEOM_PLACEABLE,"geom must be placeable");
+  g->recomputePosr();
+  const dReal* src = g->final_posr->R;
+  R[0]  = src[0];
+  R[1]  = src[1];
+  R[2]  = src[2];
+  R[4]  = src[4];
+  R[5]  = src[5];
+  R[6]  = src[6];
+  R[8]  = src[8];
+  R[9]  = src[9];
+  R[10] = src[10];
 }
 
 
@@ -932,6 +994,24 @@ const dReal * dGeomGetOffsetPosition (dxGeom *g)
   return OFFSET_POSITION_ZERO;
 }
 
+void dGeomCopyOffsetPosition (dxGeom *g, dVector3 pos)
+{
+  dAASSERT (g);
+  if (g->offset_posr)
+  {
+    const dReal* src = g->offset_posr->pos;
+    pos[0] = src[0];
+	 pos[1] = src[1];
+	 pos[2] = src[2];
+  }
+  else
+  {
+    pos[0] = 0;
+	 pos[1] = 0;
+	 pos[2] = 0;
+  }
+}
+
 static const dMatrix3 OFFSET_ROTATION_ZERO = 
 { 
 	1.0f, 0.0f, 0.0f, 0.0f, 
@@ -949,6 +1029,36 @@ const dReal * dGeomGetOffsetRotation (dxGeom *g)
   return OFFSET_ROTATION_ZERO;
 }
 
+void dGeomCopyOffsetRotation (dxGeom *g, dMatrix3 R)
+{
+	dAASSERT (g);
+	if (g->offset_posr)
+	{
+		const dReal* src = g->final_posr->R;
+		R[0]  = src[0];
+		R[1]  = src[1];
+		R[2]  = src[2];
+		R[4]  = src[4];
+		R[5]  = src[5];
+		R[6]  = src[6];
+		R[8]  = src[8];
+		R[9]  = src[9];
+		R[10] = src[10];
+	}
+	else
+	{
+		R[0]  = OFFSET_ROTATION_ZERO[0];
+		R[1]  = OFFSET_ROTATION_ZERO[1];
+		R[2]  = OFFSET_ROTATION_ZERO[2];
+		R[4]  = OFFSET_ROTATION_ZERO[4];
+		R[5]  = OFFSET_ROTATION_ZERO[5];
+		R[6]  = OFFSET_ROTATION_ZERO[6];
+		R[8]  = OFFSET_ROTATION_ZERO[8];
+		R[9]  = OFFSET_ROTATION_ZERO[9];
+		R[10] = OFFSET_ROTATION_ZERO[10];
+	}
+}
+
 void dGeomGetOffsetQuaternion (dxGeom *g, dQuaternion result)
 {
   dAASSERT (g);
@@ -964,12 +1074,30 @@ void dGeomGetOffsetQuaternion (dxGeom *g, dQuaternion result)
 }
 
 //****************************************************************************
-// here is where we deallocate any memory that has been globally
-// allocated, or free other global resources.
+// initialization and shutdown routines - allocate and initialize data,
+// cleanup before exiting
+
+extern void opcode_collider_cleanup();
+
+void dInitODE()
+{
+#if dTRIMESH_ENABLED && dTRIMESH_GIMPACT
+	gimpact_init();
+#endif
+}
 
 void dCloseODE()
 {
   colliders_initialized = 0;
   num_user_classes = 0;
   dClearPosrCache();
+
+#if dTRIMESH_ENABLED && dTRIMESH_GIMPACT
+  gimpact_terminate();
+#endif
+
+#if dTRIMESH_ENABLED && dTRIMESH_OPCODE
+  // Free up static allocations in opcode
+  opcode_collider_cleanup();
+#endif
 }

@@ -343,6 +343,10 @@ public:
     { dJointGetBallAnchor (_id, result); }
   void getAnchor2 (dVector3 result) const
     { dJointGetBallAnchor2 (_id, result); }
+  void setParam (int parameter, dReal value)
+    { dJointSetBallParam (_id, parameter, value); }
+  dReal getParam (int parameter) const
+    { return dJointGetBallParam (_id, parameter); }
 } ;
 
 
@@ -457,6 +461,9 @@ public:
     { dJointGetUniversalAxis2 (_id, result); }
   dReal getParam (int parameter) const
     { return dJointGetUniversalParam (_id, parameter); }
+ void getAngles(dReal *angle1, dReal *angle2) const
+    { dJointGetUniversalAngles (_id, angle1, angle2); }
+
   dReal getAngle1() const
     { return dJointGetUniversalAngle1 (_id); }
   dReal getAngle1Rate() const
@@ -519,6 +526,46 @@ public:
 };
 
 
+class dPRJoint : public dJoint {
+  dPRJoint (const dPRJoint &);
+  void operator = (const dPRJoint &);
+
+public:
+  dPRJoint() { }
+  dPRJoint (dWorldID world, dJointGroupID group=0)
+    { _id = dJointCreatePR (world, group); }
+
+  void create (dWorldID world, dJointGroupID group=0) {
+    if (_id) dJointDestroy (_id);
+    _id = dJointCreatePR (world, group);
+  }
+
+  void setAnchor (dReal x, dReal y, dReal z)
+    { dJointSetPRAnchor (_id, x, y, z); }
+  void setAxis1 (dReal x, dReal y, dReal z)
+    { dJointSetPRAxis1 (_id, x, y, z); }
+  void setAxis2 (dReal x, dReal y, dReal z)
+    { dJointSetPRAxis2 (_id, x, y, z); }
+
+  void getAnchor (dVector3 result) const
+    { dJointGetPRAnchor (_id, result); }
+  void getAxis1 (dVector3 result) const
+    { dJointGetPRAxis1 (_id, result); }
+  void getAxis2 (dVector3 result) const
+    { dJointGetPRAxis2 (_id, result); }
+
+  dReal getPosition() const
+    { return dJointGetPRPosition (_id); }
+  dReal getPositionRate() const
+    { return dJointGetPRPositionRate (_id); }
+
+  void setParam (int parameter, dReal value)
+    { dJointSetPRParam (_id, parameter, value); }
+  dReal getParam (int parameter) const
+    { return dJointGetPRParam (_id, parameter); }
+};
+
+
 class dFixedJoint : public dJoint {
   // intentionally undefined, don't use these
   dFixedJoint (const dFixedJoint &);
@@ -536,6 +583,12 @@ public:
 
   void set()
     { dJointSetFixed (_id); }
+
+  void setParam (int parameter, dReal value)
+    { dJointSetFixedParam (_id, parameter, value); }
+
+  dReal getParam (int parameter) const
+    { return dJointGetFixedParam (_id, parameter); }
 };
 
 

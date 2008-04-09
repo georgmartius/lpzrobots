@@ -193,7 +193,7 @@ int _cldTestAxis(sCylinderBoxData& cData, dVector3& vInputNormal, int iAxis )
 	// check length of input normal
 	dReal fL = dVector3Length(vInputNormal);
 	// if not long enough
-	if ( fL < 1e-5f ) 
+	if ( fL < REAL(1e-5) ) 
 	{
 		// do nothing
 		return 1;
@@ -278,7 +278,7 @@ int _cldTestEdgeCircleAxis( sCylinderBoxData& cData,
 	dReal fdot2 = dVector3Dot (vDirEdge,cData.vCylinderAxis);
 
 	// if edge is perpendicular to cylinder axis
-	if(dFabs(fdot2) < 1e-5f) 
+	if(dFabs(fdot2) < REAL(1e-5)) 
 	{
 		// this can't be separating axis, because edge is parallel to circle plane
 		return 1;
@@ -320,7 +320,7 @@ int _cldTestSeparatingAxes(sCylinderBoxData& cData)
 	dVector3  vAxis = {REAL(0.0),REAL(0.0),REAL(0.0),REAL(0.0)};
 
 	// Epsilon value for checking axis vector length 
-	const dReal fEpsilon = 1e-6f;
+	const dReal fEpsilon = REAL(1e-6);
 
 	// axis A0
 	dMat3GetCol(cData.mBoxRot, 0 , vAxis);
@@ -550,6 +550,7 @@ int _cldTestSeparatingAxes(sCylinderBoxData& cData)
 
 int _cldClipCylinderToBox(sCylinderBoxData& cData)
 {
+	dIASSERT(cData.nContacts != (cData.iFlags & NUMC_MASK));
 
 	// calculate that vector perpendicular to cylinder axis which closes lowest angle with collision normal
 	dVector3 vN;
@@ -671,14 +672,17 @@ int _cldClipCylinderToBox(sCylinderBoxData& cData)
 	dVector3Inv(Contact0->normal);
 	cData.nContacts++;
 	
-	dContactGeom* Contact1 = SAFECONTACT(cData.iFlags, cData.gContact, cData.nContacts, cData.iSkip);
-	Contact1->depth = cData.fDepth1;
-	dVector3Copy(cData.vNormal,Contact1->normal);
-	dVector3Copy(cData.vEp1,Contact1->pos);
-	Contact1->g1 = cData.gCylinder;
-	Contact1->g2 = cData.gBox;
-	dVector3Inv(Contact1->normal);
-	cData.nContacts++;
+	if (cData.nContacts != (cData.iFlags & NUMC_MASK))
+	{
+		dContactGeom* Contact1 = SAFECONTACT(cData.iFlags, cData.gContact, cData.nContacts, cData.iSkip);
+		Contact1->depth = cData.fDepth1;
+		dVector3Copy(cData.vNormal,Contact1->normal);
+		dVector3Copy(cData.vEp1,Contact1->pos);
+		Contact1->g1 = cData.gCylinder;
+		Contact1->g2 = cData.gBox;
+		dVector3Inv(Contact1->normal);
+		cData.nContacts++;
+	}
 
 	return 1;
 }
@@ -686,6 +690,8 @@ int _cldClipCylinderToBox(sCylinderBoxData& cData)
 
 void _cldClipBoxToCylinder(sCylinderBoxData& cData ) 
 {
+	dIASSERT(cData.nContacts != (cData.iFlags & NUMC_MASK));
+	
 	dVector3 vCylinderCirclePos, vCylinderCircleNormal_Rel;
 	// check which circle from cylinder we take for clipping
 	if ( dVector3Dot(cData.vCylinderAxis, cData.vNormal) > REAL(0.0) ) 
@@ -877,7 +883,7 @@ void _cldClipBoxToCylinder(sCylinderBoxData& cData )
 	dReal fTempDepth;
 	dVector3 vPoint;
 
-	if (nCircleSegment %2)
+	if (nCircleSegment % 2)
 	{
 		for( i=0; i<iTmpCounter2; i++)
 		{
@@ -901,6 +907,11 @@ void _cldClipBoxToCylinder(sCylinderBoxData& cData )
 				Contact0->g2 = cData.gBox;
 				dVector3Inv(Contact0->normal);
 				cData.nContacts++;
+				
+				if (cData.nContacts == (cData.iFlags & NUMC_MASK))
+				{
+					break;
+				}
 			}
 		}
 	}
@@ -928,6 +939,11 @@ void _cldClipBoxToCylinder(sCylinderBoxData& cData )
 				Contact0->g2 = cData.gBox;
 				dVector3Inv(Contact0->normal);
 				cData.nContacts++;
+				
+				if (cData.nContacts == (cData.iFlags & NUMC_MASK))
+				{
+					break;
+				}
 			}
 		}
 	}
@@ -938,6 +954,11 @@ void _cldClipBoxToCylinder(sCylinderBoxData& cData )
 // Ported by Nguyen Binh
 int dCollideCylinderBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
+	dIASSERT (skip >= (int)sizeof(dContactGeom));
+	dIASSERT (o1->type == dCylinderClass);
+	dIASSERT (o2->type == dBoxClass);
+	dIASSERT ((flags & NUMC_MASK) >= 1);
+
 	sCylinderBoxData	cData;
 
 	// Assign ODE stuff

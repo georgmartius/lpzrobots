@@ -75,8 +75,8 @@ extern "C" {
   "assertion \"" #a "\" failed in %s() [%s]",__FUNCTION__,__FILE__);
 #define dUASSERT(a,msg) if (!(a)) dDebug (d_ERR_UASSERT, \
   msg " in %s()", __FUNCTION__);
-#define dDEBUGMSG(msg) dMessage (d_ERR_UASSERT, \
-  msg " in %s()", __FUNCTION__);
+#define dDEBUGMSG(msg) dMessage (d_ERR_UASSERT,				\
+msg " in %s() File %s Line %d", __FUNCTION__, __FILE__,__LINE__);
 #else
 #define dIASSERT(a) if (!(a)) dDebug (d_ERR_IASSERT, \
   "assertion \"" #a "\" failed in %s:%d",__FILE__,__LINE__);
@@ -92,16 +92,28 @@ extern "C" {
 #endif
 #define dAASSERT(a) dUASSERT(a,"Bad argument(s)")
 
+// Macro used to suppress unused variable warning
+#define dVARIABLEUSED(a) ((void)a)
+
 /* floating point data type, vector, matrix and quaternion types */
 
 #if defined(dSINGLE)
 typedef float dReal;
+#ifdef dDOUBLE
+#error You can only #define dSINGLE or dDOUBLE, not both.
+#endif // dDOUBLE
 #elif defined(dDOUBLE)
 typedef double dReal;
 #else
 #error You must #define dSINGLE or dDOUBLE
 #endif
 
+// Detect if we've got both trimesh engines enabled.
+#if dTRIMESH_ENABLED
+#if dTRIMESH_OPCODE && dTRIMESH_GIMPACT
+#error You can only #define dTRIMESH_OPCODE or dTRIMESH_GIMPACT, not both.
+#endif
+#endif // dTRIMESH_ENABLED
 
 /* round an integer up to a multiple of 4, except that 0 and 1 are unmodified
  * (used to compute matrix leading dimensions)
@@ -130,6 +142,7 @@ typedef dReal dQuaternion[4];
 #define dFabs(x) (fabsf(x))			/* absolute value */
 #define dAtan2(y,x) (atan2f(y,x))		/* arc tangent with 2 args */
 #define dFMod(a,b) (fmodf(a,b))		/* modulo */
+#define dFloor(x) floorf(x)			/* floor */
 
 #ifdef HAVE___ISNANF
 #define dIsNan(x) (__isnanf(x))
@@ -138,16 +151,16 @@ typedef dReal dQuaternion[4];
 #elif defined(HAVE_ISNANF)
 #define dIsNan(x) (isnanf(x))
 #else
-  /* 
-     fall back to _isnanf which is the VC way,
+  /*
+     fall back to _isnan which is the VC way,
      this may seem redundant since we already checked
      for _isnan before, but if isnan is detected by
      configure but is not found during compilation
      we should always make sure we check for __isnanf,
-     _isnan and isnan in that order before falling
+     _isnanf and isnanf in that order before falling
      back to a default
   */
-#define dIsNan(x) (_isnanf(x))
+#define dIsNan(x) (_isnan(x))
 #endif
 
 #define dCopySign(a,b) ((dReal)copysignf(a,b))
@@ -163,6 +176,8 @@ typedef dReal dQuaternion[4];
 #define dFabs(x) fabs(x)
 #define dAtan2(y,x) atan2((y),(x))
 #define dFMod(a,b) (fmod((a),(b)))
+#define dFloor(x) floor(x)
+
 #ifdef HAVE___ISNAN
 #define dIsNan(x) (__isnan(x))
 #elif defined(HAVE__ISNAN)
@@ -196,7 +211,7 @@ typedef dReal dQuaternion[4];
   ((char*)dEFFICIENT_SIZE(((size_t)(alloca((n)+(EFFICIENT_ALIGNMENT-1))))))
 
 
-// Use the error-checking memory allocation system.  Becuase this system uses heap
+// Use the error-checking memory allocation system.  Because this system uses heap
 //  (malloc) instead of stack (alloca), it is slower.  However, it allows you to
 //  simulate larger scenes, as well as handle out-of-memory errors in a somewhat
 //  graceful manner
@@ -254,7 +269,9 @@ enum {
   dJointTypeFixed,
   dJointTypeNull,
   dJointTypeAMotor,
-  dJointTypeLMotor
+  dJointTypeLMotor,
+  dJointTypePlane2D,
+  dJointTypePR
 };
 
 
@@ -304,7 +321,8 @@ enum {
   dParamStopCFM, \
   /* parameters for suspension */ \
   dParamSuspensionERP, \
-  dParamSuspensionCFM,
+  dParamSuspensionCFM, \
+  dParamERP, \
 
 #define D_ALL_PARAM_NAMES_X(start,x) \
   /* parameters for limits and motors */ \
@@ -319,7 +337,8 @@ enum {
   dParamStopCFM ## x, \
   /* parameters for suspension */ \
   dParamSuspensionERP ## x, \
-  dParamSuspensionCFM ## x,
+  dParamSuspensionCFM ## x, \
+  dParamERP ## x,
 
 enum {
   D_ALL_PARAM_NAMES(0)

@@ -1,16 +1,14 @@
 project.name = "ode"
 
-
--- Define the build configurations. VC6 doesn't support different output types
--- within a project, so I must limit the configuration to just a DLL or just a
--- static library. You can also use these flags `--enable-shared-only` and
--- `--enable-static-only` if you want to call these packages from within your
--- own Premake-enabled project.
-
-  if (options["target"] == "vs6" and not options["enable-static-only"]) then
-    options["enable-shared-only"] = 1
+  if (options["target"] == "vs6") then
+    error("Visual Studio 6 is no longer supported; please upgrade to Visual Studio 2005 C++ Express.")
   end
   
+
+-- Define the build configurations. You can also use the flags 
+-- `--enable-shared-only` and `--enable-static-only` if you want to 
+-- call these packages from within your own Premake-enabled project.
+
   if (not options["enable-shared-only"] and not options["enable-static-only"]) then
     project.configs = { "DebugDLL", "ReleaseDLL", "DebugLib", "ReleaseLib" }
   end
@@ -19,12 +17,14 @@ project.name = "ode"
 -- Project options
 
   addoption("with-doubles",  "Use double instead of float as base numeric type")
-  addoption("with-tests",    "Builds the test applications and DrawStuff library")
-  addoption("no-cylinder",   "Disable cylinder collision geometry")
+  addoption("with-demos",    "Builds the demo applications and DrawStuff library")
+  addoption("with-tests",    "Builds the unit test application")
+  addoption("with-gimpact",  "Use GIMPACT for trimesh collisions (experimental)")
   addoption("no-dif",        "Exclude DIF (Dynamics Interchange Format) exports")
   addoption("no-trimesh",    "Exclude trimesh collision geometry")
-  
-  
+  addoption("no-alloca",     "Use heap memory instead of the stack (experimental)")
+
+
 -- If the `--usetargetpath` flag is specified, each set of generated files
 -- be placed in a directory named for the target toolset. This flag is
 -- used by the `--makeall` command (see below).
@@ -51,17 +51,22 @@ project.name = "ode"
     project.config["ReleaseLib"].bindir = "../lib/ReleaseLib"
     project.config["ReleaseLib"].libdir = "../lib/ReleaseLib"
   end
-  
+
 
 -- Build packages
 
   dopackage("ode.lua")
 
+  if (options["with-demos"]) then
+    dopackage("drawstuff.lua")
+    dopackage("demos.lua")
+  end
+
   if (options["with-tests"]) then
     dopackage("tests.lua")
   end
-    
-	
+  
+
 -- Remove all intermediate files
 
   function doclean(cmd, arg)
@@ -77,7 +82,6 @@ project.name = "ode"
     os.rmdir("../lib/ReleaseDLL")
     os.rmdir("../lib/ReleaseLib")
     os.rmdir("gnu/obj")
-    os.rmdir("vs6/obj")
     os.rmdir("vs2002/obj")
     os.rmdir("vs2003/obj")
     os.rmdir("vs2005/obj")
@@ -87,10 +91,8 @@ project.name = "ode"
 -- Generate all toolsets in one go
 
   function domakeall(cmd, arg)
-    os.execute("premake --usetargetpath --with-tests --clean --target vs6")
-    os.execute("premake --usetargetpath --with-tests --clean --target vs2002")
-    os.execute("premake --usetargetpath --with-tests --clean --target vs2003")
-    os.execute("premake --usetargetpath --with-tests --clean --target vs2005")
-    os.execute("premake --usetargetpath --with-tests --clean --target gnu")
+    os.execute("premake --usetargetpath --with-demos --with-tests --clean --target vs2002")
+    os.execute("premake --usetargetpath --with-demos --with-tests --clean --target vs2003")
+    os.execute("premake --usetargetpath --with-demos --with-tests --clean --target vs2005")
+    os.execute("premake --usetargetpath --with-demos --with-tests --clean --target gnu")
   end
-  

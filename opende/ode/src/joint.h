@@ -161,6 +161,10 @@ struct dxJointLimitMotor {
 struct dxJointBall : public dxJoint {
   dVector3 anchor1;		// anchor w.r.t first body
   dVector3 anchor2;		// anchor w.r.t second body
+  dReal erp;			// error reduction
+  dReal cfm;			// constraint force mix in
+  void set (int num, dReal value);
+  dReal get (int num);
 };
 extern struct dxJoint::Vtable __dball_vtable;
 
@@ -191,6 +195,53 @@ struct dxJointUniversal : public dxJoint {
   dxJointLimitMotor limot2;	// limit and motor information for axis2
 };
 extern struct dxJoint::Vtable __duniversal_vtable;
+
+
+/**
+ * The axisP must be perpendicular to axis2
+ * <PRE>
+ *                                        +-------------+
+ *                                        |      x      |
+ *                                        +------------\+
+ * Prismatic articulation                   ..     ..
+ *                       |                ..     ..
+ *                      \/              ..      ..
+ * +--------------+    --|        __..      ..  anchor2
+ * |      x       | .....|.......(__)     ..
+ * +--------------+    --|         ^     <
+ *        |----------------------->|
+ *            Offset               |--- Rotoide articulation
+ * </PRE>
+ */
+struct dxJointPR : public dxJoint {
+
+  dVector3 anchor2;         ///< @brief Position of the rotoide articulation
+                            ///<        w.r.t second body.
+                            ///< @note Position of body 2 in world frame +
+                            ///< anchor2 in world frame give the position
+                            ///< of the rotoide articulation
+  dVector3 axisR1;          ///< axis of the rotoide articulation w.r.t first body.
+                            ///< @note This is considered as axis1 from the parameter
+                            ///< view.
+  dVector3 axisR2;          ///< axis of the rotoide articulation w.r.t second body.
+                            ///< @note This is considered also as axis1 from the
+                            ///< parameter view
+  dVector3 axisP1;          ///< axis for the prismatic articulation w.r.t first body.
+                            ///< @note This is considered as axis2 in from the parameter
+                            ///< view
+  dQuaternion qrel;         ///< initial relative rotation body1 -> body2.
+  dVector3 offset;          ///< @brief vector between the body1 and the rotoide
+                            ///< articulation.
+                            ///<
+                            ///< Going from the first to the second in the frame
+                            ///<  of body1.
+                            ///< That should be aligned with body1 center along axisP
+                            ///< This is calculated whe the axis are set.
+  dxJointLimitMotor limotR; ///< limit and motor information for the rotoide articulation.
+  dxJointLimitMotor limotP; ///< limit and motor information for the prismatic articulation.
+};
+extern struct dxJoint::Vtable __dPR_vtable;
+
 
 
 // slider. if body2 is 0 then qrel is the absolute rotation of body1 and
@@ -253,14 +304,34 @@ struct dxJointLMotor : public dxJoint {
   dVector3 axis[3];
   dxJointLimitMotor limot[3];
 };
-  
+
 extern struct dxJoint::Vtable __dlmotor_vtable;
+
+
+// 2d joint, constrains to z == 0
+
+struct dxJointPlane2D : public dxJoint
+{
+    int                 row_motor_x;
+    int                 row_motor_y;
+    int                 row_motor_angle;
+    dxJointLimitMotor   motor_x;
+    dxJointLimitMotor   motor_y;
+    dxJointLimitMotor   motor_angle;
+};
+
+extern struct dxJoint::Vtable __dplane2d_vtable;
+
 
 // fixed
 
 struct dxJointFixed : public dxJoint {
   dQuaternion qrel;		// initial relative rotation body1 -> body2
   dVector3 offset;		// relative offset between the bodies
+  dReal erp;			// error reduction parameter
+  dReal cfm;			// constraint force mix-in
+  void set (int num, dReal value);
+  dReal get (int num);
 };
 extern struct dxJoint::Vtable __dfixed_vtable;
 
@@ -270,7 +341,6 @@ extern struct dxJoint::Vtable __dfixed_vtable;
 struct dxJointNull : public dxJoint {
 };
 extern struct dxJoint::Vtable __dnull_vtable;
-
 
 
 #endif

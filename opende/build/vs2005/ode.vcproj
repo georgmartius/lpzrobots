@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="ode"
-	ProjectGUID="{B073FDC0-BF91-7446-89C1-55BD20A6870D}"
+	ProjectGUID="{2A8430BA-889E-EE4A-B1E3-A3231F6816EE}"
 	RootNamespace="ode"
 	Keyword="Win32Proj"
 	>
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include;../../OPCODE"
+				AdditionalIncludeDirectories="../../include;../../OPCODE;../../GIMPACT/include"
 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_DLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -56,7 +56,8 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="../../include;../../OPCODE"
+				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_DLL"
+				AdditionalIncludeDirectories="../../include;../../OPCODE;../../GIMPACT/include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -124,7 +125,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="../../include;../../OPCODE"
+				AdditionalIncludeDirectories="../../include;../../OPCODE;../../GIMPACT/include"
 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_DLL"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -139,7 +140,8 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="../../include;../../OPCODE"
+				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_DLL"
+				AdditionalIncludeDirectories="../../include;../../OPCODE;../../GIMPACT/include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -207,7 +209,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include;../../OPCODE"
+				AdditionalIncludeDirectories="../../include;../../OPCODE;../../GIMPACT/include"
 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -223,7 +225,8 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="../../include;../../OPCODE"
+				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_LIB"
+				AdditionalIncludeDirectories="../../include;../../OPCODE;../../GIMPACT/include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -283,7 +286,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="../../include;../../OPCODE"
+				AdditionalIncludeDirectories="../../include;../../OPCODE;../../GIMPACT/include"
 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_LIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -298,7 +301,8 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="../../include;../../OPCODE"
+				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;ODE_LIB"
+				AdditionalIncludeDirectories="../../include;../../OPCODE;../../GIMPACT/include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -396,9 +400,6 @@
 					RelativePath="..\..\include\ode\odecpp_collision.h">
 				</File>
 				<File
-					RelativePath="..\..\include\ode\odecpp_old.h">
-				</File>
-				<File
 					RelativePath="..\..\include\ode\odemath.h">
 				</File>
 				<File
@@ -437,6 +438,9 @@
 				</File>
 				<File
 					RelativePath="..\..\ode\src\collision_util.h">
+				</File>
+				<File
+					RelativePath="..\..\ode\src\heightfield.h">
 				</File>
 				<File
 					RelativePath="..\..\ode\src\joint.h">
@@ -514,9 +518,6 @@
 					RelativePath="..\..\ode\src\collision_transform.cpp">
 				</File>
 				<File
-					RelativePath="..\..\ode\src\collision_trimesh.cpp">
-				</File>
-				<File
 					RelativePath="..\..\ode\src\collision_trimesh_box.cpp">
 				</File>
 				<File
@@ -526,6 +527,15 @@
 					RelativePath="..\..\ode\src\collision_trimesh_distance.cpp">
 				</File>
 				<File
+					RelativePath="..\..\ode\src\collision_trimesh_gimpact.cpp">
+				</File>
+				<File
+					RelativePath="..\..\ode\src\collision_trimesh_opcode.cpp">
+				</File>
+				<File
+					RelativePath="..\..\ode\src\collision_trimesh_plane.cpp">
+				</File>
+				<File
 					RelativePath="..\..\ode\src\collision_trimesh_ray.cpp">
 				</File>
 				<File
@@ -533,6 +543,9 @@
 				</File>
 				<File
 					RelativePath="..\..\ode\src\collision_trimesh_trimesh.cpp">
+				</File>
+				<File
+					RelativePath="..\..\ode\src\collision_trimesh_trimesh_new.cpp">
 				</File>
 				<File
 					RelativePath="..\..\ode\src\collision_util.cpp">
@@ -548,6 +561,9 @@
 				</File>
 				<File
 					RelativePath="..\..\ode\src\export-dif.cpp">
+				</File>
+				<File
+					RelativePath="..\..\ode\src\heightfield.cpp">
 				</File>
 				<File
 					RelativePath="..\..\ode\src\joint.cpp">
@@ -608,6 +624,92 @@
 				</File>
 				<File
 					RelativePath="..\..\ode\src\util.cpp">
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="GIMPACT"
+			Filter=""
+			>
+			<Filter
+				Name="include"
+				Filter=""
+				>
+				<Filter
+					Name="GIMPACT"
+					Filter=""
+					>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gimpact.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_boxpruning.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_contact.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_geometry.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_math.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_memory.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_radixsort.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_trimesh.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_tri_capsule_collision.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_tri_collision.h">
+					</File>
+					<File
+						RelativePath="..\..\GIMPACT\include\GIMPACT\gim_tri_sphere_collision.h">
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="src"
+				Filter=""
+				>
+				<File
+					RelativePath="..\..\GIMPACT\src\gimpact.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_boxpruning.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_contact.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_math.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_memory.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_trimesh.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_trimesh_capsule_collision.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_trimesh_ray_collision.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_trimesh_sphere_collision.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_trimesh_trimesh_collision.cpp">
+				</File>
+				<File
+					RelativePath="..\..\GIMPACT\src\gim_tri_tri_overlap.cpp">
 				</File>
 			</Filter>
 		</Filter>

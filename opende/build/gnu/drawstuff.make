@@ -8,57 +8,61 @@ endif
 ifeq ($(CONFIG),DebugDLL)
   BINDIR := ../../lib/DebugDLL
   LIBDIR := ../../lib/DebugDLL
-  OBJDIR := obj/DebugDLL
+  OBJDIR := obj/drawstuff/DebugDLL
   OUTDIR := ../../lib/DebugDLL
-  CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -D "WIN32" -I "../../include"
-  CFLAGS += $(CPPFLAGS) -g
+  CPPFLAGS := -MMD -D "WIN32" -D "DS_DLL" -D "USRDLL" -I "../../include"
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g
   CXXFLAGS := $(CFLAGS)
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR)
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -shared -luser32 -lopengl32 -lglu32 -lwinmm -lgdi32
   LDDEPS :=
-  TARGET := drawstuff.lib
-  BLDCMD = ar -cr $(OUTDIR)/$(TARGET) $(OBJECTS); ranlib $(OUTDIR)/$(TARGET)
+  RESFLAGS := -D "WIN32" -D "DS_DLL" -D "USRDLL" -I "../../include"
+  TARGET := drawstuff.dll
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
 endif
 
 ifeq ($(CONFIG),ReleaseDLL)
   BINDIR := ../../lib/ReleaseDLL
   LIBDIR := ../../lib/ReleaseDLL
-  OBJDIR := obj/ReleaseDLL
+  OBJDIR := obj/drawstuff/ReleaseDLL
   OUTDIR := ../../lib/ReleaseDLL
-  CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -D "WIN32" -I "../../include"
-  CFLAGS += $(CPPFLAGS) -g
+  CPPFLAGS := -MMD -D "WIN32" -D "DS_DLL" -D "USRDLL" -I "../../include"
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -fomit-frame-pointer
   CXXFLAGS := $(CFLAGS)
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR)
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -shared -s -luser32 -lopengl32 -lglu32 -lwinmm -lgdi32
   LDDEPS :=
-  TARGET := drawstuff.lib
-  BLDCMD = ar -cr $(OUTDIR)/$(TARGET) $(OBJECTS); ranlib $(OUTDIR)/$(TARGET)
+  RESFLAGS := -D "WIN32" -D "DS_DLL" -D "USRDLL" -I "../../include"
+  TARGET := drawstuff.dll
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
 endif
 
 ifeq ($(CONFIG),DebugLib)
   BINDIR := ../../lib/DebugLib
   LIBDIR := ../../lib/DebugLib
-  OBJDIR := obj/DebugLib
+  OBJDIR := obj/drawstuff/DebugLib
   OUTDIR := ../../lib/DebugLib
-  CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -D "WIN32" -I "../../include"
-  CFLAGS += $(CPPFLAGS) -g
+  CPPFLAGS := -MMD -D "WIN32" -D "DS_LIB" -I "../../include"
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g
   CXXFLAGS := $(CFLAGS)
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR)
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -luser32 -lopengl32 -lglu32 -lwinmm -lgdi32
   LDDEPS :=
-  TARGET := drawstuff.lib
-  BLDCMD = ar -cr $(OUTDIR)/$(TARGET) $(OBJECTS); ranlib $(OUTDIR)/$(TARGET)
+  RESFLAGS := -D "WIN32" -D "DS_LIB" -I "../../include"
+  TARGET := libdrawstuff.a
+  BLDCMD = ar -rcs $(OUTDIR)/$(TARGET) $(OBJECTS) $(TARGET_ARCH)
 endif
 
 ifeq ($(CONFIG),ReleaseLib)
   BINDIR := ../../lib/ReleaseLib
   LIBDIR := ../../lib/ReleaseLib
-  OBJDIR := obj/ReleaseLib
+  OBJDIR := obj/drawstuff/ReleaseLib
   OUTDIR := ../../lib/ReleaseLib
-  CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -D "WIN32" -I "../../include"
-  CFLAGS += $(CPPFLAGS) -g
+  CPPFLAGS := -MMD -D "WIN32" -D "DS_LIB" -I "../../include"
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -fomit-frame-pointer
   CXXFLAGS := $(CFLAGS)
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR)
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -s -luser32 -lopengl32 -lglu32 -lwinmm -lgdi32
   LDDEPS :=
-  TARGET := drawstuff.lib
-  BLDCMD = ar -cr $(OUTDIR)/$(TARGET) $(OBJECTS); ranlib $(OUTDIR)/$(TARGET)
+  RESFLAGS := -D "WIN32" -D "DS_LIB" -I "../../include"
+  TARGET := libdrawstuff.a
+  BLDCMD = ar -rcs $(OUTDIR)/$(TARGET) $(OBJECTS) $(TARGET_ARCH)
 endif
 
 OBJECTS := \
@@ -68,8 +72,15 @@ OBJECTS := \
 RESOURCES := \
 	$(OBJDIR)/resources.res \
 
+MKDIR_TYPE := msdos
 CMD := $(subst \,\\,$(ComSpec)$(COMSPEC))
 ifeq (,$(CMD))
+  MKDIR_TYPE := posix
+endif
+ifeq (/bin/sh.exe,$(SHELL))
+  MKDIR_TYPE := posix
+endif
+ifeq ($(MKDIR_TYPE),posix)
   CMD_MKBINDIR := mkdir -p $(BINDIR)
   CMD_MKLIBDIR := mkdir -p $(LIBDIR)
   CMD_MKOUTDIR := mkdir -p $(OUTDIR)
@@ -92,7 +103,13 @@ $(OUTDIR)/$(TARGET): $(OBJECTS) $(LDDEPS) $(RESOURCES)
 
 clean:
 	@echo Cleaning drawstuff
+ifeq ($(MKDIR_TYPE),posix)
 	-@rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
+else
+	-@if exist $(subst /,\,$(OUTDIR)/$(TARGET)) del /q $(subst /,\,$(OUTDIR)/$(TARGET))
+	-@if exist $(subst /,\,$(OBJDIR)) del /q $(subst /,\,$(OBJDIR))
+	-@if exist $(subst /,\,$(OBJDIR)) rmdir /s /q $(subst /,\,$(OBJDIR))
+endif
 
 $(OBJDIR)/drawstuff.o: ../../drawstuff/src/drawstuff.cpp
 	-@$(CMD_MKOBJDIR)
@@ -107,7 +124,7 @@ $(OBJDIR)/windows.o: ../../drawstuff/src/windows.cpp
 $(OBJDIR)/resources.res: ../../drawstuff/src/resources.rc
 	-@$(CMD_MKOBJDIR)
 	@echo $(notdir $<)
-	@windres $< -O coff -o $@
+	@windres $< -O coff -o $@ $(RESFLAGS)
 
 -include $(OBJECTS:%.o=%.d)
 

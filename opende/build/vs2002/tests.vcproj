@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="tests"
-	ProjectGUID="{26C42371-E5C2-5B4D-96ED-52A3A4D10D26}"
+	ProjectGUID="{E10C083A-2A98-6D4F-A1D3-EF613C0C7141}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -53,6 +53,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
 				AdditionalIncludeDirectories="../../include;../../tests/CppTestHarness"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -102,6 +103,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
 				AdditionalIncludeDirectories="../../include;../../tests/CppTestHarness"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -151,6 +153,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
 				AdditionalIncludeDirectories="../../include;../../tests/CppTestHarness"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -200,6 +203,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
 				AdditionalIncludeDirectories="../../include;../../tests/CppTestHarness"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

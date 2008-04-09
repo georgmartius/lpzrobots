@@ -324,17 +324,18 @@ void cullPoints (int n, dReal p[], int m, int i0, int iret[])
 // collision functions. this function only fills in the position and depth
 // fields.
 
+
 int dBoxBox (const dVector3 p1, const dMatrix3 R1,
 	     const dVector3 side1, const dVector3 p2,
 	     const dMatrix3 R2, const dVector3 side2,
 	     dVector3 normal, dReal *depth, int *return_code,
-	     int maxc, dContactGeom *contact, int skip)
+	     int flags, dContactGeom *contact, int skip)
 {
   const dReal fudge_factor = REAL(1.05);
   dVector3 p,pp,normalC;
   const dReal *normalR = 0;
   dReal A[3],B[3],R11,R12,R13,R21,R22,R23,R31,R32,R33,
-    Q11,Q12,Q13,Q21,Q22,Q23,Q31,Q32,Q33,s,s2,l;
+    Q11,Q12,Q13,Q21,Q22,Q23,Q31,Q32,Q33,s,s2,l,expr1_val;
   int i,j,invert_normal,code;
 
   // get vector from centers of box 1 to box 2, relative to box 1
@@ -370,64 +371,69 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
   // set to a vector relative to body 1. invert_normal is 1 if the sign of
   // the normal should be flipped.
 
+  do {
 #define TST(expr1,expr2,norm,cc) \
-  s2 = dFabs(expr1) - (expr2); \
-  if (s2 > 0) return 0; \
-  if (s2 > s) { \
-    s = s2; \
-    normalR = norm; \
-    invert_normal = ((expr1) < 0); \
-    code = (cc); \
-  }
+    expr1_val = (expr1); /* Avoid duplicate evaluation of expr1 */ \
+    s2 = dFabs(expr1_val) - (expr2); \
+    if (s2 > 0) return 0; \
+    if (s2 > s) { \
+      s = s2; \
+      normalR = norm; \
+      invert_normal = ((expr1_val) < 0); \
+      code = (cc); \
+	  if (flags & CONTACTS_UNIMPORTANT) break; \
+	}
 
-  s = -dInfinity;
-  invert_normal = 0;
-  code = 0;
+    s = -dInfinity;
+    invert_normal = 0;
+    code = 0;
 
-  // separating axis = u1,u2,u3
-  TST (pp[0],(A[0] + B[0]*Q11 + B[1]*Q12 + B[2]*Q13),R1+0,1);
-  TST (pp[1],(A[1] + B[0]*Q21 + B[1]*Q22 + B[2]*Q23),R1+1,2);
-  TST (pp[2],(A[2] + B[0]*Q31 + B[1]*Q32 + B[2]*Q33),R1+2,3);
+    // separating axis = u1,u2,u3
+    TST (pp[0],(A[0] + B[0]*Q11 + B[1]*Q12 + B[2]*Q13),R1+0,1);
+    TST (pp[1],(A[1] + B[0]*Q21 + B[1]*Q22 + B[2]*Q23),R1+1,2);
+    TST (pp[2],(A[2] + B[0]*Q31 + B[1]*Q32 + B[2]*Q33),R1+2,3);
 
-  // separating axis = v1,v2,v3
-  TST (dDOT41(R2+0,p),(A[0]*Q11 + A[1]*Q21 + A[2]*Q31 + B[0]),R2+0,4);
-  TST (dDOT41(R2+1,p),(A[0]*Q12 + A[1]*Q22 + A[2]*Q32 + B[1]),R2+1,5);
-  TST (dDOT41(R2+2,p),(A[0]*Q13 + A[1]*Q23 + A[2]*Q33 + B[2]),R2+2,6);
+    // separating axis = v1,v2,v3
+    TST (dDOT41(R2+0,p),(A[0]*Q11 + A[1]*Q21 + A[2]*Q31 + B[0]),R2+0,4);
+    TST (dDOT41(R2+1,p),(A[0]*Q12 + A[1]*Q22 + A[2]*Q32 + B[1]),R2+1,5);
+    TST (dDOT41(R2+2,p),(A[0]*Q13 + A[1]*Q23 + A[2]*Q33 + B[2]),R2+2,6);
 
-  // note: cross product axes need to be scaled when s is computed.
-  // normal (n1,n2,n3) is relative to box 1.
+    // note: cross product axes need to be scaled when s is computed.
+    // normal (n1,n2,n3) is relative to box 1.
 #undef TST
 #define TST(expr1,expr2,n1,n2,n3,cc) \
-  s2 = dFabs(expr1) - (expr2); \
-  if (s2 > 0) return 0; \
-  l = dSqrt ((n1)*(n1) + (n2)*(n2) + (n3)*(n3)); \
-  if (l > 0) { \
-    s2 /= l; \
-    if (s2*fudge_factor > s) { \
-      s = s2; \
-      normalR = 0; \
-      normalC[0] = (n1)/l; normalC[1] = (n2)/l; normalC[2] = (n3)/l; \
-      invert_normal = ((expr1) < 0); \
-      code = (cc); \
-    } \
-  }
+    expr1_val = (expr1); /* Avoid duplicate evaluation of expr1 */ \
+    s2 = dFabs(expr1_val) - (expr2); \
+    if (s2 > 0) return 0; \
+    l = dSqrt ((n1)*(n1) + (n2)*(n2) + (n3)*(n3)); \
+    if (l > 0) { \
+      s2 /= l; \
+      if (s2*fudge_factor > s) { \
+        s = s2; \
+        normalR = 0; \
+        normalC[0] = (n1)/l; normalC[1] = (n2)/l; normalC[2] = (n3)/l; \
+        invert_normal = ((expr1_val) < 0); \
+        code = (cc); \
+        if (flags & CONTACTS_UNIMPORTANT) break; \
+	  } \
+	}
 
-  // separating axis = u1 x (v1,v2,v3)
-  TST(pp[2]*R21-pp[1]*R31,(A[1]*Q31+A[2]*Q21+B[1]*Q13+B[2]*Q12),0,-R31,R21,7);
-  TST(pp[2]*R22-pp[1]*R32,(A[1]*Q32+A[2]*Q22+B[0]*Q13+B[2]*Q11),0,-R32,R22,8);
-  TST(pp[2]*R23-pp[1]*R33,(A[1]*Q33+A[2]*Q23+B[0]*Q12+B[1]*Q11),0,-R33,R23,9);
+    // separating axis = u1 x (v1,v2,v3)
+    TST(pp[2]*R21-pp[1]*R31,(A[1]*Q31+A[2]*Q21+B[1]*Q13+B[2]*Q12),0,-R31,R21,7);
+    TST(pp[2]*R22-pp[1]*R32,(A[1]*Q32+A[2]*Q22+B[0]*Q13+B[2]*Q11),0,-R32,R22,8);
+    TST(pp[2]*R23-pp[1]*R33,(A[1]*Q33+A[2]*Q23+B[0]*Q12+B[1]*Q11),0,-R33,R23,9);
 
-  // separating axis = u2 x (v1,v2,v3)
-  TST(pp[0]*R31-pp[2]*R11,(A[0]*Q31+A[2]*Q11+B[1]*Q23+B[2]*Q22),R31,0,-R11,10);
-  TST(pp[0]*R32-pp[2]*R12,(A[0]*Q32+A[2]*Q12+B[0]*Q23+B[2]*Q21),R32,0,-R12,11);
-  TST(pp[0]*R33-pp[2]*R13,(A[0]*Q33+A[2]*Q13+B[0]*Q22+B[1]*Q21),R33,0,-R13,12);
+    // separating axis = u2 x (v1,v2,v3)
+    TST(pp[0]*R31-pp[2]*R11,(A[0]*Q31+A[2]*Q11+B[1]*Q23+B[2]*Q22),R31,0,-R11,10);
+    TST(pp[0]*R32-pp[2]*R12,(A[0]*Q32+A[2]*Q12+B[0]*Q23+B[2]*Q21),R32,0,-R12,11);
+    TST(pp[0]*R33-pp[2]*R13,(A[0]*Q33+A[2]*Q13+B[0]*Q22+B[1]*Q21),R33,0,-R13,12);
 
-  // separating axis = u3 x (v1,v2,v3)
-  TST(pp[1]*R11-pp[0]*R21,(A[0]*Q21+A[1]*Q11+B[1]*Q33+B[2]*Q32),-R21,R11,0,13);
-  TST(pp[1]*R12-pp[0]*R22,(A[0]*Q22+A[1]*Q12+B[0]*Q33+B[2]*Q31),-R22,R12,0,14);
-  TST(pp[1]*R13-pp[0]*R23,(A[0]*Q23+A[1]*Q13+B[0]*Q32+B[1]*Q31),-R23,R13,0,15);
-
+    // separating axis = u3 x (v1,v2,v3)
+    TST(pp[1]*R11-pp[0]*R21,(A[0]*Q21+A[1]*Q11+B[1]*Q33+B[2]*Q32),-R21,R11,0,13);
+    TST(pp[1]*R12-pp[0]*R22,(A[0]*Q22+A[1]*Q12+B[0]*Q33+B[2]*Q31),-R22,R12,0,14);
+    TST(pp[1]*R13-pp[0]*R23,(A[0]*Q23+A[1]*Q13+B[0]*Q32+B[1]*Q31),-R23,R13,0,15);
 #undef TST
+  } while (0);
 
   if (!code) return 0;
 
@@ -638,13 +644,19 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
       ret[cnum*2] = ret[j*2];
       ret[cnum*2+1] = ret[j*2+1];
       cnum++;
+	  if ((cnum | CONTACTS_UNIMPORTANT) == (flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+		  break;
+	  }
     }
   }
-  if (cnum < 1) return 0;	// this should never happen
+  if (cnum < 1) { 
+	  return 0;	// this should not happen, yet does at times (demo_plane2d single precision).
+  }
 
   // we can't generate more contacts than we actually have
+  int maxc = flags & NUMC_MASK;
   if (maxc > cnum) maxc = cnum;
-  if (maxc < 1) maxc = 1;
+  if (maxc < 1) maxc = 1;	// Even though max count must not be zero this check is kept for backward compatibility as this is a public function
 
   if (cnum <= maxc) {
     // we have less contacts than we need, so we use them all
@@ -655,6 +667,7 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
     }
   }
   else {
+    dIASSERT(!(flags & CONTACTS_UNIMPORTANT)); // cnum should be generated not greater than maxc so that "then" clause is executed
     // we have more contacts than are wanted, some of them must be culled.
     // find the deepest point, it is always the first contact.
     int i1 = 0;
@@ -689,13 +702,15 @@ int dCollideBoxBox (dxGeom *o1, dxGeom *o2, int flags,
   dIASSERT (skip >= (int)sizeof(dContactGeom));
   dIASSERT (o1->type == dBoxClass);
   dIASSERT (o2->type == dBoxClass);
+  dIASSERT ((flags & NUMC_MASK) >= 1);
+
   dVector3 normal;
   dReal depth;
   int code;
   dxBox *b1 = (dxBox*) o1;
   dxBox *b2 = (dxBox*) o2;
   int num = dBoxBox (o1->final_posr->pos,o1->final_posr->R,b1->side, o2->final_posr->pos,o2->final_posr->R,b2->side,
-		     normal,&depth,&code,flags & NUMC_MASK,contact,skip);
+		     normal,&depth,&code,flags,contact,skip);
   for (int i=0; i<num; i++) {
     CONTACT(contact,i*skip)->normal[0] = -normal[0];
     CONTACT(contact,i*skip)->normal[1] = -normal[1];
@@ -713,6 +728,8 @@ int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
   dIASSERT (skip >= (int)sizeof(dContactGeom));
   dIASSERT (o1->type == dBoxClass);
   dIASSERT (o2->type == dPlaneClass);
+  dIASSERT ((flags & NUMC_MASK) >= 1);
+
   dxBox *box = (dxBox*) o1;
   dxPlane *plane = (dxPlane*) o2;
 
@@ -741,8 +758,8 @@ int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
 
   // find number of contacts requested
   int maxc = flags & NUMC_MASK;
-  if (maxc < 1) maxc = 1;
-  if (maxc > 3) maxc = 3;	// no more than 3 contacts per box allowed
+  // if (maxc < 1) maxc = 1; // an assertion is made on entry
+  if (maxc > 3) maxc = 3;	// not more than 3 contacts per box allowed
 
   // find deepest point
   dVector3 p;
@@ -781,7 +798,7 @@ int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
 #define BAR(ctact,side,sideinc) \
   depth -= B ## sideinc; \
   if (depth < 0) goto done; \
-  if (A ## sideinc > 0) { FOO(ctact,side,+) } else { FOO(ctact,side,-) } \
+  if (A ## sideinc > 0) { FOO(ctact,side,+); } else { FOO(ctact,side,-); } \
   CONTACT(contact,ctact*skip)->depth = depth; \
   ret++;
 

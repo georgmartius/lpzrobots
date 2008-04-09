@@ -20,8 +20,7 @@
  *                                                                       *
  *************************************************************************/
 
-// TriMesh/TriMesh collision code by Jeff Smith (c) 2004
-//
+// OPCODE TriMesh/TriMesh collision code by Jeff Smith (c) 2004
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
@@ -31,20 +30,32 @@
 #include <ode/matrix.h>
 #include <ode/rotation.h>
 #include <ode/odemath.h>
-#include "collision_util.h"
 
+// Classic Implementation
+#if !dTRIMESH_OPCODE_USE_NEW_TRIMESH_TRIMESH_COLLIDER
+
+#if dTRIMESH_ENABLED
+
+#include "collision_util.h"
 #define TRIMESH_INTERNAL
 #include "collision_trimesh_internal.h"
 
-#define SMALL_ELT           2.5e-4
-#define EXPANDED_ELT_THRESH 1.0e-3
-#define DISTANCE_EPSILON    1.0e-8
-#define VELOCITY_EPSILON    1.0e-5
-#define TINY_PENETRATION    5.0e-6
+#if dTRIMESH_OPCODE
+
+#define SMALL_ELT           REAL(2.5e-4)
+#define EXPANDED_ELT_THRESH REAL(1.0e-3)
+#define DISTANCE_EPSILON    REAL(1.0e-8)
+#define VELOCITY_EPSILON    REAL(1.0e-5)
+#define TINY_PENETRATION    REAL(5.0e-6)
 
 struct LineContactSet
 {
-    dVector3 Points[8];
+	enum
+	{
+		MAX_POINTS = 8
+	};
+
+    dVector3 Points[MAX_POINTS];
     int      Count;
 };
 
@@ -126,6 +137,11 @@ SwapNormals(dVector3 *&pen_v, dVector3 *&col_v, dVector3* v1, dVector3* v2,
 int 
 dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Stride)
 {
+	dIASSERT (Stride >= (int)sizeof(dContactGeom));
+	dIASSERT (g1->type == dTriMeshClass);
+	dIASSERT (g2->type == dTriMeshClass);
+	dIASSERT ((Flags & NUMC_MASK) >= 1);
+
     dxTriMesh* TriMesh1 = (dxTriMesh*) g1;
     dxTriMesh* TriMesh2 = (dxTriMesh*) g2;
 
@@ -177,8 +193,8 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                 dVector3        elt_f1[3], elt_f2[3];
                 dReal          contact_elt_length = SMALL_ELT;
                 LineContactSet  firstClippedTri, secondClippedTri;
-                dVector3       *firstClippedElt = NULL;
-                dVector3       *secondClippedElt = NULL;
+                dVector3       *firstClippedElt = new dVector3[LineContactSet::MAX_POINTS];
+                dVector3       *secondClippedElt = new dVector3[LineContactSet::MAX_POINTS];
                 
 
                 // only do these expensive inversions once
@@ -187,8 +203,7 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                 dInvertMatrix4(B, InvMatrix2);
 
                 
-                for (int i = 0; i < TriCount; i++)
-                    if (OutTriCount < (Flags & 0xffff))  {
+                for (int i = 0; i < TriCount; i++) {
                         
                         id1 = CollidingPairs[i].id0;
                         id2 = CollidingPairs[i].id1;
@@ -259,7 +274,7 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                 // We can reach this case if the faces are coplanar, OR
                                 //  if they don't actually intersect.  (OPCODE can make
                                 //  mistakes)
-                                if (fabs(dDOT(n1, n2)) > 0.999) {
+                                if (dFabs(dDOT(n1, n2)) > REAL(0.999)) {
                                     // If the faces are coplanar, we declare that the point of
                                     //  contact is at the average location of the vertices of
                                     //  both faces
@@ -292,17 +307,17 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                 //  point -- the middle of the line of intersection -- that
                                 //   will be used for various computations down the road
                                 for (int j=0; j<3; j++)
-                                    CoplanarPt[j] = (dReal) ( (IsectPt1[j] + IsectPt2[j]) / 2.0 );
+                                    CoplanarPt[j] = ( (IsectPt1[j] + IsectPt2[j]) / REAL(2.0) );
                                 CoplanarPt[3] = 1.0;
                                 
                                 // Find the ELT of the coplanar point
                                 //
                                 dMultiply1(orig_pos, InvMatrix1, CoplanarPt, 4, 4, 1);
-                                dMultiply1(old_pos1, TriMesh1->Data->last_trans, orig_pos, 4, 4, 1);
+                                dMultiply1(old_pos1, ((dxTriMesh*)g1)->last_trans, orig_pos, 4, 4, 1);
                                 SUB(elt1, CoplanarPt, old_pos1);
                                 
                                 dMultiply1(orig_pos, InvMatrix2, CoplanarPt, 4, 4, 1);
-                                dMultiply1(old_pos2, TriMesh2->Data->last_trans, orig_pos, 4, 4, 1);
+                                dMultiply1(old_pos2, ((dxTriMesh*)g2)->last_trans, orig_pos, 4, 4, 1);
                                 SUB(elt2, CoplanarPt, old_pos2);
                                 
                                 SUB(elt_sum, elt1, elt2);  // net motion of the coplanar point
@@ -324,7 +339,7 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                     
                                     // re-transform this vertex by last_trans (to get its old
                                     //  position)
-                                    dMultiply1(old_pos1, TriMesh1->Data->last_trans, orig_pos, 4, 4, 1);
+                                    dMultiply1(old_pos1, ((dxTriMesh*)g1)->last_trans, orig_pos, 4, 4, 1);
                                     
                                     // Then subtract this position from our current one to find
                                     //  the elapsed linear translation (ELT)
@@ -334,21 +349,21 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                     
                                     // Take the dot product of the ELT  for each vertex (wrt the
                                     //  center of face2)
-                                    total_dp1 += fabs( dDOT(elt_f1[ii], n2) );
+                                    total_dp1 += dFabs( dDOT(elt_f1[ii], n2) );
                                 }
                                 
                                 for (int ii=0; ii<3; ii++) {
                                     // find the estimated linear translation (ELT) of the vertices
                                     //  on face 2, wrt to the center of face 1. 
                                     dMultiply1(orig_pos, InvMatrix2, v2[ii], 4, 4, 1);
-                                    dMultiply1(old_pos2, TriMesh2->Data->last_trans, orig_pos, 4, 4, 1);
+                                    dMultiply1(old_pos2, ((dxTriMesh*)g2)->last_trans, orig_pos, 4, 4, 1);
                                     for (int k=0; k<3; k++) {
                                         elt_f2[ii][k] = (v2[ii][k] - old_pos2[k]) - elt1[k];
                                     }
                                     
                                     // Take the dot product of the ELT  for each vertex (wrt the
                                     //  center of face2) and add them
-                                    total_dp2 += fabs( dDOT(elt_f2[ii], n1) );
+                                    total_dp2 += dFabs( dDOT(elt_f2[ii], n1) );
                                 }
                                 
                                 
@@ -405,6 +420,10 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                         GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
                                                         pen_v[j], n, depth, OutTriCount);
                                         badPen = false;
+
+										if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+											break;
+										}
                                     }
                                 
 
@@ -417,6 +436,10 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                             GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
                                                             pen_v[j], n, depth, OutTriCount);
                                             badPen = false;
+
+											if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+												break;
+											}
                                     }
                                 }
 
@@ -490,33 +513,31 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
 
                                     FindTriSolidIntrsection(pen_v, SolidPlanes, 3, firstClippedTri);
 
-                                    firstClippedElt = new dVector3[firstClippedTri.Count];
-
                                     for (int j=0; j<firstClippedTri.Count; j++) {
                                         firstClippedTri.Points[j][3] = 1.0; // because we will be doing matrix mults
 
                                         DEPTH(dp, CoplanarPt, firstClippedTri.Points[j], n);
                                         
-                                        // if thepenetration depth (calculated above) is more than the contact
+                                        // if the penetration depth (calculated above) is more than the contact
                                         //  point's ELT, then we've chosen the wrong face and should switch faces
                                         if (pen_v == v1) {
                                             dMultiply1(orig_pos, InvMatrix1, firstClippedTri.Points[j], 4, 4, 1);
-                                            dMultiply1(old_pos1, TriMesh1->Data->last_trans, orig_pos, 4, 4, 1);
+                                            dMultiply1(old_pos1, ((dxTriMesh*)g1)->last_trans, orig_pos, 4, 4, 1);
                                             for (int k=0; k<3; k++) {
                                                 firstClippedElt[j][k] = (firstClippedTri.Points[j][k] - old_pos1[k]) - elt2[k];
                                             }
                                         }
                                         else {
                                             dMultiply1(orig_pos, InvMatrix2, firstClippedTri.Points[j], 4, 4, 1);
-                                            dMultiply1(old_pos2, TriMesh2->Data->last_trans, orig_pos, 4, 4, 1);
+                                            dMultiply1(old_pos2, ((dxTriMesh*)g2)->last_trans, orig_pos, 4, 4, 1);
                                             for (int k=0; k<3; k++) {
                                                 firstClippedElt[j][k] = (firstClippedTri.Points[j][k] - old_pos2[k]) - elt1[k];
                                             }
                                         }
 
-                                        contact_elt_length = fabs(dDOT(firstClippedElt[j], n));
-                                        
                                         if (dp >= 0.0) {
+	                                        contact_elt_length = dFabs(dDOT(firstClippedElt[j], n));
+                                        
                                             depth = dp;
                                             if (depth == 0.0)
                                                 depth = dMin(DISTANCE_EPSILON, contact_elt_length);
@@ -529,6 +550,10 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                                 GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
                                                                 firstClippedTri.Points[j], n, depth, OutTriCount);
                                                 badPen = false;
+
+												if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+													break;
+												}
                                             }
                                         }
 
@@ -591,8 +616,6 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                     
                                     FindTriSolidIntrsection(pen_v, SolidPlanes, 3, secondClippedTri);
                                     
-                                    secondClippedElt = new dVector3[secondClippedTri.Count];
-
                                     for (int j=0; j<secondClippedTri.Count; j++) {
                                         secondClippedTri.Points[j][3] = 1.0; // because we will be doing matrix mults
                                         
@@ -600,23 +623,23 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                         
                                         if (pen_v == v1) {
                                             dMultiply1(orig_pos, InvMatrix1, secondClippedTri.Points[j], 4, 4, 1);
-                                            dMultiply1(old_pos1, TriMesh1->Data->last_trans, orig_pos, 4, 4, 1);
+                                            dMultiply1(old_pos1, ((dxTriMesh*)g1)->last_trans, orig_pos, 4, 4, 1);
                                             for (int k=0; k<3; k++) {
                                                 secondClippedElt[j][k] = (secondClippedTri.Points[j][k] - old_pos1[k]) - elt2[k];
                                             }
                                         }
                                         else {
                                             dMultiply1(orig_pos, InvMatrix2, secondClippedTri.Points[j], 4, 4, 1);
-                                            dMultiply1(old_pos2, TriMesh2->Data->last_trans, orig_pos, 4, 4, 1);
+                                            dMultiply1(old_pos2, ((dxTriMesh*)g2)->last_trans, orig_pos, 4, 4, 1);
                                             for (int k=0; k<3; k++) {
                                                 secondClippedElt[j][k] = (secondClippedTri.Points[j][k] - old_pos2[k]) - elt1[k];
                                             }
                                         }
 
 
-                                        contact_elt_length = fabs(dDOT(secondClippedElt[j],n));
-                                        
                                         if (dp >= 0.0) {
+											contact_elt_length = dFabs(dDOT(secondClippedElt[j],n));
+											
                                             depth = dp;
                                             if (depth == 0.0)
                                                 depth = dMin(DISTANCE_EPSILON, contact_elt_length);
@@ -629,6 +652,10 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                                 GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
                                                                 secondClippedTri.Points[j], n, depth, OutTriCount);
                                                 badPen = false;
+
+												if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+													break;
+												}
                                             }
                                         }
                                         
@@ -648,14 +675,14 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                     //  what my original guess said they were)
                                     SwapNormals(pen_v, col_v, v1, v2, pen_elt, elt_f1, elt_f2, n, n1, n2);
                                     
-									if (fabs(dDOT(n1, n2)) < 0.01) {
+									if (dFabs(dDOT(n1, n2)) < REAL(0.01)) {
                                         // If we reach this point, we have (close to) perpindicular
                                         //  faces, either resting on each other or sliding in a
                                         // direction orthogonal to both surface normals.
                                         if (LENGTH(elt_sum) < DISTANCE_EPSILON) {
-                                            depth = (dReal) fabs(dDOT(n, elt_sum));
+                                            depth = dFabs(dDOT(n, elt_sum));
                                             
-                                            if (depth > 1e-12) {
+                                            if (depth > REAL(1e-12)) {
                                                 dNormalize3(n);
                                                 GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
                                                                 CoplanarPt, n, depth, OutTriCount);
@@ -691,10 +718,10 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                                     SUB(dvTmp, col_v[k], pen_v[j]);
                                                     
                                                     rTmp = dDOT(dvTmp, n);
-                                                    if ( fabs(rTmp) < fabs(depth) ) {
+                                                    if ( dFabs(rTmp) < dFabs(depth) ) {
                                                         depth = rTmp;
                                                         SET( ContactPt, pen_v[j] );
-                                                        contact_elt_length = fabs(dDOT(pen_elt[j], n));
+                                                        contact_elt_length = dFabs(dDOT(pen_elt[j], n));
                                                     }
                                                 }
                                             }
@@ -737,10 +764,10 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                         for (int k=0; k<3; k++) {
                                             DEPTH(dp, col_v[k], pen_v[j], esn);
                                             if ( (ExamineContactPoint(col_v, esn, pen_v[j])) &&
-                                                 ( fabs(dp) < fabs(depth)) ) {
+                                                 ( dFabs(dp) < dFabs(depth)) ) {
                                                 depth = dp;
                                                 SET( ContactPt, pen_v[j] );
-                                                contact_elt_length = fabs(dDOT(pen_elt[j], esn));
+                                                contact_elt_length = dFabs(dDOT(pen_elt[j], esn));
                                             }
                                         }
                                     }
@@ -753,9 +780,9 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                 }
 
                                 
-                                if (badPen) {                                        
+                                if (badPen) {
                                     // If the direction of motion is perpindicular to both normals
-                                    if ( (fabs(dDOT(n1, elt_sum)) < 0.01) && (fabs(dDOT(n2, elt_sum)) < 0.01) ) {
+                                    if ( (dFabs(dDOT(n1, elt_sum)) < REAL(0.01)) && (dFabs(dDOT(n2, elt_sum)) < REAL(0.01)) ) {
                                         dVector3 esn;
                                         if (pen_v == v1) {
                                             SMULT(esn, elt_sum, -1.0);
@@ -773,7 +800,7 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                             DEPTH(dp, CoplanarPt, firstClippedTri.Points[j], esn);
                                             
                                             if (dp >= 0.0) {
-                                                contact_elt_length = fabs(dDOT(firstClippedElt[j], esn));
+                                                contact_elt_length = dFabs(dDOT(firstClippedElt[j], esn));
                                                 
                                                 depth = dp;
                                                 //if (depth == 0.0)
@@ -787,7 +814,11 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                                     GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
                                                                     firstClippedTri.Points[j], esn, depth, OutTriCount);
                                                     badPen = false;
-                                                }    
+
+													if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+														break;
+													}
+                                                }
                                             }
                                         }
                                         
@@ -797,7 +828,7 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                                 DEPTH(dp, CoplanarPt, secondClippedTri.Points[j], esn);
                                                 
                                                 if (dp >= 0.0) {
-                                                    contact_elt_length = fabs(dDOT(secondClippedElt[j], esn));
+                                                    contact_elt_length = dFabs(dDOT(secondClippedElt[j], esn));
                                                     
                                                     depth = dp;
                                                     //if (depth == 0.0)
@@ -811,7 +842,11 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                                         GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
                                                                         secondClippedTri.Points[j], esn, depth, OutTriCount);
                                                         badPen = false;
-                                                    }    
+
+														if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+															break;
+														}
+                                                    }
                                                 }
                                             }
                                         }
@@ -837,8 +872,12 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                             if ( (dp > 0.0) && (dp <= SMALL_ELT)) {
                                                 // Add a contact
                                                 GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
-                                                                pen_v[j], n, (dReal) dp, OutTriCount);
+                                                                pen_v[j], n, dp, OutTriCount);
                                                 badPen = false;
+
+												if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+													break;
+												}
                                             }
                                         }
                                         
@@ -855,8 +894,12 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
 
                                                 if ( (dp > 0.0) && (dp <= SMALL_ELT)) {
                                                     GenerateContact(Flags, Contacts, Stride,  TriMesh1,  TriMesh2,
-                                                                    pen_v[j], n, (dReal) dp, OutTriCount);
+                                                                    pen_v[j], n, dp, OutTriCount);
                                                     badPen = false;
+
+													if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+														break;
+													}
                                                 }
                                             }
                                         }
@@ -898,7 +941,7 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                                 }
 
 
-                                if (badPen) {                                        
+                                if (badPen) {
                                     // Add a tiny contact at the coplanar point                                    
                                     if (-dDOT(elt_sum, n1) > -dDOT(elt_sum, n2)) {
                                         SET(ContactNormal, n1);
@@ -916,17 +959,17 @@ dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int Strid
                             } // not coplanar (main loop)
                         } // TriTriIntersectWithIsectLine
                 
-                    // Free memory
-                    delete[] firstClippedElt;
-	            firstClippedElt = NULL;
-                    delete[] secondClippedElt;	
-        	    secondClippedElt = NULL;
+						if ((OutTriCount | CONTACTS_UNIMPORTANT) == (Flags & (NUMC_MASK | CONTACTS_UNIMPORTANT))) {
+							break;
+						}
+              }
 
-                } // if (OutTriCount < (Flags & 0xffff))
+				// Free memory
+				delete[] firstClippedElt;
+				delete[] secondClippedElt;	
 
-                // Return the number of contacts
+			  // Return the number of contacts
                 return OutTriCount; 
-                
             }
         }
     }
@@ -1063,14 +1106,12 @@ dInvertMatrix4( dMatrix4& B, dMatrix4& Binv )
 
 
 
-#define FABS(x) ((dReal)fabs(x))        /* implement as is fastest on your machine */
-
 /* if USE_EPSILON_TEST is true then we do a check: 
          if |dv|<EPSILON then dv=0.0;
    else no check is done (which is less robust)
 */
 #define USE_EPSILON_TEST TRUE  
-#define EPSILON 0.000001
+#define EPSILON REAL(0.000001)
 
 
 /* sort so that a<=b */
@@ -1189,9 +1230,9 @@ int coplanar_tri_tri(dReal N[3],dReal V0[3],dReal V1[3],dReal V2[3],
    short i0,i1;
    /* first project onto an axis-aligned plane, that maximizes the area */
    /* of the triangles, compute indices: i0,i1. */
-   A[0]= (dReal) fabs(N[0]);
-   A[1]= (dReal) fabs(N[1]);
-   A[2]= (dReal) fabs(N[2]);
+   A[0]= dFabs(N[0]);
+   A[1]= dFabs(N[1]);
+   A[2]= dFabs(N[2]);
    if(A[0]>A[1])
    {
       if(A[0]>A[2])  
@@ -1418,9 +1459,9 @@ static int TriTriIntersectWithIsectLine(dReal V0[3],dReal V1[3],dReal V2[3],
 
   /* coplanarity robustness check */
 #if USE_EPSILON_TEST==TRUE
-  if(fabs(du0)<EPSILON) du0=0.0;
-  if(fabs(du1)<EPSILON) du1=0.0;
-  if(fabs(du2)<EPSILON) du2=0.0;
+  if(dFabs(du0)<EPSILON) du0=0.0;
+  if(dFabs(du1)<EPSILON) du1=0.0;
+  if(dFabs(du2)<EPSILON) du2=0.0;
 #endif
   du0du1=du0*du1;
   du0du2=du0*du2;
@@ -1441,9 +1482,9 @@ static int TriTriIntersectWithIsectLine(dReal V0[3],dReal V1[3],dReal V2[3],
   dv2=DOT(N2,V2)+d2;
 
 #if USE_EPSILON_TEST==TRUE
-  if(fabs(dv0)<EPSILON) dv0=0.0;
-  if(fabs(dv1)<EPSILON) dv1=0.0;
-  if(fabs(dv2)<EPSILON) dv2=0.0;
+  if(dFabs(dv0)<EPSILON) dv0=0.0;
+  if(dFabs(dv1)<EPSILON) dv1=0.0;
+  if(dFabs(dv2)<EPSILON) dv2=0.0;
 #endif
 
   dv0dv1=dv0*dv1;
@@ -1456,10 +1497,10 @@ static int TriTriIntersectWithIsectLine(dReal V0[3],dReal V1[3],dReal V2[3],
   CROSS(D,N1,N2);
 
   /* compute and index to the largest component of D */
-  max= (dReal) fabs(D[0]);
+  max= dFabs(D[0]);
   index=0;
-  b= (dReal) fabs(D[1]);
-  c= (dReal) fabs(D[2]);
+  b= dFabs(D[1]);
+  c= dFabs(D[2]);
   if(b>max) max=b,index=1;
   if(c>max) max=c,index=2;
 
@@ -1635,7 +1676,7 @@ ClipConvexPolygonAgainstPlane( const dVector3 N, dReal C,
         // towards the positive.  This should probably be somehow a relative
         // tolerance, and I don't think multiplying by the constant is the best
         // way to do this.
-        Test[i] = dDOT(N, Contacts.Points[i]) - C + dFabs(C)*1e-08;
+        Test[i] = dDOT(N, Contacts.Points[i]) - C + dFabs(C)*REAL(1e-08);
             
         if (Test[i] >= REAL(0.0)) {
             Positive++;
@@ -1825,7 +1866,7 @@ RayTriangleIntersect(const dVector3 orig, const dVector3 dir,
     // if determinant is near zero, ray lies in plane of triangle
     det = DOT(edge1, pvec);
 
-    if ((det > -0.001) && (det < 0.001))
+    if ((det > REAL(-0.001)) && (det < REAL(0.001)))
         return 0;
     inv_det = 1.0 / det;
 
@@ -1866,7 +1907,7 @@ SimpleUnclippedTest(dVector3 in_CoplanarPt, dVector3 in_v, dVector3 in_elt,
         // if the penetration depth (calculated above) is more than
         //  the contact point's ELT, then we've chosen the wrong face
         //  and should switch faces
-        contact_elt_length = fabs(dDOT(in_elt, in_n));
+        contact_elt_length = dFabs(dDOT(in_elt, in_n));
         
         if (dp == 0.0)
             dp = dMin(DISTANCE_EPSILON, contact_elt_length);
@@ -1901,57 +1942,92 @@ GenerateContact(int in_Flags, dContactGeom* in_Contacts, int in_Stride,
                 const dVector3 in_ContactPos, const dVector3 in_Normal, dReal in_Depth,
                 int& OutTriCount)
 {
-    if (in_Depth < 0.0)
-        return;
+	/*
+		NOTE by Oleh_Derevenko:
+		This function is called after maximal number of contacts has already been 
+		collected because it has a side effect of replacing penetration depth of
+		existing contact with larger penetration depth of another matching normal contact.
+		If this logic is not necessary any more, you can bail out on reach of contact
+		number maximum immediately in dCollideTTL(). You will also need to correct 
+		conditional statements after invocations of GenerateContact() in dCollideTTL().
+	*/
+	dIASSERT(in_Depth >= 0.0);
+    //if (in_Depth < 0.0) -- the function is always called with depth >= 0
+    //    return;
 
-    if (OutTriCount == (in_Flags & 0x0ffff))
-        return; // contacts are full!
+	do 
+	{
+		dContactGeom* Contact;
+		dVector3 diff;
 
+		if (!(in_Flags & CONTACTS_UNIMPORTANT))
+		{
+			bool duplicate = false;
 
-    dContactGeom* Contact;
-    dVector3 diff;
-    bool duplicate = false;
+			for (int i=0; i<OutTriCount; i++) 
+			{
+				Contact = SAFECONTACT(in_Flags, in_Contacts, i, in_Stride);
 
-    for (int i=0; i<OutTriCount; i++) 
-    {
-        Contact = SAFECONTACT(in_Flags, in_Contacts, i, in_Stride);
+				// same position?
+				SUB(diff, in_ContactPos, Contact->pos);
+				if (dDOT(diff, diff) < dEpsilon) 
+				{
+					// same normal?
+					if (dFabs(dDOT(in_Normal, Contact->normal)) > (REAL(1.0)-dEpsilon))
+					{
+						if (in_Depth > Contact->depth) {
+							Contact->depth = in_Depth;
+							SMULT( Contact->normal, in_Normal, -1.0);
+							Contact->normal[3] = 0.0;
+						}
+						duplicate = true;
+						/*
+							NOTE by Oleh_Derevenko:
+							There may be a case when two normals are close to each other but no duplicate
+							while third normal is detected to be duplicate for both of them.
+							This is the only reason I can think of, there is no "break" statement.
+							Perhaps author considered it to be logical that the third normal would 
+							replace the depth in both of initial contacts. 
+							However, I consider it a questionable practice which should not
+							be applied without deep understanding of underlaying physics.
+							Even more, is this situation with close normal triplet acceptable at all?
+							Should not be two initial contacts reduced to one (replaced with the latter)?
+							If you know the answers for these questions, you may want to change this code.
+							See the same statement in GenerateContact() of collision_trimesh_box.cpp
+						*/
+					}
+				}
+			}
 
-        // same position?
-        SUB(diff, in_ContactPos, Contact->pos);
-        if (dDOT(diff, diff) < dEpsilon) 
-        {
-            // same normal?
-            if (fabs(dDOT(in_Normal, Contact->normal)) > (dReal(1.0)-dEpsilon))
-            {
-                if (in_Depth > Contact->depth) {
-                    Contact->depth = in_Depth;
-                    SMULT( Contact->normal, in_Normal, -1.0);
-                    Contact->normal[3] = 0.0;
-                }
-                duplicate = true;
-            }
-        }
-    }
-
+			if (duplicate || OutTriCount == (in_Flags & NUMC_MASK))
+			{
+				break;
+			}
+		}
+		else 
+		{
+			dIASSERT(OutTriCount < (in_Flags & NUMC_MASK));
+		}
     
-    if (!duplicate) 
-    {
-        // Add a new contact
-        Contact = SAFECONTACT(in_Flags, in_Contacts, OutTriCount, in_Stride);
+		// Add a new contact
+		Contact = SAFECONTACT(in_Flags, in_Contacts, OutTriCount, in_Stride);
 
-        SET( Contact->pos, in_ContactPos );
-        Contact->pos[3] = 0.0;
-        
-        SMULT( Contact->normal, in_Normal, -1.0);
-        Contact->normal[3] = 0.0;
-        
-        Contact->depth = in_Depth;
+		SET( Contact->pos, in_ContactPos );
+		Contact->pos[3] = 0.0;
+    
+		SMULT( Contact->normal, in_Normal, -1.0);
+		Contact->normal[3] = 0.0;
+    
+		Contact->depth = in_Depth;
 
-        Contact->g1 = in_TriMesh1;
-        Contact->g2 = in_TriMesh2;
-        
-        OutTriCount++;
-    }
-
-
+		Contact->g1 = in_TriMesh1;
+		Contact->g2 = in_TriMesh2;
+    
+		OutTriCount++;
+	}
+	while (false);
 }
+
+#endif // dTRIMESH_OPCODE
+#endif // !dTRIMESH_USE_NEW_TRIMESH_TRIMESH_COLLIDER
+#endif // dTRIMESH_ENABLED

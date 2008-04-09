@@ -40,9 +40,54 @@
 /*
  * Macro to test for valid floating point values
  */
-#define dVALIDVEC3(v) (!(dIsNan(v[0]) | dIsNan(v[1]) | dIsNan(v[2])))
-#define dVALIDVEC4(v) (!(dIsNan(v[0]) | dIsNan(v[2]) | dIsNan(v[2]) | dIsNan(v[3])))
-#define dVALIDMAT(m) (!(dIsNan(m[0]) | dIsNan(m[2]) | dIsNan(m[2]) | dIsNan(m[3]) | dIsNan(m[4]) | dIsNan(m[5]) | dIsNan(m[6]) | dIsNan(m[7]) | dIsNan(m[8]) | dIsNan(m[9]) | dIsNan(m[10]) | dIsNan(m[11])))
+#define dVALIDVEC3(v) (!(dIsNan(v[0]) || dIsNan(v[1]) || dIsNan(v[2])))
+#define dVALIDVEC4(v) (!(dIsNan(v[0]) || dIsNan(v[1]) || dIsNan(v[2]) || dIsNan(v[3])))
+#define dVALIDMAT3(m) (!(dIsNan(m[0]) || dIsNan(m[1]) || dIsNan(m[2]) || dIsNan(m[3]) || dIsNan(m[4]) || dIsNan(m[5]) || dIsNan(m[6]) || dIsNan(m[7]) || dIsNan(m[8]) || dIsNan(m[9]) || dIsNan(m[10]) || dIsNan(m[11])))
+#define dVALIDMAT4(m) (!(dIsNan(m[0]) || dIsNan(m[1]) || dIsNan(m[2]) || dIsNan(m[3]) || dIsNan(m[4]) || dIsNan(m[5]) || dIsNan(m[6]) || dIsNan(m[7]) || dIsNan(m[8]) || dIsNan(m[9]) || dIsNan(m[10]) || dIsNan(m[11]) || dIsNan(m[12]) || dIsNan(m[13]) || dIsNan(m[14]) || dIsNan(m[15]) ))
+
+
+
+/*
+ * General purpose vector operations with other vectors or constants.
+ */
+
+#define dOP(a,op,b,c) \
+    (a)[0] = ((b)[0]) op ((c)[0]); \
+    (a)[1] = ((b)[1]) op ((c)[1]); \
+    (a)[2] = ((b)[2]) op ((c)[2]);
+#define dOPC(a,op,b,c) \
+    (a)[0] = ((b)[0]) op (c); \
+    (a)[1] = ((b)[1]) op (c); \
+    (a)[2] = ((b)[2]) op (c);
+#define dOPE(a,op,b) \
+    (a)[0] op ((b)[0]); \
+    (a)[1] op ((b)[1]); \
+    (a)[2] op ((b)[2]);
+#define dOPEC(a,op,c) \
+    (a)[0] op (c); \
+    (a)[1] op (c); \
+    (a)[2] op (c);
+
+
+/*
+ * Length, and squared length helpers. dLENGTH returns the length of a dVector3.
+ * dLENGTHSQUARED return the squared length of a dVector3.
+ */
+
+#define dLENGTHSQUARED(a) (((a)[0])*((a)[0]) + ((a)[1])*((a)[1]) + ((a)[2])*((a)[2]))
+
+#ifdef __cplusplus
+
+PURE_INLINE dReal dLENGTH (const dReal *a) { return dSqrt(dLENGTHSQUARED(a)); }
+
+#else
+
+#define dLENGTH(a) ( dSqrt( ((a)[0])*((a)[0]) + ((a)[1])*((a)[1]) + ((a)[2])*((a)[2]) ) )
+
+#endif /* __cplusplus */
+
+
+
 
 
 /*
@@ -242,9 +287,31 @@ extern "C" {
 /*
  * normalize 3x1 and 4x1 vectors (i.e. scale them to unit length)
  */
-ODE_API void dNormalize3 (dVector3 a);
-ODE_API void dNormalize4 (dVector4 a);
+ODE_API int  dSafeNormalize3 (dVector3 a);
+ODE_API int  dSafeNormalize4 (dVector4 a);
 
+// For some reason demo_chain1.c does not understand "inline" keyword.
+static __inline void _dNormalize3(dVector3 a)
+{
+	int bNormalizationResult = dSafeNormalize3(a);
+	dIASSERT(bNormalizationResult);
+	dVARIABLEUSED(bNormalizationResult);
+}
+
+static __inline void _dNormalize4(dVector4 a)
+{
+	int bNormalizationResult = dSafeNormalize4(a);
+	dIASSERT(bNormalizationResult);
+	dVARIABLEUSED(bNormalizationResult);
+}
+
+// For DLL export
+ODE_API void dNormalize3 (dVector3 a); // Potentially asserts on zero vec
+ODE_API void dNormalize4 (dVector4 a); // Potentially asserts on zero vec
+
+// For internal use
+#define dNormalize3(a) _dNormalize3(a)
+#define dNormalize4(a) _dNormalize4(a)
 
 /*
  * given a unit length "normal" vector n, generate vectors p and q vectors
