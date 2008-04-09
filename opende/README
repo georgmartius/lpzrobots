@@ -7,19 +7,19 @@
     
 In this folder you can find a copy of the ODE (http://www.ode.org) 
  that works with our simulations. 
-It is a developer snapshot from a few weeks after the 0.6 release.
+It is the 0.9 release.
 
 The recommended installation procedure is:
 \code
 cd opende; sh autogen.sh
 ./configure --enable-opcode --enable-double-precision
 make
-make install #(as root)
+sudo make install
 \endcode
 
 On some linux systems it's necessary to run 
 \code
-ldconfig #(as root)
+sudo ldconfig
 \endcode 
 for a correct linking of the libode.so.
 
