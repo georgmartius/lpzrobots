@@ -22,13 +22,16 @@
  ***************************************************************************
  *                                                                         *
  *  simulation.h and simulation.cpp provide a generic ode-robot simulation *
- *  framework. It implements the initialisation, the simulation loop,      * 
+ *  framework. It implements the initialisation, the simulation loop,      *
  *  and a basic command line interface.                                    *
  *  Usage: call simulation_init(), simulation_start(), simulation_close()  *
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.29.2.2  2008-04-09 10:18:41  martius
+ *   Revision 1.29.2.3  2008-04-09 13:57:59  guettler
+ *   New ShadowTechnique added.
+ *
+ *   Revision 1.29.2.2  2008/04/09 10:18:41  martius
  *   fullscreen and window options done
  *   fonts on hud changed
  *
@@ -220,16 +223,16 @@ namespace lpzrobots {
   public:
 
     typedef enum SimulationState { none, initialised, running, closed };
-    
+
     Simulation();
     virtual ~Simulation();
 
-    /** starts the Simulation. Do not overload it. 
+    /** starts the Simulation. Do not overload it.
 	This function returns of the simulation is terminated.
 	@return: true if closed regulary, false on error
     */
     bool run(int argc, char** argv);
-  
+
     // the following function have to be overloaded.
 
     /// start() is called at the start and should create all the object (obstacles, agents...).
@@ -239,32 +242,32 @@ namespace lpzrobots {
 
     /// end() is called at the end and should tidy up
     virtual void end(GlobalData& globalData);
-    /** config() is called when the user presses Ctrl-C 
+    /** config() is called when the user presses Ctrl-C
 	@return false to exit program, true otherwiese
     */
     virtual bool config(GlobalData& globalData);
-    /** is called if a key was pressed. 
+    /** is called if a key was pressed.
 	For keycodes see: osgGA::GUIEventAdapter
 	@return true if the key was handled
     */
-    virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, 
+    virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData,
 			 int key, bool down) { return false; };
 
-    /** this can be used to describe the key bindings used by command()     
+    /** this can be used to describe the key bindings used by command()
      */
     virtual void bindingDescription(osg::ApplicationUsage & au) const {};
 
     /** collCallback() can be used to overload the standart collision handling.
-	However it is called after the robots collision handling.       
+	However it is called after the robots collision handling.
 	@return true if collision is treated, false otherwise
     */
     virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
 
-    /** optional additional callback function which is called every simulation step. 
+    /** optional additional callback function which is called every simulation step.
 	Called between physical simulation step and drawing.
 	@param draw indicates that objects are drawn in this timestep
 	@param pause indicates that simulation is paused
-	@param control indicates that robots have been controlled this timestep	
+	@param control indicates that robots have been controlled this timestep
      */
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {};
 
@@ -272,7 +275,7 @@ namespace lpzrobots {
     void onPostDraw(const osg::Camera &c);
     // virtual void operator() ();
 
-  
+
 
   protected:
     // GUIEventHandler
@@ -283,7 +286,7 @@ namespace lpzrobots {
     virtual bool init(int argc, char** argv);
 
     /** define the home position and view orientation of the camera.
-	view.x is the heading angle in degree. view.y is the tilt angle in degree (nick), 
+	view.x is the heading angle in degree. view.y is the tilt angle in degree (nick),
 	view.z is ignored
     */
     void setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view);
@@ -292,7 +295,7 @@ namespace lpzrobots {
     static void nearCallback(void *data, dGeomID o1, dGeomID o2);
     bool control_c_pressed();
 
-    // plotoptions is a list of possible online output, 
+    // plotoptions is a list of possible online output,
     // if the list is empty no online gnuplot windows and no logging to file occurs.
     // The list is modified with commandline options, see run() in simulation.cpp
     std::list<PlotOption> plotoptions;
@@ -301,13 +304,13 @@ namespace lpzrobots {
 
 
   private:
-    void processCmdLine(int argc, char** argv);
     void insertCmdLineOption(int& argc,char**& argv);
-    bool loop(); 
+    bool loop();
     /// clears obstacle and agents lists and delete entries
     void tidyUp(GlobalData& globalData);
 
   protected:
+    void processCmdLine(int argc, char** argv);
     void resetSyncTimer();
     long timeOfDayinMS();
 
@@ -363,14 +366,11 @@ namespace lpzrobots {
   // /// call this after the @simulation_start()@ has returned to tidy up.
   // void simulation_close();
 
-  // Helper
-  /// returns the index+1 if the list contains the given string or 0 if not
-  int contains(char **list, int len,  const char *str);
 
   // Commandline interface stuff
   /// shows all parameters of all given configurable objects
   void showParams(const ConfigList& configs);
-  
+
   /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
   void createNewDir(const char* base, char *newdir);
 }

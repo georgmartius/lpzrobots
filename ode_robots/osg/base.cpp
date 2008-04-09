@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.2.1  2008-04-09 10:18:41  martius
+ *   Revision 1.14.2.2  2008-04-09 13:57:59  guettler
+ *   New ShadowTechnique added.
+ *
+ *   Revision 1.14.2.1  2008/04/09 10:18:41  martius
  *   fullscreen and window options done
  *   fonts on hud changed
  *
@@ -136,6 +139,13 @@
 
 #include <selforg/callbackable.h>
 
+#include <osgShadow/ShadowedScene>
+#include <osgShadow/ShadowVolume>
+#include <osgShadow/ShadowTexture>
+#include <osgShadow/ShadowMap>
+#include <osgShadow/SoftShadowMap>
+#include <osgShadow/ParallelSplitShadowMap>
+
 
 using namespace osg;
 
@@ -179,7 +189,102 @@ namespace lpzrobots {
     }
   }
 
+  /** Shadow types:
+   * 1 - ShadowVolume
+   * 2 - ShadowTextue
+   * 3 - ParallelSplitShadowMap
+   * 4 - SoftShadowMap
+   * 5 - ShadowMap (default)
+   */
+  osg::Group* Base::createShadowedScene(osg::Node* sceneToShadow)
+{
+  // some conf variables for ShadowVolume
+  bool twoSided=false;
+  bool twoPass=false;
+  bool updateLightPosition = true;
+  // some conf variables for ParallelSplitShadowMap
+  int mapCount =3;
+  bool debugColor=false;
+  int minNearSplit=0;
+  int maxFarDist=0;
+  int moveVCamFactor = 0;
+  double polyoffsetfactor = -0.02;
+  double polyoffsetunit = 1.0;
+  bool useNVidia=false; // if false, ATI Radeon!
+  bool cullFaceFront=false;
 
+  int mapRes = 1024; // used for and ParallelSplitShadowMap and ShadowMap
+
+  // create root of shadowedScene
+  osgShadow::ShadowedScene* shadowedScene = new osgShadow::ShadowedScene;
+
+  shadowedScene->setReceivesShadowTraversalMask(ReceivesShadowTraversalMask);
+  shadowedScene->setCastsShadowTraversalMask(CastsShadowTraversalMask);
+
+  // add ShadowTechnique
+  switch(shadowType) {
+  case 1: /// ShadowVolume
+    {
+      // hint to tell viewer to request stencil buffer when setting up windows
+      osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
+
+      osg::ref_ptr<osgShadow::ShadowVolume> sv = new osgShadow::ShadowVolume;
+      sv->setDynamicShadowVolumes(updateLightPosition);
+      if (twoSided)
+        sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_SIDED);
+      if (twoPass)
+        sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_PASS);
+      shadowedScene->setShadowTechnique(sv.get());
+    }
+    break;
+  case 2: /// ShadowTexture
+    {
+      osg::ref_ptr<osgShadow::ShadowTexture> st = new osgShadow::ShadowTexture;
+      shadowedScene->setShadowTechnique(st.get());
+    }
+    break;
+  case 3: /// ParallelSplitShadowMap
+    {
+      osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
+
+      if (debugColor)
+        pssm->setDebugColorOn();
+
+      pssm->setTextureResolution(mapRes);
+      pssm->setMinNearDistanceForSplits(minNearSplit);
+      pssm->setMaxFarDistance(maxFarDist);
+      pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
+
+      if (useNVidia)
+        pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f)); //NVidea
+      else
+        pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
+
+      if (cullFaceFront)
+        pssm->forceFrontCullFace();
+
+      shadowedScene->setShadowTechnique(pssm.get());
+    }
+    break;
+  case 4: /// SoftShadowMap
+    {
+      osg::ref_ptr<osgShadow::SoftShadowMap> sm = new osgShadow::SoftShadowMap;
+      shadowedScene->setShadowTechnique(sm.get());
+    }
+    break;
+  case 5: /// ShadowMap
+  default:
+    {
+        osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
+        shadowedScene->setShadowTechnique(sm.get());
+        sm->setTextureSize(osg::Vec2s(mapRes,mapRes));
+    }
+    break;
+  }
+  shadowedScene->addChild(sceneToShadow);
+
+  return shadowedScene;
+}
 
   osg::Group* Base::createShadowedScene(osg::Node* shadowed,
 					osg::Vec3 posOfLight,
@@ -460,13 +565,14 @@ namespace lpzrobots {
       Group* shadowedScene;
 
       // transform the Vec4 in a Vec3
-      osg::Vec3 posOfLight;
-      posOfLight[0]=lightSource->getLight()->getPosition()[0];
-      posOfLight[1]=lightSource->getLight()->getPosition()[1];
-      posOfLight[2]=lightSource->getLight()->getPosition()[2];
+//       osg::Vec3 posOfLight;
+//       posOfLight[0]=lightSource->getLight()->getPosition()[0];
+//       posOfLight[1]=lightSource->getLight()->getPosition()[1];
+//       posOfLight[2]=lightSource->getLight()->getPosition()[2];
 
       // create the shadowed scene, using textures
-      shadowedScene = createShadowedScene(scene,posOfLight,1);
+      //      shadowedScene = createShadowedScene(scene,posOfLight,1);
+      shadowedScene = createShadowedScene(scene);
 
       // add the shadowed scene to the root
       root->addChild(shadowedScene);
@@ -733,7 +839,22 @@ namespace lpzrobots {
     physicsCallbackables.push_back(callbackable);
   }
 
+void Base::processCmdLine(int argc, char** argv) {
+    int index = contains(argv, argc, "-shadowtype");
+    if(index && (argc > index))
+        shadowType=atoi(argv[index]);
+    }
+
+
+
+// Helper
+int Base::contains(char **list, int len,  const char *str) {
+  for(int i=0; i<len; i++) {
+    if(strcmp(list[i],str) == 0)
+      return i+1;
+  }
+  return 0;
 }
 
 
-
+}

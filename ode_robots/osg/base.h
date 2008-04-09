@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.2.1  2008-04-09 10:18:41  martius
+ *   Revision 1.7.2.2  2008-04-09 13:57:59  guettler
+ *   New ShadowTechnique added.
+ *
+ *   Revision 1.7.2.1  2008/04/09 10:18:41  martius
  *   fullscreen and window options done
  *   fonts on hud changed
  *
@@ -107,6 +110,8 @@ namespace lpzrobots {
     Base(const char* caption=0)
       : ground(0), caption(caption){
       timestats=0; hud=0;
+      ReceivesShadowTraversalMask = 0x1;
+      CastsShadowTraversalMask = 0x2;
     }
 
     virtual osg::Group* makeScene();
@@ -117,6 +122,15 @@ namespace lpzrobots {
     virtual osg::Group* createShadowedScene(osg::Node* shadowed,
 					    osg::Vec3 posOfLight,
 					    unsigned int unit);
+  /** Shadow types:
+   * 1 - ShadowVolume
+   * 2 - ShadowTextue
+   * 3 - ParallelSplitShadowMap
+   * 4 - SoftShadowMap
+   * 5 - ShadowMap (default)
+   */
+    virtual osg::Group* createShadowedScene(osg::Node* sceneToShadow);
+
 
 
     virtual void setCaption(const char* caption) {
@@ -158,6 +172,19 @@ namespace lpzrobots {
 
     std::list<Callbackable*> graphicsCallbackables;
     std::list<Callbackable*> physicsCallbackables;
+
+    void processCmdLine(int argc, char** argv);
+
+    int shadowType;
+
+    int ReceivesShadowTraversalMask;
+    int CastsShadowTraversalMask;
+
+      // Helper
+  /// returns the index+1 if the list contains the given string or 0 if not
+    int contains(char **list, int len,  const char *str);
+
+
   };
 }
 

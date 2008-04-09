@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.74.2.2  2008-04-09 10:18:41  martius
+ *   Revision 1.74.2.3  2008-04-09 13:57:59  guettler
+ *   New ShadowTechnique added.
+ *
+ *   Revision 1.74.2.2  2008/04/09 10:18:41  martius
  *   fullscreen and window options done
  *   fonts on hud changed
  *
@@ -496,25 +499,25 @@ namespace lpzrobots {
       arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName());
       arguments->getApplicationUsage()->addCommandLineOption(
 							     "-h or --help", "Display this information");
-	
+
       // construct the viewer.
       viewer = new Viewer(*arguments);
 
       // add the state manipulator
       viewer->addEventHandler( new osgGA::StateSetManipulator(viewer->getCamera()->getOrCreateStateSet()) );
-	
+
       // add the thread model handler
       viewer->addEventHandler(new osgViewer::ThreadingHandler);
-	
+
       // add the window size toggle handler
       viewer->addEventHandler(new osgViewer::WindowSizeHandler);
-        
+
       // add the stats handler
       viewer->addEventHandler(new osgViewer::StatsHandler);
-	 
+
       // add the help handler
       viewer->addEventHandler(new osgViewer::HelpHandler(arguments->getApplicationUsage()));
-	
+
       // add the record camera path handler
       viewer->addEventHandler(new osgViewer::RecordCameraPathHandler);
 
@@ -605,11 +608,11 @@ namespace lpzrobots {
 
     start(odeHandle, osgHandle, globalData);
 
-    if(!noGraphics) {      
+    if(!noGraphics) {
       // optimize the scene graph, remove redundant nodes and state etc.
       // osgUtil::Optimizer optimizer;
       // optimizer.optimize(root);
-      
+
 
       // add model to viewer.
       viewer->setSceneData(root);
@@ -619,8 +622,7 @@ namespace lpzrobots {
       //         int y = rs->getWindowOriginY();
       //         rs->setWindowRectangle(x,y,windowWidth, windowHeight);
       //         rs->fullScreen(false);
-            
-            
+
       // create the windows and run the threads.
       viewer->realize();
 
@@ -635,7 +637,7 @@ namespace lpzrobots {
       //      {
       //          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
       //      }
-      //  The callback stuff does not nicely work anymore so that we would have to call 
+      //  The callback stuff does not nicely work anymore so that we would have to call
       //   MotionBlurDrawCallback by hand after the viewer->frame call below
     }
 
@@ -656,7 +658,7 @@ namespace lpzrobots {
 	// fire off the cull and draw traversals of the scene.
 	viewer->frame();
 	// onPostDraw(*(viewer->getCamera()));
-      
+
       }
 
       // wait for all cull and draw threads to complete before exit.
@@ -742,7 +744,7 @@ namespace lpzrobots {
 	globalData.sounds.remove_if(Sound::older_than(globalData.time));
       }
 
-      addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause, 
+      addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
 		  (sim_step % globalData.odeConfig.controlInterval ) == 0);
 
       if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {
@@ -896,12 +898,12 @@ namespace lpzrobots {
 	handled = true;
 	break;
 	//     case 15: // Ctrl - o // TEST
-	//       { 	
+	//       {
 	// 	SceneView* sv = viewer->getSceneHandlerList().front()->getSceneView();
 	// 	Vec3 p(400,400,0);
-	// 	Pos o;	
+	// 	Pos o;
 	// 	if(!sv->projectWindowIntoObject(p,o)){
-	// 	  printf("SHIT happens always\n");	  
+	// 	  printf("SHIT happens always\n");
 	// 	}
 	// 	o.print();
 	// 	handled = true;
@@ -1004,14 +1006,13 @@ namespace lpzrobots {
     nargv[argc++]=strdup(itos(windowWidth).c_str());
     nargv[argc++]=strdup(itos(windowHeight).c_str());
     assert(argc<=nargc);
-    argv=nargv;       
+    argv=nargv;
   }
 
 
   void Simulation::processCmdLine(int argc, char** argv) {
     if(contains(argv, argc, "-h") || contains(argv, argc, "--help"))
       usage(argv[0]);
-
     // guilogger-loading stuff here
     // start with online windows
     int index = contains(argv, argc, "-g");
@@ -1306,6 +1307,7 @@ namespace lpzrobots {
     printf("\t-nographics \t\tstart without any graphics\n");
     printf("\t-noshadow \tdisables shadows and shaders\n");
     printf("\t-shadowsize size \tsets the size of the shadow texture (default 2048)\n");
+    printf("\t-shadowtype [1..5]] \tsets the type of the shadow to be used (default 5)\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
     printf("\t-simtime min\tlimited simulation time in minutes\n");
 
@@ -1323,17 +1325,7 @@ namespace lpzrobots {
   }
 
 
-  // Helper
-  int contains(char **list, int len,  const char *str) {
-    for(int i=0; i<len; i++) {
-      if(strcmp(list[i],str) == 0)
-	return i+1;
-    }
-    return 0;
-  }
-
-
-  void createNewDir(const char* base, char *newdir) {
+void createNewDir(const char* base, char *newdir) {
     struct stat s;
     for(int i=0; i<1000; i++) {
       sprintf(newdir,"%s%03i", base, i);
