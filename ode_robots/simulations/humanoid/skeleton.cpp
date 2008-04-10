@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-03-14 08:04:23  der
+ *   Revision 1.6  2008-04-10 12:27:13  der
+ *   some changes
+ *
+ *   Revision 1.5  2008/03/14 08:04:23  der
  *   Some changes in main and skeleton (with new outfit)
  *
  *   Revision 1.4  2008/02/28 07:43:03  der
@@ -153,12 +156,29 @@ namespace lpzrobots {
   };
 
   int Skeleton::getSensorNumber(){
+    int numberSensors=0;
+    
     if(conf.onlyPrimaryFunctions)
-      return hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size() + 1 /*pelvis*/;
+      numberSensors +=hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size() + 1 /*pelvis*/;
     else
-      return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2
+      numberSensors +=hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2
 	+ 2 /*pelvis*/ + /*headservos.size()*/ 2*headservos.size()  ; 
+
+    // add new one!
+    // head and trunk position (z): +2
+    //    numberSensors+=2;
+
+    return numberSensors;
   };
+
+
+  /*****************************
+GUIDE adding new sensors
+1. in getSensorNumber() Anzahl der Sensoren korrigieren: numberSensors+=1;
+2. in getSensors() dem Array sensors neue Sensorwerte zuweisen, z.B: sensors[n++]=getHeadPosition().z;
+
+
+   ****************************/
 
   /* returns actual sensorvalues
       @param sensors sensors scaled to [-1,1] (more or less)
@@ -168,7 +188,7 @@ namespace lpzrobots {
   int Skeleton::getSensors(sensor* sensors, int sensornumber){
     assert(created);
     int len = min(sensornumber, getSensorNumber());    
-    int n=0;
+    int n=0; // index variable
     FOREACHC(vector <TwoAxisServo*>, hipservos, s){
       sensors[n]   = (*s)->get1();
       if(!conf.onlyPrimaryFunctions){
@@ -208,6 +228,10 @@ namespace lpzrobots {
 	n+=2;
       }
     }
+    // add z-headPosition as sensor and increment n!
+    //    sensors[n++]=getHeadPosition().z;
+    //    sensors[n++]=getTrunkPosition().z;
+    
     assert(len==n);
     return n;
   };
@@ -823,5 +847,29 @@ namespace lpzrobots {
     } else return Configurable::setParam(key, val);    
     return true;
   }
+
+
+  Position Skeleton::getHeadPosition() {
+    const Primitive* o = objects[Head_comp];    
+    // using the Geom has maybe the advantage to get the position of transform objects 
+    // (e.g. hand of muscledArm)
+    if (o && o->getGeom())
+      return Position(dGeomGetPosition(o->getGeom()));
+    else if(o->getBody())
+      return Position(dBodyGetPosition(o->getBody()));     
+    else return Position(0,0,0);
+  }
+
+  Position Skeleton::getTrunkPosition() {
+    const Primitive* o = objects[Trunk_comp];    
+    // using the Geom has maybe the advantage to get the position of transform objects 
+    // (e.g. hand of muscledArm)
+    if (o && o->getGeom())
+      return Position(dGeomGetPosition(o->getGeom()));
+    else if(o->getBody())
+      return Position(dBodyGetPosition(o->getBody()));     
+    else return Position(0,0,0);
+  }
+
 
 }
