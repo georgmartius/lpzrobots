@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-03-14 08:04:23  der
+ *   Revision 1.5  2008-04-10 12:27:32  der
+ *   just a few changes
+ *
+ *   Revision 1.4  2008/03/14 08:04:23  der
  *   Some changes in main and skeleton (with new outfit)
  *
  *   Revision 1.3  2008/02/08 13:35:10  der
@@ -215,6 +218,13 @@ namespace lpzrobots {
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
+
+    /** returns the position of the head */
+    virtual Position getHeadPosition();
+
+    /** returns the position of the trunk */
+    virtual Position getTrunkPosition();
+
   protected:
 
     /** creates vehicle at desired pose
