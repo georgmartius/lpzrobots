@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.74.2.4  2008-04-09 14:25:35  martius
+ *   Revision 1.74.2.5  2008-04-10 07:40:17  guettler
+ *   Optimised parameters for the ShadowTechnique ParallelSplitShadowMap.
+ *
+ *   Revision 1.74.2.4  2008/04/09 14:25:35  martius
  *   shadow cmd line option
  *
  *   Revision 1.74.2.3  2008/04/09 13:57:59  guettler
@@ -1084,7 +1087,11 @@ namespace lpzrobots {
     index = contains(argv, argc, "-shadow");
     if(index && (argc > index))
       shadowType=atoi(argv[index]);
-    shadowTexSize = 2048;
+    // if shadowType=3 (ParallelSplitShadowMap), use shadowTexSize of 1024
+    if (shadowType==3)
+      shadowTexSize = 1024;
+    else
+      shadowTexSize = 2048;
     index = contains(argv, argc, "-shadowsize");
     if(index && argc > index) {
       shadowTexSize = atoi(argv[index]);

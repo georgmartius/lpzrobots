@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.2.3  2008-04-09 14:25:35  martius
+ *   Revision 1.14.2.4  2008-04-10 07:40:17  guettler
+ *   Optimised parameters for the ShadowTechnique ParallelSplitShadowMap.
+ *
+ *   Revision 1.14.2.3  2008/04/09 14:25:35  martius
  *   shadow cmd line option
  *
  *   Revision 1.14.2.2  2008/04/09 13:57:59  guettler
@@ -206,17 +209,16 @@ namespace lpzrobots {
   bool twoPass=false;
   bool updateLightPosition = true;
   // some conf variables for ParallelSplitShadowMap
-  int mapCount =3;
+  int mapCount =2;
   bool debugColor=false;
   int minNearSplit=0;
-  int maxFarDist=0;
+  int maxFarDist=10;
   int moveVCamFactor = 0;
   double polyoffsetfactor = -0.02;
   double polyoffsetunit = 1.0;
-  bool useNVidia=false; // if false, ATI Radeon!
+  bool useNVidia=true; // if false, ATI Radeon!
   bool cullFaceFront=false;
 
-  int mapRes = 1024; // used for and ParallelSplitShadowMap and ShadowMap
 
   // create root of shadowedScene
   osgShadow::ShadowedScene* shadowedScene = new osgShadow::ShadowedScene;
@@ -253,7 +255,7 @@ namespace lpzrobots {
       if (debugColor)
         pssm->setDebugColorOn();
 
-      pssm->setTextureResolution(mapRes);
+      pssm->setTextureResolution(shadowTexSize);
       pssm->setMinNearDistanceForSplits(minNearSplit);
       pssm->setMaxFarDistance(maxFarDist);
       pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
@@ -280,7 +282,7 @@ namespace lpzrobots {
     {
         osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
         shadowedScene->setShadowTechnique(sm.get());
-        sm->setTextureSize(osg::Vec2s(mapRes,mapRes));
+      sm->setTextureSize(osg::Vec2s(shadowTexSize,shadowTexSize));
     }
     break;
   }
@@ -437,7 +439,7 @@ namespace lpzrobots {
       text->setColor(textColor);
       text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
       if(caption) text->setText(caption);
-      else text->setText("lpzrobots Simulator          Martius, Der, Güttler");
+      else text->setText("lpzrobots Simulator          Martius, Der, Gï¿½ttler");
     }
 
     // timing
