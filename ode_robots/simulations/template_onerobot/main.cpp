@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2007-08-24 08:35:19  martius
+ *   Revision 1.20.2.1  2008-04-10 07:35:45  guettler
+ *   tested some ShadowTechniques
+ *
+ *   Revision 1.20  2007/08/24 08:35:19  martius
  *   restored clean example
  *
  *
@@ -137,7 +140,7 @@ class ThisSim : public Simulation {
 public:
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     // first: position(x,y,z) second: view(alpha,beta,gamma)
     // gamma=0;
@@ -150,24 +153,24 @@ public:
     //  global.odeConfig.setParam("gravity", 0);
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
+    // - setting geometry for each wall of playground:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    
+
     // odeHandle and osgHandle are global references
     // vec3 == length, width, height
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(12, 0.2, 0.5));
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(32, 0.2, 0.5));
     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
     // register playground in obstacles list
     global.obstacles.push_back(playground);
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
+    // - create pointer to sphere (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
+    // - set Pose(Position) of sphere
     // - set a texture for the sphere
     // - add sphere to list of obstacles
     for (int i=0; i < 0/*2*/; i++){
@@ -187,22 +190,22 @@ public:
     c.bumper  = true;
     c.cigarMode  = true;
     // c.irFront = true;
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");    
+    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
     vehicle->place(Pos(0,0,0));
-     
+
     // use Nimm4 vehicle as robot:
     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
     // - place robot
     //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle, "Nimm4");
     //vehicle->place(Pos(0,1,0));
-    
-    
+
+
     // create pointer to controller
     // push controller in global list of configurables
-    //  AbstractController *controller = new InvertNChannelController(10);  
-    AbstractController *controller = new InvertMotorSpace(10);  
+    //  AbstractController *controller = new InvertNChannelController(10);
+    AbstractController *controller = new InvertMotorSpace(10);
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
@@ -212,10 +215,10 @@ public:
     OdeAgent* agent = new OdeAgent(plotoptions);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
-     
+
     showParams(global.configs);
   }
-  
+
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
@@ -236,9 +239,9 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+
