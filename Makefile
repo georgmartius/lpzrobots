@@ -13,7 +13,7 @@ all:
 	cd selforg && make depend
 	cd ode_robots && make depend
 	-make tags
-	@if test ! -e opende/Makefile; then echo -e "You need to setup ODE from opende folder first!\nPlease run:\ncd opende; sh autogen.sh\n./configure --enable-opcode --enable-double-precision\nmake\nmake install #(as root)\n\nOn most SUSE linux computers it's necessary to run thereafter\n\nldconfig #(as root)\n\nfor a correct linking of the libode.so!\n"; exit; fi
+	@if test ! -e opende/Makefile && ld -lode -L$HOME/lib 2>/dev/null; then echo -e "You need to setup ODE from first!\nYou have 2 options: use a precompiled one from our webpage or compile the one in opende\nFor compiling please run:\ncd opende; sh autogen.sh\n./configure --enable-release --enable-double-precision\nmake\nsudo make install\n\nOn most SUSE linux computers it's necessary to run thereafter\n\nsudo ldconfig\n\nfor a correct linking of the libode.so!\n"; exit; fi
 
 .PHONY: guilogger
 guilogger:
@@ -33,6 +33,7 @@ soundman:
 
 .PHONY: install
 install:
+	-mkdir -p $(HOME)/.lpzrobots
 	-mkdir -p $(HOME)/bin $(HOME)/lib/soundMan
 	-cd neuronviz/src && make install
 	-cd javacontroller/src && make install
