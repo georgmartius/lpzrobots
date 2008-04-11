@@ -8,6 +8,8 @@
 
 using namespace std;
 
+namespace lpzrobots {
+
 typedef string CString;
 
 
@@ -72,5 +74,7 @@ private:
   bool internInit();
 
 };
+
+}
 
 #endif

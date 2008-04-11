@@ -22,13 +22,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *                                                                         *
  ***************************************************************************/
 #ifndef __COMMANDDEFS_H
 #define __COMMANDDEFS_H
+
+namespace lpzrobots {
+
 
 /// type of different commands
 /// forbidden: 0xFF (this is the start byte)
@@ -41,5 +47,6 @@
 #define CMSG   0x9  /* 00001001 Message data.                            */
 #define CTEST 0x10  /* 00001010 Test i2c communication.                  */
 
+}
 
 #endif

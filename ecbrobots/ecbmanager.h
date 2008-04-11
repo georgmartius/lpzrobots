@@ -22,8 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *                                                                         *
  ***************************************************************************/
@@ -34,6 +37,9 @@
 
 #include "globaldata.h"
 #include "ecbagent.h"
+
+namespace lpzrobots {
+
 
 // forward declaration begin
 class ECBCommunicator;
@@ -117,6 +123,6 @@ private:
 };
 
 
-
+}
 
 #endif

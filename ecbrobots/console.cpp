@@ -26,8 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *   Revision 1.2  2007/07/28 10:13:26  martius
  *   very nicely working communication with multiple xbees *g*
@@ -46,7 +49,7 @@
  *
  *                                                                         *
  ***************************************************************************/
- 
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,7 +66,11 @@
 
 using namespace std;
 
-typedef bool (*commandfunc_t)(GlobalData& globalData, char *, char *);          
+
+namespace lpzrobots {
+
+
+typedef bool (*commandfunc_t)(GlobalData& globalData, char *, char *);
 /* The names of functions that actually do the manipulation.  parameter: global data, entire line, arg */
 bool com_list (GlobalData& globalData, char *, char *);
 bool com_show (GlobalData& globalData, char *, char *);
@@ -135,19 +142,19 @@ bool handleConsole(GlobalData& globalData){
   fflush(stdout);
   std::cout << "Type: ? for help or press TAB\n";
   line = readline ("> ");
-  
+
   if (!line)
     return rv;
-  
+
   /* Remove leading and trailing whitespace from the line.
      Then, if there is anything left, add it to the history list
      and execute it. */
-  s = stripwhite (line);  
-  if (*s) {    
+  s = stripwhite (line);
+  if (*s) {
     add_history (s);
     rv = execute_line (globalData,s);
   }
-  
+
   free (line);
   return rv;
 }
@@ -208,7 +215,7 @@ char * stripwhite (char *string){
 
   for (s = string; whitespace (*s); s++)
     ;
-    
+
   if (*s == 0)
     return (s);
 
@@ -293,7 +300,7 @@ char * command_generator (const char *text, int state) {
 
       if (strncmp (name, text, len) == 0)
         return (dupstr(name));
-    }  
+    }
 
   /* If no names matched, then return NULL. */
   return ((char *)NULL);
@@ -309,15 +316,15 @@ char * command_generator (const char *text, int state) {
 bool com_list (GlobalData& globalData, char* line, char* arg) {
   int i=0;
   printf("Agents ---------------(for store and load)\nID: Name\n");
-  
-  FOREACHC(AgentList, globalData.agents,a){    
+
+  FOREACHC(AgentList, globalData.agents,a){
     if((*a)->getRobot())
     printf(" %2i: %s\n", i, (*a)->getRobot()->getName().c_str());
     i++;
   }
   printf("Objects --------------(for set and show)\nID: Name\n");
-  
-  FOREACHC(ConfigList, globalData.configs,c){    
+
+  FOREACHC(ConfigList, globalData.configs,c){
     printf(" %2i: %s\n", i, (*c)->getName().c_str());
     i++;
   }
@@ -332,19 +339,19 @@ bool com_show (GlobalData& globalData, char* line, char* arg) {
       return true;
     }
   }
-  showParams(globalData.configs);  
- 
+  showParams(globalData.configs);
+
   return true;
 }
 
-bool com_set (GlobalData& globalData, char* line, char* arg) {  
+bool com_set (GlobalData& globalData, char* line, char* arg) {
   if(strstr(line,"set")!=line) arg=line; // if it is not invoked with set then it was param=val
   if (valid_argument("set", arg)){
     /* Isolate the command word. */
     int i = 0;
     char* s_param;
     bool changed=false;
-        
+
     s_param = strchr(arg,' ');
     if(s_param) *s_param='\0'; // terminate first arg
     if(s_param && strchr(arg,'=')==NULL){ // looks like two args (and no = in the first)
@@ -362,12 +369,12 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
 	    changed = true;
 	    *val='='; // remove termination again (for agent notification)
 	  }
-	} else printf("Syntax error! no '=' found\n");      
-      }else printf("Object with ID: %i not found\n", id);      
+	} else printf("Syntax error! no '=' found\n");
+      }else printf("Object with ID: %i not found\n", id);
     }else{
       if(s_param) *s_param=' '; // unterminate arg
       s_param=arg;
-	
+
       char* val;
       i=0;
       val = strchr(s_param,'=');
@@ -377,16 +384,16 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
  	FOREACH(ConfigList, globalData.configs, i){
  	  if ((*i)->setParam(s_param,v)){
  	    printf(" %s=\t%f \n", s_param, (*i)->getParam(s_param));
- 	    changed = true;	    
+ 	    changed = true;
  	  }
  	}
 	*val='='; // remove termination again (for agent notification)
-      } else printf("Syntax error! no '=' found\n");      
+      } else printf("Syntax error! no '=' found\n");
     }
     if(changed){
-      FOREACH(AgentList, globalData.agents, i){	
+      FOREACH(AgentList, globalData.agents, i){
 	(*i)->writePlotComment(s_param );
-      }      
+      }
     }
   }
   return true;
@@ -394,7 +401,7 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
 
 bool com_store (GlobalData& globalData, char* line, char* arg) {
   if (valid_argument("store", arg)){
-    char* filename;        
+    char* filename;
     filename = strchr(arg,' ');
     if(filename) { // we have 2 arguments
       *filename='\0';
@@ -408,15 +415,15 @@ bool com_store (GlobalData& globalData, char* line, char* arg) {
 	  else printf("Error occured while storing contoller\n");
 	  fclose(f);
 	}else printf("Cannot open file %s for writing\n", filename);
-      } else printf("Agent with ID: %i not found\n", id);            
-    }else printf("syntax error , see >help store\n");        
+      } else printf("Agent with ID: %i not found\n", id);
+    }else printf("syntax error , see >help store\n");
   }
   return true;
 }
 
 bool com_load (GlobalData& globalData, char* line, char* arg) {
   if (valid_argument("load", arg)){
-    char* filename;        
+    char* filename;
     filename = strchr(arg,' ');
     if(filename) { // we have 2 arguments
       *filename='\0';
@@ -430,8 +437,8 @@ bool com_load (GlobalData& globalData, char* line, char* arg) {
 	  else printf("Error occured while restoring contoller\n");
 	  fclose(f);
 	}else printf("Cannot open file %s for reading\n", filename);
-      } else printf("Agent with ID: %i not found\n", id);            
-    }else printf("syntax error , see >help load\n");        
+      } else printf("Agent with ID: %i not found\n", id);
+    }else printf("syntax error , see >help load\n");
   }
   return true;
 }
@@ -495,3 +502,4 @@ valid_argument ( char *caller, char *arg)
   return (1);
 }
 
+}

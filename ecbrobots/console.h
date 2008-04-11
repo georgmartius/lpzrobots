@@ -23,8 +23,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *   Revision 1.1  2007/07/10 13:42:00  robot3
  *   added readline console
@@ -40,6 +43,9 @@
 
 #include "globaldata.h"
 
+namespace lpzrobots {
+
+
   /// should be called at the start
   void initializeConsole();
   /// should be called at the end (to store history)
@@ -48,10 +54,11 @@
   /** offers a console interface
       the possibility to change parameter of all configurable objects in globalData
       storeing and restoreing of controllers ...
-      also informs agents about changes 
+      also informs agents about changes
       @return false if program should exit
   */
   bool handleConsole(GlobalData& globalData);
 
+}
 
 #endif

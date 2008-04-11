@@ -20,8 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-08 08:14:30  guettler
- *   Initial revision
+ *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
+ *   new ecbrobots module!
  *
  *   Revision 1.1  2007/07/10 15:02:33  robot3
  *   *** empty log message ***
@@ -36,7 +39,11 @@
 
 #include <selforg/agent.h>
 
+
 class Configurable;
+
+namespace lpzrobots {
+
 class ECBCommunicator;
 
 typedef std::vector<Configurable*> ConfigList;       ///
@@ -92,5 +99,7 @@ struct GlobalData
   ECBCommunicator* comm;
 
 };
+
+}
 
 #endif

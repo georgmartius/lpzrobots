@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-08 10:11:03  guettler
+ *   Revision 1.3  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.2  2008/04/08 10:11:03  guettler
  *   alpha testing
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -35,26 +38,23 @@
 #include <selforg/invertmotorspace.h>
 #include <selforg/one2onewiring.h>
 
+// fetch all the stuff of lpzrobots into scope
+using namespace lpzrobots;
 
 class MyECBManager : public ECBManager {
 
   public:
 
-    MyECBManager() {
+    MyECBManager() {}
 
-
-
-    }
-
-    ~MyECBManager() {
-    }
+    virtual ~MyECBManager() {}
 
     /**
      * This function is for the initialising of agents and robots,...
      * @param global
      * @return true if initialisation was successful
      */
-    bool start ( GlobalData& global ) {
+    virtual bool start ( GlobalData& global ) {
 
       // set specific communication values
       global.baudrate = 38400;
@@ -115,7 +115,7 @@ class MyECBManager : public ECBManager {
     @param pause indicates that simulation is paused
     @param control indicates that robots have been controlled this timestep
     */
-    void addCallback ( GlobalData& globalData,bool pause, bool control ) {
+    virtual void addCallback ( GlobalData& globalData,bool pause, bool control ) {
 
     }
 

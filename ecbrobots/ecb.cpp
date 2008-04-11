@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-04-11 06:15:48  guettler
+ *   Revision 1.5  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.4  2008/04/11 06:15:48  guettler
  *   Inserted convertion from byte to double and backwards for motor and sensor values
  *
  *   Revision 1.3  2008/04/08 10:11:03  guettler
@@ -43,6 +46,8 @@
 #include <iostream>
 
 using namespace std;
+
+namespace lpzrobots {
 
 ECB::ECB ( short address,GlobalData& globalData,ECBConfig& ecbConfig ) : Configurable("ECB","$ID$"), globalData ( &globalData ), ecbConfig ( ecbConfig ),address ( address ) {
   failureCounter=0;
@@ -216,4 +221,6 @@ bool ECB::restore ( FILE* f ) {
   // xml parser anwerfen
   // viel Spaß!
   return true;
+}
+
 }

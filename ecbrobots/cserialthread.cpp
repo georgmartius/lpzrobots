@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-08 09:09:09  martius
+ *   Revision 1.3  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.2  2008/04/08 09:09:09  martius
  *   fixed globaldata to pointer in classes
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -41,6 +44,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <errno.h>
+
+namespace lpzrobots {
 
 
 static void* CSerialThread_run(void* p);
@@ -211,3 +216,4 @@ static void* CSerialThread_run(void* p)
   pthread_exit(&rv);
 }
 
+}

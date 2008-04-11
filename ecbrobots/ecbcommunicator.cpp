@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-04-08 10:11:03  guettler
+ *   Revision 1.5  2008-04-11 06:31:16  guettler
+ *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.4  2008/04/08 10:11:03  guettler
  *   alpha testing
  *
  *   Revision 1.3  2008/04/08 09:12:34  martius
@@ -45,6 +48,8 @@
 #include "ecbagent.h"
 
 using namespace std;
+
+namespace lpzrobots {
 
 ECBCommunicator::ECBCommunicator(GlobalData& globalData):CSerialThread(globalData.portName, globalData.baudrate, globalData.serialReadTimeout, globalData.debug), globalData(&globalData) {
   if (this->globalData->debug)
@@ -253,7 +258,7 @@ void ECBCommunicator::initialise() {
 }
 
 
-
+}
 
 
 /*
