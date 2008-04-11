@@ -1,0 +1,48 @@
+/** \file
+* This file is used for the doxygen documentation.
+*/
+
+/**
+\dir ecbrobots
+
+
+The ecbrobots directory provides all the stuff necessary for
+controlling hardware robots, driven by one or more Embedded Controller Boards (ECB), with the selforg controllers.
+
+\par ECBManager
+
+The class lpzrobots::ECBManager manages all stuff needed for communicating with the Embedded Controller Boards. It creates the class lpzrobots::ECBCommunicator, who is a lpzrobots::CSerialThread. This thread permits the communication with the ECBs. The ECBCommunicator implements the communication protocol.\n
+Note that the class lpzrobots::CSerialThread is designed for working in a unix environment, if you like to run this simulation under e.g. windows, be so kind to implement a comparable class. Maybe this class comes later.\n
+In the class lpzrobots::ECBManager you find the function  lpzrobots::ECBManager::start to overload. There you can define your ECBRobot with the ECBs and the Controller you like. Addionally you can overload functions like lpzrobots::ECBManager::addCallback for additional callback purposes, lpzrobots::ECBManager::command to react on keystrokes, and some more.
+
+\par The ecbrobots subdirectories
+
+- \ref ecbrobots/simulations "simulations" :
+"ready to use" ECBManager
+- \ref ecbrobots/include "include":
+neccessary for linking the object files (don't worry about that)
+
+
+\par How to Start Your Own ECBManager
+
+To start a new project copy one of the "template" directories in the simulations folder.
+Please note that you have to delete the CVS dirctory inside your copy
+before you add it to the cvs repository.
+Or just use the createNewSimulation.sh script in the simulations directory:\n
+<tt> $> ./createNewSimulation.sh template_dir newsimname </tt>\n
+where \p template_dir is the template directory you wish to copy and \p newsimname is the
+name of the new simulation you wish to create.
+
+Now you can adjust the ECBManager as needed.
+A simple make (and maybe a make depend before the make) in the simulation directory should be enough.
+In case your code for the ECBManager consists of other files than main.cpp,
+please add them to FILES in the Makefile in the simulation directory.
+
+If you insert a new file to the simulation framework,
+such as a new obstacle, robot or similar you DON'T need to do anything.
+Every *.cpp file in the directories specified in Makefile.conf is
+compiled and included in the library libecbrobots.a.
+In case you add a new directory with source files,
+which should be included in the lib, then add it to Makefile.conf.
+
+*/
