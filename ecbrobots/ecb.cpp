@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-08 10:11:03  guettler
+ *   Revision 1.4  2008-04-11 06:15:48  guettler
+ *   Inserted convertion from byte to double and backwards for motor and sensor values
+ *
+ *   Revision 1.3  2008/04/08 10:11:03  guettler
  *   alpha testing
  *
  *   Revision 1.2  2008/04/08 09:09:09  martius
@@ -64,7 +67,7 @@ bool ECB::writeMotors_readSensors() {
   int i=0;
   // TODO: convert double
   FOREACH (list<motor>,motorList,m) {
-    motorComm.data[i++]=(*m);
+    motorComm.data[i++]=convertToByte((*m));
   }
   if (!globalData->comm->sendData(motorComm)) {
     cerr << "Error while sending motor values for ECB " << address << "." << endl;
@@ -80,7 +83,7 @@ bool ECB::writeMotors_readSensors() {
 
   sensorList.clear();
   for(int i=0;i<result.dataLength;i++) {
-    sensorList.push_back(result.data[i]);
+    sensorList.push_back(convertToDouble(result.data[i]));
   }
 
   // reset the counter, because communication was successful
@@ -186,6 +189,17 @@ int ECB::getMaxNumberSensors() {
   return ( ecbConfig.maxNumberSensors);
 }
 
+/// helper functions
+
+double ECB::convertToDouble(int byteVal) {
+  return (((double)(byteVal-127))/255.);
+}
+
+int ECB::convertToByte(double doubleVal) {
+  // insert check byteVal<255
+  int byteVal =(int)((doubleVal+1.)*128.0);
+  return (byteVal<255?byteVal:254);
+}
 
 
 

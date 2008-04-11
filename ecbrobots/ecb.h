@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-08 09:09:09  martius
+ *   Revision 1.3  2008-04-11 06:15:48  guettler
+ *   Inserted convertion from byte to double and backwards for motor and sensor values
+ *
+ *   Revision 1.2  2008/04/08 09:09:09  martius
  *   fixed globaldata to pointer in classes
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -181,6 +184,29 @@ private:
 
   /// noch verschiedene sensortypen und motortypen berücksichtigen
   /// bzw. hier bzw. in cpp-datei die cfg-datei berücksichtigen
+
+
+
+
+  /**
+   * Converts a given byteVal to a double value
+   * byteVal=0   -> doubleVal=-1
+   * byteVal=127 -> doubleVal=0
+   * byteVal=255 -> doubleVal=1
+   * @param byteVal
+   * @return
+   */
+  virtual double convertToDouble(int byteVal);
+
+  /**
+   * Converts a given doubleVal to a byte value
+   * doubleVal=-1 -> byteVal=0
+   * doubleVal=0  -> byteVal=127
+   * doubleVal=1  -> byteVal=255
+   * @param doubleVal
+   * @return
+   */
+  virtual int convertToByte(double doubleVal);
 
 };
 
