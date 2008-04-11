@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.29.2.3  2008-04-09 13:57:59  guettler
+ *   Revision 1.29.2.4  2008-04-11 10:41:35  martius
+ *   config file added
+ *
+ *   Revision 1.29.2.3  2008/04/09 13:57:59  guettler
  *   New ShadowTechnique added.
  *
  *   Revision 1.29.2.2  2008/04/09 10:18:41  martius
@@ -218,7 +221,7 @@ namespace lpzrobots {
 
 namespace lpzrobots {
 
-  class Simulation : public Base, public osgGA::GUIEventHandler   //, public osg::Camera::DrawCallback
+  class Simulation : public Base, public osgGA::GUIEventHandler, public Configurable
   {
   public:
 
@@ -323,6 +326,9 @@ namespace lpzrobots {
 
     // Commandline interface stuff
     static void usage(const char* progname);
+    
+    void storeOdeRobotsCFG();
+
 
   protected:
     GlobalData globalData;
@@ -333,8 +339,9 @@ namespace lpzrobots {
     long realtimeoffset;
     long simtimeoffset;
 
-    int windowWidth;
-    int windowHeight;
+    paramval windowWidth;
+    paramval windowHeight;    
+
     bool pause;
     bool simulation_time_reached;
     long int simulation_time;
@@ -345,6 +352,8 @@ namespace lpzrobots {
     int guiloggerinterval;
     int filelogginginterval;
     int neuronvizinterval;
+   
+    char odeRobotsCfg[256]; /// < filename of config file
 
     //  CameraType camType; // default is a non-moving and non-rotating camera
     //  OdeRobot* viewedRobot; // the robot who is viewed from the camera

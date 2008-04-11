@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14.2.4  2008-04-10 07:40:17  guettler
+ *   Revision 1.14.2.5  2008-04-11 10:41:35  martius
+ *   config file added
+ *
+ *   Revision 1.14.2.4  2008/04/10 07:40:17  guettler
  *   Optimised parameters for the ShadowTechnique ParallelSplitShadowMap.
  *
  *   Revision 1.14.2.3  2008/04/09 14:25:35  martius
@@ -187,6 +190,14 @@ namespace lpzrobots {
   "    gl_FragColor = color * (ambientBias.x + shadow2DProj( shadowTexture, gl_TexCoord[1])  * ambientBias.y); \n"
   "}\n";
 
+    Base::Base(const char* caption)
+      : ground(0), caption(caption),
+      hud(0), timestats(0), ReceivesShadowTraversalMask(0x1), CastsShadowTraversalMask(0x2),
+      shadow(0), shadowTexSize(2048), useNVidia(1)
+    {
+    }
+
+
   Base::~Base(){
     if(ground ){
       //      Plane* plane = (Plane*) dGeomGetData(ground);
@@ -195,12 +206,8 @@ namespace lpzrobots {
     }
   }
 
-  /** Shadow types:
-   * 1 - ShadowVolume
-   * 2 - ShadowTextue
-   * 3 - ParallelSplitShadowMap
-   * 4 - SoftShadowMap
-   * 5 - ShadowMap (default)
+  /* Shadow types: 1 - ShadowVolume 2 - ShadowTextue 3 - ParallelSplitShadowMap
+   * 4 - SoftShadowMap 5 - ShadowMap
    */
   osg::Group* Base::createShadowedScene(osg::Node* sceneToShadow)
 {
@@ -216,7 +223,6 @@ namespace lpzrobots {
   int moveVCamFactor = 0;
   double polyoffsetfactor = -0.02;
   double polyoffsetunit = 1.0;
-  bool useNVidia=true; // if false, ATI Radeon!
   bool cullFaceFront=false;
 
 
@@ -227,6 +233,7 @@ namespace lpzrobots {
   shadowedScene->setCastsShadowTraversalMask(CastsShadowTraversalMask);
 
   // add ShadowTechnique
+  int shadowType=(int)shadow;
   switch(shadowType) {
   case 1: /// ShadowVolume
     {
@@ -255,12 +262,12 @@ namespace lpzrobots {
       if (debugColor)
         pssm->setDebugColorOn();
 
-      pssm->setTextureResolution(shadowTexSize);
+      pssm->setTextureResolution((int)shadowTexSize);
       pssm->setMinNearDistanceForSplits(minNearSplit);
       pssm->setMaxFarDistance(maxFarDist);
       pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
 
-      if (useNVidia)
+      if (useNVidia!=0) 
         pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f)); //NVidea
       else
         pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
@@ -282,7 +289,7 @@ namespace lpzrobots {
     {
         osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
         shadowedScene->setShadowTechnique(sm.get());
-      sm->setTextureSize(osg::Vec2s(shadowTexSize,shadowTexSize));
+      sm->setTextureSize(osg::Vec2s((int)shadowTexSize,(int)shadowTexSize));
     }
     break;
   }
@@ -297,8 +304,8 @@ namespace lpzrobots {
   {
     osg::Group* group = new osg::Group;
 
-    unsigned int tex_width  = shadowTexSize; // 1024; // up to 2048 is possible but slower
-    unsigned int tex_height = shadowTexSize; // 1024; // up to 2048 is possible but slower
+    unsigned int tex_width  = (int)shadowTexSize; // 1024; // up to 2048 is possible but slower
+    unsigned int tex_height = (int)shadowTexSize; // 1024; // up to 2048 is possible but slower
 
     osg::Texture2D* texture = new osg::Texture2D;
     texture->setTextureSize(tex_width, tex_height);
@@ -564,6 +571,7 @@ namespace lpzrobots {
     transform->addChild(lightSource);
 
     Group* scene = new Group; // create an extra group for the normal scene
+    int shadowType=(int)shadow;
 
     if(shadowType){
       // enable shadows

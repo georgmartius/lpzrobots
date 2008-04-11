@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7.2.3  2008-04-09 14:25:35  martius
+ *   Revision 1.7.2.4  2008-04-11 10:41:35  martius
+ *   config file added
+ *
+ *   Revision 1.7.2.3  2008/04/09 14:25:35  martius
  *   shadow cmd line option
  *
  *   Revision 1.7.2.2  2008/04/09 13:57:59  guettler
@@ -110,12 +113,7 @@ namespace lpzrobots {
 
   class Base {
   public:
-    Base(const char* caption=0)
-      : ground(0), caption(caption), shadowType(0){
-      timestats=0; hud=0;
-      ReceivesShadowTraversalMask = 0x1;
-      CastsShadowTraversalMask = 0x2;
-    }
+    Base(const char* caption=0);
 
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
@@ -125,13 +123,13 @@ namespace lpzrobots {
     virtual osg::Group* createShadowedScene(osg::Node* shadowed,
 					    osg::Vec3 posOfLight,
 					    unsigned int unit);
-  /** Shadow types:
-   * 1 - ShadowVolume
-   * 2 - ShadowTextue
-   * 3 - ParallelSplitShadowMap
-   * 4 - SoftShadowMap
-   * 5 - ShadowMap (default)
-   */
+    /** Shadow types:
+     * 1 - ShadowVolume
+     * 2 - ShadowTextue
+     * 3 - ParallelSplitShadowMap
+     * 4 - SoftShadowMap
+     * 5 - ShadowMap
+     */
     virtual osg::Group* createShadowedScene(osg::Node* sceneToShadow);
 
 
@@ -157,16 +155,16 @@ namespace lpzrobots {
 
     dGeomID ground;
 
-    osg::Group* root;
-    osg::Node* hud;
-    osgText::Text* timestats;
-	osgText::Text* statisticLine;
 
     OsgHandle osgHandle;
     // ODE globals
     OdeHandle odeHandle;
     const char* caption;
 
+    osg::Group* root;
+    osg::Node* hud;
+    osgText::Text* timestats;
+    osgText::Text* statisticLine;
 
     /// this manager provides methods for displaying statistics on the graphical window!
     HUDStatisticsManager* hUDStatisticsManager;
@@ -174,11 +172,14 @@ namespace lpzrobots {
     std::list<Callbackable*> graphicsCallbackables;
     std::list<Callbackable*> physicsCallbackables;
 
-    int shadowType;
-    unsigned int shadowTexSize;
-
     int ReceivesShadowTraversalMask;
     int CastsShadowTraversalMask;
+
+    // the types are double because they are configurable and stored to the cfg file
+    double shadow;     // set by child class Simulation
+    double shadowTexSize;  // set by child class Simulation
+    double useNVidia;      // if 0 use ATI Radeon!
+
 
       // Helper
   /// returns the index+1 if the list contains the given string or 0 if not

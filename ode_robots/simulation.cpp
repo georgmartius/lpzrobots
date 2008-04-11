@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.74.2.5  2008-04-10 07:40:17  guettler
+ *   Revision 1.74.2.6  2008-04-11 10:41:34  martius
+ *   config file added
+ *
+ *   Revision 1.74.2.5  2008/04/10 07:40:17  guettler
  *   Optimised parameters for the ShadowTechnique ParallelSplitShadowMap.
  *
  *   Revision 1.74.2.4  2008/04/09 14:25:35  martius
@@ -415,6 +418,7 @@
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
 
+
 namespace lpzrobots {
 
   using namespace std;
@@ -425,7 +429,16 @@ namespace lpzrobots {
 
   int Simulation::ctrl_C = 0;
 
-  Simulation::Simulation() {
+  Simulation::Simulation()
+    : Configurable("lpzrobots-ode_robots", "0.4"){
+    // default values are set in Base::Base()
+    addParameter("Shadow",&shadow);
+    addParameter("ShadowTextureSize",&shadowTexSize);
+    addParameter("UseNVidia",&useNVidia);
+    addParameterDef("WindowWidth",&windowWidth,640);
+    addParameterDef("WindowHeight",&windowHeight,480);
+    
+
     nextLeakAnnounce = 20;
     leakAnnCounter = 1;
     sim_step = 0;
@@ -489,6 +502,20 @@ namespace lpzrobots {
     l.push_back("../../osg/data");
     osgDB::setDataFilePathList(l);
 
+    // load config file (first in the current directory and then in ~/.lpzrobots/)
+    sprintf(odeRobotsCfg,"ode_robots.cfg");
+    if(!restoreCfg(odeRobotsCfg)){
+      const char* home = getenv("HOME");
+      if(!home){
+	fprintf(stderr,"Cannot determine HOME directory!");
+      } else {
+	sprintf(odeRobotsCfg,"%s/.lpzrobots/ode_robots.cfg",home);
+	if(!restoreCfg(odeRobotsCfg)){
+	  storeOdeRobotsCFG();
+	}
+      }
+    }
+    // process cmdline (possibly overwrite values from cfg file
     processCmdLine(argc, argv);
 
     if(!noGraphics) {
@@ -498,12 +525,25 @@ namespace lpzrobots {
       arguments = new ArgumentParser(&argc, argv);
 
       // set up the usage document, in case we need to print out how to use this program.
-      arguments->getApplicationUsage()->setApplicationName(arguments->getApplicationName());
-      arguments->getApplicationUsage()->setDescription(
-						       "Lpzrobots Simulator, <robot.informatik.uni-leipzig.de>");
-      arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName());
+      arguments->getApplicationUsage()->setApplicationName(arguments->getApplicationName() );
+      arguments->getApplicationUsage()->setDescription( 
+	       "Lpzrobots Simulator, <robot.informatik.uni-leipzig.de>");
+      arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName() ); 
       arguments->getApplicationUsage()->addCommandLineOption(
-							     "-h or --help", "Display this information");
+	       "-h or --help", "Display this information");
+      // if user request help write it out to cout.
+      if (arguments->read("-h") || arguments->read("--help")) {
+	arguments->getApplicationUsage()->write(std::cout);
+	return false;
+      }
+      // any option left unread are converted into errors to write out later.
+      //    arguments->reportRemainingOptionsAsUnrecognized();
+
+      // report any errors if they have occured when parsing the program aguments.
+      if (arguments->errors()) {
+	arguments->writeErrorMessages(std::cout);
+	return false;
+      }
 
       // construct the viewer.
       viewer = new Viewer(*arguments);
@@ -530,20 +570,14 @@ namespace lpzrobots {
       viewer->addEventHandler(this);
 
 
-      // if user request help write it out to cout.
-      if (arguments->read("-h") || arguments->read("--help")) {
-	arguments->getApplicationUsage()->write(std::cout);
-	return false;
-      }
-      // any option left unread are converted into errors to write out later.
-      //    arguments->reportRemainingOptionsAsUnrecognized();
-
-      // report any errors if they have occured when parsing the program aguments.
-      if (arguments->errors()) {
-	arguments->writeErrorMessages(std::cout);
-	return false;
-      }
     }
+
+    // information on terminal, can be removed if the printout is undesired
+    printf ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
+    printf ( "------------------------------------------------------------------------\n" );
+    printf ( "Press Ctrl-C on the console for a commandline interface.\n" );
+    printf ( "Press h      on the graphics window for help).\n\n" );
+    printf ( "Random number seed: %li\n", globalData.odeConfig.randomSeed);
 
     for(int i=0; i<3; i++) {
       osgHandle.tesselhints[i] = new TessellationHints();
@@ -596,14 +630,10 @@ namespace lpzrobots {
 
   bool Simulation::run(int argc, char** argv) {
 
+
     if(!init(argc, argv))
       return false;
 
-    // information on terminal, can be removed if the printout is undesired
-    printf ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-    printf ( "------------------------------------------------------------------------\n" );
-    printf ( "Press Ctrl-C for an basic commandline interface (on the console).\n\n" );
-    printf ( "Press h      for help.\n\n" );
     initializeConsole();
 
     //********************Simulation start*****************
@@ -622,20 +652,16 @@ namespace lpzrobots {
       // add model to viewer.
       viewer->setSceneData(root);
 
-      //         // the following starts the system in windowed mode
-      //         int x = rs->getWindowOriginX();
-      //         int y = rs->getWindowOriginY();
-      //         rs->setWindowRectangle(x,y,windowWidth, windowHeight);
-      //         rs->fullScreen(false);
-
       // create the windows and run the threads.
       viewer->realize();
 
+      // set title
       osgViewer::Viewer::Windows windows;
       viewer->getWindows(windows);
       assert(windows.size()>0);
       windows.front()->setWindowName("Lpzrobots - Selforg");
 
+      // Georg: with OSG2 the callbacks got a bit weird, we have now a onPostDraw ourself
       // set our motion blur callback as the draw callback for each scene handler
       //      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
       //      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
@@ -648,21 +674,15 @@ namespace lpzrobots {
 
     if(!noGraphics) {
       while ( (!viewer->done()) && (!simulation_time_reached) ) {
-	// wait for all cull and draw threads to complete.
 	// viewer->sync();
-
 	if(!loop())
 	  break;
 
-	// wait for all cull and draw threads to complete.
 	// viewer->sync();
-	// update the scene by traversing it with the the update visitor which will
-	// call all node update callbacks and animations.
 	// viewer->update();
-
 	// fire off the cull and draw traversals of the scene.
 	viewer->frame();
-	// onPostDraw(*(viewer->getCamera()));
+	onPostDraw(*(viewer->getCamera()));
 
       }
 
@@ -720,6 +740,7 @@ namespace lpzrobots {
 	  }
 	}
 
+	
 	// for all agents: robots internal stuff and control step if at controlInterval
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
@@ -1008,8 +1029,8 @@ namespace lpzrobots {
     nargv[argc++]=strdup("--window");
     nargv[argc++]=strdup("-1");
     nargv[argc++]=strdup("-1");
-    nargv[argc++]=strdup(itos(windowWidth).c_str());
-    nargv[argc++]=strdup(itos(windowHeight).c_str());
+    nargv[argc++]=strdup(itos((int)windowWidth).c_str());
+    nargv[argc++]=strdup(itos((int)windowHeight).c_str());
     assert(argc<=nargc);
     argv=nargv;
   }
@@ -1063,18 +1084,17 @@ namespace lpzrobots {
     } else {
       seed=time(0);
     }
-    printf("Use random number seed: %li\n", seed);
+
     srand(seed);
     globalData.odeConfig.randomSeed=seed;
 
     int resolindex = contains(argv, argc, "-x");
-    windowWidth = 640;
-    windowHeight = 480;
     if(resolindex && argc > resolindex) {
-      sscanf(argv[resolindex],"%ix%i", &windowWidth,&windowHeight);
-      windowWidth = windowWidth < 64 ? 64 : (windowWidth > 1600 ? 1600 : windowWidth);
-      windowHeight = windowHeight < 64 ? 64 : (windowHeight > 1200 ? 1200 : windowHeight);
+      sscanf(argv[resolindex],"%lgx%lg", &windowWidth,&windowHeight);
     }
+    windowWidth = windowWidth < 64 ? 64 : (windowWidth > 1600 ? 1600 : windowWidth);
+    windowHeight = windowHeight < 64 ? 64 : (windowHeight > 1200 ? 1200 : windowHeight);
+
     if(contains(argv, argc, "-fs")){
       windowHeight=-1;
       windowWidth=-1;
@@ -1083,19 +1103,20 @@ namespace lpzrobots {
     noGraphics = contains(argv, argc, "-nographics")!=0;
     pause = contains(argv, argc, "-pause")!=0;
 
-    if(contains(argv, argc, "-noshadow")==0) shadowType=5;
+    if(contains(argv, argc, "-noshadow")==0) shadow=5;
     index = contains(argv, argc, "-shadow");
     if(index && (argc > index))
-      shadowType=atoi(argv[index]);
-    // if shadowType=3 (ParallelSplitShadowMap), use shadowTexSize of 1024
-    if (shadowType==3)
+      shadow=(double)atoi(argv[index]);
+    // if shadow=3 (ParallelSplitShadowMap), use shadowTexSize of 1024 
+    // maybe remove at let it be done in the config
+    if (shadow==3)
       shadowTexSize = 1024;
     else
       shadowTexSize = 2048;
     index = contains(argv, argc, "-shadowsize");
     if(index && argc > index) {
       shadowTexSize = atoi(argv[index]);
-      printf("shadowTexSize=%i\n",shadowTexSize);
+      printf("shadowTexSize=%lg\n",shadowTexSize);
     }
 
     osgHandle.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
@@ -1108,72 +1129,12 @@ namespace lpzrobots {
       printf("simtime=%li\n",simulation_time);
     }
 
+    
+    if (contains(argv, argc, "-savecfg")) {      
+      storeOdeRobotsCFG();      
+    }
+
   }
-
-  //   // This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide)
-  //   void nearCallback_Old(void *data, dGeomID o1, dGeomID o2){
-  //     Simulation* me = (Simulation*) data;
-  //     if (!me) return;
-
-  //     bool collision_treated=false;
-  //     // call robots collision treatments
-  //     for(OdeAgentList::iterator i= me->globalData.agents.begin();
-  // 	(i != me->globalData.agents.end()) && !collision_treated; i++){
-  //       collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
-  //     }
-
-  //     if (collision_treated) return; // exit if collision was treated by a robot
-
-  //     if(!(me->collCallback(me->odeHandle, data,o1,o2))){
-
-  //       // Todo: here is a code, that generated all possible contact points,
-  //       //  for the new collision code, make sure we incorperate that.
-  // //       if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
-  // //       // colliding a space with something
-  // //       dSpaceCollide2 (o1,o2,data,&nearCallback);
-  // //       // collide all geoms internal to the space(s)
-  // //       if (dGeomIsSpace (o1)) dSpaceCollide (o1,data,&nearCallback);
-  // //       if (dGeomIsSpace (o2)) dSpaceCollide (o2,data,&nearCallback);
-  // //     }
-  // //     else {
-  // //       // colliding two non-space geoms, so generate contact
-  // //       // points between o1 and o2
-  // //       int num_contact = dCollide (o1,o2,max_contacts,contact_array,skip);
-  // //       // add these contact points to the simulation
-  // //       ...
-  // //     }
-
-  //       // using standard collision treatment
-
-  //       int i,n;
-  //       const int N = 80;
-  //       dContact contact[N];
-  //       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-  //       if (n > 0) {
-  // 	for (i=0; i<n; i++)
-  // 	  {
-
-  //  	    // contact[i].surface.mode = dContactBounce | dContactSoftCFM;
-  // 	    //  	    contact[i].surface.mu = 1;
-  // 	    //  	    contact[i].surface.mu2 = 0;
-  // 	    //  	    contact[i].surface.bounce = 0.1;
-  // 	    //  	    contact[i].surface.bounce_vel = 0.1;
-  // 	    //  	    contact[i].surface.soft_cfm = 0.1;
-
-  // 	    contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-  // 	      dContactSoftERP | dContactSoftCFM | dContactApprox1;
-  // 	    contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
-  // 	    contact[i].surface.slip1 = 0.005;
-  // 	    contact[i].surface.slip2 = 0.005;
-  // 	    contact[i].surface.soft_erp = 0.999;
-  // 	    contact[i].surface.soft_cfm = 0.001;
-  // 	    dJointID c = dJointCreateContact (me->odeHandle.world,
-  // 					      me->odeHandle.jointGroup,&contact[i]);
-  // 	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-  // 	  }
-  //       }
-  //     }
-  //   }
 
 
   // This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide (0))
@@ -1305,6 +1266,20 @@ namespace lpzrobots {
     simtimeoffset = int(globalData.time*1000);
   }
 
+  void Simulation::storeOdeRobotsCFG(){  
+    list<string> cs;
+    cs+=string("Configruation file for lpzrobots ode simulation!");
+    cs+=string("Most values are self-exlaining, also use -h with the simulator to learn more");
+    cs+=string(" about the configuration.");
+    cs+=string("The following values for Shadow are supported:");
+    cs+=string("\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap");
+    cs+=string("\t4: SoftShadowMap, 5: ShadowMap (default)");    
+    if(storeCfg(odeRobotsCfg,cs))
+      printf("Configuration saved to %s!\n",odeRobotsCfg);
+    else
+      fprintf(stderr,"Error while writing configuration file %s!\n", odeRobotsCfg);    
+  }
+
 
   void Simulation::usage(const char* progname) {
     printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed] [-x WxH] [-fs] \n", progname);
@@ -1314,18 +1289,20 @@ namespace lpzrobots {
     printf("\t-n interval\tuse neuronviz (default interval 10)\n");
     printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");
     printf("\t-r seed\t\trandom number seed\n");
-    printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (default 640x480)\n");
+    printf("\t-x WxH\t\t* window size of width(W) x height(H) is used (default 640x480)\n");
     printf("\t-fs\t\tfullscreen mode\n");
     printf("\t-pause \t\tstart in pause mode\n");
     printf("\t-nographics \t\tstart without any graphics\n");
     printf("\t-noshadow \tdisables shadows and shaders (same as -shadow 0)\n");
-    printf("\t-shadow [0..5]] \tsets the type of the shadow to be used\n");
+    printf("\t-shadow [0..5]] \t* sets the type of the shadow to be used\n");
     printf("\t\t\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap\n");
-    printf("\t\t\t4: SoftShadowMap, 5: ShadowMap (default)");
-    printf("\t-shadowsize size \tsets the size of the shadow texture (default 2048)\n");
+    printf("\t\t\t4: SoftShadowMap, 5: ShadowMap (default)\n");
+    printf("\t-shadowsize size \t* sets the size of the shadow texture (default 2048)\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
     printf("\t-simtime min\tlimited simulation time in minutes\n");
-
+    printf("\t-savecfg\tsafe the configuration file with the values given by the cmd line\n");
+    printf("\t* this parameter can be set in the configuration file ~/.lpzrobots/ode_robots.cfg\n");    
+    printf("More parameter concerning OSG graphics will follow...\n");
   }
 
   void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view) {
