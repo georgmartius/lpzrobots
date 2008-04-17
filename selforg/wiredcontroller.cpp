@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-11-06 15:14:27  martius
+ *   Revision 1.2  2008-04-17 14:54:35  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.1  2007/11/06 15:14:27  martius
  *   new class that composes controller and wiring
  *
  *                                                                 *
@@ -75,17 +82,17 @@ WiredController::~WiredController(){
 /// initializes the object with the given controller, robot and wiring
 //  and initializes pipe to guilogger
 bool WiredController::init(AbstractController* controller, AbstractWiring* wiring,
-			   int robotsensornumber, int robotmotornumber){
+			   int robotsensornumber, int robotmotornumber, RandGen* randGen){
   this->controller = controller;
   this->wiring     = wiring;
   assert(controller && wiring);
 
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;
-  wiring->init(rsensornumber, rmotornumber);
+  wiring->init(rsensornumber, rmotornumber, randGen);
   csensornumber = wiring->getControllerSensornumber();
   cmotornumber  = wiring->getControllerMotornumber();
-  controller->init(csensornumber, cmotornumber);
+  controller->init(csensornumber, cmotornumber, randGen);
 
   csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
   cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);

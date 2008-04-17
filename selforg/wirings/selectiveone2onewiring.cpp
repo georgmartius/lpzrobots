@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-12-07 10:56:33  der
+ *   Revision 1.5  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.4  2007/12/07 10:56:33  der
  *   changed method signature of generate() and add() of NoiseGenerator
  *
  *   Revision 1.3  2006/12/21 11:44:17  martius
@@ -62,8 +69,8 @@ SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){
 
 /// initializes the number of sensors and motors on robot side, calculate
 //  number of sensors and motors on controller side
-bool SelectiveOne2OneWiring::init(int robotsensornumber, int robotmotornumber){
-  One2OneWiring::init(robotsensornumber, robotmotornumber);
+bool SelectiveOne2OneWiring::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){
+  One2OneWiring::init(robotsensornumber, robotmotornumber, randGen);
   int num=0;
   for(int i=0; i<robotsensornumber; i++){
     if((*sel_sensor)(i,robotsensornumber)) num++;

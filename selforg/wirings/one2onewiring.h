@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-11-29 19:18:02  martius
+ *   Revision 1.5  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.4  2007/11/29 19:18:02  martius
  *   blind channels
  *
  *   Revision 1.3  2006/07/20 17:14:36  martius
@@ -90,7 +97,7 @@ public:
   /** initializes the number of sensors and motors on robot side, calculate
       number of sensors and motors on controller side
    */
-  virtual bool init(int robotsensornumber, int robotmotornumber);
+  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
   /** Realizes one to one wiring from robot sensors to controller sensors. 
       @param rsensors pointer to array of sensorvalues from robot 

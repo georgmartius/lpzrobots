@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-11-28 10:30:56  martius
+ *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.1  2007/11/28 10:30:56  martius
  *   wiring with feedback connections
  *
  *                                            *
@@ -59,7 +66,7 @@ public:
   FeedbackWiring(NoiseGenerator* noise, Mode mode = Context,double feedbackratio=0.9);
   virtual ~FeedbackWiring();
 
-  virtual bool init(int robotsensornumber, int robotmotornumber);
+  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
   virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
 			   sensor* csensors, int csensornumber,

@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-11-07 13:40:24  martius
+ *   Revision 1.6  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.5  2007/11/07 13:40:24  martius
  *   sensors and motors also added as type here (not very nice anyway)
  *
  *   Revision 1.4  2006/12/21 11:44:17  martius
@@ -103,9 +110,10 @@ public:
    *  Must be overloaded to calculate and provide the appropriate numbers
    *  controllersensornumber (csensornumber), controllermotornumber (cmotornumber),
    *  robotsensornumber (rsensornumber) and robotmotornumber (rmotornumber), 
-   *  @return returns false if error, else true
+   *  @param randGen pointer to random generator, if not given then a new one is created
+   *  @return returns false on error, otherwise true
    */
-  virtual bool init(int robotsensornumber, int robotmotornumber) = 0;
+  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0) = 0;
 
   /** Realizes wiring from robot sensors to controller sensors. 
    *   Must be overloaded in order to implement the appropriate mapping. 
@@ -114,7 +122,7 @@ public:
    *   @param csensors pointer to array of sensorvalues for controller  
    *   @param csensornumber number of sensors to controller
    *   @param noise size of the noise added to the sensors
-   *   @return returns false if error, else true
+   *  @return returns false on error, otherwise true
    */
   virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
 			   sensor* csensors, int csensornumber,

@@ -26,7 +26,14 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-11-06 15:14:41  martius
+ *   Revision 1.2  2008-04-17 14:54:35  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.1  2007/11/06 15:14:41  martius
  *   new class that composes controller and wiring
  *
  *                                                                 *
@@ -43,12 +50,13 @@
 #include <utility>
 #include <string>
 
+#include "randomgenerator.h"
+
 class AbstractController;
 class AbstractWiring;
 class Configurable;
 class Inspectable;
 class Callbackable;
-
 class WiredController;
 
 /** Output mode for agent.
@@ -150,9 +158,11 @@ public:
 
   /** initializes the object with the given controller and wiring
       and initializes the output options
+      It is also possible to provide a random seed, 
+       if not given (0) rand() is used to create one
   */
   bool init(AbstractController* controller, AbstractWiring* wiring, 
-	    int robotsensornumber, int robotmotornumber);
+	    int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
   /** Performs an step of the controller, which includes
       pushing sensor values through the wiring,

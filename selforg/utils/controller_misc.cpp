@@ -4,7 +4,7 @@
 using namespace matrix;
 using namespace std;
 
-/// calculates 1/x
+// calculates 1/x
 double one_over(double x){
   return 1/x;
 }
@@ -13,9 +13,16 @@ double constant(void* c, double){
   return *((double*) c);
 }
 
-/// creates random number from -1 to 1
+// creates random number from -1 to 1
 double random_minusone_to_one(double){
   return (((double)rand() / RAND_MAX) - 0.5) * 2.0;
+}
+
+// creates random number from -1 to 1
+double random_minusone_to_one(void* r, double){
+  RandGen* g = (RandGen*) r;
+  if(!g) return 0;
+  else return g->rand()*2 - 1;
 }
 
 /// clipping function for mapP

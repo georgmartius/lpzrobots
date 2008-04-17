@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2007-11-06 14:58:58  martius
+ *   Revision 1.19  2008-04-17 14:54:01  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.18  2007/11/06 14:58:58  martius
  *   major change!
  *   agent is now a robot with a wired controller,
  *   most code moved to wiredcontroller class
@@ -136,10 +143,10 @@
 
 #include <stdio.h>
 #include <list>
-#include <utility>
 #include <string>
 
 #include "wiredcontroller.h"
+#include "randomgenerator.h"
 
 class AbstractRobot;
 
@@ -175,9 +182,12 @@ public:
   virtual ~Agent();
 
   /** initializes the object with the given controller, robot and wiring
-      and initializes the output options
+      and initializes the output options.
+      It is also possible to provide a random seed, 
+       if not given (0) rand() is used to create one
   */
-  virtual bool init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring);
+  virtual bool init(AbstractController* controller, AbstractRobot* robot, 
+		    AbstractWiring* wiring, long int seed=0);
 
   /** Performs an step of the agent, including sensor reading, pushing sensor values through the wiring,
       controller step, pushing controller outputs (= motorcommands) back through the wiring and sent
@@ -210,6 +220,7 @@ protected:
   sensor *rsensors;
   motor  *rmotors;
 
+  RandGen randGen; // random generator for this agent
 protected:
   TrackRobot trackrobot;
   int t; // access to this variable is needed from OdeAgent

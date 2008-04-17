@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-16 12:44:16  martius
+ *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.1  2008/04/16 12:44:16  martius
  *   moved to utils
  *
  *   Revision 1.24  2008/03/01 01:47:34  martius
@@ -146,6 +153,10 @@ double constant(void* c, double);
 
 /// creates random number from -1 to 1
 double random_minusone_to_one(double);
+
+/// creates random number from -1 to 1
+//  using the RandGen* which is give as a void pointer (Matrix::mapP)
+double random_minusone_to_one(void *, double);
 
 /// clipping function for mapP
 double clip(void* r,double);

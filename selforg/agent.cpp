@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2007-11-06 14:58:48  martius
+ *   Revision 1.22  2008-04-17 14:53:53  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.21  2007/11/06 14:58:48  martius
  *   major change!
  *   agent is now a robot with a wired controller,
  *   most code moved to wiredcontroller class
@@ -202,11 +209,12 @@ Agent::~Agent(){
 }
 
 
-/// initializes the object with the given controller, robot and wiring
-//  and initializes pipe to guilogger
-bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractWiring* wiring){
-  this->robot      = robot;
+bool Agent::init(AbstractController* controller, AbstractRobot* robot, 
+		 AbstractWiring* wiring, long int seed){
+  this->robot   = robot;
   assert(robot);  
+  if(!seed) seed=rand();
+  randGen.init(seed);
 
   rsensornumber = robot->getSensorNumber();
   rmotornumber  = robot->getMotorNumber();
@@ -217,7 +225,7 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot, AbstractW
   Inspectable* in = dynamic_cast<Inspectable*>(robot);
   if(in) inspectables.push_back(in);
   
-  return WiredController::init(controller,wiring, rsensornumber, rmotornumber);
+  return WiredController::init(controller,wiring, rsensornumber, rmotornumber, &randGen);
 }
 
 void Agent::addPlotOption(const PlotOption& plotOption) {
@@ -229,11 +237,6 @@ void Agent::addPlotOption(const PlotOption& plotOption) {
   WiredController::addPlotOption(po);
 }
 
-//  Performs an step of the agent, including sensor reading, pushing sensor values through wiring,
-//  controller step, pushing controller steps back through wiring and sent resulting motorcommands
-//  to robot.
-//  @param noise Noise strength.
-//  @param time (optional) current simulation time (used for logging)
 void Agent::step(double noise, double time){
   assert(robot && rsensors && rmotors);
 

@@ -22,7 +22,14 @@
  *   Random generator with internal state used for multitheading envs.     *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-15 17:03:34  martius
+ *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.1  2008/04/15 17:03:34  martius
  *   random generator with state
  *
  ***************************************************************************/
@@ -31,9 +38,12 @@
 
 #include <stdlib.h>
 
-typedef struct _randgen {
+typedef struct _RandGen {
+  _RandGen(){
+    init(::rand());
+  }
   void init(long int seedval){
-    srand48_r(seedval, &buffer)
+    srand48_r(seedval, &buffer);
   }
   double rand(){
     double r;
@@ -41,6 +51,6 @@ typedef struct _randgen {
     return r;
   }
   struct drand48_data buffer;
-} randgen;
+} RandGen;
 
 #endif

@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-16 12:40:58  martius
+ *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.1  2008/04/16 12:40:58  martius
  *   moved to utils
  *
  *   Revision 1.17  2007/12/07 10:58:02  der
@@ -82,6 +89,8 @@
 #include <time.h>
 #include <math.h>
 
+#include "randomgenerator.h"
+
 /** Interface and basic class for noise generator.
     It is suitable for single noise channels but also multidimensional noise. 
  */
@@ -89,15 +98,23 @@ class NoiseGenerator{
 public:
   NoiseGenerator() {
     dimension=0;
+    randGen=0;
   };    
 
   virtual ~NoiseGenerator(){}
 
   /** initialization with the the given dimension for multidimensional noise
+      @param dimension dimensionality of vectors to be used by add
+      @param randGen pointer to a random generator. If zero a new one generated internally
       @see add()
    */
-  virtual void init(unsigned int dimension) {
+  virtual void init(unsigned int dimension, RandGen* randGen=0) {
     this->dimension = dimension;
+    if(randGen) this->randGen=randGen;
+    else {
+      this->randGen=new RandGen();
+      this->randGen->init(rand());
+    }
   };
 
   /** generate somehow distributed random number parameterized with min and max.
@@ -122,9 +139,16 @@ public:
 protected:
   //generates white (no averaging) uniformly distributed random number between "min" and "max"  
   double uniform(double min=-0.1, double max=0.1){
-    return( (double(rand())/RAND_MAX)*(max-min)+min);
+    assert(randGen);
+    return( randGen->rand()*(max-min)+min);
+  }
+  //generates white uniformly distributed random number between in [0,1)
+  double uniform01(){
+    assert(randGen);
+    return randGen->rand();
   }
   unsigned int dimension;
+  RandGen* randGen;
 };
 
 /// generates white (no averaging) uniformly distributed random number between "min" and "max"  
@@ -145,8 +169,8 @@ public:
   WhiteNormalNoise(){}
   virtual ~WhiteNormalNoise(){}
   virtual double generate() {
-    double x1=uniform(0, 1);
-    double x2=uniform(0, 1);
+    double x1=uniform01();
+    double x2=uniform01();
     return( (sqrt(-2*log(x1)) *cos(2*M_PI*x2))); 
   };
   // original version
@@ -171,8 +195,8 @@ public:
     mean=0;
   }
   virtual ~ColorUniformNoise(){ if(mean) free(mean);}
-  virtual void init(unsigned int dimension){
-    NoiseGenerator::init(dimension);
+  virtual void init(unsigned int dimension, RandGen* randGen=0){
+    NoiseGenerator::init(dimension, randGen);
     mean = (double*)malloc(sizeof(double) * dimension);    
     for (unsigned int i=0; i<dimension; i++){
 	mean[i]=0.0;
@@ -215,8 +239,8 @@ public:
 
   virtual ~ColorNormalNoise(){if(mean) free(mean);}
 
-  virtual void init(unsigned int dimension){
-    WhiteNormalNoise::init(dimension);
+  virtual void init(unsigned int dimension, RandGen* randGen=0){
+    WhiteNormalNoise::init(dimension, randGen);
     mean = (double*)malloc(sizeof(double) * dimension);    
     for (unsigned int i=0; i<dimension; i++){
 	mean[i]=0.0;

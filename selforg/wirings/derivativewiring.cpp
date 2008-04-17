@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-12-07 10:56:33  der
+ *   Revision 1.9  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.8  2007/12/07 10:56:33  der
  *   changed method signature of generate() and add() of NoiseGenerator
  *
  *   Revision 1.7  2006/12/11 18:23:21  martius
@@ -110,7 +117,7 @@ DerivativeWiring::~DerivativeWiring(){
 }
 
 
-bool DerivativeWiring::init(int rsensornumber, int rmotornumber){  
+bool DerivativeWiring::init(int rsensornumber, int rmotornumber, RandGen* randGen){  
   this->rsensornumber = rsensornumber;
   this->rmotornumber  = rmotornumber;
 
@@ -135,8 +142,8 @@ bool DerivativeWiring::init(int rsensornumber, int rmotornumber){
   }
 
   if(!noiseGenerator) return false;
-  noiseGenerator->init(this->rsensornumber);
-    //noiseGenerator->init(this->rsensornumber*(conf.useId+conf.useFirstD+conf.useSecondD));
+  noiseGenerator->init(this->rsensornumber,randGen);
+    //noiseGenerator->init(this->rsensornumber*(conf.useId+conf.useFirstD+conf.useSecondD),randGen);
   return true;
 }
 

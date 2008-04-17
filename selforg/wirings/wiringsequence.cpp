@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-11-29 19:18:46  martius
+ *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   randomGen added, which is a random generator with long period and an
+ *    internal state. Each Agent has an instance and passed it to the controller
+ *    and the wiring. This is good for
+ *   a) repeatability on agent basis,
+ *   b) parallel execution as done in ode_robots
+ *
+ *   Revision 1.1  2007/11/29 19:18:46  martius
  *   sequence of wirings
  *
  *   Revision 1.1  2007/11/28 10:30:46  martius
@@ -64,7 +71,7 @@ void WiringSequence::addWiring(AbstractWiring* wiring){
 
 // initializes the number of sensors and motors from robot, calculate
 //  number of sensors and motors on controller side
-bool WiringSequence::init(int robotsensornumber, int robotmotornumber){
+bool WiringSequence::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;    
   csensornumber = rsensornumber;
@@ -72,7 +79,7 @@ bool WiringSequence::init(int robotsensornumber, int robotmotornumber){
   assert(wirings.size());
   FOREACH(vector<AbstractWiring*>, wirings, w){
     // initialize the wiring with the output of the last wiring
-    (*w)->init(csensornumber,cmotornumber);
+    (*w)->init(csensornumber,cmotornumber, randGen);
     csensornumber = (*w)->getControllerSensornumber();
     cmotornumber  = (*w)->getControllerMotornumber();    
   }
