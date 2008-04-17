@@ -14,6 +14,7 @@ all:
 	cd ode_robots && make depend
 	-make tags
 	@if test ! -e opende/Makefile && ld -lode -L$HOME/lib 2>/dev/null; then echo -e "You need to setup ODE from first!\nYou have 2 options: use a precompiled one from our webpage or compile the one in opende\nFor compiling please run:\ncd opende; sh autogen.sh\n./configure --enable-release --enable-double-precision\nmake\nsudo make install\n\nOn most SUSE linux computers it's necessary to run thereafter\n\nsudo ldconfig\n\nfor a correct linking of the libode.so!\n"; exit; fi
+	@echo "Also consider to use make -j 2 or more if you have a multicore machine"
 
 .PHONY: guilogger
 guilogger:
