@@ -1,6 +1,5 @@
 #File:     Makefile for lpzrobot directory
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
-#Date:     June 2005
 
 PREFIX=$HOME
 
