@@ -21,7 +21,61 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.74  2007-12-11 14:11:35  martius
+ *   Revision 1.75  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.74.2.14  2008/04/17 15:04:55  martius
+ *   shadow is 5 on default, also improved cmd line parsing of shadow and texsize
+ *
+ *   Revision 1.74.2.13  2008/04/17 14:19:55  martius
+ *   cosmetic
+ *
+ *   Revision 1.74.2.12  2008/04/16 16:44:55  martius
+ *   Viewer used in different threading models
+ *    we cannot set SingleThread and open our own thread
+ *
+ *   Revision 1.74.2.11  2008/04/15 16:21:52  martius
+ *   Profiling
+ *   Multithreading also for OSG and ODE but disables because of instabilities
+ *
+ *   Revision 1.74.2.10  2008/04/14 11:25:30  guettler
+ *   The OSG step (Viewer) runs now in a seperate thread! A Sideeffect is that
+ *   the simulation runs one step out of sync with the ode, don't worry about
+ *   that. This increases the simulation speed up to 30% on a test pc.
+ *   Together with the parallelisation of the ODE we have an total speed up of
+ *   94% with the shadowtype 5 on an dual Pentium3 1Ghz and NVidia5250!
+ *
+ *   Revision 1.74.2.9  2008/04/14 10:49:23  guettler
+ *   The ODE simstep runs now in a parallel thread! A Sideeffect is that
+ *   the simulation runs one step out of sync with the ode, don't worry about
+ *   that. This increases the simulation speed up to 50% on a test pc.
+ *
+ *   Revision 1.74.2.8  2008/04/11 16:40:29  martius
+ *   pthread option
+ *
+ *   Revision 1.74.2.7  2008/04/11 13:46:49  martius
+ *   quickMP multithreading included
+ *
+ *   Revision 1.74.2.6  2008/04/11 10:41:34  martius
+ *   config file added
+ *
+ *   Revision 1.74.2.5  2008/04/10 07:40:17  guettler
+ *   Optimised parameters for the ShadowTechnique ParallelSplitShadowMap.
+ *
+ *   Revision 1.74.2.4  2008/04/09 14:25:35  martius
+ *   shadow cmd line option
+ *
+ *   Revision 1.74.2.3  2008/04/09 13:57:59  guettler
+ *   New ShadowTechnique added.
+ *
+ *   Revision 1.74.2.2  2008/04/09 10:18:41  martius
+ *   fullscreen and window options done
+ *   fonts on hud changed
+ *
+ *   Revision 1.74.2.1  2008/04/08 14:09:23  martius
+ *   compiles and runs with OSG2.2. Juhu
+ *
+ *   Revision 1.74  2007/12/11 14:11:35  martius
  *   addcallback draw flag was wrong
  *
  *   Revision 1.73  2007/12/06 14:52:43  martius
@@ -387,49 +441,78 @@
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
 #include <osgUtil/SceneView>
+// #include <osgUtil/Optimizer>
 #include <osgDB/ReaderWriter>
 #include <osgDB/FileUtils>
+#include <osgGA/StateSetManipulator>
 
 #include "primitive.h"
 #include "abstractobstacle.h"
 
-#include "extendedViewer.h"
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
 
+// simple multithread api
+#include "quickmp.h"
+// simple profiling (only enabled if QPPOF is defined (Makefile))
+#ifdef QPROF
+#include "quickprof.h"
+#define QP(x) x
+#else 
+#define QP(x)
+#endif
+
+#include <pthread.h>
+#include "odeconfig.h"
+
 namespace lpzrobots {
 
-using namespace std;
-using namespace osg;
-using namespace osgProducer;
-using namespace osgUtil;
+  using namespace std;
+  using namespace osg;
+  using namespace osgViewer;
+  using namespace osgUtil;
+
+  // forward declaration of static functions
+  static void* odeStep_run(void* p);
+  static void* osgStep_run(void* p);
 
 
-int Simulation::ctrl_C = 0;
+  int Simulation::ctrl_C = 0;
 
-Simulation::Simulation() {
+  Simulation::Simulation()
+    : Configurable("lpzrobots-ode_robots", "0.4"){
+    // default values are set in Base::Base()
+    addParameter("Shadow",&shadow);
+    addParameter("ShadowTextureSize",&shadowTexSize);
+    addParameter("UseNVidia",&useNVidia);
+    addParameterDef("WindowWidth",&windowWidth,640);
+    addParameterDef("WindowHeight",&windowHeight,480);
+    addParameterDef("UseOdeThread",&useOdeThread,0);
+    addParameterDef("UseOsgThread",&useOsgThread,0);
+
+
     nextLeakAnnounce = 20;
     leakAnnCounter = 1;
     sim_step = 0;
     state    = none;
     pause    = false;
-    useShadow= true;
     noGraphics=false;
     simulation_time=-1;
     simulation_time_reached=false;
     viewer   = 0;
-    cam      = 0;
     arguments= 0;
     // we have to count references by our selfes
     osg::Referenced::ref();
     osgGA::GUIEventHandler::ref();
-    Producer::Camera::Callback::ref();
-}
+    //    Producer::Camera::Callback::ref();
+    odeThreadCreated=false;
+    osgThreadCreated=false;
+  }
 
-Simulation::~Simulation() {
+  Simulation::~Simulation() {
     if(state!=running)
-        return;
+      return;
     dJointGroupDestroy ( odeHandle.jointGroup );
     dWorldDestroy ( odeHandle.world );
     dSpaceDestroy ( odeHandle.space );
@@ -437,15 +520,15 @@ Simulation::~Simulation() {
 
     state=closed;
     if(arguments)
-        delete arguments;
+      delete arguments;
     // we have to count references by our selfes
     osgGA::GUIEventHandler::unref();
-    Producer::Camera::Callback::unref_nodelete();
-    Producer::Camera::Callback::unref_nodelete();
+    //    Producer::Camera::Callback::unref_nodelete();
+    //    Producer::Camera::Callback::unref_nodelete();
     osg::Referenced::unref_nodelete();
-}
+  }
 
-bool Simulation::init(int argc, char** argv) {
+  bool Simulation::init(int argc, char** argv) {
 
     /**************** ODE-Section   ***********************/
     odeHandle.init(&globalData.time);
@@ -474,50 +557,92 @@ bool Simulation::init(int argc, char** argv) {
     l.push_back("../../osg/data");
     osgDB::setDataFilePathList(l);
 
+    // load config file (first in the current directory and then in ~/.lpzrobots/)
+    sprintf(odeRobotsCfg,"ode_robots");
+    if(!restoreCfg(odeRobotsCfg)){
+      const char* home = getenv("HOME");
+      if(!home){
+	fprintf(stderr,"Cannot determine HOME directory!");
+      } else {
+	sprintf(odeRobotsCfg,"%s/.lpzrobots/ode_robots",home);
+	if(!restoreCfg(odeRobotsCfg)){
+	  storeOdeRobotsCFG();
+	  cerr << "store config to " << odeRobotsCfg << endl; 
+	}
+      }
+    }
+    // process cmdline (possibly overwrite values from cfg file
     processCmdLine(argc, argv);
-
+    
     if(!noGraphics) {
-        // use an ArgumentParser object to manage the program arguments.
-        arguments = new ArgumentParser(&argc, argv);
+      // create fake command line options to make osg do what we want
+      insertCmdLineOption(argc, argv);
+      // use an ArgumentParser object to manage the program arguments.
+      arguments = new ArgumentParser(&argc, argv);
 
-        // set up the usage document, in case we need to print out how to use this program.
-        arguments->getApplicationUsage()->setDescription(
-            arguments->getApplicationName() + " Lpzrobots Simulator");
-        arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName());
-        arguments->getApplicationUsage()->addCommandLineOption(
-            "-h or --help", "Display this information");
+      // set up the usage document, in case we need to print out how to use this program.
+      arguments->getApplicationUsage()->setApplicationName(arguments->getApplicationName() );
+      arguments->getApplicationUsage()->setDescription(
+	       "Lpzrobots Simulator, <robot.informatik.uni-leipzig.de>");
+      arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName() );
+      arguments->getApplicationUsage()->addCommandLineOption(
+	       "-h or --help", "Display this information");
+      // if user request help write it out to cout.
+      if (arguments->read("-h") || arguments->read("--help")) {
+	arguments->getApplicationUsage()->write(std::cout);
+	return false;
+      }
+      // any option left unread are converted into errors to write out later.
+      //    arguments->reportRemainingOptionsAsUnrecognized();
 
-        // construct the viewer.
-        viewer = new ExtendedViewer(*arguments);
+      // report any errors if they have occured when parsing the program aguments.
+      if (arguments->errors()) {
+	arguments->writeErrorMessages(std::cout);
+	return false;
+      }
 
-        // set up the value with sensible default event handlers.
-        unsigned int options =  Viewer::SKY_LIGHT_SOURCE |
-                                Viewer::STATE_MANIPULATOR |
-                                Viewer::STATS_MANIPULATOR |
-                                Viewer::VIEWER_MANIPULATOR |
-                                Viewer::ESCAPE_SETS_DONE;
-        viewer->setUpViewer(options);
+      // construct the viewer.
+      viewer = new Viewer(*arguments);
+      if(useOsgThread!=0){
+	viewer->setThreadingModel(Viewer::CullDrawThreadPerContext);
+      }else{
+	viewer->setThreadingModel(Viewer::SingleThreaded);
+      }
 
-        viewer->getEventHandlerList().push_front(this);
+      // add the state manipulator
+      viewer->addEventHandler( new osgGA::StateSetManipulator(viewer->getCamera()->getOrCreateStateSet()) );
 
-        // if user request help write it out to cout.
-        if (arguments->read("-h") || arguments->read("--help")) {
-            arguments->getApplicationUsage()->write(std::cout);
-            return false;
-        }
-        // any option left unread are converted into errors to write out later.
-        //    arguments->reportRemainingOptionsAsUnrecognized();
+      // add the thread model handler
+      viewer->addEventHandler(new osgViewer::ThreadingHandler);
 
-        // report any errors if they have occured when parsing the program aguments.
-        if (arguments->errors()) {
-            arguments->writeErrorMessages(std::cout);
-            return false;
-        }
+      // add the window size toggle handler
+      viewer->addEventHandler(new osgViewer::WindowSizeHandler);
+
+      // add the stats handler
+      viewer->addEventHandler(new osgViewer::StatsHandler);
+
+      // add the help handler
+      viewer->addEventHandler(new osgViewer::HelpHandler(arguments->getApplicationUsage()));
+
+      // add the record camera path handler
+      viewer->addEventHandler(new osgViewer::RecordCameraPathHandler);
+
+      // add the record camera path handler
+      viewer->addEventHandler(this);
+
+
     }
 
+    // information on terminal, can be removed if the printout is undesired
+    printf ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
+    printf ( "------------------------------------------------------------------------\n" );
+    printf ( "Press Ctrl-C on the console for a commandline interface.\n" );
+    printf ( "Press h      on the graphics window for help).\n\n" );
+    printf ( "Random number seed: %li\n", globalData.odeConfig.randomSeed);
+
     for(int i=0; i<3; i++) {
-        osgHandle.tesselhints[i] = new TessellationHints();
-        osgHandle.tesselhints[i]->ref();
+      osgHandle.tesselhints[i] = new TessellationHints();
+      osgHandle.tesselhints[i]->ref();
     }
     osgHandle.tesselhints[0]->setDetailRatio(0.1f); // Low
     osgHandle.tesselhints[1]->setDetailRatio(1.0f); // Middle
@@ -527,7 +652,7 @@ bool Simulation::init(int argc, char** argv) {
 
     osgHandle.scene=makeScene();
     if (!osgHandle.scene)
-        return false;
+      return false;
 
     osgHandle.normalState = new StateSet();
     osgHandle.normalState->ref();
@@ -544,42 +669,35 @@ bool Simulation::init(int argc, char** argv) {
     osgHandle.transparentState->ref();
 
     if(!noGraphics) {
-        // setup the camera manipulators
-        CameraManipulator* defaultCameramanipulator =
-            new CameraManipulator(osgHandle.scene, globalData);
-        CameraManipulator* cameramanipulatorFollow =
-            new CameraManipulatorFollow(osgHandle.scene, globalData);
-        CameraManipulator* cameramanipulatorTV =
-            new CameraManipulatorTV(osgHandle.scene, globalData);
-        CameraManipulator* cameramanipulatorRace =
-            new CameraManipulatorRace(osgHandle.scene, globalData);
-        viewer->addCameraManipulator(defaultCameramanipulator);
-        viewer->addCameraManipulator(cameramanipulatorFollow);
-        unsigned int pos = viewer->addCameraManipulator(cameramanipulatorTV);
-        viewer->addCameraManipulator(cameramanipulatorRace);
-        viewer->selectCameraManipulator(pos); // this is the default camera type
+      keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
 
-        // get details on keyboard and mouse bindings used by the viewer.
-        viewer->getUsage(*(arguments->getApplicationUsage()));
+      // setup the camera manipulators
+      keyswitchManipulator->addMatrixManipulator( '1', "Static", new CameraManipulator(osgHandle.scene, globalData) );
+      keyswitchManipulator->addMatrixManipulator( '2', "Follow", new CameraManipulatorFollow(osgHandle.scene, globalData) );
+      keyswitchManipulator->addMatrixManipulator( '3', "TV", new CameraManipulatorTV(osgHandle.scene, globalData) );
+      keyswitchManipulator->addMatrixManipulator( '4', "Race", new CameraManipulatorRace(osgHandle.scene, globalData) );
+
+      keyswitchManipulator->selectMatrixManipulator(2);
+      viewer->setCameraManipulator( keyswitchManipulator );
+
+      // get details on keyboard and mouse bindings used by the viewer.
+      viewer->getUsage(*(arguments->getApplicationUsage()));
     }
 
     state=initialised;
     return true;
-}
+  }
 
 
-bool Simulation::run(int argc, char** argv) {
+  bool Simulation::run(int argc, char** argv) {
+
 
     if(!init(argc, argv))
-        return false;
+      return false;
 
-    // information on terminal, can be removed if the printout is undesired
-    printf ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-    printf ( "------------------------------------------------------------------------\n" );
-    printf ( "Press Ctrl-C for an basic commandline interface (on the console).\n\n" );
-    printf ( "Press h      for help.\n\n" );
     initializeConsole();
-
+    QP(PROFILER.init());
+	  
     //********************Simulation start*****************
     state=running;
     globalData.time=0;
@@ -588,317 +706,364 @@ bool Simulation::run(int argc, char** argv) {
     start(odeHandle, osgHandle, globalData);
 
     if(!noGraphics) {
-        // add model to viewer.
-        viewer->setSceneData(root);
+      // optimize the scene graph, remove redundant nodes and state etc.
+      // osgUtil::Optimizer optimizer;
+      // optimizer.optimize(root);
 
-        Producer::CameraConfig* cfg = viewer->getCameraConfig();
-        cam = cfg->getCamera(0);
 
-        Producer::RenderSurface* rs = cam->getRenderSurface();
-        rs->setWindowName( "LpzRobots - Selforg" );
+      // add model to viewer.
+      viewer->setSceneData(root);
 
-        // the following starts the system in windowed mode
-        int x = rs->getWindowOriginX();
-        int y = rs->getWindowOriginY();
-        rs->setWindowRectangle(x,y,windowWidth, windowHeight);
-        rs->fullScreen(false);
+      // create the windows and run the threads.
+      viewer->realize();
 
-        cam->addPostDrawCallback(this);
+      // set title
+      osgViewer::Viewer::Windows windows;
+      viewer->getWindows(windows);
+      assert(windows.size()>0);
+      windows.front()->setWindowName("Lpzrobots - Selforg");
 
-        // create the windows and run the threads.
-        viewer->realize();
-
-        // set our motion blur callback as the draw callback for each scene handler
-        //      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
-        //      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
-        //      {
-        //          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
-        //      }
+      // Georg: with OSG2 the callbacks got a bit weird, we have now a onPostDraw ourself
+      // set our motion blur callback as the draw callback for each scene handler
+      //      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
+      //      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
+      //      {
+      //          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
+      //      }
+      //  The callback stuff does not nicely work anymore so that we would have to call
+      //   MotionBlurDrawCallback by hand after the viewer->frame call below
     }
 
     if(!noGraphics) {
-        while ( (!viewer->done()) && (!simulation_time_reached) ) {
-            // wait for all cull and draw threads to complete.
-            viewer->sync();
-
-            if(!loop())
-                break;
-
-            // wait for all cull and draw threads to complete.
-            viewer->sync();
-            // update the scene by traversing it with the the update visitor which will
-            // call all node update callbacks and animations.
-            viewer->update();
-
-            // fire off the cull and draw traversals of the scene.
-            viewer->frame();
-        }
-
-        // wait for all cull and draw threads to complete before exit.
-        viewer->sync();
+      while ( (!viewer->done()) && (!simulation_time_reached) ) {
+	if(!loop())
+	  break;
+      }
     } else {
-        while ( !simulation_time_reached) {
-            if(!loop())
-                break;
-        }
+      while ( !simulation_time_reached) {
+	if(!loop())
+	  break;
+      }
     }
-
+    if(useOdeThread!=0) pthread_join (odeThread, NULL);
+    if(useOsgThread!=0) pthread_join (osgThread, NULL);
     closeConsole();
     end(globalData);
     tidyUp(globalData);
     return true;
 
-}
+  }
 
-bool Simulation::config(GlobalData& globalData) {
+  bool Simulation::config(GlobalData& globalData) {
     return handleConsole(globalData);
-}
+  }
 
-void Simulation::end(GlobalData& globalData) {}
+  void Simulation::end(GlobalData& globalData) {}
 
-bool Simulation::loop() {
+  bool Simulation::loop() {
     // we run the physical simulation as often as "drawinterval",
     //  the drawing of all object should occur if t==0
     bool run=true;
     for(int t = 0; t < globalData.odeConfig.drawInterval; t++) {
-        // Parametereingabe
-        if (control_c_pressed()) {
-            cmd_begin_input();
-            run=config(globalData);
-            cmd_end_input();
-            resetSyncTimer();
-        }
+      // Parametereingabe
+      if (control_c_pressed()) {
+	cmd_begin_input();
+	run=config(globalData);
+	cmd_end_input();
+	resetSyncTimer();
+      }
 
-        // the simulation just runs if pause is not enabled
-        if (!pause) {
-	    // increase time
-            globalData.time += globalData.odeConfig.simStepSize;
-            sim_step++;
-            // print simulation time every 10 min.
-            if(sim_step% ( int(1/globalData.odeConfig.simStepSize) * 600) ==0) {
-                printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
-            }
-            // finish simulation, if intended simulation time is reached
-            if(simulation_time!=-1) { // check time only if activated
-                if( (sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
-                    if (!simulation_time_reached) { // print out once only
-                        printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
-                    }
-                    simulation_time_reached=true;
-                }
-            }
-
-            // for all agents: robots internal stuff and control step if at controlInterval
-            for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-                if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
-                    (*i)->step(globalData.odeConfig.noise, globalData.time);
-                    (*i)->getRobot()->doInternalStuff(globalData);
-                } else {
-                    (*i)->onlyControlRobot();
-                }
-            }
-
-            /**********************Simulationsschritt an sich**********************/
-            dSpaceCollide ( odeHandle.space , this , &nearCallback_TopLevel );
-            FOREACHC(list<dSpaceID>, odeHandle.getSpaces(), i) {
-                dSpaceCollide ( *i , this , &nearCallback );
-            }
-
-
-            dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize );
-            //ODE-Engine geht einen Schritt weiter
-            dJointGroupEmpty (odeHandle.jointGroup);
-
-	    // call all registered physical callbackable classes
-	    FOREACH(list<Callbackable*>, physicsCallbackables, i) {
-	      (*i)->doOnCallBack();
+      // the simulation just runs if pause is not enabled
+      if (!pause) {
+	// increase time
+	globalData.time += globalData.odeConfig.simStepSize;
+	sim_step++;
+	// print simulation time every 10 min.
+	if(sim_step% ( int(1/globalData.odeConfig.simStepSize) * 600) ==0) {
+	  printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
+	}
+	// finish simulation, if intended simulation time is reached
+	if(simulation_time!=-1) { // check time only if activated
+	  if( (sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
+	    if (!simulation_time_reached) { // print out once only
+	      printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
 	    }
-	    // remove old signals from sound list
-	    globalData.sounds.remove_if(Sound::older_than(globalData.time));
-        }
+	    simulation_time_reached=true;
+	  }
+	}
 
-        addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause, 
+
+// 	SEQUENCIAL VERSION
+// 	// for all agents: robots internal stuff and control step if at controlInterval
+// 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+// 	  if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
+// 	    (*i)->step(globalData.odeConfig.noise, globalData.time);
+// 	    (*i)->getRobot()->doInternalStuff(globalData);
+// 	  } else {
+// 	    (*i)->onlyControlRobot();
+// 	  }
+// 	}
+
+// 	PARALLEL VERSION
+	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
+	  QP(PROFILER.beginBlock("controller"));
+	  QMP_SHARE(globalData);
+  	  QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED){
+	    QMP_USE_SHARED(globalData, GlobalData);
+	    globalData.agents[i]->step(globalData.odeConfig.noise, globalData.time);
+	  }
+	  QMP_END_PARALLEL_FOR;
+	  QP(PROFILER.endBlock("controller"));
+	}else{ // serial execution is sufficient here
+	  FOREACH(OdeAgentList, globalData.agents, i) {
+	    (*i)->onlyControlRobot();
+	  }
+	}
+
+
+	/****************** Simulationstep *****************/	
+	if(useOdeThread!=0){
+	  if (odeThreadCreated)
+	    pthread_join (odeThread, NULL);
+	  else odeThreadCreated=true;
+   	}
+	// Do this here because it
+	// can provide collision handling (old style collision handling)
+	// and this crashes of parallel
+	QP(PROFILER.beginBlock("internalstuff_and_addcallback"));
+	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+	  (*i)->getRobot()->doInternalStuff(globalData);
+	}
+	addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
 		    (sim_step % globalData.odeConfig.controlInterval ) == 0);
+	QP(PROFILER.endBlock("internalstuff_and_addcallback"));
+	
+	if(useOdeThread!=0)
+	  pthread_create (&odeThread, NULL, odeStep_run,this);
+	else
+	  odeStep();
 
-        if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {
-            /************************** Update the scene ***********************/
-            FOREACH(ObstacleList, globalData.obstacles, i) {
-	      (*i)->update();
-            }
-            FOREACH(OdeAgentList, globalData.agents, i) {
-	      (*i)->getRobot()->update();
-            }
-	    // draw sound blobs
-	    if(!globalData.sounds.empty()){
-	      FOREACH(SoundList, globalData.sounds, i){
-		i->render(osgHandle);
-	      }
-	    }
+ 	// call all registered physical callbackable classes
+	// SEQUENCIAL
+	// 	FOREACH(vector<Callbackable*>, physicsCallbackables, i) {
+	// 	  (*i)->doOnCallBack();
+	// 	}
+	// PARALLEL
+	unsigned int pcaSize=physicsCallbackables.size();
+	QP(PROFILER.beginBlock("physicsCB")); 
+	if(pcaSize==1){
+	  physicsCallbackables.front()->doOnCallBack();
+	}else if (pcaSize>1){
+	  QMP_SHARE(physicsCallbackables);
+	  QMP_PARALLEL_FOR(i, 0, pcaSize){
+	    QMP_USE_SHARED(physicsCallbackables, vector<Callbackable*>);
+	    physicsCallbackables[i]->doOnCallBack();
+	  }
+	  QMP_END_PARALLEL_FOR;
+	}
+	QP(PROFILER.endBlock("physicsCB"));
 
-            // update the camera
-            osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
-            if(mm) {
-                CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
-                if(cameramanipulator)
-                    cameramanipulator->update();
-            }
-            // update timestats
-            setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor);
+	// remove old signals from sound list
+	globalData.sounds.remove_if(Sound::older_than(globalData.time));
+      }
 
-            // call all registered graphical callbackable classes
-            for(list<Callbackable*>::iterator i = graphicsCallbackables.begin(); i!= graphicsCallbackables.end(); i++) {
-                (*i)->doOnCallBack();
-            }
-        }
+      if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {	
+	if(useOsgThread!=0){ 
+	  QP(PROFILER.beginBlock("graphics aync")); 	  
+	  if (osgThreadCreated)
+	    pthread_join (osgThread, NULL);
+	  else osgThreadCreated=true;
+	  QP(PROFILER.endBlock("graphics aync")); 	  
+	}
+	QP(PROFILER.beginBlock("graphicsUpdate"));
+	/************************** Update the scene ***********************/
+	FOREACH(ObstacleList, globalData.obstacles, i) {
+	  (*i)->update();
+	}
+	FOREACH(OdeAgentList, globalData.agents, i) {
+	  (*i)->getRobot()->update();
+	}
+	// draw sound blobs
+	if(!globalData.sounds.empty()){
+	  FOREACH(SoundList, globalData.sounds, i){
+	    i->render(osgHandle);
+	  }
+	}
+
+	// update the camera
+	osgGA::MatrixManipulator* mm = keyswitchManipulator->getCurrentMatrixManipulator();
+	if(mm) {
+	  CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
+	  if(cameramanipulator)
+	    cameramanipulator->update();
+	}
+	// update timestats
+	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor);
+
+	// call all registered graphical callbackable classes
+	FOREACH(list<Callbackable*>, graphicsCallbackables, i) {
+	  (*i)->doOnCallBack();
+	}
+	QP(PROFILER.endBlock("graphicsUpdate"));
+	
+	//        onPostDraw(*(viewer->getCamera()));*/
+        if(useOsgThread!=0){ 
+	  pthread_create (&osgThread, NULL, osgStep_run,this);
+	}else{
+	  QP(PROFILER.beginBlock("graphics"));
+	  osgStep();
+	  QP(PROFILER.endBlock("graphics"));
+	}
+
+      }
 
     }
     /************************** Time Syncronisation ***********************/
     // Time syncronisation of real time and simulations time (not if on capture mode, or pause)
     if(globalData.odeConfig.realTimeFactor!=0.0 && !pause) {
-        long elaped = timeOfDayinMS() - realtimeoffset;
-        // difference between actual time and current time in milliseconds
-        long diff = long((globalData.time*1000.0 - simtimeoffset)
-                         / globalData.odeConfig.realTimeFactor  ) - elaped;
-        if(diff > 10000 || diff < -10000)  // check for overflow or other weird things
-            resetSyncTimer();
-        else {
-            if(diff > 4) { // if less the 3 milliseconds we don't call usleep since it needs time
-                usleep((diff-2)*1000);
-                nextLeakAnnounce=100;
-            } else if (diff < 0) {
-                // we do not bother the user all the time
-                if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()) {
-                    nextLeakAnnounce=min(nextLeakAnnounce*10,10000);
-                    printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
-                           -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
+      long elaped = timeOfDayinMS() - realtimeoffset;
+      // difference between actual time and current time in milliseconds
+      long diff = long((globalData.time*1000.0 - simtimeoffset)
+		       / globalData.odeConfig.realTimeFactor  ) - elaped;
+      if(diff > 10000 || diff < -10000)  // check for overflow or other weird things
+	resetSyncTimer();
+      else {
+	if(diff > 4) { // if less the 3 milliseconds we don't call usleep since it needs time
+	  usleep((diff-2)*1000);
+	  nextLeakAnnounce=100;
+	} else if (diff < 0) {
+	  // we do not bother the user all the time
+	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()) {
+	    nextLeakAnnounce=min(nextLeakAnnounce*10,10000);
+	    printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
+		   -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
 
-                    leakAnnCounter=0;
-                    resetSyncTimer();
-                }
-                leakAnnCounter++;
-            }
-        }
+	    leakAnnCounter=0;
+	    resetSyncTimer();
+	  }
+	  leakAnnCounter++;
+	}
+      }
     } else if (pause) {
-        usleep(1000);
+      usleep(10000);
     }
     return run;
-}
+  }
 
-bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {
-  bool handled = false;
-  switch(ea.getEventType()) {
-  case(osgGA::GUIEventAdapter::KEYDOWN): {
-    handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);
-    if(handled) {
-      break;
-    }
-    //	printf("Key: %i\n", ea.getKey());
-    switch(ea.getKey()) {
-    case 6 : // Ctrl - f
-      for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-	if(!(*i)->removePlotOption(File)) {
-	  (*i)->addPlotOption(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
-	}
+  bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {
+    bool handled = false;
+    switch(ea.getEventType()) {
+    case(osgGA::GUIEventAdapter::KEYDOWN): {
+      handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);
+      if(handled) {
+	break;
       }
-      handled= true;
-      break;
-    case 7 : // Ctrl - g
-      for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-	if(!(*i)->removePlotOption(GuiLogger)) {
-	  (*i)->addPlotOption(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
+      //	printf("Key: %i\n", ea.getKey());
+      switch(ea.getKey()) {
+      case 6 : // Ctrl - f
+	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+	  if(!(*i)->removePlotOption(File)) {
+	    (*i)->addPlotOption(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
+	  }
 	}
-      }
-      handled=true;
-      break;
-    case 65450: // keypad *  // normal * is allready used by LOD
-      globalData.odeConfig.setParam("realtimefactor", 0);
-      std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
-      handled=true;
-      break;
-    case 65451: // keypad +
-    case 43: // +
-      {
-	double rf = globalData.odeConfig.realTimeFactor;
-	if (rf >= 2)
-	  globalData.odeConfig.setParam("realtimefactor", rf+1);
-	else if (rf>=1.0)
-	  globalData.odeConfig.setParam("realtimefactor", rf+0.25);
-	else if (rf>=0.1)
-	  globalData.odeConfig.setParam("realtimefactor", rf+0.1);
-	else
-	  globalData.odeConfig.setParam("realtimefactor", 0.1);
-	std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+	handled= true;
+	break;
+      case 7 : // Ctrl - g
+	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+	  if(!(*i)->removePlotOption(GuiLogger)) {
+	    (*i)->addPlotOption(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
+	  }
+	}
 	handled=true;
-      }
-      break;
-    case 65453: // keypad -
-    case 45: // -
-      {
-	double rf = globalData.odeConfig.realTimeFactor;
-	if (rf>2)
-	  globalData.odeConfig.setParam("realtimefactor", rf-1);
-	else if (rf>1.0)
-	  globalData.odeConfig.setParam("realtimefactor", rf-0.25);
-	else if (rf>0.1)
-	  globalData.odeConfig.setParam("realtimefactor", rf-0.1);
-	else
-	  globalData.odeConfig.setParam("realtimefactor", 0.1);
-	std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+	break;
+      case 65450: // keypad *  // normal * is allready used by LOD
+	globalData.odeConfig.setParam("realtimefactor", 0);
+	std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
 	handled=true;
-      }
-      break;
-    case 18:  // Ctrl - r
-      if(videostream.isOpen()) {
-	printf("Stop video recording!\n");
-	videostream.close();
-	//	    printf("Switching back to 50fps!\n");
-	globalData.odeConfig.videoRecordingMode=false;
-      } else {
-	//	    printf("For video recording the simulation now switches to 25fps!\n");
-	globalData.odeConfig.videoRecordingMode=true;
-	char dir[128];
-	char filename[140];
-	createNewDir("video", dir);
-	printf("Start video recording in %s!\n", dir);
-	sprintf(filename, "%s/frame", dir);
-	videostream.open(filename);
-      }
-      handled=true;
-      break;
-    case 16: // Ctrl - p
-      pause = !pause;
-      printf( pause ? "Pause\n" : "Continue\n" );
-      handled = true;
-      break;
-    case 15: // Ctrl - o // TEST
-      { 
-	
-	SceneView* sv = viewer->getSceneHandlerList().front()->getSceneView();
-	Vec3 p(400,400,0);
-	Pos o;	
-	if(!sv->projectWindowIntoObject(p,o)){
-	  printf("SHIT happens always\n");	  
+	break;
+      case 65451: // keypad +
+      case 43: // +
+	{
+	  double rf = globalData.odeConfig.realTimeFactor;
+	  if (rf >= 2)
+	    globalData.odeConfig.setParam("realtimefactor", rf+1);
+	  else if (rf>=1.0)
+	    globalData.odeConfig.setParam("realtimefactor", rf+0.25);
+	  else if (rf>=0.1)
+	    globalData.odeConfig.setParam("realtimefactor", rf+0.1);
+	  else
+	    globalData.odeConfig.setParam("realtimefactor", 0.1);
+	  std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+	  handled=true;
 	}
-	o.print();
+	break;
+      case 65453: // keypad -
+      case 45: // -
+	{
+	  double rf = globalData.odeConfig.realTimeFactor;
+	  if (rf>2)
+	    globalData.odeConfig.setParam("realtimefactor", rf-1);
+	  else if (rf>1.0)
+	    globalData.odeConfig.setParam("realtimefactor", rf-0.25);
+	  else if (rf>0.1)
+	    globalData.odeConfig.setParam("realtimefactor", rf-0.1);
+	  else
+	    globalData.odeConfig.setParam("realtimefactor", 0.1);
+	  std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+	  handled=true;
+	}
+	break;
+      case 18:  // Ctrl - r
+	if(videostream.isOpen()) {
+	  printf("Stop video recording!\n");
+	  videostream.close();
+	  //	    printf("Switching back to 50fps!\n");
+	  globalData.odeConfig.videoRecordingMode=false;
+	} else {
+	  //	    printf("For video recording the simulation now switches to 25fps!\n");
+	  globalData.odeConfig.videoRecordingMode=true;
+	  char dir[128];
+	  char filename[140];
+	  createNewDir("video", dir);
+	  printf("Start video recording in %s!\n", dir);
+	  sprintf(filename, "%s/frame", dir);
+	  videostream.open(filename);
+	}
+	handled=true;
+	break;
+      case 16: // Ctrl - p
+	pause = !pause;
+	printf( pause ? "Pause\n" : "Continue\n" );
 	handled = true;
+	break;
+	//     case 15: // Ctrl - o // TEST
+	//       {
+	// 	SceneView* sv = viewer->getSceneHandlerList().front()->getSceneView();
+	// 	Vec3 p(400,400,0);
+	// 	Pos o;
+	// 	if(!sv->projectWindowIntoObject(p,o)){
+	// 	  printf("SHIT happens always\n");
+	// 	}
+	// 	o.print();
+	// 	handled = true;
+	//       }
+	//       break;
+      default:
+	// std::cout << ea.getKey() << std::endl;
+	return false;
+	break;
       }
+    }
       break;
+    case(osgGA::GUIEventAdapter::KEYUP):
+      handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);
     default:
-      // std::cout << ea.getKey() << std::endl;
-      return false;
       break;
     }
+    if(handled)
+      resetSyncTimer();
+    return handled;
   }
-    break;
-  case(osgGA::GUIEventAdapter::KEYUP):
-    handled = command(odeHandle, osgHandle, globalData, ea.getKey(), false);
-  default:
-    break;
-  }
-  if(handled)
-    resetSyncTimer();
-  return handled;
-}
 
   void Simulation::getUsage (osg::ApplicationUsage& au) const {
     au.addKeyboardMouseBinding("Simulation: Ctrl-f","File-Logging on/off");
@@ -911,389 +1076,440 @@ bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter
     bindingDescription(au);
   }
 
-void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
+  void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
     v.visit(*this);
-}
+  }
 
-///////////////// Camera::Callback interface
-void Simulation::operator() (const Producer::Camera &c) {
+  ///////////////// Camera::Callback interface
+  //void Simulation::operator() (const osg::Camera &c) {
+  void Simulation::onPostDraw(const osg::Camera &c) {
     // grab frame if in captureing mode
     if(videostream.isOpen() && !pause) {
-        if(!videostream.grabAndWriteFrame(c)) {
-            fprintf(stderr,"Stop video recording because of failture!\n");
-            videostream.close();
-        }
+      if(!videostream.grabAndWriteFrame(c)) {
+	fprintf(stderr,"Stop video recording because of failture!\n");
+	videostream.close();
+      }
     }
-}
+  }
 
-/// clears obstacle and agents lists and delete entries
-void Simulation::tidyUp(GlobalData& global) {
+  /// clears obstacle and agents lists and delete entries
+  void Simulation::tidyUp(GlobalData& global) {
+    QP(cout << "Profiling summary:" << endl << PROFILER.getSummary() << endl);
+    
     // clear obstacles list
     for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++) {
-        delete (*i);
+      delete (*i); 
     }
     global.obstacles.clear();
 
     // clear agents list
     for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++) {
-        delete (*i)->getRobot();
-        delete (*i)->getController();
-        delete (*i)->getWiring();
-        delete (*i);
+      delete (*i)->getRobot();
+      delete (*i)->getController();
+      delete (*i)->getWiring();
+      delete (*i);
     }
     if(global.environment) {
-        delete global.environment;
-        global.environment=0;
+      delete global.environment;
+      global.environment=0;
     }
 
     if(osgHandle.normalState)
-        osgHandle.normalState->unref();
+      osgHandle.normalState->unref();
     if(osgHandle.transparentState)
-        osgHandle.transparentState->unref();
+      osgHandle.transparentState->unref();
     for(int i=0; i<3; i++) {
-        if(osgHandle.tesselhints[i])
-            osgHandle.tesselhints[i]->unref();
+      if(osgHandle.tesselhints[i])
+	osgHandle.tesselhints[i]->unref();
     }
     global.agents.clear();
 
     if(!noGraphics)    // delete viewer;
-        viewer->getEventHandlerList().clear();
-}
+      viewer->getEventHandlers().clear();
+    //        viewer->getEventHandlerList().clear();
+  }
 
 
-void Simulation::processCmdLine(int argc, char** argv) {
-    if(contains(argv, argc, "-h"))
-        usage(argv[0]);
-    if(contains(argv, argc, "--help"))
-        usage(argv[0]);
+  /** creates fake command line options to make osg do what we want
+      since we could not figure out how to disable the full screen mode
+      we inject --window ... to the cmd line options
+   */
+  void Simulation::insertCmdLineOption(int& argc,char**& argv){
+    char** nargv;
+    int numnew=5;
+    int nargc = argc+numnew;
+    nargv=(char**)malloc(sizeof(char*)*nargc);
+    memcpy(nargv,argv,sizeof(char*)*argc); // copy existing arguments
+    memset(nargv+ argc,0,numnew*sizeof(char*)); // set all new args to 0
+    nargv[argc++]=strdup("--window");
+    nargv[argc++]=strdup("-1");
+    nargv[argc++]=strdup("-1");
+    nargv[argc++]=strdup(itos((int)windowWidth).c_str());
+    nargv[argc++]=strdup(itos((int)windowHeight).c_str());
+    assert(argc<=nargc);
+    argv=nargv;
+  }
 
+
+  void Simulation::processCmdLine(int argc, char** argv) {
+    if(contains(argv, argc, "-h") || contains(argv, argc, "--help"))
+      usage(argv[0]);
     // guilogger-loading stuff here
     // start with online windows
     int index = contains(argv, argc, "-g");
     guiloggerinterval=1;
     if(index) {
-        if(argc > index)
-            guiloggerinterval=atoi(argv[index]);
-        plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
+      if(argc > index)
+	guiloggerinterval=atoi(argv[index]);
+      plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
     }
 
     // logging to file
     filelogginginterval=5;
     index = contains(argv, argc, "-f");
     if(index) {
-        if(argc > index)
-            filelogginginterval=atoi(argv[index]);
-        plotoptions.push_back(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
+      if(argc > index)
+	filelogginginterval=atoi(argv[index]);
+      plotoptions.push_back(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
     }
 
     // starting neuronviz
     neuronvizinterval=10;
     index = contains(argv, argc, "-n");
     if(index) {
-        if(argc > index)
-            neuronvizinterval=atoi(argv[index]);
-        plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval, globalconfigurables));
+      if(argc > index)
+	neuronvizinterval=atoi(argv[index]);
+      plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval, globalconfigurables));
     }
 
     // using SoundMan for acustic output
     index = contains(argv, argc, "-s");
     if(index) {
-        string param="";
-        if(argc > index)
-            param=argv[index];
-        plotoptions.push_back(PlotOption(SoundMan, Controller, 1, globalconfigurables,param));
+      string param="";
+      if(argc > index)
+	param=argv[index];
+      plotoptions.push_back(PlotOption(SoundMan, Controller, 1, globalconfigurables,param));
     }
 
     index = contains(argv, argc, "-r");
     long seed=0;
     // initialize random number generator
     if(index && argc > index) {
-        seed=atoi(argv[index]);
+      seed=atoi(argv[index]);
     } else {
-        seed=time(0);
+      seed=time(0);
     }
-    printf("Use random number seed: %li\n", seed);
+
     srand(seed);
     globalData.odeConfig.randomSeed=seed;
 
     int resolindex = contains(argv, argc, "-x");
-    windowWidth = 640;
-    windowHeight = 480;
     if(resolindex && argc > resolindex) {
-        sscanf(argv[resolindex],"%ix%i", &windowWidth,&windowHeight);
-        windowWidth = windowWidth < 64 ? 64 : (windowWidth > 1600 ? 1600 : windowWidth);
-        windowHeight = windowHeight < 64 ? 64 : (windowHeight > 1200 ? 1200 : windowHeight);
+      sscanf(argv[resolindex],"%lgx%lg", &windowWidth,&windowHeight);
+    }
+    windowWidth = windowWidth < 64 ? 64 : (windowWidth > 1600 ? 1600 : windowWidth);
+    windowHeight = windowHeight < 64 ? 64 : (windowHeight > 1200 ? 1200 : windowHeight);
+
+    if(contains(argv, argc, "-fs")){
+      windowHeight=-1;
+      windowWidth=-1;
     }
 
-    pause = contains(argv, argc, "-pause")!=0;
-    useShadow = contains(argv, argc, "-noshadow")==0;
     noGraphics = contains(argv, argc, "-nographics")!=0;
-    shadowTexSize = 2048;
-    int shadowsizeindex = contains(argv, argc, "-shadowsize");
-    if(shadowsizeindex && argc > shadowsizeindex) {
-        sscanf(argv[shadowsizeindex],"%i", &shadowTexSize);
-        printf("shadowTexSize=%i\n",shadowTexSize);
+    pause = contains(argv, argc, "-pause")!=0;
+
+    index = contains(argv, argc, "-shadow");
+    if(index && (argc > index))
+      shadow=(double)atoi(argv[index]);
+    // use shadowTexSize of maximally 1024 with ParallelSplitShadowMap
+    if (shadow==3)
+      if(shadowTexSize>1024) shadowTexSize = 1024;
+    
+    index = contains(argv, argc, "-shadowsize");
+    if(index && argc > index) {
+      shadowTexSize = atoi(argv[index]);
+      printf("shadowTexSize=%lg\n",shadowTexSize);
     }
+    if(contains(argv, argc, "-noshadow")!=0) shadow=0;
 
     osgHandle.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
 
     // read intended simulation time
     index = contains(argv, argc, "-simtime");
     if (index) {
-        if(argc > index)
-            simulation_time=atoi(argv[index]);
-        printf("simtime=%li\n",simulation_time);
+      if(argc > index){
+	simulation_time=atol(argv[index]);
+	printf("simtime=%li\n",simulation_time);
+      }
     }
 
-}
+    index = contains(argv, argc, "-threads");
+    if (index) {
+      if(argc > index){
+	int threads = atoi(argv[index]);
+	QMP_SET_NUM_THREADS(threads);
+	printf("Number of threads=%i\n", threads);
+      }
+    }
+    
+    if (contains(argv, argc, "-odethread")) {
+      useOdeThread=1;
+    }
+    if (contains(argv, argc, "-osgthread")) {
+      useOsgThread=1;
+    }
 
-//   // This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide)
-//   void nearCallback_Old(void *data, dGeomID o1, dGeomID o2){
-//     Simulation* me = (Simulation*) data;
-//     if (!me) return;
+    if (contains(argv, argc, "-savecfg")) {
+      storeOdeRobotsCFG();
+    }
 
-//     bool collision_treated=false;
-//     // call robots collision treatments
-//     for(OdeAgentList::iterator i= me->globalData.agents.begin();
-// 	(i != me->globalData.agents.end()) && !collision_treated; i++){
-//       collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
-//     }
-
-//     if (collision_treated) return; // exit if collision was treated by a robot
-
-//     if(!(me->collCallback(me->odeHandle, data,o1,o2))){
-
-//       // Todo: here is a code, that generated all possible contact points,
-//       //  for the new collision code, make sure we incorperate that.
-// //       if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
-// //       // colliding a space with something
-// //       dSpaceCollide2 (o1,o2,data,&nearCallback);
-// //       // collide all geoms internal to the space(s)
-// //       if (dGeomIsSpace (o1)) dSpaceCollide (o1,data,&nearCallback);
-// //       if (dGeomIsSpace (o2)) dSpaceCollide (o2,data,&nearCallback);
-// //     }
-// //     else {
-// //       // colliding two non-space geoms, so generate contact
-// //       // points between o1 and o2
-// //       int num_contact = dCollide (o1,o2,max_contacts,contact_array,skip);
-// //       // add these contact points to the simulation
-// //       ...
-// //     }
-
-//       // using standard collision treatment
-
-//       int i,n;
-//       const int N = 80;
-//       dContact contact[N];
-//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-//       if (n > 0) {
-// 	for (i=0; i<n; i++)
-// 	  {
-
-//  	    // contact[i].surface.mode = dContactBounce | dContactSoftCFM;
-// 	    //  	    contact[i].surface.mu = 1;
-// 	    //  	    contact[i].surface.mu2 = 0;
-// 	    //  	    contact[i].surface.bounce = 0.1;
-// 	    //  	    contact[i].surface.bounce_vel = 0.1;
-// 	    //  	    contact[i].surface.soft_cfm = 0.1;
-
-// 	    contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-// 	      dContactSoftERP | dContactSoftCFM | dContactApprox1;
-// 	    contact[i].surface.mu = 0.8; //normale Reibung von Reifen auf Asphalt
-// 	    contact[i].surface.slip1 = 0.005;
-// 	    contact[i].surface.slip2 = 0.005;
-// 	    contact[i].surface.soft_erp = 0.999;
-// 	    contact[i].surface.soft_cfm = 0.001;
-// 	    dJointID c = dJointCreateContact (me->odeHandle.world,
-// 					      me->odeHandle.jointGroup,&contact[i]);
-// 	    dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-// 	  }
-//       }
-//     }
-//   }
+  }
 
 
-// This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide (0))
-void Simulation::nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2) {
+  // This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide (0))
+  void Simulation::nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2) {
     Simulation* me = (Simulation*) data;
     if (!me)
-        return;
+      return;
 
     bool collision_treated=false;
     // call robots collision treatments (old stuff, should be removed at some point)
     for(OdeAgentList::iterator i= me->globalData.agents.begin();
-            (i != me->globalData.agents.end()) && !collision_treated; i++) {
-        collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
+	(i != me->globalData.agents.end()) && !collision_treated; i++) {
+      collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
     }
 
     if (collision_treated)
-        return; // exit if collision was treated by a robot
+      return; // exit if collision was treated by a robot
 
     nearCallback(data, o1, o2);
-}
+  }
 
 
-void Simulation::nearCallback (void *data, dGeomID o1, dGeomID o2) {
+  void Simulation::nearCallback (void *data, dGeomID o1, dGeomID o2) {
     Simulation* me = (Simulation*) data;
     if (!me)
-        return;
+      return;
     if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
-        // colliding a space with something
-        dSpaceCollide2 (o1,o2,data,&nearCallback);
-        // collide all geoms internal to the space(s)
-        if (dGeomIsSpace (o1)) {
-            if(! me->odeHandle.isIgnoredSpace((dxSpace*)o1) )
-                dSpaceCollide ((dxSpace*)o1,data,&nearCallback);
-        }
-        if (dGeomIsSpace (o2)) {
-            if(! me->odeHandle.isIgnoredSpace((dxSpace*)o2) )
-                dSpaceCollide ((dxSpace*)o2,data,&nearCallback);
-        }
+      // colliding a space with something
+      dSpaceCollide2 (o1,o2,data,&nearCallback);
+      // collide all geoms internal to the space(s)
+      if (dGeomIsSpace (o1)) {
+	if(! me->odeHandle.isIgnoredSpace((dxSpace*)o1) )
+	  dSpaceCollide ((dxSpace*)o1,data,&nearCallback);
+      }
+      if (dGeomIsSpace (o2)) {
+	if(! me->odeHandle.isIgnoredSpace((dxSpace*)o2) )
+	  dSpaceCollide ((dxSpace*)o2,data,&nearCallback);
+      }
     } else {
-        // colliding two non-space geoms, so generate contact
-        // points between o1 and o2
-        /// use the new method with substances
-        dSurfaceParameters surfParams;
-        // check whether ignored pair (e.g. connected by joint)
-        if(me->odeHandle.isIgnoredPair(o1, o2 )) {
-            //cerr << "ign:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;
-            return;
-        }
-        //cerr << "col:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;
-        //      Primitive* p1 = (Primitive*)dGeomGetData (o1);
-        //      Primitive* p2 = (Primitive*)dGeomGetData (o2);
-        Primitive* p1 = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o1));
-        Primitive* p2 = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o2));
-        if(!p1 || !p2) {
-            cerr << "collision detected without primitive\n";
-            return;
-        }
+      // colliding two non-space geoms, so generate contact
+      // points between o1 and o2
+      /// use the new method with substances
+      dSurfaceParameters surfParams;
+      // check whether ignored pair (e.g. connected by joint)
+      if(me->odeHandle.isIgnoredPair(o1, o2 )) {
+	//cerr << "ign:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;
+	return;
+      }
+      //cerr << "col:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;
+      //      Primitive* p1 = (Primitive*)dGeomGetData (o1);
+      //      Primitive* p2 = (Primitive*)dGeomGetData (o2);
+      Primitive* p1 = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o1));
+      Primitive* p2 = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o2));
+      if(!p1 || !p2) {
+	cerr << "collision detected without primitive\n";
+	return;
+      }
 
-        int i,n;
-        const int N = 80;
-        dContact contact[N];
-        n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-        if(n>0) {
-            const Substance& s1 = p1->substance;
-            const Substance& s2 = p2->substance;
-            int callbackrv = 1;
-            if(s1.callback) {
-                callbackrv = s1.callback(surfParams, me->globalData, s1.userdata, contact, n,
-                                         o1, o2, s1, s2);
-            }
-            if(s2.callback && callbackrv==1) {
-                callbackrv = s2.callback(surfParams, me->globalData, s2.userdata, contact, n,
-                                         o2, o1, s2, s1 );
-            }
-            if(callbackrv==1) {
-                Substance::getSurfaceParams(surfParams, s1,s2, me->globalData.odeConfig.simStepSize);
-                //Substance::printSurfaceParams(surfParams);
-            }
-            if(callbackrv==0)
-                return;
-            for (i=0; i < n; i++) {
-                contact[i].surface = surfParams;
-                dJointID c = dJointCreateContact (me->odeHandle.world,
-                                                  me->odeHandle.jointGroup,&contact[i]);
-                dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-            }
-        } // if contact points
+      int i,n;
+      const int N = 80;
+      dContact contact[N];
+      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+      if(n>0) {
+	const Substance& s1 = p1->substance;
+	const Substance& s2 = p2->substance;
+	int callbackrv = 1;
+	if(s1.callback) {
+	  callbackrv = s1.callback(surfParams, me->globalData, s1.userdata, contact, n,
+				   o1, o2, s1, s2);
+	}
+	if(s2.callback && callbackrv==1) {
+	  callbackrv = s2.callback(surfParams, me->globalData, s2.userdata, contact, n,
+				   o2, o1, s2, s1 );
+	}
+	if(callbackrv==1) {
+	  Substance::getSurfaceParams(surfParams, s1,s2, me->globalData.odeConfig.simStepSize);
+	  //Substance::printSurfaceParams(surfParams);
+	}
+	if(callbackrv==0)
+	  return;
+	for (i=0; i < n; i++) {
+	  contact[i].surface = surfParams;
+	  dJointID c = dJointCreateContact (me->odeHandle.world,
+					    me->odeHandle.jointGroup,&contact[i]);
+	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+	}
+      } // if contact points
     } // if geoms
-}
+  }
 
 
-/// internals
+  /// internals
 
-void Simulation::control_c(int i) {
+  void Simulation::control_c(int i) {
     ctrl_C++ ;
     // if (Control_C > 100)exit(0);
-}
+  }
 
-void Simulation::cmd_handler_exit(void) {
+  void Simulation::cmd_handler_exit(void) {
     signal(SIGINT,SIG_DFL);
     ctrl_C=0;
-}
+  }
 
-void Simulation::cmd_handler_init() {
+  void Simulation::cmd_handler_init() {
     signal(SIGINT,control_c);
     atexit(cmd_handler_exit);
-}
+  }
 
-bool Simulation::control_c_pressed() {
+  bool Simulation::control_c_pressed() {
     return ctrl_C!=0;
-}
+  }
 
-void Simulation::cmd_begin_input() {
+  void Simulation::cmd_begin_input() {
     cmd_handler_exit();
-}
+  }
 
-void Simulation::cmd_end_input() {
+  void Simulation::cmd_end_input() {
     cmd_handler_init();
-}
+  }
 
-long Simulation::timeOfDayinMS() {
+  long Simulation::timeOfDayinMS() {
     struct timeval t;
     gettimeofday(&t, 0);
     return t.tv_sec*1000 + t.tv_usec/1000;
-}
+  }
 
-void Simulation::resetSyncTimer() {
+  void Simulation::resetSyncTimer() {
     realtimeoffset = timeOfDayinMS();
     simtimeoffset = int(globalData.time*1000);
-}
+  }
+
+  void Simulation::storeOdeRobotsCFG(){
+    list<string> cs;
+    cs+=string("Configruation file for lpzrobots ode simulation!");
+    cs+=string("Most values are self-exlaining, also use -h with the simulator to learn more");
+    cs+=string(" about the configuration.");
+    cs+=string("The following values for Shadow are supported:");
+    cs+=string("\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap");
+    cs+=string("\t4: SoftShadowMap, 5: ShadowMap (default)");
+    if(storeCfg(odeRobotsCfg,cs))
+      printf("Configuration saved to %s!\n",odeRobotsCfg);
+    else
+      fprintf(stderr,"Error while writing configuration file %s!\n", odeRobotsCfg);
+  }
 
 
-void Simulation::usage(const char* progname) {
-    printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed]"
-           " [-x WxH] [-pause] [-noshadow] [-drawboundings] [-simtime [min]]\n", progname);
+  void Simulation::usage(const char* progname) {
+    printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed] [-x WxH] [-fs] \n", progname);
+    printf("\t\t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-threads N]\n");
+    printf("\t\t [-odethread] [-osgthread] [-savecfg]\n");
     printf("\t-g interval\tuse guilogger (default interval 1)\n");
     printf("\t-f interval\twrite logging file (default interval 5)\n");
     printf("\t-n interval\tuse neuronviz (default interval 10)\n");
     printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");
     printf("\t-r seed\t\trandom number seed\n");
-    printf("\t-x WxH\t\twindow size of width(W) x height(H) is used (default 640x480)\n");
+    printf("\t-x WxH\t\t* window size of width(W) x height(H) is used (default 640x480)\n");
+    printf("\t-fs\t\tfullscreen mode\n");
     printf("\t-pause \t\tstart in pause mode\n");
     printf("\t-nographics \t\tstart without any graphics\n");
-    printf("\t-noshadow \tdisables shadows and shaders\n");
-    printf("\t-shadowsize size \tsets the size of the shadow texture (default 2048)\n");
+    printf("\t-noshadow \tdisables shadows and shaders (same as -shadow 0)\n");
+    printf("\t-shadow [0..5]] \t* sets the type of the shadow to be used\n");
+    printf("\t\t\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap\n");
+    printf("\t\t\t4: SoftShadowMap, 5: ShadowMap (default)\n");
+    printf("\t-shadowsize size \t* sets the size of the shadow texture (default 2048)\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
-    printf("\t-simtime min\tintended simulation time in minutes\n");
+    printf("\t-simtime min\tlimited simulation time in minutes\n");
+    printf("\t-savecfg\tsafe the configuration file with the values given by the cmd line\n");
+    printf("\t-threads N\tnumber of threads to use (default is the number of processors)\n");
+    printf("\t-odethread\t* if given the ODE runs in its own thread. -> Sensors are delayed by 1\n");
+    printf("\t-osgthread\t* if given the OSG runs in its own thread (recommended)\n");
+    printf("\t* this parameter can be set in the configuration file ~/.lpzrobots/ode_robots.cfg\n");
+    printf("More parameter concerning OSG graphics will follow...\n");
+  }
 
-}
-
-void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view) {
+  void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view) {
     if(!noGraphics) {
-        osgGA::MatrixManipulator* mm =viewer->getCurrentCameraManipulator();
-        if(mm) {
-            CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
-            if(cameramanipulator)
-                cameramanipulator->setHome(eye, view);
-        }
+      osgGA::MatrixManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
+      if(mm) {
+	CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
+	if(cameramanipulator)
+	  cameramanipulator->setHome(eye, view);
+      }
     }
-}
-
-
-// Helper
-int contains(char **list, int len,  const char *str) {
-    for(int i=0; i<len; i++) {
-        if(strcmp(list[i],str) == 0)
-            return i+1;
-    }
-    return 0;
-}
+  }
 
 
 void createNewDir(const char* base, char *newdir) {
     struct stat s;
     for(int i=0; i<1000; i++) {
-        sprintf(newdir,"%s%03i", base, i);
-        if(stat(newdir,&s)!=0) { // file/dir does not exist -> take it
-            mkdir(newdir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP );
-            return;
-        }
+      sprintf(newdir,"%s%03i", base, i);
+      if(stat(newdir,&s)!=0) { // file/dir does not exist -> take it
+	mkdir(newdir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP );
+	return;
+      }
     }
     assert(1); // should not happen
+  }
+
+void Simulation::odeStep() {
+  
+  QP(PROFILER.beginBlock("collision"));
+  // for parallelising the collision detection 
+  // we would need distinct jointgroups for each thread
+  // also the most time is required by the global collision callback which is one block
+  // so it makes no sense to is quickmp here
+  dSpaceCollide ( odeHandle.space , this , &nearCallback_TopLevel );
+  FOREACHC(vector<dSpaceID>, odeHandle.getSpaces(), i) {
+    dSpaceCollide ( *i , this , &nearCallback );
+  }
+  QP(PROFILER.endBlock("collision")); 
+  
+  QP(PROFILER.beginBlock("ODEstep")); 
+  dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize );
+  dJointGroupEmpty (odeHandle.jointGroup);
+  QP(PROFILER.endBlock("ODEstep"));
 }
 
+void Simulation::osgStep() {
+  viewer->frame();
+  onPostDraw(*(viewer->getCamera()));
 }
+
+
+/// redirection function, because we can't call member function direct
+static void* odeStep_run(void* p) {
+  Simulation* sim = dynamic_cast<Simulation*>((Simulation*)p);
+  if(sim)
+    sim->odeStep();
+  else{
+    cerr << "scheisse" << endl;
+  }
+  return NULL;
+}
+
+/// redirection function, because we can't call member function direct
+static void* osgStep_run(void* p) {
+  Simulation* sim = dynamic_cast<Simulation*>((Simulation*)p);
+  if(sim)
+    sim->osgStep();
+  else{
+    cerr << "scheisse" << endl;
+  }
+  return NULL;
+}
+
+
+}
+
 

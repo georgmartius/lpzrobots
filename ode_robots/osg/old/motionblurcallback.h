@@ -27,7 +27,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.2  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.1.2.1  2008/04/09 08:58:20  martius
+ *   motion blur moved to old stuff
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2006/04/27 16:18:24  robot3

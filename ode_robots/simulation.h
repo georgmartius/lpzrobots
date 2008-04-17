@@ -22,13 +22,45 @@
  ***************************************************************************
  *                                                                         *
  *  simulation.h and simulation.cpp provide a generic ode-robot simulation *
- *  framework. It implements the initialisation, the simulation loop,      * 
+ *  framework. It implements the initialisation, the simulation loop,      *
  *  and a basic command line interface.                                    *
  *  Usage: call simulation_init(), simulation_start(), simulation_close()  *
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2007-08-24 11:52:42  martius
+ *   Revision 1.30  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.29.2.7  2008/04/15 16:21:52  martius
+ *   Profiling
+ *   Multithreading also for OSG and ODE but disables because of instabilities
+ *
+ *   Revision 1.29.2.6  2008/04/14 11:25:30  guettler
+ *   The OSG step (Viewer) runs now in a seperate thread! A Sideeffect is that
+ *   the simulation runs one step out of sync with the ode, don't worry about
+ *   that. This increases the simulation speed up to 30% on a test pc.
+ *   Together with the parallelisation of the ODE we have an total speed up of
+ *   94% with the shadowtype 5 on an dual Pentium3 1Ghz and NVidia5250!
+ *
+ *   Revision 1.29.2.5  2008/04/14 10:49:23  guettler
+ *   The ODE simstep runs now in a parallel thread! A Sideeffect is that
+ *   the simulation runs one step out of sync with the ode, don't worry about
+ *   that. This increases the simulation speed up to 50% on a test pc.
+ *
+ *   Revision 1.29.2.4  2008/04/11 10:41:35  martius
+ *   config file added
+ *
+ *   Revision 1.29.2.3  2008/04/09 13:57:59  guettler
+ *   New ShadowTechnique added.
+ *
+ *   Revision 1.29.2.2  2008/04/09 10:18:41  martius
+ *   fullscreen and window options done
+ *   fonts on hud changed
+ *
+ *   Revision 1.29.2.1  2008/04/08 14:09:23  martius
+ *   compiles and runs with OSG2.2. Juhu
+ *
+ *   Revision 1.29  2007/08/24 11:52:42  martius
  *   resetsynctimer is protected
  *
  *   Revision 1.28  2007/06/21 16:19:48  martius
@@ -181,8 +213,12 @@
 
 // include base classes of class Simulation
 #include "base.h"
-#include <osgGA/GUIEventHandler>
-#include <Producer/Camera>
+
+#include <osgViewer/Viewer>
+#include <osgViewer/ViewerEventHandlers>
+#include <osgGA/KeySwitchMatrixManipulator>
+#include <osg/Camera>
+
 
 #include <math.h>
 #define PI M_PI // (3.14159265358979323846)
@@ -204,20 +240,21 @@ namespace lpzrobots {
 
 namespace lpzrobots {
 
-  class Simulation : public Base, public osgGA::GUIEventHandler, public Producer::Camera::Callback {
+  class Simulation : public Base, public osgGA::GUIEventHandler, public Configurable
+  {
   public:
 
     typedef enum SimulationState { none, initialised, running, closed };
-    
+
     Simulation();
     virtual ~Simulation();
 
-    /** starts the Simulation. Do not overload it. 
+    /** starts the Simulation. Do not overload it.
 	This function returns of the simulation is terminated.
 	@return: true if closed regulary, false on error
     */
     bool run(int argc, char** argv);
-  
+
     // the following function have to be overloaded.
 
     /// start() is called at the start and should create all the object (obstacles, agents...).
@@ -227,39 +264,44 @@ namespace lpzrobots {
 
     /// end() is called at the end and should tidy up
     virtual void end(GlobalData& globalData);
-    /** config() is called when the user presses Ctrl-C 
+    /** config() is called when the user presses Ctrl-C
 	@return false to exit program, true otherwiese
     */
     virtual bool config(GlobalData& globalData);
-    /** is called if a key was pressed. 
+    /** is called if a key was pressed.
 	For keycodes see: osgGA::GUIEventAdapter
 	@return true if the key was handled
     */
-    virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, 
+    virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData,
 			 int key, bool down) { return false; };
 
-    /** this can be used to describe the key bindings used by command()     
+    /** this can be used to describe the key bindings used by command()
      */
     virtual void bindingDescription(osg::ApplicationUsage & au) const {};
 
     /** collCallback() can be used to overload the standart collision handling.
-	However it is called after the robots collision handling.       
+	However it is called after the robots collision handling.
 	@return true if collision is treated, false otherwise
     */
     virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
 
-    /** optional additional callback function which is called every simulation step. 
+    /** optional additional callback function which is called every simulation step.
 	Called between physical simulation step and drawing.
 	@param draw indicates that objects are drawn in this timestep
-	@param pause indicates that simulation is paused
-	@param control indicates that robots have been controlled this timestep	
+	@param pause always false (only called of simulation is running)
+	@param control indicates that robots have been controlled this timestep
      */
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {};
 
-    ///////////////// Camera::Callback interface
-    virtual void operator() (const Producer::Camera &);
+    ///////////////// Camera::DrawCallback interface
+    void onPostDraw(const osg::Camera &c);
+    // virtual void operator() ();
 
-  
+
+    virtual void odeStep();
+
+    virtual void osgStep();
+
 
   protected:
     // GUIEventHandler
@@ -270,7 +312,7 @@ namespace lpzrobots {
     virtual bool init(int argc, char** argv);
 
     /** define the home position and view orientation of the camera.
-	view.x is the heading angle in degree. view.y is the tilt angle in degree (nick), 
+	view.x is the heading angle in degree. view.y is the tilt angle in degree (nick),
 	view.z is ignored
     */
     void setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view);
@@ -279,7 +321,7 @@ namespace lpzrobots {
     static void nearCallback(void *data, dGeomID o1, dGeomID o2);
     bool control_c_pressed();
 
-    // plotoptions is a list of possible online output, 
+    // plotoptions is a list of possible online output,
     // if the list is empty no online gnuplot windows and no logging to file occurs.
     // The list is modified with commandline options, see run() in simulation.cpp
     std::list<PlotOption> plotoptions;
@@ -288,12 +330,13 @@ namespace lpzrobots {
 
 
   private:
-    void processCmdLine(int argc, char** argv);
-    bool loop(); 
+    void insertCmdLineOption(int& argc,char**& argv);
+    bool loop();
     /// clears obstacle and agents lists and delete entries
     void tidyUp(GlobalData& globalData);
 
   protected:
+    void processCmdLine(int argc, char** argv);
     void resetSyncTimer();
     long timeOfDayinMS();
 
@@ -307,6 +350,9 @@ namespace lpzrobots {
     // Commandline interface stuff
     static void usage(const char* progname);
 
+    void storeOdeRobotsCFG();
+
+
   protected:
     GlobalData globalData;
     VideoStream videostream;
@@ -316,8 +362,9 @@ namespace lpzrobots {
     long realtimeoffset;
     long simtimeoffset;
 
-    int windowWidth;
-    int windowHeight;
+    paramval windowWidth;
+    paramval windowHeight;
+
     bool pause;
     bool simulation_time_reached;
     long int simulation_time;
@@ -329,15 +376,27 @@ namespace lpzrobots {
     int filelogginginterval;
     int neuronvizinterval;
 
+    char odeRobotsCfg[256]; /// < filename of config file
+
     //  CameraType camType; // default is a non-moving and non-rotating camera
     //  OdeRobot* viewedRobot; // the robot who is viewed from the camera
 
   private:
     SimulationState state;
     osg::ArgumentParser* arguments;
-    ExtendedViewer* viewer;
-    Producer::Camera* cam;
+    osgViewer::Viewer* viewer;
+    osgGA::KeySwitchMatrixManipulator* keyswitchManipulator;
+
     static int ctrl_C;
+
+    // multiprocessoring stuff
+    pthread_t odeThread;
+    pthread_t osgThread;
+    paramval useOdeThread;
+    paramval useOsgThread;
+    bool odeThreadCreated;
+    bool osgThreadCreated;
+
   };
 
   // /// initializes or resets the camera per user, if wanted
@@ -348,14 +407,11 @@ namespace lpzrobots {
   // /// call this after the @simulation_start()@ has returned to tidy up.
   // void simulation_close();
 
-  // Helper
-  /// returns the index+1 if the list contains the given string or 0 if not
-  int contains(char **list, int len,  const char *str);
 
   // Commandline interface stuff
   /// shows all parameters of all given configurable objects
   void showParams(const ConfigList& configs);
-  
+
   /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
   void createNewDir(const char* base, char *newdir);
 }

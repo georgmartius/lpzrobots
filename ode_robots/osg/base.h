@@ -24,7 +24,26 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-09-28 12:31:49  robot3
+ *   Revision 1.8  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.7.2.5  2008/04/11 13:46:50  martius
+ *   quickMP multithreading included
+ *
+ *   Revision 1.7.2.4  2008/04/11 10:41:35  martius
+ *   config file added
+ *
+ *   Revision 1.7.2.3  2008/04/09 14:25:35  martius
+ *   shadow cmd line option
+ *
+ *   Revision 1.7.2.2  2008/04/09 13:57:59  guettler
+ *   New ShadowTechnique added.
+ *
+ *   Revision 1.7.2.1  2008/04/09 10:18:41  martius
+ *   fullscreen and window options done
+ *   fonts on hud changed
+ *
+ *   Revision 1.7  2007/09/28 12:31:49  robot3
  *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
  *   can be updated independently from the HUD
  *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
@@ -100,10 +119,7 @@ namespace lpzrobots {
 
   class Base {
   public:
-    Base(const char* caption=0)
-      : caption(caption){
-      timestats=0; hud=0;
-    }
+    Base(const char* caption=0);
 
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
@@ -113,6 +129,15 @@ namespace lpzrobots {
     virtual osg::Group* createShadowedScene(osg::Node* shadowed,
 					    osg::Vec3 posOfLight,
 					    unsigned int unit);
+    /** Shadow types:
+     * 1 - ShadowVolume
+     * 2 - ShadowTextue
+     * 3 - ParallelSplitShadowMap
+     * 4 - SoftShadowMap
+     * 5 - ShadowMap
+     */
+    virtual osg::Group* createShadowedScene(osg::Node* sceneToShadow);
+
 
 
     virtual void setCaption(const char* caption) {
@@ -136,24 +161,37 @@ namespace lpzrobots {
 
     dGeomID ground;
 
-    osg::Group* root;
-    osg::Node* hud;
-    osgText::Text* timestats;
-	osgText::Text* statisticLine;
 
     OsgHandle osgHandle;
     // ODE globals
     OdeHandle odeHandle;
     const char* caption;
 
-    bool useShadow;
-    unsigned int shadowTexSize;
+    osg::Group* root;
+    osg::Node* hud;
+    osgText::Text* timestats;
+    osgText::Text* statisticLine;
 
     /// this manager provides methods for displaying statistics on the graphical window!
     HUDStatisticsManager* hUDStatisticsManager;
 
     std::list<Callbackable*> graphicsCallbackables;
-    std::list<Callbackable*> physicsCallbackables;
+    std::vector<Callbackable*> physicsCallbackables; // vector because we need to parallelise it
+
+    int ReceivesShadowTraversalMask;
+    int CastsShadowTraversalMask;
+
+    // the types are double because they are configurable and stored to the cfg file
+    double shadow;     // set by child class Simulation
+    double shadowTexSize;  // set by child class Simulation
+    double useNVidia;      // if 0 use ATI Radeon!
+
+
+      // Helper
+  /// returns the index+1 if the list contains the given string or 0 if not
+    int contains(char **list, int len,  const char *str);
+
+
   };
 }
 

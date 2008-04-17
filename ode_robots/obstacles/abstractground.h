@@ -21,7 +21,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-12-06 10:02:49  der
+ *   Revision 1.10  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.9.2.1  2008/04/15 16:21:52  martius
+ *   Profiling
+ *   Multithreading also for OSG and ODE but disables because of instabilities
+ *
+ *   Revision 1.9  2007/12/06 10:02:49  der
  *   abstractground: returns now cornerpoints
  *   abstractobstacle: is now trackable
  *   hudstatistics: supports now AbstractmMeasure
@@ -87,7 +94,7 @@
 #ifndef __ABSTRACTGROUND_H
 #define __ABSTRACTGROUND_H
 
-#include <vector>
+#include <list>
 #include "abstractobstacle.h"
 #include <selforg/position.h>
 

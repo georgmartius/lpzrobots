@@ -1,3 +1,28 @@
+2008-04-17 martius
+	1. OSG2 port
+	New viewer is used. 
+	Various shadow algorithms are avaiable
+	2. Multithreading build in using QuickMP
+	Controllers (Agent::step) run in parallel
+	Threadnumber is the number of processors.
+	ODE can also run in a separate thread if wanted, this has some consequences:
+	  - sensors are one timestep delayed
+	OSG can also run in a separate thread if wanted, this has some consequences:
+	  - sometimes the program just stalls right after the start which is due 
+	    to some problems with the Xlib and concurrent access	   
+	3. Random generator with state
+	Agents have there own random generator and 
+	pass it to controller and wiring
+	4. Configuration file 
+	a config file (~/.lpzrobots/ode_robots.cfg) loads defaults for 
+	 e.g. shadow, window size, threads and so on.
+	The cfg file is written at the first start, 
+	 and it can be also saved with -savecfg flag
+	5. Support for simple sound signals
+	very simple sound sensor and sound emitting with graphic represenation
+	6. Binary distribution creation script
+	
+	
 2007-03-26 martius
 	1. new collision treatment
 	Class substance carries information about material of each primitive.

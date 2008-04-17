@@ -24,7 +24,32 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-09-28 12:31:49  robot3
+ *   Revision 1.15  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.14.2.7  2008/04/17 15:04:55  martius
+ *   shadow is 5 on default, also improved cmd line parsing of shadow and texsize
+ *
+ *   Revision 1.14.2.6  2008/04/11 13:46:50  martius
+ *   quickMP multithreading included
+ *
+ *   Revision 1.14.2.5  2008/04/11 10:41:35  martius
+ *   config file added
+ *
+ *   Revision 1.14.2.4  2008/04/10 07:40:17  guettler
+ *   Optimised parameters for the ShadowTechnique ParallelSplitShadowMap.
+ *
+ *   Revision 1.14.2.3  2008/04/09 14:25:35  martius
+ *   shadow cmd line option
+ *
+ *   Revision 1.14.2.2  2008/04/09 13:57:59  guettler
+ *   New ShadowTechnique added.
+ *
+ *   Revision 1.14.2.1  2008/04/09 10:18:41  martius
+ *   fullscreen and window options done
+ *   fonts on hud changed
+ *
+ *   Revision 1.14  2007/09/28 12:31:49  robot3
  *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
  *   can be updated independently from the HUD
  *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
@@ -132,6 +157,13 @@
 
 #include <selforg/callbackable.h>
 
+#include <osgShadow/ShadowedScene>
+#include <osgShadow/ShadowVolume>
+#include <osgShadow/ShadowTexture>
+#include <osgShadow/ShadowMap>
+#include <osgShadow/SoftShadowMap>
+#include <osgShadow/ParallelSplitShadowMap>
+
 
 using namespace osg;
 
@@ -167,15 +199,113 @@ namespace lpzrobots {
   "    gl_FragColor = color * (ambientBias.x + shadow2DProj( shadowTexture, gl_TexCoord[1])  * ambientBias.y); \n"
   "}\n";
 
+    Base::Base(const char* caption)
+      : ground(0), caption(caption),
+      hud(0), timestats(0), ReceivesShadowTraversalMask(0x1), CastsShadowTraversalMask(0x2),
+      shadow(5), shadowTexSize(2048), useNVidia(1)
+    {
+    }
+
+
   Base::~Base(){
-    if(ground){
+    if(ground ){
       //      Plane* plane = (Plane*) dGeomGetData(ground);
       //      delete plane;
       dGeomDestroy(ground);
     }
   }
 
+  /* Shadow types: 1 - ShadowVolume 2 - ShadowTextue 3 - ParallelSplitShadowMap
+   * 4 - SoftShadowMap 5 - ShadowMap
+   */
+  osg::Group* Base::createShadowedScene(osg::Node* sceneToShadow)
+{
+  // some conf variables for ShadowVolume
+  bool twoSided=false;
+  bool twoPass=false;
+  bool updateLightPosition = true;
+  // some conf variables for ParallelSplitShadowMap
+  int mapCount =2;
+  bool debugColor=false;
+  int minNearSplit=0;
+  int maxFarDist=10;
+  int moveVCamFactor = 0;
+  double polyoffsetfactor = -0.02;
+  double polyoffsetunit = 1.0;
+  bool cullFaceFront=false;
 
+
+  // create root of shadowedScene
+  osgShadow::ShadowedScene* shadowedScene = new osgShadow::ShadowedScene;
+
+  shadowedScene->setReceivesShadowTraversalMask(ReceivesShadowTraversalMask);
+  shadowedScene->setCastsShadowTraversalMask(CastsShadowTraversalMask);
+
+  // add ShadowTechnique
+  int shadowType=(int)shadow;
+  switch(shadowType) {
+  case 1: /// ShadowVolume
+    {
+      // hint to tell viewer to request stencil buffer when setting up windows
+      osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
+
+      osg::ref_ptr<osgShadow::ShadowVolume> sv = new osgShadow::ShadowVolume;
+      sv->setDynamicShadowVolumes(updateLightPosition);
+      if (twoSided)
+        sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_SIDED);
+      if (twoPass)
+        sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_PASS);
+      shadowedScene->setShadowTechnique(sv.get());
+    }
+    break;
+  case 2: /// ShadowTexture
+    {
+      osg::ref_ptr<osgShadow::ShadowTexture> st = new osgShadow::ShadowTexture;
+      shadowedScene->setShadowTechnique(st.get());
+    }
+    break;
+  case 3: /// ParallelSplitShadowMap
+    {
+      osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
+
+      if (debugColor)
+        pssm->setDebugColorOn();
+
+      pssm->setTextureResolution((int)shadowTexSize);
+      pssm->setMinNearDistanceForSplits(minNearSplit);
+      pssm->setMaxFarDistance(maxFarDist);
+      pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
+
+      if (useNVidia!=0) 
+        pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f)); //NVidea
+      else
+        pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
+
+      if (cullFaceFront)
+        pssm->forceFrontCullFace();
+
+      shadowedScene->setShadowTechnique(pssm.get());
+    }
+    break;
+  case 4: /// SoftShadowMap
+    {
+      osg::ref_ptr<osgShadow::SoftShadowMap> sm = new osgShadow::SoftShadowMap;
+      shadowedScene->setShadowTechnique(sm.get());
+    }
+    break;
+  case 5: /// ShadowMap
+  default:
+    {
+        osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
+        shadowedScene->setShadowTechnique(sm.get());
+      sm->setTextureSize(osg::Vec2s((int)shadowTexSize,(int)shadowTexSize));
+    }
+    break;
+  }
+  shadowedScene->addChild(sceneToShadow);
+
+  return shadowedScene;
+}
 
   osg::Group* Base::createShadowedScene(osg::Node* shadowed,
 					osg::Vec3 posOfLight,
@@ -183,8 +313,8 @@ namespace lpzrobots {
   {
     osg::Group* group = new osg::Group;
 
-    unsigned int tex_width  = shadowTexSize; // 1024; // up to 2048 is possible but slower
-    unsigned int tex_height = shadowTexSize; // 1024; // up to 2048 is possible but slower
+    unsigned int tex_width  = (int)shadowTexSize; // 1024; // up to 2048 is possible but slower
+    unsigned int tex_height = (int)shadowTexSize; // 1024; // up to 2048 is possible but slower
 
     osg::Texture2D* texture = new osg::Texture2D;
     texture->setTextureSize(tex_width, tex_height);
@@ -310,7 +440,7 @@ namespace lpzrobots {
     // turn lighting off for the text and disable depth test to ensure its always ontop.
     osg::StateSet* stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
-    osgText::Font* font = osgText::readFontFile("fonts/arial.ttf");
+    osgText::Font* font = osgText::readFontFile("fonts/fudd.ttf");
 
     osg::Vec3 position(500.0f,9.0f,0.0f);
     Color textColor(0.2,0.2,0.0);
@@ -325,7 +455,7 @@ namespace lpzrobots {
       text->setColor(textColor);
       text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
       if(caption) text->setText(caption);
-      else text->setText("lpzrobots Simulator      Martius, Der, Hesse");
+      else text->setText("lpzrobots Simulator          Martius, Der, Güttler");
     }
 
     // timing
@@ -450,19 +580,21 @@ namespace lpzrobots {
     transform->addChild(lightSource);
 
     Group* scene = new Group; // create an extra group for the normal scene
+    int shadowType=(int)shadow;
 
-    if(useShadow){
+    if(shadowType){
       // enable shadows
       Group* shadowedScene;
 
       // transform the Vec4 in a Vec3
-      osg::Vec3 posOfLight;
-      posOfLight[0]=lightSource->getLight()->getPosition()[0];
-      posOfLight[1]=lightSource->getLight()->getPosition()[1];
-      posOfLight[2]=lightSource->getLight()->getPosition()[2];
+//       osg::Vec3 posOfLight;
+//       posOfLight[0]=lightSource->getLight()->getPosition()[0];
+//       posOfLight[1]=lightSource->getLight()->getPosition()[1];
+//       posOfLight[2]=lightSource->getLight()->getPosition()[2];
 
       // create the shadowed scene, using textures
-      shadowedScene = createShadowedScene(scene,posOfLight,1);
+      //      shadowedScene = createShadowedScene(scene,posOfLight,1);
+      shadowedScene = createShadowedScene(scene);
 
       // add the shadowed scene to the root
       root->addChild(shadowedScene);
@@ -729,7 +861,15 @@ namespace lpzrobots {
     physicsCallbackables.push_back(callbackable);
   }
 
+
+// Helper
+int Base::contains(char **list, int len,  const char *str) {
+  for(int i=0; i<len; i++) {
+    if(strcmp(list[i],str) == 0)
+      return i+1;
+  }
+  return 0;
 }
 
 
-
+}

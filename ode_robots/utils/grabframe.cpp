@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-07-14 12:23:56  martius
+ *   Revision 1.5  2008-04-17 15:59:02  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.4.4.1  2008/04/08 14:09:23  martius
+ *   compiles and runs with OSG2.2. Juhu
+ *
+ *   Revision 1.4  2006/07/14 12:23:56  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.3.4.2  2006/05/15 13:14:10  robot3
@@ -58,15 +64,19 @@ namespace lpzrobots {
     opened   = false;
   }
 
-  bool VideoStream::grabAndWriteFrame(const Producer::Camera& camera){
+  bool VideoStream::grabAndWriteFrame(const osg::Camera& camera){
     if(!opened) return false;
     char name[128];
     osg::ref_ptr<osg::Image>image = new osg::Image; 
-    int x, y; 
-    camera.getProjectionRectangle(x, y, w, h); 
-    image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE); 
+    // test
+    const osg::Viewport* vp = camera.getViewport();    
+    //    int x, y; 
+    //    camera.getProjectionRectangle(x, y, w, h); 
+    //    image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE); 
+    image->allocateImage( (int)vp->width(), (int)vp->height(), 1, GL_RGB, GL_UNSIGNED_BYTE); 
     
-    image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE); 
+    //    image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE); 
+    image->readPixels( 0, 0, (int)vp->width(), (int)vp->height(), GL_RGB, GL_UNSIGNED_BYTE); 
     sprintf(name,"%s_%06ld.jpg", filename, counter);
     if(!osgDB::writeImageFile( *(image.get()), name )){
       fprintf(stderr, "VideoStream: Cannot write to file %s\n", name);

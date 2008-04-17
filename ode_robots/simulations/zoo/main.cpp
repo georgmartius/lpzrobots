@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-01-15 15:17:33  robot3
+ *   Revision 1.17  2008-04-17 15:59:02  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.16.2.1  2008/04/15 16:20:37  martius
+ *   Profiling
+ *   Makefiles got .conf file
+ *
+ *   Revision 1.16  2007/01/15 15:17:33  robot3
  *   fixed compile bug
  *
  *   Revision 1.15  2007/01/15 09:38:06  martius
@@ -132,13 +139,13 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    int numCater=1;
-    int numSchlangeL=1;
+    int numCater=0;
+    int numSchlangeL=4;
     int numNimm2=2;
-    int numNimm4=1;
+    int numNimm4=0;
     int numHurling=1;
     int numSphere=1;
-    int numSliderWheele=1;
+    int numSliderWheele=0;
 
 
     setCameraHomePos(Pos(-19.15, 13.9, 6.9),  Pos(-126.1, -17.6, 0));
@@ -147,7 +154,8 @@ public:
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
 
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("controlinterval",1);
+    global.odeConfig.setParam("controlinterval",2);
+    global.odeConfig.setParam("realtimefactor",1);
     // initialization
     
     Playground* playground = 
@@ -223,9 +231,8 @@ public:
       SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
       snakeConf.segmNumber=6+r;
       snakeConf.frictionGround=0.01;
-      
       snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" + std::itos(r));
-      ((OdeRobot*) snake)->place(Pos(4,4-r,0)); 
+      ((OdeRobot*) snake)->place(Pos(4,4-r,r)); 
       InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
       invertnconf.cInit=2.0;
       controller = new InvertMotorNStep(invertnconf);     

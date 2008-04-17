@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-08-29 08:43:50  martius
+ *   Revision 1.9  2008-04-17 15:59:02  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.8.2.1  2008/04/15 16:21:53  martius
+ *   Profiling
+ *   Multithreading also for OSG and ODE but disables because of instabilities
+ *
+ *   Revision 1.8  2007/08/29 08:43:50  martius
  *   create simple space and delete space
  *
  *   Revision 1.7  2007/07/31 08:37:03  martius
@@ -51,7 +58,7 @@
 #define __ODEHANDLE_H
 
 #include <ext/hash_set>
-#include <list>
+#include <vector>
 #include <ode/common.h>
 #include "substance.h"
 
@@ -103,8 +110,8 @@ public:
   void addSpace(dSpaceID g);
   /// removes a space from the list of ignored spaces for collision detection
   void removeSpace(dSpaceID g);
-  /// returns list of all spaces
-  const std::list<dSpaceID>& getSpaces();
+  /// returns list of all spaces (as vector for parallelisation
+  const std::vector<dSpaceID>& getSpaces();
 
 
   inline double getTime(){ return *time; }
@@ -127,7 +134,7 @@ protected:
   double* time;
 
   /// list of spaces, expect ignored spaces
-  std::list<dSpaceID>* spaces;
+  std::vector<dSpaceID>* spaces;
   /// set of ignored spaces
   __gnu_cxx::hash_set<long>* ignoredSpaces;
   /// set of ignored geom pairs for collision

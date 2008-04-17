@@ -20,7 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-11-07 13:21:15  martius
+ *   Revision 1.10  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.9.2.1  2008/04/15 16:21:52  martius
+ *   Profiling
+ *   Multithreading also for OSG and ODE but disables because of instabilities
+ *
+ *   Revision 1.9  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.8  2006/12/21 11:43:05  martius
@@ -206,7 +213,7 @@ namespace lpzrobots {
       destroy();
     }
     
-    Transform* f;
+    Transform* f=0;
     if(conf.cylinderBody){
       object[0] = new Cylinder(conf.radius,conf.radius/2);
       Primitive* core = new Box(conf.radius/1.5,conf.radius/1.5,conf.radius/2.5);

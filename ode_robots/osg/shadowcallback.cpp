@@ -26,7 +26,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-11 15:43:41  martius
+ *   Revision 1.4  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.3.2.1  2008/04/08 14:09:23  martius
+ *   compiles and runs with OSG2.2. Juhu
+ *
+ *   Revision 1.3  2006/08/11 15:43:41  martius
  *   removed warnings if nothing is in scenegraph
  *
  *   Revision 1.2  2006/07/14 12:23:36  martius
@@ -43,7 +49,7 @@
  *
  *                                                                         *
  ***************************************************************************/
-#include <osgProducer/Viewer>
+#include <osgViewer/Viewer>
 
 #include "shadowcallback.h"
 

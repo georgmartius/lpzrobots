@@ -24,7 +24,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-08-29 08:43:58  martius
+ *   Revision 1.7  2008-04-17 15:59:02  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.6.2.1  2008/04/15 16:21:53  martius
+ *   Profiling
+ *   Multithreading also for OSG and ODE but disables because of instabilities
+ *
+ *   Revision 1.6  2007/08/29 08:43:58  martius
  *   create simple space and delete space
  *
  *   Revision 1.5  2007/07/31 08:36:22  martius
@@ -67,7 +74,7 @@ namespace lpzrobots {
     // Create the primary world-space, which is used for collision detection
     space = dHashSpaceCreate (0);
     dSpaceSetCleanup (space, 0);
-    spaces = new std::list<dSpaceID>();
+    spaces = new std::vector<dSpaceID>();
     // the jointGroup is used for collision handling, 
     //  where a lot of joints are created every step
     jointGroup = dJointGroupCreate ( 1000000 );
@@ -110,14 +117,14 @@ namespace lpzrobots {
 
   // removes a space from the list of ignored spaces for collision detection
   void OdeHandle::removeSpace(dSpaceID g){
-    std::list<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
+    std::vector<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
     if(i!=spaces->end()){
       spaces->erase(i);
     }
   }
 
   // returns list of all spaces
-  const std::list<dSpaceID>& OdeHandle::getSpaces(){
+  const std::vector<dSpaceID>& OdeHandle::getSpaces(){
     return *spaces;
   }
 

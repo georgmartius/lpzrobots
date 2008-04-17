@@ -9,6 +9,7 @@ INCLUDEDIR=include/ode_robots
 REVINCLUDEDIR=../..
 LIB=libode_robots.a
 LIB_OPT=libode_robots_opt.a
+LIB_PROF=libode_robots_prof.a
 
 include Makefile.conf
 
@@ -22,10 +23,13 @@ UTILS =
 # utils/splitvideo
 
 # -pg for profiling
-CPPFLAGS = -Wall -g -I. $(INC)
+CPPFLAGS = -Wall -g -I. -pthread $(INC)
 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. $(INC) -O -DNDEBUG
+CPPFLAGS_OPT = -Wall -I. -pthread $(INC) -O -DNDEBUG
+
+## Optimisation
+CPPFLAGS_PROF = -Wall -I. -pthread $(INC) -O -DQPROF
 
 # used for single file compilation
 CXX = g++
@@ -39,12 +43,18 @@ lib: libselforg $(LIB) $(UTILS)
 
 opt: libselforg_opt $(LIB_OPT)
 
+prof: libselforg $(LIB_PROF)
+
 $(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
 
 $(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(LIB_OPT): Makefile.depend $(SELFORG)/libselforg_opt.a $(OFILES)
 	$(AR) $(LIB_OPT) $(OFILES)
+
+$(LIB_PROF): CPPFLAGS = $(CPPFLAGS_PROF)
+$(LIB_PROF): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
+	$(AR) $(LIB_PROF) $(OFILES)
 
 libselforg:	
 	cd $(SELFORG) && make libselforg.a		

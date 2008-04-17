@@ -1,4 +1,9 @@
 /***************************************************************************
+ *  callback class for motion blur                                         *
+ *  the param persistence determines the level of motion blur              *
+ *                                                                         *
+ ***************************************************************************/
+/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
@@ -21,33 +26,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:34  martius
+ *   Revision 1.2  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.1.2.1  2008/04/09 08:58:20  martius
+ *   motion blur moved to old stuff
+ *
+ *   Revision 1.2.4.1  2008/04/08 14:34:27  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
- *   Revision 1.1.2.2  2006/06/29 16:35:56  robot3
- *   includes cleared up
- *
- *   Revision 1.1.2.1  2006/03/06 16:52:02  robot3
- *   written an own viewer because getCurrentCameraManipulator() was not implemented
+ *   Revision 1.1.2.1  2006/04/27 16:19:03  robot3
+ *   motionblurcallback for the simulation
  *
  *                                                                         *
  ***************************************************************************/
-#include "extendedViewer.h"
+
+#include "motionblurcallback.h"
 
 namespace lpzrobots {
 
-  ExtendedViewer::ExtendedViewer(): Viewer() {}
+    MotionBlurDrawCallback::MotionBlurDrawCallback(GlobalData& global)
+      :    cleared_(false), globalData(global) {}
 
-  ExtendedViewer::ExtendedViewer(Producer::CameraConfig *cfg): Viewer(cfg) {}
+    void MotionBlurDrawCallback::operator()(osgProducer::OsgSceneHandler &handler, Producer::Camera &camera)
+    {
+        double t = handler.getSceneView()->getFrameStamp()->getReferenceTime();
 
-  ExtendedViewer::ExtendedViewer(const std::string& configFile): Viewer(configFile) {}
+        if (!cleared_)
+        {
+            // clear the accumulation buffer
+            glClearColor(0, 0, 0, 0);
+            glClear(GL_ACCUM_BUFFER_BIT);
+            cleared_ = true;
+            t0_ = t;
+        }
 
-  ExtendedViewer::ExtendedViewer(osg::ArgumentParser& arguments): Viewer(arguments) {}
+        double dt = fabs(t - t0_);
+        t0_ = t;
 
-  ExtendedViewer::~ExtendedViewer() {}
+        // call the scene handler's draw function
+        handler.drawImplementation(camera);        
 
-  osgGA::MatrixManipulator* ExtendedViewer::getCurrentCameraManipulator() {
-    return _keyswitchManipulator->getCurrentMatrixManipulator();
-  }
+        // compute the blur factor
+        double s = powf(0.2, dt / globalData.odeConfig.motionPersistence);
+
+        // scale, accumulate and return
+        glAccum(GL_MULT, s);
+        glAccum(GL_ACCUM, 1 - s);
+        glAccum(GL_RETURN, 1.0f);
+    }
 
 }

@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-08-30 09:46:41  martius
+ *   Revision 1.7  2008-04-17 15:59:00  martius
+ *   OSG2 port finished
+ *
+ *   Revision 1.6.2.1  2008/04/17 15:05:47  martius
+ *   use RandGen
+ *
+ *   Revision 1.6  2007/08/30 09:46:41  martius
  *   simulation time
  *
  *   Revision 1.5  2007/03/28 07:16:58  martius
@@ -85,8 +91,9 @@ namespace lpzrobots {
     /** initializes the object with the given controller, robot and wiring
 	and initializes pipe to guilogger
     */
-    virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring){
-      return Agent::init(controller, robot, wiring);
+    virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring,
+		      long int seed = 0){
+      return Agent::init(controller, robot, wiring, seed);
     }
 
     
