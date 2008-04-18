@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.75  2008-04-17 15:59:00  martius
+ *   Revision 1.76  2008-04-18 10:38:15  guettler
+ *   -extended profiling output
+ *   -the OdeThread is now synchronized with one step delay for the
+ *    WiredControllers (when using flag -odethread)
+ *
+ *   Revision 1.75  2008/04/17 15:59:00  martius
  *   OSG2 port finished
  *
  *   Revision 1.74.2.14  2008/04/17 15:04:55  martius
@@ -459,7 +464,7 @@
 #ifdef QPROF
 #include "quickprof.h"
 #define QP(x) x
-#else 
+#else
 #define QP(x)
 #endif
 
@@ -567,13 +572,13 @@ namespace lpzrobots {
 	sprintf(odeRobotsCfg,"%s/.lpzrobots/ode_robots",home);
 	if(!restoreCfg(odeRobotsCfg)){
 	  storeOdeRobotsCFG();
-	  cerr << "store config to " << odeRobotsCfg << endl; 
+	  cerr << "store config to " << odeRobotsCfg << endl;
 	}
       }
     }
     // process cmdline (possibly overwrite values from cfg file
     processCmdLine(argc, argv);
-    
+
     if(!noGraphics) {
       // create fake command line options to make osg do what we want
       insertCmdLineOption(argc, argv);
@@ -697,7 +702,7 @@ namespace lpzrobots {
 
     initializeConsole();
     QP(PROFILER.init());
-	  
+
     //********************Simulation start*****************
     state=running;
     globalData.time=0;
@@ -808,11 +813,20 @@ namespace lpzrobots {
 	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
 	  QP(PROFILER.beginBlock("controller"));
 	  QMP_SHARE(globalData);
-  	  QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED){
-	    QMP_USE_SHARED(globalData, GlobalData);
-	    globalData.agents[i]->step(globalData.odeConfig.noise, globalData.time);
-	  }
-	  QMP_END_PARALLEL_FOR;
+  	// there is a problem with the useOdeThread in the loop (not static)
+    	  if (useOdeThread!=0) {
+  	    QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED){
+    	      QMP_USE_SHARED(globalData, GlobalData);
+              globalData.agents[i]->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
+  	    }
+  	    QMP_END_PARALLEL_FOR;
+  	  } else {
+  	    QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED){
+	      QMP_USE_SHARED(globalData, GlobalData);
+    	      globalData.agents[i]->step(globalData.odeConfig.noise, globalData.time);
+	    }
+	    QMP_END_PARALLEL_FOR;
+   	  }
 	  QP(PROFILER.endBlock("controller"));
 	}else{ // serial execution is sufficient here
 	  FOREACH(OdeAgentList, globalData.agents, i) {
@@ -821,7 +835,7 @@ namespace lpzrobots {
 	}
 
 
-	/****************** Simulationstep *****************/	
+	/****************** Simulationstep *****************/
 	if(useOdeThread!=0){
 	  if (odeThreadCreated)
 	    pthread_join (odeThread, NULL);
@@ -832,12 +846,14 @@ namespace lpzrobots {
 	// and this crashes of parallel
 	QP(PROFILER.beginBlock("internalstuff_and_addcallback"));
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+  	if (useOdeThread!=0)
+  	   (*i)->setMotorsGetSensors();
 	  (*i)->getRobot()->doInternalStuff(globalData);
 	}
 	addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
 		    (sim_step % globalData.odeConfig.controlInterval ) == 0);
 	QP(PROFILER.endBlock("internalstuff_and_addcallback"));
-	
+
 	if(useOdeThread!=0)
 	  pthread_create (&odeThread, NULL, odeStep_run,this);
 	else
@@ -850,7 +866,7 @@ namespace lpzrobots {
 	// 	}
 	// PARALLEL
 	unsigned int pcaSize=physicsCallbackables.size();
-	QP(PROFILER.beginBlock("physicsCB")); 
+	QP(PROFILER.beginBlock("physicsCB"));
 	if(pcaSize==1){
 	  physicsCallbackables.front()->doOnCallBack();
 	}else if (pcaSize>1){
@@ -867,13 +883,13 @@ namespace lpzrobots {
 	globalData.sounds.remove_if(Sound::older_than(globalData.time));
       }
 
-      if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {	
-	if(useOsgThread!=0){ 
-	  QP(PROFILER.beginBlock("graphics aync")); 	  
+      if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {
+	if(useOsgThread!=0){
+	  QP(PROFILER.beginBlock("graphics aync"));
 	  if (osgThreadCreated)
 	    pthread_join (osgThread, NULL);
 	  else osgThreadCreated=true;
-	  QP(PROFILER.endBlock("graphics aync")); 	  
+	  QP(PROFILER.endBlock("graphics aync"));
 	}
 	QP(PROFILER.beginBlock("graphicsUpdate"));
 	/************************** Update the scene ***********************/
@@ -905,9 +921,9 @@ namespace lpzrobots {
 	  (*i)->doOnCallBack();
 	}
 	QP(PROFILER.endBlock("graphicsUpdate"));
-	
+
 	//        onPostDraw(*(viewer->getCamera()));*/
-        if(useOsgThread!=0){ 
+        if(useOsgThread!=0){
 	  pthread_create (&osgThread, NULL, osgStep_run,this);
 	}else{
 	  QP(PROFILER.beginBlock("graphics"));
@@ -1095,10 +1111,12 @@ namespace lpzrobots {
   /// clears obstacle and agents lists and delete entries
   void Simulation::tidyUp(GlobalData& global) {
     QP(cout << "Profiling summary:" << endl << PROFILER.getSummary() << endl);
-    
+    QP(cout << endl << PROFILER.getSummary(quickprof::MILLISECONDS) << endl);
+    QP(cout << endl << "total sum: " << PROFILER.getTimeSinceInit(quickprof::MILLISECONDS) << " ms"<< endl);
+
     // clear obstacles list
     for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++) {
-      delete (*i); 
+      delete (*i);
     }
     global.obstacles.clear();
 
@@ -1221,10 +1239,7 @@ namespace lpzrobots {
     index = contains(argv, argc, "-shadow");
     if(index && (argc > index))
       shadow=(double)atoi(argv[index]);
-    // use shadowTexSize of maximally 1024 with ParallelSplitShadowMap
-    if (shadow==3)
-      if(shadowTexSize>1024) shadowTexSize = 1024;
-    
+
     index = contains(argv, argc, "-shadowsize");
     if(index && argc > index) {
       shadowTexSize = atoi(argv[index]);
@@ -1251,7 +1266,7 @@ namespace lpzrobots {
 	printf("Number of threads=%i\n", threads);
       }
     }
-    
+
     if (contains(argv, argc, "-odethread")) {
       useOdeThread=1;
     }
@@ -1463,9 +1478,9 @@ void createNewDir(const char* base, char *newdir) {
   }
 
 void Simulation::odeStep() {
-  
+
   QP(PROFILER.beginBlock("collision"));
-  // for parallelising the collision detection 
+  // for parallelising the collision detection
   // we would need distinct jointgroups for each thread
   // also the most time is required by the global collision callback which is one block
   // so it makes no sense to is quickmp here
@@ -1473,9 +1488,9 @@ void Simulation::odeStep() {
   FOREACHC(vector<dSpaceID>, odeHandle.getSpaces(), i) {
     dSpaceCollide ( *i , this , &nearCallback );
   }
-  QP(PROFILER.endBlock("collision")); 
-  
-  QP(PROFILER.beginBlock("ODEstep")); 
+  QP(PROFILER.endBlock("collision"));
+
+  QP(PROFILER.beginBlock("ODEstep"));
   dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize );
   dJointGroupEmpty (odeHandle.jointGroup);
   QP(PROFILER.endBlock("ODEstep"));
