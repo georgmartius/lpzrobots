@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   Revision 1.3  2008-04-18 14:00:38  guettler
+ *   fixed compile bug (assert.h was not included)
+ *
+ *   Revision 1.2  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -88,6 +91,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <assert.h>
 
 #include "randomgenerator.h"
 
