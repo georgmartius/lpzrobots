@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-08-30 09:46:29  martius
+ *   Revision 1.7  2008-04-18 09:50:24  guettler
+ *   Implemented step functions for multiple threads of the class Simulation
+ *
+ *   Revision 1.6  2007/08/30 09:46:29  martius
  *   simulation time
  *
  *   Revision 1.5  2007/03/28 07:16:37  martius
@@ -45,8 +48,8 @@
  *   Revision 1.1.2.1  2006/03/28 14:14:44  fhesse
  *   tracing of a given primitive (in the osg window) added
  *                                                *
- *                                                                         *  
- *                                                                         *  
+ *                                                                         *
+ *                                                                         *
  ***************************************************************************/
 
 #include "odeagent.h"
@@ -54,7 +57,7 @@
 #include "pos.h"
 
 namespace lpzrobots {
-  
+
 
   void OdeAgent::init_tracing(int tracelength,double tracethickness){
     trace_length=tracelength;
@@ -82,7 +85,7 @@ namespace lpzrobots {
 	init_tracing();
       }
       Pos pos(robot->getPosition());
-     /* if construct used to draw cylinder only when length between actual 
+     /* if construct used to draw cylinder only when length between actual
         and last point is larger then a specific value
      */
      //if(counter==0 || ((pos - lastpos).length2() > 0.00005)  ) {
@@ -90,7 +93,7 @@ namespace lpzrobots {
       if(segments[counter%trace_length]) delete segments[counter%trace_length];
       OSGPrimitive* s = new OSGCylinder(trace_thickness, len);
       s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);
-      s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) * 
+      s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) *
 		   osg::Matrix::translate(lastpos+(pos - lastpos)/2));
       segments[counter%trace_length] = s;
       lastpos = pos;
@@ -98,6 +101,50 @@ namespace lpzrobots {
      //}
     }
   }
+
+
+void OdeAgent::stepOnlyWiredController(double noise, double time) {
+  WiredController::step(rsensors,rsensornumber, rmotors, rmotornumber, noise, time);
+  trackrobot.track(robot, time);
+  if (trackrobot.isDisplayTrace() && t%10==0){
+    if (!tracing_initialized) {
+      init_tracing();
+    }
+    Pos pos(robot->getPosition());
+     /* if construct used to draw cylinder only when length between actual
+        and last point is larger then a specific value
+     */
+     //if(counter==0 || ((pos - lastpos).length2() > 0.00005)  ) {
+    double len = (pos - lastpos).length();
+    if(segments[counter%trace_length]) delete segments[counter%trace_length];
+    OSGPrimitive* s = new OSGCylinder(trace_thickness, len);
+    s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);
+    s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) *
+                 osg::Matrix::translate(lastpos+(pos - lastpos)/2));
+    segments[counter%trace_length] = s;
+    lastpos = pos;
+    counter++;
+     //}
+  }
+}
+
+    /**
+     * Special function for the class Simulation to seperate the step
+     * of the WiredController (plus TrackRobot) and the setting and getting
+     * of the motor- and sensorvalues.
+     */
+void OdeAgent::setMotorsGetSensors() {
+  robot->setMotors(rmotors, rmotornumber);
+
+  assert(robot && rsensors && rmotors);
+
+  int len =  robot->getSensors(rsensors, rsensornumber);
+  if(len != rsensornumber){
+    fprintf(stderr, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__,
+            rsensornumber, len);
+  }
+}
+
 }
 
 

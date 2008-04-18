@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-04-17 15:59:00  martius
+ *   Revision 1.8  2008-04-18 09:50:24  guettler
+ *   Implemented step functions for multiple threads of the class Simulation
+ *
+ *   Revision 1.7  2008/04/17 15:59:00  martius
  *   OSG2 port finished
  *
  *   Revision 1.6.2.1  2008/04/17 15:05:47  martius
@@ -80,9 +83,9 @@ namespace lpzrobots {
   public:
     /** constructor
      */
-    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1)  
+    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1)
       : Agent(plotOption, noisefactor) { tracing_initialized=false; }
-    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1) 
+    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1)
       : Agent(plotOptions, noisefactor) {tracing_initialized=false;}
     /** destructor
      */
@@ -96,14 +99,31 @@ namespace lpzrobots {
       return Agent::init(controller, robot, wiring, seed);
     }
 
-    
+
     virtual void step(double noise, double time);
+
+    /**
+     * Special function for the class Simulation to seperate the step
+     * of the WiredController (plus TrackRobot) and the setting and getting
+     * of the motor- and sensorvalues.
+     * @param noise @see step()
+     * @param time @see step()
+     */
+    virtual void stepOnlyWiredController(double noise, double time);
+
+    /**
+     * Special function for the class Simulation to seperate the step
+     * of the WiredController (plus TrackRobot) and the setting and getting
+     * of the motor- and sensorvalues.
+     */
+    virtual void setMotorsGetSensors();
+
 
     void internInit(){
       trace_length=0; // number of past robot positions shown in osg
     }
 
-    /** 
+    /**
      * Returns a pointer to the robot.
      */
     virtual OdeRobot* getRobot() { return (OdeRobot*)robot;}
@@ -113,7 +133,7 @@ namespace lpzrobots {
 
     /**
      * initialize tracing in ode
-     * @param tracelength number of past positions shown as trace in osg 
+     * @param tracelength number of past positions shown as trace in osg
      * @param tracethickness  thickness of the trace
      */
     virtual void init_tracing(int tracelength=1000, double tracethickness=0.01);
