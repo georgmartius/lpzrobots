@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.76  2008-04-18 10:38:15  guettler
+ *   Revision 1.77  2008-04-18 14:00:09  guettler
+ *   cosmetic changes, added some printouts
+ *
+ *   Revision 1.76  2008/04/18 10:38:15  guettler
  *   -extended profiling output
  *   -the OdeThread is now synchronized with one step delay for the
  *    WiredControllers (when using flag -odethread)
@@ -811,7 +814,7 @@ namespace lpzrobots {
 
 // 	PARALLEL VERSION
 	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
-	  QP(PROFILER.beginBlock("controller"));
+  	QP(PROFILER.beginBlock("controller                   "));
 	  QMP_SHARE(globalData);
   	// there is a problem with the useOdeThread in the loop (not static)
     	  if (useOdeThread!=0) {
@@ -827,7 +830,7 @@ namespace lpzrobots {
 	    }
 	    QMP_END_PARALLEL_FOR;
    	  }
-	  QP(PROFILER.endBlock("controller"));
+  	QP(PROFILER.endBlock("controller                   "));
 	}else{ // serial execution is sufficient here
 	  FOREACH(OdeAgentList, globalData.agents, i) {
 	    (*i)->onlyControlRobot();
@@ -866,7 +869,7 @@ namespace lpzrobots {
 	// 	}
 	// PARALLEL
 	unsigned int pcaSize=physicsCallbackables.size();
-	QP(PROFILER.beginBlock("physicsCB"));
+        QP(PROFILER.beginBlock("physicsCB                    "));
 	if(pcaSize==1){
 	  physicsCallbackables.front()->doOnCallBack();
 	}else if (pcaSize>1){
@@ -877,7 +880,7 @@ namespace lpzrobots {
 	  }
 	  QMP_END_PARALLEL_FOR;
 	}
-	QP(PROFILER.endBlock("physicsCB"));
+	QP(PROFILER.endBlock("physicsCB                    "));
 
 	// remove old signals from sound list
 	globalData.sounds.remove_if(Sound::older_than(globalData.time));
@@ -891,7 +894,7 @@ namespace lpzrobots {
 	  else osgThreadCreated=true;
 	  QP(PROFILER.endBlock("graphics aync"));
 	}
-	QP(PROFILER.beginBlock("graphicsUpdate"));
+	QP(PROFILER.beginBlock("graphicsUpdate               "));
 	/************************** Update the scene ***********************/
 	FOREACH(ObstacleList, globalData.obstacles, i) {
 	  (*i)->update();
@@ -920,15 +923,15 @@ namespace lpzrobots {
 	FOREACH(list<Callbackable*>, graphicsCallbackables, i) {
 	  (*i)->doOnCallBack();
 	}
-	QP(PROFILER.endBlock("graphicsUpdate"));
+        QP(PROFILER.endBlock("graphicsUpdate               "));
 
 	//        onPostDraw(*(viewer->getCamera()));*/
         if(useOsgThread!=0){
 	  pthread_create (&osgThread, NULL, osgStep_run,this);
 	}else{
-	  QP(PROFILER.beginBlock("graphics"));
+  	QP(PROFILER.beginBlock("graphics                     "));
 	  osgStep();
-	  QP(PROFILER.endBlock("graphics"));
+	  QP(PROFILER.endBlock("graphics                     "));
 	}
 
       }
@@ -1112,7 +1115,10 @@ namespace lpzrobots {
   void Simulation::tidyUp(GlobalData& global) {
     QP(cout << "Profiling summary:" << endl << PROFILER.getSummary() << endl);
     QP(cout << endl << PROFILER.getSummary(quickprof::MILLISECONDS) << endl);
-    QP(cout << endl << "total sum: " << PROFILER.getTimeSinceInit(quickprof::MILLISECONDS) << " ms"<< endl);
+    QP(float timeSinceInit=PROFILER.getTimeSinceInit(quickprof::MILLISECONDS));
+    QP(cout << endl << "total sum:      " << timeSinceInit << " ms"<< endl);
+    QP(cout << "steps/s:        " << (((float)sim_step)/timeSinceInit * 1000.0) << endl);
+    QP(cout << "realtimefactor: " << (((float)sim_step)/timeSinceInit * 10.0) << endl);
 
     // clear obstacles list
     for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++) {
@@ -1231,21 +1237,27 @@ namespace lpzrobots {
     if(contains(argv, argc, "-fs")){
       windowHeight=-1;
       windowWidth=-1;
+      printf("running in fullscreen\n");
     }
 
     noGraphics = contains(argv, argc, "-nographics")!=0;
     pause = contains(argv, argc, "-pause")!=0;
 
     index = contains(argv, argc, "-shadow");
-    if(index && (argc > index))
+    if(index && (argc > index)) {
       shadow=(double)atoi(argv[index]);
+      printf("shadowType=%lg\n",shadow);
+    }
 
     index = contains(argv, argc, "-shadowsize");
     if(index && argc > index) {
       shadowTexSize = atoi(argv[index]);
       printf("shadowTexSize=%lg\n",shadowTexSize);
     }
-    if(contains(argv, argc, "-noshadow")!=0) shadow=0;
+    if(contains(argv, argc, "-noshadow")!=0) {
+      shadow=0;
+      printf("using no shadow\n");
+    }
 
     osgHandle.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
 
@@ -1269,9 +1281,11 @@ namespace lpzrobots {
 
     if (contains(argv, argc, "-odethread")) {
       useOdeThread=1;
+      printf("using separate OdeThread\n");
     }
     if (contains(argv, argc, "-osgthread")) {
       useOsgThread=1;
+      printf("using separate OSGThread\n");
     }
 
     if (contains(argv, argc, "-savecfg")) {
@@ -1479,7 +1493,7 @@ void createNewDir(const char* base, char *newdir) {
 
 void Simulation::odeStep() {
 
-  QP(PROFILER.beginBlock("collision"));
+  QP(PROFILER.beginBlock("collision                    "));
   // for parallelising the collision detection
   // we would need distinct jointgroups for each thread
   // also the most time is required by the global collision callback which is one block
@@ -1488,12 +1502,12 @@ void Simulation::odeStep() {
   FOREACHC(vector<dSpaceID>, odeHandle.getSpaces(), i) {
     dSpaceCollide ( *i , this , &nearCallback );
   }
-  QP(PROFILER.endBlock("collision"));
+  QP(PROFILER.endBlock("collision                    "));
 
-  QP(PROFILER.beginBlock("ODEstep"));
+  QP(PROFILER.beginBlock("ODEstep                      "));
   dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize );
   dJointGroupEmpty (odeHandle.jointGroup);
-  QP(PROFILER.endBlock("ODEstep"));
+  QP(PROFILER.endBlock("ODEstep                      "));
 }
 
 void Simulation::osgStep() {

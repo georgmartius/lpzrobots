@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2008-04-17 15:59:00  martius
+ *   Revision 1.16  2008-04-18 14:00:09  guettler
+ *   cosmetic changes, added some printouts
+ *
+ *   Revision 1.15  2008/04/17 15:59:00  martius
  *   OSG2 port finished
  *
  *   Revision 1.14.2.7  2008/04/17 15:04:55  martius
@@ -233,6 +236,9 @@ namespace lpzrobots {
   double polyoffsetfactor = -0.02;
   double polyoffsetunit = 1.0;
   bool cullFaceFront=false;
+  // some conf variables for SoftShadowMap
+  // make the shadow prenumba a little bit sharper then default (0.005)
+  float softnessWidth = 0.002;
 
 
   // create root of shadowedScene
@@ -276,7 +282,7 @@ namespace lpzrobots {
       pssm->setMaxFarDistance(maxFarDist);
       pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
 
-      if (useNVidia!=0) 
+      if (useNVidia!=0)
         pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f)); //NVidea
       else
         pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
@@ -290,6 +296,7 @@ namespace lpzrobots {
   case 4: /// SoftShadowMap
     {
       osg::ref_ptr<osgShadow::SoftShadowMap> sm = new osgShadow::SoftShadowMap;
+      sm->setSoftnessWidth(softnessWidth);
       shadowedScene->setShadowTechnique(sm.get());
     }
     break;
@@ -455,7 +462,7 @@ namespace lpzrobots {
       text->setColor(textColor);
       text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
       if(caption) text->setText(caption);
-      else text->setText("lpzrobots Simulator          Martius, Der, Güttler");
+      else text->setText("lpzrobots Simulator          Martius, Der, Gï¿½ttler");
     }
 
     // timing
