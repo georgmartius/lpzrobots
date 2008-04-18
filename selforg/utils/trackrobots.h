@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-08-29 11:33:20  martius
+ *   Revision 1.8  2008-04-18 09:49:41  guettler
+ *   Added the OdeAgent as a friend class
+ *
+ *   Revision 1.7  2007/08/29 11:33:20  martius
  *   simulation time enters logfile
  *
  *   Revision 1.6  2007/06/21 16:18:57  martius
@@ -63,15 +66,19 @@
 class AbstractRobot;
 class Agent;
 
+namespace lpzrobots {
+  class OdeAgent;
+}
+
 /**
-   This class provides tracking possibilies of a robot.    
+   This class provides tracking possibilies of a robot.
    The position, speed, and orientation can be logged.
 */
 class TrackRobot {
 public:
 
   friend class Agent;
-  //friend class OdeAgent;
+  friend class lpzrobots::OdeAgent;
 
   /// constructor for no tracking at all
   TrackRobot(){
@@ -85,7 +92,7 @@ public:
     scene=0;
   }
 
-  /** Constructor that allows individial setting of tracking options.      
+  /** Constructor that allows individial setting of tracking options.
       The tracked data is written into a file with the current date and time appended by a name given by scene.
       @param trackPos if true the trace (position vectors) of the robot are logged
       @param trackSpeed if true the speed vectors (linear and angular) of the robot are logged
@@ -93,8 +100,8 @@ public:
       @param displayTrace if true the trace of the robot should be displayed (used in ODE simulations)
       @param scene name of the scene (is appended to log file name)
       @param interval timesteps between consequent logging events (default 1)
-   */ 
-  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool displayTrace, 
+   */
+  TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool displayTrace,
 	     const char* scene, int interval = 1){
     this->trackPos     = trackPos;
     this->trackSpeed   = trackSpeed;
