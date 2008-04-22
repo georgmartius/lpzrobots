@@ -28,12 +28,9 @@ LIBS   = -lm \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lpthread
 
-LIBS += -L/home/georg/local/OpenSceneGraph-2.2.0/lib
-
 #	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
 
 INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include
-INC += -I/home/georg/local/OpenSceneGraph-2.2.0/include
 
 
 CXX = g++

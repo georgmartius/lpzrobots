@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2007-09-06 18:50:10  martius
+ *   Revision 1.23  2008-04-22 15:22:56  martius
+ *   removed test lib and inc paths from makefiles
+ *
+ *   Revision 1.22  2007/09/06 18:50:10  martius
  *   *** empty log message ***
  *
  *   Revision 1.21  2007/08/24 12:00:46  martius
@@ -114,6 +117,7 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
+#include <selforg/universalcontroller.h>
 #include <selforg/ffnncontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
@@ -148,6 +152,7 @@
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
+using namespace std;
 
 
 class ThisSim : public Simulation {
@@ -160,18 +165,19 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    int num_barrels=0;
+    int num_barrels=1;
     int num_barrels_test=0;
-    int num_spheres=1;
+    int num_spheres=0;
     useReinforcement=2;
 
     sensor=0;
 
     bool labyrint=false;      
     bool squarecorridor=false;
-    bool normalplayground=false;
+    bool normalplayground=true;
 
-    setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
+    //    setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
+    setCameraHomePos(Pos(-2.60384, 13.1299, 2.64348),  Pos(-179.063, -9.7594, 0));
     // initialization
     global.odeConfig.setParam("noise",0.1);
     //  global.odeConfig.setParam("gravity",-10);
@@ -180,9 +186,9 @@ public:
 
     if(normalplayground){
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.01, 0.01 ), 1);
-      //       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      //       playground->setGroundTexture("Images/really_white.rgb");    
-      //       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
       playground->setPosition(osg::Vec3(0,0,0.05));
       playground->setTexture("");
       global.obstacles.push_back(playground);
@@ -248,16 +254,30 @@ public:
       conf.spheremass   = 1;
       sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
 				    conf, "Barrel1", 0.4); 
-      sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+      sphere1->place (osg::Matrix::rotate(M_PI/2, 1,0,0)*osg::Matrix::translate(0,0,0.2));
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-      cc.cInit=0.5;
+      cc.cInit=1;
       //    cc.useSD=true;
       controller = new InvertMotorNStep(cc);    
       ///> test with fixed C
       // controller = new InvertNChannelController_NoBias(40,0.45f);  
       //      controller->setParam("eps",0.00);
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
+
+//       UniversalControllerConf cc = UniversalController::getDefaultConf();
+//       vector<Layer> layers;
+//       //   layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+//       //      layers.push_back(Layer(2,1,FeedForwardNN::tanhr)); // controller hidden
+//       layers.push_back(Layer(0,1,FeedForwardNN::tanhr)); // motor layer
+//       // size of output layer is automatically set
+//       layers.push_back(Layer(1,0,FeedForwardNN::linear));       
+//       Elman* e = new Elman(1,layers,false, false, false);
+//       cc.net = e;
+//       controller = new UniversalController(cc);
+//       controller->setParam("epsM", 0.005);    
+//       controller->setParam("eps", 0.1);    
+
       controller->setParam("steps", 2);    
       //    controller->setParam("adaptrate", 0.001);    
       controller->setParam("adaptrate", 0.0);    
@@ -276,7 +296,8 @@ public:
       //       dc.useFirstD=false;
       //       AbstractWiring* wiring = new DerivativeWiring(dc,new ColorUniformNoise());
       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
-      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
+      //      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
+      OdeAgent* agent = new OdeAgent ( plotoptions );
       agent->init ( controller , sphere1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
@@ -320,7 +341,7 @@ public:
     for(int i=0; i< num_spheres; i++){
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.15; 
+      conf.pendularrange  = 0.25; //0.15 
       conf.motorpowerfactor  = 150;     
       //      conf.spheremass = 1;
       conf.spheremass = 0.4;
@@ -341,27 +362,29 @@ public:
       //       conf.drawIRs=false;
       OdeHandle sphereOdeHandle = odeHandle;
       sphereOdeHandle.substance.roughness=10;
-      sphere1 = new Sphererobot3Masses ( sphereOdeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
-					 conf, "Sphere", 0.3);       
+      sphere1 = new Sphererobot3Masses ( sphereOdeHandle, 
+					 osgHandle.changeColor(Color(2,0.0,0.0)), 
+					 conf, "Sphere", 0.2);       
       //// FORCEDSPHERE
       // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
       // fsc.drivenDimensions=ForcedSphere::X;
       // fsc.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
       // 
-      sphere1->place ( osg::Matrix::translate(6.25,0,0.2));
+      //      sphere1->place ( osg::Matrix::translate(6.25,0,0.2));
+      sphere1->place ( osg::Matrix::translate(0,0,0.2));
       
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       //      DerControllerConf cc = DerController::getDefaultConf();
       cc.cInit=1.0;
       //      cc.useSD=true;
       //controller = new DerController(cc);    
-      controller = new InvertMotorNStep(cc);    
+      //controller = new InvertMotorNStep(cc);    
 //       controller = new InvertNChannelController(20);    
 //       controller->setParam("eps", 0.05);    
 //       controller->setParam("factor_a", 2);
 
-      // controller = new SineController();
+      controller = new SineController();
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       controller->setParam("steps", 1);    
       //    controller->setParam("adaptrate", 0.001);    

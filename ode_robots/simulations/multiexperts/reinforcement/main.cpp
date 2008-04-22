@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-06 18:49:40  martius
+ *   Revision 1.2  2008-04-22 15:22:55  martius
+ *   removed test lib and inc paths from makefiles
+ *
+ *   Revision 1.1  2007/09/06 18:49:40  martius
  *   Sphere reinforcement
  *
  *   Revision 1.3  2007/08/06 14:25:57  martius
@@ -50,6 +53,7 @@
 #include <selforg/selectiveone2onewiring.h>
 #include <selforg/matrix.h>
 #include <selforg/replaycontroller.h>
+#include <selforg/classicreinforce.h>
 #include "multireinforce.h"
 
 #include "sphererobot3masses.h"
@@ -58,6 +62,7 @@
 #include "speedsensor.h"
 
 #include "irsensor_wall.h"
+
 
 
 // fetch all the stuff of lpzrobots into scope
@@ -74,6 +79,14 @@ using namespace std;
 //   return 2;
 // }
 
+enum PLAYGROUND {none, labyrint, complexpl, roundcorridor, longsquarecorridor, cluttered} playgr;
+bool track=false;
+int interval=20;
+bool useMultiAgent=true;
+string absolutePath="";
+bool rareprint=false;
+int rewavg = 5;
+double realtimefactor=1;
 
 
 class ReinforceCmpStateController : public MultiReinforce {
@@ -83,6 +96,25 @@ public:
 
 protected:
   virtual double calcReinforcement(){
+    const Matrix& x_c = x_context_buffer[t%buffersize];
+    const Matrix& speeds = x_c.rows(0,2);
+    const Matrix& irs = x_c.rows(3,8).map(fabs);
+    Matrix axisSensors(3,1);
+    axisSensors.val(0,0)= irs.val(2,0) + irs.val(3,0);
+    axisSensors.val(1,0)= irs.val(0,0) + irs.val(1,0);
+    axisSensors.val(2,0)= irs.val(4,0) + irs.val(5,0);
+    //    cout << (axisSensors^T) << "\n";
+    if(axisSensors.val(0,0)>0.9 || axisSensors.val(2,0)>0.9)
+      return -0.2;
+    else if(axisSensors.val(0,0)>0.5 || axisSensors.val(2,0)>0.5)
+      return -0.1;
+    else
+      return 2*speeds.val(1,0)-fabs(speeds.val(0,0))-fabs(speeds.val(2,0));
+    
+
+  }
+
+  virtual double calcReinforcement_old(){
     const Matrix& x_c = x_context_buffer[t%buffersize].map(fabs);
     const Matrix& speeds = x_c.rows(0,2);
     const Matrix& irs = x_c.rows(3,8);
@@ -106,7 +138,7 @@ protected:
   }
 
   virtual int getStateNumber(){
-    return 8*sats.size();
+    return 8;//*sats.size();
   }
 
   virtual int calcState() {
@@ -151,11 +183,90 @@ protected:
     if(irs.val(2,0)+irs.val(3,0)+irs.val(4,0)+irs.val(5,0)>0.2) sensor |= 4; 
 
     list<pair<int,int> > sets;
+    //    sets+= pair<int,int>(agent,sats.size());    
+    sets+= pair<int,int>(sensor,8);
+    return QLearning::valInCrossProd(sets);
+  }
+};
+
+
+class ReinforceRedCmpStateController : public MultiReinforce {
+public:
+  ReinforceRedCmpStateController(const MultiReinforceConf& conf)
+    : MultiReinforce(conf) {}
+
+protected:
+  virtual double calcReinforcement(){
+    const Matrix& x_c = x_context_buffer[t%buffersize];
+    const Matrix& speeds = x_c.rows(0,2);
+    const Matrix& irs = x_c.rows(3,8).map(fabs);
+    Matrix axisSensors(3,1);
+    // axis 0 is the red axis
+    axisSensors.val(0,0)= irs.val(2,0) + irs.val(3,0);
+    axisSensors.val(1,0)= irs.val(0,0) + irs.val(1,0);
+    axisSensors.val(2,0)= irs.val(4,0) + irs.val(5,0);
+    // cout << (axisSensors^T) << "\n";
+    // cout << (speeds^T) << "\n";
+    if(axisSensors.val(0,0)>0.9 || axisSensors.val(2,0)>0.9)
+      return -0.2;
+    else if(axisSensors.val(1,0)>0.5 || axisSensors.val(2,0)>0.5)
+      return -0.1;
+    else
+      return (-2*speeds.val(0,0))-fabs(speeds.val(1,0))-fabs(speeds.val(2,0));
+  }
+
+  virtual int getStateNumber(){
+    return 8*sats.size();
+  }
+
+  virtual int calcState() {
+    //  const Matrix& x_context = x_context_buffer[t%buffersize];
+    const Matrix& x = x_buffer[t%buffersize];
+    
+    const Matrix& x_tm1 = x_buffer[(t-1)%buffersize];
+    const Matrix& x_tm2 = x_buffer[(t-2)%buffersize];
+    const Matrix& xp_tm1 = xp_buffer[(t-1)%buffersize];
+    //  const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
+    const Matrix& y_tm2 = y_buffer[(t-2)%buffersize];
+    
+    // depending on useDerive we have
+    // we have to use F(x_{t-1},x_{t-2} | \dot x_{t-1} ,y_{t-2}) -> (x_t, y_{t-1}) for the sat network
+    
+    if(conf.useDerive){
+      satInput   = x_tm1.above(xp_tm1);
+    } else {
+      satInput   = x_tm1.above(x_tm2);
+    }
+    if(conf.useY){
+      satInput.toAbove(y_tm2);
+    }
+    // ask all networks to make there predictions on last timestep, compare with real world
+    assert(satErrors.getM()>=sats.size());
+    
+    unsigned int i=0;
+    int x_s = x.getM();
+    FOREACH(vector<Sat>, sats, s){
+      const Matrix& out = s->net->process(satInput);
+      satErrors.val(i,0) =  (x-out.rows(0,x_s-1)).multTM().val(0,0);
+      i++;
+    }
+    int agent=argmin(satErrors);
+    
+    /// IR state
+    const Matrix& x_c = x_context_buffer[t%buffersize].map(fabs);
+    const Matrix& irs = x_c.rows(3,8);
+    int sensor=0;
+    if(irs.val(2,0)>0.2) sensor |= 1; 
+    if(irs.val(3,0)>0.2) sensor |= 2; 
+    if(irs.val(0,0)+irs.val(1,0)+irs.val(4,0)+irs.val(5,0)>0.2) sensor |= 4; 
+
+    list<pair<int,int> > sets;
     sets+= pair<int,int>(agent,sats.size());    
     sets+= pair<int,int>(sensor,8);
     return QLearning::valInCrossProd(sets);
   }
 };
+
 
 class ReinforceIRSphereController : public MultiReinforce {
 public:
@@ -269,11 +380,77 @@ protected:
   }
 };
 
+class ReinforceCPController : public ClassicReinforce {
+public:
+  ReinforceCPController(const ClassicReinforceConf& conf)
+    : ClassicReinforce(conf) {  } 
+
+protected:
+  virtual double calcReinforcement(){
+    // we want red axis rotation (backwards)
+    const Matrix& x_c = x_context_buffer[t%buffersize];
+    const Matrix& speeds = x_c.rows(0,2);
+    const Matrix& irs = x_c.rows(3,8).map(fabs);
+    Matrix axisSensors(3,1);
+    // axis 0 is the red axis
+    axisSensors.val(0,0)= irs.val(2,0) + irs.val(3,0);
+    axisSensors.val(1,0)= irs.val(0,0) + irs.val(1,0);
+    axisSensors.val(2,0)= irs.val(4,0) + irs.val(5,0);
+    if(axisSensors.val(0,0)>0.9 || axisSensors.val(2,0)>0.9)
+      return -0.2;
+    else if(axisSensors.val(1,0)>0.5 || axisSensors.val(2,0)>0.5)
+      return -0.1;
+    else
+      return (-2*speeds.val(0,0))-fabs(speeds.val(1,0))-fabs(speeds.val(2,0));
+  }
+
+  virtual int getStateNumber(){
+    return 8 * getActionNumber();
+  }
+
+  virtual int calcState() {        
+    /// IR state -> we want red axis rotation
+    const Matrix& x_c = x_context_buffer[t%buffersize].map(fabs);
+    const Matrix& irs = x_c.rows(3,8);
+    int sensor=0;
+    if(irs.val(2,0)>0.2) sensor |= 1; 
+    if(irs.val(3,0)>0.2) sensor |= 2; 
+    if(irs.val(0,0)+irs.val(1,0)+irs.val(4,0)+irs.val(5,0)>0.2) sensor |= 4; 
+
+    list<pair<int,int> > sets;
+    sets+= pair<int,int>(action,getActionNumber());    
+    sets+= pair<int,int>(sensor,8);
+    return QLearning::valInCrossProd(sets);
+  }
+
+  virtual int getActionNumber(){
+    return 3*3*3;
+  }
+  
+  virtual matrix::Matrix calcMotor(int action){
+    list<int> ranges;
+    ranges += 3;
+    ranges += 3;
+    ranges += 3;
+    list<int> vals = QLearning::ConfInCrossProd(ranges, action);    
+    Matrix a(3,1);
+    int i=0;
+    FOREACHC(list<int>,vals,v){
+      a.val(i,0)=(*v-1)*0.7;      
+      i++;
+    }
+    return a;
+  }  
+
+};
+
+
+
 
 class ThisSim : public Simulation {
 public:
   AbstractController *controller;
-  MultiReinforce* multirein;
+  AbstractController* multirein;
   AbstractWiring* wiring;
   OdeAgent* agent;
   OdeRobot* sphere;
@@ -283,8 +460,10 @@ public:
   double playgroundsize[2];
   double playgroundheight;
   list<string> fs;
+  FILE* log;
 
-  ThisSim(){}
+  ThisSim(QLearning* qlearning): 
+    qlearning(qlearning), log(0) { }
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -294,23 +473,22 @@ public:
     global.odeConfig.setParam("noise",0.05); 
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
-    global.odeConfig.setParam("realtimefactor",1);
-    global.time=200*60;
+    global.odeConfig.setParam("realtimefactor",realtimefactor);
+    //    global.time=200*60;
 
     //    global.odeConfig.setParam("realtimefactor",0);
 //     global.odeConfig.setParam("drawinterval",2000); 
 
-    bool labyrint=false;      
-    bool roundcorridor=false;
-    bool longsquarecorridor=false; 
-    bool complexpl=true; 
-
     bool useIRSats=false;
+    int experts=2;
     playgroundheight=10;
 
+
     playground=0;    
-    if(longsquarecorridor){
-      playgroundsize[0] = 20;
+    playground=0;    
+    switch(playgr){
+    case longsquarecorridor:
+      playgroundsize[0] = 25; 
       playgroundsize[1] = 100;
       playground = new Playground(odeHandle, osgHandle,osg::Vec3(playgroundsize[0], 0.2, playgroundheight ), 
 				  playgroundsize[1]/playgroundsize[0], false);
@@ -328,9 +506,9 @@ public:
 //       playground->setPosition(osg::Vec3(0,0,0.1));
 //       global.obstacles.push_back(playground);
       
-    }
-    if(roundcorridor){
-      AbstractGround* playground = new OctaPlayground(odeHandle, osgHandle,osg::Vec3(15, 0.2, playgroundheight ), 
+      break;
+    case roundcorridor:
+      playground = new OctaPlayground(odeHandle, osgHandle,osg::Vec3(15, 0.2, playgroundheight ), 
 						      12, true);
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
       playground->setGroundTexture("Images/dusty.rgb");    
@@ -344,37 +522,51 @@ public:
       playground->setPosition(osg::Vec3(0,0,0.1));
       playground->setTexture("");
       global.obstacles.push_back(playground);
-    }
-
-    if(labyrint){
-      double radius=7.5;
-      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(radius*2+1, 0.2, 5 ), 1);
-      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
-      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
-      playground->setPosition(osg::Vec3(0,0,0.1));
-      playground->setTexture("");
-      global.obstacles.push_back(playground);
-      int obstanz=30;
-      OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
-      OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
-      for(int i=0; i<obstanz; i++){
-	PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
-				       osg::Vec3(random_minusone_to_one(0)+1.2, 
-						 random_minusone_to_one(0)+1.2 ,1),5);
-	s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) 
-		   * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
-	global.obstacles.push_back(s);    
+      break;
+    case cluttered:
+      {
+	double radius=7.5;
+	playground = new Playground(odeHandle, osgHandle,osg::Vec3(radius*2+1, 0.2, 5 ), 1);
+	playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+	playground->setGroundTexture("Images/really_white.rgb");    
+	playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+	playground->setPosition(osg::Vec3(0,0,0.1));
+	playground->setTexture("");
+	global.obstacles.push_back(playground);
+	int obstanz=30;
+	OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
+	OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
+	for(int i=0; i<obstanz; i++){
+	  PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
+					 osg::Vec3(random_minusone_to_one(0)+1.2, 
+						   random_minusone_to_one(0)+1.2 ,1),5);
+	  s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) 
+		     * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
+	  global.obstacles.push_back(s);    
+	}
       }
-    }
-    if(complexpl){
-      double factor=5;
-      playground = new ComplexPlayground(odeHandle, osgHandle, "labyrint42.fig", factor, 0.3,false);
-      //playground = new ComplexPlayground(odeHandle, osgHandle, "labyrint.fig", factor, 0.05);
+    case labyrint:
+      {
+      double factor=7;
+      playground = new ComplexPlayground(odeHandle, osgHandle, 
+					 absolutePath + "labyrint2.fig", factor, 0.3, false);
       playground->setPosition(osg::Vec3(0,0,-2));
       global.obstacles.push_back(playground);
+      }
+      break;
+    case complexpl:
+      {
+      double factor=5;
+      playground = new ComplexPlayground(odeHandle, osgHandle, 
+					 absolutePath + "labyrint42.fig", factor, 0.3,false);
+      playground->setPosition(osg::Vec3(0,0,-2));
+      global.obstacles.push_back(playground);
+      }
+      break;
+    case none:
+      playground=0;
+      break;
     }
-
     
     sphere=0;
   
@@ -424,100 +616,124 @@ public:
 
     
     MultiReinforceConf msc = MultiReinforce::getDefaultConf();
+    ClassicReinforceConf crc = ClassicReinforce::getDefaultConf();
+
     msc.tauE1=25;
     msc.tauH=20;
     msc.tauI=50;
+    msc.qlearning=qlearning;
+
+
     if(useIRSats){
       msc.numContext = 3;
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_00_00.net");
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_02_00.net");
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_03_00.net");
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_06_00.net");
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_08_00.net");
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_10_00.net");
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_13_00.net");
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_16_00.net");
-      fs+=string("../create_sphere_ir_sats/sats/IR_Sphere_18_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_00_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_02_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_03_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_06_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_08_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_10_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_13_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_16_00.net");
+      fs+=string(absolutePath + "../create_sphere_ir_sats/sats/IR_Sphere_18_00.net");
     } else {
       msc.numContext = 9;
-//       fs+=string("../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_02.net");
-//       fs+=string("../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_03.net");
-//       fs+=string("../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_00.net");
-//       fs+=string("../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_06.net");
-//       fs+=string("../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_13.net");
-//       fs+=string("../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_08.net");
-      msc.useY=false;
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_00.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_01.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_02.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_03.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_04.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_05.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_06.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_07.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_08.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_09.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_10.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_11.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_12.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_13.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_14.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_15.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_16.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_17.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_18.net");
-//       fs+=string("../MinMod/test1/Multi20_3_noY_test_19.net");
-//      fs+=string("../MinMod/Sphere_Green/Sphere_green_left.net");
-      fs+=string("../MinMod/Sphere_Green/Sphere_green_fw.net.ascii");
-      //      fs+=string("../MinMod/Sphere_Green/Sphere_green_fw_r1.net.ascii");
-      fs+=string("../MinMod/Sphere_Green/Sphere_green_fw_r2.net.ascii");
-      //      fs+=string("../MinMod/Sphere_Green/Sphere_green_fw_l1.net.ascii");
-      fs+=string("../MinMod/Sphere_Green/Sphere_green_fw_l2.net.ascii");
-      fs+=string("../MinMod/Sphere_Green/Sphere_green_bw.net.ascii");
-      //      fs+=string("../MinMod/Sphere_Green/Sphere_green_bw_l1.net.ascii");
-      fs+=string("../MinMod/Sphere_Green/Sphere_green_bw_r2.net.ascii");
-      //      fs+=string("../MinMod/Sphere_Green/Sphere_green_bw_l1.net.ascii");
-      fs+=string("../MinMod/Sphere_Green/Sphere_green_bw_l2.net.ascii");
+      switch(experts){
+      case 0:
+	msc.useY=true;
+	fs+=string(absolutePath + "../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_02.net");
+	fs+=string(absolutePath + "../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_03.net");
+	fs+=string(absolutePath + "../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_00.net");
+	fs+=string(absolutePath + "../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_06.net");
+	fs+=string(absolutePath + "../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_13.net");
+	fs+=string(absolutePath + "../create_sphere_ir_sats/sats/Multi20_2h_Sphere_nogat_180min_08.net");
+	break;
+      case 1:
+	msc.useY=false;
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_00.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_01.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_02.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_03.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_04.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_05.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_06.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_07.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_08.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_09.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_10.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_11.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_12.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_13.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_14.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_15.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_16.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_17.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_18.net");
+	fs+=string(absolutePath + "../MinMod/test1/Multi20_3_noY_test_19.net");
+	break;
+      case 2:
+	//     fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_left.net");
+	msc.useY=false;
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_fw.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_fw_r1.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_fw_r2.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_fw_l1.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_fw_l2.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_bw.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_bw_l1.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_bw_r2.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_bw_l1.net.ascii");
+	fs+=string(absolutePath + "../MinMod/Sphere_Green/Sphere_green_bw_l2.net.ascii");
+	break;
+      default:
+	cerr << "Experts?!\n";
+      }
     }
-    msc.satFiles      = fs;
-    
-    qlearning = new QLearning(0.1, 0.90, 0.1, 3,true,true);
-    msc.qlearning=qlearning;
+    msc.satFiles      = fs;    
     msc.useDerive=false;
-    
-    if(useIRSats)
-      multirein = new ReinforceIRSphereController(msc);
-    else
-      multirein = new ReinforceCmpStateController(msc);
 
+    if(!useMultiAgent){
+      crc.qlearning=qlearning;
+      crc.numContext=9;    
+      multirein = new ReinforceCPController(crc);
+    }else{   
+      if(useIRSats)
+	multirein = new ReinforceIRSphereController(msc);
+      else{
+	switch(experts){ 
+	case 0:
+	case 1:
+	  multirein = new ReinforceRedCmpStateController(msc);
+	  break;
+	case 2:
+	  multirein = new ReinforceCmpStateController(msc);
+	  break;
+	default:
+	  break;
+	}
+      }
+    }
     multirein->setParam("mancontrol",0);
     multirein->setParam("action",0);
+    multirein->setParam("interval",interval);
     
     wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
     agent = new OdeAgent ( plotoptions );
     agent->init ( multirein , sphere , wiring );
-    //    agent->setTrackOptions(TrackRobot(true,true,false,true,"",50));
+    if(track) agent->setTrackOptions(TrackRobot(true,true,false,false,"",20));
     global.agents.push_back ( agent );
     
     global.configs.push_back(multirein);
-    global.configs.push_back(msc.qlearning);
+    global.configs.push_back(qlearning);
     showParams(global.configs);
+    log = fopen("qlearning.log","w");
+    fprintf(log,"#C time eps discount expl interval sarsa avg col_rew\n");
   }
 
 
-  virtual void addCallback(GlobalData& global, bool draw, bool pause, bool control) {
-    if(sphere){
-      dBodyID b = sphere->getMainPrimitive()->getBody();
-      double brake=-0.25;
-      const double* vel = dBodyGetAngularVel( b);
-      dBodyAddTorque ( b , brake*vel[0] , brake*vel[1] , brake*vel[2] );    
-    }
-
-  }
-  
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
+    MultiReinforce* c;
     char file[256];    FILE* f;
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
@@ -552,8 +768,22 @@ public:
 	  return true;
 	  break;
 	case 'd' : 
-	  multirein->storeSats(fs);  
-	  cout << "saved Sats!" << endl; 
+	  c=dynamic_cast<MultiReinforce*>(multirein);
+	  if(c){
+	      c->storeSats(fs);  
+	      cout << "saved Sats!" << endl; 
+	      return true;
+	    }
+	  break;
+	case 'c' : 
+	  sprintf(file,"contour.dat");
+	  f= fopen(file,"w");
+	  if(!f) cerr << "cannot open file: " << file << endl;
+	  else {
+	    if(playground) playground->printContours(f);
+	    fclose(f);
+	    cout << "saved Contour to "<<  file << endl; 
+	  }
 	  return true;
 	  break;
 	default:
@@ -563,14 +793,90 @@ public:
     }
     return false;
   }
+  
+  virtual void end(GlobalData& globalData){
+    if(log) fclose(log);
+  }
+
+  virtual void addCallback(GlobalData& global, bool draw, bool pause, bool control) {
+    if(sphere && !pause && control){
+      dBodyID b = sphere->getMainPrimitive()->getBody();
+      double brake=-0.25;
+      const double* vel = dBodyGetAngularVel( b);
+      dBodyAddTorque ( b , brake*vel[0] , brake*vel[1] , brake*vel[2] );    
+    }
+    if(rareprint){
+      int times[8]={600,1200,2400,4800,9600,19200,38400,76800}; // 10 20 40 80 160 320 640 1280 minutes
+      for(int i=0; i<8; i++){
+	if(fabs(global.time-times[i])<0.005){	
+	  fprintf(log,"%i %g %g %g %g %i %i %g\n",times[i],qlearning->getParam("eps"),
+		  qlearning->getParam("discount"), qlearning->getParam("expl"), 
+		  multirein->getParam("interval"), qlearning->useSARSA,
+		  rewavg, qlearning->getCollectedReward());
+	} 
+      }
+    }else{
+      if((int(global.time)%300)==0){ 
+	if(fabs(((int)global.time)-global.time)<=0.01){
+	  printf("%i %g\n",((int)global.time),global.time); 
+	  if(!log) cerr << "Complain\n";
+	  else
+	    fprintf(log,"%i %g %g %g %g %i %i %g\n",
+		    (int)global.time,qlearning->getParam("eps"),
+		    qlearning->getParam("discount"), qlearning->getParam("expl"), 
+		    multirein->getParam("interval"), qlearning->useSARSA,
+		    rewavg, qlearning->getCollectedReward());
+	}
+      }
+    }
+  }
+
+
 
 };
 
 int main (int argc, char **argv)
 { 
-  ThisSim sim;
-  sim.setCaption("robot.informatik.uni-leipzig.de    Martius,Der,Herrmann 2007");
+  playgr=longsquarecorridor;
+  int index = contains(argv, argc, "-pl");
+  if(index && (argc > index)){
+    if(argv[index][0]=='l') playgr=labyrint;
+    else if(strcmp(argv[index],"42")==0) playgr=complexpl;
+    else if(argv[index][0]=='r') playgr=roundcorridor;
+    else if(argv[index][0]=='s') playgr=longsquarecorridor;
+    else if(argv[index][0]=='c') playgr=cluttered;
+    else if(argv[index][0]=='n') playgr=none;
+  }
+  index = contains(argv, argc, "-ql");
+  double eps=0.1,disc=0.9,expl=0.1;
+  int sarsa=1;
+  if(index && (argc > index+4)){
+    eps=atof(argv[index]);
+    disc=atof(argv[index+1]);
+    expl=atof(argv[index+2]);
+    sarsa=atoi(argv[index+3]);
+    interval=atoi(argv[index+4]);
+  }
+  useMultiAgent = !contains(argv, argc, "-classic");
+  track         = contains(argv, argc, "-t");
+  rareprint     = contains(argv, argc, "-rare");
+  if(contains(argv, argc, "-nographics")){
+    absolutePath="/home/georg/sim/Spherical_reinf/data/";
+    realtimefactor=0;
+  }
+
+  index = contains(argv, argc, "-rewavg");
+  if(index && (argc > index))
+    rewavg=atoi(argv[index]);
+
+  int tau = int(rewavg*60*50.0/interval); // rewavg minutes
+  cout << tau;
+  
+  QLearning* qlearning = new QLearning(eps, disc, expl, 1, false, sarsa, tau);
+
+  ThisSim sim(qlearning);
+  sim.setCaption("robot.informatik.uni-leipzig.de    Martius,Der,Herrmann 2008");
   // run simulation
-  return sim.run(argc, argv) ? 0 : 1;  
+  return sim.run(argc, argv) ? 0 : 1;    
 }
  

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-06 18:49:56  martius
+ *   Revision 1.3  2008-04-22 15:22:55  martius
+ *   removed test lib and inc paths from makefiles
+ *
+ *   Revision 1.2  2007/09/06 18:49:56  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2007/08/29 15:32:52  martius
@@ -54,6 +57,7 @@
 #include <selforg/matrix.h>
 #include <selforg/replaycontroller.h>
 #include "multireinforce.h"
+#include <selforg/classicreinforce.h>
 
 #include "fourwheeled.h"
 #include "addsensors2robotadapter.h"
@@ -66,6 +70,15 @@ using namespace lpzrobots;
 using namespace matrix;
 using namespace std;
 
+enum PLAYGROUND {none, labyrint, complexpl, roundcorridor, longsquarecorridor, cluttered} playgr;
+
+bool track=false;
+int interval=10;
+bool useMultiAgent=true;
+string absolutePath="";
+double realtimefactor=1;
+bool rareprint=false;
+int rewavg = 5;
 
 class ReinforceCmpStateIRController : public MultiReinforce {
 public:
@@ -73,12 +86,33 @@ public:
     : MultiReinforce(conf) {}
 
 protected:
-  virtual double calcReinforcement(){
+  virtual double calcReinforcemen2(){
     const Matrix& x_c = x_context_buffer[t%buffersize].map(fabs);
     // 0 to 5 are IR
     int largest = argmax(x_c.rows(0,5));
     // 6 is speed    
     return 0.5*x_c.val(6,0)-sqr(2*x_c.val(largest,0));
+    
+  }
+
+  virtual double calcReinforcement1(){
+    const Matrix& x_c = x_context_buffer[t%buffersize].map(fabs);
+    int largest = argmax(x_c.rows(0,5));
+    if(x_c.val(largest,0)>0.4){
+      return -1;
+    }else{
+      return x_c.val(6,0);      
+    }
+  }
+
+  virtual double calcReinforcement(){
+    const Matrix& x_c = x_context_buffer[t%buffersize];
+    int largest = argmax(x_c.rows(0,5));
+    if(x_c.val(largest,0)>0.4){
+      return -1;
+    }else{
+      return -x_c.val(6,0);      
+    }
   }
 
   virtual int getStateNumber(){
@@ -135,60 +169,147 @@ protected:
 
     list<pair<int,int> > sets;
     sets+= pair<int,int>(sensor,7);    
-    sets+= pair<int,int>(argmin(satErrors),sats.size());
+    //    sets+= pair<int,int>(argmin(satErrors),sats.size());
+    sets+= pair<int,int>(action,sats.size());
     return QLearning::valInCrossProd(sets);
   }
 };
 
 
-class ReinforceNimm4Controller : public MultiReinforce {
+class ReinforceIRController : public MultiReinforce {
 public:
-  ReinforceNimm4Controller(const MultiReinforceConf& conf)
-    : MultiReinforce(conf) { }
+  ReinforceIRController(const MultiReinforceConf& conf)
+    : MultiReinforce(conf) {}
 
 protected:
   virtual double calcReinforcement(){
-    const Matrix& x_c = x_context_buffer[t%buffersize].map(fabs);
-    // 0 to 5 are IR
+    const Matrix& x_c = x_context_buffer[t%buffersize];
     int largest = argmax(x_c.rows(0,5));
-    // 6 is speed    
-    return 0.5*x_c.val(6,0)-x_c.val(largest,0);
+    if(x_c.val(largest,0)>0.6){
+      return -1;
+    } else if(x_c.val(largest,0)>0.2){
+      return clip(-x_c.val(6,0),-0.2,2.0); // only consider speed
+    }else{
+      // driving (backwards, because forward expert makes curve) and few turning
+      return -x_c.val(6,0)-0.5*fabs(x_c.val(7,0));      
+    }
   }
 
   virtual int getStateNumber(){
-    return 7*2;
+    return 2*2*2 * 3;
   }
 
   virtual int calcState() {
     const Matrix& x_c = x_context_buffer[t%buffersize];
-    const Matrix& irs = x_c.rows(0,5).map(fabs);    
-    // 0 to 5 are IR
-    int largest = argmax(irs);
-    int sensor=0;
-    if(irs.val(largest,0) > 0.2){
-      sensor=largest+1;
-    }
-    int direction = x_c.val(6,0) > 0;
+    // IR sensors    
+    const Matrix& irs = x_c.rows(0,5).map(fabs); // 0 to 5 are IR 
+
+    Matrix irgroups(3,1);
+    // side sensors
+    irgroups.val(0,0)=0.11; // threshhold
+    irgroups.val(1,0)=irs.val(2,0);
+    irgroups.val(2,0)=irs.val(5,0);
+    int sensorside = argmax(irgroups);
+
+    //    int direction = x_c.val(6,0) > 0;
+    
     list<pair<int,int> > sets;
-    sets+= pair<int,int>(sensor,7);    
-    sets+= pair<int,int>(direction,2);
+    sets+= pair<int,int>(irs.val(0,0)>0.11,2);// front left
+    sets+= pair<int,int>(irs.val(1,0)>0.11,2);// front right
+    sets+= pair<int,int>(max(irs.val(3,0),irs.val(4,0)) >0.11, 2);// rear
+    sets+= pair<int,int>(sensorside,3);    
+    //    sets+= pair<int,int>(direction,2);
+    //    sets+= pair<int,int>(action,sats.size());
     return QLearning::valInCrossProd(sets);
   }
+};
+
+
+class ReinforceNimm4Controller : public ClassicReinforce {
+public:
+  ReinforceNimm4Controller(const ClassicReinforceConf& conf)
+    : ClassicReinforce(conf) {  } 
+
+protected:
+  virtual double calcReinforcement(){
+    const Matrix& x_c = x_context_buffer[t%buffersize];
+    int largest = argmax(x_c.rows(0,5));
+    if(x_c.val(largest,0)>0.6){
+      return -1;
+    } else if(x_c.val(largest,0)>0.2){
+      return clip(-x_c.val(6,0),-0.2,2.0); // only consider speed
+    }else{
+      // driving (backwards, because forward expert makes curve) and few turning
+      return -x_c.val(6,0)-0.5*fabs(x_c.val(7,0));      
+    }
+  }
+
+  virtual int getStateNumber(){
+    return 2*2*2 * 3;
+  }
+
+  virtual int calcState() {
+    const Matrix& x_c = x_context_buffer[t%buffersize];
+    // IR sensors    
+    const Matrix& irs = x_c.rows(0,5).map(fabs); // 0 to 5 are IR 
+
+    Matrix irgroups(3,1);
+    // side sensors
+    irgroups.val(0,0)=0.11; // threshhold
+    irgroups.val(1,0)=irs.val(2,0);
+    irgroups.val(2,0)=irs.val(5,0);
+    int sensorside = argmax(irgroups);
+
+    //    int direction = x_c.val(6,0) > 0;
+    
+    list<pair<int,int> > sets;
+    sets+= pair<int,int>(irs.val(0,0)>0.11,2);// front left
+    sets+= pair<int,int>(irs.val(1,0)>0.11,2);// front right
+    sets+= pair<int,int>(max(irs.val(3,0),irs.val(4,0)) >0.11, 2);// rear
+    sets+= pair<int,int>(sensorside,3);    
+    //    sets+= pair<int,int>(direction,2);
+    //    sets+= pair<int,int>(action,sats.size());
+    return QLearning::valInCrossProd(sets);
+  }
+
+  virtual int getActionNumber(){
+    return 3*3*3*3;
+  }
+  
+  virtual matrix::Matrix calcMotor(int action){
+    list<int> ranges;
+    ranges += 3;
+    ranges += 3;
+    ranges += 3;
+    ranges += 3;
+    list<int> vals = QLearning::ConfInCrossProd(ranges, action);    
+    Matrix a(4,1);
+    int i=0;
+    FOREACHC(list<int>,vals,v){
+      a.val(i,0)=(*v-1)*0.57;      
+      i++;
+    }
+    return a;
+  }  
+
 };
 
 
 class ThisSim : public Simulation {
 public:
   AbstractController *controller;
-  MultiReinforce* multirein;
+  //mult  MultiReinforce* multirein;
   AbstractWiring* wiring;
   OdeAgent* agent;
   OdeRobot* robot;
   QLearning* qlearning;
   AbstractGround* playground;
   double playgroundsize[2];
+  FILE* log;
 
-  ThisSim(){}
+
+  ThisSim(QLearning* qlearning): 
+    qlearning(qlearning), log(0) { }
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -198,19 +319,14 @@ public:
     global.odeConfig.setParam("noise",0.05); 
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
-    global.odeConfig.setParam("realtimefactor",1);
+    global.odeConfig.setParam("realtimefactor",realtimefactor);
 
     //    global.odeConfig.setParam("realtimefactor",0);
 //     global.odeConfig.setParam("drawinterval",2000); 
 
-    bool labyrint=false;      
-    bool roundcorridor=false;
-    bool longsquarecorridor=false; 
-    bool complexpl=true; 
-
-
     playground=0;    
-    if(longsquarecorridor){
+    switch(playgr){
+    case longsquarecorridor:
       playgroundsize[0] = 50;
       playgroundsize[1] = 500;
       playgroundsize[0] = 10;
@@ -223,8 +339,8 @@ public:
       playground->setPosition(osg::Vec3(0,0,0.1));
       playground->setTexture("");
       global.obstacles.push_back(playground);
-    }
-    if(roundcorridor){
+      break;
+    case roundcorridor:
       playground = new OctaPlayground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 1.2 ), 12, true);
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
       playground->setGroundTexture("Images/dusty.rgb");    
@@ -238,38 +354,55 @@ public:
       playground->setTexture("");
       playground->setPosition(osg::Vec3(0,0,0.1));
       global.obstacles.push_back(playground);
-    }
-
-    if(labyrint){
-      double radius=10.5;
-      playground = new Playground(odeHandle, osgHandle,osg::Vec3(radius*2+1, 0.2, 5 ), 1);
-      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
-      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
-      playground->setPosition(osg::Vec3(0,0,0.1));
-      playground->setTexture("");
-      global.obstacles.push_back(playground);
-      int obstanz=30;
-      OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
-      OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
-      for(int i=0; i<obstanz; i++){
-	PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
-				       osg::Vec3(random_minusone_to_one(0)+1.2, 
-						 random_minusone_to_one(0)+1.2 ,1),5);
-	s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) 
-		   * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
-	global.obstacles.push_back(s);    
+      break;
+    case cluttered:
+      {
+	double radius=12.5;
+	playground = new Playground(odeHandle, osgHandle,osg::Vec3(radius*2+1, 0.2, 5 ), 1);
+	playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+	playground->setGroundTexture("Images/really_white.rgb");    
+	playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+	playground->setPosition(osg::Vec3(0,0,0.1));
+	playground->setTexture("");
+	global.obstacles.push_back(playground);
+	//      int obstanz=30;
+	int obstanz=10;
+	OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
+	OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
+	for(int i=0; i<obstanz; i++){
+	  PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
+					 osg::Vec3(random_minusone_to_one(0)+1.8, 
+						   random_minusone_to_one(0)+1.8 ,1),15);
+	  s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) 
+		     * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
+	  global.obstacles.push_back(s);    
+	}
       }
-    }
-    if(complexpl){
+      break;
+    case labyrint:
+      {
+      double factor=2.5;
+      playground = new ComplexPlayground(odeHandle, osgHandle, 
+					 absolutePath + "labyrint2.fig", factor, 0.02);
+      playground->setPosition(osg::Vec3(0,0,0.1));
+      global.obstacles.push_back(playground);
+      }
+      break;
+    case complexpl:
+      {
       double factor=2;
-      playground = new ComplexPlayground(odeHandle, osgHandle, "labyrint42.fig", factor, 0.05);
+      playground = new ComplexPlayground(odeHandle, osgHandle, 
+					 absolutePath + "labyrint42.fig", factor, 0.05);
       //playground = new ComplexPlayground(odeHandle, osgHandle, "labyrint.fig", factor, 0.05);
       playground->setPosition(osg::Vec3(0,0,0.1));
       global.obstacles.push_back(playground);
+      }
+      break;
+    case none:
+      playground=0;
+      break;
     }
     
-
     
   
     //****************
@@ -278,18 +411,20 @@ public:
     //    OdeHandle sphereOdeHandle = odeHandle;
     //     sphereOdeHandle.substance.setCollisionCallback(sphereColl, 0);
     FourWheeledConf fwc = FourWheeled::getDefaultConf();
-    fwc.irRange=1.5;
+    fwc.irRangeFront=1.0; // the robot drives backwards ;-|
+    fwc.irRangeSide=0.75;
+    fwc.irRangeBack=2.0;
     fwc.irFront=true;
     fwc.irBack=true;
     fwc.irSide=true;
-    OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "4Wheel_Reinf56_"); 
+    OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "4Wheel_Reinf56"); 
     AddSensors2RobotAdapter* addsensorrobot =  
       new AddSensors2RobotAdapter(odeHandle, osgHandle, nimm4);
     addsensorrobot->addSensor(new SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z));
     addsensorrobot->addSensor(new SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X));
     robot = addsensorrobot;
         
-    if(roundcorridor){
+    if(playgr==roundcorridor){
       robot->place(Pos(11,0,0.1));
       setCameraHomePos(Pos(8.73231, 16.2483, 4.53275),  Pos(-171.649, -14.6511, 0));
     }
@@ -297,46 +432,90 @@ public:
       robot->place(Pos(0,0,0.1));
     }
 
-    MultiReinforceConf msc = MultiReinforce::getDefaultConf();
-    msc.tauE1=5;
-    msc.tauH=3;
-    msc.tauI=10;
-    list<string> fs;
-    {
-      msc.numContext = 8;
-      msc.useY=false;
-      fs+=string("4Wheel_30min_00.net");
-      fs+=string("4Wheel_30min_01.net");
-      fs+=string("4Wheel_30min_02.net");
-      fs+=string("4Wheel_30min_03.net");
-      fs+=string("4Wheel_30min_04.net");
-      fs+=string("4Wheel_30min_05.net");
-      fs+=string("4Wheel_30min_06.net");
-      fs+=string("4Wheel_30min_07.net");
-    }
-    msc.satFiles      = fs;
-    
-    qlearning = new QLearning(0.05, 0.90, 0.1, 3,true,true);
-    msc.qlearning=qlearning;
-    msc.useDerive=false;
-  
-    //    multirein = new ReinforceNimm4Controller(msc);
-    multirein = new ReinforceCmpStateIRController(msc);
         
+    if(useMultiAgent){
+      MultiReinforceConf msc = MultiReinforce::getDefaultConf();
+      msc.tauE1=10;
+      msc.tauH=5;
+      msc.tauI=50;
+      list<string> fs;
+      {
+	msc.numContext = 8;
+	msc.useY=false;
+	fs+=string(absolutePath + "4Wheel_30min_00.net");
+	fs+=string(absolutePath + "4Wheel_30min_01.net");
+	fs+=string(absolutePath + "4Wheel_30min_02.net");
+	fs+=string(absolutePath + "4Wheel_30min_03.net");
+	fs+=string(absolutePath + "4Wheel_30min_04.net");
+	fs+=string(absolutePath + "4Wheel_30min_05.net");
+	fs+=string(absolutePath + "4Wheel_30min_06.net");
+	fs+=string(absolutePath + "4Wheel_30min_07.net");
+      }
+      msc.satFiles      = fs;
+      
+      msc.qlearning=qlearning;
+      msc.useDerive=false;
+      msc.reinforce_interval=interval;
+      
+      //controller = new ReinforceCmpStateIRController(msc);
+      controller = new ReinforceIRController(msc);
+    }else{
+      ClassicReinforceConf crc = ClassicReinforce::getDefaultConf();    
+      crc.qlearning=qlearning;
+      crc.numContext=8;    
+      crc.reinforce_interval=interval;
+      controller = new ReinforceNimm4Controller(crc);
+    }
     
     wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
     agent = new OdeAgent ( plotoptions );
-    agent->init ( multirein , robot , wiring );
-//    agent->setTrackOptions(TrackRobot(true,true,false,true,"Labyrint",20));
+    agent->init ( controller , robot , wiring );
+    if(track) agent->setTrackOptions(TrackRobot(true,true,false,true,"cluttered",20));
     global.agents.push_back ( agent );
     
-    global.configs.push_back(multirein);
-    global.configs.push_back(msc.qlearning);
+    global.configs.push_back(qlearning);
+    global.configs.push_back(controller);
     showParams(global.configs);
+    
+    log = fopen("qlearning.log","w");
+    fprintf(log,"#C time eps discount expl interval sarsa avg col_rew\n");
+  }
+
+  virtual void end(GlobalData& globalData){
+//     // store controller:
+//     char filename[128];
+//     sprintf(filename,"4Wheel_160min_%2.2f_%2.2f",);
+//     FILE* f = fopen(filename,"wb");
+//     if(f){      
+//       controller->store(f);
+//       fclose(f);
+//     }
+    if(log) fclose(log);
   }
 
 
   virtual void addCallback(GlobalData& global, bool draw, bool pause, bool control) {
+    if(rareprint){
+      int times[8]={600,1200,2400,4800,9600,19200,38400,76800}; // 10 20 40 80 160 320 640 1280 minutes
+      for(int i=0; i<8; i++){
+	if(fabs(global.time-times[i])<0.005){	
+	  fprintf(log,"%i %g %g %g %g %i %i %g\n",times[i],qlearning->getParam("eps"),
+		  qlearning->getParam("discount"), qlearning->getParam("expl"), 
+		  controller->getParam("interval"), qlearning->useSARSA,
+		  rewavg, qlearning->getCollectedReward());
+	} 
+      }
+    }else{
+      if((int(global.time)%300)==0){
+	if(fabs(((int)global.time)-global.time)<=0.01){
+	  printf("%i %g\n",((int)global.time),global.time);
+	  fprintf(log,"%i %g %g %g %g %i %i %g\n",(int)global.time,qlearning->getParam("eps"),
+		  qlearning->getParam("discount"), qlearning->getParam("expl"), 
+		  controller->getParam("interval"), qlearning->useSARSA,
+		  rewavg, qlearning->getCollectedReward());
+	}
+      }
+    }
   }
   
   // add own key handling stuff here, just insert some case values
@@ -399,7 +578,45 @@ public:
 
 int main (int argc, char **argv)
 { 
-  ThisSim sim;
+  playgr=longsquarecorridor;
+  int index = contains(argv, argc, "-pl");
+  if(index && (argc > index)){
+    if(argv[index][0]=='l') playgr=labyrint;
+    else if(strcmp(argv[index],"42")==0) playgr=complexpl;
+    else if(argv[index][0]=='r') playgr=roundcorridor;
+    else if(argv[index][0]=='s') playgr=longsquarecorridor;
+    else if(argv[index][0]=='c') playgr=cluttered;
+    else if(argv[index][0]=='n') playgr=none;
+  }
+  index = contains(argv, argc, "-ql");
+  double eps=0.1,disc=0.7,expl=0.2;
+  int sarsa=1;
+  if(index && (argc > index+4)){
+    eps=atof(argv[index]);
+    disc=atof(argv[index+1]);
+    expl=atof(argv[index+2]);
+    sarsa=atoi(argv[index+3]);
+    interval=atoi(argv[index+4]);
+  }
+  useMultiAgent = !contains(argv, argc, "-classic");
+  track         = contains(argv, argc, "-t");
+  rareprint     = contains(argv, argc, "-rare");
+  if(contains(argv, argc, "-nographics")){
+    absolutePath="/home/georg/sim/4Wheel_reinf/data/";
+    realtimefactor=0;
+  }
+
+  index = contains(argv, argc, "-rewavg");
+  if(index && (argc > index))
+    rewavg=atoi(argv[index]);
+
+  int tau = int(rewavg*60*50.0/interval); // 5 minutes
+  cout << tau;
+  
+  QLearning* qlearning = new QLearning(eps, disc, expl, 1, false, sarsa, tau);
+  
+  ThisSim sim(qlearning);
+  sim.setCaption("Martius, Der, Herrmann");
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;  
 }

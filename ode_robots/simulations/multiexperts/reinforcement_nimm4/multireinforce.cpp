@@ -1,7 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *   Copyright (C) 2008 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *                                                                         *
  *   ANY COMMERCIAL USE FORBIDDEN!                                         *
@@ -17,7 +16,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-29 15:32:52  martius
+ *   Revision 1.2  2008-04-22 15:22:55  martius
+ *   removed test lib and inc paths from makefiles
+ *
+ *   Revision 1.1  2007/08/29 15:32:52  martius
  *   reinforcement learning with 4 wheeled
  *
  *
@@ -89,13 +91,20 @@ void MultiReinforce::init(int sensornumber, int motornumber){
   satAvgErrors.set(conf.numSats, 1);
   statesbins.set(getStateNumber(),1);
 
-  
+  assert(conf.qlearning && "Please set qlearning in controller configuration");
   conf.qlearning->init(getStateNumber(), conf.numSats);
+  if(conf.actioncorrel){
+    assert(conf.actioncorrel->getM()== conf.numSats&& conf.actioncorrel->getN() == conf.numSats);
+  }
+  
 
   action=0;
+  newaction=0;
+  oldaction=0;
   state=0;
   phase=0;
   reward=0;
+  oldreward=0;
   phasecnt=0;
   t=0;
   initialised = true;
@@ -106,51 +115,29 @@ void MultiReinforce::putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& v
   buffer[(t-delay)%buffersize] = vec;
 }
 
+
 /// performs one step (includes learning). Calculates motor commands from sensor inputs.
 void MultiReinforce::step(const sensor* x_, int number_sensors, motor* y_, int number_motors)
 {
-  bool phasechanged=false;
-  //  int oldstate = state;
-  phasecnt++;
+  double slidingtime=min(4.0,(double)conf.reinforce_interval/2);
   fillSensorBuffer(x_, number_sensors);  
   if(t>buffersize) {   
-    statesbins*=(1-1/conf.tauE1);
-    statesbins.val(calcState(),0)+=1.0;
-    int newstate = argmax(statesbins);
-    if (newstate != state) { 
-      statesbins.val(newstate,0)+=conf.tauH;//hystersis
-      phase++;
-      phasecnt=0;
-    phasechanged=true;
-      state=newstate;
-    }
-    // reward is collected over the interval tauH and averaged
-    reward = (1.0- 1.0/conf.tauH)*reward + (1.0/conf.tauH)*calcReinforcement();
-
-    switch(phase){
-    case 0: // do nothing (but counting)
-      if(phasecnt > conf.tauI){
-	phase++;
-	phasecnt=0;
-      }
-      break;
-    case 1: // update q table
-      if(phasecnt%(int)conf.tauH)
-	conf.qlearning->learn(state,action,reward,1);
-      if(phasecnt > conf.tauI){ // enable exploration
-	phase++;
-      }
-      break;
-    case 2: // select a new action
-      if(!manualControl)
-	action = conf.qlearning->select(state);
-    default:
-      phase=0;
-      break;
-    }
-
     if(t%managementInterval==0){
       management();
+    }
+
+    reward += calcReinforcement() / (double)conf.reinforce_interval; 
+    if((t%conf.reinforce_interval)==0){
+      conf.qlearning->learn(state,action,reward,1); // qlearning with old state
+      state = calcState();
+      oldreward=reward;
+      reward=0;
+      if(!manualControl){// select a new action
+	oldaction = action;
+	action = conf.qlearning->select(state); 
+	//action = conf.qlearning->select_sample(state);		
+	//newaction = conf.qlearning->select_keepold(state);		
+      }
     }
 
     /// sat network control
@@ -167,9 +154,19 @@ void MultiReinforce::step(const sensor* x_, int number_sensors, motor* y_, int n
       satInput.toAbove(y_tm1);
     }
 
+    // only one sat is controlling (or mixture at transient)
     const Matrix& out = sats[action].net->process(satInput);
     const Matrix& y_sat = out.rows(x_t.getM(), out.getM()-1);
-    y_sat.convertToBuffer(y_, number_motors); // store the values into y_ array
+    int ts = t%conf.reinforce_interval;
+    if(ts<slidingtime && action != oldaction){      
+      const Matrix& out2 = sats[oldaction].net->process(satInput);
+      const Matrix& y_sat2 = out2.rows(x_t.getM(), out2.getM()-1);	
+      // store the values into y_ array
+      (y_sat2*(1-(phasecnt/slidingtime)) 
+       + y_sat*(phasecnt/slidingtime)).convertToBuffer(y_, number_motors);
+    }else{
+      y_sat.convertToBuffer(y_, number_motors); // store the values into y_ array
+    }
   }else{
     memset(y_,0,sizeof(motor)*number_motors);
   }
@@ -178,6 +175,105 @@ void MultiReinforce::step(const sensor* x_, int number_sensors, motor* y_, int n
   // update step counter
   t++;
 };
+
+// /// performs one step (includes learning). Calculates motor commands from sensor inputs.
+// void MultiReinforce::step0(const sensor* x_, int number_sensors, motor* y_, int number_motors)
+// {
+//   double slidingtime=5.0;
+
+//   //  int oldstate = state;
+//   phasecnt++;
+//   fillSensorBuffer(x_, number_sensors);  
+//   if(t>buffersize) {   
+//     statesbins*=(1-1/conf.tauE1);
+//     statesbins.val(calcState(),0)+=1.0;
+//     int newstate = argmax(statesbins);
+//     if (newstate != state) { 
+//       statesbins.val(newstate,0)+=conf.tauH;//hystersis
+//       if(phasecnt>conf.tauI/4) phase++;
+//     }
+//     // reward is collected and averaged at learning moment
+//     reward += calcReinforcement();
+//     //    cout << phase << " " << action << endl;
+//     switch(phase){
+//     case 0: // do nothing (but counting)
+//       if(phasecnt > conf.tauI){
+// 	phase++;
+//       }
+//       break;
+//     case 1: // update q table
+//       reward /= phasecnt ? phasecnt : 1;
+//       conf.qlearning->learn(state,action,reward,1);
+//       state=newstate;
+//       phasecnt=0;
+//       reward=0;
+//       if(!manualControl){// select a new action
+// 	newaction = conf.qlearning->select(state); 
+// 	//action = conf.qlearning->select_sample(state);		
+// 	//newaction = conf.qlearning->select_keepold(state);		
+//       }
+//       //if(newaction!=action) reward-=5;
+//       phase++;
+//       break;
+//     case 2: // transient phase between actions
+//       if(phasecnt > slidingtime){
+// 	action = newaction;
+// 	phase =0;
+//       }
+//       break;
+//     default:
+//       phase=0;
+//       break;
+//     }
+
+//     if(t%managementInterval==0){
+//       management();
+//     }
+
+//     /// sat network control
+//     const Matrix& x_t   = x_buffer[t%buffersize];
+//     if(conf.useDerive){
+//       const Matrix& xp_t  = xp_buffer[t%buffersize];
+//       satInput   = x_t.above(xp_t);
+//     } else {
+//       const Matrix& x_tm1 = x_buffer[(t-1)%buffersize];
+//       satInput   = x_t.above(x_tm1);
+//     }
+//     if(conf.useY){
+//       const Matrix& y_tm1 = y_buffer[(t-1)%buffersize];
+//       satInput.toAbove(y_tm1);
+//     }
+
+//     if(conf.actioncorrel){// mixture of sat networks is controlling
+//       //      const Matrix& vals = conf.qlearning->getActionValues(state);
+//       //// Todo: continue (action selection has to be performed above anyway)
+//       // keep only best 4 actions      
+//       // multiply with correlation to best action
+//       // normalise
+//       // use as factors for control signal    
+
+//     }else{    // only one sat is controlling (or mixture at transient)
+//       if(action != newaction){
+// 	const Matrix& out1 = sats[action].net->process(satInput);
+// 	const Matrix& out2 = sats[newaction].net->process(satInput);
+// 	const Matrix& y_sat1 = out1.rows(x_t.getM(), out1.getM()-1);
+// 	const Matrix& y_sat2 = out2.rows(x_t.getM(), out2.getM()-1);	
+// 	(y_sat1*(1-(phasecnt/slidingtime)) + y_sat2*(phasecnt/slidingtime)).convertToBuffer(y_, number_motors); // store the values into y_ array
+//       }else{
+// 	const Matrix& out = sats[action].net->process(satInput);
+// 	const Matrix& y_sat = out.rows(x_t.getM(), out.getM()-1);
+// 	y_sat.convertToBuffer(y_, number_motors); // store the values into y_ array
+//       }
+//     }
+//   }else{
+//     memset(y_,0,sizeof(motor)*number_motors);
+//   }
+//   fillMotorBuffer(y_, number_motors); // store the plain c-array "_y" into the y buffer
+  
+//   // update step counter
+//   t++;
+// };
+
 
 /// performs one step without learning. Calulates motor commands from sensor inputs.
 void MultiReinforce::stepNoLearning(const sensor* x, int number_sensors, motor*  y, int number_motors )
@@ -213,8 +309,11 @@ void MultiReinforce::fillMotorBuffer(const motor* y_, int number_motors)
 }
 
 void MultiReinforce::setManualControl(bool mControl, int action_){  
-  if(mControl)
+  if(mControl){
     action=clip(action_,0,conf.numSats-1);
+    newaction=action;
+    oldaction=action;    
+  }
   manualControl=mControl;
 }
   
@@ -227,7 +326,6 @@ Matrix MultiReinforce::calcDerivatives(const matrix::Matrix* buffer,int delay){
 }
 
 void MultiReinforce::management(){
-  conf.qlearning->collectedReward*=(1-managementInterval/(10000.0));
 }
 
 
@@ -239,7 +337,7 @@ Configurable::paramval MultiReinforce::getParam(const paramkey& key) const{
 }
 
 
-bool MultiReinforce::setParam(const paramkey& key, paramval val){
+bool MultiReinforce::setParam(const paramkey& key, paramval val){  
   if(key=="mancontrol") {
     setManualControl(val!=0);
     return true;
@@ -351,7 +449,7 @@ list<string> MultiReinforce::createFileList(const char* filestem, int n){
 
 list<Inspectable::iparamkey> MultiReinforce::getInternalParamNames() const {
   list<iparamkey> keylist;
-  
+   
   keylist += storeVectorFieldNames(x_context_buffer[0], "XC");
   keylist += storeVectorFieldNames(satErrors, "errs");
   keylist += storeVectorFieldNames(satAvgErrors, "avgerrs");
@@ -373,8 +471,8 @@ list<Inspectable::iparamval> MultiReinforce::getInternalParams() const {
   l += (double)action;
   l += (double)state;
   l += (double)phase;
-  l += (double)reward;
-  l += conf.qlearning->collectedReward;
+  l += (double)oldreward;
+  l += conf.qlearning->getCollectedReward();
   return l;
 }
 

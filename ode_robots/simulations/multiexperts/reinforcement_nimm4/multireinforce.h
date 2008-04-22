@@ -1,7 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *   Copyright (C) 2008 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *                                                                         *
  *   ANY COMMERCIAL USE FORBIDDEN!                                         *
@@ -20,12 +19,15 @@
  *    n agents can control robot                                           *
  *    external (e.g. keyboard) control possible                            *
  *    Q-learning used for action selection                                 *
- *     states: x, define by subclass                                       *
+ *     states: x, defined by subclass                                       *
  *     action: y, where y is an agent                                      *
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-29 15:32:52  martius
+ *   Revision 1.2  2008-04-22 15:22:55  martius
+ *   removed test lib and inc paths from makefiles
+ *
+ *   Revision 1.1  2007/08/29 15:32:52  martius
  *   reinforcement learning with 4 wheeled
  *
  *
@@ -57,6 +59,7 @@ typedef struct MultiReinforceConf {
   int reinforce_interval; ///<  time between consecutive reinforcement selections
   
   QLearning* qlearning;      ///< QLearning instance
+  matrix::Matrix* actioncorrel; /// correlation matrix of actions
 } MultiReinforceConf;
 
 /// Satelite network struct
@@ -99,6 +102,7 @@ public:
   /// restores the sat networks from seperate files
   void restoreSats(const std::list<std::string>& files);
 
+
   /** enables/disables manual control, action_ is the sat network number to be used
       if mControl is false, action is ignored
    */
@@ -135,6 +139,8 @@ public:
     c.tauH=10;
     c.tauI=50;
     c.reinforce_interval=10;
+    c.actioncorrel=0;
+    c.qlearning=0;
     return c;
   }
 
@@ -155,8 +161,11 @@ protected:
   matrix::Matrix nomSatOutput; ///< norminal output of satelite networks (x_t,y_t)^T
   matrix::Matrix satInput;     ///< input to satelite networks (x_{t-1}, xp_{t-1}, y_{t-1})^T
   int action;                  ///< index of controlling network
+  int newaction;               ///< index of new controlling network
+  int oldaction;               ///< index of old controlling network
   int state;                   ///< current state
   double reward;               ///< current reward
+  double oldreward;            ///< old reward (nicer for plotting)
   int phase;                   ///< current phase of the controller: 0: action just selected 1:state changed first time 2:state changed second time
   int phasecnt;               ///< counts number of steps in one phase.
 
@@ -177,6 +186,7 @@ protected:
 
   /// returns the reinforcement (reward), to be overwritten
   virtual double calcReinforcement() = 0;
+
 
   // put new value in ring buffer
   void putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& vec, int delay = 0);

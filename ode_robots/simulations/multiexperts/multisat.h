@@ -22,12 +22,15 @@
  *    expert get mature, when winning and low error,                       *
  *     i.e. learning rate decreases                                        *
  *    always the agent with lowest maturation is selected  as new companion*
- *    only winner and companion is allowed to learn                        *
+ *    only winner and companion are allowed to learn                        *
  *                                                                         *
  *    (NOT YET) sat networks have equal structure to selforg               *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-12-13 16:57:40  martius
+ *   Revision 1.11  2008-04-22 15:22:55  martius
+ *   removed test lib and inc paths from makefiles
+ *
+ *   Revision 1.10  2007/12/13 16:57:40  martius
  *   new variation of the multisat controller
  *
  *   Revision 1.9  2007/08/24 11:59:43  martius
