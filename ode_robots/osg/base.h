@@ -24,7 +24,13 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-04-17 15:59:00  martius
+ *   Revision 1.9  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.8  2008/04/17 15:59:00  martius
  *   OSG2 port finished
  *
  *   Revision 1.7.2.5  2008/04/11 13:46:50  martius
@@ -157,7 +163,8 @@ namespace lpzrobots {
     virtual ~Base();
 
   protected:
-    virtual void setTimeStats(double time, double realtimefactor);
+    virtual void setTimeStats(double time, double realtimefactor, 
+			      double truerealtimefactor);
 
     dGeomID ground;
 

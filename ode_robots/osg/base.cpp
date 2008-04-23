@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2008-04-18 14:00:09  guettler
+ *   Revision 1.17  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.16  2008/04/18 14:00:09  guettler
  *   cosmetic changes, added some printouts
  *
  *   Revision 1.15  2008/04/17 15:59:00  martius
@@ -474,7 +480,7 @@ namespace lpzrobots {
       timestats->setFont(font);
       timestats->setPosition(position);
       timestats->setColor(textColor);
-      setTimeStats(0,0);
+      setTimeStats(0,0,0);
     }
 
     {
@@ -539,14 +545,20 @@ namespace lpzrobots {
     return camera;
   }
 
-  void Base::setTimeStats(double time, double realtimefactor){
+  void Base::setTimeStats(double time, double realtimefactor, 
+			  double truerealtimefactor){
     if(timestats){
       char buffer[100];
       int minutes = (int)time/60;
-      if (realtimefactor>0)
-      sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes, int(time-minutes)%60,realtimefactor);
-      else
-        sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (max)",minutes, int(time-minutes)%60,realtimefactor);
+      if (realtimefactor>0){
+	if(fabs(truerealtimefactor/realtimefactor-1)<0.15)
+	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes, 
+		  int(time-minutes)%60,realtimefactor);
+	else 
+	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx(%.1fx!)",minutes, 
+		  int(time-minutes)%60,truerealtimefactor, realtimefactor);
+      } else
+        sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (max)",minutes, int(time-minutes)%60,truerealtimefactor);
       timestats->setText(buffer);
     }
   }

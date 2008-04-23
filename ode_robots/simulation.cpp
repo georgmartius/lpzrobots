@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.77  2008-04-18 14:00:09  guettler
+ *   Revision 1.78  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.77  2008/04/18 14:00:09  guettler
  *   cosmetic changes, added some printouts
  *
  *   Revision 1.76  2008/04/18 10:38:15  guettler
@@ -502,6 +508,7 @@ namespace lpzrobots {
 
     nextLeakAnnounce = 20;
     leakAnnCounter = 1;
+    truerealtimefactor = 1;
     sim_step = 0;
     state    = none;
     pause    = false;
@@ -574,6 +581,10 @@ namespace lpzrobots {
       } else {
 	sprintf(odeRobotsCfg,"%s/.lpzrobots/ode_robots",home);
 	if(!restoreCfg(odeRobotsCfg)){
+	  // create directory
+	  char dir[1024];
+	  sprintf(dir,"%s/.lpzrobots",home);
+	  mkdir(dir,0x755);
 	  storeOdeRobotsCFG();
 	  cerr << "store config to " << odeRobotsCfg << endl;
 	}
@@ -787,8 +798,10 @@ namespace lpzrobots {
 	globalData.time += globalData.odeConfig.simStepSize;
 	sim_step++;
 	// print simulation time every 10 min.
-	if(sim_step% ( int(1/globalData.odeConfig.simStepSize) * 600) ==0) {
-	  printf("Simulation time: %li min\n", sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60));
+	if(noGraphics && 
+	   sim_step % long(600.0/globalData.odeConfig.simStepSize) ==0) {
+	  printf("Simulation time: %li min\n", 
+		 sim_step/ long(60/globalData.odeConfig.simStepSize));
 	}
 	// finish simulation, if intended simulation time is reached
 	if(simulation_time!=-1) { // check time only if activated
@@ -917,7 +930,8 @@ namespace lpzrobots {
 	    cameramanipulator->update();
 	}
 	// update timestats
-	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor);
+	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor, 
+		     truerealtimefactor);
 
 	// call all registered graphical callbackable classes
 	FOREACH(list<Callbackable*>, graphicsCallbackables, i) {
@@ -938,15 +952,21 @@ namespace lpzrobots {
 
     }
     /************************** Time Syncronisation ***********************/
-    // Time syncronisation of real time and simulations time (not if on capture mode, or pause)
+    // Time syncronisation of real time and simulations time
+    long elapsed = timeOfDayinMS() - realtimeoffset;
+    // simulation speed (calculates more precise again if not pause or max speed)
+    if(!pause) truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+1);
+    // get refresh rate of about 10 frames in full speed
+    if(globalData.odeConfig.realTimeFactor==0.0){
+      globalData.odeConfig.calcAndSetDrawInterval(10,truerealtimefactor);
+    }
     if(globalData.odeConfig.realTimeFactor!=0.0 && !pause) {
-      long elaped = timeOfDayinMS() - realtimeoffset;
       // difference between actual time and current time in milliseconds
-      long diff = long((globalData.time*1000.0 - simtimeoffset)
-		       / globalData.odeConfig.realTimeFactor  ) - elaped;
-      if(diff > 10000 || diff < -10000)  // check for overflow or other weird things
+       long diff = long((globalData.time*1000.0 - simtimeoffset)
+		       / globalData.odeConfig.realTimeFactor  ) - elapsed;
+      if(diff > 10000 || diff < -10000){ // check for overflow or other weird things
 	resetSyncTimer();
-      else {
+      }else {
 	if(diff > 4) { // if less the 3 milliseconds we don't call usleep since it needs time
 	  usleep((diff-2)*1000);
 	  nextLeakAnnounce=100;
@@ -954,18 +974,29 @@ namespace lpzrobots {
 	  // we do not bother the user all the time
 	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()) {
 	    nextLeakAnnounce=min(nextLeakAnnounce*10,10000);
-	    printf("Time leak of %li ms (Suggestion: realtimefactor=%g , next in annoucement in %i )\n",
-		   -diff, globalData.odeConfig.realTimeFactor*0.5, nextLeakAnnounce);
-
+	    printf("Time lack of %li ms (Suggestion: realtimefactor=%g), next in annoucement in %i violations\n", 
+		   -diff, truerealtimefactor, nextLeakAnnounce);
 	    leakAnnCounter=0;
 	    resetSyncTimer();
 	  }
 	  leakAnnCounter++;
 	}
       }
+      // the video steam should look perfectly syncronised
+      if(videostream.isOpen()) 
+	truerealtimefactor=globalData.odeConfig.realTimeFactor;
+      else{
+	//  true speed of simulations. In case resetSyncTimer() was just called this
+	//  gives wrong values, thats why we test on elapsed
+	if(!justresettimes)
+	  truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+max(1l,diff));
+      }
+      justresettimes=false;      
     } else if (pause) {
       usleep(10000);
     }
+    
+
     return run;
   }
 
@@ -1421,7 +1452,8 @@ namespace lpzrobots {
 
   void Simulation::resetSyncTimer() {
     realtimeoffset = timeOfDayinMS();
-    simtimeoffset = int(globalData.time*1000);
+    simtimeoffset  = int(globalData.time*1000);
+    justresettimes = true;
   }
 
   void Simulation::storeOdeRobotsCFG(){

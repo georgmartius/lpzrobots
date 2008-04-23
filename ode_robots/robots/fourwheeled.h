@@ -22,7 +22,13 @@
  *  A robot with 4 wheels based on nimm4 with IR sensors                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-11-07 13:21:15  martius
+ *   Revision 1.3  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.2  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.1  2007/08/24 11:49:35  martius
@@ -49,7 +55,9 @@ namespace lpzrobots {
     bool irFront;
     bool irBack;
     bool irSide;
-    double irRange;
+    double irRangeFront;
+    double irRangeBack;
+    double irRangeSide;
   } FourWheeledConf;
   
   /** Robot is based on nimm4 with 
@@ -76,7 +84,9 @@ namespace lpzrobots {
       conf.irFront=false;
       conf.irBack=false;
       conf.irSide=false;
-      conf.irRange=3;
+      conf.irRangeFront=3;
+      conf.irRangeSide=2;
+      conf.irRangeBack=2;
       return conf;
     }
 
@@ -115,7 +125,8 @@ namespace lpzrobots {
 
     FourWheeledConf conf;
     RaySensorBank irSensorBank; // a collection of ir sensors
-
+    Primitive* bumpertrans;
+    Primitive* bumper;
   };
 
 }

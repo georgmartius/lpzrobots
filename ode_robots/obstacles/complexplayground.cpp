@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-09-06 18:46:41  martius
+ *   Revision 1.3  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.2  2007/09/06 18:46:41  martius
  *   printContours
  *
  *   Revision 1.1  2007/08/28 09:23:20  martius
@@ -99,7 +105,10 @@ namespace lpzrobots {
       filename(filename), factor(factor), heightfactor(heightfactor) {
     
     FILE* f=fopen(filename.c_str(),"r");
-    assert(f);
+    if(!f){
+      fprintf(stderr,"Cannot open file: %s!\n",filename.c_str());
+      exit(1);
+    }
     list<char*> lines;    
     char* buffer = (char*)malloc(sizeof(char)*4096);
     while(fgets(buffer, 4096, f)){

@@ -28,7 +28,13 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2008-04-17 15:59:00  martius
+ *   Revision 1.31  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.30  2008/04/17 15:59:00  martius
  *   OSG2 port finished
  *
  *   Revision 1.29.2.7  2008/04/15 16:21:52  martius
@@ -361,6 +367,8 @@ namespace lpzrobots {
     int leakAnnCounter;
     long realtimeoffset;
     long simtimeoffset;
+    double truerealtimefactor; // calculated true speed
+    bool justresettimes;      // true if we just reset sync times
 
     paramval windowWidth;
     paramval windowHeight;

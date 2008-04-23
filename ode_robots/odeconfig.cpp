@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-07-30 14:13:06  martius
+ *   Revision 1.8  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.7  2007/07/30 14:13:06  martius
  *   drawBoundings moved to osgHandle
  *
  *   Revision 1.6  2007/06/21 16:33:43  martius
@@ -84,7 +90,7 @@ namespace lpzrobots {
     gravity=-9.81;
     simStepSize = 0.01;
     controlInterval = 1;
-    drawInterval = calcDrawInterval25();
+    drawInterval = calcDrawInterval(25,realTimeFactor);
     randomSeed = 0;
     addParameterDef("noise",            &noise,0.1);
     addParameterDef("cameraspeed",      &cameraSpeed,100);
@@ -117,11 +123,11 @@ namespace lpzrobots {
   bool OdeConfig::setParam(const paramkey& key, paramval val){
     if(key == "simstepsize") {
       simStepSize=std::max(0.0000001,val); 
-      drawInterval=calcDrawInterval25();
+      drawInterval=calcDrawInterval(25,realTimeFactor);
     }else if(key == "realtimefactor"){
       realTimeFactor=std::max(0.0,val); 
       //      if (videoRecordingMode)
-      drawInterval=calcDrawInterval25();
+      drawInterval=calcDrawInterval(25,realTimeFactor);
       //      else
       //	drawInterval=calcDrawInterval50();
     } else if(key == "gravity") {
@@ -144,26 +150,22 @@ namespace lpzrobots {
   }
 
   void OdeConfig::setVideoRecordingMode(bool mode) {
-    if (mode)
-      drawInterval=calcDrawInterval25();
-    else
-      drawInterval=calcDrawInterval50();
+    //    if (mode)
+    drawInterval=calcDrawInterval(25,realTimeFactor);
+      //    else
+      //      drawInterval=calcDrawInterval50(realTimeFactor);
     videoRecordingMode=mode;
   }
 
-  /// calculates the draw interval with simStepSize and realTimeFactor so that we have 25 frames/sec
-  int OdeConfig::calcDrawInterval25(){
-    if(realTimeFactor>0 && simStepSize>0){
-      return int(ceil(1/(25.0*simStepSize/realTimeFactor)));
-    }else return 500;
+  void OdeConfig::calcAndSetDrawInterval(int Hz, double rtf){
+    drawInterval = calcDrawInterval(Hz,rtf);
   }
 
-  /// calculates the draw interval with simStepSize and realTimeFactor so that we have 50 frames/sec
-  /// this is much better for graphical visualization (smoother)
-  int OdeConfig::calcDrawInterval50(){
-    if(realTimeFactor>0 && simStepSize>0){
-      return int(ceil(1/(50.0*simStepSize/realTimeFactor)));
-    }else return 500;
+  /// calculates the draw interval with simStepSize and realTimeFactor so that we have 25 frames/sec
+  int OdeConfig::calcDrawInterval(int Hz, double rtf){
+    if(rtf>0 && simStepSize>0){
+      return int(ceil(1/((double)Hz*simStepSize/rtf)));
+    }else return 50;
   }
 
 

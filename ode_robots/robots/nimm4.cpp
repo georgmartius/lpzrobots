@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-11-07 13:21:16  martius
+ *   Revision 1.11  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.10  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.9  2007/08/28 14:13:09  martius
@@ -272,8 +278,7 @@ namespace lpzrobots {
     odeHandle.createNewSimpleSpace(parentspace, true);
  
     OdeHandle wheelHandle(odeHandle);
-    wheelHandle.substance.toRubber(40);
-
+    wheelHandle.substance.toRubber(60);
     // create cylinder for main body
     // initialize it with ode-, osghandle and mass
     // rotate and place body (here by 90° around the y-axis)
@@ -286,7 +291,6 @@ namespace lpzrobots {
     object[0]=cap;
     
     // create wheel bodies
-    osgHandle.color= Color(0.8,0.8,0.8);
     for (int i=1; i<5; i++) {
       // create sphere with radius
       // and initializ it with odehandle, osghandle and mass
@@ -294,7 +298,7 @@ namespace lpzrobots {
       // rotate and place body (here by 90° around the x-axis)
       // set texture for wheels
       Sphere* sph = new Sphere(radius);
-      sph->init(wheelHandle, wmass, osgHandle);    
+      sph->init(wheelHandle, wmass, osgHandle.changeColor(Color(0.8,0.8,0.8)));    
       Vec3 wpos = Vec3( ((i-1)/2==0?-1:1)*length/2.0, 
 			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
 			-width*0.6+radius );

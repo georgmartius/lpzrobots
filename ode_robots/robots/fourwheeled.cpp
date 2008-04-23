@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-11-07 13:21:15  martius
+ *   Revision 1.4  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.3  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.2  2007/09/06 18:47:59  martius
@@ -38,6 +44,7 @@
 
 #include "fourwheeled.h"
 #include "irsensor.h"
+#include "primitive.h"
 #include "osgprimitive.h"
 
 using namespace osg;
@@ -49,6 +56,7 @@ namespace lpzrobots {
 			   FourWheeledConf conf, const std::string& name)
     : Nimm4(odeHandle, osgHandle, name, conf.size, conf.force, conf.speed, conf.sphereWheels), conf(conf)
   {
+    length=conf.size/2.0; // length of body
   };
 
 
@@ -73,6 +81,7 @@ namespace lpzrobots {
 
   void FourWheeled::update(){
     Nimm4::update();
+    bumpertrans->update();
     // update sensorbank with infrared sensors
     irSensorBank.update();
   }
@@ -86,6 +95,16 @@ namespace lpzrobots {
   */
   void FourWheeled::create(const Matrix& pose){
     Nimm4::create(pose);
+    // create frame to not fall on back
+
+    
+    bumper = new Box(0.1 , width+2*wheelthickness+radius, length+0.7*width);
+    bumpertrans = new Transform(object[0], bumper,				
+				Matrix::translate(width*0.6-radius, 0, 0));
+    bumpertrans->init(odeHandle, 0, osgHandle);
+    bumper->getOSGPrimitive()->setTexture("Images/wood.rgb");
+
+    
 
     /* initialize sensorbank (for use of infrared sensors)
      * sensor values (if sensors used) are saved in the vector of
@@ -104,7 +123,7 @@ namespace lpzrobots {
 	irSensorBank.registerSensor(sensor, object[0],
 				    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
 				    Matrix::translate(0,-i*width/10,length/2 + width/2 - width/60 ),
-				    conf.irRange, RaySensor::drawAll);
+				    conf.irRangeFront, RaySensor::drawAll);
       }
     }
     if (conf.irSide){ // add right infrared sensor to sensorbank if required
@@ -113,7 +132,7 @@ namespace lpzrobots {
 				  //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				  Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
 				  Matrix::translate(0,-width/2, 0 ),
-				  conf.irRange, RaySensor::drawAll);    
+				  conf.irRangeSide, RaySensor::drawAll);    
     }
     if (conf.irBack){ // add rear right and rear left infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
@@ -122,7 +141,7 @@ namespace lpzrobots {
 				    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
 				    Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
 				    Matrix::translate(0,i*width/10,-(length/2 + width/2 - width/60) ),
-				    conf.irRange, RaySensor::drawAll);
+				    conf.irRangeBack, RaySensor::drawAll);
       }
     }
     if (conf.irSide){ // add left infrared sensor to sensorbank if required
@@ -131,7 +150,7 @@ namespace lpzrobots {
 				    //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				    Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
 				    Matrix::translate(0,width/2, 0),
-				    conf.irRange, RaySensor::drawAll);      
+				    conf.irRangeSide, RaySensor::drawAll);      
     }
   };
 

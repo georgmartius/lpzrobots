@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-07-30 14:13:17  martius
+ *   Revision 1.18  2008-04-23 07:17:16  martius
+ *   makefiles cleaned
+ *   new also true realtime factor displayed,
+ *    warning if out of sync
+ *   drawinterval in full speed is 10 frames, independent of the speed
+ *
+ *   Revision 1.17  2007/07/30 14:13:17  martius
  *   drawBoundings moved to osgHandle
  *
  *   Revision 1.16  2007/06/08 15:37:22  martius
@@ -96,14 +102,11 @@ namespace lpzrobots {
 
     virtual void setVideoRecordingMode(bool mode);
 
+    virtual void calcAndSetDrawInterval(int Hz, double rtf);
+
   private:
-    /// calculates the draw interval with simStepSize and realTimeFactor so that we have 25 frames/sec
-    virtual int calcDrawInterval25();
-
-    /// calculates the draw interval with simStepSize and realTimeFactor so that we have 50 frames/sec
-    /// this is much better for graphical visualization (smoother)
-    virtual int calcDrawInterval50();
-
+    /// calculates the draw interval with simStepSize and realTimeFactor so that we have the Hz frames/sec
+    int calcDrawInterval(int Hz, double rtf);
 
   public:
     bool videoRecordingMode;
