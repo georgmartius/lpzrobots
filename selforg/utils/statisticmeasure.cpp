@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-03-12 10:57:07  der
+ *   Revision 1.10  2008-04-24 11:57:00  der
+ *   added new measure types
+ *
+ *   Revision 1.9  2008/03/12 10:57:07  der
  *   added moving average MOVAVG
  *
  *   Revision 1.8  2008/01/17 09:59:27  der
@@ -143,6 +146,12 @@ void StatisticMeasure::step()
   case CONV:
     value=testConvergence();
     break;
+  case STEPDIFF:
+    value=calculateStepDifference();
+    break;
+  case NORMSTEPDIFF:
+    value=calculateNormalizedStepDifference();
+    break;    
   default: // not defined
     break;
   }
@@ -219,4 +228,21 @@ double StatisticMeasure::calculateMovingAverageValue()
   }
   return newavg;
 }
+
+double StatisticMeasure::calculateStepDifference()
+{
+  if (actualStep>0) {
+    return (observedValue - valueHistory[newestStepIndex]);
+  } else
+    return 0;
+}
+
+double StatisticMeasure::calculateNormalizedStepDifference()
+{
+  if (actualStep>0) {
+    return (observedValue - valueHistory[newestStepIndex])*actualStep;
+  } else
+    return 0;
+}
+
 

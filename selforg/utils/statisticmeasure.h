@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-03-12 10:57:07  der
+ *   Revision 1.7  2008-04-24 11:57:00  der
+ *   added new measure types
+ *
+ *   Revision 1.6  2008/03/12 10:57:07  der
  *   added moving average MOVAVG
  *
  *   Revision 1.5  2008/01/17 09:59:27  der
@@ -95,6 +98,10 @@ protected:
   virtual double calculateAverageValue();
   
   virtual double calculateMovingAverageValue();
+  
+  virtual double calculateStepDifference();
+  
+  virtual double calculateNormalizedStepDifference();
   
   /* BEGIN convergence SECTION */
   virtual double testConvergence();

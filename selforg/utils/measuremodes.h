@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-03-12 10:57:07  der
+ *   Revision 1.3  2008-04-24 11:57:00  der
+ *   added new measure types
+ *
+ *   Revision 1.2  2008/03/12 10:57:07  der
  *   added moving average MOVAVG
  *
  *   Revision 1.1  2007/09/27 10:56:40  robot3
@@ -84,7 +87,11 @@ enum MeasureMode {
 	/// returns 1 if convergence is reached, otherwise 0
 	/// convergence criteria (epsilon) is given by addMeasure, the convergence
 	/// is reached if value is falling below the criteria of the measure time (stepSpan)
-		CONV
+		CONV,
+    /// returns the difference between two successive steps
+        STEPDIFF,
+    /// returns the difference between two successive steps, normalized with number of steps
+    NORMSTEPDIFF
 };
 
 #endif
