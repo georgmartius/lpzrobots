@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-02-22 09:27:35  der
- *   changed some things
+ *   Revision 1.10  2008-04-24 11:28:08  der
+ *   final entropy sim
  *
  *   Revision 1.7  2008/01/17 09:54:31  der
  *   newest version contains a nimm2 train
@@ -103,9 +103,6 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/one2onewiring.h>
-#include <selforg/derpseudosensor.h>
-#include <selforg/multilayerffnn.h>
-#include <selforg/sinecontroller.h>
 
 #include <selforg/oneactivemultipassivecontroller.h>
 #include <selforg/mutualinformationcontroller.h>
@@ -119,7 +116,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <vector.h>
 
 
 using namespace lpzrobots;
@@ -136,7 +132,6 @@ public:
 
   double cInit;
   double cNonDiag;
-  bool staticC;
   StatisticMeasure* convTest0;
   StatisticMeasure* convTest1;
   StatisticMeasure* convTest2;
@@ -144,9 +139,8 @@ public:
   StatisticMeasure* convTest4;
   StatisticMeasure* convTest5;
   TrackableMeasure* trackableEntropySLOW;
-  FILE* timefile;
-  
-  ThisSim(double cInit=1.0, double cnondiag=0.2,bool staticc=false) : cInit(cInit), cNonDiag(cnondiag), staticC(staticc)
+
+  ThisSim(double cInit=1.0, double cnondiag=0.2) : cInit(cInit), cNonDiag(cnondiag)
   {
     setCaption("lpzrobots Simulator      Martius, Der, Guettler");
 
@@ -171,27 +165,26 @@ public:
   {
     int number_x=5;
     int number_y=1;
-    connectRobots = false;
+    connectRobots = true;
     double distance = 1.0;
 
     setCameraHomePos(Pos(-26.0495,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
 
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("realtimefactor",5);
+    global.odeConfig.setParam("realtimefactor",2);
 
-    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(90, 0.2, 2.0));
+    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(30, 0.2, 2.0));
     playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
     Substance substance;
-    // substance.toSnow(0.10);
-    // substance.toRubber(90);
-    substance.toPlastic(9);
+    //substance.toSnow(0.10);
+    substance.toPlastic(10);
     playground->setPosition(osg::Vec3(0,0,1.00f));
     playground->setGroundSubstance(substance);
     global.obstacles.push_back(playground);
-    /*    double xboxes=0.0;
-        double yboxes=0.0;*/
-    double xboxes=20.0;
-    double yboxes=20.0;
+    double xboxes=0.0;
+    double yboxes=0.0;
+/*    double xboxes=6.0;
+    double yboxes=6.0;*/
     double boxdis=4.8;
     for (double j=0.0;j<xboxes;j++)
       for(double i=0.0; i<yboxes; i++)
@@ -234,31 +227,11 @@ public:
         nimm2conf.boxMode=true;
         nimm2conf.bumper=true;
         wiring = new One2OneWiring(new WhiteNormalNoise());
-/*        InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+        InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
         invertnconf.cInit = cInit;
-        //   invertnconf.cNonDiagAbs=cNonDiag;
-        controller = new InvertMotorNStep(invertnconf);*/
-        
-        DerPseudoSensorConf cc = DerPseudoSensor::getDefaultConf();    
-        vector<Layer> layers;
-          // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
-          // size of output layer is automatically set
-        layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-        MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
-        cc.model = net;
-        if (staticC) {
-          cc.cNonDiag=(cNonDiag/cInit);
-          cc.cInit=cInit;
-        }
-        controller = new DerPseudoSensor(cc);
-        
-        if (staticC) {
-          controller->setParam("epsC", 0.0);
-        } else {
-          controller->setParam("teacher", 1.0);
-        }
-        controller->setParam("epsA", 0.0);
-        if ((i==0) && (j==0))
+        invertnconf.cNonDiagAbs=cNonDiag;
+        controller = new InvertMotorNStep(invertnconf);
+        if ((i==0) && (j==2))
         {
           agent = new OdeAgent(plotoptions);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2Yellow");
@@ -273,6 +246,8 @@ public:
           agent->addInspectable((Inspectable*)stats);
           agent->addCallbackable((Callbackable*)stats);
           agent->init(onamupaco, nimm2, wiring);
+          controller->setParam("epsC", 0.0);
+          controller->setParam("epsA", 0.0);
           char cdesc[32];
           sprintf(cdesc, "c=%f_",cInit);
           // agent->setTrackOptions(TrackRobot(true,false, false,false,cdesc,10));
@@ -284,7 +259,8 @@ public:
           agent = new OdeAgent(NoPlot);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
           agent->init(controller, nimm2, wiring);
-          //  controller->setParam("epsC", 0.0);
+          controller->setParam("epsC", 0.0);
+          controller->setParam("epsA", 0.0);
           global.configs.push_back(controller);
         }
         nimm2->place(Pos(j*(1.5+distance),i*1.26,1.0f));
@@ -304,10 +280,13 @@ public:
     }
     this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
     this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
-    this->getHUDSM()->addMeasure(mic->getH_x(1),"H(x) 1",ID,1);
+    double& stepdiff = stats->addMeasure(mic->getMI(1),"MI NSTEPDIFF",NORMSTEPDIFF,1);
+    this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);
+    
+/*    this->getHUDSM()->addMeasure(mic->getH_x(1),"H(x) 1",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_x(0),"H(x) 0",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_yx(1),"H(y|x) 1",ID,1);
-    this->getHUDSM()->addMeasure(mic->getH_yx(0),"H(y|x) 0",ID,1);
+    this->getHUDSM()->addMeasure(mic->getH_yx(0),"H(y|x) 0",ID,1);*/
     //  this->getHUDSM()->addMeasureList(hmlist);
     //this->getHUDSM()->addMeasureList(mimlist);
 
@@ -326,11 +305,6 @@ public:
     showParams(global.configs);
     std::cout << "running with cDiag = " << this->cInit << "." << std::endl;
     std::cout << "running with cNonDiag = " << this->cNonDiag << "." << std::endl;
-    
-    char filename[256];
-    sprintf(filename, "timeanalysis_%f_%f_C.log",cInit,cNonDiag);
-    timefile = fopen(filename,"a");
-    
     
   }
 
@@ -356,24 +330,13 @@ public:
       printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
       printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
     }
-    
-    if (this->sim_step%1000==0)
-    {
-        double loc = trackableEntropySLOW->getValue();
-        double mi = (mic->getMI(0) + mic->getMI(1))/2.0;
-        double h_x = (mic->getH_x(0) + mic->getH_x(1))/2.0;
-        double h_yx = (mic->getH_yx(0) + mic->getH_yx(1))/2.0;
-        fprintf(timefile,"%f, %f, %f, %f\n",loc,mi,h_x,h_yx);
-        fflush(timefile);
-    }
-    
 
 /*    if  ((this->convTest0->getValue()==1.0)&&(this->convTest1->getValue()==1.0) &&
            (this->convTest2->getValue()==1.0)&&(this->convTest3->getValue()==1.0) &&
               (this->convTest4->getValue()==1.0)&&(this->convTest5->getValue()==1.0))*/
     // 600.000 = 100min
     // we take 1440min = 8.640.000 = 24h
-    if (this->sim_step==500000)
+    if (this->sim_step==250000)
 //    if (this->sim_step==1000)
     {
       simulation_time_reached=true;
@@ -409,7 +372,7 @@ public:
 
 };
 
-void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0, bool staticc=false)
+void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
 {
   double sum = 0.0;
   double misum=0.0;
@@ -423,7 +386,7 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0, b
   {
     std::cout << "run number " << (i+1) << "..." << std::endl;
     ThisSim* sim;
-    sim = new ThisSim(cinit,cnondiag,staticc);
+    sim = new ThisSim(cinit,cnondiag);
     sim->run(argc,argv);
     double val = sim->trackableEntropySLOW->getValue();
     if (val>avg)
@@ -459,6 +422,13 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0, b
 
 int main (int argc, char **argv)
 {
+  double startx=0.0;
+  double endx=1.3;
+  double starty=-1.5;
+  double endy=1.5;
+  double stepSizex=0.2;
+  double stepSizey=0.2;
+  int numberSteps = (int)(((endx-startx)/stepSizex+1)*((endy-starty)/stepSizey+1));  
   // check for -first value
   int index = contains(argv, argc, "-first");
   if(index &&  (argc > index))
@@ -482,15 +452,17 @@ int main (int argc, char **argv)
     // cnondiag uses same stepsize, but is restricted to -0.1 to 0.3
     int steps = (lastStep-firstStep)/stepInterval +1;
     // now calculate the real stepSize for C
-    //double stepSize = sqrt(1/((double)2*steps));
-    double stepSize = 1/((double)steps);
-    //double cnondiag = -0.1 + (((stepId-firstStep)/stepInterval) % (int)(0.5/stepSize)) *stepSize;
-    //double cdiag = 0.8 + ((double)((int)(((stepId-firstStep)/stepInterval) / (0.5/stepSize)))) * stepSize;
-    double cnondiag = 0.0;
-    double cdiag = 0.8 + ((double)(stepId-firstStep)) * stepSize;
-    // double cdiag = 0.8 + ((double)((int)(((stepId-firstStep)/stepInterval) / (0.5/stepSize)))) * stepSize;
     
-    std::cout << "firstStep    = " << firstStep << std::endl;
+    // quadratic version, create landscape
+//    double stepSize = sqrt(1/((double)(3*steps)));
+//    double cdiag = 0.8 + (((stepId-firstStep)/stepInterval) % ((int)(0.5/stepSize))) *stepSize*8.7732;
+//    double cnondiag = -3.1415 + ((double)((int)(((stepId-firstStep)/stepInterval) / (0.5/stepSize)))) * stepSize*9.6341;
+    // linear version, cnondiag=0
+    // double stepSize = 1/((double)steps);
+    // double cnondiag = 0.0;
+    // double cdiag = 0.8 + ((double)(stepId-firstStep)) * stepSize;
+
+/*    std::cout << "firstStep    = " << firstStep << std::endl;
     std::cout << "lastStep     = " << lastStep << std::endl;
     std::cout << "stepId       = " << stepId << std::endl;
     std::cout << "stepInterval = " << stepInterval << std::endl;
@@ -498,8 +470,38 @@ int main (int argc, char **argv)
     std::cout << "stepSize     = " << stepSize << std::endl;
     std::cout << "cdiag        = " << cdiag << std::endl;
     std::cout << "cnondiag     = " << cnondiag << std::endl;
-    runSim(cdiag,5,argc,argv,cnondiag);
+    runSim(cdiag,5,argc,argv,cnondiag);*/
 
+
+    if ((numberSteps!=steps) || (stepInterval!=1)) {
+	if (numberSteps!=steps)
+	    std::cerr << "wrong number of steps! For the choosen parameters please run with " << numberSteps << " steps!" << std::endl;
+	if (stepInterval!=1)
+	    std::cerr << "wrong number of stepInterval! or the choosen parameters please run with -step 1!" << std::endl;
+    } else {
+	double x = startx + ((stepId-firstStep) % ((int)((endx-startx)/stepSizex+1)))*stepSizex;
+	double y = starty + ((stepId-firstStep) / ((int)((endx-startx)/stepSizex+1)))*stepSizey;
+	std::cout << "firstStep    = " << firstStep << std::endl;
+	std::cout << "lastStep     = " << lastStep << std::endl;
+	std::cout << "stepId       = " << stepId << std::endl;
+	std::cout << "steps        = " << steps << std::endl;
+	std::cout << "stepSizex     = " << stepSizex << std::endl;
+	std::cout << "stepSizey     = " << stepSizey << std::endl;
+	std::cout << "cdiag        = " << x << std::endl;
+	std::cout << "cnondiag     = " << y << std::endl;      
+	runSim(x,3,argc,argv,y);
+        
+    }
+  } else if (contains(argv, argc, "-loop") && (argc > contains(argv, argc, "-last"))){
+    // then loop over all cinit and cnondiag values:
+    std::cout << "Running now " << numberSteps << " steps, be patient :)" << std::endl;
+    for (int i=1;i<=numberSteps;i++) {
+        double x = startx + ((i-1) % ((int)((endx-startx)/stepSizex+1)))*stepSizex;
+        double y = starty + ((i-1) / ((int)((endx-startx)/stepSizex+1)))*stepSizey;
+      std::cout << "---cdiag = " << x << std::endl;
+        std::cout << "cnondiag = " << y << std::endl;      
+        runSim(x,1,argc,argv,y);
+    }
   }
   else
   {
@@ -511,10 +513,8 @@ int main (int argc, char **argv)
     // check for cinit value
     index = contains(argv, argc, "-cinit");
     double cinit=1.0;
-    bool staticc=false;
     if (index && (argc > index)) {
       cinit = atof(argv[index]);
-      staticc=true;
       // check for cnondiag value
       index = contains(argv, argc, "-cnondiag");
       double cnondiag=0.2;
@@ -523,7 +523,7 @@ int main (int argc, char **argv)
       for (int i=0;i<runs;i++)
       {
         std::cout << "run number " << (i+1) << "..." << std::endl;
-        runSim(cinit,runs,argc,argv,cnondiag,staticc);
+        runSim(cinit,runs,argc,argv,cnondiag);
       }
     } else
     {
