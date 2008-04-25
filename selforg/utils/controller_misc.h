@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   Revision 1.3  2008-04-25 10:31:18  guettler
+ *   added toBinaryWithThreshold function for map2
+ *
+ *   Revision 1.2  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -140,8 +143,8 @@ template<typename T>
 inline T sqr(T v) { return v*v; }
 
 template<typename T>
-inline T clip(T x, T lobound, T highbound) { 
-  return (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) ); 
+inline T clip(T x, T lobound, T highbound) {
+  return (x)<(lobound) ? (lobound) : ( (x) > (highbound) ? (highbound) : (x) );
 }
 
 
@@ -164,47 +167,51 @@ double clip(void* r,double);
 /// cutof function for mapP
 double lowercutof(void* theta, double);
 
+/// returns 0 if below threshold, otherwise 1 for map2
+double toBinaryWithThreshold(double x, double threshold);
+
+
 /// plus function for mapP
 double plus_(void* b, double a);
 
 
-/* stores at least left top 4x4 submatrix (row-wise) (if exists) and 
+/* stores at least left top 4x4 submatrix (row-wise) (if exists) and
    then the rest of the diagonal elements into a list
    @return list of values
 */
 std::list<matrix::D> store4x4AndDiagonal(const matrix::Matrix& m);
 
-/* stores at least left top 4x4 submatrix (row-wise) (if exists) and 
+/* stores at least left top 4x4 submatrix (row-wise) (if exists) and
    then the rest of the diagonal elements
-  @param len Length of the provided buffer 
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4))) 
+  @param len Length of the provided buffer
+  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
 unsigned int store4x4AndDiagonal(const matrix::Matrix& m, matrix::D* buffer, unsigned int len);
 
 /* returns the number of elements stored by store4x4AndDiagonal
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4))) 
+  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
 */
 unsigned int get4x4AndDiagonalSize(const matrix::Matrix& m);
 
 /* writes the names of the fields stored by store4x4AndDiagonal into a list
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
-  @param len Length of the provided buffer 
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4))) 
+  @param len Length of the provided buffer
+  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
-std::list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const matrix::Matrix& m, 
+std::list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const matrix::Matrix& m,
 								const std::string& matrixName);
 
-/* stores the names of the fields stored by store4x4AndDiagonal 
+/* stores the names of the fields stored by store4x4AndDiagonal
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
-  @param len Length of the provided buffer 
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4))) 
+  @param len Length of the provided buffer
+  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
-unsigned int store4x4AndDiagonalFieldNames(const matrix::Matrix& m, const std::string& matrixName, 
+unsigned int store4x4AndDiagonalFieldNames(const matrix::Matrix& m, const std::string& matrixName,
 					   char** keylist, unsigned int len);
 
 /* stores the names of the all matrix fieldnames produces by convertToBuffer into a list
@@ -220,11 +227,11 @@ std::list<Inspectable::iparamkey> storeVectorFieldNames(const matrix::Matrix& m,
 /* stores the names of the all matrix fieldnames produces by convertToBuffer
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
-  @param len Length of the provided buffer 
+  @param len Length of the provided buffer
   (should be getN()*getM()
   @return number of actually written elements
 */
-unsigned int storeMatrixFieldNames(const matrix::Matrix& m, const char* matrixName, 
+unsigned int storeMatrixFieldNames(const matrix::Matrix& m, const char* matrixName,
 				   char** keylist, unsigned int len);
 
 /* stores the names of the all vector (mx1 matrix) fieldnames produces by convertToBuffer
@@ -233,7 +240,7 @@ unsigned int storeMatrixFieldNames(const matrix::Matrix& m, const char* matrixNa
   @param len Length of the provided buffer (should be getM())
   @return number of actually written elements
 */
-unsigned int storeVectorFieldNames(const matrix::Matrix& m, const char* vectorName, 
+unsigned int storeVectorFieldNames(const matrix::Matrix& m, const char* vectorName,
 				   char** keylist, unsigned int len);
 
 /** stores the Matrix into the given file stream (binary)
@@ -245,7 +252,7 @@ bool storeMatrix(const matrix::Matrix& m, FILE* f);
 bool restoreMatrix(matrix::Matrix& m, FILE* f);
 
 /// returns a Matrix with values generated by the given noise generator
-matrix::Matrix noiseMatrix(unsigned int m, unsigned int n, NoiseGenerator& ng, 
+matrix::Matrix noiseMatrix(unsigned int m, unsigned int n, NoiseGenerator& ng,
 			   double strength,double unused = 0);
 
 /** calculates to linear matrix norm (sum of absolute values divided by number of values (m*n) )
@@ -257,17 +264,17 @@ double matrixNorm1(const matrix::Matrix& m);
 double matrixNorm2(const matrix::Matrix& m);
 
 
-/** returns the k. largest element of the matrix 
+/** returns the k. largest element of the matrix
     Attention: it will detroy the given matrix! (sorting)
     Assumption: k>0 and k<=matrixsize
 */
-double getKthLargestElement(matrix::Matrix& matrix, unsigned int k); 
+double getKthLargestElement(matrix::Matrix& matrix, unsigned int k);
 
-/** returns the k. smallest element of the matrix 
+/** returns the k. smallest element of the matrix
     Attention: it will detroy the given matrix! (sorting)
     Assumption: k>0 and k<=matrixsize
 */
-double getKthSmallestElement(matrix::Matrix& matrix, unsigned int k); 
+double getKthSmallestElement(matrix::Matrix& matrix, unsigned int k);
 
 /// considers the matrix as vector (mx1) and returns the index of the smallest element
 int argmin(const matrix::Matrix& v);
@@ -285,7 +292,7 @@ double max(const matrix::Matrix& v);
 int sample(const matrix::Matrix& pdf);
 
 
-/// parameter adaptation algorithm. 
+/// parameter adaptation algorithm.
 //   @param p current parameter value
 //   @param actual actual value of some size controlled by p
 //   @param nominal nominal value of some size controlled by p

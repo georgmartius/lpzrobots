@@ -35,12 +35,17 @@ double lowercutof(void* theta, double x){
   return x < *((double*)theta) ? 0 : x;
 }
 
+double toBinaryWithThreshold(double x, double threshold){
+  return x < threshold ? 0. : 1.;
+}
+
+
 double plus_(void* b, double a){
   return a + *((double*)b);
 }
 
 
-/* stores at least left top 4x4 submatrix (row-wise) (if exists) and 
+/* stores at least left top 4x4 submatrix (row-wise) (if exists) and
    then the rest of the diagonal elements into a list
    @return list of values
 */
@@ -59,13 +64,13 @@ list<D> store4x4AndDiagonal(const Matrix& m){
   for(unsigned short i=4; i < smallerdim; i++){
     l.push_back(m.val(i,i));
   }
-  return l;  
+  return l;
 }
 
-/* stores at least left top 4x4 submatrix (row-wise) (if exists) and 
+/* stores at least left top 4x4 submatrix (row-wise) (if exists) and
    then the rest of the diagonal elements
-  @param len Length of the provided buffer 
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4))) 
+  @param len Length of the provided buffer
+  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
 unsigned int store4x4AndDiagonal(const Matrix& m, D* buffer, unsigned int len){
@@ -86,12 +91,12 @@ unsigned int store4x4AndDiagonal(const Matrix& m, D* buffer, unsigned int len){
     buffer[written]=m.val(i,i);
     written++;
   }
-  return written;  
+  return written;
 }
 
 
 /* returns the number of elements stored by store4x4AndDiagonal
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4))) 
+  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
 */
 unsigned int get4x4AndDiagonalSize(const Matrix& m){
   unsigned short smalldimM = min(m.getM(), (unsigned short)4);
@@ -105,8 +110,8 @@ unsigned int get4x4AndDiagonalSize(const Matrix& m){
 /* writes the names of the fields stored by store4x4AndDiagonal into a list
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
-  @param len Length of the provided buffer 
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4))) 
+  @param len Length of the provided buffer
+  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
 list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName){
@@ -118,26 +123,26 @@ list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const Matrix& m, cons
   // 4x4
   for(unsigned short i=0; i < smalldimM; i++){
     for(unsigned short j=0; j < smalldimN; j++){
-      sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,j); 
+      sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,j);
       l.push_back(string(buffer));
     }
   }
   // diagonal below 4x4
   for(unsigned short i=4; i < smallerdim; i++){
-    sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,i); 
+    sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,i);
     l.push_back(string(buffer));
   }
-  return l;  
+  return l;
 }
 
-/* stores the names of the fields stored by store4x4AndDiagonal 
+/* stores the names of the fields stored by store4x4AndDiagonal
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
-  @param len Length of the provided buffer 
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4))) 
+  @param len Length of the provided buffer
+  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
-unsigned int store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName, 
+unsigned int store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName,
 					   char** keylist, unsigned int len){
   unsigned short smalldimM = min(m.getM(), (unsigned short)4);
   unsigned short smalldimN = min(m.getN(), (unsigned short)4);
@@ -149,17 +154,17 @@ unsigned int store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& m
   for(unsigned short i=0; i < smalldimM; i++){
     for(unsigned short j=0; j < smalldimN; j++){
       keylist[written] = (char*) malloc(keyLen);
-      sprintf(keylist[written],"%s[%d,%d]",matrixName.c_str(),i,j); 
+      sprintf(keylist[written],"%s[%d,%d]",matrixName.c_str(),i,j);
       written++;
     }
   }
   // diagonal below 4x4
   for(unsigned short i=4; i < smallerdim; i++){
     keylist[written] = (char*) malloc(keyLen);
-    sprintf(keylist[written],"%s[%d,%d]",matrixName.c_str(),i,i); 
+    sprintf(keylist[written],"%s[%d,%d]",matrixName.c_str(),i,i);
     written++;
   }
-  return written;  
+  return written;
 }
 
 /* stores the names of the all matrix fieldnames produces by convertToBuffer into a list
@@ -173,11 +178,11 @@ list<Inspectable::iparamkey> storeMatrixFieldNames(const Matrix& m, const string
   //  assert(matrixName);
   for(unsigned short i=0; i < dimM; i++){
     for(unsigned short j=0; j < dimN; j++){
-      sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,j); 
+      sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,j);
       l.push_back(string(buffer));
     }
   }
-  return l;  
+  return l;
 }
 
 /* stores the names of the all vector (mx1 matrix) fieldnames  produces by convertToBuffer into a list
@@ -190,20 +195,20 @@ list<Inspectable::iparamkey> storeVectorFieldNames(const Matrix& m, const string
   //  assert(vectorName);
   assert(m.getN()==1);
   for(unsigned short i=0; i < dimM; i++){
-      sprintf(buffer,"%s[%d]",vectorName.c_str(),i); 
+      sprintf(buffer,"%s[%d]",vectorName.c_str(),i);
       l.push_back(string(buffer));
   }
-  return l;  
+  return l;
 }
 
 /* stores the names of the all matrix fieldnames produces by convertToBuffer
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
-  @param len Length of the provided buffer 
+  @param len Length of the provided buffer
   (should be getN()*getM()
   @return number of actually written elements
 */
-unsigned int storeMatrixFieldNames(const Matrix& m, const char* matrixName, 
+unsigned int storeMatrixFieldNames(const Matrix& m, const char* matrixName,
 				   char** keylist, unsigned int len){
   unsigned int dimM = m.getM();
   unsigned int dimN = m.getN();
@@ -214,11 +219,11 @@ unsigned int storeMatrixFieldNames(const Matrix& m, const char* matrixName,
   for(unsigned short i=0; i < dimM; i++){
     for(unsigned short j=0; j < dimN; j++){
       keylist[written] = (char*) malloc(keyLen);
-      sprintf(keylist[written],"%s[%d,%d]",matrixName,i,j); 
+      sprintf(keylist[written],"%s[%d,%d]",matrixName,i,j);
       written++;
     }
   }
-  return written;  
+  return written;
 }
 
 /* stores the names of the all vector (mx1 matrix) fieldnames produces by convertToBuffer
@@ -227,7 +232,7 @@ unsigned int storeMatrixFieldNames(const Matrix& m, const char* matrixName,
   @param len Length of the provided buffer (should be getM())
   @return number of actually written elements
 */
-unsigned int storeVectorFieldNames(const Matrix& m, const char* vectorName, 
+unsigned int storeVectorFieldNames(const Matrix& m, const char* vectorName,
 				   char** keylist, unsigned int len){
   unsigned int dimM = m.getM();
   unsigned int written=0;
@@ -237,15 +242,15 @@ unsigned int storeVectorFieldNames(const Matrix& m, const char* vectorName,
   unsigned char keyLen = strlen(vectorName)+5;
   for(unsigned short i=0; i < dimM; i++){
       keylist[written] = (char*) malloc(keyLen);
-      sprintf(keylist[written],"%s[%d]",vectorName,i); 
+      sprintf(keylist[written],"%s[%d]",vectorName,i);
       written++;
   }
-  return written;  
+  return written;
 }
 
 
 
-Matrix noiseMatrix(unsigned int m, unsigned int n, NoiseGenerator& ng, 
+Matrix noiseMatrix(unsigned int m, unsigned int n, NoiseGenerator& ng,
 		   double strength, double unused){
   int len = m*n;
   D* noise = (D*) malloc(len*sizeof(D));
@@ -264,7 +269,7 @@ double matrixNorm2(const matrix::Matrix& m) {
   return m.map(sqr).elementSum() / (m.size());
 }
 
-double getKthLargestElement(Matrix& vec, unsigned int k/*, double* max*/){  
+double getKthLargestElement(Matrix& vec, unsigned int k/*, double* max*/){
   unsigned int len = (vec.getM()) * (vec.getN());
   vec.reshape(1,len);
   assert(k>0 && len>=k);
@@ -273,7 +278,7 @@ double getKthLargestElement(Matrix& vec, unsigned int k/*, double* max*/){
   return vec.val(0,len-k);
 }
 
-double getKthSmallestElement(Matrix& vec, unsigned int k/*, double* max*/){  
+double getKthSmallestElement(Matrix& vec, unsigned int k/*, double* max*/){
   unsigned int len = vec.size();
   vec.reshape(1,len);
   assert(k>0 && len>=k);
@@ -283,7 +288,7 @@ double getKthSmallestElement(Matrix& vec, unsigned int k/*, double* max*/){
 }
 
 // considers the matrix as vector (mx1) and returns the index of the smallest element
-int argmin(const Matrix& v){  
+int argmin(const Matrix& v){
   const double *d = v.unsafeGetData();
   double m = *d;
   int index = 0;
@@ -297,7 +302,7 @@ int argmin(const Matrix& v){
 }
 
 // considers the matrix as vector (mx1) and returns the index of the largest element
-int argmax(const Matrix& v){  
+int argmax(const Matrix& v){
   const double *d = v.unsafeGetData();
   double m = *d;
   int index = 0;
@@ -334,7 +339,7 @@ int sample(const matrix::Matrix& pdf){
 }
 
 
-// parameter adaptation algorithm. 
+// parameter adaptation algorithm.
 //   @param p current parameter value
 //   @param actual actual value of some size controlled by p
 //   @param nominal nominal value of some size controlled by p
@@ -357,7 +362,7 @@ double adaptMinMax(double p, double actual, double _min, double _max, double up_
   } else if(actual > _max){
     //    printf("Over : %g, eps: %g\n", updateSize, eps);
     result = p * (1-down_rate);
-  }  
+  }
   return result;
 }
 
