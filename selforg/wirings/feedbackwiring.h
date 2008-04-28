@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   Revision 1.3  2008-04-28 11:10:11  guettler
+ *   include "matrix.h" from trackable class removed, used forward declaration
+ *   instead - this change effectuates that no robot must be recompiled if
+ *   matrix.h has changed.
+ *
+ *   Revision 1.2  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -37,13 +42,14 @@
 #define __FEEDBACKWIRING_H
 
 #include "abstractwiring.h"
+#include "matrix.h"
 
-/** Implements essentionally a one to one wiring with feedback connections. 
+/** Implements essentionally a one to one wiring with feedback connections.
     The feedback connections from output to input is parameterised
-     with a feedback strength.   
+     with a feedback strength.
     It is possible to generate virtual motors for context sensors.
-    
-    In order to change the feedback strength use the following code 
+
+    In order to change the feedback strength use the following code
      after initialisation of the agent/wiredcontroller
     \code
     matrix::Matrix rs = wiring->getFeedbackRatio();
@@ -57,7 +63,7 @@ public:
   typedef enum {Motor=1, Context=2, All=3} Mode;
 
   /** constructor
-      @param noise NoiseGenerator that is used for adding noise to sensor values  
+      @param noise NoiseGenerator that is used for adding noise to sensor values
       @param mode Motor|Context|All: Motor: motor outputs send feedback;
            Context: virtual motor outputs for each context sensor with feedback
       @param feedbackratio default ratio used to feed back the output to the input,
@@ -68,7 +74,7 @@ public:
 
   virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
+  virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
 			   sensor* csensors, int csensornumber,
 			   double noise);
 
@@ -78,19 +84,19 @@ public:
   virtual std::list<iparamkey> getInternalParamNames() const;
   virtual std::list<iparamval> getInternalParams() const;
 
-  /// return the feedback ratio vector 
+  /// return the feedback ratio vector
   virtual matrix::Matrix getFeedbackRatio() const;
-  /** sets the feedback ratio vector. 
+  /** sets the feedback ratio vector.
       The size of the vector must be at least as large as feedbackratio*/
   virtual void setFeedbackRatio(const matrix::Matrix&);
 
-protected:  
+protected:
 
   Mode mode;
-  double defaultfeedbackratio; 
+  double defaultfeedbackratio;
   matrix::Matrix feedbackratio;
-  /// array that stored the values of the motors     
-  motor *motors;        
+  /// array that stored the values of the motors
+  motor *motors;
   int vmotornumber;
 
   /// for storing the noise values

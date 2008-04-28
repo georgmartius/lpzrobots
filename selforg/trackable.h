@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-04-05 15:13:21  martius
+ *   Revision 1.4  2008-04-28 11:10:11  guettler
+ *   include "matrix.h" from trackable class removed, used forward declaration
+ *   instead - this change effectuates that no robot must be recompiled if
+ *   matrix.h has changed.
+ *
+ *   Revision 1.3  2007/04/05 15:13:21  martius
  *   angular speed tracking
  *
  *   Revision 1.2  2006/07/14 12:23:57  martius
@@ -49,14 +54,18 @@
  ***************************************************************************/
 #ifndef __TRACKABLE_H
 #define __TRACKABLE_H
- 
+
 #include <selforg/position.h>
-#include <selforg/matrix.h>
+//#include <selforg/matrix.h>
+
+namespace matrix {
+  class Matrix;
+}
 
 /**
  * Abstract class (interface) for trackable objects (used for robots)
- * 
- * 
+ *
+ *
  */
 class Trackable{
 public:
@@ -66,7 +75,7 @@ public:
    */
   Trackable(){
   };
-  
+
   virtual ~Trackable() {};
 
   /** returns position of the object
