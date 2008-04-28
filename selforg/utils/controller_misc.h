@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-25 10:31:18  guettler
+ *   Revision 1.4  2008-04-28 15:32:46  guettler
+ *   doxygen corrected
+ *
+ *   Revision 1.3  2008/04/25 10:31:18  guettler
  *   added toBinaryWithThreshold function for map2
  *
  *   Revision 1.2  2008/04/17 14:54:45  martius
@@ -175,13 +178,13 @@ double toBinaryWithThreshold(double x, double threshold);
 double plus_(void* b, double a);
 
 
-/* stores at least left top 4x4 submatrix (row-wise) (if exists) and
+/** stores at least left top 4x4 submatrix (row-wise) (if exists) and
    then the rest of the diagonal elements into a list
    @return list of values
 */
 std::list<matrix::D> store4x4AndDiagonal(const matrix::Matrix& m);
 
-/* stores at least left top 4x4 submatrix (row-wise) (if exists) and
+/** stores at least left top 4x4 submatrix (row-wise) (if exists) and
    then the rest of the diagonal elements
   @param len Length of the provided buffer
   (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
@@ -189,12 +192,12 @@ std::list<matrix::D> store4x4AndDiagonal(const matrix::Matrix& m);
 */
 unsigned int store4x4AndDiagonal(const matrix::Matrix& m, matrix::D* buffer, unsigned int len);
 
-/* returns the number of elements stored by store4x4AndDiagonal
+/** returns the number of elements stored by store4x4AndDiagonal
   (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
 */
 unsigned int get4x4AndDiagonalSize(const matrix::Matrix& m);
 
-/* writes the names of the fields stored by store4x4AndDiagonal into a list
+/** writes the names of the fields stored by store4x4AndDiagonal into a list
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
   @param len Length of the provided buffer
@@ -204,7 +207,7 @@ unsigned int get4x4AndDiagonalSize(const matrix::Matrix& m);
 std::list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const matrix::Matrix& m,
 								const std::string& matrixName);
 
-/* stores the names of the fields stored by store4x4AndDiagonal
+/** stores the names of the fields stored by store4x4AndDiagonal
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
   @param len Length of the provided buffer
@@ -214,17 +217,17 @@ std::list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const matrix::Ma
 unsigned int store4x4AndDiagonalFieldNames(const matrix::Matrix& m, const std::string& matrixName,
 					   char** keylist, unsigned int len);
 
-/* stores the names of the all matrix fieldnames produces by convertToBuffer into a list
+/** stores the names of the all matrix fieldnames produces by convertToBuffer into a list
   @return list of names
 */
 std::list<Inspectable::iparamkey> storeMatrixFieldNames(const matrix::Matrix& m, const std::string& matrixName);
 
-/* stores the names of the all vector (mx1 matrix) fieldnames  produces by convertToBuffer into a list
+/** stores the names of the all vector (mx1 matrix) fieldnames  produces by convertToBuffer into a list
   @return list of names
 */
 std::list<Inspectable::iparamkey> storeVectorFieldNames(const matrix::Matrix& m, const std::string& vectorName);
 
-/* stores the names of the all matrix fieldnames produces by convertToBuffer
+/** stores the names of the all matrix fieldnames produces by convertToBuffer
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
   @param len Length of the provided buffer
@@ -234,7 +237,7 @@ std::list<Inspectable::iparamkey> storeVectorFieldNames(const matrix::Matrix& m,
 unsigned int storeMatrixFieldNames(const matrix::Matrix& m, const char* matrixName,
 				   char** keylist, unsigned int len);
 
-/* stores the names of the all vector (mx1 matrix) fieldnames produces by convertToBuffer
+/** stores the names of the all vector (mx1 matrix) fieldnames produces by convertToBuffer
   @param vectorName name of the vector (prefix for all fields)
   @param keylist list for field names
   @param len Length of the provided buffer (should be getM())
