@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-04-17 14:54:45  martius
+ *   Revision 1.7  2008-04-28 11:14:54  guettler
+ *   removed include "abstractrobot.h" (not needed)
+ *
+ *   Revision 1.6  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -74,13 +77,13 @@
 #ifndef __ABSTRACTWIRING_H
 #define __ABSTRACTWIRING_H
 
-#include "abstractrobot.h"
+//#include "abstractrobot.h"
 #include "noisegenerator.h"
 #include "inspectable.h"
 
-/** Abstract wiring-object between controller and robot. 
+/** Abstract wiring-object between controller and robot.
  *  Implements wiring of robot sensors to inputs of the controller and
- *  controller outputs to robot motors. 
+ *  controller outputs to robot motors.
  */
 class AbstractWiring : public Inspectable {
 public:
@@ -104,42 +107,42 @@ public:
     if(noiseGenerator) delete noiseGenerator;
   }
 
-  /** Initializes the  number of sensors and motors from robot 
-   *  (to be precise the internal parameters rsensornumber and rmotornumber!), 
+  /** Initializes the  number of sensors and motors from robot
+   *  (to be precise the internal parameters rsensornumber and rmotornumber!),
    *  calculates the number of sensors and motors on controller side.
    *  Must be overloaded to calculate and provide the appropriate numbers
    *  controllersensornumber (csensornumber), controllermotornumber (cmotornumber),
-   *  robotsensornumber (rsensornumber) and robotmotornumber (rmotornumber), 
+   *  robotsensornumber (rsensornumber) and robotmotornumber (rmotornumber),
    *  @param randGen pointer to random generator, if not given then a new one is created
    *  @return returns false on error, otherwise true
    */
   virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0) = 0;
 
-  /** Realizes wiring from robot sensors to controller sensors. 
-   *   Must be overloaded in order to implement the appropriate mapping. 
-   *   @param rsensors pointer to array of sensorvalues from robot 
+  /** Realizes wiring from robot sensors to controller sensors.
+   *   Must be overloaded in order to implement the appropriate mapping.
+   *   @param rsensors pointer to array of sensorvalues from robot
    *   @param rsensornumber number of sensors from robot
-   *   @param csensors pointer to array of sensorvalues for controller  
+   *   @param csensors pointer to array of sensorvalues for controller
    *   @param csensornumber number of sensors to controller
    *   @param noise size of the noise added to the sensors
    *  @return returns false on error, otherwise true
    */
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
+  virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
 			   sensor* csensors, int csensornumber,
 			   double noise) = 0;
 
-  /** Realizes wiring from controller motor outputs to robot motors. 
-   *   Must be overloaded in order to implement the appropriate mapping. 
-   *   @param rmotors pointer to array of motorvalues for robot 
-   *   @param rmotornumber number of robot motors 
-   *   @param cmotors pointer to array of motorvalues from controller  
+  /** Realizes wiring from controller motor outputs to robot motors.
+   *   Must be overloaded in order to implement the appropriate mapping.
+   *   @param rmotors pointer to array of motorvalues for robot
+   *   @param rmotornumber number of robot motors
+   *   @param cmotors pointer to array of motorvalues from controller
    *   @param cmotornumber number of motorvalues from controller
    *   @return returns false if error, else true
    */
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
 			  const motor* cmotors, int cmotornumber)  = 0;
 
-  
+
 
   /** Returns the number of sensors on robot side.
    */

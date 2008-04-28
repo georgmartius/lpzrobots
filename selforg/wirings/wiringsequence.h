@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   Revision 1.3  2008-04-28 11:14:54  guettler
+ *   removed include "abstractrobot.h" (not needed)
+ *
+ *   Revision 1.2  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -40,13 +43,14 @@
 #define __WIRINGSEQUENCE_H
 
 #include "abstractwiring.h"
+#include <vector>
 
 /** Implements a sequence of wirings
  */
 class WiringSequence :public AbstractWiring{
 public:
 
-  /** constructor: The wirings given in the list 
+  /** constructor: The wirings given in the list
       are applied in the sequence. For the sensors in normal order and
       for the motors in reverse order*/
   WiringSequence(std::list<AbstractWiring*>);
@@ -58,7 +62,7 @@ public:
 
   virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
+  virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
 			   sensor* csensors, int csensornumber,
 			   double noise);
 
@@ -68,7 +72,7 @@ public:
   /** adds a wiring to the list of wirings*/
   virtual void addWiring(AbstractWiring* wiring);
 
-protected:  
+protected:
   std::vector<AbstractWiring*> wirings;
   bool initialised;
 
