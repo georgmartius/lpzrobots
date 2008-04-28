@@ -7,7 +7,11 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.16  2008-04-28 10:33:05  guettler
+// Revision 1.17  2008-04-28 15:24:14  guettler
+// -added deleteRows and deleteColumns
+// -fixed memory leak in addColumns
+//
+// Revision 1.16  2008/04/28 10:33:05  guettler
 // -added operator + and += for adding a scalar to each element of the matrix
 // -added add function and toSum for adding a scalar to each element
 // -added addRows and addColumns for adding new rows or colums to the matrix
@@ -504,6 +508,33 @@ namespace matrix{
      * @return the address of the matrix itself
      */
     Matrix& addColumns(unsigned short numberColumns, const Matrix& dataMatrix);
+
+
+        /** removes one or more rows of the existing matrix
+     * resets the size of the matrix and deletes the appropiate data.
+     * @param numberRows number of rows to remove (this reduces m)
+     * @return the address of the matrix itself
+     */
+    Matrix& removeRows(unsigned short numberRows);
+
+    /** removes one or more columns of the existing matrix
+     * resets the size of the matrix and deletes the appropiate data.
+     * @param numberColumns number of columns to remove (this reduces n)
+     * @return the address of the matrix itself
+     */
+    Matrix& removeColumns(unsigned short numberColumns);
+
+
+    /**
+     * same as removeColumns(unsigned short,D*), but with the data given by a
+     * matrix.
+     * @note this is a more safe version (requires equal number of rows)
+     * @see removeColumns(numberColumns,_data)
+     * @param numberColumns number of columns to remove (this extends n)
+     * @param dataMatrix matrix which contains the data of the new rows
+     * @return the removeress of the matrix itself
+     */
+    Matrix& removeColumns(unsigned short numberColumns, const Matrix& dataMatrix);
 
 
   private:

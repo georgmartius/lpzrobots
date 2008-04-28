@@ -5,7 +5,11 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.15  2008-04-28 10:33:04  guettler
+// Revision 1.16  2008-04-28 15:24:14  guettler
+// -added deleteRows and deleteColumns
+// -fixed memory leak in addColumns
+//
+// Revision 1.15  2008/04/28 10:33:04  guettler
 // -added operator + and += for adding a scalar to each element of the matrix
 // -added add function and toSum for adding a scalar to each element
 // -added addRows and addColumns for adding new rows or colums to the matrix
@@ -634,20 +638,22 @@ Matrix& Matrix::addRows(unsigned short numberRows, const Matrix& dataMatrix) {
 /// adds one or more columns to the existing matrix
 /// The data for the new columns is read row-wise.
 Matrix& Matrix::addColumns (unsigned short numberColumns, const D* _data /*=0*/) {
-    // internal allocation
+  // internal allocation
   D* oldData = data;
   data = (D*) malloc (sizeof (D) * m * (n+ numberColumns));
   assert (data);
   toZero();
   if (oldData) { // copy old values
     for (int i=0;i<m*n;i++) {
-      data[(i%n)*(n+numberColumns)+i/n]=oldData[i];
+      data[(i/n)*(n+numberColumns)+(i%n)]=oldData[i];
     }
     free (oldData);
   }
   if (_data) {  // copy new values for the new rows
-    for (int i = m * n;i < m* (n + numberColumns);i++) {
-      data[i+n] = _data[i-m*n];
+    for (int i = 0;i < m;i++) {
+      for (int j=0;j<numberColumns;j++) {
+        data[i*(n+numberColumns)+j+n] = _data[i*numberColumns+j];
+      }
     }
   }
 
@@ -662,6 +668,46 @@ Matrix& Matrix::addColumns(unsigned short numberColumns, const Matrix& dataMatri
   return addColumns(numberColumns,dataMatrix.unsafeGetData());
 }
 
+/// (guettler)
+Matrix& Matrix::removeRows(unsigned short numberRows) {
+  assert(m>numberRows && "to much rows to remove");
+  // internal allocation
+  D* oldData = data;
+  data = (D*) malloc (sizeof (D) * (m - numberRows) * n);
+  assert (data);
+
+  if (oldData) {// copy old values
+    memcpy (data, oldData, (m-numberRows)*n*sizeof (D));     // position is the same
+    free (oldData);
+  } else
+    toZero();
+
+  m-= numberRows;
+  buffersize=(unsigned) m*n;
+  return *this;
+}
+
+/// (guettler)
+Matrix& Matrix::removeColumns(unsigned short numberColumns) {
+  assert(n>numberColumns && "to much columns to remove");
+  // internal allocation
+  D* oldData = data;
+  data = (D*) malloc (sizeof (D) * m * (n- numberColumns));
+  assert (data);
+  if (oldData) { // copy old values
+    for (int i=0;i<m;i++) {
+      for (int j=0;j<(n-numberColumns);j++) {
+        data[i*n+j]=oldData[i*n+j];
+      }
+    }
+    free (oldData);
+  } else
+    toZero();
+
+  n-= numberColumns;
+  buffersize=(unsigned) m*n;
+  return *this;
+}
 
 
 
