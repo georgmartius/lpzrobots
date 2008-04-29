@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-04-18 09:50:24  guettler
+ *   Revision 1.8  2008-04-29 08:44:20  guettler
+ *   #include <assert> added
+ *
+ *   Revision 1.7  2008/04/18 09:50:24  guettler
  *   Implemented step functions for multiple threads of the class Simulation
  *
  *   Revision 1.6  2007/08/30 09:46:29  martius
@@ -55,6 +58,7 @@
 #include "odeagent.h"
 #include "oderobot.h"
 #include "pos.h"
+#include <assert.h>
 
 namespace lpzrobots {
 
