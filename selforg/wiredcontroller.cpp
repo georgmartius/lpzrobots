@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-17 14:54:35  martius
+ *   Revision 1.3  2008-04-29 06:51:40  guettler
+ *   fixed division by zero bug (t % (*i).interval), when ode_robots starts in
+ *   pause modus
+ *
+ *   Revision 1.2  2008/04/17 14:54:35  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -71,7 +75,7 @@ void WiredController::internInit(){
 
 WiredController::~WiredController(){
   // closes all pipes of the agents due to pause mode or so
-  for (int i = NoPlot; i < LastPlot; i++){ 
+  for (int i = NoPlot; i < LastPlot; i++){
     removePlotOption((PlotMode)i);
   }
   if(csensors) free(csensors);
@@ -123,7 +127,7 @@ void WiredController::addPlotOption(const PlotOption& plotOption) {
   if(po.pipe){
     // print start
     time_t t = time(0);
-    fprintf(po.pipe,"# Start %s", ctime(&t));    
+    fprintf(po.pipe,"# Start %s", ctime(&t));
     // print network description given by the structural information of the controller
     printNetworkDescription(po.pipe, "Selforg"/*controller->getName()*/, controller);
     // print interval
@@ -158,14 +162,14 @@ bool WiredController::removePlotOption(PlotMode mode) {
 
 
 // Plots controller sensor- and motorvalues and internal controller parameters.
-void WiredController::plot(const sensor* rx, int rsensornumber, 
+void WiredController::plot(const sensor* rx, int rsensornumber,
 			   const sensor* cx, int csensornumber,
 			   const motor* y, int motornumber, double time){
   assert(controller && rx && cx && y);
 
   for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    if( ((*i).pipe) && (t % (*i).interval == 0) ){
-      
+    if( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) ){
+
       if((*i).whichSensors == Robot){
 		printInternalParameters((*i).pipe, time, rx, rsensornumber, y, motornumber, inspectables);
       }else{
@@ -192,11 +196,11 @@ void WiredController::writePlotComment(const char* cmt){
   }
 }
 
-//  Performs an step of the wired controller: 
+//  Performs an step of the wired controller:
 //   pushing sensor values through wiring,
 //  controller step, pushing controller steps back through wiring
 void WiredController::step(const sensor* sensors, int sensornumber,
-			   motor* motors, int motornumber, 
+			   motor* motors, int motornumber,
 			   double noise, double time){
   assert(controller && wiring && sensors && csensors && cmotors && motors);
 
