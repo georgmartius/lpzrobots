@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-04-29 08:51:54  guettler
+ *   Revision 1.10  2008-04-29 09:56:21  guettler
+ *   -debug printouts removed
+ *
+ *   Revision 1.9  2008/04/29 08:51:54  guettler
  *   -cosmetic changes of StatisticTools
  *   -StatisticTools now uses new function addInspectableValue of the
  *   interface Inspectable, not overloading getInternalParams and
@@ -175,12 +178,6 @@ public:
 	 */
 	virtual void doOnCallBack();
 
-	/**
-	 * INSPECTABLE INTERFACE, not needed to implement anymore
-	 */
-// 	virtual std::list<iparamkey> getInternalParamNames() const;
-
-// 	virtual std::list<iparamval> getInternalParams() const;
 
 protected:
 	std::list<AbstractMeasure*> activeMeasures;

@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-04-29 08:51:54  guettler
+ *   Revision 1.9  2008-04-29 09:56:21  guettler
+ *   -debug printouts removed
+ *
+ *   Revision 1.8  2008/04/29 08:51:54  guettler
  *   -cosmetic changes of StatisticTools
  *   -StatisticTools now uses new function addInspectableValue of the
  *   interface Inspectable, not overloading getInternalParams and
@@ -73,7 +76,6 @@
 
 
 void StatisticTools::doOnCallBack() {
-  std::cout << "measures in list: " << activeMeasures.size() << std::endl;
     // update all statistic measures
     if (beginMeasureCounter>0)
         beginMeasureCounter--;
@@ -128,19 +130,3 @@ double& StatisticTools::addMeasureList(std::list<StatisticMeasure*> measureList)
 void StatisticTools::beginMeasureAt(long step) {
     this->beginMeasureCounter=step;
 }
-
-// std::list<Inspectable::iparamkey> StatisticTools::getInternalParamNames() const  {
-//     std::list<Inspectable::iparamkey> list;
-//   for (std::list<AbstractMeasure*>::const_iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
-//     list+=(*i)->getName();
-//     }
-//     return list;
-// }
-//
-// std::list<Inspectable::iparamval> StatisticTools::getInternalParams() const {
-//     std::list<Inspectable::iparamval> list;
-//   for (std::list<AbstractMeasure*>::const_iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
-//     list+=(*i)->getValue();
-//     }
-//     return list;
-// }
