@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-01-17 09:55:55  der
+ *   Revision 1.5  2008-04-29 08:45:56  guettler
+ *   adapted some cosmetic changes of StatisticTools
+ *
+ *   Revision 1.4  2008/01/17 09:55:55  der
  *   methods added for adding std::list<AbstractMeasure*> to the HUD
  *
  *   Revision 1.3  2007/12/06 10:02:49  der
@@ -116,14 +119,14 @@ double& HUDStatisticsManager::addMeasure(double& observedValue, const char* meas
 
   StatisticMeasure* newMeasure = this->getMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
 
-  return newMeasure->getValueAdress();
+  return newMeasure->getValueAddress();
 }
 
 double& HUDStatisticsManager::addMeasure(AbstractMeasure* measure) {
    // create new text object with default settings:
   float textPosition = windowStatisticList.size();
   osg::Vec3 position(xInitPosition,yInitPosition+yOffset*textPosition,zInitPosition);
-  
+
   osgText::Text* text = new  osgText::Text;
   geode->addDrawable( text );
   text->setCharacterSize(fontsize);
@@ -131,36 +134,36 @@ double& HUDStatisticsManager::addMeasure(AbstractMeasure* measure) {
   text->setPosition(position);
   text->setColor(*textColor);
   text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
-  
+
   std::string buffer(measure->getName());
   buffer.append(":  -");
   text->setText(buffer);
-  
+
   // create WindowStatistic
   this->windowStatisticList.push_back(new WindowStatistic(measure,text));
   this->statTool->addMeasure(measure);
-  return  measure->getValueAdress();
+  return  measure->getValueAddress();
 }
 
 double& HUDStatisticsManager::addMeasureList(std::list<AbstractMeasure*> measureList) {
   FOREACH(std::list<AbstractMeasure*>,measureList,measure) {
     addMeasure(*measure);
   }
-  return measureList.front()->getValueAdress();
+  return measureList.front()->getValueAddress();
 }
 
 double& HUDStatisticsManager::addMeasureList(std::list<ComplexMeasure*> measureList) {
   FOREACH(std::list<ComplexMeasure*>,measureList,measure) {
     addMeasure(*measure);
   }
-  return measureList.front()->getValueAdress();
+  return measureList.front()->getValueAddress();
 }
 
 double& HUDStatisticsManager::addMeasureList(std::list<StatisticMeasure*> measureList) {
   FOREACH(std::list<StatisticMeasure*>,measureList,measure) {
     addMeasure(*measure);
   }
-  return measureList.front()->getValueAdress();
+  return measureList.front()->getValueAddress();
 }
 
 
