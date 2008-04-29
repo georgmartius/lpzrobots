@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-01-17 09:59:27  der
+ *   Revision 1.8  2008-04-29 08:51:54  guettler
+ *   -cosmetic changes of StatisticTools
+ *   -StatisticTools now uses new function addInspectableValue of the
+ *   interface Inspectable, not overloading getInternalParams and
+ *   getInternalParamNames anymore
+ *
+ *   Revision 1.7  2008/01/17 09:59:27  der
  *   complexmeasure: preparations made for predictive information,
  *   fixed a minor bug
  *   statisticmeasure, statistictools: added support for adding
@@ -67,6 +73,7 @@
 
 
 void StatisticTools::doOnCallBack() {
+  std::cout << "measures in list: " << activeMeasures.size() << std::endl;
     // update all statistic measures
     if (beginMeasureCounter>0)
         beginMeasureCounter--;
@@ -79,39 +86,41 @@ void StatisticTools::doOnCallBack() {
 
 double& StatisticTools::addMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
     StatisticMeasure* newMeasure = this->getMeasure(observedValue,measureName,mode,stepSpan,additionalParam);
-    return  newMeasure->getValueAdress();
+    return  newMeasure->getValueAddress();
 }
 
 StatisticMeasure* StatisticTools::getMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
     StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
     this->activeMeasures.push_back(newMeasure);
-    return newMeasure;
+  addInspectableValue(newMeasure->getName(),&newMeasure->getValueAddress());
+  return newMeasure;
 }
 
 double& StatisticTools::addMeasure(AbstractMeasure* measure) {
   this->activeMeasures.push_back(measure);
-  return  measure->getValueAdress();
+  addInspectableValue(measure->getName(),&measure->getValueAddress());
+  return  measure->getValueAddress();
 }
 
 double& StatisticTools::addMeasureList(std::list<AbstractMeasure*> measureList) {
   FOREACH(std::list<AbstractMeasure*>,measureList,measure) {
     addMeasure(*measure);
   }
-  return measureList.front()->getValueAdress();
+  return measureList.front()->getValueAddress();
 }
 
 double& StatisticTools::addMeasureList(std::list<ComplexMeasure*> measureList) {
   FOREACH(std::list<ComplexMeasure*>,measureList,measure) {
     addMeasure(*measure);
   }
-  return measureList.front()->getValueAdress();
+  return measureList.front()->getValueAddress();
 }
 
 double& StatisticTools::addMeasureList(std::list<StatisticMeasure*> measureList) {
   FOREACH(std::list<StatisticMeasure*>,measureList,measure) {
     addMeasure(*measure);
   }
-  return measureList.front()->getValueAdress();
+  return measureList.front()->getValueAddress();
 }
 
 
@@ -120,18 +129,18 @@ void StatisticTools::beginMeasureAt(long step) {
     this->beginMeasureCounter=step;
 }
 
-std::list<Inspectable::iparamkey> StatisticTools::getInternalParamNames() const  {
-    std::list<Inspectable::iparamkey> list;
-  for (std::list<AbstractMeasure*>::const_iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
-    list+=(*i)->getName();
-    }
-    return list;
-}
-
-std::list<Inspectable::iparamval> StatisticTools::getInternalParams() const {
-    std::list<Inspectable::iparamval> list;
-  for (std::list<AbstractMeasure*>::const_iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
-    list+=(*i)->getValue();
-    }
-    return list;
-}
+// std::list<Inspectable::iparamkey> StatisticTools::getInternalParamNames() const  {
+//     std::list<Inspectable::iparamkey> list;
+//   for (std::list<AbstractMeasure*>::const_iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
+//     list+=(*i)->getName();
+//     }
+//     return list;
+// }
+//
+// std::list<Inspectable::iparamval> StatisticTools::getInternalParams() const {
+//     std::list<Inspectable::iparamval> list;
+//   for (std::list<AbstractMeasure*>::const_iterator i=activeMeasures.begin();i!=activeMeasures.end();i++) {
+//     list+=(*i)->getValue();
+//     }
+//     return list;
+// }

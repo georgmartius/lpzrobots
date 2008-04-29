@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-01-17 09:59:27  der
+ *   Revision 1.9  2008-04-29 08:51:54  guettler
+ *   -cosmetic changes of StatisticTools
+ *   -StatisticTools now uses new function addInspectableValue of the
+ *   interface Inspectable, not overloading getInternalParams and
+ *   getInternalParamNames anymore
+ *
+ *   Revision 1.8  2008/01/17 09:59:27  der
  *   complexmeasure: preparations made for predictive information,
  *   fixed a minor bug
  *   statisticmeasure, statistictools: added support for adding
@@ -112,35 +118,39 @@ public:
    * You can add another abstract measure you like. in some cases (e.g. complex
    * measures) it is better to let the measure decide how it likes to be initialized
    * @param measure the measure to add
+   * @return the address value of the measure
    */
   virtual double& addMeasure(AbstractMeasure* measure);
-  
+
   /**
    * You can add another abstract measure you like. in some cases (e.g. complex
    * measures) it is better to let the measure decide how it likes to be initialized
    * With this method you can add a list of AbstractMeasures.
    * @param measureList the list of measures to add
+   * @return the address value of the first measure
    */
   virtual double& addMeasureList(std::list<AbstractMeasure*> measureList);
-  
-  
+
+
     /**
    * You can add another abstract measure you like. in some cases (e.g. complex
    * measures) it is better to let the measure decide how it likes to be initialized
    * With this method you can add a list of AbstractMeasures.
    * @param measureList the list of measures to add
+   * @return the address value of the first measure
    */
   virtual double& addMeasureList(std::list<ComplexMeasure*> measureList);
-  
-  
+
+
     /**
    * You can add another abstract measure you like. in some cases (e.g. complex
    * measures) it is better to let the measure decide how it likes to be initialized
    * With this method you can add a list of AbstractMeasures.
    * @param measureList the list of measures to add
+   * @return the address value of the first measure
    */
   virtual double& addMeasureList(std::list<StatisticMeasure*> measureList);
-  
+
 
 
 	/**
@@ -152,6 +162,7 @@ public:
 
   /**
    * Tells you wether the measures have already been started.
+   * @return true if measures have already been started, otherwise false
    */
   virtual bool measureStarted() { return (beginMeasureCounter==0?true:false); }
 
@@ -165,11 +176,11 @@ public:
 	virtual void doOnCallBack();
 
 	/**
-	 * INSPECTABLE INTERFACE
+	 * INSPECTABLE INTERFACE, not needed to implement anymore
 	 */
-	virtual std::list<iparamkey> getInternalParamNames() const;
+// 	virtual std::list<iparamkey> getInternalParamNames() const;
 
-	virtual std::list<iparamval> getInternalParams() const;
+// 	virtual std::list<iparamval> getInternalParams() const;
 
 protected:
 	std::list<AbstractMeasure*> activeMeasures;

@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-01-14 09:09:23  der
+ *   Revision 1.3  2008-04-29 08:51:54  guettler
+ *   -cosmetic changes of StatisticTools
+ *   -StatisticTools now uses new function addInspectableValue of the
+ *   interface Inspectable, not overloading getInternalParams and
+ *   getInternalParamNames anymore
+ *
+ *   Revision 1.2  2008/01/14 09:09:23  der
  *   added stepSize. An abstractmeasure can now be calculated every stepSize
  *   steps.
  *
@@ -70,12 +76,12 @@ public:
 
   virtual double getValue() const { return value; }
 
-  virtual double& getValueAdress()  { return value; }
+  virtual double& getValueAddress()  { return value; }
 
   virtual void setStepSize(int newStepSize) { stepSize=newStepSize; }
-  
+
   virtual int getStepSize() const { return stepSize; }
-  
+
   virtual long getActualStep() const { return actualStep; }
 
 
