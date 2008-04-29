@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.78  2008-04-23 07:17:16  martius
+ *   Revision 1.79  2008-04-29 07:05:41  guettler
+ *   fixed the bug that guiloggerinterval was not properly set when executing
+ *   start with params -g -pause, same fixed for neuronviz and filelogging
+ *
+ *   Revision 1.78  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -798,9 +802,9 @@ namespace lpzrobots {
 	globalData.time += globalData.odeConfig.simStepSize;
 	sim_step++;
 	// print simulation time every 10 min.
-	if(noGraphics && 
+	if(noGraphics &&
 	   sim_step % long(600.0/globalData.odeConfig.simStepSize) ==0) {
-	  printf("Simulation time: %li min\n", 
+	  printf("Simulation time: %li min\n",
 		 sim_step/ long(60/globalData.odeConfig.simStepSize));
 	}
 	// finish simulation, if intended simulation time is reached
@@ -884,6 +888,7 @@ namespace lpzrobots {
 	unsigned int pcaSize=physicsCallbackables.size();
         QP(PROFILER.beginBlock("physicsCB                    "));
 	if(pcaSize==1){
+  	std::cout << "calling physics..." << std::endl;
 	  physicsCallbackables.front()->doOnCallBack();
 	}else if (pcaSize>1){
 	  QMP_SHARE(physicsCallbackables);
@@ -930,7 +935,7 @@ namespace lpzrobots {
 	    cameramanipulator->update();
 	}
 	// update timestats
-	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor, 
+	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor,
 		     truerealtimefactor);
 
 	// call all registered graphical callbackable classes
@@ -974,7 +979,7 @@ namespace lpzrobots {
 	  // we do not bother the user all the time
 	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()) {
 	    nextLeakAnnounce=min(nextLeakAnnounce*10,10000);
-	    printf("Time lack of %li ms (Suggestion: realtimefactor=%g), next in annoucement in %i violations\n", 
+	    printf("Time lack of %li ms (Suggestion: realtimefactor=%g), next in annoucement in %i violations\n",
 		   -diff, truerealtimefactor, nextLeakAnnounce);
 	    leakAnnCounter=0;
 	    resetSyncTimer();
@@ -983,7 +988,7 @@ namespace lpzrobots {
 	}
       }
       // the video steam should look perfectly syncronised
-      if(videostream.isOpen()) 
+      if(videostream.isOpen())
 	truerealtimefactor=globalData.odeConfig.realTimeFactor;
       else{
 	//  true speed of simulations. In case resetSyncTimer() was just called this
@@ -991,11 +996,11 @@ namespace lpzrobots {
 	if(!justresettimes)
 	  truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+max(1l,diff));
       }
-      justresettimes=false;      
+      justresettimes=false;
     } else if (pause) {
       usleep(10000);
     }
-    
+
 
     return run;
   }
@@ -1212,28 +1217,34 @@ namespace lpzrobots {
     // guilogger-loading stuff here
     // start with online windows
     int index = contains(argv, argc, "-g");
-    guiloggerinterval=1;
+    guiloggerinterval=0;
     if(index) {
       if(argc > index)
 	guiloggerinterval=atoi(argv[index]);
+      if (guiloggerinterval==0) // avoids a bug
+        guiloggerinterval=1; // default value
       plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
     }
 
     // logging to file
-    filelogginginterval=5;
+    filelogginginterval=0;
     index = contains(argv, argc, "-f");
     if(index) {
       if(argc > index)
 	filelogginginterval=atoi(argv[index]);
+      if (filelogginginterval==0) // avoids a bug
+        filelogginginterval=5; // default value
       plotoptions.push_back(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
     }
 
     // starting neuronviz
-    neuronvizinterval=10;
+    neuronvizinterval=0;
     index = contains(argv, argc, "-n");
     if(index) {
       if(argc > index)
 	neuronvizinterval=atoi(argv[index]);
+      if (neuronvizinterval==0) // avoids a bug
+        neuronvizinterval=10; // default value
       plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval, globalconfigurables));
     }
 
