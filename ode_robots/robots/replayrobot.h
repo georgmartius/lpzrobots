@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-11-07 13:21:16  martius
+ *   Revision 1.3  2008-04-29 08:45:14  guettler
+ *   include-section corrected
+ *
+ *   Revision 1.2  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.1  2007/06/14 13:53:11  martius
@@ -33,11 +36,13 @@
 
 
 #include "oderobot.h"
+#include <selforg/types.h>
+#include <selforg/matrix.h>
 
 namespace lpzrobots {
 
   /**
-   * 
+   *
    */
   class ReplayRobot : public OdeRobot{
   public:
@@ -53,14 +58,14 @@ namespace lpzrobots {
     virtual void place(const osg::Matrix& pose) {}
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
+	@param sensors sensors scaled to [-1,1]
 	@param sensornumber length of the sensor array
 	@return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
+	@param motors motors scaled to [-1,1]
 	@param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
@@ -73,7 +78,7 @@ namespace lpzrobots {
      */
     virtual int getMotorNumber() {return motorEnd - motorStart + 1; }
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
+    /** this function is called in each timestep. It should perform robot-internal checks,
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
@@ -96,7 +101,7 @@ namespace lpzrobots {
     int sensorEnd;
     int motorStart;
     int motorEnd;
-    
+
     matrix::Matrix sensors;
     const char* filename;
     FILE* f;
@@ -107,4 +112,4 @@ namespace lpzrobots {
 }
 
 #endif
- 
+

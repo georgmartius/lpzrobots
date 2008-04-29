@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-06-14 13:53:25  martius
+ *   Revision 1.2  2008-04-29 08:45:14  guettler
+ *   include-section corrected
+ *
+ *   Revision 1.1  2007/06/14 13:53:25  martius
  *   a robot, that just replays a logfile
  *
 
@@ -35,8 +38,8 @@ using namespace matrix;
 
 namespace lpzrobots {
 
-  ReplayRobot::ReplayRobot(const OdeHandle& odeHandle, 
-		 const OsgHandle& osgHandle, 
+  ReplayRobot::ReplayRobot(const OdeHandle& odeHandle,
+		 const OsgHandle& osgHandle,
 		 const char* filename)
     : OdeRobot(odeHandle, osgHandle, "ReplayRobot", "$Id$"),
       filename(filename){
@@ -51,7 +54,7 @@ namespace lpzrobots {
       exit(1);
     }
     printf("Test: %i, %i, %i, %i\n", sensorStart, sensorEnd, motorStart, motorEnd);
-  
+
   };
 
   ReplayRobot::~ReplayRobot(){
@@ -62,9 +65,9 @@ namespace lpzrobots {
   };
 
   int ReplayRobot::getSensors(sensor* s, int sensornumber){
-    assert(sensornumber == (sensorEnd-sensorStart + 1));  
+    assert(sensornumber == (sensorEnd-sensorStart + 1));
     if(!parseDataLine(sensors,f)){
-      cout << "ReplayRobot: no datafile in file" << endl;      
+      cout << "ReplayRobot: no datafile in file" << endl;
     }else{
       sensors=sensors.rows(sensorStart, sensorEnd);
     }
@@ -73,16 +76,16 @@ namespace lpzrobots {
   };
 
   bool ReplayRobot::parseDataFileForHeader(FILE* f, int & sensorstart, int& sensorend,  int& motorstart, int& motorend){
-    char buffer[1024];  
+    char buffer[1024];
     int i;
     sensorstart=-1;
     sensorend=-1;
     motorstart=-1;
     motorend=-1;
-    
-    while(fgets(buffer, 1024, f)) {    
+
+    while(fgets(buffer, 1024, f)) {
       if(buffer[0]=='#' && buffer[1]=='C'){
-	// scan line and return      
+	// scan line and return
 	i=0;
 	char* p;
 	p=strtok(buffer," ");
@@ -95,7 +98,7 @@ namespace lpzrobots {
 	  if(p[0]=='y' && p[1]=='['){
 	    if(motorstart==-1) motorstart=i;
 	    motorend=i;
-	  }      
+	  }
 	  i++;
 	}
 	return true;
@@ -125,10 +128,10 @@ namespace lpzrobots {
   }
 
   bool ReplayRobot::parseDataLine(Matrix& data, FILE* f){
-    char buffer[1024];  
+    char buffer[1024];
     int i;
     double dat[1024];
-    while(fgets(buffer, 1024, f)){    
+    while(fgets(buffer, 1024, f)){
       if(buffer[0]=='#' || isEmpty(buffer)){
 	continue;
       }else{
@@ -136,7 +139,7 @@ namespace lpzrobots {
 	char* p;
 	p=strtok(buffer," ");
 	if(!p) return false;
-	dat[i] = atof(p);    
+	dat[i] = atof(p);
 	i++;
 	while((p=strtok(NULL," "))!=NULL )  {
 	  if(!check4Number(p)) continue;
@@ -149,5 +152,5 @@ namespace lpzrobots {
     };
     return false;
   }
-  
+
 }
