@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-29 07:39:24  guettler
+ *   Revision 1.2  2008-04-29 09:55:30  guettler
+ *   -class uses now a list of pairs instead of a map
+ *   -debug printouts removed
+ *
+ *   Revision 1.1  2008/04/29 07:39:24  guettler
  *   -interfaces moved to selforg/utils
  *   -added addInspectableValue and addInspectableMatrix
  *   -methods getInternalParamNames and getInternalParams do not need to be
@@ -87,12 +91,13 @@ public:
 
   typedef std::string iparamkey;
   typedef double iparamval;
+  typedef std::pair<iparamkey,iparamval*> iparampair;
+  typedef std::pair<iparamkey,matrix::Matrix*> imatrixpair;
 
   typedef std::list<iparamkey> iparamkeylist;
   typedef std::list<iparamval> iparamvallist;
-  typedef std::map< iparamkey, iparamval* > iparammap;
-
-  typedef std::map< iparamkey, matrix::Matrix*> imatrixmap;
+  typedef std::list<iparampair> iparampairlist;
+  typedef std::list<imatrixpair> imatrixpairlist;
 
 
   typedef struct ILayer{
@@ -169,7 +174,7 @@ public:
      * @param key the name of the inspectable, shown e.g. in guilogger
      * @param val the address of the value to inspect
     */
-  virtual void addInspectableValue(const iparamkey& key, iparamval* val);
+  virtual void addInspectableValue(const iparamkey key, iparamval* val);
 
 
     /**
@@ -183,13 +188,13 @@ public:
      * @note that you can change the structure of the matrix while
      * being inspected.
      */
-  virtual void addInspectableMatrix(const iparamkey& key, matrix::Matrix* m);
+  virtual void addInspectableMatrix(const iparamkey key, matrix::Matrix* m);
 
 
 
 private:
-  iparammap mapOfValues;
-  imatrixmap mapOfMatrices;
+  iparampairlist mapOfValues;
+  imatrixpairlist mapOfMatrices;
 
 
 };
