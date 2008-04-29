@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.79  2008-04-29 07:05:41  guettler
+ *   Revision 1.80  2008-04-29 08:47:15  guettler
+ *   test printout removed
+ *
+ *   Revision 1.79  2008/04/29 07:05:41  guettler
  *   fixed the bug that guiloggerinterval was not properly set when executing
  *   start with params -g -pause, same fixed for neuronviz and filelogging
  *
@@ -888,7 +891,6 @@ namespace lpzrobots {
 	unsigned int pcaSize=physicsCallbackables.size();
         QP(PROFILER.beginBlock("physicsCB                    "));
 	if(pcaSize==1){
-  	std::cout << "calling physics..." << std::endl;
 	  physicsCallbackables.front()->doOnCallBack();
 	}else if (pcaSize>1){
 	  QMP_SHARE(physicsCallbackables);
