@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.18  2008-04-29 11:01:32  guettler
+// Revision 1.19  2008-04-29 11:04:44  guettler
+// forgot to deactivate += operator
+//
+// Revision 1.18  2008/04/29 11:01:32  guettler
 // -added toMap2 and toMap2P
 // -removed operator + for scalar (use add or toSum instead)
 //
@@ -371,7 +374,7 @@ namespace matrix{
     Matrix operator ^ (int exponent) const;
     /// performant combined assigment operators
     Matrix& operator += (const Matrix& c) {toSum(c);   return *this; }
-    Matrix& operator += (const D& sum)  {toSum(sum);   return *this; } /// (guettler)
+    //    Matrix& operator += (const D& sum)  {toSum(sum);   return *this; } /// (guettler)
     Matrix& operator -= (const Matrix& c) {toDiff(c);  return *this; }
     Matrix& operator *= (const Matrix& c) {
       Matrix result;
