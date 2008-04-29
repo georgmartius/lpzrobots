@@ -38,11 +38,11 @@ double lowercutof(void* theta, double x){
 double toBinaryWithProbability(void* r,double x){
   RandGen* g = (RandGen*) r;
   if (!g) return 0.;
-  else return x<g->rand() ? 0. : 1.;
+  else return x<(g->rand()*2-1) ? -1. : 1.;
 }
 
 double toBinaryWithThreshold(double x, double threshold){
-  return x < threshold ? 0. : 1.;
+  return x < threshold ? -1. : 1.;
 }
 
 

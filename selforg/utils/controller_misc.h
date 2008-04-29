@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-04-29 10:29:39  guettler
+ *   Revision 1.6  2008-04-29 15:31:44  guettler
+ *   modified toBinary map functions
+ *
+ *   Revision 1.5  2008/04/29 10:29:39  guettler
  *   added toBinaryWithProbability for mapP
  *
  *   Revision 1.4  2008/04/28 15:32:46  guettler
@@ -173,12 +176,11 @@ double clip(void* r,double);
 /// cutof function for mapP
 double lowercutof(void* theta, double);
 
-/// returns 0 if probability is to low, otherwise 1 for mapP
+/// returns -1 if probability is to low, otherwise 1 for mapP
 double toBinaryWithProbability(void* r,double x);
 
-/// returns 0 if below threshold, otherwise 1 for map2
+/// returns -1 if below threshold, otherwise 1 for map2
 double toBinaryWithThreshold(double x, double threshold);
-
 
 /// plus function for mapP
 double plus_(void* b, double a);
