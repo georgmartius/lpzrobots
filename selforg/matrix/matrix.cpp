@@ -5,7 +5,11 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.16  2008-04-28 15:24:14  guettler
+// Revision 1.17  2008-04-29 11:01:32  guettler
+// -added toMap2 and toMap2P
+// -removed operator + for scalar (use add or toSum instead)
+//
+// Revision 1.16  2008/04/28 15:24:14  guettler
 // -added deleteRows and deleteColumns
 // -fixed memory leak in addColumns
 //
@@ -456,6 +460,42 @@ namespace matrix {
     return result;
   }
 
+
+  /// (guettler)
+Matrix& Matrix::toMap2(D (*fun)(D,D), const Matrix& b) {
+  assert (m == b.m && n == b.n);
+  unsigned int len = m * n;
+  for (unsigned short i = 0; i < len; i++) {
+    data[i] = fun (data[i], b.data[i]);
+  }
+  return *this;
+}
+
+Matrix Matrix::map2 (D (*fun) (D, D), const Matrix& a, const Matrix& b) {
+  Matrix result (a);
+  result.toMap2 (fun,b);
+  return result;
+}
+
+  /// (guettler)
+Matrix& Matrix::toMap2P( void* param, D (*fun)(void*, D,D), const Matrix& b) {
+  assert (m == b.m && n == b.n);
+  unsigned int len = m * n;
+  for (unsigned short i = 0; i < len; i++) {
+    data[i] = fun (param, data[i], b.data[i]);
+  }
+  return *this;
+
+}
+
+Matrix Matrix::map2P (void* param, D (*fun) (void*, D, D), const Matrix& a, const Matrix& b) {
+  Matrix result (a);
+  result.toMap2P(param,fun,b);
+  return result;
+}
+
+
+
   Matrix& Matrix::toMultrowwise (const Matrix& factors) {
     assert (m == factors.m && factors.n == 1);
     for (unsigned int i = 0; i < m; i++) {
@@ -509,25 +549,6 @@ namespace matrix {
     return *this;
   }
 
-  Matrix Matrix::map2 (D (*fun) (D, D), const Matrix& a, const Matrix& b) {
-    assert (a.m == b.m && a.n == b.n);
-    Matrix result (a);
-    unsigned int len = a.m * a.n;
-    for (unsigned short i = 0; i < len; i++) {
-      result.data[i] = fun (a.data[i], b.data[i]);
-    }
-    return result;
-  }
-
-  Matrix Matrix::map2P (void* param, D (*fun) (void*, D, D), const Matrix& a, const Matrix& b) {
-    assert (a.m == b.m && a.n == b.n);
-    Matrix result (a);
-    unsigned int len = a.m * a.n;
-    for (unsigned short i = 0; i < len; i++) {
-      result.data[i] = fun (param, a.data[i], b.data[i]);
-    }
-    return result;
-  }
 
   Matrix Matrix::multrowwise (const Matrix& factors) const {
     Matrix result (*this);
@@ -807,13 +828,13 @@ Matrix& Matrix::removeColumns(unsigned short numberColumns) {
   }
 
 
-  /// (guettler)
-  /** add a scalar (double) to each element*/
-  Matrix Matrix::operator + (const D& scalar) const {
-    Matrix result;
-    result.add (*this, scalar);
-    return result;
-  }
+//  /// (guettler)
+//  /** add a scalar (double) to each element*/
+//   Matrix Matrix::operator + (const D& scalar) const {
+//     Matrix result;
+//     result.add (*this, scalar);
+//     return result;
+//   }
 
   Matrix Matrix::operator - (const Matrix& sum) const {
     Matrix result;

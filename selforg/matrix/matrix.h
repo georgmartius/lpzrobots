@@ -7,7 +7,11 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.17  2008-04-28 15:24:14  guettler
+// Revision 1.18  2008-04-29 11:01:32  guettler
+// -added toMap2 and toMap2P
+// -removed operator + for scalar (use add or toSum instead)
+//
+// Revision 1.17  2008/04/28 15:24:14  guettler
 // -added deleteRows and deleteColumns
 // -fixed memory leak in addColumns
 //
@@ -352,7 +356,7 @@ namespace matrix{
     /// deep copy
     Matrix& operator = (const Matrix& c) { copy(c); return *this; }
     Matrix operator +  (const Matrix& sum) const;
-    Matrix operator +  (const D& sum) const; /// new operator (guettler)
+    //    Matrix operator +  (const D& sum) const; /// new operator (guettler)
     Matrix operator -  (const Matrix& sum) const;
     /** matrix product*/
     Matrix operator *  (const Matrix& fac) const;
@@ -439,7 +443,14 @@ namespace matrix{
     Matrix& toMap(D (*fun)(D));
     /**  like toMap, but with an extra parameter for the mapping function. */
     Matrix& toMapP(void* param, D (*fun)(void*, D));
-    // Exotic operations
+
+    /// (guettler)
+    /**  like toMap, but with 2 arguments for the mapping function. */
+    Matrix& toMap2(D (*fun)(D,D), const Matrix& b);
+
+    /// (guettler)
+    Matrix& toMap2P( void* param, D (*fun)(void*, D,D), const Matrix& b);
+// Exotic operations
     /** Inplace row-wise multiplication
 	@param factors column vector of factors, one for each row
     */
