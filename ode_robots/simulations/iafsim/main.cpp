@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-28 10:30:39  guettler
+ *   Revision 1.2  2008-04-29 15:30:42  guettler
+ *   yippie
+ *
+ *   Revision 1.1  2008/04/28 10:30:39  guettler
  *   some experiments
  *
  *                                                                         *
@@ -77,6 +80,7 @@ public:
     // initialization
     // - set noise to 0.1
     global.odeConfig.noise=0.05;
+    global.odeConfig.setParam("realtimefactor",1);
     //  global.odeConfig.setParam("gravity", 0);
 
     // use Playground as boundary:
