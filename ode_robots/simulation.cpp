@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.80  2008-04-29 08:47:15  guettler
+ *   Revision 1.81  2008-04-29 10:14:57  guettler
+ *   -fixed interval bug (now its really correct)
+ *
+ *   Revision 1.80  2008/04/29 08:47:15  guettler
  *   test printout removed
  *
  *   Revision 1.79  2008/04/29 07:05:41  guettler
@@ -1223,10 +1226,10 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)
 	guiloggerinterval=atoi(argv[index]);
-      if (guiloggerinterval==0) // avoids a bug
-        guiloggerinterval=1; // default value
       plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
     }
+    if (guiloggerinterval==0) // avoids a bug
+      guiloggerinterval=1; // default value
 
     // logging to file
     filelogginginterval=0;
@@ -1234,10 +1237,10 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)
 	filelogginginterval=atoi(argv[index]);
-      if (filelogginginterval==0) // avoids a bug
-        filelogginginterval=5; // default value
       plotoptions.push_back(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
     }
+    if (filelogginginterval==0) // avoids a bug
+      filelogginginterval=5; // default value
 
     // starting neuronviz
     neuronvizinterval=0;
@@ -1245,10 +1248,10 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)
 	neuronvizinterval=atoi(argv[index]);
-      if (neuronvizinterval==0) // avoids a bug
-        neuronvizinterval=10; // default value
       plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval, globalconfigurables));
     }
+    if (neuronvizinterval==0) // avoids a bug
+      neuronvizinterval=10; // default value
 
     // using SoundMan for acustic output
     index = contains(argv, argc, "-s");
