@@ -57,17 +57,17 @@ double plus_(void* b, double a){
 */
 list<D> store4x4AndDiagonal(const Matrix& m){
   list<D> l;
-  unsigned short smalldimM = min(m.getM(), (unsigned short)4);
-  unsigned short smalldimN = min(m.getN(), (unsigned short)4);
-  unsigned short smallerdim = min(m.getM(), m.getN());
+  I smalldimM = min(m.getM(), (I)4); // type I is defined in matrix.h
+  I smalldimN = min(m.getN(), (I)4);
+  I smallerdim = min(m.getM(), m.getN());
   // 4x4
-  for(unsigned short i=0; i < smalldimM; i++){
-    for(unsigned short j=0; j < smalldimN; j++){
+  for(I i=0; i < smalldimM; i++){
+    for(I j=0; j < smalldimN; j++){
       l.push_back(m.val(i,j));
     }
   }
   // diagonal below 4x4
-  for(unsigned short i=4; i < smallerdim; i++){
+  for(I i=4; i < smallerdim; i++){
     l.push_back(m.val(i,i));
   }
   return l;
@@ -79,21 +79,21 @@ list<D> store4x4AndDiagonal(const Matrix& m){
   (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
-unsigned int store4x4AndDiagonal(const Matrix& m, D* buffer, unsigned int len){
-  unsigned short smalldimM = min(m.getM(), (unsigned short)4);
-  unsigned short smalldimN = min(m.getN(), (unsigned short)4);
-  unsigned short smallerdim = min(m.getM(), m.getN());
-  unsigned int written=0;
-  assert(len >= unsigned(smalldimM * smalldimN + max(0, signed(smallerdim) - 4)));
+I store4x4AndDiagonal(const Matrix& m, D* buffer, I len){
+  I smalldimM = min(m.getM(), (I)4);
+  I smalldimN = min(m.getN(), (I)4);
+  I smallerdim = min(m.getM(), m.getN());
+  I written=0;
+  assert(len >= (I)(smalldimM * smalldimN + max(0, signed(smallerdim) - 4)));
   // 4x4
-  for(unsigned short i=0; i < smalldimM; i++){
-    for(unsigned short j=0; j < smalldimN; j++){
+  for(I i=0; i < smalldimM; i++){
+    for(I j=0; j < smalldimN; j++){
       buffer[written]=m.val(i,j);
       written++;
     }
   }
   // diagonal below 4x4
-  for(unsigned short i=4; i < smallerdim; i++){
+  for(I i=4; i < smallerdim; i++){
     buffer[written]=m.val(i,i);
     written++;
   }
@@ -104,11 +104,11 @@ unsigned int store4x4AndDiagonal(const Matrix& m, D* buffer, unsigned int len){
 /* returns the number of elements stored by store4x4AndDiagonal
   (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
 */
-unsigned int get4x4AndDiagonalSize(const Matrix& m){
-  unsigned short smalldimM = min(m.getM(), (unsigned short)4);
-  unsigned short smalldimN = min(m.getN(), (unsigned short)4);
-  unsigned short smallerdim = min(m.getM(), m.getN());
-  unsigned short sm = unsigned(max(0, signed(smallerdim) - 4));
+I get4x4AndDiagonalSize(const Matrix& m){
+  I smalldimM = min(m.getM(), (I)4);
+  I smalldimN = min(m.getN(), (I)4);
+  I smallerdim = min(m.getM(), m.getN());
+  I sm = (I)(max(0, signed(smallerdim) - 4));
   return smalldimM * smalldimN + sm;
 }
 
@@ -123,18 +123,18 @@ unsigned int get4x4AndDiagonalSize(const Matrix& m){
 list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName){
   list<Inspectable::iparamkey> l;
   char buffer[32];
-  unsigned short smalldimM = min(m.getM(), (unsigned short)4);
-  unsigned short smalldimN = min(m.getN(), (unsigned short)4);
-  unsigned short smallerdim = min(m.getM(), m.getN());
+  I smalldimM = min(m.getM(), (I)4);
+  I smalldimN = min(m.getN(), (I)4);
+  I smallerdim = min(m.getM(), m.getN());
   // 4x4
-  for(unsigned short i=0; i < smalldimM; i++){
-    for(unsigned short j=0; j < smalldimN; j++){
+  for(I i=0; i < smalldimM; i++){
+    for(I j=0; j < smalldimN; j++){
       sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,j);
       l.push_back(string(buffer));
     }
   }
   // diagonal below 4x4
-  for(unsigned short i=4; i < smallerdim; i++){
+  for(I i=4; i < smallerdim; i++){
     sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,i);
     l.push_back(string(buffer));
   }
@@ -148,24 +148,24 @@ list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const Matrix& m, cons
   (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
-unsigned int store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName,
-					   char** keylist, unsigned int len){
-  unsigned short smalldimM = min(m.getM(), (unsigned short)4);
-  unsigned short smalldimN = min(m.getN(), (unsigned short)4);
-  unsigned short smallerdim = min(m.getM(), m.getN());
-  unsigned int written=0;
+I store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName,
+					   char** keylist, I len){
+  I smalldimM = min(m.getM(), (I)4);
+  I smalldimN = min(m.getN(), (I)4);
+  I smallerdim = min(m.getM(), m.getN());
+  I written=0;
   assert(len >= get4x4AndDiagonalSize(m));
   unsigned char keyLen = matrixName.length()+10;
   // 4x4
-  for(unsigned short i=0; i < smalldimM; i++){
-    for(unsigned short j=0; j < smalldimN; j++){
+  for(I i=0; i < smalldimM; i++){
+    for(I j=0; j < smalldimN; j++){
       keylist[written] = (char*) malloc(keyLen);
       sprintf(keylist[written],"%s[%d,%d]",matrixName.c_str(),i,j);
       written++;
     }
   }
   // diagonal below 4x4
-  for(unsigned short i=4; i < smallerdim; i++){
+  for(I i=4; i < smallerdim; i++){
     keylist[written] = (char*) malloc(keyLen);
     sprintf(keylist[written],"%s[%d,%d]",matrixName.c_str(),i,i);
     written++;
@@ -179,11 +179,11 @@ unsigned int store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& m
 list<Inspectable::iparamkey> storeMatrixFieldNames(const Matrix& m, const string& matrixName){
   list<Inspectable::iparamkey> l;
   char buffer[32];
-  unsigned int dimM = m.getM();
-  unsigned int dimN = m.getN();
+  I dimM = m.getM();
+  I dimN = m.getN();
   //  assert(matrixName);
-  for(unsigned short i=0; i < dimM; i++){
-    for(unsigned short j=0; j < dimN; j++){
+  for(I i=0; i < dimM; i++){
+    for(I j=0; j < dimN; j++){
       sprintf(buffer,"%s[%d,%d]",matrixName.c_str(),i,j);
       l.push_back(string(buffer));
     }
@@ -197,10 +197,10 @@ list<Inspectable::iparamkey> storeMatrixFieldNames(const Matrix& m, const string
 list<Inspectable::iparamkey> storeVectorFieldNames(const Matrix& m, const string& vectorName){
   list<Inspectable::iparamkey> l;
   char buffer[32];
-  unsigned int dimM = m.getM();
+  I dimM = m.getM();
   //  assert(vectorName);
   assert(m.getN()==1);
-  for(unsigned short i=0; i < dimM; i++){
+  for(I i=0; i < dimM; i++){
       sprintf(buffer,"%s[%d]",vectorName.c_str(),i);
       l.push_back(string(buffer));
   }
@@ -214,16 +214,16 @@ list<Inspectable::iparamkey> storeVectorFieldNames(const Matrix& m, const string
   (should be getN()*getM()
   @return number of actually written elements
 */
-unsigned int storeMatrixFieldNames(const Matrix& m, const char* matrixName,
-				   char** keylist, unsigned int len){
-  unsigned int dimM = m.getM();
-  unsigned int dimN = m.getN();
-  unsigned int written=0;
+I storeMatrixFieldNames(const Matrix& m, const char* matrixName,
+				   char** keylist, I len){
+  I dimM = m.getM();
+  I dimN = m.getN();
+  I written=0;
   assert(matrixName);
   assert(len >= dimM*dimN);
   unsigned char keyLen = strlen(matrixName)+10;
-  for(unsigned short i=0; i < dimM; i++){
-    for(unsigned short j=0; j < dimN; j++){
+  for(I i=0; i < dimM; i++){
+    for(I j=0; j < dimN; j++){
       keylist[written] = (char*) malloc(keyLen);
       sprintf(keylist[written],"%s[%d,%d]",matrixName,i,j);
       written++;
@@ -238,15 +238,15 @@ unsigned int storeMatrixFieldNames(const Matrix& m, const char* matrixName,
   @param len Length of the provided buffer (should be getM())
   @return number of actually written elements
 */
-unsigned int storeVectorFieldNames(const Matrix& m, const char* vectorName,
-				   char** keylist, unsigned int len){
-  unsigned int dimM = m.getM();
-  unsigned int written=0;
+I storeVectorFieldNames(const Matrix& m, const char* vectorName,
+				   char** keylist, I len){
+  I dimM = m.getM();
+  I written=0;
   assert(vectorName);
   assert(m.getN()==1);
   assert(len >= dimM);
   unsigned char keyLen = strlen(vectorName)+5;
-  for(unsigned short i=0; i < dimM; i++){
+  for(I i=0; i < dimM; i++){
       keylist[written] = (char*) malloc(keyLen);
       sprintf(keylist[written],"%s[%d]",vectorName,i);
       written++;
@@ -256,9 +256,9 @@ unsigned int storeVectorFieldNames(const Matrix& m, const char* vectorName,
 
 
 
-Matrix noiseMatrix(unsigned int m, unsigned int n, NoiseGenerator& ng,
+Matrix noiseMatrix(I m, I n, NoiseGenerator& ng,
 		   double strength, double unused){
-  int len = m*n;
+  I len = m*n;
   D* noise = (D*) malloc(len*sizeof(D));
   memset(noise, D_Zero, sizeof(D)*len);
   ng.add(noise, fabs(strength));
@@ -275,8 +275,8 @@ double matrixNorm2(const matrix::Matrix& m) {
   return m.map(sqr).elementSum() / (m.size());
 }
 
-double getKthLargestElement(Matrix& vec, unsigned int k/*, double* max*/){
-  unsigned int len = (vec.getM()) * (vec.getN());
+double getKthLargestElement(Matrix& vec, I k/*, double* max*/){
+  I len = (vec.getM()) * (vec.getN());
   vec.reshape(1,len);
   assert(k>0 && len>=k);
   vec.toSort();
@@ -284,8 +284,8 @@ double getKthLargestElement(Matrix& vec, unsigned int k/*, double* max*/){
   return vec.val(0,len-k);
 }
 
-double getKthSmallestElement(Matrix& vec, unsigned int k/*, double* max*/){
-  unsigned int len = vec.size();
+double getKthSmallestElement(Matrix& vec, I k/*, double* max*/){
+  I len = vec.size();
   vec.reshape(1,len);
   assert(k>0 && len>=k);
   vec.toSort();
@@ -294,11 +294,11 @@ double getKthSmallestElement(Matrix& vec, unsigned int k/*, double* max*/){
 }
 
 // considers the matrix as vector (mx1) and returns the index of the smallest element
-int argmin(const Matrix& v){
+I argmin(const Matrix& v){
   const double *d = v.unsafeGetData();
   double m = *d;
-  int index = 0;
-  for(unsigned int i=1; i<v.size(); i++){
+  I index = 0;
+  for(I i=1; i<v.size(); i++){
     if(*(d+i) < m){
       m = *(d+i);
       index = i;
@@ -308,11 +308,11 @@ int argmin(const Matrix& v){
 }
 
 // considers the matrix as vector (mx1) and returns the index of the largest element
-int argmax(const Matrix& v){
+I argmax(const Matrix& v){
   const double *d = v.unsafeGetData();
   double m = *d;
-  int index = 0;
-  for(unsigned int i=1; i<v.size(); i++){
+  I index = 0;
+  for(I i=1; i<v.size(); i++){
     if(*(d+i) > m){
       m = *(d+i);
       index = i;
@@ -333,11 +333,11 @@ double max(const matrix::Matrix& v){
 
 
 // samples from the pdf (rowwise stored with sum = 1)
-int sample(const matrix::Matrix& pdf){
+I sample(const matrix::Matrix& pdf){
   double x = ((double)rand())/(double)RAND_MAX;
   double s=0;
   const double* vs = pdf.unsafeGetData();
-  for(unsigned int i=0; i<pdf.size(); i++){
+  for(I i=0; i<pdf.size(); i++){
     s+=vs[i];
     if(s>=x) return i;
   }
