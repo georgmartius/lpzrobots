@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-29 15:30:42  guettler
+ *   Revision 1.3  2008-04-30 14:57:57  guettler
+ *   improvements testet
+ *
+ *   Revision 1.2  2008/04/29 15:30:42  guettler
  *   yippie
  *
  *   Revision 1.1  2008/04/28 10:30:39  guettler
@@ -59,7 +62,7 @@
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
-#include <selforg/abstractintegrateandfirecontroller.h>
+#include <selforg/abstractiafcontroller.h>
 #include <selforg/sinecontroller.h>
 
 // fetch all the stuff of lpzrobots into scope
@@ -80,7 +83,7 @@ public:
     // initialization
     // - set noise to 0.1
     global.odeConfig.noise=0.05;
-    global.odeConfig.setParam("realtimefactor",1);
+    global.odeConfig.setParam("realtimefactor",0);
     //  global.odeConfig.setParam("gravity", 0);
 
     // use Playground as boundary:
@@ -135,7 +138,12 @@ public:
     // push controller in global list of configurables
    //  AbstractController *controller = new InvertNChannelController(10);
 //     AbstractController *controller = new SineController();
-    AbstractController *controller = new AbstractIntegrateAndFireController();
+    AbstractIAFControllerConf iafc = AbstractIAFController::getDefaultConf();
+    iafc.numberIAFNeuronsPerInput=150;
+    iafc.numberIAFNeuronsPerOutput=150;
+/*    iafc.wIInitScale= 2.0;
+    iafc.wOInitScale= 2.0;*/
+    AbstractController *controller = new AbstractIAFController(iafc);
     global.configs.push_back(controller);
 
     // create pointer to one2onewiring
