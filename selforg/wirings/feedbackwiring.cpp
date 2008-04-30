@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-04-17 14:54:45  martius
+ *   Revision 1.5  2008-04-30 14:57:28  guettler
+ *   added signed cast to avoid compiler warnings
+ *
+ *   Revision 1.4  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -45,7 +48,7 @@
 #include <assert.h>
 
 /// constructor
-FeedbackWiring::FeedbackWiring(NoiseGenerator* noise, Mode mode, 
+FeedbackWiring::FeedbackWiring(NoiseGenerator* noise, Mode mode,
 			       double feedbackratio)
   : AbstractWiring(noise), mode(mode), defaultfeedbackratio(feedbackratio) {
   noisevals=0;
@@ -64,9 +67,9 @@ FeedbackWiring::~FeedbackWiring(){
 //  number of sensors and motors on controller side
 bool FeedbackWiring::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){
   rsensornumber = robotsensornumber;
-  rmotornumber  = robotmotornumber;  
-  csensornumber = rsensornumber;  
-  if((mode & Context) == 0) // without context mapping no additional motors 
+  rmotornumber  = robotmotornumber;
+  csensornumber = rsensornumber;
+  if((mode & Context) == 0) // without context mapping no additional motors
     cmotornumber  = rmotornumber;
   else{ // with context mapping we have as many motors as sensors
     assert(rmotornumber < rsensornumber);
@@ -84,7 +87,7 @@ bool FeedbackWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
     double c = defaultfeedbackratio;
     feedbackratio.toMapP(&c, constant);
   }else{
-    assert(feedbackratio.getM()==feedbacknumber && feedbackratio.getN()==1);
+    assert(((signed)feedbackratio.getM())==feedbacknumber && feedbackratio.getN()==1);
   }
 
   if(!noiseGenerator) return false;
@@ -93,13 +96,13 @@ bool FeedbackWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
   return true;
 }
 
-bool FeedbackWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
-				sensor* csensors, int csensornumber, 
+bool FeedbackWiring::wireSensors(const sensor* rsensors, int rsensornumber,
+				sensor* csensors, int csensornumber,
 				double noiseStrength){
   assert(rsensornumber==csensornumber);
   memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
   noiseGenerator->add(noisevals, noiseStrength);
-  
+
   int fi=0;
   if((mode & Motor) == 0){
     for(int i=0; i< rmotornumber; i++){
@@ -107,7 +110,7 @@ bool FeedbackWiring::wireSensors(const sensor* rsensors, int rsensornumber,
     }
   }else{
     for(int i=0; i< rmotornumber; i++, fi++){
-      csensors[i] = feedbackratio.val(fi,0)*motors[i] + 
+      csensors[i] = feedbackratio.val(fi,0)*motors[i] +
 	(1-feedbackratio.val(fi,0))*(rsensors[i] + noisevals[i]);
     }
   }
@@ -117,7 +120,7 @@ bool FeedbackWiring::wireSensors(const sensor* rsensors, int rsensornumber,
     }
   }else{
     for(int i=rmotornumber; i< rmotornumber+vmotornumber; i++, fi++){
-      csensors[i] = feedbackratio.val(fi,0)*motors[i] + 
+      csensors[i] = feedbackratio.val(fi,0)*motors[i] +
 	(1-feedbackratio.val(fi,0))*(rsensors[i] + noisevals[i]);
     }
   }
@@ -126,18 +129,18 @@ bool FeedbackWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 
 bool FeedbackWiring::wireMotors(motor* rmotors, int rmotornumber,
 			       const motor* cmotors, int cmotornumber){
-  if (rmotornumber != cmotornumber-vmotornumber) 
+  if (rmotornumber != cmotornumber-vmotornumber)
     return false;
   else{
     memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
-    memcpy(motors,  cmotors, sizeof(motor)*cmotornumber);    
+    memcpy(motors,  cmotors, sizeof(motor)*cmotornumber);
     return true;
   }
 }
 
 
 matrix::Matrix FeedbackWiring::getFeedbackRatio() const{
-  assert(initialised);  
+  assert(initialised);
   return feedbackratio;
 }
 
@@ -154,7 +157,7 @@ Inspectable::iparamkeylist FeedbackWiring::getInternalParamNames() const {
   for(int i = 0; i < cmotornumber - rsensornumber; i++){
     sprintf(buffer,"yv[%d]", i);
     l += std::string(buffer);
-  } 
+  }
   return l;
 }
 
