@@ -5,7 +5,12 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.18  2008-04-30 13:06:34  guettler
+// Revision 1.19  2008-04-30 14:54:14  guettler
+// -indextype of matrices is now unsigned int (bigger matrices than
+//  256x256 can be used now, if not AVR defined)
+// -code cleaned up
+//
+// Revision 1.18  2008/04/30 13:06:34  guettler
 // assertions to addRows and addColumns added
 //
 // Revision 1.17  2008/04/29 11:01:32  guettler
@@ -153,24 +158,24 @@ namespace matrix {
   const int T = 0xFF;
 
 
-  Matrix::Matrix (const Matrix& c)
-      : m (0), n (0), buffersize (0), data (0) {
-    copy (c);
+  Matrix::Matrix ( const Matrix& c )
+      : m ( 0 ), n ( 0 ), buffersize ( 0 ), data ( 0 ) {
+    copy ( c );
   }
 
-  Matrix::Matrix (unsigned short _m, unsigned short _n, const D* _data /*=0*/)
-      : m (_m), n (_n), buffersize (0), data (0) {
+  Matrix::Matrix ( I _m, I _n, const D* _data /*=0*/ )
+      : m ( _m ), n ( _n ), buffersize ( 0 ), data ( 0 ) {
     allocate();
-    set (_data);
+    set ( _data );
   };
 
   // internal allocation
   void Matrix::allocate() {
-    if ( (unsigned) m*n > buffersize) {
+    if ( ( I ) m*n > buffersize ) {
       buffersize = m * n;
-      if (data) { free (data); }
-      data = (D*) malloc (sizeof (D) * buffersize);
-      assert (data);
+      if ( data ) { free ( data ); }
+      data = ( D* ) malloc ( sizeof ( D ) * buffersize );
+      assert ( data );
     }
   }
 
@@ -178,63 +183,63 @@ namespace matrix {
 ////// ACCESSORS ///////////////////////////////////////////////////////////////
   /// returns true if matrix is a 0x0 matrix
   bool Matrix::isNulltimesNull() {
-    return (m == 0 && n == 0);
+    return ( m == 0 && n == 0 );
   }
 
 
-  Matrix Matrix::row (unsigned short index) const {
-    assert (index < m);
-    Matrix result (1, n, data + (index*n));
+  Matrix Matrix::row ( I index ) const {
+    assert ( index < m );
+    Matrix result ( 1, n, data + ( index*n ) );
     return result;
   }
 
-  Matrix Matrix::rows (unsigned short startindex, unsigned short endindex) const {
-    unsigned short start = std::min ( (int) startindex, m - 1);
-    unsigned short end   = std::max ( (int) start, std::min ( (int) endindex, m - 1));
-    unsigned short k     = end - start + 1;
-    if (k == m) return *this;
-    Matrix result (k, n);
-    memcpy (result.data, data + start*n, k*n*sizeof (D));
+  Matrix Matrix::rows ( I startindex, I endindex ) const {
+    I start = (I)std::min ( ( int ) startindex, (int) m - 1 );
+    I end   = (I)std::max ( ( int ) start, std::min ( ( int ) endindex, (int) m - 1 ) );
+    I k     = end - start + 1;
+    if ( k == m ) return *this;
+    Matrix result ( k, n );
+    memcpy ( result.data, data + start*n, k*n*sizeof ( D ) );
     return result;
   }
 
-  Matrix Matrix::column (unsigned short index) const {
-    assert (index < n);
-    Matrix result (m, 1);
-    for (int i = 0; i < m; i++) {
-      result.val (i, 0) = VAL (i, index);
+  Matrix Matrix::column ( I index ) const {
+    assert ( index < n );
+    Matrix result ( m, 1 );
+    for ( I i = 0; i < m; i++ ) {
+      result.val ( i, 0 ) = VAL ( i, index );
     }
     return result;
   }
 
-  Matrix Matrix::columns (unsigned short startindex, unsigned short endindex) const {
-    unsigned short start = std::min ( (int) startindex, n - 1);
-    unsigned short end   = std::max ( (int) start, std::min ( (int) endindex, n - 1));
-    unsigned short k     = end - start + 1;
-    Matrix result (m, k);
-    for (int i = 0; i < m; i++) {
-      memcpy (result.data + i*k, data + i*n + start, k*sizeof (D));
+  Matrix Matrix::columns ( I startindex, I endindex ) const {
+    I start = std::min ( ( I ) startindex, n - 1 );
+    I end   = std::max ( ( I ) start, std::min ( ( I ) endindex, n - 1 ) );
+    I k     = end - start + 1;
+    Matrix result ( m, k );
+    for ( I i = 0; i < m; i++ ) {
+      memcpy ( result.data + i*k, data + i*n + start, k*sizeof ( D ) );
     }
     return result;
   }
 
-  void Matrix::set (unsigned short _m, unsigned short _n, const D* _data /*=0*/) {
+  void Matrix::set ( I _m, I _n, const D* _data /*=0*/ ) {
     m = _m;
     n = _n;
     allocate();
-    set (_data);
+    set ( _data );
   }
 
-  void Matrix::set (const D* _data) {
-    if (_data)
-      memcpy (data, _data, m*n*sizeof (D));
+  void Matrix::set ( const D* _data ) {
+    if ( _data )
+      memcpy ( data, _data, m*n*sizeof ( D ) );
     else toZero();
   }
 
-  int Matrix::convertToBuffer (D* buffer, unsigned int len) const {
-    if (buffer && data) {
-      unsigned int minlen = (len < (unsigned) m * n) ? len : m * n;
-      memcpy (buffer, data, sizeof (D) * minlen);
+  int Matrix::convertToBuffer ( D* buffer, I len ) const {
+    if ( buffer && data ) {
+      I minlen = ( len < ( I ) m * n ) ? len : m * n;
+      memcpy ( buffer, data, sizeof ( D ) * minlen );
       return minlen;
     }
     return 0;
@@ -242,68 +247,68 @@ namespace matrix {
 
   std::list<D> Matrix::convertToList() const {
     std::list<D> l;
-    if (data) {
-      for (int i = 0; i < m*n; i++) {
-        l.push_back (data[i]);
+    if ( data ) {
+      for ( I i = 0; i < m*n; i++ ) {
+        l.push_back ( data[i] );
       }
     }
     return l;
   }
 
-  bool Matrix::write (FILE* f) const {
-    fprintf (f, "MATRIX %i %i\n", m, n);
-    for (int i = 0; i < m*n; i++) {
-      fprintf (f, "%f ", data[i]);
+  bool Matrix::write ( FILE* f ) const {
+    fprintf ( f, "MATRIX %i %i\n", m, n );
+    for ( I i = 0; i < m*n; i++ ) {
+      fprintf ( f, "%f ", data[i] );
     }
-    fprintf (f, "\n");
+    fprintf ( f, "\n" );
     return true;
   }
 
-  bool Matrix::read (FILE* f) {
+  bool Matrix::read ( FILE* f ) {
     char buffer[128];
-    if (fscanf (f, "MATRIX %hu %hu\n", &m, &n) != 2)  return false;
+    if ( fscanf ( f, "MATRIX %u %u\n", &m, &n ) != 2 )  return false;
     allocate();
-    for (int i = 0; i < m*n; i++) {
-      if (fscanf (f, "%s ", buffer) != 1) return false;
-      data[i] = atof (buffer);
+    for ( I i = 0; i < m*n; i++ ) {
+      if ( fscanf ( f, "%s ", buffer ) != 1 ) return false;
+      data[i] = atof ( buffer );
     }
-    fscanf (f, "\n");
+    fscanf ( f, "\n" );
     return true;
   }
 
   /** stores the Matrix into the given file stream (binary)
    */
-  bool Matrix::store (FILE* f) const {
-    int dim[2] = { m, n };
-    unsigned int len = m * n;
+  bool Matrix::store ( FILE* f ) const {
+    I dim[2] = { m, n };
+    I len = m * n;
     bool rval = false;
-    if (fwrite (dim, sizeof (int), 2, f) == 2)
-      if (fwrite (data, sizeof (D), len, f) == len)
+    if ( fwrite ( dim, sizeof ( I ), 2, f ) == 2 )
+      if ( fwrite ( data, sizeof ( D ), len, f ) == len )
         rval = true;
     return rval;
   }
 
   /** reads a Matrix from the given file stream (binary)
    */
-  bool Matrix::restore (FILE* f) {
-    int dim[2];
+  bool Matrix::restore ( FILE* f ) {
+    I dim[2];
     bool rval = false;
-    if (fread (dim, sizeof (int), 2, f) == 2) {
-      char* buffer = (char*) dim; // hack to check for no-binary format
-      if (buffer[0] == 'M' && buffer[1] == 'A' && buffer[2] == 'T' && buffer[3] == 'R' && buffer[4] == 'I' && buffer[5] == 'X') {
-        fseek (f, -sizeof (int) *2, SEEK_CUR);
-        return read (f);
+    if ( fread ( dim, sizeof ( I ), 2, f ) == 2 ) {
+      char* buffer = ( char* ) dim; // hack to check for no-binary format
+      if ( buffer[0] == 'M' && buffer[1] == 'A' && buffer[2] == 'T' && buffer[3] == 'R' && buffer[4] == 'I' && buffer[5] == 'X' ) {
+        fseek ( f, -sizeof ( I ) *2, SEEK_CUR );
+        return read ( f );
       } else {
         m = dim[0];
         n = dim[1];
         allocate();
-        unsigned int len = m * n;
-        if (fread (data, sizeof (D), len, f) == len) {
+        I len = m * n;
+        if ( fread ( data, sizeof ( D ), len, f ) == len ) {
           rval = true;
-        } else fprintf (stderr, "Matrix::restore: cannot read matrix data\n");
+        } else fprintf ( stderr, "Matrix::restore: cannot read matrix data\n" );
       }
     } else {
-      fprintf (stderr, "Matrix::restore: cannot read dimension\n");
+      fprintf ( stderr, "Matrix::restore: cannot read dimension\n" );
     }
     return rval;
   }
@@ -316,90 +321,89 @@ namespace matrix {
 //________________________________________________________________
 
   Matrix& Matrix::toTranspose() {
-    assert (buffersize > 0);
-    if (m != 1 && n != 1) { // if m or n == 1 then no copying is necessary!
-      double* newdata = (D*) malloc (sizeof (D) * buffersize);
-      for (unsigned short i = 0; i < m; i++) {
-        for (unsigned short j = 0; j < n; j++) {
+    assert ( buffersize > 0 );
+    if ( m != 1 && n != 1 ) { // if m or n == 1 then no copying is necessary!
+      double* newdata = ( D* ) malloc ( sizeof ( D ) * buffersize );
+      for ( I i = 0; i < m; i++ ) {
+        for ( I j = 0; j < n; j++ ) {
           newdata[j*m+i] = data[i*n+j];
         }
       }
-      free (data);
+      free ( data );
       data = newdata;
     }
     // swap n and m
-    unsigned short t = m;
+    I t = m;
     m = n;
     n = t;
     return *this;
   }
 
   Matrix& Matrix::toZero() {
-    memset (data, D_Zero, m*n*sizeof (D));
+    memset ( data, D_Zero, m*n*sizeof ( D ) );
     return *this;
   }
 
   Matrix& Matrix::toId() {
     toZero();
-    unsigned short smallerdim = m < n ? m : n;
-    for (unsigned short i = 0; i < smallerdim; i++) {
-      VAL (i, i) = D_One;
+    I smallerdim = m < n ? m : n;
+    for ( I i = 0; i < smallerdim; i++ ) {
+      VAL ( i, i ) = D_One;
     }
     return *this;
   }
 
-  void Matrix::add (const Matrix& a, const Matrix& b) {
-    assert (a.m == b.m && a.n == b.n);
-    copy (a);
-    toSum (b);
+  void Matrix::add ( const Matrix& a, const Matrix& b ) {
+    assert ( a.m == b.m && a.n == b.n );
+    copy ( a );
+    toSum ( b );
   }
 
-  /// (guettler)
-  void Matrix::add (const Matrix& a, const D& summand) {
+  void Matrix::add ( const Matrix& a, const D& summand ) {
     m = a.m;
     n = a.n;
     allocate();
-    for (unsigned short i = 0; i < m*n; i++) {
+    for ( I i = 0; i < m*n; i++ ) {
       data[i] = a.data[i] + summand;
     }
   }
 
 
-  void Matrix::sub (const Matrix& a, const Matrix& b) {
-    assert (a.m == b.m && a.n == b.n);
-    copy (a);
-    toDiff (b);
+  void Matrix::sub ( const Matrix& a, const Matrix& b ) {
+    assert ( a.m == b.m && a.n == b.n );
+    copy ( a );
+    toDiff ( b );
   }
 
-  void Matrix::mult (const Matrix& a, const Matrix& b) {
-    assert (a.n == b.m);
+  void Matrix::mult ( const Matrix& a, const Matrix& b ) {
+    assert ( a.n == b.m );
     m = a.m;
     n = b.n;
-    unsigned short interdim = a.n;
+    I interdim = a.n;
     allocate();
     D d;
-    for (unsigned short i = 0; i < m; i++) {
-      for (unsigned short j = 0; j < n; j++) {
+    for ( I i = 0; i < m; i++ ) {
+      for ( I j = 0; j < n; j++ ) {
         d = 0;
-        for (unsigned short k = 0; k < interdim; k++) {
-          d += a.val (i, k) * b.val (k, j);
+        for ( I k = 0; k < interdim; k++ ) {
+          d += a.val ( i, k ) * b.val ( k, j );
         }
-        VAL (i, j) = d;
+        VAL ( i, j ) = d;
       }
     }
   }
 
-  void Matrix::mult (const Matrix& a, const D& fac) {
+  void Matrix::mult ( const Matrix& a, const D& fac ) {
     m = a.m;
     n = a.n;
     allocate();
-    for (unsigned short i = 0; i < m*n; i++) {
+    for ( I i = 0; i < m*n; i++ ) {
       data[i] = a.data[i] * fac;
     }
   }
 
-  Matrix& Matrix::toMult (const D& fac) {
-    for (unsigned short i = 0; i < m*n; i++) {
+  Matrix& Matrix::toMult ( const D& fac ) {
+    for ( I i = 0; i < m*n; i++ ) {
       data[i] *= fac;
     }
     return *this;
@@ -410,13 +414,13 @@ namespace matrix {
       1 -> itself;
       T -> Transpose
   */
-  Matrix& Matrix::toExp (int exponent) {
-    switch (exponent) {
+  Matrix& Matrix::toExp ( int exponent ) {
+    switch ( exponent ) {
       case - 1:
-        if (m == 1) VAL (0, 0) = 1 / VAL (0, 0);
-        else if (m == 2) invert2x2();
+        if ( m == 1 ) VAL ( 0, 0 ) = 1 / VAL ( 0, 0 );
+        else if ( m == 2 ) invert2x2();
 #ifndef AVR
-        else if (m == 3) invert3x3();
+        else if ( m == 3 ) invert3x3();
         else invertnonzero();
 #endif
         break;
@@ -429,154 +433,152 @@ namespace matrix {
         toTranspose();
         break;
       default:
-        assert ("Should not be reached" == 0);
+        assert ( "Should not be reached" == 0 );
         break;
     }
     return *this;
   }
 
-  Matrix& Matrix::toMap (D (*fun) (D)) {
-    unsigned int len = m * n;
-    for (unsigned short i = 0; i < len; i++) {
-      data[i] = fun (data[i]);
+  Matrix& Matrix::toMap ( D ( *fun ) ( D ) ) {
+    I len = m * n;
+    for ( I i = 0; i < len; i++ ) {
+      data[i] = fun ( data[i] );
     }
     return *this;
   }
 
-  Matrix Matrix::map (D (*fun) (D)) const {
-    Matrix result (*this);
-    result.toMap (fun);
+  Matrix Matrix::map ( D ( *fun ) ( D ) ) const {
+    Matrix result ( *this );
+    result.toMap ( fun );
     return result;
   }
 
-  Matrix& Matrix::toMapP (void* param, D (*fun) (void*, D)) {
-    unsigned int len = m * n;
-    for (unsigned short i = 0; i < len; i++) {
-      data[i] = fun (param, data[i]);
+  Matrix& Matrix::toMapP ( void* param, D ( *fun ) ( void*, D ) ) {
+    I len = m * n;
+    for ( I i = 0; i < len; i++ ) {
+      data[i] = fun ( param, data[i] );
     }
     return *this;
   }
 
-  Matrix Matrix::mapP (void* param, D (*fun) (void*, D)) const {
-    Matrix result (*this);
-    result.toMapP (param, fun);
+  Matrix Matrix::mapP ( void* param, D ( *fun ) ( void*, D ) ) const {
+    Matrix result ( *this );
+    result.toMapP ( param, fun );
     return result;
   }
 
 
-  /// (guettler)
-Matrix& Matrix::toMap2(D (*fun)(D,D), const Matrix& b) {
-  assert (m == b.m && n == b.n);
-  unsigned int len = m * n;
-  for (unsigned short i = 0; i < len; i++) {
-    data[i] = fun (data[i], b.data[i]);
+  Matrix& Matrix::toMap2 ( D ( *fun ) ( D,D ), const Matrix& b ) {
+    assert ( m == b.m && n == b.n );
+    I len = m * n;
+    for ( I i = 0; i < len; i++ ) {
+      data[i] = fun ( data[i], b.data[i] );
+    }
+    return *this;
   }
-  return *this;
-}
 
-Matrix Matrix::map2 (D (*fun) (D, D), const Matrix& a, const Matrix& b) {
-  Matrix result (a);
-  result.toMap2 (fun,b);
-  return result;
-}
-
-  /// (guettler)
-Matrix& Matrix::toMap2P( void* param, D (*fun)(void*, D,D), const Matrix& b) {
-  assert (m == b.m && n == b.n);
-  unsigned int len = m * n;
-  for (unsigned short i = 0; i < len; i++) {
-    data[i] = fun (param, data[i], b.data[i]);
+  Matrix Matrix::map2 ( D ( *fun ) ( D, D ), const Matrix& a, const Matrix& b ) {
+    Matrix result ( a );
+    result.toMap2 ( fun,b );
+    return result;
   }
-  return *this;
 
-}
+  Matrix& Matrix::toMap2P ( void* param, D ( *fun ) ( void*, D,D ), const Matrix& b ) {
+    assert ( m == b.m && n == b.n );
+    I len = m * n;
+    for ( I i = 0; i < len; i++ ) {
+      data[i] = fun ( param, data[i], b.data[i] );
+    }
+    return *this;
 
-Matrix Matrix::map2P (void* param, D (*fun) (void*, D, D), const Matrix& a, const Matrix& b) {
-  Matrix result (a);
-  result.toMap2P(param,fun,b);
-  return result;
-}
+  }
+
+  Matrix Matrix::map2P ( void* param, D ( *fun ) ( void*, D, D ), const Matrix& a, const Matrix& b ) {
+    Matrix result ( a );
+    result.toMap2P ( param,fun,b );
+    return result;
+  }
 
 
 
-  Matrix& Matrix::toMultrowwise (const Matrix& factors) {
-    assert (m == factors.m && factors.n == 1);
-    for (unsigned int i = 0; i < m; i++) {
-      for (unsigned int j = 0; j < n; j++) {
-        VAL (i, j) *= factors.val (i, 0);
+  Matrix& Matrix::toMultrowwise ( const Matrix& factors ) {
+    assert ( m == factors.m && factors.n == 1 );
+    for ( I i = 0; i < m; i++ ) {
+      for ( I j = 0; j < n; j++ ) {
+        VAL ( i, j ) *= factors.val ( i, 0 );
       }
     }
     return *this;
   }
 
-  Matrix& Matrix::toMultcolwise (const Matrix& factors) {
-    assert (n == factors.m && factors.n == 1);
-    for (unsigned int i = 0; i < m; i++) {
-      for (unsigned int j = 0; j < n; j++) {
-        VAL (i, j) *= factors.val (j, 0);
+  Matrix& Matrix::toMultcolwise ( const Matrix& factors ) {
+    assert ( n == factors.m && factors.n == 1 );
+    for ( I i = 0; i < m; i++ ) {
+      for ( I j = 0; j < n; j++ ) {
+        VAL ( i, j ) *= factors.val ( j, 0 );
       }
     }
     return *this;
   }
 
-  Matrix& Matrix::toAbove (const Matrix& a) {
-    assert (a.n == this->n);
-    data = (D*) realloc (data, sizeof (D) * (this->m * this->n + a.n * a.m));
-    memcpy (data + this->m * this->n, a.data, sizeof (D) * (a.n * a.m));
+  Matrix& Matrix::toAbove ( const Matrix& a ) {
+    assert ( a.n == this->n );
+    data = ( D* ) realloc ( data, sizeof ( D ) * ( this->m * this->n + a.n * a.m ) );
+    memcpy ( data + this->m * this->n, a.data, sizeof ( D ) * ( a.n * a.m ) );
     this->m += a.m;
     return *this;
   }
 
-  int cmpdouble (const void* a, const void* b) {
-    return * ( (double*) a) < * ( (double*) b) ? -1 : (* ( (double*) a) > * ( (double*) b) ? 1 : 0);
+  int cmpdouble ( const void* a, const void* b ) {
+    return * ( ( double* ) a ) < * ( ( double* ) b ) ? -1 : ( * ( ( double* ) a ) > * ( ( double* ) b ) ? 1 : 0 );
   }
 
   Matrix& Matrix::toSort() {
-    qsort (data, m*n, sizeof (double), cmpdouble);
+    qsort ( data, m*n, sizeof ( double ), cmpdouble );
     return *this;
   }
 
-  Matrix& Matrix::reshape (int _m, int _n) {
-    assert (_m*_n <= m*n);
+  Matrix& Matrix::reshape ( I _m, I _n ) {
+    assert ( _m*_n <= m*n );
     m = _m;
     n = _n;
     return *this;
   }
 
   /// adds the given value to the diagonal
-  Matrix& Matrix::pluslambdaI (double lambda) {
-    int smallerdim = std::min (m, n);
-    for (int i = 0; i < smallerdim; i++) {
-      VAL (i, i) += lambda;
+  Matrix& Matrix::pluslambdaI ( double lambda ) {
+    I smallerdim = std::min ( m, n );
+    for ( I i = 0; i < smallerdim; i++ ) {
+      VAL ( i, i ) += lambda;
     }
     return *this;
   }
 
 
-  Matrix Matrix::multrowwise (const Matrix& factors) const {
-    Matrix result (*this);
-    result.toMultrowwise (factors);
+  Matrix Matrix::multrowwise ( const Matrix& factors ) const {
+    Matrix result ( *this );
+    result.toMultrowwise ( factors );
     return result;
   }
 
-  Matrix Matrix::multcolwise (const Matrix& factors) const {
-    Matrix result (*this);
-    result.toMultcolwise (factors);
+  Matrix Matrix::multcolwise ( const Matrix& factors ) const {
+    Matrix result ( *this );
+    result.toMultcolwise ( factors );
     return result;
   }
 
   // multiply Matrix with its transposed: M * M^T
   Matrix Matrix::multMT() const {
-    assert (m != 0 && n != 0);
-    Matrix result (m, m);
+    assert ( m != 0 && n != 0 );
+    Matrix result ( m, m );
     D d;
-    for (unsigned short i = 0; i < m; i++) {
-      for (unsigned short j = 0; j < m; j++) {
+    for ( I i = 0; i < m; i++ ) {
+      for ( I j = 0; j < m; j++ ) {
         d = 0;
-        for (unsigned short k = 0; k < n; k++) {
-          d += VAL (i, k) * VAL (j, k);
+        for ( I k = 0; k < n; k++ ) {
+          d += VAL ( i, k ) * VAL ( j, k );
         }
-        result.val (i, j) = d;
+        result.val ( i, j ) = d;
       }
     }
     return result;
@@ -584,16 +586,16 @@ Matrix Matrix::map2P (void* param, D (*fun) (void*, D, D), const Matrix& a, cons
 
   // multiply transpsoed of Matrix with itself: M^T * M
   Matrix Matrix::multTM() const {
-    assert (m != 0 && n != 0);
-    Matrix result (n, n);
+    assert ( m != 0 && n != 0 );
+    Matrix result ( n, n );
     D d;
-    for (unsigned short i = 0; i < n; i++) {
-      for (unsigned short j = 0; j < n; j++) {
+    for ( I i = 0; i < n; i++ ) {
+      for ( I j = 0; j < n; j++ ) {
         d = 0;
-        for (unsigned short k = 0; k < m; k++) {
-          d += VAL (k, i) * VAL (k, j);
+        for ( I k = 0; k < m; k++ ) {
+          d += VAL ( k, i ) * VAL ( k, j );
         }
-        result.val (i, j) = d;
+        result.val ( i, j ) = d;
       }
     }
     return result;
@@ -602,7 +604,7 @@ Matrix Matrix::map2P (void* param, D (*fun) (void*, D, D), const Matrix& a, cons
   /// returns the product of all elements
   D Matrix::elementProduct() const {
     D rv = 1;
-    for (unsigned short i = 0; i < m*n; i++) {
+    for ( I i = 0; i < m*n; i++ ) {
       rv *= data[i];
     }
     return rv;
@@ -611,185 +613,178 @@ Matrix Matrix::map2P (void* param, D (*fun) (void*, D, D), const Matrix& a, cons
   /// returns the sum of all elements
   D Matrix::elementSum() const {
     D rv = 0;
-    for (unsigned short i = 0; i < m*n; i++) {
+    for ( I i = 0; i < m*n; i++ ) {
       rv += data[i];
     }
     return rv;
   }
 
   /// returns a matrix that consists of b below this
-  Matrix Matrix::above (const Matrix& b) const {
-    Matrix r (*this);
-    r.toAbove (b);
+  Matrix Matrix::above ( const Matrix& b ) const {
+    Matrix r ( *this );
+    r.toAbove ( b );
     return r;
 
   }
 
-/// (guettler)
 /// adds one or more rows to the existing matrix
 /// The data for the new rows is read row-wise.
-  Matrix& Matrix::addRows (unsigned short numberRows, const D* _data /*=0*/) {
-    assert(((unsigned int)m+(unsigned int)numberRows)<=255 && "final number of rows to high");
+  Matrix& Matrix::addRows ( I numberRows, const D* _data /*=0*/ ) {
     // internal allocation
     D* oldData = data;
-    data = (D*) malloc (sizeof (D) * (m + numberRows) * n);
-    assert (data);
+    data = ( D* ) malloc ( sizeof ( D ) * ( m + numberRows ) * n );
+    assert ( data );
     toZero();
 
-    if (oldData) {// copy old values
-      memcpy (data, oldData, m*n*sizeof (D));     // position is the same
-      free (oldData);
+    if ( oldData ) { // copy old values
+      memcpy ( data, oldData, m*n*sizeof ( D ) ); // position is the same
+      free ( oldData );
     }
 
-    if (_data) {  // copy new values for the new rows
-      for (int i = m * n;i < (m + numberRows)*n;i++) {
+    if ( _data ) { // copy new values for the new rows
+      for ( I i = m * n;i < ( m + numberRows ) *n;i++ ) {
         data[i] = _data[i-m*n];
       }
     }
 
     m+= numberRows;
-    buffersize=(unsigned) m*n;
+    buffersize= m*n;
+    return *this;
+  }
+
+  Matrix& Matrix::addRows ( I numberRows, const Matrix& dataMatrix ) {
+    assert ( n==dataMatrix.getN() && "same number of colums needed" );
+    return addRows ( numberRows,dataMatrix.unsafeGetData() );
+  }
+
+
+/// adds one or more columns to the existing matrix
+/// The data for the new columns is read row-wise.
+  Matrix& Matrix::addColumns ( I numberColumns, const D* _data /*=0*/ ) {
+    // internal allocation
+    D* oldData = data;
+    data = ( D* ) malloc ( sizeof ( D ) * m * ( n+ numberColumns ) );
+    assert ( data );
+    toZero();
+    if ( oldData ) { // copy old values
+      for ( I i=0;i<m*n;i++ ) {
+        data[ ( i/n ) * ( n+numberColumns ) + ( i%n ) ]=oldData[i];
+      }
+      free ( oldData );
+    }
+    if ( _data ) { // copy new values for the new rows
+      for ( I i = 0;i < m;i++ ) {
+        for ( I j=0;j<numberColumns;j++ ) {
+          data[i* ( n+numberColumns ) +j+n] = _data[i*numberColumns+j];
+        }
+      }
+    }
+
+    n+= numberColumns;
+    buffersize=m*n;
     return *this;
   }
 
 /// (guettler)
-Matrix& Matrix::addRows(unsigned short numberRows, const Matrix& dataMatrix) {
-  assert(n==dataMatrix.getN() && "same number of colums needed");
-  return addRows(numberRows,dataMatrix.unsafeGetData());
-}
-
-
-/// (guettler)
-/// adds one or more columns to the existing matrix
-/// The data for the new columns is read row-wise.
-Matrix& Matrix::addColumns (unsigned short numberColumns, const D* _data /*=0*/) {
-  assert(((unsigned int)n+(unsigned int)numberColumns)<=255 && "final number of columns to high");
-  // internal allocation
-  D* oldData = data;
-  data = (D*) malloc (sizeof (D) * m * (n+ numberColumns));
-  assert (data);
-  toZero();
-  if (oldData) { // copy old values
-    for (int i=0;i<m*n;i++) {
-      data[(i/n)*(n+numberColumns)+(i%n)]=oldData[i];
-    }
-    free (oldData);
-  }
-  if (_data) {  // copy new values for the new rows
-    for (int i = 0;i < m;i++) {
-      for (int j=0;j<numberColumns;j++) {
-        data[i*(n+numberColumns)+j+n] = _data[i*numberColumns+j];
-      }
-    }
+  Matrix& Matrix::addColumns ( I numberColumns, const Matrix& dataMatrix ) {
+    assert ( m==dataMatrix.getM() && "same number of rows needed" );
+    return addColumns ( numberColumns,dataMatrix.unsafeGetData() );
   }
 
-  n+= numberColumns;
-  buffersize=(unsigned) m*n;
-  return *this;
-}
+  Matrix& Matrix::removeRows ( I numberRows ) {
+    assert ( m>numberRows && "to much rows to remove" );
+    // internal allocation
+    D* oldData = data;
+    data = ( D* ) malloc ( sizeof ( D ) * ( m - numberRows ) * n );
+    assert ( data );
 
-/// (guettler)
-Matrix& Matrix::addColumns(unsigned short numberColumns, const Matrix& dataMatrix) {
-  assert(m==dataMatrix.getM() && "same number of rows needed");
-  return addColumns(numberColumns,dataMatrix.unsafeGetData());
-}
+    if ( oldData ) { // copy old values
+      memcpy ( data, oldData, ( m-numberRows ) *n*sizeof ( D ) );     // position is the same
+      free ( oldData );
+    } else
+      toZero();
 
-/// (guettler)
-Matrix& Matrix::removeRows(unsigned short numberRows) {
-  assert(m>numberRows && "to much rows to remove");
-  // internal allocation
-  D* oldData = data;
-  data = (D*) malloc (sizeof (D) * (m - numberRows) * n);
-  assert (data);
+    m-= numberRows;
+    buffersize=m*n;
+    return *this;
+  }
 
-  if (oldData) {// copy old values
-    memcpy (data, oldData, (m-numberRows)*n*sizeof (D));     // position is the same
-    free (oldData);
-  } else
-    toZero();
-
-  m-= numberRows;
-  buffersize=(unsigned) m*n;
-  return *this;
-}
-
-/// (guettler)
-Matrix& Matrix::removeColumns(unsigned short numberColumns) {
-  assert(n>numberColumns && "to much columns to remove");
-  // internal allocation
-  D* oldData = data;
-  data = (D*) malloc (sizeof (D) * m * (n- numberColumns));
-  assert (data);
-  if (oldData) { // copy old values
-    for (int i=0;i<m;i++) {
-      for (int j=0;j<(n-numberColumns);j++) {
-        data[i*n+j]=oldData[i*n+j];
+  Matrix& Matrix::removeColumns ( I numberColumns ) {
+    assert ( n>numberColumns && "to much columns to remove" );
+    // internal allocation
+    D* oldData = data;
+    data = ( D* ) malloc ( sizeof ( D ) * m * ( n- numberColumns ) );
+    assert ( data );
+    if ( oldData ) { // copy old values
+      for ( I i=0;i<m;i++ ) {
+        for ( I j=0;j< ( n-numberColumns );j++ ) {
+          data[i*n+j]=oldData[i*n+j];
+        }
       }
-    }
-    free (oldData);
-  } else
-    toZero();
+      free ( oldData );
+    } else
+      toZero();
 
-  n-= numberColumns;
-  buffersize=(unsigned) m*n;
-  return *this;
-}
+    n-= numberColumns;
+    buffersize=m*n;
+    return *this;
+  }
 
 
 
 #ifndef AVR
   /* inplace matrix invertation:
       Matrix must be SQARE, in addition, all DIAGONAL ELEMENTS MUST BE NONZERO  */
-  void Matrix::invertnonzero()  {
-    assert (m == n && m > 1); // must be of dimension >= 2
+  void Matrix::invertnonzero() {
+    assert ( m == n && m > 1 ); // must be of dimension >= 2
 
-    for (unsigned int i = 1; i < m; i++) data[i] /= data[0]; // normalize row 0
-    for (unsigned int i = 1; i < m; i++)  {
-      for (unsigned int j = i; j < m; j++)  { // do a column of L
+    for ( I i = 1; i < m; i++ ) data[i] /= data[0]; // normalize row 0
+    for ( I i = 1; i < m; i++ ) {
+      for ( I j = i; j < m; j++ ) { // do a column of L
         D sum = 0.0;
-        for (unsigned int k = 0; k < i; k++)
-          sum += VAL (j, k) * VAL (k, i);
-        VAL (j, i) -= sum;
+        for ( I k = 0; k < i; k++ )
+          sum += VAL ( j, k ) * VAL ( k, i );
+        VAL ( j, i ) -= sum;
       }
-      if (i == (unsigned) m - 1) continue;
-      for (unsigned int j = i + 1; j < m; j++)  {  // do a row of U
+      if ( i == m - 1 ) continue;
+      for ( I j = i + 1; j < m; j++ ) { // do a row of U
         D sum = 0.0;
-        for (unsigned int k = 0; k < i; k++)
-          sum += VAL (i, k) * VAL (k, j);
-        VAL (i, j) = (VAL (i, j) - sum) / VAL (i, i);
+        for ( I k = 0; k < i; k++ )
+          sum += VAL ( i, k ) * VAL ( k, j );
+        VAL ( i, j ) = ( VAL ( i, j ) - sum ) / VAL ( i, i );
       }
     }
-    for (unsigned int i = 0; i < m; i++)   // invert L
-      for (unsigned int j = i; j < m; j++)  {
+    for ( I i = 0; i < m; i++ ) // invert L
+      for ( I j = i; j < m; j++ ) {
         D x = 1.0;
-        if (i != j) {
+        if ( i != j ) {
           x = 0.0;
-          for (unsigned int k = i; k < j; k++)
-            x -= VAL (j, k) * VAL (k, i);
+          for ( I k = i; k < j; k++ )
+            x -= VAL ( j, k ) * VAL ( k, i );
         }
-        VAL (j, i) = x / VAL (j, j);
+        VAL ( j, i ) = x / VAL ( j, j );
       }
-    for (unsigned int i = 0; i < m; i++)    // invert U
-      for (unsigned int j = i; j < m; j++)  {
-        if (i == j) continue;
+    for ( I i = 0; i < m; i++ )  // invert U
+      for ( I j = i; j < m; j++ ) {
+        if ( i == j ) continue;
         D sum = 0.0;
-        for (unsigned int k = i; k < j; k++)
-          sum += VAL (k, j) * ( (i == k) ? 1.0 : VAL (i, k));
-        VAL (i, j) = -sum;
+        for ( I k = i; k < j; k++ )
+          sum += VAL ( k, j ) * ( ( i == k ) ? 1.0 : VAL ( i, k ) );
+        VAL ( i, j ) = -sum;
       }
-    for (unsigned int i = 0; i < m; i++)    // final inversion
-      for (unsigned int j = 0; j < m; j++)  {
+    for ( I i = 0; i < m; i++ )  // final inversion
+      for ( I j = 0; j < m; j++ ) {
         D sum = 0.0;
-        for (unsigned int k = ( (i > j) ? i : j); k < m; k++)
-          sum += ( (j == k) ? 1.0 : VAL (j, k)) * VAL (k, i);
-        VAL (j, i) = sum;
+        for ( I k = ( ( i > j ) ? i : j ); k < m; k++ )
+          sum += ( ( j == k ) ? 1.0 : VAL ( j, k ) ) * VAL ( k, i );
+        VAL ( j, i ) = sum;
       }
   };
 #endif
 
 
   void Matrix::invert2x2() {
-    assert (m == n && m == 2);
+    assert ( m == n && m == 2 );
     // high speed version
     D detQ = data[0] * data[3] - data[1] * data[2];
     D tmp = data[0];
@@ -801,23 +796,23 @@ Matrix& Matrix::removeColumns(unsigned short numberColumns) {
 
 #ifndef AVR
   void Matrix::invert3x3() {
-    assert (m == n && m == 3);
+    assert ( m == n && m == 3 );
     D Q_adjoint[3][3];
     D detQ = 0;
     //calculate the inverse of Q
-    Q_adjoint[0][0] = VAL (1, 1) * VAL (2, 2) - VAL (1, 2) * VAL (2, 1) ;
-    Q_adjoint[0][1] = (VAL (1, 2) * VAL (2, 0) - VAL (1, 0) * VAL (2, 2)) ;
-    Q_adjoint[0][2] = VAL (1, 0) * VAL (2, 1) - VAL (1, 1) * VAL (2, 0) ;
-    Q_adjoint[1][0] = (VAL (2, 1) * VAL (0, 2) - VAL (0, 1) * VAL (2, 2)) ;
-    Q_adjoint[1][1] = VAL (0, 0) * VAL (2, 2) - VAL (0, 2) * VAL (2, 0) ;
-    Q_adjoint[1][2] = (VAL (0, 1) * VAL (2, 0) - VAL (0, 0) * VAL (2, 1)) ;
-    Q_adjoint[2][0] = VAL (0, 1) * VAL (1, 2) - VAL (1, 1) * VAL (0, 2) ;
-    Q_adjoint[2][1] = (VAL (1, 0) * VAL (0, 2) - VAL (0, 0) * VAL (1, 2)) ;
-    Q_adjoint[2][2] = VAL (0, 0) * VAL (1, 1) - VAL (0, 1) * VAL (1, 0) ;
-    detQ = VAL (0, 0) * Q_adjoint[0][0] + VAL (0, 1) * Q_adjoint[0][1] + VAL (0, 2) * Q_adjoint[0][2] ;
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        VAL (i, j) = (Q_adjoint[j][i]) / detQ  ;
+    Q_adjoint[0][0] = VAL ( 1, 1 ) * VAL ( 2, 2 ) - VAL ( 1, 2 ) * VAL ( 2, 1 ) ;
+    Q_adjoint[0][1] = ( VAL ( 1, 2 ) * VAL ( 2, 0 ) - VAL ( 1, 0 ) * VAL ( 2, 2 ) ) ;
+    Q_adjoint[0][2] = VAL ( 1, 0 ) * VAL ( 2, 1 ) - VAL ( 1, 1 ) * VAL ( 2, 0 ) ;
+    Q_adjoint[1][0] = ( VAL ( 2, 1 ) * VAL ( 0, 2 ) - VAL ( 0, 1 ) * VAL ( 2, 2 ) ) ;
+    Q_adjoint[1][1] = VAL ( 0, 0 ) * VAL ( 2, 2 ) - VAL ( 0, 2 ) * VAL ( 2, 0 ) ;
+    Q_adjoint[1][2] = ( VAL ( 0, 1 ) * VAL ( 2, 0 ) - VAL ( 0, 0 ) * VAL ( 2, 1 ) ) ;
+    Q_adjoint[2][0] = VAL ( 0, 1 ) * VAL ( 1, 2 ) - VAL ( 1, 1 ) * VAL ( 0, 2 ) ;
+    Q_adjoint[2][1] = ( VAL ( 1, 0 ) * VAL ( 0, 2 ) - VAL ( 0, 0 ) * VAL ( 1, 2 ) ) ;
+    Q_adjoint[2][2] = VAL ( 0, 0 ) * VAL ( 1, 1 ) - VAL ( 0, 1 ) * VAL ( 1, 0 ) ;
+    detQ = VAL ( 0, 0 ) * Q_adjoint[0][0] + VAL ( 0, 1 ) * Q_adjoint[0][1] + VAL ( 0, 2 ) * Q_adjoint[0][2] ;
+    for ( I i = 0; i < 3; i++ ) {
+      for ( I j = 0; j < 3; j++ ) {
+        VAL ( i, j ) = ( Q_adjoint[j][i] ) / detQ  ;
       }
     }
   }
@@ -826,37 +821,28 @@ Matrix& Matrix::removeColumns(unsigned short numberColumns) {
   ////////////////////////////////////////////////////////////////////////////////
   // normal binary operators
 
-  Matrix Matrix::operator + (const Matrix& sum) const {
+  Matrix Matrix::operator + ( const Matrix& sum ) const {
     Matrix result;
-    result.add (*this, sum);
+    result.add ( *this, sum );
     return result;
   }
 
-
-//  /// (guettler)
-//  /** add a scalar (double) to each element*/
-//   Matrix Matrix::operator + (const D& scalar) const {
-//     Matrix result;
-//     result.add (*this, scalar);
-//     return result;
-//   }
-
-  Matrix Matrix::operator - (const Matrix& sum) const {
+  Matrix Matrix::operator - ( const Matrix& sum ) const {
     Matrix result;
-    result.sub (*this, sum);
+    result.sub ( *this, sum );
     return result;
   }
 
   /** matrix product*/
-  Matrix Matrix::operator * (const Matrix& fac) const {
+  Matrix Matrix::operator * ( const Matrix& fac ) const {
     Matrix result;
-    result.mult (*this, fac);
+    result.mult ( *this, fac );
     return result;
   }
   /** product with scalar (double)*/
-  Matrix Matrix::operator * (const D& scalar) const {
+  Matrix Matrix::operator * ( const D& scalar ) const {
     Matrix result;
-    result.mult (*this, scalar);
+    result.mult ( *this, scalar );
     return result;
   }
   /** special matrix potence:
@@ -864,20 +850,20 @@ Matrix& Matrix::removeColumns(unsigned short numberColumns) {
       1 -> itself; 2-> Matrix*Matrix^T
       T -> Transpose
   */
-  Matrix Matrix::operator ^ (int exponent) const {
-    Matrix result (*this);
-    result.toExp (exponent);
+  Matrix Matrix::operator ^ ( int exponent ) const {
+    Matrix result ( *this );
+    result.toExp ( exponent );
     return result;
   }
 
 #ifndef AVR
-  bool Matrix::operator == (const Matrix& c) const {
-    if (m != c.m || n != c.n) return false;
+  bool Matrix::operator == ( const Matrix& c ) const {
+    if ( m != c.m || n != c.n ) return false;
     D* p1 = data;
     D* p2 = c.data;
-    unsigned int len = m * n;
-    for (unsigned int i = 0; i < len; i++) {
-      if (fabs (*p1 - *p2) > COMPARE_EPS) {
+    I len = m * n;
+    for ( I i = 0; i < len; i++ ) {
+      if ( fabs ( *p1 - *p2 ) > COMPARE_EPS ) {
         return false;
       }
       p1++; p2++;
@@ -885,15 +871,15 @@ Matrix& Matrix::removeColumns(unsigned short numberColumns) {
     return true;
   }
 
-  std::ostream& operator<< (std::ostream& str, const Matrix& mat) {
-    if (mat.m == 0 || mat.n == 0) return str << "0";
+  std::ostream& operator<< ( std::ostream& str, const Matrix& mat ) {
+    if ( mat.m == 0 || mat.n == 0 ) return str << "0";
     else {
       //      str << mat.m << "x" << mat.n << " (\n";
-      for (int i = 0; i < mat.m; i++) {
-        for (int j = 0; j < mat.n; j++) {
-          str << mat.val (i, j) << " \t";
+      for ( I i = 0; i < mat.m; i++ ) {
+        for ( I j = 0; j < mat.n; j++ ) {
+          str << mat.val ( i, j ) << " \t";
         }
-        if (i != mat.m - 1) str << std::endl;
+        if ( i != mat.m - 1 ) str << std::endl;
       }
     }
     //    return str << ")\n";

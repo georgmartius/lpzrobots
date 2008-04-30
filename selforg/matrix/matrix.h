@@ -7,7 +7,12 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.19  2008-04-29 11:04:44  guettler
+// Revision 1.20  2008-04-30 14:54:14  guettler
+// -indextype of matrices is now unsigned int (bigger matrices than
+//  256x256 can be used now, if not AVR defined)
+// -code cleaned up
+//
+// Revision 1.19  2008/04/29 11:04:44  guettler
 // forgot to deactivate += operator
 //
 // Revision 1.18  2008/04/29 11:01:32  guettler
@@ -182,19 +187,39 @@ namespace matrix{
 
   /// type for matrix elements
   typedef double D;
+
+
+#ifndef AVR
+/// type for matrix indices
+  typedef unsigned int I;
+#else
+/// type for matrix indices, if AVR
+/// NOTE: You cannot use matrices bigger than m*n>255 if AVR!
+  typedef unsigned short I;
+#endif
+
+
 #define D_Zero 0
 #define D_One 1
-  /** Matrix type. Type D is datatype of matrix elements, which is fixed to double.
-      There are basicly two different types of operation:
-      Inplace operations and copy operations.
-      Please use the latter ones unless you know what you are doing.
-      Just in case of critical performance optimisation use the inplace operations.
-      The most convinient way is to use the overloaded operators (like + * ...).
-      All constructed matrices are initialised with zero elements (unless data is given).
-      All functions perform range checks if in debug mode (NDEBUG is not defined).
-      Please use -lmatrix_debug for testing.
-      @author Georg Martius
-  */
+  /** Matrix type. Type D is datatype of matrix elements,
+   * which is fixed to double.
+   * Type I is the indextype of matrix elements,
+   * which is fixed to unsigned int, if AVR is not defined.
+   * There are basicly two different types of operation:
+   * Inplace operations and copy operations.
+   * Please use the latter ones unless you know what you are doing.
+   * Just in case of critical performance optimisation use the inplace
+   * operations.
+   * The most convinient way is to use the overloaded operators
+   * (like + * ...).
+   * All constructed matrices are initialised with zero elements
+   * (unless data is given).
+   * All functions perform range checks if in debug mode
+   * (NDEBUG is not defined).
+   * Please use -lmatrix_debug for testing.
+   *
+   * @author Georg Martius
+   */
   class Matrix : public Storeable {
   public:
     /// default constructor: zero matrix (0x0)
@@ -205,7 +230,7 @@ namespace matrix{
 	otherwise matrix will be filled with _data in a row-wise manner.
 	In this case _data must be at least _m*_n elements long
     */
-    Matrix(unsigned short _m, unsigned short _n, const D* _data=0);
+    Matrix(I _m, I _n, const D* _data=0);
     /// constucts a instance on the base of a deep copy of the given matrix
     Matrix (const Matrix& c);
     ~Matrix() { if(data) free(data); };
@@ -213,27 +238,27 @@ namespace matrix{
   public:
     //  /////////////////// Accessors ///////////////////////////////
     /** @return number of rows */
-    unsigned short getM() const { return m; };
+    I getM() const { return m; };
     /** @return number of columns */
-    unsigned short getN() const { return n; };
+    I getN() const { return n; };
     /// @return number number elements in the matrix (getM()*getN())
-    unsigned int size() const { return n*m; };
+    I size() const { return n*m; };
 
 
     /** @return element at position i,j (row, column index) */
-    inline D val(unsigned short i, unsigned short j) const {
+    inline D val(I i, I j) const {
       assert( i<m && j<n);
       return data[i*n+j];
     };
     /** @return reference to element at position i,j
 	(can be used as left side value) */
-    inline D& val(unsigned short i, unsigned short j) {
+    inline D& val(I i, I j) {
       assert( i<m && j<n);
       return data[i*n+j];
     };
 
     /** @return element at position i,j (row, column index) and 0 if out of bounds */
-    inline D valDef0(short i, short j) const {
+    inline D valDef0(I i, I j) const {
       if(0<=i && i<m && 0<=j && j<n)
 	return data[i*n+j];
       else return 0;
@@ -244,25 +269,25 @@ namespace matrix{
 	@see toZero()
         @see constructor Matrix(m,n,data)
     */
-    void set(unsigned short _m, unsigned short _n, const D* _data=0);
+    void set(I _m, I _n, const D* _data=0);
     /** sets the data (row-wise).
         @param _data if null then matrix elements are set to zero
         otherwise the field MUST have the length should be getM()*getN()*/
     void set(const D* _data);
     /** @return row-vector(as 1xN matrix) containing the index'th row */
-    Matrix row(unsigned short index) const;
+    Matrix row(I index) const;
     /** @returns submatrix (as KxN matrix)
 	containing row from startindex to endindex inclusively (K=stopindex-endindex)
 	indices can be out of bounds, they are clipped in any case
     */
-    Matrix rows(unsigned short startindex, unsigned short endindex) const;
+    Matrix rows(I startindex, I endindex) const;
     /** @returns column-vector(as Nx1 matrix) containing the index'th column */
-    Matrix column(unsigned short index) const;
+    Matrix column(I index) const;
     /** @returns submatrix (as NxK matrix)
 	containing column from startindex to endindex inclusively (K=stopindex-endindex)
 	indices can be out of bounds, they are clipped in any case
     */
-    Matrix columns(unsigned short startindex, unsigned short endindex) const;
+    Matrix columns(I startindex, I endindex) const;
 
 
 
@@ -272,7 +297,7 @@ namespace matrix{
                In any case only min(len, getM()*getN()) elements are copied.
 	@return number of actually written elements
      */
-    int convertToBuffer(D* buffer, unsigned int len) const;
+    int convertToBuffer(D* buffer, I len) const;
 
     /** @return a list of the content of the matrix (row-wise)
      */
@@ -304,7 +329,7 @@ namespace matrix{
     // /////////////  operations  /////////////////////////////
     //  (the result of the operation is not stored in one of the operands)
     void add(const Matrix& a, const Matrix& b); ///< addition:    this = a + b
-    void add(const Matrix& a, const D& summand); /// add scalar to each element (guettler)
+    void add(const Matrix& a, const D& summand); /// add scalar to each element
     void sub(const Matrix& a, const Matrix& b); ///< subtraction: this = a - b
     void mult(const Matrix& a, const Matrix& b);///< multiplication: this = a * b
     void mult(const Matrix& a, const D& fac);///< scaling: this = a * fac
@@ -374,7 +399,6 @@ namespace matrix{
     Matrix operator ^ (int exponent) const;
     /// performant combined assigment operators
     Matrix& operator += (const Matrix& c) {toSum(c);   return *this; }
-    //    Matrix& operator += (const D& sum)  {toSum(sum);   return *this; } /// (guettler)
     Matrix& operator -= (const Matrix& c) {toDiff(c);  return *this; }
     Matrix& operator *= (const Matrix& c) {
       Matrix result;
@@ -408,16 +432,15 @@ namespace matrix{
     /// inplace addition: this = this + a
     Matrix& toSum(const Matrix& a) {
       assert(a.m==m && a.n==n);
-      for(unsigned short i=0; i<m*n; i++){
+      for(I i=0; i<m*n; i++){
 	data[i]+=a.data[i];
       }
       return *this;
     }
 
-    /// (guettler)
     /// inplace addition: this = this + a, where a is a scalar
     Matrix& toSum(const D& sum) {
-      for(unsigned short i=0; i<m*n; i++){
+      for(I i=0; i<m*n; i++){
         data[i]+=sum;
       }
       return *this;
@@ -426,7 +449,7 @@ namespace matrix{
     /// inplace subtraction: this = this - a
     Matrix& toDiff(const Matrix& a){
       assert(a.m==m && a.n==n);
-      for(unsigned short i=0; i<m*n; i++){
+      for(I i=0; i<m*n; i++){
 	data[i]-=a.data[i];
       }
       return *this;
@@ -447,13 +470,12 @@ namespace matrix{
     /**  like toMap, but with an extra parameter for the mapping function. */
     Matrix& toMapP(void* param, D (*fun)(void*, D));
 
-    /// (guettler)
     /**  like toMap, but with 2 arguments for the mapping function. */
     Matrix& toMap2(D (*fun)(D,D), const Matrix& b);
 
-    /// (guettler)
     Matrix& toMap2P( void* param, D (*fun)(void*, D,D), const Matrix& b);
-// Exotic operations
+
+    // Exotic operations
     /** Inplace row-wise multiplication
 	@param factors column vector of factors, one for each row
     */
@@ -471,7 +493,7 @@ namespace matrix{
 
     /** reshapes the matrix without distroying the data. Remember: The data is stored rowwise.
 	m*n must be lower or equal to getM()*getN()*/
-    Matrix& reshape(int m, int n);
+    Matrix& reshape(I m, I n);
 
     /// adds the given value to the diagonal
     Matrix& pluslambdaI(double lambda);
@@ -486,10 +508,10 @@ namespace matrix{
      * @param _data data to add
      * @return the address of the matrix itself
      */
-    Matrix& addRows(unsigned short numberRows, const D* _data=0);
+    Matrix& addRows(I numberRows, const D* _data=0);
 
     /**
-     * same as addRows(unsigned short,D*), but with the data given by a
+     * same as addRows(I,D*), but with the data given by a
      * matrix.
      * @note this is a more safe version (requires equal number of columns)
      * @see addRows(numberRows,_data)
@@ -497,7 +519,7 @@ namespace matrix{
      * @param dataMatrix matrix which contains the data of the new rows
      * @return the address of the matrix itself
      */
-    Matrix& addRows(unsigned short numberRows, const Matrix& dataMatrix);
+    Matrix& addRows(I numberRows, const Matrix& dataMatrix);
 
     /** adds one or more columns to the existing matrix
      * resets the size of the matrix and maybe the data if given (new columns).
@@ -509,11 +531,11 @@ namespace matrix{
      * @param _data data to add
      * @return the address of the matrix itself
      */
-     Matrix& addColumns(unsigned short numberColumns, const D* _data=0);
+     Matrix& addColumns(I numberColumns, const D* _data=0);
 
 
     /**
-     * same as addColumns(unsigned short,D*), but with the data given by a
+     * same as addColumns(I,D*), but with the data given by a
      * matrix.
      * @note this is a more safe version (requires equal number of rows)
      * @see addColumns(numberColumns,_data)
@@ -521,7 +543,7 @@ namespace matrix{
      * @param dataMatrix matrix which contains the data of the new rows
      * @return the address of the matrix itself
      */
-    Matrix& addColumns(unsigned short numberColumns, const Matrix& dataMatrix);
+    Matrix& addColumns(I numberColumns, const Matrix& dataMatrix);
 
 
         /** removes one or more rows of the existing matrix
@@ -529,18 +551,18 @@ namespace matrix{
      * @param numberRows number of rows to remove (this reduces m)
      * @return the address of the matrix itself
      */
-    Matrix& removeRows(unsigned short numberRows);
+    Matrix& removeRows(I numberRows);
 
     /** removes one or more columns of the existing matrix
      * resets the size of the matrix and deletes the appropiate data.
      * @param numberColumns number of columns to remove (this reduces n)
      * @return the address of the matrix itself
      */
-    Matrix& removeColumns(unsigned short numberColumns);
+    Matrix& removeColumns(I numberColumns);
 
 
     /**
-     * same as removeColumns(unsigned short,D*), but with the data given by a
+     * same as removeColumns(I,D*), but with the data given by a
      * matrix.
      * @note this is a more safe version (requires equal number of rows)
      * @see removeColumns(numberColumns,_data)
@@ -548,14 +570,14 @@ namespace matrix{
      * @param dataMatrix matrix which contains the data of the new rows
      * @return the removeress of the matrix itself
      */
-    Matrix& removeColumns(unsigned short numberColumns, const Matrix& dataMatrix);
+    Matrix& removeColumns(I numberColumns, const Matrix& dataMatrix);
 
 
   private:
     // NOTE: buffersize determines available memory storage.
     // m and n define the actual size
-    unsigned short m, n;
-    unsigned int buffersize;  // max number if elements
+    I m, n;
+    I buffersize;  // max number if elements
     D* data;      // where the data contents of the matrix are stored
 
 
