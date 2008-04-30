@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-29 06:51:40  guettler
+ *   Revision 1.4  2008-04-30 15:50:20  martius
+ *   filename had 2time hour
+ *
+ *   Revision 1.3  2008/04/29 06:51:40  guettler
  *   fixed division by zero bug (t % (*i).interval), when ode_robots starts in
  *   pause modus
  *
@@ -244,9 +247,9 @@ bool PlotOption::open(){
       time(&tnow);
       t = localtime(&tnow);
       char logfilename[255];
-      sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i-%02i.log",
+      sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i.log",
 	      name.c_str(), t->tm_year%100, t->tm_mon+1 , t->tm_mday,
-	      t->tm_hour, t->tm_hour, t->tm_min, t->tm_sec);
+	      t->tm_hour, t->tm_min, t->tm_sec);
       pipe=fopen(logfilename,"w");
       if (pipe)
 	std::cout << "Now logging to file \"" << logfilename << "\"." << std::endl;
