@@ -3,7 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *    guettler@informatik.uni-leipzig.de                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2008-04-23 07:17:16  martius
+ *   Revision 1.18  2008-04-30 13:13:20  guettler
+ *   caption corrected
+ *
+ *   Revision 1.17  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -468,7 +471,7 @@ namespace lpzrobots {
       text->setColor(textColor);
       text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
       if(caption) text->setText(caption);
-      else text->setText("lpzrobots Simulator          Martius, Der, Gï¿½ttler");
+      else text->setText("lpzrobots Simulator          Martius, Der, Güttler");
     }
 
     // timing
@@ -545,17 +548,17 @@ namespace lpzrobots {
     return camera;
   }
 
-  void Base::setTimeStats(double time, double realtimefactor, 
+  void Base::setTimeStats(double time, double realtimefactor,
 			  double truerealtimefactor){
     if(timestats){
       char buffer[100];
       int minutes = (int)time/60;
       if (realtimefactor>0){
 	if(fabs(truerealtimefactor/realtimefactor-1)<0.15)
-	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes, 
+	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes,
 		  int(time-minutes)%60,realtimefactor);
-	else 
-	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx(%.1fx!)",minutes, 
+	else
+	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx(%.1fx!)",minutes,
 		  int(time-minutes)%60,truerealtimefactor, realtimefactor);
       } else
         sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (max)",minutes, int(time-minutes)%60,truerealtimefactor);
