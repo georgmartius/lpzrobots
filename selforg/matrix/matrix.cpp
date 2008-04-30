@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.17  2008-04-29 11:01:32  guettler
+// Revision 1.18  2008-04-30 13:06:34  guettler
+// assertions to addRows and addColumns added
+//
+// Revision 1.17  2008/04/29 11:01:32  guettler
 // -added toMap2 and toMap2P
 // -removed operator + for scalar (use add or toSum instead)
 //
@@ -626,6 +629,7 @@ Matrix Matrix::map2P (void* param, D (*fun) (void*, D, D), const Matrix& a, cons
 /// adds one or more rows to the existing matrix
 /// The data for the new rows is read row-wise.
   Matrix& Matrix::addRows (unsigned short numberRows, const D* _data /*=0*/) {
+    assert(((unsigned int)m+(unsigned int)numberRows)<=255 && "final number of rows to high");
     // internal allocation
     D* oldData = data;
     data = (D*) malloc (sizeof (D) * (m + numberRows) * n);
@@ -659,6 +663,7 @@ Matrix& Matrix::addRows(unsigned short numberRows, const Matrix& dataMatrix) {
 /// adds one or more columns to the existing matrix
 /// The data for the new columns is read row-wise.
 Matrix& Matrix::addColumns (unsigned short numberColumns, const D* _data /*=0*/) {
+  assert(((unsigned int)n+(unsigned int)numberColumns)<=255 && "final number of columns to high");
   // internal allocation
   D* oldData = data;
   data = (D*) malloc (sizeof (D) * m * (n+ numberColumns));
