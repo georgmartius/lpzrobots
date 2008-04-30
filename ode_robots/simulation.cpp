@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.81  2008-04-29 10:14:57  guettler
+ *   Revision 1.82  2008-04-30 10:04:51  guettler
+ *   typo fix
+ *
+ *   Revision 1.81  2008/04/29 10:14:57  guettler
  *   -fixed interval bug (now its really correct)
  *
  *   Revision 1.80  2008/04/29 08:47:15  guettler
@@ -1222,36 +1225,36 @@ namespace lpzrobots {
     // guilogger-loading stuff here
     // start with online windows
     int index = contains(argv, argc, "-g");
-    guiloggerinterval=0;
+    guiloggerinterval=5;
     if(index) {
       if(argc > index)
 	guiloggerinterval=atoi(argv[index]);
+      if (guiloggerinterval<1) // avoids a bug
+        guiloggerinterval=5; // default value
       plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
     }
-    if (guiloggerinterval==0) // avoids a bug
-      guiloggerinterval=1; // default value
 
-    // logging to file
-    filelogginginterval=0;
+// logging to file
+    filelogginginterval=5;
     index = contains(argv, argc, "-f");
     if(index) {
       if(argc > index)
 	filelogginginterval=atoi(argv[index]);
+      if (filelogginginterval<1) // avoids a bug
+        filelogginginterval=5; // default value
       plotoptions.push_back(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
     }
-    if (filelogginginterval==0) // avoids a bug
-      filelogginginterval=5; // default value
 
     // starting neuronviz
-    neuronvizinterval=0;
+    neuronvizinterval=10;
     index = contains(argv, argc, "-n");
     if(index) {
       if(argc > index)
 	neuronvizinterval=atoi(argv[index]);
+      if (neuronvizinterval<1) // avoids a bug
+        neuronvizinterval=10; // default value
       plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval, globalconfigurables));
     }
-    if (neuronvizinterval==0) // avoids a bug
-      neuronvizinterval=10; // default value
 
     // using SoundMan for acustic output
     index = contains(argv, argc, "-s");
