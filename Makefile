@@ -1,7 +1,7 @@
 #File:     Makefile for lpzrobot directory
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 
-PREFIX=$HOME
+include Makefile.conf
 
 # subdirectories which contain libraries or binaries needed some of the other project in this tree 
 all: 
@@ -33,17 +33,61 @@ soundman:
 
 .PHONY: install
 install:
-	-mkdir -p $(HOME)/.lpzrobots
-	-mkdir -p $(HOME)/bin $(HOME)/lib/soundMan
+	-mkdir -p $(PREFIX)bin $(PREFIX)lib/soundMan
 	-cd neuronviz/src && make install
 	-cd javacontroller/src && make install
-	-@cp guilogger/bin/guilogger $(HOME)/bin/ && echo "copied guilogger to $(HOME)/bin/" || echo "Could not copy guilogger binary to $(HOME)/bin/! Please install it by hand."
-	-cp ode_robots/utils/Sound*.class $(HOME)/lib/
-	-cp ode_robots/utils/*.class $(HOME)/lib/soundMan/
-	-cp ode_robots/utils/soundMan $(HOME)/bin/
-	-cp ode_robots/utils/feedfile.pl $(HOME)/bin/
-	-cp ode_robots/utils/encodevideo.sh $(HOME)/bin/
-	-cp ode_robots/utils/selectcolumns.pl $(HOME)/bin/
+	-@cp guilogger/bin/guilogger $(PREFIX)bin/ && echo "copied guilogger to $(PREFIX)/bin/" || echo "Could not copy guilogger binary to $(PREFIX)bin/! Please install it by hand."
+	-cp ode_robots/utils/*.class $(PREFIX)lib/soundMan/
+	-cp ode_robots/utils/soundMan $(PREFIX)bin/soundMan
+	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)bin/soundMan
+	-cp ode_robots/utils/feedfile.pl $(PREFIX)bin/
+	-cp ode_robots/utils/encodevideo.sh $(PREFIX)bin/
+	-cp ode_robots/utils/selectcolumns.pl $(PREFIX)bin/
+ifeq ($(INSTALL_ONLY_UTILS),no)
+	make install_libs
+endif
+
+
+
+.PHONY: install_libs
+install_libs:
+	@echo "*************** Compile selforg (debug) *********************"
+	cd selforg && make clean && make lib	
+	cp selforg/libselforg.a $(PREFIX)lib
+	@echo "*************** Compile selforg (optimized) *****************"
+	cd selforg && make clean && make opt	
+	cp selforg/libselforg_opt.a $(PREFIX)lib
+	@echo "*************** Install selforg headers *********************"
+	-mkdir -p $(PREFIX)include
+	cp -rL selforg/include/selforg $(PREFIX)include/
+	@echo "*************** Compile ode_robots (debug) ******************"
+	cd ode_robots && make clean && make lib	
+	cp ode_robots/libode_robots.a $(PREFIX)lib
+	@echo "*************** Compile ode_robots (optimized) **************"
+	cd ode_robots && make clean && make opt	
+	cp ode_robots/libode_robots_opt.a $(PREFIX)lib
+	@echo "*************** Install ode_robots headers ******************"
+	cp -rL ode_robots/include/ode_robots $(PREFIX)include/	
+	@echo "Be aware that you have to use the Makefile.systemwide in the simulations"
+	@echo " if you install the simulator libaries and header files into the global paths" 
+.PHONY: uninstall
+uninstall:
+	-cd neuronviz/src && make uninstall
+	-cd javacontroller/src && make uninstall
+	-rm -f $(PREFIX)bin/guilogger
+	-rm -f $(PREFIX)lib/soundMan/SoundMan*.class
+	-rm -f $(PREFIX)bin/soundMan
+	-rm -f $(PREFIX)bin/feedfile.pl
+	-rm -f $(PREFIX)bin/encodevideo.sh 
+	-rm -f $(PREFIX)bin/selectcolumns.pl
+ifeq ($(INSTALL_ONLY_UTILS),no)
+	-rm -f $(PREFIX)lib/libselforg.a $(PREFIX)lib/libselforg_opt.a
+	-rm -rf $(PREFIX)include/selforg
+	-rm -f $(PREFIX)lib/libode_robots.a $(PREFIX)lib/libode_robots_opt.a
+	-rm -rf $(PREFIX)include/ode_robots
+endif
+
+
 
 .PHONY: tags
 tags: 
