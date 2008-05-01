@@ -1,0 +1,8 @@
+This are the lib files and the include files of
+ode-0.9
+OpenSceneGraph-2.2.0
+
+Plattforms depending on the ending of the package:
+.i686:
+  - Suse 10.1, i686, gcc (GCC) 4.1.2
+
