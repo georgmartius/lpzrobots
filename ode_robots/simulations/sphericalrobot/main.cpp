@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2008-04-22 15:22:56  martius
+ *   Revision 1.24  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.23  2008/04/22 15:22:56  martius
  *   removed test lib and inc paths from makefiles
  *
  *   Revision 1.22  2007/09/06 18:50:10  martius
@@ -105,13 +109,13 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
-#include "playground.h"
-#include "passivesphere.h"
-#include "passivebox.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/playground.h>
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
 
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotornstep.h>
@@ -125,11 +129,11 @@
 #include <selforg/derivativewiring.h>
 // #include "invertnchannelcontroller_nobias.h"
 
-#include "forcedsphere.h"
-#include "sphererobot3masses.h"
-#include "barrel2masses.h"
-#include "axisorientationsensor.h"
-#include "speedsensor.h"
+#include <ode_robots/forcedsphere.h>
+#include <ode_robots/sphererobot3masses.h>
+#include <ode_robots/barrel2masses.h>
+#include <ode_robots/axisorientationsensor.h>
+#include <ode_robots/speedsensor.h>
 
 // #include <osg/Node>
 // #include <osg/Geode>

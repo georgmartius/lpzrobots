@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-04-03 16:35:19  der
+ *   Revision 1.13  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.12  2007/04/03 16:35:19  der
  *   *** empty log message ***
  *
  *   Revision 1.11  2007/02/23 09:37:50  der
@@ -74,15 +78,15 @@
 
 #include <selforg/noisegenerator.h>
 
-#include "simulation.h"
-#include "odeagent.h"
+#include <ode_robots/simulation.h>
+#include <ode_robots/odeagent.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
-#include "playground.h"
-#include "terrainground.h"
-#include "octaplayground.h"
-#include "passivesphere.h"
-#include "passivebox.h"
+#include <ode_robots/playground.h>
+#include <ode_robots/terrainground.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
 
 //#include <selforg/deprivation.h>
 #include <selforg/invertnchannelcontroller.h>
@@ -91,16 +95,16 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/derbigcontroller.h>
 
-#include "axisorientationsensor.h"
-#include "sliderwheelie.h"
-#include "schlangeservo.h"
-#include "schlangeservo2.h"
-#include "sphererobot3masses.h"
-#include "plattfussschlange.h"
-#include "hurlingsnake.h"
-//#include "forcedsphere.h"
-#include "nimm2.h"
-#include "schlangeservo.h"
+#include <ode_robots/axisorientationsensor.h>
+#include <ode_robots/sliderwheelie.h>
+#include <ode_robots/schlangeservo.h>
+#include <ode_robots/schlangeservo2.h>
+#include <ode_robots/sphererobot3masses.h>
+#include <ode_robots/plattfussschlange.h>
+#include <ode_robots/hurlingsnake.h>
+//#include <ode_robots/forcedsphere.h>
+#include <ode_robots/nimm2.h>
+#include <ode_robots/schlangeservo.h>
 
 
 using namespace lpzrobots;

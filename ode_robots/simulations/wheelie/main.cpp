@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-06-08 15:37:22  martius
+ *   Revision 1.14  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.13  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.12  2007/03/16 10:58:01  martius
@@ -68,11 +72,11 @@
  *
  *
  ***************************************************************************/
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "playground.h"
-#include "passivesphere.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/playground.h>
+#include <ode_robots/passivesphere.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
@@ -80,8 +84,8 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
 
-#include "wheelie.h"
-#include "sliderwheelie.h"
+#include <ode_robots/wheelie.h>
+#include <ode_robots/sliderwheelie.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -93,6 +97,10 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
+
+    bool useWheelie       = false;
+    bool useSliderWheelie = true;
+
     setCameraHomePos(Pos(-3.90752, 9.63146, 3.31768),  Pos(172.39, -10.7938, 0));
     // initialization
     // - set noise to 0.1
@@ -121,62 +129,65 @@ public:
     AbstractWiring *wiring, *sliderwiring;
     AbstractController *controller, *slidercontroller;
 
-    
-//     Wheelie *myWheelie;
-//     WheelieConf myWheelieConf = DefaultWheelie::getDefaultConf();
-//     /******* w H E E L I E *********/
-//     myWheelieConf.jointLimit=M_PI/3;
-//     myWheelieConf.motorPower=0.2;
-//     myWheelieConf.frictionGround=0.04;
-// //    myWheelieConf.segmNumber = 8;
-// //    myWheelieConf.segmLength = 0.2;
-// //    myWheelieConf.segmDia = 0.1;
-//     myWheelieConf.motorPower = 1;
-//     myWheelie = new Wheelie(odeHandle, osgHandle, myWheelieConf, "Wheelie1");
-//     ((OdeRobot*) myWheelie)->place(Pos(-5,-6,0.2)); 
-//     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-//     controller = new InvertMotorNStep(invertnconf);    
-//     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-//     agent = new OdeAgent(plotoptions);
-//     agent->init(controller, myWheelie, wiring);
-//     global.agents.push_back(agent);
-//     global.configs.push_back(controller);
-//     global.configs.push_back(myWheelie);   
-//     myWheelie->setParam("gamma", 0.0);
+    if(useWheelie){
+      Wheelie *myWheelie;
+      WheelieConf myWheelieConf = DefaultWheelie::getDefaultConf();
+      /******* w H E E L I E *********/
+      myWheelieConf.jointLimit=M_PI/3;
+      myWheelieConf.motorPower=0.2;
+      myWheelieConf.frictionGround=0.04;
+      //    myWheelieConf.segmNumber = 8;
+      //    myWheelieConf.segmLength = 0.2;
+      //    myWheelieConf.segmDia = 0.1;
+      myWheelieConf.motorPower = 1;
+      myWheelie = new Wheelie(odeHandle, osgHandle, myWheelieConf, "Wheelie1");
+      ((OdeRobot*) myWheelie)->place(Pos(-5,-6,0.2)); 
+      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
+      controller = new InvertMotorNStep(invertnconf);    
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent(plotoptions);
+      agent->init(controller, myWheelie, wiring);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.configs.push_back(myWheelie);   
+      myWheelie->setParam("gamma", 0.0);
+    }
 
-    SliderWheelie *mySliderWheelie;
-    SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
-    /******* S L I D E R - w H E E L I E *********/
-    mySliderWheelieConf.segmNumber=12;
-    mySliderWheelieConf.jointLimit=M_PI/2;
-    mySliderWheelieConf.motorPower=0.5;
-    mySliderWheelieConf.frictionGround=0.8;
-    mySliderWheelieConf.sliderLength=0.5;
-    mySliderWheelieConf.segmLength=1.4;
-    mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
-    ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.0)); 
-    InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
-    sliderinvertnconf.cInit=0.5;
-    sliderinvertnconf.useSD=true;
-    slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
-    //slidercontroller = new SineController();
-    slidercontroller->setParam("noiseY",0);
-    //    slidercontroller->setParam("epsC",0);
-    slidercontroller->setParam("adaptrate",0.005);
-    slidercontroller->setParam("rootE",3); 
-    slidercontroller->setParam("steps",1);
-    slidercontroller->setParam("factorB",0);
+    if(useSliderWheelie){
+      SliderWheelie *mySliderWheelie;
+      SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
+      /******* S L I D E R - w H E E L I E *********/
+      mySliderWheelieConf.segmNumber=12;
+      mySliderWheelieConf.jointLimit=M_PI/2;
+      mySliderWheelieConf.motorPower=0.5;
+      mySliderWheelieConf.frictionGround=0.8;
+      mySliderWheelieConf.sliderLength=0.5;
+      mySliderWheelieConf.segmLength=1.4;
+      mySliderWheelie = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
+      ((OdeRobot*) mySliderWheelie)->place(Pos(-5,-3,0.0)); 
+      InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
+      sliderinvertnconf.cInit=0.5;
+      sliderinvertnconf.useSD=true;
+      slidercontroller = new InvertMotorNStep(sliderinvertnconf);    
+      //slidercontroller = new SineController();
+      slidercontroller->setParam("noiseY",0);
+      //    slidercontroller->setParam("epsC",0);
+      slidercontroller->setParam("adaptrate",0.005);
+      slidercontroller->setParam("rootE",3); 
+      slidercontroller->setParam("steps",1);
+      slidercontroller->setParam("factorB",0);
 
-    DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-    c.useId = false;
-    c.useFirstD = true;
-    //sliderwiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
-    sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    slideragent = new OdeAgent(plotoptions);
-    slideragent->init(slidercontroller, mySliderWheelie, sliderwiring);
-    global.agents.push_back(slideragent);
-    global.configs.push_back(slidercontroller);
-    global.configs.push_back(mySliderWheelie);   
+      DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+      c.useId = false;
+      c.useFirstD = true;
+      //sliderwiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
+      sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      slideragent = new OdeAgent(plotoptions);
+      slideragent->init(slidercontroller, mySliderWheelie, sliderwiring);
+      global.agents.push_back(slideragent);
+      global.configs.push_back(slidercontroller);
+      global.configs.push_back(mySliderWheelie);   
+    }
 
     showParams(global.configs);
 

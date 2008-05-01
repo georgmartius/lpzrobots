@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-01-26 12:07:08  martius
+ *   Revision 1.8  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.7  2007/01/26 12:07:08  martius
  *   orientationsensor added
  *
  *   Revision 1.6  2006/07/14 12:23:50  martius
@@ -43,7 +47,7 @@
 /************************************************************************/
 
 #include "sphererobotTest.h"
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 #include <iostream>
 #include <assert.h>
 

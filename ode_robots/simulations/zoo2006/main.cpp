@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-01-26 12:07:09  martius
+ *   Revision 1.4  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.3  2007/01/26 12:07:09  martius
  *   orientationsensor added
  *
  *   Revision 1.2  2006/09/21 22:11:33  martius
@@ -31,15 +35,15 @@
  *
  *
  ***************************************************************************/
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "playground.h"
-#include "terrainground.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/playground.h>
+#include <ode_robots/terrainground.h>
 
-#include "passivesphere.h"
-#include "passivebox.h"
-#include "passivecapsule.h"
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
+#include <ode_robots/passivecapsule.h>
 
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/dercontroller.h>
@@ -54,14 +58,14 @@
 #include <osg/LightSource>
 
 
-#include "hurlingsnake.h"
-#include "schlangeservo2.h"
-#include "caterpillar.h"
-#include "nimm2.h"
-#include "nimm4.h"
-#include "sphererobot3masses.h"
-#include "plattfussschlange.h"
-#include "axisorientationsensor.h"
+#include <ode_robots/hurlingsnake.h>
+#include <ode_robots/schlangeservo2.h>
+#include <ode_robots/caterpillar.h>
+#include <ode_robots/nimm2.h>
+#include <ode_robots/nimm4.h>
+#include <ode_robots/sphererobot3masses.h>
+#include <ode_robots/plattfussschlange.h>
+#include <ode_robots/axisorientationsensor.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

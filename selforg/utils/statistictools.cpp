@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-04-29 09:56:21  guettler
+ *   Revision 1.10  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.9  2008/04/29 09:56:21  guettler
  *   -debug printouts removed
  *
  *   Revision 1.8  2008/04/29 08:51:54  guettler

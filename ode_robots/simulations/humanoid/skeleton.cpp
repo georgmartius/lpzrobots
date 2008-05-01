@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-04-10 12:27:13  der
+ *   Revision 1.7  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.6  2008/04/10 12:27:13  der
  *   some changes
  *
  *   Revision 1.5  2008/03/14 08:04:23  der
@@ -57,12 +61,12 @@
 #include <ode/ode.h>
 
 // include primitives (box, spheres, cylinders ...)
-#include "primitive.h"
+#include <ode_robots/primitive.h>
 
 // include joints
-#include "joint.h"
-#include "oneaxisservo.h"
-#include "twoaxisservo.h"
+#include <ode_robots/joint.h>
+#include <ode_robots/oneaxisservo.h>
+#include <ode_robots/twoaxisservo.h>
 
 // include header file
 #include "skeleton.h"

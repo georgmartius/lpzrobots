@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-11-07 13:26:59  martius
+ *   Revision 1.8  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.7  2007/11/07 13:26:59  martius
  *   tidy up
  *
  *   Revision 1.6  2007/03/26 13:15:51  martius
@@ -73,17 +77,17 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "playground.h"
-#include "passivesphere.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/playground.h>
+#include <ode_robots/passivesphere.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
 
-#include "nimm2.h"
+#include <ode_robots/nimm2.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -156,7 +160,7 @@ public:
   {
     if (!down) return false;    
     bool handled = false;
-    FILE* f;
+    // FILE* f;
     //    double m;
     //    motor motors[2];
     switch ( key )

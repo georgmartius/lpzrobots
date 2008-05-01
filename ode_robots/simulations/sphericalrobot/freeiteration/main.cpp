@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <selforg/multilayerffnn.h>
-#include "datafunc.h"
+#include <selforg/datafunc.h>
 
 #define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(); it!= (coll).end(); it++ )
 #define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(); it!= (coll).end(); it++ )

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-11-07 13:23:55  martius
+ *   Revision 1.5  2008-05-01 22:03:54  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.4  2007/11/07 13:23:55  martius
  *   sound
  *
  *   Revision 1.3  2006/12/21 11:43:05  martius
@@ -37,12 +41,12 @@
  ***************************************************************************/
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
-#include "playground.h" // arena
-#include "passivebox.h"  // passive box
+#include <ode_robots/odeagent.h>
+#include <ode_robots/playground.h> // arena
+#include <ode_robots/passivebox.h>  // passive box
 
 // controller
 #include <selforg/invertnchannelcontroller.h>
@@ -57,12 +61,12 @@
 #include <selforg/derivativewiring.h>
 
 // robots
-#include "forcedsphere.h"
-#include "axisorientationsensor.h"
-#include "relativepositionsensor.h"
-#include "speedsensor.h"
-#include "soundsensor.h"
-#include "speaker.h"
+#include <ode_robots/forcedsphere.h>
+#include <ode_robots/axisorientationsensor.h>
+#include <ode_robots/relativepositionsensor.h>
+#include <ode_robots/speedsensor.h>
+#include <ode_robots/soundsensor.h>
+#include <ode_robots/speaker.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

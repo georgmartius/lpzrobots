@@ -1,6 +1,0 @@
-export PATH=/home/georg/local/lib/ghc/bin/i386-unknown-linux:/home/georg/bin:/usr/nld/mathematica-6.0/Executables:/usr/nld/bin:/usr/nld/bin:/usr/nld/gcc-3.0.2/bin:/usr/nld/mpich/bin:/usr/nld/pvm/lib/LINUX:/usr/local/bin:/usr/bin:/usr/bin/X11:/bin:/home/georg/local/lib/ghc/bin/i386-unknown-linux:/home/georg/bin:/usr/nld/mathematica-6.0/Executables:/usr/nld/bin:/usr/nld/bin:/usr/nld/gcc-3.0.2/bin:/usr/nld/mpich/bin:/usr/nld/pvm/lib/LINUX:/usr/local/bin:/usr/bin:/usr/bin/X11:/bin:/home/georg/local/lib/ghc/bin/i386-unknown-linux:/home/georg/bin:/usr/nld/mathematica-6.0/Executables:/usr/nld/bin:/usr/nld/bin:/usr/nld/gcc-3.0.2/bin:/usr/nld/mpich/bin:/usr/nld/pvm/lib/LINUX:/usr/local/bin:/usr/bin:/usr/bin/X11:/bin:/home/georg/bin:/usr/local/bin:/usr/bin:/usr/X11R6/bin:/bin:/usr/games:/opt/gnome/bin:/opt/kde3/bin:/opt/cross/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/usr/lib/qt3/bin:/usr/lib/qt3/bin:/home/georg/local/OpenSceneGraph-2.2.0/bin/ 
-
-export LD_LIBRARY_PATH=/usr/nld/gcc-3.0.2/lib:/home/local/googleearth:/home/georg/local/OpenSceneGraph-2.2.0/lib:/home/georg/lib
-
-export OSG_FILE_PATH=/home/georg/local/OpenSceneGraph-2.2.0/OpenSceneGraph-Data/:/home/georg/local/OpenSceneGraph-2.2.0/OpenSceneGraph-Data/Images/
-

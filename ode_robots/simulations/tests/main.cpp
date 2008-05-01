@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-07-03 13:06:18  martius
+ *   Revision 1.8  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.7  2007/07/03 13:06:18  martius
  *   *** empty log message ***
  *
  *   Revision 1.6  2007/06/08 15:37:22  martius
@@ -107,14 +111,14 @@
 #include <selforg/matrix.h>
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // used passive spheres and boxes
-#include "passivesphere.h"
-#include "passivebox.h"
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
 
 
-#include "joint.h"
+#include <ode_robots/joint.h>
 
 using namespace std;
 

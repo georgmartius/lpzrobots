@@ -9,10 +9,10 @@
 #include <selforg/invertmotornstep.h>
 // #include <selforg/sinecontroller.h>
 
-#include "odeagent.h"
-#include "simulation.h"
-#include "nimm2.h"
-#include "playground.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/simulation.h>
+#include <ode_robots/nimm2.h>
+#include <ode_robots/playground.h>
 
 using namespace lpzrobots;
 

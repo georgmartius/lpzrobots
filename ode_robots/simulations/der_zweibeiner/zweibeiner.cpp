@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-10-29 12:43:59  robot3
+ *   Revision 1.2  2008-05-01 22:03:54  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.1  2007/10/29 12:43:59  robot3
  *   MAIN WITH DIFFERET OBJECTS AND DERCONTROLLER
  *
  *   Revision 1.3  2007/09/06 18:50:33  martius
@@ -39,15 +43,15 @@
 #include <ode/ode.h>
 
 // include primitives (box, spheres, cylinders ...)
-#include "primitive.h"
+#include <ode_robots/primitive.h>
 
 // include joints
-#include "joint.h"
-#include "oneaxisservo.h"
-#include "twoaxisservo.h"
+#include <ode_robots/joint.h>
+#include <ode_robots/oneaxisservo.h>
+#include <ode_robots/twoaxisservo.h>
 
 // include header file
-#include "zweibeiner.h"
+#include <ode_robots/zweibeiner.h>
 
 using namespace osg;
 using namespace std;

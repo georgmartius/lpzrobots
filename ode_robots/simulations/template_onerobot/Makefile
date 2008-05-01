@@ -30,7 +30,7 @@ LIBS   = -lm \
 
 #	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
 
-INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include
+INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
 
 CXX = g++
@@ -81,6 +81,6 @@ cleanall: clean
 	cd $(SELFORG) && make clean
 
 clean:
-	rm -f $(EXEC) $(EXEC_OPT) *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC_OPT) $(EXEC_PROF) *.o Makefile.depend
 
-include Makefile.depend
+-include Makefile.depend

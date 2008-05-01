@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-22 15:22:55  martius
+ *   Revision 1.4  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.3  2008/04/22 15:22:55  martius
  *   removed test lib and inc paths from makefiles
  *
  *   Revision 1.2  2007/09/06 18:49:56  martius
@@ -41,14 +45,14 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
-#include "complexplayground.h"
-#include "playground.h"
-#include "passivesphere.h"
-#include "passivebox.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/complexplayground.h>
+#include <ode_robots/playground.h>
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
 
 #include <selforg/ffnncontroller.h>
 #include <selforg/noisegenerator.h>
@@ -59,10 +63,10 @@
 #include "multireinforce.h"
 #include <selforg/classicreinforce.h>
 
-#include "fourwheeled.h"
-#include "addsensors2robotadapter.h"
-#include "axisorientationsensor.h"
-#include "speedsensor.h"
+#include <ode_robots/fourwheeled.h>
+#include <ode_robots/addsensors2robotadapter.h>
+#include <ode_robots/axisorientationsensor.h>
+#include <ode_robots/speedsensor.h>
 
 
 // fetch all the stuff of lpzrobots into scope

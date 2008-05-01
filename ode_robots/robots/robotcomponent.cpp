@@ -246,7 +246,7 @@ namespace lpzrobots
 	return false;
     }
 
-    void RobotComponent::doInternalStuff (const GlobalData &globalData)
+    void RobotComponent::doInternalStuff (GlobalData &globalData)
     {
 
     }

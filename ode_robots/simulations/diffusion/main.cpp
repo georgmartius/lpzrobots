@@ -20,17 +20,21 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-06-21 16:24:56  martius
+ *   Revision 1.2  2008-05-01 22:03:54  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.1  2007/06/21 16:24:56  martius
  *   another multiagent simulation with nimm2
  *
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
-#include "passivesphere.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/passivesphere.h>
 
 #include <selforg/sinecontroller.h>
 #include <selforg/invertmotornstep.h>
@@ -40,7 +44,7 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/stl_adds.h>
 
-#include "nimm2.h"
+#include <ode_robots/nimm2.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2007-01-26 12:07:08  martius
+ *   Revision 1.19  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.18  2007/01/26 12:07:08  martius
  *   orientationsensor added
  *
  *   Revision 1.17  2006/08/04 15:07:47  martius
@@ -56,12 +60,12 @@
  ***************************************************************************/
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
-#include "octaplayground.h" // arena
-#include "passivesphere.h"  // passive balls
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h> // arena
+#include <ode_robots/passivesphere.h>  // passive balls
 
 // controller
 #include <selforg/invertmotorspace.h>
@@ -71,10 +75,10 @@
 #include <selforg/one2onewiring.h>  // simple wiring
 
 // robots
-#include "sphererobot3masses.h"
-#include "axisorientationsensor.h"
+#include <ode_robots/sphererobot3masses.h>
+#include <ode_robots/axisorientationsensor.h>
 
-#include "axisorientationsensor.h"
+#include <ode_robots/axisorientationsensor.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

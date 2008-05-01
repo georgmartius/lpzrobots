@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-10-10 06:41:10  fhesse
+ *   Revision 1.3  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.2  2007/10/10 06:41:10  fhesse
  *   z argument in robots place() call increased
  *   (before it was inside earth (but therefore it worked))
  *
@@ -45,25 +49,25 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
 
 // used robot
-#include "nimm2.h"
-#include "nimm4.h"
+#include <ode_robots/nimm2.h>
+#include <ode_robots/nimm4.h>
 
 
 // used arena
-#include "playground.h"
+#include <ode_robots/playground.h>
 // used passive spheres
-#include "passivesphere.h"
-#include "passivebox.h"
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
 
 
 // used controller

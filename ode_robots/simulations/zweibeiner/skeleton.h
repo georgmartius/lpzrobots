@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-11-07 13:27:28  martius
+ *   Revision 1.3  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.2  2007/11/07 13:27:28  martius
  *   doInternalstuff changed
  *
  *   Revision 1.1  2007/07/17 07:25:26  martius
@@ -33,7 +37,7 @@
 #ifndef __SKELETON_H
 #define __SKELETON_H
 
-#include "oderobot.h"
+#include <ode_robots/oderobot.h>
 
 namespace lpzrobots {
 

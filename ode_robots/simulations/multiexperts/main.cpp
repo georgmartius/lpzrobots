@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-12-13 16:57:40  martius
+ *   Revision 1.13  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.12  2007/12/13 16:57:40  martius
  *   new variation of the multisat controller
  *
  *   Revision 1.11  2007/09/06 18:48:38  martius
@@ -111,12 +115,12 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
-#include "playground.h"
-#include "passivesphere.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/playground.h>
+#include <ode_robots/passivesphere.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
@@ -130,15 +134,15 @@
 #include <selforg/selectiveone2onewiring.h>
 #include <selforg/derivativewiring.h>
 
-#include "forcedsphere.h"
-#include "sphererobot3masses.h"
-#include "barrel2masses.h"
-#include "fourwheeled.h"
-#include "addsensors2robotadapter.h"
+#include <ode_robots/forcedsphere.h>
+#include <ode_robots/sphererobot3masses.h>
+#include <ode_robots/barrel2masses.h>
+#include <ode_robots/fourwheeled.h>
+#include <ode_robots/addsensors2robotadapter.h>
 
-#include "axisorientationsensor.h"
-#include "speedsensor.h"
-#include "replayrobot.h"
+#include <ode_robots/axisorientationsensor.h>
+#include <ode_robots/speedsensor.h>
+#include <ode_robots/replayrobot.h>
 
 
 

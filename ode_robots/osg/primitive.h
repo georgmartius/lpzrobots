@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-11-07 13:19:01  martius
+ *   Revision 1.13  2008-05-01 22:03:54  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.12  2007/11/07 13:19:01  martius
  *   toLocal: coordinate transformation
  *
  *   Revision 1.11  2007/08/23 14:51:28  martius
@@ -129,10 +133,9 @@
 #include <osg/Matrix>
 #include <ode/common.h>
 
-#include <substance.h>
+#include "substance.h"
 // another forward declaration "block"
 #include "osgforwarddecl.h"
-// #include "color.h"
 
 namespace lpzrobots {
 

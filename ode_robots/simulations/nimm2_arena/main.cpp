@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-12-11 14:11:12  martius
+ *   Revision 1.10  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.9  2007/12/11 14:11:12  martius
  *   chain of robots
  *
  *   Revision 1.8  2006/12/21 11:43:05  martius
@@ -61,11 +65,11 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
-#include "passivesphere.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/passivesphere.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
@@ -76,7 +80,7 @@
 
 #include <vector>
 
-#include "nimm2.h"
+#include <ode_robots/nimm2.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

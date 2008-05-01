@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-04-03 16:35:07  der
+ *   Revision 1.11  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.10  2007/04/03 16:35:07  der
  *   *** empty log message ***
  *
  *   Revision 1.9  2007/04/03 11:27:07  martius
@@ -70,12 +74,12 @@
 
 #include <selforg/noisegenerator.h>
 
-#include "simulation.h"
-#include "odeagent.h"
+#include <ode_robots/simulation.h>
+#include <ode_robots/odeagent.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
-#include "playground.h"
-#include "passivesphere.h"
+#include <ode_robots/playground.h>
+#include <ode_robots/passivesphere.h>
 
 #include <selforg/dercontroller.h>
 #include <selforg/invertnchannelcontroller.h>
@@ -84,8 +88,8 @@
 #include <selforg/dercontroller.h>
 #include <selforg/sinecontroller.h>
 
-#include "schlangeservo2.h"
-#include "schlangeservo.h"
+#include <ode_robots/schlangeservo2.h>
+#include <ode_robots/schlangeservo.h>
 
 
 using namespace lpzrobots;

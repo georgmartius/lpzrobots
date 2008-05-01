@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-11-21 13:18:10  der
+ *   Revision 1.3  2008-05-01 22:03:54  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.2  2007/11/21 13:18:10  der
  *   ralfs aenderungen
  *
  *   Revision 1.1  2007/10/29 12:43:59  robot3
@@ -75,10 +79,10 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
@@ -88,11 +92,11 @@
 //#include "derskeleton.h"
 
 // used arena
-#include "playground.h"
+#include <ode_robots/playground.h>
 // used passive spheres
-#include "passivesphere.h"
-#include "passivemesh.h"
-#include "joint.h"
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivemesh.h>
+#include <ode_robots/joint.h>
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
@@ -104,19 +108,19 @@
 #include <selforg/sinecontroller.h>
 /************/
 
-#include "playground.h"
-#include "terrainground.h"
-#include "octaplayground.h"
-#include "passivesphere.h"
-#include "passivebox.h"
-#include "sliderwheelie.h"
-#include "sphererobot3masses.h"
-#include "nimm2.h"
-//#include "derivativewiring.h"
+#include <ode_robots/playground.h>
+#include <ode_robots/terrainground.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
+#include <ode_robots/sliderwheelie.h>
+#include <ode_robots/sphererobot3masses.h>
+#include <ode_robots/nimm2.h>
+//#include <ode_robots/derivativewiring.h>
 
-#include "sliderwheelie.h"
-#include "schlangeservo.h"
-#include "schlangeservo2.h"
+#include <ode_robots/sliderwheelie.h>
+#include <ode_robots/schlangeservo.h>
+#include <ode_robots/schlangeservo2.h>
 #include <selforg/derivativewiring.h>
 
 // fetch all the stuff of lpzrobots into scope

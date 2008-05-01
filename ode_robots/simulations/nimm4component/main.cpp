@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-10-05 11:41:23  robot8
+ *   Revision 1.2  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.1  2006/10/05 11:41:23  robot8
  *   -modular nimm4 robot
  *   -constructed from components
  *   -wheels could be removed by keyboard commands within simulation
@@ -59,10 +63,10 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
 
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
@@ -75,8 +79,8 @@
 #include <vector.h>
 #include <osg/Matrix>
 
-#include "simplecomponent.h"
-#include "component.h"
+#include <ode_robots/simplecomponent.h>
+#include <ode_robots/component.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

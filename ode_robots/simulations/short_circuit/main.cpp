@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2007-06-08 15:37:22  martius
+ *   Revision 1.23  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.22  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
  *
  *   Revision 1.21  2007/04/20 12:31:16  martius
@@ -70,10 +74,10 @@
  *   GPL'ised
  *
  ***************************************************************************/
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
 
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
@@ -85,7 +89,7 @@
 #include <selforg/invertmotorspace.h>
 #include "invertnchannelcontroller_nobias.h"
 
-#include "shortcircuit.h"
+#include <ode_robots/shortcircuit.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

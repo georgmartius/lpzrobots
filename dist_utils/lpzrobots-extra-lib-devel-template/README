@@ -2,6 +2,12 @@ This are the lib files and the include files of
 ode-0.9
 OpenSceneGraph-2.2.0
 
+Installation can be done with 
+./install.sh 
+or 
+sudo ./install.sh 
+for systemwide installation
+
 Plattforms depending on the ending of the package:
 .i686:
   - Suse 10.1, i686, gcc (GCC) 4.1.2

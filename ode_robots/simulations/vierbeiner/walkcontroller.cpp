@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-12-13 17:00:02  martius
+ *   Revision 1.2  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.1  2007/12/13 17:00:02  martius
  *   walk controller
  *
  *                                                                         *
@@ -44,7 +48,7 @@ WalkController::WalkController()
   number_motors=0;  
 };
 
-void WalkController::init(int sensornumber, int motornumber){
+void WalkController::init(int sensornumber, int motornumber, RandGen* randGen){
   number_sensors=sensornumber;
   number_motors=motornumber;
   if(motornumber < 12) {

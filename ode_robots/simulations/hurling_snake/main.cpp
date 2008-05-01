@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2006-12-21 11:43:05  martius
+ *   Revision 1.11  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.10  2006/12/21 11:43:05  martius
  *   commenting style for doxygen //< -> ///<
  *   new sensors for spherical robots
  *
@@ -69,14 +73,14 @@
 #include <stdio.h>
 
 #include <selforg/noisegenerator.h>
-#include "simulation.h"
-#include "odeagent.h"
+#include <ode_robots/simulation.h>
+#include <ode_robots/odeagent.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
-#include "nimm2.h"
-#include "playground.h"
+#include <ode_robots/nimm2.h>
+#include <ode_robots/playground.h>
 
-#include "hurlingsnake.h"
+#include <ode_robots/hurlingsnake.h>
 
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>

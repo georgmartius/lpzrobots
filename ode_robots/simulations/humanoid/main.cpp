@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-03-26 09:25:44  der
+ *   Revision 1.8  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.7  2008/03/26 09:25:44  der
  *   small changes
  *
  *   Revision 1.6  2008/03/14 08:04:23  der
@@ -93,10 +97,10 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
@@ -106,11 +110,11 @@
 //#include "derskeleton.h"
 
 // used arena
-#include "playground.h"
+#include <ode_robots/playground.h>
 // used passive spheres
-#include "passivesphere.h"
-#include "passivemesh.h"
-#include "joint.h"
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivemesh.h>
+#include <ode_robots/joint.h>
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
@@ -125,18 +129,18 @@
 #include <selforg/basiccontroller.h>
 /************/
 
-#include "playground.h"
-#include "terrainground.h"
-#include "octaplayground.h"
-#include "sliderwheelie.h"
-#include "nimm2.h"
-#include "plattfussschlange.h"
+#include <ode_robots/playground.h>
+#include <ode_robots/terrainground.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/sliderwheelie.h>
+#include <ode_robots/nimm2.h>
+#include <ode_robots/plattfussschlange.h>
 
-#include "passivebox.h"
+#include <ode_robots/passivebox.h>
 
-#include "sliderwheelie.h"
-#include "schlangeservo.h"
-#include "schlangeservo2.h"
+#include <ode_robots/sliderwheelie.h>
+#include <ode_robots/schlangeservo.h>
+#include <ode_robots/schlangeservo2.h>
 #include <selforg/derivativewiring.h>
 
 // fetch all the stuff of lpzrobots into scope

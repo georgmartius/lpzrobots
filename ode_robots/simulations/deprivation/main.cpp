@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:45  martius
+ *   Revision 1.3  2008-05-01 22:03:54  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.2  2006/07/14 12:23:45  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.5  2006/05/15 13:11:29  robot3
@@ -62,13 +66,13 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 #include <selforg/deprivation.h>
 #include <selforg/one2onewiring.h>
 
-#include "nimm2.h"
+#include <ode_robots/nimm2.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

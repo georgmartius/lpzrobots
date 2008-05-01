@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-07-14 12:23:52  martius
+ *   Revision 1.9  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.8  2006/07/14 12:23:52  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.7.4.2  2006/06/25 17:01:56  martius
@@ -49,11 +53,11 @@
 #include <ode/ode.h>
 
 #include <selforg/noisegenerator.h>
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 #include <selforg/one2onewiring.h>
-#include "odeagent.h"
-#include "nimm2.h"
-#include "playground.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/nimm2.h>
+#include <ode_robots/playground.h>
 
 #include <selforg/invertnchannelcontroller.h>
 

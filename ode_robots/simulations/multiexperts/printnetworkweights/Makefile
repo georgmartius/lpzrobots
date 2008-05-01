@@ -28,7 +28,7 @@ LIBS   = -lm \
 	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
 	-lreadline
 
-INC   = -I. -I$(ODEROBOTS)/include/ode_robots -I$(SELFORG)/include
+INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
 CXX = g++
 # -pg for profiling
@@ -71,4 +71,4 @@ cleanall: clean
 clean:
 	rm -f $(EXEC) $(EXEC_OPT) *.o Makefile.depend
 
-include Makefile.depend
+-include Makefile.depend

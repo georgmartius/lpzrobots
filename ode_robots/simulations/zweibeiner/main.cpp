@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-11-21 13:18:10  der
+ *   Revision 1.4  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.3  2007/11/21 13:18:10  der
  *   ralfs aenderungen
  *
  *   Revision 1.2  2007/07/31 08:35:52  martius
@@ -72,10 +76,10 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
@@ -84,11 +88,11 @@
 #include "skeleton.h"
 
 // used arena
-#include "playground.h"
+#include <ode_robots/playground.h>
 // used passive spheres
-#include "passivesphere.h"
-#include "passivemesh.h"
-#include "joint.h"
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivemesh.h>
+#include <ode_robots/joint.h>
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
@@ -100,12 +104,12 @@
 #include <selforg/sinecontroller.h>
 /************/
 
-#include "playground.h"
-#include "terrainground.h"
-#include "octaplayground.h"
-#include "sliderwheelie.h"
-#include "nimm2.h"
-//#include "derivativewiring.h"
+#include <ode_robots/playground.h>
+#include <ode_robots/terrainground.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/sliderwheelie.h>
+#include <ode_robots/nimm2.h>
+//#include <ode_robots/derivativewiring.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

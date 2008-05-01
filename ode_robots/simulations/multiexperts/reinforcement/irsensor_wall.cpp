@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-06 18:49:40  martius
+ *   Revision 1.2  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.1  2007/09/06 18:49:40  martius
  *   Sphere reinforcement
  *
  *
@@ -34,8 +38,8 @@
 #include <osg/Vec3>
 #include <list>
 
-#include "primitive.h"
-#include "osgprimitive.h"
+#include <ode_robots/primitive.h>
+#include <ode_robots/osgprimitive.h>
 #include "irsensor_wall.h"
 
 namespace lpzrobots {

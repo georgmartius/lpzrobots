@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-07-31 08:19:44  martius
+ *   Revision 1.7  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.6  2007/07/31 08:19:44  martius
  *   mesh without global
  *
  *   Revision 1.5  2006/10/19 12:24:48  martius
@@ -124,24 +128,24 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
 
 // used robot
-#include "truckmesh.h"
+#include <ode_robots/truckmesh.h>
 
 
 // used arena
-#include "playground.h"
+#include <ode_robots/playground.h>
 // used passive spheres
-#include "passivesphere.h"
+#include <ode_robots/passivesphere.h>
 // used passive meshes
-#include "passivemesh.h"
+#include <ode_robots/passivemesh.h>
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>

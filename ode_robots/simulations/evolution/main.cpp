@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2006-11-30 08:51:39  robot8
+ *   Revision 1.17  2008-05-01 22:03:54  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.16  2006/11/30 08:51:39  robot8
  *   -update of the evolution projekt
  *   -fitness changed
  *   -replication changed
@@ -93,11 +97,11 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "atomodeagent.h"
-#include "closedplayground.h"
-#include "passivesphere.h"
+#include <ode_robots/atomodeagent.h>
+#include <ode_robots/closedplayground.h>
+#include <ode_robots/passivesphere.h>
 
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
@@ -107,11 +111,11 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
 
-#include "sphererobot.h"
-#include "schlangeservo.h"
-#include "sphererobot3masses.h"
+#include <ode_robots/sphererobot.h>
+#include <ode_robots/schlangeservo.h>
+#include <ode_robots/sphererobot3masses.h>
 
-#include "atomcomponent.h"
+#include <ode_robots/atomcomponent.h>
 
 #include <vector.h>
 

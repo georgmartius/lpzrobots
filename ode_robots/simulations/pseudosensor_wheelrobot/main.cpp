@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2006-07-14 12:23:51  martius
+ *   Revision 1.15  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.14  2006/07/14 12:23:51  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.13.4.3  2006/06/25 17:01:55  martius
@@ -46,13 +50,13 @@
 #include <ode/ode.h>
 
 #include <selforg/noisegenerator.h>
-#include "simulation.h"
-#include "odeagent.h"
+#include <ode_robots/simulation.h>
+#include <ode_robots/odeagent.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
 
-#include "nimm4.h"
-#include "playground.h"
+#include <ode_robots/nimm4.h>
+#include <ode_robots/playground.h>
 
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>

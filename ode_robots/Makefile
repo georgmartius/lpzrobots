@@ -92,4 +92,4 @@ todo:
 	grep -ni "Todo" $(CPPFILES) $(HFILES)
 	grep -ni "Fixme" $(CPPFILES) $(HFILES)
 
-include Makefile.depend
+-include Makefile.depend

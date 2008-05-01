@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-08-09 07:42:17  robot8
+ *   Revision 1.5  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.4  2006/08/09 07:42:17  robot8
  *   -update of octopus because of changed component function parameters
  *
  *   Revision 1.3  2006/08/02 08:34:09  robot8
@@ -87,11 +91,11 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
-#include "passivesphere.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/passivesphere.h>
 
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
@@ -101,13 +105,13 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
 
-#include "sphererobot.h"
-#include "schlangeservo.h"
-#include "sphererobot3masses.h"
+#include <ode_robots/sphererobot.h>
+#include <ode_robots/schlangeservo.h>
+#include <ode_robots/sphererobot3masses.h>
 
-#include "component.h"
-#include "simplecomponent.h"
-#include "robotcomponent.h"
+#include <ode_robots/component.h>
+#include <ode_robots/simplecomponent.h>
+#include <ode_robots/robotcomponent.h>
 
 #define MAX_NUMBER_OF_ARMS 8
 #define HEAD_ARM_DISTANCE 1

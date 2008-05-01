@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2007-12-07 09:13:46  fhesse
+ *   Revision 1.20  2008-05-01 22:03:55  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.19  2007/12/07 09:13:46  fhesse
  *   adapted paths due to moving of controller files
  *   to simulation/hand directory
  *
@@ -115,15 +119,15 @@
  *
  ***************************************************************************/
 
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "octaplayground.h"
-#include "closedplayground.h"
-#include "playground.h"
-#include "passivesphere.h"
-#include "passivebox.h"
-#include "passivecapsule.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/octaplayground.h>
+#include <ode_robots/closedplayground.h>
+#include <ode_robots/playground.h>
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
+#include <ode_robots/passivecapsule.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertnchannelcontroller.h>
@@ -135,7 +139,7 @@
 #include <invertnchannelcontrollerhebbhhand.h>
 #include <selforg/invertnchannelcontrollerhebbh.h>
 
-#include "hand.h"
+#include <ode_robots/hand.h>
 #include "irinvertwiring.h"
 
 // fetch all the stuff of lpzrobots into scope

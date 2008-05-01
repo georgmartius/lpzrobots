@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2008-04-17 15:59:02  martius
+ *   Revision 1.22  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.21  2008/04/17 15:59:02  martius
  *   OSG2 port finished
  *
  *   Revision 1.20.2.1  2008/04/10 07:35:45  guettler
@@ -111,24 +115,24 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
 
 // used robot
-#include "nimm2.h"
-#include "nimm4.h"
+#include <ode_robots/nimm2.h>
+#include <ode_robots/nimm4.h>
 
 
 // used arena
-#include "playground.h"
+#include <ode_robots/playground.h>
 // used passive spheres
-#include "passivesphere.h"
+#include <ode_robots/passivesphere.h>
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>

@@ -33,21 +33,21 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environmet stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
 
 // used robot
-#include "../../robots/arm.h"
+#include <ode_robots/arm.h>
 
 // used arena
-#include "playground.h"
+#include <ode_robots/playground.h>
 // used passive spheres
-#include "passivesphere.h"
+#include <ode_robots/passivesphere.h>
 
 // used controller
 #include <selforg/invertnchannelcontroller.h>

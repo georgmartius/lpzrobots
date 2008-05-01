@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-04-24 11:28:08  der
+ *   Revision 1.11  2008-05-01 22:03:54  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.10  2008/04/24 11:28:08  der
  *   final entropy sim
  *
  *   Revision 1.7  2008/01/17 09:54:31  der
@@ -91,14 +95,14 @@
  *
  *
  ***************************************************************************/
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
-#include "odeagent.h"
-#include "playground.h"
+#include <ode_robots/odeagent.h>
+#include <ode_robots/playground.h>
 
-#include "passivebox.h"
+#include <ode_robots/passivebox.h>
 
-#include "nimm2.h"
+#include <ode_robots/nimm2.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
@@ -112,7 +116,7 @@
 #include <selforg/trackablemeasure.h>
 #include <selforg/measureadapter.h>
 
-#include "substance.h"
+#include <ode_robots/substance.h>
 
 #include <stdio.h>
 #include <string.h>

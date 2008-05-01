@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2007-01-26 12:07:08  martius
+ *   Revision 1.19  2008-05-01 22:03:56  martius
+ *   build system expanded to allow system wide installation
+ *   that implies  <ode_robots/> for headers in simulations
+ *
+ *   Revision 1.18  2007/01/26 12:07:08  martius
  *   orientationsensor added
  *
  *   Revision 1.17  2006/09/20 12:56:32  martius
@@ -60,25 +64,25 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environment stuff
-#include "simulation.h"
+#include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
 
 // used robot
-#include "sphererobot3masses.h"
-#include "axisorientationsensor.h"
+#include <ode_robots/sphererobot3masses.h>
+#include <ode_robots/axisorientationsensor.h>
 
 
 // used arena
-#include "playground.h"
-#include "terrainground.h"
+#include <ode_robots/playground.h>
+#include <ode_robots/terrainground.h>
 // used passive spheres
-#include "passivesphere.h"
-#include "passivecapsule.h"
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/passivecapsule.h>
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
