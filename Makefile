@@ -13,7 +13,11 @@ all:
 	cd ode_robots && make depend
 	-make tags
 	@if test ! -e opende/Makefile && ld -lode -L$HOME/lib 2>/dev/null; then echo -e "You need to setup ODE from first!\nYou have 2 options: use a precompiled one from our webpage or compile the one in opende\nFor compiling please run:\ncd opende; sh autogen.sh\n./configure --enable-release --enable-double-precision\nmake\nsudo make install\n\nOn most SUSE linux computers it's necessary to run thereafter\n\nsudo ldconfig\n\nfor a correct linking of the libode.so!\n"; exit; fi
-	@echo "Also consider to use make -j 2 or more if you have a multicore machine"
+	@echo "********************************************************************************"
+	@echo "Don't worry if you have seen a lot of errors above."
+	@echo "This is all optional stuff which is not stricly required."
+	@echo "Probably you want to do \"make install\" now."
+	@echo "Usually you can use make -j 2 on multicore machines but not for the installation target."
 
 .PHONY: guilogger
 guilogger:
@@ -43,7 +47,7 @@ install:
 	-cp ode_robots/utils/feedfile.pl $(PREFIX)bin/
 	-cp ode_robots/utils/encodevideo.sh $(PREFIX)bin/
 	-cp ode_robots/utils/selectcolumns.pl $(PREFIX)bin/
-ifeq ($(INSTALL_ONLY_UTILS),no)
+ifeq ($(INSTALL_TYPE),user)
 	make install_libs
 endif
 
@@ -80,7 +84,7 @@ uninstall:
 	-rm -f $(PREFIX)bin/feedfile.pl
 	-rm -f $(PREFIX)bin/encodevideo.sh 
 	-rm -f $(PREFIX)bin/selectcolumns.pl
-ifeq ($(INSTALL_ONLY_UTILS),no)
+ifeq ($(INSTALL_TYPE),user)
 	-rm -f $(PREFIX)lib/libselforg.a $(PREFIX)lib/libselforg_opt.a
 	-rm -rf $(PREFIX)include/selforg
 	-rm -f $(PREFIX)lib/libode_robots.a $(PREFIX)lib/libode_robots_opt.a
@@ -88,6 +92,8 @@ ifeq ($(INSTALL_ONLY_UTILS),no)
 endif
 
 
+Makefile.conf:	
+	@bash createMakefile.conf.sh
 
 .PHONY: tags
 tags: 
