@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-24 08:42:34  martius
+ *   Revision 1.2  2008-05-02 17:20:04  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2008/04/24 08:42:34  martius
  *   multiexpert with manipulandum data
  *
  *   taken from multisat.cpp 1.12
@@ -64,9 +67,10 @@ void MultiExpertPair::init(unsigned int inputDim, unsigned  int outputDim,
 
   for(int i=0; i<conf.numSats; i++){
     vector<Layer> layers;
-    layers.push_back(Layer(conf.numHidden, 0.5 , FeedForwardNN::tanh));
-    layers.push_back(Layer(1,1));
-    MultiLayerFFNN* net = new MultiLayerFFNN(1, layers); // learning rate is set to 1 and modulates each step  
+    if(conf.numHidden!=0)
+      layers.push_back(Layer(conf.numHidden, 0.5 , FeedForwardNN::tanh));
+    layers.push_back(Layer(1,0.5));
+    MultiLayerFFNN* net = new MultiLayerFFNN(1, layers, 1); // learning rate is set to 1 and modulates each step  
     net->init(inputDim, outputDim);
     Sat sat(net, conf.eps0);
     sats.push_back(sat);

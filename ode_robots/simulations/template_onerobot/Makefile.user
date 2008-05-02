@@ -2,8 +2,11 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2008
 
+# Installtion type: user
 # This makefile assumes that you have the lpzrobots libaries (libselforg and lilode_tobots) 
 # installed together with the includes files.
+
+include Makefile.conf
 
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))

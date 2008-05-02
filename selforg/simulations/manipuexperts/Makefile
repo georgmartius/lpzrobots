@@ -19,9 +19,9 @@ LIBS   = -lm -L$(SELFORG) -lselforg -lreadline
 
 INC   = -I$(SELFORG)/include
 
-cc = g++ $(CFLAGS) $(INC) -c
+cc = g++ $(CFLAGS) $(INC)
 #cc = g++ $(CFLAGS) -c -O -g3 -pg
-CXX = g++ $(CFLAGS) $(INC)  -c
+CXX = g++ $(CFLAGS) $(INC)
 
 CC = g++ $(CFLAGS) 
 #CC = g++ -g3 -pg  

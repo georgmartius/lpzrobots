@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-17 14:54:35  martius
+ *   Revision 1.3  2008-05-02 17:20:04  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2008/04/17 14:54:35  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -97,7 +100,7 @@ public:
 	      int interval = 1, 
 	      std::list<const Configurable*> confs = std::list<const Configurable*>(),
 	      std::string parameter="")
-    : mode(mode), whichSensors(whichSensors), interval(interval), 
+    : interval(interval), mode(mode), whichSensors(whichSensors), 
     configureables(confs), parameter(parameter)
     { pipe=0; }
 
@@ -112,18 +115,19 @@ public:
 
   void addConfigurable(const Configurable*);
   void setName(const std::string& name) { this->name = name;}
-private:
 
   bool open(); ///< opens the connections to the plot tool
   void close();///< closes the connections to the plot tool
 
   FILE* pipe;
   long t;
+  int interval;
   std::string name;
+
+private:
 
   PlotMode mode;
   PlotSensors whichSensors;
-  int interval;
   std::list< const Configurable* > configureables;
   std::string parameter; ///< additional parameter for external command
 };

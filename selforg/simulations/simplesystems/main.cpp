@@ -270,7 +270,7 @@ int main(int argc, char** argv){
 //    AbstractController* controller = new InvertMotorNStep(cc);
   UniversalControllerConf cc = UniversalController::getDefaultConf();
   vector<Layer> layers;
-  //   layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+  layers.push_back(Layer(5,0.5,FeedForwardNN::tanh)); // hidden layer
   layers.push_back(Layer(0,1,FeedForwardNN::tanhr)); // motor layer
   // size of output layer is automatically set
   layers.push_back(Layer(1,0,FeedForwardNN::linear)); 

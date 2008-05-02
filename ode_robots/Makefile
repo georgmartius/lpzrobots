@@ -81,8 +81,11 @@ depend:
 tags: 
 	etags `find -type f -regex ".*\.[hc]p?p?"` 
 
+clean-all: clean
+	rm -f $(LIB) $(LIB_OPT) $(LIB_PROF)
+
 clean:
-	rm -f $(LIB) Makefile.depend
+	rm -f Makefile.depend
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 	for dir in $(dirs); do \
 		rm -f $$dir/*.o; \

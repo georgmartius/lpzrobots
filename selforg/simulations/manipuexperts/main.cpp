@@ -29,7 +29,8 @@ bool stop=0;
 bool reset=true;
 double realtimefactor=1;
 
-int stepsize=2;
+int stepsize=1; // time intervals for learning and prediction
+int horizont=10; // how many step are predicted
 list<PlotOption> plotoptions;
 GlobalData globaldata;
 list<const Inspectable*> inspectables;
@@ -38,9 +39,15 @@ list<const Inspectable*> inspectables;
 class Sim: public Configurable, public Inspectable {
 public:
   Sim(const string& name)
-    : Configurable(name, "$Id$") {
+    : Configurable(name, "$Id$")
+      , predpos(horizont) {
+    horizontCopy=horizont;
+    stepsizeCopy=stepsize;
     addParameter("realtimefactor", &realtimefactor); 
+    addParameter("stepsize", &stepsizeCopy);// actually not to change, only for documentation
+    addParameter("horizont", &horizontCopy);// actually not to change, only for documentation
     pred_error=0;
+
   }
 
   ~Sim(){
@@ -56,7 +63,6 @@ public:
       exit(1);
     }  
     
-    //  vector<Matrix> speeds;
     double time;
     int frame;
     while(!feof(f)){
@@ -65,20 +71,15 @@ public:
       pos.push_back(m);
     }    
     data_size= pos.size();
-    fclose(f);
-    //   for(int i=0; i<data_size-1; i++){
-    //     speeds.push_back(pos[i+1]-pos[i]);
-    //   }
-    //   data_size= speeds.size();
-  
+    fclose(f);  
   
     MultiExpertPairConf pc = MultiExpertPair::getDefaultConf();
-    pc.numSats=8;
-    pc.numHidden=6;
-    pc.lambda_w=0.05;
-    pc.eps0=0.1;
-    pc.tauE1=5;
-    pc.tauW=300;    
+    pc.numSats=20;
+    pc.numHidden=6; // 12
+    pc.lambda_w=0.1;
+    pc.eps0=1; //0.1
+    pc.tauE1=2;
+    pc.tauW=300; // 300    
     mep  = new MultiExpertPair(pc);
     mep->init(3*3,3);
 
@@ -93,22 +94,36 @@ public:
     Matrix output = getData(pos,t,0);
     mep->learn(input,output);
     // interative predict the future
-    int horizont=3;
     list<Matrix> pred;
     predict(&pred, mep, pos, t, horizont);
     // calculate error
     pred_error= calcError(pred, pos, t);
+    // calc predicted positions
+    calcPredPos(&predpos, pred,pos,t);
     if((t%5000) == 0) printf("Time %i\n",t);
     if(t>data_size-(horizont+1)*stepsize)
-      t=4*stepsize;
+      t=4*stepsize;   
     return t++;    
   }
 
-  /// calculates Speed at time t+d(stepsize)
-  Matrix getData(const vector<Matrix>& pos, int t, int d){
-    return pos[t+(d*stepsize)] - pos[t+((d-1)*stepsize)];
-
+  Matrix getData(const vector<Matrix>& pos, int t, int d) const {
+    return getDataAcc(pos,t,d);
   }
+
+  /// calculates Speed at time t+d(stepsize)
+  Matrix getDataSpeed(const vector<Matrix>& pos, int t, int d) const {
+    if(t+(d*stepsize)<0) t=-(d*stepsize);
+    if(t+((d-1)*stepsize)<0) t=-((d-1)*stepsize);
+    return pos[t+(d*stepsize)] - pos[t+((d-1)*stepsize)];
+  }
+
+  // caculates Acceleration at time t+d(stepsize)
+  Matrix getDataAcc(const vector<Matrix>& pos, int t, int d) const {
+    if(t+(d*stepsize)<0) t=-(d*stepsize);
+    if(t+((d-2)*stepsize)<0) t=-((d-2)*stepsize);
+    return pos[t+(d*stepsize)] - pos[t+((d-1)*stepsize)]*2 + pos[t+((d-2)*stepsize)];
+  }
+
 
   // predicts the future 
   void predict(list<Matrix>* pred, AbstractModel* modell, const vector<Matrix>& pos, int t, int steps){
@@ -116,40 +131,84 @@ public:
     for(int i=0; i< steps; i++){
       Matrix input = b[(i+2)%3].above(b[(i+1)%3]).above(b[(i+0)%3]);
       b[i%3]= modell->process(input);    
+      // b[i%3]= input.rows(0,2);    
       pred->push_back(b[i%3]);  
+    }
+  }
+
+  void calcPredPos(vector<Matrix>* pp, const list<Matrix>&pred, 
+		   const vector<Matrix>& pos, int t){
+    calcPredPosFromAcc(pp,pred,pos,t);
+  }
+  void calcPredPosFromSpeed(vector<Matrix>* pp, const list<Matrix>&pred, 
+		   const vector<Matrix>& pos, int t){
+    assert(pp->size() == pred.size() );
+    Matrix point=pos[t];
+    int i=0;
+    FOREACHC(list<Matrix>, pred, p){
+      point += *p;
+      (*pp)[i]=point;
+      i++;
+    }
+  }
+
+  void calcPredPosFromAcc(vector<Matrix>* pp, const list<Matrix>&pred, 
+		   const vector<Matrix>& pos, int t){
+    assert(pp->size() == pred.size() );
+    Matrix point = pos[t];
+    Matrix speed = getDataSpeed(pos,t,0);
+    int i=0;
+    FOREACHC(list<Matrix>, pred, p){
+      speed += *p;
+      point += speed;
+      (*pp)[i]=point;
+      i++;
     }
   }
 
   double calcError(const list<Matrix>& pred, const vector<Matrix>& pos, int t){
     int i=0;
     double error = 0;
+    double size=0;
     FOREACHC( list<Matrix>, pred, p){
       i++;
       error += ((*p) - getData(pos,t,i)).multTM().val(0,0); 
+      size  += getData(pos,t,i).map(fabs).elementSum();
       // calc length of speed difference
     }
-    return error;
+    return error/size;
   }
 
   virtual iparamkeylist getInternalParamNames() const{
     list<iparamkey> keylist;  
     keylist += storeVectorFieldNames(pos[0], "pos");
+    keylist += storeVectorFieldNames(pos[0], "data");
+    for(unsigned int i=0; i < predpos.size(); i++){
+      keylist += storeVectorFieldNames(pos[0], "pred" + itos(i));
+    }
     keylist += string("pred_error");
     return keylist; 
   }
   virtual iparamvallist getInternalParams() const{
     list<iparamval> l;
-    l += pos[t].convertToList();
+    l += pos[max(t-1,100)].convertToList();
+    l += getData(pos,max(t-1,100),0).convertToList();
+    FOREACHC(vector<Matrix>, predpos, i)
+      l += i->convertToList();          
     l += (double)pred_error;
     return l;
   }
 
 public:
-  vector<Matrix> pos;
+  vector<Matrix> pos;   // true positions
+  vector<Matrix> predpos; // predicted positions
   MultiExpertPair * mep;  
   double pred_error;
   int data_size;  
   int t;
+
+  double stepsizeCopy;
+  double horizontCopy;
 };
 
 
@@ -161,7 +220,7 @@ int contains(char **list, int len,  const char *str){
   return 0;
 }
 
-void openPlotOptions(list<PlotOption>& plotoptions , list<const Inspectable*>& inspectables){
+void openPlotOptions(list<PlotOption>& plotoptions , list<const Inspectable*>& inspectables, const vector<Configurable*>& configureables){
   signal(SIGPIPE,SIG_IGN);
   FOREACH(list<PlotOption>, plotoptions, p){
     p->open();
@@ -171,6 +230,11 @@ void openPlotOptions(list<PlotOption>& plotoptions , list<const Inspectable*>& i
       fprintf(p->pipe,"# Start %s", ctime(&t));    
       // print interval
       fprintf(p->pipe, "# Recording every %dth dataset\n", p->interval);
+      // print all configureables
+      FOREACHC (vector<Configurable*>, configureables,i){
+	(*i)->print(p->pipe, "# ");
+      }
+
       printInternalParameterNames(p->pipe, 0, 0, inspectables);
     }
   }
@@ -214,7 +278,7 @@ int main(int argc, char** argv){
   inspectables.push_back(m);
 
   showParams(globaldata.configs);
-  openPlotOptions(plotoptions, inspectables);
+  openPlotOptions(plotoptions, inspectables, globaldata.configs);
   
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
   printf(" You probably want to use the guilogger with e.g.: -g 10\n");

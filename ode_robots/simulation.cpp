@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.82  2008-04-30 10:04:51  guettler
+ *   Revision 1.83  2008-05-02 17:20:04  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.82  2008/04/30 10:04:51  guettler
  *   typo fix
  *
  *   Revision 1.81  2008/04/29 10:14:57  guettler
@@ -599,7 +602,6 @@ namespace lpzrobots {
 	  sprintf(dir,"%s/.lpzrobots",home);
 	  mkdir(dir,0x755);
 	  storeOdeRobotsCFG();
-	  cerr << "store config to " << odeRobotsCfg << endl;
 	}
       }
     }
@@ -1475,7 +1477,7 @@ namespace lpzrobots {
     justresettimes = true;
   }
 
-  void Simulation::storeOdeRobotsCFG(){
+  bool Simulation::storeOdeRobotsCFG(){
     list<string> cs;
     cs+=string("Configruation file for lpzrobots ode simulation!");
     cs+=string("Most values are self-exlaining, also use -h with the simulator to learn more");
@@ -1483,10 +1485,13 @@ namespace lpzrobots {
     cs+=string("The following values for Shadow are supported:");
     cs+=string("\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap");
     cs+=string("\t4: SoftShadowMap, 5: ShadowMap (default)");
-    if(storeCfg(odeRobotsCfg,cs))
-      printf("Configuration saved to %s!\n",odeRobotsCfg);
-    else
+    if(storeCfg(odeRobotsCfg,cs)){
+      printf("Configuration saved to %s!\n",odeRobotsCfg);    
+      return true;
+    }else{
       fprintf(stderr,"Error while writing configuration file %s!\n", odeRobotsCfg);
+      return false;
+    }
   }
 
 

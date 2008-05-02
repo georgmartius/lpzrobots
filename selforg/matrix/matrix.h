@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.20  2008-04-30 14:54:14  guettler
+// Revision 1.21  2008-05-02 17:20:04  martius
+// *** empty log message ***
+//
+// Revision 1.20  2008/04/30 14:54:14  guettler
 // -indextype of matrices is now unsigned int (bigger matrices than
 //  256x256 can be used now, if not AVR defined)
 // -code cleaned up
@@ -283,12 +286,11 @@ namespace matrix{
     Matrix rows(I startindex, I endindex) const;
     /** @returns column-vector(as Nx1 matrix) containing the index'th column */
     Matrix column(I index) const;
-    /** @returns submatrix (as NxK matrix)
-	containing column from startindex to endindex inclusively (K=stopindex-endindex)
+    /** @returns submatrix (as NxK matrix) 
+	containing column from startindex to endindex inclusively (K=endindex-startindex) 
 	indices can be out of bounds, they are clipped in any case
     */
     Matrix columns(I startindex, I endindex) const;
-
 
 
     /** stores the content of the matrix (row-wise) in the given buffer

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-07-10 15:02:33  robot3
+ *   Revision 1.2  2008-05-02 17:20:04  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2007/07/10 15:02:33  robot3
  *   *** empty log message ***
  *
  *
@@ -45,6 +48,7 @@ struct GlobalData
 
   ConfigList configs;
   AgentList agents;
+
 };
 
 #endif

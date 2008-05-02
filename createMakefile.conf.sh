@@ -3,6 +3,8 @@
 
 
 echo "Generating Makefile.conf (configuration makefile)"
+echo " You can change your preference by editing Makefile.conf"
+echo " or just delete it and run make again"
 
 echo -n "Where do you want to install the simulator? [$HOME]"
 read prefix 
@@ -42,5 +44,4 @@ else
 echo "INSTALL_TYPE=devel" >> Makefile.conf
 fi
 
-echo "You can change your preference by editing Makefile.conf"
 
