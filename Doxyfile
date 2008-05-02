@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "Robotsystem of the Robot Group Leipzig"
-PROJECT_NUMBER         = 0.3
+PROJECT_NUMBER         = 0.4
 OUTPUT_DIRECTORY       = doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -25,7 +25,7 @@ ABBREVIATE_BRIEF       = "The $name class" \
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = NO
-STRIP_FROM_PATH        = /scratch.local/georg/lpzrobots/
+STRIP_FROM_PATH        = 
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = YES
@@ -100,7 +100,9 @@ RECURSIVE              = YES
 EXCLUDE                = ode_robots/textures/calcheightmaps \
                          ode_robots/include \
                          ode_robots/components \
+                         ode_robots/simulations \
                          selforg/include \
+                         selforg/simulations \
                          selforg/controller/old_stuff \
                          selforg/matrix/unit_test.hpp
 EXCLUDE_SYMLINKS       = YES
