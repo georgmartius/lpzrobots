@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.3
+VERSION=0.4
 NAME=lpzrobots
 BASE=../..
 
@@ -18,8 +18,8 @@ echo "Copy opende lib";
 cp -r  $SRCDIR/opende $DIR/;
 echo "Copy guilogger";
 cp -r  $SRCDIR/guilogger $DIR/;
-echo "Copy gnuplot";
-cp -r  $SRCDIR/gnuplot $DIR/;
+echo "Copy javacontroller";
+cp -r  $SRCDIR/javacontroller $DIR/;
 echo "Copy neuronviz";
 cp -r  $SRCDIR/neuronviz $DIR/;
 echo "Copy webots projects";

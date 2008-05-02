@@ -1,10 +1,7 @@
 createNewSimulation.sh
 hurling_snake
-Makefile
-Makefile.conf
 muscled_arm
 nimm2_arena
-README
 schlangeservo
 short_circuit
 sphericalrobot
@@ -12,4 +9,5 @@ template_onerobot
 template_schlange
 template_schlangeforce
 template_sphererobot
+vierbeiner
 zoo

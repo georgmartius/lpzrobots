@@ -49,28 +49,53 @@ the following subdirectories
 
 
 
-\par How to Start Your Own Simulation
+\par How to start your own simulation
 
-To start a new project copy one of the "template" directories in the simulations folder.
-Please note that you have to delete the CVS dirctory inside your copy 
-before you add it to the cvs repository.
-Or just use the createNewSimulation.sh script in the simulations directory:\n
+To start a new project it is recommended to copy one of the existing simulations from <tt>ode_robots/simulations/</tt> e.g. one of the "template" folders.
+To easy the procedure use
+the createNewSimulation.sh script in the simulations directory:\n
 <tt> $> ./createNewSimulation.sh template_dir newsimname </tt>\n
 where \p template_dir is the template directory you wish to copy and \p newsimname is the
-name of the new simulation you wish to create.
+name of the new simulation you wish to create. This takes care of your installation type
+ and other things like possible superficial CVS information.
 
-Now you can adjust the simulation as needed.
-A simple make (and maybe a make depend before the make) in the simulation directory should be enough. 
+Example:
+\verbatim
+cd ode_robots/simulations
+./createNewSimulation.sh template_onerobot mysimulation
+\endverbatim
+For user-type installation you probably want to put the simulation in a separate directory, that means:
+\verbatim
+./createNewSimulation.sh template_onerobot ~/path/to/simulations/mysimulation
+\endverbatim
+
+Now you can adjust the simulation as you like.
+A simple make in the simulation directory should be enough. 
 In case your simulation code consists of other files than main.cpp, 
- please add them to FILES in the Makefile in the simulation directory.
- 
+ please add them to FILES in the Makefile.conf in the simulation directory.
+ You also have to run <tt>make depend</tt> afterwards!
+
 If you insert a new file to the simulation framework, 
-such as a new obstacle, robot or similar you DON'T need to do anything. 
+such as a new obstacle, robot or similar you DON'T need to add them anyvery. 
 Every *.cpp file in the directories specified in Makefile.conf is
 compiled and included in the library libode_robots.a. 
 In case you add a new directory with source files, 
 which should be included in the lib, then add it to Makefile.conf.
+In any case run a <tt>make</tt> in the lpzrobots directory, 
+ this creates the neccessary dependency information to ensure a proper build.
 
+\par How to add a new robot or obstacle or controller to your simulation
+- Locate a similar object in the simulator. You find this under: \p ode_robots/robots, \p ode_robots/obstacles, and \p selforg/controller
+- copy the .h and .cpp file to you simulation folder, e. g. \p nimm4.cpp and \p  nimm4.h
+- rename it to whatever you like, say <tt>myrobot.cpp</tt>, <tt>myrobot.h</tt>
+- modify the code so that the class has the new name, e. g. \p MyRobot
+- change include directives to have a <tt> \<ode_robots/ \></tt> style. 
+\verbatim
+#include <ode_robots/primitives.h>
+\endverbatim
+- add "myrobot" to the Makefile.conf FILES variable
+- run <tt> make depend </tt>
+- ready to use the stuff in your simulation (use #include "myrobot.h")
 */
 
 
