@@ -4,7 +4,7 @@
 include Makefile.conf
 
 # subdirectories which contain libraries or binaries needed some of the other project in this tree 
-all: 
+utils: 
 	-make guilogger
 	-make neuronviz
 	-make soundman
@@ -16,7 +16,8 @@ all:
 	@echo "********************************************************************************"
 	@echo "Don't worry if you have seen a lot of errors above."
 	@echo "This is all optional stuff which is not stricly required."
-	@echo "Probably you want to do \"make install\" now."
+	@echo "Probably you want to install the ODE and OSG now "
+	@echo " and then do \"make libs\" and \"(sudo) make install\""
 	@echo "Usually you can use make -j 2 on multicore machines but not for the installation target."
 
 .PHONY: guilogger
@@ -31,12 +32,26 @@ neuronviz:
 javacontroller:
 	cd javacontroller/src && make
 
-.PHONY: neuronviz
+.PHONY: soundman
 soundman:
 	cd ode_robots/utils && javac SoundMan.java SoundManipulation.java SoundManGUI.java
 
+.PHONY: libs
+libs: 
+	@echo "*************** Compile selforg (optimized) *****************"
+	cd selforg && make clean && make opt	
+	@echo "*************** Compile ode_robots (optimized) **************"
+	cd ode_robots && make clean && make opt	
+	@echo "*************** Compile selforg (debug) *********************"
+	cd selforg && make clean && make lib
+	@echo "*************** Compile ode_robots (debug) ******************"
+	cd ode_robots && make clean && make lib
+
 .PHONY: install
-install:
+install: install_utils install_libs
+
+.PHONY: install_utils
+install_utils:
 	-mkdir -p $(PREFIX)bin $(PREFIX)lib/soundMan
 	-cd neuronviz/src && make install
 	-cd javacontroller/src && make install
@@ -47,33 +62,25 @@ install:
 	-cp ode_robots/utils/feedfile.pl $(PREFIX)bin/
 	-cp ode_robots/utils/encodevideo.sh $(PREFIX)bin/
 	-cp ode_robots/utils/selectcolumns.pl $(PREFIX)bin/
-ifeq ($(INSTALL_TYPE),user)
-	make install_libs
-endif
-
 
 
 .PHONY: install_libs
 install_libs:
-	@echo "*************** Compile selforg (debug) *********************"
-	cd selforg && make clean && make lib	
+ifeq ($(INSTALL_TYPE),user)
+	@echo "*************** Install selforg *********************"
 	cp selforg/libselforg.a $(PREFIX)lib
-	@echo "*************** Compile selforg (optimized) *****************"
-	cd selforg && make clean && make opt	
 	cp selforg/libselforg_opt.a $(PREFIX)lib
-	@echo "*************** Install selforg headers *********************"
 	-mkdir -p $(PREFIX)include
 	cp -rL selforg/include/selforg $(PREFIX)include/
-	@echo "*************** Compile ode_robots (debug) ******************"
-	cd ode_robots && make clean && make lib	
+	@echo "*************** Install ode_robots ******************"
 	cp ode_robots/libode_robots.a $(PREFIX)lib
-	@echo "*************** Compile ode_robots (optimized) **************"
-	cd ode_robots && make clean && make opt	
 	cp ode_robots/libode_robots_opt.a $(PREFIX)lib
-	@echo "*************** Install ode_robots headers ******************"
 	cp -rL ode_robots/include/ode_robots $(PREFIX)include/	
-	@echo "Be aware that you have to use the Makefile.systemwide in the simulations"
-	@echo " if you install the simulator libaries and header files into the global paths" 
+	@echo "*************** Finished ******************"
+	@echo "Be aware that you have to use the Makefile.user in the simulations"
+	@echo " since you install the simulator libaries and header files into global paths"
+endif
+
 .PHONY: uninstall
 uninstall:
 	-cd neuronviz/src && make uninstall
