@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-04-23 07:17:16  martius
+ *   Revision 1.10  2008-05-05 09:35:35  guettler
+ *   hud now displays if in pause mode
+ *
+ *   Revision 1.9  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -163,8 +166,8 @@ namespace lpzrobots {
     virtual ~Base();
 
   protected:
-    virtual void setTimeStats(double time, double realtimefactor, 
-			      double truerealtimefactor);
+    virtual void setTimeStats(double time, double realtimefactor,
+			      double truerealtimefactor,bool pause);
 
     dGeomID ground;
 

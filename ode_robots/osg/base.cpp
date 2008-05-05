@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2008-04-30 13:13:20  guettler
+ *   Revision 1.19  2008-05-05 09:35:35  guettler
+ *   hud now displays if in pause mode
+ *
+ *   Revision 1.18  2008/04/30 13:13:20  guettler
  *   caption corrected
  *
  *   Revision 1.17  2008/04/23 07:17:16  martius
@@ -483,7 +486,7 @@ namespace lpzrobots {
       timestats->setFont(font);
       timestats->setPosition(position);
       timestats->setColor(textColor);
-      setTimeStats(0,0,0);
+      setTimeStats(0,0,0,false);
     }
 
     {
@@ -549,11 +552,14 @@ namespace lpzrobots {
   }
 
   void Base::setTimeStats(double time, double realtimefactor,
-			  double truerealtimefactor){
+			  double truerealtimefactor, bool pause){
     if(timestats){
       char buffer[100];
       int minutes = (int)time/60;
-      if (realtimefactor>0){
+      if (pause) {
+        sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (paused)",minutes,
+                int(time-minutes)%60,realtimefactor);
+      } else if (realtimefactor>0){
 	if(fabs(truerealtimefactor/realtimefactor-1)<0.15)
 	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes,
 		  int(time-minutes)%60,realtimefactor);

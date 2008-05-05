@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.83  2008-05-02 17:20:04  martius
+ *   Revision 1.84  2008-05-05 09:35:35  guettler
+ *   hud now displays if in pause mode
+ *
+ *   Revision 1.83  2008/05/02 17:20:04  martius
  *   *** empty log message ***
  *
  *   Revision 1.82  2008/04/30 10:04:51  guettler
@@ -946,7 +949,7 @@ namespace lpzrobots {
 	}
 	// update timestats
 	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor,
-		     truerealtimefactor);
+		     truerealtimefactor,pause);
 
 	// call all registered graphical callbackable classes
 	FOREACH(list<Callbackable*>, graphicsCallbackables, i) {
@@ -1486,7 +1489,7 @@ namespace lpzrobots {
     cs+=string("\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap");
     cs+=string("\t4: SoftShadowMap, 5: ShadowMap (default)");
     if(storeCfg(odeRobotsCfg,cs)){
-      printf("Configuration saved to %s!\n",odeRobotsCfg);    
+      printf("Configuration saved to %s!\n",odeRobotsCfg);
       return true;
     }else{
       fprintf(stderr,"Error while writing configuration file %s!\n", odeRobotsCfg);
