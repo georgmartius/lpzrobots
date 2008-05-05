@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.31  2008-04-23 07:17:16  martius
+ *   Revision 1.32  2008-05-05 06:07:26  guettler
+ *   wrong prototype storeODERobotsCFG()
+ *
+ *   Revision 1.31  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -356,7 +359,7 @@ namespace lpzrobots {
     // Commandline interface stuff
     static void usage(const char* progname);
 
-    void storeOdeRobotsCFG();
+    bool storeOdeRobotsCFG();
 
 
   protected:
