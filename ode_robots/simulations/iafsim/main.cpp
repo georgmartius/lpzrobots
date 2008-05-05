@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-05-01 22:03:55  martius
+ *   Revision 1.5  2008-05-05 06:26:47  guettler
+ *   tristateiafcontroller moved to ode_robots/simulations/iafsim
+ *   for test purposes
+ *
+ *   Revision 1.4  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -65,9 +69,7 @@
 //#include <ode_robots/passivesphere.h>
 
 // used controller
-//#include <selforg/invertnchannelcontroller.h>
-#include <selforg/abstractiafcontroller.h>
-#include <selforg/sinecontroller.h>
+#include "tristateiafcontroller.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -142,12 +144,12 @@ public:
     // push controller in global list of configurables
    //  AbstractController *controller = new InvertNChannelController(10);
 //     AbstractController *controller = new SineController();
-    AbstractIAFControllerConf iafc = AbstractIAFController::getDefaultConf();
+    TristateIAFControllerConf iafc = TristateIAFController::getDefaultConf();
     iafc.numberIAFNeuronsPerInput=150;
     iafc.numberIAFNeuronsPerOutput=150;
 /*    iafc.wIInitScale= 2.0;
     iafc.wOInitScale= 2.0;*/
-    AbstractController *controller = new AbstractIAFController(iafc);
+    AbstractController *controller = new TristateIAFController(iafc);
     global.configs.push_back(controller);
 
     // create pointer to one2onewiring
