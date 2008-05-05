@@ -18,7 +18,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-05-05 06:26:47  guettler
+ *   Revision 1.2  2008-05-05 06:31:59  guettler
+ *   header defines corrected
+ *
+ *   Revision 1.1  2008/05/05 06:26:47  guettler
  *   tristateiafcontroller moved to ode_robots/simulations/iafsim
  *   for test purposes
  *
@@ -48,8 +51,8 @@
  *
  *                                                                         *
  ***************************************************************************/
-#ifndef __ABSTRACTIAFCONTROLLER_H
-#define __ABSTRACTIAFCONTROLLER_H
+#ifndef __TRISTATEIAFCONTROLLER_H
+#define __TRISTATEIAFCONTROLLER_H
 
 #include <selforg/abstractcontroller.h>
 
