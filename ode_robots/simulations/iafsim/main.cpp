@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-05-05 06:26:47  guettler
+ *   Revision 1.6  2008-05-05 13:42:13  guettler
+ *   new iafcontroller tested
+ *
+ *   Revision 1.5  2008/05/05 06:26:47  guettler
  *   tristateiafcontroller moved to ode_robots/simulations/iafsim
  *   for test purposes
  *
@@ -70,6 +73,7 @@
 
 // used controller
 #include "tristateiafcontroller.h"
+#include <selforg/abstractiafcontroller.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -89,7 +93,7 @@ public:
     // initialization
     // - set noise to 0.1
     global.odeConfig.noise=0.05;
-    global.odeConfig.setParam("realtimefactor",0);
+    global.odeConfig.setParam("realtimefactor",1);
     //  global.odeConfig.setParam("gravity", 0);
 
     // use Playground as boundary:
@@ -144,12 +148,13 @@ public:
     // push controller in global list of configurables
    //  AbstractController *controller = new InvertNChannelController(10);
 //     AbstractController *controller = new SineController();
-    TristateIAFControllerConf iafc = TristateIAFController::getDefaultConf();
-    iafc.numberIAFNeuronsPerInput=150;
-    iafc.numberIAFNeuronsPerOutput=150;
-/*    iafc.wIInitScale= 2.0;
-    iafc.wOInitScale= 2.0;*/
-    AbstractController *controller = new TristateIAFController(iafc);
+//     TristateIAFControllerConf iafc = TristateIAFController::getDefaultConf();
+    AbstractIAFControllerConf iafc = AbstractIAFController::getDefaultConf();
+    *iafc.numberIAFNeuronsPerInput=50;
+    *iafc.numberIAFNeuronsPerOutput=50;
+    *iafc.wIInitScale= 1.2;
+    *iafc.wOInitScale= 1.2;
+    AbstractController *controller = new AbstractIAFController(iafc);
     global.configs.push_back(controller);
 
     // create pointer to one2onewiring
