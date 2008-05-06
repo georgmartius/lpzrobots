@@ -19,7 +19,7 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 find_h_files = $(wildcard $(dir)/*.h)
 HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 
-UTILS = 
+UTILS = install_prefix.conf
 # utils/splitvideo
 
 # -pg for profiling
@@ -39,11 +39,11 @@ AR = ar -rs
 
 .PHONY: lib opt clean todo depend tags
 
-lib: libselforg $(LIB) $(UTILS)
+lib: $(UTILS) libselforg $(LIB)
 
-opt: libselforg_opt $(LIB_OPT)
+opt: $(UTILS) libselforg_opt $(LIB_OPT)
 
-prof: libselforg $(LIB_PROF)
+prof: $(UTILS) libselforg $(LIB_PROF)
 
 $(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
@@ -90,6 +90,11 @@ clean:
 	for dir in $(dirs); do \
 		rm -f $$dir/*.o; \
 	done
+
+install_prefix.conf:
+	@echo "create install_prefix.conf"
+	@echo '// for system installations (installation type:user) the macro PREFIX should be defined:' > install_prefix.conf
+	@echo '// e.g. #define PREFIX "/usr/local"'  >> install_prefix.conf
 
 todo:
 	grep -ni "Todo" $(CPPFILES) $(HFILES)

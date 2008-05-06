@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-11-07 13:21:15  martius
+ *   Revision 1.13  2008-05-06 17:14:17  martius
+ *   buildsystem further tuned,
+ *   help in Makefile
+ *   osg/data directory is also installed and registered at osg_robots
+ *
+ *   Revision 1.12  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.11  2006/11/30 08:51:39  robot8
@@ -39,15 +44,13 @@
  *                                                                         *
  ***************************************************************************/
 
-
-#include "component.h"
-#include <osgprimitive.h>
-
-#include <selforg/abstractcontroller.h>
-
-
 #ifndef atomcomponent_h
 #define atomcomponent_h
+
+#include <ode_robots/component.h>
+#include <ode_robots/osgprimitive.h>
+
+#include <selforg/abstractcontroller.h>
 
 
 

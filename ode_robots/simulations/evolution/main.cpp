@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2008-05-01 22:03:54  martius
+ *   Revision 1.18  2008-05-06 17:14:17  martius
+ *   buildsystem further tuned,
+ *   help in Makefile
+ *   osg/data directory is also installed and registered at osg_robots
+ *
+ *   Revision 1.17  2008/05/01 22:03:54  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -99,7 +104,7 @@
 
 #include <ode_robots/simulation.h>
 
-#include <ode_robots/atomodeagent.h>
+#include "atomodeagent.h"
 #include <ode_robots/closedplayground.h>
 #include <ode_robots/passivesphere.h>
 
@@ -117,7 +122,7 @@
 
 #include <ode_robots/atomcomponent.h>
 
-#include <vector.h>
+#include <vector>
 
 
 //physical definition part

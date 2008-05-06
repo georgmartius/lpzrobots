@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.84  2008-05-05 09:35:35  guettler
+ *   Revision 1.85  2008-05-06 17:14:17  martius
+ *   buildsystem further tuned,
+ *   help in Makefile
+ *   osg/data directory is also installed and registered at osg_robots
+ *
+ *   Revision 1.84  2008/05/05 09:35:35  guettler
  *   hud now displays if in pause mode
  *
  *   Revision 1.83  2008/05/02 17:20:04  martius
@@ -499,6 +504,9 @@
 #include <pthread.h>
 #include "odeconfig.h"
 
+/// read the installation PREFIX (to find data directory)
+#include "install_prefix.conf"
+
 namespace lpzrobots {
 
   using namespace std;
@@ -588,7 +596,11 @@ namespace lpzrobots {
     /**************** OpenSceneGraph-Section   ***********************/
 
     osgDB::FilePathList l = osgDB::getDataFilePathList();
-    l.push_back("../../osg/data");
+#ifdef PREFIX
+    l.push_back(PREFIX+string("/share/lpzrobots/data"));// installation path
+#else
+    l.push_back("../../osg/data"); 
+#endif
     osgDB::setDataFilePathList(l);
 
     // load config file (first in the current directory and then in ~/.lpzrobots/)

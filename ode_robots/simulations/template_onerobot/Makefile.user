@@ -35,7 +35,7 @@ LIBS   = -lm \
 INC   = -I. 
 
 CXX = g++
-CPPFLAGS = -Wall  -g -pthread $(INC)
+CPPFLAGS = -Wall  -g -pthread $(INC) 
 CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC)
 
 normal: $(EXEC)

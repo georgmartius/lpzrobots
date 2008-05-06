@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-03-16 11:01:37  martius
+ *   Revision 1.7  2008-05-06 17:14:17  martius
+ *   buildsystem further tuned,
+ *   help in Makefile
+ *   osg/data directory is also installed and registered at osg_robots
+ *
+ *   Revision 1.6  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -85,7 +90,7 @@ namespace lpzrobots {
       roof = new Box(length + 2 * width , (length * factorlength2) + 2 * width , width);
       roof->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
 
-      roof->setPosition(getPosition () + osg::Vec3(0,0,height+width/2));
+      roof->setPosition(getPos() + osg::Vec3(0,0,height+width/2));
       obst.push_back(roof);
     };
 

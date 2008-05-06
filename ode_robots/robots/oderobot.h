@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-12-06 10:02:49  der
+ *   Revision 1.8  2008-05-06 17:14:17  martius
+ *   buildsystem further tuned,
+ *   help in Makefile
+ *   osg/data directory is also installed and registered at osg_robots
+ *
+ *   Revision 1.7  2007/12/06 10:02:49  der
  *   abstractground: returns now cornerpoints
  *   abstractobstacle: is now trackable
  *   hudstatistics: supports now AbstractmMeasure
@@ -180,7 +185,8 @@ namespace lpzrobots {
     */
     virtual void place(const osg::Matrix& pose) = 0;
 
-    /** checks for internal collisions and treats them. 
+    /** @deprecated
+     *  Do not use it anymore, collision control is done automatically. 
      *  In case of a treatment return true 
      *  (collision will be ignored by other objects and the default routine)
      *  else false (collision is passed to other objects and (if not treated) to the default routine).
@@ -199,35 +205,35 @@ namespace lpzrobots {
     */
     virtual void setColor(const Color& col);
 
-
-  /*********** BEGIN ODETRACKABLE INTERFACE ****************/
-  
-   /** returns position of the object
-  @return vector of position (x,y,z)
-   */
-virtual Position getPosition() const;
-  
-  /** returns linear speed vector of the object
-  @return vector  (vx,vy,vz)
-   */
-virtual Position getSpeed() const;
-  
-  /** returns angular velocity vector of the object
-  @return vector  (wx,wy,wz)
-   */
-virtual Position getAngularSpeed() const;
-  
-  /** returns the orientation of the object
-  @return 3x3 rotation matrix
-   */
-virtual matrix::Matrix getOrientation() const;
-  
-  
+    
+    /*********** BEGIN TRACKABLE INTERFACE ****************/
+    
+    /** returns position of the object
+	@return vector of position (x,y,z)
+    */
+    virtual Position getPosition() const;
+    
+    /** returns linear speed vector of the object
+	@return vector  (vx,vy,vz)
+    */
+    virtual Position getSpeed() const;
+    
+    /** returns angular velocity vector of the object
+	@return vector  (wx,wy,wz)
+    */
+    virtual Position getAngularSpeed() const;
+    
+    /** returns the orientation of the object
+	@return 3x3 rotation matrix
+    */
+    virtual matrix::Matrix getOrientation() const;
+    /*********** END TRACKABLE INTERFACE ****************/
+    
+    /// return the primitive of the robot that is used for tracking and camera following
     virtual Primitive* getMainPrimitive() const  = 0;
-  /*********** END ODETRACKABLE INTERFACE ****************/
-  
+    
   protected:
-
+    
     static bool isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom);
     static bool isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom);
 
