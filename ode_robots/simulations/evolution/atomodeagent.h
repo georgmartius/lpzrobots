@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2006-11-30 08:51:39  robot8
+ *   Revision 1.1  2008-05-06 17:19:30  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2006/11/30 08:51:39  robot8
  *   -update of the evolution projekt
  *   -fitness changed
  *   -replication changed
@@ -67,7 +70,7 @@
 
 #include <selforg/agent.h>
 #include <selforg/abstractcontroller.h>
-#include "odeagent.h"
+#include <ode_robots/odeagent.h>
 
 
 namespace lpzrobots {
