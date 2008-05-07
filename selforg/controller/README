@@ -1,0 +1,24 @@
+/** \file 
+ * This file is used for the doxygen documentation. 
+ */
+
+/** 
+
+\dir selforg/controller 
+
+The controller directory contains (as you can guess) the controllers 
+developed in the robotic group of Leipzig University. For the approach, 
+general remarks, aims and papers see http://robot.informatik.uni-leipzig.de
+
+The common interface is provided in class \ref AbstractController , 
+which inherits methods for configuration and disposal of internal 
+parameter as well as serialization from the classes \ref Configurable, \ref Inspectable and \ref Storeable.
+Each controller realizes this interface to ensure collaboration.
+
+For easy use in the beginning use \ref InvertNChannelController 
+(which requires the same number of sensors and motors) and look at the examples
+in the \ref selforg/examples  directory.
+You can also start with a copy of one of the templates in the \ref lpzrobots/ode_robots/simulations directory and you can see how things work.
+ */
+
+
