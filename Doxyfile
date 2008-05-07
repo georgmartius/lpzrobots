@@ -84,7 +84,6 @@ WARN_LOGFILE           = doxygen.warn
 #---------------------------------------------------------------------------
 INPUT                  = selforg \
                          ode_robots \
-                         ode_robots/simulations/README \
                          neuronviz/README \
                          guilogger/README \
                          opende/README \
@@ -100,14 +99,14 @@ RECURSIVE              = YES
 EXCLUDE                = ode_robots/textures/calcheightmaps \
                          ode_robots/include \
                          ode_robots/components \
-                         ode_robots/simulations \
+                         ode_robots/simulations/ \
                          selforg/include \
                          selforg/simulations \
                          selforg/controller/old_stuff \
                          selforg/matrix/unit_test.hpp
 EXCLUDE_SYMLINKS       = YES
-EXCLUDE_PATTERNS       = main.cpp
-EXAMPLE_PATH           = ode_robots/simulations/template_sphererobot \
+EXCLUDE_PATTERNS       = 
+EXAMPLE_PATH           = ode_robots/examples/template_sphererobot \
                          ode_robots/robots \
                          selforg/examples
 EXAMPLE_PATTERNS       = *

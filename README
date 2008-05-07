@@ -37,7 +37,7 @@ It consists of the following directories (click for details):
   - \ref guilogger : application that coordinates multiple gnuplot 
 	windows and allows for an interactive display of data that is sent per pipe from another program 
   - \ref neuronviz : application that displays neural networks
-  - \ref webots : directory with some webots simulations  
+  - \ref webots : directory with a webots simulation using the selforg lib
   - \ref opende : directory with a snapshot of the open dynamics engine (release 0.9)
 		(please follow the link for installation hints)
 
