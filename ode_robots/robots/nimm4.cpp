@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-04-23 07:17:16  martius
+ *   Revision 1.12  2008-05-07 11:03:48  martius
+ *   code cosmetics
+ *
+ *   Revision 1.11  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -124,8 +127,7 @@ namespace lpzrobots {
 	       bool sphereWheels /*=true*/)
     : // calling OdeRobots construtor with name of the actual robot
       OdeRobot(odeHandle, osgHandle, name, "$Id$")
-  { 
-  
+  {   
     // robot is not created till now
     created=false;
 
@@ -139,10 +141,8 @@ namespace lpzrobots {
     // speed and type of wheels are set
     this->speed = speed;
     this->sphereWheels = sphereWheels;
-
   
     height=size;  
-
     length=size/2.5; // length of body
     width=size/2;  // diameter of body
     radius=size/6; // wheel radius
@@ -172,18 +172,6 @@ namespace lpzrobots {
       joint[i]->setParam(dParamVel2, motors[i]*speed);       
       joint[i]->setParam(dParamFMax2, max_force);
     }
-
-    // another possibility is to set half of the difference between last set speed
-    // and the actual desired speed as new speed; max_force is also set
-    /*
-      double tmp;
-      int len = (motornumber < motorno)? motornumber : motorno;
-      for (int i=0; i<len; i++){ 
-      tmp=dJointGetHinge2Param(joint[i],dParamVel2);
-      dJointSetHinge2Param(joint[i],dParamVel2,tmp + 0.5*(motors[i]*speed-tmp) );       
-      dJointSetHinge2Param (joint[i],dParamFMax2,max_force);
-      }
-    */
   };
 
   /** returns actual sensorvalues
@@ -234,50 +222,24 @@ namespace lpzrobots {
 
   };
 
-  /** things for collision handling inside the space of the robot can be done here
-   */
-  void Nimm4::mycallback(void *data, dGeomID o1, dGeomID o2){
-    // do collisions handling for collisions between parts inside the space of the robot here
-    // this has no meaning for this robot, because collsions between wheels and body are ignored
-    // but if parts of the robot can move against each other this is important
-
-    // the follwing (not active) code part can be used to check if objects which had collisions 
-    // are inside the list of objects of the robot
-    /*  Nimm4* me = (Nimm4*)data;  
-	if(isGeomInObjectList(me->object, me->segmentsno, o1) 
-	&& isGeomInObjectList(me->object, me->segmentsno, o2)){
-	return;
-	}
-    */
-  }
-
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
       @param GlobalData structure that contains global data from the simulation environment
   */
   void Nimm4::doInternalStuff(GlobalData& global){}
 
-  /** checks for internal collisions and treats them. 
-   *  In case of a treatment return true (collision will be ignored by other objects 
-   *  and the default routine)  else false (collision is passed to other objects and 
-   *  (if not treated) to the default routine).
-   */
-  bool Nimm4::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    return false;
-  }
-
-
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
+  /** creates vehicle at desired pose
+      @param pose matrix with desired position and orientation
   */
   void Nimm4::create( const Matrix& pose ){
     if (created) {  // if robot exists destroy it
       destroy();
     }
-    // create car space with ignored internal collisions
+    // create car space
     odeHandle.createNewSimpleSpace(parentspace, true);
  
     OdeHandle wheelHandle(odeHandle);
+    // make the material of the wheels a hard rubber
     wheelHandle.substance.toRubber(60);
     // create cylinder for main body
     // initialize it with ode-, osghandle and mass
@@ -290,12 +252,12 @@ namespace lpzrobots {
     cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
     object[0]=cap;
     
-    // create wheel bodies
+    // create wheels
     for (int i=1; i<5; i++) {
       // create sphere with radius
-      // and initializ it with odehandle, osghandle and mass
+      // and initialize it with odehandle, osghandle and mass
       // calculate position of wheels(must be at desired positions relative to the body)
-      // rotate and place body (here by 90° around the x-axis)
+      // rotate and place body (here by 90Deg around the x-axis)
       // set texture for wheels
       Sphere* sph = new Sphere(radius);
       sph->init(wheelHandle, wmass, osgHandle.changeColor(Color(0.8,0.8,0.8)));    

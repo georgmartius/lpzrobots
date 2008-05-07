@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2007-11-07 13:21:16  martius
+ *   Revision 1.19  2008-05-07 11:03:37  martius
+ *   code cosmetics
+ *
+ *   Revision 1.18  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.17  2007/09/06 18:48:00  martius
@@ -149,9 +152,11 @@ namespace lpzrobots {
    *constructor
    **/
   Sphererobot3Masses::Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-					   const Sphererobot3MassesConf& conf, const std::string& name,
+					   const Sphererobot3MassesConf& conf, 
+					   const std::string& name,
 					   double transparency)
-    : OdeRobot ( odeHandle, osgHandle, name, "$Id$"), 
+    : OdeRobot ( odeHandle, osgHandle, name, 
+		 "$Id$"), 
       conf(conf), transparency(transparency) 
   {
     numberaxis=3;
@@ -161,11 +166,14 @@ namespace lpzrobots {
   /**
    *constructor
    **/
-  Sphererobot3Masses::Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-					   const Sphererobot3MassesConf& conf, const std::string& name,
+  Sphererobot3Masses::Sphererobot3Masses ( const OdeHandle& odeHandle, 
+					   const OsgHandle& osgHandle,
+					   const Sphererobot3MassesConf& conf, 
+					   const std::string& name,
 					   const std::string& revision,
 					   double transparency)
-    : OdeRobot ( odeHandle, osgHandle, name, revision), conf(conf),transparency(transparency)
+    : OdeRobot ( odeHandle, osgHandle, name, revision), 
+      conf(conf),transparency(transparency)
   {
     numberaxis=3;
     init();
@@ -181,8 +189,7 @@ namespace lpzrobots {
     
     this->conf.pendulardiameter = conf.diameter/7;
   }
-  
-	
+  	
   Sphererobot3Masses::~Sphererobot3Masses()
   {
     destroy(); 
@@ -272,60 +279,10 @@ namespace lpzrobots {
     irSensorBank.reset();
   }
 
-  /**
-   *This is the collision handling function for sphere robots.
-   *This overwrides the function collisionCallback of the class robot.
-   *@param data
-   *@param o1 first geometrical object, which has taken part in the collision
-   *@param o2 second geometrical object, which has taken part in the collision
-   *@return true if the collision was threated  by the robot, false if not
-   **/
-  bool Sphererobot3Masses::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
-//     //checks if either of both of the collision objects are part of the robot
-//      if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
-//        if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
-//        if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
-//      }
-
-//       // inner space collisions are not treated!
-//       int i,n;  
-//       const int N = 40;
-//       dContact contact[N];
-    
-//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-//       for (i=0; i<n; i++) {
-// 	if( contact[i].geom.g1 == object[Base]->getGeom() || contact[i].geom.g2 == object[Base]->getGeom() ){ 
-// 	  // only treat collisions with envelop
-// 	  contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
-// 	  //	  dContactSoftERP | dContactSoftCFM | 
-// 	  contact[i].surface.mu = 2.0;
-// 	  contact[i].surface.slip1 = 0.005;
-// 	  contact[i].surface.slip2 = 0.005;
-// 	  //	contact[i].surface.soft_erp = 1; // 0.95;
-// 	  //	contact[i].surface.soft_cfm = 0.00001;
-// 	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-// 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-// 	}
-//       }
-//       return true;
-//     } else {
-      return false;
-//     }
-  }
-
-
-  /**
-   *Returns the number of motors used by the snake.
-   *@return number of motors
-   **/
   int Sphererobot3Masses::getMotorNumber(){
     return numberaxis;
   }
 
-  /**
-   *Returns the number of sensors used by the robot.
-   *@return number of sensors
-   **/
   int Sphererobot3Masses::getSensorNumber() {
     int s=0;
     FOREACHC(list<Sensor*>, conf.sensors, i){
@@ -335,8 +292,7 @@ namespace lpzrobots {
   }
 
 
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
+  /** creates vehicle at desired position and orientation  
   */
   void Sphererobot3Masses::create(const osg::Matrix& pose){
     if (created) {
@@ -382,7 +338,7 @@ namespace lpzrobots {
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
-				 //				 conf.pendularmass*conf.motorpowerfactor,10,1); 
+      //			 conf.pendularmass*conf.motorpowerfactor,10,1); 
 				 conf.pendularmass*conf.motorpowerfactor,0.1,0.5); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
@@ -402,14 +358,16 @@ namespace lpzrobots {
     if (conf.irAxis1){
       for(int i=-1; i<2; i+=2){
 	RaySensor* sensor = conf.irSensorTempl->clone();
-	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * Matrix::translate(0,-i*(conf.diameter/2-sensors_inside),0 );
+	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * 
+	  Matrix::translate(0,-i*(conf.diameter/2-sensors_inside),0 );
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irAxis2){
       for(int i=-1; i<2; i+=2){
 	RaySensor* sensor = conf.irSensorTempl->clone();
-	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * Matrix::translate(i*(conf.diameter/2-sensors_inside),0,0 );
+	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * 
+	  Matrix::translate(i*(conf.diameter/2-sensors_inside),0,0 );
 	//	dRFromEulerAngles(R,i*M_PI/2,-i*M_PI/2,0);      
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
@@ -417,24 +375,29 @@ namespace lpzrobots {
     if (conf.irAxis3){
       for(int i=-1; i<2; i+=2){
 	RaySensor* sensor = conf.irSensorTempl->clone();
-	Matrix R = Matrix::rotate( i==1 ? 0 : M_PI, 1, 0, 0) * Matrix::translate(0,0,i*(conf.diameter/2-sensors_inside));
+	Matrix R = Matrix::rotate( i==1 ? 0 : M_PI, 1, 0, 0) * 
+	  Matrix::translate(0,0,i*(conf.diameter/2-sensors_inside));
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irRing){
       for(double i=0; i<2*M_PI; i+=M_PI/6){  // 12 sensors
 	RaySensor* sensor = conf.irSensorTempl->clone();
-	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * Matrix::rotate( i, 0, 1, 0);
+	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * 
+	  Matrix::rotate( i, 0, 1, 0);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irSide){
       for(double i=0; i<2*M_PI; i+=M_PI/2){
 	RaySensor* sensor = conf.irSensorTempl->clone();
-	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * Matrix::rotate( M_PI/2-M_PI/8, 1, 0, 0) *  Matrix::rotate( i, 0, 1, 0);
+	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * 
+	  Matrix::rotate( M_PI/2-M_PI/8, 1, 0, 0) *  Matrix::rotate( i, 0, 1, 0);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode); 
 	sensor = new IRSensor(conf.irCharacter);// and the other side	
-	irSensorBank.registerSensor(sensor, object[Base], R * Matrix::rotate( M_PI, 0, 0, 1), sensorrange, drawMode); 
+	irSensorBank.registerSensor(sensor, object[Base], 
+				    R * Matrix::rotate( M_PI, 0, 0, 1), 
+				    sensorrange, drawMode); 
       }
     }
 
