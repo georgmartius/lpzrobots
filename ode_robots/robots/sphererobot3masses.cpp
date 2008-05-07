@@ -1,8 +1,7 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *    martius (at) informatik.uni-leipzig.de                               *
+ *    der (at) informatik.uni-leipzig.de                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +19,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2008-05-07 11:03:37  martius
+ *   Revision 1.20  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.19  2008/05/07 11:03:37  martius
  *   code cosmetics
  *
  *   Revision 1.18  2007/11/07 13:21:16  martius

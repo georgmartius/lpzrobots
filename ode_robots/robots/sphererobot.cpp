@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2007-11-07 13:21:16  martius
+ *   Revision 1.19  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.18  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.17  2007/09/06 18:48:00  martius
@@ -214,7 +217,7 @@ namespace lpzrobots {
       @param vector of positions (of all robot segments) 
       @return length of the list
   */
-  int Sphererobot::getSegmentsPosition(vector<Position> &poslist){
+  int Sphererobot::getSegmentsPosition(std::vector<Position> &poslist){
     poslist.push_back(Pos(object[Base]->getPosition()).toPosition() );
     poslist.push_back(Pos(object[Pendular]->getPosition()).toPosition() );
     return 2;
@@ -223,7 +226,6 @@ namespace lpzrobots {
 
   
   /** creates vehicle at desired position 
-      @param pos struct Position with desired position
   */
   void Sphererobot::create(const osg::Matrix& pose){
     if (created) {

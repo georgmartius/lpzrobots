@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2007-11-07 13:21:15  martius
+ *   Revision 1.18  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.17  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.16  2006/11/30 08:51:39  robot8
@@ -1128,7 +1131,7 @@ AtomComponent* AtomComponent::getLeastFittestDivideComponent ( int minsize , Ato
   return currentBestDivideComponent;
 }
 
-AtomComponent* AtomComponent::getCopyOutofTable ( vector<TableLine> &table )
+AtomComponent* AtomComponent::getCopyOutofTable ( std::vector<TableLine> &table )
 {
   for ( unsigned int n = 0; n < table.size(); n++ )
     if ( (AtomComponent*) table[n].original == this )
@@ -1138,7 +1141,7 @@ AtomComponent* AtomComponent::getCopyOutofTable ( vector<TableLine> &table )
   return NULL;
 }
 
-AtomComponent* AtomComponent::copyBaseStructure ( osg::Vec3 deltaposition , vector<TableLine> &copytable )
+AtomComponent* AtomComponent::copyBaseStructure ( osg::Vec3 deltaposition , std::vector<TableLine> &copytable )
 {
   AtomComponent* copythis;
 
@@ -1197,7 +1200,7 @@ AtomComponent* AtomComponent::copyBaseStructure ( osg::Vec3 deltaposition , vect
   return copythis;
 }
 
-AtomComponent* AtomComponent::copySoftlinkStructure ( vector<TableLine> &copytable )
+AtomComponent* AtomComponent::copySoftlinkStructure ( std::vector<TableLine> &copytable )
 {
   for ( unsigned int n = 0; n < this->connection.size(); n++ )
     {

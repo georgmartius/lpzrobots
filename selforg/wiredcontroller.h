@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-05-02 17:20:04  martius
+ *   Revision 1.4  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.3  2008/05/02 17:20:04  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2008/04/17 14:54:35  martius
@@ -53,6 +56,7 @@
 #include <utility>
 #include <string>
 
+#include "types.h"
 #include "randomgenerator.h"
 
 class AbstractController;
@@ -144,9 +148,6 @@ private:
  */
 class WiredController {
 public:
-  typedef double sensor;
-  typedef double motor;
-
   /** constructor. PlotOption as output setting.
       noisefactor is used to set the relative noise strength of this agent
    */

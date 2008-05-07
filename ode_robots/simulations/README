@@ -23,7 +23,7 @@ to create the directory \p my_sim, adapt it to your needs, run \p make and \p st
 */
 
 /**
-\example main.cpp  
+\example template_sphererobot/main.cpp  
  Simple example for a simulation of one spherical robot (ode_robots/simulations/template_sphererobot/main.cpp). 
 */
 

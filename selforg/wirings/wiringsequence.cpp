@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   Revision 1.3  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.2  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -44,7 +47,7 @@
 using namespace std;
 
 /// constructor
-WiringSequence::WiringSequence(list<AbstractWiring*> ws)
+WiringSequence::WiringSequence(std::list<AbstractWiring*> ws)
   : AbstractWiring(0), wirings(ws.begin(), ws.end()) {
   initialised=false;
 }

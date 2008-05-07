@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-02-12 13:28:38  martius
+ *   Revision 1.11  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.10  2007/02/12 13:28:38  martius
  *   twoaxiservos
  *
  *   Revision 1.9  2007/01/26 12:05:04  martius
@@ -101,7 +104,7 @@ void SchlangeServo::setMotors ( const motor* motors, int motornumber )
 
 /**
  *Writes the sensor values to an array in the memory.
- *@param sensor* pointer to the arrays
+ *@param sensors pointer to the arrays
 
  *@param sensornumber length of the sensor array
  *@return number of actually written sensors

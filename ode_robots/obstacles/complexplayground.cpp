@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-23 07:17:16  martius
+ *   Revision 1.4  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.3  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -52,7 +55,7 @@ namespace lpzrobots {
   using namespace std;
   using namespace matrix;
 
-  int PolyLine::parse(list<char*> lines){
+  int PolyLine::parse(std::list<char*> lines){
     int pen_color, fill_color;
     list<char*>::iterator l = lines.begin();
     if(lines.size()<2) return 1;    
@@ -98,8 +101,9 @@ namespace lpzrobots {
 
 
   
-  ComplexPlayground::ComplexPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
-				       const string filename,
+  ComplexPlayground::ComplexPlayground(const OdeHandle& odeHandle, 
+				       const OsgHandle& osgHandle , 
+				       const std::string filename,
 				       double factor, double heightfactor, bool createGround)
     : AbstractGround(odeHandle, osgHandle, createGround, 1,1,0.1), 
       filename(filename), factor(factor), heightfactor(heightfactor) {

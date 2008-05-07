@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-11-07 13:21:16  martius
+ *   Revision 1.8  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.7  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.6  2007/09/06 18:47:59  martius
@@ -94,7 +97,7 @@ using namespace std;
 namespace lpzrobots{
 
   MuscledArm::MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			 const MuscledArmConf& conf, const string& name):
+			 const MuscledArmConf& conf, const std::string& name):
     OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(conf){  
  
     parentspace=odeHandle.space;
@@ -213,7 +216,7 @@ namespace lpzrobots{
   };
 
   /** sets the pose of the vehicle
-      @params pose desired 4x4 pose matrix
+      @param pose desired 4x4 pose matrix
   */
   void MuscledArm::place(const osg::Matrix& pose){
     // the position of the robot is the center of the base
@@ -229,7 +232,7 @@ namespace lpzrobots{
       @param poslist vector of positions (of all robot segments) 
       @return length of the list
   */
-  int MuscledArm::getSegmentsPosition(vector<Position> &poslist){
+  int MuscledArm::getSegmentsPosition(std::vector<Position> &poslist){
     assert(created);
     for (int i=0; i<NUMParts; i++){
       poslist.push_back(Position(dBodyGetPosition(object[i]->getBody())));
@@ -382,7 +385,6 @@ namespace lpzrobots{
 
 
   /** creates arm at desired position 
-      @param pos struct Position with desired position
   */
   void MuscledArm::create(const osg::Matrix& pose){
     if (created) {

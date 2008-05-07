@@ -1,8 +1,8 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *    martius (at) informatik.uni-leipzig.de                                    *
+ *    fhesse (at) informatik.uni-leipzig.de                                     *
+ *    der (at) informatik.uni-leipzig.de                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2008-05-07 11:03:48  martius
+ *   Revision 1.13  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.12  2008/05/07 11:03:48  martius
  *   code cosmetics
  *
  *   Revision 1.11  2008/04/23 07:17:16  martius
@@ -197,7 +200,7 @@ namespace lpzrobots {
   };
 
 
-  void Nimm4::place(const Matrix& pose){
+  void Nimm4::place(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)    
@@ -224,14 +227,14 @@ namespace lpzrobots {
 
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
+      @param global structure that contains global data from the simulation environment
   */
   void Nimm4::doInternalStuff(GlobalData& global){}
 
   /** creates vehicle at desired pose
       @param pose matrix with desired position and orientation
   */
-  void Nimm4::create( const Matrix& pose ){
+  void Nimm4::create( const org::Matrix& pose ){
     if (created) {  // if robot exists destroy it
       destroy();
     }

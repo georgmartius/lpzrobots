@@ -161,7 +161,7 @@ int main(int argc, char** argv){
   showParams(configs);
 
   cmd_handler_init();
-  //  while(!stop){
+  //while(!stop){
   for(int n=0; n<20; n++) { 
     usleep(1000);
     agent->step(0.1);

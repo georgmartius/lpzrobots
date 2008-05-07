@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-05-06 17:14:17  martius
+ *   Revision 1.9  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.8  2008/05/06 17:14:17  martius
  *   buildsystem further tuned,
  *   help in Makefile
  *   osg/data directory is also installed and registered at osg_robots
@@ -191,7 +194,7 @@ namespace lpzrobots {
      *  (collision will be ignored by other objects and the default routine)
      *  else false (collision is passed to other objects and (if not treated) to the default routine).
      */
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) = 0;
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false };
 
     /** this function is called in each timestep after control. It
 	should perform robot-internal checks and actions, 
@@ -216,7 +219,7 @@ namespace lpzrobots {
     /** returns linear speed vector of the object
 	@return vector  (vx,vy,vz)
     */
-    virtual Position getSpeed() const;
+    virtual Position getpeed() const;
     
     /** returns angular velocity vector of the object
 	@return vector  (wx,wy,wz)

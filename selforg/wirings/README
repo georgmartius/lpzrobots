@@ -8,12 +8,11 @@
 
 The wirings directory contains some implementation of the  class \ref AbstractWiring interface. 
 The wiring specifies the connections between the sensor values of the robot
-and the sensor values of the controller, and between the motor outputs of the controller 
+and the sensor values of the controller, 
+and the connections between the motor outputs of the controller 
 and the motor values given to the robot. In the most simple case you just
-put the values throug the wiring without changing them like in \ref One2OneWiring.
-But the controller can also have more sensor values then the robot. For example you
-can feed the derivatives of the sensorvalues in the controller as it is done in \ref DerivativeWiring.
-Furthermore you can add or multiply the sensorvalues in your wiring or whatever you would like to.
-
-
+put the values through the wiring without changing them like in \ref One2OneWiring.
+But the controller can also get more sensor values than the robot has. For example you
+can feed the derivatives of the sensor values in the controller as it is done in \ref DerivativeWiring. Further useful wirings are \ref SelectiveOne2OneWiring and \ref WiringSequence.
+Of course you can also implement your own wiring.
  */ 

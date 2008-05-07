@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2007-11-07 13:21:15  martius
+ *   Revision 1.13  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.12  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.11  2007/09/06 18:47:59  martius
@@ -143,8 +146,7 @@ namespace lpzrobots{
   };
 
   /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
-      @params pos desired position of the robot in struct Position
-      @param c desired color for the robot in struct Color
+      @param pose desired position of the robot in struct Position
   */
   void Arm2Segm::place(const osg::Matrix& pose){
     // the position of the robot is the center of the base
@@ -231,7 +233,6 @@ namespace lpzrobots{
 
 
   /** creates vehicle at desired position 
-      @param pos struct Position with desired position
   */
   void Arm2Segm::create(const osg::Matrix& pose){
     if (created) {

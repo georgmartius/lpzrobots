@@ -45,7 +45,8 @@ namespace lpzrobots{
 
   //    OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(conf)
   //    OdeRobot(odeHandle, osgHandle), conf(conf)
-  Arm::Arm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const ArmConf& conf, const string& name):
+  Arm::Arm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+	   const ArmConf& conf, const std::string& name):
     OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(conf)
   {  
     // robot not created up to now
@@ -84,7 +85,7 @@ namespace lpzrobots{
 
   /**
    * sets the pose of the vehicle
-   * @params pose desired 4x4 pose matrix
+   * @param pose desired 4x4 pose matrix
    */
   void Arm::place(const osg::Matrix& pose)
   {
@@ -290,7 +291,6 @@ namespace lpzrobots{
 
   /** 
    * creates arm at desired position 
-   * @param pose struct Position with desired position
    */
   void Arm::create(const osg::Matrix& pose)
   {

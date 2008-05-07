@@ -1,4 +1,4 @@
-/* compile this with g++ -Wall -lm -L. -lmatrix_debug  -o example example.cpp */
+/* compile this with g++ -Wall -lm -L. -lselforg  -o example matrixexample.cpp or use the Makefile*/
 
 #include <iostream>
 #include <math.h>
@@ -6,6 +6,7 @@
 #include <selforg/matrix.h>
 
 using namespace matrix;
+using namespace std;
 
 int main(){
   ////////// matrix construction

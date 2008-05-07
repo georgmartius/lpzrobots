@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-18 14:00:38  guettler
+ *   Revision 1.4  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.3  2008/04/18 14:00:38  guettler
  *   fixed compile bug (assert.h was not included)
  *
  *   Revision 1.2  2008/04/17 14:54:45  martius
@@ -131,8 +134,6 @@ public:
       Generic implementation calls generate for each channel.
       Overload this if you need different behavior.
       @param value field where noise is added. Must have length dimension (\ref init())
-      @param p1 first parameter for random number distribution
-      @param p2 second parameter for random number distribution
    */
   virtual void add(double *value, double noiseStrength){
     for (unsigned int i = 0; i < dimension; i++){
@@ -256,12 +257,7 @@ public:
     return(mean1channel);
   } 
 
-  /** adds multidimensional noise to the value field.
-      @param value field where noise is added. Must have length dimension (\ref init())
-      @param stddev stddev of normal distribution
-      @param meanvalue mean value  of normal distribution
-   */
-  virtual void add(double *value, double noiseStrength) { //double stddev, double meanvalue){
+  virtual void add(double *value, double noiseStrength) { 
     for (unsigned int i = 0; i < dimension; i++){     
       mean[i]+=sqrttau * WhiteNormalNoise::generate()*noiseStrength - tau*mean[i];
       value[i]+=mean[i];
@@ -300,8 +296,6 @@ public:
 
   /** adds multidimensional noise to the value field.
       @param value field where noise is added. Must have length dimension (\ref init())
-      @param min lower bound of interval
-      @param max upper bound of interval 
    */
   virtual void add(double *value, double noiseStrength) { // min, double max){
 

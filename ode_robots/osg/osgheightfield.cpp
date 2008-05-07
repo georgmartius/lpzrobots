@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-09-20 12:55:44  martius
+ *   Revision 1.5  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.4  2006/09/20 12:55:44  martius
  *   Light
  *
  *   Revision 1.3  2006/08/04 15:05:43  martius
@@ -111,7 +114,7 @@ namespace lpzrobots {
   }
 
   // overloaded, because transformation goes into heightfield directly
-  void OSGHeightField::setMatrix(const Matrix& m4x4){    
+  void OSGHeightField::setMatrix(const osg::Matrix& m4x4){    
     assert(field);
     field->setOrigin(m4x4.getTrans()-Vec3(x_size/2.0, y_size/2.0,0 ));
     Quat q;

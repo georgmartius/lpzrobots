@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-11-07 13:21:16  martius
+ *   Revision 1.16  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.15  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.14  2007/09/06 18:48:00  martius
@@ -217,8 +220,6 @@ public:
 
   virtual void place(const osg::Matrix& pose);
   
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-
   virtual void doInternalStuff(GlobalData& globalData);
 	
   virtual int getSensors ( sensor* sensors, int sensornumber );
@@ -229,8 +230,6 @@ public:
   
   virtual int getSensorNumber();
 	
- 
-  /** the main object of the robot, which is used for position and speed tracking */
   virtual Primitive* getMainPrimitive() const { return object[Base]; }
 
 protected:

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-04-23 07:17:16  martius
+ *   Revision 1.5  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.4  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -93,7 +96,7 @@ namespace lpzrobots {
   /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
-  void FourWheeled::create(const Matrix& pose){
+  void FourWheeled::create(const osg::Matrix& pose){
     Nimm4::create(pose);
     // create frame to not fall on back
 

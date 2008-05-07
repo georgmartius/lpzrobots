@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.19  2008-04-30 14:54:14  guettler
+// Revision 1.20  2008-05-07 16:45:52  martius
+// code cosmetics and documentation
+//
+// Revision 1.19  2008/04/30 14:54:14  guettler
 // -indextype of matrices is now unsigned int (bigger matrices than
 //  256x256 can be used now, if not AVR defined)
 // -code cleaned up
@@ -410,7 +413,7 @@ namespace matrix {
   }
 
   /** special inplace matrix potence:
-      @param: exp -1 -> inverse; 0 -> Identity Matrix;
+      @param exp -1 -> inverse; 0 -> Identity Matrix;
       1 -> itself;
       T -> Transpose
   */
@@ -846,7 +849,7 @@ namespace matrix {
     return result;
   }
   /** special matrix potence:
-      @param: exp -1 -> inverse; 0 -> Identity Matrix;
+      @param exp -1 -> inverse; 0 -> Identity Matrix;
       1 -> itself; 2-> Matrix*Matrix^T
       T -> Transpose
   */

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2007-11-07 13:21:16  martius
+ *   Revision 1.19  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.18  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.17  2007/09/06 18:47:59  martius
@@ -115,7 +118,7 @@ namespace lpzrobots {
    * @param c contactgroup for collision treatment
    */
   HurlingSnake::HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			     const string& name)
+			     const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "$Id$"), oldp(0,0,0){
     factorForce=3.0;
     factorSensor=20.0;
@@ -282,7 +285,7 @@ namespace lpzrobots {
       @param vector of positions (of all robot segments) 
       @return length of the list
   */
-  int HurlingSnake::getSegmentsPosition(vector<Position> &poslist){
+  int HurlingSnake::getSegmentsPosition(std::vector<Position> &poslist){
     Position pos;
     for (int i=0; i<NUM; i++){
       Pos p = object[i]->getPosition();

@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-12-06 10:02:49  der
+ *   Revision 1.7  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.6  2007/12/06 10:02:49  der
  *   abstractground: returns now cornerpoints
  *   abstractobstacle: is now trackable
  *   hudstatistics: supports now AbstractmMeasure
@@ -88,7 +91,7 @@ namespace lpzrobots {
   };
 
   /** sets the vehicle to position pos
-      @params pos desired position of the robot
+      @param pos desired position of the robot
   */
   void OdeRobot::place(const Pos& pos){
     place(osg::Matrix::translate(pos));
@@ -102,7 +105,7 @@ namespace lpzrobots {
     return false;
   }
 
-  bool OdeRobot::isGeomInPrimitiveList(list<Primitive*> ps, dGeomID geom){  
+  bool OdeRobot::isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom){  
     for(list<Primitive*>::iterator i=ps.begin(); i != ps.end(); i++){
       if(geom == (*i)->getGeom()) return true;
     }

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-12-11 18:24:37  martius
+ *   Revision 1.9  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.8  2006/12/11 18:24:37  martius
  *   memory freed
  *
  *   Revision 1.7  2006/07/20 17:19:44  martius
@@ -76,7 +79,7 @@ namespace lpzrobots {
   }
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param _motors motors scaled to [-1,1] 
       @param motornumber length of the motor array
   */
   void ShortCircuit::setMotors(const motor* _motors, int motornumber){

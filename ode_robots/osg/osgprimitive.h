@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-08-23 14:52:26  martius
+ *   Revision 1.4  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.3  2007/08/23 14:52:26  martius
  *   box is resizeable
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
@@ -225,7 +228,7 @@ namespace lpzrobots {
        Constuctor
        @param filename filename of the model file (search path is osg data path)
        @param scale scale factor used for scaling the model 
-       @options options for model reader
+       @param options for model reader
      */
     OSGMesh(const std::string& filename, float scale = 1, const osgDB::ReaderWriter::Options* options = 0);
     ~OSGMesh();

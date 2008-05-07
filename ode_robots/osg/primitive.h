@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-05-01 22:03:54  martius
+ *   Revision 1.14  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.13  2008/05/01 22:03:54  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -440,11 +443,7 @@ protected:
 */
 class DummyPrimitive : public Primitive {
 public:
-  /** 
-      @param parent primitive should have a body and should be initialised
-      @param child  is transformed by pose in respect to parent. 
-      This Primitive must NOT have a body
-  */
+  
   DummyPrimitive() {     
     body=0;
     geom=0;

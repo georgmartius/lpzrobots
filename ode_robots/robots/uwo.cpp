@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-11-07 13:21:16  martius
+ *   Revision 1.8  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.7  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.6  2007/09/06 18:48:00  martius
@@ -119,7 +122,7 @@ namespace lpzrobots {
   };
 
 
-  void Uwo::place(const Matrix& pose){
+  void Uwo::place(const osg::Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     Matrix p2;
@@ -146,7 +149,7 @@ namespace lpzrobots {
 
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
+      @param global structure that contains global data from the simulation environment
   */
   void Uwo::doInternalStuff(GlobalData& global){}
 
@@ -187,7 +190,7 @@ namespace lpzrobots {
   /** creates vehicle at desired position 
       @param pos struct Position with desired position
   */
-  void Uwo::create( const Matrix& pose ){
+  void Uwo::create( const osg::Matrix& pose ){
     if (created) {
       destroy();
     }

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-11-07 13:21:16  martius
+ *   Revision 1.14  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.13  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.12  2007/09/06 18:48:00  martius
@@ -263,8 +266,7 @@ namespace lpzrobots {
   }
 
   /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
-      @return length of the lists
+      @return list of parameters
   */
   Configurable::paramlist SliderWheelie::getParamList() const{
     paramlist list;

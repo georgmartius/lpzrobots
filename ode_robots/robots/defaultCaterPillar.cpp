@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-11-07 13:21:15  martius
+ *   Revision 1.6  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.5  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.4  2007/09/06 18:47:59  martius
@@ -239,7 +242,6 @@ namespace lpzrobots {
 
 
   /** creates vehicle at desired position 
-      @param pos struct Position with desired position
   */
   void DefaultCaterPillar::create(const osg::Matrix& pose) {
     if (created) {

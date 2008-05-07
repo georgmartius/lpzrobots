@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-05-06 17:14:17  martius
+ *   Revision 1.14  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.13  2008/05/06 17:14:17  martius
  *   buildsystem further tuned,
  *   help in Makefile
  *   osg/data directory is also installed and registered at osg_robots
@@ -160,11 +163,11 @@ static AtomConf getDefaultAtomConf()
  virtual void deleteStructureRecursive ();
 
 /**
- *Use this, to get all sensor values of all the joints of all subcomponents, and the sensors of all robots, belonging to all subcomponents.
- *The sensor values have the following sequence:
- *values of the component connecting joints, values of the robot of the component,
- *values of component connecting joints of the first subcomponent, values of the robot of the first subcomponent, ...
- *@param robot sensor values of the connecting joints of this component and all subcomponents
+ Use this, to get all sensor values of all the joints of all subcomponents, and the sensors of all robots, belonging to all subcomponents.
+ The sensor values have the following sequence:
+ values of the component connecting joints, values of the robot of the component,
+ values of component connecting joints of the first subcomponent, values of the robot of the first subcomponent, ...
+ @param robot sensor values of the connecting joints of this component and all subcomponents
  **/
 virtual int 	getSensors (sensor *sensors, int sensornumber); //returns actual sensorvalues; only for the connecting joints
 

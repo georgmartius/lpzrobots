@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.40  2008-02-14 14:42:13  der
+ *   Revision 1.41  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.40  2008/02/14 14:42:13  der
  *   modified box mode
  *
  *   Revision 1.39  2008/01/17 09:56:42  der
@@ -176,7 +179,7 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff, and default configuration
   Nimm2::Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle,
-	       const Nimm2Conf& conf, const string& name)
+	       const Nimm2Conf& conf, const std::string& name)
     : OdeRobot(odehandle, osgHandle, name, "$Id$"), conf(conf) {
 	    contactPoints=0;
 
@@ -293,7 +296,7 @@ namespace lpzrobots {
   };
 
 
-  void Nimm2::place(const Matrix& pose){
+  void Nimm2::place(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)
@@ -307,7 +310,7 @@ namespace lpzrobots {
       @param poslist vector of positions (of all robot segments)
       @return length of the list
   */
-  int Nimm2::getSegmentsPosition(vector<Position> &poslist){
+  int Nimm2::getSegmentsPosition(std::vector<Position> &poslist){
     assert(created);
     for (int i=0; i<3; i++){
       poslist.push_back(Position(dBodyGetPosition(object[i]->getBody())));
@@ -414,7 +417,7 @@ namespace lpzrobots {
   /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
-  void Nimm2::create(const Matrix& pose){
+  void Nimm2::create(const osg::Matrix& pose){
     if (created) {
       destroy();
     }

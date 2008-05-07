@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-01-26 12:05:04  martius
+ *   Revision 1.17  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.16  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.15  2006/09/20 12:56:17  martius
@@ -68,7 +71,7 @@ using namespace std;
 namespace lpzrobots {
 
   SchlangeForce::SchlangeForce ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-				 const SchlangeConf& conf, const string& name,
+				 const SchlangeConf& conf, const std::string& name,
 				 const std::string& revision) 
     : Schlange(odeHandle, osgHandle, conf, name, 
 	       revision.empty() ? "$Id$" : revision)

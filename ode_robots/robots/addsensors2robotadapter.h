@@ -23,7 +23,10 @@
  *    without modifiing them.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-11-07 13:20:25  martius
+ *   Revision 1.3  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.2  2007/11/07 13:20:25  martius
  *   also motors can be added
  *
  *   Revision 1.1  2007/08/24 11:48:56  martius
@@ -40,7 +43,9 @@
 
 namespace lpzrobots {
 
-  /** Robot Adapter to add sensors to robots
+  /** Robot adapter to add sensors and also motors to robots without the
+      need to modify the robot itself. 
+      Examples are Speed sensors, microphons and beepers and so forth      
   */
   class AddSensors2RobotAdapter : public OdeRobot {
   public:
@@ -48,7 +53,8 @@ namespace lpzrobots {
     /**
      * constructor of adapter
      * @param robot robot the wrap and plug sensors in
-     * @param senors list of sensors
+     * @param sensors list of sensors to add
+     * @param motors list of motors to add
      */
     AddSensors2RobotAdapter( const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 			     OdeRobot* robot, 

@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2007-11-07 13:18:44  martius
+ *   Revision 1.17  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.16  2007/11/07 13:18:44  martius
  *   toLocal: coordinate transformation
  *
  *   Revision 1.15  2007/09/06 18:47:17  martius
@@ -289,9 +292,9 @@ namespace lpzrobots{
    return body;    
   }
 
-  /** sets full mass specification
-    \param cg center of gravity vector
-    \param I parts of the 3x3 interia tensor
+  /** sets full mass specification.
+    \b cg is center of gravity vector
+    \b I are parts of the 3x3 interia tensor
   */
   void Primitive::setMass(double mass, double cgx, double cgy, double cgz,
 			  double I11, double I22, double I33,

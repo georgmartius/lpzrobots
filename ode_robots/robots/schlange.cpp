@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2007-11-07 13:21:16  martius
+ *   Revision 1.30  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.29  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.28  2007/09/06 18:48:00  martius
@@ -200,7 +203,6 @@ namespace lpzrobots {
 
 
   /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
       @return length of the lists
   */
   Configurable::paramlist Schlange::getParamList() const{
@@ -236,7 +238,7 @@ namespace lpzrobots {
   }
   
   
-  int Schlange::getSegmentsPosition(vector<Position> &poslist){
+  int Schlange::getSegmentsPosition(std::vector<Position> &poslist){
     assert(created);
     for(int n = 0; n < conf.segmNumber; n++){
       Pos p(objects[n]->getPosition());
@@ -248,7 +250,6 @@ namespace lpzrobots {
 
 
   /** creates vehicle at desired position 
-      @param pos struct Position with desired position
   */
   void Schlange::create(const osg::Matrix& pose){
     if (created) {

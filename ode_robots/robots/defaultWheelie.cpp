@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-11-07 13:21:15  martius
+ *   Revision 1.8  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.7  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.6  2007/09/06 18:47:59  martius
@@ -169,7 +172,6 @@ namespace lpzrobots {
 
 
   /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
       @return length of the lists
   */
   Configurable::paramlist DefaultWheelie::getParamList() const{
@@ -216,8 +218,7 @@ namespace lpzrobots {
 
 
 
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
+  /** creates vehicle at desired position   
   */
   void DefaultWheelie::create(const osg::Matrix& pose) {
     if (created) {

@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-01-17 09:57:40  der
+ *   Revision 1.8  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.7  2008/01/17 09:57:40  der
  *   correct mesh filepath
  *
  *   Revision 1.6  2007/11/07 13:21:16  martius
@@ -224,7 +227,7 @@ namespace lpzrobots {
   };
 
 
-  void TruckMesh::place(const Matrix& pose){
+  void TruckMesh::place(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)    
@@ -268,7 +271,7 @@ namespace lpzrobots {
 
   /** this function is called in each timestep. It should perform robot-internal checks, 
       like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
+      @param global structure that contains global data from the simulation environment
   */
   void TruckMesh::doInternalStuff(GlobalData& global){}
 
@@ -286,7 +289,7 @@ namespace lpzrobots {
   /** creates vehicle at desired position 
       @param pos struct Position with desired position
   */
-  void TruckMesh::create( const Matrix& pose ){
+  void TruckMesh::create( const osg::Matrix& pose ){
     if (created) {  // if robot exists destroy it
       destroy();
     }

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-04-30 14:54:48  guettler
+ *   Revision 1.8  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.7  2008/04/30 14:54:48  guettler
  *   support for new matrix indices integrated
  *
  *   Revision 1.6  2008/04/29 15:31:44  guettler
@@ -197,6 +200,7 @@ std::list<matrix::D> store4x4AndDiagonal(const matrix::Matrix& m);
 
 /** stores at least left top 4x4 submatrix (row-wise) (if exists) and
    then the rest of the diagonal elements
+  @param m matrix to be stored
   @param len Length of the provided buffer
   (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
@@ -209,6 +213,7 @@ matrix::I store4x4AndDiagonal(const matrix::Matrix& m, matrix::D* buffer, matrix
 matrix::I get4x4AndDiagonalSize(const matrix::Matrix& m);
 
 /** writes the names of the fields stored by store4x4AndDiagonal into a list
+  @param m matrix to be stored
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
   @param len Length of the provided buffer
@@ -219,14 +224,16 @@ std::list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const matrix::Ma
 								const std::string& matrixName);
 
 /** stores the names of the fields stored by store4x4AndDiagonal
+  @param m matrix to be stored
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
   @param len Length of the provided buffer
   (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
   @return number of actually written elements
 */
-matrix::I store4x4AndDiagonalFieldNames(const matrix::Matrix& m, const std::string& matrixName,
-                                char** keylist, matrix::I len);
+matrix::I store4x4AndDiagonalFieldNames(const matrix::Matrix& m, 
+					const std::string& matrixName,
+					char** keylist, matrix::I len);
 
 /** stores the names of the all matrix fieldnames produces by convertToBuffer into a list
   @return list of names
@@ -239,6 +246,7 @@ std::list<Inspectable::iparamkey> storeMatrixFieldNames(const matrix::Matrix& m,
 std::list<Inspectable::iparamkey> storeVectorFieldNames(const matrix::Matrix& m, const std::string& vectorName);
 
 /** stores the names of the all matrix fieldnames produces by convertToBuffer
+  @param m matrix to be stored
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
   @param len Length of the provided buffer
@@ -249,6 +257,7 @@ matrix::I storeMatrixFieldNames(const matrix::Matrix& m, const char* matrixName,
                         char** keylist, matrix::I len);
 
 /** stores the names of the all vector (mx1 matrix) fieldnames produces by convertToBuffer
+  @param m vector to be stored
   @param vectorName name of the vector (prefix for all fields)
   @param keylist list for field names
   @param len Length of the provided buffer (should be getM())

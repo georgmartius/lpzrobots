@@ -70,7 +70,6 @@ virtual Position getPosition () const; //returns position of the object; relates
 /**
  *This is only a simple function, calculating the coordinates of the point exactly between two directly connected components.
  *@return Vector containing the Position
- *@param index number of the position
  **/
 virtual osg::Vec3 getPositionbetweenComponents ( Component* component );
 

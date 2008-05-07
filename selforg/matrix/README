@@ -1,14 +1,15 @@
-(* This file is used for the doxygen documentation. *)
+/** \file 
+ * This file is used for the doxygen documentation. 
+ */
 
 /** 
 
 \dir selforg/matrix
 
 \par
-The matrix library provides a class \ref matrix::Matrix "Matrix" with convinient operators 
+The matrix library provides a class \ref matrix::Matrix "Matrix" with convenient operators 
 and fast inversion for nonzero square matrixes.
 
 \par
-Furthermore there is a functionality test provided in matrix.tests.cpp, which can be compiled 
- using the lokal Makefile.
+Furthermore there is a functionality test provided in matrix.tests.cpp, which can be compiled using the local Makefile.
  */

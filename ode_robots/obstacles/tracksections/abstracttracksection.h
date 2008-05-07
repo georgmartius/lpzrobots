@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2005-12-12 13:44:41  martius
+ *   Revision 1.5  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.4  2005/12/12 13:44:41  martius
  *   barcodesensor is working
  *
  *   Revision 1.3  2005/12/03 16:57:12  martius
@@ -59,8 +62,8 @@ class AbstractTrackSection{
 
   /**
    * Constructor where you can set the position and rotation by:
-   @param Position& p is the position of the segment
-   @param double angle is the rotation of the segment
+   @param p is the position of the segment
+   @param angle is the rotation of the segment
    */
   AbstractTrackSection(const Position& p,const double angle) {
     setPoseMatrix(getTranslationRotationMatrix(p, angle));
@@ -68,7 +71,7 @@ class AbstractTrackSection{
 
   /**
    * Constructor where you can set the pos-matrix by this constructor:
-   @param Matrix& position is the position AND rotation of the segment
+   @param position is the position AND rotation of the segment
    */
   AbstractTrackSection(const Matrix& pose){
     setPoseMatrix(pose);

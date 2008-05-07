@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-07-03 13:05:23  martius
+ *   Revision 1.7  2008-05-07 16:45:52  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.6  2007/07/03 13:05:23  martius
  *   new servo constants
  *
  *   Revision 1.5  2007/02/12 13:28:38  martius
@@ -87,7 +90,7 @@ namespace lpzrobots {
 
   /**
    *Writes the sensor values to an array in the memory.
-   *@param sensor* pointer to the arrays
+   *@param sensors pointer to the arrays
 
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors

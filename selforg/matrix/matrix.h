@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.21  2008-05-02 17:20:04  martius
+// Revision 1.22  2008-05-07 16:45:52  martius
+// code cosmetics and documentation
+//
+// Revision 1.21  2008/05/02 17:20:04  martius
 // *** empty log message ***
 //
 // Revision 1.20  2008/04/30 14:54:14  guettler
@@ -219,7 +222,8 @@ namespace matrix{
    * (unless data is given).
    * All functions perform range checks if in debug mode
    * (NDEBUG is not defined).
-   * Please use -lmatrix_debug for testing.
+   * Please use debug the version (default) for testing
+   * @see examples/matrix/matrixexample.cpp
    *
    * @author Georg Martius
    */
@@ -374,9 +378,9 @@ namespace matrix{
     /// optimised multiplication of transpsoed of Matrix with itself: M^T * M
     Matrix multTM() const;
 
-    /// returns the product of all elements (\Pi_{ij} m_{ij})
+    /// returns the product of all elements (\f$ \Pi_{ij} m_{ij} \f$)
     D elementProduct() const;
-    /// returns the sum of all elements (\Sum_{ij} m_{ij})
+    /// returns the sum of all elements (\f$ \sum_{ij} m_{ij} \f$)
     D elementSum() const;
 
     /// returns a matrix that consists of this above A

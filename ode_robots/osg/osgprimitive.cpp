@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-08-23 14:52:40  martius
+ *   Revision 1.9  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.8  2007/08/23 14:52:40  martius
  *   box is resizeable
  *
  *   Revision 1.7  2007/07/31 08:21:33  martius
@@ -159,7 +162,7 @@ namespace lpzrobots {
 
 
   /******************************************************************************/
-  void OSGPrimitive::setMatrix(const Matrix& m4x4){
+  void OSGPrimitive::setMatrix(const osg::Matrix& m4x4){
     assert(!transform == false);
     transform->setMatrix(m4x4);
   }

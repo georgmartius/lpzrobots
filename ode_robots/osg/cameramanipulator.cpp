@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-12-13 07:04:53  der
+ *   Revision 1.12  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.11  2007/12/13 07:04:53  der
  *   fixed a stupid bug created through under sleep ;)
  *
  *   Revision 1.10  2007/12/12 10:27:31  der
@@ -317,7 +320,7 @@ namespace lpzrobots {
 
   /** normally called only when this manipulator is choosed
    */
-  void CameraManipulator::setByMatrix(const Matrixd& matrix){
+  void CameraManipulator::setByMatrix(const osg::Matrixd& matrix){
 
     eye = matrix.getTrans();
     Vec3 xaxis(1,0,0);

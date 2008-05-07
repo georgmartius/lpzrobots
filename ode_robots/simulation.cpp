@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.85  2008-05-06 17:14:17  martius
+ *   Revision 1.86  2008-05-07 16:45:51  martius
+ *   code cosmetics and documentation
+ *
+ *   Revision 1.85  2008/05/06 17:14:17  martius
  *   buildsystem further tuned,
  *   help in Makefile
  *   osg/data directory is also installed and registered at osg_robots
@@ -601,6 +604,7 @@ namespace lpzrobots {
 #else
     l.push_back("../../osg/data"); 
 #endif
+    l.push_back("data"); 
     osgDB::setDataFilePathList(l);
 
     // load config file (first in the current directory and then in ~/.lpzrobots/)

@@ -11,18 +11,23 @@ The ode_robots directory provides all the stuff necessary for
 
 \par Simulation Environment
 
-The class lpzrobots::OdeConfig holds the configurable parameters of the simulation environment
-like lpzrobots::OdeConfig::gravity, lpzrobots::OdeConfig::simStepSize, lpzrobots::OdeConfig::realTimeFactor and so on.\n
-In the class lpzrobots::Simulation you find the functions to overload like 
-  lpzrobots::Simulation::start and lpzrobots::Simulation::end which have to be overloaded by all simulations.
-Addionally you can overload functions like lpzrobots::Simulation::config for configuration pusposes,
-  lpzrobots::Simulation::command to react on keystrokes, and some more.
+The class \ref lpzrobots::OdeConfig "OdeConfig" holds the configurable parameters of the simulation environment
+like \ref lpzrobots::OdeConfig::gravity "gravity", 
+\ref lpzrobots::OdeConfig::simStepSize "simStepSize", 
+\ref lpzrobots::OdeConfig::realTimeFactor "realTimeFactor" and so on.\n
+In the class \ref lpzrobots::Simulation "Simulation" you find the functions 
+ to overload like 
+\ref lpzrobots::Simulation::start "start" and \ref lpzrobots::Simulation::end "end" 
+ which have to be overloaded by all simulations.
+Additionally you can overload functions like  
+\ref lpzrobots::Simulation::command "command" to react on keystrokes, 
+\ref lpzrobots::Simulation::config "config" for configuration purposes (rarely required) and some more.
 
 \par Simulation objects and more
 
 The things inside the simulation environment (and some additional stuff) is inside 
 the following subdirectories
-- \ref ode_robots/simulations "simulations" :
+- \ref ode_robots_simulations "simulations":
 	ready to use simulations
 - \ref ode_robots/agents "agents":
  	structure to build a "complete" agent (consisting of a controller, 
@@ -36,18 +41,16 @@ the following subdirectories
           and further helpful things to deal with OSG
 - \ref ode_robots/motors "motors":
 	a few additional motors (PID servos)
-- \ref ode_robots/sensors "senors":
-	up to now an infrared-sensor and a sensorbank is available
+- \ref ode_robots/sensors "sensors":
+	up to now an infrared-sensor and a sensor-bank is available
 - \ref ode_robots/obstacles "obstacles":
 	passive obstacles like different kinds of playgrounds, a sphere and usage of terrains
 - \ref ode_robots/utils "utils":
 	all the little things that make life easier
-- \ref ode_robots/ode_patches "ode_patches":
-	our patches for ODE 0.5 and drawstuff which are not used anymore
+- \ref ode_robots/ode_patches "ode_patches": OBSOLETE! 
+	our patches for ODE 0.5 and drawstuff
 - \ref ode_robots/textures "textures":
-	our textures used in the simulations and a program for calculating heigtmaps
-
-
+	our textures used in the simulations and a program for calculating heigt-maps
 
 \par How to start your own simulation
 
@@ -96,6 +99,79 @@ In any case run a <tt>make</tt> in the lpzrobots directory,
 - add "myrobot" to the Makefile.conf FILES variable
 - run <tt> make depend </tt>
 - ready to use the stuff in your simulation (use #include "myrobot.h")
+
+\par Collision control and Materials
+\ref ode_robots_collisionhandling "Read more here"
+
+
 */
+
+/**
+\page ode_robots_simulations ODE-Robots Simulations
+
+The simulations directory (<tt>ode_robots/simulations</tt>) contains different simulations 
+ mostly originated from our work on the self-organization of behavior.
+
+You can just go into one directory, type \p make and after successful compilation \p start
+to start a simulation. \n
+For convenience you should start with one of the template directories like template_sphererobot.
+Both the simulation file \ref ode_robots/examples/template_sphererobot/main.cpp "main.cpp"
+ of the template_sphererobot simulation and robot definitions in  \ref sphererobot3masses.cpp are really good 
+commented and therfore recommended as first example. You can easy find them by clicking 
+on the tab  "Examples" at the top of the page.\n
+For creating your own simulation just type:\n
+<tt> $> ./createNewSimulation.sh template_sphererobot my_sim</tt>\n
+to create the directory \p my_sim, adapt it to your needs, run \p make and \p start and it should work.
+*/
+
+/**
+\page ode_robots_collisionhandling ODE-Robots Collision handling
+Since version 0.4 the collision handling was redesigned significantly. It has the following features:
+
+ - Material properties for each object (\ref lpzrobots::Substance "Substance")
+ - No user specific collision code necessary
+ - Automatic ignorance of collisions between connected bodies
+ - User defined ignorance pairs
+ - fine grain callback functions on collisions possible (\ref lpzrobots::Substance "Substance")
+
+\par How to set material properties
+Modify \ref lpzrobots::Substance "Substance" in your local \ref lpzrobots::OdeHandle "OdeHandle", e.g.
+\verbatim
+odeHandle.substance.toRubber(20);
+// create Primitive with odeHandle
+Primitive* box = new Box(1,1,1);
+box->init(odeHandle, ...);
+\endverbatim
+would change the substance to a soft rubber. Once you have created a Primitive you can change
+ its properties in the same way:
+\verbatim
+box.substance.toMetal(0.6);
+\endverbatim
+
+\par How to disable collisions between two primitives
+\verbatim
+odeHandle.addIgnoredPair(p1,p2);
+// and to remove
+odeHandle.removeIgnoredPair(p1,p2);
+\endverbatim
+This mechanism is used internally for primitives that are connected by joints. 
+So in most cases you don't have to worry about that.
+
+\par How to disable collisions within an entire space
+\verbatim
+odeHandle.addIgnoredSpace(spaceID);
+// and to remove
+odeHandle.removeIgnoredSpace(spaceID);
+\endverbatim
+
+Todo: continue
+*/
+
+/**
+\example template_sphererobot/main.cpp  
+ Simple example for a simulation of one spherical robot (ode_robots/examples/template_sphererobot/main.cpp). 
+*/
+
+ 
 
 
