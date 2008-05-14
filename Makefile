@@ -13,7 +13,7 @@ help:
 	@cat logo.txt
 	@echo $(USAGE2)
 	@grep -E "^\#\#\!.*" Makefile | sed -e "s/##!/   /"
-	@echo $(USAGE3)
+	@echo -e $(USAGE3)
 
 .PHONY: prepare
 ##!prepare	build tools and create dependency files and check for ODE
