@@ -1,6 +1,6 @@
-#File:     Makefile for selforg simulation for development installation
+#File:     Makefile for selforg simulation with user-type installtion
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
-#Date:     June 2006
+#Date:     Mai 2008
 
 # add files to compile here
 FILES = main cmdline
@@ -14,8 +14,8 @@ CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
-LIBS   = -lm -L../../ -lselforg 
-INC   = -I../../include
+LIBS   = -lm  -lselforg 
+INC   = 
 
 cc = g++ $(CFLAGS) $(INC) -c
 #cc = g++ $(CFLAGS) -c -O -g3 -pg
@@ -24,11 +24,8 @@ CXX = g++ $(CFLAGS) $(INC)  -c
 CC = g++ $(CFLAGS) 
 #CC = g++ -g3 -pg  
 
-$(EXEC): Makefile.depend $(OFILES) libselforg
+$(EXEC): Makefile.depend $(OFILES)
 	$(CC) $(OFILES) $(LIBS)  -o $(EXEC)
-
-libselforg: 
-	cd ../../ && make
 
 
 depend: 
