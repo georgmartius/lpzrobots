@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-05-07 16:45:52  martius
+ *   Revision 1.14  2008-05-14 15:11:57  martius
+ *   typo
+ *
+ *   Revision 1.13  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.12  2008/05/07 11:03:48  martius
@@ -234,7 +237,7 @@ namespace lpzrobots {
   /** creates vehicle at desired pose
       @param pose matrix with desired position and orientation
   */
-  void Nimm4::create( const org::Matrix& pose ){
+  void Nimm4::create( const osg::Matrix& pose ){
     if (created) {  // if robot exists destroy it
       destroy();
     }
