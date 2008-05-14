@@ -38,7 +38,7 @@ done
 pushd `pwd`;
 echo -en "# subdirectories with simulations\nSIMULATIONS=" > $SOSIMDIR/Makefile.conf
 
-cd $SOIMDIR  || exit 1;
+cd $SOSIMDIR || exit 1;
 SIMS=`find . -mindepth 1 -maxdepth 1 -type d`
 popd;
 
