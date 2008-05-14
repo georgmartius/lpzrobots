@@ -50,8 +50,7 @@ You need the following software and libraries installed (Tested on Linux x86 mac
 - OpenSceneGraph http://www.openscenegraph.org (version >= 2.2.0) 
 - (\a optional) Qt library from http://www.trolltech.com for guilogger (version > 4.0)
 	- make sure you install the devel packages
-	- make sure the correct qmake version is in your path. If you have both qt3 and qt4 installed you have to take care of that. Use qmake --version. On Debian and Ubuntu use the alternatives system http://www.debian-administration.org/articles/91
-	- set the following enviroment variables (best to have them in the <tt>~/.bash.rc</tt> or similar)
+	- make sure the correct qmake version is in your path. If you have both qt3 and qt4 installed you have to take care of that. Use qmake --version to find out. On Debian and Ubuntu use the alternatives system http://www.debian-administration.org/articles/91
 - (\a optional) Java JDK for neuronviz (version >= J2SE 1.5.0)
 
 For convinience we provide a binary package with ODE and OSG compatible with most 
@@ -64,7 +63,7 @@ You have two different ways to get the simulator to work.
 - A) download a precompiled version of the simulator libaries and the utilities. 
 	This is the quick and easy way which you can try first, see \ref InstA
 - B) download the source tar ball and compile the simulator youself. 
-	You have still the change to take the precompiled extra libs. 
+	You have still the chance to take the precompiled extra libs. 
 	If way A failes or you want to modify the simulator then this is the way to go, 
 	see \ref InstB
 
@@ -86,6 +85,7 @@ make install
 # or, if you want a system wide installation
 sudo make install
 \endverbatim
+- You will be asked for the installation prefix and the installation type. The latter you have to anwser with \b u like user.
 - Now you are done with the installation and you can try a sample simulation from <tt>ode_robots/simulations/</tt>. Please continue reading in section \ref RunExample.
 
 
@@ -94,13 +94,14 @@ sudo make install
   http://robot.informatik.uni-leipzig.de/software .
 - Unpack file.
 - Change into <tt> lpzrobots </tt> directory
-- Call <tt> make </tt>, which will do the following:
+- Call <tt> make </tt> to get a help display and continue with
+  <tt> make prepare</tt>, which will do the following:
 	- it creates a configuration makefile (Makefile.conf) with your interaction
 	- it compiles \ref neuronviz (not strictly necessary, only for displaying neuronal network online) 
 	- it compiles \ref guilogger (not strictly necessary, only for displaying parameters online) 
    	- Please note, that the make call will not fail if either of them failed to make, 
  	  because they are optional.  
-	  Type <tt> make guilogger </tt> and <tt> make neuronviz </tt> to compile them seperately.
+	  You can type <tt> make guilogger </tt> and <tt> make neuronviz </tt> to compile them seperately.
 	- it creates dependency files and creates links to header files, that they can be found.
 	- it prints some information how to install the ODE residing in the \ref opende directory.
 - Now you have to install the extra libs namely ODE and OSG. 
@@ -113,6 +114,7 @@ make
 sudo make install
 \endverbatim
 	- To install the OSG, please refere to their homepage: http://www.openscenegraph.org/ 
+- After finishing the installation of ODE and OSG you can procede with the installtion of th simulator.
 - Call in the directory <tt> lpzrobots/ </tt>
 \verbatim
 make libs
