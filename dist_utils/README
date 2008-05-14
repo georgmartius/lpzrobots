@@ -1,0 +1,19 @@
+1. to create a distribution/Release:
+make a 
+cvs co lpzrobots
+cd lpzrobots
+cvs update -dP
+cd dist_utils
+./createDist.sh
+
+2. for extra lib bundle:
+just start ./createextraDist.sh
+
+3. for binary distribution:
+take the prepared distribution from 1 and do
+make prepare
+make libs
+cd oderobots/simulations
+make all
+cd oderobots/examples/
+make all

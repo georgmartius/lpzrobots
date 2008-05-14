@@ -5,7 +5,8 @@ NAME=lpzrobots
 BASE=../..
 
 DIR=$BASE/$NAME-$VERSION
-SIMDIR=$DIR/ode_robots/simulations/
+SOSIMDIR=$DIR/selforg/simulations/
+ODESIMDIR=$DIR/ode_robots/simulations/
 SRCDIR=$BASE/lpzrobots
 
 mkdir $DIR || exit 1;
@@ -34,13 +35,30 @@ for F in `cat controllers`; do
 cp -r  $SRCDIR/selforg/controller/$F $DIR/selforg/controller/;
 done 
 
+pushd `pwd`;
+echo -en "# subdirectories with simulations\nSIMULATIONS=" > $SOSIMDIR/Makefile.conf
+
+cd $SOIMDIR  || exit 1;
+SIMS=`find . -mindepth 1 -maxdepth 1 -type d`
+popd;
+
+echo "Keeping the following simulation:";
+for S in $SIMS; do
+    S="${S#./}";
+    if grep "$S" selforg_simulations; then
+    	echo -n  "$S " >>  $SOSIMDIR/Makefile.conf
+    else
+	rm -r $SOSIMDIR/$S;
+    fi
+done 
+
+
 echo "Copy ode_robots";
 cp -r $SRCDIR/ode_robots $DIR/;
 pushd `pwd`;
+echo -en "# subdirectories with simulations\nSIMULATIONS=" > $ODESIMDIR/Makefile.conf
 
-echo -en "# subdirectories which contain libraries or binaries needed some of the other project in this tree\nSIMULATIONS=" > $SIMDIR/Makefile.conf
-
-cd $SIMDIR  || exit 1;
+cd $ODESIMDIR  || exit 1;
 SIMS=`find . -mindepth 1 -maxdepth 1 -type d`
 popd;
 
@@ -48,9 +66,9 @@ echo "Keeping the following simulation:";
 for S in $SIMS; do
     S="${S#./}";
     if grep "$S" simulations; then
-    	echo -n  "$S " >>  $SIMDIR/Makefile.conf
+    	echo -n  "$S " >>  $ODESIMDIR/Makefile.conf
     else
-	rm -r $SIMDIR/$S;
+	rm -r $ODESIMDIR/$S;
     fi
 done 
 
