@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-04-10 12:27:32  der
+ *   Revision 1.6  2008-05-27 10:35:03  guettler
+ *   include corrected
+ *
+ *   Revision 1.5  2008/04/10 12:27:32  der
  *   just a few changes
  *
  *   Revision 1.4  2008/03/14 08:04:23  der
@@ -48,7 +51,7 @@
 #ifndef __SKELETON_H
 #define __SKELETON_H
 
-#include "oderobot.h"
+#include <ode_robots/oderobot.h>
 
 namespace lpzrobots {
 
