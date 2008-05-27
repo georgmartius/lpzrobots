@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-05-01 22:03:55  martius
+ *   Revision 1.8  2008-05-27 13:25:12  guettler
+ *   powerfactor moved to skeleton
+ *
+ *   Revision 1.7  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -79,7 +82,7 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff
   Skeleton::Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-	   const SkeletonConf& c, const std::string& name)
+	   SkeletonConf& c, const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(c)
   { 
     // robot is not created till now
@@ -88,6 +91,12 @@ namespace lpzrobots {
     //    this->osgHandle.color = Color(1.0, 1,1,1);
     // choose color here a pastel white is used
     //    this->osgHandle.color = Color(217/255.0, 209/255.0, 109/255.0, 1.0f);
+    conf.hipPower*= conf.powerfactor;   
+    conf.hip2Power*= conf.powerfactor;  
+    conf.pelvisPower*= conf.powerfactor;
+    conf.kneePower*= conf.powerfactor;
+    conf.anklePower*= conf.powerfactor;
+    conf.armPower*= conf.powerfactor;
   };
 
 
@@ -652,6 +661,19 @@ GUIDE adding new sensors
     
     
     created=true;
+    
+    
+
+    // register ignored pairs
+/*    odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Trunk_comp]);
+    odeHandle.addIgnoredPair(objects[Right_Thigh],objects[Trunk_comp]);
+    odeHandle.addIgnoredPair(objects[Left_Shin],objects[Trunk_comp]);
+    odeHandle.addIgnoredPair(objects[Right_Shin],objects[Trunk_comp]);
+    
+    odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Right_Thigh]);
+    odeHandle.addIgnoredPair(objects[Left_Shin],objects[Right_Shin]);*/
+    odeHandle.addIgnoredPair(objects[Left_Foot],objects[Right_Foot]);
+    
   }; 
 
 

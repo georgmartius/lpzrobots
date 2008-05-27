@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-05-27 10:35:03  guettler
+ *   Revision 1.7  2008-05-27 13:25:12  guettler
+ *   powerfactor moved to skeleton
+ *
+ *   Revision 1.6  2008/05/27 10:35:03  guettler
  *   include corrected
  *
  *   Revision 1.5  2008/04/10 12:27:32  der
@@ -86,6 +89,7 @@ namespace lpzrobots {
     double pelvisPower;   ///< maximal force for at pelvis joint motor
     double pelvisDamping; ///< damping of pelvis joint servo
     double pelvisJointLimit; ///< angle range of pelvis joint
+    double powerfactor; ///< scale factor for maximal forces of the servos
     
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
 
@@ -112,7 +116,7 @@ namespace lpzrobots {
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const SkeletonConf& conf, 
+    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf, 
 	       const std::string& name);
 
     virtual ~Skeleton(){};
@@ -130,6 +134,7 @@ namespace lpzrobots {
       c.hip2Power=50;
       c.hip2Damping=0.4;
       c.hip2JointLimit=0.05;
+      c.powerfactor=1.0;
 
       c.kneePower=40;
       c.kneeDamping=0.2;

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-05-01 22:03:55  martius
+ *   Revision 1.9  2008-05-27 13:25:12  guettler
+ *   powerfactor moved to skeleton
+ *
+ *   Revision 1.8  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -127,6 +130,7 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/derpseudosensor.h>
 #include <selforg/basiccontroller.h>
+#include <selforg/derlininvert.h>
 /************/
 
 #include <ode_robots/playground.h>
@@ -245,7 +249,7 @@ public:
 // //     global.obstacles.push_back(m);
     
    
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20.5, 5.2, 1.0)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
+     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(2.5, 5.2, 1.0)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
      playground->setPosition(osg::Vec3(0,0,.1));
      Substance substance;
     substance.toPlastic(10.0);
@@ -285,8 +289,6 @@ public:
 
       SkeletonConf conf = Skeleton::getDefaultConf();
       
-      double powerfactor = .9;// .8;//1.2;// .2; //2.8;//.3 
-
       conf.massfactor   = 1;
       conf.relLegmass = 5;
       conf.relFeetmass = 1;
@@ -298,12 +300,13 @@ public:
        conf.armJointLimit=1.2; //!
 //       conf.ankleJointLimit=0.001; //!
        conf.pelvisJointLimit=.5; //!    
-            conf.hipPower=50 * powerfactor;   
-            conf.hip2Power=20 * powerfactor;      //5
-            conf.pelvisPower=20 * powerfactor;
-      conf.kneePower= 15 * powerfactor;
-      conf.anklePower= 2 * powerfactor;
-      conf.armPower = 15 * powerfactor;//5
+      conf.hipPower=50;
+      conf.hip2Power=20;      //5
+      conf.pelvisPower=20;
+      conf.kneePower= 15;
+      conf.anklePower= 2;
+      conf.armPower = 15;//5
+      conf.powerfactor = .9;
        if (i==0) 
 	conf.trunkColor=Color(0.1, 0.3, 0.8);
        else	conf.trunkColor=Color(0.9, 0.0, 0.1);
@@ -332,9 +335,9 @@ public:
       //controller->setParam("sinerate",50);
       //controller->setParam("phaseshift",0);
 
-       DerPseudoSensorConf cc = DerPseudoSensor::getDefaultConf();    
+       DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
       //      BasicControllerConf cc = BasicController::getDefaultConf();    
-	   // AbstractController* controller = new DerPseudoSensor(cc);
+	   // AbstractController* controller = new DerLinInvert(cc);
 
   
           vector<Layer> layers;
@@ -360,7 +363,7 @@ public:
           cc.sat   = sat;
 
           cc.useS=false;
-	 AbstractController* controller = new DerPseudoSensor(cc);
+          AbstractController* controller = new DerLinInvert(cc);
 	  //  AbstractController* controller = new BasicController(cc);
 	   
 
@@ -369,7 +372,7 @@ public:
            controller->setParam("epsC",0.1);
            controller->setParam("epsSat",0.02);
            controller->setParam("epsA",0.0);
-           controller->setParam("steps",2);
+      controller->setParam("steps",1);
            controller->setParam("s4avg",5);
            controller->setParam("s4delay",3);
            controller->setParam("teacher",0.01);
@@ -452,7 +455,7 @@ public:
       //      AbstractController *controller = new InvertMotorNStep(); 
       // DerBigControllerConf cconf = DerBigController::getDefaultConf();
       // DerControllerConf cconf = DerController::getDefaultConf();
-	    DerPseudoSensorConf cconf = DerPseudoSensor::getDefaultConf();
+	    DerLinInvertConf cconf = DerLinInvert::getDefaultConf();
       // cconf.useS=true;
       cconf.cInit=1.0;
 
@@ -484,7 +487,7 @@ public:
       //  controller->setParam("fantcontrol",200);
       // controller->setParam("fantcontrollen",50);
       //AbstractController *controller = new SineController();  
-        AbstractController* controller = new DerPseudoSensor(cconf);
+        AbstractController* controller = new DerLinInvert(cconf);
   
         AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
      //  DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
@@ -568,8 +571,8 @@ public:
       }
  
 
-           DerPseudoSensorConf cc = DerPseudoSensor::getDefaultConf();    
-	   // AbstractController* controller = new DerPseudoSensor(cc);
+           DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
+	   // AbstractController* controller = new DerLinInvert(cc);
 
   //     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
           vector<Layer> layers;
@@ -581,7 +584,7 @@ public:
           cc.model=net;
           cc.useS=false;
           //cc.useS=false;   
-	   AbstractController* controller = new DerPseudoSensor(cc);
+	   AbstractController* controller = new DerLinInvert(cc);
 
     //   //      AbstractController *controller = new InvertMotorNStep(); 
 //       DerBigControllerConf cconf = DerBigController::getDefaultConf();
