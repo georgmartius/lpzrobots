@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-05-07 16:45:52  martius
+ *   Revision 1.5  2008-05-30 11:58:27  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.4  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.3  2008/04/18 14:00:38  guettler
@@ -93,7 +96,7 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include <math.h>
+#include <cmath>
 #include <assert.h>
 
 #include "randomgenerator.h"

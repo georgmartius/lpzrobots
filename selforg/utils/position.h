@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-12-06 07:48:43  der
+ *   Revision 1.6  2008-05-30 11:58:28  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.5  2007/12/06 07:48:43  der
  *   added method print(), same as in class Pos (see ode_robots/utils)
  *
  *   Revision 1.4  2006/09/11 12:01:43  martius
@@ -43,7 +46,7 @@
 #define __POSITION_H
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 class Position
 {

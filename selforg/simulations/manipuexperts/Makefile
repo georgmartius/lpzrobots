@@ -3,7 +3,8 @@
 #Date:     June 2006
 
 # add files to compile here
-FILES = main cmdline console multiexpertpair
+#  multiexpertpair
+FILES = main cmdline console  multiexpertsubopt
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 

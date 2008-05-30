@@ -75,5 +75,9 @@ todo:
 	grep -ni "Todo"  $(CPPFILES) $(HFILES)
 	grep -ni "Fixme"  $(CPPFILES) $(HFILES)
 
+FIND=`cat tofind`
+find:
+	@[ -n "$(FIND)" ] &&  grep -ni "$(FIND)"  $(CPPFILES) $(HFILES)
+
 
 include Makefile.depend

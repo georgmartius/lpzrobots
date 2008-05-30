@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-05-07 16:45:52  martius
+ *   Revision 1.9  2008-05-30 11:58:27  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.8  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.7  2008/04/30 14:54:48  guettler
@@ -144,7 +147,7 @@
 #include <selforg/matrix.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 
 #include "stl_adds.h"
 #include "noisegenerator.h"
@@ -308,8 +311,15 @@ matrix::I argmax(const matrix::Matrix& v);
 /// returns the smallest element
 double min(const matrix::Matrix& v);
 
+/// minimum function for doubles without templates
+double min(double a, double b);
+
 /// returns the largest element
 double max(const matrix::Matrix& v);
+
+/// maximum function for doubles without templates
+double max(double a, double b);
+
 
 /// samples from the pdf (rowwise stored with sum = 1)
 matrix::I sample(const matrix::Matrix& pdf);

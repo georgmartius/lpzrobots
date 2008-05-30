@@ -326,11 +326,21 @@ double min(const matrix::Matrix& v){
   return *(std::min_element(v.unsafeGetData(), v.unsafeGetData()+v.size()) );
 }
 
+
+// minimum function for doubles without templates
+double min(double a, double b) { 
+  return std::min(a,b); 
+}
+
 // returns the largest element
 double max(const matrix::Matrix& v){
   return *(std::max_element(v.unsafeGetData(), v.unsafeGetData()+v.size()) );
 }
 
+// maximum function for doubles without templates
+double max(double a, double b) { 
+  return std::max(a,b); 
+}
 
 // samples from the pdf (rowwise stored with sum = 1)
 I sample(const matrix::Matrix& pdf){

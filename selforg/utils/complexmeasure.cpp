@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.4  2008-02-14 14:43:09  der
+*   Revision 1.5  2008-05-30 11:58:27  martius
+*   use cmath instead of math.h
+*
+*   Revision 1.4  2008/02/14 14:43:09  der
 *   made some enhancements
 *
 *   Revision 1.3  2008/01/17 09:59:27  der
@@ -74,7 +77,7 @@
 
 
 #include "discretisizer.h"
-#include <math.h>
+#include <cmath>
 #include "stl_adds.h"
 #include <assert.h>
 

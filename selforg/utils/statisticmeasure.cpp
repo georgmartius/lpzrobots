@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-04-24 11:57:00  der
+ *   Revision 1.11  2008-05-30 11:58:28  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.10  2008/04/24 11:57:00  der
  *   added new measure types
  *
  *   Revision 1.9  2008/03/12 10:57:07  der
@@ -75,7 +78,7 @@
 #include <iostream>
 #include "stl_adds.h"
 #include "assert.h"
-#include "math.h"
+#include <cmath>
 
 StatisticMeasure::StatisticMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : AbstractMeasure(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam)
 {

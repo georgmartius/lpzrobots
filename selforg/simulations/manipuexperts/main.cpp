@@ -8,13 +8,15 @@
 
 #include <selforg/agent.h>
 #include <selforg/position.h>
+#include <selforg/controller_misc.h>
 #include <selforg/stl_adds.h>
 
 #include "cmdline.h"
 #include "console.h"
 #include "globaldata.h"
 
-#include "multiexpertpair.h"
+// #include "multiexpertpair.h"
+#include "multiexpertsubopt.h"
 #include <selforg/printInternals.h>
 
 /*
@@ -29,8 +31,8 @@ bool stop=0;
 bool reset=true;
 double realtimefactor=1;
 
-int stepsize=1; // time intervals for learning and prediction
-int horizont=10; // how many step are predicted
+int stepsize=3; // time intervals for learning and prediction
+int horizont=5; // how many step are predicted
 list<PlotOption> plotoptions;
 GlobalData globaldata;
 list<const Inspectable*> inspectables;
@@ -73,14 +75,27 @@ public:
     data_size= pos.size();
     fclose(f);  
   
-    MultiExpertPairConf pc = MultiExpertPair::getDefaultConf();
-    pc.numSats=20;
+//     MultiExpertPairConf pc = MultiExpertPair::getDefaultConf();
+//     pc.numSats=20;
+//     pc.numHidden=6; // 12
+//     pc.lambda_w=0.1;
+//     pc.eps0=1; //0.1
+//     pc.tauE1=2;
+//     pc.tauW=300; // 300    
+//     mep  = new MultiExpertPair(pc);
+//     mep->init(3*3,3);
+
+    MultiExpertSuboptConf pc = MultiExpertSubopt::getDefaultConf();
+    pc.numSats=2;
     pc.numHidden=6; // 12
-    pc.lambda_w=0.1;
-    pc.eps0=1; //0.1
-    pc.tauE1=2;
-    pc.tauW=300; // 300    
-    mep  = new MultiExpertPair(pc);
+    pc.eps0=0.1; //0.1
+    pc.tauE1=5;
+    pc.tauE2=50;
+    pc.tauF=10000;
+    pc.satMemory=500;
+    pc.satTrainPast=5;
+    pc.lambda_comp=1;
+    mep  = new MultiExpertSubopt(pc);
     mep->init(3*3,3);
 
     t= 4*stepsize;
@@ -202,7 +217,7 @@ public:
 public:
   vector<Matrix> pos;   // true positions
   vector<Matrix> predpos; // predicted positions
-  MultiExpertPair * mep;  
+  AbstractModel * mep;  
   double pred_error;
   int data_size;  
   int t;
