@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.20  2008-05-07 16:45:52  martius
+// Revision 1.21  2008-05-30 11:58:08  martius
+// equals method and cmath
+//
+// Revision 1.20  2008/05/07 16:45:52  martius
 // code cosmetics and documentation
 //
 // Revision 1.19  2008/04/30 14:54:14  guettler
@@ -150,7 +153,7 @@
 
 #include "matrix.h"
 #include <string.h>
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 namespace matrix {
@@ -185,8 +188,13 @@ namespace matrix {
 ////////////////////////////////////////////////////////////////////////////////
 ////// ACCESSORS ///////////////////////////////////////////////////////////////
   /// returns true if matrix is a 0x0 matrix
-  bool Matrix::isNulltimesNull() {
+  bool Matrix::isNulltimesNull() const {
     return ( m == 0 && n == 0 );
+  }
+
+  bool Matrix::equals (const Matrix& a) const {
+    if(m*n != a.m*a.n) return false;
+    return (bcmp(data,a.data, sizeof(double)*m*n) == 0);
   }
 
 

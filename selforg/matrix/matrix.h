@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.22  2008-05-07 16:45:52  martius
+// Revision 1.23  2008-05-30 11:58:08  martius
+// equals method and cmath
+//
+// Revision 1.22  2008/05/07 16:45:52  martius
 // code cosmetics and documentation
 //
 // Revision 1.21  2008/05/02 17:20:04  martius
@@ -341,7 +344,12 @@ namespace matrix{
     void mult(const Matrix& a, const D& fac);///< scaling: this = a * fac
 
     /// returns true if matrix is a 0x0 matrix
-    bool isNulltimesNull();
+    bool isNulltimesNull() const;
+
+    /** bytewise comparison (compares data buffer bytewise, which implies that
+	n1*m1 == n2*m2 but not necessarily n1==n2) */
+    bool equals(const Matrix& a) const;
+
 
     /**  maps the matrix to a new matrix
 	 with all elements mapped with the given function
