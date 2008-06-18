@@ -7,7 +7,12 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.23  2008-05-30 11:58:08  martius
+// Revision 1.24  2008-06-18 13:46:20  martius
+// beside and toBeside added
+// addColumns and addRows is now based on toAbove and toBeside
+// bug fix in removeColumns
+//
+// Revision 1.23  2008/05/30 11:58:08  martius
 // equals method and cmath
 //
 // Revision 1.22  2008/05/07 16:45:52  martius
@@ -194,17 +199,17 @@ namespace matrix{
   /// integer constant for use with exp function and (^) operator to transpose the matrix
   extern const int T;
 
-  /// type for matrix elements
-  typedef double D;
-
-
 #ifndef AVR
 /// type for matrix indices
   typedef unsigned int I;
+  /// type for matrix elements
+  typedef double D;
 #else
 /// type for matrix indices, if AVR
 /// NOTE: You cannot use matrices bigger than m*n>255 if AVR!
   typedef unsigned short I;
+  /// type for matrix elements
+  typedef float D;
 #endif
 
 
@@ -241,6 +246,9 @@ namespace matrix{
 	In this case _data must be at least _m*_n elements long
     */
     Matrix(I _m, I _n, const D* _data=0);
+    /** constucts a matrix with the given size and fills it with the default value
+    */
+    Matrix(I _m, I _n, D def);
     /// constucts a instance on the base of a deep copy of the given matrix
     Matrix (const Matrix& c);
     ~Matrix() { if(data) free(data); };
@@ -391,8 +399,10 @@ namespace matrix{
     /// returns the sum of all elements (\f$ \sum_{ij} m_{ij} \f$)
     D elementSum() const;
 
-    /// returns a matrix that consists of this above A
+    /// returns a matrix that consists of this matrix above A (number of rows is getM + a.getM())
     Matrix above(const Matrix& a) const ;
+    /// returns a matrix that consists of this left beside A  (number of columns is getN + a.getN())
+    Matrix beside(const Matrix& a) const ;
 
   public:   /// normal binary Operators
     /// deep copy
@@ -499,25 +509,27 @@ namespace matrix{
     */
     Matrix& toMultcolwise(const Matrix& factors);
 
-    /// sets the matrix a below (this) matrix
+    /// sets the matrix a below this matrix
     Matrix& toAbove(const Matrix& a);
+    /// sets the matrix a right beside this matrix
+    Matrix& toBeside(const Matrix& a);
 
     /// sorts the matrix (rowwise)
     Matrix& toSort();
 
-    /** reshapes the matrix without distroying the data. Remember: The data is stored rowwise.
-	m*n must be lower or equal to getM()*getN()*/
+    /** reshapes the matrix without destroying the data. 
+	Remember: The data is stored rowwise.
+
+	Only shrinking is allowed i.e. m*n must be lower or equal to getM()*getN()
+    */
     Matrix& reshape(I m, I n);
 
     /// adds the given value to the diagonal
     Matrix& pluslambdaI(double lambda);
 
-    /** adds one or more rows to the existing matrix
-     * resets the size of the matrix and maybe the data if given (new rows).
-     * The data for the new rows is read row-wise.
-     * If data=null then the new rows are set to zero
-     * @see toZero()
-     * @see set Matrix(m,n,data)
+    /** adds one or more rows to the existing matrix and fills it with the given data
+     * 
+     * same as toAbove(Matrix(numberRows,getN(),data))
      * @param numberRows number of rows to add (this extends m)
      * @param _data data to add
      * @return the address of the matrix itself
@@ -525,43 +537,34 @@ namespace matrix{
     Matrix& addRows(I numberRows, const D* _data=0);
 
     /**
-     * same as addRows(I,D*), but with the data given by a
-     * matrix.
-     * @note this is a more safe version (requires equal number of columns)
-     * @see addRows(numberRows,_data)
-     * @param numberRows number of rows to add (this extends m)
+     * same as toAbove(dataMatrix)
+     * @param numberRows number of rows to add (unused)
      * @param dataMatrix matrix which contains the data of the new rows
      * @return the address of the matrix itself
      */
     Matrix& addRows(I numberRows, const Matrix& dataMatrix);
 
     /** adds one or more columns to the existing matrix
-     * resets the size of the matrix and maybe the data if given (new columns).
-     * The data for the new columns is read column-wise.
-     * If data=null then the new columns are set to zero
-     * @see toZero()
-     * @see set Matrix(m,n,data)
+     * same as toBeside(Matrix(getM, numberColumns, _data))
+     * @see toBeside()
      * @param numberColumns number of columns to add (this extends n)
      * @param _data data to add
      * @return the address of the matrix itself
      */
      Matrix& addColumns(I numberColumns, const D* _data=0);
 
-
     /**
-     * same as addColumns(I,D*), but with the data given by a
-     * matrix.
-     * @note this is a more safe version (requires equal number of rows)
-     * @see addColumns(numberColumns,_data)
-     * @param numberColumns number of columns to add (this extends n)
+     * same as toBeside(dataMatrix)
+     * @see toBeside()
+     * @param numberColumns number of columns to add (unused)
      * @param dataMatrix matrix which contains the data of the new rows
      * @return the address of the matrix itself
      */
     Matrix& addColumns(I numberColumns, const Matrix& dataMatrix);
 
-
-        /** removes one or more rows of the existing matrix
-     * resets the size of the matrix and deletes the appropiate data.
+    
+    /** removes one or more rows of the existing matrix, 
+	same as reshape(getM()-numberRows, getN());
      * @param numberRows number of rows to remove (this reduces m)
      * @return the address of the matrix itself
      */
@@ -573,19 +576,6 @@ namespace matrix{
      * @return the address of the matrix itself
      */
     Matrix& removeColumns(I numberColumns);
-
-
-    /**
-     * same as removeColumns(I,D*), but with the data given by a
-     * matrix.
-     * @note this is a more safe version (requires equal number of rows)
-     * @see removeColumns(numberColumns,_data)
-     * @param numberColumns number of columns to remove (this extends n)
-     * @param dataMatrix matrix which contains the data of the new rows
-     * @return the removeress of the matrix itself
-     */
-    Matrix& removeColumns(I numberColumns, const Matrix& dataMatrix);
-
 
   private:
     // NOTE: buffersize determines available memory storage.

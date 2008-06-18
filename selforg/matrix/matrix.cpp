@@ -5,7 +5,12 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.21  2008-05-30 11:58:08  martius
+// Revision 1.22  2008-06-18 13:46:20  martius
+// beside and toBeside added
+// addColumns and addRows is now based on toAbove and toBeside
+// bug fix in removeColumns
+//
+// Revision 1.21  2008/05/30 11:58:08  martius
 // equals method and cmath
 //
 // Revision 1.20  2008/05/07 16:45:52  martius
@@ -173,6 +178,13 @@ namespace matrix {
       : m ( _m ), n ( _n ), buffersize ( 0 ), data ( 0 ) {
     allocate();
     set ( _data );
+  };
+  Matrix::Matrix ( I _m, I _n, D def)
+    : m ( _m ), n ( _n ), buffersize ( 0 ), data ( 0 ) {
+    allocate();
+    for(I i=0; i<buffersize; i++){
+      data[i]=def;
+    }
   };
 
   // internal allocation
@@ -523,7 +535,7 @@ namespace matrix {
   }
 
   Matrix& Matrix::toMultcolwise ( const Matrix& factors ) {
-    assert ( n == factors.m && factors.n == 1 );
+    assert ( n == factors.m && factors.n == 1);
     for ( I i = 0; i < m; i++ ) {
       for ( I j = 0; j < n; j++ ) {
         VAL ( i, j ) *= factors.val ( j, 0 );
@@ -533,10 +545,35 @@ namespace matrix {
   }
 
   Matrix& Matrix::toAbove ( const Matrix& a ) {
-    assert ( a.n == this->n );
+    assert ( a.n == this->n);
     data = ( D* ) realloc ( data, sizeof ( D ) * ( this->m * this->n + a.n * a.m ) );
     memcpy ( data + this->m * this->n, a.data, sizeof ( D ) * ( a.n * a.m ) );
     this->m += a.m;
+    return *this;
+  }
+
+  Matrix& Matrix::toBeside ( const Matrix& a ) {
+    assert ( a.m == this->m);
+    
+    D* oldData = data;
+    data = ( D* ) malloc(sizeof ( D ) * ( this->m * this->n + a.n * a.m ) );
+    assert ( data );
+    I oldN= this->n;
+    this->n += a.n;
+    buffersize=this->m*this->n;
+    if ( oldData ) { // copy old values      
+      for ( I i=0;i<this->m * oldN;i++ ) {
+	  data[ (i/oldN)*this->n + ( i%oldN) ]=oldData[i];
+      }
+      free ( oldData );
+    }    
+    if ( a.data ) { // copy new values for the new rows
+      for ( I i = 0;i < m;i++ ) {
+        for ( I j=0;j< a.n;j++ ) {
+          val(i,j+oldN) = a.val(i,j);
+        }
+      }
+    }
     return *this;
   }
 
@@ -549,10 +586,10 @@ namespace matrix {
     return *this;
   }
 
-  Matrix& Matrix::reshape ( I _m, I _n ) {
-    assert ( _m*_n <= m*n );
+  Matrix& Matrix::reshape ( I _m, I _n) {
+    assert(_m*_n <= m*n);
     m = _m;
-    n = _n;
+    n = _n;     
     return *this;
   }
 
@@ -638,105 +675,56 @@ namespace matrix {
 
   }
 
-/// adds one or more rows to the existing matrix
-/// The data for the new rows is read row-wise.
+  /// returns a matrix that consists of b right beside this
+  Matrix Matrix::beside ( const Matrix& b ) const {
+    Matrix r ( *this );
+    r.toBeside( b );
+    return r;
+
+  }
+
+  // adds one or more rows to the existing matrix
+  // The data for the new rows is read row-wise.
   Matrix& Matrix::addRows ( I numberRows, const D* _data /*=0*/ ) {
-    // internal allocation
-    D* oldData = data;
-    data = ( D* ) malloc ( sizeof ( D ) * ( m + numberRows ) * n );
-    assert ( data );
-    toZero();
-
-    if ( oldData ) { // copy old values
-      memcpy ( data, oldData, m*n*sizeof ( D ) ); // position is the same
-      free ( oldData );
-    }
-
-    if ( _data ) { // copy new values for the new rows
-      for ( I i = m * n;i < ( m + numberRows ) *n;i++ ) {
-        data[i] = _data[i-m*n];
-      }
-    }
-
-    m+= numberRows;
-    buffersize= m*n;
-    return *this;
+    return toAbove(Matrix(numberRows,n, data));
   }
 
   Matrix& Matrix::addRows ( I numberRows, const Matrix& dataMatrix ) {
-    assert ( n==dataMatrix.getN() && "same number of colums needed" );
-    return addRows ( numberRows,dataMatrix.unsafeGetData() );
+    return toAbove(dataMatrix);
   }
 
 
-/// adds one or more columns to the existing matrix
-/// The data for the new columns is read row-wise.
+  // adds one or more columns to the existing matrix
+  // The data for the new columns is read row-wise.
   Matrix& Matrix::addColumns ( I numberColumns, const D* _data /*=0*/ ) {
-    // internal allocation
-    D* oldData = data;
-    data = ( D* ) malloc ( sizeof ( D ) * m * ( n+ numberColumns ) );
-    assert ( data );
-    toZero();
-    if ( oldData ) { // copy old values
-      for ( I i=0;i<m*n;i++ ) {
-        data[ ( i/n ) * ( n+numberColumns ) + ( i%n ) ]=oldData[i];
-      }
-      free ( oldData );
-    }
-    if ( _data ) { // copy new values for the new rows
-      for ( I i = 0;i < m;i++ ) {
-        for ( I j=0;j<numberColumns;j++ ) {
-          data[i* ( n+numberColumns ) +j+n] = _data[i*numberColumns+j];
-        }
-      }
-    }
-
-    n+= numberColumns;
-    buffersize=m*n;
-    return *this;
+    return toBeside(Matrix(m, numberColumns, _data));
   }
-
-/// (guettler)
+  
   Matrix& Matrix::addColumns ( I numberColumns, const Matrix& dataMatrix ) {
-    assert ( m==dataMatrix.getM() && "same number of rows needed" );
-    return addColumns ( numberColumns,dataMatrix.unsafeGetData() );
+    return toBeside(dataMatrix);
   }
 
   Matrix& Matrix::removeRows ( I numberRows ) {
     assert ( m>numberRows && "to much rows to remove" );
-    // internal allocation
-    D* oldData = data;
-    data = ( D* ) malloc ( sizeof ( D ) * ( m - numberRows ) * n );
-    assert ( data );
-
-    if ( oldData ) { // copy old values
-      memcpy ( data, oldData, ( m-numberRows ) *n*sizeof ( D ) );     // position is the same
-      free ( oldData );
-    } else
-      toZero();
-
-    m-= numberRows;
-    buffersize=m*n;
-    return *this;
+    return reshape(numberRows, n);
   }
 
   Matrix& Matrix::removeColumns ( I numberColumns ) {
     assert ( n>numberColumns && "to much columns to remove" );
     // internal allocation
     D* oldData = data;
-    data = ( D* ) malloc ( sizeof ( D ) * m * ( n- numberColumns ) );
+    I newN = n - numberColumns;
+    data = ( D* ) malloc ( sizeof ( D ) * m * newN );
     assert ( data );
     if ( oldData ) { // copy old values
       for ( I i=0;i<m;i++ ) {
-        for ( I j=0;j< ( n-numberColumns );j++ ) {
-          data[i*n+j]=oldData[i*n+j];
+        for ( I j=0;j< newN;j++ ) {
+          data[i*newN+j]=oldData[i*n+j];
         }
       }
       free ( oldData );
-    } else
-      toZero();
-
-    n-= numberColumns;
+    }
+    n= newN;
     buffersize=m*n;
     return *this;
   }

@@ -5,7 +5,12 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.4  2007-07-17 07:28:06  martius
+// Revision 1.5  2008-06-18 13:46:20  martius
+// beside and toBeside added
+// addColumns and addRows is now based on toAbove and toBeside
+// bug fix in removeColumns
+//
+// Revision 1.4  2007/07/17 07:28:06  martius
 // store and restore test
 //
 // Revision 1.3  2006/07/20 17:14:36  martius
@@ -256,9 +261,20 @@ DEFINE_TEST( check_matrix_operation ) {
   const Matrix M20(4,3, testdata20);
   const Matrix M21 = M1.above(M1);
   unit_assert( "above() ",   M20 == M21 );
-  
+  D testdata22[8]={1,2,3, 7, 4,5,6, 8};
+  D testdata23[2]={7, 8};
+  const Matrix M22(2,4, testdata22);
+  const Matrix M23(2,1, testdata23);
+  const Matrix M24 = M1.beside(M23);
+  unit_assert( "beside() ",   M24 == M22 );
+
+  Matrix M30 = M24;
+  const Matrix M31 = M30.removeColumns(1);
+  unit_assert( "removeColumns() ",   M31 == M1 );
+  Matrix M32 = M20;  
+  const Matrix M33 = M32.removeRows(2);
+  unit_assert( "removeRows() ",  M33 == M1 );
    
-  
   unit_pass();
 }
 
