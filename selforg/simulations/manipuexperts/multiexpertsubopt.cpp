@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-05-30 12:00:11  martius
+ *   Revision 1.2  2008-06-19 15:54:28  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2008/05/30 12:00:11  martius
  *   multiexperts with suboptimality
  *
  *
@@ -85,7 +88,7 @@ void MultiExpertSubopt::init(unsigned int inputDim, unsigned  int outputDim,
   satEpsMod.set(conf.numSats, 1);
   double d = 1;
   satEpsMod.toMapP(&d,constant); // set all elements to 1;  
-  d = 5;
+  d = 1;
   satMinErrors.toMapP(&d,constant); // set all elements to 5;  
   satAvg1Errors.toMapP(&d,constant); // set all elements to 5;  
   satAvg2Errors.toMapP(&d,constant); // set all elements to 5;    
@@ -114,7 +117,7 @@ const matrix::Matrix MultiExpertSubopt::learn (const matrix::Matrix& input,
   const Matrix& errors = compete(input,nom_output);    
 
   satSubOpt   = errors - satMinErrors;
-  satSubOpt   += errors; 
+  satSubOpt   += errors*0.2; 
   Matrix out; 
   
   if(conf.version==A){
@@ -127,7 +130,7 @@ const matrix::Matrix MultiExpertSubopt::learn (const matrix::Matrix& input,
 				  sats[winner].eps*satEpsMod.val(winner,0)); 
   }else if(conf.version==B){
     // Version b
-     // winner is only for output and prediction and we take the best one
+    // winner is only for output and prediction and we take the best one
     winner = argmin(errors);    
     out= sats[winner].net->process(input);  
     // However learning is based on ranked suboptimality
@@ -138,15 +141,22 @@ const matrix::Matrix MultiExpertSubopt::learn (const matrix::Matrix& input,
       ranking[i].second = i;      
     }
     std::sort(ranking.begin(), ranking.end());
+    // winner has lowest ranking
+    //winner = ranking[0].second;
+    //    out= sats[winner].net->process(input);  
     for(unsigned int i=0; i< satSubOpt.getM(); i++){
-      if(conf.lambda_comp*i > 10) continue; // no need for learning (eps factor < 1e-5 )
+      if(conf.lambda_comp*i >= 6) continue; // no need for learning (eps factor < 1e-3 )
       //    cout << ranking[i].first << " " << ranking[i].second 
       //         << " " << exp(-conf.lambda_comp*i) << "\n";
       sats[ranking[i].second].net->
 	learn(input, nom_output, sats[ranking[i].second].eps * exp(-conf.lambda_comp*i));
     }    
+    
     // update min for all
     satMinErrors = Matrix::map2(min, satMinErrors, satAvg2Errors);
+    //satMinErrors = Matrix::map2P(&conf, mindynamics, satMinErrors, errors);
+    //satMinErrors.val(winner,0) = mindynamics(&conf, satMinErrors.val(winner,0), errors.val(winner,0));
+
 
   }else{
     assert("" == "Not implemented version");
@@ -159,6 +169,15 @@ const matrix::Matrix MultiExpertSubopt::learn (const matrix::Matrix& input,
   t++;
   return out;
 };
+
+
+// minimum dynamics
+double MultiExpertSubopt::mindynamics(void *conf, double m, double e){
+  MultiExpertSuboptConf* c = (MultiExpertSuboptConf*)conf;
+  //  if(e<m){
+    return m - (1/c->tauE2)*(m-e);
+    //  }else return m;
+}
 
 
 Matrix MultiExpertSubopt::compete(const matrix::Matrix& input, 

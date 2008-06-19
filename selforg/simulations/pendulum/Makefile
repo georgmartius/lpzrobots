@@ -3,7 +3,7 @@
 #Date:     June 2006
 
 # add files to compile here
-FILES = main cmdline console
+FILES = main cmdline console multisat
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
@@ -14,7 +14,7 @@ CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
-SELFORG = $(HOME)/src/lpzrobots/selforg
+SELFORG = ../..
 LIBS   = -lm -L$(SELFORG) -lselforg -lreadline
 
 INC   = -I$(SELFORG)/include

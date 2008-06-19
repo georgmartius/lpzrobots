@@ -27,7 +27,10 @@
  *          not yet tried                                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-05-30 12:00:11  martius
+ *   Revision 1.2  2008-06-19 15:54:28  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2008/05/30 12:00:11  martius
  *   multiexperts with suboptimality
  *
  *
@@ -103,6 +106,13 @@ public:
 				      double learnRateFactor = 1);
 
   // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
+  /** minimum dynamics
+      @param conf MultiExpertSuboptConf
+      @param m minimum error
+      @param e current error
+   */
+  static double mindynamics(void *conf, double m, double e);
+
   
   /// stores the sat networks into seperate files
   void storeSats(const char* filestem); 

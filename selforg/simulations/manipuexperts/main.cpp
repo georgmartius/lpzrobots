@@ -31,7 +31,7 @@ bool stop=0;
 bool reset=true;
 double realtimefactor=1;
 
-int stepsize=3; // time intervals for learning and prediction
+int stepsize=1; // time intervals for learning and prediction
 int horizont=5; // how many step are predicted
 list<PlotOption> plotoptions;
 GlobalData globaldata;
@@ -86,15 +86,15 @@ public:
 //     mep->init(3*3,3);
 
     MultiExpertSuboptConf pc = MultiExpertSubopt::getDefaultConf();
-    pc.numSats=2;
+    pc.numSats=6;
     pc.numHidden=6; // 12
-    pc.eps0=0.1; //0.1
+    pc.eps0=0.01; //0.1
     pc.tauE1=5;
     pc.tauE2=50;
     pc.tauF=10000;
     pc.satMemory=500;
     pc.satTrainPast=5;
-    pc.lambda_comp=1;
+    pc.lambda_comp=2;
     mep  = new MultiExpertSubopt(pc);
     mep->init(3*3,3);
 

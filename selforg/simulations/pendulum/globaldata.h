@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-06-03 12:53:43  martius
+ *   Revision 1.2  2008-06-19 15:54:15  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2008/06/03 12:53:43  martius
  *   simple pendulum
  *
  *   Revision 1.1  2007/10/29 13:41:20  martius
@@ -50,10 +53,18 @@ typedef std::vector<Agent*> AgentList;         ///
 */
 struct GlobalData
 {
-  GlobalData() { }
+  GlobalData() {
+    realtimefactor = 2;
+    noise = 0.1;
+    controlinterval = 10;      
+  }
 
   ConfigList configs;
   AgentList agents;
+
+  double realtimefactor;
+  double noise;
+  int controlinterval;
 };
 
 #endif
