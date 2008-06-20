@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-05-27 13:25:12  guettler
+ *   Revision 1.9  2008-06-20 14:03:01  guettler
+ *   reckturner
+ *
+ *   Revision 1.8  2008/05/27 13:25:12  guettler
  *   powerfactor moved to skeleton
  *
  *   Revision 1.7  2008/05/01 22:03:55  martius
@@ -297,6 +300,7 @@ GUIDE adding new sensors
     HingeJoint* j;
     UniversalJoint* uj;
     FixedJoint* fj;
+    BallJoint*  bj;
     OneAxisServo* servo1;
     TwoAxisServo* servo2;
     Primitive* b ;
@@ -591,14 +595,23 @@ GUIDE adding new sensors
     // servo1 = new OneAxisServo(j, -M_PI/10, M_PI/10, 20,0.1);
     //   servo1 = new OneAxisServo(j, -M_PI*.5, 0.05*M_PI, 20,0.1);
     servo1 = new OneAxisServo(j, -M_PI*.5, 0.05*M_PI, 20,0.1/*integration=*/,1);
-     arm1servos.push_back(servo1);
+    arm1servos.push_back(servo1);
 
-    fj = new FixedJoint(objects[Left_Forearm], objects[Left_Hand]); // ,Pos(0.7176, 1.5948, 0.024) * pose);
-    fj->init(odeHandle, osgHandleJ, false);
-    joints.push_back(fj);
-    fj = new FixedJoint(objects[Right_Forearm], objects[Right_Hand]); // ,Pos(-0.7176, 1.5948, 0.024) * pose);
-    fj->init(odeHandle, osgHandleJ, false);
-    joints.push_back(fj);
+    if(conf.handsRotating){
+      bj = new BallJoint(objects[Left_Forearm], objects[Left_Hand], objects[Left_Hand]->getPosition()); // ,Pos(0.7176, 1.5948, 0.024) * pose);
+      bj->init(odeHandle, osgHandleJ, false);
+      joints.push_back(bj);
+      bj = new BallJoint(objects[Right_Forearm], objects[Right_Hand], objects[Right_Hand]->getPosition()); // ,Pos(-0.7176, 1.5948, 0.024) * pose);
+      bj->init(odeHandle, osgHandleJ, false);
+      joints.push_back(bj);
+    }else{
+      fj = new FixedJoint(objects[Left_Forearm], objects[Left_Hand]); // ,Pos(0.7176, 1.5948, 0.024) * pose);
+      fj->init(odeHandle, osgHandleJ, false);
+      joints.push_back(fj);
+      fj = new FixedJoint(objects[Right_Forearm], objects[Right_Hand]); // ,Pos(-0.7176, 1.5948, 0.024) * pose);
+      fj->init(odeHandle, osgHandleJ, false);
+      joints.push_back(fj);
+    }
     
     // TODO: substitute the servos with Muscles
     // Hip and Thighs

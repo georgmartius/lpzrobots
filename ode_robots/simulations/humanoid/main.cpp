@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-05-27 13:25:12  guettler
+ *   Revision 1.10  2008-06-20 14:03:00  guettler
+ *   reckturner
+ *
+ *   Revision 1.9  2008/05/27 13:25:12  guettler
  *   powerfactor moved to skeleton
  *
  *   Revision 1.8  2008/05/01 22:03:55  martius
@@ -156,10 +159,14 @@ public:
 
 
   Joint* fixator;
+  Joint* reckLeft;
+  Joint* reckRight;
+  Primitive* reck;
   Playground* playground; 
   //  AbstractObstacle* playground; 
   double hardness;
   Substance s;
+  bool reckturner;
   
 
   // starting function (executed once at the beginning of the simulation loop)
@@ -181,6 +188,12 @@ public:
     int humanoids=1;
     //    int barrel=0;
 
+    bool fixedInAir = false;
+    reckturner = true;
+
+    fixator=0;
+    reckLeft = reckRight = 0;
+    reck = 0;
 
     // initialization
     // - set noise to 0.0
@@ -249,7 +262,7 @@ public:
 // //     global.obstacles.push_back(m);
     
    
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(2.5, 5.2, 1.0)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
+     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(3.0, 5.2, 1.0)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
      playground->setPosition(osg::Vec3(0,0,.1));
      Substance substance;
     substance.toPlastic(10.0);
@@ -298,6 +311,7 @@ public:
        conf.kneeJointLimit=1.911; //!
        conf.hip2JointLimit=.9; //!
        conf.armJointLimit=1.2; //!
+       conf.armJointLimit=M_PI/2.0; //!
 //       conf.ankleJointLimit=0.001; //!
        conf.pelvisJointLimit=.5; //!    
       conf.hipPower=50;
@@ -306,28 +320,43 @@ public:
       conf.kneePower= 15;
       conf.anklePower= 2;
       conf.armPower = 15;//5
-      conf.powerfactor = .9;
-       if (i==0) 
+      conf.powerfactor = .8;
+      if (i==0) 
 	conf.trunkColor=Color(0.1, 0.3, 0.8);
-       else	conf.trunkColor=Color(0.9, 0.0, 0.1);
+      else	conf.trunkColor=Color(0.9, 0.0, 0.1);
+      if(reckturner)
+	conf.handsRotating = true;
 	
       //    conf.bodyTexture="Images/whitemetal_farbig_small.rgb";
       //     conf.bodyColor=Color(1.0,1.0,0.0);
       OdeHandle skelHandle=odeHandle;
       // skelHandle.substance.toMetal(1);
       //  skelHandle.substance.toPlastic(2);//TEST sonst 40
-     skelHandle.substance.toRubber(20);//TEST sonst 40
+      skelHandle.substance.toRubber(20);//TEST sonst 40
       Skeleton* human = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
       human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		   //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
 		   *osg::Matrix::translate(i,i,1+2*i));
       global.configs.push_back(human);
       
-      Primitive* trunk = human->getMainPrimitive();
       
-//       fixator = new FixedJoint(trunk, global.environment);
-// //       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
-//        fixator->init(odeHandle, osgHandle);
+      if( fixedInAir){
+	Primitive* trunk = human->getMainPrimitive();
+      
+	fixator = new FixedJoint(trunk, global.environment);
+	//       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
+        fixator->init(odeHandle, osgHandle);
+      }else if(reckturner){
+	Primitive* leftHand = human->getPrimitives()[Skeleton::Left_Hand];
+	Primitive* rightHand = human->getPrimitives()[Skeleton::Right_Hand];
+      
+	reckLeft = new SliderJoint(leftHand, global.environment, leftHand->getPosition(), Axis(1,0,0));	
+        reckLeft->init(odeHandle, osgHandle,false);
+	reckRight = new SliderJoint(rightHand, global.environment, rightHand->getPosition(), Axis(1,0,0));	
+        reckRight->init(odeHandle, osgHandle,false);			  
+      }
+      
+      
 
       // create pointer to controller
       // push controller in global list of configurables
@@ -341,7 +370,7 @@ public:
 
   
           vector<Layer> layers;
-          // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+           layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
           // size of output layer is automatically set
           layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
           MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
@@ -375,10 +404,10 @@ public:
       controller->setParam("steps",1);
            controller->setParam("s4avg",5);
            controller->setParam("s4delay",3);
-           controller->setParam("teacher",0.01);
+           controller->setParam("teacher",0.0);
       //     controller->setParam("dampS",0.0001);
       //     controller->setParam("dampA",0.00003);
-          controller->setParam("weighting",.5);
+          controller->setParam("weighting",1);
           controller->setParam("noise",0);
       
       global.configs.push_back(controller);
@@ -682,6 +711,38 @@ public:
     showParams(global.configs);
   }
 
+
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+//     if(draw){
+//       if(reck) reck->update();
+//       if(reckLeft) reckLeft->update();
+//       if(reckRight) reckRight->update();
+//     }
+    if(globalData.time>1 && reckturner==true && reck==0){
+      double reckLength=2;	
+      reck = new Capsule(0.01,reckLength);
+      reck->init(odeHandle, 0,osgHandle);
+      reck->setPose(osg::Matrix::rotate(M_PI/2.0,0,1,0)
+		    * osg::Matrix::translate((reckLeft->getAnchor()+reckRight->getAnchor())*0.5)
+		    );
+      // disable collisions between hands and pole
+      globalData.odeConfig.odeHandle.addIgnoredPair(reck, reckLeft->getPart1());
+      globalData.odeConfig.odeHandle.addIgnoredPair(reck, reckRight->getPart1());
+      
+      fixator = new FixedJoint(reck, globalData.environment);
+      fixator->init(odeHandle, osgHandle);	
+      Primitive* reckEnds = new Sphere(0.1);
+      reckEnds->init(odeHandle,0,osgHandle);
+      reckEnds->setPose(reck->getPose()*osg::Matrix::translate(reckLength/2,0,0));
+      fixator = new FixedJoint(reckEnds, globalData.environment);
+      fixator->init(odeHandle, osgHandle);	
+      reckEnds = new Sphere(0.1);
+      reckEnds->init(odeHandle,0,osgHandle);
+      reckEnds->setPose(reck->getPose()*osg::Matrix::translate(-reckLength/2,0,0));
+      fixator = new FixedJoint(reckEnds, globalData.environment);
+      fixator->init(odeHandle, osgHandle);	
+    }
+  };
 
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)

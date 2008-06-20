@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-05-27 13:25:12  guettler
+ *   Revision 1.8  2008-06-20 14:03:01  guettler
+ *   reckturner
+ *
+ *   Revision 1.7  2008/05/27 13:25:12  guettler
  *   powerfactor moved to skeleton
  *
  *   Revision 1.6  2008/05/27 10:35:03  guettler
@@ -92,6 +95,7 @@ namespace lpzrobots {
     double powerfactor; ///< scale factor for maximal forces of the servos
     
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
+    bool handsRotating; ///< hands are attached with a ball joint
 
     Color headColor;
     Color bodyColor;
@@ -109,6 +113,14 @@ namespace lpzrobots {
    */
   class Skeleton : public OdeRobot {
   public:
+
+    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Neck, Head_comp, 
+			     Left_Shoulder, Left_Forearm, Left_Hand,
+			     Right_Shoulder, Right_Forearm, Right_Hand, 
+			     Left_Thigh, Left_Shin, Left_Foot,
+			     Right_Thigh, Right_Shin, Right_Foot,
+			     LastPart };
+
   
     /**
      * constructor of Skeleton robot
@@ -158,6 +170,7 @@ namespace lpzrobots {
       c.pelvisJointLimit = M_PI/30; // +- 6 degree
 
       c.onlyPrimaryFunctions=false;
+      c.handsRotating = false;
 
       //      c.headTexture="Images/really_white.rgb";
       c.headTexture="Images/dusty.rgb";
@@ -227,6 +240,9 @@ namespace lpzrobots {
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
 
+    /** all parts of the robot */
+    virtual std::vector<Primitive*>& getPrimitives() { return objects; }
+
     /** returns the position of the head */
     virtual Position getHeadPosition();
 
@@ -248,12 +264,6 @@ namespace lpzrobots {
 
     bool created;      // true if robot was created
 
-    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Neck, Head_comp, 
-			     Left_Shoulder, Left_Forearm, Left_Hand,
-			     Right_Shoulder, Right_Forearm, Right_Hand, 
-			     Left_Thigh, Left_Shin, Left_Foot,
-			     Right_Thigh, Right_Shin, Right_Foot,
-			     LastPart };
     std::vector<Primitive*>    objects;  // all the objects
     std::vector<Joint*>        joints; // joints legs
     std::vector<TwoAxisServo*> hipservos; // motors
