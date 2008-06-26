@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2008-05-05 09:35:35  guettler
+ *   Revision 1.20  2008-06-26 10:15:55  der
+ *   changed far distance from 10 to 30 for parallel split shadow map
+ *
+ *   Revision 1.19  2008/05/05 09:35:35  guettler
  *   hud now displays if in pause mode
  *
  *   Revision 1.18  2008/04/30 13:13:20  guettler
@@ -243,7 +246,7 @@ namespace lpzrobots {
   int mapCount =2;
   bool debugColor=false;
   int minNearSplit=0;
-  int maxFarDist=10;
+  int maxFarDist=30;
   int moveVCamFactor = 0;
   double polyoffsetfactor = -0.02;
   double polyoffsetunit = 1.0;
