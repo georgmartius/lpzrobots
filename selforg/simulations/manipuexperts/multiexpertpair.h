@@ -17,16 +17,21 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   This version of multiexpert has the following features                *
- *    n experts, competition pairwise between winner and companion         *
+ *    optional raising number of experts,                                  *
+ *    competition pairwise between winner and companion                    *
  *    prediction error of companion is increased for competition (hysteris)*
  *    expert get mature, when winning and low error,                       *
  *     i.e. learning rate decreases                                        *
  *    always the agent with lowest maturation is selected  as new companion*
- *    only winner and companion are allowed to learn                        *
+ *    if no imature agent available than a new one is spawned              *
+ *    only winner and companion are allowed to learn                       *
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-24 08:42:34  martius
+ *   Revision 1.2  2008-06-26 12:58:41  martius
+ *   with adaptive agent number
+ *
+ *   Revision 1.1  2008/04/24 08:42:34  martius
  *   multiexpert with manipulandum data
  *
  *   Taken from multisat 1.11
@@ -37,11 +42,12 @@
 
 
 #include <assert.h>
-#include <math.h>
+#include <cmath>
+#include <vector>
 
 #include <selforg/matrix.h>
 #include <selforg/noisegenerator.h>
-#include <selforg/multilayerffnn.h>
+#include <selforg/invertablemodel.h>
 
 typedef struct MultiExpertPairConf {
   int numHidden;        ///< number of hidden units in the satelite networks
@@ -51,13 +57,15 @@ typedef struct MultiExpertPairConf {
   double lambda_w;      ///< discount for winner prediction error (hysteresis) in procent
   double tauI;          ///< time horizont for imaturation of all experts
   double tauW;          ///< time horizont for winner learning rate decay (maturation)
-  int    numSats;       ///< number of satelite networks
+  int    numSats;       ///< initial number of satelite networks
+  int    maxSats;       ///< maximum number of satelite networks (if 0 or <numSats no growing numbers of sats)
+  double mature;        ///< eps factor level when expert is assumed to be mature (for growing numbers of sats)
 } MultiExpertPairConf;
 
 /// Satelite network struct
 typedef struct Sat {
-  Sat(MultiLayerFFNN* _net, double _eps);
-  MultiLayerFFNN* net;
+  Sat(InvertableModel* _net, double _eps);
+  InvertableModel* net;
   double eps;  
   double lifetime;
 } Sat;
@@ -88,9 +96,11 @@ public:
 				      double learnRateFactor = 1);
 
   // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
-  
+    
   /// stores the sat networks into seperate files
   void storeSats(const char* filestem); 
+  /// restore the sat networks from seperate files
+  void restoreSats(const std::list<std::string>& filenames);
 
   /************** CONFIGURABLE ********************************/
   virtual paramval getParam(const paramkey& key) const;
@@ -114,13 +124,15 @@ public:
     MultiExpertPairConf c;
     c.numHidden = 2;
     c.eps0=0.005;
-    //    c.lambda_comp = 0;
+    c.lambda_w = 0.05; // 5%
     // c.tauC = 10.0/c.eps0; 
     c.tauE1 = 20; 
     c.tauE2 = 200; 
     c.tauW  = 1000; 
     c.tauI  = 50000; 
-    c.numSats=20;
+    c.numSats=4;
+    c.maxSats=32;
+    c.mature=0.2;
     // c.penalty=5;
     return c;
   }
@@ -142,6 +154,8 @@ protected:
   matrix::Matrix satAvg2Errors;   ///< long averaged errors of sats
   matrix::Matrix satModErrors;    ///< modulated (avg1) errors of sats
   matrix::Matrix satEpsMod;       ///< modulated eps of sats
+
+  matrix::Matrix errorCov;        ///< error covariance matrix
   
   MultiExpertPairConf conf;
   bool initialised;
@@ -151,6 +165,11 @@ protected:
   /// satelite networks competition, return vector of prediction errors of sat networks
   matrix::Matrix compete(const matrix::Matrix& input, 
 			 const matrix::Matrix& nom_output);
+
+  /** adds a new Sat network to the system and returns its index
+      @param copySat index of existing sat network to copy
+   */
+  int addSat(int copySat);
 
   void management();
 
