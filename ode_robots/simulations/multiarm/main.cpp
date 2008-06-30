@@ -43,8 +43,8 @@
 #include <selforg/selectiveone2onewiring.h>
 
 // used robot
-#include <arm.h>
-#include <speedsensor.h>
+#include <ode_robots/arm.h>
+#include <ode_robots/speedsensor.h>
 
 // used arena
 #include <ode_robots/playground.h>
