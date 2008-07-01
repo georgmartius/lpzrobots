@@ -31,7 +31,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-11-07 13:24:39  martius
+ *   Revision 1.4  2008-07-01 08:02:03  martius
+ *   added randGen
+ *
+ *   Revision 1.3  2007/11/07 13:24:39  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2007/07/19 15:50:00  martius
@@ -104,7 +107,7 @@ class MultiSat : public AbstractController {
 
 public:
   MultiSat(const MultiSatConf& conf = getDefaultConf());
-  virtual void init(int sensornumber, int motornumber);
+  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
   virtual ~MultiSat();
 

@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-07-19 15:50:00  martius
+ *   Revision 1.4  2008-07-01 08:02:03  martius
+ *   added randGen
+ *
+ *   Revision 1.3  2007/07/19 15:50:00  martius
  *   copied new sat implementation from multiexperts
  *   differnent arm parameters
  *
@@ -85,11 +88,12 @@ MultiSat::~MultiSat()
 }
 
 
-void MultiSat::init(int sensornumber, int motornumber){
+void MultiSat::init(int sensornumber, int motornumber, RandGen* randGen){
 
   number_motors  = motornumber;
   number_sensors = sensornumber;  
   int number_real_sensors = number_sensors - conf.numContext;
+  if(!randGen) randGen = new RandGen(); // this gives a small memory leak
 
   if(!conf.controller){
     cerr << "multisat::init() no main controller given in config!" << endl;
@@ -115,9 +119,9 @@ void MultiSat::init(int sensornumber, int motornumber){
     layers.push_back(Layer(1,1));
     MultiLayerFFNN* net = new MultiLayerFFNN(1, layers); // learning rate is set to 1 and modulates each step  
     if(conf.useDerive)
-      net->init(3*number_real_sensors+number_motors, number_real_sensors+number_motors);
+      net->init(3*number_real_sensors+number_motors, number_real_sensors+number_motors, 0, randGen);
     else
-      net->init(2*number_real_sensors+number_motors, number_real_sensors+number_motors);
+      net->init(2*number_real_sensors+number_motors, number_real_sensors+number_motors, 0, randGen);
     Sat sat(net, conf.eps0);
     sats.push_back(sat);
   }
