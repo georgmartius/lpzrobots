@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.22  2008-06-18 13:46:20  martius
+// Revision 1.23  2008-07-01 12:54:53  martius
+// cosmetics
+//
+// Revision 1.22  2008/06/18 13:46:20  martius
 // beside and toBeside added
 // addColumns and addRows is now based on toAbove and toBeside
 // bug fix in removeColumns
@@ -217,6 +220,7 @@ namespace matrix {
   }
 
   Matrix Matrix::rows ( I startindex, I endindex ) const {
+    assert(startindex<=endindex);
     I start = (I)std::min ( ( int ) startindex, (int) m - 1 );
     I end   = (I)std::max ( ( int ) start, std::min ( ( int ) endindex, (int) m - 1 ) );
     I k     = end - start + 1;
@@ -556,11 +560,11 @@ namespace matrix {
     assert ( a.m == this->m);
     
     D* oldData = data;
-    data = ( D* ) malloc(sizeof ( D ) * ( this->m * this->n + a.n * a.m ) );
-    assert ( data );
     I oldN= this->n;
     this->n += a.n;
     buffersize=this->m*this->n;
+    data = ( D* ) malloc(sizeof ( D ) * buffersize );
+    assert ( data );
     if ( oldData ) { // copy old values      
       for ( I i=0;i<this->m * oldN;i++ ) {
 	  data[ (i/oldN)*this->n + ( i%oldN) ]=oldData[i];
