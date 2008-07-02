@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# added some stuff for CVS to force commit (wrong user rights were set to this file)
 
 
 echo "Generating Makefile.conf (configuration makefile)"
