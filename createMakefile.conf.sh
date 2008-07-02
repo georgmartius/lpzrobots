@@ -1,5 +1,4 @@
 #!/bin/bash
-# added some stuff for CVS to force commit (wrong user rights were set to this file)
 
 
 echo "Generating Makefile.conf (configuration makefile)"
@@ -38,7 +37,9 @@ echo -e "\n# user or developement installation\n\
 #   which is useful for development on the simulator\n\
 #  user: install also the ode_robots and selforg libaries and include files\n\
 #   this is recommended for users" >> Makefile.conf
-sed -e "s/^#define.*//" -ibak ode_robots/install_prefix.conf;
+if [ -z  ode_robots/install_prefix.conf ]; then
+    sed -e "s/^#define.*//" -ibak ode_robots/install_prefix.conf;
+fi
 if [ "$choice" = "u" ]; then 	
 echo "INSTALL_TYPE=user" >> Makefile.conf
 echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
