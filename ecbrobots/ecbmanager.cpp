@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-11 06:31:16  guettler
+ *   Revision 1.4  2008-07-16 07:38:42  robot1
+ *   some major improvements
+ *
+ *   Revision 1.3  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.2  2008/04/08 10:11:03  guettler
@@ -46,11 +49,17 @@
 namespace lpzrobots {
 
 
-ECBManager::ECBManager() : Configurable("ECBManager","$ID$"),simulation_time_reached(false) {
+ECBManager::ECBManager() : Configurable("ECBManager","$ID$"),simulation_time_reached(false), commInitialized(false) {
 
   globalData.configs.push_back ( this );
 
 }
+
+ECBManager::ECBManager(ECBCommunicator* comm) : Configurable("ECBManager","$ID$"),simulation_time_reached(false), comm(comm), commInitialized(true) {
+  globalData.configs.push_back ( this );
+  
+}
+
 
 ECBManager::~ECBManager() { // TODO: aufräumen
 }
@@ -116,7 +125,12 @@ bool ECBManager::run ( int argc, char** argv ) {
   // initialise Port for RS232, start the Communicator
   // neccessary values are in globalData stored
   if (globalData.debug) cout << "ECBManager: initialising ECBCommunicator..." << endl;
-  comm = new ECBCommunicator ( globalData );
+  
+if (!commInitialized) {
+    comm = new ECBCommunicator ( globalData );
+    commInitialized=true;
+  } else
+    comm->setConfig(globalData);
 
   // init console...defined in console.h
   if (globalData.debug) cout << "ECBManager: initialising console..." << endl;
@@ -128,8 +142,9 @@ bool ECBManager::run ( int argc, char** argv ) {
   // run the loop
   if (globalData.debug) cout << "ECBManager: starting the loop..." << endl;
   while ( (!simulation_time_reached) && globalData.comm->is_running()) {
-    if ( !loop() )
-      break;
+    //cout << "sim_time_reached: " << simulation_time_reached << endl;
+	if ( !loop() )
+     	  break;
   }
   if (globalData.debug) cout << "ECBManager: loop finished." << endl;
 

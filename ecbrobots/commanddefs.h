@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Revision 1.3  2008-07-16 07:38:42  robot1
+ *   some major improvements
+ *
+ *   Revision 1.2  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -46,7 +49,8 @@ namespace lpzrobots {
 #define CBEEP  0x8  /* 00001000 Make a beep                              */
 #define CMSG   0x9  /* 00001001 Message data.                            */
 #define CTEST 0x10  /* 00001010 Test i2c communication.                  */
-
+#define CPING 0x11 /* Communication Test between PC and ATmega */
+#define CPONG 0x12 /* Communication Test between PC and ATmega */
 }
 
 #endif

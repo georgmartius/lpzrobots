@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-11 10:11:08  guettler
+ *   Revision 1.2  2008-07-16 07:38:42  robot1
+ *   some major improvements
+ *
+ *   Revision 1.1  2008/04/11 10:11:08  guettler
  *   Added ECBManager for the SphericalRobot
  *
  *   Revision 1.3  2008/04/11 06:31:16  guettler
@@ -60,12 +63,13 @@ class MyECBManager : public ECBManager {
     virtual bool start ( GlobalData& global ) {
 
       // set specific communication values
-      global.baudrate = 38400;
+      global.baudrate = 115200;
       global.portName = "/dev/ttyS0";
       global.masterAddress=0;
       global.maxFailures=4;
-      global.serialReadTimeout=5;
+      global.serialReadTimeout=50;
       global.verbose = true;
+      global.debug = true;
 
 
       // create new controller
@@ -77,8 +81,8 @@ class MyECBManager : public ECBManager {
       // 2 ECBs will be added to robot
       ECBConfig ecbc1 = ECB::getDefaultConf();
       myRobot1->addECB ( 1,ecbc1 );
-      ECBConfig ecbc2 = ECB::getDefaultConf();
-      myRobot1->addECB ( 2,ecbc2 );
+      //ECBConfig ecbc2 = ECB::getDefaultConf();
+      //myRobot1->addECB ( 2,ecbc2 );
 
       // create new agent
       ECBAgent* myAgent1 = new ECBAgent();

@@ -1,4 +1,4 @@
-#/***************************************************************************
+/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-11 06:31:16  guettler
+ *   Revision 1.4  2008-07-16 07:38:42  robot1
+ *   some major improvements
+ *
+ *   Revision 1.3  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.2  2008/04/08 09:09:09  martius
@@ -52,6 +55,17 @@ static void* CSerialThread_run(void* p);
 
 
 CSerialThread::CSerialThread(const CString& port, int baud, int serialReadTimeout, bool debug, bool test_mode) : debug(debug), test_mode(test_mode), m_port(port),m_baud(baud),  terminated(false),  serialReadTimeout(serialReadTimeout), m_is_joined(true){};
+
+
+void CSerialThread::setConfig(const CString& port, int baud, int serialReadTimeout, bool debug, bool test_mode) {
+	this->debug=debug;
+	this->test_mode=test_mode;
+	this->m_port=port;
+	this->m_baud=baud;
+	this->terminated=false;
+	this->serialReadTimeout=serialReadTimeout;
+	this->m_is_joined=true;
+  }
 
 /// start serial communication
 void CSerialThread::start(){
@@ -106,6 +120,7 @@ bool CSerialThread::run(){
   * function of the ecbcommunicator
   */
   bool inLoop=true;
+
   while(!terminated && inLoop){
     pthread_testcancel();
     inLoop = loop();

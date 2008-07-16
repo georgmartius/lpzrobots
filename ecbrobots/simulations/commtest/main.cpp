@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-07-16 07:38:42  robot1
+ *   Revision 1.1  2008-07-16 07:38:42  robot1
  *   some major improvements
  *
  *   Revision 1.3  2008/04/11 06:31:16  guettler
@@ -37,18 +37,51 @@
  *                                                                         *
  ***************************************************************************/
 #include "ecbmanager.h"
+#include "ecbcommunicator.h"
 
 #include <selforg/invertmotorspace.h>
 #include <selforg/one2onewiring.h>
+#include "commanddefs.h"
+
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
+
+class ECBTestCommunicator : public ECBCommunicator {
+public:
+// 	GlobalData* global;
+	
+	ECBTestCommunicator(GlobalData& global) : ECBCommunicator(global) {}
+
+	virtual ~ECBTestCommunicator(){}
+
+	virtual bool testModeCallback() {
+	  commData data;
+	  data.destinationAddress = 1;
+	  data.sourceAddress = 0;
+	  data.command = CPING; //CCOMTEST
+	  data.dataLength = 1;
+	  data.data[0] = 23;
+	  if (!globalData->comm->sendData(data)) {
+    	    cerr << "Error while sending motor values for ECB " << 1 << "." << endl;
+	  }
+	  commData result = globalData->comm->receiveData();
+	printf("command(hex): %x,\r\n",result.command);
+	  for(int i=0;i<result.dataLength;i++) {
+    		std::cout << "result: " << result.data[i] << std::endl;
+  	  }
+
+	
+	return true;
+	}	
+
+};
 
 class MyECBManager : public ECBManager {
 
   public:
 
-    MyECBManager() {}
+    MyECBManager(ECBCommunicator* comm) : ECBManager(comm) {}
 
     virtual ~MyECBManager() {}
 
@@ -64,51 +97,12 @@ class MyECBManager : public ECBManager {
       global.portName = "/dev/ttyS0";
       global.masterAddress=0;
       global.maxFailures=4;
-      global.serialReadTimeout=5;
+      global.serialReadTimeout=50;
       global.verbose = true;
+	global.testMode= true;
 
+	global.debug = true;
 
-      // create new controller
-      AbstractController* myCon1 = new InvertMotorSpace ( 10 );
-      // create new wiring
-      AbstractWiring* myWiring1 = new One2OneWiring ( new WhiteNormalNoise() );
-      // create new robot
-      ECBRobot* myRobot1 = new ECBRobot ( global );
-      // 2 ECBs will be added to robot
-      ECBConfig ecbc1 = ECB::getDefaultConf();
-      myRobot1->addECB ( 1,ecbc1 );
-      // ECBConfig ecbc2 = ECB::getDefaultConf();
-      //myRobot1->addECB ( 2,ecbc2 );
-
-      // create new agent
-      ECBAgent* myAgent1 = new ECBAgent();
-      // init agent with controller, robot and wiring
-      myAgent1->init ( myCon1,myRobot1,myWiring1 );
-
-      // create new controller with example parameter changes
-//       AbstractController* myCon2 = new InvertMotorSpace ( 10 );
-//       myCon2->setParam ( "s4delay",2.0 );
-//       myCon2->setParam ( "s4avg",2.0 );
-//       // create new wiring
-//       AbstractWiring* myWiring2 = new One2OneWiring ( new WhiteNormalNoise() );
-//       // create new robot
-//       ECBRobot* myRobot2 = new ECBRobot ( global );
-//       // 2 ECBs will be added to robot
-//       ECBConfig ecbc3 = ECB::getDefaultConf();
-//       myRobot1->addECB ( 3,ecbc3 );
-//       ECBConfig ecbc4 = ECB::getDefaultConf();
-//       myRobot1->addECB ( 4,ecbc4 );
-//
-//       // create new agent
-//       ECBAgent* myAgent2 = new ECBAgent();
-//       // init agent with controller, robot and wiring
-//       myAgent2->init ( myCon2,myRobot2,myWiring2 );
-
-
-
-      // register agents
-      global.agents.push_back ( myAgent1 );
-      //  global.agents.push_back ( myAgent2 );
 
       return true;
     }
@@ -144,8 +138,9 @@ class MyECBManager : public ECBManager {
  * @return
  */
 int main ( int argc, char **argv ) {
-  MyECBManager ecb;
-  return ecb.run ( argc, argv ) ? 0 : 1;
+  GlobalData global;
+  MyECBManager* ecb = new MyECBManager(new ECBTestCommunicator(global));
+  return ecb->run ( argc, argv ) ? 0 : 1;
 }
 
 

@@ -57,8 +57,10 @@ protected:
 
   virtual void flushInputBuffer(int wait);
 
+  virtual void setConfig(const CString& port, int baud, int serialReadTimeout, bool debug=false, bool test_mode=false);
 
-private:
+
+protected:
 
   CString m_port;
   int m_baud;

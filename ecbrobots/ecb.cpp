@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-04-11 06:31:16  guettler
+ *   Revision 1.6  2008-07-16 07:38:42  robot1
+ *   some major improvements
+ *
+ *   Revision 1.5  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.4  2008/04/11 06:15:48  guettler
@@ -113,8 +116,14 @@ bool ECB::resetECB() {
   commData reset;
   reset.destinationAddress = address;
   reset.command = CRES;
-  reset.dataLength = 0;
-
+  
+  reset.dataLength = 2;
+  conf.useI2C ? reset.data[0] |= (1 << 7);
+  conf.useSPI ? reset.data[0] |= (1 << 6);  
+  conf.useADC ? reset.data[0] |= (1 << 5);
+  conf.useJumperedADC_PlugNPlay ? reset.data[0] |= (1 << 4);
+  result.data[1] = conf.ADCSensorMask;
+ 
   if ( !globalData->comm->sendData ( reset )) {
     cerr << "Error while sending reset.\n";
     return false;

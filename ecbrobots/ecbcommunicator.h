@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-11 06:31:16  guettler
+ *   Revision 1.4  2008-07-16 07:38:42  robot1
+ *   some major improvements
+ *
+ *   Revision 1.3  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.2  2008/04/08 09:09:09  martius
@@ -99,6 +102,20 @@ public:
   virtual void flushInputBuffer(int time=-1);
 
 
+
+  /**
+  * defines a test mode callback function, which is called,
+  * if globalData.testMode is true
+  * @return false if you would like to stop the test mode (ECBCommunicator will stop).
+  */
+  virtual bool testModeCallback() { return false;};
+
+  /**
+  * sets the config according to given globalData
+  */
+  virtual void setConfig(GlobalData& globalData);
+
+
 protected:
 
   virtual void initialise();
@@ -108,8 +125,6 @@ protected:
    */
   virtual bool loop();
 
-
-private:
   long realtimeoffset;
   GlobalData* globalData;
   long lastBenchmarkTime;

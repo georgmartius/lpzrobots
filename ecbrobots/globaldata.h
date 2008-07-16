@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Revision 1.3  2008-07-16 07:38:42  robot1
+ *   some major improvements
+ *
+ *   Revision 1.2  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -67,7 +70,6 @@ struct GlobalData
     portName = std::string("/dev/ttyS0");
     masterAddress=0;
     maxFailures=4;
-    debug=0;
     serialReadTimeout=50;
     cycleTime=50;
     noise=0.01;
@@ -75,6 +77,7 @@ struct GlobalData
     benchmarkMode=false;
     debug=false;
     verbose=false;
+    testMode=false;
   }
 
   ConfigList configs;
@@ -87,6 +90,7 @@ struct GlobalData
   bool pause;
   bool debug;
   bool verbose;
+  bool testMode;
 
   // global settings for serial communication
   int baudrate;
