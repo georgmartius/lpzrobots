@@ -22,7 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-07-16 07:38:42  robot1
+ *   Revision 1.7  2008-07-16 14:37:17  robot1
+ *   -simple getc included
+ *   -extended config on reset
+ *   -minor changes
+ *
+ *   Revision 1.6  2008/07/16 07:38:42  robot1
  *   some major improvements
  *
  *   Revision 1.5  2008/04/11 06:31:16  guettler
@@ -117,13 +122,19 @@ bool ECB::resetECB() {
   reset.destinationAddress = address;
   reset.command = CRES;
   
-  reset.dataLength = 2;
-  conf.useI2C ? reset.data[0] |= (1 << 7);
-  conf.useSPI ? reset.data[0] |= (1 << 6);  
-  conf.useADC ? reset.data[0] |= (1 << 5);
-  conf.useJumperedADC_PlugNPlay ? reset.data[0] |= (1 << 4);
-  result.data[1] = conf.ADCSensorMask;
+  reset.dataLength = 4;
+  reset.data[0]=0;
+  if (ecbConfig.useI2C) reset.data[0] |= (1 << 7);
+  if (ecbConfig.useSPI) reset.data[0] |= (1 << 6);  
+  if (ecbConfig.useADC) reset.data[0] |= (1 << 5);
+  if (ecbConfig.useJumperedADC_PlugNPlay) reset.data[0] |= (1 << 4);
+  reset.data[1] = ecbConfig.maxNumberMotors;
+  reset.data[2] = ecbConfig.maxNumberSensors;
+  reset.data[3] = ecbConfig.ADCSensorMask;
  
+  if (globalData->verbose)
+    std::cout << "ECB: ecbConfig data[0]=!" << reset.data[0] << std::endl;
+  
   if ( !globalData->comm->sendData ( reset )) {
     cerr << "Error while sending reset.\n";
     return false;
