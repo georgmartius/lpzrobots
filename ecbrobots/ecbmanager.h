@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-07-16 07:38:42  robot1
+ *   Revision 1.4  2008-07-16 15:16:55  robot1
+ *   minor bugfixes
+ *
+ *   Revision 1.3  2008/07/16 07:38:42  robot1
  *   some major improvements
  *
  *   Revision 1.2  2008/04/11 06:31:16  guettler
@@ -104,12 +107,10 @@ protected:
      * @param globalData The struct which contains all neccessary objects
      * like Agents
      * @param key The key number which is pressed
-     * @param down tells if the key is pressed down, if down=false,
-     * the key is
      * @return true if this method could handle the key,
      * otherwise return false
      */
-  virtual bool command ( GlobalData& globalData, int key, bool down ) { return false; };
+  virtual bool command ( GlobalData& globalData, int key) { return false; };
 
   // Helper
   int contains(char **list, int len,  const char *str){

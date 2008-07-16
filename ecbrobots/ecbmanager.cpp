@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-07-16 14:37:17  robot1
+ *   Revision 1.6  2008-07-16 15:16:55  robot1
+ *   minor bugfixes
+ *
+ *   Revision 1.5  2008/07/16 14:37:17  robot1
  *   -simple getc included
  *   -extended config on reset
  *   -minor changes
@@ -176,6 +179,8 @@ bool ECBManager::loop() {
 
       globalData.pause=false;
     }
+  std::cout << ".";
+  
   char taste = getc(stdin);
     if ( taste > 10 ) {
       command(this->globalData,taste);
