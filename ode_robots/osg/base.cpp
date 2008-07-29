@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2008-06-26 10:15:55  der
+ *   Revision 1.21  2008-07-29 15:44:00  guettler
+ *   removed forceFronCullFace option for pssm to obtain compatibiltity with OSG 2.6
+ *
+ *   Revision 1.20  2008/06/26 10:15:55  der
  *   changed far distance from 10 to 30 for parallel split shadow map
  *
  *   Revision 1.19  2008/05/05 09:35:35  guettler
@@ -250,7 +253,9 @@ namespace lpzrobots {
   int moveVCamFactor = 0;
   double polyoffsetfactor = -0.02;
   double polyoffsetunit = 1.0;
-  bool cullFaceFront=false;
+  // 20080728; guettler: commented out for OSG 2.6 compatibility
+  //  bool cullFaceFront=false;
+
   // some conf variables for SoftShadowMap
   // make the shadow prenumba a little bit sharper then default (0.005)
   float softnessWidth = 0.002;
@@ -302,8 +307,9 @@ namespace lpzrobots {
       else
         pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
 
-      if (cullFaceFront)
-        pssm->forceFrontCullFace();
+      // 20080728; guettler: commented out for OSG 2.6 compatibility
+//      if (cullFaceFront)
+//        pssm->forceFrontCullFace();
 
       shadowedScene->setShadowTechnique(pssm.get());
     }
