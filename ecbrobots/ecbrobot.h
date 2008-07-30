@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-07-30 07:39:23  robot3
+ *   Revision 1.5  2008-07-30 07:42:47  robot3
+ *   wolfgang: - reverted to version 1.3
+ *
+ *   Revision 1.4  2008/07/30 07:39:23  robot3
  *   wolfgang: - added function to set...
  *   - added other things
  *
@@ -126,13 +129,6 @@ public:
   virtual std::list< ECB * > getECBlist() const { return ECBlist; }
 
   virtual void writeMotors_readSensors();
-
-
-  // 20080730; wolfgang: added function to set infrared sensors
-  /**
-   * @param n--.-
-   */
-  virtual void setIRs(int number, int value);
 
 
 
