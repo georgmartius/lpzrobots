@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-07-16 07:38:42  robot1
+ *   Revision 1.7  2008-07-30 06:03:47  robot1
+ *   the new directory GUIs is added
+ *
+ *   Revision 1.6  2008/07/16 07:38:42  robot1
  *   some major improvements
  *
  *   Revision 1.5  2008/04/11 06:31:16  guettler
@@ -47,7 +50,7 @@
 #include <selforg/agent.h>
 
 #include <sys/time.h>
-
+#include <assert.h>
 #include "ecbagent.h"
 
 using namespace std;

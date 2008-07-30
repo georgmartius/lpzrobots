@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-07-16 15:16:55  robot1
+ *   Revision 1.7  2008-07-30 06:03:47  robot1
+ *   the new directory GUIs is added
+ *
+ *   Revision 1.6  2008/07/16 15:16:55  robot1
  *   minor bugfixes
  *
  *   Revision 1.5  2008/07/16 14:37:17  robot1
@@ -53,6 +56,8 @@
 #include "globaldata.h"
 #include "console.h"
 #include "cmdline.h"
+
+#include "curses.h"
 
 namespace lpzrobots {
 
@@ -151,6 +156,12 @@ if (!commInitialized) {
   if (globalData.debug) cout << "ECBManager: starting the loop..." << endl;
   while ( (!simulation_time_reached) && globalData.comm->is_running()) {
     //cout << "sim_time_reached: " << simulation_time_reached << endl;
+
+
+    //disable line buffering
+    cbreak();
+
+
 	if ( !loop() )
      	  break;
   }
@@ -179,10 +190,10 @@ bool ECBManager::loop() {
 
       globalData.pause=false;
     }
-  std::cout << ".";
   
-  char taste = getc(stdin);
+  char taste = getch();
     if ( taste > 10 ) {
+      std::cout << ".";
       command(this->globalData,taste);
     }
   return true;
