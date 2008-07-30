@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-11 06:31:16  guettler
+ *   Revision 1.4  2008-07-30 07:39:23  robot3
+ *   wolfgang: - added function to set...
+ *   - added other things
+ *
+ *   Revision 1.3  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.2  2008/04/08 09:09:09  martius
@@ -122,6 +126,13 @@ public:
   virtual std::list< ECB * > getECBlist() const { return ECBlist; }
 
   virtual void writeMotors_readSensors();
+
+
+  // 20080730; wolfgang: added function to set infrared sensors
+  /**
+   * @param n--.-
+   */
+  virtual void setIRs(int number, int value);
 
 
 
