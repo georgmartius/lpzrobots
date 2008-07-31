@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SphericalRobotSubWidget.h'
 **
-** Created: Wed Jul 30 00:12:09 2008
+** Created: Wed Jul 30 05:59:01 2008
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.3.1)
 **
 ** WARNING! All changes made in this file will be lost!

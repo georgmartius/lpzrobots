@@ -27,10 +27,13 @@
 #include <QPixmap>
 #include <QPoint>
 
-#include "SphericalRobotSubWidget.h"
+#include "SRMotorValueWidget.h"
+#include "SRIRSensorWidget.h"
+
 #include <math.h>
 #include "gui-test.h"
 
+#define NUMBER_IR_SENSORS 12
 
 class SphericalRobotGUI : public QWidget {
 
@@ -49,14 +52,31 @@ void valueChanged(int);
 
 protected:
 void resizeEvent(QResizeEvent *event);
-void paintEvent(QPaintEvent *event);
+//void paintEvent(QPaintEvent *event);
 
 private:
 Ui::SphericalRobotGUI ui;
-QPixmap pmap;
-SphericalRobotSubWidget *subw;
-SphericalRobotSubWidget *subw1;
-SphericalRobotSubWidget *subw2;
+
+class SRMotorValueWidget *subw;
+class SRIRSensorWidget *subw1;
+
+QVBoxLayout *main_layout;
+
+QPushButton *startButton;
+QPushButton *stopButton;
+QPushButton *backwardButton;
+QPushButton *forwardButton;
+
+QPushButton *loadFileButton;
+
+
+QLabel *ir_labels[12];
+QProgressBar *ir_progressBar[12];
+
+QGroupBox* createIRSensorBox();
+QGroupBox* createControlBox();
+QGroupBox* createGraphicalBox();
+
 
 };
 #endif

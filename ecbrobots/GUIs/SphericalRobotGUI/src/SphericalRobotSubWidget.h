@@ -20,10 +20,7 @@
 #ifndef SPHERICAL_ROBOT_SUB_WIDGET_H
 #define SPHERICAL_ROBOT_SUB_WIDGET_H
 
-#include <QFrame>
-#include <QWidget>
-#include <QPainter>
-#include <QPixmap>
+#include <QtGui>
 
 
 
@@ -33,20 +30,15 @@ Q_OBJECT
 
 public:
 SphericalRobotSubWidget(QWidget *parent = 0);
+void setParams(int* data, int datalen);
 //const int* getParam();
-void setArrowParam(int alpha, int len);
-int alpha;
-int len;
 
 protected:
-void paintEvent(QPaintEvent *);
+//void paintEvent(QPaintEvent *);
 
 private:
-QPixmap pmap;
-QPoint motor_arrow_part1[3];
-QPoint motor_arrow_part2[4];
-int ir_sensors[12];
-
+int* data[12];
+int datalen;
 
 };
 

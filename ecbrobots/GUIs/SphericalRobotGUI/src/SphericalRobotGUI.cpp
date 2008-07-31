@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
-
+#include <QProgressBar>
 //#include <QHBoxLayout>
 
 #include <iostream>
@@ -35,15 +35,7 @@ SphericalRobotGUI::SphericalRobotGUI(QWidget *parent)
 
 //ui.setupUi(this);
 
-subw = new SphericalRobotSubWidget(this);
-subw->setMaximumSize(200,200);
-
-// subw1 = new SphericalRobotSubWidget(this);
-// subw1->setMaximumSize(160,160);
-// 
-// subw2 = new SphericalRobotSubWidget(this);
-// subw2->setMaximumSize(120,120);
-
+/* only for testing ******************************/
 QSpinBox *motor1_value = new QSpinBox;
 motor1_value->setRange(-127,128);
 motor1_value->setSingleStep(1);
@@ -54,25 +46,94 @@ motor2_value->setRange(-127,128);
 motor2_value->setSingleStep(1);
 motor2_value->setValue(0);
 
-
 QObject::connect(motor1_value, SIGNAL(valueChanged(int)),
 		this,SLOT(setArrowParamX(int)));
 QObject::connect(motor2_value, SIGNAL(valueChanged(int)),
 		this,SLOT(setArrowParamY(int)));
 
+/***********************************************/
 
-QHBoxLayout *layout = new QHBoxLayout;
-layout->addWidget(subw);
-// layout->addWidget(subw1);
-// layout->addWidget(subw2);
-layout->addWidget(motor1_value);
-layout->addWidget(motor2_value);
+main_layout = new QVBoxLayout;
+main_layout->addWidget(motor1_value);
+main_layout->addWidget(motor2_value);
 
-setLayout(layout);
 
-resize(800,500);
+main_layout->addWidget(createControlBox());
+main_layout->addWidget(createGraphicalBox(this));
+
+QGroupBox *gb = createIRSensorBox();
+gb->setMaximumSize(350,120);
+main_layout->addWidget(gb);
+
+setLayout(main_layout);
+resize(800,800);
 
 }
+
+QGroupBox* SphericalRobotGUI::createControlBox() {
+
+QGroupBox *gbox = new QGroupBox(QString("Simulationcontroller"));
+QGridLayout *l = new QGridLayout;
+
+startButton = new QPushButton("Play");
+stopButton = new QPushButton("Stop");
+backwardButton = new QPushButton("<<");
+forwardButton = new QPushButton(">>");
+loadFileButton = new QPushButton("Open");
+
+l->addWidget(startButton,0,1);
+l->addWidget(stopButton,0,3);
+l->addWidget(forwardButton,0,2);
+l->addWidget(backwardButton,0,0);
+l->addWidget(loadFileButton,0,4);
+
+
+gbox->setLayout(l);
+return gbox;
+}
+
+QGroupBox* SphericalRobotGUI::createGraphicalBox(QWidget w) {
+
+QGroupBox *gbox = new QGroupBox(QString("Graphical View"));
+QHBoxLayout *l = new QHBoxLayout;
+
+subw = new SRMotorValueWidget(w);
+subw->setMaximumSize(200,200);
+
+subw1 = new SRIRSensorWidget(w);
+subw1->setMaximumSize(160,160);
+
+
+
+l->addWidget(subw);
+l->addWidget(subw1);
+
+gbox->setLayout(l);
+return gbox;
+}
+
+QGroupBox* SphericalRobotGUI::createIRSensorBox() {
+
+QGroupBox *gbox = new QGroupBox(QString("IR-Sensors"));
+QGridLayout *l = new QGridLayout;
+
+for(int i=0;i<NUMBER_IR_SENSORS;i++) {
+
+  ir_labels[i] = new QLabel(QString("IR%1").arg(i+1));
+  ir_progressBar[i] = new QProgressBar(this);
+  ir_progressBar[i]->setRange(0,255); 
+  ir_progressBar[i]->setOrientation(Qt::Vertical);
+  ir_progressBar[i]->setFormat(QString("%v"));
+ir_progressBar[i]->setValue(100);
+l->addWidget(new QLabel(QString("IR%1").arg(i+1)),0,i);
+  l->addWidget(ir_progressBar[i],1,i);
+  l->addWidget(ir_labels[i],2,i); 
+  
+}
+gbox->setLayout(l);
+return gbox;
+}
+
 
 int X,Y;
 
@@ -132,29 +193,12 @@ void SphericalRobotGUI::resizeEvent(QResizeEvent *event) {
 
 event->accept();
 
-//QPixmap new_pmap(event->size());
-
-pmap.fill(Qt::blue);
-
-//pmap = new_pmap;
-
-//update();
-
-
 
 }
 
-
+/*
 void SphericalRobotGUI::paintEvent(QPaintEvent *event) {
 
-// event->accept();
-// 
-// QPainter painter(this);
-// 
-// painter.fillRect(100,100,100,100, Qt::red);
-// 
-// painter.drawPixmap(QPoint(0,0), pmap);
-
 
 }
-
+*/
