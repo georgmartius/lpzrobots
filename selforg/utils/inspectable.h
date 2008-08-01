@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-29 09:55:30  guettler
+ *   Revision 1.3  2008-08-01 14:42:03  guettler
+ *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
+ *
+ *   Revision 1.2  2008/04/29 09:55:30  guettler
  *   -class uses now a list of pairs instead of a map
  *   -debug printouts removed
  *
@@ -67,6 +70,9 @@
  ***************************************************************************/
 #ifndef __INSPECTABLE_H
 #define __INSPECTABLE_H
+
+
+#ifndef AVR
 
 #include <list>
 #include <map>
@@ -198,5 +204,100 @@ private:
 
 
 };
+
+#else
+
+#include <string.h>
+#include "stl_adds.h"
+#include "avrtypes.h"
+
+
+namespace matrix {
+  class Matrix;
+}
+
+/**
+ * Interface for inspectable objects.
+ * That means that one can read out some internal parameters indentified by string keys
+*/
+class Inspectable {
+public:
+
+
+  typedef struct ILayer{
+    ILayer(const charArray vectorname, const charArray& biasname,
+	   int dimension, int rank, const charArray& layername)
+      : vectorname(vectorname), biasname(biasname),
+	 dimension(dimension), rank(rank), layername(layername) {}
+    charArray vectorname;  //< prefix of the internal parameter vector e.g. "v"
+    charArray biasname;    ///< prefix of the internal parameter vector used as bias for the neurons e.g. "h"
+    int dimension;      ///< length of the vector (number of units)
+    int rank;           ///< rank of the layer (0 are input layers)
+    charArray layername;   ///< name of the layer as displayed by the visualiser
+  }ILayer;
+
+  typedef struct IConnection{
+    IConnection(const charArray& matrixname, const charArray& vector1, const charArray& vector2)
+      : matrixname(matrixname), vector1(vector1), vector2(vector2) {}
+    charArray matrixname; ///< matrix name is the prefix of the internal parameter matrix e.g. "A"
+    charArray vector1;    ///< vectorname of input layer
+    charArray vector2;    ///< vectorname of output layer
+  }IConnection;
+
+
+ typedef ILayer[maxNumberEntries] ilayerlist;
+ typedef IConnection[maxNumberEntries] iconnectionlist;
+
+  Inspectable();
+
+  virtual ~Inspectable();
+
+
+  /** The list of the names of all internal parameters given by getInternalParams().
+      The naming convention is "v[i]" for vectors
+       and "A[i][j]" for matrices, where i, j start at 0.
+      @return: list of keys
+   */
+  virtual iparamkeylist getInternalParamNames() const;
+
+
+/** @return: list of values
+   */
+  virtual iparamvallist getInternalParams() const;
+
+
+    /**
+     * This is the new style for adding inspectable values. Just call this
+     * function for each parameter and you are done.
+     * registers a single value
+     * @param key the name of the inspectable, shown e.g. in guilogger
+     * @param val the address of the value to inspect
+    */
+  virtual void addInspectableValue(const iparamkey key, iparamval* val);
+
+
+    /**
+     * This is the new style for adding inspectable values. Just call this
+     * function for each parameter and you are done.
+     * inspects all elements of the given matrix given through the functions
+     * store4x4AndDiagonalFieldNames(Matrix& m,string& matrixName);
+     * defined in <selforg/controller_misc.h>
+     * @param key the name of the matrix, shown e.g. in guilogger
+     * @param m the address of the matrix to inspect
+     * @note that you can change the structure of the matrix while
+     * being inspected.
+     */
+  virtual void addInspectableMatrix(const iparamkey key, matrix::Matrix* m);
+
+
+
+private:
+	  iparamkeylist ikeylist;
+	  iparamvallist ivallist;
+	  uint8_t numberParameters;
+
+
+};
+#endif
 
 #endif

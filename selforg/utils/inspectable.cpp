@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-29 09:55:30  guettler
+ *   Revision 1.3  2008-08-01 14:42:03  guettler
+ *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
+ *
+ *   Revision 1.2  2008/04/29 09:55:30  guettler
  *   -class uses now a list of pairs instead of a map
  *   -debug printouts removed
  *
@@ -43,6 +46,7 @@ Inspectable::~Inspectable(){}
 Inspectable::Inspectable() {}
 
 
+#ifndef AVR
 
 Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
   iparamkeylist keylist;
@@ -83,4 +87,34 @@ void Inspectable::addInspectableValue(const iparamkey key, iparamval* val){
 void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m) {
   mapOfMatrices+=imatrixpair(key,m);
 }
+
+#else
+
+// TODO: implement 4x4store functions for matrices, but not essential (simply do not use them for avr controllers)
+
+Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
+	return ikeylist;
+}
+
+
+Inspectable::iparamvallist Inspectable::getInternalParams() const {
+	return ivallist;
+}
+
+
+// TODO: implement getStructuralLayers and getStructuralConnections
+
+void Inspectable::addInspectableValue(const iparamkey key, iparamval* val){
+	if (numberParameters<maxNumberEntries) {
+		ikeylist[numberParameters]=key;
+		ivallist[numberParameters]=val;
+	}
+}
+
+// TODO: implement addInspectableMatrix
+void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m) {}
+
+
+#endif
+
 

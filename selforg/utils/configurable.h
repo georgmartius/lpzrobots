@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-29 07:41:40  guettler
+ *   Revision 1.3  2008-08-01 14:42:03  guettler
+ *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
+ *
+ *   Revision 1.2  2008/04/29 07:41:40  guettler
  *   added GPL and revision tag
  *
  *   Revision 1.1  2008/04/29 07:39:54  guettler
@@ -72,6 +75,10 @@
  ***************************************************************************/
 #ifndef __CONFIGURABLE_H
 #define __CONFIGURABLE_H
+
+#ifndef AVR
+
+// pc code below (x86 / x_64)
 
 #include <iostream>
 #include <list>
@@ -229,7 +236,6 @@ public:
   */
   static void insertCVSInfo(paramkey& str, const char* file, const char* revision);
 
-#ifndef AVR
   /** stores the key values paires into the file : filenamestem.cfg
       including the comments given in the list
   */
@@ -239,8 +245,8 @@ public:
   bool restoreCfg(const char* filenamestem);
   void print(FILE* f, const char* prefix) const;
   void parse(FILE* f);
-#endif
-private:
+
+  private:
   int id;
   paramkey name;
   paramkey revision;
@@ -248,6 +254,133 @@ private:
   parammap mapOfValues;
 
 };
+
+#else
+
+// ATMEL AVR ATMEGA128 code
+#include <string.h>
+#include "avrtypes.h"
+
+
+class Configurable {
+public:
+
+
+
+  //pedef std::list< std::pair<paramkey, paramval> > paramlist;
+  //typedef std::map< paramkey, paramval* > parammap;
+
+  /// nice predicate function for finding by ID
+  /*struct matchId : public std::unary_function<Configurable*, bool> {
+    matchId(int id) : id(id) {}
+    int id;
+    bool operator()(Configurable* c) { return c->id == id; }
+  };
+*/
+
+  Configurable(){ id = rand(); numberParameters=0; }
+  /// intialise with name and revision (use "$ID$")
+  Configurable(const paramkey& name, const paramkey& revision)
+    : name(name), revision(revision) {
+      id = rand();
+      numberParameters=0;
+    }
+  virtual ~Configurable(){}
+
+  /// return the id of the configurable objects, which is created by random on initialisation
+  int getId() const { return id;}
+
+
+  /// return the name of the object
+  virtual paramkey getName() const {
+    return name;
+  }
+
+  /// returns the revision of the object
+  virtual paramkey getRevision() const {
+    return revision;
+  }
+
+  /// stes the name of the object
+  virtual void setName(const paramkey& name){
+    this->name = name;
+  }
+  /// sets the revision Hint: {  return "$ID$"; }
+  virtual void getRevision(const paramkey& revision) {
+    this->revision = revision;
+  }
+
+  /** returns the value of the requested parameter
+      or 0 (+ error message to stderr) if unknown.
+  */
+  virtual paramval getParam(const paramkey& key) const{
+	  for (uint8_t i=0;i<maxNumberEntries;i++) {
+		  if (strncmp(key,paramlist[i].key,charLength)==0)
+			  return *(paramlist[i].val);
+	  }
+	  return 0;
+  }
+
+  /** sets the value of the given parameter
+      or does nothing if unknown.
+  */
+  virtual bool setParam(const paramkey& key, paramval val){
+	  for (uint8_t i=0;i<maxNumberEntries;i++) {
+		  if (strncmp(key,paramlist[i].key,charLength)==0)
+			  *(paramlist[i].val) = val;
+	  }
+	  return 0;
+  }
+
+  /** The list of all parameters with there value as allocated lists.
+      @return list of key-value pairs
+  */
+  virtual plist getParamList() const {
+    return paramlist;
+  }
+
+  /**
+     This is the new style for adding configurable parameters. Just call this function
+     for each parameter and you are done.
+     If you need to do some special treatment for setting (or getting) of the parameter
+     you can handle this by overloading getParam and setParam
+  */
+  virtual void addParameter(const paramkey& key, paramval* val){
+	  if (numberParameters<maxNumberEntries) {
+		  paramlist[numberParameters].key=key;
+		  paramlist[numberParameters++].val=val;
+	  }
+  }
+
+  /**
+     This function is only provided for convenience. It does the same as addParameter but set the
+     variable to the default value
+  */
+  virtual void addParameterDef(const paramkey& key, paramval* val, paramval def){
+    *val=def;
+    addParameter(key,val);
+  }
+
+  /** This is a utility function for inserting the filename and the revision number
+      at the beginning of the given string buffer str and terminates it.
+      @param str buffer (call by reference)
+        that should have space for file+revision+2 characters
+      @param file filename given by CVS i.e. $RCSfile$
+      @param revision revision number given by CVS i.e. $Revision$
+  */
+  static void insertCVSInfo(paramkey& str, const char* file, const char* revision);
+
+private:
+  int id;
+  paramkey name;
+  paramkey revision;
+
+  uint8_t numberParameters;
+  plist paramlist;
+
+};
+
+#endif
 
 
 #endif
