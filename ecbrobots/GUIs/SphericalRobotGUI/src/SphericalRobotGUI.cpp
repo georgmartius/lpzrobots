@@ -59,7 +59,7 @@ main_layout->addWidget(motor2_value);
 
 
 main_layout->addWidget(createControlBox());
-main_layout->addWidget(createGraphicalBox(this));
+main_layout->addWidget(createGraphicalBox());
 
 QGroupBox *gb = createIRSensorBox();
 gb->setMaximumSize(350,120);
@@ -92,16 +92,19 @@ gbox->setLayout(l);
 return gbox;
 }
 
-QGroupBox* SphericalRobotGUI::createGraphicalBox(QWidget w) {
+QGroupBox* SphericalRobotGUI::createGraphicalBox() {
 
 QGroupBox *gbox = new QGroupBox(QString("Graphical View"));
 QHBoxLayout *l = new QHBoxLayout;
 
-subw = new SRMotorValueWidget(w);
+subw = new SRMotorValueWidget(this);
+subw->setMinimumSize(200,200);
 subw->setMaximumSize(200,200);
 
-subw1 = new SRIRSensorWidget(w);
-subw1->setMaximumSize(160,160);
+
+subw1 = new SRIRSensorWidget(this);
+subw1->setMinimumSize(160,160);
+subw1->setMaximumSize(200,200);
 
 
 
