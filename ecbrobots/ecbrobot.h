@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-07-30 07:42:47  robot3
+ *   Revision 1.6  2008-08-12 11:45:50  guettler
+ *   plug and play update, added some features for the ECBRobotGUI
+ *
+ *   Revision 1.5  2008/07/30 07:42:47  robot3
  *   wolfgang: - reverted to version 1.3
  *
  *   Revision 1.4  2008/07/30 07:39:23  robot3
@@ -48,6 +51,8 @@
 
 #include <list>
 #include "ecb.h"
+
+#include <stdio.h>
 
 #include "globaldata.h"
 
@@ -106,12 +111,6 @@ public:
   virtual paramlist getParamList() const;
 
 
-  /// INSPECTABLE INTERFACE
-
-  virtual iparamkeylist getInternalParamNames() const;
-
-  virtual iparamvallist getInternalParams() const;
-
   /// new methods for the communicator
 
   /**
@@ -130,11 +129,22 @@ public:
 
   virtual void writeMotors_readSensors();
 
+  /**
+   * Returns specific ECBRobot infos to the ECBAgent, who pipes this infos out (PlotOptions)
+   * Something like that:
+   * #ECB M y[0] y[1]
+   * #ECB IR x[0] x[1]
+   * #ECB ADC x[2] x[3]
+   * #ECB ME x[4] x[5]
+   * Strom, Spannung usw. (konfigurationsabhängige Parameter vom ECB)
+   */
+  virtual std::string getGUIInformation();
 
 
 private:
   std::list<ECB*> ECBlist;
   GlobalData* globalData;
+  Inspectable::paramval* speed; // example
 
 };
 

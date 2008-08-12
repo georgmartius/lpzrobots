@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-04-11 06:31:16  guettler
+ *   Revision 1.5  2008-08-12 11:44:42  guettler
+ *   plug and play update, added some features for the ECBRobotGUI
+ *
+ *   Revision 1.4  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.3  2008/04/08 10:11:03  guettler
@@ -51,6 +54,9 @@ namespace lpzrobots {
 ECBRobot::ECBRobot(GlobalData& globalData) : AbstractRobot("ECBRobot", "$ID$"), globalData(&globalData) {
   if (this->globalData->debug)
     std::cout << "New ECBRobot created." << std::endl;
+  // remember: motors UND sensors werden automatisch geplottet durch Agent (setMotors und getSensors)
+  // add new inspectable parameters
+  this->addInspectableValue("speed",&this->speed);
 }
 
 ECBRobot::~ECBRobot() {}
@@ -66,6 +72,7 @@ void ECBRobot::addECB(int slaveAddress, ECBConfig& ecbConfig) {
   this->ECBlist.push_back(new ECB(slaveAddress,*globalData,ecbConfig));
   if (globalData->debug)
     std::cout << "New ECB with address " << slaveAddress << " added." << std::endl;
+  this->addInspectableValue("speedECB1",&ecb->getIrgendwas());
 }
 
 
@@ -173,19 +180,27 @@ Configurable::paramlist ECBRobot::getParamList() const {
   list += pair<paramkey, paramval> (string("cycletime"), cycletime);
   list += pair<paramkey, paramval> (string("reset"), 0);*/
   return list;
-};
-
-
-/// INSPECTABLE INTERFACE
-
-Inspectable::iparamkeylist ECBRobot::getInternalParamNames() const {
-  iparamkeylist l;
-  return l;
 }
 
-Inspectable::iparamvallist ECBRobot::getInternalParams() const {
-  iparamvallist l;
-  return l;
+/**
+ * Returns specific ECBRobot infos to the ECBAgent, who pipes this infos out (PlotOptions)
+ * Something like that:
+ * #ECB M y[0] y[1]
+ * #ECB IR x[0] x[1]
+ * #ECB ADC x[2] x[3]
+ * #ECB ME x[4] x[5]
+ * Strom, Spannung usw. (konfigurationsabhängige Parameter vom ECB)
+ */
+std::string ECBRobot::getGUIInformation() {
+	// hole von allen ECBs die GUIInformation und konkateniere als string
+	// und returne diesen als komplettstring (siehe getSensors)
+	  // get the number of sensors from each ECB and sum up
+	  std::string info(); // String ist Klasse
+	  FOREACH ( list<ECB*>, ECBlist, i ) {
+		  info.concat(( *i )->getGUIInformation()))
+	  }
+	  return info;
 }
+
 
 }

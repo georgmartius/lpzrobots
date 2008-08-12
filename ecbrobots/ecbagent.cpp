@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Revision 1.3  2008-08-12 11:45:29  guettler
+ *   plug and play update, added some features for the ECBRobotGUI
+ *
+ *   Revision 1.2  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -104,6 +107,43 @@ bool ECBAgent::init(AbstractController* controller, ECBRobot* robot, AbstractWir
 void ECBAgent::step(double noise, double time){
   Agent::step(noise,time);
   ((ECBRobot*)robot)->writeMotors_readSensors();
+}
+
+// overwritten from WiredController!
+void ECBAgent::addPlotOption(const PlotOption& plotOption) {
+  PlotOption po = plotOption;
+  // if plotoption with the same mode exists -> delete it
+  removePlotOption(po.mode);
+
+  // this prevents the simulation to terminate if the child  closes
+  // or if we fail to open it.
+  signal(SIGPIPE,SIG_IGN);
+  po.open();
+  if(po.pipe){
+    // print start
+    time_t t = time(0);
+    fprintf(po.pipe,"# Start %s", ctime(&t));
+    // print network description given by the structural information of the controller
+    printNetworkDescription(po.pipe, "Selforg"/*controller->getName()*/, controller);
+    // print ECBRobot specific infos
+    char* infos = (char*) (ECBRobot*)robot)->getGuiInformation();
+    fprintf(po.pipe,infos);
+    // print interval
+    fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
+    // print all configureables
+    for(list<const Configurable*>::iterator i = po.configureables.begin(); i!= po.configureables.end(); i++){
+      (*i)->print(po.pipe, "# ");
+    }
+    // print all parameters of the wiring if confirable
+    Configurable* c = dynamic_cast<Configurable*>(wiring);
+    if(c) c->print(po.pipe, "# ");
+    // print all parameters of the controller
+    controller->print(po.pipe, "# ");
+    // print head line with all parameter names
+    unsigned int snum = plotOption.whichSensors == Robot ? rsensornumber : csensornumber;
+    printInternalParameterNames(po.pipe, snum, cmotornumber, inspectables);
+  }
+  plotOptions.push_back(po);
 }
 
 }

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-08-01 14:42:04  guettler
+ *   Revision 1.6  2008-08-12 11:50:15  guettler
+ *   plug and play update, added some features for the ECBRobotGUI
+ *
+ *   Revision 1.5  2008/08/01 14:42:04  guettler
  *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
  *
  *   Revision 1.4  2008/04/30 15:50:20  martius
@@ -265,6 +268,9 @@ bool PlotOption::open(){
     break;
   case GuiLogger:
     pipe=popen("guilogger -m pipe","w");
+    break;
+  case ECBRobotGUI:
+    pipe=popen("src","w");
     break;
   case NeuronViz:
     pipe=popen("neuronviz > /dev/null","w");  // TODO: Platform dependent

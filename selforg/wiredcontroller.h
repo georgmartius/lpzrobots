@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-08-01 14:42:04  guettler
+ *   Revision 1.6  2008-08-12 11:50:00  guettler
+ *   plug and play update, added some features for the ECBRobotGUI
+ *
+ *   Revision 1.5  2008/08/01 14:42:04  guettler
  *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
  *
  *   Revision 1.4  2008/05/07 16:45:52  martius
@@ -88,6 +91,9 @@ enum PlotMode {
 
   /// Acustic output of robotic values via external SoundMan
   SoundMan,
+
+  /// gui for ECBRobots (see lpzrobots/ecbrobots), should be usable with OdeRobots, too
+  ECBRobotGUI,
 
   /// dummy used for upper bound of plotmode type
   LastPlot

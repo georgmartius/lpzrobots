@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-07-16 14:37:17  robot1
+ *   Revision 1.8  2008-08-12 11:45:20  guettler
+ *   plug and play update, added some features for the ECBRobotGUI
+ *
+ *   Revision 1.7  2008/07/16 14:37:17  robot1
  *   -simple getc included
  *   -extended config on reset
  *   -minor changes
@@ -121,20 +124,20 @@ bool ECB::resetECB() {
   commData reset;
   reset.destinationAddress = address;
   reset.command = CRES;
-  
+
   reset.dataLength = 4;
   reset.data[0]=0;
   if (ecbConfig.useI2C) reset.data[0] |= (1 << 7);
-  if (ecbConfig.useSPI) reset.data[0] |= (1 << 6);  
+  if (ecbConfig.useSPI) reset.data[0] |= (1 << 6);
   if (ecbConfig.useADC) reset.data[0] |= (1 << 5);
   if (ecbConfig.useJumperedADC_PlugNPlay) reset.data[0] |= (1 << 4);
   reset.data[1] = ecbConfig.maxNumberMotors;
   reset.data[2] = ecbConfig.maxNumberSensors;
   reset.data[3] = ecbConfig.ADCSensorMask;
- 
+
   if (globalData->verbose)
     std::cout << "ECB: ecbConfig data[0]=!" << reset.data[0] << std::endl;
-  
+
   if ( !globalData->comm->sendData ( reset )) {
     cerr << "Error while sending reset.\n";
     return false;
@@ -151,6 +154,17 @@ bool ECB::resetECB() {
 
   // the second data describe the number of sensors
   currentNumberSensors=result.data[1];
+
+  // hole weitere config-daten wie Z.B. Zuordnung ADC, I2C, Motoren usw.
+  // die Liste ist fest, hat vordefinierte Codierung (wie z.B. Kommandos)
+  // und dann den infoString füllt (und vorher gegebenenfalls löscht)
+  // ADC: Die Zuordnung, da nur manuell durchführbar (Tilt, Kompass, IR) erfolgt
+  // durch ECBConfig, einstellbar in der main.cpp!
+  // ennum types: TILT, ADCIR, ADCKOMPASS, DEFAULT
+  // ADC[0]=TILT
+  // ADC[1]=TILT
+  // ADC[2]=Kompass
+  // Wenn rest nicht definiert (default), dann einfach gewöhnl. ADC-Wert
 
   if ( currentNumberMotors>ecbConfig.maxNumberMotors ) {
     cout << "Warning: ECB reported more motors than permitted and configured respectively!";
@@ -242,5 +256,9 @@ bool ECB::restore ( FILE* f ) {
   // viel SpaÃŸ!
   return true;
 }
+
+
+std::string ECB::getGUIInformation();
+
 
 }
