@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-08-12 11:48:30  guettler
+ *   Revision 1.4  2008-08-12 11:46:16  guettler
  *   plug and play update, added some features for the ECBRobotGUI
  *
  *   Revision 1.3  2008/07/16 14:37:17  robot1
@@ -94,7 +94,7 @@ class MyECBManager : public ECBManager {
       ecb2.adcTypes[1] = ADC_TILT;
       ecb2.adcTypes[2] = ADC_IR;
       ecb2.adcTypes[3] = ADC_IR;
-      myRobot1->addECB ( 2,ecbc2 );
+      //myRobot1->addECB ( 2,ecbc2 );
 
       // create new agent
       ECBAgent* myAgent1 = new ECBAgent(PlotOption(ECBRobotGUI));
