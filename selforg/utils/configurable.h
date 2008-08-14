@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-08-01 14:42:03  guettler
+ *   Revision 1.4  2008-08-14 08:06:02  robot1
+ *   fixed compile bug
+ *
+ *   Revision 1.3  2008/08/01 14:42:03  guettler
  *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
  *
  *   Revision 1.2  2008/04/29 07:41:40  guettler
@@ -81,11 +84,14 @@
 // pc code below (x86 / x_64)
 
 #include <iostream>
+
+
 #include <list>
 #include <utility>
 #include <string>
 #include <map>
 #include "stl_adds.h"
+
 
 /**
    Abstact class for configurable objects. Sort of Hashmap interface. Parameters are double values
