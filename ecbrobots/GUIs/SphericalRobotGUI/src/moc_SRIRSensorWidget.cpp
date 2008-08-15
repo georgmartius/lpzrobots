@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SRIRSensorWidget.h'
 **
-** Created: Tue Aug 12 10:48:45 2008
+** Created: Thu Aug 14 13:10:53 2008
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.3.1)
 **
 ** WARNING! All changes made in this file will be lost!

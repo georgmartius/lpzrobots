@@ -18,72 +18,54 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include "SimplePipeReader.h"
 
-#ifndef SPHERICAL_ROBOT_GUI_H
-#define SPHERICAL_ROBOT_GUI_H
 
-#include <QWidget>
-#include <QPainter>
-#include <QPixmap>
-#include <QPoint>
 
-#include "SRMotorValueWidget.h"
-#include "SRIRSensorWidget.h"
 
-#include <math.h>
-#include "gui-test.h"
+using namespace std;
 
-#define NUMBER_IR_SENSORS 12
 
-class AbstractPipeReader;
-
-class SphericalRobotGUI : public QWidget {
-
-Q_OBJECT
-
-public:
-SphericalRobotGUI(QWidget *parent = 0);
-void setArrowParams(int m1, int m2);
-
-public slots:
-void setArrowParamX(int);
-void setArrowParamY(int);
-
+SimplePipeReader::SimplePipeReader(istream& pipe) : AbstractPipeReader(pipe) {
   
-signals:
-void valueChanged(int);
+}
 
-protected:
-void resizeEvent(QResizeEvent *event);
-//void paintEvent(QPaintEvent *event);
+SimplePipeReader::~SimplePipeReader() {
 
-private:
-Ui::SphericalRobotGUI ui;
+}
 
-  AbstractPipeReader* pipeReader;
+// void SimplePipeReader::setPipeStreamType(std::istream& pipe) {
+//   this->pipe = pipe; 
+// }
+
+/**
+ *  Read the header information of the incoming stream, 
+ *  to assign next data with their types
+ *
+ *  return the header infos as a string
+ */
+string SimplePipeReader::getDataHeaderInformation() {
   
-class SRMotorValueWidget *subw;
-class SRIRSensorWidget *subw1;
+  string info;
+  std::getline(pipe,info);
+  
+  cout << info << endl;
+  
+  return info;
+}
 
-QVBoxLayout* main_layout;
-
-QPushButton *startButton;
-QPushButton *stopButton;
-QPushButton *backwardButton;
-QPushButton *forwardButton;
-
-QPushButton *loadFileButton;
-
-
-QLabel *ir_labels[12];
-QProgressBar *ir_progressBar[12];
-
-QGroupBox* createIRSensorBox();
-QGroupBox* createControlBox();
-QGroupBox* createGraphicalBox();
-
-
-};
-#endif
-
-
+string SimplePipeReader::getNextData() {
+  
+  string info;
+  // getline(this->pipe, info);
+  
+  cout << info << endl;
+  
+  // find the first "space"
+  /*int pos = info.find(" ");
+  while (pos<info.length()) {
+    info.substr(0,)
+  }
+  */
+  return info;
+}

@@ -18,72 +18,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#ifndef __SIMPLE_PIPE_READER_H
+#define __SIMPLE_PIPE_READER_H
 
-#ifndef SPHERICAL_ROBOT_GUI_H
-#define SPHERICAL_ROBOT_GUI_H
+#include <iostream>
+#include <istream>
 
-#include <QWidget>
-#include <QPainter>
-#include <QPixmap>
-#include <QPoint>
+#include "AbstractPipeReader.h"
+#include <string>
 
-#include "SRMotorValueWidget.h"
-#include "SRIRSensorWidget.h"
-
-#include <math.h>
-#include "gui-test.h"
-
-#define NUMBER_IR_SENSORS 12
-
-class AbstractPipeReader;
-
-class SphericalRobotGUI : public QWidget {
-
-Q_OBJECT
-
+class SimplePipeReader : public AbstractPipeReader {
+  
 public:
-SphericalRobotGUI(QWidget *parent = 0);
-void setArrowParams(int m1, int m2);
-
-public slots:
-void setArrowParamX(int);
-void setArrowParamY(int);
-
+  SimplePipeReader(std::istream &pipe);
+  virtual ~SimplePipeReader() {};
   
-signals:
-void valueChanged(int);
-
+  virtual std::string getDataHeaderInformation();
+  virtual std::string getNextData();
+  
+  //TODO: adding signal - slot for eventhandling
+  
 protected:
-void resizeEvent(QResizeEvent *event);
-//void paintEvent(QPaintEvent *event);
-
-private:
-Ui::SphericalRobotGUI ui;
-
-  AbstractPipeReader* pipeReader;
   
-class SRMotorValueWidget *subw;
-class SRIRSensorWidget *subw1;
-
-QVBoxLayout* main_layout;
-
-QPushButton *startButton;
-QPushButton *stopButton;
-QPushButton *backwardButton;
-QPushButton *forwardButton;
-
-QPushButton *loadFileButton;
-
-
-QLabel *ir_labels[12];
-QProgressBar *ir_progressBar[12];
-
-QGroupBox* createIRSensorBox();
-QGroupBox* createControlBox();
-QGroupBox* createGraphicalBox();
-
-
+private:
+  
+  
 };
 #endif
-
-

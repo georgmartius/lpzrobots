@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SRMotorValueWidget.h'
 **
-** Created: Tue Aug 12 10:48:47 2008
+** Created: Thu Aug 14 13:11:00 2008
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.3.1)
 **
 ** WARNING! All changes made in this file will be lost!

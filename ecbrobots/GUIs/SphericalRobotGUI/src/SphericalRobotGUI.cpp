@@ -22,17 +22,21 @@
 #include <QProgressBar>
 //#include <QHBoxLayout>
 
-#include <iostream>
 #include "SphericalRobotGUI.h"
 
 #define MAX_MOTOR_VALUE 255
 #define PI 3.141592
 
+#include "AbstractPipeReader.h"
+#include "SimplePipeReader.h"
+
 SphericalRobotGUI::SphericalRobotGUI(QWidget *parent) 
 : QWidget(parent) {
+  
+  pipeReader = new SimplePipeReader(std::cin);
 
-
-
+  pipeReader-> getDataHeaderInformation();
+  
 //ui.setupUi(this);
 
 /* only for testing ******************************/
@@ -45,7 +49,7 @@ QSpinBox *motor2_value = new QSpinBox;
 motor2_value->setRange(-127,128);
 motor2_value->setSingleStep(1);
 motor2_value->setValue(0);
-
+  
 QObject::connect(motor1_value, SIGNAL(valueChanged(int)),
 		this,SLOT(setArrowParamX(int)));
 QObject::connect(motor2_value, SIGNAL(valueChanged(int)),
