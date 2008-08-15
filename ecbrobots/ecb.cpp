@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-08-12 11:45:20  guettler
+ *   Revision 1.9  2008-08-15 13:16:58  robot1
+ *   add PORT PIN configuration for ECBs
+ *
+ *   Revision 1.8  2008/08/12 11:45:20  guettler
  *   plug and play update, added some features for the ECBRobotGUI
  *
  *   Revision 1.7  2008/07/16 14:37:17  robot1
@@ -63,6 +66,11 @@ namespace lpzrobots {
 ECB::ECB ( short address,GlobalData& globalData,ECBConfig& ecbConfig ) : Configurable("ECB","$ID$"), globalData ( &globalData ), ecbConfig ( ecbConfig ),address ( address ) {
   failureCounter=0;
   initialised=false;
+  
+  //PORTG of ATmega128 has only 4 pins for use
+  ecbConfig.PORTG.max_pinnumber = 4;
+  //set pin 0 of PORTA as output
+  ecbConfig.PORTA.pin[0] = OUTPUT;
 }
 
 ECB::~ECB() {}

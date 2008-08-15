@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-08-12 11:45:00  guettler
+ *   Revision 1.7  2008-08-15 13:16:58  robot1
+ *   add PORT PIN configuration for ECBs
+ *
+ *   Revision 1.6  2008/08/12 11:45:00  guettler
  *   plug and play update, added some features for the ECBRobotGUI
  *
  *   Revision 1.5  2008/07/16 07:38:42  robot1
@@ -54,6 +57,14 @@
 #include <list>
 
 
+#define PORTA ecbPort[0]
+#define PORTB ecbPort[1]
+#define PORTC ecbPort[2]
+#define PORTD ecbPort[3]
+#define PORTE ecbPort[4]
+#define PORTF ecbPort[5]
+#define PORTG ecbPort[6]
+
 namespace lpzrobots {
 
 // forward declaration begin
@@ -70,7 +81,24 @@ typedef enum {
 	ADC_DEFAULT
 } ADCType;
 
+typedef enum {
+    
+//    OFF,       //deactivate portpin
+    INPUT,     //digit input (default for all port-pins of ATmega128)
+    OUTPUT_PU, //digit output with internal pullup resistor
+    OUTPUT     //digit output without internal pullup resistor
+          
+} atmegaPinType
+
+typedef unsign char port_t;
+
+typdef struct {
+  atmegaPinType pin[8] = {OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF};
+  unsign char max_pinnumber = 8;        
+} atmegaPorts;
+
 typedef struct {
+/*
   /// set I2C on or off
   bool useI2C;
   /// set ADC on or off
@@ -79,7 +107,7 @@ typedef struct {
   bool useJumperedADC_PlugNPlay;
   /// set SPI on or off
   bool useSPI;
-
+*/
   /// the max number, important for init of controller
   int maxNumberMotors;
   /// the max number, important for init of controller
@@ -90,6 +118,8 @@ typedef struct {
   int ADCSensorMask;
 
   ADCType adcTypes[8];
+  
+  atmegaPorts ecbPort[7];
 
 } ECBConfig;
 
