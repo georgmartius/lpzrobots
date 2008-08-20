@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-09-17 19:27:55  fhesse
+ *   Revision 1.2  2008-08-20 08:57:40  fhesse
+ *   adapted noise generator->add call to new version
+ *
+ *   Revision 1.1  2007/09/17 19:27:55  fhesse
  *   initial version of wiring for hand with inversion of IR sensors
  *
  *                                            *
@@ -57,7 +60,8 @@ bool IRInvertWiring::wireSensors(const sensor* rsensors, int rsensornumber,
     return false;
   else{
     memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
-    noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);   
+    //noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);   
+    noiseGenerator->add(noisevals, noiseStrength);   
     for(int i=0; i< rsensornumber; i++){
       csensors[i] = rsensors[i] + noisevals[i];
     }
