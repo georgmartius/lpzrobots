@@ -16,7 +16,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-05-01 22:03:54  martius
+ *   Revision 1.3  2008-08-20 09:09:51  fhesse
+ *   update controller_misc path to new version
+ *
+ *   Revision 1.2  2008/05/01 22:03:54  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -40,7 +43,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <ode_robots/controller_misc.h>
+#include <selforg/controller_misc.h>
 #include "invertnchannelcontrollerhebbxsihand.h"
 using namespace matrix;
 using namespace std;
