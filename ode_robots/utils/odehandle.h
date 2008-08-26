@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-04-17 15:59:02  martius
+ *   Revision 1.10  2008-08-26 18:58:32  martius
+ *   comments
+ *
+ *   Revision 1.9  2008/04/17 15:59:02  martius
  *   OSG2 port finished
  *
  *   Revision 1.8.2.1  2008/04/15 16:21:53  martius
@@ -68,7 +71,7 @@ namespace lpzrobots {
 
 struct geomPairHash{
   size_t operator() (const std::pair<long, long>& p) const {
-    return  p.first + p.second;
+    return  2*p.first + p.second;
   }
 };
 
@@ -95,8 +98,8 @@ public:
   /// destroys the space and unregisters them in the global lists
   void deleteSpace();
 
-  /** sets of ignored geom pairs  and spaces
-   adds a space to the list of ignored spaces for collision detection (i.e within this space there is no collision)
+  /** adds a space to the list of ignored spaces for collision detection 
+    (i.e within this space there is no collision)
   */
   void addIgnoredSpace(dSpaceID g);
   /// removes a space from the list of ignored spaces for collision detection
@@ -133,7 +136,7 @@ public:
 protected:
   double* time;
 
-  /// list of spaces, expect ignored spaces
+  /// list of spaces, except ignored spaces
   std::vector<dSpaceID>* spaces;
   /// set of ignored spaces
   __gnu_cxx::hash_set<long>* ignoredSpaces;

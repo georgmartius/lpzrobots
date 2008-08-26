@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.86  2008-05-07 16:45:51  martius
+ *   Revision 1.87  2008-08-26 18:58:32  martius
+ *   comments
+ *
+ *   Revision 1.86  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.85  2008/05/06 17:14:17  martius
@@ -1392,8 +1395,9 @@ namespace lpzrobots {
       return;
     if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
       // colliding a space with something
-      dSpaceCollide2 (o1,o2,data,&nearCallback);
+      dSpaceCollide2 (o1,o2,data,&nearCallback);        
       // collide all geoms internal to the space(s)
+      // FIXME: I (Georg) believe this is not necessary because we have list of spaces to check!
       if (dGeomIsSpace (o1)) {
 	if(! me->odeHandle.isIgnoredSpace((dxSpace*)o1) )
 	  dSpaceCollide ((dxSpace*)o1,data,&nearCallback);
