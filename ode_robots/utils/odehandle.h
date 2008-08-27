@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-08-26 18:58:32  martius
+ *   Revision 1.11  2008-08-27 06:46:12  martius
+ *   hashcode optimised and comment added
+ *
+ *   Revision 1.10  2008/08/26 18:58:32  martius
  *   comments
  *
  *   Revision 1.9  2008/04/17 15:59:02  martius
@@ -67,7 +70,7 @@
 
 namespace lpzrobots {
 
-  class Primitive;
+class Primitive;
 
 struct geomPairHash{
   size_t operator() (const std::pair<long, long>& p) const {
@@ -91,7 +94,9 @@ public:
   void init(double* time); 
 
   /** use this function to create a new space with optional ignored collisions, 
-      use deleteSpace to destroy it      
+      use deleteSpace to destroy it
+      
+      All primitives initialised with this handle are within this space.
    */
   void createNewSimpleSpace(dSpaceID parentspace, bool ignore_inside_collisions);
 
