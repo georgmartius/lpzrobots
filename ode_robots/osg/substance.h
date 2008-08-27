@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-02-14 14:41:48  der
+ *   Revision 1.6  2008-08-27 19:12:02  martius
+ *   comment
+ *
+ *   Revision 1.5  2008/02/14 14:41:48  der
  *   added snow as a new substance
  *
  *   Revision 1.4  2007/08/24 11:55:54  martius
@@ -114,6 +117,8 @@ namespace lpzrobots {
      The energy lost though damping is \f[ W_1^D = W_i*(1-e_i) \f]. 
      The final damping is now: \f[ kd = (1-e) = W^D/W = \frac{(1-e_1)/kp_1 + (1-e_2)/kp_2}{1/kp_1 + 1/kp_2} 
      = \frac{(1-e_1)kp_2 + (1-e_2)kp_1}{kp_1+kp_2}\f].
+     
+     Todo: maybe add bounce
   */
   class Substance {
   public:
