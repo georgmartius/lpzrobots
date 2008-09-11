@@ -23,7 +23,12 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2008-05-07 16:45:51  martius
+ *   Revision 1.18  2008-09-11 15:24:01  martius
+ *   motioncallback resurrected
+ *   noContact substance
+ *   use slider center of the connecting objects for slider drawing
+ *
+ *   Revision 1.17  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.16  2007/11/07 13:18:44  martius
@@ -270,15 +275,16 @@ namespace lpzrobots{
   }
 
   osg::Vec3 Primitive::getPosition() const {
-    if(!body) return Pos(dGeomGetPosition(geom));
-    return Pos(dBodyGetPosition(body));
+    if(body) return Pos(dBodyGetPosition(body));
+    else if(geom) return Pos(dGeomGetPosition(geom));
+    else return Pos(0,0,0);
   }
 
   osg::Matrix Primitive::getPose() const {
     if(!body) {
       if (!geom) 
 	return osg::Matrix::translate(0.0f,0.0f,0.0f); // fixes init bug
-	else 
+      else 
 	return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));    
     }
     return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));

@@ -24,7 +24,12 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-05-05 09:35:35  guettler
+ *   Revision 1.11  2008-09-11 15:24:01  martius
+ *   motioncallback resurrected
+ *   noContact substance
+ *   use slider center of the connecting objects for slider drawing
+ *
+ *   Revision 1.10  2008/05/05 09:35:35  guettler
  *   hud now displays if in pause mode
  *
  *   Revision 1.9  2008/04/23 07:17:16  martius
@@ -197,9 +202,10 @@ namespace lpzrobots {
     double useNVidia;      // if 0 use ATI Radeon!
 
 
-      // Helper
-  /// returns the index+1 if the list contains the given string or 0 if not
-    int contains(char **list, int len,  const char *str);
+  public:
+    // Helper
+    /// returns the index+1 if the list contains the given string or 0 if not
+    static int contains(char **list, int len,  const char *str);
 
 
   };

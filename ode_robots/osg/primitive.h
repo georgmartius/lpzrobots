@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2008-05-07 16:45:51  martius
+ *   Revision 1.15  2008-09-11 15:24:01  martius
+ *   motioncallback resurrected
+ *   noContact substance
+ *   use slider center of the connecting objects for slider drawing
+ *
+ *   Revision 1.14  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.13  2008/05/01 22:03:54  martius
@@ -455,7 +460,7 @@ public:
   virtual OSGPrimitive* getOSGPrimitive() { return 0; }
 
   virtual void setMass(double mass) {}
-
+  
 };
 
 

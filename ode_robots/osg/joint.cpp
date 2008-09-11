@@ -23,7 +23,12 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-07-03 13:03:39  martius
+ *   Revision 1.8  2008-09-11 15:24:01  martius
+ *   motioncallback resurrected
+ *   noContact substance
+ *   use slider center of the connecting objects for slider drawing
+ *
+ *   Revision 1.7  2007/07/03 13:03:39  martius
  *   ignorepairs is private in odeHandle
  *
  *   Revision 1.6  2007/03/16 11:00:06  martius
@@ -504,9 +509,11 @@ namespace lpzrobots {
     
   void SliderJoint::update(){
     if(visual){
-//       osg::Vec3 p1 = part1->getPosition();
-//       osg::Vec3 p2 = part2->getPosition();
-//       anchor = (p1+p2)*0.5;
+      // this might create problems because if a slider is connected
+      //  to the environment this create a weird position
+      osg::Vec3 p1 = part1->getPosition();
+      osg::Vec3 p2 = part2->getPosition();
+      anchor = (p1+p2)*0.5;
       dVector3 v;
       dJointGetSliderAxis(joint, v);
       axis1.x() = v[0];

@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-02-14 14:41:48  der
+ *   Revision 1.8  2008-09-11 15:24:01  martius
+ *   motioncallback resurrected
+ *   noContact substance
+ *   use slider center of the connecting objects for slider drawing
+ *
+ *   Revision 1.7  2008/02/14 14:41:48  der
  *   added snow as a new substance
  *
  *   Revision 1.6  2007/09/06 18:47:28  martius
@@ -179,7 +184,7 @@ namespace lpzrobots {
   }
 
   // large slip, not elastic, low hardness [1-30], high roughness
-  Substance Substance::getFoam(float _hardness){
+  Substance Substance::getFoam(float _hardness) {
     Substance s;
     s.toFoam(_hardness);
     return s;
@@ -198,24 +203,42 @@ namespace lpzrobots {
 
   // variable slip and roughness [0-1], not elastic, high hardness for solid snow
   // slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0
-Substance Substance::getSnow(float _slip){
-  Substance s;
-  s.toSnow(_slip);
-  return s;
+  Substance Substance::getSnow(float _slip){
+    Substance s;
+    s.toSnow(_slip);
+    return s;
   
-}
+  }
 
   // variable slip and roughness [0-1], not elastic, high hardness for solid snow
   // slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0
-void Substance::toSnow(float _slip){
-  if(_slip<0) { cerr << "slip is not defined for values<0!" << endl;}
-  if(_slip>1) { cerr << "to high slip!" << endl;}
-  roughness  = 1.0-_slip;
-  hardness   = 40;
-  elasticity = 0;
-  slip = _slip;
-}
+  void Substance::toSnow(float _slip){
+    if(_slip<0) { cerr << "slip is not defined for values<0!" << endl;}
+    if(_slip>1) { cerr << "to high slip!" << endl;}
+    roughness  = 1.0-_slip;
+    hardness   = 40;
+    elasticity = 0;
+    slip = _slip;
+  }
 
+  // no contact points are generated
+  Substance Substance::getNoContact(){
+    Substance s;
+    s.toNoContact();
+    return s;  
+  }
 
+  // collision function that does nothing and prohibits further treatment of collision event.
+  int dummyCallBack(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
+		    dContact* contacts, int numContacts,
+		    dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+    return 0; 
+  }
+  
+  // no contact points are generated
+  void Substance::toNoContact(){
+    toDefaultSubstance();
+    setCollisionCallback(dummyCallBack,0);
+  }
   
 }

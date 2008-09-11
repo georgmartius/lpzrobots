@@ -23,7 +23,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-08-27 19:12:02  martius
+ *   Revision 1.7  2008-09-11 15:24:01  martius
+ *   motioncallback resurrected
+ *   noContact substance
+ *   use slider center of the connecting objects for slider drawing
+ *
+ *   Revision 1.6  2008/08/27 19:12:02  martius
  *   comment
  *
  *   Revision 1.5  2008/02/14 14:41:48  der
@@ -78,7 +83,7 @@ namespace lpzrobots {
   class Substance;
 
   /** function to be called at a collision event between the two geoms. 
-      @param params surface parameter, which should be changed by this function
+      @param params surface parameter, which should be changed/calculated by this function
       @param globaldata global information
       @param userdata pointer to user data for this callback (stored in substance)
       @param contacts array of contact information
@@ -165,16 +170,27 @@ namespace lpzrobots {
     void toPlastic(float roughness);
 
     /// large slip, not elastic, low hardness [1-30], high roughness
-    Substance getFoam(float _hardness);    
+    static Substance getFoam(float _hardness);    
     /// large slip, not elastic, low hardness [1-30], high roughness
     void toFoam(float _hardness);
     
-    /// variable slip and roughness [0-1], not elastic, high hardness for solid snow
-    /// slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0
-    Substance getSnow(float _slip);    
-    /// variable slip and roughness, not elastic, high hardness for solid snow
-    /// slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0
+    /** variable slip and roughness [0-1], not elastic, high hardness for solid snow
+	slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0 */
+    static Substance getSnow(float _slip);    
+    /** variable slip and roughness, not elastic, high hardness for solid snow
+	slip = 1 <--> roughness=0.0, slip = 0 <--> roughnes=1.0 */
     void toSnow(float _slip);
+    
+    /// @see toNoContact()
+    static Substance getNoContact();
+    /** collsion callback that ignores everything
+	Usually it is better to use the "ignorePairs" from odeHandle but
+	if this particular one should not collide with any, this is easier.
+	WARNING: this sets the collisionCallback. This will not convert to other
+	substances without manually setting the callback to 0
+     */
+    void toNoContact();
+    
     
       
   };
