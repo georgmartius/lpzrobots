@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-04-18 09:49:41  guettler
+ *   Revision 1.9  2008-09-12 10:22:28  martius
+ *   set cnt to 1 to have round times in log file when using interval >1
+ *
+ *   Revision 1.8  2008/04/18 09:49:41  guettler
  *   Added the OdeAgent as a friend class
  *
  *   Revision 1.7  2007/08/29 11:33:20  martius
@@ -88,7 +91,7 @@ public:
     displayTrace = false;
     interval = 1;
     file=0;
-    cnt=0;
+    cnt=1;
     scene=0;
   }
 
