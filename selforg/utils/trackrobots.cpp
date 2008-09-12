@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-04-28 11:11:01  guettler
+ *   Revision 1.8  2008-09-12 10:11:36  martius
+ *   added space to speed output
+ *
+ *   Revision 1.7  2008/04/28 11:11:01  guettler
  *   include "matrix.h" from trackable class removed, used forward declaration
  *   instead - this change effectuates that no robot must be recompiled if
  *   matrix.h has changed.
@@ -82,7 +85,7 @@ bool TrackRobot::open(const AbstractRobot* robot){
     if(!file) return false;
     fprintf(file, "#C t ");
     if(trackPos)   fprintf(file, "x y z ");
-    if(trackSpeed) fprintf(file, "vx vy vz wx wy wz");
+    if(trackSpeed) fprintf(file, "vx vy vz wx wy wz ");
     if( trackOrientation)  fprintf(file, "o11 o12 o13 o21 o22 o23 o31 o32 o33 ");
     fprintf(file,"\n");
     fprintf(file,"# Recorded every %ith time step\n", interval);
