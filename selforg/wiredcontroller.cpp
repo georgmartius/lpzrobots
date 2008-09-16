@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-08-12 11:50:15  guettler
+ *   Revision 1.7  2008-09-16 15:36:40  martius
+ *   added assert.h
+ *
+ *   Revision 1.6  2008/08/12 11:50:15  guettler
  *   plug and play update, added some features for the ECBRobotGUI
  *
  *   Revision 1.5  2008/08/01 14:42:04  guettler
@@ -51,12 +54,14 @@
 #ifndef AVR
 
 #include <signal.h>
+#include <time.h>
+#include <string.h>
+#include <assert.h>
+
 #include "printInternals.h"
 
 #include "abstractcontroller.h"
 #include "abstractwiring.h"
-#include <time.h>
-#include <string.h>
 
 #include "callbackable.h"
 
@@ -82,7 +87,7 @@ void WiredController::internInit(){
   csensors=0;
 
   initialised = false;
-  t=0;
+  t=1;
 }
 
 WiredController::~WiredController(){
@@ -363,7 +368,7 @@ void WiredController::internInit(){
   csensors=0;
 
   initialised = false;
-  t=0;
+  t=1;
 }
 
 WiredController::~WiredController(){

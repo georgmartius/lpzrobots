@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2008-04-17 14:53:53  martius
+ *   Revision 1.23  2008-09-16 15:36:25  martius
+ *   added assert.h
+ *
+ *   Revision 1.22  2008/04/17 14:53:53  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -176,13 +179,14 @@
 
 #include "agent.h"
 #include <signal.h>
-#include "printInternals.h"
+#include <assert.h>
+#include <time.h>
+#include <string.h>
 
 #include "abstractrobot.h"
 #include "abstractcontroller.h"
 #include "abstractwiring.h"
-#include <time.h>
-#include <string.h>
+#include "printInternals.h"
 
 #include "callbackable.h"
 
