@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2008-05-07 16:45:52  martius
+ *   Revision 1.15  2008-09-16 14:52:58  martius
+ *   provide a virtual center of the robot as main primitve
+ *
+ *   Revision 1.14  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.13  2007/11/07 13:21:16  martius
@@ -88,6 +91,7 @@ namespace lpzrobots {
 	  , conf(conf)
   {
         created=false;
+	center=0;
   }
 	
   SliderWheelie::~SliderWheelie() {
@@ -111,6 +115,7 @@ namespace lpzrobots {
     for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
       if(*i) (*i)->update();
     }
+    if(center) center->update();      
   }
 
   void SliderWheelie::doInternalStuff(GlobalData& global){
@@ -128,6 +133,15 @@ namespace lpzrobots {
 
    for(unsigned int i=0; (n<len) && (i<sliderServos.size()); i++, n++) {
     sliderServos[i]->set(motors[n]);
+   }
+   /// update center position
+   if(center){ 
+     Pos p;
+     for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
+       p += (*i)->getPosition();
+     }
+     p /= objects.size();
+     center->setPosition(p);
    }
   }
 
@@ -160,6 +174,9 @@ namespace lpzrobots {
     odeHandle.createNewSimpleSpace(parentspace,false);
     //    odeHandle.substance.toRubber(10);
 	
+    if(conf.jointLimitOut<0){
+      conf.jointLimitOut = 2*M_PI/conf.segmNumber;
+    }
     vector<Pos> ancors;
     // angular positioning
     for(int n = 0; n < conf.segmNumber; n++) {
@@ -195,7 +212,7 @@ namespace lpzrobots {
 	SliderServo* servo = new SliderServo(j, 
 					     -conf.segmLength*conf.sliderLength/2, 
 					     conf.segmLength*conf.sliderLength/2, 
-					     conf.motorPower);
+					     conf.motorPower*conf.powerRatio);
 	sliderServos.push_back(servo);	
       }else{ // normal segment
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 3 : 1), conf.segmLength);
@@ -225,11 +242,19 @@ namespace lpzrobots {
       
       joints.push_back(j);
       
-      HingeServo* servo = new HingeServo(j, -conf.jointLimit, conf.jointLimit, 
-					 conf.motorPower*conf.powerRatio);
+      HingeServo* servo = new HingeServo(j, -conf.jointLimitOut, 
+					 conf.jointLimitIn, 
+					 conf.motorPower);
       hingeServos.push_back(servo);
 
     }
+
+    // create virtual center
+    center = new Sphere(0.1);
+    OdeHandle centerHandle = odeHandle;
+    centerHandle.substance.toNoContact();
+    center->init(centerHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw); 
+    center->setPose(osg::Matrix::translate(0,0,0) * pose);
 
    created=true;
 
@@ -297,19 +322,16 @@ namespace lpzrobots {
       conf.motorPower = val; 
 
       for(vector<HingeServo*>::iterator i=hingeServos.begin(); i!=hingeServos.end(); i++) {
-	if(*i) (*i)->setPower(conf.motorPower * conf.powerRatio);
+	if(*i) (*i)->setPower(conf.motorPower);
       }
 
-      for(vector<SliderServo*>::iterator i=sliderServos.begin(); i!=sliderServos.end(); i++) {
-	if(*i) (*i)->setPower(conf.motorPower);
-      }      
     }
     else if(key == "sensorfactor") conf.sensorFactor = val; 
     else if(key == "powerratio") { 
       conf.powerRatio = val; 
-      for(vector<HingeServo*>::iterator i=hingeServos.begin(); i!=hingeServos.end(); i++) {
-	if(*i) (*i)->setPower(conf.motorPower * conf.powerRatio); 
-      }         
+      for(vector<SliderServo*>::iterator i=sliderServos.begin(); i!=sliderServos.end(); i++) {
+	if(*i) (*i)->setPower(conf.motorPower * conf.powerRatio);
+      }      
     } else 
       return Configurable::setParam(key, val);    
     return true;
