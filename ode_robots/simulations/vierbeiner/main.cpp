@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-05-01 22:03:56  martius
+ *   Revision 1.11  2008-09-16 19:37:11  martius
+ *   removed controllers not in release
+ *
+ *   Revision 1.10  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -94,15 +97,10 @@
 #include <ode_robots/joint.h>
 
 // used controller
-//#include <selforg/invertnchannelcontroller.h>
-#include <selforg/derbigcontroller.h>
-
-#include <selforg/dercontroller.h>
 #include <selforg/invertmotorbigmodel.h>
 #include <selforg/multilayerffnn.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
-#include <selforg/universalcontroller.h>
 #include "walkcontroller.h"
 /************/
 
@@ -190,45 +188,20 @@ public:
     fixator = new FixedJoint(trunk, global.environment);
     fixator->init(odeHandle, osgHandle);
 
-    // use Nimm4 vehicle as robot:
-    // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
-    // - place robot
-    //OdeRobot* vehiInvertMotorSpacecle = new Nimm4(odeHandle, osgHandle);
-    //vehicle->place(Pos(0,2,0));
-
     // create pointer to controller
 
-    // AbstractController *controller = new SineController();
-    //AbstractController *controller = new WalkController();
-    // InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    // cc.useS=false;
-    // AbstractController *controller = new InvertMotorNStep(cc);
+
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    cc.useS=false;
+    AbstractController *controller = new InvertMotorNStep(cc);
     
-    // AbstractController *controller = new SineController();
-    //   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    //    cc.useS=true;
-    //  AbstractController *controller = new InvertMotorNStep(cc);
-    // DerBigControllerConf cc = DerBigController::getDefaultConf();
+    //AbstractController *controller = new WalkController();
+    
+    // AbstractController* controller = new SineController();
 
-    //    DerControllerConf cc = DerController::getDefaultConf();
-    //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
-   //  vector<Layer> layers;
-//      layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
-//     // size of output layer is automatically set
-//     layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-//     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
-//     cc.model=net;
-//     cc.useS=true;
-    //cc.useS=false;
-    // AbstractController* controller = new DerBigController(cc);
-
-    //     AbstractController* controller = new DerController(cc);
-	// AbstractController* controller = new InvertMotorBigModel(cc);
-
-    AbstractController* controller = new UniversalController(UniversalController::getDefaultNetConf());
-
-    controller->setParam("sinerate",50);
-    controller->setParam("phaseshift",1);
+    //    controller->setParam("sinerate",50);
+    //    controller->setParam("phaseshift",1);
+    
     controller->setParam("adaptrate",0);
     controller->setParam("rootE",3);
     controller->setParam("epsC",0.1);
@@ -239,29 +212,19 @@ public:
     controller->setParam("teacher",0);
     controller->setParam("dampS",0.0001);
     controller->setParam("dampA",0.00003);
-    controller->setParam("continuity",0.5);
+    //    controller->setParam("continuity",0.5);
     //    controller->setParam("kwta",4);
-    //    controller->setParam("inhibition",0.01);
-    
-    // TEST
-    controller->setParam("epsC",0.0);
-    controller->setParam("epsA",0.1);
-    controller->setParam("steps",1);
-    controller->setParam("s4avg",2);
-    controller->setParam("s4delay",2);
-    controller->setParam("teacher",0.1);
-    controller->setParam("continuity",0);
-        
+    //    controller->setParam("inhibition",0.01);        
 
     global.configs.push_back(controller);
   
     // create pointer to one2onewiring
-    //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     // feedback connection and blind channels
-    AbstractWiring* wiring = 
-      new WiringSequence(new FeedbackWiring(new ColorUniformNoise(0.1), 
-					    FeedbackWiring::Motor,0.5),
-			 new One2OneWiring(0, false, 2));
+    // AbstractWiring* wiring = 
+    //       new WiringSequence(new FeedbackWiring(new ColorUniformNoise(0.1), 
+    // 					    FeedbackWiring::Motor,0.5),
+    // 			 new One2OneWiring(0, false, 2));
 
     // create pointer to agent 
     // initialize pointer with controller, robot and wiring

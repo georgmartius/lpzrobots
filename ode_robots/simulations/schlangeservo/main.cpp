@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-05-01 22:03:56  martius
+ *   Revision 1.12  2008-09-16 19:37:36  martius
+ *   removed controllers not in release
+ *
+ *   Revision 1.11  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -95,7 +98,7 @@
 using namespace lpzrobots;
 
 
-class ThisSim : public Simulation,  public Configurable {
+class ThisSim : public Simulation {
 public:
   Joint* fixator;
   InvertMotorNStep* controller;
@@ -108,8 +111,7 @@ public:
   double sineRate;
   double phaseShift;
   
-  ThisSim() : 
-    Configurable ("SchlangeServoSim", "$Id$")
+  ThisSim()
   {
     addParameterDef("sinerate",   &sineRate,   20);
     addParameterDef("phaseshift", &phaseShift, 0.65);
