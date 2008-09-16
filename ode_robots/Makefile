@@ -57,10 +57,10 @@ $(LIB_PROF): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB_PROF) $(OFILES)
 
 libselforg:	
-	cd $(SELFORG) && make libselforg.a		
+	+cd $(SELFORG) && make libselforg.a		
 
 libselforg_opt:	
-	cd $(SELFORG) && make libselforg_opt.a		
+	+cd $(SELFORG) && make libselforg_opt.a		
 
 utils/splitvideo: utils/splitvideo.c
 	$(CXX) -o utils/splitvideo utils/splitvideo.c

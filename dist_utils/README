@@ -1,5 +1,5 @@
 1. to create a distribution/Release:
-make a 
+perform: 
 cvs co lpzrobots
 cd lpzrobots
 cvs update -dP

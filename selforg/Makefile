@@ -44,7 +44,7 @@ opt: $(LIB_OPT)
 
 $(LIB_OPT): CXX = $(CXX_OPT)
 $(LIB_OPT): Makefile.depend $(OFILES)
-	@echo "$(OFILES)";
+#	@echo "$(OFILES)";
 	$(AR) $(LIB_OPT) $(OFILES)
 
 Makefile.depend: 

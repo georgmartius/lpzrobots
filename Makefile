@@ -44,13 +44,13 @@ conf: usage
 ##!libs		compile libaries in optimised and debug version
 libs: usage
 	@echo "*************** Compile selforg (optimized) *****************"
-	cd selforg && $(MAKE) clean && $(MAKE) opt	
+	+cd selforg && $(MAKE) clean && $(MAKE) opt	
 	@echo "*************** Compile ode_robots (optimized) **************"
-	cd ode_robots && $(MAKE) clean && $(MAKE) opt	
+	+cd ode_robots && $(MAKE) clean && $(MAKE) opt	
 	@echo "*************** Compile selforg (debug) *********************"
-	cd selforg && $(MAKE) clean && $(MAKE) lib
+	+cd selforg && $(MAKE) clean && $(MAKE) lib
 	@echo "*************** Compile ode_robots (debug) ******************"
-	cd ode_robots && $(MAKE) clean && $(MAKE) lib
+	+cd ode_robots && $(MAKE) clean && $(MAKE) lib
 
 .PHONY: install
 ##!install	install utils and possibly libs (if installation type: user)

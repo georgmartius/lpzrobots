@@ -1,6 +1,6 @@
 #File:     Makefile for lpzrobots simulation
-#Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
-#Date:     Mai 2005
+#Author:   Georg Martius  <georg.martius at web.de>
+#Date:     Sept 2008
 
 include Makefile.conf
 
@@ -28,13 +28,7 @@ LIBS   = -lm \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lpthread
 
-
-
-#	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
-
 INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
-
-
 
 CXX = g++
 # -pg for profiling
@@ -62,13 +56,13 @@ $(EXEC_PROF): $(ODEROBOTS)/$(LIBODEROBOTS_PROF)  Makefile Makefile.depend $(OFIL
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_PROF)
 
 libode_robots:	
-	cd $(ODEROBOTS) && make
+	+cd $(ODEROBOTS) && make
 
 libode_robots_opt:	
-	cd $(ODEROBOTS) && make opt
+	+cd $(ODEROBOTS) && make opt
 
 libode_robots_prof:	
-	cd $(ODEROBOTS) && make prof
+	+cd $(ODEROBOTS) && make prof
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null

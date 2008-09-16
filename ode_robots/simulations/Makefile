@@ -10,7 +10,7 @@ all: $(SIMULATIONS)
 
 $(SIMULATIONS): 
 	@echo -e "\n************ Building SIMULATION $@ **************"
-	$(MAKE) -C $@
+	+$(MAKE) -C $@
 
 depend: 
 	for dir in $(SIMULATIONS); do \

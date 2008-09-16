@@ -1,23 +1,22 @@
 #File:     Makefile for lpzrobots simulation
-#Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
-#Date:     Mai 2007
+#Author:   Georg Martius  <georg.martius at web.de>
+#Date:     Sept 2008
 
-FILES = main multireinforce irsensor_wall
+include Makefile.conf
 
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 EXEC = start
 EXEC_OPT = start_opt
-
-LPZROBOTS  = ../../../..
-ODEROBOTS  = $(LPZROBOTS)/ode_robots
-SELFORG    = $(LPZROBOTS)/selforg
+EXEC_PROF = start_prof
 
 ODEROBOTSLIB := ode_robots
 ODEROBOTSLIB_OPT := ode_robots_opt
+ODEROBOTSLIB_PROF := ode_robots_prof
 LIBODEROBOTS = lib$(ODEROBOTSLIB).a
 LIBODEROBOTS_OPT = lib$(ODEROBOTSLIB_OPT).a
+LIBODEROBOTS_PROF = lib$(ODEROBOTSLIB_PROF).a
 
 SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
@@ -26,16 +25,16 @@ LIBSELFORG = lib$(SELFORGLIB).a
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
-	-lode -losgProducer -lProducer -losgText -losgUtil -losg -lGL -lGLU -lglut \
-	-lreadline
+	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
+	-lreadline -lpthread
 
 INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
 CXX = g++
 # -pg for profiling
-CPPFLAGS = -Wall -I. -g $(INC)
+CPPFLAGS = -Wall  -g -pthread $(INC)
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -O3 -DNDEBUG $(INC)
+CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC)
 
 normal: libode_robots $(EXEC)
 
@@ -50,11 +49,20 @@ $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): $(ODEROBOTS)/$(LIBODEROBOTS_OPT)  Makefile Makefile.depend $(OFILES)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
+prof: libode_robots_prof $(EXEC_PROF)
+
+$(EXEC_PROF): ODEROBOTSLIB = $(ODEROBOTSLIB_PROF)
+$(EXEC_PROF): $(ODEROBOTS)/$(LIBODEROBOTS_PROF)  Makefile Makefile.depend $(OFILES)
+	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_PROF)
+
 libode_robots:	
-	cd $(ODEROBOTS) && make
+	+cd $(ODEROBOTS) && make
 
 libode_robots_opt:	
-	cd $(ODEROBOTS) && make opt
+	+cd $(ODEROBOTS) && make opt
+
+libode_robots_prof:	
+	+cd $(ODEROBOTS) && make prof
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
