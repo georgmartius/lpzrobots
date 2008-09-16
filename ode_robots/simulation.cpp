@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.87  2008-08-26 18:58:32  martius
+ *   Revision 1.88  2008-09-16 14:46:01  martius
+ *   redirected ODE output to a logfile ode.log
+ *   this made the announcement counters and stuff obsolete
+ *   changed some comments about the parallel stuff
+ *
+ *   Revision 1.87  2008/08/26 18:58:32  martius
  *   comments
  *
  *   Revision 1.86  2008/05/07 16:45:51  martius
@@ -496,6 +501,7 @@
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
+#include "motionblurcallback.h"
 
 // simple multithread api
 #include "quickmp.h"
@@ -523,7 +529,8 @@ namespace lpzrobots {
   // forward declaration of static functions
   static void* odeStep_run(void* p);
   static void* osgStep_run(void* p);
-
+  static FILE* ODEMessageFile = 0; // file handler for ODE messages
+  static void printODEMessage (int num, const char *msg, va_list ap);
 
   int Simulation::ctrl_C = 0;
 
@@ -538,9 +545,8 @@ namespace lpzrobots {
     addParameterDef("UseOdeThread",&useOdeThread,0);
     addParameterDef("UseOsgThread",&useOsgThread,0);
 
-
-    nextLeakAnnounce = 20;
-    leakAnnCounter = 1;
+//     nextLeakAnnounce = 20; 
+//     leakAnnCounter = 1;
     truerealtimefactor = 1;
     sim_step = 0;
     state    = none;
@@ -580,6 +586,8 @@ namespace lpzrobots {
 
     /**************** ODE-Section   ***********************/
     odeHandle.init(&globalData.time);
+    // redirect ODE messages to our print function (writes into file ode.msg)
+    dSetMessageHandler(printODEMessage); 
 
     globalData.odeConfig.setOdeHandle(odeHandle);
 
@@ -685,13 +693,22 @@ namespace lpzrobots {
 
       // add the record camera path handler
       viewer->addEventHandler(this);
-
-
+    }else{
+      globalData.odeConfig.realTimeFactor=0;
     }
 
-    // information on terminal, can be removed if the printout is undesired
-    printf ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
-    printf ( "------------------------------------------------------------------------\n" );
+    // information on terminal, created with figlet. 
+    // See also logo.txt, we had to quote all backslashes
+    printf ("%s\n",
+"+----------------------------------------------------------------+\n\
+|   _     ____ _________       _           _                     |\n\
+|  | |   |  _ \\__  /  _ \\ ___ | |__   ___ | |_ ___               |\n\
+|  | |   | |_) |/ /| |_) / _ \\| '_ \\ / _ \\| __/ __|              |\n\
+|  | |___|  __// /_|  _ < (_) | |_) | (_) | |_\\__ \\              |\n\
+|  |_____|_|  /____|_| \\_\\___/|_.__/ \\___/ \\__|___/              |\n\
+|                                                                |\n\
+| lpzRobots simulator, http://robot.informatik.uni-leipzig.de    |\n\
++----------------------------------------------------------------+" );
     printf ( "Press Ctrl-C on the console for a commandline interface.\n" );
     printf ( "Press h      on the graphics window for help).\n\n" );
     printf ( "Random number seed: %li\n", globalData.odeConfig.randomSeed);
@@ -777,17 +794,13 @@ namespace lpzrobots {
       osgViewer::Viewer::Windows windows;
       viewer->getWindows(windows);
       assert(windows.size()>0);
-      windows.front()->setWindowName("Lpzrobots - Selforg");
-
-      // Georg: with OSG2 the callbacks got a bit weird, we have now a onPostDraw ourself
-      // set our motion blur callback as the draw callback for each scene handler
-      //      osgProducer::OsgCameraGroup::SceneHandlerList &shl = viewer->getSceneHandlerList();
-      //      for (osgProducer::OsgCameraGroup::SceneHandlerList::iterator i=shl.begin(); i!=shl.end(); ++i)
-      //      {
-      //          (*i)->setDrawCallback(new MotionBlurDrawCallback(globalData));
-      //      }
-      //  The callback stuff does not nicely work anymore so that we would have to call
-      //   MotionBlurDrawCallback by hand after the viewer->frame call below
+      
+      // set our motion blur callback as the draw operator on each window
+      FOREACH(osgViewer::Viewer::Windows, windows, itr){
+	if(globalData.odeConfig.motionPersistence > 0)
+	  (*itr)->add(new MotionBlurOperation(globalData));
+	(*itr)->setWindowName("Lpzrobots - Selforg");
+      }
     }
 
     if(!noGraphics) {
@@ -864,9 +877,9 @@ namespace lpzrobots {
 
 // 	PARALLEL VERSION
 	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
-  	QP(PROFILER.beginBlock("controller                   "));
+	  QP(PROFILER.beginBlock("controller                   "));
 	  QMP_SHARE(globalData);
-  	// there is a problem with the useOdeThread in the loop (not static)
+	  // there is a problem with the useOdeThread in the loop (not static)
     	  if (useOdeThread!=0) {
   	    QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED){
     	      QMP_USE_SHARED(globalData, GlobalData);
@@ -880,7 +893,7 @@ namespace lpzrobots {
 	    }
 	    QMP_END_PARALLEL_FOR;
    	  }
-  	QP(PROFILER.endBlock("controller                   "));
+	  QP(PROFILER.endBlock("controller                   "));
 	}else{ // serial execution is sufficient here
 	  FOREACH(OdeAgentList, globalData.agents, i) {
 	    (*i)->onlyControlRobot();
@@ -896,11 +909,11 @@ namespace lpzrobots {
    	}
 	// Do this here because it
 	// can provide collision handling (old style collision handling)
-	// and this crashes of parallel
+	// and this crashes in parallel version
 	QP(PROFILER.beginBlock("internalstuff_and_addcallback"));
-	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-  	if (useOdeThread!=0)
-  	   (*i)->setMotorsGetSensors();
+	FOREACH(OdeAgentList, globalData.agents, i) {
+	  if (useOdeThread!=0)
+	    (*i)->setMotorsGetSensors();
 	  (*i)->getRobot()->doInternalStuff(globalData);
 	}
 	addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
@@ -1006,18 +1019,19 @@ namespace lpzrobots {
       }else {
 	if(diff > 4) { // if less the 3 milliseconds we don't call usleep since it needs time
 	  usleep((diff-2)*1000);
-	  nextLeakAnnounce=100;
-	} else if (diff < 0) {
-	  // we do not bother the user all the time
-	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()) {
-	    nextLeakAnnounce=min(nextLeakAnnounce*10,10000);
-	    printf("Time lack of %li ms (Suggestion: realtimefactor=%g), next in annoucement in %i violations\n",
-		   -diff, truerealtimefactor, nextLeakAnnounce);
-	    leakAnnCounter=0;
-	    resetSyncTimer();
-	  }
-	  leakAnnCounter++;
+	  //	  nextLeakAnnounce=100;
 	}
+// 	else if (diff < 0) {
+// 	  // we do not bother the user all the time
+// 	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()) {
+// 	    nextLeakAnnounce=min(nextLeakAnnounce*10,10000);
+// 	    printf("Time lack of %li ms (Suggestion: realtimefactor=%g), next in annoucement in %i violations\n",
+// 		   -diff, truerealtimefactor, nextLeakAnnounce);
+// 	    leakAnnCounter=0;
+// 	    resetSyncTimer();
+// 	  }
+// 	  leakAnnCounter++;
+// 	}
       }
       // the video steam should look perfectly syncronised
       if(videostream.isOpen())
@@ -1314,7 +1328,7 @@ namespace lpzrobots {
       printf("running in fullscreen\n");
     }
 
-    noGraphics = contains(argv, argc, "-nographics")!=0;
+    noGraphics = contains(argv, argc, "-nographics")!=0;    
     pause = contains(argv, argc, "-pause")!=0;
 
     index = contains(argv, argc, "-shadow");
@@ -1500,6 +1514,22 @@ namespace lpzrobots {
     justresettimes = true;
   }
 
+  // this is used instead of the standard ODE print function
+  //  to get rid of the annouying error messages
+  static void printODEMessage (int num, const char *msg, va_list ap)
+  {
+    if(!ODEMessageFile){
+      ODEMessageFile = fopen("ode.msg","w");
+      if(!ODEMessageFile) return;
+    }
+    if (num) fprintf (ODEMessageFile,"%d: ",num);
+    vfprintf (ODEMessageFile,msg,ap);
+    fprintf (ODEMessageFile,"\n");
+    fflush (ODEMessageFile);
+  }
+  
+  
+
   bool Simulation::storeOdeRobotsCFG(){
     list<string> cs;
     cs+=string("Configruation file for lpzrobots ode simulation!");
@@ -1558,7 +1588,7 @@ namespace lpzrobots {
   }
 
 
-void createNewDir(const char* base, char *newdir) {
+  void createNewDir(const char* base, char *newdir) {
     struct stat s;
     for(int i=0; i<1000; i++) {
       sprintf(newdir,"%s%03i", base, i);
@@ -1570,52 +1600,52 @@ void createNewDir(const char* base, char *newdir) {
     assert(1); // should not happen
   }
 
-void Simulation::odeStep() {
+  void Simulation::odeStep() {
 
-  QP(PROFILER.beginBlock("collision                    "));
-  // for parallelising the collision detection
-  // we would need distinct jointgroups for each thread
-  // also the most time is required by the global collision callback which is one block
-  // so it makes no sense to is quickmp here
-  dSpaceCollide ( odeHandle.space , this , &nearCallback_TopLevel );
-  FOREACHC(vector<dSpaceID>, odeHandle.getSpaces(), i) {
-    dSpaceCollide ( *i , this , &nearCallback );
+    QP(PROFILER.beginBlock("collision                    "));
+    // for parallelising the collision detection
+    // we would need distinct jointgroups for each thread
+    // also the most time is required by the global collision callback which is one block
+    // so it makes no sense to is quickmp here
+    dSpaceCollide ( odeHandle.space , this , &nearCallback_TopLevel );
+    FOREACHC(vector<dSpaceID>, odeHandle.getSpaces(), i) {
+      dSpaceCollide ( *i , this , &nearCallback );
+    }
+    QP(PROFILER.endBlock("collision                    "));
+
+    QP(PROFILER.beginBlock("ODEstep                      "));
+    dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize );
+    dJointGroupEmpty (odeHandle.jointGroup);
+    QP(PROFILER.endBlock("ODEstep                      "));
   }
-  QP(PROFILER.endBlock("collision                    "));
 
-  QP(PROFILER.beginBlock("ODEstep                      "));
-  dWorldStep ( odeHandle.world , globalData.odeConfig.simStepSize );
-  dJointGroupEmpty (odeHandle.jointGroup);
-  QP(PROFILER.endBlock("ODEstep                      "));
-}
-
-void Simulation::osgStep() {
-  viewer->frame();
-  onPostDraw(*(viewer->getCamera()));
-}
-
-
-/// redirection function, because we can't call member function direct
-static void* odeStep_run(void* p) {
-  Simulation* sim = dynamic_cast<Simulation*>((Simulation*)p);
-  if(sim)
-    sim->odeStep();
-  else{
-    cerr << "scheisse" << endl;
+  void Simulation::osgStep() {
+    viewer->frame();
+    onPostDraw(*(viewer->getCamera()));
   }
-  return NULL;
-}
 
-/// redirection function, because we can't call member function direct
-static void* osgStep_run(void* p) {
-  Simulation* sim = dynamic_cast<Simulation*>((Simulation*)p);
-  if(sim)
-    sim->osgStep();
-  else{
-    cerr << "scheisse" << endl;
+
+  /// redirection function, because we can't call member function direct
+  static void* odeStep_run(void* p) {
+    Simulation* sim = dynamic_cast<Simulation*>((Simulation*)p);
+    if(sim)
+      sim->odeStep();
+    else{
+      cerr << "scheisse" << endl;
+    }
+    return NULL;
   }
-  return NULL;
-}
+
+  /// redirection function, because we can't call member function direct
+  static void* osgStep_run(void* p) {
+    Simulation* sim = dynamic_cast<Simulation*>((Simulation*)p);
+    if(sim)
+      sim->osgStep();
+    else{
+      cerr << "scheisse" << endl;
+    }
+    return NULL;
+  }
 
 
 }
