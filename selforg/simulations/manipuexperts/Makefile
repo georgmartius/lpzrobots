@@ -1,28 +1,24 @@
-#File:     Makefile for integration example
+#File:     Makefile for selforg simulation for development installation
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     June 2006
 
-# add files to compile here
-#  multiexpertpair
-FILES = main cmdline console  multiexpertsubopt
+# add files to compile in the conf file
+include Makefile.conf
+
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
-
-EXEC = start
 
 # -pg for profiling
 CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
-SELFORG = $(HOME)/src/lpzrobots/selforg
-LIBS   = -lm -L$(SELFORG) -lselforg -lreadline
+LIBS   += -lm -L$(SELFORG)/ -lselforg 
+INC    += -I$(SELFORG)/include
 
-INC   = -I$(SELFORG)/include
-
-cc = g++ $(CFLAGS) $(INC)
+cc = g++ $(CFLAGS) $(INC) -c
 #cc = g++ $(CFLAGS) -c -O -g3 -pg
-CXX = g++ $(CFLAGS) $(INC)
+CXX = g++ $(CFLAGS) $(INC)  -c
 
 CC = g++ $(CFLAGS) 
 #CC = g++ -g3 -pg  
@@ -31,7 +27,7 @@ $(EXEC): Makefile.depend $(OFILES) libselforg
 	$(CC) $(OFILES) $(LIBS)  -o $(EXEC)
 
 libselforg: 
-	cd ../../ && make
+	cd $(SELFORG) && make
 
 
 depend: 

@@ -1,23 +1,20 @@
-#File:     Makefile for integration example
+#File:     Makefile for selforg simulation for development installation
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     June 2006
 
-# add files to compile here
-FILES = main cmdline console multisat
+# add files to compile in the conf file
+include Makefile.conf
+
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
-
-EXEC = start
 
 # -pg for profiling
 CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
-SELFORG = ../..
-LIBS   = -lm -L$(SELFORG) -lselforg -lreadline
-
-INC   = -I$(SELFORG)/include
+LIBS   += -lm -L$(SELFORG)/ -lselforg 
+INC    += -I$(SELFORG)/include
 
 cc = g++ $(CFLAGS) $(INC) -c
 #cc = g++ $(CFLAGS) -c -O -g3 -pg
@@ -30,7 +27,7 @@ $(EXEC): Makefile.depend $(OFILES) libselforg
 	$(CC) $(OFILES) $(LIBS)  -o $(EXEC)
 
 libselforg: 
-	cd ../../ && make
+	cd $(SELFORG) && make
 
 
 depend: 
