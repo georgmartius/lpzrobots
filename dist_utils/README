@@ -15,10 +15,14 @@ cd lpzrobots-0.x
 
 make prepare
 make libs
-cd oderobots/simulations && make all
-cd oderobots/examples/ && make all
+cd ode_robots/simulations && make all 
+cd ../../
+cd ode_robots/examples/ && make all
+cd ../../
+cd selforg/simulations && make all
+cd ../../
 make clean
 rm Makefile.conf
 cd ../
-tar -cvzf lpzrobots-0.x-binary-lib-devel lpzrobots-0.x
+tar -cvzf lpzrobots-0.x-binary-lib-devel-`uname -m`.tgz lpzrobots-0.x
 
