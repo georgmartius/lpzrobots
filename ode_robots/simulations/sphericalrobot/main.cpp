@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2008-05-01 22:03:56  martius
+ *   Revision 1.25  2008-09-16 19:28:29  martius
+ *   removed universalcontroller for release
+ *
+ *   Revision 1.24  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -121,7 +124,7 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
-#include <selforg/universalcontroller.h>
+// #include <selforg/universalcontroller.h>
 #include <selforg/ffnncontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
@@ -268,19 +271,6 @@ public:
       // controller = new InvertNChannelController_NoBias(40,0.45f);  
       //      controller->setParam("eps",0.00);
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-
-//       UniversalControllerConf cc = UniversalController::getDefaultConf();
-//       vector<Layer> layers;
-//       //   layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
-//       //      layers.push_back(Layer(2,1,FeedForwardNN::tanhr)); // controller hidden
-//       layers.push_back(Layer(0,1,FeedForwardNN::tanhr)); // motor layer
-//       // size of output layer is automatically set
-//       layers.push_back(Layer(1,0,FeedForwardNN::linear));       
-//       Elman* e = new Elman(1,layers,false, false, false);
-//       cc.net = e;
-//       controller = new UniversalController(cc);
-//       controller->setParam("epsM", 0.005);    
-//       controller->setParam("eps", 0.1);    
 
       controller->setParam("steps", 2);    
       //    controller->setParam("adaptrate", 0.001);    
