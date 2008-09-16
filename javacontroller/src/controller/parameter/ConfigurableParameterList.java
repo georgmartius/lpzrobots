@@ -2,12 +2,9 @@ package controller.parameter;
 
 import java.util.Hashtable; 
 
-
-
-
 public class ConfigurableParameterList extends Hashtable{
 
-	
+	private static final long serialVersionUID = 1L;
 		
 	public void addParameter(ConfigurableParameter param){
     	put(param.getKey(),param);
