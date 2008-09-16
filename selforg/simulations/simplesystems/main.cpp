@@ -228,7 +228,7 @@ int contains(char **list, int len,  const char *str){
 int main(int argc, char** argv){
   list<PlotOption> plotoptions;
   Mode mode  = NORMAL;
-  char* modestr = "normal";
+  const char* modestr = "normal";
   int dim = 2;
 
   int index = contains(argv,argc,"-g");
