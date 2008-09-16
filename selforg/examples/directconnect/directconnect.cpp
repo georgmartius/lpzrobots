@@ -3,8 +3,8 @@
 #include<vector>
 using namespace std;
 
-#include "selforg/sinecontroller.h" 
-#include "selforg/invertmotorspace.h" 
+#include <selforg/sinecontroller.h>
+#include <selforg/invertmotorspace.h>
 
 const int MNumber = 2;
 const int SNumber = 2;
@@ -16,7 +16,7 @@ const int SNumber = 2;
     @param motornumber length of the motors vector
 
  */
-void myrobot(sensor* sensors, int sensornumber, const motor* motors, int motornumber){  
+void myrobot(double* sensors, int sensornumber, const double* motors, int motornumber){  
   assert(sensornumber >= 2 && motornumber >= 2); // check dimensions
   //the robot consits here just of a bit noise
   sensors[0]=motors[0]+(double(rand())/RAND_MAX-0.5)*0.3;
@@ -34,10 +34,10 @@ int main(){
 
   
   // sensor and motor arrays (doubles*)
-  sensor sensors[SNumber];
-  motor motors[MNumber];
+  double sensors[SNumber];
+  double motors[MNumber];
   
-  memset(motors,0,sizeof(motor)*MNumber);  // clear motors
+  memset(motors,0,sizeof(double)*MNumber);  // clear motors
 
   // the robot is here respresented by the function myrobot
   for(int i=0; i < 1000; i++){

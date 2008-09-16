@@ -80,6 +80,11 @@ public:
    */
   virtual Position getSpeed() const {return Position(0,0,0);}
 
+  /** returns linear speed vector of the object
+      @return vector  (vx,vy,vz)
+   */
+  virtual Position getAngularSpeed() const {return Position(0,0,0);}
+
   /** returns the orientation of the object
       @return 3x3 rotation matrix
    */

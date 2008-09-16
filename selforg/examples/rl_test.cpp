@@ -48,7 +48,7 @@ void testQLearning(){
 //   }
 
   cerr << q.getQ();
-  fprintf(stderr,"\nReward: %lf\n", q.collectedReward);
+  fprintf(stderr,"\nReward: %lf\n", q.getCollectedReward());
 
 }
 

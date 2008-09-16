@@ -79,7 +79,7 @@ void testresponse(MultiLayerFFNN net){
   net.process(input);
   Matrix J = net.response(input);
   cout << "Responsematrix for " << (input^T) << endl << endl << J << endl;
-  cout << "first Weightmatrix " << endl <<  net.weights[0] << endl;
+  cout << "first Weightmatrix " << endl <<  net.getWeights(0) << endl;
   
   Matrix o = J*input;
   cout << "Test: " << (o^T)  << " should be around " << (net.process(input)^T)<< endl;
