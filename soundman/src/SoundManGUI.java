@@ -20,6 +20,8 @@ public class SoundManGUI extends JFrame {
  private JCheckBox[] sensorCheck;
  private JSlider[] customSlider;
 
+ private static final long serialVersionUID = 1L;
+
  public SoundManGUI(float p, int m) {
   param=p;
   mode=m;

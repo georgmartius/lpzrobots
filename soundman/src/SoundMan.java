@@ -3,17 +3,9 @@
  Authors: Steffen Horn, Tobias Müller
 */
 
-import java.io.*;
-import sun.misc.Signal;
-import sun.misc.SignalHandler;
-
 public class SoundMan {
  public static void main(String[] args) {
-  // ignore Ctrl+C
-  Signal.handle(new Signal("INT"), new SignalHandler() {
-    public void handle(Signal sig) {}
-   }
-  );
+  // ignoring Ctrl+C is now done with the shell script
 
   float param=0.05f;
   int mode=1;

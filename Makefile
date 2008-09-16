@@ -88,7 +88,7 @@ javactrl:
 .PHONY: soundman
 ##!soundman	compile soundman (experimental)
 soundman:
-	cd ode_robots/utils && javac SoundMan.java SoundManipulation.java SoundManGUI.java
+	cd soundman/src && javac -d ../class SoundMan.java SoundManipulation.java SoundManGUI.java
 
 .PHONY: install_utils
 install_utils:
@@ -96,8 +96,8 @@ install_utils:
 	-cd neuronviz/src && $(MAKE) install
 	-cd javacontroller/src && $(MAKE) install
 	-@cp guilogger/bin/guilogger $(PREFIX)bin/ && echo "copied guilogger to $(PREFIX)/bin/" || echo "Could not copy guilogger binary to $(PREFIX)bin/! Please install it by hand."
-	-cp ode_robots/utils/*.class $(PREFIX)lib/soundMan/
-	-cp ode_robots/utils/soundMan $(PREFIX)bin/soundMan
+	-cp soundman/class/*.class $(PREFIX)lib/soundMan/
+	-cp soundman/bin/soundMan $(PREFIX)bin/soundMan
 	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)bin/soundMan
 	-cp ode_robots/utils/feedfile.pl $(PREFIX)bin/
 	-cp ode_robots/utils/encodevideo.sh $(PREFIX)bin/
@@ -119,8 +119,8 @@ ifeq ($(INSTALL_TYPE),user)
 	cp ode_robots/libode_robots_opt.a $(PREFIX)lib
 	cp -rL ode_robots/include/ode_robots $(PREFIX)include/	
 	@echo "*************** Finished ******************"
-	@echo "Be aware that you have to use the Makefile.user in the simulations"
-	@echo " since you install the simulator libaries and header files into global paths"
+	@echo "Make sure that the $PREFIX/lib directory is in our lib search path"
+	@echo " and $PREFIX/include is searched for includes"
 endif
 
 .PHONY: uninstall_intern
