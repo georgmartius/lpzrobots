@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-04-28 11:14:54  guettler
+ *   Revision 1.8  2008-09-16 15:37:29  martius
+ *   added randomgen
+ *
+ *   Revision 1.7  2008/04/28 11:14:54  guettler
  *   removed include "abstractrobot.h" (not needed)
  *
  *   Revision 1.6  2008/04/17 14:54:45  martius
@@ -80,6 +83,7 @@
 //#include "abstractrobot.h"
 #include "noisegenerator.h"
 #include "inspectable.h"
+#include "randomgenerator.h"
 
 /** Abstract wiring-object between controller and robot.
  *  Implements wiring of robot sensors to inputs of the controller and
