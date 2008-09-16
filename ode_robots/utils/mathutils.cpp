@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2006-08-08 17:04:47  martius
+ *   Revision 1.8  2008-09-16 14:40:39  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.7  2006/08/08 17:04:47  martius
  *   added new sensor model
  *
  *   Revision 1.6  2006/08/04 15:07:47  martius
@@ -62,7 +65,7 @@
  *
  *                                                                         *
  ***************************************************************************/
-#include <math.h>
+#include <cmath>
 #include <osg/Matrix>
 #include "mathutils.h"
 #include "axis.h"

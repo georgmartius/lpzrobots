@@ -33,7 +33,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 #if defined(WIN32) || defined(_WIN32)
 	#define USE_WINDOWS_TIMERS
