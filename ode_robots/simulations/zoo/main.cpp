@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2008-05-01 22:03:56  martius
+ *   Revision 1.19  2008-09-16 19:38:14  martius
+ *   sliderwheelie has different config now
+ *
+ *   Revision 1.18  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -329,7 +332,7 @@ public:
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     for(int r=0; r < numSliderWheele; r++) {
       mySliderWheelieConf.segmNumber=8;
-      mySliderWheelieConf.jointLimit=M_PI/4;
+      //mySliderWheelieConf.jointLimit=M_PI/4;
       mySliderWheelieConf.motorPower=0.4;
       mySliderWheelieConf.frictionGround=0.8;
       mySliderWheelieConf.sliderLength=1;
