@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-11-07 13:21:16  martius
+ *   Revision 1.10  2008-09-16 14:53:24  martius
+ *   provide a virtual center of the robot as main primitive
+ *
+ *   Revision 1.9  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.8  2007/01/26 12:05:04  martius
@@ -83,7 +86,8 @@ namespace lpzrobots {
     double sensorFactor;    ///<  scale for sensors
     double frictionGround;  ///< friction with ground
     double frictionJoint;   ///< friction within joint
-    double jointLimit;      ///< maximal angle for the joints (M_PI/2 = 90 degree)
+    double jointLimitIn;      ///< maximal angle for the joints to the inside (M_PI/2 = 90 degree)
+    double jointLimitOut;      ///< maximal angle for the joints to the outside
     double sliderLength;  ///< length of the slider in segmLength
   } SliderWheelieConf;
   
@@ -106,6 +110,7 @@ namespace lpzrobots {
     std::vector <HingeServo*> hingeServos;
     std::vector <SliderServo*> sliderServos;
 
+    Primitive* center; // virtual center object (position updated on setMotors)
   public:
     SliderWheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		  const SliderWheelieConf& conf, const std::string& name, 
@@ -124,7 +129,8 @@ namespace lpzrobots {
       conf.sensorFactor = 1;    //  scale for sensors
       conf.frictionGround = 0.8; // friction with ground
       conf.frictionJoint = 0.0; // friction within joint
-      conf.jointLimit    =  M_PI/4;
+      conf.jointLimitIn    =  M_PI/2;
+      conf.jointLimitOut   =  -1; // automatically set to 2*M_PI/segm_num
       conf.sliderLength  =  1; 
       return conf;
     }
@@ -146,9 +152,8 @@ namespace lpzrobots {
     virtual int getMotorNumber(){ assert(created); return hingeServos.size()+sliderServos.size(); }
 
     virtual Primitive* getMainPrimitive() const {
-      if(!objects.empty()){
-	//      int half = objects.size()/2;
-	//      return (objects[half]);
+      if(center) return center;
+      else if(!objects.empty()){
 	return (objects[0]);
       }else return 0;
     }
