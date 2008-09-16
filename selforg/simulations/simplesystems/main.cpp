@@ -11,9 +11,9 @@
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
-#include <selforg/dercontroller.h>
+//#include <selforg/dercontroller.h>
 #include <selforg/one2onewiring.h>
-#include <selforg/universalcontroller.h>
+//#include <selforg/universalcontroller.h>
 
 #include "cmdline.h"
 #include "console.h"
@@ -268,22 +268,22 @@ int main(int argc, char** argv){
 //    //cc.useS=true;
 //    cc.someInternalParams=false;
 //    AbstractController* controller = new InvertMotorNStep(cc);
-  UniversalControllerConf cc = UniversalController::getDefaultConf();
-  vector<Layer> layers;
-  layers.push_back(Layer(5,0.5,FeedForwardNN::tanh)); // hidden layer
-  layers.push_back(Layer(0,1,FeedForwardNN::tanhr)); // motor layer
-  // size of output layer is automatically set
-  layers.push_back(Layer(1,0,FeedForwardNN::linear)); 
-  
-  Elman* e = new Elman(1,layers,false, false, false);
-  cc.net = e;
-  cc.init = 1;
-  cc.someInternalParams=false;
-  AbstractController* controller = new UniversalController(cc);
-  controller->setParam("epsDyn",     0);
 
-   //  AbstractController* controller = new InvertMotorSpace(10,1.2);
-//  AbstractController* controller = new DerController();
+//   UniversalControllerConf cc = UniversalController::getDefaultConf();
+//   vector<Layer> layers;
+//   layers.push_back(Layer(5,0.5,FeedForwardNN::tanh)); // hidden layer
+//   layers.push_back(Layer(0,1,FeedForwardNN::tanhr)); // motor layer
+//   // size of output layer is automatically set
+//   layers.push_back(Layer(1,0,FeedForwardNN::linear)); 
+  
+//   Elman* e = new Elman(1,layers,false, false, false);
+//   cc.net = e;
+//   cc.init = 1;
+//   cc.someInternalParams=false;
+//   AbstractController* controller = new UniversalController(cc);
+//   controller->setParam("epsDyn",     0);
+
+  AbstractController* controller = new InvertMotorSpace(10,1.2);
 //  AbstractController* controller = new InvertNChannelController(10,false);
   controller->setParam("s4del",     1.0);
   controller->setParam("s4avg",     1.0);  

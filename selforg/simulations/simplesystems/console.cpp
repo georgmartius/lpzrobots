@@ -26,7 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-10-12 15:27:42  martius
+ *   Revision 1.2  2008-09-16 19:12:49  martius
+ *   do not use dercontroller and universalcontroller for the release
+ *   avoid cast warnings in console
+ *
+ *   Revision 1.1  2007/10/12 15:27:42  martius
  *   simple test for controllers
  *
  *   Revision 1.2  2007/07/28 10:13:26  martius
@@ -77,9 +81,9 @@ bool com_quit (GlobalData& globalData, char *, char *);
    can understand. */
 
 typedef struct {
-  char *name;                   /* User printable name of the function. */
+  const char *name;                   /* User printable name of the function. */
   commandfunc_t func;           /* Function to call to do the job. */
-  char *doc;                    /* Documentation for this function.  */
+  const char *doc;                    /* Documentation for this function.  */
 } COMMAND;
 
 COMMAND commands[] = {
@@ -101,9 +105,7 @@ COMMAND commands[] = {
 char * stripwhite (char *string);
 COMMAND *find_command (char *name);
 bool execute_line (GlobalData& globalData, char *line);
-int valid_argument ( char *caller, char *arg);
-void too_dangerous ( char *caller );
-
+int valid_argument ( const char *caller, const char *arg);
 
 void showParams(const ConfigList& configs)
 {
@@ -274,7 +276,7 @@ char ** console_completion (const char *text, int start, int end) {
    (i.e. STATE == 0), then we start at the top of the list. */
 char * command_generator (const char *text, int state) {
   static int list_index, len;
-  char *name;
+  const char *name;
 
   /* If this is a new word to complete, initialize now.  This
      includes saving the length of TEXT for efficiency, and
@@ -484,7 +486,7 @@ bool com_help (GlobalData& globalData, char* line, char* arg) {
 /* Return non-zero if ARG is a valid argument for CALLER,
    else print an error message and return zero. */
 int
-valid_argument ( char *caller, char *arg)
+valid_argument ( const char *caller, const char *arg)
 {
   if (!arg || !*arg)
     {
