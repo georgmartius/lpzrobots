@@ -20,6 +20,8 @@ ffnncontroller.h
 invertablemodel.h
 invertcontroller.h
 invertmotorcontroller.h
+invertmotorbigmodel.cpp
+invertmotorbigmodel.h
 invertmotornstep.cpp
 invertmotornstep.h
 invertmotorspace.cpp

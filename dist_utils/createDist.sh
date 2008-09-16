@@ -74,5 +74,9 @@ for S in $SIMS; do
     fi
 done 
 
+echo "Removing Makefile.conf";
+rm -f $DIR/Makefile.conf
+
 echo "Removing CVS dirs";
 find $DIR/ -type d -name CVS | xargs rm -r;
+find $DIR/ -type f -name ".cvsignore" | xargs rm -r;

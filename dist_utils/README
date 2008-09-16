@@ -11,9 +11,14 @@ just start ./createextraDist.sh
 
 3. for binary distribution:
 take the prepared distribution from 1 and do
+cd lpzrobots-0.x
+
 make prepare
 make libs
-cd oderobots/simulations
-make all
-cd oderobots/examples/
-make all
+cd oderobots/simulations && make all
+cd oderobots/examples/ && make all
+make clean
+rm Makefile.conf
+cd ../
+tar -cvzf lpzrobots-0.x-binary-lib-devel lpzrobots-0.x
+
