@@ -25,7 +25,8 @@ prepare: usage
 	cd selforg && $(MAKE) depend
 	cd ode_robots && $(MAKE) depend
 	-$(MAKE) tags
-	@if test ! -e opende/Makefile && ld -lode -L$HOME/lib 2>/dev/null; then echo -e "You need to setup ODE from first!\nYou have 2 options: use a precompiled one from our webpage or compile the one in opende\nFor compiling please run:\ncd opende; sh autogen.sh\n./configure --enable-release --enable-double-precision\nmake\nsudo make install\n\nOn most SUSE linux computers it's necessary to run thereafter\n\nsudo ldconfig\n\nfor a correct linking of the libode.so!\n"; exit; fi
+	@if test ! -e opende/Makefile; then echo -en "You need to setup ODE from first!\nYou "; else echo -n "If you want to recompile ODE you "; fi
+	@echo -e "have 2 options: use a precompiled one from our webpage or\ncompile the one in opende\nFor compiling please run:\ncd opende; sh autogen.sh\n./configure --enable-release --enable-double-precision\nmake\nsudo make install\n\nOn most SUSE linux computers it's necessary to run thereafter\nsudo ldconfig\nfor a correct linking of the libode.so!\n";
 	@echo "********************************************************************************"
 	@echo "Don't worry if you have seen a lot of errors above."
 	@echo "This is all optional stuff which is not stricly required."
