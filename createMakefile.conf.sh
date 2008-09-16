@@ -10,8 +10,8 @@ read prefix
 [ -z "$prefix" ] && prefix='/usr/local'  # $(HOME)'
 
 echo -en "Installation type (user or development):\n\
- Choose user (u) if you are a users and only program your own simulations (default)\n\
- Choose devel  (d)  if you develop the simulator\n\
+ Choose user (u) if you are a user and only program your own simulations (default)\n\
+ Choose devel  (d)  if you develop the on the simulator\n\
 Our choice [U/d] "
 read choice 
 [ -z "$choice" ] && choice='u'
@@ -23,7 +23,7 @@ fi
 echo -n "All right? [y/N] "
 read okay 
 if [ ! "$okay" = "y" ]; then
-    echo "Since you said no I better exit. Run again!"
+    echo "Since you said no I better quit. Run again!"
     exit 1;
 fi
 
@@ -41,10 +41,23 @@ if [ -z  ode_robots/install_prefix.conf ]; then
     sed -e "s/^#define.*//" -ibak ode_robots/install_prefix.conf;
 fi
 if [ "$choice" = "u" ]; then 	
-echo "INSTALL_TYPE=user" >> Makefile.conf
-echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
+  echo "INSTALL_TYPE=user" >> Makefile.conf
+  echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
+  echo "move all Makefiles";
+  for F in `find ode_robots/simulations selforg/simulations selforg/examples -mindepth 2 -name Makefile`; do
+    if [ ! -e ${F}.devel ]; then cp $F ${F}.devel; fi # backup development Makefile
+    cp ${F}.user $F;
+  done
 else 
-echo "INSTALL_TYPE=devel" >> Makefile.conf
+  echo "INSTALL_TYPE=devel" >> Makefile.conf
+  for F in `find ode_robots/simulations selforg/simulations selforg/examples -mindepth 2 -name Makefile`; do
+    if [ -e ${F}.devel ]; then 
+	echo "restore development Makefile $F";
+	cp ${F}.devel $F; 
+    fi 
+    
+  done
+
 fi
 
 
