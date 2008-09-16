@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.32  2008-05-05 06:07:26  guettler
+ *   Revision 1.33  2008-09-16 14:46:41  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.32  2008/05/05 06:07:26  guettler
  *   wrong prototype storeODERobotsCFG()
  *
  *   Revision 1.31  2008/04/23 07:17:16  martius
@@ -229,7 +232,7 @@
 #include <osg/Camera>
 
 
-#include <math.h>
+#include <cmath>
 #define PI M_PI // (3.14159265358979323846)
 #include <vector>
 #include <iterator>

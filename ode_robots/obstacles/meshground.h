@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:33  martius
+ *   Revision 1.3  2008-09-16 14:49:46  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/05/29 20:10:28  martius
@@ -37,7 +40,7 @@
 #define __MESHGROUND_H
 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 
 #include "heightfieldprimitive.h"
 #include "abstractobstacle.h"

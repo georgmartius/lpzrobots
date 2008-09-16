@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-03-16 11:01:37  martius
+ *   Revision 1.6  2008-09-16 14:49:46  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.5  2007/03/16 11:01:37  martius
  *   abstractobstacle gets mor functionallity
  *   setSubstance
  *
@@ -45,7 +48,7 @@
  ***************************************************************************/
 
 #include <stdio.h>
-//#include <math.h>
+// #include <cmath>
 // #include <osg/Geode>
 // #include <osg/Geometry>
 // #include <osg/Texture2D>

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-31 08:20:49  martius
+ *   Revision 1.5  2008-09-16 14:49:46  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.4  2007/07/31 08:20:49  martius
  *   mesh without global
  *
  *   Revision 1.3  2006/10/15 15:42:59  robot3
@@ -55,7 +58,7 @@
 #define __PASSIVEMESH_H
 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 
 #include "primitive.h"
 #include "osgprimitive.h"

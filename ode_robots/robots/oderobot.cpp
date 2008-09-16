@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-05-07 16:45:52  martius
+ *   Revision 1.8  2008-09-16 14:53:40  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.7  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.6  2007/12/06 10:02:49  der
@@ -121,16 +124,18 @@ Position OdeRobot::getPosition() const {
   const Primitive* o = getMainPrimitive();    
     // using the Geom has maybe the advantage to get the position of transform objects 
     // (e.g. hand of muscledArm)
-  if (o && o->getGeom())
-    return Position(dGeomGetPosition(o->getGeom()));
-  else if(o->getBody())
-    return Position(dBodyGetPosition(o->getBody()));     
-  else return Position(0,0,0);
+  if (o){
+    if(o->getGeom())
+      return Position(dGeomGetPosition(o->getGeom()));
+    else if(o->getBody())
+      return Position(dBodyGetPosition(o->getBody()));     
+  }  
+  return Position(0,0,0);
 }
 
 Position OdeRobot::getSpeed() const {
   const Primitive* o = getMainPrimitive();
-  if (o && o->getBody())
+  if(o && o->getBody())
     return Position(dBodyGetLinearVel(o->getBody()));     
   else return Position(0,0,0);
 }

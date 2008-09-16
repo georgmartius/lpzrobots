@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-09-06 18:48:29  martius
+ *   Revision 1.12  2008-09-16 14:53:59  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.11  2007/09/06 18:48:29  martius
  *   clone function (a bit like a factory)
  *
  *   Revision 1.10  2007/08/24 12:48:04  martius
@@ -72,7 +75,7 @@
  *                                                                         *
  ***************************************************************************/
 #include <ode/ode.h>
-#include <math.h>
+#include <cmath>
 #include <assert.h>
 #include <selforg/position.h>
 #include <osg/Matrix>

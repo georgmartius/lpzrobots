@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2006-11-30 08:51:39  robot8
+ *   Revision 1.14  2008-09-16 14:53:40  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.13  2006/11/30 08:51:39  robot8
  *   -update of the evolution projekt
  *   -fitness changed
  *   -replication changed
@@ -45,7 +48,7 @@
 #include <list>
 
 #include <ode/ode.h>
-#include <math.h>
+#include <cmath>
 
 #include "oderobot.h"
 #include "joint.h"

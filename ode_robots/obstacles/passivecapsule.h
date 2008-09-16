@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:33  martius
+ *   Revision 1.3  2008-09-16 14:49:46  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:33  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.4  2006/06/16 22:27:26  martius
@@ -44,7 +47,7 @@
 #define __PASSIVECAPSULE_H
 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 
 #include "primitive.h"
 #include "abstractobstacle.h"

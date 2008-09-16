@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:32  martius
+ *   Revision 1.3  2008-09-16 14:49:46  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.2  2006/07/14 12:23:32  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/05/28 22:29:46  martius
@@ -35,7 +38,7 @@
  ***************************************************************************/
 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 
 #include <osg/Geode>
 #include <osg/Geometry>

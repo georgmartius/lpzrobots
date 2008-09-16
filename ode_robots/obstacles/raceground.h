@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-12-12 13:44:37  martius
+ *   Revision 1.9  2008-09-16 14:49:46  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.8  2005/12/12 13:44:37  martius
  *   barcodesensor is working
  *
  *   Revision 1.7  2005/12/03 16:56:28  martius
@@ -52,7 +55,7 @@
 
 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 #include <list>
 
 #include "abstractobstacle.h"

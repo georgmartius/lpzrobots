@@ -27,6 +27,7 @@
 #include <selforg/inspectable.h>
 #include <list>
 #include <vector>
+#include <cmath>
 
 #include <string.h>
 #include <iostream>
@@ -39,8 +40,6 @@
 #include "joint.h"
 #include "sensor.h"
 
-
-#include<math.h>
 
 #include "osgprimitive.h"
 

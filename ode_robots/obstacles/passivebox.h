@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-12-06 15:59:19  der
+ *   Revision 1.5  2008-09-16 14:49:46  martius
+ *   use cmath instead of math.h
+ *
+ *   Revision 1.4  2007/12/06 15:59:19  der
  *   if you set the mass=0.0, a passive box without a body is created
  *
  *   Revision 1.3  2007/03/16 11:01:37  martius
@@ -58,7 +61,7 @@
 #define __PASSIVEBOX_H
 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 
 #include "primitive.h"
 #include "abstractobstacle.h"
