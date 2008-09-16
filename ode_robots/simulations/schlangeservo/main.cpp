@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2008-09-16 19:37:36  martius
+ *   Revision 1.13  2008-09-16 19:44:38  martius
+ *   removed dercontroller
+ *
+ *   Revision 1.12  2008/09/16 19:37:36  martius
  *   removed controllers not in release
  *
  *   Revision 1.11  2008/05/01 22:03:56  martius
@@ -84,11 +87,10 @@
 #include <ode_robots/playground.h>
 #include <ode_robots/passivesphere.h>
 
-#include <selforg/dercontroller.h>
+// #include <selforg/dercontroller.h>
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
-#include <selforg/dercontroller.h>
 #include <selforg/sinecontroller.h>
 
 #include <ode_robots/schlangeservo2.h>
