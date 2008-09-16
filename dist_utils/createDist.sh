@@ -23,6 +23,8 @@ echo "Copy javacontroller";
 cp -r  $SRCDIR/javacontroller $DIR/;
 echo "Copy neuronviz";
 cp -r  $SRCDIR/neuronviz $DIR/;
+echo "Copy soundman";
+cp -r  $SRCDIR/soundman $DIR/;
 echo "Copy webots projects";
 cp -r  $SRCDIR/webots $DIR/;
 
