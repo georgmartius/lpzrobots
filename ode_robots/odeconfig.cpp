@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-04-23 07:17:16  martius
+ *   Revision 1.9  2008-09-16 14:43:45  martius
+ *   motionpersistence it 0 by default
+ *
+ *   Revision 1.8  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -94,7 +97,7 @@ namespace lpzrobots {
     randomSeed = 0;
     addParameterDef("noise",            &noise,0.1);
     addParameterDef("cameraspeed",      &cameraSpeed,100);
-    addParameterDef("motionpersistence",&motionPersistence,0.09);
+    addParameterDef("motionpersistence",&motionPersistence,0.0);
     // prepare name;
     videoRecordingMode=false;
   }
