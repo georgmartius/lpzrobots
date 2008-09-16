@@ -1,6 +1,8 @@
 #File:     Makefile for Matrix libary
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2005
+# THIS MAKEFILE HAS NO IDEA ABOUT USER AND DEVELOPMENT INSTALLATION
+#  you might have to adjust some path and so on
 
 FILES_CT = controllertest
 CFILES_CT = $(addsuffix .cpp, $(FILES_CT))
