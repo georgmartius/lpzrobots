@@ -4,6 +4,7 @@
 
 # us -pg for profiling
 TEST_DEBUG_CFLAGS = -Wall -I. -I../include/selforg -DUNITTEST -g
+#TEST_OPTIM_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG -ftree-vectorize -msse2
 TEST_OPTIM_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG
 #LIB_DEBUG_CFLAGS = -Wall -I. 
 #LIB_OPTIM_CFLAGS = -Wall -I. -O3 -DNDEBUG 
