@@ -4,8 +4,8 @@
 
 # us -pg for profiling
 TEST_DEBUG_CFLAGS = -Wall -I. -I../include/selforg -DUNITTEST -g
-#TEST_OPTIM_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG -ftree-vectorize -msse2
 TEST_OPTIM_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG
+TEST_OPTIMSSE_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG -ftree-vectorize -msse2
 #LIB_DEBUG_CFLAGS = -Wall -I. 
 #LIB_OPTIM_CFLAGS = -Wall -I. -O3 -DNDEBUG 
 #EXAMPLE_CFLAGS   = -Wall -I. 
@@ -22,7 +22,7 @@ AR = ar
 #AVRUTILS   = ../avr/utils
 
 .PHONY: all
-all: unittests_debug unittests
+all: unittests_debug unittests unittests_sse
 #    libmatrix_avr_debug.a libmatrix_avr.a
 
 unittests_debug: matrix.h matrix.cpp matrix.tests.hpp Makefile
@@ -30,6 +30,12 @@ unittests_debug: matrix.h matrix.cpp matrix.tests.hpp Makefile
 
 unittests: matrix.h matrix.cpp  matrix.tests.hpp Makefile
 	$(CXX) $(LIBS) $(TEST_OPTIM_CFLAGS) matrix.cpp -o unittests
+
+unittests_sse: matrix.h matrix.cpp  matrix.tests.hpp Makefile
+	$(CXX) $(LIBS) $(TEST_OPTIMSSE_CFLAGS) matrix.cpp -o unittests_sse
+
+test:
+	g++ -lm -Wall -I. -I../include/selforg -O1 -DNDEBUG -ftree-vectorize -msse2 -ftree-vectorizer-verbose=5 -funsafe-math-optimizations -c sse_test.cpp
 
 #libmatrix_debug.a: matrix.h matrix.cpp
 #	$(CXX) $(LIB_DEBUG_CFLAGS) -c matrix.cpp -o libmatrix_debug.a	
