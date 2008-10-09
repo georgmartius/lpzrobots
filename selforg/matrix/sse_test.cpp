@@ -43,3 +43,5 @@ int main(){
 
   return 0;
 }
+
+/* so far it does not work, we need to wait for gcc 4.3 */
