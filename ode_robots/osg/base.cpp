@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2008-07-29 15:44:00  guettler
+ *   Revision 1.22  2008-10-10 14:05:15  martius
+ *   time display was wrong
+ *
+ *   Revision 1.21  2008/07/29 15:44:00  guettler
  *   removed forceFronCullFace option for pssm to obtain compatibiltity with OSG 2.6
  *
  *   Revision 1.20  2008/06/26 10:15:55  der
@@ -564,19 +567,20 @@ namespace lpzrobots {
 			  double truerealtimefactor, bool pause){
     if(timestats){
       char buffer[100];
-      int minutes = (int)time/60;
+      int minutes = int(time)/60;
+      int seconds = int(time)%60;
       if (pause) {
         sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (paused)",minutes,
-                int(time-minutes)%60,realtimefactor);
+                seconds,realtimefactor);
       } else if (realtimefactor>0){
-	if(fabs(truerealtimefactor/realtimefactor-1)<0.15)
+	if(fabs(truerealtimefactor/realtimefactor-1)<0.15) 
 	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes,
-		  int(time-minutes)%60,realtimefactor);
+		  seconds,realtimefactor);
 	else
 	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx(%.1fx!)",minutes,
-		  int(time-minutes)%60,truerealtimefactor, realtimefactor);
+		  seconds,truerealtimefactor, realtimefactor);
       } else
-        sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (max)",minutes, int(time-minutes)%60,truerealtimefactor);
+        sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (max)",minutes, seconds,truerealtimefactor);
       timestats->setText(buffer);
     }
   }
