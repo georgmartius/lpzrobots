@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-06-20 14:03:00  guettler
+ *   Revision 1.11  2008-11-11 19:40:58  der
+ *   small changes
+ *
+ *   Revision 1.10  2008/06/20 14:03:00  guettler
  *   reckturner
  *
  *   Revision 1.9  2008/05/27 13:25:12  guettler
@@ -103,6 +106,7 @@
 #include <selforg/noisegenerator.h>
 
 // include simulation environment stuff
+//#include <simulation.h>
 #include <ode_robots/simulation.h>
 
 // include agent (class for holding a robot, a controller and a wiring)
@@ -110,6 +114,7 @@
 
 // used wiring
 #include <selforg/one2onewiring.h>
+#include <selforg/derivativewiring.h>
 
 // used robot
 #include "skeleton.h"
@@ -150,6 +155,13 @@
 #include <ode_robots/schlangeservo2.h>
 #include <selforg/derivativewiring.h>
 
+//***********HAND
+
+
+
+
+//*********HAND
+
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 using namespace std;
@@ -172,9 +184,9 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(-1.66705, 4.47234, 3.86184),  Pos(-158.908, -10.5863, 0));
+    setCameraHomePos (Pos(22.4468, 25.8365, 2.74255),  Pos(157.862, -12.7123, 0));
 
-  // Set number of robots:
+  // Set number of rbots:
 
 
     // int plattfuesse = 1; 
@@ -187,9 +199,10 @@ public:
     int wheelies = 0;
     int humanoids=1;
     //    int barrel=0;
+    // int dogs = 0; 
 
     bool fixedInAir = false;
-    reckturner = true;
+    reckturner = false;
 
     fixator=0;
     reckLeft = reckRight = 0;
@@ -198,12 +211,12 @@ public:
     // initialization
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.setParam("controlinterval",5);//4);
-    global.odeConfig.setParam("noiseY",0.0); 
-    global.odeConfig.setParam("noise",0.0); 
+    global.odeConfig.setParam("controlinterval",2);//4);
+    global.odeConfig.setParam("noiseY",2.0); 
+    global.odeConfig.setParam("noise",0.02); 
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("simstepsize",0.004);//0.004);
-        global.odeConfig.setParam("gravity", -4);
+        global.odeConfig.setParam("gravity", -5);
     //    global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
@@ -240,7 +253,7 @@ public:
 //     global.obstacles.push_back(playground);
 
 //     int anzgrounds=1;
-//     for (int i=0; i< anzgrounds; i++){
+//     for (int armPower = 15;//5i=0; i< anzgrounds; i++){
 //       playground = new Playground(odeHandle, osgHandle, osg::Vec3(10.05+4*i, 10, .75+0.15*i), 1, i==(anzgrounds-1)); 
 //       OdeHandle myhandle = odeHandle;
 //       //      myhandle.substance.toFoam(10);
@@ -262,16 +275,18 @@ public:
 // //     global.obstacles.push_back(m);
     
    
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(3.0, 5.2, 1.0)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
-     playground->setPosition(osg::Vec3(0,0,.1));
+     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(0.875, 8.8, 1.3975)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
+     playground->setPosition(osg::Vec3(20,20,.1));
      Substance substance;
-    substance.toPlastic(10.0);
+     //  substance.toPlastic(10.0);
+        substance.toRubber(10.0);
+      //   substance.toMetal(1);
     playground->setGroundSubstance(substance);
     global.obstacles.push_back(playground);
 /*    double xboxes=0.0;
     double yboxes=0.0;*/
-    double xboxes=0;//19;//19.0;
-    double yboxes=0;//19;
+    double xboxes=0;//15;//19.0;
+    double yboxes=0;//15;
     double boxdis=.9;//.45;//1.6;
     for (double j=0.0;j<xboxes;j++)
       for(double i=0.0; i<yboxes; i++) {
@@ -281,7 +296,7 @@ public:
         PassiveBox* b =
           new PassiveBox(odeHandle,
                          osgHandle, osg::Vec3(xsize,ysize,zsize),0.0);
-        b->setPosition(Pos(boxdis*(i-(xboxes-1)/2.0),boxdis*(j-(yboxes-1)/2.0), 0.01));
+        b->setPosition(Pos(boxdis*(20+i-(xboxes-1)/2.0),boxdis*(20+j-(yboxes-1)/2.0), 0.01));
         b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
         b->setTexture("Images/light_chess.rgb");
         global.obstacles.push_back(b);
@@ -289,6 +304,8 @@ public:
     
 
     for (int i=0; i< humanoids; i++){ //Several humans
+
+      if (i>0) reckturner=false;
 
 //       ZweiBeinerConf conf = ZweiBeiner::getDefaultConf();
       
@@ -305,23 +322,24 @@ public:
       conf.massfactor   = 1;
       conf.relLegmass = 5;
       conf.relFeetmass = 1;
-      conf.relArmmass = .1;//1.0;
+      conf.relArmmass = 1;//1.0;
 
-      conf.hipJointLimit= 1.2; //!
-       conf.kneeJointLimit=1.911; //!
+      conf.hipJointLimit= 2.6; //!
+      conf.kneeJointLimit=2.2;//1.911; //!
        conf.hip2JointLimit=.9; //!
-       conf.armJointLimit=1.2; //!
-       conf.armJointLimit=M_PI/2.0; //!
+       conf.armJointLimit=M_PI/1.2;//2.0; //!
 //       conf.ankleJointLimit=0.001; //!
        conf.pelvisJointLimit=.5; //!    
-      conf.hipPower=50;
-      conf.hip2Power=20;      //5
+      conf.hipPower=100;
+      conf.hip2Power=50;      //5
       conf.pelvisPower=20;
-      conf.kneePower= 15;
-      conf.anklePower= 2;
-      conf.armPower = 15;//5
-      conf.powerfactor = .8;
-      if (i==0) 
+      conf.kneePower= 25;
+      conf.anklePower = 5;
+      conf.armPower = 20;//5
+      if(reckturner)      conf.armPower = 30;
+      conf.powerfactor = .5;// .95;//.65;//5;
+       if (reckturner) conf.powerfactor *=.2;
+       if (i==0)
 	conf.trunkColor=Color(0.1, 0.3, 0.8);
       else	conf.trunkColor=Color(0.9, 0.0, 0.1);
       if(reckturner)
@@ -331,12 +349,12 @@ public:
       //     conf.bodyColor=Color(1.0,1.0,0.0);
       OdeHandle skelHandle=odeHandle;
       // skelHandle.substance.toMetal(1);
-      //  skelHandle.substance.toPlastic(2);//TEST sonst 40
-      skelHandle.substance.toRubber(20);//TEST sonst 40
+          skelHandle.substance.toPlastic(40);//TEST sonst 40
+	  // skelHandle.substance.toRubber(4);//TEST sonst 40
       Skeleton* human = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
       human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		   //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
-		   *osg::Matrix::translate(i,i,1+2*i));
+		   *osg::Matrix::translate(.2*i+20,.2*i+20,.4/*7*/ +2*i));
       global.configs.push_back(human);
       
       
@@ -360,14 +378,15 @@ public:
 
       // create pointer to controller
       // push controller in global list of configurables
-      //AbstractController *controller = new SineController();
-      //controller->setParam("sinerate",50);
-      //controller->setParam("phaseshift",0);
+     //  AbstractController *controller = new SineController();
+//       controller->setParam("sinerate",250);
+//       controller->setParam("phaseshift",0);
 
-       DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
-      //      BasicControllerConf cc = BasicController::getDefaultConf();    
-	   // AbstractController* controller = new DerLinInvert(cc);
+        DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
+	//           BasicControllerConf cc = BasicController::getDefaultConf();    
+	//  AbstractController* controller = new DerLinInvert(cc);
 
+        cc.cInit=  1.0;//1.005;
   
           vector<Layer> layers;
            layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
@@ -385,7 +404,7 @@ public:
 
 	  //Elman Net 
           layers.clear();
-	  layers.push_back(Layer(40,0.5,Elman::tanhr)); // hidden layer
+	   layers.push_back(Layer(40,0.5,Elman::tanhr)); // hidden layer
           // size of output layer is automatically set
           layers.push_back(Layer(1,0.5,Elman::tanh)); 
           Elman* sat = new Elman(1, layers,true,true, false);
@@ -398,26 +417,28 @@ public:
 
       //     controller->setParam("adaptrate",0);
       //     controller->setParam("rootE",3);
-           controller->setParam("epsC",0.1);
+           controller->setParam("epsC",0.03);
            controller->setParam("epsSat",0.02);
-           controller->setParam("epsA",0.0);
+           controller->setParam("epsA",0.003);
       controller->setParam("steps",1);
-           controller->setParam("s4avg",5);
-           controller->setParam("s4delay",3);
+           controller->setParam("s4avg",2);
+           controller->setParam("s4delay",1);
            controller->setParam("teacher",0.0);
-      //     controller->setParam("dampS",0.0001);
-      //     controller->setParam("dampA",0.00003);
+           controller->setParam("dampC",0.00001);
+           controller->setParam("dampA",0.003);
           controller->setParam("weighting",1);
-          controller->setParam("noise",0);
+          controller->setParam("noise",0);;
+          controller->setParam("zetaupdate",1);
+	  controller->setParam("PIDint",.3);
       
       global.configs.push_back(controller);
       
       // create pointer to one2onewiring
-        One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-//       c.useId = true;
-//       c.useFirstD = false;
-//       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
+      //     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+       DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+       c.useId = true;
+       c.useFirstD = false;
+       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(.2) );
       
       
 
@@ -433,6 +454,8 @@ public:
     }// Several humans end
     
 
+   
+
 
     //****** SNAKES **********/
     //creation of normal   snakes 
@@ -445,7 +468,7 @@ public:
       conf.segmLength= .8 * snakesize;// 0.8;
         conf.segmDia=.15 *snakesize;
       conf.motorPower= 2 * snakesize;
-      conf.segmNumber = 3+4*i;//-i/2; 
+      conf.segmNumber = 13+4*i;//-i/2; 
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit* 1.6;
       conf.frictionGround=0.03;// +((double)i)/100;
@@ -466,7 +489,7 @@ public:
       }
       //Positionieren und rotieren 
       schlange1->place(osg::Matrix::rotate(M_PI/2,0, 1, 0)*
-		        osg::Matrix::translate(-.7+0.7*i,-2*i,1+(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
+		        osg::Matrix::translate(22 -.7*i,20-2*i,1+(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
 		       // osg::Matrix::translate(5-i,2 + i*2,height+2));
       schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
       if (i==0) {
@@ -497,7 +520,7 @@ public:
   
 	  //Elman Net 
           layers.clear();
-	  layers.push_back(Layer(8,0.5,Elman::tanhr)); // hidden layer
+	  // layers.push_back(Layer(8,0.5,Elman::tanhr)); // hidden layer
           // size of output layer is automatically set
           layers.push_back(Layer(1,0.5,Elman::tanh)); 
           Elman* sat = new Elman(1, layers,true,true, false);
@@ -533,12 +556,12 @@ public:
  
       controller->setParam("steps",1);
       controller->setParam("epsC",0.1);
-      controller->setParam("epsA",0.0);
+      controller->setParam("epsA",0.01);
       controller->setParam("adaptrate",0.0);//0.005);
       controller->setParam("rootE",3); 
       controller->setParam("logaE",0);
       controller->setParam("epsSat",0.02);
-      controller->setParam("weighting",0.5);
+      controller->setParam("weighting",1);
 
       // controller->setParam("desens",0.0);
       controller->setParam("s4delay",2.0);
@@ -550,8 +573,8 @@ public:
       controller->setParam("frictionjoint",0.01);
       controller->setParam("frictionground",0.03);
       controller->setParam("teacher", 0.0); 
-          controller->setParam("dampA",0.0001);
-          controller->setParam("dampC",0.000001);
+          controller->setParam("dampA",0.01);
+          controller->setParam("dampC",0.00001);
     
     }//creation of snakes End
 
@@ -710,7 +733,10 @@ public:
 
     showParams(global.configs);
   }
+  //*************HAND*************
 
+  
+  //HAND ENDE ********************+
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
 //     if(draw){
@@ -719,7 +745,7 @@ public:
 //       if(reckRight) reckRight->update();
 //     }
     if(globalData.time>1 && reckturner==true && reck==0){
-      double reckLength=2;	
+      double reckLength=20;	
       reck = new Capsule(0.01,reckLength);
       reck->init(odeHandle, 0,osgHandle);
       reck->setPose(osg::Matrix::rotate(M_PI/2.0,0,1,0)
