@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-06-20 14:03:01  guettler
+ *   Revision 1.10  2008-11-11 19:42:20  der
+ *   Some changes
+ *
+ *   Revision 1.9  2008/06/20 14:03:01  guettler
  *   reckturner
  *
  *   Revision 1.8  2008/05/27 13:25:12  guettler
@@ -107,7 +110,7 @@ namespace lpzrobots {
     if(conf.onlyPrimaryFunctions)
       return hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size()+ 1/*pelvis*/ ;
     else
-      return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2 + 
+      return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2 + arm1servos.size() + 
 	2/*pelvis*/+ /*headservos.size();*/ + 2*headservos.size();
   };
 
@@ -147,7 +150,10 @@ namespace lpzrobots {
       }
       n++;
     }
-
+    FOREACH(vector <OneAxisServo*>, arm1servos, s){
+      (*s)->set(motors[n]);
+      n++;
+    }
     if(!conf.onlyPrimaryFunctions){
       pelvisservo->set(motors[n],motors[n+1]);
       n+=2;
@@ -175,10 +181,10 @@ namespace lpzrobots {
     int numberSensors=0;
     
     if(conf.onlyPrimaryFunctions)
-      numberSensors +=hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size() + 1 /*pelvis*/;
+      numberSensors +=hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size() + arm1servos.size() + 1 /*pelvis*/;
     else
       numberSensors +=hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2
-	+ 2 /*pelvis*/ + /*headservos.size()*/ 2*headservos.size()  ; 
++ arm1servos.size()	+ 2 /*pelvis*/ + /*headservos.size()*/ 2*headservos.size()  ; 
 
     // add new one!
     // head and trunk position (z): +2
@@ -196,7 +202,7 @@ GUIDE adding new sensors
 
    ****************************/
 
-  /* returns actual sensorvalues
+  /* returns actual sensorvaluess
       @param sensors sensors scaled to [-1,1] (more or less)
       @param sensornumber length of the sensor array
       @return number of actually written sensors
@@ -229,7 +235,10 @@ GUIDE adding new sensors
       } 
       n++;
     }
-
+ FOREACHC(vector <OneAxisServo*>, arm1servos, s){
+      sensors[n]   = (*s)->get();
+      n++;
+    }
     sensors[n] = pelvisservo->get1();
     n++;
     if(!conf.onlyPrimaryFunctions){
@@ -244,9 +253,9 @@ GUIDE adding new sensors
 	n+=2;
       }
     }
-    // add z-headPosition as sensor and increment n!
-    //    sensors[n++]=getHeadPosition().z;
-    //    sensors[n++]=getTrunkPosition().z;
+  //   // add z-headPosition as sensor and increment n!
+//         sensors[n++]=getHeadPosition().z;
+//         sensors[n++]=getTrunkPosition().z;
     
     assert(len==n);
     return n;
@@ -317,7 +326,7 @@ GUIDE adding new sensors
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.handColor);
 //    b->setMass(/*16*/.61, 0, 0, 0, 0.0996, 0.1284, 0.1882, 0, 0, 0);
-    b->setMass(1.6*conf.massfactor);
+    b->setMass(.5*conf.massfactor);
     objects[Hip]=b; 
  
     // Pole1    
@@ -337,11 +346,11 @@ GUIDE adding new sensors
     
     // Trunk_comp
     //b = new Mesh("Meshes/skeleton/Trunk_comp_center.wrl",1);    
-    b = new Box(0.3,0.45,0.2);
+    b = new Box(0.3,0.45,.2);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
 //     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
-    b->setMass(1*conf.massfactor);
+    b->setMass(.5*conf.massfactor);//.3
     b->setTexture(conf.trunkTexture);
     b->setColor(conf.trunkColor);
    //  b = new Capsule(0.3,0.2);
@@ -351,11 +360,11 @@ GUIDE adding new sensors
     objects[Trunk_comp]=b;
     
     //  Neck
-    b = new Capsule(0.05,0.08);
+    b = new Capsule(0.05,0.03);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884, 0.0253) * pose );
 //     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
-    b->setMass(.1*conf.massfactor);
+    b->setMass(.01*conf.massfactor);//.01
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.bodyColor);
     objects[Neck]=b;
@@ -367,7 +376,7 @@ GUIDE adding new sensors
     b->setPose(osg::Matrix::translate(0, 1.8106, 0.063) * pose );
     // b->setMass(5.89, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
 //     b->setMass(.1, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
-    b->setMass(0.1*conf.massfactor);
+    b->setMass(0.1*conf.massfactor);//.03
     b->setTexture(conf.headTexture);
     b->setColor(conf.headColor);
     objects[Head_comp]=b;
@@ -394,13 +403,13 @@ GUIDE adding new sensors
 
     // Left_Hand
     // b = new Cylinder(0.06,0.05);
-    b = new Sphere(0.1);
+    b = new Sphere(0.07);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0.7826, 1.5948, 0.024) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.handColor);
 //     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
-    b->setMass(0.55*conf.massfactor);
+    b->setMass(0.35*conf.massfactor);
     objects[Left_Hand]=b;
 
     // Right_Shoulder
@@ -425,13 +434,13 @@ GUIDE adding new sensors
 
     // Right_Hand
     // b = new Cylinder(0.06,0.05);
-    b = new Sphere(0.1);
+    b = new Sphere(0.07);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(-0.7826, 1.5948, 0.024) * pose );
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.handColor);
 //     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
-    b->setMass(0.55*conf.massfactor);
+    b->setMass(0.35*conf.massfactor);
     objects[Right_Hand]=b;
 
     // Left_Thigh
@@ -442,7 +451,7 @@ GUIDE adding new sensors
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.handColor);
 //     b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
-    b->setMass(1*conf.massfactor);
+    b->setMass(.5*conf.massfactor);
     objects[Left_Thigh]=b;
 
     // Left_Shin
@@ -473,7 +482,7 @@ GUIDE adding new sensors
     b->setTexture(conf.bodyTexture);
     b->setColor(conf.handColor);
     //    b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
-    b->setMass(1*conf.massfactor);
+    b->setMass(.5*conf.massfactor);
     objects[Right_Thigh]=b;
 
     // Right_Shin
@@ -586,7 +595,7 @@ GUIDE adding new sensors
     j->init(odeHandle, osgHandleJ, false);
     joints.push_back(j);
     //  servo1 = new OneAxisServo(j, -M_PI/10, M_PI/10, 20,0.1);
-     servo1 = new OneAxisServo(j, -M_PI*0.05, M_PI*.5, 20,0.1);
+     servo1 = new OneAxisServo(j, -M_PI*0.005, M_PI*.5, 20,0.1);
      arm1servos.push_back(servo1);
 
     j = new HingeJoint(objects[Right_Shoulder], objects[Right_Forearm],Pos(-0.442, 1.587, 0.024) * pose,  Axis(0,1,0) * pose);
@@ -594,7 +603,7 @@ GUIDE adding new sensors
     joints.push_back(j);
     // servo1 = new OneAxisServo(j, -M_PI/10, M_PI/10, 20,0.1);
     //   servo1 = new OneAxisServo(j, -M_PI*.5, 0.05*M_PI, 20,0.1);
-    servo1 = new OneAxisServo(j, -M_PI*.5, 0.05*M_PI, 20,0.1/*integration=*/,1);
+    servo1 = new OneAxisServo(j, -M_PI*.5, 0.005*M_PI, 10,0.1/*integration=*/,1);
     arm1servos.push_back(servo1);
 
     if(conf.handsRotating){
@@ -620,8 +629,8 @@ GUIDE adding new sensors
     uj->init(odeHandle, osgHandleJ, true, 0.15);
     joints.push_back(uj);
     
-    servo2 =  new TwoAxisServo(uj, -conf.hipJointLimit,/*TEST*/ 3* conf.hipJointLimit, conf.hipPower,
-			      -conf.hip2JointLimit, conf.hip2JointLimit*2, conf.hip2Power, conf.hipDamping);
+    servo2 =  new TwoAxisServo(uj, -/*TEST*/1* conf.hipJointLimit,conf.hipJointLimit, conf.hipPower,
+			      -conf.hip2JointLimit, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping);
     servo2->damping2() = conf.hip2Damping;
     hipservos.push_back(servo2);
 
@@ -630,7 +639,7 @@ GUIDE adding new sensors
     uj->init(odeHandle, osgHandleJ, true, 0.15);
     joints.push_back(uj);
     
-    servo2 =  new TwoAxisServo(uj, -conf.hipJointLimit, conf.hipJointLimit, conf.hipPower,
+    servo2 =  new TwoAxisServo(uj, -conf.hipJointLimit *.1, conf.hipJointLimit, conf.hipPower,
 			      -conf.hip2JointLimit, conf.hip2JointLimit*2, conf.hip2Power, conf.hipDamping);
     servo2->damping2() = conf.hip2Damping;
     hipservos.push_back(servo2);
@@ -642,7 +651,7 @@ GUIDE adding new sensors
     j->init(odeHandle, osgHandleJ, true, 0.12);
     joints.push_back(j);
     
-    servo1 = new OneAxisServo(j, -conf.kneeJointLimit, conf.kneeJointLimit * 0.02, conf.kneePower, conf.kneeDamping,0);
+    servo1 = new OneAxisServo(j, -conf.kneeJointLimit, conf.kneeJointLimit * 0.4, conf.kneePower, conf.kneeDamping);
     kneeservos.push_back(servo1);
 
     j = new HingeJoint(objects[Right_Thigh], objects[Right_Shin], Pos(-0.078, 0.6146, 0.0396) * pose, 
@@ -650,7 +659,7 @@ GUIDE adding new sensors
     j->init(odeHandle, osgHandleJ, true, 0.12);
     joints.push_back(j);
     
-    servo1 = new OneAxisServo(j, -conf.kneeJointLimit, conf.kneeJointLimit  * 0.02, conf.kneePower, conf.kneeDamping,0);
+    servo1 = new OneAxisServo(j, -conf.kneeJointLimit, conf.kneeJointLimit  * 0.02, conf.kneePower, conf.kneeDamping);
     kneeservos.push_back(servo1);
 
     // Shins and Feet (Ankles)
@@ -660,7 +669,7 @@ GUIDE adding new sensors
     j->init(odeHandle, osgHandleJ, true);
     joints.push_back(j);
     
-     servo1 = new OneAxisServo(j, -conf.ankleJointLimit, conf.ankleJointLimit, conf.anklePower, conf.ankleDamping,0);
+     servo1 = new OneAxisServo(j, -conf.ankleJointLimit, conf.ankleJointLimit, conf.anklePower, conf.ankleDamping);
      ankleservos.push_back(servo1);
 
      j = new HingeJoint(objects[Right_Shin], objects[Right_Foot], Pos(-0.0624, 0.183, 0.0318) * pose, 
@@ -669,7 +678,7 @@ GUIDE adding new sensors
     j->init(odeHandle, osgHandleJ, true, 0.1);
     joints.push_back(j);
     
-    servo1 = new OneAxisServo(j, -conf.ankleJointLimit, conf.ankleJointLimit, conf.anklePower, conf.ankleDamping,0);
+    servo1 = new OneAxisServo(j, -conf.ankleJointLimit, conf.ankleJointLimit, conf.anklePower, conf.ankleDamping);
     ankleservos.push_back(servo1);
     
     
@@ -678,13 +687,13 @@ GUIDE adding new sensors
     
 
     // register ignored pairs
-/*    odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Trunk_comp]);
+   odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Trunk_comp]);
     odeHandle.addIgnoredPair(objects[Right_Thigh],objects[Trunk_comp]);
     odeHandle.addIgnoredPair(objects[Left_Shin],objects[Trunk_comp]);
     odeHandle.addIgnoredPair(objects[Right_Shin],objects[Trunk_comp]);
     
-    odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Right_Thigh]);
-    odeHandle.addIgnoredPair(objects[Left_Shin],objects[Right_Shin]);*/
+    // odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Right_Thigh]);
+    //  odeHandle.addIgnoredPair(objects[Left_Shin],objects[Right_Shin]);
     odeHandle.addIgnoredPair(objects[Left_Foot],objects[Right_Foot]);
     
   }; 
