@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-06-20 14:03:01  guettler
+ *   Revision 1.9  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.8  2008/06/20 14:03:01  guettler
  *   reckturner
  *
  *   Revision 1.7  2008/05/27 13:25:12  guettler
@@ -92,10 +96,15 @@ namespace lpzrobots {
     double pelvisPower;   ///< maximal force for at pelvis joint motor
     double pelvisDamping; ///< damping of pelvis joint servo
     double pelvisJointLimit; ///< angle range of pelvis joint
+    double backPower;   ///< maximal force for at back joint motor
+    double backDamping; ///< damping of back joint servo
+    double backJointLimit; ///< angle range of back joint
     double powerfactor; ///< scale factor for maximal forces of the servos
     
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
     bool handsRotating; ///< hands are attached with a ball joint
+
+    bool useBackJoint; ///< whether to use the joint in the back
 
     Color headColor;
     Color bodyColor;
@@ -104,7 +113,7 @@ namespace lpzrobots {
 
     std::string headTexture; // texture of the head
     std::string bodyTexture; // texture of the body
-    std::string trunkTexture; // texture of the trunk
+    std::string trunkTexture; // texture of the trunk and thorax
 
   } SkeletonConf;
 
@@ -114,7 +123,7 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot {
   public:
 
-    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Neck, Head_comp, 
+    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Thorax, Neck, Head_comp, 
 			     Left_Shoulder, Left_Forearm, Left_Hand,
 			     Right_Shoulder, Right_Forearm, Right_Hand, 
 			     Left_Thigh, Left_Shin, Left_Foot,
@@ -160,6 +169,9 @@ namespace lpzrobots {
       c.pelvisPower=200;
       c.pelvisDamping=0.5;
 
+      c.backPower=50;
+      c.backDamping=0.5;
+
       c.hipJointLimit = M_PI/2; // +- 90 degree
       c.kneeJointLimit = M_PI/4; // +- 45 degree
       c.ankleJointLimit = M_PI/4; // +- 45 degree
@@ -169,8 +181,11 @@ namespace lpzrobots {
       c.hip2JointLimit = M_PI/30; // +- 6 degree
       c.pelvisJointLimit = M_PI/30; // +- 6 degree
 
+      c.backJointLimit = M_PI/4; // +- 45 degree (half of it to the back)
+
       c.onlyPrimaryFunctions=false;
       c.handsRotating = false;
+      c.useBackJoint  = true;
 
       //      c.headTexture="Images/really_white.rgb";
       c.headTexture="Images/dusty.rgb";
@@ -275,6 +290,7 @@ namespace lpzrobots {
     std::vector<TwoAxisServo*> headservos; // motors
 
     TwoAxisServo* pelvisservo; // between Hip and Trunk_comp
+    OneAxisServo* backservo;   // between Trunk_comp and Thorax
 
   };
 

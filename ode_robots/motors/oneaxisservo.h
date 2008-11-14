@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-07-03 13:02:14  martius
+ *   Revision 1.7  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.6  2007/07/03 13:02:14  martius
  *   maximum velocity check
  *   new pid with stepsize
  *
@@ -59,13 +63,14 @@ namespace lpzrobots {
     /** min and max values are understood as travel bounds. Min should be less than 0.*/
   
     OneAxisServo(OneAxisJoint* joint, double _min, double _max, 
-		 double power, double damp=0.2, double integration=2, double maxVel=10.0)
+		 double power, double damp=0.2, double integration=2, double maxVel=10.0,
+		 bool minmaxCheck = true)
       : joint(joint), pid(power, integration, damp), maxVel(maxVel) { 
       assert(joint); 
       setMinMax(_min,_max);
-      assert(min<max);
-      assert(min <= 0);
-      assert(max >= 0);
+      assert(min<max);     
+      assert(!minmaxCheck || min <= 0);
+      assert(!minmaxCheck || max >= 0);
       assert(power>=0 && damp >=0 && integration >=0);
     }
 
@@ -125,7 +130,7 @@ namespace lpzrobots {
       return pid.KI;
     };
   
-  private:
+  protected:
     OneAxisJoint* joint;
     double min;
     double max;
@@ -137,5 +142,44 @@ namespace lpzrobots {
   typedef OneAxisServo HingeServo;
   typedef OneAxisServo Hinge2Servo;
 
+
+
+  /** general servo motor with zero position centered
+   */
+  class OneAxisServoCentered : public OneAxisServo {
+  public:
+    /** min and max values are understood as travel bounds. 
+	The zero position is max-min/2
+    */
+    OneAxisServoCentered(OneAxisJoint* joint, double _min, double _max, 
+			 double power, double damp=0.2, double integration=2, 
+			 double maxVel=10.0)
+      : OneAxisServo(joint, _min, _max, power, damp, integration, maxVel, false){      
+    }
+    virtual ~OneAxisServoCentered(){}
+
+    /** sets the set point of the servo. 
+	Position must be between -1 and 1. It is scaled to fit into min, max, 
+	however 0 is just in the center of min and max
+    */
+    virtual void set(double pos){
+      pos = (pos+1)*(max-min)/2 + min;
+
+      pid.setTargetPosition(pos);        
+      double force = pid.step(joint->getPosition1(), joint->odeHandle.getTime());
+      force = std::min(pid.KP, std::max(-pid.KP,force));// limit force to 1*KP
+      joint->addForce1(force);
+      joint->getPart1()->limitLinearVel(maxVel);
+      joint->getPart2()->limitLinearVel(maxVel);
+    }
+    /** returns the position of the slider in ranges [-1, 1] (scaled by min, max, centered)*/
+    virtual double get(){
+      double pos =  joint->getPosition1();
+      
+      return 2*(pos-min)/(max-min) + 1;    
+    }    
+    
+  };
+    
 }
 #endif

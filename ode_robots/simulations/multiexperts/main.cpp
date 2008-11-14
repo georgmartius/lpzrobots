@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-05-01 22:03:55  martius
+ *   Revision 1.14  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.13  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -292,13 +296,14 @@ public:
       msc.controller = controller;
       msc.numContext = 3;
       msc.numHidden = 4;
-      msc.numSats   = 20; 
+      msc.numSats   = 48; 
       msc.eps0      = 0.1;
       //      msc.numSomPerDim = 3;
       msc.tauE1     = 50;
       msc.tauE2     = 500;
       msc.tauW      = 2000;
-      msc.lambda_w  = 0.05;
+      //      msc.lambda_w  = 0.05;
+      msc.lambda_w  = 0.2;
 
       msc.useDerive=false;
       msc.useY=false;

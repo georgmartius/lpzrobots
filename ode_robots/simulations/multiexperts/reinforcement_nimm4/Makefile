@@ -30,6 +30,8 @@ LIBS   = -lm \
 
 INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
+
+
 CXX = g++
 # -pg for profiling
 CPPFLAGS = -Wall  -g -pthread $(INC)
@@ -63,6 +65,9 @@ libode_robots_opt:
 
 libode_robots_prof:	
 	+cd $(ODEROBOTS) && make prof
+
+libode_robots_prof:	
+	cd $(ODEROBOTS) && make prof
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null

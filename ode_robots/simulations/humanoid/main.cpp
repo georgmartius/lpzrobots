@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-11-11 19:40:58  der
+ *   Revision 1.12  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.11  2008/11/11 19:40:58  der
  *   small changes
  *
  *   Revision 1.10  2008/06/20 14:03:00  guettler
@@ -201,8 +205,12 @@ public:
     //    int barrel=0;
     // int dogs = 0; 
 
-    bool fixedInAir = false;
+
+    bool fixedInAir = true;
     reckturner = false;
+    // Playground types
+    bool narrow = false; 
+
 
     fixator=0;
     reckLeft = reckRight = 0;
@@ -274,7 +282,7 @@ public:
 // //     m->setPosition(osg::Vec3(1,1,1)); 
 // //     global.obstacles.push_back(m);
     
-   
+   if(narrow){
      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(0.875, 8.8, 1.3975)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
      playground->setPosition(osg::Vec3(20,20,.1));
      Substance substance;
@@ -301,6 +309,7 @@ public:
         b->setTexture("Images/light_chess.rgb");
         global.obstacles.push_back(b);
       }
+   }
     
 
     for (int i=0; i< humanoids; i++){ //Several humans
@@ -324,12 +333,12 @@ public:
       conf.relFeetmass = 1;
       conf.relArmmass = 1;//1.0;
 
-      conf.hipJointLimit= 2.6; //!
-      conf.kneeJointLimit=2.2;//1.911; //!
-       conf.hip2JointLimit=.9; //!
-       conf.armJointLimit=M_PI/1.2;//2.0; //!
-//       conf.ankleJointLimit=0.001; //!
-       conf.pelvisJointLimit=.5; //!    
+//       conf.hipJointLimit= 2.6; //!
+//       conf.kneeJointLimit=2.2;//1.911; //!
+//        conf.hip2JointLimit=.9; //!
+//        conf.armJointLimit=M_PI/1.2;//2.0; //!
+// //       conf.ankleJointLimit=0.001; //!
+//        conf.pelvisJointLimit=.5; //!    
       conf.hipPower=100;
       conf.hip2Power=50;      //5
       conf.pelvisPower=20;
@@ -344,6 +353,9 @@ public:
       else	conf.trunkColor=Color(0.9, 0.0, 0.1);
       if(reckturner)
 	conf.handsRotating = true;
+
+      conf.useBackJoint = true
+;
 	
       //    conf.bodyTexture="Images/whitemetal_farbig_small.rgb";
       //     conf.bodyColor=Color(1.0,1.0,0.0);
@@ -378,9 +390,9 @@ public:
 
       // create pointer to controller
       // push controller in global list of configurables
-     //  AbstractController *controller = new SineController();
-//       controller->setParam("sinerate",250);
-//       controller->setParam("phaseshift",0);
+      AbstractController *controller = new SineController();
+      controller->setParam("sinerate",50);
+      controller->setParam("phaseshift",0);
 
         DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
 	//           BasicControllerConf cc = BasicController::getDefaultConf();    
@@ -411,7 +423,7 @@ public:
           cc.sat   = sat;
 
           cc.useS=false;
-          AbstractController* controller = new DerLinInvert(cc);
+	  //    AbstractController* controller = new DerLinInvert(cc);
 	  //  AbstractController* controller = new BasicController(cc);
 	   
 
@@ -681,7 +693,6 @@ public:
     for(int i=0; i < wheelies; i++) {      
       SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
       mySliderWheelieConf.segmNumber=12;
-      mySliderWheelieConf.jointLimit=M_PI/2;
       mySliderWheelieConf.motorPower=0.4;
       mySliderWheelieConf.frictionGround=0.8;
       mySliderWheelieConf.sliderLength=.8;

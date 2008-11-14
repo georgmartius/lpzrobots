@@ -16,7 +16,11 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-22 15:22:55  martius
+ *   Revision 1.3  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.2  2008/04/22 15:22:55  martius
  *   removed test lib and inc paths from makefiles
  *
  *   Revision 1.1  2007/08/29 15:32:52  martius
@@ -67,11 +71,12 @@ MultiReinforce::~MultiReinforce()
 }
 
 
-void MultiReinforce::init(int sensornumber, int motornumber){
-
+void MultiReinforce::init(int sensornumber, int motornumber, RandGen* randGen){
+  if(!randGen) randGen = new RandGen(); // this gives a small memory leak
   number_motors  = motornumber;
   number_sensors = sensornumber;  
   int number_real_sensors = number_sensors - conf.numContext;
+  
 
   x_buffer = new Matrix[buffersize];
   xp_buffer = new Matrix[buffersize];
@@ -92,7 +97,7 @@ void MultiReinforce::init(int sensornumber, int motornumber){
   statesbins.set(getStateNumber(),1);
 
   assert(conf.qlearning && "Please set qlearning in controller configuration");
-  conf.qlearning->init(getStateNumber(), conf.numSats);
+  conf.qlearning->init(getStateNumber(), conf.numSats, randGen);
   if(conf.actioncorrel){
     assert(conf.actioncorrel->getM()== conf.numSats&& conf.actioncorrel->getN() == conf.numSats);
   }

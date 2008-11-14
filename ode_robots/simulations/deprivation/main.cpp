@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-05-01 22:03:54  martius
+ *   Revision 1.4  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.3  2008/05/01 22:03:54  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -69,7 +73,7 @@
 #include <ode_robots/simulation.h>
 
 #include <ode_robots/odeagent.h>
-#include <selforg/deprivation.h>
+#include "deprivation.h"
 #include <selforg/one2onewiring.h>
 
 #include <ode_robots/nimm2.h>
@@ -83,7 +87,7 @@ int zeit = 0;
 
 Matrix straightMotor(const Matrix& _dont_care){  
   Matrix y(_dont_care.getM(),1);
-  for(int i=0; i< y.getM(); i++){
+  for(unsigned int i=0; i< y.getM(); i++){
     y.val(i,0) = sin(zeit/100.0)*0.9;
   }
   zeit++;
@@ -93,15 +97,15 @@ Matrix straightMotor(const Matrix& _dont_care){
 void straightController(Matrix& C, Matrix& H ){  
   double v = 2.4/(C.getM()*C.getN());
   fprintf(stderr, "pla %g\n", v);
-  for(int i=0; i< C.getM(); i++){
-    for(int j=0; j< C.getN(); j++){
+  for(unsigned int i=0; i< C.getM(); i++){
+    for(unsigned int j=0; j< C.getN(); j++){
       C.val(i,j) = v;
     }
   }
-  for(int i=0; i< min(C.getN(), C.getM()); i++){
+  for(unsigned int i=0; i< min(C.getN(), C.getM()); i++){
     C.val(i,i) += ((double)rand() / RAND_MAX)*0.01;
   }
-  for(int i=0; i<H.getM(); i++){
+  for(unsigned int i=0; i<H.getM(); i++){
     H.val(i,0) = 0;
   }
   controller->setParam("epsC", 0.0005);
@@ -109,7 +113,7 @@ void straightController(Matrix& C, Matrix& H ){
 
 Matrix turnMotor(const Matrix& _dont_care){  
   Matrix y(_dont_care.getM(),1);
-  for(int i=0; i< y.getM(); i++){
+  for(unsigned int i=0; i< y.getM(); i++){
     y.val(i,0) = pow(-1.0,i)*sin(zeit/100.0)*0.9;
   }
   zeit++;
@@ -145,7 +149,7 @@ public:
     //    global.odeConfig.setParam("gravity", 0);
 
     Nimm2Conf c = Nimm2::getDefaultConf();    
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c);
+    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c,"Robot1");
     //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
     vehicle->place(Pos(0,0,0.0));
 
@@ -189,10 +193,10 @@ public:
 	printf("Control Mode: %i\n", controller->getExternalControlMode());
 	handled = true; break;	
       case 's' :
-	controller->store("test") && printf("Controller stored\n");
+	controller->storeToFile("test") && printf("Controller stored\n");
 	handled = true; break;	
       case 'l' :
-	controller->restore("test") && printf("Controller loaded\n");
+	controller->restoreFromFile("test") && printf("Controller loaded\n");
 	handled = true; break;	
       }
     fflush(stdout);

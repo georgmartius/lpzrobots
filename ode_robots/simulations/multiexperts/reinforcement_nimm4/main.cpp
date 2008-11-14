@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-05-01 22:03:55  martius
+ *   Revision 1.5  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.4  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -583,7 +587,7 @@ public:
 int main (int argc, char **argv)
 { 
   playgr=longsquarecorridor;
-  int index = contains(argv, argc, "-pl");
+  int index = Base::contains(argv, argc, "-pl");
   if(index && (argc > index)){
     if(argv[index][0]=='l') playgr=labyrint;
     else if(strcmp(argv[index],"42")==0) playgr=complexpl;
@@ -592,7 +596,7 @@ int main (int argc, char **argv)
     else if(argv[index][0]=='c') playgr=cluttered;
     else if(argv[index][0]=='n') playgr=none;
   }
-  index = contains(argv, argc, "-ql");
+  index = Base::contains(argv, argc, "-ql");
   double eps=0.1,disc=0.7,expl=0.2;
   int sarsa=1;
   if(index && (argc > index+4)){
@@ -602,15 +606,15 @@ int main (int argc, char **argv)
     sarsa=atoi(argv[index+3]);
     interval=atoi(argv[index+4]);
   }
-  useMultiAgent = !contains(argv, argc, "-classic");
-  track         = contains(argv, argc, "-t");
-  rareprint     = contains(argv, argc, "-rare");
-  if(contains(argv, argc, "-nographics")){
+  useMultiAgent = !Base::contains(argv, argc, "-classic");
+  track         = Base::contains(argv, argc, "-t");
+  rareprint     = Base::contains(argv, argc, "-rare");
+  if(Base::contains(argv, argc, "-nographics")){
     absolutePath="/home/georg/sim/4Wheel_reinf/data/";
     realtimefactor=0;
   }
 
-  index = contains(argv, argc, "-rewavg");
+  index = Base::contains(argv, argc, "-rewavg");
   if(index && (argc > index))
     rewavg=atoi(argv[index]);
 

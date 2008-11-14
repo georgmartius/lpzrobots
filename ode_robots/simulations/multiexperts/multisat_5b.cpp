@@ -17,7 +17,7 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-11-14 11:23:05  martius
+ *   Revision 1.1  2008-11-14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -377,14 +377,13 @@ Matrix MultiSat::compete()
   satAvg2Errors = satAvg2Errors * (1.0-1.0/conf.tauE2) + satErrors * (1.0/conf.tauE2);
     
   // modulate predicted error to prefere mature experts
-  //  Matrix lambdaW = satEpsMod.mapP(&conf.lambda_w, constant);
-  //satModErrors = satAvg1Errors.multrowwise(satEpsMod + lambdaW);
-  satModErrors = satAvg1Errors;
+  Matrix lambdaW = satEpsMod.mapP(&conf.lambda_w, constant);
+  satModErrors = satAvg1Errors.multrowwise(satEpsMod + lambdaW);
 
   // modulate predicted error of winner and companion to introduce hysteresis
-  //  satModErrors.val(companion,0)+=0.03;
-  satModErrors.val(companion,0)*=1+conf.lambda_w;
-  //satModErrors.val(winner,0)*=1-conf.lambda_w;
+    //  satModErrors = satAvg1Errors;
+  satModErrors.val(companion,0)+=0.03;
+//  satModErrors.val(winner,0)-=conf.lambda_w/5;
   return satModErrors;
 }
 
@@ -524,9 +523,9 @@ list<Inspectable::iparamkey> MultiSat::getInternalParamNames() const {
   list<iparamkey> keylist;
   
   keylist += storeVectorFieldNames(x_context_buffer[0], "XC");
-  //  keylist += storeVectorFieldNames(satErrors, "errs");
+  keylist += storeVectorFieldNames(satErrors, "errs");
   keylist += storeVectorFieldNames(satAvg1Errors, "avg1errs");
-  //  keylist += storeVectorFieldNames(satAvg2Errors, "avg2errs");
+  keylist += storeVectorFieldNames(satAvg2Errors, "avg2errs");
   keylist += storeVectorFieldNames(satModErrors, "merrs");
   keylist += storeVectorFieldNames(satMinErrors, "minerrs");
   keylist += storeVectorFieldNames(satEpsMod, "epsmod");
@@ -541,9 +540,9 @@ list<Inspectable::iparamkey> MultiSat::getInternalParamNames() const {
 list<Inspectable::iparamval> MultiSat::getInternalParams() const {
   list<iparamval> l;
   l += x_context_buffer[t%buffersize].convertToList();
-  //  l += satErrors.convertToList();
+  l += satErrors.convertToList();
   l += satAvg1Errors.convertToList();
-  //  l += satAvg2Errors.convertToList();
+  l += satAvg2Errors.convertToList();
   l += satModErrors.convertToList();
   l += satMinErrors.convertToList();
   l += satEpsMod.convertToList();

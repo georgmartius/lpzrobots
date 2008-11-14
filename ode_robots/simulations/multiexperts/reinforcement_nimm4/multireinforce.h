@@ -24,7 +24,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-22 15:22:55  martius
+ *   Revision 1.3  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.2  2008/04/22 15:22:55  martius
  *   removed test lib and inc paths from makefiles
  *
  *   Revision 1.1  2007/08/29 15:32:52  martius
@@ -78,7 +82,7 @@ class MultiReinforce : public AbstractController {
 
 public:
   MultiReinforce(const MultiReinforceConf& conf = getDefaultConf());
-  virtual void init(int sensornumber, int motornumber);
+  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0 );
 
   virtual ~MultiReinforce();
 

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2008-05-01 22:03:56  martius
+ *   Revision 1.20  2008-11-14 11:23:05  martius
+ *   added centered Servos! This is useful for highly nonequal min max values
+ *   skeleton has now also a joint in the back
+ *
+ *   Revision 1.19  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -103,10 +107,10 @@ public:
     //   playground should be created in; odeHandle is generated in simulation.cpp)
     // - setting initial position of the playground: setPosition(osg::Vec3(double x, double y, double z))
     // - push playground to the global list of obstacles (global list comes from simulation.cpp)
-    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 1), 12);
+    /*    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 1), 12);
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
-
+    */
     // add passive spheres as obstacles
     // - create pointer to sphere (with odehandle, osghandle and 
     //   optional parameters radius and mass,where the latter is not used here) )
@@ -125,19 +129,24 @@ public:
     // - place robot (unfortunatelly there is a type cast necessary, which is not quite understandable)
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+    // regular behaviour
+    conf.motorsensor=false;
     conf.diameter=1.0;
-    conf.pendularrange= 0.35;
+    conf.pendularrange= 0.2;
+//     conf.diameter=1.0;
+//     conf.pendularrange= 0.35;
     sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
 				       conf, "Sphere1", 0.2);     
     ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));
+    global.configs.push_back ( sphere1 );
 
     // Selforg - Controller
     // create pointer to controller
     // set some parameters
     // push controller in global list of configurables
     controller = new InvertMotorSpace(10);  
-    controller->setParam("epsA",0.05); // model learning rate
-    controller->setParam("epsC",0.2); // controller learning rate
+    controller->setParam("epsA",0.3); // model learning rate
+    controller->setParam("epsC",0.3); // controller learning rate
     controller->setParam("rootE",3);    // model and contoller learn with square rooted error
     global.configs.push_back ( controller );
 
@@ -155,7 +164,7 @@ public:
     OdeAgent* agent = new OdeAgent ( plotoptions );
     agent->init ( controller , sphere1 , wiring );
     // the following line will enable a position tracking of the robot, which is written into a file
-    // agent->setTrackOptions(TrackRobot(true, false, false, "Sphere_zaxis", 50)); 
+    agent->setTrackOptions(TrackRobot(true, true, true, false, "Sphere_zaxis", 20)); 
     global.agents.push_back ( agent );
       
     // display all parameters of all configurable objects on the console

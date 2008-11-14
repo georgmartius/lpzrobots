@@ -27,7 +27,7 @@
  *    (NOT YET) sat networks have equal structure to selforg               *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2008-11-14 11:23:05  martius
+ *   Revision 1.1  2008-11-14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
