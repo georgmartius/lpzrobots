@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-29 07:39:54  guettler
+ *   Revision 1.2  2008-11-14 09:16:15  martius
+ *   small things
+ *
+ *   Revision 1.1  2008/04/29 07:39:54  guettler
  *   interfaces moved to selforg/utils directory
  *
  *   Revision 1.1  2006/07/19 09:27:00  martius
@@ -47,6 +50,17 @@ public:
   /** loads the object from the given file stream (binary). 
   */
   virtual bool restore(FILE* f) = 0;  
+
+  /** Provided for convenience. 
+      Stores the object into a new file with the given filename (binary)     
+   */
+  bool storeToFile(const char* filename) const;
+
+  /** Provided for convenience. 
+      restores the object from the file given by filename (binary)     
+   */
+  bool restoreFromFile(const char* filename);
+
 };
 
 #endif

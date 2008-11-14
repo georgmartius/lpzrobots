@@ -63,9 +63,9 @@ void printInternalParameterNames(FILE* f,
     if(*insp){
       // then the internal parameters
       list<Inspectable::iparamkey> l = (*insp)->getInternalParamNames();
-	    for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
-		    fprintf(f, " %s", (*i).c_str());
-    	}
+      for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
+	fprintf(f, " %s", (*i).c_str());
+      }
     }
   }
   fprintf(f,"\n"); // terminate line

@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-08-14 08:06:02  robot1
+ *   Revision 1.5  2008-11-14 09:16:15  martius
+ *   small things
+ *
+ *   Revision 1.4  2008/08/14 08:06:02  robot1
  *   fixed compile bug
  *
  *   Revision 1.3  2008/08/01 14:42:03  guettler
@@ -178,7 +181,7 @@ public:
     this->name = name;
   }
   /// sets the revision Hint: {  return "$ID$"; }
-  virtual void getRevision(const paramkey& revision) {
+  virtual void setRevision(const paramkey& revision) {
     this->revision = revision;
   }
 
