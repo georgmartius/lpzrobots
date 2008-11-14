@@ -5,7 +5,11 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.23  2008-07-01 12:54:53  martius
+// Revision 1.24  2008-11-14 09:15:29  martius
+// tried some autovectorization but without success
+// moved some function to CPP file
+//
+// Revision 1.23  2008/07/01 12:54:53  martius
 // cosmetics
 //
 // Revision 1.22  2008/06/18 13:46:20  martius
@@ -395,11 +399,33 @@ namespace matrix {
     }
   }
 
+  Matrix& Matrix::toSum(const Matrix& a) {
+    assert(a.m==m && a.n==n);
+    for(I i=0; i<m*n; i++){
+      data[i]+=a.data[i];
+    }
+    return *this;
+  }
+
+  Matrix& Matrix::toSum(const D& sum) {
+    for(I i=0; i<m*n; i++){
+      data[i]+=sum;
+    }
+    return *this;
+  }
 
   void Matrix::sub ( const Matrix& a, const Matrix& b ) {
     assert ( a.m == b.m && a.n == b.n );
     copy ( a );
     toDiff ( b );
+  }
+
+  Matrix& Matrix::toDiff(const Matrix& a){
+    assert(a.m==m && a.n==n);
+    for(I i=0; i<m*n; i++){
+      data[i]-=a.data[i];
+    }
+    return *this;
   }
 
   void Matrix::mult ( const Matrix& a, const Matrix& b ) {
@@ -656,7 +682,8 @@ namespace matrix {
   /// returns the product of all elements
   D Matrix::elementProduct() const {
     D rv = 1;
-    for ( I i = 0; i < m*n; i++ ) {
+    unsigned int mn = m*n;
+    for ( I i = 0; i < mn; i++ ) {
       rv *= data[i];
     }
     return rv;
@@ -892,4 +919,6 @@ namespace matrix {
 
 }
 
+#ifdef UNITTEST
 #include "matrix.tests.hpp"
+#endif

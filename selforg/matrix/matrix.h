@@ -7,7 +7,11 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.24  2008-06-18 13:46:20  martius
+// Revision 1.25  2008-11-14 09:15:29  martius
+// tried some autovectorization but without success
+// moved some function to CPP file
+//
+// Revision 1.24  2008/06/18 13:46:20  martius
 // beside and toBeside added
 // addColumns and addRows is now based on toAbove and toBeside
 // bug fix in removeColumns
@@ -454,30 +458,12 @@ namespace matrix{
     Matrix& toZero();       ///< inplace converts matrix to zero matrix
     Matrix& toId();         ///< inplace converts matrix to identity (use ^0 to get a copy version of it)
     /// inplace addition: this = this + a
-    Matrix& toSum(const Matrix& a) {
-      assert(a.m==m && a.n==n);
-      for(I i=0; i<m*n; i++){
-	data[i]+=a.data[i];
-      }
-      return *this;
-    }
-
+    Matrix& toSum(const Matrix& a);
     /// inplace addition: this = this + a, where a is a scalar
-    Matrix& toSum(const D& sum) {
-      for(I i=0; i<m*n; i++){
-        data[i]+=sum;
-      }
-      return *this;
-    }
+    Matrix& toSum(const D& sum);
 
     /// inplace subtraction: this = this - a
-    Matrix& toDiff(const Matrix& a){
-      assert(a.m==m && a.n==n);
-      for(I i=0; i<m*n; i++){
-	data[i]-=a.data[i];
-      }
-      return *this;
-    }
+    Matrix& toDiff(const Matrix& a);
 
     /// inplace multiplication with scalar: this = this*fac
     Matrix& toMult(const D& fac);

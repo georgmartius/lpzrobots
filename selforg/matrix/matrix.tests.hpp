@@ -5,7 +5,11 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.5  2008-06-18 13:46:20  martius
+// Revision 1.6  2008-11-14 09:15:29  martius
+// tried some autovectorization but without success
+// moved some function to CPP file
+//
+// Revision 1.5  2008/06/18 13:46:20  martius
 // beside and toBeside added
 // addColumns and addRows is now based on toAbove and toBeside
 // bug fix in removeColumns
@@ -80,7 +84,7 @@ bool comparetoidentity(const Matrix& m)  {
   int worstdiagonal = 0;
   D maxunitydeviation = 0.0;
   D currentunitydeviation;
-  for ( int i = 0; i < m.getM(); i++ )  {
+  for ( unsigned int i = 0; i < m.getM(); i++ )  {
     currentunitydeviation = m.val(i,i) - 1.;
     if ( currentunitydeviation < 0.0) currentunitydeviation *= -1.;
     if ( currentunitydeviation > maxunitydeviation )  {
@@ -92,8 +96,8 @@ bool comparetoidentity(const Matrix& m)  {
   int worstoffdiagonalcolumn = 0;
   D maxzerodeviation = 0.0;
   D currentzerodeviation ;
-  for ( int i = 0; i < m.getM(); i++ )  {
-    for ( int j = 0; j < m.getN(); j++ )  {
+  for ( unsigned int i = 0; i < m.getM(); i++ )  {
+    for ( unsigned int j = 0; j < m.getN(); j++ )  {
       if ( i == j ) continue;  // we look only at non-diagonal terms
       currentzerodeviation = m.val(i,j);
       if ( currentzerodeviation < 0.0) currentzerodeviation *= -1.0;
@@ -340,8 +344,8 @@ DEFINE_TEST( speed ) {
   unit_assert( "validation", comparetoidentity(M1*M4));
 
   Matrix M20(20,20); 
-  for (int i=0; i < M20.getM(); i++)  // define random values for initial matrix
-    for (int j=0; j < M20.getN(); j++) {
+  for (unsigned int i=0; i < M20.getM(); i++)  // define random values for initial matrix
+    for (unsigned int j=0; j < M20.getN(); j++) {
       M20.val(i,j) = -22+(100. * rand())/RAND_MAX;
     }
   UNIT_MEASURE_START("20x20 Matrix inversion",1000)
@@ -351,8 +355,8 @@ DEFINE_TEST( speed ) {
 
   Matrix M200(200,200); 
   rand();  // eliminates the first (= zero) call
-  for (int i=0; i < M200.getM(); i++)  // define random values for initial matrix
-    for (int j=0; j < M200.getN(); j++) {
+  for (unsigned int i=0; i < M200.getM(); i++)  // define random values for initial matrix
+    for (unsigned int j=0; j < M200.getN(); j++) {
       M200.val(i,j) = -22+(100. * rand())/RAND_MAX;
     }
   UNIT_MEASURE_START("200x200 Matrix inversion",2)
