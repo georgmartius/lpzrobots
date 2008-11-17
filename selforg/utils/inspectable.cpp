@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-11-14 09:16:15  martius
+ *   Revision 1.5  2008-11-17 14:59:09  martius
+ *   removed debug print
+ *
+ *   Revision 1.4  2008/11/14 09:16:15  martius
  *   small things
  *
  *   Revision 1.3  2008/08/01 14:42:03  guettler
@@ -55,7 +58,6 @@ Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
   iparamkeylist keylist;
   fprintf(stderr,"Start");
   FOREACHC(iparampairlist, mapOfValues, it){
-    fprintf(stderr,"Hallo %i\n", mapOfValues.size());
     keylist+=(*it).first;
   }
   for(imatrixpairlist::const_iterator m=mapOfMatrices.begin(); m != mapOfMatrices.end(); m++){
