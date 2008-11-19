@@ -472,7 +472,7 @@ void guilogger::load()
             {   qv = var->getValue();	      
 	      if(var->getName() == "PlotWindows"){
 		plotwindows = qv.toInt();
-		delete ref1channelsnames;
+		delete[] ref1channelsnames;
 		ref1channelsnames = new QString[plotwindows];
 	      }
             }
