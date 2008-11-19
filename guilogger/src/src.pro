@@ -29,6 +29,6 @@ CONFIG += debug \
 warn_on \
 thread \
 qt
-TARGET = ../bin/guilogger
+TARGET = bin/guilogger
 #The following line was inserted by qt3to4
 QT += qt3support
