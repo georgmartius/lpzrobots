@@ -249,6 +249,30 @@ void IniFile::delSection(IniSection* _section)
 }
 
 
+QString IniFile::getValueDef(QString _section, QString _var, QString _default){
+  IniSection sec;
+  if(getSection(sec,_section,false)){
+    IniVar var;
+    if(sec.getVar(var,_var)){
+      return var.getValue();
+    } else 
+      return _default;
+  } else 
+    return _default;
+
+}
+
+void IniFile::setComment(QString _comment){
+  comment=_comment;
+}
+
+void IniFile::addComment(QString _addcomment){
+  comment.append(_addcomment);
+}
+
+QString IniFile::getComment(){
+  return comment;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////(
@@ -317,8 +341,8 @@ void IniSection::delVar(IniVar* _var)
 }
 
 
-void IniSection::addValue(QString name, QString value)
-{   IniVar* tmpvar = new IniVar(name, value, "");
+void IniSection::addValue(QString name, QString value,QString comment)
+{   IniVar* tmpvar = new IniVar(name, value, comment);
     vars.append(tmpvar);
 }
 

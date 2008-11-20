@@ -35,10 +35,12 @@
 #include <Q3PopupMenu>
 #include <Q3VBoxLayout>
 
+#include "quickmp.h"
 
-guilogger::guilogger(const CommLineParser& configobj) : Q3MainWindow( 0, "guilogger")
-{
-    plotwindows   = 4;    // per default parameter  3
+
+guilogger::guilogger(const CommLineParser& configobj, const QRect& screenSize) 
+  : Q3MainWindow( 0, "guilogger"), screenSize(screenSize) {
+    plotwindows   = 5;    // per default parameter  3
     datadelayrate = 10;  // per default 10
     framecounter  = 0;
     datacounter   = 0;
@@ -52,11 +54,51 @@ guilogger::guilogger(const CommLineParser& configobj) : Q3MainWindow( 0, "guilog
 
     load();  // load Config File
     
-    gp = new Gnuplot<QString>[plotwindows];  // GNUPlots erzeugen
+    gp = new Gnuplot<QString>[plotwindows];  // GNUPlots erzeugen    
     
-    for(int k=0; k<plotwindows; k++)
-    {   gp[k].command("set style data lines");
-        gp[k].command("set zeroaxis");
+    QString calcPositions = cfgFile.getValueDef("Misc","CalcPositions","no");
+    QString windowLayout = cfgFile.getValueDef("Misc","WindowLayout","tlh");
+    int windowsPerRowColumn = cfgFile.getValueDef("Misc","WindowsPerRowColumn","3").toInt();
+    if(calcPositions.compare("yes")==0){
+      // arrange Gnuplot windows
+      int xstart = windowLayout.contains("l") ? 0 : screenSize.width();
+      int xinc   = windowLayout.contains("l") ? 1 : -1;
+      int ystart = windowLayout.contains("t") ? 0 : screenSize.height();
+      int yinc   = windowLayout.contains("t") ? 1 : -1;
+      bool hor   = windowLayout.contains("h");
+      int xpos   = xstart;
+      int ypos   = ystart;
+      for(int k=0; k<plotwindows; k++) {
+	QSize s = (windowsize.contains(k) ? windowsize[k] : QSize(400,300)) + QSize(10,50);      
+	if(hor){
+	  xpos = xstart+(k%windowsPerRowColumn)*xinc*s.width();
+	  ypos = ystart+(k/windowsPerRowColumn)*yinc*s.height();
+	}else{
+	  xpos = xstart+(k/windowsPerRowColumn)*xinc*s.width();
+	  ypos = ystart+(k%windowsPerRowColumn)*yinc*s.height();
+	}
+	windowposition.insert(k,QSize(xinc > 0 ? xpos : xpos-s.width(),yinc > 0 ? ypos : ypos-s.height()));
+      }      
+    }
+    for(int k=0; k<plotwindows; k++) {
+      QSize s = windowsize.contains(k) ? windowsize[k] : QSize(400,300);
+      if(windowposition.contains(k)){
+	QSize pos = windowposition[k];
+	gp[k].init(s.width(), s.height(), pos.width(), pos.height());	
+      }else{	
+	gp[k].init(s.width(), s.height());
+      }
+    }
+
+    IniSection GNUplotsection;    
+    if(cfgFile.getSection(GNUplotsection,"GNUPlot",false)){      
+      IniVar* var;
+      QString qv;
+      for(var = GNUplotsection.vars.first(); var!=0; var = GNUplotsection.vars.next()) {   
+	qv = var->getValue();
+	if(var->getName() == "Command") 
+	  for(int k=0; k<plotwindows; k++) gp[k].command(qv.latin1());
+      } 
     }
 
     if(mode == "file" && !filename.isEmpty()) linecount = analyzeFile();
@@ -158,8 +200,8 @@ guilogger::guilogger(const CommLineParser& configobj) : Q3MainWindow( 0, "guilog
     filemenu = new Q3PopupMenu(this);
     menuBar()->insertItem("&Menu", filemenu);
     filemenu->insertItem("&Save Config", this, SLOT(save()));
-    filemenu->insertItem("&Load Config", this, SLOT(load()));
-//    filemenu->insertItem("&Exit", this, SLOT(quit()));
+    filemenu->insertItem("&Edit Config", this, SLOT(editconfig()));
+    filemenu->insertItem("&Exit", this, SLOT(doQuit()));
 
     ChannelRow* row = new ChannelRow("Disable", plotwindows, channelWidget);    
     channellayout->addWidget(row);
@@ -380,9 +422,14 @@ void guilogger::taggedComboBoxChanged(const Tag& tag, int gpwindow, const QStrin
     }
 }
 
+void guilogger::save(){
+  save(false);
+}
 
-/// saves the channel configuration to file
-void guilogger::save()
+/** saves the channel configuration to file
+    if blank is used then a basic file is written without the window stuff
+ */
+void guilogger::save(bool blank)
 {   ChannelRow *cr;
     QString nr;
     IniSection *section;
@@ -401,25 +448,52 @@ void guilogger::save()
         section = cfgFile.sections.current();
     }
 
+    // If we don't have a Misc and GNUPlot section then add it.    
+    IniSection sec;
+    if(!cfgFile.getSection(sec,"Misc",false)){
+      cfgFile.setComment("# Please restart guilogger to apply changes you make in the file");
+      section=cfgFile.addSection("Misc");
+      section->addValue("PlotWindows","5");
+      section->addValue("CalcPositions","no"," # If yes then the gnuplot windows will be placed according to the layout");
+      section->addValue("WindowLayout","tlh"," # From where to start: t: top, b: bottom, l: left, r: right, h: horizontal, v: vertical");
+      section->addValue("WindowsPerRowColumn","3");
+    }
+    if(!cfgFile.getSection(sec,"GNUPlot",false)){
+      section=cfgFile.addSection("GNUPlot");
+      section->addValue("Command","set style data lines");
+      section->addValue("Command","set zeroaxis");
+    }    
 
-    for(int i=0; i<plotwindows; i++)
-    {   cr = ChannelRowPtrList.first();
-
-        nr = QString::number(i, 10);
-
-        IniSection *sec = cfgFile.addSection("Window");
-        sec->addValue("Number", nr);
+    if(!blank){
+      for(int i=0; i<plotwindows; i++){   	  
+	nr = QString::number(i, 10);
+	
+	IniSection *sec = cfgFile.addSection("Window");
+	sec->addValue("Number", nr);
 	QString ref = ref1channels->getSelected(i);
 	if(!ref.isEmpty() && ref.compare("-")!=0){
 	  sec->addValue("Reference1", ref);
-	}
-        while(cr != 0)
-        { 	  
-	  if(cr->isChecked(i))  sec->addValue("Channel", cr->getChannelName());
-	  cr = ChannelRowPtrList.next();
-        }
-    }
-
+	}	  	
+	if(windowsize.contains(i)){
+	  QSize s = windowsize[i];
+	  sec->addValue("Size",QString("%1x%2").arg(s.width()).arg(s.height()));
+	} else 
+	  sec->addValue("Size", "400x300");
+	
+	if(windowposition.contains(i)){
+	  QSize pos = windowposition[i];
+	  sec->addValue("Position",QString("%1 %2").arg(pos.width()).arg(pos.height())," # set to -1 to -1 ti make it automatically set by your windowmanager, see also calcPositions above");
+	}else{
+	  sec->addValue("Position", "-1 -1"," # set to any coordinate to place a window by hand, see also calcPositions above");	
+	}  
+	cr = ChannelRowPtrList.first();	  
+	while(cr != 0)
+	  { 	  
+	    if(cr->isChecked(i))  sec->addValue("Channel", cr->getChannelName());
+	    cr = ChannelRowPtrList.next();
+	    }
+      }      
+    }      
     cfgFile.Save();
 }
 
@@ -441,13 +515,18 @@ void guilogger::load()
     pwin = -1;
 
     cfgFile.setFilename("guilogger.cfg");
-    cfgFile.Load();
+    if(!cfgFile.Load()){
+      printf("Configuration file does not exist try to create it.\n");
+      save(true); // this automatically creates the config (on disk and in memory)
+    }
+    
 
-    for(section = cfgFile.sections.first(); section != 0; section = cfgFile.sections.next())
-    {   if(section->getName() == "Window")
+    for(section = cfgFile.sections.first(); section != 0; section = cfgFile.sections.next()) {   
+      if(section->getName() == "Window"){
+           pwin=0;
            for(var = section->vars.first(); var!=0; var = section->vars.next())
            {   qv = var->getValue();
-
+	     
                if(var->getName() == "Number") pwin = qv.toInt();
 	       else if(var->getName() == "Reference1"){
 		 ref1channelsnames[pwin] = qv;
@@ -465,9 +544,18 @@ void guilogger::load()
                             }
                             cr = ChannelRowPtrList.next();
                         }
-               }
+               } else if(var->getName() == "Size"){
+		 int x,y;
+		 if(sscanf(qv.latin1(),"%ix%i",&x,&y)==2)
+		   windowsize.insert(pwin, QSize(x,y));
+	       } else if(var->getName() == "Position"){
+		 int w,h;
+		 if(sscanf(qv.latin1(),"%i %i",&w,&h)==2)
+		   windowposition.insert(pwin, QSize(w,h));
+	       }	       
            }
-        else if(section->getName() == "Misc")
+
+      } else if(section->getName() == "Misc")
             for(var = section->vars.first(); var!=0; var = section->vars.next())
             {   qv = var->getValue();	      
 	      if(var->getName() == "PlotWindows"){
@@ -476,19 +564,16 @@ void guilogger::load()
 		ref1channelsnames = new QString[plotwindows];
 	      }
             }
-        else if(section->getName() == "GNUPlot")
-            for(var = section->vars.first(); var!=0; var = section->vars.next())
-            {   qv = var->getValue();
-
-                if(var->getName() == "Command") for(int k=0; k<plotwindows; k++) gp[k].command(qv.latin1());
-            }
-
-    
     }
 
     printf("Config file loaded.\n");
 }
 
+
+void guilogger::editconfig(){
+  system("$EDITOR ./guilogger.cfg");
+
+}
 
 /// adds the channel to GNUPlot and refuses adding the channel if it already exists
 void guilogger::addChannel(const QString &name, const QString &title, const QString &style)
@@ -515,7 +600,7 @@ void guilogger::addChannel(const QString &name, const QString &title, const QStr
         ChannelRowPtrList.append(newrow);
 
         QRegExp re;
-        re.setWildcard(TRUE);
+        re.setPatternSyntax(QRegExp::Wildcard);
 
         ChannelToWindowMap::iterator it = KnownChannels.begin();  // durch die Map der bekannten Channels (aus config File) iterieren
 
@@ -557,6 +642,11 @@ void guilogger::putData(const QString &name, double data)
 }
 
 
+void guilogger::doQuit(){
+  emit quit();
+}
+
+
 /**  empties the buffer queue and parses the data then putting it to GNUPlot
   *  updates the GNUPlot data queues with fresh data
   */
@@ -581,7 +671,7 @@ void guilogger::update()
 	  for(int i=0; i<plotwindows; i++) {
 	    ref1channels->setSelected(i, ref1channelsnames[i]);
 	    taggedComboBoxChanged("Ref", i, ref1channelsnames[i]);
-	    gp[i].plot();  // show channels imidiatly
+	    GNUPlotUpdate(false);  // show channels immediatly
 	  }
 	}
       else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
@@ -608,14 +698,26 @@ void guilogger::update()
 
 
 // updates every n milliseconds the GNUPlot windows
-void guilogger::GNUPlotUpdate()
+void guilogger::GNUPlotUpdate(){
+  GNUPlotUpdate(true);
+}
+
+// updates every n milliseconds the GNUPlot windows
+void guilogger::GNUPlotUpdate(bool waitfordata)
 {   //framecounter++; 
     //int i = framecounter % plotwindows;
-  if(datacounter > datadelayrate){
-    for(int i=0; i<plotwindows; i++) {
-      if(gpWindowVisibility[i])
+  if(!waitfordata || datacounter > datadelayrate){
+    QMP_SHARE(gpWindowVisibility);
+    QMP_SHARE(gp);
+    QMP_PARALLEL_FOR(i,0,plotwindows){
+      //    for(int i=0; i<plotwindows; i++) {
+      QMP_USE_SHARED(gpWindowVisibility, bool*);
+      if(gpWindowVisibility[i]){
+	QMP_USE_SHARED(gp, Gnuplot<QString>*);
 	gp[i].plot();
+      }
     }
+    QMP_END_PARALLEL_FOR;
     datacounter=0;
   }
 }

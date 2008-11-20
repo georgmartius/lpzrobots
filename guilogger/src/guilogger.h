@@ -66,7 +66,7 @@ class guilogger: public Q3MainWindow
     Q_OBJECT
 
 public:
-    guilogger(const CommLineParser& configobj);
+    guilogger(const CommLineParser& configobj, const QRect& screenSize);
     ~guilogger();
     void setChannels(QStringList &clist);
     void setChannels(const char &clist);
@@ -79,13 +79,17 @@ private slots:
     void receiveRawData(QString);
     void update();
     void GNUPlotUpdate();
+    void GNUPlotUpdate(bool waitfordata);
     void save();
+    void save(bool blank);
     void load();
+    void editconfig();
     void dataSliderValueChanged(int value);
     void dataSliderReleased();
     void horizonSliderValueChanged(int value);
     void horizonSliderReleased();
     void sendButtonPressed();
+    void doQuit();
 
 signals:
     void quit();
@@ -127,7 +131,10 @@ private:
     ChannelSelectRow* ref1channels;    // Channels to use for Reference (x axis)
     QString* ref1channelsnames; // this is only needed for initialisation time
     Q3ValueList<QString> ChannelList;
-    
+    QMap<int, QSize > windowsize;     // the window sizes from the cfg file are stored here
+    QMap<int, QSize > windowposition; // the window positions from the cfg file are stored here
+    QRect screenSize;                 // size of the screen for window positioning
+
     int plotwindows;
     int framecounter;  //deprecated
     int datacounter;

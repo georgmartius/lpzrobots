@@ -22,6 +22,7 @@
 #include <signal.h>
 
 #include <qapplication.h>
+#include <qdesktopwidget.h>
 #include "guilogger.h"
 #include "filelogger.h"
 #include "qserialreader.h"
@@ -82,7 +83,11 @@ int main( int argc, char ** argv ) {
       params.setMode("file");
     }
 
-    guilogger *gl = new guilogger(params);
+    QRect screenRect(0,0,1024,768);
+    if(a.desktop()){
+      screenRect = a.desktop()->screenGeometry();
+    }
+    guilogger *gl = new guilogger(params, screenRect);
 
     if(params.getMode()=="serial")    
     {   QSerialReader *qserial = new QSerialReader();

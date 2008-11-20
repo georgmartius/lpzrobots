@@ -46,6 +46,7 @@ public:
 
 	
 	void setComment(QString _comment);
+	void addComment(QString _comment);
 	QString getComment();
 
 	// liefert eine Section mit dem Namen zurueck, beim direkt folgenden Aufruf gibt sie die nächste
@@ -54,6 +55,9 @@ public:
 	bool getSection(IniSection& _section,QString _name,bool _next);
         IniSection *addSection(QString name);
         void delSection(IniSection* _section);
+
+        // returns the value of the variable in the given section and default if it does not exist
+        QString getValueDef(QString _section, QString _var, QString _default);
         
 	Q3PtrList <IniSection> sections;	
 	
@@ -87,7 +91,7 @@ public:
 	// liefert Var mit dem Namen
 	// return: false wenn keine Var mit dem Namen
 	bool getVar( IniVar& _var, QString _name);
-        void addValue(QString value, QString name);
+        void addValue(QString name, QString value, QString comment = QString());
         void delVar(IniVar* _var);
         
   Q3PtrList <IniVar> vars;
