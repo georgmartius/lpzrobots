@@ -80,7 +80,26 @@ guilogger::guilogger(const CommLineParser& configobj, const QRect& screenSize)
 	windowposition.insert(k,QSize(xinc > 0 ? xpos : xpos-s.width(),yinc > 0 ? ypos : ypos-s.height()));
       }      
     }
-    for(int k=0; k<plotwindows; k++) {
+
+// serial version    
+//     for(int k=0; k<plotwindows; k++) {
+//       QSize s = windowsize.contains(k) ? windowsize[k] : QSize(400,300);
+//       if(windowposition.contains(k)){
+// 	QSize pos = windowposition[k];
+// 	gp[k].init(s.width(), s.height(), pos.width(), pos.height());	
+//       }else{	
+// 	gp[k].init(s.width(), s.height());
+//       }
+//     }
+
+// parallel version    
+    QMP_SHARE(windowsize);
+    QMP_SHARE(windowposition);
+    QMP_SHARE(gp);
+    QMP_PARALLEL_FOR(k,0,plotwindows){
+      QMP_USE_SHARED(windowsize, QMap<int, QSize>);
+      QMP_USE_SHARED(windowposition, QMap<int, QSize>);
+      QMP_USE_SHARED(gp, Gnuplot<QString>*);
       QSize s = windowsize.contains(k) ? windowsize[k] : QSize(400,300);
       if(windowposition.contains(k)){
 	QSize pos = windowposition[k];
@@ -89,6 +108,9 @@ guilogger::guilogger(const CommLineParser& configobj, const QRect& screenSize)
 	gp[k].init(s.width(), s.height());
       }
     }
+    QMP_END_PARALLEL_FOR;
+
+
 
     IniSection GNUplotsection;    
     if(cfgFile.getSection(GNUplotsection,"GNUPlot",false)){      
@@ -469,6 +491,7 @@ void guilogger::save(bool blank)
 	nr = QString::number(i, 10);
 	
 	IniSection *sec = cfgFile.addSection("Window");
+	sec->addComment("# you can also set the size and the position of a window. The channels can also contain wildcards like x* or C[0]*");
 	sec->addValue("Number", nr);
 	QString ref = ref1channels->getSelected(i);
 	if(!ref.isEmpty() && ref.compare("-")!=0){

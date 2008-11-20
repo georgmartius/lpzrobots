@@ -184,6 +184,7 @@ bool IniFile::Save(){
     file.writeBlock(line.latin1(),line.length());
     line=section->getComment();
     if (!line.isEmpty()) {
+      line += "\n";
       file.writeBlock(line.latin1(),line.length());
     }
     for(var=section->vars.first();var!=0;var=section->vars.next()){
