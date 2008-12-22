@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.26  2008-12-22 14:37:42  martius
+// Revision 1.27  2008-12-22 14:40:47  martius
+// added & operator for multrowwise
+//
+// Revision 1.26  2008/12/22 14:37:42  martius
 // comments
 //
 // Revision 1.25  2008/11/14 09:15:29  martius
@@ -411,15 +414,17 @@ namespace matrix{
     /// returns a matrix that consists of this left beside A  (number of columns is getN + a.getN())
     Matrix beside(const Matrix& a) const ;
 
-  public:   /// normal binary Operators
+  public:   // normal binary Operators
     /// deep copy
     Matrix& operator = (const Matrix& c) { copy(c); return *this; }
+    /// sum of two matrices
     Matrix operator +  (const Matrix& sum) const;
     //    Matrix operator +  (const D& sum) const; /// new operator (guettler)
+    /// difference of two matrices
     Matrix operator -  (const Matrix& sum) const;
     /** matrix product*/
     Matrix operator *  (const Matrix& fac) const;
-    /** product with scalar (D) */
+    /** product with scalar (D) (only right side) */
     Matrix operator *  (const D& fac) const;
     /** special matrix potence:
 	@param exponent -1 -> inverse;
@@ -428,16 +433,23 @@ namespace matrix{
 	            T -> Transpose
     */
     Matrix operator ^ (int exponent) const;
-    /// performant combined assigment operators
+    /// row-wise multiplication
+    Matrix operator & (const Matrix& b) const;
+    /// combined assigment operator (higher performance)
     Matrix& operator += (const Matrix& c) {toSum(c);   return *this; }
+    /// combined assigment operator (higher performance)
     Matrix& operator -= (const Matrix& c) {toDiff(c);  return *this; }
+    /// combined assigment operator (higher performance)
     Matrix& operator *= (const Matrix& c) {
       Matrix result;
       result.mult(*this, c);
       this->copy(result);
       return *this;
     }
+    /// combined assigment operator (higher performance)
     Matrix& operator *= (const D& fac) {toMult(fac); return *this; }
+    /// combined assigment operator (higher performance)
+    Matrix& operator &= (const Matrix& c) {toMultrowwise(c); return *this; }
 
 #ifndef AVR
     /// comparison operator (compares elements with tolerance distance of COMPARE_EPS)
@@ -468,6 +480,8 @@ namespace matrix{
     /// inplace subtraction: this = this - a
     Matrix& toDiff(const Matrix& a);
 
+    /// inplace multiplication: this = this * a
+    Matrix& toMult(const Matrix& a);
     /// inplace multiplication with scalar: this = this*fac
     Matrix& toMult(const D& fac);
 

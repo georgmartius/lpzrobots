@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.24  2008-11-14 09:15:29  martius
+// Revision 1.25  2008-12-22 14:40:47  martius
+// added & operator for multrowwise
+//
+// Revision 1.24  2008/11/14 09:15:29  martius
 // tried some autovectorization but without success
 // moved some function to CPP file
 //
@@ -455,6 +458,12 @@ namespace matrix {
     }
   }
 
+  Matrix& Matrix::toMult(const Matrix& a){
+    Matrix copy(*this);
+    mult(copy,a);
+    return *this;
+  }
+
   Matrix& Matrix::toMult ( const D& fac ) {
     for ( I i = 0; i < m*n; i++ ) {
       data[i] *= fac;
@@ -481,6 +490,9 @@ namespace matrix {
         toId();
         break;
       case 1: // do nothing
+        break;
+      case 2: // square
+	toMult(*this);
         break;
       case T:
         toTranspose();
@@ -883,6 +895,13 @@ namespace matrix {
   Matrix Matrix::operator ^ ( int exponent ) const {
     Matrix result ( *this );
     result.toExp ( exponent );
+    return result;
+  }
+
+  /// row-wise multiplication
+  Matrix Matrix::operator & (const Matrix& b) const {
+    Matrix result ( *this );
+    result.toMultrowwise ( b );
     return result;
   }
 

@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.6  2008-11-14 09:15:29  martius
+// Revision 1.7  2008-12-22 14:40:47  martius
+// added & operator for multrowwise
+//
+// Revision 1.6  2008/11/14 09:15:29  martius
 // tried some autovectorization but without success
 // moved some function to CPP file
 //
@@ -243,13 +246,15 @@ DEFINE_TEST( check_matrix_operation ) {
   M4.copy(M1);
   M4.toMultrowwise(M11);
   unit_assert( "multrowwise()",   M4 == M10 );
+  M4 = M1 & M11;
+  unit_assert( "rowwise (&)  ",   M4 == M10 );
   D testdata12[6] = {2,1,0, 8, 2.5, 0 };
   D testdata13[3] = {2, 0.5, 0};
   M10.set(2,3,testdata12);  
   Matrix M12(3,1,testdata13);  
   M4.copy(M1);
   M4.toMultcolwise(M12);
-  unit_assert( "multrowwise()",   M4 == M10 );
+  unit_assert( "multcolwise()",   M4 == M10 );
 
   M3.copy(M1);  
   M4.copy(M1);
