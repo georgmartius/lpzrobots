@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.25  2008-11-14 09:15:29  martius
+// Revision 1.26  2008-12-22 14:37:42  martius
+// comments
+//
+// Revision 1.25  2008/11/14 09:15:29  martius
 // tried some autovectorization but without success
 // moved some function to CPP file
 //
@@ -303,9 +306,9 @@ namespace matrix{
 	indices can be out of bounds, they are clipped in any case
     */
     Matrix rows(I startindex, I endindex) const;
-    /** @returns column-vector(as Nx1 matrix) containing the index'th column */
+    /** @returns column-vector(as Mx1 matrix) containing the index'th column */
     Matrix column(I index) const;
-    /** @returns submatrix (as NxK matrix) 
+    /** @returns submatrix (as MxK matrix) 
 	containing column from startindex to endindex inclusively (K=endindex-startindex) 
 	indices can be out of bounds, they are clipped in any case
     */
