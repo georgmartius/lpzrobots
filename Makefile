@@ -88,7 +88,7 @@ javactrl:
 .PHONY: soundman
 ##!soundman	compile soundman (experimental)
 soundman:
-	cd soundman/src && javac -d ../class SoundMan.java SoundManipulation.java SoundManGUI.java
+	cd soundman/src	&& javac -d ../class/ SoundMan.java SoundManipulation.java SoundManGUI.java
 
 .PHONY: install_utils
 install_utils:
