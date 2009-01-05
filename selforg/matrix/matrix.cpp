@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.25  2008-12-22 14:40:47  martius
+// Revision 1.26  2009-01-05 08:45:00  martius
+// exp again as function
+//
+// Revision 1.25  2008/12/22 14:40:47  martius
 // added & operator for multrowwise
 //
 // Revision 1.24  2008/11/14 09:15:29  martius
@@ -471,7 +474,15 @@ namespace matrix {
     return *this;
   }
 
-  /** special inplace matrix potence:
+  /* special  matrix power
+      @see toExp
+   */
+  void Matrix::exp( const Matrix& a, int exponent ) {
+    set(a.m,a.n,a.data);
+    toExp ( exponent );
+  }
+
+  /* special inplace matrix power:
       @param exp -1 -> inverse; 0 -> Identity Matrix;
       1 -> itself;
       T -> Transpose

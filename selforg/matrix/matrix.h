@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.27  2008-12-22 14:40:47  martius
+// Revision 1.28  2009-01-05 08:45:00  martius
+// exp again as function
+//
+// Revision 1.27  2008/12/22 14:40:47  martius
 // added & operator for multrowwise
 //
 // Revision 1.26  2008/12/22 14:37:42  martius
@@ -361,6 +364,7 @@ namespace matrix{
     void mult(const Matrix& a, const Matrix& b);///< multiplication: this = a * b
     void mult(const Matrix& a, const D& fac);///< scaling: this = a * fac
 
+    void exp(const Matrix& a, int exponent);///< exponent, this = a^i, @see toExp
     /// returns true if matrix is a 0x0 matrix
     bool isNulltimesNull() const;
 
@@ -485,7 +489,7 @@ namespace matrix{
     /// inplace multiplication with scalar: this = this*fac
     Matrix& toMult(const D& fac);
 
-    /** special inplace matrix potence:
+    /** special inplace matrix power:
 	@param exponent -1 -> inverse; (matrix MUST be SQUARE and NONZERO)
                     0 -> Identity Matrix;
 	            1 -> itself;
