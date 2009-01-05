@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2008-10-10 14:05:15  martius
+ *   Revision 1.23  2009-01-05 13:18:48  martius
+ *   ambient light even more
+ *
+ *   Revision 1.22  2008/10/10 14:05:15  martius
  *   time display was wrong
  *
  *   Revision 1.21  2008/07/29 15:44:00  guettler
@@ -854,7 +857,8 @@ namespace lpzrobots {
     //    light_0->setPosition(Vec4(0.0f, 0.0f, 50.0f, 1.0f));
     light_0->setPosition(Vec4(40.0f, 40.0f, 50.0f, 1.0f));
     //    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
-    light_0->setAmbient(Vec4(0.7f, 0.7f, 0.7f, 1.0f));  // Georg 21.07.2007 changed from 0.5 to 0.7
+    //    light_0->setAmbient(Vec4(0.7f, 0.7f, 0.7f, 1.0f));  // Georg 21.07.2007 changed from 0.5 to 0.7
+    light_0->setAmbient(Vec4(0.9f, 0.9f, 0.9f, 1.0f));  // Georg 05.01.2008 changed from 0.7 to 0.9
     light_0->setDiffuse(Vec4(0.8f, 0.8f, 0.8f, 1.0f));
     //    light_0->setDirection(Vec3(-1.0f, -1.0f, -1.2f));
     light_0->setSpecular(Vec4(1.0f, 0.9f, 0.8f, 1.0f));
