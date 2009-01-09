@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-09-16 14:49:46  martius
+ *   Revision 1.4  2009-01-09 16:52:36  martius
+ *   use pose instead of translation only
+ *
+ *   Revision 1.3  2008/09/16 14:49:46  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.2  2006/07/14 12:23:33  martius
@@ -106,8 +109,7 @@ class PassiveCapsule : public AbstractObstacle{
   virtual void create(){
     capsule = new Capsule(radius,height);
     capsule->init(odeHandle, mass, osgHandle);
-    osg::Vec3 pos=pose.getTrans();
-    capsule->setPosition(pos);
+    capsule->setPose(pose);
         
     obstacle_exists=true;
   };

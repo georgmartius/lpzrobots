@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-09-16 14:49:46  martius
+ *   Revision 1.6  2009-01-09 16:52:36  martius
+ *   use pose instead of translation only
+ *
+ *   Revision 1.5  2008/09/16 14:49:46  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.4  2007/12/06 15:59:19  der
@@ -115,8 +118,9 @@ class PassiveBox : public AbstractObstacle{
     } else {
       box->init(odeHandle, mass, osgHandle);
     }
-    osg::Vec3 pos=pose.getTrans();
-    box->setPosition(pos);
+//     osg::Vec3 pos=pose.getTrans();
+//     box->setPosition(pos);
+    box->setPose(pose);
     obst.push_back(box);
 
     obstacle_exists=true;
