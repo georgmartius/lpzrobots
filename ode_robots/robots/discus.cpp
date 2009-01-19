@@ -19,7 +19,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-01-19 14:33:34  martius
+ *   Revision 1.2  2009-01-19 14:54:12  martius
+ *   ir sensors fixed
+ *
+ *   Revision 1.1  2009/01/19 14:33:34  martius
  *   new discus-shaped robot
  *
  *
@@ -238,7 +241,8 @@ namespace lpzrobots {
       servo[n] = new SliderServo(joint[n], 
 				 -range, range,
 				 conf.pendularmass*conf.motorpowerfactor,0.1,0.5); 
-      axis[n] = new OSGCylinder(conf.diameter/100, (n==2 ? stabilizerlength : conf.diameter) - conf.diameter/100));
+      axis[n] = new OSGCylinder(conf.diameter/100, (n==2 ? stabilizerlength : conf.diameter) - 
+				conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);
       object[Pendular1+n] = pendular[n]; 
     }
@@ -270,28 +274,32 @@ namespace lpzrobots {
     if (conf.irAxis3){
       for(int i=-1; i<2; i+=2){
 	RaySensor* sensor = conf.irSensorTempl->clone();
+	double stabilizerlength = (conf.stabdiameter+conf.relativewidth) * conf.diameter;    
 	Matrix R = Matrix::rotate( i==1 ? 0 : M_PI, 1, 0, 0) * 
-	  Matrix::translate(0,0,i*(conf.diameter/2-sensors_inside));
+	  Matrix::translate(0,0,i*(stabilizerlength/2-sensors_inside));
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
-    if (conf.irRing){
+    if (conf.irRing){ 
       for(double i=0; i<2*M_PI; i+=M_PI/6){  // 12 sensors
 	RaySensor* sensor = conf.irSensorTempl->clone();
-	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * 
-	  Matrix::rotate( i, 0, 1, 0);
+	Matrix R = Matrix::rotate( M_PI/2, 1, 0, 0) * 
+	  Matrix::translate(0,-conf.diameter/2+sensors_inside,0) * 
+	  Matrix::rotate( i, 0, 0, 1);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irSide){
       for(double i=0; i<2*M_PI; i+=M_PI/2){
 	RaySensor* sensor = conf.irSensorTempl->clone();
-	Matrix R = Matrix::translate(0,0,conf.diameter/2-sensors_inside) * 
-	  Matrix::rotate( M_PI/2-M_PI/8, 1, 0, 0) *  Matrix::rotate( i, 0, 1, 0);
+	Matrix R = Matrix::translate(0,0,conf.stabdiameter*conf.diameter/2) * 
+	  Matrix::rotate( M_PI/8, 0, 1, 0) *
+	  Matrix::translate(0,0,conf.diameter/2*conf.relativewidth-sensors_inside) *  
+	  Matrix::rotate( i, 0, 0, 1);
 	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode); 
 	sensor = new IRSensor(conf.irCharacter);// and the other side	
 	irSensorBank.registerSensor(sensor, object[Base], 
-				    R * Matrix::rotate( M_PI, 0, 0, 1), 
+				    R * Matrix::rotate( M_PI, 0, 1, 0), 
 				    sensorrange, drawMode); 
       }
     }
