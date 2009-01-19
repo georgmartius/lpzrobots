@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-01-19 14:33:49  martius
+ *   Revision 1.2  2009-01-19 14:55:14  martius
+ *   use invertnstep and adjusted parameters
+ *
+ *   Revision 1.1  2009/01/19 14:33:49  martius
  *   new discus shaped robot
  *
  *   Revision 1.25  2008/09/16 19:28:29  martius
@@ -140,7 +143,7 @@
 #include <ode_robots/forcedsphere.h>
 #include <ode_robots/axisorientationsensor.h>
 #include <ode_robots/speedsensor.h>
-#include "discus.h"
+#include <ode_robots/discus.h>
 
 
 // fetch all the stuff of lpzrobots into scope
@@ -232,51 +235,39 @@ public:
       conf.irAxis1=false;
       conf.irAxis2=false;
       conf.irAxis3=false;
-      conf.spheremass   = 1;
+      conf.irSide=false;
+      conf.irRing=false;
       robot = new Discus ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
 				    conf, "Discus1", 0.4); 
       robot->place (osg::Matrix::rotate(M_PI/2, 1,0,0)*osg::Matrix::translate(0,0,0.2));
 
       // controller = new SineController();
       
-      DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
-      //           BasicControllerConf cc = BasicController::getDefaultConf();    
-      //  AbstractController* controller = new DerLinInvert(cc);
+//       DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
+//       vector<Layer> layers;
+//       layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+//       // size of output layer is automatically set
+//       layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+//       MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
+//       cc.model = net;
+
+//       //Elman Net 
+//       layers.clear();
+//       layers.push_back(Layer(40,0.5,Elman::tanhr)); // hidden layer
+//       // size of output layer is automatically set
+//       layers.push_back(Layer(1,0.5,Elman::tanh)); 
+//       Elman* sat = new Elman(1, layers,true,true, false);
+//       cc.sat   = sat;
       
-      cc.cInit=  1.0;//1.005;
-      
-      vector<Layer> layers;
-      layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
-      // size of output layer is automatically set
-      layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-      MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
-      cc.model = net;
-      
-//           layers.clear();
-// 	  layers.push_back(Layer(3,0.5,FeedForwardNN::tanhr)); // hidden layer
-//           // size of output layer is automatically set
-//           layers.push_back(Layer(1,0.5,FeedForwardNN::tanhr)); 
-//           MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
-//           cc.sat   = sat;
-      
-      //Elman Net 
-      layers.clear();
-      layers.push_back(Layer(40,0.5,Elman::tanhr)); // hidden layer
-      // size of output layer is automatically set
-      layers.push_back(Layer(1,0.5,Elman::tanh)); 
-      Elman* sat = new Elman(1, layers,true,true, false);
-      cc.sat   = sat;
-      
-      cc.useS=false;
-      //    AbstractController* controller = new DerLinInvert(cc);
-      //  AbstractController* controller = new BasicController(cc);
-      
-      controller = new DerLinInvert(cc);
-      controller->setParam("epsC",0.1);
-      controller->setParam("epsA",0.1);
-//       controller = new InvertMotorNStep();
+//       cc.cInit=  1.0;//1.005;
+//       cc.useS=false;
+//       controller = new DerLinInvert(cc);
 //       controller->setParam("epsC",0.1);
 //       controller->setParam("epsA",0.1);
+      controller = new InvertMotorNStep();
+      controller->setParam("epsC",0.01);
+      controller->setParam("epsA",0.01);
+
       //       DerivativeWiringConf dc = DerivativeWiring::getDefaultConf();
       //       dc.useId=true;
       //       dc.useFirstD=false;
