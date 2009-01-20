@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2007-09-06 18:48:29  martius
+ *   Revision 1.14  2009-01-20 17:29:52  martius
+ *   cvs commit
+ *
+ *   Revision 1.13  2007/09/06 18:48:29  martius
  *   clone function (a bit like a factory)
  *
  *   Revision 1.12  2007/08/24 11:57:48  martius
@@ -100,7 +103,7 @@ namespace lpzrobots {
     /**
        @param exponent exponent of the sensor characteritic (default: 1 (linear))
     */
-    IRSensor(float exponent = 1);
+    IRSensor(float exponent = 1, double size = 0.05);
 
     virtual ~IRSensor();
 
@@ -144,6 +147,8 @@ namespace lpzrobots {
     float len;   // last measured length
     float value; // actual sensor value
     float exponent; // exponent of the sensor characteritic 
+
+    double size; // size of graphical sensor
 
     OSGCylinder* sensorBody;
     //    OSGBox* sensorRay;

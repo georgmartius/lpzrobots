@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2008-11-14 11:23:05  martius
+ *   Revision 1.13  2009-01-20 17:29:52  martius
+ *   cvs commit
+ *
+ *   Revision 1.12  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -130,6 +133,7 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivemesh.h>
 #include <ode_robots/joint.h>
+#include <ode_robots/axisorientationsensor.h>
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
@@ -151,6 +155,7 @@
 #include <ode_robots/sliderwheelie.h>
 #include <ode_robots/nimm2.h>
 #include <ode_robots/plattfussschlange.h>
+#include <ode_robots/addsensors2robotadapter.h>
 
 #include <ode_robots/passivebox.h>
 
@@ -209,7 +214,7 @@ public:
     bool fixedInAir = true;
     reckturner = false;
     // Playground types
-    bool narrow = false; 
+    bool narrow = true; 
 
 
     fixator=0;
@@ -283,187 +288,196 @@ public:
 // //     global.obstacles.push_back(m);
     
    if(narrow){
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(0.875, 8.8, 1.3975)); playground->setColor(Color(0.88f,0.4f,0.26f,0.9999f));
+     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 0.08, 1.3975)); 
+     playground->setColor(Color(0.2f,0.2f,0.22f,0.3));
+     playground->setTexture("Images/really_white.rgb");
+     playground->setPosition(osg::Vec3(20,20,.1));
+     //      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 8.8, 1.3975)); 
+     //      playground->setColor(Color(0.88f,0.4f,0.26f,1));
      playground->setPosition(osg::Vec3(20,20,.1));
      Substance substance;
      //  substance.toPlastic(10.0);
-        substance.toRubber(10.0);
-      //   substance.toMetal(1);
-    playground->setGroundSubstance(substance);
-    global.obstacles.push_back(playground);
-/*    double xboxes=0.0;
-    double yboxes=0.0;*/
-    double xboxes=0;//15;//19.0;
-    double yboxes=0;//15;
-    double boxdis=.9;//.45;//1.6;
-    for (double j=0.0;j<xboxes;j++)
-      for(double i=0.0; i<yboxes; i++) {
-        double xsize= .35;//1.0;
-        double ysize= .25;//.25;
-        double zsize=.9;
-        PassiveBox* b =
-          new PassiveBox(odeHandle,
-                         osgHandle, osg::Vec3(xsize,ysize,zsize),0.0);
-        b->setPosition(Pos(boxdis*(20+i-(xboxes-1)/2.0),boxdis*(20+j-(yboxes-1)/2.0), 0.01));
-        b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
-        b->setTexture("Images/light_chess.rgb");
-        global.obstacles.push_back(b);
-      }
+     substance.toRubber(10.0);
+     //   substance.toMetal(1);
+     playground->setGroundSubstance(substance);
+     global.obstacles.push_back(playground);
+     /*    double xboxes=0.0;
+	   double yboxes=0.0;*/
+     double xboxes=0;//15;//19.0;
+     double yboxes=0;//15;
+     double boxdis=.9;//.45;//1.6;
+     for (double j=0.0;j<xboxes;j++)
+       for(double i=0.0; i<yboxes; i++) {
+	 double xsize= .35;//1.0;
+	 double ysize= .25;//.25;
+	 double zsize=.9;
+	 PassiveBox* b =
+	   new PassiveBox(odeHandle,
+			  osgHandle, osg::Vec3(xsize,ysize,zsize),0.0);
+	 b->setPosition(Pos(boxdis*(20+i-(xboxes-1)/2.0),boxdis*(20+j-(yboxes-1)/2.0), 0.01));
+	 b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+	 b->setTexture("Images/light_chess.rgb");
+	 global.obstacles.push_back(b);
+       }
    }
     
 
-    for (int i=0; i< humanoids; i++){ //Several humans
+   for (int i=0; i< humanoids; i++){ //Several humans
 
-      if (i>0) reckturner=false;
+     if (i>0) reckturner=false;
 
-//       ZweiBeinerConf conf = ZweiBeiner::getDefaultConf();
+     //       ZweiBeinerConf conf = ZweiBeiner::getDefaultConf();
       
-//       ZweiBeiner* human = new ZweiBeiner(odeHandle, osgHandle,conf, "Humanoid");     
-//       human->place(osg::Matrix::translate(4*i,0,2));
-//       global.configs.push_back(human);
+     //       ZweiBeiner* human = new ZweiBeiner(odeHandle, osgHandle,conf, "Humanoid");     
+     //       human->place(osg::Matrix::translate(4*i,0,2));
+     //       global.configs.push_back(human);
       
-//       Primitive* trunk = human->getMainPrimitive();
-//       fixator = new FixedJoint(trunk, global.environment);
-//       fixator->init(odeHandle, osgHandle);
+     //       Primitive* trunk = human->getMainPrimitive();
+     //       fixator = new FixedJoint(trunk, global.environment);
+     //       fixator->init(odeHandle, osgHandle);
 
-      SkeletonConf conf = Skeleton::getDefaultConf();
+     SkeletonConf conf = Skeleton::getDefaultConf();
       
-      conf.massfactor   = 1;
-      conf.relLegmass = 5;
-      conf.relFeetmass = 1;
-      conf.relArmmass = 1;//1.0;
+     conf.massfactor   = 1;
+     conf.relLegmass = 5;
+     conf.relFeetmass = 1;
+     conf.relArmmass = 1;//1.0;
 
-//       conf.hipJointLimit= 2.6; //!
-//       conf.kneeJointLimit=2.2;//1.911; //!
-//        conf.hip2JointLimit=.9; //!
-//        conf.armJointLimit=M_PI/1.2;//2.0; //!
-// //       conf.ankleJointLimit=0.001; //!
-//        conf.pelvisJointLimit=.5; //!    
-      conf.hipPower=100;
-      conf.hip2Power=50;      //5
-      conf.pelvisPower=20;
-      conf.kneePower= 25;
-      conf.anklePower = 5;
-      conf.armPower = 20;//5
-      if(reckturner)      conf.armPower = 30;
-      conf.powerfactor = .5;// .95;//.65;//5;
-       if (reckturner) conf.powerfactor *=.2;
-       if (i==0)
-	conf.trunkColor=Color(0.1, 0.3, 0.8);
-      else	conf.trunkColor=Color(0.9, 0.0, 0.1);
-      if(reckturner)
-	conf.handsRotating = true;
+     conf.hipJointLimit= 2.6; //!
+     conf.kneeJointLimit=2.2;//1.911; //!
+     conf.hip2JointLimit=.9; //!
+     conf.armJointLimit=M_PI/1.2;//2.0; //!
+     //       conf.ankleJointLimit=0.001; //!
+     conf.pelvisJointLimit=.5; //!    
+     conf.hipPower=100;
+     conf.hip2Power=50;      //5
+     conf.pelvisPower=20;
+     conf.kneePower= 25;
+     conf.anklePower = 5;
+     conf.armPower = 20;//5
+     if(reckturner)      conf.armPower = 30;
+     conf.powerfactor = .5;// .95;//.65;//5;
+     if (reckturner) conf.powerfactor *=.2;
+     if (i==0)
+       conf.trunkColor=Color(0.1, 0.3, 0.8);
+     else	conf.trunkColor=Color(0.9, 0.0, 0.1);
+     if(reckturner)
+       conf.handsRotating = true;
 
-      conf.useBackJoint = true
-;
+     conf.useBackJoint = true
+       ;
 	
-      //    conf.bodyTexture="Images/whitemetal_farbig_small.rgb";
-      //     conf.bodyColor=Color(1.0,1.0,0.0);
-      OdeHandle skelHandle=odeHandle;
-      // skelHandle.substance.toMetal(1);
-          skelHandle.substance.toPlastic(40);//TEST sonst 40
-	  // skelHandle.substance.toRubber(4);//TEST sonst 40
-      Skeleton* human = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
-      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
-		   //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
-		   *osg::Matrix::translate(.2*i+20,.2*i+20,.4/*7*/ +2*i));
-      global.configs.push_back(human);
+     //    conf.bodyTexture="Images/whitemetal_farbig_small.rgb";
+     //     conf.bodyColor=Color(1.0,1.0,0.0);
+     std::list<Sensor*> sensors;
+     sensors.push_back(new AxisOrientationSensor(AxisOrientationSensor::OnlyZAxis));
+     OdeHandle skelHandle=odeHandle;
+     // skelHandle.substance.toMetal(1);
+     skelHandle.substance.toPlastic(40);//TEST sonst 40
+     // skelHandle.substance.toRubber(4);//TEST sonst 40
+     Skeleton* human0 = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
+     AddSensors2RobotAdapter* human = 
+       new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
+     human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
+		  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
+		  *osg::Matrix::translate(.2*i+20,.2*i+20,.4/*7*/ +2*i));
+     global.configs.push_back(human);
       
       
-      if( fixedInAir){
-	Primitive* trunk = human->getMainPrimitive();
+     if( fixedInAir){
+       Primitive* trunk = human->getMainPrimitive();
       
-	fixator = new FixedJoint(trunk, global.environment);
-	//       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
-        fixator->init(odeHandle, osgHandle);
-      }else if(reckturner){
-	Primitive* leftHand = human->getPrimitives()[Skeleton::Left_Hand];
-	Primitive* rightHand = human->getPrimitives()[Skeleton::Right_Hand];
+       fixator = new FixedJoint(trunk, global.environment);
+       //       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
+       fixator->init(odeHandle, osgHandle);
+     }else if(reckturner){
+       Primitive* leftHand = human0->getPrimitives()[Skeleton::Left_Hand];
+       Primitive* rightHand = human0->getPrimitives()[Skeleton::Right_Hand];
       
-	reckLeft = new SliderJoint(leftHand, global.environment, leftHand->getPosition(), Axis(1,0,0));	
-        reckLeft->init(odeHandle, osgHandle,false);
-	reckRight = new SliderJoint(rightHand, global.environment, rightHand->getPosition(), Axis(1,0,0));	
-        reckRight->init(odeHandle, osgHandle,false);			  
-      }
+       reckLeft = new SliderJoint(leftHand, global.environment, leftHand->getPosition(), Axis(1,0,0));	
+       reckLeft->init(odeHandle, osgHandle,false);
+       reckRight = new SliderJoint(rightHand, global.environment, rightHand->getPosition(), Axis(1,0,0));	
+       reckRight->init(odeHandle, osgHandle,false);			  
+     }
       
       
 
-      // create pointer to controller
-      // push controller in global list of configurables
-      AbstractController *controller = new SineController();
-      controller->setParam("sinerate",50);
-      controller->setParam("phaseshift",0);
+     // create pointer to controller
+     // push controller in global list of configurables
+     //       AbstractController *controller = new SineController();
+     //       controller->setParam("sinerate",50);
+     //       controller->setParam("phaseshift",0);
 
-        DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
-	//           BasicControllerConf cc = BasicController::getDefaultConf();    
-	//  AbstractController* controller = new DerLinInvert(cc);
+     DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
+     //           BasicControllerConf cc = BasicController::getDefaultConf();    
+     //  AbstractController* controller = new DerLinInvert(cc);
 
-        cc.cInit=  1.0;//1.005;
+     cc.cInit=  1.0;//1.005;
   
-          vector<Layer> layers;
-           layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
-          // size of output layer is automatically set
-          layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-          MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
-          cc.model = net;
+     vector<Layer> layers;
+     layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+     // size of output layer is automatically set
+     layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+     MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
+     cc.model = net;
 
-//           layers.clear();
-// 	  layers.push_back(Layer(3,0.5,FeedForwardNN::tanhr)); // hidden layer
-//           // size of output layer is automatically set
-//           layers.push_back(Layer(1,0.5,FeedForwardNN::tanhr)); 
-//           MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
-//           cc.sat   = sat;
+     //           layers.clear();
+     // 	  layers.push_back(Layer(3,0.5,FeedForwardNN::tanhr)); // hidden layer
+     //           // size of output layer is automatically set
+     //           layers.push_back(Layer(1,0.5,FeedForwardNN::tanhr)); 
+     //           MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
+     //           cc.sat   = sat;
 
-	  //Elman Net 
-          layers.clear();
-	   layers.push_back(Layer(40,0.5,Elman::tanhr)); // hidden layer
-          // size of output layer is automatically set
-          layers.push_back(Layer(1,0.5,Elman::tanh)); 
-          Elman* sat = new Elman(1, layers,true,true, false);
-          cc.sat   = sat;
+     //Elman Net 
+     layers.clear();
+     layers.push_back(Layer(40,0.5,Elman::tanhr)); // hidden layer
+     // size of output layer is automatically set
+     layers.push_back(Layer(1,0.5,Elman::tanh)); 
+     Elman* sat = new Elman(1, layers,true,true, false);
+     cc.sat   = sat;
 
-          cc.useS=false;
-	  //    AbstractController* controller = new DerLinInvert(cc);
-	  //  AbstractController* controller = new BasicController(cc);
+     cc.useS=false;
+     AbstractController* controller = new DerLinInvert(cc);
+     //  AbstractController* controller = new BasicController(cc);
 	   
 
-      //     controller->setParam("adaptrate",0);
-      //     controller->setParam("rootE",3);
-           controller->setParam("epsC",0.03);
-           controller->setParam("epsSat",0.02);
-           controller->setParam("epsA",0.003);
-      controller->setParam("steps",1);
-           controller->setParam("s4avg",2);
-           controller->setParam("s4delay",1);
-           controller->setParam("teacher",0.0);
-           controller->setParam("dampC",0.00001);
-           controller->setParam("dampA",0.003);
-          controller->setParam("weighting",1);
-          controller->setParam("noise",0);;
-          controller->setParam("zetaupdate",1);
-	  controller->setParam("PIDint",.3);
+     //     controller->setParam("adaptrate",0);
+     //     controller->setParam("rootE",3);
+     controller->setParam("epsC",0.03);
+     controller->setParam("epsSat",0.02);
+     controller->setParam("epsA",0.003);
+     controller->setParam("steps",1);
+     controller->setParam("s4avg",2);
+     controller->setParam("s4delay",1);
+     controller->setParam("teacher",0.0);
+     controller->setParam("dampC",0.00001);
+     controller->setParam("dampA",0.003);
+     controller->setParam("weighting",1);
+     controller->setParam("noise",0);;
+     controller->setParam("zetaupdate",1);
+     controller->setParam("PIDint",.3);
       
-      global.configs.push_back(controller);
+     global.configs.push_back(controller);
       
-      // create pointer to one2onewiring
-      //     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-       DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-       c.useId = true;
-       c.useFirstD = false;
-       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(.2) );
+     // create pointer to one2onewiring
+     //     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+     DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+     c.useId = true;
+     c.useFirstD = false;
+     DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(.2) );
       
       
 
-      // create pointer to agent
-      // initialize pointer with controller, robot and wiring
-      // push agent in globel list of agents
-      OdeAgent* agent = new OdeAgent(i==0 ? plotoptions : list<PlotOption>());
-      agent->init(controller, human, wiring);
-      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
-      global.agents.push_back(agent);
+     // create pointer to agent
+     // initialize pointer with controller, robot and wiring
+     // push agent in globel list of agents
+     OdeAgent* agent = new OdeAgent(i==0 ? plotoptions : list<PlotOption>());
+     agent->init(controller, human, wiring);
+     //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
+     global.agents.push_back(agent);
       
-      //  showParams(global.configs);
-    }// Several humans end
+     //  showParams(global.configs);
+   }// Several humans end
     
 
    
@@ -471,278 +485,278 @@ public:
 
     //****** SNAKES **********/
     //creation of normal   snakes 
-    for(int i=0; i<snakes; i++){
+   for(int i=0; i<snakes; i++){
 
-      //****************/
-      SchlangeConf conf = Schlange::getDefaultConf();
-      double snakesize = .6;
-      conf.segmMass   = .8;
-      conf.segmLength= .8 * snakesize;// 0.8;
-        conf.segmDia=.15 *snakesize;
-      conf.motorPower= 2 * snakesize;
-      conf.segmNumber = 13+4*i;//-i/2; 
-      // conf.jointLimit=conf.jointLimit*3;
-      conf.jointLimit=conf.jointLimit* 1.6;
-      conf.frictionGround=0.03;// +((double)i)/100;
-      conf.frictionJoint=0.001;
-      //PlattfussSchlange* schlange1; 
-      SchlangeServo2* schlange1;
-      if (i==0) {
-	schlange1 = 
+     //****************/
+     SchlangeConf conf = Schlange::getDefaultConf();
+     double snakesize = .6;
+     conf.segmMass   = .8;
+     conf.segmLength= .8 * snakesize;// 0.8;
+     conf.segmDia=.15 *snakesize;
+     conf.motorPower= 2 * snakesize;
+     conf.segmNumber = 13+4*i;//-i/2; 
+     // conf.jointLimit=conf.jointLimit*3;
+     conf.jointLimit=conf.jointLimit* 1.6;
+     conf.frictionGround=0.03;// +((double)i)/100;
+     conf.frictionJoint=0.001;
+     //PlattfussSchlange* schlange1; 
+     SchlangeServo2* schlange1;
+     if (i==0) {
+       schlange1 = 
 
-	  new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.1, 0.3, 0.8)),
-			       //  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
-			       conf, "S1");
-      } else {
-	schlange1 = 
-	  new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.1, 0.3, 0.8)),
-			       // new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
-			       conf, "S2");
-      }
-      //Positionieren und rotieren 
-      schlange1->place(osg::Matrix::rotate(M_PI/2,0, 1, 0)*
-		        osg::Matrix::translate(22 -.7*i,20-2*i,1+(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
-		       // osg::Matrix::translate(5-i,2 + i*2,height+2));
-      schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
-      if (i==0) {
-	schlange1->setHeadColor(Color(1.0,0,0));
-      } else {
-	schlange1->setHeadColor(Color(0,1.0,0));
-      }
-      //   Primitive* trunk = schlange1->getMainPrimitive();
+	 new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.1, 0.3, 0.8)),
+			      //  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
+			      conf, "S1");
+     } else {
+       schlange1 = 
+	 new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.1, 0.3, 0.8)),
+			      // new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
+			      conf, "S2");
+     }
+     //Positionieren und rotieren 
+     schlange1->place(osg::Matrix::rotate(M_PI/2,0, 1, 0)*
+		      osg::Matrix::translate(22 -.7*i,20-2*i,1+(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
+     // osg::Matrix::translate(5-i,2 + i*2,height+2));
+     schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
+     if (i==0) {
+       schlange1->setHeadColor(Color(1.0,0,0));
+     } else {
+       schlange1->setHeadColor(Color(0,1.0,0));
+     }
+     //   Primitive* trunk = schlange1->getMainPrimitive();
       
-   //fixator = new FixedJoint(trunk, global.environment);
-       //  fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
-//       fixator->init(odeHandle, osgHandle);
+     //fixator = new FixedJoint(trunk, global.environment);
+     //  fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
+     //       fixator->init(odeHandle, osgHandle);
 
 
-      //      AbstractController *controller = new InvertMotorNStep(); 
-      // DerBigControllerConf cconf = DerBigController::getDefaultConf();
-      // DerControllerConf cconf = DerController::getDefaultConf();
-	    DerLinInvertConf cconf = DerLinInvert::getDefaultConf();
-      // cconf.useS=true;
-      cconf.cInit=1.0;
+     //      AbstractController *controller = new InvertMotorNStep(); 
+     // DerBigControllerConf cconf = DerBigController::getDefaultConf();
+     // DerControllerConf cconf = DerController::getDefaultConf();
+     DerLinInvertConf cconf = DerLinInvert::getDefaultConf();
+     // cconf.useS=true;
+     cconf.cInit=1.0;
 
-          vector<Layer> layers;
-	  //    layers.push_back(Layer(10,0.5,FeedForwardNN::tanh)); // hidden layer
-	   //  size of output layer is automatically set
-          layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-          MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
-          cconf.model=net;
+     vector<Layer> layers;
+     //    layers.push_back(Layer(10,0.5,FeedForwardNN::tanh)); // hidden layer
+     //  size of output layer is automatically set
+     layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+     MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
+     cconf.model=net;
   
-	  //Elman Net 
-          layers.clear();
-	  // layers.push_back(Layer(8,0.5,Elman::tanhr)); // hidden layer
-          // size of output layer is automatically set
-          layers.push_back(Layer(1,0.5,Elman::tanh)); 
-          Elman* sat = new Elman(1, layers,true,true, false);
-          cconf.sat   = sat;
+     //Elman Net 
+     layers.clear();
+     // layers.push_back(Layer(8,0.5,Elman::tanhr)); // hidden layer
+     // size of output layer is automatically set
+     layers.push_back(Layer(1,0.5,Elman::tanh)); 
+     Elman* sat = new Elman(1, layers,true,true, false);
+     cconf.sat   = sat;
 
-        //   layers.clear();
-// 	  	  layers.push_back(Layer(8,0.5,FeedForwardNN::tanh)); // hidden layer
-//           // size of output layer is automatically set
-//           layers.push_back(Layer(1,0.5,FeedForwardNN::tanh)); 
-//           MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
-//           cconf.sat   = sat;
-          cconf.useS=false;
+     //   layers.clear();
+     // 	  	  layers.push_back(Layer(8,0.5,FeedForwardNN::tanh)); // hidden layer
+     //           // size of output layer is automatically set
+     //           layers.push_back(Layer(1,0.5,FeedForwardNN::tanh)); 
+     //           MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
+     //           cconf.sat   = sat;
+     cconf.useS=false;
 
-      // AbstractController *controller = new DerBigController(cconf); 
-      //AbstractController *controller = new DerController(cconf); 
-      //  controller->setParam("fantcontrol",200);
-      // controller->setParam("fantcontrollen",50);
-      //AbstractController *controller = new SineController();  
-        AbstractController* controller = new DerLinInvert(cconf);
+     // AbstractController *controller = new DerBigController(cconf); 
+     //AbstractController *controller = new DerController(cconf); 
+     //  controller->setParam("fantcontrol",200);
+     // controller->setParam("fantcontrollen",50);
+     //AbstractController *controller = new SineController();  
+     AbstractController* controller = new DerLinInvert(cconf);
   
-        AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
+     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
      //  DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-//       c.useId = true;
-//       c.useFirstD = false;
-//       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
+     //       c.useId = true;
+     //       c.useFirstD = false;
+     //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-      OdeAgent* agent = new OdeAgent(plotoptions);
-      agent->init(controller, schlange1, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(schlange1);
+     OdeAgent* agent = new OdeAgent(plotoptions);
+     agent->init(controller, schlange1, wiring);
+     global.agents.push_back(agent);
+     global.configs.push_back(controller);
+     global.configs.push_back(schlange1);
   
  
-      controller->setParam("steps",1);
-      controller->setParam("epsC",0.1);
-      controller->setParam("epsA",0.01);
-      controller->setParam("adaptrate",0.0);//0.005);
-      controller->setParam("rootE",3); 
-      controller->setParam("logaE",0);
-      controller->setParam("epsSat",0.02);
-      controller->setParam("weighting",1);
+     controller->setParam("steps",1);
+     controller->setParam("epsC",0.1);
+     controller->setParam("epsA",0.01);
+     controller->setParam("adaptrate",0.0);//0.005);
+     controller->setParam("rootE",3); 
+     controller->setParam("logaE",0);
+     controller->setParam("epsSat",0.02);
+     controller->setParam("weighting",1);
 
-      // controller->setParam("desens",0.0);
-      controller->setParam("s4delay",2.0);
-      controller->setParam("s4avg",3.0);
+     // controller->setParam("desens",0.0);
+     controller->setParam("s4delay",2.0);
+     controller->setParam("s4avg",3.0);
     
-      controller->setParam("factorB",0.0); 
-      controller->setParam("noiseB",0.0);
+     controller->setParam("factorB",0.0); 
+     controller->setParam("noiseB",0.0);
 
-      controller->setParam("frictionjoint",0.01);
-      controller->setParam("frictionground",0.03);
-      controller->setParam("teacher", 0.0); 
-          controller->setParam("dampA",0.01);
-          controller->setParam("dampC",0.00001);
+     controller->setParam("frictionjoint",0.01);
+     controller->setParam("frictionground",0.03);
+     controller->setParam("teacher", 0.0); 
+     controller->setParam("dampA",0.01);
+     controller->setParam("dampC",0.00001);
     
-    }//creation of snakes End
+   }//creation of snakes End
 
 
 
 
 
- //****** FLAT SNAKES **********/
-  //creation of flatsnakes
-    double height =.1;
-    for(int i=0; i<flatsnakes; i++){
+   //****** FLAT SNAKES **********/
+   //creation of flatsnakes
+   double height =.1;
+   for(int i=0; i<flatsnakes; i++){
 
-      //****************/
-      SchlangeConf conf = Schlange::getDefaultConf();
-      conf.segmMass   = .2;
-      conf.segmLength=.8;
-      conf.segmDia=.2;
-      conf.motorPower=.5;
-      conf.segmNumber = 5+12*i;//-i/2; 
-      // conf.jointLimit=conf.jointLimit*3;
-      conf.jointLimit=conf.jointLimit*2.0;
-      conf.frictionGround=0.04;// +((double)i)/100;
-      conf.frictionJoint=0.01;
-      PlattfussSchlange* schlange1; 
-      //  SchlangeServo* schlange1; 
-      if (i==0) {
-	schlange1 = 
-	  //  new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.0, 0.8, 0.6)),
-			         new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
-			       conf, "S1");
-      } else {
-	schlange1 = 
-	  // new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.1, 0.8, 0.2)),
-			        new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
-			       conf, "S2");
-      }
-      //Positionieren und rotieren 
-      schlange1->place(// osg::Matrix::rotate(M_PI/2, 0, 1, 0)*
-		       // osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
-		       osg::Matrix::translate(-i, 5 + i*2,height+2));
-      schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
-      if (i==0) {
-	schlange1->setHeadColor(Color(1.0,0,0));
-      } else {
-	schlange1->setHeadColor(Color(0,1.0,0));
-      }
+     //****************/
+     SchlangeConf conf = Schlange::getDefaultConf();
+     conf.segmMass   = .2;
+     conf.segmLength=.8;
+     conf.segmDia=.2;
+     conf.motorPower=.5;
+     conf.segmNumber = 5+12*i;//-i/2; 
+     // conf.jointLimit=conf.jointLimit*3;
+     conf.jointLimit=conf.jointLimit*2.0;
+     conf.frictionGround=0.04;// +((double)i)/100;
+     conf.frictionJoint=0.01;
+     PlattfussSchlange* schlange1; 
+     //  SchlangeServo* schlange1; 
+     if (i==0) {
+       schlange1 = 
+	 //  new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.0, 0.8, 0.6)),
+	 new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
+				 conf, "S1");
+     } else {
+       schlange1 = 
+	 // new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.1, 0.8, 0.2)),
+	 new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
+				 conf, "S2");
+     }
+     //Positionieren und rotieren 
+     schlange1->place(// osg::Matrix::rotate(M_PI/2, 0, 1, 0)*
+		      // osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
+		      osg::Matrix::translate(-i, 5 + i*2,height+2));
+     schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
+     if (i==0) {
+       schlange1->setHeadColor(Color(1.0,0,0));
+     } else {
+       schlange1->setHeadColor(Color(0,1.0,0));
+     }
  
 
-           DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
-	   // AbstractController* controller = new DerLinInvert(cc);
+     DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
+     // AbstractController* controller = new DerLinInvert(cc);
 
-  //     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
-          vector<Layer> layers;
-          // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
-          // size of output layer is automatically set
-          layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-          MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
-	  // cc.model=net;
-          cc.model=net;
-          cc.useS=false;
-          //cc.useS=false;   
-	   AbstractController* controller = new DerLinInvert(cc);
+     //     //    InvertMotorBigModelConf cc = InvertMotorBigModel::getDefaultConf();
+     vector<Layer> layers;
+     // layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
+     // size of output layer is automatically set
+     layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
+     // cc.model=net;
+     cc.model=net;
+     cc.useS=false;
+     //cc.useS=false;   
+     AbstractController* controller = new DerLinInvert(cc);
 
-    //   //      AbstractController *controller = new InvertMotorNStep(); 
-//       DerBigControllerConf cconf = DerBigController::getDefaultConf();
-//       cconf.cInit=.7;
-//       AbstractController *controller = new DerBigController(cconf); 
-      //AbstractController *controller = new SineController();  
+     //   //      AbstractController *controller = new InvertMotorNStep(); 
+     //       DerBigControllerConf cconf = DerBigController::getDefaultConf();
+     //       cconf.cInit=.7;
+     //       AbstractController *controller = new DerBigController(cconf); 
+     //AbstractController *controller = new SineController();  
   
-        AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
+     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
      //  DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-//       c.useId = true;
-//       c.useFirstD = false;
-//       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
+     //       c.useId = true;
+     //       c.useFirstD = false;
+     //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-      OdeAgent* agent = new OdeAgent(plotoptions);
-      agent->init(controller, schlange1, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(schlange1);
+     OdeAgent* agent = new OdeAgent(plotoptions);
+     agent->init(controller, schlange1, wiring);
+     global.agents.push_back(agent);
+     global.configs.push_back(controller);
+     global.configs.push_back(schlange1);
   
  
-      controller->setParam("steps",1);
-      controller->setParam("epsC",0.001);
-      controller->setParam("epsA",0.0);
-      controller->setParam("adaptrate",0.0);//0.005);
-      controller->setParam("rootE",3);
-      controller->setParam("logaE",0);
+     controller->setParam("steps",1);
+     controller->setParam("epsC",0.001);
+     controller->setParam("epsA",0.0);
+     controller->setParam("adaptrate",0.0);//0.005);
+     controller->setParam("rootE",3);
+     controller->setParam("logaE",0);
 
-      // controller->setParam("desens",0.0);
-      controller->setParam("s4delay",1.0);
-      controller->setParam("s4avg",1.0);
+     // controller->setParam("desens",0.0);
+     controller->setParam("s4delay",1.0);
+     controller->setParam("s4avg",1.0);
     
-      controller->setParam("factorB",0.0); 
-      controller->setParam("noiseB",0.0);
+     controller->setParam("factorB",0.0); 
+     controller->setParam("noiseB",0.0);
 
-      controller->setParam("frictionjoint",0.01);
-      controller->setParam("teacher", 0.0); 
+     controller->setParam("frictionjoint",0.01);
+     controller->setParam("teacher", 0.0); 
     
-    }//creation of flatsnakes End
+   }//creation of flatsnakes End
 
     
-      /******* S L I D E R - W H E E L I E *********/
-    for(int i=0; i < wheelies; i++) {      
-      SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
-      mySliderWheelieConf.segmNumber=12;
-      mySliderWheelieConf.motorPower=0.4;
-      mySliderWheelieConf.frictionGround=0.8;
-      mySliderWheelieConf.sliderLength=.8;
-      mySliderWheelieConf.segmLength=0.6;
-      OdeRobot* robot = new SliderWheelie(odeHandle, osgHandle, 
-       			  mySliderWheelieConf, "sliderWheelie1");
-      double height = 2;
-      robot->place(Pos(3,-3, height)); 
+   /******* S L I D E R - W H E E L I E *********/
+   for(int i=0; i < wheelies; i++) {      
+     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
+     mySliderWheelieConf.segmNumber=12;
+     mySliderWheelieConf.motorPower=0.4;
+     mySliderWheelieConf.frictionGround=0.8;
+     mySliderWheelieConf.sliderLength=.8;
+     mySliderWheelieConf.segmLength=0.6;
+     OdeRobot* robot = new SliderWheelie(odeHandle, osgHandle, 
+					 mySliderWheelieConf, "sliderWheelie1");
+     double height = 2;
+     robot->place(Pos(3,-3, height)); 
 
-    //   DerBigControllerConf cconf = DerBigController::getDefaultConf();
-//       cconf.cInit=1.0;
-
-
-//           vector<Layer> layers;
-//            layers.push_back(Layer(10,0.5,FeedForwardNN::tanh)); // hidden layer
-// 	   //  size of output layer is automatically set
-//           layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-//           MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
-//           cconf.model=net;
-      //AbstractController *controller = new DerController(cconf); 
-      AbstractController *controller = new DerController(); 
+     //   DerBigControllerConf cconf = DerBigController::getDefaultConf();
+     //       cconf.cInit=1.0;
 
 
-      // InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
-      // sliderinvertnconf.cInit=1;
-      // AbstractController* controller = new InvertMotorNStep(sliderinvertnconf);    
-      //slidercontroller = new SineController();
-      controller->setParam("steps",1);
-      controller->setParam("factorB",0);
-      controller->setParam("epsC",.1);
-      controller->setParam("epsA",.0);
-      controller->setParam("teacher",.0);
-      controller->setParam("rootE",3);
+     //           vector<Layer> layers;
+     //            layers.push_back(Layer(10,0.5,FeedForwardNN::tanh)); // hidden layer
+     // 	   //  size of output layer is automatically set
+     //           layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+     //           MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
+     //           cconf.model=net;
+     //AbstractController *controller = new DerController(cconf); 
+     AbstractController *controller = new DerController(); 
+
+
+     // InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
+     // sliderinvertnconf.cInit=1;
+     // AbstractController* controller = new InvertMotorNStep(sliderinvertnconf);    
+     //slidercontroller = new SineController();
+     controller->setParam("steps",1);
+     controller->setParam("factorB",0);
+     controller->setParam("epsC",.1);
+     controller->setParam("epsA",.0);
+     controller->setParam("teacher",.0);
+     controller->setParam("rootE",3);
       
-      DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-      c.useId = true;
-      c.useFirstD = false;
-      AbstractWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
-      //     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      OdeAgent* agent = new OdeAgent(plotoptions);
-      agent->init(controller, robot, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(robot);        
-    }//Creationn of wheelies end
+     DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
+     c.useId = true;
+     c.useFirstD = false;
+     AbstractWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
+     //     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
+     OdeAgent* agent = new OdeAgent(plotoptions);
+     agent->init(controller, robot, wiring);
+     global.agents.push_back(agent);
+     global.configs.push_back(controller);
+     global.configs.push_back(robot);        
+   }//Creationn of wheelies end
 
 
 
 
-    showParams(global.configs);
+   showParams(global.configs);
   }
   //*************HAND*************
 
@@ -750,11 +764,11 @@ public:
   //HAND ENDE ********************+
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-//     if(draw){
-//       if(reck) reck->update();
-//       if(reckLeft) reckLeft->update();
-//       if(reckRight) reckRight->update();
-//     }
+    //     if(draw){
+    //       if(reck) reck->update();
+    //       if(reckLeft) reckLeft->update();
+    //       if(reckRight) reckRight->update();
+    //     }
     if(globalData.time>1 && reckturner==true && reck==0){
       double reckLength=20;	
       reck = new Capsule(0.01,reckLength);
@@ -821,6 +835,7 @@ public:
 int main (int argc, char **argv)
 { 
   ThisSim sim;
+  sim.setGroundTexture("Images/whiteground.rgb");
   return sim.run(argc, argv) ? 0 : 1;
 
 }

@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2006-12-21 11:42:10  martius
+ *   Revision 1.5  2009-01-20 17:29:52  martius
+ *   cvs commit
+ *
+ *   Revision 1.4  2006/12/21 11:42:10  martius
  *   sensors have dimension to sense
  *   axissensors have finer settings
  *
@@ -50,7 +53,9 @@ namespace lpzrobots {
   class AxisOrientationSensor : public Sensor {
   public:  
     /// Sensor mode 
-    enum Mode { OnlyZAxis, ///< Z axis in word coordinated (Dimension select components of this vector)
+    enum Mode { /** Z axis (of robot) in word coordinates (relative to body center)
+		    (Dimensions select components of this vector) */
+                OnlyZAxis, 
 		ZProjection, ///< z-component of each axis (Dimension select components of this vector)
 		Axis ///< for each dimension one orienation vector, i.e. for X | Y | Z it is a 3x3 rotation matrix
     };

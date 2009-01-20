@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-11-14 11:23:05  martius
+ *   Revision 1.12  2009-01-20 17:29:52  martius
+ *   cvs commit
+ *
+ *   Revision 1.11  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -80,6 +83,8 @@
 #include <ode_robots/joint.h>
 #include <ode_robots/oneaxisservo.h>
 #include <ode_robots/twoaxisservo.h>
+#include <ode_robots/raysensorbank.h>
+#include <ode_robots/irsensor.h>
 
 // include header file
 #include "skeleton.h"
@@ -297,7 +302,7 @@ GUIDE adding new sensors
     for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
       if(*i) (*i)->update();
     }
-
+    irSensorBank.update();
   };
 
 
@@ -306,6 +311,7 @@ GUIDE adding new sensors
       @param GlobalData structure that contains global data from the simulation environment
   */
   void Skeleton::doInternalStuff(GlobalData& global){
+    irSensorBank.reset();
   }
 
 
@@ -376,9 +382,9 @@ GUIDE adding new sensors
     objects[Trunk_comp]=b;
 
     // Thorax
-    b = new Box(0.33,0.33,.235);
+    b = new Box(0.33,0.33,0.21); //.235);
     b->init(odeHandle, 1,osgHandle);
-    b->setPose(osg::Matrix::translate(0, 1.50, 0.035) * pose );
+    b->setPose(osg::Matrix::translate(0, 1.50, 0.03/*0.035*/) * pose );
     b->setMass(.25*conf.massfactor);//.3
     b->setTexture(conf.trunkTexture);
     b->setColor(conf.trunkColor);
@@ -396,7 +402,8 @@ GUIDE adding new sensors
 
 
     // Head_comp
-    b = new Sphere(0.1);
+    double headsize=0.1;
+    b = new Sphere(headsize);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::translate(0, 1.8106, 0.063) * pose );
     // b->setMass(5.89, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
@@ -405,6 +412,19 @@ GUIDE adding new sensors
     b->setTexture(conf.headTexture);
     b->setColor(conf.headColor);
     objects[Head_comp]=b;
+    
+    irSensorBank.init(odeHandle, osgHandle);
+    if(conf.irSensors){
+      // add Eyes ;-)
+      RaySensor* sensor = new IRSensor(1,0.02);
+      Matrix R = Matrix::translate(0,0,headsize) * Matrix::rotate(M_PI/10, 0, 1, 0) * 
+	Matrix::translate(0,headsize/10,0);
+      irSensorBank.registerSensor(sensor, objects[Head_comp], R, 1.0, RaySensor::drawAll); 
+      sensor = new IRSensor(1,0.02);
+      R = Matrix::translate(0,0,headsize) * Matrix::rotate(-M_PI/10, 0, 1, 0)*
+	Matrix::translate(0,headsize/10,0);
+      irSensorBank.registerSensor(sensor, objects[Head_comp], R, 1.0, RaySensor::drawAll);
+    }
 
     // Left_Shoulder
     b = new Capsule(0.04,0.28);
@@ -784,6 +804,7 @@ GUIDE adding new sensors
 	if(*i) delete *i;
       }
       objects.clear();
+      irSensorBank.clear();
       odeHandle.removeSpace(odeHandle.space);
       dSpaceDestroy(odeHandle.space);
     }

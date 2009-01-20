@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-11-14 11:23:05  martius
+ *   Revision 1.6  2009-01-20 17:29:52  martius
+ *   cvs commit
+ *
+ *   Revision 1.5  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -57,6 +60,7 @@
 #include <ode_robots/playground.h>
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
+#include <ode_robots/passivecapsule.h>
 
 #include <selforg/ffnncontroller.h>
 #include <selforg/noisegenerator.h>
@@ -401,9 +405,44 @@ public:
       double factor=2;
       playground = new ComplexPlayground(odeHandle, osgHandle, 
 					 absolutePath + "labyrint42.fig", factor, 0.05);
+      
+
       //playground = new ComplexPlayground(odeHandle, osgHandle, "labyrint.fig", factor, 0.05);
+      playground->setTexture("Images/wood.rgb");
+      playground->setColor(Color(200/255.0,200/255.0,41/255.0,1));
+
       playground->setPosition(osg::Vec3(0,0,0.1));
       global.obstacles.push_back(playground);
+
+    for(int i=0; i<2; i++){
+      PassiveSphere* s = 
+	new PassiveSphere(odeHandle, 
+			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.5);
+      s->setPosition(Pos(i*2, i-6, 1)); 
+      s->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s);    
+    }
+
+    for(int i=0; i<2; i++){
+      PassiveBox* b = 
+	new PassiveBox(odeHandle, 
+			  osgHandle, osg::Vec3(0.4+i*0.2,0.4+i*0.2,0.4+i*0.2));
+      b->setPosition(Pos(i  , i+6, 1)); 
+      b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+      b->setTexture("Images/light_chess.rgb");
+      global.obstacles.push_back(b);    
+    }
+
+    for(int i=0; i<2; i++){
+      PassiveCapsule* c = 
+	new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
+      c->setPosition(Pos(i-5, -i-1, 1)); 
+      c->setColor(Color(0.2f,0.2f,1.0f,0.5f));
+      c->setTexture("Images/light_chess.rgb");
+      global.obstacles.push_back(c);    
+    }
+
+
       }
       break;
     case none:

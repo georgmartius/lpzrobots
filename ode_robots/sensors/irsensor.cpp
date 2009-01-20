@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2008-09-16 14:53:59  martius
+ *   Revision 1.13  2009-01-20 17:29:52  martius
+ *   cvs commit
+ *
+ *   Revision 1.12  2008/09/16 14:53:59  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.11  2007/09/06 18:48:29  martius
@@ -99,11 +102,12 @@ namespace lpzrobots {
   }
 
 
-  IRSensor::IRSensor(float exponent/* = 1*/){
+  IRSensor::IRSensor(float exponent/* = 1*/, double size /*= 0.05*/){
     value = 0;  
     len=0;
     ray=0;
     this->exponent = exponent;
+    this->size = size;
     initialised = false;
     sensorBody = 0;
     //  sensorRay  = 0;
@@ -167,7 +171,7 @@ namespace lpzrobots {
       //     sensorRay->init(osgHandle);
       //     if( drawMode != drawAll) break;
     case drawSensor:
-      sensorBody = new OSGCylinder(0.05, 0.01);
+      sensorBody = new OSGCylinder(size, size / 5.0);
       sensorBody->init(osgHandle);
       break;
     default:

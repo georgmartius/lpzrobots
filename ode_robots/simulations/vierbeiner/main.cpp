@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-09-16 19:37:11  martius
+ *   Revision 1.12  2009-01-20 17:29:52  martius
+ *   cvs commit
+ *
+ *   Revision 1.11  2008/09/16 19:37:11  martius
  *   removed controllers not in release
  *
  *   Revision 1.10  2008/05/01 22:03:56  martius
@@ -120,7 +123,7 @@ public:
 
 
   Joint* fixator;
-  AbstractObstacle* playground; 
+  AbstractGround* playground; 
   double hardness;
   Substance s;
   AbstractController *teachcontroller;
@@ -142,15 +145,21 @@ public:
 
     // use Playground as boundary:
     s.toPlastic(0.9); 
-    double scale = 20; 
-    double height = 0;
-    int anzgrounds=1;
+    //    double scale = 20; 
+    //    double height = 0;
+    //    int anzgrounds=1;
+    double scale = 1; 
+    double height = 1;
+    int anzgrounds=4;
     for (int i=0; i< anzgrounds; i++){
       playground = new Playground(odeHandle, osgHandle, 
 	     osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));
       OdeHandle myhandle = odeHandle;
       myhandle.substance.toFoam(10);
       // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
+      playground->setColor(Color(1,1,0,0.5f));
+      //      playground->setColor(Color((i & 1) == 0,(i & 2) == 0,(i & 3) == 0,0.3f));
+      playground->setTexture("Images/really_white.rgb");
       playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
       playground->setSubstance(s);
       // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren

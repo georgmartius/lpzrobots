@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-11-14 11:23:05  martius
+ *   Revision 1.10  2009-01-20 17:29:52  martius
+ *   cvs commit
+ *
+ *   Revision 1.9  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -62,6 +65,7 @@
 #define __SKELETON_H
 
 #include <ode_robots/oderobot.h>
+#include <ode_robots/raysensorbank.h>
 
 namespace lpzrobots {
 
@@ -69,6 +73,7 @@ namespace lpzrobots {
   class Joint;  
   class OneAxisServo;  
   class TwoAxisServo;  
+
 
   typedef struct {
   public:
@@ -105,6 +110,8 @@ namespace lpzrobots {
     bool handsRotating; ///< hands are attached with a ball joint
 
     bool useBackJoint; ///< whether to use the joint in the back
+
+    bool irSensors; ///< whether to use the irsensor eyes
 
     Color headColor;
     Color bodyColor;
@@ -186,6 +193,7 @@ namespace lpzrobots {
       c.onlyPrimaryFunctions=false;
       c.handsRotating = false;
       c.useBackJoint  = true;
+      c.irSensors  = true;
 
       //      c.headTexture="Images/really_white.rgb";
       c.headTexture="Images/dusty.rgb";
@@ -291,6 +299,8 @@ namespace lpzrobots {
 
     TwoAxisServo* pelvisservo; // between Hip and Trunk_comp
     OneAxisServo* backservo;   // between Trunk_comp and Thorax
+
+    RaySensorBank irSensorBank;
 
   };
 
