@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2009-01-20 17:29:10  martius
+ *   Revision 1.20  2009-01-20 22:41:19  martius
+ *   manipulation of agents with the mouse implemented ( a dream... )
+ *
+ *   Revision 1.19  2009/01/20 17:29:10  martius
  *   changed texture handling. In principle it is possible to set multiple textures
  *   per osgPrimitive.
  *   New osgboxtex started that supports custom textures.
@@ -188,7 +191,7 @@ namespace lpzrobots{
 			V[0], V[1], V[2] , 1);  
   }
 
-  // converts a position vector and a rotation matrix from ode to osg 4x4 matrix
+  // converts a osg 4x4 matrix to an ode version of it
   void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix){
     osg::Quat q;
     pose.get(q);

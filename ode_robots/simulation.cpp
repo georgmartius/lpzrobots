@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.88  2008-09-16 14:46:01  martius
+ *   Revision 1.89  2009-01-20 22:41:19  martius
+ *   manipulation of agents with the mouse implemented ( a dream... )
+ *
+ *   Revision 1.88  2008/09/16 14:46:01  martius
  *   redirected ODE output to a logfile ode.log
  *   this made the announcement counters and stuff obsolete
  *   changed some comments about the parallel stuff
@@ -898,8 +901,7 @@ namespace lpzrobots {
 	  FOREACH(OdeAgentList, globalData.agents, i) {
 	    (*i)->onlyControlRobot();
 	  }
-	}
-
+	}	
 
 	/****************** Simulationstep *****************/
 	if(useOdeThread!=0){
@@ -919,6 +921,16 @@ namespace lpzrobots {
 	addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
 		    (sim_step % globalData.odeConfig.controlInterval ) == 0);
 	QP(PROFILER.endBlock("internalstuff_and_addcallback"));
+	
+	// manipulate agents (with mouse)
+	if(!noGraphics){
+	  osgGA::MatrixManipulator* mm = 
+	    keyswitchManipulator->getCurrentMatrixManipulator();
+	  if(mm) {
+	    CameraManipulator* cm = dynamic_cast<CameraManipulator*>(mm);
+	    if(cm) cm->manipulateAgent(osgHandle);
+	  }
+	}
 
 	if(useOdeThread!=0)
 	  pthread_create (&odeThread, NULL, odeStep_run,this);

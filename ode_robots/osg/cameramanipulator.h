@@ -24,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-01-20 20:13:28  martius
+ *   Revision 1.5  2009-01-20 22:41:19  martius
+ *   manipulation of agents with the mouse implemented ( a dream... )
+ *
+ *   Revision 1.4  2009/01/20 20:13:28  martius
  *   preparation for manipulation of agents done
  *
  *   Revision 1.3  2007/07/03 13:15:17  martius
@@ -88,6 +91,8 @@
 #include <selforg/position.h>
 
 namespace lpzrobots {
+  // forward declaration
+  class OSGPrimitive;
 
   /**
      CameraManipulator is a MatrixManipulator which provides a flying camera
@@ -98,11 +103,11 @@ namespace lpzrobots {
      
      It also enables to manipulate agents with forces
   */
-
   class CameraManipulator : public osgGA::MatrixManipulator
     {
     public:
-
+      typedef enum ManipulationType { No, Translational, Rotational};
+      
       CameraManipulator(osg::Node* node, GlobalData& global);
 
 
@@ -160,6 +165,11 @@ namespace lpzrobots {
       */
       virtual void update();
 
+      /** manipulate agent if Manipulation is active 
+	  (should be called every simulation step)
+      */
+      virtual void manipulateAgent( OsgHandle& osgHandle);
+
     protected:
 
       virtual ~CameraManipulator();
@@ -198,6 +208,10 @@ namespace lpzrobots {
 
       static Position oldPositionOfAgent; // because the return of getSpeed() seems not to be useful
       static bool oldPositionOfAgentDefined;
+
+      static ManipulationType doManipulation; // type of agent-manipulation
+      static osg::Vec3 manipulationPoint; // dragged point in the world
+      static OSGPrimitive* manipulationViz;
     
       GlobalData& globalData; // the global environment variables
 
@@ -238,8 +252,7 @@ namespace lpzrobots {
 
       /** manipulates Agent by forces. The given points are screen coords (-1 to 1) normalized.	  
       */
-      virtual void manipulateAgent(float x, float y);
-
+      virtual void calcManipulationPoint(float x, float y);
       
       static int i;
   

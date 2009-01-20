@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-01-20 20:13:28  martius
+ *   Revision 1.15  2009-01-20 22:41:19  martius
+ *   manipulation of agents with the mouse implemented ( a dream... )
+ *
+ *   Revision 1.14  2009/01/20 20:13:28  martius
  *   preparation for manipulation of agents done
  *
  *   Revision 1.13  2009/01/20 17:29:10  martius
@@ -134,6 +137,7 @@
 
 #include <osg/Notify>
 #include "cameramanipulator.h"
+#include "osgprimitive.h"
 #include "odeagent.h"
 #include "mathutils.h"
 #include "pos.h"
@@ -159,6 +163,10 @@ namespace lpzrobots {
   bool CameraManipulator::watchingAgentDefined=false;
   Position CameraManipulator::oldPositionOfAgent;
   bool CameraManipulator::oldPositionOfAgentDefined=false;
+
+  CameraManipulator::ManipulationType CameraManipulator::doManipulation=No;
+  Vec3 CameraManipulator::manipulationPoint=Vec3(0,0,0);
+  OSGPrimitive* CameraManipulator::manipulationViz = 0;
 
   // globalData braucht er fr alles
   CameraManipulator::CameraManipulator(osg::Node* node, GlobalData& global)
@@ -241,23 +249,36 @@ namespace lpzrobots {
 
   bool CameraManipulator::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us){
     int key=0;
-    // of control pressed then manipulation of robot
+    // if control is pressed then manipulation of robot
     if(ea.getModKeyMask() & GUIEventAdapter::MODKEY_LEFT_CTRL){
       switch(ea.getEventType())
 	{
 	case(GUIEventAdapter::PUSH):
 	  {
+	    float x = ea.getXnormalized();
+	    float y = ea.getYnormalized();
+	    calcManipulationPoint(x,y);
+	    if(ea.getButtonMask() & GUIEventAdapter::RIGHT_MOUSE_BUTTON){
+	      doManipulation = Rotational;
+	    }else{
+	      doManipulation = Translational;
+	    }
 	    flushMouseEventStack();
 	    return true;
 	  }
-
-	case(GUIEventAdapter::DRAG):
+	case(GUIEventAdapter::RELEASE):
 	  {
+	    flushMouseEventStack();
+	    doManipulation = No;
+	    return true;
+	  }
+	case(GUIEventAdapter::DRAG):
+	  {	    
 	    addMouseEvent(ea);
 	    us.requestContinuousUpdate(true);
 	    float x = ea.getXnormalized();
 	    float y = ea.getYnormalized();
-	    manipulateAgent(x,y);
+	    calcManipulationPoint(x,y);
 	    return true;
 	  }
 	default:
@@ -275,6 +296,7 @@ namespace lpzrobots {
 	case(GUIEventAdapter::RELEASE):
 	  {
 	    flushMouseEventStack();
+	    doManipulation = No;
 	    return true;
 	  }
 
@@ -339,6 +361,7 @@ namespace lpzrobots {
     usage.addKeyboardMouseBinding("Camera: p","Print position of the camera");
     usage.addKeyboardMouseBinding("Camera: F1-F12","switch the Agent to be watched");
     usage.addKeyboardMouseBinding("Camera: end","move behind the Agent to be watched");
+    usage.addKeyboardMouseBinding("Ctrl+Mouse","Drag watched Agent (Left:translation, Right:rotation)");
   }
 
   void CameraManipulator::flushMouseEventStack(){
@@ -363,7 +386,7 @@ namespace lpzrobots {
     Pos tilt = Matrix::transform3x3(Vec3(0,0,1), matrix);
     //    head.print();
     //    tilt.print();
-    std::cout << "Manipulator choosed: " <<  className() << std::endl;
+    std::cout <<  className() << " selected" << std::endl;
     view.y() = RadiansToDegrees(getAngle(Vec3(0,0,1), tilt)-M_PI/2);
     desiredEye=eye;
     desiredView=view;
@@ -488,10 +511,11 @@ namespace lpzrobots {
       watchingAgent=globalData.agents[fkey-1];
       if (watchingAgent){
 	watchingAgentDefined=true;
-	std::cout << "the agent was choosed: " << fkey-1 << "\n";
+	std::cout << "Agent " << watchingAgent->getRobot()->getName()
+		  << "(" << fkey-1 << ") selected\n";
 	setHomeViewByAgent();
 	setHomeEyeByAgent();
-	// maybe highligh agent here
+	// maybe highlight agent here
       }
     }
     oldPositionOfAgentDefined=false;
@@ -593,32 +617,50 @@ namespace lpzrobots {
     // normally the desired eye should be changed
   }
 
-  void CameraManipulator::manipulateAgent(float x, float y){
+  void CameraManipulator::calcManipulationPoint(float x, float y){
     if(!watchingAgent || !watchingAgentDefined) return;
-//     osg::Matrix pm = getProjectionMatrix();
-//     osg::Matrix vm = sceneView->getViewMatrix();
-    
-//     osg::Matrix inverseVP;
-//     inverseVP.invert(vm * pm;);
-    // TODO check for matrix
-
    
     osg::Vec3 near_point = osg::Vec3(x, y, -1.0f) * pose;   
     osg::Vec3 far_point = osg::Vec3(x, y, 1.0f) * pose;
-   
+    
     Pos n = (near_point-far_point);
-    Pos mousepos = osg::Vec3(x, y, .0f) * pose;
+    // we put here a scale of 5 to make the distance larger
+    Pos mousepos = ( Pos(x, y, .0f)*3 )  * pose;
     Pos p = watchingAgent->getRobot()->getPosition();
     // we have a plane through p normal to camera view
     // we have the vector normal to the plane and intersect now plane and ray
     // the ray has parametric form (mousepos + k*n)
     double k = (n*p - n*mousepos)/(n*n);
     Pos lookat = mousepos + n*k;
-    lookat.print();
-    // Todo calculate force to this point. But the force has to be done every simulation step until release!
-
+    manipulationPoint = lookat;
   }
 
-
+  void CameraManipulator::manipulateAgent( OsgHandle& osgHandle){
+    if(!watchingAgent || !watchingAgentDefined) return;
+    if(manipulationViz) 
+      delete manipulationViz;
+    manipulationViz=0;
+    if(doManipulation != No){
+      Primitive* body = watchingAgent->getRobot()->getMainPrimitive();
+      if(body && body->getBody()){
+	Pos p = watchingAgent->getRobot()->getPosition();
+	manipulationViz = new OSGSphere(0.1);
+	manipulationViz->init(osgHandle);
+	manipulationViz->setColor(Color(doManipulation==Translational,
+					doManipulation==Rotational,0));
+	manipulationViz->setMatrix(osg::Matrix::translate(manipulationPoint));
+	Pos force = (manipulationPoint-p);
+	double factor = force.length()>10 ? 10/force.length() : 1;
+	if(doManipulation==Translational){
+	  force *= factor/globalData.odeConfig.simStepSize;
+	  dBodyAddForce(body->getBody(),force.x(),force.y(),force.z());
+	} else {
+	  force *= 0.3*factor/globalData.odeConfig.simStepSize;
+	  dBodyAddTorque(body->getBody(),force.x(),force.y(),force.z());
+	}
+      }
+    }
+  }
+   
 }
 
