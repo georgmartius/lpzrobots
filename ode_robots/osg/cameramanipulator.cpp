@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-01-20 17:29:10  martius
+ *   Revision 1.14  2009-01-20 20:13:28  martius
+ *   preparation for manipulation of agents done
+ *
+ *   Revision 1.13  2009/01/20 17:29:10  martius
  *   changed texture handling. In principle it is possible to set multiple textures
  *   per osgPrimitive.
  *   New osgboxtex started that supports custom textures.
@@ -238,72 +241,96 @@ namespace lpzrobots {
 
   bool CameraManipulator::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us){
     int key=0;
-    switch(ea.getEventType())
-      {
-      case(GUIEventAdapter::PUSH):
+    // of control pressed then manipulation of robot
+    if(ea.getModKeyMask() & GUIEventAdapter::MODKEY_LEFT_CTRL){
+      switch(ea.getEventType())
 	{
-	  flushMouseEventStack();
-	  return true;
-	}
-
-      case(GUIEventAdapter::RELEASE):
-	{
-	  flushMouseEventStack();
-	  return true;
-	}
-
-      case(GUIEventAdapter::DRAG):
-        {
-	  addMouseEvent(ea);
-	  us.requestContinuousUpdate(true);
-	  if (calcMovement()) us.requestRedraw();
-	  return true;
-        }
-
-      case(GUIEventAdapter::KEYDOWN):
-	key=ea.getKey();
-	// F-keys (F1 to F12)
-	if ((65470<=key)&&(key<=65481)) {
-	  manageAgents(key-65469);
-	  return true; // was handled
-	}
-	//	std::cout << key << " was pressed." << std::endl;
-	switch(key) {
-	case ' ':
+	case(GUIEventAdapter::PUSH):
 	  {
 	    flushMouseEventStack();
-	    home(ea,us);
-	    us.requestRedraw();
-	    us.requestContinuousUpdate(false);
-	    break;
+	    return true;
 	  }
-	case 'p':
+
+	case(GUIEventAdapter::DRAG):
 	  {
-	    printf("Camera Position/View: (Pos(%g, %g, %g), ", eye.x(), eye.y(), eye.z());
-	    printf(" Pos(%g, %g, %g));\n", view.x(), view.y(), view.z());
-	    break;
+	    addMouseEvent(ea);
+	    us.requestContinuousUpdate(true);
+	    float x = ea.getXnormalized();
+	    float y = ea.getYnormalized();
+	    manipulateAgent(x,y);
+	    return true;
 	  }
-	case 65360: // pos1
+	default:
+	  return false;
+	}	        
+    } else {
+      switch(ea.getEventType())
+	{
+	case(GUIEventAdapter::PUSH):
 	  {
-	    centerOnAgent();
-	    break;
+	    flushMouseEventStack();
+	    return true;
 	  }
-	case 65367: // end
+
+	case(GUIEventAdapter::RELEASE):
 	  {
-	    moveBehindAgent();
-	    break;
+	    flushMouseEventStack();
+	    return true;
 	  }
-     	default:
+
+	case(GUIEventAdapter::DRAG):
+	  {
+	    addMouseEvent(ea);
+	    us.requestContinuousUpdate(true);
+	    if (calcMovement()) us.requestRedraw();
+	    return true;
+	  }
+
+	case(GUIEventAdapter::KEYDOWN):
+	  key=ea.getKey();
+	  // F-keys (F1 to F12)
+	  if ((65470<=key)&&(key<=65481)) {
+	    manageAgents(key-65469);
+	    return true; // was handled
+	  }
+	  //	std::cout << key << " was pressed." << std::endl;
+	  switch(key) {
+	  case ' ':
+	    {
+	      flushMouseEventStack();
+	      home(ea,us);
+	      us.requestRedraw();
+	      us.requestContinuousUpdate(false);
+	      break;
+	    }
+	  case 'p':
+	    {
+	      printf("Camera Position/View: (Pos(%g, %g, %g), ", eye.x(), eye.y(), eye.z());
+	      printf(" Pos(%g, %g, %g));\n", view.x(), view.y(), view.z());
+	      break;
+	    }
+	  case 65360: // pos1
+	    {
+	      centerOnAgent();
+	      break;
+	    }
+	  case 65367: // end
+	    {
+	      moveBehindAgent();
+	      break;
+	    }
+	  default:
+	    return false;
+	  }
+	case(GUIEventAdapter::RESIZE):
+	  init(ea,us);
+	  us.requestRedraw();
+	  return true;
+
+	default:
 	  return false;
 	}
-      case(GUIEventAdapter::RESIZE):
-	init(ea,us);
-	us.requestRedraw();
-	return true;
-
-      default:
-	return false;
-      }
+    }
     return true;
   }
 
@@ -455,28 +482,19 @@ namespace lpzrobots {
 
 
   void CameraManipulator::manageAgents(const int& fkey) {
-    //std::cout << "new robot to choose: " << fkey << "\n";
+    assert(fkey>0);
     watchingAgentDefined=false;
-    oldPositionOfAgentDefined=false;
-    // Georg: was soll denn das hier? AgentList ist eine Vector da kann man [fkey-1] machen.
-
-    int i=1;
-    // go through the agent list
-    for(OdeAgentList::iterator it=globalData.agents.begin(); it != globalData.agents.end(); it++){
-      if (fkey==i++) {
-	watchingAgent=(*it);
-        if (watchingAgent)
-	  watchingAgentDefined=true;
-	break;
+    if(globalData.agents.size() >= (unsigned) fkey){
+      watchingAgent=globalData.agents[fkey-1];
+      if (watchingAgent){
+	watchingAgentDefined=true;
+	std::cout << "the agent was choosed: " << fkey-1 << "\n";
+	setHomeViewByAgent();
+	setHomeEyeByAgent();
+	// maybe highligh agent here
       }
     }
-    if (!watchingAgentDefined){
-      //      std::cout << "no agent was choosed!\n";
-    }else {
-      std::cout << "the agent was choosed: " << i-1 << "\n";
-      setHomeViewByAgent();
-      setHomeEyeByAgent();
-    }
+    oldPositionOfAgentDefined=false;
   }
 
   void CameraManipulator::moveBehindAgent() {
@@ -574,6 +592,33 @@ namespace lpzrobots {
     // the default camera manipulator does not need to change the eye
     // normally the desired eye should be changed
   }
+
+  void CameraManipulator::manipulateAgent(float x, float y){
+    if(!watchingAgent || !watchingAgentDefined) return;
+//     osg::Matrix pm = getProjectionMatrix();
+//     osg::Matrix vm = sceneView->getViewMatrix();
+    
+//     osg::Matrix inverseVP;
+//     inverseVP.invert(vm * pm;);
+    // TODO check for matrix
+
+   
+    osg::Vec3 near_point = osg::Vec3(x, y, -1.0f) * pose;   
+    osg::Vec3 far_point = osg::Vec3(x, y, 1.0f) * pose;
+   
+    Pos n = (near_point-far_point);
+    Pos mousepos = osg::Vec3(x, y, .0f) * pose;
+    Pos p = watchingAgent->getRobot()->getPosition();
+    // we have a plane through p normal to camera view
+    // we have the vector normal to the plane and intersect now plane and ray
+    // the ray has parametric form (mousepos + k*n)
+    double k = (n*p - n*mousepos)/(n*n);
+    Pos lookat = mousepos + n*k;
+    lookat.print();
+    // Todo calculate force to this point. But the force has to be done every simulation step until release!
+
+  }
+
 
 }
 

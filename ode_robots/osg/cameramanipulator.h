@@ -24,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-07-03 13:15:17  martius
+ *   Revision 1.4  2009-01-20 20:13:28  martius
+ *   preparation for manipulation of agents done
+ *
+ *   Revision 1.3  2007/07/03 13:15:17  martius
  *   odehandle.h in cpp files included
  *
  *   Revision 1.2  2006/07/14 12:23:34  martius
@@ -87,11 +90,13 @@
 namespace lpzrobots {
 
   /**
-     CameraManipulator is a MatrixManipulator which provides Flying simulator-like
+     CameraManipulator is a MatrixManipulator which provides a flying camera
      updating of the camera position & orientation. 
      Left mouse button: Pan and tilt
      Right mouse button: forward and sideways
      Middle mouse button: up and sideways
+     
+     It also enables to manipulate agents with forces
   */
 
   class CameraManipulator : public osgGA::MatrixManipulator
@@ -230,9 +235,13 @@ namespace lpzrobots {
       /** centers on the robot which is actually watched
        */
       virtual void centerOnAgent();
+
+      /** manipulates Agent by forces. The given points are screen coords (-1 to 1) normalized.	  
+      */
+      virtual void manipulateAgent(float x, float y);
+
       
       static int i;
-
   
     };
 
