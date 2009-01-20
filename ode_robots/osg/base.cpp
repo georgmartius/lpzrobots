@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2009-01-05 13:18:48  martius
+ *   Revision 1.24  2009-01-20 17:27:34  martius
+ *   texture for background changeable from outside
+ *
+ *   Revision 1.23  2009/01/05 13:18:48  martius
  *   ambient light even more
  *
  *   Revision 1.22  2008/10/10 14:05:15  martius
@@ -227,9 +230,9 @@ namespace lpzrobots {
   "}\n";
 
     Base::Base(const char* caption)
-      : ground(0), caption(caption),
+      : ground(0), caption(caption), groundTexture("Images/greenground.rgb"),
       hud(0), timestats(0), ReceivesShadowTraversalMask(0x1), CastsShadowTraversalMask(0x2),
-      shadow(5), shadowTexSize(2048), useNVidia(1)
+	shadow(5), shadowTexSize(2048), useNVidia(1)
     {
     }
 
@@ -631,15 +634,12 @@ namespace lpzrobots {
       Group* shadowedScene;
 
       // transform the Vec4 in a Vec3
-//       osg::Vec3 posOfLight;
-//       posOfLight[0]=lightSource->getLight()->getPosition()[0];
-//       posOfLight[1]=lightSource->getLight()->getPosition()[1];
-//       posOfLight[2]=lightSource->getLight()->getPosition()[2];
+      //osg::Vec3 posOfLight;
+      // posOfLight=lightSource->getLight()->getPosition();
 
       // create the shadowed scene, using textures
-      //      shadowedScene = createShadowedScene(scene,posOfLight,1);
+      //shadowedScene = createShadowedScene(scene,posOfLight,1);
       shadowedScene = createShadowedScene(scene);
-
       // add the shadowed scene to the root
       root->addChild(shadowedScene);
     }else {
@@ -813,7 +813,7 @@ namespace lpzrobots {
 
     Texture2D *tex = new Texture2D;
 
-    tex->setImage(osgDB::readImageFile("Images/greenground.rgb"));
+    tex->setImage(osgDB::readImageFile(groundTexture));
     tex->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
     tex->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
 

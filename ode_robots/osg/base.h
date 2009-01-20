@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-09-11 15:24:01  martius
+ *   Revision 1.12  2009-01-20 17:27:34  martius
+ *   texture for background changeable from outside
+ *
+ *   Revision 1.11  2008/09/11 15:24:01  martius
  *   motioncallback resurrected
  *   noContact substance
  *   use slider center of the connecting objects for slider drawing
@@ -152,7 +155,9 @@ namespace lpzrobots {
      */
     virtual osg::Group* createShadowedScene(osg::Node* sceneToShadow);
 
-
+    virtual void setGroundTexture(const char* filename) {
+      this->groundTexture = filename;
+    }
 
     virtual void setCaption(const char* caption) {
       this->caption = caption;
@@ -181,6 +186,7 @@ namespace lpzrobots {
     // ODE globals
     OdeHandle odeHandle;
     const char* caption;
+    std::string groundTexture;
 
     osg::Group* root;
     osg::Node* hud;
