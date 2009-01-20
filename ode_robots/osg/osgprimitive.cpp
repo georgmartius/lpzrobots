@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-05-07 16:45:51  martius
+ *   Revision 1.10  2009-01-20 17:29:10  martius
+ *   changed texture handling. In principle it is possible to set multiple textures
+ *   per osgPrimitive.
+ *   New osgboxtex started that supports custom textures.
+ *
+ *   Revision 1.9  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.8  2007/08/23 14:52:40  martius
@@ -127,6 +132,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osgDB/ReadFile>
+#include <osg/Geometry>
 //#include <osg/Texture>
 //#include <osg/TexGen>
 //#include <osg/PolygonOffset>
@@ -147,17 +153,27 @@ namespace lpzrobots {
   // returns a material with the given color
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::DIFFUSE );
 
+  osg::Geode* createRectangle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
+			      double repeatOnR, double repeatOnS);
+
+  // attached a texture to a geode
+  void addTexture(Geode* geode, const TextureDescr& tex);
+
+  Geode* test();
 
   /******************************************************************************/
 
 
-  OSGPrimitive::OSGPrimitive(){  }
+  OSGPrimitive::OSGPrimitive(){ 
+    setTexture("Images/really_white.rgb",1,1);
+  }
 
   OSGPrimitive::~OSGPrimitive(){    
     Node::ParentList l = transform->getParents();
     for(Node::ParentList::iterator i = l.begin(); i != l.end(); i++){
       (*i)->removeChild(transform.get());  
     }
+    textures.clear();
   }
 
 
@@ -176,32 +192,114 @@ namespace lpzrobots {
   }
 
  void OSGPrimitive::setTexture(const std::string& filename){
-   setTexture(filename,false,false);
+   setTexture(filename,1,1);
   }
 
- void OSGPrimitive::setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY){
-    osg::Group* grp = getGroup();
-    osg::Texture2D* texture = new osg::Texture2D;
-    texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
-    texture->setImage(osgDB::readImageFile(filename));
-    ///TODO: needs to be fixed (why does this not work???)
-    if (repeatOnX)
-      texture->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );
-    if (repeatOnY)
-      texture->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
-    //    texture->setWrap( Texture2D::WRAP_R, Texture2D::REPEAT ); // ???
-    osg::StateSet* stateset = grp->getOrCreateStateSet();
-    stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);
-    stateset->setTextureAttribute(0, new TexEnv );
-
+ void OSGPrimitive::setTexture(const std::string& filename, double repeatOnR, double repeatOnS){
+   setTexture(0,filename,repeatOnR,repeatOnS);
   }
 
+  void OSGPrimitive::setTexture(int surface, const std::string& filename, 
+				double repeatOnR, double repeatOnS){
+    if((signed)textures.size()<=surface){
+      textures.resize(surface+1);
+    }
+    textures[surface]=TextureDescr(filename, repeatOnR, repeatOnS);    
+    if(transform.valid()){ // is the object already initialized?
+      applyTextures();
+    }
+  }
+
+  
+  std::vector<TextureDescr> OSGPrimitive::getTextures(){
+    return textures;
+  }
+  
+  void OSGPrimitive::applyTextures(){
+    // this is only the default implementation. For Non-ShapeDrawables this most prob. be overloaded
+    if(textures.size() > 0){
+      osg::Group* grp = getGroup();
+      osg::Texture2D* texture = new osg::Texture2D;
+      texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
+      texture->setImage(osgDB::readImageFile(textures[0].filename));
+      // The wrapping does not work in general
+      //  because the texture coordinates only go from 0 to 1 in the shapedrawables
+      osg::StateSet* stateset = grp->getOrCreateStateSet();
+      // maybe we don't need the StateAttr. ?
+      stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);
+      stateset->setTextureAttribute(0, new TexEnv );    
+    }
+  }
 
   void OSGPrimitive::setColor(const Color& color){
     if(shape.valid())
       shape->setColor(color);
   }
 
+  /******************************************************************************/
+  OSGBoxTex::OSGBoxTex(float lengthX, float lengthY, float lengthZ)
+    : dim(lengthX, lengthY, lengthZ) {
+  }
+  OSGBoxTex::OSGBoxTex(Vec3 dim)
+    : dim(dim){
+  }
+
+  void OSGBoxTex::init(const OsgHandle& osgHandle, Quality quality){
+    assert(osgHandle.scene);
+    transform = new MatrixTransform;
+    osgHandle.scene->addChild(transform.get());
+    Vec3 half = dim*(-0.5);    
+    Vec3 dx(dim.x(),0.0f,0.0f);
+    Vec3 dy(0.0f,dim.y(),0.0f);
+    Vec3 dz(0.0f,0.0f,dim.z());
+
+    // create faces (we keep the quader and have: front side counter clockwise and then backside
+    Vec3 vs[8];
+    vs[0] = half;
+    vs[1] = half + dx;
+    vs[2] = half + dx + dy;
+    vs[3] = half + dy;
+    vs[4] = vs[0] + dz;
+    vs[5] = vs[1] + dz;
+    vs[6] = vs[2] + dz;
+    vs[7] = vs[3] + dz;
+
+    unsigned int tex = 0; 
+    assert(textures.size()); 
+    faces[0] = createRectangle(vs[0], vs[1], vs[2], textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[0].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[1] = createRectangle(vs[6], vs[5], vs[4], textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[1].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[2] = createRectangle(vs[1], vs[5], vs[6], textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[2].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[3] = createRectangle(vs[7], vs[4], vs[0], textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[3].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[4] = createRectangle(vs[3], vs[2], vs[6], textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[4].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[5] = createRectangle(vs[5], vs[1], vs[0], textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[5].get(),textures[tex]);
+
+    for(int i=0; i<6; i++){
+      transform->addChild(faces[i].get());
+    }
+    
+    if(osgHandle.color.alpha() < 1.0){
+      transform->setStateSet(osgHandle.transparentState);
+    }else{
+      transform->setStateSet(osgHandle.normalState);
+    }
+    transform->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+							   StateAttribute::ON);
+  }
+
+  void OSGBoxTex::applyTextures(){ 
+    assert("Do not call setTexture after initialization of OSGBoxTex");
+  }
 
 
   /******************************************************************************/
@@ -252,8 +350,7 @@ namespace lpzrobots {
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
-    // set dummy texture
-    setTexture("Images/really_white.rgb");
+    applyTextures();
   }
 
 
@@ -284,7 +381,7 @@ namespace lpzrobots {
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
-    setTexture("Images/really_white.rgb");
+    applyTextures();
   }
 
   Vec3 OSGBox::getDim(){
@@ -319,8 +416,7 @@ namespace lpzrobots {
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
-
-    setTexture("Images/really_white.rgb");
+    applyTextures();
   }
 
   /******************************************************************************/
@@ -347,7 +443,7 @@ namespace lpzrobots {
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
-    setTexture("Images/really_white.rgb");
+    applyTextures();
   }
 
   /******************************************************************************/
@@ -375,7 +471,7 @@ namespace lpzrobots {
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
 
-    setTexture("Images/really_white.rgb");
+    applyTextures();
   }
 
   /******************************************************************************/
@@ -405,6 +501,8 @@ namespace lpzrobots {
       exit(1); 
     }
     scaletrans->addChild(mesh.get());
+
+    applyTextures();
     
 //     if(osgHandle.color.alpha() < 1.0){
 //       shape->setStateSet(osgHandle.transparentState);
@@ -458,6 +556,92 @@ namespace lpzrobots {
     m->setShininess(Material::FRONT_AND_BACK, 5.0f);
     //  m->setShininess(Material::FRONT_AND_BACK, 25.0f);
     return m;
+  }
+
+
+
+  osg::Geode* createRectangle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
+			      double repeatOnR, double repeatOnS)
+  {
+    osg::Geode* geode = new osg::Geode();
+    //test
+    osg::ShapeDrawable* shape;
+    shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f),v1.length(),v2.length(),v3.length()));
+    //    shape->setColor(osgHandle.color);
+    geode->addDrawable(shape);
+    return geode;
+  }
+
+
+  osg::Geode* createRectangle2(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
+			      double repeatOnR, double repeatOnS)
+  {
+    osg::Geode* geode = new osg::Geode();
+    osg::Geometry* geometry = new osg::Geometry();
+    geode->addDrawable(geometry); 
+
+    // Specify the vertices:
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+    vertices->push_back( v1 );
+    vertices->push_back( v2 );
+    vertices->push_back( v3);
+    vertices->push_back( v1 + (v3-v2));
+    geometry->setVertexArray( vertices );
+
+    // Create a QUAD primitive for the base by specifying the 
+    // vertices from our vertex list that make up this QUAD:
+    osg::DrawElementsUInt* base = 
+      new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
+    base->push_back(0);
+    base->push_back(1);
+    base->push_back(2);
+    base->push_back(3);
+
+    geometry->addPrimitiveSet(base);
+
+    // will be calculated autmatically
+//     osg::Vec3Array* normals = new osg::Vec3Array;
+//     Vec3 normal = (v2-v1) ^ (v3-v2);
+//     normals->push_back(normal);
+//     normals->push_back(normal);
+//     normals->push_back(normal);
+//     normals->push_back(normal);
+//     geometry->setNormalArray(normals);
+    if(repeatOnS<0){
+      repeatOnS = (v1-v2).length() / (-repeatOnS);
+    }
+    if(repeatOnR<0){
+      repeatOnR = (v1-v3).length() / (-repeatOnR);
+    }
+
+    osg::Vec2Array* texcoords = new osg::Vec2Array(4);
+    (*texcoords)[0].set(0.00f,0.0f); 
+    (*texcoords)[1].set(repeatOnR,0.0f);
+    (*texcoords)[2].set(repeatOnR,repeatOnS); 
+    (*texcoords)[3].set(0,repeatOnS); 
+    geometry->setTexCoordArray(0,texcoords);
+
+    return geode;
+  }
+
+
+  void addTexture(Geode* geode, const TextureDescr& tex){
+    osg::Texture2D* texture = new osg::Texture2D;    
+    // protect from being optimized away as static state:
+    texture->setDataVariance(osg::Object::DYNAMIC); 
+   // load an image by reading a file: 
+   osg::Image* img = osgDB::readImageFile(tex.filename);
+   // Assign the texture to the image we read from file: 
+   texture->setImage(img);
+   texture->setWrap( Texture2D::WRAP_S, Texture2D::REPEAT );   
+   texture->setWrap( Texture2D::WRAP_T, Texture2D::REPEAT );
+   texture->setWrap( Texture2D::WRAP_R, Texture2D::REPEAT );
+
+   // Assign texture unit 0 of our new StateSet to the texture 
+   // we just created and enable the texture.
+   geode->getOrCreateStateSet()->setTextureAttributeAndModes
+      (0,texture,osg::StateAttribute::ON);
+
   }
 
 

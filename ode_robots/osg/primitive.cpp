@@ -23,7 +23,12 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2008-09-11 15:24:01  martius
+ *   Revision 1.19  2009-01-20 17:29:10  martius
+ *   changed texture handling. In principle it is possible to set multiple textures
+ *   per osgPrimitive.
+ *   New osgboxtex started that supports custom textures.
+ *
+ *   Revision 1.18  2008/09/11 15:24:01  martius
  *   motioncallback resurrected
  *   noContact substance
  *   use slider center of the connecting objects for slider drawing
@@ -618,7 +623,9 @@ namespace lpzrobots{
   
   void Ray::setLength(float len){
     length=len;
-    osgbox->setDim(osg::Vec3(thickness,thickness,length));   
+    if (mode & Draw){
+      osgbox->setDim(osg::Vec3(thickness,thickness,length));   
+    }
   }
 
   void Ray::update(){

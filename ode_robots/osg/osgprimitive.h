@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-05-07 16:45:51  martius
+ *   Revision 1.5  2009-01-20 17:29:10  martius
+ *   changed texture handling. In principle it is possible to set multiple textures
+ *   per osgPrimitive.
+ *   New osgboxtex started that supports custom textures.
+ *
+ *   Revision 1.4  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.3  2007/08/23 14:52:26  martius
@@ -84,12 +89,32 @@
 #define __OSGPRIMITIVE_H
 
 #include <string>
+#include <vector>
 #include <osg/ref_ptr>
 #include "osgforwarddecl.h"
 #include "osghandle.h"
 #include <osgDB/ReadFile>
 
 namespace lpzrobots {
+
+  /**
+     holds texture file and repeat information. 
+     
+   */
+  class TextureDescr {
+  public:
+    TextureDescr(){}
+    /**
+       If repeatOnX is negativ then it is used as a unit length for the texture.
+    */
+    TextureDescr(const std::string& filename, double repeatOnR, double repeatOnS)
+      : filename(filename), repeatOnR(repeatOnR), repeatOnS(repeatOnS) 
+    {      
+    }
+    std::string filename;
+    double repeatOnR;
+    double repeatOnS;    
+  };
 
   /**
      Interface class for graphic primitives like spheres, boxes, and meshes,
@@ -111,18 +136,50 @@ namespace lpzrobots {
     virtual osg::Group* getGroup();
     /// assigns a texture to the primitive
     virtual void setTexture(const std::string& filename);
-    /// assigns a texture to the primitive, you can choose if the texture should be repeated
-    virtual void setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY);
+    /// assigns a texture to the primitive, you can choose how often to repeat
+    virtual void setTexture(const std::string& filename, double repeatOnR, double repeatOnS);
+    /// assigns a texture to the x-th surface of the primitive, you can choose how often to repeat
+    virtual void setTexture(int surface, const std::string& filename, double repeatOnR, double repeatOnS);
+    /// returns the list of textures
+    virtual std::vector<TextureDescr> getTextures();
     /// sets the color for painting this primitive
     virtual void setColor(const Color& color);
     /// returns a osg transformation object;
     virtual osg::Transform* getTransform();
 
   protected:
+    /// this actually sets the textures
+    virtual void applyTextures();
+
     osg::ref_ptr<osg::Geode> geode;
     osg::ref_ptr<osg::MatrixTransform> transform;  
     osg::ref_ptr<osg::ShapeDrawable> shape;
+
+    std::vector<TextureDescr > textures; 
   };
+
+  /**
+     Graphical box with Textures
+  */
+  class OSGBoxTex : public OSGPrimitive {
+  public:
+    OSGBoxTex(float lengthX, float lengthY, float lengthZ);
+    OSGBoxTex(osg::Vec3 dim);
+
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
+
+    osg::Vec3 getDim() const { return dim;}
+    void setDim(const osg::Vec3& _dim) { dim = _dim;}
+  
+  protected:
+    /// this actually sets the textures, overwritten
+    virtual void applyTextures();
+
+    osg::Vec3 dim;
+    // we use one geode for each face of the box for the texture handling
+    osg::ref_ptr<osg::Geode> faces[6];
+  };
+
 
   /**
      A dummy graphical object, which has no representation in the graphical world.
@@ -169,6 +226,7 @@ namespace lpzrobots {
     osg::Vec3 dim;
     osg::Box* box;
   };
+
 
 
   /**

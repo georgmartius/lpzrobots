@@ -23,7 +23,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2008-05-07 16:45:51  martius
+ *   Revision 1.13  2009-01-20 17:29:10  martius
+ *   changed texture handling. In principle it is possible to set multiple textures
+ *   per osgPrimitive.
+ *   New osgboxtex started that supports custom textures.
+ *
+ *   Revision 1.12  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.11  2007/12/13 07:04:53  der
@@ -453,6 +458,8 @@ namespace lpzrobots {
     //std::cout << "new robot to choose: " << fkey << "\n";
     watchingAgentDefined=false;
     oldPositionOfAgentDefined=false;
+    // Georg: was soll denn das hier? AgentList ist eine Vector da kann man [fkey-1] machen.
+
     int i=1;
     // go through the agent list
     for(OdeAgentList::iterator it=globalData.agents.begin(); it != globalData.agents.end(); it++){
@@ -463,9 +470,9 @@ namespace lpzrobots {
 	break;
       }
     }
-    if (!watchingAgentDefined)
-      std::cout << "no agent was choosed!\n";
-    else {
+    if (!watchingAgentDefined){
+      //      std::cout << "no agent was choosed!\n";
+    }else {
       std::cout << "the agent was choosed: " << i-1 << "\n";
       setHomeViewByAgent();
       setHomeEyeByAgent();
