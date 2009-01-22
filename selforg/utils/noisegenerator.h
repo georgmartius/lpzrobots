@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-05-30 11:58:27  martius
+ *   Revision 1.6  2009-01-22 16:51:14  martius
+ *   sinenoise is now scaled with noise strength
+ *
+ *   Revision 1.5  2008/05/30 11:58:27  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.4  2008/05/07 16:45:52  martius
@@ -279,7 +282,7 @@ protected:
 class SineWhiteNoise : public NoiseGenerator{
 public:
   /** @param omega anglerate
-      @param amplitude amplitude of the sine wave in respect to the noise strength
+      @param amplitude weighting of sine wave against noise strength
       @param phaseShift phase shift between channels in rad
       @param channels number of channel for sine noise (and the rest get white noise)
    */
@@ -294,7 +297,7 @@ public:
 
   virtual double generate() {        
     t ++;
-    return uniform(-1,  1) + sin(t*omega)*amplitude*2;
+    return (1-amplitude)*uniform(-1,  1) + sin(t*omega)*amplitude;
   } 
 
   /** adds multidimensional noise to the value field.
@@ -303,9 +306,12 @@ public:
   virtual void add(double *value, double noiseStrength) { // min, double max){
 
     for (unsigned int i = 0; i < dimension; i++){     
-      if(i < channels)
-	value[i]+=sin(t*omega+i*phaseShift)*amplitude*2;
-      value[i]+=uniform(-1,  1);
+      if(i < channels){
+	value[i]+=sin(t*omega+i*phaseShift)*amplitude*noiseStrength;
+	value[i]+=(1-amplitude)*uniform(-1,  1)*noiseStrength;
+      }else{
+	value[i]+=uniform(-1,  1)*noiseStrength;
+      }
     }    
     t ++;
   }   
