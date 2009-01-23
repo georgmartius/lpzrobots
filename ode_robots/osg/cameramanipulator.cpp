@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2009-01-20 22:41:19  martius
+ *   Revision 1.16  2009-01-23 09:44:58  martius
+ *   added damping for manipulated robots
+ *
+ *   Revision 1.15  2009/01/20 22:41:19  martius
  *   manipulation of agents with the mouse implemented ( a dream... )
  *
  *   Revision 1.14  2009/01/20 20:13:28  martius
@@ -658,6 +661,12 @@ namespace lpzrobots {
 	  force *= 0.3*factor/globalData.odeConfig.simStepSize;
 	  dBodyAddTorque(body->getBody(),force.x(),force.y(),force.z());
 	}
+	// Damp both, rotation and speed
+	const double* vel = dBodyGetAngularVel( body->getBody());
+	dBodyAddTorque ( body->getBody() , -0.1*vel[0] , -0.1*vel[1] , -0.1*vel[2]);    
+	vel = dBodyGetLinearVel( body->getBody());
+	dBodyAddForce ( body->getBody() , -0.1*vel[0] , -0.1*vel[1] , -0.1*vel[2]);    
+	
       }
     }
   }
