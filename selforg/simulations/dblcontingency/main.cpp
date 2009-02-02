@@ -209,6 +209,7 @@ int main(int argc, char** argv){
 
   if(contains(argv,argc,"-g")!=0) plotoptions.push_back(PlotOption(GuiLogger));
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
+  if(contains(argv,argc,"-s")!=0) plotoptions.push_back(PlotOption(SoundMan));
   if(contains(argv,argc,"-h")!=0) {
     printf("Usage: %s [-g] [-f]\n",argv[0]);
     printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
@@ -220,7 +221,7 @@ int main(int argc, char** argv){
   list<MyRobot*> robots;
   list<Agent*> agents;
   
-  for(int i=0; i<3; i++){
+  for(int i=0; i<2; i++){
     AbstractController* controller = new InvertMotorNStep();
     controller->setParam("s4delay",1.0);
     controller->setParam("s4avg",2.0);  
@@ -233,7 +234,7 @@ int main(int argc, char** argv){
     agent->init(controller, robot, wiring);
     // if you like, you can keep track of the robot with the following line. 
     //  this assumes that you robot returns its position, speed and orientation. 
-    // agent->setTrackOptions(TrackRobot(true,false,false, false,"interagetiontest"));
+    agent->setTrackOptions(TrackRobot(true,false,false, false,"interactiontest"));
   
     configs.push_back(robot);
     configs.push_back(controller);
