@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.26  2009-01-05 08:45:00  martius
+// Revision 1.27  2009-02-02 15:21:37  martius
+// added pseudoinverse
+//
+// Revision 1.26  2009/01/05 08:45:00  martius
 // exp again as function
 //
 // Revision 1.25  2008/12/22 14:40:47  martius
@@ -513,6 +516,23 @@ namespace matrix {
         break;
     }
     return *this;
+  }
+
+
+  Matrix Matrix::pseudoInverse(const D& lambda) const {
+    Matrix R;
+    if(m>n)
+      R = this->multTM();
+    else
+      R = this->multMT();
+    
+    for(I i=0; i < R.getM(); i++){
+      R.val(i,i)+= lambda;
+    }
+    if(m>n)
+      return (R^-1)* (*this^T);
+    else
+      return (*this^T)*(R^-1);
   }
 
   Matrix& Matrix::toMap ( D ( *fun ) ( D ) ) {

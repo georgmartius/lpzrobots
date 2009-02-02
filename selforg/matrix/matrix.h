@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.28  2009-01-05 08:45:00  martius
+// Revision 1.29  2009-02-02 15:21:28  martius
+// added pseudoinverse
+//
+// Revision 1.28  2009/01/05 08:45:00  martius
 // exp again as function
 //
 // Revision 1.27  2008/12/22 14:40:47  martius
@@ -364,7 +367,8 @@ namespace matrix{
     void mult(const Matrix& a, const Matrix& b);///< multiplication: this = a * b
     void mult(const Matrix& a, const D& fac);///< scaling: this = a * fac
 
-    void exp(const Matrix& a, int exponent);///< exponent, this = a^i, @see toExp
+    void exp(const Matrix& a, int exponent);///< exponent, this = a^i, @see toExp    
+
     /// returns true if matrix is a 0x0 matrix
     bool isNulltimesNull() const;
 
@@ -372,6 +376,14 @@ namespace matrix{
 	n1*m1 == n2*m2 but not necessarily n1==n2) */
     bool equals(const Matrix& a) const;
 
+    /** calculates the pseudoinverse, depending on the shape of the matrix
+	the left or right pseudoinverse is used.
+	Of the matrix has more columns than rows then we use 
+	\f[A^{+} &= (A^T A + \lambda \mathbb I)^{-1}A^T\f]
+	otherwise 
+	\f[A^{+} &= A^T(A A^T + \lambda \mathbb I)^{-1}\f]
+     */
+    Matrix pseudoInverse(const D& lambda = 10e-8) const ;
 
     /**  maps the matrix to a new matrix
 	 with all elements mapped with the given function

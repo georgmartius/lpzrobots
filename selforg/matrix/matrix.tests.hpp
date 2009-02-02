@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.7  2008-12-22 14:40:47  martius
+// Revision 1.8  2009-02-02 15:21:52  martius
+// added pseudoinverse
+//
+// Revision 1.7  2008/12/22 14:40:47  martius
 // added & operator for multrowwise
 //
 // Revision 1.6  2008/11/14 09:15:29  martius
@@ -232,6 +235,9 @@ DEFINE_TEST( check_matrix_operation ) {
   M7.toExp(-1);  
   M4.mult(M7,M8);
   unit_assert( "exp(-1)*exp(1)=id",   comparetoidentity(M4) );
+  M7=M8.pseudoInverse(0);
+  M4.mult(M7,M8);
+  unit_assert( "pseudoinverse*exp(1)=id",   comparetoidentity(M4) );
 
   D testdata9[6] = {sin(1.0),sin(2.0),sin(3.0), sin(4.0),sin(5.0),sin(6.0) };
   Matrix M9(2,3,testdata9);  
