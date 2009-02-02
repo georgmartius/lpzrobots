@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-05-01 22:03:56  martius
+ *   Revision 1.9  2009-02-02 16:08:13  martius
+ *   minor changes
+ *
+ *   Revision 1.8  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -113,7 +116,7 @@ public:
     // use Playground as boundary:
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, 1), 2);
     playground->setColor(Color(0,0,0,0.8)); 
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
     global.obstacles.push_back(playground);    
 
     for(int i=0; i<0; i++){ //20
@@ -136,15 +139,15 @@ public:
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
     cc.cInit=1.0;
     cc.useS=true;
-    
+    cc.numberContext=0; // use all sensors as context
     controller = new InvertMotorNStep(cc);  
     controller->setParam("adaptrate", 0.000);
     //    controller->setParam("nomupdate", 0.0005);
-    controller->setParam("epsC", 0.005);
-    controller->setParam("epsA", 0.001);
+    controller->setParam("epsC", 0.01);
+    controller->setParam("epsA", 0.01);
     controller->setParam("rootE", 0);
-    controller->setParam("steps", 2);
-    controller->setParam("s4avg", 5);
+    controller->setParam("steps", 1);
+    controller->setParam("s4avg", 1);
 
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent* agent = new OdeAgent(plotoptions);

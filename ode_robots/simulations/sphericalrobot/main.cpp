@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2008-09-16 19:28:29  martius
+ *   Revision 1.26  2009-02-02 16:08:13  martius
+ *   minor changes
+ *
+ *   Revision 1.25  2008/09/16 19:28:29  martius
  *   removed universalcontroller for release
  *
  *   Revision 1.24  2008/05/01 22:03:56  martius
@@ -295,7 +298,7 @@ public:
       agent->init ( controller , sphere1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
-      global.configs.push_back ( controller );
+//      global.configs.push_back ( controller );
     }
 
 
