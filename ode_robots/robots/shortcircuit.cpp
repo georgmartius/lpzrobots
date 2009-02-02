@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-05-07 16:45:52  martius
+ *   Revision 1.10  2009-02-02 16:07:49  martius
+ *   added dummy object to avoid crash with tv/following camera
+ *
+ *   Revision 1.9  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.8  2006/12/11 18:24:37  martius
@@ -71,7 +74,8 @@ namespace lpzrobots {
     for(int i=0; i < motorno; i++){
       motors[i]=0.0;
     }
-  
+    dummy = new DummyPrimitive();
+    dummy->init(odeHandle,0, osgHandle);
   };
 
   ShortCircuit::~ShortCircuit(){

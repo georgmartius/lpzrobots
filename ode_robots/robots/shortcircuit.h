@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-11-07 13:21:16  martius
+ *   Revision 1.7  2009-02-02 16:07:49  martius
+ *   added dummy object to avoid crash with tv/following camera
+ *
+ *   Revision 1.6  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.5  2006/12/11 18:24:37  martius
@@ -64,6 +67,7 @@
 
 
 #include "oderobot.h"
+#include "primitive.h"
 
 namespace lpzrobots {
 
@@ -74,7 +78,7 @@ namespace lpzrobots {
   public:
     ShortCircuit(const OdeHandle& odeHandle, const OsgHandle& osgHandle, int sensornumber, int motornumber);
 
-    ~ShortCircuit();
+    virtual ~ShortCircuit();
 
     virtual void update() {}
 
@@ -114,9 +118,10 @@ namespace lpzrobots {
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return 0; }
+    virtual Primitive* getMainPrimitive() const { return dummy; }
 
   protected:
+    DummyPrimitive *dummy; 
     int sensorno;      //number of sensors
     int motorno;       // number of motors
     motor* motors;
