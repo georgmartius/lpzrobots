@@ -1,6 +1,6 @@
 #/bin/bash
 #**************************************************************************
-#   Copyright (C) 2005 by Robot Group Leipzig                             *
+#   Copyright (C) 2009 by Robot Group Leipzig                             *
 #    martius@informatik.uni-leipzig.de                                    *
 #    fhesse@informatik.uni-leipzig.de                                     *
 #    der@informatik.uni-leipzig.de                                        *
@@ -25,41 +25,34 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.12  2009-02-03 18:12:09  martius
+#   Revision 1.1  2009-02-03 18:12:09  martius
 #   added wmv to encoding and provided new script to convert existing movies
 #
-#   Revision 1.11  2008/02/22 06:51:46  der
-#   added small xvid variant
 #
 #                                                                         *
 #**************************************************************************
 
 if test -z "$1"; then 
-    echo -e "USAGE: $0: BaseName [Target]\n\tExample: $0 frame_00 SuperVideo";
+    echo -e "USAGE: $0: source [Target]\n\tExample: $0 video.mjpeg";
     exit 1;
 fi
 
 NAME=$1;
-TARGET=$1;
+TARGET=${1%.*}.wmv;
+TARGET_S=${1%.*}_small.wmv;
 if test -n "$2"; then 
     TARGET=$2;
+    TARGET_S=${2%.*}_small.${2#*.};
 fi
 
-# for F in $NAME*.bmp; do echo "convert $F"; convert "$F" "${F%bmp}sgi"; rm "$F"; done
-# copy first frame as screenshot
-FRAME=`ls $NAME* -1 | head -1`;
-cp "$FRAME" "$TARGET.jpg";
 
-echo -e "*********************** mjpeg encoding **************************";
-#mencoder mf://$NAME*.jpg -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o $NAME.mjpeg
-mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o "$TARGET.mjpeg"
-echo -e "*********************** to wmv **************************";
-mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=wmv2:vbitrate=600 -oac copy -o "$TARGET.wmv"
-echo -e "*********************** to mpeg4 xvid 4 **************************";
-transcode -i "$TARGET.mjpeg" -o "$TARGET.avi" -y xvid4,null -w 600
+exit 
+echo -e "******************** to WMV2 normal ***************";
+transcode -i "$NAME" -o "$TARGET" -y ffmpeg,null -F wmv2 -w 600
 
-echo -e "******************** to mpeg4 xvid 4 small variant ***************";
-transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.avi -y xvid4,null -w 100 -r 2
+echo -e "******************** to WMV2 small variant ***************";
+transcode -i "$NAME" -o "$TARGET" -y ffmpeg,null -F wmv2 -w 100 -r 2
 
+echo "Created $TARGET and $TARGET_S"
 
 
