@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-01-20 17:29:10  martius
+ *   Revision 1.11  2009-02-04 09:36:31  martius
+ *   osgboxtex theoretically correct, pratically does not work yet
+ *
+ *   Revision 1.10  2009/01/20 17:29:10  martius
  *   changed texture handling. In principle it is possible to set multiple textures
  *   per osgPrimitive.
  *   New osgboxtex started that supports custom textures.
@@ -245,7 +248,7 @@ namespace lpzrobots {
   }
 
   void OSGBoxTex::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene);
+    assert(osgHandle.scene); 
     transform = new MatrixTransform;
     osgHandle.scene->addChild(transform.get());
     Vec3 half = dim*(-0.5);    
@@ -544,13 +547,13 @@ namespace lpzrobots {
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode) {
     ref_ptr<Material> m = new Material ();
     m->setColorMode(mode);
-    // Color amb (c*0.3);
-//     amb.alpha()=c.alpha();
+    Color amb (c*0.3);
+    amb.alpha()=c.alpha();
     Color dif(c*0.7);
     dif.alpha()=c.alpha();
     Color spec(c*0.05);
     spec.alpha()=c.alpha();
-    //m->setAmbient(Material::FRONT_AND_BACK, amb);
+    m->setAmbient(Material::FRONT_AND_BACK, amb);
     m->setDiffuse(Material::FRONT_AND_BACK, dif);
     m->setSpecular(Material::FRONT_AND_BACK, spec);
     m->setShininess(Material::FRONT_AND_BACK, 5.0f);
@@ -560,20 +563,20 @@ namespace lpzrobots {
 
 
 
+//   osg::Geode* createRectangle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
+// 			      double repeatOnR, double repeatOnS)
+//   {
+//     osg::Geode* geode = new osg::Geode();
+//     //test
+//     osg::ShapeDrawable* shape;
+//     shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f),v1.length(),v2.length(),v3.length()));
+//     //    shape->setColor(osgHandle.color);
+//     geode->addDrawable(shape);
+//     return geode;
+//   }
+
+
   osg::Geode* createRectangle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
-			      double repeatOnR, double repeatOnS)
-  {
-    osg::Geode* geode = new osg::Geode();
-    //test
-    osg::ShapeDrawable* shape;
-    shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f),v1.length(),v2.length(),v3.length()));
-    //    shape->setColor(osgHandle.color);
-    geode->addDrawable(shape);
-    return geode;
-  }
-
-
-  osg::Geode* createRectangle2(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
 			      double repeatOnR, double repeatOnS)
   {
     osg::Geode* geode = new osg::Geode();
@@ -584,7 +587,7 @@ namespace lpzrobots {
     osg::Vec3Array* vertices = new osg::Vec3Array;
     vertices->push_back( v1 );
     vertices->push_back( v2 );
-    vertices->push_back( v3);
+    vertices->push_back( v3 );
     vertices->push_back( v1 + (v3-v2));
     geometry->setVertexArray( vertices );
 
@@ -592,10 +595,10 @@ namespace lpzrobots {
     // vertices from our vertex list that make up this QUAD:
     osg::DrawElementsUInt* base = 
       new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-    base->push_back(0);
-    base->push_back(1);
-    base->push_back(2);
     base->push_back(3);
+    base->push_back(2);
+    base->push_back(1);
+    base->push_back(0);
 
     geometry->addPrimitiveSet(base);
 
