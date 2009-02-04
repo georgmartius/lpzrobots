@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-11-14 11:23:05  martius
+ *   Revision 1.8  2009-02-04 09:37:05  martius
+ *   fixed offset of 2 in centered servos
+ *
+ *   Revision 1.7  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -176,7 +179,7 @@ namespace lpzrobots {
     virtual double get(){
       double pos =  joint->getPosition1();
       
-      return 2*(pos-min)/(max-min) + 1;    
+      return 2*(pos-min)/(max-min) - 1;    
     }    
     
   };
