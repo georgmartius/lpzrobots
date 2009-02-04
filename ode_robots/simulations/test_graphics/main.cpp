@@ -1,0 +1,180 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *    martius@informatik.uni-leipzig.de                                    *
+ *    fhesse@informatik.uni-leipzig.de                                     *
+ *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ *   $Log$
+ *   Revision 1.1  2009-02-04 09:35:46  martius
+ *   test for new graphics stuff.
+ *   At the moment for OsgBoxTex
+ *
+ *
+ *
+ ***************************************************************************/
+#include <stdio.h>
+
+// include ode library
+#include <ode/ode.h>
+
+// include noisegenerator (used for adding noise to sensorvalues)
+#include <selforg/noisegenerator.h>
+
+// include simulation environment stuff
+#include <ode_robots/simulation.h>
+
+// include agent (class for holding a robot, a controller and a wiring)
+#include <ode_robots/odeagent.h>
+
+
+// used arena
+#include <ode_robots/playground.h>
+// used passive spheres
+#include <ode_robots/passivesphere.h>
+#include <ode_robots/joint.h>
+
+/************/
+#include <ode_robots/playground.h>
+#include <ode_robots/terrainground.h>
+#include <ode_robots/octaplayground.h>
+
+// fetch all the stuff of lpzrobots into scope
+using namespace lpzrobots;
+using namespace std;
+
+class ThisSim : public Simulation {
+public:
+
+
+  AbstractObstacle* playground; 
+  double hardness;
+  Substance s;
+  OSGBoxTex* b;
+  OSGBox* b2;
+
+  // starting function (executed once at the beginning of the simulation loop)
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  {
+    setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
+
+    // initialization
+    // - set noise to 0.0
+    // - register file chess.ppm as a texture called chessTexture (used for the wheels)
+    global.odeConfig.setParam("controlinterval",2);
+    global.odeConfig.setParam("noise",0.1); 
+    global.odeConfig.setParam("realtimefactor",1);
+    global.odeConfig.setParam("gravity", -3);
+
+    // use Playground as boundary:
+    s.toPlastic(0.9); 
+    double scale = 10; 
+    double height = 5;
+    int anzgrounds=1;
+    for (int i=0; i< anzgrounds; i++){
+      playground = new Playground(odeHandle, osgHandle, 
+	     osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));
+      OdeHandle myhandle = odeHandle;
+      myhandle.substance.toFoam(10);
+      // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
+      playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
+      playground->setSubstance(s);
+      // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
+    //global.obstacles.push_back(playground);
+      global.obstacles.push_back(playground);
+    }
+
+
+    // add passive spheres as obstacles
+    for (int i=0; i< 1/*2*/; i+=1){
+      PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.3);
+      // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
+      s1->setPosition(osg::Vec3(0,0,1+i*5));
+      s1->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s1);
+    }
+
+    b = new OSGBoxTex(5,1,2);
+    b->setTexture(0,"Images/dusty.rgb",1,1); 
+    b->setTexture(1,"Images/tire_full.rgb",1,3);
+    b->setTexture(2,"Images/whitemetal_farbig_small.rgb",1,1);
+    b->setTexture(3,"Images/wall.rgb",1,1);
+    b->setTexture(4,"Images/wood.rgb",1,1);
+    b->setTexture(5,"Images/light_chess.rgb",5,5);
+    b->init(osgHandle); 
+    b->setMatrix(osg::Matrix::translate(0,-2,2)); 
+
+    b2 = new OSGBox(5,1,2);
+    b2->setTexture("Images/light_chess.rgb",1,1); 
+    b2->init(osgHandle); 
+    b2->setMatrix(osg::Matrix::translate(7,0,2));
+    
+
+  
+    showParams(global.configs);
+  }
+
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+    b->setMatrix(osg::Matrix::rotate(globalData.time/2,1,0,0)*osg::Matrix::translate(0,-2,2)); 
+    b2->setMatrix(osg::Matrix::rotate(globalData.time/2,1,0,0)*osg::Matrix::translate(7,0,2)); 
+  }
+  
+  // add own key handling stuff here, just insert some case values
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  {
+    if (down) { // only when key is pressed, not when released
+      switch ( (char) key )
+	{
+	case 'x': 
+	  if(fixator) delete fixator;
+	  fixator=0;	 
+	  return true;
+	  break;
+	case 'i': 
+	  if(playground) {	    
+	    s.hardness*=1.5;
+	    cout << "hardness " << s.hardness << endl;
+	    playground->setSubstance(s);
+	  }
+	  return true;
+	  break;
+	case 'j': 
+	  if(playground) {
+	    s.hardness/=1.5;
+	    cout << "hardness " << s.hardness << endl;
+	    playground->setSubstance(s);
+	  }
+	  return true;
+	  break;
+	default:
+	  return false;
+	  break;
+	}
+    }
+    return false;
+  }
+};
+
+
+int main (int argc, char **argv)
+{ 
+  ThisSim sim;
+  return sim.run(argc, argv) ? 0 : 1;
+
+}
+ 
