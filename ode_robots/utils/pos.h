@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-08 17:04:47  martius
+ *   Revision 1.4  2009-02-04 09:38:00  martius
+ *   operator * added
+ *
+ *   Revision 1.3  2006/08/08 17:04:47  martius
  *   added new sensor model
  *
  *   Revision 1.2  2006/07/14 12:23:56  martius
@@ -58,6 +61,11 @@ namespace lpzrobots{
     Pos (const osg::Vec3& v) : osg::Vec3(v) {}
     Pos (const Position& p) : osg::Vec3(p.x, p.y, p.z) {}
     Pos (const dReal v[3]) : osg::Vec3(v[0], v[1], v[2]) {}
+
+    /// scaling
+    Pos operator*(double f) const { return Pos(x()*f,y()*f,z()*f);}
+    /// scalar product
+    double operator*(const Pos& p) const { return p.x()*x() + p.y()*y() + p.z()*z();}
 
     Position toPosition(){
       return Position(x(), y(), z());
