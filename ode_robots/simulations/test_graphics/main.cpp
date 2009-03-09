@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-02-04 09:35:46  martius
+ *   Revision 1.2  2009-03-09 16:50:49  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2009/02/04 09:35:46  martius
  *   test for new graphics stuff.
  *   At the moment for OsgBoxTex
  *
@@ -140,11 +143,6 @@ public:
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
-	case 'x': 
-	  if(fixator) delete fixator;
-	  fixator=0;	 
-	  return true;
-	  break;
 	case 'i': 
 	  if(playground) {	    
 	    s.hardness*=1.5;
