@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-04-17 15:59:02  martius
+ *   Revision 1.6  2009-03-12 08:44:18  martius
+ *   fixed video recording
+ *
+ *   Revision 1.5  2008/04/17 15:59:02  martius
  *   OSG2 port finished
  *
  *   Revision 1.4.4.1  2008/04/08 14:09:23  martius
@@ -45,16 +48,20 @@
 
 namespace lpzrobots{
 
-  class VideoStream{
+  class VideoStream : public osg::Camera::DrawCallback {
   public:
-    VideoStream(){ filename=0; opened=false; }
+    VideoStream(){ filename=0; opened=false; pause = false;}
 
     void open(const char* filename);
     void close();
     bool grabAndWriteFrame(const osg::Camera& camera);
 
-    bool isOpen() { return opened; }
+    bool isOpen() const { return opened; }
 
+    // DrawCallback interface
+    virtual void operator() (const osg::Camera &) const ;
+
+    bool pause;
   private:
     bool opened;
     char* filename;

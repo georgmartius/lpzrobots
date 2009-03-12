@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.33  2008-09-16 14:46:41  martius
+ *   Revision 1.34  2009-03-12 08:43:40  martius
+ *   fixed video recording
+ *
+ *   Revision 1.33  2008/09/16 14:46:41  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.32  2008/05/05 06:07:26  guettler
@@ -305,15 +308,9 @@ namespace lpzrobots {
      */
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {};
 
-    ///////////////// Camera::DrawCallback interface
-    void onPostDraw(const osg::Camera &c);
-    // virtual void operator() ();
-
-
     virtual void odeStep();
 
     virtual void osgStep();
-
 
   protected:
     // GUIEventHandler
@@ -367,7 +364,7 @@ namespace lpzrobots {
 
   protected:
     GlobalData globalData;
-    VideoStream videostream;
+    osg::ref_ptr<VideoStream> videostream;
 
     int nextLeakAnnounce;
     int leakAnnCounter;

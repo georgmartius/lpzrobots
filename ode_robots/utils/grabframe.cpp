@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-04-17 15:59:02  martius
+ *   Revision 1.6  2009-03-12 08:44:28  martius
+ *   fixed video recording
+ *
+ *   Revision 1.5  2008/04/17 15:59:02  martius
  *   OSG2 port finished
  *
  *   Revision 1.4.4.1  2008/04/08 14:09:23  martius
@@ -50,6 +53,18 @@ namespace lpzrobots {
 
   // bool getGLFrameBuffer( unsigned char *buf, int w, int h);
 
+  void VideoStream::operator() (const osg::Camera &c) const {
+    // grab frame if in captureing mode
+    if(isOpen() && !pause) {
+      VideoStream * vs = (VideoStream *)this; // this is a dirty hack to get rid of the const
+      if(!vs->grabAndWriteFrame(c)) {
+	fprintf(stderr,"Video recording failure!\n");
+ 	vs->close();
+       }
+    }
+  }
+
+
   void VideoStream::open(const char* _filename){
     assert (_filename);
     filename = new char[strlen(_filename) + 1];
@@ -64,7 +79,7 @@ namespace lpzrobots {
     opened   = false;
   }
 
-  bool VideoStream::grabAndWriteFrame(const osg::Camera& camera){
+  bool VideoStream::grabAndWriteFrame(const osg::Camera& camera) {
     if(!opened) return false;
     char name[128];
     osg::ref_ptr<osg::Image>image = new osg::Image; 
@@ -73,7 +88,8 @@ namespace lpzrobots {
     //    int x, y; 
     //    camera.getProjectionRectangle(x, y, w, h); 
     //    image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE); 
-    image->allocateImage( (int)vp->width(), (int)vp->height(), 1, GL_RGB, GL_UNSIGNED_BYTE); 
+    // the allocation is done by readPixels
+    // image->allocateImage( (int)vp->width(), (int)vp->height(), 1, GL_RGB, GL_UNSIGNED_BYTE); 
     
     //    image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE); 
     image->readPixels( 0, 0, (int)vp->width(), (int)vp->height(), GL_RGB, GL_UNSIGNED_BYTE); 

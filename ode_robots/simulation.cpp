@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.89  2009-01-20 22:41:19  martius
+ *   Revision 1.90  2009-03-12 08:44:01  martius
+ *   fixed video recording
+ *
+ *   Revision 1.89  2009/01/20 22:41:19  martius
  *   manipulation of agents with the mouse implemented ( a dream... )
  *
  *   Revision 1.88  2008/09/16 14:46:01  martius
@@ -565,6 +568,9 @@ namespace lpzrobots {
     //    Producer::Camera::Callback::ref();
     odeThreadCreated=false;
     osgThreadCreated=false;
+    
+    videostream = new VideoStream();
+
   }
 
   Simulation::~Simulation() {
@@ -696,6 +702,8 @@ namespace lpzrobots {
 
       // add the record camera path handler
       viewer->addEventHandler(this);
+      // add callback for video recording
+      viewer->getCamera()->setFinalDrawCallback(videostream);
     }else{
       globalData.odeConfig.realTimeFactor=0;
     }
@@ -924,6 +932,7 @@ namespace lpzrobots {
 	
 	// manipulate agents (with mouse)
 	if(!noGraphics){
+	  videostream->pause = pause;
 	  osgGA::MatrixManipulator* mm = 
 	    keyswitchManipulator->getCurrentMatrixManipulator();
 	  if(mm) {
@@ -1033,20 +1042,9 @@ namespace lpzrobots {
 	  usleep((diff-2)*1000);
 	  //	  nextLeakAnnounce=100;
 	}
-// 	else if (diff < 0) {
-// 	  // we do not bother the user all the time
-// 	  if(leakAnnCounter%nextLeakAnnounce==0 && diff < -100 && !videostream.isOpen()) {
-// 	    nextLeakAnnounce=min(nextLeakAnnounce*10,10000);
-// 	    printf("Time lack of %li ms (Suggestion: realtimefactor=%g), next in annoucement in %i violations\n",
-// 		   -diff, truerealtimefactor, nextLeakAnnounce);
-// 	    leakAnnCounter=0;
-// 	    resetSyncTimer();
-// 	  }
-// 	  leakAnnCounter++;
-// 	}
       }
       // the video steam should look perfectly syncronised
-      if(videostream.isOpen())
+      if(videostream->isOpen())
 	truerealtimefactor=globalData.odeConfig.realTimeFactor;
       else{
 	//  true speed of simulations. In case resetSyncTimer() was just called this
@@ -1127,9 +1125,9 @@ namespace lpzrobots {
 	}
 	break;
       case 18:  // Ctrl - r
-	if(videostream.isOpen()) {
+	if(videostream->isOpen()) {
 	  printf("Stop video recording!\n");
-	  videostream.close();
+	  videostream->close();
 	  //	    printf("Switching back to 50fps!\n");
 	  globalData.odeConfig.videoRecordingMode=false;
 	} else {
@@ -1140,7 +1138,7 @@ namespace lpzrobots {
 	  createNewDir("video", dir);
 	  printf("Start video recording in %s!\n", dir);
 	  sprintf(filename, "%s/frame", dir);
-	  videostream.open(filename);
+	  videostream->open(filename);
 	}
 	handled=true;
 	break;
@@ -1193,17 +1191,6 @@ namespace lpzrobots {
     v.visit(*this);
   }
 
-  ///////////////// Camera::Callback interface
-  //void Simulation::operator() (const osg::Camera &c) {
-  void Simulation::onPostDraw(const osg::Camera &c) {
-    // grab frame if in captureing mode
-    if(videostream.isOpen() && !pause) {
-      if(!videostream.grabAndWriteFrame(c)) {
-	fprintf(stderr,"Stop video recording because of failture!\n");
-	videostream.close();
-      }
-    }
-  }
 
   /// clears obstacle and agents lists and delete entries
   void Simulation::tidyUp(GlobalData& global) {
@@ -1633,7 +1620,8 @@ namespace lpzrobots {
 
   void Simulation::osgStep() {
     viewer->frame();
-    onPostDraw(*(viewer->getCamera()));
+    
+    // onPostDraw(*(viewer->getCamera()));
   }
 
 
@@ -1643,7 +1631,7 @@ namespace lpzrobots {
     if(sim)
       sim->odeStep();
     else{
-      cerr << "scheisse" << endl;
+      cerr << "odeStep_run()::Shit happens" << endl;
     }
     return NULL;
   }
@@ -1654,7 +1642,7 @@ namespace lpzrobots {
     if(sim)
       sim->osgStep();
     else{
-      cerr << "scheisse" << endl;
+      cerr << "osgStep_run()::Shit happens" << endl;
     }
     return NULL;
   }
