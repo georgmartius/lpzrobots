@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2008-02-07 14:25:29  der
+ *   Revision 1.19  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.18  2008/02/07 14:25:29  der
  *   added setWallTexture for PlayGround
  *
  *   Revision 1.17  2007/08/28 09:25:13  martius
@@ -181,31 +187,31 @@ namespace lpzrobots {
 		       0,
 		       height/2+0.01f/*reduces graphic errors and ode collisions*/);
       box = new Box( width , (length * factorlength2) + 2 * width , height);
+      box->setTexture(wallTextureFileName, -1, -1);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
-      box->getOSGPrimitive()->setTexture(wallTextureFileName);
       obst.push_back(box);
 
       offset.x() = length/2 + width/2;
       box = new Box( width , (length * factorlength2) + 2 * width , height);
+      box->setTexture(wallTextureFileName, -1, -1);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
-      box->getOSGPrimitive()->setTexture(wallTextureFileName);
       obst.push_back(box);
 
       offset.x() = 0;
       offset.y() = -( (length*factorlength2)/2 +width/2);
       box = new Box( length, width, height);
+      box->setTexture(wallTextureFileName, -1, -1);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
-      box->getOSGPrimitive()->setTexture(wallTextureFileName);
       obst.push_back(box);
 
       offset.y() = (length*factorlength2)/2 +width/2;
       box = new Box( length, width, height);
+      box->setTexture(wallTextureFileName, -1, -1);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
-      box->getOSGPrimitive()->setTexture(wallTextureFileName);
       obst.push_back(box);
     
       obstacle_exists=true;

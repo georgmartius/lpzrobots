@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-03-09 16:50:49  martius
+ *   Revision 1.3  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.2  2009/03/09 16:50:49  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2009/02/04 09:35:46  martius
@@ -48,6 +54,7 @@
 
 // used arena
 #include <ode_robots/playground.h>
+#include <ode_robots/octaplayground.h>
 // used passive spheres
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/joint.h>
@@ -85,22 +92,15 @@ public:
     global.odeConfig.setParam("gravity", -3);
 
     // use Playground as boundary:
-    s.toPlastic(0.9); 
-    double scale = 10; 
-    double height = 5;
-    int anzgrounds=1;
-    for (int i=0; i< anzgrounds; i++){
-      playground = new Playground(odeHandle, osgHandle, 
-	     osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));
-      OdeHandle myhandle = odeHandle;
-      myhandle.substance.toFoam(10);
-      // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
-      playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
-      playground->setSubstance(s);
-      // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
-    //global.obstacles.push_back(playground);
-      global.obstacles.push_back(playground);
-    }
+    playground = new Playground(odeHandle, osgHandle, 
+				osg::Vec3(10, .2, 1));
+    playground->setPosition(osg::Vec3(0,0,0.2));
+    global.obstacles.push_back(playground);
+
+    playground = new OctaPlayground(odeHandle, osgHandle);
+    playground->setPosition(osg::Vec3(15,0,0.2));
+    global.obstacles.push_back(playground);
+
 
 
     // add passive spheres as obstacles
@@ -114,11 +114,11 @@ public:
 
     b = new OSGBoxTex(5,1,2);
     b->setTexture(0,"Images/dusty.rgb",1,1); 
-    b->setTexture(1,"Images/tire_full.rgb",1,3);
+    b->setTexture(1,"Images/tire_full.rgb",3,1);
     b->setTexture(2,"Images/whitemetal_farbig_small.rgb",1,1);
     b->setTexture(3,"Images/wall.rgb",1,1);
     b->setTexture(4,"Images/wood.rgb",1,1);
-    b->setTexture(5,"Images/light_chess.rgb",5,5);
+    b->setTexture(5,"Images/light_chess.rgb",-1,-1); 
     b->init(osgHandle); 
     b->setMatrix(osg::Matrix::translate(0,-2,2)); 
 

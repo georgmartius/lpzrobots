@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2009-01-20 17:27:34  martius
+ *   Revision 1.25  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.24  2009/01/20 17:27:34  martius
  *   texture for background changeable from outside
  *
  *   Revision 1.23  2009/01/05 13:18:48  martius
@@ -767,9 +773,9 @@ namespace lpzrobots {
     (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
 
     (*coords)[0].set(-ir,-ir,0.0f);
-    (*coords)[1].set(-ir, ir,0.0f);
+    (*coords)[1].set( ir,-ir,0.0f);
     (*coords)[2].set( ir, ir,0.0f);
-    (*coords)[3].set( ir,-ir,0.0f);
+    (*coords)[3].set(-ir, ir,0.0f);
     (*tcoords)[0].set(-texscale*ir,-texscale*ir);
     (*tcoords)[1].set(-texscale*ir, texscale*ir);
     (*tcoords)[2].set( texscale*ir, texscale*ir);
@@ -857,8 +863,8 @@ namespace lpzrobots {
     //    light_0->setPosition(Vec4(0.0f, 0.0f, 50.0f, 1.0f));
     light_0->setPosition(Vec4(40.0f, 40.0f, 50.0f, 1.0f));
     //    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
-    //    light_0->setAmbient(Vec4(0.7f, 0.7f, 0.7f, 1.0f));  // Georg 21.07.2007 changed from 0.5 to 0.7
-    light_0->setAmbient(Vec4(0.9f, 0.9f, 0.9f, 1.0f));  // Georg 05.01.2008 changed from 0.7 to 0.9
+    light_0->setAmbient(Vec4(0.7f, 0.7f, 0.7f, 1.0f));  // Georg 21.07.2007 changed from 0.5 to 0.7
+    //light_0->setAmbient(Vec4(0.9f, 0.9f, 0.9f, 1.0f));  // Georg 05.01.2008 changed from 0.7 to 0.9
     light_0->setDiffuse(Vec4(0.8f, 0.8f, 0.8f, 1.0f));
     //    light_0->setDirection(Vec3(-1.0f, -1.0f, -1.2f));
     light_0->setSpecular(Vec4(1.0f, 0.9f, 0.8f, 1.0f));

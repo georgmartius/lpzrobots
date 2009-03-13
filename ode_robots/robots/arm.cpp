@@ -308,9 +308,9 @@ namespace lpzrobots{
     // === BODY CREATION ==============
     // create body, initialize, set position and add to list of objects
     Primitive* _base = new Box(conf.body_width, conf.body_depth, conf.body_height);
-    _base->init(odeHandle, conf.body_mass, osgHandle);
-    _base->setPose(pose);
     //_base->getOSGPrimitive()->setTexture("Images/wood.rgb");
+    _base->init(odeHandle, conf.body_mass, osgHandle);
+    _base->setPose(pose);    
     objects.push_back(_base);
 	
     // position of shoulder joint part one 

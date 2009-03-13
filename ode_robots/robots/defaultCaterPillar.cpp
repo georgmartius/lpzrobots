@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-05-07 16:45:51  martius
+ *   Revision 1.7  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.6  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.5  2007/11/07 13:21:15  martius
@@ -255,11 +261,11 @@ namespace lpzrobots {
     // linear positioning (snake-like)
     for(int n = 0; n < conf.segmNumber; n++) {
       Primitive* p = new Box(conf.segmDia/2, conf.segmDia*2, conf.segmLength);
+      p->setTexture("Images/dusty.rgb");
       p->init(odeHandle, conf.segmMass, osgHandle);
       p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
 		 osg::Matrix::translate((n-half)*conf.segmLength*0.7, 0, conf.segmDia/2) * // made boxes overlapping for not seeing any gaps (*0.7)
-		 pose);
-      p->getOSGPrimitive()->setTexture("Images/dusty.rgb");
+		 pose);      
       objects.push_back(p);
     }
 

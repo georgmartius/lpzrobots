@@ -23,13 +23,13 @@ UTILS = install_prefix.conf
 # utils/splitvideo
 
 # -pg for profiling
-CPPFLAGS = -Wall -g -I. -pthread $(INC)
+CPPFLAGS = -Wall -g -pipe -I. -pthread $(INC)
 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -pthread $(INC) -O -DNDEBUG
+CPPFLAGS_OPT = -Wall -I. -pipe -pthread $(INC) -O -DNDEBUG
 
 ## Optimisation
-CPPFLAGS_PROF = -Wall -I. -pthread $(INC) -O -DQPROF
+CPPFLAGS_PROF = -Wall -I. -pipe -pthread $(INC) -O -DQPROF
 
 # used for single file compilation
 CXX = g++
@@ -80,6 +80,11 @@ depend:
 
 tags: 
 	etags `find -type f -regex ".*\.[hc]p?p?"` 
+
+##!'search'           		ask for a search string and scans all tex files
+search:
+	echo -n "search rexp: "; read F && grep -in "$$F" ${CPPFILES} ${HFILES}
+
 
 clean-all: clean
 	rm -f $(LIB) $(LIB_OPT) $(LIB_PROF)

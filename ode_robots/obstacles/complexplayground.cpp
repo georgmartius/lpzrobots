@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-05-07 16:45:51  martius
+ *   Revision 1.5  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.4  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.3  2008/04/23 07:17:16  martius
@@ -187,10 +193,10 @@ namespace lpzrobots {
       double length = sqrt(size.x()*size.x()+size.y()*size.y());
       Pos offset = (p->second + p->first)/2;
       Box* box = new Box( length, polyline.thickness*.03175*factor , polyline.depth*heightfactor); 
+      box->setTexture(wallTextureFileName,-1,-1);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       double angle = atan2(size.y(),size.x());
       box->setPose(osg::Matrix::rotate(angle,Pos(0,0,1)) *  osg::Matrix::translate(offset) * pose);
-      box->getOSGPrimitive()->setTexture(wallTextureFileName);
       obst.push_back(box);
     }
   }

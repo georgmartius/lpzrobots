@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-07-03 13:06:41  martius
+ *   Revision 1.10  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.9  2007/07/03 13:06:41  martius
  *   groundplane thick
  *
  *   Revision 1.8  2007/03/16 11:01:37  martius
@@ -129,6 +135,7 @@ protected:
     double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;
     for (int i=0; i<number_elements; i++){
       Box* box =  new Box(width , box_length , height);
+      box->setTexture(wallTextureFileName,-1,-1);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       osg::Matrix R = osg::Matrix::rotate(- i*angle, 0,0,1) * 
 	osg::Matrix::translate( cos(M_PI - i*angle) * r, 
@@ -136,7 +143,6 @@ protected:
 				height/2+0.01f /*reduces graphic errors and ode collisions*/
 				)* pose;
       box->setPose(R);
-      box->getOSGPrimitive()->setTexture(wallTextureFileName);
       obst.push_back(box);
     }
     obstacle_exists=true;

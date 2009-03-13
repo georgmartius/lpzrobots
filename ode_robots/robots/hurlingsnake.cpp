@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2008-05-07 16:45:51  martius
+ *   Revision 1.20  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.19  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.18  2007/11/07 13:21:16  martius
@@ -305,6 +311,7 @@ namespace lpzrobots {
 
     for (int i=0; i<NUM; i++) {
       object[i] = new Sphere(RADIUS);      
+      object[i]->setTexture("Images/wood.rgb");	      
       if (i==NUM-1){
 	OsgHandle osgHandle_head = osgHandle;
 	osgHandle_head.color = Color(1, 0, 0);
@@ -312,8 +319,7 @@ namespace lpzrobots {
       } else {
 	object[i]->init(odeHandle, MASS, osgHandle);
       }
-      object[i]->setPose(osg::Matrix::translate(i*RADIUS*2*1.1, 0, 0+0.03) * pose);
-      object[i]->getOSGPrimitive()->setTexture("Images/wood.rgb");	      
+      object[i]->setPose(osg::Matrix::translate(i*RADIUS*2*1.1, 0, 0+0.03) * pose);      
     }
     oldp = object[NUM-1]->getPosition();
     for (int i=0; i<(NUM-1); i++) {

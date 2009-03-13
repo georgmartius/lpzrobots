@@ -25,7 +25,13 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.12  2009-02-03 18:12:09  martius
+#   Revision 1.13  2009-03-13 09:19:53  martius
+#   changed texture handling in osgprimitive
+#   new OsgBoxTex that supports custom texture repeats and so on
+#   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+#   setTexture has to be called before init() of the primitive
+#
+#   Revision 1.12  2009/02/03 18:12:09  martius
 #   added wmv to encoding and provided new script to convert existing movies
 #
 #   Revision 1.11  2008/02/22 06:51:46  der
@@ -54,12 +60,15 @@ echo -e "*********************** mjpeg encoding **************************";
 #mencoder mf://$NAME*.jpg -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o $NAME.mjpeg
 mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o "$TARGET.mjpeg"
 echo -e "*********************** to wmv **************************";
-mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=wmv2:vbitrate=600 -oac copy -o "$TARGET.wmv"
+mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=wmv2:vbitrate=600 -oac copy -o "${TARGET}.wmv.avi"
 echo -e "*********************** to mpeg4 xvid 4 **************************";
 transcode -i "$TARGET.mjpeg" -o "$TARGET.avi" -y xvid4,null -w 600
 
 echo -e "******************** to mpeg4 xvid 4 small variant ***************";
 transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.avi -y xvid4,null -w 100 -r 2
+
+echo -e "******************** to wmv small variant ***************";
+transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.wmv.avi -y ffmpeg,null -F wmv2 -w 100 -r 2
 
 
 

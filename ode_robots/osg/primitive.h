@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2008-09-11 15:24:01  martius
+ *   Revision 1.16  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.15  2008/09/11 15:24:01  martius
  *   motioncallback resurrected
  *   noContact substance
  *   use slider center of the connecting objects for slider drawing
@@ -152,6 +158,7 @@ namespace lpzrobots {
    class OSGPrimitive;
    class OSGPlane;
    class OSGBox;
+   class OSGBoxTex;
    class OSGSphere;
    class OSGCapsule;
    class OSGCylinder;
@@ -213,7 +220,15 @@ public:
   /// assigns a texture to the primitive
   virtual void setTexture(const std::string& filename);
   /// assigns a texture to the primitive, you can choose if the texture should be repeated
-  virtual void setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY);
+  virtual void setTexture(const std::string& filename, double repeatOnX, double repeatOnY);
+  /** assigns a texture to the x-th surface of the primitive, you can choose how often to repeat
+      negative values of repeat correspond to length units. 
+      E.g. assume a rectangle of size 5 in x direction: with repeatOnX = 2 the texture would be two times
+      rereated. With repeatOnX = -1 the texture would be 5 times repeated because the texture is 
+      made to have the size 1 
+   */
+  virtual void setTexture(int surface, const std::string& filename, double repeatOnX, double repeatOnY);
+
 
   /// set the position of the primitive (orientation is preserved)
   void setPosition(const osg::Vec3& pos);
@@ -299,7 +314,7 @@ public:
 
   virtual void setMass(double mass);
 protected:
-  OSGBox* osgbox;
+  OSGBoxTex* osgbox;
 };
 
 

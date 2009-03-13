@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-09-16 14:49:46  martius
+ *   Revision 1.7  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.6  2008/09/16 14:49:46  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.5  2007/03/16 11:01:37  martius
@@ -89,10 +95,10 @@ namespace lpzrobots {
     }else{
       heightfield = new HeightField(filename, x_size, y_size, height);
     }
-    heightfield->setPose(pose);
-    heightfield->init(odeHandle, 0, osgHandle);
     if(!texture.empty())
       heightfield->setTexture(texture, true, true);
+    heightfield->setPose(pose);
+    heightfield->init(odeHandle, 0, osgHandle);
     obst.push_back(heightfield);
     obstacle_exists=true;
   }

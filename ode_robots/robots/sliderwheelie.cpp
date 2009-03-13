@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2008-09-16 14:52:58  martius
+ *   Revision 1.16  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.15  2008/09/16 14:52:58  martius
  *   provide a virtual center of the robot as main primitve
  *
  *   Revision 1.14  2008/05/07 16:45:52  martius
@@ -184,20 +190,19 @@ namespace lpzrobots {
       if(n%2==0){ // slider segment
 	
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength/2);
+	p1->setTexture("Images/wood.rgb");
 	p1->init(odeHandle, conf.segmMass/2 , osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
 		    osg::Matrix::translate(-conf.segmLength/4,0,
-					   -0.5*conf.segmLength*conf.segmNumber/M_PI) * m );
-	p1->setTexture("Images/wood.rgb");
+					   -0.5*conf.segmLength*conf.segmNumber/M_PI) * m );	
 	objects.push_back(p1);
 
 	Primitive* p2 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength/2);
-	
+	p2->setTexture("Images/dusty.rgb");
 	p2->init(odeHandle, conf.segmMass/2 , osgHandle);
 	p2->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
 		    osg::Matrix::translate(conf.segmLength/4,0,
-					   -0.5*conf.segmLength*conf.segmNumber/M_PI) * m );	
-	p2->setTexture("Images/dusty.rgb");
+					   -0.5*conf.segmLength*conf.segmNumber/M_PI) * m );		
 	objects.push_back(p2);
 
 	const Pos& pos1(p1->getPosition());
@@ -216,10 +221,10 @@ namespace lpzrobots {
 	sliderServos.push_back(servo);	
       }else{ // normal segment
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 3 : 1), conf.segmLength);
+	p1->setTexture("Images/whitemetal_farbig_small.rgb");
 	p1->init(odeHandle, conf.segmMass * ( (n+1)%4 ==0 ? 1.0 : 1), osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
-		    osg::Matrix::translate(0,0,-0.5*conf.segmLength*conf.segmNumber/M_PI) * m );
-	p1->setTexture("Images/whitemetal_farbig_small.rgb");
+		    osg::Matrix::translate(0,0,-0.5*conf.segmLength*conf.segmNumber/M_PI) * m );	
 	objects.push_back(p1);
       }
       ancors.push_back(Pos(conf.segmLength/2,0,-0.5*conf.segmLength*conf.segmNumber/M_PI) * m);

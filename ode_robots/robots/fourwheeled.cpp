@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-05-07 16:45:51  martius
+ *   Revision 1.6  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.5  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.4  2008/04/23 07:17:16  martius
@@ -102,10 +108,10 @@ namespace lpzrobots {
 
     
     bumper = new Box(0.1 , width+2*wheelthickness+radius, length+0.7*width);
+    bumper->setTexture("Images/wood.rgb");
     bumpertrans = new Transform(object[0], bumper,				
 				Matrix::translate(width*0.6-radius, 0, 0));
-    bumpertrans->init(odeHandle, 0, osgHandle);
-    bumper->getOSGPrimitive()->setTexture("Images/wood.rgb");
+    bumpertrans->init(odeHandle, 0, osgHandle);        
 
     
 

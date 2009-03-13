@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #**************************************************************************
 #   Copyright (C) 2009 by Robot Group Leipzig                             *
 #    martius@informatik.uni-leipzig.de                                    *
@@ -25,7 +25,13 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.1  2009-02-03 18:12:09  martius
+#   Revision 1.2  2009-03-13 09:19:53  martius
+#   changed texture handling in osgprimitive
+#   new OsgBoxTex that supports custom texture repeats and so on
+#   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+#   setTexture has to be called before init() of the primitive
+#
+#   Revision 1.1  2009/02/03 18:12:09  martius
 #   added wmv to encoding and provided new script to convert existing movies
 #
 #
@@ -45,13 +51,12 @@ if test -n "$2"; then
     TARGET_S=${2%.*}_small.${2#*.};
 fi
 
-
-exit 
+ 
 echo -e "******************** to WMV2 normal ***************";
 transcode -i "$NAME" -o "$TARGET" -y ffmpeg,null -F wmv2 -w 600
 
 echo -e "******************** to WMV2 small variant ***************";
-transcode -i "$NAME" -o "$TARGET" -y ffmpeg,null -F wmv2 -w 100 -r 2
+transcode -i "$NAME" -o "$TARGET_S" -y ffmpeg,null -F wmv2 -w 100 -r 2
 
 echo "Created $TARGET and $TARGET_S"
 

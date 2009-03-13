@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.41  2008-05-07 16:45:51  martius
+ *   Revision 1.42  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.41  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.40  2008/02/14 14:42:13  der
@@ -441,16 +447,16 @@ namespace lpzrobots {
       double height = width/4*3 + dheight;
       // height, width and length
       Box* box = new Box(height,width/3, length/4*3);
-      box->init(odeHandle, cmass*5, osgHandle);
-      box->setPose(Matrix::translate(0, 0, -1) * Matrix::rotate(M_PI/2, 0, 1, 0) * pose * Matrix::translate(0, 0, dheight/2));
       box->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      box->init(odeHandle, cmass*5, osgHandle);
+      box->setPose(Matrix::translate(0, 0, -1) * Matrix::rotate(M_PI/2, 0, 1, 0) * pose * Matrix::translate(0, 0, dheight/2));      
       box->substance.toMetal(0);
       object[0]=box;
     } else {
       Capsule* cap = new Capsule(width/2, length);
-      cap->init(odeHandle, cmass, osgHandle);
-      cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
       cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      cap->init(odeHandle, cmass, osgHandle);
+      cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);      
       object[0]=cap;
     }
 
@@ -484,13 +490,13 @@ namespace lpzrobots {
     for (int i=1; i<3; i++) {
       if(conf.sphereWheels) { // for spherical wheels
 	Sphere* wheel = new Sphere(radius);      // create spheres
+	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
 	wheel->init(wheelHandle, wmass, osgHandleWheels); // init with odehandle, mass, and osghandle
 
 	wheel->setPose(Matrix::rotate(M_PI/2.0, 1, 0, 0) *
 		       Matrix::translate(wheeloffset,
 					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
-		       pose); // place wheels
-	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
+		       pose); // place wheels	
 	object[i] = wheel;
 	if (conf.boxMode) {
   	//	  wheel->substance.toRubber( 40.0);
@@ -498,11 +504,11 @@ namespace lpzrobots {
 	}
       }else{ // for "normal" wheels
 	Cylinder* wheel = new Cylinder(radius, wheelthickness);
+	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
 	wheel->init(wheelHandle, wmass, osgHandleWheels);
 	wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) *
 		       Matrix::translate(wheeloffset,
-					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);
-	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
+					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);	
 	object[i] = wheel;
       }
     }

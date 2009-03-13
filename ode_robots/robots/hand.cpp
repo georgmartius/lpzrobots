@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-11-07 13:21:15  martius
+ *   Revision 1.12  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.11  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.10  2007/10/10 18:59:07  fhesse
@@ -731,11 +737,11 @@ namespace lpzrobots {
 
     //--------------------forearm--------------------------------------------------
     Primitive*  forearm = new Capsule(forearm_radius, forearm_length);
+    //  forearm->getOSGPrimitive()->setTexture("Images/finger_handflaeche2.png"); 
     forearm->init ( odeHandle, 1, osgHandle, Primitive::Body | Primitive::Geom | Primitive::Draw);
     forearm->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0)
 			*osg::Matrix::translate( -(forearm_length/2 + palm_radius) ,0 , 0)
 			*palm->getPose());
-    //  forearm->getOSGPrimitive()->setTexture("Images/finger_handflaeche2.png"); 
     objects.push_back(forearm);
 
 

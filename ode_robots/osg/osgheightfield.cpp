@@ -23,7 +23,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-05-07 16:45:51  martius
+ *   Revision 1.6  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.5  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.4  2006/09/20 12:55:44  martius
@@ -109,8 +115,6 @@ namespace lpzrobots {
 	field->setHeight(i,j, field->getHeight(i,j) * height);  
       }
     }
-    
-
   }
 
   // overloaded, because transformation goes into heightfield directly
@@ -142,7 +146,7 @@ namespace lpzrobots {
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
 
-    setTexture("Images/really_white.rgb");
+    applyTextures();
   }
 
   double OSGHeightField::coding(CodingMode mode, const unsigned char* data){

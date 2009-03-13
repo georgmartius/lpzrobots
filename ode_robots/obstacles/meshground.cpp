@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-09-16 14:49:46  martius
+ *   Revision 1.4  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.3  2008/09/16 14:49:46  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.2  2006/07/14 12:23:32  martius
@@ -84,10 +90,11 @@ void MeshGround::create(){
   }else{
     heightfield = new HeightField(filename, x_size, y_size, height);
   }
-  heightfield->setPose(pose);
-  heightfield->init(odeHandle, 0, osgHandle);
   if(!texture.empty())
     heightfield->setTexture(texture);
+
+  heightfield->setPose(pose);  
+  heightfield->init(odeHandle, 0, osgHandle);
   
   obstacle_exists=true;
 }

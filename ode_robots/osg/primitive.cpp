@@ -23,7 +23,13 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2009-01-20 22:41:19  martius
+ *   Revision 1.21  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.20  2009/01/20 22:41:19  martius
  *   manipulation of agents with the mouse implemented ( a dream... )
  *
  *   Revision 1.19  2009/01/20 17:29:10  martius
@@ -244,9 +250,14 @@ namespace lpzrobots{
       getOSGPrimitive()->setTexture(filename);
   }
   
-  void Primitive::setTexture(const std::string& filename, bool repeatOnX, bool repeatOnY){
+  void Primitive::setTexture(const std::string& filename, double repeatOnX, double repeatOnY){
     if(getOSGPrimitive())
       getOSGPrimitive()->setTexture(filename, repeatOnX, repeatOnY);
+  }
+
+  void Primitive::setTexture(int surface, const std::string& filename, double repeatOnX, double repeatOnY){
+    if(getOSGPrimitive()) 
+      getOSGPrimitive()->setTexture(surface, filename, repeatOnX, repeatOnY);
   }
 
 
@@ -404,7 +415,7 @@ namespace lpzrobots{
 
   /******************************************************************************/
   Box::Box(float lengthX, float lengthY, float lengthZ) {
-    osgbox = new OSGBox(lengthX, lengthY, lengthZ);    
+    osgbox = new OSGBoxTex(lengthX, lengthY, lengthZ);    
   }
 
   Box::~Box(){

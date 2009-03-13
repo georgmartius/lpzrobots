@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-02-04 09:36:31  martius
+ *   Revision 1.12  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.11  2009/02/04 09:36:31  martius
  *   osgboxtex theoretically correct, pratically does not work yet
  *
  *   Revision 1.10  2009/01/20 17:29:10  martius
@@ -156,7 +162,8 @@ namespace lpzrobots {
   // returns a material with the given color
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::DIFFUSE );
 
-  osg::Geode* createRectangle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
+  osg::Geode* createRectangle(const OsgHandle&,
+			      const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
 			      double repeatOnR, double repeatOnS);
 
   // attached a texture to a geode
@@ -237,71 +244,6 @@ namespace lpzrobots {
   void OSGPrimitive::setColor(const Color& color){
     if(shape.valid())
       shape->setColor(color);
-  }
-
-  /******************************************************************************/
-  OSGBoxTex::OSGBoxTex(float lengthX, float lengthY, float lengthZ)
-    : dim(lengthX, lengthY, lengthZ) {
-  }
-  OSGBoxTex::OSGBoxTex(Vec3 dim)
-    : dim(dim){
-  }
-
-  void OSGBoxTex::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene); 
-    transform = new MatrixTransform;
-    osgHandle.scene->addChild(transform.get());
-    Vec3 half = dim*(-0.5);    
-    Vec3 dx(dim.x(),0.0f,0.0f);
-    Vec3 dy(0.0f,dim.y(),0.0f);
-    Vec3 dz(0.0f,0.0f,dim.z());
-
-    // create faces (we keep the quader and have: front side counter clockwise and then backside
-    Vec3 vs[8];
-    vs[0] = half;
-    vs[1] = half + dx;
-    vs[2] = half + dx + dy;
-    vs[3] = half + dy;
-    vs[4] = vs[0] + dz;
-    vs[5] = vs[1] + dz;
-    vs[6] = vs[2] + dz;
-    vs[7] = vs[3] + dz;
-
-    unsigned int tex = 0; 
-    assert(textures.size()); 
-    faces[0] = createRectangle(vs[0], vs[1], vs[2], textures[tex].repeatOnR, textures[tex].repeatOnS);
-    addTexture(faces[0].get(),textures[tex]);
-    if(textures.size()>tex+1) tex++;
-    faces[1] = createRectangle(vs[6], vs[5], vs[4], textures[tex].repeatOnR, textures[tex].repeatOnS);
-    addTexture(faces[1].get(),textures[tex]);
-    if(textures.size()>tex+1) tex++;
-    faces[2] = createRectangle(vs[1], vs[5], vs[6], textures[tex].repeatOnR, textures[tex].repeatOnS);
-    addTexture(faces[2].get(),textures[tex]);
-    if(textures.size()>tex+1) tex++;
-    faces[3] = createRectangle(vs[7], vs[4], vs[0], textures[tex].repeatOnR, textures[tex].repeatOnS);
-    addTexture(faces[3].get(),textures[tex]);
-    if(textures.size()>tex+1) tex++;
-    faces[4] = createRectangle(vs[3], vs[2], vs[6], textures[tex].repeatOnR, textures[tex].repeatOnS);
-    addTexture(faces[4].get(),textures[tex]);
-    if(textures.size()>tex+1) tex++;
-    faces[5] = createRectangle(vs[5], vs[1], vs[0], textures[tex].repeatOnR, textures[tex].repeatOnS);
-    addTexture(faces[5].get(),textures[tex]);
-
-    for(int i=0; i<6; i++){
-      transform->addChild(faces[i].get());
-    }
-    
-    if(osgHandle.color.alpha() < 1.0){
-      transform->setStateSet(osgHandle.transparentState);
-    }else{
-      transform->setStateSet(osgHandle.normalState);
-    }
-    transform->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
-							   StateAttribute::ON);
-  }
-
-  void OSGBoxTex::applyTextures(){ 
-    assert("Do not call setTexture after initialization of OSGBoxTex");
   }
 
 
@@ -393,6 +335,77 @@ namespace lpzrobots {
   void OSGBox::setDim(Vec3 d){
     dim = d;
     box->setHalfLengths(d/2);
+  }
+
+  /******************************************************************************/
+  OSGBoxTex::OSGBoxTex(float lengthX, float lengthY, float lengthZ)
+    : dim(lengthX, lengthY, lengthZ) {
+  }
+  OSGBoxTex::OSGBoxTex(Vec3 dim)
+    : dim(dim){
+  }
+
+  void OSGBoxTex::init(const OsgHandle& osgHandle, Quality quality){
+    assert(osgHandle.scene); 
+    transform = new MatrixTransform;
+    osgHandle.scene->addChild(transform.get());
+    Vec3 half = dim*(-0.5);    
+    Vec3 dx(dim.x(),0.0f,0.0f);
+    Vec3 dy(0.0f,dim.y(),0.0f);
+    Vec3 dz(0.0f,0.0f,dim.z());
+
+    // create faces (we keep the quader and have: front side counter clockwise and then backside
+    Vec3 vs[8];
+    vs[0] = half;
+    vs[1] = half + dx;
+    vs[2] = half + dx + dy;
+    vs[3] = half + dy;
+    vs[4] = vs[0] + dz;
+    vs[5] = vs[1] + dz;
+    vs[6] = vs[2] + dz;
+    vs[7] = vs[3] + dz;
+
+    unsigned int tex = 0; 
+    assert(textures.size()); 
+    faces[0] = createRectangle(osgHandle, vs[0], vs[1], vs[2], 
+			       textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[0].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[1] = createRectangle(osgHandle, vs[3], vs[2], vs[6], 
+			       textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[1].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[2] = createRectangle(osgHandle, vs[7], vs[6], vs[5], 
+			       textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[2].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[3] = createRectangle(osgHandle, vs[4], vs[5], vs[1], 
+			       textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[3].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[4] = createRectangle(osgHandle, vs[2], vs[1], vs[5], 
+			       textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[4].get(),textures[tex]);
+    if(textures.size()>tex+1) tex++;
+    faces[5] = createRectangle(osgHandle, vs[7], vs[4], vs[0], 
+			       textures[tex].repeatOnR, textures[tex].repeatOnS);
+    addTexture(faces[5].get(),textures[tex]);
+
+    for(int i=0; i<6; i++){
+      transform->addChild(faces[i].get());
+    }
+    
+    if(osgHandle.color.alpha() < 1.0){
+      transform->setStateSet(osgHandle.transparentState);
+    }else{
+      transform->setStateSet(osgHandle.normalState);
+    }
+    transform->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+							   StateAttribute::ON);
+  }
+
+  void OSGBoxTex::applyTextures(){ 
+    assert("Do not call setTexture after initialization of OSGBoxTex" == 0);
   }
 
 
@@ -563,20 +576,8 @@ namespace lpzrobots {
 
 
 
-//   osg::Geode* createRectangle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
-// 			      double repeatOnR, double repeatOnS)
-//   {
-//     osg::Geode* geode = new osg::Geode();
-//     //test
-//     osg::ShapeDrawable* shape;
-//     shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f),v1.length(),v2.length(),v3.length()));
-//     //    shape->setColor(osgHandle.color);
-//     geode->addDrawable(shape);
-//     return geode;
-//   }
-
-
-  osg::Geode* createRectangle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
+  osg::Geode* createRectangle(const OsgHandle& osgHandle, 
+			      const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
 			      double repeatOnR, double repeatOnS)
   {
     osg::Geode* geode = new osg::Geode();
@@ -601,27 +602,31 @@ namespace lpzrobots {
     base->push_back(0);
 
     geometry->addPrimitiveSet(base);
+    // one normal for the all corners
+    osg::Vec3Array* normals = new osg::Vec3Array;
+    Vec3 normal = (v1-v2) ^ (v3-v2);
+    normal.normalize();
+    normals->push_back(normal);
+    geometry->setNormalArray(normals);
+    geometry->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE);
 
-    // will be calculated autmatically
-//     osg::Vec3Array* normals = new osg::Vec3Array;
-//     Vec3 normal = (v2-v1) ^ (v3-v2);
-//     normals->push_back(normal);
-//     normals->push_back(normal);
-//     normals->push_back(normal);
-//     normals->push_back(normal);
-//     geometry->setNormalArray(normals);
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    colors->push_back(osgHandle.color);
+    geometry->setColorArray(colors);
+    geometry->setColorBinding(osg::Geometry::BIND_OVERALL);
+
     if(repeatOnS<0){
       repeatOnS = (v1-v2).length() / (-repeatOnS);
     }
     if(repeatOnR<0){
-      repeatOnR = (v1-v3).length() / (-repeatOnR);
+      repeatOnR = (v3-v2).length() / (-repeatOnR);
     }
 
     osg::Vec2Array* texcoords = new osg::Vec2Array(4);
     (*texcoords)[0].set(0.00f,0.0f); 
-    (*texcoords)[1].set(repeatOnR,0.0f);
-    (*texcoords)[2].set(repeatOnR,repeatOnS); 
-    (*texcoords)[3].set(0,repeatOnS); 
+    (*texcoords)[1].set(repeatOnS,0.0f);
+    (*texcoords)[2].set(repeatOnS,repeatOnR); 
+    (*texcoords)[3].set(0,repeatOnR); 
     geometry->setTexCoordArray(0,texcoords);
 
     return geode;

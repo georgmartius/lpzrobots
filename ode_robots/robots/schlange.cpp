@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2008-05-07 16:45:52  martius
+ *   Revision 1.31  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.30  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.29  2007/11/07 13:21:16  martius
@@ -315,8 +321,8 @@ namespace lpzrobots {
   Primitive* Schlange::createSegment(int index){
     Primitive* p;
     p = new Capsule(conf.segmDia * 0.8, conf.segmLength);     
-    p->init(odeHandle, conf.segmMass, osgHandle);     
     p->setTexture("Images/whitemetal_farbig_small.rgb");
+    p->init(odeHandle, conf.segmMass, osgHandle);         
     return p;    
   }
 

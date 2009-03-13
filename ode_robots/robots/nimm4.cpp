@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2008-05-14 15:11:57  martius
+ *   Revision 1.15  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.14  2008/05/14 15:11:57  martius
  *   typo
  *
  *   Revision 1.13  2008/05/07 16:45:52  martius
@@ -253,9 +259,9 @@ namespace lpzrobots {
     // use texture 'wood' for capsule 
     // put it into object[0]
     Capsule* cap = new Capsule(width/2, length);
-    cap->init(odeHandle, cmass, osgHandle);    
-    cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
     cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
+    cap->init(odeHandle, cmass, osgHandle);    
+    cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);    
     object[0]=cap;
     
     // create wheels
@@ -266,12 +272,12 @@ namespace lpzrobots {
       // rotate and place body (here by 90Deg around the x-axis)
       // set texture for wheels
       Sphere* sph = new Sphere(radius);
+      sph->getOSGPrimitive()->setTexture("Images/wood.rgb");
       sph->init(wheelHandle, wmass, osgHandle.changeColor(Color(0.8,0.8,0.8)));    
       Vec3 wpos = Vec3( ((i-1)/2==0?-1:1)*length/2.0, 
 			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
 			-width*0.6+radius );
-      sph->setPose(Matrix::rotate(M_PI/2, 0, 0, 1) * Matrix::translate(wpos) * pose);
-      sph->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      sph->setPose(Matrix::rotate(M_PI/2, 0, 0, 1) * Matrix::translate(wpos) * pose);      
       object[i]=sph;
     }
 

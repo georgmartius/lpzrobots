@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-05-07 16:45:52  martius
+ *   Revision 1.11  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.10  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.9  2007/12/13 16:56:21  martius
@@ -260,9 +266,9 @@ namespace lpzrobots {
     double twidth = conf.size / 1.5;
     double theight = conf.size / 4;
     trunk = new Box(conf.size, twidth, theight);
-    trunk->init(odeHandle, conf.mass*0.8, osgHandle);
-    trunk->setPose(osg::Matrix::translate(0,0,conf.legLength)*pose);
     trunk->setTexture("Images/toy_fur3.jpg");
+    trunk->init(odeHandle, conf.mass*0.8, osgHandle);
+    trunk->setPose(osg::Matrix::translate(0,0,conf.legLength)*pose);    
     objects.push_back(trunk);
     // the pole is a non-visible box which hinders the dog from falling over.
     Primitive* pole;
@@ -280,6 +286,7 @@ namespace lpzrobots {
     double headmass = conf.mass*0.1;
     double headlength = conf.size/8;
     neck = new Capsule(neckwidth,necklength);
+    neck->setTexture("Images/toy_fur3.jpg");
     neck->init(odeHandle, headmass/2, osgHandle);
     Pos neckpos(conf.size/2.05,0,conf.legLength);
     neck->setPose(osg::Matrix::translate(0,0,necklength/2) * 
@@ -288,12 +295,11 @@ namespace lpzrobots {
     objects.push_back(neck);
     Primitive* head;
     head = new Capsule(neckwidth,theight);
+    head->setTexture("Images/fur4.jpg");
     headtrans = new Transform(neck, head, Matrix::translate(0, 0, -headlength/2) 
 			  * Matrix::rotate(-M_PI/2,0,1,0) 
 			  * Matrix::translate(0, 0, necklength));
-    headtrans->init(odeHandle, headmass/2, osgHandle); 
-    head->setTexture("Images/fur4.jpg");
-    neck->setTexture("Images/toy_fur3.jpg");
+    headtrans->init(odeHandle, headmass/2, osgHandle);         
     objects.push_back(headtrans);
     ///ignore collision between box on top of dog and head and also between head and body
     odeHandle.addIgnoredPair(bigboxtransform,headtrans);
@@ -312,6 +318,7 @@ namespace lpzrobots {
     double tailwidth = taillength/10;
     double tailmass  = headmass/3;
     tail = new Capsule(tailwidth,taillength);
+    tail->setTexture("Images/fur3.jpg");    
     tail->init(odeHandle, headmass/2, osgHandle);
     Pos tailpos(-conf.size/1.96,0,conf.legLength+theight/3);
     tail->setPose(osg::Matrix::translate(0,0,taillength/2) * 
@@ -324,8 +331,7 @@ namespace lpzrobots {
     j->setParam(dParamHiStop,  M_PI/2);    
     joints.push_back(j);
     servo =  new HingeServo(j, -M_PI/3, M_PI/3, tailmass*3); 
-    headtailservos.push_back(servo);        
-    tail->setTexture("Images/fur3.jpg");
+    headtailservos.push_back(servo);            
     ///ignore collision between box on top of dog and tail
     odeHandle.addIgnoredPair(bigboxtransform,tail);
 
@@ -356,6 +362,7 @@ namespace lpzrobots {
       osg::Matrix m = osg::Matrix::translate(pos) * pose;
 
       p1 = new Capsule(t1, l1); 
+      p1->setTexture("Images/toy_fur3.jpg");
       p1->init(odeHandle, legmass*0.6, osgHandle);
       osg::Matrix m1 = osg::Matrix::translate(0,0,-l1/2) * osg::Matrix::rotate(hipangle,0,1,0) * m;
       p1->setPose(m1);
@@ -372,6 +379,7 @@ namespace lpzrobots {
       // lower limp
       Primitive* p2;
       p2 = new Capsule(t2, l2); 
+      p2->setTexture("Images/toy_fur3.jpg");
       p2->init(odeHandle, legmass*0.3, osgHandle);
       osg::Matrix m2 = osg::Matrix::translate(0,0,-l2/2) * osg::Matrix::rotate(kneeangle,0, 1,0) * 
 	osg::Matrix::translate(0,0,-l1/2) * m1;
@@ -386,15 +394,14 @@ namespace lpzrobots {
 
       // servo used as a spring
       servo =  new HingeServo(j, kneelowstop, kneehighstop, conf.kneePower, conf.kneeDamping,0);
-      kneeservos.push_back(servo);
-      p1->setTexture("Images/toy_fur3.jpg");
-      p2->setTexture("Images/toy_fur3.jpg");
+      kneeservos.push_back(servo);            
 
       
       if(n<2){
 	// feet
 	Primitive* p3;
 	p3 = new Capsule(t3, l3); 
+	p3->setTexture("Images/toy_fur3.jpg");
 	p3->init(odeHandle, legmass*0.2, osgHandle);
 	osg::Matrix m3 = osg::Matrix::translate(0,0,-l3/2) * osg::Matrix::rotate(ankleangle,0, 1,0) * 
 	  osg::Matrix::translate(0,0,-l2/2) * m2;
@@ -409,8 +416,7 @@ namespace lpzrobots {
 	
 	// servo used as a spring
 	servo =  new HingeServo(j, anklelowstop, anklehighstop, conf.anklePower, conf.ankleDamping, 0);
-	ankleservos.push_back(servo);
-	p3->setTexture("Images/toy_fur3.jpg");
+	ankleservos.push_back(servo);	
       }
 
     }      

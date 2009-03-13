@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-09-21 16:17:18  der
+ *   Revision 1.3  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.2  2006/09/21 16:17:18  der
  *   *** empty log message ***
  *
  *   Revision 1.1  2006/09/20 12:57:21  martius
@@ -55,17 +61,17 @@ namespace lpzrobots {
       //p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
 
        //  p = new Capsule(conf.segmLength/2 , conf.segmLength*2);
-         p = new Sphere(conf.segmLength*.8);
-      p->init(odeHandle, conf.segmMass*2, osgHandle);      
-      // p->setPose( osg::Matrix::rotate(M_PI/2, 0, 1, 0)*osg::Matrix::translate( conf.segmDia, 0, 0) );
+      p = new Sphere(conf.segmLength*.8);
       p->setTexture("Images/wood.rgb");
+      p->init(odeHandle, conf.segmMass*2, osgHandle);      
+      // p->setPose( osg::Matrix::rotate(M_PI/2, 0, 1, 0)*osg::Matrix::translate( conf.segmDia, 0, 0) );      
     } /////// FEED
     else if( index == 0 | index== conf.segmNumber-1) { 
       // p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
        // p = new Sphere(conf.segmLength/2*2);
-	      p = new Box(1.8*conf.segmLength,3*conf.segmLength, conf.segmLength*.3);
-      p->init(odeHandle, conf.segmMass*3, osgHandle);	
+      p = new Box(1.8*conf.segmLength,3*conf.segmLength, conf.segmLength*.3);
       p->setTexture("Images/whitemetal_farbig_small.rgb");
+      p->init(odeHandle, conf.segmMass*3, osgHandle);	      
     } /////// NORMAL SEGMENT
     else {	
       p = SchlangeServo2::createSegment(index);

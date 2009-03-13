@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-05-07 16:45:51  martius
+ *   Revision 1.14  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.13  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.12  2007/11/07 13:21:15  martius
@@ -244,9 +250,10 @@ namespace lpzrobots{
 
     // create base
     Primitive* o = new Box(conf.base_length, conf.base_width, conf.base_length);
+    //o->getOSGPrimitive()->setTexture("Images/wood.rgb");
     o -> init(odeHandle, conf.base_mass, osgHandle);
     o->setPose( pose); // set base to given pose
-    //o->getOSGPrimitive()->setTexture("Images/wood.rgb");
+    
     objects.push_back(o);
 
     // create arms

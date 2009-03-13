@@ -27,7 +27,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-05-07 16:45:52  martius
+ *   Revision 1.9  2009-03-13 09:19:53  martius
+ *   changed texture handling in osgprimitive
+ *   new OsgBoxTex that supports custom texture repeats and so on
+ *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
+ *   setTexture has to be called before init() of the primitive
+ *
+ *   Revision 1.8  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.7  2008/01/17 09:57:40  der
@@ -302,9 +308,9 @@ namespace lpzrobots {
     // use texture 'wood' for mesh
     // put it into object[0]
     Mesh* mesh = new Mesh("Meshes/dumptruck.osg",height/20.0f);
-    mesh->init(odeHandle, cmass, osgHandle);
-    mesh->setPose(/*Matrix::rotate(M_PI/2, 0, 1, 0) */ pose);
     mesh->getOSGPrimitive()->setTexture("Images/really_white.rgb");
+    mesh->init(odeHandle, cmass, osgHandle);
+    mesh->setPose(/*Matrix::rotate(M_PI/2, 0, 1, 0) */ pose);    
     object[0]=mesh;
     
     // create wheel bodies
@@ -319,9 +325,9 @@ namespace lpzrobots {
       Vec3 wpos;
       if (i<3) { // back wheels
 	cyl = new Cylinder(radius,wheelthickness*1.80);
-      wpos = Vec3(middlelength-length*0.343,
-		  middlewidth+((i-1)%2==0?-1.02:1)*width*0.35,
-		  -height*0.302+radius );
+	wpos = Vec3(middlelength-length*0.343,
+		    middlewidth+((i-1)%2==0?-1.02:1)*width*0.35,
+		    -height*0.302+radius );
       } 
       else if (i<5){ // middle wheels
 	cyl = new Cylinder(radius,wheelthickness*1.80);
@@ -332,13 +338,13 @@ namespace lpzrobots {
       else if (i<7){ // front wheels
 	cyl = new Cylinder(radius,wheelthickness*1.02);
 	wpos = Vec3(middlelength+length*0.407,
-			middlewidth+((i-1)%2==0?-1.05:1)*width*0.387,
+		    middlewidth+((i-1)%2==0?-1.05:1)*width*0.387,
 		    -height*0.302+radius); 
       }
       assert(cyl);
-      cyl->init(odeHandle, wmass, osgHandle);    
-      cyl->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos) * pose);
       cyl->getOSGPrimitive()->setTexture("Images/tire_full.rgb");
+      cyl->init(odeHandle, wmass, osgHandle);    
+      cyl->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos) * pose);      
       object[i]=cyl;
     }
 
