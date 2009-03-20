@@ -19,9 +19,9 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 
 
 # use -pg for profiling
-CFLAGS = -Wall -g -I. -Iinclude
+CFLAGS = -Wall -g -pipe -I. -Iinclude
 # Optimisation 
-CFLAGS_OPT = -Wall -I. -Iinclude -O -DNDEBUG
+CFLAGS_OPT = -Wall -pipe -I. -Iinclude -O -DNDEBUG
 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
