@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.90  2009-03-12 08:44:01  martius
+ *   Revision 1.91  2009-03-21 14:27:43  martius
+ *   screen capturing compatible with both OSG 2.2 and higher
+ *
+ *   Revision 1.90  2009/03/12 08:44:01  martius
  *   fixed video recording
  *
  *   Revision 1.89  2009/01/20 22:41:19  martius
@@ -491,6 +494,7 @@
 #include "odeagent.h"
 #include "console.h"
 
+#include <osg/Version>
 #include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
 #include <osg/BlendFunc>
@@ -703,7 +707,11 @@ namespace lpzrobots {
       // add the record camera path handler
       viewer->addEventHandler(this);
       // add callback for video recording
+    #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 2      
+      viewer->getCamera()->setPostDrawCallback(videostream.get());
+    #else
       viewer->getCamera()->setFinalDrawCallback(videostream);
+    #endif
     }else{
       globalData.odeConfig.realTimeFactor=0;
     }
