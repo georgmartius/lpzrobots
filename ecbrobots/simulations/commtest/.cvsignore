@@ -1,0 +1,6 @@
+*.o
+*.cpp~
+*.log
+.history
+start
+Makefile.depend
