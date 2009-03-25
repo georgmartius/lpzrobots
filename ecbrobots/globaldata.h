@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-07-16 07:38:42  robot1
+ *   Revision 1.4  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.3  2008/07/16 07:38:42  robot1
  *   some major improvements
  *
  *   Revision 1.2  2008/04/11 06:31:16  guettler
@@ -51,7 +54,8 @@ class ECBCommunicator;
 
 typedef std::vector<Configurable*> ConfigList;       ///
 typedef std::vector<Agent*> AgentList;         ///
-typedef std::vector<PlotOption> PlotOptionList;
+// 20090126; guettler: changed from vector to list for better method signature matching of WiredController
+typedef std::list<PlotOption> PlotOptionList;
 
 typedef unsigned char uint8;
 
@@ -67,12 +71,12 @@ struct GlobalData
   GlobalData() {
   // set default communication values
     baudrate = 38400;
-    portName = std::string("/dev/ttyS0");
+    portName = std::string("/dev/ttyUSB0");
     masterAddress=0;
     maxFailures=4;
-    serialReadTimeout=50;
+    serialReadTimeout=150;
     cycleTime=50;
-    noise=0.01;
+    noise=0.05;
     simStep=0;
     benchmarkMode=false;
     debug=false;

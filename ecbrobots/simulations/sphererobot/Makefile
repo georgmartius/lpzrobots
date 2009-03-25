@@ -35,7 +35,7 @@ CXX = g++
 # -pg for profiling
 CPPFLAGS = -Wall -I. -g $(INC)
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -O3 -DNDEBUG $(INC)
+CPPFLAGS_OPT = -Wall -I. -O3 -DDEBUG $(INC)
 
 normal: libecbrobots $(EXEC)
 

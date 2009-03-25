@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-08-15 13:16:58  robot1
+ *   Revision 1.8  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.7  2008/08/15 13:16:58  robot1
  *   add PORT PIN configuration for ECBs
  *
  *   Revision 1.6  2008/08/12 11:45:00  guettler
@@ -57,13 +60,13 @@
 #include <list>
 
 
-#define PORTA ecbPort[0]
-#define PORTB ecbPort[1]
-#define PORTC ecbPort[2]
-#define PORTD ecbPort[3]
-#define PORTE ecbPort[4]
-#define PORTF ecbPort[5]
-#define PORTG ecbPort[6]
+// #define PORTA ecbPort[0]
+// #define PORTB ecbPort[1]
+// #define PORTC ecbPort[2]
+// #define PORTD ecbPort[3]
+// #define PORTE ecbPort[4]
+// #define PORTF ecbPort[5]
+// #define PORTG ecbPort[6]
 
 namespace lpzrobots {
 
@@ -71,55 +74,15 @@ namespace lpzrobots {
 class ECBCommunicator;
 // forward declaration end
 
-typedef enum {
-	ADC_TILT,
 
-	ADC_IR,
 
-	ADC_COMPASS,
-
-	ADC_DEFAULT
-} ADCType;
-
-typedef enum {
-    
-//    OFF,       //deactivate portpin
-    INPUT,     //digit input (default for all port-pins of ATmega128)
-    OUTPUT_PU, //digit output with internal pullup resistor
-    OUTPUT     //digit output without internal pullup resistor
-          
-} atmegaPinType
-
-typedef unsign char port_t;
-
-typdef struct {
-  atmegaPinType pin[8] = {OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF};
-  unsign char max_pinnumber = 8;        
-} atmegaPorts;
 
 typedef struct {
-/*
-  /// set I2C on or off
-  bool useI2C;
-  /// set ADC on or off
-  bool useADC;
-  /// enable ADC plug and play (guessing)
-  bool useJumperedADC_PlugNPlay;
-  /// set SPI on or off
-  bool useSPI;
-*/
+
   /// the max number, important for init of controller
   int maxNumberMotors;
   /// the max number, important for init of controller
   int maxNumberSensors;
-
-  /// define here which adc-sensors are active.
-  /// 00100000 -> adc[5] = adc-sensor 5 is online
-  int ADCSensorMask;
-
-  ADCType adcTypes[8];
-  
-  atmegaPorts ecbPort[7];
 
 } ECBConfig;
 
@@ -167,13 +130,8 @@ public:
   /// CONFIG VARS
   static ECBConfig getDefaultConf(){
     ECBConfig conf;
-    conf.useI2C = true;
-    conf.useADC = true;
-    conf.useJumperedADC_PlugNPlay = true;
-    conf.useSPI=false;
-    conf.maxNumberMotors = 4;
-    conf.maxNumberSensors = 20;
-    conf.ADCSensorMask = 00000000;
+    conf.maxNumberMotors = 2;
+    conf.maxNumberSensors = 16;
     return conf;
   }
 
@@ -193,7 +151,18 @@ public:
   */
   virtual bool resetECB();
 
-
+  /**
+  * Send stop command to the ECB to disable the motors
+  * @return
+  */
+  virtual bool stopMotors();
+  
+  /**
+  * Send start command to the ECB to enable the motors
+  * @return
+  */
+  virtual bool startMotors();
+  
   /**
    * Sends the beep command to the ECB
    * @return true if send of the command was successful
@@ -208,11 +177,33 @@ public:
   /** loads the object from the given file stream (binary). */
   virtual bool restore(FILE* f);
 
+  /// noch verschiedene sensortypen und motortypen berücksichtigen
+  /// bzw. hier bzw. in cpp-datei die cfg-datei berücksichtigen
+  /// Informationen vorhalten (bekommt man bei Antwort auf SW-RESET),
+  /// welche ADC, IRS, Motorentypen usw. wie zu den Sensoren und Motoren
+  /// (siehe Listen oben) zugeordnet sind (k�me auch in die ECBConfig rein,
+  /// insoweit von der main.cpp aus konfigurierbar (nicht plug&playf�hige Sachen))
+  
+  /// diese Infos an ECBRobot weiterleiten (die holt er sich):
+  /**
+   * Returns specific ECBRobot infos to the ECBAgent, who pipes this infos out (PlotOptions)
+   * Something like that:
+   * #ECB M y[0] y[1]
+   * #ECB IR x[0] x[1]
+   * #ECB ADC x[2] x[3]
+   * #ECB ME x[4] x[5]
+   * Strom, Spannung usw. (konfigurationsabh�ngige Parameter vom ECB)
+   */
+  virtual std::string getChannelDescription();
+  
+  virtual bool isInitialised() { return this->initialised; }
 
-private:
+protected:
   GlobalData* globalData;
   ECBConfig ecbConfig;
 
+  std::string descriptionLine;
+  
   int currentNumberSensors;
   int currentNumberMotors;
 
@@ -233,27 +224,6 @@ private:
   // siehe initialised, wenn failurecounter bestimmten wert überschritten,
   // dann reset im nächsten step versuchen
   int failureCounter;
-
-  /// noch verschiedene sensortypen und motortypen berücksichtigen
-  /// bzw. hier bzw. in cpp-datei die cfg-datei berücksichtigen
-  /// Informationen vorhalten (bekommt man bei Antwort auf SW-RESET),
-  /// welche ADC, IRS, Motorentypen usw. wie zu den Sensoren und Motoren
-  /// (siehe Listen oben) zugeordnet sind (k�me auch in die ECBConfig rein,
-  /// insoweit von der main.cpp aus konfigurierbar (nicht plug&playf�hige Sachen))
-
-  /// diese Infos an ECBRobot weiterleiten (die holt er sich):
-  /**
-   * Returns specific ECBRobot infos to the ECBAgent, who pipes this infos out (PlotOptions)
-   * Something like that:
-   * #ECB M y[0] y[1]
-   * #ECB IR x[0] x[1]
-   * #ECB ADC x[2] x[3]
-   * #ECB ME x[4] x[5]
-   * Strom, Spannung usw. (konfigurationsabh�ngige Parameter vom ECB)
-   */
-  virtual std::string getGUIInformation();
-
-
 
   /**
    * Converts a given byteVal to a double value

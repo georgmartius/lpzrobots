@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-08-12 11:45:29  guettler
+ *   Revision 1.4  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.3  2008/08/12 11:45:29  guettler
  *   plug and play update, added some features for the ECBRobotGUI
  *
  *   Revision 1.2  2008/04/11 06:31:16  guettler
@@ -35,8 +38,11 @@
  ***************************************************************************/
 #include "ecbagent.h"
 
+#include <signal.h>
+
 #include <selforg/abstractwiring.h>
 #include <selforg/abstractcontroller.h>
+
 
 using namespace std;
 
@@ -48,32 +54,32 @@ ECBAgent::~ECBAgent() {
 /*  delete (*robot);
   delete *controller;
   delete *wiring;
+*/
+}
 
-  Agent::~Agent();
-  WiredController::~WiredController();*/
+bool ECBAgent::init(AbstractController* controller, ECBRobot* robot, AbstractWiring* wiring) {
+  this->robot      = robot;
+  assert(robot);
+  this->controller = controller;
+  this->wiring     = wiring;
+  assert(controller && wiring);
+  // nothing more to do...the rest is done from internInit
+  return true;
 }
 
 /** initializes the object with the given controller, robot and wiring
       and initializes the output options
   */
-bool ECBAgent::init(AbstractController* controller, ECBRobot* robot, AbstractWiring* wiring) {
+bool ECBAgent::internInit() {
 
-
-  this->robot      = robot;
-  assert(robot);
-
-  rsensornumber = robot->getMaxSensorNumber();
-  rmotornumber  = robot->getMaxMotorNumber();
+  
+  rsensornumber = getRobot()->getMaxSensorNumber();
+  rmotornumber  = getRobot()->getMaxMotorNumber();
   rsensors      = (sensor*) malloc(sizeof(sensor) * rsensornumber);
   rmotors       = (motor*)  malloc(sizeof(motor)  * rmotornumber);
 
   // add robot to inspectables
-  inspectables.push_back(robot);
-
-
-  this->controller = controller;
-  this->wiring     = wiring;
-  assert(controller && wiring);
+  inspectables.push_back(getRobot());
 
   wiring->init(rsensornumber, rmotornumber);
   csensornumber = wiring->getControllerSensornumber();
@@ -86,12 +92,15 @@ bool ECBAgent::init(AbstractController* controller, ECBRobot* robot, AbstractWir
   inspectables.push_back(controller);
   inspectables.push_back(wiring);
 
+//   std::cout << "ECBAgent::internInit() plotOptions.size() = " << plotOptions.size() << std::endl;
+  
   // copy plotoption list and add it one by one
   list<PlotOption> po_copy(plotOptions);
-  plotOptions.clear();
+  //  plotOptions.clear();
   // open the all outputs
   for(list<PlotOption>::iterator i=po_copy.begin(); i != po_copy.end(); i++){
-    addPlotOption(*i);
+    removePlotOption((*i).getPlotOptionMode());
+    internalAddPlotOption(*i);
   }
   initialised = true;
 
@@ -105,10 +114,69 @@ bool ECBAgent::init(AbstractController* controller, ECBRobot* robot, AbstractWir
 //  @param noise Noise strength.
 //  @param time (optional) current simulation time (used for logging)
 void ECBAgent::step(double noise, double time){
-  Agent::step(noise,time);
-  ((ECBRobot*)robot)->writeMotors_readSensors();
+  //if (!initialised) {
+    if ( (getRobot())->numberInitialisedECBs() < (getRobot())->getECBlist().size() ) {
+      (this->getRobot())->resetECBs();
+//       initialised = false;
+    } else {
+        if (!initialised)
+          internInit();
+        Agent::step(noise,time);
+        ((ECBRobot*)robot)->writeMotors_readSensors();
+    }
+  
 }
 
+
+PlotOption ECBAgent::internalAddPlotOption(PlotOption& plotOption) {
+  
+  PlotOption po = plotOption;
+  po = Agent::addPlotOption(po);
+  
+  if (po.pipe) {// 
+    
+    
+    /*    if ( (getRobot())->numberInitialisedECBs() < (getRobot())->getECBlist().size() ) {
+      std::cout << "ECBAgent: pipe #RESET (" << getRobot()->numberInitialisedECBs() << " < " << getRobot()->getECBlist().size() << "?)" << std::endl;
+      fprintf(po.pipe,"#RESET %d ECBs",getRobot()->getECBlist().size());
+    }
+    else {
+    */
+//       std::cout << "ECBAgent: OK! (" << getRobot()->numberInitialisedECBs() << " == " << getRobot()->getECBlist().size() << ")" << std::endl;
+    fprintf(po.pipe,"#D ");
+    // über alle ecbs gehen und von allen getChannelDescription aufrufen
+    // die channelDescription eines ecb bekommt es bei der Initialisierung (Reset) vom physischen ECB geliefert
+    std::string s="";
+    std::string r_data;
+    ECBRobot* r = getRobot();
+    r_data = r->getChannelDescription();
+    s.append(r_data);
+    s.append("\n"); // terminate line
+    
+    std::cout << "ECBAgent: pipe ChannelDescription:[" << s << "]" << std::endl;
+    
+    fprintf(po.pipe,s.c_str());
+//     }
+  }
+  else {
+    std::cout << "No plotOption for ecbagent available!" << std::endl;
+  }
+  
+  return po;
+}
+
+
+
+PlotOption ECBAgent::addPlotOption(PlotOption& plotOption) {
+  PlotOption po = plotOption;
+  plotOptions.push_back(po);
+  return po;
+}
+
+
+
+
+/*
 // overwritten from WiredController!
 void ECBAgent::addPlotOption(const PlotOption& plotOption) {
   PlotOption po = plotOption;
@@ -124,7 +192,8 @@ void ECBAgent::addPlotOption(const PlotOption& plotOption) {
     time_t t = time(0);
     fprintf(po.pipe,"# Start %s", ctime(&t));
     // print network description given by the structural information of the controller
-    printNetworkDescription(po.pipe, "Selforg"/*controller->getName()*/, controller);
+    printNetworkDescription(po.pipe, "Selforg", //controller->getName()
+    , controller);
     // print ECBRobot specific infos
     char* infos = (char*) (ECBRobot*)robot)->getGuiInformation();
     fprintf(po.pipe,infos);
@@ -145,5 +214,5 @@ void ECBAgent::addPlotOption(const PlotOption& plotOption) {
   }
   plotOptions.push_back(po);
 }
-
+*/
 }

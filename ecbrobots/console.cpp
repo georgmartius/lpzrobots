@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Revision 1.3  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.2  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -63,6 +66,8 @@
 #include <selforg/agent.h>
 #include <selforg/configurable.h>
 #include <selforg/abstractrobot.h>
+
+#include <string.h>
 
 using namespace std;
 
@@ -101,7 +106,7 @@ COMMAND commands[] = {
   { "show", com_show, "[OBJECTID]: Lists paramters of OBJECTID or of all objects (if no id given)" },
   { "view", com_show, "Synonym for `show'" },
   { "quit", com_quit, "Quit program" },
-  { (char *)NULL, (commandfunc_t)NULL, (char *)NULL }
+  { (char *)(NULL), (commandfunc_t)NULL, (char *)NULL }
 };
 
 /* Forward declarations. */
@@ -145,8 +150,8 @@ bool handleConsole(GlobalData& globalData){
 
   if (!line)
     return rv;
-
-  /* Remove leading and trailing whitespace from the line.
+  
+/* Remove leading and trailing whitespace from the line.
      Then, if there is anything left, add it to the history list
      and execute it. */
   s = stripwhite (line);

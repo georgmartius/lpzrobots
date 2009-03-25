@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-08-12 11:45:50  guettler
+ *   Revision 1.7  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.6  2008/08/12 11:45:50  guettler
  *   plug and play update, added some features for the ECBRobotGUI
  *
  *   Revision 1.5  2008/07/30 07:42:47  robot3
@@ -48,6 +51,7 @@
 
 #include <selforg/abstractrobot.h>
 #include <selforg/inspectable.h>
+#include <selforg/configurable.h>
 
 #include <list>
 #include "ecb.h"
@@ -93,7 +97,16 @@ public:
 
   /** returns maxnumber of motors */
   virtual int getMaxMotorNumber();
-
+  
+  /** stop all motors of connected ECBs */
+  virtual int stopMotors(); 
+    
+  /** start all motors of connected ECBs */
+  virtual int startMotors(); 
+  
+  /** reset all connected ECBs to reinitializing */
+  virtual void resetECBs();
+  
   /// TRACKABLE INTERFACE
 
   virtual Position getPosition() const;
@@ -112,21 +125,29 @@ public:
 
 
   /// new methods for the communicator
-
+  
   /**
    * This method is for the user for adding new ECBss in the start function
    * @param slaveAddress the address of the ECB
    * @param ecbConfig The config of the ECB, @see ecb.h
    */
   virtual void addECB(int slaveAddress, ECBConfig& ecbConfig);
-
+  
+  /**
+   * This method is for the user for adding new ECBss in the start function
+   * @param slaveAddress the address of the ECB
+   * @param ecbConfig The config of the ECB, @see ecb.h
+   */
+  virtual void addECB( ECB* ecb );
+  
 
   /**
    * For the communicator, accessing all ECBs of a robot
    * @return
    */
-  virtual std::list< ECB * > getECBlist() const { return ECBlist; }
-
+  virtual std::list< ECB* > getECBlist() const { return ECBlist; }
+  
+  
   virtual void writeMotors_readSensors();
 
   /**
@@ -136,15 +157,19 @@ public:
    * #ECB IR x[0] x[1]
    * #ECB ADC x[2] x[3]
    * #ECB ME x[4] x[5]
-   * Strom, Spannung usw. (konfigurationsabhängige Parameter vom ECB)
+   * Strom, Spannung usw. (konfigurationsabhï¿½ngige Parameter vom ECB)
    */
-  virtual std::string getGUIInformation();
+  virtual std::string getChannelDescription();
 
-
+  virtual uint numberInitialisedECBs();
+  
+  
+  
 private:
   std::list<ECB*> ECBlist;
   GlobalData* globalData;
-  Inspectable::paramval* speed; // example
+  //Inspectable::paramval* speed; // example
+  Configurable::paramval numberECBInitialised;
 
 };
 

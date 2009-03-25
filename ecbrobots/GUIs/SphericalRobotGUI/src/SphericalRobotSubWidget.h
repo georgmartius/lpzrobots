@@ -22,6 +22,26 @@
 
 #include <QtGui>
 
+// #include "AbstractPipeReader.h"
+// #include "AbstractPipeFilter.h"
+
+class AbstractPlotChannel;
+
+
+/*
+#include "IRChannel.h"
+#include "MotorCurrentChannel.h"
+#include "MotorSpeedChannel.h"
+#include "TiltChannel.h"
+#include "AxesChannel.h"*/
+
+
+// class AbstractPlotChannel;
+#include "AbstractPlotChannel.h"
+
+#include <list>
+#include <iostream>
+#include <string>
 
 
 class SphericalRobotSubWidget: public QWidget {
@@ -29,17 +49,39 @@ class SphericalRobotSubWidget: public QWidget {
 Q_OBJECT
 
 public:
-SphericalRobotSubWidget(QWidget *parent = 0);
-void setParams(int* data, int datalen);
-//const int* getParam();
+    SphericalRobotSubWidget(QWidget *parent = 0) : QWidget(parent)
+  {
+//      channelList.clear();
+  };
 
+  void addPlotChannel(AbstractPlotChannel* c) 
+  {
+
+    std::cout << "SRSubWidget:addPlotChannel(" << c->getChannelName() << ")" << std::endl;
+    
+    this->channelList.push_back(c);
+  }
+  
+  int convertToByte(double doubleVal) {
+      // insert check byteVal<255
+    int byteVal =(int)((doubleVal+1.)*128.0);
+    return (byteVal<255?byteVal:254); //values 0..128..255
+  };
+  
+public slots:
+  virtual void updateViewableChannels() = 0;
+  
 protected:
-//void paintEvent(QPaintEvent *);
 
+//   void paintEvent(QPaintEvent *);
+  std::list<AbstractPlotChannel*> channelList;
+  
+  
+  
 private:
-int* data[12];
-int datalen;
+  
 
+  
 };
 
 #endif

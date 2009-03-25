@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-07-30 06:03:47  robot1
+ *   Revision 1.8  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.7  2008/07/30 06:03:47  robot1
  *   the new directory GUIs is added
  *
  *   Revision 1.6  2008/07/16 07:38:42  robot1
@@ -62,9 +65,13 @@ namespace lpzrobots
   {
     if ( this->globalData->debug )
       std::cout << "New ECBCommunicator created." << std::endl;
+    
     realtimeoffset = timeOfDayinMS();
     lastBenchmarkTime = realtimeoffset;
     this->globalData->comm=this;
+    
+    sim_step=0;
+    
   }
 
   void ECBCommunicator::setConfig(GlobalData& globalData) {
@@ -88,6 +95,7 @@ namespace lpzrobots
 
   bool ECBCommunicator::loop()
   {
+    
     assert ( globalData->comm==this );
     globalData->simStep++;
     if ( globalData->debug ) {
@@ -95,10 +103,10 @@ namespace lpzrobots
     }
     /// With this for loop all agents perform a controller
     /// AND a robot step, this means, the communication with the
-    /// hardware ECBs are startet too!
+    /// hardware ECBs are started too!
     if (!globalData->testMode) {
 	FOREACH ( AgentList,globalData->agents,a ) {
-      		( ( ECBAgent* ) ( *a ) )->step ( globalData->noise );
+      		( ( ECBAgent* ) ( *a ) )->step ( globalData->noise, sim_step++ );
     	}
     	// sorgt dafür, dass der Zeittakt eingehalten wird:
     	// Berechnung zu schnell -> warte,
@@ -189,6 +197,7 @@ namespace lpzrobots
     }
     // insert crc byte here!
     if ( globalData->debug ) cout << endl;
+    
     return true;
   }
 
@@ -209,6 +218,7 @@ namespace lpzrobots
   {
     if ( globalData->debug ) cout << "Receiving data: ";
     commData result;
+    // TODO: default value of struct should be add into header file
     result.commSuccess=false;
     result.destinationAddress=255;
     result.sourceAddress=255;
@@ -219,7 +229,7 @@ namespace lpzrobots
     int b;
     do {
       b = getByte();
-      if ( globalData->debug ) cout << b << " ";
+      if ( globalData->debug ) printf("[%3d]",b);
     } while ( ( b != 255 ) && ( b != -1 ) );
     if ( b == -1 ) {
       if ( globalData->debug ) cout << endl;
@@ -278,6 +288,7 @@ namespace lpzrobots
     // insert receive of crc byte here
     result.commSuccess=true;
     if ( globalData->debug ) cout << endl;
+    
     return result;
   }
 

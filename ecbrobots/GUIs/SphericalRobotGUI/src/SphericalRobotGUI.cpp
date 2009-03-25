@@ -20,58 +20,106 @@
 
 #include <QtGui>
 #include <QProgressBar>
-//#include <QHBoxLayout>
+
+// #include <iostream>
 
 #include "SphericalRobotGUI.h"
 
-#define MAX_MOTOR_VALUE 255
-#define PI 3.141592
+#include <list>
 
-#include "AbstractPipeReader.h"
-#include "SimplePipeReader.h"
 
 SphericalRobotGUI::SphericalRobotGUI(QWidget *parent) 
 : QWidget(parent) {
   
-  pipeReader = new SimplePipeReader(std::cin);
-
-  pipeReader-> getDataHeaderInformation();
+//   SimplePipeReader *spr = new SimplePipeReader();
+  pipe_reader = new SimplePipeReader();
+  srgui_filter = new SRGUIPipeFilter(pipe_reader);
   
-//ui.setupUi(this);
-
-/* only for testing ******************************/
-QSpinBox *motor1_value = new QSpinBox;
-motor1_value->setRange(-127,128);
-motor1_value->setSingleStep(1);
-motor1_value->setValue(0);
-
-QSpinBox *motor2_value = new QSpinBox;
-motor2_value->setRange(-127,128);
-motor2_value->setSingleStep(1);
-motor2_value->setValue(0);
+  //init graphical interface and motor_tilt_widget, ir_widget
+  initGui();
   
-QObject::connect(motor1_value, SIGNAL(valueChanged(int)),
-		this,SLOT(setArrowParamX(int)));
-QObject::connect(motor2_value, SIGNAL(valueChanged(int)),
-		this,SLOT(setArrowParamY(int)));
+  pipe_reader->start();
+  
+//link  the interesting channels to the widgets
+  linkChannels();
 
-/***********************************************/
-
-main_layout = new QVBoxLayout;
-main_layout->addWidget(motor1_value);
-main_layout->addWidget(motor2_value);
+  QObject::connect(pipe_reader,SIGNAL(finished()),this,SLOT(closeGUI()));
+}
 
 
-main_layout->addWidget(createControlBox());
-main_layout->addWidget(createGraphicalBox());
 
-QGroupBox *gb = createIRSensorBox();
-gb->setMaximumSize(350,120);
-main_layout->addWidget(gb);
+void SphericalRobotGUI::linkChannels() 
+{
+  std::cout << "SphericalRobotGUI: linkChannels()"<< std::endl;
+  // create ChannelList and start createChannelList() in class SRGUIPipeFilter
+  std::list<AbstractPlotChannel*> channelList = srgui_filter->getChannelList();
+  
+  for (std::list<AbstractPlotChannel*>::iterator i=channelList.begin(); i!=channelList.end(); i++)
+  {
+    //Infrared-Sensor-Channel
+    if (dynamic_cast<IRPlotChannel*> (*i))
+    {
+      ir_widget->addPlotChannel(*i);
+      std::cout << "IRPlotChannel: " << (*i)->getChannelName() << std::endl;
+    }
+    ///Motor-Speed-Channel
+    if (dynamic_cast<MotorSpeedPlotChannel*> (*i))
+    {
+      motor_tilt_widget->addPlotChannel(*i);
+      motspeed2tilt_widget->addPlotChannel(*i);
+    }
+    ///Motor-Current-Channel
+    if (dynamic_cast<MotorCurrentPlotChannel*>(*i))
+    {
+      motor_tilt_widget->addPlotChannel(*i);
+    }
+    ///IR-Sensors-Channel-->that are looking on the axes of SphericalRobot
+    if (dynamic_cast<AxesPlotChannel*>(*i))
+    {
+      motor_tilt_widget->addPlotChannel(*i);
+    }
+    ///Tilt-Sensor-Channel
+    if (dynamic_cast<TiltPlotChannel*>(*i))
+    {
+      motor_tilt_widget->addPlotChannel(*i);
+    }
+    ///Timestamp-Channel
+    if (dynamic_cast<TimeStampPlotChannel*>(*i))
+    {
+    }
+    //Default-Channel
+    if (dynamic_cast<DefaultPlotChannel*>(*i))
+    {
+    }
 
-setLayout(main_layout);
-resize(800,800);
+/* 
+    if (((*i)->getChannelName()).find("blabla-name")==0)
+      ...
+*/
 
+  }
+}
+
+void SphericalRobotGUI::initGui()
+{
+  std::cout << "SphericalRobotGUI: initGui()"<< std::endl;
+  ir_widget = new SRIRSensorWidget();
+  motor_tilt_widget = new SRMotorValueWidget();
+  motspeed2tilt_widget = new SRMotSpeed2TiltWidget();
+  
+  main_layout = new QVBoxLayout;
+  main_layout->addWidget(createControlBox());
+  
+  QGroupBox *gb = new QGroupBox(QString("Graphical-View"));
+  QHBoxLayout *graph_box = new QHBoxLayout;
+  graph_box->addWidget(motor_tilt_widget);
+  graph_box->addWidget(motspeed2tilt_widget);
+  graph_box->addWidget(ir_widget);
+  gb->setLayout(graph_box);
+  
+  main_layout->addWidget(gb);  
+  setLayout(main_layout);
+  resize(200,200);
 }
 
 QGroupBox* SphericalRobotGUI::createControlBox() {
@@ -96,116 +144,33 @@ gbox->setLayout(l);
 return gbox;
 }
 
-QGroupBox* SphericalRobotGUI::createGraphicalBox() {
-
-QGroupBox *gbox = new QGroupBox(QString("Graphical View"));
-QHBoxLayout *l = new QHBoxLayout;
-
-subw = new SRMotorValueWidget(this);
-subw->setMinimumSize(200,200);
-subw->setMaximumSize(200,200);
-
-
-subw1 = new SRIRSensorWidget(this);
-subw1->setMinimumSize(160,160);
-subw1->setMaximumSize(200,200);
-
-
-
-l->addWidget(subw);
-l->addWidget(subw1);
-
-gbox->setLayout(l);
-return gbox;
-}
-
-QGroupBox* SphericalRobotGUI::createIRSensorBox() {
-
-QGroupBox *gbox = new QGroupBox(QString("IR-Sensors"));
-QGridLayout *l = new QGridLayout;
-
-for(int i=0;i<NUMBER_IR_SENSORS;i++) {
-
-  ir_labels[i] = new QLabel(QString("IR%1").arg(i+1));
-  ir_progressBar[i] = new QProgressBar(this);
-  ir_progressBar[i]->setRange(0,255); 
-  ir_progressBar[i]->setOrientation(Qt::Vertical);
-  ir_progressBar[i]->setFormat(QString("%v"));
-ir_progressBar[i]->setValue(100);
-l->addWidget(new QLabel(QString("IR%1").arg(i+1)),0,i);
-  l->addWidget(ir_progressBar[i],1,i);
-  l->addWidget(ir_labels[i],2,i); 
-  
-}
-gbox->setLayout(l);
-return gbox;
-}
-
-
-int X,Y;
-
-void SphericalRobotGUI::setArrowParamX(int x) {
-
-/*int f = (int)((double)x/(double)MAX_MOTOR_VALUE)*subw->width();
-*/
-setArrowParams(x,Y);
-
-X=x;
-}
-
-void SphericalRobotGUI::setArrowParamY(int y) {
-/*
-int f2 = (int)((double)y/(double)MAX_MOTOR_VALUE)*subw->height();
-*/
-setArrowParams(X, y);
-
-Y=y;
-}
-void SphericalRobotGUI::setArrowParams(int m1, int m2) {
-
-//bottom-view
-  //m1 is x
-  //m2 is y
-int tmp_alpha =0;
-double tmp = 0;
-     if ((m1>=0)&&(m2>0)) {
-	tmp_alpha=180;  //1. Quadrant
-	tmp = (double)m1 / (double)m2;
-     }
-else if ((m1<0)&&(m2>=0)) {
-	tmp_alpha=90; //2
-     	tmp = (double)m2 / (double)-m1;
-     }
-else if ((m1<=0)&&(m2<0)) {
-	tmp_alpha=0; //3.
-	tmp = (double)m1 / (double)m2;
-     }
-else if ((m1>0)&&(m2<=0)) {
-	tmp_alpha=270;   //4.
-    	tmp = (double)-m2 / (double)m1;
-     }
-
-double alpha =(atan(tmp) * 180 / PI + tmp_alpha);
-double len = sqrt(pow((double)m1,2.)+pow((double)m2,2.));
-
-// scale len into viewable size
-// 180 = max number for len, if m1 and m2 max by 128
-len = len / 180. * (double)subw->height()/2;
-subw->setArrowParam( alpha,len );
-
-}
-
-
 void SphericalRobotGUI::resizeEvent(QResizeEvent *event) {
-
-event->accept();
-
-
+  event->accept();
 }
 
-/*
-void SphericalRobotGUI::paintEvent(QPaintEvent *event) {
-
-
+QGroupBox* SphericalRobotGUI::createIRProgressBar() {
+  QGroupBox *gbox = new QGroupBox(QString("Infrarot-Sensors-View"));
+  QGridLayout *gl = new QGridLayout;
+  
+  for(int i=0;i<NUMBER_IR_SENSORS;i++) {
+    ir_labels[i] = new QLabel(QString("IR%1").arg(i+1));
+    ir_progressBar[i] = new QProgressBar(this);
+    ir_progressBar[i]->setRange(0,255); 
+    ir_progressBar[i]->setOrientation(Qt::Vertical);
+  //   ir_progressBar[i]->setFormat(QString("%v"));
+  //   ir_progressBar[i]->setValue(100);
+    
+    gl->addWidget(ir_progressBar[i],0,i);
+    gl->addWidget(ir_labels[i],1,i);
+    gl->addWidget(new QLabel(QString("HHH%l").arg(i+1)),2,i);
+  } 
+  gbox->setLayout(gl);
+  return gbox;
 }
-*/
+
+void SphericalRobotGUI::closeGUI()
+{
+  std::cout << "SphericalRobotGUI: ByeBye!" << std::endl;
+//   delete(this);
+}
+

@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-08-12 12:22:50  guettler
+ *   Revision 1.7  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.6  2008/08/12 12:22:50  guettler
  *   added new custom MySimpleController for controlling motor values due to keyboard
  *
  *   Revision 1.5  2008/08/12 11:48:30  guettler
@@ -54,92 +57,101 @@
 
 #include <selforg/invertmotorspace.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/sinecontroller.h>
+#include <selforg/abstractcontrolleradapter.h>
+#include <selforg/configurable.h>
+
+#include "SphericalRobotECB.h"
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-class MySimpleController : public AbstractController {
-	public:
-
-		  MySimpleController();
-
-		  /** initialisation of the controller with the given sensor/ motornumber
-			  Must be called before use. The random generator is optional.
-		  */
-		  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0) {
-			  this->sensorNumber=sensornumber;
-			  this->motorNumber=motornumber;
-			  this->motorvalues = (motor*) malloc(sizeof(motor)*motornumber);
-			  this->sensorvalues = (sensor*) malloc(sizeof(motor)*motornumber);
-			  this->addParameter("sinerate",&sineRate);
-			  this->addParameter("phaseShift",&phaseShift);
-			  sineRate=40;
-			  phaseShift=1;
-		  }
-
-		  /** @return Number of sensors the controller was initialised
-		      with or 0 if not initialised */
-		  virtual int getSensorNumber() const {return sensorNumber;}
 
 
-		  /** @return Number of motors the controller was initialised
-		      with or 0 if not initialised */
-		  virtual int getMotorNumber() const {return motorNumber;}
+class MySimpleController : public AbstractControllerAdapter
+{
+  public:
 
-		  /** performs one step (includes learning).
-		      Calculates motor commands from sensor inputs.
-		      @param sensors sensors inputs scaled to [-1,1]
-		      @param sensornumber length of the sensor array
-		      @param motors motors outputs. MUST have enough space for motor values!
-		      @param motornumber length of the provided motor array
-		  */
-		  virtual void step(const sensor* sensors, int sensornumber, motor* motors, int motornumber) {
-			  stepNoLearning(sensors,sensornumber,motors,motornumber);
-		  }
+    MySimpleController ( AbstractController* controller, GlobalData& global ) :AbstractControllerAdapter ( controller ) {
+      global.configs.push_back ( this );
+      global.configs.push_back ( controller );
 
-		  /** performs one step without learning.
-		      @see step
-		  */
-		  virtual void stepNoLearning(const sensor* , int number_sensors, motor* , int number_motors) {
-			  // write internal values into motor array
-			  for (int i=0; i<number_motors; i++){
-				  motors[0]=motorValue[0];
-				  //motors[i]=sin(t/sineRate + i*phaseShift*M_PI/2); // sinecontroller
-			  }
-		  }
+      this->addParameterDef ( "speedFactor", &speedFactor, 0.5 );
+    }
 
-		  virtual paramval getParam(const paramkey& key) const {
+    /// return the name of the object
+    /// @override
+    virtual paramkey getName() const {
+      return "MySimpleController";
+    }
 
-		  }
+    /** initialisation of the controller with the given sensor/ motornumber
+     Must be called before use. The random generator is optional.
+    */
+    virtual void init ( int sensornumber, int motornumber, RandGen* randGen = 0 ) {
+      AbstractControllerAdapter::init ( sensornumber, motornumber );
+      
+      controller_enabled = true;
+    }
 
-		  virtual bool setParam(const paramkey& key, paramval val) {
+    /** performs one step (includes learning).
+        Calculates motor commands from sensor inputs.
+        @param sensors sensors inputs scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @param motors motors outputs. MUST have enough space for motor values!
+        @param motornumber length of the provided motor array
+    */
+    virtual void step ( const sensor* sensors, int sensornumber, motor* motors, int motornumber ) {
+      if ( controller_enabled ) {
+        AbstractControllerAdapter::step ( sensors,sensornumber, motors, motornumber );
+        for ( int i=0; i<motornumber; i++ ) {
+          motors[i]*=speedFactor;
+        }
+      } else {
+        stepNoLearning ( sensors,sensornumber,motors,motornumber );
+      }
+    }
 
-		  }
+    /** performs one step without learning.
+        @see step
+    */
+    virtual void stepNoLearning ( const sensor* sensors, int number_sensors, motor* motors, int number_motors ) {
+      motors[0] = convertToDouble(motorValues[0]);
+      motors[1] = convertToDouble(motorValues[1]);
+    }
 
-		  virtual paramlist getParamList() const  {
+    double convertToDouble ( int byteVal ) {
+      return ( ( ( double ) ( byteVal-127 ) ) /128. ); //values -1..0..+1
+    }
 
-		  }
+    int convertToByte ( double doubleVal ) {
+      // insert check byteVal<255
+      int byteVal = ( int ) ( ( doubleVal+1.) *128.0 );
+      return ( byteVal<255?byteVal:254 ); //values 0..128..256
+    }
 
-		  virtual bool store(FILE* f) const { return true;  }
+//   sensor* sensorValues;
+  int motorValues[4];
+  bool controller_enabled;
+  
+  private:
+    /* Define the Configurable params */
+    Configurable::paramval speedFactor;
 
-		  virtual bool restore(FILE* f) const { return true;  }
+    /* Define the Inspectable params */
+    //...
 
 
-     int t;
-	 std::string name;
-	 motor* motorValues;
-	 sensor* sensorValues;
-	 int sensorNumber;
-	 int motorNumber;
-	 paramval* sineRate;
-	 paramval* phaseShift;
 };
 
 
-class MyECBManager : public ECBManager {
+class MyECBManager : public ECBManager
+{
 
   public:
-	  MySimpleController* myCon;
+
+    MySimpleController* myCon;
+
 
     MyECBManager() {}
 
@@ -152,36 +164,56 @@ class MyECBManager : public ECBManager {
      */
     virtual bool start ( GlobalData& global ) {
 
-      // set specific communication values
-      global.baudrate = 115200;
-      global.portName = "/dev/ttyS0";
+      /// global values ***************************************
+      global.baudrate = 38400;
+//       global.portName = "/dev/ttyS0";
+      global.portName = "/dev/ttyUSB0";
       global.masterAddress=0;
-      global.maxFailures=4;
+      global.maxFailures=10;
       global.serialReadTimeout=50;
-      global.verbose = true;
+      global.verbose = false;
       global.debug = true;
 
-
-      // create new controller
-      myCon = new MySimpleController();
-      // create new wiring
+      motors_stopped = false;
+      
+      /// create new controller *******************************
+      AbstractController* acon = new SineController ( 2 );
+      acon->setParam ( "sinerate", 15 );
+      acon->setParam ( "phaseshift", 45 );
+      myCon = new MySimpleController ( acon,global );
+      
+      myCon->motorValues[0]=127;
+      myCon->motorValues[1]=127;
+      
+      myCon->setParam("speedFactor",1.0);
+      
+      /// create new wiring ***********************************
       AbstractWiring* myWiring1 = new One2OneWiring ( new WhiteNormalNoise() );
-      // create new robot
-      ECBRobot* myRobot1 = new ECBRobot ( global );
-      // 2 ECBs will be added to robot
+      
+      /// create new robot ************************************
+      myRobot1 = new ECBRobot ( global );
+      
+      /// add ECB_1 that controlls motors and get values of two 
+      /// tilt-sensors and two infrared-sensors to the SphericalRobot
       ECBConfig ecbc1 = ECB::getDefaultConf();
+      //SphericalRobotECB* sp_robot = new SphericalRobotECB (/*addr*/ 1, global, ecbc1 );
+      //myRobot1->addECB ( sp_robot );
+      
       myRobot1->addECB ( 1,ecbc1 );
-      ECBConfig ecbc2 = ECB::getDefaultConf();
-      ecb2.adcTypes[0] = ADC_TILT;
-      ecb2.adcTypes[1] = ADC_TILT;
-      ecb2.adcTypes[2] = ADC_IR;
-      ecb2.adcTypes[3] = ADC_IR;
-      myRobot1->addECB ( 2,ecbc2 );
+    
+      /// add ECB_2 that collect the infrared-sensors of 
+      /// the outer shell of the SphericalRobot
+//       ECBConfig ecbc2 = ECB::getDefaultConf();
+//       myRobot1->addECB ( 2,ecbc2 );
 
-      // create new agent
-      ECBAgent* myAgent1 = new ECBAgent(PlotOption(ECBRobotGUI));
-      // init agent with controller, robot and wiring
+      /// create and init a new agent *************************
+      ECBAgent* myAgent1 = new ECBAgent ( PlotOption ( ECBRobotGUI ) );
       myAgent1->init ( myCon,myRobot1,myWiring1 );
+      /// add the GuiLogger and ECBRobotGUI for visualisation
+      PlotOption po(GuiLogger);
+      myAgent1->addPlotOption(po);
+      PlotOption po2(File);
+      myAgent1->addPlotOption(po2);
 
       // register agents
       global.agents.push_back ( myAgent1 );
@@ -204,25 +236,72 @@ class MyECBManager : public ECBManager {
      * @param key
      * @return
      */
-    virtual bool command ( GlobalData& globalData, int key) {
-      switch (key) {
-        //        case 117:
-        //        return true;
-        //          break;
-      case 127:
-    	  myCon->motorValues[0]++;
-    	  break;
-      case 115:
-    	  myCon->motorValues[0]++;
-    	  break;
-        default:
-          std::cout << "key pressed: " << key << std::endl;
-        return true;
+    virtual bool command ( GlobalData& globalData, int key ) {
+
+//       printf("\r\nmotors: %d %d\r\n",myCon->motorValues[0],myCon->motorValues[1]);
+
+      switch ( key ) {
+        case '6': //forward
+          if ( myCon->motorValues[0]<=255 ) {
+            myCon->motorValues[0] += 8;
+          }
+          if ( myCon->motorValues[1]<256 ) {
+            myCon->motorValues[1] += 8;
+          }
+          break;
+        case '4': //backward
+          if ( myCon->motorValues[0]>=0 ) {
+            myCon->motorValues[0] -= 8;
+          }
+          if ( myCon->motorValues[1]>=0 ) {
+            myCon->motorValues[1] -= 8;
+          }
+          break;
+        case '8': //left
+          if ( myCon->motorValues[1]<=255 ) {
+            myCon->motorValues[1] += 8;
+          }
+          if ( myCon->motorValues[0]<256 ) {
+            myCon->motorValues[0] -= 8;
+          }
+          break;
+        case '2': //right
+          if ( myCon->motorValues[1]>=0 ) {
+            myCon->motorValues[1] -= 8;
+          }
+          if ( myCon->motorValues[0]>=0 ) {
+            myCon->motorValues[0] += 8;
+          }
+          break;
+        case '5'://stop
+          myCon->motorValues[0]=127;
+          myCon->motorValues[1]=127;
+          break;
+      case ' ':// toggle between motors-on/-off
+          if ( motors_stopped ) myRobot1->stopMotors();
+          else myRobot1->startMotors();
+          motors_stopped=!motors_stopped;
+          break;
+      case '+': // activate external selforg-controller (KI)
+          myCon->controller_enabled=true;
+          break;
+      case '-': // disable selforg-controller to controll robot manual by key-pressing
+          myCon->controller_enabled=false;
+          break;
+
+      case 'r':  // make a reset of all
+          myRobot1->resetECBs();
+          break;
+      default:
+//           return true;
           break;
       }
       return false;
     }
 
+  private:
+    ECBRobot* myRobot1;
+    bool motors_stopped;
 
 };
 
@@ -233,7 +312,8 @@ class MyECBManager : public ECBManager {
  * @param argv
  * @return
  */
-int main ( int argc, char **argv ) {
+int main ( int argc, char **argv )
+{
   MyECBManager ecb;
   return ecb.run ( argc, argv ) ? 0 : 1;
 }

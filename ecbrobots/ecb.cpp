@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-08-15 13:16:58  robot1
+ *   Revision 1.10  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.9  2008/08/15 13:16:58  robot1
  *   add PORT PIN configuration for ECBs
  *
  *   Revision 1.8  2008/08/12 11:45:20  guettler
@@ -58,6 +61,7 @@
 #include "ecbcommunicator.h"
 
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -68,29 +72,40 @@ ECB::ECB ( short address,GlobalData& globalData,ECBConfig& ecbConfig ) : Configu
   initialised=false;
   
   //PORTG of ATmega128 has only 4 pins for use
-  ecbConfig.PORTG.max_pinnumber = 4;
+//   ecbConfig.PORTG.max_pinnumber = 4;
   //set pin 0 of PORTA as output
-  ecbConfig.PORTA.pin[0] = OUTPUT;
+//   ecbConfig.PORTA.pin[0] = OUTPUT;
+  
+  motorList.push_back (0.);
+  motorList.push_back (0.);
 }
 
 ECB::~ECB() {}
 
 bool ECB::writeMotors_readSensors() {
   if (globalData->debug)
-    std::cout << "ECB: writeMotors_readSensors!" << std::endl;
+    std::cout << "ECB: writeMotors_readSensors! / " << initialised << std::endl;
+  
+  // at first start of ECB, it must be initialized with a reset-command
   if ( ( !initialised ) || ( failureCounter > globalData->maxFailures ) ) {
     resetECB();
   }
-
   if ( !initialised )
     return false;
+  
+  // if initialized, new motor-data will send to ECB (hardware)
+  
+  // prepare the communication-protocol 
   commData motorComm;
   motorComm.destinationAddress = address;
   motorComm.command = CMOT;
   motorComm.dataLength = currentNumberMotors;
+  // set motor-data
   int i=0;
-  // TODO: convert double
+  // motorList was update by ECBAgent->ECBRobot:setMotors()->(to all ECBs)-> ECB:setMotors()
   FOREACH (list<motor>,motorList,m) {
+    // Agent and Controller process with double-values
+    // The ECB(hardware) have to work with byte-values
     motorComm.data[i++]=convertToByte((*m));
   }
   if (!globalData->comm->sendData(motorComm)) {
@@ -105,11 +120,13 @@ bool ECB::writeMotors_readSensors() {
     return false;
   }
 
+  /// fill sensorList which will be input for agent or controller   
   sensorList.clear();
   for(int i=0;i<result.dataLength;i++) {
     sensorList.push_back(convertToDouble(result.data[i]));
   }
-
+ 
+ 
   // reset the counter, because communication was successful
   failureCounter=0;
   return true;
@@ -117,77 +134,98 @@ bool ECB::writeMotors_readSensors() {
 
 
 /**
- * Send reset command to the ecb
+ * Send reset command to the ecb and
+ * receive the number of motors and sensors
  * @return
  */
 bool ECB::resetECB() {
-  if (globalData->verbose)
-    std::cout << "ECB: resetECB!" << std::endl;
+  
+  if (globalData->debug)
+    std::cout << "ECB: resetECB!(" << address << ")" << std::endl;
 
   //    flush input buffer
+  
+//   stopMotors();
+  
   globalData->comm->flushInputBuffer();
 
   initialised=false;
+  
   // TODO: send specific config settings to ECB!
+  
+  /***********************************************
+  // SEND the new motor-values to ECB(hardware)
+  ***********************************************/
   commData reset;
   reset.destinationAddress = address;
+  reset.sourceAddress = 0;
   reset.command = CRES;
-
-  reset.dataLength = 4;
+  reset.dataLength = 1;
   reset.data[0]=0;
-  if (ecbConfig.useI2C) reset.data[0] |= (1 << 7);
-  if (ecbConfig.useSPI) reset.data[0] |= (1 << 6);
-  if (ecbConfig.useADC) reset.data[0] |= (1 << 5);
-  if (ecbConfig.useJumperedADC_PlugNPlay) reset.data[0] |= (1 << 4);
-  reset.data[1] = ecbConfig.maxNumberMotors;
-  reset.data[2] = ecbConfig.maxNumberSensors;
-  reset.data[3] = ecbConfig.ADCSensorMask;
-
-  if (globalData->verbose)
-    std::cout << "ECB: ecbConfig data[0]=!" << reset.data[0] << std::endl;
-
+  
   if ( !globalData->comm->sendData ( reset )) {
-    cerr << "Error while sending reset.\n";
+    cerr << "Error while sending reset for ECB (" << address << ")" << ".\n";
     return false;
   }
 
+  /*********************************************************************
+  // GET the new description of connected motors
+  // and sensors at ECB(hardware)
+  // Each sensor-name should be unique to identify the sensors as well
+  // The names are separate by a space-sign
+  *********************************************************************/
   commData result = globalData->comm->receiveData();
-
-  if ((!result.commSuccess) || ( result.sourceAddress != address ) || ( result.command != CDIM ) || ( result.dataLength!=2 ) )
+  // data are verify to communication-protokoll ?
+  if ((!result.commSuccess) || ( result.sourceAddress != address ) || ( result.command != CDIM ) )
     return false;
 
-  // set number of motors and sensors
-  // the first data describe the number of motors
-  currentNumberMotors=result.data[0];
+// set number of motors and sensors that are in use (current)
+  currentNumberMotors = result.data[0];
+  currentNumberSensors = result.data[1];
+  
+  // modify the data-values with the ECB-address
+  stringstream ss;
 
-  // the second data describe the number of sensors
-  currentNumberSensors=result.data[1];
-
-  // hole weitere config-daten wie Z.B. Zuordnung ADC, I2C, Motoren usw.
-  // die Liste ist fest, hat vordefinierte Codierung (wie z.B. Kommandos)
-  // und dann den infoString füllt (und vorher gegebenenfalls löscht)
-  // ADC: Die Zuordnung, da nur manuell durchführbar (Tilt, Kompass, IR) erfolgt
-  // durch ECBConfig, einstellbar in der main.cpp!
-  // ennum types: TILT, ADCIR, ADCKOMPASS, DEFAULT
-  // ADC[0]=TILT
-  // ADC[1]=TILT
-  // ADC[2]=Kompass
-  // Wenn rest nicht definiert (default), dann einfach gewöhnl. ADC-Wert
-
+  for (int i=2;i<result.dataLength;i++) {
+    if (result.data[i]==' ') 
+      ss << "(" << address << ")";
+    ss << result.data[i];
+  }
+  
+ // add the last address to stringstream if it not empty
+  if (result.dataLength>0)
+    ss << "(" << address << ")";
+  
+  if (currentNumberSensors < ecbConfig.maxNumberSensors) {
+    for (int i=currentNumberSensors;i<ecbConfig.maxNumberSensors;i++) {
+      ss << " -";
+    }
+  }
+  
+  // complete description as a string-line
+  descriptionLine = ss.str();
+  
   if ( currentNumberMotors>ecbConfig.maxNumberMotors ) {
-    cout << "Warning: ECB reported more motors than permitted and configured respectively!";
+    cout << "Warning: ECB " << address << " reported more motors than permitted and configured respectively!";
   }
 
   if ( currentNumberSensors>ecbConfig.maxNumberSensors ) {
-    cout << "Warning: ECB reported more sensors than permitted and configured respectively!";
+    cout << "Warning: ECB " << address << " reported more sensors than permitted and configured respectively!";
   }
 
+  if (globalData->debug) {
+    printf("ECB(%d) found motors: %d sensors: %d\r\n",address,currentNumberMotors, currentNumberSensors);
+    std::cout << "ECB("<< address << ") descriptionLine:[" << descriptionLine << "]" << std::endl;
+  }
+  
   initialised=true;
 
   failureCounter=0;
+  
+//   startMotors();
+  
   return true;
 }
-
 
 bool ECB::makeBeepECB () {
   commData mbeep;
@@ -196,7 +234,7 @@ bool ECB::makeBeepECB () {
   mbeep.dataLength = 0;
 
   if ( !globalData->comm->sendData ( mbeep )) {
-    cerr << "Error while sending make-beep.\n";
+    cerr << "Error while sending make-beep for ECB " << address << ".\n";
     failureCounter++;
     return false;
   }
@@ -204,19 +242,58 @@ bool ECB::makeBeepECB () {
   return true;
 }
 
+bool ECB::stopMotors() {
+  
+  commData mstop;
+  mstop.destinationAddress = address;
+  mstop.command = CMSTOP;
+  mstop.dataLength = 0;
+  if ( !globalData->comm->sendData ( mstop )) {
+    cerr << "Error while sending make-stop for ECB " << address << ".\n";
+    failureCounter++;
+    return false;
+  }
+  return true;
+}
 
+bool ECB::startMotors() {
+  
+  commData mstart;
+  mstart.destinationAddress = address;
+  mstart.command = CMSTART;
+  mstart.dataLength = 0;
+  if ( !globalData->comm->sendData ( mstart )) {
+    cerr << "Error while sending make-start for ECB " << address << ".\n";
+    failureCounter++;
+    return false;
+  }
+  return true;
+}
+
+
+/**
+* The ECBRobot hold a list of motor-values. To distribute this values
+* to all connected ECBs is do by follow: Every ECB get the hole motor-value-array.
+* Additional the beginIndex for start-position (first ECB have the start-pos.=0).
+* The ECB-Function setMotors will add the values into motor-list itself, until the
+* number of his motorNumber. After that, this function will return the number of
+* adding values. This number is equal to the start-position of the next ECB motorList.
+*
+* motorArray - hold the new motor-values from controller
+* beginIndex - the start-pos of motor-array that will be add into ECB-motorList
+* maxIndex   - size of motorArray
+*
+* return     - the number of adding motor-values
+*/
 int ECB::setMotors (const motor* motorArray,int beginIndex,int maxIndex ) {
   int numberMotors = motorList.size();
   motorList.clear();
   int i=0;
-
   for ( i=beginIndex;i<numberMotors;i++ ) {
     motorList.push_back ( motorArray[i] );
-
     if ( i==maxIndex )
       break;
   }
-
   return ( i-beginIndex );
 }
 
@@ -239,13 +316,26 @@ int ECB::getMaxNumberSensors() {
 /// helper functions
 
 double ECB::convertToDouble(int byteVal) {
-  return (((double)(byteVal-127))/255.);
+  // 0 <= byteVal <= 255
+  if (byteVal >= 255) byteVal=255;
+  if (byteVal <= 0) byteVal=0;
+  
+  return (((double)(byteVal-127))/128.);
+  
+//   return (((double)(byteVal-127))/255.);
 }
 
 int ECB::convertToByte(double doubleVal) {
   // insert check byteVal<255
+  // -1 <= doubleVal <= 1
+  if (doubleVal >= 1) doubleVal=1;
+  if (doubleVal <= -1) doubleVal=-1;
+  
   int byteVal =(int)((doubleVal+1.)*128.0);
-  return (byteVal<255?byteVal:254);
+  //(byteVal<255?byteVal:254);
+  if (byteVal>255) byteVal=254;
+//   printf("double=%1.3E to byte=%d\r\n",doubleVal, byteVal);
+  return byteVal;
 }
 
 
@@ -266,7 +356,42 @@ bool ECB::restore ( FILE* f ) {
 }
 
 
-std::string ECB::getGUIInformation();
-
 
 }
+
+std::string lpzrobots::ECB::getChannelDescription()
+{
+  // check if initialised (normally not)
+  if ( ( !initialised ) || ( failureCounter > globalData->maxFailures ) ) {
+    resetECB();
+  }
+  
+  if ( !initialised )
+    return "";
+  
+  /*
+  
+  stringstream ss;
+  
+  std::string s="";
+  
+  for (int i=0;i<ecbConfig.md23_sensors;i++) {
+    ss << "mot(" << address << ")";
+  }
+  
+  for (int i=0;i<ecbConfig.pcf_sensors;i++) {
+    ss << "pcf(" << address << ")";
+  }
+  
+  for (int i=0;i<ecbConfig.adc_sensors;i++) {
+    ss << "adc(" << address << ")";
+  }
+  
+  s = ss.str();
+  */
+  std::cout << "ECB: getChannelDescription():[" << descriptionLine << "]" << std::endl;
+  
+  
+  return descriptionLine;
+}
+

@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-08-12 11:45:30  guettler
+ *   Revision 1.4  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.3  2008/08/12 11:45:30  guettler
  *   plug and play update, added some features for the ECBRobotGUI
  *
  *   Revision 1.2  2008/04/11 06:31:16  guettler
@@ -72,10 +75,17 @@ public:
   /**
    * overwritten from WiredController to add ECBRobot-specific infos
    */
-  virtual void addPlotOption(const PlotOption& plotOption);
+  virtual PlotOption addPlotOption(PlotOption& plotOption);
+  
+  virtual PlotOption internalAddPlotOption(PlotOption& plotOption);
 
 private:
 
+    /** initializes the object with the given controller, robot and wiring
+      and initializes the output options
+  */
+  virtual bool internInit();
+  
 
 };
 

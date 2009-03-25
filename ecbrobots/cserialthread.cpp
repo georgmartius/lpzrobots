@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-07-16 07:38:42  robot1
+ *   Revision 1.5  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.4  2008/07/16 07:38:42  robot1
  *   some major improvements
  *
  *   Revision 1.3  2008/04/11 06:31:16  guettler
@@ -142,11 +145,13 @@ bool CSerialThread::run(){
  * @return true if the byte was sent, otherwise false
  */
 bool CSerialThread::sendByte(uint8 c) {
+  //cout << c << " " << endl;
+  
   if (write(fd_out, &c, 1)==1) {
-    if (debug) cout << " " << c ;
+    if (debug) printf("[%3d]", c) ;
     return true;
   }
-  if (debug) cout << "--";
+  if (debug) printf("--");
   return false;
 }
 
@@ -209,6 +214,7 @@ bool CSerialThread::internInit() {
   newtio.c_lflag = 0;
   newtio.c_cc[VMIN]=1;
   newtio.c_cc[VTIME]=0;
+  //newtio.c_cc[VEOL]=10; //Enter-key is EOL
 
   tcsetattr(fd_in,TCSANOW,&newtio);
   tcflush(fd_in, TCIFLUSH);

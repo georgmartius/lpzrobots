@@ -22,67 +22,79 @@
 #ifndef SPHERICAL_ROBOT_GUI_H
 #define SPHERICAL_ROBOT_GUI_H
 
+/*
 #include <QWidget>
 #include <QPainter>
 #include <QPixmap>
 #include <QPoint>
+#include <QHBoxLayout>*/
+#include <QtGui>
 
 #include "SRMotorValueWidget.h"
+#include "SRMotSpeed2TiltWidget.h"
 #include "SRIRSensorWidget.h"
+#include "SRGUIPipeFilter.h"
 
-#include <math.h>
-#include "gui-test.h"
+#include "SimplePipeReader.h"
+#include "BufferedPipeReader.h"
+#include "AbstractPipeReader.h"
 
-#define NUMBER_IR_SENSORS 12
 
-class AbstractPipeReader;
+#include "TiltPlotChannel.h"
+#include "AxesPlotChannel.h"
+#include "MotorCurrentPlotChannel.h"
+#include "MotorSpeedPlotChannel.h"
+#include "AbstractPlotChannel.h"
+#include "IRPlotChannel.h"
+#include "TimeStampPlotChannel.h"
+#include "DefaultPlotChannel.h"
+
+
+
+
+// #include "gui-test.h"
+
 
 class SphericalRobotGUI : public QWidget {
 
 Q_OBJECT
 
 public:
-SphericalRobotGUI(QWidget *parent = 0);
-void setArrowParams(int m1, int m2);
-
-public slots:
-void setArrowParamX(int);
-void setArrowParamY(int);
-
-  
-signals:
-void valueChanged(int);
+  SphericalRobotGUI(QWidget *parent = 0);
 
 protected:
-void resizeEvent(QResizeEvent *event);
-//void paintEvent(QPaintEvent *event);
+  void resizeEvent(QResizeEvent *event);
 
-private:
-Ui::SphericalRobotGUI ui;
-
-  AbstractPipeReader* pipeReader;
+public slots:
   
-class SRMotorValueWidget *subw;
-class SRIRSensorWidget *subw1;
+  void closeGUI();
+  
+private:
+//   Ui::SphericalRobotGUI ui;
+  
+  AbstractPipeReader* pipe_reader;
+  SRGUIPipeFilter* srgui_filter;
+  
+  class SRMotSpeed2TiltWidget* motspeed2tilt_widget;
+  class SRMotorValueWidget* motor_tilt_widget;
+  class SRIRSensorWidget* ir_widget;
 
-QVBoxLayout* main_layout;
+  void initGui();
+  void linkChannels();
+  
+  QVBoxLayout *main_layout;
+  QPushButton *startButton;
+  QPushButton *stopButton;
+  QPushButton *backwardButton;
+  QPushButton *forwardButton;
+  QPushButton *loadFileButton;
+  
+  QGroupBox* createControlBox();
+  QGroupBox* createIRProgressBar();
 
-QPushButton *startButton;
-QPushButton *stopButton;
-QPushButton *backwardButton;
-QPushButton *forwardButton;
-
-QPushButton *loadFileButton;
-
-
-QLabel *ir_labels[12];
-QProgressBar *ir_progressBar[12];
-
-QGroupBox* createIRSensorBox();
-QGroupBox* createControlBox();
-QGroupBox* createGraphicalBox();
-
-
+  QLabel *ir_labels[NUMBER_IR_SENSORS];
+  QProgressBar *ir_progressBar[NUMBER_IR_SENSORS];
+  
 };
 #endif
 

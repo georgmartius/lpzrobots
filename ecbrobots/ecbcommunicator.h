@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-07-16 07:38:42  robot1
+ *   Revision 1.5  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.4  2008/07/16 07:38:42  robot1
  *   some major improvements
  *
  *   Revision 1.3  2008/04/11 06:31:16  guettler
@@ -128,6 +131,7 @@ protected:
   long realtimeoffset;
   GlobalData* globalData;
   long lastBenchmarkTime;
+  long sim_step;
 
   void printMsg(int xbee, int addr, uint8* data, int len) {
     data[len]=0;

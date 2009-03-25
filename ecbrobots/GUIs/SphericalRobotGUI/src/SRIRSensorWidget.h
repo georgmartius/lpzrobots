@@ -22,20 +22,30 @@
 
 #include "SphericalRobotSubWidget.h"
 
+#define NUMBER_IR_SENSORS 12
+
+
 class SRIRSensorWidget: public SphericalRobotSubWidget {
 
 Q_OBJECT
 
 public:
-SRIRSensorWidget(QWidget *parent = 0);
+    SRIRSensorWidget(QWidget *parent = 0);
+
+public slots:
+  void updateViewableChannels();
 
 protected:
-void paintEvent(QPaintEvent *);
-
+  void paintEvent(QPaintEvent *);
+//   int convertToByte(double doubleVal);
+  
 private:
-int ir_sensors[12];
-void setIRSensorParams(int* ir_sensors);
+  int ir_sensors[NUMBER_IR_SENSORS];
+//   std::list<int> ir_sensors;
+  
+
 };
+
 
 
 #endif

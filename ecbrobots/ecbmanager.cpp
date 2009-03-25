@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-07-30 06:03:47  robot1
+ *   Revision 1.8  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.7  2008/07/30 06:03:47  robot1
  *   the new directory GUIs is added
  *
  *   Revision 1.6  2008/07/16 15:16:55  robot1
@@ -57,7 +60,8 @@
 #include "console.h"
 #include "cmdline.h"
 
-#include "curses.h"
+
+// #include "curses.h"
 
 namespace lpzrobots {
 
@@ -84,6 +88,8 @@ void ECBManager::handleStartParameters ( int argc, char** argv ) {
 
   if ( contains ( argv,argc,"-s" ) !=0 ) globalData.plotOptions.push_back ( PlotOption ( SoundMan ) );
 
+  if ( contains ( argv,argc,"-u" ) !=0 ) globalData.plotOptions.push_back ( PlotOption ( ECBRobotGUI ) );
+    
   if ( contains ( argv,argc,"-d" ) !=0 ) {
     globalData.debug=true;
     globalData.verbose=true;
@@ -98,6 +104,7 @@ void ECBManager::handleStartParameters ( int argc, char** argv ) {
     printf ( "\t-g\tstart guilogger\n" );
     printf ( "\t-f\twrite logfile\n" );
     printf ( "\t-s\tenable SoundMan\n" );
+    printf ( "\t-u\tenable ECBRobotGUI\n" );
     printf ( "\t-b baud\tset baud rate\n" );
     printf ( "\t-p port\tuse given serial port ( e.g. /dev/ttyUSB0 ) \n" );
     printf ( "\t-v\tenable verbose mode\n" );
@@ -149,22 +156,23 @@ if (!commInitialized) {
   if (globalData.debug) cout << "ECBManager: initialising console..." << endl;
   initializeConsole();
 
+  initConsole();
+  
   if (globalData.debug) cout << "ECBManager: starting communication..." << endl;
   globalData.comm->start();
 
   // run the loop
   if (globalData.debug) cout << "ECBManager: starting the loop..." << endl;
+  
   while ( (!simulation_time_reached) && globalData.comm->is_running()) {
     //cout << "sim_time_reached: " << simulation_time_reached << endl;
-
-
-    //disable line buffering
-    cbreak();
-
 
 	if ( !loop() )
      	  break;
   }
+  
+  restoreConsole();
+
   if (globalData.debug) cout << "ECBManager: loop finished." << endl;
 
   // close all things which where used
@@ -175,27 +183,84 @@ if (!commInitialized) {
   return true;
 }
 
-bool ECBManager::loop() {
-//     if (globalData.debug) cout << "ECBManager: running one loop step..." << endl;
-    // check for cmdline interrupt
-    if ( control_c_pressed() ) {
-      globalData.pause=true;
-      usleep ( 200000 );
+void ECBManager::initConsole() {
+  
+  struct termios term;
+  
+  /* alten Terminalzustand speichern (von stdin = id 0) */
+  if (tcgetattr (0, &term_orig) != 0)
+    printf ("tcgetattr failed");
+  term = term_orig;
+  
+  // set interface parameters
+  term.c_cflag |= CLOCAL;// | CREAD | CSTOPB;
+  term.c_lflag &= ~(ICANON) & ~(ECHO); 
+  
+  term.c_iflag = BRKINT;
+  //term.c_oflag = 0;
+  term.c_cc[VMIN]=1; // one byte
+  //term.c_cc[VTIME]=1;
+  term.c_cc[VINTR] = CTRL('x');
+  //term.c_cc[VEOL]= '\n'; //Enter-key is EOL
+  
+  tcsetattr(STDIN_FILENO,TCSANOW,&term);
+  
+  
+  
+}
 
+void ECBManager::restoreConsole() {
+  tcsetattr(STDIN_FILENO,TCSANOW,&term_orig);
+}
+
+bool ECBManager::loop() {
+  
+  //if (globalData.debug) cout << "ECBManager: running one loop step..." << endl;
+  
+  int c = getchar();
+  
+/*  
+  if ( (c>=48)&&(c<=57) ) printf("FOUND key pressed");
+  if (c == 101) return false;
+  */
+  command(globalData, c);
+  
+    // check for cmdline interrupt
+  //if ( control_c_pressed() ) {
+    if (c == CTRL('C')) {
+      globalData.pause=true;
+      
+      
+      // stop all motors of a roboter
+      for (vector<Agent*>::iterator it = globalData.agents.begin(); it!= globalData.agents.end(); it++) {
+        if (dynamic_cast<ECBAgent*> (*it)) {
+          ((ECBAgent*)(*it))->getRobot()->stopMotors();
+        }
+      }
+      usleep ( 200000 );
+      
+      restoreConsole();
+      
       if ( !handleConsole ( globalData ) ) {
         globalData.comm->stopandwait();
       }
 
       cmd_end_input();
-
-      globalData.pause=false;
-    }
   
-  char taste = getch();
-    if ( taste > 10 ) {
-      std::cout << ".";
-      command(this->globalData,taste);
-    }
+      initConsole();
+      
+      globalData.pause=false;
+      
+      // start all motors of a roboter
+      for (vector<Agent*>::iterator it = globalData.agents.begin(); it!= globalData.agents.end(); it++) {
+        if (dynamic_cast<ECBAgent*> (*it)) {
+          ((ECBAgent*)(*it))->getRobot()->startMotors();
+        }
+      }
+    } 
+    
+  
+       
   return true;
 }
 
@@ -222,9 +287,9 @@ bool ECBManager::setParam(const paramkey& key, paramval val){
 
 Configurable::paramlist ECBManager::getParamList() const {
   paramlist list;
-/*  list += pair<paramkey, paramval> (string("noise"), noise);
+  /*list += pair<paramkey, paramval> (string("noise"), noise);
   list += pair<paramkey, paramval> (string("cycletime"), cycletime);
-  list += pair<paramkey, paramval> (string("reset"), 0);*/
+  */list += pair<paramkey, paramval> (string("reset"), 0);
   return list;
 }
 

@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-07-16 15:16:55  robot1
+ *   Revision 1.5  2009-03-25 11:06:55  robot1
+ *   updated version
+ *
+ *   Revision 1.4  2008/07/16 15:16:55  robot1
  *   minor bugfixes
  *
  *   Revision 1.3  2008/07/16 07:38:42  robot1
@@ -43,6 +46,7 @@
 
 #include "globaldata.h"
 #include "ecbagent.h"
+#include <termios.h>
 
 namespace lpzrobots {
 
@@ -126,11 +130,15 @@ private:
   GlobalData globalData;
   bool commInitialized;
 
+  struct termios term_orig;
 
   virtual void handleStartParameters ( int argc, char** argv );
 
   virtual bool loop();
 
+  virtual void initConsole();
+  virtual void restoreConsole();
+  
 };
 
 

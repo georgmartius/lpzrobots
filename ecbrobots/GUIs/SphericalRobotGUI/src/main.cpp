@@ -18,15 +18,40 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
+#include <signal.h>
 #include <QApplication>
 #include "SphericalRobotGUI.h"
 
+void signal_handler_exit(void){
+  signal(SIGINT,SIG_DFL);
+}
+
+void control_c(int ){ }
+
+/**
+ * We need to catch Ctrl-C (SIGINT) because if we are called from another program (like ode simulation) that reacts on Ctrl-C we are killed. 
+ * SIGPIPE is emitted if the stdin or stdout breaks. 
+ * We need to terminate if the stdin breaks to get closed with the calling application (in  pipe mode).
+*/
+void signal_handler_init(){
+  signal(SIGINT,control_c);
+  atexit(signal_handler_exit);
+  signal(SIGPIPE, SIG_DFL);
+}
+
 int main(int argc, char *argv[])
 {
-      QApplication app(argc, argv);
-      SphericalRobotGUI gui;
-      gui.show();
-      return app.exec();
+  
+//   signal_handler_init();
+  
+  QApplication app(argc, argv);
+  
+    
+  
+  SphericalRobotGUI gui;
+  
+  
+  gui.show();
+  return app.exec();
 }
 

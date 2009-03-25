@@ -22,28 +22,61 @@
 
 #include "SphericalRobotSubWidget.h"
 
+#include <QMouseEvent>
+
+#include <QColor>
+#include <QPoint>
+
+typedef struct {
+  double angle;
+  double len;
+} arrow_params_t;
+
+
 
 class SRMotorValueWidget : public SphericalRobotSubWidget {
 
 Q_OBJECT
 
 public:
-SRMotorValueWidget(QWidget *parent = 0);
-void setArrowParam(int alpha, int len);
+    SRMotorValueWidget(QWidget *parent = 0);
 
+public slots:
+  void updateViewableChannels();
+  
 protected:
-void paintEvent(QPaintEvent *);
-
+  virtual void paintEvent(QPaintEvent *);
+  virtual void mouseMoveEvent ( QMouseEvent * e );
+  
+  void updateMotorTiltArrows();
+  void setMotorArrow();
+  void setTiltArrow();
+  void processMotorArrowParams(double m1, double m2);
+  void processTiltArrowParams(double t1, double t2);
+  
 private:
-int* data[12];
-int datalen;
+//   int* data[12];
+//   int datalen;
+//   int alpha;
+//   int len;
 
-int alpha;
-int len;
-
-QPoint motor_arrow_part1[3];
-QPoint motor_arrow_part2[4];
-
+  arrow_params_t motor_arrow;
+  arrow_params_t tilt_arrow;
+    
+  QPoint motor_arrow_part1[3];
+  QPoint motor_arrow_part2[4];
+  QPoint tilt_arrow_part1[3];
+  QPoint tilt_arrow_part2[4];
+  
+  QColor ir_color[12];
+  QColor motor_arrow_color;
+  QColor tilt_arrow_color;
+    
+  std::list<double> tilt_sensorList;
+  std::list<double> motorSpeed_sensorList;
+  std::list<double> motorCurrent_sensorList;
+  
+ 
 };
 
 #endif
