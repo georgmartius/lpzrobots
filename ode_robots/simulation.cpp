@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.91  2009-03-21 14:27:43  martius
+ *   Revision 1.92  2009-03-25 14:05:12  guettler
+ *   bugfix: PlotOption reference was not direct available
+ *
+ *   Revision 1.91  2009/03/21 14:27:43  martius
  *   screen capturing compatible with both OSG 2.2 and higher
  *
  *   Revision 1.90  2009/03/12 08:44:01  martius
@@ -555,7 +558,7 @@ namespace lpzrobots {
     addParameterDef("UseOdeThread",&useOdeThread,0);
     addParameterDef("UseOsgThread",&useOsgThread,0);
 
-//     nextLeakAnnounce = 20; 
+//     nextLeakAnnounce = 20;
 //     leakAnnCounter = 1;
     truerealtimefactor = 1;
     sim_step = 0;
@@ -572,7 +575,7 @@ namespace lpzrobots {
     //    Producer::Camera::Callback::ref();
     odeThreadCreated=false;
     osgThreadCreated=false;
-    
+
     videostream = new VideoStream();
 
   }
@@ -600,7 +603,7 @@ namespace lpzrobots {
     /**************** ODE-Section   ***********************/
     odeHandle.init(&globalData.time);
     // redirect ODE messages to our print function (writes into file ode.msg)
-    dSetMessageHandler(printODEMessage); 
+    dSetMessageHandler(printODEMessage);
 
     globalData.odeConfig.setOdeHandle(odeHandle);
 
@@ -626,9 +629,9 @@ namespace lpzrobots {
 #ifdef PREFIX
     l.push_back(PREFIX+string("/share/lpzrobots/data"));// installation path
 #else
-    l.push_back("../../osg/data"); 
+    l.push_back("../../osg/data");
 #endif
-    l.push_back("data"); 
+    l.push_back("data");
     osgDB::setDataFilePathList(l);
 
     // load config file (first in the current directory and then in ~/.lpzrobots/)
@@ -707,7 +710,7 @@ namespace lpzrobots {
       // add the record camera path handler
       viewer->addEventHandler(this);
       // add callback for video recording
-    #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 2      
+    #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 2
       viewer->getCamera()->setPostDrawCallback(videostream.get());
     #else
       viewer->getCamera()->setFinalDrawCallback(videostream);
@@ -716,7 +719,7 @@ namespace lpzrobots {
       globalData.odeConfig.realTimeFactor=0;
     }
 
-    // information on terminal, created with figlet. 
+    // information on terminal, created with figlet.
     // See also logo.txt, we had to quote all backslashes
     printf ("%s\n",
 "+----------------------------------------------------------------+\n\
@@ -813,7 +816,7 @@ namespace lpzrobots {
       osgViewer::Viewer::Windows windows;
       viewer->getWindows(windows);
       assert(windows.size()>0);
-      
+
       // set our motion blur callback as the draw operator on each window
       FOREACH(osgViewer::Viewer::Windows, windows, itr){
 	if(globalData.odeConfig.motionPersistence > 0)
@@ -917,7 +920,7 @@ namespace lpzrobots {
 	  FOREACH(OdeAgentList, globalData.agents, i) {
 	    (*i)->onlyControlRobot();
 	  }
-	}	
+	}
 
 	/****************** Simulationstep *****************/
 	if(useOdeThread!=0){
@@ -937,11 +940,11 @@ namespace lpzrobots {
 	addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
 		    (sim_step % globalData.odeConfig.controlInterval ) == 0);
 	QP(PROFILER.endBlock("internalstuff_and_addcallback"));
-	
+
 	// manipulate agents (with mouse)
 	if(!noGraphics){
 	  videostream->pause = pause;
-	  osgGA::MatrixManipulator* mm = 
+	  osgGA::MatrixManipulator* mm =
 	    keyswitchManipulator->getCurrentMatrixManipulator();
 	  if(mm) {
 	    CameraManipulator* cm = dynamic_cast<CameraManipulator*>(mm);
@@ -1082,7 +1085,8 @@ namespace lpzrobots {
       case 6 : // Ctrl - f
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(File)) {
-	    (*i)->addPlotOption(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
+		  PlotOption po(File, Controller, filelogginginterval, globalconfigurables);
+	    (*i)->addPlotOption(po);
 	  }
 	}
 	handled= true;
@@ -1090,7 +1094,8 @@ namespace lpzrobots {
       case 7 : // Ctrl - g
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(GuiLogger)) {
-	    (*i)->addPlotOption(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
+		  PlotOption po(GuiLogger, Controller, guiloggerinterval, globalconfigurables);
+	    (*i)->addPlotOption(po);
 	  }
 	}
 	handled=true;
@@ -1335,7 +1340,7 @@ namespace lpzrobots {
       printf("running in fullscreen\n");
     }
 
-    noGraphics = contains(argv, argc, "-nographics")!=0;    
+    noGraphics = contains(argv, argc, "-nographics")!=0;
     pause = contains(argv, argc, "-pause")!=0;
 
     index = contains(argv, argc, "-shadow");
@@ -1416,7 +1421,7 @@ namespace lpzrobots {
       return;
     if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
       // colliding a space with something
-      dSpaceCollide2 (o1,o2,data,&nearCallback);        
+      dSpaceCollide2 (o1,o2,data,&nearCallback);
       // collide all geoms internal to the space(s)
       // FIXME: I (Georg) believe this is not necessary because we have list of spaces to check!
       if (dGeomIsSpace (o1)) {
@@ -1534,8 +1539,8 @@ namespace lpzrobots {
     fprintf (ODEMessageFile,"\n");
     fflush (ODEMessageFile);
   }
-  
-  
+
+
 
   bool Simulation::storeOdeRobotsCFG(){
     list<string> cs;
@@ -1628,7 +1633,7 @@ namespace lpzrobots {
 
   void Simulation::osgStep() {
     viewer->frame();
-    
+
     // onPostDraw(*(viewer->getCamera()));
   }
 
