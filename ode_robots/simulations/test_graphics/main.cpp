@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-03-13 09:19:53  martius
+ *   Revision 1.4  2009-03-25 15:44:23  guettler
+ *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
+ *
+ *   Revision 1.3  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -72,14 +75,14 @@ class ThisSim : public Simulation {
 public:
 
 
-  AbstractObstacle* playground; 
+  AbstractObstacle* playground;
   double hardness;
   Substance s;
   OSGBoxTex* b;
   OSGBox* b2;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
@@ -87,12 +90,12 @@ public:
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.setParam("controlinterval",2);
-    global.odeConfig.setParam("noise",0.1); 
+    global.odeConfig.setParam("noise",0.1);
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("gravity", -3);
 
     // use Playground as boundary:
-    playground = new Playground(odeHandle, osgHandle, 
+    playground = new Playground(odeHandle, osgHandle,
 				osg::Vec3(10, .2, 1));
     playground->setPosition(osg::Vec3(0,0,0.2));
     global.obstacles.push_back(playground);
@@ -113,45 +116,45 @@ public:
     }
 
     b = new OSGBoxTex(5,1,2);
-    b->setTexture(0,"Images/dusty.rgb",1,1); 
+    b->setTexture(0,"Images/dusty.rgb",1,1);
     b->setTexture(1,"Images/tire_full.rgb",3,1);
     b->setTexture(2,"Images/whitemetal_farbig_small.rgb",1,1);
     b->setTexture(3,"Images/wall.rgb",1,1);
-    b->setTexture(4,"Images/wood.rgb",1,1);
-    b->setTexture(5,"Images/light_chess.rgb",-1,-1); 
-    b->init(osgHandle); 
-    b->setMatrix(osg::Matrix::translate(0,-2,2)); 
+    b->setTexture(4,"Images/really_white.rgb",1,1);
+    b->setTexture(5,"Images/light_chess.rgb",-1,-1);
+    b->init(osgHandle.changeColor(Color(1,1,0)));
+    b->setMatrix(osg::Matrix::translate(0,-2,2));
 
     b2 = new OSGBox(5,1,2);
-    b2->setTexture("Images/light_chess.rgb",1,1); 
-    b2->init(osgHandle); 
+    b2->setTexture("Images/light_chess.rgb",1,1);
+    b2->init(osgHandle);
     b2->setMatrix(osg::Matrix::translate(7,0,2));
-    
 
-  
+
+
     showParams(global.configs);
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-    b->setMatrix(osg::Matrix::rotate(globalData.time/2,1,0,0)*osg::Matrix::translate(0,-2,2)); 
-    b2->setMatrix(osg::Matrix::rotate(globalData.time/2,1,0,0)*osg::Matrix::translate(7,0,2)); 
+    b->setMatrix(osg::Matrix::rotate(globalData.time/2,1,0,0)*osg::Matrix::translate(0,-2,2));
+    b2->setMatrix(osg::Matrix::rotate(globalData.time/2,1,0,0)*osg::Matrix::translate(7,0,2));
   }
-  
+
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
-	case 'i': 
-	  if(playground) {	    
+	case 'i':
+	  if(playground) {
 	    s.hardness*=1.5;
 	    cout << "hardness " << s.hardness << endl;
 	    playground->setSubstance(s);
 	  }
 	  return true;
 	  break;
-	case 'j': 
+	case 'j':
 	  if(playground) {
 	    s.hardness/=1.5;
 	    cout << "hardness " << s.hardness << endl;
@@ -170,9 +173,9 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+

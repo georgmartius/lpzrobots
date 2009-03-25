@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-01-20 17:27:34  martius
+ *   Revision 1.13  2009-03-25 15:44:23  guettler
+ *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
+ *
+ *   Revision 1.12  2009/01/20 17:27:34  martius
  *   texture for background changeable from outside
  *
  *   Revision 1.11  2008/09/11 15:24:01  martius
@@ -119,7 +122,7 @@
 
 #include "hudstatistics.h"
 
-class osg::Node;
+
 class Callbackable;
 
 
@@ -153,7 +156,7 @@ namespace lpzrobots {
      * 4 - SoftShadowMap
      * 5 - ShadowMap
      */
-    virtual osg::Group* createShadowedScene(osg::Node* sceneToShadow);
+    virtual osg::Group* createShadowedScene(osg::Node* sceneToShadow, osg::LightSource* lightSource);
 
     virtual void setGroundTexture(const char* filename) {
       this->groundTexture = filename;

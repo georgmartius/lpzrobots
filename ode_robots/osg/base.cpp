@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2009-03-13 09:19:53  martius
+ *   Revision 1.26  2009-03-25 15:44:23  guettler
+ *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
+ *
+ *   Revision 1.25  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -254,17 +257,17 @@ namespace lpzrobots {
   /* Shadow types: 1 - ShadowVolume 2 - ShadowTextue 3 - ParallelSplitShadowMap
    * 4 - SoftShadowMap 5 - ShadowMap
    */
-  osg::Group* Base::createShadowedScene(osg::Node* sceneToShadow)
+  osg::Group* Base::createShadowedScene(osg::Node* sceneToShadow, LightSource* lightSource)
 {
   // some conf variables for ShadowVolume
   bool twoSided=false;
   bool twoPass=false;
-  bool updateLightPosition = true;
+  bool updateLightPosition = false;
   // some conf variables for ParallelSplitShadowMap
-  int mapCount =2;
+  int mapCount =3;
   bool debugColor=false;
   int minNearSplit=0;
-  int maxFarDist=30;
+  int maxFarDist=50;
   int moveVCamFactor = 0;
   double polyoffsetfactor = -0.02;
   double polyoffsetunit = 1.0;
@@ -307,15 +310,36 @@ namespace lpzrobots {
     break;
   case 3: /// ParallelSplitShadowMap
     {
-      osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
+        osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
+
+        pssm->setTextureResolution(shadowTexSize);
+
+        if (debugColor)
+          pssm->setDebugColorOn();
+
+      	pssm->setMinNearDistanceForSplits(minNearSplit);
+
+        pssm->setMaxFarDistance(maxFarDist);
+
+        if ( maxFarDist > 0 ) {
+        	int moveVCamFactor = 0;
+            pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
+        }
+
+/*        double polyoffsetfactor = pssm->getPolygonOffset().x();
+        double polyoffsetunit   = pssm->getPolygonOffset().y();
+        while (arguments.read("--PolyOffset-Factor", polyoffsetfactor));
+        while (arguments.read("--PolyOffset-Unit", polyoffsetunit));
+        pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit));*/
+
+        shadowedScene->setShadowTechnique(pssm.get());
+
+        pssm->setUserLight(lightSource->getLight());
+
+     /* osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
 
       if (debugColor)
         pssm->setDebugColorOn();
-
-      pssm->setTextureResolution((int)shadowTexSize);
-      pssm->setMinNearDistanceForSplits(minNearSplit);
-      pssm->setMaxFarDistance(maxFarDist);
-      pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
 
       if (useNVidia!=0)
         pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f)); //NVidea
@@ -326,7 +350,7 @@ namespace lpzrobots {
 //      if (cullFaceFront)
 //        pssm->forceFrontCullFace();
 
-      shadowedScene->setShadowTechnique(pssm.get());
+      shadowedScene->setShadowTechnique(pssm.get());*/
     }
     break;
   case 4: /// SoftShadowMap
@@ -498,7 +522,7 @@ namespace lpzrobots {
       text->setColor(textColor);
       text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
       if(caption) text->setText(caption);
-      else text->setText("lpzrobots Simulator          Martius, Der, Güttler");
+      else text->setText("lpzrobots Simulator          Martius, Der, Gï¿½ttler");
     }
 
     // timing
@@ -585,7 +609,7 @@ namespace lpzrobots {
         sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (paused)",minutes,
                 seconds,realtimefactor);
       } else if (realtimefactor>0){
-	if(fabs(truerealtimefactor/realtimefactor-1)<0.15) 
+	if(fabs(truerealtimefactor/realtimefactor-1)<0.15)
 	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes,
 		  seconds,realtimefactor);
 	else
@@ -627,13 +651,16 @@ namespace lpzrobots {
 
     // add the sky and base layer.
     transform->addChild(makeSky());  // bin number -2 so drawn first.
-    transform->addChild(makeGround()); // bin number -1 so draw second.
+
+    int shadowType=(int)shadow;
+    // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
+    if (shadowType!=3)
+    	transform->addChild(makeGround()); // bin number -1 so draw second.
 
     LightSource* lightSource = makeLights(root->getOrCreateStateSet());
     transform->addChild(lightSource);
 
     Group* scene = new Group; // create an extra group for the normal scene
-    int shadowType=(int)shadow;
 
     if(shadowType){
       // enable shadows
@@ -645,7 +672,12 @@ namespace lpzrobots {
 
       // create the shadowed scene, using textures
       //shadowedScene = createShadowedScene(scene,posOfLight,1);
-      shadowedScene = createShadowedScene(scene);
+      shadowedScene = createShadowedScene(scene,lightSource);
+
+      // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
+      if (shadowType==3)
+      	shadowedScene->addChild(makeGround()); // bin number -1 so draw second.
+
       // add the shadowed scene to the root
       root->addChild(shadowedScene);
     }else {
@@ -857,6 +889,7 @@ namespace lpzrobots {
 
   osg::LightSource* Base::makeLights(osg::StateSet* stateset)
   {
+	  /*
     // create a spot light.
     Light* light_0 = new Light;
     light_0->setLightNum(0);
@@ -875,6 +908,26 @@ namespace lpzrobots {
     light_source_0->setStateSetModes(*stateset, StateAttribute::ON);
 
     return light_source_0;
+    */
+
+    // create a directional light (infinite distance place at 45 degrees)
+    osg::Light* myLight = new osg::Light;
+    myLight->setLightNum(1);
+    myLight->setPosition(osg::Vec4(1.0,1.0,1.0,0.0f));
+    myLight->setDirection(osg::Vec3(-1.0, -1.0, -1.0));
+    myLight->setAmbient(osg::Vec4(0.5f,0.5f,0.5f,1.0f));
+    myLight->setDiffuse(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
+    myLight->setConstantAttenuation(1.0f);
+
+    osg::LightSource* lightS = new osg::LightSource;
+    lightS->setLight(myLight);
+    lightS->setLocalStateSetModes(osg::StateAttribute::ON);
+
+    lightS->setStateSetModes(*stateset,osg::StateAttribute::ON);
+
+    return lightS;
+
+
   }
 
 

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-05-01 22:03:54  martius
+ *   Revision 1.12  2009-03-25 15:44:23  guettler
+ *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
+ *
+ *   Revision 1.11  2008/05/01 22:03:54  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -123,6 +126,7 @@
 
 
 using namespace lpzrobots;
+using namespace osg;
 
 class ThisSim : public Simulation
 {
@@ -163,6 +167,8 @@ public:
     if (mic)
       delete(mic);
   }
+
+
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
@@ -423,6 +429,14 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
   
 }
 
+	// Helper
+	int contains(char **list, int len,  const char *str) {
+  for(int i=0; i<len; i++) {
+    if(strcmp(list[i],str) == 0)
+      return i+1;
+  }
+  return 0;
+}
 
 int main (int argc, char **argv)
 {
