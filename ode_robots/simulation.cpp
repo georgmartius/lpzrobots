@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.92  2009-03-25 14:05:12  guettler
+ *   Revision 1.93  2009-03-25 17:44:41  guettler
+ *   CTRL +S  changes now the shadow type in the simulation
+ *
+ *   Revision 1.92  2009/03/25 14:05:12  guettler
  *   bugfix: PlotOption reference was not direct available
  *
  *   Revision 1.91  2009/03/21 14:27:43  martius
@@ -507,6 +510,8 @@
 #include <osgDB/ReaderWriter>
 #include <osgDB/FileUtils>
 #include <osgGA/StateSetManipulator>
+
+#include <osgShadow/ShadowedScene>
 
 #include "primitive.h"
 #include "abstractobstacle.h"
@@ -1080,7 +1085,7 @@ namespace lpzrobots {
       if(handled) {
 	break;
       }
-      //	printf("Key: %i\n", ea.getKey());
+      	//printf("Key: %i\n", ea.getKey());
       switch(ea.getKey()) {
       case 6 : // Ctrl - f
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
@@ -1160,6 +1165,62 @@ namespace lpzrobots {
 	printf( pause ? "Pause\n" : "Continue\n" );
 	handled = true;
 	break;
+      case 19: // Ctrl - s // change ShadowTechnique
+      {
+    	  std::string shadowName;
+    	  int shadowType = (int)++shadow;
+   	      switch (shadowType)
+   	      {
+		  case 6:
+			  shadowType=0; // max shadowtype at the moment: 5
+		  case 0:
+			  root->removeChild(shadowedScene);
+			  shadowedScene->unref();
+			  root->addChild(sceneToShadow);
+			  shadowName = std::string("NoShadow");
+			  break;
+		  case 1:
+		  case 2:
+			  shadowType=3; // temporarily disable volume shadows (1) and ShadowTextue (2)
+		  case 3:
+			  root->removeChild(sceneToShadow);
+	       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
+	       	  // add the shadowed scene to the root
+	   	      root->addChild(shadowedScene);
+	   	      // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
+	   	      transform->removeChild(groundScene);
+	   	      groundScene = makeGround(); // this is usually not needed!
+	   	      sceneToShadow->addChild(groundScene); // bin number -1 so draw second.
+			  shadowName = std::string("ParallelSplitShadowMap");
+			  break;
+		  case 4:
+			  root->removeChild(shadowedScene);
+			  shadowedScene->unref();
+	       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
+	       	  // add the shadowed scene to the root
+	   	      root->addChild(shadowedScene);
+	   	      sceneToShadow->removeChild(groundScene);
+	   	      groundScene = makeGround(); // this is usually not needed!
+	   	      transform->addChild(groundScene); // bin number -1 so draw second.
+			  shadowName = std::string("SoftShadowMap");
+			  break;
+		  case 5:
+			  root->removeChild(shadowedScene);
+			  shadowedScene->unref();
+	       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
+	       	  // add the shadowed scene to the root
+	   	      root->addChild(shadowedScene);
+			  shadowName = std::string("ShadowMap (simple)");
+			  break;
+		  default:
+			  shadowName = std::string("NoShadow");
+			  break;
+		  }
+    	  printf("Changed shadowType to %i (%s)\n",shadowType,shadowName.c_str());
+    	  shadow=(double)shadowType;
+    	  handled=true;
+      }
+    break;
 	//     case 15: // Ctrl - o // TEST
 	//       {
 	// 	SceneView* sv = viewer->getSceneHandlerList().front()->getSceneView();
@@ -1197,6 +1258,7 @@ namespace lpzrobots {
     au.addKeyboardMouseBinding("Simulation: +","increase simulation speed (realtimefactor)");
     au.addKeyboardMouseBinding("Simulation: -","decrease simulation speed (realtimefactor)");
     au.addKeyboardMouseBinding("Simulation: *","set maximum simulation speed (realtimefactor=0)");
+    au.addKeyboardMouseBinding("Simulation: Ctrl-s","change shadow technique");
     bindingDescription(au);
   }
 
