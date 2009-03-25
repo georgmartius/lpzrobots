@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <string.h>
 #include <iostream>
 using namespace std;
 #include "cmdline.h"
