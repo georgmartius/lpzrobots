@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-09-16 15:36:40  martius
+ *   Revision 1.8  2009-03-25 11:55:32  robot1
+ *   changed minor handling of PlotOptions
+ *
+ *   Revision 1.7  2008/09/16 15:36:40  martius
  *   added assert.h
  *
  *   Revision 1.6  2008/08/12 11:50:15  guettler
@@ -123,16 +126,16 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
 
   // copy plotoption list and add it one by one
   list<PlotOption> po_copy(plotOptions);
-  plotOptions.clear();
   // open the all outputs
   for(list<PlotOption>::iterator i=po_copy.begin(); i != po_copy.end(); i++){
+    removePlotOption((*i).getPlotOptionMode());
     addPlotOption(*i);
   }
   initialised = true;
   return true;
 }
 
-void WiredController::addPlotOption(const PlotOption& plotOption) {
+PlotOption WiredController::addPlotOption(PlotOption& plotOption) {
   PlotOption po = plotOption;
   // if plotoption with the same mode exists -> delete it
   removePlotOption(po.mode);
@@ -162,13 +165,38 @@ void WiredController::addPlotOption(const PlotOption& plotOption) {
     unsigned int snum = plotOption.whichSensors == Robot ? rsensornumber : csensornumber;
     printInternalParameterNames(po.pipe, snum, cmotornumber, inspectables);
   }
+  else
+    printf("Opening of pipe for PlotOption failed!\n");
+  
   plotOptions.push_back(po);
+  
+  return po;
 }
+
+// bool WiredController::removePlotOption(PlotMode mode) {
+//   // if plotoption with the same mode exists -> delete it
+// 
+//   list<PlotOption>::iterator po
+//     = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
+// //   FOREACH (list<PlotOption>, plotOptions, po) {
+// //     if(po != plotOptions.end()) {
+// //         std::cout << "CLOSING now pipes......................." << std::endl;
+// //         PlotOption p_tmp = (*po);
+// //         std::cout << "p_tmp.mode "<< p_tmp.mode << " == " << mode << "???????????????" << std::endl;
+// //         if (p_tmp.mode == mode) {
+// //            (*po).close();
+// //             plotOptions.erase(po);
+// //         return true;
+// //         }
+// //       }
+// //   }
+//   return false;
+// }
 
 bool WiredController::removePlotOption(PlotMode mode) {
   // if plotoption with the same mode exists -> delete it
   list<PlotOption>::iterator po
-      = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
+    = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
   if(po != plotOptions.end()){
     (*po).close();
     plotOptions.erase(po);
@@ -176,7 +204,6 @@ bool WiredController::removePlotOption(PlotMode mode) {
   }
   return false;
 }
-
 
 // Plots controller sensor- and motorvalues and internal controller parameters.
 void WiredController::plot(const sensor* rx, int rsensornumber,
@@ -192,12 +219,12 @@ void WiredController::plot(const sensor* rx, int rsensornumber,
       }else{
 		printInternalParameters((*i).pipe, time, cx, csensornumber, y, motornumber, inspectables);
       }
-      if(t% ((*i).interval * 10)) fflush((*i).pipe);
+//       if(t% ((*i).interval * 10)) fflush((*i).pipe);
     } // else {
-      //      if (!(*i).pipe) { // if pipe is closed
-      // std::cout << "pipe is closed!" << std::endl;
-      //      }
-      // }
+    /*if (!(*i).pipe) { // if pipe is closed
+      std::cout << "pipe is closed!" << std::endl;
+           }
+    */  
   }
 };
 
@@ -251,6 +278,7 @@ void WiredController::addCallbackable(Callbackable* callbackable){
 
 bool PlotOption::open(){
   char cmd[255];
+  std::cout << "open a stream " << std::endl;
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN);
@@ -275,7 +303,9 @@ bool PlotOption::open(){
     pipe=popen("guilogger -m pipe","w");
     break;
   case ECBRobotGUI:
-    pipe=popen("src","w");
+    pipe=popen("SphericalRobotGUI","w");
+    if (pipe)   std::cout << "open a SphericalRobotGUI-Stream " << std::endl;
+    else   std::cout << "can't open SphericalRobotGUI-Stream " << std::endl;
     break;
   case NeuronViz:
     pipe=popen("neuronviz > /dev/null","w");  // TODO: Platform dependent
@@ -295,7 +325,8 @@ bool PlotOption::open(){
 
 
 void PlotOption::close(){
-  if (pipe) {
+  if (pipe) {  
+    
     switch(mode){
     case File:
       std::cout << "logfile closing...SUCCESSFUL" << std::endl;
@@ -318,7 +349,12 @@ void PlotOption::close(){
       pclose(pipe);
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
       break;
-
+    case ECBRobotGUI:
+//       std::cout << "Try to close ECBRobotGUI pipe...";
+      fprintf(pipe, "#QUIT\n");
+      pclose(pipe);
+      std::cout << "ECBRobotGUI pipe closing...SUCCESSFUL" << std::endl;
+      break;
     case SoundMan:
       std::cout << "SoundMan closing...SUCCESSFUL" << std::endl;
       fclose(pipe);
@@ -549,8 +585,9 @@ bool PlotOption::open(){
       if (pipe)
 	std::cout << "Now logging to file \"" << logfilename << "\"." << std::endl;
       break;
-  case GuiLogger_File:
-    pipe=popen("guilogger -m pipe -l","w");
+     
+  case ECBRobotGUI:
+    pipe=popen("SphericalRobotGUI","w");
     break;
   case GuiLogger:
     pipe=popen("guilogger -m pipe","w");
@@ -577,6 +614,7 @@ void PlotOption::close(){
     switch(mode){
     case File:
       std::cout << "logfile closing...SUCCESSFUL" << std::endl;
+      fflush(pipe);
       fclose(pipe);
       break;
     case GuiLogger:
@@ -595,6 +633,12 @@ void PlotOption::close(){
       fprintf(pipe, "#QUIT\n");
       pclose(pipe);
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
+      break;
+    
+    case ECBRobotGUI:
+      fprintf(pipe, "#QUIT\n");
+      pclose(pipe);
+      std::cout << "ecbrobotsgui pipe closing...SUCCESSFUL" << std::endl;
       break;
 
     case SoundMan:

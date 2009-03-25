@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2008-04-17 14:54:01  martius
+ *   Revision 1.20  2009-03-25 11:55:32  robot1
+ *   changed minor handling of PlotOptions
+ *
+ *   Revision 1.19  2008/04/17 14:54:01  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -211,7 +214,7 @@ public:
       If a plotoption with the same Mode exists, then the old one is
       deleted first (overwritten from WiredController, to add robot)
    */
-  virtual void addPlotOption(const PlotOption& plotoption);
+  virtual PlotOption addPlotOption(PlotOption& plotoption);
 
 protected:
 

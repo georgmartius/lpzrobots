@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-08-12 11:50:00  guettler
+ *   Revision 1.7  2009-03-25 11:55:32  robot1
+ *   changed minor handling of PlotOptions
+ *
+ *   Revision 1.6  2008/08/12 11:50:00  guettler
  *   plug and play update, added some features for the ECBRobotGUI
  *
  *   Revision 1.5  2008/08/01 14:42:04  guettler
@@ -122,11 +125,15 @@ public:
 
   virtual ~PlotOption(){}
 
+  virtual PlotMode getPlotOptionMode() const { return mode; }
+  
+  
   /// nice predicate function for finding by mode
   struct matchMode : public std::unary_function<const PlotOption&, bool> {
     matchMode(PlotMode mode) : mode(mode) {}
     int mode;
-    bool operator()(const PlotOption& m) { return m.mode == mode; }
+    bool operator()(const PlotOption& m) { return (m.mode == mode); }
+    
   };
 
   void addConfigurable(const Configurable*);
@@ -139,7 +146,7 @@ public:
   long t;
   int interval;
   std::string name;
-
+  
 private:
 
   PlotMode mode;
@@ -208,7 +215,7 @@ public:
   /** adds the PlotOptions to the list of plotoptions
       If a plotoption with the same Mode exists, then the old one is deleted first
    */
-  virtual void addPlotOption(const PlotOption& plotoption);
+  virtual PlotOption addPlotOption(PlotOption& plotoption);
 
   /** removes the PlotOptions with the given type
       @return true if sucessful, false otherwise
@@ -301,6 +308,8 @@ enum PlotMode {
   /// net visualiser
   NeuronViz,
 
+  ECBRobotGUI,
+    
   /// Acustic output of robotic values via external SoundMan
   SoundMan,
 

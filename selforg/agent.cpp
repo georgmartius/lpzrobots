@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2008-09-16 15:36:25  martius
+ *   Revision 1.24  2009-03-25 11:55:32  robot1
+ *   changed minor handling of PlotOptions
+ *
+ *   Revision 1.23  2008/09/16 15:36:25  martius
  *   added assert.h
  *
  *   Revision 1.22  2008/04/17 14:53:53  martius
@@ -232,13 +235,13 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
   return WiredController::init(controller,wiring, rsensornumber, rmotornumber, &randGen);
 }
 
-void Agent::addPlotOption(const PlotOption& plotOption) {
+PlotOption Agent::addPlotOption(PlotOption& plotOption) {
   PlotOption po = plotOption;
   if(robot) {
     po.addConfigurable(robot);
     po.setName(robot->getName());
   }
-  WiredController::addPlotOption(po);
+  return WiredController::addPlotOption(po);
 }
 
 void Agent::step(double noise, double time){
@@ -246,7 +249,7 @@ void Agent::step(double noise, double time){
 
   int len =  robot->getSensors(rsensors, rsensornumber);
   if(len != rsensornumber){
-    fprintf(stderr, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__,
+    fprintf(stdout, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__,
 	    rsensornumber, len);
   }
 
