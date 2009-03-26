@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-03-26 18:01:59  martius
+ *   Revision 1.18  2009-03-26 20:25:35  martius
+ *   changed color to gold; segments are equally wide
+ *
+ *   Revision 1.17  2009/03/26 18:01:59  martius
  *   angular motors possible
  *   sliders can be switched off -> defaultwheelie is obsolete
  *   better drawing of joints
@@ -206,16 +209,16 @@ namespace lpzrobots {
       osg::Matrix m = osg::Matrix::rotate(M_PI*2*n/conf.segmNumber, 0, -1, 0) * pose;
       if(n%2==0 && conf.sliderLength > 0){ // slider segment
 	
-	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength/2);
-	p1->setTexture("Images/wood.rgb");
+	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*2, conf.segmLength/2);
+	// p1->setTexture("Images/wood.rgb");
 	p1->init(odeHandle, conf.segmMass/2 , osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
 		    osg::Matrix::translate(-conf.segmLength/4,0,
 					   -0.5*conf.segmLength*conf.segmNumber/M_PI) * m );	
 	objects.push_back(p1);
 
-	Primitive* p2 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength/2);
-	p2->setTexture("Images/dusty.rgb");
+	Primitive* p2 = new Box(conf.segmDia/2, conf.segmDia*4*2, conf.segmLength/2);
+	// p2->setTexture("Images/dusty.rgb");
 	p2->init(odeHandle, conf.segmMass/2 , osgHandle);
 	p2->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
 		    osg::Matrix::translate(conf.segmLength/4,0,
@@ -237,9 +240,11 @@ namespace lpzrobots {
 					     conf.motorPower*conf.powerRatio);
 	sliderServos.push_back(servo);	
       }else{ // normal segment
-	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 3 : 1), 
+	Primitive* p1 = new Box(conf.segmDia/2, 
+				/* conf.segmDia*4*( (n+1)%4 ==0 ? 3 : (n%2 ==0 ? 2 : 1)), */
+				conf.segmDia*8,
 				conf.segmLength-conf.segmDia/2);
-	p1->setTexture("Images/whitemetal_farbig_small.rgb");
+	// p1->setTexture("Images/whitemetal_farbig_small.rgb");
 	p1->init(odeHandle, conf.segmMass * ( (n+1)%4 ==0 ? 1.0 : 1), osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
 		    osg::Matrix::translate(0,0,-0.5*conf.segmLength*conf.segmNumber/M_PI) * m );	
@@ -281,10 +286,11 @@ namespace lpzrobots {
     center = new Sphere(0.1);
     OdeHandle centerHandle = odeHandle;
     centerHandle.substance.toNoContact();
-    center->init(centerHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw); 
+    center->init(centerHandle, 0, osgHandle.changeAlpha(0.4), 
+		 Primitive::Geom | Primitive::Draw); 
     center->setPose(osg::Matrix::translate(0,0,0) * pose);
 
-   created=true;
+    created=true;
 
   }
 
