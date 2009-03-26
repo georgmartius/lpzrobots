@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-28 11:10:11  guettler
+ *   Revision 1.4  2009-03-26 19:14:42  martius
+ *   some comments
+ *
+ *   Revision 1.3  2008/04/28 11:10:11  guettler
  *   include "matrix.h" from trackable class removed, used forward declaration
  *   instead - this change effectuates that no robot must be recompiled if
  *   matrix.h has changed.
@@ -45,12 +48,12 @@
 #include "matrix.h"
 
 /** Implements essentionally a one to one wiring with feedback connections.
-    The feedback connections from output to input is parameterised
+    The feedback connections from output to input are parameterised
      with a feedback strength.
     It is possible to generate virtual motors for context sensors.
 
-    In order to change the feedback strength use the following code
-     after initialisation of the agent/wiredcontroller
+    In order to change the feedback strength after initialisation 
+    use the following code
     \code
     matrix::Matrix rs = wiring->getFeedbackRatio();
     double c=ratio;
@@ -87,7 +90,7 @@ public:
   /// return the feedback ratio vector
   virtual matrix::Matrix getFeedbackRatio() const;
   /** sets the feedback ratio vector.
-      The size of the vector must be at least as large as feedbackratio*/
+      The size of the vector must be at least as large as getFeedbackRatio()*/
   virtual void setFeedbackRatio(const matrix::Matrix&);
 
 protected:
