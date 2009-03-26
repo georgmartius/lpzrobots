@@ -42,6 +42,8 @@ public:
     void setChecked(int, bool);
     QString getChannelName();
 
+    virtual QSize sizeHint() const;  
+
 signals:
     void sendtaggedCheckBoxToggled(const Tag&, int, bool);
 

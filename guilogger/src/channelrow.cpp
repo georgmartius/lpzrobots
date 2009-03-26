@@ -58,6 +58,10 @@ void ChannelRow::init( QWidget* , int buttons){
 
 }
 
+QSize ChannelRow::sizeHint() const {
+  return QSize(250,15);
+}
+
 // SLOT : wird nur durchgeschliffen
 void ChannelRow::receiveCheckedBox(const Tag& Tag, int i, bool b)
 {    emit sendtaggedCheckBoxToggled(Tag, i, b);

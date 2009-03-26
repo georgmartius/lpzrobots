@@ -59,7 +59,7 @@ guilogger::guilogger(const CommLineParser& configobj, const QRect& screenSize)
     QString calcPositions = cfgFile.getValueDef("Misc","CalcPositions","no");
     QString windowLayout = cfgFile.getValueDef("Misc","WindowLayout","tlh");
     int windowsPerRowColumn = cfgFile.getValueDef("Misc","WindowsPerRowColumn","3").toInt();
-    if(calcPositions.compare("yes")==0){
+    if(calcPositions.contains("yes")){
       // arrange Gnuplot windows
       int xstart = windowLayout.contains("l") ? 0 : screenSize.width();
       int xinc   = windowLayout.contains("l") ? 1 : -1;
@@ -420,7 +420,6 @@ void guilogger::taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on)
 // 	gp[i].command(paramvaluelineedit->text().latin1()); 
 //     }
 
-
     if(mode == "file") {   
       updateSliderPlot();
     } else {
@@ -611,15 +610,15 @@ void guilogger::addChannel(const QString &name, const QString &title, const QStr
             gp[k].hide(name);                       //    und per default nicht sichtbar machen
         }
 
-        ChannelRow* newrow = new ChannelRow(name, plotwindows, channelWidget);           // neues Grafikelement für Channel erzeugen
-//        ChannelRow* newrow = new ChannelRow(name, plotwindows, sv->viewport());           // neues Grafikelement für Channel erzeugen
+	// neues Grafikelement für Channel erzeugen
+        ChannelRow* newrow = new ChannelRow(name, plotwindows, channelWidget); 
         connect(newrow, SIGNAL(sendtaggedCheckBoxToggled(const Tag&, int, bool)),
                   this,   SLOT(taggedCheckBoxToggled( const Tag&, int, bool)));
         channellayout->addWidget(newrow);
 //        framecounter++;
 //        sv->addChild( newrow, 0, 30*framecounter);
 
-        newrow->show();
+//        newrow->show();
         ChannelRowPtrList.append(newrow);
 
         QRegExp re;
@@ -631,7 +630,7 @@ void guilogger::addChannel(const QString &name, const QString &title, const QStr
         while(it != KnownChannels.end())  // guggen ob neuer Channel auf einen der Ausdrücke aus dem config file matcht
         {   //printf("  %s ", it.key().latin1());  // DEBUG
             re.setPattern(it.key());
-            if(name == it.key() || re.exactMatch(name))  // irgendwas klappt mit dem exactMatch nicht so ganz
+            if(name == it.key() || re.exactMatch(name))
             {   //printf("Match\n");   // DEBUG
                 Q3ValueList<int>::iterator lit = (*it).begin();  // wenn Ausdruck matcht, Plotwindows rausbekommen
                 while(lit != (*it).end())
