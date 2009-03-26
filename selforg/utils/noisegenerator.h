@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-01-22 16:51:14  martius
+ *   Revision 1.7  2009-03-26 19:15:29  martius
+ *   NoNoise added (important for WiringSequence, to avoid multiple noise)
+ *
+ *   Revision 1.6  2009/01/22 16:51:14  martius
  *   sinenoise is now scaled with noise strength
  *
  *   Revision 1.5  2008/05/30 11:58:27  martius
@@ -161,6 +164,17 @@ protected:
   unsigned int dimension;
   RandGen* randGen;
 };
+
+/// generates no noise
+class NoNoise : public NoiseGenerator{
+public:
+  NoNoise() {}
+  virtual ~NoNoise(){}
+  virtual double generate() {
+    return 0;
+  }; 
+};
+
 
 /// generates white (no averaging) uniformly distributed random number between "min" and "max"  
 class WhiteUniformNoise : public NoiseGenerator{
