@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-09-16 14:53:24  martius
+ *   Revision 1.11  2009-03-26 18:01:59  martius
+ *   angular motors possible
+ *   sliders can be switched off -> defaultwheelie is obsolete
+ *   better drawing of joints
+ *   all motors are set (was a bug before)
+ *
+ *   Revision 1.10  2008/09/16 14:53:24  martius
  *   provide a virtual center of the robot as main primitive
  *
  *   Revision 1.9  2007/11/07 13:21:16  martius
@@ -77,18 +83,20 @@ namespace lpzrobots {
 
   typedef struct {
   public:
-    int    segmNumber;  ///<  number of snake elements
-    double segmLength;  ///< length of one snake element
-    double segmDia;     ///<  diameter of a snake element
-    double segmMass;    ///<  mass of one snake element
-    double motorPower;  ///<  power of the motors / servos
-    double powerRatio;   ///< ratio of motorpower for hinge vs. slider
-    double sensorFactor;    ///<  scale for sensors
-    double frictionGround;  ///< friction with ground
-    double frictionJoint;   ///< friction within joint
-    double jointLimitIn;      ///< maximal angle for the joints to the inside (M_PI/2 = 90 degree)
-    double jointLimitOut;      ///< maximal angle for the joints to the outside
-    double sliderLength;  ///< length of the slider in segmLength
+    int    segmNumber;    ///<  number of snake elements
+    double segmLength;    ///< length of one snake element
+    double segmDia;       ///<  diameter of a snake element
+    double segmMass;      ///<  mass of one snake element
+    double motorPower;    ///<  power of the motors / servos
+    double motorDamp;     ///<  damping of motors
+    double powerRatio;    ///< ratio of motorpower for hinge vs. slider
+    double sensorFactor;  ///<  scale for sensors
+    double frictionGround;///< friction with ground
+    double frictionJoint; ///< friction within joint
+    double jointLimitIn;  ///< maximal angle for the joints to the inside (M_PI/2 = 90 degree)
+    double jointLimitOut; ///< maximal angle for the joints to the outside
+    double sliderLength;  ///< length of the slider in segmLength (0 for no sliders)
+    bool   useServos;     ///< true: use Servo motors; false: use Angular motors
   } SliderWheelieConf;
   
 
@@ -104,7 +112,7 @@ namespace lpzrobots {
       
     std::vector <Primitive*> objects;
     std::vector <Joint*> joints;
-    std::vector <AngularMotor*> frictionmotors;
+    std::vector <AngularMotor*> angularMotors;
     SliderWheelieConf conf;
 
     std::vector <HingeServo*> hingeServos;
@@ -120,18 +128,20 @@ namespace lpzrobots {
 	
     static SliderWheelieConf getDefaultConf(){
       SliderWheelieConf conf;
-      conf.segmNumber = 8;    //  number of snake elements
-      conf.segmLength = 0.4;   // length of one snake element
-      conf.segmDia    = 0.2;   //  diameter of a snake element
-      conf.segmMass   = 0.4;   //  mass of one snake element
-      conf.motorPower = 0.2;    //  power of the servos
-      conf.powerRatio = 2;    //  power of the servos
-      conf.sensorFactor = 1;    //  scale for sensors
-      conf.frictionGround = 0.8; // friction with ground
-      conf.frictionJoint = 0.0; // friction within joint
+      conf.segmNumber = 8;       //  number of snake elements
+      conf.segmLength = 0.4;     // length of one snake element
+      conf.segmDia    = 0.2;     //  diameter of a snake element
+      conf.segmMass   = 0.4;     //  mass of one snake element
+      conf.motorPower = 10;       //  power of the servos
+      conf.motorDamp  = 0.01;    //  damping of servos
+      conf.powerRatio = 2;       //  power of the servos
+      conf.sensorFactor    = 1;   //  scale for sensors
+      conf.frictionGround  = 0.8; // friction with ground
+      conf.frictionJoint   = 0.0; // friction within joint
       conf.jointLimitIn    =  M_PI/2;
       conf.jointLimitOut   =  -1; // automatically set to 2*M_PI/segm_num
-      conf.sliderLength  =  1; 
+      conf.sliderLength    =  1;  // use servos
+      conf.useServos       = true;
       return conf;
     }
 
@@ -147,9 +157,11 @@ namespace lpzrobots {
 
     virtual int getSensors ( sensor* sensors, int sensornumber );
 	
-    virtual int getSensorNumber() { assert(created); return hingeServos.size()+sliderServos.size(); }
+    virtual int getSensorNumber() { assert(created); 
+      return hingeServos.size()+angularMotors.size()+sliderServos.size(); }
 
-    virtual int getMotorNumber(){ assert(created); return hingeServos.size()+sliderServos.size(); }
+    virtual int getMotorNumber(){ assert(created); 
+      return hingeServos.size()+angularMotors.size()+sliderServos.size(); }
 
     virtual Primitive* getMainPrimitive() const {
       if(center) return center;

@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-03-13 09:19:53  martius
+ *   Revision 1.17  2009-03-26 18:01:59  martius
+ *   angular motors possible
+ *   sliders can be switched off -> defaultwheelie is obsolete
+ *   better drawing of joints
+ *   all motors are set (was a bug before)
+ *
+ *   Revision 1.16  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -129,17 +135,23 @@ namespace lpzrobots {
 
   void SliderWheelie::setMotors(const motor* motors, int motornumber) {
    assert(created);
-   unsigned int len = min(motornumber, getMotorNumber())/2;
+   unsigned int len = min(motornumber, getMotorNumber());
    unsigned int n=0;
    // controller output as torques 
-
-   for(unsigned int i=0; (n<len) && (i<hingeServos.size()); i++, n++) {
-    hingeServos[i]->set(motors[n]);
+   if(conf.useServos){
+     for(unsigned int i=0; (n<len) && (i<hingeServos.size()); i++, n++) {
+       hingeServos[i]->set(motors[n]);
+     }
+   }else{
+     for(unsigned int i=0; (n<len) && (i<angularMotors.size()); i++, n++) {
+       angularMotors[i]->set(1, motors[n]);
+     }
    }
 
    for(unsigned int i=0; (n<len) && (i<sliderServos.size()); i++, n++) {
-    sliderServos[i]->set(motors[n]);
+     sliderServos[i]->set(motors[n]);
    }
+   
    /// update center position
    if(center){ 
      Pos p;
@@ -156,9 +168,14 @@ namespace lpzrobots {
    unsigned int len=min(sensornumber, getSensorNumber());
    unsigned int n=0;
    // get the hingeServos
-
-   for(unsigned int i=0; (n<len) && (i<hingeServos.size()); i++, n++) {
-     sensors[n] = hingeServos[i]->get();
+   if(conf.useServos){
+     for(unsigned int i=0; (n<len) && (i<hingeServos.size()); i++, n++) {
+       sensors[n] = hingeServos[i]->get();
+     }
+   }else{
+     for(unsigned int i=0; (n<len) && (i<angularMotors.size()); i++, n++) {
+       sensors[n] = angularMotors[i]->get(1);
+     }
    }
 
    for(unsigned int i=0; (n<len) && (i<sliderServos.size()); i++,n++) {
@@ -187,7 +204,7 @@ namespace lpzrobots {
     // angular positioning
     for(int n = 0; n < conf.segmNumber; n++) {
       osg::Matrix m = osg::Matrix::rotate(M_PI*2*n/conf.segmNumber, 0, -1, 0) * pose;
-      if(n%2==0){ // slider segment
+      if(n%2==0 && conf.sliderLength > 0){ // slider segment
 	
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4, conf.segmLength/2);
 	p1->setTexture("Images/wood.rgb");
@@ -220,7 +237,8 @@ namespace lpzrobots {
 					     conf.motorPower*conf.powerRatio);
 	sliderServos.push_back(servo);	
       }else{ // normal segment
-	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 3 : 1), conf.segmLength);
+	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*( (n+1)%4 ==0 ? 3 : 1), 
+				conf.segmLength-conf.segmDia/2);
 	p1->setTexture("Images/whitemetal_farbig_small.rgb");
 	p1->init(odeHandle, conf.segmMass * ( (n+1)%4 ==0 ? 1.0 : 1), osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
@@ -233,25 +251,30 @@ namespace lpzrobots {
 
    //***************** hinge joint definition***********
     int i = 0;
-    for(int n=0; n < conf.segmNumber; n++, i++) {            
-      if(n%2==0){
+    for(int n=0; n < conf.segmNumber ; n++, i++) {            
+      if(n%2==0 && conf.sliderLength > 0){
 	i++;	
       }
       int o1 = i;
       int o2 = (i+1) % objects.size();
-      
       HingeJoint* j = new HingeJoint(objects[o1], objects[o2],
 				     ancors[n],
 				     Axis(0,1,0)*pose);
-      j->init(odeHandle, osgHandle, true, conf.segmDia*2);
-      
+      j->init(odeHandle, osgHandle, true, conf.segmDia*4);      
       joints.push_back(j);
       
-      HingeServo* servo = new HingeServo(j, -conf.jointLimitOut, 
-					 conf.jointLimitIn, 
-					 conf.motorPower);
-      hingeServos.push_back(servo);
-
+      if(conf.useServos){
+	HingeServo* servo = new HingeServo(j, -conf.jointLimitOut, 
+					   conf.jointLimitIn, 
+					   conf.motorPower,
+					   conf.motorDamp,0);
+	hingeServos.push_back(servo);
+      }else{
+	AngularMotor* amotor = new AngularMotor1Axis(odeHandle, j, conf.motorPower);
+	j->setParam(dParamLoStop, -conf.jointLimitOut);
+	j->setParam(dParamHiStop, conf.jointLimitIn);
+	angularMotors.push_back(amotor);
+      }
     }
 
     // create virtual center
@@ -268,26 +291,27 @@ namespace lpzrobots {
   /** destroys vehicle and space
    */
   void SliderWheelie::destroy() {
-   if(created) {
-      for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
+    if(created) {
+      FOREACH(vector<AngularMotor*>, angularMotors, i){
 	if(*i) delete *i;
       }
-      frictionmotors.clear();
+      angularMotors.clear();
 
-      for (vector<HingeServo*>::iterator i = hingeServos.begin(); i!= hingeServos.end(); i++) {
-	if(*i) delete *i;
-      }
-
-      for (vector<SliderServo*>::iterator i = sliderServos.begin(); i!= sliderServos.end(); i++) {
+      FOREACH(vector<HingeServo*>, hingeServos, i){
 	if(*i) delete *i;
       }
       hingeServos.clear();
+
+      FOREACH(vector<SliderServo*>, sliderServos, i){
+	if(*i) delete *i;
+      }
       sliderServos.clear();
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
+
+      FOREACH(vector<Joint*>, joints, i){
 	if(*i) delete *i;
       }
       joints.clear();
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
+      FOREACH(vector<Primitive*>, objects, i){
 	if(*i) delete *i;
       }
       objects.clear();
@@ -303,6 +327,7 @@ namespace lpzrobots {
     list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
     list += pair<paramkey, paramval> (string("powerratio"), conf.powerRatio);
     list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
+    list += pair<paramkey, paramval> (string("motordamp"),   conf.motorDamp);
     list += pair<paramkey, paramval> (string("sensorfactor"), conf.sensorFactor);
     return list;
   }
@@ -312,6 +337,7 @@ namespace lpzrobots {
     if(key == "frictionground") return conf.frictionGround; 
     else if(key == "powerratio") return conf.powerRatio; 
     else if(key == "motorpower") return conf.motorPower; 
+    else if(key == "motordamp") return conf.motorDamp; 
     else if(key == "sensorfactor") return conf.sensorFactor; 
     else  return Configurable::getParam(key) ;
   }
@@ -322,14 +348,21 @@ namespace lpzrobots {
       for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
 	if(*i) (*i)->substance.roughness=val;
       }      
-    } 
-    else if(key == "motorpower") { 
+    } else if(key == "motorpower") { 
       conf.motorPower = val; 
 
-      for(vector<HingeServo*>::iterator i=hingeServos.begin(); i!=hingeServos.end(); i++) {
+      FOREACH(vector<HingeServo*>, hingeServos, i) {
 	if(*i) (*i)->setPower(conf.motorPower);
-      }
+      }      
+      FOREACH(vector<AngularMotor*>, angularMotors, i) {
+	if(*i) (*i)->setPower(conf.motorPower);
+      }      
+    } else if(key == "motordamp") { 
+      conf.motorDamp = val; 
 
+      FOREACH(vector<HingeServo*>, hingeServos, i) {
+	if(*i) (*i)->damping() = conf.motorDamp;
+      }
     }
     else if(key == "sensorfactor") conf.sensorFactor = val; 
     else if(key == "powerratio") { 
