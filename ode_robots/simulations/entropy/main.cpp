@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-03-25 15:44:23  guettler
+ *   Revision 1.13  2009-03-26 18:25:23  martius
+ *   removed contains helper since it is in Base class
+ *
+ *   Revision 1.12  2009/03/25 15:44:23  guettler
  *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
  *
  *   Revision 1.11  2008/05/01 22:03:54  martius
@@ -429,15 +432,6 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
   
 }
 
-	// Helper
-	int contains(char **list, int len,  const char *str) {
-  for(int i=0; i<len; i++) {
-    if(strcmp(list[i],str) == 0)
-      return i+1;
-  }
-  return 0;
-}
-
 int main (int argc, char **argv)
 {
   double startx=0.0;
@@ -448,20 +442,20 @@ int main (int argc, char **argv)
   double stepSizey=0.2;
   int numberSteps = (int)(((endx-startx)/stepSizex+1)*((endy-starty)/stepSizey+1));  
   // check for -first value
-  int index = contains(argv, argc, "-first");
+  int index = Simulation::contains(argv, argc, "-first");
   if(index &&  (argc > index))
   {
     int firstStep=atoi(argv[index]);
     int lastStep=0;
     int stepId = 0;
     int stepInterval=1;
-    index = contains(argv, argc, "-last");
+    index = Simulation::contains(argv, argc, "-last");
     if(index &&  (argc > index))
       lastStep=atoi(argv[index]);
-    index = contains(argv, argc, "-step");
+    index =  Simulation::contains(argv, argc, "-step");
     if(index &&  (argc > index))
       stepInterval=atoi(argv[index]);
-    index = contains(argv, argc, "-id");
+    index =  Simulation::contains(argv, argc, "-id");
     if(index &&  (argc > index))
       stepId=atoi(argv[index]);
     // -0.1 <= cnondiag <= 0.3
@@ -510,7 +504,7 @@ int main (int argc, char **argv)
 	runSim(x,3,argc,argv,y);
         
     }
-  } else if (contains(argv, argc, "-loop") && (argc > contains(argv, argc, "-last"))){
+  } else if ( Simulation::contains(argv, argc, "-loop") && (argc >  Simulation::contains(argv, argc, "-last"))){
     // then loop over all cinit and cnondiag values:
     std::cout << "Running now " << numberSteps << " steps, be patient :)" << std::endl;
     for (int i=1;i<=numberSteps;i++) {
@@ -525,16 +519,16 @@ int main (int argc, char **argv)
   {
     // check for runs value
     int runs=1;
-    int index = contains(argv, argc, "-runs");
+    int index =  Simulation::contains(argv, argc, "-runs");
     if(index &&  (argc > index))
       runs = atoi(argv[index]);
     // check for cinit value
-    index = contains(argv, argc, "-cinit");
+    index =  Simulation::contains(argv, argc, "-cinit");
     double cinit=1.0;
     if (index && (argc > index)) {
       cinit = atof(argv[index]);
       // check for cnondiag value
-      index = contains(argv, argc, "-cnondiag");
+      index =  Simulation::contains(argv, argc, "-cnondiag");
       double cnondiag=0.2;
       if (index && (argc > index)) 
         cnondiag=atof(argv[index]);
