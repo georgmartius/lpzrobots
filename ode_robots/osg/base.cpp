@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2009-03-25 15:44:23  guettler
+ *   Revision 1.27  2009-03-26 19:20:57  martius
+ *   setUserLight  compability  with osg<2.6
+ *
+ *   Revision 1.26  2009/03/25 15:44:23  guettler
  *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
  *
  *   Revision 1.25  2009/03/13 09:19:53  martius
@@ -334,23 +337,25 @@ namespace lpzrobots {
 
         shadowedScene->setShadowTechnique(pssm.get());
 
+#if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION >= 6
         pssm->setUserLight(lightSource->getLight());
-
-     /* osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
-
-      if (debugColor)
-        pssm->setDebugColorOn();
-
-      if (useNVidia!=0)
+#endif
+	/*
+	osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
+	
+	if (debugColor)
+	  pssm->setDebugColorOn();
+	
+	if (useNVidia!=0)
         pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f)); //NVidea
-      else
-        pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
+	else
+	  pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
+	
+	// 20080728; guettler: commented out for OSG 2.6 compatibility
+	//      if (cullFaceFront)
+	//        pssm->forceFrontCullFace();
 
-      // 20080728; guettler: commented out for OSG 2.6 compatibility
-//      if (cullFaceFront)
-//        pssm->forceFrontCullFace();
-
-      shadowedScene->setShadowTechnique(pssm.get());*/
+	shadowedScene->setShadowTechnique(pssm.get());*/
     }
     break;
   case 4: /// SoftShadowMap
