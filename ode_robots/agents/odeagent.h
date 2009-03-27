@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-04-18 09:50:24  guettler
+ *   Revision 1.9  2009-03-27 13:55:06  martius
+ *   traceing in a extra function
+ *
+ *   Revision 1.8  2008/04/18 09:50:24  guettler
  *   Implemented step functions for multiple threads of the class Simulation
  *
  *   Revision 1.7  2008/04/17 15:59:00  martius
@@ -136,7 +139,13 @@ namespace lpzrobots {
      * @param tracelength number of past positions shown as trace in osg
      * @param tracethickness  thickness of the trace
      */
-    virtual void init_tracing(int tracelength=1000, double tracethickness=0.01);
+    virtual void init_tracing(int tracelength=1000, double tracethickness=0.05);
+
+    
+    /**
+     * continues the trace by one segment
+     */
+    virtual void trace();
 
 
   private:
