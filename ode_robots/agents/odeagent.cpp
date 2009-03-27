@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-09-16 14:48:05  martius
+ *   Revision 1.10  2009-03-27 13:55:20  martius
+ *   traceing in a extra function (and segments are longer)
+ *
+ *   Revision 1.9  2008/09/16 14:48:05  martius
  *   Code indentation
  *
  *   Revision 1.8  2008/04/29 08:44:20  guettler
@@ -87,53 +90,40 @@ namespace lpzrobots {
 
   void OdeAgent::step(double noise, double time){
     Agent::step(noise, time);
-    if (trackrobot.isDisplayTrace() && t%10==0){
-      if (!tracing_initialized) {
-	init_tracing();
-      }
-      Pos pos(robot->getPosition());
-      /* if construct used to draw cylinder only when length between actual
-	 and last point is larger then a specific value
-      */
-      //if(counter==0 || ((pos - lastpos).length2() > 0.00005)  ) {
-      double len = (pos - lastpos).length();
-      if(segments[counter%trace_length]) delete segments[counter%trace_length];
-      OSGPrimitive* s = new OSGCylinder(trace_thickness, len);
-      s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);
-      s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) *
-		   osg::Matrix::translate(lastpos+(pos - lastpos)/2));
-      segments[counter%trace_length] = s;
-      lastpos = pos;
-      counter++;
-      //}
-    }
+    trace();
   }
 
 
   void OdeAgent::stepOnlyWiredController(double noise, double time) {
     WiredController::step(rsensors,rsensornumber, rmotors, rmotornumber, noise, time);
-    trackrobot.track(robot, time);
+    trackrobot.track(robot, time); // we have to do this here because we agent.step is not called
+    trace();
+  }
+
+  void OdeAgent::trace(){
     if (trackrobot.isDisplayTrace() && t%10==0){
       if (!tracing_initialized) {
 	init_tracing();
       }
       Pos pos(robot->getPosition());
-      /* if construct used to draw cylinder only when length between actual
+      /* draw cylinder only when length between actual
 	 and last point is larger then a specific value
       */
-      //if(counter==0 || ((pos - lastpos).length2() > 0.00005)  ) {
       double len = (pos - lastpos).length();
-      if(segments[counter%trace_length]) delete segments[counter%trace_length];
-      OSGPrimitive* s = new OSGCylinder(trace_thickness, len);
-      s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);
-      s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) *
-		   osg::Matrix::translate(lastpos+(pos - lastpos)/2));
-      segments[counter%trace_length] = s;
-      lastpos = pos;
-      counter++;
-      //}
+      if(len > trace_thickness) {      
+	if(segments[counter%trace_length]) delete segments[counter%trace_length];
+	OSGPrimitive* s = new OSGCylinder(trace_thickness, len*1.2);
+	s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);	
+	s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) *
+		     osg::Matrix::translate(lastpos+(pos - lastpos)/2));
+	segments[counter%trace_length] = s;
+	lastpos = pos;
+	counter++;
+      }
     }
   }
+
+
 
   void OdeAgent::setMotorsGetSensors() {
     robot->setMotors(rmotors, rmotornumber);
