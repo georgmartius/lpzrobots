@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2009-03-26 19:20:57  martius
+ *   Revision 1.28  2009-03-27 06:21:31  guettler
+ *   CTRL +S  changes now the shadow type in the simulation: cleaned up the code
+ *
+ *   Revision 1.27  2009/03/26 19:20:57  martius
  *   setUserLight  compability  with osg<2.6
  *
  *   Revision 1.26  2009/03/25 15:44:23  guettler
@@ -257,10 +260,10 @@ namespace lpzrobots {
     }
   }
 
-  /* Shadow types: 1 - ShadowVolume 2 - ShadowTextue 3 - ParallelSplitShadowMap
+  /** Shadow types: 1 - ShadowVolume 2 - ShadowTextue 3 - ParallelSplitShadowMap
    * 4 - SoftShadowMap 5 - ShadowMap
    */
-  osg::Group* Base::createShadowedScene(osg::Node* sceneToShadow, LightSource* lightSource)
+  osgShadow::ShadowedScene* Base::createShadowedScene(osg::Node* sceneToShadow, LightSource* lightSource, int shadowType)
 {
   // some conf variables for ShadowVolume
   bool twoSided=false;
@@ -281,15 +284,13 @@ namespace lpzrobots {
   // make the shadow prenumba a little bit sharper then default (0.005)
   float softnessWidth = 0.002;
 
-
-  // create root of shadowedScene
-  osgShadow::ShadowedScene* shadowedScene = new osgShadow::ShadowedScene;
+  shadowedScene = new osgShadow::ShadowedScene;
 
   shadowedScene->setReceivesShadowTraversalMask(ReceivesShadowTraversalMask);
   shadowedScene->setCastsShadowTraversalMask(CastsShadowTraversalMask);
 
   // add ShadowTechnique
-  int shadowType=(int)shadow;
+
   switch(shadowType) {
   case 1: /// ShadowVolume
     {
@@ -637,7 +638,7 @@ namespace lpzrobots {
     ClearNode* clearNode = new ClearNode;
 
     // use a transform to make the sky and base around with the eye point.
-    osg::Transform* transform = new osg::Transform;//MoveEarthySkyWithEyePointTransform;
+    transform = new osg::Transform;//MoveEarthySkyWithEyePointTransform;
 
     // add the transform to the earth sky.
     clearNode->addChild(transform);
@@ -657,19 +658,21 @@ namespace lpzrobots {
     // add the sky and base layer.
     transform->addChild(makeSky());  // bin number -2 so drawn first.
 
+    groundScene = makeGround();
     int shadowType=(int)shadow;
     // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
     if (shadowType!=3)
-    	transform->addChild(makeGround()); // bin number -1 so draw second.
+    	transform->addChild(groundScene); // bin number -1 so draw second.
 
-    LightSource* lightSource = makeLights(root->getOrCreateStateSet());
+    lightSource = makeLights(root->getOrCreateStateSet());
     transform->addChild(lightSource);
 
-    Group* scene = new Group; // create an extra group for the normal scene
+    sceneToShadow = new Group; // create an extra group for the normal scene
+
 
     if(shadowType){
       // enable shadows
-      Group* shadowedScene;
+      shadowedScene;
 
       // transform the Vec4 in a Vec3
       //osg::Vec3 posOfLight;
@@ -677,20 +680,21 @@ namespace lpzrobots {
 
       // create the shadowed scene, using textures
       //shadowedScene = createShadowedScene(scene,posOfLight,1);
-      shadowedScene = createShadowedScene(scene,lightSource);
+	  // create root of shadowedScene
+      shadowedScene = createShadowedScene(sceneToShadow,lightSource,(int)shadow);
 
       // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
       if (shadowType==3)
-      	shadowedScene->addChild(makeGround()); // bin number -1 so draw second.
+      	sceneToShadow->addChild(groundScene); // bin number -1 so draw second.
 
       // add the shadowed scene to the root
       root->addChild(shadowedScene);
     }else {
-      root->addChild(scene);
+      root->addChild(sceneToShadow);
     }
 
     // the normal scene
-    return scene;
+    return sceneToShadow;
   }
 
   Node* Base::makeSky() {
@@ -970,6 +974,60 @@ namespace lpzrobots {
     physicsCallbackables.push_back(callbackable);
   }
 
+  void Base::changeShadowTechnique()
+  {
+	  std::string shadowName;
+	  int shadowType = (int)++shadow;
+	      switch (shadowType)
+	      {
+	  case 6:
+		  shadowType=0; // max shadowtype at the moment: 5
+	  case 0:
+		  root->removeChild(shadowedScene);
+		  shadowedScene->unref();
+		  root->addChild(sceneToShadow);
+		  shadowName = std::string("NoShadow");
+		  break;
+	  case 1:
+	  case 2:
+		  shadowType=3; // temporarily disable volume shadows (1) and ShadowTextue (2)
+	  case 3:
+		  root->removeChild(sceneToShadow);
+       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
+       	  // add the shadowed scene to the root
+   	      root->addChild(shadowedScene);
+   	      // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
+   	      transform->removeChild(groundScene);
+   	      groundScene = makeGround(); // this is usually not needed!
+   	      sceneToShadow->addChild(groundScene); // bin number -1 so draw second.
+		  shadowName = std::string("ParallelSplitShadowMap");
+		  break;
+	  case 4:
+		  root->removeChild(shadowedScene);
+		  shadowedScene->unref();
+       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
+       	  // add the shadowed scene to the root
+   	      root->addChild(shadowedScene);
+   	      sceneToShadow->removeChild(groundScene);
+   	      groundScene = makeGround(); // this is usually not needed!
+   	      transform->addChild(groundScene); // bin number -1 so draw second.
+		  shadowName = std::string("SoftShadowMap");
+		  break;
+	  case 5:
+		  root->removeChild(shadowedScene);
+		  shadowedScene->unref();
+       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
+       	  // add the shadowed scene to the root
+   	      root->addChild(shadowedScene);
+		  shadowName = std::string("ShadowMap (simple)");
+		  break;
+	  default:
+		  shadowName = std::string("NoShadow");
+		  break;
+	  }
+	  printf("Changed shadowType to %i (%s)\n",shadowType,shadowName.c_str());
+	  shadow=(double)shadowType;
+  }
 
 // Helper
 int Base::contains(char **list, int len,  const char *str) {

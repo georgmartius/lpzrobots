@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.93  2009-03-25 17:44:41  guettler
+ *   Revision 1.94  2009-03-27 06:21:31  guettler
+ *   CTRL +S  changes now the shadow type in the simulation: cleaned up the code
+ *
+ *   Revision 1.93  2009/03/25 17:44:41  guettler
  *   CTRL +S  changes now the shadow type in the simulation
  *
  *   Revision 1.92  2009/03/25 14:05:12  guettler
@@ -1167,57 +1170,7 @@ namespace lpzrobots {
 	break;
       case 19: // Ctrl - s // change ShadowTechnique
       {
-    	  std::string shadowName;
-    	  int shadowType = (int)++shadow;
-   	      switch (shadowType)
-   	      {
-		  case 6:
-			  shadowType=0; // max shadowtype at the moment: 5
-		  case 0:
-			  root->removeChild(shadowedScene);
-			  shadowedScene->unref();
-			  root->addChild(sceneToShadow);
-			  shadowName = std::string("NoShadow");
-			  break;
-		  case 1:
-		  case 2:
-			  shadowType=3; // temporarily disable volume shadows (1) and ShadowTextue (2)
-		  case 3:
-			  root->removeChild(sceneToShadow);
-	       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
-	       	  // add the shadowed scene to the root
-	   	      root->addChild(shadowedScene);
-	   	      // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
-	   	      transform->removeChild(groundScene);
-	   	      groundScene = makeGround(); // this is usually not needed!
-	   	      sceneToShadow->addChild(groundScene); // bin number -1 so draw second.
-			  shadowName = std::string("ParallelSplitShadowMap");
-			  break;
-		  case 4:
-			  root->removeChild(shadowedScene);
-			  shadowedScene->unref();
-	       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
-	       	  // add the shadowed scene to the root
-	   	      root->addChild(shadowedScene);
-	   	      sceneToShadow->removeChild(groundScene);
-	   	      groundScene = makeGround(); // this is usually not needed!
-	   	      transform->addChild(groundScene); // bin number -1 so draw second.
-			  shadowName = std::string("SoftShadowMap");
-			  break;
-		  case 5:
-			  root->removeChild(shadowedScene);
-			  shadowedScene->unref();
-	       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
-	       	  // add the shadowed scene to the root
-	   	      root->addChild(shadowedScene);
-			  shadowName = std::string("ShadowMap (simple)");
-			  break;
-		  default:
-			  shadowName = std::string("NoShadow");
-			  break;
-		  }
-    	  printf("Changed shadowType to %i (%s)\n",shadowType,shadowName.c_str());
-    	  shadow=(double)shadowType;
+    	  Base::changeShadowTechnique();
     	  handled=true;
       }
     break;

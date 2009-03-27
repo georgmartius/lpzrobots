@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-03-25 15:44:23  guettler
+ *   Revision 1.14  2009-03-27 06:21:31  guettler
+ *   CTRL +S  changes now the shadow type in the simulation: cleaned up the code
+ *
+ *   Revision 1.13  2009/03/25 15:44:23  guettler
  *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
  *
  *   Revision 1.12  2009/01/20 17:27:34  martius
@@ -122,7 +125,10 @@
 
 #include "hudstatistics.h"
 
-
+namespace osgShadow
+{
+	class ShadowedScene;
+}
 class Callbackable;
 
 
@@ -156,7 +162,7 @@ namespace lpzrobots {
      * 4 - SoftShadowMap
      * 5 - ShadowMap
      */
-    virtual osg::Group* createShadowedScene(osg::Node* sceneToShadow, osg::LightSource* lightSource);
+    virtual osgShadow::ShadowedScene* createShadowedScene(osg::Node* sceneToShadow, osg::LightSource* lightSource, int shadowType);
 
     virtual void setGroundTexture(const char* filename) {
       this->groundTexture = filename;
@@ -182,6 +188,19 @@ namespace lpzrobots {
     virtual void setTimeStats(double time, double realtimefactor,
 			      double truerealtimefactor,bool pause);
 
+    /**
+     * Changes the currently used shadow technique.
+     * The switch is realized between:
+     * 0 - NoShadow
+     * 3 - ParallelSplitShadowMap
+     * 4 - SoftShadowMap
+     * 5 - ShadowMap (simple)
+     * Currently not supported by this function:
+     * 1 - ShadowVolume
+     * 2 - ShadowTextue
+     */
+    virtual void changeShadowTechnique();
+
     dGeomID ground;
 
 
@@ -192,6 +211,11 @@ namespace lpzrobots {
     std::string groundTexture;
 
     osg::Group* root;
+    osgShadow::ShadowedScene* shadowedScene;
+    osg::LightSource* lightSource;
+    osg::Group* sceneToShadow;
+    osg::Node* groundScene;
+    osg::Transform* transform;
     osg::Node* hud;
     osgText::Text* timestats;
     osgText::Text* statisticLine;
