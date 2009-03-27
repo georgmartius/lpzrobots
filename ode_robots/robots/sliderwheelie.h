@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-03-26 18:01:59  martius
+ *   Revision 1.12  2009-03-27 20:45:03  martius
+ *   motor type can be selected
+ *
+ *   Revision 1.11  2009/03/26 18:01:59  martius
  *   angular motors possible
  *   sliders can be switched off -> defaultwheelie is obsolete
  *   better drawing of joints
@@ -83,6 +86,8 @@ namespace lpzrobots {
 
   typedef struct {
   public:
+    typedef enum MotorType {Servo, CenteredServo, AngularMotor };
+
     int    segmNumber;    ///<  number of snake elements
     double segmLength;    ///< length of one snake element
     double segmDia;       ///<  diameter of a snake element
@@ -96,7 +101,7 @@ namespace lpzrobots {
     double jointLimitIn;  ///< maximal angle for the joints to the inside (M_PI/2 = 90 degree)
     double jointLimitOut; ///< maximal angle for the joints to the outside
     double sliderLength;  ///< length of the slider in segmLength (0 for no sliders)
-    bool   useServos;     ///< true: use Servo motors; false: use Angular motors
+    MotorType motorType;  ///< whether to use servos or angular motors
   } SliderWheelieConf;
   
 
@@ -110,6 +115,7 @@ namespace lpzrobots {
   private:
     bool created;
       
+    
     std::vector <Primitive*> objects;
     std::vector <Joint*> joints;
     std::vector <AngularMotor*> angularMotors;
@@ -132,16 +138,16 @@ namespace lpzrobots {
       conf.segmLength = 0.4;     // length of one snake element
       conf.segmDia    = 0.2;     //  diameter of a snake element
       conf.segmMass   = 0.4;     //  mass of one snake element
-      conf.motorPower = 10;       //  power of the servos
+      conf.motorPower = 5;       //  power of the servos
       conf.motorDamp  = 0.01;    //  damping of servos
       conf.powerRatio = 2;       //  power of the servos
       conf.sensorFactor    = 1;   //  scale for sensors
       conf.frictionGround  = 0.8; // friction with ground
       conf.frictionJoint   = 0.0; // friction within joint
-      conf.jointLimitIn    =  M_PI/2;
+      conf.jointLimitIn    =  M_PI/3;
       conf.jointLimitOut   =  -1; // automatically set to 2*M_PI/segm_num
-      conf.sliderLength    =  1;  // use servos
-      conf.useServos       = true;
+      conf.sliderLength    =  1;  
+      conf.motorType       = SliderWheelieConf::CenteredServo; // use centered servos
       return conf;
     }
 

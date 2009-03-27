@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-03-26 20:25:35  martius
+ *   Revision 1.19  2009-03-27 20:45:03  martius
+ *   motor type can be selected
+ *
+ *   Revision 1.18  2009/03/26 20:25:35  martius
  *   changed color to gold; segments are equally wide
  *
  *   Revision 1.17  2009/03/26 18:01:59  martius
@@ -141,7 +144,7 @@ namespace lpzrobots {
    unsigned int len = min(motornumber, getMotorNumber());
    unsigned int n=0;
    // controller output as torques 
-   if(conf.useServos){
+   if(conf.motorType != SliderWheelieConf::AngularMotor){
      for(unsigned int i=0; (n<len) && (i<hingeServos.size()); i++, n++) {
        hingeServos[i]->set(motors[n]);
      }
@@ -171,7 +174,7 @@ namespace lpzrobots {
    unsigned int len=min(sensornumber, getSensorNumber());
    unsigned int n=0;
    // get the hingeServos
-   if(conf.useServos){
+   if(conf.motorType != SliderWheelieConf::AngularMotor){
      for(unsigned int i=0; (n<len) && (i<hingeServos.size()); i++, n++) {
        sensors[n] = hingeServos[i]->get();
      }
@@ -268,17 +271,25 @@ namespace lpzrobots {
       j->init(odeHandle, osgHandle, true, conf.segmDia*4);      
       joints.push_back(j);
       
-      if(conf.useServos){
-	HingeServo* servo = new HingeServo(j, -conf.jointLimitOut, 
+      HingeServo* servo;
+      switch (conf.motorType){	
+      case SliderWheelieConf::Servo: 
+	servo = new HingeServo(j, -conf.jointLimitOut, 
 					   conf.jointLimitIn, 
-					   conf.motorPower,
-					   conf.motorDamp,0);
+					   conf.motorPower, conf.motorDamp,0);
 	hingeServos.push_back(servo);
-      }else{
+	break;
+      case SliderWheelieConf::CenteredServo: 
+	servo = new OneAxisServoCentered(j, -conf.jointLimitOut, conf.jointLimitIn,
+					 conf.motorPower, conf.motorDamp,0);
+	hingeServos.push_back(servo);
+	break;
+      case SliderWheelieConf::AngularMotor:  
 	AngularMotor* amotor = new AngularMotor1Axis(odeHandle, j, conf.motorPower);
 	j->setParam(dParamLoStop, -conf.jointLimitOut);
 	j->setParam(dParamHiStop, conf.jointLimitIn);
 	angularMotors.push_back(amotor);
+	break;
       }
     }
 
