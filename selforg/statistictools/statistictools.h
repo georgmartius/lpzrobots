@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-04-29 09:56:21  guettler
+ *   Revision 1.1  2009-03-27 06:16:57  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.10  2008/04/29 09:56:21  guettler
  *   -debug printouts removed
  *
  *   Revision 1.9  2008/04/29 08:51:54  guettler

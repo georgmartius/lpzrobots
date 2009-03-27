@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-24 11:57:00  der
+ *   Revision 1.1  2009-03-27 06:16:57  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.3  2008/04/24 11:57:00  der
  *   added new measure types
  *
  *   Revision 1.2  2008/03/12 10:57:07  der

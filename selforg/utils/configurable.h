@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-11-14 09:16:15  martius
+ *   Revision 1.6  2009-03-27 06:16:57  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.5  2008/11/14 09:16:15  martius
  *   small things
  *
  *   Revision 1.4  2008/08/14 08:06:02  robot1
@@ -87,6 +90,7 @@
 // pc code below (x86 / x_64)
 
 #include <iostream>
+#include <cstdlib>
 
 
 #include <list>

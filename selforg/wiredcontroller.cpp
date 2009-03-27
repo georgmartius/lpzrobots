@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-03-25 11:55:32  robot1
+ *   Revision 1.9  2009-03-27 06:16:57  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.8  2009/03/25 11:55:32  robot1
  *   changed minor handling of PlotOptions
  *
  *   Revision 1.7  2008/09/16 15:36:40  martius
@@ -60,6 +63,7 @@
 #include <time.h>
 #include <string.h>
 #include <assert.h>
+#include <algorithm>
 
 #include "printInternals.h"
 

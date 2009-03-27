@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.5  2008-05-30 11:58:27  martius
+*   Revision 1.1  2009-03-27 06:16:57  guettler
+*   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+*
+*   Revision 1.5  2008/05/30 11:58:27  martius
 *   use cmath instead of math.h
 *
 *   Revision 1.4  2008/02/14 14:43:09  der
@@ -80,7 +83,7 @@
 #include <cmath>
 #include "stl_adds.h"
 #include <assert.h>
-
+#include <cstdlib>
 
 ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins ) : AbstractMeasure( measureName ), mode( mode ), numberBins( numberBins )
 {

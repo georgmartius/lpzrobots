@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-29 08:51:54  guettler
+ *   Revision 1.1  2009-03-27 06:16:57  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.3  2008/04/29 08:51:54  guettler
  *   -cosmetic changes of StatisticTools
  *   -StatisticTools now uses new function addInspectableValue of the
  *   interface Inspectable, not overloading getInternalParams and
@@ -62,15 +65,25 @@
 #define _ABSTRACT_MEASURE_H
 
 #import <iostream>
-class AbstractMeasure
+#import "imeasure.h"
+
+/**
+ * Class used by StatisticTools.
+ * Provides an interface for any kind of time series analysis.
+ * Every step the StatisticTools calls step.
+ * @sa StatisticTools
+ * @sa HUDStatisticsManager
+ * @sa IMeasure
+ */
+class AbstractMeasure : public IMeasure
 {
 
 public:
+
   AbstractMeasure(const char* measureName) : name(measureName), value(0.0), actualStep(0), stepSize(1) {}
 
   virtual ~AbstractMeasure() {}
 
-  virtual void step()=0;
 
   virtual std::string getName() const { return name; }
 

@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.1  2007-12-06 10:18:10  der
+*   Revision 1.1  2009-03-27 06:16:58  guettler
+*   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+*
+*   Revision 1.1  2007/12/06 10:18:10  der
 *   AbstractMeasure is now a abstract type for Measures,
 *   StatisticTools now supports AbstractMeasures,
 *   StatisticalMeasure, ComplexMeasure  now derived from
@@ -34,16 +37,7 @@
 *   Discretisizer is a stand-alone class for support of discretisizing values
 *   TrackableMeasure derived from ComplexMeasure and provides support for calculating complex measures for Trackable objects
 *
-*   Revision 1.6  2007/10/10 13:18:06  martius
-*   math.h
-*
-*   Revision 1.5  2007/10/10 13:17:14  martius
-*   use fabs instead of abs
-*
-*   Revision 1.4  2007/10/01 13:27:47  robot3
-*   documentation
-*
-*   Revision 1.3  2007/09/28 08:48:20  robot3
+*   Revision 1.3  2007/09/28 08:48:21  robot3
 *   corrected some minor bugs, files are still in develop status
 *
 *   Revision 1.2  2007/09/27 10:49:39  robot3
@@ -57,66 +51,66 @@
 *
 *                                                                         *
 ***************************************************************************/
-#include "trackablemeasure.h"
-#include "discretisizer.h"
-#include "stl_adds.h"
+#ifndef _TRACKABLE_MEASURE_H
+#define _TRACKABLE_MEASURE_H
+
+#include "complexmeasure.h"
+#include "trackable.h"
+#include <list>
+#include "position.h"
+
+/**
+ * NOTE: SPEED and ANGSPEED is not implemented yet!
+ */
+enum TrackMode {
+    POS, /// takes the position for the measure
+    SPEED, /// takes the speed for the measure
+    ANGSPEED /// takes the angular speed for the measure
+};
+
+/// defines which dimensions should be count.
+enum Dimensions { X = 1, Y = 2, Z = 4 };
 
 
-TrackableMeasure::TrackableMeasure(std::list<Trackable*> trackableList,char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins) : ComplexMeasure(measureName,cmode, numberBins) ,trackableList(trackableList) {
-  tmode=POS;
-  if (dimensions & X)
-    addDimension(0, cornerPointList);
-  if (dimensions & Y)
-    addDimension(1, cornerPointList);
-  if (dimensions & Z)
-    addDimension(2, cornerPointList);
-  initF();
-}
+class TrackableMeasure : public ComplexMeasure {
+  
+public:
+  
+  /**
+   * creates a new TrackableMeasure. The position of the Trackables in the
+   * given list is counted in a fequency list. The possible positions are
+   * given by the cornerPointList, which contains the cornerPoints of the
+   * arena where the trackables are placed.
+   * the complex measure ist then based on the frequency list
+   * @param trackableList the list of the Trackables
+   * @param cornerPointList the list with the cornerPoints of the arena
+   * @param dimensions which dimensions do you like to count? Note that
+   * the needed memory is (numberBins^ndim), but calculation costs are O(1)
+   * @param cmode which type of complex measure should be evaluated?
+   * @param numberBins number of bins used for discretisation
+   */
+  TrackableMeasure(std::list<Trackable*> trackableList,char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins);
+  
+  
 
-void TrackableMeasure::addDimension(short dim, std::list<Position> cornerPointList) {
-  double minValue = this->findRange(cornerPointList,0,true);
-  double maxValue = this->findRange(cornerPointList,0,false);
-  discretisizerList.push_back(new Discretisizer( numberBins, minValue, maxValue, false ));
-  observedValueList.push_back(new double);
-}
+  virtual ~TrackableMeasure();
+  
+    /**
+     * defined by AbstractMeasure. This method is called from StatisticTools
+        for updating the measure in every simStep (ODE).
+     */
+  virtual void step();
+  
+  
+protected:
+  std::list<Trackable*> trackableList;
+  ComplexMeasureMode cmode;
+  TrackMode tmode;
+  
+  virtual double findRange(std::list<Position>  positionList,short dim, bool min);
+  
+  virtual void addDimension(short dim, std::list<Position> cornerPointList);
+  
+};
 
-double TrackableMeasure::findRange(std::list<Position> positionList,short dim, bool min) {
-  double range = -1e20;
-  if (min)
-    range*=-1;
-  FOREACH(std::list<Position>, positionList, i){
-    double val = (i)->toArray()[dim];
-    if (min) {
-      if (val<range)
-        range=val;
-    } else {
-      if (val>range)
-        range=val;
-    }
-  }
-  return range;
-}
-
-
-
-TrackableMeasure::~TrackableMeasure() {}
-
-void TrackableMeasure::step() {
-  FOREACH(std::list<Trackable*>, trackableList, i){
-    Position pos;
-    pos =(*i)->getPosition();
-    /*if (tmode & POS) {
-      pos =(*i)->getPosition();
-    } else if (tmode & SPEED) {
-      pos =(*i)->getSpeed();
-    } else {
-      pos =(*i)->getAngularSpeed();
-    }*/
-    int j=0;
-    FOREACH(std::list<double*>,observedValueList,oVal) {
-      *(*oVal)= pos.toArray()[j++];
-    }
-    ComplexMeasure::step();
-  }
-}
-
+#endif

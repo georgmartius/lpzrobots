@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-04-29 07:39:54  guettler
+ *   Revision 1.2  2009-03-27 06:16:57  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.1  2008/04/29 07:39:54  guettler
  *   interfaces moved to selforg/utils directory
  *
  *   Revision 1.7  2008/04/11 14:12:30  martius
@@ -68,6 +71,7 @@
  ***************************************************************************/
 
 #include "configurable.h"
+#include <cstring>
 
 using namespace std;
 

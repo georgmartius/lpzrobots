@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-05-30 11:58:28  martius
+ *   Revision 1.1  2009-03-27 06:16:58  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.11  2008/05/30 11:58:28  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.10  2008/04/24 11:57:00  der
@@ -79,6 +82,7 @@
 #include "stl_adds.h"
 #include "assert.h"
 #include <cmath>
+#include <cstdlib>
 
 StatisticMeasure::StatisticMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) : AbstractMeasure(measureName), observedValue(observedValue), mode(mode), stepSpan(stepSpan), additionalParam(additionalParam)
 {

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-04-17 14:54:45  martius
+ *   Revision 1.10  2009-03-27 06:16:56  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.9  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -89,6 +92,7 @@
  ***************************************************************************/
 
 #include "derivativewiring.h"
+#include <cstring>
 using namespace std;
 
 /// constructor

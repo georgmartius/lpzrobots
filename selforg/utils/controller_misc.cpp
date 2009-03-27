@@ -1,4 +1,5 @@
 #include "controller_misc.h"
+#include <algorithm>
 
 
 using namespace matrix;

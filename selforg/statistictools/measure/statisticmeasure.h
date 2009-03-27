@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-04-24 11:57:00  der
+ *   Revision 1.1  2009-03-27 06:16:58  guettler
+ *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *
+ *   Revision 1.7  2008/04/24 11:57:00  der
  *   added new measure types
  *
  *   Revision 1.6  2008/03/12 10:57:07  der
@@ -67,6 +70,10 @@
 #include "abstractmeasure.h"
 #include "measuremodes.h"
 
+/**
+ * Class used by StatisticTools.
+ * Provides
+ */
 class StatisticMeasure : public AbstractMeasure
 {
 
@@ -96,13 +103,13 @@ protected:
   virtual double calculateSumValue();
 
   virtual double calculateAverageValue();
-  
+
   virtual double calculateMovingAverageValue();
-  
+
   virtual double calculateStepDifference();
-  
+
   virtual double calculateNormalizedStepDifference();
-  
+
   /* BEGIN convergence SECTION */
   virtual double testConvergence();
   // stores how much steps the convergence is reached,

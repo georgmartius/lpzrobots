@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 #include <stdlib.h>
 #include <assert.h>

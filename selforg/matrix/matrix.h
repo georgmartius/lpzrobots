@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.29  2009-02-02 15:21:28  martius
+// Revision 1.30  2009-03-27 06:16:57  guettler
+// support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+//
+// Revision 1.29  2009/02/02 15:21:28  martius
 // added pseudoinverse
 //
 // Revision 1.28  2009/01/05 08:45:00  martius
@@ -197,6 +200,7 @@
 #include <string.h>
 #include <assert.h>
 #include <list>
+#include <cstdlib>
 
 #ifndef AVR
 #include <iostream>

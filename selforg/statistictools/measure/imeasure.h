@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    guettler@informatik.uni-leipzig.de                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,65 +19,53 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************
  *                                                                         *
- *   $Log$
- *   Revision 1.2  2009-03-27 06:16:57  guettler
- *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *  DESCRIPTION                                                            *
+ *  Interface for any type of measure.                                     *
+ *                                                                         *
+ *  $Log$
+ *  Revision 1.1  2009-03-27 06:16:57  guettler
+ *  support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
+ *										   *
+ *                                                                         *
+ **************************************************************************/
+/*
+ * imeasure.h
  *
- *   Revision 1.1  2008/08/01 14:42:04  guettler
- *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
- *
- *   Revision 1.2  2006/07/14 12:24:02  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
- *   moved to selforg
- *
- *   Revision 1.2  2005/11/09 13:31:51  martius
- *   GPL'ised
- *
- ***************************************************************************/
-#ifndef __AVRTYPES_H
-#define __AVRTYPES_H
+ *  Created on: 26.01.2009
+ *      Author: guettler
+ */
 
-#ifndef AVR
+#ifndef IMEASURE_H_
+#define IMEASURE_H_
 
-	// USED IN CONFIGURABLE
-	const uint8_t maxNumberEntries = 5;
-	const uint8_t charLength = 8;
+/**
+ * Class used by StatisticTools.
+ * Provides an interface for any kind of time series analysis.
+ * Every step the StatisticTools calls step.
+ * @sa StatisticTools
+ * @sa HUDStatisticsManager
+ * @sa AbstractMeasure
+ */
+class IMeasure {
+public:
 
-	typedef char charArray[maxNumberEntries];
+	virtual ~IMeasure() {};
 
-	// CONFIGURABLE
-	typedef charArray paramkey;
-	typedef double paramval;
+	virtual void step() = 0;
 
-	 struct parampair {
-		 paramkey key;
-		 paramval* val;
-	  };
+	virtual std::string getName() const = 0;
 
-	 typedef parampair plist[maxNumberEntries];
+	virtual double getValue() const = 0;
 
-	/// INSPECTABLE
-   typedef paramkey iparamkey;
-   typedef paramval iparamval;
+	virtual double& getValueAddress()  = 0;
 
-	 struct iparampair {
-		 iparamkey key;
-		 iparamval* val;
-	  };
+	virtual void setStepSize(int newStepSize) = 0;
 
-	 typedef iparampair iplist[maxNumberEntries];
+	virtual int getStepSize() const = 0;
 
+	virtual long getActualStep() const = 0;
+};
 
-   typedef iparamkey iparamkeylist[maxNumberEntries];
-   typedef iparamval* iparamvallisttrue[maxNumberEntries];
-
-
-
-
-
-#endif
-
-#endif
+#endif /* IMEASURE_H_ */
