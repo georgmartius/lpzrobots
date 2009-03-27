@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2009-03-27 06:21:31  guettler
+ *   Revision 1.29  2009-03-27 09:06:24  guettler
+ *   corrected encoding type to 8859-1
+ *
+ *   Revision 1.28  2009/03/27 06:21:31  guettler
  *   CTRL +S  changes now the shadow type in the simulation: cleaned up the code
  *
  *   Revision 1.27  2009/03/26 19:20:57  martius
@@ -343,15 +346,15 @@ namespace lpzrobots {
 #endif
 	/*
 	osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
-	
+
 	if (debugColor)
 	  pssm->setDebugColorOn();
-	
+
 	if (useNVidia!=0)
         pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f)); //NVidea
 	else
 	  pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
-	
+
 	// 20080728; guettler: commented out for OSG 2.6 compatibility
 	//      if (cullFaceFront)
 	//        pssm->forceFrontCullFace();
@@ -528,7 +531,7 @@ namespace lpzrobots {
       text->setColor(textColor);
       text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
       if(caption) text->setText(caption);
-      else text->setText("lpzrobots Simulator          Martius, Der, Gï¿½ttler");
+      else text->setText("lpzrobots Simulator          Martius, Der, Güttler");
     }
 
     // timing
