@@ -1,1 +1,3 @@
-bin Makefile
+bin
+Makefile
+moc_*.cpp

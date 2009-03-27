@@ -1,11 +1,11 @@
-Makefile 
-Makefile.in 
-*.m4 
-*.cache 
+Makefile
+Makefile.in
+*.m4
+*.cache
 .deps
 dstest
-compile 
-config.guess 
+compile
+config.guess
 config.log
 config.status
 config.sub
@@ -14,3 +14,5 @@ depcomp
 install-sh
 missing
 ode-config
+*.a
+*.so

@@ -1,6 +1,6 @@
-AM_CXXFLAGS = @ARCHFLAGS@ -I$(top_srcdir)/include -I$(top_builddir)/include
-AM_CPPFLAGS = @ARCHFLAGS@ -I$(top_srcdir)/include -I$(top_builddir)/include
-AM_CFLAGS = @ARCHFLAGS@ -I$(top_srcdir)/include -I$(top_builddir)/include
+AM_CXXFLAGS = @ARCHFLAGS@ -pthread -I$(top_srcdir)/include -I$(top_builddir)/include
+AM_CPPFLAGS = @ARCHFLAGS@ -pthread -I$(top_srcdir)/include -I$(top_builddir)/include
+AM_CFLAGS = @ARCHFLAGS@ -pthread -I$(top_srcdir)/include -I$(top_builddir)/include
 lib_LIBRARIES = libode.a
 libode_a_CPPFLAGS = -O2
 
