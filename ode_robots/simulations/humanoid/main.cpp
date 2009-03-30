@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-01-20 17:29:52  martius
+ *   Revision 1.14  2009-03-30 13:57:40  martius
+ *   ground texture removed
+ *
+ *   Revision 1.13  2009/01/20 17:29:52  martius
  *   cvs commit
  *
  *   Revision 1.12  2008/11/14 11:23:05  martius
@@ -835,7 +838,7 @@ public:
 int main (int argc, char **argv)
 { 
   ThisSim sim;
-  sim.setGroundTexture("Images/whiteground.rgb");
+  //  sim.setGroundTexture("Images/whiteground.rgb");
   return sim.run(argc, argv) ? 0 : 1;
 
 }
