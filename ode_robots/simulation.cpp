@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.94  2009-03-27 06:21:31  guettler
+ *   Revision 1.95  2009-03-31 15:48:27  martius
+ *   set default camera position
+ *
+ *   Revision 1.94  2009/03/27 06:21:31  guettler
  *   CTRL +S  changes now the shadow type in the simulation: cleaned up the code
  *
  *   Revision 1.93  2009/03/25 17:44:41  guettler
@@ -805,6 +808,8 @@ namespace lpzrobots {
     state=running;
     globalData.time=0;
     resetSyncTimer();
+    // default camera position
+    setCameraHomePos (Pos(0, -20, 3),  Pos(0, 0, 0));
 
     start(odeHandle, osgHandle, globalData);
 
