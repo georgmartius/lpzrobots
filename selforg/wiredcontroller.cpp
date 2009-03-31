@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-03-27 06:16:57  guettler
+ *   Revision 1.10  2009-03-31 15:52:33  martius
+ *   plotted motor values are the ones sent to the robot (after wiring)
+ *
+ *   Revision 1.9  2009/03/27 06:16:57  guettler
  *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
  *
  *   Revision 1.8  2009/03/25 11:55:32  robot1
@@ -260,7 +263,7 @@ void WiredController::step(const sensor* sensors, int sensornumber,
   wiring->wireSensors(sensors, rsensornumber, csensors, csensornumber, noise * noisefactor);
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(motors, rmotornumber, cmotors, cmotornumber);
-  plot(sensors, rsensornumber, csensors, csensornumber, cmotors, cmotornumber,time);
+  plot(sensors, rsensornumber, csensors, csensornumber, motors, rmotornumber, time);
   // do a callback for all registered Callbackable classes
   FOREACH(list<Callbackable*>, callbackables, i){
     (*i)->doOnCallBack();
@@ -481,7 +484,7 @@ void WiredController::addPlotOption(const PlotOption& plotOption) {
     controller->print(po.pipe, "# ");
     // print head line with all parameter names
     unsigned int snum = plotOption.whichSensors == Robot ? rsensornumber : csensornumber;
-    printInternalParameterNames(po.pipe, snum, cmotornumber, inspectables);
+    printInternalParameterNames(po.pipe, snum, rmotornumber, inspectables);
   }
   plotOptions.push_back(po);
 }
@@ -550,7 +553,7 @@ void WiredController::step(const sensor* sensors, int sensornumber,
   wiring->wireSensors(sensors, rsensornumber, csensors, csensornumber, noise * noisefactor);
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(motors, rmotornumber, cmotors, cmotornumber);
-  plot(sensors, rsensornumber, csensors, csensornumber, cmotors, cmotornumber,time);
+  plot(sensors, rsensornumber, csensors, csensornumber, motors, rmotornumber,time);
   // do a callback for all registered Callbackable classes
   FOREACH(list<Callbackable*>, callbackables, i){
     (*i)->doOnCallBack();
