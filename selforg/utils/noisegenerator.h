@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-03-26 19:15:29  martius
+ *   Revision 1.8  2009-03-31 15:46:40  martius
+ *   ColorUniform noise has functions to get and set tau
+ *
+ *   Revision 1.7  2009/03/26 19:15:29  martius
  *   NoNoise added (important for WiringSequence, to avoid multiple noise)
  *
  *   Revision 1.6  2009/01/22 16:51:14  martius
@@ -244,6 +247,14 @@ public:
       value[i]+=mean[i];
     }    
   }   
+  
+  double getTau(){ return tau;}
+  void setTau(double newTau){ 
+    if(newTau >=0 && newTau <= 1){
+      tau=newTau;
+      sqrttau = sqrt(tau);
+    }
+  }
 
 protected:
   double tau; // smoothing paramter
