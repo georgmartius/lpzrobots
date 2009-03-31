@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-03-27 06:16:56  guettler
+ *   Revision 1.7  2009-03-31 15:55:35  martius
+ *   check for noisegenerator to exist (excepts no noise generator as well)
+ *
+ *   Revision 1.6  2009/03/27 06:16:56  guettler
  *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
  *
  *   Revision 1.5  2008/04/17 14:54:45  martius
@@ -93,7 +96,8 @@ bool SelectiveOne2OneWiring::wireSensors(const sensor* rsensors, int rsensornumb
 				sensor* csensors, int csensornumber, 
 				double noiseStrength){
   memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
-  noiseGenerator->add(noisevals, noiseStrength);   
+  if(noiseGenerator)
+    noiseGenerator->add(noisevals, noiseStrength);   
   int num=0;
   for(int i=0; i< rsensornumber; i++){
     if((*sel_sensor)(i,rsensornumber)){
