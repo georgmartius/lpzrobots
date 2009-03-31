@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-03-27 06:21:31  guettler
+ *   Revision 1.15  2009-03-31 15:45:50  martius
+ *   caption is a std::string and can be changed on-line
+ *
+ *   Revision 1.14  2009/03/27 06:21:31  guettler
  *   CTRL +S  changes now the shadow type in the simulation: cleaned up the code
  *
  *   Revision 1.13  2009/03/25 15:44:23  guettler
@@ -145,7 +148,7 @@ namespace lpzrobots {
 
   class Base {
   public:
-    Base(const char* caption=0);
+    Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Güttler");
 
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
@@ -168,14 +171,12 @@ namespace lpzrobots {
       this->groundTexture = filename;
     }
 
-    virtual void setCaption(const char* caption) {
-      this->caption = caption;
-    }
+    virtual void setCaption(const std::string& caption);
 
-  /** adds an Callbackable object for getting a callback every step.
-   * note that the object are not called back in this class. This must
-   * be done in the deduced class (here: Simulation).
-   */
+    /** adds an Callbackable object for getting a callback every step.
+     * note that the object are not called back in this class. This must
+     * be done in the deduced class (here: Simulation).
+     */
     virtual void addGraphicsCallbackable(Callbackable* callbackable);
 
     virtual void addPhysicsCallbackable(Callbackable* callbackable);
@@ -207,7 +208,7 @@ namespace lpzrobots {
     OsgHandle osgHandle;
     // ODE globals
     OdeHandle odeHandle;
-    const char* caption;
+    std::string caption;
     std::string groundTexture;
 
     osg::Group* root;
@@ -218,6 +219,7 @@ namespace lpzrobots {
     osg::Transform* transform;
     osg::Node* hud;
     osgText::Text* timestats;
+    osgText::Text* captionline;
     osgText::Text* statisticLine;
 
     /// this manager provides methods for displaying statistics on the graphical window!

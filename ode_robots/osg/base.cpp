@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2009-03-27 09:06:24  guettler
+ *   Revision 1.30  2009-03-31 15:46:05  martius
+ *   caption is a std::string and can be changed on-line
+ *
+ *   Revision 1.29  2009/03/27 09:06:24  guettler
  *   corrected encoding type to 8859-1
  *
  *   Revision 1.28  2009/03/27 06:21:31  guettler
@@ -247,9 +250,10 @@ namespace lpzrobots {
   "    gl_FragColor = color * (ambientBias.x + shadow2DProj( shadowTexture, gl_TexCoord[1])  * ambientBias.y); \n"
   "}\n";
 
-    Base::Base(const char* caption)
+     Base::Base(const std::string& caption)
       : ground(0), caption(caption), groundTexture("Images/greenground.rgb"),
-      hud(0), timestats(0), ReceivesShadowTraversalMask(0x1), CastsShadowTraversalMask(0x2),
+	hud(0), timestats(0), captionline(0), 
+	ReceivesShadowTraversalMask(0x1), CastsShadowTraversalMask(0x2),
 	shadow(5), shadowTexSize(2048), useNVidia(1)
     {
     }
@@ -523,15 +527,14 @@ namespace lpzrobots {
     int fontsize=12;
 
     {
-      osgText::Text* text = new  osgText::Text;
-      geode->addDrawable( text );
-      text->setCharacterSize(fontsize);
-      text->setFont(font);
-      text->setPosition(position);
-      text->setColor(textColor);
-      text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
-      if(caption) text->setText(caption);
-      else text->setText("lpzrobots Simulator          Martius, Der, Güttler");
+      captionline = new  osgText::Text;
+      geode->addDrawable( captionline );
+      captionline->setCharacterSize(fontsize);
+      captionline->setFont(font);
+      captionline->setPosition(position);
+      captionline->setColor(textColor);
+      captionline->setAlignment(osgText::Text::RIGHT_BASE_LINE);
+      captionline->setText(caption.c_str());
     }
 
     // timing
@@ -630,6 +633,12 @@ namespace lpzrobots {
     }
   }
 
+  void Base::setCaption(const std::string& caption) {
+    this->caption = caption;
+    if(captionline){
+      captionline->setText(caption);
+    }
+  }
 
   Group* Base::makeScene(){
     // no database loaded so automatically create Ed Levin Park..
@@ -675,7 +684,7 @@ namespace lpzrobots {
 
     if(shadowType){
       // enable shadows
-      shadowedScene;
+      // shadowedScene;
 
       // transform the Vec4 in a Vec3
       //osg::Vec3 posOfLight;
