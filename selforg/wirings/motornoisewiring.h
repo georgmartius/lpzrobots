@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-03-31 07:36:18  martius
+ *   Revision 1.2  2009-03-31 15:47:11  martius
+ *   works now
+ *
+ *   Revision 1.1  2009/03/31 07:36:18  martius
  *   wiring to add noise on motor channels
  *
 
@@ -29,38 +32,43 @@
 #ifndef __MOTORNOISEWIRING_H
 #define __MOTORNOISEWIRING_H
 
-#include "one2onewiring.h"
-
+#include <selforg/one2onewiring.h>
+#include <selforg/configurable.h>
 
 /** 
  *   Implements a one to one wiring that adds noise to the motor signals
  *   (the sensors will get no noise)
  */
-class MotorNoiseWiring : public One2OneWiring {
+class MotorNoiseWiring : public One2OneWiring, public Configurable {
 public:
   /** constructor
       @param noise NoiseGenerator that is used for adding noise to motor values  
   */
   MotorNoiseWiring(NoiseGenerator* noise, double noiseStrength)
-    : One2OneWiring(0), noiseStrength(noiseStrength) {} // no noise at sensors
+    : One2OneWiring(0),    // no noise at sensors
+      Configurable("MotorNoiseWiring", "$Id$"),
+      mNoiseGen(noise), noiseStrength(noiseStrength) {
+    addParameter("strength",&noiseStrength);
+  }
   virtual ~MotorNoiseWiring(){}
 
   virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0){
     One2OneWiring::init(robotsensornumber, robotmotornumber, randGen);
-    if(noiseGenerator)
-      noiseGenerator->init(rmotornumber, randGen);
+    if(mNoiseGen)
+      mNoiseGen->init(rmotornumber, randGen);
     return true;
   }
   
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
 			  const motor* cmotors, int cmotornumber){
     One2OneWiring::wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
-    if(noiseGenerator)
-      noiseGenerator->add(rmotors, noiseStrength);  
+    if(mNoiseGen)
+      mNoiseGen->add(rmotors, noiseStrength);  
     return true; 
   }
 
 protected:
+  NoiseGenerator* mNoiseGen;
   double noiseStrength;
 
 };
