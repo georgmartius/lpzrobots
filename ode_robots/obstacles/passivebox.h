@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-04-02 11:46:28  fhesse
+ *   Revision 1.9  2009-04-02 13:10:03  fhesse
+ *   replace() removed; setPose() and create() adapted such
+ *   that replacing is now possible
+ *
+ *   Revision 1.8  2009/04/02 11:46:28  fhesse
  *   replace() added (doses not call create)
  *
  *   Revision 1.7  2009/04/02 10:12:25  martius
@@ -105,18 +109,9 @@ class PassiveBox : public AbstractObstacle{
   
   virtual void setPose(const osg::Matrix& pose){
     this->pose = osg::Matrix::translate(0,0,dimension.z()/2) * pose;
-    if (obstacle_exists){
-      destroy();
+    if (!obstacle_exists) {
+      create();
     }
-    create();
-  };
-
-  /** 
-   * Replaces box during simulation (does not call create)
-   */
-  virtual void replace(const osg::Vec3& pos){
-    pose.setTrans(pos);
-    this->pose = osg::Matrix::translate(0,0,dimension.z()/2) * pose;
     box->setPose(pose);
   };
 
@@ -132,7 +127,6 @@ class PassiveBox : public AbstractObstacle{
     }
 //     osg::Vec3 pos=pose.getTrans();
 //     box->setPosition(pos);
-    box->setPose(pose);
     obstacle_exists=true;
   };
 
