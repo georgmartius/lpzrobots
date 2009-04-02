@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-05-01 22:03:55  martius
+ *   Revision 1.3  2009-04-02 12:18:22  fhesse
+ *   box.setTexture() before setPosition (due to new OsgBoxTex)
+ *
+ *   Revision 1.2  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -153,8 +156,8 @@ public:
     if(boxes) {
       for (int i=0; i<= 2; i+=2){
 	PassiveBox* s1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1,1,1), 0.4);
-	s1->setPosition(osg::Vec3(-5+i*5,0,0));
 	s1->setTexture("Images/dusty.rgb");
+	s1->setPosition(osg::Vec3(-5+i*5,0,0));
 	global.obstacles.push_back(s1);
 	Joint* fixator;
 	Primitive* p = s1->getMainPrimitive();
@@ -162,24 +165,24 @@ public:
 	fixator->init(odeHandle, osgHandle);
 
 	s1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1,1,1), 0.4);
+	s1->setTexture("Images/dusty.rgb");
 	s1->setPosition(osg::Vec3(0,-5+i*5,0));
-	s1->setTexture("Images/dusty.rgb");
 	global.obstacles.push_back(s1);
 	p = s1->getMainPrimitive();
 	fixator = new FixedJoint(p, global.environment);
 	fixator->init(odeHandle, osgHandle);
 
 	s1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1,1,1), 0.4);
+	s1->setTexture("Images/dusty.rgb");
 	s1->setPosition(osg::Vec3(-3.5+i*3.5,-3.5+i*3.5,0));
-	s1->setTexture("Images/dusty.rgb");
 	global.obstacles.push_back(s1);
 	p = s1->getMainPrimitive();
 	fixator = new FixedJoint(p, global.environment);
 	fixator->init(odeHandle, osgHandle);
 
 	s1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1,1,1), 0.4);
-	s1->setPosition(osg::Vec3(-3.5+i*3.5,3.5-i*3.5,0));
 	s1->setTexture("Images/dusty.rgb");
+	s1->setPosition(osg::Vec3(-3.5+i*3.5,3.5-i*3.5,0));
 	global.obstacles.push_back(s1);
 	p = s1->getMainPrimitive();
 	fixator = new FixedJoint(p, global.environment);
