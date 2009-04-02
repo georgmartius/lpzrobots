@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-01-09 16:52:36  martius
+ *   Revision 1.5  2009-04-02 13:36:48  fhesse
+ *   constructor, create() and setPose() adapted to allow replacing
+ *   during siumulation; if mass=0.0 elements without a body are
+ *   generated (as in PassiveBox)
+ *
+ *   Revision 1.4  2009/01/09 16:52:36  martius
  *   use pose instead of translation only
  *
  *   Revision 1.3  2008/09/16 14:49:46  martius
@@ -76,7 +81,8 @@ class PassiveCapsule : public AbstractObstacle{
   PassiveCapsule(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 		 float radius=1.0, float height=1.0, double mass = 1.0):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius), height(height), mass(mass) {       
-    capsule=0;
+    capsule = new Capsule(radius,height);
+    obst.push_back(capsule); 
     obstacle_exists=false;    
   };
 
@@ -97,20 +103,21 @@ class PassiveCapsule : public AbstractObstacle{
   
   virtual void setPose(const osg::Matrix& pose){
     this->pose = osg::Matrix::translate(0,0,height*0.5f+radius) * pose;
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
+    if (!obstacle_exists) {
+       create();
+     }
+     capsule->setPose(pose);
   };
 
   virtual Primitive* getMainPrimitive() const { return capsule; }
 
  protected:
   virtual void create(){
-    capsule = new Capsule(radius,height);
-    capsule->init(odeHandle, mass, osgHandle);
-    capsule->setPose(pose);
-        
+    if (mass==0.0) {
+      capsule->init(odeHandle, mass, osgHandle, Primitive::Geom | Primitive::Draw);
+    } else {
+      capsule->init(odeHandle, mass, osgHandle);
+    }
     obstacle_exists=true;
   };
 

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-09-16 14:49:46  martius
+ *   Revision 1.5  2009-04-02 13:36:48  fhesse
+ *   constructor, create() and setPose() adapted to allow replacing
+ *   during siumulation; if mass=0.0 elements without a body are
+ *   generated (as in PassiveBox)
+ *
+ *   Revision 1.4  2008/09/16 14:49:46  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.3  2007/03/16 11:01:37  martius
@@ -114,7 +119,8 @@ class PassiveSphere : public AbstractObstacle{
    */
   PassiveSphere(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double radius = 0.3, double mass = 1.0):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius), mass(mass) {       
-    sphere=0;
+    sphere = new Sphere(radius);
+    obst.push_back(sphere);
     obstacle_exists=false;    
   };
 
@@ -124,10 +130,10 @@ class PassiveSphere : public AbstractObstacle{
   
   virtual void setPose(const osg::Matrix& pose){
     this->pose = osg::Matrix::translate(0,0,radius) * pose;
-    if (obstacle_exists){
-      destroy();
-    }
-    create();
+    if (!obstacle_exists) {
+       create();
+     }
+     sphere->setPose(pose);
   };
 
   virtual Primitive* getMainPrimitive() const { return sphere; }
@@ -135,12 +141,11 @@ class PassiveSphere : public AbstractObstacle{
   
  protected:
   virtual void create(){
-    sphere = new Sphere(radius);
-    sphere->init(odeHandle, mass, osgHandle);
-    osg::Vec3 pos=pose.getTrans();
-    sphere->setPosition(pos);
-    obst.push_back(sphere);
-        
+    if (mass==0.0) {
+      sphere->init(odeHandle, mass, osgHandle, Primitive::Geom | Primitive::Draw);
+     } else {
+      sphere->init(odeHandle, mass, osgHandle);
+    }
     obstacle_exists=true;
   };
 
