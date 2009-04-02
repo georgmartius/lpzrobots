@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-03-13 09:19:53  martius
+ *   Revision 1.17  2009-04-02 10:12:25  martius
+ *   Texture handling changed
+ *
+ *   Revision 1.16  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -155,7 +158,7 @@ namespace lpzrobots {
     this->wallThickness = wallThickness;
   }
 
-  void AbstractGround::setTexture(const std::string& filename){
+  void AbstractGround::setTexture(const std::string& filename, double repeatOnX, double repeatOnY){
     wallTextureFileName=filename;
     if (obstacle_exists) {
       destroy();

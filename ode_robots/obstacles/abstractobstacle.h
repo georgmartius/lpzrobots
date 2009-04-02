@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2007-12-06 10:02:49  der
+ *   Revision 1.12  2009-04-02 10:12:25  martius
+ *   Texture handling changed
+ *
+ *   Revision 1.11  2007/12/06 10:02:49  der
  *   abstractground: returns now cornerpoints
  *   abstractobstacle: is now trackable
  *   hudstatistics: supports now AbstractmMeasure
@@ -159,6 +162,15 @@ class AbstractObstacle{
    * @param color values in RGBA
    */
   virtual void setColor(const Color& color);
+
+  /** assigns a texture to the all primitives of this obstactle
+      @see Primitive::setTexture()
+  */
+  virtual void setTexture(const std::string& filename, double repeatOnX=1, double repeatOnY=1);
+  /** assigns a texture to the x-th surface of each primitive, 
+      @see Primitive::setTexture()
+  */
+  virtual void setTexture(int surface, const std::string& filename, double repeatOnX, double repeatOnY);
 
   /// return the "main" primitive of the obtactle. The meaning of "main" is arbitrary
   virtual Primitive* getMainPrimitive() const = 0;

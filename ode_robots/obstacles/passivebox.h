@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-01-09 16:52:36  martius
+ *   Revision 1.7  2009-04-02 10:12:25  martius
+ *   Texture handling changed
+ *
+ *   Revision 1.6  2009/01/09 16:52:36  martius
  *   use pose instead of translation only
  *
  *   Revision 1.5  2008/09/16 14:49:46  martius
@@ -91,14 +94,11 @@ class PassiveBox : public AbstractObstacle{
   PassiveBox(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	     const osg::Vec3& dimension = osg::Vec3(1.0, 1.0, 1.0), double mass = 1.0):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension), mass(mass) {       
-    box=0;
+    box = new Box(dimension.x(), dimension.y(), dimension.z());
+    obst.push_back(box);
     obstacle_exists=false;    
   };
 
-
-  virtual void setTexture(const std::string& filename){
-    if(box) box->getOSGPrimitive()->setTexture(filename);
-  }
   
   virtual void setPose(const osg::Matrix& pose){
     this->pose = osg::Matrix::translate(0,0,dimension.z()/2) * pose;
@@ -112,7 +112,6 @@ class PassiveBox : public AbstractObstacle{
 
  protected:
   virtual void create(){
-    box = new Box(dimension.x(), dimension.y(), dimension.z());
     if (mass==0.0) {
       box->init(odeHandle, mass, osgHandle, Primitive::Geom | Primitive::Draw);
     } else {

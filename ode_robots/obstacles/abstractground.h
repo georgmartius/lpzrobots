@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-04-17 15:59:00  martius
+ *   Revision 1.11  2009-04-02 10:12:25  martius
+ *   Texture handling changed
+ *
+ *   Revision 1.10  2008/04/17 15:59:00  martius
  *   OSG2 port finished
  *
  *   Revision 1.9.2.1  2008/04/15 16:21:52  martius
@@ -117,7 +120,8 @@ public:
 
     virtual void createGround(bool create);
 
-    virtual void setTexture(const std::string& filename);
+    /// sets texture of walls. Attention, repeats are so far ignored
+    virtual void setTexture(const std::string& filename, double repeatOnX=1, double repeatOnY=1);
 
     virtual Primitive* getMainPrimitive() const;
 
