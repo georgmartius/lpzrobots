@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2008-09-16 19:38:14  martius
+ *   Revision 1.20  2009-04-02 12:07:44  fhesse
+ *   box.setTexture() before setPosition() (due to OsgBoxTex)
+ *
+ *   Revision 1.19  2008/09/16 19:38:14  martius
  *   sliderwheelie has different config now
  *
  *   Revision 1.18  2008/05/01 22:03:56  martius
@@ -184,9 +187,9 @@ public:
       PassiveBox* b = 
 	new PassiveBox(odeHandle, 
 			  osgHandle, osg::Vec3(0.2+i*0.1,0.2+i*0.1,0.2+i*0.1));
-      b->setPosition(Pos(i*0.5-5, i*0.5, 1.0)); 
       b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
       b->setTexture("Images/light_chess.rgb");
+      b->setPosition(Pos(i*0.5-5, i*0.5, 1.0)); 
       global.obstacles.push_back(b);    
     }
 
