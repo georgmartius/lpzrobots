@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2009-04-02 11:50:25  fhesse
+ *   Revision 1.22  2009-04-02 13:53:57  fhesse
+ *   PassiveBox.replace() not existing anymore; replacing possible with setPosition()
+ *
+ *   Revision 1.21  2009/04/02 11:50:25  fhesse
  *   setTexture() after setPosition (due to new OsgBoxTex)
  *   and replace() instead of setPosition for replacing box
  *
@@ -332,13 +335,10 @@ public:
 		handled = true; */
 	break;	
       case 'r' : // replace box
-	box->replace(Pos(0,0,6.7)); 
-	//box->setTexture("Images/furry_toy.jpg");
+        box->setPosition(Pos(0,0,6.7)); 
 	break;
       case 'e' : // replace box
-	//box->setPosition(Pos(0,0,0)); 
-        box->replace(Pos(0,0,0)); 
-	//box->setTexture("Images/furry_toy.jpg");
+	box->setPosition(Pos(0,0,0)); 
 	break;
 
       case 'c' :{
