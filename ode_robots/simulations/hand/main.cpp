@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2008-05-01 22:03:55  martius
+ *   Revision 1.21  2009-04-02 11:50:25  fhesse
+ *   setTexture() after setPosition (due to new OsgBoxTex)
+ *   and replace() instead of setPosition for replacing box
+ *
+ *   Revision 1.20  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -295,12 +299,13 @@ public:
     */
     
     box = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1.0,5,0.5),10);
-    box->setPosition(Pos(0,0,6.7)); 
-    box->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+    box->setColor(Color(1.0f,0.2f,0.2f,1.0f));
     //c->setTexture("Images/light_chess.rgb");
     //c->setTexture("Images/dusty.rgb");
     //c->setTexture("Images/sandyground.rgb");
-    box->setTexture("Images/furry_toy.jpg");
+    //box->setTexture("Images/furry_toy.jpg");
+    box->setTexture("Images/my/skin.jpg");
+    box->setPosition(Pos(0,0,6.7)); 
     global.obstacles.push_back(box); 
     
     showParams(global.configs);
@@ -327,19 +332,20 @@ public:
 		handled = true; */
 	break;	
       case 'r' : // replace box
-	box->setPosition(Pos(0,0,6.7)); 
-	box->setTexture("Images/furry_toy.jpg");
+	box->replace(Pos(0,0,6.7)); 
+	//box->setTexture("Images/furry_toy.jpg");
 	break;
       case 'e' : // replace box
-	box->setPosition(Pos(0,0,0)); 
-	box->setTexture("Images/furry_toy.jpg");
+	//box->setPosition(Pos(0,0,0)); 
+        box->replace(Pos(0,0,0)); 
+	//box->setTexture("Images/furry_toy.jpg");
 	break;
 
       case 'c' :{
 	PassiveCapsule* c =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
-      	c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
-      	c->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+      	c->setColor(Color(1.0f,0.2f,0.2f,1.0f));
       	c->setTexture("Images/furry_toy.jpg");
+      	c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
       	globalData.obstacles.push_back(c); }
 	handled = true;
 	break;
