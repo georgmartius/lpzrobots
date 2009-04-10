@@ -31,6 +31,7 @@ CPPFLAGS_OPT = -Wall -I. -pipe -pthread $(INC) -O -DNDEBUG
 ## Optimisation
 CPPFLAGS_PROF = -Wall -I. -pipe -pthread $(INC) -O -DQPROF
 
+
 # used for single file compilation
 CXX = g++
 
@@ -72,7 +73,7 @@ Makefile.depend:
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
-	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
 
 depend: 
 	rm Makefile.depend

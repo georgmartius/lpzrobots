@@ -19,9 +19,11 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 
 
 # use -pg for profiling
-CFLAGS = -Wall -g -pipe -I. -Iinclude
+CFLAGS = -Wall -g -pipe
 # Optimisation 
-CFLAGS_OPT = -Wall -pipe -I. -Iinclude -O -DNDEBUG
+CFLAGS_OPT = -Wall -pipe -O -DNDEBUG
+# additional inc paths
+INC +=  -I. -Iinclude
 
 # used for single file compilation
 CXX = g++ $(CFLAGS) $(INC)
@@ -51,7 +53,7 @@ Makefile.depend:
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
-	makedepend $(CFLAGS) $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
 
 depend: 
 	rm Makefile.depend
