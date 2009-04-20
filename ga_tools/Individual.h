@@ -11,8 +11,6 @@
 #include "Gen.h"
 #include "IndividualPrototyp.h"
 
-#define PTR_TO_GEN void*
-
 class Individual {
 public:
 	Individual(IndividualPrototyp* prototyp,bool randCreate=false);
@@ -20,7 +18,7 @@ public:
 
 	inline IndividualPrototyp* getPrototyp(void)const {return m_prototyp;}
 	inline double getFitness(void)const {return m_fitness;}
-	inline PTR_TO_GEN getGen(int x)const {if(x<m-gene.size())return m_gene[x];return NULL;}
+	inline Gen* getGen(int x)const {if(x<m-gene.size())return m_gene[x];return NULL;}
 
 	/**
 	 * This function calculate the fitness value for this individual. Good values are near zero.
@@ -31,7 +29,7 @@ public:
 	Individual* recombinateWith(Individual* individual);
 
 protected:
-	std::vector<PTR_TO_GEN> m_gene;
+	std::vector<Gen*> m_gene;
 	double m_fitness;
 	IndividualPrototyp* m_prototyp;
 

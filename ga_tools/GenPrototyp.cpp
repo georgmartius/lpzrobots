@@ -9,7 +9,12 @@
 
 GenPrototyp::GenPrototyp() {
 	// TODO Auto-generated constructor stub
+}
 
+GenPrototyp::GenPrototyp(RandGen* randGen) {
+	// TODO Auto-generated constructor stub
+
+	m_randGen = randGen;
 }
 
 GenPrototyp::~GenPrototyp() {
@@ -22,7 +27,8 @@ void GenPrototyp::update(void) {
 
 Gen<Typ>* GenPrototyp::createGen(Individual* individual) {
 	Gen<Typ>* result = NULL;
-	result = new Gen<Typ>(this,individual,true);
+	result = new Gen(this,individual);
+	result->setValue(getRandomValue());
 	m_storage.push_back(result);
 
 	return result;

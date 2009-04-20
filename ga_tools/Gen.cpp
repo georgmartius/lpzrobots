@@ -7,20 +7,16 @@
 
 #include "Gen.h"
 
-Gen::Gen(GenPrototyp* prototyp,Individual* owner,bool randCreate) {
+Gen::Gen(GenPrototyp* prototyp,Individual* owner) {
 	// TODO Auto-generated constructor stub
-
-	if(randCreate)
-		m_value = rand();
 
 	m_prototyp = prototyp;
 	m_owner = owner;
+	m_value = NULL;
 }
 
 Gen::Gen() {
 	// TODO Auto-generated constructor stub
-
-	m_value=rand();
 }
 
 Gen::~Gen() {

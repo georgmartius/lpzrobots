@@ -13,11 +13,9 @@
 #include "Gen.h"
 #include "Individual.h"
 
-template<class Typ>
-
 class GenPrototyp {
 public:
-	GenPrototyp();
+	GenPrototyp(RandGen* randGen);
 	virtual ~GenPrototyp();
 
 	/**
@@ -26,11 +24,18 @@ public:
 	 */
 	virtual void update(void);
 
-	Gen<Typ>* createGen(Individual* individual);
+	Gen* createGen(Individual* individual);
+
+	virtual void* getRandomValue() = 0;
 
 protected:
 	Typ m_MutationFactor;
-	std::vector<Gen<Typ>*> m_storage;
+	std::vector<Gen*> m_storage;
+
+	RandGen* m_randGen;
+
+private:
+	GenPrototyp();
 };
 
 #endif /* GENPROTOTYP_H_ */

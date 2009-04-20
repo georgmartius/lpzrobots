@@ -13,9 +13,6 @@
 #include "Individual.h"
 #include "GenPrototyp.h"
 
-#define PTR_TO_INDIVIDUAL void*
-#define PTR_TO_GEN_PROTOTYP void*
-
 class IndividualPrototyp {
 public:
 	IndividualPrototyp();
@@ -23,14 +20,14 @@ public:
 
 	Individual* createRandIndividual(void);
 
-	inline PTR_TO_GEN_PROTOTYP getGenPrototyp(int x)const {if(x<m_structur.size())return m_structur[x];return NULL;}
-	inline PTR_TO_INDIVIDUAL getIndividual(int x)const {if(x<m_storage.size())return m_storage[x];return NULL;}
+	inline GenPrototyp* getGenPrototyp(int x)const {if(x<m_structur.size())return m_structur[x];return NULL;}
+	inline Individual* getIndividual(int x)const {if(x<m_storage.size())return m_storage[x];return NULL;}
 	inline int getNumGenPrototyp(void)const {return m_structur.size();}
 	inline int getNumIndividual(void)const {return m_storage.size();}
 
 protected:
-	std::vector<PTR_TO_GEN_PROTOTYP> m_structur;
-	std::vector<PTR_TO_INDIVIDUAL> m_storage;
+	std::vector<GenPrototyp*> m_structur;
+	std::vector<Individual*> m_storage;
 };
 
 #endif /* INDIVIDUALPROTOTYP_H_ */

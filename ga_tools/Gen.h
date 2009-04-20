@@ -11,24 +11,20 @@
 #include "GenPrototyp.h"
 #include "Individual.h"
 
-template<class Typ>
-
 class Gen {
 public:
-	Gen(GenPrototyp<Typ>* prototyp,Individual* owner,bool randCreate=false);
+	Gen(GenPrototyp* prototyp, Individual* owner);
 	virtual ~Gen();
 
-	inline Typ getValue(void)const {return m_value;}
-	inline Typ setValue(Typ value) {m_value=value;}
+	inline void* getValue(void)const {return m_value;}
+	inline void* setValue(void* value) {m_value=value;}
 
-	inline GenPrototyp<Typ> getPrototyp(void)const {return m_prototyp;}
+	inline GenPrototyp getPrototyp(void)const {return m_prototyp;}
 	inline Individual* getIndividual(void)const {return m_owner;}
 
-	virtual static Typ rand()=0;
-
 protected:
-	Typ m_value;
-	GenPrototyp<Typ>* m_prototyp;
+	void* m_value;
+	GenPrototyp* m_prototyp;
 	Individual* m_owner;
 
 private:

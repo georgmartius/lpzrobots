@@ -1,17 +1,17 @@
 /*
- * GenManager.cpp
+ * GenAlg.cpp
  *
  *  Created on: 20.04.2009
  *      Author: robot12
  */
 
-#include "GenManager.h"
+#include "GenAlg.h"
 
-GenManager::GenManager() {
+GenAlg::GenAlg() {
 	// TODO Auto-generated constructor stub
 
 }
 
-GenManager::~GenManager() {
+GenAlg::~GenAlg() {
 	// TODO Auto-generated destructor stub
 }

@@ -20,11 +20,9 @@ Individual::Individual(IndividualPrototyp* prototyp,bool randCreate) {
 	if(randCreate) {
 		int num = m_prototyp->getNumGenPrototyp();
 		for(int x=0;x<num;x++) {
-			PTR_TO_GEN_PROTOTYP pro = m_prototyp->getGenPrototyp(x);
-
+			GenPrototyp* pro = m_prototyp->getGenPrototyp(x);
+			pro->createGen(this);
 		}
-	}
-	else {
 	}
 }
 
