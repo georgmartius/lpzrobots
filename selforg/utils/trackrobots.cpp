@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-09-12 10:11:36  martius
+ *   Revision 1.9  2009-04-21 16:36:27  martius
+ *   removed space at end of lines in log-files
+ *
+ *   Revision 1.8  2008/09/12 10:11:36  martius
  *   added space to speed output
  *
  *   Revision 1.7  2008/04/28 11:11:01  guettler
@@ -83,10 +86,10 @@ bool TrackRobot::open(const AbstractRobot* robot){
     file = fopen(filename,"w");
 
     if(!file) return false;
-    fprintf(file, "#C t ");
-    if(trackPos)   fprintf(file, "x y z ");
-    if(trackSpeed) fprintf(file, "vx vy vz wx wy wz ");
-    if( trackOrientation)  fprintf(file, "o11 o12 o13 o21 o22 o23 o31 o32 o33 ");
+    fprintf(file, "#C t");
+    if(trackPos)   fprintf(file, " x y z");
+    if(trackSpeed) fprintf(file, " vx vy vz wx wy wz");
+    if( trackOrientation)  fprintf(file, " o11 o12 o13 o21 o22 o23 o31 o32 o33");
     fprintf(file,"\n");
     fprintf(file,"# Recorded every %ith time step\n", interval);
   }
@@ -97,22 +100,22 @@ void TrackRobot::track(AbstractRobot* robot, double time) {
   if(!file || !robot) return;
   if(cnt % interval==0){
     //   fprintf(file, "%li ", cnt);
-    fprintf(file, "%f ", time);
+    fprintf(file, "%f", time);
     if(trackPos){
       Position p = robot->getPosition();
-      fprintf(file, "%g %g %g ", p.x, p.y, p.z);
+      fprintf(file, " %g %g %g", p.x, p.y, p.z);
     }
     if(trackSpeed){
       Position s = robot->getSpeed();
-      fprintf(file, "%g %g %g ", s.x, s.y, s.z);
+      fprintf(file, " %g %g %g", s.x, s.y, s.z);
       s = robot->getAngularSpeed();
-      fprintf(file, "%g %g %g ", s.x, s.y, s.z);
+      fprintf(file, " %g %g %g", s.x, s.y, s.z);
     }
     if( trackOrientation){
       const matrix::Matrix& o = robot->getOrientation();
       for(int i=0; i<3; i++){
 	for(int j=0; j<3; j++){
-	  fprintf(file, "%g ", o.val(i,j));
+	  fprintf(file, " %g", o.val(i,j));
 	}
       }
     }
