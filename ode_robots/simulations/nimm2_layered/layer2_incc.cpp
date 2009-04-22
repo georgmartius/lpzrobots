@@ -16,7 +16,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-20 07:28:32  robot12
+ *   Revision 1.1  2009-04-22 14:39:02  guettler
+ *   moved layeredcontroller, layer2_incc and layer1_incc to ode_robots/simulations/nimm2_hebb and nimm2_layered
+ *
+ *   Revision 1.1  2009/04/20 07:28:32  robot12
  *   guettler: bugfix for: invertnchannelcontrollerhebb* moved to simulations (compile problems: moved layer2_incc.cpp+.h to hand and nimm2_hebb)
  *
  *   Revision 1.5  2008/04/17 14:54:45  martius

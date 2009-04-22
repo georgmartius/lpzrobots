@@ -18,8 +18,8 @@
  *                                                                         * 
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-20 07:28:32  robot12
- *   guettler: bugfix for: invertnchannelcontrollerhebb* moved to simulations (compile problems: moved layer2_incc.cpp+.h to hand and nimm2_hebb)
+ *   Revision 1.1  2009-04-22 14:39:02  guettler
+ *   moved layeredcontroller, layer2_incc and layer1_incc to ode_robots/simulations/nimm2_hebb and nimm2_layered
  *
  *   Revision 1.4  2008/05/30 11:58:27  martius
  *   use cmath instead of math.h
@@ -41,10 +41,10 @@
  *                                                                         *
  *                                                                         *
  ***************************************************************************/
-#ifndef __LAYER2_INCC_H
-#define __LAYER2_INCC_H
+#ifndef __LAYER1_INCC_H
+#define __LAYER1_INCC_H
 
-#include "invertnchannelcontrollerhebbh.h"
+#include "invertnchannelcontroller.h"
 
 #include <assert.h>
 #include <cmath>
@@ -60,10 +60,10 @@
  * This derivative is used as a basic layer of a two layered control structure.
  * 
  */
-class Layer2_INCC : public InvertNChannelControllerHebbH {
+class Layer1_INCC : public InvertNChannelController {
 
 public:
-  Layer2_INCC(int _buffersize, bool _update_only_1=false);
+  Layer1_INCC(int _buffersize, bool _update_only_1=false);
 
   //  virtual ~InvertNChannelControllerHebbH();
 
@@ -71,11 +71,17 @@ public:
 
   virtual void learn(const matrix::Matrix& x_delay, const matrix::Matrix& y_delay);
 
+  virtual matrix::Matrix getH(); 
+  virtual void setH(matrix::Matrix tmp); 
+  virtual void addtoH(matrix::Matrix tmp);
 
-  virtual void setL1_dH(matrix::Matrix tmp);
+  virtual matrix::Matrix getdH(); 
+
+
+
 
 protected:
-  matrix::Matrix L1_dh;
+  matrix::Matrix h_update;
 
 };
 
