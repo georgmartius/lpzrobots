@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-03-26 18:25:23  martius
+ *   Revision 1.14  2009-04-22 17:16:36  jhoffmann
+ *   tested the cool cvs system how it works
+ *
+ *   Revision 1.13  2009/03/26 18:25:23  martius
  *   removed contains helper since it is in Base class
  *
  *   Revision 1.12  2009/03/25 15:44:23  guettler
@@ -181,7 +184,7 @@ public:
     connectRobots = true;
     double distance = 1.0;
 
-    setCameraHomePos(Pos(-26.0495,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
+    setCameraHomePos(Pos(-26.0494,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
 
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("realtimefactor",2);
@@ -295,7 +298,7 @@ public:
     this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
     double& stepdiff = stats->addMeasure(mic->getMI(1),"MI NSTEPDIFF",NORMSTEPDIFF,1);
     this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);
-    
+
 /*    this->getHUDSM()->addMeasure(mic->getH_x(1),"H(x) 1",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_x(0),"H(x) 0",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_yx(1),"H(y|x) 1",ID,1);
@@ -318,7 +321,7 @@ public:
     showParams(global.configs);
     std::cout << "running with cDiag = " << this->cInit << "." << std::endl;
     std::cout << "running with cNonDiag = " << this->cNonDiag << "." << std::endl;
-    
+
   }
 
   /** optional additional callback function which is called every simulation step.
@@ -357,7 +360,7 @@ public:
       printf("timeSteps   = %li\n",this->sim_step);
       printf("time in min = %f\n",((float)this->sim_step)/100/60);
       printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
-      printf("Entropy     = %f\n",trackableEntropySLOW->getValue());      
+      printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
     }
   }
 
@@ -372,7 +375,7 @@ public:
         printf("timeSteps   = %li\n",this->sim_step);
         printf("time in min = %f\n",((float)this->sim_step)/100/60);
         printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
-        printf("Entropy     = %f\n",trackableEntropySLOW->getValue());        
+        printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
         return true;
         break;
       default:
@@ -395,7 +398,7 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
   double mi = -1.0;
   double h_x = -1.0;
   double h_yx = -1.0;
-  for (int i=0;i<runs;i++) 
+  for (int i=0;i<runs;i++)
   {
     std::cout << "run number " << (i+1) << "..." << std::endl;
     ThisSim* sim;
@@ -429,7 +432,7 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
   file = fopen(filename,"a");
   fprintf(file,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n",cinit, cnondiag,avg,mi,h_x,h_yx,loc_avg,mi_avg,h_x_avg,h_yx_avg);
   fflush(file);
-  
+
 }
 
 int main (int argc, char **argv)
@@ -440,7 +443,7 @@ int main (int argc, char **argv)
   double endy=1.5;
   double stepSizex=0.2;
   double stepSizey=0.2;
-  int numberSteps = (int)(((endx-startx)/stepSizex+1)*((endy-starty)/stepSizey+1));  
+  int numberSteps = (int)(((endx-startx)/stepSizex+1)*((endy-starty)/stepSizey+1));
   // check for -first value
   int index = Simulation::contains(argv, argc, "-first");
   if(index &&  (argc > index))
@@ -464,7 +467,7 @@ int main (int argc, char **argv)
     // cnondiag uses same stepsize, but is restricted to -0.1 to 0.3
     int steps = (lastStep-firstStep)/stepInterval +1;
     // now calculate the real stepSize for C
-    
+
     // quadratic version, create landscape
 //    double stepSize = sqrt(1/((double)(3*steps)));
 //    double cdiag = 0.8 + (((stepId-firstStep)/stepInterval) % ((int)(0.5/stepSize))) *stepSize*8.7732;
@@ -500,9 +503,9 @@ int main (int argc, char **argv)
 	std::cout << "stepSizex     = " << stepSizex << std::endl;
 	std::cout << "stepSizey     = " << stepSizey << std::endl;
 	std::cout << "cdiag        = " << x << std::endl;
-	std::cout << "cnondiag     = " << y << std::endl;      
+	std::cout << "cnondiag     = " << y << std::endl;
 	runSim(x,3,argc,argv,y);
-        
+
     }
   } else if ( Simulation::contains(argv, argc, "-loop") && (argc >  Simulation::contains(argv, argc, "-last"))){
     // then loop over all cinit and cnondiag values:
@@ -511,7 +514,7 @@ int main (int argc, char **argv)
         double x = startx + ((i-1) % ((int)((endx-startx)/stepSizex+1)))*stepSizex;
         double y = starty + ((i-1) / ((int)((endx-startx)/stepSizex+1)))*stepSizey;
       std::cout << "---cdiag = " << x << std::endl;
-        std::cout << "cnondiag = " << y << std::endl;      
+        std::cout << "cnondiag = " << y << std::endl;
         runSim(x,1,argc,argv,y);
     }
   }
@@ -530,7 +533,7 @@ int main (int argc, char **argv)
       // check for cnondiag value
       index =  Simulation::contains(argv, argc, "-cnondiag");
       double cnondiag=0.2;
-      if (index && (argc > index)) 
+      if (index && (argc > index))
         cnondiag=atof(argv[index]);
       for (int i=0;i<runs;i++)
       {
