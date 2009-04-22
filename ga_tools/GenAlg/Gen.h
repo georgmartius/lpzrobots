@@ -13,30 +13,29 @@
 #include <string>
 
 #include "GenFactory.h"
-#include "abstractIndividual.h"
+#include "Individual.h"
+#include "GenKontext.h"
+#include "IValue.h"
 
-template<class Typ>
 class Gen {
 public:
-	Gen(GenFactory* factory, abstractIndividual individual);
+	Gen(GenFactory* factory, Individual individual, GenKontext* kontext);
 	virtual ~Gen(void);
 
 	inline std::string getName(void)const {return m_name;}
-	inline Typ* getValue(void)const {return m_value;}
-	inline void setValue(Typ* value) {m_value=value;}
-	inline void setValue(void* value) {m_valueReferenz=value;}
-	inline abstractIndividual* getIndividual(void)const {return m_individual;}
+	inline IValue* getValue(void)const {return m_value;}
+	inline void setValue(IValue* value) {m_value=value;}
+	inline Individual* getIndividual(void)const {return m_individual;}
 	inline GenFactory getFactory(void)const {return m_creater;}
+	inline GenKontext* getKontext(void)const {return m_kontext;}
 
 protected:
-	union {
-		Typ* m_value;
-		void* m_valueReferenz;
-	};
+	IValue* m_value;
 
 	GenFactory* m_creater;
-	abstractIndividual* m_individual;
+	Individual* m_individual;
 	std::string m_name;
+	genKontext* m_kontext;
 
 private:
 	/**

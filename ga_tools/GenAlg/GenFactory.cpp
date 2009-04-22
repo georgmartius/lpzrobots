@@ -11,43 +11,41 @@ GenFactory::GenFactory(void) {
 	// nothing
 }
 
-GenFactory::GenFactory(std::string name, abstractRandomStrategie* random, abstractMutationFactorOptimizerStrategie* mfOptimizer) {
-	m_random = random;
+GenFactory::GenFactory(std::string name) {
 	m_name = name;
-	m_mutationFactorOptimizer = mfOptimizer;
 }
 
 GenFactory::~GenFactory(void) {
-	if(m_random!=NULL) {
-		delete m_random;
-		m_random = NULL;
-	}
-
-	if(m_mutationFactorOptimizer!=NULL) {
-		delete m_mutationFactorOptimizer;
-		m_mutationFactorOptimizer = NULL;
-	}
+	// nothing
 }
 
-void GenFactory::updateGen(abstractGen* gen) {
-	m_changed = true;
-}
+Gen* GenFactory::createGen(Individual* individual, GenKontext* kontext) {
+	Gen* gen = new Gen(this,individual);
 
-void GenFactory::removeGen(abstractGen* gen) {
-	m_changed = true;
-	m_storage.erase(m_storage.find(gen));
-}
-
-abstractGen* GenFactory::createGen(abstractIndividual* individual) {
-	abstractGen* gen = new abstractGen(this,individual);
-	UNKNOWN_DATA_TYP value = m_random->getRandomValue();
+	IValue* value = kontext->getRandomStrategie()->getRandomValue();
 	gen->setValue(value);
-	m_storage.push_back(gen);
+
+	kontext->addGen(gen);
+	individual->addGen(gen);
 
 	return gen;
 }
 
-void GenFactory::update(void) {
-	if(m_changed)
-		m_mutationFactor = m_mutationFactorOptimizer->updateMutationFactor(m_storage);
+Gen* GenFactory::createGen(Individual* individual, GenKontext* kontext, Gen* oldGen) {
+	Gen* gen = new Gen(this,individual);
+
+	gen->setValue(oldGen->getValue());
+
+	kontext->addGen(gen);
+	individual->addGen(gen);
+}
+
+Gen* GenFactory::createGen(Individual* individual, GenKontext* kontext, Gen* oldGen, IValue& mutationFactor) {
+	Gen* gen = new Gen(this,individual);
+	IValue* value = (*gen->getValue()) * mutationFactor;
+
+	gen->setValue(value);
+
+	kontext->addGen(gen);
+	individual->addGen(gen);
 }
