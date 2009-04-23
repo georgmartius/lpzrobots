@@ -21,12 +21,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.97  2009-04-23 14:30:43  guettler
+ *   Revision 1.98  2009-04-23 14:31:23  guettler
+ *   cosmetic
+ *
+ *   Revision 1.97  2009/04/23 14:30:43  guettler
  *   correct realtimefactor when next cycle starts;
  *   realtimefactor can now be set to 1 with the / key (keypad)
  *
  *   Revision 1.96  2009/04/23 14:17:34  guettler
- *   new: simulation cycles, first simple implementation, use the additional method bool restart() for starting new cycles, template simulation can be found in template_cycledSimulation (originally taken from template_onerobot)
+ *   new: simulation cycles, first simple implementation,
+ *   use the additional method bool restart() for starting new cycles,
+ *   template simulation can be found in template_cycledSimulation
+ *   (originally taken from template_onerobot)
  *
  *   Revision 1.95  2009/03/31 15:48:27  martius
  *   set default camera position

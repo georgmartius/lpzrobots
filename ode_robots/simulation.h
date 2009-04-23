@@ -28,8 +28,14 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.35  2009-04-23 14:17:34  guettler
- *   new: simulation cycles, first simple implementation, use the additional method bool restart() for starting new cycles, template simulation can be found in template_cycledSimulation (originally taken from template_onerobot)
+ *   Revision 1.36  2009-04-23 14:32:35  guettler
+ *   cosmetic
+ *
+ *   Revision 1.35  2009/04/23 14:17:34  guettler
+ *   new: simulation cycles, first simple implementation,
+ *   use the additional method bool restart() for starting new cycles,
+ *   template simulation can be found in template_cycledSimulation
+ *   (originally taken from template_onerobot)
  *
  *   Revision 1.34  2009/03/12 08:43:40  martius
  *   fixed video recording
