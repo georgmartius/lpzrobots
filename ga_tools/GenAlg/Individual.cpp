@@ -8,9 +8,15 @@
 #include "Individual.h"
 
 Individual::Individual() {
-	// TODO Auto-generated constructor stub
+	// nothing
+}
+
+Individual::Individual(Generation* generation) {
+	m_fitnessIsCalculated = false;
+	m_fitness = 10000000000000.0;
+	m_generation = generation;
 }
 
 Individual::~Individual() {
-	// TODO Auto-generated destructor stub
+	m_generation = NULL;
 }

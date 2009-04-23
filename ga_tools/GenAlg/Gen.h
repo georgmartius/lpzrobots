@@ -19,7 +19,7 @@
 
 class Gen {
 public:
-	Gen(GenFactory* factory, Individual individual, GenKontext* kontext);
+	Gen(Individual individual, GenKontext* kontext, std::string name);
 	virtual ~Gen(void);
 
 	inline std::string getName(void)const {return m_name;}
@@ -31,11 +31,9 @@ public:
 
 protected:
 	IValue* m_value;
-
-	GenFactory* m_creater;
 	Individual* m_individual;
 	std::string m_name;
-	genKontext* m_kontext;
+	GenKontext* m_kontext;
 
 private:
 	/**

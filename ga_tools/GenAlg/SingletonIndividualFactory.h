@@ -14,28 +14,30 @@
 #include <vector>
 
 #include "Individual.h"
-#include "GenFactory.h"
+#include "SingletonGenFactory.h"
+#include "SingletonGenEngine.h"
+#include "Generation.h"
+#include "Gen.h"
 
 class SingletonIndividualFactory {
 public:
-	SingletonIndividualFactory(void);
-	virtual ~SingletonIndividualFactory(void);
-
 	inline static SingletonIndividualFactory* getInstance(void) {
-		if(m_me==NULL)m_me=new SingletonIndividualFactory;
-		return m_me;
+		if(m_factory==0)m_factory = new SingletonIndividualFactory;
+		return m_factory;
 	}
 
-	inline int getSize(void)const {return m_genTypes.size();}
-	inline GenFactory* getGen(int x)const {if(x<getSize())return m_genTypes[x];return NULL;}
+	inline static void destroyFactory(void) {delete m_factory; m_factory=NULL;}
 
-	inline void addGen(GenFactory* gen) {m_genTypes.push_back(gen);}
+	// 3 Methodes to create an Individual
+	Individual* createIndividual(Generation* generation)const;															// random
+	Individual* createIndividual(Generation* generation, Individual* oldIndividual)const;								// copy
+	Individual* createIndividual(Generation* generation, Individual* individual1, Individual* individual2)const;		// recombinate
 
-	Individual* createIndividual(void)const;
+private:
+	static SingletonIndividualFactory* m_factory = 0;
 
-protected:
-	static SingletonIndividualFactory* m_me = NULL;
-	std::vector<GenFactory*> m_genTypes;
+	SingletonIndividualFactory();
+	virtual ~SingletonIndividualFactory();
 };
 
 #endif /* SINGLETONINDIVIDUALFACTORY_H_ */

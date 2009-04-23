@@ -8,21 +8,24 @@
 #include "SingletonIndividualFactory.h"
 
 SingletonIndividualFactory::SingletonIndividualFactory() {
-	// TODO Auto-generated constructor stub
-
 }
 
 SingletonIndividualFactory::~SingletonIndividualFactory() {
-	// TODO Auto-generated destructor stub
 }
 
-Individual* SingletonIndividualFactory::createIndividual(void)const {
-	Individual ind = new Individual();
-	GenFactory* gen;
+Individual* SingletonIndividualFactory::createIndividual(Generation* generation)const {
+	Individual ind = new Individual(generation);
+	GenPrototyp* prototyp;
+	std::vector<GenPrototyp*>* storage;
+	Gen* gen;
 
-	int num = getSize();
+	storage = SingletonGenEngine::getSetOfGenPrototyps(generation);
+	int num = storage->size();
 	for(int x=0;x<num;x++) {
-		gen = getGen(x);
-		gen->createGen(ind);
+		genFactory = storage[x];
+		gen = genFactory->createGen(ind,prototyp);
 	}
 }
+
+Individual* createIndividual(Generation* generation, Individual* oldIndividual)const;								// copy
+Individual* createIndividual(Generation* generation, Individual* individual1, Individual* individual2)const;		// recombinate

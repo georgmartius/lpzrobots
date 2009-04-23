@@ -11,12 +11,15 @@ Gen::Gen(void) {
 	// nothing
 }
 
-Gen::Gen(GenFactory* factory, abstractIndividual individual, GenKontext* kontext) {
-	m_name = factory->getName();
-	m_creater = factory;
+Gen::Gen(abstractIndividual individual, GenKontext* kontext, std::string name) {
+	m_name = name;
 	m_individual = individual;
 	m_value = NULL;
 	m_kontext = kontext;
+	m_name = name;
+
+	m_individual->addGen(this);
+	m_kontext->addGen(this);
 }
 
 Gen::~Gen(void) {

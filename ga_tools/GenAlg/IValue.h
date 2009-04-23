@@ -8,12 +8,16 @@
 #ifndef IVALUE_H_
 #define IVALUE_H_
 
-class IValue {
+#include "types.h"
+
+#include "inspectable.h"
+
+class IValue : public Inspectable{
 public:
 	IValue();
 	virtual ~IValue();
 
-	IValue* operator*(IValue& value) = 0;
+	IValue* operator*(IValue& value)const = 0;
 };
 
 #endif /* IVALUE_H_ */
