@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-03-30 13:57:40  martius
+ *   Revision 1.15  2009-04-23 14:33:20  der
+ *   Small changes
+ *
+ *   Revision 1.14  2009/03/30 13:57:40  martius
  *   ground texture removed
  *
  *   Revision 1.13  2009/01/20 17:29:52  martius
@@ -198,7 +201,7 @@ public:
   {
     setCameraHomePos (Pos(22.4468, 25.8365, 2.74255),  Pos(157.862, -12.7123, 0));
 
-  // Set number of rbots:
+  // Set number of robots:
 
 
     // int plattfuesse = 1; 
@@ -214,7 +217,7 @@ public:
     // int dogs = 0; 
 
 
-    bool fixedInAir = true;
+    bool fixedInAir = false;
     reckturner = false;
     // Playground types
     bool narrow = true; 
@@ -228,7 +231,7 @@ public:
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.setParam("controlinterval",2);//4);
-    global.odeConfig.setParam("noiseY",2.0); 
+    global.odeConfig.setParam("noiseY",.0); 
     global.odeConfig.setParam("noise",0.02); 
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("simstepsize",0.004);//0.004);
@@ -291,7 +294,7 @@ public:
 // //     global.obstacles.push_back(m);
     
    if(narrow){
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 0.08, 1.3975)); 
+     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(10.0875, 0.08, 1.3975)); 
      playground->setColor(Color(0.2f,0.2f,0.22f,0.3));
      playground->setTexture("Images/really_white.rgb");
      playground->setPosition(osg::Vec3(20,20,.1));
@@ -359,7 +362,7 @@ public:
      conf.anklePower = 5;
      conf.armPower = 20;//5
      if(reckturner)      conf.armPower = 30;
-     conf.powerfactor = .5;// .95;//.65;//5;
+     conf.powerfactor = .25;// .95;//.65;//5;
      if (reckturner) conf.powerfactor *=.2;
      if (i==0)
        conf.trunkColor=Color(0.1, 0.3, 0.8);
@@ -367,8 +370,7 @@ public:
      if(reckturner)
        conf.handsRotating = true;
 
-     conf.useBackJoint = true
-       ;
+     conf.useBackJoint = true;
 	
      //    conf.bodyTexture="Images/whitemetal_farbig_small.rgb";
      //     conf.bodyColor=Color(1.0,1.0,0.0);
@@ -450,15 +452,17 @@ public:
      controller->setParam("epsSat",0.02);
      controller->setParam("epsA",0.003);
      controller->setParam("steps",1);
-     controller->setParam("s4avg",2);
+     controller->setParam("s4avg",10);
      controller->setParam("s4delay",1);
      controller->setParam("teacher",0.0);
      controller->setParam("dampC",0.00001);
      controller->setParam("dampA",0.003);
-     controller->setParam("weighting",1);
-     controller->setParam("noise",0);;
-     controller->setParam("zetaupdate",1);
+     // controller->setParam("weighting",1);
+     controller->setParam("noise",0.01);;
+     controller->setParam("noiseY",0);
+     controller->setParam("zetaupdate",0);
      controller->setParam("PIDint",.3);
+	  controller->setParam("intstate",1);
       
      global.configs.push_back(controller);
       
