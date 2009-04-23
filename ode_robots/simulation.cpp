@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.96  2009-04-23 14:17:34  guettler
+ *   Revision 1.97  2009-04-23 14:30:43  guettler
+ *   correct realtimefactor when next cycle starts;
+ *   realtimefactor can now be set to 1 with the / key (keypad)
+ *
+ *   Revision 1.96  2009/04/23 14:17:34  guettler
  *   new: simulation cycles, first simple implementation, use the additional method bool restart() for starting new cycles, template simulation can be found in template_cycledSimulation (originally taken from template_onerobot)
  *
  *   Revision 1.95  2009/03/31 15:48:27  martius
@@ -853,6 +857,7 @@ namespace lpzrobots {
           globalData.time = 0;
           sim_step=0;
           this->currentCycle++;
+          resetSyncTimer();
         }
         if(!loop())
           break;
@@ -868,6 +873,7 @@ namespace lpzrobots {
             globalData.time = 0;
             sim_step=0;
             this->currentCycle++;
+            resetSyncTimer();
           }
         }
         if(!loop())
@@ -1143,6 +1149,11 @@ namespace lpzrobots {
 	std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
 	handled=true;
 	break;
+      case 65455: // keypad /
+        globalData.odeConfig.setParam("realtimefactor", 1);
+        std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
+        handled=true;
+        break;
       case 65451: // keypad +
       case 43: // +
 	{
@@ -1240,6 +1251,7 @@ namespace lpzrobots {
     au.addKeyboardMouseBinding("Simulation: Ctrl-p","Pause on/off");
     au.addKeyboardMouseBinding("Simulation: +","increase simulation speed (realtimefactor)");
     au.addKeyboardMouseBinding("Simulation: -","decrease simulation speed (realtimefactor)");
+    au.addKeyboardMouseBinding("Simulation: /","set normal simulation speed (realtimefactor=1)");
     au.addKeyboardMouseBinding("Simulation: *","set maximum simulation speed (realtimefactor=0)");
     au.addKeyboardMouseBinding("Simulation: Ctrl-s","change shadow technique");
     bindingDescription(au);
