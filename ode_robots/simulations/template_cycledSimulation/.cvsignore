@@ -3,4 +3,4 @@ start
 *.log
 start_opt
 .history
-ode.msg
+video0*

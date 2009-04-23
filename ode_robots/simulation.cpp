@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.95  2009-03-31 15:48:27  martius
+ *   Revision 1.96  2009-04-23 14:17:34  guettler
+ *   new: simulation cycles, first simple implementation, use the additional method bool restart() for starting new cycles, template simulation can be found in template_cycledSimulation (originally taken from template_onerobot)
+ *
+ *   Revision 1.95  2009/03/31 15:48:27  martius
  *   set default camera position
  *
  *   Revision 1.94  2009/03/27 06:21:31  guettler
@@ -589,6 +592,8 @@ namespace lpzrobots {
 
     videostream = new VideoStream();
 
+    currentCycle = 1;
+
   }
 
   Simulation::~Simulation() {
@@ -839,14 +844,34 @@ namespace lpzrobots {
     }
 
     if(!noGraphics) {
-      while ( (!viewer->done()) && (!simulation_time_reached) ) {
-	if(!loop())
-	  break;
+      while ( (!viewer->done()) && (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
+        if (simulation_time_reached)
+        {
+          printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n", (sim_step/6000), sim_step, currentCycle);
+          // start a new cycle, set timer to 0 and so on...
+          simulation_time_reached = false;
+          globalData.time = 0;
+          sim_step=0;
+          this->currentCycle++;
+        }
+        if(!loop())
+          break;
       }
     } else {
-      while ( !simulation_time_reached) {
-	if(!loop())
-	  break;
+      while ( !simulation_time_reached || restart(odeHandle,osgHandle,globalData)) {
+        {
+          if (simulation_time_reached)
+          {
+            printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n", (sim_step/6000), sim_step, currentCycle);
+            // start a new cycle, set timer to 0 and so on...
+            simulation_time_reached = false;
+            globalData.time = 0;
+            sim_step=0;
+            this->currentCycle++;
+          }
+        }
+        if(!loop())
+          break;
       }
     }
     if(useOdeThread!=0) pthread_join (odeThread, NULL);
@@ -1678,6 +1703,13 @@ namespace lpzrobots {
       cerr << "osgStep_run()::Shit happens" << endl;
     }
     return NULL;
+  }
+
+  /// restart() is called at the second and all following starts of the cylces
+   bool Simulation::restart(const OdeHandle&, const OsgHandle&, GlobalData& globalData)
+  {
+	  // do not restart!
+	  return false;
   }
 
 

@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.34  2009-03-12 08:43:40  martius
+ *   Revision 1.35  2009-04-23 14:17:34  guettler
+ *   new: simulation cycles, first simple implementation, use the additional method bool restart() for starting new cycles, template simulation can be found in template_cycledSimulation (originally taken from template_onerobot)
+ *
+ *   Revision 1.34  2009/03/12 08:43:40  martius
  *   fixed video recording
  *
  *   Revision 1.33  2008/09/16 14:46:41  martius
@@ -272,10 +275,20 @@ namespace lpzrobots {
 
     // the following function have to be overloaded.
 
-    /// start() is called at the start and should create all the object (obstacles, agents...).
+    /// start() is called at the first start of the cycles and should create all the object (obstacles, agents...).
     virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
 
     // the following functions have dummy default implementations
+
+    /**
+     * restart() is called at the second and all following starts of the cylce
+     * The end of a cycle is determined by (simulation_time_reached==true)
+     * @param the odeHandle
+     * @param the osgHandle
+     * @param globalData
+     * @return if the simulation should be restarted; this is false by default
+     */
+    virtual bool restart(const OdeHandle&, const OsgHandle&, GlobalData& globalData);
 
     /// end() is called at the end and should tidy up
     virtual void end(GlobalData& globalData);
@@ -391,6 +404,9 @@ namespace lpzrobots {
 
     //  CameraType camType; // default is a non-moving and non-rotating camera
     //  OdeRobot* viewedRobot; // the robot who is viewed from the camera
+
+    /// the current cycle; the simulation restarts if restart() returns true
+    int currentCycle;
 
   private:
     SimulationState state;
