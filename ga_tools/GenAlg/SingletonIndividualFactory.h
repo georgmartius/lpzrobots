@@ -8,16 +8,14 @@
 #ifndef SINGLETONINDIVIDUALFACTORY_H_
 #define SINGLETONINDIVIDUALFACTORY_H_
 
-#include "types.h"
-
-#include <string>
-#include <vector>
+#include "types.h"s
 
 #include "Individual.h"
 #include "SingletonGenFactory.h"
 #include "SingletonGenEngine.h"
 #include "Generation.h"
 #include "Gen.h"
+#include <selforg/randGen.h>
 
 class SingletonIndividualFactory {
 public:
@@ -29,9 +27,9 @@ public:
 	inline static void destroyFactory(void) {delete m_factory; m_factory=NULL;}
 
 	// 3 Methodes to create an Individual
-	Individual* createIndividual(Generation* generation)const;															// random
-	Individual* createIndividual(Generation* generation, Individual* oldIndividual)const;								// copy
-	Individual* createIndividual(Generation* generation, Individual* individual1, Individual* individual2)const;		// recombinate
+	Individual* createIndividual(Generation* generation)const;																			// random
+	Individual* createIndividual(Generation* generation, Individual* oldIndividual)const;												// copy
+	Individual* createIndividual(Generation* generation, Individual* individual1, Individual* individual2, RandGen* random)const;		// recombinate
 
 private:
 	static SingletonIndividualFactory* m_factory = 0;

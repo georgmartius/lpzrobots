@@ -24,7 +24,10 @@ public:
 	inline int getSize(void)const {return m_gene.size();}
 	inline Gen* getGen(int x)const {if(x<getSize())return m_gene[x];return NULL;}
 	inline void addGen(Gen* gen) {m_gene.push_back(gen);}
-	inline void removeGen(Gen* gen) {m_gene.erase(m_gene.find(gen));}
+	inline void removeGen(Gen* gen) {
+		std::vector<Gen*>::iterator itr = find(m_gene.begin(),m_gene.end(),gen);
+		m_gene.erase(itr);
+	}
 	inline void removeGen(int x) {if(x<getSize())m_gene.erase(m_gene.begin()+x);}
 	inline double getFitness(void) {if(!m_fitnessIsCalculated && m_fitnessStrategie!=0){m_fitness = m_fitnessStrategie->getFitness(m_gene);m_fitnessIsCalculated=true;}return m_fitness;}
 	inline Generation* getGeneration(void)const {return m_generation;}

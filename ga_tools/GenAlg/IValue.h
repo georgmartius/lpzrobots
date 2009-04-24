@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-04-23 15:17:42  jhoffmann
+ *   Revision 1.4  2009-04-24 11:26:07  robot12
+ *   some implements
+ *
+ *   Revision 1.3  2009/04/23 15:17:42  jhoffmann
  *   inserted copyright-template, corrected includes, doxygen style templated
  *
  ***************************************************************************/
@@ -51,9 +54,8 @@ public:
 
   /**
    * Beschreibung des Destruktors
-   * @return was wird zurzueckgegeben?
    */
-  virtual  ~IValue();
+  virtual ~IValue();
 
   /**
    * Beschreibung des Operators

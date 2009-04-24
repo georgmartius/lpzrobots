@@ -11,12 +11,12 @@ Gen::Gen(void) {
 	// nothing
 }
 
-Gen::Gen(abstractIndividual individual, GenKontext* kontext, std::string name) {
+Gen::Gen(abstractIndividual individual, GenKontext* kontext, std::string name, int id) {
 	m_name = name;
 	m_individual = individual;
 	m_value = NULL;
 	m_kontext = kontext;
-	m_name = name;
+	m_ID = id;
 
 	m_individual->addGen(this);
 	m_kontext->addGen(this);
