@@ -1,55 +1,68 @@
-#File:     Makefile for selforg, the controller for self-organized behavior
+#File:     Makefile for ga_tools package
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
-#Date:     November 2005
+#Date:     June 2005
 
-SELFORG=.
-INCLUDEDIR=include/selforg
+PACKAGE_NAME=ga_tools
+LPZROBOTS=..
+PACKAGE_PATH=.
+SELFORG=../selforg
+INCLUDEDIR=include/$(PACKAGE_NAME)
 REVINCLUDEDIR=../..
-# this is the command to come form the include dir back to the base
-LIB=libselforg.a
-LIB_OPT=libselforg_opt.a
+LIB=lib$(PACKAGE_NAME).a
+LIB_OPT=lib$(PACKAGE_NAME)_opt.a
+LIB_PROF=lib$(PACKAGE_NAME)_prof.a
 
 include Makefile.conf
 
-find_cpp_files = $(wildcard $(dir)/*.cpp)
-CPPFILES   := $(foreach dir,$(dirs),$(find_cpp_files))
+find_files = $(wildcard $(dir)/*.cpp)
+CPPFILES   := $(foreach dir,$(dirs),$(find_files))
+OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 find_h_files = $(wildcard $(dir)/*.h)
 HFILES   := $(foreach dir,$(dirs),$(find_h_files))
-OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 
+# -pg for profiling
+CPPFLAGS = -Wall -g -pipe -I. -pthread $(INC)
 
-# use -pg for profiling
-CFLAGS = -Wall -g -pipe
-# Optimisation 
-CFLAGS_OPT = -Wall -pipe -O -DNDEBUG
-# additional inc paths
-INC +=  -I. -Iinclude
+## Optimisation
+CPPFLAGS_OPT = -Wall -I. -pipe -pthread $(INC) -O -DNDEBUG
+
+## Optimisation
+CPPFLAGS_PROF = -Wall -I. -pipe -pthread $(INC) -O -DQPROF
+
 
 # used for single file compilation
-CXX = g++ $(CFLAGS) $(INC)
-CXX_OPT = g++ $(CFLAGS_OPT) $(INC)
+CXX = g++
 
 # used for lib-packing 
 AR = ar -rs
 
 .PHONY: lib opt clean todo depend tags
 
-lib: $(LIB)
+lib: $(UTILS) libselforg $(LIB)
 
-$(LIB): Makefile.depend $(OFILES)
+opt: $(UTILS) libselforg_opt $(LIB_OPT)
+
+prof: $(UTILS) libselforg $(LIB_PROF)
+
+$(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
 
-opt: $(LIB_OPT)
-
-# a test to make objectfiles go to another folder
-#$(LIB_OPT): OUTPUT_OPTION = -o .obj/`basename $@`
-
-$(LIB_OPT): CXX = $(CXX_OPT)
-$(LIB_OPT): Makefile.depend $(OFILES)
-#	@echo "$(OFILES)";
+$(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
+$(LIB_OPT): Makefile.depend $(SELFORG)/libselforg_opt.a $(OFILES)
 	$(AR) $(LIB_OPT) $(OFILES)
 
-Makefile.depend: 
+$(LIB_PROF): CPPFLAGS = $(CPPFLAGS_PROF)
+$(LIB_PROF): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
+	$(AR) $(LIB_PROF) $(OFILES)
+
+libselforg:	
+	+cd $(SELFORG) && make libselforg.a		
+
+libselforg_opt:	
+	+cd $(SELFORG) && make libselforg_opt.a		
+
+
+Makefile.depend: 	
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
@@ -59,8 +72,12 @@ depend:
 	rm Makefile.depend
 	make Makefile.depend
 
-tags:
+tags: 
 	etags `find -type f -regex ".*\.[hc]p?p?"` 
+
+##!'search'           		ask for a search string and scans all tex files
+search:
+	echo -n "search rexp: "; read F && grep -in "$$F" ${CPPFILES} ${HFILES}
 
 
 clean-all: clean
@@ -68,18 +85,23 @@ clean-all: clean
 
 clean:
 	rm -f Makefile.depend
+	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 	for dir in $(dirs); do \
 		rm -f $$dir/*.o; \
 	done
-	find $(INCLUDEDIR) -type l -exec rm \{\} \;
+
+install_prefix.conf:
+	@echo "create install_prefix.conf"
+	@echo '// for system installations (installation type:user) the macro PREFIX should be defined:' > install_prefix.conf
+	@echo '// e.g. #define PREFIX "/usr/local"'  >> install_prefix.conf
 
 todo:
-	grep -ni "Todo"  $(CPPFILES) $(HFILES)
-	grep -ni "Fixme"  $(CPPFILES) $(HFILES)
+	grep -ni "Todo" $(CPPFILES) $(HFILES)
+	grep -ni "Fixme" $(CPPFILES) $(HFILES)
 
 FIND=`cat tofind`
 find:
 	@[ -n "$(FIND)" ] &&  grep -ni "$(FIND)"  $(CPPFILES) $(HFILES)
 
 
-include Makefile.depend
+-include Makefile.depend
