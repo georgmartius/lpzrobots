@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-03-13 09:19:53  martius
+ *   Revision 1.13  2009-04-26 10:28:16  martius
+ *   added setColor for OsgBoxTex. This should be implemented and only gives a error message now.
+ *
+ *   Revision 1.12  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -402,6 +405,13 @@ namespace lpzrobots {
     }
     transform->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 							   StateAttribute::ON);
+  }
+
+  void OSGBoxTex::setColor(const Color& color){
+    fprintf(stderr,"setcolor of OsgBoxTex at the moment not implemented. use OsgHandle.changeColor() at initialization!");
+    if(transform.get()){
+      // Todo: destroy and init again
+    }
   }
 
   void OSGBoxTex::applyTextures(){ 
