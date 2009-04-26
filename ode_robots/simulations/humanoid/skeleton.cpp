@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-03-30 13:56:07  martius
+ *   Revision 1.14  2009-04-26 10:29:21  martius
+ *   moved setcolor for boxed to osgHandle.changeColor
+ *
+ *   Revision 1.13  2009/03/30 13:56:07  martius
  *   fixed textures
  *
  *   Revision 1.12  2009/01/20 17:29:52  martius
@@ -345,9 +348,8 @@ GUIDE adding new sensors
     // Hip    
     b = new Box(0.2,0.1,0.1);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1,osgHandle);
+    b->init(odeHandle, 1,osgHandle.changeColor(conf.handColor));
     b->setPose(osg::Matrix::translate(0, 1.131, 0.0052) * pose );
-    b->setColor(conf.handColor);
 //    b->setMass(/*16*/.61, 0, 0, 0, 0.0996, 0.1284, 0.1882, 0, 0, 0);
     b->setMass(.5*conf.massfactor);
     objects[Hip]=b; 
@@ -372,12 +374,11 @@ GUIDE adding new sensors
     b = new Box(0.3,0.32,.19);
     //    b = new Box(0.3,0.45,.2);
     b->setTexture(conf.trunkTexture);
-    b->init(odeHandle, 1,osgHandle);
+    b->init(odeHandle, 1,osgHandle.changeColor(conf.trunkColor));
     b->setPose(osg::Matrix::translate(0, 1.255, 0.0201) * pose );
     //    b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
 //     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
     b->setMass(.25*conf.massfactor);//.3
-    b->setColor(conf.trunkColor);
    //  b = new Capsule(0.3,0.2);
 //     b->init(odeHandle, 1,osgHandle);
 //     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884, 0.0253) * pose );
@@ -387,20 +388,18 @@ GUIDE adding new sensors
     // Thorax
     b = new Box(0.33,0.33,0.21); //.235);
     b->setTexture(conf.trunkTexture);
-    b->init(odeHandle, 1,osgHandle);
+    b->init(odeHandle, 1,osgHandle.changeColor(conf.trunkColor));
     b->setPose(osg::Matrix::translate(0, 1.50, 0.03/*0.035*/) * pose );
     b->setMass(.25*conf.massfactor);//.3
-    b->setColor(conf.trunkColor);
     objects[Thorax]=b;
     
     //  Neck
     b = new Capsule(0.05,0.03);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1,osgHandle);
+    b->init(odeHandle, 1,osgHandle.changeColor(conf.bodyColor));
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884, 0.0253) * pose );
 //     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
     b->setMass(.01*conf.massfactor);//.01
-    b->setColor(conf.bodyColor);
     objects[Neck]=b;
 
 
@@ -515,9 +514,8 @@ GUIDE adding new sensors
     // Left_Foot
     b = new Box(0.1,0.05,0.3);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1,osgHandle);
+    b->init(odeHandle, 1, osgHandle.changeColor(conf.trunkColor));
     b->setPose(osg::Matrix::translate(0.0624, 0.1388, 0.0708) * pose );
-    b->setColor(conf.trunkColor);
     //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
     b->setMass(0.5*conf.massfactor);
     objects[Left_Foot]=b;
@@ -546,9 +544,8 @@ GUIDE adding new sensors
     // Right_Foot
     b = new Box(0.1,0.05,0.3);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1,osgHandle);
+    b->init(odeHandle, 1, osgHandle.changeColor(conf.trunkColor));
     b->setPose(osg::Matrix::translate(-0.0624, 0.1388, 0.0708) * pose );
-    b->setColor(conf.trunkColor);
     //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
     b->setMass(0.5*conf.massfactor);
     objects[Right_Foot]=b;
