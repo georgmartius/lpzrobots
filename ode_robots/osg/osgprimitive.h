@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-01-20 17:29:10  martius
+ *   Revision 1.6  2009-04-26 10:28:49  martius
+ *   added setColor for OsgBoxTex
+ *
+ *   Revision 1.5  2009/01/20 17:29:10  martius
  *   changed texture handling. In principle it is possible to set multiple textures
  *   per osgPrimitive.
  *   New osgboxtex started that supports custom textures.
@@ -159,29 +162,6 @@ namespace lpzrobots {
   };
 
   /**
-     Graphical box with Textures
-  */
-  class OSGBoxTex : public OSGPrimitive {
-  public:
-    OSGBoxTex(float lengthX, float lengthY, float lengthZ);
-    OSGBoxTex(osg::Vec3 dim);
-
-    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
-
-    osg::Vec3 getDim() const { return dim;}
-    void setDim(const osg::Vec3& _dim) { dim = _dim;}
-  
-  protected:
-    /// this actually sets the textures, overwritten
-    virtual void applyTextures();
-
-    osg::Vec3 dim;
-    // we use one geode for each face of the box for the texture handling
-    osg::ref_ptr<osg::Geode> faces[6];
-  };
-
-
-  /**
      A dummy graphical object, which has no representation in the graphical world.
   */
   class OSGDummy : public OSGPrimitive {
@@ -227,6 +207,29 @@ namespace lpzrobots {
     osg::Box* box;
   };
 
+ /**
+     Graphical box with Textures
+  */
+  class OSGBoxTex : public OSGPrimitive {
+  public:
+    OSGBoxTex(float lengthX, float lengthY, float lengthZ);
+    OSGBoxTex(osg::Vec3 dim);
+
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
+
+    osg::Vec3 getDim() const { return dim;}
+    void setDim(const osg::Vec3& _dim) { dim = _dim;}
+      
+    virtual void setColor(const Color& color);
+
+  protected:
+    /// this actually sets the textures, overwritten
+    virtual void applyTextures();
+
+    osg::Vec3 dim;
+    // we use one geode for each face of the box for the texture handling
+    osg::ref_ptr<osg::Geode> faces[6];
+  };
 
 
   /**
