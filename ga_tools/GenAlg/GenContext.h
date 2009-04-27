@@ -25,24 +25,51 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.1  2009-04-27 10:59:34  robot12
  *   some implements
  *
  *
  ***************************************************************************/
 
-#include "Individual.h"
+#ifndef GENCONTEXT_H_
+#define GENCONTEXT_H_
 
-Individual::Individual() {
-	// nothing
-}
+#include "types.h"
 
-Individual::Individual(std::string name, int id) {
-	m_fitness = 10000000000000.0;
-	m_name = name;
-	m_ID = id;
-}
+#include <vector>
 
-Individual::~Individual() {
-	// nothing
-}
+#include "IMutationFactorStrategie.h"
+#include "Gen.h"
+#include "GenPrototyp.h"
+
+class GenContext {
+public:
+	GenContext(IMutationFactorStrategie* strategie, GenPrototyp* prototyp);
+	virtual ~GenContext();
+
+	inline double getMutationFactor(void)const {return m_mutationFactor;}
+	inline double getMutationProbability(void)const {return m_mutationProbability;}
+	inline void setMutationProbability(double value) {m_mutationProbability = value;}
+
+	inline GenPrototyp* getPrototyp(void)const {return m_prototyp;}
+
+	void update(void);
+
+	inline void addGen(Gen* gen) {m_storage.push_back(gen);}
+	inline void removeGen(Gen* gen) {std::vector<Gen*>::iterator itr = find(m_storage.begin(),m_storage.end(),gen); m_storage.erase(itr);}
+
+protected:
+	IMutationFactorStrategie* m_strategie;
+	std::vector<Gen*> m_storage;
+	double m_mutationFactor;
+	double m_mutationProbability;
+	GenPrototyp* m_prototyp;
+
+private:
+	/**
+	 * disable default constructor
+	 */
+	GenContext();
+};
+
+#endif /* GENCONTEXT_H_ */

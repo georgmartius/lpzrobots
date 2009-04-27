@@ -25,24 +25,41 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.1  2009-04-27 10:59:34  robot12
  *   some implements
  *
  *
  ***************************************************************************/
 
-#include "Individual.h"
+#include "Generation.h"
 
-Individual::Individual() {
+Generation::Generation() {
 	// nothing
 }
 
-Individual::Individual(std::string name, int id) {
-	m_fitness = 10000000000000.0;
-	m_name = name;
-	m_ID = id;
+Generation::Generation(int generationNumber, IGenerationSizeStrategie* strategie, int size, int kill) {
+	m_strategie = strategie;
+	m_generationNumber = generationNumber;
+	m_size=size;
+	m_kill = kill;
 }
 
-Individual::~Individual() {
-	// nothing
+Generation::~Generation() {
+	delete m_strategie;
+	m_individual.clear();
+}
+
+void Generation::update(void) {
+	m_nextGenSize = m_strategie->calcGenerationSize(/*parameters unknown*/);
+}
+
+void Generation::select(void) {
+	int num = getCurrentSize();
+	for(int x=0;x<kill;x++){
+		//TODO
+	}
+}
+
+void Generation::crosover(RandGen* random) {
+	// TODO
 }

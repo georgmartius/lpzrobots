@@ -25,14 +25,19 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-23 15:17:42  jhoffmann
+ *   Revision 1.3  2009-04-27 10:59:33  robot12
+ *   some implements
+ *
+ *   Revision 1.2  2009/04/23 15:17:42  jhoffmann
  *   inserted copyright-template, corrected includes, doxygen style templated
  *
  ***************************************************************************/
 #include "IValue.h"
 
 IValue::IValue() {
+	// nothing
 }
 
 IValue::~IValue() {
+	// nothing
 }

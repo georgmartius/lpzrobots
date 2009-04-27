@@ -25,24 +25,19 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.1  2009-04-27 10:59:33  robot12
  *   some implements
  *
  *
  ***************************************************************************/
 
-#include "Individual.h"
+#ifndef IGENERATIONSIZESTRATEGIE_H_
+#define IGENERATIONSIZESTRATEGIE_H_
 
-Individual::Individual() {
-	// nothing
-}
+class IGenerationSizeStrategie {
+public:
+	IGenerationSizeStrategie();
+	virtual ~IGenerationSizeStrategie();
+};
 
-Individual::Individual(std::string name, int id) {
-	m_fitness = 10000000000000.0;
-	m_name = name;
-	m_ID = id;
-}
-
-Individual::~Individual() {
-	// nothing
-}
+#endif /* IGENERATIONSIZESTRATEGIE_H_ */

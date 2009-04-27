@@ -25,24 +25,53 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.1  2009-04-27 10:59:33  robot12
  *   some implements
  *
  *
  ***************************************************************************/
 
+#ifndef GENERATION_H_
+#define GENERATION_H_
+
+#include "types.h"
+
+#include <list>
+
 #include "Individual.h"
+#include "SingletonIndividualFactory.h"
+#include "IGenerationSizeStrategie.h"
+#include <selforg/utils/randomgenerator.h>
 
-Individual::Individual() {
-	// nothing
-}
+class Generation {
+public:
+	Generation(int generationNumber, IGenerationSizeStrategie* strategie, int size, int kill);
+	virtual ~Generation();
 
-Individual::Individual(std::string name, int id) {
-	m_fitness = 10000000000000.0;
-	m_name = name;
-	m_ID = id;
-}
+	inline int getGenerationNumber(void)const {return m_generationNumber;}
+	inline int getSize(void)const {return m_size;}
+	inline int getCurrentSize(void)const {return m_individual.size();}
+	inline int getSizeOfNextGeneration(void)const {return m_nextGenSize;}
 
-Individual::~Individual() {
-	// nothing
-}
+	inline Individual* getIndividual(int x)const {if(x<getCurrentSize())return m_individual[x];return NULL;}
+
+	inline void addIndividual(Individual* individual) {m_individual.push_back(individual); m_idividual.sort();}
+
+	void update(void);
+	void select(void);
+	void crosover(RandGen* random);
+
+protected:
+	int m_generationNumber;
+	IGenerationSizeStrategie* m_strategie;
+	std::list<Individual*> m_individual;
+
+	int m_nextGenSize;
+	int m_size;
+	int m_kill;
+
+private:
+	Generation();
+};
+
+#endif /* GENERATION_H_ */

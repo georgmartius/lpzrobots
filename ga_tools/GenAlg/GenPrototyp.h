@@ -25,24 +25,45 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.1  2009-04-27 10:59:33  robot12
  *   some implements
  *
  *
  ***************************************************************************/
 
-#include "Individual.h"
+#ifndef GENPROTOTYP_H_
+#define GENPROTOTYP_H_
 
-Individual::Individual() {
-	// nothing
-}
+#include "types.h"
 
-Individual::Individual(std::string name, int id) {
-	m_fitness = 10000000000000.0;
-	m_name = name;
-	m_ID = id;
-}
+#include <string>
+#include <map>
 
-Individual::~Individual() {
-	// nothing
-}
+#include "Generation.h"
+#include "GenContext.h"
+#include "IRandomStrategie.h"
+#include "IValue.h"
+
+class GenPrototyp {
+public:
+	GenPrototyp(std::string name, IRandomStrategie* randomStrategie);
+	virtual ~GenPrototyp();
+
+	inline std::string getName(void)const {return m_name;}
+	inline void insertContext(Generation* generation,GenContext* context) {m_context[generation]=context;}
+	inline GenContext* getContext(Generation* generation)const {return m_context[generation];}
+	inline IValue* getRandomValue(void)const {return m_strategie->getRandomValue();}
+
+protected:
+	std::string m_name;
+	std::map<Generation*,GenContext*> m_context;
+	IRandomStrategie* m_strategie;
+
+private:
+	/**
+	 * disable the default constructor
+	 */
+	GenPrototyp();
+};
+
+#endif /* GENPROTOTYP_H_ */

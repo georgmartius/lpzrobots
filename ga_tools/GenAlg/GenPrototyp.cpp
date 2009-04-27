@@ -25,24 +25,31 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.1  2009-04-27 10:59:34  robot12
  *   some implements
  *
  *
  ***************************************************************************/
 
-#include "Individual.h"
+#include "GenPrototyp.h"
 
-Individual::Individual() {
+GenPrototyp::GenPrototyp() {
 	// nothing
 }
 
-Individual::Individual(std::string name, int id) {
-	m_fitness = 10000000000000.0;
+GenPrototyp::GenPrototyp(std::string name, IRandomStrategie* randomStrategie) {
 	m_name = name;
-	m_ID = id;
+	m_strategie = randomStrategie;
 }
 
-Individual::~Individual() {
-	// nothing
+GenPrototyp::~GenPrototyp() {
+	std::map<Generation*,GenContext*>::iterator itr = m_context.begin();
+
+	while(itr!=m_context.end()) {
+		delete itr->second;
+		m_context->erase(itr);
+		itr=m_context.begin();
+	}
+
+	delete m_strategie;
 }

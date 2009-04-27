@@ -25,24 +25,29 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.1  2009-04-27 10:59:33  robot12
  *   some implements
  *
  *
  ***************************************************************************/
 
-#include "Individual.h"
+#include "GenContext.h"
 
-Individual::Individual() {
+GenContext::GenContext() {
 	// nothing
 }
 
-Individual::Individual(std::string name, int id) {
-	m_fitness = 10000000000000.0;
-	m_name = name;
-	m_ID = id;
+GenContext::GenContext(IMutationFactorStrategie* strategie, GenPrototyp* prototyp) {
+	m_strategie = strategie;
+	m_prototyp = prototyp;
 }
 
-Individual::~Individual() {
-	// nothing
+GenContext::~GenContext() {
+	m_storage.clear();
+
+	delete m_strategie;
+}
+
+void GenContext::update(void) {
+	m_mutationFactor = m_strategie->calcMutationFactor(m_storage);
 }
