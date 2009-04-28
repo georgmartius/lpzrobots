@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.5  2009-04-28 13:23:55  robot12
+ *   some implements... Part2
+ *
+ *   Revision 1.4  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -69,6 +72,7 @@ protected:
 	std::vector<Gen*> m_gene;
 	static IFitnessStrategie* m_fitnessStrategie = 0;
 	double m_fitness;
+	bool m_fitnessIsCalculated;
 
 private:
 	/**

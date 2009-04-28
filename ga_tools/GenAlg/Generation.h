@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:33  robot12
+ *   Revision 1.2  2009-04-28 13:23:55  robot12
+ *   some implements... Part2
+ *
+ *   Revision 1.1  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -45,7 +48,7 @@
 
 class Generation {
 public:
-	Generation(int generationNumber, IGenerationSizeStrategie* strategie, int size, int kill);
+	Generation(int generationNumber, int size, int kill);
 	virtual ~Generation();
 
 	inline int getGenerationNumber(void)const {return m_generationNumber;}
@@ -57,13 +60,15 @@ public:
 
 	inline void addIndividual(Individual* individual) {m_individual.push_back(individual); m_idividual.sort();}
 
+	inline static void setGenerationSizeStrategie(IGenerationSizeStrategie* strategie) {m_strategie = strategie;}
+
 	void update(void);
-	void select(void);
+	void select(Generation* newGeneration);
 	void crosover(RandGen* random);
 
 protected:
 	int m_generationNumber;
-	IGenerationSizeStrategie* m_strategie;
+	static IGenerationSizeStrategie* m_strategie;
 	std::list<Individual*> m_individual;
 
 	int m_nextGenSize;

@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:34  robot12
+ *   Revision 1.2  2009-04-28 13:23:55  robot12
+ *   some implements... Part2
+ *
+ *   Revision 1.1  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -34,10 +37,19 @@
 #ifndef IMUTATIONFACTORSTRATEGIE_H_
 #define IMUTATIONFACTORSTRATEGIE_H_
 
+#include "types.h"
+
+#include <vector>
+
+#include "Gen.h"
+#include "IValue.h"
+
 class IMutationFactorStrategie {
 public:
 	IMutationFactorStrategie();
 	virtual ~IMutationFactorStrategie();
+
+	virtual IValue* calcMutationFactor(const std::vector<Gen*>& gene) = 0;
 };
 
 #endif /* IMUTATIONFACTORSTRATEGIE_H_ */

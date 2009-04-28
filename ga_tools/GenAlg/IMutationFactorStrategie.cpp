@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:33  robot12
+ *   Revision 1.2  2009-04-28 13:23:55  robot12
+ *   some implements... Part2
+ *
+ *   Revision 1.1  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -34,10 +37,9 @@
 #include "IMutationFactorStrategie.h"
 
 IMutationFactorStrategie::IMutationFactorStrategie() {
-	// TODO Auto-generated constructor stub
-
+	// nothing
 }
 
 IMutationFactorStrategie::~IMutationFactorStrategie() {
-	// TODO Auto-generated destructor stub
+	// nothing
 }

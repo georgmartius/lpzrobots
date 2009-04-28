@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:34  robot12
+ *   Revision 1.2  2009-04-28 13:23:55  robot12
+ *   some implements... Part2
+ *
+ *   Revision 1.1  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -53,13 +56,26 @@ void Generation::update(void) {
 	m_nextGenSize = m_strategie->calcGenerationSize(/*parameters unknown*/);
 }
 
-void Generation::select(void) {
+void Generation::select(Generation* newGeneration) {
+	m_individual.sort();
+
 	int num = getCurrentSize();
-	for(int x=0;x<kill;x++){
-		//TODO
+	for(int x=0;x<m_size-m_kill && x<newGeneration->getSize();x++){
+		newGeneration->addIndividual(m_individual[x]);
 	}
 }
 
 void Generation::crosover(RandGen* random) {
-	// TODO
+	int r1,r2;
+	Individual* ind;
+
+	while(getCurrentSize()<m_size) {
+		r1 = ((int)random->rand())%getCurrentSize();
+		r2 = r1;
+		while(r1==r2)
+			r2 = ((int)random->rand())%getCurrentSize();
+
+		ind = SingletonIndividualFactory::getInstance()->createIndividual(m_individual[r1],m_individual[r2],random);
+		addIndividual(ind);
+	}
 }

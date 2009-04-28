@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:33  robot12
+ *   Revision 1.5  2009-04-28 13:23:55  robot12
+ *   some implements... Part2
+ *
+ *   Revision 1.4  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -44,7 +47,7 @@ SingletonIndividualFactory::~SingletonIndividualFactory() {
 Individual* SingletonIndividualFactory::createIndividual(std::string name)const {
 	Individual ind = new Individual(name,m_number++);
 	GenPrototyp* prototyp;
-	std::vector<GenPrototyp*>* storage;
+	const std::vector<GenPrototyp*>& storage;
 
 	storage = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();
 	int num = storage->size();

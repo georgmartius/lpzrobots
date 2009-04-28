@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:34  robot12
+ *   Revision 1.5  2009-04-28 13:23:55  robot12
+ *   some implements... Part2
+ *
+ *   Revision 1.4  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -41,6 +44,7 @@ Individual::Individual(std::string name, int id) {
 	m_fitness = 10000000000000.0;
 	m_name = name;
 	m_ID = id;
+	m_fitnessIsCalculated = false;
 }
 
 Individual::~Individual() {

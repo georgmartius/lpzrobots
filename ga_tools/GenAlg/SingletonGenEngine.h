@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:33  robot12
+ *   Revision 1.2  2009-04-28 13:23:55  robot12
+ *   some implements... Part2
+ *
+ *   Revision 1.1  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -34,10 +37,54 @@
 #ifndef SINGLETONGENENGINE_H_
 #define SINGLETONGENENGINE_H_
 
+#include "types.h"
+
+#include <vector>
+
+#include "GenPrototyp.h"
+#include "Generation.h"
+//API
+#include "IGenerationSizeStrategie.h"
+#include "IFitnessStrategie.h"
+//END API
+
 class SingletonGenEngine {
 public:
 	SingletonGenEngine();
 	virtual ~SingletonGenEngine();
+
+	inline const std::vector<GenPrototyp*>& getSetOfGenPrototyps(void)const {}
+	inline int getNumGeneration(void)const {return m_generation.size();}
+	inline Generation* getGeneration(int x) {if(x<getNumGeneration())return m_generation[x];return NULL;}
+	inline int getActualGenerationNumber(void)const {return m_actualGeneration;}
+
+	inline void addGenPrototyp(GenPrototyp* prototyp) {m_prototyp.push_back(prototyp);}
+
+	void generateFirstGeneration(void);
+	void generateNextGeneration(void);
+
+	// API
+	void select(void);
+	void crosover(void);
+	// END API
+
+	void runGenAlg(void);
+
+	// API
+	inline void setGenerationSizeStrategie(IGenerationSizeStrategie* strategie) {Generation::setGenerationSizeStrategie(strategie);}
+	inline void setFitnessStrategie(IFitnessStrategie* strategie) {Individual::setFitnessStrategie(strategie);}
+
+	inline IMutationFactorStrategie* createFixMutationFactorStrategie(void)const {return new FixMutationFactorStrategie();}
+	inline IMutationFactorStrategie* createStandartMutationFactorStrategie(void)const {return new StandartMutationFactorStrategie();}
+	inline IGenerationSizeStrategie* createFixGenerationSizeStrategie(void)const {return new FixGenerationSizeStrategie();}
+	inline IGenerationSizeStrategie* createStandartGenerationSizeStrategie(void)const {return new StandartGenerationSizeStrategie();}
+	// END API
+
+protected:
+	std::vector<GenPrototyp*> m_prototyp;
+	std::vector<Generation*> m_generation;
+
+	int m_actualGeneration;
 };
 
 #endif /* SINGLETONGENENGINE_H_ */
