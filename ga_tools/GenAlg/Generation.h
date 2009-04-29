@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-28 13:23:55  robot12
+ *   Revision 1.3  2009-04-29 11:36:41  robot12
+ *   some implements... Part3
+ *
+ *   Revision 1.2  2009/04/28 13:23:55  robot12
  *   some implements... Part2
  *
  *   Revision 1.1  2009/04/27 10:59:33  robot12
@@ -54,6 +57,7 @@ public:
 	inline int getGenerationNumber(void)const {return m_generationNumber;}
 	inline int getSize(void)const {return m_size;}
 	inline int getCurrentSize(void)const {return m_individual.size();}
+	inline int getKillRate(void)const {return m_kill;}
 	inline int getSizeOfNextGeneration(void)const {return m_nextGenSize;}
 
 	inline Individual* getIndividual(int x)const {if(x<getCurrentSize())return m_individual[x];return NULL;}

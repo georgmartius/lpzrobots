@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:33  robot12
+ *   Revision 1.2  2009-04-29 11:36:41  robot12
+ *   some implements... Part3
+ *
+ *   Revision 1.1  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -34,10 +37,86 @@
 #include "SingletonGenEngine.h"
 
 SingletonGenEngine::SingletonGenEngine() {
-	// TODO Auto-generated constructor stub
-
+	m_actualGeneration = 0;
 }
 
 SingletonGenEngine::~SingletonGenEngine() {
-	// TODO Auto-generated destructor stub
+	std::vector<GenPrototyp*>::iterator iterPro;
+	std::vector<Generation*>::iterator iterGener;
+	std::vector<Individual*>::iterator iterInd;
+
+	while(m_prototyp.size()>0) {
+		iterPro = m_prototyp.begin();
+		delete (*iterPro);
+		m_prototyp.erase(iterPro);
+	}
+	m_prototyp.clear();
+
+	while(m_generation.size()>0) {
+		iterGener = m_generation.begin();
+		delete (*iterGener);
+		m_generation.erase(iterGener);
+	}
+	m_generation.clear();
+
+	while(m_individual.size()>0) {
+		iterInd = m_individual.begin();
+		delete (*iterInd);
+		m_individual.erase(iterInd);
+	}
+	m_individual.clear();
+}
+
+void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRate) {
+	// clean the generations
+	std::vector<Generation*>::iterator iterGener;
+	while(m_generation.size()>0) {
+		iterGener = m_generation.begin();
+		delete (*iterGener);
+		m_generation.erase(iterGener);
+	}
+	m_generation.clear();
+
+	// clean the individuals
+	std::vector<Individual*>::iterator iterInd;
+	while(m_individual.size()>0) {
+		iterInd = m_individual.begin();
+		delete (*iterInd);
+		m_individual.erase(iterInd);
+	}
+	m_individual.clear();
+
+	// generate the first generation
+	Generation* first = new Generation(0,startSize,startKillRate);
+	addGeneration(first);
+	m_actualGeneration=0;
+
+	// generate the random individuals
+	Individual* ind;
+	for(int x=0;x<startSize;x++) {
+		ind = SingletonIndividualFactory::getInstance()->createIndividual("Ind " + new std::string(x));
+		first->addIndividual(ind);
+		m_individual.push_back(ind);	// for deleting
+	}
+}
+
+void SingletonGenEngine::generateNextGeneration(int size, int killRate) {
+	// generate the next generation
+	Generation* next = new Generation(m_actualGeneration+1,size,killRate);
+	addGeneration(next);
+	m_actualGeneration++;
+}
+
+void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random) {
+	// create first generation
+	generateFirstGeneration(startSize,startKillRate);
+
+	// generate the other generations
+	for(int x=0;x<numGeneration;x++) {
+		generateNextGeneration();
+		m_generation[m_actualGeneration-1]->select(m_generation[m_actualGeneration]);
+		m_generation[m_actualGeneration]->crosover(random);
+
+		// TODO Abbruchkriterium fehlt noch!!!
+	}
 }

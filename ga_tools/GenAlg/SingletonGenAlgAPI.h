@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:34  robot12
+ *   Revision 1.2  2009-04-29 11:36:41  robot12
+ *   some implements... Part3
+ *
+ *   Revision 1.1  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -34,8 +37,31 @@
 #ifndef SINGLETONGENALGAPI_H_
 #define SINGLETONGENALGAPI_H_
 
+#include "types.h"
+
+#include "IGenerationSizeStrategie.h"
+#include "IFitnessStrategie.h"
+
 class SingletonGenAlgAPI {
 public:
+	void select(void);
+	void crosover(void);
+
+	inline void setGenerationSizeStrategie(IGenerationSizeStrategie* strategie) {Generation::setGenerationSizeStrategie(strategie);}
+	inline void setFitnessStrategie(IFitnessStrategie* strategie) {Individual::setFitnessStrategie(strategie);}
+
+	inline IMutationFactorStrategie* createFixMutationFactorStrategie(void)const {return new FixMutationFactorStrategie();}
+	inline IMutationFactorStrategie* createStandartMutationFactorStrategie(void)const {return new StandartMutationFactorStrategie();}
+	inline IGenerationSizeStrategie* createFixGenerationSizeStrategie(void)const {return new FixGenerationSizeStrategie();}
+	inline IGenerationSizeStrategie* createStandartGenerationSizeStrategie(void)const {return new StandartGenerationSizeStrategie();}
+
+	inline static SingletonGenAlgAPI* getInstance(void) {if(m_api==0)m_api = new SingletonGenAlgAPI();return m_api;}
+	inline static void detroyAPI(void) {delete m_api;}
+
+protected:
+	static SingletonGenAlgAPI* m_api = 0;
+
+private:
 	SingletonGenAlgAPI();
 	virtual ~SingletonGenAlgAPI();
 };

@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-28 13:23:55  robot12
+ *   Revision 1.3  2009-04-29 11:36:41  robot12
+ *   some implements... Part3
+ *
+ *   Revision 1.2  2009/04/28 13:23:55  robot12
  *   some implements... Part2
  *
  *   Revision 1.1  2009/04/27 10:59:34  robot12
@@ -40,7 +43,7 @@ Generation::Generation() {
 	// nothing
 }
 
-Generation::Generation(int generationNumber, IGenerationSizeStrategie* strategie, int size, int kill) {
+Generation::Generation(int generationNumber, int size, int kill) {
 	m_strategie = strategie;
 	m_generationNumber = generationNumber;
 	m_size=size;
