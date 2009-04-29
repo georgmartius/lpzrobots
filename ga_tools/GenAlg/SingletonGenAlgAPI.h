@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-29 11:36:41  robot12
+ *   Revision 1.3  2009-04-29 14:32:29  robot12
+ *   some implements... Part4
+ *
+ *   Revision 1.2  2009/04/29 11:36:41  robot12
  *   some implements... Part3
  *
  *   Revision 1.1  2009/04/27 10:59:34  robot12
@@ -39,21 +42,43 @@
 
 #include "types.h"
 
+#include <string>
+
 #include "IGenerationSizeStrategie.h"
 #include "IFitnessStrategie.h"
+#include "SingletonGenEngine.h"
+#include "FixMutationFactorStrategie.h"
+#include "StandartMutationFactorStrategie.h"
+#include "FixGenerationSizeStrategie.h"
+#include "StandartGenerationSizeStrategie.h"
+#include "GenPrototyp.h"
+#include "IRandomStrategie.h"
+#include "IMutationFactorStrategie.h"
+#include "GenContext.h"
+#include "Gen.h"
+#include "Individual.h"
+#include "IValue.h"
+#include "TemplateValue.h"
 
 class SingletonGenAlgAPI {
 public:
-	void select(void);
-	void crosover(void);
+	inline void select(bool createNextGeneration=true) {SingletonGenEngine::getInstance()->select(createNextGeneration);}
+	inline void crosover(RandGen* random) {if(random!=NULL)SingletonGenEngine::getInstance()->crosover(random);}
 
 	inline void setGenerationSizeStrategie(IGenerationSizeStrategie* strategie) {Generation::setGenerationSizeStrategie(strategie);}
 	inline void setFitnessStrategie(IFitnessStrategie* strategie) {Individual::setFitnessStrategie(strategie);}
 
-	inline IMutationFactorStrategie* createFixMutationFactorStrategie(void)const {return new FixMutationFactorStrategie();}
+	inline SingletonGenEngine* getEngine(void)const {return SingletonGenEngine::getInstance();}
+
+	inline IMutationFactorStrategie* createFixMutationFactorStrategie(IValue* value)const {return new FixMutationFactorStrategie(value);}
 	inline IMutationFactorStrategie* createStandartMutationFactorStrategie(void)const {return new StandartMutationFactorStrategie();}
 	inline IGenerationSizeStrategie* createFixGenerationSizeStrategie(void)const {return new FixGenerationSizeStrategie();}
 	inline IGenerationSizeStrategie* createStandartGenerationSizeStrategie(void)const {return new StandartGenerationSizeStrategie();}
+
+	inline GenPrototyp* createPrototyp(std::string name, IRandomStrategie* strategie)const {return new GenPrototyp(name,strategie);}
+	inline GenContext* createContext(GenPrototyp prototyp, IMutationFactorStrategie* strategie)const {return new GenContext(strategie,prototyp);}
+
+	inline IValue* createDoubleValue(double value)const {return new TemplateValue<double>(value);}
 
 	inline static SingletonGenAlgAPI* getInstance(void) {if(m_api==0)m_api = new SingletonGenAlgAPI();return m_api;}
 	inline static void detroyAPI(void) {delete m_api;}

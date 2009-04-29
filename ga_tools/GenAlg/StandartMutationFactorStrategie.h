@@ -25,21 +25,30 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-29 14:32:28  robot12
+ *   Revision 1.1  2009-04-29 14:32:28  robot12
  *   some implements... Part4
  *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
-#include "SingletonGenAlgAPI.h"
+#ifndef STANDARTMUTATIONFACTORSTRATEGIE_H_
+#define STANDARTMUTATIONFACTORSTRATEGIE_H_
 
-SingletonGenAlgAPI::SingletonGenAlgAPI() {
-	// nothing
-}
+#include "types.h"
 
-SingletonGenAlgAPI::~SingletonGenAlgAPI() {
-	// nothing
-}
+#include <vector>
+
+#include "Gen.h"
+#include "IValue.h"
+#include "IMutationFactorStrategie.h"
+
+class StandartMutationFactorStrategie: public IMutationFactorStrategie {
+public:
+	StandartMutationFactorStrategie();
+	virtual ~StandartMutationFactorStrategie();
+
+	virtual IValue* calcMutationFactor(const std::vector<Gen*>& gene);
+};
+
+#endif /* STANDARTMUTATIONFACTORSTRATEGIE_H_ */

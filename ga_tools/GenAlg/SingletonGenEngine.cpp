@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-29 11:36:41  robot12
+ *   Revision 1.3  2009-04-29 14:32:29  robot12
+ *   some implements... Part4
+ *
+ *   Revision 1.2  2009/04/29 11:36:41  robot12
  *   some implements... Part3
  *
  *   Revision 1.1  2009/04/27 10:59:33  robot12
@@ -113,9 +116,12 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 
 	// generate the other generations
 	for(int x=0;x<numGeneration;x++) {
-		generateNextGeneration();
+		select();
+		crosover(random);
+
+		/*generateNextGeneration();
 		m_generation[m_actualGeneration-1]->select(m_generation[m_actualGeneration]);
-		m_generation[m_actualGeneration]->crosover(random);
+		m_generation[m_actualGeneration]->crosover(random);*/
 
 		// TODO Abbruchkriterium fehlt noch!!!
 	}

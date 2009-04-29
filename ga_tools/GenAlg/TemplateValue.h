@@ -25,21 +25,45 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-29 14:32:28  robot12
+ *   Revision 1.1  2009-04-29 14:32:29  robot12
  *   some implements... Part4
  *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
-#include "SingletonGenAlgAPI.h"
+#ifndef TEMPLATEVALUE_H_
+#define TEMPLATEVALUE_H_
 
-SingletonGenAlgAPI::SingletonGenAlgAPI() {
-	// nothing
-}
+#include "types.h"
 
-SingletonGenAlgAPI::~SingletonGenAlgAPI() {
-	// nothing
-}
+#include "IValue.h"
+
+class TemplateValue<class Typ> : public IValue {
+public:
+	TemplateValue(Typ value);
+	virtual ~TemplateValue();
+
+	IValue* operator*(const IValue& value)const;
+
+	IValue* operator+(const IValue& value)const;
+
+	IValue* operator-(const IValue& value)const;
+
+	IValue* operator/(const IValue& value)const;
+
+	IValue* operator/(double value)const;
+
+	IValue* abs(void)const;
+
+	inline Typ getValue(void)const {return m_value;}
+	inline void setValue(Typ value)const {m_value=value;}
+
+protected:
+	Typ m_value;
+
+private:
+	TemplateValue();
+};
+
+#endif /* TEMPLATEVALUE_H_ */

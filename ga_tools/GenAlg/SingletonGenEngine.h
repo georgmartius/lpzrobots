@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-04-29 11:36:41  robot12
+ *   Revision 1.4  2009-04-29 14:32:28  robot12
+ *   some implements... Part4
+ *
+ *   Revision 1.3  2009/04/29 11:36:41  robot12
  *   some implements... Part3
  *
  *   Revision 1.2  2009/04/28 13:23:55  robot12
@@ -47,6 +50,7 @@
 #include "GenPrototyp.h"
 #include "Generation.h"
 #include "Individual.h"
+#include <selforg/randomgenerator.h>
 
 class SingletonGenEngine {
 public:
@@ -54,6 +58,10 @@ public:
 	inline int getNumGeneration(void)const {return m_generation.size();}
 	inline Generation* getGeneration(int x) {if(x<getNumGeneration())return m_generation[x];return NULL;}
 	inline int getActualGenerationNumber(void)const {return m_actualGeneration;}
+	inline Generation* getActualGeneration(void) {return m_generation[m_actualGeneration];}
+
+	inline int getNumIndividual(void)const {return m_individual.size();}
+	inline Individual* getIndividual(int x)const {if(x<getNumIndividual())return m_individual[x];return NULL;}
 
 	inline void addGenPrototyp(GenPrototyp* prototyp) {m_prototyp.push_back(prototyp);}
 
@@ -61,6 +69,9 @@ public:
 	void generateNextGeneration(int size=m_generation[m_actualGeneration]->getSizeOfNextGeneration(), int killRate=m_generation[m_actualGeneration]->getKillRate());
 
 	void runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random);
+
+	inline void select(bool createNextGeneration=true) {if(createNextGeneration)generateNextGeneration(); m_generation[m_actualGeneration-1]->select(m_generation[m_actualGeneration]);}
+	inline void crosover(RandGen* random) {m_generation[m_actualGeneration]->crosover(random);}
 
 	inline static SingletonGenEngine* getInstance(void) {if(m_engine==0)m_engine = new SingletonGenEngine();return m_engine;}
 	inline static void destroyGenEngine(void) {delete m_engine;m_engine=0;}

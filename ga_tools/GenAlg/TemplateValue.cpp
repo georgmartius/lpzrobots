@@ -25,21 +25,90 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-29 14:32:28  robot12
+ *   Revision 1.1  2009-04-29 14:32:28  robot12
  *   some implements... Part4
  *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
-#include "SingletonGenAlgAPI.h"
+#include "TemplateValue.h"
 
-SingletonGenAlgAPI::SingletonGenAlgAPI() {
+template<class Typ> TemplateValue::TemplateValue() {
 	// nothing
 }
 
-SingletonGenAlgAPI::~SingletonGenAlgAPI() {
+template<class Typ> TemplateValue::TemplateValue(Typ value) {
+	m_value = value;
+}
+
+template<class Typ> TemplateValue::~TemplateValue() {
 	// nothing
+}
+
+template<class Typ> IValue* TemplateValue::operator*(const IValue& value)const {
+	TemplateValue<Typ>* newValue;
+
+	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+	if(castValue==0)
+		return 0;
+
+	newValue = new TemplateValue<Typ>(castValue.getValue()*m_value);
+
+	return newValue;
+}
+
+template<class Typ> IValue* TemplateValue::operator+(const IValue& value)const {
+	TemplateValue<Typ>* newValue;
+
+	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+	if(castValue==0)
+		return 0;
+
+	newValue = new TemplateValue<Typ>(castValue.getValue()+m_value);
+}
+
+template<class Typ> IValue* TemplateValue::operator-(const IValue& value)const {
+	TemplateValue<Typ>* newValue;
+
+	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+	if(castValue==0)
+		return 0;
+
+	newValue = new TemplateValue<Typ>(m_value-castValue.getValue());
+}
+
+template<class Typ> IValue* TemplateValue::abs(void)const {
+	TemplateValue<Typ>* newValue;
+	Typ wert1;
+
+	wert = m_value;
+	if(wert<0)
+		wert*=-1.0;
+
+	newValue = new TemplateValue<Typ>(wert);
+}
+
+template<class Typ> IValue* TemplateValue::operator/(const IValue& value)const {
+	TemplateValue<Typ>* newValue;
+
+	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+	if(castValue==0)
+		return 0;
+
+	newValue = new TemplateValue<Typ>(m_value/castValue.getValue());
+
+	return newValue;
+}
+
+template<class Typ> IValue* TemplateValue::operator/(double value)const {
+	TemplateValue<Typ>* newValue;
+
+	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+	if(castValue==0)
+		return 0;
+
+	newValue = new TemplateValue<Typ>(m_value/value);
+
+	return newValue;
 }

@@ -25,21 +25,33 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-29 14:32:28  robot12
+ *   Revision 1.1  2009-04-29 14:32:29  robot12
  *   some implements... Part4
  *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
-#include "SingletonGenAlgAPI.h"
+#ifndef FIXMUTATIONFACTORSTRATEGIE_H_
+#define FIXMUTATIONFACTORSTRATEGIE_H_
 
-SingletonGenAlgAPI::SingletonGenAlgAPI() {
-	// nothing
-}
+#include "types.h"
 
-SingletonGenAlgAPI::~SingletonGenAlgAPI() {
-	// nothing
-}
+#include "IMutationFactorStrategie.h"
+#include "IValue.h"
+
+class FixMutationFactorStrategie : public IMutationFactorStrategie{
+public:
+	FixMutationFactorStrategie(IValue* value);
+	virtual ~FixMutationFactorStrategie();
+
+	virtual IValue* calcMutationFactor(const std::vector<Gen*>& gene);
+
+protected:
+	IValue* m_value;
+
+private:
+	FixMutationFactorStrategie();
+};
+
+#endif /* FIXMUTATIONFACTORSTRATEGIE_H_ */

@@ -25,21 +25,59 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-29 14:32:28  robot12
+ *   Revision 1.1  2009-04-29 14:32:28  robot12
  *   some implements... Part4
  *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
-#include "SingletonGenAlgAPI.h"
+#include "StandartMutationFactorStrategie.h"
+#include <selforg/randomgenerator.h>
 
-SingletonGenAlgAPI::SingletonGenAlgAPI() {
+StandartMutationFactorStrategie::StandartMutationFactorStrategie() {
 	// nothing
 }
 
-SingletonGenAlgAPI::~SingletonGenAlgAPI() {
+StandartMutationFactorStrategie::~StandartMutationFactorStrategie() {
 	// nothing
+}
+
+IValue* StandartMutationFactorStrategie::calcMutationFactor(const std::vector<Gen*>& gene) {
+	IValue* sum = 0;
+	IValue* oldSum = 0;
+	IValue* absSum = 0;
+	IValue* durch = 0;
+	int num = gene.size();
+	int x;
+	RandGen random;
+	int rand = ((int)random->rand())%2;
+
+	sum = gene[0]->getValue();
+	for(x=0;x<num-1;x++) {
+		sum = (*sum) + (*gene[x+1]->getValue());
+		if(oldSum != 0){delete oldSum; oldSum=0;}
+		oldSum = sum;
+	}
+	oldSum = 0;
+	durch = (*sum) / (double)num;
+	if(sum!=0){delete sum; sum=0;}
+
+	sum = (*gene[0]->getValue()) - (*durch);
+	absSum = sum->abs();
+	for(x=0;x<num-1;x++) {
+		oldSum = sum;
+		sum = (*gene[x+1]->getValue()) - (*durch);
+		absSum = sum->abs();
+		if(sum!=0){delete sum; sum=0;}
+		sum = (*oldSum) + (*absSum);
+		if(oldSum!=0){delete oldSum; oldSum=0;}
+		if(absSum!=0){delete absSum; absSum=0;}
+	}
+	oldSum = 0;
+	absSum = (*sum) / (double)num;
+	if(sum!=0){delete sum; sum=0;}
+	if(durch!=0){delete durch; durch=0;}
+
+	return absSum;
 }
