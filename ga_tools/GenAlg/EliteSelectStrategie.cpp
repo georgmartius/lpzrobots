@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -34,11 +37,56 @@
 
 #include "EliteSelectStrategie.h"
 
-EliteSelectStrategie::EliteSelectStrategie() {
-	// TODO Auto-generated constructor stub
+#include <list>
+struct SfitnessEliteStrategieStruct {
+	double fitness;
+	Individual* ind;
 
+	inline bool operator<(SfitnessEliteStrategieStruct other) {return fitness<other.fitness;}
+};
+
+EliteSelectStrategie::EliteSelectStrategie() {
+	// nothing
 }
 
 EliteSelectStrategie::~EliteSelectStrategie() {
-	// TODO Auto-generated destructor stub
+	// nothing
+}
+
+void EliteSelectStrategie::select(Generation* oldGeneration, Generation* newGeneration) {
+	std::list<SfitnessEliteStrategieStruct*> list;
+	SfitnessEliteStrategieStruct* storage;
+	int num,x,kill;
+
+	// prepare the list
+	num = oldGeneration.getCurrentSize();
+	for(x=0;x<num;x++) {
+		storage = new SfitnessEliteStrategieStruct();
+		storage->ind = oldGeneration->getIndividual(x);
+		storage->fitness = storage->ind->getFitness();
+		list.push_back(storage);
+		storage = 0;
+	}
+
+	// sort the list
+	list.sort();
+
+	// kill the badest
+	kill = oldGeneration->getKillRate();
+	for(x=num-1;x>=num-kill;x--) {
+		delete list[x];
+		list.erase(list.begin()+x);
+	}
+
+	// take the best in the new generation
+	for(x=0;x<num-kill && x<newGeneration->getSize();x++) {
+		newGeneration->addIndividual(list[x]->ind);
+	}
+
+	// clean
+	while(list.size()>0) {
+		delete list[0];
+		list.erase(list.begin());
+	}
+	list.clear();
 }

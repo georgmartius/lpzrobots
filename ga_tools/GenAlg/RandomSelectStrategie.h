@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,23 @@
 #ifndef RANDOMSELECTSTRATEGIE_H_
 #define RANDOMSELECTSTRATEGIE_H_
 
-class RandomSelectStrategie {
+#include "types.h"
+
+#include "Individual.h"
+#include <selforg/randomgenerator.h>
+
+class RandomSelectStrategie :public ISelectStrategie {
 public:
-	RandomSelectStrategie();
+	RandomSelectStrategie(RandGen* random);
 	virtual ~RandomSelectStrategie();
+
+	virtual void select(Generation* oldGeneration, Generation* newGeneration);
+
+protected:
+	RandGen* m_random;
+
+private:
+	RandomSelectStrategie();
 };
 
 #endif /* RANDOMSELECTSTRATEGIE_H_ */

@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-30 11:35:53  robot12
+ *   Revision 1.5  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.4  2009/04/30 11:35:53  robot12
  *   some changes:
  *    - insert a SelectStrategie
  *    - insert a MutationStrategie
@@ -48,7 +51,7 @@
 
 #include "types.h"
 
-#include <list>
+#include <vector>
 
 #include "Individual.h"
 #include "SingletonIndividualFactory.h"
@@ -65,6 +68,7 @@ public:
 	inline int getKillRate(void)const {return m_kill;}
 
 	inline Individual* getIndividual(int x)const {if(x<getCurrentSize())return m_individual[x];return NULL;}
+	inline const std::vector<Individual*>& getAllIndividual(void)const {return m_individual;}
 
 	inline void addIndividual(Individual* individual) {m_individual.push_back(individual); m_idividual.sort();}
 
@@ -73,7 +77,7 @@ public:
 
 protected:
 	int m_generationNumber;
-	std::list<Individual*> m_individual;
+	std::vector<Individual*> m_individual;
 
 	int m_size;
 	int m_kill;

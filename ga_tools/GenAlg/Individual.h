@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-04-30 11:35:53  robot12
+ *   Revision 1.7  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.6  2009/04/30 11:35:53  robot12
  *   some changes:
  *    - insert a SelectStrategie
  *    - insert a MutationStrategie
@@ -57,6 +60,7 @@ public:
 
 	inline int getID(void)const {return m_ID;}
 	inline std::string getName(void)const {return m_name;}
+	inline double getFitness()const {SingeltonGenEngine::getInstance()->getFitness(this);}
 
 	inline int getSize(void)const {return m_gene.size();}
 	inline Gen* getGen(int x)const {if(x<getSize())return m_gene[x];return NULL;}

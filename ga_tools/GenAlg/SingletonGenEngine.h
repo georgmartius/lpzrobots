@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-04-30 11:35:53  robot12
+ *   Revision 1.6  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.5  2009/04/30 11:35:53  robot12
  *   some changes:
  *    - insert a SelectStrategie
  *    - insert a MutationStrategie
@@ -88,6 +91,8 @@ public:
 	inline void setSelectStrategie(ISelectStrategie* strategie) {m_selectStrategie = strategie;}
 	inline void setGenerationSizeStrategie(IGenerationSizeStrategie* strategie) {m_generationSizeStrategie = strategie;}
 	inline void setFitnessStrategie(IFitnessStrategie* strategie) {m_fitnessStrategie = strategie;}
+
+	inline double getFitness(Individual* individual) {m_fitnessStrategie->getFitness(individual);}
 
 	inline static SingletonGenEngine* getInstance(void) {if(m_engine==0)m_engine = new SingletonGenEngine();return m_engine;}
 	inline static void destroyGenEngine(void) {delete m_engine;m_engine=0;}

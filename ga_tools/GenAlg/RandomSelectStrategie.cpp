@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -33,12 +36,48 @@
  ***************************************************************************/
 
 #include "RandomSelectStrategie.h"
+#include <vector>
 
 RandomSelectStrategie::RandomSelectStrategie() {
-	// TODO Auto-generated constructor stub
+	// nothing
+}
 
+RandomSelectStrategie::RandomSelectStrategie(RandGen* random) {
+	m_random = random;
 }
 
 RandomSelectStrategie::~RandomSelectStrategie() {
-	// TODO Auto-generated destructor stub
+	// nothing
+}
+
+void RandomSelectStrategie::select(Generation* oldGeneration, Generation* newGeneration) {
+	int kill = oldGeneration->getKillRate();
+	int r1;
+	std::vector<Individual*> list = oldGeneration->getAllIndividual();		// darf nicht const und & sein!!!
+	double range;
+	double min;
+
+	// calc range and min of all fitness
+	// TODO
+
+	// kill some elements
+	while(kill>0) {
+		r1 = ((int)m_random->rand())%list.size();
+		if(m_random->rand()*range+min>list[r1]->getFitness()) {
+			list.erase(list.begin()+r1);
+			kill--;
+		}
+	}
+
+	// take the rest in the new generation
+	for(int x=0;x<list.size() && x<newGeneration->getSize();x++) {
+		newGeneration->addIndividual(list[x]->ind);
+	}
+
+	// clean
+	while(list.size()>0) {
+		delete list[0];
+		list.erase(list.begin());
+	}
+	list.clear();
 }

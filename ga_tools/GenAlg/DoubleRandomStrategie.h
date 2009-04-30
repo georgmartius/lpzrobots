@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,23 @@
 #ifndef DOUBLERANDOMSTRATEGIE_H_
 #define DOUBLERANDOMSTRATEGIE_H_
 
+#include "types.h"
+
+#include <selforg/randomgenerator.h>
+#include "TemplateValue.h"
+
 class DoubleRandomStrategie {
 public:
-	DoubleRandomStrategie();
+	DoubleRandomStrategie(RandGen* random);
 	virtual ~DoubleRandomStrategie();
+
+	virtual IValue* getRandomValue(void);
+
+protected:
+	RandGen* m_random;
+
+private:
+	DoubleRandomStrategie();
 };
 
 #endif /* DOUBLERANDOMSTRATEGIE_H_ */

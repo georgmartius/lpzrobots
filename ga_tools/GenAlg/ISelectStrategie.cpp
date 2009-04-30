@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,9 @@
 #include "ISelectStrategie.h"
 
 ISelectStrategie::ISelectStrategie() {
-	// TODO Auto-generated constructor stub
-
+	// nothing
 }
 
 ISelectStrategie::~ISelectStrategie() {
-	// TODO Auto-generated destructor stub
+	// nothing
 }

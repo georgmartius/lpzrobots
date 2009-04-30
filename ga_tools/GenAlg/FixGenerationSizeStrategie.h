@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-30 11:35:53  robot12
+ *   Revision 1.3  2009-04-30 14:32:34  robot12
+ *   some implements... Part5
+ *
+ *   Revision 1.2  2009/04/30 11:35:53  robot12
  *   some changes:
  *    - insert a SelectStrategie
  *    - insert a MutationStrategie
@@ -44,10 +47,16 @@
 
 class FixGenerationSizeStrategie: public IGenerationSizeStrategie {
 public:
-	FixGenerationSizeStrategie();
+	FixGenerationSizeStrategie(int value);
 	virtual ~FixGenerationSizeStrategie();
 
 	virtual int calcGenerationSize(/*parameters unknown*/);
+
+protected:
+	int m_size;
+
+private:
+	FixGenerationSizeStrategie();
 };
 
 #endif /* FIXGENERATIONSIZESTRATEGIE_H_ */
