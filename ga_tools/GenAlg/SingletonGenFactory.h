@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-27 10:59:34  robot12
+ *   Revision 1.3  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.2  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -39,15 +45,19 @@
 #include "Gen.h"
 #include "GenContext.h"
 #include "GenPrototyp.h"
+#include "Individual.h"
+#include "IValue.h"
+#include "SingletonGenEngine.h"
 
 class SingletonGenFactory {
 public:
 	inline static SingletonGenFactory* getInstance(void) {if(m_factory==0)m_factory = new SingletonGenFactory();return m_factory;}
 	inline static void destroyGenFactory(void) {delete m_factory;m_factory=0;}
 
-	// 3 Methodes to create an Gen
-	Gen* createGen(GenPrototyp* prototyp)const;												// random
-	Gen* createGen(GenPrototyp* prototyp, GenContext* oldContext, Gen* oldGen, bool mutate=false)const;				// copy + mutation
+	// 3 methodes to create an Gen
+	Gen* createGen(GenContext* context, Individual* individual, GenPrototyp* prototyp)const;																				// random
+	Gen* createGen(GenContext* context, Individual* individual, GenPrototyp* prototyp, Individual* oldIndividual, Gen* oldGen, bool mutate=false)const;				// copy + mutation
+	Gen* createGen(GenContext* context, Individual* individual, GenPrototyp* prototyp, IValue* value);																	// value
 
 private:
 	static SingletonGenFactory* m_factory = 0;

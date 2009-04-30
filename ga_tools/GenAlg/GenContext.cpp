@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:33  robot12
+ *   Revision 1.2  2009-04-30 11:35:54  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.1  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -37,17 +43,10 @@ GenContext::GenContext() {
 	// nothing
 }
 
-GenContext::GenContext(IMutationFactorStrategie* strategie, GenPrototyp* prototyp) {
-	m_strategie = strategie;
+GenContext::GenContext(GenPrototyp* prototyp) {
 	m_prototyp = prototyp;
 }
 
 GenContext::~GenContext() {
 	m_storage.clear();
-
-	delete m_strategie;
-}
-
-void GenContext::update(void) {
-	m_mutationFactor = m_strategie->calcMutationFactor(m_storage);
 }

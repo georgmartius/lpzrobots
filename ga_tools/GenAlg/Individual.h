@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-04-28 13:23:55  robot12
+ *   Revision 1.6  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.5  2009/04/28 13:23:55  robot12
  *   some implements... Part2
  *
  *   Revision 1.4  2009/04/27 10:59:34  robot12
@@ -43,8 +49,6 @@
 #include <string>
 
 #include "Gen.h"
-#include "IFitnessStrategie.h"
-#include "Generation.h"
 
 class Individual {
 public:
@@ -57,22 +61,17 @@ public:
 	inline int getSize(void)const {return m_gene.size();}
 	inline Gen* getGen(int x)const {if(x<getSize())return m_gene[x];return NULL;}
 	inline void addGen(Gen* gen) {m_gene.push_back(gen);}
+	inline const std::vector<Gen*>& getGene(void)const {return m_gene;}
 	inline void removeGen(Gen* gen) {
 		std::vector<Gen*>::iterator itr = find(m_gene.begin(),m_gene.end(),gen);
 		m_gene.erase(itr);
 	}
 	inline void removeGen(int x) {if(x<getSize())m_gene.erase(m_gene.begin()+x);}
 
-	inline double getFitness(void) {if(!m_fitnessIsCalculated && m_fitnessStrategie!=0){m_fitness = m_fitnessStrategie->getFitness(m_gene);m_fitnessIsCalculated=true;}return m_fitness;}
-	inline static void setFitnessStrategie(IFitnessStrategie* strategie) {m_fitnessStrategie = strategie;}
-
 protected:
 	std::string m_name;
 	int m_ID;
 	std::vector<Gen*> m_gene;
-	static IFitnessStrategie* m_fitnessStrategie = 0;
-	double m_fitness;
-	bool m_fitnessIsCalculated;
 
 private:
 	/**

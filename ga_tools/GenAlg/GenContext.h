@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:34  robot12
+ *   Revision 1.2  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.1  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -38,31 +44,22 @@
 
 #include <vector>
 
-#include "IMutationFactorStrategie.h"
 #include "Gen.h"
 #include "GenPrototyp.h"
 
 class GenContext {
 public:
-	GenContext(IMutationFactorStrategie* strategie, GenPrototyp* prototyp);
+	GenContext(GenPrototyp* prototyp);
 	virtual ~GenContext();
-
-	inline double getMutationFactor(void)const {return m_mutationFactor;}
-	inline double getMutationProbability(void)const {return m_mutationProbability;}
-	inline void setMutationProbability(double value) {m_mutationProbability = value;}
 
 	inline GenPrototyp* getPrototyp(void)const {return m_prototyp;}
 
-	void update(void);
-
 	inline void addGen(Gen* gen) {m_storage.push_back(gen);}
 	inline void removeGen(Gen* gen) {std::vector<Gen*>::iterator itr = find(m_storage.begin(),m_storage.end(),gen); m_storage.erase(itr);}
+	inline const std::vector<Gen*>& getGene(void)const {return m_storage;}
 
 protected:
-	IMutationFactorStrategie* m_strategie;
 	std::vector<Gen*> m_storage;
-	double m_mutationFactor;
-	double m_mutationProbability;
 	GenPrototyp* m_prototyp;
 
 private:

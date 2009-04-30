@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-28 13:23:55  robot12
+ *   Revision 1.3  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.2  2009/04/28 13:23:55  robot12
  *   some implements... Part2
  *
  *   Revision 1.1  2009/04/27 10:59:33  robot12
@@ -39,16 +45,14 @@
 
 #include "types.h"
 
-#include <vector>
-
-#include "Gen.h"
+#include "Individual.h"
 
 class IFitnessStrategie {
 public:
 	IFitnessStrategie();
 	virtual ~IFitnessStrategie();
 
-	virtual double getFitness(const std::vector<Gen*>& gene) = 0;
+	virtual double getFitness(Individual* individual) = 0;
 };
 
 #endif /* IFITNESSSTRATEGIE_H_ */

@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-04-29 11:36:41  robot12
+ *   Revision 1.4  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.3  2009/04/29 11:36:41  robot12
  *   some implements... Part3
  *
  *   Revision 1.2  2009/04/28 13:23:55  robot12
@@ -44,29 +50,23 @@ Generation::Generation() {
 }
 
 Generation::Generation(int generationNumber, int size, int kill) {
-	m_strategie = strategie;
 	m_generationNumber = generationNumber;
 	m_size=size;
 	m_kill = kill;
 }
 
 Generation::~Generation() {
-	delete m_strategie;
 	m_individual.clear();
 }
 
-void Generation::update(void) {
-	m_nextGenSize = m_strategie->calcGenerationSize(/*parameters unknown*/);
-}
-
-void Generation::select(Generation* newGeneration) {
+/*void Generation::select(Generation* newGeneration) {
 	m_individual.sort();
 
 	int num = getCurrentSize();
 	for(int x=0;x<m_size-m_kill && x<newGeneration->getSize();x++){
 		newGeneration->addIndividual(m_individual[x]);
 	}
-}
+}*/
 
 void Generation::crosover(RandGen* random) {
 	int r1,r2;

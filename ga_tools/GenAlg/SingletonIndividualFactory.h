@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-27 10:59:33  robot12
+ *   Revision 1.5  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.4  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -34,14 +40,14 @@
 #ifndef SINGLETONINDIVIDUALFACTORY_H_
 #define SINGLETONINDIVIDUALFACTORY_H_
 
-#include "types.h"s
+#include "types.h"
 
 #include "Individual.h"
 #include "SingletonGenFactory.h"
 #include "SingletonGenEngine.h"
 #include "Generation.h"
 #include "Gen.h"
-#include <selforg/utils/randomgenerator.h>
+#include <selforg/randomgenerator.h>
 
 class SingletonIndividualFactory {
 public:
@@ -52,7 +58,7 @@ public:
 
 	inline static void destroyFactory(void) {delete m_factory; m_factory=NULL;}
 
-	// 2 Methodes to create an Individual
+	// 2 methodes to create an individual
 	Individual* createIndividual(std::string name)const;													// random
 	Individual* createIndividual(Individual* individual1, Individual* individual2, RandGen* random)const;	// recombinate
 

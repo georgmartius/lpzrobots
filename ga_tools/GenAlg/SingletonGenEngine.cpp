@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-04-29 14:32:29  robot12
+ *   Revision 1.4  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.3  2009/04/29 14:32:29  robot12
  *   some implements... Part4
  *
  *   Revision 1.2  2009/04/29 11:36:41  robot12
@@ -47,6 +53,7 @@ SingletonGenEngine::~SingletonGenEngine() {
 	std::vector<GenPrototyp*>::iterator iterPro;
 	std::vector<Generation*>::iterator iterGener;
 	std::vector<Individual*>::iterator iterInd;
+	std::vector<Gen*>::iterator iterGen;
 
 	while(m_prototyp.size()>0) {
 		iterPro = m_prototyp.begin();
@@ -68,6 +75,13 @@ SingletonGenEngine::~SingletonGenEngine() {
 		m_individual.erase(iterInd);
 	}
 	m_individual.clear();
+
+	while(m_gen.size()>0) {
+		iterGen = m_gen.begin();
+		delete (*iterGen);
+		m_gen.erase(iterGen);
+	}
+	m_gen.clear();
 }
 
 void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRate) {
@@ -89,25 +103,51 @@ void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRat
 	}
 	m_individual.clear();
 
+	// clean the gens
+	while(m_gen.size()>0) {
+		iterGen = m_gen.begin();
+		delete (*iterGen);
+		m_gen.erase(iterGen);
+	}
+	m_gen.clear();
+
 	// generate the first generation
 	Generation* first = new Generation(0,startSize,startKillRate);
 	addGeneration(first);
 	m_actualGeneration=0;
+
+	// generate the first contexts
+	GenContext* context;
+	GenPrototyp* prototyp;
+	for(int a=0;a<m_prototyp.size();a++) {
+		prototyp = m_prototyp[x];
+		context = new GenContext(prototyp);
+		prototyp->insertContext(first,context);
+	}
 
 	// generate the random individuals
 	Individual* ind;
 	for(int x=0;x<startSize;x++) {
 		ind = SingletonIndividualFactory::getInstance()->createIndividual("Ind " + new std::string(x));
 		first->addIndividual(ind);
-		m_individual.push_back(ind);	// for deleting
 	}
 }
 
-void SingletonGenEngine::generateNextGeneration(int size, int killRate) {
+void SingletonGenEngine::prepareNextGeneration(int size, int killRate) {
 	// generate the next generation
 	Generation* next = new Generation(m_actualGeneration+1,size,killRate);
 	addGeneration(next);
 	m_actualGeneration++;
+
+	// generate the next GenContext
+	int num = m_prototyp.size();
+	GenContext* context;
+	GenPrototyp* prototyp;
+	for(int x=0;x<num;x++) {
+		prototyp = m_prototyp[x];
+		context = new GenContext(prototyp);
+		prototyp->insertContext(next,context);
+	}
 }
 
 void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random) {
@@ -119,7 +159,7 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 		select();
 		crosover(random);
 
-		/*generateNextGeneration();
+		/*prepareNextGeneration();
 		m_generation[m_actualGeneration-1]->select(m_generation[m_actualGeneration]);
 		m_generation[m_actualGeneration]->crosover(random);*/
 

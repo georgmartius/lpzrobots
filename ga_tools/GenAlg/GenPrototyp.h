@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:33  robot12
+ *   Revision 1.2  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.1  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -42,22 +48,26 @@
 #include "Generation.h"
 #include "GenContext.h"
 #include "IRandomStrategie.h"
+#include "IMutationStrategie.h"
 #include "IValue.h"
+#include "Gen.h"
 
 class GenPrototyp {
 public:
-	GenPrototyp(std::string name, IRandomStrategie* randomStrategie);
+	GenPrototyp(std::string name, IRandomStrategie* randomStrategie, IMutationStrategie* mutationStrategie);
 	virtual ~GenPrototyp();
 
 	inline std::string getName(void)const {return m_name;}
 	inline void insertContext(Generation* generation,GenContext* context) {m_context[generation]=context;}
 	inline GenContext* getContext(Generation* generation)const {return m_context[generation];}
-	inline IValue* getRandomValue(void)const {return m_strategie->getRandomValue();}
+	inline IValue* getRandomValue(void)const {return m_randomStrategie->getRandomValue();}
+	inline Gen* mutate(Gen* gen, Individual* individual)const {m_mutationStrategie->mutate(gen,individual,SingletonGenFactory::getInstance());}
 
 protected:
 	std::string m_name;
 	std::map<Generation*,GenContext*> m_context;
-	IRandomStrategie* m_strategie;
+	IRandomStrategie* m_randomStrategie;
+	IMutationStrategie* m_mutationStrategie;
 
 private:
 	/**

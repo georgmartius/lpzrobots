@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-04-27 10:59:33  robot12
+ *   Revision 1.6  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.5  2009/04/27 10:59:33  robot12
  *   some implements
  *
  *
@@ -39,20 +45,22 @@
 #include <string>
 
 #include "IValue.h"
+#include "GenPrototyp.h"
 
 class Gen {
 public:
 	Gen(std::string name, int id);
 	virtual ~Gen(void);
 
-	inline std::string getName(void)const {return m_name;}
+	inline std::string getName(void)const {return m_prototyp->getName();}
 	inline IValue* getValue(void)const {return m_value;}
 	inline void setValue(IValue* value) {m_value=value;}
 	inline int getID(void)const {return m_ID;}
+	inline GenPrototyp* getPrototyp(void)const {return m_prototyp;}
 
 protected:
 	IValue* m_value;
-	std::string m_name;
+	GenPrototyp* m_prototyp;
 	int m_ID;
 
 private:

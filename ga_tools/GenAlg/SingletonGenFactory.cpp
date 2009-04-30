@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-27 10:59:34  robot12
+ *   Revision 1.3  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.2  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -41,33 +47,51 @@ SingletonGenFactory::~SingletonGenFactory() {
 	// nothing
 }
 
-Gen* SingletonGenFactory::createGen(GenPrototyp* prototyp)const {
+Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototyp* prototyp)const {
 	Gen* gen = new Gen(prototyp->getName(), m_number);
 	m_number++;
 	IValue* value = prototyp->getRandomValue();
 
 	gen->setValue(value);
 
+	context->addGen(gen);
+	individual->addGen(gen);
+	SingletonGenEngine::getInstance()->addGen(gen);
+
 	return gen;
 }
 
-Gen* SingletonGenFactory::createGen(GenPrototyp* prototyp, GenContext* oldContext, Gen* oldGen, bool mutate)const {
+Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototyp* prototyp, Individual* oldIndividual, Gen* oldGen, bool mutate)const {
+	if(mutate) {
+		return prototyp->mutate(oldGen,oldIndividual);
+	}
+
+
 	Gen* gen = new Gen(prototyp->getName(),m_number);
 
 	m_number++;
 
-	if(mutate) {
-		IValue* oldValue = oldGen->getValue();
-		IValue* mut = oldContext->getMutationFactor();
-		IValue* value = (*oldValue)*(*mut);
+	IValue* value = oldGen->getValue();
 
-		gen->setValue(value);
-	}
-	else {
-		IValue* value = oldGen->getValue();
+	gen->setValue(value);
 
-		gen->setValue(value);
-	}
+	context->addGen(gen);
+	individual->addGen(gen);
+	SingletonGenEngine::getInstance()->addGen(gen);
+
+	return gen;
+}
+
+Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototyp* prototyp, IValue* value) {
+	Gen* gen = new Gen(prototyp->getName(),m_number);
+
+	m_number++;
+
+	gen->setValue(value);
+
+	context->addGen(gen);
+	individual->addGen(gen);
+	SingletonGenEngine::getInstance()->addGen(gen);
 
 	return gen;
 }

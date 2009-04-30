@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-27 10:59:34  robot12
+ *   Revision 1.2  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.1  2009/04/27 10:59:34  robot12
  *   some implements
  *
  *
@@ -37,9 +43,10 @@ GenPrototyp::GenPrototyp() {
 	// nothing
 }
 
-GenPrototyp::GenPrototyp(std::string name, IRandomStrategie* randomStrategie) {
+GenPrototyp::GenPrototyp(std::string name, IRandomStrategie* randomStrategie, IMutationStrategie* mutationStrategie) {
 	m_name = name;
-	m_strategie = randomStrategie;
+	m_randomStrategie = randomStrategie;
+	m_mutationStrategie = mutationStrategie;
 }
 
 GenPrototyp::~GenPrototyp() {
@@ -51,5 +58,6 @@ GenPrototyp::~GenPrototyp() {
 		itr=m_context.begin();
 	}
 
-	delete m_strategie;
+	delete m_randomStrategie;
+	delete m_mutationStrategie;
 }

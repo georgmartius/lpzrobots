@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-04-29 11:36:41  robot12
+ *   Revision 1.4  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.3  2009/04/29 11:36:41  robot12
  *   some implements... Part3
  *
  *   Revision 1.2  2009/04/28 13:23:55  robot12
@@ -46,8 +52,7 @@
 
 #include "Individual.h"
 #include "SingletonIndividualFactory.h"
-#include "IGenerationSizeStrategie.h"
-#include <selforg/utils/randomgenerator.h>
+#include <selforg/randomgenerator.h>
 
 class Generation {
 public:
@@ -58,24 +63,18 @@ public:
 	inline int getSize(void)const {return m_size;}
 	inline int getCurrentSize(void)const {return m_individual.size();}
 	inline int getKillRate(void)const {return m_kill;}
-	inline int getSizeOfNextGeneration(void)const {return m_nextGenSize;}
 
 	inline Individual* getIndividual(int x)const {if(x<getCurrentSize())return m_individual[x];return NULL;}
 
 	inline void addIndividual(Individual* individual) {m_individual.push_back(individual); m_idividual.sort();}
 
-	inline static void setGenerationSizeStrategie(IGenerationSizeStrategie* strategie) {m_strategie = strategie;}
-
-	void update(void);
-	void select(Generation* newGeneration);
+	// void select(Generation* newGeneration);
 	void crosover(RandGen* random);
 
 protected:
 	int m_generationNumber;
-	static IGenerationSizeStrategie* m_strategie;
 	std::list<Individual*> m_individual;
 
-	int m_nextGenSize;
 	int m_size;
 	int m_kill;
 

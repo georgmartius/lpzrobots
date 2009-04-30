@@ -25,7 +25,13 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-04-29 14:32:29  robot12
+ *   Revision 1.4  2009-04-30 11:35:53  robot12
+ *   some changes:
+ *    - insert a SelectStrategie
+ *    - insert a MutationStrategie
+ *    - reorganisation of the design
+ *
+ *   Revision 1.3  2009/04/29 14:32:29  robot12
  *   some implements... Part4
  *
  *   Revision 1.2  2009/04/29 11:36:41  robot12
@@ -46,6 +52,7 @@
 
 #include "IGenerationSizeStrategie.h"
 #include "IFitnessStrategie.h"
+#include "IMutationStrategie.h"
 #include "SingletonGenEngine.h"
 #include "FixMutationFactorStrategie.h"
 #include "StandartMutationFactorStrategie.h"
@@ -54,6 +61,10 @@
 #include "GenPrototyp.h"
 #include "IRandomStrategie.h"
 #include "IMutationFactorStrategie.h"
+#include "ISelectStrategie.h"
+#include "EliteSelectStrategie.h"
+#include "RandomSelectStrategie.h"
+#include "TournamentSelectStrategie.h"
 #include "GenContext.h"
 #include "Gen.h"
 #include "Individual.h"
@@ -62,24 +73,33 @@
 
 class SingletonGenAlgAPI {
 public:
+	// Action
 	inline void select(bool createNextGeneration=true) {SingletonGenEngine::getInstance()->select(createNextGeneration);}
 	inline void crosover(RandGen* random) {if(random!=NULL)SingletonGenEngine::getInstance()->crosover(random);}
+	inline void runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random) {SingeltonGenEngine::getInstance()->runGenAlg(startSize,startKillRate,numGeneration,random);}
 
-	inline void setGenerationSizeStrategie(IGenerationSizeStrategie* strategie) {Generation::setGenerationSizeStrategie(strategie);}
-	inline void setFitnessStrategie(IFitnessStrategie* strategie) {Individual::setFitnessStrategie(strategie);}
+	// set static strategies
+	inline void setGenerationSizeStrategie(IGenerationSizeStrategie* strategie) {SingletonGenEngine::getInstance()->setGenerationSizeStrategie(strategie);}
+	inline void setFitnessStrategie(IFitnessStrategie* strategie) {SingletonGenEngine::getInstance()->setFitnessStrategie(strategie);}
+	inline void setSelectStrategie(ISelectStrategie* strategie) {SingletonGenEngine::getInstance()->setSelectStrategie(strategie);}
 
+	// gets
 	inline SingletonGenEngine* getEngine(void)const {return SingletonGenEngine::getInstance();}
 
+	// default interface creation
 	inline IMutationFactorStrategie* createFixMutationFactorStrategie(IValue* value)const {return new FixMutationFactorStrategie(value);}
 	inline IMutationFactorStrategie* createStandartMutationFactorStrategie(void)const {return new StandartMutationFactorStrategie();}
 	inline IGenerationSizeStrategie* createFixGenerationSizeStrategie(void)const {return new FixGenerationSizeStrategie();}
 	inline IGenerationSizeStrategie* createStandartGenerationSizeStrategie(void)const {return new StandartGenerationSizeStrategie();}
-
-	inline GenPrototyp* createPrototyp(std::string name, IRandomStrategie* strategie)const {return new GenPrototyp(name,strategie);}
-	inline GenContext* createContext(GenPrototyp prototyp, IMutationFactorStrategie* strategie)const {return new GenContext(strategie,prototyp);}
-
+	inline ISelectStrategie* createEliteSelectStrategie(void)const {return new EliteSelectStrategie();}
+	inline ISelectStrategie* createTournamentSelectStrategie(void)const {return new TournamentSelectStrategie();}
+	inline ISelectStrategie* createRandomSelectStrategie(void)const {return new RandomSelectStrategie();}
 	inline IValue* createDoubleValue(double value)const {return new TemplateValue<double>(value);}
 
+	// object creation
+	inline GenPrototyp* createPrototyp(std::string name, IRandomStrategie* strategie)const {return new GenPrototyp(name,strategie);}
+
+	// singleton
 	inline static SingletonGenAlgAPI* getInstance(void) {if(m_api==0)m_api = new SingletonGenAlgAPI();return m_api;}
 	inline static void detroyAPI(void) {delete m_api;}
 

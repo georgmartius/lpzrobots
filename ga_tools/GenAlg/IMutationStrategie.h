@@ -25,82 +25,32 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-04-30 11:35:53  robot12
+ *   Revision 1.1  2009-04-30 11:35:53  robot12
  *   some changes:
  *    - insert a SelectStrategie
  *    - insert a MutationStrategie
  *    - reorganisation of the design
  *
- *   Revision 1.5  2009/04/28 13:23:55  robot12
- *   some implements... Part2
- *
- *   Revision 1.4  2009/04/27 10:59:33  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
-#include "SingletonIndividualFactory.h"
+#ifndef IMUTATIONSTRATEGIE_H_
+#define IMUTATIONSTRATEGIE_H_
 
-SingletonIndividualFactory::SingletonIndividualFactory() {
-	// nothing
-}
+#include "types.h"
 
-SingletonIndividualFactory::~SingletonIndividualFactory() {
-	// nothing
-}
+#include "Gen.h"
+#include "Individual.h"
+#include "SingletonGenFactory.h"
 
-Individual* SingletonIndividualFactory::createIndividual(std::string name)const {
-	Individual ind = new Individual(name,m_number++);
-	GenPrototyp* prototyp;
-	const std::vector<GenPrototyp*>& storage;
+class IMutationStrategie {
+public:
+	IMutationStrategie();
+	virtual ~IMutationStrategie();
 
-	storage = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();
-	int num = storage->size();
-	for(int x=0;x<num;x++) {
-		prototyp = storage[x];
-		SingletonGenFactory::getInstance()->createGen(prototyp->getContext(Singelton::getInstance()->getActualGeneration()),ind,prototyp);
-	}
+	virtual Gen* mutate(Gen* gen, Individual* individual, SingletonGenFactory* factory) = 0;
+	virtual int getMutationProbability(void) = 0;
+};
 
-	SingletonGenEngine::getInstance()->addIndividual(ind);
-
-	return ind;
-}
-
-Individual* createIndividual(Individual* individual1, Individual* individual2,randGen* random)const {
-	Individual newInd = new Individual(individual1->getName()+"##"+individual2->getName());
-	GenPrototyp* prototyp;
-	std::vector<GenPrototyp*>* storage;
-	Gen* gen;
-	int r1,r2;
-	Individual* ind;
-	Generation* generation = SingletonGenEngine::getInstance()->getActualGeneration();
-
-	storage = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();
-	int num = storage->size();
-	for(int x=0;x<num;x++) {
-		prototyp = storage[x];
-		r1 = ((int)random->rand())%2;
-		r2 = ((int)random->rand())%1000;
-		ind = r1==0?individual1:individual2;
-
-		int num2 = ind->getSize();
-		for(int y=0;y<num2;y++) {
-			gen = ind->getGen(y);
-			if(gen->getID()==prototyp->getID()) {
-				if(r2<gen->getPrototyp()->getMutationProbability()) {
-					SingletonGenFactory::getInstance()->createGen(prototyp->getContext(generation),newInd,prototyp,ind,gen,true);
-					break;
-				}
-				else {
-					SingletonGenFactory::getInstance()->createGen(prototyp->getContext(generation),newInd,prototyp,ind,gen,false);
-					break;
-				}
-			}
-		}
-	}
-
-	SingletonGenEngine::getInstance()->addIndividual(newInd);
-
-	return newInd;
-}
+#endif /* IMUTATIONSTRATEGIE_H_ */
