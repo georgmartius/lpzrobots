@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-04-30 14:32:34  robot12
+ *   Revision 1.4  2009-05-04 07:06:14  robot12
+ *   some implements... Part6
+ *
+ *   Revision 1.3  2009/04/30 14:32:34  robot12
  *   some implements... Part5
  *
  *   Revision 1.2  2009/04/30 11:35:53  robot12
@@ -44,13 +47,14 @@
 #include "types.h"
 
 #include "IGenerationSizeStrategie.h"
+#include "Generation.h"
 
 class FixGenerationSizeStrategie: public IGenerationSizeStrategie {
 public:
 	FixGenerationSizeStrategie(int value);
 	virtual ~FixGenerationSizeStrategie();
 
-	virtual int calcGenerationSize(/*parameters unknown*/);
+	virtual int calcGenerationSize(Generation* oldGeneration);
 
 protected:
 	int m_size;

@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-04-30 14:32:34  robot12
+ *   Revision 1.3  2009-05-04 07:06:14  robot12
+ *   some implements... Part6
+ *
+ *   Revision 1.2  2009/04/30 14:32:34  robot12
  *   some implements... Part5
  *
  *   Revision 1.1  2009/04/30 11:51:25  robot12
@@ -40,17 +43,27 @@
 
 #include "types.h"
 
-class StandartGenerationSizeStrategie {
+#include "IGenerationSizeStrategie.h"
+#include "Generation.h"
+
+class StandartGenerationSizeStrategie : public IGenerationSizeStrategie{
 public:
-	StandartGenerationSizeStrategie();
+	StandartGenerationSizeStrategie(int startSize);
 	virtual ~StandartGenerationSizeStrategie();
 
-	virtual int calcGenerationSize(/*parameters unknown*/);
+	virtual int calcGenerationSize(Generation* oldGeneration);
 
 protected:
-	double m_badest;
+	bool m_firstIsSet;
+	int m_startSize;
+	double m_best_first;
 	double m_best_old;
 	double m_best_new;
+
+private:
+	StandartGenerationSizeStrategie();
+
+	double findBest(Generation* oldGeneration);
 };
 
 #endif /* STANDARTGENERATIONSIZESTRATEGIE_H_ */

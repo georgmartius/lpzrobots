@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:25  robot12
+ *   Revision 1.2  2009-05-04 07:06:14  robot12
+ *   some implements... Part6
+ *
+ *   Revision 1.1  2009/04/30 11:51:25  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,29 @@
 #include "StandartGenerationSizeStrategie.h"
 
 StandartGenerationSizeStrategie::StandartGenerationSizeStrategie() {
-	// TODO Auto-generated constructor stub
+	// nothing
+}
 
+StandartGenerationSizeStrategie::StandartGenerationSizeStrategie(int startSize) {
+	m_startSize = startSize;
+	m_firstIsSet = false;
 }
 
 StandartGenerationSizeStrategie::~StandartGenerationSizeStrategie() {
-	// TODO Auto-generated destructor stub
+	// nothing
+}
+
+int StandartGenerationSizeStrategie::calcGenerationSize(Generation* oldGeneration) {
+	double best = findBest(oldGeneration);
+
+	if(!m_firstIsSet) {
+		m_firstIsSet = true;
+		m_best_first = best;
+		m_best_new = best;
+
+		return m_startSize;
+	}
+
+	m_best_old = m_best_new;
+	m_best_new = best;
 }
