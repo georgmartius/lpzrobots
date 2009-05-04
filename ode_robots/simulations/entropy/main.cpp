@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-04-22 17:16:36  jhoffmann
+ *   Revision 1.15  2009-05-04 11:10:29  guettler
+ *   minor changes (prints)
+ *
+ *   Revision 1.14  2009/04/22 17:16:36  jhoffmann
  *   tested the cool cvs system how it works
  *
  *   Revision 1.13  2009/03/26 18:25:23  martius
@@ -134,6 +137,15 @@
 using namespace lpzrobots;
 using namespace osg;
 
+
+int contains(char **list, int len,  const char *str) {
+  for(int i=0; i<len; i++) {
+    if(strcmp(list[i],str) == 0)
+      return i+1;
+  }
+  return 0;
+}
+
 class ThisSim : public Simulation
 {
 public:
@@ -154,7 +166,7 @@ public:
   StatisticMeasure* convTest5;
   TrackableMeasure* trackableEntropySLOW;
 
-  ThisSim(double cInit=1.0, double cnondiag=0.2) : cInit(cInit), cNonDiag(cnondiag)
+  ThisSim(double cInit=.1, double cnondiag=0.0) : cInit(cInit), cNonDiag(cnondiag)
   {
     setCaption("lpzrobots Simulator      Martius, Der, Guettler");
 
@@ -187,19 +199,23 @@ public:
     setCameraHomePos(Pos(-26.0494,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
 
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("realtimefactor",2);
+    global.odeConfig.setParam("realtimefactor",5);
+    global.odeConfig.setParam("gravity",-9);
 
-    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(30, 0.2, 2.0));
-    playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
+    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(100, 0.2, 2.0));
+    playground->setColor(Color(1.0f,0.4f,0.26f,1.0f));
+    playground->setGroundTexture("Images/wood.rgb");
+    playground->setGroundColor(Color(0.2f,0.7f,0.2f,1.0f));
+    //playground->setGroundColor(Color(0.2f,0.7f,0.2f,1.0f));
     Substance substance;
-    //substance.toSnow(0.10);
-    substance.toPlastic(10);
-    playground->setPosition(osg::Vec3(0,0,1.00f));
+    //substance.toSnow(0.05);
+    substance.toPlastic(20);
+    playground->setPosition(osg::Vec3(20,20,1.00f));
     playground->setGroundSubstance(substance);
     global.obstacles.push_back(playground);
     double xboxes=0.0;
     double yboxes=0.0;
-/*    double xboxes=6.0;
+    /*    double xboxes=6.0;
     double yboxes=6.0;*/
     double boxdis=4.8;
     for (double j=0.0;j<xboxes;j++)
@@ -244,7 +260,7 @@ public:
         nimm2conf.bumper=true;
         wiring = new One2OneWiring(new WhiteNormalNoise());
         InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-        invertnconf.cInit = cInit;
+        invertnconf.cInit = 0.1;///////////////////////// cInit;
         invertnconf.cNonDiagAbs=cNonDiag;
         controller = new InvertMotorNStep(invertnconf);
         if ((i==0) && (j==2))
@@ -256,13 +272,13 @@ public:
           global.configs.push_back(controller);
 
           OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-          mic = new MutualInformationController(30);
+          /*      mic = new MutualInformationController(30);
           MeasureAdapter* ma = new MeasureAdapter(mic);
-          onamupaco->addPassiveController(ma,"mi30");
+          onamupaco->addPassiveController(ma,"mi30");*/
           agent->addInspectable((Inspectable*)stats);
           agent->addCallbackable((Callbackable*)stats);
-          agent->init(onamupaco, nimm2, wiring);
-          controller->setParam("epsC", 0.0);
+          agent->init(controller, nimm2, wiring);
+          controller->setParam("epsC", 0.001);
           controller->setParam("epsA", 0.0);
           char cdesc[32];
           sprintf(cdesc, "c=%f_",cInit);
@@ -275,7 +291,7 @@ public:
           agent = new OdeAgent(NoPlot);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
           agent->init(controller, nimm2, wiring);
-          controller->setParam("epsC", 0.0);
+          controller->setParam("epsC", 0.001);
           controller->setParam("epsA", 0.0);
           global.configs.push_back(controller);
         }
@@ -294,11 +310,11 @@ public:
           joints.push_back(joint);
         }
     }
-    this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
+    /*  this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
     this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
     double& stepdiff = stats->addMeasure(mic->getMI(1),"MI NSTEPDIFF",NORMSTEPDIFF,1);
-    this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);
-
+    this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);*/
+    
 /*    this->getHUDSM()->addMeasure(mic->getH_x(1),"H(x) 1",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_x(0),"H(x) 0",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_yx(1),"H(y|x) 1",ID,1);
@@ -306,15 +322,15 @@ public:
     //  this->getHUDSM()->addMeasureList(hmlist);
     //this->getHUDSM()->addMeasureList(mimlist);
 
-    convTest1=stats->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,50000,0.001);
+    /*   convTest1=stats->getMeasure( mic->getMI(1),"MI 1 CONV",CONV,50000,0.001);
     convTest0=stats->getMeasure( mic->getMI(0),"MI 0 CONV",CONV,50000,0.001);
     convTest5=stats->getMeasure( mic->getH_x(1),"H(x) 1 CONV",CONV,50000,0.001);
     convTest4=stats->getMeasure( mic->getH_x(0),"H(x) 0 CONV",CONV,50000,0.001);
     convTest3=stats->getMeasure( mic->getH_yx(1),"H(y|x) 1 CONV",CONV,50000,0.001);
-    convTest2=stats->getMeasure( mic->getH_yx(0),"H(y|x) 0 CONV",CONV,50000,0.001);
+    convTest2=stats->getMeasure( mic->getH_yx(0),"H(y|x) 0 CONV",CONV,50000,0.001);*/
 
-    trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 18);
-    this->getHUDSM()->addMeasure(trackableEntropySLOW);
+    /* trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 18);
+    this->getHUDSM()->addMeasure(trackableEntropySLOW);*/
     //TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E upd Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
     //this->getHUDSM()->addMeasure(trackableEntropy);
 
@@ -339,28 +355,30 @@ public:
         (*j)->update();
       }
     }
-    if (this->sim_step%100000==0)
+    /*if (this->sim_step%100000==0)
     {
       printf("timeSteps   = %li\n",this->sim_step);
       printf("time in min = %f\n",((float)this->sim_step)/100/60);
       printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
       printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
-    }
+    }*/
 
 /*    if  ((this->convTest0->getValue()==1.0)&&(this->convTest1->getValue()==1.0) &&
            (this->convTest2->getValue()==1.0)&&(this->convTest3->getValue()==1.0) &&
               (this->convTest4->getValue()==1.0)&&(this->convTest5->getValue()==1.0))*/
     // 600.000 = 100min
     // we take 1440min = 8.640.000 = 24h
-    if (this->sim_step==250000)
+    //if (this->sim_step==250000)
 //    if (this->sim_step==1000)
+//if(false)
+    if (this->sim_step==5*505000)
     {
       simulation_time_reached=true;
-      printf("\nConvergence reached!\n");
+      /*    printf("\nConvergence reached!\n");
       printf("timeSteps   = %li\n",this->sim_step);
       printf("time in min = %f\n",((float)this->sim_step)/100/60);
       printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
-      printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
+      printf("Entropy     = %f\n",trackableEntropySLOW->getValue());      */
     }
   }
 
@@ -372,10 +390,10 @@ public:
       switch ( (char) key )
       {
       case 'e':
-        printf("timeSteps   = %li\n",this->sim_step);
+        /*   printf("timeSteps   = %li\n",this->sim_step);
         printf("time in min = %f\n",((float)this->sim_step)/100/60);
         printf("(MI0+MI1)/2 = %f\n",(mic->getMI(0)+mic->getMI(1))/2);
-        printf("Entropy     = %f\n",trackableEntropySLOW->getValue());
+        printf("Entropy     = %f\n",trackableEntropySLOW->getValue());        */
         return true;
         break;
       default:
