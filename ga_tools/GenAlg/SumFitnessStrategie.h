@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-05-04 09:06:00  robot12
+ *   some implements... Part7
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,19 @@
 #ifndef SUMFITNESSSTRATEGIE_H_
 #define SUMFITNESSSTRATEGIE_H_
 
-class SumFitnessStrategie {
+#include "types.h"
+
+#include "Individual.h"
+#include "Gen.h"
+#include "IValue.h"
+#include "TemplateValue.h"
+
+class SumFitnessStrategie : public IFitnessStrategie {
 public:
 	SumFitnessStrategie();
 	virtual ~SumFitnessStrategie();
+
+	virtual double getFitness(Individual* individual);
 };
 
 #endif /* SUMFITNESSSTRATEGIE_H_ */

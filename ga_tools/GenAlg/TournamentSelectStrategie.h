@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-05-04 09:06:00  robot12
+ *   some implements... Part7
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,25 @@
 #ifndef TOURNAMENTSELECTSTRATEGIE_H_
 #define TOURNAMENTSELECTSTRATEGIE_H_
 
-class TournamentSelectStrategie {
+#include "types.h"
+
+#include "Generation.h"
+#include "Individual.h"
+#include <selforg/randomgenerator.h>
+#include <map>
+
+class TournamentSelectStrategie : public ISelectStrategie {
 public:
-	TournamentSelectStrategie();
+	TournamentSelectStrategie(RandGen* random);
 	virtual ~TournamentSelectStrategie();
+
+	virtual void select(Generation* oldGeneration, Generation* newGeneration);
+
+protected:
+	RandGen* m_random;
+
+private:
+	TournamentSelectStrategie();
 };
 
 #endif /* TOURNAMENTSELECTSTRATEGIE_H_ */

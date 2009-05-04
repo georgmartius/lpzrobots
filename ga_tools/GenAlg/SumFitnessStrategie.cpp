@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-05-04 09:06:00  robot12
+ *   some implements... Part7
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -34,11 +37,34 @@
 
 #include "SumFitnessStrategie.h"
 
-SumFitnessStrategie::SumFitnessStrategie() {
-	// TODO Auto-generated constructor stub
+#define STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP 1.0
 
+SumFitnessStrategie::SumFitnessStrategie() {
+	// nothing
 }
 
 SumFitnessStrategie::~SumFitnessStrategie() {
-	// TODO Auto-generated destructor stub
+	// nothing
+}
+
+double SumFitnessStrategie::getFitness(Individual* individual) {
+	double sum = 0.0;
+	int num = individual->getSize();
+	Gen* gen;
+	IValue* value;
+	TemplateValue<double>* tValue;
+
+	for(int x=0; x<num; x++) {
+		gen = individual->getGen(x);
+		value = gen->getValue();
+		tValue = dynamic_cast<TemplateValue<double> >(value);
+		if(tValue == 0) { //UNKNOWN DATA TYP
+			sum += STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP;
+		}
+		else {
+			sum += tValue->getValue();
+		}
+	}
+
+	return sum;
 }

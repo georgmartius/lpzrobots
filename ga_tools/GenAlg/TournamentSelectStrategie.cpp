@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-05-04 09:06:00  robot12
+ *   some implements... Part7
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,49 @@
 #include "TournamentSelectStrategie.h"
 
 TournamentSelectStrategie::TournamentSelectStrategie() {
-	// TODO Auto-generated constructor stub
+	// nothing
+}
 
+TournamentSelectStrategie::TournamentSelectStrategie(RandGen* random) {
+	m_random = random;
 }
 
 TournamentSelectStrategie::~TournamentSelectStrategie() {
-	// TODO Auto-generated destructor stub
+	// nothing
+}
+
+void TournamentSelectStrategie::select(Generation* oldGeneration, Generation* newGeneration) {
+	int live = oldGeneration->getCurrentSize() - oldGeneration->getKillRate();
+	int size = newGeneration->getSize() - newGeneration->getCurrentSize();
+	int num = oldGeneration->getCurrentSize();
+	Individual* ind1;
+	Individual* ind2;
+	int r1,r2;
+	std::map<int,Individual*> storage;
+	std::map<int,Individual*>::iterator iter;
+
+	for(int x=0; x<live && x<size; x++) {
+		r1 = ((int)m_random->rand()) % num;
+		r2 = ((int)m_random->rand()) % num;
+
+		ind1 = oldGeneration->getIndividual(r1);
+		ind2 = oldGeneration->getIndividual(r2);
+
+		if(ind1->getFitness()>ind2->getFitness()) {
+			if(storage[r1]==0)
+				storage[r1]=ind1;
+			else
+				x--;
+		}
+		else {
+			if(storage[r2]==0)
+				storage[r2]=ind2;
+			else
+				x--;
+		}
+	}
+
+	for(iter=storage.begin();iter!=storage.end();iter++) {
+		newGeneration->addIndividual(iter->second);
+	}
 }

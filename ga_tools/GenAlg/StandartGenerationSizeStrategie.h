@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-04 07:06:14  robot12
+ *   Revision 1.4  2009-05-04 09:06:00  robot12
+ *   some implements... Part7
+ *
+ *   Revision 1.3  2009/05/04 07:06:14  robot12
  *   some implements... Part6
  *
  *   Revision 1.2  2009/04/30 14:32:34  robot12
@@ -48,7 +51,7 @@
 
 class StandartGenerationSizeStrategie : public IGenerationSizeStrategie{
 public:
-	StandartGenerationSizeStrategie(int startSize);
+	StandartGenerationSizeStrategie(int startSize, int numGeneration);
 	virtual ~StandartGenerationSizeStrategie();
 
 	virtual int calcGenerationSize(Generation* oldGeneration);
@@ -56,6 +59,7 @@ public:
 protected:
 	bool m_firstIsSet;
 	int m_startSize;
+	int m_numGeneration;
 	double m_best_first;
 	double m_best_old;
 	double m_best_new;

@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:25  robot12
+ *   Revision 1.2  2009-05-04 09:06:00  robot12
+ *   some implements... Part7
+ *
+ *   Revision 1.1  2009/04/30 11:51:25  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,30 @@
 #ifndef VALUEMUTATIONSTRATEGIE_H_
 #define VALUEMUTATIONSTRATEGIE_H_
 
-class ValueMutationStrategie {
+#include "types.h"
+
+#include "Gen.h"
+#include "Individual.h"
+#include "SingletonGenFactory.h"
+#include "IMutationFactorStrategie.h"
+#include "GenContext.h"
+#include "IMutationStrategie.h"
+#include "IValue.h"
+
+class ValueMutationStrategie : public IMutationStrategie {
 public:
-	ValueMutationStrategie();
+	ValueMutationStrategie(IMutationFactorStrategie* strategie, int mutationProbability);
 	virtual ~ValueMutationStrategie();
+
+	virtual Gen* mutate(Gen* gen, GenContext* context, Individual* individual, SingletonGenFactory* factory);
+	virtual int getMutationProbability(void);
+
+protected:
+	IMutationFactorStrategie* m_strategie;
+	int m_mutationProbability;
+
+private:
+	ValueMutationStrategie();
 };
 
 #endif /* VALUEMUTATIONSTRATEGIE_H_ */

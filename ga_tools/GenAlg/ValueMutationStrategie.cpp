@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:51:26  robot12
+ *   Revision 1.2  2009-05-04 09:06:00  robot12
+ *   some implements... Part7
+ *
+ *   Revision 1.1  2009/04/30 11:51:26  robot12
  *   some implements... new classes
  *
  *
@@ -35,10 +38,29 @@
 #include "ValueMutationStrategie.h"
 
 ValueMutationStrategie::ValueMutationStrategie() {
-	// TODO Auto-generated constructor stub
+	// nothing
+}
 
+ValueMutationStrategie::ValueMutationStrategie(IMutationFactorStrategie* strategie, int mutationProbability) {
+	m_strategie = strategie;
+	m_mutationProbability = mutationProbability;
 }
 
 ValueMutationStrategie::~ValueMutationStrategie() {
-	// TODO Auto-generated destructor stub
+	// nothing
+}
+
+Gen* ValueMutationStrategie::mutate(Gen* gen, GenContext* context, Individual* individual, SingletonGenFactory* factory) {
+	IValue* factor;
+	IValue* value;
+
+	factor = m_strategie->calcMutationFactor(context->getGene());
+	value = (*gen->getValue()) * (*factor);
+	delete factor;
+
+	return factory->createGen(context,individual,context->getPrototyp(),value);
+}
+
+int ValueMutationStrategie::getMutationProbability(void) {
+	return m_mutationProbability;
 }

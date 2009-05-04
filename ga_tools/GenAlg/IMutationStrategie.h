@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-30 11:35:53  robot12
+ *   Revision 1.2  2009-05-04 09:06:00  robot12
+ *   some implements... Part7
+ *
+ *   Revision 1.1  2009/04/30 11:35:53  robot12
  *   some changes:
  *    - insert a SelectStrategie
  *    - insert a MutationStrategie
@@ -43,13 +46,14 @@
 #include "Gen.h"
 #include "Individual.h"
 #include "SingletonGenFactory.h"
+#include "GenContext.h"
 
 class IMutationStrategie {
 public:
 	IMutationStrategie();
 	virtual ~IMutationStrategie();
 
-	virtual Gen* mutate(Gen* gen, Individual* individual, SingletonGenFactory* factory) = 0;
+	virtual Gen* mutate(Gen* gen, GenContext* context, Individual* individual, SingletonGenFactory* factory) = 0;
 	virtual int getMutationProbability(void) = 0;
 };
 
