@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-29 14:32:28  robot12
+ *   Revision 1.2  2009-05-04 09:20:52  robot12
+ *   some implements.. Finish --> first compile
+ *
+ *   Revision 1.1  2009/04/29 14:32:28  robot12
  *   some implements... Part4
  *
  *
@@ -34,6 +37,7 @@
 
 #include "StandartMutationFactorStrategie.h"
 #include <selforg/randomgenerator.h>
+#include "stdlib.h"
 
 StandartMutationFactorStrategie::StandartMutationFactorStrategie() {
 	// nothing
@@ -44,40 +48,33 @@ StandartMutationFactorStrategie::~StandartMutationFactorStrategie() {
 }
 
 IValue* StandartMutationFactorStrategie::calcMutationFactor(const std::vector<Gen*>& gene) {
-	IValue* sum = 0;
-	IValue* oldSum = 0;
-	IValue* absSum = 0;
-	IValue* durch = 0;
+	double sum = 0.0;
+	double durch;
+	double result;
 	int num = gene.size();
 	int x;
+	IValue* iValue;
+	TemplateValue<double>* tValue;
 	RandGen random;
 	int rand = ((int)random->rand())%2;
 
-	sum = gene[0]->getValue();
-	for(x=0;x<num-1;x++) {
-		sum = (*sum) + (*gene[x+1]->getValue());
-		if(oldSum != 0){delete oldSum; oldSum=0;}
-		oldSum = sum;
+	for(x=0;x<num;x++) {
+		iValue = gene[x]->getValue();
+		tValue = dynamic_cast<TemplateValue<double> >(iValue);
+		if(tValue!=0) { // KNOWN DATA TYP
+			sum += tValue->getValue();
+		}
 	}
-	oldSum = 0;
-	durch = (*sum) / (double)num;
-	if(sum!=0){delete sum; sum=0;}
+	durch = sum / (double)num;
 
-	sum = (*gene[0]->getValue()) - (*durch);
-	absSum = sum->abs();
-	for(x=0;x<num-1;x++) {
-		oldSum = sum;
-		sum = (*gene[x+1]->getValue()) - (*durch);
-		absSum = sum->abs();
-		if(sum!=0){delete sum; sum=0;}
-		sum = (*oldSum) + (*absSum);
-		if(oldSum!=0){delete oldSum; oldSum=0;}
-		if(absSum!=0){delete absSum; absSum=0;}
+	for(x=0;x<num;x++) {
+		iValue = gene[x]->getValue();
+		tValue = dynamic_cast<TemplateValue<double> >(iValue);
+		if(tValue!=0) { // KNOWN DATA TYP
+			sum += (tValue->getValue() - durch) * (tValue->getValue() - durch);
+		}
 	}
-	oldSum = 0;
-	absSum = (*sum) / (double)num;
-	if(sum!=0){delete sum; sum=0;}
-	if(durch!=0){delete durch; durch=0;}
+	result = sqrt(sum / (double)(num-1));
 
-	return absSum;
+	return result;
 }

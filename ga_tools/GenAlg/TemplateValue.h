@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-29 14:32:29  robot12
+ *   Revision 1.2  2009-05-04 09:20:52  robot12
+ *   some implements.. Finish --> first compile
+ *
+ *   Revision 1.1  2009/04/29 14:32:29  robot12
  *   some implements... Part4
  *
  *
@@ -43,18 +46,6 @@ class TemplateValue<class Typ> : public IValue {
 public:
 	TemplateValue(Typ value);
 	virtual ~TemplateValue();
-
-	IValue* operator*(const IValue& value)const;
-
-	IValue* operator+(const IValue& value)const;
-
-	IValue* operator-(const IValue& value)const;
-
-	IValue* operator/(const IValue& value)const;
-
-	IValue* operator/(double value)const;
-
-	IValue* abs(void)const;
 
 	inline Typ getValue(void)const {return m_value;}
 	inline void setValue(Typ value)const {m_value=value;}

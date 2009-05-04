@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-29 14:32:28  robot12
+ *   Revision 1.2  2009-05-04 09:20:52  robot12
+ *   some implements.. Finish --> first compile
+ *
+ *   Revision 1.1  2009/04/29 14:32:28  robot12
  *   some implements... Part4
  *
  *
@@ -41,6 +44,7 @@
 
 #include "Gen.h"
 #include "IValue.h"
+#include "TemplateValue.h"
 #include "IMutationFactorStrategie.h"
 
 class StandartMutationFactorStrategie: public IMutationFactorStrategie {

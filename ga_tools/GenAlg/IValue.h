@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-04-29 14:32:28  robot12
+ *   Revision 1.6  2009-05-04 09:20:52  robot12
+ *   some implements.. Finish --> first compile
+ *
+ *   Revision 1.5  2009/04/29 14:32:28  robot12
  *   some implements... Part4
  *
  *   Revision 1.4  2009/04/24 11:26:07  robot12
@@ -59,23 +62,6 @@ public:
    * Beschreibung des Destruktors
    */
   virtual ~IValue();
-
-  /**
-   * Beschreibung des Operators
-   * @param value was macht der Wert
-   * @return was wird zurzueckgegeben?
-   */
-  IValue* operator*(const IValue& value) const = 0;
-
-  IValue* operator/(const IValue& value) const = 0;
-
-  IValue* operator+(const IValue& value) const = 0;
-
-  IValue* operator-(const IValue& value) const = 0;
-
-  IValue* abs(void) const = 0;
-
-  IValue* operator/(double value) const = 0;
 };
 
 #endif /* IVALUE_H_ */
