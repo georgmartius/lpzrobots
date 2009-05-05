@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    frankguettler@gmx.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,106 +21,58 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-05-01 22:03:55  martius
+ *   Revision 1.6  2009-05-05 08:26:32  martius
+ *   uwo simulation moved here as octopus prototyp,
+ *    the octopus from components is now in template_components
+ *
+ *   Revision 1.3  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
- *   Revision 1.4  2006/08/09 07:42:17  robot8
- *   -update of octopus because of changed component function parameters
- *
- *   Revision 1.3  2006/08/02 08:34:09  robot8
- *   -update of octopus because of changed component function parameters
- *
- *   Revision 1.2  2006/07/14 12:23:50  martius
+ *   Revision 1.2  2006/07/14 12:23:55  martius
  *   selforg becomes HEAD
  *
- *   Revision 1.1.2.8  2006/05/18 12:04:21  robot3
- *   made octaplayground smaller (for shadowing issues)
+ *   Revision 1.1.2.2  2006/06/25 17:01:57  martius
+ *   remove old simulations
+ *   robots get names
  *
- *   Revision 1.1.2.7  2006/05/16 09:47:57  robot8
- *   - complex robots constructed from components now could be controlled by only one controller
- *   - the controllers do not support the function of having less sensors than motrs, so do not use the configuration option completesensormode = false with completemotormode = true
- *   -soft links implemented -> ring structures possible
+ *   Revision 1.1.2.1  2006/06/10 20:12:45  martius
+ *   simulation for uwo (unknown walking object)
  *
- *   Revision 1.1.2.6  2006/05/15 13:11:29  robot3
- *   -handling of starting guilogger moved to simulation.cpp
- *    (is in internal simulation routine now)
- *   -CTRL-F now toggles logging to the file (controller stuff) on/off
- *   -CTRL-G now restarts the GuiLogger
- *
- *   Revision 1.1.2.5  2006/05/10 13:22:29  robot8
- *   -splitting of the component system to SimpleComponent and RobotComponent
- *   -add ing the possibility to read and write sensors and motors form TwoAxis Joints as connecting joints between components
- *   -octopus adopted to new splitted system
- *
- *   Revision 1.1.2.4  2006/05/10 09:36:10  robot8
- *   okctopus system working correctly
- *
- *   Revision 1.1.2.3  2006/05/09 13:07:47  robot8
- *   new component system, a bit less complex
- *   easy to use, because of only one component class
- *   handling like a normal robot
- *   testet, OK
- *   not handling multi-joints between the components
- *
- *   Revision 1.1.2.2  2006/05/09 11:20:56  robot8
- *   robot with n arm, simulating an octopus
- *   functional, but not finished, snakes have to be changed, so they could rotate their position
- *
- *   Revision 1.1.2.1  2006/05/03 13:11:20  robot8
- *   test robot for the new component system
- *   only with a lot of spheres at the moment
- *
- *   Revision 1.1.2.4  2006/05/02 12:24:32  robot8
- *   new component system, a bit less complex
- *   easy to use, because of only one component class
- *   handling like a normal robot
- *   testet, seams functional
- *   template with two spheres working
- *
- *   Revision 1.1.2.3  2006/04/27 11:44:58  robot8
- *   new component system, a bit less complex
- *   easy to use, because of only one component class
- *   handling like a normal robot
- *   untested
- *
- *   Revision 1.1.2.1  2006/04/25 13:51:01  robot8
- *   new component system, a bit less complex
- *   easy to use, because of only one component class
- *   handling like a normal robot
- *   not functional now
  *
  ***************************************************************************/
+#include <stdio.h>
 
+// include ode library
+#include <ode/ode.h>
+
+// include noisegenerator (used for adding noise to sensorvalues)
+#include <selforg/noisegenerator.h>
+
+// include simulation environment stuff
 #include <ode_robots/simulation.h>
 
+// include agent (class for holding a robot, a controller and a wiring)
 #include <ode_robots/odeagent.h>
-#include <ode_robots/octaplayground.h>
+
+// used wiring
+#include <selforg/one2onewiring.h>
+
+// used robot
+#include "octopus.h"
+
+// used arena
+#include <ode_robots/playground.h>
+// used passive spheres
 #include <ode_robots/passivesphere.h>
 
-#include <selforg/invertnchannelcontroller.h>
-#include <selforg/invertmotorspace.h>
+// used controller
+//#include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
-#include <selforg/noisegenerator.h>
-#include <selforg/one2onewiring.h>
-#include <selforg/derivativewiring.h>
-
-#include <ode_robots/sphererobot.h>
-#include <ode_robots/schlangeservo.h>
-#include <ode_robots/sphererobot3masses.h>
-
-#include <ode_robots/component.h>
-#include <ode_robots/simplecomponent.h>
-#include <ode_robots/robotcomponent.h>
-
-#define MAX_NUMBER_OF_ARMS 8
-#define HEAD_ARM_DISTANCE 1
-
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
-
 
 
 class ThisSim : public Simulation {
@@ -128,13 +81,12 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(4.82909, 6.32486, 3.59017),  Pos(142.709, -23.2136, 0));
+    setCameraHomePos(Pos(4.24924, 3.29721, 0.869867),  Pos(127.559, 0.122009, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.noise=0.1;
-    //  global.odeConfig.setParam("gravity", 0);
-    //  int chessTexture = dsRegisterTexture("chess.ppm");
+    global.odeConfig.setParam("noise",0.1);
+    //    global.odeConfig.setParam("gravity", -3);
 
     // use Playground as boundary:
     // - create pointer to playground (odeHandle contains things like world and space the 
@@ -143,130 +95,57 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(5, 0.2, 0.5), 12);
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 0.5));
+    playground->setPosition(osg::Vec3(0,0,0.1)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
-    //****************
-
-    Primitive* sphere;
-    vector <OdeRobot*> arms;
-
-    vector <Component*> components;
-    
-//sphere1 
-    sphere = new Sphere ( 0.2 );   
-    sphere->init ( odeHandle , 1 , osgHandle , Primitive::Body | Primitive::Geom | Primitive::Draw);
-
-    ComponentConf cConf = Component::getDefaultConf ();
-    cConf.max_force = 1;
-    cConf.completesensormode = true;
-    cConf.completemotormode = true;
-
-    components.push_back ( new SimpleComponent ( odeHandle , osgHandle , cConf ) );
-
-    ((SimpleComponent*) components.back ())->setSimplePrimitive ( sphere );
-
-    components.back ()->place ( Pos( 0 , 0 , 0.2 ));
-   
-//arms
-    DerivativeWiring* wiring;
-    OdeAgent* agent;
-
-    HingeJoint* j1;
-    Axis axis;
-
-    for ( int n = 0; n < MAX_NUMBER_OF_ARMS; n++ )
-    {
-	SchlangeConf sc = Schlange::getDefaultConf ();
-	sc.segmNumber = 2;
-	sc.segmLength = 0.4;
-	sc.segmMass = 0.1;
-	sc.motorPower = 0.4;
-	sc.frictionJoint=0.01;
-
-	arms.push_back ( new SchlangeServo ( odeHandle , osgHandle , sc ,  "octopusarm" ) );
-
-	((OdeRobot*)arms[n])->place ( osg::Matrix::rotate ( ((MAX_NUMBER_OF_ARMS/2*M_PI/MAX_NUMBER_OF_ARMS)+(-2*M_PI/MAX_NUMBER_OF_ARMS)*(n)), osg::Vec3 (0,0,1)) * 
-				      osg::Matrix::translate ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
-							       cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
-								0 ));
-
-/*	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-	cc.cInit=2;
-
-	AbstractController *controller = new InvertMotorNStep ( cc );  
-	controller->setParam("adaptrate",0.005);
-	controller->setParam("epsC",0.001);
-	controller->setParam("epsA",0.001);
-	controller->setParam("rootE",1);
-	controller->setParam("s4avg",10);
-	controller->setParam("steps",2);
-
-
-	c = DerivativeWiring::getDefaultConf ();
-	wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
-
-	agent = new OdeAgent ( plotoptions );
-	agent->init(controller , arms[n] , wiring );
-	global.agents.push_back(agent);
-	global.configs.push_back(controller);*/
-
-
-	//Components
-	components.push_back ( new RobotComponent ( odeHandle , osgHandle , cConf ) );
-	((RobotComponent*) components.back ())->setRobot ( arms[n] );
-	
-	//creating joint
-	vector <Position> positionlist;
-	((Schlange*) ((RobotComponent*) components.back ())->getRobot ())->getSegmentsPosition ( positionlist );
-
-	//schlange has no member getPosition, only the abilitie to give its whole object-list of Primitives, and here the first Primitive is used, to get the Position
-//	components.front ()->getRobot ()->getPosition () - positionlist.front ();//
-
-	axis = Axis ( ( components.front ()->getPosition () - positionlist.front ()).toArray() );
-	//axis = Axis ( ( components.front ()->getRobot ()->getPosition () - components.back ()->getRobot()->getPosition ()).toArray() );
-	
-	
-	j1 = new HingeJoint ( components.front ()->getMainPrimitive () , components.back ()->getMainPrimitive () , components.front ()->getPositionbetweenComponents ( components.back () ) , axis );
-	j1->init ( odeHandle , osgHandle , true , 1 );
-	components.front ()->addSubcomponent ( components.back () , j1 , false );
-
-//	components.front ()->setSoftlink ( n , false );
-
-	positionlist.clear ();
-
+    // add passive spheres as obstacles
+    // - create pointer to sphere (with odehandle, osghandle and 
+    //   optional parameters radius and mass,where the latter is not used here) )
+    // - set Pose(Position) of sphere 
+    // - set a texture for the sphere
+    // - add sphere to list of obstacles
+    for (int i=0; i<= 1/*2*/; i+=2){
+      PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
+      s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
+      s1->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s1);
     }
 
+    OctopusConf conf = Octopus::getDefaultConf();
+    conf.motorPower = 1;
+    conf.legNumber = 10;
+    // change material to Plastic
+    OdeHandle octopusHandle(odeHandle);
+    octopusHandle.substance.toPlastic(0.5);
+    Octopus* vehicle = new Octopus(octopusHandle, osgHandle, conf, "Octopus1");    
+    vehicle->place(osg::Matrix::translate(0,0,0.5));
+    global.configs.push_back(vehicle);
 
-//adding the controller for the component-connections
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    cc.cInit=2;
+    // use Nimm4 vehicle as robot:
+    // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
+    // - place robot
+    //OdeRobot* vehiInvertMotorSpacecle = new Nimm4(odeHandle, osgHandle);
+    //vehicle->place(Pos(0,2,0));
 
-    AbstractController* controller = new InvertMotorNStep ( cc );//SineController ();//InvertMotorSpace ( 12 );//
-    controller->setParam("adaptrate", 0.005);
-    controller->setParam("epsC", 0.005);
-    controller->setParam("epsA", 0.001);
-    controller->setParam("rootE", 0);
-    controller->setParam("steps", 2);
-    controller->setParam("s4avg", 5);
-    controller->setParam("factorB",0);
+    // create pointer to controller
+    // push controller in global list of configurables
+    //AbstractController *controller = new SineController();
+    AbstractController *controller = new InvertMotorNStep();  
+    global.configs.push_back(controller);
+  
+    // create pointer to one2onewiring
+    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
-    DerivativeWiringConf c = DerivativeWiring::getDefaultConf ();
-    wiring = new DerivativeWiring ( c , new ColorUniformNoise() );   
-
-    agent = new OdeAgent ( plotoptions );
-    agent->init ( controller , components.front () , wiring );
-    global.agents.push_back ( agent );
-    global.configs.push_back ( controller );
-
-
+    // create pointer to agent
+    // initialize pointer with controller, robot and wiring
+    // push agent in globel list of agents
+    OdeAgent* agent = new OdeAgent(plotoptions);
+    agent->init(controller, vehicle, wiring);
+    global.agents.push_back(agent);
+  
     showParams(global.configs);
-
-	cout<<"Number of Sensors: "<<components.front()->getSensorNumber ()<<"\n";
-	cout<<"Number of Motors: "<<components.front()->getMotorNumber ()<<"\n";
-
-  } 
+  }
 
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
@@ -281,12 +160,16 @@ public:
     }
     return false;
   }
-  
+
+
+
 };
+
 
 int main (int argc, char **argv)
 { 
   ThisSim sim;
-  // run simulation
   return sim.run(argc, argv) ? 0 : 1;
+
 }
+ 
