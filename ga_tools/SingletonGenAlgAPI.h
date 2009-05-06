@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   some implements... Finish
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -95,6 +98,9 @@ public:
 	ISelectStrategy* createTournamentSelectStrategy(RandGen* random)const;
 	ISelectStrategy* createRandomSelectStrategy(RandGen* random)const;
 	IValue* createDoubleValue(double value)const;
+
+	// inserts
+	void insertGenPrototype(GenPrototype* prototype);
 
 	// object creation
 	GenPrototype* createPrototype(std::string name, IRandomStrategy* randomStrategy, IMutationStrategy* mutationStrategy)const;

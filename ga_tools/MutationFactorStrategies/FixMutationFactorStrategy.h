@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   some implements... Finish
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -43,7 +46,7 @@ class IValue;
 
 #include "IMutationFactorStrategy.h"
 
-class FixMutationFactorStrategy : public IMutationFactorStrategy{
+class FixMutationFactorStrategy : public IMutationFactorStrategy {
 public:
 	FixMutationFactorStrategy(IValue* value);
 	virtual ~FixMutationFactorStrategy();

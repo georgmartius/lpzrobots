@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   some implements... Finish
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -87,6 +90,7 @@ Individual* SingletonIndividualFactory::createIndividual(Individual* individual1
 	int r1,r2;
 	Individual* ind;
 	Generation* generation = SingletonGenEngine::getInstance()->getActualGeneration();
+	Generation* oldGeneration = SingletonGenEngine::getInstance()->getGeneration(SingletonGenEngine::getInstance()->getActualGenerationNumber()-1);
 
 	storage = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();
 	int num = storage.size();
@@ -100,11 +104,11 @@ Individual* SingletonIndividualFactory::createIndividual(Individual* individual1
 		for(int y=0;y<num2;y++) {
 			gen = ind->getGen(y);
 			if(r2<gen->getPrototype()->getMutationProbability()) {
-				SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,ind,gen,true);
+				SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,true);
 				break;
 			}
 			else {
-				SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,ind,gen,false);
+				SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,false);
 				break;
 			}
 		}

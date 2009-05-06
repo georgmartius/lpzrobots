@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   some implements... Finish
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -42,7 +45,8 @@
 #include "StandartMutationFactorStrategy.h"
 
 #include <selforg/randomgenerator.h>
-#include "stdlib.h"
+#include <stdlib.h>
+#include <math.h>
 
 #include "Gen.h"
 #include "IValue.h"
@@ -65,11 +69,11 @@ IValue* StandartMutationFactorStrategy::calcMutationFactor(const std::vector<Gen
 	IValue* iValue;
 	TemplateValue<double>* tValue;
 	RandGen random;
-	int rand = ((int)random->rand())%2;
+	int rand = ((int)random.rand())%2;
 
 	for(x=0;x<num;x++) {
 		iValue = gene[x]->getValue();
-		tValue = dynamic_cast<TemplateValue<double> >(iValue);
+		tValue = dynamic_cast<TemplateValue<double>* >(iValue);
 		if(tValue!=0) { // KNOWN DATA TYP
 			sum += tValue->getValue();
 		}
@@ -78,12 +82,15 @@ IValue* StandartMutationFactorStrategy::calcMutationFactor(const std::vector<Gen
 
 	for(x=0;x<num;x++) {
 		iValue = gene[x]->getValue();
-		tValue = dynamic_cast<TemplateValue<double> >(iValue);
+		tValue = dynamic_cast<TemplateValue<double>* >(iValue);
 		if(tValue!=0) { // KNOWN DATA TYP
 			sum += (tValue->getValue() - durch) * (tValue->getValue() - durch);
 		}
 	}
 	result = sqrt(sum / (double)(num-1));
 
-	return result;
+	if(rand==0)
+		result*=-1.0;
+
+	return new TemplateValue<double>(result);
 }

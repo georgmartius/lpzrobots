@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:58  robot12
+ *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   some implements... Finish
+ *
+ *   Revision 1.1  2009/05/04 15:27:58  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -38,22 +41,22 @@
 
 #include "TemplateValue.h"
 
-template<class Typ> TemplateValue::TemplateValue() {
+template<class Typ> TemplateValue<Typ>::TemplateValue() {
 	// nothing
 }
 
-template<class Typ> TemplateValue::TemplateValue(Typ value) {
+template<class Typ> TemplateValue<Typ>::TemplateValue(Typ value) {
 	m_value = value;
 }
 
-template<class Typ> TemplateValue::~TemplateValue() {
+template<class Typ> TemplateValue<Typ>::~TemplateValue() {
 	// nothing
 }
 
-template<class Typ> IValue* TemplateValue::operator*(const IValue& value)const {
+template<class Typ> IValue* TemplateValue<Typ>::operator*(const IValue& value)const {
 	TemplateValue<Typ>* newValue;
 
-	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+	const TemplateValue<Typ> castValue = dynamic_cast<const TemplateValue<Typ> >(value);
 	if(castValue==0)
 		return 0;
 
@@ -62,7 +65,7 @@ template<class Typ> IValue* TemplateValue::operator*(const IValue& value)const {
 	return newValue;
 }
 
-template<class Typ> IValue* TemplateValue::operator+(const IValue& value)const {
+/*template<class Typ> IValue* TemplateValue::operator+(const IValue& value)const {
 	TemplateValue<Typ>* newValue;
 
 	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
@@ -115,4 +118,4 @@ template<class Typ> IValue* TemplateValue::operator/(double value)const {
 	newValue = new TemplateValue<Typ>(m_value/value);
 
 	return newValue;
-}
+}*/

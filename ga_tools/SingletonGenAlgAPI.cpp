@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   some implements... Finish
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -40,7 +43,6 @@
 
 #include "SingletonGenAlgAPI.h"
 
-//#include "SingletonGenEngine.h"
 #include "GenPrototype.h"
 #include "GenContext.h"
 #include "Gen.h"
@@ -139,9 +141,13 @@ void SingletonGenAlgAPI::crosover(RandGen* random) {
 }
 
 void SingletonGenAlgAPI::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random) {
-	SingeltonGenEngine::getInstance()->runGenAlg(startSize,startKillRate,numGeneration,random);
+	SingletonGenEngine::getInstance()->runGenAlg(startSize,startKillRate,numGeneration,random);
 }
 
 GenPrototype* SingletonGenAlgAPI::createPrototype(std::string name, IRandomStrategy* randomStrategy, IMutationStrategy* mutationStrategy)const {
 	return new GenPrototype(name,randomStrategy,mutationStrategy);
+}
+
+void SingletonGenAlgAPI::insertGenPrototype(GenPrototype* prototype) {
+	SingletonGenEngine::getInstance()->addGenPrototype(prototype);
 }

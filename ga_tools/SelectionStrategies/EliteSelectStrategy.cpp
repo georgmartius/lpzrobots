@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:56  robot12
+ *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   some implements... Finish
+ *
+ *   Revision 1.1  2009/05/04 15:27:56  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -63,10 +66,11 @@ EliteSelectStrategy::~EliteSelectStrategy() {
 void EliteSelectStrategy::select(Generation* oldGeneration, Generation* newGeneration) {
 	std::list<SfitnessEliteStrategyStruct*> list;
 	SfitnessEliteStrategyStruct* storage;
+	std::list<SfitnessEliteStrategyStruct*>::iterator iter;
 	int num,x,kill;
 
 	// prepare the list
-	num = oldGeneration.getCurrentSize();
+	num = oldGeneration->getCurrentSize();
 	for(x=0;x<num;x++) {
 		storage = new SfitnessEliteStrategyStruct();
 		storage->ind = oldGeneration->getIndividual(x);
@@ -81,19 +85,25 @@ void EliteSelectStrategy::select(Generation* oldGeneration, Generation* newGener
 	// kill the badest
 	kill = oldGeneration->getKillRate();
 	for(x=num-1;x>=num-kill;x--) {
-		delete list[x];
-		list.erase(list.begin()+x);
+		iter = list.begin();
+		for(int y=0;y<x;y++)
+			iter++;
+		delete (*iter);
+		list.erase(iter);
 	}
 
 	// take the best in the new generation
-	for(x=0;x<num-kill && x<newGeneration->getSize();x++) {
-		newGeneration->addIndividual(list[x]->ind);
+	x = 0;
+	for(iter = list.begin();iter != list.end() && x<newGeneration->getSize();iter++) {
+		newGeneration->addIndividual((*iter)->ind);
+		x++;
 	}
 
 	// clean
 	while(list.size()>0) {
-		delete list[0];
-		list.erase(list.begin());
+		iter = list.begin();
+		delete (*iter);
+		list.erase(iter);
 	}
 	list.clear();
 }

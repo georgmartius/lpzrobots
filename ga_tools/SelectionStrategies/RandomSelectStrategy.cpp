@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:56  robot12
+ *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   some implements... Finish
+ *
+ *   Revision 1.1  2009/05/04 15:27:56  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -40,8 +43,10 @@
  ***************************************************************************/
 
 #include "RandomSelectStrategy.h"
+
 #include <vector>
 #include "Generation.h"
+#include "Individual.h"
 
 RandomSelectStrategy::RandomSelectStrategy() {
 	// nothing
@@ -75,8 +80,8 @@ void RandomSelectStrategy::select(Generation* oldGeneration, Generation* newGene
 	}
 
 	// take the rest in the new generation
-	for(int x=0;x<list.size() && x<newGeneration->getSize();x++) {
-		newGeneration->addIndividual(list[x]->ind);
+	for(unsigned int x=0;x<list.size() && x<newGeneration->getSize();x++) {
+		newGeneration->addIndividual(list[x]);
 	}
 
 	// clean
