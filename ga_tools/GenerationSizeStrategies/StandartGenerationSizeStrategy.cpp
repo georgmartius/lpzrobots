@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:57  robot12
+ *   Revision 1.2  2009-05-06 14:35:15  robot12
+ *   implements findBest in StandartGenerationSizeStrategy
+ *
+ *   Revision 1.1  2009/05/04 15:27:57  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -45,6 +48,7 @@
 #include "StandartGenerationSizeStrategy.h"
 
 #include "Generation.h"
+#include "Individual.h"
 
 #define GREATER_HIGH_FACTOR 1.1
 #define GREATER_LOW_FACTOR 1.05
@@ -113,4 +117,16 @@ int StandartGenerationSizeStrategy::calcGenerationSize(Generation* oldGeneration
 			return oldGeneration->getSize();
 		}
 	}
+}
+
+double StandartGenerationSizeStrategy::findBest(Generation* oldGeneration) {
+	double best = oldGeneration->getIndividual(0)->getFitness();
+	int num = oldGeneration->getCurrentSize();
+
+	for(int x=1;x<num;x++) {
+		if(oldGeneration->getIndividual(x)->getFitness()<best)
+			best=oldGeneration->getIndividual(x)->getFitness();
+	}
+
+	return best;
 }
