@@ -22,10 +22,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is used for group some gens and is needed from the         *
+ *   genFactory. It saves all GenContexte which are use this prototype.    *
+ *   The group of gens becomes whit it an name.                            *
+ *                                                                         *
+ *   The prototypes inside the gen. alg. are saved in the GenContext, in   *
+ *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-07 14:47:46  robot12
+ *   some comments
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -43,10 +51,6 @@
 
 #include "GenPrototype.h"
 
-/*#include "Generation.h"
-#include "IRandomStrategy.h"
-#include "IMutationStrategy.h"*/
-
 #include "GenContext.h"
 #include "SingletonGenFactory.h"
 
@@ -63,6 +67,7 @@ GenPrototype::GenPrototype(std::string name, IRandomStrategy* randomStrategy, IM
 GenPrototype::~GenPrototype() {
 	std::map<Generation*,GenContext*>::iterator itr = m_context.begin();
 
+	// delete all contexte
 	while(itr!=m_context.end()) {
 		delete itr->second;
 		m_context.erase(itr);

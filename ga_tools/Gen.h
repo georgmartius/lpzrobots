@@ -22,10 +22,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is used for representing one gen in the gen. alg.          *
+ *   It has one ID which make it individual and a name (string)            *
+ *   which group it with other gens to a gen pool.                         *
+ *   Also it has a IValue which is used to save the real value.            *
+ *   An IValue can be a number, a matrix, a 3D Modell or something else.   *
+ *                                                                         *
+ *   Places for saving the gen inside the gen. alg. are the GenContext,    *
+ *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-04 15:27:56  robot12
+ *   Revision 1.5  2009-05-07 14:47:47  robot12
+ *   some comments
+ *
+ *   Revision 1.4  2009/05/04 15:27:56  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -44,27 +54,101 @@
 #ifndef GEN_H_
 #define GEN_H_
 
+// standard includes
 #include <string>
 
+// forward declarations
+
+// gen. alg. includes
 #include "IValue.h"
 #include "GenPrototype.h"
 
+/**
+ * The Gen class.
+ *
+ *   This class is used for representing one gen in the gen. alg.
+ *   It has one ID which make it individual and an name (string)
+ *   which group it with other gens to a gen pool.
+ *   Also it has a IValue which is used to save the real value.
+ *   An IValue can be a number, a matrix, a 3D Modell or something else.
+ *
+ *   Places for saving the gen inside the gen. alg. are the GenContext,
+ *   the Individual and the GenEngine. Deleting only in the GenEngine!
+ */
 class Gen {
 public:
+	/**
+	 * constructor to create a gen. Information which the class need are
+	 * the prototype (name an group of gens) and the id, which the gen
+	 * identified.
+	 *
+	 * @param prototype (GenPrototype*) Pointer to the prototype.
+	 * @param id (int) ID of the gen
+	 */
 	Gen(GenPrototype* prototype, int id);
+
+	/**
+	 * destructor to delete a gen.
+	 */
 	virtual ~Gen(void);
 
+	/**
+	 * [const]
+	 * This function gives the Name of this Gen (name of the prototype) back.
+	 *
+	 * @return (string) Name of the Gen.
+	 */
 	std::string getName(void)const;
 
+	/**
+	 * [inline], [const]
+	 * This function gives the value which is saved in the Gen back.
+	 *
+	 * @return (IValue*) The value
+	 */
 	inline IValue* getValue(void)const {return m_value;}
+
+	/**
+	 * [inline]
+	 * This function change the saved pointer to the IValue. So the Gen changed his value.
+	 *
+	 * @param value (IVaue*) the new Value
+	 */
 	inline void setValue(IValue* value) {m_value=value;}
+
+	/**
+	 * [inline], [const]
+	 * This function gives the ID of the Gen back.
+	 *
+	 * @return (int) The ID
+	 */
 	inline int getID(void)const {return m_ID;}
 
+	/**
+	 * [const]
+	 * This function gives the prototype of the Gen back.
+	 *
+	 * @return (GenPrototyp*) The prototype
+	 */
 	GenPrototype* getPrototype(void)const;
 
 protected:
+	/**
+	 * (IValue*)
+	 * The value of the Gen.
+	 */
 	IValue* m_value;
+
+	/**
+	 * (GenPrototyp*)
+	 * The prototype of the Gen. After creating unchangeable.
+	 */
 	GenPrototype* m_prototype;
+
+	/**
+	 * (int)
+	 * The ID of the Gen. The ID is individual. Every Gen has his own.
+	 */
 	int m_ID;
 
 private:

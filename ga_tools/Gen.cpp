@@ -22,10 +22,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is used for representing one gen in the gen. alg.          *
+ *   It has one ID which make it individual and a name (string)            *
+ *   which group it with other gens to a gen pool.                         *
+ *   Also it has a IValue which is used to save the real value.            *
+ *   An IValue can be a number, a matrix, a 3D Modell or something else.   *
+ *                                                                         *
+ *   Places for saving the gen inside the gen. alg. are the GenContext,    *
+ *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-04 15:27:55  robot12
+ *   Revision 1.5  2009-05-07 14:47:47  robot12
+ *   some comments
+ *
+ *   Revision 1.4  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *

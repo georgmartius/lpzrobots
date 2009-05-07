@@ -22,10 +22,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is used for grouping some individuals which representing   *
+ *   one step in the gen. alg. (called generation). For this it save all   *
+ *   individual which are part of this generation. Also it have an Number  *
+ *   like a ID, which make this generation individual.                     *
+ *                                                                         *
+ *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-04 15:27:55  robot12
+ *   Revision 1.4  2009-05-07 14:47:47  robot12
+ *   some comments
+ *
+ *   Revision 1.3  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -67,21 +75,20 @@ Generation::~Generation() {
 }
 
 void Generation::crosover(RandGen* random) {
-	int r1,r2;
-	Individual* ind;
+	int r1,r2;					// 2 random number, which the alg. need
+	Individual* ind;			// help variable to save an individual
 
-	while(getCurrentSize()<m_size) {
-		r1 = ((int)random->rand())%getCurrentSize();
-		r2 = r1;
+	while(getCurrentSize()<m_size) {		//create new individual, how long the planed size isn t reached
+		r1 = ((int)random->rand())%getCurrentSize();		// the first random number
+		r2 = r1;											// to come min one time inside the while loop
 		while(r1==r2)
-			r2 = ((int)random->rand())%getCurrentSize();
+			r2 = ((int)random->rand())%getCurrentSize();	// the second random number
 
-		ind = SingletonIndividualFactory::getInstance()->createIndividual(m_individual[r1],m_individual[r2],random);
-		addIndividual(ind);
+		ind = SingletonIndividualFactory::getInstance()->createIndividual(m_individual[r1],m_individual[r2],random);	// create new individual with the 2 other individuals which are represented with the 2 random numbers
+		addIndividual(ind);                                 // insert the new individual
 	}
 }
 
 void Generation::addIndividual(Individual* individual) {
 	m_individual.push_back(individual);
-	//m_individual.sort();
 }

@@ -22,10 +22,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is used for create a context for some gens. This mean it   *
+ *   saves all gens which have the same prototype and are a part of an     *
+ *   individual which are in ONE generation. It can be useful for some     *
+ *   statistical calculation or for optimizing the mutation factor.        *
+ *                                                                         *
+ *   The Gen Context is inside the gen. alg. only saved in the             *
+ *   GenPrototype.                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:56  robot12
+ *   Revision 1.2  2009-05-07 14:47:47  robot12
+ *   some comments
+ *
+ *   Revision 1.1  2009/05/04 15:27:56  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -44,25 +53,79 @@
 #ifndef GENCONTEXT_H_
 #define GENCONTEXT_H_
 
+// standard includes
 #include <vector>
 #include <algorithm>
 
+// forward declarations
 class Gen;
 class GenPrototype;
 
+// gen. alg. includes
+
+/**
+ * The GenContext class.
+ *   This class is used for create a context for some gens. This mean it
+ *   saves all gens which have the same prototype and are a part of an
+ *   individual which are in ONE generation. It can be useful for some
+ *   statistical calculation or for optimizing the mutation factor.
+ *
+ *   The Gen Context is inside the gen. alg. only saved in the
+ *   GenPrototype.
+ */
 class GenContext {
 public:
+	/**
+	 * constructor to create a GenContext. Information which the class need are
+	 * the prototype (name an group of gens).
+	 *
+	 * @param prototype (GenPrototype*) Pointer to the prototype.
+	 */
 	GenContext(GenPrototype* prototype);
+
+	/**
+	 * destructor to delete a GenContext.
+	 */
 	virtual ~GenContext();
 
+	/**
+	 * [inline], [const]
+	 *
+	 * This function gives the prototype for hich are the context is make back.
+	 *
+	 * @return (GenPrototype*) the prototype
+	 */
 	inline GenPrototype* getPrototype(void)const {return m_prototype;}
 
 	inline void addGen(Gen* gen) {m_storage.push_back(gen);}
+
+	/**
+	 * [inline]
+	 * This function removes one gen which is saved inside the context (but NO deleting of the gen!!!).
+	 *
+	 * param gen (Gen*) The gen, which should be removed
+	 */
 	inline void removeGen(Gen* gen) {std::vector<Gen*>::iterator itr = std::find(m_storage.begin(),m_storage.end(),gen); m_storage.erase(itr);}
+
+	/**
+	 * [inline], [const]
+	 * This function gives all gens which are saved in this context back.
+	 *
+	 * @return (vector<Gen*>&) list with all gens.
+	 */
 	inline const std::vector<Gen*>& getGene(void)const {return m_storage;}
 
 protected:
+	/**
+	 * (vector<Gen*>
+	 * Storage for all Genes which are saved in this context.
+	 */
 	std::vector<Gen*> m_storage;
+
+	/**
+	 * (GenPrototyp*)
+	 * the prototype for which are the context is.
+	 */
 	GenPrototype* m_prototype;
 
 private:

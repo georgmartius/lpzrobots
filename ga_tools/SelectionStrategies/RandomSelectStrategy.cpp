@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-06 14:35:14  robot12
+ *   Revision 1.4  2009-05-07 14:47:46  robot12
+ *   some comments
+ *
+ *   Revision 1.3  2009/05/06 14:35:14  robot12
  *   implements findBest in StandartGenerationSizeStrategy
  *
  *   Revision 1.2  2009/05/06 13:28:23  robot12
@@ -83,7 +86,7 @@ void RandomSelectStrategy::select(Generation* oldGeneration, Generation* newGene
 	}
 
 	// take the rest in the new generation
-	for(int x=0;x<list.size() && x<newGeneration->getSize();x++) {
+	for(int x=0;x<(int)list.size() && x<newGeneration->getSize();x++) {
 		newGeneration->addIndividual(list[x]);
 	}
 
