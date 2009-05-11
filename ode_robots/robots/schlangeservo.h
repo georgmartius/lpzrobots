@@ -1,6 +1,6 @@
 /************************************************************************/
 /*schlangeservo.h							*/
-/*Snake with PID Servo motors (just motor per joint)     		*/
+/*Snake with PID Servo motors (just one motor per joint)     		*/
 /*@author Georg Martius 						*/
 /*									*/
 /************************************************************************/
@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-01-26 12:05:04  martius
+ *   Revision 1.10  2009-05-11 15:44:30  martius
+ *   new velocity servos used
+ *
+ *   Revision 1.9  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.8  2006/09/20 12:56:17  martius
@@ -127,4 +130,37 @@ namespace lpzrobots {
 
 }
 
+/*
+Parameters for invertmotornstep controller:
+motorpower=5
+sensorfactor=5
+
+controller->setParam("adaptrate", 0.000);
+controller->setParam("epsC", 0.01);
+controller->setParam("epsA", 0.01);
+controller->setParam("dampA", 0.0001);
+controller->setParam("rootE", 1);
+controller->setParam("steps", 1);
+controller->setParam("s4avg", 1);
+controller->setParam("s4del", 5);
+global.odeConfig.setParam("controlinterval",4);
+
+
+High frequency modes and then low-dim modes occur with
+controller->setParam("adaptrate", 0.0001);
+controller->setParam("nomupdate", 0.0007);
+controller->setParam("epsC", 0.01);
+controller->setParam("epsA", 0.01);
+controller->setParam("dampA", 0.0001);
+controller->setParam("rootE", 1);
+controller->setParam("steps", 1);
+controller->setParam("s4avg", 1);
+controller->setParam("s4del", 1);
+global.odeConfig.setParam("controlinterval",1);
+    
+
+*/
+
+
 #endif
+

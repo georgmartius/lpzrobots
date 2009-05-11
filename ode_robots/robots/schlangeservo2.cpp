@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-05-07 16:45:52  martius
+ *   Revision 1.8  2009-05-11 15:44:30  martius
+ *   new velocity servos used
+ *
+ *   Revision 1.7  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.6  2007/07/03 13:05:23  martius
@@ -119,7 +122,7 @@ namespace lpzrobots {
     for ( int n = 0; n < conf.segmNumber-1; n++ ) {		
 
       const Pos& p1(objects[n]->getPosition());
-      const Pos& p2(objects[n+1]->getPosition());
+      const Pos& p2(objects[n+1]->getPosition());      
       UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
 					     (p1 + p2)/2,
 					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
@@ -135,9 +138,17 @@ namespace lpzrobots {
 
       joints.push_back(j); 
       
-      UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
-					          -conf.jointLimit, conf.jointLimit, conf.motorPower, 
-						  0.02,0.0);
+      UniversalServo* servo;
+      if(conf.useServoVel){
+	servo =  new TwoAxisServoVel(odeHandle, j, 
+				     -conf.jointLimit, conf.jointLimit, conf.motorPower,
+				     -conf.jointLimit, conf.jointLimit, conf.motorPower, 
+				     conf.frictionJoint, conf.velocity);
+      }else{	
+	servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
+				    -conf.jointLimit, conf.jointLimit, conf.motorPower, 
+				    conf.frictionJoint,0.0);
+      }
       servos.push_back(servo);
       
       frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, 
@@ -152,6 +163,15 @@ namespace lpzrobots {
     for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
       if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
     }
+    for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+      if(*i) {
+	(*i)->damping1() = conf.frictionJoint;
+	(*i)->damping2() = conf.frictionJoint;
+      }
+    }
+    for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+      if(*i) (*i)->setMaxVel(conf.velocity);
+    }    
     return rv;
   }
 

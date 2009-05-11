@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-05-07 16:45:52  martius
+ *   Revision 1.12  2009-05-11 15:44:30  martius
+ *   new velocity servos used
+ *
+ *   Revision 1.11  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.10  2007/02/12 13:28:38  martius
@@ -80,7 +83,7 @@ SchlangeServo::SchlangeServo ( const OdeHandle& odeHandle, const OsgHandle& osgH
   : Schlange(odeHandle, osgHandle, conf, name, 
 	     revision.empty() ? "$Id$" : revision) 
 {
-
+  addParameter("velocity", &this->conf.velocity);
 }
 	
 SchlangeServo::~SchlangeServo() { }
@@ -131,16 +134,11 @@ void SchlangeServo::create(const osg::Matrix& pose){
   //*****************joint definition***********
   for ( int n = 0; n < conf.segmNumber-1; n++ ) {		
     
-    Pos p1(objects[n]->getPosition());
-    Pos p2(objects[n]->getPosition());
     HingeJoint* j = new HingeJoint(objects[n], objects[n+1],
 				   (objects[n]->getPosition() + objects[n+1]->getPosition())/2,
 				   Axis(0,0,1)* pose);
     j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
     
-    // setting stops at hinge joints		
-    j->setParam(dParamLoStop, -conf.jointLimit*1.5);
-    j->setParam(dParamHiStop,  conf.jointLimit*1.5);
     
     // making stops bouncy
     //    j->setParam (dParamBounce, 0.9 );
@@ -148,7 +146,14 @@ void SchlangeServo::create(const osg::Matrix& pose){
     
     joints.push_back(j); 
     
-    HingeServo* servo =  new HingeServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,conf.frictionJoint,0);
+    HingeServo* servo;
+    if(conf.useServoVel){
+      servo =  new OneAxisServoVel(odeHandle, j, -conf.jointLimit, conf.jointLimit, 
+				   conf.motorPower,conf.frictionJoint, conf.velocity);
+    }else{
+      servo =  new HingeServo(j, -conf.jointLimit, conf.jointLimit, 
+			      conf.motorPower,conf.frictionJoint,0,100);
+    }
     servos.push_back(servo);
 
     //    frictionmotors.push_back(new AngularMotor1Axis(odeHandle, j, conf.frictionJoint) );
@@ -158,12 +163,14 @@ void SchlangeServo::create(const osg::Matrix& pose){
 bool SchlangeServo::setParam(const paramkey& key, paramval val){
   bool rv = Schlange::setParam(key, val);
   for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+    if(*i) (*i)->damping()=conf.frictionJoint;
+  }
+  for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
     if(*i) (*i)->setPower(conf.motorPower);
   }
   for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
-    if(*i) (*i)->damping()=conf.frictionJoint;
+    if(*i) (*i)->setMaxVel(conf.velocity);
   }
-
   return rv;    
 }
 
