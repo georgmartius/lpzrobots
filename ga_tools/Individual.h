@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-04 15:27:56  robot12
+ *   Revision 1.5  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.4  2009/05/04 15:27:56  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -58,7 +61,7 @@
 
 class Individual {
 public:
-	Individual(std::string name, int id);
+	Individual(std::string name, int id, Individual* p1=0, Individual* p2=0);
 	virtual ~Individual();
 
 	inline int getID(void)const {return m_ID;}
@@ -73,10 +76,18 @@ public:
 	void removeGen(int x);
 	double getFitness()const;
 
+	inline void setMutated(void) {m_mutated=true;}
+	inline const Individual* getParent1(void)const {return m_parent1;}
+	inline const Individual* getParent2(void)const {return m_parent2;}
+	inline bool isMutated(void)const {return m_mutated;}
+
 protected:
 	std::string m_name;
 	int m_ID;
 	std::vector<Gen*> m_gene;
+	Individual* m_parent1;
+	Individual* m_parent2;
+	bool m_mutated;
 
 private:
 	/**

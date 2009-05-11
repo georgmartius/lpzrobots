@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/06 13:28:22  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -53,6 +56,7 @@
 #include "SingletonGenEngine.h"
 #include "Generation.h"
 #include "Gen.h"
+#include "GenContext.h"
 
 SingletonIndividualFactory* SingletonIndividualFactory::m_factory = 0;
 int SingletonIndividualFactory::m_number = 0;
@@ -82,8 +86,8 @@ Individual* SingletonIndividualFactory::createIndividual(std::string name)const 
 	return ind;
 }
 
-Individual* SingletonIndividualFactory::createIndividual(Individual* individual1, Individual* individual2, RandGen* random)const {
-	Individual* newInd = new Individual(individual1->getName()+"##"+individual2->getName(),m_number++);
+Individual* SingletonIndividualFactory::createIndividual(Individual* individual1, Individual* individual2, RandGen* random, std::string name)const {
+	Individual* newInd = new Individual(name,m_number++,individual1,individual2);
 	GenPrototype* prototype;
 	std::vector<GenPrototype*> storage;
 	Gen* gen;
@@ -96,8 +100,8 @@ Individual* SingletonIndividualFactory::createIndividual(Individual* individual1
 	int num = storage.size();
 	for(int x=0;x<num;x++) {
 		prototype = storage[x];
-		r1 = ((int)random->rand())%2;
-		r2 = ((int)random->rand())%1000;
+		r1 = ((int)(random->rand()*10000.0))%2;
+		r2 = ((int)(random->rand()*10000.0))%1000;
 		ind = r1==0?individual1:individual2;
 
 		int num2 = ind->getSize();
@@ -105,10 +109,13 @@ Individual* SingletonIndividualFactory::createIndividual(Individual* individual1
 			gen = ind->getGen(y);
 			if(r2<gen->getPrototype()->getMutationProbability()) {
 				SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,true);
+				newInd->setMutated();
 				break;
 			}
 			else {
-				SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,false);
+				//SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,false);
+				prototype->getContext(generation)->addGen(gen);
+				newInd->addGen(gen);
 				break;
 			}
 		}

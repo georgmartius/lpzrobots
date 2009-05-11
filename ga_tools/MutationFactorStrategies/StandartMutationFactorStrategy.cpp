@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/06 13:28:23  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -71,6 +74,8 @@ IValue* StandartMutationFactorStrategy::calcMutationFactor(const std::vector<Gen
 	RandGen random;
 	int rand = ((int)random.rand())%2;
 
+	static TemplateValue<double> storage(0.0);
+
 	for(x=0;x<num;x++) {
 		iValue = gene[x]->getValue();
 		tValue = dynamic_cast<TemplateValue<double>* >(iValue);
@@ -79,6 +84,8 @@ IValue* StandartMutationFactorStrategy::calcMutationFactor(const std::vector<Gen
 		}
 	}
 	durch = sum / (double)num;
+
+	sum = 0.0;
 
 	for(x=0;x<num;x++) {
 		iValue = gene[x]->getValue();
@@ -92,5 +99,7 @@ IValue* StandartMutationFactorStrategy::calcMutationFactor(const std::vector<Gen
 	if(rand==0)
 		result*=-1.0;
 
-	return new TemplateValue<double>(result);
+	storage.setValue(result);
+
+	return &storage;
 }

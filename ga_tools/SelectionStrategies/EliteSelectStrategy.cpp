@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   Revision 1.3  2009-05-11 14:08:53  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/06 13:28:23  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:56  robot12
@@ -52,7 +55,7 @@ struct SfitnessEliteStrategyStruct {
 	double fitness;
 	Individual* ind;
 
-	inline bool operator<(SfitnessEliteStrategyStruct other) {return fitness<other.fitness;}
+	inline bool operator<(SfitnessEliteStrategyStruct other) {return fitness>other.fitness;}
 };
 
 EliteSelectStrategy::EliteSelectStrategy() {
@@ -84,13 +87,19 @@ void EliteSelectStrategy::select(Generation* oldGeneration, Generation* newGener
 
 	// kill the badest
 	kill = oldGeneration->getKillRate();
-	for(x=num-1;x>=num-kill;x--) {
+	iter = list.begin();
+	std::advance(iter,num-kill);
+	while(iter!=list.end()) {
+		delete (*iter);
+		iter=list.erase(iter);
+	}
+	/*for(x=num-1;x>=num-kill;x--) {
 		iter = list.begin();
 		for(int y=0;y<x;y++)
 			iter++;
 		delete (*iter);
 		list.erase(iter);
-	}
+	}*/
 
 	// take the best in the new generation
 	x = 0;

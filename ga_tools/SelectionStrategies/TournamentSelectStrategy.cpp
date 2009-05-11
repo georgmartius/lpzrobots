@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:56  robot12
+ *   Revision 1.2  2009-05-11 14:08:52  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.1  2009/05/04 15:27:56  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -67,13 +70,18 @@ void TournamentSelectStrategy::select(Generation* oldGeneration, Generation* new
 	std::map<int,Individual*>::iterator iter;
 
 	for(int x=0; x<live && x<size; x++) {
-		r1 = ((int)m_random->rand()) % num;
-		r2 = ((int)m_random->rand()) % num;
+		double ddd = m_random->rand();
+		r1 = ((int)(ddd*1000000.0)) % num;
+		r2 = r1;
+		while(r2==r1) {
+			ddd = m_random->rand();
+			r2 = ((int)(ddd*1000000.0)) % num;
+		}
 
 		ind1 = oldGeneration->getIndividual(r1);
 		ind2 = oldGeneration->getIndividual(r2);
 
-		if(ind1->getFitness()>ind2->getFitness()) {
+		if(ind1->getFitness()<ind2->getFitness()) {
 			if(storage[r1]==0)
 				storage[r1]=ind1;
 			else

@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/06 13:28:22  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -73,7 +76,7 @@
 #include "IValue.h"
 #include "TemplateValue.h"
 
-static SingletonGenAlgAPI::SingletonGenAlgAPI* m_api = 0;
+SingletonGenAlgAPI* SingletonGenAlgAPI::m_api = 0;
 
 SingletonGenAlgAPI::SingletonGenAlgAPI() {
 	// nothing

@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/06 13:28:22  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:57  robot12
@@ -50,19 +53,30 @@
 template<class Typ>
 class TemplateValue : public IValue {
 public:
-	TemplateValue(Typ value);
-	virtual ~TemplateValue();
+	TemplateValue(Typ value) : IValue(), m_value(value) {}
+	virtual ~TemplateValue()  {}
 
 	inline Typ getValue(void)const {return m_value;}
-	inline void setValue(Typ value)const {m_value=value;}
+	inline void setValue(Typ value) {m_value=value;}
 
-	virtual IValue* operator*(const IValue&)const;
+	virtual IValue* operator*(const IValue& value)const {
+		TemplateValue<Typ>* newValue;
+
+		const TemplateValue<Typ>* castValue = dynamic_cast<const TemplateValue<Typ>* >(&value);
+		if(castValue==0)
+			return 0;
+
+		const Typ typeValue = castValue->getValue();
+		newValue = new TemplateValue<Typ>(m_value*typeValue);
+
+		return newValue;
+	}
 
 protected:
 	Typ m_value;
 
 private:
-	TemplateValue();
+	TemplateValue() : IValue() {}
 };
 
 #endif /* TEMPLATEVALUE_H_ */

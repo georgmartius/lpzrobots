@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-07 14:47:47  robot12
+ *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/07 14:47:47  robot12
  *   some comments
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -148,11 +151,7 @@ void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRat
 	// generate the random individuals
 	Individual* ind;
 	for(int x=0;x<startSize;x++) {
-		std::string s = "Ind ";
-		char buffer[128];
-		sprintf(buffer,"%i",x);
-		s+=buffer;
-		ind = SingletonIndividualFactory::getInstance()->createIndividual(s);
+		ind = SingletonIndividualFactory::getInstance()->createIndividual();
 		first->addIndividual(ind);
 	}
 }
@@ -205,4 +204,22 @@ void SingletonGenEngine::crosover(RandGen* random) {
 
 double SingletonGenEngine::getFitness(const Individual* individual) {
 	return m_fitnessStrategy->getFitness(individual);
+}
+
+Individual* SingletonGenEngine::getBestIndividual(void) {
+	const std::vector<Individual*>& storage = getActualGeneration()->getAllIndividual();
+	Individual* result = storage[0];
+	double value = result->getFitness();
+	double test;
+	int num = storage.size();
+
+	for(int x=1;x<num;x++) {
+		test = storage[x]->getFitness();
+		if(test<value) {
+			value = test;
+			result = storage[x];
+		}
+	}
+
+	return result;
 }

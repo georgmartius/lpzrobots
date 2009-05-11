@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/06 13:28:22  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -108,6 +111,9 @@ public:
 	// singleton
 	inline static SingletonGenAlgAPI* getInstance(void) {if(m_api==0)m_api = new SingletonGenAlgAPI();return m_api;}
 	inline static void destroyAPI(void) {delete m_api;}
+
+	// data access
+	inline Individual* getBestIndividual(void)const {return SingletonGenEngine::getInstance()->getBestIndividual();}
 
 protected:
 	static SingletonGenAlgAPI* m_api;

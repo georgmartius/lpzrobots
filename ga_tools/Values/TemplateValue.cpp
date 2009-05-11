@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/06 13:28:22  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:58  robot12
@@ -41,12 +44,11 @@
 
 #include "TemplateValue.h"
 
-template<class Typ> TemplateValue<Typ>::TemplateValue() {
+/*template<class Typ> TemplateValue<Typ>::TemplateValue() : IValue() {
 	// nothing
 }
 
-template<class Typ> TemplateValue<Typ>::TemplateValue(Typ value) {
-	m_value = value;
+template<class Typ> TemplateValue<Typ>::TemplateValue(Typ value) : IValue(), m_value(value) {
 }
 
 template<class Typ> TemplateValue<Typ>::~TemplateValue() {
@@ -63,7 +65,7 @@ template<class Typ> IValue* TemplateValue<Typ>::operator*(const IValue& value)co
 	newValue = new TemplateValue<Typ>(castValue.getValue()*m_value);
 
 	return newValue;
-}
+}*/
 
 /*template<class Typ> IValue* TemplateValue::operator+(const IValue& value)const {
 	TemplateValue<Typ>* newValue;

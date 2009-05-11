@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-04 15:27:55  robot12
+ *   Revision 1.5  2009-05-11 14:08:52  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.4  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -50,9 +53,12 @@ Individual::Individual() {
 	// nothing
 }
 
-Individual::Individual(std::string name, int id) {
+Individual::Individual(std::string name, int id, Individual* p1, Individual* p2) {
 	m_name = name;
 	m_ID = id;
+	m_mutated = false;
+	m_parent1 = p1;
+	m_parent2 = p2;
 }
 
 Individual::~Individual() {

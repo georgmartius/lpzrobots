@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   Revision 1.3  2009-05-11 14:08:53  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.2  2009/05/06 13:28:23  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:57  robot12
@@ -70,7 +73,7 @@ Gen* ValueMutationStrategy::mutate(Gen* gen, GenContext* context, Individual* in
 
 	factor = m_strategy->calcMutationFactor(context->getGene());
 	value = gen->getValue()->operator*(*factor);
-	delete factor;
+	//delete factor;
 
 	return factory->createGen(context,individual,context->getPrototype(),value);
 }

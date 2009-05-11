@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-11 14:08:52  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -101,6 +104,8 @@ public:
 	inline void setFitnessStrategy(IFitnessStrategy* strategy) {m_fitnessStrategy = strategy;}
 
 	double getFitness(const Individual* individual);
+
+	Individual* getBestIndividual(void);
 
 	inline static SingletonGenEngine* getInstance(void) { if(m_engine==0) m_engine = new SingletonGenEngine();return m_engine; }
 	inline static void destroyGenEngine(void) {delete m_engine;m_engine=0;}

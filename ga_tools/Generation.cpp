@@ -30,7 +30,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-07 14:47:47  robot12
+ *   Revision 1.5  2009-05-11 14:08:51  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.4  2009/05/07 14:47:47  robot12
  *   some comments
  *
  *   Revision 1.3  2009/05/04 15:27:55  robot12
@@ -77,13 +80,16 @@ Generation::~Generation() {
 void Generation::crosover(RandGen* random) {
 	int r1,r2;					// 2 random number, which the alg. need
 	Individual* ind;			// help variable to save an individual
+	int count = 0;
+	int active = getCurrentSize();
 
 	while(getCurrentSize()<m_size) {		//create new individual, how long the planed size isn t reached
-		r1 = ((int)random->rand())%getCurrentSize();		// the first random number
+		r1 = ((int)(random->rand()*1000000.0))%active;		// the first random number
 		r2 = r1;											// to come min one time inside the while loop
 		while(r1==r2)
-			r2 = ((int)random->rand())%getCurrentSize();	// the second random number
+			r2 = ((int)(random->rand()*1000000.0))%active;	// the second random number
 
+		count++;
 		ind = SingletonIndividualFactory::getInstance()->createIndividual(m_individual[r1],m_individual[r2],random);	// create new individual with the 2 other individuals which are represented with the 2 random numbers
 		addIndividual(ind);                                 // insert the new individual
 	}

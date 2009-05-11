@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-11 14:08:52  robot12
+ *   patch some bugfix....
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -61,8 +64,8 @@ public:
 	inline static void destroyFactory(void) {delete m_factory; m_factory=NULL;}
 
 	// 2 methodes to create an individual
-	Individual* createIndividual(std::string name)const;													// random
-	Individual* createIndividual(Individual* individual1, Individual* individual2, RandGen* random)const;	// recombinate
+	Individual* createIndividual(std::string name=createName())const;																		// random
+	Individual* createIndividual(Individual* individual1, Individual* individual2, RandGen* random, std::string name=createName())const;	// recombinate
 
 private:
 	static SingletonIndividualFactory* m_factory;
@@ -70,6 +73,8 @@ private:
 
 	SingletonIndividualFactory();
 	virtual ~SingletonIndividualFactory();
+
+	inline static std::string createName(void) {std::string s = "Ind ";char buffer[128];sprintf(buffer,"%i",m_number);s+=buffer;return s;}
 };
 
 #endif /* SINGLETONINDIVIDUALFACTORY_H_ */
