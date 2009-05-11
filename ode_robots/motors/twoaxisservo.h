@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-05-11 15:43:22  martius
+ *   Revision 1.8  2009-05-11 17:04:49  martius
+ *   no velocity limit if maxVel=0
+ *
+ *   Revision 1.7  2009/05/11 15:43:22  martius
  *   new velocity controlling servo motors
  *
  *   Revision 1.6  2009/02/04 09:37:05  martius
@@ -108,8 +111,10 @@ namespace lpzrobots {
       // limit force to 1*KP
       force2 = std::min(pid2.KP, std::max(-pid2.KP,force2));// limit force to 1*KP
       joint->addForces(force1, force2);
-      joint->getPart1()->limitLinearVel(maxVel);
-      joint->getPart2()->limitLinearVel(maxVel);
+      if(maxVel >0 ){
+	joint->getPart1()->limitLinearVel(maxVel);
+	joint->getPart2()->limitLinearVel(maxVel);
+      }
     }
 
     /** returns the position of the servo (joint) of 1. axis in ranges [-1, 1] (scaled by min1, max1)*/
@@ -244,8 +249,10 @@ namespace lpzrobots {
       // limit force to 1*KP
       force2 = std::min(pid2.KP, std::max(-pid2.KP,force2));// limit force to 1*KP
       joint->addForces(force1, force2);
-      joint->getPart1()->limitLinearVel(maxVel);
-      joint->getPart2()->limitLinearVel(maxVel);
+      if(maxVel >0 ){
+	joint->getPart1()->limitLinearVel(maxVel);
+	joint->getPart2()->limitLinearVel(maxVel);
+      }
     }
 
     /** returns the position of the servo (joint) of 1. axis in ranges [-1, 1] 
