@@ -56,7 +56,7 @@ virtual void 	place (const osg::Matrix &pose);//sets the pose of the vehicle; al
 
 virtual bool 	collisionCallback (void *data, dGeomID o1, dGeomID o2);// checks for internal collisions and treats them.; should do nothing, because there should not be any ode-objects belonging to the component, which are not handled elsewhere....and what is with Primitives? are they automaticaly handled?
 
-virtual void 	doInternalStuff (const GlobalData &globalData);// this function is called in each timestep.; maybee usefull
+virtual void 	doInternalStuff (GlobalData &globalData);// this function is called in each timestep.; maybee usefull
 
 // virtual void 	setColor (const Color &col); 	sets color of the robot; not nessecary
 

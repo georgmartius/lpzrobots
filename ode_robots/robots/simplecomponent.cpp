@@ -87,7 +87,7 @@ namespace lpzrobots
 	return false; //a simpleComponent does never handle collisions itself, it uses the standard collisionCallback of the simulation
     }
 
-    void SimpleComponent::doInternalStuff (const GlobalData &globalData)
+    void SimpleComponent::doInternalStuff (GlobalData &globalData)
     {
 
     }
