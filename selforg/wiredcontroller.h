@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-03-25 11:55:32  robot1
+ *   Revision 1.8  2009-05-11 17:08:01  martius
+ *   flushing optimized
+ *
+ *   Revision 1.7  2009/03/25 11:55:32  robot1
  *   changed minor handling of PlotOptions
  *
  *   Revision 1.6  2008/08/12 11:50:00  guettler
@@ -125,8 +128,9 @@ public:
 
   virtual ~PlotOption(){}
 
-  virtual PlotMode getPlotOptionMode() const { return mode; }
-  
+  virtual PlotMode getPlotOptionMode() const { return mode; }  
+  // flushes pipe (depending on mode)
+  virtual void flush(long step); 
   
   /// nice predicate function for finding by mode
   struct matchMode : public std::unary_function<const PlotOption&, bool> {

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-03-31 15:52:33  martius
+ *   Revision 1.11  2009-05-11 17:08:01  martius
+ *   flushing optimized
+ *
+ *   Revision 1.10  2009/03/31 15:52:33  martius
  *   plotted motor values are the ones sent to the robot (after wiring)
  *
  *   Revision 1.9  2009/03/27 06:16:57  guettler
@@ -226,7 +229,7 @@ void WiredController::plot(const sensor* rx, int rsensornumber,
       }else{
 		printInternalParameters((*i).pipe, time, cx, csensornumber, y, motornumber, inspectables);
       }
-//       if(t% ((*i).interval * 10)) fflush((*i).pipe);
+      (*i).flush(t); 
     } // else {
     /*if (!(*i).pipe) { // if pipe is closed
       std::cout << "pipe is closed!" << std::endl;
@@ -374,6 +377,27 @@ void PlotOption::close(){
   }
 }
 
+// flushes pipe (depending on mode)
+void PlotOption::flush(long step){
+  if (pipe) {      
+    switch(mode){
+    case File:
+      if((step % (interval * 1000)) == 0) fflush(pipe);      
+      break;
+    case GuiLogger:
+    case GuiLogger_File:
+    case NeuronViz:
+    case ECBRobotGUI:
+    case SoundMan:
+      fflush(pipe);      
+      break;
+    default:
+      break;
+    } 
+  }
+}
+
+
 void PlotOption::addConfigurable(const Configurable* c){
   configureables.push_back(c);
 }
@@ -516,7 +540,7 @@ void WiredController::plot(const sensor* rx, int rsensornumber,
       }else{
 		printInternalParameters((*i).pipe, time, cx, csensornumber, y, motornumber, inspectables);
       }
-      if(t% ((*i).interval * 10)) fflush((*i).pipe);
+      (*i).flush(t);
     } // else {
       //      if (!(*i).pipe) { // if pipe is closed
       // std::cout << "pipe is closed!" << std::endl;
@@ -659,6 +683,12 @@ void PlotOption::close(){
     pipe=0;
   }
 }
+
+// flushes pipe (depending on mode)
+void PlotOption::flush(long step){
+  if(t% ((*i).interval * 10)) fflush((*i).pipe);
+}
+
 
 void PlotOption::addConfigurable(const Configurable* c){
   configureables.push_back(c);
