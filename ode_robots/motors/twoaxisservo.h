@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-02-04 09:37:05  martius
+ *   Revision 1.7  2009-05-11 15:43:22  martius
+ *   new velocity controlling servo motors
+ *
+ *   Revision 1.6  2009/02/04 09:37:05  martius
  *   fixed offset of 2 in centered servos
  *
  *   Revision 1.5  2008/11/14 11:23:05  martius
@@ -51,6 +54,7 @@
 
 #include "joint.h"
 #include "pid.h"
+#include "angularmotor.h"
 
 namespace lpzrobots {
 
@@ -142,6 +146,7 @@ namespace lpzrobots {
       pid1.KP = power1;
       pid2.KP = power2;
     };
+
     /** returns the power of the servo*/
     virtual double& power1() { 
       return pid1.KP;
@@ -179,6 +184,15 @@ namespace lpzrobots {
       joint->setParam(dParamLoStop2, _min * 1.3);
       joint->setParam(dParamHiStop2, _max * 1.3);
     }
+
+    /** adjusts maximal speed of servo*/
+    virtual void setMaxVel(double maxVel) { 
+      this->maxVel = maxVel;
+    };
+    /** adjusts maximal speed of servo*/
+    virtual double getMaxVel() { 
+      return maxVel;
+    };
 
   
   protected:
@@ -251,6 +265,74 @@ namespace lpzrobots {
     
   };
 
+  
+  /** general servo motor to achieve position control for 2 axis joints
+   *  that that internally controls the velocity of the motor (much more stable)
+   *  with centered zero position
+   */
+  class TwoAxisServoVel : public TwoAxisServoCentered {
+  public:
+    /** min and max values are understood as travel bounds. 
+	The zero position is max-min/2
+    */
+    TwoAxisServoVel(const OdeHandle& odeHandle, 
+		    TwoAxisJoint* joint, double _min1, double _max1, double power1, 
+		    double _min2, double _max2, double power2, 
+		    double damp=0.1, double maxVel=10.0)
+      : TwoAxisServoCentered(joint, _min1, _max1, maxVel/2, _min2, _max2, maxVel/2,
+			     damp, 0, 0),
+	motor(odeHandle, joint, power1, power2) 
+    {
+    }    
+    virtual ~TwoAxisServoVel(){}
+    
+    /** adjusts the power of the servo*/
+    virtual void setPower(double power1, double power2) { 
+      motor.setPower(power1,power2);
+    };
+    /** returns the power of the servo*/
+    virtual double& power() { 
+      dummy = motor.getPower();
+      return dummy;
+    };
+    /** offetCanceling does not exist for this type of servo */
+    virtual double& offsetCanceling() { 
+      dummy=0;
+      return dummy;
+    };
+    
+    /** adjusts maximal speed of servo*/
+    virtual void setMaxVel(double maxVel) { 
+      this->maxVel = maxVel;
+      pid1.KP=maxVel/2;
+      pid2.KP=maxVel/2;
+    };
+    /** adjusts maximal speed of servo*/
+    virtual double getMaxVel() { 
+      return maxVel;      
+    };
+    
+    
+    /** sets the set point of the servo. 
+	Position must be between -1 and 1. It is scaled to fit into min, max, 
+	however 0 is just in the center of min and max
+    */
+    virtual void set(double pos1, double pos2){
+      pos1 = (pos1+1)*(max1-min1)/2 + min1;
+      pid1.setTargetPosition(pos1);  
+      double vel1 = pid1.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());
+      pos2 = (pos2+1)*(max2-min2)/2 + min2;
+      pid2.setTargetPosition(pos2);  
+      double vel2 = pid2.stepNoCutoff(joint->getPosition2(), joint->odeHandle.getTime());
+      motor.set(0, vel1);            
+      motor.set(1, vel2);            
+    }
+
+  protected:
+    AngularMotor2Axis motor;         
+    double dummy;
+    
+  };
 
 
 }

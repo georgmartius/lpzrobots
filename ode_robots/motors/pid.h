@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2007-07-03 13:01:41  martius
+ *   Revision 1.11  2009-05-11 15:43:22  martius
+ *   new velocity controlling servo motors
+ *
+ *   Revision 1.10  2007/07/03 13:01:41  martius
  *   new pid formulas, with stepsize
  *   we use clipped sum for integral term
  *   and clipped derivative value
@@ -96,6 +99,7 @@ namespace lpzrobots {
     double getTargetPosition ();
 		
     double step ( double newsensorval, double time);
+    double stepNoCutoff ( double newsensorval, double time);
   };
 
 }

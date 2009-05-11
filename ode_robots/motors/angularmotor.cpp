@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-05-07 16:45:51  martius
+ *   Revision 1.7  2009-05-11 15:43:22  martius
+ *   new velocity controlling servo motors
+ *
+ *   Revision 1.6  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.5  2007/07/03 13:10:13  martius
@@ -74,6 +77,10 @@ namespace lpzrobots {
     dJointAttach(motor, p1->getBody(), p2->getBody());
   }
   
+  AngularMotor::~AngularMotor (){
+    dJointDestroy(motor);
+  }
+
   /** sets the desired speed of all motor.
       @param velocities double array with desired velocities
       @param len length of the given array
@@ -110,6 +117,10 @@ namespace lpzrobots {
 */
   double AngularMotor::getParam(int parameter){
      return dJointGetAMotorParam(motor, parameter);
+  }
+
+  double AngularMotor::getPower(){
+    return dJointGetAMotorParam(motor, dParamFMax);       
   }
 
   /*******************************************************************************/
@@ -209,6 +220,11 @@ namespace lpzrobots {
   void AngularMotor2Axis::setPower(double power){
     dJointSetAMotorParam(motor, dParamFMax, power);   
     dJointSetAMotorParam(motor, dParamFMax2, power);   
+  }
+
+  void AngularMotor2Axis::setPower(double power1, double power2){
+    dJointSetAMotorParam(motor, dParamFMax, power1);   
+    dJointSetAMotorParam(motor, dParamFMax2, power2);       
   }
 
 

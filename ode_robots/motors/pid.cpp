@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2007-07-03 13:01:21  martius
+ *   Revision 1.16  2009-05-11 15:43:22  martius
+ *   new velocity controlling servo motors
+ *
+ *   Revision 1.15  2007/07/03 13:01:21  martius
  *   new pid formulas,
  *   we use clipped sum for integral term
  *   and clipped derivative value
@@ -124,5 +127,29 @@ namespace lpzrobots {
     lasttime=time;
     return force;
   }
+
+  double PID::stepNoCutoff ( double newsensorval, double time)
+  { 
+    if(lasttime != -1 && time - lasttime > 0 ){
+      last2position = lastposition;
+      lastposition = position;
+      position = newsensorval;
+      double stepsize=time-lasttime;
+      
+      lasterror = error;
+      error = targetposition - position;
+      double derivative = (lasterror - error) / stepsize;      
+      P = error;
+      //    I += (1-alpha) * (error * KI - I); // I+=error * KI 
+      I += stepsize * error * KI;
+      D = -derivative * KD; 
+      force = KP*(P + I + D);     
+    } else {
+      force=0;
+    }
+    lasttime=time;
+    return force;
+  }
+
 
 }

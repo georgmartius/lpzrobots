@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-02-04 09:37:05  martius
+ *   Revision 1.9  2009-05-11 15:43:22  martius
+ *   new velocity controlling servo motors
+ *
+ *   Revision 1.8  2009/02/04 09:37:05  martius
  *   fixed offset of 2 in centered servos
  *
  *   Revision 1.7  2008/11/14 11:23:05  martius
@@ -56,10 +59,11 @@
 
 #include "joint.h"
 #include "pid.h"
+#include "angularmotor.h"
 
 namespace lpzrobots {
 
-  /** general servo motor
+  /** general servo motor to achieve position control 
    */
   class OneAxisServo {
   public:
@@ -93,8 +97,10 @@ namespace lpzrobots {
       double force = pid.step(joint->getPosition1(), joint->odeHandle.getTime());
       force = std::min(pid.KP, std::max(-pid.KP,force));// limit force to 1*KP
       joint->addForce1(force);
-      joint->getPart1()->limitLinearVel(maxVel);
-      joint->getPart2()->limitLinearVel(maxVel);
+      if(maxVel>0){
+	joint->getPart1()->limitLinearVel(maxVel);
+	joint->getPart2()->limitLinearVel(maxVel);
+      }
     }
 
     /** returns the position of the slider in ranges [-1, 1] (scaled by min, max)*/
@@ -119,6 +125,7 @@ namespace lpzrobots {
     virtual void setPower(double power) { 
       pid.KP = power;
     };
+
     /** returns the power of the servo*/
     virtual double& power() { 
       return pid.KP;
@@ -132,6 +139,16 @@ namespace lpzrobots {
     virtual double& offsetCanceling() { 
       return pid.KI;
     };
+    
+    /** adjusts maximal speed of servo*/
+    virtual void setMaxVel(double maxVel) { 
+      this->maxVel = maxVel;
+    };
+    /** adjusts maximal speed of servo*/
+    virtual double getMaxVel() { 
+      return maxVel;
+    };
+
   
   protected:
     OneAxisJoint* joint;
@@ -147,7 +164,7 @@ namespace lpzrobots {
 
 
 
-  /** general servo motor with zero position centered
+  /** general servo motor to achieve position control with zero position centered
    */
   class OneAxisServoCentered : public OneAxisServo {
   public:
@@ -172,8 +189,10 @@ namespace lpzrobots {
       double force = pid.step(joint->getPosition1(), joint->odeHandle.getTime());
       force = std::min(pid.KP, std::max(-pid.KP,force));// limit force to 1*KP
       joint->addForce1(force);
-      joint->getPart1()->limitLinearVel(maxVel);
-      joint->getPart2()->limitLinearVel(maxVel);
+      if(maxVel>0){
+	joint->getPart1()->limitLinearVel(maxVel);
+	joint->getPart2()->limitLinearVel(maxVel);
+      }
     }
     /** returns the position of the slider in ranges [-1, 1] (scaled by min, max, centered)*/
     virtual double get(){
@@ -182,6 +201,72 @@ namespace lpzrobots {
       return 2*(pos-min)/(max-min) - 1;    
     }    
     
+  };
+
+  /** general servo motor to achieve position control 
+   *  that that internally controls the velocity of the motor (much more stable)
+   *  with centered zero position
+   */
+  class OneAxisServoVel : public OneAxisServo {
+  public:
+    /** min and max values are understood as travel bounds. 
+	The zero position is max-min/2
+    */
+    OneAxisServoVel(const OdeHandle& odeHandle, 
+		    OneAxisJoint* joint, double _min, double _max, 
+		    double power, double damp=0.01, double maxVel=20)
+      : OneAxisServo(joint, _min, _max, maxVel/2, damp, 0, 0, false),
+	motor(odeHandle, joint, power) 
+    {            
+    }
+
+    virtual ~OneAxisServoVel(){}
+
+    /** adjusts the power of the servo*/
+    virtual void setPower(double power) { 
+      motor.setPower(power);
+    };
+    /** returns the power of the servo*/
+    virtual double& power() { 
+      dummy = motor.getPower();
+      return dummy;
+    };
+    /** offetCanceling does not exist for this type of servo */
+    virtual double& offsetCanceling() { 
+      dummy=0;
+      return dummy;
+    };
+
+    /** adjusts maximal speed of servo*/
+    virtual void setMaxVel(double maxVel) { 
+      this->maxVel = maxVel;
+      pid.KP=maxVel/2;
+    };
+    /** adjusts maximal speed of servo*/
+    virtual double getMaxVel() { 
+      return maxVel;      
+    };
+
+
+    /** sets the set point of the servo. 
+	Position must be between -1 and 1. It is scaled to fit into min, max, 
+	however 0 is just in the center of min and max
+    */
+    virtual void set(double pos){
+      pos = (pos+1)*(max-min)/2 + min;
+      pid.setTargetPosition(pos);   
+      double vel = pid.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());      
+      motor.set(0, vel);            
+    }
+    
+    /** returns the position of the servo in ranges [-1, 1] (scaled by min, max, centered)*/
+    virtual double get(){
+      double pos =  joint->getPosition1();      
+      return 2*(pos-min)/(max-min) - 1;    
+    }    
+  protected:
+    AngularMotor1Axis motor;         
+    double dummy;
   };
     
 }
