@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2009-03-13 09:19:53  martius
+ *   Revision 1.16  2009-05-11 17:03:07  martius
+ *   minor substance change
+ *
+ *   Revision 1.15  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -164,6 +167,8 @@ namespace lpzrobots {
     sensorno=4;    // number of sensors
     motorno=4;     // number of motors
     segmentsno=5;  // number of segments of the robot
+
+    wheelsubstance.toRubber(50);
   };
 
 
@@ -252,7 +257,7 @@ namespace lpzrobots {
  
     OdeHandle wheelHandle(odeHandle);
     // make the material of the wheels a hard rubber
-    wheelHandle.substance.toRubber(60);
+    wheelHandle.substance = wheelsubstance;
     // create cylinder for main body
     // initialize it with ode-, osghandle and mass
     // rotate and place body (here by 90° around the y-axis)

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-05-07 16:45:52  martius
+ *   Revision 1.10  2009-05-11 17:03:07  martius
+ *   minor substance change
+ *
+ *   Revision 1.9  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.8  2007/11/07 13:21:16  martius
@@ -201,6 +204,8 @@ namespace lpzrobots {
     double max_force;  // maximal force for motors
 
     bool created;      // true if robot was created
+
+    Substance wheelsubstance; // material of wheel
 
     Primitive* object[5];  // 1 capsule, 4 wheels
     Hinge2Joint* joint[4]; // joints between cylinder and each wheel

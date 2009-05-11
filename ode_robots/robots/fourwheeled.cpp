@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-03-13 09:19:53  martius
+ *   Revision 1.7  2009-05-11 17:03:07  martius
+ *   minor substance change
+ *
+ *   Revision 1.6  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -66,6 +69,8 @@ namespace lpzrobots {
     : Nimm4(odeHandle, osgHandle, name, conf.size, conf.force, conf.speed, conf.sphereWheels), conf(conf)
   {
     length=conf.size/2.0; // length of body
+    
+    wheelsubstance=conf.wheelSubstance;
   };
 
 

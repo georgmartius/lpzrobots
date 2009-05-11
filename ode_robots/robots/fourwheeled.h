@@ -22,7 +22,10 @@
  *  A robot with 4 wheels based on nimm4 with IR sensors                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-23 07:17:16  martius
+ *   Revision 1.4  2009-05-11 17:03:07  martius
+ *   minor substance change
+ *
+ *   Revision 1.3  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -58,6 +61,7 @@ namespace lpzrobots {
     double irRangeFront;
     double irRangeBack;
     double irRangeSide;
+    Substance wheelSubstance;
   } FourWheeledConf;
   
   /** Robot is based on nimm4 with 
@@ -87,6 +91,7 @@ namespace lpzrobots {
       conf.irRangeFront=3;
       conf.irRangeSide=2;
       conf.irRangeBack=2;
+      conf.wheelSubstance.toRubber(40);
       return conf;
     }
 
