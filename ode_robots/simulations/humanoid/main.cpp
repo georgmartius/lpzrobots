@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2009-04-23 14:33:20  der
+ *   Revision 1.16  2009-05-11 17:01:20  martius
+ *   new velocity servos implemented
+ *   reorganized parameters, now also neck and elbows are configurable
+ *
+ *   Revision 1.15  2009/04/23 14:33:20  der
  *   Small changes
  *
  *   Revision 1.14  2009/03/30 13:57:40  martius
@@ -169,13 +173,6 @@
 #include <ode_robots/schlangeservo.h>
 #include <ode_robots/schlangeservo2.h>
 #include <selforg/derivativewiring.h>
-
-//***********HAND
-
-
-
-
-//*********HAND
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -342,12 +339,16 @@ public:
      //       fixator = new FixedJoint(trunk, global.environment);
      //       fixator->init(odeHandle, osgHandle);
 
-     SkeletonConf conf = Skeleton::getDefaultConf();
+     //     SkeletonConf conf = Skeleton::getDefaultConf();
+     SkeletonConf conf = Skeleton::getDefaultConfVelServos();
       
      conf.massfactor   = 1;
      conf.relLegmass = 5;
      conf.relFeetmass = 1;
      conf.relArmmass = 1;//1.0;
+
+     conf.useVelocityServos = true;//1.0;
+
 
      conf.hipJointLimit= 2.6; //!
      conf.kneeJointLimit=2.2;//1.911; //!
@@ -386,7 +387,7 @@ public:
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
 		  *osg::Matrix::translate(.2*i+20,.2*i+20,.4/*7*/ +2*i));
-     global.configs.push_back(human);
+     global.configs.push_back(human0);
       
       
      if( fixedInAir){

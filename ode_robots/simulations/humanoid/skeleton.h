@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-01-20 17:29:52  martius
+ *   Revision 1.11  2009-05-11 17:01:20  martius
+ *   new velocity servos implemented
+ *   reorganized parameters, now also neck and elbows are configurable
+ *
+ *   Revision 1.10  2009/01/20 17:29:52  martius
  *   cvs commit
  *
  *   Revision 1.9  2008/11/14 11:23:05  martius
@@ -80,30 +84,47 @@ namespace lpzrobots {
     double size;       ///< scaling factor for robot (height)
     double massfactor; ///< mass factor for all parts
 
+    bool   useVelocityServos; ///< if true the more stable velocity controlling servos are used
+
     double relLegmass; ///< relative overall leg mass
     double relArmmass; ///< relative overall arm mass
     double relFeetmass; ///< relative overall feet mass
     double hipPower;   ///< maximal force for at hip joint motors
     double hipDamping; ///< damping of hip joint servos
+    double hipVelocity; ///< velocity of hip joint servos
     double hipJointLimit; ///< angle range for legs
-    double kneePower;  ///< spring strength in the knees
-    double kneeDamping; ///< damping in the knees
-    double kneeJointLimit; ///< angle range for knees
-    double anklePower;  ///< spring strength in the ankles
-    double ankleDamping; ///< damping in the ankles
-    double ankleJointLimit; ///< angle range for ankles
-    double armPower;   ///< maximal force for at arm (shoulder) joint motors
-    double armDamping; ///< damping of arm ((shoulder)) joint servos
-    double armJointLimit; ///< angle range of arm joint
     double hip2Power;   ///< maximal force for at hip2 (sagital joint axis) joint motors
     double hip2Damping; ///< damping of hip2 joint servos
     double hip2JointLimit; ///< angle range for hip joint in lateral direction
+    double neckPower;  ///< spring strength in the neck
+    double neckDamping; ///< damping in the neck
+    double neckVelocity; ///< velocity in the neck
+    double neckJointLimit; ///< angle range for neck
+    double kneePower;  ///< spring strength in the knees
+    double kneeDamping; ///< damping in the knees
+    double kneeVelocity; ///< velocity in the knees
+    double kneeJointLimit; ///< angle range for knees
+    double anklePower;  ///< spring strength in the ankles
+    double ankleDamping; ///< damping in the ankles
+    double ankleVelocity; ///< velocity in the ankles
+    double ankleJointLimit; ///< angle range for ankles
+    double armPower;   ///< maximal force for at arm (shoulder) joint motors
+    double armDamping; ///< damping of arm ((shoulder)) joint servos
+    double armVelocity; ///< velocity of arm ((shoulder)) joint servos
+    double armJointLimit; ///< angle range of arm joint
+    double elbowPower;   ///< maximal force for at elbow (shoulder) joint motors
+    double elbowDamping; ///< damping of elbow ((shoulder)) joint servos
+    double elbowVelocity; ///< velocity of elbow ((shoulder)) joint servos
+    double elbowJointLimit; ///< angle range of elbow joint
     double pelvisPower;   ///< maximal force for at pelvis joint motor
     double pelvisDamping; ///< damping of pelvis joint servo
+    double pelvisVelocity; ///< velocity of pelvis joint servo
     double pelvisJointLimit; ///< angle range of pelvis joint
     double backPower;   ///< maximal force for at back joint motor
     double backDamping; ///< damping of back joint servo
+    double backVelocity; ///< velocity of back joint servo
     double backJointLimit; ///< angle range of back joint
+
     double powerfactor; ///< scale factor for maximal forces of the servos
     
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
@@ -117,6 +138,7 @@ namespace lpzrobots {
     Color bodyColor;
     Color trunkColor;
     Color handColor;
+
 
     std::string headTexture; // texture of the head
     std::string bodyTexture; // texture of the body
@@ -157,37 +179,56 @@ namespace lpzrobots {
       c.relFeetmass = 100;// .1; unused
       c.relArmmass = 10;// 0.3; unused
 
+      c.useVelocityServos = false;
+      c.powerfactor=1.0;
+
       c.hipPower=50;
-      c.hipDamping=0.4;
+      c.hipDamping= 0.4;
+      c.hipVelocity=20;
+
       c.hip2Power=50;
       c.hip2Damping=0.4;
-      c.hip2JointLimit=0.05;
-      c.powerfactor=1.0;
+
+      c.neckPower=1;
+      c.neckDamping=0.01;
+      c.neckVelocity=5;
 
       c.kneePower=40;
       c.kneeDamping=0.2;
+      c.kneeVelocity=20;
 
       c.anklePower=10;
       c.ankleDamping=0.05;
+      c.ankleVelocity=20;
 
       c.armPower=20;
       c.armDamping=0.1;
+      c.armVelocity=20;
+
+      c.elbowPower=20;
+      c.elbowDamping=0.1;
+      c.elbowVelocity=20;
 
       c.pelvisPower=200;
       c.pelvisDamping=0.5;
+      c.pelvisVelocity=20;
 
       c.backPower=50;
       c.backDamping=0.5;
+      c.backVelocity=20;
 
       c.hipJointLimit = M_PI/2; // +- 90 degree
+      c.hip2JointLimit=0.05;
       c.kneeJointLimit = M_PI/4; // +- 45 degree
       c.ankleJointLimit = M_PI/4; // +- 45 degree
 
       c.armJointLimit = M_PI/4; // +- 45 degree
+      c.elbowJointLimit = M_PI/1.8;
 
       c.hip2JointLimit = M_PI/30; // +- 6 degree
       c.pelvisJointLimit = M_PI/30; // +- 6 degree
 
+      c.neckJointLimit = M_PI/3;
       c.backJointLimit = M_PI/4; // +- 45 degree (half of it to the back)
 
       c.onlyPrimaryFunctions=false;
@@ -206,6 +247,24 @@ namespace lpzrobots {
       c.handColor=Color(247.0/255, 182.0/255,52.0/255, 1.0f);
       return c;
     }
+
+    static SkeletonConf getDefaultConfVelServos(){
+      SkeletonConf c = getDefaultConf();
+
+      c.useVelocityServos = true;
+      c.hipDamping= 0.01;
+      c.hip2Damping=0.01;
+      c.neckDamping=0.01;
+      c.kneeDamping=0.01;
+      c.ankleDamping=0.01;
+      c.armDamping=0.01;
+      c.elbowDamping=0.01;
+      c.pelvisDamping=0.01;
+      c.backDamping=0.01;
+      c.backVelocity=5;
+      return c;
+    }
+
 
     /**
      * updates the OSG nodes of the vehicle
@@ -252,11 +311,6 @@ namespace lpzrobots {
     virtual void doInternalStuff(GlobalData& globalData);
 
     
-    /** The list of all parameters with there value as allocated lists.
-     */
-    virtual paramlist getParamList() const;
-    
-    virtual paramval getParam(const paramkey& key) const;;
     
     virtual bool setParam(const paramkey& key, paramval val);
 
