@@ -32,7 +32,11 @@
  *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-05-07 14:47:47  robot12
+ *   Revision 1.6  2009-05-12 13:29:25  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.5  2009/05/07 14:47:47  robot12
  *   some comments
  *
  *   Revision 1.4  2009/05/04 15:27:56  robot12
@@ -131,6 +135,14 @@ public:
 	 * @return (GenPrototyp*) The prototype
 	 */
 	GenPrototype* getPrototype(void)const;
+
+	/**
+	 *  [const]
+	 *  This function returns a string representation of this Gen.
+	 *
+	 *  @return (string) The Gen in string - Form
+	 */
+	std::string toString(bool onlyValue = true)const;
 
 protected:
 	/**

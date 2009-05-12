@@ -25,7 +25,11 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:22  robot12
+ *   Revision 1.3  2009-05-12 13:29:25  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.2  2009/05/06 13:28:22  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:57  robot12
@@ -49,6 +53,8 @@
 #define IVALUE_H_
 
 
+#include <string>
+
 #include <selforg/inspectable.h>
 
 /**
@@ -61,7 +67,7 @@ public:
   /**
    * Beschreibung des Konstruktors
    */
-  IValue();
+  IValue(std::string name);
 
 
   /**
@@ -70,6 +76,11 @@ public:
   virtual ~IValue();
 
   virtual IValue* operator*(const IValue&)const = 0;
+
+  virtual operator std::string(void)const;
+
+protected:
+	std::string m_name;
 };
 
 #endif /* IVALUE_H_ */

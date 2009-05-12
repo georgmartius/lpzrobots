@@ -25,7 +25,11 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-11 14:08:52  robot12
+ *   Revision 1.3  2009-05-12 13:29:26  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.2  2009/05/11 14:08:52  robot12
  *   patch some bugfix....
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -60,6 +64,7 @@
 #define SINGLETONGENENGINE_H_
 
 #include <vector>
+#include <string>
 #include <selforg/randomgenerator.h>
 
 class Gen;
@@ -106,6 +111,8 @@ public:
 	double getFitness(const Individual* individual);
 
 	Individual* getBestIndividual(void);
+	std::string getIndividualRoot(bool withMutation=true)const;
+	std::string getAllIndividualAsString(void)const;
 
 	inline static SingletonGenEngine* getInstance(void) { if(m_engine==0) m_engine = new SingletonGenEngine();return m_engine; }
 	inline static void destroyGenEngine(void) {delete m_engine;m_engine=0;}

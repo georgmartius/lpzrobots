@@ -25,7 +25,11 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-05-11 14:08:51  robot12
+ *   Revision 1.6  2009-05-12 13:29:25  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.5  2009/05/11 14:08:51  robot12
  *   patch some bugfix....
  *
  *   Revision 1.4  2009/05/04 15:27:56  robot12
@@ -80,6 +84,9 @@ public:
 	inline const Individual* getParent1(void)const {return m_parent1;}
 	inline const Individual* getParent2(void)const {return m_parent2;}
 	inline bool isMutated(void)const {return m_mutated;}
+
+	std::string IndividualToString(void)const;
+	std::string RootToString(bool withMutation=true)const;
 
 protected:
 	std::string m_name;

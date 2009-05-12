@@ -25,7 +25,11 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:58  robot12
+ *   Revision 1.2  2009-05-12 13:29:24  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.1  2009/05/04 15:27:58  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -38,10 +42,14 @@
  ***************************************************************************/
 #include "IValue.h"
 
-IValue::IValue() {
+IValue::IValue(std::string name) : m_name(name) {
 	// nothing
 }
 
 IValue::~IValue() {
 	// nothing
+}
+
+IValue::operator std::string(void)const {
+	return "";
 }

@@ -30,7 +30,11 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-05-11 14:08:51  robot12
+ *   Revision 1.6  2009-05-12 13:29:25  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.5  2009/05/11 14:08:51  robot12
  *   patch some bugfix....
  *
  *   Revision 1.4  2009/05/07 14:47:47  robot12
@@ -97,4 +101,14 @@ void Generation::crosover(RandGen* random) {
 
 void Generation::addIndividual(Individual* individual) {
 	m_individual.push_back(individual);
+}
+
+std::string Generation::getAllIndividualAsString(void)const {
+	std::string result = "";
+
+	for(std::vector<Individual*>::const_iterator iter=m_individual.begin();iter!=m_individual.end();iter++) {
+		result += (*iter)->IndividualToString() + "\n";
+	}
+
+	return result;
 }

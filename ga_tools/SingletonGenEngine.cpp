@@ -25,7 +25,11 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   Revision 1.4  2009-05-12 13:29:25  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.3  2009/05/11 14:08:51  robot12
  *   patch some bugfix....
  *
  *   Revision 1.2  2009/05/07 14:47:47  robot12
@@ -219,6 +223,26 @@ Individual* SingletonGenEngine::getBestIndividual(void) {
 			value = test;
 			result = storage[x];
 		}
+	}
+
+	return result;
+}
+
+std::string SingletonGenEngine::getIndividualRoot(bool withMutation)const {
+	std::string result="";
+
+	for(std::vector<Individual*>::const_iterator iter=m_individual.begin();iter!=m_individual.end();iter++) {
+		result += (*iter)->RootToString(withMutation) + "\n";
+	}
+
+	return result;
+}
+
+std::string SingletonGenEngine::getAllIndividualAsString(void)const {
+	std::string result = "";
+
+	for(std::vector<Individual*>::const_iterator iter=m_individual.begin();iter!=m_individual.end();iter++) {
+		result += (*iter)->IndividualToString() + "\n";
 	}
 
 	return result;

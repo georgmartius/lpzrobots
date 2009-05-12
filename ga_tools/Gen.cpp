@@ -32,7 +32,11 @@
  *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-05-07 14:47:47  robot12
+ *   Revision 1.6  2009-05-12 13:29:25  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.5  2009/05/07 14:47:47  robot12
  *   some comments
  *
  *   Revision 1.4  2009/05/04 15:27:55  robot12
@@ -68,4 +72,20 @@ std::string Gen::getName(void)const {
 
 GenPrototype* Gen::getPrototype(void)const {
 	return m_prototype;
+}
+
+std::string Gen::toString(bool onlyValue)const {
+	std::string result = "";
+
+	if(!onlyValue) {
+		char buffer[128];
+
+		sprintf(buffer, "%i", m_ID);
+
+		result += "\"" + getName() + "\",\t" + buffer + ",\t";
+	}
+
+	result += (std::string)(*m_value);
+
+	return result;
 }

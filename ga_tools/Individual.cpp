@@ -25,7 +25,11 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-05-11 14:08:52  robot12
+ *   Revision 1.6  2009-05-12 13:29:26  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.5  2009/05/11 14:08:52  robot12
  *   patch some bugfix....
  *
  *   Revision 1.4  2009/05/04 15:27:55  robot12
@@ -75,4 +79,40 @@ void Individual::removeGen(Gen* gen) {
 }
 void Individual::removeGen(int x) {
 	if(x<getSize())m_gene.erase(m_gene.begin()+x);
+}
+
+std::string Individual::IndividualToString(void)const {
+	std::string result = "\"" + m_name + "\"";
+
+	for(std::vector<Gen*>::const_iterator iter = m_gene.begin();iter!=m_gene.end();iter++) {
+		result += ",\t" + (*iter)->toString();
+	}
+
+	char buffer[128];
+	sprintf(buffer,"%lf",getFitness());
+	result += "\t==>\t";
+	result += buffer;
+
+	return result;
+}
+
+std::string Individual::RootToString(bool withMutation)const {
+	std::string result = "";
+
+	if(withMutation) {
+		if(m_mutated) {
+			result += "m,\t";
+		}
+		else {
+			result += " ,\t";
+		}
+	}
+	result += "\"" + m_name + "\"";
+
+	if(m_parent1!=0)
+		result += ",\t\"" + m_parent1->getName() + "\"";
+	if(m_parent2!=0)
+		result += ",\t\"" + m_parent2->getName() + "\"";
+
+	return result;
 }

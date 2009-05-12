@@ -30,7 +30,11 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-07 14:47:47  robot12
+ *   Revision 1.5  2009-05-12 13:29:25  robot12
+ *   some new function
+ *   -> toString methodes
+ *
+ *   Revision 1.4  2009/05/07 14:47:47  robot12
  *   some comments
  *
  *   Revision 1.3  2009/05/04 15:27:55  robot12
@@ -62,6 +66,7 @@
 #define GENERATION_H_
 
 // standard includes
+#include <string>
 #include <vector>
 #include <selforg/randomgenerator.h>
 
@@ -159,6 +164,8 @@ public:
 	 * This function makes an crossOver whit the existing individuals to become from the current size the planed size.
 	 */
 	void crosover(RandGen* random);
+
+	std::string getAllIndividualAsString(void)const;
 
 protected:
 	/**
