@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-11 14:08:53  robot12
+ *   Revision 1.4  2009-05-14 15:29:56  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.3  2009/05/11 14:08:53  robot12
  *   patch some bugfix....
  *
  *   Revision 1.2  2009/05/06 13:28:23  robot12
@@ -55,7 +58,7 @@ struct SfitnessEliteStrategyStruct {
 	double fitness;
 	Individual* ind;
 
-	inline bool operator<(SfitnessEliteStrategyStruct other) {return fitness>other.fitness;}
+	inline bool operator<(SfitnessEliteStrategyStruct other) {return fitness*fitness>other.fitness*other.fitness;}
 };
 
 EliteSelectStrategy::EliteSelectStrategy() {

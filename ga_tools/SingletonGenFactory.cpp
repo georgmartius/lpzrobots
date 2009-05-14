@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-05-14 15:29:54  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -77,7 +80,7 @@ Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual,
 
 Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototype* prototype, GenContext* oldContext, Individual* oldIndividual, Gen* oldGen, bool mutate)const {
 	if(mutate) {
-		return prototype->mutate(oldGen,oldContext,oldIndividual);
+		return prototype->mutate(context, individual, oldGen, oldContext);
 	}
 
 

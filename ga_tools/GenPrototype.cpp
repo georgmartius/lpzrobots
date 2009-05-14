@@ -30,7 +30,10 @@
  *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-07 14:47:46  robot12
+ *   Revision 1.3  2009-05-14 15:29:54  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.2  2009/05/07 14:47:46  robot12
  *   some comments
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -86,8 +89,8 @@ GenContext* GenPrototype::getContext(Generation* generation) {
 	return m_context[generation];
 }
 
-Gen* GenPrototype::mutate(Gen* gen, GenContext* context, Individual* individual)const {
-	return m_mutationStrategy->mutate(gen, context, individual,SingletonGenFactory::getInstance());
+Gen* GenPrototype::mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext)const {
+	return m_mutationStrategy->mutate(context, individual, oldGen, oldContext, SingletonGenFactory::getInstance());
 }
 
 int GenPrototype::getMutationProbability(void)const {

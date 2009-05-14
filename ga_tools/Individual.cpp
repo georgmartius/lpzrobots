@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-05-12 13:29:26  robot12
+ *   Revision 1.7  2009-05-14 15:29:56  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.6  2009/05/12 13:29:26  robot12
  *   some new function
  *   -> toString methodes
  *
@@ -82,16 +85,18 @@ void Individual::removeGen(int x) {
 }
 
 std::string Individual::IndividualToString(void)const {
-	std::string result = "\"" + m_name + "\"";
+	std::string result = "";
 
 	for(std::vector<Gen*>::const_iterator iter = m_gene.begin();iter!=m_gene.end();iter++) {
 		result += ",\t" + (*iter)->toString();
 	}
 
 	char buffer[128];
-	sprintf(buffer,"%lf",getFitness());
-	result += "\t==>\t";
+	sprintf(buffer,"% .12lf",getFitness());
+	result += "\t,\t";
 	result += buffer;
+
+	//result += "\ttitle \"" + m_name + "\"\\";
 
 	return result;
 }

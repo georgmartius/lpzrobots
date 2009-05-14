@@ -30,7 +30,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-05-12 13:29:25  robot12
+ *   Revision 1.7  2009-05-14 15:29:54  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.6  2009/05/12 13:29:25  robot12
  *   some new function
  *   -> toString methodes
  *
@@ -108,6 +111,16 @@ std::string Generation::getAllIndividualAsString(void)const {
 
 	for(std::vector<Individual*>::const_iterator iter=m_individual.begin();iter!=m_individual.end();iter++) {
 		result += (*iter)->IndividualToString() + "\n";
+	}
+
+	return result;
+}
+
+std::vector<double>* Generation::getAllFitness(void)const {
+	std::vector<double>* result = new std::vector<double>();
+
+	for(std::vector<Individual*>::const_iterator iter = m_individual.begin(); iter != m_individual.end(); iter++) {
+		result->push_back((*iter)->getFitness());
 	}
 
 	return result;

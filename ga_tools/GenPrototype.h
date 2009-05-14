@@ -30,7 +30,10 @@
  *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-07 14:47:47  robot12
+ *   Revision 1.3  2009-05-14 15:29:56  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.2  2009/05/07 14:47:47  robot12
  *   some comments
  *
  *   Revision 1.1  2009/05/04 15:27:56  robot12
@@ -129,13 +132,14 @@ public:
 	 * [const]
 	 * This function mutate the given gen.
 	 *
-	 * @param gen (Gen*) the gen which should be mutate
 	 * @param context (GenContext*) param is needed by the mutationStrategy
 	 * @param individual (Individual*) param is needed by the mutationStrategy
+	 * @param oldGen (Gen*) the gen which should be mutate
+	 * @param oldContext (GenContext*) param is needed by the mutationStrategy
 	 *
 	 * @return (Gen*) The new mutated gen
 	 */
-	Gen* mutate(Gen* gen, GenContext* context, Individual* individual)const;
+	Gen* mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext)const;
 
 	/**
 	 * [const]

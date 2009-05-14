@@ -30,7 +30,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-05-12 13:29:25  robot12
+ *   Revision 1.6  2009-05-14 15:29:54  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.5  2009/05/12 13:29:25  robot12
  *   some new function
  *   -> toString methodes
  *
@@ -162,10 +165,24 @@ public:
 
 	/**
 	 * This function makes an crossOver whit the existing individuals to become from the current size the planed size.
+	 *
+	 * @param random (RandGen*) a pseudo number generator.
 	 */
 	void crosover(RandGen* random);
 
+	/**
+	 * returns a string which represent all individual in this generation.
+	 *
+	 * @return (string) the string
+	 */
 	std::string getAllIndividualAsString(void)const;
+
+	/**
+	 * returns all fitness values from the individuals.
+	 *
+	 * @return (vector<double> the fitness values.
+	 */
+	std::vector<double>* getAllFitness(void)const;
 
 protected:
 	/**

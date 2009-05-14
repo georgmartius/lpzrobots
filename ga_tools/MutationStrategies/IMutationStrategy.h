@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:57  robot12
+ *   Revision 1.2  2009-05-14 15:29:56  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.1  2009/05/04 15:27:57  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -55,7 +58,7 @@ public:
 	IMutationStrategy();
 	virtual ~IMutationStrategy();
 
-	virtual Gen* mutate(Gen* gen, GenContext* context, Individual* individual, SingletonGenFactory* factory) = 0;
+	virtual Gen* mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext, SingletonGenFactory* factory) = 0;
 	virtual int getMutationProbability(void) = 0;
 };
 

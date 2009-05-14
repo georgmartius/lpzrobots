@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-11 14:08:52  robot12
+ *   Revision 1.3  2009-05-14 15:29:56  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.2  2009/05/11 14:08:52  robot12
  *   patch some bugfix....
  *
  *   Revision 1.1  2009/05/04 15:27:56  robot12
@@ -68,6 +71,7 @@ void TournamentSelectStrategy::select(Generation* oldGeneration, Generation* new
 	int r1,r2;
 	std::map<int,Individual*> storage;
 	std::map<int,Individual*>::iterator iter;
+	double f1,f2;
 
 	for(int x=0; x<live && x<size; x++) {
 		double ddd = m_random->rand();
@@ -81,7 +85,13 @@ void TournamentSelectStrategy::select(Generation* oldGeneration, Generation* new
 		ind1 = oldGeneration->getIndividual(r1);
 		ind2 = oldGeneration->getIndividual(r2);
 
-		if(ind1->getFitness()<ind2->getFitness()) {
+		f1 = ind1->getFitness();
+		f2 = ind2->getFitness();
+
+		f1*=f1;		// abs
+		f2*=f2;		// abs
+
+		if(f1<f2) {
 			if(storage[r1]==0)
 				storage[r1]=ind1;
 			else

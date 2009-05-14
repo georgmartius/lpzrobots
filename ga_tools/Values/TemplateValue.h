@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-12 13:29:24  robot12
+ *   Revision 1.5  2009-05-14 15:29:54  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.4  2009/05/12 13:29:24  robot12
  *   some new function
  *   -> toString methodes
  *
@@ -58,7 +61,7 @@
 
 inline std::string doubleToString(double value) {
 	char buffer[128];
-	sprintf(buffer,"%lf",value);
+	sprintf(buffer,"% .12lf",value);
 	return buffer;
 }
 

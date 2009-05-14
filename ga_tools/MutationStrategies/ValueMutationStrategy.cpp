@@ -25,7 +25,10 @@
  *   Informative Beschreibung der Klasse                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-11 14:08:53  robot12
+ *   Revision 1.4  2009-05-14 15:29:56  robot12
+ *   bugfix: mutation change the oldGen, not the new!!! now fixed
+ *
+ *   Revision 1.3  2009/05/11 14:08:53  robot12
  *   patch some bugfix....
  *
  *   Revision 1.2  2009/05/06 13:28:23  robot12
@@ -67,12 +70,12 @@ ValueMutationStrategy::~ValueMutationStrategy() {
 	// nothing
 }
 
-Gen* ValueMutationStrategy::mutate(Gen* gen, GenContext* context, Individual* individual, SingletonGenFactory* factory) {
+Gen* ValueMutationStrategy::mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext, SingletonGenFactory* factory) {
 	IValue* factor;
 	IValue* value;
 
-	factor = m_strategy->calcMutationFactor(context->getGene());
-	value = gen->getValue()->operator*(*factor);
+	factor = m_strategy->calcMutationFactor(oldContext->getGene());
+	value = oldGen->getValue()->operator*(*factor);
 	//delete factor;
 
 	return factory->createGen(context,individual,context->getPrototype(),value);
