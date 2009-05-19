@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-03-27 06:16:57  guettler
+ *   Revision 1.2  2009-05-19 11:39:45  robot12
+ *   add to statistictools some template analysation methodes (needed for boxplots)
+ *
+ *   Revision 1.1  2009/03/27 06:16:57  guettler
  *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
  *
  *   Revision 1.10  2008/04/29 09:56:21  guettler
@@ -80,16 +83,17 @@
 #ifndef _STATISTIC_TOOLS_H
 #define _STATISTIC_TOOLS_H
 
-#include "inspectable.h"
-#include "callbackable.h"
-#include "measuremodes.h"
-
-
 // begin forward declarations
 class AbstractMeasure;
 class StatisticMeasure;
 class ComplexMeasure;
 // end forward declarations
+
+#include "inspectable.h"
+#include "callbackable.h"
+#include "measuremodes.h"
+#include "analysationmodes.h"
+#include "templatevalueanalysation.h"
 
 class StatisticTools : public Inspectable, public Callbackable {
 
@@ -180,6 +184,68 @@ public:
 	 * class is for callback registered
 	 */
 	virtual void doOnCallBack();
+
+	/**
+	 * use this function if you want more than one value analysed
+	 * class type must implement following operators:
+	 *
+	 * @param values (vector<type>) values for the analysation
+	 * @return (TemplateValueAnalysation) the analysation context
+	 */
+	template
+	<class type,
+	type zero(void),
+	bool lower(const type&, const type&),
+	bool higher(const type&, const type&),
+	type doubleDiv(const type&, const double&),
+	type doubleMul(const type&, const double&),
+	type add(const type&, const type&),
+	type sub(const type&, const type&),
+	type mul(const type&, const type&),
+	type div(const type&, const type&)>
+	static ANALYSATION_CONTEXT* getAnalysation(std::vector<type> values);
+
+	/**
+	 * class type must implement following operators:
+	 *
+	 * @param tvAnalysation (TemplateValueAnalysation) the analysation context
+	 * @param mode (AnalysationMode) what value you want
+	 * @param feature (unsigned int) special param. for mode
+	 * @return (type) the value you want
+	 */
+	template
+	<class type,
+	type zero(void),
+	bool lower(const type&, const type&),
+	bool higher(const type&, const type&),
+	type doubleDiv(const type&, const double&),
+	type doubleMul(const type&, const double&),
+	type add(const type&, const type&),
+	type sub(const type&, const type&),
+	type mul(const type&, const type&),
+	type div(const type&, const type&)>
+	static type getAnalisation(ANALYSATION_CONTEXT* tvAnalysation, AnalysationMode mode, unsigned int feature);
+
+	/**
+	 * class type must implement following operators:
+	 *
+	 * @param values (vector<type>) values for the analysation
+	 * @param mode (AnalysationMode) what value you want
+	 * @param feature (unsigned int) special param. for mode
+	 * @return (type) the value you want
+	 */
+	template
+	<class type,
+	type zero(void),
+	bool lower(const type&, const type&),
+	bool higher(const type&, const type&),
+	type doubleDiv(const type&, const double&),
+	type doubleMul(const type&, const double&),
+	type add(const type&, const type&),
+	type sub(const type&, const type&),
+	type mul(const type&, const type&),
+	type div(const type&, const type&)>
+	static type getAnalisation(std::vector<type> values, AnalysationMode mode, unsigned int feature);
 
 
 protected:

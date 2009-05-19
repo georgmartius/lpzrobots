@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-03-27 06:16:57  guettler
+ *   Revision 1.2  2009-05-19 11:39:45  robot12
+ *   add to statistictools some template analysation methodes (needed for boxplots)
+ *
+ *   Revision 1.1  2009/03/27 06:16:57  guettler
  *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
  *
  *   Revision 1.10  2008/05/01 22:03:56  martius
@@ -136,4 +139,75 @@ double& StatisticTools::addMeasureList(std::list<StatisticMeasure*> measureList)
 
 void StatisticTools::beginMeasureAt(long step) {
     this->beginMeasureCounter=step;
+}
+
+
+
+template
+<class type,
+type zero(void),
+bool lower(const type&, const type&),
+bool higher(const type&, const type&),
+type doubleDiv(const type&, const double&),
+type doubleMul(const type&, const double&),
+type add(const type&, const type&),
+type sub(const type&, const type&),
+type mul(const type&, const type&),
+type div(const type&, const type&)>
+ANALYSATION_CONTEXT* StatisticTools::getAnalysation(std::vector<type> values) {
+	return new ANALYSATION_CONTEXT(values);
+}
+
+template
+<class type,
+type zero(void),
+bool lower(const type&, const type&),
+bool higher(const type&, const type&),
+type doubleDiv(const type&, const double&),
+type doubleMul(const type&, const double&),
+type add(const type&, const type&),
+type sub(const type&, const type&),
+type mul(const type&, const type&),
+type div(const type&, const type&)>
+type StatisticTools::getAnalisation(ANALYSATION_CONTEXT* tvAnalysation,	AnalysationMode mode, unsigned int feature) {
+	switch(mode){
+	case AM_AVG:
+		return tvAnalysation->getAvg();
+	case AM_MIN:
+		return tvAnalysation->getMin();
+	case AM_MAX:
+		return tvAnalysation->getMax();
+	case AM_RANGE:
+		return tvAnalysation->getRange();
+	case AM_IQR:
+		return tvAnalysation->getIQR();
+	case AM_MED:
+		return tvAnalysation->getMedian();
+	case AM_WHISKER:
+		return tvAnalysation->getWhisker(1.5);
+	case AM_Q1:
+		return tvAnalysation->getQuartile1();
+	case AM_Q3:
+		return tvAnalysation->getQuartile3();
+	case AM_NUM_EXT:
+		return (type)tvAnalysation->getNumExtrems(1.5);
+	case AM_EXT:
+		return tvAnalysation->getExtrem(1.5,feature);
+	}
+}
+
+template
+<class type,
+type zero(void),
+bool lower(const type&, const type&),
+bool higher(const type&, const type&),
+type doubleDiv(const type&, const double&),
+type doubleMul(const type&, const double&),
+type add(const type&, const type&),
+type sub(const type&, const type&),
+type mul(const type&, const type&),
+type div(const type&, const type&)>
+type StatisticTools::getAnalisation(std::vector<type> values, AnalysationMode mode, unsigned int feature) {
+	ANALYSATION_CONTEXT* context = getAnalysation(values);
+	return getAnalysation(context,mode,feature);
 }
