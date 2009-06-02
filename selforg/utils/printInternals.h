@@ -4,25 +4,30 @@
 #include "inspectable.h"
 #include "types.h"
 
-/** prints the names of the sensor and motor channels 
+/** prints the names of the sensor and motor channels
     and the names of the internal parameters of all inspectable object to the given file (stream)
     (Headline)
 */
-void printInternalParameterNames(FILE* f, 
-				int sensornumber, int motornumber, 
+void printInternalParameterNames(FILE* f,
+				int sensornumber, int motornumber,
 				std::list<const Inspectable*> inspectables);
+
+
+void printInspectables(FILE* f, std::list<const Inspectable*> inspectables);
+
+void printInspectableNames(FILE* f, std::list<const Inspectable*> inspectables);
 
 /** prints the values of the motors and sensors
     and the internal parameters of the inspectable objects to a file or stream
 */
 void printInternalParameters(FILE* f, double time,
-			     const sensor* x, int sensornumber, 
-			     const motor* y,  int motornumber, 
+			     const sensor* x, int sensornumber,
+			     const motor* y,  int motornumber,
 			     std::list<const Inspectable*> inspectables);
 
 /** prints a network description of the structure given by the inspectable object.
     The network description syntax is as follow
-    \code 
+    \code
     #N neural_net NETWORKNAME
     #N layer LAYERNAME1 RANK?
     #N neuron N0 BIASN0?

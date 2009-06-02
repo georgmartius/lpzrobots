@@ -50,6 +50,19 @@ void printNetworkDescription(FILE* f, const string& name, const Inspectable* ins
 
 }
 
+void printInspectableNames(FILE* f, list<const Inspectable*> inspectables) {
+  FOREACHC(list<const Inspectable*>, inspectables, insp){
+    if(*insp){
+      // then the internal parameters
+      list<Inspectable::iparamkey> l = (*insp)->getInternalParamNames();
+      for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
+	fprintf(f, " %s", (*i).c_str());
+      }
+    }
+  }
+  fprintf(f,"\n"); // terminate line
+}
+
 void printInternalParameterNames(FILE* f,
 				int sensornumber, int motornumber,
 				list<const Inspectable*> inspectables) {
@@ -60,12 +73,18 @@ void printInternalParameterNames(FILE* f,
   for(int i = 0; i < motornumber; i++){
     fprintf(f, " y[%i]", i);
   }
+  printInspectableNames(f,inspectables);
+}
+
+void printInspectables(FILE* f, std::list<const Inspectable*> inspectables)
+{
+  // internal parameters ( we allocate one place more to be able to realise when the number raises)
+  list<Inspectable::iparamval> l;
   FOREACHC(list<const Inspectable*>, inspectables, insp){
     if(*insp){
-      // then the internal parameters
-      list<Inspectable::iparamkey> l = (*insp)->getInternalParamNames();
-      for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
-	fprintf(f, " %s", (*i).c_str());
+      l = (*insp)->getInternalParams();
+      FOREACHC(list<Inspectable::iparamval>, l, i ){
+        fprintf(f, " %f", (*i));
       }
     }
   }
@@ -83,16 +102,5 @@ void printInternalParameters(FILE* f, double time,
   for(int i = 0; i < motornumber; i++){
     fprintf(f, " %f", y[i]);
   }
-  // internal parameters ( we allocate one place more to be able to realise when the number raises)
-  list<Inspectable::iparamval> l;
-  FOREACHC(list<const Inspectable*>, inspectables, insp){
-    if(*insp){
-      l = (*insp)->getInternalParams();
-      FOREACHC(list<Inspectable::iparamval>, l, i ){
-	fprintf(f, " %f", (*i));
-      }
-    }
-  }
-  fprintf(f,"\n"); // terminate line
-
+  printInspectables(f,inspectables);
 }
