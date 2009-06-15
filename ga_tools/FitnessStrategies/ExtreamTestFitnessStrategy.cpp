@@ -22,32 +22,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   This class is a interface for the fitness strategy. It is used from   *
- *   the class individual an is for individual strategy design pattern.    *
+ *   This is a example implementation for a fitness strategy. It use a     *
+ *   other fitness strategy to calculate a value. If the value is lower    *
+ *   than 10 it will give value*value back. Else it will be 100.           *
+ *   So the most values are by 100 and of one plane. The gen. Alg lose by  *
+ *   this strategy his information how to optimize the individual. Because *
+ *   all individual are equal good. Only small part of it are better.      *
+ *   This is the worst case for a gen. Alg.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-06-15 13:58:37  robot12
+ *   Revision 1.1  2009-06-15 13:58:36  robot12
  *   3 new fitness strategys and IFitnessStrategy and SumFitnessStragegy with comments.
  *
- *   Revision 1.1  2009/05/04 15:27:56  robot12
- *   rename of some files and moving files to other positions
- *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
- *   Revision 1.2  2009/04/28 13:23:55  robot12
- *   some implements... Part2
- *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
-#include "IFitnessStrategy.h"
+#include "ExtreamTestFitnessStrategy.h"
 
-IFitnessStrategy::IFitnessStrategy() {
+ExtreamTestFitnessStrategy::ExtreamTestFitnessStrategy() {
 	// nothing
 }
 
-IFitnessStrategy::~IFitnessStrategy() {
+ExtreamTestFitnessStrategy::ExtreamTestFitnessStrategy(IFitnessStrategy* fitness) : m_strategy(fitness){
+	//m_strategy = fitness;
 	// nothing
+}
+
+ExtreamTestFitnessStrategy::~ExtreamTestFitnessStrategy() {
+	// clean
+	// do not forget to delete the other fitness strategy
+	delete m_strategy;
+}
+
+double ExtreamTestFitnessStrategy::getFitness(const Individual* individual) {
+	// first use the other fitness strategy to calculate the base value!
+	double value = m_strategy->getFitness(individual);
+
+	//if it lower than 10 -> return value² else 100
+	if(value<10.0 && value>-10.0) {
+		return value*value;
+	}
+	else {
+		return 100.0;
+	}
 }

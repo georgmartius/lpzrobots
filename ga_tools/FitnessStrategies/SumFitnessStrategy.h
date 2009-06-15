@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This is a example implementation for IFitnessStrategy. It only calc.  *
+ *   the Sum of all double gens of the individual.                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   Revision 1.3  2009-06-15 13:58:36  robot12
+ *   3 new fitness strategys and IFitnessStrategy and SumFitnessStragegy with comments.
+ *
+ *   Revision 1.2  2009/05/06 13:28:23  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:56  robot12
@@ -45,15 +49,32 @@
 #ifndef SUMFITNESSSTRATEGY_H_
 #define SUMFITNESSSTRATEGY_H_
 
+//forward declaration
 class Individual;
 
+//ga_tools includes
 #include "IFitnessStrategy.h"
 
+/**
+ * Test implementation.
+ */
 class SumFitnessStrategy : public IFitnessStrategy {
 public:
+	/**
+	 * default constructor
+	 */
 	SumFitnessStrategy();
+
+	/**
+	 * default destructor
+	 */
 	virtual ~SumFitnessStrategy();
 
+	/**
+	 * implements the getFitness function of IFitnessStrategy. Calculate the Sum of all double gens.
+	 * @param individual (const Individual*) the individual
+	 * @return (double) the result
+	 */
 	virtual double getFitness(const Individual* individual);
 };
 

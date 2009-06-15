@@ -22,32 +22,59 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   This class is a interface for the fitness strategy. It is used from   *
- *   the class individual an is for individual strategy design pattern.    *
+ *   This class implements the getFitness function from IFitnessStrategy.  *
+ *   The function self calculate the euclidic distance to zero of all gens *
+ *   which are giving for the individual (accept only double gens!).	   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-06-15 13:58:37  robot12
+ *   Revision 1.1  2009-06-15 13:58:37  robot12
  *   3 new fitness strategys and IFitnessStrategy and SumFitnessStragegy with comments.
  *
- *   Revision 1.1  2009/05/04 15:27:56  robot12
- *   rename of some files and moving files to other positions
- *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
- *   Revision 1.2  2009/04/28 13:23:55  robot12
- *   some implements... Part2
- *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
+#include "EuclidicDistanceFitnessStrategy.h"
+
+#include "Individual.h"
+#include "Gen.h"
+#include "IValue.h"
+#include "TemplateValue.h"
 #include "IFitnessStrategy.h"
 
-IFitnessStrategy::IFitnessStrategy() {
+#include <math.h>
+
+// if the gen not a double gen so it is calculated with zero
+#define STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP 0.0
+
+EuclidicDistanceFitnessStrategy::EuclidicDistanceFitnessStrategy() {
 	// nothing
 }
 
-IFitnessStrategy::~IFitnessStrategy() {
+EuclidicDistanceFitnessStrategy::~EuclidicDistanceFitnessStrategy() {
 	// nothing
+}
+
+double EuclidicDistanceFitnessStrategy::getFitness(const Individual* individual) {
+	double sum = 0.0;					//the sum and later the result and so the fitness of the individual.
+	int num = individual->getSize();	//number of gens inside the individual
+	Gen* gen;							//the actual used gen
+	IValue* value;						//the value of the gen
+	TemplateValue<double>* tValue;		//the casted value of the gen (double gen)
+
+	// take all gens
+	for(int x=0; x<num; x++) {
+		gen = individual->getGen(x);	//become gen from individual
+		value = gen->getValue();		//become the value from the gen
+		tValue = dynamic_cast<TemplateValue<double>* >(value);	//cast the value to a double gen
+		if(tValue == 0) { //UNKNOWN DATA TYP	//test if it is really a double gen
+			sum += STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP;
+		}
+		else {
+			sum += tValue->getValue() * tValue->getValue();		//euclid = sqrt(a²+b²+c²+...) so calculate first the sum of the ²
+		}
+	}
+
+	return sqrt(sum);			// as next calculate the sqrt from the sum an return
 }

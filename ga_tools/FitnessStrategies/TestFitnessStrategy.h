@@ -22,32 +22,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   This class is a interface for the fitness strategy. It is used from   *
- *   the class individual an is for individual strategy design pattern.    *
+ *   This is a test implementation for IFitnessStrategy. It calculate      *
+ *   from the first two double gens the function                           *
+ *   10*(x²+2.5*y²-y)exp(1-(x²+y²)) + 2.4 + 0.1x² + 0.1y²                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-06-15 13:58:37  robot12
+ *   Revision 1.1  2009-06-15 13:58:37  robot12
  *   3 new fitness strategys and IFitnessStrategy and SumFitnessStragegy with comments.
- *
- *   Revision 1.1  2009/05/04 15:27:56  robot12
- *   rename of some files and moving files to other positions
- *    - SingletonGenAlgAPI has one error!!! --> is not ready now
- *
- *   Revision 1.2  2009/04/28 13:23:55  robot12
- *   some implements... Part2
- *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
+#ifndef TESTFITNESSSTRATEGY_H_
+#define TESTFITNESSSTRATEGY_H_
+
+//forward declaration
+class Individual;
+
+//ga_tools includes
 #include "IFitnessStrategy.h"
 
-IFitnessStrategy::IFitnessStrategy() {
-	// nothing
-}
+/**
+ * Test fitness strategy
+ */
+class TestFitnessStrategy: public IFitnessStrategy {
+public:
+	/**
+	 * default constructor
+	 */
+	TestFitnessStrategy();
 
-IFitnessStrategy::~IFitnessStrategy() {
-	// nothing
-}
+	/**
+	 * default destructor
+	 */
+	virtual ~TestFitnessStrategy();
+
+	/**
+	 * calculate the test fitness value for a individual
+	 * @param individual (const Individual*) the individual
+	 * @return (double) the result
+	 */
+	virtual double getFitness(const Individual* individual);
+};
+
+#endif /* TESTFITNESSSTRATEGY_H_ */
