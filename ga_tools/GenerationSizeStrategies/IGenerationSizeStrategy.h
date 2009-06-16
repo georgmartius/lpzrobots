@@ -22,10 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is used by the GenAlgEngine to specify how big the next    *
+ *   Generation should be. This is only a interface for this strategy      *
+ *   which can the Alg. use.                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:57  robot12
+ *   Revision 1.2  2009-06-16 12:25:32  robot12
+ *   finishing the generation size strategy and implements the comments.
+ *
+ *   Revision 1.1  2009/05/04 15:27:57  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -44,13 +49,31 @@
 #ifndef IGENERATIONSIZESTRATEGY_H_
 #define IGENERATIONSIZESTRATEGY_H_
 
+//forward declaration
 class Generation;
 
+/**
+ * This interface is to specify how big the next generation should be.
+ */
 class IGenerationSizeStrategy {
 public:
+	/**
+	 * default constructor
+	 * do nothing
+	 */
 	IGenerationSizeStrategy();
+
+	/**
+	 * default destructor
+	 * do nothing
+	 */
 	virtual ~IGenerationSizeStrategy();
 
+	/**
+	 * declaration for a function which calculate the size of the next generation after oldGeneration
+	 * @param oldGeneration (Generation*) the old generation
+	 * @return (int) the new size
+	 */
 	virtual int calcGenerationSize(Generation* oldGeneration) = 0;
 };
 

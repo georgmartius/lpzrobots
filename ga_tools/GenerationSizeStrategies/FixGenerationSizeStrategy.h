@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class implements the IGenerationSize strategy interface for the  *
+ *   GenAlgEngine with a fix generation size.                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:57  robot12
+ *   Revision 1.2  2009-06-16 12:25:32  robot12
+ *   finishing the generation size strategy and implements the comments.
+ *
+ *   Revision 1.1  2009/05/04 15:27:57  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -48,21 +52,45 @@
 #ifndef FIXGENERATIONSIZESTRATEGY_H_
 #define FIXGENERATIONSIZESTRATEGY_H_
 
+//forward declaration
 class Generation;
 
+//ga_tools includes
 #include "IGenerationSizeStrategy.h"
 
+/**
+ * This class implements the generation size strategy with a fix value which is over the constructor given
+ */
 class FixGenerationSizeStrategy: public IGenerationSizeStrategy {
 public:
+	/**
+	 * constructor
+	 * @param value (int) the fix value which is every time give back by calcGenerationSize.
+	 */
 	FixGenerationSizeStrategy(int value);
+
+	/**
+	 * default destructor
+	 */
 	virtual ~FixGenerationSizeStrategy();
 
+	/**
+	 * gives the fix value m_size as new generation size back.
+	 * @param oldGeneration (Generation*) the old Generation. dont needed
+	 * @return (int) m_size
+	 */
 	virtual int calcGenerationSize(Generation* oldGeneration);
 
 protected:
+	/**
+	 * the fix generation size
+	 */
 	int m_size;
 
 private:
+	/**
+	 * disable the default constructor
+	 */
 	FixGenerationSizeStrategy();
 };
 

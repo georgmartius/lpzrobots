@@ -22,10 +22,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a implementation for the generation size strategy of the*
+ *   genAlgEngine. It calculate the new generation size over the speed of  *
+ *   enhancement between the generation. If it to slow so the generation   *
+ *   size will be lower and is it to fast so the generation size will be   *
+ *   greater.                                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 14:35:15  robot12
+ *   Revision 1.3  2009-06-16 12:25:31  robot12
+ *   finishing the generation size strategy and implements the comments.
+ *
+ *   Revision 1.2  2009/05/06 14:35:15  robot12
  *   implements findBest in StandartGenerationSizeStrategy
  *
  *   Revision 1.1  2009/05/04 15:27:57  robot12
@@ -50,10 +57,14 @@
 #include "Generation.h"
 #include "Individual.h"
 
-#define GREATER_HIGH_FACTOR 1.1
-#define GREATER_LOW_FACTOR 1.05
-#define LOWER_HIGH_FACTOR 0.9
-#define LOWER_LOW_FACTOR 0.95
+// other includes
+#include <selforg/statistictools.h>			// is needed for statistical calculation (best)
+
+//factors to correct the generation size
+#define LOWER_HIGH_FACTOR 0.995
+#define LOWER_LOW_FACTOR 0.9975
+#define GREATER_HIGH_FACTOR 1.005
+#define GREATER_LOW_FACTOR 1.0025
 
 StandartGenerationSizeStrategy::StandartGenerationSizeStrategy() {
 	// nothing
@@ -70,8 +81,10 @@ StandartGenerationSizeStrategy::~StandartGenerationSizeStrategy() {
 }
 
 int StandartGenerationSizeStrategy::calcGenerationSize(Generation* oldGeneration) {
-	double best = findBest(oldGeneration);
+	double best = GET_DOUBLE_ANALYSATION(*oldGeneration->getAllFitness(),AM_BEST);
+	int size;
 
+	//if it the first run than set some values and return the startsize
 	if(!m_firstIsSet) {
 		m_firstIsSet = true;
 		m_best_first = best;
@@ -80,6 +93,7 @@ int StandartGenerationSizeStrategy::calcGenerationSize(Generation* oldGeneration
 		return m_startSize;
 	}
 
+	// save the old best and update the new best
 	m_best_old = m_best_new;
 	m_best_new = best;
 
@@ -92,41 +106,34 @@ int StandartGenerationSizeStrategy::calcGenerationSize(Generation* oldGeneration
 	// standDevelop is the differense between the targetDevelop in this round should be and the real stand
 	double standDevelop = m_best_first - (((double)oldGeneration->getGenerationNumber()) * targetDevelop) - m_best_new;
 
-	if(standDevelop>0.0) { // we are to fast --> GenerationSize must be greater!?!
-		if(develop>=targetDevelop) { // yes the GenerationSize must be greater
-			return (int)(GREATER_HIGH_FACTOR*oldGeneration->getSize());
+	if(standDevelop>0.0) { // we are to fast --> GenerationSize must be lower!?!
+		if(develop>=targetDevelop) { // yes the GenerationSize must be lower
+			size = (int)(LOWER_HIGH_FACTOR*oldGeneration->getSize());
 		}
-		else if((targetDevelop-develop)*(double)(m_numGeneration-oldGeneration->getGenerationNumber())+standDevelop>0.0) { // yes the GenerationSize must be greater but not so much
-			return (int)(GREATER_LOW_FACTOR*oldGeneration->getSize());
+		else if((targetDevelop-develop)*(double)(m_numGeneration-oldGeneration->getGenerationNumber())+standDevelop>0.0) { // yes the GenerationSize must be lower but not so much
+			size = (int)(LOWER_LOW_FACTOR*oldGeneration->getSize());
 		}
 		else { //develop<targetDevelop  // no the speed is to low and it correct him self
-			return oldGeneration->getSize();
+			size = oldGeneration->getSize();
 		}
 	}
 	else if(standDevelop==0.0) { // we are of correct course
-		return oldGeneration->getSize();
+		size = oldGeneration->getSize();
 	}
-	else { // standDevelop<0.0 // we are to slow --> GenerationSize must be lower!?!
-		if(develop<=targetDevelop) { // yes the GenerationSize must be lower
-			return (int)(LOWER_HIGH_FACTOR*oldGeneration->getSize());
+	else { // standDevelop<0.0 // we are to slow --> GenerationSize must be greater!?!
+		if(develop<=targetDevelop) { // yes the GenerationSize must be greater
+			size = (int)(GREATER_HIGH_FACTOR*oldGeneration->getSize());
 		}
-		else if((targetDevelop-develop)*(double)(m_numGeneration-oldGeneration->getGenerationNumber())+standDevelop<0.0) { // yes the GenerationSize must be lower
-			return (int)(LOWER_LOW_FACTOR*oldGeneration->getSize());
+		else if((targetDevelop-develop)*(double)(m_numGeneration-oldGeneration->getGenerationNumber())+standDevelop<0.0) { // yes the GenerationSize must be greater
+			size = (int)(GREATER_LOW_FACTOR*oldGeneration->getSize());
 		}
 		else { //develop>targetDevelop  // no the speed is to high and it correct him self
-			return oldGeneration->getSize();
+			size = oldGeneration->getSize();
 		}
 	}
-}
 
-double StandartGenerationSizeStrategy::findBest(Generation* oldGeneration) {
-	double best = oldGeneration->getIndividual(0)->getFitness();
-	int num = oldGeneration->getCurrentSize();
+	if(size<oldGeneration->getKillRate())
+		size = oldGeneration->getKillRate()+2;
 
-	for(int x=1;x<num;x++) {
-		if(oldGeneration->getIndividual(x)->getFitness()<best)
-			best=oldGeneration->getIndividual(x)->getFitness();
-	}
-
-	return best;
+	return size;
 }
