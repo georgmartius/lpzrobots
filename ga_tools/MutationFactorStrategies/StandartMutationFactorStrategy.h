@@ -22,10 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a implementation of the IMutationFactorStrategy         *
+ *   interface. It returns a value which is calculate by the variance of   *
+ *   the gens in the given set.                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-06-17 11:11:06  robot12
+ *   finishing the mutationfactorstrategy and add some comments.
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -42,18 +47,36 @@
 #ifndef STANDARTMUTATIONFACTORSTRATEGY_H_
 #define STANDARTMUTATIONFACTORSTRATEGY_H_
 
+//includes
 #include <vector>
 
+//forward declarations
 class Gen;
 class IValue;
 
+//ga_tools includes
 #include "IMutationFactorStrategy.h"
 
+/**
+ * this strategy calculate the mutation factor by the variance of the gens in the giving set
+ */
 class StandartMutationFactorStrategy: public IMutationFactorStrategy {
 public:
+	/**
+	 * default constructor
+	 */
 	StandartMutationFactorStrategy();
+
+	/**
+	 * default destructor
+	 */
 	virtual ~StandartMutationFactorStrategy();
 
+	/**
+	 * gives the varianz of the gens in the set as mutation factor back.
+	 * @param gene (vector<Gen*>) the set of gens
+	 * @return (IValue*) the mutation factor
+	 */
 	virtual IValue* calcMutationFactor(const std::vector<Gen*>& gene);
 };
 

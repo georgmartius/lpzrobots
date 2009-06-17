@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a implementation of the IMutationFactorStrategy         *
+ *   interface. It returns a fix value which is given for the constructor. *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-06 13:28:23  robot12
+ *   Revision 1.3  2009-06-17 11:11:06  robot12
+ *   finishing the mutationfactorstrategy and add some comments.
+ *
+ *   Revision 1.2  2009/05/06 13:28:23  robot12
  *   some implements... Finish
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -42,21 +46,49 @@
 #ifndef FIXMUTATIONFACTORSTRATEGY_H_
 #define FIXMUTATIONFACTORSTRATEGY_H_
 
-class IValue;
+//includes
+#include <vector>
 
+//forward declaration
+class IValue;
+class Gen;
+
+//ga_tools includes
 #include "IMutationFactorStrategy.h"
 
+/**
+ * This strategy implementation return a fix value for the mutation factor.
+ */
 class FixMutationFactorStrategy : public IMutationFactorStrategy {
 public:
+	/**
+	 * constructor
+	 * @param value (IValue*) the fix Value
+	 */
 	FixMutationFactorStrategy(IValue* value);
+
+	/**
+	 * default destructor
+	 */
 	virtual ~FixMutationFactorStrategy();
 
+	/**
+	 * returns the fix value as mutation value
+	 * @param gene (vector<Gen*>) the set of gens -> here not used.
+	 * @return (IValue*) the mutation factor
+	 */
 	virtual IValue* calcMutationFactor(const std::vector<Gen*>& gene);
 
 protected:
+	/**
+	 * the saved fix value which is giving back.
+	 */
 	IValue* m_value;
 
 private:
+	/**
+	 * disable default constructor
+	 */
 	FixMutationFactorStrategy();
 };
 

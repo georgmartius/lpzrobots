@@ -22,10 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This is a interface for a strategy which is part of the mutation      *
+ *   strategy. It calculate the factor for the mutation. To this time it is*
+ *   only used by ValueMutationStrategy.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-06-17 11:11:06  robot12
+ *   finishing the mutationfactorstrategy and add some comments.
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
