@@ -22,10 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This is a interface of a strategy for the mutation which is used by   *
+ *   the GenPrototype to give the GenFactory a knowledge of the kind how   *
+ *   to mutate a gen.                                                      *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-14 15:29:56  robot12
+ *   Revision 1.3  2009-06-17 11:25:52  robot12
+ *   finishing the mutation strategy and add some comments.
+ *
+ *   Revision 1.2  2009/05/14 15:29:56  robot12
  *   bugfix: mutation change the oldGen, not the new!!! now fixed
  *
  *   Revision 1.1  2009/05/04 15:27:57  robot12
@@ -48,17 +53,42 @@
 #ifndef IMUTATIONSTRATEGY_H_
 #define IMUTATIONSTRATEGY_H_
 
+//forward declarations
 class Gen;
 class GenContext;
 class Individual;
 class SingletonGenFactory;
 
+/**
+ * This interface gives the structur for the mutation of a gen.
+ */
 class IMutationStrategy {
 public:
+	/**
+	 * default constructor
+	 */
 	IMutationStrategy();
+
+	/**
+	 * default destructor
+	 */
 	virtual ~IMutationStrategy();
 
+	/**
+	 * mutate a gen
+	 * @param context (GenContext*) the context in which the new gen comes (needed by the factory
+	 * @param individual (Individual*) the individual, which the new gen becomes
+	 * @param oldGen (Gen*) the old gen, which mutate
+	 * @param oldContext (GenContext*) the Context in which the old gen are.
+	 * @param factory (SingletonGenFactory*) the GenFactory which create the new gen.
+	 * @return (Gen*) the new mutated gen
+	 */
 	virtual Gen* mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext, SingletonGenFactory* factory) = 0;
+
+	/**
+	 * gives the Probability of a mutation back.
+	 * @return
+	 */
 	virtual int getMutationProbability(void) = 0;
 };
 

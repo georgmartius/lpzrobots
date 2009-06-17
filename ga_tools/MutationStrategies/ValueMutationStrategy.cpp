@@ -22,10 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a implementation of the interface IMutationStrategy.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-14 15:29:56  robot12
+ *   Revision 1.5  2009-06-17 11:25:52  robot12
+ *   finishing the mutation strategy and add some comments.
+ *
+ *   Revision 1.4  2009/05/14 15:29:56  robot12
  *   bugfix: mutation change the oldGen, not the new!!! now fixed
  *
  *   Revision 1.3  2009/05/11 14:08:53  robot12
@@ -50,6 +53,7 @@
 
 #include "ValueMutationStrategy.h"
 
+//ga_tools includes
 #include "Gen.h"
 #include "Individual.h"
 #include "SingletonGenFactory.h"
@@ -71,14 +75,14 @@ ValueMutationStrategy::~ValueMutationStrategy() {
 }
 
 Gen* ValueMutationStrategy::mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext, SingletonGenFactory* factory) {
-	IValue* factor;
-	IValue* value;
+	IValue* factor;						//the mutation factor
+	IValue* value;						//the value of the gen
 
-	factor = m_strategy->calcMutationFactor(oldContext->getGene());
-	value = oldGen->getValue()->operator*(*factor);
+	factor = m_strategy->calcMutationFactor(oldContext->getGene());			//become the mutation factor
+	value = oldGen->getValue()->operator+(*factor);							//become the value of the gen and add the factor
 	//delete factor;
 
-	return factory->createGen(context,individual,context->getPrototype(),value);
+	return factory->createGen(context,individual,context->getPrototype(),value);	//create the new gen
 }
 
 int ValueMutationStrategy::getMutationProbability(void) {
