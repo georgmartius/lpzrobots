@@ -22,10 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a implementation for the ISelectStrategy. It make a     *
+ *   select by randomized comparison of one individual with a random       *
+ *   number. If it lost it dosn't comes in the next generation.            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-07 14:47:46  robot12
+ *   Revision 1.5  2009-06-25 13:34:17  robot12
+ *   finish the select strategy and add some comments.
+ *
+ *   Revision 1.4  2009/05/07 14:47:46  robot12
  *   some comments
  *
  *   Revision 1.3  2009/05/06 14:35:14  robot12
@@ -50,9 +55,14 @@
 
 #include "RandomSelectStrategy.h"
 
+//includes
+#include <selforg/statistictools.h>
 #include <vector>
+
+//ga_tools includes
 #include "Generation.h"
 #include "Individual.h"
+#include "SingletonGenAlgAPI.h"
 
 RandomSelectStrategy::RandomSelectStrategy() {
 	// nothing
@@ -67,22 +77,59 @@ RandomSelectStrategy::~RandomSelectStrategy() {
 }
 
 void RandomSelectStrategy::select(Generation* oldGeneration, Generation* newGeneration) {
-	int kill = oldGeneration->getKillRate();
-	int r1;
-	std::vector<Individual*> list = oldGeneration->getAllIndividual();		// darf nicht const und & sein!!!
-	double range;
-	double min;
+	int kill = oldGeneration->getKillRate();										//the kill rate
+	int r1;																			//variable for a random number
+	std::vector<Individual*> list;		// darf nicht const und & sein!!!			//the list of the individual which are "living"
+	double range;																	//range of the fitness values
+	double min;																		//the minimum of the fitness values
+	int num = oldGeneration->getCurrentSize();										//number of individual
+	std::vector<Individual*>::iterator iter;										//iterator for the list
+	int test=0;																		//make sure that the function terminate...
+
+	for(int y=0;y<num;y++) {												//insert the individual of the old generation in the living list
+		list.push_back(oldGeneration->getIndividual(y));
+	}
 
 	// calc range and min of all fitness
-	// TODO
+	DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(*oldGeneration->getAllFitness());
+	range = context->getRange();
+	min = context->getMin();
 
 	// kill some elements
 	while(kill>0) {
-		r1 = ((int)m_random->rand())%list.size();
-		if(m_random->rand()*range+min>list[r1]->getFitness()) {
-			list.erase(list.begin()+r1);
+		r1 = ((int)(m_random->rand()*1000000.0))%list.size();
+		if(m_random->rand()*range+min<list[r1]->getFitness()) {				//if the random value over the range
+			iter=list.begin();												//of values better than the fitness
+			test=0;															//value of the random selected
+			std::advance(iter,r1);											//individual, so it will be die.
+			list.erase(iter);
 			kill--;
 		}
+		else
+			test++;
+
+		if(test==10000)														//if they are no kills after 10000 test, so stop and make an elite select.
+			break;
+	}
+
+	if(kill>0) {															//elite select, if not enough individual are killed
+		ISelectStrategy* elite = SingletonGenAlgAPI::getInstance()->createEliteSelectStrategy();
+		Generation* newold = new Generation(oldGeneration->getGenerationNumber(),oldGeneration->getSize()-oldGeneration->getKillRate()+kill,kill);
+		// take the rest in the "new generation" with the name newold
+		for(int x=0;x<(int)list.size() && x<oldGeneration->getSize()-oldGeneration->getKillRate()+kill;x++) {
+			newold->addIndividual(list[x]);
+		}
+		elite->select(newold,newGeneration);
+
+		// clean
+		while(list.size()>0) {
+			list.erase(list.begin());
+		}
+		list.clear();
+
+		delete elite;
+
+		return;
 	}
 
 	// take the rest in the new generation
@@ -92,7 +139,6 @@ void RandomSelectStrategy::select(Generation* oldGeneration, Generation* newGene
 
 	// clean
 	while(list.size()>0) {
-		delete list[0];
 		list.erase(list.begin());
 	}
 	list.clear();

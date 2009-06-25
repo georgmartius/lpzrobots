@@ -22,10 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a interface for the select strategy of the generation.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:56  robot12
+ *   Revision 1.2  2009-06-25 13:34:17  robot12
+ *   finish the select strategy and add some comments.
+ *
+ *   Revision 1.1  2009/05/04 15:27:56  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -42,13 +45,29 @@
 #ifndef ISELECTSTRATEGY_H_
 #define ISELECTSTRATEGY_H_
 
+//forward declaration
 class Generation;
 
+/**
+ * this interface is for a select strategy of the generation class.
+ */
 class ISelectStrategy {
 public:
+	/**
+	 * default constructor
+	 */
 	ISelectStrategy();
+
+	/**
+	 * default destructor
+	 */
 	virtual ~ISelectStrategy();
 
+	/**
+	 * abstract function which select the individual from the old generation and copy it in the new generation.
+	 * @param oldGeneration (Generation*) the old generation from where the individual comes
+	 * @param newGeneration (Generation*) the new generation where the selected individual should be
+	 */
 	virtual void select(Generation* oldGeneration, Generation* newGeneration) = 0;
 };
 

@@ -22,10 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a implementation for the ISelectStrategy. It make an    *
+ *   elite select. This mean only the best individual comes in the next    *
+ *   generation.                                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-14 15:29:56  robot12
+ *   Revision 1.5  2009-06-25 13:34:17  robot12
+ *   finish the select strategy and add some comments.
+ *
+ *   Revision 1.4  2009/05/14 15:29:56  robot12
  *   bugfix: mutation change the oldGen, not the new!!! now fixed
  *
  *   Revision 1.3  2009/05/11 14:08:53  robot12
@@ -54,11 +59,22 @@
 #include "Generation.h"
 #include <list>
 
-struct SfitnessEliteStrategyStruct {
+/**
+ * help structur to sort the individual by the fitness values.
+ */
+class SfitnessEliteStrategyStruct {
+public:
 	double fitness;
 	Individual* ind;
 
-	inline bool operator<(SfitnessEliteStrategyStruct other) {return fitness*fitness>other.fitness*other.fitness;}
+	inline bool operator<(SfitnessEliteStrategyStruct other) {
+		return (fitness*fitness)<(other.fitness*other.fitness);
+	}
+
+	~SfitnessEliteStrategyStruct() {
+		fitness=0.0;
+		ind=0;
+	}
 };
 
 EliteSelectStrategy::EliteSelectStrategy() {
@@ -69,31 +85,42 @@ EliteSelectStrategy::~EliteSelectStrategy() {
 	// nothing
 }
 
+/*void mache(SfitnessEliteStrategyStruct i){
+	printf("%lf\n",i.fitness);
+}*/
+
 void EliteSelectStrategy::select(Generation* oldGeneration, Generation* newGeneration) {
-	std::list<SfitnessEliteStrategyStruct*> list;
-	SfitnessEliteStrategyStruct* storage;
-	std::list<SfitnessEliteStrategyStruct*>::iterator iter;
-	int num,x,kill;
+	std::list<SfitnessEliteStrategyStruct> list;						//a list with all individual of the old generation and there fitness values
+	SfitnessEliteStrategyStruct* storage;								//one element from the list
+	std::list<SfitnessEliteStrategyStruct>::iterator iter;				//iterator for the list.
+	int num,x,kill;														//help variables
 
 	// prepare the list
-	num = oldGeneration->getCurrentSize();
+	num = oldGeneration->getCurrentSize();								//take all individual with there fitness values in the list.
 	for(x=0;x<num;x++) {
-		storage = new SfitnessEliteStrategyStruct();
+		storage = new SfitnessEliteStrategyStruct();					//create new element for the list
 		storage->ind = oldGeneration->getIndividual(x);
 		storage->fitness = storage->ind->getFitness();
-		list.push_back(storage);
+		list.push_back(*storage);										//add element to the list
 		storage = 0;
 	}
 
+	//std::for_each(list.begin(),list.end(),mache);
+	//printf("Test\n");
+
 	// sort the list
-	list.sort();
+	list.sort();														//sort the list
+
+	//std::for_each(list.begin(),list.end(),mache);
+	//printf("Test\n");
 
 	// kill the badest
 	kill = oldGeneration->getKillRate();
 	iter = list.begin();
-	std::advance(iter,num-kill);
+	std::advance(iter,num-kill);										//delete all elements which are not selected from the list
 	while(iter!=list.end()) {
-		delete (*iter);
+		//storage = &(*iter);
+		//delete storage;
 		iter=list.erase(iter);
 	}
 	/*for(x=num-1;x>=num-kill;x--) {
@@ -104,18 +131,22 @@ void EliteSelectStrategy::select(Generation* oldGeneration, Generation* newGener
 		list.erase(iter);
 	}*/
 
+	//std::for_each(list.begin(),list.end(),mache);
+	//printf("Test\n");
+
 	// take the best in the new generation
-	x = 0;
+	x = 0;																		//copy the best individual in the new generation
 	for(iter = list.begin();iter != list.end() && x<newGeneration->getSize();iter++) {
-		newGeneration->addIndividual((*iter)->ind);
+		newGeneration->addIndividual(iter->ind);
 		x++;
 	}
 
 	// clean
-	while(list.size()>0) {
-		iter = list.begin();
-		delete (*iter);
-		list.erase(iter);
+	iter=list.begin();
+	while(iter!=list.end()) {
+		//storage = &(*iter);
+		//delete storage;
+		iter=list.erase(iter);
 	}
 	list.clear();
 }

@@ -22,10 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a interface for the select strategy of the generation.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:56  robot12
+ *   Revision 1.2  2009-06-25 13:34:17  robot12
+ *   finish the select strategy and add some comments.
+ *
+ *   Revision 1.1  2009/05/04 15:27:56  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
