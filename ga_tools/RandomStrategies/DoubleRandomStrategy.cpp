@@ -22,10 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a implementation for the IRandomStrategy interface and  *
+ *   for the random strategy of the GenPrototype. It create a IValue from  *
+ *   type double with a random double value.                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:57  robot12
+ *   Revision 1.2  2009-06-25 10:02:38  robot12
+ *   finish the Random strategy and add some comments
+ *
+ *   Revision 1.1  2009/05/04 15:27:57  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -47,8 +52,11 @@ DoubleRandomStrategy::DoubleRandomStrategy() {
 	// nothing
 }
 
-DoubleRandomStrategy::DoubleRandomStrategy(RandGen* random) {
+DoubleRandomStrategy::DoubleRandomStrategy(RandGen* random, double base, double factor, double epsilon) {
 	m_random =random;
+	m_base = base;
+	m_factor = factor;
+	m_epsilon = epsilon;
 }
 
 DoubleRandomStrategy::~DoubleRandomStrategy() {
@@ -56,5 +64,10 @@ DoubleRandomStrategy::~DoubleRandomStrategy() {
 }
 
 IValue* DoubleRandomStrategy::getRandomValue(void) {
-	return new TemplateValue<double>(m_random->rand());
+	double value = (m_random->rand()*m_factor)+m_base;								//create a random double in the
+																					//interval [m_base,m_factor+m_base]
+	return new TemplateValue<double>(value + (value>0?m_epsilon:-1.0*m_epsilon));	//if the value negative move it
+																					//-m_epsilon else move it +m_epsilon
+																					//and return it as IValue
+																					//(TemplateValue<double>)
 }

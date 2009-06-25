@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This interface of a strategy is to generate Random IValues for the    *
+ *   GenPrototype which is used by the GenFactory to create a random gen.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:57  robot12
+ *   Revision 1.2  2009-06-25 10:02:38  robot12
+ *   finish the Random strategy and add some comments
+ *
+ *   Revision 1.1  2009/05/04 15:27:57  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
