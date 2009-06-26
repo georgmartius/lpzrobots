@@ -22,10 +22,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This interface is only to describe a value for a Gen. It gives some   *
+ *   conditions for the values. The operators add and mul must be declared.*
+ *   They must have a name and it must be possible to change the value in a*
+ *   string for log or debug outputs.                                      *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-12 13:29:24  robot12
+ *   Revision 1.3  2009-06-26 13:08:25  robot12
+ *   finishing Values and add some comments
+ *
+ *   Revision 1.2  2009/05/12 13:29:24  robot12
  *   some new function
  *   -> toString methodes
  *

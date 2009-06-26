@@ -22,10 +22,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This interface is only to describe a value for a Gen. It gives some   *
+ *   conditions for the values. The operators add and mul must be declared.*
+ *   They must have a name and it must be possible to change the value in a*
+ *   string for log or debug outputs.                                      *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-12 13:29:25  robot12
+ *   Revision 1.4  2009-06-26 13:08:25  robot12
+ *   finishing Values and add some comments
+ *
+ *   Revision 1.3  2009/05/12 13:29:25  robot12
  *   some new function
  *   -> toString methodes
  *
@@ -52,34 +58,55 @@
 #ifndef IVALUE_H_
 #define IVALUE_H_
 
-
+//includes
 #include <string>
-
 #include <selforg/inspectable.h>
 
 /**
- * Technische Beschreibung der Klasse
+ * This class is a interface for a value which is part of a gen. Over this concept is it paissible
+ * to make the Gen and the GenFactory independent from his saved type.
  */
 class IValue : public Inspectable
 {
 public:
 
   /**
-   * Beschreibung des Konstruktors
+   * constructor
+   * Needs a string for the name of the value. In the normal way it is the Type of the Value. For example "templateValue".
+   * @param name (string) the name
    */
   IValue(std::string name);
 
 
   /**
-   * Beschreibung des Destruktors
+   * default destructor
    */
   virtual ~IValue();
 
+  /**
+   * the mul. operator. Dosn't change this class!!!
+   * @param (const IValue&) the other part of the operation
+   * @return (IValue*) the result
+   */
   virtual IValue* operator*(const IValue&)const = 0;
 
+   /**
+	* the add operator. Dosn't change this class!!!
+	* @param (const IValue&) the other part of the operation
+	* @return (IValue*) the result
+	*/
+  virtual IValue* operator+(const IValue&)const = 0;
+
+  /**
+   * the cast operator for a cast in type string
+   * @return (string) the value as string
+   */
   virtual operator std::string(void)const;
 
 protected:
+	/**
+	 * the name of this class.
+	 */
 	std::string m_name;
 };
 

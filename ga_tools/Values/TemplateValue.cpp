@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a implementation for the IValue interface. It is for    *
+ *   standard data types concepted as a template class.                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   Revision 1.4  2009-06-26 13:08:25  robot12
+ *   finishing Values and add some comments
+ *
+ *   Revision 1.3  2009/05/11 14:08:51  robot12
  *   patch some bugfix....
  *
  *   Revision 1.2  2009/05/06 13:28:22  robot12
