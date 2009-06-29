@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-08-01 14:42:03  guettler
+ *   Revision 1.4  2009-06-29 13:24:13  robot12
+ *   add function getInternalParamsPtr for new class inspectableproxy
+ *
+ *   Revision 1.3  2008/08/01 14:42:03  guettler
  *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
  *
  *   Revision 1.2  2008/04/29 09:55:30  guettler
@@ -102,6 +105,7 @@ public:
 
   typedef std::list<iparamkey> iparamkeylist;
   typedef std::list<iparamval> iparamvallist;
+  typedef std::list<iparamval*> iparamvalptrlist;
   typedef std::list<iparampair> iparampairlist;
   typedef std::list<imatrixpair> imatrixpairlist;
 
@@ -157,6 +161,12 @@ public:
    */
   virtual iparamvallist getInternalParams() const;
 
+  /**
+   * be carefully matrix will be ignored
+   * @return list of values (pointer)
+   */
+  virtual iparamvalptrlist getInternalParamsPtr() const;
+
 
   /** Specifies which parameter vector forms a structural layer (in terms of a neural network)
       The ordering is important. The first entry is the input layer and so on.
@@ -198,7 +208,7 @@ public:
 
 
 
-private:
+protected:
   iparampairlist mapOfValues;
   imatrixpairlist mapOfMatrices;
 

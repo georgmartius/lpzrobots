@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-11-17 14:59:09  martius
+ *   Revision 1.6  2009-06-29 13:24:13  robot12
+ *   add function getInternalParamsPtr for new class inspectableproxy
+ *
+ *   Revision 1.5  2008/11/17 14:59:09  martius
  *   removed debug print
  *
  *   Revision 1.4  2008/11/14 09:16:15  martius
@@ -76,6 +79,15 @@ Inspectable::iparamvallist Inspectable::getInternalParams() const {
     vallist+=store4x4AndDiagonal(*((*m).second));
   }
   return vallist;
+}
+
+Inspectable::iparamvalptrlist Inspectable::getInternalParamsPtr() const {
+	  iparamvalptrlist vallist;
+	  for(iparampairlist::const_iterator it=mapOfValues.begin(); it != mapOfValues.end(); it++){
+	    vallist+=(*it).second;
+	  }
+	  // be carefully matrix will be ignored
+	  return vallist;
 }
 
 
