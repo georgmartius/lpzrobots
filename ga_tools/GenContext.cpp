@@ -30,7 +30,10 @@
  *   The Gen Context is inside the gen. alg. only saved in the             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-07 14:47:47  robot12
+ *   Revision 1.3  2009-06-29 14:32:51  robot12
+ *   finishing the GenContext and add some comments
+ *
+ *   Revision 1.2  2009/05/07 14:47:47  robot12
  *   some comments
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -50,6 +53,10 @@
  ***************************************************************************/
 
 #include "GenContext.h"
+#include <selforg/statistictools.h>
+#include "TemplateValue.h"
+#include "Gen.h"
+#include "GenPrototype.h"
 
 GenContext::GenContext() {
 	// nothing
@@ -57,8 +64,42 @@ GenContext::GenContext() {
 
 GenContext::GenContext(GenPrototype* prototype) {
 	m_prototype = prototype;
+
+	std::string name = prototype->getName();
+
+	//add some variable to the inspectables
+	addInspectableValue(name+"MIN",&m_min);
+	addInspectableValue(name+"W1",&m_w1);
+	addInspectableValue(name+"Q1",&m_q1);
+	addInspectableValue(name+"MED",&m_med);
+	addInspectableValue(name+"AVG",&m_avg);
+	addInspectableValue(name+"Q3",&m_q3);
+	addInspectableValue(name+"W3",&m_w3);
+	addInspectableValue(name+"MAX",&m_max);
 }
 
 GenContext::~GenContext() {
 	m_storage.clear();
+}
+
+void GenContext::update(double factor) {
+	std::vector<double> list;
+	TemplateValue<double>* tValue;
+
+	for(std::vector<Gen*>::const_iterator iter=m_storage.begin();iter!=m_storage.end();iter++) {
+		tValue = dynamic_cast<TemplateValue<double>*>((*iter)->getValue());
+		if(tValue!=0)
+			list.push_back(tValue->getValue());
+	}
+
+	DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(list);
+
+	m_q1 = context->getQuartil1();
+	m_q3 = context->getQuartil3();
+	m_med = context->getMedian();
+	m_avg = context->getAvg();
+	m_w1 = context->getWhisker1(factor);
+	m_w3 = context->getWhisker3(factor);
+	m_min = context->getMin();
+	m_max = context->getMax();
 }

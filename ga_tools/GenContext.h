@@ -31,7 +31,10 @@
  *   GenPrototype.                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-07 14:47:47  robot12
+ *   Revision 1.3  2009-06-29 14:32:51  robot12
+ *   finishing the GenContext and add some comments
+ *
+ *   Revision 1.2  2009/05/07 14:47:47  robot12
  *   some comments
  *
  *   Revision 1.1  2009/05/04 15:27:56  robot12
@@ -56,6 +59,7 @@
 // standard includes
 #include <vector>
 #include <algorithm>
+#include <selforg/inspectable.h>
 
 // forward declarations
 class Gen;
@@ -73,7 +77,7 @@ class GenPrototype;
  *   The Gen Context is inside the gen. alg. only saved in the
  *   GenPrototype.
  */
-class GenContext {
+class GenContext : public Inspectable {
 public:
 	/**
 	 * constructor to create a GenContext. Information which the class need are
@@ -97,6 +101,12 @@ public:
 	 */
 	inline GenPrototype* getPrototype(void)const {return m_prototype;}
 
+	/**
+	 * [inline]
+	 * This function add a Gen to the Context.
+	 *
+	 * @param gen (Gen*) the new Gen, which should be added
+	 */
 	inline void addGen(Gen* gen) {m_storage.push_back(gen);}
 
 	/**
@@ -115,6 +125,12 @@ public:
 	 */
 	inline const std::vector<Gen*>& getGene(void)const {return m_storage;}
 
+	/**
+	 * This function makes an update on the statistical values
+	 * @param factor (double) this factor is normal 1.5 and is for the whisker distance in the analysation
+	 */
+	void update(double factor=1.5);
+
 protected:
 	/**
 	 * (vector<Gen*>
@@ -127,6 +143,49 @@ protected:
 	 * the prototype for which are the context is.
 	 */
 	GenPrototype* m_prototype;
+
+	/**
+	 * the min value of the gens
+	 */
+	double m_min;
+
+	/**
+	 * the under whisker of the gens
+	 */
+	double m_w1;
+
+	/**
+	 * the under quartil of the gens
+	 */
+	double m_q1;
+
+	/**
+	 * the median of the gens
+	 */
+	double m_med;
+
+	/**
+	 * the average of the gens
+	 */
+	double m_avg;
+
+	/**
+	 * the upper quartil of the gens
+	 */
+	double m_q3;
+
+	/**
+	 * the upper whisker of the gens
+	 */
+	double m_w3;
+
+	/**
+	 * the max value of the gens
+	 */
+	double m_max;
+
+	/*int m_numExtream;
+	std::vector<double> m_extream;*/
 
 private:
 	/**
