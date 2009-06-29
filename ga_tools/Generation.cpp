@@ -30,7 +30,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-05-14 15:29:54  robot12
+ *   Revision 1.8  2009-06-29 15:30:11  robot12
+ *   finishing Generation and add some comments
+ *
+ *   Revision 1.7  2009/05/14 15:29:54  robot12
  *   bugfix: mutation change the oldGen, not the new!!! now fixed
  *
  *   Revision 1.6  2009/05/12 13:29:25  robot12
@@ -69,6 +72,7 @@
 
 #include "SingletonIndividualFactory.h"
 #include "Individual.h"
+#include <selforg/statistictools.h>
 
 Generation::Generation() {
 	// nothing
@@ -78,6 +82,20 @@ Generation::Generation(int generationNumber, int size, int kill) {
 	m_generationNumber = generationNumber;
 	m_size=size;
 	m_kill = kill;
+
+
+	//adds some variable to the inspectable context
+	addInspectableValue("MIN",&m_min);
+	addInspectableValue("W1",&m_w1);
+	addInspectableValue("Q1",&m_q1);
+	addInspectableValue("MED",&m_med);
+	addInspectableValue("AVG",&m_avg);
+	addInspectableValue("Q3",&m_q3);
+	addInspectableValue("W3",&m_w3);
+	addInspectableValue("MAX",&m_max);
+	addInspectableValue("BEST",&m_best);
+	addInspectableValue("SIZE",&m_dSize);
+	addInspectableValue("KILL",&m_dKill);
 }
 
 Generation::~Generation() {
@@ -124,4 +142,20 @@ std::vector<double>* Generation::getAllFitness(void)const {
 	}
 
 	return result;
+}
+
+void Generation::update(double factor) {
+	DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(*getAllFitness());
+
+	m_q1 = context->getQuartil1();
+	m_q3 = context->getQuartil3();
+	m_med = context->getMedian();
+	m_avg = context->getAvg();
+	m_w1 = context->getWhisker1(factor);
+	m_w3 = context->getWhisker3(factor);
+	m_min = context->getMin();
+	m_max = context->getMax();
+	m_best = context->getBest();
+	m_dSize = (double)m_size;
+	m_dKill = (double)m_kill;
 }

@@ -30,7 +30,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-05-14 15:29:54  robot12
+ *   Revision 1.7  2009-06-29 15:30:11  robot12
+ *   finishing Generation and add some comments
+ *
+ *   Revision 1.6  2009/05/14 15:29:54  robot12
  *   bugfix: mutation change the oldGen, not the new!!! now fixed
  *
  *   Revision 1.5  2009/05/12 13:29:25  robot12
@@ -72,6 +75,7 @@
 #include <string>
 #include <vector>
 #include <selforg/randomgenerator.h>
+#include <selforg/inspectable.h>
 
 // forward declarations
 class Individual;
@@ -88,7 +92,7 @@ class Individual;
  *
  *   All Generations inside the gen.alg. are only saved in the GenEngine.
  */
-class Generation {
+class Generation : public Inspectable {
 public:
 	/**
 	 * constructor to create a Generation. Information which the class need are
@@ -184,6 +188,12 @@ public:
 	 */
 	std::vector<double>* getAllFitness(void)const;
 
+	/**
+	 * This function updates the statistical values
+	 * @param factor (double) normal 1.5    Is needed for the data analysation
+	 */
+	void update(double factor = 1.5);
+
 protected:
 	/**
 	 * (int)
@@ -214,6 +224,61 @@ private:
 	 * disable the default constructor
 	 */
 	Generation();
+
+	/**
+	 * the under quartil
+	 */
+	double m_q1;
+
+	/**
+	 * the upper quartil
+	 */
+	double m_q3;
+
+	/**
+	 * the min
+	 */
+	double m_min;
+
+	/**
+	 * the max
+	 */
+	double m_max;
+
+	/**
+	 * the average
+	 */
+	double m_avg;
+
+	/**
+	 * the median
+	 */
+	double m_med;
+
+	/**
+	 * the under whisker
+	 */
+	double m_w1;
+
+	/**
+	 * the upper whisker
+	 */
+	double m_w3;
+
+	/**
+	 * the best fitness value inside the generation
+	 */
+	double m_best;
+
+	/**
+	 * the number of individual inside the generation (will be)
+	 */
+	double m_dSize;
+
+	/**
+	 * the number of individual which will be killed by swaping the generation
+	 */
+	double m_dKill;
 };
 
 #endif /* GENERATION_H_ */
