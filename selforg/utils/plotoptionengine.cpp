@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-06-02 09:55:24  robot12
+ *  Revision 1.2  2009-06-29 13:11:32  robot14
+ *  corrected includes (now gcc4.3 compatible)
+ *
+ *  Revision 1.1  2009/06/02 09:55:24  robot12
  *  Splitting of WiredController and PlotOption into WiredController : public PlotOptionEngine and
  *  PlotOption (used by ga_tools). Further refactorings needed.
  *                                                                                   *
@@ -40,6 +43,8 @@
 #include "printInternals.h"
 #include <string>
 #include <assert.h>
+#include <string.h>
+#include <algorithm>
 
 PlotOptionEngine::PlotOptionEngine(const PlotOption& plotOption)
 {
