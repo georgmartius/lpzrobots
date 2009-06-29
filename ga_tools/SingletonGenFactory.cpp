@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a factory for the class Gen. It use some parameters and *
+ *   a GenPrototype to create new Gens. (randomized gens or mutated gens)  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-14 15:29:54  robot12
+ *   Revision 1.3  2009-06-29 14:27:13  robot12
+ *   finishing the Gen Factory and add some comments
+ *
+ *   Revision 1.2  2009/05/14 15:29:54  robot12
  *   bugfix: mutation change the oldGen, not the new!!! now fixed
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12
@@ -46,6 +50,7 @@
 
 #include "SingletonGenFactory.h"
 
+//ga_tools includes
 #include "Gen.h"
 #include "GenContext.h"
 #include "GenPrototype.h"
@@ -67,11 +72,11 @@ SingletonGenFactory::~SingletonGenFactory() {
 Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototype* prototype)const {
 	Gen* gen = new Gen(prototype, m_number);
 	m_number++;
-	IValue* value = prototype->getRandomValue();
+	IValue* value = prototype->getRandomValue();		//create a new random value
 
 	gen->setValue(value);
 
-	context->addGen(gen);
+	context->addGen(gen);								//save gen
 	individual->addGen(gen);
 	SingletonGenEngine::getInstance()->addGen(gen);
 
@@ -80,11 +85,11 @@ Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual,
 
 Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototype* prototype, GenContext* oldContext, Individual* oldIndividual, Gen* oldGen, bool mutate)const {
 	if(mutate) {
-		return prototype->mutate(context, individual, oldGen, oldContext);
+		return prototype->mutate(context, individual, oldGen, oldContext);			//mutate
 	}
 
 
-	Gen* gen = new Gen(prototype,m_number);
+	Gen* gen = new Gen(prototype,m_number);											//copy gen
 
 	m_number++;
 

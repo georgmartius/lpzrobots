@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a factory for the class Gen. It use some parameters and *
+ *   a GenPrototype to create new Gens. (randomized gens or mutated gens)  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-04 15:27:55  robot12
+ *   Revision 1.2  2009-06-29 14:27:13  robot12
+ *   finishing the Gen Factory and add some comments
+ *
+ *   Revision 1.1  2009/05/04 15:27:55  robot12
  *   rename of some files and moving files to other positions
  *    - SingletonGenAlgAPI has one error!!! --> is not ready now
  *
@@ -44,24 +48,72 @@
 #ifndef SINGLETONGENFACTORY_H_
 #define SINGLETONGENFACTORY_H_
 
+//forward declaration
 class GenContext;
 class Gen;
 class Individual;
 class GenPrototype;
 class IValue;
 
+/**
+ * This is the factory for the class Gen. It gives 3 Methodes to generate new gens. (random,value and mutation)
+ * Over this is the class as singleton concepted. Only one Factory for a run.
+ *
+ * It use by every method the GenPrototype to be independent from the type of the Gen.
+ */
 class SingletonGenFactory {
 public:
+	/**
+	 * this method is to become the only existing factory
+	 * @return (SingletonGenFactory*) the one and only factory
+	 */
 	inline static SingletonGenFactory* getInstance(void) {if(m_factory==0)m_factory = new SingletonGenFactory();return m_factory;}
+
+	/**
+	 * this method is to destroy the one and only factory.
+	 */
 	inline static void destroyGenFactory(void) {delete m_factory;m_factory=0;}
 
 	// 3 methodes to create an Gen
-	Gen* createGen(GenContext* context, Individual* individual, GenPrototype* prototype)const;																			// random
-	Gen* createGen(GenContext* context, Individual* individual, GenPrototype* prototype, GenContext* oldContext, Individual* oldIndividual, Gen* oldGen, bool mutate=false)const;				// copy + mutation
-	Gen* createGen(GenContext* context, Individual* individual, GenPrototype* prototype, IValue* value);																	// value
+	/**
+	 * random generation of a new gen.
+	 * @param context (GenContext*) the context of the new Gen
+	 * @param individual (Individual*) the individual, where the gen is part of.
+	 * @param prototype (GenPrototype*) the prototype of the gen, which should be create.
+	 * @return (Gen*) the new Gen
+	 */
+	Gen* createGen(GenContext* context, Individual* individual, GenPrototype* prototype)const;
+	/**
+	 * this function generate a new Gen by mutate a old Gen
+	 * @param context (GenContext*) the context of the new Gen
+	 * @param individual (Individual*) the individual, where the gen is part of.
+	 * @param prototype (GenPrototype*) the prototype of the gen, which should be create.
+	 * @param oldContext (GenContext*) the Context of the old Gen
+	 * @param oldIndividual (Individual*) the individua, where the olg gen is part of.
+	 * @param oldGen (Gen*) the old Gen
+	 * @param mutate (bool) should be mutate?
+	 * @return (Gen*) the new (or old gen)
+	 */
+	Gen* createGen(GenContext* context, Individual* individual, GenPrototype* prototype, GenContext* oldContext, Individual* oldIndividual, Gen* oldGen, bool mutate=false)const;		// copy + mutation
+	/**
+	 * create a new Gen by a giving value
+	 * @param context (GenContext*) the context of the new Gen
+	 * @param individual (Individual*) the individual, where the gen is part of.
+	 * @param prototype (GenPrototype*) the prototype of the gen, which should be create.
+	 * @param value (IValue*) the value of the new gen
+	 * @return
+	 */
+	Gen* createGen(GenContext* context, Individual* individual, GenPrototype* prototype, IValue* value);																				// value
 
 private:
+	/**
+	 * the one and only factory
+	 */
 	static SingletonGenFactory* m_factory;
+
+	/**
+	 * counter for giving Gens a individual ID
+	 */
 	static int m_number;
 
 	/**
