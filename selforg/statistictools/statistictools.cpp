@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-19 11:39:45  robot12
+ *   Revision 1.3  2009-06-29 12:43:37  robot12
+ *   3 new functions to work whit the new part data analysation.
+ *
+ *   Revision 1.2  2009/05/19 11:39:45  robot12
  *   add to statistictools some template analysation methodes (needed for boxplots)
  *
  *   Revision 1.1  2009/03/27 06:16:57  guettler
@@ -143,7 +146,7 @@ void StatisticTools::beginMeasureAt(long step) {
 
 
 
-template
+/*template
 <class type,
 type zero(void),
 bool lower(const type&, const type&),
@@ -154,11 +157,11 @@ type add(const type&, const type&),
 type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
-ANALYSATION_CONTEXT* StatisticTools::getAnalysation(std::vector<type> values) {
-	return new ANALYSATION_CONTEXT(values);
-}
+DOUBLE_ANALYSATION_CONTEXT* StatisticTools::getAnalysation(std::vector<type> values) {
+	return new DOUBLE_ANALYSATION_CONTEXT(values);
+}*/
 
-template
+/*template
 <class type,
 type zero(void),
 bool lower(const type&, const type&),
@@ -169,7 +172,7 @@ type add(const type&, const type&),
 type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
-type StatisticTools::getAnalisation(ANALYSATION_CONTEXT* tvAnalysation,	AnalysationMode mode, unsigned int feature) {
+type StatisticTools::getAnalisation(DOUBLE_ANALYSATION_CONTEXT* tvAnalysation,	AnalysationMode mode, unsigned int feature) {
 	switch(mode){
 	case AM_AVG:
 		return tvAnalysation->getAvg();
@@ -186,17 +189,21 @@ type StatisticTools::getAnalisation(ANALYSATION_CONTEXT* tvAnalysation,	Analysat
 	case AM_WHISKER:
 		return tvAnalysation->getWhisker(1.5);
 	case AM_Q1:
-		return tvAnalysation->getQuartile1();
+		return tvAnalysation->getQuartil1();
 	case AM_Q3:
-		return tvAnalysation->getQuartile3();
+		return tvAnalysation->getQuartil3();
+	case AM_W1:
+		return tvAnalysation->getWhisker1(1.5);
+	case AM_W3:
+		return tvAnalysation->getWhisker3(1.5);
 	case AM_NUM_EXT:
 		return (type)tvAnalysation->getNumExtrems(1.5);
 	case AM_EXT:
 		return tvAnalysation->getExtrem(1.5,feature);
 	}
-}
+}*/
 
-template
+/*template
 <class type,
 type zero(void),
 bool lower(const type&, const type&),
@@ -208,6 +215,6 @@ type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
 type StatisticTools::getAnalisation(std::vector<type> values, AnalysationMode mode, unsigned int feature) {
-	ANALYSATION_CONTEXT* context = getAnalysation(values);
-	return getAnalysation(context,mode,feature);
-}
+	DOUBLE_ANALYSATION_CONTEXT* context = GET_TYPE_ANALYSATION(type)(values);
+	return GET_TYPE_ANALYSATION(type)(context,mode,feature);
+}*/

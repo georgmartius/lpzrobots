@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-05-19 11:39:45  robot12
+ *   Revision 1.3  2009-06-29 12:43:37  robot12
+ *   3 new functions to work whit the new part data analysation.
+ *
+ *   Revision 1.2  2009/05/19 11:39:45  robot12
  *   add to statistictools some template analysation methodes (needed for boxplots)
  *
  *   Revision 1.1  2009/03/27 06:16:57  guettler
@@ -94,6 +97,9 @@ class ComplexMeasure;
 #include "measuremodes.h"
 #include "analysationmodes.h"
 #include "templatevalueanalysation.h"
+
+#define GET_TYPE_ANALYSATION(type) getAnalysation<type,defaultZero,defaultLower<type>,defaultHigher<type>,defaultDoubleDiv<type>,defaultDoubleMul<type>,defaultAdd<type>,defaultSub<type>,defaultMul<type>,defaultDiv<type> >
+#define GET_DOUBLE_ANALYSATION GET_TYPE_ANALYSATION(double)
 
 class StatisticTools : public Inspectable, public Callbackable {
 
@@ -185,72 +191,108 @@ public:
 	 */
 	virtual void doOnCallBack();
 
-	/**
-	 * use this function if you want more than one value analysed
-	 * class type must implement following operators:
-	 *
-	 * @param values (vector<type>) values for the analysation
-	 * @return (TemplateValueAnalysation) the analysation context
-	 */
-	template
-	<class type,
-	type zero(void),
-	bool lower(const type&, const type&),
-	bool higher(const type&, const type&),
-	type doubleDiv(const type&, const double&),
-	type doubleMul(const type&, const double&),
-	type add(const type&, const type&),
-	type sub(const type&, const type&),
-	type mul(const type&, const type&),
-	type div(const type&, const type&)>
-	static ANALYSATION_CONTEXT* getAnalysation(std::vector<type> values);
-
-	/**
-	 * class type must implement following operators:
-	 *
-	 * @param tvAnalysation (TemplateValueAnalysation) the analysation context
-	 * @param mode (AnalysationMode) what value you want
-	 * @param feature (unsigned int) special param. for mode
-	 * @return (type) the value you want
-	 */
-	template
-	<class type,
-	type zero(void),
-	bool lower(const type&, const type&),
-	bool higher(const type&, const type&),
-	type doubleDiv(const type&, const double&),
-	type doubleMul(const type&, const double&),
-	type add(const type&, const type&),
-	type sub(const type&, const type&),
-	type mul(const type&, const type&),
-	type div(const type&, const type&)>
-	static type getAnalisation(ANALYSATION_CONTEXT* tvAnalysation, AnalysationMode mode, unsigned int feature);
-
-	/**
-	 * class type must implement following operators:
-	 *
-	 * @param values (vector<type>) values for the analysation
-	 * @param mode (AnalysationMode) what value you want
-	 * @param feature (unsigned int) special param. for mode
-	 * @return (type) the value you want
-	 */
-	template
-	<class type,
-	type zero(void),
-	bool lower(const type&, const type&),
-	bool higher(const type&, const type&),
-	type doubleDiv(const type&, const double&),
-	type doubleMul(const type&, const double&),
-	type add(const type&, const type&),
-	type sub(const type&, const type&),
-	type mul(const type&, const type&),
-	type div(const type&, const type&)>
-	static type getAnalisation(std::vector<type> values, AnalysationMode mode, unsigned int feature);
-
-
 protected:
 	std::list<AbstractMeasure*> activeMeasures;
 	long beginMeasureCounter;
 };
+
+
+/**
+ * use this function if you want more than one value analysed
+ * class type must implement following operators:
+ *
+ * @param values (vector<type>) values for the analysation
+ * @return (TemplateValueAnalysation) the analysation context
+ */
+template
+<class type,
+type zero(void),
+bool lower(const type&, const type&),
+bool higher(const type&, const type&),
+type doubleDiv(const type&, const double&),
+type doubleMul(const type&, const double&),
+type add(const type&, const type&),
+type sub(const type&, const type&),
+type mul(const type&, const type&),
+type div(const type&, const type&)>
+ANALYSATION_CONTEXT* getAnalysation(std::vector<type> values) {
+	return new ANALYSATION_CONTEXT(values);
+}
+
+/**
+ * class type must implement following operators:
+ *
+ * @param tvAnalysation (TemplateValueAnalysation) the analysation context
+ * @param mode (AnalysationMode) what value you want
+ * @param feature (unsigned int) special param. for mode
+ * @return (type) the value you want
+ */
+template
+<class type,
+type zero(void),
+bool lower(const type&, const type&),
+bool higher(const type&, const type&),
+type doubleDiv(const type&, const double&),
+type doubleMul(const type&, const double&),
+type add(const type&, const type&),
+type sub(const type&, const type&),
+type mul(const type&, const type&),
+type div(const type&, const type&)>
+type getAnalysation(ANALYSATION_CONTEXT* tvAnalysation, AnalysationMode mode, unsigned int feature = 0) {
+	switch(mode){
+	case AM_AVG:
+		return tvAnalysation->getAvg();
+	case AM_MIN:
+		return tvAnalysation->getMin();
+	case AM_MAX:
+		return tvAnalysation->getMax();
+	case AM_RANGE:
+		return tvAnalysation->getRange();
+	case AM_IQR:
+		return tvAnalysation->getIQR();
+	case AM_MED:
+		return tvAnalysation->getMedian();
+	case AM_WHISKER:
+		return tvAnalysation->getWhisker(1.5);
+	case AM_Q1:
+		return tvAnalysation->getQuartil1();
+	case AM_Q3:
+		return tvAnalysation->getQuartil3();
+	case AM_W1:
+		return tvAnalysation->getWhisker1(1.5);
+	case AM_W3:
+		return tvAnalysation->getWhisker3(1.5);
+	case AM_NUM_EXT:
+		return (type)tvAnalysation->getNumExtrems(1.5);
+	case AM_EXT:
+		return tvAnalysation->getExtrem(1.5,feature);
+	case AM_BEST:
+		return tvAnalysation->getBest();
+	}
+}
+
+/**
+ * class type must implement following operators:
+ *
+ * @param values (vector<type>) values for the analysation
+ * @param mode (AnalysationMode) what value you want
+ * @param feature (unsigned int) special param. for mode
+ * @return (type) the value you want
+ */
+template
+<class type,
+type zero(void),
+bool lower(const type&, const type&),
+bool higher(const type&, const type&),
+type doubleDiv(const type&, const double&),
+type doubleMul(const type&, const double&),
+type add(const type&, const type&),
+type sub(const type&, const type&),
+type mul(const type&, const type&),
+type div(const type&, const type&)>
+type getAnalysation(std::vector<type> values, AnalysationMode mode, unsigned int feature = 0) {
+	ANALYSATION_CONTEXT* context = GET_TYPE_ANALYSATION(type)(values);
+	return GET_TYPE_ANALYSATION(type)(context,mode,feature);
+}
 
 #endif
