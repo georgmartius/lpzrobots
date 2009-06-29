@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class represent one individual of the complete gen. alg. It have *
+ *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-05-14 15:29:56  robot12
+ *   Revision 1.8  2009-06-29 14:52:14  robot12
+ *   finishing Individual and add some comments
+ *
+ *   Revision 1.7  2009/05/14 15:29:56  robot12
  *   bugfix: mutation change the oldGen, not the new!!! now fixed
  *
  *   Revision 1.6  2009/05/12 13:29:26  robot12
@@ -88,15 +92,12 @@ std::string Individual::IndividualToString(void)const {
 	std::string result = "";
 
 	for(std::vector<Gen*>::const_iterator iter = m_gene.begin();iter!=m_gene.end();iter++) {
-		result += ",\t" + (*iter)->toString();
+		result += "" + (*iter)->toString() + "\t";
 	}
 
 	char buffer[128];
 	sprintf(buffer,"% .12lf",getFitness());
-	result += "\t,\t";
 	result += buffer;
-
-	//result += "\ttitle \"" + m_name + "\"\\";
 
 	return result;
 }
