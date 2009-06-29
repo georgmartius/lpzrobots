@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-05-19 11:39:45  robot12
+ *   Revision 1.2  2009-06-29 12:40:53  robot12
+ *   some new analysation modes.
+ *
+ *   Revision 1.1  2009/05/19 11:39:45  robot12
  *   add to statistictools some template analysation methodes (needed for boxplots)
  *
  *
@@ -40,7 +43,7 @@
 
 
 /** analysation modes of statistical types. If you add a analysation mode, you have
- *  naturally to implement this analysationmode in statisticmeasure.cpp -
+ *  naturally to implement this analysation mode in statisticmeasure.cpp -
  *  see method StatisticMeasure::step() !
  */
 enum AnalysationMode {
@@ -60,12 +63,18 @@ enum AnalysationMode {
 		AM_Q3,
 	/// returns the whisker (1.5*IQR) value
 		AM_WHISKER,
+	/// returns the whisker1 value
+		AM_W1,
+	/// returns the whisker3 value
+		AM_W3,
 	/// returns the inter quartile range (IQR) value
 		AM_IQR,
 	/// returns the count of extreme values
 		AM_NUM_EXT,
 	/// returns the special extreme value
-		AM_EXT
+		AM_EXT,
+	/// returns the best value
+		AM_BEST
 };
 
 #endif //_ANALYSATIONMODES_H
