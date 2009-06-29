@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-06-29 12:43:37  robot12
+ *   Revision 1.4  2009-06-29 15:24:23  robot12
+ *   patch a warning
+ *
+ *   Revision 1.3  2009/06/29 12:43:37  robot12
  *   3 new functions to work whit the new part data analysation.
  *
  *   Revision 1.2  2009/05/19 11:39:45  robot12
@@ -268,6 +271,8 @@ type getAnalysation(ANALYSATION_CONTEXT* tvAnalysation, AnalysationMode mode, un
 		return tvAnalysation->getExtrem(1.5,feature);
 	case AM_BEST:
 		return tvAnalysation->getBest();
+	default:
+		return zero();
 	}
 }
 
