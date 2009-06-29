@@ -22,10 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a factory for the class individual. It use the          *
+ *   GenFactory to create a new individual, because the individual is a    *
+ *   combination of Gens.                                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   Revision 1.4  2009-06-29 15:20:25  robot12
+ *   finishing Individual Factory and add some comments
+ *
+ *   Revision 1.3  2009/05/11 14:08:51  robot12
  *   patch some bugfix....
  *
  *   Revision 1.2  2009/05/06 13:28:22  robot12
@@ -52,6 +57,7 @@
 
 #include "SingletonIndividualFactory.h"
 
+//ga_tools includes
 #include "SingletonGenFactory.h"
 #include "SingletonGenEngine.h"
 #include "Generation.h"
@@ -74,10 +80,10 @@ Individual* SingletonIndividualFactory::createIndividual(std::string name)const 
 	GenPrototype* prototype;
 	std::vector<GenPrototype*> storage;
 
-	storage = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();
+	storage = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();	//become all GenPrototypes
 	int num = storage.size();
 	for(int x=0;x<num;x++) {
-		prototype = storage[x];
+		prototype = storage[x];												//create a random Gen for every Prototype
 		SingletonGenFactory::getInstance()->createGen(prototype->getContext(SingletonGenEngine::getInstance()->getActualGeneration()),ind,prototype);
 	}
 
@@ -98,26 +104,21 @@ Individual* SingletonIndividualFactory::createIndividual(Individual* individual1
 
 	storage = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();
 	int num = storage.size();
-	for(int x=0;x<num;x++) {
+	for(int x=0;x<num;x++) {							//take randomized the gens from ind 1 or 2.
 		prototype = storage[x];
 		r1 = ((int)(random->rand()*10000.0))%2;
 		r2 = ((int)(random->rand()*10000.0))%1000;
 		ind = r1==0?individual1:individual2;
 
-		int num2 = ind->getSize();
-		for(int y=0;y<num2;y++) {
-			gen = ind->getGen(y);
-			if(r2<gen->getPrototype()->getMutationProbability()) {
-				SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,true);
-				newInd->setMutated();
-				break;
-			}
-			else {
-				//SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,false);
-				prototype->getContext(generation)->addGen(gen);
-				newInd->addGen(gen);
-				break;
-			}
+		gen = ind->getGen(x);
+		if(r2<prototype->getMutationProbability()) {		//with a mutation probability it is possible that the gen mutate
+			SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,true);
+			newInd->setMutated();
+		}
+		else {
+			//SingletonGenFactory::getInstance()->createGen(prototype->getContext(generation),newInd,prototype,prototype->getContext(oldGeneration),ind,gen,false);
+			prototype->getContext(generation)->addGen(gen);
+			newInd->addGen(gen);
 		}
 	}
 
