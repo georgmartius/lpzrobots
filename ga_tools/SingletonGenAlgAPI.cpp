@@ -22,10 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   Informative Beschreibung der Klasse                                   *
+ *   This class is a facade for the gen. alg. It covert all function to    *
+ *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-11 14:08:51  robot12
+ *   Revision 1.4  2009-06-30 14:20:49  robot12
+ *   finishing the gen API and add some comments
+ *
+ *   Revision 1.3  2009/05/11 14:08:51  robot12
  *   patch some bugfix....
  *
  *   Revision 1.2  2009/05/06 13:28:22  robot12
@@ -57,6 +61,9 @@
 
 #include "IFitnessStrategy.h"
 #include "SumFitnessStrategy.h"
+#include "EuclidicDistanceFitnessStrategy.h"
+#include "ExtreamTestFitnessStrategy.h"
+#include "TestFitnessStrategy.h"
 
 #include "IRandomStrategy.h"
 #include "DoubleRandomStrategy.h"
@@ -76,22 +83,41 @@
 #include "IValue.h"
 #include "TemplateValue.h"
 
+#include <selforg/plotoptionengine.h>
+
 SingletonGenAlgAPI* SingletonGenAlgAPI::m_api = 0;
 
 SingletonGenAlgAPI::SingletonGenAlgAPI() {
-	// nothing
+	m_plotEngine = 0;
+	m_plotEngineGenContext = 0;
 }
 
 SingletonGenAlgAPI::~SingletonGenAlgAPI() {
-	// nothing
+	if(m_plotEngine!=0)
+		delete m_plotEngine;
+
+	if(m_plotEngineGenContext!=0)
+		delete m_plotEngineGenContext;
 }
 
 IFitnessStrategy* SingletonGenAlgAPI::createSumFitnessStrategy()const {
 	return new SumFitnessStrategy();
 }
 
-IRandomStrategy* SingletonGenAlgAPI::createDoubleRandomStrategy(RandGen* random)const {
-	return new DoubleRandomStrategy(random);
+IFitnessStrategy* SingletonGenAlgAPI::createEuclidicDistanceFitnessStrategy()const {
+	return new EuclidicDistanceFitnessStrategy();
+}
+
+IFitnessStrategy* SingletonGenAlgAPI::createExtreamTestFitnessStrategy(IFitnessStrategy* fitness)const {
+	return new ExtreamTestFitnessStrategy(fitness);
+}
+
+IFitnessStrategy* SingletonGenAlgAPI::createTestFitnessStrategy()const {
+	return new TestFitnessStrategy();
+}
+
+IRandomStrategy* SingletonGenAlgAPI::createDoubleRandomStrategy(RandGen* random, double base, double factor, double epsilon)const {
+	return new DoubleRandomStrategy(random,base,factor,epsilon);
 }
 
 IMutationStrategy* SingletonGenAlgAPI::createValueMutationStrategy(IMutationFactorStrategy* strategy, int mutationProbability)const {
@@ -101,7 +127,7 @@ IMutationStrategy* SingletonGenAlgAPI::createValueMutationStrategy(IMutationFact
 IMutationFactorStrategy* SingletonGenAlgAPI::createFixMutationFactorStrategy(IValue* value)const {
 	return new FixMutationFactorStrategy(value);
 }
-
+// nothing
 IMutationFactorStrategy* SingletonGenAlgAPI::createStandartMutationFactorStrategy(void)const {
 	return new StandartMutationFactorStrategy();
 }
@@ -143,8 +169,12 @@ void SingletonGenAlgAPI::crosover(RandGen* random) {
 		SingletonGenEngine::getInstance()->crosover(random);
 }
 
+void SingletonGenAlgAPI::update(double factor) {
+	SingletonGenEngine::getInstance()->update(factor);
+}
+
 void SingletonGenAlgAPI::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random) {
-	SingletonGenEngine::getInstance()->runGenAlg(startSize,startKillRate,numGeneration,random);
+	SingletonGenEngine::getInstance()->runGenAlg(startSize,startKillRate,numGeneration,random,m_plotEngine,m_plotEngineGenContext);
 }
 
 GenPrototype* SingletonGenAlgAPI::createPrototype(std::string name, IRandomStrategy* randomStrategy, IMutationStrategy* mutationStrategy)const {
@@ -153,4 +183,20 @@ GenPrototype* SingletonGenAlgAPI::createPrototype(std::string name, IRandomStrat
 
 void SingletonGenAlgAPI::insertGenPrototype(GenPrototype* prototype) {
 	SingletonGenEngine::getInstance()->addGenPrototype(prototype);
+}
+
+void SingletonGenAlgAPI::enableMeasure(const PlotOption& plotOption) {
+	m_plotEngine = new PlotOptionEngine(plotOption);
+}
+
+void SingletonGenAlgAPI::enableMeasure(const std::list<PlotOption>& plotOptions) {
+	m_plotEngine = new PlotOptionEngine(plotOptions);
+}
+
+void SingletonGenAlgAPI::enableGenContextMeasure(const PlotOption& plotOption) {
+	m_plotEngineGenContext = new PlotOptionEngine(plotOption);
+}
+
+void SingletonGenAlgAPI::enableGenContextMeasure(const std::list<PlotOption>& plotOptions) {
+	m_plotEngineGenContext = new PlotOptionEngine(plotOptions);
 }

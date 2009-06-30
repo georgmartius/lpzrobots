@@ -26,18 +26,15 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-06-02 09:55:24  robot12
+ *  Revision 1.2  2009-06-30 14:20:49  robot12
+ *  finishing the gen API and add some comments
+ *
+ *  Revision 1.1  2009/06/02 09:55:24  robot12
  *  Splitting of WiredController and PlotOption into WiredController : public PlotOptionEngine and
  *  PlotOption (used by ga_tools). Further refactorings needed.
  *										   *
  *                                                                         *
  **************************************************************************/
-/*
- * plotoptionengine.h
- *
- *  Created on: 26.05.2009
- *      Author: guettler
- */
 
 #ifndef PLOTOPTIONENGINE_H_
 #define PLOTOPTIONENGINE_H_
