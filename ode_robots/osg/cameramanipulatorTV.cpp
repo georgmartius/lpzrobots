@@ -23,7 +23,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-12-13 07:04:53  der
+ *   Revision 1.6  2009-07-01 08:07:59  guettler
+ *   bugfix: if agent not in global list,
+ *   use the first agent of global list
+ *
+ *   Revision 1.5  2007/12/13 07:04:53  der
  *   fixed a stupid bug created through under sleep ;)
  *
  *   Revision 1.4  2007/12/12 10:27:31  der
@@ -78,7 +82,12 @@ namespace lpzrobots {
 
 
   void CameraManipulatorTV::calcMovementByAgent() {
-    if (watchingAgent) {
+    // 20090605; guettler: if agent not in global list, use the first agent of global list
+    OdeAgentList::iterator itr = find (globalData.agents.begin(),globalData.agents.end(),watchingAgent);
+    if (watchingAgent && itr!=globalData.agents.end() && !globalData.agents.empty()) {
+      itr = globalData.agents.begin();
+    }
+    if (watchingAgent && itr!=globalData.agents.end()) {
       // the actual position of the agent has to be recognized
       // we use the Position getPosition() from OdeRobot
       Position robPos = watchingAgent->getRobot()->getPosition();
@@ -103,7 +112,7 @@ namespace lpzrobots {
     }
   }
 
-  
+
     void CameraManipulatorTV::setHomeViewByAgent() {
     // the default camera manipulator does not need to change the view
     // normally the desired view should be changed
