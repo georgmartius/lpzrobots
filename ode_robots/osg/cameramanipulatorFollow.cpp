@@ -23,7 +23,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-12-12 10:27:31  der
+ *   Revision 1.5  2009-07-01 08:55:22  guettler
+ *   new method which checks if agent is defined and in global list,
+ *   if not, use the first agent of global list
+ *   --> all camera manipulators fixed
+ *
+ *   Revision 1.4  2007/12/12 10:27:31  der
  *   fixed some nullpointer bugs
  *
  *   Revision 1.3  2007/07/03 13:15:17  martius
@@ -65,14 +70,14 @@ namespace lpzrobots {
   CameraManipulatorFollow::~CameraManipulatorFollow(){}
 
   void CameraManipulatorFollow::calcMovementByAgent() {
-    if (watchingAgentDefined && oldPositionOfAgentDefined  && watchingAgent) {
+    if (this->isWatchingAgentDefined() && oldPositionOfAgentDefined) {
       // then manipulate desired view and desired eye
       const double* robMove = (watchingAgent->getRobot()->getPosition()-oldPositionOfAgent).toArray();
       // attach the robSpeed to desired eye
       for (int i=0;i<=2;i++) {
 	if (!isNaN(robMove[i])) {
 	  desiredEye[i]+=robMove[i];}
-	else 
+	else
 	  std::cout << "NAN exception!" << std::endl;
       }
     }
@@ -81,29 +86,28 @@ namespace lpzrobots {
 
   void CameraManipulatorFollow::setHomeViewByAgent() {
     // ok here the camera will center on the robot
-    if (!watchingAgent) {
-      // the actual position of the agent has to be recognized
-      // we use the Position getPosition() from OdeRobot
-      Position robPos = watchingAgent->getRobot()->getPosition();
-      // desiredEye is the position of the camera
-      // calculate the horizontal angle, means pan (view.x)
-      if (robPos.x-desiredEye[0]!=0) { // division by zero
-	desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
-	  / PI*180.0f+180.0f;
-       	if (desiredEye[1]-robPos.y<0) // we must switch
-		  desiredView[0]+=180.0f;
-      }
-      // calculate the vertical angle
-      if (robPos.z-desiredEye[2]!=0) { // division by zero
-	// need dz and sqrt(dx^2+dy^2) for calulation
-	desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
-				  square(desiredEye[1]-robPos.y)))
-			    /(robPos.z-desiredEye[2]))
-	  / PI*180.0f-90.0f;
-	if (desiredEye[2]-robPos.z<0) // we must switch
-	  desiredView[1]+=180.0f;
-      }
+    if (!this->isWatchingAgentDefined()) return;
+    // the actual position of the agent has to be recognized
+    // we use the Position getPosition() from OdeRobot
+    Position robPos = watchingAgent->getRobot()->getPosition();
+    // desiredEye is the position of the camera
+    // calculate the horizontal angle, means pan (view.x)
+    if (robPos.x-desiredEye[0]!=0) { // division by zero
+      desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
+        / PI*180.0f+180.0f;
+      if (desiredEye[1]-robPos.y<0) // we must switch
+                desiredView[0]+=180.0f;
+    }
+    // calculate the vertical angle
+    if (robPos.z-desiredEye[2]!=0) { // division by zero
+      // need dz and sqrt(dx^2+dy^2) for calulation
+      desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
+                                square(desiredEye[1]-robPos.y)))
+                          /(robPos.z-desiredEye[2]))
+        / PI*180.0f-90.0f;
+      if (desiredEye[2]-robPos.z<0) // we must switch
+        desiredView[1]+=180.0f;
     }
   }
-  
+
 }

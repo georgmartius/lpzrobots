@@ -24,7 +24,12 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-01-20 22:41:19  martius
+ *   Revision 1.6  2009-07-01 08:55:22  guettler
+ *   new method which checks if agent is defined and in global list,
+ *   if not, use the first agent of global list
+ *   --> all camera manipulators fixed
+ *
+ *   Revision 1.5  2009/01/20 22:41:19  martius
  *   manipulation of agents with the mouse implemented ( a dream... )
  *
  *   Revision 1.4  2009/01/20 20:13:28  martius
@@ -96,18 +101,18 @@ namespace lpzrobots {
 
   /**
      CameraManipulator is a MatrixManipulator which provides a flying camera
-     updating of the camera position & orientation. 
+     updating of the camera position & orientation.
      Left mouse button: Pan and tilt
      Right mouse button: forward and sideways
      Middle mouse button: up and sideways
-     
+
      It also enables to manipulate agents with forces
   */
   class CameraManipulator : public osgGA::MatrixManipulator
     {
     public:
       typedef enum ManipulationType { No, Translational, Rotational};
-      
+
       CameraManipulator(osg::Node* node, GlobalData& global);
 
 
@@ -121,14 +126,14 @@ namespace lpzrobots {
       virtual void setByMatrix(const osg::Matrixd& matrix);
 
       /** set the position of the matrix manipulator using a 4x4 Matrix.*/
-      virtual void setByInverseMatrix(const osg::Matrixd& matrix) { 
-	setByMatrix(osg::Matrixd::inverse(matrix)); 
+      virtual void setByInverseMatrix(const osg::Matrixd& matrix) {
+	setByMatrix(osg::Matrixd::inverse(matrix));
       }
 
       /** get the position of the manipulator as 4x4 Matrix.*/
       virtual osg::Matrixd getMatrix() const;
 
-      /** get the position of the manipulator as a inverse matrix of the manipulator, 
+      /** get the position of the manipulator as a inverse matrix of the manipulator,
 	  typically used as a model view matrix.*/
       virtual osg::Matrixd getInverseMatrix() const;
 
@@ -165,7 +170,7 @@ namespace lpzrobots {
       */
       virtual void update();
 
-      /** manipulate agent if Manipulation is active 
+      /** manipulate agent if Manipulation is active
 	  (should be called every simulation step)
       */
       virtual void manipulateAgent( OsgHandle& osgHandle);
@@ -185,6 +190,13 @@ namespace lpzrobots {
 	  Return true is camera has moved and a redraw is required.*/
       virtual bool calcMovement();
 
+      /**
+       * Checks if an agent is selected and if this agent is available.
+       * This agent must be listed in the global agent list.
+       * @return true if defined, otherwise false
+       */
+      virtual bool isWatchingAgentDefined();
+
       // Internal event stack comprising last three mouse events.
       osg::ref_ptr<const osgGA::GUIEventAdapter> event_old;
       osg::ref_ptr<const osgGA::GUIEventAdapter> event;
@@ -193,13 +205,13 @@ namespace lpzrobots {
 
       float modelScale;
       osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
-        
+
       static osg::Vec3   eye;      // position of the camera
       static osg::Vec3   view;     // view angles in degree (pan, tilt, yaw)
       static osg::Vec3   home_eye;  // home position of the camera
       static osg::Vec3   home_view; // home view angles in degree (pan, tilt, yaw)
       static bool home_externally_set;
-    
+
       static osg::Vec3   desiredEye;      // desired position of the camera
       static osg::Vec3   desiredView;     // desired view angles in degree (pan, tilt, yaw)
 
@@ -212,14 +224,14 @@ namespace lpzrobots {
       static ManipulationType doManipulation; // type of agent-manipulation
       static osg::Vec3 manipulationPoint; // dragged point in the world
       static OSGPrimitive* manipulationViz;
-    
+
       GlobalData& globalData; // the global environment variables
 
 
       double degreeSmoothness; // smoothness factor for the view
       double lengthSmoothness; // smoothness factor for the eye
-      double degreeAccuracy; // accuracy factor for the view-smoothness 
-      double lengthAccuracy; // accuracy factor for the eye-smoothness 
+      double degreeAccuracy; // accuracy factor for the view-smoothness
+      double lengthAccuracy; // accuracy factor for the eye-smoothness
 
 
       /** This manages the robots, switching between them and so on
@@ -250,12 +262,12 @@ namespace lpzrobots {
        */
       virtual void centerOnAgent();
 
-      /** manipulates Agent by forces. The given points are screen coords (-1 to 1) normalized.	  
+      /** manipulates Agent by forces. The given points are screen coords (-1 to 1) normalized.
       */
       virtual void calcManipulationPoint(float x, float y);
-      
+
       static int i;
-  
+
     };
 
 }

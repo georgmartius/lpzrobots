@@ -23,7 +23,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-01 08:07:59  guettler
+ *   Revision 1.7  2009-07-01 08:55:22  guettler
+ *   new method which checks if agent is defined and in global list,
+ *   if not, use the first agent of global list
+ *   --> all camera manipulators fixed
+ *
+ *   Revision 1.6  2009/07/01 08:07:59  guettler
  *   bugfix: if agent not in global list,
  *   use the first agent of global list
  *
@@ -82,33 +87,27 @@ namespace lpzrobots {
 
 
   void CameraManipulatorTV::calcMovementByAgent() {
-    // 20090605; guettler: if agent not in global list, use the first agent of global list
-    OdeAgentList::iterator itr = find (globalData.agents.begin(),globalData.agents.end(),watchingAgent);
-    if (watchingAgent && itr!=globalData.agents.end() && !globalData.agents.empty()) {
-      itr = globalData.agents.begin();
+    if (!this->isWatchingAgentDefined()) return;
+    // the actual position of the agent has to be recognized
+    // we use the Position getPosition() from OdeRobot
+    Position robPos = watchingAgent->getRobot()->getPosition();
+    // desiredEye is the position of the camera
+    // calculate the horizontal angle, means pan (view.x)
+    if (robPos.x-desiredEye[0]!=0) { // division by zero
+      desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
+        / PI*180.0f+180.0f;
+      if (desiredEye[1]-robPos.y<0) // we must switch
+                desiredView[0]+=180.0f;
     }
-    if (watchingAgent && itr!=globalData.agents.end()) {
-      // the actual position of the agent has to be recognized
-      // we use the Position getPosition() from OdeRobot
-      Position robPos = watchingAgent->getRobot()->getPosition();
-      // desiredEye is the position of the camera
-      // calculate the horizontal angle, means pan (view.x)
-      if (robPos.x-desiredEye[0]!=0) { // division by zero
-	desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
-	  / PI*180.0f+180.0f;
-       	if (desiredEye[1]-robPos.y<0) // we must switch
-		  desiredView[0]+=180.0f;
-      }
-      // calculate the vertical angle
-      if (robPos.z-desiredEye[2]!=0) { // division by zero
-	// need dz and sqrt(dx^2+dy^2) for calulation
-	desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
-				  square(desiredEye[1]-robPos.y)))
-			    /(robPos.z-desiredEye[2]))
-	  / PI*180.0f-90.0f;
-	if (desiredEye[2]-robPos.z<0) // we must switch
-	  desiredView[1]+=180.0f;
-      }
+    // calculate the vertical angle
+    if (robPos.z-desiredEye[2]!=0) { // division by zero
+      // need dz and sqrt(dx^2+dy^2) for calulation
+      desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
+                                square(desiredEye[1]-robPos.y)))
+                          /(robPos.z-desiredEye[2]))
+        / PI*180.0f-90.0f;
+      if (desiredEye[2]-robPos.z<0) // we must switch
+        desiredView[1]+=180.0f;
     }
   }
 
