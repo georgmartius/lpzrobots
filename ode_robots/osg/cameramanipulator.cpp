@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-07-01 08:55:22  guettler
+ *   Revision 1.18  2009-07-01 09:07:03  guettler
+ *   corrections (template_cycledSimulation now works fine)
+ *
+ *   Revision 1.17  2009/07/01 08:55:22  guettler
  *   new method which checks if agent is defined and in global list,
  *   if not, use the first agent of global list
  *   --> all camera manipulators fixed
@@ -647,9 +650,12 @@ namespace lpzrobots {
     OdeAgentList::iterator itr = find (globalData.agents.begin(),globalData.agents.end(),watchingAgent);
     // if watchingAgent is defined but not in list, select the first one in the list
     if (itr==globalData.agents.end() && !globalData.agents.empty()) {
-      itr = globalData.agents.begin();
+      watchingAgent = (*globalData.agents.begin());
     }
-    if (itr==globalData.agents.end())
+    if (!watchingAgent)
+      return false;
+    // additional check if robot is available
+    if (!watchingAgent->getRobot())
       return false;
     return true;
   }
