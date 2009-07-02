@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-23 14:17:34  guettler
+ *   Revision 1.2  2009-07-02 10:05:59  guettler
+ *   added example erasing an agent after one cycle and creating new ones
+ *
+ *   Revision 1.1  2009/04/23 14:17:34  guettler
  *   new: simulation cycles, first simple implementation, use the additional method bool restart() for starting new cycles, template simulation can be found in template_cycledSimulation (originally taken from template_onerobot)
  *
  *
@@ -68,6 +71,7 @@ class ThisSim : public Simulation {
 public:
 
   OdeRobot* vehicle;
+  OdeAgent* agent;
 
   // starting function (executed once at the beginning of the simulation loop/first cycle)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
@@ -143,7 +147,7 @@ public:
     // create pointer to agent
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    agent = new OdeAgent(plotoptions);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
@@ -163,7 +167,47 @@ public:
     // for demonstration: just repositionize the robot and restart 10 times
     if (this->currentCycle==10)
       return false; // don't restart, just quit
-    vehicle->place(Pos(currentCycle,0,0));
+  //  vehicle->place(Pos(currentCycle,0,0));
+    if (agent!=0) {
+      OdeAgentList::iterator itr = find(global.agents.begin(),global.agents.end(),agent);
+      if (itr!=global.agents.end())
+      {
+        global.agents.erase(itr);
+      }
+        delete agent;
+        agent = 0;
+    }
+
+    Nimm2Conf c = Nimm2::getDefaultConf();
+       c.force   = 4;
+       c.bumper  = true;
+       c.cigarMode  = true;
+       // c.irFront = true;
+       OdeRobot* vehicle2 = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
+       vehicle2->place(Pos(0,6+currentCycle*1.5,0));
+
+       // use Nimm4 vehicle as robot:
+       // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
+       // - place robot
+       //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle, "Nimm4");
+       //vehicle->place(Pos(0,1,0));
+
+
+       // create pointer to controller
+       // push controller in global list of configurables
+       //  AbstractController *controller = new InvertNChannelController(10);
+       AbstractController *controller = new InvertMotorSpace(10);
+       global.configs.push_back(controller);
+
+       // create pointer to one2onewiring
+       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+
+       // create pointer to agent
+       // initialize pointer with controller, robot and wiring
+       // push agent in globel list of agents
+       OdeAgent* agent = new OdeAgent(plotoptions);
+       agent->init(controller, vehicle2, wiring);
+       global.agents.push_back(agent);
     // restart!
     return true;
   }
