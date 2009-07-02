@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-06-30 10:30:04  robot12
+ *   Revision 1.5  2009-07-02 15:25:41  robot12
+ *   update
+ *
+ *   Revision 1.4  2009/06/30 10:30:04  robot12
  *   GenEngine finish and some comments added
  *
  *   Revision 1.3  2009/05/12 13:29:26  robot12
@@ -177,6 +181,15 @@ public:
 	 * @param killRate (int) killRate of the next generation.
 	 */
 	void prepareNextGeneration(int size, int killRate);
+
+	/**
+	 * prepare the first generation with "generateFirstGeneration" and init the measures.
+	 * @param startSize (int) Number of individual with which the alg. will be start.
+	 * @param startKillRate (int) Number of individual which will be die.
+	 * @param plotEngine (PlotOptionEngine*) logging the data for later control
+	 * @param plotEngineGenContext (PlotOptionEngine*) logging the data of the GenContext for later control
+	 */
+	void prepare(int startSize, int startKillRate, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
 
 	/**
 	 * this function is for a automatically run of the gen. alg.
