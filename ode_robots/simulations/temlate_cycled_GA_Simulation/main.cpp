@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    frankguettler@gmx.de                                                 *
  *    mai00bvz@studserv.uni-leipzig.de                                     *
+ *    JoergWeide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -22,7 +23,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-07-02 10:10:38  guettler
+ *   Revision 1.2  2009-07-02 10:13:36  guettler
+ *   updated copyright section
+ *
+ *   Revision 1.1  2009/07/02 10:10:38  guettler
  *   template for genetic algorithms using the lpzrobots library ga_tools with cycled simulations
  *
  *   Revision 1.2  2009/07/02 10:05:59  guettler
