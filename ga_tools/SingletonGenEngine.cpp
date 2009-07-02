@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-06-30 10:30:04  robot12
+ *   Revision 1.6  2009-07-02 15:24:53  robot12
+ *   update and add new class InvertedFitnessStrategy
+ *
+ *   Revision 1.5  2009/06/30 10:30:04  robot12
  *   GenEngine finish and some comments added
  *
  *   Revision 1.4  2009/05/12 13:29:25  robot12
@@ -196,7 +200,7 @@ void SingletonGenEngine::prepareNextGeneration(int size, int killRate) {
 	}
 }
 
-void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
+void SingletonGenEngine::prepare(int startSize, int startKillRate, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
 	// create first generation
 	generateFirstGeneration(startSize,startKillRate);
 
@@ -218,6 +222,35 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 		plotEngineGenContext->addInspectable(&(*actualContext));
 		plotEngineGenContext->step(1.0);
 	}
+}
+
+void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
+	std::list<Inspectable*> actualContextList;
+	InspectableProxy* actualContext;
+	Generation& actual;
+
+	// create first generation
+	prepare(startSize,startKillRate,plotEngine,plotEngineGenContext);
+	/*generateFirstGeneration(startSize,startKillRate);
+
+	// Control values
+	Generation& actual = *getActualGeneration();
+	if(plotEngine!=0) {
+		plotEngine->addInspectable(&actual);
+		plotEngine->step(1.0);
+	}
+	std::list<Inspectable*> actualContextList;
+	InspectableProxy* actualContext;
+	if(plotEngineGenContext!=0) {
+		actualContextList.clear();
+		for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
+			actualContextList.push_back((*iter)->getContext(getActualGeneration()));
+			(*iter)->getContext(getActualGeneration())->update();
+		}
+		actualContext = new InspectableProxy(actualContextList);
+		plotEngineGenContext->addInspectable(&(*actualContext));
+		plotEngineGenContext->step(1.0);
+	}*/
 
 	// generate the other generations
 	for(int x=0;x<numGeneration;x++) {

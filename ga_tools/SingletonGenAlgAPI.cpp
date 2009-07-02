@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-06-30 14:20:49  robot12
+ *   Revision 1.5  2009-07-02 15:24:53  robot12
+ *   update and add new class InvertedFitnessStrategy
+ *
+ *   Revision 1.4  2009/06/30 14:20:49  robot12
  *   finishing the gen API and add some comments
  *
  *   Revision 1.3  2009/05/11 14:08:51  robot12
@@ -171,6 +175,10 @@ void SingletonGenAlgAPI::crosover(RandGen* random) {
 
 void SingletonGenAlgAPI::update(double factor) {
 	SingletonGenEngine::getInstance()->update(factor);
+}
+
+void SingletonGenAlgAPI::prepare(int startSize, int startKillRate) {
+	SingletonGenEngine::getInstance()->prepare(startSize, startKillRate, m_plotEngine, m_plotEngineGenContext);
 }
 
 void SingletonGenAlgAPI::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random) {

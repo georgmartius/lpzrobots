@@ -22,13 +22,18 @@ SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
 LIBSELFORG = lib$(SELFORGLIB).a
 
+GA_TOOLSLIB = ga_tools
+GA_TOOLSLIB_OPT = ga_tools_opt
+LIBGA_TOOLS = lib$(GA_TOOLSLIB).a
+
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
+	-L$(GA_TOOLS)  -l$(GA_TOOLSLIB) \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lpthread
 
-INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
+INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include -I$(GA_TOOLS)/include
 
 CXX = g++
 # -pg for profiling
@@ -45,6 +50,7 @@ opt: libode_robots_opt $(EXEC_OPT)
 
 $(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
+$(EXEC_OPT): GA_TOOLSLIB = $(GA_TOOLSLIB_OPT)
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): $(ODEROBOTS)/$(LIBODEROBOTS_OPT)  Makefile Makefile.depend $(OFILES)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
@@ -76,6 +82,7 @@ tags:
 cleanall: clean
 	cd $(ODEROBOTS) && make clean
 	cd $(SELFORG) && make clean
+	cd $(GA_TOOLS) && make clean
 
 clean:
 	rm -f $(EXEC) $(EXEC_OPT) *.o Makefile.depend

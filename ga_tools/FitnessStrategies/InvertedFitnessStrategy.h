@@ -23,35 +23,61 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *   This class is a interface for the fitness strategy. It is used from   *
- *   the class individual an is for individual strategy design pattern.    *
+ *   This fitness strategy is for calculating the invert of a other        *
+ *   fitness strategy.                                                     *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-07-02 15:24:53  robot12
+ *   Revision 1.1  2009-07-02 15:24:53  robot12
  *   update and add new class InvertedFitnessStrategy
  *
- *   Revision 1.2  2009/06/15 13:58:37  robot12
- *   3 new fitness strategys and IFitnessStrategy and SumFitnessStragegy with comments.
- *
- *   Revision 1.1  2009/05/04 15:27:56  robot12
- *   rename of some files and moving files to other positions
- *    - SingletonGenAlgAPI has one error!!! --> is not ready now
- *
- *   Revision 1.2  2009/04/28 13:23:55  robot12
- *   some implements... Part2
- *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
  *
  *
  ***************************************************************************/
 
+#ifndef INVERTEDFITNESSSTRATEGY_H_
+#define INVERTEDFITNESSSTRATEGY_H_
+
+//forward declaration
+class Individual;
+
+//ga_tools includes
 #include "IFitnessStrategy.h"
 
-IFitnessStrategy::IFitnessStrategy() {
-	// nothing
-}
+/**
+ * This strategy calculate the invert to a other strategy. This can be used for other optimization targets than zero.
+ * For example. Is the optimization target of the alg. infinity, than the inverted target is zero -> so the alg. can
+ * optimize again zero and you have you infinity target.
+ */
+class InvertedFitnessStrategy: public IFitnessStrategy {
+public:
+	/**
+	 * constructor
+	 * Needs a other fitness strategy, which should be inverted.
+	 * @param strategy (IFitnessStrategy*) the other fitness strategy
+	 */
+	InvertedFitnessStrategy(IFitnessStrategy* strategy);
 
-IFitnessStrategy::~IFitnessStrategy() {
-	// nothing
-}
+	/**
+	 * default destructor
+	 */
+	virtual ~InvertedFitnessStrategy();
+
+	/**
+	 * returns the inverse fitness value what the other strategy returns for the individual "individual".
+	 *
+	 * @param individual (const Individual*) calculate the fitness for this individual
+	 * @return (double) The fitness value
+	 */
+	virtual double getFitness(const Individual* individual);
+
+protected:
+	IFitnessStrategy* m_strategy;
+
+private:
+	/**
+	 * disable the default constructor
+	 */
+	InvertedFitnessStrategy();
+};
+
+#endif /* INVERTEDFITNESSSTRATEGY_H_ */

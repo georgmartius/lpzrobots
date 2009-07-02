@@ -5,7 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    frankguettler@gmx.de                                                 *
  *    mai00bvz@studserv.uni-leipzig.de                                     *
- *    JoergWeide84@aol.com (robot12)                                       *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +23,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-07-02 10:13:36  guettler
+ *   Revision 1.3  2009-07-02 15:24:53  robot12
+ *   update and add new class InvertedFitnessStrategy
+ *
+ *   Revision 1.2  2009/07/02 10:13:36  guettler
  *   updated copyright section
  *
  *   Revision 1.1  2009/07/02 10:10:38  guettler
@@ -70,6 +73,9 @@
 #include <selforg/invertmotorspace.h>
 //#include <selforg/sinecontroller.h>
 
+// used ga_tools
+#include <ga_tools/SingletonGenAlgAPI.h>
+
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
@@ -83,6 +89,59 @@ public:
   // starting function (executed once at the beginning of the simulation loop/first cycle)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
+	// ga_tool initing
+	// first we need some variables.
+	RandGen random;									// a random generator
+	IFitnessStrategy* fitnessStr;					// the fitness strategy
+	IGenerationSizeStrategy* gSStr;					// a generation size strategy (fix -> by 100 Individual -> look at run)
+	ISelectStrategy* selStr;						// a select strategy
+	IMutationFactorStrategy* mutFaStr;				// a mutation factor strategy for the mutation strategy (standard)
+	IMutationStrategy* mutStr;						// a mutation strategy (will be standard)
+	IRandomStrategy* randomStr;						// a random strategy for the gens
+	GenPrototype* pro1;								// the 4 prototypes for the gens 2 Sensors - 2 Engines ==> 4 neuron connections
+	GenPrototype* pro2;
+	GenPrototype* pro3;
+	GenPrototype* pro4;
+	PlotOption opt1(GuiLogger);						// a plot Option for the generation measure to guilogger
+	PlotOption opt2(File);							// a plot Option for the generation measure to file
+	PlotOption optGen(File);						// a plot Option for gen measure to file
+
+	// next we need the general strategys for the alg.
+	gSStr = SingletonGenAlgAPI::getInstance()->createFixGenerationSizeStrategy(500);
+	SingletonGenAlgAPI::getInstance()->setGenerationSizeStrategy(gSStr);
+	selStr = SingletonGenAlgAPI::getInstance()->createTournamentSelectStrategy(&random);
+	SingletonGenAlgAPI::getInstance()->setSelectStrategy(selStr);
+
+	// after this we need the fitness strategy
+	// TODO
+
+	// now its time to creat all needed for the gens.
+	mutFaStr = SingletonGenAlgAPI::getInstance()->createStandartMutationFactorStrategy();
+	mutStr = SingletonGenAlgAPI::getInstance()->createValueMutationStrategy(mutFaStr,50);
+	randomStr = SingletonGenAlgAPI::getInstance()->createDoubleRandomStrategy(&random,-5.0,10.0,5.0);
+	pro1 = SingletonGenAlgAPI::getInstance()->createPrototype("P1",randomStr,mutStr);
+	pro2 = SingletonGenAlgAPI::getInstance()->createPrototype("P2",randomStr,mutStr);
+	pro3 = SingletonGenAlgAPI::getInstance()->createPrototype("P3",randomStr,mutStr);
+	pro4 = SingletonGenAlgAPI::getInstance()->createPrototype("P4",randomStr,mutStr);
+	SingletonGenAlgAPI::getInstance()->insertGenPrototype(pro1);
+	SingletonGenAlgAPI::getInstance()->insertGenPrototype(pro2);
+	SingletonGenAlgAPI::getInstance()->insertGenPrototype(pro3);
+	SingletonGenAlgAPI::getInstance()->insertGenPrototype(pro4);
+
+	// at last we create all measure
+	opt2.setName("opt2");
+	SingletonGenAlgAPI::getInstance()->enableMeasure(opt1);
+	SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->addPlotOption(opt1);
+	SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->addPlotOption(opt2);
+	optGen2.setName("optGen");
+	SingletonGenAlgAPI::getInstance()->enableGenContextMeasure(optGen);
+	SingletonGenAlgAPI::getInstance()->getPlotOptionEngineForGenContext()->addPlotOption(optGen);
+
+	// so we are ready to start the alg! Need is only the simulation!
+	// also we must create the robots and agents for the simulation
+	// TODO
+
+
     // first: position(x,y,z) second: view(alpha,beta,gamma)
     // gamma=0;
     // alpha == horizontal angle
@@ -159,10 +218,18 @@ public:
     global.agents.push_back(agent);
 
     showParams(global.configs);
+
+
+
+
+
+
+    // prepare the first generation
+    SingletonGenAlgAPI::getInstance()->prepare(100,25);
   }
 
   /**
-   * restart() is called at the second and all following starts of the cylce
+   * restart() is called at the second and all following starts of the cycle
    * The end of a cycle is determined by (simulation_time_reached==true)
    * @param the odeHandle
    * @param the osgHandle
@@ -171,6 +238,28 @@ public:
    */
   virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
+	  // we want 100 runs!
+	  if(this->currentCycle==101) {
+		  // clean GA TOOLS
+		  SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->removePlotOption(GuiLogger);
+		  SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->removePlotOption(File);
+		  SingletonGenAlgAPI::getInstance()->getPlotOptionEngineForGenContext()->removePlotOption(File);
+
+		  SingletonGenAlgAPI::destroyAPI();
+
+		  return false; //stop running
+	  }
+
+	  // step in the alg.
+	  SingletonGenAlgAPI::getInstance()->select();
+	  SingletonGenAlgAPI::getInstance()->crosover();
+	  SingletonGenAlgAPI::getInstance()->update();
+
+	  // now we must delete all robots and agents from the simulation and create new robots and agents
+	  // can be optimized be check, which individual are killed->only this robots killing!
+
+
+
     // for demonstration: just repositionize the robot and restart 10 times
     if (this->currentCycle==10)
       return false; // don't restart, just quit
@@ -248,8 +337,6 @@ public:
     }
     return false;
   }
-
-
 
 };
 

@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-06-30 14:20:49  robot12
+ *   Revision 1.5  2009-07-02 15:24:53  robot12
+ *   update and add new class InvertedFitnessStrategy
+ *
+ *   Revision 1.4  2009/06/30 14:20:49  robot12
  *   finishing the gen API and add some comments
  *
  *   Revision 1.3  2009/05/11 14:08:51  robot12
@@ -109,6 +113,13 @@ public:
 	 * @param factor (double) normal=1.5 is needed for the whisker distance
 	 */
 	void update(double factor = 1.5);
+	/**
+	 * prepares the first generation and optional the enabled measure
+	 * @param startSize (int) Number of individual at begin of the gen. alg.
+	 * @param startKillRate (int) Number of individual which will be killed
+	 * @param random (RandGen*) random generator
+	 */
+	void prepare(int startSize, int startKillRate);
 	/**
 	 * start the sequenz of select, crossover, update in a automatically loop
 	 * @param startSize (int) Number of individual at begin of the gen. alg.
