@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-02 15:25:41  robot12
+ *   Revision 1.6  2009-07-06 15:06:35  robot12
+ *   bugfix
+ *
+ *   Revision 1.5  2009/07/02 15:25:41  robot12
  *   update
  *
  *   Revision 1.4  2009/06/30 10:30:04  robot12
@@ -75,6 +78,7 @@
 #include <vector>
 #include <string>
 #include <selforg/randomgenerator.h>
+#include <selforg/inspectableproxy.h>
 
 //forward declaration
 class Gen;
@@ -186,10 +190,20 @@ public:
 	 * prepare the first generation with "generateFirstGeneration" and init the measures.
 	 * @param startSize (int) Number of individual with which the alg. will be start.
 	 * @param startKillRate (int) Number of individual which will be die.
+	 * @param generation (Generation*&) the generation which is controlled by measures
+	 * @param proxy (InspectableProxy*&) the proxy for control measure
 	 * @param plotEngine (PlotOptionEngine*) logging the data for later control
 	 * @param plotEngineGenContext (PlotOptionEngine*) logging the data of the GenContext for later control
 	 */
-	void prepare(int startSize, int startKillRate, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
+	void prepare(int startSize, int startKillRate, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
+
+	/**
+	 * makes a step in the measure
+	 * @param time (double) the time stamp in the measure
+	 * @param generation (Generation*&) the generation which is controlled by measures
+	 * @param proxy (InspectableProxy*&) the proxy for control measure
+	 */
+	void measureStep(double time,Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
 
 	/**
 	 * this function is for a automatically run of the gen. alg.

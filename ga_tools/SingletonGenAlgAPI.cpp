@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-02 15:24:53  robot12
+ *   Revision 1.6  2009-07-06 15:06:35  robot12
+ *   bugfix
+ *
+ *   Revision 1.5  2009/07/02 15:24:53  robot12
  *   update and add new class InvertedFitnessStrategy
  *
  *   Revision 1.4  2009/06/30 14:20:49  robot12
@@ -58,6 +61,7 @@
 #include "GenContext.h"
 #include "Gen.h"
 #include "Individual.h"
+#include "Generation.h"
 
 #include "IGenerationSizeStrategy.h"
 #include "FixGenerationSizeStrategy.h"
@@ -88,6 +92,7 @@
 #include "TemplateValue.h"
 
 #include <selforg/plotoptionengine.h>
+#include <selforg/inspectableproxy.h>
 
 SingletonGenAlgAPI* SingletonGenAlgAPI::m_api = 0;
 
@@ -178,7 +183,11 @@ void SingletonGenAlgAPI::update(double factor) {
 }
 
 void SingletonGenAlgAPI::prepare(int startSize, int startKillRate) {
-	SingletonGenEngine::getInstance()->prepare(startSize, startKillRate, m_plotEngine, m_plotEngineGenContext);
+	SingletonGenEngine::getInstance()->prepare(startSize, startKillRate, (Generation*&)m_generation, (InspectableProxy*&)m_inspectable, m_plotEngine, m_plotEngineGenContext);
+}
+
+void SingletonGenAlgAPI::measureStep(double time) {
+	SingletonGenEngine::getInstance()->measureStep(time, (Generation*&)m_generation, (InspectableProxy*&)m_inspectable, m_plotEngine, m_plotEngineGenContext);
 }
 
 void SingletonGenAlgAPI::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random) {

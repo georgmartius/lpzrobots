@@ -27,7 +27,10 @@
  *   individual dosn't comes in the next generation.                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-06-25 13:34:17  robot12
+ *   Revision 1.5  2009-07-06 15:06:35  robot12
+ *   bugfix
+ *
+ *   Revision 1.4  2009/06/25 13:34:17  robot12
  *   finish the select strategy and add some comments.
  *
  *   Revision 1.3  2009/05/14 15:29:56  robot12
@@ -52,6 +55,7 @@
 
 //includes
 #include <vector>
+#include <algorithm>
 
 //ga_tools includes
 #include "TournamentSelectStrategy.h"
@@ -111,14 +115,14 @@ void TournamentSelectStrategy::select(Generation* oldGeneration, Generation* new
 				storage[r1]=ind1;
 			else
 				x--;*/
-			storage.erase(std::find(storage.begin(),storage.end(),storage[r2]));
+			storage.erase(find(storage.begin(),storage.end(),storage[r2]));
 		}
 		else {
 			/*if(storage[r2]==0)
 				storage[r2]=ind2;
 			else
 				x--;*/
-			storage.erase(std::find(storage.begin(),storage.end(),storage[r1]));
+			storage.erase(find(storage.begin(),storage.end(),storage[r1]));
 		}
 
 		num--;

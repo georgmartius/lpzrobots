@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-02 15:24:53  robot12
+ *   Revision 1.7  2009-07-06 15:06:35  robot12
+ *   bugfix
+ *
+ *   Revision 1.6  2009/07/02 15:24:53  robot12
  *   update and add new class InvertedFitnessStrategy
  *
  *   Revision 1.5  2009/06/30 10:30:04  robot12
@@ -200,37 +203,54 @@ void SingletonGenEngine::prepareNextGeneration(int size, int killRate) {
 	}
 }
 
-void SingletonGenEngine::prepare(int startSize, int startKillRate, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
+void SingletonGenEngine::prepare(int startSize, int startKillRate, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
 	// create first generation
 	generateFirstGeneration(startSize,startKillRate);
 
 	// Control values
-	Generation& actual = *getActualGeneration();
+	generation = getActualGeneration();
 	if(plotEngine!=0) {
-		plotEngine->addInspectable(&actual);
+		plotEngine->addInspectable(generation);
 		plotEngine->step(1.0);
 	}
 	std::list<Inspectable*> actualContextList;
-	InspectableProxy* actualContext;
+	//InspectableProxy* actualContext;
 	if(plotEngineGenContext!=0) {
 		actualContextList.clear();
 		for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
 			actualContextList.push_back((*iter)->getContext(getActualGeneration()));
 			(*iter)->getContext(getActualGeneration())->update();
 		}
-		actualContext = new InspectableProxy(actualContextList);
-		plotEngineGenContext->addInspectable(&(*actualContext));
+		proxy = new InspectableProxy(actualContextList);
+		plotEngineGenContext->addInspectable(&(*proxy));
 		plotEngineGenContext->step(1.0);
 	}
 }
 
-void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
+void SingletonGenEngine::measureStep(double time, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
 	std::list<Inspectable*> actualContextList;
+
+	if(plotEngine!=0) {
+		generation = getActualGeneration();
+		plotEngine->step(time);
+	}
+	if(plotEngineGenContext!=0) {
+		actualContextList.clear();
+		for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
+			actualContextList.push_back((*iter)->getContext(getActualGeneration()));
+		}
+		proxy->replaceList(actualContextList);
+		plotEngineGenContext->step(time);
+	}
+}
+
+void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
+	//std::list<Inspectable*> actualContextList;
 	InspectableProxy* actualContext;
-	Generation& actual;
+	Generation* actual;
 
 	// create first generation
-	prepare(startSize,startKillRate,plotEngine,plotEngineGenContext);
+	prepare(startSize,startKillRate,actual,actualContext,plotEngine,plotEngineGenContext);
 	/*generateFirstGeneration(startSize,startKillRate);
 
 	// Control values
@@ -260,8 +280,8 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 
 		printf("Generaion %i:\tabgeschlossen.\n",x);
 
-		if(plotEngine!=0) {
-			actual = *getActualGeneration();
+		/*if(plotEngine!=0) {
+			actual = getActualGeneration();
 			plotEngine->step((double)(x+2));
 		}
 		if(plotEngineGenContext!=0) {
@@ -271,7 +291,8 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 			}
 			actualContext->replaceList(actualContextList);
 			plotEngineGenContext->step((double)(x+2));
-		}
+		}*/
+		measureStep((double)(x+2),actual,actualContext,plotEngine,plotEngineGenContext);
 
 		/*prepareNextGeneration();
 		m_generation[m_actualGeneration-1]->select(m_generation[m_actualGeneration]);

@@ -26,7 +26,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-06-29 14:52:14  robot12
+ *   Revision 1.9  2009-07-06 15:06:35  robot12
+ *   bugfix
+ *
+ *   Revision 1.8  2009/06/29 14:52:14  robot12
  *   finishing Individual and add some comments
  *
  *   Revision 1.7  2009/05/14 15:29:56  robot12
@@ -59,6 +62,8 @@
  ***************************************************************************/
 
 #include "Individual.h"
+
+#include <algorithm>
 
 Individual::Individual() {
 	// nothing

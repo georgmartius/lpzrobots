@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-02 15:24:53  robot12
+ *   Revision 1.6  2009-07-06 15:06:35  robot12
+ *   bugfix
+ *
+ *   Revision 1.5  2009/07/02 15:24:53  robot12
  *   update and add new class InvertedFitnessStrategy
  *
  *   Revision 1.4  2009/06/30 14:20:49  robot12
@@ -120,6 +123,11 @@ public:
 	 * @param random (RandGen*) random generator
 	 */
 	void prepare(int startSize, int startKillRate);
+	/**
+	 * makes a step in the measure
+	 * @param time (double) time stamp in the measure
+	 */
+	void measureStep(double time);
 	/**
 	 * start the sequenz of select, crossover, update in a automatically loop
 	 * @param startSize (int) Number of individual at begin of the gen. alg.
@@ -351,6 +359,16 @@ private:
 	 * disable the default destructor
 	 */
 	virtual ~SingletonGenAlgAPI();
+
+	/**
+	 * help declaration for prepare
+	 */
+	void* m_generation;
+
+	/**
+	 * help declaration for prepare
+	 */
+	void* m_inspectable;
 };
 
 #endif /* SINGLETONGENALGAPI_H_ */

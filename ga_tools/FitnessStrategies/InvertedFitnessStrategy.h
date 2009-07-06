@@ -27,7 +27,10 @@
  *   fitness strategy.                                                     *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-07-02 15:24:53  robot12
+ *   Revision 1.2  2009-07-06 15:06:35  robot12
+ *   bugfix
+ *
+ *   Revision 1.1  2009/07/02 15:24:53  robot12
  *   update and add new class InvertedFitnessStrategy
  *
  *
@@ -71,6 +74,9 @@ public:
 	virtual double getFitness(const Individual* individual);
 
 protected:
+	/**
+	 * The other strategy
+	 */
 	IFitnessStrategy* m_strategy;
 
 private:

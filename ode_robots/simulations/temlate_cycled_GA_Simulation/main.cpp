@@ -23,7 +23,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-07-02 15:24:53  robot12
+ *   Revision 1.4  2009-07-06 15:06:35  robot12
+ *   bugfix
+ *
+ *   Revision 1.3  2009/07/02 15:24:53  robot12
  *   update and add new class InvertedFitnessStrategy
  *
  *   Revision 1.2  2009/07/02 10:13:36  guettler
@@ -133,7 +136,7 @@ public:
 	SingletonGenAlgAPI::getInstance()->enableMeasure(opt1);
 	SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->addPlotOption(opt1);
 	SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->addPlotOption(opt2);
-	optGen2.setName("optGen");
+	optGen.setName("optGen");
 	SingletonGenAlgAPI::getInstance()->enableGenContextMeasure(optGen);
 	SingletonGenAlgAPI::getInstance()->getPlotOptionEngineForGenContext()->addPlotOption(optGen);
 
@@ -251,8 +254,9 @@ public:
 	  }
 
 	  // step in the alg.
+	  RandGen random;											// a random generator
 	  SingletonGenAlgAPI::getInstance()->select();
-	  SingletonGenAlgAPI::getInstance()->crosover();
+	  SingletonGenAlgAPI::getInstance()->crosover(&random);
 	  SingletonGenAlgAPI::getInstance()->update();
 
 	  // now we must delete all robots and agents from the simulation and create new robots and agents
