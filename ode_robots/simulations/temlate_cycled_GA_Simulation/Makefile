@@ -28,16 +28,16 @@ LIBGA_TOOLS = lib$(GA_TOOLSLIB).a
 
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
-	-L$(SELFORG)   -l$(SELFORGLIB) \
 	-L$(GA_TOOLS)  -l$(GA_TOOLSLIB) \
+	-L$(SELFORG)   -l$(SELFORGLIB) \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lpthread
 
-INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include -I$(GA_TOOLS)/include
+INC   = -I. -I$(ODEROBOTS)/include -I$(GA_TOOLS)/include -I$(SELFORG)/include
 
 CXX = g++
 # -pg for profiling
-CPPFLAGS = -Wall  -g -pthread $(INC)
+CPPFLAGS = -Wall  -g -pthread -fstack-protector -Wstack-protector $(INC)
 ## Optimisation
 CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC)
 
