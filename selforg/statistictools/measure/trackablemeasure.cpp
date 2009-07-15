@@ -4,6 +4,7 @@
 *    fhesse@informatik.uni-leipzig.de                                     *
 *    der@informatik.uni-leipzig.de                                        *
 *    frankguettler@gmx.de                                                 *
+*    joergweide84@aol.com (robot12)                                       *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
 *   it under the terms of the GNU General Public License as published by  *
@@ -24,7 +25,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.1  2009-03-27 06:16:58  guettler
+*   Revision 1.2  2009-07-15 12:59:05  robot12
+*   one bugfixe in constructor (parameter type char* to const char*)
+*
+*   Revision 1.1  2009/03/27 06:16:58  guettler
 *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
 *
 *   Revision 1.1  2007/12/06 10:18:10  der
@@ -65,7 +69,7 @@
 #include "stl_adds.h"
 
 
-TrackableMeasure::TrackableMeasure(std::list<Trackable*> trackableList,char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins) : ComplexMeasure(measureName,cmode, numberBins) ,trackableList(trackableList) {
+TrackableMeasure::TrackableMeasure(std::list<Trackable*> trackableList,const char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins) : ComplexMeasure(measureName,cmode, numberBins) ,trackableList(trackableList) {
   tmode=POS;
   if (dimensions & X)
     addDimension(0, cornerPointList);

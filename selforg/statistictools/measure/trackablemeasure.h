@@ -4,6 +4,7 @@
 *    fhesse@informatik.uni-leipzig.de                                     *
 *    der@informatik.uni-leipzig.de                                        *
 *    frankguettler@gmx.de                                                 *
+*    joergweide84@aol.com (robot12)                                       *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
 *   it under the terms of the GNU General Public License as published by  *
@@ -24,7 +25,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.1  2009-03-27 06:16:58  guettler
+*   Revision 1.2  2009-07-15 12:59:05  robot12
+*   one bugfixe in constructor (parameter type char* to const char*)
+*
+*   Revision 1.1  2009/03/27 06:16:58  guettler
 *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
 *
 *   Revision 1.1  2007/12/06 10:18:10  der
@@ -73,9 +77,9 @@ enum Dimensions { X = 1, Y = 2, Z = 4 };
 
 
 class TrackableMeasure : public ComplexMeasure {
-  
+
 public:
-  
+
   /**
    * creates a new TrackableMeasure. The position of the Trackables in the
    * given list is counted in a fequency list. The possible positions are
@@ -89,28 +93,28 @@ public:
    * @param cmode which type of complex measure should be evaluated?
    * @param numberBins number of bins used for discretisation
    */
-  TrackableMeasure(std::list<Trackable*> trackableList,char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins);
-  
-  
+  TrackableMeasure(std::list<Trackable*> trackableList,const char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins);
+
+
 
   virtual ~TrackableMeasure();
-  
+
     /**
      * defined by AbstractMeasure. This method is called from StatisticTools
         for updating the measure in every simStep (ODE).
      */
   virtual void step();
-  
-  
+
+
 protected:
   std::list<Trackable*> trackableList;
   ComplexMeasureMode cmode;
   TrackMode tmode;
-  
+
   virtual double findRange(std::list<Position>  positionList,short dim, bool min);
-  
+
   virtual void addDimension(short dim, std::list<Position> cornerPointList);
-  
+
 };
 
 #endif
