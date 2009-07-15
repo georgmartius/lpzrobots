@@ -22,7 +22,11 @@
  *   Random generator with internal state used for multitheading envs.     *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-17 14:54:45  martius
+ *   Revision 1.3  2009-07-15 08:33:58  guettler
+ *   workaround for bug: drand48_r overwrites too much data
+ *   - buffer increased (thanks to Joern Hoffmann)
+ *
+ *   Revision 1.2  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -43,14 +47,16 @@ typedef struct _RandGen {
     init(::rand());
   }
   void init(long int seedval){
-    srand48_r(seedval, &buffer);
+    srand48_r(seedval, buffer);
   }
   double rand(){
     double r;
-    drand48_r(&buffer,&r);
+    drand48_r(buffer,&r);
     return r;
   }
-  struct drand48_data buffer;
+  // allocate more memory than needed, because there is a bug
+  // with 64bit compilers: dran48_r overwrites too much data!
+  struct drand48_data buffer[2];
 } RandGen;
 
 #endif
