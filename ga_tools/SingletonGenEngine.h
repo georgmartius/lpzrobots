@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-06 15:06:35  robot12
+ *   Revision 1.7  2009-07-15 12:53:36  robot12
+ *   some bugfix's and new functions
+ *
+ *   Revision 1.6  2009/07/06 15:06:35  robot12
  *   bugfix
  *
  *   Revision 1.5  2009/07/02 15:25:41  robot12
@@ -176,8 +179,9 @@ public:
 	 * prepare the alg. and create his fisrt generation.
 	 * @param startSize (int) Number of individual with which the alg. will be start.
 	 * @param startKillRate (int) Number of individual which will be die.
+	 * @param withUpdate (bool) if true, than makes this function on the end a update.
 	 */
-	void generateFirstGeneration(int startSize, int startKillRate);
+	void generateFirstGeneration(int startSize, int startKillRate, bool withUpdate = true);
 
 	/**
 	 * prepare the next generation. Mean create the GenContext for every GenPrototype.
@@ -194,8 +198,9 @@ public:
 	 * @param proxy (InspectableProxy*&) the proxy for control measure
 	 * @param plotEngine (PlotOptionEngine*) logging the data for later control
 	 * @param plotEngineGenContext (PlotOptionEngine*) logging the data of the GenContext for later control
+	 * @param withUpdate (bool) is needed for the function "generateFirstGeneration"
 	 */
-	void prepare(int startSize, int startKillRate, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
+	void prepare(int startSize, int startKillRate, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0, bool withUpdate = true);
 
 	/**
 	 * makes a step in the measure

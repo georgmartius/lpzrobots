@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-06 15:06:35  robot12
+ *   Revision 1.7  2009-07-15 12:53:36  robot12
+ *   some bugfix's and new functions
+ *
+ *   Revision 1.6  2009/07/06 15:06:35  robot12
  *   bugfix
  *
  *   Revision 1.5  2009/07/02 15:24:53  robot12
@@ -120,9 +123,9 @@ public:
 	 * prepares the first generation and optional the enabled measure
 	 * @param startSize (int) Number of individual at begin of the gen. alg.
 	 * @param startKillRate (int) Number of individual which will be killed
-	 * @param random (RandGen*) random generator
+	 * @param withUpdate (bool) is needed for "generateFirstGeneration"
 	 */
-	void prepare(int startSize, int startKillRate);
+	void prepare(int startSize, int startKillRate, bool withUpdate = true);
 	/**
 	 * makes a step in the measure
 	 * @param time (double) time stamp in the measure
@@ -142,12 +145,12 @@ public:
 	 * enables data measure with more than one plotOption.
 	 * @param plotOptions (list<PöotOption>&) the list
 	 */
-	void enableMeasure(const std::list<PlotOption>& plotOptions);
+	void enableMeasure(std::list<PlotOption>& plotOptions);
 	/**
 	 * enables data measure.
 	 * @param plotOption (PlotOption&) the plot option
 	 */
-	void enableMeasure(const PlotOption& plotOption);
+	void enableMeasure(PlotOption& plotOption);
 	/**
 	 * returns the active plotOptionEngine for data measure.
 	 * @return (PlotOptionEngine*) the plot option engine
@@ -157,12 +160,12 @@ public:
 	 * enable data measure inside the GenContexts with more than one plotOption
 	 * @param plotOptions (list<PlotOption>&) the list
 	 */
-	void enableGenContextMeasure(const std::list<PlotOption>& plotOptions);
+	void enableGenContextMeasure(std::list<PlotOption>& plotOptions);
 	/**
 	 * enable data measure inside the GenContexts.
 	 * @param plotOption (PlotOption&) the plot option
 	 */
-	void enableGenContextMeasure(const PlotOption& plotOption);
+	void enableGenContextMeasure(PlotOption& plotOption);
 	/**
 	 * returns the active plotOptionEngine for data measure inside the GenContexts.
 	 * @return (PlotOptionEngine*) the plot option engine.
@@ -216,6 +219,12 @@ public:
 	 * @return (IFitnessStrategy*) the strategy
 	 */
 	IFitnessStrategy* createTestFitnessStrategy()const;
+	/**
+	 * returns a fitness strategy which calculate the inverse value from a other strategy.
+	 * @param strategy (IFitnessStrategy*) the other strategy
+	 * @return (IFitnessStrategy*) the resulting strategy
+	 */
+	IFitnessStrategy* createInvertedFitnessStrategy(IFitnessStrategy* strategy)const;
 	/**
 	 * creates a random strategy for double values.
 	 * The values will be generated in the intervals [base-epsilon:-epsilon] or [epsilon:factor+base+epsilon]
@@ -325,7 +334,7 @@ public:
 	/**
 	 * destroy the api
 	 */
-	inline static void destroyAPI(void) {delete m_api;}
+	inline static void destroyAPI(void) {if(m_api!=0){delete m_api;m_api=0;}}
 
 	// data access
 	/**

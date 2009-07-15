@@ -27,7 +27,10 @@
  *   individual dosn't comes in the next generation.                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-06 15:06:35  robot12
+ *   Revision 1.6  2009-07-15 12:53:36  robot12
+ *   some bugfix's and new functions
+ *
+ *   Revision 1.5  2009/07/06 15:06:35  robot12
  *   bugfix
  *
  *   Revision 1.4  2009/06/25 13:34:17  robot12
@@ -93,10 +96,10 @@ void TournamentSelectStrategy::select(Generation* oldGeneration, Generation* new
 	}
 
 	for(int x=0; x<kill && x<num; x++) {				//select two individual for the test
-		r1 = ((int)(m_random->rand()*1000000.0)) % num;		//2 random indices for the individual list
+		r1 = ((int)(m_random->rand()*1000000.0f)) % num;		//2 random indices for the individual list
 		r2 = r1;
 		while(r2==r1) {
-			r2 = ((int)(m_random->rand()*1000000.0)) % num;
+			r2 = ((int)(m_random->rand()*1000000.0f)) % num;
 		}
 
 		//ind1 = oldGeneration->getIndividual(r1);

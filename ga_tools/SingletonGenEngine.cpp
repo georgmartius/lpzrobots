@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-06 15:06:35  robot12
+ *   Revision 1.8  2009-07-15 12:53:36  robot12
+ *   some bugfix's and new functions
+ *
+ *   Revision 1.7  2009/07/06 15:06:35  robot12
  *   bugfix
  *
  *   Revision 1.6  2009/07/02 15:24:53  robot12
@@ -70,6 +73,10 @@
 
 #include "SingletonGenEngine.h"
 
+#include <selforg/plotoptionengine.h>
+#include <list>
+#include <selforg/inspectableproxy.h>
+
 #include "GenPrototype.h"
 #include "Generation.h"
 #include "Individual.h"
@@ -79,10 +86,6 @@
 #include "GenContext.h"
 #include "IFitnessStrategy.h"
 #include "SingletonIndividualFactory.h"
-
-#include <selforg/plotoptionengine.h>
-#include <list>
-#include <selforg/inspectableproxy.h>
 
 SingletonGenEngine* SingletonGenEngine::m_engine = 0;
 
@@ -129,7 +132,7 @@ SingletonGenEngine::~SingletonGenEngine() {
 	m_gen.clear();
 }
 
-void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRate) {
+void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRate, bool withUpdate) {
 	// clean the generations
 	std::vector<Generation*>::iterator iterGener;
 	while(m_generation.size()>0) {
@@ -179,7 +182,8 @@ void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRat
 	}
 
 	// update generation
-	first->update();
+	if(withUpdate)
+		first->update();
 }
 
 void SingletonGenEngine::prepareNextGeneration(int size, int killRate) {
@@ -203,9 +207,9 @@ void SingletonGenEngine::prepareNextGeneration(int size, int killRate) {
 	}
 }
 
-void SingletonGenEngine::prepare(int startSize, int startKillRate, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
+void SingletonGenEngine::prepare(int startSize, int startKillRate, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext, bool withUpdate) {
 	// create first generation
-	generateFirstGeneration(startSize,startKillRate);
+	generateFirstGeneration(startSize,startKillRate, withUpdate);
 
 	// Control values
 	generation = getActualGeneration();
@@ -304,13 +308,17 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 }
 
 void SingletonGenEngine::select(bool createNextGeneration) {
+	//std::cout<<"createNextGeneration:"<<(createNextGeneration?" yes\n":" no\n");
 	if(createNextGeneration)
-		prepareNextGeneration(m_generationSizeStrategy->calcGenerationSize(getActualGeneration()),getActualGeneration()->getKillRate());
+		getInstance()->prepareNextGeneration(m_generationSizeStrategy->calcGenerationSize(getActualGeneration()),getActualGeneration()->getKillRate());
 
-	m_selectStrategy->select(m_generation[m_actualGeneration-1],m_generation[m_actualGeneration]);
+	//std::cout<<"begin select\n";
+	getInstance()->m_selectStrategy->select(getInstance()->m_generation[getInstance()->m_actualGeneration-1],getInstance()->m_generation[getInstance()->m_actualGeneration]);
+	//std::cout<<"select OK\n";
 
+	//std::cout<<"copy Gens\n";
 	// insert the old gens in the new GenContext.
-	const std::vector<Individual*>& old = m_generation[m_actualGeneration]->getAllIndividual();
+	const std::vector<Individual*>& old = getInstance()->m_generation[getInstance()->m_actualGeneration]->getAllIndividual();
 	std::vector<Individual*>::const_iterator iter;
 	int num;
 	Gen* gen;
@@ -322,10 +330,12 @@ void SingletonGenEngine::select(bool createNextGeneration) {
 		for(int x=0; x<num; x++) {
 			gen = (*iter)->getGen(x);
 			prototype = gen->getPrototype();
-			newContext = prototype->getContext(m_generation[m_actualGeneration]);
+			newContext = prototype->getContext(getInstance()->m_generation[getInstance()->m_actualGeneration]);
 			newContext->addGen(gen);
 		}
 	}
+
+	//std::cout<<"alles OK\n";
 }
 
 void SingletonGenEngine::crosover(RandGen* random) {

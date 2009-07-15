@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-06 15:06:35  robot12
+ *   Revision 1.7  2009-07-15 12:53:36  robot12
+ *   some bugfix's and new functions
+ *
+ *   Revision 1.6  2009/07/06 15:06:35  robot12
  *   bugfix
  *
  *   Revision 1.5  2009/07/02 15:24:53  robot12
@@ -57,6 +60,9 @@
 
 #include "SingletonGenAlgAPI.h"
 
+#include <selforg/plotoptionengine.h>
+#include <selforg/inspectableproxy.h>
+
 #include "GenPrototype.h"
 #include "GenContext.h"
 #include "Gen.h"
@@ -72,6 +78,7 @@
 #include "EuclidicDistanceFitnessStrategy.h"
 #include "ExtreamTestFitnessStrategy.h"
 #include "TestFitnessStrategy.h"
+#include "InvertedFitnessStrategy.h"
 
 #include "IRandomStrategy.h"
 #include "DoubleRandomStrategy.h"
@@ -90,9 +97,6 @@
 
 #include "IValue.h"
 #include "TemplateValue.h"
-
-#include <selforg/plotoptionengine.h>
-#include <selforg/inspectableproxy.h>
 
 SingletonGenAlgAPI* SingletonGenAlgAPI::m_api = 0;
 
@@ -123,6 +127,10 @@ IFitnessStrategy* SingletonGenAlgAPI::createExtreamTestFitnessStrategy(IFitnessS
 
 IFitnessStrategy* SingletonGenAlgAPI::createTestFitnessStrategy()const {
 	return new TestFitnessStrategy();
+}
+
+IFitnessStrategy* SingletonGenAlgAPI::createInvertedFitnessStrategy(IFitnessStrategy* strategy)const {
+	return new InvertedFitnessStrategy(strategy);
 }
 
 IRandomStrategy* SingletonGenAlgAPI::createDoubleRandomStrategy(RandGen* random, double base, double factor, double epsilon)const {
@@ -182,8 +190,8 @@ void SingletonGenAlgAPI::update(double factor) {
 	SingletonGenEngine::getInstance()->update(factor);
 }
 
-void SingletonGenAlgAPI::prepare(int startSize, int startKillRate) {
-	SingletonGenEngine::getInstance()->prepare(startSize, startKillRate, (Generation*&)m_generation, (InspectableProxy*&)m_inspectable, m_plotEngine, m_plotEngineGenContext);
+void SingletonGenAlgAPI::prepare(int startSize, int startKillRate, bool withUpdate) {
+	SingletonGenEngine::getInstance()->prepare(startSize, startKillRate, (Generation*&)m_generation, (InspectableProxy*&)m_inspectable, m_plotEngine, m_plotEngineGenContext, withUpdate);
 }
 
 void SingletonGenAlgAPI::measureStep(double time) {
@@ -202,18 +210,34 @@ void SingletonGenAlgAPI::insertGenPrototype(GenPrototype* prototype) {
 	SingletonGenEngine::getInstance()->addGenPrototype(prototype);
 }
 
-void SingletonGenAlgAPI::enableMeasure(const PlotOption& plotOption) {
-	m_plotEngine = new PlotOptionEngine(plotOption);
+void SingletonGenAlgAPI::enableMeasure(PlotOption& plotOption) {
+	if(m_plotEngine==0)
+		m_plotEngine = new PlotOptionEngine(plotOption);
+
+	m_plotEngine->addPlotOption(plotOption);
 }
 
-void SingletonGenAlgAPI::enableMeasure(const std::list<PlotOption>& plotOptions) {
-	m_plotEngine = new PlotOptionEngine(plotOptions);
+void SingletonGenAlgAPI::enableMeasure(std::list<PlotOption>& plotOptions) {
+	if(m_plotEngine==0)
+		m_plotEngine = new PlotOptionEngine(plotOptions);
+
+	FOREACH(std::list<PlotOption>, plotOptions, i) {
+		m_plotEngine->addPlotOption(*i);
+	}
 }
 
-void SingletonGenAlgAPI::enableGenContextMeasure(const PlotOption& plotOption) {
-	m_plotEngineGenContext = new PlotOptionEngine(plotOption);
+void SingletonGenAlgAPI::enableGenContextMeasure(PlotOption& plotOption) {
+	if(m_plotEngineGenContext==0)
+		m_plotEngineGenContext = new PlotOptionEngine(plotOption);
+
+	m_plotEngineGenContext->addPlotOption(plotOption);
 }
 
-void SingletonGenAlgAPI::enableGenContextMeasure(const std::list<PlotOption>& plotOptions) {
-	m_plotEngineGenContext = new PlotOptionEngine(plotOptions);
+void SingletonGenAlgAPI::enableGenContextMeasure(std::list<PlotOption>& plotOptions) {
+	if(m_plotEngineGenContext==0)
+		m_plotEngineGenContext = new PlotOptionEngine(plotOptions);
+
+	FOREACH(std::list<PlotOption>, plotOptions, i) {
+		m_plotEngineGenContext->addPlotOption(*i);
+	}
 }
