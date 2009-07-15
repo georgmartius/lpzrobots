@@ -4,6 +4,7 @@
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-06-29 13:24:13  robot12
+ *   Revision 1.5  2009-07-15 13:01:15  robot12
+ *   one bugfixe
+ *
+ *   Revision 1.4  2009/06/29 13:24:13  robot12
  *   add function getInternalParamsPtr for new class inspectableproxy
  *
  *   Revision 1.3  2008/08/01 14:42:03  guettler

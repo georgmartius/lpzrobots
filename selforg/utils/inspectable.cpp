@@ -4,6 +4,7 @@
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-06-29 13:24:13  robot12
+ *   Revision 1.7  2009-07-15 13:01:15  robot12
+ *   one bugfixe
+ *
+ *   Revision 1.6  2009/06/29 13:24:13  robot12
  *   add function getInternalParamsPtr for new class inspectableproxy
  *
  *   Revision 1.5  2008/11/17 14:59:09  martius
@@ -59,7 +63,6 @@ Inspectable::Inspectable() {}
 
 Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
   iparamkeylist keylist;
-  fprintf(stderr,"Start");
   FOREACHC(iparampairlist, mapOfValues, it){
     keylist+=(*it).first;
   }
