@@ -23,7 +23,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-07-15 12:56:25  robot12
+ *   Revision 1.2  2009-07-16 13:07:27  robot12
+ *   some comments added
+ *
+ *   Revision 1.1  2009/07/15 12:56:25  robot12
  *   the simulation
  *
  *
@@ -35,13 +38,34 @@
 #include <ga_tools/IFitnessStrategy.h>
 #include <vector>
 
+/**
+ * the fitness strategy for this demonstration simulation
+ */
 class TemplateCycledGaSimulationFitnessStrategy: public IFitnessStrategy {
 public:
+	/**
+	 * default constructor
+	 */
 	TemplateCycledGaSimulationFitnessStrategy();
+
+	/**
+	 * default destructor
+	 */
 	virtual ~TemplateCycledGaSimulationFitnessStrategy();
 
+	/**
+	 * this return the saved fitness value (entropy)
+	 *
+	 * Be careful because this method isn't safe for individuals, which are not saved in the storage!!!
+	 *
+	 * @param individual (for this we search the entropy)
+	 * @return the fitness
+	 */
 	virtual double getFitness(const Individual* individual);
 
+	/**
+	 * a storage for all Entropies!
+	 */
 	std::vector<double*> m_storage;
 };
 

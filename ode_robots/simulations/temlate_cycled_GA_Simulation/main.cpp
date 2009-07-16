@@ -21,9 +21,17 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *   --------------------------------------------------------------------  *
+ *                                                                         *
+ *   This program demonstrate the use of the genetic algorithm in          *
+ *   combination with a lpzrobot simulation. Over this you can see how to  *
+ *   control the algorithm from outside.                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-15 12:56:25  robot12
+ *   Revision 1.6  2009-07-16 13:07:27  robot12
+ *   some comments added
+ *
+ *   Revision 1.5  2009/07/15 12:56:25  robot12
  *   the simulation
  *
  *   Revision 1.4  2009/07/06 15:06:35  robot12
@@ -95,28 +103,46 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
+//this 3 PlotOptions are needed for some measures. They will bring us some data on the screen and save all to a log file.
 PlotOption opt1(GuiLogger);						// a plot Option for the generation measure to guilogger
 PlotOption opt2(File);							// a plot Option for the generation measure to file
 PlotOption optGen(File);						// a plot Option for gen measure to file
 
-
+/**
+ * This class is our simulation. It simulate the robots in there playground
+ */
 class ThisSim : public Simulation {
 public:
+	/**
+	 * constructor
+	 * creates the simulation and define how much robots are inside. Over this it define the number of
+	 * individuals inside the genetic algorithm
+	 * @param numInd (int) number of individuals and robots
+	 */
 	ThisSim(int numInd=25) : Simulation(), numberIndividuals(numInd) {}
 
+	/**
+	 * destructor
+	 * make sure, that the gen. algorithm will be cleared
+	 */
 	virtual ~ThisSim() {
 		SingletonGenAlgAPI::destroyAPI();
 	}
 
 
-  // starting function (executed once at the beginning of the simulation loop/first cycle)
+  /** starting function (executed once at the beginning of the simulation loop/first cycle)
+   * this must create our gen. alg.
+   * @param odeHandle
+   * @param osgHandle
+   * @param global
+   */
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
 	// ga_tool initing
 	// first we need some variables.
 	RandGen random;									// a random generator
 	IFitnessStrategy* invertedFitnessStr;			// the inverted fitness strategy
-	IGenerationSizeStrategy* gSStr;					// a generation size strategy (fix -> by 100 Individual -> look at run)
+	IGenerationSizeStrategy* gSStr;					// a generation size strategy
 	ISelectStrategy* selStr;						// a select strategy
 	IMutationFactorStrategy* mutFaStr;				// a mutation factor strategy for the mutation strategy (standard)
 	IMutationStrategy* mutStr;						// a mutation strategy (will be standard)
@@ -126,20 +152,28 @@ public:
 	GenPrototype* pro3;
 	GenPrototype* pro4;
 
-	// next we need the general strategys for the alg.
+	// next we need the general strategies for the alg.
+	// - a GenerationSizeStrategy here we take a fixed size strategy.
+	// - a SelectStrategy here we take a tournament strategy which test 2 individual. The better will win
 	gSStr = SingletonGenAlgAPI::getInstance()->createFixGenerationSizeStrategy(numberIndividuals);
 	SingletonGenAlgAPI::getInstance()->setGenerationSizeStrategy(gSStr);
 	selStr = SingletonGenAlgAPI::getInstance()->createTournamentSelectStrategy(&random);
 	SingletonGenAlgAPI::getInstance()->setSelectStrategy(selStr);
 
 	// after this we need the fitness strategy
+	// here we need our own strategy! but our strategy will be higher if the individual are better. so we need a
+	// inverted fitness strategy because the gen. alg will optimize again zero. more details to this strategies in there
+	// header files
 	fitnessStr = new TemplateCycledGaSimulationFitnessStrategy();
 	invertedFitnessStr = SingletonGenAlgAPI::getInstance()->createInvertedFitnessStrategy(fitnessStr);
 	SingletonGenAlgAPI::getInstance()->setFitnessStrategy(invertedFitnessStr);
 
-	// now its time to creat all needed for the gens.
+	// now its time to create all needed for the gens.
+	// - mutation strategy
+	// - random strategy for the gen generation
+	// - and the 4 prototypes for the gens
 	mutFaStr = SingletonGenAlgAPI::getInstance()->createStandartMutationFactorStrategy();
-	mutStr = SingletonGenAlgAPI::getInstance()->createValueMutationStrategy(mutFaStr,50);
+	mutStr = SingletonGenAlgAPI::getInstance()->createValueMutationStrategy(mutFaStr,333);	// the second value means the mutation probability in 1/1000. normal is a low value max to 5%. But we have so far individuals, that we need a stronger mutation (33,3%)
 	randomStr = SingletonGenAlgAPI::getInstance()->createDoubleRandomStrategy(&random,-2.0,4.0,0.0);
 	pro1 = SingletonGenAlgAPI::getInstance()->createPrototype("P1",randomStr,mutStr);
 	pro2 = SingletonGenAlgAPI::getInstance()->createPrototype("P2",randomStr,mutStr);
@@ -152,17 +186,15 @@ public:
 
 	// at last we create all measure
 	opt1.setName("opt1");
-	//opt2.setName("opt2");
+	opt2.setName("opt2");
 	SingletonGenAlgAPI::getInstance()->enableMeasure(opt1);
 	SingletonGenAlgAPI::getInstance()->enableMeasure(opt2);
-	//SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->addPlotOption(opt1);
-	//SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->addPlotOption(opt2);
 	optGen.setName("optGen");
 	SingletonGenAlgAPI::getInstance()->enableGenContextMeasure(optGen);
-	//SingletonGenAlgAPI::getInstance()->getPlotOptionEngineForGenContext()->addPlotOption(optGen);
 
 	// prepare the first generation
-	SingletonGenAlgAPI::getInstance()->prepare(numberIndividuals,numberIndividuals/3,false);
+	// we can use run for a automatically run or we must control all self like here!
+	SingletonGenAlgAPI::getInstance()->prepare(numberIndividuals,numberIndividuals/2,false);
 
 	// so we are ready to start the alg! Need is only the simulation!
 	// also we must create the robots and agents for the simulation
@@ -174,27 +206,12 @@ public:
 	// beta == vertical angle
 	setCameraHomePos(Pos(37.3816, 23.0469, 200.818),  Pos(0.0404358, -86.7151, 0));
 	// initialization
-	// - set noise to 0.1
+	// - set noise to 0.05
 	global.odeConfig.noise=0.05;
 	// set realtimefactor to maximum
     global.odeConfig.setParam("realtimefactor",0);
 
     global.odeConfig.setParam("cameraspeed",100000);
-    // use Playground as boundary:
-	// - create pointer to playground (odeHandle contains things like world and space the
-	//   playground should be created in; odeHandle is generated in simulation.cpp)
-	// - setting geometry for each wall of playground:
-	//   setGeometry(double length, double width, double	height)
-	// - setting initial position of the playground: setPosition(double x, double y, double z)
-	// - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-	//
-	// and add passive spheres as obstacles
-	// - create pointer to sphere (with odehandle, osghandle and
-	//   optional parameters radius and mass,where the latter is not used here) )
-	// - set Pose(Position) of sphere
-	// - set a texture for the sphere
-
-
   }
 
   /**
@@ -203,19 +220,23 @@ public:
    * @param the odeHandle
    * @param the osgHandle
    * @param globalData
-   * @return if the simulation should be restarted; this is false by default
+   * @return if the simulation should be restarted;
    */
   virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
 	  // we want 10 runs!
+	  // after it we must clean all and return false because we don't want a new restart
 	  if(this->currentCycle==11) {
+		  // print all entropies, which we have measured
 		  FOREACH(std::vector<TrackableMeasure*>,storageMeasure,i) {
 			  printf("%s hat folgende Entropy: %lf\n",(*i)->getName().c_str(),(*i)->getValue());
 		  }
 
+		  // update the gen. alg. statistical data and make a step in the measure
 		  SingletonGenAlgAPI::getInstance()->update();
+		  SingletonGenAlgAPI::getInstance()->measureStep(currentCycle+1);
 
-		  // after 100 runs, we stop and make all clean
+		  // after 10 runs, we stop and make all clean
 		  // clean GA TOOLS
 		  SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->removePlotOption(GuiLogger);
 		  SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->removePlotOption(File);
@@ -240,6 +261,7 @@ public:
 			  global.agents.erase(global.agents.begin());
 		  }
 
+		  // clean the playgrounds
 		  while(global.obstacles.size()>0) {
 			  std::vector<AbstractObstacle*>::iterator iter = global.obstacles.begin();
 			  delete (*iter);
@@ -257,14 +279,21 @@ public:
 		  return false; //stop running
 	  }
 
+	  RandGen random;											// a random generator
+
 	  //clean actual entropy measure list
 	  entropyMeasure.clear();
 
 	  // step in the alg.
+	  // - update the statistical values inside the gen. alg.
+	  // - make a step in the measure
+	  // - select with the statistical values the individual which will be killed.
+	  // - and generate new individuals
 	  SingletonGenAlgAPI::getInstance()->update();
-	  RandGen random;											// a random generator
+	  SingletonGenAlgAPI::getInstance()->measureStep(currentCycle+1);
 	  SingletonGenAlgAPI::getInstance()->select();
 	  SingletonGenAlgAPI::getInstance()->crosover(&random);
+
 	  // now we must delete all robots and agents from the simulation and create new robots and agents
 	  // can be optimized by check, which individual are killed --> only this robots killing!
 	  while(global.agents.size()>0) {
@@ -283,16 +312,19 @@ public:
 		  global.agents.erase(global.agents.begin());
 	  }
 
+	  // delete all playgrounds.
+	  // the other way is to find the right playground. but this need more time than to delete the old and make some new!
 	  while(global.obstacles.size()>0) {
 		  std::vector<AbstractObstacle*>::iterator iter = global.obstacles.begin();
 		  delete (*iter);
 		  global.obstacles.erase(iter);
 	  }
 
-	 createBots(global);
+	  // create the Bots and Agents for the next simulation
+	  createBots(global);
 
-    // restart!
-    return true;
+	  // restart!
+	  return true;
   }
 
 
@@ -303,17 +335,19 @@ public:
       @param control indicates that robots have been controlled this timestep
    */
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-    // if simulation_time_reached is set to true, the simulation cycle is finished
+	// if 100 steps over, 1s is over
     if (this->sim_step%100==0)
     {
     	std::cout << "time: " << this->sim_step/100 << "s" << std::endl;
     }
+
+    // if simulation_time_reached is set to true, the simulation cycle is finished
     if (this->sim_step>=6000)
     {
       simulation_time_reached=true;
     }
 
-    //make a step in the measure
+    //make a step in the entropy measure
     FOREACH(std::vector<TrackableMeasure*>,entropyMeasure,i) {
     	(*i)->step();
     }
@@ -334,17 +368,30 @@ public:
   }
 
 private:
-	//std::vector<OdeAgent*>
+	/**
+	 * this function create the robots and agents for one simulation.
+	 * @param global
+	 */
 	void createBots(GlobalData& global) {
-		OdeRobot* vehicle;
-		OdeAgent* agent;
-		Playground* playground;
+		OdeRobot* vehicle;						// the robot
+		OdeAgent* agent;						// the agent
+		Playground* playground;					// there playground
 
 		for(int ind=0;ind<numberIndividuals;ind++) {
+			// fist we need the individual from the gen. alg because there gens say us which values are inside the neuron
+			// matrix of the robot!
 			Individual* individual = SingletonGenAlgAPI::getInstance()->getEngine()->getActualGeneration()->getIndividual(ind);
 
+			// next we need a playground for the robot
+			// use Playground as boundary:
+			// - create pointer to playground (odeHandle contains things like world and space the
+			//   playground should be created in; odeHandle is generated in simulation.cpp)
+			// - setting geometry for each wall of playground:
+			//   setGeometry(double length, double width, double	height)
+			// - setting initial position of the playground: setPosition(double x, double y, double z)
+			// - push playground in the global list of obstacles(globla list comes from simulation.cpp)
 			playground = new Playground(odeHandle, osgHandle, osg::Vec3(18, 0.2, 0.5));
-			playground->setPosition(osg::Vec3((double)(ind%5)*19.0,19.0*(double)(ind/5),0.05)); // playground positionieren und generieren
+			playground->setPosition(osg::Vec3((double)(ind%(int)sqrt(numberIndividuals))*19.0,19.0*(double)(ind/(int)sqrt(numberIndividuals)),0.05)); // playground positionieren und generieren
 			// register playground in obstacles list
 			global.obstacles.push_back(playground);
 
@@ -359,9 +406,11 @@ private:
 			c.cigarMode  = true;
 			// c.irFront = true;
 			vehicle = new Nimm2(odeHandle, osgHandle, c, ("Nimm2"+individual->getName()).c_str());
-			vehicle->place(Pos((double)(ind%5)*19.0,19.0*(double)(ind/5),0.0));
+			vehicle->place(Pos((double)(ind%(int)sqrt(numberIndividuals))*19.0,19.0*(double)(ind/(int)sqrt(numberIndividuals)),0.0));
 
 			// read the gen values and create the neuron matrix
+			// the gens have a value from type IValue. We use only double so we take for this interface a TemplateValue<double>
+			// which is a IValue. So we only need to cast them! Than we can read it!
 			matrix::Matrix init(2,2);
 			double v1,v2,v3,v4;
 			TemplateValue<double>* value = dynamic_cast<TemplateValue<double>*>(individual->getGen(0)->getValue());
@@ -372,6 +421,7 @@ private:
 			value!=0?v3=value->getValue():v3=0.0;
 			value = dynamic_cast<TemplateValue<double>*>(individual->getGen(3)->getValue());
 			value!=0?v4=value->getValue():v4=0.0;
+			// set the matrix values
 			init.val(0,0) = v1;
 			init.val(0,1) = v2;
 			init.val(1,0) = v3;
@@ -379,6 +429,7 @@ private:
 
 			// create pointer to controller
 			// push controller in global list of configurables
+			// use the neuron matrix for the controller
 			InvertMotorNStep *controller = new InvertMotorNStep(init);
 			global.configs.push_back(controller);
 
@@ -392,32 +443,48 @@ private:
 			agent->init(controller, vehicle, wiring);
 			global.agents.push_back(agent);
 
-			//showParams(global.configs);
-
 			// create measure for the agent
 			// and connect the measure with the fitness strategy
 			std::list<Trackable*> trackableList;
 			trackableList.push_back(vehicle);
 			TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,("E Nimm2 of "+individual->getName()).c_str(),ENTSLOW,playground->getCornerPointsXY(),X | Y, 18);
-			//StatisticTools* statsOfAgent = new StatisticTools();
-			//statsOfAgent->addMeasure(trackableEntropy);
-			//agent->addInspectable(statsOfAgent);
 			fitnessStr->m_storage.push_back(&trackableEntropy->getValueAddress());
 			entropyMeasure.push_back(trackableEntropy);
 			storageMeasure.push_back(trackableEntropy);
 		}
 	}
 
+	/**
+	 * our fitness strategy
+	 */
 	TemplateCycledGaSimulationFitnessStrategy* fitnessStr;		// the fitness strategy
-	int numberIndividuals;										// number of individuals
+
+	/**
+	 * the number of robots inside
+	 */
+	double numberIndividuals;									// number of individuals
+
+	/**
+	 * the actual needed and active entropy measures
+	 */
 	std::vector<TrackableMeasure*> entropyMeasure;				// all active measures for the entropy.
+
+	/**
+	 * all entropy measures
+	 */
 	std::vector<TrackableMeasure*> storageMeasure;				// all measures for the entropy.
 };
 
 
+/**
+ * our programm!
+ * @param argc command line argument counter
+ * @param argv command line arguments
+ * @return 0 if all OK or 1 if not
+ */
 int main (int argc, char **argv)
 {
-  ThisSim sim;
+  ThisSim sim(40);
   return sim.run(argc, argv) ? 0 : 1;
 
 }
