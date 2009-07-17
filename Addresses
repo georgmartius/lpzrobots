@@ -9,7 +9,7 @@ Antonia Siegert <mam06fyl@studserv.uni-lepzig.de>
 Wolfgang Rabe <rabe_wo@01019freenet.de>
 Ferenc Mohos <ferenc.mohos@gmail.com>
 Andre Schulz <Andre.Schulz@grimbart.de>
-Stefan Schulz <schultz-s@gmx.de>
+Stefan Schultz <schultz-s@gmx.de>
 Martin Bogdan <bogdan@informatik.uni-leipzig.de>
 Joern Hoffmann <jhoffmann@informatik.uni-leipzig.de>
 Keyan Ghazi-Zahedi <zahedi@mis.mpg.de>
@@ -26,7 +26,10 @@ Rocco Gwizdziel <mai00bvz@studserv.uni-leipzig.de>
 /***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-17 07:33:50  guettler
+ *   Revision 1.9  2009-07-17 10:48:50  guettler
+ *   added the t to Mr. Schultz (with t)
+ *
+ *   Revision 1.8  2009/07/17 07:33:50  guettler
  *   -added Dr. Keyan Zahedi: information theories (MPI MIS Leipzig)
  *
  *   Revision 1.7  2009/07/17 07:10:53  guettler
@@ -37,7 +40,7 @@ Rocco Gwizdziel <mai00bvz@studserv.uni-leipzig.de>
  *   -added Wolfgang Rabe: package ecb_robots - ECB2.07 support (diploma)
  *   -added Ferenc Mohos: matrixlib with CUDA (bachelor)
  *   -added Andre Schulz: ecb_robots - Bioloid support (bachelor)
- *   -added Stefan Schulz: modelling tool for robots made up of components (bachelor, FH, HTWK Leipzig)
+ *   -added Stefan Schultz: modelling tool for robots made up of components (bachelor, FH, HTWK Leipzig)
  *   -added Prof. Dr. Martin Bogdan: head of section Technische Informatik, Universitaet Leipzig
  *   -added Joern Hoffmann: supervises student works (Dipl.-Inf., Technische Informatik, Universitaet Leipzig)
  *                                                                         *
