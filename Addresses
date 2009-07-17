@@ -1,13 +1,41 @@
-Georg Martius <martius@informatik.uni-leipzig.de>
-Ralf Der <der@informatik.uni-leipzig.de>
+Georg Martius <georg@nld.ds.mpg.de>
+Ralf Der <ralfder@mis.mpg.de>
 Frank Hesse <frank@chaos.gwdg.de>
-Frank Güttler <frankguettler@gmx.de>
-Marcel Kretschmann <marcel@informatik.uni-leipzig.de>
+Frank Guettler <guettler@informatik.uni-leipzig.de>
 Katja Fiedler <katja@nld.ds.mpg.de>
-Rocco Gwizdziel <mai00bvz@studserv.uni-leipzig.de>
 Michael Herrmann <michael@nld.ds.mpg.de>
+Joerg Weide <mam04ccc@studserv.uni-leipzig.de>
+Antonia Siegert <mam06fyl@studserv.uni-lepzig.de>
+Wolfgang Rabe <rabe_wo@01019freenet.de>
+Ferenc Mohos <ferenc.mohos@gmail.com>
+Andre Schulz <Andre.Schulz@grimbart.de>
+Stefan Schulz <schultz-s@gmx.de>
+Martin Bogdan <bogdan@informatik.uni-leipzig.de>
+Joern Hoffmann <jhoffmann@informatik.uni-leipzig.de>
 
 #nicht mehr aktiv
 Illya Sobolyev <mai00ihg@studserv.uni-leipzig.de>
 Tobias Mueller <mai02div@studserv.uni-leipzig.de>
 Steffen Horn <horn_steffen@web.de>
+Marco Eckert <MarcoEckert@web.de>
+Marcel Kretschmann <marcel@informatik.uni-leipzig.de>
+Rocco Gwizdziel <mai00bvz@studserv.uni-leipzig.de>
+
+
+/***************************************************************************
+ *                                                                         *
+ *   $Log$
+ *   Revision 1.7  2009-07-17 07:10:53  guettler
+ *   -updated addresses of Georg Martius, Ralf Der and Frank Guettler
+ *   -not anymore active: Marco Eckert, Marcel Kretzschmann, Rocco Gwizdziel
+ *   -added Joerg Weide: package ga_tools (diploma)
+ *   -added Antonia Siegert: matrix visualization tool (bachelor)
+ *   -added Wolfgang Rabe: package ecb_robots - ECB2.07 support (diploma)
+ *   -added Ferenc Mohos: matrixlib with CUDA (bachelor)
+ *   -added Andre Schulz: ecb_robots - Bioloid support (bachelor)
+ *   -added Stefan Schulz: modelling tool for robots made up of components (bachelor, FH)
+ *   -added Martin Bogdan: head of section Technische Informatik, Universitaet Leipzig
+ *   -added Joern Hoffmann: supervises student works
+ *                                             *
+ *                                                                         *
+ ***************************************************************************/
