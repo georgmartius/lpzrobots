@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -22,7 +23,10 @@
  *   Random generator with internal state used for multitheading envs.     *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-07-15 08:33:58  guettler
+ *   Revision 1.4  2009-07-21 08:47:33  robot12
+ *   add some comments
+ *
+ *   Revision 1.3  2009/07/15 08:33:58  guettler
  *   workaround for bug: drand48_r overwrites too much data
  *   - buffer increased (thanks to Joern Hoffmann)
  *

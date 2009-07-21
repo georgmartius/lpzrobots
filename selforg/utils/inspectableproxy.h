@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -29,7 +30,10 @@
  *   class.                                                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-06-29 13:37:05  robot12
+ *   Revision 1.2  2009-07-21 08:47:33  robot12
+ *   add some comments
+ *
+ *   Revision 1.1  2009/06/29 13:37:05  robot12
  *   add the new class inspectableproxy
  *
  *

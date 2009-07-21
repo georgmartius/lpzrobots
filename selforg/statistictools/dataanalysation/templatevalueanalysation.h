@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,7 +26,10 @@
  *   This template class is for statistical calculations.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-06-29 12:38:16  robot12
+ *   Revision 1.3  2009-07-21 08:47:33  robot12
+ *   add some comments
+ *
+ *   Revision 1.2  2009/06/29 12:38:16  robot12
  *   add the templatevalueanalysation for calculating some statistical values. Is a new part of the statistictools.
  *
  *

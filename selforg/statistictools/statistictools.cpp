@@ -4,6 +4,7 @@
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    frankguettler@gmx.de                                                 *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -24,7 +25,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-06-29 12:43:37  robot12
+ *   Revision 1.4  2009-07-21 08:47:33  robot12
+ *   add some comments
+ *
+ *   Revision 1.3  2009/06/29 12:43:37  robot12
  *   3 new functions to work whit the new part data analysation.
  *
  *   Revision 1.2  2009/05/19 11:39:45  robot12
