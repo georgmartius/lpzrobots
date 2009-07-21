@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-15 12:53:36  robot12
+ *   Revision 1.9  2009-07-21 08:39:01  robot12
+ *   rename "crosover" to crossover
+ *
+ *   Revision 1.8  2009/07/15 12:53:36  robot12
  *   some bugfix's and new functions
  *
  *   Revision 1.7  2009/07/06 15:06:35  robot12
@@ -279,7 +282,7 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 	// generate the other generations
 	for(int x=0;x<numGeneration;x++) {
 		select();
-		crosover(random);
+		crossover(random);
 		update();
 
 		printf("Generaion %i:\tabgeschlossen.\n",x);
@@ -338,8 +341,8 @@ void SingletonGenEngine::select(bool createNextGeneration) {
 	//std::cout<<"alles OK\n";
 }
 
-void SingletonGenEngine::crosover(RandGen* random) {
-	m_generation[m_actualGeneration]->crosover(random);
+void SingletonGenEngine::crossover(RandGen* random) {
+	m_generation[m_actualGeneration]->crossover(random);
 }
 
 void SingletonGenEngine::update(double factor) {

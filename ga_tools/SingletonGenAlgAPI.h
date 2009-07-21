@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-15 12:53:36  robot12
+ *   Revision 1.8  2009-07-21 08:39:01  robot12
+ *   rename "crosover" to crossover
+ *
+ *   Revision 1.7  2009/07/15 12:53:36  robot12
  *   some bugfix's and new functions
  *
  *   Revision 1.6  2009/07/06 15:06:35  robot12
@@ -113,7 +116,7 @@ public:
 	 * create the children from to fill up the next generation
 	 * @param random (RandGen*) random generator
 	 */
-	void crosover(RandGen* random);
+	void crossover(RandGen* random);
 	/**
 	 * update the internal statistical data
 	 * @param factor (double) normal=1.5 is needed for the whisker distance

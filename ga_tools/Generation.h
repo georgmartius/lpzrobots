@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -30,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-06-29 15:30:11  robot12
+ *   Revision 1.8  2009-07-21 08:39:01  robot12
+ *   rename "crosover" to crossover
+ *
+ *   Revision 1.7  2009/06/29 15:30:11  robot12
  *   finishing Generation and add some comments
  *
  *   Revision 1.6  2009/05/14 15:29:54  robot12
@@ -172,7 +176,7 @@ public:
 	 *
 	 * @param random (RandGen*) a pseudo number generator.
 	 */
-	void crosover(RandGen* random);
+	void crossover(RandGen* random);
 
 	/**
 	 * returns a string which represent all individual in this generation.

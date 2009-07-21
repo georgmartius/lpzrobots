@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-15 12:53:36  robot12
+ *   Revision 1.8  2009-07-21 08:39:01  robot12
+ *   rename "crosover" to crossover
+ *
+ *   Revision 1.7  2009/07/15 12:53:36  robot12
  *   some bugfix's and new functions
  *
  *   Revision 1.6  2009/07/06 15:06:35  robot12
@@ -181,9 +184,9 @@ void SingletonGenAlgAPI::select(bool createNextGeneration) {
 	SingletonGenEngine::getInstance()->select(createNextGeneration);
 }
 
-void SingletonGenAlgAPI::crosover(RandGen* random) {
+void SingletonGenAlgAPI::crossover(RandGen* random) {
 	if(random!=NULL)
-		SingletonGenEngine::getInstance()->crosover(random);
+		SingletonGenEngine::getInstance()->crossover(random);
 }
 
 void SingletonGenAlgAPI::update(double factor) {

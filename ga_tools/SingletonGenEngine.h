@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-15 12:53:36  robot12
+ *   Revision 1.8  2009-07-21 08:39:01  robot12
+ *   rename "crosover" to crossover
+ *
+ *   Revision 1.7  2009/07/15 12:53:36  robot12
  *   some bugfix's and new functions
  *
  *   Revision 1.6  2009/07/06 15:06:35  robot12
@@ -231,7 +234,7 @@ public:
 	 * in the actual generation it will generate the children of the living individual
 	 * @param random (RanGen*) random generator
 	 */
-	void crosover(RandGen* random);
+	void crossover(RandGen* random);
 
 	/**
 	 * this function makes a update on the statistical data of the gen. alg.
