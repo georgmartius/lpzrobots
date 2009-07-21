@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -27,7 +28,10 @@
  *   combination of Gens.                                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-06-29 15:20:25  robot12
+ *   Revision 1.5  2009-07-21 08:37:58  robot12
+ *   add some comments
+ *
+ *   Revision 1.4  2009/06/29 15:20:25  robot12
  *   finishing Individual Factory and add some comments
  *
  *   Revision 1.3  2009/05/11 14:08:51  robot12

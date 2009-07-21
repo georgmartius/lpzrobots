@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -30,7 +31,10 @@
  *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-05-14 15:29:56  robot12
+ *   Revision 1.4  2009-07-21 08:37:58  robot12
+ *   add some comments
+ *
+ *   Revision 1.3  2009/05/14 15:29:56  robot12
  *   bugfix: mutation change the oldGen, not the new!!! now fixed
  *
  *   Revision 1.2  2009/05/07 14:47:47  robot12

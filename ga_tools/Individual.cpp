@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-07-06 15:06:35  robot12
+ *   Revision 1.10  2009-07-21 08:37:59  robot12
+ *   add some comments
+ *
+ *   Revision 1.9  2009/07/06 15:06:35  robot12
  *   bugfix
  *
  *   Revision 1.8  2009/06/29 14:52:14  robot12

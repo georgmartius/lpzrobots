@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,7 +26,10 @@
  *   This class is a implementation of the interface IMutationStrategy.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-06-17 11:25:52  robot12
+ *   Revision 1.4  2009-07-21 08:37:59  robot12
+ *   add some comments
+ *
+ *   Revision 1.3  2009/06/17 11:25:52  robot12
  *   finishing the mutation strategy and add some comments.
  *
  *   Revision 1.2  2009/05/14 15:29:56  robot12

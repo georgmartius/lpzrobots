@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -29,7 +30,10 @@
  *   greater.                                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-06-16 12:25:31  robot12
+ *   Revision 1.4  2009-07-21 08:37:58  robot12
+ *   add some comments
+ *
+ *   Revision 1.3  2009/06/16 12:25:31  robot12
  *   finishing the generation size strategy and implements the comments.
  *
  *   Revision 1.2  2009/05/06 14:35:15  robot12

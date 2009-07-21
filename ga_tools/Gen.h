@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -32,7 +33,10 @@
  *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-05-12 13:29:25  robot12
+ *   Revision 1.7  2009-07-21 08:37:59  robot12
+ *   add some comments
+ *
+ *   Revision 1.6  2009/05/12 13:29:25  robot12
  *   some new function
  *   -> toString methodes
  *

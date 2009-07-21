@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -27,7 +28,10 @@
  *   generation.                                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-06-25 13:34:17  robot12
+ *   Revision 1.6  2009-07-21 08:37:59  robot12
+ *   add some comments
+ *
+ *   Revision 1.5  2009/06/25 13:34:17  robot12
  *   finish the select strategy and add some comments.
  *
  *   Revision 1.4  2009/05/14 15:29:56  robot12

@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *   a GenPrototype to create new Gens. (randomized gens or mutated gens)  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-06-29 14:27:13  robot12
+ *   Revision 1.3  2009-07-21 08:37:58  robot12
+ *   add some comments
+ *
+ *   Revision 1.2  2009/06/29 14:27:13  robot12
  *   finishing the Gen Factory and add some comments
  *
  *   Revision 1.1  2009/05/04 15:27:55  robot12

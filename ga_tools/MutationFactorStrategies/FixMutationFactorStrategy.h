@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *   interface. It returns a fix value which is given for the constructor. *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-06-17 11:11:06  robot12
+ *   Revision 1.4  2009-07-21 08:37:59  robot12
+ *   add some comments
+ *
+ *   Revision 1.3  2009/06/17 11:11:06  robot12
  *   finishing the mutationfactorstrategy and add some comments.
  *
  *   Revision 1.2  2009/05/06 13:28:23  robot12

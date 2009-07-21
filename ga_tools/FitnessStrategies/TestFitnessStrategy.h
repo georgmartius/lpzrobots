@@ -5,6 +5,7 @@
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -27,7 +28,10 @@
  *   10*(x²+2.5*y²-y)exp(1-(x²+y²)) + 2.4 + 0.1x² + 0.1y²                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-06-15 13:58:37  robot12
+ *   Revision 1.2  2009-07-21 08:37:59  robot12
+ *   add some comments
+ *
+ *   Revision 1.1  2009/06/15 13:58:37  robot12
  *   3 new fitness strategys and IFitnessStrategy and SumFitnessStragegy with comments.
  *
  *
