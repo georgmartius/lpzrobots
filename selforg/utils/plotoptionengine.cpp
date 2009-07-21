@@ -4,6 +4,7 @@
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-06-29 13:11:32  robot14
+ *  Revision 1.3  2009-07-21 08:50:16  robot12
+ *  finish of the split
+ *  to do: add some comments....
+ *
+ *  Revision 1.2  2009/06/29 13:11:32  robot14
  *  corrected includes (now gcc4.3 compatible)
  *
  *  Revision 1.1  2009/06/02 09:55:24  robot12
@@ -67,7 +72,7 @@ PlotOptionEngine::~PlotOptionEngine()
 }
 
 PlotOption PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
-  PlotOption po = plotOption;
+  PlotOption& po = plotOption;
   // if plotoption with the same mode exists -> delete it
   removePlotOption(po.mode);
 
@@ -126,7 +131,10 @@ PlotOption PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
 	// print interval
 	fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
 
-	fflush(po.pipe);
+	int ttt = fflush(po.pipe);
+	if(ttt!=0){
+		printf("%s\n",strerror(ttt));
+	}
   }
   else
 	printf("Opening of pipe for PlotOption failed!\n");

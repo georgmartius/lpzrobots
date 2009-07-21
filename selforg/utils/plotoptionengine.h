@@ -4,6 +4,7 @@
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-06-30 14:20:49  robot12
+ *  Revision 1.3  2009-07-21 08:50:16  robot12
+ *  finish of the split
+ *  to do: add some comments....
+ *
+ *  Revision 1.2  2009/06/30 14:20:49  robot12
  *  finishing the gen API and add some comments
  *
  *  Revision 1.1  2009/06/02 09:55:24  robot12
