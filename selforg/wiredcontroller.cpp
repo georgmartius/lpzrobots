@@ -3,6 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
+ *    joergweide84@aol.com (robot12)                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-06-02 09:55:24  robot12
+ *   Revision 1.13  2009-07-21 09:10:22  robot12
+ *   add some comments
+ *
+ *   Revision 1.12  2009/06/02 09:55:24  robot12
  *   Splitting of WiredController and PlotOption into WiredController : public PlotOptionEngine and
  *   PlotOption (used by ga_tools). Further refactorings needed.
  *
