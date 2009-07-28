@@ -28,7 +28,10 @@
  *   control the algorithm from outside.                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-07-28 10:17:56  guettler
+ *   Revision 1.3  2009-07-28 13:13:56  robot12
+ *   add some clean ups
+ *
+ *   Revision 1.2  2009/07/28 10:17:56  guettler
  *   comments added/modified
  *
  *   Revision 1.1  2009/07/21 09:09:05  robot12
@@ -98,6 +101,10 @@
 #include <ga_tools/Individual.h>
 #include <ga_tools/Gen.h>
 #include <ga_tools/TemplateValue.h>
+// only for deleting
+#include <ga_tools/ValueMutationStrategy.h>
+#include <ga_tools/StandartMutationFactorStrategy.h>
+#include <ga_tools/DoubleRandomStrategy.h>
 
 #include "TemplateCycledGaSimulationFitnessStrategy.h"
 
@@ -155,10 +162,7 @@ public:
     IFitnessStrategy* invertedFitnessStr;       // the inverted fitness strategy
     IGenerationSizeStrategy* gSStr;             // a generation size strategy
     ISelectStrategy* selStr;                    // a select strategy
-    IMutationFactorStrategy* mutFaStr;          // a mutation factor strategy for the mutation strategy (standard)
-    IMutationStrategy* mutStr;                  // a mutation strategy (will be standard)
-    IRandomStrategy* randomStr;                 // a random strategy for the genes
-    GenPrototype* pro1;         // the 4 prototypes for the genes 2 Sensors - 2 Engines ==> 4 neuron connections
+    GenPrototype* pro1;                         // the 4 prototypes for the genes 2 Sensors - 2 Engines ==> 4 neuron connections
     GenPrototype* pro2;
     GenPrototype* pro3;
     GenPrototype* pro4;
@@ -252,7 +256,7 @@ public:
     // We would like to have 10 runs!
     // after it we must clean all and return false because we don't want a new restart
     // TODO: use abort criterion provided by ga_tools (not implemented yet?)
-    if (this->currentCycle == 11)
+    if (this->currentCycle == 2)
     {
       // print all entropies which we have measured
       FOREACH(std::vector<TrackableMeasure*>,storageMeasure,i)
@@ -270,7 +274,14 @@ public:
       SingletonGenAlgAPI::getInstance()->getPlotOptionEngine()->removePlotOption(File);
       SingletonGenAlgAPI::getInstance()->getPlotOptionEngineForGenContext()->removePlotOption(File);
 
-      SingletonGenAlgAPI::destroyAPI();
+      // the parameter true means, that the API should delete the most strategies inside.
+      SingletonGenAlgAPI::destroyAPI(true);
+
+      // after this we must delete some strategies by use self
+      // TODO: the API should delete the following strategies.
+      delete mutStr;
+      delete mutFaStr;
+      delete randomStr;
 
       //clean robots
       while (global.agents.size() > 0)
@@ -380,7 +391,7 @@ public:
 
     // if simulation_time_reached is set to true, the simulation cycle is finished
     // here we finish after one minute (and a restart follows immediately)
-    if (this->sim_step >= 6000)
+    if (this->sim_step >= 200)
     {
       simulation_time_reached = true;
     }
@@ -521,6 +532,21 @@ private:
    * all entropy measures
    */
   std::vector<TrackableMeasure*> storageMeasure; // all measures for the entropy.
+
+  /**
+   * a mutation factor strategy for the mutation strategy (standard)
+   */
+  IMutationFactorStrategy* mutFaStr;
+
+  /**
+   * a mutation strategy (will be standard)
+   */
+  IMutationStrategy* mutStr;
+
+  /**
+   * a random strategy for the genes
+   */
+  IRandomStrategy* randomStr;
 };
 
 /**
@@ -531,7 +557,7 @@ private:
  */
 int main(int argc, char **argv)
 {
-  ThisSim sim(10);
+  ThisSim sim(4);
   return sim.run(argc, argv) ? 0 : 1;
 
 }
