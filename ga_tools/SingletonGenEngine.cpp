@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-07-21 08:39:01  robot12
+ *   Revision 1.10  2009-07-28 13:19:55  robot12
+ *   add some clean ups
+ *
+ *   Revision 1.9  2009/07/21 08:39:01  robot12
  *   rename "crosover" to crossover
  *
  *   Revision 1.8  2009/07/15 12:53:36  robot12
@@ -89,11 +92,16 @@
 #include "GenContext.h"
 #include "IFitnessStrategy.h"
 #include "SingletonIndividualFactory.h"
+#include "SingletonGenFactory.h"
 
 SingletonGenEngine* SingletonGenEngine::m_engine = 0;
 
 SingletonGenEngine::SingletonGenEngine() {
 	m_actualGeneration = 0;
+	m_cleanStrategies = false;
+	m_selectStrategy = 0;
+	m_generationSizeStrategy = 0;
+	m_fitnessStrategy = 0;
 }
 
 SingletonGenEngine::~SingletonGenEngine() {
@@ -133,6 +141,27 @@ SingletonGenEngine::~SingletonGenEngine() {
 		m_gen.erase(iterGen);
 	}
 	m_gen.clear();
+
+	SingletonGenFactory::destroyGenFactory();
+	SingletonIndividualFactory::destroyFactory();
+
+	// should we clean the strategies?
+	if(m_cleanStrategies) {
+		if(m_selectStrategy!=0) {
+			delete m_selectStrategy;
+			m_selectStrategy = 0;
+		}
+
+		if(m_generationSizeStrategy!=0) {
+			delete m_generationSizeStrategy;
+			m_generationSizeStrategy = 0;
+		}
+
+		if(m_fitnessStrategy!=0) {
+			delete m_fitnessStrategy;
+			m_fitnessStrategy = 0;
+		}
+	}
 }
 
 void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRate, bool withUpdate) {
