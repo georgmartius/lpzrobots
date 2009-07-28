@@ -25,7 +25,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-21 08:47:33  robot12
+ *   Revision 1.6  2009-07-28 09:09:28  robot12
+ *   add a clean up to getAnalysation
+ *
+ *   Revision 1.5  2009/07/21 08:47:33  robot12
  *   add some comments
  *
  *   Revision 1.4  2009/06/29 15:24:23  robot12
@@ -301,7 +304,9 @@ type mul(const type&, const type&),
 type div(const type&, const type&)>
 type getAnalysation(std::vector<type> values, AnalysationMode mode, unsigned int feature = 0) {
 	ANALYSATION_CONTEXT* context = GET_TYPE_ANALYSATION(type)(values);
-	return GET_TYPE_ANALYSATION(type)(context,mode,feature);
+	type result = GET_TYPE_ANALYSATION(type)(context,mode,feature);
+	delete context;
+	return result;
 }
 
 #endif
