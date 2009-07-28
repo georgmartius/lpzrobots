@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-21 08:39:01  robot12
+ *   Revision 1.9  2009-07-28 13:19:27  robot12
+ *   add member variable m_cleanStrategies
+ *
+ *   Revision 1.8  2009/07/21 08:39:01  robot12
  *   rename "crosover" to crossover
  *
  *   Revision 1.7  2009/07/15 12:53:36  robot12
@@ -295,7 +298,7 @@ public:
 	/**
 	 * destroy the only existing engine.
 	 */
-	inline static void destroyGenEngine(void) {delete m_engine;m_engine=0;}
+	inline static void destroyGenEngine(bool cleanStrategies=false) {getInstance()->m_cleanStrategies=cleanStrategies; if(m_engine!=0){delete m_engine;m_engine=0;}}
 
 protected:
 	/**
@@ -342,6 +345,11 @@ protected:
 	 * the one and only GenEngine.
 	 */
 	static SingletonGenEngine* m_engine;
+
+	/**
+	 * flag for clean the seted strategies
+	 */
+	bool m_cleanStrategies;
 
 private:
 	/**
