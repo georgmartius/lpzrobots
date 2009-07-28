@@ -27,7 +27,10 @@
  *   a GenPrototype to create new Gens. (randomized gens or mutated gens)  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-07-21 08:37:58  robot12
+ *   Revision 1.4  2009-07-28 09:38:23  robot12
+ *   update the Singleton::destroy
+ *
+ *   Revision 1.3  2009/07/21 08:37:58  robot12
  *   add some comments
  *
  *   Revision 1.2  2009/06/29 14:27:13  robot12
@@ -76,7 +79,7 @@ public:
 	/**
 	 * this method is to destroy the one and only factory.
 	 */
-	inline static void destroyGenFactory(void) {delete m_factory;m_factory=0;}
+	inline static void destroyGenFactory(void) {if(m_factory!=0){delete m_factory;m_factory=0;}}
 
 	// 3 methodes to create an Gen
 	/**

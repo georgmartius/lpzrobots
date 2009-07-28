@@ -28,7 +28,10 @@
  *   combination of Gens.                                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-21 08:37:58  robot12
+ *   Revision 1.5  2009-07-28 09:38:23  robot12
+ *   update the Singleton::destroy
+ *
+ *   Revision 1.4  2009/07/21 08:37:58  robot12
  *   add some comments
  *
  *   Revision 1.3  2009/06/29 15:20:25  robot12
@@ -86,7 +89,7 @@ public:
 	/**
 	 * destroy the only existing factory
 	 */
-	inline static void destroyFactory(void) {delete m_factory; m_factory=NULL;}
+	inline static void destroyFactory(void) {if(m_factory!=0){delete m_factory; m_factory=NULL;}}
 
 	// 2 methods to create an individual
 	/**
