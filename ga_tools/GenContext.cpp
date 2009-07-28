@@ -31,7 +31,10 @@
  *   The Gen Context is inside the gen. alg. only saved in the             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-21 08:37:58  robot12
+ *   Revision 1.5  2009-07-28 09:12:47  robot12
+ *   add a clean up to update (delete context)
+ *
+ *   Revision 1.4  2009/07/21 08:37:58  robot12
  *   add some comments
  *
  *   Revision 1.3  2009/06/29 14:32:51  robot12
@@ -106,4 +109,6 @@ void GenContext::update(double factor) {
 	m_w3 = context->getWhisker3(factor);
 	m_min = context->getMin();
 	m_max = context->getMax();
+
+	delete context;
 }

@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-07-21 08:39:01  robot12
+ *   Revision 1.10  2009-07-28 09:13:11  robot12
+ *   add a clean up to update (delete context)
+ *
+ *   Revision 1.9  2009/07/21 08:39:01  robot12
  *   rename "crosover" to crossover
  *
  *   Revision 1.8  2009/06/29 15:30:11  robot12
@@ -162,4 +165,6 @@ void Generation::update(double factor) {
 	m_best = context->getBest();
 	m_dSize = (double)m_size;
 	m_dKill = (double)m_kill;
+
+	delete context;
 }
