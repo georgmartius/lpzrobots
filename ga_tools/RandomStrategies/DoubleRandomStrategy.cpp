@@ -28,7 +28,10 @@
  *   type double with a random double value.                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-07-21 08:37:59  robot12
+ *   Revision 1.4  2009-07-28 13:18:08  robot12
+ *   add one clean up
+ *
+ *   Revision 1.3  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.2  2009/06/25 10:02:38  robot12
@@ -57,14 +60,14 @@ DoubleRandomStrategy::DoubleRandomStrategy() {
 }
 
 DoubleRandomStrategy::DoubleRandomStrategy(RandGen* random, double base, double factor, double epsilon) {
-	m_random =random;
+	m_random = random;
 	m_base = base;
 	m_factor = factor;
 	m_epsilon = epsilon;
 }
 
 DoubleRandomStrategy::~DoubleRandomStrategy() {
-	// nothing
+        m_random = NULL;
 }
 
 IValue* DoubleRandomStrategy::getRandomValue(void) {

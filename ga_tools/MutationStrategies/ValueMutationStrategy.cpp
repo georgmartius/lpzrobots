@@ -26,7 +26,10 @@
  *   This class is a implementation of the interface IMutationStrategy.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-21 08:37:59  robot12
+ *   Revision 1.7  2009-07-28 13:18:08  robot12
+ *   add one clean up
+ *
+ *   Revision 1.6  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.5  2009/06/17 11:25:52  robot12
@@ -75,7 +78,7 @@ ValueMutationStrategy::ValueMutationStrategy(IMutationFactorStrategy* strategy, 
 }
 
 ValueMutationStrategy::~ValueMutationStrategy() {
-	// nothing
+	m_strategy = NULL;
 }
 
 Gen* ValueMutationStrategy::mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext, SingletonGenFactory* factory) {
