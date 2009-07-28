@@ -31,7 +31,10 @@
  *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-21 08:37:59  robot12
+ *   Revision 1.5  2009-07-28 13:21:30  robot12
+ *   workaround! is to do in next time!!!
+ *
+ *   Revision 1.4  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.3  2009/05/14 15:29:54  robot12
@@ -81,8 +84,11 @@ GenPrototype::~GenPrototype() {
 		itr=m_context.begin();
 	}
 
-	delete m_randomStrategy;
-	delete m_mutationStrategy;
+	// if the strategy deleted it will throw a exception. This is no problem. ignore it.
+	/*try {
+		delete m_randomStrategy;
+		delete m_mutationStrategy;
+	}catch(...){}*/
 }
 
 void GenPrototype::insertContext(Generation* generation, GenContext* context) {
