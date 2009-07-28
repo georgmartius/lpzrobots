@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-21 08:39:01  robot12
+ *   Revision 1.9  2009-07-28 13:20:40  robot12
+ *   add some clean ups and add member variable m_cleanStrategies
+ *
+ *   Revision 1.8  2009/07/21 08:39:01  robot12
  *   rename "crosover" to crossover
  *
  *   Revision 1.7  2009/07/15 12:53:36  robot12
@@ -106,6 +109,7 @@ SingletonGenAlgAPI* SingletonGenAlgAPI::m_api = 0;
 SingletonGenAlgAPI::SingletonGenAlgAPI() {
 	m_plotEngine = 0;
 	m_plotEngineGenContext = 0;
+	m_cleanStrategies = false;
 }
 
 SingletonGenAlgAPI::~SingletonGenAlgAPI() {
@@ -114,6 +118,8 @@ SingletonGenAlgAPI::~SingletonGenAlgAPI() {
 
 	if(m_plotEngineGenContext!=0)
 		delete m_plotEngineGenContext;
+
+	SingletonGenEngine::destroyGenEngine(m_cleanStrategies);
 }
 
 IFitnessStrategy* SingletonGenAlgAPI::createSumFitnessStrategy()const {

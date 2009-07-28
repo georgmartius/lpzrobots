@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-21 08:39:01  robot12
+ *   Revision 1.9  2009-07-28 13:20:40  robot12
+ *   add some clean ups and add member variable m_cleanStrategies
+ *
+ *   Revision 1.8  2009/07/21 08:39:01  robot12
  *   rename "crosover" to crossover
  *
  *   Revision 1.7  2009/07/15 12:53:36  robot12
@@ -336,8 +339,9 @@ public:
 	inline static SingletonGenAlgAPI* getInstance(void) {if(m_api==0)m_api = new SingletonGenAlgAPI();return m_api;}
 	/**
 	 * destroy the api
+	 * @param cleanStrategies (bool) default = false set a flag to clean the strategies, which are seted.
 	 */
-	inline static void destroyAPI(void) {if(m_api!=0){delete m_api;m_api=0;}}
+	inline static void destroyAPI(bool cleanStrategies=false) {getInstance()->m_cleanStrategies=cleanStrategies; if(m_api!=0){delete m_api;m_api=0;}}
 
 	// data access
 	/**
@@ -381,6 +385,11 @@ private:
 	 * help declaration for prepare
 	 */
 	void* m_inspectable;
+
+	/**
+	 * Flag for clean the strategies
+	 */
+	bool m_cleanStrategies;
 };
 
 #endif /* SINGLETONGENALGAPI_H_ */
