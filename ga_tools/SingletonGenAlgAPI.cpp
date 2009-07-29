@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-07-29 14:19:50  jhoffmann
+ *   Revision 1.11  2009-07-29 16:07:09  jhoffmann
+ *   Fix a minor bug -> set m_inspectable to 0 as default
+ *
+ *   Revision 1.10  2009/07/29 14:19:50  jhoffmann
  *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
  *
  *   Revision 1.9  2009/07/28 13:20:40  robot12
@@ -110,9 +113,10 @@
 SingletonGenAlgAPI* SingletonGenAlgAPI::m_api = 0;
 
 SingletonGenAlgAPI::SingletonGenAlgAPI() {
-	m_plotEngine = 0;
+	m_plotEngine           = 0;
 	m_plotEngineGenContext = 0;
-	m_cleanStrategies = false;
+	m_inspectable          = 0;
+	m_cleanStrategies      = false;
 }
 
 SingletonGenAlgAPI::~SingletonGenAlgAPI() {
