@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.36  2009-04-23 14:32:35  guettler
+ *   Revision 1.37  2009-07-29 14:19:49  jhoffmann
+ *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *   Revision 1.36  2009/04/23 14:32:35  guettler
  *   cosmetic
  *
  *   Revision 1.35  2009/04/23 14:17:34  guettler
@@ -268,7 +271,7 @@ namespace lpzrobots {
   {
   public:
 
-    typedef enum SimulationState { none, initialised, running, closed };
+    /* typedef */ enum SimulationState { none, initialised, running, closed };
 
     Simulation();
     virtual ~Simulation();

@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-30 14:14:10  martius
+ *   Revision 1.5  2009-07-29 14:19:49  jhoffmann
+ *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *   Revision 1.4  2007/07/30 14:14:10  martius
  *   drawBoundings moved here
  *
  *   Revision 1.3  2006/12/11 18:26:55  martius
@@ -63,10 +66,13 @@
 
 namespace lpzrobots {
 
-  OsgHandle::OsgHandle( ) {}
+  OsgHandle::OsgHandle( ) : scene(0), normalState(0), transparentState(0) {};
+
+
   OsgHandle::OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
-			osg::StateSet* normalState, osg::StateSet* transparentState, 
-			const Color& color){
+                          osg::StateSet* normalState, osg::StateSet* transparentState,
+                          const Color& color)
+  {
     this->scene = scene;
     for(int i=0; i<3; i++){
       this->tesselhints[i] = tesselhints[i];

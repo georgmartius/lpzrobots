@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-30 14:13:40  martius
+ *   Revision 1.5  2009-07-29 14:19:49  jhoffmann
+ *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *   Revision 1.4  2007/07/30 14:13:40  martius
  *   drawBoundings moved here
  *
  *   Revision 1.3  2006/12/11 18:26:55  martius
@@ -70,6 +73,7 @@ class OsgHandle
 {
 public:
   OsgHandle();
+
   OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
 	     osg::StateSet* normalState, osg::StateSet* transparentState, 
 	     const Color& color);
@@ -78,7 +82,7 @@ public:
 
   /// decides whether to draw bounding boxes 
   bool drawBoundings;   
-  osg::Group* scene;  
+  osg::Group* scene;
   osg::TessellationHints* tesselhints[3];  
   osg::StateSet* normalState;  
   osg::StateSet* transparentState;  

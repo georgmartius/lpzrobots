@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-04-29 08:45:56  guettler
+ *   Revision 1.6  2009-07-29 14:19:49  jhoffmann
+ *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *   Revision 1.5  2008/04/29 08:45:56  guettler
  *   adapted some cosmetic changes of StatisticTools
  *
  *   Revision 1.4  2008/01/17 09:55:55  der
@@ -79,7 +82,8 @@ using namespace osg;
 
 namespace lpzrobots {
 
-HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font) : geode(geode), font(font) {
+HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font) : geode(geode), font(font)
+{
   xInitPosition = 500.0f;
   yInitPosition = 27.0f;
   zInitPosition = 0.0f;

@@ -37,9 +37,9 @@ INC   = -I. -I$(ODEROBOTS)/include -I$(GA_TOOLS)/include -I$(SELFORG)/include
 
 CXX = g++
 # -pg for profiling
-CPPFLAGS = -Wall  -g -pthread -fstack-protector -Wstack-protector $(INC)
+CPPFLAGS = -Wall -Wno-deprecated -g -pthread -fstack-protector -Wstack-protector $(INC)
 ## Optimisation
-CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC)
+CPPFLAGS_OPT = -Wall -Wno-deprecated -pthread -O3 -DNDEBUG $(INC)
 
 normal: libode_robots $(EXEC)
 

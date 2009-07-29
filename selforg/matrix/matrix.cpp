@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.27  2009-02-02 15:21:37  martius
+// Revision 1.28  2009-07-29 14:19:49  jhoffmann
+// Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+//
+// Revision 1.27  2009/02/02 15:21:37  martius
 // added pseudoinverse
 //
 // Revision 1.26  2009/01/05 08:45:00  martius
@@ -204,10 +207,22 @@ namespace matrix {
   };
 
   // internal allocation
-  void Matrix::allocate() {
-    if ( ( I ) m*n > buffersize ) {
+  void Matrix::allocate()
+  {
+    if (m*n == 0)
+    {
+      if (data)
+        free(data);
+      data = 0;
+      buffersize = 0;
+    }
+
+    if ( m*n > buffersize )
+    {
       buffersize = m * n;
-      if ( data ) { free ( data ); }
+      if ( data )
+        free ( data );
+
       data = ( D* ) malloc ( sizeof ( D ) * buffersize );
       assert ( data );
     }
@@ -369,7 +384,7 @@ namespace matrix {
           newdata[j*m+i] = data[i*n+j];
         }
       }
-      free ( data );
+      free (data);
       data = newdata;
     }
     // swap n and m

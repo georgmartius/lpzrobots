@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2009-03-31 15:46:05  martius
+ *   Revision 1.31  2009-07-29 14:19:49  jhoffmann
+ *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *   Revision 1.30  2009/03/31 15:46:05  martius
  *   caption is a std::string and can be changed on-line
  *
  *   Revision 1.29  2009/03/27 09:06:24  guettler
@@ -252,7 +255,7 @@ namespace lpzrobots {
 
      Base::Base(const std::string& caption)
       : ground(0), caption(caption), groundTexture("Images/greenground.rgb"),
-	hud(0), timestats(0), captionline(0), 
+	hud(0), timestats(0), captionline(0),
 	ReceivesShadowTraversalMask(0x1), CastsShadowTraversalMask(0x2),
 	shadow(5), shadowTexSize(2048), useNVidia(1)
     {

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-05-07 16:45:52  martius
+ *   Revision 1.8  2009-07-29 14:19:49  jhoffmann
+ *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *   Revision 1.7  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.6  2007/08/23 15:39:05  martius
@@ -66,17 +69,26 @@ using namespace osg;
 
 namespace lpzrobots {
 
-  RaySensorBank::RaySensorBank(){
+  RaySensorBank::RaySensorBank()
+  {
     initialized=false;
   };
 
-  RaySensorBank::~RaySensorBank(){
+  RaySensorBank::~RaySensorBank()
+  {
     clear();
+
+    if (initialized)
+      this->odeHandle.deleteSpace();
+
+    initialized = false;
   };
 
-  void RaySensorBank::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle){
+  void RaySensorBank::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
+  {
     this->odeHandle = odeHandle;
     this->osgHandle = osgHandle;
+
     this->odeHandle.space = dSimpleSpaceCreate ( this->odeHandle.space );
     initialized=true; 
   }; 
@@ -90,9 +102,13 @@ namespace lpzrobots {
   };
 
   void RaySensorBank::reset(){
-    for (unsigned int i=0; i<bank.size(); i++){
+    for (unsigned int i=0; i<bank.size(); i++)
+    {
       bank[i]->reset();
     }
+
+
+
   };  
   
   double RaySensorBank::get(unsigned int index){
@@ -137,8 +153,10 @@ namespace lpzrobots {
 
   // delete all registered sensors.
   void RaySensorBank::clear(){
-    for (unsigned int i=0; i<bank.size(); i++){
-      if(bank[i]) delete bank[i];
+    for (unsigned int i=0; i<bank.size(); i++)
+    {
+      if(bank[i])
+        delete bank[i];
     }
     bank.clear();
   }

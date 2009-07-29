@@ -28,7 +28,10 @@
  *   control the algorithm from outside.                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-07-28 13:13:56  robot12
+ *   Revision 1.4  2009-07-29 14:19:49  jhoffmann
+ *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *   Revision 1.3  2009/07/28 13:13:56  robot12
  *   add some clean ups
  *
  *   Revision 1.2  2009/07/28 10:17:56  guettler
@@ -557,8 +560,9 @@ private:
  */
 int main(int argc, char **argv)
 {
+  int ret;
   ThisSim sim(4);
-  return sim.run(argc, argv) ? 0 : 1;
-
+  ret = sim.run(argc, argv) ? 0 : 1;
+  return ret;
 }
 

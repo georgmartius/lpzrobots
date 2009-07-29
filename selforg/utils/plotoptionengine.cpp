@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2009-07-21 08:50:16  robot12
+ *  Revision 1.4  2009-07-29 14:19:49  jhoffmann
+ *  Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *  Revision 1.3  2009/07/21 08:50:16  robot12
  *  finish of the split
  *  to do: add some comments....
  *
@@ -178,9 +181,12 @@ void PlotOptionEngine::writePlotComment(const char* cmt){
 }
 
 // Plots controller sensor- and motorvalues and internal controller parameters.
-void PlotOptionEngine::plot(double time){
-  for(std::list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    if( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) ){
+void PlotOptionEngine::plot(double time)
+{
+  for(std::list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++)
+  {
+    if ( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) )
+    {
 
       fprintf((*i).pipe, "%f", time);
       printInspectables((*i).pipe, inspectables);

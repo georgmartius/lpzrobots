@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-07-28 13:20:40  robot12
+ *   Revision 1.10  2009-07-29 14:19:50  jhoffmann
+ *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
+ *
+ *   Revision 1.9  2009/07/28 13:20:40  robot12
  *   add some clean ups and add member variable m_cleanStrategies
  *
  *   Revision 1.8  2009/07/21 08:39:01  robot12
@@ -120,6 +123,9 @@ SingletonGenAlgAPI::~SingletonGenAlgAPI() {
 		delete m_plotEngineGenContext;
 
 	SingletonGenEngine::destroyGenEngine(m_cleanStrategies);
+
+	if (m_inspectable)
+	  delete(m_inspectable);
 }
 
 IFitnessStrategy* SingletonGenAlgAPI::createSumFitnessStrategy()const {
