@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2009-07-30 11:36:01  guettler
+ *   added check if noGraphics in OsgHandle is set
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.2  2006/05/29 20:10:06  martius
@@ -56,7 +59,7 @@ namespace lpzrobots {
     // Red: just the red channel is used;
     // Sum: the sum of all channels is used;
     // HighMidLow: Blue is least significant, Green is medium significant and Red is most significant
-    typedef enum CodingMode {Red, Sum, LowMidHigh};
+    /* typedef */ enum CodingMode {Red, Sum, LowMidHigh};
       
 
     OSGHeightField(osg::HeightField* heightfield,float x_size, float y_size);    

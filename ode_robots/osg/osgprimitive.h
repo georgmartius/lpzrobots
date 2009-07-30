@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-04-26 10:28:49  martius
+ *   Revision 1.7  2009-07-30 11:34:15  guettler
+ *   added check if noGraphics in OsgHandle is set
+ *
+ *   Revision 1.6  2009/04/26 10:28:49  martius
  *   added setColor for OsgBoxTex
  *
  *   Revision 1.5  2009/01/20 17:29:10  martius
@@ -126,7 +129,7 @@ namespace lpzrobots {
   */
   class OSGPrimitive {
   public:
-    typedef enum Quality {Low, Middle, High};
+    /* typedef */ enum Quality {Low, Middle, High};
 
     OSGPrimitive ();
     virtual ~OSGPrimitive ();
@@ -159,6 +162,8 @@ namespace lpzrobots {
     osg::ref_ptr<osg::ShapeDrawable> shape;
 
     std::vector<TextureDescr > textures; 
+
+    const OsgHandle* osgHandle;
   };
 
   /**

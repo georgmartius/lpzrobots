@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-03-13 09:19:53  martius
+ *   Revision 1.7  2009-07-30 11:36:01  guettler
+ *   added check if noGraphics in OsgHandle is set
+ *
+ *   Revision 1.6  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -128,10 +131,12 @@ namespace lpzrobots {
 
 
   void OSGHeightField::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene);
-    
-    geode = new Geode;  
+    this->osgHandle=&osgHandle;
+    assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
+    if (this->osgHandle->noGraphics)
+      return;
+    geode = new Geode;  
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 

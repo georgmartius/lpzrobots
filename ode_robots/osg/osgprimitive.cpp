@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-04-26 10:28:16  martius
+ *   Revision 1.14  2009-07-30 11:34:15  guettler
+ *   added check if noGraphics in OsgHandle is set
+ *
+ *   Revision 1.13  2009/04/26 10:28:16  martius
  *   added setColor for OsgBoxTex. This should be implemented and only gives a error message now.
  *
  *   Revision 1.12  2009/03/13 09:19:53  martius
@@ -177,11 +180,11 @@ namespace lpzrobots {
   /******************************************************************************/
 
 
-  OSGPrimitive::OSGPrimitive(){ 
+  OSGPrimitive::OSGPrimitive() : osgHandle(0) {
     setTexture("Images/really_white.rgb",1,1);
   }
 
-  OSGPrimitive::~OSGPrimitive(){    
+  OSGPrimitive::~OSGPrimitive(){
     Node::ParentList l = transform->getParents();
     for(Node::ParentList::iterator i = l.begin(); i != l.end(); i++){
       (*i)->removeChild(transform.get());  
@@ -229,6 +232,8 @@ namespace lpzrobots {
   }
   
   void OSGPrimitive::applyTextures(){
+    if (this->osgHandle->noGraphics)
+      return;
     // this is only the default implementation. For Non-ShapeDrawables this most prob. be overloaded
     if(textures.size() > 0){
       osg::Group* grp = getGroup();
@@ -245,6 +250,8 @@ namespace lpzrobots {
   }
 
   void OSGPrimitive::setColor(const Color& color){
+    if (this->osgHandle->noGraphics)
+      return;
     if(shape.valid())
       shape->setColor(color);
   }
@@ -254,6 +261,7 @@ namespace lpzrobots {
   OSGDummy::OSGDummy(){}
   
   void OSGDummy::init(const OsgHandle& osgHandle, Quality quality){
+    this->osgHandle=&osgHandle;
   }
   
   void OSGDummy::setMatrix( const osg::Matrix& m4x4 ) {
@@ -280,9 +288,12 @@ namespace lpzrobots {
   }
 
   void OSGPlane::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene);
-    geode = new Geode;  
+    this->osgHandle=&osgHandle;
+    assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
+    if (this->osgHandle->noGraphics)
+      return;
+    geode = new Geode;  
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
   
@@ -311,9 +322,12 @@ namespace lpzrobots {
   }
 
   void OSGBox::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene);
-    geode = new Geode;  
+    this->osgHandle=&osgHandle;
+    assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
+    if (this->osgHandle->noGraphics)
+      return;
+    geode = new Geode;  
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
@@ -337,6 +351,8 @@ namespace lpzrobots {
   }
   void OSGBox::setDim(Vec3 d){
     dim = d;
+    if (this->osgHandle->noGraphics)
+      return;
     box->setHalfLengths(d/2);
   }
 
@@ -349,8 +365,11 @@ namespace lpzrobots {
   }
 
   void OSGBoxTex::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene); 
+    this->osgHandle=&osgHandle;
+    assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
+    if (this->osgHandle->noGraphics)
+      return;
     osgHandle.scene->addChild(transform.get());
     Vec3 half = dim*(-0.5);    
     Vec3 dx(dim.x(),0.0f,0.0f);
@@ -425,10 +444,12 @@ namespace lpzrobots {
   }
 
   void OSGSphere::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene);
-    
-    geode = new Geode;  
+    this->osgHandle=&osgHandle;
+    assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
+    if (this->osgHandle->noGraphics)
+      return;
+    geode = new Geode;  
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
@@ -451,10 +472,12 @@ namespace lpzrobots {
   }
 
   void OSGCapsule::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene);
-
-    geode = new Geode;  
+    this->osgHandle=&osgHandle;
+    assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
+    if (this->osgHandle->noGraphics)
+      return;
+    geode = new Geode;  
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
@@ -478,10 +501,12 @@ namespace lpzrobots {
   }
 
   void OSGCylinder::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene);
-
-    geode = new Geode;  
+    this->osgHandle=&osgHandle;
+    assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
+    if (this->osgHandle->noGraphics)
+      return;
+    geode = new Geode;  
     transform->addChild(geode.get());
     osgHandle.scene->addChild(transform.get());
 
@@ -515,8 +540,11 @@ namespace lpzrobots {
   }
 
   void OSGMesh::init(const OsgHandle& osgHandle, Quality quality){
-    assert(osgHandle.scene);
-    transform = new MatrixTransform;        
+    this->osgHandle=&osgHandle;
+    assert(osgHandle.scene || this->osgHandle->noGraphics);
+    transform = new MatrixTransform;
+    if (this->osgHandle->noGraphics)
+      return;
     osgHandle.scene->addChild(transform.get());
     scaletrans = new MatrixTransform;    
     scaletrans->setMatrix(osg::Matrix::scale(scale,scale,scale));
