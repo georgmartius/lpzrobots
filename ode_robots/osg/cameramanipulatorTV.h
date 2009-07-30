@@ -24,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:34  martius
+ *   Revision 1.3  2009-07-30 11:52:53  guettler
+ *   new CameraHandle replacing static variables in the CameraManipulators
+ *
+ *   Revision 1.2  2006/07/14 12:23:34  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.4  2006/03/19 13:36:38  robot3
@@ -61,7 +64,7 @@ namespace lpzrobots {
 
   public:
     
-    CameraManipulatorTV(osg::Node* node,GlobalData& global);
+    CameraManipulatorTV(osg::Node* node,GlobalData& global, CameraHandle& cameraHandle);
     
     /** returns the classname of the manipulator
 	it's NECCESSARY to define this funtion, otherwise

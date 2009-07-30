@@ -3,7 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *    guettler@informatik.uni-leipzig.de                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,59 +21,70 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************
  *                                                                         *
- *  Camera Manipulation by mouse and keyboard                              *
+ *  DESCRIPTION                                                            *
+ *  
  *                                                                         *
- *   $Log$
- *   Revision 1.3  2009-07-30 11:52:52  guettler
- *   new CameraHandle replacing static variables in the CameraManipulators
- *
- *   Revision 1.2  2006/07/14 12:23:34  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.1  2006/03/19 13:34:31  robot3
- *   race mode now works
- *
- *
  *                                                                         *
- ***************************************************************************/
-#ifndef __CAMERAMANIPULATORRACE_H
-#define __CAMERAMANIPULATORRACE_H
+ *  $Log$
+ *  Revision 1.1  2009-07-30 11:52:32  guettler
+ *  new CameraHandle replacing static variables in the CameraManipulators
+ *										   *
+ *                                                                         *
+ **************************************************************************/
+#ifndef _CAMERAHANDLE_H_
+#define _CAMERAHANDLE_H_
 
-#include "osgforwarddecl.h"
-#include "cameramanipulator.h"
 
-namespace lpzrobots {
+#include <selforg/position.h>
+#include <osg/Vec3f>
 
-  /**
-     CameraManipulatorRace is a MatrixManipulator which provides Flying simulator-like
-     updating of the camera position & orientation. 
-     Left mouse button: Pan and tilt
-     Right mouse button: forward and sideways
-     Middle mouse button: up and sideways
-  */
-
-  class CameraManipulatorRace : public CameraManipulator {
-
-  public:
-    
-    CameraManipulatorRace(osg::Node* node,GlobalData& global, CameraHandle& cameraHandle);
-    
-    /** returns the classname of the manipulator
-	it's NECCESSARY to define this funtion, otherwise
-	the new manipulator WON'T WORK! (but ask me not why)
-     */
-    virtual const char* className() const { return "Race-Camera"; }
-  
-  protected:
-    
-    virtual ~CameraManipulatorRace();
-    
-    /** This handles robot movements, so that the camera movemenent is right affected.
-	should be overwritten by new cameramanipulator
-    */
-       virtual void calcMovementByAgent();
-    
-  };
+// forward declarations
+namespace lpzrobots
+{
+  class OSGPrimitive;
+  class OdeAgent;
 }
 
-#endif
+namespace osg
+{
+  class Vec3f;
+  typedef Vec3f Vec3;
+}
+
+namespace lpzrobots
+{
+
+  /**
+   * Class which holds all data used by CameraManipulators.
+   * The avoidance of static variables enables multithreaded (tasked)
+   * simulations.
+   */
+  class CameraHandle
+  {
+  public:
+    enum ManipulationType { No, Translational, Rotational};
+
+    osg::Vec3 eye;
+    osg::Vec3 view;
+    osg::Vec3 home_eye;
+    osg::Vec3 home_view;
+    osg::Vec3 desiredEye;
+    osg::Vec3 desiredView;
+    bool home_externally_set;
+    OdeAgent* watchingAgent;
+    bool watchingAgentDefined;
+    Position oldPositionOfAgent;
+    bool oldPositionOfAgentDefined;
+
+    ManipulationType doManipulation;
+    osg::Vec3 manipulationPoint;
+    OSGPrimitive* manipulationViz;
+
+    CameraHandle();
+
+    virtual ~CameraHandle();
+  };
+
+}
+
+#endif /* _CAMERAHANDLE_H_ */

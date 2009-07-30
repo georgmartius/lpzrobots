@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-01 08:55:22  guettler
+ *   Revision 1.7  2009-07-30 11:52:53  guettler
+ *   new CameraHandle replacing static variables in the CameraManipulators
+ *
+ *   Revision 1.6  2009/07/01 08:55:22  guettler
  *   new method which checks if agent is defined and in global list,
  *   if not, use the first agent of global list
  *   --> all camera manipulators fixed
@@ -62,8 +65,8 @@ namespace lpzrobots {
   using namespace osg;
   using namespace osgGA;
 
-  CameraManipulatorRace::CameraManipulatorRace(osg::Node* node,GlobalData& global)
-    : CameraManipulator(node,global) {}
+  CameraManipulatorRace::CameraManipulatorRace(osg::Node* node,GlobalData& global, CameraHandle& cameraHandle)
+  : CameraManipulator(node,global, cameraHandle) {}
 
   CameraManipulatorRace::~CameraManipulatorRace(){}
 
@@ -71,17 +74,17 @@ namespace lpzrobots {
   void CameraManipulatorRace::calcMovementByAgent() {
     if (!this->isWatchingAgentDefined()) return;
     // manipulate desired eye by the move of the robot
-    const double* robMove = (watchingAgent->getRobot()->getPosition()-oldPositionOfAgent).toArray();
+    const double* robMove = (camHandle.watchingAgent->getRobot()->getPosition()-camHandle.oldPositionOfAgent).toArray();
     // attach the robSpeed to desired eye
     for (int i=0;i<=2;i++) {
       if (!isNaN(robMove[i])) {
-        desiredEye[i]+=robMove[i];}
+        camHandle.desiredEye[i]+=robMove[i];}
       else
         std::cout << "NAN exception!" << std::endl;
     }
     // move behind the robot
     // returns the orientation of the robot in matrix style
-    matrix::Matrix Orientation= (watchingAgent->getRobot()->getOrientation());
+    matrix::Matrix Orientation= (camHandle.watchingAgent->getRobot()->getOrientation());
     Orientation.toTranspose();
     // first get the normalized vector of the orientation
     double eVecX[3] = {0,1,0};
@@ -89,31 +92,31 @@ namespace lpzrobots {
     matrix::Matrix normVecX = Orientation * matrix::Matrix(3,1,eVecX);
     matrix::Matrix normVecY = Orientation * matrix::Matrix(3,1,eVecY);
     // then get the distance between robot and camera
-    Position robPos = watchingAgent->getRobot()->getPosition();
-    double distance = sqrt(square(desiredEye[0]-robPos.x)+
-                           square(desiredEye[1]-robPos.y));
+    Position robPos = camHandle.watchingAgent->getRobot()->getPosition();
+    double distance = sqrt(square(camHandle.desiredEye[0]-robPos.x)+
+                           square(camHandle.desiredEye[1]-robPos.y));
     // then new eye = robPos minus normalized vector * distance
-    desiredEye[0]=robPos.x + distance *normVecX.val(1,0);
-    desiredEye[1]=robPos.y - distance *normVecY.val(1,0);
+    camHandle.desiredEye[0]=robPos.x + distance *normVecX.val(1,0);
+    camHandle.desiredEye[1]=robPos.y - distance *normVecY.val(1,0);
 
     // now do center on the robot (manipulate the view)
     // desiredEye is the position of the camera
     // calculate the horizontal angle, means pan (view.x)
-    if (robPos.x-desiredEye[0]!=0) { // division by zero
-      desiredView[0]= atan((desiredEye[0]-robPos.x)/(robPos.y-desiredEye[1]))
+    if (robPos.x-camHandle.desiredEye[0]!=0) { // division by zero
+      camHandle.desiredView[0]= atan((camHandle.desiredEye[0]-robPos.x)/(robPos.y-camHandle.desiredEye[1]))
         / PI*180.0f+180.0f;
-      if (desiredEye[1]-robPos.y<0) // we must switch
-                desiredView[0]+=180.0f;
+      if (camHandle.desiredEye[1]-robPos.y<0) // we must switch
+        camHandle.desiredView[0]+=180.0f;
     }
     // calculate the vertical angle
-    if (robPos.z-desiredEye[2]!=0) { // division by zero
+    if (robPos.z-camHandle.desiredEye[2]!=0) { // division by zero
       // need dz and sqrt(dx^2+dy^2) for calulation
-      desiredView[1]=-atan((sqrt(square(desiredEye[0]-robPos.x)+
-                                square(desiredEye[1]-robPos.y)))
-                          /(robPos.z-desiredEye[2]))
+      camHandle.desiredView[1]=-atan((sqrt(square(camHandle.desiredEye[0]-robPos.x)+
+                                square(camHandle.desiredEye[1]-robPos.y)))
+                          /(robPos.z-camHandle.desiredEye[2]))
         / PI*180.0f-90.0f;
-      if (desiredEye[2]-robPos.z<0) // we must switch
-        desiredView[1]+=180.0f;
+      if (camHandle.desiredEye[2]-robPos.z<0) // we must switch
+        camHandle.desiredView[1]+=180.0f;
     }
   }
 }

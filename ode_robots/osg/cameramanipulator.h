@@ -24,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-01 08:55:22  guettler
+ *   Revision 1.7  2009-07-30 11:52:52  guettler
+ *   new CameraHandle replacing static variables in the CameraManipulators
+ *
+ *   Revision 1.6  2009/07/01 08:55:22  guettler
  *   new method which checks if agent is defined and in global list,
  *   if not, use the first agent of global list
  *   --> all camera manipulators fixed
@@ -94,6 +97,7 @@
 #include <osgGA/MatrixManipulator>
 #include "globaldata.h"
 #include <selforg/position.h>
+#include "camerahandle.h"
 
 namespace lpzrobots {
   // forward declaration
@@ -111,9 +115,8 @@ namespace lpzrobots {
   class CameraManipulator : public osgGA::MatrixManipulator
     {
     public:
-      typedef enum ManipulationType { No, Translational, Rotational};
 
-      CameraManipulator(osg::Node* node, GlobalData& global);
+      CameraManipulator(osg::Node* node, GlobalData& global, CameraHandle& cameraHandle);
 
 
       /** returns the classname of the manipulator
@@ -206,24 +209,7 @@ namespace lpzrobots {
       float modelScale;
       osg::Matrixd  pose;  // complete pose (updated by computeMatrix()
 
-      static osg::Vec3   eye;      // position of the camera
-      static osg::Vec3   view;     // view angles in degree (pan, tilt, yaw)
-      static osg::Vec3   home_eye;  // home position of the camera
-      static osg::Vec3   home_view; // home view angles in degree (pan, tilt, yaw)
-      static bool home_externally_set;
-
-      static osg::Vec3   desiredEye;      // desired position of the camera
-      static osg::Vec3   desiredView;     // desired view angles in degree (pan, tilt, yaw)
-
-      static OdeAgent* watchingAgent; // the robot which is actually watched
-      static bool watchingAgentDefined;
-
-      static Position oldPositionOfAgent; // because the return of getSpeed() seems not to be useful
-      static bool oldPositionOfAgentDefined;
-
-      static ManipulationType doManipulation; // type of agent-manipulation
-      static osg::Vec3 manipulationPoint; // dragged point in the world
-      static OSGPrimitive* manipulationViz;
+      CameraHandle& camHandle;
 
       GlobalData& globalData; // the global environment variables
 
@@ -265,8 +251,6 @@ namespace lpzrobots {
       /** manipulates Agent by forces. The given points are screen coords (-1 to 1) normalized.
       */
       virtual void calcManipulationPoint(float x, float y);
-
-      static int i;
 
     };
 
