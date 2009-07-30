@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.99  2009-07-30 08:55:21  jhoffmann
+ *   Revision 1.100  2009-07-30 12:27:34  jhoffmann
+ *   support for new CameraHandle
+ *
+ *   Revision 1.99  2009/07/30 08:55:21  jhoffmann
  *   Fix memory leak: delete osg viewer at exit
  *
  *   Revision 1.98  2009/04/23 14:31:23  guettler
@@ -574,8 +577,8 @@ namespace lpzrobots {
 
   int Simulation::ctrl_C = 0;
 
-  Simulation::Simulation()
-    : Configurable("lpzrobots-ode_robots", "0.4"){
+  Simulation::Simulation() : Configurable("lpzrobots-ode_robots", "0.4")
+  {
     // default values are set in Base::Base()
     addParameter("Shadow",&shadow);
     addParameter("ShadowTextureSize",&shadowTexSize);
@@ -585,8 +588,9 @@ namespace lpzrobots {
     addParameterDef("UseOdeThread",&useOdeThread,0);
     addParameterDef("UseOsgThread",&useOsgThread,0);
 
-//     nextLeakAnnounce = 20;
-//     leakAnnCounter = 1;
+    //     nextLeakAnnounce = 20;
+    //     leakAnnCounter = 1;
+
     truerealtimefactor = 1;
     sim_step = 0;
     state    = none;
@@ -596,10 +600,14 @@ namespace lpzrobots {
     simulation_time_reached=false;
     viewer   = 0;
     arguments= 0;
+
     // we have to count references by our selfes
     osg::Referenced::ref();
     osgGA::GUIEventHandler::ref();
     //    Producer::Camera::Callback::ref();
+
+    odeThread = 0;
+    osgThread = 0;
     odeThreadCreated=false;
     osgThreadCreated=false;
 
@@ -626,8 +634,10 @@ namespace lpzrobots {
     //    Producer::Camera::Callback::unref_nodelete();
     osg::Referenced::unref_nodelete();
 
-    if(viewer)
+    if(viewer) {
       delete viewer;
+      viewer = 0;
+    }
   }
 
   bool Simulation::init(int argc, char** argv) {
@@ -777,32 +787,33 @@ namespace lpzrobots {
 
     osgHandle.color = Color(1,1,1,1);
 
-    osgHandle.scene=makeScene();
-    if (!osgHandle.scene)
-      return false;
+    if (!noGraphics)
+    {
+      osgHandle.scene=makeScene();
+      if (!osgHandle.scene)
+        return false;
 
-    osgHandle.normalState = new StateSet();
-    osgHandle.normalState->ref();
+      osgHandle.normalState = new StateSet();
+      osgHandle.normalState->ref();
 
-    // set up blending for transparent stateset
-    osg::StateSet* stateset = new StateSet();
-    osg::BlendFunc* transBlend = new osg::BlendFunc;
-    transBlend->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    stateset->setAttributeAndModes(transBlend, osg::StateAttribute::ON);
-    stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-    //stateset->setRenderBinDetails(5,"RenderBin");
-    stateset->setMode(GL_CULL_FACE,osg::StateAttribute::ON); // disable backface because of problems
-    osgHandle.transparentState = stateset;
-    osgHandle.transparentState->ref();
+      // set up blending for transparent stateset
+      osg::StateSet* stateset = new StateSet();
+      osg::BlendFunc* transBlend = new osg::BlendFunc;
+      transBlend->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
+      stateset->setAttributeAndModes(transBlend, osg::StateAttribute::ON);
+      stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+      //stateset->setRenderBinDetails(5,"RenderBin");
+      stateset->setMode(GL_CULL_FACE,osg::StateAttribute::ON); // disable backface because of problems
+      osgHandle.transparentState = stateset;
+      osgHandle.transparentState->ref();
 
-    if(!noGraphics) {
       keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
 
       // setup the camera manipulators
-      keyswitchManipulator->addMatrixManipulator( '1', "Static", new CameraManipulator(osgHandle.scene, globalData) );
-      keyswitchManipulator->addMatrixManipulator( '2', "Follow", new CameraManipulatorFollow(osgHandle.scene, globalData) );
-      keyswitchManipulator->addMatrixManipulator( '3', "TV", new CameraManipulatorTV(osgHandle.scene, globalData) );
-      keyswitchManipulator->addMatrixManipulator( '4', "Race", new CameraManipulatorRace(osgHandle.scene, globalData) );
+      keyswitchManipulator->addMatrixManipulator( '1', "Static", new CameraManipulator(osgHandle.scene, globalData, cameraHandle) );
+      keyswitchManipulator->addMatrixManipulator( '2', "Follow", new CameraManipulatorFollow(osgHandle.scene, globalData, cameraHandle) );
+      keyswitchManipulator->addMatrixManipulator( '3', "TV", new CameraManipulatorTV(osgHandle.scene, globalData, cameraHandle) );
+      keyswitchManipulator->addMatrixManipulator( '4', "Race", new CameraManipulatorRace(osgHandle.scene, globalData, cameraHandle) );
 
       keyswitchManipulator->selectMatrixManipulator(2);
       viewer->setCameraManipulator( keyswitchManipulator );
@@ -1411,6 +1422,9 @@ namespace lpzrobots {
     }
 
     noGraphics = contains(argv, argc, "-nographics")!=0;
+    // inform osg relevant stuff that no graphics is used
+    if (noGraphics)
+      osgHandle.noGraphics=true;
     pause = contains(argv, argc, "-pause")!=0;
 
     index = contains(argv, argc, "-shadow");
@@ -1701,9 +1715,10 @@ namespace lpzrobots {
     QP(PROFILER.endBlock("ODEstep                      "));
   }
 
-  void Simulation::osgStep() {
-    viewer->frame();
-
+  void Simulation::osgStep()
+  {
+    if (viewer)
+      viewer->frame();
     // onPostDraw(*(viewer->getCamera()));
   }
 

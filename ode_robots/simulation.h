@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.37  2009-07-29 14:19:49  jhoffmann
+ *   Revision 1.38  2009-07-30 12:27:34  jhoffmann
+ *   support for new CameraHandle
+ *
+ *   Revision 1.37  2009/07/29 14:19:49  jhoffmann
  *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
  *
  *   Revision 1.36  2009/04/23 14:32:35  guettler
@@ -255,6 +258,7 @@
 #include "globaldata.h"
 #include "grabframe.h"
 #include "pos.h"
+#include "camerahandle.h"
 
 /***  some forward declarations  ***/
 class PlotOption; // selforg
@@ -416,6 +420,8 @@ namespace lpzrobots {
 
     /// the current cycle; the simulation restarts if restart() returns true
     int currentCycle;
+
+    CameraHandle cameraHandle;
 
   private:
     SimulationState state;
