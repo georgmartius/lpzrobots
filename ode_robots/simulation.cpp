@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.98  2009-04-23 14:31:23  guettler
+ *   Revision 1.99  2009-07-30 08:55:21  jhoffmann
+ *   Fix memory leak: delete osg viewer at exit
+ *
+ *   Revision 1.98  2009/04/23 14:31:23  guettler
  *   cosmetic
  *
  *   Revision 1.97  2009/04/23 14:30:43  guettler
@@ -609,9 +612,9 @@ namespace lpzrobots {
   Simulation::~Simulation() {
     if(state!=running)
       return;
-    dJointGroupDestroy ( odeHandle.jointGroup );
-    dWorldDestroy ( odeHandle.world );
-    dSpaceDestroy ( odeHandle.space );
+    dJointGroupDestroy  ( odeHandle.jointGroup );
+    dWorldDestroy       ( odeHandle.world );
+    dSpaceDestroy       ( odeHandle.space );
     dCloseODE ();
 
     state=closed;
@@ -622,6 +625,9 @@ namespace lpzrobots {
     //    Producer::Camera::Callback::unref_nodelete();
     //    Producer::Camera::Callback::unref_nodelete();
     osg::Referenced::unref_nodelete();
+
+    if(viewer)
+      delete viewer;
   }
 
   bool Simulation::init(int argc, char** argv) {
@@ -826,6 +832,7 @@ namespace lpzrobots {
     // default camera position
     setCameraHomePos (Pos(0, -20, 3),  Pos(0, 0, 0));
 
+//    start(odeHandle, osgHandle, globalData);
     start(odeHandle, osgHandle, globalData);
 
     if(!noGraphics) {

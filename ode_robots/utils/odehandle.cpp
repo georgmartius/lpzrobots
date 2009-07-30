@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-04-17 15:59:02  martius
+ *   Revision 1.8  2009-07-30 08:55:21  jhoffmann
+ *   Fix memory leak: delete osg viewer at exit
+ *
+ *   Revision 1.7  2008/04/17 15:59:02  martius
  *   OSG2 port finished
  *
  *   Revision 1.6.2.1  2008/04/15 16:21:53  martius
@@ -63,7 +66,8 @@ namespace lpzrobots {
     space = _space; 
     jointGroup= _jointGroup;
     ignoredSpaces=0;
-    ignoredPairs=0;    
+    ignoredPairs=0;
+    spaces=0;
   }
 
   void OdeHandle::init(double* time){
