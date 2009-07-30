@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.31  2009-07-29 14:19:49  jhoffmann
+ *   Revision 1.32  2009-07-30 12:09:12  guettler
+ *   commented out unused variables
+ *
+ *   Revision 1.31  2009/07/29 14:19:49  jhoffmann
  *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
  *
  *   Revision 1.30  2009/03/31 15:46:05  martius
@@ -284,9 +287,9 @@ namespace lpzrobots {
   bool debugColor=false;
   int minNearSplit=0;
   int maxFarDist=50;
-  int moveVCamFactor = 0;
-  double polyoffsetfactor = -0.02;
-  double polyoffsetunit = 1.0;
+  // int moveVCamFactor = 0;
+  // double polyoffsetfactor = -0.02;
+  // double polyoffsetunit = 1.0;
   // 20080728; guettler: commented out for OSG 2.6 compatibility
   //  bool cullFaceFront=false;
 
