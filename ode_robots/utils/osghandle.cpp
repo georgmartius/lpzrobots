@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-29 14:19:49  jhoffmann
+ *   Revision 1.6  2009-07-30 11:23:45  guettler
+ *   new noGraphics state for OSGPrimitives
+ *
+ *   Revision 1.5  2009/07/29 14:19:49  jhoffmann
  *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
  *
  *   Revision 1.4  2007/07/30 14:14:10  martius
@@ -66,7 +69,7 @@
 
 namespace lpzrobots {
 
-  OsgHandle::OsgHandle( ) : scene(0), normalState(0), transparentState(0) {};
+  OsgHandle::OsgHandle( ) : drawBoundings(false), scene(0), normalState(0), transparentState(0), noGraphics(false) {};
 
 
   OsgHandle::OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
@@ -81,6 +84,7 @@ namespace lpzrobots {
     this->transparentState = transparentState;
     this->color = color;
     drawBoundings=false;
+    noGraphics=false;
   }
 
   OsgHandle::~OsgHandle(){

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-29 14:19:49  jhoffmann
+ *   Revision 1.6  2009-07-30 11:23:45  guettler
+ *   new noGraphics state for OSGPrimitives
+ *
+ *   Revision 1.5  2009/07/29 14:19:49  jhoffmann
  *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
  *
  *   Revision 1.4  2007/07/30 14:13:40  martius
@@ -87,6 +90,7 @@ public:
   osg::StateSet* normalState;  
   osg::StateSet* transparentState;  
   Color color;
+  bool noGraphics;
 
   // returns a new osghandle with only the color changed
   OsgHandle changeColor(const Color& color) const;
