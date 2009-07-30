@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-03-31 15:46:40  martius
+ *   Revision 1.9  2009-07-30 06:17:46  jhoffmann
+ *   Bugfix: remove memory leak when internal random generator is used
+ *
+ *   Revision 1.8  2009/03/31 15:46:40  martius
  *   ColorUniform noise has functions to get and set tau
  *
  *   Revision 1.7  2009/03/26 19:15:29  martius
@@ -115,24 +118,38 @@
  */
 class NoiseGenerator{
 public:
-  NoiseGenerator() {
-    dimension=0;
-    randGen=0;
+  NoiseGenerator()
+  {
+    dimension   = 0;
+    randGen     = 0;
+    ownRandGen  = false;
   };    
 
-  virtual ~NoiseGenerator(){}
+  virtual ~NoiseGenerator()
+  {
+    if (this->ownRandGen && this->randGen)
+    {
+      delete this->randGen;
+      this->randGen     = 0;
+      this->ownRandGen  = false;
+    }
+  }
 
   /** initialization with the the given dimension for multidimensional noise
       @param dimension dimensionality of vectors to be used by add
       @param randGen pointer to a random generator. If zero a new one generated internally
       @see add()
    */
-  virtual void init(unsigned int dimension, RandGen* randGen=0) {
+  virtual void init(unsigned int dimension, RandGen* randGen=0)
+  {
     this->dimension = dimension;
-    if(randGen) this->randGen=randGen;
+    if(randGen)
+      this->randGen=randGen;
+
     else {
       this->randGen=new RandGen();
       this->randGen->init(rand());
+      this->ownRandGen=true;
     }
   };
 
@@ -166,6 +183,7 @@ protected:
   }
   unsigned int dimension;
   RandGen* randGen;
+  bool ownRandGen;
 };
 
 /// generates no noise
