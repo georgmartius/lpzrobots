@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-08-03 08:01:02  guettler
+ *   Revision 1.19  2009-08-03 08:03:09  guettler
+ *   order of setTexture and setPosition for Primitives corrected
+ *
+ *   Revision 1.18  2009/08/03 08:01:02  guettler
  *   avoid using setColor when creating Playground
  *
  *   Revision 1.17  2009/08/03 07:57:04  guettler
@@ -189,8 +192,8 @@ public:
       PassiveSphere* s =
         new PassiveSphere(odeHandle,
                           osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
-      s->setPosition(Pos(i*0.5-2, i*0.5, 1.0));
       s->setTexture("Images/dusty.rgb");
+      s->setPosition(Pos(i*0.5-2, i*0.5, 1.0));
       global.obstacles.push_back(s);
     }
 
@@ -200,10 +203,9 @@ public:
       {
         PassiveBox* b =
           new PassiveBox(odeHandle,
-                         osgHandle, osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),40.0);
-        b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
-        b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+                         osgHandle.changeColor(Color(1.0f,0.2f,0.2f,0.5f)), osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),40.0);
         b->setTexture("Images/light_chess.rgb");
+        b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
         global.obstacles.push_back(b);
       }
     }
