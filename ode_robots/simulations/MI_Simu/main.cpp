@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-08-03 07:57:04  guettler
+ *   Revision 1.18  2009-08-03 08:01:02  guettler
+ *   avoid using setColor when creating Playground
+ *
+ *   Revision 1.17  2009/08/03 07:57:04  guettler
  *   tiny compatibility mod (contains is moved)
  *
  *   Revision 1.16  2008/05/01 22:03:54  martius
@@ -174,8 +177,7 @@ public:
     // initialization
 
     Playground* playground =
-      new Playground(odeHandle, osgHandle,osg::Vec3(18, 0.2, 2.0));
-    playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
+      new Playground(odeHandle, osgHandle.changeColor(Color(0.88f,0.4f,0.26f,0.2f)),osg::Vec3(18, 0.2, 2.0));
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     Substance substance;
     substance.toRubber(40);
