@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-30 08:55:21  jhoffmann
+ *   Revision 1.9  2009-08-03 14:09:48  jhoffmann
+ *   Remove some compiling warnings, memory leaks; Add some code cleanups
+ *
+ *   Revision 1.8  2009/07/30 08:55:21  jhoffmann
  *   Fix memory leak: delete osg viewer at exit
  *
  *   Revision 1.7  2008/04/17 15:59:02  martius
@@ -59,18 +62,40 @@
 #include <ode/ode.h>
 #include "primitive.h"
 
-namespace lpzrobots {
+namespace lpzrobots
+{
 
-  OdeHandle::OdeHandle(  dWorldID _world, dSpaceID _space, dJointGroupID _jointGroup){
-    world = _world; 
-    space = _space; 
-    jointGroup= _jointGroup;
-    ignoredSpaces=0;
-    ignoredPairs=0;
-    spaces=0;
+  OdeHandle::OdeHandle()
+  {
+    ignoredSpaces       = 0;
+    ignoredPairs        = 0;
+    spaces              = 0;
   }
 
-  void OdeHandle::init(double* time){
+  OdeHandle::OdeHandle(  dWorldID _world, dSpaceID _space, dJointGroupID _jointGroup )
+  {
+    world               = _world;
+    space               = _space;
+    jointGroup          = _jointGroup;
+    ignoredSpaces       = 0;
+    ignoredPairs        = 0;
+    spaces              = 0;
+  }
+
+  void OdeHandle::destroySpaces()
+  {
+    if (spaces)
+      delete spaces;
+
+    if (ignoredSpaces)
+      delete ignoredSpaces;
+
+    if (ignoredPairs)
+      delete ignoredPairs;
+  }
+
+  void OdeHandle::init(double* time)
+  {
     assert(time);
     this->time=time;
     world = dWorldCreate ();
@@ -105,51 +130,78 @@ namespace lpzrobots {
 
   // sets of ignored geom pairs  and spaces
   // adds a space to the list of ignored spaces for collision detection (i.e within this space there is no collision)
-  void OdeHandle::addIgnoredSpace(dSpaceID g) { 
-    ignoredSpaces->insert((long)g); 
+  void OdeHandle::addIgnoredSpace(dSpaceID g)
+  {
+    if(ignoredSpaces)
+      ignoredSpaces->insert((long)g);
   }
   // removes a space from the list of ignored spaces for collision detection
-  void OdeHandle::removeIgnoredSpace(dSpaceID g) { 
-    ignoredSpaces->erase((long)g);
+  void OdeHandle::removeIgnoredSpace(dSpaceID g)
+  {
+    if(ignoredSpaces)
+      ignoredSpaces->erase((long)g);
   }
   
 
   // adds a space to the list of spaces for collision detection (ignored spaces do not need to be insered)
-  void OdeHandle::addSpace(dSpaceID g){
-    spaces->push_back(g);
+  void OdeHandle::addSpace(dSpaceID g)
+  {
+    if(spaces)
+      spaces->push_back(g);
   }
 
   // removes a space from the list of ignored spaces for collision detection
-  void OdeHandle::removeSpace(dSpaceID g){
-    std::vector<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
-    if(i!=spaces->end()){
-      spaces->erase(i);
-    }
+  void OdeHandle::removeSpace(dSpaceID g)
+  {
+    if(!spaces)
+      return;
+
+      std::vector<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
+      if(i!=spaces->end()){
+        spaces->erase(i);
+      }
   }
 
   // returns list of all spaces
-  const std::vector<dSpaceID>& OdeHandle::getSpaces(){
+  const std::vector<dSpaceID>& OdeHandle::getSpaces()
+  {
     return *spaces;
   }
 
 
   // adds a pair of geoms to the list of ignored geom pairs for collision detection
-  void OdeHandle::addIgnoredPair(dGeomID g1, dGeomID g2) { 
-    ignoredPairs->insert(std::pair<long, long>((long)g1,(long)g2));
-    ignoredPairs->insert(std::pair<long, long>((long)g2,(long)g1));
+  void OdeHandle::addIgnoredPair(dGeomID g1, dGeomID g2)
+  {
+    if (!ignoredPairs)
+      return;
+
+      ignoredPairs->insert(std::pair<long, long>((long)g1,(long)g2));
+      ignoredPairs->insert(std::pair<long, long>((long)g2,(long)g1));
   }
   // removes pair of geoms from the list of ignored geom pairs for collision detection
-  void OdeHandle::removeIgnoredPair(dGeomID g1, dGeomID g2) {
+  void OdeHandle::removeIgnoredPair(dGeomID g1, dGeomID g2)
+  {
+    if (!ignoredPairs)
+      return;
+
     ignoredPairs->erase(std::pair<long, long>((long)g1,(long)g2));
     ignoredPairs->erase(std::pair<long, long>((long)g2,(long)g1));
   }
   // adds a pair of Primitives to the list of ignored geom pairs for collision detection
-  void OdeHandle::addIgnoredPair(Primitive* p1, Primitive* p2) { 
+  void OdeHandle::addIgnoredPair(Primitive* p1, Primitive* p2)
+  {
+    if (!ignoredPairs)
+      return;
+
     ignoredPairs->insert(std::pair<long, long>((long)p1->getGeom(),(long)p2->getGeom()));
     ignoredPairs->insert(std::pair<long, long>((long)p2->getGeom(),(long)p1->getGeom()));
   }
   // removes pair of geoms from the list of ignored geom pairs for collision detection
-  void OdeHandle::removeIgnoredPair(Primitive* p1, Primitive* p2) {
+  void OdeHandle::removeIgnoredPair(Primitive* p1, Primitive* p2)
+  {
+    if (!ignoredPairs)
+      return;
+
     ignoredPairs->erase(std::pair<long, long>((long)p1->getGeom(),(long)p2->getGeom()));
     ignoredPairs->erase(std::pair<long, long>((long)p2->getGeom(),(long)p1->getGeom()));
   }

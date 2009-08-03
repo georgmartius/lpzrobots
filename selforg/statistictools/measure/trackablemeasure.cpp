@@ -25,7 +25,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.2  2009-07-15 12:59:05  robot12
+*   Revision 1.3  2009-08-03 14:09:48  jhoffmann
+*   Remove some compiling warnings, memory leaks; Add some code cleanups
+*
+*   Revision 1.2  2009/07/15 12:59:05  robot12
 *   one bugfixe in constructor (parameter type char* to const char*)
 *
 *   Revision 1.1  2009/03/27 06:16:58  guettler
@@ -69,7 +72,8 @@
 #include "stl_adds.h"
 
 
-TrackableMeasure::TrackableMeasure(std::list<Trackable*> trackableList,const char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins) : ComplexMeasure(measureName,cmode, numberBins) ,trackableList(trackableList) {
+TrackableMeasure::TrackableMeasure(std::list<Trackable*> trackableList,const char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins) : ComplexMeasure(measureName,cmode, numberBins) ,trackableList(trackableList)
+{
   tmode=POS;
   if (dimensions & X)
     addDimension(0, cornerPointList);
@@ -80,14 +84,16 @@ TrackableMeasure::TrackableMeasure(std::list<Trackable*> trackableList,const cha
   initF();
 }
 
-void TrackableMeasure::addDimension(short dim, std::list<Position> cornerPointList) {
+void TrackableMeasure::addDimension(short dim, std::list<Position> cornerPointList)
+{
   double minValue = this->findRange(cornerPointList,0,true);
   double maxValue = this->findRange(cornerPointList,0,false);
   discretisizerList.push_back(new Discretisizer( numberBins, minValue, maxValue, false ));
   observedValueList.push_back(new double);
 }
 
-double TrackableMeasure::findRange(std::list<Position> positionList,short dim, bool min) {
+double TrackableMeasure::findRange(std::list<Position> positionList,short dim, bool min)
+{
   double range = -1e20;
   if (min)
     range*=-1;
@@ -104,12 +110,17 @@ double TrackableMeasure::findRange(std::list<Position> positionList,short dim, b
   return range;
 }
 
+/*
+TrackableMeasure::~TrackableMeasure()
+{
+  trackableList.erase(trackableList.begin(), trackableList.end());
+}
+*/
 
-
-TrackableMeasure::~TrackableMeasure() {}
-
-void TrackableMeasure::step() {
-  FOREACH(std::list<Trackable*>, trackableList, i){
+void TrackableMeasure::step()
+{
+  FOREACH(std::list<Trackable*>, trackableList, i)
+  {
     Position pos;
     pos =(*i)->getPosition();
     /*if (tmode & POS) {
@@ -120,7 +131,8 @@ void TrackableMeasure::step() {
       pos =(*i)->getAngularSpeed();
     }*/
     int j=0;
-    FOREACH(std::list<double*>,observedValueList,oVal) {
+    FOREACH(std::list<double*>,observedValueList,oVal)
+    {
       *(*oVal)= pos.toArray()[j++];
     }
     ComplexMeasure::step();

@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.1  2009-03-27 06:16:57  guettler
+*   Revision 1.2  2009-08-03 14:09:48  jhoffmann
+*   Remove some compiling warnings, memory leaks; Add some code cleanups
+*
+*   Revision 1.1  2009/03/27 06:16:57  guettler
 *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
 *
 *   Revision 1.5  2008/05/30 11:58:27  martius
@@ -85,7 +88,7 @@
 #include <assert.h>
 #include <cstdlib>
 
-ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins ) : AbstractMeasure( measureName ), mode( mode ), numberBins( numberBins )
+ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins ) : AbstractMeasure( measureName ), mode( mode ), numberBins( numberBins ), F(0), historyIndexList(0)
 {
   historySize=2;
   historyIndex=-1;
@@ -97,8 +100,15 @@ ComplexMeasure::~ComplexMeasure()
 {
   if ( F )
     free( F );
+
   if (binNumberHistory)
     free(binNumberHistory);
+
+  if (historyIndexList)
+    free(historyIndexList);
+
+  observedValueList.erase(observedValueList.begin(), observedValueList.end());
+  discretisizerList.erase(discretisizerList.begin(), discretisizerList.end());
 }
 
 

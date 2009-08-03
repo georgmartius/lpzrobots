@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2009-03-13 09:19:53  martius
+ *   Revision 1.22  2009-08-03 14:09:48  jhoffmann
+ *   Remove some compiling warnings, memory leaks; Add some code cleanups
+ *
+ *   Revision 1.21  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -660,7 +663,8 @@ namespace lpzrobots{
   }
 
   Transform::~Transform(){
-    if(child) delete child;
+    if(child)
+      delete child;
   }
 
   OSGPrimitive* Transform::getOSGPrimitive() { return 0; }

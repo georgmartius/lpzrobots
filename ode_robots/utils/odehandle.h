@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-08-27 06:46:12  martius
+ *   Revision 1.12  2009-08-03 14:09:48  jhoffmann
+ *   Remove some compiling warnings, memory leaks; Add some code cleanups
+ *
+ *   Revision 1.11  2008/08/27 06:46:12  martius
  *   hashcode optimised and comment added
  *
  *   Revision 1.10  2008/08/26 18:58:32  martius
@@ -82,8 +85,9 @@ struct geomPairHash{
 class OdeHandle
 {
 public:
-  OdeHandle( ) { }
+  OdeHandle( );
   OdeHandle(  dWorldID _world, dSpaceID _space, dJointGroupID _jointGroup);
+
   dWorldID world;
   dSpaceID space;
   dJointGroupID jointGroup;
@@ -110,14 +114,21 @@ public:
   /// removes a space from the list of ignored spaces for collision detection
   void removeIgnoredSpace(dSpaceID g);
   /// checks whether the space is an ignored space for collision detection
-  inline bool isIgnoredSpace(dSpaceID g) const { 
-    return ignoredSpaces->find((long)g) != ignoredSpaces->end(); 
+  inline bool isIgnoredSpace(dSpaceID g) const
+  {
+    if (ignoredSpaces)
+      return ignoredSpaces->find((long)g) != ignoredSpaces->end();
+    else return false;
   }
 
   /** adds a space to the list of spaces for collision detection (ignored spaces do not need to be insered)*/
   void addSpace(dSpaceID g);
   /// removes a space from the list of ignored spaces for collision detection
   void removeSpace(dSpaceID g);
+
+  /** deletes all associated memory objects, handle with care - use only when program exits */
+  void destroySpaces();
+
   /// returns list of all spaces (as vector for parallelisation
   const std::vector<dSpaceID>& getSpaces();
 
@@ -140,17 +151,18 @@ public:
 
 protected:
   double* time;
+  //TODO: Destroy the internal containers (vectors, list, ...) within the destructor. Now destroySpaces is used. Maybe we can use QMP_CRITICAL for a ref_cnt-variabel, or avoid the pointers.
 
   /// list of spaces, except ignored spaces
   std::vector<dSpaceID>* spaces;
+
   /// set of ignored spaces
   __gnu_cxx::hash_set<long>* ignoredSpaces;
+
   /// set of ignored geom pairs for collision
   __gnu_cxx::hash_set<std::pair<long,long>, geomPairHash >* ignoredPairs;
-
 
 };
 
 }
-
 #endif

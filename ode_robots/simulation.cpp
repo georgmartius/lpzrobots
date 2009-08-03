@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.100  2009-07-30 12:27:34  jhoffmann
+ *   Revision 1.101  2009-08-03 14:09:48  jhoffmann
+ *   Remove some compiling warnings, memory leaks; Add some code cleanups
+ *
+ *   Revision 1.100  2009/07/30 12:27:34  jhoffmann
  *   support for new CameraHandle
  *
  *   Revision 1.99  2009/07/30 08:55:21  jhoffmann
@@ -617,12 +620,14 @@ namespace lpzrobots {
 
   }
 
-  Simulation::~Simulation() {
+  Simulation::~Simulation()
+  {
     if(state!=running)
       return;
     dJointGroupDestroy  ( odeHandle.jointGroup );
     dWorldDestroy       ( odeHandle.world );
     dSpaceDestroy       ( odeHandle.space );
+    odeHandle.destroySpaces();
     dCloseODE ();
 
     state=closed;
@@ -634,10 +639,11 @@ namespace lpzrobots {
     //    Producer::Camera::Callback::unref_nodelete();
     osg::Referenced::unref_nodelete();
 
-    if(viewer) {
+    if (viewer) {
       delete viewer;
       viewer = 0;
     }
+
   }
 
   bool Simulation::init(int argc, char** argv) {
@@ -843,7 +849,6 @@ namespace lpzrobots {
     // default camera position
     setCameraHomePos (Pos(0, -20, 3),  Pos(0, 0, 0));
 
-//    start(odeHandle, osgHandle, globalData);
     start(odeHandle, osgHandle, globalData);
 
     if(!noGraphics) {

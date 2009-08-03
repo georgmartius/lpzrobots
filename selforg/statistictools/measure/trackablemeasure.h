@@ -25,7 +25,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.2  2009-07-15 12:59:05  robot12
+*   Revision 1.3  2009-08-03 14:09:48  jhoffmann
+*   Remove some compiling warnings, memory leaks; Add some code cleanups
+*
+*   Revision 1.2  2009/07/15 12:59:05  robot12
 *   one bugfixe in constructor (parameter type char* to const char*)
 *
 *   Revision 1.1  2009/03/27 06:16:58  guettler
@@ -95,21 +98,19 @@ public:
    */
   TrackableMeasure(std::list<Trackable*> trackableList,const char* measureName  ,ComplexMeasureMode cmode,std::list<Position> cornerPointList, short dimensions, int numberBins);
 
+  //virtual ~TrackableMeasure();
 
-
-  virtual ~TrackableMeasure();
-
-    /**
-     * defined by AbstractMeasure. This method is called from StatisticTools
-        for updating the measure in every simStep (ODE).
-     */
+  /**
+   * defined by AbstractMeasure. This method is called from StatisticTools
+      for updating the measure in every simStep (ODE).
+   */
   virtual void step();
 
 
 protected:
   std::list<Trackable*> trackableList;
-  ComplexMeasureMode cmode;
-  TrackMode tmode;
+  ComplexMeasureMode    cmode;
+  TrackMode             tmode;
 
   virtual double findRange(std::list<Position>  positionList,short dim, bool min);
 
