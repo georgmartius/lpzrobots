@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2008-05-01 22:03:54  martius
+ *   Revision 1.17  2009-08-03 07:57:04  guettler
+ *   tiny compatibility mod (contains is moved)
+ *
+ *   Revision 1.16  2008/05/01 22:03:54  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -349,7 +352,7 @@ int main (int argc, char **argv)
 
 
   // check for cinit value
-  int index = contains(argv, argc, "-cinit");
+  int index = ThisSim::contains(argv, argc, "-cinit");
   if(index) {
     if(argc > index) {
       ThisSim sim(atof(argv[index]));
