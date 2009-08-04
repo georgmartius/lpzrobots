@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-04-21 16:36:27  martius
+ *   Revision 1.10  2009-08-04 14:55:22  jhoffmann
+ *   Remove two memory leaks, but fix needs review for the open file pointers
+ *
+ *   Revision 1.9  2009/04/21 16:36:27  martius
  *   removed space at end of lines in log-files
  *
  *   Revision 1.8  2008/09/12 10:11:36  martius
@@ -67,11 +70,13 @@
 #include "abstractrobot.h"
 #include "matrix.h"
 
-
 bool TrackRobot::open(const AbstractRobot* robot){
 
-  if(!robot) return false;
-  if(trackPos || trackSpeed || trackOrientation){
+  if(!robot)
+    return false;
+
+  if(trackPos || trackSpeed || trackOrientation)
+  {
 
     if(file){
       fclose(file);
@@ -83,9 +88,14 @@ bool TrackRobot::open(const AbstractRobot* robot){
     strftime(date, 128, "%F_%H-%M-%S", localtime(&t));
     sprintf(filename, "%s_track_%s_%s.log", robot->getName().c_str(), scene, date);
 
-    file = fopen(filename,"w");
+    file = fopen(filename, "w");
 
-    if(!file) return false;
+    if(!file)
+      return false;
+
+    // copy filename for later reuse
+    strncpy(this->filename, filename, 256);
+
     fprintf(file, "#C t");
     if(trackPos)   fprintf(file, " x y z");
     if(trackSpeed) fprintf(file, " vx vy vz wx wy wz");
@@ -96,8 +106,11 @@ bool TrackRobot::open(const AbstractRobot* robot){
   return true;
 }
 
-void TrackRobot::track(AbstractRobot* robot, double time) {
-  if(!file || !robot) return;
+void TrackRobot::track(AbstractRobot* robot, double time)
+{
+  if(!file || !robot)
+    return;
+
   if(cnt % interval==0){
     //   fprintf(file, "%li ", cnt);
     fprintf(file, "%f", time);
@@ -124,7 +137,34 @@ void TrackRobot::track(AbstractRobot* robot, double time) {
   cnt++;
 }
 
-void TrackRobot::close() {
-  if(file) fclose(file);
-  file=0;
+void TrackRobot::close()
+{
+  if(file)
+    fclose(file);
+  file = 0;
 }
+
+void TrackRobot::deepcopy (TrackRobot &lhs, const TrackRobot &rhs)
+{
+  lhs.trackPos         = rhs.trackPos;
+  lhs.trackSpeed       = rhs.trackSpeed;
+  lhs.trackOrientation = rhs.trackOrientation;
+  lhs.displayTrace     = rhs.displayTrace;
+  lhs.interval         = rhs.interval;
+  lhs.scene            = strdup(rhs.scene);
+  lhs.cnt              = rhs.cnt;
+
+  // TODO: we can't reuse the file pointer, open again for appendig -> right?
+  if ( strlen(rhs.filename) > 0 )
+  {
+    strncpy(lhs.filename, rhs.filename, 256);
+    lhs.file = fopen("lhs.filename", "a");
+  } else
+  {
+    lhs.file = 0;
+  }
+
+}
+
+
+

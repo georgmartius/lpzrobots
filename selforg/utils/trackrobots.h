@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-09-12 10:22:28  martius
+ *   Revision 1.10  2009-08-04 14:55:22  jhoffmann
+ *   Remove two memory leaks, but fix needs review for the open file pointers
+ *
+ *   Revision 1.9  2008/09/12 10:22:28  martius
  *   set cnt to 1 to have round times in log file when using interval >1
  *
  *   Revision 1.8  2008/04/18 09:49:41  guettler
@@ -84,15 +87,18 @@ public:
   friend class lpzrobots::OdeAgent;
 
   /// constructor for no tracking at all
-  TrackRobot(){
-    trackPos = false;
-    trackSpeed = false;
-    trackOrientation = false;
-    displayTrace = false;
-    interval = 1;
-    file=0;
-    cnt=1;
-    scene=0;
+  TrackRobot()
+  {
+    trackPos          = false;
+    trackSpeed        = false;
+    trackOrientation  = false;
+    displayTrace      = false;
+    interval          = 1;
+    scene             = 0;
+    file              = 0;
+    cnt               = 1;
+    memset(filename, 0, 256);
+
   }
 
   /** Constructor that allows individial setting of tracking options.
@@ -105,19 +111,53 @@ public:
       @param interval timesteps between consequent logging events (default 1)
    */
   TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool displayTrace,
-	     const char* scene, int interval = 1){
-    this->trackPos     = trackPos;
-    this->trackSpeed   = trackSpeed;
+	     const char* scene = "", int interval = 1)
+  {
+    this->trackPos         = trackPos;
+    this->trackSpeed       = trackSpeed;
     this->trackOrientation = trackOrientation;
     this->displayTrace     = displayTrace;
-    this->interval = interval;
-    this->scene = strdup(scene);
-    file=0;
-    cnt=0;
+    this->interval         = interval;
+    this->scene            = strdup(scene);
+    file = 0;
+    cnt  = 1;
+    memset(filename, 0, 256);
   }
 
-  ~TrackRobot(){
-    // if(scene) free(scene);
+
+  TrackRobot(const TrackRobot &rhs)
+  {
+    deepcopy(*this, rhs);
+  }
+
+  const TrackRobot& operator=(const TrackRobot &rhs)
+  {
+    if ( this != &rhs )
+    {
+      if (scene)
+        free(scene);
+      scene = 0;
+
+      if (file)
+        fclose(file);
+      file=0;
+
+      deepcopy(*this, rhs);
+    }
+
+    return *this;
+  }
+
+  ~TrackRobot()
+  {
+    if (file)
+      fclose(file);
+    file = 0;
+
+    //Something goes wrong here, but what? -> also with copy constructor no improvement, see above
+    if (scene)
+      free(scene);
+    scene = 0;
   }
 
   /// returns whether tracing is activated
@@ -138,8 +178,11 @@ public:
   FILE* file;
   char* scene;
   long cnt;
+
+ private:
+   char filename[256];
+   static void deepcopy (TrackRobot &lhs, const TrackRobot &rhs);
+
 };
-
-
 
 #endif
