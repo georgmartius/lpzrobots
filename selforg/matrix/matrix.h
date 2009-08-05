@@ -7,7 +7,11 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.30  2009-03-27 06:16:57  guettler
+// Revision 1.31  2009-08-05 18:28:10  martius
+// added isVector
+// mapP and toMapP support double parameters
+//
+// Revision 1.30  2009/03/27 06:16:57  guettler
 // support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
 //
 // Revision 1.29  2009/02/02 15:21:28  martius
@@ -376,13 +380,16 @@ namespace matrix{
     /// returns true if matrix is a 0x0 matrix
     bool isNulltimesNull() const;
 
+    /// returns true if matrix is a vector
+    bool isVector() const;
+
     /** bytewise comparison (compares data buffer bytewise, which implies that
 	n1*m1 == n2*m2 but not necessarily n1==n2) */
     bool equals(const Matrix& a) const;
 
     /** calculates the pseudoinverse, depending on the shape of the matrix
 	the left or right pseudoinverse is used.
-	Of the matrix has more columns than rows then we use 
+	If the matrix has more columns than rows then we use 
 	\f[A^{+} &= (A^T A + \lambda \mathbb I)^{-1}A^T\f]
 	otherwise 
 	\f[A^{+} &= A^T(A A^T + \lambda \mathbb I)^{-1}\f]
@@ -393,8 +400,10 @@ namespace matrix{
 	 with all elements mapped with the given function
     */
     Matrix map(D (*fun)(D)) const;
-    /**  like map but with additional parameter for the mapping function
-    */
+    /**  like map but with additional double parameter for the mapping function 
+	 (first argument of fun is parameter, the second is the value)*/
+    Matrix mapP(D param, D (*fun)(D, D)) const;
+    /**  like map but with additional arbitrary parameter for the mapping function */
     Matrix mapP(void* param, D (*fun)(void*, D)) const;
 
     // Exotic operations ///////////
@@ -514,7 +523,9 @@ namespace matrix{
     Matrix& toExp(int exponent);
     /**  inplace mapping of matrix elements (element-wise application) */
     Matrix& toMap(D (*fun)(D));
-    /**  like toMap, but with an extra parameter for the mapping function. */
+    /**  like toMap, but with an extra double parameter for the mapping function. */
+    Matrix& toMapP(D param, D (*fun)(D, D));
+    /**  like toMap, but with an extra arbitrary parameter for the mapping function. */
     Matrix& toMapP(void* param, D (*fun)(void*, D));
 
     /**  like toMap, but with 2 arguments for the mapping function. */

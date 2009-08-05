@@ -5,7 +5,11 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.28  2009-07-29 14:19:49  jhoffmann
+// Revision 1.29  2009-08-05 18:28:32  martius
+// added isVector
+// mapP and toMapP support double parameters
+//
+// Revision 1.28  2009/07/29 14:19:49  jhoffmann
 // Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
 //
 // Revision 1.27  2009/02/02 15:21:37  martius
@@ -234,6 +238,12 @@ namespace matrix {
   bool Matrix::isNulltimesNull() const {
     return ( m == 0 && n == 0 );
   }
+
+  /// returns true if matrix is a vector
+  bool Matrix::isVector() const {
+    return ( m == 1 || n == 1 );
+  }
+
 
   bool Matrix::equals (const Matrix& a) const {
     if(m*n != a.m*a.n) return false;
@@ -564,12 +574,25 @@ namespace matrix {
     return result;
   }
 
+  Matrix& Matrix::toMapP ( D param, D ( *fun ) ( D, D ) ) {
+    I len = m * n;
+    for ( I i = 0; i < len; i++ ) {
+      data[i] = fun ( param, data[i] );
+    }
+    return *this;
+  }
   Matrix& Matrix::toMapP ( void* param, D ( *fun ) ( void*, D ) ) {
     I len = m * n;
     for ( I i = 0; i < len; i++ ) {
       data[i] = fun ( param, data[i] );
     }
     return *this;
+  }
+
+  Matrix Matrix::mapP ( D param, D ( *fun ) ( D, D ) ) const {
+    Matrix result ( *this );
+    result.toMapP ( param, fun );
+    return result;
   }
 
   Matrix Matrix::mapP ( void* param, D ( *fun ) ( void*, D ) ) const {
