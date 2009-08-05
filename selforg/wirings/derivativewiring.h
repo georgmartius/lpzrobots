@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-04-17 14:54:45  martius
+ *   Revision 1.10  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.9  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -112,31 +121,6 @@ public:
    */
   virtual ~DerivativeWiring();
 
-  /** initializes the internal numbers of sensors and motors on robot side, calculate
-      number of sensors and motors on controller side
-  */
-  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
-
-  /** Realizes derivative wiring from robot sensors to controller sensors. 
-      @param rsensors pointer to array of sensorvalues from robot 
-      @param rsensornumber number of sensors from robot
-      @param csensors pointer to array of sensorvalues for controller  
-      @param csensornumber number of sensors to controller
-      @param noise size of the noise added to the sensors
-  */
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
-			   sensor* csensors, int csensornumber,
-			   double noise);
-
-  /** Realizes wiring from controller motor outputs to robot motors. 
-      @param rmotors pointer to array of motorvalues for robot 
-      @param rmotornumber number of robot motors 
-      @param cmotors pointer to array of motorvalues from controller  
-      @param cmotornumber number of motorvalues from controller
-  */
-  virtual bool wireMotors(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber);
-
   /** Providing default configuration for DerivativeWiring with first derivative.
       No smoothing and no scaling. ( as static method )
    */
@@ -165,6 +149,33 @@ public:
     c.blindMotors=0;       // no blind motors used
     return c;
   };
+
+protected:
+
+  /** initializes the internal numbers of sensors and motors on robot side, calculate
+      number of sensors and motors on controller side
+  */
+  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
+
+  /** Realizes derivative wiring from robot sensors to controller sensors. 
+      @param rsensors pointer to array of sensorvalues from robot 
+      @param rsensornumber number of sensors from robot
+      @param csensors pointer to array of sensorvalues for controller  
+      @param csensornumber number of sensors to controller
+      @param noise size of the noise added to the sensors
+  */
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
+				 sensor* csensors, int csensornumber,
+				 double noise);
+
+  /** Realizes wiring from controller motor outputs to robot motors. 
+      @param rmotors pointer to array of motorvalues for robot 
+      @param rmotornumber number of robot motors 
+      @param cmotors pointer to array of motorvalues from controller  
+      @param cmotornumber number of motorvalues from controller
+  */
+  virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
+				const motor* cmotors, int cmotornumber);
 
 protected:
   /** Calculate the first derivative of the sensorvalues given by the robot

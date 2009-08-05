@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-04-30 14:57:28  guettler
+ *   Revision 1.6  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.5  2008/04/30 14:57:28  guettler
  *   added signed cast to avoid compiler warnings
  *
  *   Revision 1.4  2008/04/17 14:54:45  martius
@@ -47,25 +56,25 @@
 #include "controller_misc.h"
 #include <assert.h>
 
+// TODO: we should use the stored matrices in AbstactWiring!
+
 /// constructor
 FeedbackWiring::FeedbackWiring(NoiseGenerator* noise, Mode mode,
 			       double feedbackratio)
   : AbstractWiring(noise), mode(mode), defaultfeedbackratio(feedbackratio) {
-  noisevals=0;
   motors=0;
   initialised=false;
   vmotornumber=0;
 }
 
 FeedbackWiring::~FeedbackWiring(){
-  if(noisevals) free(noisevals);
   if(motors)    free(motors);
 }
 
 
 // initializes the number of sensors and motors from robot, calculate
 //  number of sensors and motors on controller side
-bool FeedbackWiring::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){
+bool FeedbackWiring::initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen){
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;
   csensornumber = rsensornumber;
@@ -77,7 +86,6 @@ bool FeedbackWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
     cmotornumber = rsensornumber;
   }
 
-  noisevals = (sensor*) malloc(sizeof(sensor)  * this->rsensornumber);
   motors    = (motor*)  malloc(sizeof(motor)  * this->cmotornumber);
   memset(motors,0,sizeof(motor)  * this->cmotornumber);
 
@@ -85,24 +93,19 @@ bool FeedbackWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
   if(feedbackratio.isNulltimesNull()){
     feedbackratio.set( feedbacknumber, 1);
     double c = defaultfeedbackratio;
-    feedbackratio.toMapP(&c, constant);
+    feedbackratio.toMapP(c, constant);
   }else{
     assert(((signed)feedbackratio.getM())==feedbacknumber && feedbackratio.getN()==1);
   }
 
-  if(!noiseGenerator) return false;
-  noiseGenerator->init(rsensornumber, randGen);
-  initialised=true;
   return true;
 }
 
-bool FeedbackWiring::wireSensors(const sensor* rsensors, int rsensornumber,
-				sensor* csensors, int csensornumber,
-				double noiseStrength){
+bool FeedbackWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+				       sensor* csensors, int csensornumber,
+				       double noiseStrength){
   assert(rsensornumber==csensornumber);
-  memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
-  noiseGenerator->add(noisevals, noiseStrength);
-
+  // noisevals are set in AbstractWiring
   int fi=0;
   if((mode & Motor) == 0){
     for(int i=0; i< rmotornumber; i++){
@@ -127,8 +130,8 @@ bool FeedbackWiring::wireSensors(const sensor* rsensors, int rsensornumber,
   return true;
 }
 
-bool FeedbackWiring::wireMotors(motor* rmotors, int rmotornumber,
-			       const motor* cmotors, int cmotornumber){
+bool FeedbackWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
+				      const motor* cmotors, int cmotornumber){
   if (rmotornumber != cmotornumber-vmotornumber)
     return false;
   else{
@@ -152,7 +155,7 @@ void FeedbackWiring::setFeedbackRatio(const matrix::Matrix& ratios){
 
 
 Inspectable::iparamkeylist FeedbackWiring::getInternalParamNames() const {
-  iparamkeylist l;
+  iparamkeylist l=AbstractWiring::getInternalParamNames();
   char buffer[32];
   for(int i = 0; i < cmotornumber - rsensornumber; i++){
     sprintf(buffer,"yv[%d]", i);
@@ -162,7 +165,7 @@ Inspectable::iparamkeylist FeedbackWiring::getInternalParamNames() const {
 }
 
 Inspectable::iparamvallist FeedbackWiring::getInternalParams() const {
-  iparamvallist l;
+  iparamvallist l=AbstractWiring::getInternalParams();
   for(int i=0; i < cmotornumber - rsensornumber; i++){
     l += motors[rsensornumber+i];
   }

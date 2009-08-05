@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-05-07 16:45:52  martius
+ *   Revision 1.4  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.3  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.2  2008/04/17 14:54:45  martius
@@ -74,7 +83,7 @@ void WiringSequence::addWiring(AbstractWiring* wiring){
 
 // initializes the number of sensors and motors from robot, calculate
 //  number of sensors and motors on controller side
-bool WiringSequence::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){
+bool WiringSequence::initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen){
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;    
   csensornumber = rsensornumber;
@@ -91,9 +100,9 @@ bool WiringSequence::init(int robotsensornumber, int robotmotornumber, RandGen* 
   return true;
 }
 
-bool WiringSequence::wireSensors(const sensor* rsensors, int rsensornumber, 
-				sensor* csensors, int csensornumber, 
-				double noiseStrength){
+bool WiringSequence::wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
+				       sensor* csensors, int csensornumber, 
+				       double noiseStrength){
   assert(rsensornumber==this->rsensornumber);
   assert(csensornumber==this->csensornumber);
   
@@ -117,8 +126,8 @@ bool WiringSequence::wireSensors(const sensor* rsensors, int rsensornumber,
   return true;
 }
 
-bool WiringSequence::wireMotors(motor* rmotors, int rmotornumber,
-			       const motor* cmotors, int cmotornumber){
+bool WiringSequence::wireMotorsIntern(motor* rmotors, int rmotornumber,
+				      const motor* cmotors, int cmotornumber){
   assert(rmotornumber==this->rmotornumber);
   assert(cmotornumber==this->cmotornumber);
 
@@ -143,5 +152,26 @@ bool WiringSequence::wireMotors(motor* rmotors, int rmotornumber,
 
 }
 
+/** pass through of first wiring
+ */
+Inspectable::iparamkeylist WiringSequence::getInternalParamNames() const{
+  int num = wirings.size();
+  if(num>0){
+    return wirings[0]->getInternalParamNames();
+  }else{
+    return AbstractWiring::getInternalParamNames();
+  }    
+}
+
+/** pass through of first wiring
+ */
+Inspectable::iparamvallist WiringSequence::getInternalParams() const{
+  int num = wirings.size();
+  if(num>0){
+    return wirings[0]->getInternalParams();
+  }else{
+    return AbstractWiring::getInternalParams();
+  }
+}
 
 

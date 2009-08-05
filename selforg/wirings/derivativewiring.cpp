@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-03-27 06:16:56  guettler
+ *   Revision 1.11  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.10  2009/03/27 06:16:56  guettler
  *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
  *
  *   Revision 1.9  2008/04/17 14:54:45  martius
@@ -121,7 +130,7 @@ DerivativeWiring::~DerivativeWiring(){
 }
 
 
-bool DerivativeWiring::init(int rsensornumber, int rmotornumber, RandGen* randGen){  
+bool DerivativeWiring::initIntern(int rsensornumber, int rmotornumber, RandGen* randGen){  
   this->rsensornumber = rsensornumber;
   this->rmotornumber  = rmotornumber;
 
@@ -145,9 +154,6 @@ bool DerivativeWiring::init(int rsensornumber, int rmotornumber, RandGen* randGe
     }
   }
 
-  if(!noiseGenerator) return false;
-  noiseGenerator->init(this->rsensornumber,randGen);
-    //noiseGenerator->init(this->rsensornumber*(conf.useId+conf.useFirstD+conf.useSecondD),randGen);
   return true;
 }
 
@@ -157,9 +163,9 @@ bool DerivativeWiring::init(int rsensornumber, int rmotornumber, RandGen* randGe
 //   @param csensors pointer to array of sensorvalues for controller (includes derivatives if specified)
 //   @param csensornumber number of sensors to controller
 //   @param noise size of the noise added to the sensors
-bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
-				   sensor* csensors, int csensornumber, 
-				   double noise){
+bool DerivativeWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
+					 sensor* csensors, int csensornumber, 
+					 double noise){
   if(rsensornumber != this->rsensornumber || this->csensornumber != csensornumber){
     fprintf(stderr, "%s:%i: Wrong sensornumbers! Robot: Expected: %i, Got: %i Controller: Expected: %i, Got: %i \n", 
 	    __FILE__, __LINE__,
@@ -216,7 +222,9 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 //   }      
 
   // add noise only to first used sensors
-  noiseGenerator->add(csensors, noise);   
+  for(int i=0; i< rsensornumber; i++){
+    csensors[i] = csensors[i] + noisevals[i];
+  }
 
   if(conf.blindMotors > 0) { // shortcircuit of blind motors
     int offset = (conf.useId + conf.useFirstD + conf.useSecondD)*this->rsensornumber;    
@@ -233,8 +241,8 @@ bool DerivativeWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 //   @param rmotornumber number of robot motors 
 //   @param cmotors pointer to array of motorvalues from controller  
 //   @param cmotornumber number of motorvalues from controller
-bool DerivativeWiring::wireMotors(motor* rmotors, int rmotornumber,
-				  const motor* cmotors, int cmotornumber){
+bool DerivativeWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
+					const motor* cmotors, int cmotornumber){
 
   assert( (this->cmotornumber==cmotornumber) && ((rmotornumber + (signed)conf.blindMotors) == cmotornumber)) ;
   memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);

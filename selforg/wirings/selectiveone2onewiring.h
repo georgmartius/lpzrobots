@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-04-17 14:54:45  martius
+ *   Revision 1.5  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.4  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -90,10 +99,11 @@ public:
   SelectiveOne2OneWiring(NoiseGenerator* noise, select_predicate* sel_sensor);
   virtual ~SelectiveOne2OneWiring();
 
+protected:
   /** initializes the number of sensors and motors on robot side, calculate
       number of sensors and motors on controller side
   */
-  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
+  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
   /// Realizes one to one wiring from robot sensors to controller sensors. 
   //   @param rsensors pointer to array of sensorvalues from robot 
@@ -101,9 +111,9 @@ public:
   //   @param csensors pointer to array of sensorvalues for controller  
   //   @param csensornumber number of sensors to controller
   //   @param noise size of the noise added to the sensors
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
-			   sensor* csensors, int csensornumber,
-			   double noise);
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
+				 sensor* csensors, int csensornumber,
+				 double noise);
 
 protected:  
   select_predicate* sel_sensor;

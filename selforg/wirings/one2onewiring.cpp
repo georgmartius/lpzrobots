@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-03-27 06:16:57  guettler
+ *   Revision 1.12  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.11  2009/03/27 06:16:57  guettler
  *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
  *
  *   Revision 1.10  2008/04/17 14:54:45  martius
@@ -98,35 +107,29 @@
 #include <cstring>
 
 /// constructor
-One2OneWiring::One2OneWiring(NoiseGenerator* noise, bool plotNoise, int blind)
-  : AbstractWiring(noise), plotNoise(plotNoise), blind(blind){
-  noisevals=0;
+One2OneWiring::One2OneWiring(NoiseGenerator* noise, int plotMode, int blind)
+  : AbstractWiring(noise,plotMode), blind(blind){
   blindmotors=0;
 }
 
 One2OneWiring::~One2OneWiring(){
-  if(noisevals) free(noisevals);
   if(blindmotors) free(blindmotors);
 }
 
 
 /// initializes the number of sensors and motors from robot, calculate
 //  number of sensors and motors on controller side
-bool One2OneWiring::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){
+bool One2OneWiring::initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen){
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;
   csensornumber = rsensornumber+blind;
   cmotornumber  = rmotornumber+blind;
 
-  noisevals     = (sensor*) malloc(sizeof(sensor)  * this->csensornumber);
-  memset(noisevals, 0 , sizeof(sensor) * this->csensornumber);
   if(blind){
     blindmotors = (sensor*) malloc(sizeof(sensor)  * blind);
     memset(blindmotors, 0, sizeof(sensor)  * blind);
   }
 
-  if(noiseGenerator)
-    noiseGenerator->init(csensornumber, randGen);
   return true;
 }
 
@@ -136,16 +139,12 @@ bool One2OneWiring::init(int robotsensornumber, int robotmotornumber, RandGen* r
 //   @param csensors pointer to array of sensorvalues for controller  
 //   @param csensornumber number of sensors to controller
 //   @param noise size of the noise added to the sensors
-bool One2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
-				sensor* csensors, int csensornumber, 
-				double noiseStrength){
+bool One2OneWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
+				      sensor* csensors, int csensornumber, 
+				      double noiseStrength){
   assert(rsensornumber == this->rsensornumber);
   assert(csensornumber == this->csensornumber);
-
-  if(noiseGenerator) {
-    memset(noisevals, 0 , sizeof(sensor) * this->csensornumber);    
-    noiseGenerator->add(noisevals, noiseStrength);  
-  } 
+  // the noisevals are set in abstractwiring
   for(int i=0; i< rsensornumber; i++){
     csensors[i] = rsensors[i] + noisevals[i];
   }
@@ -161,41 +160,14 @@ bool One2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 //   @param rmotornumber number of robot motors 
 //   @param cmotors pointer to array of motorvalues from controller  
 //   @param cmotornumber number of motorvalues from controller
-bool One2OneWiring::wireMotors(motor* rmotors, int rmotornumber,
-			       const motor* cmotors, int cmotornumber){
+bool One2OneWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
+				     const motor* cmotors, int cmotornumber){
   assert(rmotornumber == this->rmotornumber);
   assert(cmotornumber == this->cmotornumber);
   memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
   if(blind)
     memcpy(blindmotors, cmotors+rmotornumber, sizeof(motor)*blind);
   return true;
-}
-
-/** Returns the list of the names of all internal parameters.
-*/
-Inspectable::iparamkeylist One2OneWiring::getInternalParamNames() const {
-  iparamkeylist l;
-  char buffer[32];
-  if(plotNoise) {    
-    for(int i = 0; i < rsensornumber; i++){
-      sprintf(buffer,"n[%d]", i);
-      l += std::string(buffer);
-    }
-  } 
-  return l;
-}
-
-/** Returns a list of the values of all internal parameters
-    (in the order given by getInternalParamNames()).
-*/
-Inspectable::iparamvallist One2OneWiring::getInternalParams() const {
-  iparamvallist l;
-  if(plotNoise) {    
-    for(int i=0; i < rsensornumber; i++){
-      l += noisevals[i];
-    }
-  }
-  return l;
 }
 
 

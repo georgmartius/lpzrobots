@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-09-16 15:37:29  martius
+ *   Revision 1.9  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.8  2008/09/16 15:37:29  martius
  *   added randomgen
  *
  *   Revision 1.7  2008/04/28 11:14:54  guettler
@@ -81,9 +90,11 @@
 #define __ABSTRACTWIRING_H
 
 //#include "abstractrobot.h"
+#include "matrix.h"
 #include "noisegenerator.h"
 #include "inspectable.h"
 #include "randomgenerator.h"
+
 
 /** Abstract wiring-object between controller and robot.
  *  Implements wiring of robot sensors to inputs of the controller and
@@ -93,37 +104,46 @@ class AbstractWiring : public Inspectable {
 public:
   typedef double sensor;
   typedef double motor;
+  
+  enum PlotTypes {Robot, Controller, Noise};
+
 
   /** constructor
    *  @param noise NoiseGenerator that is used for adding noise to sensor values
    */
-  AbstractWiring(NoiseGenerator* noise){
+  AbstractWiring(NoiseGenerator* noise, int plotMode=Controller)
+    : plotMode(plotMode) {
     rsensornumber = 0;
     rmotornumber  = 0;
     csensornumber = 0;
     cmotornumber  = 0;
     noiseGenerator = noise;
+    noisevals=0;
+    initialised = false;
   }
 
   /** destructor
    */
   virtual ~AbstractWiring(){
     if(noiseGenerator) delete noiseGenerator;
+    if(noisevals) free(noisevals);
   }
 
   /** Initializes the  number of sensors and motors from robot
    *  (to be precise the internal parameters rsensornumber and rmotornumber!),
    *  calculates the number of sensors and motors on controller side.
-   *  Must be overloaded to calculate and provide the appropriate numbers
+   *  The internal version initIntern() is called from here and 
+   *   be overloaded to calculate and provide the appropriate numbers
    *  controllersensornumber (csensornumber), controllermotornumber (cmotornumber),
    *  robotsensornumber (rsensornumber) and robotmotornumber (rmotornumber),
    *  @param randGen pointer to random generator, if not given then a new one is created
    *  @return returns false on error, otherwise true
    */
-  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0) = 0;
+  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
   /** Realizes wiring from robot sensors to controller sensors.
-   *   Must be overloaded in order to implement the appropriate mapping.
+   *   The internal version wireSensorsIntern() is called from here and 
+   *    must be overloaded in order to implement the appropriate mapping.
    *   @param rsensors pointer to array of sensorvalues from robot
    *   @param rsensornumber number of sensors from robot
    *   @param csensors pointer to array of sensorvalues for controller
@@ -133,10 +153,11 @@ public:
    */
   virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
 			   sensor* csensors, int csensornumber,
-			   double noise) = 0;
+			   double noiseStrength);
 
   /** Realizes wiring from controller motor outputs to robot motors.
-   *   Must be overloaded in order to implement the appropriate mapping.
+   *   The internal version wireMotorsIntern() is called from here and 
+   *    must be overloaded in order to implement the appropriate mapping.
    *   @param rmotors pointer to array of motorvalues for robot
    *   @param rmotornumber number of robot motors
    *   @param cmotors pointer to array of motorvalues from controller
@@ -144,9 +165,7 @@ public:
    *   @return returns false if error, else true
    */
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber)  = 0;
-
-
+			  const motor* cmotors, int cmotornumber);
 
   /** Returns the number of sensors on robot side.
    */
@@ -165,31 +184,67 @@ public:
   virtual int getControllerMotornumber() {return cmotornumber;}
 
   /** Returns the list of the names of all internal parameters.
+      Call this function if you overload it!
    */
-  virtual std::list<iparamkey> getInternalParamNames() const { return std::list<iparamkey>(); };
+  virtual iparamkeylist getInternalParamNames() const;
 
   /** Returns a list of the values of all internal parameters
       (in the order given by getInternalParamNames()).
-   */
-  virtual std::list<iparamval>  getInternalParams() const { return std::list<iparamval>(); };
+      Call this function if you overload it!
+  */
+  virtual iparamvallist getInternalParams() const;
 
 
 protected:
+  /** to be overloaded by subclasses
+      @see init() 
+   */
+  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0) = 0;
+
+  /** to be overloaded by subclasses
+      @see wireSensors() 
+   */
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+				 sensor* csensors, int csensornumber,
+				 double noiseStrength) = 0;
+
+  /** to be overloaded by subclasses
+      @see wireMotors() 
+   */
+  virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
+				const motor* cmotors, int cmotornumber)  = 0;
+
+
+
+  /// using plotTypes this variables defines what is plotted
+  int plotMode; 
+  /// for storing the noise values
+  sensor* noisevals;
+
   /// number of sensors at robot side
   int rsensornumber;
+  /// copy of the last robot sensors
+  matrix::Matrix mRsensors; 
 
   /// number of motors at robot side
   int rmotornumber;
+  /// copy of the last robot motors
+  matrix::Matrix mRmotors;
 
   /// number of sensors at controller side
   int csensornumber;
+  /// copy of the last controller sensors
+  matrix::Matrix mCsensors;
 
   /// number of motors at controller side
   int cmotornumber;
+  /// copy of the last controller motors
+  matrix::Matrix mCmotors;
 
   /// noise generator
   NoiseGenerator* noiseGenerator;
 
+  bool initialised;
 };
 
 #endif

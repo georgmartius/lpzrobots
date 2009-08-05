@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-04-28 11:14:54  guettler
+ *   Revision 1.4  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.3  2008/04/28 11:14:54  guettler
  *   removed include "abstractrobot.h" (not needed)
  *
  *   Revision 1.2  2008/04/17 14:54:45  martius
@@ -60,17 +69,30 @@ public:
 
   virtual ~WiringSequence();
 
-  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
+protected:
+  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
-			   sensor* csensors, int csensornumber,
-			   double noise);
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+				 sensor* csensors, int csensornumber,
+				 double noise);
 
-  virtual bool wireMotors(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber);
+  virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
+				const motor* cmotors, int cmotornumber);
+
+
+public:
 
   /** adds a wiring to the list of wirings*/
   virtual void addWiring(AbstractWiring* wiring);
+
+  
+  /** pass through of first wiring
+   */
+  virtual iparamkeylist getInternalParamNames() const;
+
+  /** pass through of first wiring
+  */
+  virtual iparamvallist getInternalParams() const;
 
 protected:
   std::vector<AbstractWiring*> wirings;

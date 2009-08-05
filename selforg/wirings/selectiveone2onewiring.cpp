@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-03-31 15:55:35  martius
+ *   Revision 1.8  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.7  2009/03/31 15:55:35  martius
  *   check for noisegenerator to exist (excepts no noise generator as well)
  *
  *   Revision 1.6  2009/03/27 06:16:56  guettler
@@ -75,7 +84,7 @@ SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){
 
 /// initializes the number of sensors and motors on robot side, calculate
 //  number of sensors and motors on controller side
-bool SelectiveOne2OneWiring::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){
+bool SelectiveOne2OneWiring::initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen){
   One2OneWiring::init(robotsensornumber, robotmotornumber, randGen);
   int num=0;
   for(int i=0; i<robotsensornumber; i++){
@@ -92,12 +101,10 @@ bool SelectiveOne2OneWiring::init(int robotsensornumber, int robotmotornumber, R
 //   @param csensors pointer to array of sensorvalues for controller  
 //   @param csensornumber number of sensors to controller
 //   @param noise size of the noise added to the sensors
-bool SelectiveOne2OneWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
-				sensor* csensors, int csensornumber, 
-				double noiseStrength){
-  memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
-  if(noiseGenerator)
-    noiseGenerator->add(noisevals, noiseStrength);   
+bool SelectiveOne2OneWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
+					       sensor* csensors, int csensornumber, 
+					       double noiseStrength){
+  // noisevals are set in AbstractWiring()
   int num=0;
   for(int i=0; i< rsensornumber; i++){
     if((*sel_sensor)(i,rsensornumber)){

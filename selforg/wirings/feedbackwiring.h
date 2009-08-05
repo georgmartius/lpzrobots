@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-03-26 19:14:42  martius
+ *   Revision 1.5  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.4  2009/03/26 19:14:42  martius
  *   some comments
  *
  *   Revision 1.3  2008/04/28 11:10:11  guettler
@@ -75,14 +84,17 @@ public:
   FeedbackWiring(NoiseGenerator* noise, Mode mode = Context,double feedbackratio=0.9);
   virtual ~FeedbackWiring();
 
-  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
+protected:
+  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
-			   sensor* csensors, int csensornumber,
-			   double noise);
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+				 sensor* csensors, int csensornumber,
+				 double noise);
 
-  virtual bool wireMotors(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber);
+  virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
+				const motor* cmotors, int cmotornumber);
+
+public:
 
   virtual std::list<iparamkey> getInternalParamNames() const;
   virtual std::list<iparamval> getInternalParams() const;
@@ -102,10 +114,6 @@ protected:
   motor *motors;
   int vmotornumber;
 
-  /// for storing the noise values
-  sensor* noisevals;
-
-  bool initialised;
 };
 
 #endif

@@ -20,7 +20,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-04-17 14:54:45  martius
+ *   Revision 1.6  2009-08-05 22:32:21  martius
+ *   big change:
+ *       abstractwiring is responsable for providing sensors and motors
+ *        and noise to the inspectable interface.
+ *       external interface: unchanged except plotMode in constructor
+ *       internal interface: all subclasses have to overload
+ *         initIntern, wireSensorsIntern, wireMotorsIntern
+ *       All existing implementation are changed
+ *
+ *   Revision 1.5  2008/04/17 14:54:45  martius
  *   randomGen added, which is a random generator with long period and an
  *    internal state. Each Agent has an instance and passed it to the controller
  *    and the wiring. This is good for
@@ -82,22 +91,22 @@ class One2OneWiring :public AbstractWiring{
 public:
   /** constructor
       @param noise NoiseGenerator that is used for adding noise to sensor values  
-      @param plotNoise for plotting the noise values (to observe it from outside
-      via getInternalParams() and guilogger) set it TRUE, for not plotting the noise set 
-      it to FALSE.
+      @param plotMode see AbstractWiring 
       @param blind number of blind channels
         (additional sensors and motors coupled directly)
    */
-  One2OneWiring(NoiseGenerator* noise, bool plotNoise=false, int blind=0);
+  One2OneWiring(NoiseGenerator* noise, int plotMode=Controller, int blind=0);
 
   /** destructor
    */
   virtual ~One2OneWiring();
 
+protected:
+
   /** initializes the number of sensors and motors on robot side, calculate
       number of sensors and motors on controller side
    */
-  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
+  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
   /** Realizes one to one wiring from robot sensors to controller sensors. 
       @param rsensors pointer to array of sensorvalues from robot 
@@ -106,7 +115,7 @@ public:
       @param csensornumber number of sensors to controller
       @param noise size of the noise added to the sensors
   */
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
 			   sensor* csensors, int csensornumber,
 			   double noise);
 
@@ -116,24 +125,11 @@ public:
       @param cmotors pointer to array of motorvalues from controller  
       @param cmotornumber number of motorvalues from controller
   */
-  virtual bool wireMotors(motor* rmotors, int rmotornumber,
+  virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
 			  const motor* cmotors, int cmotornumber);
 
-  /** Returns the list of the names of all internal parameters.
-  */
-  virtual std::list<iparamkey> getInternalParamNames() const;
-
-  /** The list of the values of all internal parameters given by getInternalParams().
-      (in the order given by getInternalParamNames())
-   */
-  virtual std::list<iparamval> getInternalParams() const;
 
 protected:
-  /// TRUE for plotting noise values, FALSE for not plotting
-  bool plotNoise; 
-  /// for storing the noise values
-  sensor* noisevals;
-
   int blind; /// number of blind channels
   /// blind motor values
   motor* blindmotors;
