@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-07-28 09:13:11  robot12
+ *   Revision 1.11  2009-08-05 13:16:32  robot12
+ *   add one clean up
+ *
+ *   Revision 1.10  2009/07/28 09:13:11  robot12
  *   add a clean up to update (delete context)
  *
  *   Revision 1.9  2009/07/21 08:39:01  robot12
@@ -152,7 +155,8 @@ std::vector<double>* Generation::getAllFitness(void)const {
 }
 
 void Generation::update(double factor) {
-	DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(*getAllFitness());
+	std::vector<double>* ptrFitnessVector = getAllFitness();
+	DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(*ptrFitnessVector);
 
 	m_q1 = context->getQuartil1();
 	m_q3 = context->getQuartil3();
@@ -167,4 +171,5 @@ void Generation::update(double factor) {
 	m_dKill = (double)m_kill;
 
 	delete context;
+	delete ptrFitnessVector;
 }
