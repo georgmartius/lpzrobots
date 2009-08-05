@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-02-02 16:08:13  martius
+ *   Revision 1.10  2009-08-05 23:25:57  martius
+ *   adapted small things to compile with changed Plotoptions
+ *
+ *   Revision 1.9  2009/02/02 16:08:13  martius
  *   minor changes
  *
  *   Revision 1.8  2008/05/01 22:03:56  martius
@@ -102,6 +105,7 @@ public:
   InvertMotorNStep*controller;
   OdeRobot* vehicle;
   motor teaching[2];
+  int useTeaching;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -110,12 +114,13 @@ public:
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.noise=0.1;
+    global.odeConfig.setParam("noise", 0.05);
+    global.odeConfig.setParam("controlinterval", 1);
     //    global.odeConfig.setParam("gravity", 0);
 
     // use Playground as boundary:
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, 1), 2);
-    playground->setColor(Color(0,0,0,0.8)); 
+    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(100, 0.2, 1), 2);
+    // playground->setColor(Color(0,0,0,0.8)); 
     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
     global.obstacles.push_back(playground);    
 
@@ -138,13 +143,15 @@ public:
     //  AbstractController *controller = new InvertNChannelController(10);      
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
     cc.cInit=1.0;
-    cc.useS=true;
-    cc.numberContext=0; // use all sensors as context
+    cc.useS=false;
+    
+    useTeaching=0;
+    
     controller = new InvertMotorNStep(cc);  
     controller->setParam("adaptrate", 0.000);
     //    controller->setParam("nomupdate", 0.0005);
-    controller->setParam("epsC", 0.01);
-    controller->setParam("epsA", 0.01);
+    controller->setParam("epsC", 0.1);
+    controller->setParam("epsA", 0.1);
     controller->setParam("rootE", 0);
     controller->setParam("steps", 1);
     controller->setParam("s4avg", 1);
@@ -171,35 +178,36 @@ public:
       case 'u' : 
 	teaching[0] = std::min(0.95, teaching[0]+0.1);
 	teaching[1] = std::min(0.95, teaching[1]+0.1);
-	controller->setMotorTeachingSignal(teaching, 2);
 	printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
 	handled = true; 
 	break;
       case 'j' : 
 	teaching[0] = std::max(-0.95, teaching[0]-0.1);
 	teaching[1] = std::max(-0.95, teaching[1]-0.1);
-	controller->setMotorTeachingSignal(teaching, 2);
 	printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
 	handled = true; 
 	break;
       case 'i' : 
-	teaching[0] = std::min(0.95, teaching[0]+0.1);
-	teaching[1] = std::min(0.95, teaching[1]+0.1);
-	controller->setSensorTeachingSignal(teaching, 2);
-	printf("Distal Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
-	handled = true; 
-	break;
-      case 'k' : 
-	teaching[0] = std::max(-0.95, teaching[0]-0.1);
-	teaching[1] = std::max(-0.95, teaching[1]-0.1);
-	controller->setSensorTeachingSignal(teaching, 2);
-	printf("Distal Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
+	useTeaching = (useTeaching+1)%3;
+	printf("%s\n", useTeaching==0 ? "Teaching disabled" : 
+	       (useTeaching ==1 ? "enabled motor teaching" : "enabled sensor teaching"));
 	handled = true; 
 	break;
       }
     fflush(stdout);
     return handled;
   }
+
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+    if(control && useTeaching==1){
+      controller->setMotorTeachingSignal(teaching, 2);
+    }
+    if(control && useTeaching==2){
+      controller->setSensorTeachingSignal(teaching, 2);
+    }
+
+  };
+
 
   virtual void bindingDescription(osg::ApplicationUsage & au) const {
     au.addKeyboardMouseBinding("Teaching: u","forward");

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2009-02-02 16:08:13  martius
+ *   Revision 1.27  2009-08-05 23:25:57  martius
+ *   adapted small things to compile with changed Plotoptions
+ *
+ *   Revision 1.26  2009/02/02 16:08:13  martius
  *   minor changes
  *
  *   Revision 1.25  2008/09/16 19:28:29  martius
@@ -184,7 +187,7 @@ public:
 
     bool labyrint=false;      
     bool squarecorridor=false;
-    bool normalplayground=true;
+    bool normalplayground=false;
 
     //    setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     setCameraHomePos(Pos(-2.60384, 13.1299, 2.64348),  Pos(-179.063, -9.7594, 0));
@@ -262,8 +265,8 @@ public:
       conf.irAxis2=false;
       conf.irAxis3=false;
       conf.spheremass   = 1;
-      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				    conf, "Barrel1", 0.4); 
+      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,5.0)), 
+				    conf, "Barrel1", 0.5); 
       sphere1->place (osg::Matrix::rotate(M_PI/2, 1,0,0)*osg::Matrix::translate(0,0,0.2));
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
@@ -404,10 +407,12 @@ public:
       controller->setParam("phaseshift", 0.45);
     
       // One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.2) );
-      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), new select_from_to(0,2));
+      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), 
+							  new select_from_to(0,2), 
+							  AbstractWiring::Robot);
       std::list<PlotOption> l;
-      l.push_back(PlotOption(GuiLogger, Robot, 5));
-      //      l.push_back(PlotOption(File, Robot, 1));      
+      l.push_back(PlotOption(GuiLogger, 5));
+      //      l.push_back(PlotOption(File, 1));      
       OdeAgent* agent = new OdeAgent ( l );
 
       //       OdeAgent* agent = new OdeAgent ( plotoptions);
@@ -541,6 +546,7 @@ int main (int argc, char **argv)
 { 
   ThisSim sim;
   sim.setCaption("Spherical Robot (lpzrobots Simulator)   Martius,Der 2007");
+  sim.setGroundTexture("Images/yellowground.rgb");
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }

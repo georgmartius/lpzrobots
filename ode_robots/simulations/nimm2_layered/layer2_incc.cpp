@@ -16,7 +16,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-04-22 14:39:02  guettler
+ *   Revision 1.2  2009-08-05 23:25:57  martius
+ *   adapted small things to compile with changed Plotoptions
+ *
+ *   Revision 1.1  2009/04/22 14:39:02  guettler
  *   moved layeredcontroller, layer2_incc and layer1_incc to ode_robots/simulations/nimm2_hebb and nimm2_layered
  *
  *   Revision 1.1  2009/04/20 07:28:32  robot12
@@ -46,7 +49,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "controller_misc.h"
+#include <selforg/controller_misc.h>
 #include "layer2_incc.h"
 using namespace matrix;
 using namespace std;

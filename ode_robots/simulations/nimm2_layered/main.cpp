@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-04-02 12:21:46  fhesse
+ *   Revision 1.5  2009-08-05 23:25:57  martius
+ *   adapted small things to compile with changed Plotoptions
+ *
+ *   Revision 1.4  2009/04/02 12:21:46  fhesse
  *   box.setTexture() before setPosition() (due to new OsgBoxTex)
  *
  *   Revision 1.3  2008/05/01 22:03:55  martius
@@ -74,7 +77,7 @@
 
 
 // used controller
-#include <selforg/layeredcontroller.h>
+#include "layeredcontroller.h"
 //#include <selforg/invertnchannelcontroller.h>
 //#include <selforg/invertnchannelcontrollerhebbxsi.h>
 //#include <selforg/invertnchannelcontrollerhebbh.h>

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-05-01 22:03:55  martius
+ *   Revision 1.3  2009-08-05 23:25:57  martius
+ *   adapted small things to compile with changed Plotoptions
+ *
+ *   Revision 1.2  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -79,7 +82,7 @@ public:
      }
 */    
     OdeRobot* nimm2;
-    AbstractController* contrl;
+    //    AbstractController* contrl;
     AbstractWiring* wiring;
     OdeAgent* agent;
 

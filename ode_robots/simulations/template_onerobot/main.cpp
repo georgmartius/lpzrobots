@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2008-05-01 22:03:56  martius
+ *   Revision 1.23  2009-08-05 23:25:57  martius
+ *   adapted small things to compile with changed Plotoptions
+ *
+ *   Revision 1.22  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -192,19 +195,19 @@ public:
     // - activate bumpers, cigar mode and infrared front sensors of the nimm2 robot
     // - create pointer to nimm2 (with odeHandle, osg Handle and configuration)
     // - place robot
-    Nimm2Conf c = Nimm2::getDefaultConf();
-    c.force   = 4;
-    c.bumper  = true;
-    c.cigarMode  = true;
-    // c.irFront = true;
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
-    vehicle->place(Pos(0,0,0));
+//     Nimm2Conf c = Nimm2::getDefaultConf();
+//     c.force   = 4;
+//     c.bumper  = true;
+//     c.cigarMode  = true;
+//     // c.irFront = true;
+//     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
+//     vehicle->place(Pos(0,0,0));
 
     // use Nimm4 vehicle as robot:
     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
     // - place robot
-    //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle, "Nimm4");
-    //vehicle->place(Pos(0,1,0));
+    OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle, "Nimm4");
+    vehicle->place(Pos(0,1,0));
 
 
     // create pointer to controller
