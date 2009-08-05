@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-15 13:01:15  robot12
+ *   Revision 1.6  2009-08-05 08:19:23  martius
+ *   addInspectableMatrix allows to specify optionally whether all or only 4x4+Diagonal is used
+ *
+ *   Revision 1.5  2009/07/15 13:01:15  robot12
  *   one bugfixe
  *
  *   Revision 1.4  2009/06/29 13:24:13  robot12
@@ -105,8 +108,8 @@ public:
   typedef std::string iparamkey;
   typedef double iparamval;
   typedef std::pair<iparamkey,iparamval*> iparampair;
-  typedef std::pair<iparamkey,matrix::Matrix*> imatrixpair;
-
+  typedef std::pair<iparamkey,std::pair< matrix::Matrix*, bool > > imatrixpair; // the bool says whether 
+                                                                           // only 4x4AndDiag is used
   typedef std::list<iparamkey> iparamkeylist;
   typedef std::list<iparamval> iparamvallist;
   typedef std::list<iparamval*> iparamvalptrlist;
@@ -187,28 +190,30 @@ public:
   virtual iconnectionlist getStructuralConnections() const;
 
 
-    /**
-     * This is the new style for adding inspectable values. Just call this
-     * function for each parameter and you are done.
-     * registers a single value
-     * @param key the name of the inspectable, shown e.g. in guilogger
-     * @param val the address of the value to inspect
-    */
+  /**
+   * This is the new style for adding inspectable values. Just call this
+   * function for each parameter and you are done.
+   * registers a single value
+   * @param key the name of the inspectable, shown e.g. in guilogger
+   * @param val the address of the value to inspect
+   */
   virtual void addInspectableValue(const iparamkey key, iparamval* val);
 
 
-    /**
-     * This is the new style for adding inspectable values. Just call this
-     * function for each parameter and you are done.
-     * inspects all elements of the given matrix given through the functions
-     * store4x4AndDiagonalFieldNames(Matrix& m,string& matrixName);
-     * defined in <selforg/controller_misc.h>
-     * @param key the name of the matrix, shown e.g. in guilogger
-     * @param m the address of the matrix to inspect
-     * @note that you can change the structure of the matrix while
-     * being inspected.
-     */
-  virtual void addInspectableMatrix(const iparamkey key, matrix::Matrix* m);
+  /**
+   * This is the new style for adding inspectable values. Just call this
+   * function for each parameter and you are done.
+   * Inspects elements of the given matrix or vector (automatic detection)
+   * For Matrixes Either all or only the values given by
+   * store4x4AndDiagonalFieldNames(Matrix& m,string& matrixName);
+   * are used.
+   * @param key the name of the matrix, shown e.g. in guilogger
+   * @param m the address of the matrix to inspect
+   * @param only4x4AndDiag of true only 4x4 matrix plus the diagonal is used 
+   * @note that you can change the structure of the matrix while
+   * being inspected.
+   */
+  virtual void addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag=true);
 
 
 

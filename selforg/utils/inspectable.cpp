@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-15 13:01:15  robot12
+ *   Revision 1.8  2009-08-05 08:19:53  martius
+ *   addInspectableMatrix allows to specify optionally whether all or only 4x4+Diagonal is used
+ *
+ *   Revision 1.7  2009/07/15 13:01:15  robot12
  *   one bugfixe
  *
  *   Revision 1.6  2009/06/29 13:24:13  robot12
@@ -67,7 +70,14 @@ Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
     keylist+=(*it).first;
   }
   for(imatrixpairlist::const_iterator m=mapOfMatrices.begin(); m != mapOfMatrices.end(); m++){
-    keylist+=store4x4AndDiagonalFieldNames(*((*m).second),(*m).first);
+    if(m->second.first->isVector()){
+      keylist+=storeVectorFieldNames(*(m->second.first), m->first);    
+    } else {
+      if(m->second.second)
+	keylist+=store4x4AndDiagonalFieldNames(*(m->second.first), m->first);
+      else 
+	keylist+=storeMatrixFieldNames(*(m->second.first), m->first);    
+    }
   }
   return keylist;
 }
@@ -76,10 +86,14 @@ Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
 Inspectable::iparamvallist Inspectable::getInternalParams() const {
   iparamvallist vallist;
   for(iparampairlist::const_iterator it=mapOfValues.begin(); it != mapOfValues.end(); it++){
-    vallist+=*(*it).second;
+    vallist+=*(it->second);
   }
   for(imatrixpairlist::const_iterator m=mapOfMatrices.begin(); m != mapOfMatrices.end(); m++){
-    vallist+=store4x4AndDiagonal(*((*m).second));
+    if(m->second.first->isVector() || !m->second.second){    
+      vallist+= m->second.first->convertToList();
+    } else {
+	vallist+=store4x4AndDiagonal(*(m->second.first));
+    }      
   }
   return vallist;
 }
@@ -102,12 +116,12 @@ Inspectable::iconnectionlist Inspectable::getStructuralConnections() const {
   return std::list<IConnection>();
 }
 
-void Inspectable::addInspectableValue(const iparamkey key, iparamval* val){
+void Inspectable::addInspectableValue(const iparamkey key, iparamval* val) {
   mapOfValues+=iparampair(key,val);
 }
 
-void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m) {
-  mapOfMatrices+=imatrixpair(key,m);
+void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag) {
+  mapOfMatrices+=imatrixpair(key, std::pair<matrix::Matrix*, bool>(m, only4x4AndDiag) );
 }
 
 #else
@@ -134,7 +148,7 @@ void Inspectable::addInspectableValue(const iparamkey key, iparamval* val){
 }
 
 // TODO: implement addInspectableMatrix
-void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m) {}
+void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag) {}
 
 
 #endif
