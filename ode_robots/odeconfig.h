@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2008-04-23 07:17:16  martius
+ *   Revision 1.19  2009-08-05 16:13:06  martius
+ *   added framerate to adjust
+ *
+ *   Revision 1.18  2008/04/23 07:17:16  martius
  *   makefiles cleaned
  *   new also true realtime factor displayed,
  *    warning if out of sync
@@ -111,7 +114,6 @@ namespace lpzrobots {
   public:
     bool videoRecordingMode;
     double simStepSize;
-    double realTimeFactor;
     double motionPersistence;
     int drawInterval;
     int controlInterval;
@@ -121,6 +123,8 @@ namespace lpzrobots {
     long randomSeed;
     OdeHandle odeHandle;
 
+    double realTimeFactor;
+    double fps;
   };
 
 }
