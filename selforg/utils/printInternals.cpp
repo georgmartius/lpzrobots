@@ -1,3 +1,33 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *    martius@informatik.uni-leipzig.de                                    *
+ *    fhesse@informatik.uni-leipzig.de                                     *
+ *    der@informatik.uni-leipzig.de                                        *
+ *    guettler@informatik.uni-leipzig.de                                   *
+ *    joergweide84@aol.com (robot12)                                       *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ *   $Log$
+ *   Revision 1.13  2009-08-05 20:25:29  martius
+ *   Bug in printInternalParameters fixed (removed if(*i) which was nonsense)
+ *
+ *                                                                         *
+ *                                                                         *
+ ***************************************************************************/
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>
@@ -86,15 +116,14 @@ void printInspectables(FILE* f, std::list<const Inspectable*> inspectables)
     return;
 
   // internal parameters ( we allocate one place more to be able to realise when the number raises)
-  list<Inspectable::iparamval> l;
+  Inspectable::iparamvallist l;
   FOREACHC(list<const Inspectable*>, inspectables, insp)
   {
     if(*insp)
     {
       l = (*insp)->getInternalParams();
-      FOREACHC(list<Inspectable::iparamval>, l, i )
+      FOREACHC(Inspectable::iparamvallist, l, i )
       {
-        if(*i)
           fprintf(f, " %f", (*i));
       }
     }
