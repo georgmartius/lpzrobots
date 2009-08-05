@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-07-30 12:09:12  guettler
+ *   Revision 1.17  2009-08-05 23:23:42  martius
+ *   corrected coding in "Guettler"
+ *
+ *   Revision 1.16  2009/07/30 12:09:12  guettler
  *   commented out unused variables
  *
  *   Revision 1.15  2009/03/31 15:45:50  martius
@@ -151,7 +154,7 @@ namespace lpzrobots {
 
   class Base {
   public:
-    Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Gï¿½ttler");
+    Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Güttler");
 
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
