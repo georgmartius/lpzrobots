@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.101  2009-08-03 14:09:48  jhoffmann
+ *   Revision 1.102  2009-08-05 16:15:21  martius
+ *   respect configured framerate in maximal speed setting
+ *
+ *   Revision 1.101  2009/08/03 14:09:48  jhoffmann
  *   Remove some compiling warnings, memory leaks; Add some code cleanups
  *
  *   Revision 1.100  2009/07/30 12:27:34  jhoffmann
@@ -1111,9 +1114,9 @@ namespace lpzrobots {
     long elapsed = timeOfDayinMS() - realtimeoffset;
     // simulation speed (calculates more precise again if not pause or max speed)
     if(!pause) truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+1);
-    // get refresh rate of about 10 frames in full speed
     if(globalData.odeConfig.realTimeFactor==0.0){
-      globalData.odeConfig.calcAndSetDrawInterval(10,truerealtimefactor);
+      // get refresh rate of fps/2 frames in full speed
+      globalData.odeConfig.calcAndSetDrawInterval(globalData.odeConfig.fps/2,truerealtimefactor);
     }
     if(globalData.odeConfig.realTimeFactor!=0.0 && !pause) {
       // difference between actual time and current time in milliseconds
