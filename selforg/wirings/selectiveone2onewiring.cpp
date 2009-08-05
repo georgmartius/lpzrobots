@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-08-05 22:32:21  martius
+ *   Revision 1.9  2009-08-05 22:45:25  martius
+ *   added plotMode
+ *
+ *   Revision 1.8  2009/08/05 22:32:21  martius
  *   big change:
  *       abstractwiring is responsable for providing sensors and motors
  *        and noise to the inspectable interface.
@@ -73,8 +76,9 @@
 
 /// constructor
 SelectiveOne2OneWiring::SelectiveOne2OneWiring(NoiseGenerator* noise, 
-					       select_predicate* sel_sensor)
-  : One2OneWiring(noise), sel_sensor(sel_sensor) {
+					       select_predicate* sel_sensor,
+					       int plotMode)
+  : One2OneWiring(noise, plotMode), sel_sensor(sel_sensor) {
 }
 
 SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){
