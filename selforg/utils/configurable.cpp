@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-03-27 06:16:57  guettler
+ *   Revision 1.3  2009-08-05 08:36:22  guettler
+ *   added support for boolean variables
+ *
+ *   Revision 1.2  2009/03/27 06:16:57  guettler
  *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
  *
  *   Revision 1.1  2008/04/29 07:39:54  guettler
@@ -130,6 +133,12 @@ void Configurable::print(FILE* f, const char* prefix) const {
     const string& k = (*i).first;
     fprintf(f, "%s %s=%s%11.6f\n", pre, k.c_str(), 
 	    spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+  }
+  // use map of boolean
+  FOREACHC(paramboolmap, mapOfBoolean, i) {
+    const string& k = (*i).first;
+    fprintf(f, "%s %s=%s%11.6f\n", pre, k.c_str(),
+      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
   }
   // add custom parameters stuff (which is marked by a * at the end of the line)
   paramlist list = getParamList(); 
