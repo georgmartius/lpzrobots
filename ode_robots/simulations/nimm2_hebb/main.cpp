@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-04-02 12:18:22  fhesse
+ *   Revision 1.4  2009-08-05 22:24:32  martius
+ *   includes fixed
+ *
+ *   Revision 1.3  2009/04/02 12:18:22  fhesse
  *   box.setTexture() before setPosition (due to new OsgBoxTex)
  *
  *   Revision 1.2  2008/05/01 22:03:55  martius
@@ -67,8 +70,8 @@
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
-#include <selforg/invertnchannelcontrollerhebbxsi.h>
-#include <selforg/invertnchannelcontrollerhebbh.h>
+#include "invertnchannelcontrollerhebbxsi.h"
+#include "invertnchannelcontrollerhebbh.h"
 #include <selforg/invertmotorspace.h>
 //#include <selforg/sinecontroller.h>
 
