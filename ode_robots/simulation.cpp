@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.102  2009-08-05 16:15:21  martius
+ *   Revision 1.103  2009-08-05 23:22:32  martius
+ *   changed plotOpion calles
+ *
+ *   Revision 1.102  2009/08/05 16:15:21  martius
  *   respect configured framerate in maximal speed setting
  *
  *   Revision 1.101  2009/08/03 14:09:48  jhoffmann
@@ -1161,7 +1164,7 @@ namespace lpzrobots {
       case 6 : // Ctrl - f
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(File)) {
-		  PlotOption po(File, Controller, filelogginginterval, globalconfigurables);
+	    PlotOption po(File, filelogginginterval);
 	    (*i)->addPlotOption(po);
 	  }
 	}
@@ -1170,7 +1173,7 @@ namespace lpzrobots {
       case 7 : // Ctrl - g
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(GuiLogger)) {
-		  PlotOption po(GuiLogger, Controller, guiloggerinterval, globalconfigurables);
+	    PlotOption po(GuiLogger, guiloggerinterval);
 	    (*i)->addPlotOption(po);
 	  }
 	}
@@ -1370,7 +1373,7 @@ namespace lpzrobots {
 	guiloggerinterval=atoi(argv[index]);
       if (guiloggerinterval<1) // avoids a bug
         guiloggerinterval=5; // default value
-      plotoptions.push_back(PlotOption(GuiLogger, Controller, guiloggerinterval, globalconfigurables));
+      plotoptions.push_back(PlotOption(GuiLogger, guiloggerinterval));
     }
 
 // logging to file
@@ -1381,7 +1384,7 @@ namespace lpzrobots {
 	filelogginginterval=atoi(argv[index]);
       if (filelogginginterval<1) // avoids a bug
         filelogginginterval=5; // default value
-      plotoptions.push_back(PlotOption(File, Controller, filelogginginterval, globalconfigurables));
+      plotoptions.push_back(PlotOption(File, filelogginginterval));
     }
 
     // starting neuronviz
@@ -1392,7 +1395,7 @@ namespace lpzrobots {
 	neuronvizinterval=atoi(argv[index]);
       if (neuronvizinterval<1) // avoids a bug
         neuronvizinterval=10; // default value
-      plotoptions.push_back(PlotOption(NeuronViz, Controller, neuronvizinterval, globalconfigurables));
+      plotoptions.push_back(PlotOption(NeuronViz, neuronvizinterval));
     }
 
     // using SoundMan for acustic output
@@ -1401,7 +1404,7 @@ namespace lpzrobots {
       string param="";
       if(argc > index)
 	param=argv[index];
-      plotoptions.push_back(PlotOption(SoundMan, Controller, 1, globalconfigurables,param));
+      plotoptions.push_back(PlotOption(SoundMan, 1, param));
     }
 
     index = contains(argv, argc, "-r");
