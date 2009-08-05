@@ -30,7 +30,10 @@
  *   class.                                                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-07-21 08:47:33  robot12
+ *   Revision 1.3  2009-08-05 13:22:21  robot12
+ *   add one clean up, the function replaceList now modified the old list and don't delete all and make it new
+ *
+ *   Revision 1.2  2009/07/21 08:47:33  robot12
  *   add some comments
  *
  *   Revision 1.1  2009/06/29 13:37:05  robot12
@@ -74,7 +77,7 @@ private:
 	/**
 	 * the saved list of the Inspectable where the proxy stand for.
 	 */
-	std::list<Inspectable*> m_list;
+	//std::list<Inspectable*> m_list;
 
 	/**
 	 * disable the default constructor

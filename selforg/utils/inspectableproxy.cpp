@@ -30,7 +30,10 @@
  *   class.                                                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-07-21 08:47:33  robot12
+ *   Revision 1.3  2009-08-05 13:22:21  robot12
+ *   add one clean up, the function replaceList now modified the old list and don't delete all and make it new
+ *
+ *   Revision 1.2  2009/07/21 08:47:33  robot12
  *   add some comments
  *
  *   Revision 1.1  2009/06/29 13:37:05  robot12
@@ -49,7 +52,7 @@ InspectableProxy::InspectableProxy() {
 InspectableProxy::InspectableProxy(const std::list<Inspectable*>& list) {
 	//add all parameters of the inspectable in the own list.
 	for(std::list<Inspectable*>::const_iterator iter = list.begin(); iter!=list.end(); iter++) {
-		m_list.push_back(*iter);
+		//m_list.push_back(*iter);
 		std::list<std::string> names = (*iter)->getInternalParamNames();
 		std::list<double*> values = (*iter)->getInternalParamsPtr();
 		std::list<std::string>::iterator namesIter = names.begin();
@@ -66,15 +69,31 @@ InspectableProxy::InspectableProxy(const std::list<Inspectable*>& list) {
 
 InspectableProxy::~InspectableProxy() {
 	// nothing
+	//clear all
+	/*while(mapOfValues.size()>0){
+		std::list<std::pair<std::string,double*> >::iterator i = mapOfValues.begin();
+		free(const_cast<std::string>(i->first));
+		i->second = 0;
+		mapOfValues.erase(i);
+	}*/
+	/*m_list.clear();
+	mapOfValues.clear();
+	mapOfMatrices.clear();*/
 }
 
 bool InspectableProxy::replaceList(const std::list<Inspectable*>& list) {
 	//needs the same parameter count
-	if(m_list.size() != list.size())
-		return false;
+	//if(m_list.size() != list.size())
+		//return false;
 
 	//clear all
-	m_list.clear();
+	/*while(mapOfValues.size()>0){
+		std::list<std::pair<std::string,double*> >::iterator i = mapOfValues.begin();
+		free(const_cast<std::string>(i->first));
+		i->second = 0;
+		mapOfValues.erase(i);
+	}*/
+	/*m_list.clear();
 	mapOfValues.clear();
 	mapOfMatrices.clear();
 
@@ -91,6 +110,22 @@ bool InspectableProxy::replaceList(const std::list<Inspectable*>& list) {
 			addInspectableValue(*namesIter,*valuesIter);
 			namesIter++;
 			valuesIter++;
+		}
+	}*/
+
+	FOREACHC(std::list<Inspectable*>,list,i) {
+		std::list<std::string> names = (*i)->getInternalParamNames();
+		std::list<double*> values = (*i)->getInternalParamsPtr();
+		std::list<double*>::iterator l = values.begin();
+
+		FOREACH(std::list<std::string>,names,j) {
+			FOREACH(Inspectable::iparampairlist,mapOfValues,k) {
+				if(!k->first.compare(*j)){
+					k->second = *l;
+					break;
+				}
+			}
+			l++;
 		}
 	}
 
