@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-09-16 14:43:45  martius
+ *   Revision 1.10  2009-08-05 16:14:02  martius
+ *   added framerate to adjust
+ *   some parameters are really handled as ints now (still with custom set function)
+ *
+ *   Revision 1.9  2008/09/16 14:43:45  martius
  *   motionpersistence it 0 by default
  *
  *   Revision 1.8  2008/04/23 07:17:16  martius
@@ -92,23 +96,23 @@ namespace lpzrobots {
     realTimeFactor=1.0;
     gravity=-9.81;
     simStepSize = 0.01;
-    controlInterval = 1;
-    drawInterval = calcDrawInterval(25,realTimeFactor);
-    randomSeed = 0;
+    fps=25;
+    randomSeed=0;
     addParameterDef("noise",            &noise,0.1);
     addParameterDef("cameraspeed",      &cameraSpeed,100);
     addParameterDef("motionpersistence",&motionPersistence,0.0);
+    addParameterDef("controlinterval"  ,&controlInterval,1);
+    addParameterDef("drawinterval", &drawInterval,calcDrawInterval(fps,realTimeFactor));
     // prepare name;
     videoRecordingMode=false;
   }
         
   Configurable::paramlist OdeConfig::getParamList() const{
     paramlist list = Configurable::getParamList();
-    list.push_back(std::pair<paramkey, paramval> (std::string("controlinterval"), controlInterval));
     list.push_back(std::pair<paramkey, paramval> (std::string("simstepsize"), simStepSize));
     list.push_back(std::pair<paramkey, paramval> (std::string("gravity"), gravity));
     list.push_back(std::pair<paramkey, paramval> (std::string("realtimefactor"), realTimeFactor));
-    list.push_back(std::pair<paramkey, paramval> (std::string("drawinterval"), drawInterval));
+    list.push_back(std::pair<paramkey, paramval> (std::string("fps"), fps));
     list.push_back(std::pair<paramkey, paramval> (std::string("randomseed"), randomSeed));
     return list;
   } 
@@ -117,8 +121,7 @@ namespace lpzrobots {
     if(key == "realtimefactor") return realTimeFactor; 
     else if(key == "gravity") return gravity; 
     else if(key == "simstepsize") return simStepSize;
-    else if(key == "drawinterval") return drawInterval;
-    else if(key == "controlinterval") return controlInterval;
+    else if(key == "fps") return fps;
     else if(key == "randomseed") return randomSeed;
     else return Configurable::getParam(key);
   }
@@ -126,13 +129,19 @@ namespace lpzrobots {
   bool OdeConfig::setParam(const paramkey& key, paramval val){
     if(key == "simstepsize") {
       simStepSize=std::max(0.0000001,val); 
-      drawInterval=calcDrawInterval(25,realTimeFactor);
+      drawInterval=calcDrawInterval(fps,realTimeFactor);
     }else if(key == "realtimefactor"){
-      realTimeFactor=std::max(0.0,val); 
-      //      if (videoRecordingMode)
-      drawInterval=calcDrawInterval(25,realTimeFactor);
-      //      else
-      //	drawInterval=calcDrawInterval50();
+      realTimeFactor=std::max(0.0,val);      
+      if (videoRecordingMode)
+	drawInterval=calcDrawInterval(25,realTimeFactor);
+      else
+      	drawInterval=calcDrawInterval(fps,realTimeFactor);
+    }else if(key == "fps"){
+      fps=std::max(0.0001,val);      
+      if (videoRecordingMode)
+	drawInterval=calcDrawInterval(25,realTimeFactor);
+      else
+      	drawInterval=calcDrawInterval(fps,realTimeFactor);
     } else if(key == "gravity") {
       gravity=val; 
       dWorldSetGravity ( odeHandle.world , 0 , 0 , gravity );
@@ -140,8 +149,7 @@ namespace lpzrobots {
       controlInterval = std::max(1,int(val)); 
     } else if(key == "drawinterval") {
       drawInterval = std::max(1,int(val)); 
-    } else if(key == "randomseed") {
-      return true;
+    } else if(key == "randomseed") { // this is readonly!
     } else {
       return Configurable::setParam(key,val);      
     }
