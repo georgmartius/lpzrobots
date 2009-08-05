@@ -27,7 +27,14 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-07-21 08:50:16  robot12
+ *  Revision 1.3  2009-08-05 22:53:02  martius
+ *  redesigned
+ *   works as a stand alone object now
+ *   added init function
+ *   configurables are now in engine and not in plotoptions
+ *   works with wiredcontroller
+ *
+ *  Revision 1.2  2009/07/21 08:50:16  robot12
  *  finish of the split
  *  to do: add some comments....
  *
@@ -148,15 +155,13 @@ void PlotOption::flush(long step){
     case ECBRobotGUI:
     case SoundMan:{
       int ttt = fflush(pipe);
-      if(ttt!=0) printf("%s\n",strerror(ttt));
+      if(ttt!=0) {	
+	printf("Pipe broken: %s\n",strerror(ttt));
+	close();
+      }
       break;}
     default:
       break;
     }
   }
-}
-
-
-void PlotOption::addConfigurable(const Configurable* c){
-  configureables.push_back(c);
 }

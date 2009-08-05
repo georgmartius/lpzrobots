@@ -27,7 +27,14 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2009-07-21 08:50:16  robot12
+ *  Revision 1.4  2009-08-05 22:53:02  martius
+ *  redesigned
+ *   works as a stand alone object now
+ *   added init function
+ *   configurables are now in engine and not in plotoptions
+ *   works with wiredcontroller
+ *
+ *  Revision 1.3  2009/07/21 08:50:16  robot12
  *  finish of the split
  *  to do: add some comments....
  *
@@ -47,6 +54,7 @@
 #include <list>
 
 #include "plotoption.h"
+#include <selforg/abstractcontroller.h>
 
 class Inspectable;
 
@@ -62,6 +70,16 @@ public:
   virtual
   ~PlotOptionEngine();
 
+  /** initializes PlotOptionEngine and opens all pipes and stuff.
+      The optional controller is used to print structure information
+   */
+  virtual bool init(AbstractController* maybe_controller =0);
+
+  /**
+     sets the name of all plotoptions (call before init, but after options are added)
+   */
+  virtual void setName(const std::string& name);
+
   /** adds the PlotOptions to the list of plotoptions
       If a plotoption with the same Mode exists, then the old one is deleted first
    */
@@ -73,33 +91,28 @@ public:
   virtual bool removePlotOption(PlotMode mode);
 
 
-  /** adds an inspectable object for logging. Must be called before addPlotOption and before init!
+  /** adds an inspectable object for logging. Must be called before init!
    */
   virtual void addInspectable(const Inspectable* inspectable);
 
+  /** adds an configureable object for logging. Must be called before init!
+   */
+  virtual void addConfigurable(const Configurable* c);
 
   /**
      write comment to output streams (PlotOptions). For instance changes in parameters.
   */
   virtual void writePlotComment(const char* cmt);
 
-  /** Performs an step of the PlotOptionEngine
-       @param time (optional) current simulation time (used for logging)
-   */
-   void step(double time=-1);
-
+  virtual void plot(double time);
 
 protected:
   std::list<PlotOption> plotOptions;
   std::list<const Inspectable* > inspectables;
-
-
+  std::list< const Configurable* > configureables;
   long int t;
-
-  virtual void plot(double time);
-
-  virtual void plotNames();
-
+  
+  bool initialised;
 };
 
 #endif /* PLOTOPTIONENGINE_H_ */

@@ -27,7 +27,14 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-07-21 08:50:16  robot12
+ *  Revision 1.3  2009-08-05 22:53:02  martius
+ *  redesigned
+ *   works as a stand alone object now
+ *   added init function
+ *   configurables are now in engine and not in plotoptions
+ *   works with wiredcontroller
+ *
+ *  Revision 1.2  2009/07/21 08:50:16  robot12
  *  finish of the split
  *  to do: add some comments....
  *
@@ -74,10 +81,6 @@ enum PlotMode {
   LastPlot
 };
 
-/** Output either sensors from robot or from controller
-    (there can be a difference depending on the used wiring)
- */
-enum PlotSensors {Robot, Controller};
 
 /** This class contains options for the use of an external plot utility like guilogger or neuronviz
     or just simply file output
@@ -87,14 +90,19 @@ public:
   friend class WiredController;
   friend class PlotOptionEngine;
 
-  PlotOption(){ mode=NoPlot; whichSensors=Controller; interval=1; pipe=0; parameter="";}
-  PlotOption( PlotMode mode, PlotSensors whichSensors = Controller,
-              int interval = 1,
-              std::list<const Configurable*> confs = std::list<const Configurable*>(),
-              std::string parameter="")
-    : interval(interval), mode(mode), whichSensors(whichSensors),
-    configureables(confs), parameter(parameter), namesPlotted(false)
-    { pipe=0; }
+  PlotOption(){ mode=NoPlot; interval=1; pipe=0; parameter="";}
+  /**
+     creates a new plotting object 
+     @param mode output type @see PlotMode
+     @param interval every i-th step is plotted
+     @param parameter free parameters for plotting tool
+     Note: the argument whichSensor is removed. You can adjust this in the wirings now.
+   */
+  PlotOption( PlotMode mode, int interval = 1, std::string parameter="")
+    : interval(interval), mode(mode), parameter(parameter)
+  { 
+    pipe=0; 
+  }
 
   virtual ~PlotOption(){}
 
@@ -124,10 +132,7 @@ public:
 private:
 
   PlotMode mode;
-  PlotSensors whichSensors;
-  std::list< const Configurable* > configureables;
   std::string parameter; ///< additional parameter for external command
-  bool namesPlotted;
 };
 
 #endif /* PLOTOPTION_H_ */
