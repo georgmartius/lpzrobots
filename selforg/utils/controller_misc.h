@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-05-30 11:58:27  martius
+ *   Revision 1.10  2009-08-05 22:48:27  martius
+ *   changed many function for mapP to a normal double parameter
+ *
+ *   Revision 1.9  2008/05/30 11:58:27  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.8  2008/05/07 16:45:52  martius
@@ -169,8 +172,8 @@ inline T clip(T x, T lobound, T highbound) {
 /// calculates 1/x
 double one_over(double x);
 
-/// returns c as a double (useful for Matrix::mapP to fill matrix with constant value)
-double constant(void* c, double);
+/// returns c (useful for Matrix::mapP to fill matrix with constant value)
+double constant(double c, double);
 
 /// creates random number from -1 to 1
 double random_minusone_to_one(double);
@@ -179,8 +182,8 @@ double random_minusone_to_one(double);
 //  using the RandGen* which is give as a void pointer (Matrix::mapP)
 double random_minusone_to_one(void *, double);
 
-/// clipping function for mapP
-double clip(void* r,double);
+/// clipping function to the interval [-r, r] (for use with mapP)
+double clip(double r,double);
 
 /// cutof function for mapP
 double lowercutof(void* theta, double);
@@ -192,7 +195,7 @@ double toBinaryWithProbability(void* r,double x);
 double toBinaryWithThreshold(double x, double threshold);
 
 /// plus function for mapP
-double plus_(void* b, double a);
+double plus_(double b, double a);
 
 
 /** stores at least left top 4x4 submatrix (row-wise) (if exists) and

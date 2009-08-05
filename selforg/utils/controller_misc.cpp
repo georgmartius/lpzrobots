@@ -10,8 +10,8 @@ double one_over(double x){
   return 1/x;
 }
 
-double constant(void* c, double){
-  return *((double*) c);
+double constant(double c, double){
+  return c;
 }
 
 // creates random number from -1 to 1
@@ -27,13 +27,12 @@ double random_minusone_to_one(void* r, double){
 }
 
 /// clipping function for mapP
-double clip(void* r,double x){
-  double range = *(double*)r;
-  return clip(x,-range,range);
+double clip(double r,double x){  
+  return clip(x,-r,r);
 }
 
 double lowercutof(void* theta, double x){
-  return x < *((double*)theta) ? 0 : x;
+  return x < *(double*)(theta) ? 0 : x;
 }
 
 double toBinaryWithProbability(void* r,double x){
@@ -47,8 +46,8 @@ double toBinaryWithThreshold(double x, double threshold){
 }
 
 
-double plus_(void* b, double a){
-  return a + *((double*)b);
+double plus_(double b, double a){
+  return a + b;
 }
 
 
