@@ -23,7 +23,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-08-05 08:36:22  guettler
+ *   Revision 1.4  2009-08-05 22:47:33  martius
+ *   added support for integer variables and
+ *    proper display for bool and int
+ *
+ *   Revision 1.3  2009/08/05 08:36:22  guettler
  *   added support for boolean variables
  *
  *   Revision 1.2  2009/03/27 06:16:57  guettler
@@ -121,6 +125,73 @@ bool Configurable::restoreCfg(const char* filenamestem){
   return true;
 }
 
+
+Configurable::paramval Configurable::getParam(const paramkey& key) const {  
+  parammap::const_iterator it = mapOfValues.find(key);
+  if (it != mapOfValues.end()) {
+    return *((*it).second);
+  } else {
+    // now try to find in map for int values
+    paramintmap::const_iterator intit = mapOfInteger.find(key);
+    if (intit != mapOfInteger.end()) {
+      return (paramval)*((*intit).second);
+      
+    } else { 
+      // now try to find in map for boolean values
+      paramboolmap::const_iterator boolit = mapOfBoolean.find(key);
+      if (boolit != mapOfBoolean.end()) {
+	return (paramval)*((*boolit).second);
+      } else {
+	std::cerr << name << ": " << __FUNCTION__ << ": parameter " << key << " unknown\n";
+	return 0;
+      }
+    }
+  }
+}
+
+bool Configurable::setParam(const paramkey& key, paramval val) {
+  parammap::const_iterator it = mapOfValues.find(key);
+  if (it != mapOfValues.end()) {
+    *(mapOfValues[key]) = val;
+    return true;
+  } else{
+    // now try to find in map for boolean values
+    paramintmap::const_iterator intit = mapOfInteger.find(key);
+    if (intit != mapOfInteger.end()) {
+      *(mapOfInteger[key]) = (int)val;
+      return true;
+    } else {
+      // now try to find in map for boolean values
+      paramboolmap::const_iterator boolit = mapOfBoolean.find(key);
+      if (boolit != mapOfBoolean.end()) {
+	*(mapOfBoolean[key]) = val!=0?true:false;
+	return true;
+      } else
+	return false; // fprintf(stderr, "%s:parameter %s unknown\n", __FUNCTION__, key);
+    }
+  }
+}
+
+
+std::list<Configurable::paramkey> Configurable::getAllParamNames(){
+  std::list<paramkey> l;
+  FOREACHC(parammap, mapOfValues, i) {
+     l += (*i).first;
+  }
+  FOREACHC(paramintmap, mapOfInteger, i) {
+    l += (*i).first;
+  }
+  FOREACHC(paramboolmap, mapOfBoolean, i) {
+    l += (*i).first;
+  }
+  // add custom parameters stuff (which is marked by a * at the end of the line)
+  paramlist list = getParamList(); 
+  FOREACHC(paramlist, list, i) {
+    l += (*i).first;
+  }
+  return l;
+}
+
 void Configurable::print(FILE* f, const char* prefix) const {
   const char* pre = prefix==0 ? "": prefix;    
   const unsigned short spacelength=20;
@@ -134,10 +205,16 @@ void Configurable::print(FILE* f, const char* prefix) const {
     fprintf(f, "%s %s=%s%11.6f\n", pre, k.c_str(), 
 	    spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
   }
+  // use map of int
+  FOREACHC(paramintmap, mapOfInteger, i) {
+    const string& k = (*i).first;
+    fprintf(f, "%s %s=%s%4i\n", pre, k.c_str(),
+      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+  }
   // use map of boolean
   FOREACHC(paramboolmap, mapOfBoolean, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%11.6f\n", pre, k.c_str(),
+    fprintf(f, "%s %s=%s%4i\n", pre, k.c_str(),
       spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
   }
   // add custom parameters stuff (which is marked by a * at the end of the line)

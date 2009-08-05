@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-08-05 08:36:22  guettler
+ *   Revision 1.8  2009-08-05 22:47:10  martius
+ *   added support for integer variables and
+ *    proper display for bool and int
+ *
+ *   Revision 1.7  2009/08/05 08:36:22  guettler
  *   added support for boolean variables
  *
  *   Revision 1.6  2009/03/27 06:16:57  guettler
@@ -149,10 +153,15 @@ class Configurable
     typedef std::list<std::pair<paramkey, paramval> > paramlist;
     typedef std::map<paramkey, paramval*> parammap;
 
-    // new params of type bool
+    // params of type bool
     typedef bool parambool;
     typedef std::list<std::pair<paramkey, parambool> > paramboollist;
     typedef std::map<paramkey, parambool*> paramboolmap;
+
+    // params of type int
+    typedef int paramint;
+    typedef std::list<std::pair<paramkey, paramint> > paramintlist;
+    typedef std::map<paramkey, paramint*> paramintmap;
 
     /// nice predicate function for finding by ID
     struct matchId : public std::unary_function<Configurable*, bool>
@@ -178,89 +187,63 @@ class Configurable
     {
       id = rand();
     }
+
+//   Configurable(const Configurable& copy)
+//     :id(copy.id), name(copy.name), revision(revision), 
+//      mapOfValues(mapOfValues), mapOfBoolean(mapOfBoolean), mapOfInteger(mapOfInteger)
+//   {  
+//   }
+  
+
     virtual ~Configurable()
     {
     }
 
     /// return the id of the configurable objects, which is created by random on initialisation
-    int getId() const
-    {
+    int getId() const {
       return id;
     }
 
     /// return the name of the object
-    virtual paramkey getName() const
-    {
+    virtual paramkey getName() const {
       return name;
     }
 
     /// returns the revision of the object
-    virtual paramkey getRevision() const
-    {
+    virtual paramkey getRevision() const {
       return revision;
     }
 
     /// stes the name of the object
-    virtual void setName(const paramkey& name)
-    {
+    virtual void setName(const paramkey& name){
       this->name = name;
     }
     /// sets the revision Hint: {  return "$ID$"; }
-    virtual void setRevision(const paramkey& revision)
-    {
+    virtual void setRevision(const paramkey& revision) {
       this->revision = revision;
     }
 
     /** returns the value of the requested parameter
      or 0 (+ error message to stderr) if unknown.
      */
-    virtual paramval getParam(const paramkey& key) const
-    {
-      parammap::const_iterator it = mapOfValues.find(key);
-      if (it != mapOfValues.end())
-      {
-        return *((*it).second);
-      }
-      // now try to find in map for boolean values
-      paramboolmap::const_iterator boolit = mapOfBoolean.find(key);
-      if (boolit != mapOfBoolean.end())
-      {
-        return (paramval)*((*boolit).second);
-      } else
-      {
-        std::cerr << name << ": " << __FUNCTION__ << ": parameter " << key << " unknown\n";
-        return 0;
-      }
-    }
+    virtual paramval getParam(const paramkey& key) const;
 
     /** sets the value of the given parameter
      or does nothing if unknown.
      */
-    virtual bool setParam(const paramkey& key, paramval val)
-    {
-      parammap::const_iterator it = mapOfValues.find(key);
-      if (it != mapOfValues.end())
-      {
-        *(mapOfValues[key]) = val;
-        return true;
-      }
-      // now try to find in map for boolean values
-      paramboolmap::const_iterator boolit = mapOfBoolean.find(key);
-      if (boolit != mapOfBoolean.end())
-      {
-        *(mapOfBoolean[key]) = val!=0?true:false;
-        return true;
-      } else
-        return false; // fprintf(stderr, "%s:parameter %s unknown\n", __FUNCTION__, key);
-    }
+    virtual bool setParam(const paramkey& key, paramval val);
 
     /** The list of all parameters with there value as allocated lists.
+	Note that these are only parameters that are managed manually (with setParam, getParam)
+	@see getAllParamNames()	
      @return list of key-value pairs
      */
-    virtual paramlist getParamList() const
-    {
+    virtual paramlist getParamList() const {
       return paramlist(); // return an empty list
     }
+
+    /// returns all names that are configureable
+    virtual std::list<paramkey> getAllParamNames();
 
     /**
      This is the new style for adding configurable parameters. Just call this function
@@ -268,30 +251,31 @@ class Configurable
      If you need to do some special treatment for setting (or getting) of the parameter
      you can handle this by overloading getParam and setParam
      */
-    virtual void addParameter(const paramkey& key, paramval* val)
-    {
+    virtual void addParameter(const paramkey& key, paramval* val) {
       mapOfValues[key] = val;
+    }
+
+    /**
+     See addParameter(const paramkey& key, paramval* val) but for bool values
+     */
+    virtual void addParameter(const paramkey& key, parambool* val) {
+      mapOfBoolean[key] = val;
+    }
+
+    /**
+     See addParameter(const paramkey& key, paramval* val) but for int values
+     */
+    virtual void addParameter(const paramkey& key, paramint* val) {
+      mapOfInteger[key] = val;
     }
 
     /**
      This function is only provided for convenience. It does the same as addParameter but set the
      variable to the default value
      */
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def)
-    {
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def){
       *val = def;
       mapOfValues[key] = val;
-    }
-
-    /**
-     This is the new style for adding configurable parameters. Just call this function
-     for each parameter and you are done.
-     future release - If you need to do some special treatment for setting (or getting) of the parameter
-     you can handle this by overloading getParam and setParam
-     */
-    virtual void addParameter(const paramkey& key, parambool* val)
-    {
-      mapOfBoolean[key] = val;
     }
 
     /**
@@ -302,6 +286,15 @@ class Configurable
     {
       *val = def;
       mapOfBoolean[key] = val;
+    }
+    /**
+     This function is only provided for convenience. It does the same as addParameter but set the
+     variable to the default value
+     */
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def)
+    {
+      *val = def;
+      mapOfInteger[key] = val;
     }
 
     /** This is a utility function for inserting the filename and the revision number
@@ -329,6 +322,7 @@ class Configurable
 
     parammap mapOfValues;
     paramboolmap mapOfBoolean;
+    paramintmap mapOfInteger;
 };
 
 #endif // __CONFIGURABLE_H
