@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-08-05 08:19:53  martius
+ *   Revision 1.9  2009-08-05 22:49:24  martius
+ *   removed AVR stuff
+ *
+ *   Revision 1.8  2009/08/05 08:19:53  martius
  *   addInspectableMatrix allows to specify optionally whether all or only 4x4+Diagonal is used
  *
  *   Revision 1.7  2009/07/15 13:01:15  robot12
@@ -61,8 +64,6 @@ Inspectable::~Inspectable(){}
 
 Inspectable::Inspectable() {}
 
-
-#ifndef AVR
 
 Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
   iparamkeylist keylist;
@@ -123,34 +124,5 @@ void Inspectable::addInspectableValue(const iparamkey key, iparamval* val) {
 void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag) {
   mapOfMatrices+=imatrixpair(key, std::pair<matrix::Matrix*, bool>(m, only4x4AndDiag) );
 }
-
-#else
-
-// TODO: implement 4x4store functions for matrices, but not essential (simply do not use them for avr controllers)
-
-Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
-	return ikeylist;
-}
-
-
-Inspectable::iparamvallist Inspectable::getInternalParams() const {
-	return ivallist;
-}
-
-
-// TODO: implement getStructuralLayers and getStructuralConnections
-
-void Inspectable::addInspectableValue(const iparamkey key, iparamval* val){
-	if (numberParameters<maxNumberEntries) {
-		ikeylist[numberParameters]=key;
-		ivallist[numberParameters]=val;
-	}
-}
-
-// TODO: implement addInspectableMatrix
-void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag) {}
-
-
-#endif
 
 
