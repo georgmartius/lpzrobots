@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-07-21 09:10:22  robot12
+ *   Revision 1.14  2009-08-05 22:57:09  martius
+ *   use new plotoptionsengine entirely
+ *   wirings provide the sensor and motors such that the entire
+ *    old functionality (and more) is now available with through
+ *    the separat plotoptionsengine.
+ *
+ *   Revision 1.13  2009/07/21 09:10:22  robot12
  *   add some comments
  *
  *   Revision 1.12  2009/06/02 09:55:24  robot12
@@ -87,14 +93,14 @@
 
 using namespace std;
 
-WiredController::WiredController(const PlotOption& plotOption, double noisefactor) : PlotOptionEngine(plotOption) {
+WiredController::WiredController(const PlotOption& plotOption, double noisefactor) 
+  : noisefactor(noisefactor), plotEngine(plotOption) {
   internInit();
-  this->noisefactor = noisefactor;
 }
 
 
 WiredController::WiredController(const std::list<PlotOption>& plotOptions, double noisefactor)
-  : PlotOptionEngine(plotOptions), noisefactor(noisefactor) {
+  : noisefactor(noisefactor), plotEngine(plotOptions) {
   internInit();
 }
 
@@ -105,6 +111,7 @@ void WiredController::internInit(){
   cmotors=0;
   csensors=0;
 
+  t=1;
   initialised = false;
 }
 
@@ -132,78 +139,40 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
   csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
   cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
 
-  inspectables.push_back(controller);
-  inspectables.push_back(wiring);
 
-  // copy plotoption list and add it one by one
-  list<PlotOption> po_copy(plotOptions);
-  // open the all outputs
-  for(list<PlotOption>::iterator i=po_copy.begin(); i != po_copy.end(); i++){
-    removePlotOption((*i).getPlotOptionMode());
-    addPlotOption(*i);
-  }
+  plotEngine.addInspectable(this);
+  plotEngine.addInspectable(wiring);
+  plotEngine.addInspectable(controller); 
+
+  plotEngine.addConfigurable(controller);
+  Configurable* c_wiring = dynamic_cast<Configurable*>(wiring);
+  if(c_wiring) plotEngine.addConfigurable(c_wiring);
+  
+  plotEngine.init();
+
   initialised = true;
   return true;
 }
 
 PlotOption WiredController::addPlotOption(PlotOption& plotOption) {
-  PlotOption po = plotOption;
-  // if plotoption with the same mode exists -> delete it
-  removePlotOption(po.mode);
-
-  // this prevents the simulation to terminate if the child  closes
-  // or if we fail to open it.
-  signal(SIGPIPE,SIG_IGN);
-  po.open();
-  if(po.pipe){
-    // print start
-    time_t t = time(0);
-    fprintf(po.pipe,"# Start %s", ctime(&t));
-    // print network description given by the structural information of the controller
-    printNetworkDescription(po.pipe, "Selforg"/*controller->getName()*/, controller);
-    // print interval
-    fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
-    // print all configureables
-    for(list<const Configurable*>::iterator i = po.configureables.begin(); i!= po.configureables.end(); i++){
-      (*i)->print(po.pipe, "# ");
-    }
-    // print all parameters of the wiring if configurable
-    Configurable* c = dynamic_cast<Configurable*>(wiring);
-    if(c) c->print(po.pipe, "# ");
-    // print all parameters of the controller
-    controller->print(po.pipe, "# ");
-    // print head line with all parameter names
-    unsigned int snum = plotOption.whichSensors == Robot ? rsensornumber : csensornumber;
-    printInternalParameterNames(po.pipe, snum, cmotornumber, inspectables);
-  }
-  else
-    printf("Opening of pipe for PlotOption failed!\n");
-
-  plotOptions.push_back(po);
-
-  return po;
+  return plotEngine.addPlotOption(plotOption); 
 }
 
-// bool WiredController::removePlotOption(PlotMode mode) {
-//   // if plotoption with the same mode exists -> delete it
-//
-//   list<PlotOption>::iterator po
-//     = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
-// //   FOREACH (list<PlotOption>, plotOptions, po) {
-// //     if(po != plotOptions.end()) {
-// //         std::cout << "CLOSING now pipes......................." << std::endl;
-// //         PlotOption p_tmp = (*po);
-// //         std::cout << "p_tmp.mode "<< p_tmp.mode << " == " << mode << "???????????????" << std::endl;
-// //         if (p_tmp.mode == mode) {
-// //            (*po).close();
-// //             plotOptions.erase(po);
-// //         return true;
-// //         }
-// //       }
-// //   }
-//   return false;
-// }
+bool WiredController::removePlotOption(PlotMode mode){
+  return plotEngine.removePlotOption(mode); 
+}
 
+void WiredController::addInspectable(const Inspectable* inspectable){  
+  plotEngine.addInspectable(inspectable);
+}
+
+void WiredController::addConfigurable(const Configurable* c){
+  plotEngine.addConfigurable(c);
+}
+
+void WiredController::writePlotComment(const char* cmt){
+  plotEngine.writePlotComment(cmt);
+}
 
 
 // Plots controller sensor- and motorvalues and internal controller parameters.
@@ -211,22 +180,7 @@ void WiredController::plot(const sensor* rx, int rsensornumber,
 			   const sensor* cx, int csensornumber,
 			   const motor* y, int motornumber, double time){
   assert(controller && rx && cx && y);
-
-  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    if( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) ){
-
-      if((*i).whichSensors == Robot){
-		printInternalParameters((*i).pipe, time, rx, rsensornumber, y, motornumber, inspectables);
-      }else{
-		printInternalParameters((*i).pipe, time, cx, csensornumber, y, motornumber, inspectables);
-      }
-      (*i).flush(t);
-    } // else {
-    /*if (!(*i).pipe) { // if pipe is closed
-      std::cout << "pipe is closed!" << std::endl;
-           }
-    */
-  }
+  plotEngine.plot(time);
 };
 
 

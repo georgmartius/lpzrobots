@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2009-03-25 11:55:32  robot1
+ *   Revision 1.25  2009-08-05 22:57:09  martius
+ *   use new plotoptionsengine entirely
+ *   wirings provide the sensor and motors such that the entire
+ *    old functionality (and more) is now available with through
+ *    the separat plotoptionsengine.
+ *
+ *   Revision 1.24  2009/03/25 11:55:32  robot1
  *   changed minor handling of PlotOptions
  *
  *   Revision 1.23  2008/09/16 15:36:25  martius
@@ -228,21 +234,15 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
   rsensors      = (sensor*) malloc(sizeof(sensor) * rsensornumber);
   rmotors       = (motor*)  malloc(sizeof(motor)  * rmotornumber);
   
-  // add robot to inspectables
+  // add robot to inspectables  
   Inspectable* in = dynamic_cast<Inspectable*>(robot);
-  if(in) inspectables.push_back(in);
+  if(in) addInspectable(in); 
+  plotEngine.addConfigurable(robot);
+  plotEngine.setName(robot->getName());
   
   return WiredController::init(controller,wiring, rsensornumber, rmotornumber, &randGen);
 }
 
-PlotOption Agent::addPlotOption(PlotOption& plotOption) {
-  PlotOption po = plotOption;
-  if(robot) {
-    po.addConfigurable(robot);
-    po.setName(robot->getName());
-  }
-  return WiredController::addPlotOption(po);
-}
 
 void Agent::step(double noise, double time){
   assert(robot && rsensors && rmotors);

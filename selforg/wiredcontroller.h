@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-07-21 09:10:22  robot12
+ *   Revision 1.11  2009-08-05 22:57:09  martius
+ *   use new plotoptionsengine entirely
+ *   wirings provide the sensor and motors such that the entire
+ *    old functionality (and more) is now available with through
+ *    the separat plotoptionsengine.
+ *
+ *   Revision 1.10  2009/07/21 09:10:22  robot12
  *   add some comments
  *
  *   Revision 1.9  2009/06/02 09:55:24  robot12
@@ -72,20 +78,19 @@
 #define   	WIREDCONTROLLER_H_
 
 #include "plotoptionengine.h"
+#include "types.h"
+#include "inspectable.h"
+#include "randomgenerator.h"
 
 #include <stdio.h>
 #include <list>
 #include <utility>
 #include <string>
 
-#include "types.h"
-#include "randomgenerator.h"
-
 
 class AbstractController;
 class AbstractWiring;
 class Configurable;
-class Inspectable;
 class Callbackable;
 class WiredController;
 
@@ -98,7 +103,7 @@ class WiredController;
      however you can write the data into a file or send it to
      visualisation tools like guilogger or neuronviz.
  */
-class WiredController : public PlotOptionEngine{
+class WiredController : public Inspectable {
 public:
   /** constructor. PlotOption as output setting.
       noisefactor is used to set the relative noise strength of this agent
@@ -141,6 +146,23 @@ public:
       If a plotoption with the same Mode exists, then the old one is deleted first
    */
   virtual PlotOption addPlotOption(PlotOption& plotoption);
+
+  /** removes the PlotOptions with the given type
+      @return true if sucessful, false otherwise
+   */
+  virtual bool removePlotOption(PlotMode mode);
+
+  /** adds an inspectable object for logging. Must be called before init!
+   */
+  virtual void addInspectable(const Inspectable* inspectable);
+
+  /** adds an configureable object for logging. Must be called before init!
+   */
+  virtual void addConfigurable(const Configurable* c);
+  /**
+     write comment to output streams (PlotOptions). For instance changes in parameters.
+  */
+  virtual void writePlotComment(const char* cmt);
 
   /** Returns a pointer to the controller.
    */
@@ -191,9 +213,13 @@ protected:
   void internInit();
 
  protected:
+  PlotOptionEngine plotEngine;
+
   bool initialised;
 
   std::list<Callbackable* > callbackables;
+
+  long int t;
 
 };
 

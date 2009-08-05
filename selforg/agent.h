@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2009-03-25 11:55:32  robot1
+ *   Revision 1.21  2009-08-05 22:57:09  martius
+ *   use new plotoptionsengine entirely
+ *   wirings provide the sensor and motors such that the entire
+ *    old functionality (and more) is now available with through
+ *    the separat plotoptionsengine.
+ *
+ *   Revision 1.20  2009/03/25 11:55:32  robot1
  *   changed minor handling of PlotOptions
  *
  *   Revision 1.19  2008/04/17 14:54:01  martius
@@ -209,12 +215,6 @@ public:
 
   /// sets the trackoptions which enable tracking of a robot
   virtual void setTrackOptions(const TrackRobot& trackrobot);
-
-  /** adds the PlotOptions to the list of plotoptions
-      If a plotoption with the same Mode exists, then the old one is
-      deleted first (overwritten from WiredController, to add robot)
-   */
-  virtual PlotOption addPlotOption(PlotOption& plotoption);
 
 protected:
 
