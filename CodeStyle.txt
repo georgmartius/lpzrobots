@@ -1,0 +1,22 @@
+
+Coding style:
+
+1) Indentation: 2 Spaces. No tabs! (replace tab by 2 spaces)
+2) Blocks: } in the same line as
+  if(...) {
+    for(..;..;..){
+    
+    }
+  }
+
+3) if or for with only one command. Avoid putting it in one line
+   if(...)
+     cmd1
+   else
+     cmd2
+
+4) Constructors
+  Class1(...,...) 
+    : SuperClass(...), members(...) {
+
+  }
