@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.104  2009-08-07 09:26:56  martius
+ *   Revision 1.105  2009-08-07 13:31:04  martius
+ *   call of makePhyiscalScene to actually have a
+ *    ground plane when using nographics (was a BUG since change of noGraphics in osgData)
+ *   sim_steps moved to globaldata
+ *   duplicated code to check for simulation end reduced. (Still needs a fix, see comment)
+ *
+ *   Revision 1.104  2009/08/07 09:26:56  martius
  *   plotoptions and globalconfigurables are now in globaldata
  *
  *   Revision 1.103  2009/08/05 23:22:32  martius
@@ -606,8 +612,7 @@ namespace lpzrobots {
     //     nextLeakAnnounce = 20;
     //     leakAnnCounter = 1;
 
-    truerealtimefactor = 1;
-    sim_step = 0;
+    truerealtimefactor = 1;    
     state    = none;
     pause    = false;
     noGraphics=false;
@@ -805,12 +810,12 @@ namespace lpzrobots {
 
     osgHandle.color = Color(1,1,1,1);
 
-    if (!noGraphics)
-    {
+    makePhysicsScene();
+    if (!noGraphics) {
       osgHandle.scene=makeScene();
       if (!osgHandle.scene)
-        return false;
-
+	return false;
+    
       osgHandle.normalState = new StateSet();
       osgHandle.normalState->ref();
 
@@ -894,38 +899,22 @@ namespace lpzrobots {
       }
     }
 
-    if(!noGraphics) {
-      while ( (!viewer->done()) && (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
-        if (simulation_time_reached)
+    // TODO: clean the restart thing! Make it independent of drawinterval!
+    while ( ( noGraphics || !viewer->done()) && 
+	    (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
+      if (simulation_time_reached)
         {
-          printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n", (sim_step/6000), sim_step, currentCycle);
+          printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n", 
+		 (globalData.sim_step/6000), globalData.sim_step, currentCycle);
           // start a new cycle, set timer to 0 and so on...
           simulation_time_reached = false;
           globalData.time = 0;
-          sim_step=0;
+          globalData.sim_step=0;
           this->currentCycle++;
           resetSyncTimer();
         }
-        if(!loop())
-          break;
-      }
-    } else {
-      while ( !simulation_time_reached || restart(odeHandle,osgHandle,globalData)) {
-        {
-          if (simulation_time_reached)
-          {
-            printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n", (sim_step/6000), sim_step, currentCycle);
-            // start a new cycle, set timer to 0 and so on...
-            simulation_time_reached = false;
-            globalData.time = 0;
-            sim_step=0;
-            this->currentCycle++;
-            resetSyncTimer();
-          }
-        }
-        if(!loop())
-          break;
-      }
+      if(!loop())
+	break;
     }
     if(useOdeThread!=0) pthread_join (odeThread, NULL);
     if(useOsgThread!=0) pthread_join (osgThread, NULL);
@@ -959,16 +948,16 @@ namespace lpzrobots {
       if (!pause) {
 	// increase time
 	globalData.time += globalData.odeConfig.simStepSize;
-	sim_step++;
+	globalData.sim_step++;
 	// print simulation time every 10 min.
 	if(noGraphics &&
-	   sim_step % long(600.0/globalData.odeConfig.simStepSize) ==0) {
+	   globalData.sim_step % long(600.0/globalData.odeConfig.simStepSize) ==0) {
 	  printf("Simulation time: %li min\n",
-		 sim_step/ long(60/globalData.odeConfig.simStepSize));
+		 globalData.sim_step/ long(60/globalData.odeConfig.simStepSize));
 	}
 	// finish simulation, if intended simulation time is reached
 	if(simulation_time!=-1) { // check time only if activated
-	  if( (sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
+	  if( (globalData.sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
 	    if (!simulation_time_reached) { // print out once only
 	      printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
 	    }
@@ -980,7 +969,7 @@ namespace lpzrobots {
 // 	SEQUENCIAL VERSION
 // 	// for all agents: robots internal stuff and control step if at controlInterval
 // 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-// 	  if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
+// 	  if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
 // 	    (*i)->step(globalData.odeConfig.noise, globalData.time);
 // 	    (*i)->getRobot()->doInternalStuff(globalData);
 // 	  } else {
@@ -989,7 +978,7 @@ namespace lpzrobots {
 // 	}
 
 // 	PARALLEL VERSION
-	if ( (sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
+	if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
 	  QP(PROFILER.beginBlock("controller                   "));
 	  QMP_SHARE(globalData);
 	  // there is a problem with the useOdeThread in the loop (not static)
@@ -1029,7 +1018,7 @@ namespace lpzrobots {
 	  (*i)->getRobot()->doInternalStuff(globalData);
 	}
 	addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
-		    (sim_step % globalData.odeConfig.controlInterval ) == 0);
+		    (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0);
 	QP(PROFILER.endBlock("internalstuff_and_addcallback"));
 
 	// manipulate agents (with mouse)
@@ -1315,8 +1304,8 @@ namespace lpzrobots {
     QP(cout << endl << PROFILER.getSummary(quickprof::MILLISECONDS) << endl);
     QP(float timeSinceInit=PROFILER.getTimeSinceInit(quickprof::MILLISECONDS));
     QP(cout << endl << "total sum:      " << timeSinceInit << " ms"<< endl);
-    QP(cout << "steps/s:        " << (((float)sim_step)/timeSinceInit * 1000.0) << endl);
-    QP(cout << "realtimefactor: " << (((float)sim_step)/timeSinceInit * 10.0) << endl);
+    QP(cout << "steps/s:        " << (((float)globalData.sim_step)/timeSinceInit * 1000.0) << endl);
+    QP(cout << "realtimefactor: " << (((float)globalData.sim_step)/timeSinceInit * 10.0) << endl);
 
     // clear obstacles list
     for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++) {
@@ -1446,8 +1435,7 @@ namespace lpzrobots {
 
     noGraphics = contains(argv, argc, "-nographics")!=0;
     // inform osg relevant stuff that no graphics is used
-    if (noGraphics)
-      osgHandle.noGraphics=true;
+    osgHandle.noGraphics=noGraphics;
     pause = contains(argv, argc, "-pause")!=0;
 
     index = contains(argv, argc, "-shadow");
