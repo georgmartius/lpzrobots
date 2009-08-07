@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-05 23:25:23  martius
+ *   Revision 1.2  2009-08-07 14:39:52  martius
+ *   guidance of SO with Cross Motor Couplings
+ *
+ *   Revision 1.1  2009/08/05 23:25:23  martius
  *   new simulations of Georg
  *
  *
@@ -48,11 +51,12 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-const int segmNum=7;
+const int segmNum=16;
 bool useSym = false;
 double teacher = 0;
 int change = 5;  // every x minutes change direction
 bool track = true;
+int k=2;
 
 
 class ThisSim : public Simulation {
@@ -72,7 +76,7 @@ public:
     setCameraHomePos(Pos(-19.7951, -12.3665, 16.4319),  Pos(-51.7826, -26.772, 0));
 
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("gravity", 0.0); 
+    global.odeConfig.setParam("gravity", -0.1); 
     global.odeConfig.setParam("controlinterval",2);
     //    global.odeConfig.setParam("realtimefactor",4);
 
@@ -89,14 +93,14 @@ public:
     //     conf.jointLimit=conf.jointLimit*3;
     // conf.sensorFactor=5;     unused
 
-    vehicle = new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+    vehicle = new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.9, 0.85, 0.05)),
 				  conf, "Schlange1D_" + std::itos(teacher*10000));
 
     vehicle->place(Pos(0,0,0.1));    
 
-    Primitive* head = vehicle->getMainPrimitive();
-    fixator = new BallJoint(head, global.environment, head->getPosition());
-    fixator->init(odeHandle, osgHandle);
+//     Primitive* head = vehicle->getMainPrimitive();
+//     fixator = new BallJoint(head, global.environment, head->getPosition());
+//     fixator->init(odeHandle, osgHandle);
 
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
@@ -136,21 +140,31 @@ public:
     global.agents.push_back(agent);
     global.configs.push_back(controller);
     global.configs.push_back(vehicle);
+
+    if(useSym){
+      std::list<int> perm;
+      int len  = controller->getMotorNumber();
+      for(int i=0; i<len; i++){
+	perm.push_back((i+k)%len);
+      }
+      CMC cmc = controller->getPermutationCMC(perm);
+      controller->setCMC(cmc);
+    }
       
     showParams(global.configs);
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-    if(control && controller)
-      if(useSym){
-	int k= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every 10 minutes
-	std::list<int> perm;
-	int len  = controller->getMotorNumber();
-	for(int i=0; i<len; i++){
- 	  perm.push_back((i+k+(len)/2)%len);
-	}
-	CMC cmc = controller->getPermutationCMC(perm);
-	controller->setCMC(cmc);
+//     if(control && controller) {
+//       if(useSym){
+// 	int k= int(globalData.time/(change*60))%4+1; //  == 0 ? 0 : 1; // turn around every 10 minutes
+// 	std::list<int> perm;
+// 	int len  = controller->getMotorNumber();
+// 	for(int i=0; i<len; i++){
+//  	  perm.push_back((i+k)%len);
+// 	}
+// 	CMC cmc = controller->getPermutationCMC(perm);
+// 	controller->setCMC(cmc);
 
 // 	matrix::Matrix m = controller->getLastMotorValues();	
 // 	teaching = m;
@@ -163,8 +177,7 @@ public:
 // 	}
 // 	controller->setMotorTeaching(teaching);
 //       }
-
-    }
+//    }
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
@@ -179,8 +192,27 @@ public:
 	fixator=0 ;	
 	handled = true; 
 	break;
+      case 'i':
+	k++;
+	std::cout << "connection: " << k << std::endl;
+	handled = true; 
+	break;
+      case 'k':
+	k = max(0,k-1);
+	std::cout << "connection: " << k << std::endl;
+	handled = true; 
+	break;
       }
     fflush(stdout);
+
+    std::list<int> perm;
+    int len  = controller->getMotorNumber();
+    for(int i=0; i<len; i++){
+      perm.push_back((i+k)%len);
+    }
+    CMC cmc = controller->getPermutationCMC(perm);
+    controller->setCMC(cmc);
+
     return handled;
   }
 
