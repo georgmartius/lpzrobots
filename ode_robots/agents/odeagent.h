@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-03-27 13:55:06  martius
+ *   Revision 1.10  2009-08-07 09:27:58  martius
+ *   additional constructor with globaldata
+ *
+ *   Revision 1.9  2009/03/27 13:55:06  martius
  *   traceing in a extra function
  *
  *   Revision 1.8  2008/04/18 09:50:24  guettler
@@ -80,6 +83,7 @@
 
 namespace lpzrobots {
 
+  
   /** Specialised agent for ode robots
    */
   class OdeAgent : public Agent {
@@ -90,6 +94,7 @@ namespace lpzrobots {
       : Agent(plotOption, noisefactor) { tracing_initialized=false; }
     OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1)
       : Agent(plotOptions, noisefactor) {tracing_initialized=false;}
+    OdeAgent(const GlobalData& globalData, double noisefactor = 1);
     /** destructor
      */
     virtual ~OdeAgent() {}
