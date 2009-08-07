@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-08-07 09:11:18  martius
+ *   Revision 1.8  2009-08-07 13:31:54  martius
+ *   sim_steps moved here
+ *
+ *   Revision 1.7  2009/08/07 09:11:18  martius
  *   plotoptions and globalconfigurables are now in globaldata
  *
  *   Revision 1.6  2007/11/07 13:27:55  martius
@@ -81,7 +84,8 @@ typedef std::list<PlotOption>      PlotOptionList;
 struct GlobalData
 {
   GlobalData() { 
-    time = 0;
+    time        = 0;
+    sim_step    = 0;
     environment = 0;
   }
 
@@ -97,6 +101,7 @@ struct GlobalData
   std::list<Configurable*> globalconfigurables; ///< global configurables plotted by all agents
 
   double time;
+  long int sim_step; ///< time steps since start
 };
 
 }
