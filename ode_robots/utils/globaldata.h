@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2007-11-07 13:27:55  martius
+ *   Revision 1.7  2009-08-07 09:11:18  martius
+ *   plotoptions and globalconfigurables are now in globaldata
+ *
+ *   Revision 1.6  2007/11/07 13:27:55  martius
  *   sound added
  *
  *   Revision 1.5  2007/03/16 10:56:33  martius
@@ -56,6 +59,7 @@
 #include "odehandle.h"
 #include "odeconfig.h"
 #include "sound.h"
+#include <selforg/plotoption.h>
 
 class Configurable;
 
@@ -66,9 +70,10 @@ class AbstractObstacle;
 class Primitive;
 
 typedef std::vector<AbstractObstacle*> ObstacleList;      
-typedef std::vector<Configurable*> ConfigList;            
+typedef std::vector<Configurable*> ConfigList;
 typedef std::vector<OdeAgent*>     OdeAgentList; 
 typedef std::list<Sound>           SoundList; 
+typedef std::list<PlotOption>      PlotOptionList;
 
 /**
   Data structure holding all essential global information.
@@ -87,6 +92,9 @@ struct GlobalData
   Primitive* environment; /// < this is used to be able to attach objects to the static environment
 
   SoundList sounds;  ///< sound space
+
+  PlotOptionList plotoptions;     ///< plotoptions used for new agents
+  std::list<Configurable*> globalconfigurables; ///< global configurables plotted by all agents
 
   double time;
 };
