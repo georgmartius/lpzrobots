@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-08-05 22:57:09  martius
+ *   Revision 1.15  2009-08-07 09:33:38  martius
+ *   init plotengine with controller
+ *
+ *   Revision 1.14  2009/08/05 22:57:09  martius
  *   use new plotoptionsengine entirely
  *   wirings provide the sensor and motors such that the entire
  *    old functionality (and more) is now available with through
@@ -148,7 +151,7 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
   Configurable* c_wiring = dynamic_cast<Configurable*>(wiring);
   if(c_wiring) plotEngine.addConfigurable(c_wiring);
   
-  plotEngine.init();
+  plotEngine.init(controller);
 
   initialised = true;
   return true;
