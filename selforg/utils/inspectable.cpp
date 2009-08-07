@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-08-05 22:49:24  martius
+ *   Revision 1.10  2009-08-07 09:32:16  martius
+ *   changed order between matrices and params
+ *
+ *   Revision 1.9  2009/08/05 22:49:24  martius
  *   removed AVR stuff
  *
  *   Revision 1.8  2009/08/05 08:19:53  martius
@@ -67,10 +70,7 @@ Inspectable::Inspectable() {}
 
 Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
   iparamkeylist keylist;
-  FOREACHC(iparampairlist, mapOfValues, it){
-    keylist+=(*it).first;
-  }
-  for(imatrixpairlist::const_iterator m=mapOfMatrices.begin(); m != mapOfMatrices.end(); m++){
+  FOREACHC(imatrixpairlist, mapOfMatrices, m){
     if(m->second.first->isVector()){
       keylist+=storeVectorFieldNames(*(m->second.first), m->first);    
     } else {
@@ -80,32 +80,35 @@ Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
 	keylist+=storeMatrixFieldNames(*(m->second.first), m->first);    
     }
   }
+  FOREACHC(iparampairlist, mapOfValues, it){
+    keylist+=(*it).first;
+  }
   return keylist;
 }
 
 
 Inspectable::iparamvallist Inspectable::getInternalParams() const {
   iparamvallist vallist;
-  for(iparampairlist::const_iterator it=mapOfValues.begin(); it != mapOfValues.end(); it++){
-    vallist+=*(it->second);
-  }
-  for(imatrixpairlist::const_iterator m=mapOfMatrices.begin(); m != mapOfMatrices.end(); m++){
+  FOREACHC(imatrixpairlist, mapOfMatrices, m){
     if(m->second.first->isVector() || !m->second.second){    
       vallist+= m->second.first->convertToList();
     } else {
 	vallist+=store4x4AndDiagonal(*(m->second.first));
     }      
   }
+  FOREACHC(iparampairlist, mapOfValues, it){
+    vallist+=*(it->second);
+  }
   return vallist;
 }
 
 Inspectable::iparamvalptrlist Inspectable::getInternalParamsPtr() const {
-	  iparamvalptrlist vallist;
-	  for(iparampairlist::const_iterator it=mapOfValues.begin(); it != mapOfValues.end(); it++){
-	    vallist+=(*it).second;
-	  }
-	  // be carefully matrix will be ignored
-	  return vallist;
+  iparamvalptrlist vallist;
+  FOREACHC(iparampairlist, mapOfValues, it){  
+    vallist+=it->second;
+  }
+  // be carefully matrix will be ignored
+  return vallist;
 }
 
 
