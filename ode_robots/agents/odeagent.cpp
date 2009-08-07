@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-03-27 13:55:20  martius
+ *   Revision 1.11  2009-08-07 09:28:33  martius
+ *   additional constructor with globaldata
+ *   uses globalconfigurables
+ *
+ *   Revision 1.10  2009/03/27 13:55:20  martius
  *   traceing in a extra function (and segments are longer)
  *
  *   Revision 1.9  2008/09/16 14:48:05  martius
@@ -63,11 +67,18 @@
 
 #include "odeagent.h"
 #include "oderobot.h"
+#include "globaldata.h"
 #include "pos.h"
 #include <assert.h>
 
 namespace lpzrobots {
 
+  OdeAgent::OdeAgent(const GlobalData& globalData, double noisefactor)
+    : Agent(globalData.plotoptions, noisefactor) {
+    tracing_initialized=false;
+    FOREACHC(std::list<Configurable*>, globalData.globalconfigurables, c)
+      plotEngine.addConfigurable(*c);
+  }
 
   void OdeAgent::init_tracing(int tracelength,double tracethickness){
     trace_length=tracelength;
