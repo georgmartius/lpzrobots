@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.38  2009-07-30 12:27:34  jhoffmann
+ *   Revision 1.39  2009-08-07 09:26:32  martius
+ *   plotoptions and globalconfigurables are now in globaldata
+ *
+ *   Revision 1.38  2009/07/30 12:27:34  jhoffmann
  *   support for new CameraHandle
  *
  *   Revision 1.37  2009/07/29 14:19:49  jhoffmann
@@ -359,9 +362,9 @@ namespace lpzrobots {
     // plotoptions is a list of possible online output,
     // if the list is empty no online gnuplot windows and no logging to file occurs.
     // The list is modified with commandline options, see run() in simulation.cpp
-    std::list<PlotOption> plotoptions;
-    /// this list contains by default only the odeconfig. This list os passed to the plotoptions.
-    std::list<const Configurable*> globalconfigurables;
+    std::list<PlotOption>& plotoptions; // points now to globaldata.plotoptions
+    /// this list contains by default only the odeconfig. This list should be added to new agents
+    std::list<Configurable*>& globalconfigurables; // points now to globaldata.globalconfigurables
 
 
   private:

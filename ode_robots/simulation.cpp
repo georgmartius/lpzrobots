@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.103  2009-08-05 23:22:32  martius
+ *   Revision 1.104  2009-08-07 09:26:56  martius
+ *   plotoptions and globalconfigurables are now in globaldata
+ *
+ *   Revision 1.103  2009/08/05 23:22:32  martius
  *   changed plotOpion calles
  *
  *   Revision 1.102  2009/08/05 16:15:21  martius
@@ -586,7 +589,10 @@ namespace lpzrobots {
 
   int Simulation::ctrl_C = 0;
 
-  Simulation::Simulation() : Configurable("lpzrobots-ode_robots", "0.4")
+  Simulation::Simulation() 
+    : Configurable("lpzrobots-ode_robots", "0.4"), 
+      plotoptions(globalData.plotoptions),
+      globalconfigurables(globalData.globalconfigurables)
   {
     // default values are set in Base::Base()
     addParameter("Shadow",&shadow);
@@ -856,6 +862,12 @@ namespace lpzrobots {
     setCameraHomePos (Pos(0, -20, 3),  Pos(0, 0, 0));
 
     start(odeHandle, osgHandle, globalData);
+//     // register global configurables with plotEngines
+//     FOREACH (OdeAgentList, globalData.agents, a) {
+//       FOREACH (std::list<const Configurable*>, globalconfigurables, c){
+// 	(*a)->addConfigurable(*c);
+//       }
+//     }
 
     if(!noGraphics) {
       // optimize the scene graph, remove redundant nodes and state etc.
