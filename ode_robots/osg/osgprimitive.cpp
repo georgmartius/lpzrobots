@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-07-30 11:34:15  guettler
+ *   Revision 1.15  2009-08-07 13:25:55  martius
+ *   destructor does not segfault if oject is uninitialized
+ *
+ *   Revision 1.14  2009/07/30 11:34:15  guettler
  *   added check if noGraphics in OsgHandle is set
  *
  *   Revision 1.13  2009/04/26 10:28:16  martius
@@ -185,9 +188,11 @@ namespace lpzrobots {
   }
 
   OSGPrimitive::~OSGPrimitive(){
-    Node::ParentList l = transform->getParents();
-    for(Node::ParentList::iterator i = l.begin(); i != l.end(); i++){
-      (*i)->removeChild(transform.get());  
+    if(transform){
+      Node::ParentList l = transform->getParents();
+      for(Node::ParentList::iterator i = l.begin(); i != l.end(); i++){
+	(*i)->removeChild(transform.get());  
+      }
     }
     textures.clear();
   }
