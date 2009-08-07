@@ -24,7 +24,11 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-08-05 23:23:42  martius
+ *   Revision 1.18  2009-08-07 13:27:18  martius
+ *   makePhysicalScene to create phyiscal scene independent of graphical scene
+ *     (to cope with new noGraphics implementation)
+ *
+ *   Revision 1.17  2009/08/05 23:23:42  martius
  *   corrected coding in "Guettler"
  *
  *   Revision 1.16  2009/07/30 12:09:12  guettler
@@ -156,6 +160,9 @@ namespace lpzrobots {
   public:
     Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Güttler");
 
+    /// create the ground plane
+    virtual void makePhysicsScene(); 
+    /// create the graphics of the sky and floor
     virtual osg::Group* makeScene();
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
@@ -227,6 +234,8 @@ namespace lpzrobots {
     osgText::Text* timestats;
     osgText::Text* captionline;
     osgText::Text* statisticLine;
+
+    Primitive* plane;
 
     /// this manager provides methods for displaying statistics on the graphical window!
     HUDStatisticsManager* hUDStatisticsManager;

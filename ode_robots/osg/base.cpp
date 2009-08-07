@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.32  2009-07-30 12:09:12  guettler
+ *   Revision 1.33  2009-08-07 13:27:46  martius
+ *   makePhysicalScene to create phyiscal scene independent of graphical scene
+ *     (to cope with new noGraphics implementation)
+ *
+ *   Revision 1.32  2009/07/30 12:09:12  guettler
  *   commented out unused variables
  *
  *   Revision 1.31  2009/07/29 14:19:49  jhoffmann
@@ -259,6 +263,7 @@ namespace lpzrobots {
      Base::Base(const std::string& caption)
       : ground(0), caption(caption), groundTexture("Images/greenground.rgb"),
 	hud(0), timestats(0), captionline(0),
+	plane(0),
 	ReceivesShadowTraversalMask(0x1), CastsShadowTraversalMask(0x2),
 	shadow(5), shadowTexSize(2048), useNVidia(1)
     {
@@ -266,9 +271,8 @@ namespace lpzrobots {
 
 
   Base::~Base(){
+    if(plane) delete plane;
     if(ground ){
-      //      Plane* plane = (Plane*) dGeomGetData(ground);
-      //      delete plane;
       dGeomDestroy(ground);
     }
   }
@@ -822,6 +826,18 @@ namespace lpzrobots {
     return geode;
   }
 
+  void Base::makePhysicsScene(){
+    // add ODE Ground here (physical plane)
+    ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
+    dGeomSetCategoryBits(ground,Primitive::Stat);
+    dGeomSetCollideBits(ground,~Primitive::Stat);
+    // assign a dummy primitive to the ground plane to have substance (material) support
+    plane = new Plane();
+    dGeomSetData(ground, (void*)plane);
+    //    std::cout << "GROUND: " << ground << std::endl;
+  }
+
+
   Node* Base::makeGround(){ // the old ground, is NOT used for shadowing!
     float ir = 1000.0f;
     float texscale =0.2;
@@ -900,15 +916,6 @@ namespace lpzrobots {
     Geode *geode = new Geode;
     geode->addDrawable( geom );
     geode->setName( "Ground" );
-
-    // add ODE Ground here (physical plane)
-    ground = dCreatePlane ( odeHandle.space , 0 , 0 , 1 , 0 );
-    dGeomSetCategoryBits(ground,Primitive::Stat);
-    dGeomSetCollideBits(ground,~Primitive::Stat);
-    // assign a dummy primitive to the ground plane to have substance (material) support
-    Plane* plane = new Plane();
-    dGeomSetData(ground, (void*)plane);
-    //    std::cout << "GROUND: " << ground << std::endl;
 
     return geode;
   }
