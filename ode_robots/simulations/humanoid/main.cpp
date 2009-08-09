@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-05-11 17:01:20  martius
+ *   Revision 1.17  2009-08-09 20:19:57  der
+ *   From PC home
+ *
+ *   Revision 1.16  2009/05/11 17:01:20  martius
  *   new velocity servos implemented
  *   reorganized parameters, now also neck and elbows are configurable
  *
@@ -203,13 +206,13 @@ public:
 
     // int plattfuesse = 1; 
      int flatsnakes  = 0;
-    int snakes = 0;
+    int snakes = 1;
     //int sphericalsIR = 0;
     //int sphericalsXYZ = 0;
     //int hurlings = 0;
     //int cigars = 0;
     int wheelies = 0;
-    int humanoids=1;
+    int humanoids=0;
     //    int barrel=0;
     // int dogs = 0; 
 
@@ -218,7 +221,8 @@ public:
     reckturner = false;
     // Playground types
     bool narrow = true; 
-
+    double widthground = 1.3;
+    double heightground = 2.0;
 
     fixator=0;
     reckLeft = reckRight = 0;
@@ -227,12 +231,12 @@ public:
     // initialization
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.setParam("controlinterval",2);//4);
-    global.odeConfig.setParam("noiseY",.0); 
+    global.odeConfig.setParam("controlinterval",3);//4);
+    global.odeConfig.setParam("noiseY",.01); 
     global.odeConfig.setParam("noise",0.02); 
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("simstepsize",0.004);//0.004);
-        global.odeConfig.setParam("gravity", -5);
+        global.odeConfig.setParam("gravity", -6);
     //    global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
@@ -291,22 +295,22 @@ public:
 // //     global.obstacles.push_back(m);
     
    if(narrow){
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(10.0875, 0.08, 1.3975)); 
-     playground->setColor(Color(0.2f,0.2f,0.22f,0.3));
-     playground->setTexture("Images/really_white.rgb");
+     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, .208, heightground)); 
+     playground->setColor(Color(0.2f,0.4f,0.22f,0.1)); 
+     //     playground->setTexture("Images/really_white.rgb");
      playground->setPosition(osg::Vec3(20,20,.1));
      //      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 8.8, 1.3975)); 
-     //      playground->setColor(Color(0.88f,0.4f,0.26f,1));
+       playground->setColor(Color(0.88f,0.4f,0.26f,1));
      playground->setPosition(osg::Vec3(20,20,.1));
      Substance substance;
-     //  substance.toPlastic(10.0);
-     substance.toRubber(10.0);
+     //   substance.toPlastic(90.0);
+       substance.toRubber(5.0);
      //   substance.toMetal(1);
      playground->setGroundSubstance(substance);
      global.obstacles.push_back(playground);
      /*    double xboxes=0.0;
 	   double yboxes=0.0;*/
-     double xboxes=0;//15;//19.0;
+     double xboxes=10;//15;//19.0;
      double yboxes=0;//15;
      double boxdis=.9;//.45;//1.6;
      for (double j=0.0;j<xboxes;j++)
@@ -339,24 +343,25 @@ public:
      //       fixator = new FixedJoint(trunk, global.environment);
      //       fixator->init(odeHandle, osgHandle);
 
-     //     SkeletonConf conf = Skeleton::getDefaultConf();
-     SkeletonConf conf = Skeleton::getDefaultConfVelServos();
+     SkeletonConf conf = Skeleton::getDefaultConf();
+	 // SkeletonConf conf = Skeleton::getDefaultConfVelServos();
       
      conf.massfactor   = 1;
-     conf.relLegmass = 5;
+     conf.relLegmass = 1;
      conf.relFeetmass = 1;
      conf.relArmmass = 1;//1.0;
 
-     conf.useVelocityServos = true;//1.0;
+     conf.useVelocityServos = false;//1.0;/7 If true then use the getDefaultConfVelServos() above
 
 
-     conf.hipJointLimit= 2.6; //!
+     conf.hipJointLimit= 2.2; //!
      conf.kneeJointLimit=2.2;//1.911; //!
-     conf.hip2JointLimit=.9; //!
-     conf.armJointLimit=M_PI/1.2;//2.0; //!
+     conf.hip2JointLimit=.7; //!
+     conf.armJointLimit=1.5;//M_PI/1.5;//2.0; //!
      //       conf.ankleJointLimit=0.001; //!
-     conf.pelvisJointLimit=.5; //!    
+     conf.pelvisJointLimit=.3; //!    
      conf.hipPower=100;
+     conf.backPower=50;
      conf.hip2Power=50;      //5
      conf.pelvisPower=20;
      conf.kneePower= 25;
@@ -386,7 +391,7 @@ public:
        new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
-		  *osg::Matrix::translate(.2*i+20,.2*i+20,.4/*7*/ +2*i));
+		  *osg::Matrix::translate(.2*i+20,.2*i+20,.8/*7*/ +2*i));
      global.configs.push_back(human0);
       
       
@@ -418,7 +423,7 @@ public:
      //           BasicControllerConf cc = BasicController::getDefaultConf();    
      //  AbstractController* controller = new DerLinInvert(cc);
 
-     cc.cInit=  1.0;//1.005;
+     cc.cInit=  .05;//1.005;
   
      vector<Layer> layers;
      layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
@@ -442,26 +447,27 @@ public:
      Elman* sat = new Elman(1, layers,true,true, false);
      cc.sat   = sat;
 
-     cc.useS=false;
+     cc.useS=true;
      AbstractController* controller = new DerLinInvert(cc);
      //  AbstractController* controller = new BasicController(cc);
 	   
 
      //     controller->setParam("adaptrate",0);
      //     controller->setParam("rootE",3);
-     controller->setParam("epsC",0.03);
+     controller->setParam("epsC",0.1);
      controller->setParam("epsSat",0.02);
-     controller->setParam("epsA",0.003);
+     controller->setParam("epsA",0.03);
      controller->setParam("steps",1);
-     controller->setParam("s4avg",10);
-     controller->setParam("s4delay",1);
+     controller->setParam("s4avg",3);
+     controller->setParam("s4delay",2);
      controller->setParam("teacher",0.0);
      controller->setParam("dampC",0.00001);
-     controller->setParam("dampA",0.003);
+     controller->setParam("dampS",0.001);
+     controller->setParam("dampA",0.0003);
      // controller->setParam("weighting",1);
-     controller->setParam("noise",0.01);;
-     controller->setParam("noiseY",0);
-     controller->setParam("zetaupdate",0);
+     controller->setParam("noise",0.03);;
+     controller->setParam("noiseY",0.03);
+     controller->setParam("zetaupdate",1);
      controller->setParam("PIDint",.3);
 	  controller->setParam("intstate",1);
       
@@ -498,8 +504,8 @@ public:
      //****************/
      SchlangeConf conf = Schlange::getDefaultConf();
      double snakesize = .6;
-     conf.segmMass   = .8;
-     conf.segmLength= .8 * snakesize;// 0.8;
+     conf.segmMass   = 1.8;
+     conf.segmLength= 1.4 * snakesize;// 0.8;
      conf.segmDia=.15 *snakesize;
      conf.motorPower= 2 * snakesize;
      conf.segmNumber = 13+4*i;//-i/2; 
@@ -523,7 +529,7 @@ public:
      }
      //Positionieren und rotieren 
      schlange1->place(osg::Matrix::rotate(M_PI/2,0, 1, 0)*
-		      osg::Matrix::translate(22 -.7*i,20-2*i,1+(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
+		      osg::Matrix::translate(20 -.7*i,20-2*i,.001+(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
      // osg::Matrix::translate(5-i,2 + i*2,height+2));
      schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
      if (i==0) {
@@ -566,7 +572,7 @@ public:
      //           layers.push_back(Layer(1,0.5,FeedForwardNN::tanh)); 
      //           MultiLayerFFNN* sat = new MultiLayerFFNN(1.0, layers, false);
      //           cconf.sat   = sat;
-     cconf.useS=false;
+     cconf.useS=true;
 
      // AbstractController *controller = new DerBigController(cconf); 
      //AbstractController *controller = new DerController(cconf); 
@@ -589,25 +595,27 @@ public:
   
  
      controller->setParam("steps",1);
-     controller->setParam("epsC",0.1);
-     controller->setParam("epsA",0.01);
+     controller->setParam("noise",0.03);
+     controller->setParam("epsC",0.05);
+     controller->setParam("epsA",0.03);
      controller->setParam("adaptrate",0.0);//0.005);
      controller->setParam("rootE",3); 
      controller->setParam("logaE",0);
      controller->setParam("epsSat",0.02);
      controller->setParam("weighting",1);
+     controller->setParam("zetaupdate",1.0);
 
      // controller->setParam("desens",0.0);
      controller->setParam("s4delay",2.0);
      controller->setParam("s4avg",3.0);
     
-     controller->setParam("factorB",0.0); 
+     controller->setParam("factorB",0.05); 
      controller->setParam("noiseB",0.0);
 
-     controller->setParam("frictionjoint",0.01);
-     controller->setParam("frictionground",0.03);
+     controller->setParam("frictionjoint",0.001);
+     controller->setParam("frictionground",0.08);
      controller->setParam("teacher", 0.0); 
-     controller->setParam("dampA",0.01);
+     controller->setParam("dampA",0.001);
      controller->setParam("dampC",0.00001);
     
    }//creation of snakes End

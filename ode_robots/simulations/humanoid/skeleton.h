@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-05-11 17:01:20  martius
+ *   Revision 1.12  2009-08-09 20:21:03  der
+ *   From PC home
+ *
+ *   Revision 1.11  2009/05/11 17:01:20  martius
  *   new velocity servos implemented
  *   reorganized parameters, now also neck and elbows are configurable
  *
@@ -189,16 +192,16 @@ namespace lpzrobots {
       c.hip2Power=50;
       c.hip2Damping=0.4;
 
-      c.neckPower=1;
-      c.neckDamping=0.01;
-      c.neckVelocity=5;
+      c.neckPower=20;
+      c.neckDamping=0.1;
+      c.neckVelocity=20;
 
       c.kneePower=40;
       c.kneeDamping=0.2;
       c.kneeVelocity=20;
 
       c.anklePower=10;
-      c.ankleDamping=0.05;
+      c.ankleDamping=0.15;
       c.ankleVelocity=20;
 
       c.armPower=20;
@@ -209,7 +212,7 @@ namespace lpzrobots {
       c.elbowDamping=0.1;
       c.elbowVelocity=20;
 
-      c.pelvisPower=200;
+      c.pelvisPower=100;
       c.pelvisDamping=0.5;
       c.pelvisVelocity=20;
 
@@ -234,7 +237,7 @@ namespace lpzrobots {
       c.onlyPrimaryFunctions=false;
       c.handsRotating = false;
       c.useBackJoint  = true;
-      c.irSensors  = true;
+      c.irSensors  = false;
 
       //      c.headTexture="Images/really_white.rgb";
       c.headTexture="Images/dusty.rgb";
@@ -353,6 +356,8 @@ namespace lpzrobots {
 
     TwoAxisServo* pelvisservo; // between Hip and Trunk_comp
     OneAxisServo* backservo;   // between Trunk_comp and Thorax
+    //  TwoAxisServo* backservo;   // between Trunk_comp and Thorax
+
 
     RaySensorBank irSensorBank;
 
