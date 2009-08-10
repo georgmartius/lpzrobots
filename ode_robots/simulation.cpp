@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.108  2009-08-10 14:47:23  der
+ *   Revision 1.109  2009-08-10 15:03:52  der
+ *   shadowTexSize and shadow are integer
+ *
+ *   Revision 1.108  2009/08/10 14:47:23  der
  *   osg 2.4 changes
  *
  *   Revision 1.107  2009/08/10 08:16:51  guettler
@@ -1439,14 +1442,14 @@ namespace lpzrobots {
 
     index = contains(argv, argc, "-shadow");
     if(index && (argc > index)) {
-      shadow=(double)atoi(argv[index]);
-      printf("shadowType=%lg\n",shadow);
+      shadow= atoi(argv[index]);
+      printf("shadowType=%i\n",shadow);
     }
 
     index = contains(argv, argc, "-shadowsize");
     if(index && argc > index) {
       shadowTexSize = atoi(argv[index]);
-      printf("shadowTexSize=%lg\n",shadowTexSize);
+      printf("shadowTexSize=%i\n",shadowTexSize);
     }
     if(contains(argv, argc, "-noshadow")!=0) {
       shadow=0;
