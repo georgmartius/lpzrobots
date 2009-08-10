@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-03-13 09:19:53  martius
+ *   Revision 1.4  2009-08-10 07:48:37  guettler
+ *   fixed bug in if statement
+ *
+ *   Revision 1.3  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -66,7 +69,7 @@ namespace lpzrobots {
       p->init(odeHandle, conf.segmMass*2, osgHandle);      
       // p->setPose( osg::Matrix::rotate(M_PI/2, 0, 1, 0)*osg::Matrix::translate( conf.segmDia, 0, 0) );      
     } /////// FEED
-    else if( index == 0 | index== conf.segmNumber-1) { 
+    else if( (index == 0) | (index== conf.segmNumber-1)) {
       // p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
        // p = new Sphere(conf.segmLength/2*2);
       p = new Box(1.8*conf.segmLength,3*conf.segmLength, conf.segmLength*.3);
