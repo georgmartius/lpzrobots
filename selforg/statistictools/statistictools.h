@@ -25,7 +25,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-28 09:09:28  robot12
+ *   Revision 1.7  2009-08-10 07:39:54  guettler
+ *   implements new Callbackable interface
+ *
+ *   Revision 1.6  2009/07/28 09:09:28  robot12
  *   add a clean up to getAnalysation
  *
  *   Revision 1.5  2009/07/21 08:47:33  robot12
@@ -199,7 +202,8 @@ public:
 	 *	this method is invoked when a callback is done from the class where this
 	 * class is for callback registered
 	 */
-	virtual void doOnCallBack();
+	virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
+
 
 protected:
 	std::list<AbstractMeasure*> activeMeasures;

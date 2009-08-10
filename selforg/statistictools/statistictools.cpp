@@ -25,7 +25,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-21 08:47:33  robot12
+ *   Revision 1.5  2009-08-10 07:39:54  guettler
+ *   implements new Callbackable interface
+ *
+ *   Revision 1.4  2009/07/21 08:47:33  robot12
  *   add some comments
  *
  *   Revision 1.3  2009/06/29 12:43:37  robot12
@@ -92,7 +95,7 @@
 #include "complexmeasure.h"
 
 
-void StatisticTools::doOnCallBack() {
+void StatisticTools::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type /* = BackCaller::DEFAULT_CALLBACKABLE_TYPE */) {
     // update all statistic measures
     if (beginMeasureCounter>0)
         beginMeasureCounter--;
