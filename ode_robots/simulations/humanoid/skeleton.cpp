@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-08-09 20:20:37  der
+ *   Revision 1.17  2009-08-10 14:59:19  der
+ *   copy of local controller version.
+ *   new skeleton from bambi
+ *
+ *   Revision 1.16  2009/08/09 20:20:37  der
  *   From PC home
  *
  *   Revision 1.15  2009/05/11 17:01:20  martius
@@ -126,6 +130,18 @@ namespace lpzrobots {
     conf.kneePower*= conf.powerfactor;
     conf.anklePower*= conf.powerfactor;
     conf.armPower*= conf.powerfactor;
+    conf.elbowPower*= conf.powerfactor;
+    conf.neckPower*= conf.powerfactor;
+
+    conf.hipDamping*= conf.dampingfactor;   
+    conf.hip2Damping*= conf.dampingfactor;  
+    conf.pelvisDamping*= conf.dampingfactor;
+    conf.backDamping*= conf.dampingfactor;
+    conf.kneeDamping*= conf.dampingfactor;
+    conf.ankleDamping*= conf.dampingfactor;
+    conf.armDamping*= conf.dampingfactor;
+    conf.elbowDamping*= conf.dampingfactor;
+    conf.neckDamping*= conf.dampingfactor;
  
     addParameter("hippower",   &conf.hipPower);
     addParameter("hipdamping",   &conf.hipDamping);
@@ -251,27 +267,25 @@ namespace lpzrobots {
   int Skeleton::getSensorNumber(){
     int numberSensors=0;
     
-    if(conf.onlyPrimaryFunctions)
-      numberSensors +=hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size() + arm1servos.size() + 1 /*pelvis*/;
-    else
+    if(conf.onlyPrimaryFunctions){
+      numberSensors +=hipservos.size() + kneeservos.size() + ankleservos.size() + 
+	armservos.size() + arm1servos.size() + 1 /*pelvis*/;
+    } else {
     //  return 1;
-      return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2 + arm1servos.size() + 
-	2/*pelvis*/+ (conf.useBackJoint ? 1 : 0) + 2* headservos.size() ;
-    //   numberSensors +=hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2
-// + arm1servos.size()  + 2 /*pelvis*/
-// + (conf.useBackJoint ? 1 : 0)
-//   + /*headservos.size()*/2*  headservos.size() 
-// // 	+1//TEST
-//  ; 
-   
+      numberSensors += hipservos.size()*2 + kneeservos.size() + ankleservos.size() + 
+	armservos.size()*2 + arm1servos.size() + 
+	2/*pelvis*/+ (conf.useBackJoint ? 1 : 0) + 2* headservos.size() ;   
+    }
+    
+    numberSensors += irSensorBank.size();
 
 //     // add new one!
 //     // head and trunk position (z): +2
 //     //    numberSensors+=2;
 
-//     return numberSensors;  };
-
+    return numberSensors;     
   }
+
   /*****************************
 GUIDE adding new sensors
 1. in getSensorNumber() Anzahl der Sensoren korrigieren: numberSensors+=1;
@@ -289,7 +303,7 @@ GUIDE adding new sensors
     assert(created);
     int len = min(sensornumber, getSensorNumber());    
     int n=0; // index variable
-    FOREACHC(vector <TwoAxisServo*>, hipservos, s){
+    FOREACHC(vector <TwoAxisServo*>, hipservos, s){ //0-3
       sensors[n]   = (*s)->get1();
       if(!conf.onlyPrimaryFunctions){
 	n++;
@@ -297,15 +311,15 @@ GUIDE adding new sensors
       } 
       n++;
     }
-    FOREACHC(vector <OneAxisServo*>, kneeservos, s){
+    FOREACHC(vector <OneAxisServo*>, kneeservos, s){//4-5
       sensors[n]   = (*s)->get();
       n++;
     }
-    FOREACHC(vector <OneAxisServo*>, ankleservos, s){
+    FOREACHC(vector <OneAxisServo*>, ankleservos, s){//6-7
       sensors[n]   = (*s)->get();
       n++;
     }
-    FOREACHC(vector <TwoAxisServo*>, armservos, s){
+    FOREACHC(vector <TwoAxisServo*>, armservos, s){//8-11
       sensors[n]   = (*s)->get1();
       if(!conf.onlyPrimaryFunctions){
 	n++;
@@ -313,34 +327,37 @@ GUIDE adding new sensors
       } 
       n++;
     }
- FOREACHC(vector <OneAxisServo*>, arm1servos, s){
+    FOREACHC(vector <OneAxisServo*>, arm1servos, s){//12-13
       sensors[n]   = (*s)->get();
       n++;
     }
-   sensors[n] = pelvisservo->get1();//TEST
-   n++;
-    if(!conf.onlyPrimaryFunctions){
+    sensors[n] = pelvisservo->get1(); // 14
+    n++;
+    if(!conf.onlyPrimaryFunctions){   // 15
       sensors[n] = pelvisservo->get2();
       n++; 
     }
-      if(conf.useBackJoint){
+    if(conf.useBackJoint){            // 16
       sensors[n] = backservo->get();
-	n++;
-  
+      n++;
+      
     }
-  
-      //   FOREACHC(vector <OneAxisServo*>, headservos, s){
-   
-// 	sensors[n]   = (*s)->get();
-// 	n++;
-      //}
-   FOREACHC(vector <TwoAxisServo*>, headservos, s){
-	sensors[n]   = (*s)->get1();
+    
+    //   FOREACHC(vector <OneAxisServo*>, headservos, s){
+    
+    // 	sensors[n]   = (*s)->get();
+    // 	n++;
+    //}
+    FOREACHC(vector <TwoAxisServo*>, headservos, s){ // 17-18
+      sensors[n]   = (*s)->get1();
 	sensors[n+1]   = (*s)->get2();
 	n+=2;
      
     }
-  //   // add z-headPosition as sensor and increment n!
+
+   n += irSensorBank.get(sensors+n, sensornumber-n);
+   
+   //   // add z-headPosition as sensor and increment n!
       //   sensors[n++]=getHeadPosition().z;
      //    sensors[n++]=getTrunkPosition().z;
     
@@ -619,16 +636,16 @@ GUIDE adding new sensors
     //                   Pos(0, 1.2516, 0.0552) * pose, Axis(0,0,1) * pose);
     uj = new UniversalJoint(objects[Hip], objects[Trunk_comp], Pos(0, 1.2, 0.0252) * pose, 
 			   Axis(0,0,1) * pose, Axis(0,1,0) * pose);
-    uj->init(odeHandle, osgHandleJ, true, .022);
+    uj->init(odeHandle, osgHandleJ, true, .032);
     joints.push_back(uj);
     
     pelvisservo = conf.useVelocityServos 
       ? new TwoAxisServoVel(odeHandle, uj, -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
 			    -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
-			    conf.pelvisDamping, conf.pelvisVelocity)
+			    conf.pelvisDamping, conf.pelvisVelocity, conf.jointLimitFactor)
       : new TwoAxisServoCentered(uj, -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
 				 -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
-				 conf.pelvisDamping);
+				 conf.pelvisDamping, 2, 20, conf.jointLimitFactor);
 
     
 
@@ -645,10 +662,10 @@ GUIDE adding new sensors
       
       if(conf.useVelocityServos)
 	backservo = new OneAxisServoVel(odeHandle, j, -conf.backJointLimit/2, conf.backJointLimit, 
-					conf.backPower, conf.backDamping, conf.backVelocity);
+					conf.backPower, conf.backDamping, conf.backVelocity, conf.jointLimitFactor);
       else
 	backservo = new OneAxisServoCentered(j, -conf.backJointLimit/2, conf.backJointLimit, 
-					     conf.backPower, conf.backDamping);
+					     conf.backPower, conf.backDamping, 2, 20, conf.jointLimitFactor);
 
     }else{
       fj = new FixedJoint(objects[Thorax], objects[Trunk_comp]);
@@ -681,13 +698,18 @@ GUIDE adding new sensors
     
     servo2 = conf.useVelocityServos 
       ? new TwoAxisServoVel(odeHandle, uj, -conf.neckJointLimit, conf.neckJointLimit, conf.neckPower, 
-			    -conf.neckJointLimit, conf.neckJointLimit/2, conf.neckPower, conf.neckDamping, conf.neckVelocity)
-      : new TwoAxisServoCentered(uj, -M_PI/3, M_PI/3, 1, -M_PI/3, M_PI/6, conf.neckPower, conf.neckDamping);
+			    -conf.neckJointLimit, conf.neckJointLimit/2, conf.neckPower, conf.neckDamping, 
+			    conf.neckVelocity, conf.jointLimitFactor)
+      : new TwoAxisServoCentered(uj, -conf.neckJointLimit, conf.neckJointLimit, conf.neckPower, 
+				 -conf.neckJointLimit, conf.neckJointLimit/2, conf.neckPower, 
+				 conf.neckDamping,
+				 2, 20, conf.jointLimitFactor);
     headservos.push_back(servo2);
 
-    fj = new FixedJoint(objects[Thorax], objects[Neck]);
-    fj->init(odeHandle, osgHandleJ, true, 0.12);
-    joints.push_back(fj);
+    // to fix the head!
+    //     fj = new FixedJoint(objects[Thorax], objects[Neck]);
+    //     fj->init(odeHandle, osgHandleJ, true, 0.12);
+    //     joints.push_back(fj);
 
     // Head and Neck
     fj = new FixedJoint(objects[Neck], objects[Head_comp]); // ,Pos(0, 1.7326, 0.0318) * pose);
@@ -704,10 +726,10 @@ GUIDE adding new sensors
     servo2 =  conf.useVelocityServos 
       ? new TwoAxisServoVel(odeHandle, uj, -conf.armJointLimit*.1, conf.armJointLimit, conf.armPower,
 			    -conf.armJointLimit*.1, conf.armJointLimit, conf.armPower,
-			    conf.armDamping, conf.armVelocity)
+			    conf.armDamping, conf.armVelocity, conf.jointLimitFactor)
       : new TwoAxisServoCentered(uj, -conf.armJointLimit*.1, conf.armJointLimit, conf.armPower,
 				 -conf.armJointLimit*.1, conf.armJointLimit, conf.armPower,
-				 conf.armDamping);
+				 conf.armDamping, 2, 20, conf.jointLimitFactor);
     armservos.push_back(servo2);
 
     uj = new UniversalJoint(objects[Thorax], objects[Right_Shoulder], 
@@ -719,11 +741,11 @@ GUIDE adding new sensors
     if(conf.useVelocityServos)
       servo2 = new TwoAxisServoVel(odeHandle, uj, -conf.armJointLimit*.1, conf.armJointLimit, conf.armPower,
 				   -conf.armJointLimit*.1, conf.armJointLimit, conf.armPower,
-				   conf.armDamping, conf.armVelocity);
+				   conf.armDamping, conf.armVelocity, conf.jointLimitFactor);
     else 
       servo2 = new TwoAxisServoCentered(uj, -conf.armJointLimit*.1, conf.armJointLimit, conf.armPower,
 					-conf.armJointLimit*.1, conf.armJointLimit, conf.armPower,
-					conf.armDamping);
+					conf.armDamping, 2, 20, conf.jointLimitFactor);
     armservos.push_back(servo2);
 
     // Arms and ForeArms
@@ -743,9 +765,10 @@ GUIDE adding new sensors
     //  servo1 = new OneAxisServo(j, -M_PI/10, M_PI/10, 20,0.1);
     if(conf.useVelocityServos)
       servo1 = new OneAxisServoVel(odeHandle, j, 0, conf.elbowJointLimit, 
-				   conf.elbowPower, conf.elbowDamping, conf.elbowVelocity);
+				   conf.elbowPower, conf.elbowDamping, conf.elbowVelocity, conf.jointLimitFactor);
     else
-      servo1 = new OneAxisServoCentered(j, 0, conf.elbowJointLimit, conf.elbowPower, conf.elbowDamping);
+      servo1 = new OneAxisServoCentered(j, 0, conf.elbowJointLimit, conf.elbowPower, conf.elbowDamping,
+					2, 20, conf.jointLimitFactor);
     
     arm1servos.push_back(servo1);
 
@@ -756,9 +779,10 @@ GUIDE adding new sensors
     // servo1 = new OneAxisServo(j, -M_PI/10, M_PI/10, 20,0.1);
     if(conf.useVelocityServos)
       servo1 = new OneAxisServoVel(odeHandle, j, 0, conf.elbowJointLimit, 
-				   conf.elbowPower, conf.elbowDamping, conf.elbowVelocity);
+				   conf.elbowPower, conf.elbowDamping, conf.elbowVelocity, conf.jointLimitFactor);
     else
-      servo1 = new  OneAxisServoCentered( j, 0, conf.elbowJointLimit, conf.elbowPower, conf.elbowDamping);
+      servo1 = new  OneAxisServoCentered( j, 0, conf.elbowJointLimit, conf.elbowPower, conf.elbowDamping,
+					  2, 20, conf.jointLimitFactor);
 
     arm1servos.push_back(servo1);
 
@@ -788,10 +812,11 @@ GUIDE adding new sensors
     
     servo2 = conf.useVelocityServos 
       ? new TwoAxisServoVel(odeHandle, uj, -conf.hipJointLimit*.01, conf.hipJointLimit, conf.hipPower,
-			    -conf.hipJointLimit*.01, conf.hipJointLimit, conf.hipPower,
-			    conf.hipDamping, conf.hipVelocity)
+			    -conf.hip2JointLimit*.1, conf.hip2JointLimit, conf.hip2Power,
+			    conf.hipDamping, conf.hipVelocity, conf.jointLimitFactor)
       : new TwoAxisServoCentered(uj, -conf.hipJointLimit*.01,conf.hipJointLimit, conf.hipPower,
-			      -conf.hip2JointLimit*.1, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping);
+				 -conf.hip2JointLimit*.1, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping,
+				 2, 20, conf.jointLimitFactor);
     servo2->damping2() = conf.hip2Damping;
     hipservos.push_back(servo2);
 
@@ -803,9 +828,10 @@ GUIDE adding new sensors
     servo2 =  conf.useVelocityServos 
       ? new TwoAxisServoVel(odeHandle, uj, -conf.hipJointLimit*.01, conf.hipJointLimit, conf.hipPower,
 			    -conf.hipJointLimit*.01, conf.hipJointLimit, conf.hipPower,
-			    conf.hipDamping, conf.hipVelocity)
+			    conf.hipDamping, conf.hipVelocity, conf.jointLimitFactor)
       : new TwoAxisServoCentered(uj, -conf.hipJointLimit*.01, conf.hipJointLimit, conf.hipPower,
-			      -conf.hip2JointLimit*.01, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping);
+				 -conf.hip2JointLimit*.01, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping,
+				 2, 20, conf.jointLimitFactor);
     servo2->damping2() = conf.hip2Damping;
     hipservos.push_back(servo2);
 
@@ -819,10 +845,10 @@ GUIDE adding new sensors
 
     if( conf.useVelocityServos )
       servo1 = new OneAxisServoVel(odeHandle, j, -conf.kneeJointLimit , conf.kneeJointLimit * 0.1, 
-				   conf.kneePower, conf.kneeDamping, conf.kneeVelocity);
+				   conf.kneePower, conf.kneeDamping, conf.kneeVelocity, conf.jointLimitFactor);
     else
       servo1 = new OneAxisServoCentered(j, -conf.kneeJointLimit, conf.kneeJointLimit * 0.1, 
-					conf.kneePower, conf.kneeDamping);
+					conf.kneePower, conf.kneeDamping, 2, 20, conf.jointLimitFactor);
     kneeservos.push_back(servo1);
 
     j = new HingeJoint(objects[Right_Thigh], objects[Right_Shin], Pos(-0.078, 0.6146, 0.0396) * pose, 
@@ -832,10 +858,10 @@ GUIDE adding new sensors
     
     if( conf.useVelocityServos )
       servo1 = new OneAxisServoVel(odeHandle, j, -conf.kneeJointLimit , conf.kneeJointLimit * 0.1, 
-				   conf.kneePower, conf.kneeDamping, conf.kneeVelocity);
+				   conf.kneePower, conf.kneeDamping, conf.kneeVelocity, conf.jointLimitFactor);
     else
       servo1 = new OneAxisServoCentered(j, -conf.kneeJointLimit, conf.kneeJointLimit  * 0.1, 
-					conf.kneePower, conf.kneeDamping);
+					conf.kneePower, conf.kneeDamping, 2, 20, conf.jointLimitFactor);
     kneeservos.push_back(servo1);
 
     // Shins and Feet (Ankles)
@@ -848,10 +874,10 @@ GUIDE adding new sensors
     
     if( conf.useVelocityServos )
       servo1 = new OneAxisServoVel(odeHandle, j, -conf.ankleJointLimit , conf.ankleJointLimit, 
-				   conf.anklePower, conf.ankleDamping, conf.ankleVelocity);
+				   conf.anklePower, conf.ankleDamping, conf.ankleVelocity, conf.jointLimitFactor);
     else
       servo1 = new OneAxisServoCentered(j, -conf.ankleJointLimit, conf.ankleJointLimit, 
-					conf.anklePower, conf.ankleDamping);
+					conf.anklePower, conf.ankleDamping, 2, 20, conf.jointLimitFactor);
     ankleservos.push_back(servo1);
 
     j = new HingeJoint(objects[Right_Shin], objects[Right_Foot], 
@@ -863,24 +889,27 @@ GUIDE adding new sensors
     
     if( conf.useVelocityServos )
       servo1 =  new OneAxisServoVel(odeHandle, j, -conf.ankleJointLimit , conf.ankleJointLimit, 
-				    conf.anklePower, conf.ankleDamping, conf.ankleVelocity);
+				    conf.anklePower, conf.ankleDamping, conf.ankleVelocity, conf.jointLimitFactor);
     else 
       servo1 = new OneAxisServoCentered(j, -conf.ankleJointLimit, conf.ankleJointLimit, 
-					conf.anklePower, conf.ankleDamping);
+					conf.anklePower, conf.ankleDamping, 2, 20, conf.jointLimitFactor);
     ankleservos.push_back(servo1);
                 
     // register ignored pairs
     odeHandle.addIgnoredPair(objects[Hip],objects[Thorax]);
-    //   odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Trunk_comp]);
-   odeHandle.addIgnoredPair(objects[Right_Thigh],objects[Hip]);
-   odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Hip]);
-   // odeHandle.addIgnoredPair(objects[Right_Thigh],objects[Trunk_comp]);
-   odeHandle.addIgnoredPair(objects[Left_Shin],objects[Trunk_comp]);
-   odeHandle.addIgnoredPair(objects[Right_Shin],objects[Trunk_comp]);
+    odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Trunk_comp]);
+    odeHandle.addIgnoredPair(objects[Right_Thigh],objects[Trunk_comp]);
+    odeHandle.addIgnoredPair(objects[Right_Thigh],objects[Hip]);
+    odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Hip]);
+    odeHandle.addIgnoredPair(objects[Left_Shin],objects[Trunk_comp]);
+    odeHandle.addIgnoredPair(objects[Right_Shin],objects[Trunk_comp]);
     
     // odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Right_Thigh]);
     //  odeHandle.addIgnoredPair(objects[Left_Shin],objects[Right_Shin]);
    // odeHandle.addIgnoredPair(objects[Left_Foot],objects[Right_Foot]);
+
+    // we call setParam in order to set all the dampings and default values
+    setParam("thisparamdoesnotexist",0);
 
     created=true;    
   }; 
@@ -949,23 +978,23 @@ GUIDE adding new sensors
 	(*i)->damping2() = conf.hip2Damping;
 	(*i)->setMaxVel(conf.hipVelocity); 
 	(*i)->setMinMax1(-conf.hipJointLimit*.01, +conf.hipJointLimit);
-	(*i)->setMinMax2(-conf.hip2JointLimit*.01,+conf.hip2JointLimit);
+	(*i)->setMinMax2(-conf.hip2JointLimit*.1,+conf.hip2JointLimit);
 
       }
     }      
-  //   FOREACH(vector<TwoAxisServo*>, headservos, i){
-//       if(*i){
-// 	(*i)->setPower(conf.neckPower, conf.neckPower);
-// 	(*i)->damping1() = conf.neckDamping;
-// 	(*i)->damping2() = conf.neckDamping;
-// 	(*i)->setMaxVel(conf.neckVelocity); 
-// 	(*i)->setMinMax1(-conf.neckJointLimit, conf.neckJointLimit);
-// 	(*i)->setMinMax2(-conf.neckJointLimit, conf.neckJointLimit/2);
-//       } 
-//     }
+    FOREACH(vector<TwoAxisServo*>, headservos, i){
+      if(*i){
+	(*i)->setPower(conf.neckPower, conf.neckPower);
+	(*i)->damping1() = conf.neckDamping;
+	(*i)->damping2() = conf.neckDamping;
+	(*i)->setMaxVel(conf.neckVelocity); 
+	(*i)->setMinMax1(-conf.neckJointLimit, conf.neckJointLimit);
+	(*i)->setMinMax2(-conf.neckJointLimit, conf.neckJointLimit/2);
+      } 
+    }
     FOREACH(vector<OneAxisServo*>, kneeservos, i){
       if(*i){
-	(*i)->power() = conf.kneePower;
+	(*i)->setPower(conf.kneePower);
 	(*i)->damping() = conf.kneeDamping;
 	(*i)->setMaxVel(conf.kneeVelocity); 
 	(*i)->setMinMax(-conf.kneeJointLimit, conf.kneeJointLimit*0.1);
@@ -973,7 +1002,7 @@ GUIDE adding new sensors
     }
     FOREACH(vector<OneAxisServo*>, ankleservos, i){
       if(*i){
-	(*i)->power() = conf.anklePower;
+	(*i)->setPower(conf.anklePower);
 	(*i)->damping() = conf.ankleDamping;
 	(*i)->setMaxVel(conf.ankleVelocity); 
 	(*i)->setMinMax(-conf.ankleJointLimit, conf.ankleJointLimit);
@@ -985,28 +1014,27 @@ GUIDE adding new sensors
 	(*i)->damping1() = conf.armDamping;
 	(*i)->damping2() = conf.armDamping;
 	(*i)->setMaxVel(conf.armVelocity); 
-	(*i)->setMinMax1(-conf.armJointLimit, conf.armJointLimit);
-	(*i)->setMinMax2(-conf.armJointLimit, conf.armJointLimit);
+	(*i)->setMinMax1(-conf.armJointLimit*.1, conf.armJointLimit);
+	(*i)->setMinMax2(-conf.armJointLimit*.1, conf.armJointLimit);
       } 
     }
     FOREACH(vector<OneAxisServo*>, arm1servos, i){
       if(*i){
-	(*i)->power() = conf.elbowPower;
+	(*i)->setPower(conf.elbowPower);
 	(*i)->damping() = conf.elbowDamping;
 	(*i)->setMaxVel(conf.elbowVelocity); 
 	(*i)->setMinMax(0, conf.elbowJointLimit);
       } 
     }
 
-    pelvisservo->power1() = conf.pelvisPower;      
-    pelvisservo->power2() = conf.pelvisPower;      
+    pelvisservo->setPower(conf.pelvisPower, conf.pelvisPower); 
     pelvisservo->damping1() = conf.pelvisDamping;
     pelvisservo->damping2() = conf.pelvisDamping;
     pelvisservo->setMaxVel(conf.pelvisVelocity);
     pelvisservo->setMinMax1(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
     pelvisservo->setMinMax2(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
     
-    backservo->power() = conf.backPower;
+    backservo->setPower(conf.backPower);
     backservo->damping() = conf.backDamping;
     backservo->setMaxVel(conf.backVelocity);
     backservo->setMinMax(-conf.backJointLimit/2,+conf.backJointLimit);

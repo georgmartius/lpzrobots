@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-08-09 20:21:03  der
+ *   Revision 1.13  2009-08-10 14:59:19  der
+ *   copy of local controller version.
+ *   new skeleton from bambi
+ *
+ *   Revision 1.12  2009/08/09 20:21:03  der
  *   From PC home
  *
  *   Revision 1.11  2009/05/11 17:01:20  martius
@@ -129,7 +133,11 @@ namespace lpzrobots {
     double backJointLimit; ///< angle range of back joint
 
     double powerfactor; ///< scale factor for maximal forces of the servos
+    double dampingfactor; ///< scale factor for damping of the servos
     
+    double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
+
+
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
     bool handsRotating; ///< hands are attached with a ball joint
 
@@ -184,6 +192,8 @@ namespace lpzrobots {
 
       c.useVelocityServos = false;
       c.powerfactor=1.0;
+      c.dampingfactor=1.0;
+      c.jointLimitFactor=1.0;
 
       c.hipPower=50;
       c.hipDamping= 0.4;
@@ -231,7 +241,7 @@ namespace lpzrobots {
       c.hip2JointLimit = M_PI/30; // +- 6 degree
       c.pelvisJointLimit = M_PI/30; // +- 6 degree
 
-      c.neckJointLimit = M_PI/3;
+      c.neckJointLimit = M_PI/5;
       c.backJointLimit = M_PI/4; // +- 45 degree (half of it to the back)
 
       c.onlyPrimaryFunctions=false;
@@ -255,16 +265,16 @@ namespace lpzrobots {
       SkeletonConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      c.hipDamping= 0.01;
-      c.hip2Damping=0.01;
-      c.neckDamping=0.01;
-      c.kneeDamping=0.01;
-      c.ankleDamping=0.01;
-      c.armDamping=0.01;
-      c.elbowDamping=0.01;
-      c.pelvisDamping=0.01;
-      c.backDamping=0.01;
-      c.backVelocity=5;
+      c.dampingfactor=0.02; 
+/*       c.hipDamping= 0.01; */
+/*       c.hip2Damping=0.01; */
+/*       c.neckDamping=0.01; */
+/*       c.kneeDamping=0.01; */
+/*       c.ankleDamping=0.01; */
+/*       c.armDamping=0.01; */
+/*       c.elbowDamping=0.01; */
+/*       c.pelvisDamping=0.01; */
+/*       c.backDamping=0.01; */
       return c;
     }
 
