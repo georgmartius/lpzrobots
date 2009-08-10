@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2009-05-04 11:10:29  guettler
+ *   Revision 1.16  2009-08-10 07:49:44  guettler
+ *   tests with entropy
+ *
+ *   Revision 1.15  2009/05/04 11:10:29  guettler
  *   minor changes (prints)
  *
  *   Revision 1.14  2009/04/22 17:16:36  jhoffmann
@@ -164,6 +167,7 @@ public:
   StatisticMeasure* convTest3;
   StatisticMeasure* convTest4;
   StatisticMeasure* convTest5;
+  TrackableMeasure* trackableEntropy;
   TrackableMeasure* trackableEntropySLOW;
 
   ThisSim(double cInit=.1, double cnondiag=0.0) : cInit(cInit), cNonDiag(cnondiag)
@@ -191,15 +195,15 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    int number_x=5;
+    int number_x=1;
     int number_y=1;
     connectRobots = true;
     double distance = 1.0;
 
     setCameraHomePos(Pos(-26.0494,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
 
-    global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("realtimefactor",5);
+    global.odeConfig.setParam("noise",0.08);
+    global.odeConfig.setParam("realtimefactor",0);
     global.odeConfig.setParam("gravity",-9);
 
     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(100, 0.2, 2.0));
@@ -207,11 +211,11 @@ public:
     playground->setGroundTexture("Images/wood.rgb");
     playground->setGroundColor(Color(0.2f,0.7f,0.2f,1.0f));
     //playground->setGroundColor(Color(0.2f,0.7f,0.2f,1.0f));
-    Substance substance;
+    //Substance substance;
     //substance.toSnow(0.05);
-    substance.toPlastic(20);
+    //substance.toMetal(20);
     playground->setPosition(osg::Vec3(20,20,1.00f));
-    playground->setGroundSubstance(substance);
+    //playground->setGroundSubstance(substance);
     global.obstacles.push_back(playground);
     double xboxes=0.0;
     double yboxes=0.0;
@@ -251,7 +255,7 @@ public:
         //      nimm2 = new Nimm2(odeHandle);
         Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
         nimm2conf.size = 1.6;
-        nimm2conf.force = 2;
+        nimm2conf.force = 0.1;
         nimm2conf.speed=20;
         nimm2conf.cigarMode=true;
         nimm2conf.singleMotor=false;
@@ -260,10 +264,10 @@ public:
         nimm2conf.bumper=true;
         wiring = new One2OneWiring(new WhiteNormalNoise());
         InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-        invertnconf.cInit = 0.1;///////////////////////// cInit;
+        invertnconf.cInit = cInit;///////////////////////// cInit;
         invertnconf.cNonDiagAbs=cNonDiag;
         controller = new InvertMotorNStep(invertnconf);
-        if ((i==0) && (j==2))
+        if ((i==0) && (j==0))
         {
           agent = new OdeAgent(plotoptions);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2Yellow");
@@ -272,12 +276,12 @@ public:
           global.configs.push_back(controller);
 
           OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-          /*      mic = new MutualInformationController(30);
+          mic = new MutualInformationController(30);
           MeasureAdapter* ma = new MeasureAdapter(mic);
-          onamupaco->addPassiveController(ma,"mi30");*/
+          onamupaco->addPassiveController(ma,"mi30");
           agent->addInspectable((Inspectable*)stats);
           agent->addCallbackable((Callbackable*)stats);
-          agent->init(controller, nimm2, wiring);
+          agent->init(onamupaco, nimm2, wiring);
           controller->setParam("epsC", 0.001);
           controller->setParam("epsA", 0.0);
           char cdesc[32];
@@ -310,11 +314,10 @@ public:
           joints.push_back(joint);
         }
     }
-    /*  this->getHUDSM()->addMeasure(mic->getMI(1),"MI 1",ID,1);
     this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
     double& stepdiff = stats->addMeasure(mic->getMI(1),"MI NSTEPDIFF",NORMSTEPDIFF,1);
-    this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);*/
-    
+    this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);
+
 /*    this->getHUDSM()->addMeasure(mic->getH_x(1),"H(x) 1",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_x(0),"H(x) 0",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_yx(1),"H(y|x) 1",ID,1);
@@ -329,8 +332,10 @@ public:
     convTest3=stats->getMeasure( mic->getH_yx(1),"H(y|x) 1 CONV",CONV,50000,0.001);
     convTest2=stats->getMeasure( mic->getH_yx(0),"H(y|x) 0 CONV",CONV,50000,0.001);*/
 
-    /* trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2",ENTSLOW,playground->getCornerPointsXY(),X | Y, 18);
-    this->getHUDSM()->addMeasure(trackableEntropySLOW);*/
+//    trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2 o(n2)",ENTSLOW,playground->getCornerPointsXY(),X | Y, 1800);
+    trackableEntropy= new TrackableMeasure(trackableList,"E Nimm2 O(1)",ENT,playground->getCornerPointsXY(),X | Y, 20000);
+    //this->getHUDSM()->addMeasure(trackableEntropySLOW);
+    this->getHUDSM()->addMeasure(trackableEntropy);
     //TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E upd Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
     //this->getHUDSM()->addMeasure(trackableEntropy);
 
@@ -355,7 +360,7 @@ public:
         (*j)->update();
       }
     }
-    /*if (this->sim_step%100000==0)
+  /*  if (this->sim_step%6000==0)
     {
       printf("timeSteps   = %li\n",this->sim_step);
       printf("time in min = %f\n",((float)this->sim_step)/100/60);
@@ -371,9 +376,9 @@ public:
     //if (this->sim_step==250000)
 //    if (this->sim_step==1000)
 //if(false)
-    if (this->sim_step==5*505000)
+    //if (this->sim_step==30000)
     {
-      simulation_time_reached=true;
+      //simulation_time_reached=true;
       /*    printf("\nConvergence reached!\n");
       printf("timeSteps   = %li\n",this->sim_step);
       printf("time in min = %f\n",((float)this->sim_step)/100/60);
@@ -566,9 +571,10 @@ int main (int argc, char **argv)
           for (double cinit=0.95;cinit<1.15;cinit+=fineadjustment/2.0)
             runSim(cinit,runs,argc,argv);
           for (double cinit=1.15;cinit<=1.3;cinit+=fineadjustment)
-            runSim(cinit,runs,argc,argv);*/
+            runSim(cinit,runs,argc,argv);
       for (double cinit=1.3;cinit<=2.0;cinit+=fineadjustment)
-        runSim(cinit,runs,argc,argv);
+        runSim(cinit,runs,argc,argv);*/
+      runSim(0.55,1,argc,argv,0.0);
     }
   }
 }
