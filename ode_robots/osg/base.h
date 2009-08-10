@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2009-08-10 08:40:10  guettler
+ *   Revision 1.22  2009-08-10 14:55:13  der
+ *   shadowTexSize and shadow are integer
+ *
+ *   Revision 1.21  2009/08/10 08:40:10  guettler
  *   changed g&uumlettler to guettler
  *
  *   Revision 1.20  2009/08/10 08:37:17  guettler
@@ -254,9 +257,9 @@ namespace lpzrobots
     int CastsShadowTraversalMask;
 
     // the types are double because they are configurable and stored to the cfg file
-    double shadow;     // set by child class Simulation
-    double shadowTexSize;  // set by child class Simulation
-    double useNVidia;      // if 0 use ATI Radeon!
+    int shadow;     // set by child class Simulation
+    int shadowTexSize;  // set by child class Simulation
+    bool useNVidia;      // unused: if false use ATI Radeon!
 
 
   public:

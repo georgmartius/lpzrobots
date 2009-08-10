@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.34  2009-08-10 07:54:32  guettler
+ *   Revision 1.35  2009-08-10 14:55:32  der
+ *   shadowTexSize and shadow are integer
+ *
+ *   Revision 1.34  2009/08/10 07:54:32  guettler
  *   - uses new BackCaller implementation
  *   - bugfix: avoid crash if noGraphics when getting HUDSM
  *
@@ -998,9 +1001,9 @@ namespace lpzrobots {
   void Base::changeShadowTechnique()
   {
 	  std::string shadowName;
-	  int shadowType = (int)++shadow;
-	      switch (shadowType)
-	      {
+	  int shadowType = ++shadow;
+	  switch (shadowType)
+	    {
 	  case 6:
 		  shadowType=0; // max shadowtype at the moment: 5
 	  case 0:
@@ -1047,7 +1050,7 @@ namespace lpzrobots {
 		  break;
 	  }
 	  printf("Changed shadowType to %i (%s)\n",shadowType,shadowName.c_str());
-	  shadow=(double)shadowType;
+	  shadow=shadowType;
   }
 
 // Helper
