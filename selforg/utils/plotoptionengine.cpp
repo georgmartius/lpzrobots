@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2009-08-05 22:53:02  martius
+ *  Revision 1.6  2009-08-10 07:37:48  guettler
+ *  -Inspectable interface now supports to add infoLines itself.
+ *   These lines are then outprinted line by line to the PlotOption once,
+ *   preceded by a #I.
+ *  -Restart functionality of PlotOptionEngine added (e.g. closePipes(), reInit()).
+ *
+ *  Revision 1.5  2009/08/05 22:53:02  martius
  *  redesigned
  *   works as a stand alone object now
  *   added init function
@@ -61,35 +67,34 @@
 #include <string.h>
 #include <algorithm>
 
-PlotOptionEngine::PlotOptionEngine(const PlotOption& plotOption) {
+using namespace std;
+
+PlotOptionEngine::PlotOptionEngine(const PlotOption& plotOption) : maybe_controller(0) {
   if(plotOption.mode!=NoPlot) 
     plotOptions.push_back(plotOption);
   initialised = false;  
   t=1;
 }
 
-PlotOptionEngine::PlotOptionEngine(const std::list<PlotOption>& plotOptions) 
-  : plotOptions(plotOptions) {
+PlotOptionEngine::PlotOptionEngine(const list<PlotOption>& plotOptions)
+  : plotOptions(plotOptions), maybe_controller(0) {
   initialised = false;  
   t=1;
 }
 
 
-PlotOptionEngine::~PlotOptionEngine()
-{
-  // closes all pipes of the agents due to pause mode or so
-  FOREACH(std::list<PlotOption>, plotOptions, po){
-    po->close();        
-  }
+PlotOptionEngine::~PlotOptionEngine() {
+  closePipes();
 }
 
 
 bool PlotOptionEngine::init(AbstractController* maybe_controller){
+  this->maybe_controller = maybe_controller;
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN);
 
-  FOREACH(std::list<PlotOption>, plotOptions, po){
+  FOREACH(list<PlotOption>, plotOptions, po){
     po->open();
     if(po->pipe){
       // print start
@@ -102,10 +107,17 @@ bool PlotOptionEngine::init(AbstractController* maybe_controller){
       // print interval
       fprintf(po->pipe, "# Recording every %dth dataset\n", po->interval);
       // print all configureables
-      FOREACHC(std::list<const Configurable*>, configureables, i){
+      FOREACHC(list<const Configurable*>, configureables, i){
 	(*i)->print(po->pipe, "# ");
       }
-      
+      // print infolines of all inspectables
+      FOREACHC(list<const Inspectable*>, inspectables, insp)
+      {
+        list<string> infoLines = (*insp)->getInfoLines();
+        FOREACHC(list<string>, infoLines, infoLine) {
+          fprintf(po->pipe,string("#I").append(*infoLine).append("\n").c_str());
+        }
+      }
       // print head line with all parameter names
       fprintf(po->pipe,"#C t");
       printInspectableNames(po->pipe, inspectables);
@@ -117,8 +129,23 @@ bool PlotOptionEngine::init(AbstractController* maybe_controller){
   return true;
 }
 
-void PlotOptionEngine::setName(const std::string& name){
-  FOREACH(std::list<PlotOption>, plotOptions, po){
+bool PlotOptionEngine::reInit() {
+  closePipes();
+  return init(maybe_controller);
+}
+
+void PlotOptionEngine::closePipes() {
+  if (initialised) {
+    // closes all pipes of the agents due to pause mode or so
+    FOREACH(list<PlotOption>, plotOptions, po){
+      po->close();
+    }
+    initialised = false;
+  }
+}
+
+void PlotOptionEngine::setName(const string& name){
+  FOREACH(list<PlotOption>, plotOptions, po){
     po->setName(name);
   }
 }
@@ -137,7 +164,7 @@ PlotOption PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
 
 bool PlotOptionEngine::removePlotOption(PlotMode mode) {
   // if plotoption with the same mode exists -> delete it
-  std::list<PlotOption>::iterator po
+  list<PlotOption>::iterator po
     = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
   if(po != plotOptions.end()){
     (*po).close();
@@ -159,7 +186,7 @@ void PlotOptionEngine::addConfigurable(const Configurable* c){
 
 void PlotOptionEngine::writePlotComment(const char* cmt){
   assert(initialised);
-  for(std::list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
+  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
     if( ((*i).pipe) && (t % (*i).interval == 0) && (strlen(cmt)>0)){ // for the guilogger pipe
       char last = cmt[strlen(cmt)-1];
       fprintf((*i).pipe, "# %s", cmt);
@@ -174,7 +201,7 @@ void PlotOptionEngine::plot(double time)
 {
   assert(initialised);
 
-  for(std::list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++)
+  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++)
   {
     if ( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) )
     {
@@ -190,7 +217,7 @@ void PlotOptionEngine::plot(double time)
 // GEORG: it is better to plot it at initialization time!
 // void PlotOptionEngine::plotNames()
 // {
-// 	  for(std::list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++)
+// 	  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++)
 // 	  {
 // 	    if( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) )
 // 	    {

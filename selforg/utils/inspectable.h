@@ -22,7 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-08-05 08:19:23  martius
+ *   Revision 1.7  2009-08-10 07:37:48  guettler
+ *   -Inspectable interface now supports to add infoLines itself.
+ *    These lines are then outprinted line by line to the PlotOption once,
+ *    preceded by a #I.
+ *   -Restart functionality of PlotOptionEngine added (e.g. closePipes(), reInit()).
+ *
+ *   Revision 1.6  2009/08/05 08:19:23  martius
  *   addInspectableMatrix allows to specify optionally whether all or only 4x4+Diagonal is used
  *
  *   Revision 1.5  2009/07/15 13:01:15  robot12
@@ -81,8 +87,6 @@
 #ifndef __INSPECTABLE_H
 #define __INSPECTABLE_H
 
-
-#ifndef AVR
 
 #include <list>
 #include <map>
@@ -146,6 +150,8 @@ public:
     std::string name;
     bool operator()(ILayer l) { return l.vectorname == name; }
   };
+
+
 
   /// TYPEDEFS END
 
@@ -215,108 +221,48 @@ public:
    */
   virtual void addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag=true);
 
+  /**
+   * Adds an info line to this inspectable instance. All infolines are plotted
+   * by the PlotOptionEngine and therefore appear e.g. in the logfile.
+   * They are leaded by a #I. If you have your own identifiers, just begin with
+   * your one (e.g. N for number of
+   * NOTE: You must not add e.g. carriage return, all this is handled by the
+   * PlotOptionsEngine itself.
+   * If you like to add multiple lines, call this function a lot more or
+   * use instead addInfoLines.
+   * @param infoLine the line (as string) to be added
+   */
+  virtual void addInfoLine(std::string infoLine);
 
+  /**
+   * Adds a bunch of infolines with addInfoLine to this inspectable instance.
+   * Every infoline is separated by an carriage return automatically, done
+   * by the PlotOptionsEngine.
+   * @param infoLineList the infoLines to be added as a string list.
+   */
+  virtual void addInfoLines(std::list<std::string> infoLineList);
+
+  /**
+   * Removes all infolines from this inspectable instance.
+   * This is useful if you have new infoLines and would like to restart
+   * the PlotOptionEngine.
+   */
+  virtual void removeInfoLines();
+
+  /**
+   * Returns all infolines added to this inspectable instance.
+   * This function is called by the PlotOptionEngine.
+   * @return all added infolines.
+   */
+  virtual std::list<std::string> getInfoLines() const;
 
 protected:
   iparampairlist mapOfValues;
   imatrixpairlist mapOfMatrices;
 
-
-};
-
-#else
-
-#include <string.h>
-#include "stl_adds.h"
-#include "avrtypes.h"
-
-
-namespace matrix {
-  class Matrix;
-}
-
-/**
- * Interface for inspectable objects.
- * That means that one can read out some internal parameters indentified by string keys
-*/
-class Inspectable {
-public:
-
-
-  typedef struct ILayer{
-    ILayer(const charArray vectorname, const charArray& biasname,
-	   int dimension, int rank, const charArray& layername)
-      : vectorname(vectorname), biasname(biasname),
-	 dimension(dimension), rank(rank), layername(layername) {}
-    charArray vectorname;  //< prefix of the internal parameter vector e.g. "v"
-    charArray biasname;    ///< prefix of the internal parameter vector used as bias for the neurons e.g. "h"
-    int dimension;      ///< length of the vector (number of units)
-    int rank;           ///< rank of the layer (0 are input layers)
-    charArray layername;   ///< name of the layer as displayed by the visualiser
-  }ILayer;
-
-  typedef struct IConnection{
-    IConnection(const charArray& matrixname, const charArray& vector1, const charArray& vector2)
-      : matrixname(matrixname), vector1(vector1), vector2(vector2) {}
-    charArray matrixname; ///< matrix name is the prefix of the internal parameter matrix e.g. "A"
-    charArray vector1;    ///< vectorname of input layer
-    charArray vector2;    ///< vectorname of output layer
-  }IConnection;
-
-
- typedef ILayer[maxNumberEntries] ilayerlist;
- typedef IConnection[maxNumberEntries] iconnectionlist;
-
-  Inspectable();
-
-  virtual ~Inspectable();
-
-
-  /** The list of the names of all internal parameters given by getInternalParams().
-      The naming convention is "v[i]" for vectors
-       and "A[i][j]" for matrices, where i, j start at 0.
-      @return: list of keys
-   */
-  virtual iparamkeylist getInternalParamNames() const;
-
-
-/** @return: list of values
-   */
-  virtual iparamvallist getInternalParams() const;
-
-
-    /**
-     * This is the new style for adding inspectable values. Just call this
-     * function for each parameter and you are done.
-     * registers a single value
-     * @param key the name of the inspectable, shown e.g. in guilogger
-     * @param val the address of the value to inspect
-    */
-  virtual void addInspectableValue(const iparamkey key, iparamval* val);
-
-
-    /**
-     * This is the new style for adding inspectable values. Just call this
-     * function for each parameter and you are done.
-     * inspects all elements of the given matrix given through the functions
-     * store4x4AndDiagonalFieldNames(Matrix& m,string& matrixName);
-     * defined in <selforg/controller_misc.h>
-     * @param key the name of the matrix, shown e.g. in guilogger
-     * @param m the address of the matrix to inspect
-     * @note that you can change the structure of the matrix while
-     * being inspected.
-     */
-  virtual void addInspectableMatrix(const iparamkey key, matrix::Matrix* m);
-
-
-
-private:
-	  iparamkeylist ikeylist;
-	  iparamvallist ivallist;
-	  uint8_t numberParameters;
+  std::list<std::string> infoLineStringList;
 
 
 };
-#endif
 
 #endif

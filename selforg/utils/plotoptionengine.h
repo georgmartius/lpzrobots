@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2009-08-05 22:53:02  martius
+ *  Revision 1.5  2009-08-10 07:37:48  guettler
+ *  -Inspectable interface now supports to add infoLines itself.
+ *   These lines are then outprinted line by line to the PlotOption once,
+ *   preceded by a #I.
+ *  -Restart functionality of PlotOptionEngine added (e.g. closePipes(), reInit()).
+ *
+ *  Revision 1.4  2009/08/05 22:53:02  martius
  *  redesigned
  *   works as a stand alone object now
  *   added init function
@@ -67,13 +73,25 @@ public:
   PlotOptionEngine(const PlotOption& plotOption);
   PlotOptionEngine(const std::list<PlotOption>& plotOptions);
 
-  virtual
-  ~PlotOptionEngine();
+  virtual ~PlotOptionEngine();
 
   /** initializes PlotOptionEngine and opens all pipes and stuff.
       The optional controller is used to print structure information
    */
   virtual bool init(AbstractController* maybe_controller =0);
+
+  /**
+   * Reinitialises the PlotOptionEngine.
+   * This means it closes all open pipes by calling closePipes()
+   * and restarts them by calling init().
+   * @return true if succeeded, otherwise false.
+   */
+  virtual bool reInit();
+
+  /**
+   * Closes all open pipes of the current used PlotOptions.
+   */
+  virtual void closePipes();
 
   /**
      sets the name of all plotoptions (call before init, but after options are added)
@@ -113,6 +131,9 @@ protected:
   long int t;
   
   bool initialised;
+
+  // old artefact, should be removed in future releases
+  AbstractController* maybe_controller;
 };
 
 #endif /* PLOTOPTIONENGINE_H_ */

@@ -22,7 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-07 09:32:16  martius
+ *   Revision 1.11  2009-08-10 07:37:48  guettler
+ *   -Inspectable interface now supports to add infoLines itself.
+ *    These lines are then outprinted line by line to the PlotOption once,
+ *    preceded by a #I.
+ *   -Restart functionality of PlotOptionEngine added (e.g. closePipes(), reInit()).
+ *
+ *   Revision 1.10  2009/08/07 09:32:16  martius
  *   changed order between matrices and params
  *
  *   Revision 1.9  2009/08/05 22:49:24  martius
@@ -127,5 +133,29 @@ void Inspectable::addInspectableValue(const iparamkey key, iparamval* val) {
 void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag) {
   mapOfMatrices+=imatrixpair(key, std::pair<matrix::Matrix*, bool>(m, only4x4AndDiag) );
 }
+
+void Inspectable::addInfoLine(std::string infoLine)
+{
+  infoLineStringList.push_back(infoLine);
+}
+
+
+void Inspectable::addInfoLines(std::list<std::string> infoLineList)
+{
+  FOREACHC(std::list<std::string>, infoLineList, line)
+  {
+    infoLineStringList.push_back(*line);
+  }
+}
+
+std::list<std::string> Inspectable::getInfoLines() const
+{
+  return infoLineStringList;
+}
+
+void Inspectable::removeInfoLines() {
+  infoLineStringList.clear();
+}
+
 
 
