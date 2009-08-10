@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2009-08-05 16:13:06  martius
+ *   Revision 1.20  2009-08-10 14:48:34  der
+ *   calcDrawInterval gets a double
+ *
+ *   Revision 1.19  2009/08/05 16:13:06  martius
  *   added framerate to adjust
  *
  *   Revision 1.18  2008/04/23 07:17:16  martius
@@ -105,11 +108,11 @@ namespace lpzrobots {
 
     virtual void setVideoRecordingMode(bool mode);
 
-    virtual void calcAndSetDrawInterval(int Hz, double rtf);
+    virtual void calcAndSetDrawInterval(double Hz, double rtf);
 
   private:
     /// calculates the draw interval with simStepSize and realTimeFactor so that we have the Hz frames/sec
-    int calcDrawInterval(int Hz, double rtf);
+    int calcDrawInterval(double Hz, double rtf);
 
   public:
     bool videoRecordingMode;

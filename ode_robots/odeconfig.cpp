@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-05 16:14:02  martius
+ *   Revision 1.11  2009-08-10 14:48:15  der
+ *   calcDrawInterval gets a double
+ *
+ *   Revision 1.10  2009/08/05 16:14:02  martius
  *   added framerate to adjust
  *   some parameters are really handled as ints now (still with custom set function)
  *
@@ -168,12 +171,12 @@ namespace lpzrobots {
     videoRecordingMode=mode;
   }
 
-  void OdeConfig::calcAndSetDrawInterval(int Hz, double rtf){
+  void OdeConfig::calcAndSetDrawInterval(double Hz, double rtf){
     drawInterval = calcDrawInterval(Hz,rtf);
   }
 
   /// calculates the draw interval with simStepSize and realTimeFactor so that we have 25 frames/sec
-  int OdeConfig::calcDrawInterval(int Hz, double rtf){
+  int OdeConfig::calcDrawInterval(double Hz, double rtf){
     if(rtf>0 && simStepSize>0){
       return int(ceil(1/((double)Hz*simStepSize/rtf)));
     }else return 50;
