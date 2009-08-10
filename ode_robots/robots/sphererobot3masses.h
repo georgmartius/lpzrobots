@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2008-05-07 16:45:52  martius
+ *   Revision 1.17  2009-08-10 07:48:55  guettler
+ *   removed typedef to avoid compiler warnings
+ *
+ *   Revision 1.16  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.15  2007/11/07 13:21:16  martius
@@ -156,7 +159,7 @@ class Sphererobot3Masses : public OdeRobot
 {
 public:
   /// enum for the objects of the robot
-  typedef enum objects { Base, Pendular1, Pendular2, Pendular3, Last } ;
+  /* typedef */ enum objects { Base, Pendular1, Pendular2, Pendular3, Last } ;
 
 protected:
   static const int servono=3;

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2007-11-07 13:21:16  martius
+ *   Revision 1.15  2009-08-10 07:48:55  guettler
+ *   removed typedef to avoid compiler warnings
+ *
+ *   Revision 1.14  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.13  2007/01/26 12:05:05  martius
@@ -99,7 +102,7 @@ namespace lpzrobots {
   class Sphererobot : public OdeRobot
   {
   public:
-    typedef enum objects { Base, Pendular, Pole1Bot, Pole2Bot, Pole3Bot, 
+    /* typedef */ enum objects { Base, Pendular, Pole1Bot, Pole2Bot, Pole3Bot,
 			   Pole1Top , Pole2Top, Pole3Top, Last};
 
   protected:

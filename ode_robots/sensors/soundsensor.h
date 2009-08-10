@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-11-07 13:22:59  martius
+ *   Revision 1.2  2009-08-10 07:49:11  guettler
+ *   removed typedef to avoid compiler warnings
+ *
+ *   Revision 1.1  2007/11/07 13:22:59  martius
  *   new sound sensor
  *
  *
@@ -45,7 +48,7 @@ namespace lpzrobots {
   */
   class SoundSensor: public Sensor {
   public:  
-    typedef enum Measure { Segments, Angle, AngleVel };
+    /* typedef */ enum Measure { Segments, Angle, AngleVel };
 
     /** @param dim Up-axis of the robot (sometimes it is not Z)	
     */

@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-08-03 14:09:48  jhoffmann
+ *   Revision 1.18  2009-08-10 07:46:36  guettler
+ *   removed typedef to avoid compiler warnings
+ *
+ *   Revision 1.17  2009/08/03 14:09:48  jhoffmann
  *   Remove some compiling warnings, memory leaks; Add some code cleanups
  *
  *   Revision 1.16  2009/03/13 09:19:53  martius
@@ -167,7 +170,9 @@ namespace lpzrobots {
    class OSGCylinder;
    class OSGDummy;
    class OSGMesh;
-   /*typedef*/ struct GlobalData;
+
+   /* typedef */ struct GlobalData;
+
    class OdeHandle;
    class OsgHandle;
    class Color;
@@ -194,8 +199,10 @@ public:
       Draw means the primitive is drawn
       Child is only used internally and is used for transformed geoms.
   */
-  /*typedef*/ enum Modes {Body=1, Geom=2, Draw=4, Child=8};
-  /*typedef*/ enum Category { Dyn=1, Stat=2};
+
+  /* typedef */ enum Modes {Body=1, Geom=2, Draw=4, Child=8};
+  /* typedef */ enum Category { Dyn=1, Stat=2};
+
 
   Primitive ();
   virtual ~Primitive ();

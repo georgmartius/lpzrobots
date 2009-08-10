@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-03-27 20:45:03  martius
+ *   Revision 1.13  2009-08-10 07:48:55  guettler
+ *   removed typedef to avoid compiler warnings
+ *
+ *   Revision 1.12  2009/03/27 20:45:03  martius
  *   motor type can be selected
  *
  *   Revision 1.11  2009/03/26 18:01:59  martius
@@ -86,7 +89,7 @@ namespace lpzrobots {
 
   typedef struct {
   public:
-    typedef enum MotorType {Servo, CenteredServo, AngularMotor };
+    /* typedef */ enum MotorType {Servo, CenteredServo, AngularMotor };
 
     int    segmNumber;    ///<  number of snake elements
     double segmLength;    ///< length of one snake element
