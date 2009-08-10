@@ -1,1 +1,6 @@
-Makefile.depend start *.log start_opt
+Makefile.depend
+start
+*.log
+start_opt
+.history
+video???
