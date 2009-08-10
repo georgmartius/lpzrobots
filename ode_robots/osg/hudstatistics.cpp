@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-29 14:19:49  jhoffmann
+ *   Revision 1.7  2009-08-10 07:45:54  guettler
+ *   uses new BackCaller implementation
+ *
+ *   Revision 1.6  2009/07/29 14:19:49  jhoffmann
  *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
  *
  *   Revision 1.5  2008/04/29 08:45:56  guettler
@@ -172,7 +175,7 @@ double& HUDStatisticsManager::addMeasureList(std::list<StatisticMeasure*> measur
 
 
 
-void HUDStatisticsManager::doOnCallBack() {
+void HUDStatisticsManager::doOnCallBack(BackCaller* source, BackCaller::CallbackableType /* = BackCaller::DEFAULT_CALLBACKABLE_TYPE */) {
   // go through WindowStatictList and update the graphical text, that should be all!
   if (statTool->measureStarted())
     for (std::list<WindowStatistic*>::iterator i=windowStatisticList.begin();i!=windowStatisticList.end();i++) {

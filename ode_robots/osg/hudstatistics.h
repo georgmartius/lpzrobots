@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-01-17 09:55:55  der
+ *   Revision 1.5  2009-08-10 07:45:54  guettler
+ *   uses new BackCaller implementation
+ *
+ *   Revision 1.4  2008/01/17 09:55:55  der
  *   methods added for adding std::list<AbstractMeasure*> to the HUD
  *
  *   Revision 1.3  2007/12/06 10:02:49  der
@@ -195,7 +198,7 @@ public:
 	 *	this method is invoked when a callback is done from the class where this
 	 * class is for callback registered, it is overwritten
 	 */
-  virtual void doOnCallBack();
+  virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
 
 
   virtual StatisticTools* getStatisticTools() { return statTool; }
