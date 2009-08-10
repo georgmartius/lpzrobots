@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2009-08-07 13:25:55  martius
+ *   Revision 1.16  2009-08-10 14:56:24  der
+ *   transform.get() to compile on older gcc/OSG versions
+ *
+ *   Revision 1.15  2009/08/07 13:25:55  martius
  *   destructor does not segfault if oject is uninitialized
  *
  *   Revision 1.14  2009/07/30 11:34:15  guettler
@@ -188,7 +191,7 @@ namespace lpzrobots {
   }
 
   OSGPrimitive::~OSGPrimitive(){
-    if(transform){
+    if(transform.get()){
       Node::ParentList l = transform->getParents();
       for(Node::ParentList::iterator i = l.begin(); i != l.end(); i++){
 	(*i)->removeChild(transform.get());  
