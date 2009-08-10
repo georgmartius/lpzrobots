@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.33  2009-08-07 13:27:46  martius
+ *   Revision 1.34  2009-08-10 07:54:32  guettler
+ *   - uses new BackCaller implementation
+ *   - bugfix: avoid crash if noGraphics when getting HUDSM
+ *
+ *   Revision 1.33  2009/08/07 13:27:46  martius
  *   makePhysicalScene to create phyiscal scene independent of graphical scene
  *     (to cope with new noGraphics implementation)
  *
@@ -261,11 +265,10 @@ namespace lpzrobots {
   "}\n";
 
      Base::Base(const std::string& caption)
-      : ground(0), caption(caption), groundTexture("Images/greenground.rgb"),
-	hud(0), timestats(0), captionline(0),
-	plane(0),
-	ReceivesShadowTraversalMask(0x1), CastsShadowTraversalMask(0x2),
-	shadow(5), shadowTexSize(2048), useNVidia(1)
+      : ground(0), caption(caption), groundTexture("Images/greenground.rgb"), root(0), shadowedScene(0),
+      lightSource(0), sceneToShadow(0), groundScene(0), transform(0), hud(0), timestats(0),
+      captionline(0), statisticLine(0), plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
+      CastsShadowTraversalMask(0x2), shadow(5), shadowTexSize(2048), useNVidia(1)
     {
     }
 
@@ -597,8 +600,8 @@ namespace lpzrobots {
 
       // create HUDStatisticsManager and register it for being called back every step
       hUDStatisticsManager = new HUDStatisticsManager(geode,font);
-      this->addGraphicsCallbackable(hUDStatisticsManager);
-      this->addPhysicsCallbackable(hUDStatisticsManager->getStatisticTools());
+      this->addCallbackable(hUDStatisticsManager, Base::PHYSICS_CALLBACKABLE);
+      this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
     }
 
     osg::CameraNode* camera = new osg::CameraNode;
@@ -991,13 +994,6 @@ namespace lpzrobots {
     return true;
   }
 
-  void Base::addGraphicsCallbackable(Callbackable* callbackable){
-    graphicsCallbackables.push_back(callbackable);
-  }
-
-  void Base::addPhysicsCallbackable(Callbackable* callbackable){
-    physicsCallbackables.push_back(callbackable);
-  }
 
   void Base::changeShadowTechnique()
   {
@@ -1061,6 +1057,19 @@ int Base::contains(char **list, int len,  const char *str) {
       return i+1;
   }
   return 0;
+}
+
+HUDStatisticsManager* Base::getHUDSM()
+{
+  if (hUDStatisticsManager==0)
+  {
+    // create HUDStatisticsManager and register it for being called back every step
+    // but do not display because the system is initialised with nographics
+    hUDStatisticsManager = new HUDStatisticsManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
+    this->addCallbackable(hUDStatisticsManager, Base::PHYSICS_CALLBACKABLE);
+    this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
+  }
+  return hUDStatisticsManager;
 }
 
 

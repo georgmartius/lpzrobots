@@ -24,7 +24,11 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-08-07 13:27:18  martius
+ *   Revision 1.19  2009-08-10 07:54:32  guettler
+ *   - uses new BackCaller implementation
+ *   - bugfix: avoid crash if noGraphics when getting HUDSM
+ *
+ *   Revision 1.18  2009/08/07 13:27:18  martius
  *   makePhysicalScene to create phyiscal scene independent of graphical scene
  *     (to cope with new noGraphics implementation)
  *
@@ -137,28 +141,33 @@
 #include "odehandle.h"
 
 #include "hudstatistics.h"
+#include <selforg/backcaller.h>
 
 namespace osgShadow
 {
-	class ShadowedScene;
+  class ShadowedScene;
 }
-class Callbackable;
 
+namespace lpzrobots
+{
 
-namespace lpzrobots {
-
-  class MoveEarthySkyWithEyePointTransform : public osg::Transform {
+  class MoveEarthySkyWithEyePointTransform : public osg::Transform
+  {
     public:
       /** Get the transformation matrix which moves from local coords to world coords.*/
-      virtual bool computeLocalToWorldMatrix(osg::Matrix& matrix,osg::NodeVisitor* nv) const;
+      virtual bool computeLocalToWorldMatrix(osg::Matrix& matrix, osg::NodeVisitor* nv) const;
 
       /** Get the transformation matrix which moves from world coords to local coords.*/
-      virtual bool computeWorldToLocalMatrix(osg::Matrix& matrix,osg::NodeVisitor* nv) const;
+      virtual bool computeWorldToLocalMatrix(osg::Matrix& matrix, osg::NodeVisitor* nv) const;
   };
 
-  class Base {
+  class Base : public BackCaller
+  {
   public:
-    Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Güttler");
+    Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Gï¿½ttler");
+
+    static const int PHYSICS_CALLBACKABLE = 1; //!< called each ode/physics step
+    static const int GRAPHICS_CALLBACKABLE = 2; //!< called each osg/draw step
 
     /// create the ground plane
     virtual void makePhysicsScene(); 
@@ -186,15 +195,7 @@ namespace lpzrobots {
 
     virtual void setCaption(const std::string& caption);
 
-    /** adds an Callbackable object for getting a callback every step.
-     * note that the object are not called back in this class. This must
-     * be done in the deduced class (here: Simulation).
-     */
-    virtual void addGraphicsCallbackable(Callbackable* callbackable);
-
-    virtual void addPhysicsCallbackable(Callbackable* callbackable);
-
-    virtual HUDStatisticsManager* getHUDSM() { return this->hUDStatisticsManager; }
+    virtual HUDStatisticsManager* getHUDSM();
 
     virtual ~Base();
 
@@ -256,7 +257,6 @@ namespace lpzrobots {
     // Helper
     /// returns the index+1 if the list contains the given string or 0 if not
     static int contains(char **list, int len,  const char *str);
-
 
   };
 }
