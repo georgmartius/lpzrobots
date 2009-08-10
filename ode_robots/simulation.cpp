@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.107  2009-08-10 08:16:51  guettler
+ *   Revision 1.108  2009-08-10 14:47:23  der
+ *   osg 2.4 changes
+ *
+ *   Revision 1.107  2009/08/10 08:16:51  guettler
  *   commented out code sections which are intended for future releases
  *
  *   Revision 1.106  2009/08/10 08:11:24  guettler
@@ -785,7 +788,7 @@ namespace lpzrobots {
       // add the record camera path handler
       viewer->addEventHandler(this);
       // add callback for video recording
-    #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 2
+    #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 4
       viewer->getCamera()->setPostDrawCallback(videostream.get());
     #else
       viewer->getCamera()->setFinalDrawCallback(videostream);
