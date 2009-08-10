@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2009-08-03 14:09:48  jhoffmann
+ *   Revision 1.23  2009-08-10 07:47:58  guettler
+ *   added some QMP critical sections (not compromising normal use of this class)
+ *
+ *   Revision 1.22  2009/08/03 14:09:48  jhoffmann
  *   Remove some compiling warnings, memory leaks; Add some code cleanups
  *
  *   Revision 1.21  2009/03/13 09:19:53  martius
@@ -180,6 +183,8 @@
 #include "odehandle.h"
 #include "globaldata.h"
 
+#include <selforg/quickmp.h>
+
 namespace lpzrobots{
 
   // returns the osg (4x4) pose matrix of the ode geom
@@ -218,8 +223,10 @@ namespace lpzrobots{
   }
 
   Primitive::~Primitive () {
+    QMP_CRITICAL(8);
     if(geom) dGeomDestroy( geom );
     if(body) dBodyDestroy( body );
+    QMP_END_CRITICAL(8);
   }
 
 
@@ -382,6 +389,7 @@ namespace lpzrobots{
 		   char mode) {
     assert(mode & Body || mode & Geom);
     this->mode=mode;
+    QMP_CRITICAL(0);
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
@@ -396,7 +404,7 @@ namespace lpzrobots{
     if(mode & Draw){
       osgplane->init(osgHandle);
     }
-
+    QMP_END_CRITICAL(0);
   }
 
   void Plane:: update(){
@@ -431,6 +439,7 @@ namespace lpzrobots{
 		 char mode) {
     assert((mode & Body) || (mode & Geom));
     substance = odeHandle.substance;
+    QMP_CRITICAL(1);
     this->mode=mode;
     osg::Vec3 dim = osgbox->getDim();
     if (mode & Body){
@@ -447,6 +456,7 @@ namespace lpzrobots{
     if (mode & Draw){
       osgbox->init(osgHandle);      
     }
+    QMP_END_CRITICAL(1);
   }
 
   void Box:: update(){
@@ -482,6 +492,7 @@ namespace lpzrobots{
     assert(mode & Body || mode & Geom);
     substance = odeHandle.substance;
     this->mode=mode;
+    QMP_CRITICAL(2);
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
@@ -496,7 +507,7 @@ namespace lpzrobots{
     if (mode & Draw){
       osgsphere->init(osgHandle);      
     }
-
+    QMP_END_CRITICAL(2);
   }
 
   void Sphere::update(){
@@ -531,6 +542,7 @@ namespace lpzrobots{
     assert(mode & Body || mode & Geom);
     substance = odeHandle.substance;
     this->mode=mode;
+    QMP_CRITICAL(3);
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
@@ -545,6 +557,7 @@ namespace lpzrobots{
     if (mode & Draw){
       osgcapsule->init(osgHandle);
     }
+    QMP_END_CRITICAL(3);
   }
 
   void Capsule::update(){
@@ -579,6 +592,7 @@ namespace lpzrobots{
     assert(mode & Body || mode & Geom);
     substance = odeHandle.substance;
     this->mode=mode;
+    QMP_CRITICAL(4);
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
@@ -593,6 +607,7 @@ namespace lpzrobots{
     if (mode & Draw){
       osgcylinder->init(osgHandle);
     }
+    QMP_END_CRITICAL(4);
   }
 
   void Cylinder::update(){
@@ -629,13 +644,14 @@ namespace lpzrobots{
     assert(!(mode & Body) && (mode & Geom));
     substance = odeHandle.substance;
     this->mode=mode;
-    
+    QMP_CRITICAL(5);
     geom = dCreateRay ( odeHandle.space, range);
     attachGeomAndSetColliderFlags();
     
     if (mode & Draw){
       osgbox->init(osgHandle);      
     }
+    QMP_END_CRITICAL(5);
   }
   
   void Ray::setLength(float len){
@@ -676,6 +692,7 @@ namespace lpzrobots{
     assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised    
     substance = odeHandle.substance;
 
+    QMP_CRITICAL(6);
     // our own geom is just a transform
     geom = dCreateGeomTransform(odeHandle.space);
     dGeomTransformSetInfo(geom, 1);
@@ -698,6 +715,7 @@ namespace lpzrobots{
     // finally bind the transform the body of parent
     dGeomSetBody (geom, parent->getBody());    
     dGeomSetData(geom, (void*)this); // set primitive as geom data
+    QMP_END_CRITICAL(6);
   }
 
   void Transform::update(){
@@ -727,6 +745,7 @@ namespace lpzrobots{
     substance = odeHandle.substance;
     this->mode=mode;
     double r=0.01;
+    QMP_CRITICAL(7);
     if (mode & Draw){
       osgmesh->init(osgHandle);
       r =  osgmesh->getRadius();
@@ -755,6 +774,7 @@ namespace lpzrobots{
       trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);
       osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
     }
+    QMP_END_CRITICAL(7);
   }
 
   float Mesh::getRadius() { return osgmesh->getRadius(); }
