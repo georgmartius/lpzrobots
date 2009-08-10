@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.105  2009-08-07 13:31:04  martius
+ *   Revision 1.106  2009-08-10 08:11:24  guettler
+ *   - uses new BackCaller implementation
+ *   - refactoring: quickmp.h moved to selforg/utils
+ *   - word spelling in commit section corrected
+ *
+ *   Revision 1.105  2009/08/07 13:31:04  martius
  *   call of makePhyiscalScene to actually have a
  *    ground plane when using nographics (was a BUG since change of noGraphics in osgData)
  *   sim_steps moved to globaldata
@@ -125,7 +130,7 @@
  *
  *   Revision 1.76  2008/04/18 10:38:15  guettler
  *   -extended profiling output
- *   -the OdeThread is now synchronized with one step delay for the
+ *   -the OdeThread is now synchronised with one step delay for the
  *    WiredControllers (when using flag -odethread)
  *
  *   Revision 1.75  2008/04/17 15:59:00  martius
@@ -146,16 +151,16 @@
  *   Multithreading also for OSG and ODE but disables because of instabilities
  *
  *   Revision 1.74.2.10  2008/04/14 11:25:30  guettler
- *   The OSG step (Viewer) runs now in a seperate thread! A Sideeffect is that
+ *   The OSG step (Viewer) runs now in a separate thread! A side effect is that
  *   the simulation runs one step out of sync with the ode, don't worry about
- *   that. This increases the simulation speed up to 30% on a test pc.
+ *   that. This increases the simulation speed up to 30% on a test PC.
  *   Together with the parallelisation of the ODE we have an total speed up of
  *   94% with the shadowtype 5 on an dual Pentium3 1Ghz and NVidia5250!
  *
  *   Revision 1.74.2.9  2008/04/14 10:49:23  guettler
- *   The ODE simstep runs now in a parallel thread! A Sideeffect is that
+ *   The ODE simstep runs now in a parallel thread! A side effect is that
  *   the simulation runs one step out of sync with the ode, don't worry about
- *   that. This increases the simulation speed up to 50% on a test pc.
+ *   that. This increases the simulation speed up to 50% on a test PC.
  *
  *   Revision 1.74.2.8  2008/04/11 16:40:29  martius
  *   pthread option
@@ -204,7 +209,7 @@
  *   Revision 1.69  2007/09/27 10:47:04  robot3
  *   mathutils: moved abs to selforg/stl_adds.h
  *   simulation,base: added callbackable support,
- *   added WSM (WindowStatisticsManager) funtionality
+ *   added WSM (WindowStatisticsManager) functionality
  *
  *   Revision 1.68  2007/08/29 13:08:26  martius
  *   added HUD with time and caption
@@ -223,7 +228,7 @@
  *   odeHandle knows about time
  *
  *   Revision 1.63  2007/06/21 16:19:59  martius
- *   -nopgraphics option which disables graphics rendering
+ *   -nographics option which disables graphics rendering
  *
  *   Revision 1.62  2007/06/08 15:37:22  martius
  *   random seed into OdeConfig -> logfiles
@@ -270,7 +275,7 @@
  *   again hard collisions
  *
  *   Revision 1.49  2006/09/21 22:09:01  martius
- *   timeleak is seldom annouced
+ *   timeleak is seldom announced
  *
  *   Revision 1.48  2006/09/21 16:17:27  der
  *   different friction because of terrain
@@ -319,7 +324,7 @@
  *   changes from Revision 1.40.4.27 reverted
  *
  *   Revision 1.40.4.27  2006/04/27 16:31:35  robot3
- *   -motionblur inlucded
+ *   -motionblur included
  *   -if the simulation is not in videoRedordingMode,
  *    50fps are now as standard used.
  *
@@ -334,13 +339,13 @@
  *
  *   Revision 1.40.4.23  2006/03/06 16:53:49  robot3
  *   now ExtendedViewer is used because of the new getCurrentCameraManipulator(),
- *   code optimizations
+ *   code optimisations
  *
  *   Revision 1.40.4.22  2006/03/04 15:04:33  robot3
- *   cameramanipulator is now updated with every draw intervall
+ *   cameramanipulator is now updated with every draw interval
  *
  *   Revision 1.40.4.21  2006/03/03 12:11:32  robot3
- *   neccessary changes made for new cameramanipulators
+ *   Necessary changes made for new cameramanipulators
  *
  *   Revision 1.40.4.20  2006/02/22 15:26:23  martius
  *   frame grabbing with osg works again
@@ -352,12 +357,14 @@
  *   prevent overflow in time sync
  *
  *   Revision 1.40.4.17  2006/02/14 17:31:12  martius
- *   much better time syncronisation
+ *   much better time synchronisation
  *
  *   Revision 1.40.4.16  2006/02/01 14:00:32  martius
  *   remerging of non-fullscreen start
  *
- *   Revision 1.40.4.15  2006/02/01 10:24:34  robot3
+ *   Revision 1.40.4.15  2006/02/01 10:24:34  ro *   Revision 1.76  2008/04/18 10:38:15  guettler
+ *   -extended profiling output
+ *   bot3
  *   new camera manipulator added
  *
  *   Revision 1.40.4.13  2006/01/12 22:32:51  martius
@@ -526,7 +533,7 @@
  *
  *   Revision 1.3  2005/06/15 14:01:31  martius
  *   moved all general code from main to simulation
- *                                                                 *
+ *                                                                         *
  ***************************************************************************/
 #include <stdlib.h>
 #include <signal.h>
@@ -565,7 +572,7 @@
 #include "motionblurcallback.h"
 
 // simple multithread api
-#include "quickmp.h"
+#include <selforg/quickmp.h> // moved to selforg/utils
 // simple profiling (only enabled if QPPOF is defined (Makefile))
 #ifdef QPROF
 #include "quickprof.h"
@@ -1038,24 +1045,12 @@ namespace lpzrobots {
 	  odeStep();
 
  	// call all registered physical callbackable classes
-	// SEQUENCIAL
-	// 	FOREACH(vector<Callbackable*>, physicsCallbackables, i) {
-	// 	  (*i)->doOnCallBack();
-	// 	}
-	// PARALLEL
-	unsigned int pcaSize=physicsCallbackables.size();
-        QP(PROFILER.beginBlock("physicsCB                    "));
-	if(pcaSize==1){
-	  physicsCallbackables.front()->doOnCallBack();
-	}else if (pcaSize>1){
-	  QMP_SHARE(physicsCallbackables);
-	  QMP_PARALLEL_FOR(i, 0, pcaSize){
-	    QMP_USE_SHARED(physicsCallbackables, vector<Callbackable*>);
-	    physicsCallbackables[i]->doOnCallBack();
-	  }
-	  QMP_END_PARALLEL_FOR;
-	}
-	QP(PROFILER.endBlock("physicsCB                    "));
+  QP(PROFILER.beginBlock("physicsCB                    "));
+  if (useQMPThreads!=0)
+    callBackQMP(Base::PHYSICS_CALLBACKABLE);
+  else
+    callBack(Base::PHYSICS_CALLBACKABLE);
+  QP(PROFILER.endBlock("physicsCB                    "));
 
 	// remove old signals from sound list
 	globalData.sounds.remove_if(Sound::older_than(globalData.time));
@@ -1096,10 +1091,8 @@ namespace lpzrobots {
 		     truerealtimefactor,pause);
 
 	// call all registered graphical callbackable classes
-	FOREACH(list<Callbackable*>, graphicsCallbackables, i) {
-	  (*i)->doOnCallBack();
-	}
-        QP(PROFILER.endBlock("graphicsUpdate               "));
+  callBack(Base::GRAPHICS_CALLBACKABLE);
+  QP(PROFILER.endBlock("graphicsUpdate               "));
 
 	//        onPostDraw(*(viewer->getCamera()));*/
         if(useOsgThread!=0){
