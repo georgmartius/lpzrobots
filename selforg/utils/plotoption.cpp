@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2009-08-05 22:53:02  martius
+ *  Revision 1.4  2009-08-10 15:34:30  der
+ *  redirect error output of neuronviz to null device
+ *
+ *  Revision 1.3  2009/08/05 22:53:02  martius
  *  redesigned
  *   works as a stand alone object now
  *   added init function
@@ -82,7 +85,7 @@ bool PlotOption::open(){
     else   std::cout << "can't open SphericalRobotGUI-Stream " << std::endl;
     break;
   case NeuronViz:
-    pipe=popen("neuronviz > /dev/null","w");  // TODO: Platform dependent
+    pipe=popen("neuronviz > /dev/null 2> /dev/null","w");  // TODO: Platform dependent
     break;
   case SoundMan:
     sprintf(cmd,"soundMan %s",parameter.c_str());
