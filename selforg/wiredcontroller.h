@@ -27,11 +27,16 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-05 22:57:09  martius
+ *   Revision 1.12  2009-08-10 07:41:48  guettler
+ *   - uses new BackCaller implementation
+ *   - shortened signature of function plot (removed unnecessary
+ *     parameters)
+ *
+ *   Revision 1.11  2009/08/05 22:57:09  martius
  *   use new plotoptionsengine entirely
  *   wirings provide the sensor and motors such that the entire
  *    old functionality (and more) is now available with through
- *    the separat plotoptionsengine.
+ *    the separate plotoptionsengine.
  *
  *   Revision 1.10  2009/07/21 09:10:22  robot12
  *   add some comments
@@ -78,6 +83,7 @@
 #define   	WIREDCONTROLLER_H_
 
 #include "plotoptionengine.h"
+#include "backcaller.h"
 #include "types.h"
 #include "inspectable.h"
 #include "randomgenerator.h"
@@ -103,7 +109,7 @@ class WiredController;
      however you can write the data into a file or send it to
      visualisation tools like guilogger or neuronviz.
  */
-class WiredController : public Inspectable {
+class WiredController : public Inspectable, public BackCaller {
 public:
   /** constructor. PlotOption as output setting.
       noisefactor is used to set the relative noise strength of this agent
@@ -173,23 +179,12 @@ public:
   virtual AbstractWiring* getWiring() { return wiring;}
 
 
-  /** adds an Callbackable object for getting a callback every step.
-   */
-  virtual void addCallbackable(Callbackable* callbackable);
-
 protected:
   /**
    * Plots controller sensor- and motorvalues and internal controller parameters.
-   * @param rx actual sensorvalues from robot (used for generation of motorcommand in actual timestep)
-   * @param rsensornumber length of rx
-   * @param cx actual sensorvalues which are passed to controller (used for generation of motorcommand in actual timestep)
-   * @param csensornumber length of cx
-   * @param y actual motorcommand (generated in the actual timestep)
-   * @param motornumber length of y
    * @param time simulation time
    */
-  virtual void plot(const sensor* rx, int rsensornumber, const sensor* cx, int csensornumber,
-		    const motor* y, int motornumber, double time);
+  virtual void plot(double time);
 
 
   AbstractController* controller;
@@ -220,7 +215,6 @@ protected:
   std::list<Callbackable* > callbackables;
 
   long int t;
-
 };
 
 #endif 	    /* !WIREDCONTROLLER_H_ */

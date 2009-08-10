@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2009-08-07 09:33:38  martius
+ *   Revision 1.16  2009-08-10 07:41:48  guettler
+ *   - uses new BackCaller implementation
+ *   - shortened signature of function plot (removed unnecessary
+ *     parameters)
+ *
+ *   Revision 1.15  2009/08/07 09:33:38  martius
  *   init plotengine with controller
  *
  *   Revision 1.14  2009/08/05 22:57:09  martius
@@ -179,10 +184,7 @@ void WiredController::writePlotComment(const char* cmt){
 
 
 // Plots controller sensor- and motorvalues and internal controller parameters.
-void WiredController::plot(const sensor* rx, int rsensornumber,
-			   const sensor* cx, int csensornumber,
-			   const motor* y, int motornumber, double time){
-  assert(controller && rx && cx && y);
+void WiredController::plot(double time){
   plotEngine.plot(time);
 };
 
@@ -205,15 +207,9 @@ void WiredController::step(const sensor* sensors, int sensornumber,
   wiring->wireSensors(sensors, rsensornumber, csensors, csensornumber, noise * noisefactor);
   controller->step(csensors, csensornumber, cmotors, cmotornumber);
   wiring->wireMotors(motors, rmotornumber, cmotors, cmotornumber);
-  plot(sensors, rsensornumber, csensors, csensornumber, motors, rmotornumber, time);
+  plot(time);
   // do a callback for all registered Callbackable classes
-  FOREACH(list<Callbackable*>, callbackables, i){
-    (*i)->doOnCallBack();
-  }
+  callBack();
   t++;
 }
 
-
-void WiredController::addCallbackable(Callbackable* callbackable){
-  callbackables.push_back(callbackable);
-}
