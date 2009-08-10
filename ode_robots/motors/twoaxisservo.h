@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-05-11 17:04:49  martius
+ *   Revision 1.9  2009-08-10 14:46:41  der
+ *   power() functions removed because references are bad vor velocity servo
+ *   setPower() functions added
+ *
+ *   Revision 1.8  2009/05/11 17:04:49  martius
  *   no velocity limit if maxVel=0
  *
  *   Revision 1.7  2009/05/11 15:43:22  martius
@@ -70,11 +74,11 @@ namespace lpzrobots {
     TwoAxisServo(TwoAxisJoint* joint, double _min1, double _max1, double power1, 
 		 double _min2, double _max2, double power2, 
 		 double damp=0.2, double integration=2, double maxVel=10.0, 
-		 bool minmaxCheck=true)
+		 double jointLimit = 1.3, bool minmaxCheck=true)
       : joint(joint),
 	pid1(power1, integration, damp),
 	pid2(power2, integration, damp),  
-	maxVel(maxVel) { 
+	maxVel(maxVel), jointLimit(jointLimit) { 
       assert(joint); 
       setMinMax1(_min1,_max1);
       setMinMax2(_min2,_max2);
@@ -153,14 +157,25 @@ namespace lpzrobots {
     };
 
     /** returns the power of the servo*/
-    virtual double& power1() { 
+    virtual void setPower1(double power1) { 
+      pid1.KP = power1;
+    };
+
+    /** returns the power of the servo*/
+    virtual void setPower2(double power2) { 
+      pid2.KP = power2;
+    };
+
+    /** returns the power of the servo*/
+    virtual double getPower1() { 
       return pid1.KP;
     };
     /** returns the power of the servo*/
-    virtual double& power2() { 
+    virtual double getPower2() { 
       return pid2.KP;
     };
 
+    /*TODO remove this referenced interface*/
     /** returns the damping of the servo*/
     virtual double& damping1() { 
       return pid1.KD;
@@ -179,15 +194,15 @@ namespace lpzrobots {
     virtual void setMinMax1(double _min, double _max){
       min1=_min;
       max1=_max;
-      joint->setParam(dParamLoStop, _min * 1.3);
-      joint->setParam(dParamHiStop, _max * 1.3);
+      joint->setParam(dParamLoStop, _min * jointLimit);
+      joint->setParam(dParamHiStop, _max * jointLimit);
     }
 
     virtual void setMinMax2(double _min, double _max){
       min2=_min;
       max2=_max;
-      joint->setParam(dParamLoStop2, _min * 1.3);
-      joint->setParam(dParamHiStop2, _max * 1.3);
+      joint->setParam(dParamLoStop2, _min * jointLimit);
+      joint->setParam(dParamHiStop2, _max * jointLimit);
     }
 
     /** adjusts maximal speed of servo*/
@@ -209,6 +224,7 @@ namespace lpzrobots {
     PID pid1;
     PID pid2;
     double maxVel;
+    double jointLimit;
   };
 
   typedef TwoAxisServo UniversalServo;
@@ -223,9 +239,10 @@ namespace lpzrobots {
     */
     TwoAxisServoCentered(TwoAxisJoint* joint, double _min1, double _max1, double power1, 
 			 double _min2, double _max2, double power2, 
-			 double damp=0.2, double integration=2, double maxVel=10.0)
+			 double damp=0.2, double integration=2, double maxVel=10.0, 
+			 double jointLimit = 1.3)
       : TwoAxisServo(joint, _min1, _max1, power1, _min2, _max2, power2,
-		     damp, integration, maxVel, false){      
+		     damp, integration, maxVel, jointLimit, false){      
     }
     virtual ~TwoAxisServoCentered(){}
 
@@ -285,9 +302,9 @@ namespace lpzrobots {
     TwoAxisServoVel(const OdeHandle& odeHandle, 
 		    TwoAxisJoint* joint, double _min1, double _max1, double power1, 
 		    double _min2, double _max2, double power2, 
-		    double damp=0.1, double maxVel=10.0)
+		    double damp=0.1, double maxVel=10.0, double jointLimit = 1.3)
       : TwoAxisServoCentered(joint, _min1, _max1, maxVel/2, _min2, _max2, maxVel/2,
-			     damp, 0, 0),
+			     damp, 0, 0, jointLimit),
 	motor(odeHandle, joint, power1, power2) 
     {
     }    
@@ -297,11 +314,26 @@ namespace lpzrobots {
     virtual void setPower(double power1, double power2) { 
       motor.setPower(power1,power2);
     };
+
     /** returns the power of the servo*/
-    virtual double& power() { 
-      dummy = motor.getPower();
-      return dummy;
+    virtual void setPower1(double power1) { 
+      pid1.KP = power1;
     };
+
+    /** returns the power of the servo*/
+    virtual void setPower2(double power2) { 
+      pid2.KP = power2;
+    };
+
+    /** returns the power of the servo*/
+    virtual double getPower1() { 
+      return motor.getPower();
+    };
+    /** returns the power of the servo*/
+    virtual double getPower2() { 
+      return motor.getPower2();
+    };
+
     /** offetCanceling does not exist for this type of servo */
     virtual double& offsetCanceling() { 
       dummy=0;

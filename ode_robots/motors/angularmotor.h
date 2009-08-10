@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-05-11 15:43:22  martius
+ *   Revision 1.6  2009-08-10 14:46:41  der
+ *   power() functions removed because references are bad vor velocity servo
+ *   setPower() functions added
+ *
+ *   Revision 1.5  2009/05/11 15:43:22  martius
  *   new velocity controlling servo motors
  *
  *   Revision 1.4  2006/09/21 16:15:06  der
@@ -169,6 +173,10 @@ namespace lpzrobots {
     
     virtual void setPower(double power);
     virtual void setPower(double power1, double power2);
+
+    /// return the maximal force
+    virtual double getPower2();
+
 
     virtual Joint* getJoint() { return joint; }
   protected:

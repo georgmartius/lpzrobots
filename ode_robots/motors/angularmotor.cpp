@@ -23,7 +23,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-05-11 15:43:22  martius
+ *   Revision 1.8  2009-08-10 14:46:41  der
+ *   power() functions removed because references are bad vor velocity servo
+ *   setPower() functions added
+ *
+ *   Revision 1.7  2009/05/11 15:43:22  martius
  *   new velocity controlling servo motors
  *
  *   Revision 1.6  2008/05/07 16:45:51  martius
@@ -227,6 +231,9 @@ namespace lpzrobots {
     dJointSetAMotorParam(motor, dParamFMax2, power2);       
   }
 
+  double AngularMotor2Axis::getPower2(){
+    return dJointGetAMotorParam(motor, dParamFMax2);       
+  }
 
   /*******************************************************************************/
 

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-05-11 15:43:22  martius
+ *   Revision 1.10  2009-08-10 14:46:41  der
+ *   power() functions removed because references are bad vor velocity servo
+ *   setPower() functions added
+ *
+ *   Revision 1.9  2009/05/11 15:43:22  martius
  *   new velocity controlling servo motors
  *
  *   Revision 1.8  2009/02/04 09:37:05  martius
@@ -71,8 +75,8 @@ namespace lpzrobots {
   
     OneAxisServo(OneAxisJoint* joint, double _min, double _max, 
 		 double power, double damp=0.2, double integration=2, double maxVel=10.0,
-		 bool minmaxCheck = true)
-      : joint(joint), pid(power, integration, damp), maxVel(maxVel) { 
+		 double jointLimit = 1.3, bool minmaxCheck = true)
+      : joint(joint), pid(power, integration, damp), maxVel(maxVel), jointLimit(jointLimit) { 
       assert(joint); 
       setMinMax(_min,_max);
       assert(min<max);     
@@ -117,8 +121,8 @@ namespace lpzrobots {
     virtual void setMinMax(double _min, double _max){
       min=_min;
       max=_max;
-      joint->setParam(dParamLoStop, min * 1.3);
-      joint->setParam(dParamHiStop, max * 1.3);
+      joint->setParam(dParamLoStop, min * jointLimit);
+      joint->setParam(dParamHiStop, max * jointLimit);
     }
 
     /** adjusts the power of the servo*/
@@ -127,7 +131,7 @@ namespace lpzrobots {
     };
 
     /** returns the power of the servo*/
-    virtual double& power() { 
+    virtual double getPower() { 
       return pid.KP;
     };
 
@@ -156,6 +160,7 @@ namespace lpzrobots {
     double max;
     PID pid;
     double maxVel;
+    double jointLimit; ///< joint limit with respect to servo limit
   };
 
   typedef OneAxisServo SliderServo;
@@ -173,8 +178,8 @@ namespace lpzrobots {
     */
     OneAxisServoCentered(OneAxisJoint* joint, double _min, double _max, 
 			 double power, double damp=0.2, double integration=2, 
-			 double maxVel=10.0)
-      : OneAxisServo(joint, _min, _max, power, damp, integration, maxVel, false){      
+			 double maxVel=10.0, double jointLimit = 1.3)
+      : OneAxisServo(joint, _min, _max, power, damp, integration, maxVel, jointLimit, false){      
     }
     virtual ~OneAxisServoCentered(){}
 
@@ -214,8 +219,8 @@ namespace lpzrobots {
     */
     OneAxisServoVel(const OdeHandle& odeHandle, 
 		    OneAxisJoint* joint, double _min, double _max, 
-		    double power, double damp=0.01, double maxVel=20)
-      : OneAxisServo(joint, _min, _max, maxVel/2, damp, 0, 0, false),
+		    double power, double damp=0.01, double maxVel=20, double jointLimit = 1.3)
+      : OneAxisServo(joint, _min, _max, maxVel/2, damp, 0, 0, jointLimit, false),
 	motor(odeHandle, joint, power) 
     {            
     }
@@ -227,9 +232,8 @@ namespace lpzrobots {
       motor.setPower(power);
     };
     /** returns the power of the servo*/
-    virtual double& power() { 
-      dummy = motor.getPower();
-      return dummy;
+    virtual double getPower() {       
+      return motor.getPower();
     };
     /** offetCanceling does not exist for this type of servo */
     virtual double& offsetCanceling() { 
