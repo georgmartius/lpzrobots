@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.6  2009-08-10 07:37:48  guettler
+ *  Revision 1.7  2009-08-10 15:36:19  der
+ *  plotoptions can again be added and initialized later
+ *  ctrl-g and -f are working again
+ *  ctrl-n added for neuronviz
+ *
+ *  Revision 1.6  2009/08/10 07:37:48  guettler
  *  -Inspectable interface now supports to add infoLines itself.
  *   These lines are then outprinted line by line to the PlotOption once,
  *   preceded by a #I.
@@ -95,38 +100,44 @@ bool PlotOptionEngine::init(AbstractController* maybe_controller){
   signal(SIGPIPE,SIG_IGN);
 
   FOREACH(list<PlotOption>, plotOptions, po){
-    po->open();
-    if(po->pipe){
-      // print start
-      time_t t = time(0);
-      fprintf(po->pipe,"# Start %s", ctime(&t));
-      // print network description given by the structural information of the controller
-      if(maybe_controller){
-	printNetworkDescription(po->pipe, maybe_controller->getName(), maybe_controller);
-      }
-      // print interval
-      fprintf(po->pipe, "# Recording every %dth dataset\n", po->interval);
-      // print all configureables
-      FOREACHC(list<const Configurable*>, configureables, i){
-	(*i)->print(po->pipe, "# ");
-      }
-      // print infolines of all inspectables
-      FOREACHC(list<const Inspectable*>, inspectables, insp)
-      {
-        list<string> infoLines = (*insp)->getInfoLines();
-        FOREACHC(list<string>, infoLines, infoLine) {
-          fprintf(po->pipe,string("#I").append(*infoLine).append("\n").c_str());
-        }
-      }
-      // print head line with all parameter names
-      fprintf(po->pipe,"#C t");
-      printInspectableNames(po->pipe, inspectables);
-    }
-    else
-      printf("Opening of pipe for PlotOption failed!\n");
+    initPlotOption(*po);
   }
   initialised = true;
   return true;
+}
+
+bool PlotOptionEngine::initPlotOption(PlotOption& po){
+  po.open();
+  if(po.pipe){
+    // print start
+    time_t t = time(0);
+    fprintf(po.pipe,"# Start %s", ctime(&t));
+    // print network description given by the structural information of the controller
+    if(maybe_controller){
+      printNetworkDescription(po.pipe, maybe_controller->getName(), maybe_controller);
+    }
+    // print interval
+    fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
+    // print all configureables
+    FOREACHC(list<const Configurable*>, configureables, i){
+      (*i)->print(po.pipe, "# ");
+    }
+    // print infolines of all inspectables
+    FOREACHC(list<const Inspectable*>, inspectables, insp)
+      {
+        list<string> infoLines = (*insp)->getInfoLines();
+        FOREACHC(list<string>, infoLines, infoLine) {
+          fprintf(po.pipe,string("#I").append(*infoLine).append("\n").c_str());
+        }
+      }
+    // print head line with all parameter names
+    fprintf(po.pipe,"#C t");
+    printInspectableNames(po.pipe, inspectables);
+    return true;
+  } else {
+    fprintf(stderr,"Opening of pipe for PlotOption failed!\n");
+    return false;
+  }
 }
 
 bool PlotOptionEngine::reInit() {
@@ -150,16 +161,18 @@ void PlotOptionEngine::setName(const string& name){
   }
 }
 
-
-
-PlotOption PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
+PlotOption& PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
   PlotOption po = plotOption;
   // if plotoption with the same mode exists -> delete it
   removePlotOption(po.mode);
   
   plotOptions.push_back(po);
   
-  return po;
+  return plotOptions.back();
+}
+
+bool PlotOptionEngine::addAndInitPlotOption(PlotOption& plotOption) {  
+  return initPlotOption(addPlotOption(plotOption));  
 }
 
 bool PlotOptionEngine::removePlotOption(PlotMode mode) {

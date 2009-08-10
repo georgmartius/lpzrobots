@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-08-10 07:41:48  guettler
+ *   Revision 1.17  2009-08-10 15:36:19  der
+ *   plotoptions can again be added and initialized later
+ *   ctrl-g and -f are working again
+ *   ctrl-n added for neuronviz
+ *
+ *   Revision 1.16  2009/08/10 07:41:48  guettler
  *   - uses new BackCaller implementation
  *   - shortened signature of function plot (removed unnecessary
  *     parameters)
@@ -164,6 +169,10 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
 
 PlotOption WiredController::addPlotOption(PlotOption& plotOption) {
   return plotEngine.addPlotOption(plotOption); 
+}
+
+bool WiredController::addAndInitPlotOption(PlotOption& plotOption) {
+  return plotEngine.addAndInitPlotOption(plotOption); 
 }
 
 bool WiredController::removePlotOption(PlotMode mode){

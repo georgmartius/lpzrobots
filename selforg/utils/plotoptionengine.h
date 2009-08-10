@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2009-08-10 07:37:48  guettler
+ *  Revision 1.6  2009-08-10 15:36:19  der
+ *  plotoptions can again be added and initialized later
+ *  ctrl-g and -f are working again
+ *  ctrl-n added for neuronviz
+ *
+ *  Revision 1.5  2009/08/10 07:37:48  guettler
  *  -Inspectable interface now supports to add infoLines itself.
  *   These lines are then outprinted line by line to the PlotOption once,
  *   preceded by a #I.
@@ -101,7 +106,13 @@ public:
   /** adds the PlotOptions to the list of plotoptions
       If a plotoption with the same Mode exists, then the old one is deleted first
    */
-  virtual PlotOption addPlotOption(PlotOption& plotoption);
+  virtual PlotOption& addPlotOption(PlotOption& plotoption);
+
+  /** adds the PlotOptions to the list of plotoptions
+      If a plotoption with the same Mode exists, then the old one is deleted first
+      The plotting is also initialized
+   */
+  virtual bool addAndInitPlotOption(PlotOption& plotoption);
 
   /** removes the PlotOptions with the given type
       @return true if sucessful, false otherwise
@@ -125,6 +136,9 @@ public:
   virtual void plot(double time);
 
 protected:
+
+  bool initPlotOption(PlotOption& po);
+
   std::list<PlotOption> plotOptions;
   std::list<const Inspectable* > inspectables;
   std::list< const Configurable* > configureables;

@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-08-10 07:41:48  guettler
+ *   Revision 1.13  2009-08-10 15:36:19  der
+ *   plotoptions can again be added and initialized later
+ *   ctrl-g and -f are working again
+ *   ctrl-n added for neuronviz
+ *
+ *   Revision 1.12  2009/08/10 07:41:48  guettler
  *   - uses new BackCaller implementation
  *   - shortened signature of function plot (removed unnecessary
  *     parameters)
@@ -152,6 +157,11 @@ public:
       If a plotoption with the same Mode exists, then the old one is deleted first
    */
   virtual PlotOption addPlotOption(PlotOption& plotoption);
+
+  /** adds a new PlotOption and initializes it
+      @see addPlotOption
+  */
+  bool addAndInitPlotOption(PlotOption& plotOption);
 
   /** removes the PlotOptions with the given type
       @return true if sucessful, false otherwise

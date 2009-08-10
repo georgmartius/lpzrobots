@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.109  2009-08-10 15:03:52  der
+ *   Revision 1.110  2009-08-10 15:36:19  der
+ *   plotoptions can again be added and initialized later
+ *   ctrl-g and -f are working again
+ *   ctrl-n added for neuronviz
+ *
+ *   Revision 1.109  2009/08/10 15:03:52  der
  *   shadowTexSize and shadow are integer
  *
  *   Revision 1.108  2009/08/10 14:47:23  der
@@ -1168,7 +1173,7 @@ namespace lpzrobots {
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(File)) {
 	    PlotOption po(File, filelogginginterval);
-	    (*i)->addPlotOption(po);
+	    (*i)->addAndInitPlotOption(po);
 	  }
 	}
 	handled= true;
@@ -1177,7 +1182,16 @@ namespace lpzrobots {
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(GuiLogger)) {
 	    PlotOption po(GuiLogger, guiloggerinterval);
-	    (*i)->addPlotOption(po);
+	    (*i)->addAndInitPlotOption(po);
+	  }
+	}
+	handled=true;
+	break;
+      case 14 : // Ctrl - n
+	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+	  if(!(*i)->removePlotOption(NeuronViz)) {
+	    PlotOption po(NeuronViz, neuronvizinterval);
+	    (*i)->addAndInitPlotOption(po);
 	  }
 	}
 	handled=true;
@@ -1391,13 +1405,13 @@ namespace lpzrobots {
     }
 
     // starting neuronviz
-    neuronvizinterval=10;
+    neuronvizinterval=50;
     index = contains(argv, argc, "-n");
     if(index) {
       if(argc > index)
 	neuronvizinterval=atoi(argv[index]);
       if (neuronvizinterval<1) // avoids a bug
-        neuronvizinterval=10; // default value
+        neuronvizinterval=50; // default value
       plotoptions.push_back(PlotOption(NeuronViz, neuronvizinterval));
     }
 
