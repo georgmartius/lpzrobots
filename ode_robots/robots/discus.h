@@ -24,7 +24,10 @@
  * A discusbot
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-01-19 14:33:34  martius
+ *   Revision 1.2  2009-08-10 07:26:08  guettler
+ *   removed typedef to avoid compiler warnings
+ *
+ *   Revision 1.1  2009/01/19 14:33:34  martius
  *   new discus-shaped robot
  *
  *
@@ -85,7 +88,7 @@ class Discus : public OdeRobot
 {
 public:
   /// enum for the objects of the robot
-  typedef enum objects { Base, Stabilizer, Pendular1, Pendular2, Pendular3, Last } ;
+  /* typedef */ enum objects { Base, Stabilizer, Pendular1, Pendular2, Pendular3, Last } ;
 
 protected:
   static const int maxservono=3;
