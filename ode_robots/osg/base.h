@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2009-08-10 08:37:17  guettler
+ *   Revision 1.21  2009-08-10 08:40:10  guettler
+ *   changed g&uumlettler to guettler
+ *
+ *   Revision 1.20  2009/08/10 08:37:17  guettler
  *   try to set guettler in caption to correct characters
  *
  *   Revision 1.19  2009/08/10 07:54:32  guettler
@@ -167,7 +170,7 @@ namespace lpzrobots
   class Base : public BackCaller
   {
   public:
-    Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Güttler");
+    Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Guettler");
 
     static const int PHYSICS_CALLBACKABLE = 1; //!< called each ode/physics step
     static const int GRAPHICS_CALLBACKABLE = 2; //!< called each osg/draw step
