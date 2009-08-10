@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.106  2009-08-10 08:11:24  guettler
+ *   Revision 1.107  2009-08-10 08:16:51  guettler
+ *   commented out code sections which are intended for future releases
+ *
+ *   Revision 1.106  2009/08/10 08:11:24  guettler
  *   - uses new BackCaller implementation
  *   - refactoring: quickmp.h moved to selforg/utils
  *   - word spelling in commit section corrected
@@ -1046,10 +1049,10 @@ namespace lpzrobots {
 
  	// call all registered physical callbackable classes
   QP(PROFILER.beginBlock("physicsCB                    "));
-  if (useQMPThreads!=0)
+  /*if (useQMPThreads!=0)*/
     callBackQMP(Base::PHYSICS_CALLBACKABLE);
-  else
-    callBack(Base::PHYSICS_CALLBACKABLE);
+  /*else
+    callBack(Base::PHYSICS_CALLBACKABLE);*/
   QP(PROFILER.endBlock("physicsCB                    "));
 
 	// remove old signals from sound list
