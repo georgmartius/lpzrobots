@@ -24,7 +24,11 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.2  2009-08-03 14:09:48  jhoffmann
+*   Revision 1.3  2009-08-10 07:39:31  guettler
+*   -example use of new SparseArray.
+*   -some test implementations for entropy (to be tested, corrected)
+*
+*   Revision 1.2  2009/08/03 14:09:48  jhoffmann
 *   Remove some compiling warnings, memory leaks; Add some code cleanups
 *
 *   Revision 1.1  2009/03/27 06:16:57  guettler
@@ -83,10 +87,12 @@
 
 
 #include "discretisizer.h"
+#include "sparsearray.h"
 #include <cmath>
 #include "stl_adds.h"
 #include <assert.h>
 #include <cstdlib>
+
 
 ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins ) : AbstractMeasure( measureName ), mode( mode ), numberBins( numberBins ), F(0), historyIndexList(0)
 {
@@ -98,8 +104,6 @@ ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode
 
 ComplexMeasure::~ComplexMeasure()
 {
-  if ( F )
-    free( F );
 
   if (binNumberHistory)
     free(binNumberHistory);
@@ -114,6 +118,11 @@ ComplexMeasure::~ComplexMeasure()
 
 void ComplexMeasure::step()
 {
+  if (actualStep%1000==0)
+  {
+    std::cout << "Size of F = " << (float)F.getRealSize() /1024 << " kbytes";
+    std::cout << " (instead of " << sizeof(int) * F.size() / 1024 << " kbytes for an array of size " << F.size() << ")" << std::endl;
+  }
   if (observedValueList.size()==0)
     return;
   int valNumber = 0;
@@ -144,22 +153,14 @@ void ComplexMeasure::step()
   actualStep++;
   switch ( mode )
   {
-  case ENT:/*
-    if (actualStep<10)
-    {
-      F[ binNumber ] ++;
-      computeEntropy();
-    }
-    else
-    {
-      updateEntropy( binNumber );
-      // now make update of F
-      F[ binNumber ] ++;
-    }*/
+  case ENT:
+    updateEntropy( binNumber );
+    // now make update of F
+    F[ binNumber ] = F[ binNumber ] +1;
     break;
   case ENTSLOW:
     //  case ENT:
-    F[ binNumber ] ++;
+    F[ binNumber ] = F[binNumber]+1;
     computeEntropy();
     break;
   case MI:
@@ -185,7 +186,7 @@ void ComplexMeasure::updateFforPI(int binNumber, std::list<int> binList)
     F[numberBins*numberBins+i*numberBins+bin]++;
   }
 }*/
-  
+
 
 
 void ComplexMeasure::calculatePInf()
@@ -210,28 +211,24 @@ void ComplexMeasure::addObservable(double& observedValue,double minValue, double
   initF();
 }
 
-/*
+
 void ComplexMeasure::updateEntropy( int binNumber )
 {
   // calculate dS
   double dS = 0;
-  if ( F[ binNumber ] > 0 )
+  double val = F[ binNumber ];
+  double t = actualStep;
+  if ( val > 0 )
   { // calculating log(0) is not smart ;)
-    dS = ((double)( F[ binNumber ] + 1 )) * log((double) (F[ binNumber ] + 1) ) -
-         ((double) F[ binNumber ] )* log((double) F[ binNumber ] );
-  }// else {
-  //dS = ;
-  //}
-  // update Entropy with old Entropy and dS
-  if ( actualStep > 1 )
-  {
-    std::cout << "dS=" << dS << ",actualStep=" << actualStep << ",value=" << value << ",log(actualStep-1)=" << log(double(actualStep-1)) << ",log((double)(actualStep))=" << log(((double)actualStep)) << std::endl;
-    value = ( ((double)(actualStep-1)) * (value - log((double) (actualStep-1))- dS  )) / ((double)(actualStep)) + log((double) (actualStep));
+    dS = (- val * log(val)) + ((val+1) * log(val+1));
   }
-  else
-    value=0;
+  // update Entropy with old Entropy and dS
+  if (actualStep>1)
+  {
+    value= - ((1./t) * (((value - log(t-1.))*(t-1.)) + dS)) + log(t);
+  }
 }
-*/
+
 
 void ComplexMeasure::computeEntropy()
 {
@@ -255,10 +252,6 @@ void ComplexMeasure::initF()
     fSize = (int) pow( numberBins, observedValueList.size() ) + (historyIndexNumber+1) * numberBins;
   else
     fSize = (int) pow( numberBins, observedValueList.size() );
-  // if ( F )
-  //  free( F );
-  F = ( int* ) malloc( sizeof( double ) * fSize );
-  for ( int i = 0; i < fSize;i++ )
-    F[ i ] =0;
+  F.reallocate(fSize);
 }
 

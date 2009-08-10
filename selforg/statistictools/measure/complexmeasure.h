@@ -24,7 +24,11 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.1  2009-03-27 06:16:58  guettler
+*   Revision 1.2  2009-08-10 07:39:31  guettler
+*   -example use of new SparseArray.
+*   -some test implementations for entropy (to be tested, corrected)
+*
+*   Revision 1.1  2009/03/27 06:16:58  guettler
 *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
 *
 *   Revision 1.3  2008/02/14 14:43:09  der
@@ -67,6 +71,8 @@
 #include "abstractmeasure.h"
 #include <list>
 
+#include "sparsearray.h"
+
 /** measure modes of complex measures.
  */
 enum ComplexMeasureMode {
@@ -107,7 +113,7 @@ ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins
      * adds a observed variable to the measure.
      * @param observedValue address of the observed value
      * @param minValue minimum value the observed value can become
-     * @param maxValue maximum value the observed value can become 
+     * @param maxValue maximum value the observed value can become
      */
     virtual void addObservable( double& observedValue, double minValue, double maxValue );
 
@@ -125,24 +131,24 @@ ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins
   std::list<Discretisizer*> discretisizerList; // stores the Discretisizer
   ComplexMeasureMode mode;
   int numberBins;
-  int fSize; // size of F
+  long fSize; // size of F
   int historySize; // size of binNumberHistory
-  int *F; // stores the frequencies as a linear vector
+//  int *F; // stores the frequencies as a linear vector
   int *binNumberHistory; // holds the binNumbers as an history, for predictive information 2 values are enough
   int historyIndex; // index of last stored value
   int *historyIndexList; // indexes of relevant stored values
   int historyIndexNumber; // number of indexes stored in historyIndexList
   int historyInterval; // interval between two different histoy indexes
 
-  
-  
+  // new: use SparseArray backed by HashMap instead of normal array
+  matrix::SparseArray<long, int> F;
     // calculation methods
-  
+
       /**
      * calculates the Predictive Information
      */
     void calculatePInf();
-  
+
 
     /**
      * updates the entropy. uses update rule with O(1) costs
@@ -155,10 +161,10 @@ ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins
      */
     void computeEntropy();
 
-  
+
     /**
      * inits F, neccessary after each call of addObservable()
-     * 
+     *
      */
     void initF();
 
