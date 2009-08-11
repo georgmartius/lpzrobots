@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-08-11 18:50:33  guettler
+ *   Revision 1.14  2009-08-11 19:00:56  guettler
+ *   code cleanup
+ *
+ *   Revision 1.13  2009/08/11 18:50:33  guettler
  *   stopTimer optimised, added discoverXBeeHardwareVersionTimeout to GlobalData
  *
  *   Revision 1.12  2009/08/11 18:26:47  guettler
@@ -306,7 +309,6 @@ namespace lpzrobots {
     push_FrameEscaped((uint8) 'H'); // AT-Command QByte 1
     push_FrameEscaped((uint8) 'V'); // AT-Command QByte 2
     transmit();
-    usleep(1);
   }
 
   void ECBCommunicator::send_XBeeATND() {
@@ -658,7 +660,6 @@ namespace lpzrobots {
 
   void ECBCommunicator::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type /* =
    SerialPortThread::NEW_DATA_RECEIVED*/) {
-    cout << "state: " << type << endl;
     switch (type) {
       case SerialPortThread::NEW_DATA_RECEIVED:
         // stopTimer is handled in newDataReceived (determined by received package)
