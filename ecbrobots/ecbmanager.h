@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-08-11 15:49:05  guettler
+ *   Revision 1.7  2009-08-11 19:26:45  guettler
+ *   added TODO
+ *
+ *   Revision 1.6  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -92,7 +95,7 @@ public:
 
 
   /// CONFIGURABLE INTERFACE
-
+  // TODO: CHECK AND REMOVE
   virtual paramval getParam(const paramkey& key) const;
 
   virtual bool setParam(const paramkey& key, paramval val);
