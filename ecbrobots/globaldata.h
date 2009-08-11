@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-08-11 15:49:05  guettler
+ *   Revision 1.6  2009-08-11 18:50:33  guettler
+ *   stopTimer optimised, added discoverXBeeHardwareVersionTimeout to GlobalData
+ *
+ *   Revision 1.5  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -88,6 +91,7 @@ namespace lpzrobots
         portName = std::string("/dev/ttyUSB0");
         addParameterDef("maxfailures",&maxFailures,4);
         addParameterDef("serialreadtimeout", &serialReadTimeout, 80);
+        addParameterDef("discoverxbeehardwareversiontimeout", &discoverXBeeHardwareVersionTimeout, 50);
         addParameterDef("discovernodestimeout", &discoverNodesTimeout, 3000);
         addParameterDef("cycletime", &cycleTime, 50);
         addParameterDef("noise", &noise, 0.05);
@@ -120,8 +124,9 @@ namespace lpzrobots
 
       paramval cycleTime; //!< time for one cycle from step to step (minimum)
 
-      paramval serialReadTimeout; //!< read timeout for awaiting messages from ECBs in ms
-      paramval discoverNodesTimeout; //!< read timeout for awaiting initial response (discover nodes - get node list) from each ECB/XBee in ms
+      paramint serialReadTimeout; //!< read timeout for awaiting messages from ECBs in ms
+      paramint discoverXBeeHardwareVersionTimeout; //!< read timeout for discovering which hardware version is connected to PC (XBee Series 1, XBee Series 2 or cable)
+      paramint discoverNodesTimeout; //!< read timeout for awaiting initial response (discover nodes - get node list) from each ECB/XBee in ms
 
       ECBCommunicator* comm;
   };

@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-08-11 18:26:47  guettler
+ *   Revision 1.13  2009-08-11 18:50:33  guettler
+ *   stopTimer optimised, added discoverXBeeHardwareVersionTimeout to GlobalData
+ *
+ *   Revision 1.12  2009/08/11 18:26:47  guettler
  *   BUGFIX: stopTimer if SerialPortThread calls back
  *
  *   Revision 1.11  2009/08/11 17:00:37  guettler
@@ -89,16 +92,13 @@
 
 using namespace std;
 
-namespace lpzrobots
-{
-
+namespace lpzrobots {
 
   unsigned int currentECBIndex;
   ECBCommunicator::ECBCommunicator(GlobalData& globalData) :
-    CThread("ECBCommunicator", globalData.debug), globalData(&globalData), transmitBufferCheckSum(0), serialPortThread(0),
-    ecbTransmitModeType(Undefined), currentCommState(STATE_NOT_INITIALISED),
-        currentECBIndex(0), currentTime(timeOfDayinMS()), answerTime(0)
-  {
+    CThread("ECBCommunicator", globalData.debug), globalData(&globalData), transmitBufferCheckSum(0), serialPortThread(
+        0), ecbTransmitModeType(Undefined), currentCommState(STATE_NOT_INITIALISED), currentECBIndex(0), currentTime(
+        timeOfDayinMS()), answerTime(0) {
     if (this->globalData->debug)
       std::cout << "New ECBCommunicator created." << std::endl;
     
@@ -109,14 +109,12 @@ namespace lpzrobots
     timerThread.addCallbackable(this, TimerThread::TIMER_EXPIRED);
   }
 
-  ECBCommunicator::~ECBCommunicator()
-  {
+  ECBCommunicator::~ECBCommunicator() {
     delete serialPortThread;
   }
   ;
 
-  void ECBCommunicator::setConfig(GlobalData& globalData)
-  {
+  void ECBCommunicator::setConfig(GlobalData& globalData) {
     CThread::setConfig(globalData.debug);
     this->globalData = &globalData;
     realtimeoffset = timeOfDayinMS();
@@ -135,35 +133,28 @@ namespace lpzrobots
    CSerialThread::flushInputBuffer ( time );
    }*/
 
-  bool ECBCommunicator::loop()
-  {
+  bool ECBCommunicator::loop() {
     assert ( globalData->comm==this );
-    if (globalData->pause)
-    {
+    if (globalData->pause) {
       usleep(1000);
       return true;
     }
-    switch (currentCommState)
-    {
+    switch (currentCommState) {
       case STATE_READY_FOR_STEP_OVER_AGENTS:
         globalData->simStep++;
-        if (globalData->debug)
-        {
+        if (globalData->debug) {
           std::cout << "ECBCommunicator: loop! simStep=" << globalData->simStep << std::endl;
         }
         /// With this for loop all agents perform a controller step
-        if (!globalData->testMode)
-        {
+        if (!globalData->testMode) {
           // sorgt dafür, dass der Zeittakt eingehalten wird:
           // Berechnung zu schnell -> warte,
           // Berechnung zu langsam -> Ausgabe, dass time leak stattfindet
           loopCallback();
-          FOREACH ( AgentList,globalData->agents,a )
-          {
+          FOREACH ( AgentList,globalData->agents,a ) {
             ((ECBAgent*) (*a))->step(globalData->noise, globalData->simStep);
           }
-        } else
-        {
+        } else {
           return this->testModeCallback();
         }
         if (globalData->debug)
@@ -171,12 +162,11 @@ namespace lpzrobots
         currentCommState = STATE_READY_FOR_SENDING_PACKAGE_MOTORS;
         break;
       case STATE_READY_FOR_SENDING_PACKAGE_MOTORS: //!< indicates that the thread is ready to send new motor values to an ECB
-        if (currentECBIndex < getNumberOfMediatorCollegues())
-        {
-          mediate(getMediatorCollegue(currentECBIndex),new ECBCommunicationEvent(ECBCommunicationEvent::EVENT_REQUEST_SEND_MOTOR_PACKAGE));
+        if (currentECBIndex < getNumberOfMediatorCollegues()) {
+          mediate(getMediatorCollegue(currentECBIndex), new ECBCommunicationEvent(
+              ECBCommunicationEvent::EVENT_REQUEST_SEND_MOTOR_PACKAGE));
           currentCommState = STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS;
-        } else
-        {
+        } else {
           currentECBIndex = 0;
           currentCommState = STATE_READY_FOR_STEP_OVER_AGENTS;
         }
@@ -196,32 +186,26 @@ namespace lpzrobots
     return true;
   }
 
-  long ECBCommunicator::timeOfDayinMS()
-  {
+  long ECBCommunicator::timeOfDayinMS() {
     struct timeval t;
     gettimeofday(&t, 0);
     return t.tv_sec * 1000 + t.tv_usec / 1000;
   }
 
-  void ECBCommunicator::resetSyncTimer()
-  {
+  void ECBCommunicator::resetSyncTimer() {
     realtimeoffset = timeOfDayinMS();
   }
 
-  void ECBCommunicator::loopCallback()
-  {
+  void ECBCommunicator::loopCallback() {
     /************************** Time Syncronisation ***********************/
     // Time syncronisation of real time and simulations time (not if on capture mode, or pause)
-    if (!globalData->pause)
-    {
+    if (!globalData->pause) {
       long currentTime = timeOfDayinMS();
       int benchmarkSteps = 10;
       long elapsed = currentTime - realtimeoffset;
-      if (globalData->benchmarkMode || globalData->debug)
-      {
+      if (globalData->benchmarkMode || globalData->debug) {
         std::cout << "Elapsed time: " << elapsed << "ms" << std::endl;
-        if (globalData->benchmarkMode && (globalData->simStep % benchmarkSteps == 0))
-        {
+        if (globalData->benchmarkMode && (globalData->simStep % benchmarkSteps == 0)) {
           std::cout << "Benchmark: " << (((double) benchmarkSteps) / ((double) (currentTime - lastBenchmarkTime))
               * 1000.0) << " cycles/s" << std::endl;
           lastBenchmarkTime = currentTime;
@@ -231,52 +215,41 @@ namespace lpzrobots
       long diff = globalData->cycleTime - elapsed;
       if (diff > 10000 || diff < -10000) // check for overflow or other weird things
         resetSyncTimer();
-      else
-      {
-        if (diff > 4)
-        { // if less the 3 milliseconds we don't call usleep since it needs time
+      else {
+        if (diff > 4) { // if less the 3 milliseconds we don't call usleep since it needs time
           usleep((diff - 2) * 1000);
-        } else if (diff < 0)
-        {
-          if (globalData->verbose)
-          {
+        } else if (diff < 0) {
+          if (globalData->verbose) {
             printf("Time leak of %li ms detected\n", abs(diff));
           }
         }
       }
-    } else
-    {
-      while (globalData->pause)
-      {
+    } else {
+      while (globalData->pause) {
         usleep(1000);
       }
     }
     resetSyncTimer();
   }
 
-  void ECBCommunicator::push_Frame(uint8 c)
-  {
+  void ECBCommunicator::push_Frame(uint8 c) {
     transmitBuffer.push_back(c);
   }
-  void ECBCommunicator::push_FrameEscaped(uint8 c)
-  {
+  void ECBCommunicator::push_FrameEscaped(uint8 c) {
     // Von der Pruefsumme ausgeschlossen sind das Startsymbol und das Laengenfeld,
     // deswegen erst ab dem 3. Zeichen die Pruefsumme bilden!
     if (2 < transmitBuffer.size())
       transmitBufferCheckSum += c;
 
     // Ist fuer dieses Zeichen eine Ausnahmebehandlung notwendig?
-    if (c == 0x7E || c == 0x7D || c == 0x13 || c == 0x11)
-    {
+    if (c == 0x7E || c == 0x7D || c == 0x13 || c == 0x11) {
       transmitBuffer.push_back(0x7D);
       transmitBuffer.push_back((uint8) (c ^ 0x20));
-    } else
-    {
+    } else {
       transmitBuffer.push_back(c);
     }
   }
-  bool ECBCommunicator::transmit()
-  {
+  bool ECBCommunicator::transmit() {
     // Schreibe die Pruefsumme
     push_FrameEscaped((uint8) (255 - transmitBufferCheckSum % 256));
 
@@ -297,19 +270,17 @@ namespace lpzrobots
     return ret;
   }
 
-  bool ECBCommunicator::initialise()
-  {
+  bool ECBCommunicator::initialise() {
     if (globalData->debug)
       std::cout << "ECBCommunicator: (external) initialising..." << std::endl;
     serialPortThread = new SerialPortThread(globalData->portName, globalData->baudrate, globalData->debug);
     serialPortThread->addCallbackable(this, SerialPortThread::NEW_DATA_RECEIVED);
     serialPortThread->addCallbackable(this, SerialPortThread::DATA_CHECKSUM_ERROR);
     serialPortThread->openPort();
-    if (serialPortThread->isOpened())
-    {
+    if (serialPortThread->isOpened()) {
       currentCommState = STATE_DISCOVER_XBEE_HW_VERSION;
       // just wait a little bit; Xbee is responding immediately
-      timerThread.setTimer(globalData->serialReadTimeout, false);
+      timerThread.setTimer(globalData->discoverXBeeHardwareVersionTimeout, false);
       // identify hardware revision
       send_XBeeATHV();
       // after this the main loop starts
@@ -318,8 +289,7 @@ namespace lpzrobots
     return true;
   }
 
-  void ECBCommunicator::send_XBeeATHV()
-  {
+  void ECBCommunicator::send_XBeeATHV() {
     if (globalData->debug)
       cout << "send_XBeeATHV" << endl;
     currentCommState = STATE_DISCOVER_XBEE_HW_VERSION;
@@ -339,8 +309,7 @@ namespace lpzrobots
     usleep(1);
   }
 
-  void ECBCommunicator::send_XBeeATND()
-  {
+  void ECBCommunicator::send_XBeeATND() {
     if (globalData->debug)
       cout << "send_XBeeATND" << endl;
     currentCommState = STATE_DISCOVER_XBEE_NODES;
@@ -354,17 +323,15 @@ namespace lpzrobots
     transmit();
   }
 
-  void ECBCommunicator::send_CommandPackage(CommunicationData commandPackage, ECB* sourceECB)
-  {
+  void ECBCommunicator::send_CommandPackage(CommunicationData commandPackage, ECB* sourceECB) {
     if (globalData->debug)
-      cout << "ECBCommunicator: Sending command package (" << commandPackage.command << ") to " << sourceECB->getDNSName() << "" << endl;
+      cout << "ECBCommunicator: Sending command package (" << commandPackage.command << ") to "
+          << sourceECB->getDNSName() << "" << endl;
     uint16 ECB_XBeeAddress16 = sourceECB->getNetworkAddress();
     uint64 ECB_XBeeAddress64 = sourceECB->getSerialNumber();
     // remember that the internal state of ECBCommunicator must be handled outside this function!
-    switch (ecbTransmitModeType)
-    {
-      case Cable:
-      {
+    switch (ecbTransmitModeType) {
+      case Cable: {
         uint16 length = 1 + 2 + commandPackage.dataLength;
 
         push_Frame(0x7E); //  1: Startsymbol
@@ -373,8 +340,7 @@ namespace lpzrobots
         push_FrameEscaped(0x20); //  4: API_ID - Cable
         break;
       }
-      case XBee:
-      {
+      case XBee: {
         uint16 length = 5 + 2 + commandPackage.dataLength;
 
         push_Frame(0x7E); //  1: Startsymbol
@@ -387,8 +353,7 @@ namespace lpzrobots
         push_FrameEscaped(0x00); //  8: Options - immer 1  -> kein ResponsePaket vom XBee
         break;
       }
-      case XBeeS2:
-      {
+      case XBeeS2: {
         uint16 length = 14 + 2 + commandPackage.dataLength;
 
         push_Frame(0x7E); //  1: Startsymbol
@@ -416,30 +381,27 @@ namespace lpzrobots
         break;
     }//end switch
     // AnwenderDaten
-    push_FrameEscaped(Application_MessageGroupCode);   // MessageGroup_ID
-    push_FrameEscaped(commandPackage.command);         // command
-    for (int index=0; index<commandPackage.dataLength; index++)
-      push_FrameEscaped(commandPackage.data[index]);   // data...
+    push_FrameEscaped(Application_MessageGroupCode); // MessageGroup_ID
+    push_FrameEscaped(commandPackage.command); // command
+    for (int index = 0; index < commandPackage.dataLength; index++)
+      push_FrameEscaped(commandPackage.data[index]); // data...
     transmit();
   }
 
-  void ECBCommunicator::dispatch_XbeeCommandResponse(std::vector<uint8> receiveBuffer)
-  {
+  void ECBCommunicator::dispatch_XbeeCommandResponse(std::vector<uint8> receiveBuffer) {
     uint8 msgLength = (receiveBuffer[1] & 0xFF) << 8 | (receiveBuffer[2] & 0xFF);
 
     std::string Command;
     Command.push_back((char) receiveBuffer[5]);
     Command.push_back((char) receiveBuffer[6]);
 
-    if (Command.compare("HV") == 0)
-    {
+    if (Command.compare("HV") == 0) {
       uint16 HardwareVersionNumber = 0;
 
       HardwareVersionNumber += ((uint16) receiveBuffer[8] & 0xFF) << 1 * 8;
       HardwareVersionNumber += ((uint16) receiveBuffer[9] & 0xFF) << 0 * 8;
 
-      switch (HardwareVersionNumber)
-      { // TODO: extend for each XBee/ZigBee device: hardware version number
+      switch (HardwareVersionNumber) { // TODO: extend for each XBee/ZigBee device: hardware version number
         case 0x0000:
           ecbTransmitModeType = Cable;
           cout << "Running in cable mode." << endl;
@@ -457,33 +419,26 @@ namespace lpzrobots
           cout << "Running in unknown mode." << endl;
           break;
       }
-      if (ecbTransmitModeType != Undefined)
-      {
-        if (ecbTransmitModeType != Cable)
-        { // send discover on XBee nodes
+      if (ecbTransmitModeType != Undefined) {
+        timerThread.stopTimer(); // stop TransmitTimer
+        if (ecbTransmitModeType != Cable) { // send discover on XBee nodes
           // start timer: wait for answer from all reachabled nodes
           currentCommState = STATE_DISCOVER_XBEE_NODES;
           timerThread.setTimer(globalData->discoverNodesTimeout, false);
           send_XBeeATND();
-        } else
-        {
+        } else {
           // in cable mode we don't need to discover the xbee nodes
           // there should be only one ecb, register this ECB at the Mediator
-          if (globalData->agents.size() == 1)
-          {
+          if (globalData->agents.size() == 1) {
             ECBRobot* robot = globalData->agents.front()->getRobot();
-            if (robot->getECBlist().size() == 1)
-            {
-              addMediatorCollegue(robot->getECBlist().front());
+            if (robot->getECBlist().size() == 1) {
               currentCommState = STATE_READY_FOR_STEP_OVER_AGENTS;
-            } else
-            {
+            } else {
               cerr << "ERROR: One ECBAgent and ECBRobot defined, but number of ECBs != 1 in cable mode! (is: "
                   << robot->getECBlist().size() << ")" << endl;
               currentCommState = STATE_STOPPED;
             }
-          } else
-          {
+          } else {
             cerr << "ERROR: Number of ECBAgents and ECBRobots != 1 in cable mode! (is: " << globalData->agents.size()
                 << ")" << endl;
             currentCommState = STATE_STOPPED;
@@ -524,18 +479,15 @@ namespace lpzrobots
       ECB_XBeeAddress64_tmp += ((uint64) receiveBuffer[17] & 0xFF) << 0 * 8;
 
       // Lese den NodeIdentifier-String aus.
-      switch (ecbTransmitModeType)
-      {
+      switch (ecbTransmitModeType) {
         case Cable:
           break;
-        case XBee:
-        {
+        case XBee: {
           for (int i = 0; i < msgLength - 17; i++)
             nodeId.push_back((char) receiveBuffer[19 + i]);
           break;
         }
-        case XBeeS2:
-        {
+        case XBeeS2: {
           for (int i = 18; i < msgLength - 6; i++)
             nodeId.push_back((char) receiveBuffer[i]);
           break;
@@ -551,11 +503,9 @@ namespace lpzrobots
       // ..and check, if all addresses are known
       bool found = false;
       bool allAddressesSet = true;
-      for (unsigned int index=0; index < getNumberOfMediatorCollegues(); index++)
-      {
+      for (unsigned int index = 0; index < getNumberOfMediatorCollegues(); index++) {
         ECB* ecb = static_cast<ECB*> (getMediatorCollegue(index));
-        if (nodeId.compare(ecb->getDNSName()) == 0)
-        {
+        if (nodeId.compare(ecb->getDNSName()) == 0) {
           if (globalData->debug)
             cout << " match for ECBRobot " << endl;
           ecb->setAddresses(ECB_XBeeAddress16_tmp, ECB_XBeeAddress64_tmp);
@@ -567,31 +517,31 @@ namespace lpzrobots
       // info: If ECB/XBee was not found, just ignore this XBee!
       if (!found && globalData->debug)
         cout << " --- but no Robot found for it (ignoring)" << endl;
-      if (allAddressesSet && currentCommState == STATE_DISCOVER_XBEE_NODES)
-      {
+      if (allAddressesSet && currentCommState == STATE_DISCOVER_XBEE_NODES) {
+        timerThread.stopTimer(); // stop TransmitTimer
         timerThread.setTimer(globalData->serialReadTimeout, false);
         currentCommState = STATE_READY_FOR_STEP_OVER_AGENTS;
       }
     }
   }
 
-  void ECBCommunicator::dispatchPackageCommand(ECBCommunicationEvent* event)
-  {
+  void ECBCommunicator::dispatchPackageCommand(ECBCommunicationEvent* event) {
     if (globalData->debug)
       cout << "dispatching received command package" << endl;
     CommunicationData commData = event->commPackage;
-    switch (commData.command)
-    {
+    switch (commData.command) {
       // In both cases the event is mediated to the ECB.
       // The ECB decides itself if it must be initialised (then COMMAND_DIMENSION
       // is returned).
       case COMMAND_DIMENSION: // 00000010 Dimension data: number of sensors/motors
+        timerThread.stopTimer(); // stop TransmitTimer
         event->type = ECBCommunicationEvent::EVENT_PACKAGE_DIMENSION_RECEIVED;
         mediate(currentECBIndex, event);
         currentECBIndex++;
         currentCommState = STATE_READY_FOR_SENDING_PACKAGE_MOTORS;
         break;
       case COMMAND_SENSORS: // 00000011 Sensor data values
+        timerThread.stopTimer(); // stop TransmitTimer
         event->type = ECBCommunicationEvent::EVENT_PACKAGE_SENSORS_RECEIVED;
         mediate(currentECBIndex, event);
         currentECBIndex++;
@@ -605,6 +555,7 @@ namespace lpzrobots
         delete event;
         break;
       case COMMAND_PONG: // COMMAND_ommunication Test between PCOMMAND_ and ATmega
+        // timerThread.stopTimer(); // stop TransmitTimer?
         cout << "PONG." << endl;
         delete event;
         break;
@@ -627,8 +578,7 @@ namespace lpzrobots
     }
   }
 
-  void ECBCommunicator::newDataReceived(std::vector<uint8> receiveBuffer)
-  {
+  void ECBCommunicator::newDataReceived(std::vector<uint8> receiveBuffer) {
     if (globalData->debug)
       printBuffer(receiveBuffer);
     // Eine Nachricht vom Microcontroller wurde empfangen
@@ -639,116 +589,87 @@ namespace lpzrobots
     //  3 uint8 API_ID;
     //  4 ...
 
-    uint16 msgLength = ((uint16)receiveBuffer[1])<<8 | ((uint16)receiveBuffer[2]&0xFF);
+    uint16 msgLength = ((uint16) receiveBuffer[1]) << 8 | ((uint16) receiveBuffer[2] & 0xFF);
     int msgApi_Id = ((uint8) receiveBuffer[3] & 0xFF);
-    int msgGroup = -1;
-    int msgCode = -1;
 
-    // Ausgabe der Message im LogView
-    //printBuffer(receiveBuffer);
-
-
-    switch (msgApi_Id)
-    {
+    switch (msgApi_Id) {
       case API_XBee_AT_Command_Response:
+        // stopTimer is handled in dispatch_XbeeCommandResponse(receiveBuffer)
         dispatch_XbeeCommandResponse(receiveBuffer);
         break;
-      case API_Cable_TransmitReceive:
-      {
+      case API_Cable_TransmitReceive: {
         // +----+----+-----+-----+----------+---------+------+----+
         // | 7E |  Length  | API | msgGroup | command | data | CS |
         // +----+----+-----+-----+----------+---------+------+----+
-        if (receiveBuffer[4] == 0) // msgGroup
+        if (receiveBuffer[4] != Application_MessageGroupCode) // msgGroup
           return; // message is from bootloader, ignore for application
         ECBCommunicationEvent* event = new ECBCommunicationEvent();
         event->commPackage.command = (uint8) receiveBuffer[5];
-        event->commPackage.dataLength = (uint8) (msgLength-3);
-        for (int i = 0; i < event->commPackage.dataLength; i++)
-        { // copy data
+        event->commPackage.dataLength = (uint8) (msgLength - 3);
+        for (int i = 0; i < event->commPackage.dataLength; i++) { // copy data
           event->commPackage.data[i] = receiveBuffer[6 + i];
         }
+        // stopTimer is handled in dispatchPackageCommand(event)
         dispatchPackageCommand(event);
       }
         break;
-      case API_XBee_Receive_Packet_16Bit:
-      {
+      case API_XBee_Receive_Packet_16Bit: {
         // +----+----+-----+-----+--------+---------+------+---------+----------+---------+------+----+
         // | 7E |  Length  | API | SourceAddr_16Bit | RSSI | Options | msgGroup | command | data | CS |
         // +----+----+-----+-----+--------+---------+------+---------+----------+---------+------+----+
-        if (receiveBuffer[8] == 0) // msgGroup
+        if (receiveBuffer[8] != Application_MessageGroupCode) // msgGroup
           return; // message is from bootloader, ignore for application
         ECBCommunicationEvent* event = new ECBCommunicationEvent();
         event->commPackage.command = (uint8) receiveBuffer[9];
-        event->commPackage.dataLength = (uint8) (msgLength-7);
-        for (int i = 0; i < event->commPackage.dataLength; i++)
-        { // copy data
+        event->commPackage.dataLength = (uint8) (msgLength - 7);
+        for (int i = 0; i < event->commPackage.dataLength; i++) { // copy data
           event->commPackage.data[i] = receiveBuffer[10 + i];
         }
+        // stopTimer is handled in dispatchPackageCommand(event)
         dispatchPackageCommand(event);
       }
         break;
-      case API_XBeeS2_ZigBee_Receive_Packet:
-      {
+      case API_XBeeS2_ZigBee_Receive_Packet: {
         // +----+----+-----+-----+---+---+---+---+---+---+---+---+-------+-------+---------+----------+---------+------+----+
         // | 7E |  Length  | API |         64Bit-Address         | 16Bit_Address | Options | msgGroup | command | data | CS |
         // +----+----+-----+-----+---+---+---+---+---+---+---+---+-------+-------+---------+----------+---------+------+----+
-        if (receiveBuffer[15] == 0) // msgGroup
+        if (receiveBuffer[15] != Application_MessageGroupCode) // msgGroup
           return; // message is from bootloader, ignore for application
         ECBCommunicationEvent* event = new ECBCommunicationEvent();
         event->commPackage.command = (uint8) receiveBuffer[16];
-        event->commPackage.dataLength = (uint8) (msgLength-14);
-        for (int i = 0; i < event->commPackage.dataLength; i++)
-        { // copy data
+        event->commPackage.dataLength = (uint8) (msgLength - 14);
+        for (int i = 0; i < event->commPackage.dataLength; i++) { // copy data
           event->commPackage.data[i] = receiveBuffer[17 + i];
         }
+        // stopTimer is handled in dispatchPackageCommand(event)
         dispatchPackageCommand(event);
       }
         break;
-      default:
-      {
-        // TODO: QString naus
+      default: {
         if (globalData->debug)
           printBuffer(receiveBuffer);
+        // don't stop timer!
         return;
       }
     } //end switch api
     // in general the data is forwarded to the currently registered ECB
     // The ECB instances are alternating.
-
-
-    //==============================================================================================
-    // Werte keine Nachrichten aus, die nicht für die Anwendung sind!
-    if (msgGroup != 0x01)
-      return;
-
-    switch (msgCode)
-    {
-      case 0x02: // Response_MotorControl_Parameter
-      {
-        printBuffer(receiveBuffer);
-        break;
-      }
-    }// end switch
   }
 
   void ECBCommunicator::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type /* =
-      SerialPortThread::NEW_DATA_RECEIVED*/)
-  {
+   SerialPortThread::NEW_DATA_RECEIVED*/) {
     cout << "state: " << type << endl;
-    switch (type)
-    {
+    switch (type) {
       case SerialPortThread::NEW_DATA_RECEIVED:
-        timerThread.stopTimer(); // stop TransmitTimer
+        // stopTimer is handled in newDataReceived (determined by received package)
         if (globalData->debug)
           cout << "newData received: answer took " << (timeOfDayinMS() - currentTime) << "ms, package: ";
         newDataReceived(serialPortThread->getData());
         break;
       case SerialPortThread::DATA_CHECKSUM_ERROR:
         timerThread.stopTimer(); // stop TransmitTimer
-      case TimerThread::TIMER_EXPIRED:
-      {
-        switch (currentCommState)
-        {
+      case TimerThread::TIMER_EXPIRED: {
+        switch (currentCommState) {
           case STATE_NOT_INITIALISED:
             cerr << "ERROR: should never be reached!" << endl;
             break;
@@ -761,14 +682,15 @@ namespace lpzrobots
           case STATE_DISCOVER_XBEE_NODES:
             cerr << "ERROR: XBee not responding (no nodes in range, check Xbee hardware version)! retry..." << endl;
             // just retry after 1 sec
-           // sleep(1);
+            // sleep(1);
             send_XBeeATND();
             break;
           case STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS:
-              mediate(currentECBIndex, new ECBCommunicationEvent(ECBCommunicationEvent::EVENT_COMMUNICATION_ANSWER_TIMEOUT));
-              // got to next ECB
-              currentECBIndex++;
-              currentCommState = STATE_READY_FOR_SENDING_PACKAGE_MOTORS;
+            mediate(currentECBIndex, new ECBCommunicationEvent(
+                ECBCommunicationEvent::EVENT_COMMUNICATION_ANSWER_TIMEOUT));
+            // got to next ECB
+            currentECBIndex++;
+            currentCommState = STATE_READY_FOR_SENDING_PACKAGE_MOTORS;
             break;
           default:
             cerr << "WARNING: timer expired but state not handled (" << currentCommState << ")" << endl;
@@ -781,13 +703,11 @@ namespace lpzrobots
     }
   }
 
-  void ECBCommunicator::printBuffer(std::vector<uint8>& buffer)
-  {
+  void ECBCommunicator::printBuffer(std::vector<uint8>& buffer) {
     //std::stringstream line;
 
 
-    for (unsigned int i = 0; i < buffer.size(); i++)
-    {
+    for (unsigned int i = 0; i < buffer.size(); i++) {
       cout << std::hex << ((buffer[i] >> 4) & 0x0F);
       cout << std::hex << ((buffer[i] >> 0) & 0x0F);
       cout << " ";
@@ -798,20 +718,17 @@ namespace lpzrobots
     //cout << line;
   }
 
-  void ECBCommunicator::mediatorInformed(MediatorCollegue* source, MediatorEvent* event)
-  {
-    ECBCommunicationEvent* commEvent = static_cast<ECBCommunicationEvent*>(event);
-    switch (commEvent->type)
-    {
+  void ECBCommunicator::mediatorInformed(MediatorCollegue* source, MediatorEvent* event) {
+    ECBCommunicationEvent* commEvent = static_cast<ECBCommunicationEvent*> (event);
+    switch (commEvent->type) {
       case ECBCommunicationEvent::EVENT_REQUEST_SEND_COMMAND_PACKAGE: //!< ECB instance generated the package data to send out
         currentCommState = STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS;
-        send_CommandPackage(commEvent->commPackage, static_cast<ECB*>(source));
+        send_CommandPackage(commEvent->commPackage, static_cast<ECB*> (source));
         break;
       default:
         assert(false);
         break;
     }
   }
-
 
 } // namespace lpzrobots
