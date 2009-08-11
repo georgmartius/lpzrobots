@@ -22,7 +22,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-03-25 11:06:55  robot1
+ *   Revision 1.5  2009-08-11 15:49:05  guettler
+ *   Current development state:
+ *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
+ *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
+ *     ECBCommunicator (almost) entirely rewritten: Use of Mediator (MediatorCollegues: ECB),
+ *     Callbackble (BackCaller: SerialPortThread)
+ *   - New CThread for easy dealing with threads (is using pthreads)
+ *   - New TimerThreads for timed event handling
+ *   - SerialPortThread now replaces the cserialthread
+ *   - GlobalData, ECBCommunicator is now configurable
+ *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
+ *   - ECBRobot is now Inspectables (uses new infoLines functionality)
+ *   - ECB now supports dnsNames and new communication protocol via Mediator
+ *   - Better describing command definitions
+ *   - SphericalRobotECB: adapted to new ECB structure, to be tested
+ *
+ *   Revision 1.4  2009/03/25 11:06:55  robot1
  *   updated version
  *
  *   Revision 1.3  2008/07/16 07:38:42  robot1
@@ -39,24 +55,26 @@
 #ifndef __COMMANDDEFS_H
 #define __COMMANDDEFS_H
 
-namespace lpzrobots {
+#include "constants.h"
 
+namespace lpzrobots
+{
 
-/// type of different commands
-/// forbidden: 0xFF (this is the start byte)
-#define CDUM   0x0  /* 00000000 Dummy command, do not use this!          */
-#define CRES   0x1  /* 00000001 Reset command                            */
-#define CDIM   0x2  /* 00000010 Dimension data: number of sensors/motors */
-#define CSEN   0x3  /* 00000011 Sensor data values                       */
-#define CMOT   0x4  /* 00000100 Motor data values                        */
-#define CBEEP  0x8  /* 00001000 Make a beep                              */
-#define CMSG   0x9  /* 00001001 Message data.                            */
-#define CTEST  0x10 /* 00001010 Test i2c communication.                  */
-#define CPING  0x11 /* Communication Test between PC and ATmega */
-#define CPONG  0x12 /* Communication Test between PC and ATmega */
-#define CMSTOP 0x13 /* stop motors of the md23-motorboard */
-#define CMSTART 0x14 /* start motors of the md23-motorboard */
-#define COSCI   0x15 /* define the oscillation of the SphericalRobots-Weights */
+  /// types of different commands
+  static const uint8 COMMAND_DUMMY = 0x0; //!< 00000000 Dummy command, do not use this!
+  static const uint8 COMMAND_RESET = 0x1; //!<  00000001 Reset command
+  static const uint8 COMMAND_DIMENSION = 0x2; //!<  00000010 Dimension data: number of sensors/motors
+  static const uint8 COMMAND_SENSORS = 0x3; //!<  00000011 Sensor data values
+  static const uint8 COMMAND_MOTORS = 0x4; //!<  00000100 Motor data values
+  static const uint8 COMMAND_BEEP = 0x8; //!<  00001000 Make a beep
+  static const uint8 COMMAND_MESSAGE = 0x9; //!<  00001001 Message data.
+  static const uint8 COMMAND_TESTI2C = 0x0A; //!<  00001010 Test i2c communication.
+  static const uint8 COMMAND_PING = 0x0B; //!<  COMMAND_ommunication Test between PCOMMAND_ and ATmega
+  static const uint8 COMMAND_PONG = 0x0C; //!<  COMMAND_ommunication Test between PCOMMAND_ and ATmega
+  static const uint8 COMMAND_MOTOR_STOP = 0x0D; //!<  stop motors of the md23-motorboard
+  static const uint8 COMMAND_MOTOR_START = 0x0E; //!<  start motors of the md23-motorboard
+  static const uint8 COMMAND_OSCI = 0x0F; //!<  define the oscillation of the SphericalRobots-Weights
+
 }
 
 #endif

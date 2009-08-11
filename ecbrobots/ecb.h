@@ -22,7 +22,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-03-25 11:06:55  robot1
+ *   Revision 1.9  2009-08-11 15:49:05  guettler
+ *   Current development state:
+ *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
+ *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
+ *     ECBCommunicator (almost) entirely rewritten: Use of Mediator (MediatorCollegues: ECB),
+ *     Callbackble (BackCaller: SerialPortThread)
+ *   - New CThread for easy dealing with threads (is using pthreads)
+ *   - New TimerThreads for timed event handling
+ *   - SerialPortThread now replaces the cserialthread
+ *   - GlobalData, ECBCommunicator is now configurable
+ *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
+ *   - ECBRobot is now Inspectables (uses new infoLines functionality)
+ *   - ECB now supports dnsNames and new communication protocol via Mediator
+ *   - Better describing command definitions
+ *   - SphericalRobotECB: adapted to new ECB structure, to be tested
+ *
+ *   Revision 1.8  2009/03/25 11:06:55  robot1
  *   updated version
  *
  *   Revision 1.7  2008/08/15 13:16:58  robot1
@@ -54,11 +70,12 @@
 #include <selforg/configurable.h>
 #include <selforg/storeable.h>
 #include <selforg/types.h>
+#include <selforg/mediatorcollegue.h>
 
-#include "globaldata.h"
+#include "constants.h"
 
 #include <list>
-
+#include <string>
 
 // #define PORTA ecbPort[0]
 // #define PORTB ecbPort[1]
@@ -68,184 +85,220 @@
 // #define PORTF ecbPort[5]
 // #define PORTG ecbPort[6]
 
-namespace lpzrobots {
+namespace lpzrobots
+{
 
-// forward declaration begin
-class ECBCommunicator;
-// forward declaration end
-
-
-
-
-typedef struct {
-
-  /// the max number, important for init of controller
-  int maxNumberMotors;
-  /// the max number, important for init of controller
-  int maxNumberSensors;
-
-} ECBConfig;
+  // forward declaration begin
+  class ECBCommunicator;
+  class ECBCommunicationEvent;
+  struct GlobalData;
+  // forward declaration end
 
 
-class ECB : public Configurable, public Storeable {
-public:
+  typedef struct
+  {
 
-  /**
-   * Creates the ECB with the given address. Note that the configuration
-   * is read from the configuration file "ecb{address}.cfg"!
-   * @param address
-   */
-  ECB(short address, GlobalData& globalData,ECBConfig& ecbConfig);
+      /// the max number, important for init of controller
+      int maxNumberMotors;
+      /// the max number, important for init of controller
+      int maxNumberSensors;
 
-  virtual ~ECB();
+  } ECBConfig;
 
-  // TODO: needed????
-//   virtual bool isInitialised() const { return initialised; }
-//
-//   virtual void setInitialised(bool initialised) { this->initialised=initialised; }
+  class ECB : public Configurable, public Storeable, public MediatorCollegue
+  {
+    public:
 
-  virtual short getAddress() const {	return address; }
+      /**
+       * Creates the ECB with the given address. Note that the configuration
+       * is read from the configuration file "ecb{address}.cfg"! (in future releases)
+       * @param dnsName the name of the ECB. This name is used to identify the ECB in
+       * over wireless connection (XBee). The XBee uses the same dnsName.
+       * @param globalData holds all necessary global data.
+       * @param ecbConfig the configuration for this ECB, e.g. maximum number of motors
+       * @return
+       */
+      ECB(std::string dnsName, GlobalData& globalData, ECBConfig& ecbConfig);
 
-  virtual std::list<sensor> getSensorList() { return sensorList; }
+      virtual ~ECB();
 
-  virtual std::list<motor> getMotorList() { return motorList; }
+      virtual std::string getDNSName() const
+      {
+        return dnsName;
+      }
 
-  virtual int getNumberMotors();
+      virtual std::list<sensor> getSensorList()
+      {
+        return sensorList;
+      }
 
-  virtual int getNumberSensors();
+      virtual std::list<motor> getMotorList()
+      {
+        return motorList;
+      }
 
-  virtual int getMaxNumberMotors();
+      virtual int getNumberMotors();
 
-  virtual int getMaxNumberSensors();
+      virtual int getNumberSensors();
 
-  /**
-   * Is called from the ECBRobot.
-   * @param motorArray the array that contains the new motor values
-   * @param beginIndex the index where the proper values start
-   * @param maxIndex  the maximum index which is allowed for motorArray
-   * @return The number of motor values read (used by the ECB)
-   */
-  virtual int setMotors(const motor* motorArray,int beginIndex,int maxIndex);
+      virtual int getMaxNumberMotors();
 
-  /// CONFIG VARS
-  static ECBConfig getDefaultConf(){
-    ECBConfig conf;
-    conf.maxNumberMotors = 2;
-    conf.maxNumberSensors = 16;
-    return conf;
-  }
+      virtual int getMaxNumberSensors();
+
+      /**
+       * Is called from the ECBRobot.
+       * @param motorArray the array that contains the new motor values
+       * @param beginIndex the index where the proper values start
+       * @param maxIndex  the maximum index which is allowed for motorArray
+       * @return The number of motor values read (used by the ECB)
+       */
+      virtual int setMotors(const motor* motorArray, int beginIndex, int maxIndex);
+
+      /// CONFIG VARS
+      static ECBConfig getDefaultConf()
+      {
+        ECBConfig conf;
+        conf.maxNumberMotors = 2;
+        conf.maxNumberSensors = 16;
+        return conf;
+      }
+
+      /**
+       * Send reset command to the ECB and receive
+       * the number of connected motors and sensors
+       * If the reset fails, the ECB stays in uninitialized mode!
+       */
+      virtual void sendResetECB();
+
+      virtual void sendMotorValuesPackage();
+
+      /**
+       * Send stop command to the ECB to disable the motors
+       */
+      virtual void stopMotors();
+
+      /**
+       * Send start command to the ECB to enable the motors
+       */
+      virtual void startMotors();
+
+      /**
+       * Sends the beep command to the ECB
+       */
+      virtual void makeBeepECB();
+
+      /// STORABLE INTERFACE
+
+      /** stores the object to the given file stream (binary). */
+      virtual bool store(FILE* f) const;
+
+      /** loads the object from the given file stream (binary). */
+      virtual bool restore(FILE* f);
+
+      /// noch verschiedene sensortypen und motortypen berücksichtigen
+      /// bzw. hier bzw. in cpp-datei die cfg-datei berücksichtigen
+      /// Informationen vorhalten (bekommt man bei Antwort auf SW-RESET),
+      /// welche ADC, IRS, Motorentypen usw. wie zu den Sensoren und Motoren
+      /// (siehe Listen oben) zugeordnet sind (käme auch in die ECBConfig rein,
+      /// insoweit von der main.cpp aus konfigurierbar (nicht plug&playfähige Sachen))
+
+      /// diese Infos an ECBRobot weiterleiten (die holt er sich):
+      /**
+       * Returns specific ECBRobot infos to the ECBAgent, who pipes this infos out (PlotOptions)
+       * Something like that:
+       * #ECB M y[0] y[1]
+       * #ECB IR x[0] x[1]
+       * #ECB ADC x[2] x[3]
+       * #ECB ME x[4] x[5]
+       * Strom, Spannung usw. (konfigurationsabhängige Parameter vom ECB)
+       */
+      virtual std::string getChannelDescription();
+
+      virtual bool isInitialised()
+      {
+        return this->initialised;
+      }
+
+      virtual void setAddresses(uint16 networkAddress, uint64 serialNumber = 0);
+
+      virtual bool isAddressesSet();
+
+      virtual uint16 getNetworkAddress();
+
+      virtual uint64 getSerialNumber();
 
 
-  /**
-   * Sends the new motor values to the ECB and receives the
-   * new sensor values
-   * @return true if the communication was successful
-   */
-  virtual bool writeMotors_readSensors();
+      /**
+       * Is called when the mediator informs this collegue that an event
+       * has to be performed by this collegue instance.
+       */
+      virtual void doOnMediatorCallBack(MediatorEvent* event);
 
-  /**
-  * Send reset command to the ECB and receive
-  * the number of connected motors and sensors
-  * If the reset fails, the ECB stays in uninitialized mode!
-  * @return
-  */
-  virtual bool resetECB();
+      virtual void commandDimensionReceived(ECBCommunicationEvent* event);
 
-  /**
-  * Send stop command to the ECB to disable the motors
-  * @return
-  */
-  virtual bool stopMotors();
-  
-  /**
-  * Send start command to the ECB to enable the motors
-  * @return
-  */
-  virtual bool startMotors();
-  
-  /**
-   * Sends the beep command to the ECB
-   * @return true if send of the command was successful
-   */
-  virtual bool makeBeepECB();
+      virtual void commandSensorsReceived(ECBCommunicationEvent* event);
 
-  /// STORABLE INTERFACE
 
-  /** stores the object to the given file stream (binary). */
-  virtual bool store(FILE* f) const;
+    protected:
+      GlobalData* globalData;
+      ECBConfig ecbConfig;
 
-  /** loads the object from the given file stream (binary). */
-  virtual bool restore(FILE* f);
+      std::string descriptionLine;
 
-  /// noch verschiedene sensortypen und motortypen berücksichtigen
-  /// bzw. hier bzw. in cpp-datei die cfg-datei berücksichtigen
-  /// Informationen vorhalten (bekommt man bei Antwort auf SW-RESET),
-  /// welche ADC, IRS, Motorentypen usw. wie zu den Sensoren und Motoren
-  /// (siehe Listen oben) zugeordnet sind (k�me auch in die ECBConfig rein,
-  /// insoweit von der main.cpp aus konfigurierbar (nicht plug&playf�hige Sachen))
-  
-  /// diese Infos an ECBRobot weiterleiten (die holt er sich):
-  /**
-   * Returns specific ECBRobot infos to the ECBAgent, who pipes this infos out (PlotOptions)
-   * Something like that:
-   * #ECB M y[0] y[1]
-   * #ECB IR x[0] x[1]
-   * #ECB ADC x[2] x[3]
-   * #ECB ME x[4] x[5]
-   * Strom, Spannung usw. (konfigurationsabh�ngige Parameter vom ECB)
-   */
-  virtual std::string getChannelDescription();
-  
-  virtual bool isInitialised() { return this->initialised; }
+      int currentNumberSensors;
+      int currentNumberMotors;
 
-protected:
-  GlobalData* globalData;
-  ECBConfig ecbConfig;
+      std::list<sensor> sensorList;
+      std::list<motor> motorList;
 
-  std::string descriptionLine;
-  
-  int currentNumberSensors;
-  int currentNumberMotors;
+      std::string infoString;
 
-  std::list<sensor> sensorList;
-  std::list<motor> motorList;
+      // gibt an, ob Reset-Command bereits erfolgreich
+      // es kann sein, dass ECB mehrmals nicht antwortet, dann setze
+      // initialise=0 und versuche im nächsten Step, neu zu resetten,
+      // Wenn reset nicht erfolgreich, übergehe zeitweilig ECB (wegen Funkstörung)
+      bool initialised;
 
-  std::string infoString;
+      // die Adresse, die das ECB hat, d.h. muss im ECB hardprogrammiert sein
+      /// this is the node identifier (hardware programmed on XBee, too)
+      std::string dnsName;
+      /// network address (XBee series 1 and 2)
+      uint16 networkAddress;
+      /// serial number (XBee series 1 and 2)
+      uint64 serialNumber;
 
-  // gibt an, ob Reset-Command bereits erfolgreich
-  // es kann sein, dass ECB mehrmals nicht antwortet, dann setze
-  // initialise=0 und versuche im nächsten Step, neu zu resetten,
-  // Wenn reset nicht erfolgreich, übergehe zeitweilig ECB (wegen Funkstörung)
-  bool initialised;
+      // siehe initialised, wenn failurecounter bestimmten wert überschritten,
+      // dann reset im nächsten step versuchen
+      int failureCounter;
 
-  // die Adresse, die das ECB hat, d.h. muss im ECB hardprogrammiert sein
-  short address;
+      /**
+       * Converts a given byteVal to a double value
+       * byteVal=0   -> doubleVal=-1
+       * byteVal=127 -> doubleVal=0
+       * byteVal=255 -> doubleVal=1
+       * @param byteVal
+       * @return
+       */
+      virtual double convertToDouble(uint8 byteVal);
 
-  // siehe initialised, wenn failurecounter bestimmten wert überschritten,
-  // dann reset im nächsten step versuchen
-  int failureCounter;
+      /**
+       * Converts a given doubleVal to a byte value
+       * doubleVal=-1 -> byteVal=0
+       * doubleVal=0  -> byteVal=127
+       * doubleVal=1  -> byteVal=255
+       * @param doubleVal
+       * @return
+       */
+      virtual uint8 convertToByte(double doubleVal);
 
-  /**
-   * Converts a given byteVal to a double value
-   * byteVal=0   -> doubleVal=-1
-   * byteVal=127 -> doubleVal=0
-   * byteVal=255 -> doubleVal=1
-   * @param byteVal
-   * @return
-   */
-  virtual double convertToDouble(int byteVal);
+      /**
+       * Useful for command packages which contain no additional
+       * data, so that dataLength=0.
+       * @param command the command to send to the ECB
+       */
+      void generateAndFireEventForCommand(uint8 command);
 
-  /**
-   * Converts a given doubleVal to a byte value
-   * doubleVal=-1 -> byteVal=0
-   * doubleVal=0  -> byteVal=127
-   * doubleVal=1  -> byteVal=255
-   * @param doubleVal
-   * @return
-   */
-  virtual int convertToByte(double doubleVal);
-
-};
+  };
 
 }
 

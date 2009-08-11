@@ -22,7 +22,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-03-25 11:06:55  robot1
+ *   Revision 1.5  2009-08-11 15:49:05  guettler
+ *   Current development state:
+ *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
+ *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
+ *     ECBCommunicator (almost) entirely rewritten: Use of Mediator (MediatorCollegues: ECB),
+ *     Callbackble (BackCaller: SerialPortThread)
+ *   - New CThread for easy dealing with threads (is using pthreads)
+ *   - New TimerThreads for timed event handling
+ *   - SerialPortThread now replaces the cserialthread
+ *   - GlobalData, ECBCommunicator is now configurable
+ *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
+ *   - ECBRobot is now Inspectables (uses new infoLines functionality)
+ *   - ECB now supports dnsNames and new communication protocol via Mediator
+ *   - Better describing command definitions
+ *   - SphericalRobotECB: adapted to new ECB structure, to be tested
+ *
+ *   Revision 1.4  2009/03/25 11:06:55  robot1
  *   updated version
  *
  *   Revision 1.3  2008/08/12 11:45:30  guettler
@@ -37,56 +53,61 @@
  *                                                                         *
  ***************************************************************************/
 #include <selforg/agent.h>
-
+#include <selforg/configurable.h>
 #include "ecbrobot.h"
 
 namespace lpzrobots {
 
-class ECBAgent : public Agent {
 
-public:
+  class ECBAgent : public Agent , public Configurable {
 
-    /** constructor
-     */
-  ECBAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1)
-    : Agent(plotOption, noisefactor) {}
-  ECBAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1)
-    : Agent(plotOptions, noisefactor) {}
+    public:
 
-  ~ECBAgent();
+      /**
+       * Constructor.
+       * @param plotOption as output setting.
+       * @param noisefactor is used to set the relative noise strength of this agent
+       * @return
+       */
+      ECBAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1);
 
-    /** Performs an step of the agent, including sensor reading, pushing sensor values through the wiring,
-      controller step, pushing controller outputs (= motorcommands) back through the wiring and sent
-      resulting motorcommands to robot.
-  @param noise Noise strength.
-  @param time (optional) current simulation time (used for logging)
-  */
-  virtual void step(double noise, double time=-1);
+      /**
+       * Constructor.
+       * @param plotOptions A list of PlotOption can given.
+       * @param noisefactor is used to set the relative noise strength of this agent.
+       * @return
+       */
+      ECBAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1);
 
-  /** initializes the object with the given controller, robot and wiring
-      and initializes the output options
-  */
-  virtual bool init(AbstractController* controller, ECBRobot* robot, AbstractWiring* wiring);
+      /**
+       * Returns a pointer to the robot.
+       */
+      virtual ECBRobot* getRobot();
 
-  /** Returns a pointer to the robot.
-   */
-  virtual ECBRobot* getRobot() { return (ECBRobot*)robot;}
+      /**
+       * Initializes the object with the given controller, robot and wiring
+       * and initializes the output options.
+       * The initialisation is internally delayed until the ECBRobot is fully initialised
+       * (all ECBs are initialised).
+       */
+      virtual bool init(AbstractController* controller, ECBRobot* robot, AbstractWiring* wiring);
 
-  /**
-   * overwritten from WiredController to add ECBRobot-specific infos
-   */
-  virtual PlotOption addPlotOption(PlotOption& plotOption);
-  
-  virtual PlotOption internalAddPlotOption(PlotOption& plotOption);
 
-private:
+      /** Performs an step of the agent, including sensor reading, pushing sensor values through the wiring,
+          controller step, pushing controller outputs (= motorcommands) back through the wiring and sent
+          resulting motorcommands to robot.
+          @param noise Noise strength.
+          @param time (optional) current simulation time (used for logging)
+      */
+      virtual void step(double noise, double time=-1);
 
-    /** initializes the object with the given controller, robot and wiring
-      and initializes the output options
-  */
-  virtual bool internInit();
-  
 
-};
+    protected:
+
+    private:
+      Configurable::parambool restartPlotEngine;
+      bool internalInitialised;
+  };
 
 }
+

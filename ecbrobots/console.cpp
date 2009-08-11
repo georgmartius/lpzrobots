@@ -26,7 +26,23 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-03-25 11:06:55  robot1
+ *   Revision 1.4  2009-08-11 15:49:05  guettler
+ *   Current development state:
+ *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
+ *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
+ *     ECBCommunicator (almost) entirely rewritten: Use of Mediator (MediatorCollegues: ECB),
+ *     Callbackble (BackCaller: SerialPortThread)
+ *   - New CThread for easy dealing with threads (is using pthreads)
+ *   - New TimerThreads for timed event handling
+ *   - SerialPortThread now replaces the cserialthread
+ *   - GlobalData, ECBCommunicator is now configurable
+ *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
+ *   - ECBRobot is now Inspectables (uses new infoLines functionality)
+ *   - ECB now supports dnsNames and new communication protocol via Mediator
+ *   - Better describing command definitions
+ *   - SphericalRobotECB: adapted to new ECB structure, to be tested
+ *
+ *   Revision 1.3  2009/03/25 11:06:55  robot1
  *   updated version
  *
  *   Revision 1.2  2008/04/11 06:31:16  guettler
@@ -66,6 +82,7 @@
 #include <selforg/agent.h>
 #include <selforg/configurable.h>
 #include <selforg/abstractrobot.h>
+#include "ecbagent.h"
 
 #include <string.h>
 
@@ -95,17 +112,17 @@ typedef struct {
 } COMMAND;
 
 COMMAND commands[] = {
-  { "param=val",  com_set, "sets PARAM of all objects to VAL" },
-  { "help", com_help, "Display this text" },
-  { "?",     com_help, "Synonym for `help'" },
-  { "list", com_list, "Lists all objects and agents" },
-  { "ls",   com_list, "Synonym for `list'" },
-  { "set",  com_set, "syntax: set [OBJECTID] PARAM=VAL; sets parameter of Object (or all all objects) to value" },
-  { "store", com_store, "Stores controller of AGENTID to FILE" },
-  { "load", com_load, "Loads controller of AGENTID from FILE" },
-  { "show", com_show, "[OBJECTID]: Lists paramters of OBJECTID or of all objects (if no id given)" },
-  { "view", com_show, "Synonym for `show'" },
-  { "quit", com_quit, "Quit program" },
+  { (char*)string("param=val").c_str(),  com_set, (char*)string("sets PARAM of all objects to VAL").c_str() },
+  { (char*)string("help").c_str(), com_help, (char*)string("Display this text").c_str() },
+  { (char*)string("?").c_str(),     com_help, (char*)string("Synonym for `help'").c_str() },
+  { (char*)string("list").c_str(), com_list, (char*)string("Lists all objects and agents").c_str() },
+  { (char*)string("ls").c_str(),   com_list, (char*)string("Synonym for `list'").c_str() },
+  { (char*)string("set").c_str(),  com_set, (char*)string("syntax: set [OBJECTID] PARAM=VAL; sets parameter of Object (or all all objects) to value").c_str() },
+  { (char*)string("store").c_str(), com_store, (char*)string("Stores controller of AGENTID to FILE").c_str() },
+  { (char*)string("load").c_str(), com_load, (char*)string("Loads controller of AGENTID from FILE").c_str() },
+  { (char*)string("show").c_str(), com_show, (char*)string("[OBJECTID]: Lists paramters of OBJECTID or of all objects (if no id given)").c_str() },
+  { (char*)string("view").c_str(), com_show, (char*)string("Synonym for `show'").c_str() },
+  { (char*)string("quit").c_str(), com_quit, (char*)string("Quit program").c_str() },
   { (char *)(NULL), (commandfunc_t)NULL, (char *)NULL }
 };
 
@@ -351,7 +368,7 @@ bool com_show (GlobalData& globalData, char* line, char* arg) {
 
 bool com_set (GlobalData& globalData, char* line, char* arg) {
   if(strstr(line,"set")!=line) arg=line; // if it is not invoked with set then it was param=val
-  if (valid_argument("set", arg)){
+  if (valid_argument((char*)string("set").c_str(), arg)){
     /* Isolate the command word. */
     int i = 0;
     char* s_param;
@@ -405,7 +422,7 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
 }
 
 bool com_store (GlobalData& globalData, char* line, char* arg) {
-  if (valid_argument("store", arg)){
+  if (valid_argument((char*)string("store").c_str(), arg)){
     char* filename;
     filename = strchr(arg,' ');
     if(filename) { // we have 2 arguments
@@ -427,7 +444,7 @@ bool com_store (GlobalData& globalData, char* line, char* arg) {
 }
 
 bool com_load (GlobalData& globalData, char* line, char* arg) {
-  if (valid_argument("load", arg)){
+  if (valid_argument((char*)string("load").c_str(), arg)){
     char* filename;
     filename = strchr(arg,' ');
     if(filename) { // we have 2 arguments

@@ -22,10 +22,10 @@ UTILS =
 # utils/splitvideo
 
 # -pg for profiling
-CPPFLAGS = -Wall -g -I. $(INC)
+CPPFLAGS = -Wall -Wno-deprecated -g -I. $(INC)
 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. $(INC) -O -DNDEBUG
+CPPFLAGS_OPT = -Wall -Wno-deprecated -I. $(INC) -O -DNDEBUG
 
 # used for single file compilation
 CXX = g++

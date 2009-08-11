@@ -33,9 +33,9 @@ INC   = -I. -I$(ECBROBOTS)/include/ecbrobots -I$(SELFORG)/include
 
 CXX = g++
 # -pg for profiling
-CPPFLAGS = -Wall -I. -g $(INC)
+CPPFLAGS = -Wall  -Wno-deprecated -I. -g $(INC)
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -O3 -DNDEBUG $(INC)
+CPPFLAGS_OPT = -Wall  -Wno-deprecated -I. -O3 -DNDEBUG $(INC)
 
 normal: libecbrobots $(EXEC)
 

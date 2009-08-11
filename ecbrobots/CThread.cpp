@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-08-11 15:49:05  guettler
+ *   Revision 1.1  2009-08-11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -41,123 +41,148 @@
  *   Revision 1.5  2009/03/25 11:06:55  robot1
  *   updated version
  *
- *   Revision 1.4  2008/07/16 15:16:55  robot1
- *   minor bugfixes
- *
- *   Revision 1.3  2008/07/16 07:38:42  robot1
+ *   Revision 1.4  2008/07/16 07:38:42  robot1
  *   some major improvements
  *
- *   Revision 1.2  2008/04/11 06:31:16  guettler
+ *   Revision 1.3  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
+ *
+ *   Revision 1.2  2008/04/08 09:09:09  martius
+ *   fixed globaldata to pointer in classes
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
  *   new ecbrobots module!
  *
  *                                                                         *
  ***************************************************************************/
-#ifndef __ECBMANAGER_H
-#define __ECBMANAGER_H
-
-#include <selforg/configurable.h>
+#include "CThread.h"
 
 #include "globaldata.h"
-#include "ecbagent.h"
-#include <termios.h>
+#include <iostream>
 
-namespace lpzrobots {
+namespace lpzrobots
+{
 
+  CThread::CThread(std::string name, bool debug) :
+    name(name), debug(debug), terminated(true), m_is_joined(false), m_is_running(false)
+  {
+  };
 
-// forward declaration begin
-class ECBCommunicator;
-// forward declaration end
-
-class ECBManager : public Configurable {
-
-public:
-
-  ECBManager();
-
-  /**
-  * Use this constructor if you like to use your own ECBCommunicator
-  */
-  ECBManager(ECBCommunicator* comm);
-
-  virtual ~ECBManager();
-
-  /**
-   * This starts the ECBManager. Do not overload it.
-   * @return
-   */
-  bool run(int argc, char** argv);
-
-
-  /// CONFIGURABLE INTERFACE
-
-  virtual paramval getParam(const paramkey& key) const;
-
-  virtual bool setParam(const paramkey& key, paramval val);
-
-  virtual paramlist getParamList() const;
-
-protected:
-  bool simulation_time_reached;
-
-    /**
-   * Use this function to define the robots, controller, wiring of
-   * the agents.
-   * @param global The struct which should contain all neccessary objects
-   * like Agents
-   * @return true if all is ok!
-   */
-  virtual bool start(GlobalData& global) = 0;
-
-   /** optional additional callback function which is called every
-    * simulation step.
-    * To use this method, just overload it.
-    * @param globalData The struct which contains all neccessary objects
-    * like Agents
-    * @param pause indicates that simulation is paused
-    * @param control indicates that robots have been controlled this timestep (default: true)
-    */
-  void addCallback ( GlobalData& globalData,bool pause, bool control ) {};
-
-
-    /** add own key handling stuff here, just insert some case values
-     * To use this method, just overload it
-     * @param globalData The struct which contains all neccessary objects
-     * like Agents
-     * @param key The key number which is pressed
-     * @return true if this method could handle the key,
-     * otherwise return false
-     */
-  virtual bool command ( GlobalData& globalData, int key) { return false; };
-
-  // Helper
-  int contains(char **list, int len,  const char *str){
-    for(int i=0; i<len; i++){
-      if(strcmp(list[i],str) == 0) return i+1;
-    }
-    return 0;
+  void CThread::setConfig(bool debug)
+  {
+    this->debug = debug;
   }
 
+  /// start thread
+  void CThread::start()
+  {
+    if (debug)
+      cout << name << "(CThread): called start!";
+    if (!terminated) // already running!
+    {
+      if (debug)
+        cout << " - but I am already running!" << endl;
+      return;
+    }
+    else if (debug)
+      cout << endl;
+    m_is_running = true;
+    m_is_joined = false;
+    terminated = false;
+    // start thread using this static function
+    pthread_create(&thread, NULL, CThread_run, this);
+  }
+  ;
 
-private:
-  ECBCommunicator* comm;
-  GlobalData globalData;
-  bool commInitialized;
+  /// stop communication
+  void CThread::stopandwait()
+  {
+    if (debug)
+      cout << name << "(CThread): stop and wait!" << endl;
+    if (!m_is_joined)
+    {
+      // set stop signal
+      terminated = true;
+      usleep(10);
+      pthread_testcancel();
+      usleep(10);
+      //      pthread_cancel(thread);
+      pthread_join(thread, NULL);
+      m_is_joined = true;
+      m_is_running = false;
+    }
+  }
+  ;
 
-  struct termios term_orig;
+  /// stop  communication
+  void CThread::stop()
+  {
+    if (debug)
+      std::cout << name << "(CThread): stop." << std::endl;
+    terminated = true;
+    pthread_testcancel();
+  }
+  ;
 
-  virtual void handleStartParameters ( int argc, char** argv );
+  // thread function
+  bool CThread::run()
+  {
+    if (debug)
+      cout << name << "(CThread): run!" << endl;
 
-  virtual bool loop();
+    if (!internInit())
+      stop();
 
-  virtual void initConsole();
-  virtual void restoreConsole();
-  
-};
+    // init function of the derived class
+    if (!initialise())
+      stop();
+
+    if (debug)
+      std::cout << name << "(CThread): finished initialising. Starting the loop." << std::endl;
+
+    /* main loop which calls the loop
+     * function of the derived class
+     */
+    bool inLoop = true;
+
+    while (!terminated && inLoop)
+    {
+      pthread_testcancel();
+      inLoop = loop();
+    }
+    if (debug)
+      std::cout << name << "(CThread): End of loop reached." << std::endl;
+
+    m_is_running = false;
+    return true;
+  }
+  ;
+
+  bool CThread::internInit()
+  {
+    if (debug)
+      std::cout << name << "(CThread): internal initialising..." << std::endl;
+
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+
+    return true;
+  }
+
+  /// redirection function, because we can't call member function direct
+  void* CThread::CThread_run(void* p)
+  {
+    bool rv = false;
+    CThread* ct = dynamic_cast<CThread*> ((CThread*) p);
+    if (ct)
+      rv = ct->run();
+    else
+    {
+      cerr << "Error getting CThread to run!!!" << endl;
+    }
+    pthread_exit(&rv);
+  }
+
+} // end namespace lpzrobots
 
 
-}
-
-#endif

@@ -22,7 +22,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-03-25 11:06:55  robot1
+ *   Revision 1.7  2009-08-11 15:49:05  guettler
+ *   Current development state:
+ *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
+ *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
+ *     ECBCommunicator (almost) entirely rewritten: Use of Mediator (MediatorCollegues: ECB),
+ *     Callbackble (BackCaller: SerialPortThread)
+ *   - New CThread for easy dealing with threads (is using pthreads)
+ *   - New TimerThreads for timed event handling
+ *   - SerialPortThread now replaces the cserialthread
+ *   - GlobalData, ECBCommunicator is now configurable
+ *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
+ *   - ECBRobot is now Inspectables (uses new infoLines functionality)
+ *   - ECB now supports dnsNames and new communication protocol via Mediator
+ *   - Better describing command definitions
+ *   - SphericalRobotECB: adapted to new ECB structure, to be tested
+ *
+ *   Revision 1.6  2009/03/25 11:06:55  robot1
  *   updated version
  *
  *   Revision 1.5  2008/08/12 11:44:42  guettler
@@ -54,226 +70,196 @@ using namespace std;
 
 namespace lpzrobots {
 
+  ECBRobot::ECBRobot(GlobalData& globalData) :
+    AbstractRobot("ECBRobot", "$ID$"), globalData(globalData), numberECBInitialised(0), initialised(false) {
+    if (this->globalData.debug)
+      std::cout << "New ECBRobot created." << std::endl;
 
-ECBRobot::ECBRobot(GlobalData& globalData) : AbstractRobot("ECBRobot", "$ID$"), globalData(&globalData) {
-  if (this->globalData->debug)
-    std::cout << "New ECBRobot created." << std::endl;
-  // remember: motors UND sensors werden automatisch geplottet durch Agent (setMotors und getSensors)
-  // add new inspectable parameters
-  
-  this->addParameterDef("numberECBs", &(this->numberECBInitialised),0);
-  //this->addInspectableValue("speed",&this->speed);
-  globalData.configs.push_back(this);
-}
+    // remember: motors UND sensors werden automatisch geplottet durch Agent (setMotors und getSensors)
+    // add new inspectable parameters
+    // but we must add the descriptionLines
+    addInspectableValue("numberECBs", &numberECBInitialised);
 
-ECBRobot::~ECBRobot() {}
+    addParameterDef("reset", &isResetECBs, false);
+  }
+
+  ECBRobot::~ECBRobot() {
+  }
 
   /// new methods for the communicator
 
 
+  /// method for registering new ECBs
 
+  void ECBRobot::addECB(string dnsName, ECBConfig& ecbConfig) {
+    this->ECBlist.push_back(new ECB(dnsName, globalData, ecbConfig));
+    if (globalData.debug)
+      cout << "New ECB with DNSName \"" << dnsName << "\" added." << std::endl;
+  }
 
-/// method for registering new ECBs
+  /// method for registering new ECBs
 
-void ECBRobot::addECB(int slaveAddress, ECBConfig& ecbConfig) {
-  this->ECBlist.push_back(new ECB(slaveAddress,*globalData,ecbConfig));
-  if (globalData->debug)
-    std::cout << "New ECB with address " << slaveAddress << " added." << std::endl;
-}
-
-/// method for registering new ECBs
-
-void ECBRobot::addECB(ECB* ecb) {
-//   if (*ecb) {
+  void ECBRobot::addECB(ECB* ecb) {
     this->ECBlist.push_back(ecb);
-    if (globalData->debug)
-      std::cout << "New ECB with address " << ecb->getAddress() << " added." << std::endl;
-//   }
-}
+    if (globalData.debug)
+      cout << "New ECB with DNSName " << ecb->getDNSName() << " added." << std::endl;
+  }
 
+  bool ECBRobot::isInitialised() {
+    if (!initialised) {
+      // sum up number of initialised ECBs
+      int count = 0;
 
-
-/** Return true, if ALL ECBs are initialised.
-* else its returned false
-*/
-uint ECBRobot::numberInitialisedECBs() {
-  
-  uint numberInitialisedECBs = 0;
-  
-  FOREACH(list<ECB*>,ECBlist,ecb) {
-    if ( (*ecb)->isInitialised() ) 
-      numberInitialisedECBs++;
+      FOREACH(list<ECB*>,ECBlist,ecb) {
+        if ((*ecb)->isInitialised())
+          count++;
+      }
+      numberECBInitialised = count;
+      if (numberECBInitialised == ECBlist.size()) {
+        if (globalData.debug)
+          cout << "ECBRobot: Found all (" << numberECBInitialised << ") initialised ECBs." << endl;
+        removeInfoLines();
+        addInfoLine(getChannelDescription());
+        initialised = true;
+        return true;
+      } else
+        return false;
+    } else if (isResetECBs == true) {
+      resetECBs();
+      initialised = false;
+      isResetECBs = false;
+      return false;
+    } else // initialise && ! resetECBs
+      return true;
   }
   
-  if (numberInitialisedECBs > ECBlist.size())
-    cout << "ECBRobot: More ECBs initialised than known!!!" << endl;
-  
-  if (globalData->debug)
-    cout << "ECBRobot: Found " << numberInitialisedECBs << " initialised ECBs." << endl;
-  
-  numberECBInitialised=numberInitialisedECBs;
-  return numberInitialisedECBs;
-}
-
-void ECBRobot::resetECBs() {
-  if (globalData->debug)
-    std::cout << "ECBRobot: resetECBs!" << std::endl;
-  FOREACH(list<ECB*>,ECBlist,ecb) {
-    (*ecb)->resetECB();
+  void ECBRobot::resetECBs() {
+    if (globalData.debug)
+      cout << "ECBRobot: resetECBs!" << endl;
+    FOREACH(list<ECB*>,ECBlist,ecb) {
+      (*ecb)->sendResetECB();
+    }
   }
-}
+  
+  /// ABSTRACTROBOT INTERFACE
 
-void ECBRobot::writeMotors_readSensors() {
-  if (globalData->debug)
-    std::cout << "ECBRobot: writeMotors_readSensors!" << std::endl;
-  FOREACH(list<ECB*>,ECBlist,ecb) {
-    (*ecb)->writeMotors_readSensors();
-  }
-}
-
-
-/// ABSTRACTROBOT INTERFACE
-
-int ECBRobot::getSensors(sensor* sensors, int sensornumber){
-  int index=0;
-  FOREACH(list<ECB*>,ECBlist,ecb) {
-    list<sensor> ecbSensors = (*ecb)->getSensorList();
-    FOREACH(list<sensor>,ecbSensors,s) {
-      sensors[index++]=(*s);
-      if (index==sensornumber)
+  int ECBRobot::getSensors(sensor* sensors, int sensornumber) {
+    int index = 0;
+    FOREACH(list<ECB*>,ECBlist,ecb) {
+      list<sensor> ecbSensors = (*ecb)->getSensorList();
+      FOREACH(list<sensor>,ecbSensors,s) {
+        sensors[index++] = (*s);
+        if (index == sensornumber)
+          break;
+      }
+      if (index == sensornumber)
         break;
     }
-    if (index==sensornumber)
-      break;
+    return sensornumber; // TODO: oder index?
   }
-  return sensornumber; // TODO: oder index?
-}
 
-void ECBRobot::setMotors(const motor* motors, int motornumber){
-  int index=0;
-  FOREACH(list<ECB*>,ECBlist,ecb) {
-    index+=(*ecb)->setMotors(motors,index,motornumber);
+  void ECBRobot::setMotors(const motor* motors, int motornumber) {
+    int index = 0;
+    FOREACH(list<ECB*>,ECBlist,ecb) {
+      index += (*ecb)->setMotors(motors, index, motornumber);
+    }
   }
-}
 
-int ECBRobot::getSensorNumber(){
-  // get the number of sensors from each ECB and sum up
-  int sensornumber=0;
-  FOREACH ( list<ECB*>, ECBlist, i ) {
-    sensornumber+=(( *i )->getNumberSensors());
+  int ECBRobot::getSensorNumber() {
+    // get the number of sensors from each ECB and sum up
+    int sensornumber = 0;
+    FOREACH ( list<ECB*>, ECBlist, i ) {
+      sensornumber += ((*i)->getNumberSensors());
+    }
+    return sensornumber;
   }
-  return sensornumber;
-}
 
-int ECBRobot::getMotorNumber() {
-  // get the number of motors from each ECB and sum up
-  int motornumber=0;
-  FOREACH ( list<ECB*>, ECBlist, i ) {
-    motornumber+=(( *i )->getNumberMotors());
+  int ECBRobot::getMotorNumber() {
+    // get the number of motors from each ECB and sum up
+    int motornumber = 0;
+    FOREACH ( list<ECB*>, ECBlist, i ) {
+      motornumber += ((*i)->getNumberMotors());
+    }
+    return motornumber;
   }
-  return motornumber;
-}
 
-/** returns max number of sensors */
-int ECBRobot::getMaxSensorNumber() {
-  // get the number of sensors from each ECB and sum up
-  int max_sensornumber=0;
-  FOREACH ( list<ECB*>, ECBlist, i ) {
-    max_sensornumber+=(( *i )->getMaxNumberSensors());
+  /** returns max number of sensors */
+  int ECBRobot::getMaxSensorNumber() {
+    // get the number of sensors from each ECB and sum up
+    int max_sensornumber = 0;
+    FOREACH ( list<ECB*>, ECBlist, i ) {
+      max_sensornumber += ((*i)->getMaxNumberSensors());
+    }
+    return max_sensornumber;
   }
-  return max_sensornumber;
-}
 
   /** returns maxnumber of motors */
-int ECBRobot::getMaxMotorNumber() {
-// get the number of motors from each ECB and sum up
-  int max_motornumber=0;
-  FOREACH ( list<ECB*>, ECBlist, i ) {
-    max_motornumber+=(( *i )->getMaxNumberMotors());
+  int ECBRobot::getMaxMotorNumber() {
+    // get the number of motors from each ECB and sum up
+    int max_motornumber = 0;
+    FOREACH ( list<ECB*>, ECBlist, i ) {
+      max_motornumber += ((*i)->getMaxNumberMotors());
+    }
+    return max_motornumber;
   }
-  return max_motornumber;
-}
 
   /** stop all motors of connected ECBs */
-int ECBRobot::stopMotors()
-{
-  if (globalData->debug)
-    std::cout << "ECBRobot: stopMotors()" << std::endl;
-  FOREACH ( list<ECB*>, ECBlist, i ) {
-    ( *i )->stopMotors();
+  int ECBRobot::stopMotors() {
+    if (globalData.debug)
+      std::cout << "ECBRobot: stopMotors()" << std::endl;
+    FOREACH ( list<ECB*>, ECBlist, i ) {
+      (*i)->stopMotors();
+    }
+    return 0;
   }
-  return 0;
-}
 
   /** start all motors of connected ECBs */
-int ECBRobot::startMotors()
-{
-  if (globalData->debug)
-    std::cout << "ECBRobot: startMotors()" << std::endl;
-  FOREACH ( list<ECB*>, ECBlist, i ) {
-    ( *i )->startMotors();
+  int ECBRobot::startMotors() {
+    if (globalData.debug)
+      std::cout << "ECBRobot: startMotors()" << std::endl;
+    FOREACH ( list<ECB*>, ECBlist, i ) {
+      (*i)->startMotors();
+    }
+    return 0;
   }
-  return 0;
-}
 
-/// TRACKABLE INTERFACE
+  /// TRACKABLE INTERFACE
 
-Position ECBRobot::getPosition() const {return Position(0,0,0);}
-Position ECBRobot::getSpeed() const {return Position(0,0,0);}
-Position ECBRobot::getAngularSpeed() const {return Position(0,0,0);}
-matrix::Matrix ECBRobot::getOrientation() const { matrix::Matrix m(3,3);  m.toId(); return m; }
+  Position ECBRobot::getPosition() const {
+    return Position(0, 0, 0);
+  }
+  Position ECBRobot::getSpeed() const {
+    return Position(0, 0, 0);
+  }
+  Position ECBRobot::getAngularSpeed() const {
+    return Position(0, 0, 0);
+  }
+  matrix::Matrix ECBRobot::getOrientation() const {
+    matrix::Matrix m(3, 3);
+    m.toId();
+    return m;
+  }
 
-/// CONFIGURABLE INTERFACE
-
-Configurable::paramval ECBRobot::getParam(const paramkey& key) const{
-  /*if(key == "noise") return noise;
-  else if(key == "cycletime") return cycletime;
-  else */ if(key == "reset") return 0;
-  else return Configurable::getParam(key);
-}
-
-bool ECBRobot::setParam(const paramkey& key, paramval val){
-  /*if(key == "noise") noise = val;
-  else if(key == "cycletime"){
-    cycletime=(long)val;
-  } else if(key == "reset"){
-    doReset=true;
-  } else*/
-    return Configurable::setParam(key, val);
-  //return true;
-}
-
-Configurable::paramlist ECBRobot::getParamList() const {
-  paramlist list;
-/*  list += pair<paramkey, paramval> (string("noise"), noise);
-  list += pair<paramkey, paramval> (string("cycletime"), cycletime);*/
-  list += pair<paramkey, paramval> (string("reset"), 0);
-  return list;
-}
-
-/**
- * Returns specific ECBRobot infos to the ECBAgent, who pipes this infos out (PlotOptions)
- * Something like that:
- * #ECB M y[0] y[1]
- * #ECB IR x[0] x[1]
- * #ECB ADC x[2] x[3]
- * #ECB ME x[4] x[5]
- * Strom, Spannung usw. (konfigurationsabh�ngige Parameter vom ECB)
- */
-std::string ECBRobot::getChannelDescription() {
-	// hole von allen ECBs die GUIInformation und konkateniere als string
-	// und returne diesen als komplettstring (siehe getSensors)
-	  // get the number of sensors from each ECB and sum up
-          std::string info = ""; // String ist Klasse
-	  FOREACH ( list<ECB*>, ECBlist, i ) {
-            info.append(( *i )->getChannelDescription());
-            //add a space after the descriptionLine of the previous ECB 
-  	  if (numberInitialisedECBs() > 1) info = info.append(" ");
-	  }
-	  return info;
-}
-
+  /**
+   * Returns specific ECBRobot infos to the ECBAgent, who pipes this infos out (PlotOptions)
+   * Something like that:
+   * #ECB M y[0] y[1]
+   * #ECB IR x[0] x[1]
+   * #ECB ADC x[2] x[3]
+   * #ECB ME x[4] x[5]
+   * Strom, Spannung usw. (konfigurationsabh�ngige Parameter vom ECB)
+   */
+  std::string ECBRobot::getChannelDescription() {
+    // hole von allen ECBs die GUIInformation und konkateniere als string
+    // und returne diesen als komplettstring (siehe getSensors)
+    // get the number of sensors from each ECB and sum up
+    std::string info = "D"; // String ist Klasse
+    FOREACH ( list<ECB*>, ECBlist, i ) {
+      info.push_back(' ');
+      info.append((*i)->getChannelDescription());
+    }
+    return info;
+  }
 
 }
-
 
