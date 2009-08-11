@@ -28,7 +28,10 @@
  *   generation.                                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-21 08:37:59  robot12
+ *   Revision 1.7  2009-08-11 12:57:39  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.6  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.5  2009/06/25 13:34:17  robot12
@@ -97,7 +100,7 @@ void EliteSelectStrategy::select(Generation* oldGeneration, Generation* newGener
 	std::list<SfitnessEliteStrategyStruct> list;						//a list with all individual of the old generation and there fitness values
 	SfitnessEliteStrategyStruct* storage;								//one element from the list
 	std::list<SfitnessEliteStrategyStruct>::iterator iter;				//iterator for the list.
-	int num,x,kill;														//help variables
+	int num,x,size;														//help variables
 
 	// prepare the list
 	num = oldGeneration->getCurrentSize();								//take all individual with there fitness values in the list.
@@ -119,9 +122,9 @@ void EliteSelectStrategy::select(Generation* oldGeneration, Generation* newGener
 	//printf("Test\n");
 
 	// kill the badest
-	kill = oldGeneration->getKillRate();
+	size = oldGeneration->getSize();
 	iter = list.begin();
-	std::advance(iter,num-kill);										//delete all elements which are not selected from the list
+	std::advance(iter,size);											//delete all elements which are not selected from the list
 	while(iter!=list.end()) {
 		//storage = &(*iter);
 		//delete storage;

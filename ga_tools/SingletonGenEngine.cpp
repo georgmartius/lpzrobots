@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-07-28 13:19:55  robot12
+ *   Revision 1.11  2009-08-11 12:57:38  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.10  2009/07/28 13:19:55  robot12
  *   add some clean ups
  *
  *   Revision 1.9  2009/07/21 08:39:01  robot12
@@ -164,7 +167,7 @@ SingletonGenEngine::~SingletonGenEngine() {
 	}
 }
 
-void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRate, bool withUpdate) {
+void SingletonGenEngine::generateFirstGeneration(int startSize, int numChildren, RandGen* random, bool withUpdate) {
 	// clean the generations
 	std::vector<Generation*>::iterator iterGener;
 	while(m_generation.size()>0) {
@@ -193,9 +196,9 @@ void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRat
 	m_gen.clear();
 
 	// generate the first generation
-	Generation* first = new Generation(0,startSize,startKillRate);
+	Generation* first = new Generation(-1,startSize,numChildren);
 	addGeneration(first);
-	m_actualGeneration=0;
+	m_actualGeneration = 0;
 
 	// generate the first contexts
 	GenContext* context;
@@ -212,21 +215,19 @@ void SingletonGenEngine::generateFirstGeneration(int startSize, int startKillRat
 		ind = SingletonIndividualFactory::getInstance()->createIndividual();
 		first->addIndividual(ind);
 	}
+	select();
+	crossover(random);
 
 	// update generation
 	if(withUpdate)
 		first->update();
 }
 
-void SingletonGenEngine::prepareNextGeneration(int size, int killRate) {
-	// correct the killRate		<-- bad development of the generation size
-	if(killRate>size)
-		killRate = size - 2;
-
+void SingletonGenEngine::prepareNextGeneration(int size, int numChildren) {
 	// generate the next generation
-	Generation* next = new Generation(m_actualGeneration+1,size,killRate);
+	Generation* next = new Generation(m_actualGeneration++,size,numChildren);
 	addGeneration(next);
-	m_actualGeneration++;
+	//m_actualGeneration++;
 
 	// generate the next GenContext
 	int num = m_prototype.size();
@@ -239,74 +240,67 @@ void SingletonGenEngine::prepareNextGeneration(int size, int killRate) {
 	}
 }
 
-void SingletonGenEngine::prepare(int startSize, int startKillRate, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext, bool withUpdate) {
+void SingletonGenEngine::prepare(int startSize, int numChildren, InspectableProxy*& proxyGeneration, InspectableProxy*& proxyGene, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext, bool withUpdate) {
+	Generation* generation;
+	std::list<Inspectable*> actualContextList;
+
 	// create first generation
-	generateFirstGeneration(startSize,startKillRate, withUpdate);
+	generateFirstGeneration(startSize,numChildren, random, withUpdate);
 
 	// Control values
 	generation = getActualGeneration();
 	if(plotEngine!=0) {
-		plotEngine->addInspectable(generation);
-		plotEngine->step(1.0);
+		actualContextList.clear();
+		actualContextList.push_back(generation);
+		proxyGeneration = new InspectableProxy(actualContextList);
+		plotEngine->addInspectable(&(*proxyGeneration));
+		plotEngine->init();
+		plotEngine->plot(1.0);
 	}
-	std::list<Inspectable*> actualContextList;
-	//InspectableProxy* actualContext;
 	if(plotEngineGenContext!=0) {
 		actualContextList.clear();
 		for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
 			actualContextList.push_back((*iter)->getContext(getActualGeneration()));
 			(*iter)->getContext(getActualGeneration())->update();
 		}
-		proxy = new InspectableProxy(actualContextList);
-		plotEngineGenContext->addInspectable(&(*proxy));
-		plotEngineGenContext->step(1.0);
+		proxyGene = new InspectableProxy(actualContextList);
+		plotEngineGenContext->addInspectable(&(*proxyGene));
+		plotEngineGenContext->init();
+		plotEngineGenContext->plot(1.0);
 	}
 }
 
-void SingletonGenEngine::measureStep(double time, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
+int SingletonGenEngine::getNextGenerationSize() {
+	return m_generationSizeStrategy->calcGenerationSize(getActualGeneration());
+}
+
+void SingletonGenEngine::measureStep(double time, InspectableProxy*& proxyGeneration, InspectableProxy*& proxyGene, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
 	std::list<Inspectable*> actualContextList;
+	Generation* generation;
 
 	if(plotEngine!=0) {
+		actualContextList.clear();
 		generation = getActualGeneration();
-		plotEngine->step(time);
+		actualContextList.push_back(generation);
+		proxyGeneration->replaceList(actualContextList);
+		plotEngine->plot(time);
 	}
 	if(plotEngineGenContext!=0) {
 		actualContextList.clear();
 		for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
 			actualContextList.push_back((*iter)->getContext(getActualGeneration()));
 		}
-		proxy->replaceList(actualContextList);
-		plotEngineGenContext->step(time);
+		proxyGene->replaceList(actualContextList);
+		plotEngineGenContext->plot(time);
 	}
 }
 
-void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
-	//std::list<Inspectable*> actualContextList;
+void SingletonGenEngine::runGenAlg(int startSize, int numChildren, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
 	InspectableProxy* actualContext;
-	Generation* actual;
+	InspectableProxy* actualGeneration;
 
 	// create first generation
-	prepare(startSize,startKillRate,actual,actualContext,plotEngine,plotEngineGenContext);
-	/*generateFirstGeneration(startSize,startKillRate);
-
-	// Control values
-	Generation& actual = *getActualGeneration();
-	if(plotEngine!=0) {
-		plotEngine->addInspectable(&actual);
-		plotEngine->step(1.0);
-	}
-	std::list<Inspectable*> actualContextList;
-	InspectableProxy* actualContext;
-	if(plotEngineGenContext!=0) {
-		actualContextList.clear();
-		for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
-			actualContextList.push_back((*iter)->getContext(getActualGeneration()));
-			(*iter)->getContext(getActualGeneration())->update();
-		}
-		actualContext = new InspectableProxy(actualContextList);
-		plotEngineGenContext->addInspectable(&(*actualContext));
-		plotEngineGenContext->step(1.0);
-	}*/
+	prepare(startSize,numChildren,actualGeneration,actualContext,random,plotEngine,plotEngineGenContext);
 
 	// generate the other generations
 	for(int x=0;x<numGeneration;x++) {
@@ -316,23 +310,7 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 
 		printf("Generaion %i:\tabgeschlossen.\n",x);
 
-		/*if(plotEngine!=0) {
-			actual = getActualGeneration();
-			plotEngine->step((double)(x+2));
-		}
-		if(plotEngineGenContext!=0) {
-			actualContextList.clear();
-			for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
-				actualContextList.push_back((*iter)->getContext(getActualGeneration()));
-			}
-			actualContext->replaceList(actualContextList);
-			plotEngineGenContext->step((double)(x+2));
-		}*/
-		measureStep((double)(x+2),actual,actualContext,plotEngine,plotEngineGenContext);
-
-		/*prepareNextGeneration();
-		m_generation[m_actualGeneration-1]->select(m_generation[m_actualGeneration]);
-		m_generation[m_actualGeneration]->crossOver(random);*/
+		measureStep((double)(x+2),actualGeneration,actualContext,plotEngine,plotEngineGenContext);
 
 		// Abbruchkriterium fehlt noch!!!
 		// TODO
@@ -342,7 +320,7 @@ void SingletonGenEngine::runGenAlg(int startSize, int startKillRate, int numGene
 void SingletonGenEngine::select(bool createNextGeneration) {
 	//std::cout<<"createNextGeneration:"<<(createNextGeneration?" yes\n":" no\n");
 	if(createNextGeneration)
-		getInstance()->prepareNextGeneration(m_generationSizeStrategy->calcGenerationSize(getActualGeneration()),getActualGeneration()->getKillRate());
+		getInstance()->prepareNextGeneration(m_generationSizeStrategy->calcGenerationSize(getActualGeneration()),getActualGeneration()->getNumChildren());
 
 	//std::cout<<"begin select\n";
 	getInstance()->m_selectStrategy->select(getInstance()->m_generation[getInstance()->m_actualGeneration-1],getInstance()->m_generation[getInstance()->m_actualGeneration]);

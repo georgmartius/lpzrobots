@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-21 08:39:01  robot12
+ *   Revision 1.9  2009-08-11 12:57:38  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.8  2009/07/21 08:39:01  robot12
  *   rename "crosover" to crossover
  *
  *   Revision 1.7  2009/06/29 15:30:11  robot12
@@ -105,9 +108,9 @@ public:
 	 *
 	 * @param generationNumber (int) The ID of the Generation.
 	 * @param size (int) The Size of this Generation. Means how many individual are lives in this generation
-	 * @param kill (int) How many individual will be die.
+	 * @param numChildren (int) Number of individual which will be created by crossover
 	 */
-	Generation(int generationNumber, int size, int kill);
+	Generation(int generationNumber, int size, int numChildren);
 
 	/**
 	 * destructor to delete a GenContext.
@@ -140,11 +143,11 @@ public:
 
 	/**
 	 * [inline], [const]
-	 * This function gives the killRate back.
+	 * This function gives the number of children back, which will be created by crossover.
 	 *
-	 * @return (int) the killRate
+	 * @return (int) the number of children
 	 */
-	inline int getKillRate(void)const {return m_kill;}
+	inline int getNumChildren(void)const {return m_numChildren;}
 
 	/**
 	 * [individual], [const]
@@ -219,9 +222,9 @@ protected:
 
 	/**
 	 * (int)
-	 * The killRate
+	 * The number of children
 	 */
-	int m_kill;
+	int m_numChildren;
 
 private:
 	/**
@@ -280,9 +283,9 @@ private:
 	double m_dSize;
 
 	/**
-	 * the number of individual which will be killed by swaping the generation
+	 * the number of individual which will be created by crossover.
 	 */
-	double m_dKill;
+	double m_dNumChildren;
 };
 
 #endif /* GENERATION_H_ */

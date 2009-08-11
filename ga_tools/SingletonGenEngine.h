@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-07-28 13:19:27  robot12
+ *   Revision 1.10  2009-08-11 12:57:38  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.9  2009/07/28 13:19:27  robot12
  *   add member variable m_cleanStrategies
  *
  *   Revision 1.8  2009/07/21 08:39:01  robot12
@@ -184,48 +187,56 @@ public:
 	/**
 	 * prepare the alg. and create his fisrt generation.
 	 * @param startSize (int) Number of individual with which the alg. will be start.
-	 * @param startKillRate (int) Number of individual which will be die.
+	 * @param numChildren (int) Number of individual which will be created by crossover.
+	 * @param random (RandGen*) A random generator
 	 * @param withUpdate (bool) if true, than makes this function on the end a update.
 	 */
-	void generateFirstGeneration(int startSize, int startKillRate, bool withUpdate = true);
+	void generateFirstGeneration(int startSize, int numChildren, RandGen* random, bool withUpdate = true);
 
 	/**
 	 * prepare the next generation. Mean create the GenContext for every GenPrototype.
 	 * @param size (int) size of the next generation
-	 * @param killRate (int) killRate of the next generation.
+	 * @param numChildren (int) Number of individual which will be created by crossover
 	 */
-	void prepareNextGeneration(int size, int killRate);
+	void prepareNextGeneration(int size, int numChildren);
 
 	/**
 	 * prepare the first generation with "generateFirstGeneration" and init the measures.
 	 * @param startSize (int) Number of individual with which the alg. will be start.
-	 * @param startKillRate (int) Number of individual which will be die.
-	 * @param generation (Generation*&) the generation which is controlled by measures
-	 * @param proxy (InspectableProxy*&) the proxy for control measure
+	 * @param numChildren (int) Number of individual which will be created by crossover
+	 * @param proxyGeneration (InspectableProxy*&) the generation which is controlled by measures
+	 * @param proxyGene (InspectableProxy*&) the proxy for control measure
+	 * @param random (RandGen*) A random generator
 	 * @param plotEngine (PlotOptionEngine*) logging the data for later control
 	 * @param plotEngineGenContext (PlotOptionEngine*) logging the data of the GenContext for later control
 	 * @param withUpdate (bool) is needed for the function "generateFirstGeneration"
 	 */
-	void prepare(int startSize, int startKillRate, Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0, bool withUpdate = true);
+	void prepare(int startSize, int numChildren, InspectableProxy*& proxyGeneration, InspectableProxy*& proxyGene, RandGen* random, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0, bool withUpdate = true);
+
+	/**
+	 * return the size of the next generation.
+	 * @return (int) the size
+	 */
+	int getNextGenerationSize();
 
 	/**
 	 * makes a step in the measure
 	 * @param time (double) the time stamp in the measure
-	 * @param generation (Generation*&) the generation which is controlled by measures
-	 * @param proxy (InspectableProxy*&) the proxy for control measure
+	 * @param proxyGeneration (InspectableProxy*&) the generation which is controlled by measures
+	 * @param proxyGene (InspectableProxy*&) the proxy for control measure
 	 */
-	void measureStep(double time,Generation*& generation, InspectableProxy*& proxy, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
+	void measureStep(double time,InspectableProxy*& proxyGeneration, InspectableProxy*& proxyGene, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
 
 	/**
 	 * this function is for a automatically run of the gen. alg.
 	 * @param startSize (int) Number of individual with which the alg. will be start.
-	 * @param startKillRate (int) Number of individual which will be die.
+	 * @param numChildren (int) Number of individual which will be created by crossover.
 	 * @param numGeneration (int) Number of generation after this the alg. will end.
 	 * @param random (RandGen*) a random generator
 	 * @param plotEngine (PlotOptionEngine*) logging the data for later control
 	 * @param plotEngineGenContext (PlotOptionEngine*) logging the data of the GenContext for later control
 	 */
-	void runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
+	void runGenAlg(int startSize, int numChildren, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine = 0, PlotOptionEngine* plotEngineGenContext = 0);
 
 	/**
 	 * make the select of the actual generation and transfer it to the next generation

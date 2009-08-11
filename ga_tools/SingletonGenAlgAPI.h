@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-07-28 13:20:40  robot12
+ *   Revision 1.10  2009-08-11 12:57:38  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.9  2009/07/28 13:20:40  robot12
  *   add some clean ups and add member variable m_cleanStrategies
  *
  *   Revision 1.8  2009/07/21 08:39:01  robot12
@@ -128,10 +131,15 @@ public:
 	/**
 	 * prepares the first generation and optional the enabled measure
 	 * @param startSize (int) Number of individual at begin of the gen. alg.
-	 * @param startKillRate (int) Number of individual which will be killed
+	 * @param startChildren (int) Number of individual which will be created by crossover
+	 * @param random (RandGen*) A random generator
 	 * @param withUpdate (bool) is needed for "generateFirstGeneration"
 	 */
-	void prepare(int startSize, int startKillRate, bool withUpdate = true);
+	void prepare(int startSize, int numChildren, RandGen* random, bool withUpdate = true);
+	/**
+	 * prepares the next generation and optional the enabled measure
+	 */
+	void prepare();
 	/**
 	 * makes a step in the measure
 	 * @param time (double) time stamp in the measure
@@ -140,11 +148,11 @@ public:
 	/**
 	 * start the sequenz of select, crossover, update in a automatically loop
 	 * @param startSize (int) Number of individual at begin of the gen. alg.
-	 * @param startKillRate (int) Number of individual which will be killed
+	 * @param numChildren (int) Number of individual which will be created by crossover
 	 * @param numGeneration (int) Number of generation which the alg. max. runs
 	 * @param random (RandGen*) random generator
 	 */
-	void runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random);
+	void runGenAlg(int startSize, int numChildren, int numGeneration, RandGen* random);
 
 	//measure
 	/**

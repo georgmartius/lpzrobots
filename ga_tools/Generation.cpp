@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-05 13:16:32  robot12
+ *   Revision 1.12  2009-08-11 12:57:38  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.11  2009/08/05 13:16:32  robot12
  *   add one clean up
  *
  *   Revision 1.10  2009/07/28 09:13:11  robot12
@@ -88,10 +91,10 @@ Generation::Generation() {
 	// nothing
 }
 
-Generation::Generation(int generationNumber, int size, int kill) {
+Generation::Generation(int generationNumber, int size, int numChildren) {
 	m_generationNumber = generationNumber;
 	m_size=size;
-	m_kill = kill;
+	m_numChildren = numChildren;
 
 
 	//adds some variable to the inspectable context
@@ -105,7 +108,7 @@ Generation::Generation(int generationNumber, int size, int kill) {
 	addInspectableValue("MAX",&m_max);
 	addInspectableValue("BEST",&m_best);
 	addInspectableValue("SIZE",&m_dSize);
-	addInspectableValue("KILL",&m_dKill);
+	addInspectableValue("CHILDREN",&m_dNumChildren);
 }
 
 Generation::~Generation() {
@@ -118,7 +121,7 @@ void Generation::crossover(RandGen* random) {
 	int count = 0;
 	int active = getCurrentSize();
 
-	while(getCurrentSize()<m_size) {		//create new individual, how long the planed size isn t reached
+	while(getCurrentSize()<m_size*2+m_numChildren) {		//create new individual, how long the planed size isn t reached
 		r1 = ((int)(random->rand()*1000000.0))%active;		// the first random number
 		r2 = r1;											// to come min one time inside the while loop
 		while(r1==r2)
@@ -168,7 +171,7 @@ void Generation::update(double factor) {
 	m_max = context->getMax();
 	m_best = context->getBest();
 	m_dSize = (double)m_size;
-	m_dKill = (double)m_kill;
+	m_dNumChildren = (double)m_numChildren;
 
 	delete context;
 	delete ptrFitnessVector;

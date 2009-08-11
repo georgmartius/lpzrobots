@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-07-29 16:07:09  jhoffmann
+ *   Revision 1.12  2009-08-11 12:57:38  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.11  2009/07/29 16:07:09  jhoffmann
  *   Fix a minor bug -> set m_inspectable to 0 as default
  *
  *   Revision 1.10  2009/07/29 14:19:50  jhoffmann
@@ -128,8 +131,8 @@ SingletonGenAlgAPI::~SingletonGenAlgAPI() {
 
 	SingletonGenEngine::destroyGenEngine(m_cleanStrategies);
 
-	if (m_inspectable)
-	  delete(m_inspectable);
+	if(m_inspectable!=0)
+		delete (InspectableProxy*&)m_inspectable;
 }
 
 IFitnessStrategy* SingletonGenAlgAPI::createSumFitnessStrategy()const {
@@ -209,16 +212,34 @@ void SingletonGenAlgAPI::update(double factor) {
 	SingletonGenEngine::getInstance()->update(factor);
 }
 
-void SingletonGenAlgAPI::prepare(int startSize, int startKillRate, bool withUpdate) {
-	SingletonGenEngine::getInstance()->prepare(startSize, startKillRate, (Generation*&)m_generation, (InspectableProxy*&)m_inspectable, m_plotEngine, m_plotEngineGenContext, withUpdate);
+void SingletonGenAlgAPI::prepare(int startSize, int numChildren, RandGen* random, bool withUpdate) {
+	SingletonGenEngine::getInstance()->prepare(startSize, numChildren, (InspectableProxy*&)m_generation, (InspectableProxy*&)m_inspectable, random, m_plotEngine, m_plotEngineGenContext, withUpdate);
+}
+
+void SingletonGenAlgAPI::prepare() {
+	Generation* generation = SingletonGenEngine::getInstance()->getActualGeneration();
+	Generation* next;
+	const std::vector<Individual*>& refIndividual = generation->getAllIndividual();
+
+	// create next generation
+	SingletonGenEngine::getInstance()->prepareNextGeneration(
+			SingletonGenEngine::getInstance()->getNextGenerationSize(),
+			generation->getNumChildren());
+
+	next = SingletonGenEngine::getInstance()->getActualGeneration();
+
+	// copy all individuals in the next generation
+	FOREACHC(std::vector<Individual*>,refIndividual,i) {
+		next->addIndividual(*i);
+	}
 }
 
 void SingletonGenAlgAPI::measureStep(double time) {
-	SingletonGenEngine::getInstance()->measureStep(time, (Generation*&)m_generation, (InspectableProxy*&)m_inspectable, m_plotEngine, m_plotEngineGenContext);
+	SingletonGenEngine::getInstance()->measureStep(time, (InspectableProxy*&)m_generation, (InspectableProxy*&)m_inspectable, m_plotEngine, m_plotEngineGenContext);
 }
 
-void SingletonGenAlgAPI::runGenAlg(int startSize, int startKillRate, int numGeneration, RandGen* random) {
-	SingletonGenEngine::getInstance()->runGenAlg(startSize,startKillRate,numGeneration,random,m_plotEngine,m_plotEngineGenContext);
+void SingletonGenAlgAPI::runGenAlg(int startSize, int numChildren, int numGeneration, RandGen* random) {
+	SingletonGenEngine::getInstance()->runGenAlg(startSize,numChildren,numGeneration,random,m_plotEngine,m_plotEngineGenContext);
 }
 
 GenPrototype* SingletonGenAlgAPI::createPrototype(std::string name, IRandomStrategy* randomStrategy, IMutationStrategy* mutationStrategy)const {

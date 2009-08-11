@@ -28,7 +28,10 @@
  *   number. If it lost it dosn't comes in the next generation.            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-21 08:37:59  robot12
+ *   Revision 1.7  2009-08-11 12:57:39  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.6  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.5  2009/06/25 13:34:17  robot12
@@ -81,12 +84,12 @@ RandomSelectStrategy::~RandomSelectStrategy() {
 }
 
 void RandomSelectStrategy::select(Generation* oldGeneration, Generation* newGeneration) {
-	int kill = oldGeneration->getKillRate();										//the kill rate
 	int r1;																			//variable for a random number
 	std::vector<Individual*> list;		// darf nicht const und & sein!!!			//the list of the individual which are "living"
 	double range;																	//range of the fitness values
 	double min;																		//the minimum of the fitness values
 	int num = oldGeneration->getCurrentSize();										//number of individual
+	int kill = num - oldGeneration->getSize();										//the kill rate
 	std::vector<Individual*>::iterator iter;										//iterator for the list
 	int test=0;																		//make sure that the function terminate...
 
@@ -98,6 +101,7 @@ void RandomSelectStrategy::select(Generation* oldGeneration, Generation* newGene
 	DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(*oldGeneration->getAllFitness());
 	range = context->getRange();
 	min = context->getMin();
+	delete context;
 
 	// kill some elements
 	while(kill>0) {
@@ -118,9 +122,9 @@ void RandomSelectStrategy::select(Generation* oldGeneration, Generation* newGene
 
 	if(kill>0) {															//elite select, if not enough individual are killed
 		ISelectStrategy* elite = SingletonGenAlgAPI::getInstance()->createEliteSelectStrategy();
-		Generation* newold = new Generation(oldGeneration->getGenerationNumber(),oldGeneration->getSize()-oldGeneration->getKillRate()+kill,kill);
+		Generation* newold = new Generation(oldGeneration->getGenerationNumber(),oldGeneration->getSize(),kill);
 		// take the rest in the "new generation" with the name newold
-		for(int x=0;x<(int)list.size() && x<oldGeneration->getSize()-oldGeneration->getKillRate()+kill;x++) {
+		for(int x=0;x<(int)list.size() && x<oldGeneration->getSize()+kill;x++) {
 			newold->addIndividual(list[x]);
 		}
 		elite->select(newold,newGeneration);

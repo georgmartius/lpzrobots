@@ -28,7 +28,10 @@
  *   individual dosn't comes in the next generation.                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-21 08:37:59  robot12
+ *   Revision 1.8  2009-08-11 12:57:39  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.7  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.6  2009/07/15 12:53:36  robot12
@@ -84,8 +87,8 @@ TournamentSelectStrategy::~TournamentSelectStrategy() {
 void TournamentSelectStrategy::select(Generation* oldGeneration, Generation* newGeneration) {
 	//int live = oldGeneration->getCurrentSize() - oldGeneration->getKillRate();
 	//int size = newGeneration->getSize() - newGeneration->getCurrentSize();
-	int kill = oldGeneration->getKillRate();
 	int num = oldGeneration->getCurrentSize();
+	int kill = num - oldGeneration->getSize();
 	Individual* ind1;									// the 2 individual which are tested
 	Individual* ind2;
 	int r1,r2;

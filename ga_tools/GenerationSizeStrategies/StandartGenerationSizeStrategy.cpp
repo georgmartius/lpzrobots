@@ -30,7 +30,10 @@
  *   greater.                                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-21 08:37:58  robot12
+ *   Revision 1.5  2009-08-11 12:57:38  robot12
+ *   change the genetic algorithm (first crossover, second select)
+ *
+ *   Revision 1.4  2009/07/21 08:37:58  robot12
  *   add some comments
  *
  *   Revision 1.3  2009/06/16 12:25:31  robot12
@@ -85,59 +88,69 @@ StandartGenerationSizeStrategy::~StandartGenerationSizeStrategy() {
 }
 
 int StandartGenerationSizeStrategy::calcGenerationSize(Generation* oldGeneration) {
-	double best = GET_DOUBLE_ANALYSATION(*oldGeneration->getAllFitness(),AM_BEST);
 	int size;
 
-	//if it the first run than set some values and return the startsize
-	if(!m_firstIsSet) {
-		m_firstIsSet = true;
-		m_best_first = best;
+	try{
+		std::vector<double>* values = oldGeneration->getAllFitness();
+		//double best = GET_DOUBLE_ANALYSATION(*values,AM_BEST);
+		DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(*values);
+		double best = context->getBest();
+
+		delete context;
+		delete values;
+
+		//if it the first run than set some values and return the startsize
+		if(!m_firstIsSet) {
+			m_firstIsSet = true;
+			m_best_first = best;
+			m_best_new = best;
+
+			return m_startSize;
+		}
+
+		// save the old best and update the new best
+		m_best_old = m_best_new;
 		m_best_new = best;
 
-		return m_startSize;
-	}
+		// targetDevelop means the speed with this the alg. should become better with every round
+		double targetDevelop = m_best_first / (double)m_numGeneration;
 
-	// save the old best and update the new best
-	m_best_old = m_best_new;
-	m_best_new = best;
+		// develop is the value how much the alg. is better from the last to this round
+		double develop = m_best_old - m_best_new;
 
-	// targetDevelop means the speed with this the alg. should become better with every round
-	double targetDevelop = m_best_first / (double)m_numGeneration;
+		// standDevelop is the differense between the targetDevelop in this round should be and the real stand
+		double standDevelop = m_best_first - (((double)oldGeneration->getGenerationNumber()) * targetDevelop) - m_best_new;
 
-	// develop is the value how much the alg. is better from the last to this round
-	double develop = m_best_old - m_best_new;
-
-	// standDevelop is the differense between the targetDevelop in this round should be and the real stand
-	double standDevelop = m_best_first - (((double)oldGeneration->getGenerationNumber()) * targetDevelop) - m_best_new;
-
-	if(standDevelop>0.0) { // we are to fast --> GenerationSize must be lower!?!
-		if(develop>=targetDevelop) { // yes the GenerationSize must be lower
-			size = (int)(LOWER_HIGH_FACTOR*oldGeneration->getSize());
+		if(standDevelop>0.0) { // we are to fast --> GenerationSize must be lower!?!
+			if(develop>=targetDevelop) { // yes the GenerationSize must be lower
+				size = (int)(LOWER_HIGH_FACTOR*oldGeneration->getSize());
+			}
+			else if((targetDevelop-develop)*(double)(m_numGeneration-oldGeneration->getGenerationNumber())+standDevelop>0.0) { // yes the GenerationSize must be lower but not so much
+				size = (int)(LOWER_LOW_FACTOR*oldGeneration->getSize());
+			}
+			else { //develop<targetDevelop  // no the speed is to low and it correct him self
+				size = oldGeneration->getSize();
+			}
 		}
-		else if((targetDevelop-develop)*(double)(m_numGeneration-oldGeneration->getGenerationNumber())+standDevelop>0.0) { // yes the GenerationSize must be lower but not so much
-			size = (int)(LOWER_LOW_FACTOR*oldGeneration->getSize());
-		}
-		else { //develop<targetDevelop  // no the speed is to low and it correct him self
+		else if(standDevelop==0.0) { // we are of correct course
 			size = oldGeneration->getSize();
 		}
-	}
-	else if(standDevelop==0.0) { // we are of correct course
-		size = oldGeneration->getSize();
-	}
-	else { // standDevelop<0.0 // we are to slow --> GenerationSize must be greater!?!
-		if(develop<=targetDevelop) { // yes the GenerationSize must be greater
-			size = (int)(GREATER_HIGH_FACTOR*oldGeneration->getSize());
+		else { // standDevelop<0.0 // we are to slow --> GenerationSize must be greater!?!
+			if(develop<=targetDevelop) { // yes the GenerationSize must be greater
+				size = (int)(GREATER_HIGH_FACTOR*oldGeneration->getSize());
+			}
+			else if((targetDevelop-develop)*(double)(m_numGeneration-oldGeneration->getGenerationNumber())+standDevelop<0.0) { // yes the GenerationSize must be greater
+				size = (int)(GREATER_LOW_FACTOR*oldGeneration->getSize());
+			}
+			else { //develop>targetDevelop  // no the speed is to high and it correct him self
+				size = oldGeneration->getSize();
+			}
 		}
-		else if((targetDevelop-develop)*(double)(m_numGeneration-oldGeneration->getGenerationNumber())+standDevelop<0.0) { // yes the GenerationSize must be greater
-			size = (int)(GREATER_LOW_FACTOR*oldGeneration->getSize());
-		}
-		else { //develop>targetDevelop  // no the speed is to high and it correct him self
-			size = oldGeneration->getSize();
-		}
+	}catch(...){
+		// This Exception comes, if the fitness value can not be calculate to this time.
+		// So the return value should be the original size.
+		size = m_startSize;
 	}
-
-	if(size<oldGeneration->getKillRate())
-		size = oldGeneration->getKillRate()+2;
 
 	return size;
 }
