@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-11 15:49:05  guettler
+ *   Revision 1.2  2009-08-11 18:26:47  guettler
+ *   BUGFIX: stopTimer if SerialPortThread calls back
+ *
+ *   Revision 1.1  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -47,6 +50,8 @@
 
 #include "SerialPortThread.h"
 #include <selforg/stl_adds.h>
+
+#include <assert.h>
 
 using namespace std;
 

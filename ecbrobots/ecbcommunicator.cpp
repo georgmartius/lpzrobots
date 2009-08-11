@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-11 17:00:37  guettler
+ *   Revision 1.12  2009-08-11 18:26:47  guettler
+ *   BUGFIX: stopTimer if SerialPortThread calls back
+ *
+ *   Revision 1.11  2009/08/11 17:00:37  guettler
  *   fixed 16bit address gather
  *
  *   Revision 1.10  2009/08/11 16:21:31  guettler
@@ -300,6 +303,7 @@ namespace lpzrobots
       std::cout << "ECBCommunicator: (external) initialising..." << std::endl;
     serialPortThread = new SerialPortThread(globalData->portName, globalData->baudrate, globalData->debug);
     serialPortThread->addCallbackable(this, SerialPortThread::NEW_DATA_RECEIVED);
+    serialPortThread->addCallbackable(this, SerialPortThread::DATA_CHECKSUM_ERROR);
     serialPortThread->openPort();
     if (serialPortThread->isOpened())
     {
@@ -640,9 +644,6 @@ namespace lpzrobots
     int msgGroup = -1;
     int msgCode = -1;
 
-    // Stoppe TransmitTimer
-    timerThread.stopTimer();
-
     // Ausgabe der Message im LogView
     //printBuffer(receiveBuffer);
 
@@ -733,14 +734,17 @@ namespace lpzrobots
   void ECBCommunicator::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type /* =
       SerialPortThread::NEW_DATA_RECEIVED*/)
   {
+    cout << "state: " << type << endl;
     switch (type)
     {
       case SerialPortThread::NEW_DATA_RECEIVED:
+        timerThread.stopTimer(); // stop TransmitTimer
         if (globalData->debug)
           cout << "newData received: answer took " << (timeOfDayinMS() - currentTime) << "ms, package: ";
         newDataReceived(serialPortThread->getData());
         break;
       case SerialPortThread::DATA_CHECKSUM_ERROR:
+        timerThread.stopTimer(); // stop TransmitTimer
       case TimerThread::TIMER_EXPIRED:
       {
         switch (currentCommState)

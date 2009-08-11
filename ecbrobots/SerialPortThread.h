@@ -33,7 +33,10 @@
  *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-11 15:49:05  guettler
+ *   Revision 1.2  2009-08-11 18:26:47  guettler
+ *   BUGFIX: stopTimer if SerialPortThread calls back
+ *
+ *   Revision 1.1  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -116,8 +119,8 @@ namespace lpzrobots
       /**
        * Zusaetzliche Typen
        */
-      static const CallbackableType NEW_DATA_RECEIVED = 1; //!< NEW_DATA_RECEIVED
-      static const CallbackableType DATA_CHECKSUM_ERROR = 2; //!< DATA_CHECKSUM_ERROR
+      static const CallbackableType NEW_DATA_RECEIVED = 654; //!< NEW_DATA_RECEIVED
+      static const CallbackableType DATA_CHECKSUM_ERROR = 655; //!< DATA_CHECKSUM_ERROR
 
       /**
        * Constructs a new thread. The thread does not begin executing until start() is called.
