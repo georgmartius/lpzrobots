@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-11 18:10:57  guettler
+ *   Revision 1.3  2009-08-11 19:27:47  guettler
+ *   add support for paused threads
+ *
+ *   Revision 1.2  2009/08/11 18:10:57  guettler
  *   more info in debug mode (threadid)
  *
  *   Revision 1.1  2009/08/11 15:49:05  guettler
@@ -153,7 +156,10 @@ namespace lpzrobots
     while (!terminated && inLoop)
     {
       pthread_testcancel();
-      inLoop = loop();
+      if (m_is_paused)
+        usleep(10);
+      else
+        inLoop = loop();
     }
     if (debug)
       std::cout << name << "(CThread): End of loop reached. id=" << thread << std::endl;
@@ -161,7 +167,14 @@ namespace lpzrobots
     m_is_running = false;
     return true;
   }
-  ;
+
+  void CThread::pause() {
+    m_is_paused = true;
+  }
+
+  void CThread::resume() {
+    m_is_paused = false;
+  }
 
   bool CThread::internInit()
   {

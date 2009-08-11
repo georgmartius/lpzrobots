@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-11 15:49:05  guettler
+ *   Revision 1.2  2009-08-11 19:27:47  guettler
+ *   add support for paused threads
+ *
+ *   Revision 1.1  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -92,6 +95,18 @@ namespace lpzrobots
       /// is called at the beginning after initialisation
       virtual bool initialise() = 0;
 
+      /**
+       * pauses the thread if he loops (when he returns from loop())
+       * @return
+       */
+      virtual void pause();
+
+      /**
+       * Resumes the thread (and he loops again ...)
+       * @return
+       */
+      virtual void resume();
+
       virtual void setConfig(bool debug = false);
 
       bool isTerminated()
@@ -109,6 +124,7 @@ namespace lpzrobots
       bool terminated;
       bool m_is_joined;
       bool m_is_running;
+      bool m_is_paused;
 
       pthread_t thread;
 
