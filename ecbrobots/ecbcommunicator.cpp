@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-08-11 19:00:56  guettler
+ *   Revision 1.15  2009-08-11 19:28:07  guettler
+ *   stop/pause threads while paused
+ *
+ *   Revision 1.14  2009/08/11 19:00:56  guettler
  *   code cleanup
  *
  *   Revision 1.13  2009/08/11 18:50:33  guettler
@@ -101,7 +104,7 @@ namespace lpzrobots {
   ECBCommunicator::ECBCommunicator(GlobalData& globalData) :
     CThread("ECBCommunicator", globalData.debug), globalData(&globalData), transmitBufferCheckSum(0), serialPortThread(
         0), ecbTransmitModeType(Undefined), currentCommState(STATE_NOT_INITIALISED), currentECBIndex(0), currentTime(
-        timeOfDayinMS()), answerTime(0) {
+        timeOfDayinMS()), answerTime(0), threadsStoppedWhilePaused(false) {
     if (this->globalData->debug)
       std::cout << "New ECBCommunicator created." << std::endl;
     
@@ -139,9 +142,18 @@ namespace lpzrobots {
   bool ECBCommunicator::loop() {
     assert ( globalData->comm==this );
     if (globalData->pause) {
+      serialPortThread->pause();
+      timerThread->stop();
+      threadsStoppedWhilePaused = true;
       usleep(1000);
       return true;
+    } else if (threadsStoppedWhilePaused==true)
+    {
+      threadsStoppedWhilePaused = false;
+      serialPortThread->resume();
+      timerThread.startTimer();
     }
+
     switch (currentCommState) {
       case STATE_READY_FOR_STEP_OVER_AGENTS:
         globalData->simStep++;
