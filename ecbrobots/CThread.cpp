@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-11 15:49:05  guettler
+ *   Revision 1.2  2009-08-11 18:10:57  guettler
+ *   more info in debug mode (threadid)
+ *
+ *   Revision 1.1  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -77,7 +80,7 @@ namespace lpzrobots
   void CThread::start()
   {
     if (debug)
-      cout << name << "(CThread): called start!";
+      cout << name << "(CThread): called start!"  << endl;
     if (!terminated) // already running!
     {
       if (debug)
@@ -98,7 +101,7 @@ namespace lpzrobots
   void CThread::stopandwait()
   {
     if (debug)
-      cout << name << "(CThread): stop and wait!" << endl;
+      cout << name << "(CThread): stop and wait! id="<< this->thread  << endl;
     if (!m_is_joined)
     {
       // set stop signal
@@ -117,8 +120,10 @@ namespace lpzrobots
   /// stop  communication
   void CThread::stop()
   {
+    if (terminated)
+      return;
     if (debug)
-      std::cout << name << "(CThread): stop." << std::endl;
+      std::cout << name << "(CThread): stop: id=" << this->thread << std::endl;
     terminated = true;
     pthread_testcancel();
   }
@@ -128,7 +133,7 @@ namespace lpzrobots
   bool CThread::run()
   {
     if (debug)
-      cout << name << "(CThread): run!" << endl;
+      cout << name << "(CThread): run! id=" << thread << endl;
 
     if (!internInit())
       stop();
@@ -138,7 +143,7 @@ namespace lpzrobots
       stop();
 
     if (debug)
-      std::cout << name << "(CThread): finished initialising. Starting the loop." << std::endl;
+      std::cout << name << "(CThread): finished initialising. Starting the loop. id=" << thread << std::endl;
 
     /* main loop which calls the loop
      * function of the derived class
@@ -151,7 +156,7 @@ namespace lpzrobots
       inLoop = loop();
     }
     if (debug)
-      std::cout << name << "(CThread): End of loop reached." << std::endl;
+      std::cout << name << "(CThread): End of loop reached. id=" << thread << std::endl;
 
     m_is_running = false;
     return true;
@@ -161,7 +166,7 @@ namespace lpzrobots
   bool CThread::internInit()
   {
     if (debug)
-      std::cout << name << "(CThread): internal initialising..." << std::endl;
+      std::cout << name << "(CThread): internal initialising... id=" << this->thread << std::endl;
 
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
