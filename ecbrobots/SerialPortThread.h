@@ -33,7 +33,10 @@
  *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-11 18:26:47  guettler
+ *   Revision 1.3  2009-08-11 19:30:23  guettler
+ *   use CThread pause functionality
+ *
+ *   Revision 1.2  2009/08/11 18:26:47  guettler
  *   BUGFIX: stopTimer if SerialPortThread calls back
  *
  *   Revision 1.1  2009/08/11 15:49:05  guettler
@@ -227,6 +230,9 @@ namespace lpzrobots
       }
 
       virtual bool initialise();
+
+      using CThread::pause;
+      using CThread::resume;
 
     private:
 

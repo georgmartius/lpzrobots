@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2009-08-11 19:28:07  guettler
+ *   Revision 1.16  2009-08-11 19:30:23  guettler
+ *   use CThread pause functionality
+ *
+ *   Revision 1.15  2009/08/11 19:28:07  guettler
  *   stop/pause threads while paused
  *
  *   Revision 1.14  2009/08/11 19:00:56  guettler
@@ -151,7 +154,7 @@ namespace lpzrobots {
     {
       threadsStoppedWhilePaused = false;
       serialPortThread->resume();
-      timerThread.startTimer();
+      timerThread.restartTimer();
     }
 
     switch (currentCommState) {
