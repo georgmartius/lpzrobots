@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.3  2009-08-10 07:39:31  guettler
+*   Revision 1.4  2009-08-11 12:05:43  robot12
+*   disabled test output
+*
+*   Revision 1.3  2009/08/10 07:39:31  guettler
 *   -example use of new SparseArray.
 *   -some test implementations for entropy (to be tested, corrected)
 *
@@ -118,11 +121,11 @@ ComplexMeasure::~ComplexMeasure()
 
 void ComplexMeasure::step()
 {
-  if (actualStep%1000==0)
+  /*if (actualStep%1000==0)
   {
     std::cout << "Size of F = " << (float)F.getRealSize() /1024 << " kbytes";
     std::cout << " (instead of " << sizeof(int) * F.size() / 1024 << " kbytes for an array of size " << F.size() << ")" << std::endl;
-  }
+  }*/
   if (observedValueList.size()==0)
     return;
   int valNumber = 0;
