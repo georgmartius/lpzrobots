@@ -28,7 +28,10 @@
  *   control the algorithm from outside.                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-29 14:19:49  jhoffmann
+ *   Revision 1.5  2009-08-11 13:00:51  robot12
+ *   change the genetic algorithm
+ *
+ *   Revision 1.4  2009/07/29 14:19:49  jhoffmann
  *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
  *
  *   Revision 1.3  2009/07/28 13:13:56  robot12
@@ -173,7 +176,7 @@ public:
     // Next we need the general strategies for the algorithm.
     // - a GenerationSizeStrategy: Here we take a fixed size strategy. This means every generation has the size of "numberIndividuals"
     // - a SelectStrategy: Here we take a tournament strategy which tests 2 individuals. The better one will win.
-    gSStr = SingletonGenAlgAPI::getInstance()->createFixGenerationSizeStrategy(numberIndividuals);
+    gSStr = SingletonGenAlgAPI::getInstance()->createFixGenerationSizeStrategy((int)((numberIndividuals - (numberIndividuals / 10)) / 2));
     SingletonGenAlgAPI::getInstance()->setGenerationSizeStrategy(gSStr);
     selStr = SingletonGenAlgAPI::getInstance()->createTournamentSelectStrategy(&random);
     SingletonGenAlgAPI::getInstance()->setSelectStrategy(selStr);
@@ -196,7 +199,7 @@ public:
     // The second value means the mutation probability in 1/1000. Normal is a value lower than max. 5%.
     // But we have so few individuals, that we need a higher mutation (33,3%).
     mutStr = SingletonGenAlgAPI::getInstance()->createValueMutationStrategy(
-        mutFaStr, 333);
+        mutFaStr, 50);
     // The last parameters ensure that the created genes lay inside the interval from -2 to +2.
     randomStr = SingletonGenAlgAPI::getInstance()->createDoubleRandomStrategy(&random, -2.0, 4.0, 0.0);
     // The prototypes need a name, a random strategy to create random genes and a mutation strategy to mutate existing genes.
@@ -222,8 +225,9 @@ public:
     // So we must prepare the first generation, for this the algorithm must know how many individuals he should create,
     // how much will die on the end and if he should make an automatically update of the statistic values.
     // The automatically update isn't possible because before we need a run of the simulation, so we make it later ourself (param false)!
-    SingletonGenAlgAPI::getInstance()->prepare(numberIndividuals,
-        numberIndividuals / 2, false);
+    SingletonGenAlgAPI::getInstance()->prepare((int)((numberIndividuals - (numberIndividuals / 10)) / 2),
+    		numberIndividuals - (((int)((numberIndividuals - (numberIndividuals / 10)) / 2)) * 2),
+    		&random,false);
 
     // So we are now ready to start the algorithm!
     // But without the simulation we have no fun with the algorithm. ;) The only we just need is the simulation!
@@ -259,7 +263,7 @@ public:
     // We would like to have 10 runs!
     // after it we must clean all and return false because we don't want a new restart
     // TODO: use abort criterion provided by ga_tools (not implemented yet?)
-    if (this->currentCycle == 2)
+    if (this->currentCycle == 11)
     {
       // print all entropies which we have measured
       FOREACH(std::vector<TrackableMeasure*>,storageMeasure,i)
@@ -285,6 +289,9 @@ public:
       delete mutStr;
       delete mutFaStr;
       delete randomStr;
+
+      //delete the own fitness strategy
+      delete fitnessStr;
 
       //clean robots
       while (global.agents.size() > 0)
@@ -387,14 +394,14 @@ public:
   addCallback(GlobalData& globalData, bool draw, bool pause, bool control)
   {
     // if 100 steps over, 1s is over
-    if (this->sim_step % 100 == 0)
+    if (globalData.sim_step % 100 == 0)
     {
-      std::cout << "time: " << this->sim_step / 100 << "s" << std::endl;
+      std::cout << "time: " << globalData.sim_step / 100 << "s" << std::endl;
     }
 
     // if simulation_time_reached is set to true, the simulation cycle is finished
     // here we finish after one minute (and a restart follows immediately)
-    if (this->sim_step >= 200)
+    if (globalData.sim_step >= 6000)
     {
       simulation_time_reached = true;
     }
@@ -491,7 +498,9 @@ private:
       // Create pointer to controller:
       // Push controller in global list of configurables.
       // Use the neuron matrix for the controller.
-      InvertMotorNStep *controller = new InvertMotorNStep(init);
+      InvertMotorNStepConf confMotorNStep = InvertMotorNStep::getDefaultConf();
+      confMotorNStep.initialC = init;
+      InvertMotorNStep *controller = new InvertMotorNStep(confMotorNStep);
       global.configs.push_back(controller);
 
       // create pointer to one2onewiring
@@ -561,7 +570,7 @@ private:
 int main(int argc, char **argv)
 {
   int ret;
-  ThisSim sim(4);
+  ThisSim sim(9);
   ret = sim.run(argc, argv) ? 0 : 1;
   return ret;
 }

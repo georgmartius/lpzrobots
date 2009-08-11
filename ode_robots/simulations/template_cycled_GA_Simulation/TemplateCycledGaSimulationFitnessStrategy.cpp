@@ -23,7 +23,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-07-21 09:09:05  robot12
+ *   Revision 1.2  2009-08-11 13:00:51  robot12
+ *   change the genetic algorithm
+ *
+ *   Revision 1.1  2009/07/21 09:09:05  robot12
  *   rename of the project from "temlate_..." to template_..."
  *
  *   Revision 1.2  2009/07/16 13:07:27  robot12
@@ -48,8 +51,9 @@ TemplateCycledGaSimulationFitnessStrategy::~TemplateCycledGaSimulationFitnessStr
 }
 
 double TemplateCycledGaSimulationFitnessStrategy::getFitness(const Individual* individual) {
-	double* temp = m_storage[individual->getID()];
+	double* temp = m_storage.at(individual->getID());
+	//double* temp = m_storage[individual->getID()];
 	// add 0.1 because the most individual have a entropy from zero. And so the inverted fitness strategy return 1/0 = inf!!!
-	*temp += 0.1;
+	*temp += 0.3;
 	return *(m_storage[individual->getID()]);
 }
