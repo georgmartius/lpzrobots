@@ -1,2 +1,4 @@
-start
+start*
 Makefile.depend
+.history
+*.log
