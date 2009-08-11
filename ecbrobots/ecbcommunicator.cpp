@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-11 16:21:31  guettler
+ *   Revision 1.11  2009-08-11 17:00:37  guettler
+ *   fixed 16bit address gather
+ *
+ *   Revision 1.10  2009/08/11 16:21:31  guettler
  *   fixed typo
  *
  *   Revision 1.9  2009/08/11 15:49:05  guettler
@@ -496,7 +499,7 @@ namespace lpzrobots
       }
 
       std::string nodeId;
-      uint8 ECB_XBeeAddress16_tmp = 0;
+      uint16 ECB_XBeeAddress16_tmp = 0;
       uint64 ECB_XBeeAddress64_tmp = 0;
 
       // Das XBee sendet als antwort auch ein Paket mit Länge 5,
