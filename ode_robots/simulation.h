@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.39  2009-08-07 09:26:32  martius
+ *   Revision 1.40  2009-08-11 12:16:08  robot12
+ *   BUGFIX: sim_step is no longer relevant, disable it to avoid wrong use (guettler)
+ *
+ *   Revision 1.39  2009/08/07 09:26:32  martius
  *   plotoptions and globalconfigurables are now in globaldata
  *
  *   Revision 1.38  2009/07/30 12:27:34  jhoffmann
@@ -410,7 +413,8 @@ namespace lpzrobots {
     long int simulation_time;
     bool noGraphics;
 
-    long sim_step;
+    // use globalData.sim_step instead
+     //long sim_step;
 
     int guiloggerinterval;
     int filelogginginterval;
