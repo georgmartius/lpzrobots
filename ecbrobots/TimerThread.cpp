@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-11 15:49:05  guettler
+ *  Revision 1.2  2009-08-11 18:10:25  guettler
+ *  BUGFIX: stopTimer
+ *
+ *  Revision 1.1  2009/08/11 15:49:05  guettler
  *  Current development state:
  *  - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *  - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -101,7 +104,7 @@ namespace lpzrobots {
   void TimerThread::stopTimer() {
     if (debug)
       cout << name << ": stopTimer()!" << endl;
-  //  stop();
+    stop();
   }
 
   unsigned long TimerThread::timeOfDayinMS() {
