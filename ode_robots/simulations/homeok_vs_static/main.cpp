@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-05-01 22:03:55  martius
+ *   Revision 1.5  2009-08-11 12:30:39  robot12
+ *   update the simstep variable from "this" to globalData! (guettler)
+ *
+ *   Revision 1.4  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -159,7 +162,7 @@ public:
   AbstractController *controller;   // outside start() to be able to use it in writeControllerParamsToFile() and loadControllerParamsFromFile(), see far below
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     // first: position(x,y,z) second: view(alpha,beta,gamma)
     // gamma=0;
@@ -174,13 +177,13 @@ public:
    global.odeConfig.setParam("controlinterval", 2);
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
+    // - setting geometry for each wall of playground:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    
+
     // odeHandle and osgHandle are global references
     // vec3 == length, width, height
 //     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(12, 0.2, 0.5));
@@ -196,7 +199,7 @@ public:
     PlaygroundHandle.substance.roughness=0.3;
     PlaygroundHandle.substance.slip=0.1;
     PlaygroundHandle.substance.hardness=200;
-    PlaygroundHandle.substance.elasticity=0.0;    
+    PlaygroundHandle.substance.elasticity=0.0;
 
 
 //     Playground* playground = new Playground(PlaygroundHandle, osgHandle, osg::Vec3(16, 0.2, 0.5),
@@ -205,7 +208,7 @@ public:
                           	 /*double factorxy = 1*/1,/* bool createGround=true*/ true);
 
 
-//     Playground* playground = (Playground*)new ComplexPlayground(PlaygroundHandle, osgHandle , 
+//     Playground* playground = (Playground*)new ComplexPlayground(PlaygroundHandle, osgHandle ,
 //		      "playground2.fig",
 //		/*double factor =*/ 1, /*double heightfactor=*/0.02, /*bool createGround=*/false);
 
@@ -217,9 +220,9 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
      global.obstacles.push_back(playground);
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
+    // - create pointer to sphere (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
+    // - set Pose(Position) of sphere
     // - set a texture for the sphere
     // - add sphere to list of obstacles
     for (int i=0; i < 0/*2*/; i++){
@@ -239,14 +242,14 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     c.bumper  = true;
     c.cigarMode  = true;
     // c.irFront = true;
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");    
+    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
     vehicle->place(Pos(0,0,0));*/
-     
+
     // use Nimm4 vehicle as robot:
     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
     // - place robot
-//     OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle, "Nimm4", 
-// 	       /*double size=1.0*/1.0, /*double force=3*/1, /*double speed=15*/ 15, 
+//     OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle, "Nimm4",
+// 	       /*double size=1.0*/1.0, /*double force=3*/1, /*double speed=15*/ 15,
 // 	       /*bool sphereWheels =true*/ true);
 
     Nimm2Conf conf = Nimm2::getDefaultConf();
@@ -266,20 +269,20 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
 //     conf.boxMode=false;
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, conf, "Nimm2");
 
-    
+
     old_p=Position(0,0,0);  //used further down for summing up path
     vehicle->place(Pos(0,0,0.25));
-    
-    
+
+
     // create pointer to controller
     // push controller in global list of configurables
 
 // controller is now initialized in writeControleerParamsToFile() to be able to write Controller params to file there
-      //controller = new InvertNChannelController(10);  
+      //controller = new InvertNChannelController(10);
       //controller->setParam("eps",0.0);
       //controller->setParam("eps",0.1);
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
@@ -290,7 +293,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     agent->init(controller, vehicle, wiring);
     //agent->setTrackOptions(TrackRobot(true, false, false, false, "track" ,1));
     global.agents.push_back(agent);
-     
+
     showParams(global.configs);
 
     summed_path=0;
@@ -300,9 +303,9 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     assert (controller->getSensorNumber()==1);
     assert (controller->getMotorNumber()==1);
     loadControllerParamsFromFile();
-    
+
   }
-  
+
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
@@ -335,7 +338,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
       double dx=p.x-old_p.x;
       double dy=p.y-old_p.y;
       old_p=p;
-      summed_path+= sqrt(dx*dx + dy*dy); 
+      summed_path+= sqrt(dx*dx + dy*dy);
 // //Test:
 //      FILE* file;
 //      char filename[256];
@@ -347,7 +350,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
 //      if(file) fclose(file);
     }
 
-   if (this->sim_step>=30000) {
+   if (globalData.sim_step>=30000) {
 // all datapoints in one column
 /*     FILE* file;
      char filename[256];
@@ -374,8 +377,8 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
 
 
 //   vois setParams(double c, double h){
-// 	
-//   } 
+//
+//   }
 
 
 
@@ -401,7 +404,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     C.store(file);
     H.store(file);
     A.store(file);
-    //AbstractController *fakeTempController = new InvertNChannelController(10);  
+    //AbstractController *fakeTempController = new InvertNChannelController(10);
     //fakeTempController->setParam("eps",0.0);
     //fakeTempController->Configurable::print(file,0);
     //if (fakeTempController) delete (fakeTempController);
@@ -413,7 +416,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     fflush(file);
     if(file) fclose(file);
   }
-  
+
   void writeStaticControllerParamsToFile(double _c, double _h){
     FILE* file;
     char filename[256];
@@ -429,7 +432,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
 
     C.store(file);
     H.store(file);
-    controller = new StaticController(10);    
+    controller = new StaticController(10);
     controller -> init(/*sensornumber*/1, /*motornumber*/1);
     controller -> Configurable::print(file,0);
     fflush(file);
@@ -447,21 +450,21 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     sprintf(filename, "init_weights.tmp");
     file = fopen(filename,"r");
     controller->restore(file);
-    if(file) fclose(file); 
+    if(file) fclose(file);
   }
 
 
 };
 
 // class ThisTrackRobot : public TrackRobot{  // eine Idee, aber void addCallback (siehe oben sollte besser sein!)
-// 
-// 
+//
+//
 // }
 
 
 
 int main (int argc, char **argv)
-{ 
+{
 
   FILE* filen;
   char filename[256];
@@ -478,7 +481,7 @@ int main (int argc, char **argv)
         //double c=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch durch 10 geteilt
         //double a=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch
         // a should have positive sign
-        //while ( (a < 0) ) { 
+        //while ( (a < 0) ) {
         //  a=(((double)rand() / RAND_MAX) - 0.5) * 2.0; //Wert zwischen -1 und 1, wird dann ja noch
         //}
 //c=11;h=0;
@@ -493,27 +496,27 @@ int main (int argc, char **argv)
           sprintf(filename, "parameters.log");
           filen = fopen(filename,"a");
           //StaticController:
-          fprintf(filen,"%g   %g\n", ((double)c)/10.0, ((double)h)/10.0); 
+          fprintf(filen,"%g   %g\n", ((double)c)/10.0, ((double)h)/10.0);
           //InvertNChannelController:
-          //fprintf(filen,"%g   %g  %g\n", ((double)c)/10.0, ((double)h)/10.0, ((double)a)/10.0 ); 
+          //fprintf(filen,"%g   %g  %g\n", ((double)c)/10.0, ((double)h)/10.0, ((double)a)/10.0 );
           fflush(filen);
-          if(filen) fclose(filen); 
+          if(filen) fclose(filen);
         }
       }
-    } 
+    }
     FILE* file;
     char filename[256];
     sprintf(filename, "summed_path.log");
     file = fopen(filename,"a");
     fprintf(file,"\n");
     fflush(file);
-    if(file) fclose(file); 
+    if(file) fclose(file);
   }
 
 
-  
+
 /*  ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;*/
-  
+
 }
- 
+

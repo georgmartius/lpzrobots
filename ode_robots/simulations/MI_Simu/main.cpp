@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2009-08-03 08:03:09  guettler
+ *   Revision 1.20  2009-08-11 12:30:39  robot12
+ *   update the simstep variable from "this" to globalData! (guettler)
+ *
+ *   Revision 1.19  2009/08/03 08:03:09  guettler
  *   order of setTexture and setPosition for Primitives corrected
  *
  *   Revision 1.18  2009/08/03 08:01:02  guettler
@@ -306,9 +309,9 @@ public:
    */
   void addCallback(GlobalData& globalData, bool draw, bool pause, bool control)
   {
-    if (this->sim_step%100000==0) {
-      printf("timeSteps   = %li\n",this->sim_step);
-      printf("time in min = %f\n",((float)this->sim_step)/100/60);
+    if (globalData.sim_step%100000==0) {
+      printf("timeSteps   = %li\n",globalData.sim_step);
+      printf("time in min = %f\n",((float)globalData.sim_step)/100/60);
       printf("MI sensor 0 = %f\n",mic->getMI(0));
       printf("MI sensor 1 = %f\n",mic->getMI(1));
     }
@@ -320,14 +323,14 @@ public:
       file = fopen(filename,"w");
 
       fprintf(file, "#Logfile for measuring the Mutual Information\n");
-      fprintf(file,"timeSteps   = %li\n",this->sim_step);
-      fprintf(file,"time in min = %f\n",((float)this->sim_step)/100/60);
+      fprintf(file,"timeSteps   = %li\n",globalData.sim_step);
+      fprintf(file,"time in min = %f\n",((float)globalData.sim_step)/100/60);
       fprintf(file,"MI sensor 0 = %f\n",mic->getMI(0));
       fprintf(file,"MI sensor 1 = %f\n",mic->getMI(1));
       fflush(file);
       if(file) fclose(file);
-      printf("timeSteps   = %li\n",this->sim_step);
-      printf("time in min = %f\n",((float)this->sim_step)/100/60);
+      printf("timeSteps   = %li\n",globalData.sim_step);
+      printf("time in min = %f\n",((float)globalData.sim_step)/100/60);
       printf("MI sensor 0 = %f\n",mic->getMI(0));
       printf("MI sensor 1 = %f\n",mic->getMI(1));
       simulation_time_reached=true;

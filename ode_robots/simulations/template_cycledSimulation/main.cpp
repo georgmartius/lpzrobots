@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-07-02 10:05:59  guettler
+ *   Revision 1.3  2009-08-11 12:30:39  robot12
+ *   update the simstep variable from "this" to globalData! (guettler)
+ *
+ *   Revision 1.2  2009/07/02 10:05:59  guettler
  *   added example erasing an agent after one cycle and creating new ones
  *
  *   Revision 1.1  2009/04/23 14:17:34  guettler
@@ -222,7 +225,7 @@ public:
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     // for demonstration: set simsteps for one cycle to 60.000/currentCycle (10min/currentCycle)
     // if simulation_time_reached is set to true, the simulation cycle is finished
-    if (this->sim_step>=(60000/this->currentCycle))
+    if (globalData.sim_step>=(60000/this->currentCycle))
     {
       simulation_time_reached=true;
     }
