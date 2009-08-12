@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-05-11 15:43:22  martius
+ *   Revision 1.12  2009-08-12 10:26:47  der
+ *   tau instead of alpha
+ *
+ *   Revision 1.11  2009/05/11 15:43:22  martius
  *   new velocity controlling servo motors
  *
  *   Revision 1.10  2007/07/03 13:01:41  martius
@@ -72,13 +75,13 @@ namespace lpzrobots {
 		
     double error;
     double lasterror;
-
+    double derivative;
     double targetposition;
 		
     double KP;
-    double KD;
     double KI;
-    double alpha;
+    double KD;
+    double tau;
 	       	
     double P;
     double D;
