@@ -20,7 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-12 10:30:25  der
+ *   Revision 1.1  2009-08-12 10:30:25  der
  *   skeleton has belly joint
  *   works fine with centered servos
  *
@@ -190,7 +190,7 @@ namespace lpzrobots {
       return hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size()+ 1/*pelvis*/ ;
     else
       return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2 + arm1servos.size() + 
-	1/*pelvis*/+ backservos.size() +2*headservos.size();
+	2/*pelvis*/+ (conf.useBackJoint ? 1 : 0) +2*  headservos.size();
   };
 
   /* sets actual motorcommands
@@ -233,20 +233,23 @@ namespace lpzrobots {
       (*s)->set(motors[n]);
       n++;
     }
-    pelvisservo->set(motors[n]);
-    n++;    
-    if(conf.useBackJoint){
-      if(!conf.onlyPrimaryFunctions){
-	FOREACH(vector <OneAxisServo*>, backservos, s){
-	  (*s)->set(motors[n]);
-	  n++;
-	}
-      }else{
-	FOREACH(vector <OneAxisServo*>, backservos, s){
-	  (*s)->set(0);
-	}
-      }
+    if(!conf.onlyPrimaryFunctions){
+      pelvisservo->set(motors[n],motors[n+1]);
+      n+=2;
+      if(conf.useBackJoint){
+	backservo->set(motors[n]);
+	n++;
+      }      
+    }else{
+      pelvisservo->set(motors[n],0);
+      n++;
+      if(conf.useBackJoint){
+	backservo->set(0);
+	n++;
+      }      
+
     }
+
 
     //    FOREACH(vector <OneAxisServo*>, headservos, s){
 // 	(*s)->set(motors[n]);
@@ -275,7 +278,7 @@ namespace lpzrobots {
     //  return 1;
       numberSensors += hipservos.size()*2 + kneeservos.size() + ankleservos.size() + 
 	armservos.size()*2 + arm1servos.size() + 
-	1/*pelvis*/+ backservos.size() + 2* headservos.size() ;   
+	2/*pelvis*/+ (conf.useBackJoint ? 1 : 0) + 2* headservos.size() ;   
     }
     
     numberSensors += irSensorBank.size();
@@ -312,8 +315,6 @@ GUIDE adding new sensors
       } 
       n++;
     }
-//     PID pid1 = hipservos.front()->pid1;
-//     cout << pid1.force << " \t" <<  pid1.P << " " << pid1.I << " " << pid1.D << "\n";
     FOREACHC(vector <OneAxisServo*>, kneeservos, s){//4-5
       sensors[n]   = (*s)->get();
       n++;
@@ -334,13 +335,16 @@ GUIDE adding new sensors
       sensors[n]   = (*s)->get();
       n++;
     }
-    sensors[n] = pelvisservo->get(); // 14
+    sensors[n] = pelvisservo->get1(); // 14
     n++;
-    if(conf.useBackJoint){            // 15 - 16
-      FOREACHC(vector <OneAxisServo*>, backservos, s){
-	sensors[n]   = (*s)->get();
-	n++;
-      }      
+    if(!conf.onlyPrimaryFunctions){   // 15
+      sensors[n] = pelvisservo->get2();
+      n++; 
+    }
+    if(conf.useBackJoint){            // 16
+      sensors[n] = backservo->get();
+      n++;
+      
     }
     
     //   FOREACHC(vector <OneAxisServo*>, headservos, s){
@@ -448,31 +452,16 @@ GUIDE adding new sensors
 //       //  b->setMass(0, 0, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0);
 //     objects[Pole2]=b;
     
-    // Belly
-    b = new Box(0.3,0.22,.19);
-    //    b = new Box(0.3,0.45,.2);
-    b->setTexture(conf.trunkTexture);
-    b->init(odeHandle, 1,osgHandle.changeColor(conf.trunkColor));
-    b->setPose(osg::Matrix::translate(0, 1.15, 0.0201) * pose );
-    //    b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
-//     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
-    b->setMass(.12*conf.massfactor);//.3
-   //  b = new Capsule(0.3,0.2);
-//     b->init(odeHandle, 1,osgHandle);
-//     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884, 0.0253) * pose );
-//     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
-    objects[Belly]=b;
-
     // Trunk_comp
     //b = new Mesh("Meshes/skeleton/Trunk_comp_center.wrl",1);    
-    b = new Box(0.3,0.14,.19);
+    b = new Box(0.3,0.32,.19);
     //    b = new Box(0.3,0.45,.2);
     b->setTexture(conf.trunkTexture);
     b->init(odeHandle, 1,osgHandle.changeColor(conf.trunkColor));
-    b->setPose(osg::Matrix::translate(0, 1.33, 0.0201) * pose );
+    b->setPose(osg::Matrix::translate(0, 1.255, 0.0201) * pose );
     //    b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
 //     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
-    b->setMass(.12*conf.massfactor);//.3
+    b->setMass(.25*conf.massfactor);//.3
    //  b = new Capsule(0.3,0.2);
 //     b->init(odeHandle, 1,osgHandle);
 //     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884, 0.0253) * pose );
@@ -649,23 +638,25 @@ GUIDE adding new sensors
     // Hip and Trunk
     // j = new BallJoint(objects[Hip], objects[Trunk_comp], 
     //                   Pos(0, 1.2516, 0.0552) * pose, Axis(0,0,1) * pose);
-    //    uj = new UniversalJoint(objects[Hip], objects[Belly], Pos(0, 1.2, 0.0252) * pose, 
-    //			   Axis(0,0,1) * pose, Axis(0,1,0) * pose);
-    j = new HingeJoint(objects[Hip], objects[Belly], Pos(0, 1.15, 0.02052) * pose, Axis(0,0,1) * pose);
-    j->init(odeHandle, osgHandleJ, true, .205);
-    joints.push_back(j);
-        
-    if(conf.useVelocityServos){
-      pelvisservo = new OneAxisServoVel(odeHandle, j, 
-					-conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower, 
-					conf.pelvisDamping, conf.pelvisVelocity, conf.jointLimitFactor);
-    } else { 
-      pelvisservo = new OneAxisServoCentered(j, -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
-					     conf.pelvisDamping, 2, 20, conf.jointLimitFactor);
-    }
+    uj = new UniversalJoint(objects[Hip], objects[Trunk_comp], Pos(0, 1.2, 0.0252) * pose, 
+			   Axis(0,0,1) * pose, Axis(0,1,0) * pose);
+    uj->init(odeHandle, osgHandleJ, true, .032);
+    joints.push_back(uj);
+    
+    pelvisservo = conf.useVelocityServos 
+      ? new TwoAxisServoVel(odeHandle, uj, -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
+			    -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
+			    conf.pelvisDamping, conf.pelvisVelocity, conf.jointLimitFactor)
+      : new TwoAxisServoCentered(uj, -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
+				 -conf.pelvisJointLimit, conf.pelvisJointLimit, conf.pelvisPower,
+				 conf.pelvisDamping, 2, 20, conf.jointLimitFactor);
+
+    
 
     // Trunk and Thorax
     if(conf.useBackJoint){
+
+
 
       j = new HingeJoint(objects[Trunk_comp], objects[Thorax],
 			 (objects[Trunk_comp]->getPosition() + objects[Thorax]->getPosition())/2,
@@ -674,30 +665,14 @@ GUIDE adding new sensors
       joints.push_back(j);
       
       if(conf.useVelocityServos)
-	servo1 = new OneAxisServoVel(odeHandle, j, -conf.backJointLimit/2, conf.backJointLimit, 
-				     conf.backPower, conf.backDamping, conf.backVelocity, conf.jointLimitFactor);
-      else
-	servo1 = new OneAxisServoCentered(j, -conf.backJointLimit/2, conf.backJointLimit, 
-					  conf.backPower, conf.backDamping, 2, 20, conf.jointLimitFactor);
-      backservos.push_back(servo1);
-      
-      j = new HingeJoint(objects[Belly], objects[Trunk_comp],
-			 (objects[Belly]->getPosition() + objects[Trunk_comp]->getPosition())/2,
-			 Axis(0,1,0) * pose);
-      j->init(odeHandle, osgHandleJ, true, 0.2);
-      joints.push_back(j);      
-      if(conf.useVelocityServos)
-	servo1 = new OneAxisServoVel(odeHandle, j, -conf.backJointLimit/2, conf.backJointLimit, 
+	backservo = new OneAxisServoVel(odeHandle, j, -conf.backJointLimit/2, conf.backJointLimit, 
 					conf.backPower, conf.backDamping, conf.backVelocity, conf.jointLimitFactor);
       else
-	servo1 = new OneAxisServoCentered(j, -conf.backJointLimit/2, conf.backJointLimit, 
+	backservo = new OneAxisServoCentered(j, -conf.backJointLimit/2, conf.backJointLimit, 
 					     conf.backPower, conf.backDamping, 2, 20, conf.jointLimitFactor);
-      backservos.push_back(servo1);
+
     }else{
       fj = new FixedJoint(objects[Thorax], objects[Trunk_comp]);
-      fj->init(odeHandle, osgHandleJ, false, 0.);
-      joints.push_back(fj);
-      fj = new FixedJoint(objects[Belly], objects[Trunk_comp]);
       fj->init(odeHandle, osgHandleJ, false, 0.);
       joints.push_back(fj);
     }
@@ -976,9 +951,7 @@ GUIDE adding new sensors
       //      headservos.clear();
 
       if(pelvisservo) delete pelvisservo;
-      FOREACH(vector<OneAxisServo*>, backservos, i){
-	if(*i) delete *i;
-      }
+      if(backservo) delete backservo;
 
       for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
 	if(*i) delete *i;
@@ -1058,24 +1031,21 @@ GUIDE adding new sensors
       } 
     }
 
-    pelvisservo->setPower(conf.pelvisPower); 
-    pelvisservo->damping() = conf.pelvisDamping;
+    pelvisservo->setPower(conf.pelvisPower, conf.pelvisPower); 
+    pelvisservo->damping1() = conf.pelvisDamping;
+    pelvisservo->damping2() = conf.pelvisDamping;
     pelvisservo->setMaxVel(conf.pelvisVelocity);
-    pelvisservo->setMinMax(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
+    pelvisservo->setMinMax1(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
+    pelvisservo->setMinMax2(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
     
-    int fst = true;
-    FOREACH(vector<OneAxisServo*>, backservos, i){
-      if(*i){
-	(*i)->setPower(conf.backPower);
-	(*i)->damping() = conf.backDamping;
-	(*i)->setMaxVel(conf.backVelocity); 
-	(*i)->setMinMax(fst? -conf.backJointLimit/2 : -conf.backJointLimit,
-			conf.backJointLimit);
-	fst = false;
-      } 
-    }
+    backservo->setPower(conf.backPower);
+    backservo->damping() = conf.backDamping;
+    backservo->setMaxVel(conf.backVelocity);
+    backservo->setMinMax(-conf.backJointLimit/2,+conf.backJointLimit);
+
     return rv;
   }
+
 
   Position Skeleton::getHeadPosition() {
     const Primitive* o = objects[Head_comp];    

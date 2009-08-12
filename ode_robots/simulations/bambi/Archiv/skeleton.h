@@ -20,7 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-12 10:30:25  der
+ *   Revision 1.1  2009-08-12 10:30:25  der
  *   skeleton has belly joint
  *   works fine with centered servos
  *
@@ -167,7 +167,7 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot {
   public:
 
-    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_comp, 
+    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Thorax, Neck, Head_comp, 
 			     Left_Shoulder, Left_Forearm, Left_Hand,
 			     Right_Shoulder, Right_Forearm, Right_Hand, 
 			     Left_Thigh, Left_Shin, Left_Foot,
@@ -368,9 +368,9 @@ namespace lpzrobots {
 /*     std::vector<OneAxisServo*> headservos; // motors */
     std::vector<TwoAxisServo*> headservos; // motors
 
-    OneAxisServo* pelvisservo; // between Hip and Trunk_comp
-    std::vector<OneAxisServo*> backservos;   // between Trunk_comp and Thorax
-    //TwoAxisServo* backservo;   // between Trunk_comp and Thorax
+    TwoAxisServo* pelvisservo; // between Hip and Trunk_comp
+    OneAxisServo* backservo;   // between Trunk_comp and Thorax
+    //  TwoAxisServo* backservo;   // between Trunk_comp and Thorax
 
 
     RaySensorBank irSensorBank;

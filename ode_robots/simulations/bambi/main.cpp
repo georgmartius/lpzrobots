@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-10 15:00:46  der
+ *   Revision 1.2  2009-08-12 10:30:25  der
+ *   skeleton has belly joint
+ *   works fine with centered servos
+ *
+ *   Revision 1.1  2009/08/10 15:00:46  der
  *   version that Ralf did at home
  *   Skeleton bugfixing, works now fine with ServoVel
  *
@@ -381,6 +385,7 @@ public:
        conf.handsRotating = true;
 
      conf.useBackJoint = true;
+     conf.jointLimitFactor = 1.1;
     
      //     conf.irSensors = true;
      
@@ -422,9 +427,9 @@ public:
 
      // create pointer to controller
      // push controller in global list of configurables
-     //       AbstractController *controller = new SineController();
-     //       controller->setParam("sinerate",50);
-     //       controller->setParam("phaseshift",0);
+     // AbstractController *controller = new SineController();
+//      controller->setParam("sinerate",50);
+//      controller->setParam("phaseshift",0);
 
      DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
      //           BasicControllerConf cc = BasicController::getDefaultConf();    
@@ -458,10 +463,10 @@ public:
      cc.useS=true;
      AbstractController* controller = new DerLinInvert(cc);
      //     AbstractController* controller = new BasicController(cc);
-     //     AbstractController* controller = new SineController(1<<14); // only motor 14
+     // AbstractController* controller = new SineController(1<<14); // only motor 14
      //AbstractController* controller = new SineController((~0),SineController::Impulse);
-     //          controller->setParam("period",400);
-     //          controller->setParam("phaseshift",1);
+     //      controller->setParam("period",1000);
+     //      controller->setParam("phaseshift",0);
 	   
 
      //     controller->setParam("adaptrate",0);
