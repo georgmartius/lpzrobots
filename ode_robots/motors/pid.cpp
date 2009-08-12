@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-05-11 15:43:22  martius
+ *   Revision 1.17  2009-08-12 10:27:32  der
+ *   stepNoCutOff uses smoothed derivative and decay in integration term
+ *
+ *   Revision 1.16  2009/05/11 15:43:22  martius
  *   new velocity controlling servo motors
  *
  *   Revision 1.15  2007/07/03 13:01:21  martius
@@ -73,18 +76,16 @@ using namespace std;
 namespace lpzrobots {
 
   PID::PID ( double KP , double KI , double KD)
+    : KP(KP), KI(KI), KD(KD)
   {
-    this->KP = KP;
-    this->KI = KI;
-    this->KD = KD;
     P=D=I=0;
-
+    
     targetposition = 0;
-	
+    
     position = 0;
     lastposition = 0;
     error = 0;
-    alpha = 0.95;
+    tau   = 1000;
     lasttime=-1;
   }
 
@@ -102,21 +103,23 @@ namespace lpzrobots {
     return targetposition;
   }
 
+  /* This is the old implementation. Do not change in order not to brake all 
+      the simulations
+   */
   double PID::step ( double newsensorval, double time)
   { 
     if(lasttime != -1 && time - lasttime > 0 ){
-      last2position = lastposition;
       lastposition = position;
       position = newsensorval;
       double stepsize=time-lasttime;
       
       lasterror = error;
       error = targetposition - position;
-      double derivative = (lasterror - error) / stepsize;
+      double derivative = (lasterror - error) / stepsize;      
       
       P = error;
-      //    I += (1-alpha) * (error * KI - I); // I+=error * KI 
-      I += stepsize * error * KI;
+      //      I += (1/tau) * (error * KI - I); // I+=error * KI       
+      I += stepsize * error * KI;      
       I = min(0.5,max(-0.5,I)); // limit I to 0.5
       D = -derivative * KD; 
       D = min(0.9,max(-0.9,D)); // limit D to 0.9
@@ -128,20 +131,21 @@ namespace lpzrobots {
     return force;
   }
 
+  // This is the new implementation used by the center and velocity servos
   double PID::stepNoCutoff ( double newsensorval, double time)
   { 
     if(lasttime != -1 && time - lasttime > 0 ){
-      last2position = lastposition;
       lastposition = position;
       position = newsensorval;
       double stepsize=time-lasttime;
       
       lasterror = error;
       error = targetposition - position;
-      double derivative = (lasterror - error) / stepsize;      
+      derivative += ((lasterror - error) / stepsize - derivative)*0.2;
+
       P = error;
-      //    I += (1-alpha) * (error * KI - I); // I+=error * KI 
-      I += stepsize * error * KI;
+      I*= (1-1/tau);
+      I += stepsize * error * KI;      
       D = -derivative * KD; 
       force = KP*(P + I + D);     
     } else {
