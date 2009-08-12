@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-10 14:46:41  der
+ *   Revision 1.11  2009-08-12 10:28:29  der
+ *   Centered servos use stepNoCutoff which is much more stable
+ *
+ *   Revision 1.10  2009/08/10 14:46:41  der
  *   power() functions removed because references are bad vor velocity servo
  *   setPower() functions added
  *
@@ -64,6 +67,7 @@
 #include "joint.h"
 #include "pid.h"
 #include "angularmotor.h"
+#include <selforg/controller_misc.h>
 
 namespace lpzrobots {
 
@@ -91,6 +95,7 @@ namespace lpzrobots {
 	Position must be between -1 and 1. It is scaled to fit into min, max
     */
     virtual void set(double pos){
+      pos = clip(pos, -1.0, 1.0);
       if(pos > 0){
 	pos *= max; 
       }else{
@@ -188,11 +193,12 @@ namespace lpzrobots {
 	however 0 is just in the center of min and max
     */
     virtual void set(double pos){
+      pos = clip(pos, -1.0, 1.0);
       pos = (pos+1)*(max-min)/2 + min;
 
       pid.setTargetPosition(pos);        
-      double force = pid.step(joint->getPosition1(), joint->odeHandle.getTime());
-      force = std::min(pid.KP, std::max(-pid.KP,force));// limit force to 1*KP
+      double force = pid.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());      
+      force = clip(force,-10*pid.KP, 10*pid.KP); // limit force to 10*KP
       joint->addForce1(force);
       if(maxVel>0){
 	joint->getPart1()->limitLinearVel(maxVel);
@@ -257,6 +263,7 @@ namespace lpzrobots {
 	however 0 is just in the center of min and max
     */
     virtual void set(double pos){
+      pos = clip(pos, -1.0, 1.0);
       pos = (pos+1)*(max-min)/2 + min;
       pid.setTargetPosition(pos);   
       double vel = pid.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());      

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-08-10 14:46:41  der
+ *   Revision 1.10  2009-08-12 10:28:48  der
+ *   Centered servos use stepNoCutoff which is much more stable
+ *
+ *   Revision 1.9  2009/08/10 14:46:41  der
  *   power() functions removed because references are bad vor velocity servo
  *   setPower() functions added
  *
@@ -62,6 +65,7 @@
 #include "joint.h"
 #include "pid.h"
 #include "angularmotor.h"
+#include <selforg/controller_misc.h>
 
 namespace lpzrobots {
 
@@ -103,7 +107,7 @@ namespace lpzrobots {
       double force1 = pid1.step(joint->getPosition1(), joint->odeHandle.getTime());
       // limit force to 1*KP
       force1 = std::min(pid1.KP, std::max(-pid1.KP,force1));// limit force to 1*KP
-
+      
       if(pos2 > 0){
 	pos2 *= max2; 
       }else{
@@ -251,20 +255,20 @@ namespace lpzrobots {
 	however 0 is just in the center of min and max
     */
     virtual void set(double pos1, double pos2){
+      pos1 = clip(pos1, -1.0, 1.0);
+      pos2 = clip(pos2, -1.0, 1.0);
       pos1 = (pos1+1)*(max1-min1)/2 + min1;
 
       pid1.setTargetPosition(pos1);  
-      // double force1 = pid1.stepWithD(joint->getPosition1(), joint->getPosition1Rate());
-      double force1 = pid1.step(joint->getPosition1(), joint->odeHandle.getTime());
-      // limit force to 1*KP
-      force1 = std::min(pid1.KP, std::max(-pid1.KP,force1));// limit force to 1*KP
+      double force1 = pid1.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());
+      // limit force to 10*KP
+      force1 = clip(force1,-10*pid1.KP, 10*pid1.KP);
 
       pos2 = (pos2+1)*(max2-min2)/2 + min2;
       pid2.setTargetPosition(pos2);  
-      //      double force2 = pid2.stepWithD(joint->getPosition2(), joint->getPosition2Rate());
-      double force2 = pid2.step(joint->getPosition2(), joint->odeHandle.getTime());
-      // limit force to 1*KP
-      force2 = std::min(pid2.KP, std::max(-pid2.KP,force2));// limit force to 1*KP
+      double force2 = pid2.stepNoCutoff(joint->getPosition2(), joint->odeHandle.getTime());
+      // limit force to 10*KP
+      force2 = clip(force2,-10*pid2.KP, 10*pid2.KP);
       joint->addForces(force1, force2);
       if(maxVel >0 ){
 	joint->getPart1()->limitLinearVel(maxVel);
@@ -357,6 +361,9 @@ namespace lpzrobots {
 	however 0 is just in the center of min and max
     */
     virtual void set(double pos1, double pos2){
+      pos1 = clip(pos1, -1.0, 1.0);
+      pos2 = clip(pos2, -1.0, 1.0);
+
       pos1 = (pos1+1)*(max1-min1)/2 + min1;
       pid1.setTargetPosition(pos1);  
       double vel1 = pid1.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());
