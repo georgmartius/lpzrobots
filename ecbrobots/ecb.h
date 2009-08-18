@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-08-11 15:49:05  guettler
+ *   Revision 1.10  2009-08-18 14:49:37  guettler
+ *   implemented COMMAND_MOTOR_MAX_CURRENT
+ *
+ *   Revision 1.9  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -102,12 +105,16 @@ namespace lpzrobots
       int maxNumberMotors;
       /// the max number, important for init of controller
       int maxNumberSensors;
+      /// Sets the maximum current for the motorboards (from Wolfgang Rabe, Version 1.0).
+      uint8 maxMotorCurrent;
 
   } ECBConfig;
 
   class ECB : public Configurable, public Storeable, public MediatorCollegue
   {
     public:
+
+      static const uint8 DEFAULT_MAX_MOTOR_CURRENT = 80;
 
       /**
        * Creates the ECB with the given address. Note that the configuration
@@ -160,6 +167,7 @@ namespace lpzrobots
         ECBConfig conf;
         conf.maxNumberMotors = 2;
         conf.maxNumberSensors = 16;
+        conf.maxMotorCurrent = DEFAULT_MAX_MOTOR_CURRENT;
         return conf;
       }
 
@@ -181,6 +189,18 @@ namespace lpzrobots
        * Send start command to the ECB to enable the motors
        */
       virtual void startMotors();
+
+      /**
+       * Sets the maximum current for the motorboards (from Wolfgang Rabe, Version 1.0).
+       * If the current is exceeded, the board limits the current to the maximum
+       * (the pulse length of the pwm-signal for the motor driver stage is shortened).
+       * valid interval is [60;250]. Default value: 80
+       * This limits the current between 600mA and 2500mA.
+       * Remember, that the nominal current is 500mA (600mA are secured by motorboard).
+       * High currents stresses the motors and motorcontroller!
+       * The max recommended current is 1500mA.
+       */
+      virtual void sendMaxMotorCurrent(uint8 maxCurrent, uint8 motorboardIndex=0);
 
       /**
        * Sends the beep command to the ECB

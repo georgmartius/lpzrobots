@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-08-11 15:49:05  guettler
+ *   Revision 1.6  2009-08-18 14:49:37  guettler
+ *   implemented COMMAND_MOTOR_MAX_CURRENT
+ *
+ *   Revision 1.5  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -74,6 +77,7 @@ namespace lpzrobots
   static const uint8 COMMAND_MOTOR_STOP = 0x0D; //!<  stop motors of the md23-motorboard
   static const uint8 COMMAND_MOTOR_START = 0x0E; //!<  start motors of the md23-motorboard
   static const uint8 COMMAND_OSCI = 0x0F; //!<  define the oscillation of the SphericalRobots-Weights
+  static const uint8 COMMAND_MOTOR_CURRENT_LIMIT = 0x10; //!< Sets the maximum current for the motorboards (from Wolfgang Rabe, Version 1.0)
 
 }
 

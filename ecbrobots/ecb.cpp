@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-11 15:49:05  guettler
+ *   Revision 1.12  2009-08-18 14:49:37  guettler
+ *   implemented COMMAND_MOTOR_MAX_CURRENT
+ *
+ *   Revision 1.11  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -125,6 +128,24 @@ namespace lpzrobots {
     informMediator(event);
   }
   
+  void ECB::sendMaxMotorCurrent(uint8 maxCurrent, uint8 motorboardIndex) {
+    // at first start of ECB, it must be initialized with a reset-command
+    assert(initialised && failureCounter <= globalData->maxFailures);
+
+    if (globalData->debug)
+      std::cout << "ECB(" << dnsName << "): sendMaxMotorCurrent("<< maxCurrent << ", " << motorboardIndex << ")!" << endl;
+
+    // prepare the communication-protocol
+    ECBCommunicationEvent* event = new ECBCommunicationEvent(ECBCommunicationEvent::EVENT_REQUEST_SEND_COMMAND_PACKAGE);
+
+    event->commPackage.command = COMMAND_MOTOR_CURRENT_LIMIT;
+    event->commPackage.dataLength = 2;
+
+    event->commPackage.data[0] = motorboardIndex;
+    event->commPackage.data[1] = maxCurrent;
+    informMediator(event);
+  }
+
   /**
    * Send reset command to the ecb and
    * receive the number of motors and sensors
@@ -152,6 +173,11 @@ namespace lpzrobots {
     generateAndFireEventForCommand(COMMAND_MOTOR_STOP);
   }
   
+  void setMaxMotorCurrent(uint8 maxCurrent, uint8 motorboardIndex=0) {
+
+  }
+
+
   void ECB::startMotors() {
     generateAndFireEventForCommand(COMMAND_MOTOR_START);
   }
@@ -331,6 +357,10 @@ namespace lpzrobots {
     failureCounter = 0;
     if (globalData->debug)
       cout << currentNumberMotors << " motors, " << currentNumberSensors << " sensors: " << descriptionLine << endl;
+
+    // set max motor current if deviating from default value
+    if (ecbConfig.maxMotorCurrent!=DEFAULT_MAX_MOTOR_CURRENT)
+      sendMaxMotorCurrent(ecbConfig.maxMotorCurrent,0);
   }
 
   void ECB::commandSensorsReceived(ECBCommunicationEvent* event) {
