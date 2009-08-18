@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-08-11 19:31:53  guettler
+ *   Revision 1.18  2009-08-18 14:44:17  guettler
+ *   implemented case COMMAND_MOTOR_CURRENT_LIMIT
+ *
+ *   Revision 1.17  2009/08/11 19:31:53  guettler
  *   typo fix
  *
  *   Revision 1.16  2009/08/11 19:30:23  guettler
@@ -577,6 +580,11 @@ namespace lpzrobots {
       case COMMAND_PONG: // COMMAND_ommunication Test between PCOMMAND_ and ATmega
         // timerThread.stopTimer(); // stop TransmitTimer?
         cout << "PONG." << endl;
+        delete event;
+        break;
+      case COMMAND_MOTOR_CURRENT_LIMIT: // ack for set of motor current limit
+        if (globalData->debug)
+          cout << "ack: motor current limit set!" << endl;
         delete event;
         break;
 
