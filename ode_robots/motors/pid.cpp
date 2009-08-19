@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-08-12 10:27:32  der
+ *   Revision 1.18  2009-08-19 16:17:59  martius
+ *   derivative is initialized
+ *
+ *   Revision 1.17  2009/08/12 10:27:32  der
  *   stepNoCutOff uses smoothed derivative and decay in integration term
  *
  *   Revision 1.16  2009/05/11 15:43:22  martius
@@ -81,12 +84,12 @@ namespace lpzrobots {
     P=D=I=0;
     
     targetposition = 0;
-    
-    position = 0;
-    lastposition = 0;
-    error = 0;
-    tau   = 1000;
-    lasttime=-1;
+    derivative     = 0;
+    position       = 0;
+    lastposition   = 0;
+    error          = 0;
+    tau            = 1000;
+    lasttime       = -1; 
   }
 
   void PID::setKP(double KP){
@@ -115,7 +118,7 @@ namespace lpzrobots {
       
       lasterror = error;
       error = targetposition - position;
-      double derivative = (lasterror - error) / stepsize;      
+      derivative = (lasterror - error) / stepsize;      
       
       P = error;
       //      I += (1/tau) * (error * KI - I); // I+=error * KI       
