@@ -21,7 +21,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.110  2009-08-10 15:36:19  der
+ *   Revision 1.111  2009-08-21 09:49:08  robot12
+ *   (guettler) support for tasked simulations.
+ *   - use the simulation template_taskedSimulations.
+ *   - merged (not completely) from lpzrobots_tasked.
+ *   - graphics is supported, but only for one simulation of a pool
+ *
+ *   Revision 1.110.2.1  2009/08/11 16:00:44  guettler
+ *   - support for tasked simulations, does not yet work with graphics
+ *   - in development state
+ *
+ *   Revision 1.110  2009/08/10 15:36:19  der
  *   plotoptions can again be added and initialized later
  *   ctrl-g and -f are working again
  *   ctrl-n added for neuronviz
@@ -616,8 +626,8 @@ namespace lpzrobots {
 
   int Simulation::ctrl_C = 0;
 
-  Simulation::Simulation() 
-    : Configurable("lpzrobots-ode_robots", "0.4"), 
+  Simulation::Simulation()
+    : Configurable("lpzrobots-ode_robots", "0.4"),
       plotoptions(globalData.plotoptions),
       globalconfigurables(globalData.globalconfigurables)
   {
@@ -627,13 +637,15 @@ namespace lpzrobots {
     addParameter("UseNVidia",&useNVidia);
     addParameterDef("WindowWidth",&windowWidth,640);
     addParameterDef("WindowHeight",&windowHeight,480);
-    addParameterDef("UseOdeThread",&useOdeThread,0);
-    addParameterDef("UseOsgThread",&useOsgThread,0);
+    addParameterDef("UseOdeThread",&useOdeThread,false);
+    addParameterDef("UseOsgThread",&useOsgThread,false);
+    addParameterDef("UseQMPThread",&useQMPThreads,true);
+    addParameterDef("inTaskedMode",&inTaskedMode,false);
 
     //     nextLeakAnnounce = 20;
     //     leakAnnCounter = 1;
 
-    truerealtimefactor = 1;    
+    truerealtimefactor = 1;
     state    = none;
     pause    = false;
     noGraphics=false;
@@ -655,18 +667,22 @@ namespace lpzrobots {
     videostream = new VideoStream();
 
     currentCycle = 1;
-
+    windowName = "Lpzrobots - Selforg";
   }
 
-  Simulation::~Simulation()
-  {
+
+  Simulation::~Simulation() {
+    QMP_CRITICAL(21);
     if(state!=running)
       return;
     dJointGroupDestroy  ( odeHandle.jointGroup );
     dWorldDestroy       ( odeHandle.world );
     dSpaceDestroy       ( odeHandle.space );
+
+    if (!inTaskedMode)
+	    dCloseODE ();
+
     odeHandle.destroySpaces();
-    dCloseODE ();
 
     state=closed;
     if(arguments)
@@ -677,15 +693,21 @@ namespace lpzrobots {
     //    Producer::Camera::Callback::unref_nodelete();
     osg::Referenced::unref_nodelete();
 
-    if (viewer) {
-      delete viewer;
+    QMP_END_CRITICAL(21);
+
+
+    if(viewer)
+    {
+      // do not destroy window if in taskedmode, just do it at the end
+      if (!inTaskedMode)
+        delete viewer;
       viewer = 0;
     }
 
   }
 
   bool Simulation::init(int argc, char** argv) {
-
+    QMP_CRITICAL(20);
     /**************** ODE-Section   ***********************/
     odeHandle.init(&globalData.time);
     // redirect ODE messages to our print function (writes into file ode.msg)
@@ -769,7 +791,7 @@ namespace lpzrobots {
 
       // construct the viewer.
       viewer = new Viewer(*arguments);
-      if(useOsgThread!=0){
+      if(useOsgThread){
 	viewer->setThreadingModel(Viewer::CullDrawThreadPerContext);
       }else{
 	viewer->setThreadingModel(Viewer::SingleThreaded);
@@ -836,7 +858,7 @@ namespace lpzrobots {
       osgHandle.scene=makeScene();
       if (!osgHandle.scene)
 	return false;
-    
+
       osgHandle.normalState = new StateSet();
       osgHandle.normalState->ref();
 
@@ -867,6 +889,7 @@ namespace lpzrobots {
     }
 
     state=initialised;
+    QMP_END_CRITICAL(20);
     return true;
   }
 
@@ -877,8 +900,11 @@ namespace lpzrobots {
     if(!init(argc, argv))
       return false;
 
-    initializeConsole();
-    QP(PROFILER.init());
+    if (!inTaskedMode)
+    {
+      initializeConsole();
+      QP(PROFILER.init());
+    }
 
     //********************Simulation start*****************
     state=running;
@@ -916,16 +942,16 @@ namespace lpzrobots {
       FOREACH(osgViewer::Viewer::Windows, windows, itr){
 	if(globalData.odeConfig.motionPersistence > 0)
 	  (*itr)->add(new MotionBlurOperation(globalData));
-	(*itr)->setWindowName("Lpzrobots - Selforg");
+	(*itr)->setWindowName(windowName);
       }
     }
 
     // TODO: clean the restart thing! Make it independent of drawinterval!
-    while ( ( noGraphics || !viewer->done()) && 
+    while ( ( noGraphics || !viewer->done()) &&
 	    (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
       if (simulation_time_reached)
         {
-          printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n", 
+          printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n",
 		 (globalData.sim_step/6000), globalData.sim_step, currentCycle);
           // start a new cycle, set timer to 0 and so on...
           simulation_time_reached = false;
@@ -937,11 +963,13 @@ namespace lpzrobots {
       if(!loop())
 	break;
     }
-    if(useOdeThread!=0) pthread_join (odeThread, NULL);
-    if(useOsgThread!=0) pthread_join (osgThread, NULL);
+    if(useOdeThread) pthread_join (odeThread, NULL);
+    if(useOsgThread) pthread_join (osgThread, NULL);
+    QMP_CRITICAL(22);
     closeConsole();
     end(globalData);
     tidyUp(globalData);
+    QMP_END_CRITICAL(22);
     return true;
 
   }
@@ -1001,21 +1029,40 @@ namespace lpzrobots {
 // 	PARALLEL VERSION
 	if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
 	  QP(PROFILER.beginBlock("controller                   "));
-	  QMP_SHARE(globalData);
-	  // there is a problem with the useOdeThread in the loop (not static)
-    	  if (useOdeThread!=0) {
-  	    QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED){
-    	      QMP_USE_SHARED(globalData, GlobalData);
-              globalData.agents[i]->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
-  	    }
-  	    QMP_END_PARALLEL_FOR;
-  	  } else {
-  	    QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED){
-	      QMP_USE_SHARED(globalData, GlobalData);
-    	      globalData.agents[i]->step(globalData.odeConfig.noise, globalData.time);
-	    }
-	    QMP_END_PARALLEL_FOR;
-   	  }
+	  if (useQMPThreads)
+	  {
+	    // PARALLEL VERSION (QMP)
+            QMP_SHARE(globalData);
+            // there is a problem with the useOdeThread in the loop (not static)
+            if (useOdeThread)
+            {
+              QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED)
+              {
+                QMP_USE_SHARED(globalData, GlobalData);
+                globalData.agents[i]->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
+              }
+              QMP_END_PARALLEL_FOR;
+            } else {
+              QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED)
+              {
+                QMP_USE_SHARED(globalData, GlobalData);
+                globalData.agents[i]->step(globalData.odeConfig.noise, globalData.time);
+              }
+              QMP_END_PARALLEL_FOR;
+            }
+           } else {
+             // SEQUENTIAL VERSION (NO QMP)
+            // there is a problem with the useOdeThread in the loop (not static)
+            if (useOdeThread) {
+              FOREACH(OdeAgentList, globalData.agents, i) {
+                (*i)->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
+              }
+            } else {
+              FOREACH(OdeAgentList, globalData.agents, i) {
+                (*i)->step(globalData.odeConfig.noise, globalData.time);
+              }
+            }
+          }
 	  QP(PROFILER.endBlock("controller                   "));
 	}else{ // serial execution is sufficient here
 	  FOREACH(OdeAgentList, globalData.agents, i) {
@@ -1024,7 +1071,7 @@ namespace lpzrobots {
 	}
 
 	/****************** Simulationstep *****************/
-	if(useOdeThread!=0){
+	if(useOdeThread){
 	  if (odeThreadCreated)
 	    pthread_join (odeThread, NULL);
 	  else odeThreadCreated=true;
@@ -1034,7 +1081,7 @@ namespace lpzrobots {
 	// and this crashes in parallel version
 	QP(PROFILER.beginBlock("internalstuff_and_addcallback"));
 	FOREACH(OdeAgentList, globalData.agents, i) {
-	  if (useOdeThread!=0)
+	  if (useOdeThread)
 	    (*i)->setMotorsGetSensors();
 	  (*i)->getRobot()->doInternalStuff(globalData);
 	}
@@ -1053,7 +1100,7 @@ namespace lpzrobots {
 	  }
 	}
 
-	if(useOdeThread!=0)
+	if(useOdeThread)
 	  pthread_create (&odeThread, NULL, odeStep_run,this);
 	else
 	  odeStep();
@@ -1071,7 +1118,7 @@ namespace lpzrobots {
       }
 
       if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {
-	if(useOsgThread!=0){
+	if(useOsgThread){
 	  QP(PROFILER.beginBlock("graphics aync"));
 	  if (osgThreadCreated)
 	    pthread_join (osgThread, NULL);
@@ -1109,7 +1156,7 @@ namespace lpzrobots {
   QP(PROFILER.endBlock("graphicsUpdate               "));
 
 	//        onPostDraw(*(viewer->getCamera()));*/
-        if(useOsgThread!=0){
+        if(useOsgThread){
 	  pthread_create (&osgThread, NULL, osgStep_run,this);
 	}else{
   	QP(PROFILER.beginBlock("graphics                     "));
@@ -1316,12 +1363,15 @@ namespace lpzrobots {
 
   /// clears obstacle and agents lists and delete entries
   void Simulation::tidyUp(GlobalData& global) {
+    if (!inTaskedMode)
+    {
     QP(cout << "Profiling summary:" << endl << PROFILER.getSummary() << endl);
     QP(cout << endl << PROFILER.getSummary(quickprof::MILLISECONDS) << endl);
     QP(float timeSinceInit=PROFILER.getTimeSinceInit(quickprof::MILLISECONDS));
     QP(cout << endl << "total sum:      " << timeSinceInit << " ms"<< endl);
     QP(cout << "steps/s:        " << (((float)globalData.sim_step)/timeSinceInit * 1000.0) << endl);
     QP(cout << "realtimefactor: " << (((float)globalData.sim_step)/timeSinceInit * 10.0) << endl);
+    }
 
     // clear obstacles list
     for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++) {
@@ -1371,8 +1421,8 @@ namespace lpzrobots {
     nargv[argc++]=strdup("--window");
     nargv[argc++]=strdup("-1");
     nargv[argc++]=strdup("-1");
-    nargv[argc++]=strdup(itos((int)windowWidth).c_str());
-    nargv[argc++]=strdup(itos((int)windowHeight).c_str());
+    nargv[argc++]=strdup(itos(windowWidth).c_str());
+    nargv[argc++]=strdup(itos(windowHeight).c_str());
     assert(argc<=nargc);
     argv=nargv;
   }
@@ -1438,7 +1488,7 @@ namespace lpzrobots {
 
     int resolindex = contains(argv, argc, "-x");
     if(resolindex && argc > resolindex) {
-      sscanf(argv[resolindex],"%lgx%lg", &windowWidth,&windowHeight);
+      sscanf(argv[resolindex],"%ix%i", &windowWidth,&windowHeight);
     }
     windowWidth = windowWidth < 64 ? 64 : (windowWidth > 1600 ? 1600 : windowWidth);
     windowHeight = windowHeight < 64 ? 64 : (windowHeight > 1200 ? 1200 : windowHeight);
@@ -1448,7 +1498,6 @@ namespace lpzrobots {
       windowWidth=-1;
       printf("running in fullscreen\n");
     }
-
     noGraphics = contains(argv, argc, "-nographics")!=0;
     // inform osg relevant stuff that no graphics is used
     osgHandle.noGraphics=noGraphics;
@@ -1485,17 +1534,24 @@ namespace lpzrobots {
     if (index) {
       if(argc > index){
 	int threads = atoi(argv[index]);
-	QMP_SET_NUM_THREADS(threads);
-	printf("Number of threads=%i\n", threads);
+	if (threads==1)
+	{ // if set to 1, disable use of QMP
+	  useQMPThreads=false;
+	  printf("Number of threads=1, using no QMP.\n");
+	} else
+	{
+	  QMP_SET_NUM_THREADS(threads);
+	  printf("Number of threads=%i\n", threads);
+	}
       }
     }
 
     if (contains(argv, argc, "-odethread")) {
-      useOdeThread=1;
+      useOdeThread=true;
       printf("using separate OdeThread\n");
     }
     if (contains(argv, argc, "-osgthread")) {
-      useOsgThread=1;
+      useOsgThread=true;
       printf("using separate OSGThread\n");
     }
 

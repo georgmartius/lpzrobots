@@ -28,7 +28,17 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.40  2009-08-11 12:16:08  robot12
+ *   Revision 1.41  2009-08-21 09:49:08  robot12
+ *   (guettler) support for tasked simulations.
+ *   - use the simulation template_taskedSimulations.
+ *   - merged (not completely) from lpzrobots_tasked.
+ *   - graphics is supported, but only for one simulation of a pool
+ *
+ *   Revision 1.110.2.1  2009/08/11 16:00:44  guettler
+ *   - support for tasked simulations, does not yet work with graphics
+ *   - in development state
+ *
+ *   Revision 1.40  2009/08/11 12:16:08  robot12
  *   BUGFIX: sim_step is no longer relevant, disable it to avoid wrong use (guettler)
  *
  *   Revision 1.39  2009/08/07 09:26:32  martius
@@ -260,6 +270,7 @@
 #define PI M_PI // (3.14159265358979323846)
 #include <vector>
 #include <iterator>
+#include <string>
 
 #include "globaldata.h"
 #include "grabframe.h"
@@ -377,7 +388,7 @@ namespace lpzrobots {
     void tidyUp(GlobalData& globalData);
 
   protected:
-    void processCmdLine(int argc, char** argv);
+    virtual void processCmdLine(int argc, char** argv);
     void resetSyncTimer();
     long timeOfDayinMS();
 
@@ -405,8 +416,8 @@ namespace lpzrobots {
     double truerealtimefactor; // calculated true speed
     bool justresettimes;      // true if we just reset sync times
 
-    paramval windowWidth;
-    paramval windowHeight;
+    paramint windowWidth;
+    paramint windowHeight;
 
     bool pause;
     bool simulation_time_reached;
@@ -430,6 +441,13 @@ namespace lpzrobots {
 
     CameraHandle cameraHandle;
 
+    parambool useOdeThread;
+	parambool useOsgThread;
+	parambool useQMPThreads; // decides if quick mp is used in this simulation
+	parambool inTaskedMode;
+
+	std::string windowName;
+
   private:
     SimulationState state;
     osg::ArgumentParser* arguments;
@@ -441,8 +459,6 @@ namespace lpzrobots {
     // multiprocessoring stuff
     pthread_t odeThread;
     pthread_t osgThread;
-    paramval useOdeThread;
-    paramval useOsgThread;
     bool odeThreadCreated;
     bool osgThreadCreated;
 
