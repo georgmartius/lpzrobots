@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-08-10 07:45:54  guettler
+ *   Revision 1.6  2009-09-03 11:37:06  martius
+ *   color and fontsize are setable
+ *
+ *   Revision 1.5  2009/08/10 07:45:54  guettler
  *   uses new BackCaller implementation
  *
  *   Revision 1.4  2008/01/17 09:55:55  der
@@ -63,6 +66,8 @@
 
 #import <selforg/statistictools.h>
 
+#include "color.h"
+
 /* forward declaration block */
 namespace osgText {
 class Text;
@@ -73,9 +78,6 @@ namespace osg {
 class Geode;
 }
 
-namespace lpzrobots {
-class Color;
-}
 /* end of forward declaration */
 
 namespace lpzrobots {
@@ -203,6 +205,9 @@ public:
 
   virtual StatisticTools* getStatisticTools() { return statTool; }
 
+  virtual void setColor(const Color& color){ textColor = color;}
+  virtual void setFontsize(int size){fontsize = size;}
+
 protected:
 
   /**
@@ -241,7 +246,7 @@ protected:
 
   // default text properties
   osgText::Font* font;
-  Color* textColor;
+  Color textColor;
   int fontsize;
 
 };
