@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.35  2009-08-10 14:55:32  der
+ *   Revision 1.36  2009-09-03 10:23:31  guettler
+ *   FIX: - hudsm did not updated: added StatisticTools instead
+ *   of HUDSM to callback type Base::PHYSICS_CALLBACKABLE
+ *
+ *   Revision 1.35  2009/08/10 14:55:32  der
  *   shadowTexSize and shadow are integer
  *
  *   Revision 1.34  2009/08/10 07:54:32  guettler
@@ -1069,7 +1073,7 @@ HUDStatisticsManager* Base::getHUDSM()
     // create HUDStatisticsManager and register it for being called back every step
     // but do not display because the system is initialised with nographics
     hUDStatisticsManager = new HUDStatisticsManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
-    this->addCallbackable(hUDStatisticsManager, Base::PHYSICS_CALLBACKABLE);
+    this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
     this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
   }
   return hUDStatisticsManager;
