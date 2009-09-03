@@ -24,7 +24,13 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2009-08-10 14:55:13  der
+ *   Revision 1.23  2009-09-03 12:53:25  guettler
+ *   reverted changes of revision 1.37:
+ *   - getHUDSM is called without calling createHUDSM before
+ *     if simulation is started with -nographics
+ *   FIX: createHUDSM calls now getHUDSM (fix of HUDSM was not complete)
+ *
+ *   Revision 1.22  2009/08/10 14:55:13  der
  *   shadowTexSize and shadow are integer
  *
  *   Revision 1.21  2009/08/10 08:40:10  guettler
@@ -204,6 +210,11 @@ namespace lpzrobots
 
     virtual void setCaption(const std::string& caption);
 
+    /**
+     * Create HUDStatisticsManager and register it for being called back every step.
+     * But do not display if the system is initialised with -nographics.
+     * @return the actual HUDStatisticsManager
+     */
     virtual HUDStatisticsManager* getHUDSM();
 
     virtual ~Base();

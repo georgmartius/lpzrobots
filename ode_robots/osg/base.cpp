@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.37  2009-09-03 11:22:54  martius
+ *   Revision 1.38  2009-09-03 12:53:25  guettler
+ *   reverted changes of revision 1.37:
+ *   - getHUDSM is called without calling createHUDSM before
+ *     if simulation is started with -nographics
+ *   FIX: createHUDSM calls now getHUDSM (fix of HUDSM was not complete)
+ *
+ *   Revision 1.37  2009/09/03 11:22:54  martius
  *   fix of HUDSM was not complete, it was only in getHUD not in createHUD
  *   getHUD assumes now that the hUDStatisticsManager exists (no double creation code)
  *
@@ -442,7 +448,7 @@ namespace lpzrobots {
       //      camera->setNearFarRatio(0.0001);
 
       // set viewport
-      camera->setViewport(0,0,tex_width,tex_height);
+      camera->setViewport(0,0,tex_width,tex_height);99
 
       osg::StateSet*  _local_stateset = camera->getOrCreateStateSet();
 
@@ -611,9 +617,7 @@ namespace lpzrobots {
       geode->addDrawable(geom);
 
       // create HUDStatisticsManager and register it for being called back every step
-      hUDStatisticsManager = new HUDStatisticsManager(geode,font);
-      this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
-      this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
+      getHUDSM();
     }
 
     osg::CameraNode* camera = new osg::CameraNode;
@@ -1073,7 +1077,14 @@ int Base::contains(char **list, int len,  const char *str) {
 
 HUDStatisticsManager* Base::getHUDSM()
 {
-  assert(hUDStatisticsManager); // is has to be created in createHUD
+  if (hUDStatisticsManager==0)
+  {
+    // create HUDStatisticsManager and register it for being called back every step
+    // but do not display if the system is initialised with -nographics
+    hUDStatisticsManager = new HUDStatisticsManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
+    this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
+    this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
+  }
   return hUDStatisticsManager;
 }
 
