@@ -25,7 +25,11 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-08-10 07:45:54  guettler
+ *   Revision 1.8  2009-09-03 11:37:31  martius
+ *   color and fontsize are setable
+ *   textColor is not a pointer anymore
+ *
+ *   Revision 1.7  2009/08/10 07:45:54  guettler
  *   uses new BackCaller implementation
  *
  *   Revision 1.6  2009/07/29 14:19:49  jhoffmann
@@ -85,14 +89,12 @@ using namespace osg;
 
 namespace lpzrobots {
 
-HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font) : geode(geode), font(font)
+  HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font) : geode(geode), font(font), textColor(0.0,0.0,0.2,1.0)
 {
   xInitPosition = 500.0f;
   yInitPosition = 27.0f;
   zInitPosition = 0.0f;
   yOffset = 18.0f;
-  //font = osgText::readFontFile("fonts/arial.ttf");
-  textColor = new Color(0.0,0.0,0.2,1.0);
   fontsize=12;
   statTool = new StatisticTools();
 }
@@ -110,7 +112,7 @@ StatisticMeasure* HUDStatisticsManager::getMeasure(double& observedValue, const 
   text->setCharacterSize(fontsize);
   text->setFont(font);
   text->setPosition(position);
-  text->setColor(*textColor);
+  text->setColor(textColor);
   text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
 
   std::string buffer(newMeasure->getName());
@@ -139,7 +141,7 @@ double& HUDStatisticsManager::addMeasure(AbstractMeasure* measure) {
   text->setCharacterSize(fontsize);
   text->setFont(font);
   text->setPosition(position);
-  text->setColor(*textColor);
+  text->setColor(textColor);
   text->setAlignment(osgText::Text::RIGHT_BASE_LINE);
 
   std::string buffer(measure->getName());
