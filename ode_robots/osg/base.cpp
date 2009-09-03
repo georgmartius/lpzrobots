@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.36  2009-09-03 10:23:31  guettler
+ *   Revision 1.37  2009-09-03 11:22:54  martius
+ *   fix of HUDSM was not complete, it was only in getHUD not in createHUD
+ *   getHUD assumes now that the hUDStatisticsManager exists (no double creation code)
+ *
+ *   Revision 1.36  2009/09/03 10:23:31  guettler
  *   FIX: - hudsm did not updated: added StatisticTools instead
  *   of HUDSM to callback type Base::PHYSICS_CALLBACKABLE
  *
@@ -197,6 +201,7 @@
  ***************************************************************************/
 
 #include <iostream>
+#include <assert.h>
 #include <osg/Node>
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -607,7 +612,7 @@ namespace lpzrobots {
 
       // create HUDStatisticsManager and register it for being called back every step
       hUDStatisticsManager = new HUDStatisticsManager(geode,font);
-      this->addCallbackable(hUDStatisticsManager, Base::PHYSICS_CALLBACKABLE);
+      this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
       this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
     }
 
@@ -762,7 +767,7 @@ namespace lpzrobots {
         for( j = 0; j <= 18; j++ )
 	  {
             alpha = osg::DegreesToRadians(lev[i]);
-            theta = osg::DegreesToRadians((float)(j*20));
+	    theta = osg::DegreesToRadians((float)(j*20));
 
             x = radius * cosf( alpha ) * cosf( theta );
             y = radius * cosf( alpha ) * -sinf( theta );
@@ -1068,14 +1073,7 @@ int Base::contains(char **list, int len,  const char *str) {
 
 HUDStatisticsManager* Base::getHUDSM()
 {
-  if (hUDStatisticsManager==0)
-  {
-    // create HUDStatisticsManager and register it for being called back every step
-    // but do not display because the system is initialised with nographics
-    hUDStatisticsManager = new HUDStatisticsManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
-    this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
-    this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
-  }
+  assert(hUDStatisticsManager); // is has to be created in createHUD
   return hUDStatisticsManager;
 }
 
