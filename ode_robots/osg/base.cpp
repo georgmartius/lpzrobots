@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.38  2009-09-03 12:53:25  guettler
+ *   Revision 1.39  2009-09-08 16:26:30  fhesse
+ *   typo corrected
+ *
+ *   Revision 1.38  2009/09/03 12:53:25  guettler
  *   reverted changes of revision 1.37:
  *   - getHUDSM is called without calling createHUDSM before
  *     if simulation is started with -nographics
@@ -448,7 +451,7 @@ namespace lpzrobots {
       //      camera->setNearFarRatio(0.0001);
 
       // set viewport
-      camera->setViewport(0,0,tex_width,tex_height);99
+      camera->setViewport(0,0,tex_width,tex_height);
 
       osg::StateSet*  _local_stateset = camera->getOrCreateStateSet();
 
