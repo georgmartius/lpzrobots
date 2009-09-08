@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2009-04-02 13:53:57  fhesse
+ *   Revision 1.23  2009-09-08 16:36:53  fhesse
+ *   location of controller in #include adapted
+ *   (now in local directory)
+ *
+ *   Revision 1.22  2009/04/02 13:53:57  fhesse
  *   PassiveBox.replace() not existing anymore; replacing possible with setPosition()
  *
  *   Revision 1.21  2009/04/02 11:50:25  fhesse
@@ -141,10 +145,10 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
-#include <selforg/invertnchannelcontrollerhebbxsi.h>
+#include <invertnchannelcontrollerhebbxsi.h>
 #include <invertnchannelcontrollerhebbxsihand.h>
 #include <invertnchannelcontrollerhebbhhand.h>
-#include <selforg/invertnchannelcontrollerhebbh.h>
+#include <invertnchannelcontrollerhebbh.h>
 
 #include <ode_robots/hand.h>
 #include "irinvertwiring.h"
