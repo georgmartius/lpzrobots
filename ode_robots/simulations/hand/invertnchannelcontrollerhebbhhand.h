@@ -18,7 +18,10 @@
  *                                            * 
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2007-12-07 09:13:46  fhesse
+ *   Revision 1.3  2009-09-08 16:44:48  fhesse
+ *   vector.h changed to vector in include
+ *
+ *   Revision 1.2  2007/12/07 09:13:46  fhesse
  *   adapted paths due to moving of controller files
  *   to simulation/hand directory
  *
@@ -48,7 +51,7 @@
 #include <assert.h>
 #include <math.h>
 #include <math.h>
-#include <vector.h>
+#include <vector>
 
 #include <selforg/matrix.h>
 
