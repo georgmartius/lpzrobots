@@ -3,7 +3,7 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *    guettler@informatik.uni-leipzig.de                                   *
  *    mai00bvz@studserv.uni-leipzig.de                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -43,7 +43,10 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.1  2009-08-24 11:09:55  robot12
+ *   Revision 1.2  2009-09-16 10:26:11  guettler
+ *   removed global variable numberIndividuals (now in simTaskHandle)
+ *
+ *   Revision 1.1  2009/08/24 11:09:55  robot12
  *   new template for tasked simulations use the ga_tools added
  *
  *   Revision 1.2  2009/08/21 09:49:08  robot12
@@ -108,7 +111,6 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-int numberIndividuals = 100;
 
 /**
  * our fitness strategy
@@ -118,6 +120,7 @@ TemplateCycledGaSimulationFitnessStrategy* fitnessStr; // the fitness strategy
 // create your own SimulationTaskHandle
 struct ThisSimulationTaskHandle : public SimulationTaskHandle {
     std::vector<Individual*>* individuals;
+    int numberIndividuals;
 
     /**
      * our fitness strategy
@@ -239,8 +242,8 @@ class ThisSim : public TaskedSimulation {
       // - setting initial position of the playground: setPosition(double x, double y, double z)
       // - push playground in the global list of obstacles(global list comes from simulation.cpp)
       playground = new Playground(odeHandle, osgHandle, osg::Vec3(18, 0.2, 0.5));
-      playground->setPosition(osg::Vec3((double) (taskId % (int) sqrt(numberIndividuals)) * 19.0, 19.0 * (double) (taskId
-          / (int) sqrt(numberIndividuals)), 0.05)); // position and generate playground
+      playground->setPosition(osg::Vec3((double) (taskId % (int) sqrt(sTHandle.numberIndividuals)) * 19.0, 19.0 * (double) (taskId
+          / (int) sqrt(sTHandle.numberIndividuals)), 0.05)); // position and generate playground
       // register playground in obstacles list
       global.obstacles.push_back(playground);
 
@@ -254,8 +257,8 @@ class ThisSim : public TaskedSimulation {
       c.bumper = true;
       c.cigarMode = true;
       vehicle = new Nimm2(odeHandle, osgHandle, c, ("Nimm2" + m_individual->getName()).c_str());
-      vehicle->place(Pos((double) (taskId % (int) sqrt(numberIndividuals)) * 19.0, 19.0 * (double) (taskId / (int) sqrt(
-          numberIndividuals)), 0.0));
+      vehicle->place(Pos((double) (taskId % (int) sqrt(sTHandle.numberIndividuals)) * 19.0, 19.0 * (double) (taskId / (int) sqrt(
+          sTHandle.numberIndividuals)), 0.0));
 
       // Read the gene values and create the neuron matrix.
       // The genes have a value of type IValue. We use only double values so we took for this interface
@@ -319,6 +322,7 @@ class ThisSimCreator : public TaskedSimulationCreator {
 };
 
 int main(int argc, char **argv) {
+  int numberIndividuals = 96; // we have 12 processors available
   // ga_tool initialising
   // First we need some variables.
   RandGen random; // a random generator
@@ -407,6 +411,7 @@ int main(int argc, char **argv) {
   for (int x = 0; x < 10; x++) {
     // 4. add needed data to your simTaskHandle
     simTaskHandle.individuals = const_cast<std::vector<Individual*>*>(&SingletonGenAlgAPI::getInstance()->getEngine()->getActualGeneration()->getAllIndividual());
+    simTaskHandle.numberIndividuals = numberIndividuals;
 
     // 5. create the SimulationTasks
     // just add another task pool and run this ones
