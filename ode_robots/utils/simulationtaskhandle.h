@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-08-21 09:49:07  robot12
+ *  Revision 1.3  2009-09-17 14:13:09  guettler
+ *  - some bugfixes for critical sections
+ *  - support to set number of threads per core
+ *
+ *  Revision 1.2  2009/08/21 09:49:07  robot12
  *  (guettler) support for tasked simulations.
  *  - use the simulation template_taskedSimulations.
  *  - merged (not completely) from lpzrobots_tasked.
@@ -53,7 +57,8 @@ namespace lpzrobots
    */
   struct SimulationTaskHandle
   {
-
+      SimulationTaskHandle() : m_this(this) {}
+      SimulationTaskHandle* m_this;
   };
 
 }

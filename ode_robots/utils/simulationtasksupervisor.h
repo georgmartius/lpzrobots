@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-08-21 09:49:07  robot12
+ *  Revision 1.3  2009-09-17 14:13:09  guettler
+ *  - some bugfixes for critical sections
+ *  - support to set number of threads per core
+ *
+ *  Revision 1.2  2009/08/21 09:49:07  robot12
  *  (guettler) support for tasked simulations.
  *  - use the simulation template_taskedSimulations.
  *  - merged (not completely) from lpzrobots_tasked.
@@ -95,8 +99,20 @@ namespace lpzrobots
       taskedSimCreator = &_taskedSimCreator;
     }
 
+    /**
+     * Sets the number of total threads running at one time.
+     * @param numberThreads
+     */
     static void setNumberThreads(int numberThreads);
 
+    /**
+     * Sets the number of threads created per core. The default value is 1.
+     * So if your machine has e.g. 4 cores, 4 threads are created.
+     * If you have much code which must be synchronized, it may be
+     * useful to increase the number of threads per core, 2 is a good value.
+     * @param numberThreadsPerCore
+     */
+    static void setNumberThreadsPerCore(int numberThreadsPerCore);
 
     /**
      * Creates one SimulationTask with taskId=SimulationTaskHandle.simTaskList.size().

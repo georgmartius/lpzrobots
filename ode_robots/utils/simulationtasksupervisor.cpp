@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-08-21 09:49:07  robot12
+ *  Revision 1.3  2009-09-17 14:13:09  guettler
+ *  - some bugfixes for critical sections
+ *  - support to set number of threads per core
+ *
+ *  Revision 1.2  2009/08/21 09:49:07  robot12
  *  (guettler) support for tasked simulations.
  *  - use the simulation template_taskedSimulations.
  *  - merged (not completely) from lpzrobots_tasked.
@@ -51,6 +55,7 @@
 
 #include <ode/ode.h>
 #include <selforg/stl_adds.h>
+#include <signal.h>
 
 using namespace std;
 
@@ -67,24 +72,35 @@ namespace lpzrobots {
   std::string SimulationTaskSupervisor::nameSuffix = "(tasked)";
 
   void SimulationTaskSupervisor::runSimTasks(int* _argc, char** _argv) {
+    int laststate;
+    sigset_t sigs;
+
+    sigemptyset(&sigs);
+    sigaddset(&sigs, SIGPIPE);
+    sigaddset(&sigs, SIGABRT); // hack for invalid frees
+    pthread_sigmask(SIG_BLOCK, &sigs, NULL);
+    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &laststate);
+
     argc = _argc;
     argv = _argv;
     //viewer = LpzRobotsViewer::getViewerInstance(*argc, argv);
     //parser = viewer->getArgumentParser();
     QP(PROFILER.init());
-    QMP_SHARE(simTaskHandle);
+    SimulationTaskHandle simTaskHandleCopy = *simTaskHandle;
+    QMP_SHARE(simTaskHandleCopy);
     //QMP_SHARE(parser);
     //QMP_SHARE(viewer);
     QMP_SHARE(argc);
     QMP_SHARE(argv);
     dInitODE();
     QMP_PARALLEL_FOR(i, 0, simTaskList.size(),quickmp::INTERLEAVED){
-      QMP_USE_SHARED(simTaskHandle, SimulationTaskHandle*);
+      //QMP_USE_SHARED(simTaskHandle, SimulationTaskHandle*);
+      QMP_USE_SHARED(simTaskHandleCopy, SimulationTaskHandle);
       //QMP_USE_SHARED(parser, osg::ArgumentParser*);
       //QMP_USE_SHARED(viewer, LpzRobotsViewer*);
       QMP_USE_SHARED(argc, int*);
       QMP_USE_SHARED(argv, char**);
-      simTaskList[i]->startTask(*simTaskHandle, *taskedSimCreator, argc, argv, nameSuffix);
+      simTaskList[i]->startTask(simTaskHandleCopy, *taskedSimCreator, argc, argv, nameSuffix);
       delete (simTaskList[i]);
     }
     QMP_END_PARALLEL_FOR;
@@ -99,7 +115,14 @@ namespace lpzrobots {
 
   void SimulationTaskSupervisor::setNumberThreads(int numberThreads)
   {
-    QMP_SET_NUM_THREADS(numberThreads);
+    if (numberThreads > 0)
+      QMP_SET_NUM_THREADS(numberThreads);
+  }
+
+  void SimulationTaskSupervisor::setNumberThreadsPerCore(int numberThreadsPerCore)
+  {
+    if (numberThreadsPerCore > 0) // else ignore
+      setNumberThreads(numberThreadsPerCore * QMP_GET_NUM_PROCS());
   }
 
   void SimulationTaskSupervisor::setSimTaskNameSuffix(std::string name) {

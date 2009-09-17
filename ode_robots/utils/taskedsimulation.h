@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-08-21 09:49:07  robot12
+ *  Revision 1.3  2009-09-17 14:13:09  guettler
+ *  - some bugfixes for critical sections
+ *  - support to set number of threads per core
+ *
+ *  Revision 1.2  2009/08/21 09:49:07  robot12
  *  (guettler) support for tasked simulations.
  *  - use the simulation template_taskedSimulations.
  *  - merged (not completely) from lpzrobots_tasked.
@@ -44,6 +48,7 @@
 #include "simulation.h"
 #include "simulationtaskhandle.h"
 #include <string>
+#include <selforg/quickmp.h>
 
 namespace lpzrobots {
 
@@ -122,7 +127,7 @@ namespace lpzrobots {
        * @param simTaskHandle
        */
       void setSimTaskHandle(SimulationTaskHandle& simTaskHandle) {
-        this->simTaskHandle = &simTaskHandle;
+        this->simTaskHandle = simTaskHandle.m_this;
       }
 
     private:
@@ -174,11 +179,17 @@ namespace lpzrobots {
       std::string nameSuffix;
 
       void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& globalData) {
+        QMP_CRITICAL(61);
         start(odeHandle, osgHandle, globalData, *simTaskHandle, taskId);
+        QMP_END_CRITICAL(61);
       }
 
       bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& globalData) {
-        return restart(odeHandle, osgHandle, globalData, *simTaskHandle, taskId);
+        bool doRestart;
+        QMP_CRITICAL(62);
+        doRestart = restart(odeHandle, osgHandle, globalData, *simTaskHandle, taskId);
+        QMP_END_CRITICAL(62);
+        return doRestart;
       }
 
       void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
