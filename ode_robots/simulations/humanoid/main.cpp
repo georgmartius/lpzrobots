@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-08-10 14:59:19  der
+ *   Revision 1.19  2009-09-17 09:10:53  martius
+ *   force forward implemented
+ *
+ *   Revision 1.18  2009/08/10 14:59:19  der
  *   copy of local controller version.
  *   new skeleton from bambi
  *
@@ -201,6 +204,9 @@ public:
   bool reckturner;
   osg::Vec3 center;
   double centerforce;
+  double forwardforce;
+
+  Primitive* forcepoint;
   
 
   // starting function (executed once at the beginning of the simulation loop)
@@ -213,29 +219,32 @@ public:
 
   //   int plattfuesse = 1; 
      int flatsnakes  = 0;
-    int snakes = 1;
-    //int sphericalsIR = 0;
+     int snakes = 0;
+     //int sphericalsIR = 0;
     //int sphericalsXYZ = 0;
     //int hurlings = 0;
     //int cigars = 0;
     int wheelies = 0;
-    int humanoids=0;
+    int humanoids=1;
     //    int barrel=0;
     // int dogs = 0; 
 
     addParameterDef("centerforce", &centerforce, 0.0);
+    addParameterDef("forwardforce", &forwardforce, 0.0);
     global.configs.push_back(this);
 
     bool fixedInAir = false;
     reckturner = false;
     // Playground types
-    bool narrow = true; 
+    bool narrow = false; 
 
     fixator=0;
     reckLeft = reckRight = 0;
     reck = 0;
 
     center = osg::Vec3(20,20,3);
+    forcepoint = 0;
+
     // initialization
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -982,12 +991,37 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
       fixator->init(odeHandle, osgHandle);	
     }
     if(control &&!pause){
-      // force to center
-      FOREACH(vector<OdeAgent*> , globalData.agents, a){
-	Primitive* body = (*a)->getRobot()->getMainPrimitive();
-	osg::Vec3 pos = body->getPosition();
-	osg::Vec3 d = (center - pos);
-	dBodyAddForce(body->getBody(), d.x()*centerforce, d.y()*centerforce,  d.z()*centerforce*.8);
+      if(centerforce!=0){
+	// force to center
+	FOREACH(vector<OdeAgent*> , globalData.agents, a){
+	  Primitive* body = (*a)->getRobot()->getMainPrimitive();
+	  osg::Vec3 pos = body->getPosition();
+	  osg::Vec3 d = (center - pos);
+	  dBodyAddForce(body->getBody(), d.x()*centerforce, d.y()*centerforce,  d.z()*centerforce*.8);
+	}
+      }
+      if(forwardforce!=0){
+	// force forwards
+	FOREACH(vector<OdeAgent*> , globalData.agents, a){
+	  Primitive* body = (*a)->getRobot()->getMainPrimitive();
+	  osg::Matrix pose = body->getPose();
+	  // transform a local point ahead of robot into global coords
+	  // note that the internal corrd of the main primitive has z towards the front
+	  Pos point = (Pos(0,0,1)*pose ); 
+	  point.z()=pose.getTrans().z();  // only use x,y component (this can be commented out)
+	  Pos d = (point - pose.getTrans());
+	  d.normalize();
+
+	  dBodyAddForce(body->getBody(), 
+			d.x()*forwardforce, d.y()*forwardforce, d.z()*forwardforce);
+	  if(!forcepoint){
+	    forcepoint = new Sphere(0.1);
+	    forcepoint->init(odeHandle, 0, osgHandle.changeAlpha(0.4), 
+			     Primitive::Geom | Primitive::Draw);
+	  }
+	  forcepoint->setPosition(point);
+	  forcepoint->update();
+	}
       }
     }
      
