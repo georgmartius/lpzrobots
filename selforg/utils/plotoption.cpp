@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2009-08-10 15:34:30  der
+ *  Revision 1.5  2009-09-17 14:14:13  guettler
+ *  added some critical qmp sections
+ *
+ *  Revision 1.4  2009/08/10 15:34:30  der
  *  redirect error output of neuronviz to null device
  *
  *  Revision 1.3  2009/08/05 22:53:02  martius
@@ -52,9 +55,13 @@
 #include <iostream>
 #include <signal.h>
 #include <string.h>
+#include <stdlib.h>
+#include <quickmp.h>
 
 bool PlotOption::open(){
+  QMP_CRITICAL(601);
   char cmd[255];
+  bool returnCode = true;
   std::cout << "open a stream " << std::endl;
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
@@ -92,16 +99,19 @@ bool PlotOption::open(){
     pipe=popen(cmd,"w");
     break;
   default: // and NoPlot
-    return false;
+    returnCode=false;
   }
   if(pipe==0){
     fprintf(stderr, "%s:%i: could not open plot tool!\n", __FILE__, __LINE__);
-    return false;
-  }else return true;
+    returnCode=false;
+  }
+  QMP_END_CRITICAL(601);
+  return returnCode;
 }
 
 
 void PlotOption::close(){
+  QMP_CRITICAL(602);
   if (pipe) {
 
     switch(mode){
@@ -143,10 +153,12 @@ void PlotOption::close(){
     }
     pipe=0;
   }
+  QMP_END_CRITICAL(602);
 }
 
 // flushes pipe (depending on mode)
 void PlotOption::flush(long step){
+  QMP_CRITICAL(603);
   if (pipe) {
     switch(mode){
     case File:
@@ -167,4 +179,5 @@ void PlotOption::flush(long step){
       break;
     }
   }
+  QMP_END_CRITICAL(603);
 }
