@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2009-09-17 09:10:53  martius
+ *   Revision 1.20  2009-09-18 15:07:18  martius
+ *   forward force
+ *
+ *   Revision 1.19  2009/09/17 09:10:53  martius
  *   force forward implemented
  *
  *   Revision 1.18  2009/08/10 14:59:19  der
@@ -1016,7 +1019,7 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
 			d.x()*forwardforce, d.y()*forwardforce, d.z()*forwardforce);
 	  if(!forcepoint){
 	    forcepoint = new Sphere(0.1);
-	    forcepoint->init(odeHandle, 0, osgHandle.changeAlpha(0.4), 
+	    forcepoint->init(odeHandle, 0, osgHandle /*osgHandle.changeAlpha(0.4)*/, 
 			     Primitive::Geom | Primitive::Draw);
 	  }
 	  forcepoint->setPosition(point);
