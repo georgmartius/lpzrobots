@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-08-11 12:57:38  robot12
+ *   Revision 1.10  2009-10-01 13:36:04  robot12
+ *   add a methode to become a vector for all individuals which must be calculated (fitness value)
+ *
+ *   Revision 1.9  2009/08/11 12:57:38  robot12
  *   change the genetic algorithm (first crossover, second select)
  *
  *   Revision 1.8  2009/07/21 08:39:01  robot12
@@ -166,6 +169,14 @@ public:
 	 * @return (vector<Individual*>&) all individual inside the generation
 	 */
 	inline const std::vector<Individual*>& getAllIndividual(void)const {return m_individual;}
+
+	/**
+   * [inline], [const]
+   * This function gives all individual back which aren't have the fitness value calculated.
+   *
+   * @return (vector<Individual*>&) all individual inside the generation
+   */
+  std::vector<Individual*>* getAllUnCalculatedIndividuals(void)const;
 
 	/**
 	 * This function insert an individual in the generation.

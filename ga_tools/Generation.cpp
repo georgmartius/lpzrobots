@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-08-11 12:57:38  robot12
+ *   Revision 1.13  2009-10-01 13:36:04  robot12
+ *   add a methode to become a vector for all individuals which must be calculated (fitness value)
+ *
+ *   Revision 1.12  2009/08/11 12:57:38  robot12
  *   change the genetic algorithm (first crossover, second select)
  *
  *   Revision 1.11  2009/08/05 13:16:32  robot12
@@ -175,4 +178,15 @@ void Generation::update(double factor) {
 
 	delete context;
 	delete ptrFitnessVector;
+}
+
+std::vector<Individual*>* Generation::getAllUnCalculatedIndividuals(void)const {
+  std::vector<Individual*>* result = new std::vector<Individual*>;
+
+  for(std::vector<Individual*>::const_iterator iter = m_individual.begin(); iter != m_individual.end(); iter++) {
+    if(!((*iter)->isFitnessCalculated()))
+      result->push_back(*iter);
+  }
+
+  return result;
 }
