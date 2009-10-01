@@ -13,7 +13,7 @@ CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
-LIBS   += -lm -L$(SELFORG)/ -lselforg 
+LIBS   += -lm -L$(SELFORG)/ -lselforg -lpthread
 INC    += -I$(SELFORG)/include
 
 cc = g++ $(CFLAGS) $(INC) -c

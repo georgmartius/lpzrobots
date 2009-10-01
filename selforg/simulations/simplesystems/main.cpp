@@ -233,7 +233,7 @@ int main(int argc, char** argv){
 
   int index = contains(argv,argc,"-g");
   if(index >0 && argc>index) {
-    plotoptions.push_back(PlotOption(GuiLogger,Controller,atoi(argv[index])));
+    plotoptions.push_back(PlotOption(GuiLogger,atoi(argv[index])));
   }
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
   if(contains(argv,argc,"-n")!=0) plotoptions.push_back(PlotOption(NeuronViz));
