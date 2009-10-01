@@ -43,7 +43,10 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.4  2009-10-01 13:34:00  robot12
+ *   Revision 1.5  2009-10-01 13:40:11  robot12
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2009/10/01 13:34:00  robot12
  *   final version of this template
  *
  *   Revision 1.3  2009/09/17 14:10:15  guettler
@@ -109,7 +112,7 @@
 #include <ga_tools/StandartMutationFactorStrategy.h>
 #include <ga_tools/DoubleRandomStrategy.h>
 
-#include "TemplateCycledGaSimulationFitnessStrategy.h"
+#include "TemplateTaskedGaSimulationFitnessStrategy.h"
 
 #include <selforg/trackablemeasure.h>
 #include <selforg/statistictools.h>
