@@ -27,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-07-21 08:37:59  robot12
+ *   Revision 1.11  2009-10-01 13:29:42  robot12
+ *   now the individual save his own fitness value
+ *
+ *   Revision 1.10  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.9  2009/07/06 15:06:35  robot12
@@ -79,14 +82,28 @@ Individual::Individual(std::string name, int id, Individual* p1, Individual* p2)
 	m_mutated = false;
 	m_parent1 = p1;
 	m_parent2 = p2;
+	m_fitnessCalculated = false;
 }
 
 Individual::~Individual() {
 	// nothing
 }
 
-double Individual::getFitness()const {
-	return SingletonGenEngine::getInstance()->getFitness(this);
+double Individual::getFitness() {
+  if(!m_fitnessCalculated) {
+    m_fitness = SingletonGenEngine::getInstance()->getFitness(this);
+    m_fitnessCalculated = true;
+  }
+
+  return m_fitness;
+}
+
+double Individual::getFitnessC()const {
+  if(!m_fitnessCalculated) {
+    return SingletonGenEngine::getInstance()->getFitness(this);
+  }
+
+  return m_fitness;
 }
 
 void Individual::removeGen(Gen* gen) {
@@ -105,7 +122,7 @@ std::string Individual::IndividualToString(void)const {
 	}
 
 	char buffer[128];
-	sprintf(buffer,"% .12lf",getFitness());
+	sprintf(buffer,"% .12lf",getFitnessC());
 	result += buffer;
 
 	return result;

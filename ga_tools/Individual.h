@@ -27,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-21 08:37:58  robot12
+ *   Revision 1.9  2009-10-01 13:29:42  robot12
+ *   now the individual save his own fitness value
+ *
+ *   Revision 1.8  2009/07/21 08:37:58  robot12
  *   add some comments
  *
  *   Revision 1.7  2009/06/29 14:52:14  robot12
@@ -144,9 +147,15 @@ public:
 
 	/**
 	 * this function calculate the fitness value of the individual
-	 * @return
+	 * @return fitness value
 	 */
-	double getFitness()const;
+	double getFitness();
+
+  /**
+   * this function calculate the fitness value of the individual (const)
+   * @return fitness value
+   */
+  double getFitnessC()const;
 
 	/**
 	 * this select the individual as a product of mutation.
@@ -184,6 +193,12 @@ public:
 	 */
 	std::string RootToString(bool withMutation=true)const;
 
+	/**
+	 * returns the m_fitnessCalculated flag, which represent, that the fitness value was calculated before.
+	 * @return (bool) the flag m_fitnessCalculated
+	 */
+	inline bool isFitnessCalculated()const {return m_fitnessCalculated;}
+
 protected:
 	/**
 	 * the name of the individual
@@ -214,6 +229,16 @@ protected:
 	 * remember if the individual a product of mutation
 	 */
 	bool m_mutated;
+
+	/**
+	 * remember if the fitness value was calculated
+	 */
+	bool m_fitnessCalculated;
+
+	/**
+	 * save the calculated fitness value
+	 */
+	double m_fitness;
 
 private:
 	/**
