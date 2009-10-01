@@ -43,7 +43,10 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.5  2009-10-01 13:40:11  robot12
+ *   Revision 1.6  2009-10-01 14:40:45  robot12
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2009/10/01 13:40:11  robot12
  *   *** empty log message ***
  *
  *   Revision 1.4  2009/10/01 13:34:00  robot12
@@ -348,7 +351,7 @@ int main(int argc, char **argv) {
   int numberIndividuals = 1000;
 
   // by reason of thread synchronisations effects we generate 4 threads per processor
-  SimulationTaskSupervisor::getInstance()->setNumberThreadsPerCore(2);
+  SimulationTaskSupervisor::getInstance()->setNumberThreadsPerCore(4);
   // ga_tool initialising
   // First we need some variables.
 
@@ -394,8 +397,8 @@ int main(int argc, char **argv) {
   mutFaStr = SingletonGenAlgAPI::getInstance()->createStandartMutationFactorStrategy();
   // The second value means the mutation probability in 1/1000. Normal is a value lower than max. 5%.
   mutStr = SingletonGenAlgAPI::getInstance()->createValueMutationStrategy(mutFaStr, 50);
-  // The last parameters ensure that the created genes lay inside the interval from -10 to +10.
-  randomStr = SingletonGenAlgAPI::getInstance()->createDoubleRandomStrategy(&random, -10.0, 20.0, 0.0);
+  // The last parameters ensure that the created genes lay inside the interval from -100 to +100.
+  randomStr = SingletonGenAlgAPI::getInstance()->createDoubleRandomStrategy(&random, -100.0, 200.0, 0.0);
   // The prototypes need a name, a random strategy to create random genes and a mutation strategy to mutate existing genes.
   pro1 = SingletonGenAlgAPI::getInstance()->createPrototype("P1", randomStr, mutStr);
   pro2 = SingletonGenAlgAPI::getInstance()->createPrototype("P2", randomStr, mutStr);
