@@ -4,6 +4,7 @@
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
+ *    mam06fyl@studerv.uni-leipzig.de (robot14)
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-13 13:14:05  robot14
+ *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  filters, main app - not finished yet
+ *
+ *  Revision 1.1  2009/08/13 13:14:05  robot14
  *  first version
  *
  *  Revision 1.1  2009/04/17 14:17:32  guettler
@@ -38,6 +42,8 @@
 #include "MatrixPipeFilter.h"
 #include "MatrixPlotChannel.h"
 #include "MatrixElementPlotChannel.h"
+#include "DefaultPlotChannel.h"
+
 
 MatrixPipeFilter::MatrixPipeFilter(AbstractPipeReader* apr) :
   AbstractPipeFilter(apr) {
@@ -49,63 +55,75 @@ MatrixPipeFilter::~MatrixPipeFilter() {
 	// TODO Auto-generated destructor stub
 }
 
-virtual AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
+AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
 {
     //if (name.find("A[0,1]")==0) return (new MotorSpeedPlotChannel("motorCspeedX"));
 	//test
-	cout << name << endl;
-
+	std::cout << name << std::endl;
 	/*
-	 * Looking for new matrix _A_[x,y]
+	 * Looking for new matrix _A_[x,y] (and not A[x_]_)
 	 */
-	if (name.at(0) == toupper(name.at(0)) /*ERSTER BUCHSTABE IN name großgeschrieben*/)
-	{ // Matrix element found!
-		bool isNewChannel = true;
-		// suche richtigen MatrixPlotChannel
-		MatrixPlotChannel* matrixChannel;
-		matrixChannel = new MatrixPlotChannel(/*Großbuchstabe*/name.substr(0,1));
-		int itM;
-		for( int i = 0; i < matrixPlotChannels.size(); i++ )
-		{// wenn noch nicht in Liste:
-			if( matrixPlotChannels[i] == matrixChannel )
-			{
-				isNewChannel = false;
-				itM = i; //iterator merken
-			}
-		}
-		if ( isNewChannel )
-			{
-			this.matrixPlotChannels.push_back(matrixChannel);
-			itM = matrixPlotChannels.size() - 1; //index of this element
-			}
+	if (name.at(0) == toupper(name.at(0)) && name.at(3) != ']' /*ERSTER BUCHSTABE IN name großgeschrieben*/){
+	  // empty vector or new matrix
+	  if (matrices.size() == 0 || name.at(0) != matrices.back()->getChannelName().at(0)){
+	    MatrixPlotChannel* maPloChannel = new MatrixPlotChannel(name.substr(0,1));
+	    matrices.push_back(maPloChannel);
+	  }
+	  //A[x,0] : new row channel (active + add) new elementplotchannel to active rowchannel
+	  if (name.substr(4,1) == "0"){
+	    MatrixPlotChannel* rowChannel = new MatrixPlotChannel("0");
+	    matrices.back()->addRow(rowChannel);
+	  }
+	  MatrixElementPlotChannel* elementChannel = new MatrixElementPlotChannel( name );
 
-		/*
-		 * Looking for row A[_x_,y]
-		 */
-		bool isNewRow = true;
-		int itR;
-		MatrixPlotChannel* matrixRowChannel;
-		// name: "x" von A[x,y]
-		matrixChannel = new MatrixPlotChannel( name.substr(2,1) );
-		for( int j = 0; j < matrixPlotChannels[itM]->getDimension(0); j++ )
-		{
-			if( matrixPlotChannels[itM]->getRow(j) == matrixRowChannel ) //schon drin
-			{
-				isNewRow = false;
-				itR = j;
-			}
-		}
-		if ( isNewRowChannel )
-		{
-			this.matrixPlotChannels[itM]->addRow(matrixRowChannel);
-			itR = matrixPlotChannels[itM]->size() - 1; //index of this element
-		}
-
-		/*
-		 * Adding matrix element channel A[x,y] (A[x,_y_])
-		 */
-		MatrixElementPlotChannel* elementChannel( name.substr(4,1) );
-		this.matrixPlotChannels[itM]->getRow( itR )->addPlotCannel( elementChannel );
+	  matrices.back()->getLastRow()->addPlotChannel(elementChannel);
+//	{ // Matrix element found!
+//		bool isNewChannel = true;
+//		// suche richtigen MatrixPlotChannel
+//		MatrixPlotChannel* matrixChannel;
+//		matrixChannel = new MatrixPlotChannel(/*Großbuchstabe*/name.substr(0,1));
+//		int itM;
+//		for( int i = 0; i < matrixPlotChannels.size(); i++ )
+//		{// wenn noch nicht in Liste:
+//			if( matrixPlotChannels[i] == matrixChannel )
+//			{
+//				isNewChannel = false;
+//				itM = i; //iterator merken
+//			}
+//		}
+//		if ( isNewChannel )
+//			{
+//			matrixPlotChannels.push_back(matrixChannel);
+//			itM = matrixPlotChannels.size() - 1; //index of this element
+//			}
+//
+//		/*
+//		 * Looking for row A[_x_,y]
+//		 */
+//		bool isNewRow = true;
+//		int itR;
+//		MatrixPlotChannel* matrixRowChannel;
+//		// name: "x" von A[x,y]
+//		matrixChannel = new MatrixPlotChannel( name.substr(2,1) );
+//		for( int j = 0; j < matrixPlotChannels[itM]->getDimension(0); j++ )
+//		{
+//			if( matrixPlotChannels[itM]->getRow(j) == matrixRowChannel ) //schon drin
+//			{
+//				isNewRow = false;
+//				itR = j;
+//			}
+//		}
+//		if ( isNewRow )
+//		{
+//			matrixPlotChannels[itM]->addRow(matrixRowChannel);
+//			itR = matrixPlotChannels[itM]->size() - 1; //index of this element
+//		}
+//
+//		/*
+//		 * Adding matrix element channel A[x,y] (A[x,_y_])
+//		 */
+//		MatrixElementPlotChannel* elementChannel( name.substr(4,1) );
+//		this.matrixPlotChannels[itM]->getRow( itR )->addPlotCannel( elementChannel );
 
 
 		// eigentlichen Channel hinzufügen
@@ -118,13 +136,12 @@ virtual AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
 		return new DefaultPlotChannel(name);
 }
 
-virtual std::list<MatrixPlotChannel*> MatrixPipeFilter::getMatrixChannels(){
-	return matrixPlotChannels;
+std::vector<MatrixPlotChannel*> MatrixPipeFilter::getMatrixChannels(){
+	return matrices;
 }
 
 
-virtual void updateChannels()
-  {
+void MatrixPipeFilter::updateChannels() {
 //     std::cout << "AbstractPipeFilter: updateChannels()" << std::endl;
 
 //     std::cout << "AbstractPipeFilter: updateChannels(";
@@ -146,13 +163,11 @@ virtual void updateChannels()
 
     for(std::list<double>::iterator i=dataList.begin(); i != dataList.end() && index_it!=channelIndexList.end() && channel_it!=channelList.end() ; i++)
     {
-      if (index == (*index_it))
-      {
+      if (index == (*index_it)){
 //         std::cout << "[" << (*channel_it)->getChannelName() << "=" << index << "]";
         (*channel_it)->setValue((*i));
-        }
-        else //the old value has to be
-          printf("[old~]");
+      }else{ //the old value has to be
+        printf("[old~]");
 
         channel_it++;
         index_it++;
@@ -164,4 +179,3 @@ virtual void updateChannels()
 //     std::cout << ")" << std::endl;
     printf("\r\n");
 }
-

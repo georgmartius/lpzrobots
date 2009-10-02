@@ -1,9 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de          void GroupPlotChannel::addPlotChannel(AbstractPlotChannel *channelToAdd)
- {
- }
-
+ *    martius@informatik.uni-leipzig.de
  *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
@@ -30,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-13 13:14:04  robot14
+ *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  filters, main app - not finished yet
+ *
+ *  Revision 1.1  2009/08/13 13:14:04  robot14
  *  first version
  *
  *  Revision 1.1  2009/04/17 14:17:33  guettler
@@ -40,7 +40,7 @@
  **************************************************************************/
 #include "GroupPlotChannel.h"
 #include "../../selforg/utils/stl_adds.h"
-
+#include "cassert"
 
 using namespace std;
 
@@ -58,14 +58,34 @@ void GroupPlotChannel::addPlotChannel(AbstractPlotChannel* channelToAdd) {
 }
 
 list<double> GroupPlotChannel::getValues() {
+  list<double> valueList;
   FOREACHC(list<AbstractPlotChannel*>, channelsOfGroup, channelIt) {
-    list<double> valueList;
+    //list<double> valueList;
     valueList.push_back((*channelIt)->getValue());
-    return valueList;
+    //return valueList;
   }
+  return valueList;
 }
 
 list<AbstractPlotChannel*> GroupPlotChannel::getChannelsOfGroup() {
   return channelsOfGroup;
 }
+
+AbstractPlotChannel* GroupPlotChannel::at(int pos){
+  assert(pos < channelsOfGroup.size());
+
+  AbstractPlotChannel* channel = 0;
+  int it = 0;
+  FOREACHC(list<AbstractPlotChannel*>, channelsOfGroup, channelIt) {
+    if(it == pos) channel = *channelIt;
+    it++;
+  }
+//  for( const_iterator i = channelsOfGroup.begin(); i !=  channelsOfGroup.end(); i++){
+//    if(it == pos) cannel = *i;
+//    it++;
+//  }
+  return channel;
+
+}
+
 

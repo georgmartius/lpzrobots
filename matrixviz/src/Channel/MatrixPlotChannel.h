@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-13 13:14:04  robot14
+ *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  filters, main app - not finished yet
+ *
+ *  Revision 1.1  2009/08/13 13:14:04  robot14
  *  first version
  *
  *  Revision 1.1  2009/04/17 14:17:33  guettler
@@ -41,6 +44,8 @@
  *
  */
 #include "GroupPlotChannel.h"
+#include "AbstractPlotChannel.h"
+
 
 
 /**
@@ -56,17 +61,19 @@ public:
 	 * @param dim
 	 * @return
 	 */
-	virtual int getDimesion(int dim);
+	virtual int getDimension(int dim);
 
 	virtual double getValue(int row, int column);
 
 	GroupPlotChannel* getRow(int row);
 
+  GroupPlotChannel* getLastRow();
+
 	virtual void addRow(GroupPlotChannel* gc);
 
 
 protected:
-  std::vector<GroupPlotChannel*> rows;
+  //std::vector<AbstractPlotChannel *> values; // rows or clumnvalues == chanelsOfGrpup!!
 
 };
 

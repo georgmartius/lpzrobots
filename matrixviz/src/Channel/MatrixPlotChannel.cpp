@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-13 13:14:05  robot14
+ *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  filters, main app - not finished yet
+ *
+ *  Revision 1.1  2009/08/13 13:14:05  robot14
  *  first version
  *
  *  Revision 1.1  2009/04/17 14:17:33  guettler
@@ -36,6 +39,7 @@
  **************************************************************************/
 
 #include "MatrixPlotChannel.h"
+#include "MatrixElementPlotChannel.h"
 #include "cassert"
 
 using namespace std;
@@ -54,22 +58,50 @@ MatrixPlotChannel::~MatrixPlotChannel() {
 * @param dim
 * @return
 */
-int MatrixPlotChannel::getDimesion(int dim)
+int MatrixPlotChannel::getDimension(int dim)
 {
 	assert(dim < 2);
+
 	if( dim == 0 ) return channelsOfGroup.size();
-	else return channelsOfGroup[0].size();
+	else{
+	  MatrixPlotChannel* chan = dynamic_cast<MatrixPlotChannel*> (channelsOfGroup.front());
+	  if(chan == 0) { return 0; }else return chan->getDimension(0);
+	}
 }
 
 double MatrixPlotChannel::getValue(int row, int column)
 {
-	return channelsOfGroup[row][column]; //sollte gehen
+  // wenn hauptmatrix, dann suche matrixplotchannel(row) und gib wert von kind-matrixelementplotchannel(clumn)
+  // zurück, wenn row- matrixplotchannel, gib nur element von column wieder -> dynamic cast
+  double val = 0.;
+
+  MatrixPlotChannel* mRow = dynamic_cast<MatrixPlotChannel*> (at(row));
+  if(mRow == 0){ //this is a row
+    MatrixElementPlotChannel* element = dynamic_cast<MatrixElementPlotChannel*> (at(column));
+    val = element->getValue();
+  }else{ //this is a matrix
+    MatrixElementPlotChannel* element = dynamic_cast<MatrixElementPlotChannel*> (mRow->at(column));
+    /*(val != 0)?: */val = element->getValue();
+  }
+  //dynamic_cast<MatrixPlotChannel *>(channelsOfGroup).getRow(row)[column]; //sollte gehen NEIN!!
+
+	return val;
 }
 
 GroupPlotChannel* MatrixPlotChannel::getRow(int row){
-	return channelsOfGroup[row];
+  GroupPlotChannel* gPlotCh = dynamic_cast<GroupPlotChannel*> (at(row));
+  if(gPlotCh == 0){
+    return 0;
+  }else return gPlotCh;
 }
 
-virtual void MatrixPlotChannel::addRow(GroupChannel* gc){
+GroupPlotChannel* MatrixPlotChannel::getLastRow(){
+  GroupPlotChannel* gPlotCh = dynamic_cast<GroupPlotChannel*> (channelsOfGroup.back());
+  if(gPlotCh == 0){
+    return 0;
+  }else return gPlotCh;
+}
+
+void MatrixPlotChannel::addRow(GroupPlotChannel* gc){
 	channelsOfGroup.push_back(gc);
 }

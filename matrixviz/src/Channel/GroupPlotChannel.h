@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-13 13:14:04  robot14
+ *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  filters, main app - not finished yet
+ *
+ *  Revision 1.1  2009/08/13 13:14:04  robot14
  *  first version
  *
  *  Revision 1.1  2009/04/17 14:17:33  guettler
@@ -62,6 +65,8 @@ public:
 	virtual std::list<double> getValues();
 
 	virtual std::list<AbstractPlotChannel*> getChannelsOfGroup();
+
+	virtual AbstractPlotChannel* at(int pos);
 
 protected:
 	std::list<AbstractPlotChannel*> channelsOfGroup;

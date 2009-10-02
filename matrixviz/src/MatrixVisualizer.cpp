@@ -22,36 +22,77 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-13 13:14:05  robot14
+ *   Revision 1.2  2009-10-02 15:25:40  robot14
+ *   filters, main app - not finished yet
+ *
+ *   Revision 1.1  2009/08/13 13:14:05  robot14
  *   first version
  *
  *                                                                         *
  ***************************************************************************/
 #include "MatrixVisualizer.h"
 
+//#include <QProgressBar>
+#include <QString>
+
 #include <iostream>
 
 using namespace std;
 
-MatrixVisualizer::MatrixVisualizer() {
+MatrixVisualizer::MatrixVisualizer(QWidget *parent) : AbstractRobotGUI(parent) {
   pipe_reader = new SimplePipeReader();
   matrix_filter = new MatrixPipeFilter(pipe_reader);
 
   pipe_reader->start();
+  initGui();
   cout << "Here I AM!!!" << endl;
 
-  std::list<AbstractPlotChannel*> channelList = matrix_filter->getChannelList();
+  channelList = matrix_filter->getChannelList();
 
 }
 
 MatrixVisualizer::~MatrixVisualizer() {
 }
-// TODO Auto-generated destructor stub
 
-void initGui() {
+void MatrixVisualizer::initGui() {
 
+  main_layout = new QVBoxLayout;
+  main_layout->addWidget(makeChooseBox());
+
+  //TODO
+
+
+  setLayout(main_layout);
+  resize(200,200);
 }
-void linkChannels() {
+
+QGroupBox* MatrixVisualizer::makeChooseBox(){
+
+  QGroupBox *gb = new QGroupBox(QString("View-Settings"));
+  QHBoxLayout *chooseBoxL = new QHBoxLayout;
+
+  matChoice = new QComboBox();
+  vizChoice = new QComboBox();
+
+  for(list<AbstractPlotChannel*>::iterator i = channelList.begin(); i != channelList.end(); i++){
+    QString qs( (*i)->getChannelName().c_str() );
+    matChoice->addItem(qs);   //TODO
+  }
+
+  chooseBoxL->addWidget(matChoice);
+  chooseBoxL->addWidget(vizChoice);
+
+  gb->setLayout(chooseBoxL);
+  return gb;
+}
+
+void MatrixVisualizer::linkChannels() {
+
+
+//  for (std::list<AbstractPlotChannel*>::iterator i=channelList.begin(); i!=channelList.end(); i++){
+//    //widget->addPlotChannel(i*)
+//  }
+
 
 }
 

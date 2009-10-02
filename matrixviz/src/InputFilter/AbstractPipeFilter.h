@@ -107,6 +107,9 @@ class AbstractPipeFilter : public QObject {
   }
 
   protected:
+    std::list<int> channelIndexList;
+    std::list<AbstractPlotChannel*> channelList;
+    AbstractPipeReader* apr;
 
     virtual void createChannelList() {
       std::cout << "AbstractPipeFilter: createChannelList()" << std::endl;
@@ -189,12 +192,6 @@ class AbstractPipeFilter : public QObject {
     }
 
     virtual AbstractPlotChannel* createChannel(std::string name) = 0;
-
-  private:
-
-    std::list<int> channelIndexList;
-    std::list<AbstractPlotChannel*> channelList;
-    AbstractPipeReader* apr;
 
 };
 

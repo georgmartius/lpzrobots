@@ -4,6 +4,7 @@
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
+ *    mam06fyl@studerv.uni-leipzig.de (robot14)
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-13 13:14:05  robot14
+ *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  filters, main app - not finished yet
+ *
+ *  Revision 1.1  2009/08/13 13:14:05  robot14
  *  first version
  *
  *  Revision 1.1  2009/04/17 14:17:32  guettler
@@ -41,6 +45,7 @@
  *
  */
 #include "AbstractPipeFilter.h"
+#include <vector>
 
 /**
  * forward declaration, because not needed directly here
@@ -55,7 +60,7 @@ public:
 
 	virtual AbstractPlotChannel* createChannel(std::string name);
 
-	virtual std::list<MatrixPlotChannel*> getMatrixChannels();
+	virtual std::vector<MatrixPlotChannel*> getMatrixChannels();
 
 	/**
 	  * The dataLine from PipeReader will be iterate to set the new channel-value.
@@ -69,7 +74,7 @@ public:
 	  virtual void updateChannels();
 
 protected:
-	std::list<MatrixPlotChannel*> matrixPlotChannels; //get
+	std::vector<MatrixPlotChannel*> matrices; //get
 };
 
 #endif /* MATRIXPIPEFILTER_H_ */

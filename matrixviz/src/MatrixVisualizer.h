@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-13 13:14:05  robot14
+ *   Revision 1.2  2009-10-02 15:25:40  robot14
+ *   filters, main app - not finished yet
+ *
+ *   Revision 1.1  2009/08/13 13:14:05  robot14
  *   first version
  *
  *                                                                         *
@@ -40,19 +43,29 @@
 #include "SimplePipeReader.h"
 
 
-
 #include "MatrixElementPlotChannel.h"
 #include "MatrixPlotChannel.h"
+#include <list>
 
 
 class MatrixVisualizer: public AbstractRobotGUI
 {
+
+
 public:
-	MatrixVisualizer();
+	MatrixVisualizer(QWidget *parent = 0);
 	virtual ~MatrixVisualizer();
+
 
 private:
 	MatrixPipeFilter* matrix_filter;
+	std::list<AbstractPlotChannel*> channelList;
+
+	QVBoxLayout* main_layout;
+	QComboBox *matChoice;
+	QComboBox *vizChoice;
+
+	QGroupBox* makeChooseBox();
 
 	void initGui();
 	void linkChannels();
