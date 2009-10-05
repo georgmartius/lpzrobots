@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-05-01 22:03:55  martius
+ *   Revision 1.8  2009-10-05 06:22:22  guettler
+ *   possibility to set additional -meshfile for view
+ *
+ *   Revision 1.7  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -164,6 +167,9 @@ if(g){
 class ThisSim : public Simulation {
 public:
 
+    char* meshfile;
+    bool useExternalMeshFile;
+
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
@@ -188,10 +194,10 @@ public:
 
 
      PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
-				   "Meshes/cow.osg", // the filename of the mesh 
+				   "Meshes/cow.osg", // the filename of the mesh
  					   0.1, // the scale factor to be used
  					   1.0); // the mass of the mesh
-     myMesh->setPosition(osg::Vec3(1.0,0.2,0.4f));
+     myMesh->setPosition(osg::Vec3(1.0,0.2,1.0f));
      global.obstacles.push_back(myMesh);
      
      myMesh = new PassiveMesh(odeHandle,osgHandle,
@@ -201,7 +207,18 @@ public:
      myMesh->setPosition(osg::Vec3(-1.0,0.2,0.4f));
      global.obstacles.push_back(myMesh);
 
-    
+
+     if (this->useExternalMeshFile)
+     {
+       PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
+             std::string(meshfile), // the filename of the mesh
+               1.0, // the scale factor to be used
+               1.0); // the mass of the mesh
+       myMesh->setPosition(osg::Vec3(-5.0,0.2,2.0f));
+       global.obstacles.push_back(myMesh);
+     }
+
+
 
     // add passive spheres as obstacles
     // - create pointer to sphere (with odehandle, osghandle and 
@@ -268,8 +285,17 @@ public:
 
 int main (int argc, char **argv)
 { 
+  int index = Simulation::contains(argv, argc, "-meshfile");
   ThisSim sim;
+  if(index &&  (argc > index))
+  {
+    sim.useExternalMeshFile = true;
+    sim.meshfile = argv[index];
+  }
+  else
+  {
+    sim.useExternalMeshFile = false;
+  }
   return sim.run(argc, argv) ? 0 : 1;
-
 }
  
