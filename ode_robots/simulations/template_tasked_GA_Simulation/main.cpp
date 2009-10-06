@@ -43,7 +43,13 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.6  2009-10-01 14:40:45  robot12
+ *   Revision 1.7  2009-10-06 11:48:56  robot12
+ *   some parameter added
+ *   - gene_simulate
+ *   - gene_count
+ *   - genes_best
+ *
+ *   Revision 1.6  2009/10/01 14:40:45  robot12
  *   *** empty log message ***
  *
  *   Revision 1.5  2009/10/01 13:40:11  robot12
@@ -123,26 +129,66 @@
 // simple multithread api
 #include <selforg/quickmp.h>
 
-#define NUMBER_GENERATION 250
+#define NUMBER_GENERATION 400
+#define NUMBER_OF_TESTS_BY_CALCULATE 120
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-
-/**
- * our fitness strategy
- */
-TemplateCycledGaSimulationFitnessStrategy* fitnessStr; // the fitness strategy
-
 // create your own SimulationTaskHandle
 struct ThisSimulationTaskHandle : public SimulationTaskHandle {
-    std::vector<Individual*>* individuals;
+    /*
+     * only used one of this
+     */
+    union {
+        /**
+         * the individuals, which must be simulated
+         */
+        std::vector<Individual*>* individuals;
+
+        /**
+         * an array of double values, which should be simulated
+         */
+        double* array;
+    };
+
+    /**
+     * the number of individuals, which should be simulated
+     */
     int numberIndividuals;
+
+    /**
+     * should be an array simulated
+     */
+    bool isArraySet;
+
+    /**
+     * should be the best individual on the end of the algorithm sumulated
+     */
+    bool isBestAnimation;
+
+    /**
+     * should be one Individual be calculated
+     */
+    bool isCalculation;
 
     /**
      * our fitness strategy
      */
-    TemplateCycledGaSimulationFitnessStrategy* fitnessStr; // the fitness strategy
+    TemplateTaskedGaSimulationFitnessStrategy* fitnessStr; // the fitness strategy
+
+    /**
+     * if the isCalculation FLAG is set then here will the results standing
+     *
+     * must be prepared for NUMBER_OF_TESTS_BY_CALCULATE Elements!!!
+     */
+    double* entropies;
+
+    ThisSimulationTaskHandle() {
+      isArraySet = false;
+      isBestAnimation = false;
+      isCalculation = false;
+    }
 };
 
 /**
@@ -167,8 +213,16 @@ class ThisSim : public TaskedSimulation {
     void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global,
         SimulationTaskHandle& sTHandle, int taskId) {
 
-      ThisSimulationTaskHandle& handle = static_cast<ThisSimulationTaskHandle&>(sTHandle);
-      m_individual = (*handle.individuals)[taskId];
+      ThisSimulationTaskHandle& handle = static_cast<ThisSimulationTaskHandle&> (sTHandle);
+
+      if (handle.isBestAnimation || handle.isArraySet)
+        global.odeConfig.setParam("realtimefactor", 1);
+      else
+        // set realtimefactor to maximum
+        global.odeConfig.setParam("realtimefactor", 0);
+
+      if (!handle.isArraySet && !handle.isCalculation)
+        m_individual = (*handle.individuals)[taskId];
 
       // So we are now ready to start the algorithm!
       // But without the simulation we have no fun with the algorithm. ;) The only we just need is the simulation!
@@ -179,16 +233,18 @@ class ThisSim : public TaskedSimulation {
       // gamma=0;
       // alpha == horizontal angle
       // beta == vertical angle
-      setCameraHomePos(Pos(37.3816, 23.0469, 200.818), Pos(0., -90.0, 0.));
+      //setCameraHomePos(Pos(-20.0, -20.0, 35.0), Pos(0., 0., 0.));
+      setCameraHomePos(Pos(-34.0, 34.0, 15.0),  Pos(-135.0, -18.0, 0));
       // TODO: disable camera tracking (static (CameraManipulator) instead of CameraManipulatorTV)
 
       // initialisation
       // - set noise to 0.05
       global.odeConfig.noise = 0.05;
-      // set realtimefactor to maximum
-      global.odeConfig.setParam("realtimefactor", 0);
 
-      std::cout<<"Simulation "<<taskId+1<<" von "<<handle.numberIndividuals<<" aus Generation "<<SingletonGenAlgAPI::getInstance()->getEngine()->getActualGenerationNumber()<<" von "<<NUMBER_GENERATION<<" gestartet.\n";
+      if (!handle.isArraySet && !handle.isBestAnimation && !handle.isCalculation)
+        std::cout << "Simulation " << taskId + 1 << " von " << handle.numberIndividuals << " aus Generation "
+            << SingletonGenAlgAPI::getInstance()->getEngine()->getActualGenerationNumber() << " von "
+            << NUMBER_GENERATION << " gestartet.\n";
     }
 
     /**
@@ -202,12 +258,25 @@ class ThisSim : public TaskedSimulation {
     virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global,
         SimulationTaskHandle& sTHandle, int taskId) {
 
-      ThisSimulationTaskHandle& handle = static_cast<ThisSimulationTaskHandle&>(sTHandle);
-      //read the result and give it back.
-      unsigned int individualId = (*handle.individuals)[taskId]->getID();
+      ThisSimulationTaskHandle& handle = static_cast<ThisSimulationTaskHandle&> (sTHandle);
+
+      if (handle.isArraySet || handle.isBestAnimation)
+        return false;
+
+      //read the result
       double fitness = m_trackableEntropy->getValue();
-      if (handle.fitnessStr->m_storage.size()<=individualId)
-        handle.fitnessStr->m_storage.resize(handle.fitnessStr->m_storage.size()+handle.numberIndividuals);
+
+      if(handle.isCalculation) {
+        handle.entropies[taskId] = fitness;
+
+        return false;
+      }
+
+      //give the result back.
+      unsigned int individualId = (*handle.individuals)[taskId]->getID();
+
+      if (handle.fitnessStr->m_storage.size() <= individualId)
+        handle.fitnessStr->m_storage.resize(handle.fitnessStr->m_storage.size() + handle.numberIndividuals);
       handle.fitnessStr->m_storage[individualId] = fitness;
       handle.fitnessStr->m_storage[0] = 1.0;
 
@@ -229,7 +298,8 @@ class ThisSim : public TaskedSimulation {
       }
 
       // make a step in the measure
-      m_trackableEntropy->step();
+      if (m_trackableEntropy)
+        m_trackableEntropy->step();
     }
 
     // add own key handling stuff here, just insert some case values
@@ -268,8 +338,8 @@ class ThisSim : public TaskedSimulation {
       // - setting initial position of the playground: setPosition(double x, double y, double z)
       // - push playground in the global list of obstacles(global list comes from simulation.cpp)
       playground = new Playground(odeHandle, osgHandle, osg::Vec3(18, 0.2, 0.5));
-      playground->setPosition(osg::Vec3((double) (taskId % (int) sqrt(sTHandle.numberIndividuals)) * 19.0, 19.0 * (double) (taskId
-          / (int) sqrt(sTHandle.numberIndividuals)), 0.05)); // position and generate playground
+      playground->setPosition(osg::Vec3((double) (taskId % (int) sqrt(sTHandle.numberIndividuals)) * 19.0, 19.0
+          * (double) (taskId / (int) sqrt(sTHandle.numberIndividuals)), 0.05)); // position and generate playground
       // register playground in obstacles list
       global.obstacles.push_back(playground);
 
@@ -282,9 +352,12 @@ class ThisSim : public TaskedSimulation {
       c.force = 4;
       c.bumper = true;
       c.cigarMode = true;
-      vehicle = new Nimm2(odeHandle, osgHandle, c, ("Nimm2" + m_individual->getName()).c_str());
-      vehicle->place(Pos((double) (taskId % (int) sqrt(sTHandle.numberIndividuals)) * 19.0, 19.0 * (double) (taskId / (int) sqrt(
-          sTHandle.numberIndividuals)), 0.0));
+      if (sTHandle.isArraySet || sTHandle.isCalculation)
+        vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
+      else
+        vehicle = new Nimm2(odeHandle, osgHandle, c, ("Nimm2" + m_individual->getName()).c_str());
+      vehicle->place(Pos((double) (taskId % (int) sqrt(sTHandle.numberIndividuals)) * 19.0, 19.0 * (double) (taskId
+          / (int) sqrt(sTHandle.numberIndividuals)), 0.0));
 
       // Read the gene values and create the neuron matrix.
       // The genes have a value of type IValue. We use only double values so we took for this interface
@@ -292,14 +365,21 @@ class ThisSim : public TaskedSimulation {
       // So we only need to cast them! Than we can read it!
       matrix::Matrix init(2, 2);
       double v1, v2, v3, v4;
-      TemplateValue<double>* value = dynamic_cast<TemplateValue<double>*> (m_individual->getGen(0)->getValue());
-      value != 0 ? v1 = value->getValue() : v1 = 0.0;
-      value = dynamic_cast<TemplateValue<double>*> (m_individual->getGen(1)->getValue());
-      value != 0 ? v2 = value->getValue() : v2 = 0.0;
-      value = dynamic_cast<TemplateValue<double>*> (m_individual->getGen(2)->getValue());
-      value != 0 ? v3 = value->getValue() : v3 = 0.0;
-      value = dynamic_cast<TemplateValue<double>*> (m_individual->getGen(3)->getValue());
-      value != 0 ? v4 = value->getValue() : v4 = 0.0;
+      if (!sTHandle.isArraySet && !sTHandle.isCalculation) {
+        TemplateValue<double>* value = dynamic_cast<TemplateValue<double>*> (m_individual->getGen(0)->getValue());
+        value != 0 ? v1 = value->getValue() : v1 = 0.0;
+        value = dynamic_cast<TemplateValue<double>*> (m_individual->getGen(1)->getValue());
+        value != 0 ? v2 = value->getValue() : v2 = 0.0;
+        value = dynamic_cast<TemplateValue<double>*> (m_individual->getGen(2)->getValue());
+        value != 0 ? v3 = value->getValue() : v3 = 0.0;
+        value = dynamic_cast<TemplateValue<double>*> (m_individual->getGen(3)->getValue());
+        value != 0 ? v4 = value->getValue() : v4 = 0.0;
+      } else {
+        v1 = sTHandle.array[0];
+        v2 = sTHandle.array[1];
+        v3 = sTHandle.array[2];
+        v4 = sTHandle.array[3];
+      }
       // set the matrix values
       init.val(0, 0) = v1;
       init.val(0, 1) = v2;
@@ -324,12 +404,14 @@ class ThisSim : public TaskedSimulation {
       agent->init(controller, vehicle, wiring);
       global.agents.push_back(agent);
 
-      // create measure for the agent
-      // and connect the measure with the fitness strategy
-      std::list<Trackable*> trackableList;
-      trackableList.push_back(vehicle);
-      m_trackableEntropy = new TrackableMeasure(trackableList,
-          ("E Nimm2 of " + m_individual->getName()).c_str(), ENTSLOW, playground->getCornerPointsXY(), X | Y, 18);
+      if (!sTHandle.isArraySet || !sTHandle.isBestAnimation) {
+        // create measure for the agent
+        // and connect the measure with the fitness strategy
+        std::list<Trackable*> trackableList;
+        trackableList.push_back(vehicle);
+        m_trackableEntropy = new TrackableMeasure(trackableList, "E Nimm2", ENTSLOW, playground->getCornerPointsXY(), X | Y, 18);
+      } else
+        m_trackableEntropy = 0;
     }
 
 };
@@ -348,10 +430,73 @@ class ThisSimCreator : public TaskedSimulationCreator {
 };
 
 int main(int argc, char **argv) {
-  int numberIndividuals = 1000;
+  int numberIndividuals = 3800;
+  int countGensIndex = Simulation::contains(argv, argc, "-gene_count");
+  int newArgc = 0;
+  char* newArgv[] = {};
 
-  // by reason of thread synchronisations effects we generate 4 threads per processor
+  // by reason of thread synchronizations effects we generate 4 threads per processor
   SimulationTaskSupervisor::getInstance()->setNumberThreadsPerCore(4);
+
+  if (countGensIndex) {
+    int countGens = atoi(argv[countGensIndex]);
+    double* array = new double[countGens];
+
+    for (int index = 0; index < 4; index++) {
+      //array[index]=atof(argv[countGensIndex+index]);
+      double x = strtod(argv[countGensIndex + index + 1], NULL);
+      array[index] = x;
+    }
+
+    // 1. create your own deduced SimulationTaskHandle
+    ThisSimulationTaskHandle simTaskHandle;
+    // 2. create your ThisSimCreator
+    ThisSimCreator simCreator;
+    // 3. set simTaskHandle and simCreator
+    SimulationTaskSupervisor::setSimTaskHandle(simTaskHandle);
+    SimulationTaskSupervisor::setTaskedSimCreator(simCreator);
+    // 4. add needed data to your simTaskHandle
+    simTaskHandle.numberIndividuals = 1;
+    simTaskHandle.array = array;
+
+    if(Simulation::contains(argv, argc, "-gene_simulate")) {
+      char* newArgv2[] = {"-nographics"};
+      simTaskHandle.isCalculation = true;
+      simTaskHandle.entropies = new double[NUMBER_OF_TESTS_BY_CALCULATE];
+      newArgc = 1;
+      // 5. create the SimulationTasks
+      // just add another task pool and run this ones
+      SimulationTaskSupervisor::getInstance()->createSimTasks(NUMBER_OF_TESTS_BY_CALCULATE);
+      SimulationTaskSupervisor::getInstance()->setSimTaskNameSuffix("GeneSet");
+      SimulationTaskSupervisor::getInstance()->runSimTasks(&newArgc, newArgv2);
+
+      double fit;
+
+      for(int i=0;i<NUMBER_OF_TESTS_BY_CALCULATE;i++) {
+        fit += simTaskHandle.entropies[i];
+        printf("Entropy: %3i ist %lf\n",i+1,simTaskHandle.entropies[i]);
+      }
+
+      fit /= NUMBER_OF_TESTS_BY_CALCULATE;
+
+      printf("\n\nMITTEL:\t%lf\n",fit);
+
+      delete[] simTaskHandle.entropies;
+    }
+    else {
+      simTaskHandle.isArraySet = true;
+      // 5. create the SimulationTasks
+      // just add another task pool and run this ones
+      SimulationTaskSupervisor::getInstance()->createSimTasks(1);
+      SimulationTaskSupervisor::getInstance()->setSimTaskNameSuffix("GeneSet");
+      SimulationTaskSupervisor::getInstance()->runSimTasks(&newArgc, newArgv);
+    }
+
+    delete[] array;
+
+    return 0;
+  }
+
   // ga_tool initialising
   // First we need some variables.
 
@@ -363,7 +508,7 @@ int main(int argc, char **argv) {
   GenPrototype* pro2;
   GenPrototype* pro3;
   GenPrototype* pro4;
-  TemplateCycledGaSimulationFitnessStrategy* fitnessStr; // the fitness strategy
+  TemplateTaskedGaSimulationFitnessStrategy* fitnessStr; // the fitness strategy
   IMutationFactorStrategy* mutFaStr;
   IMutationStrategy* mutStr;
   IRandomStrategy* randomStr;
@@ -385,8 +530,8 @@ int main(int argc, char **argv) {
   // After this we need the fitness strategy.
   // Here we need our own strategy! But our strategy will be higher if the individual are better.
   // So we need a inverted fitness strategy because the genetic algorithm will optimise again zero.
-  // More details on this strategies can be found in the belonging header files.
-  fitnessStr = new TemplateCycledGaSimulationFitnessStrategy();
+  // More details on this strategies can be found in the belonging header files.  // More details on this strategies can be found in the belonging header files.
+  fitnessStr = new TemplateTaskedGaSimulationFitnessStrategy();
   invertedFitnessStr = SingletonGenAlgAPI::getInstance()->createInvertedFitnessStrategy(fitnessStr);
   SingletonGenAlgAPI::getInstance()->setFitnessStrategy(invertedFitnessStr);
 
@@ -435,12 +580,12 @@ int main(int argc, char **argv) {
   // 4. add needed data to your simTaskHandle
   simTaskHandle.fitnessStr = fitnessStr;
 
-
   // 100 generation iterating
   for (int x = 0; x < NUMBER_GENERATION; x++) {
 
     // 4. add needed data to your simTaskHandle
-    std::vector<Individual*>* individualVectorTemp = SingletonGenAlgAPI::getInstance()->getEngine()->getActualGeneration()->getAllUnCalculatedIndividuals();
+    std::vector<Individual*>* individualVectorTemp =
+        SingletonGenAlgAPI::getInstance()->getEngine()->getActualGeneration()->getAllUnCalculatedIndividuals();
     simTaskHandle.individuals = individualVectorTemp;
     simTaskHandle.numberIndividuals = individualVectorTemp->size();
 
@@ -451,11 +596,11 @@ int main(int argc, char **argv) {
     SimulationTaskSupervisor::getInstance()->createSimTasks(individualVectorTemp->size());
     SimulationTaskSupervisor::getInstance()->setSimTaskNameSuffix(buffer);
 
-    printf("Starte %i Threads.\n",(int)individualVectorTemp->size());
+    printf("Starte %i Threads.\n", (int) individualVectorTemp->size());
 
     SimulationTaskSupervisor::getInstance()->runSimTasks(&argc, argv);
 
-//    QMP_BARRIER();
+    //    QMP_BARRIER();
 
     delete individualVectorTemp;
 
@@ -469,7 +614,7 @@ int main(int argc, char **argv) {
     SingletonGenAlgAPI::getInstance()->update();
     SingletonGenAlgAPI::getInstance()->measureStep(x + 1);
 
-    if(x<NUMBER_GENERATION-1) {
+    if (x < NUMBER_GENERATION - 1) {
       SingletonGenAlgAPI::getInstance()->select();
       SingletonGenAlgAPI::getInstance()->crossover(&random);
     }
@@ -486,4 +631,33 @@ int main(int argc, char **argv) {
     fprintf(file, "%s", SingletonGenAlgAPI::getInstance()->getEngine()->getIndividualRoot().c_str());
     fclose(file);
   }
+
+  if (Simulation::contains(argv, argc, "-gene_best")) {
+    // 1. create your own deduced SimulationTaskHandle
+    ThisSimulationTaskHandle simTaskHandle;
+    // 2. create your ThisSimCreator
+    ThisSimCreator simCreator;
+    // 3. set simTaskHandle and simCreator
+    SimulationTaskSupervisor::setSimTaskHandle(simTaskHandle);
+    SimulationTaskSupervisor::setTaskedSimCreator(simCreator);
+    // 4. add needed data to your simTaskHandle
+    simTaskHandle.numberIndividuals = 1;
+    simTaskHandle.individuals = new std::vector<Individual*>();
+    simTaskHandle.individuals->push_back(SingletonGenAlgAPI::getInstance()->getBestIndividual());
+    simTaskHandle.isBestAnimation = true;
+    // 5. create the SimulationTasks
+    // just add another task pool and run this ones
+    SimulationTaskSupervisor::getInstance()->createSimTasks(1);
+    SimulationTaskSupervisor::getInstance()->setSimTaskNameSuffix("GeneSet");
+    SimulationTaskSupervisor::getInstance()->runSimTasks(&newArgc, newArgv);
+
+    delete simTaskHandle.individuals;
+  }
+
+  printf("\n\nRESULT:\t%s\n\n", SingletonGenAlgAPI::getInstance()->getBestIndividual()->IndividualToString().c_str());
+
+  //delete fitnessStr;
+  SingletonGenAlgAPI::destroyAPI(true);
+
+  return 0;
 }
