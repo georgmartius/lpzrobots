@@ -22,11 +22,14 @@
  ***************************************************************************
  *                                                                         *
  *  DESCRIPTION                                                            *
- *  
+ *
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2009-09-17 14:13:09  guettler
+ *  Revision 1.4  2009-10-06 11:50:56  robot12
+ *  some bugfixes
+ *
+ *  Revision 1.3  2009/09/17 14:13:09  guettler
  *  - some bugfixes for critical sections
  *  - support to set number of threads per core
  *
@@ -57,8 +60,6 @@ namespace lpzrobots
    */
   struct SimulationTaskHandle
   {
-      SimulationTaskHandle() : m_this(this) {}
-      SimulationTaskHandle* m_this;
   };
 
 }

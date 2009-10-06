@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2009-09-17 14:13:09  guettler
+ *  Revision 1.4  2009-10-06 11:50:56  robot12
+ *  some bugfixes
+ *
+ *  Revision 1.3  2009/09/17 14:13:09  guettler
  *  - some bugfixes for critical sections
  *  - support to set number of threads per core
  *
@@ -127,7 +130,7 @@ namespace lpzrobots {
        * @param simTaskHandle
        */
       void setSimTaskHandle(SimulationTaskHandle& simTaskHandle) {
-        this->simTaskHandle = simTaskHandle.m_this;
+        this->simTaskHandle = &simTaskHandle;
       }
 
     private:
@@ -192,8 +195,10 @@ namespace lpzrobots {
         return doRestart;
       }
 
-      void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+      virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+        QMP_CRITICAL(63);
         addCallback(globalData, draw, pause, control, *simTaskHandle, taskId);
+        QMP_END_CRITICAL(63);
       }
       ;
 
