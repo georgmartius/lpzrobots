@@ -22,30 +22,27 @@
 #ifndef GUILOGGER_H
 #define GUILOGGER_H
 
-#include <q3mainwindow.h>
-#include <q3popupmenu.h>
+#define VERSIONSTRING "0.6"
+
+#include <qmainwindow.h>
+#include <qmenu.h>
 #include <qstringlist.h>
 #include <qlabel.h>
 #include <qdialog.h>
-#include <q3ptrlist.h>
 #include <qlinkedlist.h>
 #include <qlayout.h>
 #include <qstringlist.h>
 #include <qscrollarea.h>
 //#include <qtimer.h>
-#include <q3ptrqueue.h>
 #include <qmutex.h>
 #include <qmap.h>
-#include <q3valuelist.h>
-#include <q3scrollview.h>
-#include <q3vbox.h>
-#include <q3boxlayout.h>
-#include <q3listbox.h>
+#include <qlist.h>
+#include <qboxlayout.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qslider.h>
-#include <q3listview.h>
-#include <q3textedit.h>
+#include <qtextedit.h>
+#include <QTableView>
 
 #include <list>
 #include "taggedcheckbox.h"
@@ -53,103 +50,113 @@
 //#include <queue.h>
 #include "inifile.h"
 #include "commlineparser.h"
+#include "plotchannelstablemodel.h"
 
 class ChannelRow;
 class ChannelSelectRow;
 class QTimer;
 
-/** \brief Base class for layout and all the visualisation stuff
-  * \author Dominic Schneider
-  */
-class guilogger: public Q3MainWindow
-{
-    Q_OBJECT
+typedef QVector<Gnuplot> PlotWindows;
 
-public:
-    guilogger(const CommLineParser& configobj, const QRect& screenSize);
-    ~guilogger();
-    void setChannels(QStringList &clist);
-    void setChannels(const char &clist);
-    void addChannel(const QString &name, const QString &title="", const QString &style="lines");
-    void putData(const QString &name, double data);
+/** \brief Base class for layout and all the visualisation stuff
+ * \author Dominic Schneider
+ */
+class GuiLogger: public QMainWindow
+{
+  Q_OBJECT
+
+  public:
+  GuiLogger(const CommLineParser& configobj, const QRect& screenSize);
+  ~GuiLogger();
+
+  ChannelData& getChannelData() {return channelData;}
 
 private slots:
-    void taggedCheckBoxToggled(const Tag& tag, int gpwindow, bool on);
-    void taggedComboBoxChanged(const Tag& tag, int gpwindow, const QString& entry);
-    void receiveRawData(QString);
-    void update();
-    void GNUPlotUpdate();
-    void GNUPlotUpdate(bool waitfordata);
-    void save();
-    void save(bool blank);
-    void load();
-    void editconfig();
-    void dataSliderValueChanged(int value);
-    void dataSliderReleased();
-    void horizonSliderValueChanged(int value);
-    void horizonSliderReleased();
-    void sendButtonPressed();
-    void doQuit();
+  // called to notify that the user changed the channels to plot.
+  void plotChannelsChanged(int window);
+
+  void plotUpdate();
+  /** updates plots: 
+      @param waitfordata if true then nothing is done unless new data was seen
+      @param window which window to update. if -1 then all windows.
+   */
+  void plotUpdate(bool waitfordata, int window = -1);
+  void save();
+  void save(bool blank);
+  void load();
+  void editconfig();
+  void dataSliderValueChanged(int value);
+  void dataSliderReleased();
+  void horizonSliderValueChanged(int value);
+  void horizonSliderReleased();
+  void sendButtonPressed();
+  void doQuit();
 
 signals:
-    void quit();
+  void quit();
 
 private:
-    void updateSliderPlot();
-    int  analyzeFile();
+  void updateSliderPlot();
+  int  analyzeFile();
 
 private:
-    typedef QMap<QString, Q3ValueList<int> > ChannelToWindowMap;  // Zuordnung von Channels auf PlotWindows
     
-    Q3PtrList<ChannelRow> ChannelRowPtrList; // für Grafikelemente
-    QLinkedList<QString> inputbuffer;
-    Q3BoxLayout* layout;
-    QWidget* channelandslider;
-    Q3BoxLayout* channelandsliderlayout;
-    Q3BoxLayout* channellayout;
-    Q3BoxLayout* commlayout;
-    Q3BoxLayout* sendlayout;
-    //    Q3ScrollView* sv;
-    QScrollArea* sv;
-    QWidget* channelWidget;
-    QWidget* commWidget; 
-    
-    Q3TextEdit   *parameterlistbox;
-    QLineEdit   *paramvaluelineedit;
-    QPushButton *sendbutton;
-    QSlider     *dataslider;
-    QSlider     *horizonslider;
-    QLabel      *dataslidervalue;
-    QLabel      *horizonslidervalue;
-    
-    Q3PopupMenu  *filemenu;
-    
-    Gnuplot<QString> *gp;
-    std::list<bool*> *buttonArray;
-    bool *gpWindowVisibility;
-    ChannelToWindowMap KnownChannels;  // Channels from the ConfigFile
-    ChannelSelectRow* ref1channels;    // Channels to use for Reference (x axis)
-    QString* ref1channelsnames; // this is only needed for initialisation time
-    Q3ValueList<QString> ChannelList;
-    QMap<int, QSize > windowsize;     // the window sizes from the cfg file are stored here
-    QMap<int, QSize > windowposition; // the window positions from the cfg file are stored here
-    QRect screenSize;                 // size of the screen for window positioning
+  QLinkedList<QString> inputbuffer;
 
-    int plotwindows;
-    int framecounter;  //deprecated
-    int datacounter;
-    int datadelayrate;  // how much data traffic is neccessary to replot
-    int buffersize;
-    QString mode;
-    QString filename;
+  QBoxLayout* layout;
+  QWidget* channelandslider;
+  QBoxLayout* channelandsliderlayout;
+  QBoxLayout* channellayout;
+  QBoxLayout* commlayout;
+  QBoxLayout* sendlayout;
+  //    Q3ScrollView* sv;
+  QScrollArea* sv;
+  QWidget* commWidget; 
+  QTableView* channelWidget;
+  //  QWidget* channelWidget;
     
-    QTimer *timer;
-    QTimer *plottimer;
-    QTimer *filegraphtimer;
+  QTextEdit   *parameterlistbox;
+  QLineEdit   *paramvaluelineedit;
+  QPushButton *sendbutton;
+  QSlider     *dataslider;
+  QSlider     *horizonslider;
+  QLabel      *dataslidervalue;
+  QLabel      *horizonslidervalue;
     
-    QMutex queuemutex;
+  QMenu       *filemenu;
+ 
+  
+  QMap<int, QSize > windowsize;     // the window sizes from the cfg file are stored here
+  QMap<int, QSize > windowposition; // the window positions from the cfg file are stored here
+  QRect screenSize;                 // size of the screen for window positioning
 
-    IniFile cfgFile;
+  int plotwindows;
+  int lastPlotTime;
+  int datadelayrate;  // how much data traffic is neccessary to replot
+  int filePlotHorizon; // 
+
+  QString mode;
+  QString filename;
+    
+  QTimer *plottimer;
+  QTimer *filegraphtimer;
+    
+  QMutex queuemutex;
+
+  IniFile cfgFile;
+
+  /******** Data represenstation *********/
+
+  /// stores data in channels
+  ChannelData channelData;
+  /// for each plotwindow we store here the selected channels and plotstyle
+  QVector<PlotInfo*> plotInfos;
+  /// windows (e.g. gnuplot) to actually show the data
+  PlotWindows plotWindows;
+  
+  // Model
+  PlotChannelsTableModel* tableModel;
+
 };
 
 

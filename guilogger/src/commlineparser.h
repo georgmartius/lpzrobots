@@ -19,89 +19,93 @@
  ***************************************************************************/
 
 /**
-  * \brief Class for parsing parameter values from the command line
-  * \author Dominic Schneider
-  */
+ * \brief Class for parsing parameter values from the command line
+ * \author Dominic Schneider
+ */
 #ifndef COMMLINEPARSER_H
 #define COMMLINEPARSER_H
 
-#include <q3valuelist.h>
+#include <qlist.h>
+#include <qstring.h>
 
 class CommLineParser
 {
-    private:
-        QString mode;    // input streaming mode = serial | pipe | file
-        QString port;    // serial port to read from
-        QString file;    // input file for visualisation 
-        bool    logg;    // Logging on/off
-        bool    help;    // display help or not
-        int     delay;   // delay for pipe
+private:
+  QString mode;    // input streaming mode = serial | pipe | file
+  QString port;    // serial port to read from
+  QString file;    // input file for visualisation 
+  bool    logg;    // Logging on/off
+  bool    help;    // display help or not
+  int     delay;   // delay for pipe
 
-        QMap<QString, QString> paramMap;
-        bool mpparse;
+  QMap<QString, QString> paramMap;
+  bool mpparse;
 
-    public:
+public:
     
-        CommLineParser()
-        {   logg = FALSE;
-            help = FALSE;
-            delay = 100;
-            mpparse = FALSE;
-        }
+  CommLineParser()
+  { 
+    logg = FALSE;
+    help = FALSE;
+    delay = 100;
+    mpparse = FALSE;
+  }
 
 
-        QString getMode() const  {return mode;}
-        void    setMode(const QString& m)  {mode=m;}
-        QString getPort() const  {return port;}
-        QString getFile() const  {return file;}
-        bool    getLogg() const  {return logg;}
-        bool    getHelp() const  {return help;}
-        int     getDelay() const {return delay;}
+  QString getMode() const  {return mode;}
+  void    setMode(const QString& m)  {mode=m;}
+  QString getPort() const  {return port;}
+  QString getFile() const  {return file;}
+  bool    getLogg() const  {return logg;}
+  bool    getHelp() const  {return help;}
+  int     getDelay() const {return delay;}
 
 
-        // implementation for special use (read guilogger command line parameters)
-        void parseCommandLine(int argc, char **argv)
-        {   Q3ValueList<QString> ComLineParams;
-            for(int i=1; i<argc; i++) ComLineParams.push_back(argv[i]);
+  // implementation for special use (read guilogger command line parameters)
+  void parseCommandLine(int argc, char **argv)
+  { 
+    QList<QString> ComLineParams;
+    for(int i=1; i<argc; i++) ComLineParams.push_back(argv[i]);
 
-            Q3ValueList<QString>::iterator it;
-            if((it=ComLineParams.find("-m")) != ComLineParams.end()) mode = *(++it);
-            if((it=ComLineParams.find("-p")) != ComLineParams.end()) port = *(++it);
-            if((it=ComLineParams.find("-f")) != ComLineParams.end()) file = *(++it);
-            if((it=ComLineParams.find("-d")) != ComLineParams.end()) delay = (*(++it)).toInt();
-            if(    ComLineParams.find("-l")  != ComLineParams.end()) logg = TRUE;
-            if(    ComLineParams.find("--help")  != ComLineParams.end()) help = TRUE;
-        }
-
-
-        // more common implementation for general purpose
-        QMap<QString, QString> parseCommandLine2(int argc, char **argv)
-        {   
-            for(int i=1; i<argc; i++) 
-            {
-                if((argv[i][0] == '-') && (argv[i+1] != 0) && (argv[i+1][0] != '-')) 
-                {   paramMap.insert(argv[i], argv[i+1]);
-                i++;
-                }
-                else if(argv[i][0] == '-' && argv[i+1] != 0 && argv[i+1][0] == '-') paramMap.insert(argv[i], "1");
-                else if(argv[i][0] == '-' && argv[i+1] == 0 ) paramMap.insert(argv[i], "1");
-            }
-
-            mpparse = TRUE;
-            return paramMap;
-        }
+    int i=0;
+    if((i = ComLineParams.indexOf("-m")) != -1) mode = ComLineParams[i+1];
+    if((i = ComLineParams.indexOf("-p")) != -1) port = ComLineParams[i+1];
+    if((i = ComLineParams.indexOf("-f")) != -1) file = ComLineParams[i+1];
+    if((i = ComLineParams.indexOf("-d")) != -1) delay = ComLineParams[i+1].toInt();
+    if((i = ComLineParams.indexOf("-l")) != -1) logg = true;
+    if((i = ComLineParams.indexOf("-h")) != -1) help = true;
+    if((i = ComLineParams.indexOf("--help")) != -1) help = true;
+  }
 
 
-        QString getParamValue(QString key)
-        {   if(!mpparse) {printf("getParamValue(): parseCommandLine2 not executed, please call it to use this function.\n"); return "";}
+  // more common implementation for general purpose
+  QMap<QString, QString> parseCommandLine2(int argc, char **argv)
+  {   
+    for(int i=1; i<argc; i++) 
+      {
+	if((argv[i][0] == '-') && (argv[i+1] != 0) && (argv[i+1][0] != '-')) 
+	  {   paramMap.insert(argv[i], argv[i+1]);
+	    i++;
+	  }
+	else if(argv[i][0] == '-' && argv[i+1] != 0 && argv[i+1][0] == '-') paramMap.insert(argv[i], "1");
+	else if(argv[i][0] == '-' && argv[i+1] == 0 ) paramMap.insert(argv[i], "1");
+      }
+
+    mpparse = TRUE;
+    return paramMap;
+  }
+
+
+  QString getParamValue(QString key)
+  {   if(!mpparse) {printf("getParamValue(): parseCommandLine2 not executed, please call it to use this function.\n"); return "";}
         
-        QMap<QString, QString>::iterator it;
+    QMap<QString, QString>::iterator it;
 
-        it = paramMap.find(key);
+    it = paramMap.find(key);
 
-        if(it == paramMap.end()) return "";
-        else return *it;
-        }
+    if(it == paramMap.end()) return "";
+    else return *it;
+  }
 
 };
 #endif

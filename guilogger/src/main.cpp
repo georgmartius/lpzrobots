@@ -87,14 +87,15 @@ int main( int argc, char ** argv ) {
     if(a.desktop()){
       screenRect = a.desktop()->screenGeometry();
     }
-    guilogger *gl = new guilogger(params, screenRect);
+    GuiLogger *gl = new GuiLogger(params, screenRect);
+    ChannelData* cd = &gl->getChannelData();
 
     if(params.getMode()=="serial")    
     {   QSerialReader *qserial = new QSerialReader();
         if(params.getPort() != "") qserial->setComPort(params.getPort());
         printf("Guilogger: Using serial port %s as source.\n", qserial->getComPort().latin1());
         qsource = qserial;
-        a.connect(qsource, SIGNAL(newData(QString)), gl, SLOT(receiveRawData(QString)));
+        a.connect(qsource, SIGNAL(newData(QString)), cd, SLOT(receiveRawData(QString)));
         qsource->start();
     }else if(params.getMode()=="pipe") {  
       QPipeReader *qpipe = new QPipeReader();
@@ -102,7 +103,7 @@ int main( int argc, char ** argv ) {
       //        printf("Using pipe input with delay %i.\n", qpipe->getDelay());
       printf("Guilogger: Using pipe input\n");
       qsource = qpipe;
-      a.connect(qsource, SIGNAL(newData(QString)), gl, SLOT(receiveRawData(QString)));
+      a.connect(qsource, SIGNAL(newData(QString)), cd, SLOT(receiveRawData(QString)));
       qsource->start();
     }else if(params.getMode()=="fpipe") {  
       FILE* f = fopen(params.getFile(),"r");
@@ -110,7 +111,7 @@ int main( int argc, char ** argv ) {
       if(params.getDelay() >= 0) qpipe->setDelay(params.getDelay());
       printf("Guilogger: Using file-pipe input\n");
       qsource = qpipe;
-      a.connect(qsource, SIGNAL(newData(QString)), gl, SLOT(receiveRawData(QString)));
+      a.connect(qsource, SIGNAL(newData(QString)), cd, SLOT(receiveRawData(QString)));
       qsource->start();
     } else if(params.getMode()=="file") 
     {  // printf("Sorry, there are no native segfaults any more.\n");

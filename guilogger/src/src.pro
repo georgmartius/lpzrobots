@@ -3,32 +3,37 @@
 # Unterverzeichnis relativ zum Projektverzeichnis: ./src
 # Das Target ist eine Anwendung:  ../bin/guilogger
 
-HEADERS += guilogger.h \
-           taggedcheckbox.h \
-           taggedcombobox.h \
-           channelrow.h \
-           channelselectrow.h \
+HEADERS += \ 
+           guilogger.h \
+           gnuplot.h \
            filelogger.h \
            qdatasource.h \
            qserialreader.h \
            qpipereader.h \
            inifile.h \
-           commlineparser.h 
-SOURCES += guilogger.cpp \
+           commlineparser.h \
+           stl_adds.h \
+           plotchannelstablemodel.h \
+           plotinfo.h \
+           channeldata.h
+SOURCES += \
+           guilogger.cpp \
            main.cpp \
-           taggedcheckbox.cpp \
-           taggedcombobox.cpp \
-           channelrow.cpp \
-           channelselectrow.cpp \
+           gnuplot.cpp \
            filelogger.cpp \
            qserialreader.cpp \
            qpipereader.cpp \
-           inifile.cpp 
+           inifile.cpp \
+           stl_adds.cpp \
+           plotchannelstablemodel.cpp \
+           plotinfo.cpp \
+           channeldata.cpp
+           
+
 TEMPLATE = app
 CONFIG += debug \
 warn_on \
 thread \
 qt
 TARGET = bin/guilogger
-#The following line was inserted by qt3to4
 QT += qt3support
