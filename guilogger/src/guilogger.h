@@ -24,6 +24,7 @@
 
 #define VERSIONSTRING "0.6"
 
+// this list could be shrinked
 #include <qmainwindow.h>
 #include <qmenu.h>
 #include <qstringlist.h>
@@ -45,7 +46,6 @@
 #include <QTableView>
 
 #include <list>
-#include "taggedcheckbox.h"
 #include "gnuplot.h"
 //#include <queue.h>
 #include "inifile.h"
