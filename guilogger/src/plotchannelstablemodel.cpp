@@ -30,7 +30,7 @@ int PlotChannelsTableModel::rowCount(const QModelIndex&) const {
 
 int PlotChannelsTableModel::columnCount(const QModelIndex& /*parent */) const {
   if(plotInfos)
-    return plotInfos->size();
+    return plotInfos->size()+1; // one additional column for decription
   else
     return 0;
 }
@@ -41,25 +41,45 @@ QVariant PlotChannelsTableModel::data(const QModelIndex &index, int role) const 
   if (!index.isValid() || !plotInfos || plotInfos->size() == 0)
     return QVariant();
   
-  if (index.column() >= plotInfos->size())
+  if (index.column() > plotInfos->size())
     return QVariant();
 
-  if(index.row()==0){
+  const ChannelData& cd = (*plotInfos)[0]->getChannelData();
+  int row = index.row()-rowoffset;
+  if (row >= cd.getNumChannels())
+    return QVariant();
+
+  // description in last column
+  if (index.column() == plotInfos->size()){
+    if(role == Qt::DisplayRole){
+      switch(index.row()){
+      case 0: return "Enable/disable window";
+      case 1: return "Channel to use as x-axis";
+      default:
+	if(row<cd.getInfos().size())
+	  return cd.getInfos()[row].descr;
+	else
+	  return QVariant();
+      }
+    }else 
+      return QVariant();
+  }
+  
+  // any normal column
+  if(index.row()==0){ // enable/disable row
     if(role == Qt::CheckStateRole){
       return (*plotInfos)[index.column()]->getIsVisible() ? Qt::Checked : Qt::Unchecked;
     }else
       return QVariant();
-  }else if(index.row()==1){
+  }else if(index.row()==1){ // reference1 row
     if(role == Qt::DisplayRole){
       return (*plotInfos)[index.column()]->getReference1Name();
     }else
       return QVariant();
   }
-  int row = index.row()-rowoffset;
-  if (row >= (*plotInfos)[0]->getChannelData().getNumChannels())
-    return QVariant();
-  
-  // if (role == Qt::DisplayRole)    
+
+  // also normal row  
+// if (role == Qt::DisplayRole)    
 //     return QVariant((*plotInfos)[index.column()]->getChannelShow(index.row()));
 
   if(role == Qt::CheckStateRole){
@@ -73,9 +93,12 @@ QVariant PlotChannelsTableModel::headerData(int section, Qt::Orientation orienta
   if (role != Qt::DisplayRole)
     return QVariant();
   
-  if (orientation == Qt::Horizontal)
-    return QString("  %1  ").arg(section+1);
-  else {
+  if (orientation == Qt::Horizontal){
+    if(section<plotInfos->size())
+      return QString("  %1  ").arg(section+1);
+    else 
+      return QString("Description");
+  }  else {
     if(section==0){
       return "Enable";
     }else if(section==1){
@@ -90,7 +113,9 @@ QVariant PlotChannelsTableModel::headerData(int section, Qt::Orientation orienta
 Qt::ItemFlags PlotChannelsTableModel::flags(const QModelIndex &index) const {
   if (!index.isValid())
     return Qt::ItemIsEnabled;
-  if(index.row()==0){
+  if(index.column()==plotInfos->size()){ // last column is description
+    return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled;
+  }else if(index.row()==0){
     return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
   }else if(index.row()==1){
     return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsEditable;
@@ -107,7 +132,7 @@ bool PlotChannelsTableModel::setData(const QModelIndex &index, const QVariant &v
 //   }else 
   
   
-  if (!index.isValid()) return false;
+  if (!index.isValid() || index.column()>=plotInfos->size()) return false;
   if(index.row()==0){
     if(role == Qt::CheckStateRole){
       (*plotInfos)[index.column()]->setIsVisible(value.toBool());

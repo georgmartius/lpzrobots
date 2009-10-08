@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Dominic Schneider   *
- *   dominic@isyspc8   *
+ *   Copyright (C) 2009 by Georg Martius and Dominic Schneider   *
+ *   georg.martius@web.de   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,7 +42,6 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
 
   lastPlotTime = 0;
   int linecount = 0;
-  const int startplottimer = 2000;
   const int maxplottimer = 5000;
   filePlotHorizon = 500;    
 
@@ -115,10 +114,10 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
 
   QVBoxLayout *horizonsliderlayout = new QVBoxLayout(horizonsliderwidget);
   horizonslider = new QSlider(Qt::Vertical, horizonsliderwidget);
-  horizonslider->setInvertedAppearance(true);
   horizonslidervalue = new QLabel(horizonsliderwidget);
 
   if(mode == "file") { 
+    horizonslider->setInvertedAppearance(true);
     horizonslider->setMaximum(linecount);
     horizonslider->setValue(filePlotHorizon);
     horizonsliderlayout->addWidget(new QLabel("Win", horizonsliderwidget));
@@ -127,8 +126,8 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
     horizonslider->setMinimum(10);
     horizonslider->setMaximum(maxplottimer);   // MaxTimer für Plottimer
     horizonslider->setValue(startplottimer);       // actual Value for Plottimer
-    horizonsliderlayout->addWidget(new QLabel("Timer", horizonsliderwidget));
-    horizonslidervalue->setText(QString::number(startplottimer, 10));
+    horizonsliderlayout->addWidget(new QLabel("Interval", horizonsliderwidget));
+    horizonslidervalue->setText(QString("%1\nms").arg(startplottimer));
   }
   horizonsliderlayout->addWidget(horizonslider);
   horizonsliderlayout->addWidget(horizonslidervalue);
@@ -174,31 +173,18 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
   filemenu->addAction("&Load Config", this, SLOT(load()));
   filemenu->addAction("&Exit", this, SLOT(doQuit()));
 
-//   ChannelRow* row = new ChannelRow("Disable", plotwindows, channelWidget);    
-//   channellayout->addWidget(row);
-//   connect(row, SIGNAL(sendtaggedCheckBoxToggled(const Tag&, int, bool)),
-//           this,   SLOT(taggedCheckBoxToggled( const Tag&, int, bool)));
-//   ChannelRowPtrList.append(row);
-//   QFrame* sep = new QFrame(commWidget);
-//   sep->setFrameStyle(QFrame::HLine | QFrame::Raised);
-//   channellayout->addWidget(sep);
-    
-//   // Reference
-//   ref1channels = new ChannelSelectRow("Ref", plotwindows, channelWidget);    
-//   ref1channels->addItem("-");
-//   channellayout->addWidget(ref1channels);
-//   connect(ref1channels, SIGNAL(sendtaggedComboBoxChanged(const Tag&, int, const QString&)),
-//           this,   SLOT(taggedComboBoxChanged( const Tag&, int, const QString&)));    
-
   
-  resize( 380, 600 );
-
   plottimer = new QTimer( this);
-  connect(plottimer, SIGNAL(timeout()), SLOT(plotUpdate()));
-  plottimer->setSingleShot(false);
-  plottimer->start(startplottimer);
-
-  filegraphtimer = NULL;
+  if(mode == "file"){
+    resize( 480, 600 );
+    updateSliderPlot();
+  }else{  
+    resize( 400, 600 );
+    connect(plottimer, SIGNAL(timeout()), SLOT(plotUpdate()));
+    plottimer->setSingleShot(false);
+    plottimer->start(startplottimer);
+  }
+  
 }
 
 
@@ -219,9 +205,15 @@ void GuiLogger::dataSliderValueChanged(int value) {
 }
 
 void GuiLogger::horizonSliderValueChanged(int value) {
-  horizonslidervalue->setText(QString::number(value, 10));
+  if(mode=="file"){
+    horizonslidervalue->setText(QString::number(value, 10));
+  } else {
+    horizonslidervalue->setText(QString("%1\nms").arg(value));
+  }
   filePlotHorizon = value;
 }
+
+
 
 void GuiLogger::sendButtonPressed() {
   //   // send command to gnuplot
@@ -345,10 +337,13 @@ void GuiLogger::save(bool blank){
     section=cfgFile.addSection("General");
     section->addValue("Version",VERSIONSTRING, " # do not change!");
     section->addValue("PlotWindows","5");
-    section->addValue("BufferSize","250", " # Size of history");
     section->addValue("CalcPositions","yes"," # If yes then the gnuplot windows will be placed according to the layout");
     section->addValue("WindowLayout","blh"," # From where to start: t: top, b: bottom, l: left, r: right, h: horizontal, v: vertical");
     section->addValue("WindowsPerRowColumn","3");
+    
+    section->addValue("UpdateInterval","2000"," # time between plotting updates in ms");
+    section->addValue("MinData4Replot","1"," # number of input events before updating plots");
+    section->addValue("BufferSize","250", " # Size of history");
   }
   // If we don't have a GNUPlot section then add it.    
   if(!cfgFile.getSection(sec,"GNUPlot",false)){
@@ -365,6 +360,9 @@ void GuiLogger::save(bool blank){
       IniSection *sec = cfgFile.addSection("Window");
       sec->addComment("# you can also set the size and the position of a window. The channels can also contain wildcards like x* or C[0]*");
       sec->addValue("Number", nr);
+      if(!plotInfos[i]->getIsVisible()){
+	sec->addValue("Disabled", "yes");
+      }
       QString ref = channelData.getChannelName(plotInfos[i]->getReference1());
       if(!ref.isEmpty()){
         sec->addValue("Reference1", ref);
@@ -418,7 +416,8 @@ void GuiLogger::load() {
     save(true);// this automatically creates the config (on disk and in memory)
   }
   plotwindows = cfgFile.getValueDef("General","PlotWindows","5").toInt();  
-  datadelayrate = 1;  // per default 1
+  startplottimer = cfgFile.getValueDef("General","UpdateInterval","2000").toInt();  
+  datadelayrate = cfgFile.getValueDef("General","MinData4Replot","1").toInt();  
   
   if(plotInfos.size()<plotwindows){    
     // create plotinfos
@@ -446,6 +445,8 @@ void GuiLogger::load() {
               fprintf(stderr, "we don't have so many windows: %i\n", pwin);
               continue;
             }
+          } else if(var->getName() == "Disabled") {
+            plotInfos[pwin]->setIsVisible(qv.trimmed() != "yes");
           } else if(var->getName() == "Reference1") {
             plotInfos[pwin]->setReference1(qv);
           } else if(var->getName() == "Reference2") {
@@ -559,27 +560,24 @@ void GuiLogger::plotUpdate(bool waitfordata, int window)
   if(!waitfordata || channelData.getTime() - lastPlotTime > datadelayrate){
     // serial version    
     if(window==-1){
-      for(int i=0; i<plotwindows; i++) {
-        plotWindows[i].plot();
-      }
+//       // serial version
+//       for(int i=0; i<plotwindows; i++) {
+//         plotWindows[i].plot();
+//       }
+    // Parallel Version
+      PlotWindows* pw = &plotWindows;
+      QMP_SHARE(pw);
+      QMP_PARALLEL_FOR(i,0,plotwindows){
+	QMP_USE_SHARED(pw, PlotWindows*);
+  	(*pw)[i].plot();
+      }      
+      QMP_END_PARALLEL_FOR;
+
     } else {
       if(window >=0 && window<plotwindows)
         plotWindows[window].plot();
     }
     if(waitfordata) lastPlotTime=channelData.getTime();
 
-//     // Parallel Version(old)
-//     QMP_SHARE(gpWindowVisibility);
-//     QMP_SHARE(gp);
-//     QMP_PARALLEL_FOR(i,0,plotwindows){
-//       //    for(int i=0; i<plotwindows; i++) {
-//       QMP_USE_SHARED(gpWindowVisibility, bool*);
-//       if(gpWindowVisibility[i]){
-//   	QMP_USE_SHARED(gp, Gnuplot<QString>*);
-//   	gp[i].plot();
-//       }
-//     }
-//     QMP_END_PARALLEL_FOR;
-//     datacounter=0;
   }
 }

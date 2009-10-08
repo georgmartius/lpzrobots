@@ -76,11 +76,11 @@ QString Gnuplot::plotCmd(const QString& file, int start, int end){
       if(plotInfo->getUseReference1()){    
         buffer << QString(" u %1:%2 ").arg(plotInfo->getReference1()+1).arg(*i+1);
       }else{
-        // TOdo add reference2!
+        // TODO add reference2!
         buffer << QString(" u %1 ").arg(*i+1);
       }
     }
-    buffer << "t '" << cd.getInfos()[*i].title << "'";        
+    buffer << "t '" << cd.getInfos()[*i].name << "'";        
     if(!plotInfo->getChannelInfos()[*i].style != DEFAULT) 
       buffer << " w " << plotInfo->getChannelInfos()[*i].getStyleString();    
   }
@@ -125,71 +125,3 @@ void Gnuplot::plot(){
   }
   fflush(pipe);
 };    
-
-
-// /** make gnuplot XY plot content of x against y data buffers 
-//     use it as follow:
-//     <pre>
-//     T x[]={a,b,c};
-//     T y[]={x,y,z};
-//     plotXY(x,y,3);
-//       </pre>
-// */
-// void Gnuplot::plotXY(const T *x, const T *y,int size){
-//   fprintf(pipe,"plot ");
-//   bool first=true;
-//   for(int i=0;i < size; ++i){
-//     typename dataset_map::iterator iX = datasets.find(x[i]);
-//     typename dataset_map::iterator iY = datasets.find(y[i]);
-//     // check if both channels exist
-//     if(iX==datasets.end() || iY==datasets.end())
-// 	continue;
-//     if(first) first=false;
-//     else fprintf(pipe,", ");
-//     Dataset* datasetX=iX->second;
-//     Dataset* datasetY=iY->second;
-//       fprintf(pipe,"'-'");    
-//       fprintf(pipe," t '%s'",std::string(datasetX->title + "<->" + datasetY->title).data()); 
-//       if(!datasetY->style.empty()) fprintf(pipe," w %s",datasetY->style.data());    
-//     }
-//   fprintf(pipe,"\n");
-//   for(int i=0;i < size; ++i){
-//     typename dataset_map::iterator iX = datasets.find(x[i]);
-//     typename dataset_map::iterator iY = datasets.find(y[i]);
-//     // check if both channels exist
-//     if(iX==datasets.end() || iY==datasets.end())
-//       continue;
-//     for(int i2=0; i2<buffersize; ++i2)
-//       fprintf(pipe,"%f %f\n",iX->second->getData(i2),iY->second->getData(i2));
-//     fprintf(pipe,"e\n");
-//   }
-//   fflush(pipe);
-// };    
-
-// /** make gnuplot XY plot content of x against y data buffers */
-// void Gnuplot::plotXY(const T& x, const T& y){
-//   plotXY(&x,&y,1);
-// };    
-
-
-//     /** print buffer content to file pointer, usually a pipe */
-//     void plot(FILE* f, int start=0, int end=0){
-//       int _start=current+start;
-//       int _end=current+((end<=0)?buffersize:end);
-//       for(int i=_start;i<_end;++i)
-// 	fprintf(f,"%f\n",buffer[i%buffersize]);
-//     };
-//     /** print buffer content with reference Dataset to file pointer, usually a pipe */
-//     void plotXY(FILE* f, Dataset* ref, int start=0, int end=0){
-//       int _start=current+start;
-//       int _end=current+((end<=0)?buffersize:end);
-//       for(int i=_start;i<_end;++i)
-// 	fprintf(f,"%f %f\n",ref->buffer[i%buffersize],buffer[i%buffersize]);
-//     };
-//     /** get buffer content */
-//     double getData(int i){
-//       return buffer[(i+current)%buffersize];
-//     };
-
-//   };
-

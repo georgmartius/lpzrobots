@@ -16,6 +16,7 @@ HEADERS += \
            plotchannelstablemodel.h \
            plotinfo.h \
            channeldata.h
+
 SOURCES += \
            guilogger.cpp \
            main.cpp \

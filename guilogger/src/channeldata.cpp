@@ -80,7 +80,7 @@ void ChannelData::setChannels(const QStringList& newchannels){
 	channels[i] = preset[*n];
       } else {
 	channels[i].name  = *n;
-	channels[i].title = *n; // use name as title	
+	channels[i].descr = ""; // TODO load descr
 	channels[i].type  = AutoDetection;   
       }
       if(channels[i].type == AutoDetection){

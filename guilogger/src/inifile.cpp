@@ -3,7 +3,7 @@
                              -------------------
     begin                : Tue Oct 3 2000
     copyright            : (C) 2000 by Georg Martius
-    email                : georg.martius@mediennetzwerk.de
+    email                : georg.martius@web.de
  ***************************************************************************/
 
 /***************************************************************************

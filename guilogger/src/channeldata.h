@@ -37,12 +37,12 @@ typedef struct _MultiChannel{
 } MultiChannel;
 
 typedef QString ChannelName;
-typedef QString ChannelTitle;
+typedef QString ChannelDescr;
 
 typedef enum ChannelType { AutoDetection, Single, VectorElement, MatrixElement };
 typedef struct _ChannelInfo{
   ChannelName  name;
-  ChannelTitle title;
+  ChannelDescr descr;
   ChannelType  type;
 } ChannelInfo;
 

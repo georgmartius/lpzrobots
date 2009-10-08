@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Dominic Schneider   *
- *   dominic@isyspc8   *
+ *   Copyright (C) 2009 by Georg Martius and Dominic Schneider   *
+ *   georg.martius@web.de   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -139,8 +139,8 @@ private:
   QString filename;
     
   QTimer *plottimer;
-  QTimer *filegraphtimer;
-    
+  int startplottimer;
+
   QMutex queuemutex;
 
   IniFile cfgFile;
