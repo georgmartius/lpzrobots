@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2009-09-18 15:07:18  martius
+ *   Revision 1.21  2009-10-09 17:18:03  martius
+ *   removed orientationsensors for now to enable configurable and inspectable
+ *
+ *   Revision 1.20  2009/09/18 15:07:18  martius
  *   forward force
  *
  *   Revision 1.19  2009/09/17 09:10:53  martius
@@ -442,10 +445,11 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
      OdeHandle skelHandle=odeHandle;//BODY
      // skelHandle.substance.toMetal(1);
      //  skelHandle.substance.toPlastic(40);//TEST sonst 40
-      skelHandle.substance.toRubber(10);//TEST sonst 40
-     Skeleton* human0 = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
-     AddSensors2RobotAdapter* human = 
-       new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
+     skelHandle.substance.toRubber(10);//TEST sonst 40
+     Skeleton* human0 = new Skeleton(skelHandle, osgHandle,conf, "Humanoid"); 
+//      AddSensors2RobotAdapter* human = 
+//        new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
+     OdeRobot* human=human0;
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
 		  *osg::Matrix::translate(.02*i+19.9,.08*i+19.9,1.0/*7*/ +2.5*i));
