@@ -52,7 +52,7 @@ void ChannelData::setChannelInfo(const ChannelInfo& info){
     int index = getChannelIndex(info.name);
     if(index>=0 && index<channels.size())
       channels[index]=info;
-    else // if not in known channels then add it to the preset info (not valuable at the moment)
+    else // if not in known channels then add it to the preset info
       preset[info.name]=info;
   }  
 }
@@ -80,7 +80,7 @@ void ChannelData::setChannels(const QStringList& newchannels){
 	channels[i] = preset[*n];
       } else {
 	channels[i].name  = *n;
-	channels[i].descr = ""; // TODO load descr
+	channels[i].descr = "";
 	channels[i].type  = AutoDetection;   
       }
       if(channels[i].type == AutoDetection){
@@ -124,6 +124,29 @@ const ChannelName& ChannelData::getChannelName(int index) const {
     return emptyChannelName;
   }
   
+}
+
+
+void ChannelData::setChannelDescription(const ChannelName& name, const ChannelDescr& description){
+  if(initialized){
+    int index = getChannelIndex(name);
+    if(index>=0 && index < numchannels)
+      channels[index].descr = description;      
+    else {
+      if(!preset.contains(name)){
+        preset[name].name  = name;
+        preset[name].type  = AutoDetection;
+      }
+      preset[name].descr = description;    
+    }
+  }else{
+    // store in preset information
+    if(!preset.contains(name)){
+      preset[name].name  = name;
+      preset[name].type  = AutoDetection;
+    }
+    preset[name].descr = description;
+  }
 }
 
 
@@ -204,6 +227,18 @@ void ChannelData::receiveRawData(QString data){
 	channels.push_back((*s).stripWhiteSpace());
       }
       setChannels(channels);
+    }
+  else if(first == "#I")   // Info Lines
+    {
+      parsedString.erase(parsedString.begin());
+      QString type = *(parsedString.begin());
+      if(!type.isEmpty() && type == "D"){ // description 
+        // now we expect: channelname description
+        parsedString.erase(parsedString.begin());
+        QString key = *(parsedString.begin());
+        parsedString.erase(parsedString.begin());
+        setChannelDescription(key, parsedString.join(" "));        
+      }            
     }
   else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
     {

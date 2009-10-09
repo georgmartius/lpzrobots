@@ -76,6 +76,9 @@ public:
   /// returns the name of the channel with the given index (empty string for out of bounds)
   const ChannelName& getChannelName(int index) const;
 
+  /// sets the desription of a channel (can be used before initialization)
+  void setChannelDescription(const ChannelName& name, const ChannelDescr& description);
+
   /// inserts a new set of data into the ring buffer
   void setData(const QVector<double>& data); 
 
@@ -126,9 +129,8 @@ private:
   
   int buffersize; ///< size of ringbuffer
 
-  /// map to store preset information
-  QHash<QString, ChannelInfo> preset;
-
+  /// map to store preset information and information about virtual channels (e.g. names of matrices as a whole)
+  QHash<ChannelName, ChannelInfo> preset;
   
   int time; ///< index for ringbuffer
   bool initialized;
