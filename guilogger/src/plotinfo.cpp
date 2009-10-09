@@ -22,8 +22,8 @@
 #include "stl_adds.h"
 
 PlotInfo::PlotInfo(const ChannelData& cd)
-  : channelData(cd), reference1(-1), reference2(-1),
-    initialized(false), isVisisble(true) {
+  : channelData(cd), isVisisble(true), reference1(-1), reference2(-1),
+    initialized(false) {
   
 }
 

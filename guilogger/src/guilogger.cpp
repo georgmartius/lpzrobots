@@ -38,6 +38,9 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
   mode     = configobj.getMode();
   filename = configobj.getFile();
 
+  connect(&channelData, SIGNAL(quit()), this, SLOT(doQuit()));
+
+
   load();  // load Config File
 
   lastPlotTime = 0;
@@ -527,7 +530,7 @@ void GuiLogger::load() {
   }
 
   channelData.setBufferSize(cfgFile.getValueDef("General","BufferSize","250").toInt());  
-  printf("Config file loaded.\n");
+  printf("Guilogger: Config file loaded.\n");
 }
 
 
