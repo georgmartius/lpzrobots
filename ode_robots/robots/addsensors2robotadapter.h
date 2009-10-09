@@ -23,7 +23,11 @@
  *    without modifiing them.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-05-07 16:45:51  martius
+ *   Revision 1.4  2009-10-09 17:17:19  martius
+ *   This does not work with configurables and inspectable robots
+ *   comments added.
+ *
+ *   Revision 1.3  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.2  2007/11/07 13:20:25  martius
@@ -45,7 +49,9 @@ namespace lpzrobots {
 
   /** Robot adapter to add sensors and also motors to robots without the
       need to modify the robot itself. 
-      Examples are Speed sensors, microphons and beepers and so forth      
+      Examples are Speed sensors, microphons and beepers and so forth            
+      // TODO: add inspectable, make configurable work!
+      // Maybe it is easier to add this into OdeRobot itself!
   */
   class AddSensors2RobotAdapter : public OdeRobot {
   public:
