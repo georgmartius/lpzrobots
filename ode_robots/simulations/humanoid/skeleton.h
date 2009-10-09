@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-08-10 14:59:19  der
+ *   Revision 1.14  2009-10-09 17:13:35  martius
+ *   inherits from inspectable
+ *
+ *   Revision 1.13  2009/08/10 14:59:19  der
  *   copy of local controller version.
  *   new skeleton from bambi
  *
@@ -77,6 +80,7 @@
 
 #include <ode_robots/oderobot.h>
 #include <ode_robots/raysensorbank.h>
+#include <selforg/inspectable.h>
 
 namespace lpzrobots {
 
@@ -160,7 +164,7 @@ namespace lpzrobots {
 
   /** should look like a dog
    */
-  class Skeleton : public OdeRobot {
+  class Skeleton : public OdeRobot, public Inspectable {
   public:
 
     typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Thorax, Neck, Head_comp, 
