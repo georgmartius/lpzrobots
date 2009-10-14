@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-05 22:32:21  martius
+ *   Revision 1.2  2009-10-14 09:59:46  martius
+ *   added description of vectors
+ *
+ *   Revision 1.1  2009/08/05 22:32:21  martius
  *   big change:
  *       abstractwiring is responsable for providing sensors and motors
  *        and noise to the inspectable interface.
@@ -50,12 +53,12 @@ bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
   mCsensors.set(csensornumber,1);
   mCmotors.set(cmotornumber,1);
   if(plotMode & Controller) {
-    addInspectableMatrix("x", &mCsensors);
-    addInspectableMatrix("y", &mCmotors);
+    addInspectableMatrix("x", &mCsensors, false, "sensor values (after wiring)");
+    addInspectableMatrix("y", &mCmotors,  false, "motor values (before wiring)");
   }
   if(plotMode & Robot) {
-    addInspectableMatrix("x_R",&mRsensors);
-    addInspectableMatrix("y_R",&mRmotors);
+    addInspectableMatrix("x_R",&mRsensors, false, "sensor values (before wiring)");
+    addInspectableMatrix("y_R",&mRmotors,  false, "motor values (after wiring)");
   }
   initialised = true;
   return rv;
