@@ -24,64 +24,22 @@
  *                                                                         *
  *   Visualization tool for matrices...                                    *
  *                                                                         *
- *   $Log$
- *   Revision 1.3  2009-10-14 12:22:31  robot14
- *   *** empty log message ***
- *
- *   Revision 1.2  2009/10/02 15:25:40  robot14
- *   filters, main app - not finished yet
- *
- *   Revision 1.1  2009/08/13 13:14:05  robot14
- *   first version
- *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __MATRIXVISUALIZER_H_
-#define __MATRIXVISUALIZER_H_
-
-#include "AbstractRobotGUI.h"
-
-#include "MatrixPipeFilter.h"
-#include "SimplePipeReader.h"
 
 
-#include "MatrixElementPlotChannel.h"
-#include "MatrixPlotChannel.h"
-#include <list>
-#include <vector>
+AbstractVisualisation::AbstractVisualisation(MatrixPlotChannel *channel, QWidget *parent = 0){
 
-class MatrixVisualizer: public AbstractRobotGUI
-{
-  Q_OBJECT
+  this->channel = channel;
+  QVBoxLayout *mainLayout = new QVBoxLayout();
 
-
-public:
-	MatrixVisualizer(QWidget *parent = 0);
-	virtual ~MatrixVisualizer();
+  QLabel label = new QLabel("Test");
+  mainLayout->addWidget(label);
+  setLayout(mainLayout);
+  resize(200,200);
+}
+AbstractVisualisation::~AbstractVisualisation(){}
 
 
-private:
-	MatrixPipeFilter* matrix_filter;
-	std::list<AbstractPlotChannel*> channelList;
-	std::vector<MatrixPlotChannel*> matrices;
-	QButtonGroup *visButtons;
-	// QButtonGroup::buttonClicked() emits for each button...
-	int help;
-
-	QVBoxLayout* main_layout;
-	QComboBox *matChoice;
-	QComboBox *vizChoice;
-
-	QHBoxLayout* makeButtons();
-
-	void initGui();
-	void linkChannels();
-
-
-private slots:
-  void visualize(QAbstractButton * button);
-
-};
-
-#endif /* __MATRIXVISUALIZER_H_ */
+void AbstractVisualisation::update(){}

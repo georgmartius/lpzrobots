@@ -24,64 +24,43 @@
  *                                                                         *
  *   Visualization tool for matrices...                                    *
  *                                                                         *
- *   $Log$
- *   Revision 1.3  2009-10-14 12:22:31  robot14
- *   *** empty log message ***
- *
- *   Revision 1.2  2009/10/02 15:25:40  robot14
- *   filters, main app - not finished yet
- *
- *   Revision 1.1  2009/08/13 13:14:05  robot14
- *   first version
- *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __MATRIXVISUALIZER_H_
-#define __MATRIXVISUALIZER_H_
-
-#include "AbstractRobotGUI.h"
-
-#include "MatrixPipeFilter.h"
-#include "SimplePipeReader.h"
+#ifndef __ABSTRACTVISUALISATION_H_
+#define __ABSTRACTVISUALISATION_H_
 
 
-#include "MatrixElementPlotChannel.h"
+#include <QtGui>
+
+class AbstractPlotChannel;
+
 #include "MatrixPlotChannel.h"
-#include <list>
-#include <vector>
 
-class MatrixVisualizer: public AbstractRobotGUI
-{
-  Q_OBJECT
+#include <iostream>
 
+
+class AbstractVisualisation: public QWidget {
+
+Q_OBJECT
 
 public:
-	MatrixVisualizer(QWidget *parent = 0);
-	virtual ~MatrixVisualizer();
+  AbstractVisualisation(MatrixPlotChannel *channel, QWidget *parent = 0);
+  virtual ~AbstractVisualisation();
 
+
+public slots:
+  virtual void update();
+
+protected:
+
+  MatrixPlotChannel *channel;
 
 private:
-	MatrixPipeFilter* matrix_filter;
-	std::list<AbstractPlotChannel*> channelList;
-	std::vector<MatrixPlotChannel*> matrices;
-	QButtonGroup *visButtons;
-	// QButtonGroup::buttonClicked() emits for each button...
-	int help;
-
-	QVBoxLayout* main_layout;
-	QComboBox *matChoice;
-	QComboBox *vizChoice;
-
-	QHBoxLayout* makeButtons();
-
-	void initGui();
-	void linkChannels();
 
 
-private slots:
-  void visualize(QAbstractButton * button);
 
 };
 
-#endif /* __MATRIXVISUALIZER_H_ */
+
+#endif /* __ABSTRACTVISUALISATION_H_ */

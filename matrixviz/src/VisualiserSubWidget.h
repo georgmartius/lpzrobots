@@ -24,64 +24,45 @@
  *                                                                         *
  *   Visualization tool for matrices...                                    *
  *                                                                         *
- *   $Log$
- *   Revision 1.3  2009-10-14 12:22:31  robot14
- *   *** empty log message ***
- *
- *   Revision 1.2  2009/10/02 15:25:40  robot14
- *   filters, main app - not finished yet
- *
- *   Revision 1.1  2009/08/13 13:14:05  robot14
- *   first version
- *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __MATRIXVISUALIZER_H_
-#define __MATRIXVISUALIZER_H_
+#ifndef __VISUALISATIONSUBWIDGET_H_
+#define __VISUALISATIONSUBWIDGET_H_
 
-#include "AbstractRobotGUI.h"
+#include <QtGui>
 
-#include "MatrixPipeFilter.h"
-#include "SimplePipeReader.h"
+//class AbstractPlotChannel;
 
-
-#include "MatrixElementPlotChannel.h"
 #include "MatrixPlotChannel.h"
-#include <list>
-#include <vector>
+#include "AbstractVisualisation.h"
 
-class MatrixVisualizer: public AbstractRobotGUI
-{
-  Q_OBJECT
+#include <iostream>
 
+
+class VisualiserSubWidget: public QWidget {
+
+Q_OBJECT
 
 public:
-	MatrixVisualizer(QWidget *parent = 0);
-	virtual ~MatrixVisualizer();
+  VisualiserSubWidget(MatrixPlotChannel *channel, QWidget *parent = 0);
+  virtual ~VisualiserSubWidget();
 
+
+public slots:
+  void update();
+
+protected:
+
+  QComboBox *vizChoice;
 
 private:
-	MatrixPipeFilter* matrix_filter;
-	std::list<AbstractPlotChannel*> channelList;
-	std::vector<MatrixPlotChannel*> matrices;
-	QButtonGroup *visButtons;
-	// QButtonGroup::buttonClicked() emits for each button...
-	int help;
+  AbstractVisualisation visualisation;
+  MatrixPlotChannel *channel;
 
-	QVBoxLayout* main_layout;
-	QComboBox *matChoice;
-	QComboBox *vizChoice;
-
-	QHBoxLayout* makeButtons();
-
-	void initGui();
-	void linkChannels();
-
-
-private slots:
-  void visualize(QAbstractButton * button);
+  void initGui();
+  void initVisTypes();
 
 };
 
-#endif /* __MATRIXVISUALIZER_H_ */
+#endif /* __VISUALISATIONSUBWIDGET_H_ */

@@ -24,64 +24,41 @@
  *                                                                         *
  *   Visualization tool for matrices...                                    *
  *                                                                         *
- *   $Log$
- *   Revision 1.3  2009-10-14 12:22:31  robot14
- *   *** empty log message ***
- *
- *   Revision 1.2  2009/10/02 15:25:40  robot14
- *   filters, main app - not finished yet
- *
- *   Revision 1.1  2009/08/13 13:14:05  robot14
- *   first version
- *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __MATRIXVISUALIZER_H_
-#define __MATRIXVISUALIZER_H_
+#include "VisualiserSubWidget.h"
 
-#include "AbstractRobotGUI.h"
+VisualiserSubWidget::VisualiserSubWidget(MatrixPlotChannel *channel, QWidget *parent)
+: QWidget(parent) {
+  this->channel = channel;
+  this->visualisation = new AbstractVisualisation(channel); //default visualisation
+  initGui();
+}
 
-#include "MatrixPipeFilter.h"
-#include "SimplePipeReader.h"
+VisualiserSubWidget::~VisualiserSubWidget() {}
 
+void VisualiserSubWidget::initGui(){
+  QVBoxLayout *mainLayout = new QVBoxLayout();
+  vizChoice = new QComboBox();
 
-#include "MatrixElementPlotChannel.h"
-#include "MatrixPlotChannel.h"
-#include <list>
-#include <vector>
+  initVisTypes();
 
-class MatrixVisualizer: public AbstractRobotGUI
-{
-  Q_OBJECT
-
-
-public:
-	MatrixVisualizer(QWidget *parent = 0);
-	virtual ~MatrixVisualizer();
+  mainLayout->addWidget(vizChoice);
+  mainLayout->addWidget(visualisation);
 
 
-private:
-	MatrixPipeFilter* matrix_filter;
-	std::list<AbstractPlotChannel*> channelList;
-	std::vector<MatrixPlotChannel*> matrices;
-	QButtonGroup *visButtons;
-	// QButtonGroup::buttonClicked() emits for each button...
-	int help;
+  setLayout(mainLayout);
+  resize(300,300);
+}
 
-	QVBoxLayout* main_layout;
-	QComboBox *matChoice;
-	QComboBox *vizChoice;
+void VisualiserSubWidget::update(){
 
-	QHBoxLayout* makeButtons();
+}
 
-	void initGui();
-	void linkChannels();
+void VisualiserSubWidget::initVisTypes(){
+  //init vis types TODO
+  vizChoice->addItem("Test");
+  //connect
+}
 
-
-private slots:
-  void visualize(QAbstractButton * button);
-
-};
-
-#endif /* __MATRIXVISUALIZER_H_ */
