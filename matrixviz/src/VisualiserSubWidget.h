@@ -57,7 +57,7 @@ protected:
   QComboBox *vizChoice;
 
 private:
-  AbstractVisualisation visualisation;
+  AbstractVisualisation* visualisation;
   MatrixPlotChannel *channel;
 
   void initGui();

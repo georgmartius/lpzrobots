@@ -9,7 +9,7 @@
 #include "AbstractPlotChannel.h"
 #include "TimeStampPlotChannel.h"
 
-#include "../../ecb_robots/sensortypes.h"
+#include "sensortypes.h"
 
 // class AbstractPipeReader;
 // class AbstractPlotChannel;
