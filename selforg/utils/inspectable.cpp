@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-10 07:37:48  guettler
+ *   Revision 1.12  2009-10-14 09:58:42  martius
+ *   added support for description strings that are exported using the infolines
+ *
+ *   Revision 1.11  2009/08/10 07:37:48  guettler
  *   -Inspectable interface now supports to add infoLines itself.
  *    These lines are then outprinted line by line to the PlotOption once,
  *    preceded by a #I.
@@ -126,13 +129,24 @@ Inspectable::iconnectionlist Inspectable::getStructuralConnections() const {
   return std::list<IConnection>();
 }
 
-void Inspectable::addInspectableValue(const iparamkey key, iparamval* val) {
+void Inspectable::addInspectableValue(const iparamkey& key, iparamval* val, 
+                                      const std::string& descr) {
   mapOfValues+=iparampair(key,val);
+  if(!descr.empty())
+    addInspectableDescription(key, descr);
 }
 
-void Inspectable::addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag) {
+void Inspectable::addInspectableMatrix(const iparamkey& key, matrix::Matrix* m, 
+                                       bool only4x4AndDiag, const std::string& descr) {
   mapOfMatrices+=imatrixpair(key, std::pair<matrix::Matrix*, bool>(m, only4x4AndDiag) );
+  if(!descr.empty())
+    addInspectableDescription(key+"_", descr);
 }
+
+void Inspectable::addInspectableDescription(const iparamkey& key, const std::string& descr){
+  addInfoLine("D " + key + " " + descr);
+}
+
 
 void Inspectable::addInfoLine(std::string infoLine)
 {
@@ -148,7 +162,7 @@ void Inspectable::addInfoLines(std::list<std::string> infoLineList)
   }
 }
 
-std::list<std::string> Inspectable::getInfoLines() const
+const std::list<std::string>& Inspectable::getInfoLines() const
 {
   return infoLineStringList;
 }

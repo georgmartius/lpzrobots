@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-08-10 07:37:48  guettler
+ *   Revision 1.8  2009-10-14 09:58:29  martius
+ *   added support for description strings that are exported using the infolines
+ *
+ *   Revision 1.7  2009/08/10 07:37:48  guettler
  *   -Inspectable interface now supports to add infoLines itself.
  *    These lines are then outprinted line by line to the PlotOption once,
  *    preceded by a #I.
@@ -107,20 +110,21 @@ namespace matrix {
 class Inspectable {
 public:
 
-  /// TYPEDEFS BEGIN
+  // TYPEDEFS BEGIN
 
   typedef std::string iparamkey;
   typedef double iparamval;
   typedef std::pair<iparamkey,iparamval*> iparampair;
-  typedef std::pair<iparamkey,std::pair< matrix::Matrix*, bool > > imatrixpair; // the bool says whether 
-                                                                           // only 4x4AndDiag is used
+
+  // the bool says whether  only 4x4AndDiag is used
+  typedef std::pair<iparamkey,std::pair< matrix::Matrix*, bool > > imatrixpair; 
   typedef std::list<iparamkey> iparamkeylist;
   typedef std::list<iparamval> iparamvallist;
   typedef std::list<iparamval*> iparamvalptrlist;
   typedef std::list<iparampair> iparampairlist;
   typedef std::list<imatrixpair> imatrixpairlist;
 
-
+  // the network stucture export will be discontinued soon
   typedef struct ILayer{
     ILayer(const std::string& vectorname, const std::string& biasname,
 	   int dimension, int rank, const std::string& layername)
@@ -174,12 +178,12 @@ public:
    */
   virtual iparamvallist getInternalParams() const;
 
+  // should be protected, but it does not work
   /**
-   * be carefully matrix will be ignored
+   * be careful: matrices will be ignored
    * @return list of values (pointer)
    */
   virtual iparamvalptrlist getInternalParamsPtr() const;
-
 
   /** Specifies which parameter vector forms a structural layer (in terms of a neural network)
       The ordering is important. The first entry is the input layer and so on.
@@ -200,10 +204,12 @@ public:
    * This is the new style for adding inspectable values. Just call this
    * function for each parameter and you are done.
    * registers a single value
-   * @param key the name of the inspectable, shown e.g. in guilogger
+   * @param key the name of the inspectable, shown e.g. in guilogger (no spaces allowed)
    * @param val the address of the value to inspect
+   * @param descr description string to be exported (using infolines)
    */
-  virtual void addInspectableValue(const iparamkey key, iparamval* val);
+  virtual void addInspectableValue(const iparamkey& key, iparamval* val, 
+                                   const std::string& descr = std::string());
 
 
   /**
@@ -213,13 +219,27 @@ public:
    * For Matrixes Either all or only the values given by
    * store4x4AndDiagonalFieldNames(Matrix& m,string& matrixName);
    * are used.
-   * @param key the name of the matrix, shown e.g. in guilogger
+   * @param key the name of the matrix, shown e.g. in guilogger (no spaces allowed)
    * @param m the address of the matrix to inspect
    * @param only4x4AndDiag of true only 4x4 matrix plus the diagonal is used 
+   * @param descr description string to be exported 
+   *              (for the entire matrix with key_) (using infolines)
    * @note that you can change the structure of the matrix while
-   * being inspected.
+   * being inspected, but no after the getInternalParameterNames is called!
    */
-  virtual void addInspectableMatrix(const iparamkey key, matrix::Matrix* m, bool only4x4AndDiag=true);
+  virtual void addInspectableMatrix(const iparamkey& key, matrix::Matrix* m, 
+                                    bool only4x4AndDiag=true, 
+                                    const std::string& descr = std::string());
+
+  /** 
+   * adds a description for the given parameter using info-lines
+   * The line will start (appart from the #I) with a D for description
+   * followed by the key end then followed by the string.
+   * @param key parameter name (no spaces allowed)
+   * @param descr descriptive string (no newlines allowed)
+   */
+  virtual void addInspectableDescription(const iparamkey& key, const std::string& descr);
+
 
   /**
    * Adds an info line to this inspectable instance. All infolines are plotted
@@ -254,7 +274,7 @@ public:
    * This function is called by the PlotOptionEngine.
    * @return all added infolines.
    */
-  virtual std::list<std::string> getInfoLines() const;
+  virtual const std::list<std::string>& getInfoLines() const;
 
 protected:
   iparampairlist mapOfValues;
