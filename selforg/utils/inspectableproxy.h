@@ -30,7 +30,10 @@
  *   class.                                                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-08-05 13:22:21  robot12
+ *   Revision 1.4  2009-10-14 10:01:53  martius
+ *   comments corrected
+ *
+ *   Revision 1.3  2009/08/05 13:22:21  robot12
  *   add one clean up, the function replaceList now modified the old list and don't delete all and make it new
  *
  *   Revision 1.2  2009/07/21 08:47:33  robot12
@@ -50,13 +53,15 @@
 #include "inspectable.h"
 
 /**
- * This class is a proxy for the inspectable class. It "divide" the inspectable interface  from the inspected object
+ * This class is a proxy for the inspectable class. It "divides" the inspectable interface  from the inspected object
  */
 class InspectableProxy : public Inspectable {
 public:
 	/**
 	 * constructor
-	 * Take a list of Inspectables for which the proxy stand.
+	 * Takes a list of Inspectables for which the proxy stands.
+         * Attention: The inspectables must have registered
+         * all their variables already!
 	 * @param list (list<Inspectable*>&) the list
 	 */
 	InspectableProxy(const std::list<Inspectable*>& list);
