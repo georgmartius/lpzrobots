@@ -28,7 +28,10 @@
  *   individual dosn't comes in the next generation.                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-08-11 12:57:39  robot12
+ *   Revision 1.9  2009-10-19 13:15:37  robot12
+ *   bugfix in the kill loop
+ *
+ *   Revision 1.8  2009/08/11 12:57:39  robot12
  *   change the genetic algorithm (first crossover, second select)
  *
  *   Revision 1.7  2009/07/21 08:37:59  robot12
@@ -102,7 +105,7 @@ void TournamentSelectStrategy::select(Generation* oldGeneration, Generation* new
 		storage.push_back(oldGeneration->getIndividual(y));
 	}
 
-	for(int x=0; x<kill && x<num; x++) {				//select two individual for the test
+	for(int x=0; x<kill; x++) {				//select two individual for the test
 		r1 = ((int)(m_random->rand()*1000000.0f)) % num;		//2 random indices for the individual list
 		r2 = r1;
 		while(r2==r1) {
