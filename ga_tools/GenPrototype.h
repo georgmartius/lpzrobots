@@ -31,7 +31,10 @@
  *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-21 08:37:58  robot12
+ *   Revision 1.5  2009-10-21 14:08:07  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.4  2009/07/21 08:37:58  robot12
  *   add some comments
  *
  *   Revision 1.3  2009/05/14 15:29:56  robot12
@@ -72,6 +75,7 @@ class Gen;
 // gen. alg. includes
 #include "IRandomStrategy.h"
 #include "IMutationStrategy.h"
+#include "restore.h"
 
 /**
  * The GenPrototype class.
@@ -152,6 +156,14 @@ public:
 	 * @return (int) The mutation probability. Maybe the Typ int will be changed.
 	 */
 	int getMutationProbability(void)const;
+
+	/**
+	 * restore gene and the value
+	 * @param f (FILE*) here is the value inside
+	 * @param gene (RESTORE_GA_GENE*) this gene is to restore
+	 * @return (bool) true if all ok
+	 */
+	bool restoreGene(FILE* f, RESTORE_GA_GENE* gene);
 
 protected:
 	/**

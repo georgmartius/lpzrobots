@@ -33,7 +33,10 @@
  *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-21 08:37:59  robot12
+ *   Revision 1.8  2009-10-21 14:08:06  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.7  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.6  2009/05/12 13:29:25  robot12
@@ -147,6 +150,13 @@ public:
 	 *  @return (string) The Gen in string - Form
 	 */
 	std::string toString(bool onlyValue = true)const;
+
+	/**
+	 * store the gene in a file
+	 * @param f (FILE*) the file to store
+	 * @return (bool) true if all ok
+	 */
+	bool store(FILE* f)const;
 
 protected:
 	/**

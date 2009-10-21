@@ -33,7 +33,10 @@
  *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-21 08:37:59  robot12
+ *   Revision 1.8  2009-10-21 14:08:06  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.7  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.6  2009/05/12 13:29:25  robot12
@@ -54,6 +57,7 @@
  ***************************************************************************/
 
 #include "Gen.h"
+#include "restore.h"
 
 Gen::Gen(void) {
 	// nothing
@@ -92,4 +96,24 @@ std::string Gen::toString(bool onlyValue)const {
 	result += (std::string)(*m_value);
 
 	return result;
+}
+
+bool Gen::store(FILE* f)const {
+  RESTORE_GA_GENE head;
+
+  //test
+  if(f==NULL) {
+    printf("\n\n\t>>> [ERROR] <<<\nNo File to store GA [gene].\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+
+  head.ID = m_ID;
+
+  fprintf(f,"%s\n",m_prototype->getName().c_str());
+
+  for(unsigned int x=0;x<sizeof(RESTORE_GA_GENE);x++) {
+    fprintf(f,"%c",head.buffer[x]);
+  }
+
+  return m_value->store(f);
 }

@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-11 12:57:38  robot12
+ *   Revision 1.11  2009-10-21 14:08:06  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.10  2009/08/11 12:57:38  robot12
  *   change the genetic algorithm (first crossover, second select)
  *
  *   Revision 1.9  2009/07/28 13:20:40  robot12
@@ -110,7 +113,7 @@ class PlotOption;
  *
  * Over this is the class as singleton concepted. Only one API for a run.
  */
-class SingletonGenAlgAPI {
+class SingletonGenAlgAPI{
 public:
 	// Action
 	/**
@@ -161,7 +164,7 @@ public:
 	 */
 	void enableMeasure(std::list<PlotOption>& plotOptions);
 	/**
-	 * enables data measure.
+	 * enables da : public Storableta measure.
 	 * @param plotOption (PlotOption&) the plot option
 	 */
 	void enableMeasure(PlotOption& plotOption);
@@ -320,6 +323,15 @@ public:
 	 * @return (IValue*) the new object
 	 */
 	IValue* createDoubleValue(double value)const;
+
+	//Storable
+	/** stores the object to the given file stream (binary).
+	 */
+	bool storeGA(FILE* f) const;
+
+	/** loads the object from the given file stream (binary).
+	 */
+	bool restoreGA(FILE* f) const;
 
 	// inserts
 	/**

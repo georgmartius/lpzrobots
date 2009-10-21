@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-11 12:57:38  robot12
+ *   Revision 1.11  2009-10-21 14:08:06  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.10  2009/08/11 12:57:38  robot12
  *   change the genetic algorithm (first crossover, second select)
  *
  *   Revision 1.9  2009/07/28 13:19:27  robot12
@@ -88,9 +91,12 @@
 
 //includes
 #include <vector>
+#include <map>
 #include <string>
 #include <selforg/randomgenerator.h>
 #include <selforg/inspectableproxy.h>
+#include <selforg/storeable.h>
+#include <restore.h>
 
 //forward declaration
 class Gen;
@@ -114,7 +120,7 @@ class PlotOptionEngine;
  *
  * Over this is the class as singleton concepted. Only one engine for a run.
  */
-class SingletonGenEngine {
+class SingletonGenEngine : public Storeable{
 public:
 	/**
 	 * this function returns a set of all registered GenPrototypes.
@@ -171,6 +177,13 @@ public:
 	 * @param gen (Gen*) the Gen which should be registered.
 	 */
 	inline void addGen(Gen* gen) {m_gen.push_back(gen);}
+
+	/**
+	 * returns one gene
+	 * @param x (int) index of the gene which is searched
+	 * @return (Gen*) the searched gene
+	 */
+	inline Gen* getGen(int x)const {if((unsigned int)x<m_gen.size())return m_gen[x];return NULL;}
 
 	/**
 	 * registered a individual in the engine.  Normal only used by the alg. self.
@@ -300,6 +313,14 @@ public:
 	 */
 	std::string getAllIndividualAsString(void)const;
 
+	/** stores the object to the given file stream (binary).
+	 */
+	virtual bool store(FILE* f) const;
+
+	/** loads the object from the given file stream (binary).
+	 */
+	virtual bool restore(FILE* f);
+
 	/**
 	 * returns the only existing engine.
 	 * @return (SingletonGenEngine*) the engine
@@ -361,6 +382,31 @@ protected:
 	 * flag for clean the seted strategies
 	 */
 	bool m_cleanStrategies;
+
+	/**
+	 * Map for restoring the generations from a run before
+	 */
+	std::map<int,RESTORE_GA_GENERATION*> m_restoreGeneration;
+
+	/**
+	 * Map for restoring the individuals from a run before
+	 */
+	std::map<int,RESTORE_GA_INDIVIDUAL*> m_restoreIndividual;
+
+	/**
+   * Map for restoring the individual generation link from a run before
+   */
+	std::map<int,std::vector<int> > m_restoreIndividualInGeneration;
+
+	/**
+   * Map for restoring the genes individual link from a run before
+   */
+	std::map<int,std::vector<int> > m_restoreGeneInIndividual;
+
+	/**
+	 * Map for restoring the names of the individuals
+	 */
+	std::map<int,std::string> m_restoreNameOfIndividuals;
 
 private:
 	/**

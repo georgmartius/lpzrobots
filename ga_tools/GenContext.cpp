@@ -31,7 +31,10 @@
  *   The Gen Context is inside the gen. alg. only saved in the             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-28 09:12:47  robot12
+ *   Revision 1.6  2009-10-21 14:08:06  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.5  2009/07/28 09:12:47  robot12
  *   add a clean up to update (delete context)
  *
  *   Revision 1.4  2009/07/21 08:37:58  robot12
@@ -64,6 +67,9 @@
 #include "TemplateValue.h"
 #include "Gen.h"
 #include "GenPrototype.h"
+#include "SingletonGenEngine.h"
+#include "Generation.h"
+#include "Individual.h"
 
 GenContext::GenContext() {
 	// nothing
@@ -111,4 +117,38 @@ void GenContext::update(double factor) {
 	m_max = context->getMax();
 
 	delete context;
+}
+
+bool GenContext::restore() {
+  int numGeneration = SingletonGenEngine::getInstance()->getActualGenerationNumber();
+  int x,y,z,v;
+  const std::vector<GenPrototype*>& prototypeSet = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();
+  int numPrototypes = prototypeSet.size();
+  int numIndividuals;
+  Generation* generation;
+  GenPrototype* prototype;
+  GenContext* context;
+  Gen* gen;
+  Individual* individual;
+
+  for(x=0;x<numGeneration;x++) {
+    generation = SingletonGenEngine::getInstance()->getGeneration(x);
+    numIndividuals = generation->getSize();
+    for(y=0;y<numPrototypes;y++) {
+      prototype = prototypeSet[y];
+      context = new GenContext(prototype);
+      for(z=0;z<numIndividuals;z++) {
+        individual = generation->getIndividual(z);
+        for(v=0;v<numPrototypes;v++) {
+          gen = individual->getGen(v);
+          if(gen->getPrototype()==prototype)
+            break;
+        }
+        context->addGen(gen);
+      }
+      prototype->insertContext(generation,context);
+    }
+  }
+
+  return true;
 }

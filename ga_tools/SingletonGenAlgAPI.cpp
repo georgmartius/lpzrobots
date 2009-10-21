@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-08-11 12:57:38  robot12
+ *   Revision 1.13  2009-10-21 14:08:07  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.12  2009/08/11 12:57:38  robot12
  *   change the genetic algorithm (first crossover, second select)
  *
  *   Revision 1.11  2009/07/29 16:07:09  jhoffmann
@@ -280,4 +283,12 @@ void SingletonGenAlgAPI::enableGenContextMeasure(std::list<PlotOption>& plotOpti
 	FOREACH(std::list<PlotOption>, plotOptions, i) {
 		m_plotEngineGenContext->addPlotOption(*i);
 	}
+}
+
+bool SingletonGenAlgAPI::storeGA(FILE* f) const {
+  return SingletonGenEngine::getInstance()->store(f);
+}
+
+bool SingletonGenAlgAPI::restoreGA(FILE* f) const {
+  return SingletonGenEngine::getInstance()->restore(f);
 }

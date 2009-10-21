@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-10-01 13:36:04  robot12
+ *   Revision 1.11  2009-10-21 14:08:06  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.10  2009/10/01 13:36:04  robot12
  *   add a methode to become a vector for all individuals which must be calculated (fitness value)
  *
  *   Revision 1.9  2009/08/11 12:57:38  robot12
@@ -84,8 +87,10 @@
 // standard includes
 #include <string>
 #include <vector>
+#include <map>
 #include <selforg/randomgenerator.h>
 #include <selforg/inspectable.h>
+#include <restore.h>
 
 // forward declarations
 class Individual;
@@ -211,6 +216,25 @@ public:
 	 * @param factor (double) normal 1.5    Is needed for the data analysation
 	 */
 	void update(double factor = 1.5);
+
+	/**
+	 * store a generation in a file
+	 * @param f (FILE*) the file in which should be stored
+	 * @return (bool) true if all ok
+	 */
+	bool store(FILE* f)const;
+
+	/**
+	 * restore all generation from a restore structure
+	 *
+	 * remember the individuals must be restored before
+	 *
+	 * @param numberGeneration (int) number of generations which should be restored
+	 * @param generationSet (map<int,RESTORE_GA_GENERATION*>) the structures which should be restored
+	 * @param linkSet (map<int,vector<int>>) the linkings between the generation and the individuals
+	 * @return (bool) true if all ok
+	 */
+	static bool restore(int numberGeneration, std::map<int,RESTORE_GA_GENERATION*> generationSet, std::map<int,std::vector<int> > linkSet);
 
 protected:
 	/**

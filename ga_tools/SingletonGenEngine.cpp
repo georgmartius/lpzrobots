@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-11 12:57:38  robot12
+ *   Revision 1.12  2009-10-21 14:08:07  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.11  2009/08/11 12:57:38  robot12
  *   change the genetic algorithm (first crossover, second select)
  *
  *   Revision 1.10  2009/07/28 13:19:55  robot12
@@ -400,4 +403,158 @@ std::string SingletonGenEngine::getAllIndividualAsString(void)const {
 	}
 
 	return result;
+}
+
+bool SingletonGenEngine::store(FILE* f) const{
+  RESTORE_GA_HEAD head;
+  unsigned int x;
+
+  //test
+  if(f==NULL) {
+    printf("\n\n\t>>> [ERROR] <<<\nNo File to store GA.\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+
+  //head
+  head.generationNumber = m_actualGeneration;
+  head.cleanStrategies = m_cleanStrategies;
+  head.numGeneration = m_generation.size();
+  head.numGenes = m_gen.size();
+  head.numIndividuals = m_individual.size();
+  for(x=0;x<sizeof(RESTORE_GA_HEAD);x++) {
+    fprintf(f, "%c",head.buffer[x]);
+  }
+
+  //generation
+  for(x=0;x<m_generation.size();x++) {
+    if(!m_generation[x]->store(f)) {
+      printf("\n\n\t>>> [ERROR] <<<\nError by writing the generations in the file.\n\t>>> [END] <<<\n\n\n");
+      return false;
+    }
+  }
+
+  //individuals
+  for(x=0;x<m_individual.size();x++) {
+    if(!m_individual[x]->store(f)) {
+      printf("\n\n\t>>> [ERROR] <<<\nError by writing the individuals in the file.\n\t>>> [END] <<<\n\n\n");
+      return false;
+    }
+  }
+
+  // genes
+  for(x=0;x<m_gen.size();x++) {
+    if(!m_gen[x]->store(f)) {
+      printf("\n\n\t>>> [ERROR] <<<\nError by writing the genes in the file.\n\t>>> [END] <<<\n\n\n");
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool SingletonGenEngine::restore(FILE* f) {
+  RESTORE_GA_HEAD head;
+  RESTORE_GA_GENERATION* generation;
+  RESTORE_GA_INDIVIDUAL* individual;
+  RESTORE_GA_GENE* gene;
+  std::string nameGenePrototype;
+  std::string name;
+  char* buffer=0;
+  GenPrototype* prototype=0;
+  unsigned int x;
+  int y,z;
+
+  //test
+  if(f==NULL) {
+    printf("\n\n\t>>> [ERROR] <<<\nNo File to restore GA.\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+
+  //head
+  for(x=0;x<sizeof(RESTORE_GA_HEAD);x++) {
+    fscanf(f, "%c", &head.buffer[x]);
+  }
+
+  //generation
+  for(y=0;y<head.numGeneration;y++) {
+    generation = new RESTORE_GA_GENERATION;
+
+    for(x=0;x<sizeof(RESTORE_GA_GENERATION);x++) {
+      fscanf(f, "%c", &generation->buffer[x]);
+    }
+
+    m_restoreGeneration[generation->number] = generation;
+
+    for(x=0;x<(unsigned int)generation->numberIndividuals;x++) {
+      fscanf(f,"%i\n",&z);
+      m_restoreIndividualInGeneration[generation->number].push_back(z);
+    }
+  }
+
+  //individual
+  for(y=0;y<head.numIndividuals;y++) {
+    individual = new RESTORE_GA_INDIVIDUAL;
+
+    fscanf(f,"%s\n",buffer);
+    name = buffer;
+    delete[] buffer;
+
+    for(x=0;x<sizeof(RESTORE_GA_INDIVIDUAL);x++) {
+      fscanf(f, "%c", &individual->buffer[x]);
+    }
+
+    m_restoreIndividual[individual->ID] = individual;
+    m_restoreNameOfIndividuals[individual->ID] = name;
+
+    for(x=0;x<(unsigned int)individual->numberGenes;x++) {
+      fscanf(f,"%i\n",&z);
+      m_restoreGeneInIndividual[individual->ID].push_back(z);
+    }
+  }
+
+  //gene
+  for(y=0;y<head.numGenes;y++) {
+    gene = new RESTORE_GA_GENE;
+
+    for(x=0;x<sizeof(RESTORE_GA_GENE);x++) {
+      fscanf(f, "%c", &gene->buffer[x]);
+    }
+
+    fscanf(f,"%s\n",buffer);
+    nameGenePrototype = buffer;
+    delete[] buffer;
+
+    //find prototype
+    for(x=0;x<(unsigned int)m_prototype.size();x++) {
+      if(m_prototype[x]->getName().compare(nameGenePrototype)==0) {
+        prototype = m_prototype[x];
+        break;
+      }
+    }
+
+    if(!prototype->restoreGene(f,gene)) {
+      printf("\n\n\t>>> [ERROR] <<<\nError by restoring the genes.\n\t>>> [END] <<<\n\n\n");
+      return false;
+    }
+  }
+
+  //restore all
+  if(!Individual::restore(head.numIndividuals,m_restoreNameOfIndividuals,m_restoreIndividual,m_restoreGeneInIndividual)) {
+    printf("\n\n\t>>> [ERROR] <<<\nError by restoring the individuals.\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+  if(!Individual::restoreParent(head.numIndividuals,m_restoreIndividual)) {
+    printf("\n\n\t>>> [ERROR] <<<\nError by restoring the individuals parent links.\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+  if(!Generation::restore(head.numGeneration,m_restoreGeneration,m_restoreIndividualInGeneration)) {
+    printf("\n\n\t>>> [ERROR] <<<\nError by restoring the generation.\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+  if(!GenContext::restore()) {
+    printf("\n\n\t>>> [ERROR] <<<\nError by restoring the context.\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+
+  return false;
 }

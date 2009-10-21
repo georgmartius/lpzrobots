@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-10-01 13:36:04  robot12
+ *   Revision 1.14  2009-10-21 14:08:07  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.13  2009/10/01 13:36:04  robot12
  *   add a methode to become a vector for all individuals which must be calculated (fitness value)
  *
  *   Revision 1.12  2009/08/11 12:57:38  robot12
@@ -189,4 +192,73 @@ std::vector<Individual*>* Generation::getAllUnCalculatedIndividuals(void)const {
   }
 
   return result;
+}
+
+bool Generation::store(FILE* f)const {
+  RESTORE_GA_GENERATION head;
+
+  //test
+  if(f==NULL) {
+    printf("\n\n\t>>> [ERROR] <<<\nNo File to store GA [generation].\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+
+  head.number = m_generationNumber;
+  head.numberIndividuals = m_individual.size();
+  head.size = m_size;
+  head.children = m_numChildren;
+  head.q1 = m_q1;
+  head.q3 = m_q3;
+  head.w1 = m_w1;
+  head.w3 = m_w3;
+  head.min = m_min;
+  head.max = m_max;
+  head.avg = m_avg;
+  head.med = m_med;
+  head.best = m_best;
+
+  for(unsigned int x=0;x<sizeof(RESTORE_GA_GENERATION);x++) {
+    fprintf(f,"%c",head.buffer[x]);
+  }
+
+  for(int y=0;y<head.numberIndividuals;y++) {
+    fprintf(f,"%i\n",m_individual[y]->getID());
+  }
+
+  return true;
+}
+
+bool Generation::restore(int numberGeneration, std::map<int,RESTORE_GA_GENERATION*> generationSet, std::map<int,std::vector<int> > linkSet) {
+  int x,y;
+  Generation* generation;
+  RESTORE_GA_GENERATION* head;
+
+  for(x=0;x<numberGeneration;x++) {
+    head = generationSet[x];
+
+    //create the generation
+    generation = new Generation(x,head->size,head->children);
+
+    //restore values
+    generation->m_q1 = head->q1;
+    generation->m_q3 = head->q3;
+    generation->m_w1 = head->w1;
+    generation->m_w3 = head->w3;
+    generation->m_min = head->min;
+    generation->m_max = head->max;
+    generation->m_med = head->med;
+    generation->m_avg = head->avg;
+    generation->m_best = head->best;
+    generation->m_dSize = (double)head->size;
+    generation->m_dNumChildren = (double)head->children;
+
+    //restore Individuals
+    for(y=0;y<head->size;y++) {
+      generation->m_individual.push_back(SingletonGenEngine::getInstance()->getIndividual(linkSet[x][y]));
+    }
+
+    SingletonGenEngine::getInstance()->addGeneration(generation);
+  }
+
+  return true;
 }

@@ -27,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-10-01 13:29:42  robot12
+ *   Revision 1.10  2009-10-21 14:08:07  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.9  2009/10/01 13:29:42  robot12
  *   now the individual save his own fitness value
  *
  *   Revision 1.8  2009/07/21 08:37:58  robot12
@@ -71,10 +74,12 @@
 //includes
 #include <vector>
 #include <string>
+#include <map>
 
 //ga_tools includes
 #include "Gen.h"
 #include "SingletonGenEngine.h"
+#include "restore.h"
 
 /**
  * This class represent one individual of the complete gen. alg. It have some gens and a fitness.
@@ -198,6 +203,31 @@ public:
 	 * @return (bool) the flag m_fitnessCalculated
 	 */
 	inline bool isFitnessCalculated()const {return m_fitnessCalculated;}
+
+	/**
+	 * store the individual in a file
+	 * @param f (FILE) the file to store in
+	 * @return (bool) return true if ok
+	 */
+	bool store(FILE* f)const;
+
+	/**
+	 * restore all individual from a restore structure
+	 * @param numberIndividuals (int) number of individuals which should be restored
+	 * @param nameSet (map<int,string>) names of the individuals
+	 * @param individualSet (map<int,RESTORE_GA_INDIVIDUAL*> the structures which should be restored
+	 * @param linkSet (map<int,vector<int>>) the linkings between the individual and the genes
+   * @return (bool) true if all ok
+	 */
+	static bool restore(int numberIndividuals,std::map<int,std::string> nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*> individualSet, std::map<int,std::vector<int> > linkSet);
+
+	/**
+	 * restore the parent links from a restore structure
+	 * @param numberIndividuals (int) number of individuals which should be restored
+   * @param individualSet (map<int,RESTORE_GA_INDIVIDUAL*> the structures which should be restored
+   * @return (bool) true if all ok
+	 */
+	static bool restoreParent(int numberIndividuals,std::map<int,RESTORE_GA_INDIVIDUAL*> individualSet);
 
 protected:
 	/**

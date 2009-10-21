@@ -29,7 +29,10 @@
  *   string for log or debug outputs.                                      *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-21 08:37:59  robot12
+ *   Revision 1.5  2009-10-21 14:08:19  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.4  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.3  2009/06/26 13:08:25  robot12
@@ -62,4 +65,12 @@ IValue::~IValue() {
 
 IValue::operator std::string(void)const {
 	return "";
+}
+
+bool IValue::store(FILE* f)const {
+  return false;
+}
+
+bool IValue::restore(FILE* f) {
+  return false;
 }

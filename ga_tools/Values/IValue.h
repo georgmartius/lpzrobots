@@ -29,7 +29,10 @@
  *   string for log or debug outputs.                                      *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-21 08:37:59  robot12
+ *   Revision 1.6  2009-10-21 14:08:19  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.5  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.4  2009/06/26 13:08:25  robot12
@@ -65,6 +68,7 @@
 //includes
 #include <string>
 #include <selforg/inspectable.h>
+#include <selforg/storeable.h>
 
 /**
  * This class is a interface for a value which is part of a gen. Over this concept is it paissible
@@ -106,6 +110,20 @@ public:
    * @return (string) the value as string
    */
   virtual operator std::string(void)const;
+
+  /**
+   * store the value in a file
+   * @param f (FILE*) the file to store
+   * @return (bool) true if all ok.
+   */
+  virtual bool store(FILE* f) const;
+
+  /**
+   * restore the value from a file
+   * @param f (FILE*) the file where the value inside
+   * @return (bool) true if all ok.
+   */
+  virtual bool restore(FILE* f);
 
 protected:
 	/**

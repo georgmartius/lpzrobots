@@ -27,7 +27,10 @@
  *   standard data types concepted as a template class.                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-21 08:37:59  robot12
+ *   Revision 1.8  2009-10-21 14:08:19  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.7  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.6  2009/06/26 13:08:25  robot12
@@ -68,6 +71,7 @@
 
 //ga_tools includes
 #include "IValue.h"
+#include "restore.h"
 
 /**
  * general function to converrt a double value to a string
@@ -168,6 +172,54 @@ public:
 	virtual operator std::string(void)const {
 		return toString(m_value);
 	}
+
+	/**
+   * store the value in a file
+   * @param f (FILE*) the file to store
+   * @return (bool) true if all ok.
+   */
+  virtual bool store(FILE* f) const {
+    RESTORE_GA_TEMPLATE<Typ> temp;
+
+    //test
+    if(f==NULL) {
+      printf("\n\n\t>>> [ERROR] <<<\nNo File to store GA [temp value].\n\t>>> [END] <<<\n\n\n");
+      return false;
+    }
+
+    temp.value = m_value;
+
+    fprintf(f,"%s\n",m_name.c_str());
+
+    for(unsigned int x=0;x<sizeof(RESTORE_GA_TEMPLATE<Typ>);x++) {
+      fprintf(f,"%c",temp.buffer[x]);
+    }
+
+    return true;
+  }
+
+  /**
+   * restore the value from a file
+   * @param f (FILE*) the file where the value inside
+   * @return (bool) true if all ok.
+   */
+  virtual bool restore(FILE* f) {
+    RESTORE_GA_TEMPLATE<Typ> temp;
+
+    //test
+    if(f==NULL) {
+      printf("\n\n\t>>> [ERROR] <<<\nNo File to restore GA [temp value].\n\t>>> [END] <<<\n\n\n");
+      return false;
+    }
+
+    for(unsigned int x=0;x<sizeof(RESTORE_GA_TEMPLATE<Typ>);x++) {
+      fscanf(f,"%c",&temp.buffer[x]);
+    }
+
+    m_value = temp.value;
+
+    return true;
+  }
 
 protected:
 	/**

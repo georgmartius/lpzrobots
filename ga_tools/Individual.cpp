@@ -27,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-10-01 13:29:42  robot12
+ *   Revision 1.12  2009-10-21 14:08:06  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.11  2009/10/01 13:29:42  robot12
  *   now the individual save his own fitness value
  *
  *   Revision 1.10  2009/07/21 08:37:59  robot12
@@ -147,4 +150,87 @@ std::string Individual::RootToString(bool withMutation)const {
 		result += ",\t\"" + m_parent2->getName() + "\"";
 
 	return result;
+}
+
+bool Individual::store(FILE* f)const {
+  RESTORE_GA_INDIVIDUAL head;
+
+  //test
+  if(f==NULL) {
+    printf("\n\n\t>>> [ERROR] <<<\nNo File to store GA [individual].\n\t>>> [END] <<<\n\n\n");
+    return false;
+  }
+
+  fprintf(f,"%s\n",m_name.c_str());
+
+  head.ID = m_ID;
+  head.numberGenes = m_gene.size();
+  if(m_parent1==NULL)
+    head.parent1 = -1;
+  else
+    head.parent1 = m_parent1->getID();
+  if(m_parent2==NULL)
+      head.parent2 = -1;
+    else
+      head.parent2 = m_parent2->getID();
+  head.mutated = m_mutated;
+  head.fitnessCalculated = m_fitnessCalculated;
+  head.fitness = m_fitness;
+
+  for(unsigned int x=0;x<sizeof(RESTORE_GA_INDIVIDUAL);x++) {
+    fprintf(f,"%c",head.buffer[x]);
+  }
+
+  for(int y=0;y<head.numberGenes;y++) {
+    fprintf(f,"%i\n",m_gene[y]->getID());
+  }
+
+  return true;
+}
+
+bool Individual::restore(int numberIndividuals,std::map<int,std::string> nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*> individualSet, std::map<int,std::vector<int> > linkSet) {
+  int x,y;
+  Individual* individual;
+  RESTORE_GA_INDIVIDUAL* head;
+
+  for(x=0;x<numberIndividuals;x++) {
+    head = individualSet[x];
+
+    //create individual
+    individual = new Individual(nameSet[head->ID],head->ID);
+
+    //restore values
+    individual->m_mutated = head->mutated;
+    individual->m_fitnessCalculated = head->fitnessCalculated;
+    individual->m_fitness = head->fitness;
+
+    //restore genes
+    for(y=0;y<head->numberGenes;y++) {
+      individual->m_gene.push_back(SingletonGenEngine::getInstance()->getGen(linkSet[x][y]));
+    }
+
+    SingletonGenEngine::getInstance()->addIndividual(individual);
+  }
+
+  return true;
+}
+
+bool Individual::restoreParent(int numberIndividuals,std::map<int,RESTORE_GA_INDIVIDUAL*> individualSet) {
+  Individual *p1,*p2,*ind;
+  RESTORE_GA_INDIVIDUAL* head;
+
+  for(int x=0;x<numberIndividuals;x++) {
+    head = individualSet[x];
+    ind = SingletonGenEngine::getInstance()->getIndividual(head->ID);
+
+    if(head->parent1!=-1 && head->parent2!=-1) {
+      p1 = SingletonGenEngine::getInstance()->getIndividual(head->parent1);
+      p2 = SingletonGenEngine::getInstance()->getIndividual(head->parent1);
+
+      ind->m_parent1=p1;
+      ind->m_parent2=p2;
+    }
+  }
+
+  return true;
 }

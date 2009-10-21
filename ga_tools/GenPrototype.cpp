@@ -31,7 +31,10 @@
  *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-28 13:21:30  robot12
+ *   Revision 1.6  2009-10-21 14:08:06  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.5  2009/07/28 13:21:30  robot12
  *   workaround! is to do in next time!!!
  *
  *   Revision 1.4  2009/07/21 08:37:59  robot12
@@ -63,6 +66,9 @@
 
 #include "GenContext.h"
 #include "SingletonGenFactory.h"
+#include "IValue.h"
+#include "Gen.h"
+#include "SingletonGenEngine.h"
 
 GenPrototype::GenPrototype() {
 	// nothing
@@ -105,4 +111,19 @@ Gen* GenPrototype::mutate(GenContext* context, Individual* individual, Gen* oldG
 
 int GenPrototype::getMutationProbability(void)const {
 	return m_mutationStrategy->getMutationProbability();
+}
+
+bool GenPrototype::restoreGene(FILE* f, RESTORE_GA_GENE* gene) {
+  IValue* value = m_randomStrategy->getRandomValue();
+  Gen* gen;
+
+  if(!value->restore(f))
+    return false;
+
+  gen = new Gen(this,gene->ID);
+  gen->setValue(value);
+
+  SingletonGenEngine::getInstance()->addGen(gen);
+
+  return true;
 }

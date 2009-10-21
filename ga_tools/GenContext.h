@@ -32,7 +32,10 @@
  *   GenPrototype.                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-21 08:37:59  robot12
+ *   Revision 1.5  2009-10-21 14:08:07  robot12
+ *   add restore and store functions to the ga package
+ *
+ *   Revision 1.4  2009/07/21 08:37:59  robot12
  *   add some comments
  *
  *   Revision 1.3  2009/06/29 14:32:51  robot12
@@ -134,6 +137,12 @@ public:
 	 * @param factor (double) this factor is normal 1.5 and is for the whisker distance in the analysation
 	 */
 	void update(double factor=1.5);
+
+	/**
+	 * restore all GenContext
+	 * @return (bool) if all ok
+	 */
+	static bool restore();
 
 protected:
 	/**
