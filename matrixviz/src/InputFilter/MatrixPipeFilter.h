@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  Revision 1.3  2009-10-22 15:53:08  robot14
+ *  first version of texture visualisation
+ *
+ *  Revision 1.2  2009/10/02 15:25:40  robot14
  *  filters, main app - not finished yet
  *
  *  Revision 1.1  2009/08/13 13:14:05  robot14
@@ -45,6 +48,7 @@
  *
  */
 #include "AbstractPipeFilter.h"
+//#include "AbstractPipeReader.h"
 #include <vector>
 
 /**
@@ -54,6 +58,9 @@ class MatrixPlotChannel;
 
 
 class MatrixPipeFilter: public AbstractPipeFilter {
+
+  Q_OBJECT
+
 public:
 	MatrixPipeFilter(AbstractPipeReader* apr);
 	virtual ~MatrixPipeFilter();
@@ -62,6 +69,7 @@ public:
 
 	virtual std::vector<MatrixPlotChannel*> getMatrixChannels();
 
+public slots:
 	/**
 	  * The dataLine from PipeReader will be iterate to set the new channel-value.
 	  * The order of the value-input-list (dataList) is important and the index of it
@@ -71,7 +79,7 @@ public:
 	  * If a new sensor is plugged into hardware-ECB, a new descriptionLine will be created and
 	  * the PipeFilter must be reinit to reorder the channelIndexList
 	  */
-	  virtual void updateChannels();
+	  void updateChannels();
 
 protected:
 	std::vector<MatrixPlotChannel*> matrices; //get

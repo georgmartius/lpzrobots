@@ -20,74 +20,46 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *   DESCRIPTION                                                           *
  *                                                                         *
- *   $Log$
- *   Revision 1.1  2009-08-13 13:14:05  robot14
- *   first version
- *
+ *   Visualization tool for matrices...                                    *
+ *                                                                         *
  *                                                                         *
  ***************************************************************************/
 
-#include "Matrix.h"
+#ifndef __TESTVISUALISATION_H_
+#define __TESTVISUALISATION_H_
+
+
+#include <QtGui>
+
+class AbstractPlotChannel;
+
+#include "MatrixPlotChannel.h"
+#include "AbstractVisualisation.h"
 
 #include <iostream>
-#include <cassert>
-
-Matrix::Matrix()
-{
-	//empty
-}
-
-//----------------------------------------------------------------------------
-
-Matrix::Matrix( float *values ) //TODO füllen mittels InputReader
-{
-  //memcpy(this->values, values, 16*sizeof(float));
-}
-
-double Matrix::getVal( int row, int col)
-{
-	assert( row <= rowSize && col <= columnSize);
-	return values[row * rowSize + col];
-}
-
-void Matrix::setVal(int row, int column, double val)
-{
-	values[row * rowSize + column] = val;
-}
 
 
-//----------------------------------------------------------------------------
+class TestVisualisation: public AbstractVisualisation {
 
-std::ostream& operator<<( std::ostream& out, const Matrix& m )
-{
-    m.write( out );
-    return out;
-}
 
-void Matrix::write( std::ostream& out ) const
-{
-	for (int i = 0; i < rowSize; i++){
-		for (int j = 0; j < columnSize; j++){
-			std::cout << values[ rowSize*i + columnSize ];
-			if(!(j == columnSize - 1)) out << " ";
-		}
-		out << std::endl;
-	}
-//  out << values[0] << " " << values[4] << " "
-//      << values[8] << " " << values[12] << endl
-//      << values[1] << " " << values[5] << " "
-//      << values[9] << " " << values[13] << endl
-//      << values[2] << " " << values[6] << " "
-//      << values[10] << " " << values[14] << endl
-//      << values[3] << " " << values[7] << " "
-//      << values[11] << " " << values[15] << endl;
-}
+public:
+  TestVisualisation(MatrixPlotChannel *channel, QWidget *parent = 0);
+  virtual ~TestVisualisation();
+  //void updateView();
 
-//----------------------------------------------------------------------------
 
-//const double* Matrix::getValues() const
-//{
-//  return values;
-//}
+protected:
 
+  virtual void paintEvent(QPaintEvent *);
+
+private:
+  QLabel* label;
+
+  void editText();
+
+};
+
+
+#endif /* __TESTVISUALISATION_H_ */

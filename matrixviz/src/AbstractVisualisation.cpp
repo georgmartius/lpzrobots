@@ -28,18 +28,22 @@
  ***************************************************************************/
 
 #include "AbstractVisualisation.h"
+#include <QString>
+#include <iostream>
 
-AbstractVisualisation::AbstractVisualisation(MatrixPlotChannel *channel, QWidget *parent ){
+
+AbstractVisualisation::AbstractVisualisation(MatrixPlotChannel *channel, QWidget *parent )
+: QWidget(parent) {
 
   this->channel = channel;
-  QVBoxLayout *mainLayout = new QVBoxLayout();
-
-  QLabel* label = new QLabel("Test");
-  mainLayout->addWidget(label);
+  mainLayout = new QVBoxLayout();
+//
+//  mainLayout->addWidget(label);
   setLayout(mainLayout);
-  resize(200,200);
+//  resize(200,200);
 }
 AbstractVisualisation::~AbstractVisualisation(){}
 
 
-void AbstractVisualisation::update(){}
+void AbstractVisualisation::paintEvent(QPaintEvent *){}
+

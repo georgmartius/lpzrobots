@@ -35,12 +35,15 @@
 //class AbstractPlotChannel;
 
 #include "MatrixPlotChannel.h"
-#include "AbstractVisualisation.h"
+#include "AbstractVisualisation.h" //Abstract~
+
+#include "AbstractRobotSubWidget.h"
+
 
 #include <iostream>
 
 
-class VisualiserSubWidget: public QWidget {
+class VisualiserSubWidget: public AbstractRobotSubWidget {
 
 Q_OBJECT
 
@@ -50,14 +53,18 @@ public:
 
 
 public slots:
-  void update();
+  void updateViewableChannels();
+  void switchVisMode(int index);
 
 protected:
 
   QComboBox *vizChoice;
 
 private:
-  AbstractVisualisation* visualisation;
+
+  QWidget *visualisation;
+  QVBoxLayout *mainLayout;
+
   MatrixPlotChannel *channel;
 
   void initGui();

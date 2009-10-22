@@ -42,23 +42,21 @@ class AbstractPlotChannel;
 
 class AbstractVisualisation: public QWidget {
 
-Q_OBJECT
 
 public:
   AbstractVisualisation(MatrixPlotChannel *channel, QWidget *parent = 0);
   virtual ~AbstractVisualisation();
+  //void updateView();
 
-
-public slots:
-  virtual void update();
 
 protected:
 
   MatrixPlotChannel *channel;
+  QVBoxLayout *mainLayout;
+
+  virtual void paintEvent(QPaintEvent *);
 
 private:
-
-
 
 };
 

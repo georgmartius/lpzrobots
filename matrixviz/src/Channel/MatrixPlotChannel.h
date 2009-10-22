@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  Revision 1.3  2009-10-22 15:53:08  robot14
+ *  first version of texture visualisation
+ *
+ *  Revision 1.2  2009/10/02 15:25:40  robot14
  *  filters, main app - not finished yet
  *
  *  Revision 1.1  2009/08/13 13:14:04  robot14
@@ -44,7 +47,7 @@
  *
  */
 #include "GroupPlotChannel.h"
-#include "AbstractPlotChannel.h"
+#include "MatrixElementPlotChannel.h"
 
 
 
@@ -64,6 +67,8 @@ public:
 	virtual int getDimension(int dim);
 
 	virtual double getValue(int row, int column);
+
+	MatrixElementPlotChannel* getChannel(int row, int column);
 
 	GroupPlotChannel* getRow(int row);
 

@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  Revision 1.3  2009-10-22 15:53:08  robot14
+ *  first version of texture visualisation
+ *
+ *  Revision 1.2  2009/10/02 15:25:40  robot14
  *  filters, main app - not finished yet
  *
  *  Revision 1.1  2009/08/13 13:14:05  robot14
@@ -43,10 +46,13 @@
 #include "MatrixPlotChannel.h"
 #include "MatrixElementPlotChannel.h"
 #include "DefaultPlotChannel.h"
+#include <iostream>
 
 
 MatrixPipeFilter::MatrixPipeFilter(AbstractPipeReader* apr) :
   AbstractPipeFilter(apr) {
+  std::cout << "new MatrixPipeFilter()" << std::endl;
+  QObject::connect(apr,SIGNAL(newData()),this,SLOT(updateChannels()), Qt::DirectConnection);
 	// TODO Auto-generated constructor stub
 
 }
@@ -77,54 +83,6 @@ AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
 	  MatrixElementPlotChannel* elementChannel = new MatrixElementPlotChannel( name );
 
 	  matrices.back()->getLastRow()->addPlotChannel(elementChannel);
-//	{ // Matrix element found!
-//		bool isNewChannel = true;
-//		// suche richtigen MatrixPlotChannel
-//		MatrixPlotChannel* matrixChannel;
-//		matrixChannel = new MatrixPlotChannel(/*Großbuchstabe*/name.substr(0,1));
-//		int itM;
-//		for( int i = 0; i < matrixPlotChannels.size(); i++ )
-//		{// wenn noch nicht in Liste:
-//			if( matrixPlotChannels[i] == matrixChannel )
-//			{
-//				isNewChannel = false;
-//				itM = i; //iterator merken
-//			}
-//		}
-//		if ( isNewChannel )
-//			{
-//			matrixPlotChannels.push_back(matrixChannel);
-//			itM = matrixPlotChannels.size() - 1; //index of this element
-//			}
-//
-//		/*
-//		 * Looking for row A[_x_,y]
-//		 */
-//		bool isNewRow = true;
-//		int itR;
-//		MatrixPlotChannel* matrixRowChannel;
-//		// name: "x" von A[x,y]
-//		matrixChannel = new MatrixPlotChannel( name.substr(2,1) );
-//		for( int j = 0; j < matrixPlotChannels[itM]->getDimension(0); j++ )
-//		{
-//			if( matrixPlotChannels[itM]->getRow(j) == matrixRowChannel ) //schon drin
-//			{
-//				isNewRow = false;
-//				itR = j;
-//			}
-//		}
-//		if ( isNewRow )
-//		{
-//			matrixPlotChannels[itM]->addRow(matrixRowChannel);
-//			itR = matrixPlotChannels[itM]->size() - 1; //index of this element
-//		}
-//
-//		/*
-//		 * Adding matrix element channel A[x,y] (A[x,_y_])
-//		 */
-//		MatrixElementPlotChannel* elementChannel( name.substr(4,1) );
-//		this.matrixPlotChannels[itM]->getRow( itR )->addPlotCannel( elementChannel );
-
 
 		// eigentlichen Channel hinzufügen
 		// überlegen: evtl. Dimension der Matrix in der Hierarchie berücksichtigen (mxn)
@@ -142,9 +100,7 @@ std::vector<MatrixPlotChannel*> MatrixPipeFilter::getMatrixChannels(){
 
 
 void MatrixPipeFilter::updateChannels() {
-//     std::cout << "AbstractPipeFilter: updateChannels()" << std::endl;
-
-//     std::cout << "AbstractPipeFilter: updateChannels(";
+     std::cout << "AbstractPipeFilter: updateChannels()" << std::endl;
 
     std::list<double> dataList = (apr->getDataLine());
     int index=0;
@@ -159,22 +115,18 @@ void MatrixPipeFilter::updateChannels() {
     }
     printf("\r\n");
 
-    int printedIndex = 0;
+    //int printedIndex = 0;
 
     for(std::list<double>::iterator i=dataList.begin(); i != dataList.end() && index_it!=channelIndexList.end() && channel_it!=channelList.end() ; i++)
     {
-      if (index == (*index_it)){
-//         std::cout << "[" << (*channel_it)->getChannelName() << "=" << index << "]";
-        (*channel_it)->setValue((*i));
-      }else{ //the old value has to be
-        printf("[old~]");
-
-        channel_it++;
-        index_it++;
-      }
-//       else std::cout << "[  - ]";
-
-      index++;
+      (*channel_it)->setValue((*i));
+      channel_it++;
+//      if (index == (*index_it)){
+////         std::cout << "[" << (*channel_it)->getChannelName() << "=" << index << "]";
+//        (*channel_it)->setValue((*i));
+////       else std::cout << "[  - ]";
+//      }
+//      index++;
     }
 //     std::cout << ")" << std::endl;
     printf("\r\n");

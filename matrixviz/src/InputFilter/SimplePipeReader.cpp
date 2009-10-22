@@ -6,14 +6,14 @@
 
 SimplePipeReader::SimplePipeReader()
 {
-  
+
 //   signal(SIGPIPE,SIG_IGN);
   std::cout << "new SimplePipeReader()" << std::endl;
   input_line = new QTextStream ( stdin, QIODevice::ReadOnly );
   currentChannelLine = "";
   currentDataLine = "";
-  
-  
+
+
 //   if (dynamic_cast<QFile*>(input_line->device()))
 //      QObject::connect(input_line->device() ,SIGNAL(), this, SLOT());
 }
@@ -25,7 +25,7 @@ void SimplePipeReader::run()
   QByteArray charList;
 //   int counter = 0;
   while ( !closing ) {
-      QString line = input_line->readLine ( 500 );
+      QString line = input_line->readLine ();
 //       std::cout << "SimplePipeReader: read " << line.size() << " chars" << std::endl;
       if ( line.isEmpty() ) continue;
 
@@ -34,17 +34,22 @@ void SimplePipeReader::run()
       closing = true;
       break;
     }
-    
+
     if ( line.startsWith ( "#RESET" ) ) {
       std::cout << "SimplePipeReader: have seen #RESET **************************" << std::endl;
-      
-     
+
+
     }
 
-    if ( (currentChannelLine.size() > 2) && (currentDescriptionLine.size() > 2) ) {
+
+    std::cout << "currDatalin: " << (currentDataLine.section(' ', 0, 0)).toDouble();
+    std::cout << "oldline: " << (line.section(' ', 0, 0)).toDouble() << std::endl;
+    if ( (currentChannelLine.size() > 2)
+        && (line.section(' ', 0, 0) != currentDataLine.section(' ', 0, 0))) {
           currentDataLine = line;
-//       std::cout << "SimplePipeReader currentDataLine: [" << currentDataLine.toStdString() << "]" << std::endl;
-          emit newData();
+       //std::cout << "SimplePipeReader currentDataLine: [" << currentDataLine.toStdString() << "]" << std::endl;
+          emit newData(); //wenn timestamp geändert (erstes element)
+          //std::cout << "emit!!" << std::endl;
         }
 
       if ( line.startsWith ( "#C" ) ) {
@@ -53,14 +58,14 @@ void SimplePipeReader::run()
           currentChannelLine = line;
 //         std::cout << "SimplePipeReader currentChannelLine: [" << currentChannelLine.toStdString() << "]" << std::endl;
         }
-      if ( line.startsWith ( "#D" ) ) {
-          //cut the first 2 chars (#C)
-          line = line.mid ( 3 );
-          currentDescriptionLine = line;
-//         printf("SimplePipeReader currentDescriptionLine: [%s]\r\n",currentDescriptionLine.toStdString().c_str());
-      }
+//      if ( line.startsWith ( "#D" ) ) {
+//          //cut the first 2 chars (#C)
+//          line = line.mid ( 3 );
+//          currentDescriptionLine = line;
+////         printf("SimplePipeReader currentDescriptionLine: [%s]\r\n",currentDescriptionLine.toStdString().c_str());
+//      }
     }
-  
+
   std::cout << "SimplePipeReader SIGNAL(finished())" << std::endl;
   emit(finished());
 }
@@ -80,7 +85,7 @@ std::list<std::string> SimplePipeReader::getChannelLine()
 {
 //   std::cout << "SimplePipeReader: getChannelLine()" << std::endl;
   std::list<std::string> tmp_list;
-  
+
   QStringList string_list = currentChannelLine.split ( ' ' );
   for ( int i = 0;i < string_list.size();i++ ) {
 
@@ -96,10 +101,10 @@ std::list<std::string> SimplePipeReader::getDescriptionLine()
 {
 //   std::cout << "SimplePipeReader: getChannelLine()" << std::endl;
   std::list<std::string> tmp_list;
-  
+
   QStringList string_list = currentDescriptionLine.split ( ' ' );
   for ( int i = 0;i < string_list.size();i++ ) {
-    
+
     std::string s = ( ( string_list.at ( i ) ).toAscii() ).data();//toStdString;
 //     std::cout << "SimplePipeReader: getChannelLine[" << s << "]****************" << std::endl;
     if (s.size() > 0)
@@ -107,9 +112,9 @@ std::list<std::string> SimplePipeReader::getDescriptionLine()
   }
 //   std::cout << "SimplePipeReader: getDescriptionLine()..." << tmp_list.size() << std::endl;
   return tmp_list;
-  
+
 }
-  
+
 
 std::list< double > SimplePipeReader::getDataLine()
 {
@@ -117,7 +122,7 @@ std::list< double > SimplePipeReader::getDataLine()
   std::list<double> tmp_list;
   bool success;
   QString s;
-  
+
   QStringList string_list = currentDataLine.split ( ' ' );
   for ( int i = 0;i < string_list.size();i++ ) {
     s = string_list.at ( i );

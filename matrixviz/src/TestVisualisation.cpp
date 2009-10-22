@@ -27,72 +27,44 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "VisualiserSubWidget.h"
-#include "TextureVisualisation.h"
 #include "TestVisualisation.h"
+#include <QString>
+#include <iostream>
 
 
+TestVisualisation::TestVisualisation(MatrixPlotChannel *channel, QWidget *parent )
+: AbstractVisualisation(channel, parent) {
 
-VisualiserSubWidget::VisualiserSubWidget(MatrixPlotChannel *channel, QWidget *parent)
-: AbstractRobotSubWidget(parent) {
   this->channel = channel;
+  mainLayout = new QVBoxLayout();
+
+  label = new QLabel();
+  editText();
+
+  mainLayout->addWidget(label);
+  setLayout(mainLayout);
+  resize(200,200);
+}
+TestVisualisation::~TestVisualisation(){}
+
+
+void TestVisualisation::paintEvent(QPaintEvent *){
+  editText();
+//  update();
+}
+
+void TestVisualisation::editText(){
+
+  QString matrixPlain = "Matrix:\n";
   int maxX = this->channel->getDimension(0);
   int maxY = this->channel->getDimension(1);
-  for(int i = 0; i < maxX; i++){ //push back all MatrixElementPlotChannel for update
-      for(int j = 0; j < maxY; j++){
-        addPlotChannel(this->channel->getChannel(i, j));
-      }
+  for(int i = 0; i < maxX; i++){
+    for(int j = 0; j < maxY; j++){
+      matrixPlain.append(QString::number(channel->getValue(i, j)));
+      if(j < maxY - 1) matrixPlain.append("\t");
     }
-  this->visualisation = new TestVisualisation(channel); //default visualisation
-  initGui();
-}
-
-VisualiserSubWidget::~VisualiserSubWidget() {}
-
-void VisualiserSubWidget::initGui(){
-  mainLayout = new QVBoxLayout();
-  vizChoice = new QComboBox();
-
-  initVisTypes();
-
-  mainLayout->addWidget(vizChoice);
-  mainLayout->addWidget(visualisation);
-
-
-  setLayout(mainLayout);
-  resize(300,300);
-}
-
-void VisualiserSubWidget::updateViewableChannels(){
-  std::cout << "updateViewableChannels()" << std::endl;
-  visualisation->update();
-  update();
-}
-
-void VisualiserSubWidget::initVisTypes(){
-  //init vis types TODO
-  vizChoice->addItem("Test"); //0
-  vizChoice->addItem("Tex"); //1
-  //connect
-  connect(vizChoice, SIGNAL(activated(int)), this, SLOT(switchVisMode( int)));
-}
-
-void VisualiserSubWidget::switchVisMode(int index){
-
-  //mainLayout->
-  mainLayout->removeWidget(visualisation);
-  switch (index){
-    case 0:
-      this->visualisation = new TestVisualisation(channel);
-      mainLayout->addWidget(visualisation);
-      std::cout << "VisSwitch: 1" << std::endl;
-      break;
-    case 1:
-      this->visualisation = new TextureVisualisation(channel);
-      mainLayout->addWidget(visualisation);
-      std::cout << "VisSwitch: 2" << std::endl;
-      break;
+    matrixPlain.append("\n");
   }
-  updateViewableChannels();
-  repaint();
+  label->setText(matrixPlain);
+  std::cout << matrixPlain.toStdString () << std::endl; //test
 }

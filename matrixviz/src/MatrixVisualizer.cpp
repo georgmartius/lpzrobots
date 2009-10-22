@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-10-14 12:22:31  robot14
+ *   Revision 1.4  2009-10-22 15:53:08  robot14
+ *   first version of texture visualisation
+ *
+ *   Revision 1.3  2009/10/14 12:22:31  robot14
  *   *** empty log message ***
  *
  *   Revision 1.2  2009/10/02 15:25:40  robot14
@@ -38,12 +41,14 @@
 //#include <QProgressBar>
 #include <QString>
 #include "VisualiserSubWidget.h"
+//#include "timer.h"
 
 #include <iostream>
 
 using namespace std;
 
 MatrixVisualizer::MatrixVisualizer(QWidget *parent) : AbstractRobotGUI(parent) {
+
   pipe_reader = new SimplePipeReader();
   matrix_filter = new MatrixPipeFilter(pipe_reader);
   help = 1;
@@ -69,7 +74,7 @@ void MatrixVisualizer::initGui() {
 
   setLayout(main_layout);
   // nach pack() ähnlichem gucken!
-  resize(200,200);
+  resize(150,150); //adjustSize ();
 }
 
 QHBoxLayout* MatrixVisualizer::makeButtons(){
@@ -109,8 +114,13 @@ void MatrixVisualizer::visualize(QAbstractButton * button){
   if ( help == visButtons->buttons().size()){
     help = 1;
     int id = visButtons->buttons().indexOf(button);
-    VisualiserSubWidget *vis = new VisualiserSubWidget(matrices.at(id), this);
+    VisualiserSubWidget *vis = new VisualiserSubWidget(matrices.at(id));
+
     vis->show();
+    connect( pipe_reader, SIGNAL(newData()), vis, SLOT(updateViewableChannels()), Qt::DirectConnection);
+
+//    Timer *timer = new Timer(vis);
+//    timer->start();
 
   }else help++;
 }

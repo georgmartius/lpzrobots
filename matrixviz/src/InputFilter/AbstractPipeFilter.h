@@ -22,8 +22,6 @@ class AbstractPipeFilter : public QObject {
 
     AbstractPipeFilter(AbstractPipeReader* apr) : apr(apr)
     {
-      std::cout << "new AbstractPipeFilter()" << std::endl;
-      QObject::connect(apr,SIGNAL(newData()),this,SLOT(updateChannels()));
     };
     virtual ~AbstractPipeFilter() {
     }

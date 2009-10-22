@@ -20,49 +20,59 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *   DESCRIPTION                                                           *
  *                                                                         *
- *   $Log$
- *   Revision 1.1  2009-08-13 13:14:05  robot14
- *   first version
- *
+ *   Visualization tool for matrices...                                    *
+ *                                                                         *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef MATRIX_H_
-#define MATRIX_H_
-
-#include <iostream>
-#include <vector>
-#include <cstring>
-#include "AbstractPlotChannel.h"
-
-class Matrix
-{
- private:
-
-  std::vector<double> values;
-  int rowSize;
-  int columnSize; //not really needed
+#include "TextureVisualisation.h"
+#include "math.h"
 
 
- public:
+TextureVisualisation::TextureVisualisation(MatrixPlotChannel *channel, QWidget *parent)
+: AbstractVisualisation(channel, parent){
 
-  Matrix();
+  this->channel = channel;
+  mainLayout = new QVBoxLayout();
 
-  Matrix( float *values );
+  int maxX = this->channel->getDimension(0);
+  int maxY = this->channel->getDimension(1);
 
-  //const double* getValues() const;
+  tex = new QImage(maxX, maxY, QImage::Format_RGB32);
 
-  double getVal( int row, int column);
+  //QImage scaledTex = tex->scaled(200,200);
 
-  void setVal( int row, int col, double val);
+  //mainLayout->addWidget(*tex);
+  setLayout(mainLayout);
+  resize(200,200);
+}
+
+TextureVisualisation::~TextureVisualisation(){}
+
+void TextureVisualisation::paintEvent(QPaintEvent *){
+
+  QPainter painter ( this );
+
+  //test
+  int maxX = this->channel->getDimension(0);
+  int maxY = this->channel->getDimension(1);
+  for (int i = 0; i < maxX; i++) {
+    for (int j = 0; j < maxY; j++) {
+      double val = channel->getValue(i, j);
+      // max negative: 10, max positive: 10
+      int maxVal = 20;
+      int greyTone = floor((val + 10) * 255 / maxVal);
+      QColor *col = new QColor(greyTone, greyTone, greyTone);
+      tex->setPixel(i, j, col->rgb()); //QString::number(channel->getValue(i, j))
+    }
+  }
+
+  QImage scaledTex = tex->scaled(200,200);
+  painter.drawImage ( 0, 0, scaledTex);
+
+}
 
 
-  friend std::ostream& operator<<( std::ostream& out, const Matrix& v );
 
- private:
-
-  void write( std::ostream& out ) const;
-};
-
-#endif /* MATRIX_H_ */

@@ -27,72 +27,31 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "VisualiserSubWidget.h"
-#include "TextureVisualisation.h"
-#include "TestVisualisation.h"
+#ifndef __TEXTUREVISUALISATION_H_
+#define __TEXTUREVISUALISATION_H_
+
+#include "AbstractVisualisation.h"
+#include <QImage>
+
+class TextureVisualisation: public AbstractVisualisation {
+
+public:
+  TextureVisualisation(MatrixPlotChannel *channel, QWidget *parent = 0);
+  virtual ~TextureVisualisation();
+  //void updateView();
 
 
+protected:
+  MatrixPlotChannel *channel;
 
-VisualiserSubWidget::VisualiserSubWidget(MatrixPlotChannel *channel, QWidget *parent)
-: AbstractRobotSubWidget(parent) {
-  this->channel = channel;
-  int maxX = this->channel->getDimension(0);
-  int maxY = this->channel->getDimension(1);
-  for(int i = 0; i < maxX; i++){ //push back all MatrixElementPlotChannel for update
-      for(int j = 0; j < maxY; j++){
-        addPlotChannel(this->channel->getChannel(i, j));
-      }
-    }
-  this->visualisation = new TestVisualisation(channel); //default visualisation
-  initGui();
-}
-
-VisualiserSubWidget::~VisualiserSubWidget() {}
-
-void VisualiserSubWidget::initGui(){
-  mainLayout = new QVBoxLayout();
-  vizChoice = new QComboBox();
-
-  initVisTypes();
-
-  mainLayout->addWidget(vizChoice);
-  mainLayout->addWidget(visualisation);
+  void paintEvent(QPaintEvent *);
 
 
-  setLayout(mainLayout);
-  resize(300,300);
-}
+private:
+  QVBoxLayout *mainLayout;
+  QImage *tex;
 
-void VisualiserSubWidget::updateViewableChannels(){
-  std::cout << "updateViewableChannels()" << std::endl;
-  visualisation->update();
-  update();
-}
+};
 
-void VisualiserSubWidget::initVisTypes(){
-  //init vis types TODO
-  vizChoice->addItem("Test"); //0
-  vizChoice->addItem("Tex"); //1
-  //connect
-  connect(vizChoice, SIGNAL(activated(int)), this, SLOT(switchVisMode( int)));
-}
 
-void VisualiserSubWidget::switchVisMode(int index){
-
-  //mainLayout->
-  mainLayout->removeWidget(visualisation);
-  switch (index){
-    case 0:
-      this->visualisation = new TestVisualisation(channel);
-      mainLayout->addWidget(visualisation);
-      std::cout << "VisSwitch: 1" << std::endl;
-      break;
-    case 1:
-      this->visualisation = new TextureVisualisation(channel);
-      mainLayout->addWidget(visualisation);
-      std::cout << "VisSwitch: 2" << std::endl;
-      break;
-  }
-  updateViewableChannels();
-  repaint();
-}
+#endif /* __TEXTUREVISUALISATION_H_ */

@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  Revision 1.3  2009-10-22 15:53:08  robot14
+ *  first version of texture visualisation
+ *
+ *  Revision 1.2  2009/10/02 15:25:40  robot14
  *  filters, main app - not finished yet
  *
  *  Revision 1.1  2009/08/13 13:14:05  robot14
@@ -71,21 +74,25 @@ int MatrixPlotChannel::getDimension(int dim)
 
 double MatrixPlotChannel::getValue(int row, int column)
 {
+  return getChannel(row, column)->getValue();
+}
+
+MatrixElementPlotChannel* MatrixPlotChannel::getChannel(int row, int column){
   // wenn hauptmatrix, dann suche matrixplotchannel(row) und gib wert von kind-matrixelementplotchannel(clumn)
   // zurück, wenn row- matrixplotchannel, gib nur element von column wieder -> dynamic cast
-  double val = 0.;
+  MatrixElementPlotChannel* chan;
 
   MatrixPlotChannel* mRow = dynamic_cast<MatrixPlotChannel*> (at(row));
   if(mRow == 0){ //this is a row
     MatrixElementPlotChannel* element = dynamic_cast<MatrixElementPlotChannel*> (at(column));
-    val = element->getValue();
+    chan = element;
   }else{ //this is a matrix
     MatrixElementPlotChannel* element = dynamic_cast<MatrixElementPlotChannel*> (mRow->at(column));
-    /*(val != 0)?: */val = element->getValue();
+    /*(val != 0)?: */chan = element;
   }
   //dynamic_cast<MatrixPlotChannel *>(channelsOfGroup).getRow(row)[column]; //sollte gehen NEIN!!
 
-	return val;
+  return chan;
 }
 
 GroupPlotChannel* MatrixPlotChannel::getRow(int row){
