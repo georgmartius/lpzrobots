@@ -110,17 +110,21 @@ install_utils:
 install_libs:
 ifeq ($(INSTALL_TYPE),user)
 	@echo "*************** Install selforg *********************"
+	-mkdir -p $(PREFIX)lib $(PREFIX)include $(PREFIX)share/lpzrobots/selforg
 	cp selforg/libselforg.a $(PREFIX)lib
 	cp selforg/libselforg_opt.a $(PREFIX)lib
-	-mkdir -p $(PREFIX)include
 	cp -rL selforg/include/selforg $(PREFIX)include/
 	@echo "*************** Install ode_robots ******************"
 	cp ode_robots/libode_robots.a $(PREFIX)lib
 	cp ode_robots/libode_robots_opt.a $(PREFIX)lib
 	cp -rL ode_robots/include/ode_robots $(PREFIX)include/	
+	@echo "*************** Install example simulations ******************"
+	cp -rL ode_robots/simulations $(PREFIX)share/lpzrobots/
+	cp -rL selforg/simulations $(PREFIX)share/lpzrobots/selforg/
 	@echo "*************** Finished ******************"
 	@echo "Make sure that the $PREFIX/lib directory is in our lib search path"
 	@echo " and $PREFIX/include is searched for includes"
+	@echo "You can find example simulations in $(PREFIX)share/lpzrobots/"
 endif
 
 .PHONY: uninstall_intern
@@ -138,6 +142,7 @@ ifeq ($(INSTALL_TYPE),user)
 	-rm -rf $(PREFIX)include/selforg
 	-rm -f $(PREFIX)lib/libode_robots.a $(PREFIX)lib/libode_robots_opt.a
 	-rm -rf $(PREFIX)include/ode_robots
+	-rm -rf $(PREFIX)share/lpzrobots
 endif
 
 
