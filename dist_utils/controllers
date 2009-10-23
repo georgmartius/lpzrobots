@@ -8,7 +8,6 @@ basiccontroller.cpp
 basiccontroller.h
 classicreinforce.cpp
 classicreinforce.h
-deprivation.h
 discretecontrolleradapter.cpp
 discretecontrolleradapter.h
 discretesizable.h
