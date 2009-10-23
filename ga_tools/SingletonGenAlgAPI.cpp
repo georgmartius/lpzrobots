@@ -27,7 +27,10 @@
  *   work with the alg.                                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-10-21 14:08:07  robot12
+ *   Revision 1.14  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.13  2009/10/21 14:08:07  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.12  2009/08/11 12:57:38  robot12
@@ -290,5 +293,5 @@ bool SingletonGenAlgAPI::storeGA(FILE* f) const {
 }
 
 bool SingletonGenAlgAPI::restoreGA(FILE* f) const {
-  return SingletonGenEngine::getInstance()->restore(f);
+  return SingletonGenEngine::getInstance()->restore(f, (InspectableProxy*&)m_generation, (InspectableProxy*&)m_inspectable, m_plotEngine, m_plotEngineGenContext);
 }

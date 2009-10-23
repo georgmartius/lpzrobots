@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-10-21 14:08:07  robot12
+ *   Revision 1.13  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.12  2009/10/21 14:08:07  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.11  2009/08/11 12:57:38  robot12
@@ -418,7 +421,7 @@ bool SingletonGenEngine::store(FILE* f) const{
   //head
   head.generationNumber = m_actualGeneration;
   head.cleanStrategies = m_cleanStrategies;
-  head.numGeneration = m_generation.size();
+  head.numGeneration = m_generation.size()-1;
   head.numGenes = m_gen.size();
   head.numIndividuals = m_individual.size();
   for(x=0;x<sizeof(RESTORE_GA_HEAD);x++) {
@@ -426,8 +429,8 @@ bool SingletonGenEngine::store(FILE* f) const{
   }
 
   //generation
-  for(x=0;x<m_generation.size();x++) {
-    if(!m_generation[x]->store(f)) {
+  for(x=m_generation.size();x>0;x--) {
+    if(!m_generation[x-1]->store(f)) {
       printf("\n\n\t>>> [ERROR] <<<\nError by writing the generations in the file.\n\t>>> [END] <<<\n\n\n");
       return false;
     }
@@ -452,17 +455,21 @@ bool SingletonGenEngine::store(FILE* f) const{
   return true;
 }
 
-bool SingletonGenEngine::restore(FILE* f) {
+bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, InspectableProxy*& proxyGene, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
   RESTORE_GA_HEAD head;
   RESTORE_GA_GENERATION* generation;
   RESTORE_GA_INDIVIDUAL* individual;
   RESTORE_GA_GENE* gene;
   std::string nameGenePrototype;
   std::string name;
-  char* buffer=0;
+  char* buffer;
+  int toread;
   GenPrototype* prototype=0;
   unsigned int x;
   int y,z;
+  RandGen random;
+  Generation* active;
+  std::list<Inspectable*> actualContextList;
 
   //test
   if(f==NULL) {
@@ -474,6 +481,8 @@ bool SingletonGenEngine::restore(FILE* f) {
   for(x=0;x<sizeof(RESTORE_GA_HEAD);x++) {
     fscanf(f, "%c", &head.buffer[x]);
   }
+  m_actualGeneration = head.generationNumber;
+  m_cleanStrategies = head.cleanStrategies;
 
   //generation
   for(y=0;y<head.numGeneration;y++) {
@@ -495,7 +504,12 @@ bool SingletonGenEngine::restore(FILE* f) {
   for(y=0;y<head.numIndividuals;y++) {
     individual = new RESTORE_GA_INDIVIDUAL;
 
-    fscanf(f,"%s\n",buffer);
+    fscanf(f,"%i\n",&toread);
+    buffer = new char[toread];
+    for(x=0;x<(unsigned int)toread;x++) {
+      fscanf(f,"%c",&buffer[x]);
+    }
+    buffer[x]='\0';
     name = buffer;
     delete[] buffer;
 
@@ -516,13 +530,18 @@ bool SingletonGenEngine::restore(FILE* f) {
   for(y=0;y<head.numGenes;y++) {
     gene = new RESTORE_GA_GENE;
 
+    fscanf(f,"%i\n",&toread);
+    buffer = new char[toread];
+    for(x=0;x<(unsigned int)toread;x++) {
+      fscanf(f,"%c",&buffer[x]);
+    }
+    buffer[x]='\0';
+    nameGenePrototype = buffer;
+    delete[] buffer;
+
     for(x=0;x<sizeof(RESTORE_GA_GENE);x++) {
       fscanf(f, "%c", &gene->buffer[x]);
     }
-
-    fscanf(f,"%s\n",buffer);
-    nameGenePrototype = buffer;
-    delete[] buffer;
 
     //find prototype
     for(x=0;x<(unsigned int)m_prototype.size();x++) {
@@ -556,5 +575,37 @@ bool SingletonGenEngine::restore(FILE* f) {
     return false;
   }
 
-  return false;
+  // Control values
+  active = m_generation[0];
+  if(plotEngine!=0) {
+    actualContextList.clear();
+    actualContextList.push_back(active);
+    proxyGeneration = new InspectableProxy(actualContextList);
+    plotEngine->addInspectable(&(*proxyGeneration));
+    plotEngine->init();
+    plotEngine->plot(1.0);
+  }
+  if(plotEngineGenContext!=0) {
+    actualContextList.clear();
+    for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
+      actualContextList.push_back((*iter)->getContext(active));
+      (*iter)->getContext(active)->update();
+    }
+    proxyGene = new InspectableProxy(actualContextList);
+    plotEngineGenContext->addInspectable(&(*proxyGene));
+    plotEngineGenContext->init();
+    plotEngineGenContext->plot(1.0);
+  }
+
+  for(x=0;x<getActualGenerationNumber();x++) {
+    measureStep(x + 1, proxyGeneration, proxyGene, plotEngine, plotEngineGenContext);
+  }
+
+  update();
+  measureStep(getActualGenerationNumber() + 1, proxyGeneration, proxyGene, plotEngine, plotEngineGenContext);
+  //SingletonGenAlgAPI::getInstance()->measureStep(getActualGenerationNumber() + 1);
+  select();
+  crossover(&random);
+
+  return true;
 }

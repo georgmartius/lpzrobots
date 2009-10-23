@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-10-21 14:08:06  robot12
+ *   Revision 1.12  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.11  2009/10/21 14:08:06  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.10  2009/08/11 12:57:38  robot12
@@ -95,8 +98,7 @@
 #include <string>
 #include <selforg/randomgenerator.h>
 #include <selforg/inspectableproxy.h>
-#include <selforg/storeable.h>
-#include <restore.h>
+//#include <selforg/storeable.h> not possible because the restore function need more information!!!
 
 //forward declaration
 class Gen;
@@ -111,6 +113,10 @@ class IGenerationSizeStrategy;
 class IRandomStrategy;
 class IValue;
 class IFitnessStrategy;
+struct RESTORE_GA_GENERATION;
+struct RESTORE_GA_INDIVIDUAL;
+struct RESTORE_GA_GENE;
+template<class Typ>struct RESTORE_GA_TEMPLATE;
 
 //forward declaration for LPZROBOTS
 class PlotOptionEngine;
@@ -120,7 +126,7 @@ class PlotOptionEngine;
  *
  * Over this is the class as singleton concepted. Only one engine for a run.
  */
-class SingletonGenEngine : public Storeable{
+class SingletonGenEngine{
 public:
 	/**
 	 * this function returns a set of all registered GenPrototypes.
@@ -319,7 +325,7 @@ public:
 
 	/** loads the object from the given file stream (binary).
 	 */
-	virtual bool restore(FILE* f);
+	virtual bool restore(FILE* f, InspectableProxy*& proxyGeneration, InspectableProxy*& proxyGene, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext);
 
 	/**
 	 * returns the only existing engine.

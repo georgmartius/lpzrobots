@@ -27,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-10-21 14:08:07  robot12
+ *   Revision 1.11  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.10  2009/10/21 14:08:07  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.9  2009/10/01 13:29:42  robot12
@@ -79,7 +82,9 @@
 //ga_tools includes
 #include "Gen.h"
 #include "SingletonGenEngine.h"
-#include "restore.h"
+
+//forward declaration
+struct RESTORE_GA_INDIVIDUAL;
 
 /**
  * This class represent one individual of the complete gen. alg. It have some gens and a fitness.
@@ -219,7 +224,7 @@ public:
 	 * @param linkSet (map<int,vector<int>>) the linkings between the individual and the genes
    * @return (bool) true if all ok
 	 */
-	static bool restore(int numberIndividuals,std::map<int,std::string> nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*> individualSet, std::map<int,std::vector<int> > linkSet);
+	static bool restore(int numberIndividuals,std::map<int,std::string>& nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*>& individualSet, std::map<int,std::vector<int> >& linkSet);
 
 	/**
 	 * restore the parent links from a restore structure
@@ -227,7 +232,7 @@ public:
    * @param individualSet (map<int,RESTORE_GA_INDIVIDUAL*> the structures which should be restored
    * @return (bool) true if all ok
 	 */
-	static bool restoreParent(int numberIndividuals,std::map<int,RESTORE_GA_INDIVIDUAL*> individualSet);
+	static bool restoreParent(int numberIndividuals,std::map<int,RESTORE_GA_INDIVIDUAL*>& individualSet);
 
 protected:
 	/**

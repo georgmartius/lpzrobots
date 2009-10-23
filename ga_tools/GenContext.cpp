@@ -31,7 +31,10 @@
  *   The Gen Context is inside the gen. alg. only saved in the             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-10-21 14:08:06  robot12
+ *   Revision 1.7  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.6  2009/10/21 14:08:06  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.5  2009/07/28 09:12:47  robot12
@@ -131,9 +134,27 @@ bool GenContext::restore() {
   Gen* gen;
   Individual* individual;
 
+  generation = SingletonGenEngine::getInstance()->getGeneration(0);
+  numIndividuals = generation->getCurrentSize();
+  for(y=0;y<numPrototypes;y++) {
+    prototype = prototypeSet[y];
+    context = new GenContext(prototype);
+    for(z=0;z<numIndividuals;z++) {
+      individual = generation->getIndividual(z);
+      for(v=0;v<numPrototypes;v++) {
+        gen = individual->getGen(v);
+        if(gen->getPrototype()==prototype)
+          break;
+      }
+      context->addGen(gen);
+    }
+    context->update();
+    prototype->insertContext(generation,context);
+  }
+
   for(x=0;x<numGeneration;x++) {
-    generation = SingletonGenEngine::getInstance()->getGeneration(x);
-    numIndividuals = generation->getSize();
+    generation = SingletonGenEngine::getInstance()->getGeneration(x+1);
+    numIndividuals = generation->getCurrentSize();
     for(y=0;y<numPrototypes;y++) {
       prototype = prototypeSet[y];
       context = new GenContext(prototype);
@@ -146,6 +167,7 @@ bool GenContext::restore() {
         }
         context->addGen(gen);
       }
+      context->update();
       prototype->insertContext(generation,context);
     }
   }

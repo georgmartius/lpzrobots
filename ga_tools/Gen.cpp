@@ -33,7 +33,10 @@
  *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-10-21 14:08:06  robot12
+ *   Revision 1.9  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.8  2009/10/21 14:08:06  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.7  2009/07/21 08:37:59  robot12
@@ -109,7 +112,7 @@ bool Gen::store(FILE* f)const {
 
   head.ID = m_ID;
 
-  fprintf(f,"%s\n",m_prototype->getName().c_str());
+  fprintf(f,"%i\n%s",(int)m_prototype->getName().length(),m_prototype->getName().c_str());
 
   for(unsigned int x=0;x<sizeof(RESTORE_GA_GENE);x++) {
     fprintf(f,"%c",head.buffer[x]);

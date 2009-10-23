@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-10-21 14:08:06  robot12
+ *   Revision 1.12  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.11  2009/10/21 14:08:06  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.10  2009/10/01 13:36:04  robot12
@@ -90,10 +93,10 @@
 #include <map>
 #include <selforg/randomgenerator.h>
 #include <selforg/inspectable.h>
-#include <restore.h>
 
 // forward declarations
 class Individual;
+struct RESTORE_GA_GENERATION;
 
 // gen. alg. includes
 
@@ -234,7 +237,7 @@ public:
 	 * @param linkSet (map<int,vector<int>>) the linkings between the generation and the individuals
 	 * @return (bool) true if all ok
 	 */
-	static bool restore(int numberGeneration, std::map<int,RESTORE_GA_GENERATION*> generationSet, std::map<int,std::vector<int> > linkSet);
+	static bool restore(int numberGeneration, std::map<int,RESTORE_GA_GENERATION*>& generationSet, std::map<int,std::vector<int> >& linkSet);
 
 protected:
 	/**

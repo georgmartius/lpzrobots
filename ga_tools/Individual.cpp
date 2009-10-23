@@ -27,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-10-21 14:08:06  robot12
+ *   Revision 1.13  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.12  2009/10/21 14:08:06  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.11  2009/10/01 13:29:42  robot12
@@ -161,7 +164,7 @@ bool Individual::store(FILE* f)const {
     return false;
   }
 
-  fprintf(f,"%s\n",m_name.c_str());
+  fprintf(f,"%i\n%s",(int)m_name.length(),m_name.c_str());
 
   head.ID = m_ID;
   head.numberGenes = m_gene.size();
@@ -188,7 +191,7 @@ bool Individual::store(FILE* f)const {
   return true;
 }
 
-bool Individual::restore(int numberIndividuals,std::map<int,std::string> nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*> individualSet, std::map<int,std::vector<int> > linkSet) {
+bool Individual::restore(int numberIndividuals,std::map<int,std::string>& nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*>& individualSet, std::map<int,std::vector<int> >& linkSet) {
   int x,y;
   Individual* individual;
   RESTORE_GA_INDIVIDUAL* head;
@@ -215,7 +218,7 @@ bool Individual::restore(int numberIndividuals,std::map<int,std::string> nameSet
   return true;
 }
 
-bool Individual::restoreParent(int numberIndividuals,std::map<int,RESTORE_GA_INDIVIDUAL*> individualSet) {
+bool Individual::restoreParent(int numberIndividuals,std::map<int,RESTORE_GA_INDIVIDUAL*>& individualSet) {
   Individual *p1,*p2,*ind;
   RESTORE_GA_INDIVIDUAL* head;
 

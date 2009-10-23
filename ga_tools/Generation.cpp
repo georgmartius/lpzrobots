@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-10-21 14:08:07  robot12
+ *   Revision 1.15  2009-10-23 10:47:45  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.14  2009/10/21 14:08:07  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.13  2009/10/01 13:36:04  robot12
@@ -203,6 +206,10 @@ bool Generation::store(FILE* f)const {
     return false;
   }
 
+  //the first generation is not a correct generation!!!
+  if(m_generationNumber==-1)
+    return true;
+
   head.number = m_generationNumber;
   head.numberIndividuals = m_individual.size();
   head.size = m_size;
@@ -228,10 +235,34 @@ bool Generation::store(FILE* f)const {
   return true;
 }
 
-bool Generation::restore(int numberGeneration, std::map<int,RESTORE_GA_GENERATION*> generationSet, std::map<int,std::vector<int> > linkSet) {
+bool Generation::restore(int numberGeneration, std::map<int,RESTORE_GA_GENERATION*>& generationSet, std::map<int,std::vector<int> >& linkSet) {
   int x,y;
   Generation* generation;
   RESTORE_GA_GENERATION* head;
+
+  //prepare first
+  head = generationSet[0];
+  generation = new Generation(-1,head->size,head->children);
+
+  //restore values
+  generation->m_q1 = 0.0;
+  generation->m_q3 = 0.0;
+  generation->m_w1 = 0.0;
+  generation->m_w3 = 0.0;
+  generation->m_min = 0.0;
+  generation->m_max = 0.0;
+  generation->m_med = 0.0;
+  generation->m_avg = 0.0;
+  generation->m_best = 0.0;
+  generation->m_dSize = (double)head->size;
+  generation->m_dNumChildren = (double)head->children;
+
+  //restore Individuals
+  for(y=0;y<head->size;y++) {
+    generation->m_individual.push_back(SingletonGenEngine::getInstance()->getIndividual(linkSet[0][y]));
+  }
+
+  SingletonGenEngine::getInstance()->addGeneration(generation);
 
   for(x=0;x<numberGeneration;x++) {
     head = generationSet[x];
@@ -253,7 +284,7 @@ bool Generation::restore(int numberGeneration, std::map<int,RESTORE_GA_GENERATIO
     generation->m_dNumChildren = (double)head->children;
 
     //restore Individuals
-    for(y=0;y<head->size;y++) {
+    for(y=0;y<linkSet[x].size();y++) {
       generation->m_individual.push_back(SingletonGenEngine::getInstance()->getIndividual(linkSet[x][y]));
     }
 

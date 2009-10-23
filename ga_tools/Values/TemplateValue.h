@@ -27,7 +27,10 @@
  *   standard data types concepted as a template class.                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-10-21 14:08:19  robot12
+ *   Revision 1.9  2009-10-23 10:48:02  robot12
+ *   bugfix in store and restore
+ *
+ *   Revision 1.8  2009/10/21 14:08:19  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.7  2009/07/21 08:37:59  robot12
@@ -189,7 +192,7 @@ public:
 
     temp.value = m_value;
 
-    fprintf(f,"%s\n",m_name.c_str());
+    fprintf(f,"%i\n%s",(int)m_name.length(),m_name.c_str());
 
     for(unsigned int x=0;x<sizeof(RESTORE_GA_TEMPLATE<Typ>);x++) {
       fprintf(f,"%c",temp.buffer[x]);
@@ -205,12 +208,23 @@ public:
    */
   virtual bool restore(FILE* f) {
     RESTORE_GA_TEMPLATE<Typ> temp;
+    char* buffer;
+    int toread;
 
     //test
     if(f==NULL) {
       printf("\n\n\t>>> [ERROR] <<<\nNo File to restore GA [temp value].\n\t>>> [END] <<<\n\n\n");
       return false;
     }
+
+    fscanf(f,"%i\n",&toread);
+    buffer=new char[toread];
+    for(int y=0;y<toread;y++){
+      fscanf(f,"%c",&buffer[y]);
+    }
+    buffer[toread]='\0';
+    m_name=buffer;
+    delete[] buffer;
 
     for(unsigned int x=0;x<sizeof(RESTORE_GA_TEMPLATE<Typ>);x++) {
       fscanf(f,"%c",&temp.buffer[x]);
