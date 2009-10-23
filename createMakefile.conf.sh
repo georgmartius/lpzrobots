@@ -40,9 +40,9 @@ echo -e "\n# user or developement installation\n\
 if [ -z  ode_robots/install_prefix.conf ]; then
     sed -e "s/^#define.*//" -ibak ode_robots/install_prefix.conf;
 fi
+echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
 if [ "$choice" = "u" ]; then 	
   echo "INSTALL_TYPE=user" >> Makefile.conf
-  echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
   echo "move all Makefiles";
   for F in `find ode_robots/simulations selforg/simulations selforg/examples -mindepth 2 -name Makefile`; do
     if [ ! -e ${F}.devel ]; then cp $F ${F}.devel; fi # backup development Makefile
