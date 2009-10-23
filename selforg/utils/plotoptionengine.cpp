@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.8  2009-10-14 10:00:17  martius
+ *  Revision 1.9  2009-10-23 12:37:47  martius
+ *  plot description for time
+ *
+ *  Revision 1.8  2009/10/14 10:00:17  martius
  *  export description strings properly
  *
  *  Revision 1.7  2009/08/10 15:36:19  der
@@ -126,12 +129,14 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
       (*i)->print(po.pipe, "# ");
     }
     // print infolines of all inspectables
+    fprintf(po.pipe,"#I D t time (s)\n"); // add description for time
     FOREACHC(list<const Inspectable*>, inspectables, insp) {
       const list<string>& infoLines = (*insp)->getInfoLines();
       FOREACHC(list<string>, infoLines, infoLine) {
         fprintf(po.pipe,string("#I ").append(*infoLine).append("\n").c_str());
       }
     }
+
     fprintf(po.pipe,"#######\n");
     // print head line with all parameter names
     fprintf(po.pipe,"#C t");
