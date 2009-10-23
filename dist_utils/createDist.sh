@@ -7,6 +7,7 @@ BASE=../..
 DIR=$BASE/$NAME-$VERSION
 SOSIMDIR=$DIR/selforg/simulations/
 ODESIMDIR=$DIR/ode_robots/simulations/
+GASIMDIR=$DIR/ga_tools/simulations/
 SRCDIR=$BASE/lpzrobots
 
 mkdir $DIR || exit 1;
@@ -71,6 +72,25 @@ for S in $SIMS; do
     	echo -n  "$S " >>  $ODESIMDIR/Makefile.conf
     else
 	rm -r $ODESIMDIR/$S;
+    fi
+done 
+
+echo "Copy ga_tools";
+cp -r $SRCDIR/ga_tools $DIR/;
+pushd `pwd`;
+echo -en "# subdirectories with simulations\nSIMULATIONS=" > $GASIMDIR/Makefile.conf
+
+cd $GASIMDIR  || exit 1;
+SIMS=`find . -mindepth 1 -maxdepth 1 -type d`
+popd;
+
+echo "Keeping the following simulation:";
+for S in $SIMS; do
+    S="${S#./}";
+    if grep "$S" ga_tools_simulations; then
+    	echo -n  "$S " >>  $GASIMDIR/Makefile.conf
+    else
+	rm -r $GASIMDIR/$S;
     fi
 done 
 

@@ -16,7 +16,7 @@ echo  "Press CTRL + C to abort";
 
 echo -e "\n-- Installation base directory DIR --";
 echo -e "\tLibaries go to \$DIR/lib/ ,binary files to \$DIR/bin/ and includes to \$DIR/include/";
-echo -e "\tFor system wide install keep the default (required root permissions)";
+echo -e "\tFor system wide install keep the default (requires root permissions)";
 echo -e "\tFor a user installions use /home/yourloginname and follow the instructions below";
 echo -en "\t**Enter base directory [/usr/local]: ";
 read dir;
