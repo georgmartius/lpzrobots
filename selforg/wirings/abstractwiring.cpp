@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-10-14 09:59:46  martius
+ *   Revision 1.3  2009-10-23 12:38:30  martius
+ *   noise is stored in a matrix internally such that it can be inspected easily
+ *
+ *   Revision 1.2  2009/10/14 09:59:46  martius
  *   added description of vectors
  *
  *   Revision 1.1  2009/08/05 22:32:21  martius
@@ -43,8 +46,10 @@
 bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){    
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;
-  noisevals = (sensor*) malloc(sizeof(sensor)  * this->rsensornumber);
-  memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
+  
+  mNoise.set(this->rsensornumber,1);
+  noisevals = (double*) mNoise.unsafeGetData(); // hack! we let the noiseval pointer point to the internal memory of the noisematrix.
+
   if(noiseGenerator)
     noiseGenerator->init(rsensornumber, randGen);
   bool rv= initIntern(robotsensornumber, robotmotornumber, randGen);    
@@ -57,9 +62,13 @@ bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
     addInspectableMatrix("y", &mCmotors,  false, "motor values (before wiring)");
   }
   if(plotMode & Robot) {
-    addInspectableMatrix("x_R",&mRsensors, false, "sensor values (before wiring)");
-    addInspectableMatrix("y_R",&mRmotors,  false, "motor values (after wiring)");
+    addInspectableMatrix("x_R", &mRsensors, false, "sensor values (before wiring)");
+    addInspectableMatrix("y_R", &mRmotors,  false, "motor values (after wiring)");
   }
+  if(plotMode & Noise) {    
+    addInspectableMatrix("n", &mNoise, false, "sensor noise");
+  }
+
   initialised = true;
   return rv;
 }
@@ -87,24 +96,3 @@ bool AbstractWiring::wireMotors(motor* rmotors, int rmotornumber,
   return rv;
 }
 
-Inspectable::iparamkeylist AbstractWiring::getInternalParamNames() const {
-  iparamkeylist l=Inspectable::getInternalParamNames();
-  char buffer[32];
-  if(plotMode & Noise) {    
-    for(int i = 0; i < rsensornumber; i++){
-      sprintf(buffer,"n[%d]", i);
-      l += std::string(buffer);
-    }
-  } 
-  return l;
-}
-
-Inspectable::iparamvallist AbstractWiring::getInternalParams() const {
-  iparamvallist l=Inspectable::getInternalParams();
-  if(plotMode & Noise) {    
-    for(int i=0; i < rsensornumber; i++){
-      l += noisevals[i];
-    }
-  }
-  return l;
-}

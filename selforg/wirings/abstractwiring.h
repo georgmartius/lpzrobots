@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-08-05 22:32:21  martius
+ *   Revision 1.10  2009-10-23 12:38:30  martius
+ *   noise is stored in a matrix internally such that it can be inspected easily
+ *
+ *   Revision 1.9  2009/08/05 22:32:21  martius
  *   big change:
  *       abstractwiring is responsable for providing sensors and motors
  *        and noise to the inspectable interface.
@@ -126,7 +129,6 @@ public:
    */
   virtual ~AbstractWiring(){
     if(noiseGenerator) delete noiseGenerator;
-    if(noisevals) free(noisevals);
   }
 
   /** Initializes the  number of sensors and motors from robot
@@ -183,17 +185,6 @@ public:
    */
   virtual int getControllerMotornumber() {return cmotornumber;}
 
-  /** Returns the list of the names of all internal parameters.
-      Call this function if you overload it!
-   */
-  virtual iparamkeylist getInternalParamNames() const;
-
-  /** Returns a list of the values of all internal parameters
-      (in the order given by getInternalParamNames()).
-      Call this function if you overload it!
-  */
-  virtual iparamvallist getInternalParams() const;
-
 
 protected:
   /** to be overloaded by subclasses
@@ -219,7 +210,8 @@ protected:
   /// using plotTypes this variables defines what is plotted
   int plotMode; 
   /// for storing the noise values
-  sensor* noisevals;
+  matrix::Matrix mNoise;
+  sensor* noisevals; // pointer to the noisevalues stored in the matrix
 
   /// number of sensors at robot side
   int rsensornumber;
