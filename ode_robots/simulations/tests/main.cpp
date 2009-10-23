@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-05-11 17:06:24  martius
+ *   Revision 1.10  2009-10-23 13:07:47  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.9  2009/05/11 17:06:24  martius
  *   new schlange to test servos
  *
  *   Revision 1.8  2008/05/01 22:03:56  martius
@@ -142,22 +145,22 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(14.1104, 12.3569, 6.80607),  Pos(141.919, -16.1792, 0));
+    setCameraHomePos(Pos(12.2217, 9.05786, 5.82483),  Pos(137.165, -12.3091, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.setParam("noise", 0);
-    global.odeConfig.setParam("simstepsize", 0.01); 
+    global.odeConfig.setParam("simstepsize", 0.002); 
     
-    bool substances = false;
+    bool substances = true;
     bool transforms = false;
     bool motors     = false;
-    bool schlange   = true;
+    bool schlange   = false;
     
     s3=0;
+    j=0;
       
     if(transforms){
-      j=0;
       if(1){
 	s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
 	s1->setPosition(osg::Vec3(10,2,2));
@@ -191,118 +194,122 @@ public:
 
       if(1){
 	// Metal ground
+	double y = 0;
 	handle2.substance.toMetal(1);
 	b = new PassiveBox(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), osg::Vec3(7,1,1),100);
-	b->setPosition(osg::Vec3(0,0,0.1));
+	b->setPosition(osg::Vec3(0,y,0));
 	global.obstacles.push_back(b);
 	fj= new FixedJoint(global.environment, b->getMainPrimitive());
 	fj->init(odeHandle,osgHandle, false);
 
 	handle2.substance.toMetal(1);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), 0.5);
-	s->setPosition(osg::Vec3(-3,0,3));
+	s->setPosition(osg::Vec3(-3,y,3));
 	global.obstacles.push_back(s);
  
 	handle2.substance.toPlastic(1);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,1)), 0.5);
-	s->setPosition(osg::Vec3(-1,0,3));
+	s->setPosition(osg::Vec3(-1,y,3));
 	global.obstacles.push_back(s);
 
 	handle2.substance.toRubber(10); 
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), 0.5);
-	s->setPosition(osg::Vec3(1,0,3));
+	s->setPosition(osg::Vec3(1,y,3));
 	global.obstacles.push_back(s);
 
 	handle2.substance.toFoam(5);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,0)), 0.5);
-	s->setPosition(osg::Vec3(3,0,3));
+	s->setPosition(osg::Vec3(3,y,3));
+	global.obstacles.push_back(s);
+      }
+      if(1){
+	double y = -3;
+	// Plastik ground
+	handle2.substance.toPlastic(0.8);
+	b = new PassiveBox(handle2, osgHandle.changeColor(Color(1,1,1)), osg::Vec3(7,1,1),10);
+	b->setPosition(osg::Vec3(0,y,0));
+	global.obstacles.push_back(b);
+	fj= new FixedJoint(global.environment, b->getMainPrimitive());
+	fj->init(odeHandle,osgHandle, false);
+
+	handle2.substance.toMetal(1);
+	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), 0.5);
+	s->setPosition(osg::Vec3(-3,y,3));
+	global.obstacles.push_back(s);
+
+	handle2.substance.toPlastic(1);
+	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,1)), 0.5);
+	s->setPosition(osg::Vec3(-1,y,3));
+	global.obstacles.push_back(s);
+
+	handle2.substance.toRubber(10);
+	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), 0.5);
+	s->setPosition(osg::Vec3(1,y,3));
+	global.obstacles.push_back(s);
+
+	handle2.substance.toFoam(5);
+	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,0)), 0.5);
+	s->setPosition(osg::Vec3(3,y,3));
 	global.obstacles.push_back(s);
       }
       if(1){
 	// Rubber ground
+	double y = -6;
 	handle2.substance.toRubber(10);
 	b = new PassiveBox(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), osg::Vec3(7,1,1),100);
-	b->setPosition(osg::Vec3(0,5,0));
+	b->setPosition(osg::Vec3(0,y,0));
 	global.obstacles.push_back(b);
 	fj= new FixedJoint(global.environment, b->getMainPrimitive());
 	fj->init(odeHandle,osgHandle, false);
 
 	handle2.substance.toMetal(1);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), 0.5);
-	s->setPosition(osg::Vec3(-3,5,3));
+	s->setPosition(osg::Vec3(-3,y,3));
 	global.obstacles.push_back(s);
 
 	handle2.substance.toPlastic(1);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,1)), 0.5);
-	s->setPosition(osg::Vec3(-1,5,3));
+	s->setPosition(osg::Vec3(-1,y,3));
 	global.obstacles.push_back(s);
 
 	handle2.substance.toRubber(10);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), 0.5);
-	s->setPosition(osg::Vec3(1,5,3));
+	s->setPosition(osg::Vec3(1,y,3));
 	global.obstacles.push_back(s);
 
 	handle2.substance.toFoam(5);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,0)), 0.5);
-	s->setPosition(osg::Vec3(3,5,3));
+	s->setPosition(osg::Vec3(3,y,3));
 	global.obstacles.push_back(s);
       }
       if(1){
-	// Plastik ground
-	handle2.substance.toPlastic(0.8);
-	b = new PassiveBox(handle2, osgHandle.changeColor(Color(1,1,1)), osg::Vec3(7,1,1),10);
-	b->setPosition(osg::Vec3(0,-5,0));
-	global.obstacles.push_back(b);
-	fj= new FixedJoint(global.environment, b->getMainPrimitive());
-	fj->init(odeHandle,osgHandle, false);
-
-	handle2.substance.toMetal(1);
-	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), 0.5);
-	s->setPosition(osg::Vec3(-3,-5,3));
-	global.obstacles.push_back(s);
-
-	handle2.substance.toPlastic(1);
-	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,1)), 0.5);
-	s->setPosition(osg::Vec3(-1,-5,3));
-	global.obstacles.push_back(s);
-
-	handle2.substance.toRubber(10);
-	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), 0.5);
-	s->setPosition(osg::Vec3(1,-5,3));
-	global.obstacles.push_back(s);
-
-	handle2.substance.toFoam(5);
-	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,0)), 0.5);
-	s->setPosition(osg::Vec3(3,-5,3));
-	global.obstacles.push_back(s);
-      }
-      if(1){
+	double y = -9;
 	// Foam ground
 	handle2.substance.toFoam(5);
 	b = new PassiveBox(handle2, osgHandle.changeColor(Color(1,1,0)), osg::Vec3(7,1,1),10);
-	b->setPosition(osg::Vec3(0,-7,0));
+	b->setPosition(osg::Vec3(0,y,0));
 	global.obstacles.push_back(b);
 	fj= new FixedJoint(global.environment, b->getMainPrimitive());
 	fj->init(odeHandle,osgHandle, false);
 
 	handle2.substance.toMetal(1);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.5,0.5,0.5)), 0.5);
-	s->setPosition(osg::Vec3(-3,-7,3));
+	s->setPosition(osg::Vec3(-3,y,3));
 	global.obstacles.push_back(s);
 
 	handle2.substance.toPlastic(1);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,1)), 0.5);
-	s->setPosition(osg::Vec3(-1,-7,3));
+	s->setPosition(osg::Vec3(-1,y,3));
 	global.obstacles.push_back(s);
 
 	handle2.substance.toRubber(10);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(0.1,0.1,0.1)), 0.5);
-	s->setPosition(osg::Vec3(1,-7,3));
+	s->setPosition(osg::Vec3(1,y,3));
 	global.obstacles.push_back(s);
 
 	handle2.substance.toFoam(5);
 	s = new PassiveSphere(handle2, osgHandle.changeColor(Color(1,1,0)), 0.5);
-	s->setPosition(osg::Vec3(3,-7,3));
+	s->setPosition(osg::Vec3(3,y,3));
 	global.obstacles.push_back(s);
       }
     }

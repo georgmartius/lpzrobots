@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-05-01 22:03:54  martius
+ *   Revision 1.3  2009-10-23 13:07:47  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.2  2008/05/01 22:03:54  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -106,20 +109,21 @@ public:
 	wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 	contrl = new InvertNChannelController(10);
 	
-// 	if ((i==0) && (j==0)) {
-// 	  agent = new OdeAgent(plotoptions);
-	  
-// 	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
-// 	  nimm2->setColor(Color(1.0,1.0,0));
-// 	  global.configs.push_back(contrl);
-// 	  agent->init(contrl, nimm2, wiring);
-// 	  //    controller->setParam("nomupdate", 0.0005);
-// 	} else {
-	  agent = new OdeAgent(NoPlot);	  
-	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
-	  agent->init(contrl, nimm2, wiring);
-	  //	}
-	agent->setTrackOptions(TrackRobot(true,true,false,false,(std::itos(numx*numy) + "_" + std::itos((int)regionsize)).c_str(), 10));
+	// 	if ((i==0) && (j==0)) {
+	// 	  agent = new OdeAgent(plotoptions);
+	
+	// 	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
+	// 	  nimm2->setColor(Color(1.0,1.0,0));
+	// 	  global.configs.push_back(contrl);
+	// 	  agent->init(contrl, nimm2, wiring);
+	// 	  //    controller->setParam("nomupdate", 0.0005);
+	// 	} else {
+
+	agent = new OdeAgent(NoPlot);	  
+	nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
+	agent->init(contrl, nimm2, wiring);
+		
+	agent->setTrackOptions(TrackRobot(true,true,false,false,(std::itos(numx*numy) + "_" + std::itos((int)regionsize)).c_str(), 1));
 	nimm2->place(Pos( (j-numx/2)*1.25,(i-numy/2)*1.25,0));
 	global.agents.push_back(agent);	
       }
@@ -134,7 +138,7 @@ public:
 int main (int argc, char **argv)
 { 
   if(argc<3){
-    fprintf(stderr,"Usage: %s num_x num_y [size]",argv[0]);    
+    fprintf(stderr,"Usage: %s num_x num_y [size]\n  size: use -1 for automatic size\n",argv[0]);    
     exit(1);
   }
   double s=-1;
