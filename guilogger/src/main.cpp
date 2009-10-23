@@ -113,8 +113,9 @@ int main( int argc, char ** argv ) {
       qsource = qpipe;
       a.connect(qsource, SIGNAL(newData(QString)), cd, SLOT(receiveRawData(QString)));
       qsource->start();
-    } else if(params.getMode()=="file") 
-    {  // printf("Sorry, there are no native segfaults any more.\n");
+    } else if(params.getMode()=="file") {  
+      // will be connected within guilogger class
+      // printf("Sorry, there are no native segfaults any more.\n");
 //        printf("But nevertheless I further provide segfaults for convenience by using free(0)\n");
 //        printf("Just kidding! Have a nice day.\n");
     } else {

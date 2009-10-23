@@ -195,7 +195,7 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
     resize( 480, 600 );
     updateSliderPlot();
   }else{  
-    resize( 800, 600 );
+    resize( 400, 600 );
     connect(plottimer, SIGNAL(timeout()), SLOT(plotUpdate()));
     plottimer->setSingleShot(false);
     plottimer->start(startplottimer);
@@ -296,12 +296,10 @@ int GuiLogger::analyzeFile() {
           break;
         }
       }
+    s[size-1]='\0';
+    channelData.receiveRawData(QString(s).trimmed());
     if (s[0] == '#' && s[1] == 'C') channelline=true;       
   }
-  s[size-1]='\0';
-  printf("%s",s);
-
-  channelData.receiveRawData(QString(s));
 
   do
     {   i = fread(&c, 1, 1, instream);

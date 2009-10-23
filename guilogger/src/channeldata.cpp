@@ -74,7 +74,7 @@ void ChannelData::setChannels(const QStringList& newchannels){
     vectorRE.setPattern(".+\\[\\d+\\]"); // regexp for a vector (e.g. v[0])
     QRegExp matrixRE;
     matrixRE.setPatternSyntax(QRegExp::RegExp);
-    matrixRE.setPattern(".+\\[\\d+\\]\\[\\d+\\]"); // regexp for a matrix (e.g. A[0][2])
+    matrixRE.setPattern(".+\\[\\d+,\\d+\\]"); // regexp for a matrix (e.g. A[0,2])
     FOREACHC(QStringList, newchannels, n){      
       if(preset.contains(*n)){
 	channels[i] = preset[*n];
@@ -91,6 +91,7 @@ void ChannelData::setChannels(const QStringList& newchannels){
 	} else {
 	  channels[i].type  = Single;
 	}
+        //        fprintf(stderr, "Ch %s : %i\n", n->latin1(), channels[i].type);
       }
       channels[i].row = channels[i].column = 0; // will be initialized later
       channelindex[*n] = i;
@@ -125,6 +126,7 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
   QRegExp vectorRE;
   vectorRE.setPatternSyntax(QRegExp::RegExp);
   vectorRE.setPattern(".+\\[(\\d+)\\]"); // regexp for a vector (e.g. v[0])
+
   if(channels[index].type == Single){ // just a normal channel
     mc.info=channels[index];
     mc.startindex = index;
@@ -133,8 +135,10 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
     mc.size=1;   
   }else if(channels[index].type == MatrixElement 
 	   || channels[index].type == VectorElement){ // A matrix or vector channel    
+
     QString root = getChannelNameRoot(channels[index].name);
     QString rootwithbracket = root + "[";
+    
     mc.info.name = root + "_";
     if(preset.contains(mc.info.name)){
       mc.info.descr= preset[mc.info.name].descr;
@@ -149,18 +153,20 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
       mc.info.type=Matrix;
       QRegExp matrixRE;
       matrixRE.setPatternSyntax(QRegExp::RegExp);
-      matrixRE.setPattern(".+\\[(\\d+)\\]\\[(\\d+)\\]"); // regexp for a matrix (e.g. A[0][2])
+      matrixRE.setPattern(".+\\[(\\d+),(\\d+)\\]"); // regexp for a matrix (e.g. A[0,2])
       
       // scan through
       while(channels[index].name.startsWith(rootwithbracket)){ // one pass is assured
 	if(matrixRE.exactMatch(channels[index].name)){
 	  QStringList matches = matrixRE.capturedTexts();	
-	  int col = matches[0].toInt();
-	  int row = matches[1].toInt();
+	  int col = matches[1].toInt();
+	  int row = matches[2].toInt();
 	  channels[index].row    = row;
 	  channels[index].column = col;
-	  if(channels[index].descr.isEmpty()) 
-	    channels[index].descr = mc.info.descr + QString(" %i,%i").arg(col+1,row+1);
+          if(channels[index].descr.isEmpty()) {
+	    channels[index].descr = (mc.info.descr.isEmpty() ? root : mc.info.descr)
+              + QString(" elem %1,%2").arg(col+1).arg(row+1);
+          }
 	  mc.columns = mc.columns < col+1 ? col+1 : mc.columns;
 	  mc.rows    = mc.rows    < row+1 ? row+1 : mc.rows;	
 	} else {
@@ -181,6 +187,10 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
 	  QStringList matches = vectorRE.capturedTexts();	
 	  int row = matches[1].toInt();
 	  channels[index].row    = row;
+          if(channels[index].descr.isEmpty()) {
+	    channels[index].descr = (mc.info.descr.isEmpty() ? root : mc.info.descr)
+              + QString(" elem %1").arg(row+1);
+          }
 	  mc.rows    = mc.rows    < row+1 ? row+1 : mc.rows;	
 	} else {
 	  fprintf(stderr, "error while parsing vector element %s!", 
