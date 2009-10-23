@@ -1,6 +1,6 @@
 Georg Martius <georg@nld.ds.mpg.de>
 Ralf Der <ralfder@mis.mpg.de>
-Frank Hesse <frank@chaos.gwdg.de>
+Frank Hesse <frank@nld.ds.mpg.de>
 Frank Guettler <guettler@informatik.uni-leipzig.de>
 Katja Fiedler <katja@nld.ds.mpg.de>
 Michael Herrmann <michael@nld.ds.mpg.de>
@@ -28,7 +28,10 @@ Rocco Gwizdziel <mai00bvz@studserv.uni-leipzig.de>
 /***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-11 11:50:07  guettler
+ *   Revision 1.12  2009-10-23 16:16:46  martius
+ *   new email of frank hesse
+ *
+ *   Revision 1.11  2009/08/11 11:50:07  guettler
  *   corrected mail of antonia siegert
  *
  *   Revision 1.10  2009/08/05 08:20:20  martius
