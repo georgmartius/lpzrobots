@@ -50,7 +50,7 @@ void signal_handler_init(){
 
 void printUsage(){
   printf("guilogger parameter listing\n");
-  printf("   -m [mode]  mode = serial | pipe | fpipe| file\n");
+  printf("   -m [mode]  mode = serial | pipe (def) | fpipe| file\n");
   printf("   -p [port]  port = serial port to read from\n");
   printf("   -d [delay] delay = ms to wait between data (for fpipe)\n");
   printf("   -f [file]  input file\n");

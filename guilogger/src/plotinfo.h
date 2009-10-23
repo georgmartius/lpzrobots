@@ -30,7 +30,7 @@
 
 #include "channeldata.h"
 
-typedef enum PlotStyle {DEFAULT, LINES, POINTS};
+enum PlotStyle {DEFAULT, LINES, POINTS};
 
 // information for a single channel for one gnuplot window
 class ChannelPlotInfo{

@@ -28,29 +28,37 @@
 #include <QStringList>
 #include <QHash>
 
-// definition for Vector and Matrix elements
-typedef struct _MultiChannel{
-  int startindex; // start index in the data buffer
-  int size;       //  number of elements in the multichannel entry
-  bool ismatrix;  // true if matrix, otherwise vector
-  int columns;    // only valid of matrices
-} MultiChannel;
-
 typedef QString ChannelName;
 typedef QString ChannelDescr;
 
-typedef enum ChannelType { AutoDetection, Single, VectorElement, MatrixElement };
+enum ChannelType { AutoDetection, Single, Matrix, Vector, 
+			   VectorElement, MatrixElement };
+/// information of a channel
 typedef struct _ChannelInfo{
   ChannelName  name;
   ChannelDescr descr;
   ChannelType  type;
+  int row;    // only valid for vectors and matrices
+  int column; // only valid for vectors and matrices
 } ChannelInfo;
+
+/** definition hierarchical representation for Vector and Matrix elements 
+    but also for normal elements (to support hierarchical representation)
+ */
+typedef struct _MultiChannel{
+  ChannelInfo info; 
+  int startindex; // start index in the data buffer
+  int rows;       // number rows in the multichannel entry
+  int columns;    // number of columns  in the multichannel entry
+  int size;       // number of channels that belong to this multichannel
+} MultiChannel;
+
 
 typedef QVector<double> ChannelVals;
 
 typedef QLinkedList<int> IndexList; 
 
-typedef QHash <ChannelName, MultiChannel> MultiChannelMap;
+typedef QVector<MultiChannel> MultiChannels;
 
 class ChannelData : public QObject{
   Q_OBJECT
@@ -76,7 +84,12 @@ public:
   /// returns the name of the channel with the given index (empty string for out of bounds)
   const ChannelName& getChannelName(int index) const;
 
-  /// sets the desription of a channel (can be used before initialization)
+  /// returns the multi channel index and (-1) if not found
+  int getMultiChannelIndex(const ChannelName& name) const;
+
+  /** sets the desription of a channel 
+      (can be used before initialization and also for multichannels) 
+  */
   void setChannelDescription(const ChannelName& name, const ChannelDescr& description);
 
   /// inserts a new set of data into the ring buffer
@@ -97,18 +110,21 @@ public:
    */
   QVector<ChannelVals> getHistory(const QList<ChannelName>& channels, int history = 0) const;
 
-  const QVector<ChannelVals > getData() const { return data; }
-  const QVector<ChannelInfo > getInfos() const { return channels; }
+  const QVector<ChannelVals>& getData() const { return data; }
+  const QVector<ChannelInfo>& getInfos() const { return channels; }
   int getNumChannels() const { return numchannels; }
-  const MultiChannelMap  getMultichannels() const { return multichannels; }
+  int getNumMultiChannels() const { return multichannels.size(); }
+    const MultiChannels& getMultiChannels() const { return multichannels; }
   int getTime() const { return time; } 
 
 public slots:
   void receiveRawData(QString line);
 
 protected:
-  
-
+  /// extracts a multichannel from the channels starting from position i (i is advanced)
+  MultiChannel extractMultiChannel(int* i);  
+  /// returns the name without the index specifiers e.g. for A[0][3] it returns A
+  QString getChannelNameRoot(const ChannelName& name) const ;
 signals:
   void quit();
   void channelsChanged();
@@ -124,8 +140,12 @@ private:
   int numchannels;
   /// map from channel-names to index
   QHash<ChannelName, int> channelindex;
-  /// multichannel types like matrices and vectors are referenced here
-  MultiChannelMap multichannels;
+  /** list of multichannels like matrices and vectors, but also normal elements
+      are referenced here to support hierarchical representation
+  */
+  MultiChannels multichannels;
+  /// map from (multi-)channel-name to index
+  QHash<ChannelName, int> multichannelindex;
   
   int buffersize; ///< size of ringbuffer
 

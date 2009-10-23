@@ -49,6 +49,7 @@ public:
     help = FALSE;
     delay = 100;
     mpparse = FALSE;
+    mode = "pipe";
   }
 
 
@@ -67,7 +68,7 @@ public:
     QList<QString> ComLineParams;
     for(int i=1; i<argc; i++) ComLineParams.push_back(argv[i]);
 
-    int i=0;
+    int i=0;    
     if((i = ComLineParams.indexOf("-m")) != -1) mode = ComLineParams[i+1];
     if((i = ComLineParams.indexOf("-p")) != -1) port = ComLineParams[i+1];
     if((i = ComLineParams.indexOf("-f")) != -1) file = ComLineParams[i+1];

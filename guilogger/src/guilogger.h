@@ -113,7 +113,6 @@ private:
   QScrollArea* sv;
   QWidget* commWidget; 
   QTableView* channelWidget;
-  //  QWidget* channelWidget;
     
   QTextEdit   *parameterlistbox;
   QLineEdit   *paramvaluelineedit;

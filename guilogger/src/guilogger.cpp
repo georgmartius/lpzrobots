@@ -81,6 +81,19 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
   channelWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
   channelWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
+  // I tried to get a tree view working but it took too much time. see descarded folder
+//   // create Model for channel - plotwindow association
+//   treeModel = new PlotChannelsTreeModel(&plotInfos, channelandslider);
+//   connect(&channelData, SIGNAL(update()), treeModel, SLOT(update()));
+//   connect(treeModel, SIGNAL(updateWindow(int)), this, SLOT(plotChannelsChanged(int)));
+//   // create View for channel - plotwindow association
+//   channelTreeWidget = new QTreeView(channelandslider);
+//   channelTreeWidget->setModel(treeModel);
+//   //channelTreeWidget->resizeColumnsToContents();
+//   channelTreeWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
+//   channelTreeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+//   channelandsliderlayout->addWidget(channelTreeWidget);
+
   // // create editor for reference
 //   QItemEditorFactory *editorFactory = new QItemEditorFactory;
 //   QItemEditorCreatorBase *creator = new QStandardItemEditorCreator<QCombobox>();
@@ -182,7 +195,7 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
     resize( 480, 600 );
     updateSliderPlot();
   }else{  
-    resize( 400, 600 );
+    resize( 800, 600 );
     connect(plottimer, SIGNAL(timeout()), SLOT(plotUpdate()));
     plottimer->setSingleShot(false);
     plottimer->start(startplottimer);
@@ -286,7 +299,7 @@ int GuiLogger::analyzeFile() {
     if (s[0] == '#' && s[1] == 'C') channelline=true;       
   }
   s[size-1]='\0';
-  printf(s);
+  printf("%s",s);
 
   channelData.receiveRawData(QString(s));
 
@@ -446,7 +459,7 @@ void GuiLogger::load() {
             pwin = qv.toInt();
             if(plotInfos.size()<=pwin){
               fprintf(stderr, "we don't have so many windows: %i\n", pwin);
-              continue;
+              goto finish;
             }
           } else if(var->getName() == "Disabled") {
             plotInfos[pwin]->setIsVisible(qv.trimmed() != "yes");
@@ -469,6 +482,7 @@ void GuiLogger::load() {
 
     }
   }
+ finish:
 
   // load and calculate positioning
   QString calcPositions = cfgFile.getValueDef("General","CalcPositions","yes");
