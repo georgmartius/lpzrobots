@@ -26,7 +26,13 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2009-10-06 11:50:56  robot12
+ *  Revision 1.5  2009-10-23 12:47:13  guettler
+ *  hack for tasked simulations:
+ *  there are some problems if running in parallel mode,
+ *  if you do not destroy the geom, everything is fine
+ *  (should be no problem because world is destroying geoms too)
+ *
+ *  Revision 1.4  2009/10/06 11:50:56  robot12
  *  some bugfixes
  *
  *  Revision 1.3  2009/09/17 14:13:09  guettler
@@ -96,6 +102,8 @@ namespace lpzrobots {
     QMP_SHARE(argc);
     QMP_SHARE(argv);
     dInitODE();
+
+    Primitive::setDestroyGeomFlag(false);
     QMP_PARALLEL_FOR(i, 0, simTaskList.size(),quickmp::INTERLEAVED){
       //QMP_USE_SHARED(simTaskHandleCopy, SimulationTaskHandle);
       //QMP_USE_SHARED(parser, osg::ArgumentParser*);
@@ -111,6 +119,10 @@ namespace lpzrobots {
     QP(float timeSinceInit=PROFILER.getTimeSinceInit(quickprof::MILLISECONDS));
     QP(cout << endl << "total sum:      " << timeSinceInit << " ms"<< std::endl);
     // dCloseODE ();
+    // 20091023; guettler:
+    // hack for tasked simulations; there are some problems if running in parallel mode,
+    // if you do not destroy the geom, everything is fine (should be no problem because world is destroying geoms too)
+    Primitive::setDestroyGeomFlag(true);
     // clean simTaskList
     simTaskList.clear();
   }

@@ -23,7 +23,13 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2009-08-10 07:47:58  guettler
+ *   Revision 1.24  2009-10-23 12:47:13  guettler
+ *   hack for tasked simulations:
+ *   there are some problems if running in parallel mode,
+ *   if you do not destroy the geom, everything is fine
+ *   (should be no problem because world is destroying geoms too)
+ *
+ *   Revision 1.23  2009/08/10 07:47:58  guettler
  *   added some QMP critical sections (not compromising normal use of this class)
  *
  *   Revision 1.22  2009/08/03 14:09:48  jhoffmann
@@ -187,6 +193,11 @@
 
 namespace lpzrobots{
 
+  // 20091023; guettler:
+  // hack for tasked simulations; there are some problems if running in parallel mode,
+  // if you do not destroy the geom, everything is fine (should be no problem because world is destroying geoms too)
+  bool Primitive::destroyGeom = true; // this is the default case, is set to false in SimulationTaskSupervisor
+
   // returns the osg (4x4) pose matrix of the ode geom
   osg::Matrix osgPose( dGeomID geom ){
     return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));
@@ -224,7 +235,10 @@ namespace lpzrobots{
 
   Primitive::~Primitive () {
     QMP_CRITICAL(8);
-    if(geom) dGeomDestroy( geom );
+    // 20091023; guettler:
+    // hack for tasked simulations; there are some problems if running in parallel mode,
+    // if you do not destroy the geom, everything is fine (should be no problem because world is destroying geoms too)
+    if(destroyGeom && geom) dGeomDestroy( geom );
     if(body) dBodyDestroy( body );
     QMP_END_CRITICAL(8);
   }

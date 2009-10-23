@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-08-10 07:46:36  guettler
+ *   Revision 1.19  2009-10-23 12:47:13  guettler
+ *   hack for tasked simulations:
+ *   there are some problems if running in parallel mode,
+ *   if you do not destroy the geom, everything is fine
+ *   (should be no problem because world is destroying geoms too)
+ *
+ *   Revision 1.18  2009/08/10 07:46:36  guettler
  *   removed typedef to avoid compiler warnings
  *
  *   Revision 1.17  2009/08/03 14:09:48  jhoffmann
@@ -273,7 +279,17 @@ public:
       of the primitive (translation depends on the 4th coordinate)
   */
   osg::Vec4 toLocal(const osg::Vec4& axis) const;
-  
+
+  /**
+   * 20091023; guettler:
+   * hack for tasked simulations; there are some problems if running in parallel mode,
+   * if you do not destroy the geom, everything is fine (should be no problem because world is destroying geoms too)
+   * @param _destroyGeom set this to false if geoms must not be destroyed if the primitive is destroyed
+   */
+  static void setDestroyGeomFlag(bool _destroyGeom) {
+    destroyGeom = _destroyGeom;
+  }
+
 protected:
   /** attaches geom to body (if any) and sets the category bits and collision bitfields.
       assumes: mode & Geom != 0
@@ -286,6 +302,11 @@ protected:
   dGeomID geom;
   dBodyID body;
   char mode;
+
+  // 20091023; guettler:
+  // hack for tasked simulations; there are some problems if running in parallel mode,
+  // if you do not destroy the geom, everything is fine (should be no problem because world is destroying geoms too)
+  static bool destroyGeom;
 };
 
 
