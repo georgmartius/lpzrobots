@@ -1,0 +1,18 @@
+/** \file 
+ * This file is used for the doxygen documentation. 
+ */
+
+
+/**
+\dir ga_tools/simulations 
+
+The simulations directory contains the different simulations originated from our work
+on the selforganization issue in combination with genetic algorithms
+
+You can just go into one directory, type \p make and after successful compilation \p start
+to start a simulation. \n
+For convenience you should start with one of the template directories like template_cycled_GA_Simulation.
+
+*/
+
+ 
