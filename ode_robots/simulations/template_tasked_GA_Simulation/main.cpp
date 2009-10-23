@@ -43,7 +43,10 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.7  2009-10-06 11:48:56  robot12
+ *   Revision 1.8  2009-10-23 11:01:08  robot12
+ *   some bugfix
+ *
+ *   Revision 1.7  2009/10/06 11:48:56  robot12
  *   some parameter added
  *   - gene_simulate
  *   - gene_count
@@ -129,7 +132,7 @@
 // simple multithread api
 #include <selforg/quickmp.h>
 
-#define NUMBER_GENERATION 400
+#define NUMBER_GENERATION 5
 #define NUMBER_OF_TESTS_BY_CALCULATE 120
 
 // fetch all the stuff of lpzrobots into scope
@@ -337,9 +340,11 @@ class ThisSim : public TaskedSimulation {
       //   setGeometry(double length, double width, double  height)
       // - setting initial position of the playground: setPosition(double x, double y, double z)
       // - push playground in the global list of obstacles(global list comes from simulation.cpp)
-      playground = new Playground(odeHandle, osgHandle, osg::Vec3(18, 0.2, 0.5));
-      playground->setPosition(osg::Vec3((double) (taskId % (int) sqrt(sTHandle.numberIndividuals)) * 19.0, 19.0
-          * (double) (taskId / (int) sqrt(sTHandle.numberIndividuals)), 0.05)); // position and generate playground
+      playground = new Playground(odeHandle, osgHandle,osg::Vec3(100, 0.2, 2.0));
+      playground->setColor(Color(1.0f,0.4f,0.26f,1.0f));
+      playground->setGroundTexture("Images/wood.rgb");
+      playground->setGroundColor(Color(0.2f,0.7f,0.2f,1.0f));
+      playground->setPosition(osg::Vec3(20,20,1.00f));
       // register playground in obstacles list
       global.obstacles.push_back(playground);
 
@@ -356,8 +361,7 @@ class ThisSim : public TaskedSimulation {
         vehicle = new Nimm2(odeHandle, osgHandle, c, "Nimm2");
       else
         vehicle = new Nimm2(odeHandle, osgHandle, c, ("Nimm2" + m_individual->getName()).c_str());
-      vehicle->place(Pos((double) (taskId % (int) sqrt(sTHandle.numberIndividuals)) * 19.0, 19.0 * (double) (taskId
-          / (int) sqrt(sTHandle.numberIndividuals)), 0.0));
+      vehicle->place(Pos(0.,0.,1.0f));
 
       // Read the gene values and create the neuron matrix.
       // The genes have a value of type IValue. We use only double values so we took for this interface
@@ -430,7 +434,7 @@ class ThisSimCreator : public TaskedSimulationCreator {
 };
 
 int main(int argc, char **argv) {
-  int numberIndividuals = 3800;
+  int numberIndividuals = 96;
   int countGensIndex = Simulation::contains(argv, argc, "-gene_count");
   int newArgc = 0;
   char* newArgv[] = {};
@@ -442,7 +446,7 @@ int main(int argc, char **argv) {
     int countGens = atoi(argv[countGensIndex]);
     double* array = new double[countGens];
 
-    for (int index = 0; index < 4; index++) {
+    for (int index = 0; index < countGens; index++) {
       //array[index]=atof(argv[countGensIndex+index]);
       double x = strtod(argv[countGensIndex + index + 1], NULL);
       array[index] = x;
@@ -632,7 +636,7 @@ int main(int argc, char **argv) {
     fclose(file);
   }
 
-  if (Simulation::contains(argv, argc, "-gene_best")) {
+  if (Simulation::contains(argv, argc, "-genes_best")) {
     // 1. create your own deduced SimulationTaskHandle
     ThisSimulationTaskHandle simTaskHandle;
     // 2. create your ThisSimCreator
