@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2009-10-23 12:47:13  guettler
+ *  Revision 1.6  2009-10-23 13:04:27  robot12
+ *  bugfix for hack
+ *
+ *  Revision 1.5  2009/10/23 12:47:13  guettler
  *  hack for tasked simulations:
  *  there are some problems if running in parallel mode,
  *  if you do not destroy the geom, everything is fine
@@ -65,6 +68,7 @@
 #include <ode/ode.h>
 #include <selforg/stl_adds.h>
 #include <signal.h>
+#include <primitive.h>
 
 using namespace std;
 
