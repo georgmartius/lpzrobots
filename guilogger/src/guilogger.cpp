@@ -367,10 +367,9 @@ void GuiLogger::save(bool blank){
     section->addValue("Command","set zeroaxis");
   }    
 
-  if(1){ // !blank
-    for(int i=0; i<plotwindows; i++){   	  
-      nr = QString::number(i, 10);
-	
+  if(1){ // !blank    
+    for(int i=0; i<plotInfos.size(); i++){   	  
+      nr = QString::number(i, 10);	
       IniSection *sec = cfgFile.addSection("Window");
       sec->addComment("# you can also set the size and the position of a window. The channels can also contain wildcards like x* or C[0]*");
       sec->addValue("Number", nr);
