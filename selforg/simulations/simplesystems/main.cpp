@@ -11,9 +11,13 @@
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
-//#include <selforg/dercontroller.h>
 #include <selforg/one2onewiring.h>
+#include <selforg/sinecontroller.h>
+//#include <selforg/dercontroller.h>
+//#include <selforg/semox.h>
+//#include <selforg/crossmotorcoupling.h>
 //#include <selforg/universalcontroller.h>
+
 
 #include "cmdline.h"
 #include "console.h"
@@ -233,7 +237,7 @@ int main(int argc, char** argv){
 
   int index = contains(argv,argc,"-g");
   if(index >0 && argc>index) {
-    plotoptions.push_back(PlotOption(GuiLogger,atoi(argv[index])));
+    plotoptions.push_back(PlotOption(GuiLogger, atoi(argv[index])));
   }
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
   if(contains(argv,argc,"-n")!=0) plotoptions.push_back(PlotOption(NeuronViz));
@@ -262,12 +266,20 @@ int main(int argc, char** argv){
   MyRobot* robot;
   Agent* agent;
   initializeConsole();
-  
-  
-//    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-//    //cc.useS=true;
-//    cc.someInternalParams=false;
-//    AbstractController* controller = new InvertMotorNStep(cc);
+    
+//   SeMoXConf cc = SeMoX::getDefaultConf();
+//   cc.modelExt=false;
+//   //cc.useS=true;
+//   cc.someInternalParams=true;
+//   AbstractController* controller = new SeMoX (cc);
+
+//     SeMoX* semox = new SeMoX (cc);
+//     CrossMotorCoupling* controller = new CrossMotorCoupling( semox, semox);
+//     std::list<int> perm;
+//     perm += 1;
+//     perm += 0;
+//     CMC cmc = controller->getPermutationCMC(perm);
+//     controller->setCMC(cmc);
 
 //   UniversalControllerConf cc = UniversalController::getDefaultConf();
 //   vector<Layer> layers;
@@ -283,16 +295,24 @@ int main(int argc, char** argv){
 //   AbstractController* controller = new UniversalController(cc);
 //   controller->setParam("epsDyn",     0);
 
-  AbstractController* controller = new InvertMotorSpace(10,1.2);
-//  AbstractController* controller = new InvertNChannelController(10,false);
-  controller->setParam("s4del",     1.0);
-  controller->setParam("s4avg",     1.0);  
-  controller->setParam("adaptrate", 0.0);  
-  controller->setParam("factorB",   0.01);  
+
+//   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+//   //cc.useS=true;
+//   cc.someInternalParams=false;
+//   AbstractController* controller = new InvertMotorNStep(cc);
+
+//    AbstractController* controller = new SineController();
+
+//  AbstractController* controller = new InvertMotorSpace(10,1.2);
+
+  AbstractController* controller = new InvertNChannelController(10,false);
+
+  controller->setParam("epsC",     0.1);
   
   robot         = new MyRobot(string("Robot_") + string(modestr), mode, dim);
   agent         = new Agent(plotoptions);
-  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2),true);  
+  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2), 
+					     AbstractWiring::Controller | AbstractWiring::Noise);  
   // AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise(),true);  
   agent->init(controller, robot, wiring);
   // if you like, you can keep track of the robot with the following line. 
