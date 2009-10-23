@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.4
+VERSION=0.5
 OS=`uname -s`;
 ARCH=`uname -m`;
 NAME=lpzrobots-$VERSION-extra-lib-devel_$OS.$ARCH
