@@ -21,6 +21,8 @@ cd ode_robots/examples/ && make all
 cd ../../
 cd selforg/simulations && make all
 cd ../../
+cd ga_tools/simulations && make all
+cd ../../
 make clean
 rm Makefile.conf
 cd ../

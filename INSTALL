@@ -1,0 +1,30 @@
+lpzrobots installation hints. Please check also the online documentation
+at http://robot.informatik.uni-leipzig.de/software
+
+Install from source:
+type
+> make
+this will first create a configuration file.
+Anwser the following questions. 
+1) The installation path is usually /usr/local but
+ can also be /home/yourlogin for an installation without root permissions.
+
+2) The installation type:
+  u) User installation means to install the simulator library and header files 
+  into the system, which are then supposed to be fixed
+  d) If you plan to develop/change the simulator then you better go for this option.
+  Only the utilities are installed on the system, but the libraries and header files
+  are kept in the lpzrobots directory which is then you working directory with
+  all the simulations and so on.
+
+3) Are you sure? ;-) answer y want to proceed
+
+Note that this choice will change all the makefiles of the simulations. 
+The user makefiles expect a system installation, i.e. that the libraries and include
+ files are found by the compiler/linker in the usual places, whereas the development
+ makefiles expect that the folder structure within the lpzrobots directory is as it is.
+
+You can change you configuration by calling 
+> make conf 
+again.
+
