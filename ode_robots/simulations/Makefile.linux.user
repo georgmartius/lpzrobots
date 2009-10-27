@@ -2,6 +2,9 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2008
 
+#Do not edit, this is copied to the simulations while installation! 
+#Make your changes in Makefile.conf
+
 # Installtion type: user
 # This makefile assumes that you have the lpzrobots libaries (libselforg and lilode_tobots) 
 # installed together with the includes files.

@@ -1,6 +1,6 @@
 #File:     Makefile for selforg simulation with user-type installtion
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
-#Date:     Mai 2008
+#Date:     Oct 2009
 
 # add files to compile in the conf file
 include Makefile.conf
@@ -8,23 +8,29 @@ include Makefile.conf
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
-# -pg for profiling
-CFLAGS = -Wall -I. -g
-## Optimisation
-#CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
+SELFORGLIB = selforg
+SELFORGLIB_OPT = selforg_opt
+LIBSELFORG = lib$(SELFORGLIB).a
 
-LIBS   += -lm  -lselforg  -lncurses
+LIBS   += -lm  -l$(SELFORGLIB) -lpthread
 INC    += 
 
-cc = g++ $(CFLAGS) $(INC) -c
-#cc = g++ $(CFLAGS) -c -O -g3 -pg
-CXX = g++ $(CFLAGS) $(INC)  -c
+# -pg for profiling
+CFLAGS = -Wall -I. -g  $(INC)
+## Optimisation
+## Optimisation
+CPPFLAGS_OPT = -Wall -I. -O3 -DUNITTEST -DNDEBUG $(INC)
 
-CC = g++ $(CFLAGS) 
-#CC = g++ -g3 -pg  
+
+CXX = g++
 
 $(EXEC): Makefile.depend $(OFILES)
 	$(CC) $(OFILES) $(LIBS)  -o $(EXEC)
+
+$(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
+$(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
+$(EXEC_OPT): Makefile.depend $(OFILES)
+	$(CC) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
 
 
 depend: 
@@ -40,6 +46,6 @@ tags:
 	etags `find -name "*.[ch]"` 
 
 clean:
-	rm -f $(EXEC) *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC_OPT) *.o Makefile.depend
 
 include Makefile.depend

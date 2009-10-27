@@ -2,9 +2,12 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Mai 2008
 
-# Installtion type: user
-# This makefile assumes that you have the lpzrobots libaries (libselforg and lilode_tobots) 
-# installed together with the includes files.
+#Do not edit, this is copied to the simulations while installation! 
+#Make your changes in Makefile.conf
+
+# Installation type: user
+# This makefile assumes that you have the lpzrobots libaries (libselforg and libode_tobots and libga_tools) 
+# installed together with the includes files on you system.
 
 include Makefile.conf
 
@@ -26,11 +29,17 @@ SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
 LIBSELFORG = lib$(SELFORGLIB).a
 
+GA_TOOLSLIB = ga_tools
+GA_TOOLSLIB_OPT = ga_tools_opt
+LIBGA_TOOLS = lib$(GA_TOOLSLIB).a
+
+
 LIBS   = -lm \
 	-l$(ODEROBOTSLIB) \
+	-l$(GA_TOOLSLIB) \
 	-l$(SELFORGLIB) \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
-	-lreadline -lncurses -lpthread
+	-lreadline -lpthread
 
 INC   = -I. 
 
@@ -46,6 +55,7 @@ $(EXEC): Makefile Makefile.depend $(OFILES)
 opt: $(EXEC_OPT)
 
 $(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
+$(EXEC_OPT): GA_TOOLSLIB = $(GA_TOOLSLIB_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): Makefile Makefile.depend $(OFILES)
@@ -54,6 +64,7 @@ $(EXEC_OPT): Makefile Makefile.depend $(OFILES)
 prof: $(EXEC_PROF)
 
 $(EXEC_PROF): ODEROBOTSLIB = $(ODEROBOTSLIB_PROF)
+$(EXEC_PROF): GA_TOOLSLIB = $(GA_TOOLSLIB_PROF)
 $(EXEC_PROF): Makefile Makefile.depend $(OFILES)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_PROF)
 

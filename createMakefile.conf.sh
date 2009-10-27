@@ -9,6 +9,9 @@ echo -n "Where do you want to install the simulator? [/usr/local] "
 read prefix 
 [ -z "$prefix" ] && prefix='/usr/local'  # $(HOME)'
 
+# do some autodetection here for MacOS
+SYS="linux"
+
 # check for CVS, if so then no user installation! 
 if [ -d "CVS" ]; then 
     echo "You work with the CVS, such that you can only do a development installation."
@@ -48,20 +51,20 @@ fi
 echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
 if [ "$choice" = "u" ]; then 	
   echo "INSTALL_TYPE=user" >> Makefile.conf
-  echo "move all Makefiles";
-  for F in `find ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations -mindepth 2 -name Makefile`; do
-    if [ ! -e ${F}.devel ]; then cp $F ${F}.devel; fi # backup development Makefile
-    cp ${F}.user $F;
+  echo "copy the user Makefiles";
+  for Folder in ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations; do
+    for F in `find $Folder -mindepth 2 -name Makefile.conf`; do
+#        if [ ! -e ${F}.devel ]; then cp $F ${F}.devel; fi # backup development Makefile
+        cp $Folder/Makefile.$System.user ${F%.conf};
+    done
   done
 else 
   echo "INSTALL_TYPE=devel" >> Makefile.conf
-  for F in `find ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations -mindepth 2 -name Makefile`; do
-    if [ -e ${F}.devel ]; then 
-	echo "restore development Makefile $F";
-	cp ${F}.devel $F; 
-    fi 
-    
+  echo "copy the development Makefiles";
+  for Folder in ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations; do
+    for F in `find $Folder -mindepth 2 -name Makefile.conf`; do
+        cp $Folder/Makefile.$System.devel ${F%.conf};
+    done
   done
-
 fi
 
