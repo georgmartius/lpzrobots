@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2009-09-17 14:14:13  guettler
+ *  Revision 1.6  2009-10-27 11:44:30  robot14
+ *  matrixvis added
+ *
+ *  Revision 1.5  2009/09/17 14:14:13  guettler
  *  added some critical qmp sections
  *
  *  Revision 1.4  2009/08/10 15:34:30  der
@@ -86,6 +89,11 @@ bool PlotOption::open(){
   case GuiLogger:
     pipe=popen("guilogger -m pipe","w");
     break;
+  case MatrixVis:
+    pipe=popen("MatrixViz","w");
+    if (pipe) std::cout << "MatrixViz-Sream opened" << std::endl;
+    else std::cout << "MatrixViz-Sream open failed" << std::endl;
+    break;
   case ECBRobotGUI:
     pipe=popen("SphericalRobotGUI","w");
     if (pipe)   std::cout << "open a SphericalRobotGUI-Stream " << std::endl;
@@ -137,6 +145,12 @@ void PlotOption::close(){
       pclose(pipe);
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
       break;
+    case MatrixVis:
+    //       std::cout << "Try to close ECBRobotGUI pipe...";
+      fprintf(pipe, "#QUIT\n");
+      pclose(pipe);
+      std::cout << "MatixViz pipe closing...SUCCESSFUL" << std::endl;
+      break;
     case ECBRobotGUI:
 //       std::cout << "Try to close ECBRobotGUI pipe...";
       fprintf(pipe, "#QUIT\n");
@@ -167,10 +181,11 @@ void PlotOption::flush(long step){
     case GuiLogger:
     case GuiLogger_File:
     case NeuronViz:
+    case MatrixVis:
     case ECBRobotGUI:
     case SoundMan:{
       int ttt = fflush(pipe);
-      if(ttt!=0) {	
+      if(ttt!=0) {
 	printf("Pipe broken: %s\n",strerror(ttt));
 	close();
       }

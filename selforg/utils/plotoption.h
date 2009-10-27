@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2009-08-05 22:53:02  martius
+ *  Revision 1.4  2009-10-27 11:44:30  robot14
+ *  matrixvis added
+ *
+ *  Revision 1.3  2009/08/05 22:53:02  martius
  *  redesigned
  *   works as a stand alone object now
  *   added init function
@@ -68,6 +71,8 @@ enum PlotMode {
   GuiLogger,
   /// plotting with guiscreen (gnuplot) in file logging mode
   GuiLogger_File,
+  /// plotting with matrixVisualiser
+  MatrixVis,
   /// net visualiser
   NeuronViz,
 
@@ -92,7 +97,7 @@ public:
 
   PlotOption(){ mode=NoPlot; interval=1; pipe=0; parameter="";}
   /**
-     creates a new plotting object 
+     creates a new plotting object
      @param mode output type @see PlotMode
      @param interval every i-th step is plotted
      @param parameter free parameters for plotting tool
@@ -100,8 +105,8 @@ public:
    */
   PlotOption( PlotMode mode, int interval = 1, std::string parameter="")
     : interval(interval), mode(mode), parameter(parameter)
-  { 
-    pipe=0; 
+  {
+    pipe=0;
   }
 
   virtual ~PlotOption(){}
