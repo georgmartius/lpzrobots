@@ -44,13 +44,13 @@ echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
 if [ "$choice" = "u" ]; then 	
   echo "INSTALL_TYPE=user" >> Makefile.conf
   echo "move all Makefiles";
-  for F in `find ode_robots/simulations selforg/simulations selforg/examples -mindepth 2 -name Makefile`; do
+  for F in `find ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations -mindepth 2 -name Makefile`; do
     if [ ! -e ${F}.devel ]; then cp $F ${F}.devel; fi # backup development Makefile
     cp ${F}.user $F;
   done
 else 
   echo "INSTALL_TYPE=devel" >> Makefile.conf
-  for F in `find ode_robots/simulations selforg/simulations selforg/examples -mindepth 2 -name Makefile`; do
+  for F in `find ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations -mindepth 2 -name Makefile`; do
     if [ -e ${F}.devel ]; then 
 	echo "restore development Makefile $F";
 	cp ${F}.devel $F; 

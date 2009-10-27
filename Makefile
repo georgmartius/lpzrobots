@@ -122,7 +122,9 @@ install_utils:
 install_libs:
 ifeq ($(INSTALL_TYPE),user)
 	@echo "*************** Install selforg *********************"
-	-mkdir -p $(PREFIX)lib $(PREFIX)include $(PREFIX)share/lpzrobots/selforg
+	-mkdir -p $(PREFIX)lib $(PREFIX)include \
+	     $(PREFIX)share/lpzrobots/selforg $(PREFIX)share/lpzrobots/ode_robots \
+	     $(PREFIX)share/lpzrobots/ga_tools
 	cp selforg/libselforg.a $(PREFIX)lib
 	cp selforg/libselforg_opt.a $(PREFIX)lib
 	cp -rL selforg/include/selforg $(PREFIX)include/
@@ -135,8 +137,9 @@ ifeq ($(INSTALL_TYPE),user)
 	cp ga_tools/libga_tools_opt.a $(PREFIX)lib
 	cp -rL ga_tools/include/ga_tools $(PREFIX)include/	
 	@echo "*************** Install example simulations ******************"
-	cp -rL ode_robots/simulations $(PREFIX)share/lpzrobots/
+	cp -rL ode_robots/simulations $(PREFIX)share/lpzrobots/ode_robots/
 	cp -rL selforg/simulations $(PREFIX)share/lpzrobots/selforg/
+	cp -rL ga_tools/simulations $(PREFIX)share/lpzrobots/ga_tools/
 	@echo "*************** Finished ******************"
 	@echo "Make sure that the $PREFIX/lib directory is in our lib search path"
 	@echo " and $PREFIX/include is searched for includes"

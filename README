@@ -18,7 +18,7 @@
         Research Group: Self-organization in Adaptive Systems
 
 \par People:
-Ralf Der, Georg Martius, Frank Hesse, Frank Güttler\n
+Georg Martius, Ralf Der, Frank Hesse, Frank Güttler, Jörn Hoffmann\n
 Former Contributors: Marcel Kretschmann, Dominic Schneider, Claus Stadler,  
  
 \section General
@@ -61,19 +61,25 @@ For convinience we provide a binary package with ODE and OSG compatible with mos
 
 \section Inst Installation \& Startup
 
-You have two different ways to get the simulator to work. 
-- A) download a precompiled version of the simulator libaries and the utilities. 
-	This is the quick 'n' easy way which you can try first, see \ref InstA
-- B) download the source tar ball and compile the simulator youself. 
-	You have still the chance to take the precompiled extra libs. 
-	If way A fails or you want to modify the simulator then this is the way to go, 
-	see \ref InstB
+You have tree different ways to get the simulator to work. 
+- A) Download a binary version of the simulator and the utilities. 
+     This is the quick 'n' easy way which does not require root permissions, see \ref InstA
+- B) Use an .rpm or .deb package if possible. This is easiest way but requires root
+  permissions, see \ref InstB.
+- C) Download the source tar ball and compile the simulator youself. 
+  You have still the chance to take the precompiled extra libs. 
+  If way A and B fails or you want to modify the simulator then this is the way to go, 
+  see \ref InstC
 
 \subsection InstA Way A: Binary installation
-- Download the binary and the extra-lib tar balls from 
+- Download the binary and maybe the extra-lib tar balls from 
   http://robot.informatik.uni-leipzig.de/software .
 - Unpack the files (with <tt>tar -xvzf file.tgz</tt>)
-- Install extra libs:
+- Install extra libs (ODE >= 0.8 and OSG > 2.2)
+          - Check first whether you can get packages for your distribution. Make sure you get the development version (-devel or -dev).
+          - debian/ubuntu name: libopenscenegraph-dev, libode0-dev
+          - if there are none then install the extra libs from us as described below 
+          or follow the appropriate part of \ref InstC.
 \verbatim
 cd lpzrobots-0.*-extra-lib-devel*
 ./install.sh
@@ -87,11 +93,30 @@ make install
 # or, if you want a system wide installation
 sudo make install
 \endverbatim
-- You will be asked for the installation prefix and the installation type. The latter you have to anwser with \b u like user.
-- Now you are done with the installation and you can try a sample simulation from <tt>ode_robots/simulations/</tt>. Please continue reading in section \ref RunExample.
+- You will be asked for the installation prefix and the installation type. The latter you have to anwser with \b u like user!
+- Now you are done with the installation and you can try a sample simulation. 
+  There are located in the <tt>ode_robots/simulations/</tt> folder and are also
+  copied to <tt>PREFIX/share/lpzrobots/</tt>.
+  Please continue reading in section \ref RunExample.
+
+\subsection InstB Way B: Package installation
+- Download a package that fits your system from http://robot.informatik.uni-leipzig.de/software and use the
+  package manager of your linux distribution. (Mostly automatically opens when downloading the package)
+- Just in case for rpm-based system (Redhat,SuSe):
+\verbatim
+su
+rpm -i lpzrobots-0.X...rpm
+\endverbatim
+- On Debian-based systems (e.g. also Ubuntu):
+\verbatim
+sudo dpkg -i lpzrobots-0.X...deb
+\endverbatim
+- Now you can copy the sample simulations from
+  <tt>/usr/local/share/lpzrobots/</tt> to your home directory and 
+  continue reading in section \ref RunExample.
 
 
-\subsection InstB Way B: Installation from source
+\subsection InstC Way C: Installation from source
 - Download source tar ball from 
   http://robot.informatik.uni-leipzig.de/software .
 - Unpack file.
@@ -125,12 +150,12 @@ make install
 sudo make install
 \endverbatim
 This will compile the libaries and install the tools.
-- Now you are done with the installation and you can try a sample simulationsee next section.
+- Now you are done with the installation and you can try a sample simulation see next section.
 
 
 
 \subsection RunExample Run example Simulations
-- Simulations are located in <tt>ode_robots/simulations/?</tt>,<tt>ode_robots/examples/?</tt>, and <tt>selforg/simulations/?</tt>
+- Simulations are located in <tt>ode_robots/simulations/</tt>,<tt>ode_robots/examples/</tt>, and <tt>selforg/simulations/</tt>. This folders you can find in the lpzrobots tar files or if installed on your system under <tt>/usr/local/share/lpzrobots</tt>. In the latter case copy the simulations to your home directory first.
 - To start a simulation go into a simulation directory. 
 - If you installed from source you have to call <tt>make</tt>.
 - You can start the simulation by <tt>./start</tt>.
