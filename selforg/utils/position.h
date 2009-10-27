@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-05-30 11:58:28  martius
+ *   Revision 1.7  2009-10-27 17:06:07  martius
+ *   initialize array to avoid compiler warnings
+ *
+ *   Revision 1.6  2008/05/30 11:58:28  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.5  2007/12/06 07:48:43  der
@@ -51,7 +54,7 @@
 class Position
 {
 public:
-  Position(){x=y=z=0;}
+  Position(){x=y=z=0; array[0]=array[1]=array[2]=0;}
   Position(double _x, double _y, double _z){ x=_x; y=_y; z=_z; }
   ///  p MUST have a size of at least 3 
   Position(const double* p){ x=p[0]; y=p[1]; z=p[2]; } 
