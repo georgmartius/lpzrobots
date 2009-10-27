@@ -168,7 +168,7 @@ cd ode_robots/simulations/template_sphererobot
 make # if installed from source
 ./start 
 \endverbatim
-- for optimisation you can also use <tt>make opt</tt> which produces and <tt>start_opt</tt>(might need a make clean before)
+- for optimisation you can also use <tt>make opt</tt> which produces and <tt>start_opt</tt>(might need a make clean before). This is very recommended to use after testing the code. 
 - The following command line options are available 
   (type ./start -h for a full list of options): \n
 \verbatim
