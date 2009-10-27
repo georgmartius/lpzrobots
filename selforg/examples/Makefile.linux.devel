@@ -29,12 +29,12 @@ CXX = g++
 #CC = g++ -g3 -pg  
 
 $(EXEC): Makefile.depend $(OFILES) libselforg
-	$(CC) $(OFILES) $(LIBS)  -o $(EXEC)
+	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
 
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): Makefile.depend $(OFILES) libselforg_opt
-	$(CC) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
+	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
 
 
 libselforg: 

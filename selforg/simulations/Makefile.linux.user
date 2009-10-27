@@ -25,12 +25,12 @@ CPPFLAGS_OPT = -Wall -I. -O3 -DUNITTEST -DNDEBUG $(INC)
 CXX = g++
 
 $(EXEC): Makefile.depend $(OFILES)
-	$(CC) $(OFILES) $(LIBS)  -o $(EXEC)
+	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
 
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): Makefile.depend $(OFILES)
-	$(CC) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
+	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
 
 
 depend: 
