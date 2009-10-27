@@ -14,7 +14,7 @@ The class \ref SingletonGenEngine is the engine performing the genetic operation
 The class \ref IValue makes it possible to create all kinds of genes that are then handled automatically. This can be a number, a binary code, a program or a graphical primitive.
 The class \ref IRandomStrategy is needed to create random individuals with your own gene types.
 The class \ref IFitnessStrategy is designed to help you creating your own fitness strategy.
-With these and other other strategies is it possible to customize 
+With these and other strategies is it possible to customize 
  and prepare the algorithm for your own needs.
 
 The following subdirectories are included:
@@ -30,7 +30,7 @@ The following subdirectories are included:
 
 \par Examples
 
-The usage of this package is acually very easy even though it might look complicated  at the first glance. To begin with you have to check which classes you have to overload
+The usage of this package is actually very easy even though it might look complicated  at the first glance. To begin with you have to check which classes you have to overload
  to implement your problem. This means which strategies must be changed. In the best case you only have to alter the fitness strategy. Then you write your own versions of this class like in template_cycled_GA_Simulation. Now you have to initiate the algorithm. For this you need some of the following information:
  - mutation probability in one/thousand (a low value of 3% - 5% is written as 30 or 50)
  - number of individual at start
