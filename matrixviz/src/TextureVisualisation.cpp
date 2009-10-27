@@ -29,18 +29,22 @@
 
 #include "TextureVisualisation.h"
 #include "math.h"
+#include <iostream>
 
+#define PI 3.14159265
 
 TextureVisualisation::TextureVisualisation(MatrixPlotChannel *channel, QWidget *parent)
 : AbstractVisualisation(channel, parent){
 
   this->channel = channel;
   mainLayout = new QVBoxLayout();
+  //setUpdatesEnabled(true);
 
   int maxX = this->channel->getDimension(0);
   int maxY = this->channel->getDimension(1);
 
   tex = new QImage(maxX, maxY, QImage::Format_RGB32);
+  maxVal = 10; //->slider
 
   //QImage scaledTex = tex->scaled(200,200);
 
@@ -53,25 +57,35 @@ TextureVisualisation::~TextureVisualisation(){}
 
 void TextureVisualisation::paintEvent(QPaintEvent *){
 
+  std::cout << "ich male!" << std::endl;
+
   QPainter painter ( this );
 
   //test
   int maxX = this->channel->getDimension(0);
   int maxY = this->channel->getDimension(1);
-  for (int i = 0; i < maxX; i++) {
-    for (int j = 0; j < maxY; j++) {
-      double val = channel->getValue(i, j);
-      // max negative: 10, max positive: 10
-      int maxVal = 20;
-      int greyTone = floor((val + 10) * 255 / maxVal);
-      QColor *col = new QColor(greyTone, greyTone, greyTone);
-      tex->setPixel(i, j, col->rgb()); //QString::number(channel->getValue(i, j))
-    }
-  }
+  for (int i = 0; i < maxX; i++)
+    for (int j = 0; j < maxY; j++)
+     tex->setPixel(i, j, pickColor(channel->getValue(i, j))); //QString::number(channel->getValue(i, j))
 
   QImage scaledTex = tex->scaled(200,200);
+
   painter.drawImage ( 0, 0, scaledTex);
 
+  //scale
+
+  painter.end();
+}
+
+QRgb TextureVisualisation::pickColor(double val){
+  QColor *col = new QColor(255, 255, 255);
+//  int hue = floor( asin(val) * (180 / PI));
+//  col->setHsv(hue, 255, 255);
+//  std::cout << val / maxVal << " : " <<  col->rgb() << std::endl;
+  if(val > 0.2) val = 0.2;
+  int grey = floor(((val+0.2) / (2*0.2)) *255);
+  col->setRgb(grey, grey, grey);
+  return col->rgb();
 }
 
 

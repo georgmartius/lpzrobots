@@ -41,6 +41,7 @@ class AbstractPlotChannel;
 
 
 class AbstractVisualisation: public QWidget {
+  Q_OBJECT
 
 
 public:

@@ -64,9 +64,8 @@ void VisualiserSubWidget::initGui(){
 }
 
 void VisualiserSubWidget::updateViewableChannels(){
-  std::cout << "updateViewableChannels()" << std::endl;
-  visualisation->update();
-  update();
+  //std::cout << "updateViewableChannels()" << std::endl;
+  visualisation->repaint();
 }
 
 void VisualiserSubWidget::initVisTypes(){

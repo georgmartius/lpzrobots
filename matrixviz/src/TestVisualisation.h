@@ -43,6 +43,8 @@ class AbstractPlotChannel;
 
 class TestVisualisation: public AbstractVisualisation {
 
+  Q_OBJECT
+
 
 public:
   TestVisualisation(MatrixPlotChannel *channel, QWidget *parent = 0);

@@ -34,6 +34,7 @@
 #include <QImage>
 
 class TextureVisualisation: public AbstractVisualisation {
+  Q_OBJECT
 
 public:
   TextureVisualisation(MatrixPlotChannel *channel, QWidget *parent = 0);
@@ -50,6 +51,9 @@ protected:
 private:
   QVBoxLayout *mainLayout;
   QImage *tex;
+  int maxVal;
+
+  QRgb pickColor(double val);
 
 };
 
