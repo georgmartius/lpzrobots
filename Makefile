@@ -39,7 +39,7 @@ prepare: usage
 ##!conf		configure the installation prefix and type(again)
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
-	$(MAKE) Makefile.conf	
+	$(MAKE) Makefile.conf # automatically creates Makefile.conf
 
 .PHONY: libs
 ##!libs		compile libaries in optimised and debug version
