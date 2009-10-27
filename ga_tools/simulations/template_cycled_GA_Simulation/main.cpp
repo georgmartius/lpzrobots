@@ -24,11 +24,14 @@
  *   --------------------------------------------------------------------  *
  *                                                                         *
  *   This program demonstrate the use of the genetic algorithm in          *
- *   combination with a lpzrobot simulation. Over this you can see how to  *
+ *   combination with a lpzrobot simulation. With this you can see how to  *
  *   control the algorithm from outside.                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-10-23 16:33:51  martius
+ *   Revision 1.2  2009-10-27 16:29:10  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2009/10/23 16:33:51  martius
  *   moved simulations here
  *
  *   Revision 1.5  2009/08/11 13:00:51  robot12
