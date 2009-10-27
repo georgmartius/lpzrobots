@@ -14,7 +14,7 @@ to start a simulation. For a faster run you should use -nographics as parameter.
 For convenience you should start with one of the template directories like template_cycled_GA_Simulation.
 The simulation file \ref ga_tools/simulations/template_cycled_GA_simulation/main.cpp "main.cpp"
  of the template_cycled_GA_Simulation simulation are really good
-commented and therfore recommended as first example. You can easy find them by clicking
+commented and therefore is recommended as first example. You can easy find them by clicking
 on the tab  "Examples" at the top of the page.\n
 For creating your own simulation just type:\n
 <tt> $> ./createNewSimulation.sh template_cycled_GA_Simulation my_sim</tt>\n
@@ -30,11 +30,11 @@ to create the directory \p my_sim, adapt it to your needs, run \p make and \p st
 
 /**
 \example template_tasked_GA_Simulation/main.cpp
- An example for the usage of the tasked simulation with ga_tools for a scaleable set of simulation on many CPU's.
- So the ga_tool can simulate every individual in one seperate thread!
+ An example for the usage of the tasked simulation with ga_tools for a scalable set of simulation on many CPU's.
+ So the ga_tool can simulate every individual in one separate thread!
 */
 
 /**
 \example robot_chain_tasked_GA_Simulation/main.cpp
- A simple example which calculate the neuron values for the robot chain with the template_tasked_GA_Simulation.
+ A simple example which calculates the neuron values for the robot chain with the template_tasked_GA_Simulation.
 */
