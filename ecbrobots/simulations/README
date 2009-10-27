@@ -4,28 +4,37 @@
 
 
 /**
-\dir ecbrobots/simulations
+\dir ga_tools/simulations
 
-The simulations directory contains the different ECBManager originated from our work
-on the selforganization issue. For example there exists in the directory \ref ecbrobots/simulations/sphererobot "ecbrobots/simulations/sphererobot"
-the ECBManager for controlling the SphericalRobot.
+The simulations directory contains the different simulations originated from our work
+on the evolutionary issue.
 
 You can just go into one directory, type \p make and after successful compilation \p start
-to start a ECBManager. \n
-For convenience you should start with one of the template directories like template_ecbrobot.
-Both the ECBManager file \ref ode_robots/simulations/template_sphererobot/main.cpp "main.cpp"
-of the SphericalRobot-ECBManager and ECB definitions in  \ref ecb.cpp are really good
+to start a simulation. For a faster run you should use -nographics as parameter.\n
+For convenience you should start with one of the template directories like template_cycled_GA_Simulation.
+The simulation file \ref ga_tools/simulations/template_cycled_GA_simulation/main.cpp "main.cpp"
+ of the template_cycled_GA_Simulation simulation are really good
 commented and therfore recommended as first example. You can easy find them by clicking
 on the tab  "Examples" at the top of the page.\n
-For creating your own ECBManager just type:\n
-<tt> $> ./createNewSimulation.sh template_sphererobot my_sim</tt>\n
+For creating your own simulation just type:\n
+<tt> $> ./createNewSimulation.sh template_cycled_GA_Simulation my_sim</tt>\n
 to create the directory \p my_sim, adapt it to your needs, run \p make and \p start and it should work.
 
 */
 
 /**
-\example main.cpp
- Simple example for a ECBManager of one SphericalRobot (ecbrobots/simulations/sphererobot/main.cpp).
+\example template_cycled_GA_Simulation/main.cpp
+ A simple example for the usage of the restart function for ga_tools inside the ode_robots simulation.
+ See also \ref ode_robots
 */
 
+/**
+\example template_tasked_GA_Simulation/main.cpp
+ An example for the usage of the tasked simulation with ga_tools for a scaleable set of simulation on many CPU's.
+ So the ga_tool can simulate every individual in one seperate thread!
+*/
 
+/**
+\example robot_chain_tasked_GA_Simulation/main.cpp
+ A simple example which calculate the neuron values for the robot chain with the template_tasked_GA_Simulation.
+*/
