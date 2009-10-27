@@ -102,3 +102,9 @@ rm -f $DIR/Makefile.conf
 echo "Removing CVS dirs";
 find $DIR/ -type d -name CVS | xargs rm -r;
 find $DIR/ -type f -name ".cvsignore" | xargs rm -r;
+
+
+pushd `pwd`;
+cd $BASE;
+tar -cvzf $NAME-$VERSION.tgz $NAME-$VERSION;
+popd;

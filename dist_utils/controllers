@@ -16,6 +16,7 @@ elman.h
 feedforwardnn.h
 ffnncontroller.cpp
 ffnncontroller.h
+homeokinbase.h
 invertablemodel.h
 invertcontroller.h
 invertmotorcontroller.h
@@ -45,6 +46,7 @@ sinecontroller.cpp
 sinecontroller.h
 som.cpp
 som.h
+teachable.h
 use_java_controller.cpp
 use_java_controller.h
 README
