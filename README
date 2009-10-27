@@ -93,7 +93,10 @@ make install
 # or, if you want a system wide installation
 sudo make install
 \endverbatim
-- You will be asked for the installation prefix and the installation type. The latter you have to anwser with \b u like user!
+- You will be asked for the installation prefix and the installation type.
+  If you use a installation prefix other than /usr/local you have to make a link
+  to the data directory PREFIX/share/lpzrobots/data in your ode_robots simulations.
+  The installation type you have to anwser with \b u like user!
 - Now you are done with the installation and you can try a sample simulation. 
   There are located in the <tt>ode_robots/simulations/</tt> folder and are also
   copied to <tt>PREFIX/share/lpzrobots/</tt>.
