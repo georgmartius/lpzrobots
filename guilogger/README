@@ -25,7 +25,7 @@ is running and you receive your figure and can save it to disk. \n
 Here you can see a screenshot of the guilogger window with 9 channels. 
 The used labels range from "x[0]" to "y[2]". The top three boxes after the word "Channels" 
 are useless at the moment.
-\image html screenshot.jpg
+\image html guilogger/screenshot.png
 \image latex screenshot.ps "Screenshot of the guilogger window with 9 channels. Labels range from x[0] to y[2]."
 
 
