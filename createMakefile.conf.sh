@@ -9,12 +9,18 @@ echo -n "Where do you want to install the simulator? [/usr/local] "
 read prefix 
 [ -z "$prefix" ] && prefix='/usr/local'  # $(HOME)'
 
-echo -en "Installation type (user or development):\n\
+# check for CVS, if so then no user installation! 
+if [ -d "CVS" ]; then 
+    echo "You work with the CVS, such that you can only do a development installation."
+    choice="d";
+else 
+    echo -en "Installation type (user or development):\n\
  Choose user  (u) if you are a user and only program your own simulations (default)\n\
  Choose devel (d) if you develop the simulator\n\
 Our choice [U/d] "
-read choice 
-if [ "$choice" = "U" ]; then choice='u'; fi
+    read choice 
+    if [ -z "$choice" -o "$choice" = "U" ]; then choice='u'; fi
+fi
 echo -e "Check your settings:\n Installation to $prefix";
 if [ "$choice" = "u" ]; then echo " (u) user installation with libaries and include files."
 else echo " (d) development installation without libaries and include files, only utilities."
@@ -22,7 +28,7 @@ fi
 echo -n "All right? [y/N] "
 read okay 
 if [ ! "$okay" = "y" ]; then
-    echo "Since you said no I better quit. Run again!"
+    echo "Since you didn't say yes I better quit. Run again!"
     exit 1;
 fi
 
@@ -36,7 +42,7 @@ echo -e "\n# user or developement installation\n\
 #   which is useful for development on the simulator\n\
 #  user: install also the ode_robots and selforg libaries and include files\n\
 #   this is recommended for users" >> Makefile.conf
-if [ -z  ode_robots/install_prefix.conf ]; then
+if [ -e  ode_robots/install_prefix.conf ]; then
     sed -e "s/^#define.*//" -ibak ode_robots/install_prefix.conf;
 fi
 echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
