@@ -10,7 +10,7 @@ read prefix
 [ -z "$prefix" ] && prefix='/usr/local'  # $(HOME)'
 
 # do some autodetection here for MacOS
-SYS="linux"
+System="linux"
 
 # check for CVS, if so then no user installation! 
 if [ -d "CVS" ]; then 
