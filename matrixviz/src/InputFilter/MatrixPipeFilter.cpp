@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2009-10-22 15:53:08  robot14
+ *  Revision 1.4  2009-10-27 11:35:40  guettler
+ *  typo: abstract --> matrix
+ *
+ *  Revision 1.3  2009/10/22 15:53:08  robot14
  *  first version of texture visualisation
  *
  *  Revision 1.2  2009/10/02 15:25:40  robot14
@@ -100,7 +103,7 @@ std::vector<MatrixPlotChannel*> MatrixPipeFilter::getMatrixChannels(){
 
 
 void MatrixPipeFilter::updateChannels() {
-     std::cout << "AbstractPipeFilter: updateChannels()" << std::endl;
+     std::cout << "MatrixPipeFilter: updateChannels()" << std::endl;
 
     std::list<double> dataList = (apr->getDataLine());
     int index=0;
