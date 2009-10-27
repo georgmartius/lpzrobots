@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.31  2009-08-05 18:28:10  martius
+// Revision 1.32  2009-10-27 12:50:27  martius
+// remove & in comment to make doxygen (latex) work
+//
+// Revision 1.31  2009/08/05 18:28:10  martius
 // added isVector
 // mapP and toMapP support double parameters
 //
@@ -390,9 +393,9 @@ namespace matrix{
     /** calculates the pseudoinverse, depending on the shape of the matrix
 	the left or right pseudoinverse is used.
 	If the matrix has more columns than rows then we use 
-	\f[A^{+} &= (A^T A + \lambda \mathbb I)^{-1}A^T\f]
+	\f[A^{+} = (A^T A + \lambda \mathbb I)^{-1}A^T\f]
 	otherwise 
-	\f[A^{+} &= A^T(A A^T + \lambda \mathbb I)^{-1}\f]
+	\f[A^{+} = A^T(A A^T + \lambda \mathbb I)^{-1}\f]
      */
     Matrix pseudoInverse(const D& lambda = 10e-8) const ;
 
