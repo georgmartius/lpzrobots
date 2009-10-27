@@ -3,8 +3,8 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Robotsystem of the Robot Group Leipzig"
-PROJECT_NUMBER         = 0.4
+PROJECT_NAME           = "Robot Simulator of the Robotics Group for Self-Organization of Control"
+PROJECT_NUMBER         = 0.5
 OUTPUT_DIRECTORY       = doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -84,6 +84,7 @@ WARN_LOGFILE           = doxygen.warn
 #---------------------------------------------------------------------------
 INPUT                  = selforg \
                          ode_robots \
+                         ga_tools \
                          neuronviz/README \
                          guilogger/README \
                          opende/README \
@@ -103,7 +104,9 @@ EXCLUDE                = ode_robots/textures/calcheightmaps \
                          selforg/include \
                          selforg/simulations \
                          selforg/controller/old_stuff \
-                         selforg/matrix/unit_test.hpp
+                         selforg/matrix/unit_test.hpp \
+                         ga_tools/simulations/ 
+
 EXCLUDE_SYMLINKS       = YES
 EXCLUDE_PATTERNS       = 
 EXAMPLE_PATH           = ode_robots/examples/template_sphererobot \
@@ -111,8 +114,7 @@ EXAMPLE_PATH           = ode_robots/examples/template_sphererobot \
                          selforg/examples
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = YES
-IMAGE_PATH             = doc/images/ \
-                         guilogger
+IMAGE_PATH             = doc/images/
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO
