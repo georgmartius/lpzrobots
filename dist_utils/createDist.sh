@@ -28,6 +28,8 @@ echo "Copy soundman";
 cp -r  $SRCDIR/soundman $DIR/;
 echo "Copy webots projects";
 cp -r  $SRCDIR/webots $DIR/;
+echo "Copy doc folder";
+cp -r  $SRCDIR/doc $DIR/;
 
 echo "Copy selforg without controllers";
 cp -r  $SRCDIR/selforg $DIR/;
