@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.32  2009-10-27 12:50:27  martius
+// Revision 1.33  2009-10-27 16:52:21  martius
+// documentation
+//
+// Revision 1.32  2009/10/27 12:50:27  martius
 // remove & in comment to make doxygen (latex) work
 //
 // Revision 1.31  2009/08/05 18:28:10  martius
@@ -218,7 +221,7 @@
 // TODO: add doxygen section
 
 /**
- * namespace for matrix library
+ * namespace for the matrix library
  *@author Georg Martius
  */
 namespace matrix{

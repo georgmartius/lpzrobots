@@ -10,6 +10,7 @@
 #define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(); it!= (coll).end() ; it++ )
 
 
+/// contains some additions to the standard template library
 namespace std {
 
   /// absolute function for all types

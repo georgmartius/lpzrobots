@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.111  2009-08-21 09:49:08  robot12
+ *   Revision 1.112  2009-10-27 16:52:21  martius
+ *   documentation
+ *
+ *   Revision 1.111  2009/08/21 09:49:08  robot12
  *   (guettler) support for tasked simulations.
  *   - use the simulation template_taskedSimulations.
  *   - merged (not completely) from lpzrobots_tasked.
@@ -611,6 +614,9 @@
 /// read the installation PREFIX (to find data directory)
 #include "install_prefix.conf"
 
+/**
+Namespace for the 3D robot simulator ode_robots
+*/
 namespace lpzrobots {
 
   using namespace std;
