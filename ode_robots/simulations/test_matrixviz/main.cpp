@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-10-27 11:40:36  guettler
+ *   Revision 1.2  2009-10-27 13:15:28  guettler
+ *   test for MatrixVis
+ *
+ *   Revision 1.1  2009/10/27 11:40:36  guettler
  *   initial version
  *
  *   Revision 1.23  2009/08/05 23:25:57  martius
@@ -225,7 +228,7 @@ public:
     // create pointer to agent
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(PlotOption(MatrixVis,50));
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
