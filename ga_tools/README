@@ -6,34 +6,34 @@
 
 \dir ga_tools
 
-The ga_tools directory contains the algorithm for evolutionary calculation. This contains the evolutionary strategies also like the genetical algorithm or the genetical programming.
+The ga_tools directory contains the algorithm for evolutionary calculation. This contains the evolutionary strategies also like the genetic algorithm or the genetic programming.
 The class \ref SingletonGenAlgAPI is the API for the algorithm. Over it you can use the package.
 The class \ref SingletonGenEngine is the engine for the algorithm and is needed for the development of the algorithm.
-The class \ref IValue make it possible to create all needed kinds of genes. This can be a number, a binary code, a program or a graphical primitive.
+The class \ref IValue makes it possible to create all needed kinds of genes. This can be a number, a binary code, a program or a graphical primitive.
 The class \ref IRandomStrategy is needed to create random individuals with your own gene types.
 The class \ref IFitnessStrategy is designed to create in fast time your own fitness strategy.
 With all other strategies is it possible to modify and prepare the algorithm for your own needs.
 
 The following subdirectories are included:
- - \ref ga_tools/Values : the interface and one special implementation for the gene values. It contains the \ref IValue class.
- - \ref ga_tools/SelectionStrategies : the selection strategy interface and some implementations (tournament select, random select and elitism select).
- - \ref ga_tools/RandomStrategies : the random strategy interface and a implementation to create double values for the \ref IValue class implementation.
- - \ref ga_tools/MutationStrategies : the mutation strategy interface and some implementation. Here you can implement your own mutation for your own values
- - \ref ga_tools/MutationFactorStrategies : only for the specified \ref ValueMutationStrategy. Here you can make your own optimization for the value mutation.
- - \ref ga_tools/GenerationSizeStrategy : a strategy to change the size of the generation. For more information about this, look for selection force.
- - \ref ga_tools/FitnessStrategy : contains a help class for your own strategy, if it growth to infinite. Because the algorithm need a fitness strategy seek for zero.
- - \ref ga_tools/include : all header files
- - \ref ga_tools/simulation : some example templates and simulation, which use the ga_tools package in combination with \ref ode_robots and \ref selforg.
+ - \ref ga_tools/Values : The interface and one special implementation for the gene values. It contains the \ref IValue class.
+ - \ref ga_tools/SelectionStrategies : The selection strategy interface and some implementations (tournament select, random select and elitism select).
+ - \ref ga_tools/RandomStrategies : The random strategy interface and a implementation to create double values for the \ref IValue class implementation.
+ - \ref ga_tools/MutationStrategies : The mutation strategy interface and some implementation. Here you can implement your own mutation for your own values.
+ - \ref ga_tools/MutationFactorStrategies : Only for the specified \ref ValueMutationStrategy, here you can make your own optimization for the value mutation.
+ - \ref ga_tools/GenerationSizeStrategy : A strategy to change the size of the generation, for more information about this, look for selection force.
+ - \ref ga_tools/FitnessStrategy : Contains a helper class for your own strategy, because if it growths to infinite, the algorithm needs a fitness strategy seek for zero.
+ - \ref ga_tools/include : All header files. Do not modify this directory.
+ - \ref ga_tools/simulation : Some example templates and simulation, which use the ga_tools package in combination with \ref ode_robots and \ref selforg.
 
 \par Examples
 
-The usage of this package is very easy. At first you have to decide, which changes you need. This mean which given strategies must be changed. In the normal way is this only the fitness strategy. Then write your own versions of this classes like in template_cycled_GA_Simulation. Now you have to initiate the algorithm. For this you need some information's.
+The usage of this package is very easy. At first you have to decide, which changes you need. This means which given strategies must be changed. In the normal way is this only the fitness strategy. Then write your own versions of this classes like in template_cycled_GA_Simulation. Now you have to initiate the algorithm. For this you need some information's.
  - mutation probability in one/thousand (should be a low value like 3% - 5%, write as 30 or 50)
  - number of individual at begin
  - number of children individual (must be greater or equal than the number of individual at begin)
  - number of generation
-With this information you create and set the strategies. First the generation size strategy, than the selection strategy, than fitness, mutation and at last the random strategy. After this you have to create the prototypes of the genes and register them. That's all. Now you can work with the algorithm.
-If you think this is a many work, so remember, that all is ready. You must only call a create function of the API to become the strategy and than set it with a set function of the API. Also only two calls per strategy.
+With this information you create and set the strategies. First the generation size strategy, then the selection strategy, then fitness, mutation and at last the random strategy. After this you have to create the prototypes of the genes and register them. That's all. Now you can work with the algorithm.
+If you think this is a many work, so remember, that all is ready yet. You must only call a create function of the API to become the strategy and than set it with a set function of the API. Also only two calls per strategy.
 
 How to work with the algorithm and the initiation in a example you can find in the examples.
 
@@ -48,8 +48,8 @@ Please click on the register tab "Examples" on the top.
 
 /**
 \example template_tasked_GA_Simulation/main.cpp
- An example for the usage of the tasked simulation with ga_tools for a scaleable set of simulation on many CPU's.
- So the ga_tool can simulate every individual in one seperate thread!
+ An example for the usage of the tasked simulation with ga_tools for a scalable set of simulation on many CPU's.
+ So the ga_tool can simulate every individual in one separate thread!
 */
 
 /**
