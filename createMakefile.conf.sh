@@ -14,11 +14,10 @@ echo -en "Installation type (user or development):\n\
  Choose devel (d) if you develop the simulator\n\
 Our choice [U/d] "
 read choice 
-[ -z "$choice" ] && choice='u'
-if [ "$choice" = "U" ]; then choice='U';
+if [ "$choice" = "U" ]; then choice='u'; fi
 echo -e "Check your settings:\n Installation to $prefix";
 if [ "$choice" = "u" ]; then echo " (u) user installation with libaries and include files."
-else echo " (d) developement installation without libaries and include files, only utilities."
+else echo " (d) development installation without libaries and include files, only utilities."
 fi
 echo -n "All right? [y/N] "
 read okay 
@@ -59,5 +58,4 @@ else
   done
 
 fi
-
 
