@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-08-05 22:47:33  martius
+ *   Revision 1.5  2009-10-28 17:53:11  fhesse
+ *   got rid of getline and replaced it by fgets to be compatible with MAC
+ *
+ *   Revision 1.4  2009/08/05 22:47:33  martius
  *   added support for integer variables and
  *    proper display for bool and int
  *
@@ -229,10 +232,9 @@ void Configurable::print(FILE* f, const char* prefix) const {
 }
 
 void Configurable::parse(FILE* f) {
-  char* buffer = 0;    
-  size_t len=0;    
-  ssize_t read=0;    
-  while ((read = getline(&buffer, &len, f)) != -1) {
+  char* buffer = (char*)malloc(sizeof(char)*512);    
+  assert(buffer);     
+  while (fgets(buffer, 512, f) != 0) {
     if(strcmp(buffer,"######\n")==0) break;
     char* p = strchr(buffer,'=');
     if(p!=0){
@@ -243,7 +245,7 @@ void Configurable::parse(FILE* f) {
       setParam(s, atof(p+1)); 
     }    
   }
-  if(buffer) free(buffer);
+  free(buffer);
 }
 
 #endif
