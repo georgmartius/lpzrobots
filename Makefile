@@ -107,7 +107,7 @@ install_utils:
 	-mkdir -p $(PREFIX)bin $(PREFIX)lib/soundMan $(PREFIX)share/lpzrobots
 	-cd neuronviz/src && $(MAKE) install
 	-cd javacontroller/src && $(MAKE) install
-	-@cp guilogger/bin/guilogger $(PREFIX)bin/ && echo "copied guilogger to $(PREFIX)/bin/" || echo "Could not copy guilogger binary to $(PREFIX)bin/! Please install it by hand."
+	-@if [ -d guilogger/bin/guilogger.app ]; then cp guilogger/bin/guilogger.app/Contents/MacOS/guilogger $(PREFIX)bin/ && echo "copied guilogger to $(PREFIX)/bin/";  else cp guilogger/bin/guilogger $(PREFIX)bin/ && echo "copied guilogger to $(PREFIX)/bin/" || echo "Could not copy guilogger binary to $(PREFIX)bin/! Please install it by hand."; fi
 	-cp soundman/class/*.class $(PREFIX)lib/soundMan/
 	-cp soundman/bin/soundMan $(PREFIX)bin/soundMan
 	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)bin/soundMan
