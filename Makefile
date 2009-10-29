@@ -153,10 +153,10 @@ ifeq ($(INSTALL_TYPE),user)
 	cp -RL ga_tools/simulations $(PREFIX)share/lpzrobots/ga_tools/
 	chmod -R ugo+r $(PREFIX)share/lpzrobots
 	@echo "*************** Finished ******************"
-	@echo "Make sure that the $(PREFIX)/lib directory is in our lib search path"
-	@echo " and $PREFIX/include is searched for includes"
+	@echo "Make sure that the $(PREFIX)lib directory is in our lib search path"
+	@echo " and $(PREFIX)include is searched for includes."
 	@echo "You can find example simulations in $(PREFIX)share/lpzrobots/, but copy"
-	@echo " them first to your home directory."
+	@echo " them first to your home directory to work with them."
 endif
 
 .PHONY: uninstall_intern
