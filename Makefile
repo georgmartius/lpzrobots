@@ -76,19 +76,17 @@ uninstall: uninstall_intern
 clean: usage
 	cd guilogger && $(MAKE) clean
 	cd ode_robots && $(MAKE) clean
-	cd ode_robots/simulations && $(MAKE) clean
 	cd selforg && $(MAKE) clean
-	cd selforg/simulations && $(MAKE) clean
 	cd ga_tools && $(MAKE) clean
-	cd ga_tools/simulations && $(MAKE) clean
 
-##!clean-all	like clean but also removes libraries
+##!clean-all	like clean but also removes libraries and clear simulations
 clean-all: usage
 	cd guilogger && $(MAKE) clean
 	cd ode_robots && $(MAKE) clean-all
 	cd ode_robots/simulations && $(MAKE) clean
 	cd selforg && $(MAKE) clean-all
 	cd selforg/simulations && $(MAKE) clean
+	cd selforg/examples && $(MAKE) clean
 	cd ga_tools && $(MAKE) clean-all
 	cd ga_tools/simulations && $(MAKE) clean
 
@@ -153,7 +151,7 @@ ifeq ($(INSTALL_TYPE),user)
 	cp -RL ode_robots/simulations $(PREFIX)share/lpzrobots/ode_robots/
 	cp -RL selforg/simulations $(PREFIX)share/lpzrobots/selforg/
 	cp -RL ga_tools/simulations $(PREFIX)share/lpzrobots/ga_tools/
-	chown -R ugo+r $(PREFIX)share/lpzrobots
+	chmod -R ugo+r $(PREFIX)share/lpzrobots
 	@echo "*************** Finished ******************"
 	@echo "Make sure that the $(PREFIX)/lib directory is in our lib search path"
 	@echo " and $PREFIX/include is searched for includes"
