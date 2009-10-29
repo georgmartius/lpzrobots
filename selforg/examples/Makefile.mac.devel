@@ -1,9 +1,11 @@
-#File:     Makefile for selforg simulation with user-type installtion
+#File:     Makefile for selforg simulations for development setup
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     Oct 2009
 
 # add files to compile in the conf file
 include Makefile.conf
+
+EXEC_OPT = $(EXEC)_opt
 
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
@@ -12,25 +14,34 @@ SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
 LIBSELFORG = lib$(SELFORGLIB).a
 
-LIBS   += -lm  -l$(SELFORGLIB) -lpthread
-INC    += 
+LIBS   += -lm -L$(SELFORG)/ -l$(SELFORGLIB) -lpthread
+INC    += -I$(SELFORG)/include -I/opt/local/include
 
 # -pg for profiling
-CFLAGS = -Wall -I. -g  $(INC)
-## Optimisation
+CFLAGS = -Wall -I. -g $(INC)
 ## Optimisation
 CPPFLAGS_OPT = -Wall -I. -O3 -DUNITTEST -DNDEBUG $(INC)
 
-
+# cc = g++ $(CFLAGS) $(INC) -c
+# cc = g++ $(CFLAGS) -c -O -g3 -pg
 CXX = g++
 
-$(EXEC): Makefile.depend $(OFILES)
+#CC = g++ -g3 -pg  
+
+$(EXEC): Makefile.depend $(OFILES) libselforg
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
 
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
-$(EXEC_OPT): Makefile.depend $(OFILES)
+$(EXEC_OPT): Makefile.depend $(OFILES) libselforg_opt
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
+
+
+libselforg: 
+	cd $(SELFORG) && make
+
+libselforg_opt: 
+	cd $(SELFORG) && make opt
 
 
 depend: 

@@ -13,7 +13,7 @@ SELFORGLIB_OPT = selforg_opt
 LIBSELFORG = lib$(SELFORGLIB).a
 
 LIBS   += -lm  -l$(SELFORGLIB) -lpthread
-INC    += 
+INC    +=  -I/opt/local/include
 
 # -pg for profiling
 CFLAGS = -Wall -I. -g  $(INC)
