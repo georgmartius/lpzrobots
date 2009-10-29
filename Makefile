@@ -57,7 +57,7 @@ libs: usage
 	@echo "*************** Compile ga_tools (debug) **************"
 	+cd ga_tools && $(MAKE) clean && $(MAKE) lib	
 	@echo "*************** strip the libs             ******************"
-	-strip selforg/libselforg_opt.a
+	-strip selforg/libselforg_opt.a 
 	-strip --only-keep-debug selforg/libselforg.a
 	-strip ode_robots/libode_robots_opt.a
 	-strip --only-keep-debug ode_robots/libode_robots.a
@@ -75,9 +75,22 @@ uninstall: uninstall_intern
 ##!clean	removed the object files and libs
 clean: usage
 	cd guilogger && $(MAKE) clean
+	cd ode_robots && $(MAKE) clean
+	cd ode_robots/simulations && $(MAKE) clean
+	cd selforg && $(MAKE) clean
+	cd selforg/simulations && $(MAKE) clean
+	cd ga_tools && $(MAKE) clean
+	cd ga_tools/simulations && $(MAKE) clean
+
+##!clean-all	like clean but also removes libraries
+clean-all: usage
+	cd guilogger && $(MAKE) clean
 	cd ode_robots && $(MAKE) clean-all
 	cd ode_robots/simulations && $(MAKE) clean
 	cd selforg && $(MAKE) clean-all
+	cd selforg/simulations && $(MAKE) clean
+	cd ga_tools && $(MAKE) clean-all
+	cd ga_tools/simulations && $(MAKE) clean
 
 ##!********* less common targets ***********
 
