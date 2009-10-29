@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.112  2009-10-27 16:52:21  martius
+ *   Revision 1.113  2009-10-29 15:09:52  martius
+ *   data is always searched in the source folder as well
+ *
+ *   Revision 1.112  2009/10/27 16:52:21  martius
  *   documentation
  *
  *   Revision 1.111  2009/08/21 09:49:08  robot12
@@ -742,9 +745,8 @@ namespace lpzrobots {
     osgDB::FilePathList l = osgDB::getDataFilePathList();
 #ifdef PREFIX
     l.push_back(PREFIX+string("/share/lpzrobots/data"));// installation path
-#else
-    l.push_back("../../osg/data");
 #endif
+    l.push_back("../../osg/data");
     l.push_back("data");
     osgDB::setDataFilePathList(l);
 
