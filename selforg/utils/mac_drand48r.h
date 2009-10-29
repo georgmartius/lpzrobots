@@ -23,7 +23,10 @@
  *   This is a copy of the stdlib version                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-10-29 14:37:19  martius
+ *   Revision 1.4  2009-10-29 14:44:41  martius
+ *   got ieee754 double back
+ *
+ *   Revision 1.3  2009/10/29 14:37:19  martius
  *   reduced to Little Endian
  *
  *   Revision 1.2  2009/10/29 14:33:24  martius
@@ -41,36 +44,35 @@
 
 #include <limits.h>
 
-#define IEEE754_DOUBLE_BIAS	0x3ff /* Added to exponent.  */
 
-union ieee854_long_double
+union ieee754_double
   {
-    long double d;
+    double d;
 
-    /* This is the IEEE 854 double-extended-precision format.  */
+    /* This is the IEEE 754 double-precision format.  */
     struct
       {
+	/* Together these comprise the mantissa.  */
 	unsigned int mantissa1:32;
-	unsigned int mantissa0:32;
-	unsigned int exponent:15;
+	unsigned int mantissa0:20;
+	unsigned int exponent:11;
 	unsigned int negative:1;
-	unsigned int empty:16;
       } ieee;
 
-    /* This is for NaNs in the IEEE 854 double-extended-precision format.  */
+    /* This format makes it easier to see if a NaN is a signalling NaN.  */
     struct
       {
+	/* Together these comprise the mantissa.  */
 	unsigned int mantissa1:32;
-	unsigned int mantissa0:30;
+	unsigned int mantissa0:19;
 	unsigned int quiet_nan:1;
-	unsigned int one:1;
-	unsigned int exponent:15;
+	unsigned int exponent:11;
 	unsigned int negative:1;
-	unsigned int empty:16;
       } ieee_nan;
   };
 
-#define IEEE854_LONG_DOUBLE_BIAS 0x3fff
+#define IEEE754_DOUBLE_BIAS	0x3ff /* Added to exponent.  */
+
 
 struct drand48_data {
   unsigned short int __x[3];	/* Current state.  */
