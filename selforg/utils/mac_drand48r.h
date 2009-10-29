@@ -23,7 +23,10 @@
  *   This is a copy of the stdlib version                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-10-29 14:51:14  fhesse
+ *   Revision 1.6  2009-10-29 15:20:03  fhesse
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2009/10/29 14:51:14  fhesse
  *   *** empty log message ***
  *
  *   Revision 1.4  2009/10/29 14:44:41  martius
@@ -46,6 +49,7 @@
 #include <stdlib.h>
 
 #include <limits.h>
+#include <mach/mach.h>
 
 
 union ieee754_double
