@@ -1,3 +1,5 @@
+VERSION=0.5
+
 1. to create a distribution/Release:
 perform: 
 cvs co lpzrobots
@@ -11,11 +13,16 @@ just start ./createextraDist.sh
 
 3. for binary distribution:
 take the prepared distribution from 1 and do
-cd lpzrobots-0.x
+cd lpzrobots-${VERSION}
 make conf # select /usr/local and user (u)
 make prepare
 make libs
-make install # to make the makefiles find the libs
+make clean
+rm Makefile.conf
+cd ../
+tar -cvzf lpzrobots-${VERSION}-binary-lib-devel-`uname -m`.tgz lpzrobots-${VERSION}
+
+# to make all examples do that (not needed)
 cd ode_robots/simulations && make all 
 cd ../../
 cd ode_robots/examples/ && make all
@@ -24,8 +31,12 @@ cd selforg/simulations && make all
 cd ../../
 cd ga_tools/simulations && make all
 cd ../../
-make clean
-rm Makefile.conf
-cd ../
-tar -cvzf lpzrobots-0.x-binary-lib-devel-`uname -m`.tgz lpzrobots-0.x
+
+make install # to make the makefiles find the libs
+
+# rpm
+checkinstall -R --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -i` --pkglicense=GPL/CC-NC --pkggroup="Robotics Group for Self-Organization of Control" --provides="Robot simulator" --pakdir=../ --requires="" make install
+
+# deb
+checkinstall -D --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -i` --pkglicense=GPL/CC-NC --pkggroup="Robotics Group for Self-Organization of Control" --provides="Robot simulator" --pakdir=../ --maintainer="georg.martius@web.de" --requires="" make install
 

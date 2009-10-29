@@ -2,6 +2,9 @@
 #Author:   Georg Martius  <georg.martius at web.de>
 #Date:     Sept 2008
 
+#Do not edit, this is copied to the simulations while installation! 
+#Make your changes in Makefile.conf
+
 include Makefile.conf
 
 CFILES = $(addsuffix .cpp, $(FILES))
@@ -26,15 +29,15 @@ LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
-	-lreadline -lpthread
+	-lreadline -lncurses -lpthread
 
 INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
 CXX = g++
 # -pg for profiling
-CPPFLAGS = -Wall  -g -pthread $(INC)
+CPPFLAGS = -Wall -g $(INC)
 ## Optimisation
-CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC)
+CPPFLAGS_OPT = -Wall -O3 -DNDEBUG $(INC)
 
 normal: libode_robots $(EXEC)
 

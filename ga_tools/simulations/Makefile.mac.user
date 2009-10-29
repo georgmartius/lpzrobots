@@ -39,7 +39,7 @@ LIBS   = -lm \
 	-l$(GA_TOOLSLIB) \
 	-l$(SELFORGLIB) \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -losgDB -lOpenThreads -losg -lGL -lGLU -lglut \
-	-lreadline -lpthread
+	-lreadline -lncurses -lpthread -L/opt/local/lib
 
 INC   = -I.  -I/opt/local/include
 

@@ -35,9 +35,9 @@ INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
 CXX = g++
 # -pg for profiling
-CPPFLAGS = -Wall -g $(INC)
+CPPFLAGS = -Wall -g -pthread $(INC)
 ## Optimisation
-CPPFLAGS_OPT = -Wall -O3 -DNDEBUG $(INC)
+CPPFLAGS_OPT = -Wall -O3 -pthread -DNDEBUG $(INC)
 
 normal: libode_robots $(EXEC)
 

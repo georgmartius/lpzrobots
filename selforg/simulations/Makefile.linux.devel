@@ -18,9 +18,9 @@ LIBS   += -lm -L$(SELFORG)/ -l$(SELFORGLIB) -lpthread
 INC    += -I$(SELFORG)/include
 
 # -pg for profiling
-CPPFLAGS = -Wall -I. -g $(INC)
+CPPFLAGS = -Wall -I. -g -pthread $(INC)
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -O3 -DUNITTEST -DNDEBUG $(INC)
+CPPFLAGS_OPT = -Wall -I. -O3 -pthread -DUNITTEST -DNDEBUG $(INC)
 
 # cc = g++ $(CFLAGS) $(INC) -c
 # cc = g++ $(CFLAGS) -c -O -g3 -pg
