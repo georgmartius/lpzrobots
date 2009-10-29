@@ -23,7 +23,10 @@
  *   This is a copy of the stdlib version                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-10-29 15:24:20  martius
+ *   Revision 1.8  2009-10-29 15:26:14  martius
+ *   typo
+ *
+ *   Revision 1.7  2009/10/29 15:24:20  martius
  *   removed implementation, just declaration
  *
  *   Revision 1.6  2009/10/29 15:20:03  fhesse
@@ -92,11 +95,6 @@ struct drand48_data {
   unsigned long long int __a;	/* Factor in congruential formula.  */
 };
 
-
-int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data* buffer);
-
-int __erand48_r (unsigned short int xsubi[3], struct drand48_data *buffer,
-                 double *result);
 
 int srand48_r (long int seedval, struct drand48_data *buffer);
 

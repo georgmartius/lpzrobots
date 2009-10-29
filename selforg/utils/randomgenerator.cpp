@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-10-29 15:23:43  martius
+ *  Revision 1.2  2009-10-29 15:26:14  martius
+ *  typo
+ *
+ *  Revision 1.1  2009/10/29 15:23:43  martius
  *  implementation of random gen for non-gnu systems
  *
  *                                                                         *
@@ -31,6 +34,11 @@
 #include "randomgenerator.h"
 
 #ifndef _GNU_SOURCE
+
+int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data* buffer);
+
+int __erand48_r (unsigned short int xsubi[3], struct drand48_data *buffer,
+                 double *result);
 
 int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data* buffer){
   uint64_t X;
@@ -82,8 +90,7 @@ int __erand48_r (unsigned short int xsubi[3], struct drand48_data *buffer,
 }
 
 
-int srand48_r (long int seedval, struct drand48_data *buffer);
-{
+int srand48_r (long int seedval, struct drand48_data *buffer) {
   /* The standards say we only have 32 bits.  */
   if (sizeof (long int) > 4)
     seedval &= 0xffffffffl;
@@ -100,8 +107,7 @@ int srand48_r (long int seedval, struct drand48_data *buffer);
 }
 
 
-int drand48_r ( struct drand48_data *buffer, double *result)
-{
+int drand48_r ( struct drand48_data *buffer, double *result) {
   return __erand48_r (buffer->__x, buffer, result);
 }
 
