@@ -41,7 +41,7 @@ LIBS   = -lm \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -losgDB -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lpthread
 
-INC   = -I.
+INC   = -I.  -I/opt/local/include
 
 CXX = g++
 CPPFLAGS = -Wall  -g -pthread $(INC) 
