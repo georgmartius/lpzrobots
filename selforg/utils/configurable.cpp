@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-10-28 17:53:11  fhesse
+ *   Revision 1.6  2009-10-29 13:14:05  guettler
+ *   compile FIX: added #include <assert.h>
+ *
+ *   Revision 1.5  2009/10/28 17:53:11  fhesse
  *   got rid of getline and replaced it by fgets to be compatible with MAC
  *
  *   Revision 1.4  2009/08/05 22:47:33  martius
@@ -82,6 +85,7 @@
 
 #include "configurable.h"
 #include <cstring>
+#include <assert.h>
 
 using namespace std;
 
