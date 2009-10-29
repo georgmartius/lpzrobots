@@ -141,7 +141,7 @@ ifeq ($(INSTALL_TYPE),user)
 	cp -rL selforg/simulations $(PREFIX)share/lpzrobots/selforg/
 	cp -rL ga_tools/simulations $(PREFIX)share/lpzrobots/ga_tools/
 	@echo "*************** Finished ******************"
-	@echo "Make sure that the $PREFIX/lib directory is in our lib search path"
+	@echo "Make sure that the $(PREFIX)/lib directory is in our lib search path"
 	@echo " and $PREFIX/include is searched for includes"
 	@echo "You can find example simulations in $(PREFIX)share/lpzrobots/"
 endif
