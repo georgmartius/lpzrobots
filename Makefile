@@ -114,7 +114,7 @@ install_utils:
 	-cp ode_robots/utils/feedfile.pl $(PREFIX)bin/
 	-cp ode_robots/utils/encodevideo.sh $(PREFIX)bin/
 	-cp ode_robots/utils/selectcolumns.pl $(PREFIX)bin/
-	cp -r ode_robots/osg/data $(PREFIX)share/lpzrobots/
+	cp -R ode_robots/osg/data $(PREFIX)share/lpzrobots/
 	-find $(PREFIX)share/lpzrobots/ -type d -name "CVS" | xargs rm -r
 
 
@@ -127,23 +127,25 @@ ifeq ($(INSTALL_TYPE),user)
 	     $(PREFIX)share/lpzrobots/ga_tools
 	cp selforg/libselforg.a $(PREFIX)lib
 	cp selforg/libselforg_opt.a $(PREFIX)lib
-	cp -rL selforg/include/selforg $(PREFIX)include/
+	cp -RL selforg/include/selforg $(PREFIX)include/
 	@echo "*************** Install ode_robots ******************"
 	cp ode_robots/libode_robots.a $(PREFIX)lib
 	cp ode_robots/libode_robots_opt.a $(PREFIX)lib
-	cp -rL ode_robots/include/ode_robots $(PREFIX)include/	
+	cp -RL ode_robots/include/ode_robots $(PREFIX)include/	
 	@echo "*************** Install ga_tools ******************"
 	cp ga_tools/libga_tools.a $(PREFIX)lib
 	cp ga_tools/libga_tools_opt.a $(PREFIX)lib
-	cp -rL ga_tools/include/ga_tools $(PREFIX)include/	
+	cp -RL ga_tools/include/ga_tools $(PREFIX)include/	
 	@echo "*************** Install example simulations ******************"
-	cp -rL ode_robots/simulations $(PREFIX)share/lpzrobots/ode_robots/
-	cp -rL selforg/simulations $(PREFIX)share/lpzrobots/selforg/
-	cp -rL ga_tools/simulations $(PREFIX)share/lpzrobots/ga_tools/
+	cp -RL ode_robots/simulations $(PREFIX)share/lpzrobots/ode_robots/
+	cp -RL selforg/simulations $(PREFIX)share/lpzrobots/selforg/
+	cp -RL ga_tools/simulations $(PREFIX)share/lpzrobots/ga_tools/
+	chown -R ugo+r $(PREFIX)share/lpzrobots
 	@echo "*************** Finished ******************"
 	@echo "Make sure that the $(PREFIX)/lib directory is in our lib search path"
 	@echo " and $PREFIX/include is searched for includes"
-	@echo "You can find example simulations in $(PREFIX)share/lpzrobots/"
+	@echo "You can find example simulations in $(PREFIX)share/lpzrobots/, but copy"
+	@echo " them first to your home directory."
 endif
 
 .PHONY: uninstall_intern
