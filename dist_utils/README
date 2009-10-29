@@ -20,7 +20,7 @@ make libs
 make clean
 # rm Makefile.conf # the user must use the same conf (i.e. /usr/local and (u) user)
 cd ../
-tar -cvzf lpzrobots-${VERSION}-binary-lib-devel-`uname -m`.tgz lpzrobots-${VERSION}
+tar -cvzf lpzrobots-${VERSION}-binary-lib-devel-`uname -s`-`uname -m`.tgz lpzrobots-${VERSION}
 
 4. RPM and DEB. 
 make conf 
@@ -28,6 +28,7 @@ make conf
 -> u
 make prepare
 make libs
+make doc # go and drink another cup of tee or two ;-)
 # rpm
 sudo checkinstall -R --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -i` --pkglicense=GPL/CC-NC --pkggroup="Robotics Group for Self-Organization of Control" --provides="Robot simulator" --pakdir=../ --requires="" make install
 
