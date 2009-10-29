@@ -23,7 +23,10 @@
  *   This is a copy of the stdlib version                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-10-29 14:44:41  martius
+ *   Revision 1.5  2009-10-29 14:51:14  fhesse
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2009/10/29 14:44:41  martius
  *   got ieee754 double back
  *
  *   Revision 1.3  2009/10/29 14:37:19  martius
@@ -133,7 +136,7 @@ int __erand48_r (unsigned short int xsubi[3], struct drand48_data *buffer,
 }
 
 
-int srand48_r (long int seedval, struct drand48_data *buffer);
+int srand48_r (long int seedval, struct drand48_data *buffer)
 {
   /* The standards say we only have 32 bits.  */
   if (sizeof (long int) > 4)
