@@ -10,8 +10,18 @@ echo -n "e.g. (/home/yourlogin) (don' use ~): [/usr/local] ";
 read prefix 
 [ -z "$prefix" ] && prefix='/usr/local'  # $(HOME)'
 
-# do some autodetection here for MacOS
-System="linux"
+# system autodetection
+# some muggling for the achitecture
+OS=`uname -a | sed 's/\(\w*\).*/\1/'` # selects first word (e.g Linux or Darwin)
+
+if [ "$OS" = "Linux" ]; then
+  #linux
+  System="linux"
+else
+  # mac
+  System="mac"
+fi
+
 
 # check for CVS, if so then no user installation! 
 if [ -d "CVS" ]; then 
