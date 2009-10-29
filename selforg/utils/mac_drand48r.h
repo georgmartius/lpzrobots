@@ -23,7 +23,10 @@
  *   This is a copy of the stdlib version                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-10-29 14:23:26  martius
+ *   Revision 1.2  2009-10-29 14:33:24  martius
+ *   hard coded little endian
+ *
+ *   Revision 1.1  2009/10/29 14:23:26  martius
  *   random gen also for mac (non-gnu)
  *
  *
@@ -34,8 +37,9 @@
 #include <stdlib.h>
 
 #include <limits.h>
-#include <features.h>
-#include <endian.h>
+
+#define __BYTE_ORDER __LITTLE_ENDIAN
+#define__FLOAT_WORD_ORDER __LITTLE_ENDIAN
 
 union ieee754_float
   {
@@ -260,6 +264,24 @@ int __erand48_r (unsigned short int xsubi[3], struct drand48_data *buffer,
 
   /* Please note the lower 4 bits of mantissa1 are always 0.  */
   *result = temp.d - 1.0;
+
+  return 0;
+}
+
+
+int srand48_r (long int seedval, struct drand48_data *buffer);
+{
+  /* The standards say we only have 32 bits.  */
+  if (sizeof (long int) > 4)
+    seedval &= 0xffffffffl;
+
+  buffer->__x[2] = seedval >> 16;
+  buffer->__x[1] = seedval & 0xffffl;
+  buffer->__x[0] = 0x330e;
+
+  buffer->__a = 0x5deece66dull;
+  buffer->__c = 0xb;
+  buffer->__init = 1;
 
   return 0;
 }
