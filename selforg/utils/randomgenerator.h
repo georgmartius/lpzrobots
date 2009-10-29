@@ -23,7 +23,10 @@
  *   Random generator with internal state used for multitheading envs.     *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-10-29 14:51:14  fhesse
+ *   Revision 1.10  2009-10-29 15:23:55  martius
+ *   use GNU_SOURCE
+ *
+ *   Revision 1.9  2009/10/29 14:51:14  fhesse
  *   *** empty log message ***
  *
  *   Revision 1.8  2009/10/29 14:23:36  martius
@@ -61,9 +64,9 @@
 #define __RANDOMGENERATOR_H
 
 #include <stdlib.h>
-//#ifdef _APPLE
+#ifndef _GNU_SOURCE
 #include "mac_drand48r.h"
-//#endif
+#endif
 
 typedef struct _RandGen {
   _RandGen(){
