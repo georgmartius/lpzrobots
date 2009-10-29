@@ -36,7 +36,7 @@ read PREFIX;
 echo "Copy ode stuff";
 cp $PREFIX/lib/libode.* $LIBDIR/;
 [ -e $PREFIX/lib/libdrawstuff.a ] && cp $PREFIX/lib/libdrawstuff.* $LIBDIR/;
-cp -r $PREFIX/include/ode $INCDIR/;
+cp -R $PREFIX/include/ode $INCDIR/;
 
 echo -n "Where is your OSG located? [$PREFIX]:"
 read PREFIX_;
@@ -47,9 +47,9 @@ read PREFIX_;
 echo "Copy OSG";
 cp -P $PREFIX/lib/libosg* $LIBDIR/;
 cp -P $PREFIX/lib/libOpenThreads* $LIBDIR/;
-cp -rP $PREFIX/lib/osgPlugins* $LIBDIR/;
-cp -rP $PREFIX/include/osg* $INCDIR/;
-cp -rP $PREFIX/include/OpenThreads $INCDIR/;
+cp -RP $PREFIX/lib/osgPlugins* $LIBDIR/;
+cp -RP $PREFIX/include/osg* $INCDIR/;
+cp -RP $PREFIX/include/OpenThreads $INCDIR/;
 ls $PREFIX/bin/osg* 2>&1 > /dev/null && cp  $PREFIX/bin/osg* $BINDIR/;
 
 echo "Successful";
