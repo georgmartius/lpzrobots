@@ -46,7 +46,7 @@ It consists of the following directories (click for details):
 
 \section Requirements
  
-You need the following software and libraries installed (Tested on Linux x86 machines).
+You need the following software and libraries installed (Tested on Linux x86 and MAC Leopard).
 - ODE see http://www.ode.org which is now in the opende directory 
    (please follow the instrutions printed by the Makefile in lpzrobots)
 - OpenSceneGraph http://www.openscenegraph.org (version >= 2.2.0) 
@@ -55,9 +55,13 @@ You need the following software and libraries installed (Tested on Linux x86 mac
 	- make sure the correct version of qmake is in your path. If you have both qt3 and qt4 installed you have to take care of that. Use qmake --version to find out. On Debian and Ubuntu use the alternatives system http://www.debian-administration.org/articles/91
 - (\a optional) Java JDK for neuronviz (version >= J2SE 1.5.0)
 
-For convinience we provide a binary package with ODE and OSG compatible with most 
- linux distributions, see next section
-
+\subsection Linux
+ For convinience we provide a binary package with ODE and OSG compatible with most 
+  linux distributions, see next section
+\subsection MAC
+ We recommend to install the ODE and OSG via macports (http://www.macports.org)
+ (after installation of macports type on a console 
+ <tt>sudo port install osg OpenSceneGraph</tt>)
 
 \section Inst Installation \& Startup
 
@@ -82,10 +86,9 @@ You have tree different ways to get the simulator to work.
           or follow the appropriate part of \ref InstC.
 \verbatim
 cd lpzrobots-0.*-extra-lib-devel*
-./install.sh
-# or, if you want a system wide installation
 sudo ./install.sh
 \endverbatim
+The files are stored under <tt>/usr/local/</tt>.
 - Install the simulator:
 \verbatim
 cd lpzrobots-0.*-binary-lib-devel*
@@ -93,13 +96,10 @@ make install
 # or, if you want a system wide installation
 sudo make install
 \endverbatim
-- You will be asked for the installation prefix and the installation type.
-  If you use a installation prefix other than /usr/local you have to make a link
-  to the data directory PREFIX/share/lpzrobots/data in your ode_robots simulations.
-  The installation type you have to anwser with \b u like user!
 - Now you are done with the installation and you can try a sample simulation. 
-  There are located in the <tt>ode_robots/simulations/</tt> folder and are also
-  copied to <tt>PREFIX/share/lpzrobots/</tt>.
+  There are located in the <tt>ode_robots/simulations/</tt> 
+  folder and are also
+  copied to <tt>/usr/local/share/lpzrobots/</tt>.
   Please continue reading in section \ref RunExample.
 
 \subsection InstB Way B: Package installation
