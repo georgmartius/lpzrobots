@@ -1,0 +1,51 @@
+#File:     Makefile for selforg simulation with user-type installtion
+#Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
+#Date:     Oct 2009
+
+# add files to compile in the conf file
+include Makefile.conf
+
+CFILES = $(addsuffix .cpp, $(FILES))
+OFILES = $(addsuffix .o, $(FILES))
+
+SELFORGLIB = selforg
+SELFORGLIB_OPT = selforg_opt
+LIBSELFORG = lib$(SELFORGLIB).a
+
+LIBS   += -lm  -l$(SELFORGLIB) -lpthread
+INC    +=  -I/opt/local/include
+
+# -pg for profiling
+CFLAGS = -Wall -I. -g  $(INC)
+## Optimisation
+## Optimisation
+CPPFLAGS_OPT = -Wall -I. -O3 -DUNITTEST -DNDEBUG $(INC)
+
+
+CXX = g++
+
+$(EXEC): Makefile.depend $(OFILES)
+	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
+
+$(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
+$(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
+$(EXEC_OPT): Makefile.depend $(OFILES)
+	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
+
+
+depend: 
+	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+
+Makefile.depend: 
+	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+
+todo:
+	find -name "*.[ch]*" -exec grep -Hni "TODO" {} \;
+
+tags: 
+	etags `find -name "*.[ch]"` 
+
+clean:
+	rm -f $(EXEC) $(EXEC_OPT) *.o Makefile.depend
+
+include Makefile.depend
