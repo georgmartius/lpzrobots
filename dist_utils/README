@@ -32,11 +32,13 @@ make prepare
 make $MULTI libs
 make doc # go and drink another cup of tee or two ;-)
 
+PACKAGEOPTS='--install=no --strip=no --backup=no --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -m` --pkglicense="GPL/CC-NC" --pkggroup="Robotics Group for Self-Organization of Control" --provides="" --pakdir=../ --requires=""';
+
 # rpm
-sudo checkinstall -R --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -m` --pkglicense="GPL/CC-NC" --pkggroup="Robotics Group for Self-Organization of Control" --provides="" --pakdir=../ --requires="" make install
+sudo checkinstall -R $PACKAGEOPTS make install
 
 # deb
-sudo checkinstall -D --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -m` --pkglicense="GPL/CC-NC" --pkggroup="Robotics Group for Self-Organization of Control" --provides="" --pakdir=../ --maintainer="georg.martius@web.de" --requires="" make install
+sudo checkinstall -D $PACKAGEOPTS --maintainer="georg.martius@web.de" make install
 
 
 #5. Create doc package
