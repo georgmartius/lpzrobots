@@ -45,17 +45,17 @@ conf: usage
 ##!libs		compile libaries in optimised and debug version
 libs: usage
 	@echo "*************** Compile selforg (optimized) *****************"
-	+cd selforg && $(MAKE) clean && $(MAKE) opt 	
+	+cd selforg && $(MAKE) clean-all && $(MAKE) opt 	
 	@echo "*************** Compile ode_robots (optimized) **************"
-	+cd ode_robots && $(MAKE) clean && $(MAKE) opt	
+	+cd ode_robots && $(MAKE) clean-all && $(MAKE) opt	
 	@echo "*************** Compile ga_tools (optimized) **************"
-	+cd ga_tools && $(MAKE) clean && $(MAKE) opt	
+	+cd ga_tools && $(MAKE) clean-all && $(MAKE) opt	
 	@echo "*************** Compile selforg (debug) *********************"
-	+cd selforg && $(MAKE) clean && $(MAKE) lib
+	+cd selforg && $(MAKE) clean-all && $(MAKE) lib
 	@echo "*************** Compile ode_robots (debug) ******************"
-	+cd ode_robots && $(MAKE) clean && $(MAKE) lib
+	+cd ode_robots && $(MAKE) clean-all && $(MAKE) lib
 	@echo "*************** Compile ga_tools (debug) **************"
-	+cd ga_tools && $(MAKE) clean && $(MAKE) lib	
+	+cd ga_tools && $(MAKE) clean-all && $(MAKE) lib	
 	@echo "*************** strip the libs             ******************"
 	-strip selforg/libselforg_opt.a 
 	-strip --only-keep-debug selforg/libselforg.a
