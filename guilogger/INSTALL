@@ -1,0 +1,23 @@
+
+You need qt-4 develeopment packages with qt3support installed
+Call:
+
+qmake guilogger.pro
+make
+
+the binary is then in src/bin/
+copy this to your bin path (e.g. /usr/local/bin or ~/bin)
+Check the README or the online documentation on 
+ http://robot.informatik.uni-leipzig.de/software 
+for the data/file format and other information.
+A typical call is
+
+youprog | guilogger
+
+or to open the guilogger directly from your program. 
+You can open an existing data file with
+
+guilogger -m file -f file.log
+
+Have fun!
+    Georg Martius
