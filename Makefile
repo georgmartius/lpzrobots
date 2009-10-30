@@ -51,18 +51,18 @@ libs: usage
 	@echo "*************** Compile ga_tools (optimized) **************"
 	+cd ga_tools && $(MAKE) clean-all && $(MAKE) opt	
 	@echo "*************** Compile selforg (debug) *********************"
-	+cd selforg && $(MAKE) clean-all && $(MAKE) lib
+	+cd selforg && $(MAKE) clean && $(MAKE) lib
 	@echo "*************** Compile ode_robots (debug) ******************"
-	+cd ode_robots && $(MAKE) clean-all && $(MAKE) lib
+	+cd ode_robots && $(MAKE) clean && $(MAKE) lib
 	@echo "*************** Compile ga_tools (debug) **************"
-	+cd ga_tools && $(MAKE) clean-all && $(MAKE) lib	
-	@echo "*************** strip the libs             ******************"
-	-strip selforg/libselforg_opt.a 
-	-strip --only-keep-debug selforg/libselforg.a
-	-strip ode_robots/libode_robots_opt.a
-	-strip --only-keep-debug ode_robots/libode_robots.a
-	-strip ga_tools/libga_tools_opt.a
-	-strip --only-keep-debug ga_tools/libga_tools.a
+	+cd ga_tools && $(MAKE) clean && $(MAKE) lib	
+#	@echo "*************** strip the libs             ******************"
+#	-strip selforg/libselforg_opt.a 
+#	-strip --only-keep-debug selforg/libselforg.a
+#	-strip ode_robots/libode_robots_opt.a
+#	-strip --only-keep-debug ode_robots/libode_robots.a
+#	-strip ga_tools/libga_tools_opt.a
+#	-strip --only-keep-debug ga_tools/libga_tools.a
 
 .PHONY: install
 ##!install	install utils and possibly libs (if installation type: user)
