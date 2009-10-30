@@ -1,51 +1,57 @@
-VERSION=0.5
 
-1. to create a distribution/Release:
-perform: 
+VERSION=0.5
+MULTI="-j 2"
+
+# 1. to create a distribution/Release:
+# perform: 
 cvs co lpzrobots
 cd lpzrobots
 cvs update -dP
 cd dist_utils
 ./createDist.sh
 
-2. for extra lib bundle:
-just start ./createextraDist.sh
+# 2. for extra lib bundle:
+# just start ./createextraDist.sh
 
-3. for binary distribution:
-take the prepared distribution from 1 and do
-cd lpzrobots-${VERSION}
-make conf # select /usr/local and user (u)
+# 3. for binary distribution:
+# take the prepared distribution from 1 and do
+cd ../../lpzrobots-${VERSION}
+echo -e "/usr/local\nu\ny" | make  # select /usr/local and user (u)
 make prepare
-make libs
+make $MULTI libs
 make clean
 # rm Makefile.conf # the user must use the same conf (i.e. /usr/local and (u) user)
+pushd `pwd`
 cd ../
-tar -cvzf lpzrobots-${VERSION}-binary-lib-devel-`uname -s`-`uname -m`.tgz lpzrobots-${VERSION}
+tar -czf lpzrobots-${VERSION}-binary-lib-devel-`uname -s`-`uname -m`.tgz lpzrobots-${VERSION}
+popd
 
-4. RPM and DEB. 
-make conf 
--> /usr
--> u
+# 4. RPM and DEB. 
+echo -e "/usr\nu\ny" | make conf  # select /usr and user (u)
 make prepare
-make libs
+make $MULTI libs
 make doc # go and drink another cup of tee or two ;-)
+
 # rpm
-sudo checkinstall -R --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -i` --pkglicense=GPL/CC-NC --pkggroup="Robotics Group for Self-Organization of Control" --provides="Robot simulator" --pakdir=../ --requires="" make install
+sudo checkinstall -R --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -i` --pkglicense=GPL/CC-NC --pkggroup="Robotics Group for Self-Organization of Control" --provides="" --pakdir=../ --requires="" make install
 
 # deb
-sudo checkinstall -D --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -i` --pkglicense=GPL/CC-NC --pkggroup="Robotics Group for Self-Organization of Control" --provides="Robot simulator" --pakdir=../ --maintainer="georg.martius@web.de" --requires="" make install
+sudo checkinstall -D --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -i` --pkglicense=GPL/CC-NC --pkggroup="Robotics Group for Self-Organization of Control" --provides="" --pakdir=../ --maintainer="georg.martius@web.de" --requires="" make install
 
 
+#5. Create doc package
+cp -r doc lpzrobots-${Version}-doc
+tar -czf ../lpzrobots-${Version}-doc.tgz lpzrobots-${Version}-doc
 
 
-5. to make all examples do that (not needed)
-make install # to make the makefiles find the libs
-cd ode_robots/simulations && make all 
-cd ../../
-cd ode_robots/examples/ && make all
-cd ../../
-cd selforg/simulations && make all
-cd ../../
-cd ga_tools/simulations && make all
-cd ../../
+#6. to make all examples do that (not needed)
+#make install # to make the makefiles find the libs
+#cd ode_robots/simulations && make all 
+#cd ../../
+#cd ode_robots/examples/ && make all
+#cd ../../
+#cd selforg/simulations && make all
+#cd ../../
+#cd ga_tools/simulations && make all
+#cd ../../
 
