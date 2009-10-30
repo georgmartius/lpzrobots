@@ -1,4 +1,7 @@
 
+# This file can be executed on the console 
+#  and all the distribution files are generated!
+
 VERSION=0.5
 MULTI="-j 2"
 
@@ -8,7 +11,7 @@ cvs co lpzrobots
 cd lpzrobots
 cvs update -dP
 cd dist_utils
-./createDist.sh
+./createDist.sh $VERSION
 
 # 2. for extra lib bundle:
 # just start ./createextraDist.sh
@@ -42,8 +45,9 @@ sudo checkinstall -D $PACKAGEOPTS --maintainer="georg.martius@web.de" make insta
 
 
 #5. Create doc package
-cp -r doc lpzrobots-${Version}-doc
-tar -czf ../lpzrobots-${Version}-doc.tgz lpzrobots-${Version}-doc
+cp -r doc lpzrobots-${VERSION}-doc
+tar -czf ../lpzrobots-${VERSION}-doc.tgz lpzrobots-${VERSION}-doc
+rm -r lpzrobots-${VERSION}-doc
 
 
 #6. to make all examples do that (not needed)
@@ -56,4 +60,20 @@ tar -czf ../lpzrobots-${Version}-doc.tgz lpzrobots-${Version}-doc
 #cd ../../
 #cd ga_tools/simulations && make all
 #cd ../../
+
+
+
+#7. create selforg Package
+echo -e "/usr/local\nd\ny" | make conf  # select /usr/local and devel (d)
+cd selforg ; make clean-all ; cd ../
+cp -r selforg selforg-${VERSION}
+tar -czf ../selforg-${VERSION}.tgz selforg-${VERSION}
+rm -r selforg-${VERSION}
+
+#8. create guilogger Package
+cd guilogger; make distclean; cd ../
+GLV=`grep VERSIONSTRING guilogger/src/guilogger.h | sed 's/.*VERSIONSTRING "\(.*\)"/\1/'`
+cp -r guilogger guilogger-${GLV}
+tar -czf ../guilogger-${GLV}.tgz guilogger-${GLV}
+rm -r guilogger-${GLV}
 
