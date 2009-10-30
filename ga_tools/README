@@ -7,8 +7,9 @@
 \dir ga_tools
 
 The ga_tools directory contains a toolkit for evolutionary algorithms. 
-This includes evolutionary strategies like genetic algorithm or genetic programming.
-The class \ref SingletonGenAlgAPI represents the API for the toolkitm which 
+This includes evolutionary strategies as well as the implementation
+ of genetic algorithms and genetic programming.
+The class \ref SingletonGenAlgAPI represents the API for the toolkit which 
  you can use to access the package.
 The class \ref SingletonGenEngine is the engine performing the genetic operations.
 The class \ref IValue makes it possible to create all kinds of genes that are then handled automatically. This can be a number, a binary code, a program or a graphical primitive.
@@ -24,7 +25,9 @@ The following subdirectories are included:
  - \ref ga_tools/MutationStrategies : The mutation strategy interface and some implementation. Here you can implement your own mutation for your own gene-values.
  - \ref ga_tools/MutationFactorStrategies : Only for the specified \ref ValueMutationStrategy, here you can make your own optimization for the value mutation.
  - \ref ga_tools/GenerationSizeStrategy : A strategy to change the size of the generation, for more information about this, look for selection force.
- - \ref ga_tools/FitnessStrategy : Contains a helper class for your own strategy, because if it growths to infinity, the algorithm needs a fitness strategy seek for zero. (unclear!)
+ - \ref ga_tools/FitnessStrategy : Contains a helper class that allows you
+ to convert your own fitness function from a maximum-value-is-good to a 
+  minimum-value-is-good version as it is required by the algorithm.
  - \ref ga_tools/include : All header files. Do not modify this directory (automatically generated).
  - \ref ga_tools/simulation : Some example templates and simulations, which use the ga_tools package in combination with \ref ode_robots and \ref selforg.
 
