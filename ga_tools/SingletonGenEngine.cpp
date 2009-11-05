@@ -27,7 +27,10 @@
  *   inside, prepare the next steps and hold the alg. on running.          *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-10-23 10:47:45  robot12
+ *   Revision 1.14  2009-11-05 14:07:41  robot12
+ *   bugfix for restore and store
+ *
+ *   Revision 1.13  2009/10/23 10:47:45  robot12
  *   bugfix in store and restore
  *
  *   Revision 1.12  2009/10/21 14:08:07  robot12
@@ -106,306 +109,306 @@
 SingletonGenEngine* SingletonGenEngine::m_engine = 0;
 
 SingletonGenEngine::SingletonGenEngine() {
-	m_actualGeneration = 0;
-	m_cleanStrategies = false;
-	m_selectStrategy = 0;
-	m_generationSizeStrategy = 0;
-	m_fitnessStrategy = 0;
+  m_actualGeneration = 0;
+  m_cleanStrategies = false;
+  m_selectStrategy = 0;
+  m_generationSizeStrategy = 0;
+  m_fitnessStrategy = 0;
 }
 
 SingletonGenEngine::~SingletonGenEngine() {
-	std::vector<GenPrototype*>::iterator iterPro;
-	std::vector<Generation*>::iterator iterGener;
-	std::vector<Individual*>::iterator iterInd;
-	std::vector<Gen*>::iterator iterGen;
+  std::vector<GenPrototype*>::iterator iterPro;
+  std::vector<Generation*>::iterator iterGener;
+  std::vector<Individual*>::iterator iterInd;
+  std::vector<Gen*>::iterator iterGen;
 
-	//delete all Prototypes
-	while(m_prototype.size()>0) {
-		iterPro = m_prototype.begin();
-		delete (*iterPro);
-		m_prototype.erase(iterPro);
-	}
-	m_prototype.clear();
+  //delete all Prototypes
+  while(m_prototype.size()>0) {
+    iterPro = m_prototype.begin();
+    delete (*iterPro);
+    m_prototype.erase(iterPro);
+  }
+  m_prototype.clear();
 
-	//delete all generation
-	while(m_generation.size()>0) {
-		iterGener = m_generation.begin();
-		delete (*iterGener);
-		m_generation.erase(iterGener);
-	}
-	m_generation.clear();
+  //delete all generation
+  while(m_generation.size()>0) {
+    iterGener = m_generation.begin();
+    delete (*iterGener);
+    m_generation.erase(iterGener);
+  }
+  m_generation.clear();
 
-	//delete all individual
-	while(m_individual.size()>0) {
-		iterInd = m_individual.begin();
-		delete (*iterInd);
-		m_individual.erase(iterInd);
-	}
-	m_individual.clear();
+  //delete all individual
+  while(m_individual.size()>0) {
+    iterInd = m_individual.begin();
+    delete (*iterInd);
+    m_individual.erase(iterInd);
+  }
+  m_individual.clear();
 
-	//delete all gens
-	while(m_gen.size()>0) {
-		iterGen = m_gen.begin();
-		delete (*iterGen);
-		m_gen.erase(iterGen);
-	}
-	m_gen.clear();
+  //delete all gens
+  while(m_gen.size()>0) {
+    iterGen = m_gen.begin();
+    delete (*iterGen);
+    m_gen.erase(iterGen);
+  }
+  m_gen.clear();
 
-	SingletonGenFactory::destroyGenFactory();
-	SingletonIndividualFactory::destroyFactory();
+  SingletonGenFactory::destroyGenFactory();
+  SingletonIndividualFactory::destroyFactory();
 
-	// should we clean the strategies?
-	if(m_cleanStrategies) {
-		if(m_selectStrategy!=0) {
-			delete m_selectStrategy;
-			m_selectStrategy = 0;
-		}
+  // should we clean the strategies?
+  if(m_cleanStrategies) {
+    if(m_selectStrategy!=0) {
+      delete m_selectStrategy;
+      m_selectStrategy = 0;
+    }
 
-		if(m_generationSizeStrategy!=0) {
-			delete m_generationSizeStrategy;
-			m_generationSizeStrategy = 0;
-		}
+    if(m_generationSizeStrategy!=0) {
+      delete m_generationSizeStrategy;
+      m_generationSizeStrategy = 0;
+    }
 
-		if(m_fitnessStrategy!=0) {
-			delete m_fitnessStrategy;
-			m_fitnessStrategy = 0;
-		}
-	}
+    if(m_fitnessStrategy!=0) {
+      delete m_fitnessStrategy;
+      m_fitnessStrategy = 0;
+    }
+  }
 }
 
 void SingletonGenEngine::generateFirstGeneration(int startSize, int numChildren, RandGen* random, bool withUpdate) {
-	// clean the generations
-	std::vector<Generation*>::iterator iterGener;
-	while(m_generation.size()>0) {
-		iterGener = m_generation.begin();
-		delete (*iterGener);
-		m_generation.erase(iterGener);
-	}
-	m_generation.clear();
+  // clean the generations
+  std::vector<Generation*>::iterator iterGener;
+  while(m_generation.size()>0) {
+    iterGener = m_generation.begin();
+    delete (*iterGener);
+    m_generation.erase(iterGener);
+  }
+  m_generation.clear();
 
-	// clean the individuals
-	std::vector<Individual*>::iterator iterInd;
-	while(m_individual.size()>0) {
-		iterInd = m_individual.begin();
-		delete (*iterInd);
-		m_individual.erase(iterInd);
-	}
-	m_individual.clear();
+  // clean the individuals
+  std::vector<Individual*>::iterator iterInd;
+  while(m_individual.size()>0) {
+    iterInd = m_individual.begin();
+    delete (*iterInd);
+    m_individual.erase(iterInd);
+  }
+  m_individual.clear();
 
-	// clean the gens
-	std::vector<Gen*>::iterator iterGen;
-	while(m_gen.size()>0) {
-		iterGen = m_gen.begin();
-		delete (*iterGen);
-		m_gen.erase(iterGen);
-	}
-	m_gen.clear();
+  // clean the gens
+  std::vector<Gen*>::iterator iterGen;
+  while(m_gen.size()>0) {
+    iterGen = m_gen.begin();
+    delete (*iterGen);
+    m_gen.erase(iterGen);
+  }
+  m_gen.clear();
 
-	// generate the first generation
-	Generation* first = new Generation(-1,startSize,numChildren);
-	addGeneration(first);
-	m_actualGeneration = 0;
+  // generate the first generation
+  Generation* first = new Generation(-1,startSize,numChildren);
+  addGeneration(first);
+  m_actualGeneration = 0;
 
-	// generate the first contexts
-	GenContext* context;
-	GenPrototype* prototype;
-	for(unsigned int a=0;a<m_prototype.size();a++) {
-		prototype = m_prototype[a];
-		context = new GenContext(prototype);
-		prototype->insertContext(first,context);
-	}
+  // generate the first contexts
+  GenContext* context;
+  GenPrototype* prototype;
+  for(unsigned int a=0;a<m_prototype.size();a++) {
+    prototype = m_prototype[a];
+    context = new GenContext(prototype);
+    prototype->insertContext(first,context);
+  }
 
-	// generate the random individuals
-	Individual* ind;
-	for(int x=0;x<startSize;x++) {
-		ind = SingletonIndividualFactory::getInstance()->createIndividual();
-		first->addIndividual(ind);
-	}
-	select();
-	crossover(random);
+  // generate the random individuals
+  Individual* ind;
+  for(int x=0;x<startSize;x++) {
+    ind = SingletonIndividualFactory::getInstance()->createIndividual();
+    first->addIndividual(ind);
+  }
+  select();
+  crossover(random);
 
-	// update generation
-	if(withUpdate)
-		first->update();
+  // update generation
+  if(withUpdate)
+    first->update();
 }
 
 void SingletonGenEngine::prepareNextGeneration(int size, int numChildren) {
-	// generate the next generation
-	Generation* next = new Generation(m_actualGeneration++,size,numChildren);
-	addGeneration(next);
-	//m_actualGeneration++;
+  // generate the next generation
+  Generation* next = new Generation(m_actualGeneration++,size,numChildren);
+  addGeneration(next);
+  //m_actualGeneration++;
 
-	// generate the next GenContext
-	int num = m_prototype.size();
-	GenContext* context;
-	GenPrototype* prototype;
-	for(int x=0;x<num;x++) {
-		prototype = m_prototype[x];
-		context = new GenContext(prototype);
-		prototype->insertContext(next,context);
-	}
+  // generate the next GenContext
+  int num = m_prototype.size();
+  GenContext* context;
+  GenPrototype* prototype;
+  for(int x=0;x<num;x++) {
+    prototype = m_prototype[x];
+    context = new GenContext(prototype);
+    prototype->insertContext(next,context);
+  }
 }
 
 void SingletonGenEngine::prepare(int startSize, int numChildren, InspectableProxy*& proxyGeneration, InspectableProxy*& proxyGene, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext, bool withUpdate) {
-	Generation* generation;
-	std::list<Inspectable*> actualContextList;
+  Generation* generation;
+  std::list<Inspectable*> actualContextList;
 
-	// create first generation
-	generateFirstGeneration(startSize,numChildren, random, withUpdate);
+  // create first generation
+  generateFirstGeneration(startSize,numChildren, random, withUpdate);
 
-	// Control values
-	generation = getActualGeneration();
-	if(plotEngine!=0) {
-		actualContextList.clear();
-		actualContextList.push_back(generation);
-		proxyGeneration = new InspectableProxy(actualContextList);
-		plotEngine->addInspectable(&(*proxyGeneration));
-		plotEngine->init();
-		plotEngine->plot(1.0);
-	}
-	if(plotEngineGenContext!=0) {
-		actualContextList.clear();
-		for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
-			actualContextList.push_back((*iter)->getContext(getActualGeneration()));
-			(*iter)->getContext(getActualGeneration())->update();
-		}
-		proxyGene = new InspectableProxy(actualContextList);
-		plotEngineGenContext->addInspectable(&(*proxyGene));
-		plotEngineGenContext->init();
-		plotEngineGenContext->plot(1.0);
-	}
+  // Control values
+  generation = getActualGeneration();
+  if(plotEngine!=0) {
+    actualContextList.clear();
+    actualContextList.push_back(generation);
+    proxyGeneration = new InspectableProxy(actualContextList);
+    plotEngine->addInspectable(&(*proxyGeneration));
+    plotEngine->init();
+    plotEngine->plot(1.0);
+  }
+  if(plotEngineGenContext!=0) {
+    actualContextList.clear();
+    for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
+      actualContextList.push_back((*iter)->getContext(getActualGeneration()));
+      (*iter)->getContext(getActualGeneration())->update();
+    }
+    proxyGene = new InspectableProxy(actualContextList);
+    plotEngineGenContext->addInspectable(&(*proxyGene));
+    plotEngineGenContext->init();
+    plotEngineGenContext->plot(1.0);
+  }
 }
 
 int SingletonGenEngine::getNextGenerationSize() {
-	return m_generationSizeStrategy->calcGenerationSize(getActualGeneration());
+  return m_generationSizeStrategy->calcGenerationSize(getActualGeneration());
 }
 
 void SingletonGenEngine::measureStep(double time, InspectableProxy*& proxyGeneration, InspectableProxy*& proxyGene, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
-	std::list<Inspectable*> actualContextList;
-	Generation* generation;
+  std::list<Inspectable*> actualContextList;
+  Generation* generation;
 
-	if(plotEngine!=0) {
-		actualContextList.clear();
-		generation = getActualGeneration();
-		actualContextList.push_back(generation);
-		proxyGeneration->replaceList(actualContextList);
-		plotEngine->plot(time);
-	}
-	if(plotEngineGenContext!=0) {
-		actualContextList.clear();
-		for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
-			actualContextList.push_back((*iter)->getContext(getActualGeneration()));
-		}
-		proxyGene->replaceList(actualContextList);
-		plotEngineGenContext->plot(time);
-	}
+  if(plotEngine!=0) {
+    actualContextList.clear();
+    generation = getActualGeneration();
+    actualContextList.push_back(generation);
+    proxyGeneration->replaceList(actualContextList);
+    plotEngine->plot(time);
+  }
+  if(plotEngineGenContext!=0) {
+    actualContextList.clear();
+    for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
+      actualContextList.push_back((*iter)->getContext(getActualGeneration()));
+    }
+    proxyGene->replaceList(actualContextList);
+    plotEngineGenContext->plot(time);
+  }
 }
 
 void SingletonGenEngine::runGenAlg(int startSize, int numChildren, int numGeneration, RandGen* random, PlotOptionEngine* plotEngine, PlotOptionEngine* plotEngineGenContext) {
-	InspectableProxy* actualContext;
-	InspectableProxy* actualGeneration;
+  InspectableProxy* actualContext;
+  InspectableProxy* actualGeneration;
 
-	// create first generation
-	prepare(startSize,numChildren,actualGeneration,actualContext,random,plotEngine,plotEngineGenContext);
+  // create first generation
+  prepare(startSize,numChildren,actualGeneration,actualContext,random,plotEngine,plotEngineGenContext);
 
-	// generate the other generations
-	for(int x=0;x<numGeneration;x++) {
-		select();
-		crossover(random);
-		update();
+  // generate the other generations
+  for(int x=0;x<numGeneration;x++) {
+    select();
+    crossover(random);
+    update();
 
-		printf("Generaion %i:\tabgeschlossen.\n",x);
+    printf("Generaion %i:\tabgeschlossen.\n",x);
 
-		measureStep((double)(x+2),actualGeneration,actualContext,plotEngine,plotEngineGenContext);
+    measureStep((double)(x+2),actualGeneration,actualContext,plotEngine,plotEngineGenContext);
 
-		// Abbruchkriterium fehlt noch!!!
-		// TODO
-	}
+    // Abbruchkriterium fehlt noch!!!
+    // TODO
+  }
 }
 
 void SingletonGenEngine::select(bool createNextGeneration) {
-	//std::cout<<"createNextGeneration:"<<(createNextGeneration?" yes\n":" no\n");
-	if(createNextGeneration)
-		getInstance()->prepareNextGeneration(m_generationSizeStrategy->calcGenerationSize(getActualGeneration()),getActualGeneration()->getNumChildren());
+  //std::cout<<"createNextGeneration:"<<(createNextGeneration?" yes\n":" no\n");
+  if(createNextGeneration)
+    getInstance()->prepareNextGeneration(m_generationSizeStrategy->calcGenerationSize(getActualGeneration()),getActualGeneration()->getNumChildren());
 
-	//std::cout<<"begin select\n";
-	getInstance()->m_selectStrategy->select(getInstance()->m_generation[getInstance()->m_actualGeneration-1],getInstance()->m_generation[getInstance()->m_actualGeneration]);
-	//std::cout<<"select OK\n";
+  //std::cout<<"begin select\n";
+  getInstance()->m_selectStrategy->select(getInstance()->m_generation[getInstance()->m_actualGeneration-1],getInstance()->m_generation[getInstance()->m_actualGeneration]);
+  //std::cout<<"select OK\n";
 
-	//std::cout<<"copy Gens\n";
-	// insert the old gens in the new GenContext.
-	const std::vector<Individual*>& old = getInstance()->m_generation[getInstance()->m_actualGeneration]->getAllIndividual();
-	std::vector<Individual*>::const_iterator iter;
-	int num;
-	Gen* gen;
-	GenPrototype* prototype;
-	GenContext* newContext;
+  //std::cout<<"copy Gens\n";
+  // insert the old gens in the new GenContext.
+  const std::vector<Individual*>& old = getInstance()->m_generation[getInstance()->m_actualGeneration]->getAllIndividual();
+  std::vector<Individual*>::const_iterator iter;
+  int num;
+  Gen* gen;
+  GenPrototype* prototype;
+  GenContext* newContext;
 
-	for(iter=old.begin();iter!=old.end();iter++) {
-		num = (*iter)->getSize();
-		for(int x=0; x<num; x++) {
-			gen = (*iter)->getGen(x);
-			prototype = gen->getPrototype();
-			newContext = prototype->getContext(getInstance()->m_generation[getInstance()->m_actualGeneration]);
-			newContext->addGen(gen);
-		}
-	}
+  for(iter=old.begin();iter!=old.end();iter++) {
+    num = (*iter)->getSize();
+    for(int x=0; x<num; x++) {
+      gen = (*iter)->getGen(x);
+      prototype = gen->getPrototype();
+      newContext = prototype->getContext(getInstance()->m_generation[getInstance()->m_actualGeneration]);
+      newContext->addGen(gen);
+    }
+  }
 
-	//std::cout<<"alles OK\n";
+  //std::cout<<"alles OK\n";
 }
 
 void SingletonGenEngine::crossover(RandGen* random) {
-	m_generation[m_actualGeneration]->crossover(random);
+  m_generation[m_actualGeneration]->crossover(random);
 }
 
 void SingletonGenEngine::update(double factor) {
-	m_generation[m_actualGeneration]->update(factor);
+  m_generation[m_actualGeneration]->update(factor);
 
-	for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
-		(*iter)->getContext(m_generation[m_actualGeneration])->update(factor);
-	}
+  for(std::vector<GenPrototype*>::const_iterator iter = m_prototype.begin(); iter!=m_prototype.end(); iter++) {
+    (*iter)->getContext(m_generation[m_actualGeneration])->update(factor);
+  }
 }
 
 double SingletonGenEngine::getFitness(const Individual* individual) {
-	return m_fitnessStrategy->getFitness(individual);
+  return m_fitnessStrategy->getFitness(individual);
 }
 
 Individual* SingletonGenEngine::getBestIndividual(void) {
-	const std::vector<Individual*>& storage = getActualGeneration()->getAllIndividual();
-	Individual* result = storage[0];
-	double value = result->getFitness();
-	double test;
-	int num = storage.size();
+  const std::vector<Individual*>& storage = getActualGeneration()->getAllIndividual();
+  Individual* result = storage[0];
+  double value = result->getFitness();
+  double test;
+  int num = storage.size();
 
-	for(int x=1;x<num;x++) {
-		test = storage[x]->getFitness();
-		if(test<value) {
-			value = test;
-			result = storage[x];
-		}
-	}
+  for(int x=1;x<num;x++) {
+    test = storage[x]->getFitness();
+    if(test<value) {
+      value = test;
+      result = storage[x];
+    }
+  }
 
-	return result;
+  return result;
 }
 
 std::string SingletonGenEngine::getIndividualRoot(bool withMutation)const {
-	std::string result="";
+  std::string result="";
 
-	for(std::vector<Individual*>::const_iterator iter=m_individual.begin();iter!=m_individual.end();iter++) {
-		result += (*iter)->RootToString(withMutation) + "\n";
-	}
+  for(std::vector<Individual*>::const_iterator iter=m_individual.begin();iter!=m_individual.end();iter++) {
+    result += (*iter)->RootToString(withMutation) + "\n";
+  }
 
-	return result;
+  return result;
 }
 
 std::string SingletonGenEngine::getAllIndividualAsString(void)const {
-	std::string result = "";
+  std::string result = "";
 
-	for(std::vector<Individual*>::const_iterator iter=m_individual.begin();iter!=m_individual.end();iter++) {
-		result += (*iter)->IndividualToString() + "\n";
-	}
+  for(std::vector<Individual*>::const_iterator iter=m_individual.begin();iter!=m_individual.end();iter++) {
+    result += (*iter)->IndividualToString() + "\n";
+  }
 
-	return result;
+  return result;
 }
 
 bool SingletonGenEngine::store(FILE* f) const{
@@ -460,6 +463,7 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
   RESTORE_GA_GENERATION* generation;
   RESTORE_GA_INDIVIDUAL* individual;
   RESTORE_GA_GENE* gene;
+  RESTORE_GA_TEMPLATE<int> integer;
   std::string nameGenePrototype;
   std::string name;
   char* buffer;
@@ -470,6 +474,8 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
   RandGen random;
   Generation* active;
   std::list<Inspectable*> actualContextList;
+  std::vector<Gen*> geneStorage;
+  std::vector<Individual*> individualStorage;
 
   //test
   if(f==NULL) {
@@ -484,6 +490,9 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
   m_actualGeneration = head.generationNumber;
   m_cleanStrategies = head.cleanStrategies;
 
+  SingletonGenFactory::getInstance()->setNumber(head.numGenes);
+  SingletonIndividualFactory::getInstance()->setNumber(head.numIndividuals);
+
   //generation
   for(y=0;y<head.numGeneration;y++) {
     generation = new RESTORE_GA_GENERATION;
@@ -495,7 +504,10 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
     m_restoreGeneration[generation->number] = generation;
 
     for(x=0;x<(unsigned int)generation->numberIndividuals;x++) {
-      fscanf(f,"%i\n",&z);
+      for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
+        fscanf(f,"%c",&integer.buffer[z]);
+      }
+      z=integer.value;
       m_restoreIndividualInGeneration[generation->number].push_back(z);
     }
   }
@@ -504,7 +516,10 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
   for(y=0;y<head.numIndividuals;y++) {
     individual = new RESTORE_GA_INDIVIDUAL;
 
-    fscanf(f,"%i\n",&toread);
+    for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
+      fscanf(f,"%c",&integer.buffer[z]);
+    }
+    toread=integer.value;
     buffer = new char[toread];
     for(x=0;x<(unsigned int)toread;x++) {
       fscanf(f,"%c",&buffer[x]);
@@ -521,7 +536,10 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
     m_restoreNameOfIndividuals[individual->ID] = name;
 
     for(x=0;x<(unsigned int)individual->numberGenes;x++) {
-      fscanf(f,"%i\n",&z);
+      for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
+        fscanf(f,"%c",&integer.buffer[z]);
+      }
+      z=integer.value;
       m_restoreGeneInIndividual[individual->ID].push_back(z);
     }
   }
@@ -530,7 +548,10 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
   for(y=0;y<head.numGenes;y++) {
     gene = new RESTORE_GA_GENE;
 
-    fscanf(f,"%i\n",&toread);
+    for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
+      fscanf(f,"%c",&integer.buffer[z]);
+    }
+    toread=integer.value;
     buffer = new char[toread];
     for(x=0;x<(unsigned int)toread;x++) {
       fscanf(f,"%c",&buffer[x]);
@@ -551,25 +572,38 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
       }
     }
 
-    if(!prototype->restoreGene(f,gene)) {
+    if(!prototype->restoreGene(f,gene,geneStorage)) {
       printf("\n\n\t>>> [ERROR] <<<\nError by restoring the genes.\n\t>>> [END] <<<\n\n\n");
       return false;
     }
   }
 
-  //restore all
-  if(!Individual::restore(head.numIndividuals,m_restoreNameOfIndividuals,m_restoreIndividual,m_restoreGeneInIndividual)) {
+  //add genes to the engine
+  for(x=0;x<(unsigned int)head.numGenes;x++) {
+    addGen(geneStorage[x]);
+  }
+
+  //restore individual
+  if(!Individual::restore(head.numIndividuals,m_restoreNameOfIndividuals,m_restoreIndividual,m_restoreGeneInIndividual,individualStorage)) {
     printf("\n\n\t>>> [ERROR] <<<\nError by restoring the individuals.\n\t>>> [END] <<<\n\n\n");
     return false;
+  }
+  //add individuals to the engine
+  for(x=0;x<(unsigned int)head.numIndividuals;x++) {
+    addIndividual(individualStorage[x]);
   }
   if(!Individual::restoreParent(head.numIndividuals,m_restoreIndividual)) {
     printf("\n\n\t>>> [ERROR] <<<\nError by restoring the individuals parent links.\n\t>>> [END] <<<\n\n\n");
     return false;
   }
+
+  //restore generation
   if(!Generation::restore(head.numGeneration,m_restoreGeneration,m_restoreIndividualInGeneration)) {
     printf("\n\n\t>>> [ERROR] <<<\nError by restoring the generation.\n\t>>> [END] <<<\n\n\n");
     return false;
   }
+
+  //restore gene context
   if(!GenContext::restore()) {
     printf("\n\n\t>>> [ERROR] <<<\nError by restoring the context.\n\t>>> [END] <<<\n\n\n");
     return false;
@@ -597,13 +631,13 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
     plotEngineGenContext->plot(1.0);
   }
 
-  for(x=0;x<getActualGenerationNumber();x++) {
-    measureStep(x + 1, proxyGeneration, proxyGene, plotEngine, plotEngineGenContext);
+  y=getActualGenerationNumber();
+  for(x=1;x<=(unsigned int)y;x++) {
+    m_actualGeneration = x;
+    update();
+    measureStep(x+1, proxyGeneration, proxyGene, plotEngine, plotEngineGenContext);
   }
 
-  update();
-  measureStep(getActualGenerationNumber() + 1, proxyGeneration, proxyGene, plotEngine, plotEngineGenContext);
-  //SingletonGenAlgAPI::getInstance()->measureStep(getActualGenerationNumber() + 1);
   select();
   crossover(&random);
 

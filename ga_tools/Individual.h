@@ -27,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-10-23 10:47:45  robot12
+ *   Revision 1.12  2009-11-05 14:07:41  robot12
+ *   bugfix for restore and store
+ *
+ *   Revision 1.11  2009/10/23 10:47:45  robot12
  *   bugfix in store and restore
  *
  *   Revision 1.10  2009/10/21 14:08:07  robot12
@@ -224,7 +227,7 @@ public:
 	 * @param linkSet (map<int,vector<int>>) the linkings between the individual and the genes
    * @return (bool) true if all ok
 	 */
-	static bool restore(int numberIndividuals,std::map<int,std::string>& nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*>& individualSet, std::map<int,std::vector<int> >& linkSet);
+	static bool restore(int numberIndividuals,std::map<int,std::string>& nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*>& individualSet, std::map<int,std::vector<int> >& linkSet, std::vector<Individual*>& storage);
 
 	/**
 	 * restore the parent links from a restore structure

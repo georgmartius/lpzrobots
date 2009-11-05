@@ -31,7 +31,10 @@
  *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-10-21 14:08:06  robot12
+ *   Revision 1.7  2009-11-05 14:07:41  robot12
+ *   bugfix for restore and store
+ *
+ *   Revision 1.6  2009/10/21 14:08:06  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.5  2009/07/28 13:21:30  robot12
@@ -113,7 +116,7 @@ int GenPrototype::getMutationProbability(void)const {
 	return m_mutationStrategy->getMutationProbability();
 }
 
-bool GenPrototype::restoreGene(FILE* f, RESTORE_GA_GENE* gene) {
+bool GenPrototype::restoreGene(FILE* f, RESTORE_GA_GENE* gene, std::vector<Gen*>& storage) {
   IValue* value = m_randomStrategy->getRandomValue();
   Gen* gen;
 
@@ -123,7 +126,11 @@ bool GenPrototype::restoreGene(FILE* f, RESTORE_GA_GENE* gene) {
   gen = new Gen(this,gene->ID);
   gen->setValue(value);
 
-  SingletonGenEngine::getInstance()->addGen(gen);
+  //make sure that the genes are in the right order
+  //SingletonGenEngine::getInstance()->addGen(gen);
+  if(storage.size()<=(unsigned int)gene->ID)
+    storage.resize(gene->ID+1);
+  storage[gene->ID]=gen;
 
   return true;
 }

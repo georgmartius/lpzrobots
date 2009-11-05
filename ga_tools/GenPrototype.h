@@ -31,7 +31,10 @@
  *   the Gen and in the GenEngine (only here can be deleted!!!).           *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-10-21 14:08:07  robot12
+ *   Revision 1.6  2009-11-05 14:07:41  robot12
+ *   bugfix for restore and store
+ *
+ *   Revision 1.5  2009/10/21 14:08:07  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.4  2009/07/21 08:37:58  robot12
@@ -163,7 +166,7 @@ public:
 	 * @param gene (RESTORE_GA_GENE*) this gene is to restore
 	 * @return (bool) true if all ok
 	 */
-	bool restoreGene(FILE* f, RESTORE_GA_GENE* gene);
+	bool restoreGene(FILE* f, RESTORE_GA_GENE* gene, std::vector<Gen*>& storage);
 
 protected:
 	/**

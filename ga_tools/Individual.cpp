@@ -27,7 +27,10 @@
  *   some gens and a fitness.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-10-23 10:47:45  robot12
+ *   Revision 1.14  2009-11-05 14:07:41  robot12
+ *   bugfix for restore and store
+ *
+ *   Revision 1.13  2009/10/23 10:47:45  robot12
  *   bugfix in store and restore
  *
  *   Revision 1.12  2009/10/21 14:08:06  robot12
@@ -79,20 +82,20 @@
 #include <algorithm>
 
 Individual::Individual() {
-	// nothing
+  // nothing
 }
 
 Individual::Individual(std::string name, int id, Individual* p1, Individual* p2) {
-	m_name = name;
-	m_ID = id;
-	m_mutated = false;
-	m_parent1 = p1;
-	m_parent2 = p2;
-	m_fitnessCalculated = false;
+  m_name = name;
+  m_ID = id;
+  m_mutated = false;
+  m_parent1 = p1;
+  m_parent2 = p2;
+  m_fitnessCalculated = false;
 }
 
 Individual::~Individual() {
-	// nothing
+  // nothing
 }
 
 double Individual::getFitness() {
@@ -113,50 +116,51 @@ double Individual::getFitnessC()const {
 }
 
 void Individual::removeGen(Gen* gen) {
-	std::vector<Gen*>::iterator itr = find(m_gene.begin(),m_gene.end(),gen);
-	m_gene.erase(itr);
+  std::vector<Gen*>::iterator itr = find(m_gene.begin(),m_gene.end(),gen);
+  m_gene.erase(itr);
 }
 void Individual::removeGen(int x) {
-	if(x<getSize())m_gene.erase(m_gene.begin()+x);
+  if(x<getSize())m_gene.erase(m_gene.begin()+x);
 }
 
 std::string Individual::IndividualToString(void)const {
-	std::string result = "";
+  std::string result = "";
 
-	for(std::vector<Gen*>::const_iterator iter = m_gene.begin();iter!=m_gene.end();iter++) {
-		result += "" + (*iter)->toString() + "\t";
-	}
+  for(std::vector<Gen*>::const_iterator iter = m_gene.begin();iter!=m_gene.end();iter++) {
+    result += "" + (*iter)->toString() + "\t";
+  }
 
-	char buffer[128];
-	sprintf(buffer,"% .12lf",getFitnessC());
-	result += buffer;
+  char buffer[128];
+  sprintf(buffer,"% .12lf",getFitnessC());
+  result += buffer;
 
-	return result;
+  return result;
 }
 
 std::string Individual::RootToString(bool withMutation)const {
-	std::string result = "";
+  std::string result = "";
 
-	if(withMutation) {
-		if(m_mutated) {
-			result += "m,\t";
-		}
-		else {
-			result += " ,\t";
-		}
-	}
-	result += "\"" + m_name + "\"";
+  if(withMutation) {
+    if(m_mutated) {
+      result += "m,\t";
+    }
+    else {
+      result += " ,\t";
+    }
+  }
+  result += "\"" + m_name + "\"";
 
-	if(m_parent1!=0)
-		result += ",\t\"" + m_parent1->getName() + "\"";
-	if(m_parent2!=0)
-		result += ",\t\"" + m_parent2->getName() + "\"";
+  if(m_parent1!=0)
+    result += ",\t\"" + m_parent1->getName() + "\"";
+  if(m_parent2!=0)
+    result += ",\t\"" + m_parent2->getName() + "\"";
 
-	return result;
+  return result;
 }
 
 bool Individual::store(FILE* f)const {
   RESTORE_GA_INDIVIDUAL head;
+  RESTORE_GA_TEMPLATE<int> integer;
 
   //test
   if(f==NULL) {
@@ -164,18 +168,25 @@ bool Individual::store(FILE* f)const {
     return false;
   }
 
-  fprintf(f,"%i\n%s",(int)m_name.length(),m_name.c_str());
+  integer.value=(int)m_name.length();
+  for(unsigned d=0;d<sizeof(RESTORE_GA_TEMPLATE<int>);d++){
+    fprintf(f,"%c",integer.buffer[d]);
+  }
+  fprintf(f,"%s",m_name.c_str());
 
   head.ID = m_ID;
   head.numberGenes = m_gene.size();
+
   if(m_parent1==NULL)
     head.parent1 = -1;
   else
     head.parent1 = m_parent1->getID();
+
   if(m_parent2==NULL)
-      head.parent2 = -1;
-    else
-      head.parent2 = m_parent2->getID();
+    head.parent2 = -1;
+  else
+    head.parent2 = m_parent2->getID();
+
   head.mutated = m_mutated;
   head.fitnessCalculated = m_fitnessCalculated;
   head.fitness = m_fitness;
@@ -185,13 +196,16 @@ bool Individual::store(FILE* f)const {
   }
 
   for(int y=0;y<head.numberGenes;y++) {
-    fprintf(f,"%i\n",m_gene[y]->getID());
+    integer.value = m_gene[y]->getID();
+    for(unsigned e=0;e<sizeof(RESTORE_GA_TEMPLATE<int>);e++){
+      fprintf(f,"%c",integer.buffer[e]);
+    }
   }
 
   return true;
 }
 
-bool Individual::restore(int numberIndividuals,std::map<int,std::string>& nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*>& individualSet, std::map<int,std::vector<int> >& linkSet) {
+bool Individual::restore(int numberIndividuals,std::map<int,std::string>& nameSet,std::map<int,RESTORE_GA_INDIVIDUAL*>& individualSet, std::map<int,std::vector<int> >& linkSet, std::vector<Individual*>& storage) {
   int x,y;
   Individual* individual;
   RESTORE_GA_INDIVIDUAL* head;
@@ -212,7 +226,11 @@ bool Individual::restore(int numberIndividuals,std::map<int,std::string>& nameSe
       individual->m_gene.push_back(SingletonGenEngine::getInstance()->getGen(linkSet[x][y]));
     }
 
-    SingletonGenEngine::getInstance()->addIndividual(individual);
+    //make sure that the individuals are in the right order
+    //SingletonGenEngine::getInstance()->addIndividual(individual);
+    if(storage.size()<=(unsigned int)head->ID)
+      storage.resize(head->ID+1);
+    storage[head->ID]=individual;
   }
 
   return true;

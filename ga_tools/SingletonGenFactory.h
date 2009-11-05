@@ -27,7 +27,10 @@
  *   a GenPrototype to create new Gens. (randomized gens or mutated gens)  *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-07-28 09:38:23  robot12
+ *   Revision 1.5  2009-11-05 14:07:41  robot12
+ *   bugfix for restore and store
+ *
+ *   Revision 1.4  2009/07/28 09:38:23  robot12
  *   update the Singleton::destroy
  *
  *   Revision 1.3  2009/07/21 08:37:58  robot12
@@ -111,6 +114,13 @@ public:
 	 * @return
 	 */
 	Gen* createGen(GenContext* context, Individual* individual, GenPrototype* prototype, IValue* value);																				// value
+
+	//reset m_number inside restore
+  /**
+   * set the member variable m_number to number
+   * @param number (int) the new value
+   */
+  inline void setNumber(int number) {m_number=number;}
 
 private:
 	/**

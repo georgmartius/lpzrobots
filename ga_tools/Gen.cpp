@@ -33,7 +33,10 @@
  *   the Individual and the GenEngine. Deleting only in the GenEngine!     *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-10-23 10:47:45  robot12
+ *   Revision 1.10  2009-11-05 14:07:41  robot12
+ *   bugfix for restore and store
+ *
+ *   Revision 1.9  2009/10/23 10:47:45  robot12
  *   bugfix in store and restore
  *
  *   Revision 1.8  2009/10/21 14:08:06  robot12
@@ -63,46 +66,47 @@
 #include "restore.h"
 
 Gen::Gen(void) {
-	// nothing
+  // nothing
 }
 
 Gen::Gen(GenPrototype* prototype, int id) {
-	m_prototype = prototype;
-	m_value = NULL;
-	m_ID = id;
+  m_prototype = prototype;
+  m_value = NULL;
+  m_ID = id;
 }
 
 Gen::~Gen(void) {
-	delete m_value;
-	m_value = NULL;
+  delete m_value;
+  m_value = NULL;
 }
 
 std::string Gen::getName(void)const {
-	return m_prototype->getName();
+  return m_prototype->getName();
 }
 
 GenPrototype* Gen::getPrototype(void)const {
-	return m_prototype;
+  return m_prototype;
 }
 
 std::string Gen::toString(bool onlyValue)const {
-	std::string result = "";
+  std::string result = "";
 
-	if(!onlyValue) {
-		char buffer[128];
+  if(!onlyValue) {
+    char buffer[128];
 
-		sprintf(buffer, "%i", m_ID);
+    sprintf(buffer, "%i", m_ID);
 
-		result += "\"" + getName() + "\",\t" + buffer + ",\t";
-	}
+    result += "\"" + getName() + "\",\t" + buffer + ",\t";
+  }
 
-	result += (std::string)(*m_value);
+  result += (std::string)(*m_value);
 
-	return result;
+  return result;
 }
 
 bool Gen::store(FILE* f)const {
   RESTORE_GA_GENE head;
+  RESTORE_GA_TEMPLATE<int> integer;
 
   //test
   if(f==NULL) {
@@ -112,7 +116,11 @@ bool Gen::store(FILE* f)const {
 
   head.ID = m_ID;
 
-  fprintf(f,"%i\n%s",(int)m_prototype->getName().length(),m_prototype->getName().c_str());
+  integer.value=(int)m_prototype->getName().length();
+  for(unsigned int d=0;d<sizeof(RESTORE_GA_TEMPLATE<int>);d++) {
+    fprintf(f,"%c",integer.buffer[d]);
+  }
+  fprintf(f,"%s",m_prototype->getName().c_str());
 
   for(unsigned int x=0;x<sizeof(RESTORE_GA_GENE);x++) {
     fprintf(f,"%c",head.buffer[x]);

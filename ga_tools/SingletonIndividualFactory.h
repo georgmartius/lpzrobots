@@ -28,7 +28,10 @@
  *   combination of Gens.                                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-07-28 09:38:23  robot12
+ *   Revision 1.6  2009-11-05 14:07:41  robot12
+ *   bugfix for restore and store
+ *
+ *   Revision 1.5  2009/07/28 09:38:23  robot12
  *   update the Singleton::destroy
  *
  *   Revision 1.4  2009/07/21 08:37:58  robot12
@@ -107,6 +110,13 @@ public:
 	 * @return (Individual*) the new individual
 	 */
 	Individual* createIndividual(Individual* individual1, Individual* individual2, RandGen* random, std::string name=createName())const;	// recombinate
+
+	//reset m_number inside restore
+	/**
+	 * set the member variable m_number to number
+	 * @param number (int) the new value
+	 */
+	inline void setNumber(int number) {m_number=number;}
 
 private:
 	/**

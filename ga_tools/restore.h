@@ -34,7 +34,7 @@ struct RESTORE_GA_GENERATION {
       int numberIndividuals;
       int size;
       int children;
-      double q1;
+      /*double q1;
       double q3;
       double w1;
       double w3;
@@ -42,7 +42,7 @@ struct RESTORE_GA_GENERATION {
       double max;
       double avg;
       double med;
-      double best;
+      double best;*/
     };
 
     char buffer[];
