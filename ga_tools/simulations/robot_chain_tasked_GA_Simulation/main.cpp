@@ -43,8 +43,8 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.1  2009-10-23 16:33:51  martius
- *   moved simulations here
+ *   Revision 1.2  2009-11-05 14:08:20  robot12
+ *   bugfix by restore in ga_tools
  *
  *   Revision 1.1  2009/10/23 10:59:48  robot12
  *   simulation from template_tasked_GA_Simulation for ga on robot chain
@@ -141,7 +141,7 @@
 #include <selforg/mutualinformationcontroller.h>
 #include <selforg/measureadapter.h>
 
-#define NUMBER_GENERATION 2
+#define NUMBER_GENERATION 15
 #define NUMBER_OF_TESTS_BY_CALCULATE 120
 
 // fetch all the stuff of lpzrobots into scope
@@ -331,7 +331,7 @@ class ThisSim : public TaskedSimulation {
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
       // for demonstration: set simsteps for one cycle to 60.000/currentCycle (10min/currentCycle)
       // if simulation_time_reached is set to true, the simulation cycle is finished
-      if (globalData.sim_step >= (5000 / this->currentCycle)) {
+      if (globalData.sim_step >= (500 / this->currentCycle)) {
         simulation_time_reached = true;
       }
 
@@ -511,7 +511,7 @@ class ThisSimCreator : public TaskedSimulationCreator {
 };
 
 int main(int argc, char **argv) {
-  int numberIndividuals = 4;
+  int numberIndividuals = 360;
   int mutationProbability = 50;  //5% in 1/1000 => 50
   double base = -100.0;
   double factor = 200.0;
@@ -672,6 +672,9 @@ int main(int argc, char **argv) {
     start = SingletonGenAlgAPI::getInstance()->getEngine()->getActualGenerationNumber()-1;
     geneRestore=0;
     fclose(restoreFile);
+
+    //restore fitness value range inside the fitness strategy
+    fitnessStr->m_storage.resize(SingletonGenAlgAPI::getInstance()->getEngine()->getNumIndividual());
   } else {
     SingletonGenAlgAPI::getInstance()->prepare(baseSize, numChildren, &random, false);
   }
