@@ -26,13 +26,16 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-11-12 16:05:11  guettler
+ *  Revision 1.2  2009-11-12 16:06:44  guettler
+ *  header guard corrected
+ *
+ *  Revision 1.1  2009/11/12 16:05:11  guettler
  *  new DummyObstacle which uses a DummyPrimitive
  *										   *
  *                                                                         *
  **************************************************************************/
-#ifndef _DUMMYOBSTACLE_H_
-#define _DUMMYOBSTACLE_H_
+#ifndef __DUMMYOBSTACLE_H_
+#define __DUMMYOBSTACLE_H_
 
 #include "abstractobstacle.h"
 
