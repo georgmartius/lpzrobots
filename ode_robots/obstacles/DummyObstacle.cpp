@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-11-12 16:05:11  guettler
+ *  Revision 1.2  2009-11-12 16:15:29  guettler
+ *  fixed creation bug
+ *
+ *  Revision 1.1  2009/11/12 16:05:11  guettler
  *  new DummyObstacle which uses a DummyPrimitive
  *										                       *
  *                                                                         *
@@ -38,6 +41,7 @@
 namespace lpzrobots {
 
   DummyObstacle::DummyObstacle(const OdeHandle& odeHandle, const OsgHandle& osgHandle) : AbstractObstacle(odeHandle,osgHandle) {
+    obst[0] = new DummyPrimitive();
   }
 
   DummyObstacle::~DummyObstacle() {
@@ -53,7 +57,6 @@ namespace lpzrobots {
 
   /// overload this function to create the obstactle. All primitives should go into the list "obst"
   void DummyObstacle::create() {
-    obst[0] = new DummyPrimitive();
   }
 
 }
