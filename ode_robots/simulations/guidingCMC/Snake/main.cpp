@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-07 14:39:52  martius
+ *   Revision 1.3  2009-11-23 13:49:20  martius
+ *   some testing
+ *
+ *   Revision 1.2  2009/08/07 14:39:52  martius
  *   guidance of SO with Cross Motor Couplings
  *
  *   Revision 1.1  2009/08/05 23:25:23  martius
@@ -46,17 +49,17 @@
 #include <selforg/feedbackwiring.h>
 #include <selforg/stl_adds.h>
 
-#include <ode_robots/schlangeservo.h>
+#include <ode_robots/schlangeservo2.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-const int segmNum=16;
+const int segmNum=14;
 bool useSym = false;
 double teacher = 0;
 int change = 5;  // every x minutes change direction
 bool track = true;
-int k=2;
+int k=8;
 
 
 class ThisSim : public Simulation {
@@ -76,7 +79,8 @@ public:
     setCameraHomePos(Pos(-19.7951, -12.3665, 16.4319),  Pos(-51.7826, -26.772, 0));
 
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("gravity", -0.1); 
+    //    global.odeConfig.setParam("gravity", -0.1); 
+    global.odeConfig.setParam("gravity", -3); 
     global.odeConfig.setParam("controlinterval",2);
     //    global.odeConfig.setParam("realtimefactor",4);
 
@@ -86,27 +90,30 @@ public:
     conf.frictionJoint=0.05;
     
     //     conf.motorPower=5;    
-    conf.motorPower=2;
+    conf.motorPower=5;
     //    conf.frictionJoint=0.01;
     //    conf.segmNumber=16;     
     conf.segmNumber=segmNum;     
     //     conf.jointLimit=conf.jointLimit*3;
     // conf.sensorFactor=5;     unused
 
-    vehicle = new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.9, 0.85, 0.05)),
-				  conf, "Schlange1D_" + std::itos(teacher*10000));
+    OdeHandle snakeHandle(odeHandle);
+    snakeHandle.substance.toRubber(30); 
+    vehicle = new SchlangeServo2 ( snakeHandle, osgHandle.changeColor(Color(0.9, 0.85, 0.05)),
+				   conf, "Schlange2D_" + std::itos(teacher*10000));
+ 
+    //    vehicle->place(Pos(0,0,0.1));    
+    vehicle->place(Pos(0,0,1));    
 
-    vehicle->place(Pos(0,0,0.1));    
-
-//     Primitive* head = vehicle->getMainPrimitive();
-//     fixator = new BallJoint(head, global.environment, head->getPosition());
-//     fixator->init(odeHandle, osgHandle);
+    Primitive* head = vehicle->getMainPrimitive();
+    fixator = new BallJoint(head, global.environment, head->getPosition());
+    fixator->init(odeHandle, osgHandle);
 
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
     cc.someInternalParams=true;
     cc.modelExt=true;
-
+    cc.cInit=1.2; 
     SeMoX* semox = new SeMoX(cc);  
     //semox->setParam("adaptrate", 0.0001);
     //    semox->setParam("nomupdate", 0.0001);
@@ -206,7 +213,7 @@ public:
     fflush(stdout);
 
     std::list<int> perm;
-    int len  = controller->getMotorNumber();
+    int len = controller->getMotorNumber();
     for(int i=0; i<len; i++){
       perm.push_back((i+k)%len);
     }
