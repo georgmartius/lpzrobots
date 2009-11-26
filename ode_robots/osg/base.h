@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2009-09-03 12:53:25  guettler
+ *   Revision 1.24  2009-11-26 10:06:45  martius
+ *   added createHUDManager function
+ *
+ *   Revision 1.23  2009/09/03 12:53:25  guettler
  *   reverted changes of revision 1.37:
  *   - getHUDSM is called without calling createHUDSM before
  *     if simulation is started with -nographics
@@ -191,6 +194,7 @@ namespace lpzrobots
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
     virtual osg::Node* createHUD();
+    virtual void createHUDManager(osg::Geode* geode, osgText::Font* font);
     virtual osg::LightSource* makeLights(osg::StateSet* stateset);
     virtual osg::Group* createShadowedScene(osg::Node* shadowed,
 					    osg::Vec3 posOfLight,
