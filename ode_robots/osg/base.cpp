@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.39  2009-09-08 16:26:30  fhesse
+ *   Revision 1.40  2009-11-26 10:16:07  martius
+ *   hopefully finally fixed the createHUD problem.
+ *   the getHUD function only creates a HUD that is detached. That is why
+ *   there is the new createHUDManager function
+ *
+ *   Revision 1.39  2009/09/08 16:26:30  fhesse
  *   typo corrected
  *
  *   Revision 1.38  2009/09/03 12:53:25  guettler
@@ -620,7 +625,7 @@ namespace lpzrobots {
       geode->addDrawable(geom);
 
       // create HUDStatisticsManager and register it for being called back every step
-      getHUDSM();
+      createHUDManager(geode,font);
     }
 
     osg::CameraNode* camera = new osg::CameraNode;
@@ -641,6 +646,12 @@ namespace lpzrobots {
     camera->addChild(geode);
 
     return camera;
+  }
+
+  void  Base::createHUDManager(osg::Geode* geode, osgText::Font* font){
+    hUDStatisticsManager = new HUDStatisticsManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
+    this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
+    this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
   }
 
   void Base::setTimeStats(double time, double realtimefactor,
@@ -1078,15 +1089,14 @@ int Base::contains(char **list, int len,  const char *str) {
   return 0;
 }
 
+
 HUDStatisticsManager* Base::getHUDSM()
 {
   if (hUDStatisticsManager==0)
   {
     // create HUDStatisticsManager and register it for being called back every step
     // but do not display if the system is initialised with -nographics
-    hUDStatisticsManager = new HUDStatisticsManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
-    this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
-    this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
+    createHUDManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
   }
   return hUDStatisticsManager;
 }
