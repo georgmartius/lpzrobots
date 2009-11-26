@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-12 10:30:25  der
+ *   Revision 1.3  2009-11-26 14:21:54  der
+ *   Larger changes
+ *   :wq
+ *
+ *   wq
+ *
+ *   Revision 1.2  2009/08/12 10:30:25  der
  *   skeleton has belly joint
  *   works fine with centered servos
  *
@@ -88,6 +94,7 @@ namespace lpzrobots {
   class Joint;  
   class OneAxisServo;  
   class TwoAxisServo;  
+  class AngularMotor;  
 
 
   typedef struct {
@@ -145,6 +152,8 @@ namespace lpzrobots {
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
     bool handsRotating; ///< hands are attached with a ball joint
 
+    bool movableHead;  ///< if false then no neck movement 
+
     bool useBackJoint; ///< whether to use the joint in the back
 
     bool irSensors; ///< whether to use the irsensor eyes
@@ -167,7 +176,7 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot {
   public:
 
-    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_comp, 
+    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
 			     Left_Shoulder, Left_Forearm, Left_Hand,
 			     Right_Shoulder, Right_Forearm, Right_Hand, 
 			     Left_Thigh, Left_Shin, Left_Foot,
@@ -191,65 +200,66 @@ namespace lpzrobots {
       c.size       = 1;
       c.massfactor = 1;
       c.relLegmass = 1;   // unused
-      c.relFeetmass = 100;// .1; unused
-      c.relArmmass = 10;// 0.3; unused
+      c.relFeetmass = 1;// .1; unused
+      c.relArmmass = 1;// 0.3; unused
 
       c.useVelocityServos = false;
       c.powerfactor=1.0;
       c.dampingfactor=1.0;
       c.jointLimitFactor=1.0;
 
-      c.hipPower=50;
-      c.hipDamping= 0.4;
+      c.hipPower=100;
+      c.hipDamping= 0.2;
       c.hipVelocity=20;
 
-      c.hip2Power=50;
-      c.hip2Damping=0.4;
+      c.hip2Power=100;
+      c.hip2Damping=0.2;
 
       c.neckPower=20;
       c.neckDamping=0.1;
       c.neckVelocity=20;
 
-      c.kneePower=40;
-      c.kneeDamping=0.2;
+      c.kneePower=60;
+      c.kneeDamping=0.1;
       c.kneeVelocity=20;
 
-      c.anklePower=10;
-      c.ankleDamping=0.15;
+      c.anklePower=30;
+      c.ankleDamping=0.1;
       c.ankleVelocity=20;
 
-      c.armPower=20;
+      c.armPower=40;
       c.armDamping=0.1;
       c.armVelocity=20;
 
-      c.elbowPower=20;
+      c.elbowPower=30;
       c.elbowDamping=0.1;
       c.elbowVelocity=20;
 
-      c.pelvisPower=100;
-      c.pelvisDamping=0.5;
+      c.pelvisPower=200;
+      c.pelvisDamping=0.2;
       c.pelvisVelocity=20;
 
-      c.backPower=50;
-      c.backDamping=0.5;
+      c.backPower=200;
+      c.backDamping=0.1;
       c.backVelocity=20;
 
-      c.hipJointLimit = M_PI/2; // +- 90 degree
-      c.hip2JointLimit=0.05;
-      c.kneeJointLimit = M_PI/4; // +- 45 degree
-      c.ankleJointLimit = M_PI/4; // +- 45 degree
+      c.hipJointLimit = 2.2;
+      c.hip2JointLimit= 1.4;
+      c.kneeJointLimit = 2.8; // + 300, -20 degree
+      c.ankleJointLimit = M_PI/2; // - 90 + 45 degree
 
-      c.armJointLimit = M_PI/4; // +- 45 degree
-      c.elbowJointLimit = M_PI/1.8;
+      c.armJointLimit = M_PI/2; // +- 90 degree
+      c.elbowJointLimit = 2.4;
 
       c.hip2JointLimit = M_PI/30; // +- 6 degree
-      c.pelvisJointLimit = M_PI/30; // +- 6 degree
+      c.pelvisJointLimit = M_PI/10; // +- 18 degree
 
       c.neckJointLimit = M_PI/5;
-      c.backJointLimit = M_PI/4; // +- 45 degree (half of it to the back)
+      c.backJointLimit = M_PI/3;//4// // +- 60 degree (half of it to the back)
 
       c.onlyPrimaryFunctions=false;
       c.handsRotating = false;
+      c.movableHead   = false;
       c.useBackJoint  = true;
       c.irSensors  = false;
 
@@ -372,6 +382,7 @@ namespace lpzrobots {
     std::vector<OneAxisServo*> backservos;   // between Trunk_comp and Thorax
     //TwoAxisServo* backservo;   // between Trunk_comp and Thorax
 
+    std::vector<AngularMotor*> frictionmotors;
 
     RaySensorBank irSensorBank;
 
