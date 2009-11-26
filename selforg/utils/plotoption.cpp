@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.6  2009-10-27 11:44:30  robot14
+ *  Revision 1.7  2009-11-26 16:53:28  fhesse
+ *  ntst (no timestamp in logfilename) option added to simulation
+ *
+ *  Revision 1.6  2009/10/27 11:44:30  robot14
  *  matrixvis added
  *
  *  Revision 1.5  2009/09/17 14:14:13  guettler
@@ -76,9 +79,13 @@ bool PlotOption::open(){
       time(&tnow);
       t = localtime(&tnow);
       char logfilename[255];
-      sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i.log",
+      if (parameter=="no_time_in_filename"){
+        sprintf(logfilename,"%s.log",name.c_str());
+      } else{
+	sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i.log",
 	      name.c_str(), t->tm_year%100, t->tm_mon+1 , t->tm_mday,
-	      t->tm_hour, t->tm_min, t->tm_sec);
+  	      t->tm_hour, t->tm_min, t->tm_sec);
+      }
       pipe=fopen(logfilename,"w");
       if (pipe)
 	std::cout << "Now logging to file \"" << logfilename << "\"." << std::endl;

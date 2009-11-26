@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.113  2009-10-29 15:09:52  martius
+ *   Revision 1.114  2009-11-26 16:53:27  fhesse
+ *   ntst (no timestamp in logfilename) option added to simulation
+ *
+ *   Revision 1.113  2009/10/29 15:09:52  martius
  *   data is always searched in the source folder as well
  *
  *   Revision 1.112  2009/10/27 16:52:21  martius
@@ -1459,7 +1462,10 @@ namespace lpzrobots {
 	filelogginginterval=atoi(argv[index]);
       if (filelogginginterval<1) // avoids a bug
         filelogginginterval=5; // default value
-      plotoptions.push_back(PlotOption(File, filelogginginterval));
+      std::string parameter="";
+      if (contains(argv, argc, "ntst")) //no date and time in name of logfile
+        parameter="no_time_in_filename";
+      plotoptions.push_back(PlotOption(File, filelogginginterval, parameter));
     }
 
     // starting neuronviz
@@ -1736,11 +1742,12 @@ namespace lpzrobots {
 
 
   void Simulation::usage(const char* progname) {
-    printf("Usage: %s [-g [interval]] [-f [interval]] [-r seed] [-x WxH] [-fs] \n", progname);
+    printf("Usage: %s [-g [interval]] [-f [interval] [ntst]] [-r seed] [-x WxH] [-fs] \n", progname);
     printf("\t\t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-threads N]\n");
     printf("\t\t [-odethread] [-osgthread] [-savecfg]\n");
     printf("\t-g interval\tuse guilogger (default interval 1)\n");
-    printf("\t-f interval\twrite logging file (default interval 5)\n");
+    printf("\t-f interval ntst\twrite logging file (default interval 5), if ntst (no_time_stamp)\n");
+    printf("\t\t\tis given logfile names are generated without timestamp\n");
     printf("\t-n interval\tuse neuronviz (default interval 10)\n");
     printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");
     printf("\t-r seed\t\trandom number seed\n");
