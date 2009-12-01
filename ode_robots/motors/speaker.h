@@ -25,7 +25,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-11-07 13:17:40  martius
+ *   Revision 1.2  2009-12-01 17:32:10  martius
+ *   adapted Makefiles to ignore backward compat. errors
+ *
+ *   Revision 1.1  2007/11/07 13:17:40  martius
  *   motors in a general sense (like sound, light,...)
  *
  *
@@ -38,6 +41,11 @@
 
 namespace lpzrobots {
   
+  /**
+     This "motor" emulates a speaker or piezo element to produce sound.
+     The sound can be detected by sound sensors (@see SoundSensor).
+     Note that obstacles do not interact with the sound in any way.
+   */
   class Speaker: public Motor {
   public: 
     Speaker(float frequency)

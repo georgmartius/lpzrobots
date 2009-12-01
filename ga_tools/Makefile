@@ -21,13 +21,13 @@ find_h_files = $(wildcard $(dir)/*.h)
 HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 
 # -pg for profiling
-CPPFLAGS = -Wall -g -pipe -I. -pthread $(INC)
+CPPFLAGS = -Wall -g -pipe -I. -pthread $(INC) -Wno-deprecated
 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -pipe -pthread $(INC) -O -DNDEBUG
+CPPFLAGS_OPT = -Wall -I. -pipe -pthread $(INC) -O -DNDEBUG -Wno-deprecated
 
 ## Optimisation
-CPPFLAGS_PROF = -Wall -I. -pipe -pthread $(INC) -O -DQPROF
+CPPFLAGS_PROF = -Wall -I. -pipe -pthread $(INC) -O -DQPROF -Wno-deprecated
 
 
 # used for single file compilation

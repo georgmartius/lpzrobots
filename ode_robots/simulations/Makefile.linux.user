@@ -38,8 +38,8 @@ LIBS   = -lm \
 INC   = -I. 
 
 CXX = g++
-CPPFLAGS = -Wall  -g -pthread $(INC) 
-CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC)
+CPPFLAGS = -Wall  -g -pthread $(INC) -Wno-deprecated
+CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC) -Wno-deprecated
 
 normal: $(EXEC)
 

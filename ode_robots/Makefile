@@ -4,7 +4,10 @@
 
 #
 # $Log$
-# Revision 1.26  2009-08-10 07:45:31  guettler
+# Revision 1.27  2009-12-01 17:32:10  martius
+# adapted Makefiles to ignore backward compat. errors
+#
+# Revision 1.26  2009/08/10 07:45:31  guettler
 # added -Wno-deprecated to avoid warnings about using old includes
 # (because we use some where are no new ones are provided yet)
 #
@@ -31,13 +34,13 @@ UTILS = install_prefix.conf
 # utils/splitvideo
 
 # -pg for profiling
-CPPFLAGS = -Wall -Wno-deprecated -g -pipe -I. -pthread $(INC)
+CPPFLAGS = -Wall -g -Wno-deprecated -pipe -I. -pthread $(INC) 
 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -Wno-deprecated -I. -pipe -pthread $(INC) -O -DNDEBUG
+CPPFLAGS_OPT = -Wall -I. -Wno-deprecated -pipe -pthread $(INC) -O -DNDEBUG
 
 ## Optimisation
-CPPFLAGS_PROF = -Wall -Wno-deprecated -I. -pipe -pthread $(INC) -O -DQPROF
+CPPFLAGS_PROF = -Wall -I. -Wno-deprecated -pipe -pthread $(INC) -O -DQPROF
 
 
 # used for single file compilation

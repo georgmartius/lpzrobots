@@ -27,7 +27,10 @@
  *  Callbackable       - observer                                          *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-10 07:31:04  guettler
+ *  Revision 1.2  2009-12-01 17:32:10  martius
+ *  adapted Makefiles to ignore backward compat. errors
+ *
+ *  Revision 1.1  2009/08/10 07:31:04  guettler
  *  -new BackCaller class to provide common
  *    functions used for callback
  *  -Callbackable interface modified
@@ -40,8 +43,14 @@
 #define __BACKCALLER_H_
 
 #include <vector>
+// Georg: 
+// either use backward/hash_map or
+// tr1/unordered_map or tr1/functional in the future
+#if __GNUC__ > 3
+#include <backward/hash_map>
+#else
 #include <ext/hash_map>
-
+#endif
 
 class Callbackable;
 

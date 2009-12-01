@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-08-03 14:09:48  jhoffmann
+ *   Revision 1.13  2009-12-01 17:32:10  martius
+ *   adapted Makefiles to ignore backward compat. errors
+ *
+ *   Revision 1.12  2009/08/03 14:09:48  jhoffmann
  *   Remove some compiling warnings, memory leaks; Add some code cleanups
  *
  *   Revision 1.11  2008/08/27 06:46:12  martius
@@ -66,7 +69,11 @@
 #ifndef __ODEHANDLE_H
 #define __ODEHANDLE_H
 
+#if __GNUC__ > 3
+#include <backward/hash_set>
+#else
 #include <ext/hash_set>
+#endif
 #include <vector>
 #include <ode/common.h>
 #include "substance.h"
