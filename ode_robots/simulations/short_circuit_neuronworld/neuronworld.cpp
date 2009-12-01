@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-09-22 08:21:49  fhesse
+ *   Revision 1.2  2009-12-01 13:35:50  fhesse
+ *   minor changes
+ *
+ *   Revision 1.1  2009/09/22 08:21:49  fhesse
  *   world is a schmitt trigger neuron
  *   only 1 DOF so far
  *
@@ -36,8 +39,8 @@ using namespace std;
 namespace lpzrobots {
 
   NeuronWorld::NeuronWorld(const OdeHandle& odeHandle, 
-			     const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf)
-    : OdeRobot(odeHandle, osgHandle, "NeuronWorld", "$Id$"),conf(conf){
+			     const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf, const std::string& name)
+    : OdeRobot(odeHandle, osgHandle, name, "$Id$"),conf(conf){
 
     assert(sensornumber == motornumber);
 
@@ -106,7 +109,7 @@ theta_const.val(0,0)=-1.0;//0.0;  // constant part of bias theta
  
     int mini = min(sensorno,motorno); 
     for (int i=0; i< mini; i++){
-      sensors[i]=a.val(i,0); // %motorno
+      sensors[i]=g(a.val(i,0)); // %motorno
     }
     return sensorno;
   };

@@ -16,7 +16,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-09-22 08:21:49  fhesse
+ *   Revision 1.2  2009-12-01 13:35:50  fhesse
+ *   minor changes
+ *
+ *   Revision 1.1  2009/09/22 08:21:49  fhesse
  *   world is a schmitt trigger neuron
  *   only 1 DOF so far
  *
@@ -102,8 +105,14 @@ void InvertNChannelController::init(int sensornumber, int motornumber, RandGen* 
 
   A.toId(); // set a to identity matrix;
   C.toId(); // set a to identity matrix;
-  C*=0.1;
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  C*=1.0;//0.1;
   A*=0.1;
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   x_buffer = new Matrix[buffersize];
   y_buffer = new Matrix[buffersize];
   for (unsigned int k = 0; k < buffersize; k++) {
@@ -116,19 +125,25 @@ void InvertNChannelController::init(int sensornumber, int motornumber, RandGen* 
 void InvertNChannelController::step(const sensor* x_, int number_sensors, 
 				    motor* y_, int number_motors){
   stepNoLearning(x_, number_sensors, y_, number_motors);
-  if(t<=buffersize) return;
-  t--;
 
-  // calculate effective input/output, which is (actual-steps4delay) element of buffer
-  Matrix x_effective = calculateDelayedValues(x_buffer, int(s4delay));    
-  Matrix y_effective = calculateDelayedValues(y_buffer, int(s4delay));
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  // learn controller with effective input/output
-  learn(x_effective, y_effective);
-  learnmodel(y_effective);
+//   if(t<=buffersize) return;
+//   t--;
+// 
+//   // calculate effective input/output, which is (actual-steps4delay) element of buffer
+//   Matrix x_effective = calculateDelayedValues(x_buffer, int(s4delay));    
+//   Matrix y_effective = calculateDelayedValues(y_buffer, int(s4delay));
+// 
+//   // learn controller with effective input/output
+//   learn(x_effective, y_effective);
+//   learnmodel(y_effective);
+// 
+//   // update step counter
+//   t++;
 
-  // update step counter
-  t++;
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 };
 
 

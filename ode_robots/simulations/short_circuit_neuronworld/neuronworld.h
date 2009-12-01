@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-09-22 08:21:49  fhesse
+ *   Revision 1.2  2009-12-01 13:35:50  fhesse
+ *   minor changes
+ *
+ *   Revision 1.1  2009/09/22 08:21:49  fhesse
  *   world is a schmitt trigger neuron
  *   only 1 DOF so far
  *
@@ -56,7 +59,7 @@ public:
    */
   class NeuronWorld : public OdeRobot{
   public:
-    NeuronWorld(const OdeHandle& odeHandle, const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf);
+    NeuronWorld(const OdeHandle& odeHandle, const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf, const std::string& name="NeuronWorld");
 
   static NeuronWorldConf getDefaultConf(){
     NeuronWorldConf conf;
@@ -123,7 +126,8 @@ public:
     /// neuron transfer function
     static double g(double z)
     {
-      return 1/(1+exp(-z));
+      //return 1/(1+exp(-z));
+      return tanh(z);
     };
 
   protected:
