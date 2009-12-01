@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-08-05 22:45:25  martius
+ *   Revision 1.10  2009-12-01 15:51:11  martius
+ *   fix: initIntern of One2OneWiring is called from this initIntern
+ *
+ *   Revision 1.9  2009/08/05 22:45:25  martius
  *   added plotMode
  *
  *   Revision 1.8  2009/08/05 22:32:21  martius
@@ -89,7 +92,7 @@ SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){
 /// initializes the number of sensors and motors on robot side, calculate
 //  number of sensors and motors on controller side
 bool SelectiveOne2OneWiring::initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen){
-  One2OneWiring::init(robotsensornumber, robotmotornumber, randGen);
+  One2OneWiring::initIntern(robotsensornumber, robotmotornumber, randGen);
   int num=0;
   for(int i=0; i<robotsensornumber; i++){
     if((*sel_sensor)(i,robotsensornumber)) num++;
