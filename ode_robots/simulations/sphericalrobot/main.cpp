@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2009-08-05 23:25:57  martius
+ *   Revision 1.28  2009-12-01 15:50:30  martius
+ *   "repaired" barrel
+ *
+ *   Revision 1.27  2009/08/05 23:25:57  martius
  *   adapted small things to compile with changed Plotoptions
  *
  *   Revision 1.26  2009/02/02 16:08:13  martius
@@ -181,7 +184,7 @@ public:
     int num_barrels=1;
     int num_barrels_test=0;
     int num_spheres=0;
-    useReinforcement=2;
+    useReinforcement=0;
 
     sensor=0;
 
@@ -260,7 +263,7 @@ public:
       conf.motorpowerfactor  = 150; 
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
-      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
+      //      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
       conf.irAxis1=false;
       conf.irAxis2=false;
       conf.irAxis3=false;
@@ -271,18 +274,16 @@ public:
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=1;
-      //    cc.useSD=true;
       controller = new InvertMotorNStep(cc);    
+
       ///> test with fixed C
       // controller = new InvertNChannelController_NoBias(40,0.45f);  
       //      controller->setParam("eps",0.00);
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
 
-      controller->setParam("steps", 2);    
+      controller->setParam("steps", 1);    
       //    controller->setParam("adaptrate", 0.001);    
-      controller->setParam("adaptrate", 0.0);    
-      controller->setParam("nomupdate", 0.005);    
-      controller->setParam("epsC", 0.03);    
+      controller->setParam("epsC", 0.1);    
       controller->setParam("epsA", 0.05);    
       // controller->setParam("epsC", 0.001);    
       // controller->setParam("epsA", 0.001);    
@@ -295,13 +296,15 @@ public:
       //       dc.useId=true;
       //       dc.useFirstD=false;
       //       AbstractWiring* wiring = new DerivativeWiring(dc,new ColorUniformNoise());
-      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
+      // with the following wiring we can select the first 2 sensors only
+      //       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
+      AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05));
       //      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
       OdeAgent* agent = new OdeAgent ( plotoptions );
       agent->init ( controller , sphere1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
-//      global.configs.push_back ( controller );
+      global.configs.push_back ( controller );
     }
 
 
