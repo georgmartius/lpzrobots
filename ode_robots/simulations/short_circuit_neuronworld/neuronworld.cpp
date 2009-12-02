@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-12-01 13:35:50  fhesse
+ *   Revision 1.3  2009-12-02 10:24:09  fhesse
+ *   bias in invertnchannelcontroller added, linear neuron in neuronworld added
+ *
+ *   Revision 1.2  2009/12/01 13:35:50  fhesse
  *   minor changes
  *
  *   Revision 1.1  2009/09/22 08:21:49  fhesse
@@ -29,6 +32,10 @@
  *
  *
  ***************************************************************************/
+
+
+ 
+
 #include <assert.h>
 
 #include "ode_robots/simulation.h"
@@ -37,6 +44,11 @@
 using namespace std;
 
 namespace lpzrobots {
+
+
+enum NeuronType{linear, schmitt_trigger};
+// choose type of neuron
+NeuronType neuron_type=linear;
 
   NeuronWorld::NeuronWorld(const OdeHandle& odeHandle, 
 			     const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf, const std::string& name)
@@ -92,26 +104,38 @@ theta_const.val(0,0)=-1.0;//0.0;  // constant part of bias theta
   int NeuronWorld::getSensors(sensor* sensors, int sensornumber){
     assert(sensornumber == sensorno); 
 
-    for (int i=0; i< motorno; i++){
-       // many DOF:
-      //theta.val(i,0)= theta_const.val(i,0) +motors[i]; 
+
+  if (neuron_type== schmitt_trigger){
+      for (int i=0; i< motorno; i++){
+         // many DOF:
+        //theta.val(i,0)= theta_const.val(i,0) +motors[i]; 
+        // singel DOF !!!
+        assert(sensornumber == 1);
+        theta.val(i,0)= conf.theta_const +motors[i]; 
+      }
+
+      // many DOF:
+      //a=gamma*a + theta + W*a.map(g);
+
       // singel DOF !!!
       assert(sensornumber == 1);
-      theta.val(i,0)= conf.theta_const +motors[i]; 
-    }
-
-    // many DOF:
-    //a=gamma*a + theta + W*a.map(g);
-
-    // singel DOF !!!
-    assert(sensornumber == 1);
-    a.val(0,0)=((double)conf.gamma)*a.val(0,0) + theta.val(0,0) + ((double)conf.w)*g(a.val(0,0));
+      a.val(0,0)=((double)conf.gamma)*a.val(0,0) + theta.val(0,0) + ((double)conf.w)*g(a.val(0,0));
  
-    int mini = min(sensorno,motorno); 
-    for (int i=0; i< mini; i++){
-      sensors[i]=g(a.val(i,0)); // %motorno
-    }
-    return sensorno;
+      int mini = min(sensorno,motorno); 
+      for (int i=0; i< mini; i++){
+        sensors[i]=a.val(i,0); // %motorno
+      }
+    }    
+  if (neuron_type==linear){
+      // singel DOF !!!
+      assert(sensornumber == 1);
+      a.val(0,0)= theta.val(0,0) + ((double)conf.w)*motors[1];
+      int mini = min(sensorno,motorno); 
+      for (int i=0; i< mini; i++){
+        sensors[i]=a.val(i,0); // %motorno
+      }
+ 
+    }    
   };
 
 

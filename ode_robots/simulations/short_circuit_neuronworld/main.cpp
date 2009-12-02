@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-12-01 13:35:50  fhesse
+ *   Revision 1.3  2009-12-02 10:24:09  fhesse
+ *   bias in invertnchannelcontroller added, linear neuron in neuronworld added
+ *
+ *   Revision 1.2  2009/12/01 13:35:50  fhesse
  *   minor changes
  *
  *   Revision 1.1  2009/09/22 08:21:49  fhesse
@@ -101,8 +104,8 @@ public:
 //     cc.someInternalParams=false;
 //     AbstractController *controller = new InvertMotorNStep(cc);  
     AbstractController *controller = new InvertNChannelController(100);
-    //controller->setParam("eps",0.1);
-    controller->setParam("eps",0.0);
+    controller->setParam("eps",0.1);
+    //controller->setParam("eps",0.0);
     controller->setParam("factor_a",0.1);
     controller->setParam("s4avg",1);
     
@@ -215,29 +218,37 @@ int main (int argc, char **argv)
        std::string test2=sed_command2.str();
        system(test2.c_str());
 
-       //system("rm ga0_th0_w0.log");  // delete original logfile
 
-       // Do mathematica stuff 
-       std::ofstream myfile("mathematica_commands.tmp", std::ios::trunc); // trunc -> alten Dateiinhalt loeschen
-       if (myfile.is_open()){   
-         myfile << "Print[\"Processing  "<<tmp_name.str()<<".dat\"] \n";
-         myfile << "x = ReadList[\"./"<<tmp_name.str()<<".dat\", Number, RecordLists -> True]; \n";
-         myfile << "F = Abs[Fourier[ x[[1 ;; 50000, 2]] - Mean[x[[1 ;; 50000, 2]]] ] ]^2;\n";
-         myfile << "pos = Position[F[[1;;25000]], Max[F[[1;;25000]]]] [[1,1]]\n";
-         myfile << "out=StringForm[\"``	``	``	``\","<<my_gamma<<","<<my_theta_const<<", "<<my_w<<", pos];\n";
-         myfile << "Print[out]\n";
-         myfile << "Exit[]\n";
-         myfile.close();
-       }
-       system("/usr/nld/mathematica-6.0/Executables/math -nopromt -run \"<<mathematica_commands.tmp\" >ausgabe.tmp ");
-       system("sed '1,3d' ausgabe.tmp >> fft_matrix.dat ");  // nur letzte Zeile (Ergebnis der Berechnung) aus ausgabe.tmp nach fft_matrix.dat kopieren (anhaengen)
+//       // Do mathematica stuff 
+//       std::ofstream myfile("mathematica_commands.tmp", std::ios::trunc); // trunc -> alten Dateiinhalt loeschen
+//       if (myfile.is_open()){   
+//         myfile << "Print[\"Processing  "<<tmp_name.str()<<".dat\"] \n";
+//         myfile << "x = ReadList[\"./"<<tmp_name.str()<<".dat\", Number, RecordLists -> True]; \n";
+//         myfile << "F = Abs[Fourier[ x[[1 ;; 50000, 2]] - Mean[x[[1 ;; 50000, 2]]] ] ]^2;\n";
+//         myfile << "pos = Position[F[[1;;25000]], Max[F[[1;;25000]]]] [[1,1]]\n";
+//         myfile << "out=StringForm[\"``	``	``	``\","<<my_gamma<<","<<my_theta_const<<", "<<my_w<<", pos];\n";
+//         myfile << "Print[out]\n";
+//         myfile << "Exit[]\n";
+//         myfile.close();
+//       }
+//       system("/usr/nld/mathematica-6.0/Executables/math -nopromt -run \"<<mathematica_commands.tmp\" >ausgabe.tmp ");
+//       system("sed '1,3d' ausgabe.tmp >> fft_matrix.dat ");  // nur letzte Zeile (Ergebnis der Berechnung) aus ausgabe.tmp nach fft_matrix.dat kopieren (anhaengen)
 
-       std::cout<<"zipping "<<tmp_name.str()<<".log\n"<<std::endl;
-       // gzip .dat file to save disk space
-       std::ostringstream gzip_command;
-       gzip_command<<"gzip "<<tmp_name.str()<<".log";
-       std::string gzip_str=gzip_command.str();
-       system(gzip_str.c_str());
+
+
+//       // gzip .log file to save disk space
+//       std::cout<<"zipping "<<tmp_name.str()<<".log\n"<<std::endl;
+//       std::ostringstream gzip_command;
+//       gzip_command<<"gzip "<<tmp_name.str()<<".log";
+//       std::string gzip_str=gzip_command.str();
+//       system(gzip_str.c_str());
+
+       // delete .log file to save disk space
+       std::cout<<"deleting "<<tmp_name.str()<<".log\n"<<std::endl;
+       std::ostringstream rm_command;
+       rm_command<<"rm "<<tmp_name.str()<<".log";
+       std::string rm_str=rm_command.str();
+       system(rm_str.c_str());
 
       }
     }

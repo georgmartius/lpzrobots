@@ -18,7 +18,10 @@
  *                                            * 
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-09-22 08:21:49  fhesse
+ *   Revision 1.2  2009-12-02 10:24:09  fhesse
+ *   bias in invertnchannelcontroller added, linear neuron in neuronworld added
+ *
+ *   Revision 1.1  2009/09/22 08:21:49  fhesse
  *   world is a schmitt trigger neuron
  *   only 1 DOF so far
  *
@@ -130,6 +133,7 @@ protected:
   bool update_only_1;
 
   matrix::Matrix A; // Model Matrix
+  matrix::Matrix s; // Model Bias
   matrix::Matrix C; // Controller Matrix
   matrix::Matrix h; // Controller Bias
   matrix::Matrix L; // Jacobi Matrix
