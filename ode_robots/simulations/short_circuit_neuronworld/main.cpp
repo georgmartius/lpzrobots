@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-12-02 10:24:09  fhesse
+ *   Revision 1.4  2009-12-04 18:51:59  fhesse
+ *   invertnchannelcontroller has bias (changeable in constructor) now
+ *   neuronworld has linear neuron now (changeable in conf)
+ *
+ *   Revision 1.3  2009/12/02 10:24:09  fhesse
  *   bias in invertnchannelcontroller added, linear neuron in neuronworld added
  *
  *   Revision 1.2  2009/12/01 13:35:50  fhesse
@@ -49,10 +53,10 @@
 #include <selforg/selectiveone2onewiring.h>
 #include <selforg/derivativewiring.h>
 
-#include <selforg/sinecontroller.h>
-#include <selforg/invertmotornstep.h>
-#include <selforg/invertmotorspace.h>
-#include <selforg/invertnchannelcontroller.h>
+//#include <selforg/sinecontroller.h>
+//#include <selforg/invertmotornstep.h>
+//#include <selforg/invertmotorspace.h>
+//#include <selforg/invertnchannelcontroller.h>
 #include "invertnchannelcontroller.h"
 
 #include <neuronworld.h>
@@ -92,6 +96,7 @@ public:
       conf.theta_const  = my_theta_const;
       conf.gamma  = my_gamma; 
       conf.w  = my_w; 
+      conf.neuron_type = linear;
       std::ostringstream tmp_name;
       tmp_name<<"ga"<<my_gamma<<"_th"<<my_theta_const<<"_w"<<my_w;
       OdeRobot* robot = new NeuronWorld(odeHandle, osgHandle, channels, channels, conf, tmp_name.str());  
@@ -103,19 +108,22 @@ public:
 //     cc.cNonDiag=0.5;
 //     cc.someInternalParams=false;
 //     AbstractController *controller = new InvertMotorNStep(cc);  
-    AbstractController *controller = new InvertNChannelController(100);
+    //AbstractController *controller = new InvertNChannelController(100);
+    AbstractController *controller = new InvertNChannelController(100, /*update_only_1=*/false, /*model_type=*/InvertNChannelController::bias);
+    global.configs.push_back(controller);
+
+
+
     controller->setParam("eps",0.1);
     //controller->setParam("eps",0.0);
     controller->setParam("factor_a",0.1);
     controller->setParam("s4avg",1);
-    
+
     OdeAgent* agent = new OdeAgent(plotoptions);
-    
     // sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
     // One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
     One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
     //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05), true);
-    
     //AbstractWiring* wiring = new SelectiveOne2OneWiring(sineNoise, &select_firsthalf);
     // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
 //     c.useId=true;
@@ -125,9 +133,6 @@ public:
 //     AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05)); 
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);
-    
-    global.configs.push_back(controller);
-    
     showParams(global.configs);
   }
 
@@ -186,7 +191,7 @@ int main (int argc, char **argv)
   int loopcounter=0;
   int loopmax=1*49*49;
 
-  system("rm  fft_matrix.dat "); //alte datei loeschen
+ // system("rm  fft_matrix.dat "); //alte datei loeschen
 
   for (int g=0;g<1;g++){   // erstmal nur mit gamma=0
     for (int t=0;t<49;t++){
@@ -197,6 +202,12 @@ int main (int argc, char **argv)
         if ( (w<0.001) && (w>-0.001) ) w=0; // sonst Probleme im Dateinamen  (1.11022e-16)
         ThisSim sim;
         sim.run(argc, argv);
+
+/////////////
+// REMOVE !!!
+/////////////
+return 1;
+
         //sim.~Simulation();
        loopcounter++;
        std::cout<<std::endl<<"run "<<loopcounter<<" of "<<loopmax<<" finished"<<std::endl<<std::endl;

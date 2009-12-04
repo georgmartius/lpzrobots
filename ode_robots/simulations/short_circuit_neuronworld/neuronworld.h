@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-12-01 13:35:50  fhesse
+ *   Revision 1.3  2009-12-04 18:51:59  fhesse
+ *   invertnchannelcontroller has bias (changeable in constructor) now
+ *   neuronworld has linear neuron now (changeable in conf)
+ *
+ *   Revision 1.2  2009/12/01 13:35:50  fhesse
  *   minor changes
  *
  *   Revision 1.1  2009/09/22 08:21:49  fhesse
@@ -46,11 +50,14 @@
 namespace lpzrobots {
 
 
+enum NeuronType{linear, schmitt_trigger};
+
 typedef struct {
 public:
-  double    theta_const;  ///<  constant part of bias
-  double    gamma;        ///<  Dissipation
-  double    w;            ///<  weight 
+  double     theta_const;  ///<  constant part of bias
+  double     gamma;        ///<  Dissipation
+  double     w;            ///<  weight 
+  NeuronType neuron_type;  ///< type of neuron used as world  
 } NeuronWorldConf;
 
 
@@ -59,6 +66,7 @@ public:
    */
   class NeuronWorld : public OdeRobot{
   public:
+    
     NeuronWorld(const OdeHandle& odeHandle, const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf, const std::string& name="NeuronWorld");
 
   static NeuronWorldConf getDefaultConf(){
@@ -66,6 +74,7 @@ public:
     conf.theta_const = 0;    //  constant part of bias
     conf.gamma = 0;          //  Dissipation
     conf.w = 0;         //  weight
+    conf.neuron_type = schmitt_trigger;  
     return conf;
   }
 

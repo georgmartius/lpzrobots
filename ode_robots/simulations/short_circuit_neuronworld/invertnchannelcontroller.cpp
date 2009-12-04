@@ -16,11 +16,9 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-12-02 10:24:09  fhesse
- *   bias in invertnchannelcontroller added, linear neuron in neuronworld added
- *
- *   Revision 1.2  2009/12/01 13:35:50  fhesse
- *   minor changes
+ *   Revision 1.4  2009-12-04 18:51:59  fhesse
+ *   invertnchannelcontroller has bias (changeable in constructor) now
+ *   neuronworld has linear neuron now (changeable in conf)
  *
  *   Revision 1.1  2009/09/22 08:21:49  fhesse
  *   world is a schmitt trigger neuron
@@ -78,18 +76,14 @@
 using namespace matrix;
 using namespace std;
 
-enum ModelNeuronProperties{nobias, bias};
-// choose type of neuron
-ModelNeuronProperties model_type=bias;
-
-
-InvertNChannelController::InvertNChannelController(int _buffersize, bool _update_only_1/*=false*/)
+InvertNChannelController::InvertNChannelController(int _buffersize, bool _update_only_1/*=false*/, ModelNeuronProperties _model_type/*=nobias*/)
   : InvertController("InvertNChannelController", "$Id$"){
   t=0;
   update_only_1 = _update_only_1;
   buffersize    = _buffersize;
   x_buffer=0;
   y_buffer=0;
+  model_type =_model_type;
 
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile$", 
@@ -114,14 +108,8 @@ void InvertNChannelController::init(int sensornumber, int motornumber, RandGen* 
 
   A.toId(); // set a to identity matrix;
   C.toId(); // set a to identity matrix;
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  C*=1.0;//0.1;
+  C*=0.1;
   A*=0.1;
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   x_buffer = new Matrix[buffersize];
   y_buffer = new Matrix[buffersize];
   for (unsigned int k = 0; k < buffersize; k++) {
@@ -134,23 +122,19 @@ void InvertNChannelController::init(int sensornumber, int motornumber, RandGen* 
 void InvertNChannelController::step(const sensor* x_, int number_sensors, 
 				    motor* y_, int number_motors){
   stepNoLearning(x_, number_sensors, y_, number_motors);
+  if(t<=buffersize) return;
+  t--;
 
+  // calculate effective input/output, which is (actual-steps4delay) element of buffer
+  Matrix x_effective = calculateDelayedValues(x_buffer, int(s4delay));    
+  Matrix y_effective = calculateDelayedValues(y_buffer, int(s4delay));
 
-   if(t<=buffersize) return;
-   t--;
- 
-   // calculate effective input/output, which is (actual-steps4delay) element of buffer
-   Matrix x_effective = calculateDelayedValues(x_buffer, int(s4delay));    
-   Matrix y_effective = calculateDelayedValues(y_buffer, int(s4delay));
- 
-   // learn controller with effective input/output
-   learn(x_effective, y_effective);
-   learnmodel(y_effective);
+  // learn controller with effective input/output
+  learn(x_effective, y_effective);
+  learnmodel(y_effective);
 
-   // update step counter
-   t++;
-
-
+  // update step counter
+  t++;
 };
 
 
@@ -239,45 +223,43 @@ double InvertNChannelController::calculateE(const Matrix& x_delay,
   // which on their hand are y = K(x_D)
   // due to the delay in the feed back loop.
   Matrix z = C * x_delay + h;
+
   Matrix xsi;
   if (model_type== nobias){//no bias used in model
      xsi = x_buffer[t%buffersize] - A * y_delay;
   }
-
- if (model_type== bias){// if model bias is used
-   xsi = x_buffer[t%buffersize] - A * y_delay+s;
- }    
+  if (model_type== bias){// model bias s is used
+    xsi = x_buffer[t%buffersize] - A * y_delay + s;
+  }    
 
   //Matrix xsi = x_buffer[t%buffersize] - A * z.map(g);
 
   Matrix Cg = C.multrowwise(z.map(g_s)); // Cg_{ij} = g'_i * C_{ij}
   L = A*Cg;                   // L_{ij}  = \sum_k A_{ik} g'_k c_{kj}
 ////////
-// if model bias s is used
-//  muss mann dann L auch anpassen?  
+// if model bias s is used -> change L ?  
 //  L=dx(t+1)/dx(t)=d ag(cx+h) +s / dx(t)
 //  d.h. s faellt bei Ableitung weg !
 //  d.h. es aendert sich nichts
 ////////
 
+
+  
   Matrix v = (L^-1)*xsi;
-  
-  
   
   double E = ((v^T)*v).val(0, 0);
   double Es = 0.0;
-  if (model_type== nobias){//no bias used in model
-    if(desens!=0){
+  if(desens!=0){
+    if (model_type== nobias){//no bias used in model
       Matrix diff_x = x_buffer[t%buffersize] - A*( (C*x_buffer[t%buffersize]+h).map(g) );
       Es = ((diff_x^T)*diff_x).val(0, 0);
     }
-  }    
   if (model_type== bias){// bias used in model
-    if(desens!=0){
-      Matrix diff_x = x_buffer[t%buffersize] - A*( (C*x_buffer[t%buffersize]+h).map(g)+s );
+      Matrix diff_x = x_buffer[t%buffersize] - (A*( (C*x_buffer[t%buffersize]+h).map(g) ) + s);
       Es = ((diff_x^T)*diff_x).val(0, 0);
     }
-  }    
+
+  }
   return (1-desens)*E + desens*Es;
   
 //   iteration(xsi,A,eita_zero)  ; 
@@ -373,11 +355,10 @@ void InvertNChannelController::learnmodel(const Matrix& y_delay){
     A += (( xsi*(y_delay^T) ) * eps * factor_a).map(squash); 
   }
   if (model_type== bias){//if model bias s is used
-    Matrix xsi = x_buffer[t%buffersize] -  A * y_delay+s;
-    A += (( xsi*(y_delay^T) ) * eps * factor_a).map(squash);
-    s += (( xsi ) * eps * factor_a).map(squash); 
+    Matrix xsi = x_buffer[t%buffersize] -  (A * y_delay + s);
+    A += (( xsi*(y_delay^T) ) * eps * factor_a).map(squash); 
+    s += (xsi* eps * factor_a).map(squash);
   }
-
 };
 
 /// calculate delayed values
@@ -420,7 +401,7 @@ bool InvertNChannelController::store(FILE* f) const{
   C.store(f);
   h.store(f);
   A.store(f);
-  s.store(f);
+  if (model_type== bias) s.store(f);
   Configurable::print(f,0);
   return true;
 }
@@ -431,7 +412,7 @@ bool InvertNChannelController::restore(FILE* f){
   C.restore(f);
   h.restore(f);
   A.restore(f);
-  s.restore(f);
+  if (model_type== bias) s.restore(f);
   Configurable::parse(f);
   t=0; // set time to zero to ensure proper filling of buffers
   return true;
@@ -441,18 +422,18 @@ bool InvertNChannelController::restore(FILE* f){
 list<Inspectable::iparamkey> InvertNChannelController::getInternalParamNames() const {
   list<iparamkey> keylist;
   keylist+=store4x4AndDiagonalFieldNames(A,"A");
+  if (model_type== bias) keylist+=storeMatrixFieldNames(s,"s");
   keylist+=store4x4AndDiagonalFieldNames(C,"C");
   keylist+=storeMatrixFieldNames(h,"h");
-  keylist+=storeMatrixFieldNames(s,"s");
   return keylist;
 }
 
 list<Inspectable::iparamval> InvertNChannelController::getInternalParams() const {
   list<iparamval> l;
   l+=store4x4AndDiagonal(A);
+  if (model_type== bias) l+=s.convertToList();
   l+=store4x4AndDiagonal(C);
   l+=h.convertToList();
-  l+=s.convertToList();
   return l;
 }
 

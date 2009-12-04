@@ -18,8 +18,9 @@
  *                                            * 
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-12-02 10:24:09  fhesse
- *   bias in invertnchannelcontroller added, linear neuron in neuronworld added
+ *   Revision 1.3  2009-12-04 18:51:59  fhesse
+ *   invertnchannelcontroller has bias (changeable in constructor) now
+ *   neuronworld has linear neuron now (changeable in conf)
  *
  *   Revision 1.1  2009/09/22 08:21:49  fhesse
  *   world is a schmitt trigger neuron
@@ -92,7 +93,10 @@
 class InvertNChannelController : public InvertController {
 
 public:
-  InvertNChannelController(int _buffersize, bool _update_only_1=false);
+  
+  enum ModelNeuronProperties{nobias, bias};
+
+  InvertNChannelController(int _buffersize, bool _update_only_1=false, ModelNeuronProperties _model_type=nobias);
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
   virtual ~InvertNChannelController();
@@ -127,6 +131,7 @@ public:
   virtual std::list<IConnection> getStructuralConnections() const;
   
 
+
 protected:
   unsigned short number_channels;
   unsigned short buffersize;
@@ -142,6 +147,7 @@ protected:
   int t;
   paramkey name;
   
+  ModelNeuronProperties model_type; // type of neuron used in internal model (so far: use bias or do not use bias)
 
 /*   virtual void iteration(double *column, */
 /* 			 double dommy[NUMBER_CHANNELS][NUMBER_CHANNELS], */
