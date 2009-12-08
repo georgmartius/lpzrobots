@@ -19,7 +19,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2008-05-07 16:45:52  martius
+ *   Revision 1.21  2009-12-08 13:56:15  der
+ *   guettler: new parameter axisShift
+ *   (mainly used for Barrel2Masses)
+ *
+ *   Revision 1.20  2008/05/07 16:45:52  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.19  2008/05/07 11:03:37  martius
@@ -206,7 +210,7 @@ namespace lpzrobots {
     Matrix pose(object[Base]->getPose());
     for (int i=0; i < servono; i++) { 
       if(axis[i]){
-	axis[i]->setMatrix(Matrix::rotate(M_PI/2, (i==1), (i==0), (i==2)) * pose);
+	axis[i]->setMatrix(Matrix::rotate(M_PI/2, (i==1), (i==0), (i==2)) * Matrix::translate(0 ,0, (i==0?-1:1)*conf.axisShift)* pose);
       }
     }
     irSensorBank.update();
@@ -326,7 +330,7 @@ namespace lpzrobots {
       pendular[n] = new Sphere(conf.pendulardiameter/2);
       pendular[n]->init(odeHandle, conf.pendularmass, osgHandleX[n], 
 			Primitive::Body | Primitive::Draw); // without geom
-      pendular[n]->setPose(pose);    
+      pendular[n]->setPose(Matrix::translate(0,0,(n==0?-1:1)*conf.axisShift)*pose);
 
       joint[n] = new SliderJoint(object[Base], pendular[n],
 				 p, Axis((n==0), (n==1), (n==2))*pose);
