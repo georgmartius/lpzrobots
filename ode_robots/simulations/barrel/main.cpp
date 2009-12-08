@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-12-08 13:52:43  der
+ *   Revision 1.3  2009-12-08 13:54:28  der
+ *   guettler: default axisShift=0
+ *
+ *   Revision 1.2  2009/12/08 13:52:43  der
  *   new parameter axisShift is used
  *
  *   Revision 1.1  2009/12/01 15:57:31  martius
@@ -196,7 +199,8 @@ public:
       conf.irAxis2=false;
       conf.irAxis3=false;
       conf.spheremass   = 1;
-      conf.axisShift = conf.diameter/2 - conf.pendularrange/2;
+      conf.axisShift = 0;
+      // conf.axisShift = conf.diameter/2 - conf.pendularrange/2;
       sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
 				    conf, "Barrel1", 0.4); 
       sphere1->place (osg::Matrix::rotate(M_PI/2, 1,0,0)*osg::Matrix::translate(0,0,0.2));
