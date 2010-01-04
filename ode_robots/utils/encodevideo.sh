@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #**************************************************************************
 #   Copyright (C) 2005 by Robot Group Leipzig                             *
 #    martius@informatik.uni-leipzig.de                                    *
@@ -25,7 +25,10 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.13  2009-03-13 09:19:53  martius
+#   Revision 1.14  2010-01-04 15:30:47  der
+#   added high quality video im MS Mpeg4 format
+#
+#   Revision 1.13  2009/03/13 09:19:53  martius
 #   changed texture handling in osgprimitive
 #   new OsgBoxTex that supports custom texture repeats and so on
 #   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -70,5 +73,7 @@ transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.avi -y xvid4,null -w 100 -r 2
 echo -e "******************** to wmv small variant ***************";
 transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.wmv.avi -y ffmpeg,null -F wmv2 -w 100 -r 2
 
+echo -e "******************** to high quality avi (msmpeg4) ***************";
+ffmpeg -i "$TARGET.mjpeg" -vcodec msmpeg4 -sameq  "${TARGET}_hq.avi"
 
 
