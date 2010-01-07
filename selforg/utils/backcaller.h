@@ -27,7 +27,10 @@
  *  Callbackable       - observer                                          *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-12-01 17:32:10  martius
+ *  Revision 1.3  2010-01-07 14:15:16  der
+ *  make it compile on 4.1.2
+ *
+ *  Revision 1.2  2009/12/01 17:32:10  martius
  *  adapted Makefiles to ignore backward compat. errors
  *
  *  Revision 1.1  2009/08/10 07:31:04  guettler
@@ -47,7 +50,7 @@
 // either use backward/hash_map or
 // tr1/unordered_map or tr1/functional in the future
 #if __GNUC__ > 3
-#include <backward/hash_map>
+#include <ext/hash_map>
 #else
 #include <ext/hash_map>
 #endif
