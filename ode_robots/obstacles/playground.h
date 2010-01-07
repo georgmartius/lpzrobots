@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-01-07 14:05:23  der
+ *   Revision 1.21  2010-01-07 14:06:17  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.20  2010/01/07 14:05:23  der
  *   adapted to new wall texture
  *
  *   Revision 1.19  2009/03/13 09:19:53  martius
@@ -190,14 +193,14 @@ namespace lpzrobots {
 		       0,
 		       height/2+0.01f/*reduces graphic errors and ode collisions*/);
       box = new Box( width , (length * factorlength2) + 2 * width , height);
-      box->setTexture(wallTextureFileName, -2, -4);
+      box->setTexture(wallTextureFileName, -1.5, -3);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
       obst.push_back(box);
 
       offset.x() = length/2 + width/2;
       box = new Box( width , (length * factorlength2) + 2 * width , height);
-      box->setTexture(wallTextureFileName, -2, -4);
+      box->setTexture(wallTextureFileName, -1.5, -3);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
       obst.push_back(box);
@@ -205,14 +208,14 @@ namespace lpzrobots {
       offset.x() = 0;
       offset.y() = -( (length*factorlength2)/2 +width/2);
       box = new Box( length, width, height);
-      box->setTexture(wallTextureFileName, -2, -4);
+      box->setTexture(wallTextureFileName, -1.5, -3);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
       obst.push_back(box);
 
       offset.y() = (length*factorlength2)/2 +width/2;
       box = new Box( length, width, height);
-      box->setTexture(wallTextureFileName, -2, -4);
+      box->setTexture(wallTextureFileName, -1.5, -3);
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
       obst.push_back(box);
