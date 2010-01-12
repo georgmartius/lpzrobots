@@ -25,7 +25,10 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.14  2010-01-04 15:30:47  der
+#   Revision 1.15  2010-01-12 15:18:24  martius
+#   added flash video
+#
+#   Revision 1.14  2010/01/04 15:30:47  der
 #   added high quality video im MS Mpeg4 format
 #
 #   Revision 1.13  2009/03/13 09:19:53  martius
@@ -75,5 +78,8 @@ transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.wmv.avi -y ffmpeg,null -F wmv2 -
 
 echo -e "******************** to high quality avi (msmpeg4) ***************";
 ffmpeg -i "$TARGET.mjpeg" -vcodec msmpeg4 -sameq  "${TARGET}_hq.avi"
+
+echo -e "******************** to flash video  ***************";
+ffmpeg -i "$TARGET.avi" -sameq  "${TARGET}.flv"
 
 
