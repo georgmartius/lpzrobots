@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-11-23 13:49:20  martius
+ *   Revision 1.4  2010-01-26 09:58:55  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.3  2009/11/23 13:49:20  martius
  *   some testing
  *
  *   Revision 1.2  2009/08/07 14:39:52  martius
@@ -79,8 +82,7 @@ public:
     setCameraHomePos(Pos(-19.7951, -12.3665, 16.4319),  Pos(-51.7826, -26.772, 0));
 
     global.odeConfig.setParam("noise",0.05);
-    //    global.odeConfig.setParam("gravity", -0.1); 
-    global.odeConfig.setParam("gravity", -3); 
+    global.odeConfig.setParam("gravity", -9); 
     global.odeConfig.setParam("controlinterval",2);
     //    global.odeConfig.setParam("realtimefactor",4);
 
@@ -98,22 +100,21 @@ public:
     // conf.sensorFactor=5;     unused
 
     OdeHandle snakeHandle(odeHandle);
-    snakeHandle.substance.toRubber(30); 
-    vehicle = new SchlangeServo2 ( snakeHandle, osgHandle.changeColor(Color(0.9, 0.85, 0.05)),
-				   conf, "Schlange2D_" + std::itos(teacher*10000));
- 
-    //    vehicle->place(Pos(0,0,0.1));    
-    vehicle->place(Pos(0,0,1));    
+    snakeHandle.substance.toPlastic(0.1);
+    vehicle = new SchlangeServo ( snakeHandle, osgHandle.changeColor(Color(0.9, 0.85, 0.05)),
+				  conf, "Schlange1D_" + std::itos(teacher*10000));
 
-    Primitive* head = vehicle->getMainPrimitive();
-    fixator = new BallJoint(head, global.environment, head->getPosition());
-    fixator->init(odeHandle, osgHandle);
+    vehicle->place(Pos(0,0,2));    
+
+//     Primitive* head = vehicle->getMainPrimitive();
+//     fixator = new BallJoint(head, global.environment, head->getPosition());
+//     fixator->init(odeHandle, osgHandle);
 
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
     cc.someInternalParams=true;
     cc.modelExt=true;
-    cc.cInit=1.2; 
+    cc.cInit=1.0;
     SeMoX* semox = new SeMoX(cc);  
     //semox->setParam("adaptrate", 0.0001);
     //    semox->setParam("nomupdate", 0.0001);

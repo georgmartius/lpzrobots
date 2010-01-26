@@ -462,7 +462,7 @@ namespace lpzrobots{
     joints.push_back(FJ_hand);		
  
 		
-    printf("size: %ld objects, %ld joints, %ld hingeservos\n", objects.size(), joints.size(), hingeServos.size());
+    printf("size: %d objects, %d joints, %d hingeservos\n", objects.size(), joints.size(), hingeServos.size());
     
     FOREACH(list<Sensor*>, conf.sensors, i){
 	(*i)->init(objects[hand]);

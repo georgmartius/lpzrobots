@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-05-01 22:03:56  martius
+ *   Revision 1.5  2010-01-26 09:57:18  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -133,9 +136,9 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     int num_barrels=0;
-    int num_spheres=0;      
-    int num_nimm2  =1; 
-    useReinforcement=3;
+    int num_spheres=1;      
+    int num_nimm2  =0; 
+    useReinforcement=2;
 
     bool labyrint=false;      
     bool squarecorridor=false;
@@ -145,7 +148,7 @@ public:
     global.odeConfig.setParam("noise",0.05);
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
-    global.odeConfig.setParam("realtimefactor",0);
+    global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("cameraspeed",1000);
 
     if(squarecorridor){
@@ -265,7 +268,7 @@ public:
 //       dc.useFirstD=false;
 //       AbstractWiring* wiring = new DerivativeWiring(dc,new ColorUniformNoise());
       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
-      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
+      OdeAgent* agent = new OdeAgent ( PlotOption(File, 1) );
       agent->init ( controller , robot1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
