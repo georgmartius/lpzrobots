@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-08-05 22:45:25  martius
+ *   Revision 1.7  2010-01-26 09:50:19  martius
+ *   comments
+ *
+ *   Revision 1.6  2009/08/05 22:45:25  martius
  *   added plotMode
  *
  *   Revision 1.5  2009/08/05 22:32:21  martius
@@ -89,7 +92,7 @@ struct select_from_to : public  select_predicate {
 };
 
 /** 
- *   Implements a selective one to one wireing of robot sensors to inputs of the controller 
+ *   Implements a selective one to one wiring of robot sensors to inputs of the controller 
  *   and controller outputs to robot motors. 
  */
 class SelectiveOne2OneWiring : public One2OneWiring{
