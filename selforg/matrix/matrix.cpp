@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.29  2009-08-05 18:28:32  martius
+// Revision 1.30  2010-01-26 09:45:55  martius
+// added map2P functions with Double parameter
+//
+// Revision 1.29  2009/08/05 18:28:32  martius
 // added isVector
 // mapP and toMapP support double parameters
 //
@@ -617,6 +620,15 @@ namespace matrix {
     return result;
   }
 
+  Matrix& Matrix::toMap2P ( D param, D (*fun) (D, D,D ), const Matrix& b ) {
+    assert ( m == b.m && n == b.n );
+    I len = m * n;
+    for ( I i = 0; i < len; i++ ) {
+      data[i] = fun ( param, data[i], b.data[i] );
+    }
+    return *this;
+  }
+
   Matrix& Matrix::toMap2P ( void* param, D ( *fun ) ( void*, D,D ), const Matrix& b ) {
     assert ( m == b.m && n == b.n );
     I len = m * n;
@@ -624,7 +636,12 @@ namespace matrix {
       data[i] = fun ( param, data[i], b.data[i] );
     }
     return *this;
+  }
 
+  Matrix Matrix::map2P( D param, D (*fun)(D, D,D), const Matrix& a, const Matrix& b){
+    Matrix result (a);
+    result.toMap2P(param,fun,b );
+    return result;    
   }
 
   Matrix Matrix::map2P ( void* param, D ( *fun ) ( void*, D, D ), const Matrix& a, const Matrix& b ) {
@@ -632,8 +649,6 @@ namespace matrix {
     result.toMap2P ( param,fun,b );
     return result;
   }
-
-
 
   Matrix& Matrix::toMultrowwise ( const Matrix& factors ) {
     assert ( m == factors.m && factors.n == 1 );

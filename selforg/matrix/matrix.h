@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.33  2009-10-27 16:52:21  martius
+// Revision 1.34  2010-01-26 09:45:55  martius
+// added map2P functions with Double parameter
+//
+// Revision 1.33  2009/10/27 16:52:21  martius
 // documentation
 //
 // Revision 1.32  2009/10/27 12:50:27  martius
@@ -419,11 +422,17 @@ namespace matrix{
     */
     static Matrix map2( D (*fun)(D,D), const Matrix& a, const Matrix& b);
 
-    /** binary map operator for matrices with parameter.
-       The resulting matrix consists of the function values applied to the elements of a and b.
-       In haskell this would something like: map (uncurry . (fun p)) $ zip a b
-    */
+    /** like map2 but with additional parameter.
+	The first argument of fun is the parameter and the second and third
+	comes from the matrix elements.
+	In haskell this would something like: map (uncurry . (fun p)) $ zip a b
+     */
+    static Matrix map2P( D param, D (*fun)(D, D,D), const Matrix& a, const Matrix& b);
+    /** like map2P but with arbitrary paramters (void*) instead of double
+     */
     static Matrix map2P( void* param, D (*fun)(void*, D,D), const Matrix& a, const Matrix& b);
+
+
 
     /** row-wise multiplication
 	@param factors column vector (Mx1) of factors, one for each row
@@ -534,9 +543,12 @@ namespace matrix{
     /**  like toMap, but with an extra arbitrary parameter for the mapping function. */
     Matrix& toMapP(void* param, D (*fun)(void*, D));
 
-    /**  like toMap, but with 2 arguments for the mapping function. */
+    /**  like toMap, but with using 2 matrices */
     Matrix& toMap2(D (*fun)(D,D), const Matrix& b);
 
+    /**  like toMap2, but with additional parameter */
+    Matrix& toMap2P( D param, D (*fun)(D, D,D), const Matrix& b);
+    /**  like toMap2P, but with arbitrary parameter */
     Matrix& toMap2P( void* param, D (*fun)(void*, D,D), const Matrix& b);
 
     // Exotic operations
