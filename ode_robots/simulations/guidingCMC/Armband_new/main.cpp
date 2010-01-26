@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-01-26 10:50:17  martius
+ *   Revision 1.4  2010-01-26 10:53:53  martius
+ *   k can be changed on console (fixed)
+ *   cmd command for teaching is called -guided
+ *
+ *   Revision 1.3  2010/01/26 10:50:17  martius
  *   k can be changed on the console
  *
  *   Revision 1.2  2010/01/26 10:26:45  martius
@@ -121,6 +125,7 @@ public:
     controller=0;
 
     addParameterDef("k",&k,0);
+    global.configs.push_back(this);
 
     for(int i=0; i< bars; i++){
       PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)), 
@@ -238,7 +243,7 @@ public:
 
 int main (int argc, char **argv)
 { 
-  int index = Simulation::contains(argv,argc,"-sym");
+  int index = Simulation::contains(argv,argc,"-guide");
   if(index >0 && argc>index){
     teacher=atof(argv[index]); 
     useSym = 1;  
