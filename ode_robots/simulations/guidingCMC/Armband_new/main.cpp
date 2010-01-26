@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-07 14:39:52  martius
+ *   Revision 1.2  2010-01-26 10:26:45  martius
+ *   added bars (optional)
+ *   cmc in extra function
+ *
+ *   Revision 1.1  2009/08/07 14:39:52  martius
  *   guidance of SO with Cross Motor Couplings
  *
  *   Revision 1.7  2009/03/30 18:51:43  martius
@@ -60,6 +64,7 @@
 #include <ode_robots/playground.h>
 #include <ode_robots/complexplayground.h>
 #include <ode_robots/passivesphere.h>
+#include <ode_robots/passivebox.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/semox.h>
@@ -79,8 +84,9 @@ const int segmnum = 13;
 bool useSym = false;
 double teacher = 0;
 int change = 5;  // every x minutes change direction
-bool track = true;
+bool track = false;
 int k=0;
+int bars=0;
 
 class ThisSim : public Simulation {
 public:
@@ -93,7 +99,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(-5.44372, 7.37141, 3.31768),  Pos(-142.211, -21.1623, 0));
+    setCameraHomePos(Pos(-1.55424, 10.0881, 1.58559),  Pos(-170.16, -7.29053, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -109,6 +115,13 @@ public:
 //     global.obstacles.push_back(playground);    
     controller=0;
 
+    for(int i=0; i< bars; i++){
+      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)), 
+				     osg::Vec3(1,10,0.3+i*.1),10);
+      b->setPosition(osg::Vec3(10+i*7,0,0));      
+      global.obstacles.push_back(b);    
+    }
+      
     /******* S L I D E R - w H E E L I E *********/
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     mySliderWheelieConf.segmNumber   = segmnum;
@@ -122,7 +135,7 @@ public:
     vehicle = new SliderWheelie(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
 				mySliderWheelieConf, "sliderWheelie_" + std::itos(teacher*10000));
 
-    vehicle->place(Pos(0,0,0.1));    
+    vehicle->place(Pos(0,0,2));    
     global.configs.push_back(vehicle);
 
 //     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
@@ -135,7 +148,8 @@ public:
 //     semox->setParam("teacher", teacher);
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
-    cc.cInit=1.0;
+    //cc.cInit=.95;
+    cc.cInit=.5;
     cc.modelExt=false;
     cc.someInternalParams=true;
     SeMoX* semox = new SeMoX(cc);  
@@ -168,40 +182,34 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, 
-						 change < 50 ? std::itos(change).c_str() : "uni", 50));
+						 change != 0 ? std::itos(change).c_str() : "uni", 50));
     global.agents.push_back(agent);
     global.configs.push_back(controller);
-     
-    if(useSym){
-      int k= 0;
-      std::list<int> perm;
-      int len  = controller->getMotorNumber();
-      for(int i=0; i<len; i++){
-	perm.push_back((i+k+(len)/2)%len);
-      }
-      CMC cmc = controller->getPermutationCMC(perm);
-      controller->setCMC(cmc);
-    }
 
+    setCMC(0);
 
     showParams(global.configs);
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control && controller){
-      if(useSym){
-	int k= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every 10 minutes
-	std::list<int> perm;
-	int len  = controller->getMotorNumber();
-	for(int i=0; i<len; i++){
- 	  perm.push_back((i+k+(len)/2)%len);
-	}
-	CMC cmc = controller->getPermutationCMC(perm);
-	controller->setCMC(cmc);
+      if(useSym && change>0){	
+	int k= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every n minutes
+	setCMC(k);
       }
     }
 
   };
+
+  virtual void setCMC(int k){
+    std::list<int> perm;
+    int len  = controller->getMotorNumber();
+    for(int i=0; i<len; i++){
+      perm.push_back((i+k+(len)/2)%len);
+    }
+    CMC cmc = controller->getPermutationCMC(perm);
+    controller->setCMC(cmc);    
+  }
 
 };
 
@@ -216,6 +224,10 @@ int main (int argc, char **argv)
   index = Simulation::contains(argv,argc,"-change");
   if(index >0 && argc>index){
     change=atoi(argv[index]); 
+  }
+  index = Simulation::contains(argv,argc,"-bars");
+  if(index >0 && argc>index){
+    bars=atoi(argv[index]); 
   }
   track = Simulation::contains(argv,argc,"-notrack") == 0;
 
