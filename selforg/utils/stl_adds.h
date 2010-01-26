@@ -20,13 +20,25 @@ namespace std {
 
   /// += operators for list (list concat)
   template <class T, class A>
-    list<T,A>& operator += (list<T,A>& l1, const list<T,A>& l2)
-    { l1.insert(l1.end(), l2.begin(), l2.end()); return l1;}
+    list<T,A>& operator += (list<T,A>& l1, const list<T,A>& l2) { 
+    l1.insert(l1.end(), l2.begin(), l2.end()); 
+    return l1;
+  }
 
   /// += operators for list (append)
   template <class T, class A>
-    list<T,A>& operator += (list<T,A>& l1, const T& v)
-    { l1.push_back(v); return l1;}
+    list<T,A>& operator += (list<T,A>& l1, const T& v) { 
+    l1.push_back(v); 
+    return l1;
+  }
+
+  /// + operators for lists (list concat)
+  template <class T, class A>
+    list<T,A> operator + (const list<T,A>& l1, const list<T,A>& l2) { 
+    list<T,A> rv(l1.begin(),l1.end());
+    rv += l2;
+    return rv;
+  }
 
   string itos(int i);
 
