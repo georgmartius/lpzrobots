@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-03-25 15:44:23  guettler
+ *   Revision 1.6  2010-01-26 09:58:15  martius
+ *   changed a lot parameter
+ *
+ *   Revision 1.5  2009/03/25 15:44:23  guettler
  *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
  *
  *   Revision 1.4  2008/05/01 22:03:56  martius
@@ -85,25 +88,37 @@ public:
     // initialization
     // - set noise to 0.01
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("realtimefactor",0);
+    global.odeConfig.setParam("controlinterval",4);
+    global.odeConfig.setParam("simstepsize",0.005);
+    global.odeConfig.setParam("gravity",-6);
+    global.odeConfig.setParam("realtimefactor",1);
 
-    double height = 1.0;
+    int numSnakeLong=0;
+    int numNimm4=1;
+    int numHurling=0;
+    int numSphere=3;
+    int numPlattfuss=0;
+    int numSnake=0;
 
+    double height = .3;
+
+    OdeHandle groundHandle(odeHandle);
+    groundHandle.substance.toPlastic(1.5);
     Playground* playground =
-      new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.2, height+1.5));
+      new Playground(groundHandle, osgHandle,osg::Vec3(20, 0.2, height+1.5));
     playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
     playground->setTexture("Images/really_white.rgb");
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
-
+        
     TerrainGround* terrainground =
-      new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,194.0/255.0,41.0/255.0)),
-			"terrains/macrospheresTex_256.ppm",
-//			"terrains/zoo_landscape2.ppm",
+      new TerrainGround(groundHandle, osgHandle.changeColor(Color(1.0f,1.0,0.0/*196.0/255.0,41.0/255.0*/)),
+//			"terrains/macrospheresTex_256.ppm",
+			"terrains/zoo_landscape1.ppm",
+//			"terrains/terrain_bumpInDip128.ppm",
 			//"",
-			"Images/dusty.rgb",
-			// "terrains/terrain_bumpInDip128.ppm",
+//			"Images/dusty.rgb",
+			"terrains/zoo_landscape_texture.ppm",
 			20, 20, height, OSGHeightField::Red);
     terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
     global.obstacles.push_back(terrainground);
@@ -111,14 +126,15 @@ public:
     InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
 
 
-//     for(int i=0; i<5; i++){
-//       PassiveSphere* s =
-// 	new PassiveSphere(odeHandle,
-// 			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
-//       s->setPosition(Pos(i*0.5-2, i*0.5, height));
-//       s->setTexture("Images/dusty.rgb");
-//       global.obstacles.push_back(s);
-//     }
+    for(int i=0; i<3; i++){
+      PassiveSphere* s =
+	new PassiveSphere(odeHandle,
+			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)),
+			  0.3);
+      s->setPosition(Pos(-1 , i*2-2, height+0.05));
+      s->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s);
+    }
 
 //     for(int i=0; i<5; i++){
 //       PassiveBox* b =
@@ -170,21 +186,22 @@ public:
 
 
     //******* S C H L A N G E  (Long)  *********/
-    SchlangeServo2* snake;
-    SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
-    snakeConf.segmNumber=4;
-    snakeConf.frictionGround=0.01;
-
-    snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" );
-    ((OdeRobot*) snake)->place(Pos(4,4,height));
-    controller = new InvertMotorNStep(invertnconf);
-    wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( std::list<PlotOption>() );
-    agent->init(controller, snake, wiring);
-    global.agents.push_back(agent);
-    global.configs.push_back(controller);
-    global.configs.push_back(snake);
-
+    for(int r=0; r<numSnakeLong;  r++){
+      SchlangeServo2* snake;
+      SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
+      snakeConf.segmNumber=4;
+      snakeConf.frictionGround=0.01;
+      
+      snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" );
+      ((OdeRobot*) snake)->place(Pos(4,4+3*r,height));
+      controller = new InvertMotorNStep(invertnconf);
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent( std::list<PlotOption>() );
+      agent->init(controller, snake, wiring);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.configs.push_back(snake);
+    }
 
 //     //******* N I M M  2 *********/
 //     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
@@ -204,27 +221,29 @@ public:
 //     }
 
     //******* N I M M  4 *********/
-    for(int r=0; r < 2; r++) {
+    for(int r=0; r < numNimm4; r++) {
       robot = new Nimm4(odeHandle, osgHandle, "Nimm4_" + std::itos(r));
-      robot->place(Pos((r-1)*5, -3, height));
-      controller = new InvertMotorSpace(20);
-      controller->setParam("s4avg",10);
-      controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
+      robot->place(Pos((r-1)*5, -3, height+0.05));
+      InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+      cc.cInit=1.01;
+      controller = new InvertMotorNStep(cc);
+      controller->setParam("s4avg",3);
+      controller->setParam("factorB",0.1); // not needed here and it does some harm on the behaviour
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( std::list<PlotOption>() );
+      agent = new OdeAgent(plotoptions); //  std::list<PlotOption>() 
       agent->init(controller, robot, wiring);
       global.agents.push_back(agent);
     }
 
     //****** H U R L I N G **********/
     InvertMotorNStepConf invertnconf2 = InvertMotorNStep::getDefaultConf();
-    for(int r=0; r < 3; r++) {
+    for(int r=0; r < numHurling; r++) {
       HurlingSnake* snake;
       Color c;
       if (r==0) c=Color(0.8, 0.8, 0);
       if (r==1) c=Color(0,   0.8, 0);
       snake = new HurlingSnake(odeHandle, osgHandle.changeColor(c), "HurlingSnake_" + std::itos(r));
-      ((OdeRobot*) snake)->place(Pos(r*5-4,-6, height));
+      ((OdeRobot*) snake)->place(Pos(r*5-4,-6, height+0.2));
       invertnconf2.cInit=1.5;
       controller = new InvertMotorNStep(invertnconf2);
       controller->setParam("steps", 2);
@@ -248,25 +267,24 @@ public:
     }
 
     //****** S P H E R E **********/
-    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
-    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
-    Sphererobot3Masses* sphere1 =
-      new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),
-				       conf, "Sphere1", 0.2);
-    ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , height ));
-    controller = new InvertMotorSpace(15);
-    controller->setParam("sinerate", 40);
-    controller->setParam("phaseshift", 0.0);
-    One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
-    agent = new OdeAgent ( std::list<PlotOption>() );
-    agent->init ( controller , sphere1 , wiring2 );
-    global.agents.push_back ( agent );
-    global.configs.push_back ( controller );
-
+    for(int r=0; r < numSphere; r++) {    
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+      Sphererobot3Masses* sphere1 =
+	new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(r!=1,r==4,r==1)),
+				 conf, "Sphere1", 0.2);
+      ((OdeRobot*)sphere1)->place ( Pos( -2.5*r , 0 , height+0.05));
+      controller = new InvertMotorSpace(15);
+      One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
+      agent = new OdeAgent ( r==4? plotoptions : std::list<PlotOption>() );
+      agent->init ( controller , sphere1 , wiring2 );
+      global.agents.push_back ( agent );
+      global.configs.push_back ( controller );
+    }
 
     //creation of flatfoot  snakes
     //****** PLATTFUSS **********/
-    for(int i=0; i<0; i++){
+    for(int i=0; i<numPlattfuss; i++){
 
       //****************/
       SchlangeConf conf = Schlange::getDefaultConf();
@@ -285,45 +303,29 @@ public:
 	  //new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
 	  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
 				  conf, "S1");
+	schlange1->setHeadColor(Color(1.0,0,0));
       } else {
 	schlange1 =
 	  //new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
 	  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
 				  conf, "S2");
+	schlange1->setHeadColor(Color(0,1.0,0));
       }
+      schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
+
       //Positionieren und rotieren
       schlange1->place(osg::Matrix::rotate(M_PI/2, 0, 1, 0)*
 		       // osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
 		       osg::Matrix::translate(-7+0.7*i,0,(i+1)*(2+conf.segmNumber)/2.0/*+2*/));
-      schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
-      if (i==0) {
-	schlange1->setHeadColor(Color(1.0,0,0));
-      } else {
-	schlange1->setHeadColor(Color(0,1.0,0));
-      }
-
-
-      //AbstractController *controller = new InvertNChannelController(100/*,true*/);
-      //      AbstractController *controller = new InvertMotorNStep();
-      AbstractController *controller = new DerController();
-      //AbstractController *controller = new SineController();
-
-      //  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
+      DerControllerConf cc = DerController::getDefaultConf();
+      cc.cInit=1.15;
+      AbstractController *controller = new DerController(cc);
       DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
       c.useId = false;
       c.useFirstD = true;
       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
 
-      //     AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
-      //DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
-      //c.useId = true;
-      //c.useFirstD = true;
-      //   c.derivativeScale=10;
-      //   DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
-
-
-
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent();
       agent->init(controller, schlange1, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -352,15 +354,15 @@ public:
 
     //****** SNAKES **********/
     //creation of normal   snakes
-    for(int i=0; i<0; i++){
+    for(int i=0; i<numSnake; i++){
 
       //****************/
       SchlangeConf conf = Schlange::getDefaultConf();
       conf.segmMass   = .2;
       conf.segmLength=.8;
       conf.segmDia=.2;
-      conf.motorPower=.5;
-      conf.segmNumber = 10+4*i;//-i/2;
+      conf.motorPower=3;
+      conf.segmNumber = 5+2*i;//-i/2;
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit*2.0;
       conf.frictionGround=0.2;// +((double)i)/100;
@@ -391,7 +393,9 @@ public:
 
 
       //      AbstractController *controller = new InvertMotorNStep();
-      AbstractController *controller = new DerController();
+      DerControllerConf cc = DerController::getDefaultConf();
+      cc.cInit=1.2;
+      AbstractController *controller = new DerController(cc);
       //AbstractController *controller = new SineController();
 
       //  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
@@ -400,7 +404,7 @@ public:
       c.useFirstD = true;
       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
 
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent();
       agent->init(controller, schlange1, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
