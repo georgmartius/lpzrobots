@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.114  2009-11-26 16:53:27  fhesse
+ *   Revision 1.115  2010-01-26 09:31:26  martius
+ *   indentation
+ *
+ *   Revision 1.114  2009/11/26 16:53:27  fhesse
  *   ntst (no timestamp in logfilename) option added to simulation
  *
  *   Revision 1.113  2009/10/29 15:09:52  martius
@@ -1119,9 +1122,9 @@ namespace lpzrobots {
  	// call all registered physical callbackable classes
   QP(PROFILER.beginBlock("physicsCB                    "));
   /*if (useQMPThreads!=0)*/
-    callBackQMP(Base::PHYSICS_CALLBACKABLE);
-  /*else
-    callBack(Base::PHYSICS_CALLBACKABLE);*/
+  callBackQMP(Base::PHYSICS_CALLBACKABLE);
+  /*else*/
+  //  callBack(Base::PHYSICS_CALLBACKABLE);
   QP(PROFILER.endBlock("physicsCB                    "));
 
 	// remove old signals from sound list
