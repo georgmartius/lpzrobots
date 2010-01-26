@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-01-26 10:26:45  martius
+ *   Revision 1.3  2010-01-26 10:50:17  martius
+ *   k can be changed on the console
+ *
+ *   Revision 1.2  2010/01/26 10:26:45  martius
  *   added bars (optional)
  *   cmc in extra function
  *
@@ -90,6 +93,8 @@ int bars=0;
 
 class ThisSim : public Simulation {
 public:
+  StatisticTools stats;
+  double k_double;
 
   CrossMotorCoupling* controller;
   //  SeMoX* controller;
@@ -114,6 +119,8 @@ public:
 //     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
 //     global.obstacles.push_back(playground);    
     controller=0;
+
+    addParameterDef("k",&k,0);
 
     for(int i=0; i< bars; i++){
       PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)), 
@@ -186,7 +193,12 @@ public:
     global.agents.push_back(agent);
     global.configs.push_back(controller);
 
-    setCMC(0);
+    this->getHUDSM()->setColor(Color(1.0,1.0,0));
+    this->getHUDSM()->setFontsize(18);    
+    this->getHUDSM()->addMeasure(teacher,"gamma_s",ID,1);
+    this->getHUDSM()->addMeasure(k_double,"k",ID,1);
+
+    setCMC(k);
 
     showParams(global.configs);
   }
@@ -199,9 +211,10 @@ public:
       }
     }
 
-  };
+  }
 
   virtual void setCMC(int k){
+    k_double=k;
     std::list<int> perm;
     int len  = controller->getMotorNumber();
     for(int i=0; i<len; i++){
@@ -209,6 +222,15 @@ public:
     }
     CMC cmc = controller->getPermutationCMC(perm);
     controller->setCMC(cmc);    
+  }
+
+  // overloaded from configurable
+  virtual bool setParam(const paramkey& key, paramval val){
+    bool rv = Configurable::setParam(key,val);
+    if(key=="k"){
+      setCMC(k);
+    }
+    return rv;
   }
 
 };
