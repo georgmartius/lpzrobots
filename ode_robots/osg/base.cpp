@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.40  2009-11-26 10:16:07  martius
+ *   Revision 1.41  2010-01-26 10:11:47  martius
+ *   unbelievable, the createHUD problem was not solved. Here we go, hopefully...
+ *
+ *   Revision 1.40  2009/11/26 10:16:07  martius
  *   hopefully finally fixed the createHUD problem.
  *   the getHUD function only creates a HUD that is detached. That is why
  *   there is the new createHUDManager function
@@ -649,7 +652,7 @@ namespace lpzrobots {
   }
 
   void  Base::createHUDManager(osg::Geode* geode, osgText::Font* font){
-    hUDStatisticsManager = new HUDStatisticsManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
+    hUDStatisticsManager = new HUDStatisticsManager(geode,font);
     this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
     this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
   }
