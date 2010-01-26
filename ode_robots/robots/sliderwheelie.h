@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-08-10 07:48:55  guettler
+ *   Revision 1.14  2010-01-26 09:56:31  martius
+ *   added dummy center also with velocity
+ *
+ *   Revision 1.13  2009/08/10 07:48:55  guettler
  *   removed typedef to avoid compiler warnings
  *
  *   Revision 1.12  2009/03/27 20:45:03  martius
@@ -105,6 +108,7 @@ namespace lpzrobots {
     double jointLimitOut; ///< maximal angle for the joints to the outside
     double sliderLength;  ///< length of the slider in segmLength (0 for no sliders)
     MotorType motorType;  ///< whether to use servos or angular motors
+    bool drawCenter;      ///< draw virtual center
   } SliderWheelieConf;
   
 
@@ -128,6 +132,7 @@ namespace lpzrobots {
     std::vector <SliderServo*> sliderServos;
 
     Primitive* center; // virtual center object (position updated on setMotors)
+    DummyPrimitive* dummycenter; // virtual center object (here we can also update velocity)
   public:
     SliderWheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		  const SliderWheelieConf& conf, const std::string& name, 
@@ -151,6 +156,7 @@ namespace lpzrobots {
       conf.jointLimitOut   =  -1; // automatically set to 2*M_PI/segm_num
       conf.sliderLength    =  1;  
       conf.motorType       = SliderWheelieConf::CenteredServo; // use centered servos
+      conf.drawCenter      = true;
       return conf;
     }
 
@@ -173,11 +179,11 @@ namespace lpzrobots {
       return hingeServos.size()+angularMotors.size()+sliderServos.size(); }
 
     virtual Primitive* getMainPrimitive() const {
-      if(center) return center;
+      if(dummycenter) return dummycenter;
       else if(!objects.empty()){
 	return (objects[0]);
       }else return 0;
-    }
+    } 
     
     virtual paramlist getParamList() const;
     

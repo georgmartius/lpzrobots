@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2009-03-27 20:45:03  martius
+ *   Revision 1.20  2010-01-26 09:56:31  martius
+ *   added dummy center also with velocity
+ *
+ *   Revision 1.19  2009/03/27 20:45:03  martius
  *   motor type can be selected
  *
  *   Revision 1.18  2009/03/26 20:25:35  martius
@@ -110,6 +113,7 @@ namespace lpzrobots {
   {
         created=false;
 	center=0;
+	dummycenter=0;
   }
 	
   SliderWheelie::~SliderWheelie() {
@@ -161,11 +165,16 @@ namespace lpzrobots {
    /// update center position
    if(center){ 
      Pos p;
+     Pos v;
      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
        p += (*i)->getPosition();
+       v += (*i)->getVel();
      }
      p /= objects.size();
+     v /= objects.size();
      center->setPosition(p);
+     dummycenter->setPosition(p);
+     dummycenter->setVel(v);
    }
   }
 
@@ -268,7 +277,11 @@ namespace lpzrobots {
       HingeJoint* j = new HingeJoint(objects[o1], objects[o2],
 				     ancors[n],
 				     Axis(0,1,0)*pose);
-      j->init(odeHandle, osgHandle, true, conf.segmDia*4);      
+      Color c;
+      if(n==0) c = Color(0.85,0.88,0.88);
+      else if(n == conf.segmNumber/2) c = Color(0.6,0.56,0); 
+      else c = osgHandle.color;
+      j->init(odeHandle, osgHandle.changeColor(c), true, conf.segmDia*4);      
       joints.push_back(j);
       
       HingeServo* servo;
@@ -296,11 +309,13 @@ namespace lpzrobots {
     // create virtual center
     center = new Sphere(0.1);
     OdeHandle centerHandle = odeHandle;
-    centerHandle.substance.toNoContact();
+    centerHandle.substance.toNoContact();    
     center->init(centerHandle, 0, osgHandle.changeAlpha(0.4), 
-		 Primitive::Geom | Primitive::Draw); 
+		 Primitive::Geom | (conf.drawCenter ? Primitive::Draw : 0) ); 
     center->setPose(osg::Matrix::translate(0,0,0) * pose);
-
+    dummycenter = new DummyPrimitive();
+    dummycenter->setPosition(center->getPosition());
+    
     created=true;
 
   }
@@ -331,6 +346,8 @@ namespace lpzrobots {
       FOREACH(vector<Primitive*>, objects, i){
 	if(*i) delete *i;
       }
+      if(center) delete center;
+      if(dummycenter) delete dummycenter;
       objects.clear();
       odeHandle.deleteSpace();
    }
