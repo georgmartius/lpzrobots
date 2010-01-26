@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-09-16 14:53:40  martius
+ *   Revision 1.9  2010-01-26 09:54:56  martius
+ *   getposition and getVel... is done via the primitives
+ *
+ *   Revision 1.8  2008/09/16 14:53:40  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.7  2008/05/07 16:45:52  martius
@@ -125,26 +128,25 @@ Position OdeRobot::getPosition() const {
     // using the Geom has maybe the advantage to get the position of transform objects 
     // (e.g. hand of muscledArm)
   if (o){
-    if(o->getGeom())
-      return Position(dGeomGetPosition(o->getGeom()));
-    else if(o->getBody())
-      return Position(dBodyGetPosition(o->getBody()));     
-  }  
-  return Position(0,0,0);
+    return o->getPosition().toPosition();
+  }else   
+    return Position(0,0,0);
 }
 
 Position OdeRobot::getSpeed() const {
   const Primitive* o = getMainPrimitive();
-  if(o && o->getBody())
-    return Position(dBodyGetLinearVel(o->getBody()));     
-  else return Position(0,0,0);
+  if(o)
+    return o->getVel().toPosition();
+  else 
+    return Position(0,0,0);
 }
 
 Position OdeRobot::getAngularSpeed() const {
   const Primitive* o = getMainPrimitive();
-  if (o && o->getBody())
-    return Position(dBodyGetAngularVel(o->getBody()));     
-  else return Position(0,0,0);
+  if (o)    
+    return o->getAngularVel().toPosition();
+  else 
+    return Position(0,0,0);
 }
 
 matrix::Matrix OdeRobot::getOrientation() const {
