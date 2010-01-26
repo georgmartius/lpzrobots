@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-05 23:25:23  martius
+ *   Revision 1.2  2010-01-26 09:59:43  martius
+ *   13 segments!
+ *
+ *   Revision 1.1  2009/08/05 23:25:23  martius
  *   new simulations of Georg
  *
  *   Revision 1.7  2009/03/30 18:51:43  martius
@@ -73,7 +76,7 @@
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
-const int segmnum=14;
+const int segmnum=13;
 bool useSym = false;
 double teacher = 0;
 int change = 5;  // every x minutes change direction
