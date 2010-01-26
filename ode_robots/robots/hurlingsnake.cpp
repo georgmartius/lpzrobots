@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2009-03-13 09:19:53  martius
+ *   Revision 1.21  2010-01-26 09:53:06  martius
+ *   changed to new collision model
+ *
+ *   Revision 1.20  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -187,59 +190,59 @@ namespace lpzrobots {
 
   void HurlingSnake::doInternalStuff(GlobalData& global){
     // mycallback is called for internal collisions! Only once per step
-    dSpaceCollide(odeHandle.space, this, mycallback);
+    //    dSpaceCollide(odeHandle.space, this, mycallback);
   }
 
-  void HurlingSnake::mycallback(void *data, dGeomID o1, dGeomID o2){
-    // internal collisions
-    HurlingSnake* me = (HurlingSnake*)data;  
-    int i,n;  
-    const int N = 10;
-    dContact contact[N];  
-    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-    for (i=0; i<n; i++){
-       contact[i].surface.mode = 0;
-       contact[i].surface.mu = 0;
-       contact[i].surface.mu2 = 0;
-//      contact[i].surface.mode = // dContactSlip1 | dContactSlip2 |
-//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-//      contact[i].surface.mu = 0.0;
-      //      contact[i].surface.slip1 = 0.005;
-      //      contact[i].surface.slip2 = 0.005;
-      //      contact[i].surface.soft_erp = 0.999;
-      //      contact[i].surface.soft_cfm = 0.001;
-      dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
-      dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
-    }
-  }
-  bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space){
+//   void HurlingSnake::mycallback(void *data, dGeomID o1, dGeomID o2){
+//     // internal collisions
+//     HurlingSnake* me = (HurlingSnake*)data;  
+//     int i,n;  
+//     const int N = 10;
+//     dContact contact[N];  
+//     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+//     for (i=0; i<n; i++){
+//        contact[i].surface.mode = 0;
+//        contact[i].surface.mu = 0;
+//        contact[i].surface.mu2 = 0;
+// //      contact[i].surface.mode = // dContactSlip1 | dContactSlip2 |
+// //	dContactSoftERP | dContactSoftCFM | dContactApprox1;
+// //      contact[i].surface.mu = 0.0;
+//       //      contact[i].surface.slip1 = 0.005;
+//       //      contact[i].surface.slip2 = 0.005;
+//       //      contact[i].surface.soft_erp = 0.999;
+//       //      contact[i].surface.soft_cfm = 0.001;
+//       dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
+//       dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
+//     }
+//   }
+//   bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
+//     //checks if one of the collision objects is part of the robot
+//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space){
 
-      // the rest is for collisions of some snake elements with the rest of the world
-      int i,n;  
-      const int N = 20;
-      dContact contact[N];
+//       // the rest is for collisions of some snake elements with the rest of the world
+//       int i,n;  
+//       const int N = 20;
+//       dContact contact[N];
 
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++){
- 	contact[i].surface.mode = 0;
- 	contact[i].surface.mu = frictionGround;
- 	contact[i].surface.mu2 = 0;
-// 	contact[i].surface.mode = // dContactSlip1 | dContactSlip2 |
-//  	  dContactSoftERP | dContactSoftCFM;// | dContactApprox1;
+//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+//       for (i=0; i<n; i++){
+//  	contact[i].surface.mode = 0;
 //  	contact[i].surface.mu = frictionGround;
-// // 	// 	contact[i].surface.slip1 = 0.005;
-// // 	// 	contact[i].surface.slip2 = 0.005;
-//  	contact[i].surface.soft_erp = 0.999;
-//  	contact[i].surface.soft_cfm = 0.001;
-	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
-      }
-      return true;
-    }
-    return false;
-  }
+//  	contact[i].surface.mu2 = 0;
+// // 	contact[i].surface.mode = // dContactSlip1 | dContactSlip2 |
+// //  	  dContactSoftERP | dContactSoftCFM;// | dContactApprox1;
+// //  	contact[i].surface.mu = frictionGround;
+// // // 	// 	contact[i].surface.slip1 = 0.005;
+// // // 	// 	contact[i].surface.slip2 = 0.005;
+// //  	contact[i].surface.soft_erp = 0.999;
+// //  	contact[i].surface.soft_cfm = 0.001;
+// 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
+// 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
+//       }
+//       return true;
+//     }
+//     return false;
+//   }
 
   
 
