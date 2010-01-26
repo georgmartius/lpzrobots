@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.31  2009-03-13 09:19:53  martius
+ *   Revision 1.32  2010-01-26 09:55:26  martius
+ *   new collision model
+ *
+ *   Revision 1.31  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -130,83 +133,7 @@ namespace lpzrobots {
   }
 
   void Schlange::doInternalStuff(GlobalData& global){
-    if(created){
-      // mycallback is called for internal collisions! Only once per step
-      dSpaceCollide(odeHandle.space, this, mycallback);
-    }
   }
-
-  void Schlange::mycallback(void *data, dGeomID o1, dGeomID o2)
-  {
-    Schlange* me = (Schlange*) data;
-    int i=0;
-    int o1_index= -1;
-    int o2_index= -1;
-    for (vector<Primitive*>::iterator n = me->objects.begin(); n!= me->objects.end(); n++, i++){      
-      if( (*n)->getGeom() == o1)
-	o1_index=i;
-      if( (*n)->getGeom() == o2)
-	o2_index=i;
-    }
-
-    if(o1_index >= 0 && o2_index >= 0 && abs(o1_index - o2_index) > 1){
-      // internal collisions
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];  
-      n = dCollide (o1, o2, N, &contact[0].geom, sizeof(dContact));	  
-      for (i=0; i<n; i++) {
-	contact[i].surface.mode = 0;
-	contact[i].surface.mu = 0;
-	contact[i].surface.mu2 = 0;
-	dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;     
-      }
-    }
-  } 
-  
-
-  /**
-   *This is the collision handling function for snake robots.
-   *This overwrides the function collisionCallback of the class robot.
-   *@param data
-   *@param o1 first geometrical object, which has taken part in the collision
-   *@param o2 second geometrical object, which has taken part in the collision
-   *@return true if the collision was threated  by the robot, false if not
-   **/
-  bool Schlange::collisionCallback(void *data, dGeomID o1, dGeomID o2)
-  {
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-      int i,n;  
-
-      const int N = 100;
-      dContact contact[N];
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++){
-	
-	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
-	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.005;
-	contact[i].surface.slip2 = 0.005;
-	contact[i].surface.mu = conf.frictionGround; //*10;
-	//      contact[i].surface.mu2 = conf.frictionGround;
-
-
-	contact[i].surface.soft_erp = 0.9;
-	contact[i].surface.soft_cfm = 0.01;
-
-	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
-      }
-      return true;
-    }
-    return false;
-  }
-
-
 
   /** The list of all parameters with there value as allocated lists.
       @return length of the lists
