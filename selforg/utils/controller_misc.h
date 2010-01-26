@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-05 22:48:27  martius
+ *   Revision 1.11  2010-01-26 09:49:37  martius
+ *   added power function for matrix map
+ *
+ *   Revision 1.10  2009/08/05 22:48:27  martius
  *   changed many function for mapP to a normal double parameter
  *
  *   Revision 1.9  2008/05/30 11:58:27  martius
@@ -174,6 +177,9 @@ double one_over(double x);
 
 /// returns c (useful for Matrix::mapP to fill matrix with constant value)
 double constant(double c, double);
+
+/// returns x the power c (as a double)
+double power(void* c, double x);
 
 /// creates random number from -1 to 1
 double random_minusone_to_one(double);
