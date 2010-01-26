@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2009-10-23 12:47:13  guettler
+ *   Revision 1.25  2010-01-26 09:38:17  martius
+ *   getVelocity, getAngularVel added
+ *
+ *   Revision 1.24  2009/10/23 12:47:13  guettler
  *   hack for tasked simulations:
  *   there are some problems if running in parallel mode,
  *   if you do not destroy the geom, everything is fine
@@ -284,8 +287,7 @@ namespace lpzrobots{
       getOSGPrimitive()->setTexture(surface, filename, repeatOnX, repeatOnY);
   }
 
-
-  void Primitive::setPosition(const osg::Vec3& pos){
+  void Primitive::setPosition(const Pos& pos){
     if(body){
       dBodySetPosition(body, pos.x(), pos.y(), pos.z());
     }else if(geom){ // okay there is just a geom no body
@@ -317,9 +319,9 @@ namespace lpzrobots{
     update(); // update the scenegraph stuff
   }
 
-  osg::Vec3 Primitive::getPosition() const {
-    if(body) return Pos(dBodyGetPosition(body));
-    else if(geom) return Pos(dGeomGetPosition(geom));
+  Pos Primitive::getPosition() const {
+    if(geom) return Pos(dGeomGetPosition(geom));
+    else if(body) return Pos(dBodyGetPosition(body));
     else return Pos(0,0,0);
   }
 
@@ -332,6 +334,19 @@ namespace lpzrobots{
     }
     return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
   }
+
+  Pos Primitive::getVel() const{  
+    if(body)
+      return Pos(dBodyGetLinearVel(body));     
+    else return Pos(0,0,0);
+  }
+
+  Pos Primitive::getAngularVel() const {
+    if(body)
+      return Pos(dBodyGetAngularVel(body));     
+    else return Pos(0,0,0);
+  }
+  
 
   dGeomID Primitive::getGeom() const { 
    return geom;    

@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2009-10-23 12:47:13  guettler
+ *   Revision 1.20  2010-01-26 09:38:17  martius
+ *   getVelocity, getAngularVel added
+ *
+ *   Revision 1.19  2009/10/23 12:47:13  guettler
  *   hack for tasked simulations:
  *   there are some problems if running in parallel mode,
  *   if you do not destroy the geom, everything is fine
@@ -159,6 +162,7 @@
 #include <osg/Matrix>
 #include <ode/common.h>
 
+#include "pos.h"
 #include "substance.h"
 // another forward declaration "block"
 #include "osgforwarddecl.h"
@@ -247,13 +251,17 @@ public:
 
 
   /// set the position of the primitive (orientation is preserved)
-  void setPosition(const osg::Vec3& pos);
+  virtual void setPosition(const Pos& pos);
   /// set the pose of the primitive
-  void setPose(const osg::Matrix& pose);
+  virtual void setPose(const osg::Matrix& pose);
   /// returns the position
-  osg::Vec3 getPosition() const;
+  virtual Pos getPosition() const;
   /// returns the pose
-  osg::Matrix getPose() const;
+  virtual osg::Matrix getPose() const;
+  // returns the velocity
+  virtual Pos getVel() const;  
+  // returns the angular velocity
+  virtual Pos getAngularVel() const;
 
   /// sets the mass of the body (uniform)
   virtual void setMass(double mass) = 0;
@@ -490,7 +498,9 @@ protected:
 
 /**
    Dummy Primitive which returns 0 for geom and body. 
-   Only useful for representing the static world in terms of primitives.
+   Only useful for representing the static world in terms of primitives
+   or if virtual objects are created, but then the position and speed has
+   to be set manually.
 */
 class DummyPrimitive : public Primitive {
 public:
@@ -506,7 +516,23 @@ public:
   virtual OSGPrimitive* getOSGPrimitive() { return 0; }
 
   virtual void setMass(double mass) {}
+
+  virtual void setPosition(Pos pos){
+    this->pos=pos;
+  }
+  virtual Pos getPosition() const {
+    return pos;
+  }
+  virtual void setVel(Pos vel){
+    this->vel=vel;
+  }
+  virtual Pos getVel() const {
+    return vel;
+  }
   
+private:
+  Pos vel;
+  Pos pos;
 };
 
 
