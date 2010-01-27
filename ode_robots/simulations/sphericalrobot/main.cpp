@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2009-12-01 15:50:30  martius
+ *   Revision 1.29  2010-01-27 10:21:17  martius
+ *   nothing
+ *
+ *   Revision 1.28  2009/12/01 15:50:30  martius
  *   "repaired" barrel
  *
  *   Revision 1.27  2009/08/05 23:25:57  martius
@@ -454,7 +457,7 @@ public:
       }
     }
   }
-  
+
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
