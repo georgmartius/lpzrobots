@@ -25,7 +25,10 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.16  2010-01-26 11:19:36  martius
+#   Revision 1.17  2010-01-27 10:23:05  martius
+#   increased framerate
+#
+#   Revision 1.16  2010/01/26 11:19:36  martius
 #   added flash videos and removed wmv and small versions
 #
 #   Revision 1.15  2010/01/12 15:18:24  martius
@@ -73,7 +76,7 @@ mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -o
 #mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=wmv2:vbitrate=600 -oac copy -o "${TARGET}.wmv.avi"
 
 echo -e "*********************** to mpeg4 xvid 4 **************************";
-transcode -i "$TARGET.mjpeg" -o "$TARGET.avi" -y xvid4,null -w 600
+transcode -i "$TARGET.mjpeg" -o "$TARGET.avi" -y xvid4,null -w 800
 
 #echo -e "******************** to mpeg4 xvid 4 small variant ***************";
 #transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.avi -y xvid4,null -w 100 -r 2
@@ -88,6 +91,6 @@ echo -e "******************** to flash video (high quality) ***************";
 ffmpeg -i "$TARGET.avi" -sameq  "${TARGET}_hq.flv"
 
 echo -e "******************** to flash video (web version)  ***************";
-ffmpeg -i "$TARGET.avi" -b 600k  "${TARGET}.flv"
+ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
 
 
