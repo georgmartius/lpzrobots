@@ -25,7 +25,10 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.17  2010-01-27 10:23:05  martius
+#   Revision 1.18  2010-01-27 10:34:44  martius
+#   fixed framerate for hq flash
+#
+#   Revision 1.17  2010/01/27 10:23:05  martius
 #   increased framerate
 #
 #   Revision 1.16  2010/01/26 11:19:36  martius
@@ -88,7 +91,7 @@ echo -e "******************** to high quality avi (msmpeg4) ***************";
 ffmpeg -i "$TARGET.mjpeg" -vcodec msmpeg4 -sameq  "${TARGET}_hq.avi"
 
 echo -e "******************** to flash video (high quality) ***************";
-ffmpeg -i "$TARGET.avi" -sameq  "${TARGET}_hq.flv"
+ffmpeg -i "$TARGET.mjpeg" -b 2500k  "${TARGET}_hq.flv"
 
 echo -e "******************** to flash video (web version)  ***************";
 ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
