@@ -25,7 +25,10 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.1  2010-01-26 12:03:57  martius
+#   Revision 1.2  2010-01-27 10:23:20  martius
+#   cosmetics
+#
+#   Revision 1.1  2010/01/26 12:03:57  martius
 #   a script that converts videos to all available formats.
 #
 #
@@ -46,7 +49,9 @@ elif test -e "${STEM}_hq.avi"; then
     SRC="${STEM}_hq.avi";
     LEVEL=1;
 elif test -e "${STEM}.avi"; then 
+    echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
     echo "WARNING: Found only low quality avi!";
+    echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
     SRC="${STEM}.avi";
     LEVEL=2;
 else
