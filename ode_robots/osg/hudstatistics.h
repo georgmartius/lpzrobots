@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-09-03 11:37:06  martius
+ *   Revision 1.7  2010-01-27 10:14:46  martius
+ *   moved WindowStatistics up and added function to obtain it
+ *
+ *   Revision 1.6  2009/09/03 11:37:06  martius
  *   color and fontsize are setable
  *
  *   Revision 1.5  2009/08/10 07:45:54  guettler
@@ -98,6 +101,27 @@ namespace lpzrobots {
  *   (which is stored in the windowStatisticList).
  */
 class HUDStatisticsManager : public Callbackable {
+
+public:
+  /**
+   * Nested class WindowStatistic, which puts the measure and the graphics text together.
+   */
+  class WindowStatistic {
+  public:
+
+    WindowStatistic(AbstractMeasure* measure, osgText::Text* text) : measure(measure),
+      text(text) {}
+
+    virtual ~WindowStatistic() {}
+
+    virtual AbstractMeasure* getMeasure() { return measure; }
+
+    virtual osgText::Text* getText() { return text; }
+
+  private:
+    AbstractMeasure* measure;
+    osgText::Text* text;
+  };
 
 public:
   /**
@@ -205,30 +229,17 @@ public:
 
   virtual StatisticTools* getStatisticTools() { return statTool; }
 
+  /** searches for the measure with the given name and returns it windowstatistics
+      (measure and graphics together)
+      @return 0 if not measure was found 
+   */
+  virtual WindowStatistic* getMeasureWS(const std::string& measureName);
+
+
   virtual void setColor(const Color& color){ textColor = color;}
   virtual void setFontsize(int size){fontsize = size;}
 
 protected:
-
-  /**
-   * Nested class WindowStatistic, which puts the measure and the graphics text together.
-   */
-  class WindowStatistic {
-  public:
-
-    WindowStatistic(AbstractMeasure* measure, osgText::Text* text) : measure(measure),
-      text(text) {}
-
-    virtual ~WindowStatistic() {}
-
-    virtual AbstractMeasure* getMeasure() { return measure; }
-
-    virtual osgText::Text* getText() { return text; }
-
-  private:
-    AbstractMeasure* measure;
-    osgText::Text* text;
-  };
 
 /// the struct list which holds the measures and the appropiate text
   std::list<WindowStatistic*> windowStatisticList;
