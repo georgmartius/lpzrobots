@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-01-26 10:53:53  martius
+ *   Revision 1.5  2010-01-27 10:20:47  martius
+ *   added blinking. This simulation was used to make the movies,
+ *    armband_{weak|medium|strong}_guidance and the ...change_direction
+ *
+ *   Revision 1.4  2010/01/26 10:53:53  martius
  *   k can be changed on console (fixed)
  *   cmd command for teaching is called -guided
  *
@@ -90,7 +94,7 @@ using namespace lpzrobots;
 const int segmnum = 13;
 bool useSym = false;
 double teacher = 0;
-int change = 5;  // every x minutes change direction
+int change = 0;  // do not change direction by default
 bool track = false;
 int k=0;
 int bars=0;
@@ -99,6 +103,7 @@ class ThisSim : public Simulation {
 public:
   StatisticTools stats;
   double k_double;
+  int blink;
 
   CrossMotorCoupling* controller;
   //  SeMoX* controller;
@@ -108,13 +113,13 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(-1.55424, 10.0881, 1.58559),  Pos(-170.16, -7.29053, 0));
+    setCameraHomePos(Pos(-0.0114359, 6.66848, 0.922832),  Pos(178.866, -7.43884, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.setParam("noise", 0.05);
     global.odeConfig.setParam("controlinterval", 1);
-    //    global.odeConfig.setParam("gravity", 0);
+    global.odeConfig.setParam("cameraspeed", 250);
 
     // use Playground as boundary:
 //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
@@ -124,7 +129,8 @@ public:
 //     global.obstacles.push_back(playground);    
     controller=0;
 
-    addParameterDef("k",&k,0);
+    addParameter("k",&k);
+    addParameter("gamma_s",&teacher);
     global.configs.push_back(this);
 
     for(int i=0; i< bars; i++){
@@ -143,11 +149,11 @@ public:
 //    mySliderWheelieConf.segmLength=1.4;
     mySliderWheelieConf.sliderLength = 0;
     mySliderWheelieConf.motorType    = SliderWheelieConf::CenteredServo;
-    //mySliderWheelieConf.drawCenter   = false;
+    mySliderWheelieConf.showCenter   = false;
     vehicle = new SliderWheelie(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
 				mySliderWheelieConf, "sliderWheelie_" + std::itos(teacher*10000));
 
-    vehicle->place(Pos(0,0,2));    
+    vehicle->place(Pos(0,0,.1));    
     global.configs.push_back(vehicle);
 
 //     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
@@ -204,6 +210,7 @@ public:
     this->getHUDSM()->addMeasure(k_double,"k",ID,1);
 
     setCMC(k);
+    blink=0;
 
     showParams(global.configs);
   }
@@ -211,14 +218,26 @@ public:
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control && controller){
       if(useSym && change>0){	
-	int k= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every n minutes
-	setCMC(k);
+	int newk= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every n minutes
+        if(k!=newk) blink=400;
+	setCMC(newk);
       }
-    }
+      // let the display blink
+      if(blink>0){
+        blink--;        
+        HUDStatisticsManager::WindowStatistic* ws = this->getHUDSM()->getMeasureWS("k");
+        if(ws){
+          ws->getText()->setColor( Color(1.0,1.0,
+              int(globalData.time*2)%2 == 0 || blink == 0 ? 0.0 : 1.0));
+        }       
+      }
 
+    }
+   
   }
 
-  virtual void setCMC(int k){
+  virtual void setCMC(int _k){    
+    k=_k;
     k_double=k;
     std::list<int> perm;
     int len  = controller->getMotorNumber();
@@ -226,14 +245,21 @@ public:
       perm.push_back((i+k+(len)/2)%len);
     }
     CMC cmc = controller->getPermutationCMC(perm);
-    controller->setCMC(cmc);    
+    controller->setCMC(cmc);  
   }
 
   // overloaded from configurable
   virtual bool setParam(const paramkey& key, paramval val){
     bool rv = Configurable::setParam(key,val);
     if(key=="k"){
+      if(change>0){
+        fprintf(stderr, "Automatic change mode is on. Manual changes of k will be overwritten!\n");
+      }
       setCMC(k);
+      blink=400;
+    }
+    if(key=="gamma_s"){
+      controller->setParam("gamma_teach", teacher); 
     }
     return rv;
   }
@@ -247,6 +273,10 @@ int main (int argc, char **argv)
   if(index >0 && argc>index){
     teacher=atof(argv[index]); 
     useSym = 1;  
+  }
+  index = Simulation::contains(argv,argc,"-k");
+  if(index >0 && argc>index){
+    k=atoi(argv[index]); 
   }
   index = Simulation::contains(argv,argc,"-change");
   if(index >0 && argc>index){
