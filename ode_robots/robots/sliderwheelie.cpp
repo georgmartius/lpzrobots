@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-01-26 09:56:31  martius
+ *   Revision 1.21  2010-01-27 10:19:11  martius
+ *   showCenter variable added
+ *
+ *   Revision 1.20  2010/01/26 09:56:31  martius
  *   added dummy center also with velocity
  *
  *   Revision 1.19  2009/03/27 20:45:03  martius
@@ -311,7 +314,7 @@ namespace lpzrobots {
     OdeHandle centerHandle = odeHandle;
     centerHandle.substance.toNoContact();    
     center->init(centerHandle, 0, osgHandle.changeAlpha(0.4), 
-		 Primitive::Geom | (conf.drawCenter ? Primitive::Draw : 0) ); 
+                 conf.showCenter ? Primitive::Geom | Primitive::Draw : Primitive::Geom); 
     center->setPose(osg::Matrix::translate(0,0,0) * pose);
     dummycenter = new DummyPrimitive();
     dummycenter->setPosition(center->getPosition());
