@@ -25,7 +25,10 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.3  2010-01-27 10:35:08  martius
+#   Revision 1.4  2010-01-27 10:55:04  martius
+#   cosmetics
+#
+#   Revision 1.3  2010/01/27 10:35:08  martius
 #   fixed framerate for hq flash
 #   multiple files are posible at once
 #   endings (file extensions) are ignored
@@ -47,6 +50,7 @@ fi
 
 for FILE in $@; do
 STEM=${FILE%.*};
+echo "Consider: $STEM!";
 LEVEL=0;
 if test -e "${STEM}.mjpeg"; then 
     SRC="${STEM}.mjpeg";
