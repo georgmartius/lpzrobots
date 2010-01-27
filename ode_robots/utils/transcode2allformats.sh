@@ -25,7 +25,12 @@
 #  DESCRIPTION                                                            *
 #                                                                         *
 #   $Log$
-#   Revision 1.2  2010-01-27 10:23:20  martius
+#   Revision 1.3  2010-01-27 10:35:08  martius
+#   fixed framerate for hq flash
+#   multiple files are posible at once
+#   endings (file extensions) are ignored
+#
+#   Revision 1.2  2010/01/27 10:23:20  martius
 #   cosmetics
 #
 #   Revision 1.1  2010/01/26 12:03:57  martius
@@ -36,12 +41,12 @@
 #**************************************************************************
 
 if test -z "$1"; then 
-    echo -e "USAGE: $0: VideoFileStem\n\tExample: $0 SuperVideo\n\t where SuperVideo.mjpeg or so exists";
+    echo -e "USAGE: $0: VideoFileStem[.ext] [VideoFileStem2 ....]\n\tExample: $0 SuperVideo\n\t where SuperVideo.mjpeg or so exists\n\tGiven filename extentions are ignored";
     exit 1;
 fi
 
-
-STEM=$1;
+for FILE in $@; do
+STEM=${FILE%.*};
 LEVEL=0;
 if test -e "${STEM}.mjpeg"; then 
     SRC="${STEM}.mjpeg";
@@ -74,7 +79,7 @@ if test $LEVEL -lt 2; then
     fi
     if test ! -e "${STEM}_hq.flv"; then
         echo -e "******************** to flash video (high quality) ***************";
-        ffmpeg -i "${STEM}.avi" -sameq "${STEM}_hq.flv"
+        ffmpeg -i "$SRC" -b 2500k "${STEM}_hq.flv"
     fi
 fi
 
@@ -89,3 +94,5 @@ if test $LEVEL -lt 3; then
     fi
 fi
 
+
+done
