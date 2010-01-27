@@ -124,6 +124,7 @@ install_utils:
 	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)bin/soundMan
 	-cp ode_robots/utils/feedfile.pl $(PREFIX)bin/
 	-cp ode_robots/utils/encodevideo.sh $(PREFIX)bin/
+	-cp ode_robots/utils/transcode2allformats.sh $(PREFIX)bin/
 	-cp ode_robots/utils/selectcolumns.pl $(PREFIX)bin/
 	cp -R ode_robots/osg/data $(PREFIX)share/lpzrobots/
 	-find $(PREFIX)share/lpzrobots/ -type d -name "CVS" | xargs rm -r
