@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-09-03 11:37:31  martius
+ *   Revision 1.9  2010-01-27 10:15:38  martius
+ *   added getMeasureWS to obtain windowstatistics to change e.g. color during runtime
+ *
+ *   Revision 1.8  2009/09/03 11:37:31  martius
  *   color and fontsize are setable
  *   textColor is not a pointer anymore
  *
@@ -175,13 +178,20 @@ double& HUDStatisticsManager::addMeasureList(std::list<StatisticMeasure*> measur
   return measureList.front()->getValueAddress();
 }
 
+HUDStatisticsManager::WindowStatistic* HUDStatisticsManager::getMeasureWS(const std::string& measureName){
+  FOREACH(std::list<WindowStatistic*>, windowStatisticList, i) {    
+    if((*i)->getMeasure()->getName() == measureName){
+      return *i;
+    }
+  }
+  return 0;
+}
 
 
 void HUDStatisticsManager::doOnCallBack(BackCaller* source, BackCaller::CallbackableType /* = BackCaller::DEFAULT_CALLBACKABLE_TYPE */) {
   // go through WindowStatictList and update the graphical text, that should be all!
   if (statTool->measureStarted())
-    for (std::list<WindowStatistic*>::iterator i=windowStatisticList.begin();i!=windowStatisticList.end();i++) {
-
+    FOREACHC(std::list<WindowStatistic*>, windowStatisticList, i) {    
       char valueBuf[100];
       sprintf(valueBuf,":  %f",(*i)->getMeasure()->getValue());
 
