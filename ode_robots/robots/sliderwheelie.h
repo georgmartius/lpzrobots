@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-01-27 10:19:14  martius
+ *   Revision 1.16  2010-01-29 13:38:12  martius
+ *   resolved conflict with show- and drawCenter
+ *
+ *   Revision 1.15  2010/01/27 10:19:14  martius
  *   showCenter variable added
  *
  *   Revision 1.14  2010/01/26 09:56:31  martius
@@ -159,11 +162,7 @@ namespace lpzrobots {
       conf.jointLimitOut   =  -1; // automatically set to 2*M_PI/segm_num
       conf.sliderLength    =  1;  
       conf.motorType       = SliderWheelieConf::CenteredServo; // use centered servos
-<<<<<<< sliderwheelie.h
       conf.showCenter      = false;
-=======
-      conf.drawCenter      = true;
->>>>>>> 1.14
       return conf;
     }
 
