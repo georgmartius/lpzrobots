@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2009-07-30 11:52:53  guettler
+ *   Revision 1.20  2010-01-29 14:16:27  martius
+ *   added Mouse commands for camera movement into help message
+ *
+ *   Revision 1.19  2009/07/30 11:52:53  guettler
  *   new CameraHandle replacing static variables in the CameraManipulators
  *
  *   Revision 1.18  2009/07/01 09:07:03  guettler
@@ -355,11 +358,14 @@ namespace lpzrobots {
   }
 
   void CameraManipulator::getUsage(osg::ApplicationUsage& usage) const{
-    usage.addKeyboardMouseBinding("Camera: Space","Reset the viewing position to home");
-    usage.addKeyboardMouseBinding("Camera: p","Print position of the camera");
-    usage.addKeyboardMouseBinding("Camera: F1-F12","switch the Agent to be watched");
-    usage.addKeyboardMouseBinding("Camera: end","move behind the Agent to be watched");
-    usage.addKeyboardMouseBinding("Ctrl+Mouse","Drag watched Agent (Left:translation, Right:rotation)");
+    usage.addKeyboardMouseBinding("Cam: Space","Reset the viewing position to home");
+    usage.addKeyboardMouseBinding("Cam: p","Print position of the camera");
+    usage.addKeyboardMouseBinding("Cam: F1-F12","switch the Agent to be watched");
+    usage.addKeyboardMouseBinding("Cam: End","move behind the Agent to be watched");
+    usage.addKeyboardMouseBinding("Cam: Left Mousebtn","Turn Camera (not in TV mode)");
+    usage.addKeyboardMouseBinding("Cam: Middle M.btn","Move Camera up and down");
+    usage.addKeyboardMouseBinding("Cam: Right M.btn","Move Camera along the plane");
+    usage.addKeyboardMouseBinding("Cam: Ctrl+Mouse","Drag watched Agent (Left:translation, Right:rotation)");
   }
 
   void CameraManipulator::flushMouseEventStack(){
