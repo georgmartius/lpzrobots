@@ -3,7 +3,8 @@
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
- *                                                                         *
+ *    guettler@informatik.uni-leipzig.de                                   *
+ *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
@@ -23,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-10-29 13:14:05  guettler
+ *   Revision 1.7  2010-02-01 15:22:02  guettler
+ *   added #include <stdio.h> for compatibility with gcc 4.4
+ *
+ *   Revision 1.6  2009/10/29 13:14:05  guettler
  *   compile FIX: added #include <assert.h>
  *
  *   Revision 1.5  2009/10/28 17:53:11  fhesse
@@ -86,6 +90,7 @@
 #include "configurable.h"
 #include <cstring>
 #include <assert.h>
+#include <stdio.h>
 
 using namespace std;
 
