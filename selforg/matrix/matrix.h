@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.34  2010-01-26 09:45:55  martius
+// Revision 1.35  2010-02-22 17:52:41  martius
+// added square norm function and default value for plusLambdaI
+//
+// Revision 1.34  2010/01/26 09:45:55  martius
 // added map2P functions with Double parameter
 //
 // Revision 1.33  2009/10/27 16:52:21  martius
@@ -403,7 +406,7 @@ namespace matrix{
 	otherwise 
 	\f[A^{+} = A^T(A A^T + \lambda \mathbb I)^{-1}\f]
      */
-    Matrix pseudoInverse(const D& lambda = 10e-8) const ;
+    Matrix pseudoInverse(const D& lambda = 1e-8) const ;
 
     /**  maps the matrix to a new matrix
 	 with all elements mapped with the given function
@@ -452,6 +455,11 @@ namespace matrix{
     D elementProduct() const;
     /// returns the sum of all elements (\f$ \sum_{ij} m_{ij} \f$)
     D elementSum() const;
+
+    /** returns the sum of all squares of all elements (\f$ \sum_{ij} m_{ij}^2 \f$)
+        this is also known as the square of the Frobenius norm.
+     */
+    D norm_sqr() const;
 
     /// returns a matrix that consists of this matrix above A (number of rows is getM + a.getM())
     Matrix above(const Matrix& a) const ;
@@ -577,7 +585,7 @@ namespace matrix{
     Matrix& reshape(I m, I n);
 
     /// adds the given value to the diagonal
-    Matrix& pluslambdaI(double lambda);
+    Matrix& pluslambdaI(double lambda = 1e-8);
 
     /** adds one or more rows to the existing matrix and fills it with the given data
      * 

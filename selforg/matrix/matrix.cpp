@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.30  2010-01-26 09:45:55  martius
+// Revision 1.31  2010-02-22 17:52:41  martius
+// added square norm function and default value for plusLambdaI
+//
+// Revision 1.30  2010/01/26 09:45:55  martius
 // added map2P functions with Double parameter
 //
 // Revision 1.29  2009/08/05 18:28:32  martius
@@ -790,6 +793,16 @@ namespace matrix {
     D rv = 0;
     for ( I i = 0; i < m*n; i++ ) {
       rv += data[i];
+    }
+    return rv;
+  }
+
+  /// returns the sum of all elements
+  D Matrix::norm_sqr() const {
+    // short: map(sqr).elementSum()
+    D rv = 0;
+    for ( I i = 0; i < m*n; i++ ) {
+      rv += data[i]*data[i];
     }
     return rv;
   }
