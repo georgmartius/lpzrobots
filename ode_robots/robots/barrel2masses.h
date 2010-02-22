@@ -24,7 +24,10 @@
  * cylinder like Robot inspired by Julius Popp's Adam.                     *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-07-03 13:05:23  martius
+ *   Revision 1.5  2010-02-22 15:28:22  martius
+ *   config is first fetched from sphererobot3masses to avoid uninitialized fields
+ *
+ *   Revision 1.4  2007/07/03 13:05:23  martius
  *   new servo constants
  *
  *   Revision 1.3  2007/01/26 12:05:04  martius
@@ -99,7 +102,7 @@ public:
   /** default configuration. It has no sensors. 
       Use addSensor(new AxisOrientationSensor(ZProjectionXY) for example.*/
   static Sphererobot3MassesConf getDefaultConf(){
-    Sphererobot3MassesConf c;
+    Sphererobot3MassesConf c = Sphererobot3Masses::getDefaultConf();
     c.diameter     = 1;
     c.spheremass   = .3;// 0.1
     c.pendularmass  = 1.0;
@@ -108,10 +111,6 @@ public:
     c.motorsensor = false;  
     c.irAxis1=false;
     c.irAxis2=false;
-    c.irAxis3=false;
-    c.drawIRs=true;
-    c.irsensorscale=1.5;
-    c.irCharacter=1;  
     return c;
   }
 	
