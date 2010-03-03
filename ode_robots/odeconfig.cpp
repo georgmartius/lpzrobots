@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-10 14:48:15  der
+ *   Revision 1.12  2010-03-03 14:54:17  martius
+ *   added description for parameters
+ *
+ *   Revision 1.11  2009/08/10 14:48:15  der
  *   calcDrawInterval gets a double
  *
  *   Revision 1.10  2009/08/05 16:14:02  martius
@@ -104,8 +107,15 @@ namespace lpzrobots {
     addParameterDef("noise",            &noise,0.1);
     addParameterDef("cameraspeed",      &cameraSpeed,100);
     addParameterDef("motionpersistence",&motionPersistence,0.0);
-    addParameterDef("controlinterval"  ,&controlInterval,1);
-    addParameterDef("drawinterval", &drawInterval,calcDrawInterval(fps,realTimeFactor));
+    addParameterDef("controlinterval"  ,&controlInterval,1, 
+                    "interval in steps between subsequent controller calls");
+    setParamDescr("realtimefactor", "speed of simulation wrt. real time (0: full speed)");
+    setParamDescr("simstepsize", "stepsize of the physical simulation (in seconds)");
+    setParamDescr("fps", "frames per second");
+    setParamDescr("gravity", "strengh of gravity (-9.81 is earth gravity)");
+    setParamDescr("randomseed", "random number seed (cmdline -r) (readonly)");
+
+    drawInterval = calcDrawInterval(fps,realTimeFactor);
     // prepare name;
     videoRecordingMode=false;
   }
@@ -150,8 +160,6 @@ namespace lpzrobots {
       dWorldSetGravity ( odeHandle.world , 0 , 0 , gravity );
     } else if(key == "controlinterval") {
       controlInterval = std::max(1,int(val)); 
-    } else if(key == "drawinterval") {
-      drawInterval = std::max(1,int(val)); 
     } else if(key == "randomseed") { // this is readonly!
     } else {
       return Configurable::setParam(key,val);      
