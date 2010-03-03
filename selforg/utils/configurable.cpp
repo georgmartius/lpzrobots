@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-02-01 15:22:02  guettler
+ *   Revision 1.8  2010-03-03 14:56:30  martius
+ *   improved printing of parameterdescription
+ *
+ *   Revision 1.7  2010/02/01 15:22:02  guettler
  *   added #include <stdio.h> for compatibility with gcc 4.4
  *
  *   Revision 1.6  2009/10/29 13:14:05  guettler
@@ -204,40 +207,71 @@ std::list<Configurable::paramkey> Configurable::getAllParamNames(){
   return l;
 }
 
-void Configurable::print(FILE* f, const char* prefix) const {
+Configurable::paramdescr Configurable::getParamDescr(const paramkey& key) const {
+  paramdescrmap::const_iterator it = mapOfDescr.find(key);
+  if (it != mapOfDescr.end()) {
+    return it->second;
+  }else return paramdescr();
+}
+
+void Configurable::print(FILE* f, const char* prefix, int columns) const {
   const char* pre = prefix==0 ? "": prefix;    
   const unsigned short spacelength=20;
-  char spacer[spacelength];
-  memset(spacer, ' ', spacelength);  spacer[spacelength-1]=0;
+  char spacer[spacelength+1];
+  memset(spacer, ' ', spacelength);  spacer[spacelength]=0;
   // print header
   fprintf(f, "%s[%s, %s][%i]\n", pre, getName().c_str(), getRevision().c_str(), getId());
   // use map of values
   FOREACHC(parammap, mapOfValues, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%11.6f\n", pre, k.c_str(), 
+    fprintf(f, "%s %s=%s%11.6f  ", pre, k.c_str(), 
 	    spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+    printdescr(f, pre, k, columns,spacelength+14);
   }
   // use map of int
   FOREACHC(paramintmap, mapOfInteger, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%4i\n", pre, k.c_str(),
-      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+    fprintf(f, "%s %s=%s%4i         ", pre, k.c_str(),
+            spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+    printdescr(f, pre, k, columns,spacelength+14);
+
   }
   // use map of boolean
   FOREACHC(paramboolmap, mapOfBoolean, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%4i\n", pre, k.c_str(),
+    fprintf(f, "%s %s=%s%4i         ", pre, k.c_str(),
       spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+    printdescr(f, pre, k, columns,spacelength+14);
   }
   // add custom parameters stuff (which is marked by a * at the end of the line)
   paramlist list = getParamList(); 
   FOREACHC(paramlist, list, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%11.6f *\n", pre, k.c_str(), 
+    fprintf(f, "%s %s=%s%11.6f *", pre, k.c_str(), 
 	    spacer+(k.length() > spacelength  ? spacelength : k.length()), (*i).second);
+    printdescr(f, pre, k, columns,spacelength+14);
   }
   // write termination line
   fprintf(f, "######\n");
+}
+
+void Configurable::printdescr(FILE* f, const char* prefix, 
+                              const paramkey& key, int columns, int indent) const {
+  paramdescr descr = getParamDescr(key);
+  int len = descr.length();
+  int space = max(columns - indent,5);  
+  // maybe one can also split at the word boundaries
+  while(len > space){
+    const paramdescr& d = descr.substr(0,space);
+    char* spacer = new char[indent+1];
+    memset(spacer, ' ', indent);  spacer[indent]=0;
+    
+    fprintf(f, " %s\n%s %s",d.c_str(),prefix, spacer);
+    delete[] spacer;
+    descr = descr.substr(space,len);
+    len-=space;
+  };
+  fprintf(f, " %s\n",descr.c_str());  
 }
 
 void Configurable::parse(FILE* f) {

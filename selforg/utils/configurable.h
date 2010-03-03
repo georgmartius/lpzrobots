@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-08-05 22:47:10  martius
+ *   Revision 1.9  2010-03-03 14:56:30  martius
+ *   improved printing of parameterdescription
+ *
+ *   Revision 1.8  2009/08/05 22:47:10  martius
  *   added support for integer variables and
  *    proper display for bool and int
  *
@@ -102,7 +105,7 @@
 #include "stl_adds.h"
 
 /**
- Abstact class for configurable objects. Sort of Hashmap interface. Parameters are double values
+ Abstact class for configurable objects. Sort of Hashmap interface. Parameters are double, int or boolean values
 
  The Configurator is a (planned) external tool that can be used for changing the values of configurable objects.
 
@@ -147,8 +150,10 @@
 class Configurable
 {
   public:
-
+  
     typedef std::string paramkey;
+    typedef std::string paramdescr;
+    // params of type double
     typedef double paramval;
     typedef std::list<std::pair<paramkey, paramval> > paramlist;
     typedef std::map<paramkey, paramval*> parammap;
@@ -162,6 +167,8 @@ class Configurable
     typedef int paramint;
     typedef std::list<std::pair<paramkey, paramint> > paramintlist;
     typedef std::map<paramkey, paramint*> paramintmap;
+
+    typedef std::map<paramkey, paramdescr> paramdescrmap;
 
     /// nice predicate function for finding by ID
     struct matchId : public std::unary_function<Configurable*, bool>
@@ -245,57 +252,68 @@ class Configurable
     /// returns all names that are configureable
     virtual std::list<paramkey> getAllParamNames();
 
+    /// returns the description for the given parameter
+    virtual paramdescr getParamDescr(const paramkey& key) const;
+
+    /// sets a description for the given parameter
+    virtual void setParamDescr(const paramkey& key, const paramdescr& descr) {
+      if(!descr.empty()) mapOfDescr[key] = descr;
+    }
+
     /**
      This is the new style for adding configurable parameters. Just call this function
      for each parameter and you are done.
      If you need to do some special treatment for setting (or getting) of the parameter
      you can handle this by overloading getParam and setParam
      */
-    virtual void addParameter(const paramkey& key, paramval* val) {
+    virtual void addParameter(const paramkey& key, paramval* val, 
+                              const paramdescr& descr = paramdescr()) {
       mapOfValues[key] = val;
+      if(!descr.empty()) mapOfDescr[key] = descr;
     }
 
     /**
      See addParameter(const paramkey& key, paramval* val) but for bool values
      */
-    virtual void addParameter(const paramkey& key, parambool* val) {
+    virtual void addParameter(const paramkey& key, parambool* val, 
+                            const paramdescr& descr = paramdescr()) {
       mapOfBoolean[key] = val;
+      if(!descr.empty()) mapOfDescr[key] = descr;
     }
 
     /**
      See addParameter(const paramkey& key, paramval* val) but for int values
      */
-    virtual void addParameter(const paramkey& key, paramint* val) {
+    virtual void addParameter(const paramkey& key, paramint* val,
+                              const paramdescr& descr = paramdescr()) {
       mapOfInteger[key] = val;
+      if(!descr.empty()) mapOfDescr[key] = descr;
     }
 
     /**
      This function is only provided for convenience. It does the same as addParameter but set the
      variable to the default value
      */
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def){
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def,
+                                 const paramdescr& descr = paramdescr()){
       *val = def;
-      mapOfValues[key] = val;
+      addParameter(key,val,descr);
     }
 
-    /**
-     This function is only provided for convenience. It does the same as addParameter but set the
-     variable to the default value
-     */
-    virtual void addParameterDef(const paramkey& key, parambool* val, parambool def)
-    {
+    /// See addParameterDef(const paramkey&, paramval*, paramval)
+    virtual void addParameterDef(const paramkey& key, parambool* val, parambool def,
+                                 const paramdescr& descr = paramdescr()) {
       *val = def;
-      mapOfBoolean[key] = val;
+      addParameter(key,val,descr);
     }
-    /**
-     This function is only provided for convenience. It does the same as addParameter but set the
-     variable to the default value
-     */
-    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def)
-    {
+
+    /// See addParameterDef(const paramkey&, paramval*, paramval)
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def,
+                                 const paramdescr& descr = paramdescr()) {
       *val = def;
-      mapOfInteger[key] = val;
+      addParameter(key,val,descr);
     }
+
 
     /** This is a utility function for inserting the filename and the revision number
      at the beginning of the given string buffer str and terminates it.
@@ -312,7 +330,12 @@ class Configurable
     virtual bool storeCfg(const char* filenamestem, const std::list<std::string>& comments = std::list<std::string>());
     /** restores the key values paires from the file : filenamestem.cfg */
     virtual bool restoreCfg(const char* filenamestem);
-    void print(FILE* f, const char* prefix) const;
+    /// prints the keys, values and descriptions to the file. Each line is prefixed
+    void print(FILE* f, const char* prefix, int columns=90) const;
+    // internal function to print only description in multiline fasion
+  void printdescr(FILE* f, const char* prefix, const paramkey& key, 
+                  int columns, int indent) const;
+
     void parse(FILE* f);
 
   private:
@@ -323,6 +346,7 @@ class Configurable
     parammap mapOfValues;
     paramboolmap mapOfBoolean;
     paramintmap mapOfInteger;
+    paramdescrmap mapOfDescr;
 };
 
 #endif // __CONFIGURABLE_H
