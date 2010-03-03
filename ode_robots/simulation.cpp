@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.115  2010-01-26 09:31:26  martius
+ *   Revision 1.116  2010-03-03 14:55:10  martius
+ *   some text messages
+ *
+ *   Revision 1.115  2010/01/26 09:31:26  martius
  *   indentation
  *
  *   Revision 1.114  2009/11/26 16:53:27  fhesse
@@ -851,10 +854,10 @@ namespace lpzrobots {
 |  | |___|  __// /_|  _ < (_) | |_) | (_) | |_\\__ \\              |\n\
 |  |_____|_|  /____|_| \\_\\___/|_.__/ \\___/ \\__|___/              |\n\
 |                                                                |\n\
-| lpzRobots simulator, http://robot.informatik.uni-leipzig.de    |\n\
+| LpzRobots simulator, http://robot.informatik.uni-leipzig.de    |\n\
 +----------------------------------------------------------------+" );
-    printf ( "Press Ctrl-C on the console for a commandline interface.\n" );
-    printf ( "Press h      on the graphics window for help).\n\n" );
+    printf ( "Press Ctrl-C here on the terminal window for a commandline interface.\n" );
+    printf ( "Press h      on the graphics window for help.\n\n" );
     printf ( "Random number seed: %li\n", globalData.odeConfig.randomSeed);
 
     for(int i=0; i<3; i++) {
