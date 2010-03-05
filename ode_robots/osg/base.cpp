@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.41  2010-01-26 10:11:47  martius
+ *   Revision 1.42  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.41  2010/01/26 10:11:47  martius
  *   unbelievable, the createHUD problem was not solved. Here we go, hopefully...
  *
  *   Revision 1.40  2009/11/26 10:16:07  martius
@@ -247,12 +253,14 @@
 
 #include "shadowcallback.h"
 #include "base.h"
+#include "osgprimitive.h"
 #include "primitive.h"
 
 #include <selforg/callbackable.h>
 
 #include <osgShadow/ShadowedScene>
 #include <osgShadow/ShadowVolume>
+//#include <osgShadow/LightSpacePerspectiveShadowMap>
 #include <osgShadow/ShadowTexture>
 #include <osgShadow/ShadowMap>
 #include <osgShadow/SoftShadowMap>
@@ -294,8 +302,8 @@ namespace lpzrobots {
   "}\n";
 
      Base::Base(const std::string& caption)
-      : ground(0), caption(caption), groundTexture("Images/greenground.rgb"), root(0), shadowedScene(0),
-      lightSource(0), sceneToShadow(0), groundScene(0), transform(0), hud(0), timestats(0),
+      : ground(0), caption(caption), groundTexture("Images/greenground.rgb"), shadowedScene(0),
+      lightSource(0), groundScene(0), transform(0), hud(0), timestats(0),
       captionline(0), statisticLine(0), plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
       CastsShadowTraversalMask(0x2), shadow(5), shadowTexSize(2048), useNVidia(1)
     {
@@ -309,7 +317,8 @@ namespace lpzrobots {
     }
   }
 
-  /** Shadow types: 1 - ShadowVolume 2 - ShadowTextue 3 - ParallelSplitShadowMap
+  /** Shadow types: 1 - LightSpacePerspectiveShadowMap 
+   * 2 - ShadowTextue 3 - ParallelSplitShadowMap
    * 4 - SoftShadowMap 5 - ShadowMap
    */
   osgShadow::ShadowedScene* Base::createShadowedScene(osg::Node* sceneToShadow, LightSource* lightSource, int shadowType)
@@ -318,16 +327,16 @@ namespace lpzrobots {
   bool twoSided=false;
   bool twoPass=false;
   bool updateLightPosition = false;
+
   // some conf variables for ParallelSplitShadowMap
   int mapCount =3;
   bool debugColor=false;
-  int minNearSplit=0;
+  int minNearSplit=3;
   int maxFarDist=50;
   // int moveVCamFactor = 0;
   // double polyoffsetfactor = -0.02;
   // double polyoffsetunit = 1.0;
   // 20080728; guettler: commented out for OSG 2.6 compatibility
-  //  bool cullFaceFront=false;
 
   // some conf variables for SoftShadowMap
   // make the shadow prenumba a little bit sharper then default (0.005)
@@ -337,10 +346,29 @@ namespace lpzrobots {
 
   shadowedScene->setReceivesShadowTraversalMask(ReceivesShadowTraversalMask);
   shadowedScene->setCastsShadowTraversalMask(CastsShadowTraversalMask);
+  shadowedScene->setNodeMask(CastsShadowTraversalMask | ReceivesShadowTraversalMask);
 
   // add ShadowTechnique
 
   switch(shadowType) {
+//   case 1: /// LightSpacePerspectiveShadowMap
+//     {
+//       osg::ref_ptr<osgShadow::MinimalShadowMap> sm = 
+//         new osgShadow::LightSpacePerspectiveShadowMapDB();
+//       shadowedScene->setShadowTechnique( sm.get() );
+//       float minLightMargin = 10.f;
+//       float maxFarPlane = 50;
+//       unsigned int baseTexUnit = 0;
+//       unsigned int shadowTexUnit = 7;
+//       sm->setMinLightMargin( minLightMargin );
+//       sm->setMaxFarPlane( maxFarPlane );
+//       sm->setTextureSize( osg::Vec2s((int)shadowTexSize,(int)shadowTexSize) );
+//       sm->setShadowTextureCoordIndex( shadowTexUnit );
+//       sm->setShadowTextureUnit( shadowTexUnit );
+//       sm->setBaseTextureCoordIndex( baseTexUnit );
+//       sm->setBaseTextureUnit( baseTexUnit );      
+
+//     } 
   case 1: /// ShadowVolume
     {
       // hint to tell viewer to request stencil buffer when setting up windows
@@ -378,12 +406,16 @@ namespace lpzrobots {
         	int moveVCamFactor = 0;
             pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
         }
-
+        
+        if (useNVidia!=0)
+          pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f));     
+        //        pssm->setPolygonOffset(osg::Vec2(1.0f,4.0f)); 
 /*        double polyoffsetfactor = pssm->getPolygonOffset().x();
         double polyoffsetunit   = pssm->getPolygonOffset().y();
         while (arguments.read("--PolyOffset-Factor", polyoffsetfactor));
         while (arguments.read("--PolyOffset-Unit", polyoffsetunit));
         pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit));*/
+
 
         shadowedScene->setShadowTechnique(pssm.get());
 
@@ -402,8 +434,8 @@ namespace lpzrobots {
 	  pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
 
 	// 20080728; guettler: commented out for OSG 2.6 compatibility
-	//      if (cullFaceFront)
-	//        pssm->forceFrontCullFace();
+	      if (cullFaceFront)
+	        pssm->forceFrontCullFace();
 
 	shadowedScene->setShadowTechnique(pssm.get());*/
     }
@@ -418,8 +450,8 @@ namespace lpzrobots {
   case 5: /// ShadowMap
   default:
     {
-        osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
-        shadowedScene->setShadowTechnique(sm.get());
+      osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
+      shadowedScene->setShadowTechnique(sm.get());
       sm->setTextureSize(osg::Vec2s((int)shadowTexSize,(int)shadowTexSize));
     }
     break;
@@ -428,132 +460,6 @@ namespace lpzrobots {
 
   return shadowedScene;
 }
-
-  osg::Group* Base::createShadowedScene(osg::Node* shadowed,
-					osg::Vec3 posOfLight,
-					unsigned int unit)
-  {
-    osg::Group* group = new osg::Group;
-
-    unsigned int tex_width  = (int)shadowTexSize; // 1024; // up to 2048 is possible but slower
-    unsigned int tex_height = (int)shadowTexSize; // 1024; // up to 2048 is possible but slower
-
-    osg::Texture2D* texture = new osg::Texture2D;
-    texture->setTextureSize(tex_width, tex_height);
-
-    texture->setInternalFormat(GL_DEPTH_COMPONENT);
-    texture->setShadowComparison(true);
-    texture->setShadowTextureMode(Texture::LUMINANCE);
-    texture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR);
-    texture->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
-
-    // set up the render to texture camera.
-    {
-      // create the camera
-      osg::CameraNode* camera = new osg::CameraNode;
-
-      camera->setClearMask(GL_DEPTH_BUFFER_BIT);
-      camera->setClearColor(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
-      camera->setComputeNearFarMode(osg::CameraNode::DO_NOT_COMPUTE_NEAR_FAR);
-      //      std::cerr << camera->getNearFarRatio() <<  std::endl;
-      //      camera->setNearFarRatio(0.0001);
-
-      // set viewport
-      camera->setViewport(0,0,tex_width,tex_height);
-
-      osg::StateSet*  _local_stateset = camera->getOrCreateStateSet();
-
-      _local_stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-
-
-      float factor = 0.0f;
-      float units = 1.0f;
-
-      ref_ptr<PolygonOffset> polygon_offset = new PolygonOffset;
-      polygon_offset->setFactor(factor);
-      polygon_offset->setUnits(units);
-      _local_stateset->setAttribute(polygon_offset.get(), StateAttribute::ON | StateAttribute::OVERRIDE);
-      _local_stateset->setMode(GL_POLYGON_OFFSET_FILL, StateAttribute::ON | StateAttribute::OVERRIDE);
-
-      ref_ptr<CullFace> cull_face = new CullFace;
-      cull_face->setMode(CullFace::FRONT);
-      _local_stateset->setAttribute(cull_face.get(), StateAttribute::ON | StateAttribute::OVERRIDE);
-      _local_stateset->setMode(GL_CULL_FACE, StateAttribute::ON | StateAttribute::OVERRIDE);
-
-
-      // set the camera to render before the main camera.
-      camera->setRenderOrder(osg::CameraNode::PRE_RENDER);
-
-      // tell the camera to use OpenGL frame buffer object where supported.
-      camera->setRenderTargetImplementation(osg::CameraNode::FRAME_BUFFER_OBJECT);
-
-      // attach the texture and use it as the color buffer.
-      camera->attach(osg::CameraNode::DEPTH_BUFFER, texture);
-
-      // add subgraph to render
-      camera->addChild(shadowed);
-
-      group->addChild(camera);
-
-      // create the texgen node to project the tex coords onto the subgraph
-      osg::TexGenNode* texgenNode = new osg::TexGenNode;
-      texgenNode->setTextureUnit(unit);
-      group->addChild(texgenNode);
-
-      // set an update callback to keep moving the camera and tex gen in the right direction.
-      group->setUpdateCallback(new ShadowDrawCallback(posOfLight, camera, texgenNode));
-    }
-
-
-    // set the shadowed subgraph so that it uses the texture and tex gen settings.
-    {
-      osg::Group* shadowedGroup = new osg::Group;
-      shadowedGroup->addChild(shadowed);
-      group->addChild(shadowedGroup);
-
-      osg::StateSet* stateset = shadowedGroup->getOrCreateStateSet();
-      stateset->setTextureAttributeAndModes(unit,texture,osg::StateAttribute::ON);
-      stateset->setTextureMode(unit,GL_TEXTURE_GEN_S,osg::StateAttribute::ON);
-      stateset->setTextureMode(unit,GL_TEXTURE_GEN_T,osg::StateAttribute::ON);
-      stateset->setTextureMode(unit,GL_TEXTURE_GEN_R,osg::StateAttribute::ON);
-
-      stateset->setTextureMode(unit,GL_TEXTURE_GEN_Q,osg::StateAttribute::ON);
-
-
-      osg::Program* program = new osg::Program;
-      stateset->setAttribute(program);
-      if (unit==0) {
-	std::cout << "not using textures." << std::endl;
-	osg::Shader* fragment_shader =
-	  new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_noBaseTexture);
-	program->addShader(fragment_shader);
-
-	// uniforms are for the shader program
-	osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
-	stateset->addUniform(shadowTextureSampler);
-      } else {
-	std::cout << "using textures." << std::endl;
-	osg::Shader* fragment_shader =
-	  new osg::Shader(osg::Shader::FRAGMENT, fragmentShaderSource_withBaseTexture);
-	program->addShader(fragment_shader);
-
-	// uniforms are for the shader program
-	osg::Uniform* baseTextureSampler = new osg::Uniform("baseTexture",0);
-	stateset->addUniform(baseTextureSampler);
-
-	osg::Uniform* shadowTextureSampler = new osg::Uniform("shadowTexture",(int)unit);
-	stateset->addUniform(shadowTextureSampler);
-      }
-
-      // uniform is for the shader program
-      osg::Uniform* ambientBias = new osg::Uniform("ambientBias",osg::Vec2(0.7f,0.5f));
-      stateset->addUniform(ambientBias);
-
-    }
-
-    return group;
-  }
-
 
   osg::Node* Base::createHUD()
   {
@@ -686,9 +592,10 @@ namespace lpzrobots {
     }
   }
 
-  Group* Base::makeScene(){
-    // no database loaded so automatically create Ed Levin Park..
-    root = new Group;
+  void Base::makeScene(){
+    osgHandle.root = new Group; // master node containing scene but also hud and other stuff
+    osgHandle.world = new Group;// actual world with sky, ground, scene and so on.
+    osgHandle.scene = new Group;// actual scene with robots and stuff
     // the base and sky subgraphs go to set the earth sky of the
     // model and clear the color and depth buffer for us, by using
     // osg::Depth, and setting their bin numbers to less than 0,
@@ -701,10 +608,8 @@ namespace lpzrobots {
     // add the transform to the earth sky.
     clearNode->addChild(transform);
 
-    root->addChild(clearNode);
-    hud = createHUD();
-    if(hud) root->addChild(hud);
-
+    osgHandle.world->addChild(clearNode);    
+    
     // transform's value isn't known until in the cull traversal so its bounding
     // volume can't be determined, therefore culling will be invalid,
     // so switch it off, this cause all our parents to switch culling
@@ -722,11 +627,8 @@ namespace lpzrobots {
     if (shadowType!=3)
     	transform->addChild(groundScene); // bin number -1 so draw second.
 
-    lightSource = makeLights(root->getOrCreateStateSet());
+    lightSource = makeLights(osgHandle.world->getOrCreateStateSet());
     transform->addChild(lightSource);
-
-    sceneToShadow = new Group; // create an extra group for the normal scene
-
 
     if(shadowType){
       // enable shadows
@@ -739,20 +641,21 @@ namespace lpzrobots {
       // create the shadowed scene, using textures
       //shadowedScene = createShadowedScene(scene,posOfLight,1);
 	  // create root of shadowedScene
-      shadowedScene = createShadowedScene(sceneToShadow,lightSource,(int)shadow);
+      shadowedScene = createShadowedScene(osgHandle.scene,lightSource,(int)shadow);
 
       // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
       if (shadowType==3)
-      	sceneToShadow->addChild(groundScene); // bin number -1 so draw second.
-
+      	osgHandle.scene->addChild(groundScene); // bin number -1 so draw second.
+      
       // add the shadowed scene to the root
-      root->addChild(shadowedScene);
+      osgHandle.world->addChild(shadowedScene);
     }else {
-      root->addChild(sceneToShadow);
+      osgHandle.world->addChild(osgHandle.scene);
     }
-
-    // the normal scene
-    return sceneToShadow;
+    osgHandle.root->addChild(osgHandle.world);
+    
+    hud = createHUD();
+    if(hud) osgHandle.root->addChild(hud);    
   }
 
   Node* Base::makeSky() {
@@ -949,9 +852,12 @@ namespace lpzrobots {
     dstate->setRenderBinDetails(-1,"RenderBin");
     geom->setStateSet( dstate );
 
+
     Geode *geode = new Geode;
     geode->addDrawable( geom );
     geode->setName( "Ground" );
+    geode->setNodeMask(geode->getNodeMask() & ~CastsShadowTraversalMask);
+
 
     return geode;
   }
@@ -1032,53 +938,52 @@ namespace lpzrobots {
   {
 	  std::string shadowName;
 	  int shadowType = ++shadow;
-	  switch (shadowType)
-	    {
+	  switch (shadowType) {
 	  case 6:
-		  shadowType=0; // max shadowtype at the moment: 5
+            shadowType=0; // max shadowtype at the moment: 5
 	  case 0:
-		  root->removeChild(shadowedScene);
-		  shadowedScene->unref();
-		  root->addChild(sceneToShadow);
-		  shadowName = std::string("NoShadow");
-		  break;
+            osgHandle.world->removeChild(shadowedScene);
+            shadowedScene->unref();
+            osgHandle.world->addChild(osgHandle.scene);
+            shadowName = std::string("NoShadow");
+            break;
 	  case 1:
 	  case 2:
-		  shadowType=3; // temporarily disable volume shadows (1) and ShadowTextue (2)
+            shadowType=3; // temporarily disable volume shadows (1) and ShadowTextue (2)
 	  case 3:
-		  root->removeChild(sceneToShadow);
-       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
-       	  // add the shadowed scene to the root
-   	      root->addChild(shadowedScene);
-   	      // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
-   	      transform->removeChild(groundScene);
-   	      groundScene = makeGround(); // this is usually not needed!
-   	      sceneToShadow->addChild(groundScene); // bin number -1 so draw second.
-		  shadowName = std::string("ParallelSplitShadowMap");
-		  break;
+            osgHandle.world->removeChild(osgHandle.scene);
+            shadowedScene = createShadowedScene(osgHandle.scene,lightSource, shadowType);
+            // add the shadowed scene to the root
+            osgHandle.world->addChild(shadowedScene);
+            // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
+            transform->removeChild(groundScene);
+            groundScene = makeGround(); // this is usually not needed!
+            osgHandle.scene->addChild(groundScene); // bin number -1 so draw second.
+            shadowName = std::string("ParallelSplitShadowMap");
+            break;
 	  case 4:
-		  root->removeChild(shadowedScene);
-		  shadowedScene->unref();
-       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
-       	  // add the shadowed scene to the root
-   	      root->addChild(shadowedScene);
-   	      sceneToShadow->removeChild(groundScene);
-   	      groundScene = makeGround(); // this is usually not needed!
-   	      transform->addChild(groundScene); // bin number -1 so draw second.
-		  shadowName = std::string("SoftShadowMap");
-		  break;
+            osgHandle.world->removeChild(shadowedScene);
+            shadowedScene->unref();
+            shadowedScene = createShadowedScene(osgHandle.scene,lightSource, shadowType);
+            // add the shadowed scene to the root
+            osgHandle.world->addChild(shadowedScene);
+            osgHandle.scene->removeChild(groundScene);
+            groundScene = makeGround(); // this is usually not needed!
+            transform->addChild(groundScene); // bin number -1 so draw second.
+            shadowName = std::string("SoftShadowMap");
+            break;
 	  case 5:
-		  root->removeChild(shadowedScene);
-		  shadowedScene->unref();
-       	  shadowedScene = createShadowedScene(sceneToShadow,lightSource, shadowType);
-       	  // add the shadowed scene to the root
-   	      root->addChild(shadowedScene);
-		  shadowName = std::string("ShadowMap (simple)");
-		  break;
-	  default:
-		  shadowName = std::string("NoShadow");
-		  break;
-	  }
+            osgHandle.world->removeChild(shadowedScene);
+            shadowedScene->unref();
+            shadowedScene = createShadowedScene(osgHandle.scene,lightSource, shadowType);
+            // add the shadowed scene to the root
+            osgHandle.world->addChild(shadowedScene);
+            shadowName = std::string("ShadowMap (simple)");
+            break; 
+          default:
+            shadowName = std::string("NoShadow");
+            break;
+          }
 	  printf("Changed shadowType to %i (%s)\n",shadowType,shadowName.c_str());
 	  shadow=shadowType;
   }

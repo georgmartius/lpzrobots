@@ -32,14 +32,17 @@ LIBSELFORG = lib$(SELFORGLIB).a
 LIBS   = -lm \
 	-l$(ODEROBOTSLIB) \
 	-l$(SELFORGLIB) \
+	`ode-config --libs` \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lncurses -lpthread
 
 INC   = -I. 
 
 CXX = g++
-CPPFLAGS = -Wall  -g -pthread $(INC) -Wno-deprecated
-CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC) -Wno-deprecated
+CPPBASEFLAGS = `ode-config --cflags` -pthread $(INC) -Wno-deprecated -Wall
+CPPFLAGS = $(CPPBASEFLAGS) -g 
+## Optimisation
+CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
 
 normal: $(EXEC)
 

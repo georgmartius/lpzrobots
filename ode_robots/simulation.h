@@ -28,7 +28,13 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.41  2009-08-21 09:49:08  robot12
+ *   Revision 1.42  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.41  2009/08/21 09:49:08  robot12
  *   (guettler) support for tasked simulations.
  *   - use the simulation template_taskedSimulations.
  *   - merged (not completely) from lpzrobots_tasked.
@@ -448,7 +454,7 @@ namespace lpzrobots {
 
 	std::string windowName;
 
-  private:
+  protected:
     SimulationState state;
     osg::ArgumentParser* arguments;
     osgViewer::Viewer* viewer;

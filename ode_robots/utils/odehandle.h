@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-12-01 17:32:10  martius
+ *   Revision 1.14  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.13  2009/12/01 17:32:10  martius
  *   adapted Makefiles to ignore backward compat. errors
  *
  *   Revision 1.12  2009/08/03 14:09:48  jhoffmann
@@ -103,6 +109,9 @@ public:
 
   /// creates world at global space and so on and sets global time pointer.
   void init(double* time); 
+
+  /// deletes the world and global data
+  void close(); 
 
   /** use this function to create a new space with optional ignored collisions, 
       use deleteSpace to destroy it

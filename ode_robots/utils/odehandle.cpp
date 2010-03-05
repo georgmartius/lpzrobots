@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-08-03 14:09:48  jhoffmann
+ *   Revision 1.10  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.9  2009/08/03 14:09:48  jhoffmann
  *   Remove some compiling warnings, memory leaks; Add some code cleanups
  *
  *   Revision 1.8  2009/07/30 08:55:21  jhoffmann
@@ -98,8 +104,9 @@ namespace lpzrobots
   {
     assert(time);
     this->time=time;
+    dInitODE();
     world = dWorldCreate ();
- 
+    
     // Create the primary world-space, which is used for collision detection
     space = dHashSpaceCreate (0);
     dSpaceSetCleanup (space, 0);
@@ -109,7 +116,17 @@ namespace lpzrobots
     jointGroup = dJointGroupCreate ( 1000000 );
     ignoredSpaces = new __gnu_cxx::hash_set<long>();
     ignoredPairs  = new __gnu_cxx::hash_set<std::pair<long,long>,geomPairHash >();
+
   }
+
+  void OdeHandle::close(){
+    dJointGroupDestroy  ( jointGroup );
+    dWorldDestroy       ( world );
+    dSpaceDestroy       ( space );
+    destroySpaces();
+    dCloseODE();    
+  }
+
 
   void OdeHandle::createNewSimpleSpace(dSpaceID parentspace, bool ignore_inside_collisions){
     space = dSimpleSpaceCreate (parentspace);

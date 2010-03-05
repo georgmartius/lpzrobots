@@ -22,7 +22,13 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-30 11:23:45  guettler
+ *   Revision 1.7  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.6  2009/07/30 11:23:45  guettler
  *   new noGraphics state for OSGPrimitives
  *
  *   Revision 1.5  2009/07/29 14:19:49  jhoffmann
@@ -72,10 +78,13 @@ namespace lpzrobots {
   OsgHandle::OsgHandle( ) : drawBoundings(false), scene(0), normalState(0), transparentState(0), noGraphics(false) {};
 
 
-  OsgHandle::OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
-                          osg::StateSet* normalState, osg::StateSet* transparentState,
-                          const Color& color)
+  OsgHandle::OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
+                        osg::TessellationHints* tesselhints[3], 
+                        osg::StateSet* normalState, osg::StateSet* transparentState,
+                        const Color& color)
   {
+    this->root = root;
+    this->world = world;
     this->scene = scene;
     for(int i=0; i<3; i++){
       this->tesselhints[i] = tesselhints[i];

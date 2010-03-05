@@ -23,7 +23,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-03-16 10:52:14  martius
+ *   Revision 1.4  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.3  2007/03/16 10:52:14  martius
  *   geom userdata is set to primitive itself
  *
  *   Revision 1.2  2006/07/14 12:23:34  martius
@@ -57,10 +63,10 @@ namespace lpzrobots {
 
   struct Indices {
     Indices(){}
-    Indices(int a, int b, int c) { i[0] = a; i[1] = b; i[2] = c; }
-    Indices(int d[3]) { i[0] = d[0]; i[1] = d[1]; i[2] = d[2]; }
+    Indices(dTriIndex a, dTriIndex b, dTriIndex c) { i[0] = a; i[1] = b; i[2] = c; }
+    Indices(dTriIndex d[3]) { i[0] = d[0]; i[1] = d[1]; i[2] = d[2]; }
     
-    int i[3];
+    dTriIndex i[3];
   };
 
 
@@ -125,7 +131,7 @@ namespace lpzrobots {
       data = dGeomTriMeshDataCreate();
       //      dGeomTriMeshDataBuildDouble1 (data, vertices, sizeof(osg::Vec3f) , rows*cols,
       //				    indices, k, sizeof(Indices), normales);
-      dGeomTriMeshDataBuildSimple (data, (dReal*)vertices, rows*cols, (int*)indices, k*3);
+      dGeomTriMeshDataBuildSimple (data, (dReal*)vertices, rows*cols, (dTriIndex*)indices, k*3);
       geom = dCreateTriMesh (odeHandle.space, data, 0, 0, 0);
       dGeomSetData(geom, (void*)this); // set primitive as geom data
   

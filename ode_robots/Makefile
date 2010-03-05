@@ -4,7 +4,13 @@
 
 #
 # $Log$
-# Revision 1.27  2009-12-01 17:32:10  martius
+# Revision 1.28  2010-03-05 14:32:55  martius
+# camera sensor added
+# for that the scenegraph structure was changed into root, world, scene
+# camera does not work with shadows
+# works with newest version of ode (0.11)
+#
+# Revision 1.27  2009/12/01 17:32:10  martius
 # adapted Makefiles to ignore backward compat. errors
 #
 # Revision 1.26  2009/08/10 07:45:31  guettler
@@ -33,15 +39,15 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 UTILS = install_prefix.conf
 # utils/splitvideo
 
-# -pg for profiling
-CPPFLAGS = -Wall -g -Wno-deprecated -pipe -I. -pthread $(INC) 
+CPPBASEFLAG = -Wall -Wno-deprecated -pipe -I. -DdDOUBLE -pthread $(INC) 
+
+CPPFLAGS = -g $(CPPBASEFLAG)
 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -Wno-deprecated -pipe -pthread $(INC) -O -DNDEBUG
+CPPFLAGS_OPT = $(CPPBASEFLAG) -O -DNDEBUG
 
 ## Optimisation
-CPPFLAGS_PROF = -Wall -I. -Wno-deprecated -pipe -pthread $(INC) -O -DQPROF
-
+CPPFLAGS_PROF = $(CPPBASEFLAG) -pg -O -DQPROF
 
 # used for single file compilation
 CXX = g++

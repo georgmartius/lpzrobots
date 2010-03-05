@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-07-30 11:23:45  guettler
+ *   Revision 1.7  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.6  2009/07/30 11:23:45  guettler
  *   new noGraphics state for OSGPrimitives
  *
  *   Revision 1.5  2009/07/29 14:19:49  jhoffmann
@@ -77,7 +83,8 @@ class OsgHandle
 public:
   OsgHandle();
 
-  OsgHandle( osg::Group* scene, osg::TessellationHints* tesselhints[3], 
+  OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
+             osg::TessellationHints* tesselhints[3], 
 	     osg::StateSet* normalState, osg::StateSet* transparentState, 
 	     const Color& color);
 
@@ -85,7 +92,9 @@ public:
 
   /// decides whether to draw bounding boxes 
   bool drawBoundings;   
-  osg::Group* scene;
+  osg::Group* root;  // master note (contains world,hud..)
+  osg::Group* world; // world note  (contains ground,sky and scene)
+  osg::Group* scene; // actual scene for robots and stuff
   osg::TessellationHints* tesselhints[3];  
   osg::StateSet* normalState;  
   osg::StateSet* transparentState;  

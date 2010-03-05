@@ -23,7 +23,13 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2010-01-26 09:38:17  martius
+ *   Revision 1.26  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.25  2010/01/26 09:38:17  martius
  *   getVelocity, getAngularVel added
  *
  *   Revision 1.24  2009/10/23 12:47:13  guettler
@@ -575,7 +581,7 @@ namespace lpzrobots{
     if (mode & Body){
       body = dBodyCreate (odeHandle.world);
       dMass m;
-      dMassSetCappedCylinder(&m, 1.0, 3 , osgcapsule->getRadius(), osgcapsule->getHeight()); 
+      dMassSetCapsule(&m, 1.0, 3 , osgcapsule->getRadius(), osgcapsule->getHeight()); 
       dMassAdjust (&m, mass); 
       dBodySetMass (body,&m); //assign the mass to the body
     }  
@@ -600,7 +606,7 @@ namespace lpzrobots{
 
   void Capsule::setMass(double mass){
     dMass m;
-    dMassSetCappedCylinder(&m, 1.0, 3 , osgcapsule->getRadius(), osgcapsule->getHeight()); 
+    dMassSetCapsule(&m, 1.0, 3 , osgcapsule->getRadius(), osgcapsule->getHeight()); 
     dMassAdjust (&m, mass); 
     dBodySetMass (body,&m); //assign the mass to the body      
   }

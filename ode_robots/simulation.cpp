@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.116  2010-03-03 14:55:10  martius
+ *   Revision 1.117  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.116  2010/03/03 14:55:10  martius
  *   some text messages
  *
  *   Revision 1.115  2010/01/26 09:31:26  martius
@@ -693,14 +699,9 @@ namespace lpzrobots {
     QMP_CRITICAL(21);
     if(state!=running)
       return;
-    dJointGroupDestroy  ( odeHandle.jointGroup );
-    dWorldDestroy       ( odeHandle.world );
-    dSpaceDestroy       ( odeHandle.space );
 
-    if (!inTaskedMode)
-	    dCloseODE ();
-
-    odeHandle.destroySpaces();
+    //    if (!inTaskedMode)
+    //      dCloseODE ();
 
     state=closed;
     if(arguments)
@@ -808,7 +809,7 @@ namespace lpzrobots {
 
       // construct the viewer.
       viewer = new Viewer(*arguments);
-      if(useOsgThread){
+      if(useOsgThread && !shadow==3){ // ParallelSplitShadowMap does not support threads
 	viewer->setThreadingModel(Viewer::CullDrawThreadPerContext);
       }else{
 	viewer->setThreadingModel(Viewer::SingleThreaded);
@@ -872,7 +873,7 @@ namespace lpzrobots {
 
     makePhysicsScene();
     if (!noGraphics) {
-      osgHandle.scene=makeScene();
+      makeScene();
       if (!osgHandle.scene)
 	return false;
 
@@ -941,11 +942,11 @@ namespace lpzrobots {
     if(!noGraphics) {
       // optimize the scene graph, remove redundant nodes and state etc.
       // osgUtil::Optimizer optimizer;
-      // optimizer.optimize(root);
+      // optimizer.optimize(osgHandle.root);
 
 
       // add model to viewer.
-      viewer->setSceneData(root);
+      viewer->setSceneData(osgHandle.root);
 
       // create the windows and run the threads.
       viewer->realize();
@@ -1390,6 +1391,10 @@ namespace lpzrobots {
     QP(cout << "realtimefactor: " << (((float)globalData.sim_step)/timeSinceInit * 10.0) << endl);
     }
 
+    if(!noGraphics)    // delete viewer;
+      viewer->getEventHandlers().clear();
+    //        viewer->getEventHandlerList().clear();
+    
     // clear obstacles list
     for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++) {
       delete (*i);
@@ -1417,10 +1422,7 @@ namespace lpzrobots {
 	osgHandle.tesselhints[i]->unref();
     }
     global.agents.clear();
-
-    if(!noGraphics)    // delete viewer;
-      viewer->getEventHandlers().clear();
-    //        viewer->getEventHandlerList().clear();
+    odeHandle.close();
   }
 
 

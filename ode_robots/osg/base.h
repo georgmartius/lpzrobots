@@ -24,7 +24,13 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2009-11-26 10:06:45  martius
+ *   Revision 1.25  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.24  2009/11/26 10:06:45  martius
  *   added createHUDManager function
  *
  *   Revision 1.23  2009/09/03 12:53:25  guettler
@@ -189,16 +195,16 @@ namespace lpzrobots
 
     /// create the ground plane
     virtual void makePhysicsScene(); 
-    /// create the graphics of the sky and floor
-    virtual osg::Group* makeScene();
+    /** creates the base screne graph with world, sky and floor and shadow and HUD
+        The scene is stored in osgHandle
+     */
+    virtual void makeScene();
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
     virtual osg::Node* createHUD();
     virtual void createHUDManager(osg::Geode* geode, osgText::Font* font);
     virtual osg::LightSource* makeLights(osg::StateSet* stateset);
-    virtual osg::Group* createShadowedScene(osg::Node* shadowed,
-					    osg::Vec3 posOfLight,
-					    unsigned int unit);
+
     /** Shadow types:
      * 1 - ShadowVolume
      * 2 - ShadowTextue
@@ -249,10 +255,8 @@ namespace lpzrobots
     std::string caption;
     std::string groundTexture;
 
-    osg::Group* root;
     osgShadow::ShadowedScene* shadowedScene;
     osg::LightSource* lightSource;
-    osg::Group* sceneToShadow;
     osg::Node* groundScene;
     osg::Transform* transform;
     osg::Node* hud;

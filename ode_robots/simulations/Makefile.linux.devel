@@ -28,16 +28,18 @@ LIBSELFORG = lib$(SELFORGLIB).a
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
-	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
+	`ode-config --libs` \
+	-losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lncurses -lpthread
 
 INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
 CXX = g++
+CPPBASEFLAGS = `ode-config --cflags` -pthread $(INC) -Wno-deprecated -Wall
 # -pg for profiling
-CPPFLAGS = -Wall -g -pthread $(INC) -Wno-deprecated
+CPPFLAGS = $(CPPBASEFLAGS) -g 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -O3 -pthread -DNDEBUG $(INC) -Wno-deprecated
+CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
 
 normal: libode_robots $(EXEC)
 

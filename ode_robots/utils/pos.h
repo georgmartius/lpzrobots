@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-02-04 09:38:00  martius
+ *   Revision 1.5  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.4  2009/02/04 09:38:00  martius
  *   operator * added
  *
  *   Revision 1.3  2006/08/08 17:04:47  martius
@@ -49,6 +55,7 @@
 #include <iostream>
 
 #include <osg/Vec3>
+#include <osg/Vec4>
 #include <ode/ode.h>
 #include <selforg/position.h>
 
@@ -59,6 +66,7 @@ namespace lpzrobots{
     Pos () : osg::Vec3 () {};
     Pos (float x, float y, float z) : osg::Vec3(x, y, z) {}
     Pos (const osg::Vec3& v) : osg::Vec3(v) {}
+    Pos (const osg::Vec4& v) : osg::Vec3(v.x(),v.y(),v.z()) {}
     Pos (const Position& p) : osg::Vec3(p.x, p.y, p.z) {}
     Pos (const dReal v[3]) : osg::Vec3(v[0], v[1], v[2]) {}
 

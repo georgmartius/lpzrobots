@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-03-25 15:44:23  guettler
+ *   Revision 1.5  2010-03-05 14:32:55  martius
+ *   camera sensor added
+ *   for that the scenegraph structure was changed into root, world, scene
+ *   camera does not work with shadows
+ *   works with newest version of ode (0.11)
+ *
+ *   Revision 1.4  2009/03/25 15:44:23  guettler
  *   ParallelSplitShadowMap: corrected light direction (using directional light), complete ground is now shadowed
  *
  *   Revision 1.3  2009/03/13 09:19:53  martius
@@ -80,7 +86,7 @@ public:
   Substance s;
   OSGBoxTex* b;
   OSGBox* b2;
-
+  
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
@@ -130,7 +136,7 @@ public:
     b2->init(osgHandle);
     b2->setMatrix(osg::Matrix::translate(7,0,2));
 
-
+    
 
     showParams(global.configs);
   }
