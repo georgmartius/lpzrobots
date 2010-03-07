@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-08-10 14:56:24  der
+ *   Revision 1.17  2010-03-07 22:45:19  guettler
+ *   - OSGMesh supports now virtual initialisation (necessary for Meshes not visible)
+ *   - Bugfix: osgHandle was not checked if valid (occurs when Primitive is not initialised)
+ *
+ *   Revision 1.16  2009/08/10 14:56:24  der
  *   transform.get() to compile on older gcc/OSG versions
  *
  *   Revision 1.15  2009/08/07 13:25:55  martius
@@ -258,7 +262,7 @@ namespace lpzrobots {
   }
 
   void OSGPrimitive::setColor(const Color& color){
-    if (this->osgHandle->noGraphics)
+    if (!this->osgHandle || this->osgHandle->noGraphics)
       return;
     if(shape.valid())
       shape->setColor(color);
@@ -299,7 +303,7 @@ namespace lpzrobots {
     this->osgHandle=&osgHandle;
     assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
-    if (this->osgHandle->noGraphics)
+    if (!this->osgHandle || this->osgHandle->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
@@ -333,7 +337,7 @@ namespace lpzrobots {
     this->osgHandle=&osgHandle;
     assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
-    if (this->osgHandle->noGraphics)
+    if (!this->osgHandle || this->osgHandle->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
@@ -359,7 +363,7 @@ namespace lpzrobots {
   }
   void OSGBox::setDim(Vec3 d){
     dim = d;
-    if (this->osgHandle->noGraphics)
+    if (!this->osgHandle || this->osgHandle->noGraphics)
       return;
     box->setHalfLengths(d/2);
   }
@@ -376,7 +380,7 @@ namespace lpzrobots {
     this->osgHandle=&osgHandle;
     assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
-    if (this->osgHandle->noGraphics)
+    if (!this->osgHandle || this->osgHandle->noGraphics)
       return;
     osgHandle.scene->addChild(transform.get());
     Vec3 half = dim*(-0.5);    
@@ -455,7 +459,7 @@ namespace lpzrobots {
     this->osgHandle=&osgHandle;
     assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
-    if (this->osgHandle->noGraphics)
+    if (!this->osgHandle || this->osgHandle->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
@@ -483,7 +487,7 @@ namespace lpzrobots {
     this->osgHandle=&osgHandle;
     assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
-    if (this->osgHandle->noGraphics)
+    if (!this->osgHandle || this->osgHandle->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
@@ -512,7 +516,7 @@ namespace lpzrobots {
     this->osgHandle=&osgHandle;
     assert(osgHandle.scene || this->osgHandle->noGraphics);
     transform = new MatrixTransform;
-    if (this->osgHandle->noGraphics)
+    if (!this->osgHandle || this->osgHandle->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
@@ -547,24 +551,36 @@ namespace lpzrobots {
     return getGroup()->getBound().radius(); 
   }
 
-  void OSGMesh::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
-    assert(osgHandle.scene || this->osgHandle->noGraphics);
-    transform = new MatrixTransform;
-    if (this->osgHandle->noGraphics)
-      return;
-    osgHandle.scene->addChild(transform.get());
-    scaletrans = new MatrixTransform;    
-    scaletrans->setMatrix(osg::Matrix::scale(scale,scale,scale));
-    transform->addChild(scaletrans.get());
-    mesh  = osgDB::readNodeFile(filename, options);
-    if(mesh==0){
-      fprintf(stderr,"OSGMesh: init: cannot load file: %s\n Abort!\n",filename.c_str());
-      exit(1); 
-    }
-    scaletrans->addChild(mesh.get());
 
-    applyTextures();
+
+  void OSGMesh::internInit(const OsgHandle& osgHandle, bool loadAndDisplayMesh, Quality quality) {
+    this->osgHandle=&osgHandle;
+       assert(osgHandle.scene || this->osgHandle->noGraphics);
+       transform = new MatrixTransform;
+       if (!this->osgHandle || this->osgHandle->noGraphics)
+         return;
+       osgHandle.scene->addChild(transform.get());
+       if (loadAndDisplayMesh) {
+         scaletrans = new MatrixTransform;
+         scaletrans->setMatrix(osg::Matrix::scale(scale,scale,scale));
+         transform->addChild(scaletrans.get());
+         mesh  = osgDB::readNodeFile(filename, options);
+         if(mesh==0){
+           fprintf(stderr,"OSGMesh: init: cannot load file: %s\n Abort!\n",filename.c_str());
+           exit(1);
+         }
+         scaletrans->addChild(mesh.get());
+
+         applyTextures();
+       }
+  }
+
+  void OSGMesh::virtualInit(const OsgHandle& osgHandle){
+    internInit(osgHandle, false);
+  }
+
+  void OSGMesh::init(const OsgHandle& osgHandle, Quality quality){
+    internInit(osgHandle, true, quality);
     
 //     if(osgHandle.color.alpha() < 1.0){
 //       shape->setStateSet(osgHandle.transparentState);
