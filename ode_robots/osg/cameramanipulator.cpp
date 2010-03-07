@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-01-29 14:16:27  martius
+ *   Revision 1.21  2010-03-07 22:40:43  guettler
+ *   plot out XML notation strings for camera position and view (TODO: support for extended modes)
+ *
+ *   Revision 1.20  2010/01/29 14:16:27  martius
  *   added Mouse commands for camera movement into help message
  *
  *   Revision 1.19  2009/07/30 11:52:53  guettler
@@ -330,6 +333,9 @@ namespace lpzrobots {
 	    {
 	      printf("Camera Position/View: (Pos(%g, %g, %g), ", camHandle.eye.x(), camHandle.eye.y(), camHandle.eye.z());
 	      printf(" Pos(%g, %g, %g));\n", camHandle.view.x(), camHandle.view.y(), camHandle.view.z());
+        printf("XML-notation:\n");
+        printf("<Position X=\"%g\" Y=\"%g\" Z=\"%g\"/>\n", camHandle.eye.x(), camHandle.eye.y(), camHandle.eye.z());
+        printf("<Rotation Alpha=\"%g\" Beta=\"%g\" Gamma=\"%g\"/>\n", camHandle.view.x(), camHandle.view.y(), camHandle.view.z());
 	      break;
 	    }
 	  case 65360: // pos1
