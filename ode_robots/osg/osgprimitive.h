@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-30 11:34:15  guettler
+ *   Revision 1.8  2010-03-07 22:45:35  guettler
+ *   - OSGMesh supports now virtual initialisation (necessary for Meshes not visible)
+ *
+ *   Revision 1.7  2009/07/30 11:34:15  guettler
  *   added check if noGraphics in OsgHandle is set
  *
  *   Revision 1.6  2009/04/26 10:28:49  martius
@@ -299,6 +302,12 @@ namespace lpzrobots {
     OSGMesh(const std::string& filename, float scale = 1, const osgDB::ReaderWriter::Options* options = 0);
     ~OSGMesh();
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
+    /**
+     * Same as init, but the mesh file is not loaded and therefore not displayed.
+     * This method ensures that the transform is correct initialised.
+     * @param osgHandle
+     */
+    virtual void virtualInit(const OsgHandle& osgHandle);
     virtual float getRadius();
     float getScale() { return scale; }
 
@@ -307,7 +316,9 @@ namespace lpzrobots {
     float scale;  
     const osgDB::ReaderWriter::Options* options;        
     osg::ref_ptr<osg::Node> mesh;
-    osg::ref_ptr<osg::MatrixTransform> scaletrans;  
+    osg::ref_ptr<osg::MatrixTransform> scaletrans;
+
+    virtual void internInit(const OsgHandle& osgHandle, bool loadAndDisplayMesh, Quality quality = Middle);
         
   };
 
