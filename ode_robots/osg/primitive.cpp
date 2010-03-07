@@ -23,7 +23,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2010-03-05 14:32:55  martius
+ *   Revision 1.27  2010-03-07 22:47:59  guettler
+ *   - support for manually setting the substance (substance was overwritten in initialise methods)
+ *   - enhancements for Mesh (mode Body, Geom, Draw), is needed for XMLImport
+ *
+ *   Revision 1.26  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -239,7 +243,7 @@ namespace lpzrobots{
   /******************************************************************************/
 
   Primitive::Primitive() 
-    : geom(0), body(0) {
+    : geom(0), body(0), substanceManuallySet(false) {
   }
 
   Primitive::~Primitive () {
@@ -408,6 +412,11 @@ namespace lpzrobots{
     return v*osg::Matrix::inverse(m);
   }
 
+  void Primitive::setSubstance(Substance substance) {
+    this->substance = substance;
+    substanceManuallySet = true;
+  }
+
 
   /******************************************************************************/
   Plane::Plane(){    
@@ -473,7 +482,8 @@ namespace lpzrobots{
   void Box::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		 char mode) {
     assert((mode & Body) || (mode & Geom));
-    substance = odeHandle.substance;
+    if (!substanceManuallySet)
+      substance = odeHandle.substance;
     QMP_CRITICAL(1);
     this->mode=mode;
     osg::Vec3 dim = osgbox->getDim();
@@ -525,7 +535,8 @@ namespace lpzrobots{
   void Sphere::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		    char mode) {
     assert(mode & Body || mode & Geom);
-    substance = odeHandle.substance;
+    if (!substanceManuallySet)
+      substance = odeHandle.substance;
     this->mode=mode;
     QMP_CRITICAL(2);
     if (mode & Body){
@@ -575,7 +586,8 @@ namespace lpzrobots{
   void Capsule::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     assert(mode & Body || mode & Geom);
-    substance = odeHandle.substance;
+    if (!substanceManuallySet)
+      substance = odeHandle.substance;
     this->mode=mode;
     QMP_CRITICAL(3);
     if (mode & Body){
@@ -625,7 +637,8 @@ namespace lpzrobots{
   void Cylinder::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     assert(mode & Body || mode & Geom);
-    substance = odeHandle.substance;
+    if (!substanceManuallySet)
+      substance = odeHandle.substance;
     this->mode=mode;
     QMP_CRITICAL(4);
     if (mode & Body){
@@ -677,7 +690,8 @@ namespace lpzrobots{
   void Ray::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		 char mode) {
     assert(!(mode & Body) && (mode & Geom));
-    substance = odeHandle.substance;
+    if (!substanceManuallySet)
+      substance = odeHandle.substance;
     this->mode=mode;
     QMP_CRITICAL(5);
     geom = dCreateRay ( odeHandle.space, range);
@@ -725,7 +739,8 @@ namespace lpzrobots{
     // Primitive::body is ignored (removed) from mode
     assert(parent && parent->getBody() != 0 && child); // parent and child must exist
     assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised    
-    substance = odeHandle.substance;
+    if (!substanceManuallySet)
+      substance = odeHandle.substance;
 
     QMP_CRITICAL(6);
     // our own geom is just a transform
@@ -776,14 +791,20 @@ namespace lpzrobots{
 
   void Mesh::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
-    assert(mode & Body || mode & Geom);
-    substance = odeHandle.substance;
+    // 20100307; guettler: sometimes the Geom is created later (XMLBoundingShape),
+    // the body is always needed!
+    assert(mode & Body /* || mode & Geom */);
+    if (!substanceManuallySet)
+      substance = odeHandle.substance;
     this->mode=mode;
     double r=0.01;
     QMP_CRITICAL(7);
     if (mode & Draw){
       osgmesh->init(osgHandle);
       r =  osgmesh->getRadius();
+    }
+    else {
+      osgmesh->virtualInit(osgHandle);
     }
     if (r<0) r=0.01;
     if (mode & Body){
@@ -796,18 +817,21 @@ namespace lpzrobots{
     } 
     // read boundingshape file
     //    const osg::BoundingSphere& bsphere = osgmesh->getGroup()->getBound(); 
-    short drawBoundingMode;
-    if (osgHandle.drawBoundings)
-      drawBoundingMode=Primitive::Geom | Primitive::Draw;
-    else
-      drawBoundingMode=Primitive::Geom;
-    boundshape = new BoundingShape(filename+".bbox" ,this);
-    if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.3)), scale, drawBoundingMode)){
-      printf("use default bounding box, because bbox file not found!\n");
-      Primitive* bound = new Sphere(r); 
-      Transform* trans = new Transform(this,bound,osg::Matrix::translate(0.0f,0.0f,0.0f));
-      trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);
-      osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
+    // 20100307; guettler: if no Geom, don't create any Geom or Boundings (this is used e.g. for Meshes loaded from XML)
+    if (mode & Geom) {
+      short drawBoundingMode;
+      if (osgHandle.drawBoundings)
+        drawBoundingMode=Primitive::Geom | Primitive::Draw;
+      else
+        drawBoundingMode=Primitive::Geom;
+      boundshape = new BoundingShape(filename+".bbox" ,this);
+      if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.3)), scale, drawBoundingMode)){
+        printf("use default bounding box, because bbox file not found!\n");
+        Primitive* bound = new Sphere(r);
+        Transform* trans = new Transform(this,bound,osg::Matrix::translate(0.0f,0.0f,0.0f));
+        trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);
+        osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
+      }
     }
     QMP_END_CRITICAL(7);
   }
@@ -817,10 +841,10 @@ namespace lpzrobots{
   void Mesh::update(){
     if(mode & Draw) {
       if(body) {
-	osgmesh->setMatrix(osgPose(body));
+        osgmesh->setMatrix(osgPose(body));
       }
       else {
-	osgmesh->setMatrix(osgPose(geom));
+        osgmesh->setMatrix(osgPose(geom));
       }
     }
   }
