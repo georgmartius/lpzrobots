@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2010-03-05 14:32:55  martius
+ *   Revision 1.26  2010-03-07 22:39:08  guettler
+ *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
+ *
+ *   Revision 1.25  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -276,7 +279,7 @@ namespace lpzrobots
     int CastsShadowTraversalMask;
 
     // the types are double because they are configurable and stored to the cfg file
-    int shadow;     // set by child class Simulation
+    // int shadow;     // set by child class Simulation, now found in OsgHandle
     int shadowTexSize;  // set by child class Simulation
     bool useNVidia;      // unused: if false use ATI Radeon!
 

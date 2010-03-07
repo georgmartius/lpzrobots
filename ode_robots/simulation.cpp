@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.117  2010-03-05 14:32:55  martius
+ *   Revision 1.118  2010-03-07 22:38:49  guettler
+ *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
+ *
+ *   Revision 1.117  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -656,7 +659,7 @@ namespace lpzrobots {
       globalconfigurables(globalData.globalconfigurables)
   {
     // default values are set in Base::Base()
-    addParameter("Shadow",&shadow);
+    addParameter("Shadow",&(osgHandle.shadowType));
     addParameter("ShadowTextureSize",&shadowTexSize);
     addParameter("UseNVidia",&useNVidia);
     addParameterDef("WindowWidth",&windowWidth,640);
@@ -809,7 +812,7 @@ namespace lpzrobots {
 
       // construct the viewer.
       viewer = new Viewer(*arguments);
-      if(useOsgThread && !shadow==3){ // ParallelSplitShadowMap does not support threads
+      if(useOsgThread && !osgHandle.shadowType==3){ // ParallelSplitShadowMap does not support threads
 	viewer->setThreadingModel(Viewer::CullDrawThreadPerContext);
       }else{
 	viewer->setThreadingModel(Viewer::SingleThreaded);
@@ -1527,8 +1530,8 @@ namespace lpzrobots {
 
     index = contains(argv, argc, "-shadow");
     if(index && (argc > index)) {
-      shadow= atoi(argv[index]);
-      printf("shadowType=%i\n",shadow);
+      osgHandle.shadowType= atoi(argv[index]);
+      printf("shadowType=%i\n",osgHandle.shadowType);
     }
 
     index = contains(argv, argc, "-shadowsize");
@@ -1537,7 +1540,7 @@ namespace lpzrobots {
       printf("shadowTexSize=%i\n",shadowTexSize);
     }
     if(contains(argv, argc, "-noshadow")!=0) {
-      shadow=0;
+      osgHandle.shadowType=0;
       printf("using no shadow\n");
     }
 

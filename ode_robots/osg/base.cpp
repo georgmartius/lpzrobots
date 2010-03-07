@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.42  2010-03-05 14:32:55  martius
+ *   Revision 1.43  2010-03-07 22:39:08  guettler
+ *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
+ *
+ *   Revision 1.42  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -305,7 +308,7 @@ namespace lpzrobots {
       : ground(0), caption(caption), groundTexture("Images/greenground.rgb"), shadowedScene(0),
       lightSource(0), groundScene(0), transform(0), hud(0), timestats(0),
       captionline(0), statisticLine(0), plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
-      CastsShadowTraversalMask(0x2), shadow(5), shadowTexSize(2048), useNVidia(1)
+      CastsShadowTraversalMask(0x2), shadowTexSize(2048), useNVidia(1)
     {
     }
 
@@ -622,7 +625,7 @@ namespace lpzrobots {
     transform->addChild(makeSky());  // bin number -2 so drawn first.
 
     groundScene = makeGround();
-    int shadowType=(int)shadow;
+    int shadowType=(int)osgHandle.shadowType;
     // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
     if (shadowType!=3)
     	transform->addChild(groundScene); // bin number -1 so draw second.
@@ -641,7 +644,7 @@ namespace lpzrobots {
       // create the shadowed scene, using textures
       //shadowedScene = createShadowedScene(scene,posOfLight,1);
 	  // create root of shadowedScene
-      shadowedScene = createShadowedScene(osgHandle.scene,lightSource,(int)shadow);
+      shadowedScene = createShadowedScene(osgHandle.scene,lightSource,(int)osgHandle.shadowType);
 
       // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
       if (shadowType==3)
@@ -937,7 +940,7 @@ namespace lpzrobots {
   void Base::changeShadowTechnique()
   {
 	  std::string shadowName;
-	  int shadowType = ++shadow;
+	  int shadowType = ++(osgHandle.shadowType);
 	  switch (shadowType) {
 	  case 6:
             shadowType=0; // max shadowtype at the moment: 5
@@ -985,7 +988,7 @@ namespace lpzrobots {
             break;
           }
 	  printf("Changed shadowType to %i (%s)\n",shadowType,shadowName.c_str());
-	  shadow=shadowType;
+	  osgHandle.shadowType=shadowType;
   }
 
 // Helper
