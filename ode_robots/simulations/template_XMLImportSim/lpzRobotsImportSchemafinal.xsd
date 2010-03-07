@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Mit XMLSpy v2010 (http://www.altova.com) von nonamne (yeah) bearbeitet -->
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by nonamne (yeah) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3schools.com" targetNamespace="http://www.w3schools.com" elementFormDefault="qualified">
+	<!-- Elemente definieren -->
+	<xs:element name="Scene" type="scenecomplete"/>
+	<xs:element name="Viewob" type="xs:string"/>
+	<xs:element name="typ" type="xs:string"/>
+	<xs:element name="Filename" type="xs:string"/>
+	<xs:element name="Filepath" type="xs:string"/>
+	<xs:element name="BoundingBox" type="BoundingBoxType"/>
+	<xs:element name="Texture" type="textureType"/>
+	<xs:element name="Scaling" type="Scalingtype"/>
+	<xs:element name="Mass" type="xs:float"/>
+	<xs:element name="Permeable" type="xs:boolean"/>
+	<xs:element name="Animation" type="xs:boolean"/>
+	<xs:element name="Color" type="Colortype"/>
+	<xs:element name="Position">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="Vector"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Directionto" type="Vector"/>
+	<xs:element name="Translation" type="Vector"/>
+	<xs:element name="Rotation" type="Angle3d"/>
+	<!-- Attribute definieren -->
+	<xs:attribute name="id" type="xs:string"/>
+	<xs:attribute name="name" type="xs:string"/>
+	<xs:attribute name="wrapTextureOnR"/>
+	<xs:attribute name="wrapTextureOnL"/>
+	<xs:simpleType name="color-rgb">
+		<xs:restriction base="xs:decimal">
+			<xs:totalDigits value="3"/>
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="255"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="shadowtype">
+		<xs:restriction base="xs:decimal">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Komplexe Typen definieren -->
+	<xs:complexType name="scenecomplete">
+		<xs:sequence>
+			<xs:element name="GlobalVariables" minOccurs="0">
+				<xs:complexType>
+					<xs:attribute name="ShadowType" use="optional" default="3">
+						<xs:simpleType>
+							<xs:restriction base="xs:integer">
+								<xs:minInclusive value="0"/>
+								<xs:maxInclusive value="5"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="DrawBoundings" type="xs:boolean" use="optional" default="0"/>
+					<xs:attribute name="Noise" type="xs:float" use="optional" default="0.1"/>
+					<xs:attribute name="CameraSpeed" type="xs:float" use="optional" default="100"/>
+					<xs:attribute name="ControlInterval" type="xs:float" use="optional" default="1"/>
+					<xs:attribute name="MotionPersistence" type="xs:float" use="optional" default="0.0"/>
+					<xs:attribute name="SimStepSize" type="xs:float" use="optional" default="0.01"/>
+					<xs:attribute name="Gravity" type="xs:float" use="optional" default="-9.81"/>
+					<xs:attribute name="Fps" type="xs:float" use="optional" default="25"/>
+					<xs:attribute name="RealtimeFactor" type="xs:float" use="optional" default="1"/>
+					<xs:attribute name="RandomSeed" type="xs:float" use="optional"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PassiveObjects" type="PassiveObjectsType" minOccurs="0"/>
+			<xs:element name="Agents" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="Agent">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Robot" type="DynamicObjectType"/>
+									<xs:element name="Wiring" type="WiringType"/>
+									<xs:element name="Controller" type="ControllerType"/>
+								</xs:sequence>
+								<xs:attribute name="id" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Camera" minOccurs="0">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="CameraNodeType">
+							<xs:attribute name="id" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Lights" minOccurs="0">
+				<xs:complexType>
+					<xs:choice maxOccurs="unbounded">
+						<xs:element name="StandardLight">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:boolean">
+										<xs:attribute name="id" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="SimpleLightPoint">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Position" type="Vector"/>
+								</xs:sequence>
+								<xs:attribute name="Brightness" type="xs:float" use="required"/>
+								<xs:attribute name="id" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="LightDirection">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Rotation" type="Angle3d"/>
+								</xs:sequence>
+								<xs:attribute name="Brightness" type="xs:float" use="required"/>
+								<xs:attribute name="id" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="SpecificLight">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Position" type="Vector"/>
+									<xs:element name="Rotation" type="Angle3d"/>
+									<xs:element name="AmbientColor" type="Colortype" minOccurs="0"/>
+									<xs:element name="DifuseColor" type="Colortype" minOccurs="0"/>
+									<xs:element name="SpecularColor" type="Colortype" minOccurs="0"/>
+								</xs:sequence>
+								<xs:attribute name="ViewingAngle" type="xs:float" use="optional"/>
+								<xs:attribute name="Brightness" type="xs:float" use="required"/>
+								<xs:attribute name="AttenuationType" use="required">
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:enumeration value="Constant"/>
+											<xs:enumeration value="Linear"/>
+											<xs:enumeration value="Quadratic"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:attribute>
+								<xs:attribute name="id" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Vector">
+		<xs:attribute name="X" type="xs:float" use="required"/>
+		<xs:attribute name="Y" type="xs:float" use="required"/>
+		<xs:attribute name="Z" type="xs:float" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="Angle3d">
+		<xs:attribute name="Alpha" type="xs:float" use="required"/>
+		<xs:attribute name="Beta" type="xs:float" use="required"/>
+		<xs:attribute name="Gamma" type="xs:float" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="Colortype">
+		<xs:attribute name="red" type="xs:integer" use="required"/>
+		<xs:attribute name="green" type="xs:integer" use="required"/>
+		<xs:attribute name="blue" type="xs:integer" use="required"/>
+		<xs:attribute name="alpha" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="Scalingtype">
+		<xs:attribute name="Scale"/>
+	</xs:complexType>
+	<xs:complexType name="Gravitation">
+		<xs:attribute name="Force"/>
+	</xs:complexType>
+	<xs:complexType name="BoundingBoxType">
+		<xs:sequence>
+			<xs:element name="position" type="Vector"/>
+			<xs:element name="translation" type="Vector"/>
+			<!-- Verschiebung -->
+			<xs:element name="Rotation" type="Angle3d"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:float"/>
+		<xs:attribute name="name" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="CameraNodeType">
+		<xs:choice>
+			<xs:element name="StandardCamera">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="StandardCamModeType"/>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="TvMode">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="TvModeType">
+							<xs:attribute name="AgentId" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="RaceMode">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="RaceModeType">
+							<xs:attribute name="AgentId" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="FollowMode">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="FollowModeType">
+							<xs:attribute name="AgentId" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="Light">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="StatObjectType"/>
+	<xs:complexType name="DynamicObjectType">
+		<xs:sequence>
+			<xs:element name="Position" type="Vector"/>
+			<xs:element name="Rotation">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="Angle3d"/>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<!-- gibt an ob durchlaessig  -->
+			<!-- falls Objekt animiert ist  -->
+			<xs:element name="Joints" minOccurs="0">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="JointNodeType">
+							<xs:choice maxOccurs="unbounded">
+								<xs:element name="OneAxisJoint">
+									<xs:complexType>
+										<xs:complexContent>
+											<xs:extension base="OneAxisJointType">
+												<xs:choice minOccurs="0">
+													<xs:element name="AngularMotor" type="AngularMotorType"/>
+													<xs:element name="OneAxisServo" type="OneAxisServoType"/>
+												</xs:choice>
+											</xs:extension>
+										</xs:complexContent>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="TwoAxisJoint">
+									<xs:complexType>
+										<xs:complexContent>
+											<xs:extension base="TwoAxisJointType">
+												<xs:choice minOccurs="0">
+													<xs:element name="AngularMotor2Axis" type="AngularMotor2AxisType"/>
+													<xs:element name="TwoAxisServo" type="TwoAxisServoType"/>
+												</xs:choice>
+											</xs:extension>
+										</xs:complexContent>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="FixedJoint">
+									<xs:complexType>
+										<xs:complexContent>
+											<xs:extension base="FixedJointType"/>
+										</xs:complexContent>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="HingeJoint">
+									<xs:complexType>
+										<xs:complexContent>
+											<xs:extension base="HingeJointType">
+												<xs:choice minOccurs="0">
+													<xs:element name="AngularMotor" type="AngularMotorType"/>
+													<xs:element name="OneAxisServo" type="OneAxisServoType"/>
+												</xs:choice>
+											</xs:extension>
+										</xs:complexContent>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="Hinge2Joint">
+									<xs:complexType>
+										<xs:complexContent>
+											<xs:extension base="Hinge2JointType">
+												<xs:choice minOccurs="0">
+													<xs:element name="AngularMotor2Axis" type="AngularMotor2AxisType"/>
+													<xs:element name="TwoAxisServo" type="TwoAxisServoType"/>
+												</xs:choice>
+											</xs:extension>
+										</xs:complexContent>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="UniversalJoint">
+									<xs:complexType>
+										<xs:complexContent>
+											<xs:extension base="UniversalJointType">
+												<xs:choice minOccurs="0">
+													<xs:element name="AngularMotor2Axis" type="AngularMotor2AxisType"/>
+													<xs:element name="TwoAxisServo" type="TwoAxisServoType"/>
+												</xs:choice>
+											</xs:extension>
+										</xs:complexContent>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="BallJoint">
+									<xs:complexType>
+										<xs:complexContent>
+											<xs:extension base="BallJointType">
+												<xs:choice>
+													<xs:element name="AngularMotor2Axis" type="AngularMotor2AxisType"/>
+													<xs:element name="TwoAxisServo" type="TwoAxisServoType"/>
+												</xs:choice>
+											</xs:extension>
+										</xs:complexContent>
+									</xs:complexType>
+								</xs:element>
+							</xs:choice>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Sensors" minOccurs="0">
+				<xs:complexType>
+					<xs:choice maxOccurs="unbounded">
+						<xs:element name="SpeedSensor">
+							<xs:complexType>
+								<xs:complexContent>
+									<xs:extension base="SensorType">
+										<xs:attribute name="RotationMode" type="xs:boolean" use="optional" default="false"/>
+									</xs:extension>
+								</xs:complexContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="RelativePositionSensor">
+							<xs:complexType>
+								<xs:complexContent>
+									<xs:extension base="SensorType">
+										<xs:attribute name="ReferencePrimitiveId" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:complexContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="IrSensor" type="SensorType"/>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Mesh">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="MeshType"/>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Cylinder" type="CylinderType"/>
+				<xs:element name="Capsule" type="CapsuleType"/>
+				<xs:element name="Sphere" type="SphereType"/>
+				<xs:element name="Box" type="BoxType"/>
+				<xs:element name="ComplexObject" type="ComplexObjectType"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PrimitiveType">
+		<xs:sequence>
+			<xs:element name="Texture" type="textureType" minOccurs="0" maxOccurs="3"/>
+			<xs:element name="Color" type="Colortype" minOccurs="0"/>
+			<xs:element name="Position" type="Vector"/>
+			<xs:element name="Rotation" type="Angle3d"/>
+			<xs:element name="Material" minOccurs="0">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="Substances">
+							<xs:choice minOccurs="0">
+								<xs:element name="Metall">
+									<xs:complexType>
+										<xs:attribute name="Roughness" type="xs:float" use="required"/>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="Rubber">
+									<xs:complexType>
+										<xs:attribute name="Hardness" type="xs:float" use="required"/>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="Plastic">
+									<xs:complexType>
+										<xs:attribute name="Roughness" type="xs:float" use="required"/>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="Foam">
+									<xs:complexType>
+										<xs:attribute name="Hardness" type="xs:float" use="required"/>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="Snow">
+									<xs:complexType>
+										<xs:attribute name="Slip" type="xs:float" use="required"/>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="NoContact" type="xs:string"/>
+							</xs:choice>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="permeable" type="xs:boolean" use="optional" default="0"/>
+		<xs:attribute name="visible" type="xs:boolean" use="optional" default="1"/>
+		<xs:attribute name="Mass" type="xs:float" use="required"/>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="MeshType">
+		<xs:sequence>
+			<xs:element name="Position" type="Vector"/>
+			<xs:element name="Rotation" type="Angle3d"/>
+			<xs:element name="GraphicalRepresentation">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="color" type="Colortype" minOccurs="0"/>
+						<xs:element name="texture" type="textureType" minOccurs="0"/>
+					</xs:sequence>
+					<xs:attribute name="Filename" use="required"/>
+					<xs:attribute name="visible" type="xs:boolean" use="optional" default="1"/>
+					<xs:attribute name="animated" type="xs:boolean" use="optional" default="0"/>
+					<xs:attribute name="scaling" type="xs:float" use="optional" default="1"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="BoundingShape">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Cylinder" type="CylinderType" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="Capsule" type="CapsuleType" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="Sphere" type="SphereType" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="Box" type="BoxType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:attribute name="Mass" type="xs:float" use="required"/>
+					<xs:attribute name="scaling" type="xs:float" use="optional"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="textureType">
+		<xs:attribute name="wrapTextureOnR" type="xs:boolean" use="optional"/>
+		<xs:attribute name="Filename" type="xs:string" use="required"/>
+		<xs:attribute name="wrapTextureOnS" type="xs:boolean" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="CameraType">
+		<xs:sequence>
+			<xs:element name="Position" type="Vector"/>
+			<xs:choice>
+				<xs:element name="Rotation" type="Angle3d" minOccurs="0"/>
+				<xs:element name="ViewPosition" type="Vector" minOccurs="0"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LighttypeType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string"/>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:group name="bodyparts">
+		<xs:sequence>
+			<xs:element name="arm" type="DynamicObjectType"/>
+			<xs:element name="leg" type="DynamicObjectType"/>
+			<xs:element name="foot" type="DynamicObjectType"/>
+			<xs:element name="head" type="DynamicObjectType"/>
+			<xs:element name="body" type="DynamicObjectType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="vehicleparts">
+		<xs:sequence>
+			<xs:element name="frame" type="DynamicObjectType"/>
+			<xs:element name="wheel" type="DynamicObjectType"/>
+			<xs:element name="vehicleelement" type="DynamicObjectType"/>
+			<xs:element name="motor" type="DynamicObjectType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:simpleType name="controllername">
+		<xs:list itemType="xs:string"/>
+	</xs:simpleType>
+	<xs:attribute name="Height" type="xs:float"/>
+	<xs:attribute name="Width" type="xs:float"/>
+	<xs:attribute name="Long" type="xs:float"/>
+	<xs:attribute name="Radius" type="xs:float"/>
+	<xs:complexType name="CylinderType">
+		<xs:complexContent>
+			<xs:extension base="PrimitiveType">
+				<xs:attribute name="Radius" type="xs:float" use="required"/>
+				<xs:attribute name="Height" type="xs:float" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CapsuleType">
+		<xs:complexContent>
+			<xs:extension base="PrimitiveType">
+				<xs:attribute name="Height" type="xs:float" use="required"/>
+				<xs:attribute name="Radius" type="xs:float" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SphereType">
+		<xs:complexContent>
+			<xs:extension base="PrimitiveType">
+				<xs:attribute name="Radius" type="xs:float" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BoxType">
+		<xs:complexContent>
+			<xs:extension base="PrimitiveType">
+				<xs:attribute name="Width" type="xs:float" use="required"/>
+				<xs:attribute name="Length" type="xs:float" use="required"/>
+				<xs:attribute name="Height" type="xs:float" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="SensorName">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="RelativePositionSensor"/>
+			<xs:enumeration value="IRSensor"/>
+			<xs:enumeration value="SpeedSensor"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="Substances">
+		<xs:attribute name="Slip" type="xs:int" use="optional"/>
+		<xs:attribute name="Hardness" type="xs:integer" use="optional"/>
+		<xs:attribute name="Elasticity" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Roughness" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:float">
+					<xs:minInclusive value="0"/>
+					<xs:maxInclusive value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="WiringType">
+		<xs:attribute name="Name" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="AbstractWiring"/>
+					<xs:enumeration value="DerivativeWiring"/>
+					<xs:enumeration value="FeedbackWiring"/>
+					<xs:enumeration value="MotorNoiseWiring"/>
+					<xs:enumeration value="One2OneWiring"/>
+					<xs:enumeration value="SelectiveOne2OneWiring"/>
+					<xs:enumeration value="WiringSequence"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:anyAttribute namespace="##any" processContents="lax"/>
+	</xs:complexType>
+	<xs:complexType name="ComplexObjectType">
+		<xs:choice>
+			<xs:element name="Cylinder" type="CylinderType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Capsule" type="CapsuleType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Sphere" type="SphereType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Box" type="BoxType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Mesh" type="MeshType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:choice>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="JointType">
+		<xs:sequence>
+			<xs:element name="AnchorPosition" type="Vector"/>
+			<xs:element name="Axis1Rotation" type="Angle3d"/>
+		</xs:sequence>
+		<xs:attribute name="PrimitiveId1" type="xs:string" use="required"/>
+		<xs:attribute name="PrimitiveId2" type="xs:string" use="required"/>
+		<xs:attribute name="OmegaMin" type="xs:float" use="optional"/>
+		<xs:attribute name="OmegaMax" type="xs:float" use="optional"/>
+		<xs:attribute name="VisualSize" type="xs:float" use="optional" default="0.2"/>
+		<xs:attribute name="VisualWith" type="xs:float" use="optional" default="0"/>
+		<xs:attribute name="JointName" type="xs:string"/>
+		<xs:anyAttribute namespace="##any"/>
+	</xs:complexType>
+	<xs:complexType name="SensorType">
+		<xs:sequence>
+			<xs:element name="Rotation" type="Angle3d"/>
+			<xs:element name="Position" type="Vector"/>
+		</xs:sequence>
+		<xs:attribute name="ReferenceJoin" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="ControllerType">
+		<xs:sequence>
+			<xs:element name="Param">
+				<xs:complexType>
+					<xs:attribute name="epsA" type="xs:float" use="optional"/>
+					<xs:attribute name="epsC" type="xs:float" use="optional"/>
+					<xs:attribute name="adaptrate" type="xs:float" use="optional"/>
+					<xs:anyAttribute namespace="##any" processContents="lax"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="Controllername" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="BasicController"/>
+					<xs:enumeration value="ClassicReinforce"/>
+					<xs:enumeration value="dercontroller"/>
+					<xs:enumeration value="crossmotorcoupling"/>
+					<xs:enumeration value="derbigcontroller"/>
+					<xs:enumeration value="derlininvert"/>
+					<xs:enumeration value="dinvert3channelcontroller"/>
+					<xs:enumeration value="DerSimple"/>
+					<xs:enumeration value="DerLinunivers"/>
+					<xs:enumeration value="DerPseudosensor"/>
+					<xs:enumeration value="DiscreteSizable"/>
+					<xs:enumeration value="discretecontrolleradapter"/>
+					<xs:enumeration value="elman"/>
+					<xs:enumeration value="feedforwardnn"/>
+					<xs:enumeration value="ffnncontroller"/>
+					<xs:enumeration value="Homeokinbase"/>
+					<xs:enumeration value="Invert3ChannelController"/>
+					<xs:enumeration value="InvertableModel"/>
+					<xs:enumeration value="InvertController"/>
+					<xs:enumeration value="InvertMotorBigModel"/>
+					<xs:enumeration value="InvertMotorController"/>
+					<xs:enumeration value="InvertMotornStep"/>
+					<xs:enumeration value="InvertMotorSpace"/>
+					<xs:enumeration value="InvertNChannelController"/>
+					<xs:enumeration value="MeasureAdapter"/>
+					<xs:enumeration value="ModelWithMemoryAdapter"/>
+					<xs:enumeration value="MultiLayerFFNN"/>
+					<xs:enumeration value="UniversalNetController"/>
+					<xs:enumeration value="use_java_controller"/>
+					<xs:enumeration value="MultiReinforce"/>
+					<xs:enumeration value="MutualInformationController"/>
+					<xs:enumeration value="NeuralGas"/>
+					<xs:enumeration value="OneActiveMultiPassiveController"/>
+					<xs:enumeration value="OneLayerFFNN"/>
+					<xs:enumeration value="ProActive"/>
+					<xs:enumeration value="ProActive2"/>
+					<xs:enumeration value="QLearning"/>
+					<xs:enumeration value="regularisation"/>
+					<xs:enumeration value="ReplayController"/>
+					<xs:enumeration value="SeMoX"/>
+					<xs:enumeration value="SineController"/>
+					<xs:enumeration value="SOM"/>
+					<xs:enumeration value="Teachable"/>
+					<xs:enumeration value="SeMoX"/>
+					<xs:enumeration value="UniversalController"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="FixedJointType">
+		<xs:complexContent>
+			<xs:extension base="JointType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SliderJointType">
+		<xs:complexContent>
+			<xs:extension base="JointType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BallJointType">
+		<xs:complexContent>
+			<xs:extension base="JointType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="HingeJointType">
+		<xs:complexContent>
+			<xs:extension base="JointType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="OneAxisJointType">
+		<xs:complexContent>
+			<xs:extension base="JointType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TwoAxisJointType">
+		<xs:complexContent>
+			<xs:extension base="JointType">
+				<xs:sequence>
+					<xs:element name="Axis2Rotation" type="Angle3d"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="UniversalJointType">
+		<xs:complexContent>
+			<xs:extension base="JointType">
+				<xs:sequence>
+					<xs:element name="Axis2Rotation" type="Angle3d"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AngularMotorType">
+		<xs:complexContent>
+			<xs:extension base="Motortype"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AngularMotor2AxisType">
+		<xs:complexContent>
+			<xs:extension base="Motortype"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="OneAxisServoType">
+		<xs:complexContent>
+			<xs:extension base="Motortype"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TwoAxisServoType">
+		<xs:complexContent>
+			<xs:extension base="Motortype"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Motortype">
+		<xs:attribute name="MaxVelocity" type="xs:float" use="required"/>
+		<xs:attribute name="Force" type="xs:float" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="MotorNodeType">
+		<xs:choice>
+			<xs:element name="AngularMotor" type="AngularMotorType"/>
+			<xs:element name="AngularMotor2Axis" type="AngularMotor2AxisType"/>
+			<xs:element name="OneAxisServo" type="OneAxisServoType"/>
+			<xs:element name="TwoAxisServo" type="TwoAxisServoType"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="JointNodeType"/>
+	<xs:complexType name="Hinge2JointType">
+		<xs:complexContent>
+			<xs:extension base="JointType">
+				<xs:sequence>
+					<xs:element name="Axis2Rotation" type="Angle3d"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="StandardCamModeType">
+		<xs:complexContent>
+			<xs:extension base="CameraType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FollowModeType">
+		<xs:complexContent>
+			<xs:extension base="CameraType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TvModeType">
+		<xs:complexContent>
+			<xs:extension base="CameraType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RaceModeType">
+		<xs:complexContent>
+			<xs:extension base="CameraType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="SubstanceType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Metal"/>
+			<xs:enumeration value="Ruber"/>
+			<xs:enumeration value="Plastic"/>
+			<xs:enumeration value="Foam"/>
+			<xs:enumeration value="Snow"/>
+			<xs:enumeration value="NoContact"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="NoiseGenerator">
+		<xs:choice>
+			<xs:element name="ColorUniformNoise"/>
+			<xs:element name="NoNoise"/>
+			<xs:element name="SineWhiteNoise"/>
+			<xs:element name="WhiteNormalNoise"/>
+			<xs:element name="WhiteUniformNoise"/>
+		</xs:choice>
+		<xs:attribute name="RandGen" type="xs:float" use="required"/>
+		<xs:attribute name="dimension" type="xs:float" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="PassiveObjectsType">
+		<xs:complexContent>
+			<xs:extension base="StatObjectType">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="Mesh" type="MeshType"/>
+					<xs:element name="Cylinder" type="CylinderType"/>
+					<xs:element name="Capsule" type="CapsuleType"/>
+					<xs:element name="Sphere" type="SphereType"/>
+					<xs:element name="Box" type="BoxType"/>
+					<xs:element name="ComplexObject" type="ComplexObjectType"/>
+					<xs:element name="Playground" type="PlaygroundType"/>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="PlaygroundType">
+		<xs:sequence>
+			<xs:element name="Position" type="Vector"/>
+			<xs:element name="Color" type="Colortype"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

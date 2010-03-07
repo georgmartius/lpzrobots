@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scene xsi:schemaLocation="http://www.w3schools.com lpzRobotsImportSchemafinal.xsd" xmlns="http://www.w3schools.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<GlobalVariables Drawboundings="0" Shadowtype="3" fps="25" cameraspeed="100" noise="0.1" controlinterval="1" SimStepsize="0.01" randomseed="3.14159E0" realtimefactor="1" gravity="-9.81" motionpersistence="0.0"/>
+	<PassiveObjects>
+		<Playground Length="3.14159E0" Width="3.14159E0" Height="3.14159E0">
+			<Position X="0" Y="0" Z="0"/>
+			<Geometry Length="10" Width="0.2" Heigth="1.0"/>
+			<Color red="0" blue="0" green="0" alpha="0"/>
+		</Playground>
+		<Capsule Radius="1" Height="2" Mass="3">
+			<Position X="0" Y="0" Z="0"/>
+			<Rotation Alpha="0" Beta="0" Gamma="0"/>
+			<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+			<Color red="0" blue="0" green="0" alpha="0"/>
+			<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+		</Capsule>
+		<Cylinder Radius="0" Height="0" Mass="0">
+			<Position X="0" Y="0" Z="0"/>
+			<Rotation Alpha="0" Beta="0" Gamma="0"/>
+			<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+			<Color red="0" blue="0" green="0" alpha="0"/>
+			<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+		</Cylinder>
+		<Box Length="0" Width="0" Height="0" Mass="0">
+			<Position X="0" Y="0" Z="0"/>
+			<Rotation Alpha="0" Beta="0" Gamma="0"/>
+			<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+			<Color red="0" blue="0" green="0" alpha="0"/>
+			<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+		</Box>
+		<Sphere Radius="0" Mass="0">
+			<Position X="0" Y="0" Z="0"/>
+			<Rotation Alpha="0" Beta="0" Gamma="0"/>
+			<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+			<Color red="0" blue="0" green="0" alpha="0"/>
+			<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+		</Sphere>
+		<Mesh id="Tree1">
+			<Position X="-1" Y="0.2" Z="0.4"/>
+			<Rotation Alpha="0" Gamma="0" Beta="0"/>
+			<GraphicalRepresentation animated="0" Filename="Meshes/tree1.osg" visible="1" scaling="0.01">
+				<color alpha="0" red="0" green="255" blue="0"/>
+				<texture Filename="baum.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+			</GraphicalRepresentation>
+			<BoundingShape Mass="1000">				
+				<Cylinder permeable="0" Mass="0" visible="1" Radius="6.5" Height="50">
+					<Position X="0" Y="0" Z="25"/>
+					<Rotation Alpha="0" Gamma="0" Beta="0"/>
+				</Cylinder>
+				<Cylinder permeable="0" Mass="0" visible="1" Radius="5" Height="30">
+					<Position X="0" Y="0" Z="175"/>
+					<Rotation Alpha="0" Gamma="0" Beta="0"/>
+				</Cylinder>
+			</BoundingShape>
+		</Mesh>
+		<ComplexObject>
+			<Capsule Radius="1" Height="2" Mass="3">
+				<Position X="0" Y="0" Z="0"/>
+				<Rotation Alpha="0" Beta="0" Gamma="0"/>
+				<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+				<Color red="0" blue="0" green="0" alpha="0"/>
+				<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+			</Capsule>
+			<Cylinder Radius="0" Height="0" Mass="0">
+				<Position X="0" Y="0" Z="0"/>
+				<Rotation Alpha="0" Beta="0" Gamma="0"/>
+				<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+				<Color red="0" blue="0" green="0" alpha="0"/>
+				<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+			</Cylinder>
+			<Box Length="0" Width="0" Height="0" Mass="0">
+				<Position X="0" Y="0" Z="0"/>
+				<Rotation Alpha="0" Beta="0" Gamma="0"/>
+				<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+				<Color red="0" blue="0" green="0" alpha="0"/>
+				<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+			</Box>
+			<Sphere Radius="0" Mass="0">
+				<Position X="0" Y="0" Z="0"/>
+				<Rotation Alpha="0" Beta="0" Gamma="0"/>
+				<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+				<Color red="0" blue="0" green="0" alpha="0"/>
+				<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+			</Sphere>
+			<Mesh id="Tree2">
+				<Position X="-1" Y="0.2" Z="0.4"/>
+				<Rotation Alpha="0" Gamma="0" Beta="0"/>
+				<GraphicalRepresentation animated="0" Filename="tree2.3ds" visible="1" scaling="0.01" >
+					<color alpha="0" red="0" green="255" blue="0"/>
+				</GraphicalRepresentation>
+				<BoundingShape Mass="1000">				
+					<Cylinder permeable="0" Mass="0" visible="1" Radius="6.5" Height="50">
+						<Position X="0" Y="0" Z="25"/>
+						<Rotation Alpha="0" Gamma="0" Beta="0"/>
+					</Cylinder>
+					<Cylinder permeable="0" Mass="0" visible="1" Radius="5" Height="30">
+						<Position X="0" Y="0" Z="175"/>
+						<Rotation Alpha="0" Gamma="0" Beta="0"/>
+					</Cylinder>
+				</BoundingShape>
+			</Mesh>
+		</ComplexObject>
+	</PassiveObjects>
+	<Agents>
+		<Agent id="String">
+			<Robot>
+				<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+				<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+				<Joints>
+					<OneAxisJoint PrimitiveId1="String" PrimitiveId2="String" VisualWith="0" JointName="String" VisualSize="0.2" OmegaMin="3.14159E0" OmegaMax="3.14159E0">
+						<AnchorPosition X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+						<Axis1Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+						<AngularMotor Force="3.14159E0" MaxVelocity="3.14159E0"/>
+					</OneAxisJoint>
+					<!-- <Hinge2Joint PrimitiveId2="Body" PrimitiveId1="Wheel1" JointName="join1"> 
+						<AnchorPosition Z="0" Y="0" X="0"/>
+						<Axis1Rotation Alpha="0" Beta="90" Gamma="0"/>
+						<Axis2Rotation Alpha="0" Beta="0" Gamma="90"/>
+						<TwoAxisServo Force="5" MaxVelocity="2"/>
+					</Hinge2Joint> 
+					<BallJoint PrimitiveId1="arsch" PrimitiveId2="ohr" VisualWith="0" JointName="String" VisualSize="0.2" OmegaMin="3.14159E0" OmegaMax="3.14159E0" >
+						<AnchorPosition X="0" Y="0" Z="0"></AnchorPosition>
+						<Axis1Rotation Alpha="0" Beta="0" Gamma="0"></Axis1Rotation>
+						<AngularMotor2Axis Force="0" MaxVelocity="0"></AngularMotor2Axis>
+					</BallJoint>
+					<HingeJoint PrimitiveId1="eier" PrimitiveId2="penis" VisualWith="0" JointName="String" VisualSize="0.2" OmegaMin="3.14159E0" OmegaMax="3.14159E0" >
+						<AnchorPosition X="0" Y="0" Z="0"></AnchorPosition>
+						<Axis1Rotation Alpha="0" Beta="0" Gamma="0"></Axis1Rotation>
+						<OneAxisServo Force="0" MaxVelocity="0"></OneAxisServo>
+					</HingeJoint>
+					<UniversalJoint PrimitiveId1="Nase" PrimitiveId2="pobel" VisualWith="0" JointName="String" VisualSize="0.2" OmegaMin="3.14159E0" OmegaMax="3.14159E0" >
+						<AnchorPosition X="0" Y="0" Z="0"></AnchorPosition>
+						<Axis1Rotation Alpha="0" Beta="0" Gamma="0"></Axis1Rotation>
+						<Axis2Rotation Alpha="0" Beta="0" Gamma="0"></Axis2Rotation>
+						<TwoAxisServo Force="0" MaxVelocity="0"></TwoAxisServo>
+					</UniversalJoint>
+					<FixedJoint PrimitiveId1="kackhöhle" PrimitiveId2="dünnpfiff" VisualWith="0" JointName="String" VisualSize="0.2" OmegaMin="3.14159E0" OmegaMax="3.14159E0" >
+						<AnchorPosition X="0" Y="0" Z="0"></AnchorPosition>
+						<Axis1Rotation Alpha="0" Beta="0" Gamma="0"></Axis1Rotation>
+					</FixedJoint>
+					<TwoAxisJoint PrimitiveId1="folterstuhl" PrimitiveId2="frank" VisualWith="0" JointName="String" VisualSize="0.2" OmegaMin="3.14159E0" OmegaMax="3.14159E0" >
+						<AnchorPosition X="0" Y="0" Z="0"></AnchorPosition>
+						<Axis1Rotation Alpha="0" Beta="0" Gamma="0"></Axis1Rotation>
+						<Axis2Rotation Alpha="0" Beta="0" Gamma="0"></Axis2Rotation>
+						<AngularMotor2Axis Force="0" MaxVelocity="0"></AngularMotor2Axis>
+					</TwoAxisJoint> -->
+				</Joints>
+				<Sensors>
+					<SpeedSensor RotationMode="false" ReferenceJoin="String">
+						<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+						<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+					</SpeedSensor>
+					<IrSensor ReferenceJoin="String" >
+						<Rotation Alpha="0" Beta="0" Gamma="0"/>
+						<Position X="0" Y="0" Z="0"/>
+					</IrSensor>
+					<RelativePositionSensor ReferencePrimitiveId="tree1" >
+						<Rotation Alpha="0" Beta="0" Gamma="0"/>
+						<Position X="0" Y="0" Z="0"/>
+					</RelativePositionSensor>
+				</Sensors>
+				<Mesh id="String">
+					<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+					<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+					<GraphicalRepresentation scaling="1" Filename="text" visible="1" animated="0">
+						<color red="0" blue="0" green="0" alpha="0"/>
+						<texture wrapTextureOnR="true" wrapTextureOnS="true" Filename="String"/>
+					</GraphicalRepresentation>
+					<BoundingShape scaling="3.14159E0" Mass="3.14159E0">
+						<Cylinder id="String" visible="1" Radius="3.14159E0" permeable="0" Height="3.14159E0" Mass="3.14159E0">
+							<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+							<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+						</Cylinder>
+						<Capsule id="String" visible="1" Radius="3.14159E0" permeable="0" Height="3.14159E0" Mass="3.14159E0">
+							<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+							<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+						</Capsule>
+						<Sphere id="String" visible="1" Radius="3.14159E0" permeable="0" Mass="3.14159E0">
+							<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+							<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+						</Sphere>
+						<Box Length="3.14159E0" id="String" Width="3.14159E0" visible="1" permeable="0" Height="3.14159E0" Mass="3.14159E0">
+							<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+							<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+						</Box>
+					</BoundingShape>
+				</Mesh>
+				<Capsule Radius="1" Height="2" Mass="3">
+					<Position X="0" Y="0" Z="0"/>
+					<Rotation Alpha="0" Beta="0" Gamma="0"/>
+					<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+					<Color red="0" blue="0" green="0" alpha="0"/>
+					<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+				</Capsule>
+				<Cylinder Radius="0" Height="0" Mass="0">
+					<Position X="0" Y="0" Z="0"/>
+					<Rotation Alpha="0" Beta="0" Gamma="0"/>
+					<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+					<Color red="0" blue="0" green="0" alpha="0"/>
+					<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+				</Cylinder>
+				<Box Length="0" Width="0" Height="0" Mass="0">
+					<Position X="0" Y="0" Z="0"/>
+					<Rotation Alpha="0" Beta="0" Gamma="0"/>
+					<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+					<Color red="0" blue="0" green="0" alpha="0"/>
+					<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+				</Box>
+				<Sphere Radius="0" Mass="0">
+					<Position X="0" Y="0" Z="0"/>
+					<Rotation Alpha="0" Beta="0" Gamma="0"/>
+					<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+					<Color red="0" blue="0" green="0" alpha="0"/>
+					<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+				</Sphere>
+				<ComplexObject>
+					<Capsule Radius="1" Height="2" Mass="3">
+						<Position X="0" Y="0" Z="0"/>
+						<Rotation Alpha="0" Beta="0" Gamma="0"/>
+						<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+						<Color red="0" blue="0" green="0" alpha="0"/>
+						<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+					</Capsule>
+					<Cylinder Radius="0" Height="0" Mass="0">
+						<Position X="0" Y="0" Z="0"/>
+						<Rotation Alpha="0" Beta="0" Gamma="0"/>
+						<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+						<Color red="0" blue="0" green="0" alpha="0"/>
+						<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+					</Cylinder>
+					<Box Length="0" Width="0" Height="0" Mass="0">
+						<Position X="0" Y="0" Z="0"/>
+						<Rotation Alpha="0" Beta="0" Gamma="0"/>
+						<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+						<Color red="0" blue="0" green="0" alpha="0"/>
+						<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+					</Box>
+					<Sphere Radius="0" Mass="0">
+						<Position X="0" Y="0" Z="0"/>
+						<Rotation Alpha="0" Beta="0" Gamma="0"/>
+						<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
+						<Color red="0" blue="0" green="0" alpha="0"/>
+						<Texture Filename="test.png" wrapTextureOnR="false" wrapTextureOnS="true" />
+					</Sphere>
+					<Mesh id="Tree2">
+						<Position X="-1" Y="0.2" Z="0.4"/>
+						<Rotation Alpha="0" Gamma="0" Beta="0"/>
+						<GraphicalRepresentation animated="0" Filename="tree2.3ds" visible="1" scaling="0.01" >
+							<color alpha="0" red="0" green="255" blue="0"/>
+						</GraphicalRepresentation>
+						<BoundingShape Mass="1000">				
+							<Cylinder permeable="0" Mass="0" visible="1" Radius="6.5" Height="50">
+								<Position X="0" Y="0" Z="25"/>
+								<Rotation Alpha="0" Gamma="0" Beta="0"/>
+							</Cylinder>
+							<Cylinder permeable="0" Mass="0" visible="1" Radius="5" Height="30">
+								<Position X="0" Y="0" Z="175"/>
+								<Rotation Alpha="0" Gamma="0" Beta="0"/>
+							</Cylinder>
+						</BoundingShape>
+					</Mesh>
+				</ComplexObject>	
+			</Robot>
+			<Wiring Name="WiringSequence SelectiveOne2OneWiring One2OneWiring MotorNoiseWiring FeedbackWiring DerivativeWiring AbstractWiring"/> <!-- nur eins davon!!! -->
+			<Controller Controllername="DerLinunivers derlininvert dercontroller DerbigController crossmotorcoupling ClassicReinforce BasicController"> <!-- nur eins davon!!! liste im schema zu finden -->
+				<Param adaptrate="3.14159E0" epsA="3.14159E0" epsC="3.14159E0" /> <!-- parameter frei wählbar -->
+			</Controller>
+		</Agent>
+	</Agents>
+	<Camera id="String">
+		<StandardCam>
+			<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
+			<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
+		</StandardCam>
+		<!-- <TvMode AgentId="String">
+			<Position X="0" Y="0" Z="0"/>
+			<ViewPosition X="0" Y="0" Z="0"></ViewPosition>
+		</TvMode>
+		<RaceMode AgentId="String">
+			<Position X="0" Y="0" Z="0"/>
+			<Rotation Alpha="0" Beta="0" Gamma="0"
+		</RaceMode>
+		<FollowMode AgentId="0">
+			<Position X="0" Y="0" Z="0"/>
+			<Rotation Alpha="0" Beta="0" Gamma="0"
+		</FollowMode> -->  <!-- nur eine Kameraart gilt-->
+	</Camera>
+	<Lights>
+		<StandardLight id="String">true</StandardLight>
+		<SimpleLightPoint Brightness="1" id="string" >
+			<Position X="0" Y="0" Z="0"/>
+		</SimpleLightPoint>
+		<SpecificLight Brightness="1" id="0" AttenuationType="0" >
+			<Position X="0" Y="0" Z="0"/>
+			<Rotation Alpha="0" Beta="0" Gamma="0"/>
+			<AmbientColor red="0" blue="0" green="0" alpha="0"></AmbientColor>
+			<SpecularColor red="0" blue="0" green="0" alpha="0"></SpecularColor>
+			<DifuseColor alpha="0" blue="0" green="0" red="0"></DifuseColor>
+		</SpecificLight>
+		<LightDirection Brightness="0" id="0">
+			<Rotation Alpha="0" Beta="0" Gamma="0"/>
+		</LightDirection>
+	</Lights>
+</Scene>
