@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-11 15:41:40  martius
+ *   Revision 1.4  2010-03-07 22:39:45  guettler
+ *   variables are now protected instead of private for inheritance issues
+ *
+ *   Revision 1.3  2006/08/11 15:41:40  martius
  *   osgDB used to find path
  *
  *   Revision 1.2  2006/07/14 12:23:33  martius
@@ -119,7 +122,7 @@ cylinder 5 30 (0,0,175) (0,0,0)
     bool readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 		      double scale, char mode);
 
-  private:
+  protected:
     std::string filename;
     bool active;
     Primitive* parent;
