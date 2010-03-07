@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-01-26 09:38:17  martius
+ *   Revision 1.21  2010-03-07 22:46:51  guettler
+ *   support for manually setting the substance (substance was overwritten in initialise methods)
+ *
+ *   Revision 1.20  2010/01/26 09:38:17  martius
  *   getVelocity, getAngularVel added
  *
  *   Revision 1.19  2009/10/23 12:47:13  guettler
@@ -298,6 +301,8 @@ public:
     destroyGeom = _destroyGeom;
   }
 
+  void setSubstance(Substance substance);
+
 protected:
   /** attaches geom to body (if any) and sets the category bits and collision bitfields.
       assumes: mode & Geom != 0
@@ -310,6 +315,7 @@ protected:
   dGeomID geom;
   dBodyID body;
   char mode;
+  bool substanceManuallySet;
 
   // 20091023; guettler:
   // hack for tasked simulations; there are some problems if running in parallel mode,
