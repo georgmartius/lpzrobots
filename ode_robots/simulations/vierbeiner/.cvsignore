@@ -3,3 +3,4 @@ start
 *.log
 start_opt
 .history
+Makefile

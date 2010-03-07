@@ -6,3 +6,4 @@ start_prof
 *.*~
 log*.*
 .history
+Makefile
