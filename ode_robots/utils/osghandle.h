@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-03-05 14:32:55  martius
+ *   Revision 1.8  2010-03-07 22:48:23  guettler
+ *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
+ *
+ *   Revision 1.7  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -83,10 +86,22 @@ class OsgHandle
 public:
   OsgHandle();
 
+  /**
+   * TODO: Separation of OSGHandle and OSGConfig
+   * @param root
+   * @param world
+   * @param scene
+   * @param tesselhints
+   * @param normalState
+   * @param transparentState
+   * @param color
+   * @param shadowType
+   * @return
+   */
   OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
              osg::TessellationHints* tesselhints[3], 
 	     osg::StateSet* normalState, osg::StateSet* transparentState, 
-	     const Color& color);
+	     const Color& color, int shadowType);
 
   ~OsgHandle();
 
@@ -100,6 +115,7 @@ public:
   osg::StateSet* transparentState;  
   Color color;
   bool noGraphics;
+  int shadowType;
 
   // returns a new osghandle with only the color changed
   OsgHandle changeColor(const Color& color) const;

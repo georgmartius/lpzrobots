@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-03-05 14:32:55  martius
+ *   Revision 1.8  2010-03-07 22:48:23  guettler
+ *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
+ *
+ *   Revision 1.7  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -78,10 +81,11 @@ namespace lpzrobots {
   OsgHandle::OsgHandle( ) : drawBoundings(false), scene(0), normalState(0), transparentState(0), noGraphics(false) {};
 
 
+
   OsgHandle::OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
                         osg::TessellationHints* tesselhints[3], 
                         osg::StateSet* normalState, osg::StateSet* transparentState,
-                        const Color& color)
+                        const Color& color, int shadowType)
   {
     this->root = root;
     this->world = world;
@@ -94,6 +98,7 @@ namespace lpzrobots {
     this->color = color;
     drawBoundings=false;
     noGraphics=false;
+    this->shadowType=shadowType;
   }
 
   OsgHandle::~OsgHandle(){
