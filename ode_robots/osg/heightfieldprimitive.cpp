@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-05 14:32:55  martius
+ *   Revision 1.5  2010-03-07 22:41:33  guettler
+ *   added #include <cstdio> to get compiled with gcc 4.4
+ *
+ *   Revision 1.4  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -56,6 +59,7 @@
 #include <string>
 #include <iostream>
 #include <assert.h>
+#include <cstdio>
 
 #include "odehandle.h"
 

@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-01-27 10:15:38  martius
+ *   Revision 1.10  2010-03-07 22:41:42  guettler
+ *   added #include <cstdio> to get compiled with gcc 4.4
+ *
+ *   Revision 1.9  2010/01/27 10:15:38  martius
  *   added getMeasureWS to obtain windowstatistics to change e.g. color during runtime
  *
  *   Revision 1.8  2009/09/03 11:37:31  martius
@@ -86,6 +89,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <cstdio>
 
 
 using namespace osg;
