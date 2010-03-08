@@ -1,5 +1,5 @@
-libglitch_includedir = $(includedir)/ode
-libglitch_include_HEADERS = 	collision_trimesh.h \
+libode_la_includedir = $(includedir)/ode
+libode_la_include_HEADERS = 	collision_trimesh.h \
 				mass.h \
 				odecpp.h \
 				common.h \
@@ -10,6 +10,7 @@ libglitch_include_HEADERS = 	collision_trimesh.h \
 				contact.h \
 				misc.h \
 				odemath.h \
+				odeinit.h \
 				collision.h \
 				error.h \
 				objects.h \
@@ -18,6 +19,6 @@ libglitch_include_HEADERS = 	collision_trimesh.h \
 				export-dif.h \
 				ode.h  \
 				timer.h \
-				config.h
+				odeconfig.h
 
-EXTRA_DIST = config.h.in
+EXTRA_DIST = README

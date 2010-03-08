@@ -22,6 +22,8 @@
 
 #include <ode/common.h>
 #include <ode/matrix.h>
+#include "util.h"
+#include "config.h"
 
 // misc defines
 #define ALLOCA dALLOCA16
@@ -239,9 +241,9 @@ void dLDLTAddTL (dReal *L, dReal *d, const dReal *a, int n, int nskip)
 
   W1[0] = 0;
   W2[0] = 0;
-  for (j=1; j<n; j++) W1[j] = W2[j] = a[j] * M_SQRT1_2;
-  W11 = (REAL(0.5)*a[0]+1)*M_SQRT1_2;
-  W21 = (REAL(0.5)*a[0]-1)*M_SQRT1_2;
+  for (j=1; j<n; j++) W1[j] = W2[j] = (dReal) (a[j] * M_SQRT1_2);
+  W11 = (dReal) ((REAL(0.5)*a[0]+1)*M_SQRT1_2);
+  W21 = (dReal) ((REAL(0.5)*a[0]-1)*M_SQRT1_2);
 
   alpha1=1;
   alpha2=1;

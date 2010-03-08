@@ -73,12 +73,12 @@
 		#define OPCODE_API
 #endif
 
+	#include "OPC_Settings.h"
 	#include "OPC_IceHook.h"
 
 	namespace Opcode
 	{
 		// Bulk-of-the-work
-		#include "OPC_Settings.h"
 		#include "OPC_Common.h"
 		#include "OPC_MeshInterface.h"
 		// Builders
@@ -102,9 +102,7 @@
 		#include "OPC_PlanesCollider.h"
 		// Usages
 		#include "OPC_Picking.h"
-		// Sweep-and-prune
-		#include "OPC_BoxPruning.h"
-		#include "OPC_SweepAndPrune.h"
+
 
 		FUNCTION OPCODE_API bool InitOpcode();
 		FUNCTION OPCODE_API bool CloseOpcode();

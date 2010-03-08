@@ -68,7 +68,7 @@ ODE_API void dGeomTriMeshSetLastTransform( dGeomID g, dMatrix4 last_trans );
 ODE_API dReal* dGeomTriMeshGetLastTransform( dGeomID g );
 
 /*
- * Build TriMesh data with single precision used in vertex data .
+ * Build a TriMesh data object with single precision vertex data.
  */
 ODE_API void dGeomTriMeshDataBuildSingle(dTriMeshDataID g,
                                  const void* Vertices, int VertexStride, int VertexCount, 
@@ -79,7 +79,7 @@ ODE_API void dGeomTriMeshDataBuildSingle1(dTriMeshDataID g,
                                   const void* Indices, int IndexCount, int TriStride,
                                   const void* Normals);
 /*
-* Build TriMesh data with double pricision used in vertex data .
+* Build a TriMesh data object with double precision vertex data.
 */
 ODE_API void dGeomTriMeshDataBuildDouble(dTriMeshDataID g, 
                                  const void* Vertices,  int VertexStride, int VertexCount, 
@@ -95,11 +95,11 @@ ODE_API void dGeomTriMeshDataBuildDouble1(dTriMeshDataID g,
  */
 ODE_API void dGeomTriMeshDataBuildSimple(dTriMeshDataID g,
                                  const dReal* Vertices, int VertexCount,
-                                 const int* Indices, int IndexCount);
+                                 const dTriIndex* Indices, int IndexCount);
 /* same again with a normals array (used as trimesh-trimesh optimization) */
 ODE_API void dGeomTriMeshDataBuildSimple1(dTriMeshDataID g,
                                   const dReal* Vertices, int VertexCount,
-                                  const int* Indices, int IndexCount,
+                                  const dTriIndex* Indices, int IndexCount,
                                   const int* Normals);
 
 /* Preprocess the trimesh data to remove mark unnecessary edges and vertices */
@@ -134,6 +134,17 @@ ODE_API dTriArrayCallback* dGeomTriMeshGetArrayCallback(dGeomID g);
 typedef int dTriRayCallback(dGeomID TriMesh, dGeomID Ray, int TriangleIndex, dReal u, dReal v);
 ODE_API void dGeomTriMeshSetRayCallback(dGeomID g, dTriRayCallback* Callback);
 ODE_API dTriRayCallback* dGeomTriMeshGetRayCallback(dGeomID g);
+
+/*
+ * Triangle merging callback.
+ * Allows the user to generate a fake triangle index for a new contact generated
+ * from merging of two other contacts. That index could later be used by the 
+ * user to determine attributes of original triangles used as sources for a 
+ * merged contact.
+ */
+typedef int dTriTriMergeCallback(dGeomID TriMesh, int FirstTriangleIndex, int SecondTriangleIndex);
+ODE_API void dGeomTriMeshSetTriMergeCallback(dGeomID g, dTriTriMergeCallback* Callback);
+ODE_API dTriTriMergeCallback* dGeomTriMeshGetTriMergeCallback(dGeomID g);
 
 /*
  * Trimesh class

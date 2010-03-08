@@ -35,22 +35,24 @@
 // Precompiled Header
 #include "Stdafx.h"
 
+using namespace Opcode;
+
+
 bool Opcode::InitOpcode()
 {
-	Log("// Initializing OPCODE\n\n");
+	//Log("// Initializing OPCODE\n\n");
 //	LogAPIInfo();
+	
 	return true;
 }
 
-void ReleasePruningSorters();
 bool Opcode::CloseOpcode()
 {
-	Log("// Closing OPCODE\n\n");
-
-	ReleasePruningSorters();
+	//Log("// Closing OPCODE\n\n");
 
 	return true;
 }
+
 
 #ifdef ICE_MAIN
 

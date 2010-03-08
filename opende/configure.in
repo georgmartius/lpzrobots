@@ -1,96 +1,114 @@
-dnl Initial configure.in by Rodrigo Hernandez
-dnl Modified in 26/10/2005 by Rodrigo Hernandez
-
 dnl AC_INIT does not take a macro as a version nr: set it separately! - Bram
-AC_INIT(ODE,0.9.0,ode@ode.org)
-
-dnl When upgrading version nr, also change the AC_INIT line! - Bram
-ODE_CURRENT=0
-ODE_REVISION=9
-ODE_AGE=0
-ODE_RELEASE=[$ODE_CURRENT].[$ODE_REVISION].[$ODE_AGE]
-AC_CANONICAL_HOST
-AC_CANONICAL_TARGET
-
-AM_INIT_AUTOMAKE(ODE,[$ODE_RELEASE])
-AM_CONFIG_HEADER(include/ode/config.h)
-dnl Set CFLAGS to zero, so that we avoid getting the gratis -g -O2
-CFLAGS=
-CXXFLAGS=
-AC_C_BIGENDIAN
-AC_PATH_X
-AC_PATH_XTRA
-
-ODE_SONAME=libode.so.[$ODE_CURRENT]
-
-AC_SUBST(ODE_CURRENT)
-AC_SUBST(ODE_REVISION)
-AC_SUBST(ODE_AGE)
+AC_INIT([ODE],[0.11.1],[ode@ode.org])
+# AC_CONFIG_SRCDIR([ode/src/ode.cpp])
+ODE_RELEASE=0.11.1
 AC_SUBST(ODE_RELEASE)
-AC_SUBST(ODE_SONAME)
+
+# Those are instructions from the Libtool manual:
+#  1. Start with version information of `0:0:0' for each libtool library.
+#
+#  2. Update the version information only immediately before a public
+#     release of your software.  More frequent updates are unnecessary,
+#     and only guarantee that the current interface number gets larger
+#     faster.
+#
+#  3. If the library source code has changed at all since the last
+#     update, then increment REVISION (`C:R:A' becomes `C:r+1:A').
+#
+#  4. If any interfaces have been added, removed, or changed since the
+#     last update, increment CURRENT, and set REVISION to 0.
+#
+#  5. If any interfaces have been added since the last public release,
+#     then increment AGE.
+#
+#  6. If any interfaces have been removed since the last public release,
+#     then set AGE to 0.
+CURRENT=2
+REVISION=1
+AGE=1
+
+AC_ARG_ENABLE(version-info,
+        AS_HELP_STRING([--disable-version-info],
+                [don't encode version information in the generated library]),
+        version_info=$enableval,
+        version_info=yes)
+if test x$version_info = xyes
+then
+    ODE_VERSION_INFO="-version-info $CURRENT:$REVISION:$AGE"
+else
+    ODE_VERSION_INFO="-avoid-version"
+fi
+AC_SUBST(ODE_VERSION_INFO)
+
+
+
+AC_CANONICAL_HOST
+
+AM_INIT_AUTOMAKE(1.10 foreign)
+AC_CONFIG_HEADERS([ode/src/config.h])
 
 dnl This is needed because we have subdirectories
 AC_PROG_MAKE_SET
-
 AC_PROG_CXX
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_PROG_CPP
+AC_PROG_AWK
 AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MKDIR_P
+AC_DISABLE_SHARED
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
 AC_CHECK_TOOLS([WINDRES], [windres])
-AC_C_CONST 
+
+AC_C_BIGENDIAN
 AC_C_INLINE
 AC_C_VOLATILE
 AC_HEADER_STDBOOL
-AC_PROG_RANLIB
 AC_TYPE_SIZE_T
 
-dnl Check if using sonames is requested
-dnl THIS IS TEMPORARY!
-AC_MSG_CHECKING(if a soname should be set)
-AC_ARG_ENABLE(soname,AC_HELP_STRING([--enable-soname],
-[Configure ODE shared library to set the soname field on ELF files]),
-use_soname=$enableval,use_soname=no)
-AC_MSG_RESULT($use_soname)
-AM_CONDITIONAL(USE_SONAME, test x$use_soname = xyes)
-
-
 dnl Check if we want to build demos
-AC_MSG_CHECKING(if tests should be built)
-AC_ARG_ENABLE(demos,AC_HELP_STRING([--enable-demos], [build tests]), enable_demos=$enableval,enable_demos=yes)
+AC_MSG_CHECKING(if demos should be built)
+AC_ARG_ENABLE(demos,
+        AS_HELP_STRING([--disable-demos], [don't build demos]),
+        enable_demos=$enableval,enable_demos=yes)
 AC_MSG_RESULT($enable_demos)
-AM_CONDITIONAL(ENABLE_DEMOS, test x$enable_demos = xyes)
 
 
-AC_ARG_WITH(arch,AC_HELP_STRING([--with-arch=[arch]],
-[build for $arch, where arch is any of the -march flags passed to gcc, without the -march, for example --with-arch=pentium3]),
-arch=$withval,arch=no)
-ARCHFLAGS=""
-if test "x$arch" != xno
-then
-    ARCHFLAGS="-march=$arch"
-fi
-AC_SUBST(ARCHFLAGS)
 
-dnl Decide whether or not SSE is available
-dnl Why dont we compile and run programs like we do to find out if
-dnl this is a Pentium machine further down? simple!
 dnl this may NOT be the machine on which the code is going to run in,
 dnl so allow users to compile programs for their target machine.
-case "$arch" in
-  pentium3 | pentium4 | athlon* )
-	AC_DEFINE(HAVE_SSE,,[Use SSE Optimizations])
+pentium=no
+cpu64=no
+case "$host_cpu" in
+  i586 | i686 | i786 )
+        pentium=yes
+        AC_DEFINE(PENTIUM,1,[compiling for a pentium on a gcc-based platform?])
     ;;
-dnl this space available for other architectures specific extensions and/or
-dnl other Intel based extensions such as 3DNow, SSE2, MMX, etc.
+  x86_64* )
+        pentium=yes
+        cpu64=yes
+        AC_DEFINE(X86_64_SYSTEM,1,[compiling for a X86_64 system on a gcc-based platform?])
+    ;;
 esac
 
+AM_CONDITIONAL(X86_64_SYSTEM, test x$cpu64 = xyes)
+
+
+
+
+
+
 dnl check for required headers
-AC_CHECK_HEADERS( alloca.h ieeefp.h stdio.h stdlib.h math.h string.h stdarg.h malloc.h values.h float.h time.h sys/time.h )
+AC_CHECK_HEADERS( alloca.h stdio.h stdint.h stdlib.h math.h string.h stdarg.h malloc.h float.h time.h sys/time.h )
 
 
 opcode=no
 gimpact=no
-AC_ARG_WITH(trimesh,AC_HELP_STRING([--with-trimesh=[opcode|gimpact|none]],
-[use the specified system for trimesh support.]),
-trimesh=$withval,trimesh=opcode
+AC_ARG_WITH(trimesh, AS_HELP_STRING([--with-trimesh=[opcode|gimpact|none]],
+        [use the specified system for trimesh support @<:@default=opcode@:>@]),
+        trimesh=$withval,trimesh=opcode
 )
 if test "$trimesh" = opcode
 then
@@ -106,255 +124,58 @@ AM_CONDITIONAL(GIMPACT, test $gimpact = yes)
 AM_CONDITIONAL(TRIMESH, test $opcode = yes -o $gimpact = yes)
 
 
-AC_MSG_CHECKING(if gyroscopic term should be used)
-AC_ARG_ENABLE(gyroscopic,AC_HELP_STRING([--disable-gyroscopic],
-[Configure ODE to work without gyroscopic term (may improve stability)]),
-gyroscopic=$enableval,gyroscopic=yes)
-AC_MSG_RESULT($gyroscopic)
-if test x"$gyroscopic" = xyes
-then
-AC_DEFINE(dGYROSCOPIC,,[Use gyroscopic terms])
-fi
-
-dnl Check Precision, define the dInfinity constant--------------------------/
 AC_MSG_CHECKING(if double precision is requested)
-AC_ARG_ENABLE(double-precision,AC_HELP_STRING([--enable-double-precision],
-[Configure ODE to work with double precision, if not specified, single precision is used]),
-precision=$enableval,precision=no)
-if test "$precision" != no
+AC_ARG_ENABLE(double-precision,
+        AS_HELP_STRING([--enable-double-precision],
+        [Configure ODE to work with double precision, if not specified, single precision is used]
+        ),
+        precision=$enableval,precision=no)
+AC_MSG_RESULT([$precision])
+if test "$precision" = yes;
 then
-dnl DOUBLE was chosen
-AC_DEFINE(dDOUBLE,,[Use double precision])
-dnl Check from lest likelly to more likelly.
-if test "$build_os" == "$target_os"
-then
-AC_TRY_RUN([
-#define dInfinity 1e20
-int main()
-{
-if (dInfinity > 1e10 && -dInfinity < -1e10 && -dInfinity < dInfinity) 
-return 0;
-else return -1;
-}
-],dinfinity=1e20,,)
-AC_TRY_RUN([
-#define dInfinity 1.7976931348623157e+308
-int main()
-{
-if (dInfinity > 1e10 && -dInfinity < -1e10 && -dInfinity < dInfinity) 
-return 0;
-else return -1;
-}
-],dinfinity=1.7976931348623157e+308,,)
-AC_TRY_RUN([
-#include <float.h>
-#define dInfinity HUGE_VAL
-int main()
-{
-if (dInfinity > 1e10 && -dInfinity < -1e10 && -dInfinity < dInfinity) 
-return 0;
-else return -1;
-}
-],dinfinity=HUGE_VAL,,)
-AC_TRY_RUN([
-#include <float.h>
-#define dInfinity DBL_MAX
-int main()
-{
-if (dInfinity > 1e10 && -dInfinity < -1e10 && -dInfinity < dInfinity) 
-return 0;
-else return -1;
-}
-],dinfinity=DBL_MAX,,)
+        ODE_PRECISION=-DdDOUBLE
 else
-#cross-compiling, use a reasonable value. We should add an option for setting this.
-dinfinity=DBL_MAX
+        ODE_PRECISION=-DdSINGLE
 fi
-else
-dnl default to SINGLE.
-AC_DEFINE(dSINGLE,,[Use single precision])
-dnl Check from lest likelly to more likelly.
-if test "$build_os" == "$target_os"
-then
-AC_TRY_RUN([
-#define dInfinity 1e20f
-int main()
-{
-if (dInfinity > 1e10f && -dInfinity < -1e10f && -dInfinity < dInfinity) 
-return 0;
-else return -1;
-}
-],dinfinity=1e20f,,)
-AC_TRY_RUN([
-#define dInfinity 3.402823466e+38F
-int main()
-{
-if (dInfinity > 1e10f && -dInfinity < -1e10f && -dInfinity < dInfinity) 
-return 0;
-else return -1;
-}
-],dinfinity=3.402823466e+38F,,)
-AC_TRY_RUN([
-#include <float.h>
-#define dInfinity HUGE_VALF
-int main()
-{
-if (dInfinity > 1e10f && -dInfinity < -1e10f && -dInfinity < dInfinity) 
-return 0;
-else return -1;
-}
-],dinfinity=HUGE_VALF,,)
-AC_TRY_RUN([
-#include <float.h>
-#define dInfinity FLT_MAX
-int main()
-{
-if (dInfinity > 1e10f && -dInfinity < -1e10f && -dInfinity < dInfinity) 
-return 0;
-else return -1;
-}
-],dinfinity=FLT_MAX,,)
-#cross-compiling, use a reasonable value. We should add an option for setting this.
-dinfinity=FLT_MAX
-fi
-fi
-AC_MSG_RESULT($precision)
-AC_DEFINE_UNQUOTED(dInfinity,${dinfinity},[dInfinity Constant])
-AC_MSG_CHECKING(for appropriate dInfinity constant)
-AC_MSG_RESULT($dinfinity)
-dnl --------------------------------------------------------------------------/
 
-dnl Define dEpsilon
-AC_CHECK_HEADER(float.h,[have_float_h=yes],[have_float_h=no])
-AC_MSG_CHECKING(for appropriate dEpsilon constant)
-if test "x$have_float_h" == xyes 
-then
-if test $precision == yes
-then
-dEpsilon=DBL_EPSILON
-else
-dEpsilon=FLT_EPSILON
-fi
-else
-if test $precision == yes
-then
-dEpsilon=2.2204460492503131e-16
-else
-dEpsilon=1.19209290e-07f
-fi
-fi
-AC_DEFINE_UNQUOTED(dEpsilon,${dEpsilon},[dEpsilon Constant])
-AC_MSG_RESULT($dEpsilon)
+CPPFLAGS+=" $ODE_PRECISION"
+AC_SUBST(ODE_PRECISION)
 
 
-dnl Check for PENTIUM
-if test "$build_os" == "$target_os"
-then
-AC_MSG_CHECKING(for a Pentium CPU)
-AC_TRY_RUN([
-int main() 
-{
-asm ("mov \$0,%%eax;\n"
-     "cpuid\n" : : : "%eax");
-return 0;
-};
-],pentium=yes,pentium=no,)
-else
-pentium=no
-fi
-if test "x$pentium" == xyes 
-then
-AC_DEFINE(PENTIUM,1,[is this a pentium on a gcc-based platform?])
-fi
-AC_MSG_RESULT($pentium)
-
-dnl Check for 64bit CPU
-AC_MSG_CHECKING(for a x86-64 CPU)
-if test "$build_os" == "$target_os"
-then
-AC_TRY_RUN([
-int main()
-{
-int a = 0; 
-int * pa = &a;
-asm ("mov %0,%%rax\n"
-     "movl (%%rax),%%eax\n"
-     : : "r"(pa) : "%rax");
-return 0;
-};
-],cpu64=yes,cpu64=no,)
-else
-cpu64=no
-fi
-if test "x$cpu64" == xyes 
-then
-AC_DEFINE(X86_64_SYSTEM,1,[is this a X86_64 system on a gcc-based platform?])
-fi
-AC_MSG_RESULT($cpu64)
-AM_CONDITIONAL(X86_64_SYSTEM, test x$cpu64 = xyes)
-
-AC_MSG_CHECKING(if building a release library)
-AC_ARG_ENABLE(release,AC_HELP_STRING([--enable-release],
-[build a release library with -fomit-frame-pointer and -ffast-math]),
-release=$enableval,release=no)
-if test "x$release" == xyes
-then
-    CFLAGS="$CFLAGS -fomit-frame-pointer -ffast-math"
-    CPPFLAGS="$CPPFLAGS -fomit-frame-pointer -ffast-math"
-    CXXFLAGS="$CXXFLAGS -fomit-frame-pointer -ffast-math"
-    AC_DEFINE(dNODEBUG,,[Disable debug output])
-fi
-AC_MSG_RESULT($release)
-
-AC_MSG_CHECKING(if building a debug library)
-AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],
-[Add debug symbols to the library with -g]),
-debug=$enableval,debug=yes)
-if test "x$debug" == xyes
-then
-    CFLAGS="$CFLAGS -g"
-    CPPFLAGS="$CPPFLAGS -g"
-    CXXFLAGS="$CXXFLAGS -g"
-fi
-AC_MSG_RESULT($debug)
-
-
-dnl Check variable type sizes
-AC_CHECK_SIZEOF(char)
-AC_CHECK_SIZEOF(int)
-AC_CHECK_SIZEOF(short)
-AC_CHECK_SIZEOF(long int)
-AC_CHECK_SIZEOF(void*)
+AC_ARG_WITH([drawstuff],AS_HELP_STRING([--with-drawstuff=X11|Win32|OSX|none],[force a particular drawstuff implementation or disable it.]),
+        [drawstuff=$withval],[drawstuff=])
 
 dnl Set some Platform Specific Variables
+EXTRA_LIBTOOL_LDFLAGS=
 case "$host_os" in
   cygwin* | mingw*)
-    so_ext=".dll"
-    DLLDEFINE="-DODE_DLL"
-    SHARED_LDFLAGS="-shared"
-    drawstuff="Win32" # if in a Windows enviroment
+    if test x"$drawstuff" = x
+    then
+       drawstuff="Win32" # if in a Windows enviroment
+    fi
+    EXTRA_LIBTOOL_LDFLAGS="-no-undefined"
     ;;
   *apple* | *darwin*) # For Mac OS X
-    so_ext=".dylib"
-    DLLDEFINE=""
-    SHARED_LDFLAGS="-dynamiclib"
-    drawstuff="OSX"
+    if test x"$drawstuff" = x
+    then
+       drawstuff="OSX"
+    fi
     dnl We need to use C++ compilation and linking for ode on Mac
     dnl Might as well do it for all code.
     CC="$CXX"
     LINK="$CXXLINK"
     ;;
   *)
-   drawstuff="X11" # if anything else default to X11
-    if test x$use_soname = xyes; then
-      so_ext=".so.$ODE_RELEASE"
-    else
-      so_ext=".so"
+    if test x"$drawstuff" = x
+    then
+       drawstuff="X11" # if anything else default to X11
     fi
-    DLLDEFINE=""
-    SHARED_LDFLAGS="-shared"
     ;;
 esac
+AC_SUBST(EXTRA_LIBTOOL_LDFLAGS)
+AM_CONDITIONAL(ENABLE_DRAWSTUFF, test x$drawstuff != xnone)
+
+
 dnl Set Conditionals
 AM_CONDITIONAL(WIN32, test x$drawstuff = xWin32)
 AM_CONDITIONAL(X11, test x$drawstuff = xX11)
@@ -362,22 +183,10 @@ AM_CONDITIONAL(OSX, test x$drawstuff = xOSX)
 dnl Set Drawstuff variables
 AC_MSG_CHECKING(which drawstuff lib to build)
 AC_MSG_RESULT($drawstuff)
-AC_SUBST(DRAWSTUFF)
-dnl Set shared library variables
-AC_MSG_CHECKING(for the suffix of shared libraries)
-AC_MSG_RESULT($so_ext)
-AC_DEFINE_UNQUOTED(SO_EXT,"$so_ext",[The extension for shared libraries.])
-AC_SUBST(so_ext)
-AC_SUBST(SHARED_LDFLAGS)
 
-dnl Check for AC_PATH_X variables
-if test "X$x_includes" != "XNONE"; then
-	CFLAGS="$CFLAGS -I$x_includes"
-	CXXFLAGS="$CXXFLAGS -I$x_includes"
-fi
-if test "X$x_libraries" != "XNONE"; then
-	CFLAGS="$CFLAGS -L$x_libraries"
-	CXXFLAGS="$CXXFLAGS -L$x_libraries"
+if test "x$drawstuff" = "xX11"
+then
+    AC_PATH_XTRA
 fi
 
 dnl Check for OpenGL
@@ -386,71 +195,169 @@ if test "x$drawstuff" = "xOSX"; then
             [Use the Apple OpenGL framework.])
   GL_LIBS="-framework OpenGL -framework Carbon -framework AGL"
 else
-  AC_CHECK_HEADERS(GL/gl.h GL/glu.h GL/glext.h,,,
-       [[#if HAVE_GL_GL_H
+  have_gl_headers=yes
+  AC_CHECK_HEADERS(GL/gl.h GL/glu.h GL/glext.h, ,
+        [have_gl_headers=no],
+       [[#ifdef WIN32
+         #include <windows.h>
+         #endif
+         #if HAVE_GL_GL_H
          #include <GL/gl.h>
          #endif
-  	   #if HAVE_GL_GLU_H
+  	     #if HAVE_GL_GLU_H
          #include <GL/glu.h>
          #endif
        ]])
-  AC_CHECK_LIB(GL, main,[GL_LIBS="$GL_LIBS -lGL"])
+  have_gl=no
+  have_glu=no
   TEMP_LDFLAGS="$LDFLAGS"
-  LDFLAGS="$LDFLAGS $GL_LIBS"
-  AC_CHECK_LIB(GLU, main,[GL_LIBS="$GL_LIBS -lGLU"])
+  AC_CHECK_LIB(GL, main, [GL_LIBS="-lGL"; have_gl=yes])
+  AC_CHECK_LIB(GLU, main, [GL_LIBS="-lGLU $GL_LIBS"; have_glu=yes], , -lGL)
+  AC_CHECK_LIB(opengl32, main, [GL_LIBS="-lopengl32"; have_gl=yes])
+  AC_CHECK_LIB(glu32, main, [GL_LIBS="-lglu32 $GL_LIBS"; have_glu=yes], , -lopengl32)
   LDFLAGS="$TEMP_LDFLAGS"
-  AC_CHECK_LIB(opengl32, main,[GL_LIBS="$GL_LIBS -lopengl32"])
-  AC_CHECK_LIB(glu32, main,[GL_LIBS="$GL_LIBS -lglu32"])
-  AC_CHECK_LIB(Xmu, main,[GL_LIBS="$GL_LIBS -lXmu"])
-  AC_CHECK_LIB(Xi, main,[GL_LIBS="$GL_LIBS -lXi"])
-  AC_CHECK_LIB(X, main,[GL_LIBS="$GL_LIBS -lX"])
-  AC_CHECK_LIB(X11, main,[GL_LIBS="$GL_LIBS -lX11"])
+  if test $have_gl = no -o $have_glu = no -o $have_gl_headers = no; then
+    if test x$enable_demos = xyes; then
+      AC_MSG_WARN([Demos will not be built because OpenGL doesn't seem to work. See `config.log' for details.])
+    fi
+    enable_demos=no
+  fi
 fi
 AC_SUBST(GL_LIBS)
 
-dnl Add some Windows libraries if found
-AC_CHECK_LIB(comctl32,main,[LIBS="$LIBS -lcomctl32"])
-AC_CHECK_LIB(kernel32,main,[LIBS="$LIBS -lkernel32"])
-AC_CHECK_LIB(user32,main,[LIBS="$LIBS -luser32"])
-AC_CHECK_LIB(gdi32,main,[LIBS="$LIBS -lgdi32"])
-AC_CHECK_LIB(winmm,main,[LIBS="$LIBS -lwinmm"])
 
-dnl Add math and standard c++ lib just in case
-AC_CHECK_LIB(stdc++,main,[LIBS="$LIBS -lstdc++"])
-AC_CHECK_LIB(m,main,[LIBS="$LIBS -lm"])
+dnl stdc++ is required when linking C programs against ode
+AC_CHECK_LIB(stdc++,main,[LIBSTDCXX="-lstdc++"],[LIBSTDCXX=])
+AC_SUBST(LIBSTDCXX)
 AC_CHECK_LIB(pthread,main,[LIBS="$LIBS -lpthread"])
 
 
-TOPDIR=`cd $srcdir;pwd`
-AC_SUBST(TOPDIR)
+dnl test if we will build demos
+AM_CONDITIONAL(ENABLE_DEMOS, test x$enable_demos = xyes)
+
+
+dnl Check if the user wants the old timesh collider
+old_trimesh=no
+AC_ARG_ENABLE([old-trimesh], AS_HELP_STRING([--enable-old-trimesh],[enable use of the old trimesh collider]),
+        [old_trimesh=$enableval]
+        )
+if test x$old_trimesh = xyes -a $trimesh = opcode; then
+        AC_DEFINE(dTRIMESH_OPCODE_USE_OLD_TRIMESH_TRIMESH_COLLIDER, 1,
+                [Use the old trimesh-trimesh collider])
+else
+        old_trimesh=no
+fi
+
 
 dnl Check if the user wants to profile ODE using gprof
 AC_MSG_CHECKING(for gprof)
-AC_ARG_ENABLE(gprof,
-AC_HELP_STRING([--enable-gprof],[enable profiling with gprof]),
-gprof=$enableval,gprof=no)
+AC_ARG_ENABLE([gprof],
+        AS_HELP_STRING([--enable-gprof],[enable profiling with gprof]),
+        gprof=$enableval,
+        gprof=no)
 if test "$gprof" != no
 then
     CFLAGS="-pg $CFLAGS"
-    CPPFLAGS="-pg $CPPFLAGS"
     CXXFLAGS="-pg $CXXFLAGS"
-    AC_CHECK_LIB(gmon, main,[LIBS="$LIBS -lgmon"])
     AC_MSG_RESULT(enabled)
+    AC_CHECK_LIB(gmon, main,[LIBS="$LIBS -lgmon"])
 else
     AC_MSG_RESULT(no)
 fi
 
 dnl Check for autoscan sugested functions
+AC_CHECK_LIB(m, [main])
+AC_CHECK_LIB(sunmath, [main])
 AC_CHECK_FUNCS([floor memmove memset select sqrt sqrtf sinf cosf fabsf atan2f fmodf copysignf copysign snprintf vsnprintf gettimeofday isnan isnanf _isnan _isnanf __isnan __isnanf])
-if test "$build_os" == "$target_os"
-then
 AC_FUNC_ALLOCA 
 AC_FUNC_MALLOC
 AC_FUNC_OBSTACK 
 AC_FUNC_REALLOC
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_VPRINTF
+
+AC_MSG_CHECKING(if alloca should be emulated by malloc)
+AC_ARG_ENABLE([malloc],
+        AS_HELP_STRING([--enable-malloc],
+            [use malloc to emulate alloca (more portable but slower)]
+        ),
+        usemalloc=$enableval, usemalloc=no)
+if test "$usemalloc" != no
+then
+    AC_DEFINE([dUSE_MALLOC_FOR_ALLOCA],[1],[use malloc() instead of alloca()])
+    AC_MSG_RESULT($usemalloc)
+else
+    AC_MSG_RESULT(no)
 fi
+
+AC_ARG_ENABLE([ou],
+        AS_HELP_STRING([--enable-ou],
+            [EXPERIMENTAL: use TLS for global variables to allow for running ODE in multiple threads simultaneously]
+        ),
+        use_ou=$enableval,use_ou=no)
+if test x$use_ou = xyes
+then
+    OU_NAMESPACE=odeou
+    AC_CONFIG_COMMANDS_POST([export OU_NAMESPACE=odeou])
+    AC_DEFINE([_OU_NAMESPACE],[odeou],[libou namespace for ODE])
+    AC_DEFINE([dOU_ENABLED],[1],[Generic OU features are enabled])
+    AC_DEFINE([dATOMICS_ENABLED],[1],[Atomic API of OU is enabled])
+    AC_DEFINE([dTLS_ENABLED],[1],[Thread Local Storage API of OU is enabled])
+
+    case "$host_os" in
+      cygwin* | mingw*)
+        targetos=_OU_TARGET_OS_WINDOWS
+        ;;
+      *qnx*)
+        targetos=_OU_TARGET_OS_QNX
+        ;;
+      *apple* | *darwin*)
+        targetos=_OU_TARGET_OS_MAC
+        ;;
+      *sunos*)
+        targetos=_OU_TARGET_OS_SUNOS
+        ;;
+      *aix*)
+        targetos=_OU_TARGET_OS_AIX
+        ;;
+      *)
+        targetos=_OU_TARGET_OS_GENUNIX
+        ;;
+    esac
+
+    if test $targetos = _OU_TARGET_OS_MAC
+    then
+        MAC_OS_X_VERSION=1000
+        AC_CHECK_FUNC([OSAtomicAdd32Barrier], [MAC_OS_X_VERSION=1040])
+        AC_CHECK_FUNC([OSAtomicAnd32OrigBarrier], [MAC_OS_X_VERSION=1050])
+        AC_DEFINE_UNQUOTED(MAC_OS_X_VERSION, $MAC_OS_X_VERSION, [Mac OS X version setting for OU Library])
+    fi
+    
+    if test $targetos = _OU_TARGET_OS_SUNOS
+    then
+        AC_CHECK_FUNC(atomic_inc_32_nv, [],
+            [targetos=_OU_TARGET_OS_GENUNIX])
+    fi
+    
+    AC_DEFINE_UNQUOTED(_OU_TARGET_OS, $targetos, [Target OS setting for OU Library])
+fi
+AC_CONFIG_SUBDIRS([ou])
+AM_CONDITIONAL(ENABLE_OU, test x$use_ou = xyes)
+
+
+AC_ARG_ENABLE([asserts],
+        AS_HELP_STRING([--disable-asserts],
+            [disables debug error checking]),
+        asserts=$enableval,asserts=yes)
+if test x$asserts = xno
+then
+    CPPFLAGS="$CPPFLAGS -DdNODEBUG"
+    if test x$use_ou = xyes
+    then
+        CPPFLAGS="$CPPFLAGS -DNDEBUG"
+    fi
+fi
+
 
 dnl include found system headers into config.h
 AH_TOP([
@@ -462,119 +369,89 @@ AH_BOTTOM([
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #endif
-#if defined(HAVE_IEEEFP_H) && !defined(__CYGWIN__)
-// This header creates conflicts with math.h in Cygwin.
-#include <ieeefp.h>
-#endif
-#ifdef HAVE_STDIO_H
-#include <stdio.h>
-#endif
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_MATH_H
-#include <math.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-#ifdef HAVE_STDARG_H
-#include <stdarg.h>
-#endif
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
-#ifdef HAVE_VALUES_H
-#include <values.h>
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
 #endif
-#ifdef HAVE_FLOAT_H
-#include <float.h>
-#endif
-#if SIZEOF_CHAR == 1
-typedef char int8;
-typedef unsigned char uint8;
-#else
-#error "expecting sizeof(char) == 1"
-#endif
-#if SIZEOF_SHORT == 2
-typedef short int16;
-typedef unsigned short uint16;
-#else
-#error "can not find 2 byte integer type"
-#endif
-/* integer types (we assume int >= 32 bits) */
-#if SIZEOF_INT == 4
-typedef short int32;
-typedef unsigned short uint32;
-#else
-#error "can not find 4 byte integer type"
-#endif
+
 /* an integer type that we can safely cast a pointer to and
  * from without loss of bits.
  */
-#if SIZEOF_SHORT == SIZEOF_VOIDP
-typedef unsigned short intP;
-#elif SIZEOF_INT == SIZEOF_VOIDP
-typedef unsigned int intP;
-#elif SIZEOF_LONG_INT == SIZEOF_VOIDP
-typedef unsigned long int intP;
+typedef uintptr_t intP;
+
+
+// Use the error-checking memory allocation system.  Because this system uses heap
+//  (malloc) instead of stack (alloca), it is slower.  However, it allows you to
+//  simulate larger scenes, as well as handle out-of-memory errors in a somewhat
+//  graceful manner
+
+#ifdef dUSE_MALLOC_FOR_ALLOCA
+enum {
+  d_MEMORY_OK = 0,              /* no memory errors */
+  d_MEMORY_OUT_OF_MEMORY        /* malloc failed due to out of memory error */
+};
 #endif
 
-/* 
-Handle Windows DLL odities
-Its easier to export all symbols using the -shared flag
-for MinGW than differentiating with declspec,
-so only do it for MSVC
-*/
-#if defined(ODE_DLL) && defined(WIN32) && defined(_MSC_VER)
-#define ODE_API __declspec( dllexport )
-#elif !defined(ODE_DLL) && defined(WIN32) && defined(MSC_VER)
-#define ODE_API __declspec( dllimport )
+#ifdef dSINGLE
+       #define dEpsilon  FLT_EPSILON
 #else
-#define ODE_API
+       #define dEpsilon  DBL_EPSILON
 #endif
+
 
 #endif /* #define ODE_CONFIG_H */
 ])
 
-
 dnl Finally write our Makefiles
-AC_OUTPUT([
+AC_CONFIG_FILES([
  Makefile
  include/Makefile
  include/ode/Makefile
+ include/drawstuff/Makefile
  ode/Makefile
  ode/src/Makefile
+ ode/src/joints/Makefile
  drawstuff/Makefile
  drawstuff/src/Makefile
  drawstuff/dstest/Makefile
  ode/demo/Makefile
+ OPCODE/Makefile
+ OPCODE/Ice/Makefile
+ GIMPACT/Makefile
+ GIMPACT/include/Makefile
+ GIMPACT/include/GIMPACT/Makefile
+ GIMPACT/src/Makefile
  tests/Makefile
- tests/CppTestHarness/Makefile
+ tests/UnitTest++/Makefile
+ tests/UnitTest++/src/Makefile
+ tests/UnitTest++/src/Posix/Makefile
+ tests/UnitTest++/src/Win32/Makefile
  ode-config
+ ode.pc
  ])
+AC_OUTPUT
 
 chmod +x ode-config
 
+BUILDDIR=`pwd`
+
 dnl Print some useful information
 echo "Configuration:"
-echo "  Target system type:      $target"
 echo "  Build  system type:      $build"
 echo "  Host   system type:      $host"
 echo "  Use double precision:    $precision"
+echo "  Use drawstuff:           $drawstuff"
+echo "  Demos enabled:           $enable_demos"
 echo "  Use OPCODE:              $opcode"
 echo "  Use GIMPACT:             $gimpact"
-echo "  Use gyroscopic term:     $gyroscopic"
-echo "  Is this a Pentium:       $pentium"
-echo "  Is the CPU x86-64:       $cpu64"
-echo "  Is this a release build: $release"
-echo "  Adding debug symbols:    $debug"
-echo "  Using SONAME:		 $use_soname"
-echo "  Headers will be installed in $prefix/include/ode"
-echo "  Libraries will be installed in $prefix/lib"
-
-if test $gimpact = yes -a $precision = yes
-then
-  echo "WARNING! Double precision not yet supported for GIMPACT"
-fi
+echo "  Is target a Pentium:     $pentium"
+echo "  Is target x86-64:        $cpu64"
+echo "  Use old opcode trimesh collider: $old_trimesh"
+echo "  TLS for global data:     $use_ou"
+echo "  Enable debug error check: $asserts"
+echo "  Headers will be installed in $includedir/ode"
+echo "  Libraries will be installed in $libdir"
+echo "  Building in directory    $BUILDDIR"
 

@@ -29,8 +29,9 @@
 // eventually we should move the common code to a third file.
 
 #include "objects.h"
-#include "joint.h"
-#include <ode/config.h>
+#include "joints/joint.h"
+#include <ode/odeconfig.h>
+#include "config.h"
 #include <ode/objects.h>
 #include <ode/odemath.h>
 #include <ode/rotation.h>
@@ -228,7 +229,7 @@ sinc (dReal x)
 		return dSin (x) / x;
 }
 
-
+#if 0 // this is just dxStepBody()
 // given a body b, apply its linear and angular rotation over the time
 // interval h, thereby adjusting its position and orientation.
 
@@ -314,6 +315,7 @@ moveAndRotateBody (dxBody * b, dReal h)
 	for (dxGeom * geom = b->geom; geom; geom = dGeomGetBodyNext (geom))
 		dGeomMoved (geom);
 }
+#endif
 
 //****************************************************************************
 //This is an implementation of the iterated/relaxation algorithm.
@@ -682,7 +684,7 @@ dInternalStepIslandFast (dxWorld * world, dxBody * const *bodies, int nb, dxJoin
 	int *ofs = (int *) ALLOCA (nj * sizeof (int));
 	for (i = 0, j = 0; j < nj; j++)
 	{	// i=dest, j=src
-		joints[j]->vtable->getInfo1 (joints[j], info + i);
+		joints[j]->getInfo1 (info + i);
 		dIASSERT (info[i].m >= 0 && info[i].m <= 6 && info[i].nub >= 0 && info[i].nub <= info[i].m);
 		if (info[i].m > 0)
 		{
@@ -766,7 +768,7 @@ dInternalStepIslandFast (dxWorld * world, dxBody * const *bodies, int nb, dxJoin
 		Jinfo[i].lo = lo + ofs[i];
 		Jinfo[i].hi = hi + ofs[i];
 		Jinfo[i].findex = findex + ofs[i];
-		//joints[i]->vtable->getInfo2 (joints[i], Jinfo+i);
+		//joints[i]->getInfo2 (Jinfo+i);
 	}
 
 	}
@@ -810,11 +812,13 @@ dInternalStepIslandFast (dxWorld * world, dxBody * const *bodies, int nb, dxJoin
 
 			for (i = 0; i < 4; i++)
 				body->tacc[i] = saveTacc[b * 4 + i];
-#ifdef dGYROSCOPIC
-			// compute rotational force
-			dMULTIPLY0_331 (tmp, globalI + b * 12, body->avel);
-			dCROSS (body->tacc, -=, body->avel, tmp);
-#endif
+                
+            if (body->flags & dxBodyGyroscopic) {
+                // DanielKO: this doesn't look right/efficient, but anyways...
+    			// compute rotational force
+    			dMULTIPLY0_331 (tmp, globalI + b * 12, body->avel);
+        		dCROSS (body->tacc, -=, body->avel, tmp);
+            }
 
 			// add the gravity force to all bodies
 			if ((body->flags & dxBodyNoGravity) == 0)
@@ -884,7 +888,7 @@ dInternalStepIslandFast (dxWorld * world, dxBody * const *bodies, int nb, dxJoin
 				GinvIPair[1] = globalInvI + bodyPair[1]->tag * 12;
 			}
 
-			joints[j]->vtable->getInfo2 (joints[j], Jinfo + j);
+			joints[j]->getInfo2 (Jinfo + j);
 
 			//dInternalStepIslandFast is an exact copy of the old routine with one
 			//modification: the calculated forces are added back to the facc and tacc
@@ -917,7 +921,7 @@ dInternalStepIslandFast (dxWorld * world, dxBody * const *bodies, int nb, dxJoin
 				body->lvel[i] += body->invMass * body->facc[i];
 
 			//move It!
-			moveAndRotateBody (body, ministep);
+			dxStepBody (body, ministep);
 		}
 	}
 	for (b = 0; b < nb; b++)

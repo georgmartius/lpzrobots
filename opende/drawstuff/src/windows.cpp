@@ -23,7 +23,8 @@
 #if defined(WIN32) || defined(__CYGWIN__)// this prevents warnings when dependencies built
 #include <windows.h>
 #endif
-#include <ode/config.h>
+#include <ode/odeconfig.h>
+#include "config.h"
 #include <GL/gl.h>
 
 #include "resource.h"
@@ -40,7 +41,7 @@ static HWND main_window = 0;
 //***************************************************************************
 // error and message handling
 
-static void errorBox (char *title, char *msg, va_list ap)
+static void errorBox (const char *title, const char *msg, va_list ap)
 {
   char s[1000];
   vsprintf (s,msg,ap);
@@ -48,7 +49,7 @@ static void errorBox (char *title, char *msg, va_list ap)
 }
 
 
-static void dsWarning (char *msg, ...)
+static void dsWarning (const char *msg, ...)
 {
   va_list ap;
   va_start (ap,msg);
@@ -56,7 +57,7 @@ static void dsWarning (char *msg, ...)
 }
 
 
-extern "C" void dsError (char *msg, ...)
+extern "C" void dsError (const char *msg, ...)
 {
   va_list ap;
   va_start (ap,msg);
@@ -65,7 +66,7 @@ extern "C" void dsError (char *msg, ...)
 }
 
 
-extern "C" void dsDebug (char *msg, ...)
+extern "C" void dsDebug (const char *msg, ...)
 {
   va_list ap;
   va_start (ap,msg);
@@ -76,7 +77,7 @@ extern "C" void dsDebug (char *msg, ...)
 }
 
 
-extern "C" void dsPrint (char *msg, ...)
+extern "C" void dsPrint (const char *msg, ...)
 {
   va_list ap;
   va_start (ap,msg);
@@ -287,10 +288,10 @@ static LRESULT CALLBACK mainWndProc (HWND hWnd, UINT msg, WPARAM wParam,
     }
     break;
 
-  case WM_CLOSE:
+  case WM_CLOSE:    
     PostQuitMessage (0);
     break;
-
+    
   default:
     return (DefWindowProc (hWnd, msg, wParam, lParam));
   }
@@ -323,8 +324,8 @@ static void drawStuffStartup()
     ghInstance = GetModuleHandleA (NULL);
   gnCmdShow = SW_SHOWNORMAL;		// @@@ fix this later
 
-  // redirect standard I/O to a new console (except on cygwin)
-#ifndef __CYGWIN__
+  // redirect standard I/O to a new console (except on cygwin and mingw)
+#if !defined(__CYGWIN__) && !defined(__MINGW32__)
   FreeConsole();
   if (AllocConsole()==0) dsError ("AllocConsole() failed");
   if (freopen ("CONIN$","rt",stdin)==0) dsError ("could not open stdin");
@@ -524,4 +525,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 }
 
 */
+
+
 

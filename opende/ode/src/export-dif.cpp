@@ -35,7 +35,7 @@
 
 #include "ode/ode.h"
 #include "objects.h"
-#include "joint.h"
+#include "joints/joints.h"
 #include "collision_kernel.h"
 
 //***************************************************************************
@@ -177,20 +177,22 @@ static void printLimot (PrintingContext &c, dxJointLimitMotor &limot, int num)
 
 static const char *getJointName (dxJoint *j)
 {
-	switch (j->vtable->typenum) {
-		case dJointTypeBall: return "ball";
-		case dJointTypeHinge: return "hinge";
-		case dJointTypeSlider: return "slider";
-		case dJointTypeContact: return "contact";
-		case dJointTypeUniversal: return "universal";
-		case dJointTypeHinge2: return "ODE_hinge2";
-		case dJointTypeFixed: return "fixed";
-		case dJointTypeNull: return "null";
-		case dJointTypeAMotor: return "ODE_angular_motor";
-		case dJointTypeLMotor: return "ODE_linear_motor";
-		case dJointTypePR: return "PR";
-	}
-	return "unknown";
+    switch (j->type()) {
+    case dJointTypeBall: return "ball";
+    case dJointTypeHinge: return "hinge";
+    case dJointTypeSlider: return "slider";
+    case dJointTypeContact: return "contact";
+    case dJointTypeUniversal: return "universal";
+    case dJointTypeHinge2: return "ODE_hinge2";
+    case dJointTypeFixed: return "fixed";
+    case dJointTypeNull: return "null";
+    case dJointTypeAMotor: return "ODE_angular_motor";
+    case dJointTypeLMotor: return "ODE_linear_motor";
+    case dJointTypePR: return "PR";
+    case dJointTypePU: return "PU";
+    case dJointTypePiston: return "piston";
+    default: return "unknown";
+    }
 }
 
 
@@ -294,6 +296,32 @@ static void printPR (PrintingContext &c, dxJoint *j)
 	printLimot (c,pr->limotR,2);
 }
 
+static void printPU (PrintingContext &c, dxJoint *j)
+{
+  dxJointPU *pu = (dxJointPU*) j;
+  c.print ("anchor1",pu->anchor1);
+  c.print ("anchor2",pu->anchor2);
+  c.print ("axis1",pu->axis1);
+  c.print ("axis2",pu->axis2);
+  c.print ("axisP",pu->axisP1);
+  c.print ("qrel1",pu->qrel1,4);
+  c.print ("qrel2",pu->qrel2,4);
+  printLimot (c,pu->limot1,1);
+  printLimot (c,pu->limot2,2);
+  printLimot (c,pu->limotP,3);
+}
+
+static void printPiston (PrintingContext &c, dxJoint *j)
+{
+	dxJointPiston *rap = (dxJointPiston*) j;
+	c.print ("anchor1",rap->anchor1);
+	c.print ("anchor2",rap->anchor2);
+	c.print ("axis1",rap->axis1);
+	c.print ("axis2",rap->axis2);
+	c.print ("qrel",rap->qrel,4);
+	printLimot (c,rap->limotP,1);
+	printLimot (c, rap->limotR, 2);
+}
 
 static void printFixed (PrintingContext &c, dxJoint *j)
 {
@@ -304,14 +332,14 @@ static void printFixed (PrintingContext &c, dxJoint *j)
 
 static void printLMotor (PrintingContext &c, dxJoint *j)
 {
-       dxJointLMotor *a = (dxJointLMotor*) j;
-       c.print("num", a->num);
-       c.printIndent();
-       fprintf (c.file,"rel = {%d,%d,%d},\n",a->rel[0],a->rel[1],a->rel[2]);
-       c.print ("axis1",a->axis[0]);
-       c.print ("axis2",a->axis[1]);
-       c.print ("axis3",a->axis[2]);
-       for (int i=0; i<3; i++) printLimot (c,a->limot[i],i+1);
+	dxJointLMotor *a = (dxJointLMotor*) j;
+	c.print("num", a->num);
+	c.printIndent();
+	fprintf (c.file,"rel = {%d,%d,%d},\n",a->rel[0],a->rel[1],a->rel[2]);
+	c.print ("axis1",a->axis[0]);
+	c.print ("axis2",a->axis[1]);
+	c.print ("axis3",a->axis[2]);
+	for (int i=0; i<3; i++) printLimot (c,a->limot[i],i+1);
 }
 
 
@@ -352,7 +380,6 @@ static void printBox (PrintingContext &c, dxGeom *g)
 }
 
 
-
 static void printCapsule (PrintingContext &c, dxGeom *g)
 {
 	dReal radius,length;
@@ -360,6 +387,16 @@ static void printCapsule (PrintingContext &c, dxGeom *g)
 	c.print ("type","capsule");
 	c.print ("radius",radius);
 	c.print ("length",length);
+}
+
+
+static void printCylinder (PrintingContext &c, dxGeom *g)
+{
+  dReal radius,length;
+  dGeomCylinderGetParams (g,&radius,&length);
+  c.print ("type","cylinder");
+  c.print ("radius",radius);
+  c.print ("length",length);
 }
 
 
@@ -373,7 +410,6 @@ static void printPlane (PrintingContext &c, dxGeom *g)
 }
 
 
-
 static void printRay (PrintingContext &c, dxGeom *g)
 {
 	dReal length = dGeomRayGetLength (g);
@@ -381,6 +417,12 @@ static void printRay (PrintingContext &c, dxGeom *g)
 	c.print ("length",length);
 }
 
+
+static void printConvex (PrintingContext &c, dxGeom *g)
+{
+	c.print ("type","convex");
+	///@todo Print information about convex hull
+}
 
 
 static void printGeomTransform (PrintingContext &c, dxGeom *g)
@@ -400,7 +442,6 @@ static void printGeomTransform (PrintingContext &c, dxGeom *g)
 }
 
 
-
 static void printTriMesh (PrintingContext &c, dxGeom *g)
 {
 	c.print ("type","trimesh");
@@ -408,6 +449,13 @@ static void printTriMesh (PrintingContext &c, dxGeom *g)
 	//    sufficient to read out all the triangle data, and anyway we
 	//    should have a method of not duplicating trimesh data that is
 	//    shared.
+}
+
+
+static void printHeightfieldClass (PrintingContext &c, dxGeom *g)
+{
+	c.print ("type","heightfield");
+	///@todo Print information about heightfield
 }
 
 
@@ -430,10 +478,13 @@ static void printGeom (PrintingContext &c, dxGeom *g)
 		case dSphereClass: printSphere (c,g); break;
 		case dBoxClass: printBox (c,g); break;
 		case dCapsuleClass: printCapsule (c,g); break;
+		case dCylinderClass: printCylinder (c,g); break;
 		case dPlaneClass: printPlane (c,g); break;
 		case dRayClass: printRay (c,g); break;
+		case dConvexClass: printConvex (c,g); break;
 		case dGeomTransformClass: printGeomTransform (c,g); break;
 		case dTriMeshClass: printTriMesh (c,g); break;
+		case dHeightfieldClass: printHeightfieldClass (c,g); break;
 	}
 }
 
@@ -548,8 +599,9 @@ void dWorldExportDIF (dWorldID w, FILE *file, const char *prefix)
 			fprintf (file,"%sbody[%d]",prefix,j->node[0].body->tag);
 		if ( j->node[1].body )
 			fprintf (file,",%sbody[%d]",prefix,j->node[1].body->tag);
+		fprintf (file,"}\n");
 
-		switch (j->vtable->typenum) {
+		switch (j->type()) {
 			case dJointTypeBall: printBall (c,j); break;
 			case dJointTypeHinge: printHinge (c,j); break;
 			case dJointTypeSlider: printSlider (c,j); break;
@@ -560,6 +612,9 @@ void dWorldExportDIF (dWorldID w, FILE *file, const char *prefix)
 			case dJointTypeAMotor: printAMotor (c,j); break;
 			case dJointTypeLMotor: printLMotor (c,j); break;
 			case dJointTypePR: printPR (c,j); break;
+			case dJointTypePU: printPU (c,j); break;
+			case dJointTypePiston: printPiston (c,j); break;
+			default: c.print("unknown joint");
 		}
 		c.indent--;
 		c.print ("}");

@@ -22,13 +22,14 @@
 
 // Test for cylinder vs sphere, by Bram Stolk
 
-#include <ode/config.h>
+#include <ode/odeconfig.h>
 #include <assert.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "texturepath.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
@@ -47,7 +48,6 @@ static dBodyID sphbody;
 static dGeomID sphgeom;
 
 static dJointGroupID contactgroup;
-static dGeomID world_mesh;
 
 static bool show_contacts = true;
 
@@ -115,6 +115,8 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 static void start()
 {
+  dAllocateODEDataForThread(dAllocateMaskAll);
+
   static float xyz[3] = {-8,-9,3};
   static float hpr[3] = {45.0000f,-27.5000f,0.0000f};
   dsSetViewpoint (xyz,hpr);
@@ -183,12 +185,10 @@ int main (int argc, char **argv)
   fn.step = &simLoop;
   fn.command = &command;
   fn.stop = 0;
-  fn.path_to_textures = "../../drawstuff/textures";
-  if(argc==2)
-    fn.path_to_textures = argv[1];
+  fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
   // create world
-  dInitODE();
+  dInitODE2(0);
   world = dWorldCreate();
   space = dHashSpaceCreate (0);
   contactgroup = dJointGroupCreate (0);
@@ -235,4 +235,6 @@ int main (int argc, char **argv)
   dCloseODE();
   return 0;
 }
+
+
 

@@ -22,7 +22,8 @@
 
 // main window and event handling for X11
 
-#include <ode/config.h>
+#include <ode/odeconfig.h>
+#include "config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -42,7 +43,7 @@
 //***************************************************************************
 // error handling for unix
 
-static void printMessage (char *msg1, char *msg2, va_list ap)
+static void printMessage (const char *msg1, const char *msg2, va_list ap)
 {
   fflush (stderr);
   fflush (stdout);
@@ -53,7 +54,7 @@ static void printMessage (char *msg1, char *msg2, va_list ap)
 }
 
 
-extern "C" void dsError (char *msg, ...)
+extern "C" void dsError (const char *msg, ...)
 {
   va_list ap;
   va_start (ap,msg);
@@ -62,7 +63,7 @@ extern "C" void dsError (char *msg, ...)
 }
 
 
-extern "C" void dsDebug (char *msg, ...)
+extern "C" void dsDebug (const char *msg, ...)
 {
   va_list ap;
   va_start (ap,msg);
@@ -72,7 +73,7 @@ extern "C" void dsDebug (char *msg, ...)
 }
 
 
-extern "C" void dsPrint (char *msg, ...)
+extern "C" void dsPrint (const char *msg, ...)
 {
   va_list ap;
   va_start (ap,msg);
@@ -109,10 +110,12 @@ static void createMainWindow (int _width, int _height)
   screen = DefaultScreen(display);
 
   // get GL visual
-  static int attribList[] = {GLX_RGBA, GLX_DOUBLEBUFFER, GLX_DEPTH_SIZE,16,
-			     GLX_RED_SIZE,4, GLX_GREEN_SIZE,4,
-			     GLX_BLUE_SIZE,4, None};
-  visual = glXChooseVisual (display,screen,attribList);
+  static int attribListDblBuf[] = {GLX_RGBA, GLX_DOUBLEBUFFER, GLX_DEPTH_SIZE,16,
+			     GLX_RED_SIZE,4, GLX_GREEN_SIZE,4, GLX_BLUE_SIZE,4, None};
+  static int attribList[] = {GLX_RGBA, GLX_DEPTH_SIZE,16,
+			     GLX_RED_SIZE,4, GLX_GREEN_SIZE,4, GLX_BLUE_SIZE,4, None};
+  visual = glXChooseVisual (display,screen,attribListDblBuf);
+  if (!visual) visual = glXChooseVisual (display,screen,attribList);
   if (!visual) dsError ("no good X11 visual found for OpenGL");
 
   // create colormap
@@ -415,4 +418,6 @@ extern "C" double dsElapsedTime()
   return 0.01666; // Assume 60 fps
 #endif
 }
+
+
 

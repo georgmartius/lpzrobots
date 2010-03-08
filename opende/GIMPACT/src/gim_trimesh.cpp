@@ -30,7 +30,7 @@ email: projectileman@yahoo.com
 #include <assert.h>
 #include "GIMPACT/gim_trimesh.h"
 
-GUINT gim_trimesh_get_triangle_count(GIM_TRIMESH * trimesh)
+GUINT32 gim_trimesh_get_triangle_count(GIM_TRIMESH * trimesh)
 {
     return trimesh->m_tri_index_buffer.m_element_count/3;
 }
@@ -44,7 +44,8 @@ GUINT gim_trimesh_get_triangle_count(GIM_TRIMESH * trimesh)
 \param transformed_reply If 1, then the m_transformed_vertices is a reply of the source vertices. Else it just be a reference to the original array.
 \post it copies the arrays by reference, and creates the auxiliary data (m_aabbset,m_planes_cache_buffer)
 */
-void gim_trimesh_create_from_arrays(GIM_TRIMESH * trimesh, GBUFFER_ARRAY * vertex_array, GBUFFER_ARRAY * triindex_array,char transformed_reply)
+void gim_trimesh_create_from_arrays(GBUFFER_MANAGER_DATA buffer_managers[],
+	GIM_TRIMESH * trimesh, GBUFFER_ARRAY * vertex_array, GBUFFER_ARRAY * triindex_array,char transformed_reply)
 {
     assert(trimesh);
     assert(vertex_array);
@@ -57,14 +58,15 @@ void gim_trimesh_create_from_arrays(GIM_TRIMESH * trimesh, GBUFFER_ARRAY * verte
     if(transformed_reply==1)
     {
         trimesh->m_mask |= GIM_TRIMESH_TRANSFORMED_REPLY;
-        gim_buffer_array_copy_value(vertex_array,&trimesh->m_transformed_vertex_buffer,G_BUFFER_MANAGER_SYSTEM,G_MU_DYNAMIC_READ_WRITE);
+        gim_buffer_array_copy_value(vertex_array,
+			buffer_managers,&trimesh->m_transformed_vertex_buffer,G_BUFFER_MANAGER_SYSTEM,G_MU_DYNAMIC_READ_WRITE);
     }
     else
     {
         gim_buffer_array_copy_ref(vertex_array,&trimesh->m_transformed_vertex_buffer);
     }
     //create the box set
-    GUINT facecount = gim_trimesh_get_triangle_count(trimesh);
+    GUINT32 facecount = gim_trimesh_get_triangle_count(trimesh);
 
     gim_aabbset_alloc(&trimesh->m_aabbset,facecount);
     //create the planes cache
@@ -91,7 +93,9 @@ void gim_trimesh_create_from_arrays(GIM_TRIMESH * trimesh, GBUFFER_ARRAY * verte
 \param copy_indices If 1, it copies the source vertices in another buffer. Else (0) it constructs a reference to the data.
 \param transformed_reply If , then the m_transformed_vertices is a reply of the source vertices. Else it just be a reference to the original array.
 */
-void gim_trimesh_create_from_data(GIM_TRIMESH * trimesh, vec3f * vertex_array, GUINT vertex_count,char copy_vertices, GUINT * triindex_array, GUINT index_count,char copy_indices,char transformed_reply)
+void gim_trimesh_create_from_data(GBUFFER_MANAGER_DATA buffer_managers[],
+	GIM_TRIMESH * trimesh, vec3f * vertex_array, GUINT32 vertex_count,char copy_vertices, 
+	GUINT32 * triindex_array, GUINT32 index_count,char copy_indices,char transformed_reply)
 {
     GBUFFER_ARRAY buffer_vertex_array;
     GBUFFER_ARRAY buffer_triindex_array;
@@ -99,11 +103,13 @@ void gim_trimesh_create_from_data(GIM_TRIMESH * trimesh, vec3f * vertex_array, G
     //Create vertices
     if(copy_vertices == 1)
     {
-        gim_create_common_buffer_from_data(vertex_array, vertex_count*sizeof(vec3f), &buffer_vertex_array.m_buffer_id);
+        gim_create_common_buffer_from_data(buffer_managers, 
+			vertex_array, vertex_count*sizeof(vec3f), &buffer_vertex_array.m_buffer_id);
     }
     else//Create a shared buffer
     {
-        gim_create_shared_buffer_from_data(vertex_array, vertex_count*sizeof(vec3f), &buffer_vertex_array.m_buffer_id);
+        gim_create_shared_buffer_from_data(buffer_managers, 
+			vertex_array, vertex_count*sizeof(vec3f), &buffer_vertex_array.m_buffer_id);
     }
     GIM_BUFFER_ARRAY_INIT_TYPE(vec3f,buffer_vertex_array,buffer_vertex_array.m_buffer_id,vertex_count);
 
@@ -111,15 +117,18 @@ void gim_trimesh_create_from_data(GIM_TRIMESH * trimesh, vec3f * vertex_array, G
     //Create vertices
     if(copy_indices == 1)
     {
-        gim_create_common_buffer_from_data(triindex_array, index_count*sizeof(GUINT), &buffer_triindex_array.m_buffer_id);
+        gim_create_common_buffer_from_data(buffer_managers, 
+			triindex_array, index_count*sizeof(GUINT32), &buffer_triindex_array.m_buffer_id);
     }
     else//Create a shared buffer
     {
-        gim_create_shared_buffer_from_data(triindex_array, index_count*sizeof(GUINT), &buffer_triindex_array.m_buffer_id);
+        gim_create_shared_buffer_from_data(buffer_managers, 
+			triindex_array, index_count*sizeof(GUINT32), &buffer_triindex_array.m_buffer_id);
     }
-    GIM_BUFFER_ARRAY_INIT_TYPE(GUINT,buffer_triindex_array,buffer_triindex_array.m_buffer_id,index_count);
+    GIM_BUFFER_ARRAY_INIT_TYPE(GUINT32,buffer_triindex_array,buffer_triindex_array.m_buffer_id,index_count);
 
-    gim_trimesh_create_from_arrays(trimesh, &buffer_vertex_array, &buffer_triindex_array,transformed_reply);
+    gim_trimesh_create_from_arrays(buffer_managers, trimesh, 
+		&buffer_vertex_array, &buffer_triindex_array,transformed_reply);
 
     ///always call this after create a buffer_array
     GIM_BUFFER_ARRAY_DESTROY(buffer_vertex_array);
@@ -148,29 +157,36 @@ void gim_trimesh_destroy(GIM_TRIMESH * trimesh)
 \param copy_by_reference If 1, it attach a reference to the source vertices, else it copies the vertices
 \param transformed_reply IF 1, then it forces the m_trasnformed_vertices to be  a reply of the source vertices
 */
-void gim_trimesh_copy(GIM_TRIMESH * source_trimesh,GIM_TRIMESH * dest_trimesh, char copy_by_reference, char transformed_reply)
+void gim_trimesh_copy(GIM_TRIMESH * source_trimesh,
+	GBUFFER_MANAGER_DATA dest_buffer_managers[], GIM_TRIMESH * dest_trimesh, 
+	char copy_by_reference, char transformed_reply)
 {
+/* -- trimesh can not be copied by reference until GBUFFER_MANAGER_DATA is rewritten
+	to be thread safe and until it is moved back to global variables.
     if(copy_by_reference==1)
     {
         gim_trimesh_create_from_arrays(dest_trimesh, &source_trimesh->m_source_vertex_buffer, &source_trimesh->m_tri_index_buffer,transformed_reply);
     }
     else
+*/
     {
         GBUFFER_ARRAY buffer_vertex_array;
         GBUFFER_ARRAY buffer_triindex_array;
 
-        gim_buffer_array_copy_value(&source_trimesh->m_source_vertex_buffer,&buffer_vertex_array,G_BUFFER_MANAGER_SYSTEM,G_MU_DYNAMIC_READ_WRITE);
+        gim_buffer_array_copy_value(&source_trimesh->m_source_vertex_buffer,
+			dest_buffer_managers,&buffer_vertex_array,G_BUFFER_MANAGER_SYSTEM,G_MU_DYNAMIC_READ_WRITE);
 
-        gim_buffer_array_copy_value(&source_trimesh->m_tri_index_buffer,&buffer_triindex_array,G_BUFFER_MANAGER_SYSTEM,G_MU_DYNAMIC_READ_WRITE);
+        gim_buffer_array_copy_value(&source_trimesh->m_tri_index_buffer,
+			dest_buffer_managers,&buffer_triindex_array,G_BUFFER_MANAGER_SYSTEM,G_MU_DYNAMIC_READ_WRITE);
 
-        gim_trimesh_create_from_arrays(dest_trimesh, &buffer_vertex_array, &buffer_triindex_array,transformed_reply);
+        gim_trimesh_create_from_arrays(dest_buffer_managers, dest_trimesh, 
+			&buffer_vertex_array, &buffer_triindex_array,transformed_reply);
 
         ///always call this after create a buffer_array
         GIM_BUFFER_ARRAY_DESTROY(buffer_vertex_array);
         GIM_BUFFER_ARRAY_DESTROY(buffer_triindex_array);
     }
 }
-
 //! Locks the trimesh for working with it
 /*!
 \post locks m_tri_index_buffer and m_transformed_vertex_buffer.
@@ -178,7 +194,7 @@ void gim_trimesh_copy(GIM_TRIMESH * source_trimesh,GIM_TRIMESH * dest_trimesh, c
 */
 void gim_trimesh_locks_work_data(GIM_TRIMESH * trimesh)
 {
-    GINT res;
+    GINT32 res;
     res=gim_buffer_array_lock(&trimesh->m_tri_index_buffer,G_MA_READ_ONLY);
     assert(res==G_BUFFER_OP_SUCCESS);
     res=gim_buffer_array_lock(&trimesh->m_transformed_vertex_buffer,G_MA_READ_ONLY);
@@ -251,13 +267,13 @@ void gim_trimesh_update_aabbset(GIM_TRIMESH * trimesh)
     vec3f * transformed_vertices = GIM_BUFFER_ARRAY_POINTER(vec3f,trimesh->m_transformed_vertex_buffer,0);
     assert(transformed_vertices);
 
-    GUINT * triangle_indices = GIM_BUFFER_ARRAY_POINTER(GUINT,trimesh->m_tri_index_buffer,0);
+    GUINT32 * triangle_indices = GIM_BUFFER_ARRAY_POINTER(GUINT32,trimesh->m_tri_index_buffer,0);
     assert(triangle_indices);
     // box set
     aabb3f * paabb = trimesh->m_aabbset.m_boxes;
-    GUINT triangle_count = gim_trimesh_get_triangle_count(trimesh);
+    GUINT32 triangle_count = gim_trimesh_get_triangle_count(trimesh);
     float * v1,*v2,*v3;
-    GUINT i;
+    GUINT32 i;
     for (i=0; i<triangle_count;i++)
     {
         v1 = &transformed_vertices[triangle_indices[0]][0];
@@ -294,7 +310,7 @@ void gim_trimesh_set_tranform(GIM_TRIMESH * trimesh, mat4f transform)
     GREAL diff = 0.0f;
     float * originaltrans = &trimesh->m_transform[0][0];
     float * newtrans = &transform[0][0];
-    GUINT i;
+    GUINT32 i;
     for (i=0;i<16;i++)
     {
     	diff += fabs(originaltrans[i]-newtrans[i]);
@@ -308,11 +324,11 @@ void gim_trimesh_set_tranform(GIM_TRIMESH * trimesh, mat4f transform)
     gim_trimesh_post_update(trimesh);
 }
 
-void gim_trimesh_get_triangle_data(GIM_TRIMESH * trimesh, GUINT triangle_index, GIM_TRIANGLE_DATA * tri_data)
+void gim_trimesh_get_triangle_data(GIM_TRIMESH * trimesh, GUINT32 triangle_index, GIM_TRIANGLE_DATA * tri_data)
 {
     vec3f * transformed_vertices = GIM_BUFFER_ARRAY_POINTER(vec3f,trimesh->m_transformed_vertex_buffer,0);
 
-    GUINT * triangle_indices = GIM_BUFFER_ARRAY_POINTER(GUINT,trimesh->m_tri_index_buffer,triangle_index*3);
+    GUINT32 * triangle_indices = GIM_BUFFER_ARRAY_POINTER(GUINT32,trimesh->m_tri_index_buffer,triangle_index*3);
 
 
     //Copy the vertices
@@ -325,7 +341,7 @@ void gim_trimesh_get_triangle_data(GIM_TRIMESH * trimesh, GUINT triangle_index, 
     planes += triangle_index;
 
     //verify planes cache
-    GUINT bit_eval;
+    GUINT32 bit_eval;
     GIM_BITSET_GET(trimesh->m_planes_cache_bitset,triangle_index,bit_eval);
     if(bit_eval == 0)// Needs to calc the planes
     {
@@ -351,11 +367,11 @@ void gim_trimesh_get_triangle_data(GIM_TRIMESH * trimesh, GUINT triangle_index, 
     VEC_COPY_4((tri_data->m_planes.m_planes[3]),(planes->m_planes[3]));//edge3
 }
 
-void gim_trimesh_get_triangle_vertices(GIM_TRIMESH * trimesh, GUINT triangle_index, vec3f v1,vec3f v2,vec3f v3)
+void gim_trimesh_get_triangle_vertices(GIM_TRIMESH * trimesh, GUINT32 triangle_index, vec3f v1,vec3f v2,vec3f v3)
 {
     vec3f * transformed_vertices = GIM_BUFFER_ARRAY_POINTER(vec3f,trimesh->m_transformed_vertex_buffer,0);
 
-    GUINT * triangle_indices = GIM_BUFFER_ARRAY_POINTER(GUINT,trimesh->m_tri_index_buffer,triangle_index*3);
+    GUINT32 * triangle_indices = GIM_BUFFER_ARRAY_POINTER(GUINT32,trimesh->m_tri_index_buffer,triangle_index*3);
 
     //Copy the vertices
     VEC_COPY(v1,transformed_vertices[triangle_indices[0]]);

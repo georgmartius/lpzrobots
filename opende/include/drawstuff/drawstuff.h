@@ -63,9 +63,19 @@ extern "C" {
 
 
 /* texture numbers */
-#define DS_NONE   0	/* uses the current color instead of a texture */
-#define DS_WOOD   1
+  enum DS_TEXTURE_NUMBER
+  {
+    DS_NONE = 0,       /* uses the current color instead of a texture */
+    DS_WOOD,
+    DS_CHECKERED,
+    DS_GROUND,
+    DS_SKY,
+  };
 
+/* draw modes */
+
+#define DS_POLYFILL  0
+#define DS_WIREFRAME 1
 
 /**
  * @struct dsFunctions
@@ -80,7 +90,7 @@ typedef struct dsFunctions {
   void (*command) (int cmd);	/* called if a command key is pressed */
   void (*stop)();		/* called after sim loop exits */
   /* version 2 data */
-  char *path_to_textures;	/* if nonzero, path to texture files */
+  const char *path_to_textures;	/* if nonzero, path to texture files */
 } dsFunctions;
 
 
@@ -102,7 +112,7 @@ DS_API void dsSimulationLoop (int argc, char **argv,
  * This function displays an error message then exit.
  * @param msg format strin, like printf, without the newline character.
  */
-DS_API void dsError (char *msg, ...);
+DS_API void dsError (const char *msg, ...);
 
 /**
  * @brief exit with error message and core dump.
@@ -110,14 +120,14 @@ DS_API void dsError (char *msg, ...);
  * this functions tries to dump core or start the debugger.
  * @param msg format strin, like printf, without the newline character.
  */
-DS_API void dsDebug (char *msg, ...);
+DS_API void dsDebug (const char *msg, ...);
 
 /**
  * @brief print log message
  * @ingroup drawstuff
  * @param msg format string, like printf, without the \n.
  */
-DS_API void dsPrint (char *msg, ...);
+DS_API void dsPrint (const char *msg, ...);
 
 /**
  * @brief Sets the viewpoint
@@ -279,6 +289,13 @@ DS_API void dsDrawConvexD(const double pos[3], const double R[12],
  */
 DS_API void dsSetSphereQuality (int n);		/* default = 1 */
 DS_API void dsSetCapsuleQuality (int n);		/* default = 3 */
+
+/**
+ * @brief Set Drawmode 0=Polygon Fill,1=Wireframe).
+ * Use the DS_POLYFILL and DS_WIREFRAME macros.
+ * @ingroup drawstuff
+ */
+DS_API void dsSetDrawMode(int mode);
 
 // Backwards compatible API
 #define dsDrawCappedCylinder dsDrawCapsule

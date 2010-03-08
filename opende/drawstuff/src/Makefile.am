@@ -1,21 +1,24 @@
-# We build drawstuff as a non libtool static library manually
-# so it doesn't get installed when 'make install' is called,
-# drawstuff is meant as an aid for testing and not as a full
+# Drawstuff is meant as an aid for testing and not as a full
 # rendering library.
 
-noinst_LIBRARIES = libdrawstuff.a
-libdrawstuff_a_SOURCES = drawstuff.cpp internal.h
-libdrawstuff_a_CXXFLAGS =  @ARCHFLAGS@ -I$(top_srcdir)/include -I$(top_builddir)/include
-
-# libdrawstuff_a_LIBADD = @GL_LIBS@
+noinst_LTLIBRARIES = libdrawstuff.la
+libdrawstuff_la_SOURCES = drawstuff.cpp internal.h
+AM_CPPFLAGS = -I$(top_srcdir)/include \
+        -DDEFAULT_PATH_TO_TEXTURES='"$(top_srcdir)/drawstuff/textures/"' \
+        $(X_CFLAGS)
 
 if WIN32
-libdrawstuff_a_SOURCES+= windows.cpp
+libdrawstuff_la_SOURCES+= windows.cpp resource.h resources.rc
+libdrawstuff_la_LIBADD = -lwinmm -lgdi32
+libdrawstuff_la_LDFLAGS = -no-undefined
 endif
+
 if X11
-libdrawstuff_a_SOURCES+= x11.cpp
+libdrawstuff_la_SOURCES+= x11.cpp
+libdrawstuff_la_LIBADD = $(X_LIBS)
 endif
+
 if OSX
-libdrawstuff_a_SOURCES+= osx.cpp
+libdrawstuff_la_SOURCES+= osx.cpp
 endif
 

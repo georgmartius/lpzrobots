@@ -24,11 +24,11 @@
 #include <ode/matrix.h>
 #include <ode/rotation.h>
 #include <ode/odemath.h>
+#include "config.h"
 
 #if dTRIMESH_ENABLED
 
 #include "collision_util.h"
-#define TRIMESH_INTERNAL
 #include "collision_trimesh_internal.h"
 
 #if dTRIMESH_GIMPACT
@@ -108,12 +108,12 @@ void dGeomTriMeshDataBuildDouble(dTriMeshDataID g,
 
 void dGeomTriMeshDataBuildSimple1(dTriMeshDataID g,
                                   const dReal* Vertices, int VertexCount,
-                                 const int* Indices, int IndexCount,
+                                 const dTriIndex* Indices, int IndexCount,
                                  const int* Normals){
 #ifdef dSINGLE
     dGeomTriMeshDataBuildSingle1(g,
 				Vertices, 4 * sizeof(dReal), VertexCount,
-				Indices, IndexCount, 3 * sizeof(unsigned int),
+				Indices, IndexCount, 3 * sizeof(dTriIndex),
 				Normals);
 #else
     dGeomTriMeshDataBuildDouble1(g, Vertices, 4 * sizeof(dReal), VertexCount,
@@ -125,7 +125,7 @@ void dGeomTriMeshDataBuildSimple1(dTriMeshDataID g,
 
 void dGeomTriMeshDataBuildSimple(dTriMeshDataID g,
                                  const dReal* Vertices, int VertexCount,
-                                 const int* Indices, int IndexCount) {
+                                 const dTriIndex* Indices, int IndexCount) {
     dGeomTriMeshDataBuildSimple1(g,
                                  Vertices, VertexCount, Indices, IndexCount,
                                  (const int*)NULL);
@@ -156,6 +156,13 @@ void dGeomTriMeshDataSetBuffer(dTriMeshDataID g, unsigned char* buf)
 dxTriMesh::dxTriMesh(dSpaceID Space, dTriMeshDataID Data) : dxGeom(Space, 1){
     type = dTriMeshClass;
 
+    Callback = NULL;
+    ArrayCallback = NULL;
+    RayCallback = NULL;
+    TriMergeCallback = NULL; // Not initialized in dCreateTriMesh
+
+	gim_init_buffer_managers(m_buffer_managers);
+
     dGeomTriMeshSetData(this,Data);
 
 	/* TC has speed/space 'issues' that don't make it a clear
@@ -170,6 +177,8 @@ dxTriMesh::~dxTriMesh(){
 
     //Terminate Trimesh
     gim_trimesh_destroy(&m_collision_trimesh);
+
+	gim_terminate_buffer_managers(m_buffer_managers);
 }
 
 
@@ -194,7 +203,7 @@ void dxTriMesh::computeAABB()
     //Update trimesh boxes
     gim_trimesh_update(&m_collision_trimesh);
 
-    memcpy(aabb,&m_collision_trimesh.m_aabbset.m_global_bound,6*sizeof(GREAL));
+	GIM_AABB_COPY( &m_collision_trimesh.m_aabbset.m_global_bound, aabb );
 }
 
 
@@ -254,6 +263,18 @@ dTriRayCallback* dGeomTriMeshGetRayCallback(dGeomID g)
 	return ((dxTriMesh*)g)->RayCallback;
 }
 
+void dGeomTriMeshSetTriMergeCallback(dGeomID g, dTriTriMergeCallback* Callback)
+{
+    dUASSERT(g && g->type == dTriMeshClass, "argument not a trimesh");
+    ((dxTriMesh*)g)->TriMergeCallback = Callback;
+}
+
+dTriTriMergeCallback* dGeomTriMeshGetTriMergeCallback(dGeomID g)
+{
+    dUASSERT(g && g->type == dTriMeshClass, "argument not a trimesh");	
+    return ((dxTriMesh*)g)->TriMergeCallback;
+}
+
 void dGeomTriMeshSetData(dGeomID g, dTriMeshDataID Data)
 {
 	dUASSERT(g && g->type == dTriMeshClass, "argument not a trimesh");
@@ -265,8 +286,8 @@ void dGeomTriMeshSetData(dGeomID g, dTriMeshDataID Data)
 	// GIMPACT only supports stride 12, so we need to catch the error early.
 	dUASSERT
 	(
-	  Data->m_VertexStride == 3*sizeof(dReal) && Data->m_TriStride == 3*sizeof(int),
-          "Gimpact trimesh only supports a stride of 3 dReal/int\n"
+	  Data->m_VertexStride == 3*sizeof(float) && Data->m_TriStride == 3*sizeof(int),
+          "Gimpact trimesh only supports a stride of 3 float/int\n"
 	  "This means that you cannot use dGeomTriMeshDataBuildSimple() with Gimpact.\n"
 	  "Change the stride, or use Opcode trimeshes instead.\n"
 	);
@@ -275,11 +296,12 @@ void dGeomTriMeshSetData(dGeomID g, dTriMeshDataID Data)
 	if ( Data->m_Vertices )
 	  gim_trimesh_create_from_data
 	  (
+        mesh->m_buffer_managers,
 	    &mesh->m_collision_trimesh,		// gimpact mesh
 	    ( vec3f *)(&Data->m_Vertices[0]),	// vertices
 	    Data->m_VertexCount,		// nr of verts
 	    0,					// copy verts?
-	    ( GUINT *)(&Data->m_Indices[0]),	// indices
+	    ( GUINT32 *)(&Data->m_Indices[0]),	// indices
 	    Data->m_TriangleCount*3,		// nr of indices
 	    0,					// copy indices?
 	    1					// transformed reply
@@ -357,11 +379,30 @@ void dGeomTriMeshGetTriangle(dGeomID g, int Index, dVector3* v0, dVector3* v1, d
 {
     dUASSERT(g && g->type == dTriMeshClass, "argument not a trimesh");
 
-    dxTriMesh* Geom = (dxTriMesh*)g;
-	gim_trimesh_locks_work_data(&Geom->m_collision_trimesh);	
-	gim_trimesh_get_triangle_vertices(&Geom->m_collision_trimesh, Index, (*v0),(*v1),(*v2));	
-	gim_trimesh_unlocks_work_data(&Geom->m_collision_trimesh);
- 
+	// Redirect null vectors to dummy storage
+	dVector3 v[3];
+
+	dxTriMesh* Geom = (dxTriMesh*)g;
+	FetchTransformedTriangle(Geom, Index, v);
+
+	if (v0){
+		(*v0)[0] = v[0][0];
+		(*v0)[1] = v[0][1];
+		(*v0)[2] = v[0][2];
+		(*v0)[3] = v[0][3];
+	}
+	if (v1){
+		(*v1)[0] = v[1][0];
+		(*v1)[1] = v[1][1];
+		(*v1)[2] = v[1][2];
+		(*v1)[3] = v[1][3];
+	}
+	if (v2){
+		(*v2)[0] = v[2][0];
+		(*v2)[1] = v[2][1];
+		(*v2)[2] = v[2][2];
+		(*v2)[3] = v[2][3];
+	}
 }
 
 void dGeomTriMeshGetPoint(dGeomID g, int Index, dReal u, dReal v, dVector3 Out){
@@ -378,7 +419,7 @@ void dGeomTriMeshGetPoint(dGeomID g, int Index, dReal u, dReal v, dVector3 Out){
 int dGeomTriMeshGetTriangleCount (dGeomID g)
 {
     dxTriMesh* Geom = (dxTriMesh*)g;	
-	return gim_trimesh_get_triangle_count(&Geom->m_collision_trimesh);
+	return FetchTriangleCount(Geom);
 }
 
 void dGeomTriMeshDataUpdate(dTriMeshDataID g) {
@@ -403,6 +444,9 @@ int dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int S
     //Create contact list
     GDYNAMIC_ARRAY trimeshcontacts;
     GIM_CREATE_CONTACT_LIST(trimeshcontacts);
+
+	g1 -> recomputeAABB();
+	g2 -> recomputeAABB();
 
     //Collide trimeshes
     gim_trimesh_trimesh_collision(&TriMesh1->m_collision_trimesh,&TriMesh2->m_collision_trimesh,&trimeshcontacts);
@@ -443,6 +487,8 @@ int dCollideTTL(dxGeom* g1, dxGeom* g2, int Flags, dContactGeom* Contacts, int S
         pcontact->depth = ptrimeshcontacts->m_depth;
         pcontact->g1 = g1;
         pcontact->g2 = g2;
+        pcontact->side1 = ptrimeshcontacts->m_feature1;
+        pcontact->side2 = ptrimeshcontacts->m_feature2;
 
         ptrimeshcontacts++;
 	}

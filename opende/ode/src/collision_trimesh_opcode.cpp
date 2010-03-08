@@ -27,11 +27,45 @@
 #include <ode/rotation.h>
 #include <ode/odemath.h>
 #include "collision_util.h"
-#define TRIMESH_INTERNAL
 #include "collision_trimesh_internal.h"
 
 #if dTRIMESH_ENABLED
 #if dTRIMESH_OPCODE
+
+
+void TrimeshCollidersCache::InitOPCODECaches()
+{
+	_RayCollider.SetDestination(&Faces);
+
+/* -- not used
+	_PlanesCollider.SetTemporalCoherence(true);
+*/
+
+	_SphereCollider.SetTemporalCoherence(true);
+	_SphereCollider.SetPrimitiveTests(false);
+
+	_OBBCollider.SetTemporalCoherence(true);
+
+	// no first-contact test (i.e. return full contact info)
+	_AABBTreeCollider.SetFirstContact( false );     
+	// temporal coherence only works with "first contact" tests
+	_AABBTreeCollider.SetTemporalCoherence(false);
+	// Perform full BV-BV tests (true) or SAT-lite tests (false)
+	_AABBTreeCollider.SetFullBoxBoxTest( true );
+	// Perform full Primitive-BV tests (true) or SAT-lite tests (false)
+	_AABBTreeCollider.SetFullPrimBoxTest( true );
+	const char* msg;
+	if ((msg =_AABBTreeCollider.ValidateSettings()))
+		dDebug (d_ERR_UASSERT, msg, " (%s:%d)", __FILE__,__LINE__);
+
+/* -- not used
+	_LSSCollider.SetTemporalCoherence(false);
+	_LSSCollider.SetPrimitiveTests(false);
+	_LSSCollider.SetFirstContact(false);
+*/
+}
+
+
 
 // Trimesh data
 dxTriMeshData::dxTriMeshData() : UseFlags( NULL )
@@ -59,7 +93,7 @@ dxTriMeshData::Build(const void* Vertices, int VertexStide, int VertexCount,
     Mesh.SetNbVertices(VertexCount);
     Mesh.SetPointers((IndexedTriangle*)Indices, (Point*)Vertices);
     Mesh.SetStrides(TriStride, VertexStide);
-    Mesh.Single = Single;
+    Mesh.SetSingle(Single);
     
     // Build tree
     BuildSettings Settings;
@@ -154,7 +188,7 @@ static int EdgeCompare(const void* edge1, const void* edge2)
 		return e1->VertIdx1 - e2->VertIdx1;
 }
 
-void SetupEdge(EdgeRecord* edge, int edgeIdx, int triIdx, const unsigned int* vertIdxs)
+void SetupEdge(EdgeRecord* edge, int edgeIdx, int triIdx, const dTriIndex* vertIdxs)
 {
 	if (edgeIdx == 0)
 	{
@@ -262,7 +296,8 @@ void dxTriMeshData::Preprocess()
 			rec1->VertIdx2 == rec2->VertIdx2)
 		{
 			VertexPointers vp;
-			Mesh.GetTriangle(vp, rec1->TriIdx);
+			ConversionArea vc;
+			Mesh.GetTriangle(vp, rec1->TriIdx, vc);
 
 			// Get the normal of the first triangle
 			Point triNorm = (*vp.Vertex[2] - *vp.Vertex[1]) ^ (*vp.Vertex[0] - *vp.Vertex[1]);
@@ -272,7 +307,7 @@ void dxTriMeshData::Preprocess()
 			Point oppositeVert1 = GetOppositeVert(rec1, vp.Vertex);
 
 			// Get the vert opposite this edge in the second triangle
-			Mesh.GetTriangle(vp, rec2->TriIdx);
+			Mesh.GetTriangle(vp, rec2->TriIdx, vc);
 			Point oppositeVert2 = GetOppositeVert(rec2, vp.Vertex);
 
 			float dot = triNorm.Dot((oppositeVert2 - oppositeVert1).Normalize());
@@ -446,16 +481,16 @@ void dGeomTriMeshDataBuildDouble(dTriMeshDataID g,
 
 void dGeomTriMeshDataBuildSimple1(dTriMeshDataID g,
                                   const dReal* Vertices, int VertexCount, 
-                                 const int* Indices, int IndexCount,
+                                 const dTriIndex* Indices, int IndexCount,
                                  const int* Normals){
 #ifdef dSINGLE
     dGeomTriMeshDataBuildSingle1(g,
 				Vertices, 4 * sizeof(dReal), VertexCount, 
-				Indices, IndexCount, 3 * sizeof(unsigned int),
+				Indices, IndexCount, 3 * sizeof(dTriIndex),
 				Normals);
 #else
     dGeomTriMeshDataBuildDouble1(g, Vertices, 4 * sizeof(dReal), VertexCount, 
-				Indices, IndexCount, 3 * sizeof(unsigned int),
+				Indices, IndexCount, 3 * sizeof(dTriIndex),
 				Normals);
 #endif
 }
@@ -463,7 +498,7 @@ void dGeomTriMeshDataBuildSimple1(dTriMeshDataID g,
 
 void dGeomTriMeshDataBuildSimple(dTriMeshDataID g,
                                  const dReal* Vertices, int VertexCount, 
-                                 const int* Indices, int IndexCount) {
+                                 const dTriIndex* Indices, int IndexCount) {
     dGeomTriMeshDataBuildSimple1(g,
                                  Vertices, VertexCount, Indices, IndexCount,
                                  (const int*)NULL);
@@ -491,69 +526,22 @@ void dGeomTriMeshDataSetBuffer(dTriMeshDataID g, unsigned char* buf)
 }
 
 
-#if dTRIMESH_ENABLED
-
-// Trimesh Class Statics
-PlanesCollider dxTriMesh::_PlanesCollider;
-SphereCollider dxTriMesh::_SphereCollider;
-OBBCollider dxTriMesh::_OBBCollider;
-RayCollider dxTriMesh::_RayCollider;
-AABBTreeCollider dxTriMesh::_AABBTreeCollider;
-LSSCollider dxTriMesh::_LSSCollider;
-
-SphereCache dxTriMesh::defaultSphereCache;
-OBBCache dxTriMesh::defaultBoxCache;
-LSSCache dxTriMesh::defaultCapsuleCache;
-
-CollisionFaces dxTriMesh::Faces;
-
-#endif // dTRIMESH_ENABLED
-
-
 dxTriMesh::dxTriMesh(dSpaceID Space, dTriMeshDataID Data) : dxGeom(Space, 1)
 {
     type = dTriMeshClass;
 
+    Callback = NULL;
+    ArrayCallback = NULL;
+    RayCallback = NULL;
+    TriMergeCallback = NULL; // Not initialized in dCreateTriMesh
+
     this->Data = Data;
-
-#if dTRIMESH_ENABLED
-
-	_RayCollider.SetDestination(&Faces);
-
-    _PlanesCollider.SetTemporalCoherence(true);
-
-	_SphereCollider.SetTemporalCoherence(true);
-        _SphereCollider.SetPrimitiveTests(false);
-
-    _OBBCollider.SetTemporalCoherence(true);
-
-    // no first-contact test (i.e. return full contact info)
-	_AABBTreeCollider.SetFirstContact( false );     
-    // temporal coherence only works with "first conact" tests
-    _AABBTreeCollider.SetTemporalCoherence(false);
-    // Perform full BV-BV tests (true) or SAT-lite tests (false)
-	_AABBTreeCollider.SetFullBoxBoxTest( true );
-    // Perform full Primitive-BV tests (true) or SAT-lite tests (false)
-	_AABBTreeCollider.SetFullPrimBoxTest( true );
-	_LSSCollider.SetTemporalCoherence(false);
-
-#endif // dTRIMESH_ENABLED
 
 	/* TC has speed/space 'issues' that don't make it a clear
 	   win by default on spheres/boxes. */
 	this->doSphereTC = false;
 	this->doBoxTC = false;
 	this->doCapsuleTC = false;
-
-#if dTRIMESH_ENABLED
-
-    const char* msg;
-    if ((msg =_AABBTreeCollider.ValidateSettings()))
-        dDebug (d_ERR_UASSERT, msg, " (%s:%d)", __FILE__,__LINE__);
-	_LSSCollider.SetPrimitiveTests(false);
-	_LSSCollider.SetFirstContact(false);
-
-#endif // dTRIMESH_ENABLED
 
     for (int i=0; i<16; i++)
         last_trans[i] = REAL( 0.0 );
@@ -564,17 +552,20 @@ dxTriMesh::~dxTriMesh(){
 }
 
 // Cleanup for allocations when shutting down ODE
-void opcode_collider_cleanup()
+/*extern */void opcode_collider_cleanup()
 {
+#if !dTLS_ENABLED
 #if dTRIMESH_ENABLED
-	
+
 	// Clear TC caches
-	dxTriMesh::Faces.Empty();
-	dxTriMesh::defaultSphereCache.TouchedPrimitives.Empty();
-	dxTriMesh::defaultBoxCache.TouchedPrimitives.Empty();
-	dxTriMesh::defaultCapsuleCache.TouchedPrimitives.Empty();
+	TrimeshCollidersCache *pccColliderCache = GetTrimeshCollidersCache(0);
+	pccColliderCache->Faces.Empty();
+	pccColliderCache->defaultSphereCache.TouchedPrimitives.Empty();
+	pccColliderCache->defaultBoxCache.TouchedPrimitives.Empty();
+	pccColliderCache->defaultCapsuleCache.TouchedPrimitives.Empty();
 
 #endif // dTRIMESH_ENABLED
+#endif // dTLS_ENABLED
 }
 
 
@@ -693,6 +684,18 @@ dTriRayCallback* dGeomTriMeshGetRayCallback(dGeomID g)
 {
 	dUASSERT(g && g->type == dTriMeshClass, "argument not a trimesh");	
 	return ((dxTriMesh*)g)->RayCallback;
+}
+
+void dGeomTriMeshSetTriMergeCallback(dGeomID g, dTriTriMergeCallback* Callback)
+{
+    dUASSERT(g && g->type == dTriMeshClass, "argument not a trimesh");
+    ((dxTriMesh*)g)->TriMergeCallback = Callback;
+}
+
+dTriTriMergeCallback* dGeomTriMeshGetTriMergeCallback(dGeomID g)
+{
+    dUASSERT(g && g->type == dTriMeshClass, "argument not a trimesh");	
+    return ((dxTriMesh*)g)->TriMergeCallback;
 }
 
 void dGeomTriMeshSetData(dGeomID g, dTriMeshDataID Data)
@@ -814,14 +817,10 @@ void dGeomTriMeshGetPoint(dGeomID g, int Index, dReal u, dReal v, dVector3 Out){
     GetPointFromBarycentric(dv, u, v, Out);
 }
 
-int dGeomTriMeshGetTriangleCount (dGeomID g)	 	
-{	 	
-#if dTRIMESH_ENABLED
-    dxTriMesh* Geom = (dxTriMesh*)g;	 	
-    return Geom->Data->Mesh.GetNbTriangles();	 	
-#else
-	return 0;
-#endif // dTRIMESH_ENABLED
+int dGeomTriMeshGetTriangleCount (dGeomID g)
+{
+    dxTriMesh* Geom = (dxTriMesh*)g;
+    return FetchTriangleCount(Geom);
 }
 
 void dGeomTriMeshDataUpdate(dTriMeshDataID g) {

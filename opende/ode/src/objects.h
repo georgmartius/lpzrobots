@@ -35,11 +35,15 @@
 // some body flags
 
 enum {
-  dxBodyFlagFiniteRotation = 1,		// use finite rotations
-  dxBodyFlagFiniteRotationAxis = 2,	// use finite rotations only along axis
-  dxBodyDisabled = 4,			// body is disabled
-  dxBodyNoGravity = 8,			// body is not influenced by gravity
-  dxBodyAutoDisable = 16		// enable auto-disable on body
+  dxBodyFlagFiniteRotation =        1,  // use finite rotations
+  dxBodyFlagFiniteRotationAxis =    2,  // use finite rotations only along axis
+  dxBodyDisabled =                  4,  // body is disabled
+  dxBodyNoGravity =                 8,  // body is not influenced by gravity
+  dxBodyAutoDisable =               16, // enable auto-disable on body
+  dxBodyLinearDamping =             32, // use linear damping
+  dxBodyAngularDamping =            64, // use angular damping
+  dxBodyMaxAngularSpeed =           128,// use maximum angular speed
+  dxBodyGyroscopic =                256,// use gyroscopic term
 };
 
 
@@ -47,6 +51,7 @@ enum {
 
 struct dBase {
   void *operator new (size_t size) { return dAlloc (size); }
+  void *operator new (size_t size, void *p) { return p; }
   void operator delete (void *ptr, size_t size) { dFree (ptr,size); }
   void *operator new[] (size_t size) { return dAlloc (size); }
   void operator delete[] (void *ptr, size_t size) { dFree (ptr,size); }
@@ -59,8 +64,10 @@ struct dObject : public dBase {
   dxWorld *world;		// world this object is in
   dObject *next;		// next object of this type in list
   dObject **tome;		// pointer to previous object's next ptr
-  void *userdata;		// user settable data
   int tag;			// used by dynamics algorithms
+  void *userdata;		// user settable data
+  dObject(dxWorld *w);
+  virtual ~dObject() { }
 };
 
 
@@ -71,6 +78,15 @@ struct dxAutoDisable {
   dReal linear_average_threshold;   // linear (squared) average velocity threshold
   dReal angular_average_threshold;  // angular (squared) average velocity threshold
   unsigned int average_samples;     // size of the average_lvel and average_avel buffers
+};
+
+
+// damping parameters
+struct dxDampingParameters {
+  dReal linear_scale;  // multiply the linear velocity by (1 - scale)
+  dReal angular_scale; // multiply the angular velocity by (1 - scale)
+  dReal linear_threshold;   // linear (squared) average speed threshold
+  dReal angular_threshold;  // angular (squared) average speed threshold
 };
 
 
@@ -99,7 +115,7 @@ struct dxPosR {
 
 struct dxBody : public dObject {
   dxJointNode *firstjoint;	// list of attached joints
-  int flags;			// some dxBodyFlagXXX flags
+  unsigned flags;			// some dxBodyFlagXXX flags
   dGeomID geom;			// first collision geom associated with body
   dMass mass;			// mass parameters about POR
   dMatrix3 invI;		// inverse of mass.I
@@ -117,7 +133,13 @@ struct dxBody : public dObject {
   dVector3* average_lvel_buffer;      // buffer for the linear average velocity calculation
   dVector3* average_avel_buffer;      // buffer for the angular average velocity calculation
   unsigned int average_counter;      // counter/index to fill the average-buffers
-  int average_ready;        // indicates ( with = 1 ), if the Body's buffers are ready for average-calculations
+  int average_ready;            // indicates ( with = 1 ), if the Body's buffers are ready for average-calculations
+
+  void (*moved_callback)(dxBody*); // let the user know the body moved
+  dxDampingParameters dampingp; // damping parameters, depends on flags
+  dReal max_angular_speed;      // limit the angular velocity to this magnitude
+
+  dxBody(dxWorld *w);
 };
 
 
@@ -129,9 +151,11 @@ struct dxWorld : public dBase {
   dReal global_erp;		// global error reduction parameter
   dReal global_cfm;		// global costraint force mixing parameter
   dxAutoDisable adis;		// auto-disable parameters
-  int adis_flag;		// auto-disable flag for new bodies
+  int body_flags;               // flags for new bodies
   dxQuickStepParameters qs;
   dxContactParameters contactp;
+  dxDampingParameters dampingp; // damping parameters
+  dReal max_angular_speed;      // limit the angular velocity to this magnitude
 };
 
 

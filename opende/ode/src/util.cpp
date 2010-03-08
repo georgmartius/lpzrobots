@@ -22,7 +22,7 @@
 
 #include "ode/ode.h"
 #include "objects.h"
-#include "joint.h"
+#include "joints/joint.h"
 #include "util.h"
 
 #define ALLOCA dALLOCA16
@@ -188,6 +188,18 @@ static inline dReal sinc (dReal x)
 
 void dxStepBody (dxBody *b, dReal h)
 {
+  // cap the angular velocity
+  if (b->flags & dxBodyMaxAngularSpeed) {
+        const dReal max_ang_speed = b->max_angular_speed;
+        const dReal aspeed = dDOT( b->avel, b->avel );
+        if (aspeed > max_ang_speed*max_ang_speed) {
+                const dReal coef = max_ang_speed/dSqrt(aspeed);
+                dOPEC(b->avel, *=, coef);
+        }
+  }
+  // end of angular velocity cap
+
+
   int j;
 
   // handle linear velocity
@@ -258,6 +270,30 @@ void dxStepBody (dxBody *b, dReal h)
   // notify all attached geoms that this body has moved
   for (dxGeom *geom = b->geom; geom; geom = dGeomGetBodyNext (geom))
     dGeomMoved (geom);
+
+  // notify the user
+  if (b->moved_callback)
+    b->moved_callback(b);
+
+
+  // damping
+  if (b->flags & dxBodyLinearDamping) {
+        const dReal lin_threshold = b->dampingp.linear_threshold;
+        const dReal lin_speed = dDOT( b->lvel, b->lvel );
+        if ( lin_speed > lin_threshold) {
+                const dReal k = 1 - b->dampingp.linear_scale;
+                dOPEC(b->lvel, *=, k);
+        }
+  }
+  if (b->flags & dxBodyAngularDamping) {
+        const dReal ang_threshold = b->dampingp.angular_threshold;
+        const dReal ang_speed = dDOT( b->avel, b->avel );
+        if ( ang_speed > ang_threshold) {
+                const dReal k = 1 - b->dampingp.angular_scale;
+                dOPEC(b->avel, *=, k);
+        }
+  }
+
 }
 
 //****************************************************************************
@@ -322,7 +358,7 @@ void dxProcessIslands (dxWorld *world, dReal stepsize, dstepper_fn_t stepper)
       // traverse and tag all body's joints, add untagged connected bodies
       // to stack
       for (dxJointNode *n=b->firstjoint; n; n=n->next) {
-	if (!n->joint->tag) {
+        if (!n->joint->tag && n->joint->isEnabled()) {
 	  n->joint->tag = 1;
 	  joint[jcount++] = n->joint;
 	  if (n->body && !n->body->tag) {
@@ -362,8 +398,10 @@ void dxProcessIslands (dxWorld *world, dReal stepsize, dstepper_fn_t stepper)
     }
   }
   for (j=world->firstjoint; j; j=(dxJoint*)j->next) {
-    if ((j->node[0].body && (j->node[0].body->flags & dxBodyDisabled)==0) ||
-	(j->node[1].body && (j->node[1].body->flags & dxBodyDisabled)==0)) {
+    if ( (( j->node[0].body && (j->node[0].body->flags & dxBodyDisabled)==0 ) ||
+          (j->node[1].body && (j->node[1].body->flags & dxBodyDisabled)==0) )
+         && 
+         j->isEnabled() ) {
       if (!j->tag) dDebug (0,"attached enabled joint not tagged");
     }
     else {
@@ -372,3 +410,6 @@ void dxProcessIslands (dxWorld *world, dReal stepsize, dstepper_fn_t stepper)
   }
 # endif
 }
+
+
+

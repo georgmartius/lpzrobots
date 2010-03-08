@@ -27,6 +27,7 @@
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
 #endif
 
+
 //****************************************************************************
 // matrix accessors
 
@@ -591,7 +592,7 @@ void printMassParams (dMass *m)
 }
 
 
-void compareMassParams (dMass *m1, dMass *m2, char *msg)
+void compareMassParams (dMass *m1, dMass *m2, const char *msg)
 {
   int i,j,ok = 1;
   if (!(cmp(m1->mass,m2->mass) && cmp(m1->c[0],m2->c[0]) &&
@@ -645,7 +646,7 @@ void testMassFunctions()
   printf ("\t");
   dMassSetZero (&m);
   TRAP_MESSAGE (dMassSetParameters (&m,10, 0.1,0.2,0.15, 3,5,14, 3.1,3.2,4),
-		printf (" passed (2)\n") , printf (" FAILED (2)\n"));
+		printf ("passed (2)\n") , printf (" FAILED (2)\n"));
   if (m.mass==10 && m.c[0]==REAL(0.1) && m.c[1]==REAL(0.2) &&
       m.c[2]==REAL(0.15) && m._I(0,0)==3 && m._I(1,1)==5 && m._I(2,2)==14 &&
       m._I(0,1)==REAL(3.1) && m._I(0,2)==REAL(3.2) && m._I(1,2)==4 &&
@@ -666,8 +667,8 @@ void testMassFunctions()
   dMassSetCapsule (&m,1.3,1,0.76,1.53);
   if (cmp(m.mass,5.99961928996029) && m.c[0]==0 && m.c[1]==0 && m.c[2]==0 &&
       cmp(m._I(0,0),1.59461986077384) &&
-      cmp(m._I(1,1),4.57537403079093) &&
-      cmp(m._I(2,2),4.57537403079093) &&
+      cmp(m._I(1,1),4.21878433864904) &&
+      cmp(m._I(2,2),4.21878433864904) &&
       m._I(0,1)==0 && m._I(0,2)==0 && m._I(1,2)==0 &&
       m._I(1,0)==0 && m._I(2,0)==0 && m._I(2,1)==0)
     printf ("\tpassed (5)\n"); else printf ("\tFAILED (5)\n");
@@ -859,7 +860,7 @@ public:
   dMatrixComparison();
   ~dMatrixComparison();
 
-  dReal nextMatrix (dReal *A, int n, int m, int lower_tri, char *name, ...);
+  dReal nextMatrix (dReal *A, int n, int m, int lower_tri, const char *name, ...);
   // add a new n*m matrix A to the sequence. the name of the matrix is given
   // by the printf-style arguments (name,...). if this is the first sequence
   // then this object will simply record the matrices and return 0.
@@ -902,7 +903,7 @@ dMatrixComparison::~dMatrixComparison()
 
 
 dReal dMatrixComparison::nextMatrix (dReal *A, int n, int m, int lower_tri,
-				     char *name, ...)
+				     const char *name, ...)
 {
   if (A==0 || n < 1 || m < 1 || name==0) dDebug (0,"bad args to nextMatrix");
   int num = n*dPAD(m);

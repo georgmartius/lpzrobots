@@ -21,8 +21,9 @@
  *************************************************************************/
 
 #include "objects.h"
-#include "joint.h"
-#include <ode/config.h>
+#include "joints/joint.h"
+#include <ode/odeconfig.h>
+#include "config.h"
 #include <ode/odemath.h>
 #include <ode/rotation.h>
 #include <ode/timer.h>
@@ -36,7 +37,6 @@
 
 typedef const dReal *dRealPtr;
 typedef dReal *dRealMutablePtr;
-#define dRealArray(name,n) dReal name[n];
 #define dRealAllocaArray(name,n) dReal *name = (dReal*) ALLOCA ((n)*sizeof(dReal));
 
 //***************************************************************************
@@ -72,27 +72,36 @@ typedef dReal *dRealMutablePtr;
 // multiply block of B matrix (q x 6) with 12 dReal per row with C vektor (q)
 static void Multiply1_12q1 (dReal *A, dReal *B, dReal *C, int q)
 {
-  int k;
-  dReal sum;
+    int i, k;
   dIASSERT (q>0 && A && B && C);
-  sum = 0;
-  for (k=0; k<q; k++) sum += B[k*12] * C[k];
-  A[0] = sum;
-  sum = 0;
-  for (k=0; k<q; k++) sum += B[1+k*12] * C[k];
-  A[1] = sum;
-  sum = 0;
-  for (k=0; k<q; k++) sum += B[2+k*12] * C[k];
-  A[2] = sum;
-  sum = 0;
-  for (k=0; k<q; k++) sum += B[3+k*12] * C[k];
-  A[3] = sum;
-  sum = 0;
-  for (k=0; k<q; k++) sum += B[4+k*12] * C[k];
-  A[4] = sum;
-  sum = 0;
-  for (k=0; k<q; k++) sum += B[5+k*12] * C[k];
-  A[5] = sum;
+
+  dReal a = 0;
+  dReal b = 0;
+  dReal c = 0;
+  dReal d = 0;
+  dReal e = 0;
+  dReal f = 0;
+  dReal s;
+
+  for(i=0, k = 0; i<q; i++, k += 12)
+  {
+    s = C[i]; //C[i] and B[n+k] cannot overlap because its value has been read into a temporary.
+
+    //For the rest of the loop, the only memory dependency (array) is from B[]
+    a += B[  k] * s;
+    b += B[1+k] * s;
+    c += B[2+k] * s;
+    d += B[3+k] * s;
+    e += B[4+k] * s;
+    f += B[5+k] * s;
+  }
+
+  A[0] = a;
+  A[1] = b;
+  A[2] = c;
+  A[3] = d;
+  A[4] = e;
+  A[5] = f;
 }
 
 //***************************************************************************
@@ -133,7 +142,7 @@ static void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int 
 
 
 // compute out = inv(M)*J'*in.
-
+#if 0
 static void multiply_invM_JT (int m, int nb, dRealMutablePtr iMJ, int *jb,
 	dRealMutablePtr in, dRealMutablePtr out)
 {
@@ -153,7 +162,7 @@ static void multiply_invM_JT (int m, int nb, dRealMutablePtr iMJ, int *jb,
 		iMJ_ptr += 6;
 	}
 }
-
+#endif
 
 // compute out = J*in.
 
@@ -181,7 +190,7 @@ static void multiply_J (int m, dRealMutablePtr J, int *jb,
 
 // compute out = (J*inv(M)*J' + cfm)*in.
 // use z as an nb*6 temporary.
-
+#if 0
 static void multiply_J_invM_JT (int m, int nb, dRealMutablePtr J, dRealMutablePtr iMJ, int *jb,
 	dRealPtr cfm, dRealMutablePtr z, dRealMutablePtr in, dRealMutablePtr out)
 {
@@ -191,6 +200,7 @@ static void multiply_J_invM_JT (int m, int nb, dRealMutablePtr J, dRealMutablePt
 	// add cfm
 	for (int i=0; i<m; i++) out[i] += cfm[i] * in[i];
 }
+#endif
 
 //***************************************************************************
 // conjugate gradient method with jacobi preconditioner
@@ -315,8 +325,10 @@ static void CG_LCP (int m, int nb, dRealMutablePtr J, int *jb, dxBody * const *b
 
 
 struct IndexError {
+#ifdef REORDER_CONSTRAINTS
 	dReal error;		// error to sort on
 	int findex;
+#endif
 	int index;		// row index
 };
 
@@ -578,25 +590,23 @@ void dxQuickStepper (dxWorld *world, dxBody * const *body, int nb,
 	// for all bodies, compute the inertia tensor and its inverse in the global
 	// frame, and compute the rotational force and add it to the torque
 	// accumulator. I and invI are a vertical stack of 3x4 matrices, one per body.
-	//dRealAllocaArray (I,3*4*nb);	// need to remember all I's for feedback purposes only
-	dRealAllocaArray (invI,3*4*nb);
+        dRealAllocaArray (invI,3*4*nb);
 	for (i=0; i<nb; i++) {
 		dMatrix3 tmp;
 
 		// compute inverse inertia tensor in global frame
 		dMULTIPLY2_333 (tmp,body[i]->invI,body[i]->posr.R);
 		dMULTIPLY0_333 (invI+i*12,body[i]->posr.R,tmp);
-#ifdef dGYROSCOPIC
-		dMatrix3 I;
-		// compute inertia tensor in global frame
-		dMULTIPLY2_333 (tmp,body[i]->mass.I,body[i]->posr.R);
-		//dMULTIPLY0_333 (I+i*12,body[i]->posr.R,tmp);
-		dMULTIPLY0_333 (I,body[i]->posr.R,tmp);
-		// compute rotational force
-		//dMULTIPLY0_331 (tmp,I+i*12,body[i]->avel);
-		dMULTIPLY0_331 (tmp,I,body[i]->avel);
-		dCROSS (body[i]->tacc,-=,body[i]->avel,tmp);
-#endif
+
+        if (body[i]->flags & dxBodyGyroscopic) {
+            dMatrix3 I;
+            // compute inertia tensor in global frame
+            dMULTIPLY2_333 (tmp,body[i]->mass.I,body[i]->posr.R);
+            dMULTIPLY0_333 (I,body[i]->posr.R,tmp);
+            // compute rotational force
+            dMULTIPLY0_331 (tmp,I,body[i]->avel);
+            dCROSS (body[i]->tacc,-=,body[i]->avel,tmp);
+        }
 	}
 
 	// add the gravity force to all bodies
@@ -614,7 +624,7 @@ void dxQuickStepper (dxWorld *world, dxBody * const *body, int nb,
 	//@@@ do we really need to save all the info1's
 	dxJoint::Info1 *info = (dxJoint::Info1*) ALLOCA (nj*sizeof(dxJoint::Info1));
 	for (i=0, j=0; j<nj; j++) {	// i=dest, j=src
-		joint[j]->vtable->getInfo1 (joint[j],info+i);
+		joint[j]->getInfo1 (info+i);
 		dIASSERT (info[i].m >= 0 && info[i].m <= 6 && info[i].nub >= 0 && info[i].nub <= info[i].m);
 		if (info[i].m > 0) {
 			joint[i] = joint[j];
@@ -679,7 +689,7 @@ void dxQuickStepper (dxWorld *world, dxBody * const *body, int nb,
 			Jinfo.lo = lo + ofs[i];
 			Jinfo.hi = hi + ofs[i];
 			Jinfo.findex = findex + ofs[i];
-			joint[i]->vtable->getInfo2 (joint[i],&Jinfo);
+			joint[i]->getInfo2 (&Jinfo);
 			// adjust returned findex values for global index numbering
 			for (j=0; j<info[i].m; j++) {
 				if (findex[ofs[i] + j] >= 0) findex[ofs[i] + j] += ofs[i];
@@ -692,14 +702,15 @@ void dxQuickStepper (dxWorld *world, dxBody * const *body, int nb,
 		// because it gets destroyed by SOR solver
 		// instead of saving all Jacobian, we can save just rows
 		// for joints, that requested feedback (which is normaly much less)
-		dRealAllocaArray (Jcopy,mfb*12);
-		if (mfb > 0) {
-			mfb = 0;
-			for (i=0; i<nj; i++)
-				if (joint[i]->feedback) {
-					memcpy(Jcopy+mfb*12, J+ofs[i]*12, info[i].m*12*sizeof(dReal));
-					mfb += info[i].m;
-				}
+                dReal *Jcopy = NULL;
+                if (mfb > 0) {
+                  Jcopy = (dReal*) ALLOCA (mfb*12*sizeof(dReal));
+                  mfb = 0;
+                  for (i=0; i<nj; i++)
+                    if (joint[i]->feedback) {
+                      memcpy(Jcopy+mfb*12, J+ofs[i]*12, info[i].m*12*sizeof(dReal));
+                      mfb += info[i].m;
+                    }
 		}
 
 
@@ -767,43 +778,8 @@ void dxQuickStepper (dxWorld *world, dxBody * const *body, int nb,
 		for (i=0; i<nb; i++) {
 			for (j=0; j<3; j++) body[i]->lvel[j] += stepsize * cforce[i*6+j];
 			for (j=0; j<3; j++) body[i]->avel[j] += stepsize * cforce[i*6+3+j];
-		}
+                }
 
-		// if joint feedback is requested, compute the constraint force.
-		// BUT: cforce is inv(M)*J'*lambda, whereas we want just J'*lambda,
-		// so we must compute M*cforce.
-		// @@@ if any joint has a feedback request we compute the entire
-		//     adjusted cforce, which is not the most efficient way to do it.
-		/*for (j=0; j<nj; j++) {
-			if (joint[j]->feedback) {
-				// compute adjusted cforce
-				for (i=0; i<nb; i++) {
-					dReal k = body[i]->mass.mass;
-					cforce [i*6+0] *= k;
-					cforce [i*6+1] *= k;
-					cforce [i*6+2] *= k;
-					dVector3 tmp;
-					dMULTIPLY0_331 (tmp, I + 12*i, cforce + i*6 + 3);
-					cforce [i*6+3] = tmp[0];
-					cforce [i*6+4] = tmp[1];
-					cforce [i*6+5] = tmp[2];
-				}
-				// compute feedback for this and all remaining joints
-				for (; j<nj; j++) {
-					dJointFeedback *fb = joint[j]->feedback;
-					if (fb) {
-						int b1 = joint[j]->node[0].body->tag;
-						memcpy (fb->f1,cforce+b1*6,3*sizeof(dReal));
-						memcpy (fb->t1,cforce+b1*6+3,3*sizeof(dReal));
-						if (joint[j]->node[1].body) {
-							int b2 = joint[j]->node[1].body->tag;
-							memcpy (fb->f2,cforce+b2*6,3*sizeof(dReal));
-							memcpy (fb->t2,cforce+b2*6+3,3*sizeof(dReal));
-						}
-					}
-				}
-			}
-		}*/
 
 		if (mfb > 0) {
 			// straightforward computation of joint constraint forces:
@@ -829,7 +805,7 @@ void dxQuickStepper (dxWorld *world, dxBody * const *body, int nb,
 						fb->f2[2] = data[2];
 						fb->t2[0] = data[3];
 						fb->t2[1] = data[4];
-						fb->t2[2] = data[5];
+                                                fb->t2[2] = data[5];
 					}
 					mfb += info[i].m;
 				}

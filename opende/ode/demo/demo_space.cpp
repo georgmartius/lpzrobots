@@ -35,6 +35,7 @@ testing procedure:
 
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "texturepath.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
@@ -127,11 +128,11 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
   i = (size_t) dGeomGetData (o1);
   j = (size_t) dGeomGetData (o2);
   if (i==j)
-    printf ("collision (%d,%d) is between the same object\n",i,j);
+    printf ("collision (%d,%d) is between the same object\n",(int)i,(int)j);
   if (!good_matrix[i][j] || !good_matrix[j][i])
-    printf ("collision (%d,%d) is incorrect\n",i,j);
+    printf ("collision (%d,%d) is incorrect\n",(int)i,(int)j);
   if (test_matrix[i][j] || test_matrix[j][i])
-    printf ("collision (%d,%d) reported more than once\n",i,j);
+    printf ("collision (%d,%d) reported more than once\n",(int)i,(int)j);
   test_matrix[i][j] = 1;
   test_matrix[j][i] = 1;
 }
@@ -141,6 +142,8 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 static void start()
 {
+  dAllocateODEDataForThread(dAllocateMaskAll);
+
   static float xyz[3] = {2.1640f,-1.3079f,1.7600f};
   static float hpr[3] = {125.5000f,-17.0000f,0.0000f};
   dsSetViewpoint (xyz,hpr);
@@ -201,13 +204,9 @@ int main (int argc, char **argv)
   fn.step = &simLoop;
   fn.command = &command;
   fn.stop = 0;
-  fn.path_to_textures = "../../drawstuff/textures";
-  if(argc==2)
-    {
-        fn.path_to_textures = argv[1];
-    }
+  fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
-  dInitODE();
+  dInitODE2(0);
 
   // test the simple space:
   // space = dSimpleSpaceCreate();

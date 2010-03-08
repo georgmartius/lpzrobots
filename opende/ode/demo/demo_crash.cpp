@@ -25,6 +25,7 @@
 
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "texturepath.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
@@ -148,6 +149,8 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 static void start()
 {
+	dAllocateODEDataForThread(dAllocateMaskAll);
+
 	static float xyz[3] = {3.8548f,9.0843f,7.5900f};
 	static float hpr[3] = {-145.5f,-22.5f,0.25f};
 	dsSetViewpoint (xyz,hpr);
@@ -250,7 +253,11 @@ void resetSimulation()
 	// recreate world
 	
 	world = dWorldCreate();
-	space = dHashSpaceCreate (0);
+
+//	space = dHashSpaceCreate( 0 );
+//	space = dSimpleSpaceCreate( 0 );
+	space = dSweepAndPruneSpaceCreate( 0, dSAP_AXES_XYZ );
+
 	contactgroup = dJointGroupCreate (0);
 	dWorldSetGravity (world,0,0,-1.5);
 	dWorldSetCFM (world, 1e-5);
@@ -609,13 +616,9 @@ int main (int argc, char **argv)
 	fn.step = &simLoop;
 	fn.command = &command;
 	fn.stop = 0;
-	fn.path_to_textures = "../../drawstuff/textures";
-  if(argc==2)
-    {
-        fn.path_to_textures = argv[1];
-    }
+	fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 	
-	dInitODE();
+	dInitODE2(0);
 
 	bodies = 0;
 	joints = 0;

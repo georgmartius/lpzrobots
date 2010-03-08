@@ -27,8 +27,9 @@
 #define _ODE_ODECPP_COLLISION_H_
 #ifdef __cplusplus
 
-#include <ode/error.h>
+//#include <ode/error.h>
 
+//namespace ode {
 
 class dGeom {
   // intentionally undefined, don't use these
@@ -38,9 +39,9 @@ class dGeom {
 protected:
   dGeomID _id;
 
-public:
   dGeom()
     { _id = 0; }
+public:
   ~dGeom()
     { if (_id) dGeomDestroy (_id); }
 
@@ -157,6 +158,10 @@ class dSimpleSpace : public dSpace {
   void operator= (dSimpleSpace &);
 
 public:
+  dSimpleSpace ()
+    { _id = (dGeomID) dSimpleSpaceCreate (0); }
+  dSimpleSpace (dSpace &space)
+    { _id = (dGeomID) dSimpleSpaceCreate (space.id()); }
   dSimpleSpace (dSpaceID space)
     { _id = (dGeomID) dSimpleSpaceCreate (space); }
 };
@@ -168,8 +173,13 @@ class dHashSpace : public dSpace {
   void operator= (dHashSpace &);
 
 public:
+  dHashSpace ()
+    { _id = (dGeomID) dHashSpaceCreate (0); }
+  dHashSpace (dSpace &space)
+    { _id = (dGeomID) dHashSpaceCreate (space.id()); }
   dHashSpace (dSpaceID space)
     { _id = (dGeomID) dHashSpaceCreate (space); }
+
   void setLevels (int minlevel, int maxlevel)
     { dHashSpaceSetLevels (id(),minlevel,maxlevel); }
 };
@@ -181,7 +191,11 @@ class dQuadTreeSpace : public dSpace {
   void operator= (dQuadTreeSpace &);
 
 public:
-  dQuadTreeSpace (dSpaceID space, dVector3 center, dVector3 extents, int depth)
+  dQuadTreeSpace (const dVector3 center, const dVector3 extents, int depth)
+    { _id = (dGeomID) dQuadTreeSpaceCreate (0,center,extents,depth); }
+  dQuadTreeSpace (dSpace &space, const dVector3 center, const dVector3 extents, int depth)
+    { _id = (dGeomID) dQuadTreeSpaceCreate (space.id(),center,extents,depth); }
+  dQuadTreeSpace (dSpaceID space, const dVector3 center, const dVector3 extents, int depth)
     { _id = (dGeomID) dQuadTreeSpaceCreate (space,center,extents,depth); }
 };
 
@@ -193,6 +207,10 @@ class dSphere : public dGeom {
 
 public:
   dSphere () { }
+  dSphere (dReal radius)
+    { _id = dCreateSphere (0, radius); }
+  dSphere (dSpace &space, dReal radius)
+    { _id = dCreateSphere (space.id(), radius); }
   dSphere (dSpaceID space, dReal radius)
     { _id = dCreateSphere (space, radius); }
 
@@ -215,6 +233,10 @@ class dBox : public dGeom {
 
 public:
   dBox () { }
+  dBox (dReal lx, dReal ly, dReal lz)
+    { _id = dCreateBox (0,lx,ly,lz); }
+  dBox (dSpace &space, dReal lx, dReal ly, dReal lz)
+    { _id = dCreateBox (space,lx,ly,lz); }
   dBox (dSpaceID space, dReal lx, dReal ly, dReal lz)
     { _id = dCreateBox (space,lx,ly,lz); }
 
@@ -237,6 +259,10 @@ class dPlane : public dGeom {
 
 public:
   dPlane() { }
+  dPlane (dReal a, dReal b, dReal c, dReal d)
+    { _id = dCreatePlane (0,a,b,c,d); }
+  dPlane (dSpace &space, dReal a, dReal b, dReal c, dReal d)
+    { _id = dCreatePlane (space.id(),a,b,c,d); }
   dPlane (dSpaceID space, dReal a, dReal b, dReal c, dReal d)
     { _id = dCreatePlane (space,a,b,c,d); }
 
@@ -259,6 +285,10 @@ class dCapsule : public dGeom {
 
 public:
   dCapsule() { }
+  dCapsule (dReal radius, dReal length)
+    { _id = dCreateCapsule (0,radius,length); }
+  dCapsule (dSpace &space, dReal radius, dReal length)
+    { _id = dCreateCapsule (space.id(),radius,length); }
   dCapsule (dSpaceID space, dReal radius, dReal length)
     { _id = dCreateCapsule (space,radius,length); }
 
@@ -274,6 +304,32 @@ public:
 };
 
 
+class dCylinder : public dGeom {
+  // intentionally undefined, don't use these
+  dCylinder (dCylinder &);
+  void operator= (dCylinder &);
+
+public:
+  dCylinder() { }
+  dCylinder (dReal radius, dReal length)
+    { _id = dCreateCylinder (0,radius,length); }
+  dCylinder (dSpace &space, dReal radius, dReal length)
+    { _id = dCreateCylinder (space.id(),radius,length); }
+  dCylinder (dSpaceID space, dReal radius, dReal length)
+    { _id = dCreateCylinder (space,radius,length); }
+
+  void create (dSpaceID space, dReal radius, dReal length) {
+    if (_id) dGeomDestroy (_id);
+    _id = dCreateCylinder (space,radius,length);
+  }
+
+  void setParams (dReal radius, dReal length)
+    { dGeomCylinderSetParams (_id, radius, length); }
+  void getParams (dReal *radius, dReal *length) const
+    { dGeomCylinderGetParams (_id,radius,length); }
+};
+
+
 class dRay : public dGeom {
   // intentionally undefined, don't use these
   dRay (dRay &);
@@ -281,6 +337,10 @@ class dRay : public dGeom {
 
 public:
   dRay() { }
+  dRay (dReal length)
+    { _id = dCreateRay (0,length); }
+  dRay (dSpace &space, dReal length)
+    { _id = dCreateRay (space.id(),length); }
   dRay (dSpaceID space, dReal length)
     { _id = dCreateRay (space,length); }
 
@@ -317,6 +377,8 @@ class dGeomTransform : public dGeom {
 
 public:
   dGeomTransform() { }
+  dGeomTransform (dSpace &space)
+    { _id = dCreateGeomTransform (space.id()); }
   dGeomTransform (dSpaceID space)
     { _id = dCreateGeomTransform (space); }
 
@@ -341,6 +403,7 @@ public:
     { return dGeomTransformGetInfo (_id); }
 };
 
+//}
 
 #endif
 #endif

@@ -31,9 +31,20 @@ email: projectileman@yahoo.com
 -----------------------------------------------------------------------------
 */
 
+#include "config.h"
 
 #include <math.h>
 #include <float.h>
+#if HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#elif defined(_MSC_VER)
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+#elif defined(__GNUC__)
+#include <inttypes.h>
+#else
+#error "GIMPACT: Must define int32_t and uint32_t"
+#endif
 
 
 /*! \defgroup BASIC_TYPES
@@ -45,11 +56,14 @@ Constants starting with G_
 //! @{
 /*! Types */
 #define GREAL float
-#define GINT long
-#define GUINT unsigned long
+#define GINT32 int32_t
+#define GUINT32 uint32_t
+
+#define GPTR void*
+
 /*! Constants for integers*/
-#define GUINT_BIT_COUNT 32
-#define GUINT_EXPONENT 5
+#define GUINT32_BIT_COUNT 32
+#define GUINT32_EXPONENT 5
 
 #define G_FASTMATH 1
 #define G_PI 3.14159265358979f
@@ -74,10 +88,10 @@ mathematical functions
 #define G_RADTODEG(X) ((X)*180.0f/3.1415926f)
 
 //! Integer representation of a floating-point value.
-#define IR(x)					((GUINT&)(x))
+#define IR(x)					((GUINT32&)(x))
 
 //! Signed integer representation of a floating-point value.
-#define SIR(x)					((GINT&)(x))
+#define SIR(x)					((GINT32&)(x))
 
 //! Absolute integer representation of a floating-point value
 #define AIR(x)					(IR(x)&0x7fffffff)
@@ -85,47 +99,47 @@ mathematical functions
 //! Floating-point representation of an integer value.
 #define FR(x)					((GREAL&)(x))
 
-#define MAX(a,b) (a<b?b:a)
-#define MIN(a,b) (a>b?b:a)
+#define MAX(a,b) ((a)<(b)?(b):(a))
+#define MIN(a,b) ((a)>(b)?(b):(a))
 
 #define MAX3(a,b,c) MAX(a,MAX(b,c))
 #define MIN3(a,b,c) MIN(a,MIN(b,c))
 
-#define IS_ZERO(value) (value < G_EPSILON &&  value > -G_EPSILON)
+#define IS_ZERO(value) ((value) < G_EPSILON &&  (value) > -G_EPSILON)
 
-#define IS_NEGATIVE(value) (value <= -G_EPSILON)
+#define IS_NEGATIVE(value) ((value) <= -G_EPSILON)
 
-#define IS_POSISITVE(value) (value >= G_EPSILON)
+#define IS_POSISITVE(value) ((value) >= G_EPSILON)
 
 ///returns a clamped number
-#define CLAMP(number,minval,maxval) (number<minval?minval:(number>maxval?maxval:number))
+#define CLAMP(number,minval,maxval) ((number)<(minval)?(minval):((number)>(maxval)?(maxval):(number)))
 
 ///Swap numbers
 #define SWAP_NUMBERS(a,b){ \
-    a = a+b; \
-    b = a-b; \
-    a = a-b; \
+    (a) = (a)+(b); \
+    (b) = (a)-(b); \
+    (a) = (a)-(b); \
 }\
 
 #define GIM_INV_SQRT(va,isva)\
 {\
-    if(va<=0.0000001f)\
+    if((va)<=0.0000001f)\
     {\
-        isva = G_REAL_INFINITY;\
+        (isva) = G_REAL_INFINITY;\
     }\
     else\
     {\
-        GREAL _x = va * 0.5f;\
-        GUINT _y = 0x5f3759df - ( IR(va) >> 1);\
-        isva = FR(_y);\
-        isva  = isva * ( 1.5f - ( _x * isva * isva ) );\
+        GREAL _x = (va) * 0.5f;\
+        GUINT32 _y = 0x5f3759df - ( IR(va) >> 1);\
+        (isva) = FR(_y);\
+        (isva) = (isva) * ( 1.5f - ( _x * (isva) * (isva) ) );\
     }\
 }\
 
 #define GIM_SQRT(va,sva)\
 {\
     GIM_INV_SQRT(va,sva);\
-    sva = 1.0f/sva;\
+    (sva) = 1.0f/(sva);\
 }\
 
 //! Computes 1.0f / sqrtf(x). Comes from Quake3. See http://www.magic-software.com/3DGEDInvSqrt.html

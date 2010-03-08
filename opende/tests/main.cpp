@@ -1,7 +1,9 @@
-#include "CppTestHarness.h"
-#include "PrintfTestReporter.h"
+// openode_UnitTest++.cpp : Defines the entry point for the console application.
+//
+
+#include <UnitTest++.h>
 
 int main()
 {
-	return CppTestHarness::TestRunner().RunAllTests();
+    return UnitTest::RunAllTests();
 }

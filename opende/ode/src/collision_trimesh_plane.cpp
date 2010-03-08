@@ -26,13 +26,12 @@
 #include <ode/matrix.h>
 #include <ode/rotation.h>
 #include <ode/odemath.h>
+#include "config.h"
 
 #if dTRIMESH_ENABLED
 
 #include "collision_util.h"
 #include "collision_std.h"
-
-#define TRIMESH_INTERNAL
 #include "collision_trimesh_internal.h"
 
 #if dTRIMESH_OPCODE
@@ -64,6 +63,7 @@ int dCollideTrimeshPlane( dxGeom *o1, dxGeom *o2, int flags, dContactGeom* conta
 	const int tri_count = trimesh->Data->Mesh.GetNbTriangles();
 
 	VertexPointers VP;
+	ConversionArea VC;
 	dReal alpha;
 	dVector3 vertex;
 
@@ -75,7 +75,7 @@ int dCollideTrimeshPlane( dxGeom *o1, dxGeom *o2, int flags, dContactGeom* conta
 	for ( int t = 0; t < tri_count; ++t )
 	{
 		// Get triangle, which should also use callback.
-		trimesh->Data->Mesh.GetTriangle( VP, t );
+		trimesh->Data->Mesh.GetTriangle( VP, t, VC);
 
 		// For each vertex.
 		for ( int v = 0; v < 3; ++v )
@@ -127,8 +127,10 @@ int dCollideTrimeshPlane( dxGeom *o1, dxGeom *o2, int flags, dContactGeom* conta
 				contact->normal[ 2 ] = plane->p[ 2 ];
 
 				contact->depth = alpha;
-				contact->g1 = plane;
-				contact->g2 = trimesh;
+				contact->g1 = trimesh;
+				contact->g2 = plane;
+				contact->side1 = t;
+				contact->side2 = -1;
 
 				++contact_count;
 
@@ -154,15 +156,18 @@ int dCollideTrimeshPlane( dxGeom *o1, dxGeom *o2, int flags, dContactGeom* conta
 
 	// Alias pointers to the plane and trimesh
 	dxTriMesh* trimesh = (dxTriMesh*)( o1 );
-	vec4f plane;
+	dVector4 plane;
 	dGeomPlaneGetParams(o2, plane);
+
+	o1 -> recomputeAABB();
+	o2 -> recomputeAABB();
 
 	//Find collision
 
 	GDYNAMIC_ARRAY collision_result;
 	GIM_CREATE_TRIMESHPLANE_CONTACTS(collision_result);
 
-	gim_trimesh_plane_collision(&trimesh->m_collision_trimesh,plane,&collision_result);
+	gim_trimesh_plane_collisionODE(&trimesh->m_collision_trimesh,plane,&collision_result);
 
 	if(collision_result.m_size == 0 )
 	{
@@ -196,8 +201,10 @@ int dCollideTrimeshPlane( dxGeom *o1, dxGeom *o2, int flags, dContactGeom* conta
         pcontact->normal[3] = 0;
 
         pcontact->depth = (*planecontact_results)[3];
-        pcontact->g1 = o1;
-        pcontact->g2 = o2;
+        pcontact->g1 = o1; // trimesh geom
+        pcontact->g2 = o2; // plane geom
+        pcontact->side1 = -1; // note: don't have the triangle index, but OPCODE *does* do this properly
+        pcontact->side2 = -1;
 
         planecontact_results++;
 	 }

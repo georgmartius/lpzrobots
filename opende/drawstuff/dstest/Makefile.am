@@ -1,13 +1,17 @@
 noinst_PROGRAMS= dstest
-dstest_CXXFLAGS = -I$(top_srcdir)/include -I$(top_builddir)
+AM_CPPFLAGS = -I$(top_srcdir)/drawstuff/src -I$(top_srcdir)/include
 
 dstest_SOURCES= dstest.cpp
-dstest_DEPENDENCIES=$(top_builddir)/drawstuff/src/libdrawstuff.a
-dstest_LDFLAGS = -L$(top_builddir)/drawstuff/src
-dstest_LDADD=-ldrawstuff @LDFLAGS@ @GL_LIBS@ @LIBS@
+dstest_LDADD=$(top_builddir)/drawstuff/src/libdrawstuff.la \
+            @GL_LIBS@
+
 if WIN32
-dstest_DEPENDENCIES+=resources.o
-resources.o: ../src/resources.rc ../src/resource.h
-	@WINDRES@ ../src/resources.rc -o resources.o
-dstest_LDADD+= resources.o
+resources.o: $(top_srcdir)/drawstuff/src/resources.rc $(top_srcdir)/drawstuff/src/resource.h
+	@WINDRES@ $(top_srcdir)/drawstuff/src/resources.rc -o resources.o
+
+dstest_LDADD += resources.o
+endif
+
+if X11
+dstest_LDADD+=$(X_PRE_LIBS) $(X_LIBS) $(X_EXTRA_LIBS)
 endif

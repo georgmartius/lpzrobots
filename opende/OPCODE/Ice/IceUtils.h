@@ -12,8 +12,8 @@
 #ifndef __ICEUTILS_H__
 #define __ICEUTILS_H__
 
-	#define START_RUNONCE	{ static bool __RunOnce__ = false;	if(!__RunOnce__){
-	#define END_RUNONCE		__RunOnce__ = true;}}
+//	#define START_RUNONCE	{ static bool __RunOnce__ = false;	if(!__RunOnce__){ -- not thread safe
+//	#define END_RUNONCE		__RunOnce__ = true;}} -- not thread safe
 
 	//! Reverse all the bits in a 32 bit word (from Steve Baker's Cute Code Collection)
 	//! (each line can be done in any order.
@@ -97,6 +97,7 @@
 	//! y ^= x;		/* y' = (y^(x^y)) = x */
 	//! x ^= y;		/* x' = (x^y)^x = y */
 	inline_ void	Swap(udword& x, udword& y)			{ x ^= y; y ^= x; x ^= y;					}
+	inline_ void	Swap(uword& x, uword& y)			{ x ^= y; y ^= x; x ^= y;					}
 
 	//! Little/Big endian (from Steve Baker's Cute Code Collection)
 	//!
@@ -204,7 +205,7 @@
 	//! TO BE DOCUMENTED
 	#define OFFSET_OF(Class, Member)	(size_t)&(((Class*)0)->Member)
 	//! TO BE DOCUMENTED
-	#define ARRAYSIZE(p)				(sizeof(p)/sizeof(p[0]))
+	#define ARRAYSIZE(p)				(sizeof(p)/sizeof((p)[0]))
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**

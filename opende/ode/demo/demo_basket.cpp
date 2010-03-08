@@ -25,14 +25,13 @@
 // By Bram Stolk.
 // Press the spacebar to reset the position of the ball.
 
-#include <ode/config.h>
 #include <assert.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
-
+#include "texturepath.h"
 #include "basket_geom.h" // this is our world mesh
 
 #ifdef _MSC_VER
@@ -105,6 +104,8 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 static void start()
 {
+  dAllocateODEDataForThread(dAllocateMaskAll);
+
   static float xyz[3] = {-8,0,5};
   static float hpr[3] = {0.0f,-29.5000f,0.0000f};
   dsSetViewpoint (xyz,hpr);
@@ -183,7 +184,7 @@ static void simLoop (int pause)
   //dIASSERT(dVALIDMAT3(Rot));
   float rot[12] = { Rot[0], Rot[1], Rot[2], Rot[3], Rot[4], Rot[5], Rot[6], Rot[7], Rot[8], Rot[9], Rot[10], Rot[11] };
 
-  int numi = sizeof(world_indices)  / sizeof(int);
+  int numi = sizeof(world_indices)  / sizeof(dTriIndex);
 
   for (int i=0; i<numi/3; i++)
   {
@@ -210,12 +211,10 @@ int main (int argc, char **argv)
   fn.step = &simLoop;
   fn.command = &command;
   fn.stop = 0;
-  fn.path_to_textures = "../../drawstuff/textures";
-  if(argc==2)
-    fn.path_to_textures = argv[1];
+  fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
   // create world
-  dInitODE();
+  dInitODE2(0);
   world = dWorldCreate();
   space = dHashSpaceCreate (0);
 
@@ -225,7 +224,7 @@ int main (int argc, char **argv)
 
   // Create a static world using a triangle mesh that we can collide with.
   int numv = sizeof(world_vertices)/(3*sizeof(float));
-  int numi = sizeof(world_indices)/ sizeof(int);
+  int numi = sizeof(world_indices)/ sizeof(dTriIndex);
   printf("numv=%d, numi=%d\n", numv, numi);
   dTriMeshDataID Data = dGeomTriMeshDataCreate();
 
@@ -239,7 +238,7 @@ int main (int argc, char **argv)
     numv, 
     world_indices, 
     numi, 
-    3 * sizeof(int)
+    3 * sizeof(dTriIndex)
   );
 
   world_mesh = dCreateTriMesh(space, Data, 0, 0, 0);
@@ -251,7 +250,8 @@ int main (int argc, char **argv)
 
   dGeomSetRotation (world_mesh, R);
 
-  float sx=0.0, sy=3.40, sz=6.80;
+  //float sx=0.0, sy=3.40, sz=6.80;
+  (void)world_normals; // get rid of compiler warning
   sphbody = dBodyCreate (world);
   dMassSetSphere (&m,1,RADIUS);
   dBodySetMass (sphbody,&m);
@@ -275,4 +275,6 @@ int main (int argc, char **argv)
   dCloseODE();
   return 0;
 }
+
+
 

@@ -25,9 +25,10 @@
 simple graphics.
 
 the following command line flags can be used (typically under unix)
-	-notex		Do not use any textures
-	-noshadow[s]	Do not draw any shadows
-	-pause		Start the simulation paused
+  -notex              Do not use any textures
+  -noshadow[s]        Do not draw any shadows
+  -pause              Start the simulation paused
+  -texturepath <path> Inform an alternative textures path
 
 TODO
 ----
@@ -40,7 +41,8 @@ manage openGL state changes better
 #include <windows.h>
 #endif
 
-#include <ode/config.h>
+#include <ode/ode.h>
+#include "config.h"
 #ifdef HAVE_APPLE_OPENGL_FRAMEWORK
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -55,10 +57,12 @@ manage openGL state changes better
 //***************************************************************************
 // misc
 
-#ifdef WIN32
+#ifndef DEFAULT_PATH_TO_TEXTURES
+#if 0
 #define DEFAULT_PATH_TO_TEXTURES "..\\textures\\"
 #else
 #define DEFAULT_PATH_TO_TEXTURES "../textures/"
+#endif
 #endif
 
 #ifndef M_PI
@@ -87,16 +91,6 @@ const float sky_height = 1.0f;		// sky height above viewpoint
 
 //***************************************************************************
 // misc mathematics stuff
-
-#define dCROSS(a,op,b,c) \
-  (a)[0] op ((b)[1]*(c)[2] - (b)[2]*(c)[1]); \
-  (a)[1] op ((b)[2]*(c)[0] - (b)[0]*(c)[2]); \
-  (a)[2] op ((b)[0]*(c)[1] - (b)[1]*(c)[0]);
-
-
-inline float dDOT (const float *a, const float *b)
-  { return ((a)[0]*(b)[0] + (a)[1]*(b)[1] + (a)[2]*(b)[2]); }
-
 
 static void normalizeVector3 (float v[3])
 {
@@ -398,7 +392,7 @@ static void drawConvex (float *_planes,unsigned int _planecount,
     {
       unsigned int pointcount=_polygons[polyindex];
       polyindex++;
-      glBegin (GL_POLYGON);
+      glBegin (GL_POLYGON);      
        glNormal3f(_planes[(i*4)+0],
 		  _planes[(i*4)+1],
 		  _planes[(i*4)+2]);
@@ -741,8 +735,6 @@ static void drawCapsule (float l, float r)
     start_nx = start_nx2;
     start_ny = start_ny2;
   }
-
-  glPopMatrix();
 }
 
 
@@ -884,33 +876,43 @@ static int use_shadows=1;		// 1 if shadows to be drawn
 static Texture *sky_texture = 0;
 static Texture *ground_texture = 0;
 static Texture *wood_texture = 0;
+static Texture *checkered_texture = 0;
+
+static Texture *texture[4+1]; // +1 since index 0 is not used
 
 
-#ifndef macintosh
+
+#if !defined(macintosh) || defined(ODE_PLATFORM_OSX)
 
 void dsStartGraphics (int width, int height, dsFunctions *fn)
 {
-  char *prefix = DEFAULT_PATH_TO_TEXTURES;
+
+  const char *prefix = DEFAULT_PATH_TO_TEXTURES;
   if (fn->version >= 2 && fn->path_to_textures) prefix = fn->path_to_textures;
   char *s = (char*) alloca (strlen(prefix) + 20);
 
   strcpy (s,prefix);
   strcat (s,"/sky.ppm");
-  sky_texture = new Texture (s);
+  texture[DS_SKY] = sky_texture = new Texture (s);
 
   strcpy (s,prefix);
   strcat (s,"/ground.ppm");
-  ground_texture = new Texture (s);
+  texture[DS_GROUND] = ground_texture = new Texture (s);
 
   strcpy (s,prefix);
   strcat (s,"/wood.ppm");
-  wood_texture = new Texture (s);
+  texture[DS_WOOD] = wood_texture = new Texture (s);
+
+  strcpy (s,prefix);
+  strcat (s,"/checkered.ppm");
+  texture[DS_CHECKERED] = checkered_texture = new Texture (s);
 }
 
 #else // macintosh
 
 void dsStartGraphics (int width, int height, dsFunctions *fn)
 {
+
    // All examples build into the same dir
    char *prefix = "::::drawstuff:textures";
    char *s = (char*) alloca (strlen(prefix) + 20);
@@ -1198,7 +1200,7 @@ static void setupDrawingMode()
   if (tnum) {
     if (use_textures) {
       glEnable (GL_TEXTURE_2D);
-      wood_texture->bind (1);
+      texture[tnum]->bind (1);
       glEnable (GL_TEXTURE_GEN_S);
       glEnable (GL_TEXTURE_GEN_T);
       glTexGeni (GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
@@ -1267,6 +1269,9 @@ extern "C" void dsSimulationLoop (int argc, char **argv,
     if (strcmp(argv[i],"-noshadow")==0) use_shadows = 0;
     if (strcmp(argv[i],"-noshadows")==0) use_shadows = 0;
     if (strcmp(argv[i],"-pause")==0) initial_pause = 1;
+    if (strcmp(argv[i],"-texturepath")==0)
+      if (++i < argc)
+        fn->path_to_textures = argv[i];
   }
 
   if (fn->version > DS_VERSION)
@@ -1594,4 +1599,17 @@ void dsSetSphereQuality (int n)
 void dsSetCapsuleQuality (int n)
 {
   capped_cylinder_quality = n;
+}
+
+void dsSetDrawMode(int mode)
+{
+  switch(mode)
+    {
+    case DS_POLYFILL:
+      glPolygonMode(GL_FRONT,GL_FILL);
+      break;
+    case DS_WIREFRAME:
+      glPolygonMode(GL_FRONT,GL_LINE);
+      break;
+    }
 }

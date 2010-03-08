@@ -21,19 +21,21 @@
  *************************************************************************/
 
 // Test for non-capped cylinder, by Bram Stolk
-#include <ode/config.h>
+#include <ode/odeconfig.h>
 #include <assert.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "texturepath.h"
 
 #include "world_geom3.h" // this is our world mesh
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
 #endif
+
 
 #define BOX
 #define CYL
@@ -108,6 +110,8 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 static void start()
 {
+  dAllocateODEDataForThread(dAllocateMaskAll);
+
   static float xyz[3] = {-8,-9,3};
   static float hpr[3] = {45.0000f,-27.5000f,0.0000f};
   dsSetViewpoint (xyz,hpr);
@@ -203,7 +207,7 @@ static void simLoop (int pause)
   const dReal* Rot = dGeomGetRotation(world_mesh);
   float rot[12] = { Rot[0], Rot[1], Rot[2], Rot[3], Rot[4], Rot[5], Rot[6], Rot[7], Rot[8], Rot[9], Rot[10], Rot[11] };
 
-  int numi = sizeof(world_indices)  / sizeof(int);
+  int numi = sizeof(world_indices)  / sizeof(dTriIndex);
 
   for (int i=0; i<numi/3; i++)
   {
@@ -230,14 +234,10 @@ int main (int argc, char **argv)
   fn.step = &simLoop;
   fn.command = &command;
   fn.stop = 0;
-  fn.path_to_textures = "../../drawstuff/textures";
-  if(argc==2)
-    {
-        fn.path_to_textures = argv[1];
-    }
+  fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
   // create world
-  dInitODE();
+  dInitODE2(0);
   world = dWorldCreate();
   space = dHashSpaceCreate (0);
   contactgroup = dJointGroupCreate (0);
@@ -247,7 +247,7 @@ int main (int argc, char **argv)
 
   // Create a static world using a triangle mesh that we can collide with.
   int numv = sizeof(world_vertices)/(3*sizeof(float));
-  int numi = sizeof(world_indices)/ sizeof(int);
+  int numi = sizeof(world_indices)/ sizeof(dTriIndex);
   printf("numv=%d, numi=%d\n", numv, numi);
   dTriMeshDataID Data = dGeomTriMeshDataCreate();
 
@@ -259,7 +259,7 @@ int main (int argc, char **argv)
     numv, 
     world_indices, 
     numi, 
-    3 * sizeof(int)
+    3 * sizeof(dTriIndex)
   );
 
   world_mesh = dCreateTriMesh(space, Data, 0, 0, 0);
@@ -314,5 +314,8 @@ int main (int argc, char **argv)
   dWorldDestroy (world);
   dCloseODE();
   return 0;
+  (void)world_normals; // get rid of compiler warnings
 }
+
+
 

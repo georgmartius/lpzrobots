@@ -26,12 +26,11 @@
 #include <ode/matrix.h>
 #include <ode/rotation.h>
 #include <ode/odemath.h>
+#include "config.h"
 
 #if dTRIMESH_ENABLED
 
 #include "collision_util.h"
-
-#define TRIMESH_INTERNAL
 #include "collision_trimesh_internal.h"
 
 #if dTRIMESH_OPCODE
@@ -46,7 +45,10 @@ int dCollideRTL(dxGeom* g1, dxGeom* RayGeom, int Flags, dContactGeom* Contacts, 
 	const dVector3& TLPosition = *(const dVector3*)dGeomGetPosition(TriMesh);
 	const dMatrix3& TLRotation = *(const dMatrix3*)dGeomGetRotation(TriMesh);
 
-	RayCollider& Collider = TriMesh->_RayCollider;
+	const unsigned uiTLSKind = TriMesh->getParentSpaceTLSKind();
+	dIASSERT(uiTLSKind == RayGeom->getParentSpaceTLSKind()); // The colliding spaces must use matching cleanup method
+	TrimeshCollidersCache *pccColliderCache = GetTrimeshCollidersCache(uiTLSKind);
+	RayCollider& Collider = pccColliderCache->_RayCollider;
 
 	dReal Length = dGeomRayGetLength(RayGeom);
 
@@ -75,14 +77,14 @@ int dCollideRTL(dxGeom* g1, dxGeom* RayGeom, int Flags, dContactGeom* Contacts, 
 	Matrix4x4 amatrix;
         int TriCount = 0;
         if (Collider.Collide(WorldRay, TriMesh->Data->BVTree, &MakeMatrix(TLPosition, TLRotation, amatrix))) {
-                TriCount = TriMesh->Faces.GetNbFaces();
+                TriCount = pccColliderCache->Faces.GetNbFaces();
         }
 
         if (TriCount == 0) {
                 return 0;
         }
 	
-	const CollisionFace* Faces = TriMesh->Faces.GetFaces();
+	const CollisionFace* Faces = pccColliderCache->Faces.GetFaces();
 
 	int OutTriCount = 0;
 	for (int i = 0; i < TriCount; i++) {
@@ -99,16 +101,6 @@ int dCollideRTL(dxGeom* g1, dxGeom* RayGeom, int Flags, dContactGeom* Contacts, 
 			dVector3 dv[3];
 			FetchTriangle(TriMesh, TriIndex, TLPosition, TLRotation, dv);
 
-			// No sense to save on single type conversion in algorithm of this size.
-			// If there would be a custom typedef for distance type it could be used 
-			// instead of dReal. However using float directly is the loss of abstraction 
-			// and possible loss of precision in future.
-			/*float*/ dReal T = Faces[i].mDistance;
-			Contact->pos[0] = Origin[0] + (Direction[0] * T);
-			Contact->pos[1] = Origin[1] + (Direction[1] * T);
-			Contact->pos[2] = Origin[2] + (Direction[2] * T);
-			Contact->pos[3] = REAL(0.0);
-				
 			dVector3 vu;
 			vu[0] = dv[1][0] - dv[0][0];
 			vu[1] = dv[1][1] - dv[0][1];
@@ -123,17 +115,33 @@ int dCollideRTL(dxGeom* g1, dxGeom* RayGeom, int Flags, dContactGeom* Contacts, 
 
 			dCROSS(Contact->normal, =, vv, vu);	// Reversed
 
-			dNormalize3(Contact->normal);
+			// Even though all triangles might be initially valid, 
+			// a triangle may degenerate into a segment after applying 
+			// space transformation.
+			if (dSafeNormalize3(Contact->normal))
+			{
+				// No sense to save on single type conversion in algorithm of this size.
+				// If there would be a custom typedef for distance type it could be used 
+				// instead of dReal. However using float directly is the loss of abstraction 
+				// and possible loss of precision in future.
+				/*float*/ dReal T = Faces[i].mDistance;
+				Contact->pos[0] = Origin[0] + (Direction[0] * T);
+				Contact->pos[1] = Origin[1] + (Direction[1] * T);
+				Contact->pos[2] = Origin[2] + (Direction[2] * T);
+				Contact->pos[3] = REAL(0.0);
 
-			Contact->depth = T;
-			Contact->g1 = TriMesh;
-			Contact->g2 = RayGeom;
-				
-			OutTriCount++;
+				Contact->depth = T;
+				Contact->g1 = TriMesh;
+				Contact->g2 = RayGeom;
+				Contact->side1 = TriIndex;
+				Contact->side2 = -1;
+					
+				OutTriCount++;
 
-			// Putting "break" at the end of loop prevents unnecessary checks on first pass and "continue"
-			if (OutTriCount >= (Flags & NUMC_MASK)) {
-				break;
+				// Putting "break" at the end of loop prevents unnecessary checks on first pass and "continue"
+				if (OutTriCount >= (Flags & NUMC_MASK)) {
+					break;
+				}
 			}
 		}
 	}
@@ -163,11 +171,11 @@ int dCollideRTL(dxGeom* g1, dxGeom* RayGeom, int Flags, dContactGeom* Contacts, 
 
 	if(ClosestHit)
 	{
-		intersect = gim_trimesh_ray_closest_collision(&TriMesh->m_collision_trimesh,Origin,Direction,Length,&contact_data);
+		intersect = gim_trimesh_ray_closest_collisionODE(&TriMesh->m_collision_trimesh,Origin,Direction,Length,&contact_data);
 	}
 	else
 	{
-	    intersect = gim_trimesh_ray_collision(&TriMesh->m_collision_trimesh,Origin,Direction,Length,&contact_data);
+	    intersect = gim_trimesh_ray_collisionODE(&TriMesh->m_collision_trimesh,Origin,Direction,Length,&contact_data);
 	}
 
     if(intersect == 0)
@@ -175,24 +183,25 @@ int dCollideRTL(dxGeom* g1, dxGeom* RayGeom, int Flags, dContactGeom* Contacts, 
         return 0;
     }
 
-	int OutTriCount = 0;
 
 	if(!TriMesh->RayCallback || 
 		TriMesh->RayCallback(TriMesh, RayGeom, contact_data.m_face_id, contact_data.u , contact_data.v))
 	{
-		dContactGeom* Contact = SAFECONTACT(Flags, Contacts, (OutTriCount-1), Stride);
+		dContactGeom* Contact = &( Contacts[ 0 ] );
         VEC_COPY(Contact->pos,contact_data.m_point);
         VEC_COPY(Contact->normal,contact_data.m_normal);
         Contact->depth = contact_data.tparam;
         Contact->g1 = TriMesh;
         Contact->g2 = RayGeom;
-		
-		OutTriCount = 1;
+		Contact->side1 = contact_data.m_face_id;
+		Contact->side2 = -1;
+		return 1;
 	}
 
-	return OutTriCount;
+	return 0;
 }
 #endif  // dTRIMESH_GIMPACT
 
 #endif // dTRIMESH_ENABLED
+
 

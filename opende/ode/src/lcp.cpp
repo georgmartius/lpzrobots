@@ -109,11 +109,13 @@ submatrix of A. there are two ways we could arrange the rows/columns in AC.
 */
 
 #include <ode/common.h>
+#include "config.h"
 #include "lcp.h"
 #include <ode/matrix.h>
 #include <ode/misc.h>
 #include "mat.h"		// for testing
 #include <ode/timer.h>		// for testing
+#include "util.h"
 
 //***************************************************************************
 // code generation parameters
@@ -1234,7 +1236,6 @@ void dSolveLCPBasic (int n, dReal *A, dReal *x, dReal *b,
 
 	if (s <= 0) {
 	  dMessage (d_ERR_LCP, "LCP internal error, s <= 0 (s=%.4e)",s);
-//	  dMessage (d_ERR_LCP, "*");
 	  if (i < (n-1)) {
 	    dSetZero (x+i,n-i);
 	    dSetZero (w+i,n-i);
@@ -1655,7 +1656,6 @@ void dSolveLCP (int n, dReal *A, dReal *x, dReal *b,
 	// our fingers and exit with the current solution.
 	if (s <= 0) {
 	  dMessage (d_ERR_LCP, "LCP internal error, s <= 0 (s=%.4e)",s);
-//	  dMessage (d_ERR_LCP, "*"); // by Georg to get rid of annoying lines
 	  if (i < (n-1)) {
 	    dSetZero (x+i,n-i);
 	    dSetZero (w+i,n-i);

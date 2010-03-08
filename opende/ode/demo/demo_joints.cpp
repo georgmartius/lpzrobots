@@ -47,6 +47,7 @@ you must verify visually.
 #include <ctype.h>
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "texturepath.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
@@ -88,13 +89,6 @@ static dReal max_error = 0;
 
 //****************************************************************************
 // utility stuff
-
-static char loCase (char a)
-{
-  if (a >= 'A' && a <= 'Z') return a + ('a'-'A');
-  else return a;
-}
-
 
 static dReal length (dVector3 a)
 {
@@ -636,8 +630,10 @@ dReal doStuffAndGetError (int n)
     dBodyAddForce (body[1],0,0,-0.1);
     if (iteration == 40) {
       dReal a = dJointGetSliderPosition (joint);
-      if (a > 0.2 && a < 0.5) return 0; else return 10;
-      return a;
+      if (a > 0.2 && a < 0.5)
+          return 0;
+      else
+          return 10; // Failed
     }
     return 0;
 
@@ -940,6 +936,8 @@ dReal doStuffAndGetError (int n)
 
 static void start()
 {
+  dAllocateODEDataForThread(dAllocateMaskAll);
+
   static float xyz[3] = {1.0382f,-1.0811f,1.4700f};
   static float hpr[3] = {135.0000f,-19.5000f,0.0000f};
   dsSetViewpoint (xyz,hpr);
@@ -1032,7 +1030,7 @@ void doTest (int argc, char **argv, int n, int fatal_if_bad_n)
   if (cmd_path_to_textures)
     fn.path_to_textures = cmd_path_to_textures;
   else
-  fn.path_to_textures = "../../drawstuff/textures";
+  fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
   // run simulation
   if (cmd_graphics) {
@@ -1062,7 +1060,7 @@ void doTest (int argc, char **argv, int n, int fatal_if_bad_n)
 int main (int argc, char **argv)
 {
   int i;
-  dInitODE();
+  dInitODE2(0);
 
   // process the command line args. anything that starts with `-' is assumed
   // to be a drawstuff argument.

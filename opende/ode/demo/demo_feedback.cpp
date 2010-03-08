@@ -22,13 +22,14 @@
 
 // Test for breaking joints, by Bram Stolk
 
-#include <ode/config.h>
+#include <ode/odeconfig.h>
 #include <assert.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "texturepath.h"
 
 
 #ifdef _MSC_VER
@@ -106,6 +107,8 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
 
 static void start()
 {
+  dAllocateODEDataForThread(dAllocateMaskAll);
+
   static float xyz[3] = { -6, 8, 6};
   static float hpr[3] = { -65.0f, -27.0f, 0.0f};
   dsSetViewpoint (xyz,hpr);
@@ -177,7 +180,7 @@ static void simLoop (int pause)
 {
   int i;
 
-  double simstep = 0.005; // 5ms simulation steps
+  double simstep = 0.002; // 2ms simulation steps
   double dt = dsElapsedTime();
   int nrofsteps = (int) ceilf(dt/simstep);
   for (i=0; i<nrofsteps && !pause; i++)
@@ -224,14 +227,10 @@ int main (int argc, char **argv)
   fn.step = &simLoop;
   fn.command = &command;
   fn.stop = 0;
-  fn.path_to_textures = "../../drawstuff/textures";
-  if(argc==2)
-  {
-    fn.path_to_textures = argv[1];
-  }
+  fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
   // create world
-  dInitODE();
+  dInitODE2(0);
   world = dWorldCreate();
   space = dHashSpaceCreate (0);
   contactgroup = dJointGroupCreate (0);
@@ -311,4 +310,6 @@ int main (int argc, char **argv)
   dCloseODE();
   return 0;
 }
+
+
 

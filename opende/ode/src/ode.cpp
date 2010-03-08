@@ -29,7 +29,7 @@
 
 #include "objects.h"
 #include <ode/ode.h>
-#include "joint.h"
+#include "joints/joints.h"
 #include <ode/odemath.h>
 #include <ode/matrix.h>
 #include "step.h"
@@ -44,19 +44,20 @@
 //****************************************************************************
 // utility
 
-static inline void initObject (dObject *obj, dxWorld *w)
+
+dObject::dObject(dxWorld *w)
 {
-  obj->world = w;
-  obj->next = 0;
-  obj->tome = 0;
-  obj->userdata = 0;
-  obj->tag = 0;
+    world = w;
+    next = 0;
+    tome = 0;
+    userdata = 0;
+    tag = 0;
 }
 
 
 // add an object `obj' to the list who's head pointer is pointed to by `first'.
 
-static inline void addObjectToList (dObject *obj, dObject **first)
+void addObjectToList (dObject *obj, dObject **first)
 {
   obj->next = *first;
   obj->tome = first;
@@ -125,6 +126,14 @@ static int listHasLoops (dObject *first)
 
 // check the validity of the world data structures
 
+static int g_world_check_tag_generator = 0;
+
+static inline int generateWorldCheckTag()
+{
+	// Atomicity is not necessary here
+	return ++g_world_check_tag_generator;
+}
+
 static void checkWorld (dxWorld *w)
 {
   dxBody *b;
@@ -153,8 +162,7 @@ static void checkWorld (dxWorld *w)
   if (w->nj != n) dDebug (0,"joint count incorrect");
 
   // set all tag values to a known value
-  static int count = 0;
-  count++;
+  int count = generateWorldCheckTag();
   for (b=w->firstbody; b; b=(dxBody*)b->next) b->tag = count;
   for (j=w->firstjoint; j; j=(dxJoint*)j->next) j->tag = count;
 
@@ -221,7 +229,15 @@ void dWorldCheck (dxWorld *w)
 
 //****************************************************************************
 // body
-dxWorld* dBodyGetWorld (dxBody* b)
+
+dxBody::dxBody(dxWorld *w) :
+    dObject(w)
+{
+    
+}
+
+
+dxWorld* dBodyGetWorld (dxBody * b)
 {
   dAASSERT (b);
   return b->world;
@@ -230,8 +246,7 @@ dxWorld* dBodyGetWorld (dxBody* b)
 dxBody *dBodyCreate (dxWorld *w)
 {
   dAASSERT (w);
-  dxBody *b = new dxBody;
-  initObject (b,w);
+  dxBody *b = new dxBody(w);
   b->firstjoint = 0;
   b->flags = 0;
   b->geom = 0;
@@ -256,13 +271,22 @@ dxBody *dBodyCreate (dxWorld *w)
   w->nb++;
 
   // set auto-disable parameters
-  b->average_avel_buffer = b->average_lvel_buffer = 0; // no buffer at beginnin
+  b->average_avel_buffer = b->average_lvel_buffer = 0; // no buffer at beginning
   dBodySetAutoDisableDefaults (b);	// must do this after adding to world
   b->adis_stepsleft = b->adis.idle_steps;
   b->adis_timeleft = b->adis.idle_time;
   b->average_counter = 0;
   b->average_ready = 0; // average buffer not filled on the beginning
   dBodySetAutoDisableAverageSamplesCount(b, b->adis.average_samples);
+
+  b->moved_callback = 0;
+
+  dBodySetDampingDefaults(b);	// must do this after adding to world
+
+  b->flags |= w->body_flags & dxBodyMaxAngularSpeed;
+  b->max_angular_speed = w->max_angular_speed;
+
+  b->flags |= dxBodyGyroscopic;
 
   return b;
 }
@@ -342,14 +366,11 @@ void dBodySetPosition (dBodyID b, dReal x, dReal y, dReal z)
 void dBodySetRotation (dBodyID b, const dMatrix3 R)
 {
   dAASSERT (b && R);
-  dQuaternion q;
-  dRtoQ (R,q);
-  dNormalize4 (q);
-  b->q[0] = q[0];
-  b->q[1] = q[1];
-  b->q[2] = q[2];
-  b->q[3] = q[3];
-  dQtoR (b->q,b->posr.R);
+
+  memcpy(b->posr.R, R, sizeof(dMatrix3));
+  dOrthogonalizeR(b->posr.R);
+  dRtoQ (R, b->q);
+  dNormalize4 (b->q);
 
   // notify all attached geoms that this body has moved
   for (dxGeom *geom = b->geom; geom; geom = dGeomGetBodyNext (geom))
@@ -808,6 +829,25 @@ dJointID dBodyGetJoint (dBodyID b, int index)
   return 0;
 }
 
+void dBodySetDynamic (dBodyID b)
+{
+  dAASSERT (b);
+  
+  dBodySetMass(b,&b->mass);
+}
+
+void dBodySetKinematic (dBodyID b)
+{
+  dAASSERT (b);
+  dSetZero (b->invI,4*3);
+  b->invMass = 0; 
+}
+
+int dBodyIsKinematic (dBodyID b)
+{
+  dAASSERT (b);
+  return b->invMass == 0;
+}
 
 void dBodyEnable (dBodyID b)
 {
@@ -977,186 +1017,329 @@ void dBodySetAutoDisableDefaults (dBodyID b)
 	dWorldID w = b->world;
 	dAASSERT(w);
 	b->adis = w->adis;
-	dBodySetAutoDisableFlag (b, w->adis_flag);
+	dBodySetAutoDisableFlag (b, w->body_flags & dxBodyAutoDisable);
 }
+
+
+// body damping functions
+
+dReal dBodyGetLinearDamping(dBodyID b)
+{
+        dAASSERT(b);
+        return b->dampingp.linear_scale;
+}
+
+void dBodySetLinearDamping(dBodyID b, dReal scale)
+{
+        dAASSERT(b);
+        if (scale)
+                b->flags |= dxBodyLinearDamping;
+        else
+                b->flags &= ~dxBodyLinearDamping;
+        b->dampingp.linear_scale = scale;
+}
+
+dReal dBodyGetAngularDamping(dBodyID b)
+{
+        dAASSERT(b);
+        return b->dampingp.angular_scale;
+}
+
+void dBodySetAngularDamping(dBodyID b, dReal scale)
+{
+        dAASSERT(b);
+        if (scale)
+                b->flags |= dxBodyAngularDamping;
+        else
+                b->flags &= ~dxBodyAngularDamping;
+        b->dampingp.angular_scale = scale;
+}
+
+void dBodySetDamping(dBodyID b, dReal linear_scale, dReal angular_scale)
+{
+        dAASSERT(b);
+        dBodySetLinearDamping(b, linear_scale);
+        dBodySetAngularDamping(b, angular_scale);
+}
+
+dReal dBodyGetLinearDampingThreshold(dBodyID b)
+{
+        dAASSERT(b);
+        return dSqrt(b->dampingp.linear_threshold);
+}
+
+void dBodySetLinearDampingThreshold(dBodyID b, dReal threshold)
+{
+        dAASSERT(b);
+        b->dampingp.linear_threshold = threshold*threshold;
+}
+
+
+dReal dBodyGetAngularDampingThreshold(dBodyID b)
+{
+        dAASSERT(b);
+        return dSqrt(b->dampingp.angular_threshold);
+}
+
+void dBodySetAngularDampingThreshold(dBodyID b, dReal threshold)
+{
+        dAASSERT(b);
+        b->dampingp.angular_threshold = threshold*threshold;
+}
+
+void dBodySetDampingDefaults(dBodyID b)
+{
+        dAASSERT(b);
+        dWorldID w = b->world;
+        dAASSERT(w);
+        b->dampingp = w->dampingp;
+        const unsigned mask = dxBodyLinearDamping | dxBodyAngularDamping;
+        b->flags &= ~mask; // zero them
+        b->flags |= w->body_flags & mask;
+}
+
+dReal dBodyGetMaxAngularSpeed(dBodyID b)
+{
+        dAASSERT(b);
+        return b->max_angular_speed;
+}
+
+void dBodySetMaxAngularSpeed(dBodyID b, dReal max_speed)
+{
+        dAASSERT(b);
+        if (max_speed < dInfinity)
+                b->flags |= dxBodyMaxAngularSpeed;
+        else
+                b->flags &= ~dxBodyMaxAngularSpeed;
+        b->max_angular_speed = max_speed;
+}
+
+void dBodySetMovedCallback(dBodyID b, void (*callback)(dBodyID))
+{
+        dAASSERT(b);
+        b->moved_callback = callback;
+}
+
+
+dGeomID dBodyGetFirstGeom(dBodyID b)
+{
+        dAASSERT(b);
+        return b->geom;
+}
+
+
+dGeomID dBodyGetNextGeom(dGeomID geom)
+{
+        dAASSERT(geom);
+        return dGeomGetBodyNext(geom);
+}
+
+
+int dBodyGetGyroscopicMode(dBodyID b)
+{
+        dAASSERT(b);
+        return b->flags & dxBodyGyroscopic;
+}
+
+void dBodySetGyroscopicMode(dBodyID b, int enabled)
+{
+        dAASSERT(b);
+        if (enabled)
+                b->flags |= dxBodyGyroscopic;
+        else
+                b->flags &= ~dxBodyGyroscopic;
+}
+
+
 
 //****************************************************************************
 // joints
 
-static void dJointInit (dxWorld *w, dxJoint *j)
-{
-  dIASSERT (w && j);
-  initObject (j,w);
-  j->vtable = 0;
-  j->flags = 0;
-  j->node[0].joint = j;
-  j->node[0].body = 0;
-  j->node[0].next = 0;
-  j->node[1].joint = j;
-  j->node[1].body = 0;
-  j->node[1].next = 0;
-  dSetZero (j->lambda,6);
-  addObjectToList (j,(dObject **) &w->firstjoint);
-  w->nj++;
-}
 
 
-static dxJoint *createJoint (dWorldID w, dJointGroupID group,
-			     dxJoint::Vtable *vtable)
+template<class T>
+dxJoint* createJoint(dWorldID w, dJointGroupID group)
 {
-  dIASSERT (w && vtable);
-  dxJoint *j;
-  if (group) {
-    j = (dxJoint*) group->stack.alloc (vtable->size);
-    group->num++;
-  }
-  else j = (dxJoint*) dAlloc (vtable->size);
-  dJointInit (w,j);
-  j->vtable = vtable;
-  if (group) j->flags |= dJOINT_INGROUP;
-  if (vtable->init) vtable->init (j);
-  j->feedback = 0;
-  return j;
+    dxJoint *j;
+    if (group) {
+        j = (dxJoint*) group->stack.alloc(sizeof(T));
+        group->num++;
+    } else
+        j = (dxJoint*) dAlloc(sizeof(T));
+    
+    new(j) T(w);
+    if (group)
+        j->flags |= dJOINT_INGROUP;
+    
+    return j;
 }
 
 
 dxJoint * dJointCreateBall (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dball_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointBall>(w,group);
 }
 
 
 dxJoint * dJointCreateHinge (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dhinge_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointHinge>(w,group);
 }
 
 
 dxJoint * dJointCreateSlider (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dslider_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointSlider>(w,group);
 }
 
 
 dxJoint * dJointCreateContact (dWorldID w, dJointGroupID group,
 			       const dContact *c)
 {
-  dAASSERT (w && c);
-  dxJointContact *j = (dxJointContact *)
-    createJoint (w,group,&__dcontact_vtable);
-  j->contact = *c;
-  return j;
+    dAASSERT (w && c);
+    dxJointContact *j = (dxJointContact *)
+        createJoint<dxJointContact> (w,group);
+    j->contact = *c;
+    return j;
 }
 
 
 dxJoint * dJointCreateHinge2 (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dhinge2_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointHinge2> (w,group);
 }
 
 
 dxJoint * dJointCreateUniversal (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__duniversal_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointUniversal> (w,group);
 }
 
 dxJoint * dJointCreatePR (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dPR_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointPR> (w,group);
+}
+
+dxJoint * dJointCreatePU (dWorldID w, dJointGroupID group)
+{
+    dAASSERT (w);
+    return createJoint<dxJointPU> (w,group);
+}
+
+dxJoint * dJointCreatePiston (dWorldID w, dJointGroupID group)
+{
+    dAASSERT (w);
+    return createJoint<dxJointPiston> (w,group);
 }
 
 dxJoint * dJointCreateFixed (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dfixed_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointFixed> (w,group);
 }
 
 
 dxJoint * dJointCreateNull (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dnull_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointNull> (w,group);
 }
 
 
 dxJoint * dJointCreateAMotor (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__damotor_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointAMotor> (w,group);
 }
 
 dxJoint * dJointCreateLMotor (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dlmotor_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointLMotor> (w,group);
 }
 
 dxJoint * dJointCreatePlane2D (dWorldID w, dJointGroupID group)
 {
-  dAASSERT (w);
-  return createJoint (w,group,&__dplane2d_vtable);
+    dAASSERT (w);
+    return createJoint<dxJointPlane2D> (w,group);
 }
 
 void dJointDestroy (dxJoint *j)
 {
-  dAASSERT (j);
-  if (j->flags & dJOINT_INGROUP) return;
-  removeJointReferencesFromAttachedBodies (j);
-  removeObjectFromList (j);
-  j->world->nj--;
-  dFree (j,j->vtable->size);
+    dAASSERT (j);
+    size_t sz = j->size();
+    if (j->flags & dJOINT_INGROUP) return;
+    removeJointReferencesFromAttachedBodies (j);
+    removeObjectFromList (j);
+    j->world->nj--;
+    j->~dxJoint();
+    dFree (j, sz);
 }
 
 
 dJointGroupID dJointGroupCreate (int max_size)
 {
-  // not any more ... dUASSERT (max_size > 0,"max size must be > 0");
-  dxJointGroup *group = new dxJointGroup;
-  group->num = 0;
-  return group;
+    // not any more ... dUASSERT (max_size > 0,"max size must be > 0");
+    dxJointGroup *group = new dxJointGroup;
+    group->num = 0;
+    return group;
 }
 
 
 void dJointGroupDestroy (dJointGroupID group)
 {
-  dAASSERT (group);
-  dJointGroupEmpty (group);
-  delete group;
+    dAASSERT (group);
+    dJointGroupEmpty (group);
+    delete group;
 }
 
 
 void dJointGroupEmpty (dJointGroupID group)
 {
-  // the joints in this group are detached starting from the most recently
-  // added (at the top of the stack). this helps ensure that the various
-  // linked lists are not traversed too much, as the joints will hopefully
-  // be at the start of those lists.
-  // if any group joints have their world pointer set to 0, their world was
-  // previously destroyed. no special handling is required for these joints.
-
-  dAASSERT (group);
-  int i;
-  dxJoint **jlist = (dxJoint**) ALLOCA (group->num * sizeof(dxJoint*));
-  dxJoint *j = (dxJoint*) group->stack.rewind();
-  for (i=0; i < group->num; i++) {
-    jlist[i] = j;
-    j = (dxJoint*) (group->stack.next (j->vtable->size));
-  }
-  for (i=group->num-1; i >= 0; i--) {
-    if (jlist[i]->world) {
-      removeJointReferencesFromAttachedBodies (jlist[i]);
-      removeObjectFromList (jlist[i]);
-      jlist[i]->world->nj--;
+    // the joints in this group are detached starting from the most recently
+    // added (at the top of the stack). this helps ensure that the various
+    // linked lists are not traversed too much, as the joints will hopefully
+    // be at the start of those lists.
+    // if any group joints have their world pointer set to 0, their world was
+    // previously destroyed. no special handling is required for these joints.
+    
+    dAASSERT (group);
+    int i;
+    dxJoint **jlist = (dxJoint**) ALLOCA (group->num * sizeof(dxJoint*));
+    dxJoint *j = (dxJoint*) group->stack.rewind();
+    for (i=0; i < group->num; i++) {
+        jlist[i] = j;
+        j = (dxJoint*) (group->stack.next (j->size()));
     }
-  }
-  group->num = 0;
-  group->stack.freeAll();
+    for (i=group->num-1; i >= 0; i--) {
+        if (jlist[i]->world) {
+            removeJointReferencesFromAttachedBodies (jlist[i]);
+            removeObjectFromList (jlist[i]);
+            jlist[i]->world->nj--;
+            jlist[i]->~dxJoint();
+        }
+    }
+    group->num = 0;
+    group->stack.freeAll();
+}
+
+int dJointGetNumBodies(dxJoint *joint)
+{
+    // check arguments
+    dUASSERT (joint,"bad joint argument");
+
+    if ( !joint->node[0].body )
+        return 0;
+    else if ( !joint->node[1].body )
+        return 1;
+    else
+        return 2;
 }
 
 
@@ -1205,8 +1388,31 @@ void dJointAttach (dxJoint *joint, dxBody *body1, dxBody *body2)
   else {
     joint->node[0].next = 0;
   }
+
+  // Since the bodies are now set.
+  // Calculate the values depending on the bodies.
+  // Only need to calculate relative value if a body exist
+  if (body1 || body2)
+    joint->setRelativeValues();
 }
 
+void dJointEnable (dxJoint *joint)
+{
+  dAASSERT (joint);
+  joint->flags &= ~dJOINT_DISABLED;
+}
+
+void dJointDisable (dxJoint *joint)
+{
+  dAASSERT (joint);
+  joint->flags |= dJOINT_DISABLED;
+}
+
+int dJointIsEnabled (dxJoint *joint)
+{
+  dAASSERT (joint);
+  return (joint->flags & dJOINT_DISABLED) == 0;
+}
 
 void dJointSetData (dxJoint *joint, void *data)
 {
@@ -1222,10 +1428,10 @@ void *dJointGetData (dxJoint *joint)
 }
 
 
-int dJointGetType (dxJoint *joint)
+dJointType dJointGetType (dxJoint *joint)
 {
   dAASSERT (joint);
-  return joint->vtable->typenum;
+  return joint->type();
 }
 
 
@@ -1348,9 +1554,10 @@ dxWorld * dWorldCreate()
   #error dSINGLE or dDOUBLE must be defined
 #endif
 
+  w->body_flags = 0; // everything disabled
+
   w->adis.idle_steps = 10;
   w->adis.idle_time = 0;
-  w->adis_flag = 0;
   w->adis.average_samples = 1;		// Default is 1 sample => Instantaneous velocity
   w->adis.angular_average_threshold = REAL(0.01)*REAL(0.01);	// (magnitude squared)
   w->adis.linear_average_threshold = REAL(0.01)*REAL(0.01);		// (magnitude squared)
@@ -1360,6 +1567,12 @@ dxWorld * dWorldCreate()
 
   w->contactp.max_vel = dInfinity;
   w->contactp.min_depth = 0;
+
+  w->dampingp.linear_scale = 0;
+  w->dampingp.angular_scale = 0;
+  w->dampingp.linear_threshold = REAL(0.01) * REAL(0.01);
+  w->dampingp.angular_threshold = REAL(0.01) * REAL(0.01);  
+  w->max_angular_speed = dInfinity;
 
   return w;
 }
@@ -1372,6 +1585,7 @@ void dWorldDestroy (dxWorld *w)
   dxBody *nextb, *b = w->firstbody;
   while (b) {
     nextb = (dxBody*) b->next;
+    // TODO: remove those 2 ifs
     if(b->average_lvel_buffer)
     {
       delete[] (b->average_lvel_buffer);
@@ -1398,7 +1612,9 @@ void dWorldDestroy (dxWorld *w)
       dMessage (0,"warning: destroying world containing grouped joints");
     }
     else {
-      dFree (j,j->vtable->size);
+        size_t sz = j->size();
+        j->~dxJoint();
+        dFree (j,sz);
     }
     j = nextj;
   }
@@ -1556,14 +1772,99 @@ void dWorldSetAutoDisableTime (dWorldID w, dReal time)
 int dWorldGetAutoDisableFlag (dWorldID w)
 {
 	dAASSERT(w);
-	return w->adis_flag;
+	return w->body_flags & dxBodyAutoDisable;
 }
 
 
 void dWorldSetAutoDisableFlag (dWorldID w, int do_auto_disable)
 {
 	dAASSERT(w);
-	w->adis_flag = (do_auto_disable != 0);
+	if (do_auto_disable)
+        	w->body_flags |= dxBodyAutoDisable;
+	else
+	        w->body_flags &= ~dxBodyAutoDisable;
+}
+
+
+// world damping functions
+
+dReal dWorldGetLinearDampingThreshold(dWorldID w)
+{
+        dAASSERT(w);
+        return dSqrt(w->dampingp.linear_threshold);
+}
+
+void dWorldSetLinearDampingThreshold(dWorldID w, dReal threshold)
+{
+        dAASSERT(w);
+        w->dampingp.linear_threshold = threshold*threshold;
+}
+
+dReal dWorldGetAngularDampingThreshold(dWorldID w)
+{
+        dAASSERT(w);
+        return dSqrt(w->dampingp.angular_threshold);
+}
+
+void dWorldSetAngularDampingThreshold(dWorldID w, dReal threshold)
+{
+        dAASSERT(w);
+        w->dampingp.angular_threshold = threshold*threshold;
+}
+
+dReal dWorldGetLinearDamping(dWorldID w)
+{
+        dAASSERT(w);
+        return w->dampingp.linear_scale;
+}
+
+void dWorldSetLinearDamping(dWorldID w, dReal scale)
+{
+        dAASSERT(w);
+        if (scale)
+                w->body_flags |= dxBodyLinearDamping;
+        else
+                w->body_flags &= ~dxBodyLinearDamping;
+        w->dampingp.linear_scale = scale;
+}
+
+dReal dWorldGetAngularDamping(dWorldID w)
+{
+        dAASSERT(w);
+        return w->dampingp.angular_scale;
+}
+
+void dWorldSetAngularDamping(dWorldID w, dReal scale)
+{
+        dAASSERT(w);
+        if (scale)
+                w->body_flags |= dxBodyAngularDamping;
+        else
+                w->body_flags &= ~dxBodyAngularDamping;
+        w->dampingp.angular_scale = scale;
+}
+
+void dWorldSetDamping(dWorldID w, dReal linear_scale, dReal angular_scale)
+{
+        dAASSERT(w);
+        dWorldSetLinearDamping(w, linear_scale);
+        dWorldSetAngularDamping(w, angular_scale);
+}
+
+dReal dWorldGetMaxAngularSpeed(dWorldID w)
+{
+        dAASSERT(w);
+        return w->max_angular_speed;
+}
+
+void dWorldSetMaxAngularSpeed(dWorldID w, dReal max_speed)
+{
+        dAASSERT(w);
+        if (max_speed < dInfinity)
+                w->body_flags |= dxBodyMaxAngularSpeed;
+        else
+                w->body_flags &= ~dxBodyMaxAngularSpeed;
+        w->max_angular_speed = max_speed;
 }
 
 
@@ -1730,3 +2031,113 @@ extern "C" void dTestDataStructures()
   dWorldDestroy (w);
   */
 }
+
+//****************************************************************************
+// configuration
+#if 1
+#define REGISTER_EXTENSION( __a )  #__a " "
+#else
+#define REGISTER_EXTENSION( __a )  "__a "
+#endif
+static const char ode_configuration[] = "ODE "
+
+// EXTENSION LIST BEGIN
+//**********************************
+
+#ifdef dNODEBUG
+REGISTER_EXTENSION( ODE_EXT_no_debug )
+#endif // dNODEBUG
+
+#ifdef dUSE_MALLOC_FOR_ALLOCA
+REGISTER_EXTENSION( ODE_EXT_malloc_not_alloca )
+#endif
+
+#if dTRIMESH_ENABLED
+REGISTER_EXTENSION( ODE_EXT_trimesh )
+
+	// tri-mesh extensions
+	#if dTRIMESH_OPCODE
+	REGISTER_EXTENSION( ODE_EXT_opcode )
+
+		// opcode extensions
+		#if dTRIMESH_16BIT_INDICES
+		REGISTER_EXTENSION( ODE_OPC_16bit_indices )
+		#endif
+
+		#if !dTRIMESH_OPCODE_USE_OLD_TRIMESH_TRIMESH_COLLIDER
+		REGISTER_EXTENSION( ODE_OPC_new_collider )
+		#endif
+
+	#endif // dTRIMESH_OPCODE
+
+	#if dTRIMESH_GIMPACT
+	REGISTER_EXTENSION( ODE_EXT_gimpact )
+
+		// gimpact extensions
+	#endif
+
+#endif // dTRIMESH_ENABLED
+
+#if dTLS_ENABLED
+REGISTER_EXTENSION( ODE_EXT_mt_collisions )
+#endif // dTLS_ENABLED
+
+//**********************************
+// EXTENSION LIST END
+
+// These tokens are mutually exclusive, and always present
+#ifdef dSINGLE
+"ODE_single_precision"
+#else
+"ODE_double_precision"
+#endif // dDOUBLE
+
+; // END
+
+const char* dGetConfiguration (void)
+{
+	return ode_configuration;
+}
+
+
+// Helper to check for a feature of ODE
+int dCheckConfiguration( const char* extension )
+{
+	const char *start;
+	char *where, *terminator;
+
+	/* Feature names should not have spaces. */
+	where = (char*)strchr(extension, ' ');
+	if ( where || *extension == '\0')
+		return 1;
+
+	const char* config = dGetConfiguration();
+
+	const size_t ext_length = strlen(extension);
+
+	/* It takes a bit of care to be fool-proof. Don't be fooled by sub-strings, etc. */
+	start = config;
+	for (  ; ;  )
+	{
+		where = (char*)strstr((const char *) start, extension);
+		if (!where)
+			break;
+
+		terminator = where + ext_length;
+	
+		if ( (where == start || *(where - 1) == ' ') && 
+			 (*terminator == ' ' || *terminator == '\0') )
+		{
+			return 1;
+		}
+		
+		start = terminator;
+	}
+
+	return 0;
+}
+
+
+// Local Variables:
+// c-basic-offset:4
+// End:

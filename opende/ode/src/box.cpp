@@ -52,6 +52,7 @@ dxBox::dxBox (dSpaceID space, dReal lx, dReal ly, dReal lz) : dxGeom (space,1)
   side[0] = lx;
   side[1] = ly;
   side[2] = lz;
+  updateZeroSizedFlag(!lx || !ly || !lz);
 }
 
 
@@ -84,11 +85,12 @@ dGeomID dCreateBox (dSpaceID space, dReal lx, dReal ly, dReal lz)
 void dGeomBoxSetLengths (dGeomID g, dReal lx, dReal ly, dReal lz)
 {
   dUASSERT (g && g->type == dBoxClass,"argument not a box");
-  dAASSERT (lx > 0 && ly > 0 && lz > 0);
+  dAASSERT (lx >= 0 && ly >= 0 && lz >= 0);
   dxBox *b = (dxBox*) g;
   b->side[0] = lx;
   b->side[1] = ly;
   b->side[2] = lz;
+  b->updateZeroSizedFlag(!lx || !ly || !lz);
   dGeomMoved (g);
 }
 
@@ -283,8 +285,8 @@ void cullPoints (int n, dReal p[], int m, int i0, int iret[])
   iret[0] = i0;
   iret++;
   for (j=1; j<m; j++) {
-    a = dReal(j)*(2*M_PI/m) + A[i0];
-    if (a > M_PI) a -= 2*M_PI;
+    a = (dReal)(dReal(j)*(2*M_PI/m) + A[i0]);
+    if (a > M_PI) a -= (dReal)(2*M_PI);
     dReal maxdiff=1e9,diff;
 #ifndef dNODEBUG
     *iret = i0;			// iret is not allowed to keep this value
@@ -292,7 +294,7 @@ void cullPoints (int n, dReal p[], int m, int i0, int iret[])
     for (i=0; i<n; i++) {
       if (avail[i]) {
 	diff = dFabs (A[i]-a);
-	if (diff > M_PI) diff = 2*M_PI - diff;
+	if (diff > M_PI) diff = (dReal) (2*M_PI - diff);
 	if (diff < maxdiff) {
 	  maxdiff = diff;
 	  *iret = i;
@@ -332,7 +334,7 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
 	     int flags, dContactGeom *contact, int skip)
 {
   const dReal fudge_factor = REAL(1.05);
-  dVector3 p,pp,normalC;
+  dVector3 p,pp,normalC={0,0,0};
   const dReal *normalR = 0;
   dReal A[3],B[3],R11,R12,R13,R21,R22,R23,R31,R32,R33,
     Q11,Q12,Q13,Q21,Q22,Q23,Q31,Q32,Q33,s,s2,l,expr1_val;
@@ -418,6 +420,9 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
 	  } \
 	}
 
+    // We only need to check 3 edges per box 
+    // since parallel edges are equivalent.
+
     // separating axis = u1 x (v1,v2,v3)
     TST(pp[2]*R21-pp[1]*R31,(A[1]*Q31+A[2]*Q21+B[1]*Q13+B[2]*Q12),0,-R31,R21,7);
     TST(pp[2]*R22-pp[1]*R32,(A[1]*Q32+A[2]*Q22+B[0]*Q13+B[2]*Q11),0,-R32,R22,8);
@@ -457,11 +462,13 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
   // compute contact point(s)
 
   if (code > 6) {
-    // an edge from box 1 touches an edge from box 2.
+    // An edge from box 1 touches an edge from box 2.
     // find a point pa on the intersecting edge of box 1
     dVector3 pa;
     dReal sign;
-    for (i=0; i<3; i++) pa[i] = p1[i];
+    // Copy p1 into pa
+    for (i=0; i<3; i++) pa[i] = p1[i]; // why no memcpy?
+    // Get world position of p2 into pa
     for (j=0; j<3; j++) {
       sign = (dDOT14(normal,R1+j) > 0) ? REAL(1.0) : REAL(-1.0);
       for (i=0; i<3; i++) pa[i] += sign * A[j] * R1[i*4+j];
@@ -469,21 +476,25 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
 
     // find a point pb on the intersecting edge of box 2
     dVector3 pb;
-    for (i=0; i<3; i++) pb[i] = p2[i];
+    // Copy p2 into pb
+    for (i=0; i<3; i++) pb[i] = p2[i]; // why no memcpy?
+    // Get world position of p2 into pb
     for (j=0; j<3; j++) {
       sign = (dDOT14(normal,R2+j) > 0) ? REAL(-1.0) : REAL(1.0);
       for (i=0; i<3; i++) pb[i] += sign * B[j] * R2[i*4+j];
     }
-
+    
     dReal alpha,beta;
     dVector3 ua,ub;
+    // Get direction of first edge
     for (i=0; i<3; i++) ua[i] = R1[((code)-7)/3 + i*4];
+    // Get direction of second edge
     for (i=0; i<3; i++) ub[i] = R2[((code)-7)%3 + i*4];
-
-    dLineClosestApproach (pa,ua,pb,ub,&alpha,&beta);
+    // Get closest points between edges (one at each)
+    dLineClosestApproach (pa,ua,pb,ub,&alpha,&beta);    
     for (i=0; i<3; i++) pa[i] += ua[i]*alpha;
     for (i=0; i<3; i++) pb[i] += ub[i]*beta;
-
+    // Set the contact point as halfway between the 2 closest points
     for (i=0; i<3; i++) contact[0].pos[i] = REAL(0.5)*(pa[i]+pb[i]);
     contact[0].depth = *depth;
     *return_code = code;
@@ -494,27 +505,31 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
   // axis is perpendicular to a face). define face 'a' to be the reference
   // face (i.e. the normal vector is perpendicular to this) and face 'b' to be
   // the incident face (the closest face of the other box).
-
+  // Note: Unmodified parameter values are being used here
   const dReal *Ra,*Rb,*pa,*pb,*Sa,*Sb;
-  if (code <= 3) {
-    Ra = R1;
-    Rb = R2;
-    pa = p1;
-    pb = p2;
-    Sa = A;
-    Sb = B;
+  if (code <= 3) { // One of the faces of box 1 is the reference face
+    Ra = R1; // Rotation of 'a'
+    Rb = R2; // Rotation of 'b'
+    pa = p1; // Center (location) of 'a'
+    pb = p2; // Center (location) of 'b'
+    Sa = A;  // Side Lenght of 'a'
+    Sb = B;  // Side Lenght of 'b'
   }
-  else {
-    Ra = R2;
-    Rb = R1;
-    pa = p2;
-    pb = p1;
-    Sa = B;
-    Sb = A;
+  else { // One of the faces of box 2 is the reference face
+    Ra = R2; // Rotation of 'a'
+    Rb = R1; // Rotation of 'b'
+    pa = p2; // Center (location) of 'a'
+    pb = p1; // Center (location) of 'b'
+    Sa = B;  // Side Lenght of 'a'
+    Sb = A;  // Side Lenght of 'b'
   }
 
   // nr = normal vector of reference face dotted with axes of incident box.
   // anr = absolute values of nr.
+  /*
+	The normal is flipped if necessary so it always points outward from box 'a',
+	box 'b' is thus always the incident box
+  */
   dVector3 normal2,nr,anr;
   if (code <= 3) {
     normal2[0] = normal[0];
@@ -526,13 +541,14 @@ int dBoxBox (const dVector3 p1, const dMatrix3 R1,
     normal2[1] = -normal[1];
     normal2[2] = -normal[2];
   }
+  // Rotate normal2 in incident box opposite direction
   dMULTIPLY1_331 (nr,Rb,normal2);
   anr[0] = dFabs (nr[0]);
   anr[1] = dFabs (nr[1]);
   anr[2] = dFabs (nr[2]);
 
   // find the largest compontent of anr: this corresponds to the normal
-  // for the indident face. the other axis numbers of the indicent face
+  // for the incident face. the other axis numbers of the incident face
   // are stored in a1,a2.
   int lanr,a1,a2;
   if (anr[1] > anr[0]) {
@@ -712,11 +728,14 @@ int dCollideBoxBox (dxGeom *o1, dxGeom *o2, int flags,
   int num = dBoxBox (o1->final_posr->pos,o1->final_posr->R,b1->side, o2->final_posr->pos,o2->final_posr->R,b2->side,
 		     normal,&depth,&code,flags,contact,skip);
   for (int i=0; i<num; i++) {
-    CONTACT(contact,i*skip)->normal[0] = -normal[0];
-    CONTACT(contact,i*skip)->normal[1] = -normal[1];
-    CONTACT(contact,i*skip)->normal[2] = -normal[2];
-    CONTACT(contact,i*skip)->g1 = o1;
-    CONTACT(contact,i*skip)->g2 = o2;
+    dContactGeom *currContact = CONTACT(contact,i*skip);
+    currContact->normal[0] = -normal[0];
+    currContact->normal[1] = -normal[1];
+    currContact->normal[2] = -normal[2];
+    currContact->g1 = o1;
+    currContact->g2 = o2;
+	currContact->side1 = -1;
+    currContact->side2 = -1;
   }
   return num;
 }
@@ -735,6 +754,9 @@ int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
 
   contact->g1 = o1;
   contact->g2 = o2;
+  contact->side1 = -1;
+  contact->side2 = -1;
+  
   int ret = 0;
 
   //@@@ problem: using 4-vector (plane->p) as 3-vector (normal).
@@ -840,8 +862,11 @@ int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
 
  done:
   for (int i=0; i<ret; i++) {
-    CONTACT(contact,i*skip)->g1 = o1;
-    CONTACT(contact,i*skip)->g2 = o2;
+    dContactGeom *currContact = CONTACT(contact,i*skip);
+    currContact->g1 = o1;
+    currContact->g2 = o2;
+	currContact->side1 = -1;
+    currContact->side2 = -1;
   }
   return ret;
 }

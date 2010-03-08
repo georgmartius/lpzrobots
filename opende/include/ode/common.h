@@ -22,7 +22,7 @@
 
 #ifndef _ODE_COMMON_H_
 #define _ODE_COMMON_H_
-#include <ode/config.h>
+#include <ode/odeconfig.h>
 #include <ode/error.h>
 #include <math.h>
 
@@ -32,18 +32,6 @@ extern "C" {
 
 
 /* configuration stuff */
-
-/* the efficient alignment. most platforms align data structures to some
- * number of bytes, but this is not always the most efficient alignment.
- * for example, many x86 compilers align to 4 bytes, but on a pentium it
- * is important to align doubles to 8 byte boundaries (for speed), and
- * the 4 floats in a SIMD register to 16 byte boundaries. many other
- * platforms have similar behavior. setting a larger alignment can waste
- * a (very) small amount of memory. NOTE: this number must be a power of
- * two. this is set to 16 by default.
- */
-#define EFFICIENT_ALIGNMENT 16
-
 
 /* constants */
 
@@ -70,25 +58,28 @@ extern "C" {
  */
 
 #ifndef dNODEBUG
-#ifdef __GNUC__
-#define dIASSERT(a) if (!(a)) dDebug (d_ERR_IASSERT, \
-  "assertion \"" #a "\" failed in %s() [%s]",__FUNCTION__,__FILE__);
-#define dUASSERT(a,msg) if (!(a)) dDebug (d_ERR_UASSERT, \
-  msg " in %s()", __FUNCTION__);
-#define dDEBUGMSG(msg) dMessage (d_ERR_UASSERT,				\
-msg " in %s() File %s Line %d", __FUNCTION__, __FILE__,__LINE__);
+#  if defined(__STDC__) && __STDC_VERSION__ >= 199901L
+#    define __FUNCTION__ __func__
+#  endif
+#  ifdef __GNUC__
+#    define dIASSERT(a) if (!(a)) dDebug (d_ERR_IASSERT, \
+       "assertion \"" #a "\" failed in %s() [%s]",__FUNCTION__,__FILE__);
+#    define dUASSERT(a,msg) if (!(a)) dDebug (d_ERR_UASSERT, \
+       msg " in %s()", __FUNCTION__);
+#    define dDEBUGMSG(msg) dMessage (d_ERR_UASSERT,				\
+       msg " in %s() File %s Line %d", __FUNCTION__, __FILE__,__LINE__);
+#  else // not __GNUC__
+#    define dIASSERT(a) if (!(a)) dDebug (d_ERR_IASSERT, \
+       "assertion \"" #a "\" failed in %s:%d",__FILE__,__LINE__);
+#    define dUASSERT(a,msg) if (!(a)) dDebug (d_ERR_UASSERT, \
+       msg " (%s:%d)", __FILE__,__LINE__);
+#    define dDEBUGMSG(msg) dMessage (d_ERR_UASSERT, \
+       msg " (%s:%d)", __FILE__,__LINE__);
+#  endif
 #else
-#define dIASSERT(a) if (!(a)) dDebug (d_ERR_IASSERT, \
-  "assertion \"" #a "\" failed in %s:%d",__FILE__,__LINE__);
-#define dUASSERT(a,msg) if (!(a)) dDebug (d_ERR_UASSERT, \
-  msg " (%s:%d)", __FILE__,__LINE__);
-#define dDEBUGMSG(msg) dMessage (d_ERR_UASSERT, \
-  msg " (%s:%d)", __FILE__,__LINE__);
-#endif
-#else
-#define dIASSERT(a) ;
-#define dUASSERT(a,msg) ;
-#define dDEBUGMSG(msg) ;
+#  define dIASSERT(a) ;
+#  define dUASSERT(a,msg) ;
+#  define dDEBUGMSG(msg) ;
 #endif
 #define dAASSERT(a) dUASSERT(a,"Bad argument(s)")
 
@@ -114,6 +105,18 @@ typedef double dReal;
 #error You can only #define dTRIMESH_OPCODE or dTRIMESH_GIMPACT, not both.
 #endif
 #endif // dTRIMESH_ENABLED
+
+// Define a type for indices, either 16 or 32 bit, based on build option
+// TODO: Currently GIMPACT only supports 32 bit indices.
+#if dTRIMESH_16BIT_INDICES
+#if dTRIMESH_GIMPACT
+typedef uint32 dTriIndex;
+#else // dTRIMESH_GIMPACT
+typedef uint16 dTriIndex;
+#endif // dTRIMESH_GIMPACT
+#else // dTRIMESH_16BIT_INDICES
+typedef uint32 dTriIndex;
+#endif // dTRIMESH_16BIT_INDICES
 
 /* round an integer up to a multiple of 4, except that 0 and 1 are unmodified
  * (used to compute matrix leading dimensions)
@@ -194,40 +197,6 @@ typedef dReal dQuaternion[4];
 #error You must #define dSINGLE or dDOUBLE
 #endif
 
-
-/* utility */
-
-
-/* round something up to be a multiple of the EFFICIENT_ALIGNMENT */
-
-#define dEFFICIENT_SIZE(x) ((((x)-1)|(EFFICIENT_ALIGNMENT-1))+1)
-
-
-/* alloca aligned to the EFFICIENT_ALIGNMENT. note that this can waste
- * up to 15 bytes per allocation, depending on what alloca() returns.
- */
-
-#define dALLOCA16(n) \
-  ((char*)dEFFICIENT_SIZE(((size_t)(alloca((n)+(EFFICIENT_ALIGNMENT-1))))))
-
-
-// Use the error-checking memory allocation system.  Because this system uses heap
-//  (malloc) instead of stack (alloca), it is slower.  However, it allows you to
-//  simulate larger scenes, as well as handle out-of-memory errors in a somewhat
-//  graceful manner
-
-// #define dUSE_MALLOC_FOR_ALLOCA
-
-#ifdef dUSE_MALLOC_FOR_ALLOCA
-enum {
-  d_MEMORY_OK = 0,		/* no memory errors */
-  d_MEMORY_OUT_OF_MEMORY	/* malloc failed due to out of memory error */
-};
-
-#endif
-
-
-
 /* internal object types (all prefixed with `dx') */
 
 struct dxWorld;		/* dynamics world */
@@ -258,7 +227,7 @@ enum {
 
 /* joint type numbers */
 
-enum {
+typedef enum {
   dJointTypeNone = 0,		/* or "unknown" */
   dJointTypeBall,
   dJointTypeHinge,
@@ -271,8 +240,10 @@ enum {
   dJointTypeAMotor,
   dJointTypeLMotor,
   dJointTypePlane2D,
-  dJointTypePR
-};
+  dJointTypePR,
+  dJointTypePU,
+  dJointTypePiston
+} dJointType;
 
 
 /* an alternative way of setting joint parameters, using joint parameter
@@ -324,7 +295,16 @@ enum {
   dParamSuspensionCFM, \
   dParamERP, \
 
+  //////////////////////////////////////////////////////////////////////////////
+  /// \enum  D_ALL_PARAM_NAMES_X
+  ///
+  /// \var dParamGroup This is the starting value of the different group
+  ///                  (i.e. dParamGroup1, dParamGroup2, dParamGroup3)
+  ///                  It also helps in the use of parameter
+  ///                  (dParamGroup2 | dParamFMax) == dParamFMax2
+  //////////////////////////////////////////////////////////////////////////////
 #define D_ALL_PARAM_NAMES_X(start,x) \
+  dParamGroup ## x = start, \
   /* parameters for limits and motors */ \
   dParamLoStop ## x = start, \
   dParamHiStop ## x, \
@@ -342,6 +322,8 @@ enum {
 
 enum {
   D_ALL_PARAM_NAMES(0)
+  dParamsInGroup,     ///< Number of parameter in a group
+  D_ALL_PARAM_NAMES_X(0x000,1)
   D_ALL_PARAM_NAMES_X(0x100,2)
   D_ALL_PARAM_NAMES_X(0x200,3)
 
@@ -354,7 +336,7 @@ enum {
 
 /* angular motor mode numbers */
 
-enum{
+enum {
   dAMotorUser = 0,
   dAMotorEuler = 1
 };
@@ -380,6 +362,35 @@ typedef struct dJointFeedback {
 void dGeomMoved (dGeomID);
 dGeomID dGeomGetBodyNext (dGeomID);
 
+/**
+ * dGetConfiguration returns the specific ODE build configuration as
+ * a string of tokens. The string can be parsed in a similar way to
+ * the OpenGL extension mechanism, the naming convention should be
+ * familiar too. The following extensions are reported:
+ *
+ * ODE
+ * ODE_single_precision
+ * ODE_double_precision
+ * ODE_EXT_no_debug
+ * ODE_EXT_trimesh
+ * ODE_EXT_opcode
+ * ODE_EXT_gimpact
+ * ODE_EXT_malloc_not_alloca
+ * ODE_EXT_gyroscopic
+ * ODE_OPC_16bit_indices
+ * ODE_OPC_new_collider
+*/
+ODE_API const char* dGetConfiguration (void);
+
+/**
+ * Helper to check for a token in the ODE configuration string.
+ * Caution, this function is case sensitive.
+ *
+ * @param token A configuration token, see dGetConfiguration for details
+ *
+ * @return 1 if exact token is present, 0 if not present
+ */
+ODE_API int dCheckConfiguration( const char* token );
 
 #ifdef __cplusplus
 }

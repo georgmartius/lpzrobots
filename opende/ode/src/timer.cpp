@@ -32,6 +32,8 @@ TODO
 
 #include <ode/common.h>
 #include <ode/timer.h>
+#include "config.h"
+#include "util.h"
 
 // misc defines
 #define ALLOCA dALLOCA16
@@ -189,8 +191,8 @@ static inline void getClockCount (unsigned long cc[2])
 
 #else // macintosh
 
-#include <MacTypes.h>
-#include <Timer.h>
+#include <CoreServices/CoreServices.h>
+#include <ode/Timer.h>
 
 static inline void getClockCount (unsigned long cc[2])
 {
@@ -285,7 +287,7 @@ static struct {
   double total_t;		// total clocks used in this slot.
   double total_p;		// total percentage points used in this slot.
   int count;			// number of times this slot has been updated.
-  char *description;		// pointer to static string
+  const char *description;		// pointer to static string
 } event[MAXNUM];
 
 
@@ -339,7 +341,7 @@ void dTimerEnd()
 //****************************************************************************
 // print report
 
-static void fprintDoubleWithPrefix (FILE *f, double a, char *fmt)
+static void fprintDoubleWithPrefix (FILE *f, double a, const char *fmt)
 {
   if (a >= 0.999999) {
     fprintf (f,fmt,a);
@@ -408,7 +410,7 @@ void dTimerReport (FILE *fout, int average)
       t = total;
       p = 100.0;
     }
-    fprintf (fout,"%-*s %7.2fms %6.2f%%",maxl,event[i].description,
+    fprintf (fout,"%-*s %7.2fms %6.2f%%",(int)maxl,event[i].description,
 	     t*ccunit * 1000.0, p);
     if (average && i < (num-1)) {
       fprintf (fout,"  (avg %7.2fms %6.2f%%)",

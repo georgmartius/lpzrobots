@@ -29,6 +29,7 @@
 #include <time.h>
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "texturepath.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
@@ -128,6 +129,8 @@ void createTest()
 
 static void start()
 {
+  dAllocateODEDataForThread(dAllocateMaskAll);
+
   static float xyz[3] = {2.6117f,-1.4433f,2.3700f};
   static float hpr[3] = {151.5000f,-30.5000f,0.0000f};
   dsSetViewpoint (xyz,hpr);
@@ -174,13 +177,9 @@ int main (int argc, char **argv)
   fn.step = &simLoop;
   fn.command = 0;
   fn.stop = 0;
-  fn.path_to_textures = "../../drawstuff/textures";
-  if(argc==2)
-    {
-        fn.path_to_textures = argv[1];
-    }
+  fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
-  dInitODE();
+  dInitODE2(0);
   dRandSetSeed (time(0));
   createTest();
 

@@ -63,7 +63,7 @@ int dCollideCylinderPlane(dxGeom *Cylinder, dxGeom *Plane, int flags, dContactGe
 	dVector4 planevec;
 	dGeomPlaneGetParams(Plane, planevec);
 	dVector3 PlaneNormal = {planevec[0],planevec[1],planevec[2]};
-	dVector3 PlanePos = {planevec[0] * planevec[3],planevec[1] * planevec[3],planevec[2] * planevec[3]};
+	//dVector3 PlanePos = {planevec[0] * planevec[3],planevec[1] * planevec[3],planevec[2] * planevec[3]};
 
 	dVector3 G1Pos1, G1Pos2, vDir1;
 	vDir1[0] = Cylinder->final_posr->R[2];
@@ -157,6 +157,8 @@ int dCollideCylinderPlane(dxGeom *Cylinder, dxGeom *Plane, int flags, dContactGe
 			dVector3Copy(PlaneNormal, contact->normal);
 			contact->g1 = Cylinder;
 			contact->g2 = Plane;
+			contact->side1 = -1;
+			contact->side2 = -1;
 			GeomCount++;
 			if( GeomCount >= (flags & NUMC_MASK))
 				return GeomCount; // enough contactgeoms
@@ -171,6 +173,8 @@ int dCollideCylinderPlane(dxGeom *Cylinder, dxGeom *Plane, int flags, dContactGe
 			dVector3Copy(PlaneNormal, contact->normal);
 			contact->g1 = Cylinder;
 			contact->g2 = Plane;
+			contact->side1 = -1;
+			contact->side2 = -1;
 			GeomCount++;
 			if( GeomCount >= (flags & NUMC_MASK))
 				return GeomCount; // enough contactgeoms
@@ -185,6 +189,8 @@ int dCollideCylinderPlane(dxGeom *Cylinder, dxGeom *Plane, int flags, dContactGe
 			dVector3Copy(PlaneNormal, contact->normal);
 			contact->g1 = Cylinder;
 			contact->g2 = Plane;
+			contact->side1 = -1;
+			contact->side2 = -1;
 			GeomCount++;
 			if( GeomCount >= (flags & NUMC_MASK))
 				return GeomCount; // enough contactgeoms
@@ -199,6 +205,8 @@ int dCollideCylinderPlane(dxGeom *Cylinder, dxGeom *Plane, int flags, dContactGe
 			dVector3Copy(PlaneNormal, contact->normal);
 			contact->g1 = Cylinder;
 			contact->g2 = Plane;
+			contact->side1 = -1;
+			contact->side2 = -1;
 			GeomCount++;
 			if( GeomCount >= (flags & NUMC_MASK))
 				return GeomCount; // enough contactgeoms
@@ -226,6 +234,8 @@ int dCollideCylinderPlane(dxGeom *Cylinder, dxGeom *Plane, int flags, dContactGe
 			dVector3Copy(PlaneNormal, contact->normal);
 			contact->g1 = Cylinder;
 			contact->g2 = Plane;
+			contact->side1 = -1;
+			contact->side2 = -1;
 			GeomCount++;
 			if( GeomCount >= (flags & NUMC_MASK))
 				return GeomCount; // enough contactgeoms
@@ -244,6 +254,8 @@ int dCollideCylinderPlane(dxGeom *Cylinder, dxGeom *Plane, int flags, dContactGe
 			dVector3Copy(PlaneNormal, contact->normal);
 			contact->g1 = Cylinder;
 			contact->g2 = Plane;
+			contact->side1 = -1;
+			contact->side2 = -1;
 			GeomCount++;
 			if( GeomCount >= (flags & NUMC_MASK))
 				return GeomCount; // enough contactgeoms

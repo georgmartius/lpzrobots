@@ -173,7 +173,7 @@ using namespace Opcode;
 
 #define SEGMENT_PRIM(prim_index, flag)														\
 	/* Request vertices from the app */														\
-	VertexPointers VP;	mIMesh->GetTriangle(VP, prim_index);								\
+	VertexPointers VP;	ConversionArea VC;	mIMesh->GetTriangle(VP, prim_index, VC);		\
 																							\
 	/* Perform ray-tri overlap test and return */											\
 	if(RayTriOverlap(*VP.Vertex[0], *VP.Vertex[1], *VP.Vertex[2]))							\
@@ -188,7 +188,7 @@ using namespace Opcode;
 
 #define RAY_PRIM(prim_index, flag)															\
 	/* Request vertices from the app */														\
-	VertexPointers VP;	mIMesh->GetTriangle(VP, prim_index);								\
+	VertexPointers VP;	ConversionArea VC;	mIMesh->GetTriangle(VP, prim_index, VC);		\
 																							\
 	/* Perform ray-tri overlap test and return */											\
 	if(RayTriOverlap(*VP.Vertex[0], *VP.Vertex[1], *VP.Vertex[2]))							\
@@ -203,18 +203,19 @@ using namespace Opcode;
  */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 RayCollider::RayCollider() :
-	mNbRayBVTests		(0),
-	mNbRayPrimTests		(0),
-	mNbIntersections	(0),
-	mCulling			(true),
 #ifdef OPC_RAYHIT_CALLBACK
 	mHitCallback		(null),
 	mUserData			(0),
 #else
-	mClosestHit			(false),
 	mStabbedFaces		(null),
+	mClosestHit			(false),
 #endif
-	mMaxDist			(MAX_FLOAT)
+	mNbRayBVTests		(0),
+	mNbRayPrimTests		(0),
+	mNbIntersections	(0),
+	mMaxDist			(MAX_FLOAT),
+	mCulling			(true)
+
 {
 }
 
@@ -388,7 +389,8 @@ BOOL RayCollider::InitQuery(const Ray& world_ray, const Matrix4x4* world, udword
 		{
 			// Request vertices from the app
 			VertexPointers VP;
-			mIMesh->GetTriangle(VP, *face_id);
+			ConversionArea VC;
+			mIMesh->GetTriangle(VP, *face_id, VC);
 			// Perform ray-cached tri overlap test
 			if(RayTriOverlap(*VP.Vertex[0], *VP.Vertex[1], *VP.Vertex[2]))
 			{

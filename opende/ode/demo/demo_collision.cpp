@@ -33,11 +33,11 @@ change the random test conditions.
 
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "texturepath.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
 #endif
-
 // select correct drawing functions
 #ifdef dDOUBLE
 #define dsDrawSphere dsDrawSphereD
@@ -55,13 +55,14 @@ const dReal tol = 1e-8;		// tolerance used for numerical checks
 #define MAX_TESTS 1000		// maximum number of test slots
 #define Z_OFFSET 2		// z offset for drawing (to get above ground)
 
+//using namespace ode;
 
 // test function. returns 1 if the test passed or 0 if it failed
 typedef int test_function_t();
 
 struct TestSlot {
   int number;			// number of test
-  char *name;			// name of test
+  const char *name;			// name of test
   int failcount;
   test_function_t *test_fn;
   int last_failed_line;
@@ -1226,6 +1227,8 @@ int space_pressed = 0;
 
 static void start()
 {
+  dAllocateODEDataForThread(dAllocateMaskAll);
+
   static float xyz[3] = {2.4807,-1.8023,2.7600};
   static float hpr[3] = {141.5000,-18.5000,0.0000};
   dsSetViewpoint (xyz,hpr);
@@ -1284,7 +1287,7 @@ void do_tests (int argc, char **argv)
     fn.step = &simLoop;
     fn.command = &command;
     fn.stop = 0;
-    fn.path_to_textures = "../../drawstuff/textures";
+    fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
     dsSetSphereQuality (3);
     dsSetCapsuleQuality (8);
@@ -1298,7 +1301,7 @@ void do_tests (int argc, char **argv)
     // first put the active tests into a separate array
     int n=0;
     for (i=0; i<MAX_TESTS; i++) if (testslot[i].name) n++;
-    TestSlot **ts = (TestSlot**) alloca (n * sizeof(TestSlot*));
+    TestSlot **ts = (TestSlot**) malloc (n * sizeof(TestSlot*));
     j = 0;
     for (i=0; i<MAX_TESTS; i++) if (testslot[i].name) ts[j++] = testslot+i;
     if (j != n) dDebug (0,"internal");
@@ -1350,7 +1353,7 @@ int main (int argc, char **argv)
   // setup all tests
 
   memset (testslot,0,sizeof(testslot));
-  dInitODE();
+  dInitODE2(0);
 
   MAKE_TEST(1,test_sphere_point_depth);
   MAKE_TEST(2,test_box_point_depth);

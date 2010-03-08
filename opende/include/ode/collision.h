@@ -26,6 +26,9 @@
 #include <ode/common.h>
 #include <ode/collision_space.h>
 #include <ode/contact.h>
+// Include odeinit.h for backward compatibility as some of initialization APIs 
+// were initally declared in current header.
+#include <ode/odeinit.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -729,6 +732,11 @@ ODE_API void dSpaceCollide (dSpaceID space, void *data, dNearCallback *callback)
  * function may be passed these contained spaces as one or both geom
  * arguments.
  *
+ * @remarks Sublevel value of space affects how the spaces are iterated.
+ * Both spaces are recursed only if their sublevels match. Otherwise, only
+ * the space with greater sublevel is recursed and the one with lesser sublevel
+ * is used as a geom itself.
+ *
  * @remarks dSpaceCollide2() is guaranteed to pass all intersecting geom
  * pairs to the callback function, but may also pass close but
  * non-intersecting pairs. The number of these calls depends on the
@@ -737,6 +745,7 @@ ODE_API void dSpaceCollide (dSpaceID space, void *data, dNearCallback *callback)
  * callback.
  *
  * @sa dSpaceCollide
+ * @sa dSpaceSetSublevel
  * @ingroup collide
  */
 ODE_API void dSpaceCollide2 (dGeomID space1, dGeomID space2, void *data, dNearCallback *callback);
@@ -766,6 +775,7 @@ enum {
   dFirstSpaceClass,
   dSimpleSpaceClass = dFirstSpaceClass,
   dHashSpaceClass,
+  dSweepAndPruneSpaceClass, // SAP
   dQuadTreeSpaceClass,
   dLastSpaceClass = dQuadTreeSpaceClass,
 
@@ -1030,7 +1040,7 @@ ODE_API dGeomID dCreateHeightfield( dSpaceID space,
  * dGeomHeightfieldDataBuildFloat.
  * @ingroup collide
  */
-ODE_API dHeightfieldDataID dGeomHeightfieldDataCreate();
+ODE_API dHeightfieldDataID dGeomHeightfieldDataCreate(void);
 
 
 /**
@@ -1352,8 +1362,7 @@ ODE_API int dBoxBox (const dVector3 p1, const dMatrix3 R1,
 	     int flags, dContactGeom *contact, int skip);
 
 ODE_API void dInfiniteAABB (dGeomID geom, dReal aabb[6]);
-ODE_API void dInitODE(void);
-ODE_API void dCloseODE(void);
+
 
 /* ************************************************************************ */
 /* custom classes */
@@ -1376,6 +1385,17 @@ typedef struct dGeomClass {
 ODE_API int dCreateGeomClass (const dGeomClass *classptr);
 ODE_API void * dGeomGetClassData (dGeomID);
 ODE_API dGeomID dCreateGeom (int classnum);
+
+/**
+ * @brief Sets a custom collider function for two geom classes. 
+ *
+ * @param i The first geom class handled by this collider
+ * @param j The second geom class handled by this collider
+ * @param fn The collider function to use to determine collisions.
+ * @ingroup collide
+ */
+ODE_API void dSetColliderOverride (int i, int j, dColliderFn *fn);
+
 
 /* ************************************************************************ */
 

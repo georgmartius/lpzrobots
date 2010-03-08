@@ -48,10 +48,11 @@ dContactGeom::g1 and dContactGeom::g2.
 dxCapsule::dxCapsule (dSpaceID space, dReal _radius, dReal _length) :
   dxGeom (space,1)
 {
-  dAASSERT (_radius > 0 && _length > 0);
+  dAASSERT (_radius >= 0 && _length >= 0);
   type = dCapsuleClass;
   radius = _radius;
   lz = _length;
+  updateZeroSizedFlag(!_radius/* || !_length -- zero length capsule is not a zero sized capsule*/);
 }
 
 
@@ -81,10 +82,11 @@ dGeomID dCreateCapsule (dSpaceID space, dReal radius, dReal length)
 void dGeomCapsuleSetParams (dGeomID g, dReal radius, dReal length)
 {
   dUASSERT (g && g->type == dCapsuleClass,"argument not a ccylinder");
-  dAASSERT (radius > 0 && length > 0);
+  dAASSERT (radius >= 0 && length >= 0);
   dxCapsule *c = (dxCapsule*) g;
   c->radius = radius;
   c->lz = length;
+  c->updateZeroSizedFlag(!radius/* || !length -- zero length capsule is not a zero sized capsule*/);
   dGeomMoved (g);
 }
 
@@ -137,6 +139,8 @@ int dCollideCapsuleSphere (dxGeom *o1, dxGeom *o2, int flags,
 
   contact->g1 = o1;
   contact->g2 = o2;
+  contact->side1 = -1;
+  contact->side2 = -1;
 
   // find the point on the cylinder axis that is closest to the sphere
   dReal alpha = 
@@ -169,6 +173,8 @@ int dCollideCapsuleBox (dxGeom *o1, dxGeom *o2, int flags,
 
   contact->g1 = o1;
   contact->g2 = o2;
+  contact->side1 = -1;
+  contact->side2 = -1;
 
   // get p1,p2 = cylinder axis endpoints, get radius
   dVector3 p1,p2;
@@ -211,6 +217,8 @@ int dCollideCapsuleCapsule (dxGeom *o1, dxGeom *o2,
 
   contact->g1 = o1;
   contact->g2 = o2;
+  contact->side1 = -1;
+  contact->side2 = -1;
 
   // copy out some variables, for convenience
   dReal lz1 = cyl1->lz * REAL(0.5);
@@ -273,6 +281,8 @@ int dCollideCapsuleCapsule (dxGeom *o1, dxGeom *o2,
 	  if (n2) {
 	    c2->g1 = o1;
 	    c2->g2 = o2;
+		c2->side1 = -1;
+		c2->side2 = -1;
 	    return 2;
 	  }
 	}
@@ -361,8 +371,11 @@ int dCollideCapsulePlane (dxGeom *o1, dxGeom *o2, int flags,
   }
 
   for (int i=0; i < ncontacts; i++) {
-    CONTACT(contact,i*skip)->g1 = o1;
-    CONTACT(contact,i*skip)->g2 = o2;
+    dContactGeom *currContact = CONTACT(contact,i*skip);
+    currContact->g1 = o1;
+    currContact->g2 = o2;
+	currContact->side1 = -1;
+    currContact->side2 = -1;
   }
   return ncontacts;
 }

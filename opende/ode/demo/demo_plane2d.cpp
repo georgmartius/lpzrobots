@@ -6,6 +6,8 @@
 # include       <math.h>
 # include       <ode/ode.h>
 # include       <drawstuff/drawstuff.h>
+#include "texturepath.h"
+
 
 #   define drand48()  ((double) (((double) rand()) / ((double) RAND_MAX)))
 
@@ -16,6 +18,7 @@
 # define        K_SPRING        10.0
 # define        K_DAMP          10.0
 
+//using namespace ode;
 
 static dWorld   dyn_world;
 static dBody    dyn_bodies[N_BODIES];
@@ -31,6 +34,8 @@ static dJointGroup
 static void     cb_start ()
 /*************************/
 {
+	dAllocateODEDataForThread(dAllocateMaskAll);
+
     static float    xyz[3] = { 0.5f*STAGE_SIZE, 0.5f*STAGE_SIZE, 0.65f*STAGE_SIZE};
     static float    hpr[3] = { 90.0f, -90.0f, 0 };
 
@@ -189,7 +194,7 @@ extern int      main
     dsFunctions drawstuff_functions;
 
 
-	 dInitODE();
+	 dInitODE2(0);
 
     // dynamic world
 
@@ -249,7 +254,7 @@ extern int      main
         dGeomSetBody (coll_box_id, dyn_bodies[b].id ());
     }
 
-    coll_contacts.create (0);
+    coll_contacts.create ();
 
     {
         // simulation loop (by drawstuff lib)
@@ -258,7 +263,7 @@ extern int      main
         drawstuff_functions.step = &cb_sim_step;
         drawstuff_functions.command = 0;
         drawstuff_functions.stop = 0;
-        drawstuff_functions.path_to_textures = "../../drawstuff/textures";
+        drawstuff_functions.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
         dsSimulationLoop (argc, argv, 352,288,&drawstuff_functions);
     }

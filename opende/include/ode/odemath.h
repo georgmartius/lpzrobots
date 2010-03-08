@@ -51,23 +51,38 @@
  * General purpose vector operations with other vectors or constants.
  */
 
-#define dOP(a,op,b,c) \
+#define dOP(a,op,b,c) do { \
     (a)[0] = ((b)[0]) op ((c)[0]); \
     (a)[1] = ((b)[1]) op ((c)[1]); \
-    (a)[2] = ((b)[2]) op ((c)[2]);
-#define dOPC(a,op,b,c) \
+    (a)[2] = ((b)[2]) op ((c)[2]); \
+    } while (0)
+#define dOPC(a,op,b,c) do { \
     (a)[0] = ((b)[0]) op (c); \
     (a)[1] = ((b)[1]) op (c); \
-    (a)[2] = ((b)[2]) op (c);
-#define dOPE(a,op,b) \
+    (a)[2] = ((b)[2]) op (c); \
+    } while (0)
+#define dOPE(a,op,b) do {\
     (a)[0] op ((b)[0]); \
     (a)[1] op ((b)[1]); \
-    (a)[2] op ((b)[2]);
-#define dOPEC(a,op,c) \
+    (a)[2] op ((b)[2]); \
+    } while (0)
+#define dOPEC(a,op,c) do { \
     (a)[0] op (c); \
     (a)[1] op (c); \
-    (a)[2] op (c);
+    (a)[2] op (c); \
+    } while (0)
 
+/// Define an equation with operatos
+/// For example this function can be used to replace
+/// <PRE>
+/// for (int i=0; i<3; ++i)
+///   a[i] += b[i] + c[i];
+/// </PRE>
+#define dOPE2(a,op1,b,op2,c) do { \
+    (a)[0] op1 ((b)[0]) op2 ((c)[0]); \
+    (a)[1] op1 ((b)[1]) op2 ((c)[1]); \
+    (a)[2] op1 ((b)[2]) op2 ((c)[2]); \
+    } while (0)
 
 /*
  * Length, and squared length helpers. dLENGTH returns the length of a dVector3.
@@ -245,6 +260,11 @@ do { \
 
 #define DECL template <class TA, class TB, class TC> PURE_INLINE void
 
+/* 
+Note: NEVER call any of these functions/macros with the same variable for A and C, 
+it is not equivalent to A*=B.
+*/
+
 DECL dMULTIPLY0_331(TA *A, const TB *B, const TC *C) { dMULTIPLYOP0_331(A,=,B,C); }
 DECL dMULTIPLY1_331(TA *A, const TB *B, const TC *C) { dMULTIPLYOP1_331(A,=,B,C); }
 DECL dMULTIPLY0_133(TA *A, const TB *B, const TC *C) { dMULTIPLYOP0_133(A,=,B,C); }
@@ -287,31 +307,43 @@ extern "C" {
 /*
  * normalize 3x1 and 4x1 vectors (i.e. scale them to unit length)
  */
-ODE_API int  dSafeNormalize3 (dVector3 a);
-ODE_API int  dSafeNormalize4 (dVector4 a);
 
-// For some reason demo_chain1.c does not understand "inline" keyword.
+#if defined(__ODE__)
+
+int  _dSafeNormalize3 (dVector3 a);
+int  _dSafeNormalize4 (dVector4 a);
+	
 static __inline void _dNormalize3(dVector3 a)
 {
-	int bNormalizationResult = dSafeNormalize3(a);
+	int bNormalizationResult = _dSafeNormalize3(a);
 	dIASSERT(bNormalizationResult);
 	dVARIABLEUSED(bNormalizationResult);
 }
 
 static __inline void _dNormalize4(dVector4 a)
 {
-	int bNormalizationResult = dSafeNormalize4(a);
+	int bNormalizationResult = _dSafeNormalize4(a);
 	dIASSERT(bNormalizationResult);
 	dVARIABLEUSED(bNormalizationResult);
 }
 
+#endif // defined(__ODE__)
+
 // For DLL export
+ODE_API int  dSafeNormalize3 (dVector3 a);
+ODE_API int  dSafeNormalize4 (dVector4 a);
 ODE_API void dNormalize3 (dVector3 a); // Potentially asserts on zero vec
 ODE_API void dNormalize4 (dVector4 a); // Potentially asserts on zero vec
 
+#if defined(__ODE__)
+
 // For internal use
+#define dSafeNormalize3(a) _dSafeNormalize3(a)
+#define dSafeNormalize4(a) _dSafeNormalize4(a)
 #define dNormalize3(a) _dNormalize3(a)
 #define dNormalize4(a) _dNormalize4(a)
+
+#endif // defined(__ODE__)
 
 /*
  * given a unit length "normal" vector n, generate vectors p and q vectors
@@ -322,6 +354,10 @@ ODE_API void dNormalize4 (dVector4 a); // Potentially asserts on zero vec
  */
 
 ODE_API void dPlaneSpace (const dVector3 n, dVector3 p, dVector3 q);
+/* Makes sure the matrix is a proper rotation */
+ODE_API void dOrthogonalizeR(dMatrix3 m);
+
+
 
 #ifdef __cplusplus
 }
