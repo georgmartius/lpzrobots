@@ -24,7 +24,10 @@
 *  DESCRIPTION                                                            *
 *                                                                         *
 *   $Log$
-*   Revision 1.4  2009-08-11 12:05:43  robot12
+*   Revision 1.5  2010-03-08 15:43:30  martius
+*   order of initialization
+*
+*   Revision 1.4  2009/08/11 12:05:43  robot12
 *   disabled test output
 *
 *   Revision 1.3  2009/08/10 07:39:31  guettler
@@ -97,7 +100,7 @@
 #include <cstdlib>
 
 
-ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins ) : AbstractMeasure( measureName ), mode( mode ), numberBins( numberBins ), F(0), historyIndexList(0)
+ComplexMeasure::ComplexMeasure( const char* measureName, ComplexMeasureMode mode, int numberBins ) : AbstractMeasure( measureName ), mode( mode ), numberBins( numberBins ), historyIndexList(0), F(0)
 {
   historySize=2;
   historyIndex=-1;
