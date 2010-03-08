@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-03-08 07:20:00  guettler
+ *  - remove const return from some methods
+ *  - fixed setPose
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *                       *
  *                                                                         *
@@ -83,7 +87,7 @@ class XMLHelper {
      * @param defaultValue the defaultValue if nodeValue cannot be read
      * @return the value of the node
      */
-    static const std::string getNodeValueAsString(const xercesc_3_1::DOMNode* node, const std::string defaultValue = "");
+    static std::string getNodeValueAsString(const xercesc_3_1::DOMNode* node, const std::string defaultValue = "");
 
     // implementation note: Yes I could have used a template function, but...who cares ;)
     /**
@@ -94,8 +98,8 @@ class XMLHelper {
      * @param defaultValue the defaultValue if nodeValue cannot be read
      * @return the value of the node
      */
-    static const std::string getChildNodeValueAsString(const xercesc_3_1::DOMNode* node, const std::string childNodeName, const std::string childValue, const std::string defaultValue = "");
-    static const std::string getNodeAttAsString(const xercesc_3_1::DOMNode* node, const std::string value, const std::string defaultValue = "");
+    static std::string getChildNodeValueAsString(const xercesc_3_1::DOMNode* node, const std::string childNodeName, const std::string childValue, const std::string defaultValue = "");
+    static std::string getNodeAttAsString(const xercesc_3_1::DOMNode* node, const std::string value, const std::string defaultValue = "");
 
     /**
      * Returns the value of the node if it can be parsed into double
@@ -104,8 +108,8 @@ class XMLHelper {
      * @param defaultValue the defaultValue if nodeValue cannot be read
      * @return the value of the node
      */
-    static const double getNodeValue(const xercesc_3_1::DOMNode* node, const double defaultValue = 0.0);
-    static const double getNodeAtt(const xercesc_3_1::DOMNode* node,  const std::string value, const double defaultValue = 0.0);
+    static double getNodeValue(const xercesc_3_1::DOMNode* node, const double defaultValue = 0.0);
+    static double getNodeAtt(const xercesc_3_1::DOMNode* node,  const std::string value, const double defaultValue = 0.0);
         /**
      * Returns the value of the childNode if it can be parsed into double
      * Returns defaultValue if parsing was not successful.
@@ -114,7 +118,7 @@ class XMLHelper {
      * @param defaultValue the defaultValue if nodeValue cannot be read
      * @return the value of the node
      */
-    static const double getChildNodeValue(const xercesc_3_1::DOMNode* node, const std::string childNodeName, const std::string childValue, const double defaultValue = 0.0);
+    static double getChildNodeValue(const xercesc_3_1::DOMNode* node, const std::string childNodeName, const std::string childValue, const double defaultValue = 0.0);
 
     /**
      * Returns the first childNode of the node with the given childNodeName.
@@ -156,7 +160,7 @@ class XMLHelper {
      * @param node the parent node which contains the position and rotation node
      * @return the pose Matrix (containing translation and rotation)
      */
-    static const osg::Matrix getPose(const xercesc_3_1::DOMNode* node);
+    static const osg::Matrix getPose(const xercesc_3_1::DOMNode* node, double forcedScale = 0 );
 
     /**
      * Returns the color of the given node.

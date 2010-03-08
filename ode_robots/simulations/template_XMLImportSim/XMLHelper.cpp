@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-03-08 07:20:00  guettler
+ *  - remove const return from some methods
+ *  - fixed setPose
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *                       *
  *                                                                         *
@@ -43,6 +47,8 @@
 
 #include <string>
 #include <stdlib.h>
+
+#include <ode_robots/mathutils.h>
 
 using namespace xercesc_3_1;
 using namespace std;
@@ -128,7 +134,7 @@ const bool XMLHelper::matchesName(const DOMNode* childNode, const string childNo
   return false;
 }
 
-const double XMLHelper::getNodeValue(const DOMNode* node, const double defaultValue /* = 0.0 */)
+double XMLHelper::getNodeValue(const DOMNode* node, const double defaultValue /* = 0.0 */)
 {
   if (node!=0) {
     try {
@@ -140,7 +146,7 @@ const double XMLHelper::getNodeValue(const DOMNode* node, const double defaultVa
   return defaultValue;
 }
 
-const double XMLHelper::getNodeAtt(const DOMNode* node, const string value, const double defaultValue /* = 0.0 */)
+double XMLHelper::getNodeAtt(const DOMNode* node, const string value, const double defaultValue /* = 0.0 */)
 {
 	  if (node!=0) {
 		const DOMNode* attributeNode = node->getAttributes()->getNamedItem(X(value));
@@ -151,7 +157,7 @@ const double XMLHelper::getNodeAtt(const DOMNode* node, const string value, cons
 	  return defaultValue;
 }
 
-const string XMLHelper::getNodeAttAsString(const DOMNode* node, const string value, const string defaultValue /* = "" */)
+string XMLHelper::getNodeAttAsString(const DOMNode* node, const string value, const string defaultValue /* = "" */)
 {
   if (node!=0) {
 	const DOMNode* attributeNode = node->getAttributes()->getNamedItem(X(value));
@@ -163,7 +169,7 @@ const string XMLHelper::getNodeAttAsString(const DOMNode* node, const string val
 }
 
 
-const double XMLHelper::getChildNodeValue(const DOMNode* node, const string childNodeName, const string childValue, const double defaultValue /* = 0.0 */)
+double XMLHelper::getChildNodeValue(const DOMNode* node, const string childNodeName, const string childValue, const double defaultValue /* = 0.0 */)
 {
 	  if (node!=0) {
 		const DOMNode* childNode = getChildNode(node,childNodeName);
@@ -175,7 +181,7 @@ const double XMLHelper::getChildNodeValue(const DOMNode* node, const string chil
 	  return defaultValue;
 }
 
-const string XMLHelper::getNodeValueAsString(const DOMNode* node, const string defaultValue /* = "" */)
+string XMLHelper::getNodeValueAsString(const DOMNode* node, const string defaultValue /* = "" */)
 {
   if (node!=0) {
     try {
@@ -187,7 +193,7 @@ const string XMLHelper::getNodeValueAsString(const DOMNode* node, const string d
   return defaultValue;
 }
 
-const string XMLHelper::getChildNodeValueAsString(const DOMNode* node, const string childNodeName, const string childValue, const string defaultValue /* = "" */)
+string XMLHelper::getChildNodeValueAsString(const DOMNode* node, const string childNodeName, const string childValue, const string defaultValue /* = "" */)
 {
   if (node!=0) {
 	const DOMNode* childNode = getChildNode(node,childNodeName);
@@ -252,14 +258,12 @@ const Vec3 XMLHelper::getRotation(const DOMNode* node) {
   return Vec3(0,0,0);
 }
 
-const Matrix XMLHelper::getPose(const DOMNode* node) {
-  const Vec3 rotation = getRotation(node);
-  const double scaleFactor = getNodeAtt(node, XMLDefinitions::scaleAtt, 1.0);
-  return (Matrix::rotate(rotation.x(),1,0,0)
-        * Matrix::rotate(rotation.y(),0,1,0)
-        * Matrix::rotate(rotation.z(),0,0,1)) *
-      (Matrix::scale(scaleFactor, scaleFactor, scaleFactor) *
-          Matrix::translate(getPosition(node)));
+const Matrix XMLHelper::getPose(const DOMNode* node, double forcedScale /* = 0 */) {
+  const Vec3 rot = getRotation(node);
+  double scale = forcedScale==0 ? getNodeAtt(node, XMLDefinitions::scaleAtt, 1.0) : forcedScale;
+  const Vec3 pos = getPosition(node);
+  return osgRotate(rot[0]*M_PI/180.0f,rot[1]*M_PI/180.0f,rot[2]*M_PI/180.0f)
+                   *osg::Matrix::translate(scale*pos[0],scale*pos[1],scale*pos[2]);
 }
 
 const lpzrobots::Color XMLHelper::getColor(const DOMNode* node) {
