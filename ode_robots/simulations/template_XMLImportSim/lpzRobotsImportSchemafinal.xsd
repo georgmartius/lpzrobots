@@ -186,7 +186,7 @@
 	</xs:complexType>
 	<xs:complexType name="CameraNodeType">
 		<xs:choice>
-			<xs:element name="StandardCamera">
+			<xs:element name="StandardMode">
 				<xs:complexType>
 					<xs:complexContent>
 						<xs:extension base="StandardCamModeType"/>

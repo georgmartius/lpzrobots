@@ -40,7 +40,7 @@
 		</Sphere>
 		-->
 		<Mesh id="Tree1">
-			<Position X="-1" Y="0.2" Z="0.0"/>
+			<Position X="-1" Y="0.2" Z="0.4"/>
 			<Rotation Alpha="0" Gamma="0" Beta="0"/>
 			<GraphicalRepresentation animated="0" Filename="Meshes/tree1.osg" visible="1" scaling="0.01" >
 				<Color alpha="255" red="255" green="255" blue="0"/>
@@ -263,10 +263,10 @@
 		 -->
 	</Agents>
 	<Camera id="StandardCamera">
-	  <StandardCamera>
-      <Position X="6.00098" Y="-18.8261" Z="11.6257"/>
-      <Rotation Alpha="16.5392" Beta="-32.364" Gamma="0"/>	  
-    </StandardCamera>
+	  <StandardMode>
+      <Position X="15.5999" Y="9.02553" Z="12.5656"/>
+      <Rotation Alpha="120.91" Beta="-37.9598" Gamma="0"/>	  
+    </StandardMode>
 	</Camera>
 	<Lights>
 		<StandardLight id="Light">true</StandardLight>

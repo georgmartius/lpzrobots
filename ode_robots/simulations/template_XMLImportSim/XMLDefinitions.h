@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-03-08 07:18:56  guettler
+ *  StandardCamera renamed to StandardMode
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *										   *
  *                                                                         *
@@ -135,7 +138,7 @@ namespace XMLDefinitions {
 
   // Camera related nodes
   const static char* cameraNode               = "Camera";
-  const static char* standardCameraModeNode   = "StandardCamera";
+  const static char* cameraStandardModeNode   = "StandardMode";
 };
 
 #endif /* __XMLDEFINITIONS_H_ */

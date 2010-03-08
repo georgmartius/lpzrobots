@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-03-08 07:19:14  guettler
+ *  StandardCamera renamed to StandardMode
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *										   *
  *                                                                         *
@@ -207,7 +210,7 @@ bool XMLParserEngine::loadXMLFile(string XMLFile)
         	  for EACHCHILDNODE(nodeOfScene, CameraNode)
 			  {
         		  cout << "Camera found " << endl;
-        		  if (XMLHelper::matchesName(CameraNode,XMLDefinitions::standardCameraModeNode))
+        		  if (XMLHelper::matchesName(CameraNode,XMLDefinitions::cameraStandardModeNode))
         		  {
 					  cout << "  StandardCamera found " << endl;
 					  //war protected geändert auf public in simulation.h
