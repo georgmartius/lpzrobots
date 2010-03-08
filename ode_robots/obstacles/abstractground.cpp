@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-04-02 10:12:25  martius
+ *   Revision 1.18  2010-03-08 16:07:45  guettler
+ *   fixed display bug that abstractground is not on top of world plane
+ *
+ *   Revision 1.17  2009/04/02 10:12:25  martius
  *   Texture handling changed
  *
  *   Revision 1.16  2009/03/13 09:19:53  martius
@@ -213,7 +216,7 @@ namespace lpzrobots {
       groundPlane->setTexture(groundTextureFileName,-5,-5);
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-5.0f+0.001f) * pose);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-5.0f+0.002f) * pose);
       obst.push_back(groundPlane);
     }
   }
