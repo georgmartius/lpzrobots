@@ -30,7 +30,7 @@ LIBS   = -lm \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
 	`ode-config --libs` \
 	-losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
-	-lreadline -lncurses -lpthread
+	-lreadline -lncurses -lpthread -l$(ADDITIONAL_LIBS)
 
 INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
