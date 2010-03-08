@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-10 07:34:49  guettler
+ *  Revision 1.2  2010-03-08 15:42:49  martius
+ *  unsigned
+ *
+ *  Revision 1.1  2009/08/10 07:34:49  guettler
  *  -Base classes which support use of design pattern
  *   mediator - similar to callbackable, but with more functionality:
  *   The mediator takes a more central role in mediation, the collegues
@@ -66,13 +69,13 @@ class Mediator
 
     void removeAllMediatorCollegues();
 
-    MediatorCollegue* getMediatorCollegue(int index);
+    MediatorCollegue* getMediatorCollegue(unsigned int index);
 
     unsigned int getMediatorCollegueIndex(MediatorCollegue* collegue);
 
     unsigned int getNumberOfMediatorCollegues();
 
-    void mediate(int indexOfMediatorCollegue, MediatorEvent* event);
+    void mediate(unsigned int indexOfMediatorCollegue, MediatorEvent* event);
 
     void mediate(MediatorCollegue* collegue, MediatorEvent* event);
 

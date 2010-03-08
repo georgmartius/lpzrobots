@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-10 07:34:49  guettler
+ *  Revision 1.2  2010-03-08 15:42:49  martius
+ *  unsigned
+ *
+ *  Revision 1.1  2009/08/10 07:34:49  guettler
  *  -Base classes which support use of design pattern
  *   mediator - similar to callbackable, but with more functionality:
  *   The mediator takes a more central role in mediation, the collegues
@@ -56,7 +59,7 @@ void Mediator::addMediatorCollegue(MediatorCollegue *collegue)
   collegueList.push_back(collegue);
 }
 
-MediatorCollegue* Mediator::getMediatorCollegue(int index)
+MediatorCollegue* Mediator::getMediatorCollegue(unsigned int index)
 {
   assert(index < getNumberOfMediatorCollegues());
   return collegueList[index];
@@ -75,7 +78,7 @@ unsigned int Mediator::getNumberOfMediatorCollegues()
   return (unsigned int) collegueList.size();
 }
 
-void Mediator::mediate(int indexOfMediatorCollegue, MediatorEvent* event)
+void Mediator::mediate(unsigned int indexOfMediatorCollegue, MediatorEvent* event)
 {
   if (indexOfMediatorCollegue<getNumberOfMediatorCollegues())
     getMediatorCollegue(indexOfMediatorCollegue)->doOnMediatorCallBack(event);
