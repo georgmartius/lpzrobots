@@ -34,7 +34,7 @@ LIBS   = -lm \
 	-l$(SELFORGLIB) \
 	-lode -L/opt/local/lib \
 	-losgShadow -losgText -losgUtil -losgViewer -losgGA -losgDB -lOpenThreads -losg -lGL -lGLU -lglut \
-	-lreadline -lncurses -lpthread -l$(ADDITIONAL_LIBS)
+	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
 
 INC   = -I. -I/opt/local/include
 
