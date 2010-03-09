@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-05 14:32:55  martius
+ *   Revision 1.6  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.5  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -49,7 +52,7 @@
 #include <stdio.h>
 
 // include ode library
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>

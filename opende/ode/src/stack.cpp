@@ -25,8 +25,8 @@
 #include <string.h>
 #include <errno.h>
 #include "stack.h"
-#include "ode/error.h"
-#include "ode/config.h"
+#include <ode-dbl/error.h>
+#include <ode-dbl/config.h>
 
 //****************************************************************************
 // unix version that uses mmap(). some systems have anonymous mmaps and some

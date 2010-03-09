@@ -25,12 +25,12 @@
 // By Bram Stolk.
 // Press the spacebar to reset the position of the ball.
 
-#include <ode/config.h>
+#include <ode-dbl/config.h>
 #include <assert.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 
 #include "basket_geom.h" // this is our world mesh

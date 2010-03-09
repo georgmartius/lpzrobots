@@ -23,7 +23,7 @@
 #ifndef _ODE_QUICK_STEP_H_
 #define _ODE_QUICK_STEP_H_
 
-#include <ode/common.h>
+#include <ode-dbl/common.h>
 
 
 void dxQuickStepper (dxWorld *world, dxBody * const *body, int nb,

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-05-11 17:03:07  martius
+ *   Revision 1.17  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.16  2009/05/11 17:03:07  martius
  *   minor substance change
  *
  *   Revision 1.15  2009/03/13 09:19:53  martius
@@ -114,7 +117,7 @@
  *
  ***************************************************************************/
 #include <assert.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include primitives (box, spheres, cylinders ...)
 #include "primitive.h"

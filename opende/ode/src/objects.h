@@ -26,9 +26,9 @@
 #ifndef _ODE_OBJECT_H_
 #define _ODE_OBJECT_H_
 
-#include <ode/common.h>
-#include <ode/memory.h>
-#include <ode/mass.h>
+#include <ode-dbl/common.h>
+#include <ode-dbl/memory.h>
+#include <ode-dbl/mass.h>
 #include "array.h"
 
 

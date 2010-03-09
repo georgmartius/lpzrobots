@@ -21,12 +21,12 @@
  *************************************************************************/
 
 // Test for non-capped cylinder, by Bram Stolk
-#include <ode/odeconfig.h>
+#include <ode-dbl/odeconfig.h>
 #include <assert.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 #include "texturepath.h"
 

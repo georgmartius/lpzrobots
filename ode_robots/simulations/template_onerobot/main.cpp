@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2009-08-05 23:25:57  martius
+ *   Revision 1.24  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.23  2009/08/05 23:25:57  martius
  *   adapted small things to compile with changed Plotoptions
  *
  *   Revision 1.22  2008/05/01 22:03:56  martius
@@ -112,7 +115,7 @@
 #include <stdio.h>
 
 // include ode library
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>

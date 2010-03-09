@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2010-03-07 22:46:51  guettler
+ *   Revision 1.22  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.21  2010/03/07 22:46:51  guettler
  *   support for manually setting the substance (substance was overwritten in initialise methods)
  *
  *   Revision 1.20  2010/01/26 09:38:17  martius
@@ -163,7 +166,7 @@
 #define __PRIMITIVE_H
 
 #include <osg/Matrix>
-#include <ode/common.h>
+#include <ode-dbl/common.h>
 
 #include "pos.h"
 #include "substance.h"

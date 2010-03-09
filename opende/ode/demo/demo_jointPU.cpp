@@ -37,7 +37,7 @@
 */
 
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 #include <iostream>
 #include <math.h>

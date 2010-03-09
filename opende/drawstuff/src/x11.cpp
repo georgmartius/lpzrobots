@@ -22,7 +22,7 @@
 
 // main window and event handling for X11
 
-#include <ode/odeconfig.h>
+#include <ode-dbl/odeconfig.h>
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>

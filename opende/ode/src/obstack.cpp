@@ -20,9 +20,9 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/common.h>
-#include <ode/error.h>
-#include <ode/memory.h>
+#include <ode-dbl/common.h>
+#include <ode-dbl/error.h>
+#include <ode-dbl/memory.h>
 #include "obstack.h"
 #include "util.h"
 

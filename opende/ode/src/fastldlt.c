@@ -1,6 +1,6 @@
 /* generated code, do not edit. */
 
-#include "ode/matrix.h"
+#include <ode-dbl/matrix.h>
 
 /* solve L*X=B, with B containing 1 right hand sides.
  * L is an n*n lower triangular matrix with ones on the diagonal.

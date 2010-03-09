@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-03-03 14:54:17  martius
+ *   Revision 1.13  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.12  2010/03/03 14:54:17  martius
  *   added description for parameters
  *
  *   Revision 1.11  2009/08/10 14:48:15  der
@@ -91,7 +94,7 @@
  ***************************************************************************/
 #include "odeconfig.h"
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include "mathutils.h"
 
 namespace lpzrobots {

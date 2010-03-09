@@ -43,7 +43,10 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.2  2009-08-21 09:49:08  robot12
+ *   Revision 1.3  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.2  2009/08/21 09:49:08  robot12
  *   (guettler) support for tasked simulations.
  *   - use the simulation template_taskedSimulations.
  *   - merged (not completely) from lpzrobots_tasked.
@@ -66,7 +69,7 @@
 #include <stdio.h>
 
 // include all necessary stuff
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <selforg/noisegenerator.h>
 #include <ode_robots/odeagent.h>
 #include <selforg/one2onewiring.h>

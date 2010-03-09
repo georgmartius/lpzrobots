@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-07-29 14:19:49  jhoffmann
+ *   Revision 1.9  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.8  2009/07/29 14:19:49  jhoffmann
  *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
  *
  *   Revision 1.7  2008/05/07 16:45:52  martius
@@ -60,7 +63,7 @@
  ***************************************************************************/
 
 #include <assert.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <osg/Matrix>
 
 #include "raysensorbank.h"

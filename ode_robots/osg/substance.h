@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2008-09-11 15:24:01  martius
+ *   Revision 1.8  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.7  2008/09/11 15:24:01  martius
  *   motioncallback resurrected
  *   noContact substance
  *   use slider center of the connecting objects for slider drawing
@@ -74,8 +77,8 @@ In general:
 #ifndef __SUBSTANCE_H
 #define __SUBSTANCE_H
 
-#include<ode/common.h>
-#include<ode/contact.h> 
+#include<ode-dbl/common.h>
+#include<ode-dbl/contact.h> 
 
 namespace lpzrobots {
 

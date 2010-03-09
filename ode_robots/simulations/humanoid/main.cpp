@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2009-10-09 17:18:03  martius
+ *   Revision 1.22  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.21  2009/10/09 17:18:03  martius
  *   removed orientationsensors for now to enable configurable and inspectable
  *
  *   Revision 1.20  2009/09/18 15:07:18  martius
@@ -126,7 +129,7 @@
 #include <stdio.h>
 
 // include ode library
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>

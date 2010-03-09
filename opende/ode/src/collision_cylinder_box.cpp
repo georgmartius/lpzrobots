@@ -25,10 +25,10 @@
  *  Ported to ODE by Nguyen Binh
  */
 
-#include <ode/collision.h>
-#include <ode/matrix.h>
-#include <ode/rotation.h>
-#include <ode/odemath.h>
+#include <ode-dbl/collision.h>
+#include <ode-dbl/matrix.h>
+#include <ode-dbl/rotation.h>
+#include <ode-dbl/odemath.h>
 #include "collision_util.h"
 
 static const int MAX_CYLBOX_CLIP_POINTS  = 16;

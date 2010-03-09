@@ -31,8 +31,8 @@ ODE Thread Local Storage access stub implementation.
 
 */
 
-#include <ode/common.h>
-#include <ode/odemath.h>
+#include <ode-dbl/common.h>
+#include <ode-dbl/odemath.h>
 #include "config.h"
 #include "odetls.h"
 #include "collision_trimesh_internal.h"

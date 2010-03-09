@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-07-14 12:23:35  martius
+ *   Revision 1.3  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.2  2006/07/14 12:23:35  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.1.2.1  2005/12/06 10:13:24  martius
@@ -38,7 +41,7 @@
 #ifndef __OSGMAINLOOP_H
 #define __OSGMAINLOOP_H
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 #include "odehandle.h"
 #include "globaldata.h"

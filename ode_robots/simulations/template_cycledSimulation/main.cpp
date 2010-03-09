@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-08-11 12:30:39  robot12
+ *   Revision 1.4  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.3  2009/08/11 12:30:39  robot12
  *   update the simstep variable from "this" to globalData! (guettler)
  *
  *   Revision 1.2  2009/07/02 10:05:59  guettler
@@ -36,7 +39,7 @@
 #include <stdio.h>
 
 // include ode library
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>

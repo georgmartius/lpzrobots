@@ -22,7 +22,7 @@
 
 /* exercise the C++ interface */
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 
 #ifdef _MSC_VER

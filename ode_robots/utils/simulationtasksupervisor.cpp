@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.6  2009-10-23 13:04:27  robot12
+ *  Revision 1.7  2010-03-09 11:53:41  martius
+ *  renamed globally ode to ode-dbl
+ *
+ *  Revision 1.6  2009/10/23 13:04:27  robot12
  *  bugfix for hack
  *
  *  Revision 1.5  2009/10/23 12:47:13  guettler
@@ -65,7 +68,7 @@
 // simple multithread api
 #include <selforg/quickmp.h>
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <selforg/stl_adds.h>
 #include <signal.h>
 #include <primitive.h>

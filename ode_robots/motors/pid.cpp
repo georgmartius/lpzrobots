@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-08-19 16:17:59  martius
+ *   Revision 1.19  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.18  2009/08/19 16:17:59  martius
  *   derivative is initialized
  *
  *   Revision 1.17  2009/08/12 10:27:32  der
@@ -69,7 +72,7 @@
  *   GPL added
  *                                                                * 
  ***************************************************************************/
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <iostream>
 
 

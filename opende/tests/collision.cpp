@@ -1,5 +1,5 @@
 #include <UnitTest++.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 TEST(test_collision_trimesh_sphere_exact)
 {

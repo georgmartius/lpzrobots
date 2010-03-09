@@ -23,8 +23,8 @@
 //        1         2         3         4         5         6         7
 
 #include <UnitTest++.h>
-#include <ode/ode.h>
-#include "ode/odemath.h"
+#include <ode-dbl/ode.h>
+#include <ode-dbl/odemath.h>
 
 
 

@@ -1,0 +1,211 @@
+diff -ruN ode-0.11.1//configure.in opende//configure.in
+--- ode-0.11.1//configure.in	2009-06-09 05:28:52.000000000 +0200
++++ opende//configure.in	2010-03-09 10:42:17.000000000 +0100
+@@ -1,7 +1,7 @@
+ dnl AC_INIT does not take a macro as a version nr: set it separately! - Bram
+ AC_INIT([ODE],[0.11.1],[ode@ode.org])
+ # AC_CONFIG_SRCDIR([ode/src/ode.cpp])
+-ODE_RELEASE=0.11.1
++ODE_RELEASE=0.11.1-dbl
+ AC_SUBST(ODE_RELEASE)
+ 
+ # Those are instructions from the Libtool manual:
+@@ -129,7 +129,7 @@
+         AS_HELP_STRING([--enable-double-precision],
+         [Configure ODE to work with double precision, if not specified, single precision is used]
+         ),
+-        precision=$enableval,precision=no)
++        precision=$enableval,precision=yes)
+ AC_MSG_RESULT([$precision])
+ if test "$precision" = yes;
+ then
+@@ -408,7 +408,7 @@
+ AC_CONFIG_FILES([
+  Makefile
+  include/Makefile
+- include/ode/Makefile
++ include/ode-dbl/Makefile
+  include/drawstuff/Makefile
+  ode/Makefile
+  ode/src/Makefile
+@@ -428,12 +428,12 @@
+  tests/UnitTest++/src/Makefile
+  tests/UnitTest++/src/Posix/Makefile
+  tests/UnitTest++/src/Win32/Makefile
+- ode-config
+- ode.pc
++ ode-dbl-config
++ ode-dbl.pc
+  ])
+ AC_OUTPUT
+ 
+-chmod +x ode-config
++chmod +x ode-dbl-config
+ 
+ BUILDDIR=`pwd`
+ 
+@@ -451,7 +451,7 @@
+ echo "  Use old opcode trimesh collider: $old_trimesh"
+ echo "  TLS for global data:     $use_ou"
+ echo "  Enable debug error check: $asserts"
+-echo "  Headers will be installed in $includedir/ode"
++echo "  Headers will be installed in $includedir/ode-dbl"
+ echo "  Libraries will be installed in $libdir"
+ echo "  Building in directory    $BUILDDIR"
+ 
+diff -ruN ode-0.11.1//include/Makefile.am opende//include/Makefile.am
+--- ode-0.11.1//include/Makefile.am	2009-06-09 05:25:23.000000000 +0200
++++ opende//include/Makefile.am	2010-03-09 10:03:03.000000000 +0100
+@@ -1 +1 @@
+-SUBDIRS = ode drawstuff
++SUBDIRS = ode-dbl drawstuff
+diff -ruN ode-0.11.1//Makefile.am opende//Makefile.am
+--- ode-0.11.1//Makefile.am	2009-10-17 01:00:35.000000000 +0200
++++ opende//Makefile.am	2010-03-09 10:37:48.000000000 +0100
+@@ -22,7 +22,7 @@
+           ode \
+           tests
+ 
+-bin_SCRIPTS = ode-config
++bin_SCRIPTS = ode-dbl-config
+ 
+ # Utility rule for making a release
+ release: dist-gzip dist-bzip2
+@@ -32,4 +32,4 @@
+         CHANGELOG.txt INSTALL.txt README.txt LICENSE.TXT LICENSE-BSD.TXT
+ 
+ pkgconfigdir = $(libdir)/pkgconfig
+-pkgconfig_DATA = ode.pc
++pkgconfig_DATA = ode-dbl.pc
+diff -ruN ode-0.11.1//ode/src/Makefile.am opende//ode/src/Makefile.am
+--- ode-0.11.1//ode/src/Makefile.am	2009-06-09 05:28:28.000000000 +0200
++++ opende//ode/src/Makefile.am	2010-03-09 10:41:00.000000000 +0100
+@@ -9,14 +9,14 @@
+ 
+ 
+ 
+-lib_LTLIBRARIES = libode.la
++lib_LTLIBRARIES = libode_dbl.la
+ 
+-libode_la_LDFLAGS = @EXTRA_LIBTOOL_LDFLAGS@ @ODE_VERSION_INFO@
+-libode_la_LIBADD = libfast.la joints/libjoints.la
++libode_dbl_la_LDFLAGS = @EXTRA_LIBTOOL_LDFLAGS@ @ODE_VERSION_INFO@
++libode_dbl_la_LIBADD = libfast.la joints/libjoints.la
+ 
+ 
+ # please, let's keep the filenames sorted
+-libode_la_SOURCES =     array.cpp array.h \
++libode_dbl_la_SOURCES =     array.cpp array.h \
+                         box.cpp \
+                         capsule.cpp \
+                         collision_cylinder_box.cpp \
+@@ -71,8 +71,8 @@
+ if ENABLE_OU
+ 
+ AM_CPPFLAGS += -I$(top_srcdir)/ou/include
+-libode_la_LIBADD += $(top_builddir)/ou/src/ou/libou.la
+-libode_la_SOURCES +=    odetls.cpp odetls.h \
++libode_dbl_la_LIBADD += $(top_builddir)/ou/src/ou/libou.la
++libode_dbl_la_SOURCES +=    odetls.cpp odetls.h \
+                         odeou.cpp odeou.h
+ 
+ endif
+@@ -85,10 +85,10 @@
+ 
+ if GIMPACT
+ AM_CPPFLAGS += -DdTRIMESH_ENABLED -DdTRIMESH_GIMPACT -I$(top_srcdir)/GIMPACT/include
+-libode_la_SOURCES+= collision_trimesh_gimpact.cpp
++libode_dbl_la_SOURCES+= collision_trimesh_gimpact.cpp
+ 
+-libode_la_LIBADD += $(top_builddir)/GIMPACT/src/libGIMPACT.la
+-libode_la_SOURCES +=    collision_trimesh_trimesh.cpp \
++libode_dbl_la_LIBADD += $(top_builddir)/GIMPACT/src/libGIMPACT.la
++libode_dbl_la_SOURCES +=    collision_trimesh_trimesh.cpp \
+                         collision_trimesh_sphere.cpp \
+                         collision_trimesh_ray.cpp \
+                         collision_trimesh_opcode.cpp \
+@@ -109,10 +109,10 @@
+ 
+ if OPCODE
+ AM_CPPFLAGS += -I$(top_srcdir)/OPCODE -I$(top_srcdir)/OPCODE/Ice -DdTRIMESH_ENABLED -DdTRIMESH_OPCODE
+-libode_la_LIBADD += $(top_builddir)/OPCODE/libOPCODE.la \
++libode_dbl_la_LIBADD += $(top_builddir)/OPCODE/libOPCODE.la \
+                     $(top_builddir)/OPCODE/Ice/libIce.la
+ 
+-libode_la_SOURCES+=     collision_trimesh_trimesh.cpp \
++libode_dbl_la_SOURCES+=     collision_trimesh_trimesh.cpp \
+                         collision_trimesh_trimesh_new.cpp \
+                         collision_trimesh_sphere.cpp \
+                         collision_trimesh_ray.cpp \
+diff -ruN ode-0.11.1//ode-dbl-config.in opende//ode-dbl-config.in
+--- ode-0.11.1//ode-dbl-config.in	1970-01-01 01:00:00.000000000 +0100
++++ opende//ode-dbl-config.in	2010-03-09 11:05:46.000000000 +0100
+@@ -0,0 +1,53 @@
++#!/bin/sh
++
++prefix=@prefix@
++exec_prefix=@exec_prefix@
++exec_prefix_set=no
++
++usage="\
++Usage: ode-dbl-config [--prefix[=DIR]] [--exec-prefix[=DIR]] [--version] [--cflags] [--libs]"
++
++if test $# -eq 0; then
++      echo "${usage}" 1>&2
++      exit 1
++fi
++
++while test $# -gt 0; do
++  case "$1" in
++  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
++  *) optarg= ;;
++  esac
++
++  case $1 in
++    --prefix=*)
++      prefix=$optarg
++      if test $exec_prefix_set = no ; then
++        exec_prefix=$optarg
++      fi
++      ;;
++    --prefix)
++      echo $prefix
++      ;;
++    --exec-prefix=*)
++      exec_prefix=$optarg
++      exec_prefix_set=yes
++      ;;
++    --exec-prefix)
++      echo $exec_prefix
++      ;;
++    --version)
++      echo @ODE_RELEASE@
++      ;;
++    --cflags)
++      echo  -I@includedir@ @ODE_PRECISION@
++      ;;
++    --libs)
++      echo  -L@libdir@ -lode_dbl
++      ;;
++    *)
++      echo "${usage}" 1>&2
++      exit 1
++      ;;
++  esac
++  shift
++done
+diff -ruN ode-0.11.1//ode-dbl.pc.in opende//ode-dbl.pc.in
+--- ode-0.11.1//ode-dbl.pc.in	1970-01-01 01:00:00.000000000 +0100
++++ opende//ode-dbl.pc.in	2010-03-09 11:05:39.000000000 +0100
+@@ -0,0 +1,11 @@
++prefix=@prefix@
++exec_prefix=@exec_prefix@
++libdir=@libdir@
++includedir=@includedir@
++
++Name: ode
++Description: Open Dynamics Engine
++Version: @ODE_RELEASE@
++Libs: -L${libdir} -lode_dbl
++Libs.private: -lstdc++ -lm
++Cflags: -I${includedir} @ODE_PRECISION@

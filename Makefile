@@ -1,12 +1,10 @@
-
-#File:     Makefile for lpzrobot directory
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 
 include Makefile.conf
 
 USAGE   = "Try 'make help' for more..."
 USAGE2  = "lpzrobots Makefile Targets:"
-USAGE3  = " Usually you do:\n  make prepare\n  \#follow instructions to compile ODE\n  make libs \# get a cup of tea\n  sudo make install"
+USAGE3  = "Usually you do:\nmake prepare\nmake ode\t\t\# if not installed\nsudo make install_ode \t\# if not installed\nmake libs \t\t\# get a cup of tea\nsudo make install\n"
 
 ##!help		show this help text (default)
 help: 
@@ -16,7 +14,7 @@ help:
 	@echo -e $(USAGE3)
 
 .PHONY: prepare
-##!prepare	build tools and create dependency files and check for ODE
+##!prepare	build tools and create dependency files (do that first)
 prepare: usage 
 	-$(MAKE) guilogger
 	-$(MAKE) neuronviz
@@ -26,23 +24,28 @@ prepare: usage
 	cd ode_robots && $(MAKE) depend
 	cd ga_tools && $(MAKE) depend
 	-$(MAKE) tags
-	@if test ! -e opende/Makefile; then echo -en "You need to setup ODE from first!\nYou "; else echo -n "If you want to recompile ODE you "; fi
-	@echo -e "have 2 options: use a precompiled one from our webpage or\ncompile the one in opende\nFor compiling please run:\ncd opende; sh autogen.sh\n./configure --enable-release --enable-double-precision\nmake\nsudo make install\n\nOn most SUSE linux computers it's necessary to run thereafter\nsudo ldconfig\nfor a correct linking of the libode.so!\n";
 	@echo "********************************************************************************"
 	@echo "Don't worry if you have seen a lot of errors above."
 	@echo "This is all optional stuff which is not stricly required."
-	@echo "Probably you want to install the ODE and OSG now "
+	@echo "Probably you want to install the ODE (\"make ode\" and \"make install_ode\")"
+	@echo " and Openscenegraph now (e.g. openscenegraph-dev from your linux distribution)"
 	@echo " and then do \"make libs\" and \"(sudo) make install\""
 	@echo "Usually you can use make -j 2 on multicore machines but not for the installation target."
 
-.PHONY: conf
-##!conf		configure the installation prefix and type(again)
-conf: usage
-	-mv Makefile.conf Makefile.conf.bak
-	$(MAKE) Makefile.conf # automatically creates Makefile.conf
+.PHONY: ode
+##!ode		compile open dynamics engine in double precession (custom version)
+ode:
+	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-double-precision --prefix=$(PREFIX) && make && echo "you probably want to run \"make install_ode\" now (possibly as root)"
+
+
+.PHONY: install_ode
+##!install_ode	install the customized ode library (libode_dbl)
+install_ode:
+	@echo "*************** Install ode -double version**********"
+	cd opende && make install
 
 .PHONY: libs
-##!libs		compile libaries in optimised and debug version
+##!libs		compile our libaries in optimized and debug version
 libs: usage
 	@echo "*************** Compile selforg (optimized) *****************"
 	+cd selforg && $(MAKE) clean-all && $(MAKE) opt 	
@@ -65,11 +68,11 @@ libs: usage
 #	-strip --only-keep-debug ga_tools/libga_tools.a
 
 .PHONY: install
-##!install	install utils and possibly libs (if installation type: user)
+##!install	install utils and libs
 install: usage install_utils install_libs
 
 .PHONY: uninstall
-##!uninstall	removes all the installed files again
+##!uninstall	removes all the installed files again (except ode)
 uninstall: uninstall_intern
 
 ##!clean	removed the object files and libs
@@ -92,6 +95,11 @@ clean-all: usage
 
 ##!********* less common targets ***********
 
+.PHONY: conf
+##!conf		configure the installation prefix and installation type (to redo it)
+conf: usage
+	-mv Makefile.conf Makefile.conf.bak
+	$(MAKE) Makefile.conf # automatically creates Makefile.conf
 
 .PHONY: guilogger
 ##!guilogger	compile guilogger
@@ -112,6 +120,14 @@ javactrl:
 ##!soundman	compile soundman (experimental)
 soundman:
 	cd soundman/src	&& javac -d ../class/ SoundMan.java SoundManipulation.java SoundManGUI.java
+
+
+.PHONY: uninstall_ode
+##!uninstall_ode  uninstall the customized ode library
+uninstall_ode:
+	@echo "*************** uninstall ode -double version********"
+	cd opende && make uninstall
+
 
 .PHONY: install_utils
 install_utils:

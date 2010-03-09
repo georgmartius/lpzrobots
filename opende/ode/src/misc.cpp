@@ -20,10 +20,10 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/odeconfig.h>
+#include <ode-dbl/odeconfig.h>
 #include "config.h"
-#include <ode/misc.h>
-#include <ode/matrix.h>
+#include <ode-dbl/misc.h>
+#include <ode-dbl/matrix.h>
 
 //****************************************************************************
 // random numbers

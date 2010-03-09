@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-03-05 14:32:55  martius
+ *   Revision 1.11  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.10  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -65,7 +68,7 @@
 
 #include "odehandle.h"
 #include <assert.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include "primitive.h"
 
 namespace lpzrobots

@@ -20,10 +20,10 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/collision.h>
-#include <ode/matrix.h>
-#include <ode/rotation.h>
-#include <ode/odemath.h>
+#include <ode-dbl/collision.h>
+#include <ode-dbl/matrix.h>
+#include <ode-dbl/rotation.h>
+#include <ode-dbl/odemath.h>
 #include "config.h"
 
 #if dTRIMESH_ENABLED

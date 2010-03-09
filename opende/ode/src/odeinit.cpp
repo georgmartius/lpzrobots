@@ -26,9 +26,9 @@ ODE initialization/finalization code
 
 */
 
-#include <ode/common.h>
-#include <ode/odemath.h>
-#include <ode/odeinit.h>
+#include <ode-dbl/common.h>
+#include <ode-dbl/odemath.h>
+#include <ode-dbl/odeinit.h>
 #include "config.h"
 #include "collision_kernel.h"
 #include "collision_trimesh_internal.h"

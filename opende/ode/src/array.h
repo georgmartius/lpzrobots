@@ -39,7 +39,7 @@
 #ifndef _ODE_ARRAY_H_
 #define _ODE_ARRAY_H_
 
-#include <ode/odeconfig.h>
+#include <ode-dbl/odeconfig.h>
 #include "config.h"
 
 

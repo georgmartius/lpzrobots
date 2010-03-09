@@ -1,6 +1,6 @@
 /* generated code, do not edit. */
 
-#include "ode/matrix.h"
+#include <ode-dbl/matrix.h>
 
 
 dReal dDot (const dReal *a, const dReal *b, int n)

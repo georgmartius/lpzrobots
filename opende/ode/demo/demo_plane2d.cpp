@@ -4,7 +4,7 @@
 # include       <stdio.h>
 # include       <stdlib.h>
 # include       <math.h>
-# include       <ode/ode.h>
+# include       <ode-dbl/ode.h>
 # include       <drawstuff/drawstuff.h>
 #include "texturepath.h"
 

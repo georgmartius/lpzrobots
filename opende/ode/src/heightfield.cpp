@@ -6,11 +6,11 @@
 //  Some code inspired by Magic Software
 
 
-#include <ode/common.h>
-#include <ode/collision.h>
-#include <ode/matrix.h>
-#include <ode/rotation.h>
-#include <ode/odemath.h>
+#include <ode-dbl/common.h>
+#include <ode-dbl/collision.h>
+#include <ode-dbl/matrix.h>
+#include <ode-dbl/rotation.h>
+#include <ode-dbl/odemath.h>
 #include "collision_kernel.h"
 #include "collision_std.h"
 #include "collision_util.h"

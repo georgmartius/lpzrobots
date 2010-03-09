@@ -9,14 +9,14 @@ libfast_la_SOURCES = fastldlt.c fastltsolve.c fastdot.c fastlsolve.c
 
 
 
-lib_LTLIBRARIES = libode.la
+lib_LTLIBRARIES = libode_dbl.la
 
-libode_la_LDFLAGS = @EXTRA_LIBTOOL_LDFLAGS@ @ODE_VERSION_INFO@
-libode_la_LIBADD = libfast.la joints/libjoints.la
+libode_dbl_la_LDFLAGS = @EXTRA_LIBTOOL_LDFLAGS@ @ODE_VERSION_INFO@
+libode_dbl_la_LIBADD = libfast.la joints/libjoints.la
 
 
 # please, let's keep the filenames sorted
-libode_la_SOURCES =     array.cpp array.h \
+libode_dbl_la_SOURCES =     array.cpp array.h \
                         box.cpp \
                         capsule.cpp \
                         collision_cylinder_box.cpp \
@@ -71,8 +71,8 @@ libode_la_SOURCES =     array.cpp array.h \
 if ENABLE_OU
 
 AM_CPPFLAGS += -I$(top_srcdir)/ou/include
-libode_la_LIBADD += $(top_builddir)/ou/src/ou/libou.la
-libode_la_SOURCES +=    odetls.cpp odetls.h \
+libode_dbl_la_LIBADD += $(top_builddir)/ou/src/ou/libou.la
+libode_dbl_la_SOURCES +=    odetls.cpp odetls.h \
                         odeou.cpp odeou.h
 
 endif
@@ -85,10 +85,10 @@ endif
 
 if GIMPACT
 AM_CPPFLAGS += -DdTRIMESH_ENABLED -DdTRIMESH_GIMPACT -I$(top_srcdir)/GIMPACT/include
-libode_la_SOURCES+= collision_trimesh_gimpact.cpp
+libode_dbl_la_SOURCES+= collision_trimesh_gimpact.cpp
 
-libode_la_LIBADD += $(top_builddir)/GIMPACT/src/libGIMPACT.la
-libode_la_SOURCES +=    collision_trimesh_trimesh.cpp \
+libode_dbl_la_LIBADD += $(top_builddir)/GIMPACT/src/libGIMPACT.la
+libode_dbl_la_SOURCES +=    collision_trimesh_trimesh.cpp \
                         collision_trimesh_sphere.cpp \
                         collision_trimesh_ray.cpp \
                         collision_trimesh_opcode.cpp \
@@ -109,10 +109,10 @@ endif
 
 if OPCODE
 AM_CPPFLAGS += -I$(top_srcdir)/OPCODE -I$(top_srcdir)/OPCODE/Ice -DdTRIMESH_ENABLED -DdTRIMESH_OPCODE
-libode_la_LIBADD += $(top_builddir)/OPCODE/libOPCODE.la \
+libode_dbl_la_LIBADD += $(top_builddir)/OPCODE/libOPCODE.la \
                     $(top_builddir)/OPCODE/Ice/libIce.la
 
-libode_la_SOURCES+=     collision_trimesh_trimesh.cpp \
+libode_dbl_la_SOURCES+=     collision_trimesh_trimesh.cpp \
                         collision_trimesh_trimesh_new.cpp \
                         collision_trimesh_sphere.cpp \
                         collision_trimesh_ray.cpp \

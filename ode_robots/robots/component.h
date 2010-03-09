@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2008-09-16 14:53:40  martius
+ *   Revision 1.15  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.14  2008/09/16 14:53:40  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.13  2006/11/30 08:51:39  robot8
@@ -47,7 +50,7 @@
 #include <vector>
 #include <list>
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <cmath>
 
 #include "oderobot.h"

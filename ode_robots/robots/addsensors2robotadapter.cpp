@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-11-07 13:20:16  martius
+ *   Revision 1.4  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.3  2007/11/07 13:20:16  martius
  *   also motors can be added
  *
  *   Revision 1.2  2007/09/06 18:47:59  martius
@@ -32,7 +35,7 @@
  *                                                                 *
  ***************************************************************************/
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <assert.h>
 #include <osg/Matrix>
 

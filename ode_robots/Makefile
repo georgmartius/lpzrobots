@@ -4,7 +4,10 @@
 
 #
 # $Log$
-# Revision 1.28  2010-03-05 14:32:55  martius
+# Revision 1.29  2010-03-09 11:53:41  martius
+# renamed globally ode to ode-dbl
+#
+# Revision 1.28  2010/03/05 14:32:55  martius
 # camera sensor added
 # for that the scenegraph structure was changed into root, world, scene
 # camera does not work with shadows
@@ -38,8 +41,8 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 
 UTILS = install_prefix.conf
 # utils/splitvideo
-
-CPPBASEFLAG = -Wall -Wno-deprecated -pipe -I. -DdDOUBLE -pthread $(INC) 
+ODEFLAGS = $(shell ode-dbl-config --cflags)
+CPPBASEFLAG = -Wall -Wno-deprecated -pipe -I. $(ODEFLAGS) -pthread $(INC) 
 
 CPPFLAGS = -g $(CPPBASEFLAG)
 
@@ -120,8 +123,8 @@ install_prefix.conf:
 	@echo '// e.g. #define PREFIX "/usr/local"'  >> install_prefix.conf
 
 todo:
-	grep -ni "Todo" $(CPPFILES) $(HFILES)
-	grep -ni "Fixme" $(CPPFILES) $(HFILES)
+	@grep -ni "Todo" $(CPPFILES) $(HFILES)
+	@grep -ni "Fixme" $(CPPFILES) $(HFILES)
 
 FIND=`cat tofind`
 find:

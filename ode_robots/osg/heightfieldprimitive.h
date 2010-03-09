@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-07-17 07:18:19  martius
+ *   Revision 1.4  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.3  2007/07/17 07:18:19  martius
  *   setMass added (dummy)
  *
  *   Revision 1.2  2006/07/14 12:23:34  martius
@@ -42,7 +45,7 @@
 
 #include "primitive.h"
 #include "osgheightfield.h"
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 namespace lpzrobots {
 

@@ -22,7 +22,7 @@
 
 // TriMesh test by Erwin de Vries
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 #include "texturepath.h"
 

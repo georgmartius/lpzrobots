@@ -31,7 +31,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <UnitTest++.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 #include "../../ode/src/joints/slider.h"
 

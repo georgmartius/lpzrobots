@@ -23,7 +23,7 @@
 /* exercise the C interface */
 
 #include <stdio.h>
-#include "ode/ode.h"
+#include <ode-dbl/ode.h>
 #include "drawstuff/drawstuff.h"
 #include "texturepath.h"
 

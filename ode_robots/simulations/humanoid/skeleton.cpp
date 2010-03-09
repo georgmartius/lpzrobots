@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-10-09 17:13:59  martius
+ *   Revision 1.19  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.18  2009/10/09 17:13:59  martius
  *   adds description of sensors
  *
  *   Revision 1.17  2009/08/10 14:59:19  der
@@ -94,7 +97,7 @@
  *
  ***************************************************************************/
 #include <assert.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include primitives (box, spheres, cylinders ...)
 #include <ode_robots/primitive.h>

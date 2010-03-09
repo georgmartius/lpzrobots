@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 #include "texturepath.h"
 

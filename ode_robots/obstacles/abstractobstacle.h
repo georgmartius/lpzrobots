@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-04-02 10:12:25  martius
+ *   Revision 1.13  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.12  2009/04/02 10:12:25  martius
  *   Texture handling changed
  *
  *   Revision 1.11  2007/12/06 10:02:49  der
@@ -94,7 +97,7 @@
 #ifndef __ABSTRACTOBSTACLE_H
 #define __ABSTRACTOBSTACLE_H
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 #include "odehandle.h"
 #include "osghandle.h"

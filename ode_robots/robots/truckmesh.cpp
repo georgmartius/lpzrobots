@@ -27,7 +27,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-03-13 09:19:53  martius
+ *   Revision 1.10  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.9  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -122,7 +125,7 @@
  *
  ***************************************************************************/
 #include <assert.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include primitives (box, spheres, cylinders, meshes ...)
 #include "primitive.h"

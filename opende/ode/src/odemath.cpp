@@ -20,8 +20,8 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/common.h>
-#include <ode/odemath.h>
+#include <ode-dbl/common.h>
+#include <ode-dbl/odemath.h>
 
 // get some math functions under windows
 #ifdef WIN32

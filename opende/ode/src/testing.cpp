@@ -20,10 +20,10 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/odeconfig.h>
+#include <ode-dbl/odeconfig.h>
 #include "config.h"
-#include <ode/misc.h>
-#include <ode/memory.h>
+#include <ode-dbl/misc.h>
+#include <ode-dbl/memory.h>
 #include "testing.h"
 
 #ifdef dDOUBLE

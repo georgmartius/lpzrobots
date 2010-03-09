@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2010-03-07 22:39:08  guettler
+ *   Revision 1.27  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.26  2010/03/07 22:39:08  guettler
  *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
  *
  *   Revision 1.25  2010/03/05 14:32:55  martius
@@ -160,7 +163,7 @@
 #ifndef __BASE_H
 #define __BASE_H
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <osg/Transform>
 #include <osgText/Text>
 

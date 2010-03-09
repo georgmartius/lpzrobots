@@ -33,10 +33,10 @@
  *	velocities equally well.
  */
 
-#include <ode/common.h>
-#include <ode/matrix.h>
-#include <ode/collision_space.h>
-#include <ode/collision.h>
+#include <ode-dbl/common.h>
+#include <ode-dbl/matrix.h>
+#include <ode-dbl/collision_space.h>
+#include <ode-dbl/collision.h>
 
 #include "collision_kernel.h"
 #include "collision_space_internal.h"

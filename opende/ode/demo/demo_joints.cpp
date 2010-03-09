@@ -45,7 +45,7 @@ you must verify visually.
 */
 
 #include <ctype.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 #include "texturepath.h"
 

@@ -31,7 +31,7 @@ change the random test conditions.
 */
 
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 
 #ifdef _MSC_VER

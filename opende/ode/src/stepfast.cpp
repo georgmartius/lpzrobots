@@ -30,15 +30,15 @@
 
 #include "objects.h"
 #include "joints/joint.h"
-#include <ode/odeconfig.h>
+#include <ode-dbl/odeconfig.h>
 #include "config.h"
-#include <ode/objects.h>
-#include <ode/odemath.h>
-#include <ode/rotation.h>
-#include <ode/timer.h>
-#include <ode/error.h>
-#include <ode/matrix.h>
-#include <ode/misc.h>
+#include <ode-dbl/objects.h>
+#include <ode-dbl/odemath.h>
+#include <ode-dbl/rotation.h>
+#include <ode-dbl/timer.h>
+#include <ode-dbl/error.h>
+#include <ode-dbl/matrix.h>
+#include <ode-dbl/misc.h>
 #include "lcp.h"
 #include "step.h"
 #include "util.h"

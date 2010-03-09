@@ -20,9 +20,9 @@
  *                                                                       *
  *************************************************************************/
 
-#include <ode/odeconfig.h>
+#include <ode-dbl/odeconfig.h>
 #include "config.h"
-#include <ode/error.h>
+#include <ode-dbl/error.h>
 
 
 static dMessageFunction *error_function = 0;

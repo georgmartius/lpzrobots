@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2006-07-14 12:23:31  martius
+ *   Revision 1.9  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.8  2006/07/14 12:23:31  martius
  *   selforg becomes HEAD
  *
  *   Revision 1.7.4.2  2005/12/06 10:13:23  martius
@@ -52,7 +55,7 @@
 
 #include <math.h>
 #include <drawstuff/drawstuff.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <iostream>
 #include <typeinfo>
 

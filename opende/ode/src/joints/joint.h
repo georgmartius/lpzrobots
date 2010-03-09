@@ -25,7 +25,7 @@
 
 
 #include "../objects.h"
-#include <ode/contact.h>
+#include <ode-dbl/contact.h>
 #include "../obstack.h"
 
 

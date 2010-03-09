@@ -24,18 +24,20 @@ LIBODEROBOTS_PROF = lib$(ODEROBOTSLIB_PROF).a
 SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
 LIBSELFORG = lib$(SELFORGLIB).a
+ODELIBS = $(shell ode-dbl-config --libs)
 
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
-	`ode-config --libs` \
+	 $(ODELIBS) \
 	-losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
-	-lreadline -lncurses -lpthread -$(ADDITIONAL_LIBS)
+	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
 
 INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include
 
 CXX = g++
-CPPBASEFLAGS = `ode-config --cflags` -pthread $(INC) -Wno-deprecated -Wall
+ODEFLAGS = $(shell ode-dbl-config --cflags)
+CPPBASEFLAGS = $(ODEFLAGS) -pthread $(INC) -Wno-deprecated -Wall
 # -pg for profiling
 CPPFLAGS = $(CPPBASEFLAGS) -g 
 ## Optimisation

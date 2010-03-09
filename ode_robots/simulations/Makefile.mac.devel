@@ -28,7 +28,7 @@ LIBSELFORG = lib$(SELFORGLIB).a
 LIBS   = -lm \
 	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
 	-L$(SELFORG)   -l$(SELFORGLIB) \
-	-lode -L/opt/local/lib \
+	-lode_dbl -L/opt/local/lib \
 	-losgShadow -losgText -losgUtil -losgViewer -losgGA -losgDB -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
 

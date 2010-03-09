@@ -2,7 +2,7 @@
   This demo shows how to use dContactMotionN in a lifting platform.
 */
 //#include <unistd.h> // for usleep()
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 #include "texturepath.h"
 

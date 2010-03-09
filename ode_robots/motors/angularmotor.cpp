@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-08-10 14:46:41  der
+ *   Revision 1.9  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.8  2009/08/10 14:46:41  der
  *   power() functions removed because references are bad vor velocity servo
  *   setPower() functions added
  *
@@ -65,7 +68,7 @@
  *                                                                 *
  ***************************************************************************/
 
-#include <ode/objects.h>
+#include <ode-dbl/objects.h>
 #include "mathutils.h"
 #include "angularmotor.h"
 #include "odehandle.h"

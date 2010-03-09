@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2008-05-05 13:42:13  guettler
+ *   Revision 1.7  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.6  2008/05/05 13:42:13  guettler
  *   new iafcontroller tested
  *
  *   Revision 1.5  2008/05/05 06:26:47  guettler
@@ -49,7 +52,7 @@
 #include <ode_robots/simulation.h>
 
 // include ode library
-//#include <ode/ode.h>
+//#include <ode-dbl/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>

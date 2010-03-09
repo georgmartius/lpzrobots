@@ -22,7 +22,7 @@ SUBDIRS = include \
           ode \
           tests
 
-bin_SCRIPTS = ode-config
+bin_SCRIPTS = ode-dbl-config
 
 # Utility rule for making a release
 release: dist-gzip dist-bzip2
@@ -32,4 +32,4 @@ EXTRA_DIST = autogen.sh build tools \
         CHANGELOG.txt INSTALL.txt README.txt LICENSE.TXT LICENSE-BSD.TXT
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = ode.pc
+pkgconfig_DATA = ode-dbl.pc

@@ -29,17 +29,21 @@ SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
 LIBSELFORG = lib$(SELFORGLIB).a
 
+ODELIBS = $(shell ode-dbl-config --libs)
+
 LIBS   = -lm \
 	-l$(ODEROBOTSLIB) \
 	-l$(SELFORGLIB) \
-	`ode-config --libs` \
+	 $(ODELIBS) \
 	-lode -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
 
 INC   = -I. 
 
 CXX = g++
-CPPBASEFLAGS = `ode-config --cflags` -pthread $(INC) -Wno-deprecated -Wall
+ODEFLAGS = $(shell ode-dbl-config --cflags)
+CPPBASEFLAGS = $(ODEFLAGS) -pthread $(INC) -Wno-deprecated -Wall
+
 CPPFLAGS = $(CPPBASEFLAGS) -g 
 ## Optimisation
 CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG

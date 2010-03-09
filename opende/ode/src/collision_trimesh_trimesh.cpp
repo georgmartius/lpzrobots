@@ -26,10 +26,10 @@
 #pragma warning(disable:4244 4305)  // for VC++, no precision loss complaints
 #endif
 
-#include <ode/collision.h>
-#include <ode/matrix.h>
-#include <ode/rotation.h>
-#include <ode/odemath.h>
+#include <ode-dbl/collision.h>
+#include <ode-dbl/matrix.h>
+#include <ode-dbl/rotation.h>
+#include <ode-dbl/odemath.h>
 #include "config.h"
 // Classic Implementation
 #if dTRIMESH_OPCODE_USE_OLD_TRIMESH_TRIMESH_COLLIDER

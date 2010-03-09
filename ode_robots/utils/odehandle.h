@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-03-05 14:32:55  martius
+ *   Revision 1.15  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.14  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -81,7 +84,7 @@
 #include <ext/hash_set>
 #endif
 #include <vector>
-#include <ode/common.h>
+#include <ode-dbl/common.h>
 #include "substance.h"
 
 namespace lpzrobots {

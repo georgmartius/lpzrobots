@@ -40,7 +40,7 @@
   N.B. Many command options are available type -h to print them.
 */
 
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 #include <iostream>
 #include <math.h>

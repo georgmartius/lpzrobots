@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-09-06 18:48:29  martius
+ *   Revision 1.10  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.9  2007/09/06 18:48:29  martius
  *   clone function (a bit like a factory)
  *
  *   Revision 1.8  2007/08/23 15:39:05  martius
@@ -61,7 +64,7 @@
 #ifndef __RAYSENSOR_H
 #define __RAYSENSOR_H
 
-#include <ode/common.h>
+#include <ode-dbl/common.h>
 #include "osgforwarddecl.h"
 #include "odehandle.h"
 #include "osghandle.h"

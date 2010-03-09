@@ -20,7 +20,7 @@
  *                                                                       *
  *************************************************************************/
 
-#include "ode/ode.h"
+#include <ode-dbl/ode.h>
 #include "objects.h"
 #include "joints/joint.h"
 #include "util.h"

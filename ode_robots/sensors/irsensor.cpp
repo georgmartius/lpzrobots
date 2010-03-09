@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-01-20 17:29:52  martius
+ *   Revision 1.14  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.13  2009/01/20 17:29:52  martius
  *   cvs commit
  *
  *   Revision 1.12  2008/09/16 14:53:59  martius
@@ -77,7 +80,7 @@
  *
  *                                                                         *
  ***************************************************************************/
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <cmath>
 #include <assert.h>
 #include <selforg/position.h>

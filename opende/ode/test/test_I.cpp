@@ -37,7 +37,7 @@ typical errors for each test cycle are about 1e-5 ... 1e-4.
 
 
 #include <time.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 #include <drawstuff/drawstuff.h>
 
 #ifdef _MSC_VER

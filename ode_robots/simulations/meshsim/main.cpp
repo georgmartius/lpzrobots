@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-10-05 06:22:22  guettler
+ *   Revision 1.9  2010-03-09 11:53:41  martius
+ *   renamed globally ode to ode-dbl
+ *
+ *   Revision 1.8  2009/10/05 06:22:22  guettler
  *   possibility to set additional -meshfile for view
  *
  *   Revision 1.7  2008/05/01 22:03:55  martius
@@ -125,7 +128,7 @@
 #include <stdio.h>
 
 // include ode library
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>
