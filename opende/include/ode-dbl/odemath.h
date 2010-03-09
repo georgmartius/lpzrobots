@@ -23,7 +23,7 @@
 #ifndef _ODE_ODEMATH_H_
 #define _ODE_ODEMATH_H_
 
-#include <ode/common.h>
+#include <ode-dbl/common.h>
 
 #ifdef __GNUC__
 #define PURE_INLINE extern inline

@@ -27,7 +27,7 @@
 #define _ODE_ODECPP_COLLISION_H_
 #ifdef __cplusplus
 
-//#include <ode/error.h>
+//#include <ode-dbl/error.h>
 
 //namespace ode {
 

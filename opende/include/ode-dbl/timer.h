@@ -20,62 +20,53 @@
  *                                                                       *
  *************************************************************************/
 
-/* miscellaneous math functions. these are mostly useful for testing */
+#ifndef _ODE_TIMER_H_
+#define _ODE_TIMER_H_
 
-#ifndef _ODE_MISC_H_
-#define _ODE_MISC_H_
-
-#include <ode/common.h>
-
+#include <ode-dbl/odeconfig.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/* return 1 if the random number generator is working. */
-ODE_API int dTestRand(void);
+/* stop watch objects */
 
-/* return next 32 bit random number. this uses a not-very-random linear
- * congruential method.
+typedef struct dStopwatch {
+  double time;			/* total clock count */
+  unsigned long cc[2];		/* clock count since last `start' */
+} dStopwatch;
+
+ODE_API void dStopwatchReset (dStopwatch *);
+ODE_API void dStopwatchStart (dStopwatch *);
+ODE_API void dStopwatchStop  (dStopwatch *);
+ODE_API double dStopwatchTime (dStopwatch *);	/* returns total time in secs */
+
+
+/* code timers */
+
+ODE_API void dTimerStart (const char *description);	/* pass a static string here */
+ODE_API void dTimerNow (const char *description);	/* pass a static string here */
+ODE_API void dTimerEnd(void);
+
+/* print out a timer report. if `average' is nonzero, print out the average
+ * time for each slot (this is only meaningful if the same start-now-end
+ * calls are being made repeatedly.
  */
-ODE_API unsigned long dRand(void);
+ODE_API void dTimerReport (FILE *fout, int average);
 
-/* get and set the current random number seed. */
-ODE_API unsigned long  dRandGetSeed(void);
-ODE_API void dRandSetSeed (unsigned long s);
 
-/* return a random integer between 0..n-1. the distribution will get worse
- * as n approaches 2^32.
+/* resolution */
+
+/* returns the timer ticks per second implied by the timing hardware or API.
+ * the actual timer resolution may not be this great.
  */
-ODE_API int dRandInt (int n);
+ODE_API double dTimerTicksPerSecond(void);
 
-/* return a random real number between 0..1 */
-ODE_API dReal dRandReal(void);
-
-/* print out a matrix */
-#ifdef __cplusplus
-ODE_API void dPrintMatrix (const dReal *A, int n, int m, char *fmt = "%10.4f ",
-		   FILE *f=stdout);
-#else
-ODE_API void dPrintMatrix (const dReal *A, int n, int m, char *fmt, FILE *f);
-#endif
-
-/* make a random vector with entries between +/- range. A has n elements. */
-ODE_API void dMakeRandomVector (dReal *A, int n, dReal range);
-
-/* make a random matrix with entries between +/- range. A has size n*m. */
-ODE_API void dMakeRandomMatrix (dReal *A, int n, int m, dReal range);
-
-/* clear the upper triangle of a square matrix */
-ODE_API void dClearUpperTriangle (dReal *A, int n);
-
-/* return the maximum element difference between the two n*m matrices */
-ODE_API dReal dMaxDifference (const dReal *A, const dReal *B, int n, int m);
-
-/* return the maximum element difference between the lower triangle of two
- * n*n matrices */
-ODE_API dReal dMaxDifferenceLowerTriangle (const dReal *A, const dReal *B, int n);
+/* returns an estimate of the actual timer resolution, in seconds. this may
+ * be greater than 1/ticks_per_second.
+ */
+ODE_API double dTimerResolution(void);
 
 
 #ifdef __cplusplus

@@ -20,40 +20,29 @@
  *                                                                       *
  *************************************************************************/
 
-/* this comes from the `reuse' library. copy any changes back to the source */
+#ifndef _ODE_ODE_H_
+#define _ODE_ODE_H_
 
-#ifndef _ODE_MEMORY_H_
-#define _ODE_MEMORY_H_
+/* include *everything* here */
 
-#include <ode/odeconfig.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* function types to allocate and free memory */
-typedef void * dAllocFunction (size_t size);
-typedef void * dReallocFunction (void *ptr, size_t oldsize, size_t newsize);
-typedef void dFreeFunction (void *ptr, size_t size);
-
-/* set new memory management functions. if fn is 0, the default handlers are
- * used. */
-ODE_API void dSetAllocHandler (dAllocFunction *fn);
-ODE_API void dSetReallocHandler (dReallocFunction *fn);
-ODE_API void dSetFreeHandler (dFreeFunction *fn);
-
-/* get current memory management functions */
-ODE_API dAllocFunction *dGetAllocHandler (void);
-ODE_API dReallocFunction *dGetReallocHandler (void);
-ODE_API dFreeFunction *dGetFreeHandler (void);
-
-/* allocate and free memory. */
-ODE_API void * dAlloc (size_t size);
-ODE_API void * dRealloc (void *ptr, size_t oldsize, size_t newsize);
-ODE_API void dFree (void *ptr, size_t size);
-
-#ifdef __cplusplus
-}
-#endif
+#include <ode-dbl/odeconfig.h>
+#include <ode-dbl/compatibility.h>
+#include <ode-dbl/common.h>
+#include <ode-dbl/odeinit.h>
+#include <ode-dbl/contact.h>
+#include <ode-dbl/error.h>
+#include <ode-dbl/memory.h>
+#include <ode-dbl/odemath.h>
+#include <ode-dbl/matrix.h>
+#include <ode-dbl/timer.h>
+#include <ode-dbl/rotation.h>
+#include <ode-dbl/mass.h>
+#include <ode-dbl/misc.h>
+#include <ode-dbl/objects.h>
+#include <ode-dbl/odecpp.h>
+#include <ode-dbl/collision_space.h>
+#include <ode-dbl/collision.h>
+#include <ode-dbl/odecpp_collision.h>
+#include <ode-dbl/export-dif.h>
 
 #endif

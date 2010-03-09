@@ -20,47 +20,40 @@
  *                                                                       *
  *************************************************************************/
 
-#ifndef _ODE_ROTATION_H_
-#define _ODE_ROTATION_H_
+/* this comes from the `reuse' library. copy any changes back to the source */
 
-#include <ode/common.h>
-#include <ode/compatibility.h>
+#ifndef _ODE_ERROR_H_
+#define _ODE_ERROR_H_
+
+#include <ode-dbl/odeconfig.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* all user defined error functions have this type. error and debug functions
+ * should not return.
+ */
+typedef void dMessageFunction (int errnum, const char *msg, va_list ap);
 
-ODE_API void dRSetIdentity (dMatrix3 R);
+/* set a new error, debug or warning handler. if fn is 0, the default handlers
+ * are used.
+ */
+ODE_API void dSetErrorHandler (dMessageFunction *fn);
+ODE_API void dSetDebugHandler (dMessageFunction *fn);
+ODE_API void dSetMessageHandler (dMessageFunction *fn);
 
-ODE_API void dRFromAxisAndAngle (dMatrix3 R, dReal ax, dReal ay, dReal az,
-			 dReal angle);
+/* return the current error, debug or warning handler. if the return value is
+ * 0, the default handlers are in place.
+ */
+ODE_API dMessageFunction *dGetErrorHandler(void);
+ODE_API dMessageFunction *dGetDebugHandler(void);
+ODE_API dMessageFunction *dGetMessageHandler(void);
 
-ODE_API void dRFromEulerAngles (dMatrix3 R, dReal phi, dReal theta, dReal psi);
-
-ODE_API void dRFrom2Axes (dMatrix3 R, dReal ax, dReal ay, dReal az,
-		  dReal bx, dReal by, dReal bz);
-
-ODE_API void dRFromZAxis (dMatrix3 R, dReal ax, dReal ay, dReal az);
-
-ODE_API void dQSetIdentity (dQuaternion q);
-
-ODE_API void dQFromAxisAndAngle (dQuaternion q, dReal ax, dReal ay, dReal az,
-			 dReal angle);
-
-/* Quaternion multiplication, analogous to the matrix multiplication routines. */
-/* qa = rotate by qc, then qb */
-ODE_API void dQMultiply0 (dQuaternion qa, const dQuaternion qb, const dQuaternion qc);
-/* qa = rotate by qc, then by inverse of qb */
-ODE_API void dQMultiply1 (dQuaternion qa, const dQuaternion qb, const dQuaternion qc);
-/* qa = rotate by inverse of qc, then by qb */
-ODE_API void dQMultiply2 (dQuaternion qa, const dQuaternion qb, const dQuaternion qc);
-/* qa = rotate by inverse of qc, then by inverse of qb */
-ODE_API void dQMultiply3 (dQuaternion qa, const dQuaternion qb, const dQuaternion qc);
-
-ODE_API void dRfromQ (dMatrix3 R, const dQuaternion q);
-ODE_API void dQfromR (dQuaternion q, const dMatrix3 R);
-ODE_API void dDQfromW (dReal dq[4], const dVector3 w, const dQuaternion q);
+/* generate a fatal error, debug trap or a message. */
+ODE_API void dError (int num, const char *msg, ...);
+ODE_API void dDebug (int num, const char *msg, ...);
+ODE_API void dMessage (int num, const char *msg, ...);
 
 
 #ifdef __cplusplus

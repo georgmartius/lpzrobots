@@ -23,7 +23,7 @@
 #ifndef _ODE_MASS_H_
 #define _ODE_MASS_H_
 
-#include <ode/common.h>
+#include <ode-dbl/common.h>
 
 #ifdef __cplusplus
 extern "C" {

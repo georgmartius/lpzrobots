@@ -1,4 +1,4 @@
-libode_la_includedir = $(includedir)/ode
+libode_la_includedir = $(includedir)/ode-dbl
 libode_la_include_HEADERS = 	collision_trimesh.h \
 				mass.h \
 				odecpp.h \
