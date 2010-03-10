@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-08-10 07:49:44  guettler
+ *   Revision 1.17  2010-03-10 08:54:27  guettler
+ *   adjusted simelation params to get settins used in paper
+ *
+ *   Revision 1.16  2009/08/10 07:49:44  guettler
  *   tests with entropy
  *
  *   Revision 1.15  2009/05/04 11:10:29  guettler
@@ -195,7 +198,7 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    int number_x=1;
+    int number_x=5;
     int number_y=1;
     connectRobots = true;
     double distance = 1.0;
@@ -203,7 +206,7 @@ public:
     setCameraHomePos(Pos(-26.0494,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
 
     global.odeConfig.setParam("noise",0.08);
-    global.odeConfig.setParam("realtimefactor",0);
+    global.odeConfig.setParam("realtimefactor",5);
     global.odeConfig.setParam("gravity",-9);
 
     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(100, 0.2, 2.0));
@@ -255,8 +258,8 @@ public:
         //      nimm2 = new Nimm2(odeHandle);
         Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
         nimm2conf.size = 1.6;
-        nimm2conf.force = 0.1;
-        nimm2conf.speed=20;
+      //  nimm2conf.force = 0.1;
+      //  nimm2conf.speed=20;
         nimm2conf.cigarMode=true;
         nimm2conf.singleMotor=false;
         nimm2conf.visForce=true;
@@ -314,9 +317,9 @@ public:
           joints.push_back(joint);
         }
     }
-    this->getHUDSM()->addMeasure(mic->getMI(0),"MI 0",ID,1);
-    double& stepdiff = stats->addMeasure(mic->getMI(1),"MI NSTEPDIFF",NORMSTEPDIFF,1);
-    this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);
+    this->getHUDSM()->addMeasure(mic->getMI(0),"MI"/* 0*/,ID,1);
+    //double& stepdiff = stats->addMeasure(mic->getMI(1),"MI NSTEPDIFF",NORMSTEPDIFF,1);
+    //this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);
 
 /*    this->getHUDSM()->addMeasure(mic->getH_x(1),"H(x) 1",ID,1);
     this->getHUDSM()->addMeasure(mic->getH_x(0),"H(x) 0",ID,1);
@@ -332,10 +335,10 @@ public:
     convTest3=stats->getMeasure( mic->getH_yx(1),"H(y|x) 1 CONV",CONV,50000,0.001);
     convTest2=stats->getMeasure( mic->getH_yx(0),"H(y|x) 0 CONV",CONV,50000,0.001);*/
 
-//    trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2 o(n2)",ENTSLOW,playground->getCornerPointsXY(),X | Y, 1800);
-    trackableEntropy= new TrackableMeasure(trackableList,"E Nimm2 O(1)",ENT,playground->getCornerPointsXY(),X | Y, 20000);
+   // trackableEntropySLOW= new TrackableMeasure(trackableList,"E Nimm2 o(n2)",ENTSLOW,playground->getCornerPointsXY(),X | Y, 18);
+//    trackableEntropy= new TrackableMeasure(trackableList,"E Nimm2 O(1)",ENT,playground->getCornerPointsXY(),X | Y, 20000);
     //this->getHUDSM()->addMeasure(trackableEntropySLOW);
-    this->getHUDSM()->addMeasure(trackableEntropy);
+   // this->getHUDSM()->addMeasure(trackableEntropySLOW);
     //TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E upd Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
     //this->getHUDSM()->addMeasure(trackableEntropy);
 
