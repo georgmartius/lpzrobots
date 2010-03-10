@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2010-03-10 08:54:27  guettler
+ *   Revision 1.18  2010-03-10 13:54:29  guettler
+ *   some tiny changes
+ *
+ *   Revision 1.17  2010/03/10 08:54:27  guettler
  *   adjusted simelation params to get settins used in paper
  *
  *   Revision 1.16  2009/08/10 07:49:44  guettler
@@ -206,7 +209,7 @@ public:
     setCameraHomePos(Pos(-26.0494,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
 
     global.odeConfig.setParam("noise",0.08);
-    global.odeConfig.setParam("realtimefactor",5);
+    global.odeConfig.setParam("realtimefactor",2);
     global.odeConfig.setParam("gravity",-9);
 
     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(100, 0.2, 2.0));
@@ -258,8 +261,8 @@ public:
         //      nimm2 = new Nimm2(odeHandle);
         Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
         nimm2conf.size = 1.6;
-      //  nimm2conf.force = 0.1;
-      //  nimm2conf.speed=20;
+        nimm2conf.force = 1.5;
+        nimm2conf.speed=20;
         nimm2conf.cigarMode=true;
         nimm2conf.singleMotor=false;
         nimm2conf.visForce=true;
