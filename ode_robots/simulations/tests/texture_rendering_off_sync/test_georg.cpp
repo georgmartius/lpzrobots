@@ -11,6 +11,7 @@
  g++ -losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut test_georg.cpp
 
 */
+#include "lpzviewer.h"
 
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -24,6 +25,8 @@
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
 
+
+
 #include <osgGA/TrackballManipulator>
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
@@ -36,18 +39,49 @@
 #include <sstream>
 #include <string.h>
 
-class WindowCaptureCallback : public osg::Camera::DrawCallback
-{
-    public:
-        WindowCaptureCallback()
-        {
-        }
 
-        virtual void operator () (osg::RenderInfo& renderInfo) const
+
+struct MyCameraPostDrawCallback : public osg::Camera::DrawCallback
+{
+    MyCameraPostDrawCallback(osg::Image* image):
+        _image(image)
+    {
+    }
+
+    virtual void operator () (const osg::Camera& /*camera*/) const
+    {
+        if (_image && _image->getPixelFormat()==GL_RGBA && _image->getDataType()==GL_UNSIGNED_BYTE)
         {
-            //printf("hello from pbo\n");
+          printf("hello from image processing\n");
+            // we'll pick out the center 1/2 of the whole image,
+            int column_start = _image->s()/4;
+            int column_end = 3*column_start;
+            
+            int row_start = _image->t()/4;
+            int row_end = 3*row_start;
+            
+            // and then invert these pixels
+            for(int r=row_start; r<row_end; ++r)
+            {
+                unsigned char* data = _image->data(column_start, r);
+                for(int c=column_start; c<column_end; ++c)
+                {
+                    (*data) = 255-(*data); ++data;
+                    (*data) = 255-(*data); ++data;
+                    (*data) = 255-(*data); ++data;
+                    (*data) = 255; ++data;
+                }
+            }
+
+            // dirty the image (increments the modified count) so that any textures
+            // using the image can be informed that they need to update.
+            _image->dirty();
         }
+       
+    }    
+    osg::Image* _image;
 };
+
 
 int main(int argc, char** argv)
 {
@@ -57,15 +91,16 @@ int main(int argc, char** argv)
     arguments.getApplicationUsage()->setApplicationName(arguments.getApplicationName());
     arguments.getApplicationUsage()->setCommandLineUsage(arguments.getApplicationName()+" [options] filename ...");
 
-    osgViewer::Viewer viewer(arguments);
+    //    osgViewer::Viewer viewer(arguments);
+    LPZViewer viewer(arguments);
     viewer.setThreadingModel(osgViewer::Viewer::SingleThreaded);
 
     unsigned int helpType = 0;
-    // if ((helpType = arguments.readHelpType()))
-//     {
-//         arguments.getApplicationUsage()->write(std::cout, helpType);
-//         return 1;
-//     }
+    if ((helpType = arguments.readHelpType()))
+    {
+        arguments.getApplicationUsage()->write(std::cout, helpType);
+        return 1;
+    }
     
     // report any errors if they have occurred when parsing the program arguments.
     if (arguments.errors())
@@ -127,6 +162,9 @@ int main(int argc, char** argv)
     // add the LOD Scale handler
     viewer.addEventHandler(new osgViewer::LODScaleHandler);
     
+
+    viewer.realize();    
+
     unsigned int width=512;
     unsigned int height=512;
 
@@ -143,7 +181,7 @@ int main(int argc, char** argv)
     traits->windowDecoration = false;
     traits->pbuffer = true;
     traits->doubleBuffer = true;
-    traits->sharedContext = 0;
+    traits->sharedContext = 0 ; //orig_camera->getGraphicsContext();
 
     pbuffer = osg::GraphicsContext::createGraphicsContext(traits.get());
     if (pbuffer.valid())
@@ -171,18 +209,11 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    osg::Group* dummy = new osg::Group();
     osg::Group* root = new osg::Group();
 
     osg::Group* scene = new osg::Group();
-    osg::Group* hidden = new osg::Group();
     root->addChild(scene);
     scene->addChild(loadedModel.get());
-    //hidden->addChild(loadedModel2.get());
-
-    dummy->addChild(scene);
-    dummy->addChild(hidden);
-
     // any option left unread are converted into errors to write out later.
     arguments.reportRemainingOptionsAsUnrecognized();
 
@@ -197,18 +228,7 @@ int main(int argc, char** argv)
     osgUtil::Optimizer optimizer;
     optimizer.optimize(loadedModel.get());
 
-    viewer.setSceneData(root);
-
-    osg::ref_ptr<osg::Camera> pbo_camera;
-    dummy->addChild(pbo_camera.get());
-    pbo_camera = new osg::Camera;
-    pbo_camera->setGraphicsContext(pbuffer.get());
-    pbo_camera->setViewport(new osg::Viewport(0,0,width,height));
-    GLenum buffer = pbuffer->getTraits()->doubleBuffer ? GL_BACK : GL_FRONT;
-    pbo_camera->setDrawBuffer(buffer);
-    pbo_camera->setReadBuffer(buffer);
-    pbo_camera->setFinalDrawCallback(new WindowCaptureCallback());
-    
+    viewer.setSceneData(root);    
     
     // Create the texture to render to
     osg::Texture2D* texture = new osg::Texture2D;
@@ -230,13 +250,27 @@ int main(int argc, char** argv)
     cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);    
     // We need to render to the texture BEFORE we render to the screen
     cam->setRenderOrder(osg::Camera::PRE_RENDER);    
-    // The camera will render into the texture that we created earlier
-    cam->attach(osg::Camera::COLOR_BUFFER, texture);
+
+    if(1){
+      osg::Image* image = new osg::Image;
+      image->allocateImage(256, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+      //image->allocateImage(tex_width, tex_height, 1, GL_RGBA, GL_FLOAT);
+      // attach the image so its copied on each frame.
+      cam->attach(osg::Camera::COLOR_BUFFER, image);    
+      cam->setPostDrawCallback(new MyCameraPostDrawCallback(image));
+      texture->setImage(0, image);
+    }else{
+      // The camera will render into the texture that we created earlier
+      cam->attach(osg::Camera::COLOR_BUFFER, texture);
+    }
     // Add world to be drawn to the texture
-    cam->addChild(loadedModel2.get());
-    hidden->addChild(cam);
-    root->addChild(hidden);
-  
+    osg::Node* g = loadedModel2.get();    
+    //    osg::StateSet *gState = g->getOrCreateStateSet();
+    //    gState->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
+    cam->addChild(g);
+
+    viewer.addOffScreenRRTNode(cam);
+
     osg::ref_ptr<osg::Geometry> screenQuad;
     screenQuad = osg::createTexturedQuadGeometry(osg::Vec3(),
                                                  osg::Vec3(256, 0.0, 0.0),
@@ -255,40 +289,30 @@ int main(int argc, char** argv)
     orthoCamera->setViewport(0, 0, 256,256);      
     orthoCamera->setRenderOrder(osg::Camera::POST_RENDER);
     orthoCamera->addChild(quadGeode.get());
-    scene->addChild(orthoCamera.get());    
+    root->addChild(orthoCamera.get());    
 
-    viewer.realize();
+    //    viewer.realize();
     pbuffer->realize();
 
-    osg::Camera* orig_camera = viewer.getCamera();
-    dummy->addChild(orig_camera);
-
     viewer.frame();
-    root->removeChild(hidden);
     osg::Vec3 eye; osg::Vec3 center; osg::Vec3 up; 
     viewer.getCamera()->getViewMatrixAsLookAt(eye,center,up);
     cam->setViewMatrixAsLookAt(eye, center, up);           
     int frame_count=0;
-    const int swap_every=3;
+    const int swap_every=400;
+    bool swap=true;
     while(!viewer.done())
-      {
-        if (0 == (frame_count % swap_every)) {
-	  viewer.setCamera(pbo_camera.get());
-	  orig_camera->setRenderer(0);
-	  root->removeChild(scene);
-	  root->addChild(hidden);
-	  printf("%u\n",root->getNumChildren());
-          viewer.frame();
+      {        
+        if (swap && 0 == (frame_count % swap_every)) {
+          viewer.getCamera()->getViewMatrixAsLookAt(eye,center,up);
+          cam->setViewMatrixAsLookAt(eye, center, up);           
 
-	  viewer.setCamera(orig_camera);
- 	  pbo_camera->setRenderer(0);
-	  root->removeChild(hidden);
-	  root->addChild(scene);
-          
-	}else{
-	  viewer.frame();
-	}
-	frame_count++;      
+          viewer.renderOffScreen();          
+        }else{
+          viewer.frame();
+        }
+      
+        frame_count++;      
       }
 
     return 0;
