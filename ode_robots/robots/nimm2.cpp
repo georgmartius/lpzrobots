@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.43  2010-03-09 11:53:41  martius
+ *   Revision 1.44  2010-03-10 08:37:35  guettler
+ *   fixed unusual material for wheels in boxed mode
+ *
+ *   Revision 1.43  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.42  2009/03/13 09:19:53  martius
@@ -503,7 +506,7 @@ namespace lpzrobots {
 	object[i] = wheel;
 	if (conf.boxMode) {
   	//	  wheel->substance.toRubber( 40.0);
-  	  wheel->substance.toSnow(0.0);
+  	 // wheel->substance.toSnow(0.0);
 	}
       }else{ // for "normal" wheels
 	Cylinder* wheel = new Cylinder(radius, wheelthickness);
