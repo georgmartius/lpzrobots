@@ -7,7 +7,7 @@ endif
 
 # On Windows, GL_LIBS must go after libdrawstuff.la.
 LDADD = $(top_builddir)/drawstuff/src/libdrawstuff.la \
-        $(top_builddir)/ode/src/libode.la @GL_LIBS@
+        $(top_builddir)/ode/src/libode_dbl.la @GL_LIBS@
 
 noinst_HEADERS = basket_geom.h texturepath.h world_geom3.h bunny_geom.h convex_bunny_geom.h \
                  icosahedron_geom.h
@@ -50,7 +50,7 @@ demo_chain1_LDADD = $(LDADD) -lstdc++
 demo_chain2_SOURCES = demo_chain2.cpp
 demo_collision_SOURCES = demo_collision.cpp
 demo_convex_cd_SOURCES = demo_convex_cd.cpp
-demo_convex_cd_DEPENDENCIES = $(top_builddir)/ode/src/libode.la
+#demo_convex_cd_DEPENDENCIES = $(top_builddir)/ode/src/libode.la
 demo_crash_SOURCES = demo_crash.cpp
 demo_cylvssphere_SOURCES = demo_cylvssphere.cpp
 demo_feedback_SOURCES = demo_feedback.cpp
