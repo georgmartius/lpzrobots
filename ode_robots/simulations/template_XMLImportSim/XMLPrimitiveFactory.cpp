@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-03-10 13:54:59  guettler
+ *  further developments for xmlimport
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *										   *
  *                                                                         *
@@ -60,23 +63,23 @@ XMLPrimitiveFactory::~XMLPrimitiveFactory() {
 }
 
 Primitive* XMLPrimitiveFactory::createPrimitive(DOMNode* primitiveNode) {
-  if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::BoxNode))
+  if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::boxNode))
     return createBox(primitiveNode);
-  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::CapsuleNode))
+  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::capsuleNode))
     return createCapsule(primitiveNode);
-  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::CylinderNode))
+  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::cylinderNode))
     return createCylinder(primitiveNode);
-  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::DummyPrimitiveNode))
+  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::dummyPrimitiveNode))
     return createDummyPrimitive(primitiveNode);
-  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::MeshNode))
+  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::meshNode))
     return createMesh(primitiveNode);
-  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::PlaneNode))
+  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::planeNode))
     return createPlane(primitiveNode);
-  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::RayNode))
+  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::rayNode))
     return createRay(primitiveNode);
-  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::SphereNode))
+  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::sphereNode))
     return createSphere(primitiveNode);
-  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::TransformNode))
+  else if (XMLHelper::matchesName(primitiveNode, XMLDefinitions::transformNode))
     return createTransform(primitiveNode);
   else
     XMLErrorHelper::printError(string("createPrimitive failed - no Implementation found for \n").append(
@@ -98,10 +101,9 @@ Box* XMLPrimitiveFactory::createBox(DOMNode* boxNode) {
 
   Box* box = new Box(XMLHelper::getNodeAtt(boxNode, XMLDefinitions::lengthAtt), XMLHelper::getNodeAtt(boxNode,
       XMLDefinitions::widthAtt), XMLHelper::getNodeAtt(boxNode, XMLDefinitions::heightAtt));
-  box->init(odeHandle, VALOFNODE(boxNode, XMLDefinitions::massAtt), osgHandle, getPrimitiveMode(boxNode));// the mass of the mesh
+  box->init(odeHandle, VALOFNODE(boxNode, XMLDefinitions::massAtt), osgHandle.changeColor(XMLHelper::getColor(boxNode)), getPrimitiveMode(boxNode));// the mass of the mesh
   setTextureIfPresent(boxNode, box);
   setMaterial(boxNode, box);
-  box->setColor(XMLHelper::getColor(boxNode));
   box->setPose(XMLHelper::getPose(boxNode));
 
   return box;
@@ -115,11 +117,10 @@ Capsule* XMLPrimitiveFactory::createCapsule(DOMNode* capsuleNode) {
 
   Capsule* capsule = new Capsule(XMLHelper::getNodeAtt(capsuleNode, XMLDefinitions::radiusAtt), XMLHelper::getNodeAtt(
       capsuleNode, XMLDefinitions::heightAtt));
-  capsule->init(odeHandle, XMLHelper::getNodeAtt(capsuleNode, XMLDefinitions::massAtt), osgHandle, getPrimitiveMode(
+  capsule->init(odeHandle, XMLHelper::getNodeAtt(capsuleNode, XMLDefinitions::massAtt), osgHandle.changeColor(XMLHelper::getColor(capsuleNode)), getPrimitiveMode(
       capsuleNode));// the mass of the mesh
   setTextureIfPresent(capsuleNode, capsule);
   setMaterial(capsuleNode, capsule);
-  capsule->setColor(XMLHelper::getColor(capsuleNode));
   capsule->setPose(XMLHelper::getPose(capsuleNode));
   return capsule;
 }
@@ -134,8 +135,7 @@ Cylinder* XMLPrimitiveFactory::createCylinder(DOMNode* cylinderNode) {
       XMLHelper::getNodeAtt(cylinderNode, XMLDefinitions::heightAtt));
   setTextureIfPresent(cylinderNode, cylinder);
   setMaterial(cylinderNode, cylinder);
-  cylinder->init(odeHandle, XMLHelper::getNodeAtt(cylinderNode, XMLDefinitions::massAtt), osgHandle, getPrimitiveMode(cylinderNode));// the mass of the mesh
-  cylinder->setColor(XMLHelper::getColor(cylinderNode));
+  cylinder->init(odeHandle, XMLHelper::getNodeAtt(cylinderNode, XMLDefinitions::massAtt), osgHandle.changeColor(XMLHelper::getColor(cylinderNode)), getPrimitiveMode(cylinderNode));// the mass of the mesh
   cylinder->setPose(XMLHelper::getPose(cylinderNode));
   return cylinder;
 
@@ -161,35 +161,34 @@ DummyPrimitive* XMLPrimitiveFactory::createDummyPrimitive(DOMNode* dummyPrimitiv
 Mesh* XMLPrimitiveFactory::createMesh(DOMNode* meshNode) {
   cout << "Mesh found!" << endl;
   cout << "  Filename found "
-      << VALOFCHILDASSTRING(meshNode,XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::fileAtt) << endl;
-  cout << "  Scale found " << XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::GraphicalRepresentationNode,
+      << VALOFCHILDASSTRING(meshNode,XMLDefinitions::graphicalRepresentationNode, XMLDefinitions::fileAtt) << endl;
+  cout << "  Scale found " << XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::graphicalRepresentationNode,
       XMLDefinitions::scaleAtt, 1.0) << endl;
-  cout << "  Mass found " << VALOFCHILD(meshNode,XMLDefinitions::BoundingShapeNode, XMLDefinitions::massAtt) << endl;
+  cout << "  Mass found " << VALOFCHILD(meshNode,XMLDefinitions::boundingShapeNode, XMLDefinitions::massAtt) << endl;
 
   Mesh* mesh =
-      new Mesh(VALOFCHILDASSTRING(meshNode,XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::fileAtt), // the filename of the mesh
-          XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::scaleAtt,
+      new Mesh(VALOFCHILDASSTRING(meshNode,XMLDefinitions::graphicalRepresentationNode, XMLDefinitions::fileAtt), // the filename of the mesh
+          XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::graphicalRepresentationNode, XMLDefinitions::scaleAtt,
               1.0));// the scale factor to be used
-  // always do not let create the BoundingShape (by .bbox)
+  // always do not let create the BoundingShape (by .bbox) (so don't use mode Primitive::Geom)
   char primitiveMode = Primitive::Body;
-  double mass = XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::BoundingShapeNode, XMLDefinitions::massAtt, 1.0);
-  double visible = XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::visibleAtt, 1.0);
+  double mass = XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::boundingShapeNode, XMLDefinitions::massAtt, 1.0);
+  double visible = XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::graphicalRepresentationNode, XMLDefinitions::visibleAtt, 1.0);
   if (mass == 0)
     mass = 1.0; // since a body is always needed, ensure that a correct mass is used
   if (visible)
     primitiveMode |= Primitive::Draw;
+  primitiveMode |= Primitive::Geom;
   // Geom is "created" by the XMLBoundingShape
-  mesh->init(odeHandle, mass, osgHandle, primitiveMode);// the mass of the mesh
-  mesh->setColor(XMLHelper::getColor(XMLHelper::getChildNode(meshNode, XMLDefinitions::GraphicalRepresentationNode)));
-  setTextureIfPresent(meshNode, mesh);
-  setMaterial(meshNode, mesh);
-  mesh->setColor(XMLHelper::getColor(meshNode));
+  mesh->init(odeHandle, mass, osgHandle.changeColor(XMLHelper::getColor(XMLHelper::getChildNode(meshNode, XMLDefinitions::graphicalRepresentationNode)))); //, primitiveMode);// the mass of the mesh
+  //setTextureIfPresent(meshNode, mesh);
+  //setMaterial(meshNode, mesh);
   // create BoundingShape
   primitiveMode = Primitive::Geom;
   if (osgHandle.drawBoundings)
     primitiveMode|= Primitive::Draw;
-  XMLBoundingShape* boundingShape = new XMLBoundingShape(XMLHelper::getChildNode(meshNode, XMLDefinitions::BoundingShapeNode),*(this->engine),mesh);
-  boundingShape->init(odeHandle, osgHandle, XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::scaleAtt, 1.0), primitiveMode);
+ // XMLBoundingShape* boundingShape = new XMLBoundingShape(XMLHelper::getChildNode(meshNode, XMLDefinitions::BoundingShapeNode),*(this->engine),mesh);
+  //boundingShape->init(odeHandle, osgHandle, XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::scaleAtt, 1.0), primitiveMode);
   mesh->setPose(XMLHelper::getPose(meshNode));
   return mesh;
 
@@ -197,7 +196,7 @@ Mesh* XMLPrimitiveFactory::createMesh(DOMNode* meshNode) {
    VALOFCHILDASSTRING(meshNode,XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::fileAtt),
    XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::scaleAtt,1.0),
    VALOFCHILDASSTRING(meshNode,XMLDefinitions::BoundingShapeNode, XMLDefinitions::mass));
-   mesh->setPosition(osg::Vec3(1.0,0.2,1.0f));
+   mesh->setPosition(osg::Vec3(1.0,0.2,1.0f));*/
    //mesh->setPosition(XMLHelper::getPosition(meshNode);
    //mesh->init(odeHandle, VALOFCHILD(meshNode, XMLDefinitions::weightAtt), osgHandle, Primitive::Body | Primitive::Geom | Primitive::Draw);
    //mesh->setPose(XMLHelper::getPose(meshNode));
@@ -282,10 +281,9 @@ Sphere* XMLPrimitiveFactory::createSphere(DOMNode* sphereNode) {
   cout << "  Mass found " << XMLHelper::getNodeAtt(sphereNode, XMLDefinitions::massAtt) << endl;
 
   Sphere* sphere = new Sphere(XMLHelper::getNodeAtt(sphereNode, XMLDefinitions::radiusAtt));
-  sphere->init(odeHandle, XMLHelper::getNodeAtt(sphereNode, XMLDefinitions::massAtt), osgHandle, getPrimitiveMode(sphereNode));// the mass of the mesh
+  sphere->init(odeHandle, XMLHelper::getNodeAtt(sphereNode, XMLDefinitions::massAtt), osgHandle.changeColor(XMLHelper::getColor(sphereNode)), getPrimitiveMode(sphereNode));// the mass of the mesh
   setTextureIfPresent(sphereNode, sphere);
   setMaterial(sphereNode, sphere);
-  sphere->setColor(XMLHelper::getColor(sphereNode));
   //sphere->setTexture(VALOFCHILDASSTRING(sphereNode,XMLDefinitions::texture,XMLDefinitions::fileAtt));
   sphere->setPose(XMLHelper::getPose(sphereNode));
   return sphere;
@@ -340,20 +338,20 @@ void XMLPrimitiveFactory::setTextureIfPresent(DOMNode* node, Primitive* primitiv
 
 void XMLPrimitiveFactory::setMaterial(DOMNode* node, Primitive* primitive) {
 
-  if (CHILDOFNODE(node,XMLDefinitions::MaterialNode) != 0) {
+  if (CHILDOFNODE(node,XMLDefinitions::materialNode) != 0) {
     cout << "Material found!" << endl;
-    cout << "  Elasticity " << VALOFCHILDASSTRING(node,XMLDefinitions::MaterialNode,XMLDefinitions::elasticityAtt)
+    cout << "  Elasticity " << VALOFCHILDASSTRING(node,XMLDefinitions::materialNode,XMLDefinitions::elasticityAtt)
         << endl;
-    cout << "  Hardness " << VALOFCHILDASSTRING(node,XMLDefinitions::MaterialNode,XMLDefinitions::hardnessAtt) << endl;
-    cout << "  Roughness " << VALOFCHILDASSTRING(node,XMLDefinitions::MaterialNode,XMLDefinitions::roughnessAtt)
+    cout << "  Hardness " << VALOFCHILDASSTRING(node,XMLDefinitions::materialNode,XMLDefinitions::hardnessAtt) << endl;
+    cout << "  Roughness " << VALOFCHILDASSTRING(node,XMLDefinitions::materialNode,XMLDefinitions::roughnessAtt)
         << endl;
-    cout << "  Slip " << VALOFCHILDASSTRING(node,XMLDefinitions::MaterialNode,XMLDefinitions::slipAtt) << endl;
+    cout << "  Slip " << VALOFCHILDASSTRING(node,XMLDefinitions::materialNode,XMLDefinitions::slipAtt) << endl;
     // TODO: get correct substance from xml and set!
     primitive->setSubstance(Substance::getDefaultSubstance());
-    primitive->substance.elasticity = VALOFCHILD(node,XMLDefinitions::MaterialNode,XMLDefinitions::elasticityAtt);
-    primitive->substance.hardness = VALOFCHILD(node,XMLDefinitions::MaterialNode,XMLDefinitions::hardnessAtt);
-    primitive->substance.roughness = VALOFCHILD(node,XMLDefinitions::MaterialNode,XMLDefinitions::roughnessAtt);
-    primitive->substance.slip = VALOFCHILD(node,XMLDefinitions::MaterialNode,XMLDefinitions::slipAtt);
+    primitive->substance.elasticity = VALOFCHILD(node,XMLDefinitions::materialNode,XMLDefinitions::elasticityAtt);
+    primitive->substance.hardness = VALOFCHILD(node,XMLDefinitions::materialNode,XMLDefinitions::hardnessAtt);
+    primitive->substance.roughness = VALOFCHILD(node,XMLDefinitions::materialNode,XMLDefinitions::roughnessAtt);
+    primitive->substance.slip = VALOFCHILD(node,XMLDefinitions::materialNode,XMLDefinitions::slipAtt);
   }
 
 }
@@ -367,11 +365,12 @@ char XMLPrimitiveFactory::getPrimitiveMode(DOMNode* node) {
   double mass = XMLHelper::getNodeAtt(node, XMLDefinitions::massAtt, 1.0);
   double visible = XMLHelper::getNodeAtt(node, XMLDefinitions::visibleAtt, 1.0);
   double permeable = XMLHelper::getNodeAtt(node, XMLDefinitions::permeableAtt, 0.0);
-  if (mass > 0)
+  std::cout << "body=" << (mass>0?"yes":"no") << ", draw=" << (visible?"yes":"no") << ", geom=" << (permeable?"no":"yes") << endl;
+  if (mass>0)
     mode |= Primitive::Body;
-  if (visible)
+  if (visible>0)
     mode |= Primitive::Draw;
-  if (!permeable)
+  if (permeable==0)
     mode |= Primitive::Geom;
   return mode;
 }

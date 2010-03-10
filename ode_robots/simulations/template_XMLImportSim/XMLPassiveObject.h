@@ -32,6 +32,9 @@ public:
 
 	  /// overload this function to create the obstactle. All primitives should go into the list "obst"
 	  virtual void create();
+
+protected:
+	  xercesc_3_1::DOMNode* passiveObjectNode;
 };
 
 #endif /* XMLPASSIVEOBJECT_H_ */

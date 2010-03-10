@@ -799,8 +799,8 @@
 	</xs:complexType>
 	<xs:complexType name="PlaygroundType">
 		<xs:sequence>
-			<xs:element name="Position" type="Vector"/>
-			<xs:element name="Color" type="Colortype"/>
+			<xs:element name="Position" type="Vector" />
+			<xs:element name="Color" type="Colortype" />
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

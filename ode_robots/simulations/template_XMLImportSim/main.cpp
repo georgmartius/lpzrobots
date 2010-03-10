@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-07 22:50:38  guettler
+ *   Revision 1.2  2010-03-10 13:54:59  guettler
+ *   further developments for xmlimport
+ *
+ *   Revision 1.1  2010/03/07 22:50:38  guettler
  *   first development state for feature XMLImport
  *
  *   Revision 1.8  2009/10/05 06:22:22  guettler
@@ -233,12 +236,14 @@ public:
     // - set Pose(Position) of sphere 
     // - set a texture for the sphere
     // - add sphere to list of obstacles
-    for (int i=0; i<= 1/*2; i+=2){
+  //  for (int i=0; i<= 1/*2; i+=2){
+   * */
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
-      s1->setPosition(osg::Vec3(-2.5,2.5,0.2));
+      s1->setPosition(osg::Vec3(3,3,0.1));
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
-    }
+      /*
+    //}
 
     // set color for nimm robot
     OsgHandle osgHandle_orange = osgHandle.changeColor(Color(2, 156/255.0, 0));

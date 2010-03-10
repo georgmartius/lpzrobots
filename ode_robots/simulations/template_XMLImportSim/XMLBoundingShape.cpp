@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-03-10 13:54:59  guettler
+ *  further developments for xmlimport
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *										   *
  *                                                                         *
@@ -60,13 +63,13 @@ bool XMLBoundingShape::init(const lpzrobots::OdeHandle& odeHandle, const lpzrobo
   for EACHCHILDNODE(boundingBoxNode, node) {
     if (node->getNodeType() == DOMNode::ELEMENT_NODE) {
       Primitive* primitive = 0;
-      if (XMLHelper::matchesName(node,XMLDefinitions::BoxNode))
+      if (XMLHelper::matchesName(node,XMLDefinitions::boxNode))
         primitive = new Box(VALOFNODE(node, XMLDefinitions::lengthAtt) * scale, VALOFNODE(node, XMLDefinitions::widthAtt) * scale, VALOFNODE(node, XMLDefinitions::heightAtt) * scale);
-      else if(XMLHelper::matchesName(node,XMLDefinitions::SphereNode))
+      else if(XMLHelper::matchesName(node,XMLDefinitions::sphereNode))
         primitive = new Sphere(VALOFNODE(node,XMLDefinitions::radiusAtt));
-      else if(XMLHelper::matchesName(node,XMLDefinitions::CylinderNode))
+      else if(XMLHelper::matchesName(node,XMLDefinitions::cylinderNode))
         primitive = new Cylinder(VALOFNODE(node,XMLDefinitions::radiusAtt) * scale, VALOFNODE(node,XMLDefinitions::heightAtt) * scale);
-      else if(XMLHelper::matchesName(node,XMLDefinitions::CapsuleNode))
+      else if(XMLHelper::matchesName(node,XMLDefinitions::capsuleNode))
         primitive = new Capsule(VALOFNODE(node,XMLDefinitions::radiusAtt) * scale, VALOFNODE(node,XMLDefinitions::heightAtt) * scale);
       if (primitive!=0) {
         const Vec3 rot = XMLHelper::getRotation(node);

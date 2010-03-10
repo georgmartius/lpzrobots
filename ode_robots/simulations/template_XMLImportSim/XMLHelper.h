@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-03-08 07:20:00  guettler
+ *  Revision 1.3  2010-03-10 13:54:59  guettler
+ *  further developments for xmlimport
+ *
+ *  Revision 1.2  2010/03/08 07:20:00  guettler
  *  - remove const return from some methods
  *  - fixed setPose
  *
@@ -198,7 +201,7 @@ class XMLHelper {
  *   // access to childNode
  * }
  */
-#define EACHCHILDNODE(parentNode, childNode) (xercesc_3_1::DOMNode* (childNode) = (parentNode)->getFirstChild(); (childNode) != 0; (childNode) = (childNode)->getNextSibling())
+#define  EACHCHILDNODE(parentNode, childNode) (xercesc_3_1::DOMNode* (childNode) = (parentNode)->getFirstChild(); (childNode) != 0; (childNode) = (childNode)->getNextSibling())
 
 
 #endif // __XMLHELPER_

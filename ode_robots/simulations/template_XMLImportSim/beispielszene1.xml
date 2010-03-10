@@ -4,118 +4,117 @@
 	<GlobalVariables Gravity="-9.81" DrawBoundings="1" ShadowType="5" RealtimeFactor="1" ControlInterval="1" Noise="0.1" RandomSeed="0" Fps="25" CameraSpeed="100" SimStepSize="0.01" MotionPersistence="0.00"/>
 	<PassiveObjects>
 	<!-- Der Defaultwert für Material ist	<Plastic Roughness="0.8"/> -->
-		<Playground>
-			<Geometry Length="10" Width="0.2" Height="1.0"/>
-			<Position X="0" Y="0" Z="0"/>
-			<Color alpha="255" red="255" green="255" blue="255"/>
+		<Playground Length="10" Width="0.2" Height="1.0">
+			<Position X="0" Y="0" Z="0.0"/>
+			<Color Alpha="255" Red="255" Green="255" Blue="255"/>
 		</Playground>
-	<!--
-		<Capsule Radius="1" Height="2" Mass="3">
+	
+		<Sphere Radius="1.0" Mass="1" Permeable="0">
+ 			<Texture Filename="Images/dusty.rgb" wrapTextureOnR="false" wrapTextureOnS="true" />
+			<Color Red="255" Blue="0" Green="0" Alpha="255"/>
+			<Position X="3" Y="3" Z="5"/>
+			<Rotation Alpha="0" Beta="0" Gamma="0"/>
+		<!-- 	<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>  -->
+		</Sphere>
+		<!--<Cylinder Radius="0" Height="0" Mass="0">
 			<Position X="0" Y="0" Z="0"/>
 			<Rotation Alpha="0" Beta="0" Gamma="0"/>
 			<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
-			<Color red="0" blue="0" green="0" alpha="0"/>
-			<Texture Filename="Images/dusty.rgb" wrapTextureOnR="false" wrapTextureOnS="true" />
-		</Capsule>
-		<Cylinder Radius="0" Height="0" Mass="0">
-			<Position X="0" Y="0" Z="0"/>
-			<Rotation Alpha="0" Beta="0" Gamma="0"/>
-			<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
-			<Color red="0" blue="0" green="0" alpha="0"/>
+			<Color Red="0" Blue="0" Green="0" Alpha="0"/>
 			<Texture Filename="Images/dusty.rgb" wrapTextureOnR="false" wrapTextureOnS="true" />
 		</Cylinder>
-		<Box Length="0" Width="0" Height="0" Mass="0">
+		<Box Length="0" WIdth="0" Height="0" Mass="0">
 			<Position X="0" Y="0" Z="0"/>
 			<Rotation Alpha="0" Beta="0" Gamma="0"/>
 			<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
-			<Color red="0" blue="0" green="0" alpha="0"/>
+			<Color Red="0" Blue="0" Green="0" Alpha="0"/>
 			<Texture Filename="Images/dusty.rgb" wrapTextureOnR="false" wrapTextureOnS="true" />
 		</Box>
 		<Sphere Radius="0" Mass="0">
 			<Position X="0" Y="0" Z="0"/>
 			<Rotation Alpha="0" Beta="0" Gamma="0"/>
 			<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>
-			<Color red="0" blue="0" green="0" alpha="0"/>
+			<Color Red="0" Blue="0" Green="0" Alpha="0"/>
 			<Texture Filename="Images/dusty.rgb" wrapTextureOnR="false" wrapTextureOnS="true" />
 		</Sphere>
 		-->
-		<Mesh id="Tree1">
+		<Mesh Id="Tree1">
 			<Position X="-1" Y="0.2" Z="0.4"/>
 			<Rotation Alpha="0" Gamma="0" Beta="0"/>
-			<GraphicalRepresentation animated="0" Filename="Meshes/tree1.osg" visible="1" scaling="0.01" >
-				<Color alpha="255" red="255" green="255" blue="0"/>
+			<GraphicalRepresentation Animated="0" Filename="Meshes/tree1.osg" Visible="1" Scaling="0.01" >
+				<Color Alpha="255" Red="20" Green="220" Blue="20"/>
 			</GraphicalRepresentation>
 			<BoundingShape Mass="1">				
-				<Cylinder permeable="0" Mass="0" visible="1" Radius="6.5" Height="50">
+			 <Cylinder Permeable="0" Mass="0" Visible="1" Radius="6.5" Height="50">
 					<Position X="0" Y="0" Z="25"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="0" visible="true" Radius="50" Height="15">
+				<Cylinder Permeable="0" Mass="0" Visible="true" Radius="50" Height="15">
 					<Position X="0" Y="0" Z="28"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="0" visible="1" Radius="40" Height="30">
+			<!-- <Cylinder Permeable="0" Mass="0" Visible="1" Radius="40" Height="30">
 					<Position X="0" Y="0" Z="50"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="0" visible="1" Radius="30" Height="20">
+				<Cylinder Permeable="0" Mass="0" Visible="1" Radius="30" Height="20">
 					<Position X="0" Y="0" Z="75"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="0" visible="1" Radius="20" Height="30">
+				<Cylinder Permeable="0" Mass="0" Visible="1" Radius="20" Height="30">
 					<Position X="0" Y="0" Z="100"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="0" visible="1" Radius="13" Height="30">
+				<Cylinder Permeable="0" Mass="0" Visible="1" Radius="13" Height="30">
 					<Position X="0" Y="0" Z="125"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="0" visible="1" Radius="8" Height="30">
+				<Cylinder Permeable="0" Mass="0" Visible="1" Radius="8" Height="30">
 					<Position X="0" Y="0" Z="150"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="0" visible="1" Radius="5" Height="30">
+				<Cylinder Permeable="0" Mass="0" Visible="1" Radius="5" Height="30">
 					<Position X="0" Y="0" Z="175"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
-				</Cylinder>
+				</Cylinder>-->
 			</BoundingShape>
 		</Mesh>
 		<!-- 
-		<Mesh id="Cow">
+		<Mesh Id="Cow">
 			<Position X="1" Y="0.2" Z="0.4"/>
 			<Rotation Alpha="0" Gamma="0" Beta="0"/>
-			<GraphicalRepresentation animated="0" Filename="Meshes/cow.osg" visible="1" scaling="0.1" >
-				<Color alpha="0" red="0" green="0" blue="0"/>
+			<GraphicalRepresentation Animated="0" Filename="Meshes/cow.osg" Visible="1" scaling="0.1" >
+				<Color Alpha="0" Red="0" Green="0" Blue="0"/>
 				-->
 				<!-- Textur ist in der Grafikdatei cow.osg abgelegt -->
 				<!-- 
 			</GraphicalRepresentation>
 			<BoundingShape Mass="1">
-				<Cylinder permeable="0" Mass="1" visible="1" Radius="1.8" Height="7">
+				<Cylinder Permeable="0" Mass="1" Visible="1" Radius="1.8" Height="7">
 					<Position X="-0.5" Y="-0.45" Z="0.5"/>
 					<Rotation Alpha="0" Gamma="0" Beta="90"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="1" visible="1" Radius="1" Height="3">
+				<Cylinder Permeable="0" Mass="1" Visible="1" Radius="1" Height="3">
 					<Position X="4.5" Y="-0.45" Z="2"/>
 					<Rotation Alpha="0" Gamma="0" Beta="90"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="1" visible="1" Radius="0.3" Height="2.3">
+				<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.3" Height="2.3">
 					<Position X="2.1" Y="-1.3" Z="-2"/>
 					<Rotation Alpha="0" Gamma="90" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="1" visible="1" Radius="0.3" Height="2.3">
+				<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.3" Height="2.3">
 					<Position X="2.1" Y="0.4" Z="-2"/>
 					<Rotation Alpha="0" Gamma="90" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="1" visible="1" Radius="0.3" Height="2.3">
+				<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.3" Height="2.3">
 					<Position X="-3" Y="-1.4" Z="-2"/>
 					<Rotation Alpha="0" Gamma="90" Beta="0"/>
 				</Cylinder>
-				<Cylinder permeable="0" Mass="1" visible="1" Radius="0.3" Height="2.3">
+				<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.3" Height="2.3">
 					<Position X="-3" Y="0.5" Z="-2"/>
 					<Rotation Alpha="0" Gamma="90" Beta="0"/>
 				</Cylinder>
-				<Box Width="1.0" Mass="1" Length="2.0" Height="0.5">
+				<Box WIdth="1.0" Mass="1" Length="2.0" Height="0.5">
 					<Position X="4.55" Y="-0.45" Z="2.95"/>
 					<Rotation Alpha="0" Gamma="90" Beta="0"/>
 				 </Box>
@@ -132,7 +131,7 @@
 	</PassiveObjects>
 	<Agents>
 	<!-- 
-		<Agent id="Truck 1">
+		<Agent Id="Truck 1">
 			<Robot>
 				<Position X="1.5" Y="0" Z="0.1"/>
 				<Rotation Alpha="0" Gamma="0" Beta="0"/>
@@ -204,51 +203,51 @@
 						<Position X="0" Y="0" Z="0"/>
 					</SpeedSensor>
 				</Sensors>
-				<Mesh id="Truck 1">
+				<Mesh Id="Truck 1">
 					<Position X="1.5" Y="0" Z="0.1"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
-					<GraphicalRepresentation animated="0" Filename="Meshes/dumptruck.osg" visible="1" scaling="1" >
-						<Color alpha="0" red="0" green="0" blue="0"/>
+					<GraphicalRepresentation Animated="0" Filename="Meshes/dumptruck.osg" Visible="1" scaling="1" >
+						<Color Alpha="0" Red="0" Green="0" Blue="0"/>
 						<Texture Filename="Images/really_white.rgb" wrapTextureOnR="true" wrapTextureOnS="true"/>
 					</GraphicalRepresentation>
 					<BoundingShape Mass="1">
-						<Cylinder permeable="0" Mass="1" visible="1" Radius="0.4" id="Wheel1" Height="4">
+						<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.4" Id="Wheel1" Height="4">
 							<Texture Filename="Images/tire_full.rgb" wrapTextureOnR="true" wrapTextureOnS="true"/>
-							<Color alpha="0" red="1" green="1" blue="1"/>
+							<Color Alpha="0" Red="1" Green="1" Blue="1"/>
 							<Position X="13" Y="4" Z="0.3"/>
 							<Rotation Alpha="0" Gamma="0" Beta="90"/>
 						</Cylinder>
-						<Cylinder permeable="0" Mass="1" visible="1" Radius="0.4" id="Wheel2" Height="4">
+						<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.4" Id="Wheel2" Height="4">
 							<Texture Filename="Images/tire_full.rgb" wrapTextureOnR="true" wrapTextureOnS="true"/>
-							<Color alpha="0" red="1" green="1" blue="1"/>
+							<Color Alpha="0" Red="1" Green="1" Blue="1"/>
 							<Position X="13" Y="-4" Z="0.3"/>
 							<Rotation Alpha="0" Gamma="0" Beta="-90"/>
 						</Cylinder>
-						<Cylinder permeable="0" Mass="1" visible="1" Radius="0.4" id="Wheel3" Height="4">
+						<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.4" Id="Wheel3" Height="4">
 							<Texture Filename="Images/tire_full.rgb" wrapTextureOnR="true" wrapTextureOnS="true"/>
-							<Color alpha="0" red="1" green="1" blue="1"/>
+							<Color Alpha="0" Red="1" Green="1" Blue="1"/>
 							<Position X="10" Y="4" Z="0.3"/>
 							<Rotation Alpha="0" Gamma="0" Beta="90"/>
 						</Cylinder>
-						<Cylinder permeable="0" Mass="1" visible="1" Radius="0.4" id="Wheel4" Height="4">
+						<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.4" Id="Wheel4" Height="4">
 							<Texture Filename="Images/tire_full.rgb" wrapTextureOnR="true" wrapTextureOnS="true"/>
-							<Color alpha="0" red="1" green="1" blue="1"/>
+							<Color Alpha="0" Red="1" Green="1" Blue="1"/>
 							<Position X="10" Y="-4" Z="0.3"/>
 							<Rotation Alpha="0" Gamma="0" Beta="-90"/>
 						</Cylinder>
-						<Cylinder permeable="0" Mass="1" visible="1" Radius="0.4" id="Wheel5" Height="4">
+						<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.4" Id="Wheel5" Height="4">
 							<Texture Filename="Images/tire_full.rgb" wrapTextureOnR="true" wrapTextureOnS="true"/>
-							<Color alpha="0" red="1" green="1" blue="1"/>
+							<Color Alpha="0" Red="1" Green="1" Blue="1"/>
 							<Position X="-13" Y="4" Z="0.3"/>
 							<Rotation Alpha="0" Gamma="0" Beta="90"/>
 						</Cylinder>
-						<Cylinder permeable="0" Mass="1" visible="1" Radius="0.4" id="Wheel6" Height="4">
+						<Cylinder Permeable="0" Mass="1" Visible="1" Radius="0.4" Id="Wheel6" Height="4">
 							<Texture Filename="Images/tire_full.rgb" wrapTextureOnR="true" wrapTextureOnS="true"/>
-							<Color alpha="0" red="1" green="1" blue="1"/>
+							<Color Alpha="0" Red="1" Green="1" Blue="1"/>
 							<Position X="-13" Y="-4" Z="0.3"/>
 							<Rotation Alpha="0" Gamma="0" Beta="-90"/>
 						</Cylinder>
-						<Box permeable="0" Mass="1" visible="1" Width="8" Length="29.0" Height="7.6" id="Body">
+						<Box Permeable="0" Mass="1" Visible="1" WIdth="8" Length="29.0" Height="7.6" Id="Body">
 							<Position X="1.5" Y="0" Z="0.1"/>
 							<Rotation Alpha="0" Gamma="0" Beta="0"/>
 						</Box>
@@ -262,22 +261,22 @@
 		</Agent>
 		 -->
 	</Agents>
-	<Camera id="StandardCamera">
+	<Camera Id="StandardCamera">
 	  <StandardMode>
-      <Position X="15.5999" Y="9.02553" Z="12.5656"/>
-      <Rotation Alpha="120.91" Beta="-37.9598" Gamma="0"/>	  
+    <Position X="-12.5562" Y="6.45904" Z="4.95112"/>                                                                                                                   
+    <Rotation Alpha="-113.491" Beta="-17.0715" Gamma="0"/>
     </StandardMode>
 	</Camera>
 	<Lights>
-		<StandardLight id="Light">true</StandardLight>
+		<StandardLight Id="Light">true</StandardLight>
 	</Lights>
 	<!--
-	<Camera id="String">
+	<Camera Id="String">
 		<StandardCam>
 			<Position X="3.14159E0" Y="3.14159E0" Z="3.14159E0"/>
 			<Rotation Alpha="3.14159E0" Beta="3.14159E0" Gamma="3.14159E0"/>
 		</StandardCam>
-		<!-- <TvMode AgentId="String">
+		 <TvMode AgentId="String">
 			<Position X="0" Y="0" Z="0"/>
 			<ViewPosition X="0" Y="0" Z="0"></ViewPosition>
 		</TvMode>
@@ -288,21 +287,21 @@
 		<FollowMode AgentId="0">
 			<Position X="0" Y="0" Z="0"/>
 			<Rotation Alpha="0" Beta="0" Gamma="0"
-		</FollowMode>   nur eine Kameraart gilt-->
-	<!-- </Camera>-->
+		</FollowMode>   nur eine Kameraart gilt
+	</Camera>
 	<Lights>
-		<StandardLight id="String">true</StandardLight>
-		<SimpleLightPoint Brightness="1" id="string" >
+		<StandardLight Id="String">true</StandardLight>
+		<SimpleLightPoint Brightness="1" Id="string" >
 			<Position X="10" Y="0" Z="0"/>
 		</SimpleLightPoint>
-		<SpecificLight Brightness="1" id="0" AttenuationType="0" >
+		<SpecificLight Brightness="1" Id="0" AttenuationType="0" >
 			<Position X="0" Y="0" Z="0"/>
 			<Rotation Alpha="0" Beta="0" Gamma="0"/>
-			<AmbientColor red="0" blue="0" green="0" alpha="0"></AmbientColor>
-			<SpecularColor red="0" blue="0" green="0" alpha="0"></SpecularColor>
-			<DifuseColor alpha="0" blue="0" green="0" red="0"></DifuseColor>
+			<AmbientColor Red="0" Blue="0" Green="0" Alpha="0"></AmbientColor>
+			<SpecularColor Red="0" Blue="0" Green="0" Alpha="0"></SpecularColor>
+			<DifuseColor Alpha="0" Blue="0" Green="0" Red="0"></DifuseColor>
 		</SpecificLight>
-		<LightDirection Brightness="0" id="0">
+		<LightDirection Brightness="0" Id="0">
 			<Rotation Alpha="0" Beta="0" Gamma="0"/>
 		</LightDirection>
 	</Lights>

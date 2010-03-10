@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-03-10 13:54:59  guettler
+ *  further developments for xmlimport
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *										   *
  *                                                                         *
@@ -82,7 +85,7 @@ class XMLParserEngine {
     XMLPrimitiveFactory* getPrimitiveFactory() { return primitiveFactory; }
 
 
-  private:
+  protected:
     xercesc::XercesDOMParser* parser;
     lpzrobots::GlobalData& globalData;
     const lpzrobots::OdeHandle& odeHandle;
@@ -91,6 +94,9 @@ class XMLParserEngine {
     bool validateXML;
 
     XMLPrimitiveFactory* primitiveFactory;
+
+
+    void parseGlobalVariables(xercesc_3_1::DOMNode* globalVariablesNode);
 };
 
 #endif /* __XMLPARSERENGINE_H_ */
