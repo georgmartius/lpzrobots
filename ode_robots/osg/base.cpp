@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.43  2010-03-07 22:39:08  guettler
+ *   Revision 1.44  2010-03-10 10:43:52  guettler
+ *   SoftShadowMap uses now parameter shadowsize (was not set yet)
+ *
+ *   Revision 1.43  2010/03/07 22:39:08  guettler
  *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
  *
  *   Revision 1.42  2010/03/05 14:32:55  martius
@@ -447,6 +450,7 @@ namespace lpzrobots {
     {
       osg::ref_ptr<osgShadow::SoftShadowMap> sm = new osgShadow::SoftShadowMap;
       sm->setSoftnessWidth(softnessWidth);
+      sm->setTextureSize(osg::Vec2s((int)shadowTexSize,(int)shadowTexSize));
       shadowedScene->setShadowTechnique(sm.get());
     }
     break;
