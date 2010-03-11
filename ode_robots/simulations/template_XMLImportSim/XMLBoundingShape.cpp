@@ -26,7 +26,12 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-03-10 13:54:59  guettler
+ *  Revision 1.3  2010-03-11 15:18:06  guettler
+ *  -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *  -Mesh can be created without Body and Geom.
+ *  -various bugfixes
+ *
+ *  Revision 1.2  2010/03/10 13:54:59  guettler
  *  further developments for xmlimport
  *
  *  Revision 1.1  2010/03/07 22:50:38  guettler
@@ -47,7 +52,7 @@ using namespace xercesc_3_1;
 using namespace lpzrobots;
 using namespace osg;
 
-XMLBoundingShape::XMLBoundingShape(const xercesc_3_1::DOMNode* boundingBoxNode, XMLParserEngine& engine, lpzrobots::Primitive* parent)
+XMLBoundingShape::XMLBoundingShape(const xercesc_3_1::DOMNode* boundingBoxNode, XMLParserEngine& engine, lpzrobots::Mesh* parent)
 : BoundingShape("", parent), XMLObject(xmlEngine), boundingBoxNode(boundingBoxNode) {
   // TODO Auto-generated constructor stub
 
@@ -58,8 +63,15 @@ XMLBoundingShape::~XMLBoundingShape() {
 }
 
 
-bool XMLBoundingShape::init(const lpzrobots::OdeHandle& odeHandle, const lpzrobots::OsgHandle& osgHandle,
+bool XMLBoundingShape::init(const lpzrobots::OdeHandle& _odeHandle, const lpzrobots::OsgHandle& osgHandle,
       double scale, char mode) {
+  odeHandle = OdeHandle(_odeHandle);
+  parentSpace = odeHandle.space;
+  odeHandle.createNewSimpleSpace(parentSpace,true);
+  char primitiveMode = mode & ~Primitive::Body; // never create any body for the primitives (TODO: compound body)
+  if (!(mode & Primitive::Body)) {
+    attachedToParentBody = false;
+  }
   for EACHCHILDNODE(boundingBoxNode, node) {
     if (node->getNodeType() == DOMNode::ELEMENT_NODE) {
       Primitive* primitive = 0;
@@ -74,9 +86,19 @@ bool XMLBoundingShape::init(const lpzrobots::OdeHandle& odeHandle, const lpzrobo
       if (primitive!=0) {
         const Vec3 rot = XMLHelper::getRotation(node);
         const Vec3 pos = XMLHelper::getPosition(node);
-        Primitive* Trans = new lpzrobots::Transform(parent, primitive, osgRotate(rot[0]*M_PI/180.0f,rot[1]*M_PI/180.0f,rot[2]*M_PI/180.0f)
-                 *osg::Matrix::translate(scale*pos[0],scale*pos[1],scale*pos[2]));
-        Trans->init(odeHandle, 0, osgHandle.changeColor(Color(1.0,0,0,0.3)),mode);
+        if (mode & Primitive::Body) {  // use Transforms to attach the Primitives to the body
+          std::cout << "BoundingShape body mode!" << std::endl;
+          Primitive* Trans = new lpzrobots::Transform(parent, primitive, osgRotate(rot[0]*M_PI/180.0f,rot[1]*M_PI/180.0f,rot[2]*M_PI/180.0f)
+                   *osg::Matrix::translate(scale*pos[0],scale*pos[1],scale*pos[2]));
+          Trans->init(odeHandle, 0, osgHandle.changeColor(Color(1.0,0,0,0.3)),primitiveMode);
+        }
+        else {
+          std::cout << "BoundingShape geom only mode!" << std::endl;
+          primitive->init(odeHandle, 0, osgHandle.changeColor(Color(1.0,0,0,0.3)), primitiveMode);
+          boundingPrimitiveList.push_back(primitive);
+          boundingPrimitivePoseList.push_back(osgRotate(rot[0]*M_PI/180.0f,rot[1]*M_PI/180.0f,rot[2]*M_PI/180.0f)
+                   *osg::Matrix::translate(scale*pos[0],scale*pos[1],scale*pos[2]));
+        }
         active = true;
         std::cout << "Primitive for BoundingShape created!" << std::endl;
       }

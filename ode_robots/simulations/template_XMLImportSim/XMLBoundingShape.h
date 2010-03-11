@@ -26,7 +26,12 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-03-11 15:18:06  guettler
+ *  -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *  -Mesh can be created without Body and Geom.
+ *  -various bugfixes
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *										   *
  *                                                                         *
@@ -48,7 +53,7 @@ class XMLBoundingShape : public lpzrobots::BoundingShape, public XMLObject {
    *        used Primitives for the BoundingShape.
    * @param parent primitive to which the BoundingShape is associated
    */
-    XMLBoundingShape(const xercesc_3_1::DOMNode* boundingBoxNode, XMLParserEngine& engine, lpzrobots::Primitive* parent);
+    XMLBoundingShape(const xercesc_3_1::DOMNode* boundingBoxNode, XMLParserEngine& engine, lpzrobots::Mesh* parent);
     virtual ~XMLBoundingShape();
 
      /// tries to open the bbox file and greates all geoms

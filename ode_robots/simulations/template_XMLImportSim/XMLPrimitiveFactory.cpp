@@ -26,7 +26,12 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-03-10 13:54:59  guettler
+ *  Revision 1.3  2010-03-11 15:18:06  guettler
+ *  -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *  -Mesh can be created without Body and Geom.
+ *  -various bugfixes
+ *
+ *  Revision 1.2  2010/03/10 13:54:59  guettler
  *  further developments for xmlimport
  *
  *  Revision 1.1  2010/03/07 22:50:38  guettler
@@ -171,24 +176,28 @@ Mesh* XMLPrimitiveFactory::createMesh(DOMNode* meshNode) {
           XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::graphicalRepresentationNode, XMLDefinitions::scaleAtt,
               1.0));// the scale factor to be used
   // always do not let create the BoundingShape (by .bbox) (so don't use mode Primitive::Geom)
-  char primitiveMode = Primitive::Body;
+  char primitiveMode = 0;
   double mass = XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::boundingShapeNode, XMLDefinitions::massAtt, 1.0);
   double visible = XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::graphicalRepresentationNode, XMLDefinitions::visibleAtt, 1.0);
-  if (mass == 0)
-    mass = 1.0; // since a body is always needed, ensure that a correct mass is used
   if (visible)
     primitiveMode |= Primitive::Draw;
-  primitiveMode |= Primitive::Geom;
+  // if mass == 0, don't create a body.
+  // Then the BoundingShape must not use Transforms to attach the Primitives to the body,
+  // the Primitives have to be generated static (without body) and grouped into one space.
+  if (mass>=XMLDefinitions::compareEPS)
+    primitiveMode|=Primitive::Body;
   // Geom is "created" by the XMLBoundingShape
-  mesh->init(odeHandle, mass, osgHandle.changeColor(XMLHelper::getColor(XMLHelper::getChildNode(meshNode, XMLDefinitions::graphicalRepresentationNode)))); //, primitiveMode);// the mass of the mesh
+  mesh->init(odeHandle, mass, osgHandle.changeColor(XMLHelper::getColor(XMLHelper::getChildNode(meshNode, XMLDefinitions::graphicalRepresentationNode))), primitiveMode);
   //setTextureIfPresent(meshNode, mesh);
   //setMaterial(meshNode, mesh);
   // create BoundingShape
   primitiveMode = Primitive::Geom;
   if (osgHandle.drawBoundings)
     primitiveMode|= Primitive::Draw;
- // XMLBoundingShape* boundingShape = new XMLBoundingShape(XMLHelper::getChildNode(meshNode, XMLDefinitions::BoundingShapeNode),*(this->engine),mesh);
-  //boundingShape->init(odeHandle, osgHandle, XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::GraphicalRepresentationNode, XMLDefinitions::scaleAtt, 1.0), primitiveMode);
+  if (mass >= XMLDefinitions::compareEPS)
+    primitiveMode|= Primitive::Body; // if mesh has a body, the geoms need to have be attached to the body
+  XMLBoundingShape* boundingShape = new XMLBoundingShape(XMLHelper::getChildNode(meshNode, XMLDefinitions::boundingShapeNode),*(this->engine),mesh);
+  boundingShape->init(odeHandle, osgHandle, XMLHelper::getChildNodeValue(meshNode, XMLDefinitions::graphicalRepresentationNode, XMLDefinitions::scaleAtt, 1.0), primitiveMode);
   mesh->setPose(XMLHelper::getPose(meshNode));
   return mesh;
 
@@ -366,7 +375,7 @@ char XMLPrimitiveFactory::getPrimitiveMode(DOMNode* node) {
   double visible = XMLHelper::getNodeAtt(node, XMLDefinitions::visibleAtt, 1.0);
   double permeable = XMLHelper::getNodeAtt(node, XMLDefinitions::permeableAtt, 0.0);
   std::cout << "body=" << (mass>0?"yes":"no") << ", draw=" << (visible?"yes":"no") << ", geom=" << (permeable?"no":"yes") << endl;
-  if (mass>0)
+  if (mass>=XMLDefinitions::compareEPS)
     mode |= Primitive::Body;
   if (visible>0)
     mode |= Primitive::Draw;

@@ -10,7 +10,7 @@
 		</Playground>
 	
 		<Sphere Radius="1.0" Mass="1" Permeable="0">
- 			<Texture Filename="Images/dusty.rgb" wrapTextureOnR="false" wrapTextureOnS="true" />
+ 			<Texture Filename="Images/dusty.rgb" WrapTextureOnR="false" WrapTextureOnS="true" />
 			<Color Red="255" Blue="0" Green="0" Alpha="255"/>
 			<Position X="3" Y="3" Z="5"/>
 			<Rotation Alpha="0" Beta="0" Gamma="0"/>
@@ -38,22 +38,29 @@
 			<Texture Filename="Images/dusty.rgb" wrapTextureOnR="false" wrapTextureOnS="true" />
 		</Sphere>
 		-->
+		<Sphere Radius="1.0" Mass="0.2" Permeable="0">
+      <Texture Filename="Images/dusty.rgb" WrapTextureOnR="false" WrapTextureOnS="true" />
+      <Color Red="255" Blue="0" Green="0" Alpha="255"/>
+      <Position X="-1" Y="0.5" Z="5"/>
+      <Rotation Alpha="0" Beta="0" Gamma="0"/>
+    <!--  <Material Elasticity="2" Roughness="3" Slip="21" Hardness="2"> </Material>  -->
+    </Sphere>
 		<Mesh Id="Tree1">
 			<Position X="-1" Y="0.2" Z="0.4"/>
 			<Rotation Alpha="0" Gamma="0" Beta="0"/>
 			<GraphicalRepresentation Animated="0" Filename="Meshes/tree1.osg" Visible="1" Scaling="0.01" >
 				<Color Alpha="255" Red="20" Green="220" Blue="20"/>
 			</GraphicalRepresentation>
-			<BoundingShape Mass="1">				
-			 <Cylinder Permeable="0" Mass="0" Visible="1" Radius="6.5" Height="50">
+			<BoundingShape Mass="0.06">				
+			  <Cylinder Permeable="0" Mass="0" Visible="1" Radius="6.5" Height="50">
 					<Position X="0" Y="0" Z="25"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-				<Cylinder Permeable="0" Mass="0" Visible="true" Radius="50" Height="15">
+				 <Cylinder Permeable="0" Mass="0" Visible="true" Radius="50" Height="15">
 					<Position X="0" Y="0" Z="28"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
-			<!-- <Cylinder Permeable="0" Mass="0" Visible="1" Radius="40" Height="30">
+			 <Cylinder Permeable="0" Mass="0" Visible="1" Radius="40" Height="30">
 					<Position X="0" Y="0" Z="50"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
 				</Cylinder>
@@ -76,7 +83,7 @@
 				<Cylinder Permeable="0" Mass="0" Visible="1" Radius="5" Height="30">
 					<Position X="0" Y="0" Z="175"/>
 					<Rotation Alpha="0" Gamma="0" Beta="0"/>
-				</Cylinder>-->
+				</Cylinder>
 			</BoundingShape>
 		</Mesh>
 		<!-- 

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-03-10 13:54:59  guettler
+ *   Revision 1.3  2010-03-11 15:18:06  guettler
+ *   -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *   -Mesh can be created without Body and Geom.
+ *   -various bugfixes
+ *
+ *   Revision 1.2  2010/03/10 13:54:59  guettler
  *   further developments for xmlimport
  *
  *   Revision 1.1  2010/03/07 22:50:38  guettler
@@ -131,7 +136,7 @@
 #include <stdio.h>
 
 // include ode library
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>

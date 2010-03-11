@@ -26,7 +26,12 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-03-10 13:54:59  guettler
+ *  Revision 1.4  2010-03-11 15:18:06  guettler
+ *  -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *  -Mesh can be created without Body and Geom.
+ *  -various bugfixes
+ *
+ *  Revision 1.3  2010/03/10 13:54:59  guettler
  *  further developments for xmlimport
  *
  *  Revision 1.2  2010/03/08 07:18:56  guettler
@@ -41,6 +46,8 @@
 #define __XMLDEFINITIONS_H_
 
 namespace XMLDefinitions {
+
+  const static double compareEPS               = 1e-12;
 
   // global nodes
   const static char* sceneNode                = "Scene";
