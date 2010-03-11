@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2006-08-11 15:41:31  martius
+ *   Revision 1.4  2010-03-11 15:17:19  guettler
+ *   -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *   -Mesh can be created without Body and Geom.
+ *
+ *   Revision 1.3  2006/08/11 15:41:31  martius
  *   osgDB used to find path
  *
  *   Revision 1.2  2006/07/14 12:23:33  martius
@@ -60,9 +64,12 @@
 
 #include "boundingshape.h"
 #include "mathutils.h"
+#include <selforg/stl_adds.h>
 
 #include <iostream>
 #include <osgDB/FileUtils>
+
+using namespace std;
 
 namespace lpzrobots {
 
@@ -77,17 +84,35 @@ namespace lpzrobots {
      the rotation angles about x,y,z axis respectively        
   */
 
-  BoundingShape::BoundingShape(const std::string& filename, Primitive* parent) 
-    : filename(filename), parent(parent) {
-    active=false;
+  BoundingShape::BoundingShape(const std::string& filename, Mesh* parent)
+    : filename(filename), active(false), parent(parent), attachedToParentBody(true) {
+    parent->setBoundingShape(this);
   }
   
-  BoundingShape::~BoundingShape(){}
+  BoundingShape::~BoundingShape(){
+    // TODO: destroy created Primitives and Transforms
+  }
+
+  void BoundingShape::setPose(const osg::Matrix& pose) {
+    // update only if not attached to parent Body
+    if (attachedToParentBody)
+      return;
+    vector<osg::Matrix>::const_iterator poseIt = boundingPrimitivePoseList.begin();
+    FOREACH(vector<Primitive*>, boundingPrimitiveList, primIt) {
+      if (*primIt && poseIt!=boundingPrimitivePoseList.end()) {
+        const osg::Matrix primPose = (*poseIt);
+        (*primIt)->setPose(pose * primPose);
+      }
+      poseIt++;
+    }
+  }
 
   bool BoundingShape::readBBoxFile(std::string& filename,
-				   const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+				   const OdeHandle& _odeHandle, const OsgHandle& osgHandle,
 				   double scale, char mode){
-
+    odeHandle = OdeHandle(_odeHandle);
+    parentSpace = odeHandle.space;
+    odeHandle.createNewSimpleSpace(parentSpace,true);
     std::string filenamepath = osgDB::findDataFile(filename);
     FILE* f = fopen(filenamepath.c_str(),"r");
     if(!f) return false;

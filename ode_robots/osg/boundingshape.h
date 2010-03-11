@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-07 22:39:45  guettler
+ *   Revision 1.5  2010-03-11 15:17:19  guettler
+ *   -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *   -Mesh can be created without Body and Geom.
+ *
+ *   Revision 1.4  2010/03/07 22:39:45  guettler
  *   variables are now protected instead of private for inheritance issues
  *
  *   Revision 1.3  2006/08/11 15:41:40  martius
@@ -67,9 +71,10 @@
 #define __BOUNDINGSHAPE_H
 
 #include "primitive.h"
+#include "odehandle.h"
 
-#include <list>
 #include <string>
+#include <vector>
 
 
 namespace lpzrobots {
@@ -108,7 +113,7 @@ cylinder 5 30 (0,0,175) (0,0,0)
        @param filename path and name of bbox file. It is located using OsgDB search path
        @param parent primitive to which the bbox is assoziated
     */
-    BoundingShape(const std::string& filename, Primitive* parent);
+    BoundingShape(const std::string& filename, Mesh* parent);
 
     virtual ~BoundingShape();
 
@@ -118,6 +123,12 @@ cylinder 5 30 (0,0,175) (0,0,0)
     
     virtual bool isActive();
 
+    /**
+     * updates all Primitives of the BoundingShape if only in geom mode (no Body)
+     * @param pose
+     */
+    virtual void setPose(const osg::Matrix& pose);
+
   private:
     bool readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 		      double scale, char mode);
@@ -126,6 +137,11 @@ cylinder 5 30 (0,0,175) (0,0,0)
     std::string filename;
     bool active;
     Primitive* parent;
+    bool attachedToParentBody; // true as default, false not yet implemented by BoundingShape
+    std::vector<Primitive*> boundingPrimitiveList; // used if not attached to a body
+    std::vector<osg::Matrix> boundingPrimitivePoseList; // stores the relative pose of each primitive
+    OdeHandle odeHandle;
+    dSpaceID parentSpace;
   };
 
 }

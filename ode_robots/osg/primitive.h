@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-03-09 11:53:41  martius
+ *   Revision 1.23  2010-03-11 15:17:19  guettler
+ *   -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *   -Mesh can be created without Body and Geom.
+ *
+ *   Revision 1.22  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.21  2010/03/07 22:46:51  guettler
@@ -461,11 +465,22 @@ public:
   virtual float getRadius();
 
   virtual void setMass(double mass);
+
+  /**
+   * Sets the BoundingShape externally (e.g. XMLBoundingShape).
+   * Any existing BoundingShape will be deleted.
+   */
+  virtual void setBoundingShape(BoundingShape* boundingShape);
+
+  virtual void setPose(const osg::Matrix& pose);
+
 protected:
   OSGMesh* osgmesh;
   const std::string filename;
   float scale;
   BoundingShape* boundshape;
+  osg::Matrix poseWithoutBodyAndGeom;
+
 };
 
 

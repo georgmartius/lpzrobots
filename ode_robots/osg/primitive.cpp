@@ -23,7 +23,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2010-03-07 22:47:59  guettler
+ *   Revision 1.28  2010-03-11 15:17:19  guettler
+ *   -BoundingShape can now be set from outside (see XMLBoundingShape)
+ *   -Mesh can be created without Body and Geom.
+ *
+ *   Revision 1.27  2010/03/07 22:47:59  guettler
  *   - support for manually setting the substance (substance was overwritten in initialise methods)
  *   - enhancements for Mesh (mode Body, Geom, Draw), is needed for XMLImport
  *
@@ -779,7 +783,7 @@ namespace lpzrobots{
   /******************************************************************************/
 
   Mesh::Mesh(const std::string& filename,float scale) :
-    filename(filename), scale(scale)  {    
+    filename(filename), scale(scale), boundshape(0) {
     osgmesh = new OSGMesh(filename, scale);
   }
 
@@ -792,8 +796,9 @@ namespace lpzrobots{
   void Mesh::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
 		     char mode) {
     // 20100307; guettler: sometimes the Geom is created later (XMLBoundingShape),
-    // the body is always needed!
-    assert(mode & Body /* || mode & Geom */);
+    // if no body is created, this Mesh seems to be static. Then the BoundingShape must not attach
+    // any Primitive to the body of the Mesh by a Transform.
+    //assert(mode & Body || mode & Geom);
     if (!substanceManuallySet)
       substance = odeHandle.substance;
     this->mode=mode;
@@ -836,6 +841,37 @@ namespace lpzrobots{
     QMP_END_CRITICAL(7);
   }
 
+  void Mesh::setBoundingShape(BoundingShape* boundingShape) {
+    if (boundshape)
+      delete boundshape;
+    boundshape = boundingShape;
+  }
+
+  void Mesh::setPose(const osg::Matrix& pose){
+     if(body){
+       osg::Vec3 pos = pose.getTrans();
+       dBodySetPosition(body, pos.x(), pos.y(), pos.z());
+       osg::Quat q;
+       pose.get(q);
+       // this should be
+       //      dReal quat[4] = {q.x(), q.y(), q.z(), q.w()};
+       dReal quat[4] = {q.w(), q.x(), q.y(), q.z()};
+       dBodySetQuaternion(body, quat);
+     }else if(geom){ // okay there is just a geom no body
+       osg::Vec3 pos = pose.getTrans();
+       dGeomSetPosition(geom, pos.x(), pos.y(), pos.z());
+       osg::Quat q;
+       pose.get(q);
+       // this should be
+       // dReal quat[4] = {q.x(), q.y(), q.z(), q.w()};
+       dReal quat[4] = {q.w(), q.x(), q.y(), q.z()};
+       dGeomSetQuaternion(geom, quat);
+     } else
+       poseWithoutBodyAndGeom = osg::Matrix(pose);
+     update(); // update the scenegraph stuff
+   }
+
+
   float Mesh::getRadius() { return osgmesh->getRadius(); }
 
   void Mesh::update(){
@@ -843,8 +879,12 @@ namespace lpzrobots{
       if(body) {
         osgmesh->setMatrix(osgPose(body));
       }
-      else {
+      else if (geom) {
         osgmesh->setMatrix(osgPose(geom));
+      }
+      else {
+        osgmesh->setMatrix(poseWithoutBodyAndGeom);
+        boundshape->setPose(poseWithoutBodyAndGeom);
       }
     }
   }
