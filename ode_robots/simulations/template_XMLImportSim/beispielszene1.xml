@@ -23,7 +23,7 @@
 				<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2">
 				</Material>
 			-->
-		</Sphere>
+		<!-- </Sphere> -->
 		<!--
 			<Cylinder Radius="0" Height="0" Mass="0"> <Position X="0" Y="0"
 			Z="0"/> <Rotation Alpha="0" Beta="0" Gamma="0"/> <Material
@@ -42,12 +42,12 @@
 			Alpha="0"/> <Texture Filename="Images/dusty.rgb"
 			wrapTextureOnR="false" wrapTextureOnS="true" /> </Sphere>
 		-->
-		<Sphere Radius="1.0" Mass="0.2" Permeable="0">
+		<!-- <Sphere Radius="1.0" Mass="0.2" Permeable="0">
 			<Texture Filename="Images/dusty.rgb" WrapTextureOnR="false"
 				WrapTextureOnS="true" />
 			<Color Red="255" Blue="0" Green="255" Alpha="255" />
 			<Position X="-1" Y="0.5" Z="5" />
-			<Rotation Alpha="0" Beta="0" Gamma="0" />
+			<Rotation Alpha="0" Beta="0" Gamma="0" /> -->
 			<!--
 				<Material Elasticity="2" Roughness="3" Slip="21" Hardness="2">
 				</Material>
@@ -57,7 +57,7 @@
 			<Position X="-1" Y="0.2" Z="0" />
 			<Rotation Alpha="0" Gamma="0" Beta="0" />
 			<GraphicalRepresentation Animated="0"
-				Filename="tree3.3ds" Visible="1" Scaling="0.2">
+				Filename="tree3.3ds" Visible="1" Scaling="0.0001">
 				<Color Alpha="255" Red="20" Green="220" Blue="20" />
 			</GraphicalRepresentation>
 			<BoundingShape Mass="0">
