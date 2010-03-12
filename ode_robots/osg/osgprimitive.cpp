@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2010-03-07 22:45:19  guettler
+ *   Revision 1.18  2010-03-12 13:57:50  guettler
+ *   support for transparent textures in meshes
+ *
+ *   Revision 1.17  2010/03/07 22:45:19  guettler
  *   - OSGMesh supports now virtual initialisation (necessary for Meshes not visible)
  *   - Bugfix: osgHandle was not checked if valid (occurs when Primitive is not initialised)
  *
@@ -165,6 +168,8 @@
 //#include <osg/LightSource>
 #include <osg/Material>
 #include <osg/TexEnv>
+#include <osg/AlphaFunc>
+
 
 
 #include "osgprimitive.h"
@@ -569,6 +574,19 @@ namespace lpzrobots {
            fprintf(stderr,"OSGMesh: init: cannot load file: %s\n Abort!\n",filename.c_str());
            exit(1);
          }
+           osg::StateSet* state = mesh->getOrCreateStateSet();
+           //stateset->setMode(StateAttribute::ALPHAFUNC, StateAttribute::OFF);
+           TexEnv* blendTexEnv = new TexEnv;
+           blendTexEnv->setMode(TexEnv::BLEND);
+           state->setTextureAttribute(1,blendTexEnv);
+           state->setRenderBinDetails( 11, "DepthSortedBin");
+           state->setRenderBinDetails( 2, "RenderBin" );
+           state->setMode(GL_BLEND,osg::StateAttribute::ON);
+           //state->setMode(GL_DEPTH_TEST,osg::StateAttribute::OFF);
+           state->setRenderingHint( StateSet::TRANSPARENT_BIN );
+           AlphaFunc* alphaFunc = new AlphaFunc;
+           alphaFunc->setFunction(AlphaFunc::GEQUAL,0.1f);
+           state->setAttributeAndModes( alphaFunc, StateAttribute::ON);
          scaletrans->addChild(mesh.get());
 
          applyTextures();
