@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-03-08 07:20:00  guettler
+ *  Revision 1.3  2010-03-12 09:11:58  guettler
+ *  debug cout color improved
+ *
+ *  Revision 1.2  2010/03/08 07:20:00  guettler
  *  - remove const return from some methods
  *  - fixed setPose
  *
@@ -273,7 +276,7 @@ const lpzrobots::Color XMLHelper::getColor(const DOMNode* node) {
 		double greenValue = getNodeAtt(colorNode,XMLDefinitions::greenAtt,255);
 		double blueValue = getNodeAtt(colorNode,XMLDefinitions::blueAtt,255);
 		double alphaValue = getNodeAtt(colorNode,XMLDefinitions::alphacolorAtt,255);
-		cout << "  Color found" << redValue << " "<< greenValue << " "<< blueValue << " "<< alphaValue << endl;
+		cout << "  Color found: red=" << redValue << ", green="<< greenValue << ", blue="<< blueValue << ", alpha="<< alphaValue << endl;
 		// calculate values between 0...1 (XML: 0...255)
 		return Color(redValue/255.0,greenValue/255.0,blueValue/255.0,alphaValue/255.0);
 	}
