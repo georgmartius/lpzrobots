@@ -27,8 +27,8 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2010-03-12 14:17:01  guettler
- *   deactivated GL_BLEND in transparent textures
+ *   Revision 1.20  2010-03-15 09:06:07  guettler
+ *   improved lightning for meshes
  *
  *   Revision 1.18  2010/03/12 13:57:50  guettler
  *   support for transparent textures in meshes
@@ -584,12 +584,20 @@ namespace lpzrobots {
            state->setTextureAttribute(1,blendTexEnv);
            state->setRenderBinDetails( 11, "DepthSortedBin");
            state->setRenderBinDetails( 2, "RenderBin" );
-           //state->setMode(GL_BLEND,osg::StateAttribute::ON);
+           state->setMode(GL_BLEND,osg::StateAttribute::ON);
           // state->setMode(GL_DEPTH_TEST,osg::StateAttribute::OFF);
            state->setRenderingHint( StateSet::TRANSPARENT_BIN );
            AlphaFunc* alphaFunc = new AlphaFunc;
-           alphaFunc->setFunction(AlphaFunc::GEQUAL,0.2f);
+           alphaFunc->setFunction(AlphaFunc::GEQUAL,0.1f);
            state->setAttributeAndModes( alphaFunc, StateAttribute::ON);
+           state->setAttributeAndModes(getMaterial(osgHandle.color, Material::EMISSION).get(),
+                          StateAttribute::OVERRIDE);
+           /*   AMBIENT = GL_AMBIENT,
+                DIFFUSE = GL_DIFFUSE,
+                SPECULAR = GL_SPECULAR,
+                EMISSION = GL_EMISSION,
+                AMBIENT_AND_DIFFUSE = GL_AMBIENT_AND_DIFFUSE,
+                OFF */
          scaletrans->addChild(mesh.get());
 
          applyTextures();

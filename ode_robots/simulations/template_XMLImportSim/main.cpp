@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-11 15:18:06  guettler
+ *   Revision 1.4  2010-03-15 09:01:34  guettler
+ *   improved lightning for meshes
+ *
+ *   Revision 1.3  2010/03/11 15:18:06  guettler
  *   -BoundingShape can now be set from outside (see XMLBoundingShape)
  *   -Mesh can be created without Body and Geom.
  *   -various bugfixes
@@ -152,6 +155,7 @@
 
 // used robot
 #include <ode_robots/truckmesh.h>
+#include <ode_robots/nimm2.h>
 
 
 // used arena
@@ -280,6 +284,12 @@ public:
 
         showParams(global.configs);
 */
+      OdeRobot* robot = new Nimm2(odeHandle,osgHandle, Nimm2::getDefaultConf(), "Nimm2");
+      robot->place(Pos(-1.5,0,0.1));
+      AbstractController* controller = new InvertMotorSpace(15);
+      global.configs.push_back(controller);
+      OdeAgent* agent = new OdeAgent(plotoptions);
+      agent->init(controller, robot, new One2OneWiring(new ColorUniformNoise(0.1)));
     XMLParserEngine* xmlEngine = new XMLParserEngine(global,odeHandle,osgHandle,this);
 
     //xmlEngine->loadXMLFile("Szenealleknoten.xml");
