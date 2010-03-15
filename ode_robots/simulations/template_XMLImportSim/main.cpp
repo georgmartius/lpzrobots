@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-15 09:01:34  guettler
+ *   Revision 1.5  2010-03-15 10:48:27  guettler
+ *   better stem texture
+ *
+ *   Revision 1.4  2010/03/15 09:01:34  guettler
  *   improved lightning for meshes
  *
  *   Revision 1.3  2010/03/11 15:18:06  guettler
@@ -285,12 +288,13 @@ public:
         showParams(global.configs);
 */
       OdeRobot* robot = new Nimm2(odeHandle,osgHandle, Nimm2::getDefaultConf(), "Nimm2");
-      robot->place(Pos(-1.5,0,0.1));
+      robot->place(Pos(-2,0,0.1));
       AbstractController* controller = new InvertMotorSpace(15);
       global.configs.push_back(controller);
       OdeAgent* agent = new OdeAgent(plotoptions);
       agent->init(controller, robot, new One2OneWiring(new ColorUniformNoise(0.1)));
-    XMLParserEngine* xmlEngine = new XMLParserEngine(global,odeHandle,osgHandle,this);
+      global.agents.push_back(agent);
+      XMLParserEngine* xmlEngine = new XMLParserEngine(global,odeHandle,osgHandle,this);
 
     //xmlEngine->loadXMLFile("Szenealleknoten.xml");
     xmlEngine->loadXMLFile("beispielszene1.xml");

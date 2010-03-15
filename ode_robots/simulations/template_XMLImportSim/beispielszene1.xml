@@ -60,7 +60,7 @@
 				Filename="tree3.3ds" Visible="1" Scaling="0.0002">
 				<Color Red="255" Green="255" Blue="255" Alpha="255"/>
 			</GraphicalRepresentation>
-			<BoundingShape Mass="0">
+			<BoundingShape Mass="1">
 				<Cylinder Permeable="0" Mass="0" Visible="1" Radius="6.5"
 					Height="50">
 					<Position X="0" Y="0" Z="25" />
