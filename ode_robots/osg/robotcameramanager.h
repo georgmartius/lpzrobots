@@ -25,6 +25,9 @@
 #define __ROBOTCAMERAMANAGER_H
 
 #include "camera.h"
+#include <osgGA/GUIEventHandler>
+#include <osgGA/GUIEventAdapter>
+#include <osgGA/GUIActionAdapter>
 
 namespace lpzrobots {
 
@@ -33,12 +36,13 @@ namespace lpzrobots {
      meaning independent of the normal graphical rendering.
      Additionally the view of the cameras is displayed as an overlay.     
    */
-  class RobotCameraManager /*: public osgGA::GUIEventHandler*/ {    
+  class RobotCameraManager : public osgGA::GUIEventHandler {    
     struct Overlay {
-      Overlay(std::pair<osg::Image*, bool> image_show);
+      Overlay(const Camera::CameraImage& image);
       ~Overlay();
       osg::Image* img;
       bool show;
+      float scale;
       osg::Texture2D* texture;
       int overlayWidth;
       int overlayHeight;
@@ -61,6 +65,12 @@ namespace lpzrobots {
     virtual osg::Group* getDisplay() { return display; }
     virtual osg::Group* getOffScreen()  { return offscreen; }
     
+    /* ** GUIEventHandler interface **/
+    virtual bool handle (const osgGA::GUIEventAdapter& ea, 
+			 osgGA::GUIActionAdapter& aa, 
+			 osg::Object* o, osg::NodeVisitor* nv);
+    virtual void getUsage (osg::ApplicationUsage &) const;
+    
   protected:
 
     virtual void updateView();
@@ -68,6 +78,9 @@ namespace lpzrobots {
     osg::ref_ptr<osg::Group> display;
     osg::ref_ptr<osg::Group> offscreen;
     RobotCams cameras;
+
+    bool enabled;
+    float scale;
   };
 
 

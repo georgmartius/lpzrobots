@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-03-16 15:41:11  martius
+ *   Revision 1.3  2010-03-16 23:24:38  martius
+ *   scaling added
+ *   eventhandling in robotcameramanager added
+ *
+ *   Revision 1.2  2010/03/16 15:41:11  martius
  *   Camera is working now! Using the new lpzviewer it is possible to run render it at
  *    the control cycle independent of the graphics
  *
@@ -39,8 +43,8 @@
  *
  *                                                                 *
  ***************************************************************************/
-#ifndef   	CAMERA_H_
-# define   	CAMERA_H_
+#ifndef CAMERA_H_
+#define CAMERA_H_
 
 #include "osgforwarddecl.h"
 
@@ -67,9 +71,15 @@ namespace lpzrobots {
   class Camera {
   public:  
     //    enum Type { Isotrop, Foveal }; // Todo: check real names
+    struct CameraImage{
+      CameraImage(osg::Image* i, bool e, float s){
+	img=i; enabled=e; scale=s;
+      }
+      osg::Image* img;
+      bool enabled;
+      float scale;
+    };
 
-
-    typedef std::pair<osg::Image*,bool> CameraImage;
     typedef std::vector<CameraImage > CameraImages;
 
     /** @param width number of pixels horizontally

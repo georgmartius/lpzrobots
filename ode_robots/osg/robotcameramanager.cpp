@@ -37,8 +37,9 @@
 
 namespace lpzrobots {
 
-  RobotCameraManager::Overlay::Overlay(std::pair<osg::Image*, bool> image_show) :
-    img(image_show.first), show(image_show.second), texture(0),overlay(0) {
+  RobotCameraManager::Overlay::Overlay(const Camera::CameraImage& image) :
+    img(image.img), show(image.enabled), scale(image.scale), 
+    texture(0),overlay(0) {
   }
 
   RobotCameraManager::Overlay::~Overlay(){
@@ -50,6 +51,8 @@ namespace lpzrobots {
     // create nodes
     display = new osg::Group();
     offscreen = new osg::Group();
+    enabled=true;
+    scale=1;
   }
 
   void RobotCameraManager::addCamera(Camera* cam){
@@ -80,6 +83,7 @@ namespace lpzrobots {
 
   void RobotCameraManager::updateView(){
     display->removeChildren(0,display->getNumChildren());
+    if(!enabled) return;
     int screenW=800, screenH=600;
     int x=screenW,y=screenH;
     int maxheight_in_row=0;
@@ -140,5 +144,45 @@ namespace lpzrobots {
       }
     }
   }
+
+  bool RobotCameraManager::handle (const osgGA::GUIEventAdapter& ea, 
+				   osgGA::GUIActionAdapter& aa, 
+				   osg::Object* o, osg::NodeVisitor* nv){
+    bool handled = false;
+    switch(ea.getEventType()) {
+    case(osgGA::GUIEventAdapter::KEYDOWN): {
+      printf("Key: %i\n", ea.getKey());
+      switch(ea.getKey()) {
+      case 15 : // Ctrl - o
+	enabled = !enabled;
+	updateView();
+	handled= true;
+	break;
+      case 20 : // Ctrl - +
+	scale *= 1.5;
+	handled=true;
+	break;
+      case 21 : // Ctrl - +
+	scale *= 1.5;
+	handled=true;
+	break;
+      default:
+	break;
+      }
+    } break;
+    case(osgGA::GUIEventAdapter::RESIZE):
+      printf("%lf %lf\n", ea.getXmin(), ea.getXmax());
+      return true;      
+    default:
+      break;
+    }
+    return handled;
+  }
+    
+  void RobotCameraManager::getUsage (osg::ApplicationUsage& au) const {
+    au.addKeyboardMouseBinding("Overlay: Ctrl-o","Robot camera overlay on/off");
+    au.addKeyboardMouseBinding("Overlay: Ctrl-+/-","Increase/decrease overlay deisplay");
+  }
+
 
 }
