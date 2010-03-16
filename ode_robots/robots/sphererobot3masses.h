@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-12-08 13:56:15  der
+ *   Revision 1.19  2010-03-16 18:33:09  martius
+ *   axisShift called axesShift now and it is initialized now!
+ *
+ *   Revision 1.18  2009/12/08 13:56:15  der
  *   guettler: new parameter axisShift
  *   (mainly used for Barrel2Masses)
  *
@@ -146,7 +149,7 @@ public:
   RaySensor* irSensorTempl;  ///< template for creation of the other ir sensors (if 0 then IRSensor(irCharacter))
   double motor_ir_before_sensors; ///< if true motor sensors and ir sensors are given before additional sensors
   double brake;         ///< if nonzero the robot brakes (deaccelerates actively/magically)
-  double axisShift; ///< defines how much the axis is shifted from the centre
+  double axesShift; ///< defines how much the axes are shifted from the center
 
   /// function that deletes sensors
   void destroy(); 
@@ -220,6 +223,7 @@ public:
     c.irCharacter=1;  
     c.irSensorTempl=0;
     c.motor_ir_before_sensors=false;
+    c.axesShift=0;
     c.brake=0;
    return c;
   }

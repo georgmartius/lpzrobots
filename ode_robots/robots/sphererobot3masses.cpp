@@ -19,7 +19,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2009-12-08 13:56:15  der
+ *   Revision 1.22  2010-03-16 18:33:09  martius
+ *   axisShift called axesShift now and it is initialized now!
+ *
+ *   Revision 1.21  2009/12/08 13:56:15  der
  *   guettler: new parameter axisShift
  *   (mainly used for Barrel2Masses)
  *
@@ -210,7 +213,7 @@ namespace lpzrobots {
     Matrix pose(object[Base]->getPose());
     for (int i=0; i < servono; i++) { 
       if(axis[i]){
-	axis[i]->setMatrix(Matrix::rotate(M_PI/2, (i==1), (i==0), (i==2)) * Matrix::translate(0 ,0, (i==0?-1:1)*conf.axisShift)* pose);
+	axis[i]->setMatrix(Matrix::rotate(M_PI/2, (i==1), (i==0), (i==2)) * Matrix::translate(0 ,0, (i==0?-1:1)*conf.axesShift)* pose);
       }
     }
     irSensorBank.update();
@@ -330,7 +333,7 @@ namespace lpzrobots {
       pendular[n] = new Sphere(conf.pendulardiameter/2);
       pendular[n]->init(odeHandle, conf.pendularmass, osgHandleX[n], 
 			Primitive::Body | Primitive::Draw); // without geom
-      pendular[n]->setPose(Matrix::translate(0,0,(n==0?-1:1)*conf.axisShift)*pose);
+      pendular[n]->setPose(Matrix::translate(0,0,(n==0?-1:1)*conf.axesShift)*pose);
 
       joint[n] = new SliderJoint(object[Base], pendular[n],
 				 p, Axis((n==0), (n==1), (n==2))*pose);
