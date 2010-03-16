@@ -35,10 +35,11 @@ LIBS   = -lm \
 INC   = -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include -I/opt/local/include
 
 CXX = g++
+CPPBASEFLAGS = `ode-config --cflags` -pthread $(INC) -Wno-deprecated -Wall
 # -pg for profiling
-CPPFLAGS = -Wall -g -pthread $(INC)
+CPPFLAGS = $(CPPBASEFLAGS) -g 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -O3 -pthread -DNDEBUG $(INC)
+CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
 
 normal: libode_robots $(EXEC)
 

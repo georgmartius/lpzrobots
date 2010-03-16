@@ -39,8 +39,10 @@ LIBS   = -lm \
 INC   = -I. -I/opt/local/include
 
 CXX = g++
-CPPFLAGS = -Wall  -g -pthread $(INC) 
-CPPFLAGS_OPT = -Wall -pthread  -O3 -DNDEBUG $(INC)
+CPPBASEFLAGS = `ode-config --cflags` -pthread $(INC) -Wno-deprecated -Wall
+CPPFLAGS = $(CPPBASEFLAGS) -g 
+## Optimisation
+CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
 
 normal: $(EXEC)
 
